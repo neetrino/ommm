@@ -1,15 +1,20 @@
 const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
 
-/** Scroll window and the workspace shell pane to top (member mobile uses window scroll). */
-export function resetWorkspaceScrollPosition(): void {
-  window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
+/** Scroll window and the workspace shell pane to a specific offset. */
+export function restoreWorkspaceScrollPosition(scrollY: number): void {
+  window.scrollTo(0, scrollY);
+  document.documentElement.scrollTop = scrollY;
+  document.body.scrollTop = scrollY;
 
   const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
   if (pane) {
-    pane.scrollTop = 0;
+    pane.scrollTop = scrollY;
   }
+}
+
+/** Scroll window and the workspace shell pane to top (member mobile uses window scroll). */
+export function resetWorkspaceScrollPosition(): void {
+  restoreWorkspaceScrollPosition(0);
 }
 
 const FOLLOW_UP_RESET_DELAYS_MS = [0, 50, 150] as const;

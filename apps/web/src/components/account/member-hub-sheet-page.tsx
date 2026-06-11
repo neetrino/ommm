@@ -1,9 +1,8 @@
-import { getTranslations } from "next-intl/server";
-import type { ReactNode } from "react";
-import { MemberAccountHubSectionSheet } from "@/components/account/member-account-hub-section-sheet";
+import { Suspense, type ReactNode } from "react";
+import { MemberHubSheetBodySkeleton } from "@/components/account/member-hub-sheet-body-skeleton";
+import { MemberHubSheetClientShell } from "@/components/account/member-hub-sheet-client-shell";
 
 type MemberHubSheetPageProps = {
-  locale: string;
   titleNamespace: string;
   /** Tablet+ right-side panel overlay (notifications bell / hub link). */
   desktopSidePanel?: boolean;
@@ -11,23 +10,17 @@ type MemberHubSheetPageProps = {
 };
 
 /** Wraps intercepted member route content in the mobile bottom sheet. */
-export async function MemberHubSheetPage({
-  locale,
+export function MemberHubSheetPage({
   titleNamespace,
   desktopSidePanel = false,
   children,
 }: MemberHubSheetPageProps) {
-  const t = await getTranslations({ locale, namespace: titleNamespace });
-  const tShell = await getTranslations({ locale, namespace: "dashboard.shell" });
-
   return (
-    <MemberAccountHubSectionSheet
-      title={t("title")}
-      closeLabel={tShell("closeMenu")}
-      backdropCloseLabel={tShell("closeMenuOverlay")}
+    <MemberHubSheetClientShell
+      titleNamespace={titleNamespace}
       desktopSidePanel={desktopSidePanel}
     >
-      {children}
-    </MemberAccountHubSectionSheet>
+      <Suspense fallback={<MemberHubSheetBodySkeleton />}>{children}</Suspense>
+    </MemberHubSheetClientShell>
   );
 }

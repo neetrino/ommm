@@ -311,25 +311,10 @@ html {
     @apply fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4;
   }
 
-  /** Member hub bottom sheet — anchored to bottom on phones (half screen, hub visible above). */
+  /** Member hub bottom sheet — anchored to bottom on phones; motion lives in CSS module. */
   .ommm-member-hub-sheet-overlay {
     @apply fixed inset-0 z-[105] flex items-end justify-center p-0 tablet:hidden;
     overscroll-behavior: none;
-  }
-
-  /* Height fallback chain + inline style override in MemberAccountHubSectionSheet */
-  .ommm-member-hub-sheet-panel {
-    @apply relative z-10 mt-auto flex w-full shrink-0 flex-col overflow-hidden;
-    @apply rounded-t-[28px] border border-white/70 border-b-0;
-    @apply bg-white/95 shadow-[0_-16px_48px_-20px_rgba(45,40,35,0.38)] backdrop-blur-md;
-    height: 70vh;
-    max-height: 70vh;
-    min-height: 70vh;
-    height: 70dvh;
-    max-height: 70dvh;
-    min-height: 70dvh;
-    touch-action: pan-y;
-    -webkit-overflow-scrolling: touch;
   }
 
   /**
@@ -463,35 +448,6 @@ html {
   @media (prefers-reduced-motion: reduce) {
     .ommm-user-membership-details-desktop-backdrop,
     .ommm-user-membership-details-desktop-panel {
-      transition: none;
-    }
-  }
-
-  /**
-   * Member package details — mobile bottom sheet slide-up.
-   */
-  .ommm-user-membership-details-mobile-overlay .ommm-modal-backdrop {
-    opacity: 0;
-    transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .ommm-user-membership-details-mobile-overlay[data-state="open"] .ommm-modal-backdrop {
-    opacity: 1;
-  }
-
-  .ommm-user-membership-details-mobile-panel {
-    transform: translate3d(0, 100%, 0);
-    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .ommm-user-membership-details-mobile-overlay[data-state="open"]
-    .ommm-user-membership-details-mobile-panel {
-    transform: translate3d(0, 0, 0);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ommm-user-membership-details-mobile-overlay .ommm-modal-backdrop,
-    .ommm-user-membership-details-mobile-panel {
       transition: none;
     }
   }

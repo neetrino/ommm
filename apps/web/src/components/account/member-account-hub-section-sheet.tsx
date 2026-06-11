@@ -1,25 +1,22 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS,
   MEMBER_NOTIFICATIONS_DESKTOP_BODY_CLASS,
   MEMBER_NOTIFICATIONS_DESKTOP_BACKDROP_CLASS,
   MEMBER_NOTIFICATIONS_DESKTOP_HEADER_CLASS,
   MEMBER_NOTIFICATIONS_DESKTOP_MOTION_MS,
   MEMBER_NOTIFICATIONS_DESKTOP_OVERLAY_CLASS,
   MEMBER_NOTIFICATIONS_DESKTOP_PANEL_CLASS,
-  memberAccountHubSheetPanelStyle,
+  MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS,
 } from "@/components/account/member-account-hub-sheet-layout";
+import { MemberHubMobileSheet } from "@/components/account/member-hub-mobile-sheet";
 import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
-import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import { clearMemberHubSheetNavigation } from "@/lib/member-hub-sheet-navigation";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 type MemberAccountHubSectionSheetProps = {
@@ -55,12 +52,19 @@ export function MemberAccountHubSectionSheet({
   children,
 }: MemberAccountHubSectionSheetProps) {
   const router = useRouter();
+  const clientMounted = useIsClientMounted();
   const isPhone = useMemberHubSheetPhone();
   const desktopClosingRef = useRef(false);
   const [desktopMotionState, setDesktopMotionState] = useState<"open" | "closed">("closed");
 
-  useLayoutEffect(() => {
-    if (isPhone || !desktopSidePanel) {
+  useEffect(() => {
+    if (isPhone) {
+      clearMemberHubSheetNavigation();
+    }
+  }, [isPhone]);
+
+  useEffect(() => {
+    if (!clientMounted || isPhone || !desktopSidePanel) {
       return undefined;
     }
 
@@ -71,65 +75,45 @@ export function MemberAccountHubSectionSheet({
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [desktopSidePanel, isPhone]);
+  }, [clientMounted, desktopSidePanel, isPhone]);
 
-  function closeSheet() {
+  function closeDesktopSheet() {
     dismissMobileKeyboard();
 
-    if (!isPhone && desktopSidePanel) {
-      if (desktopClosingRef.current) {
-        return;
-      }
-      desktopClosingRef.current = true;
-      setDesktopMotionState("closed");
-      window.setTimeout(() => {
-        router.back();
-      }, MEMBER_NOTIFICATIONS_DESKTOP_MOTION_MS);
+    if (!desktopSidePanel || desktopClosingRef.current) {
+      router.back();
       return;
     }
 
-    router.back();
+    desktopClosingRef.current = true;
+    setDesktopMotionState("closed");
+    window.setTimeout(() => {
+      router.back();
+    }, MEMBER_NOTIFICATIONS_DESKTOP_MOTION_MS);
   }
 
-  if (isPhone) {
-    return (
-      <OmmModalPortal
-        isOpen
-        onClose={closeSheet}
-        bottomAnchored
-        backdropAriaLabel={backdropCloseLabel}
-        ariaLabelledBy="member-hub-section-sheet-title"
-        overlayClassName={MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS}
-        panelClassName={MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS}
-        panelStyle={memberAccountHubSheetPanelStyle()}
-      >
-        <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
-        <header className={MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS}>
-          <h2 id="member-hub-section-sheet-title" className={MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS}>
-            {title}
-          </h2>
-          <button
-            type="button"
-            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-            aria-label={closeLabel}
-            onClick={closeSheet}
-          >
-            <SheetCloseIcon />
-          </button>
-        </header>
-        <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{children}</div>
-      </OmmModalPortal>
-    );
-  }
-
-  if (!desktopSidePanel) {
+  if (clientMounted && !isPhone && !desktopSidePanel) {
     return null;
+  }
+
+  if (!desktopSidePanel || isPhone || !clientMounted) {
+    return (
+      <MemberHubMobileSheet
+        titleId="member-hub-section-sheet-title"
+        title={title}
+        closeLabel={closeLabel}
+        backdropCloseLabel={backdropCloseLabel}
+        onClose={() => router.back()}
+      >
+        {children}
+      </MemberHubMobileSheet>
+    );
   }
 
   return (
     <OmmDrawerPortal
       isOpen
-      onClose={closeSheet}
+      onClose={closeDesktopSheet}
       backdropAriaLabel={backdropCloseLabel}
       ariaLabelledBy="member-hub-section-sheet-title"
       overlayClassName={MEMBER_NOTIFICATIONS_DESKTOP_OVERLAY_CLASS}
@@ -145,7 +129,7 @@ export function MemberAccountHubSectionSheet({
           type="button"
           className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
           aria-label={closeLabel}
-          onClick={closeSheet}
+          onClick={closeDesktopSheet}
         >
           <SheetCloseIcon />
         </button>

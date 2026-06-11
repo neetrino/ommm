@@ -3,6 +3,9 @@ import type { CSSProperties } from "react";
 /** Member hub bottom sheet height — slightly above half the visible mobile viewport. */
 export const MEMBER_ACCOUNT_HUB_SHEET_VIEWPORT_HEIGHT = "80dvh";
 
+/** Keep in sync with CSS transitions on the mobile sheet panel. */
+export const MEMBER_ACCOUNT_HUB_SHEET_MOTION_MS = 380;
+
 export const MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS = "ommm-member-hub-sheet-panel";
 
 export const MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS = "ommm-member-hub-sheet-overlay";

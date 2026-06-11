@@ -1,16 +1,18 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import {
   MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS,
   MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS,
   memberAccountHubSheetPanelStyle,
 } from "@/components/account/member-account-hub-sheet-layout";
+import {
+  MemberHubMobileSheet,
+  useMemberHubMobileSheetClose,
+} from "@/components/account/member-hub-mobile-sheet";
 import {
   PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS,
@@ -28,11 +30,8 @@ import sheetStyles from "@/components/account/package-subscribe-payment-sheet.mo
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
 import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
-import {
-  readMemberHubSheetPhoneViewport,
-  useMemberHubSheetPhone,
-} from "@/hooks/use-member-hub-sheet-phone";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
 import { isApiError, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
 import { apiFetch } from "@/lib/api";
@@ -123,7 +122,8 @@ function PackageSubscribePaymentModalSession({
   const refreshAfterCloseRef = useRef(false);
   const [step, setStep] = useState<ModalStep>("form");
   const isPhone = useMemberHubSheetPhone();
-  const { motionState, closeMotion } = useDesktopSheetEnterMotion(!isPhone && isOpen);
+  const { motionState: desktopMotionState, closeMotion: closeDesktopMotion } =
+    useDesktopSheetEnterMotion(!isPhone && isOpen);
   const [selectedPlanId, setSelectedPlanId] = useState(() =>
     resolveDefaultPlanId(plans, initialPlanId),
   );
@@ -180,30 +180,27 @@ function PackageSubscribePaymentModalSession({
     }
   }
 
-  function handleClose() {
+  function handleDesktopClose() {
     if (busy || closingRef.current) {
       return;
     }
 
     dismissMobileKeyboard();
-
-    if (readMemberHubSheetPhoneViewport()) {
-      finishClose();
-      return;
-    }
-
     closingRef.current = true;
-    closeMotion();
+    closeDesktopMotion();
     window.setTimeout(finishClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
   }
 
   function handleDone() {
-    handleClose();
+    if (isPhone) {
+      return;
+    }
+    handleDesktopClose();
   }
 
-  const sheetBody =
-    step === "success" ? (
-      <SuccessPanel onDone={handleDone} />
+  function renderSheetBody(onClose: () => void) {
+    return step === "success" ? (
+      <SuccessPanel onDone={onClose} />
     ) : (
       <form onSubmit={(event) => void onConfirm(event)} className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
         <p className="shrink-0 text-sm text-sage-600">{t("lead")}</p>
@@ -234,7 +231,7 @@ function PackageSubscribePaymentModalSession({
             type="button"
             variant="secondary"
             size="md"
-            onClick={handleClose}
+            onClick={onClose}
             disabled={busy}
           >
             {t("cancel")}
@@ -245,62 +242,82 @@ function PackageSubscribePaymentModalSession({
         </div>
       </form>
     );
+  }
 
-  const sheetHeader = (
-    <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
-      <h2
-        id={titleId}
-        className={`${sheetStyles.sheetTitle} ${PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS}`}
-      >
-        {sheetTitle}
-      </h2>
-      <button
-        type="button"
-        className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-        aria-label={t("closeModal")}
-        onClick={handleClose}
-        disabled={busy}
-      >
-        <SheetCloseIcon />
-      </button>
-    </header>
-  );
+  function renderSheetHeader(onClose: () => void) {
+    return (
+      <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
+        <h2
+          id={titleId}
+          className={`${sheetStyles.sheetTitle} ${PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS}`}
+        >
+          {sheetTitle}
+        </h2>
+        <button
+          type="button"
+          className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+          aria-label={t("closeModal")}
+          onClick={onClose}
+          disabled={busy}
+        >
+          <SheetCloseIcon />
+        </button>
+      </header>
+    );
+  }
 
   if (isPhone) {
     return (
-      <OmmModalPortal
-        isOpen={isOpen}
-        onClose={handleClose}
-        bottomAnchored
-        backdropAriaLabel={t("closeModal")}
-        ariaLabelledBy={titleId}
+      <MemberHubMobileSheet
+        bare
+        titleId={titleId}
+        closeLabel={t("closeModal")}
+        backdropCloseLabel={t("closeModal")}
+        onClose={finishClose}
         closeDisabled={busy}
-        overlayClassName={MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS}
-        panelClassName={MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS}
         panelStyle={memberAccountHubSheetPanelStyle()}
       >
-        <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
-        {sheetHeader}
-        <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{sheetBody}</div>
-      </OmmModalPortal>
+        <PackageSubscribeMobileSheetLayout
+          renderHeader={renderSheetHeader}
+          renderBody={renderSheetBody}
+        />
+      </MemberHubMobileSheet>
     );
   }
 
   return (
     <OmmDrawerPortal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={handleDesktopClose}
       backdropAriaLabel={t("closeModal")}
       ariaLabelledBy={titleId}
       closeDisabled={busy}
       overlayClassName={PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS}
       backdropClassName={PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS}
       panelClassName={PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS}
-      motionState={motionState}
+      motionState={desktopMotionState}
     >
-      {sheetHeader}
-      <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>{sheetBody}</div>
+      {renderSheetHeader(handleDesktopClose)}
+      <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>{renderSheetBody(handleDesktopClose)}</div>
     </OmmDrawerPortal>
+  );
+}
+
+function PackageSubscribeMobileSheetLayout({
+  renderHeader,
+  renderBody,
+}: {
+  renderHeader: (onClose: () => void) => ReactNode;
+  renderBody: (onClose: () => void) => ReactNode;
+}) {
+  const requestClose = useMemberHubMobileSheetClose();
+
+  return (
+    <>
+      <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
+      {renderHeader(requestClose)}
+      <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{renderBody(requestClose)}</div>
+    </>
   );
 }
 

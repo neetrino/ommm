@@ -1,9 +1,15 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { MemberHubBackdropScrollPane } from "@/components/account/member-hub-backdrop-scroll-pane";
 import styles from "@/components/account/member-user-mobile-viewport.module.css";
 import { MemberUserScrollRestoration } from "@/components/account/member-user-scroll-restoration";
-import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import {
+  readMemberHubSheetPhoneViewport,
+  useMemberHubSheetPhone,
+} from "@/hooks/use-member-hub-sheet-phone";
+import { peekMemberHubSheetNavigation } from "@/lib/member-hub-sheet-navigation";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 type MemberUserMobileViewportProps = {
   /** Parallel `@sheet` slot is rendering an intercepted hub section. */
@@ -26,8 +32,15 @@ export function MemberUserMobileViewport({
   hubBackdrop,
   children,
 }: MemberUserMobileViewportProps) {
+  const clientMounted = useIsClientMounted();
   const isPhone = useMemberHubSheetPhone();
-  const effectiveMobileSheetOpen = isPhone && hasMobileSheet;
+  const showMobileSheetChrome =
+    hasMobileSheet &&
+    (isPhone ||
+      !clientMounted ||
+      peekMemberHubSheetNavigation() ||
+      readMemberHubSheetPhoneViewport());
+  const effectiveMobileSheetOpen = showMobileSheetChrome;
   const effectiveDesktopNotificationsOpen = !isPhone && hasDesktopNotificationsSheet;
   const showHubBackdrop = effectiveMobileSheetOpen && hubBackdrop;
 
@@ -42,7 +55,9 @@ export function MemberUserMobileViewport({
         }
       >
         {showHubBackdrop ? (
-          <div className={styles.hubBackdrop}>{hubBackdrop}</div>
+          <div className={styles.hubBackdrop}>
+            <MemberHubBackdropScrollPane>{hubBackdrop}</MemberHubBackdropScrollPane>
+          </div>
         ) : null}
         <div
           className={

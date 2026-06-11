@@ -12,7 +12,7 @@ export default async function UserBookingsSheetPage({
   const search = await searchParams;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.bookings">
+    <MemberHubSheetPage titleNamespace="userPages.bookings">
       <MemberUserBookingsRouteContent
         locale={locale}
         search={search}

@@ -7,6 +7,10 @@ import {
   memberAccountHubSheetPanelStyle,
 } from "@/components/account/member-account-hub-sheet-layout";
 import {
+  MemberHubMobileSheet,
+  useMemberHubMobileSheetClose,
+} from "@/components/account/member-hub-mobile-sheet";
+import {
   MEMBERSHIP_DETAILS_SHEET_TITLE_ID,
   MembershipDetailsSheetContent,
 } from "@/components/account/user-membership-details-sheet-content";
@@ -15,16 +19,10 @@ import {
   USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS,
   USER_MEMBERSHIP_DETAILS_DESKTOP_OVERLAY_CLASS,
   USER_MEMBERSHIP_DETAILS_DESKTOP_PANEL_CLASS,
-  USER_MEMBERSHIP_DETAILS_MOBILE_MOTION_MS,
-  USER_MEMBERSHIP_DETAILS_MOBILE_OVERLAY_CLASS,
-  USER_MEMBERSHIP_DETAILS_MOBILE_PANEL_CLASS,
 } from "@/components/account/user-membership-details-sheet-layout";
-import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
-import {
-  readMemberHubSheetPhoneViewport,
-  useMemberHubSheetPhone,
-} from "@/hooks/use-member-hub-sheet-phone";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
@@ -58,6 +56,30 @@ export function UserMembershipDetailsSheet({
   );
 }
 
+function MembershipDetailsMobileBody({
+  membership,
+  locale,
+  status,
+}: {
+  membership: UserMembershipRow;
+  locale: string;
+  status: UserPackageStatus;
+}) {
+  const requestClose = useMemberHubMobileSheetClose();
+
+  return (
+    <>
+      <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
+      <MembershipDetailsSheetContent
+        membership={membership}
+        locale={locale}
+        status={status}
+        onClose={requestClose}
+      />
+    </>
+  );
+}
+
 function UserMembershipDetailsSheetPortal({
   membership,
   locale,
@@ -74,69 +96,57 @@ function UserMembershipDetailsSheetPortal({
   const t = useTranslations("userPages.packages");
   const closingRef = useRef(false);
   const isPhone = useMemberHubSheetPhone();
-  const { motionState, closeMotion } = useDesktopSheetEnterMotion(isOpen);
+  const { motionState: desktopMotionState, closeMotion: closeDesktopMotion } =
+    useDesktopSheetEnterMotion(!isPhone && isOpen);
 
   const finishClose = useCallback(() => {
     closingRef.current = false;
     onClose();
   }, [onClose]);
 
-  const handleClose = useCallback(() => {
+  const handleDesktopClose = useCallback(() => {
     if (closingRef.current) {
       return;
     }
 
     dismissMobileKeyboard();
     closingRef.current = true;
-    closeMotion();
-
-    const motionMs = readMemberHubSheetPhoneViewport()
-      ? USER_MEMBERSHIP_DETAILS_MOBILE_MOTION_MS
-      : USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS;
-
-    window.setTimeout(finishClose, motionMs);
-  }, [closeMotion, finishClose]);
-
-  const sheetContent = (
-    <MembershipDetailsSheetContent
-      membership={membership}
-      locale={locale}
-      status={status}
-      onClose={handleClose}
-    />
-  );
+    closeDesktopMotion();
+    window.setTimeout(finishClose, USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS);
+  }, [closeDesktopMotion, finishClose]);
 
   if (isPhone) {
     return (
-      <OmmModalPortal
-        isOpen={isOpen}
-        onClose={handleClose}
-        bottomAnchored
-        backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
-        ariaLabelledBy={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
-        overlayClassName={USER_MEMBERSHIP_DETAILS_MOBILE_OVERLAY_CLASS}
-        panelClassName={USER_MEMBERSHIP_DETAILS_MOBILE_PANEL_CLASS}
+      <MemberHubMobileSheet
+        bare
+        titleId={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
+        closeLabel={t("membershipDetailsCloseBackdrop")}
+        backdropCloseLabel={t("membershipDetailsCloseBackdrop")}
+        onClose={finishClose}
         panelStyle={memberAccountHubSheetPanelStyle()}
-        motionState={motionState}
       >
-        <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
-        {sheetContent}
-      </OmmModalPortal>
+        <MembershipDetailsMobileBody membership={membership} locale={locale} status={status} />
+      </MemberHubMobileSheet>
     );
   }
 
   return (
     <OmmDrawerPortal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={handleDesktopClose}
       backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
       ariaLabelledBy={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
       overlayClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_OVERLAY_CLASS}
       backdropClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_BACKDROP_CLASS}
       panelClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_PANEL_CLASS}
-      motionState={motionState}
+      motionState={desktopMotionState}
     >
-      {sheetContent}
+      <MembershipDetailsSheetContent
+        membership={membership}
+        locale={locale}
+        status={status}
+        onClose={handleDesktopClose}
+      />
     </OmmDrawerPortal>
   );
 }

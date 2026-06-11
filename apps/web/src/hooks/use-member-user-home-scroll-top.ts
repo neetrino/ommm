@@ -3,6 +3,10 @@
 import { useEffect, useLayoutEffect } from "react";
 import { usePathname } from "@/i18n/navigation";
 import { memberUserPathWithoutLocale } from "@/lib/member-user-hub-sheet-paths";
+import {
+  clearMemberHubSheetScrollY,
+  peekMemberHubSheetScrollY,
+} from "@/lib/member-hub-sheet-navigation";
 import { scheduleWorkspaceScrollReset } from "@/lib/reset-workspace-scroll";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 
@@ -23,11 +27,21 @@ export function useMemberUserHomeScrollTop(enabled: boolean): void {
       return undefined;
     }
 
+    if (peekMemberHubSheetScrollY() !== null) {
+      clearMemberHubSheetScrollY();
+      return undefined;
+    }
+
     return scheduleWorkspaceScrollReset();
   }, [shouldReset, pathname]);
 
   useEffect(() => {
     if (!shouldReset) {
+      return undefined;
+    }
+
+    if (peekMemberHubSheetScrollY() !== null) {
+      clearMemberHubSheetScrollY();
       return undefined;
     }
 

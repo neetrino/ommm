@@ -9,7 +9,7 @@ export default async function UserPackagesSheetPage({
   const { locale } = await params;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.packages">
+    <MemberHubSheetPage titleNamespace="userPages.packages">
       <MemberUserPackagesRouteContent locale={locale} embeddedInSheet />
     </MemberHubSheetPage>
   );

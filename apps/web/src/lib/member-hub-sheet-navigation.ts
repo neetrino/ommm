@@ -14,6 +14,7 @@ export function isMemberUserAreaPath(pathname: string): boolean {
 export const MEMBER_HUB_SHEET_PHONE_MEDIA_QUERY = "(max-width: 743px)";
 
 const MEMBER_HUB_SHEET_NAV_KEY = "ommm.memberHubSheetNav";
+const MEMBER_HUB_SCROLL_Y_KEY = "ommm.memberHubScrollY";
 const MEMBER_HUB_SHEET_NAV_EVENT = "ommm-member-hub-sheet-nav";
 
 function notifyMemberHubSheetNavigation(): void {
@@ -60,6 +61,9 @@ export function markMemberHubSheetNavigation(): void {
   try {
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.setItem(MEMBER_HUB_SHEET_NAV_KEY, "1");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(MEMBER_HUB_SCROLL_Y_KEY, String(window.scrollY));
+      }
       notifyMemberHubSheetNavigation();
     }
   } catch {
@@ -83,6 +87,33 @@ export function clearMemberHubSheetNavigation(): void {
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.removeItem(MEMBER_HUB_SHEET_NAV_KEY);
       notifyMemberHubSheetNavigation();
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Hub scroll depth saved when opening a member bottom sheet — restore after close. */
+export function peekMemberHubSheetScrollY(): number | null {
+  try {
+    if (typeof sessionStorage === "undefined") {
+      return null;
+    }
+    const raw = sessionStorage.getItem(MEMBER_HUB_SCROLL_Y_KEY);
+    if (raw === null) {
+      return null;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearMemberHubSheetScrollY(): void {
+  try {
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(MEMBER_HUB_SCROLL_Y_KEY);
     }
   } catch {
     /* ignore */

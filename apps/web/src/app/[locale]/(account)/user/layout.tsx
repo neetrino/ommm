@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { headers } from "next/headers";
-import { MemberAccountHub } from "@/components/account/member-account-hub";
+import { MemberHubBackdropHost } from "@/components/account/member-hub-backdrop-host";
 import { MemberUserMobileViewport } from "@/components/account/member-user-mobile-viewport";
 import { UserMemberShellLayout } from "@/components/account/user-member-shell-layout";
 import {
@@ -30,11 +30,11 @@ export default async function UserLayout({ children, sheet = null, params }: Use
   return (
     <UserMemberShellLayout params={params}>
       <MemberUserMobileViewport
-        hasMobileSheet={hasMobileSheet}
+        hasMobileSheet={hasMobileSheet || onSheetRoute}
         hasDesktopNotificationsSheet={onNotificationsRoute}
         hubBackdrop={
-          hubProfile ? (
-            <MemberAccountHub locale={locale} {...hubProfile} />
+          hasMobileSheet || onSheetRoute ? (
+            <MemberHubBackdropHost locale={locale} profile={hubProfile} />
           ) : null
         }
       >

@@ -9,7 +9,7 @@ export default async function UserProfileSheetPage({
   const { locale } = await params;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.profile">
+    <MemberHubSheetPage titleNamespace="userPages.profile">
       <RoleProfilePage locale={locale} shellChrome="member" embeddedInSheet />
     </MemberHubSheetPage>
   );
