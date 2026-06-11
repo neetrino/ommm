@@ -4,6 +4,7 @@ import {
   AdminSheetEditableField,
   adminSheetFieldInputClass,
 } from "@/components/admin/admin-sheet-editable-field";
+import { formatPhoneInput } from "@/lib/phone-input";
 
 export type StudioContactFieldErrors = Partial<
   Record<
@@ -79,7 +80,7 @@ export function AdminStudioContactSettingsFields({
           type="tel"
           className={adminSheetFieldInputClass()}
           value={contactPhone}
-          onChange={(event) => onContactPhoneChange(event.target.value)}
+          onChange={(event) => onContactPhoneChange(formatPhoneInput(event.target.value))}
           disabled={busy}
         />
       </AdminSheetEditableField>

@@ -14,6 +14,7 @@ import styles from "@/components/marketing/contact/marketing-contact-message-for
 import { MarketingContactSuccessToast } from "@/components/marketing/contact/marketing-contact-success-toast";
 import { ApiError, apiFetch } from "@/lib/api";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { syncPhoneInputElement } from "@/lib/phone-input";
 
 const CONTACT_REQUIRED_FIELDS = ["name", "phone", "email", "subject", "message"] as const;
 
@@ -189,7 +190,10 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
               aria-invalid={invalidFields.has("phone")}
               className={fieldInputClass("phone", invalidFields, styles.input)}
               defaultValue={prefill?.phone}
-              onInput={() => clearInvalidField("phone")}
+              onInput={(event) => {
+                syncPhoneInputElement(event.currentTarget);
+                clearInvalidField("phone");
+              }}
             />
           </label>
         </div>
