@@ -2,6 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import {
+  AdminSheetEditableField,
+  adminSheetFieldInputClass,
+} from "@/components/admin/admin-sheet-editable-field";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -22,62 +28,43 @@ type AdminStudioSettingsFormProps = {
   initial: StudioSettings;
 };
 
-const COMPACT_SECTION =
-  "rounded-[20px] border border-white/60 bg-white/60 p-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-4";
-const COMPACT_INPUT = "ommm-input h-9 text-sm";
+const NUMBER_INPUT_CLASS =
+  "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
-type SettingsFieldProps = {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-  className?: string;
-};
-
-function SettingsField({ label, hint, children, className = "" }: SettingsFieldProps) {
-  return (
-    <label className={`flex flex-col gap-1 ${className}`.trim()} title={hint}>
-      <span className="ommm-label text-[11px] uppercase tracking-wide">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-type CompactSectionProps = {
+type SettingsSectionProps = {
   heading: string;
   description: string;
   children: React.ReactNode;
   className?: string;
 };
 
-function CompactSection({ heading, description, children, className = "" }: CompactSectionProps) {
+function SettingsSection({ heading, description, children, className = "" }: SettingsSectionProps) {
   return (
-    <section className={`${COMPACT_SECTION} ${className}`.trim()}>
-      <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-sage-800">
-          {heading}
-        </h3>
-        <p className="text-[11px] text-sage-500">{description}</p>
-      </div>
-      {children}
+    <section className={`${adminChrome.panel} ${className}`.trim()}>
+      <h2 className={adminChrome.panelHeading}>{heading}</h2>
+      <p className={`${adminChrome.metaText} mt-1 max-w-2xl`}>{description}</p>
+      <div className="mt-5">{children}</div>
     </section>
   );
 }
 
-type SummaryTileProps = {
+type SummaryMetricProps = {
   icon: "settings" | "send" | "calendar";
-  title: string;
+  label: string;
   value: string;
+  helper: string;
 };
 
-function SummaryTile({ icon, title, value }: SummaryTileProps) {
+function SummaryMetric({ icon, label, value, helper }: SummaryMetricProps) {
   return (
-    <li className="rounded-[16px] border border-white/60 bg-white/65 px-3 py-2.5 shadow-[0_8px_24px_-20px_rgba(45,40,35,0.22)]">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[10px] font-medium uppercase tracking-wide text-sage-500">{title}</p>
-        <DashboardNavIcon name={icon} className="h-4 w-4 text-sage-500" />
+    <article className={adminChrome.metricCard}>
+      <div className="flex items-start justify-between gap-3">
+        <p className={adminChrome.metricLabel}>{label}</p>
+        <DashboardNavIcon name={icon} className="h-4 w-4 shrink-0 text-sage-500" />
       </div>
-      <p className="mt-1 truncate text-sm font-semibold text-sage-900">{value}</p>
-    </li>
+      <p className="mt-2 truncate text-lg font-semibold text-sage-900">{value}</p>
+      <p className={`${adminChrome.metaText} mt-1`}>{helper}</p>
+    </article>
   );
 }
 
@@ -101,32 +88,37 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
     String(initial.waitlistOfferMinutes),
   );
 
-  const summaryTiles = useMemo(
+  const summaryMetrics = useMemo(
     () => [
       {
         key: "identity",
         icon: "settings" as const,
-        title: t("tiles.identity.title"),
+        label: t("tiles.identity.title"),
         value: studioName.trim() || t("tiles.identity.empty"),
+        helper: t("tiles.identity.helper"),
       },
       {
         key: "contact",
         icon: "send" as const,
-        title: t("tiles.contact.title"),
+        label: t("tiles.contact.title"),
         value: contactEmail.trim() || contactPhone.trim() || t("tiles.contact.empty"),
+        helper: t("tiles.contact.helper"),
       },
       {
         key: "policies",
         icon: "calendar" as const,
-        title: t("tiles.policies.title"),
+        label: t("tiles.policies.title"),
         value: t("tiles.policies.value", {
           hours: cancellationHoursNotice || "0",
           minutes: waitlistOfferMinutes || "0",
         }),
+        helper: t("tiles.policies.helper"),
       },
     ],
     [cancellationHoursNotice, contactEmail, contactPhone, studioName, t, waitlistOfferMinutes],
   );
+
+  const statusBanner = msg && tone === "ok" ? msg : null;
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -161,151 +153,163 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
   }
 
   return (
-    <form onSubmit={save} className="flex flex-col gap-4">
-      <ul className="grid gap-2 sm:grid-cols-3">
-        {summaryTiles.map((tile) => (
-          <SummaryTile key={tile.key} icon={tile.icon} title={tile.title} value={tile.value} />
-        ))}
-      </ul>
-
-      {msg ? (
-        <p
-          className={`rounded-xl border px-3 py-2 text-xs ${
-            tone === "ok"
-              ? "border-mint-200/80 bg-mint-50/90 text-sage-800"
-              : "border-red-200/80 bg-red-50/90 text-red-800"
-          }`}
-          role="status"
-        >
-          {msg}
+    <form onSubmit={save} className="flex flex-col gap-6">
+      <section className="rounded-[24px] border border-white/50 bg-white/35 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:p-5">
+        <p className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-sage-500">
+          {t("title")}
         </p>
-      ) : null}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {summaryMetrics.map(({ key, ...metric }) => (
+            <SummaryMetric key={key} {...metric} />
+          ))}
+        </div>
+      </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <CompactSection
-          heading={t("sections.contact.heading")}
-          description={t("sections.contact.description")}
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <SettingsField
+      <AdminSectionShell banner={statusBanner}>
+        {msg && tone === "err" ? (
+          <p
+            className="rounded-2xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
+            role="alert"
+          >
+            {msg}
+          </p>
+        ) : null}
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <SettingsSection
+            heading={t("sections.identity.heading")}
+            description={t("sections.identity.description")}
+          >
+            <AdminSheetEditableField
               label={t("studioName")}
               hint={t("hints.studioName")}
-              className="sm:col-span-2"
+              required
             >
               <input
-                className={COMPACT_INPUT}
+                className={adminSheetFieldInputClass()}
                 value={studioName}
                 onChange={(event) => setStudioName(event.target.value)}
                 disabled={busy}
                 required
               />
-            </SettingsField>
-            <SettingsField label={t("contactEmail")} hint={t("hints.contactEmail")}>
-              <input
-                type="email"
-                className={COMPACT_INPUT}
-                value={contactEmail}
-                onChange={(event) => setContactEmail(event.target.value)}
-                disabled={busy}
-              />
-            </SettingsField>
-            <SettingsField label={t("contactPhone")} hint={t("hints.contactPhone")}>
-              <input
-                type="tel"
-                className={COMPACT_INPUT}
-                value={contactPhone}
-                onChange={(event) => setContactPhone(event.target.value)}
-                disabled={busy}
-              />
-            </SettingsField>
-            <SettingsField
-              label={t("whatsappUrl")}
-              hint={t("hints.whatsappUrl")}
-              className="sm:col-span-2"
-            >
-              <input
-                type="url"
-                className={COMPACT_INPUT}
-                value={whatsappUrl}
-                onChange={(event) => setWhatsappUrl(event.target.value)}
-                disabled={busy}
-                placeholder="https://"
-              />
-            </SettingsField>
-          </div>
-        </CompactSection>
+            </AdminSheetEditableField>
+          </SettingsSection>
 
-        <CompactSection
-          heading={t("sections.location.heading")}
-          description={t("sections.location.description")}
-        >
-          <div className="grid gap-3">
-            <SettingsField label={t("address")} hint={t("hints.address")}>
-              <input
-                className={COMPACT_INPUT}
-                value={address}
-                onChange={(event) => setAddress(event.target.value)}
-                disabled={busy}
-              />
-            </SettingsField>
-            <SettingsField label={t("mapEmbedUrl")} hint={t("hints.mapEmbedUrl")}>
-              <input
-                type="url"
-                className={COMPACT_INPUT}
-                value={mapEmbedUrl}
-                onChange={(event) => setMapEmbedUrl(event.target.value)}
-                disabled={busy}
-                placeholder="https://"
-              />
-            </SettingsField>
-            <SettingsField label={t("workingHours")} hint={t("hints.workingHours")}>
-              <textarea
-                className="ommm-input min-h-[4.5rem] resize-y py-2 text-sm"
-                value={workingHours}
-                onChange={(event) => setWorkingHours(event.target.value)}
-                disabled={busy}
-              />
-            </SettingsField>
-          </div>
-        </CompactSection>
+          <SettingsSection
+            heading={t("sections.contact.heading")}
+            description={t("sections.contact.description")}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AdminSheetEditableField label={t("contactEmail")} hint={t("hints.contactEmail")}>
+                <input
+                  type="email"
+                  className={adminSheetFieldInputClass()}
+                  value={contactEmail}
+                  onChange={(event) => setContactEmail(event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("contactPhone")} hint={t("hints.contactPhone")}>
+                <input
+                  type="tel"
+                  className={adminSheetFieldInputClass()}
+                  value={contactPhone}
+                  onChange={(event) => setContactPhone(event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField
+                label={t("whatsappUrl")}
+                hint={t("hints.whatsappUrl")}
+                className="sm:col-span-2"
+              >
+                <input
+                  type="url"
+                  className={adminSheetFieldInputClass()}
+                  value={whatsappUrl}
+                  onChange={(event) => setWhatsappUrl(event.target.value)}
+                  disabled={busy}
+                  placeholder="https://"
+                />
+              </AdminSheetEditableField>
+            </div>
+          </SettingsSection>
 
-        <CompactSection
-          heading={t("sections.policies.heading")}
-          description={t("sections.policies.description")}
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <SettingsField
-              label={t("cancellationHoursNotice")}
-              hint={t("hints.cancellationHoursNotice")}
-            >
-              <input
-                type="number"
-                min={0}
-                className={`${COMPACT_INPUT} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
-                value={cancellationHoursNotice}
-                onChange={(event) => setCancellationHoursNotice(event.target.value)}
-                disabled={busy}
-              />
-            </SettingsField>
-            <SettingsField label={t("waitlistOfferMinutes")} hint={t("hints.waitlistOfferMinutes")}>
-              <input
-                type="number"
-                min={1}
-                className={`${COMPACT_INPUT} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
-                value={waitlistOfferMinutes}
-                onChange={(event) => setWaitlistOfferMinutes(event.target.value)}
-                disabled={busy}
-              />
-            </SettingsField>
-          </div>
-        </CompactSection>
-      </div>
+          <SettingsSection
+            heading={t("sections.location.heading")}
+            description={t("sections.location.description")}
+          >
+            <div className="grid gap-4">
+              <AdminSheetEditableField label={t("address")} hint={t("hints.address")}>
+                <input
+                  className={adminSheetFieldInputClass()}
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("mapEmbedUrl")} hint={t("hints.mapEmbedUrl")}>
+                <input
+                  type="url"
+                  className={adminSheetFieldInputClass()}
+                  value={mapEmbedUrl}
+                  onChange={(event) => setMapEmbedUrl(event.target.value)}
+                  disabled={busy}
+                  placeholder="https://"
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("workingHours")} hint={t("hints.workingHours")}>
+                <textarea
+                  className={adminSheetFieldInputClass(false, "min-h-[5.5rem] resize-y py-2.5")}
+                  value={workingHours}
+                  onChange={(event) => setWorkingHours(event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+            </div>
+          </SettingsSection>
 
-      <div className="flex items-center justify-end gap-3 rounded-[20px] border border-white/60 bg-white/65 px-4 py-2.5 shadow-[0_8px_24px_-20px_rgba(45,40,35,0.22)] backdrop-blur-md">
-        <OmmButton type="submit" variant="primary" size="sm" disabled={busy}>
+          <SettingsSection
+            heading={t("sections.policies.heading")}
+            description={t("sections.policies.description")}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AdminSheetEditableField
+                label={t("cancellationHoursNotice")}
+                hint={t("hints.cancellationHoursNotice")}
+              >
+                <input
+                  type="number"
+                  min={0}
+                  className={adminSheetFieldInputClass(false, NUMBER_INPUT_CLASS)}
+                  value={cancellationHoursNotice}
+                  onChange={(event) => setCancellationHoursNotice(event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField
+                label={t("waitlistOfferMinutes")}
+                hint={t("hints.waitlistOfferMinutes")}
+              >
+                <input
+                  type="number"
+                  min={1}
+                  className={adminSheetFieldInputClass(false, NUMBER_INPUT_CLASS)}
+                  value={waitlistOfferMinutes}
+                  onChange={(event) => setWaitlistOfferMinutes(event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+            </div>
+          </SettingsSection>
+        </div>
+      </AdminSectionShell>
+
+      <footer className={`${adminChrome.panel} flex justify-end`}>
+        <OmmButton type="submit" variant="primary" disabled={busy}>
           {busy ? t("saving") : t("save")}
         </OmmButton>
-      </div>
+      </footer>
     </form>
   );
 }

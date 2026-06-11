@@ -27,9 +27,9 @@ export default async function AdminSettingsPage({
   const res = await serverApiJson<StudioSettings>("/studio", cookie);
   if (!res.ok) {
     return (
-      <div className="app-alert-warn max-w-xl">
-        {t("loadFailed", { status: res.status })}
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">{t("loadFailed", { status: res.status })}</div>
+      </AdminContentFrame>
     );
   }
   return (
