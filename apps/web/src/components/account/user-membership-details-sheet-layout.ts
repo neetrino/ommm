@@ -10,3 +10,13 @@ export const USER_MEMBERSHIP_DETAILS_DESKTOP_PANEL_CLASS =
 
 /** Keep in sync with CSS transitions — matches member notifications panel. */
 export const USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS = 440;
+
+/** Mobile bottom sheet — slide-up motion on phones. */
+export const USER_MEMBERSHIP_DETAILS_MOBILE_OVERLAY_CLASS =
+  "ommm-member-hub-sheet-overlay ommm-user-membership-details-mobile-overlay";
+
+export const USER_MEMBERSHIP_DETAILS_MOBILE_PANEL_CLASS =
+  "ommm-member-hub-sheet-panel ommm-user-membership-details-mobile-panel";
+
+/** Keep in sync with CSS transitions on the mobile panel. */
+export const USER_MEMBERSHIP_DETAILS_MOBILE_MOTION_MS = 320;
