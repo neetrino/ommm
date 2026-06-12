@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { usePathname } from "@/i18n/navigation";
 import { MemberUserContentEnter } from "@/components/account/member-user-content-enter";
 import { memberUserContentRouteKey } from "@/lib/member-user-content-route-key";
@@ -13,12 +13,12 @@ type MemberUserRouteTemplateProps = {
 export function MemberUserRouteTemplate({ children }: MemberUserRouteTemplateProps) {
   const pathname = usePathname();
   const routeKey = memberUserContentRouteKey(pathname);
-  const [initialRouteKey] = useState(routeKey);
+  const entryRouteKeyRef = useRef(routeKey);
 
   return (
     <MemberUserContentEnter
       routeKey={routeKey}
-      animate={routeKey !== initialRouteKey}
+      animate={routeKey !== entryRouteKeyRef.current}
     >
       {children}
     </MemberUserContentEnter>
