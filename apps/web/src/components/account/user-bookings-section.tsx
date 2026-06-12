@@ -24,6 +24,7 @@ import {
 import { UserBookingsTabNav } from "@/components/account/user-bookings-tab-nav";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
+import { UserViewContentEnter } from "@/components/account/user-view-content-enter";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -343,7 +344,7 @@ export function UserBookingsSection({
         <AdminPageHero title={t("title")} search={heroSearch} />
       )}
       <UserBookingsTabNav />
-      {listBody}
+      <UserViewContentEnter viewKey={`${activeTab}-${viewMode}`}>{listBody}</UserViewContentEnter>
     </div>
   );
 }

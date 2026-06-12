@@ -12,6 +12,7 @@ import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
+import { UserViewContentEnter } from "@/components/account/user-view-content-enter";
 import {
   buildUserSessionFilterFields,
   DEFAULT_USER_SESSION_FILTER_VALUES,
@@ -214,58 +215,62 @@ export function UserWaitlistsSection({
           <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
           <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
         </div>
-      ) : viewMode === "board" ? (
-        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredRows.map((item) => (
-            <li key={item.id} className="min-w-0 list-none">
-              <UserWaitlistBoardCard locale={locale} waitlist={item} />
-            </li>
-          ))}
-        </ul>
       ) : (
-        <div className={USER_BOOKINGS_LIST_TABLE_CLASS}>
-          <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
-            <span>{t("listHeaderDate")}</span>
-            <span>{t("listHeaderClass")}</span>
-            <span>{t("listHeaderTime")}</span>
-            <span>{t("listHeaderStatus")}</span>
-            <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
-          </div>
-          {filteredRows.map((item) => (
-            <div key={item.id} className={USER_BOOKINGS_LIST_ROW_CLASS}>
-              <div className={USER_BOOKINGS_LIST_DATE_CELL}>
-                <SessionDateTimeHighlight
-                  locale={locale}
-                  startsAt={item.session.startsAt}
-                  endsAt={item.session.endsAt}
-                  variant="listDate"
-                />
+        <UserViewContentEnter viewKey={viewMode}>
+          {viewMode === "board" ? (
+            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {filteredRows.map((item) => (
+                <li key={item.id} className="min-w-0 list-none">
+                  <UserWaitlistBoardCard locale={locale} waitlist={item} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className={USER_BOOKINGS_LIST_TABLE_CLASS}>
+              <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
+                <span>{t("listHeaderDate")}</span>
+                <span>{t("listHeaderClass")}</span>
+                <span>{t("listHeaderTime")}</span>
+                <span>{t("listHeaderStatus")}</span>
+                <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
               </div>
-              <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
-                <SessionClassTitle variant="list" name={item.session.classType.name} />
-                <SessionCoachLine
-                  coachName={resolveSessionCoachName(item.session.coach)}
-                  variant="list"
-                  className="mt-1"
-                />
-              </div>
-              <div className={USER_BOOKINGS_LIST_TIME_CELL}>
-                <SessionDateTimeHighlight
-                  locale={locale}
-                  startsAt={item.session.startsAt}
-                  endsAt={item.session.endsAt}
-                  variant="listTime"
-                />
-              </div>
-              <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
-                <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
-                  {t("waitlistBadge", { pos: item.position, status: item.status })}
-                </p>
-              </div>
-              <div className={USER_BOOKINGS_LIST_ACTIONS_CELL} aria-hidden="true" />
+              {filteredRows.map((item) => (
+                <div key={item.id} className={USER_BOOKINGS_LIST_ROW_CLASS}>
+                  <div className={USER_BOOKINGS_LIST_DATE_CELL}>
+                    <SessionDateTimeHighlight
+                      locale={locale}
+                      startsAt={item.session.startsAt}
+                      endsAt={item.session.endsAt}
+                      variant="listDate"
+                    />
+                  </div>
+                  <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
+                    <SessionClassTitle variant="list" name={item.session.classType.name} />
+                    <SessionCoachLine
+                      coachName={resolveSessionCoachName(item.session.coach)}
+                      variant="list"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className={USER_BOOKINGS_LIST_TIME_CELL}>
+                    <SessionDateTimeHighlight
+                      locale={locale}
+                      startsAt={item.session.startsAt}
+                      endsAt={item.session.endsAt}
+                      variant="listTime"
+                    />
+                  </div>
+                  <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
+                      {t("waitlistBadge", { pos: item.position, status: item.status })}
+                    </p>
+                  </div>
+                  <div className={USER_BOOKINGS_LIST_ACTIONS_CELL} aria-hidden="true" />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </UserViewContentEnter>
       )}
     </>
   );

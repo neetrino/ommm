@@ -1,5 +1,5 @@
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { MemberUserNotificationsRouteContent } from "@/components/account/member-user-notifications-route-content";
+import { MemberUserRouteFrame } from "@/components/account/member-user-route-frame";
 
 export default async function UserNotificationsPage({
   params,
@@ -9,8 +9,8 @@ export default async function UserNotificationsPage({
   const { locale } = await params;
 
   return (
-    <MemberContentFrame>
+    <MemberUserRouteFrame>
       <MemberUserNotificationsRouteContent locale={locale} />
-    </MemberContentFrame>
+    </MemberUserRouteFrame>
   );
 }

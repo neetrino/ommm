@@ -1,9 +1,8 @@
-import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
-import { UserGiftCardsBoardDeferred } from "@/components/account/account-deferred-sections";
+import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
 import { UserGiftCardsPageHero } from "@/components/account/user-gift-cards-page-hero";
 import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-layout";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
@@ -57,9 +56,7 @@ export async function MemberUserGiftCardsRouteContent({
           </div>
         </UserGiftCardsSection>
 
-        <Suspense fallback={null}>
-          <UserGiftCardsBoardDeferred locale={locale} cards={mergedCards} loadError={loadError} />
-        </Suspense>
+        <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
       </div>
     ) : (
       <UserGiftCardsSection title={t("purchase")}>

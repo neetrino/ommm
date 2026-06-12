@@ -389,7 +389,7 @@ export function GiftCardDroplets() {
           {droplet.id === "brand" ? (
             <span className="inline-flex h-full w-full select-none items-center justify-center overflow-hidden rounded-full">
               <Image
-                src="/marketing/home/brand-mark.png"
+                src="/marketing/home/brand-mark.webp"
                 alt=""
                 width={128}
                 height={128}

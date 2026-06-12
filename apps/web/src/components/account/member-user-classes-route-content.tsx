@@ -1,7 +1,6 @@
-import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { UserClassesSectionDeferred } from "@/components/account/account-deferred-sections";
+import { UserClassesSection } from "@/components/account/user-classes-section";
 import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import type { UserBookingRow, UserSessionRow } from "@/lib/user-booking-types";
@@ -49,14 +48,12 @@ export async function MemberUserClassesRouteContent({
     : {};
 
   return (
-    <Suspense fallback={null}>
-      <UserClassesSectionDeferred
-        locale={locale}
-        sessions={sessions}
-        sessionBookings={sessionBookings}
-        initialView={initialView}
-        embeddedInSheet={embeddedInSheet}
-      />
-    </Suspense>
+    <UserClassesSection
+      locale={locale}
+      sessions={sessions}
+      sessionBookings={sessionBookings}
+      initialView={initialView}
+      embeddedInSheet={embeddedInSheet}
+    />
   );
 }

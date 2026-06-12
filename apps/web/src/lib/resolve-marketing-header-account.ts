@@ -22,10 +22,8 @@ export function resolveMarketingHeaderAccount(
       authUser.lastName,
       authUser.email,
     ),
-    imageSrc:
-      resolveApiAssetUrl(authUser.homeImageUrl) ??
-      resolveApiAssetUrl(authUser.avatarUrl) ??
-      null,
+    // Match mobile + member hub — navbar uses the custom home photo only, not OAuth avatarUrl.
+    imageSrc: resolveApiAssetUrl(authUser.homeImageUrl) ?? null,
     displayName: userDisplayName(
       authUser.name,
       authUser.lastName,

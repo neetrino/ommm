@@ -18,7 +18,7 @@
   height: var(--particle-size);
   border-radius: 9999px;
   opacity: var(--particle-opacity);
-  background-image: url("/marketing/home/auth-particle-logo.png");
+  background-image: url("/marketing/home/auth-particle-logo.webp");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;

@@ -60,7 +60,7 @@ export async function MemberDashboard({
   const greetingName = userDisplayName(name, lastName, email);
 
   const nextHref = "/user/classes";
-  const nextImage = "/marketing/home/next-class.jpg";
+  const nextImage = "/marketing/home/next-class.webp";
 
   const waitlistItems = waitlistOk
     ? waitlistRows.map((w, index) => ({

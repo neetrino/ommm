@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
-const DEFAULT_IMAGE = "/marketing/home/next-class.jpg";
+const DEFAULT_IMAGE = "/marketing/home/next-class.webp";
 
 type NextClassCardEmpty = {
   variant: "empty";

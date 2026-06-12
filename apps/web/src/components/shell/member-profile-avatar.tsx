@@ -1,6 +1,9 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
 import { MarketingHeaderUserIcon } from "@/components/marketing/marketing-header-icons";
 import { MARKETING_HEADER_GUEST_USER_ICON_CLASS } from "@/components/marketing/marketing-site-header-layout";
+import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
 type MemberProfileAvatarProps = {
   initials: string;
@@ -16,26 +19,38 @@ export function MemberProfileAvatar({
   className,
   guestIconClassName = MARKETING_HEADER_GUEST_USER_ICON_CLASS,
 }: MemberProfileAvatarProps) {
-  if (imageSrc) {
-    const photoClass = className
-      ? [
-          "flex shrink-0 items-center justify-center overflow-hidden rounded-full p-0",
-          className,
-        ]
-      : ["ommm-admin-profile-avatar overflow-hidden p-0"];
+  const [loadFailed, setLoadFailed] = useState(false);
+  const safeSrc =
+    imageSrc !== null ? sanitizeImageSrcUrl(imageSrc) : null;
 
-    return (
-      <span className={photoClass.filter(Boolean).join(" ")}>
-        <Image
-          src={imageSrc}
-          alt=""
-          width={32}
-          height={32}
-          className="h-full w-full object-cover"
-        />
-      </span>
-    );
+  useEffect(() => {
+    setLoadFailed(false);
+  }, [safeSrc]);
+
+  const showPhoto = safeSrc !== null && !loadFailed;
+
+  if (!showPhoto) {
+    return <MarketingHeaderUserIcon className={guestIconClassName} />;
   }
 
-  return <MarketingHeaderUserIcon className={guestIconClassName} />;
+  const photoClass = className
+    ? [
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-full p-0",
+        className,
+      ]
+    : ["ommm-admin-profile-avatar overflow-hidden p-0"];
+
+  return (
+    <span className={photoClass.filter(Boolean).join(" ")}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API upload URLs */}
+      <img
+        src={safeSrc}
+        alt=""
+        width={32}
+        height={32}
+        className="h-full w-full object-cover"
+        onError={() => setLoadFailed(true)}
+      />
+    </span>
+  );
 }

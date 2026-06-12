@@ -10,8 +10,6 @@ import {
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import { loadMemberAccountHubProfile } from "@/server/member-account-hub-profile-data";
 
-export const dynamic = "force-dynamic";
-
 type UserLayoutProps = {
   children: ReactNode;
   sheet?: ReactNode;
@@ -19,9 +17,11 @@ type UserLayoutProps = {
 };
 
 export default async function UserLayout({ children, sheet = null, params }: UserLayoutProps) {
-  const { locale } = await params;
+  const [{ locale }, requestPath] = await Promise.all([
+    params,
+    headers().then((value) => value.get(OMMM_PATHNAME_HEADER) ?? ""),
+  ]);
   const hasMobileSheet = sheet != null;
-  const requestPath = (await headers()).get(OMMM_PATHNAME_HEADER) ?? "";
   const onSheetRoute = isMemberUserHubSheetPath(requestPath);
   const onNotificationsRoute = isMemberUserNotificationsPath(requestPath);
   const hubProfile =

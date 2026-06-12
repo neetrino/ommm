@@ -5,7 +5,7 @@ import { SessionCoachLine } from "@/components/account/session-coach-line";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
-const DEFAULT_IMAGE = "/marketing/home/next-class.jpg";
+const DEFAULT_IMAGE = "/marketing/home/next-class.webp";
 
 type MemberNextClassEmpty = {
   variant: "empty";

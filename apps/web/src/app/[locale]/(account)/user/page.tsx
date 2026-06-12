@@ -1,6 +1,4 @@
-import { Suspense } from "react";
-import { MemberUserHomePageContentDeferred } from "@/components/account/account-deferred-server-sections";
-import { MemberPageLoading } from "@/components/account/member-page-loading";
+import { MemberUserHomePageContent } from "@/components/account/member-user-home-page-content";
 
 /** Member `/user` — desktop dashboard (legacy), mobile account hub. */
 export default async function UserAccountPage({
@@ -10,9 +8,5 @@ export default async function UserAccountPage({
 }) {
   const { locale } = await params;
 
-  return (
-    <Suspense fallback={<MemberPageLoading />}>
-      <MemberUserHomePageContentDeferred locale={locale} />
-    </Suspense>
-  );
+  return <MemberUserHomePageContent locale={locale} />;
 }

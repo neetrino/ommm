@@ -128,8 +128,8 @@ const scheduleGradientSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 
 export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
 export const HOME_HERO_ASSETS = {
-  backgroundImage: "/marketing/home/hero/home-hero-banner-bg.png",
-  logoMark: "/marketing/home/hero/home-hero-logo-mark.png",
+  backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
+  logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
 

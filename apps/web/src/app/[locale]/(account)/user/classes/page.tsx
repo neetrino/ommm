@@ -1,5 +1,5 @@
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { MemberUserClassesRouteContent } from "@/components/account/member-user-classes-route-content";
+import { MemberUserRouteFrame } from "@/components/account/member-user-route-frame";
 
 export default async function UserClassesPage({
   params,
@@ -8,12 +8,11 @@ export default async function UserClassesPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const { locale } = await params;
-  const search = await searchParams;
+  const [{ locale }, search] = await Promise.all([params, searchParams]);
 
   return (
-    <MemberContentFrame>
+    <MemberUserRouteFrame>
       <MemberUserClassesRouteContent locale={locale} search={search} />
-    </MemberContentFrame>
+    </MemberUserRouteFrame>
   );
 }

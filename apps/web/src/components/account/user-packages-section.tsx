@@ -18,6 +18,7 @@ import {
 } from "@/components/account/user-packages-filter-fields";
 import { UserPackagesViewSwitcher } from "@/components/account/user-packages-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
+import { UserViewContentEnter } from "@/components/account/user-view-content-enter";
 import {
   USER_PACKAGES_LIST_ACTIONS_HEADER_CELL,
   USER_PACKAGES_LIST_CENTER_HEADER_CELL,
@@ -220,46 +221,50 @@ export function UserPackagesSection({
           <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
           <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
         </div>
-      ) : viewMode === "board" ? (
-        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredMemberships.map((membership) => {
-            const status = normalizeUserPackageStatus(membership.status);
-            return (
-              <li key={membership.id} className="min-w-0 list-none">
-                <UserMembershipBoardCard
-                  membership={membership}
-                  locale={locale}
-                  status={status}
-                  onOpenDetails={() => openPackageDetails(membership.id)}
-                />
-              </li>
-            );
-          })}
-        </ul>
       ) : (
-        <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
-          <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
-            <span>{t("listHeaderPackage")}</span>
-            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPeriod")}</span>
-            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPrice")}</span>
-            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderSessions")}</span>
-            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderValidity")}</span>
-            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderStatus")}</span>
-            <span className={USER_PACKAGES_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
-          </div>
-          {filteredMemberships.map((membership) => {
-            const status = normalizeUserPackageStatus(membership.status);
-            return (
-              <UserMembershipCompactRow
-                key={membership.id}
-                membership={membership}
-                locale={locale}
-                status={status}
-                onOpenDetails={() => openPackageDetails(membership.id)}
-              />
-            );
-          })}
-        </div>
+        <UserViewContentEnter viewKey={viewMode}>
+          {viewMode === "board" ? (
+            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {filteredMemberships.map((membership) => {
+                const status = normalizeUserPackageStatus(membership.status);
+                return (
+                  <li key={membership.id} className="min-w-0 list-none">
+                    <UserMembershipBoardCard
+                      membership={membership}
+                      locale={locale}
+                      status={status}
+                      onOpenDetails={() => openPackageDetails(membership.id)}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
+              <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
+                <span>{t("listHeaderPackage")}</span>
+                <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPeriod")}</span>
+                <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPrice")}</span>
+                <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderSessions")}</span>
+                <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderValidity")}</span>
+                <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderStatus")}</span>
+                <span className={USER_PACKAGES_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
+              </div>
+              {filteredMemberships.map((membership) => {
+                const status = normalizeUserPackageStatus(membership.status);
+                return (
+                  <UserMembershipCompactRow
+                    key={membership.id}
+                    membership={membership}
+                    locale={locale}
+                    status={status}
+                    onOpenDetails={() => openPackageDetails(membership.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </UserViewContentEnter>
       )}
     </>
   );
