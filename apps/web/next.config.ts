@@ -95,7 +95,12 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/:locale/account/classes",
-        destination: "/:locale/user/classes",
+        destination: "/:locale/schedule",
+        permanent: false,
+      },
+      {
+        source: "/:locale/user/classes",
+        destination: "/:locale/schedule",
         permanent: false,
       },
       {

@@ -5,6 +5,7 @@ import { MemberNextClassCard } from "@/components/account/member-next-class-card
 import { MemberWaitlistSection } from "@/components/account/member-waitlist-section";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatDateForUi } from "@/lib/date-display";
+import { MARKETING_SCHEDULE_PATH } from "@/lib/auth-redirect";
 import { userDisplayName } from "@/lib/user-display-name";
 
 type NextBooking = {
@@ -59,7 +60,8 @@ export async function MemberDashboard({
   const t = await getTranslations({ locale, namespace: "account.dashboard" });
   const greetingName = userDisplayName(name, lastName, email);
 
-  const nextHref = "/user/classes";
+  const bookClassHref = MARKETING_SCHEDULE_PATH;
+  const nextBookingHref = "/user/bookings";
   const nextImage = "/marketing/home/next-class.webp";
 
   const waitlistItems = waitlistOk
@@ -106,11 +108,11 @@ export async function MemberDashboard({
             <p className={memberChrome.heroLead}>{t("lead")}</p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/user/classes" className="ommm-admin-add-button">
+              <Link href={bookClassHref} className="ommm-admin-add-button">
                 {t("primaryCta")}
               </Link>
               <Link
-                href="/user/classes"
+                href={bookClassHref}
                 className="ommm-admin-pill-tab shrink-0 px-5 py-2.5 normal-case tracking-normal"
               >
                 {t("secondaryCta")}
@@ -122,7 +124,7 @@ export async function MemberDashboard({
             {nextBooking ? (
               <MemberNextClassCard
                 variant="filled"
-                href={nextHref}
+                href={nextBookingHref}
                 locale={locale}
                 eyebrow={t("nextClass.eyebrow")}
                 openLabel={t("nextClass.openLabel")}
@@ -139,7 +141,7 @@ export async function MemberDashboard({
             ) : (
               <MemberNextClassCard
                 variant="empty"
-                href={nextHref}
+                href={bookClassHref}
                 eyebrow={t("nextClass.eyebrow")}
                 emptyTitle={t("nextClass.emptyTitle")}
                 emptyBody={t("nextClass.emptyBody")}

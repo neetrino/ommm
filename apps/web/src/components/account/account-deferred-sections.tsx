@@ -1,6 +1,5 @@
 /** Direct exports — SSR with route data; avoids a second client chunk loading phase. */
 export { UserBookingsSection as UserBookingsSectionDeferred } from "@/components/account/user-bookings-section";
-export { UserClassesSection as UserClassesSectionDeferred } from "@/components/account/user-classes-section";
 export { UserPackagesSection as UserPackagesSectionDeferred } from "@/components/account/user-packages-section";
 export { UserWaitlistsSection as UserWaitlistsSectionDeferred } from "@/components/account/user-waitlists-section";
 export { UserPaymentsHistory as UserPaymentsHistoryDeferred } from "@/components/account/user-payments-history";

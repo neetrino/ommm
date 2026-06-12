@@ -4,7 +4,6 @@ import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 export const MEMBER_USER_HUB_SHEET_PATHS = [
   "/user/bookings",
   "/user/waitlists",
-  "/user/classes",
   "/user/packages",
   "/user/payments",
   "/user/gift-cards",
