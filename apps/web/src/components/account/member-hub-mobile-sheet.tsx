@@ -5,7 +5,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -25,6 +24,7 @@ import { OMM_MODAL_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
+import { releaseBodyScrollLockEarly } from "@/lib/body-scroll-lock";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 const MemberHubMobileSheetCloseContext = createContext<(() => void) | null>(null);
@@ -64,7 +64,8 @@ function SheetCloseIcon() {
 }
 
 /**
- * Mobile member hub bottom sheet — iOS-safe slide-up/down via reflow + CSS transitions.
+ * Mobile member hub bottom sheet — single portal instance after mount.
+ * Avoids inline SSR + portal duplicates that stacked two overlays.
  */
 export function MemberHubMobileSheet({
   titleId,
@@ -81,8 +82,8 @@ export function MemberHubMobileSheet({
   const panelRef = useRef<HTMLDivElement>(null);
   const closingRef = useRef(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [backdropVisible, setBackdropVisible] = useState(false);
-  const [panelVisible, setPanelVisible] = useState(false);
+  const [backdropVisible, setBackdropVisible] = useState(true);
+  const [panelVisible, setPanelVisible] = useState(true);
 
   useLockBodyScroll(clientMounted);
 
@@ -96,38 +97,15 @@ export function MemberHubMobileSheet({
     setIsClosing(true);
     setPanelVisible(false);
     setBackdropVisible(false);
-    window.setTimeout(onClose, MEMBER_ACCOUNT_HUB_SHEET_MOTION_MS);
+    window.setTimeout(() => {
+      releaseBodyScrollLockEarly();
+      onClose();
+    }, MEMBER_ACCOUNT_HUB_SHEET_MOTION_MS);
   }, [closeDisabled, onClose]);
 
   useCloseOnEscape(clientMounted, requestClose, { disabled: closeDisabled || isClosing });
 
-  useLayoutEffect(() => {
-    if (!clientMounted) {
-      return undefined;
-    }
-
-    const panel = panelRef.current;
-    if (!panel) {
-      return undefined;
-    }
-
-    panel.style.transition = "none";
-    panel.style.transform = "translate3d(0, 100%, 0)";
-    void panel.offsetHeight;
-
-    const openFrame = requestAnimationFrame(() => {
-      panel.style.transition = "";
-      panel.style.transform = "";
-      setBackdropVisible(true);
-      setPanelVisible(true);
-    });
-
-    return () => {
-      cancelAnimationFrame(openFrame);
-    };
-  }, [clientMounted]);
-
-  if (!clientMounted || typeof document === "undefined") {
+  if (!clientMounted) {
     return null;
   }
 
@@ -136,56 +114,56 @@ export function MemberHubMobileSheet({
   return createPortal(
     <MemberHubMobileSheetCloseContext.Provider value={requestClose}>
       <div className={[styles.overlay, "ommm-member-hub-sheet-overlay"].join(" ")} role="presentation">
-      <button
-        type="button"
-        className={[
-          OMM_MODAL_BACKDROP_CLASS,
-          styles.backdrop,
-          backdropVisible ? styles.backdropVisible : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        aria-label={backdropCloseLabel}
-        disabled={closeDisabled || isClosing}
-        onClick={requestClose}
-      />
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        className={[
-          styles.panel,
-          "ommm-member-hub-sheet-panel",
-          panelVisible ? styles.panelVisible : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        style={resolvedPanelStyle}
-      >
-        {bare ? (
-          children
-        ) : (
-          <>
-            <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
-            <header className={MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS}>
-              <h2 id={titleId} className={MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS}>
-                {title}
-              </h2>
-              <button
-                type="button"
-                className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-                aria-label={closeLabel}
-                onClick={requestClose}
-                disabled={closeDisabled || isClosing}
-              >
-                <SheetCloseIcon />
-              </button>
-            </header>
-            <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{children}</div>
-          </>
-        )}
-      </div>
+        <button
+          type="button"
+          className={[
+            OMM_MODAL_BACKDROP_CLASS,
+            styles.backdrop,
+            backdropVisible ? styles.backdropVisible : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          aria-label={backdropCloseLabel}
+          disabled={closeDisabled || isClosing}
+          onClick={requestClose}
+        />
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          className={[
+            styles.panel,
+            "ommm-member-hub-sheet-panel",
+            panelVisible ? styles.panelVisible : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          style={resolvedPanelStyle}
+        >
+          {bare ? (
+            children
+          ) : (
+            <>
+              <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
+              <header className={MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS}>
+                <h2 id={titleId} className={MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS}>
+                  {title}
+                </h2>
+                <button
+                  type="button"
+                  className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+                  aria-label={closeLabel}
+                  onClick={requestClose}
+                  disabled={closeDisabled || isClosing}
+                >
+                  <SheetCloseIcon />
+                </button>
+              </header>
+              <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{children}</div>
+            </>
+          )}
+        </div>
       </div>
     </MemberHubMobileSheetCloseContext.Provider>,
     document.body,

@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { MemberAccountHubActionRows } from "@/components/account/member-account-hub-action-rows";
+import {
+  MemberAccountHubMenuActionRows,
+  MemberAccountHubMobileActionRows,
+} from "@/components/account/member-account-hub-action-rows";
+import { useMemberAccountHubDesktopViewport } from "@/hooks/use-member-account-hub-desktop-viewport";
 import { memberAccountHubLayout } from "@/components/account/member-account-hub-layout";
 import { MemberAccountHubLinkRow } from "@/components/account/member-account-hub-link-row";
 import {
@@ -31,6 +35,7 @@ export function MemberAccountHubMenuPanel({
 }: MemberAccountHubMenuPanelProps) {
   const tNav = useTranslations("dashboard.nav");
   const tHub = useTranslations("userPages.accountHub");
+  const isDesktopHub = useMemberAccountHubDesktopViewport();
 
   return (
     <div
@@ -83,8 +88,10 @@ export function MemberAccountHubMenuPanel({
           onNavigate={onNavigate}
         />
 
-        <MemberAccountHubActionRows />
+        {isDesktopHub ? <MemberAccountHubMenuActionRows /> : null}
       </nav>
+
+      {!isDesktopHub ? <MemberAccountHubMobileActionRows /> : null}
     </div>
   );
 }

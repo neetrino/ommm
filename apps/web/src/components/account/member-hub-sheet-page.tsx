@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { MemberHubSheetClientShell } from "@/components/account/member-hub-sheet-client-shell";
-import { MemberUserContentEnter } from "@/components/account/member-user-content-enter";
 
 type MemberHubSheetPageProps = {
   titleNamespace: string;
@@ -20,7 +19,7 @@ export function MemberHubSheetPage({
       titleNamespace={titleNamespace}
       desktopSidePanel={desktopSidePanel}
     >
-      <MemberUserContentEnter>{children}</MemberUserContentEnter>
+      {children}
     </MemberHubSheetClientShell>
   );
 }

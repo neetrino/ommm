@@ -16,7 +16,6 @@ import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
-import { clearMemberHubSheetNavigation } from "@/lib/member-hub-sheet-navigation";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 type MemberAccountHubSectionSheetProps = {
@@ -58,12 +57,6 @@ export function MemberAccountHubSectionSheet({
   const [desktopMotionState, setDesktopMotionState] = useState<"open" | "closed">("closed");
 
   useEffect(() => {
-    if (isPhone) {
-      clearMemberHubSheetNavigation();
-    }
-  }, [isPhone]);
-
-  useEffect(() => {
     if (!clientMounted || isPhone || !desktopSidePanel) {
       return undefined;
     }
@@ -96,45 +89,45 @@ export function MemberAccountHubSectionSheet({
     return null;
   }
 
-  if (!desktopSidePanel || isPhone || !clientMounted) {
+  if (desktopSidePanel && clientMounted && !isPhone) {
     return (
-      <MemberHubMobileSheet
-        titleId="member-hub-section-sheet-title"
-        title={title}
-        closeLabel={closeLabel}
-        backdropCloseLabel={backdropCloseLabel}
-        onClose={() => router.back()}
+      <OmmDrawerPortal
+        isOpen
+        onClose={closeDesktopSheet}
+        backdropAriaLabel={backdropCloseLabel}
+        ariaLabelledBy="member-hub-section-sheet-title"
+        overlayClassName={MEMBER_NOTIFICATIONS_DESKTOP_OVERLAY_CLASS}
+        backdropClassName={MEMBER_NOTIFICATIONS_DESKTOP_BACKDROP_CLASS}
+        panelClassName={MEMBER_NOTIFICATIONS_DESKTOP_PANEL_CLASS}
+        motionState={desktopMotionState}
       >
-        {children}
-      </MemberHubMobileSheet>
+        <header className={MEMBER_NOTIFICATIONS_DESKTOP_HEADER_CLASS}>
+          <h2 id="member-hub-section-sheet-title" className={MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS}>
+            {title}
+          </h2>
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={closeLabel}
+            onClick={closeDesktopSheet}
+          >
+            <SheetCloseIcon />
+          </button>
+        </header>
+        <div className={MEMBER_NOTIFICATIONS_DESKTOP_BODY_CLASS}>{children}</div>
+      </OmmDrawerPortal>
     );
   }
 
   return (
-    <OmmDrawerPortal
-      isOpen
-      onClose={closeDesktopSheet}
-      backdropAriaLabel={backdropCloseLabel}
-      ariaLabelledBy="member-hub-section-sheet-title"
-      overlayClassName={MEMBER_NOTIFICATIONS_DESKTOP_OVERLAY_CLASS}
-      backdropClassName={MEMBER_NOTIFICATIONS_DESKTOP_BACKDROP_CLASS}
-      panelClassName={MEMBER_NOTIFICATIONS_DESKTOP_PANEL_CLASS}
-      motionState={desktopMotionState}
+    <MemberHubMobileSheet
+      titleId="member-hub-section-sheet-title"
+      title={title}
+      closeLabel={closeLabel}
+      backdropCloseLabel={backdropCloseLabel}
+      onClose={() => router.back()}
     >
-      <header className={MEMBER_NOTIFICATIONS_DESKTOP_HEADER_CLASS}>
-        <h2 id="member-hub-section-sheet-title" className={MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS}>
-          {title}
-        </h2>
-        <button
-          type="button"
-          className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-          aria-label={closeLabel}
-          onClick={closeDesktopSheet}
-        >
-          <SheetCloseIcon />
-        </button>
-      </header>
-      <div className={MEMBER_NOTIFICATIONS_DESKTOP_BODY_CLASS}>{children}</div>
-    </OmmDrawerPortal>
+      {children}
+    </MemberHubMobileSheet>
   );
 }

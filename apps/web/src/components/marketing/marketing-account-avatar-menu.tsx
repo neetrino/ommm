@@ -2,10 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useLocale } from "next-intl";
 import { LogoutButton } from "@/components/logout-button";
 import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import { Link } from "@/i18n/navigation";
-import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
+import {
+  localizedWorkspaceHref,
+  WORKSPACE_ROUTE_PREFETCH,
+} from "@/lib/workspace-nav-link";
 
 const HIDE_DELAY_MS = 300;
 const MENU_GAP_PX = 4;
@@ -21,6 +25,8 @@ type MarketingAccountAvatarMenuProps = {
   avatarClassName: string;
   guestIconClassName: string;
   onAfterSelect?: () => void;
+  /** Full document navigation — bypasses member hub intercept routes. */
+  hardNavigate?: boolean;
 };
 
 type MenuPosition = { top: number; left: number };
@@ -49,7 +55,9 @@ export function MarketingAccountAvatarMenu({
   avatarClassName,
   guestIconClassName,
   onAfterSelect,
+  hardNavigate = false,
 }: MarketingAccountAvatarMenuProps) {
+  const locale = useLocale();
   const rootRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [open, setOpen] = useState(false);
@@ -88,24 +96,39 @@ export function MarketingAccountAvatarMenu({
 
   useEffect(() => () => clearTimeout(hideTimerRef.current), []);
 
+  const avatar = (
+    <MemberProfileAvatar
+      initials={initials}
+      imageSrc={imageSrc}
+      className={avatarClassName}
+      guestIconClassName={guestIconClassName}
+    />
+  );
+
   return (
     <>
       <div ref={rootRef} className="ommm-marketing-account-menu" {...hoverHandlers}>
-        <Link
-          href={profileHref}
-          prefetch={WORKSPACE_ROUTE_PREFETCH}
-          scroll
-          className={triggerClassName}
-          aria-label={displayName}
-          onClick={() => onAfterSelect?.()}
-        >
-          <MemberProfileAvatar
-            initials={initials}
-            imageSrc={imageSrc}
-            className={avatarClassName}
-            guestIconClassName={guestIconClassName}
-          />
-        </Link>
+        {hardNavigate ? (
+          <a
+            href={localizedWorkspaceHref(locale, profileHref)}
+            className={triggerClassName}
+            aria-label={displayName}
+            onClick={() => onAfterSelect?.()}
+          >
+            {avatar}
+          </a>
+        ) : (
+          <Link
+            href={profileHref}
+            prefetch={WORKSPACE_ROUTE_PREFETCH}
+            scroll
+            className={triggerClassName}
+            aria-label={displayName}
+            onClick={() => onAfterSelect?.()}
+          >
+            {avatar}
+          </Link>
+        )}
       </div>
       {hoverLogoutEnabled && open && position
         ? createPortal(

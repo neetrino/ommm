@@ -24,8 +24,8 @@ export default async function UserLayout({ children, sheet = null, params }: Use
   const hasMobileSheet = sheet != null;
   const onSheetRoute = isMemberUserHubSheetPath(requestPath);
   const onNotificationsRoute = isMemberUserNotificationsPath(requestPath);
-  const hubProfile =
-    hasMobileSheet || onSheetRoute ? await loadMemberAccountHubProfile() : null;
+  const needsHubBackdrop = hasMobileSheet || onSheetRoute || onNotificationsRoute;
+  const hubProfile = needsHubBackdrop ? await loadMemberAccountHubProfile() : null;
 
   return (
     <UserMemberShellLayout params={params}>

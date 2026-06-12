@@ -74,10 +74,11 @@
 }
 
 /**
- * Member hub (`lg:hidden`) — window scroll below desktop, same as DevTools mobile emulation.
+ * Member hub touch viewports — window scroll below desktop, same as DevTools mobile emulation.
  * Nested 100dvh + overflow clips the menu footer on iOS Safari.
+ * Uses pointer media (not width-only) so real phones match DevTools device mode.
  */
-@media (max-width: 1023px) {
+@media not ((min-width: 1024px) and (hover: hover) and (pointer: fine)) {
   .dashboardWithMarketingHeaderMemberMobile {
     height: auto;
     min-height: 100svh;

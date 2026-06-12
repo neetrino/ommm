@@ -2,58 +2,49 @@
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { usePathname } from "@/i18n/navigation";
+import { clearMemberHubSheetScrollY } from "@/lib/member-hub-sheet-navigation";
 import {
-  clearMemberHubSheetScrollY,
-  peekMemberHubSheetScrollY,
-} from "@/lib/member-hub-sheet-navigation";
-import { memberUserPathWithoutLocale } from "@/lib/member-user-hub-sheet-paths";
-import {
-  restoreWorkspaceScrollPosition,
-  scheduleWorkspaceScrollReset,
-} from "@/lib/reset-workspace-scroll";
+  isReturningToMemberHubFromSheet,
+  memberUserPathWithoutLocale,
+} from "@/lib/member-user-hub-sheet-paths";
+import { scheduleWorkspaceScrollReset } from "@/lib/reset-workspace-scroll";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 
 function isMemberUserHomePath(pathname: string): boolean {
   return memberUserPathWithoutLocale(pathname) === USER_ACCOUNT_PATH;
 }
 
-function consumeMemberHubSheetScrollY(): number | null {
-  const scrollY = peekMemberHubSheetScrollY();
-  if (scrollY === null) {
-    return null;
-  }
-  clearMemberHubSheetScrollY();
-  return scrollY;
-}
-
 /**
- * Member `/user` hub — open at the top on fresh entry, but restore scroll when returning
- * from a hub bottom sheet the user opened while scrolled.
+ * Member `/user` hub — scroll to top on fresh entry only.
+ * Hub sheet close restores scroll in {@link releaseBodyScrollLockEarly} before `router.back()`.
  */
 export function useMemberUserHomeScrollTop(enabled: boolean): void {
   const pathname = usePathname();
+  const previousPathnameRef = useRef<string | null>(null);
   const shouldReset = enabled && isMemberUserHomePath(pathname);
-  const restoredFromSheetRef = useRef(false);
+  const skipDelayedResetRef = useRef(false);
 
   useLayoutEffect(() => {
+    const previousPathname = previousPathnameRef.current;
+    previousPathnameRef.current = pathname;
+
     if (!shouldReset) {
-      restoredFromSheetRef.current = false;
+      skipDelayedResetRef.current = false;
       return undefined;
     }
 
-    const preservedScrollY = consumeMemberHubSheetScrollY();
-    if (preservedScrollY !== null) {
-      restoredFromSheetRef.current = true;
-      restoreWorkspaceScrollPosition(preservedScrollY);
+    if (isReturningToMemberHubFromSheet(pathname, previousPathname)) {
+      skipDelayedResetRef.current = true;
       return undefined;
     }
 
-    restoredFromSheetRef.current = false;
+    clearMemberHubSheetScrollY();
+    skipDelayedResetRef.current = false;
     return scheduleWorkspaceScrollReset();
   }, [shouldReset, pathname]);
 
   useEffect(() => {
-    if (!shouldReset || restoredFromSheetRef.current) {
+    if (!shouldReset || skipDelayedResetRef.current) {
       return undefined;
     }
 

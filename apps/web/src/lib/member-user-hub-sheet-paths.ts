@@ -1,8 +1,9 @@
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
+
 /** Member hub sections opened as mobile bottom sheets (see `user/@sheet/(.)*` routes). */
 export const MEMBER_USER_HUB_SHEET_PATHS = [
   "/user/bookings",
   "/user/waitlists",
-  "/user/classes",
   "/user/packages",
   "/user/payments",
   "/user/gift-cards",
@@ -31,5 +32,20 @@ export function isMemberUserHubSheetPath(pathname: string): boolean {
   const path = memberUserPathWithoutLocale(pathname);
   return MEMBER_USER_HUB_SHEET_PATHS.some(
     (sheetPath) => path === sheetPath || path.startsWith(`${sheetPath}/`),
+  );
+}
+
+/** Closing a hub bottom sheet via `router.back()` — keep hub scroll, do not reset to top. */
+export function isReturningToMemberHubFromSheet(
+  currentPathname: string,
+  previousPathname: string | null,
+): boolean {
+  if (previousPathname === null) {
+    return false;
+  }
+
+  return (
+    memberUserPathWithoutLocale(currentPathname) === USER_ACCOUNT_PATH &&
+    isMemberUserHubSheetPath(previousPathname)
   );
 }

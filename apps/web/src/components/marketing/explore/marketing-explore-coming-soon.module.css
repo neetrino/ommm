@@ -15,6 +15,26 @@
   overflow: hidden;
 }
 
+/* Mobile — geometric center + slightly larger type (no optical nudge). */
+@media (max-width: 743px) {
+  .overlay {
+    padding-block: var(--explore-page-header-offset);
+  }
+
+  .title {
+    --explore-title-nudge-x: 0;
+    --explore-title-nudge-y: 0;
+    font-size: clamp(
+      4.5rem,
+      calc(
+        100vw * var(--explore-title-font-size-px, 188) / var(--explore-artboard-width-px, 1440) *
+          1.2
+      ),
+      11.75rem
+    );
+  }
+}
+
 @media (min-width: 744px) {
   .root {
     --explore-page-header-offset: calc(

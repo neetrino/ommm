@@ -62,6 +62,7 @@ export function UserPackagesSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("packages");
+  const [embeddedDetailsId, setEmbeddedDetailsId] = useState<string | null>(null);
   const [filters, setFilters] = useState<UserPackageFilterValues>(() => ({
     ...DEFAULT_USER_PACKAGE_FILTER_VALUES,
     order: readUserListOrderFromSearch(
@@ -81,10 +82,12 @@ export function UserPackagesSection({
     [pathname, router, searchParams],
   );
 
-  const selectedId = useMemo(
-    () => parseUserPackagesPackageId(Object.fromEntries(searchParams.entries())),
-    [searchParams],
-  );
+  const selectedId = useMemo(() => {
+    if (embeddedInSheet) {
+      return embeddedDetailsId;
+    }
+    return parseUserPackagesPackageId(Object.fromEntries(searchParams.entries()));
+  }, [embeddedDetailsId, embeddedInSheet, searchParams]);
 
   const selectedMembership = useMemo(() => {
     if (selectedId === null) {
@@ -95,19 +98,27 @@ export function UserPackagesSection({
 
   const openPackageDetails = useCallback(
     (packageId: string) => {
+      if (embeddedInSheet) {
+        setEmbeddedDetailsId(packageId);
+        return;
+      }
       const params = new URLSearchParams(searchParams.toString());
       params.set(USER_PACKAGES_PACKAGE_ID_QUERY_KEY, packageId);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [embeddedInSheet, pathname, router, searchParams],
   );
 
   const closePackageDetails = useCallback(() => {
+    if (embeddedInSheet) {
+      setEmbeddedDetailsId(null);
+      return;
+    }
     const params = new URLSearchParams(searchParams.toString());
     params.delete(USER_PACKAGES_PACKAGE_ID_QUERY_KEY);
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [pathname, router, searchParams]);
+  }, [embeddedInSheet, pathname, router, searchParams]);
 
   const selectedStatus = selectedMembership
     ? normalizeUserPackageStatus(selectedMembership.status)

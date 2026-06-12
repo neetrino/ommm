@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MarketingHeaderUserIcon } from "@/components/marketing/marketing-header-icons";
 import { MARKETING_HEADER_GUEST_USER_ICON_CLASS } from "@/components/marketing/marketing-site-header-layout";
 import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
@@ -19,15 +19,11 @@ export function MemberProfileAvatar({
   className,
   guestIconClassName = MARKETING_HEADER_GUEST_USER_ICON_CLASS,
 }: MemberProfileAvatarProps) {
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const safeSrc =
     imageSrc !== null ? sanitizeImageSrcUrl(imageSrc) : null;
 
-  useEffect(() => {
-    setLoadFailed(false);
-  }, [safeSrc]);
-
-  const showPhoto = safeSrc !== null && !loadFailed;
+  const showPhoto = safeSrc !== null && failedSrc !== safeSrc;
 
   if (!showPhoto) {
     return <MarketingHeaderUserIcon className={guestIconClassName} />;
@@ -49,7 +45,7 @@ export function MemberProfileAvatar({
         width={32}
         height={32}
         className="h-full w-full object-cover"
-        onError={() => setLoadFailed(true)}
+        onError={() => setFailedSrc(safeSrc)}
       />
     </span>
   );

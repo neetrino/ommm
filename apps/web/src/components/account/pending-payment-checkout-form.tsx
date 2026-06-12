@@ -8,6 +8,7 @@ import { isApiError, confirmSimulatedCardCheckout, isArcaCheckoutEnabled, startA
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ManualPaymentMethod } from "@/lib/manual-payment-method";
 import type { PaymentCheckoutSource } from "@/lib/payment-checkout-source";
+import { MARKETING_SCHEDULE_PATH } from "@/lib/auth-redirect";
 
 type CheckoutPaymentMethod = Extract<ManualPaymentMethod, "CARD" | "CASH">;
 
@@ -154,7 +155,7 @@ function resolveBackPath(source: PaymentCheckoutSource): string {
     return "/user/gift-cards";
   }
   if (source === "dropin") {
-    return "/user/classes";
+    return MARKETING_SCHEDULE_PATH;
   }
   return "/user/payments";
 }

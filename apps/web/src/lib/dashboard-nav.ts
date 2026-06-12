@@ -70,12 +70,11 @@ export type DashboardRoleNotificationRoute = {
   labelKey: string;
 };
 
-/** Member (USER): dashboard, bookings, schedule, packages — account hub on mobile `/user`. */
+/** Member (USER): dashboard, bookings, packages — account hub on mobile `/user`. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: USER_ACCOUNT_PATH, icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
   { href: "/user/waitlists", icon: "listOrdered", labelKey: "waitlists", oliveIconSlug: "waitlists" },
-  { href: "/user/classes", icon: "layoutGrid", labelKey: "schedule", oliveIconSlug: "schedule" },
   { href: "/user/packages", icon: "tag", labelKey: "packages", oliveIconSlug: "packages" },
   { href: "/user/payments", icon: "wallet", labelKey: "payments", oliveIconSlug: "finance" },
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
