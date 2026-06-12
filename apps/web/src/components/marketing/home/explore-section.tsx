@@ -36,7 +36,7 @@ type Tile = {
 const TILES: Tile[] = [
   {
     id: "tuscany",
-    image: "/marketing/home/tile-retreat.jpg",
+    image: "/marketing/home/tile-retreat.webp",
     chipKey: "tiles.tuscany.chip",
     chipTone: "light",
     titleKey: "tiles.tuscany.title",
@@ -44,7 +44,7 @@ const TILES: Tile[] = [
   },
   {
     id: "pilates",
-    image: "/marketing/home/tile-pilates.jpg",
+    image: "/marketing/home/tile-pilates.webp",
     chipKey: "tiles.protocols.chip",
     chipTone: "dark",
     titleKey: "tiles.protocols.title",
@@ -52,7 +52,7 @@ const TILES: Tile[] = [
   },
   {
     id: "breath",
-    image: "/marketing/home/next-class.jpg",
+    image: "/marketing/home/next-class.webp",
     chipKey: "tiles.breath.chip",
     chipTone: "light",
     titleKey: "tiles.breath.title",
@@ -112,7 +112,7 @@ function FeaturedExplore({ t }: { t: ExploreTranslator }) {
     <article className="relative overflow-hidden rounded-[40px] shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] lg:col-span-7">
       <div className="relative aspect-[4/5] w-full sm:aspect-[16/11] lg:h-full lg:min-h-[520px]">
         <Image
-          src="/marketing/home/explore-featured.jpg"
+          src="/marketing/home/explore-featured.webp"
           alt={t("featured.imageAlt")}
           fill
           sizes="(min-width:1024px) 56vw, 100vw"
