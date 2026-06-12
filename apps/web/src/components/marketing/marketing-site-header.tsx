@@ -77,7 +77,7 @@ export type MarketingSiteHeaderProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
   workspaceHeaderChrome?: boolean;
-  /** Member workspace — bell, globe, and avatar in the header trailing cluster. */
+  /** Member workspace — mobile navbar shows bell only; tablet+ keeps bell, globe, and avatar. */
   memberWorkspaceHeader?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
@@ -251,53 +251,15 @@ export function MarketingSiteHeader({
                 </button>
               ) : null}
               {memberWorkspaceHeader ? (
-                <>
-                  {showNotifications ? (
-                    <HeaderNotificationsMenu
-                      enabled
-                      preferencesHref={notificationPreferencesHref}
-                      triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
-                      iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
-                      onNavigate={closeAllMenus}
-                    />
-                  ) : null}
-                  <LanguageSwitcher
-                    context="marketing"
-                    appearance="icon"
-                    className="min-w-0 shrink-0"
+                showNotifications ? (
+                  <HeaderNotificationsMenu
+                    enabled
+                    preferencesHref={notificationPreferencesHref}
                     triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
-                    onAfterSelect={closeAllMenus}
-                    renderIconTrigger={() => (
-                      <MarketingHeaderGlobeIcon
-                        className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
-                      />
-                    )}
+                    iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                    onNavigate={closeAllMenus}
                   />
-                  {account ? (
-                    <MarketingAccountAvatarMenu
-                      initials={account.initials}
-                      imageSrc={account.imageSrc}
-                      displayName={account.displayName}
-                      profileHref={memberAvatarProfileHref}
-                      hardNavigate
-                      triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                      avatarClassName={navPillStyles.mobileHeaderAvatar}
-                      guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
-                      onAfterSelect={closeAllMenus}
-                    />
-                  ) : (
-                    <Link
-                      href={USER_ACCOUNT_PATH}
-                      className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                      aria-label={tCommon("login")}
-                      onClick={closeAllMenus}
-                    >
-                      <MarketingHeaderUserIcon
-                        className={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
-                      />
-                    </Link>
-                  )}
-                </>
+                ) : null
               ) : (
                 <>
                   {showNotifications ? (
