@@ -54,6 +54,7 @@ import { HeaderNotificationsMenu } from "@/components/shell/header-notifications
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-active";
 import { Link, usePathname } from "@/i18n/navigation";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 
 /** Logged-in viewer summary used to swap the login icon for a profile avatar. */
 export type MarketingHeaderAccount = {
@@ -76,7 +77,7 @@ export type MarketingSiteHeaderProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
   workspaceHeaderChrome?: boolean;
-  /** Member workspace — hide language switcher and mobile navbar avatar; desktop keeps avatar → `/user`. */
+  /** Member workspace — bell, globe, and avatar in the header trailing cluster. */
   memberWorkspaceHeader?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
@@ -155,6 +156,10 @@ export function MarketingSiteHeader({
     ["--marketing-glass-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
   };
+  const desktopNotificationsTriggerClass = memberWorkspaceHeader
+    ? marketingHeaderNotificationTriggerClass()
+    : `hidden lg:inline-flex ${marketingHeaderNotificationTriggerClass()}`;
+  const memberAvatarProfileHref = account?.href ?? USER_ACCOUNT_PATH;
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setPublicMenuOpen(false);
@@ -245,52 +250,101 @@ export function MarketingSiteHeader({
                   <span className="sr-only">{tShell("workspaceAria")}</span>
                 </button>
               ) : null}
-              {showNotifications ? (
-                <HeaderNotificationsMenu
-                  enabled
-                  preferencesHref={notificationPreferencesHref}
-                  triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
-                  iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
-                  onNavigate={closeAllMenus}
-                />
-              ) : null}
-              {!memberWorkspaceHeader ? (
-                <LanguageSwitcher
-                  context="marketing"
-                  appearance="icon"
-                  className="min-w-0 shrink-0"
-                  triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
-                  onAfterSelect={closeAllMenus}
-                  renderIconTrigger={() => (
-                    <MarketingHeaderGlobeIcon
-                      className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+              {memberWorkspaceHeader ? (
+                <>
+                  {showNotifications ? (
+                    <HeaderNotificationsMenu
+                      enabled
+                      preferencesHref={notificationPreferencesHref}
+                      triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                      iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                      onNavigate={closeAllMenus}
                     />
-                  )}
-                />
-              ) : null}
-              {!memberWorkspaceHeader && account ? (
-                <MarketingAccountAvatarMenu
-                  initials={account.initials}
-                  imageSrc={account.imageSrc}
-                  displayName={account.displayName}
-                  profileHref={account.href}
-                  hardNavigate={memberWorkspaceHeader}
-                  triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                  avatarClassName={navPillStyles.mobileHeaderAvatar}
-                  guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
-                  onAfterSelect={closeAllMenus}
-                />
-              ) : !memberWorkspaceHeader ? (
-                <MarketingHeaderLoginLink
-                  className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                  ariaLabel={tCommon("login")}
-                  onNavigate={closeAllMenus}
-                >
-                  <MarketingHeaderUserIcon
-                    className={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
+                  ) : null}
+                  <LanguageSwitcher
+                    context="marketing"
+                    appearance="icon"
+                    className="min-w-0 shrink-0"
+                    triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                    onAfterSelect={closeAllMenus}
+                    renderIconTrigger={() => (
+                      <MarketingHeaderGlobeIcon
+                        className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                      />
+                    )}
                   />
-                </MarketingHeaderLoginLink>
-              ) : null}
+                  {account ? (
+                    <MarketingAccountAvatarMenu
+                      initials={account.initials}
+                      imageSrc={account.imageSrc}
+                      displayName={account.displayName}
+                      profileHref={memberAvatarProfileHref}
+                      hardNavigate
+                      triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                      avatarClassName={navPillStyles.mobileHeaderAvatar}
+                      guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
+                      onAfterSelect={closeAllMenus}
+                    />
+                  ) : (
+                    <Link
+                      href={USER_ACCOUNT_PATH}
+                      className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                      aria-label={tCommon("login")}
+                      onClick={closeAllMenus}
+                    >
+                      <MarketingHeaderUserIcon
+                        className={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
+                      />
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  {showNotifications ? (
+                    <HeaderNotificationsMenu
+                      enabled
+                      preferencesHref={notificationPreferencesHref}
+                      triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                      iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                      onNavigate={closeAllMenus}
+                    />
+                  ) : null}
+                  <LanguageSwitcher
+                    context="marketing"
+                    appearance="icon"
+                    className="min-w-0 shrink-0"
+                    triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                    onAfterSelect={closeAllMenus}
+                    renderIconTrigger={() => (
+                      <MarketingHeaderGlobeIcon
+                        className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                      />
+                    )}
+                  />
+                  {account ? (
+                    <MarketingAccountAvatarMenu
+                      initials={account.initials}
+                      imageSrc={account.imageSrc}
+                      displayName={account.displayName}
+                      profileHref={account.href}
+                      triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                      avatarClassName={navPillStyles.mobileHeaderAvatar}
+                      guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
+                      onAfterSelect={closeAllMenus}
+                    />
+                  ) : (
+                    <MarketingHeaderLoginLink
+                      className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                      ariaLabel={tCommon("login")}
+                      onNavigate={closeAllMenus}
+                    >
+                      <MarketingHeaderUserIcon
+                        className={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
+                      />
+                    </MarketingHeaderLoginLink>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -352,7 +406,7 @@ export function MarketingSiteHeader({
                 <HeaderNotificationsMenu
                   enabled
                   preferencesHref={notificationPreferencesHref}
-                  triggerClassName={`hidden lg:inline-flex ${marketingHeaderNotificationTriggerClass()}`}
+                  triggerClassName={desktopNotificationsTriggerClass}
                   iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
                   onNavigate={closeAllMenus}
                 />
@@ -362,7 +416,7 @@ export function MarketingSiteHeader({
                   initials={account.initials}
                   imageSrc={account.imageSrc}
                   displayName={account.displayName}
-                  profileHref={account.href}
+                  profileHref={memberWorkspaceHeader ? memberAvatarProfileHref : account.href}
                   hardNavigate={memberWorkspaceHeader}
                   triggerClassName={marketingHeaderIconAccountClass()}
                   avatarClassName={`${MARKETING_HEADER_DESKTOP_AVATAR_CLASS} rounded-full`}
@@ -377,7 +431,16 @@ export function MarketingSiteHeader({
                 >
                   <MarketingHeaderUserIcon className={MARKETING_HEADER_GUEST_USER_ICON_CLASS} />
                 </MarketingHeaderLoginLink>
-              ) : null}
+              ) : (
+                <Link
+                  href={USER_ACCOUNT_PATH}
+                  className={marketingHeaderIconAccountClass()}
+                  aria-label={tCommon("login")}
+                  onClick={closeAllMenus}
+                >
+                  <MarketingHeaderUserIcon className={MARKETING_HEADER_GUEST_USER_ICON_CLASS} />
+                </Link>
+              )}
             </div>
           </div>
         </div>
