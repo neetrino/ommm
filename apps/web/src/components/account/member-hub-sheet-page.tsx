@@ -1,6 +1,6 @@
-import { Suspense, type ReactNode } from "react";
-import { MemberHubSheetBodySkeleton } from "@/components/account/member-hub-sheet-body-skeleton";
+import type { ReactNode } from "react";
 import { MemberHubSheetClientShell } from "@/components/account/member-hub-sheet-client-shell";
+import { MemberUserContentEnter } from "@/components/account/member-user-content-enter";
 
 type MemberHubSheetPageProps = {
   titleNamespace: string;
@@ -20,7 +20,7 @@ export function MemberHubSheetPage({
       titleNamespace={titleNamespace}
       desktopSidePanel={desktopSidePanel}
     >
-      <Suspense fallback={<MemberHubSheetBodySkeleton />}>{children}</Suspense>
+      <MemberUserContentEnter>{children}</MemberUserContentEnter>
     </MemberHubSheetClientShell>
   );
 }

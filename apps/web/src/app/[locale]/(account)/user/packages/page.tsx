@@ -1,5 +1,5 @@
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { MemberUserPackagesRouteContent } from "@/components/account/member-user-packages-route-content";
+import { MemberUserRouteFrame } from "@/components/account/member-user-route-frame";
 
 export default async function UserPackagesPage({
   params,
@@ -9,8 +9,8 @@ export default async function UserPackagesPage({
   const { locale } = await params;
 
   return (
-    <MemberContentFrame>
+    <MemberUserRouteFrame>
       <MemberUserPackagesRouteContent locale={locale} />
-    </MemberContentFrame>
+    </MemberUserRouteFrame>
   );
 }

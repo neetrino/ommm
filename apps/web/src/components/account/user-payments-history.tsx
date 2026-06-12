@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { UserPaymentsViewSwitcher } from "@/components/account/user-payments-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
+import { UserViewContentEnter } from "@/components/account/user-view-content-enter";
 import { UserPaymentBoardCard } from "@/components/account/user-payment-board-card";
 import { UserPaymentCompactRow } from "@/components/account/user-payment-compact-row";
 import {
@@ -282,28 +283,32 @@ export function UserPaymentsHistory({
           <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
           <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
         </div>
-      ) : viewMode === "board" ? (
-        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {rows.map((row) => (
-            <li key={row.id} className="min-w-0 list-none">
-              <UserPaymentBoardCard locale={locale} payment={row} />
-            </li>
-          ))}
-        </ul>
       ) : (
-        <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
-          <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
-            <span>{t("table.related")}</span>
-            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.amount")}</span>
-            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.date")}</span>
-            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.time")}</span>
-            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.status")}</span>
-            <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
-          </div>
-          {rows.map((row) => (
-            <UserPaymentCompactRow key={row.id} locale={locale} payment={row} />
-          ))}
-        </div>
+        <UserViewContentEnter viewKey={viewMode}>
+          {viewMode === "board" ? (
+            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {rows.map((row) => (
+                <li key={row.id} className="min-w-0 list-none">
+                  <UserPaymentBoardCard locale={locale} payment={row} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
+              <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
+                <span>{t("table.related")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.amount")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.date")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.time")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.status")}</span>
+                <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
+              </div>
+              {rows.map((row) => (
+                <UserPaymentCompactRow key={row.id} locale={locale} payment={row} />
+              ))}
+            </div>
+          )}
+        </UserViewContentEnter>
       )}
 
       <OmmListPagination

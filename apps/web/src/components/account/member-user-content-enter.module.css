@@ -1,0 +1,21 @@
+.enter {
+  animation: memberUserContentEnter 0.48s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+@keyframes memberUserContentEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter {
+    animation: none;
+  }
+}

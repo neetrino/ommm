@@ -1,5 +1,5 @@
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { MemberUserWaitlistsRouteContent } from "@/components/account/member-user-waitlists-route-content";
+import { MemberUserRouteFrame } from "@/components/account/member-user-route-frame";
 
 export default async function UserWaitlistsPage({
   params,
@@ -9,8 +9,8 @@ export default async function UserWaitlistsPage({
   const { locale } = await params;
 
   return (
-    <MemberContentFrame>
+    <MemberUserRouteFrame>
       <MemberUserWaitlistsRouteContent locale={locale} />
-    </MemberContentFrame>
+    </MemberUserRouteFrame>
   );
 }

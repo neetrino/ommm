@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { MemberAccountHub } from "@/components/account/member-account-hub";
 import { memberAccountHubProfileFromAuthUser } from "@/components/account/member-account-hub-profile";
-import { MemberDashboardDeferred } from "@/components/account/account-deferred-server-sections";
+import { MemberDashboard } from "@/components/account/member-dashboard";
 import homeViewportStyles from "@/components/account/member-user-home-viewports.module.css";
 import { MemberUserHomeSignInPanel } from "@/components/account/member-user-home-sign-in-panel";
 import { loadMemberUserHomePageData } from "@/server/member-user-home-page-data";
@@ -31,7 +31,7 @@ export async function MemberUserHomePageContent({ locale }: MemberUserHomePageCo
   return (
     <>
       <div className={homeViewportStyles.desktopViewport}>
-        <MemberDashboardDeferred
+        <MemberDashboard
           locale={locale}
           name={user.name}
           lastName={user.lastName}

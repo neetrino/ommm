@@ -24,7 +24,10 @@ export async function UserMemberShellLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const authOutcome = await requireAuthForLayout(locale);
+  const [authOutcome, tDash] = await Promise.all([
+    requireAuthForLayout(locale),
+    getTranslations({ locale, namespace: "dashboard" }),
+  ]);
   if (authOutcome.kind === "api_unavailable") {
     return <ApiUnavailablePanel />;
   }
@@ -33,7 +36,6 @@ export async function UserMemberShellLayout({
   redirectIfRoleNotIn(locale, role, USER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
   const notificationRoute = dashboardNotificationRouteForRole(role);
-  const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
     <WorkspaceShellFromAuth

@@ -16,6 +16,7 @@ import {
   localizedWorkspaceHref,
   WORKSPACE_ROUTE_PREFETCH,
 } from "@/lib/workspace-nav-link";
+import { shouldMemberHardNavigate } from "@/lib/member-user-nav-hard-navigate";
 
 const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users", "/admin/profile"]);
 
@@ -156,10 +157,13 @@ export function DashboardSidebarNav({
           </>
         );
 
+        const useHardNavigate =
+          hardNavigate && shouldMemberHardNavigate(pathname, item.href);
+
         return (
           <div key={item.href}>
             {showMutedDivider ? <div className="ommm-admin-nav-divider" aria-hidden /> : null}
-            {hardNavigate ? (
+            {useHardNavigate ? (
               <a
                 href={localizedWorkspaceHref(locale, item.href)}
                 title={collapsed ? item.label : undefined}

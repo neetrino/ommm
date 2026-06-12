@@ -6,5 +6,6 @@ export default async function UserProfilePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+
   return <RoleProfilePage locale={locale} shellChrome="member" />;
 }

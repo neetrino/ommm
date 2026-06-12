@@ -1,66 +1,8 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { MemberPageContentSkeleton } from "@/components/account/member-page-content-skeleton";
-
-function sectionFallback(rows = 3) {
-  return function AccountDeferredSectionFallback() {
-    return <MemberPageContentSkeleton rows={rows} />;
-  };
-}
-
-export const UserClassesSectionDeferred = dynamic(
-  () =>
-    import("@/components/account/user-classes-section").then(
-      (module) => module.UserClassesSection,
-    ),
-  { loading: sectionFallback(4) },
-);
-
-export const UserBookingsSectionDeferred = dynamic(
-  () =>
-    import("@/components/account/user-bookings-section").then(
-      (module) => module.UserBookingsSection,
-    ),
-  { loading: sectionFallback(3) },
-);
-
-export const UserPackagesSectionDeferred = dynamic(
-  () =>
-    import("@/components/account/user-packages-section").then(
-      (module) => module.UserPackagesSection,
-    ),
-  { loading: sectionFallback(2) },
-);
-
-export const UserWaitlistsSectionDeferred = dynamic(
-  () =>
-    import("@/components/account/user-waitlists-section").then(
-      (module) => module.UserWaitlistsSection,
-    ),
-  { loading: sectionFallback(2) },
-);
-
-export const UserPaymentsHistoryDeferred = dynamic(
-  () =>
-    import("@/components/account/user-payments-history").then(
-      (module) => module.UserPaymentsHistory,
-    ),
-  { loading: sectionFallback(3) },
-);
-
-export const NotificationPrefsFormDeferred = dynamic(
-  () =>
-    import("@/components/account/notification-prefs-form").then(
-      (module) => module.NotificationPrefsForm,
-    ),
-  { loading: sectionFallback(1) },
-);
-
-export const UserGiftCardsBoardDeferred = dynamic(
-  () =>
-    import("@/components/account/user-gift-cards-board").then(
-      (module) => module.UserGiftCardsBoard,
-    ),
-  { loading: sectionFallback(2) },
-);
+/** Direct exports — SSR with route data; avoids a second client chunk loading phase. */
+export { UserBookingsSection as UserBookingsSectionDeferred } from "@/components/account/user-bookings-section";
+export { UserClassesSection as UserClassesSectionDeferred } from "@/components/account/user-classes-section";
+export { UserPackagesSection as UserPackagesSectionDeferred } from "@/components/account/user-packages-section";
+export { UserWaitlistsSection as UserWaitlistsSectionDeferred } from "@/components/account/user-waitlists-section";
+export { UserPaymentsHistory as UserPaymentsHistoryDeferred } from "@/components/account/user-payments-history";
+export { NotificationPrefsForm as NotificationPrefsFormDeferred } from "@/components/account/notification-prefs-form";
+export { UserGiftCardsBoard as UserGiftCardsBoardDeferred } from "@/components/account/user-gift-cards-board";
