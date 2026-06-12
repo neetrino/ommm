@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { usePathname } from "@/i18n/navigation";
 import { MemberUserContentEnter } from "@/components/account/member-user-content-enter";
 
@@ -8,9 +8,17 @@ type MemberUserRouteTemplateProps = {
   children: ReactNode;
 };
 
-/** Re-mounts route enter animation on every `/user/*` navigation. */
+/** Re-mounts route enter animation on `/user/*` client navigations (not the first paint). */
 export function MemberUserRouteTemplate({ children }: MemberUserRouteTemplateProps) {
   const pathname = usePathname();
+  const entryPathRef = useRef(pathname);
 
-  return <MemberUserContentEnter routeKey={pathname}>{children}</MemberUserContentEnter>;
+  return (
+    <MemberUserContentEnter
+      routeKey={pathname}
+      animate={pathname !== entryPathRef.current}
+    >
+      {children}
+    </MemberUserContentEnter>
+  );
 }

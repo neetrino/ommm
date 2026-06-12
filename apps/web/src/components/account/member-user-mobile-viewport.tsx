@@ -3,23 +3,21 @@
 import type { ReactNode } from "react";
 import styles from "@/components/account/member-user-mobile-viewport.module.css";
 import { MemberUserScrollRestoration } from "@/components/account/member-user-scroll-restoration";
-import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
-import { peekMemberHubSheetScrollY } from "@/lib/member-hub-sheet-navigation";
+import { usePreserveScrolledMemberHub } from "@/hooks/use-preserve-scrolled-member-hub";
 
 type MemberUserMobileViewportProps = {
   /** Parallel `@sheet` slot is rendering an intercepted hub section. */
   hasMobileSheet: boolean;
   /** Notifications intercept route — desktop right-side panel. */
   hasDesktopNotificationsSheet: boolean;
-  /** Account hub rendered behind the bottom sheet on phones. */
+  /** Account hub behind desktop notifications panel only. */
   hubBackdrop: ReactNode | null;
   children: ReactNode;
 };
 
 /**
- * Keeps the mobile account hub visible while hub section sheets are open.
- * Without this, soft navigation swaps `children` to the full desktop-style page
- * and the old layout flashes above the sheet during transitions.
+ * Keeps scrolled hub DOM when opening a section from a scrolled account hub.
+ * Hub section sheets use dimmed backdrop only — no duplicate hub panel behind.
  */
 export function MemberUserMobileViewport({
   hasMobileSheet,
@@ -27,29 +25,25 @@ export function MemberUserMobileViewport({
   hubBackdrop,
   children,
 }: MemberUserMobileViewportProps) {
-  const isPhone = useMemberHubSheetPhone();
-  const effectiveMobileSheetOpen = isPhone && hasMobileSheet;
-  const effectiveDesktopNotificationsOpen = !isPhone && hasDesktopNotificationsSheet;
-  /** Intercepted sheet from scrolled hub — keep existing hub DOM instead of remounting a copy. */
-  const preserveScrolledHub =
-    effectiveMobileSheetOpen && peekMemberHubSheetScrollY() !== null;
-  const hideRouteForSheet = effectiveMobileSheetOpen && !preserveScrolledHub;
-  const showHubBackdrop = hideRouteForSheet && hubBackdrop;
+  const preserveScrolledHub = usePreserveScrolledMemberHub(hasMobileSheet);
 
   return (
     <>
       <MemberUserScrollRestoration />
       <div
         className={styles.root}
-        data-mobile-sheet={effectiveMobileSheetOpen ? "open" : "closed"}
+        data-mobile-sheet={hasMobileSheet ? "open" : "closed"}
         data-desktop-notifications-sheet={
-          effectiveDesktopNotificationsOpen ? "open" : "closed"
+          hasDesktopNotificationsSheet ? "open" : "closed"
         }
+        data-preserve-scrolled-hub={preserveScrolledHub ? "true" : "false"}
       >
-        {showHubBackdrop ? <div className={styles.hubBackdrop}>{hubBackdrop}</div> : null}
+        {hubBackdrop && hasDesktopNotificationsSheet ? (
+          <div className={styles.hubBackdrop}>{hubBackdrop}</div>
+        ) : null}
         <div
           className={
-            hideRouteForSheet || effectiveDesktopNotificationsOpen
+            hasMobileSheet || hasDesktopNotificationsSheet
               ? styles.routeContentWhenSheet
               : styles.routeContent
           }

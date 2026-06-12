@@ -2,6 +2,10 @@
   animation: memberUserContentEnter 0.48s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
 
+.enterStatic {
+  animation: none;
+}
+
 @keyframes memberUserContentEnter {
   from {
     opacity: 0;
