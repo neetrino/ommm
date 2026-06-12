@@ -1,3 +1,9 @@
+import {
+  clearMemberHubSheetScrollY,
+  peekMemberHubSheetScrollY,
+} from "@/lib/member-hub-sheet-navigation";
+import { restoreWorkspaceScrollPosition } from "@/lib/reset-workspace-scroll";
+
 const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
 
 /** Scroll containers that must keep touch scrolling while the backdrop is locked. */
@@ -54,6 +60,60 @@ function onLockedTouchMove(event: TouchEvent): void {
   event.preventDefault();
 }
 
+function resolveUnlockScrollY(): number {
+  const hubScrollY = peekMemberHubSheetScrollY();
+  return hubScrollY !== null ? hubScrollY : savedScrollY;
+}
+
+function performBodyScrollUnlock(): void {
+  if (typeof document === "undefined" || snapshot === null) {
+    return;
+  }
+
+  const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
+  const targetScrollY = resolveUnlockScrollY();
+
+  if (touchMoveListener) {
+    document.removeEventListener("touchmove", touchMoveListener);
+    touchMoveListener = null;
+  }
+
+  document.documentElement.style.overflow = snapshot.htmlOverflow;
+  document.body.style.overflow = snapshot.bodyOverflow;
+  document.body.style.paddingRight = snapshot.bodyPaddingRight;
+  document.body.style.position = snapshot.bodyPosition;
+  document.body.style.top = snapshot.bodyTop;
+  document.body.style.left = snapshot.bodyLeft;
+  document.body.style.right = snapshot.bodyRight;
+  document.body.style.width = snapshot.bodyWidth;
+
+  if (pane) {
+    pane.style.overflow = snapshot.paneOverflow ?? "";
+  }
+
+  snapshot = null;
+
+  restoreWorkspaceScrollPosition(targetScrollY);
+  clearMemberHubSheetScrollY();
+
+  requestAnimationFrame(() => {
+    restoreWorkspaceScrollPosition(targetScrollY);
+  });
+}
+
+/**
+ * Release scroll lock before route change — restores hub scroll while the sheet
+ * is still mounted so close feels seamless (member hub mobile sheets).
+ */
+export function releaseBodyScrollLockEarly(): void {
+  if (lockCount <= 0 || snapshot === null) {
+    return;
+  }
+
+  lockCount = 0;
+  performBodyScrollUnlock();
+}
+
 /**
  * Locks background scroll while modals/sheets stay scrollable.
  * Uses `position: fixed` on body so iOS Safari keeps viewport-fixed overlays visible.
@@ -62,7 +122,8 @@ export function lockBodyScroll(): () => void {
   lockCount += 1;
 
   if (lockCount === 1 && typeof document !== "undefined") {
-    savedScrollY = window.scrollY;
+    const hubScrollY = peekMemberHubSheetScrollY();
+    savedScrollY = hubScrollY !== null ? hubScrollY : window.scrollY;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
 
@@ -101,31 +162,10 @@ export function lockBodyScroll(): () => void {
   return () => {
     lockCount = Math.max(0, lockCount - 1);
 
-    if (lockCount !== 0 || typeof document === "undefined" || snapshot === null) {
+    if (lockCount !== 0 || snapshot === null) {
       return;
     }
 
-    const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
-
-    if (touchMoveListener) {
-      document.removeEventListener("touchmove", touchMoveListener);
-      touchMoveListener = null;
-    }
-
-    document.documentElement.style.overflow = snapshot.htmlOverflow;
-    document.body.style.overflow = snapshot.bodyOverflow;
-    document.body.style.paddingRight = snapshot.bodyPaddingRight;
-    document.body.style.position = snapshot.bodyPosition;
-    document.body.style.top = snapshot.bodyTop;
-    document.body.style.left = snapshot.bodyLeft;
-    document.body.style.right = snapshot.bodyRight;
-    document.body.style.width = snapshot.bodyWidth;
-
-    if (pane) {
-      pane.style.overflow = snapshot.paneOverflow ?? "";
-    }
-
-    snapshot = null;
-    window.scrollTo(0, savedScrollY);
+    performBodyScrollUnlock();
   };
 }

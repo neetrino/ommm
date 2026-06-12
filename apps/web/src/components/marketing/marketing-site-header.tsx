@@ -76,7 +76,7 @@ export type MarketingSiteHeaderProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
   workspaceHeaderChrome?: boolean;
-  /** Member workspace — hide language switcher (mobile) and avatar in the header action cluster. */
+  /** Member workspace — hide language switcher (mobile); desktop avatar stays in sidebar. Mobile keeps avatar → `/user`. */
   memberWorkspaceHeader?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
@@ -268,12 +268,13 @@ export function MarketingSiteHeader({
                   )}
                 />
               ) : null}
-              {!memberWorkspaceHeader && account ? (
+              {account ? (
                 <MarketingAccountAvatarMenu
                   initials={account.initials}
                   imageSrc={account.imageSrc}
                   displayName={account.displayName}
                   profileHref={account.href}
+                  hardNavigate={memberWorkspaceHeader}
                   triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
                   avatarClassName={navPillStyles.mobileHeaderAvatar}
                   guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}

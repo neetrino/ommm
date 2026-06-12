@@ -24,6 +24,7 @@ import { OMM_MODAL_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
+import { releaseBodyScrollLockEarly } from "@/lib/body-scroll-lock";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 const MemberHubMobileSheetCloseContext = createContext<(() => void) | null>(null);
@@ -96,7 +97,10 @@ export function MemberHubMobileSheet({
     setIsClosing(true);
     setPanelVisible(false);
     setBackdropVisible(false);
-    window.setTimeout(onClose, MEMBER_ACCOUNT_HUB_SHEET_MOTION_MS);
+    window.setTimeout(() => {
+      releaseBodyScrollLockEarly();
+      onClose();
+    }, MEMBER_ACCOUNT_HUB_SHEET_MOTION_MS);
   }, [closeDisabled, onClose]);
 
   useCloseOnEscape(clientMounted, requestClose, { disabled: closeDisabled || isClosing });

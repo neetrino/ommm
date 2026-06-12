@@ -16,7 +16,6 @@ import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
-import { clearMemberHubSheetNavigation } from "@/lib/member-hub-sheet-navigation";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 type MemberAccountHubSectionSheetProps = {
@@ -56,12 +55,6 @@ export function MemberAccountHubSectionSheet({
   const isPhone = useMemberHubSheetPhone();
   const desktopClosingRef = useRef(false);
   const [desktopMotionState, setDesktopMotionState] = useState<"open" | "closed">("closed");
-
-  useEffect(() => {
-    if (isPhone) {
-      clearMemberHubSheetNavigation();
-    }
-  }, [isPhone]);
 
   useEffect(() => {
     if (!clientMounted || isPhone || !desktopSidePanel) {

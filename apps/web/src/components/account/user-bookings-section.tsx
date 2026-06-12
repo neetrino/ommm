@@ -302,7 +302,7 @@ export function UserBookingsSection({
       <p className="ommm-body-muted mt-2 text-sm">{tabEmptyDescription}</p>
     </section>
   ) : (
-    <>
+    <div className="flex flex-col gap-5">
       {tabTotalCount > 0 ? (
         <p className="text-sm text-sage-600">{t("bookingsCount", { count: tabTotalCount })}</p>
       ) : (
@@ -333,7 +333,7 @@ export function UserBookingsSection({
           ) : undefined
         }
       />
-    </>
+    </div>
   );
 
   return (

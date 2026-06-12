@@ -1,6 +1,6 @@
 /**
  * Mobile member sheet backdrop — matches `ommm-member-hub-sheet-overlay` (`tablet:hidden`).
- * Hub section sheets show only the section overlay (no duplicate hub behind).
+ * When a hub section sheet is open, hide the full-page route chrome and keep the hub visible.
  * Desktop notifications keep the account hub visible behind the right-side panel.
  */
 
@@ -18,6 +18,12 @@
 
 @media (max-width: 743px) {
   .root[data-mobile-sheet="open"] {
+    overscroll-behavior: none;
+  }
+
+  .root[data-mobile-sheet="open"] .hubBackdrop {
+    display: block;
+    overflow: hidden;
     overscroll-behavior: none;
   }
 
