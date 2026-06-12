@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MarketingHeaderUserIcon } from "@/components/marketing/marketing-header-icons";
 import { MARKETING_HEADER_GUEST_USER_ICON_CLASS } from "@/components/marketing/marketing-site-header-layout";
 import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
@@ -14,22 +14,20 @@ type MemberProfileAvatarProps = {
   guestIconClassName?: string;
 };
 
-export function MemberProfileAvatar({
-  imageSrc,
+type MemberProfileAvatarPhotoProps = {
+  safeSrc: string;
+  className?: string;
+  guestIconClassName: string;
+};
+
+function MemberProfileAvatarPhoto({
+  safeSrc,
   className,
-  guestIconClassName = MARKETING_HEADER_GUEST_USER_ICON_CLASS,
-}: MemberProfileAvatarProps) {
+  guestIconClassName,
+}: MemberProfileAvatarPhotoProps) {
   const [loadFailed, setLoadFailed] = useState(false);
-  const safeSrc =
-    imageSrc !== null ? sanitizeImageSrcUrl(imageSrc) : null;
 
-  useEffect(() => {
-    setLoadFailed(false);
-  }, [safeSrc]);
-
-  const showPhoto = safeSrc !== null && !loadFailed;
-
-  if (!showPhoto) {
+  if (loadFailed) {
     return <MarketingHeaderUserIcon className={guestIconClassName} />;
   }
 
@@ -52,5 +50,27 @@ export function MemberProfileAvatar({
         onError={() => setLoadFailed(true)}
       />
     </span>
+  );
+}
+
+export function MemberProfileAvatar({
+  imageSrc,
+  className,
+  guestIconClassName = MARKETING_HEADER_GUEST_USER_ICON_CLASS,
+}: MemberProfileAvatarProps) {
+  const safeSrc =
+    imageSrc !== null ? sanitizeImageSrcUrl(imageSrc) : null;
+
+  if (safeSrc === null) {
+    return <MarketingHeaderUserIcon className={guestIconClassName} />;
+  }
+
+  return (
+    <MemberProfileAvatarPhoto
+      key={safeSrc}
+      safeSrc={safeSrc}
+      className={className}
+      guestIconClassName={guestIconClassName}
+    />
   );
 }
