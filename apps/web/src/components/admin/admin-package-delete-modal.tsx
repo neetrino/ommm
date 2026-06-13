@@ -51,8 +51,18 @@ export function AdminPackageDeleteModal({
 
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [blockers, setBlockers] = useState<PackageDeletionBlockersResponse | null>(null);
-  const [loadingBlockers, setLoadingBlockers] = useState(false);
+  type BlockersCache = {
+    packageId: string;
+    blockers: PackageDeletionBlockersResponse | null;
+  };
+
+  const [blockersCache, setBlockersCache] = useState<BlockersCache | null>(null);
+  const shouldLoadBlockers = isOpen && packageId.length > 0;
+  const loadingBlockers =
+    shouldLoadBlockers &&
+    (blockersCache === null || blockersCache.packageId !== packageId);
+  const blockers =
+    blockersCache?.packageId === packageId ? blockersCache.blockers : null;
   const [showMemberList, setShowMemberList] = useState(showMembersFromUrl);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(memberIdFromUrl);
   const [prevMemberIdFromUrl, setPrevMemberIdFromUrl] = useState(memberIdFromUrl);
@@ -78,35 +88,27 @@ export function AdminPackageDeleteModal({
   );
 
   useEffect(() => {
-    if (!isOpen || packageId.length === 0) {
+    if (!shouldLoadBlockers) {
       return undefined;
     }
     let cancelled = false;
-    setLoadingBlockers(true);
-    setBlockers(null);
-    setError(null);
     void apiFetch<PackageDeletionBlockersResponse>(
       `/packages/admin/plans/${encodeURIComponent(packageId)}/deletion-blockers`,
     )
       .then((payload) => {
         if (!cancelled) {
-          setBlockers(payload);
+          setBlockersCache({ packageId, blockers: payload });
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setBlockers(null);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoadingBlockers(false);
+          setBlockersCache({ packageId, blockers: null });
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [isOpen, packageId]);
+  }, [packageId, shouldLoadBlockers]);
 
   if (!isOpen) {
     return null;
@@ -119,12 +121,12 @@ export function AdminPackageDeleteModal({
   const memberDrawerOpen = selectedMemberId !== null;
 
   async function loadBlockers(showList: boolean): Promise<void> {
-    setLoadingBlockers(true);
+    setBlockersCache(null);
     try {
       const payload = await apiFetch<PackageDeletionBlockersResponse>(
         `/packages/admin/plans/${encodeURIComponent(packageId)}/deletion-blockers`,
       );
-      setBlockers(payload);
+      setBlockersCache({ packageId, blockers: payload });
       if (showList && payload.count > 0) {
         setShowMemberList(true);
         replaceSearchParams((params) => {
@@ -132,9 +134,7 @@ export function AdminPackageDeleteModal({
         });
       }
     } catch {
-      setBlockers(null);
-    } finally {
-      setLoadingBlockers(false);
+      setBlockersCache({ packageId, blockers: null });
     }
   }
 

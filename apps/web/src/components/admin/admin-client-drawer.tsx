@@ -98,8 +98,10 @@ function AdminClientDrawerInner({
   const t = useTranslations("adminPages.clients");
   const titleId = useId();
   const [activeTab, setActiveTab] = useState<ClientSheetTabId>(CLIENT_SHEET_TAB_PROFILE);
-  const [detail, setDetail] = useState<ClientDetail | null>(initialDetail);
-  const [loading, setLoading] = useState(initialDetail === null);
+  const matchingInitialDetail =
+    initialDetail !== null && initialDetail.id === client.id ? initialDetail : null;
+  const [detail, setDetail] = useState<ClientDetail | null>(matchingInitialDetail);
+  const [loading, setLoading] = useState(matchingInitialDetail === null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
@@ -120,14 +122,11 @@ function AdminClientDrawerInner({
   }, [client.id]);
 
   useEffect(() => {
-    if (initialDetail !== null && initialDetail.id === client.id) {
-      setDetail(initialDetail);
-      setLoading(false);
+    if (matchingInitialDetail !== null) {
       return undefined;
     }
 
     let cancelled = false;
-    setLoading(true);
     void apiFetch<ClientDetail>(`/clients/${client.id}`)
       .then((payload) => {
         if (!cancelled) {
@@ -147,11 +146,7 @@ function AdminClientDrawerInner({
     return () => {
       cancelled = true;
     };
-  }, [client.id, initialDetail]);
-
-  useEffect(() => {
-    setPersonalInfoEditing(false);
-  }, [client.id]);
+  }, [client.id, matchingInitialDetail]);
 
   const initial = useMemo(
     () => (detail ? clientInitialValues(detail) : null),

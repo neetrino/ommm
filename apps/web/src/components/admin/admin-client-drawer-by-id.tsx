@@ -31,22 +31,41 @@ export function AdminClientDrawerById({
   onChanged,
   useOverlayPortalRoot = false,
 }: AdminClientDrawerByIdProps) {
+  if (!clientId) {
+    return null;
+  }
+
+  return (
+    <AdminClientDrawerByIdContent
+      key={clientId}
+      clientId={clientId}
+      locale={locale}
+      onClose={onClose}
+      onChanged={onChanged}
+      useOverlayPortalRoot={useOverlayPortalRoot}
+    />
+  );
+}
+
+function AdminClientDrawerByIdContent({
+  clientId,
+  locale,
+  onClose,
+  onChanged,
+  useOverlayPortalRoot = false,
+}: {
+  clientId: string;
+  locale: string;
+  onClose: () => void;
+  onChanged?: () => void;
+  useOverlayPortalRoot?: boolean;
+}) {
   const [client, setClient] = useState<ClientRow | null>(null);
   const [detail, setDetail] = useState<ClientDetail | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!clientId) {
-      setClient(null);
-      setDetail(null);
-      setLoading(false);
-      return undefined;
-    }
-
     let cancelled = false;
-    setClient(null);
-    setDetail(null);
-    setLoading(true);
 
     void apiFetch<ClientDetail>(`/clients/${encodeURIComponent(clientId)}`)
       .then((payload) => {
@@ -71,10 +90,6 @@ export function AdminClientDrawerById({
       cancelled = true;
     };
   }, [clientId]);
-
-  if (!clientId) {
-    return null;
-  }
 
   if (loading || client === null || detail === null) {
     return (

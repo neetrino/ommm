@@ -57,17 +57,23 @@ export function AdminSessionRegistrationsModal({
   const t = useTranslations("adminPages.classes.registrationsModal");
   const titleId = useId();
   const descId = useId();
-  const [rows, setRows] = useState<readonly SessionRegistrationRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  type RegistrationsFetchResult = {
+    key: string;
+    rows: readonly SessionRegistrationRow[];
+    error: string | null;
+  };
+
+  const [fetchResult, setFetchResult] = useState<RegistrationsFetchResult | null>(null);
+  const fetchKey = isOpen ? sessionId : null;
+  const loading = fetchKey !== null && (fetchResult === null || fetchResult.key !== fetchKey);
+  const rows = fetchResult?.key === fetchKey ? fetchResult.rows : [];
+  const error = fetchResult?.key === fetchKey ? fetchResult.error : null;
 
   useEffect(() => {
-    if (!isOpen) {
+    if (fetchKey === null) {
       return undefined;
     }
     let cancelled = false;
-    setLoading(true);
-    setError(null);
     void apiFetch<SessionRegistrationRow[]>(
       `/bookings/admin?sessionId=${encodeURIComponent(sessionId)}`,
     )
@@ -75,24 +81,26 @@ export function AdminSessionRegistrationsModal({
         if (cancelled) {
           return;
         }
-        setRows(payload.filter(isActiveSessionRegistration));
+        setFetchResult({
+          key: fetchKey,
+          rows: payload.filter(isActiveSessionRegistration),
+          error: null,
+        });
       })
       .catch((err) => {
         if (cancelled) {
           return;
         }
-        setRows([]);
-        setError(err instanceof ApiError ? err.message : t("error"));
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setFetchResult({
+          key: fetchKey,
+          rows: [],
+          error: err instanceof ApiError ? err.message : t("error"),
+        });
       });
     return () => {
       cancelled = true;
     };
-  }, [isOpen, sessionId, t]);
+  }, [fetchKey, sessionId, t]);
 
   const subtitle = useMemo(
     () =>

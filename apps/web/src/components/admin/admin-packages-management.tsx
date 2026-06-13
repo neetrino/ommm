@@ -7,7 +7,9 @@ import {
   useMemo,
   useRef,
   useState,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -84,6 +86,30 @@ const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
 };
 
 const PACKAGE_SEARCH_DEBOUNCE_MS = 300;
+
+function revealPackageCategoryInFilters(
+  categoryName: string,
+  setSelectedCategoryIds: Dispatch<SetStateAction<ReadonlySet<string>>>,
+  setExpandedCategoryKeys: Dispatch<SetStateAction<ReadonlySet<string>>>,
+): void {
+  const categoryKey = normalizePackageCategoryKey(categoryName);
+  setSelectedCategoryIds((current) => {
+    if (current.has(categoryName)) {
+      return current;
+    }
+    const next = new Set(current);
+    next.add(categoryName);
+    return next;
+  });
+  setExpandedCategoryKeys((current) => {
+    if (current.has(categoryKey)) {
+      return current;
+    }
+    const next = new Set(current);
+    next.add(categoryKey);
+    return next;
+  });
+}
 
 function PackagesEmptyState({ children }: { children: ReactNode }) {
   const reducedMotion = usePrefersReducedMotion();
@@ -298,6 +324,23 @@ export function AdminPackagesManagement({
     return packageRows.find((row) => row.id === deletingPackageId) ?? null;
   }, [deletingPackageId, packageRows]);
   const isDeletePackageOpen = deletingPackage !== null;
+  const [prevDeletePackageRevealId, setPrevDeletePackageRevealId] = useState<string | null>(
+    null,
+  );
+
+  if (
+    deletingPackage !== null &&
+    deletingPackage.id !== prevDeletePackageRevealId
+  ) {
+    setPrevDeletePackageRevealId(deletingPackage.id);
+    revealPackageCategoryInFilters(
+      deletingPackage.categoryName,
+      setSelectedCategoryIds,
+      setExpandedCategoryKeys,
+    );
+  } else if (deletingPackage === null && prevDeletePackageRevealId !== null) {
+    setPrevDeletePackageRevealId(null);
+  }
 
   useEffect(() => {
     if (deletingCategoryId === null || isDeleteCategoryOpen) {
@@ -316,29 +359,6 @@ export function AdminPackagesManagement({
     clearPackageDeleteQueryKeys(params);
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [deletingPackageId, isDeletePackageOpen, pathname, router, searchParams]);
-
-  useEffect(() => {
-    if (deletingPackage === null) {
-      return;
-    }
-    const categoryKey = normalizePackageCategoryKey(deletingPackage.categoryName);
-    setSelectedCategoryIds((current) => {
-      if (current.has(deletingPackage.categoryName)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.add(deletingPackage.categoryName);
-      return next;
-    });
-    setExpandedCategoryKeys((current) => {
-      if (current.has(categoryKey)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.add(categoryKey);
-      return next;
-    });
-  }, [deletingPackage]);
 
   const visibleCategories = useMemo(
     () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
@@ -438,17 +458,11 @@ export function AdminPackagesManagement({
       if (target === undefined) {
         return;
       }
-      const categoryKey = normalizePackageCategoryKey(target.categoryName);
-      setSelectedCategoryIds((current) => {
-        const next = new Set(current);
-        next.add(target.categoryName);
-        return next;
-      });
-      setExpandedCategoryKeys((current) => {
-        const next = new Set(current);
-        next.add(categoryKey);
-        return next;
-      });
+      revealPackageCategoryInFilters(
+        target.categoryName,
+        setSelectedCategoryIds,
+        setExpandedCategoryKeys,
+      );
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);

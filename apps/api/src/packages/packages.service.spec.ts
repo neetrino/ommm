@@ -363,9 +363,11 @@ describe('PackagesService', () => {
     expect(payments.confirmPendingCardPayment).toHaveBeenCalledWith('pay-card');
   });
 
-  function mockDeleteTransaction(prisma: ReturnType<typeof createService>['prisma']) {
+  function mockDeleteTransaction(
+    prisma: ReturnType<typeof createService>['prisma'],
+  ) {
     prisma.$transaction.mockImplementation(
-      async (callback: (tx: typeof prisma) => unknown) => callback(prisma),
+      (callback: (tx: typeof prisma) => unknown) => callback(prisma),
     );
   }
 
@@ -385,7 +387,11 @@ describe('PackagesService', () => {
       where: {
         planId: { in: ['plan-1'] },
         status: {
-          in: [PackageStatus.ACTIVE, PackageStatus.PENDING, PackageStatus.PAUSED],
+          in: [
+            PackageStatus.ACTIVE,
+            PackageStatus.PENDING,
+            PackageStatus.PAUSED,
+          ],
         },
       },
     });
@@ -434,14 +440,23 @@ describe('PackagesService', () => {
 
     await service.deletePlan('plan-1');
 
-    expect(prisma.userPackage.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          planId: { in: ['plan-1'] },
-          status: PackageStatus.ACTIVE,
-        }),
-        data: { status: PackageStatus.EXPIRED },
-      }),
+    expect(prisma.userPackage.updateMany).toHaveBeenCalled();
+    const expireMembershipsCall = prisma.userPackage.updateMany.mock
+      .calls[0] as [
+      {
+        where: {
+          planId: { in: string[] };
+          status: PackageStatus;
+          currentPeriodEnd: { lte: Date };
+        };
+        data: { status: PackageStatus };
+      },
+    ];
+    expect(expireMembershipsCall[0].where.planId).toEqual({ in: ['plan-1'] });
+    expect(expireMembershipsCall[0].where.status).toBe(PackageStatus.ACTIVE);
+    expect(expireMembershipsCall[0].where.currentPeriodEnd.lte).toBeInstanceOf(
+      Date,
     );
+    expect(expireMembershipsCall[0].data.status).toBe(PackageStatus.EXPIRED);
   });
 });
