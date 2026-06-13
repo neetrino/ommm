@@ -110,6 +110,7 @@ function AdminClientDrawerInner({
   const [note, setNote] = useState("");
   const [giftAmount, setGiftAmount] = useState("10000");
   const [tabRefreshKey, setTabRefreshKey] = useState(0);
+  const [personalInfoEditing, setPersonalInfoEditing] = useState(false);
 
   const refreshDetail = useCallback(async () => {
     const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
@@ -147,6 +148,10 @@ function AdminClientDrawerInner({
       cancelled = true;
     };
   }, [client.id, initialDetail]);
+
+  useEffect(() => {
+    setPersonalInfoEditing(false);
+  }, [client.id]);
 
   const initial = useMemo(
     () => (detail ? clientInitialValues(detail) : null),
@@ -211,7 +216,20 @@ function AdminClientDrawerInner({
     if (sheetBusy) {
       return;
     }
+    setPersonalInfoEditing(false);
     onClose();
+  }
+
+  function handleCancelPersonalInfoEdit(): void {
+    editForm.cancelEdits();
+    setPersonalInfoEditing(false);
+  }
+
+  async function handleSavePersonalInfo(): Promise<void> {
+    const saved = await editForm.save(t("updateSuccess"), t("genericError"));
+    if (saved) {
+      setPersonalInfoEditing(false);
+    }
   }
 
   async function runAction(
@@ -339,6 +357,8 @@ function AdminClientDrawerInner({
             onNoteChange={setNote}
             onRun={runAction}
             tabRefreshKey={tabRefreshKey}
+            personalInfoEditing={personalInfoEditing}
+            onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
           />
         )}
       </div>
@@ -347,11 +367,11 @@ function AdminClientDrawerInner({
         saveLabel={t("saveButton")}
         cancelLabel={t("cancelButton")}
         savingLabel={t("savingButton")}
-        dirty={editForm.dirty}
+        dirty={editForm.dirty || personalInfoEditing}
         busy={editForm.busy}
-        onCancel={editForm.cancelEdits}
+        onCancel={handleCancelPersonalInfoEdit}
         onSave={() => {
-          void editForm.save(t("updateSuccess"), t("genericError"));
+          void handleSavePersonalInfo();
         }}
       />
     </OmmDrawerPortal>
