@@ -25,7 +25,7 @@ type AdminPackagesCategoryTableProps = {
   locale: string;
   onAddTier: () => void;
   onEditPackage: (packageId: string) => void;
-  onPackageDeleted?: (packageId: string) => void;
+  onDeletePackage: (packageId: string) => void;
 };
 
 function EmptyCell() {
@@ -57,7 +57,7 @@ export function AdminPackagesCategoryTable({
   locale,
   onAddTier,
   onEditPackage,
-  onPackageDeleted,
+  onDeletePackage,
 }: AdminPackagesCategoryTableProps) {
   const t = useTranslations("adminPages.packages");
   const reducedMotion = usePrefersReducedMotion();
@@ -122,10 +122,9 @@ export function AdminPackagesCategoryTable({
                   <div className="ommm-admin-packages-table-actions">
                     <AdminPackageRowMenu
                       packageId={pkg.id}
-                      packageName={packageName}
                       isActive={pkg.isActive}
                       onEdit={() => onEditPackage(pkg.id)}
-                      onDeleted={onPackageDeleted}
+                      onDeletePackage={() => onDeletePackage(pkg.id)}
                     />
                   </div>
                 </div>

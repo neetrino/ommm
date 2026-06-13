@@ -2144,6 +2144,17 @@
         "spotsBooked": "{booked}/{capacity} booked",
         "spotsLeft": "{count} spots left"
       },
+      "registrationsModal": {
+        "title": "Registered members",
+        "subtitle": "{count} of {capacity} spots filled",
+        "empty": "No one is registered for this class yet.",
+        "loading": "Loading registrations…",
+        "error": "Could not load registrations.",
+        "registeredAt": "Registered {date}",
+        "viewBookedAria": "View {count} registered members",
+        "closeButton": "Close",
+        "backdropClose": "Close dialog"
+      },
       "actions": {
         "view": "View",
         "delete": "Delete"
@@ -2510,6 +2521,19 @@
       "deletePackageDescription": "Are you sure you want to delete \"{name}\"?",
       "deletePackageWarning": "This action cannot be undone. The package will be removed from the catalog.",
       "deletePackageConfirmButton": "Yes / Delete",
+      "deletionBlockers": {
+        "loading": "Checking active subscriptions…",
+        "blockedSummary": "This package cannot be deleted because {count} members still have active, pending, or paused subscriptions.",
+        "viewMembersButton": "View {count} members",
+        "listHeading": "Blocking members ({count})",
+        "validUntil": "Valid until {date}",
+        "resolveHint": "Cancel or expire these subscriptions in Clients before deleting this package.",
+        "statusLabels": {
+          "ACTIVE": "Active",
+          "PAUSED": "Paused",
+          "PENDING": "Pending payment"
+        }
+      },
       "noFeatures": "No features listed yet.",
       "empty": "No packages match your filters.",
       "tabAllPackages": "All packages",

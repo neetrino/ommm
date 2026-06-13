@@ -20,7 +20,7 @@ import {
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
-import { ScheduleSessionCapacityIndicator } from "@/components/shared/schedule/schedule-session-capacity-indicator";
+import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedule/schedule-session-registrations-capacity";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
 
@@ -102,13 +102,22 @@ export function AdminScheduleSessionCompactRow({
 
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL} aria-hidden="true" />
 
-      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL}>
+      <div
+        className={ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
         <AdminListMobileLabel label={t("colCapacity")} />
-        <ScheduleSessionCapacityIndicator
+        <ScheduleSessionRegistrationsCapacity
+          sessionId={row.id}
+          sessionTitle={row.title}
+          startsAt={row.startsAt}
+          locale={locale}
           booked={booked}
           capacity={row.capacity}
           spotsLabel={capacityLabel}
           secondaryLabel={spotsLeftLabel}
+          bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
         />
       </div>
 

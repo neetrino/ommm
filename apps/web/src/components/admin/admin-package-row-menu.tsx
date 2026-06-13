@@ -4,7 +4,6 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api";
-import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
 
 const MENU_MIN_WIDTH = 160;
 const MENU_GAP = 4;
@@ -17,10 +16,9 @@ type MenuPosition = {
 
 type AdminPackageRowMenuProps = {
   packageId: string;
-  packageName: string;
   isActive: boolean;
   onEdit: () => void;
-  onDeleted?: (packageId: string) => void;
+  onDeletePackage: () => void;
 };
 
 function MoreGlyph() {
@@ -41,17 +39,15 @@ function MoreGlyph() {
 
 export function AdminPackageRowMenu({
   packageId,
-  packageName,
   isActive,
   onEdit,
-  onDeleted,
+  onDeletePackage,
 }: AdminPackageRowMenuProps) {
   const t = useTranslations("adminPages.packages");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
 
@@ -134,7 +130,7 @@ export function AdminPackageRowMenu({
       return;
     }
     setOpen(false);
-    setDeleteModalOpen(true);
+    onDeletePackage();
   }
 
   const menu =
@@ -204,13 +200,6 @@ export function AdminPackageRowMenu({
         <MoreGlyph />
       </button>
       {menu}
-      <AdminPackageDeleteModal
-        isOpen={deleteModalOpen}
-        packageId={packageId}
-        packageName={packageName}
-        onClose={() => setDeleteModalOpen(false)}
-        onDeleted={(id) => onDeleted?.(id)}
-      />
     </div>
   );
 }

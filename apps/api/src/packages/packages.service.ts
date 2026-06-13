@@ -310,6 +310,61 @@ export class PackagesService {
     return { deletedIds: planIds };
   }
 
+  async listPlanDeletionBlockers(planId: string) {
+    const existing = await this.prisma.packagePlan.findUnique({
+      where: { id: planId },
+      select: { id: true },
+    });
+    if (existing === null) {
+      throw new NotFoundException('Plan not found');
+    }
+    await this.syncExpiredMembershipsForPlans([planId]);
+    const memberships = await this.prisma.userPackage.findMany({
+      where: {
+        planId,
+        status: { in: [...PACKAGE_PLAN_DELETION_BLOCKING_STATUSES] },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+    });
+    return {
+      count: memberships.length,
+      memberships: memberships.map((membership) => ({
+        id: membership.id,
+        status: membership.status,
+        currentPeriodStart: membership.currentPeriodStart,
+        currentPeriodEnd: membership.currentPeriodEnd,
+        user: membership.user,
+      })),
+    };
+  }
+
+  private async syncExpiredMembershipsForPlans(
+    planIds: readonly string[],
+  ): Promise<void> {
+    if (planIds.length === 0) {
+      return;
+    }
+    await this.prisma.userPackage.updateMany({
+      where: {
+        planId: { in: [...planIds] },
+        status: PackageStatus.ACTIVE,
+        currentPeriodEnd: { lte: new Date() },
+      },
+      data: { status: PackageStatus.EXPIRED },
+    });
+  }
+
   private async findPlanIdsByCategoryName(
     categoryName: string,
   ): Promise<string[]> {
@@ -331,18 +386,9 @@ export class PackagesService {
       return;
     }
     const ids = [...planIds];
-    const now = new Date();
+    await this.syncExpiredMembershipsForPlans(ids);
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.userPackage.updateMany({
-        where: {
-          planId: { in: ids },
-          status: PackageStatus.ACTIVE,
-          currentPeriodEnd: { lte: now },
-        },
-        data: { status: PackageStatus.EXPIRED },
-      });
-
       const blockingCount = await tx.userPackage.count({
         where: {
           planId: { in: ids },

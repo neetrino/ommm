@@ -1,8 +1,12 @@
+import type { MouseEvent } from "react";
+
 type ScheduleSessionCapacityIndicatorProps = {
   booked: number;
   capacity: number;
   spotsLabel: string;
   secondaryLabel: string;
+  onBookedCountClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  bookedCountAriaLabel?: string;
 };
 
 const CAPACITY_TRACK_CLASS = "bg-white/90 ring-1 ring-inset ring-sand-500/20";
@@ -48,13 +52,28 @@ export function ScheduleSessionCapacityIndicator({
   capacity,
   spotsLabel,
   secondaryLabel,
+  onBookedCountClick,
+  bookedCountAriaLabel,
 }: ScheduleSessionCapacityIndicatorProps) {
+  const bookedIsInteractive = booked > 0 && onBookedCountClick !== undefined;
+
   return (
     <div className="min-w-0 w-full max-w-full" aria-label={spotsLabel}>
       <div className="flex items-baseline gap-1">
-        <span className="font-serif text-lg leading-none tabular-nums text-sage-950">
-          {booked}
-        </span>
+        {bookedIsInteractive ? (
+          <button
+            type="button"
+            className="rounded-md font-serif text-lg leading-none tabular-nums text-sage-950 underline decoration-sand-300/80 decoration-dotted underline-offset-[5px] transition-colors hover:text-sage-700 hover:decoration-sand-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+            aria-label={bookedCountAriaLabel ?? spotsLabel}
+            onClick={onBookedCountClick}
+          >
+            {booked}
+          </button>
+        ) : (
+          <span className="font-serif text-lg leading-none tabular-nums text-sage-950">
+            {booked}
+          </span>
+        )}
         <span className="text-[10px] font-medium text-sage-500">/ {capacity}</span>
       </div>
       <CapacityFillBar booked={booked} capacity={capacity} spotsLabel={spotsLabel} />

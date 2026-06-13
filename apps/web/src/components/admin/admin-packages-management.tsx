@@ -19,7 +19,9 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
 import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
+import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
+import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
 import {
   buildPackageCategoryOptions,
@@ -53,6 +55,7 @@ import {
   clearPackageModalQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_CATEGORY_QUERY_KEY,
+  PACKAGE_DELETE_QUERY_KEY,
   PACKAGE_EDIT_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_QUERY_KEY,
   PACKAGE_FILTER_QUERY_KEYS,
@@ -286,6 +289,15 @@ export function AdminPackagesManagement({
   }, [categoryOptions, deletingCategoryId]);
   const isDeleteCategoryOpen = deletingCategory !== null;
 
+  const deletingPackageId = searchParams.get(PACKAGE_DELETE_QUERY_KEY);
+  const deletingPackage = useMemo(() => {
+    if (deletingPackageId === null || deletingPackageId.trim().length === 0) {
+      return null;
+    }
+    return packageRows.find((row) => row.id === deletingPackageId) ?? null;
+  }, [deletingPackageId, packageRows]);
+  const isDeletePackageOpen = deletingPackage !== null;
+
   useEffect(() => {
     if (deletingCategoryId === null || isDeleteCategoryOpen) {
       return;
@@ -294,6 +306,38 @@ export function AdminPackagesManagement({
     params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [deletingCategoryId, isDeleteCategoryOpen, pathname, router, searchParams]);
+
+  useEffect(() => {
+    if (deletingPackageId === null || isDeletePackageOpen) {
+      return;
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PACKAGE_DELETE_QUERY_KEY);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [deletingPackageId, isDeletePackageOpen, pathname, router, searchParams]);
+
+  useEffect(() => {
+    if (deletingPackage === null) {
+      return;
+    }
+    const categoryKey = normalizePackageCategoryKey(deletingPackage.categoryName);
+    setSelectedCategoryIds((current) => {
+      if (current.has(deletingPackage.categoryName)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.add(deletingPackage.categoryName);
+      return next;
+    });
+    setExpandedCategoryKeys((current) => {
+      if (current.has(categoryKey)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.add(categoryKey);
+      return next;
+    });
+  }, [deletingPackage]);
 
   const visibleCategories = useMemo(
     () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
@@ -336,6 +380,7 @@ export function AdminPackagesManagement({
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+      params.delete(PACKAGE_DELETE_QUERY_KEY);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_EDIT_TIER_VALUE);
       params.set(PACKAGE_PRICING_QUERY_KEY, packageId);
@@ -354,6 +399,7 @@ export function AdminPackagesManagement({
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+      params.delete(PACKAGE_DELETE_QUERY_KEY);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_ADD_TIER_VALUE);
       params.set(PACKAGE_CATEGORY_QUERY_KEY, categoryId);
@@ -369,13 +415,47 @@ export function AdminPackagesManagement({
     setPackageRows((current) => upsertAdminPackageRow(current, normalizeAdminPackageRow(saved)));
   }, []);
 
+  const closeDeletePackage = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PACKAGE_DELETE_QUERY_KEY);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [pathname, router, searchParams]);
+
   const handlePackageDeleted = useCallback(
     (packageId: string) => {
       setPackageRows((current) => current.filter((row) => row.id !== packageId));
       setToastMessage(t("messages.deleteSuccess"));
+      closeDeletePackage();
       router.refresh();
     },
-    [router, t],
+    [closeDeletePackage, router, t],
+  );
+
+  const openDeletePackage = useCallback(
+    (packageId: string) => {
+      const target = packageRows.find((row) => row.id === packageId);
+      if (target === undefined) {
+        return;
+      }
+      const categoryKey = normalizePackageCategoryKey(target.categoryName);
+      setSelectedCategoryIds((current) => {
+        const next = new Set(current);
+        next.add(target.categoryName);
+        return next;
+      });
+      setExpandedCategoryKeys((current) => {
+        const next = new Set(current);
+        next.add(categoryKey);
+        return next;
+      });
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+      clearPackageModalQueryKeys(params);
+      params.set(PACKAGE_DELETE_QUERY_KEY, packageId);
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [packageRows, pathname, router, searchParams],
   );
 
   const handleCategoryRenamed = useCallback(
@@ -450,6 +530,7 @@ export function AdminPackagesManagement({
     const params = new URLSearchParams(searchParams.toString());
     params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
     params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+    params.delete(PACKAGE_DELETE_QUERY_KEY);
     params.delete(PACKAGE_EDIT_QUERY_KEY);
     clearPackageModalQueryKeys(params);
     params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_CREATE_VALUE);
@@ -461,6 +542,7 @@ export function AdminPackagesManagement({
     (categoryId: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+      params.delete(PACKAGE_DELETE_QUERY_KEY);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_EDIT_CATEGORY_QUERY_KEY, categoryId);
       router.replace(buildPackagesPathname(pathname, params), { scroll: false });
@@ -478,6 +560,7 @@ export function AdminPackagesManagement({
     (categoryId: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      params.delete(PACKAGE_DELETE_QUERY_KEY);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_DELETE_CATEGORY_QUERY_KEY, categoryId);
       router.replace(buildPackagesPathname(pathname, params), { scroll: false });
@@ -579,7 +662,7 @@ export function AdminPackagesManagement({
                         onDeleteCategory={() => openDeleteCategory(category.id)}
                         onEditPackage={openEditTier}
                         onAddTier={() => openAddTier(category.id)}
-                        onPackageDeleted={handlePackageDeleted}
+                        onDeletePackage={openDeletePackage}
                       />
                     </motion.div>
                   ))}
@@ -606,6 +689,19 @@ export function AdminPackagesManagement({
         onClose={closeDeleteCategory}
         onDeleted={handleCategoryDeleted}
       />
+      <AdminPackageDeleteModal
+        key={deletingPackage ? `delete-package-${deletingPackage.id}` : "delete-package-closed"}
+        isOpen={isDeletePackageOpen}
+        packageId={deletingPackage?.id ?? ""}
+        packageName={
+          deletingPackage
+            ? formatPackagePlanName(deletingPackage.name, deletingPackage.sessionsPerMonth)
+            : ""
+        }
+        locale={locale}
+        onClose={closeDeletePackage}
+        onDeleted={handlePackageDeleted}
+      />
       <AdminCenterToast
         message={toastMessage}
         tone="ok"
@@ -625,7 +721,7 @@ type CategoryAccordionProps = {
   onDeleteCategory: () => void;
   onEditPackage: (packageId: string) => void;
   onAddTier: () => void;
-  onPackageDeleted: (packageId: string) => void;
+  onDeletePackage: (packageId: string) => void;
 };
 
 function CategoryAccordion({
@@ -638,7 +734,7 @@ function CategoryAccordion({
   onDeleteCategory,
   onEditPackage,
   onAddTier,
-  onPackageDeleted,
+  onDeletePackage,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
 
@@ -659,7 +755,7 @@ function CategoryAccordion({
         locale={locale}
         onAddTier={onAddTier}
         onEditPackage={onEditPackage}
-        onPackageDeleted={onPackageDeleted}
+        onDeletePackage={onDeletePackage}
       />
     ) : undefined;
 

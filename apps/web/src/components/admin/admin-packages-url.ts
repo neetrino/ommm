@@ -14,6 +14,7 @@ export const PACKAGE_PRICING_QUERY_KEY = "pricingPackage";
 export const PACKAGE_CATEGORY_QUERY_KEY = "categoryId";
 export const PACKAGE_EDIT_CATEGORY_QUERY_KEY = "editCategory";
 export const PACKAGE_DELETE_CATEGORY_QUERY_KEY = "deleteCategoryId";
+export const PACKAGE_DELETE_QUERY_KEY = "deletePackageId";
 
 /** Filter keys cleared and rewritten when filters sync to the URL. */
 export const PACKAGE_FILTER_QUERY_KEYS = ["search", "status", "order"] as const;

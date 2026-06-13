@@ -59,6 +59,13 @@ export class PackagesController {
     return this.packages.updatePlan(id, dto);
   }
 
+  @Get('admin/plans/:id/deletion-blockers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  listPlanDeletionBlockers(@Param('id') id: string) {
+    return this.packages.listPlanDeletionBlockers(id);
+  }
+
   @Delete('plans/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

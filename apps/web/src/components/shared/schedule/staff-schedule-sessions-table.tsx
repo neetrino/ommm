@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { ScheduleSessionCapacityIndicator } from "@/components/shared/schedule/schedule-session-capacity-indicator";
+import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedule/schedule-session-registrations-capacity";
 import {
   coachName,
   durationMinutes,
@@ -152,11 +152,16 @@ function StaffScheduleSessionRowClient({
         <div className={layout.capacityCellClass}>
           <StaffScheduleMobileLabel column="capacity" label={t("colCapacity")} />
           <StaffScheduleValueWithIcon column="capacity">
-            <ScheduleSessionCapacityIndicator
+            <ScheduleSessionRegistrationsCapacity
+              sessionId={row.id}
+              sessionTitle={row.title}
+              startsAt={row.startsAt}
+              locale={locale}
               booked={booked}
               capacity={row.capacity}
               spotsLabel={capacityLabel}
               secondaryLabel={spotsLeftLabel}
+              bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
             />
           </StaffScheduleValueWithIcon>
         </div>
@@ -213,11 +218,16 @@ function StaffScheduleSessionRowClient({
 
       <div className={layout.capacityCellClass}>
         <AdminListMobileLabel label={t("colCapacity")} />
-        <ScheduleSessionCapacityIndicator
+        <ScheduleSessionRegistrationsCapacity
+          sessionId={row.id}
+          sessionTitle={row.title}
+          startsAt={row.startsAt}
+          locale={locale}
           booked={booked}
           capacity={row.capacity}
           spotsLabel={capacityLabel}
           secondaryLabel={spotsLeftLabel}
+          bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
         />
       </div>
 
