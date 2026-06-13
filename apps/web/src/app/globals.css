@@ -1063,6 +1063,16 @@ html {
     @apply min-h-0 bg-white/60 px-5 py-4 sm:px-8;
   }
 
+  .ommm-admin-packages-table {
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .ommm-admin-packages-table::-webkit-scrollbar {
+    display: none;
+  }
+
   .ommm-admin-packages-table-grid {
     display: grid;
     grid-template-columns:
