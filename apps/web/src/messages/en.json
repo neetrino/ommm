@@ -2633,6 +2633,8 @@
       "addTierFormHeading": "Pricing option",
       "addTierFormDescription": "Session count, price, validity, and guest limit appear in the package list.",
       "fieldSessionsCount": "Sessions",
+      "fieldPricePerSession": "Price / Session",
+      "pricePerSessionInvalid": "Enter a valid price per session.",
       "fieldSessionsCountPlaceholder": "e.g. 10",
       "sessionsCountInvalid": "Enter a whole number of sessions from 1 to 999.",
       "fieldValidityHint": "Shown in the Validity column.",

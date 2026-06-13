@@ -3,6 +3,8 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
   return {
     ...row,
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
+    pricePerSessionCents:
+      typeof row.pricePerSessionCents === "number" ? row.pricePerSessionCents : 0,
     features: Array.isArray(row.features) ? row.features : [],
   };
 }
@@ -14,6 +16,7 @@ export type AdminPackageRow = {
   classTypeId?: string | null;
   description: string | null;
   priceCents: number;
+  pricePerSessionCents?: number;
   currency: string;
   billingPeriod: string;
   periodDays: number;

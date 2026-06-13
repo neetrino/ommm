@@ -112,6 +112,7 @@ export type AdminPackageFormValues = {
   categoryName: string;
   description: string;
   price: string;
+  pricePerSession: string;
   durationDays: string;
   sessionsCount: string;
   guestCount: string;
@@ -125,6 +126,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     categoryName: initialCategoryName,
     description: "",
     price: "",
+    pricePerSession: "",
     durationDays: String(PACKAGE_DAYS_PER_MONTH),
     sessionsCount: "1",
     guestCount: "",
@@ -139,6 +141,7 @@ export function packageRowToFormValues(
   categoryName: string;
   description: string | null;
   priceCents: number;
+  pricePerSessionCents?: number;
   periodDays: number;
   billingPeriod: string;
   isPopular: boolean;
@@ -157,6 +160,7 @@ export function packageRowToFormValues(
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: String(pkg.priceCents),
+    pricePerSession: formatStoredPricePerSessionAmount(pkg),
     durationDays: periodDaysToFormDurationDays(pkg.periodDays),
     sessionsCount: String(sessions),
     guestCount:
@@ -164,4 +168,41 @@ export function packageRowToFormValues(
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
   };
+}
+
+/** Derives per-session AMD amount from stored total price and session count. */
+export function deriveTierPricePerSessionAmount(priceCents: number, sessions: number): string {
+  if (
+    !Number.isFinite(priceCents) ||
+    priceCents <= 0 ||
+    !Number.isInteger(sessions) ||
+    sessions <= 0
+  ) {
+    return "";
+  }
+  return String(Math.round(priceCents / sessions));
+}
+
+/** Resolves per-session amount for forms: stored value first, then derived fallback. */
+export function formatStoredPricePerSessionAmount(pkg: {
+  pricePerSessionCents?: number;
+  priceCents: number;
+  sessionsPerMonth?: number | null;
+}): string {
+  if (typeof pkg.pricePerSessionCents === "number" && pkg.pricePerSessionCents > 0) {
+    return String(pkg.pricePerSessionCents);
+  }
+  const sessions =
+    typeof pkg.sessionsPerMonth === "number" && pkg.sessionsPerMonth > 0
+      ? pkg.sessionsPerMonth
+      : MIN_PACKAGE_SESSIONS;
+  return deriveTierPricePerSessionAmount(pkg.priceCents, sessions);
+}
+
+/** Maps a package row to tier form values with separate total and per-session prices. */
+export function packageRowToTierFormValues(
+  pkg: Parameters<typeof packageRowToFormValues>[0],
+  fallbackCategoryName = "",
+): AdminPackageFormValues {
+  return packageRowToFormValues(pkg, fallbackCategoryName);
 }

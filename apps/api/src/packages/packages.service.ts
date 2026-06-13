@@ -130,6 +130,9 @@ export class PackagesService {
           slug,
           description: dto.description,
           priceCents: dto.priceCents,
+          pricePerSessionCents: this.normalizePricePerSessionCents(
+            dto.pricePerSessionCents,
+          ),
           currency: this.normalizeCurrency(dto.currency),
           sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
           isUnlimited: dto.isUnlimited,
@@ -201,6 +204,11 @@ export class PackagesService {
       ...(resolvedSlug !== undefined && { slug: resolvedSlug }),
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
+      ...(dto.pricePerSessionCents !== undefined && {
+        pricePerSessionCents: this.normalizePricePerSessionCents(
+          dto.pricePerSessionCents,
+        ),
+      }),
       ...(dto.currency !== undefined && {
         currency: this.normalizeCurrency(dto.currency),
       }),
@@ -846,6 +854,18 @@ export class PackagesService {
     return count;
   }
 
+  private normalizePricePerSessionCents(amount?: number): number {
+    if (amount === undefined) {
+      return 0;
+    }
+    if (!Number.isInteger(amount) || amount < 0) {
+      throw new BadRequestException(
+        'Price per session must be a non-negative integer.',
+      );
+    }
+    return amount;
+  }
+
   private normalizeButtonLabel(label?: string): string {
     const fallback = 'Choose plan';
     if (label === undefined) {
@@ -1051,6 +1071,9 @@ export class PackagesService {
         slug,
         description: dto.description,
         priceCents: dto.priceCents,
+        pricePerSessionCents: this.normalizePricePerSessionCents(
+          dto.pricePerSessionCents,
+        ),
         currency: this.normalizeCurrency(dto.currency),
         sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
         isUnlimited: dto.isUnlimited,
@@ -1185,6 +1208,7 @@ export class PackagesService {
       isPopular?: boolean;
       displayOrder?: number;
       guestCount?: number;
+      pricePerSessionCents?: number;
     },
   >(
     plan: T,
@@ -1197,6 +1221,7 @@ export class PackagesService {
     isPopular: boolean;
     displayOrder: number;
     guestCount: number;
+    pricePerSessionCents: number;
   } {
     const categoryRaw =
       'categoryName' in plan && typeof plan.categoryName === 'string'
@@ -1215,6 +1240,11 @@ export class PackagesService {
       guestCount:
         'guestCount' in plan && typeof plan.guestCount === 'number'
           ? this.normalizeGuestCount(plan.guestCount)
+          : 0,
+      pricePerSessionCents:
+        'pricePerSessionCents' in plan &&
+        typeof plan.pricePerSessionCents === 'number'
+          ? this.normalizePricePerSessionCents(plan.pricePerSessionCents)
           : 0,
     };
   }

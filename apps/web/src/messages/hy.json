@@ -2624,6 +2624,8 @@
       "addTierFormHeading": "Գնային տարբերակ",
       "addTierFormDescription": "Seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը ցուցադրվում են ցանկում։",
       "fieldSessionsCount": "Seans-ներ",
+      "fieldPricePerSession": "Գին / սեսիա",
+      "pricePerSessionInvalid": "Մուտքագրեք վավեր գին մեկ սեսիայի համար։",
       "fieldSessionsCountPlaceholder": "օր. 10",
       "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
       "fieldValidityHint": "Ցուցադրվում է Validity սյունակում։",

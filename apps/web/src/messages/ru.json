@@ -2625,6 +2625,8 @@
       "addTierFormHeading": "Ценовой вариант",
       "addTierFormDescription": "Количество сеансов, цена, срок и лимит гостей отображаются в списке.",
       "fieldSessionsCount": "Сеансы",
+      "fieldPricePerSession": "Цена / сессия",
+      "pricePerSessionInvalid": "Введите корректную цену за сессию.",
       "fieldSessionsCountPlaceholder": "напр. 10",
       "sessionsCountInvalid": "Введите целое число сеансов от 1 до 999.",
       "fieldValidityHint": "Отображается в колонке «Срок».",

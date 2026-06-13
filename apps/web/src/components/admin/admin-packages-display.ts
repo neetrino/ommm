@@ -7,7 +7,12 @@ const MIN_SESSIONS_FOR_PER_SESSION_PRICE = 2;
 /** Shared row shape for admin and public package tables. */
 export type PackageTableDisplayRow = Pick<
   AdminPackageRow,
-  "priceCents" | "periodDays" | "sessionsPerMonth" | "isUnlimited" | "guestCount"
+  | "priceCents"
+  | "pricePerSessionCents"
+  | "periodDays"
+  | "sessionsPerMonth"
+  | "isUnlimited"
+  | "guestCount"
 >;
 
 type ValidityLabels = {
@@ -38,13 +43,16 @@ export function formatPackageSessionsLabel(pkg: PackageTableDisplayRow): number 
   return null;
 }
 
-/** Price per session — total price divided by session count when available. */
+/** Price per session — uses stored value when set, otherwise total divided by sessions. */
 export function formatPackagePricePerSession(
   pkg: PackageTableDisplayRow,
   locale: string,
 ): string | null {
   if (pkg.isUnlimited) {
     return null;
+  }
+  if (typeof pkg.pricePerSessionCents === "number" && pkg.pricePerSessionCents > 0) {
+    return formatAmdFromCents(pkg.pricePerSessionCents, locale);
   }
   const sessions = pkg.sessionsPerMonth;
   if (sessions !== null && sessions >= MIN_SESSIONS_FOR_PER_SESSION_PRICE) {
