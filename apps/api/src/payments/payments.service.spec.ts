@@ -168,7 +168,6 @@ describe('PaymentsService', () => {
         paymentCashPendingEmail as never,
       ),
       prisma,
-      paymentSuccessEmail,
     };
   }
 
