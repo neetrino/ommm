@@ -18,6 +18,7 @@ type AdminPackageRowMenuProps = {
   packageId: string;
   isActive: boolean;
   onEdit: () => void;
+  onDeleted?: (packageId: string) => void;
 };
 
 function MoreGlyph() {
@@ -36,7 +37,12 @@ function MoreGlyph() {
   );
 }
 
-export function AdminPackageRowMenu({ packageId, isActive, onEdit }: AdminPackageRowMenuProps) {
+export function AdminPackageRowMenu({
+  packageId,
+  isActive,
+  onEdit,
+  onDeleted,
+}: AdminPackageRowMenuProps) {
   const t = useTranslations("adminPages.packages");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -130,7 +136,7 @@ export function AdminPackageRowMenu({ packageId, isActive, onEdit }: AdminPackag
     setPending(true);
     try {
       await apiFetch(`/packages/plans/${packageId}`, { method: "DELETE" });
-      window.location.reload();
+      onDeleted?.(packageId);
     } catch (error) {
       window.alert(error instanceof ApiError ? error.message : t("genericError"));
     } finally {

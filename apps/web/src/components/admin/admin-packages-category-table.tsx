@@ -25,6 +25,7 @@ type AdminPackagesCategoryTableProps = {
   locale: string;
   onAddTier: () => void;
   onEditPackage: (packageId: string) => void;
+  onPackageDeleted?: (packageId: string) => void;
 };
 
 function EmptyCell() {
@@ -56,6 +57,7 @@ export function AdminPackagesCategoryTable({
   locale,
   onAddTier,
   onEditPackage,
+  onPackageDeleted,
 }: AdminPackagesCategoryTableProps) {
   const t = useTranslations("adminPages.packages");
   const reducedMotion = usePrefersReducedMotion();
@@ -122,6 +124,7 @@ export function AdminPackagesCategoryTable({
                       packageId={pkg.id}
                       isActive={pkg.isActive}
                       onEdit={() => onEditPackage(pkg.id)}
+                      onDeleted={onPackageDeleted}
                     />
                   </div>
                 </div>

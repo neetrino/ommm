@@ -369,6 +369,15 @@ export function AdminPackagesManagement({
     setPackageRows((current) => upsertAdminPackageRow(current, normalizeAdminPackageRow(saved)));
   }, []);
 
+  const handlePackageDeleted = useCallback(
+    (packageId: string) => {
+      setPackageRows((current) => current.filter((row) => row.id !== packageId));
+      setToastMessage(t("messages.deleteSuccess"));
+      router.refresh();
+    },
+    [router, t],
+  );
+
   const handleCategoryRenamed = useCallback(
     (fromName: string, toName: string, updated: readonly AdminPackageRow[]) => {
       const previousCategoryKey = normalizePackageCategoryKey(fromName);
@@ -570,6 +579,7 @@ export function AdminPackagesManagement({
                         onDeleteCategory={() => openDeleteCategory(category.id)}
                         onEditPackage={openEditTier}
                         onAddTier={() => openAddTier(category.id)}
+                        onPackageDeleted={handlePackageDeleted}
                       />
                     </motion.div>
                   ))}
@@ -615,6 +625,7 @@ type CategoryAccordionProps = {
   onDeleteCategory: () => void;
   onEditPackage: (packageId: string) => void;
   onAddTier: () => void;
+  onPackageDeleted: (packageId: string) => void;
 };
 
 function CategoryAccordion({
@@ -627,6 +638,7 @@ function CategoryAccordion({
   onDeleteCategory,
   onEditPackage,
   onAddTier,
+  onPackageDeleted,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
 
@@ -647,6 +659,7 @@ function CategoryAccordion({
         locale={locale}
         onAddTier={onAddTier}
         onEditPackage={onEditPackage}
+        onPackageDeleted={onPackageDeleted}
       />
     ) : undefined;
 

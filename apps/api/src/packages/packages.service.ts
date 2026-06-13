@@ -28,6 +28,11 @@ import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+import {
+  PACKAGE_PLAN_DELETION_BLOCKING_STATUSES,
+  PACKAGE_PLAN_DELETION_PURGEABLE_STATUSES,
+} from './package-plan-deletion.constants';
+import { buildPlanDeletionBlockedMessage } from './package-plan-deletion.util';
 import { PackageUsageService } from './package-usage.service';
 
 const MIN_PRORATED_SESSIONS = 1;
@@ -276,8 +281,7 @@ export class PackagesService {
     if (!existing) {
       throw new NotFoundException('Plan not found');
     }
-    await this.assertPlansDeletable([planId]);
-    await this.prisma.packagePlan.delete({ where: { id: planId } });
+    await this.executePlanDeletion([planId]);
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_DELETED',
       entityType: 'PackagePlan',
@@ -295,10 +299,7 @@ export class PackagesService {
     if (planIds.length === 0) {
       return { deletedIds: [] };
     }
-    await this.assertPlansDeletable(planIds);
-    await this.prisma.packagePlan.deleteMany({
-      where: { id: { in: planIds } },
-    });
+    await this.executePlanDeletion(planIds);
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_CATEGORY_DELETED',
       entityType: 'PackagePlan',
@@ -325,20 +326,46 @@ export class PackagesService {
       .map((plan) => plan.id);
   }
 
-  private async assertPlansDeletable(
-    planIds: readonly string[],
-  ): Promise<void> {
+  private async executePlanDeletion(planIds: readonly string[]): Promise<void> {
     if (planIds.length === 0) {
       return;
     }
-    const assignedCount = await this.prisma.userPackage.count({
-      where: { planId: { in: [...planIds] } },
+    const ids = [...planIds];
+    const now = new Date();
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.userPackage.updateMany({
+        where: {
+          planId: { in: ids },
+          status: PackageStatus.ACTIVE,
+          currentPeriodEnd: { lte: now },
+        },
+        data: { status: PackageStatus.EXPIRED },
+      });
+
+      const blockingCount = await tx.userPackage.count({
+        where: {
+          planId: { in: ids },
+          status: { in: [...PACKAGE_PLAN_DELETION_BLOCKING_STATUSES] },
+        },
+      });
+      if (blockingCount > 0) {
+        throw new ConflictException(
+          buildPlanDeletionBlockedMessage(blockingCount),
+        );
+      }
+
+      await tx.userPackage.deleteMany({
+        where: {
+          planId: { in: ids },
+          status: { in: [...PACKAGE_PLAN_DELETION_PURGEABLE_STATUSES] },
+        },
+      });
+
+      await tx.packagePlan.deleteMany({
+        where: { id: { in: ids } },
+      });
     });
-    if (assignedCount > 0) {
-      throw new ConflictException(
-        'Cannot delete package plans that are assigned to members.',
-      );
-    }
   }
 
   async assignManual(userId: string, planId: string) {
