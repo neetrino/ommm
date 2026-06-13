@@ -161,10 +161,7 @@ export function AdminPackageDeleteModal({
               {tBlockers("viewMembersButton", { count: blockerCount })}
             </button>
           ) : (
-            <AdminPackageDeletionBlockersPanel
-              blockers={blockers?.memberships ?? []}
-              locale={locale}
-            />
+            <AdminPackageDeletionBlockersPanel blockers={blockers?.memberships ?? []} />
           )}
         </div>
       ) : null}

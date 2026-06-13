@@ -8,7 +8,14 @@ import { userDisplayName } from "@/lib/user-display-name";
 
 type AdminPackageDeletionBlockersPanelProps = {
   blockers: readonly PackageDeletionBlockerRow[];
-  locale: string;
+};
+
+const BLOCKER_STATUS_LABEL_KEYS: Partial<
+  Record<PackageDeletionBlockerRow["status"], "statusLabels.ACTIVE" | "statusLabels.PAUSED" | "statusLabels.PENDING">
+> = {
+  ACTIVE: "statusLabels.ACTIVE",
+  PAUSED: "statusLabels.PAUSED",
+  PENDING: "statusLabels.PENDING",
 };
 
 function memberInitials(name: string): string {
@@ -29,19 +36,28 @@ function memberContactLine(user: PackageDeletionBlockerRow["user"]): string {
   return user.email.trim();
 }
 
+function blockerStatusLabel(
+  status: PackageDeletionBlockerRow["status"],
+  t: ReturnType<typeof useTranslations<"adminPages.packages.deletionBlockers">>,
+): string {
+  const key = BLOCKER_STATUS_LABEL_KEYS[status];
+  return key ? t(key) : status;
+}
+
 export function AdminPackageDeletionBlockersPanel({
   blockers,
-  locale,
 }: AdminPackageDeletionBlockersPanelProps) {
   const t = useTranslations("adminPages.packages.deletionBlockers");
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-amber-950">{t("listHeading", { count: blockers.length })}</p>
+      <p className="text-sm font-medium text-amber-950">
+        {t("listHeading", { count: blockers.length })}
+      </p>
       <ul className="max-h-[min(40vh,18rem)] space-y-2 overflow-y-auto pr-1">
         {blockers.map((row) => {
           const displayName = userDisplayName(row.user.name, row.user.lastName, row.user.email);
-          const statusLabel = t(`statusLabels.${row.status}`);
+          const statusLabel = blockerStatusLabel(row.status, t);
           return (
             <li
               key={row.id}
@@ -68,7 +84,7 @@ export function AdminPackageDeletionBlockersPanel({
                 <p className="truncate text-xs text-sage-500">{memberContactLine(row.user)}</p>
                 <p className="mt-0.5 text-[11px] text-sage-400">
                   {t("validUntil", {
-                    date: formatDateForUi(row.currentPeriodEnd, locale),
+                    date: formatDateForUi(row.currentPeriodEnd),
                   })}
                 </p>
               </div>
