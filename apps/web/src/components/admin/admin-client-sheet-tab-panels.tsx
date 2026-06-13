@@ -81,11 +81,6 @@ export function ClientSheetTabPanels({
               <span className="text-sm text-sage-600">
                 {t("drawer.registered")}: {formatDateForUi(detail.createdAt)}
               </span>
-              {activity.source ? (
-                <span className="text-sm text-sage-600">
-                  {t("drawer.source")}: {activity.source}
-                </span>
-              ) : null}
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
