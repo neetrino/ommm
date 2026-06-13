@@ -122,6 +122,7 @@ export function AdminPackagesCategoryTable({
                   <div className="ommm-admin-packages-table-actions">
                     <AdminPackageRowMenu
                       packageId={pkg.id}
+                      packageName={packageName}
                       isActive={pkg.isActive}
                       onEdit={() => onEditPackage(pkg.id)}
                       onDeleted={onPackageDeleted}

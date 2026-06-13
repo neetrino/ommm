@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
+import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
 
 const MENU_MIN_WIDTH = 160;
 const MENU_GAP = 4;
@@ -16,6 +17,7 @@ type MenuPosition = {
 
 type AdminPackageRowMenuProps = {
   packageId: string;
+  packageName: string;
   isActive: boolean;
   onEdit: () => void;
   onDeleted?: (packageId: string) => void;
@@ -39,6 +41,7 @@ function MoreGlyph() {
 
 export function AdminPackageRowMenu({
   packageId,
+  packageName,
   isActive,
   onEdit,
   onDeleted,
@@ -48,6 +51,7 @@ export function AdminPackageRowMenu({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
 
@@ -125,24 +129,12 @@ export function AdminPackageRowMenu({
     }
   }
 
-  async function removePackage() {
+  function openDeleteModal(): void {
     if (pending) {
       return;
     }
-    const confirmed = window.confirm(t("deleteConfirm"));
-    if (!confirmed) {
-      return;
-    }
-    setPending(true);
-    try {
-      await apiFetch(`/packages/plans/${packageId}`, { method: "DELETE" });
-      onDeleted?.(packageId);
-    } catch (error) {
-      window.alert(error instanceof ApiError ? error.message : t("genericError"));
-    } finally {
-      setPending(false);
-      setOpen(false);
-    }
+    setOpen(false);
+    setDeleteModalOpen(true);
   }
 
   const menu =
@@ -187,9 +179,7 @@ export function AdminPackageRowMenu({
               role="menuitem"
               className="block w-full px-4 py-2 text-left text-sm text-red-800 transition-colors hover:bg-red-50/80"
               disabled={pending}
-              onClick={() => {
-                void removePackage();
-              }}
+              onClick={openDeleteModal}
             >
               {t("deleteButton")}
             </button>
@@ -214,6 +204,13 @@ export function AdminPackageRowMenu({
         <MoreGlyph />
       </button>
       {menu}
+      <AdminPackageDeleteModal
+        isOpen={deleteModalOpen}
+        packageId={packageId}
+        packageName={packageName}
+        onClose={() => setDeleteModalOpen(false)}
+        onDeleted={(id) => onDeleted?.(id)}
+      />
     </div>
   );
 }
