@@ -2135,6 +2135,17 @@
         "spotsBooked": "{booked}/{capacity} занято",
         "spotsLeft": "Осталось мест: {count}"
       },
+      "registrationsModal": {
+        "title": "Записанные участники",
+        "subtitle": "Занято {count} из {capacity} мест",
+        "empty": "На это занятие пока никто не записан.",
+        "loading": "Загрузка записей…",
+        "error": "Не удалось загрузить записи.",
+        "registeredAt": "Записан {date}",
+        "viewBookedAria": "Показать {count} записанных участников",
+        "closeButton": "Закрыть",
+        "backdropClose": "Закрыть окно"
+      },
       "actions": {
         "view": "Открыть",
         "delete": "Удалить"
@@ -2498,6 +2509,23 @@
       "editButton": "Редактировать",
       "deleteButton": "Удалить",
       "deleteConfirm": "Удалить этот пакет?",
+      "deletePackageTitle": "Удалить пакет?",
+      "deletePackageDescription": "Вы уверены, что хотите удалить «{name}»?",
+      "deletePackageWarning": "Это действие нельзя отменить. Пакет будет удалён из каталога.",
+      "deletePackageConfirmButton": "Да / Удалить",
+      "deletionBlockers": {
+        "loading": "Проверка активных подписок…",
+        "blockedSummary": "Пакет нельзя удалить: у {count} участников всё ещё есть активная, ожидающая или приостановленная подписка.",
+        "viewMembersButton": "Показать {count} участников",
+        "listHeading": "Блокирующие участники ({count})",
+        "validUntil": "Действует до {date}",
+        "resolveHint": "Отмените или завершите эти подписки в разделе Clients, затем повторите удаление.",
+        "statusLabels": {
+          "ACTIVE": "Активна",
+          "PAUSED": "Приостановлена",
+          "PENDING": "Ожидает оплаты"
+        }
+      },
       "noFeatures": "Преимущества пока не указаны.",
       "empty": "Нет пакетов по выбранным фильтрам.",
       "tabAllPackages": "Все пакеты",
@@ -2597,6 +2625,8 @@
       "addTierFormHeading": "Ценовой вариант",
       "addTierFormDescription": "Количество сеансов, цена, срок и лимит гостей отображаются в списке.",
       "fieldSessionsCount": "Сеансы",
+      "fieldPricePerSession": "Цена / сессия",
+      "pricePerSessionInvalid": "Введите корректную цену за сессию.",
       "fieldSessionsCountPlaceholder": "напр. 10",
       "sessionsCountInvalid": "Введите целое число сеансов от 1 до 999.",
       "fieldValidityHint": "Отображается в колонке «Срок».",

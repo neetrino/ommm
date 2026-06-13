@@ -28,6 +28,11 @@ import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+import {
+  PACKAGE_PLAN_DELETION_BLOCKING_STATUSES,
+  PACKAGE_PLAN_DELETION_PURGEABLE_STATUSES,
+} from './package-plan-deletion.constants';
+import { buildPlanDeletionBlockedMessage } from './package-plan-deletion.util';
 import { PackageUsageService } from './package-usage.service';
 
 const MIN_PRORATED_SESSIONS = 1;
@@ -125,6 +130,9 @@ export class PackagesService {
           slug,
           description: dto.description,
           priceCents: dto.priceCents,
+          pricePerSessionCents: this.normalizePricePerSessionCents(
+            dto.pricePerSessionCents,
+          ),
           currency: this.normalizeCurrency(dto.currency),
           sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
           isUnlimited: dto.isUnlimited,
@@ -196,6 +204,11 @@ export class PackagesService {
       ...(resolvedSlug !== undefined && { slug: resolvedSlug }),
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
+      ...(dto.pricePerSessionCents !== undefined && {
+        pricePerSessionCents: this.normalizePricePerSessionCents(
+          dto.pricePerSessionCents,
+        ),
+      }),
       ...(dto.currency !== undefined && {
         currency: this.normalizeCurrency(dto.currency),
       }),
@@ -276,8 +289,7 @@ export class PackagesService {
     if (!existing) {
       throw new NotFoundException('Plan not found');
     }
-    await this.assertPlansDeletable([planId]);
-    await this.prisma.packagePlan.delete({ where: { id: planId } });
+    await this.executePlanDeletion([planId]);
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_DELETED',
       entityType: 'PackagePlan',
@@ -295,10 +307,7 @@ export class PackagesService {
     if (planIds.length === 0) {
       return { deletedIds: [] };
     }
-    await this.assertPlansDeletable(planIds);
-    await this.prisma.packagePlan.deleteMany({
-      where: { id: { in: planIds } },
-    });
+    await this.executePlanDeletion(planIds);
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_CATEGORY_DELETED',
       entityType: 'PackagePlan',
@@ -307,6 +316,61 @@ export class PackagesService {
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
     return { deletedIds: planIds };
+  }
+
+  async listPlanDeletionBlockers(planId: string) {
+    const existing = await this.prisma.packagePlan.findUnique({
+      where: { id: planId },
+      select: { id: true },
+    });
+    if (existing === null) {
+      throw new NotFoundException('Plan not found');
+    }
+    await this.syncExpiredMembershipsForPlans([planId]);
+    const memberships = await this.prisma.userPackage.findMany({
+      where: {
+        planId,
+        status: { in: [...PACKAGE_PLAN_DELETION_BLOCKING_STATUSES] },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+    });
+    return {
+      count: memberships.length,
+      memberships: memberships.map((membership) => ({
+        id: membership.id,
+        status: membership.status,
+        currentPeriodStart: membership.currentPeriodStart,
+        currentPeriodEnd: membership.currentPeriodEnd,
+        user: membership.user,
+      })),
+    };
+  }
+
+  private async syncExpiredMembershipsForPlans(
+    planIds: readonly string[],
+  ): Promise<void> {
+    if (planIds.length === 0) {
+      return;
+    }
+    await this.prisma.userPackage.updateMany({
+      where: {
+        planId: { in: [...planIds] },
+        status: PackageStatus.ACTIVE,
+        currentPeriodEnd: { lte: new Date() },
+      },
+      data: { status: PackageStatus.EXPIRED },
+    });
   }
 
   private async findPlanIdsByCategoryName(
@@ -325,20 +389,37 @@ export class PackagesService {
       .map((plan) => plan.id);
   }
 
-  private async assertPlansDeletable(
-    planIds: readonly string[],
-  ): Promise<void> {
+  private async executePlanDeletion(planIds: readonly string[]): Promise<void> {
     if (planIds.length === 0) {
       return;
     }
-    const assignedCount = await this.prisma.userPackage.count({
-      where: { planId: { in: [...planIds] } },
+    const ids = [...planIds];
+    await this.syncExpiredMembershipsForPlans(ids);
+
+    await this.prisma.$transaction(async (tx) => {
+      const blockingCount = await tx.userPackage.count({
+        where: {
+          planId: { in: ids },
+          status: { in: [...PACKAGE_PLAN_DELETION_BLOCKING_STATUSES] },
+        },
+      });
+      if (blockingCount > 0) {
+        throw new ConflictException(
+          buildPlanDeletionBlockedMessage(blockingCount),
+        );
+      }
+
+      await tx.userPackage.deleteMany({
+        where: {
+          planId: { in: ids },
+          status: { in: [...PACKAGE_PLAN_DELETION_PURGEABLE_STATUSES] },
+        },
+      });
+
+      await tx.packagePlan.deleteMany({
+        where: { id: { in: ids } },
+      });
     });
-    if (assignedCount > 0) {
-      throw new ConflictException(
-        'Cannot delete package plans that are assigned to members.',
-      );
-    }
   }
 
   async assignManual(userId: string, planId: string) {
@@ -773,6 +854,18 @@ export class PackagesService {
     return count;
   }
 
+  private normalizePricePerSessionCents(amount?: number): number {
+    if (amount === undefined) {
+      return 0;
+    }
+    if (!Number.isInteger(amount) || amount < 0) {
+      throw new BadRequestException(
+        'Price per session must be a non-negative integer.',
+      );
+    }
+    return amount;
+  }
+
   private normalizeButtonLabel(label?: string): string {
     const fallback = 'Choose plan';
     if (label === undefined) {
@@ -978,6 +1071,9 @@ export class PackagesService {
         slug,
         description: dto.description,
         priceCents: dto.priceCents,
+        pricePerSessionCents: this.normalizePricePerSessionCents(
+          dto.pricePerSessionCents,
+        ),
         currency: this.normalizeCurrency(dto.currency),
         sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
         isUnlimited: dto.isUnlimited,
@@ -1112,6 +1208,7 @@ export class PackagesService {
       isPopular?: boolean;
       displayOrder?: number;
       guestCount?: number;
+      pricePerSessionCents?: number;
     },
   >(
     plan: T,
@@ -1124,6 +1221,7 @@ export class PackagesService {
     isPopular: boolean;
     displayOrder: number;
     guestCount: number;
+    pricePerSessionCents: number;
   } {
     const categoryRaw =
       'categoryName' in plan && typeof plan.categoryName === 'string'
@@ -1142,6 +1240,11 @@ export class PackagesService {
       guestCount:
         'guestCount' in plan && typeof plan.guestCount === 'number'
           ? this.normalizeGuestCount(plan.guestCount)
+          : 0,
+      pricePerSessionCents:
+        'pricePerSessionCents' in plan &&
+        typeof plan.pricePerSessionCents === 'number'
+          ? this.normalizePricePerSessionCents(plan.pricePerSessionCents)
           : 0,
     };
   }

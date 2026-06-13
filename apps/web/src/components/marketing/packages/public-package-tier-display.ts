@@ -60,7 +60,7 @@ export function formatPublicPackageTierSessionsHeadline(
   return labels.count({ count: resolvePublicPackageTierSessionCount(plan) });
 }
 
-/** Price per session for tier row; always shown when session count is known. */
+/** Price per session for tier row; uses stored value when set. */
 export function formatPublicPackageTierPricePerSession(
   plan: PublicPackageTierPlan,
   locale: string,
@@ -68,6 +68,9 @@ export function formatPublicPackageTierPricePerSession(
   void locale;
   if (plan.isUnlimited) {
     return null;
+  }
+  if (typeof plan.pricePerSessionCents === "number" && plan.pricePerSessionCents > 0) {
+    return formatAmdFromCents(plan.pricePerSessionCents, locale);
   }
   const sessions = resolvePublicPackageTierSessionCount(plan);
   if (sessions < 1) {

@@ -2135,6 +2135,17 @@
         "spotsBooked": "{booked}/{capacity} ամրագրված",
         "spotsLeft": "{count} ազատ տեղ"
       },
+      "registrationsModal": {
+        "title": "Գրանցված մասնակիցներ",
+        "subtitle": "{count}/{capacity} տեղ է լրացված",
+        "empty": "Այս դասի համար դեռ գրանցումներ չկան։",
+        "loading": "Գրանցումները բեռնվում են…",
+        "error": "Չհաջողվեց բեռնել գրանցումները։",
+        "registeredAt": "Գրանցվել է {date}",
+        "viewBookedAria": "Դիտել {count} գրանցված մասնակից",
+        "closeButton": "Փակել",
+        "backdropClose": "Փակել պատուհանը"
+      },
       "actions": {
         "view": "Դիտել",
         "delete": "Ջնջել"
@@ -2497,6 +2508,23 @@
       "editButton": "Խմբագրել",
       "deleteButton": "Ջնջել",
       "deleteConfirm": "Ջնջե՞լ այս փաթեթը։",
+      "deletePackageTitle": "Ջնջե՞լ փաթեթը",
+      "deletePackageDescription": "Վստա՞հ եք, որ ցանկանում եք ջնջել «{name}» փաթեթը։",
+      "deletePackageWarning": "Գործողությունը հետարկելի չէ։ Փաթեթը կհեռացվի կատալոգից։",
+      "deletePackageConfirmButton": "Այո / Ջնջել",
+      "deletionBlockers": {
+        "loading": "Ստուգվում են ակտիվ բաժանորդագրությունները…",
+        "blockedSummary": "Փաթեթը չի կարելի ջնջել, քանի որ {count} անդամ դեռ ունի ակտիվ, սպասման կամ դադարեցված բաժանորդագրություն։",
+        "viewMembersButton": "Դիտել {count} անդամ",
+        "listHeading": "Արգելափակող անդամներ ({count})",
+        "validUntil": "Վավեր մինչև {date}",
+        "resolveHint": "Ջնջելուց առաջ Clients բաժնում չեղարկեք կամ ավարտեք այդ բաժանորդագրությունները։",
+        "statusLabels": {
+          "ACTIVE": "Ակտիվ",
+          "PAUSED": "Դադարեցված",
+          "PENDING": "Սպասում է վճարման"
+        }
+      },
       "noFeatures": "Առավելություններ դեռ նշված չեն։",
       "empty": "Զտիչներին համապատասխան փաթեթներ չկան։",
       "tabAllPackages": "Բոլոր փաթեթները",
@@ -2596,6 +2624,8 @@
       "addTierFormHeading": "Գնային տարբերակ",
       "addTierFormDescription": "Seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը ցուցադրվում են ցանկում։",
       "fieldSessionsCount": "Seans-ներ",
+      "fieldPricePerSession": "Գին / սեսիա",
+      "pricePerSessionInvalid": "Մուտքագրեք վավեր գին մեկ սեսիայի համար։",
       "fieldSessionsCountPlaceholder": "օր. 10",
       "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
       "fieldValidityHint": "Ցուցադրվում է Validity սյունակում։",

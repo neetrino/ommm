@@ -14,6 +14,9 @@ export const PACKAGE_PRICING_QUERY_KEY = "pricingPackage";
 export const PACKAGE_CATEGORY_QUERY_KEY = "categoryId";
 export const PACKAGE_EDIT_CATEGORY_QUERY_KEY = "editCategory";
 export const PACKAGE_DELETE_CATEGORY_QUERY_KEY = "deleteCategoryId";
+export const PACKAGE_DELETE_QUERY_KEY = "deletePackageId";
+export const PACKAGE_DELETE_MEMBER_QUERY_KEY = "deletePackageMemberId";
+export const PACKAGE_DELETE_SHOW_MEMBERS_QUERY_KEY = "deletePackageShowMembers";
 
 /** Filter keys cleared and rewritten when filters sync to the URL. */
 export const PACKAGE_FILTER_QUERY_KEYS = ["search", "status", "order"] as const;
@@ -87,6 +90,12 @@ export function clearPackageModalQueryKeys(params: URLSearchParams): void {
   params.delete(PACKAGE_EDIT_QUERY_KEY);
   params.delete(PACKAGE_PRICING_QUERY_KEY);
   params.delete(PACKAGE_CATEGORY_QUERY_KEY);
+}
+
+export function clearPackageDeleteQueryKeys(params: URLSearchParams): void {
+  params.delete(PACKAGE_DELETE_QUERY_KEY);
+  params.delete(PACKAGE_DELETE_MEMBER_QUERY_KEY);
+  params.delete(PACKAGE_DELETE_SHOW_MEMBERS_QUERY_KEY);
 }
 
 export function buildPackagesPathname(

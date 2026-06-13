@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 
 const MENU_MIN_WIDTH = 160;
 const MENU_GAP = 4;
@@ -18,6 +18,7 @@ type AdminPackageRowMenuProps = {
   packageId: string;
   isActive: boolean;
   onEdit: () => void;
+  onDeletePackage: () => void;
 };
 
 function MoreGlyph() {
@@ -36,7 +37,12 @@ function MoreGlyph() {
   );
 }
 
-export function AdminPackageRowMenu({ packageId, isActive, onEdit }: AdminPackageRowMenuProps) {
+export function AdminPackageRowMenu({
+  packageId,
+  isActive,
+  onEdit,
+  onDeletePackage,
+}: AdminPackageRowMenuProps) {
   const t = useTranslations("adminPages.packages");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -119,24 +125,12 @@ export function AdminPackageRowMenu({ packageId, isActive, onEdit }: AdminPackag
     }
   }
 
-  async function removePackage() {
+  function openDeleteModal(): void {
     if (pending) {
       return;
     }
-    const confirmed = window.confirm(t("deleteConfirm"));
-    if (!confirmed) {
-      return;
-    }
-    setPending(true);
-    try {
-      await apiFetch(`/packages/plans/${packageId}`, { method: "DELETE" });
-      window.location.reload();
-    } catch (error) {
-      window.alert(error instanceof ApiError ? error.message : t("genericError"));
-    } finally {
-      setPending(false);
-      setOpen(false);
-    }
+    setOpen(false);
+    onDeletePackage();
   }
 
   const menu =
@@ -181,9 +175,7 @@ export function AdminPackageRowMenu({ packageId, isActive, onEdit }: AdminPackag
               role="menuitem"
               className="block w-full px-4 py-2 text-left text-sm text-red-800 transition-colors hover:bg-red-50/80"
               disabled={pending}
-              onClick={() => {
-                void removePackage();
-              }}
+              onClick={openDeleteModal}
             >
               {t("deleteButton")}
             </button>

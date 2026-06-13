@@ -24,6 +24,7 @@ import {
   parsePriceToCents,
   preventNumberArrowStep,
   buildPackageSessionNameFromCount,
+  packageRowToTierFormValues,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
 import { AdminPackageCategorySelect } from "@/components/admin/admin-package-category-select";
@@ -80,16 +81,21 @@ function buildInitialValues(
   initialCategoryName: string,
   initialPackage?: AdminPackageRow,
 ): AdminPackageFormValues {
+  if (mode === "edit-tier" && initialPackage !== undefined) {
+    return packageRowToTierFormValues(initialPackage, initialCategoryName);
+  }
   if (
-    (mode === "edit" || mode === "pricing" || mode === "edit-tier") &&
+    (mode === "edit" || mode === "pricing") &&
     initialPackage !== undefined
   ) {
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
   if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
     return {
-      ...packageRowToFormValues(initialPackage, initialCategoryName),
+      ...packageRowToTierFormValues(initialPackage, initialCategoryName),
       guestCount: "",
+      price: "",
+      pricePerSession: "",
     };
   }
   return createEmptyPackageFormValues(initialCategoryName);
@@ -196,6 +202,7 @@ export function AdminPackageForm({
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
+    const pricePerSessionCents = parsePriceToCents(values.pricePerSession);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
     const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
@@ -246,6 +253,12 @@ export function AdminPackageForm({
         setError(t("priceInvalid"));
         return;
       }
+      if (isAddTierMode || isEditTierMode) {
+        if (pricePerSessionCents === null) {
+          setError(t("pricePerSessionInvalid"));
+          return;
+        }
+      }
       if (
         periodDays === null ||
         periodDays < MIN_PACKAGE_DURATION_DAYS ||
@@ -285,6 +298,9 @@ export function AdminPackageForm({
     const tierBillingPeriod = resolvePackageBillingPeriod(initialPackage);
     const pricingFields = {
       priceCents: priceCents ?? 0,
+      ...(isAddTierMode || isEditTierMode
+        ? { pricePerSessionCents: pricePerSessionCents ?? 0 }
+        : {}),
       currency: "AMD" as const,
       isUnlimited: false,
       sessionsPerMonth: sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
@@ -478,6 +494,17 @@ export function AdminPackageForm({
                 name="price"
                 value={values.price}
                 onValueChange={(nextValue) => updateValues({ price: nextValue })}
+                disabled={pending}
+                required
+                align="start"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPricePerSession")}</span>
+              <AmdMoneyInput
+                name="pricePerSession"
+                value={values.pricePerSession}
+                onValueChange={(nextValue) => updateValues({ pricePerSession: nextValue })}
                 disabled={pending}
                 required
                 align="start"

@@ -25,6 +25,7 @@ type AdminPackagesCategoryTableProps = {
   locale: string;
   onAddTier: () => void;
   onEditPackage: (packageId: string) => void;
+  onDeletePackage: (packageId: string) => void;
 };
 
 function EmptyCell() {
@@ -56,6 +57,7 @@ export function AdminPackagesCategoryTable({
   locale,
   onAddTier,
   onEditPackage,
+  onDeletePackage,
 }: AdminPackagesCategoryTableProps) {
   const t = useTranslations("adminPages.packages");
   const reducedMotion = usePrefersReducedMotion();
@@ -76,7 +78,7 @@ export function AdminPackagesCategoryTable({
   const showPager = packages.length > PACKAGE_CATEGORY_TABLE_PAGE_SIZE;
 
   return (
-    <div className="ommm-admin-packages-table overflow-x-auto">
+    <div className="ommm-admin-packages-table">
       <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[60rem]">
         <div>{t("tableSessionName")}</div>
         <div>{t("tableSessions")}</div>
@@ -122,6 +124,7 @@ export function AdminPackagesCategoryTable({
                       packageId={pkg.id}
                       isActive={pkg.isActive}
                       onEdit={() => onEditPackage(pkg.id)}
+                      onDeletePackage={() => onDeletePackage(pkg.id)}
                     />
                   </div>
                 </div>

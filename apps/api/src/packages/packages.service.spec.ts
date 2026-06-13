@@ -1,3 +1,4 @@
+import { ConflictException } from '@nestjs/common';
 import {
   ManualPaymentMethod,
   PackageStatus,
@@ -19,16 +20,21 @@ describe('PackagesService', () => {
         findMany: jest.fn(),
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
         create: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       packagePlan: {
         findUnique: jest.fn(),
+        findMany: jest.fn(),
+        deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
       $transaction: jest.fn(),
     };
     const audit = { log: jest.fn().mockResolvedValue(undefined) };
     const cache = {
       getOrSet: jest.fn(),
+      invalidate: jest.fn().mockResolvedValue(undefined),
       invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
     };
     const payments = {
@@ -355,5 +361,102 @@ describe('PackagesService', () => {
     ];
     expect(userPackageCreateCall[0].data.status).toBe(PackageStatus.PENDING);
     expect(payments.confirmPendingCardPayment).toHaveBeenCalledWith('pay-card');
+  });
+
+  function mockDeleteTransaction(
+    prisma: ReturnType<typeof createService>['prisma'],
+  ) {
+    prisma.$transaction.mockImplementation(
+      (callback: (tx: typeof prisma) => unknown) => callback(prisma),
+    );
+  }
+
+  it('deletes a plan when only cancelled or expired memberships exist', async () => {
+    const { service, prisma, audit, cache } = createService();
+    prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    mockDeleteTransaction(prisma);
+    prisma.userPackage.updateMany.mockResolvedValue({ count: 0 });
+    prisma.userPackage.count.mockResolvedValue(0);
+    prisma.userPackage.deleteMany.mockResolvedValue({ count: 2 });
+    prisma.packagePlan.deleteMany.mockResolvedValue({ count: 1 });
+
+    const result = await service.deletePlan('plan-1');
+
+    expect(result).toEqual({ ok: true });
+    expect(prisma.userPackage.count).toHaveBeenCalledWith({
+      where: {
+        planId: { in: ['plan-1'] },
+        status: {
+          in: [
+            PackageStatus.ACTIVE,
+            PackageStatus.PENDING,
+            PackageStatus.PAUSED,
+          ],
+        },
+      },
+    });
+    expect(prisma.userPackage.deleteMany).toHaveBeenCalledWith({
+      where: {
+        planId: { in: ['plan-1'] },
+        status: { in: [PackageStatus.CANCELLED, PackageStatus.EXPIRED] },
+      },
+    });
+    expect(prisma.packagePlan.deleteMany).toHaveBeenCalledWith({
+      where: { id: { in: ['plan-1'] } },
+    });
+    expect(cache.invalidate).toHaveBeenCalled();
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'MEMBERSHIP_PLAN_DELETED',
+        entityId: 'plan-1',
+      }),
+    );
+  });
+
+  it('blocks plan deletion when active memberships remain', async () => {
+    const { service, prisma } = createService();
+    prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    mockDeleteTransaction(prisma);
+    prisma.userPackage.updateMany.mockResolvedValue({ count: 0 });
+    prisma.userPackage.count.mockResolvedValue(2);
+
+    await expect(service.deletePlan('plan-1')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(prisma.userPackage.deleteMany).not.toHaveBeenCalled();
+    expect(prisma.packagePlan.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('expires overdue active memberships before evaluating deletion blockers', async () => {
+    const { service, prisma } = createService();
+    prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    mockDeleteTransaction(prisma);
+    prisma.userPackage.updateMany
+      .mockResolvedValueOnce({ count: 1 })
+      .mockResolvedValue({ count: 0 });
+    prisma.userPackage.count.mockResolvedValue(0);
+    prisma.userPackage.deleteMany.mockResolvedValue({ count: 1 });
+    prisma.packagePlan.deleteMany.mockResolvedValue({ count: 1 });
+
+    await service.deletePlan('plan-1');
+
+    expect(prisma.userPackage.updateMany).toHaveBeenCalled();
+    const expireMembershipsCall = prisma.userPackage.updateMany.mock
+      .calls[0] as [
+      {
+        where: {
+          planId: { in: string[] };
+          status: PackageStatus;
+          currentPeriodEnd: { lte: Date };
+        };
+        data: { status: PackageStatus };
+      },
+    ];
+    expect(expireMembershipsCall[0].where.planId).toEqual({ in: ['plan-1'] });
+    expect(expireMembershipsCall[0].where.status).toBe(PackageStatus.ACTIVE);
+    expect(expireMembershipsCall[0].where.currentPeriodEnd.lte).toBeInstanceOf(
+      Date,
+    );
+    expect(expireMembershipsCall[0].data.status).toBe(PackageStatus.EXPIRED);
   });
 });

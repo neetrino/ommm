@@ -18,6 +18,8 @@ type OmmConfirmDialogProps = {
   confirmPending?: boolean;
   tone?: OmmConfirmDialogTone;
   confirmClassName?: string;
+  lockBodyScroll?: boolean;
+  closeOnEscape?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
@@ -44,6 +46,8 @@ export function OmmConfirmDialog({
   confirmPending,
   tone = "default",
   confirmClassName = "",
+  lockBodyScroll = true,
+  closeOnEscape = true,
   onConfirm,
   onCancel,
   children,
@@ -69,6 +73,8 @@ export function OmmConfirmDialog({
       backdropAriaLabel={backdropAriaLabel}
       overlayClassName="ommm-modal-overlay z-[110] p-4"
       panelClassName={panelClassName}
+      lockBodyScroll={lockBodyScroll}
+      closeOnEscape={closeOnEscape}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">

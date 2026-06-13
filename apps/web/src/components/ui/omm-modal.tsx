@@ -15,6 +15,8 @@ export const OMM_DRAWER_OVERLAY_CLASS = "ommm-drawer-overlay";
 
 export const OMM_DRAWER_BACKDROP_CLASS = "ommm-drawer-backdrop";
 
+export const OMM_DRAWER_NESTED_BACKDROP_CLASS = "ommm-drawer-backdrop-nested";
+
 type OmmModalBackdropProps = {
   onClose: () => void;
   ariaLabel: string;

@@ -16,14 +16,17 @@ import {
 import { ClientSheetTabPanels } from "@/components/admin/admin-client-sheet-tab-panels";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { OmmDrawerPortal, OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type AdminClientDrawerProps = {
@@ -31,6 +34,10 @@ type AdminClientDrawerProps = {
   locale: string;
   onClose: () => void;
   onChanged: () => void;
+  /** Stack above nested confirm dialogs (e.g. package delete modal). */
+  useOverlayPortalRoot?: boolean;
+  /** Skip the initial profile fetch when the caller already loaded it. */
+  initialDetail?: ClientDetail | null;
 };
 
 function clientHeaderName(client: ClientRow): string {
@@ -48,7 +55,14 @@ function clientInitialValues(detail: ClientDetail): ClientEditInitialValues {
   };
 }
 
-export function AdminClientDrawer({ client, locale, onClose, onChanged }: AdminClientDrawerProps) {
+export function AdminClientDrawer({
+  client,
+  locale,
+  onClose,
+  onChanged,
+  useOverlayPortalRoot = false,
+  initialDetail = null,
+}: AdminClientDrawerProps) {
   if (client === null) {
     return null;
   }
@@ -60,6 +74,8 @@ export function AdminClientDrawer({ client, locale, onClose, onChanged }: AdminC
       locale={locale}
       onClose={onClose}
       onChanged={onChanged}
+      useOverlayPortalRoot={useOverlayPortalRoot}
+      initialDetail={initialDetail}
     />
   );
 }
@@ -69,17 +85,23 @@ function AdminClientDrawerInner({
   locale,
   onClose,
   onChanged,
+  useOverlayPortalRoot = false,
+  initialDetail = null,
 }: {
   client: ClientRow;
   locale: string;
   onClose: () => void;
   onChanged: () => void;
+  useOverlayPortalRoot?: boolean;
+  initialDetail?: ClientDetail | null;
 }) {
   const t = useTranslations("adminPages.clients");
   const titleId = useId();
   const [activeTab, setActiveTab] = useState<ClientSheetTabId>(CLIENT_SHEET_TAB_PROFILE);
-  const [detail, setDetail] = useState<ClientDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const matchingInitialDetail =
+    initialDetail !== null && initialDetail.id === client.id ? initialDetail : null;
+  const [detail, setDetail] = useState<ClientDetail | null>(matchingInitialDetail);
+  const [loading, setLoading] = useState(matchingInitialDetail === null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
@@ -90,6 +112,7 @@ function AdminClientDrawerInner({
   const [note, setNote] = useState("");
   const [giftAmount, setGiftAmount] = useState("10000");
   const [tabRefreshKey, setTabRefreshKey] = useState(0);
+  const [personalInfoEditing, setPersonalInfoEditing] = useState(false);
 
   const refreshDetail = useCallback(async () => {
     const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
@@ -99,6 +122,10 @@ function AdminClientDrawerInner({
   }, [client.id]);
 
   useEffect(() => {
+    if (matchingInitialDetail !== null) {
+      return undefined;
+    }
+
     let cancelled = false;
     void apiFetch<ClientDetail>(`/clients/${client.id}`)
       .then((payload) => {
@@ -119,7 +146,7 @@ function AdminClientDrawerInner({
     return () => {
       cancelled = true;
     };
-  }, [client.id]);
+  }, [client.id, matchingInitialDetail]);
 
   const initial = useMemo(
     () => (detail ? clientInitialValues(detail) : null),
@@ -184,7 +211,20 @@ function AdminClientDrawerInner({
     if (sheetBusy) {
       return;
     }
+    setPersonalInfoEditing(false);
     onClose();
+  }
+
+  function handleCancelPersonalInfoEdit(): void {
+    editForm.cancelEdits();
+    setPersonalInfoEditing(false);
+  }
+
+  async function handleSavePersonalInfo(): Promise<void> {
+    const saved = await editForm.save(t("updateSuccess"), t("genericError"));
+    if (saved) {
+      setPersonalInfoEditing(false);
+    }
   }
 
   async function runAction(
@@ -221,6 +261,10 @@ function AdminClientDrawerInner({
     : statusNotice?.tone ?? actionTone;
 
   const isActive = !(detail?.activity.isBlocked ?? client.isBlocked);
+  const isNestedOverlay = useOverlayPortalRoot;
+  const bodyClassName = isNestedOverlay
+    ? `${ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`
+    : `${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`;
 
   return (
     <OmmDrawerPortal
@@ -230,26 +274,42 @@ function AdminClientDrawerInner({
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      panelClassName={
+        isNestedOverlay ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS
+      }
+      backdropClassName={isNestedOverlay ? OMM_DRAWER_NESTED_BACKDROP_CLASS : undefined}
+      lockBodyScroll={!isNestedOverlay}
+      useOverlayPortalRoot={useOverlayPortalRoot}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
           <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
             {clientHeaderName(client)}
           </h2>
-          <AdminClientStatusAction
-            clientId={client.id}
-            isActive={isActive}
-            labels={statusLabels}
-            layout="inline"
-            disabled={editForm.busy || loading}
-            onBusyChange={setStatusBusy}
-            onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
-            onChanged={() => {
-              void refreshDetail();
-              onChanged();
-            }}
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <AdminClientStatusAction
+              clientId={client.id}
+              isActive={isActive}
+              labels={statusLabels}
+              layout="inline"
+              disabled={editForm.busy || loading}
+              onBusyChange={setStatusBusy}
+              onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+              onChanged={() => {
+                void refreshDetail();
+                onChanged();
+              }}
+            />
+            <button
+              type="button"
+              className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
+              aria-label={t("modalCloseAria")}
+              disabled={sheetBusy}
+              onClick={handleClose}
+            >
+              ×
+            </button>
+          </div>
         </div>
       </header>
 
@@ -259,7 +319,7 @@ function AdminClientDrawerInner({
         onTabChange={(value) => setActiveTab(value as ClientSheetTabId)}
       />
 
-      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+      <div className={bodyClassName}>
         {toastMessage ? (
           <AdminCenterToast
             message={toastMessage}
@@ -292,6 +352,8 @@ function AdminClientDrawerInner({
             onNoteChange={setNote}
             onRun={runAction}
             tabRefreshKey={tabRefreshKey}
+            personalInfoEditing={personalInfoEditing}
+            onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
           />
         )}
       </div>
@@ -300,11 +362,11 @@ function AdminClientDrawerInner({
         saveLabel={t("saveButton")}
         cancelLabel={t("cancelButton")}
         savingLabel={t("savingButton")}
-        dirty={editForm.dirty}
+        dirty={editForm.dirty || personalInfoEditing}
         busy={editForm.busy}
-        onCancel={editForm.cancelEdits}
+        onCancel={handleCancelPersonalInfoEdit}
         onSave={() => {
-          void editForm.save(t("updateSuccess"), t("genericError"));
+          void handleSavePersonalInfo();
         }}
       />
     </OmmDrawerPortal>
