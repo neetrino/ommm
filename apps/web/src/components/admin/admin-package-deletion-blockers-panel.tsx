@@ -1,13 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import type { PackageDeletionBlockerRow } from "@/components/admin/admin-package-deletion-blocker-types";
 import { formatDateForUi } from "@/lib/date-display";
 import { userDisplayName } from "@/lib/user-display-name";
 
 type AdminPackageDeletionBlockersPanelProps = {
   blockers: readonly PackageDeletionBlockerRow[];
+  onMemberClick: (userId: string) => void;
 };
 
 const BLOCKER_STATUS_LABEL_KEYS: Partial<
@@ -46,6 +46,7 @@ function blockerStatusLabel(
 
 export function AdminPackageDeletionBlockersPanel({
   blockers,
+  onMemberClick,
 }: AdminPackageDeletionBlockersPanelProps) {
   const t = useTranslations("adminPages.packages.deletionBlockers");
 
@@ -71,12 +72,13 @@ export function AdminPackageDeletionBlockersPanel({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link
-                    href={`/admin/clients?viewClient=${encodeURIComponent(row.user.id)}`}
-                    className="truncate text-sm font-medium text-sage-900 underline decoration-sand-300/80 decoration-dotted underline-offset-[4px] hover:text-sage-700"
+                  <button
+                    type="button"
+                    className="truncate text-left text-sm font-medium text-sage-900 underline decoration-sand-300/80 decoration-dotted underline-offset-[4px] hover:text-sage-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+                    onClick={() => onMemberClick(row.user.id)}
                   >
                     {displayName}
-                  </Link>
+                  </button>
                   <span className="rounded-full border border-amber-300/80 bg-white px-2 py-0.5 text-[10px] font-medium text-amber-900">
                     {statusLabel}
                   </span>

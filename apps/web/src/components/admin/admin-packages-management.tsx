@@ -53,6 +53,7 @@ import {
   buildPackageUrlFiltersQuery,
   buildPackagesPathname,
   clearPackageModalQueryKeys,
+  clearPackageDeleteQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_QUERY_KEY,
@@ -312,7 +313,7 @@ export function AdminPackagesManagement({
       return;
     }
     const params = new URLSearchParams(searchParams.toString());
-    params.delete(PACKAGE_DELETE_QUERY_KEY);
+    clearPackageDeleteQueryKeys(params);
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [deletingPackageId, isDeletePackageOpen, pathname, router, searchParams]);
 
@@ -380,7 +381,7 @@ export function AdminPackagesManagement({
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
-      params.delete(PACKAGE_DELETE_QUERY_KEY);
+      clearPackageDeleteQueryKeys(params);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_EDIT_TIER_VALUE);
       params.set(PACKAGE_PRICING_QUERY_KEY, packageId);
@@ -399,7 +400,7 @@ export function AdminPackagesManagement({
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
-      params.delete(PACKAGE_DELETE_QUERY_KEY);
+      clearPackageDeleteQueryKeys(params);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_ADD_TIER_VALUE);
       params.set(PACKAGE_CATEGORY_QUERY_KEY, categoryId);
@@ -417,7 +418,7 @@ export function AdminPackagesManagement({
 
   const closeDeletePackage = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.delete(PACKAGE_DELETE_QUERY_KEY);
+    clearPackageDeleteQueryKeys(params);
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [pathname, router, searchParams]);
 
@@ -452,6 +453,7 @@ export function AdminPackagesManagement({
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
       clearPackageModalQueryKeys(params);
+      clearPackageDeleteQueryKeys(params);
       params.set(PACKAGE_DELETE_QUERY_KEY, packageId);
       router.replace(buildPackagesPathname(pathname, params), { scroll: false });
     },
@@ -530,7 +532,7 @@ export function AdminPackagesManagement({
     const params = new URLSearchParams(searchParams.toString());
     params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
     params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
-    params.delete(PACKAGE_DELETE_QUERY_KEY);
+    clearPackageDeleteQueryKeys(params);
     params.delete(PACKAGE_EDIT_QUERY_KEY);
     clearPackageModalQueryKeys(params);
     params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_CREATE_VALUE);
@@ -542,7 +544,7 @@ export function AdminPackagesManagement({
     (categoryId: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
-      params.delete(PACKAGE_DELETE_QUERY_KEY);
+      clearPackageDeleteQueryKeys(params);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_EDIT_CATEGORY_QUERY_KEY, categoryId);
       router.replace(buildPackagesPathname(pathname, params), { scroll: false });
@@ -560,7 +562,7 @@ export function AdminPackagesManagement({
     (categoryId: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
-      params.delete(PACKAGE_DELETE_QUERY_KEY);
+      clearPackageDeleteQueryKeys(params);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_DELETE_CATEGORY_QUERY_KEY, categoryId);
       router.replace(buildPackagesPathname(pathname, params), { scroll: false });

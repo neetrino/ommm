@@ -307,6 +307,13 @@ html {
     @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
   }
 
+  .ommm-drawer-backdrop-nested {
+    @apply absolute inset-0 z-0 cursor-pointer appearance-none border-0 p-0 shadow-none;
+    @apply bg-sage-900/35;
+    @apply hover:bg-sage-900/35 focus:bg-sage-900/35 focus-visible:bg-sage-900/35 active:bg-sage-900/35;
+    @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
+  }
+
   .ommm-modal-overlay {
     @apply fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4;
   }

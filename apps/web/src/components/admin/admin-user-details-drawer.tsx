@@ -29,6 +29,8 @@ type AdminUserDetailsDrawerProps = {
   locale: string;
   userId: string | null;
   onClose: () => void;
+  /** Stack above nested confirm dialogs (e.g. package delete modal). */
+  useOverlayPortalRoot?: boolean;
 };
 
 function fullName(name: string | null, lastName: string | null): string {
@@ -40,6 +42,7 @@ export function AdminUserDetailsDrawer({
   locale,
   userId,
   onClose,
+  useOverlayPortalRoot = false,
 }: AdminUserDetailsDrawerProps) {
   const t = useTranslations("adminPages.waitlists");
   const titleId = useId();
@@ -52,6 +55,7 @@ export function AdminUserDetailsDrawer({
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
       panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
+      useOverlayPortalRoot={useOverlayPortalRoot}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
