@@ -502,7 +502,6 @@
   }
 
   .wordmarkSlot,
-  .navSlot,
   .contactSlot,
   .socialSlot,
   .illustrationSlot,
@@ -524,40 +523,23 @@
     line-height: 2.5rem;
   }
 
-  .navSlot {
-    grid-column: 1;
-    grid-row: 2;
-    max-width: none;
-    margin-bottom: 0;
-  }
-
-  .topNav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .topNavLink {
-    padding-left: 0;
-  }
-
   .contactSlot {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 2;
     align-self: start;
-    margin-top: 3rem;
+    margin-top: 1rem;
   }
 
   .socialSlot {
     grid-column: 1;
-    grid-row: 4;
+    grid-row: 3;
     align-self: end;
     margin-top: 1rem;
   }
 
   .illustrationSlot {
     grid-column: 2;
-    grid-row: 1 / span 4;
+    grid-row: 1 / span 3;
     align-self: start;
     justify-self: center;
     width: min(100%, 20rem);
@@ -567,7 +549,7 @@
 
   .legalSlot {
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 2;
     justify-self: end;
     align-self: end;
     width: 16rem;
@@ -579,7 +561,7 @@
 
   .copyrightSlot {
     grid-column: 2;
-    grid-row: 4;
+    grid-row: 3;
     justify-self: end;
     align-self: end;
     width: 16rem;

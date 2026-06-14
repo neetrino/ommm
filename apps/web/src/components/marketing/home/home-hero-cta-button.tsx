@@ -13,6 +13,7 @@ import {
   isMarketingLongMembershipCtaLocale,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
 import { Link } from "@/i18n/navigation";
 
 export type HomeHeroCtaVariant = "booking" | "membership" | "coachesDetails" | "plansDetails";
@@ -64,6 +65,7 @@ export function HomeHeroCtaButton({
   const shapeMobile = "shapeMobile" in assets ? assets.shapeMobile : undefined;
   const arrowMobile = "arrowMobile" in assets ? assets.arrowMobile : undefined;
   const mobileLabelOffsetPx = labelOffsetPx ?? mobileLayout?.labelOffsetPx ?? desktopLayout.labelOffsetPx;
+  const imageLoadingProps = sizeContext === "hero" ? aboveFoldImageProps() : belowFoldImageProps();
 
   return (
     <Link
@@ -103,6 +105,7 @@ export function HomeHeroCtaButton({
           unoptimized
           className={`${styles.shape} ${styles.shapeMobile}`}
           aria-hidden
+          {...imageLoadingProps}
         />
       ) : null}
       <Image
@@ -112,6 +115,7 @@ export function HomeHeroCtaButton({
         unoptimized
         className={`${styles.shape} ${styles.shapeDesktop}`}
         aria-hidden
+        {...imageLoadingProps}
       />
       <span className={styles.label}>{label}</span>
       <span className={styles.arrowZone} aria-hidden>
@@ -123,6 +127,7 @@ export function HomeHeroCtaButton({
             height={HOME_HERO_CTA_LAYOUT.arrowHeightPx}
             unoptimized
             className={`${styles.arrow} ${styles.arrowMobile}`}
+            {...imageLoadingProps}
           />
         ) : null}
         <Image
@@ -132,6 +137,7 @@ export function HomeHeroCtaButton({
           height={HOME_HERO_CTA_LAYOUT.arrowHeightPx}
           unoptimized
           className={`${styles.arrow} ${styles.arrowDesktop}`}
+          {...imageLoadingProps}
         />
       </span>
     </Link>
