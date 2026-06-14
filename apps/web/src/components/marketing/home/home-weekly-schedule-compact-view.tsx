@@ -1,9 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import styles from "@/components/marketing/home/home-weekly-schedule-compact-view.module.css";
 import { HomeWeeklyScheduleSessionRow } from "@/components/marketing/home/home-weekly-schedule-session-row";
+import transitionStyles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
+import { useScheduleDayTransition } from "@/components/marketing/schedule/use-schedule-day-transition";
 import {
   HOME_WEEKLY_SCHEDULE_DAY_CHIP_CLASS,
   HOME_WEEKLY_SCHEDULE_FIGMA,
@@ -45,6 +47,24 @@ export function HomeWeeklyScheduleDayView({
 
   const activeDay =
     days.find((entry) => entry.day === selectedDay) ?? days[0] ?? null;
+
+  const visibleSessions = activeDay?.sessions ?? [];
+  const {
+    contentRef,
+    renderedDayKey,
+    renderedSessions,
+    animationPhase,
+    containerStyle,
+    getItemStyle,
+  } = useScheduleDayTransition({
+    selectedDayKey: selectedDay,
+    visibleSessions,
+  });
+
+  const renderedDay = useMemo(
+    () => days.find((entry) => entry.day === renderedDayKey) ?? days[0] ?? null,
+    [days, renderedDayKey],
+  );
 
   const selectDay = useCallback((day: MarketingScheduleDayOfWeek) => {
     setSelectedDay(day);
@@ -140,22 +160,55 @@ export function HomeWeeklyScheduleDayView({
         aria-label={t("weeklyScheduleSessionsPanelAria", { day: activeDay.label })}
         className={styles.sessionPanel}
       >
-        {activeDay.sessions.length === 0 ? (
-          <div className={styles.emptyDay}>{activeDay.emptyLabel}</div>
-        ) : (
-          activeDay.sessions.map((session) => (
-            <HomeWeeklyScheduleSessionRow
-              key={session.id}
-              item={session.item}
-              locale={locale}
-              reserveLabel={t("weeklyScheduleReserve")}
-              withInstructorLabel={session.withInstructorLabel}
-              durationLabel={session.durationLabel}
-              spotsLeftLabel={session.spotsLeftLabel}
-              bookAriaLabel={session.bookAriaLabel}
-            />
-          ))
-        )}
+        <div
+          className={styles.sessionPanelViewport}
+          style={containerStyle}
+        >
+          <div
+            ref={contentRef}
+            className={
+              animationPhase === "exit"
+                ? transitionStyles.scheduleListExit
+                : animationPhase === "enter"
+                  ? transitionStyles.scheduleListEnter
+                  : undefined
+            }
+          >
+            {renderedDay === null ? null : (
+              <div key={renderedDayKey} className={styles.sessionList}>
+                {renderedSessions.length === 0 ? (
+                  <div
+                    className={`${styles.emptyDay} ${
+                      animationPhase === "enter" ? transitionStyles.scheduleItemEnter : ""
+                    }`}
+                  >
+                    {renderedDay.emptyLabel}
+                  </div>
+                ) : (
+                  renderedSessions.map((session, index) => (
+                    <div
+                      key={session.id}
+                      className={
+                        animationPhase === "enter" ? transitionStyles.scheduleItemEnter : undefined
+                      }
+                      style={getItemStyle(index)}
+                    >
+                      <HomeWeeklyScheduleSessionRow
+                        item={session.item}
+                        locale={locale}
+                        reserveLabel={t("weeklyScheduleReserve")}
+                        withInstructorLabel={session.withInstructorLabel}
+                        durationLabel={session.durationLabel}
+                        spotsLeftLabel={session.spotsLeftLabel}
+                        bookAriaLabel={session.bookAriaLabel}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

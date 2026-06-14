@@ -54,6 +54,22 @@
 }
 
 .sessionPanel {
+  width: 100%;
+  min-width: 0;
+}
+
+.sessionPanelViewport {
+  overflow: hidden;
+  transition: height 300ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sessionPanelViewport {
+    transition: none;
+  }
+}
+
+.sessionList {
   display: flex;
   width: 100%;
   min-width: 0;
@@ -118,6 +134,9 @@
     );
     margin-inline: auto;
     margin-top: 1.5rem;
+  }
+
+  .sessionList {
     gap: var(--home-schedule-session-list-gap-lg, 1rem);
   }
 
