@@ -3,6 +3,7 @@ import { Manrope, Newsreader } from "next/font/google";
 import { headers } from "next/headers";
 import { routing } from "@/i18n/routing";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
+import { resolveSiteMetadataBase, siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -26,6 +27,25 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: resolveSiteMetadataBase(),
+  title: {
+    default: siteMetadata.siteName,
+    template: `%s · ${siteMetadata.siteName}`,
+  },
+  description: siteMetadata.description,
+  openGraph: {
+    type: "website",
+    siteName: siteMetadata.siteName,
+    title: siteMetadata.siteName,
+    description: siteMetadata.description,
+    images: [siteMetadata.ogImage],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteMetadata.siteName,
+    description: siteMetadata.description,
+    images: [siteMetadata.ogImage.url],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
