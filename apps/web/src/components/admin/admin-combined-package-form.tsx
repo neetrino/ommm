@@ -123,8 +123,8 @@ export function AdminCombinedPackageForm({
   }
 
   return (
-    <form onSubmit={(event) => void onSubmit(event)} className="flex min-h-0 flex-1 flex-col">
-      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 sm:px-7">
+    <form onSubmit={(event) => void onSubmit(event)} className="flex flex-col">
+      <div className="flex flex-col gap-5 px-5 sm:px-7">
       <AdminPackageFormSection
         heading={t("combinedForm.sourceHeading")}
         description={t("combinedForm.sourceDescription")}

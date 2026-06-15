@@ -275,7 +275,7 @@ export function AdminPackagesShell({
               ? t("combinedForm.createDescription")
               : t("createDescription");
   const packageModalPanelClass =
-    "mt-auto flex max-h-[min(92vh,760px)] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
+    "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
   return (
     <>
@@ -302,7 +302,7 @@ export function AdminPackagesShell({
           ref={panelRef}
           aria-labelledby={titleId}
           aria-describedby={descId}
-          className="flex min-h-0 flex-1 flex-col"
+          className="flex flex-col"
         >
           <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
             <div>
@@ -333,7 +333,7 @@ export function AdminPackagesShell({
               </svg>
             </button>
           </div>
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex flex-col">
             {modalMode === "create" ? (
               <div className="mb-5 flex shrink-0 flex-wrap gap-2 px-5 pt-5 sm:px-7 sm:pt-6">
                 <button
@@ -360,7 +360,7 @@ export function AdminPackagesShell({
                 </button>
               </div>
             ) : null}
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="flex flex-col">
             {modalMode === "create" && createPackageKind === "combined" ? (
               <AdminCombinedPackageForm
                 packages={allPackages ?? packages}
