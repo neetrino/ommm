@@ -57,8 +57,6 @@ export function AdminCombinedPackageForm({
   const [sessionsCount, setSessionsCount] = useState(String(MIN_PACKAGE_SESSIONS));
   const [durationDays, setDurationDays] = useState(String(PACKAGE_DAYS_PER_MONTH));
   const [guestCount, setGuestCount] = useState("");
-  const [isPopular, setIsPopular] = useState(false);
-  const [isActive, setIsActive] = useState(true);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitLockRef = useRef(false);
@@ -164,8 +162,8 @@ export function AdminCombinedPackageForm({
           periodDays,
           billingPeriod: "monthly",
           guestCount: guestCountValue ?? 0,
-          isPopular,
-          isActive,
+          isPopular: false,
+          isActive: true,
           sourcePlanIds: selectedIds,
         }),
       });
@@ -340,34 +338,6 @@ export function AdminCombinedPackageForm({
               onKeyDown={preventNumberArrowStep}
               disabled={formFieldsDisabled}
             />
-          </label>
-        </div>
-      </AdminPackageFormSection>
-
-      <AdminPackageFormSection
-        heading={t("formSections.visibility.heading")}
-        description={t("formSections.visibility.description")}
-      >
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4">
-            <input
-              type="checkbox"
-              checked={isPopular}
-              onChange={(event) => setIsPopular(event.target.checked)}
-              disabled={formFieldsDisabled}
-              className="mt-0.5 h-4 w-4 rounded border-sage-300 text-sand-600"
-            />
-            <span className="text-sm font-medium text-sage-800">{t("fieldPopular")}</span>
-          </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(event) => setIsActive(event.target.checked)}
-              disabled={formFieldsDisabled}
-              className="mt-0.5 h-4 w-4 rounded border-sage-300 text-sand-600"
-            />
-            <span className="text-sm font-medium text-sage-800">{t("fieldActive")}</span>
           </label>
         </div>
       </AdminPackageFormSection>
