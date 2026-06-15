@@ -118,6 +118,7 @@ export type AdminPackageFormValues = {
   guestCount: string;
   isPopular: boolean;
   isActive: boolean;
+  sourceSessionAllocations: Record<string, string>;
 };
 
 export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPackageFormValues {
@@ -132,6 +133,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     guestCount: "",
     isPopular: false,
     isActive: true,
+    sourceSessionAllocations: {},
   };
 }
 
@@ -167,6 +169,7 @@ export function packageRowToFormValues(
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
+    sourceSessionAllocations: {},
   };
 }
 

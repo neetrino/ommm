@@ -17,6 +17,7 @@ import {
   formatPackagePriceLabel,
   formatPackagePricePerSession,
   formatPackageSessionsLabel,
+  formatCombinedPackageSessionsBreakdown,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -98,6 +99,7 @@ export function AdminPackagesCategoryTable({
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
             const sessions = formatPackageSessionsLabel(pkg);
+            const sessionsBreakdown = formatCombinedPackageSessionsBreakdown(pkg);
             const pricePerSession = formatPackagePricePerSession(pkg, locale);
             const guestCount = formatPackageGuestCount(pkg);
             const validityLabel = formatPackageValidityLabel(pkg, {
@@ -127,7 +129,16 @@ export function AdminPackagesCategoryTable({
                     </div>
                   </TableCell>
                   <TableCell emphasis>
-                    {sessions !== null ? sessions : <EmptyCell />}
+                    {sessions !== null ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span>{sessions}</span>
+                        {sessionsBreakdown !== null ? (
+                          <span className="text-xs text-sage-500">{sessionsBreakdown}</span>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <EmptyCell />
+                    )}
                   </TableCell>
                   <TableCell>{formatPackagePriceLabel(pkg, locale)}</TableCell>
                   <TableCell>{pricePerSession ?? <EmptyCell />}</TableCell>

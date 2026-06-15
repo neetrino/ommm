@@ -36,6 +36,12 @@ import {
   resolvePackageCategoryName,
 } from "@/components/admin/package-category-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
+import { AdminCombinedTierSessionAllocations } from "@/components/admin/admin-combined-tier-session-allocations";
+import {
+  buildCombinedAllocationFormValues,
+  buildSourceSessionAllocationsPayload,
+  sumCombinedSessionAllocations,
+} from "@/components/admin/admin-combined-tier-session-allocations.util";
 import { ApiError, apiFetch } from "@/lib/api";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -77,13 +83,33 @@ type AdminPackageFormProps = {
   onCancel: () => void;
 };
 
+function withCombinedTierAllocations(
+  base: AdminPackageFormValues,
+  initialPackage: AdminPackageRow,
+): AdminPackageFormValues {
+  const allocations = buildCombinedAllocationFormValues(initialPackage.combinedComponents);
+  const total = sumCombinedSessionAllocations(allocations);
+  return {
+    ...base,
+    sourceSessionAllocations: allocations,
+    sessionsCount: total > 0 ? String(total) : base.sessionsCount,
+  };
+}
+
 function buildInitialValues(
   mode: AdminPackageFormMode,
   initialCategoryName: string,
   initialPackage?: AdminPackageRow,
 ): AdminPackageFormValues {
   if (mode === "edit-tier" && initialPackage !== undefined) {
-    return packageRowToTierFormValues(initialPackage, initialCategoryName);
+    const base = packageRowToTierFormValues(initialPackage, initialCategoryName);
+    if (
+      initialPackage.planType === "COMBINED" &&
+      (initialPackage.combinedComponents?.length ?? 0) >= 2
+    ) {
+      return withCombinedTierAllocations(base, initialPackage);
+    }
+    return base;
   }
   if (
     (mode === "edit" || mode === "pricing") &&
@@ -91,13 +117,30 @@ function buildInitialValues(
   ) {
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
-  if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
-    return {
-      ...packageRowToTierFormValues(initialPackage, initialCategoryName),
-      guestCount: "",
-      price: "",
-      pricePerSession: "",
-    };
+  if (mode === "add-tier" && initialPackage !== undefined) {
+    if (
+      initialPackage.planType === "COMBINED" &&
+      (initialPackage.combinedComponents?.length ?? 0) >= 2
+    ) {
+      const base =
+        initialPackage.priceCents > 0
+          ? packageRowToTierFormValues(initialPackage, initialCategoryName)
+          : {
+              ...createEmptyPackageFormValues(initialCategoryName),
+              guestCount: "",
+              price: "",
+              pricePerSession: "",
+            };
+      return withCombinedTierAllocations(base, initialPackage);
+    }
+    if (initialPackage.priceCents > 0) {
+      return {
+        ...packageRowToTierFormValues(initialPackage, initialCategoryName),
+        guestCount: "",
+        price: "",
+        pricePerSession: "",
+      };
+    }
   }
   return createEmptyPackageFormValues(initialCategoryName);
 }
@@ -180,6 +223,28 @@ export function AdminPackageForm({
         next.pricePerSession = resolveTierPricePerSessionField(next.price, next.sessionsCount);
       }
       return next;
+    });
+  }
+
+  const isCombinedTierForm =
+    (mode === "add-tier" || mode === "edit-tier") &&
+    initialPackage?.planType === "COMBINED" &&
+    (initialPackage.combinedComponents?.length ?? 0) >= 2;
+
+  function updateCombinedAllocation(componentId: string, rawValue: string) {
+    setValues((current) => {
+      const nextAllocations = {
+        ...current.sourceSessionAllocations,
+        [componentId]: rawValue,
+      };
+      const total = sumCombinedSessionAllocations(nextAllocations);
+      const sessionsCount = total > 0 ? String(total) : current.sessionsCount;
+      return {
+        ...current,
+        sourceSessionAllocations: nextAllocations,
+        sessionsCount,
+        pricePerSession: resolveTierPricePerSessionField(current.price, sessionsCount),
+      };
     });
   }
 
@@ -303,6 +368,19 @@ export function AdminPackageForm({
       }
     }
 
+    let sourceSessionAllocations: Array<{ componentId: string; sessionCount: number }> | undefined;
+    if (isCombinedTierForm && initialPackage?.combinedComponents !== undefined) {
+      const allocationPayload = buildSourceSessionAllocationsPayload(
+        initialPackage.combinedComponents,
+        values.sourceSessionAllocations,
+      );
+      if (allocationPayload === null) {
+        setError(t("combinedForm.sourceAllocationInvalid"));
+        return;
+      }
+      sourceSessionAllocations = allocationPayload;
+    }
+
     const preservedDisplayFields =
       (isEditMode || isPricingMode) && initialPackage !== undefined
         ? {
@@ -324,6 +402,9 @@ export function AdminPackageForm({
       guestCount: guestCount ?? 0,
       periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
       billingPeriod: tierBillingPeriod,
+      ...(sourceSessionAllocations !== undefined
+        ? { sourceSessionAllocations }
+        : {}),
     };
 
     const shellTierTarget =
@@ -486,7 +567,16 @@ export function AdminPackageForm({
             mode === "edit-tier" ? t("editTierFormDescription") : t("addTierFormDescription")
           }
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-4">
+            {isCombinedTierForm && initialPackage?.combinedComponents !== undefined ? (
+              <AdminCombinedTierSessionAllocations
+                components={initialPackage.combinedComponents}
+                allocations={values.sourceSessionAllocations}
+                totalSessions={sumCombinedSessionAllocations(values.sourceSessionAllocations)}
+                onAllocationChange={updateCombinedAllocation}
+                disabled={pending}
+              />
+            ) : (
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
               <input
@@ -505,6 +595,8 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
               <AmdMoneyInput
@@ -562,6 +654,7 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
+            </div>
           </div>
         </AdminPackageFormSection>
       ) : null}

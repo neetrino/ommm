@@ -390,6 +390,8 @@ model PackagePlanComponent {
   sourceCategoryNameSnapshot String
   sourceClassTypeIdSnapshot  String?
   sessionsPerMonthSnapshot   Int?
+  /** Sessions from this source category included in the combined pricing tier. */
+  sessionAllocation          Int?
   isUnlimitedSnapshot        Boolean  @default(false)
   createdAt                  DateTime @default(now())
 

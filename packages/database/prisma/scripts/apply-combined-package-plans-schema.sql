@@ -21,10 +21,14 @@ CREATE TABLE IF NOT EXISTS "PackagePlanComponent" (
   "sourceCategoryNameSnapshot" TEXT NOT NULL,
   "sourceClassTypeIdSnapshot" TEXT,
   "sessionsPerMonthSnapshot" INTEGER,
+  "sessionAllocation" INTEGER,
   "isUnlimitedSnapshot" BOOLEAN NOT NULL DEFAULT false,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "PackagePlanComponent_pkey" PRIMARY KEY ("id")
 );
+
+ALTER TABLE "PackagePlanComponent"
+  ADD COLUMN IF NOT EXISTS "sessionAllocation" INTEGER;
 
 CREATE INDEX IF NOT EXISTS "PackagePlanComponent_combinedPackagePlanId_idx"
   ON "PackagePlanComponent"("combinedPackagePlanId");

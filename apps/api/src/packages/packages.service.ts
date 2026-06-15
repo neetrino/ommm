@@ -30,6 +30,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CreateCombinedPlanDto } from './dto/create-combined-plan.dto';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+import { validateCombinedSessionAllocations } from './combined-plan-allocations.util';
 import {
   dedupeCategoryNames,
   packageCategoryComparisonKey,
@@ -118,6 +119,11 @@ export class PackagesService {
     try {
       return await this.prisma.packagePlan.findMany({
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+        include: {
+          combinedComponents: {
+            orderBy: { createdAt: 'asc' },
+          },
+        },
       });
     } catch (error) {
       if (this.isDatabaseUnreachable(error)) {
@@ -306,7 +312,14 @@ export class PackagesService {
           });
         }
 
-        return created;
+        return tx.packagePlan.findUniqueOrThrow({
+          where: { id: created.id },
+          include: {
+            combinedComponents: {
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+        });
       });
       await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
       return plan;
@@ -323,7 +336,11 @@ export class PackagesService {
   async updatePlan(planId: string, dto: UpdatePlanDto) {
     const existing = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
-      select: { id: true, slug: true, categoryName: true, planType: true },
+      include: {
+        combinedComponents: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
     });
     if (existing === null) {
       throw new NotFoundException('Plan not found');
@@ -379,7 +396,7 @@ export class PackagesService {
     } else if (dto.sessionsPerMonth !== undefined) {
       Object.assign(data, { sessionsPerMonth: dto.sessionsPerMonth });
     }
-    if (Object.keys(data).length === 0) {
+    if (Object.keys(data).length === 0 && dto.sourceSessionAllocations === undefined) {
       throw new BadRequestException('No updatable fields were provided');
     }
     if (
@@ -388,20 +405,61 @@ export class PackagesService {
     ) {
       Object.assign(data, { allowedCategoryNames: [resolvedCategoryName] });
     }
+    if (
+      existing.planType === PackagePlanType.COMBINED &&
+      dto.isUnlimited !== true &&
+      dto.sessionsPerMonth !== undefined &&
+      dto.sessionsPerMonth > 0 &&
+      dto.sourceSessionAllocations === undefined
+    ) {
+      throw new BadRequestException(
+        'Please set session counts for each combined source package.',
+      );
+    }
     let updated;
     try {
       updated = await this.prisma.$transaction(async (tx) => {
-        const saved = await tx.packagePlan.update({
-          where: { id: planId },
-          data,
-        });
+        const saved =
+          Object.keys(data).length > 0
+            ? await tx.packagePlan.update({
+                where: { id: planId },
+                data,
+              })
+            : existing;
         if (resolvedCategoryName !== undefined) {
           await syncClassTypeForPackageCategory(tx, {
             categoryName: resolvedCategoryName,
             previousCategoryName: existing.categoryName,
           });
         }
-        return saved;
+        if (
+          existing.planType === PackagePlanType.COMBINED &&
+          dto.sourceSessionAllocations !== undefined
+        ) {
+          const expectedTotal =
+            dto.isUnlimited === true
+              ? null
+              : (dto.sessionsPerMonth ?? saved.sessionsPerMonth);
+          validateCombinedSessionAllocations(
+            existing.combinedComponents,
+            dto.sourceSessionAllocations,
+            expectedTotal,
+          );
+          for (const allocation of dto.sourceSessionAllocations) {
+            await tx.packagePlanComponent.update({
+              where: { id: allocation.componentId },
+              data: { sessionAllocation: allocation.sessionCount },
+            });
+          }
+        }
+        return tx.packagePlan.findUniqueOrThrow({
+          where: { id: planId },
+          include: {
+            combinedComponents: {
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+        });
       });
     } catch (error) {
       if (this.isUniquePlanConflict(error)) {

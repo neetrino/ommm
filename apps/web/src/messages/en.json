@@ -2460,7 +2460,13 @@
         "detailsDescription": "Write the public name for this combined package. It is not auto-generated from the selected sources.",
         "detailsLockedHint": "Select at least two source packages above to fill in package details.",
         "nameHint": "This name is shown on the site and in admin — it can differ from the source package names.",
-        "useSuggestedName": "Use suggested name: {name}"
+        "useSuggestedName": "Use suggested name: {name}",
+        "sourceAllocationHeading": "Sessions per source package",
+        "sourceAllocationDescription": "Set how many sessions from each combined source are included in this pricing option. The total updates automatically.",
+        "sourceAllocationCountLabel": "Sessions",
+        "sourceAllocationTotal": "Total sessions: {count}",
+        "sourceAllocationBreakdown": "Breakdown: {breakdown}",
+        "sourceAllocationInvalid": "Enter a valid session count for every combined source package."
       },
       "combinedSelectAtLeastTwo": "Please select at least two packages to combine.",
       "editTitle": "Edit package",

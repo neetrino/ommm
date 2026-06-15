@@ -9,7 +9,10 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { UpdatePlanComponentAllocationDto } from './update-plan-component-allocation.dto';
 
 const MAX_PACKAGE_GUEST_COUNT = 99;
 
@@ -104,4 +107,11 @@ export class UpdatePlanDto {
   @Min(0)
   @Max(MAX_PACKAGE_GUEST_COUNT)
   guestCount?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @ValidateNested({ each: true })
+  @Type(() => UpdatePlanComponentAllocationDto)
+  sourceSessionAllocations?: UpdatePlanComponentAllocationDto[];
 }
