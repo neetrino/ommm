@@ -1,14 +1,12 @@
 import { resolvePublicScheduleSessionStart } from "@/lib/filter-public-schedule-items";
+import { utcToStudioWallClockTime } from "@/lib/studio-timezone";
 
 /** Matches backend default in `cancellation-policy.ts`. */
 export const DEFAULT_CANCELLATION_PENALTY_HOURS = 24;
 
-/** Formats API wall-clock `HH:mm` from an ISO session datetime. */
+/** Formats studio wall-clock `HH:mm` from a session `startsAt` ISO instant. */
 export function scheduleStartTimeFromIso(sessionDateIso: string): string {
-  const value = new Date(sessionDateIso);
-  const hours = String(value.getUTCHours()).padStart(2, "0");
-  const minutes = String(value.getUTCMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
+  return utcToStudioWallClockTime(new Date(sessionDateIso));
 }
 
 /**

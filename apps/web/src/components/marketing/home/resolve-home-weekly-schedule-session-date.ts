@@ -24,6 +24,11 @@ export function resolveHomeWeeklyScheduleSessionDate(
   now: Date = new Date(),
 ): Date {
   if (item.sessionDate !== null) {
+    const trimmed = item.sessionDate.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const [year, month, day] = trimmed.split("-").map(Number);
+      return startOfLocalDay(new Date(year, month - 1, day));
+    }
     return startOfLocalDay(new Date(item.sessionDate));
   }
 

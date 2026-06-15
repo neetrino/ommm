@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import {
   BookingPackageSelectModal,
   type EligibleBookingPackage,
 } from "@/components/account/booking-package-select-modal";
+import {
+  clearBookPackageSessionQuery,
+  readBookPackageSessionId,
+  setBookPackageSessionQuery,
+} from "@/lib/book-package-session-url";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type BookSessionResponse = {
@@ -26,11 +33,53 @@ export function useSessionBooking({
   onError,
 }: UseSessionBookingOptions) {
   const t = useTranslations("forms.bookSession");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlPickSessionId = readBookPackageSessionId(searchParams);
+  const onBookedRef = useRef(onBooked);
+  const onErrorRef = useRef(onError);
+  onBookedRef.current = onBooked;
+  onErrorRef.current = onError;
+
   const [busy, setBusy] = useState(false);
   const [packageModalOpen, setPackageModalOpen] = useState(false);
   const [eligiblePackages, setEligiblePackages] = useState<
     readonly EligibleBookingPackage[]
   >([]);
+  const skipNextUrlRestoreRef = useRef(false);
+
+  function replaceSearchParams(mutate: (params: URLSearchParams) => void): void {
+    const params = new URLSearchParams(searchParams.toString());
+    mutate(params);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
+  function openPackageModal(eligible: readonly EligibleBookingPackage[]): void {
+    skipNextUrlRestoreRef.current = true;
+    setEligiblePackages(eligible);
+    setPackageModalOpen(true);
+    replaceSearchParams((params) => {
+      setBookPackageSessionQuery(params, sessionId);
+    });
+  }
+
+  function closePackageModal(): void {
+    if (busy) {
+      return;
+    }
+    setPackageModalOpen(false);
+    if (urlPickSessionId === sessionId) {
+      replaceSearchParams(clearBookPackageSessionQuery);
+    }
+  }
+
+  async function fetchEligiblePackages(): Promise<EligibleBookingPackage[]> {
+    return apiFetch<EligibleBookingPackage[]>(
+      `/bookings/sessions/${sessionId}/eligible-packages`,
+    );
+  }
 
   async function bookWithOptionalPackage(userPackageId?: string): Promise<void> {
     const booking = await apiFetch<BookSessionResponse>(
@@ -42,7 +91,7 @@ export function useSessionBooking({
         ),
       },
     );
-    onBooked?.(booking.id);
+    onBookedRef.current?.(booking.id);
   }
 
   async function initiateBooking(): Promise<void> {
@@ -51,28 +100,64 @@ export function useSessionBooking({
     }
     setBusy(true);
     try {
-      const eligible = await apiFetch<EligibleBookingPackage[]>(
-        `/bookings/sessions/${sessionId}/eligible-packages`,
-      );
+      const eligible = await fetchEligiblePackages();
       if (eligible.length > 1) {
-        setEligiblePackages(eligible);
-        setPackageModalOpen(true);
+        openPackageModal(eligible);
         return;
       }
       await bookWithOptionalPackage(eligible[0]?.userPackageId);
     } catch (error) {
       const message = error instanceof ApiError ? error.message : t("bookFailed");
-      onError?.(message);
+      onErrorRef.current?.(message);
     } finally {
       setBusy(false);
     }
   }
 
-  function closePackageModal(): void {
-    if (!busy) {
-      setPackageModalOpen(false);
+  useEffect(() => {
+    if (urlPickSessionId !== sessionId) {
+      return;
     }
-  }
+    if (skipNextUrlRestoreRef.current) {
+      skipNextUrlRestoreRef.current = false;
+      return;
+    }
+
+    let cancelled = false;
+
+    async function restorePackageModal(): Promise<void> {
+      setBusy(true);
+      try {
+        const eligible = await fetchEligiblePackages();
+        if (cancelled) {
+          return;
+        }
+        if (eligible.length > 1) {
+          setEligiblePackages(eligible);
+          setPackageModalOpen(true);
+          return;
+        }
+        replaceSearchParams(clearBookPackageSessionQuery);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+        replaceSearchParams(clearBookPackageSessionQuery);
+        const message = error instanceof ApiError ? error.message : t("bookFailed");
+        onErrorRef.current?.(message);
+      } finally {
+        if (!cancelled) {
+          setBusy(false);
+        }
+      }
+    }
+
+    void restorePackageModal();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, urlPickSessionId, pathname, router, searchParams, t]);
 
   const packageModal =
     packageModalOpen ? (
@@ -84,9 +169,10 @@ export function useSessionBooking({
         onClose={closePackageModal}
         onBooked={(bookingId) => {
           setPackageModalOpen(false);
-          onBooked?.(bookingId);
+          replaceSearchParams(clearBookPackageSessionQuery);
+          onBookedRef.current?.(bookingId);
         }}
-        onError={(message) => onError?.(message)}
+        onError={(message) => onErrorRef.current?.(message)}
       />
     ) : null;
 

@@ -1,22 +1,17 @@
 import { resolveHomeWeeklyScheduleSessionDate } from "@/components/marketing/home/resolve-home-weekly-schedule-session-date";
-import { startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { combineIsoDateAndTime } from "@/lib/date-display";
-
-function toLocalDateIso(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+import {
+  resolveStudioCalendarDateFromSessionDate,
+  studioWallClockToUtc,
+} from "@/lib/studio-timezone";
 
 function resolveEndsAtIso(
+  calendarDate: string,
   startsAtIso: string,
-  dateIso: string,
   item: MarketingScheduleItem,
 ): string | null {
   if (item.endTime !== null) {
-    return combineIsoDateAndTime(dateIso, item.endTime);
+    return studioWallClockToUtc(calendarDate, item.endTime).toISOString();
   }
 
   if (item.durationMinutes !== null) {
@@ -35,15 +30,13 @@ export function buildMarketingScheduleItemDateTimeRange(
   item: MarketingScheduleItem,
 ): { startsAt: string; endsAt: string } | null {
   if (item.sessionDate !== null) {
-    const sessionDay = startOfLocalDay(new Date(item.sessionDate));
-    if (Number.isNaN(sessionDay.getTime())) {
+    const calendarDate = resolveStudioCalendarDateFromSessionDate(item.sessionDate);
+    if (calendarDate === null) {
       return null;
     }
 
-    const dateIso = toLocalDateIso(sessionDay);
-    const startsAt =
-      combineIsoDateAndTime(dateIso, item.startTime) ?? item.sessionDate;
-    const endsAt = resolveEndsAtIso(startsAt, dateIso, item);
+    const startsAt = studioWallClockToUtc(calendarDate, item.startTime).toISOString();
+    const endsAt = resolveEndsAtIso(calendarDate, startsAt, item);
     if (endsAt === null) {
       return null;
     }
@@ -52,13 +45,9 @@ export function buildMarketingScheduleItemDateTimeRange(
   }
 
   const sessionDay = resolveHomeWeeklyScheduleSessionDate(item);
-  const dateIso = toLocalDateIso(sessionDay);
-  const startsAt = combineIsoDateAndTime(dateIso, item.startTime);
-  if (startsAt === null) {
-    return null;
-  }
-
-  const endsAt = resolveEndsAtIso(startsAt, dateIso, item);
+  const dateIso = `${sessionDay.getFullYear()}-${String(sessionDay.getMonth() + 1).padStart(2, "0")}-${String(sessionDay.getDate()).padStart(2, "0")}`;
+  const startsAt = studioWallClockToUtc(dateIso, item.startTime).toISOString();
+  const endsAt = resolveEndsAtIso(dateIso, startsAt, item);
   if (endsAt === null) {
     return null;
   }
