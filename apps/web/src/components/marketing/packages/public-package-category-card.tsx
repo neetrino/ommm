@@ -21,6 +21,8 @@ import { listPublicPackageCategorySubscribablePlans } from "@/components/marketi
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { PackagesGuestHint } from "@/components/marketing/packages/packages-guest-hint";
+import { resolvePackagesGuestHintCopy } from "@/components/marketing/packages/packages-guest-hint-copy";
 
 type PublicPackageCategoryCardProps = {
   locale: string;
@@ -34,6 +36,8 @@ export function PublicPackageCategoryCard({
   audience = "guest",
 }: PublicPackageCategoryCardProps) {
   const t = useTranslations("marketing");
+  const common = useTranslations("common");
+  const guestHintCopy = resolvePackagesGuestHintCopy(common, t);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const displayPlans = listCategoryDisplayPlans(category.plans);
@@ -121,7 +125,13 @@ export function PublicPackageCategoryCard({
           audience === "member" ? t("packagesViewAllCta") : t("packagesAccountCta")
         }
         secondaryHref={audience === "member" ? categoryHref : "/user/packages"}
-        hint={audience === "member" ? t("packagesMemberHint") : t("packagesLoginHint")}
+        hint={
+          audience === "member" ? (
+            <p className="text-center text-xs text-sage-500">{t("packagesMemberHint")}</p>
+          ) : (
+            <PackagesGuestHint {...guestHintCopy} variant="footer" />
+          )
+        }
         onSubscribe={audience === "member" ? () => setPaymentOpen(true) : undefined}
       />
       {audience === "member" ? (

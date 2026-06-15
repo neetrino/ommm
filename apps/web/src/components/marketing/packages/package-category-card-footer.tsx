@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 
@@ -8,7 +9,7 @@ type PackageCategoryCardFooterProps = {
   subscribeLabel: string;
   secondaryLabel: string;
   secondaryHref: string;
-  hint: string;
+  hint: ReactNode;
   onSubscribe?: () => void;
   rootClassName?: string;
   actionsClassName?: string;
@@ -55,7 +56,7 @@ export function PackageCategoryCardFooter({
           {secondaryLabel}
         </Link>
       </div>
-      <p className={hintClassName ?? "mt-4 text-center text-xs text-sage-500"}>{hint}</p>
+      <div className={hintClassName ?? "mt-4"}>{hint}</div>
     </div>
   );
 }

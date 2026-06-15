@@ -1,8 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import { PackagesPageReveal } from "@/components/marketing/packages/packages-page-reveal";
+import { PackagesGuestHint } from "@/components/marketing/packages/packages-guest-hint";
+import { resolvePackagesGuestHintCopy } from "@/components/marketing/packages/packages-guest-hint-copy";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 
 type PackagesPageLoginHintProps = {
@@ -11,7 +12,9 @@ type PackagesPageLoginHintProps = {
 
 export function PackagesPageLoginHint({ index }: PackagesPageLoginHintProps) {
   const m = useTranslations("marketing");
+  const common = useTranslations("common");
   const audience = useMarketingAudience();
+  const hintCopy = resolvePackagesGuestHintCopy(common, m);
 
   if (audience === "member") {
     return null;
@@ -19,9 +22,7 @@ export function PackagesPageLoginHint({ index }: PackagesPageLoginHintProps) {
 
   return (
     <PackagesPageReveal index={index}>
-      <p className={`${cardStyles.packagesPageLoginHint} mt-8 text-center text-xs text-sage-500`}>
-        {m("packagesLoginHint")}
-      </p>
+      <PackagesGuestHint {...hintCopy} className="mt-8" />
     </PackagesPageReveal>
   );
 }

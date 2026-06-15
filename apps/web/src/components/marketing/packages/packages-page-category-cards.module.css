@@ -279,11 +279,6 @@
   }
 }
 
-.packagesPageLoginHint {
-  max-width: 16rem;
-  margin-inline: auto;
-}
-
 .desktopOnly {
   display: none;
 }

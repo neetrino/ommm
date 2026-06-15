@@ -12,6 +12,8 @@ import {
 import { formatPublicPackagePriceParts } from "@/components/marketing/packages/public-package-card-format";
 import styles from "@/components/marketing/packages/public-package-category-detail-section.module.css";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { PackagesGuestHint } from "@/components/marketing/packages/packages-guest-hint";
+import { resolvePackagesGuestHintCopy } from "@/components/marketing/packages/packages-guest-hint-copy";
 
 type PublicPackageCategoryDetailSectionProps = {
   locale: string;
@@ -33,7 +35,11 @@ export async function PublicPackageCategoryDetailSection({
   categoryTableOnly = false,
   showLoginHint = true,
 }: PublicPackageCategoryDetailSectionProps) {
-  const m = await getTranslations({ locale, namespace: "marketing" });
+  const [m, common] = await Promise.all([
+    getTranslations({ locale, namespace: "marketing" }),
+    getTranslations({ locale, namespace: "common" }),
+  ]);
+  const guestHintCopy = resolvePackagesGuestHintCopy(common, m);
   const displayPlans = listPublicPackageCategoryDisplayPlans(category);
 
   const tierTable = (
@@ -48,11 +54,12 @@ export async function PublicPackageCategoryDetailSection({
     </Suspense>
   );
 
-  const loginHint = (
-    <p className="text-center text-xs text-sage-500">
-      {audience === "member" ? m("packagesMemberHint") : m("packagesLoginHint")}
-    </p>
-  );
+  const loginHint =
+    audience === "member" ? (
+      <p className="text-center text-sm leading-relaxed text-sage-500">{m("packagesMemberHint")}</p>
+    ) : (
+      <PackagesGuestHint {...guestHintCopy} />
+    );
 
   if (categoryTableOnly) {
     return (
