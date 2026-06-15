@@ -1,4 +1,4 @@
-/** Public package plan returned by `GET /packages/plans` (full Admin catalog; filter `isActive` in UI). */
+/** Public package plan returned by `GET /packages/plans` (active plans only). */
 export type PublicPackagePlan = {
   id: string;
   name: string;

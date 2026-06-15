@@ -1,11 +1,14 @@
-import { ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import {
   ManualPaymentMethod,
   PackageStatus,
   PaymentStatus,
 } from '@prisma/client';
+import {
+  PACKAGE_PLAN_UNAVAILABLE_MESSAGE,
+  PackagesService,
+} from './packages.service';
 import { PackageUsageService } from './package-usage.service';
-import { PackagesService } from './packages.service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -27,6 +30,8 @@ describe('PackagesService', () => {
       packagePlan: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
+        update: jest.fn(),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
       $transaction: jest.fn(),
@@ -458,5 +463,83 @@ describe('PackagesService', () => {
       Date,
     );
     expect(expireMembershipsCall[0].data.status).toBe(PackageStatus.EXPIRED);
+  });
+
+  it('rejects subscription to an inactive plan', async () => {
+    const { service, prisma } = createService();
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-inactive',
+      name: 'Monthly',
+      isActive: false,
+      priceCents: 20_000,
+      periodDays: 30,
+    });
+
+    await expect(
+      service.subscribeWithManualPayment(
+        'u1',
+        'plan-inactive',
+        ManualPaymentMethod.CASH,
+      ),
+    ).rejects.toMatchObject({
+      response: { message: PACKAGE_PLAN_UNAVAILABLE_MESSAGE },
+    });
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('updates plan active status and invalidates public cache', async () => {
+    const { service, prisma, audit, cache } = createService();
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-1',
+      isActive: true,
+    });
+    prisma.packagePlan.update.mockResolvedValue({
+      id: 'plan-1',
+      isActive: false,
+    });
+
+    const updated = await service.adminSetPlanStatus('plan-1', false);
+
+    expect(updated.isActive).toBe(false);
+    expect(prisma.packagePlan.update).toHaveBeenCalledWith({
+      where: { id: 'plan-1' },
+      data: { isActive: false },
+    });
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'MEMBERSHIP_PLAN_STATUS_UPDATED',
+        entityId: 'plan-1',
+        payload: { isActive: false },
+      }),
+    );
+    expect(cache.invalidate).toHaveBeenCalled();
+  });
+
+  it('updates all plans in a category and invalidates public cache', async () => {
+    const { service, prisma, audit, cache } = createService();
+    prisma.packagePlan.findMany
+      .mockResolvedValueOnce([
+        { id: 'plan-1', categoryName: 'Yoga' },
+        { id: 'plan-2', categoryName: 'Yoga' },
+      ])
+      .mockResolvedValueOnce([
+        { id: 'plan-1', categoryName: 'Yoga', isActive: false },
+        { id: 'plan-2', categoryName: 'Yoga', isActive: false },
+      ]);
+
+    const result = await service.adminSetCategoryPlanStatus('Yoga', false);
+
+    expect(prisma.packagePlan.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['plan-1', 'plan-2'] } },
+      data: { isActive: false },
+    });
+    expect(result.plans).toHaveLength(2);
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'MEMBERSHIP_PLAN_CATEGORY_STATUS_UPDATED',
+        payload: expect.objectContaining({ categoryName: 'Yoga', isActive: false }),
+      }),
+    );
+    expect(cache.invalidate).toHaveBeenCalled();
   });
 });

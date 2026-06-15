@@ -5,7 +5,7 @@ import { PackagesPageAccordion } from "@/components/marketing/packages/packages-
 import { PackagesPageLoginHint } from "@/components/marketing/packages/packages-page-login-hint";
 import { PackagesPageReveal } from "@/components/marketing/packages/packages-page-reveal";
 import { fetchPublicPackagesListCached } from "@/lib/fetch-public-packages";
-import { groupAllPublicPackageCategories } from "@/lib/public-package-categories";
+import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
 import {
   normalizePublicPackagePlan,
 } from "@/lib/public-package-plan";
@@ -23,7 +23,7 @@ export async function MarketingPackagesPageContent({
   ]);
 
   const apiCategories = plansRes.ok
-    ? groupAllPublicPackageCategories(plansRes.data.map(normalizePublicPackagePlan))
+    ? groupVisiblePublicPackageCategories(plansRes.data.map(normalizePublicPackagePlan))
     : [];
 
   const categories = buildPackagesPageAccordionCategories(apiCategories, locale, {

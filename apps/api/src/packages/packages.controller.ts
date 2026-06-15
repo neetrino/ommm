@@ -20,6 +20,8 @@ import { ChangePackagePlanDto } from './dto/change-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
+import { UpdatePlanStatusDto } from './dto/update-plan-status.dto';
+import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { PackagesService } from './packages.service';
 
 @Controller('packages')
@@ -59,6 +61,13 @@ export class PackagesController {
     return this.packages.updatePlan(id, dto);
   }
 
+  @Patch('admin/plans/:id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminPlanStatus(@Param('id') id: string, @Body() dto: UpdatePlanStatusDto) {
+    return this.packages.adminSetPlanStatus(id, dto.isActive);
+  }
+
   @Get('admin/plans/:id/deletion-blockers')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -78,6 +87,16 @@ export class PackagesController {
   @Roles(Role.ADMIN)
   deleteCategory(@Body() dto: DeleteCategoryDto) {
     return this.packages.deletePlansByCategory(dto.categoryName);
+  }
+
+  @Patch('admin/categories/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminCategoryStatus(@Body() dto: UpdateCategoryStatusDto) {
+    return this.packages.adminSetCategoryPlanStatus(
+      dto.categoryName,
+      dto.isActive,
+    );
   }
 
   /** Account packages RSC page — same burst pattern as `GET /users/me`. */

@@ -5,6 +5,7 @@ import { TrashGlyph } from "@/components/ui/admin-action-glyphs";
 
 type AdminAccordionPanelProps = {
   title: string;
+  statusControl?: ReactNode;
   editLabel?: string;
   onEdit?: () => void;
   deleteLabel?: string;
@@ -63,6 +64,7 @@ function DeleteGlyph() {
  */
 export function AdminAccordionPanel({
   title,
+  statusControl,
   editLabel,
   onEdit,
   deleteLabel,
@@ -122,6 +124,7 @@ export function AdminAccordionPanel({
             <ChevronGlyph open={open} />
           </span>
         </button>
+        {statusControl}
         {editLabel && onEdit ? (
           <button
             type="button"

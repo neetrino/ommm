@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/lib/api";
 
 const MENU_MIN_WIDTH = 160;
 const MENU_GAP = 4;
@@ -15,8 +14,6 @@ type MenuPosition = {
 };
 
 type AdminPackageRowMenuProps = {
-  packageId: string;
-  isActive: boolean;
   onEdit: () => void;
   onDeletePackage: () => void;
 };
@@ -37,18 +34,12 @@ function MoreGlyph() {
   );
 }
 
-export function AdminPackageRowMenu({
-  packageId,
-  isActive,
-  onEdit,
-  onDeletePackage,
-}: AdminPackageRowMenuProps) {
+export function AdminPackageRowMenu({ onEdit, onDeletePackage }: AdminPackageRowMenuProps) {
   const t = useTranslations("adminPages.packages");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [pending, setPending] = useState(false);
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
 
   const updateMenuPosition = useCallback(() => {
@@ -106,29 +97,7 @@ export function AdminPackageRowMenu({
     };
   }, [open, updateMenuPosition]);
 
-  async function updateStatus(nextActive: boolean) {
-    if (pending) {
-      return;
-    }
-    setPending(true);
-    try {
-      await apiFetch(`/packages/plans/${packageId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ isActive: nextActive }),
-      });
-      window.location.reload();
-    } catch {
-      window.alert(t("genericError"));
-    } finally {
-      setPending(false);
-      setOpen(false);
-    }
-  }
-
   function openDeleteModal(): void {
-    if (pending) {
-      return;
-    }
     setOpen(false);
     onDeletePackage();
   }
@@ -151,7 +120,6 @@ export function AdminPackageRowMenu({
               type="button"
               role="menuitem"
               className="block w-full px-4 py-2 text-left text-sm text-sage-800 transition-colors hover:bg-sand-50/80"
-              disabled={pending}
               onClick={() => {
                 setOpen(false);
                 onEdit();
@@ -162,19 +130,7 @@ export function AdminPackageRowMenu({
             <button
               type="button"
               role="menuitem"
-              className="block w-full px-4 py-2 text-left text-sm text-sage-800 transition-colors hover:bg-sand-50/80"
-              disabled={pending}
-              onClick={() => {
-                void updateStatus(!isActive);
-              }}
-            >
-              {isActive ? t("disableButton") : t("enableButton")}
-            </button>
-            <button
-              type="button"
-              role="menuitem"
               className="block w-full px-4 py-2 text-left text-sm text-red-800 transition-colors hover:bg-red-50/80"
-              disabled={pending}
               onClick={openDeleteModal}
             >
               {t("deleteButton")}
@@ -194,7 +150,6 @@ export function AdminPackageRowMenu({
         aria-expanded={open}
         aria-controls={menuId}
         aria-label={t("rowActionsAria")}
-        disabled={pending}
         onClick={() => setOpen((value) => !value)}
       >
         <MoreGlyph />

@@ -37,6 +37,8 @@ import { PackageUsageService } from './package-usage.service';
 
 const MIN_PRORATED_SESSIONS = 1;
 const PACKAGE_PAYMENT_SOURCE = 'PACKAGE';
+export const PACKAGE_PLAN_UNAVAILABLE_MESSAGE =
+  'This package is currently unavailable.';
 
 @Injectable()
 export class PackagesService {
@@ -58,10 +60,11 @@ export class PackagesService {
     );
   }
 
-  /** Full Admin catalog for the public `/packages` page — UI filters inactive tiers for subscribe. */
+  /** Active plans only — inactive tiers remain visible in Admin. */
   private async loadPublicPlansFromDb() {
     try {
       return await this.prisma.packagePlan.findMany({
+        where: { isActive: true },
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       });
     } catch (error) {
@@ -74,7 +77,7 @@ export class PackagesService {
       if (!this.isMissingColumn(error)) {
         throw error;
       }
-      const legacyPlans = await this.fetchLegacyPlans({ onlyActive: false });
+      const legacyPlans = await this.fetchLegacyPlans({ onlyActive: true });
       return legacyPlans.map((plan) => this.withMarketingDefaults(plan));
     }
   }
@@ -281,6 +284,51 @@ export class PackagesService {
     return updated;
   }
 
+  async adminSetPlanStatus(planId: string, isActive: boolean) {
+    const existing = await this.prisma.packagePlan.findUnique({
+      where: { id: planId },
+      select: { id: true, isActive: true },
+    });
+    if (existing === null) {
+      throw new NotFoundException('Plan not found');
+    }
+    const updated = await this.prisma.packagePlan.update({
+      where: { id: planId },
+      data: { isActive },
+    });
+    await this.audit.log({
+      action: 'MEMBERSHIP_PLAN_STATUS_UPDATED',
+      entityType: 'PackagePlan',
+      entityId: planId,
+      payload: { isActive },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+    return updated;
+  }
+
+  async adminSetCategoryPlanStatus(categoryName: string, isActive: boolean) {
+    const planIds = await this.findPlanIdsByCategoryName(categoryName);
+    if (planIds.length === 0) {
+      throw new NotFoundException('Category not found');
+    }
+    await this.prisma.packagePlan.updateMany({
+      where: { id: { in: planIds } },
+      data: { isActive },
+    });
+    await this.audit.log({
+      action: 'MEMBERSHIP_PLAN_CATEGORY_STATUS_UPDATED',
+      entityType: 'PackagePlan',
+      entityId: planIds[0],
+      payload: { categoryName, isActive, planIds },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+    const updated = await this.prisma.packagePlan.findMany({
+      where: { id: { in: planIds } },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+    return { categoryName, isActive, plans: updated };
+  }
+
   async deletePlan(planId: string) {
     const existing = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
@@ -455,8 +503,11 @@ export class PackagesService {
     const plan = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
     });
-    if (!plan || !plan.isActive) {
+    if (!plan) {
       throw new NotFoundException('Plan not found');
+    }
+    if (!plan.isActive) {
+      throw new BadRequestException(PACKAGE_PLAN_UNAVAILABLE_MESSAGE);
     }
     if (plan.priceCents <= 0) {
       throw new BadRequestException('This plan is not available for purchase');
@@ -656,8 +707,11 @@ export class PackagesService {
     if (!membership) {
       throw new NotFoundException();
     }
-    if (!plan || !plan.isActive) {
+    if (!plan) {
       throw new NotFoundException('Target plan not found');
+    }
+    if (!plan.isActive) {
+      throw new BadRequestException(PACKAGE_PLAN_UNAVAILABLE_MESSAGE);
     }
     if (membership.planId === plan.id) {
       throw new BadRequestException('Membership already uses this plan');
