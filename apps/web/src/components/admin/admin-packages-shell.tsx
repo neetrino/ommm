@@ -275,7 +275,7 @@ export function AdminPackagesShell({
               ? t("combinedForm.createDescription")
               : t("createDescription");
   const packageModalPanelClass =
-    "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
+    "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
   return (
     <>

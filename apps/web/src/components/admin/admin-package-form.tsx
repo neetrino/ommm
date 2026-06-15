@@ -805,7 +805,7 @@ export function AdminPackageForm({
       ) : null}
       </div>
 
-      <div className="shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:px-7">
+      <div className="shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
         <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
           {t("cancelButton")}
         </OmmButton>
