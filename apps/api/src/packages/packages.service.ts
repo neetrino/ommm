@@ -306,7 +306,10 @@ export class PackagesService {
           });
         }
 
-        for (const snapshotCategory of categorySnapshots) {
+        for (const snapshotCategory of dedupeCategoryNames([
+          categoryName,
+          ...categorySnapshots,
+        ])) {
           await syncClassTypeForPackageCategory(tx, {
             categoryName: snapshotCategory,
           });

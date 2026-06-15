@@ -1,6 +1,7 @@
 import {
   buildClassTypeSlugFromPackageCategory,
   syncClassTypeForPackageCategory,
+  syncMissingClassTypesForPackageCategories,
 } from './package-category-class-type.sync';
 
 describe('syncClassTypeForPackageCategory', () => {
@@ -101,5 +102,31 @@ describe('syncClassTypeForPackageCategory', () => {
       'reformer-group',
     );
     expect(buildClassTypeSlugFromPackageCategory('  aaa  ')).toBe('aaa');
+  });
+});
+
+describe('syncMissingClassTypesForPackageCategories', () => {
+  it('syncs class types for every distinct package category label', async () => {
+    const classType = {
+      findUnique: jest.fn().mockResolvedValue(null),
+      findFirst: jest.fn().mockResolvedValue(null),
+      findMany: jest.fn().mockResolvedValue([]),
+      update: jest.fn(),
+      create: jest.fn().mockResolvedValue(undefined),
+    };
+    const packagePlan = {
+      findMany: jest.fn().mockResolvedValue([
+        { categoryName: 'Dance' },
+        { categoryName: 'Daaaaanccceeee + Dance' },
+        { categoryName: 'Inactive Category' },
+      ]),
+    };
+
+    await syncMissingClassTypesForPackageCategories({ classType, packagePlan });
+
+    expect(packagePlan.findMany).toHaveBeenCalledWith({
+      select: { categoryName: true },
+    });
+    expect(classType.create).toHaveBeenCalledTimes(3);
   });
 });

@@ -10,6 +10,11 @@ type ClassTypeRecord = {
 
 type PackageCategoryClassTypeDb = Pick<Prisma.TransactionClient, 'classType'>;
 
+type PackageCategoryClassTypeSyncDb = Pick<
+  Prisma.TransactionClient,
+  'classType' | 'packagePlan'
+>;
+
 export type SyncPackageCategoryClassTypeParams = {
   categoryName: string;
   previousCategoryName?: string;
@@ -194,4 +199,28 @@ export async function syncClassTypeForPackageCategory(
       slug,
     },
   });
+}
+
+/**
+ * Creates missing `ClassType` rows for package category labels (including combined packages).
+ */
+export async function syncMissingClassTypesForPackageCategories(
+  db: PackageCategoryClassTypeSyncDb,
+): Promise<void> {
+  const rows = await db.packagePlan.findMany({
+    select: { categoryName: true },
+  });
+  const seenKeys = new Set<string>();
+  for (const row of rows) {
+    const label = normalizePackageCategoryLabel(row.categoryName);
+    if (label.length === 0) {
+      continue;
+    }
+    const key = categoryComparisonKey(label);
+    if (seenKeys.has(key)) {
+      continue;
+    }
+    seenKeys.add(key);
+    await syncClassTypeForPackageCategory(db, { categoryName: label });
+  }
 }
