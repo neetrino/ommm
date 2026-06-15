@@ -1,5 +1,5 @@
 /** Default site metadata for link previews (Open Graph, Twitter, WhatsApp). */
-const SITE_NAME = "Ommm";
+const SITE_NAME = "Ommm․";
 const SITE_DESCRIPTION =
   "Calm studio, personal experience — thoughtful scheduling, packages, and class booking.";
 
