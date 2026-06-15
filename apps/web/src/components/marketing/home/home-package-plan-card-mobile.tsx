@@ -10,6 +10,7 @@ import {
   HOME_PLANS_SECTION_FIGMA,
   HOME_PLANS_SECTION_MOBILE_FIGMA,
   HOME_PLANS_SECTION_MOBILE_LAYOUT,
+  HOME_PLAN_CARD_GLASS_COPY,
 } from "@/components/marketing/home/home-plans-section-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
@@ -42,9 +43,10 @@ function mobilePlanCardStyleVars(): CSSProperties {
     ["--home-plan-glass-min-height" as string]: `${mobile.glassHeightPx}px`,
     ["--home-plan-glass-overhang" as string]: `${mobile.glassOverhangPx}px`,
     ["--home-plan-glass-bottom" as string]: `${mobile.glassBottomInsetPx}px`,
-    ["--home-plan-glass-padding" as string]: `0 ${mobile.glassPaddingRightPx}px 0 ${mobile.glassPaddingLeftPx}px`,
+    ["--home-plan-glass-padding" as string]: `${mobile.glassPaddingVerticalPx}px ${mobile.glassPaddingRightPx}px ${mobile.glassPaddingVerticalPx}px ${mobile.glassPaddingLeftPx}px`,
     ["--home-plan-details-size" as string]: `${mobile.detailsFontSizePx}px`,
     ["--home-plan-details-line-height" as string]: `${mobile.detailsLineHeightPx}px`,
+    ["--home-plan-details-max-lines" as string]: String(HOME_PLAN_CARD_GLASS_COPY.detailsMaxLines),
     ["--home-plan-price-size" as string]: `${mobile.priceFontSizePx}px`,
     ["--home-plan-price-line-height" as string]: `${mobile.priceLineHeightPx}px`,
     ["--home-plan-letter-spacing" as string]: `${mobile.letterSpacingPx}px`,

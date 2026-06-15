@@ -8,6 +8,30 @@ import { HOME_COACHES_SECTION_MOBILE_LAYOUT } from "@/components/marketing/home/
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
+/** Shared glass copy layout — keeps every plan card the same size. */
+export const HOME_PLAN_CARD_GLASS_COPY = {
+  detailsMaxLines: 3,
+  priceCopyGapPx: 4,
+  glassPaddingVerticalPx: 6,
+  /** Worst case: “From” label + amount under the description. */
+  priceRowCount: 2,
+} as const;
+
+/** Fixed glass height so short and long descriptions share one card footprint. */
+export function homePlanCardGlassHeightPx(
+  detailsLineHeightPx: number,
+  priceLineHeightPx: number,
+): number {
+  const { detailsMaxLines, priceCopyGapPx, glassPaddingVerticalPx, priceRowCount } =
+    HOME_PLAN_CARD_GLASS_COPY;
+  const copyBlockPx =
+    detailsMaxLines * detailsLineHeightPx +
+    priceRowCount * priceLineHeightPx +
+    priceCopyGapPx * priceRowCount;
+
+  return glassPaddingVerticalPx * 2 + copyBlockPx;
+}
+
 /** Figma mobile Packages — container `97:5888`. */
 export const HOME_PLANS_SECTION_MOBILE_FIGMA = {
   artboardWidthPx: 394,
@@ -35,12 +59,13 @@ export const HOME_PLANS_SECTION_MOBILE_FIGMA = {
   cardImageCropWidthPercent: 115.17,
   cardImageCropHeightPercent: 100.04,
   glassWidthPx: 291,
-  glassHeightPx: 136,
+  glassHeightPx: homePlanCardGlassHeightPx(24, 24),
   glassOverhangPx: 34,
   /** Lifts price panel slightly above card bottom edge. */
   glassBottomInsetPx: 20,
   glassPaddingRightPx: 12,
   glassPaddingLeftPx: 20,
+  glassPaddingVerticalPx: 6,
   categoryLeftPx: 54,
   categoryTopPx: 55.58,
   categoryFontSizePx: 28,
@@ -106,7 +131,7 @@ export const HOME_PLANS_SECTION_LAYOUT = {
   cardWidthPx: 404,
   cardHeightPx: 531,
   cardGlassWidthPx: 291,
-  cardGlassHeightPx: 136,
+  cardGlassHeightPx: homePlanCardGlassHeightPx(24, 34),
   /** Figma `62:2344` — glass panel overhang below card edge. */
   cardGlassOverhangPx: 34,
   /** Plan name on card photo — upper-left inset (desktop). */
@@ -114,7 +139,9 @@ export const HOME_PLANS_SECTION_LAYOUT = {
   categoryCornerInsetY: "1.25rem",
   categoryFontSizePx: 28,
   detailsFontSizePx: 18,
+  detailsLineHeightPx: 24,
   priceFontSizePx: 28,
+  priceLineHeightPx: 34,
   ctaIconSizePx: 64,
 } as const;
 

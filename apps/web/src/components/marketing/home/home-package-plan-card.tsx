@@ -7,6 +7,7 @@ import {
   HOME_PLANS_SECTION_FIGMA,
   HOME_PLANS_SECTION_LAYOUT,
   HOME_PLANS_SECTION_ASSETS,
+  HOME_PLAN_CARD_GLASS_COPY,
 } from "@/components/marketing/home/home-plans-section-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
@@ -56,6 +57,11 @@ function planCardStyleVars(): CSSProperties {
     ["--home-plan-card-fallback-bg" as string]: HOME_PLANS_SECTION_FIGMA.cardFallbackBg,
     ["--home-plan-glass-height" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardGlassHeightPx}px`,
     ["--home-plan-glass-overhang" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardGlassOverhangPx}px`,
+    ["--home-plan-details-size" as string]: `${HOME_PLANS_SECTION_LAYOUT.detailsFontSizePx}px`,
+    ["--home-plan-details-line-height" as string]: `${HOME_PLANS_SECTION_LAYOUT.detailsLineHeightPx}px`,
+    ["--home-plan-details-max-lines" as string]: String(HOME_PLAN_CARD_GLASS_COPY.detailsMaxLines),
+    ["--home-plan-price-size" as string]: `${HOME_PLANS_SECTION_LAYOUT.priceFontSizePx}px`,
+    ["--home-plan-price-line-height" as string]: `${HOME_PLANS_SECTION_LAYOUT.priceLineHeightPx}px`,
     ["--home-plan-category-left" as string]: HOME_PLANS_SECTION_LAYOUT.categoryCornerInsetX,
     ["--home-plan-category-top" as string]: HOME_PLANS_SECTION_LAYOUT.categoryCornerInsetY,
     ["--home-plan-category-transform" as string]: "none",
