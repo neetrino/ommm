@@ -1,7 +1,8 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { AdminCoachStatusAction } from "@/components/admin/admin-coach-status-action";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
@@ -13,8 +14,10 @@ import {
 import { useCoachEditForm, type CoachSavedSnapshot } from "@/components/admin/admin-coach-edit-form.use";
 import type { CoachEditInitialValues } from "@/components/admin/admin-coach-edit-form.types";
 import {
+  COACH_PROFILE_TAB_QUERY_KEY,
   COACH_SHEET_TAB_ORDER,
   COACH_SHEET_TAB_PROFILE,
+  parseCoachSheetTabId,
   type CoachSheetTabId,
 } from "@/components/admin/admin-coach-sheet-tabs";
 import { CoachSheetTabPanels } from "@/components/admin/admin-coach-sheet-tab-panels";
@@ -29,6 +32,7 @@ import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-ty
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { coachCardInitials } from "@/components/coaches/coach-card-display";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 type AdminCoachDetailsDrawerProps = {
   coach: AdminCoachDirectoryRow | null;
@@ -97,12 +101,44 @@ function AdminCoachDetailsDrawerInner({
 }) {
   const t = useTranslations("adminPages.coaches");
   const titleId = useId();
-  const [activeTab, setActiveTab] = useState<CoachSheetTabId>(COACH_SHEET_TAB_PROFILE);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlTab = parseCoachSheetTabId(searchParams.get(COACH_PROFILE_TAB_QUERY_KEY));
+  const [activeTab, setActiveTab] = useState<CoachSheetTabId>(urlTab);
+  const [prevUrlTab, setPrevUrlTab] = useState(urlTab);
+  if (urlTab !== prevUrlTab) {
+    setPrevUrlTab(urlTab);
+    setActiveTab(urlTab);
+  }
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
   const initial = useMemo(() => coachInitialValues(coach), [coach]);
+
+  const updateCoachTabQuery = useCallback(
+    (tab: CoachSheetTabId) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (tab === COACH_SHEET_TAB_PROFILE) {
+        params.delete(COACH_PROFILE_TAB_QUERY_KEY);
+      } else {
+        params.set(COACH_PROFILE_TAB_QUERY_KEY, tab);
+      }
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const handleTabChange = useCallback(
+    (value: string) => {
+      const tab = parseCoachSheetTabId(value);
+      setActiveTab(tab);
+      updateCoachTabQuery(tab);
+    },
+    [updateCoachTabQuery],
+  );
 
   const validationLabels = useMemo(
     () => ({
@@ -199,7 +235,7 @@ function AdminCoachDetailsDrawerInner({
       <AdminDetailSheetTabBar
         tabs={tabs}
         activeTab={activeTab}
-        onTabChange={(value) => setActiveTab(value as CoachSheetTabId)}
+        onTabChange={handleTabChange}
       />
 
       <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
