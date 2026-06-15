@@ -3685,7 +3685,10 @@
       "packageRemainingVisits": "{count} visits remaining",
       "packageUnlimitedVisits": "Unlimited visits",
       "packageExpires": "Valid until {date}",
+      "packageValidPeriod": "Valid {start} – {end}",
       "packageNoExpiry": "No expiry date",
+      "packageNoStartDate": "No start date",
+      "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Includes: {categories}",
       "packageSelectedBadge": "Selected"
     },

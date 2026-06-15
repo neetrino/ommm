@@ -138,7 +138,10 @@ export class BookingsService {
         planName: pkg.plan.name,
         planType: pkg.plan.planType,
         remainingSessions: usage.remainingSessions,
+        totalSessions: usage.totalSessions,
+        usedSessions: usage.usedSessions,
         isUnlimited: usage.isUnlimited,
+        currentPeriodStart: pkg.currentPeriodStart,
         currentPeriodEnd: pkg.currentPeriodEnd,
         includedCategories: resolvePlanAllowedCategories(pkg.plan),
       };
@@ -171,8 +174,7 @@ export class BookingsService {
 
     const booking = await this.prisma.$transaction(
       async (tx) => {
-        const requiredSessions =
-          session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
+        const requiredSessions = this.resolveSessionCreditRequirement(session);
         let userPackageId: string | null = null;
 
         const existingBooking = await tx.booking.findUnique({
@@ -182,76 +184,18 @@ export class BookingsService {
           throw new BadRequestException('Already booked');
         }
 
-        const needsSessionCredit =
-          requiredSessions > 0 &&
-          (!existingBooking ||
-            existingBooking.status === BookingStatus.CANCELLED);
+        const canAttachPackage =
+          !existingBooking ||
+          existingBooking.status === BookingStatus.CANCELLED;
 
-        if (needsSessionCredit) {
-          const dropInPayment = await tx.payment.findFirst({
-            where: {
-              userId,
-              description: `Drop-in session ${sessionId}`,
-              status: PaymentStatus.SUCCEEDED,
-            },
-            select: { id: true },
-          });
-          if (!dropInPayment) {
-            const eligiblePackages =
-              await this.packageUsage.listEligibleUserPackages(
-                tx,
-                userId,
-                session.classType,
-              );
-
-            if (dto?.userPackageId) {
-              const selected = await this.packageUsage.getValidatedUserPackageForBooking(
-                tx,
-                userId,
-                dto.userPackageId,
-                session.classType,
-              );
-              await this.packageUsage.consumeSession(tx, selected.id);
-              userPackageId = selected.id;
-            } else if (eligiblePackages.length === 1) {
-              await this.packageUsage.consumeSession(
-                tx,
-                eligiblePackages[0].id,
-              );
-              userPackageId = eligiblePackages[0].id;
-            } else if (eligiblePackages.length > 1) {
-              throw new BadRequestException(
-                'Please choose a package for this booking.',
-              );
-            } else if (session.priceCents > 0) {
-              const user = await tx.user.findUnique({
-                where: { id: userId },
-                select: { giftCreditsCents: true },
-              });
-              const credits = user?.giftCreditsCents ?? 0;
-              if (credits < session.priceCents) {
-                throw new BadRequestException(
-                  'Active package, payment, or gift credits required for this class',
-                );
-              }
-              await tx.user.update({
-                where: { id: userId },
-                data: { giftCreditsCents: { decrement: session.priceCents } },
-              });
-              await tx.payment.create({
-                data: {
-                  userId,
-                  amountCents: session.priceCents,
-                  status: PaymentStatus.SUCCEEDED,
-                  description: `Gift credit spend ${sessionId}`,
-                },
-              });
-            } else {
-              throw new BadRequestException(
-                'Active package or payment required for this class',
-              );
-            }
-          }
+        if (canAttachPackage) {
+          userPackageId = await this.resolveBookingPackage(
+            tx,
+            userId,
+            session,
+            dto,
+            requiredSessions,
+          );
         }
 
         if (existingBooking) {
@@ -262,7 +206,7 @@ export class BookingsService {
               channel: dto?.channel ?? BookingChannel.WEBSITE,
               cancelledAt: null,
               attendedAt: null,
-              ...(userPackageId !== null ? { userPackageId } : {}),
+              userPackageId,
             },
             include: { session: { include: { classType: true } } },
           });
@@ -361,6 +305,103 @@ export class BookingsService {
       sessionId: booking.sessionId,
     });
     return { ok: true, penalized: applyPenalty };
+  }
+
+  private resolveSessionCreditRequirement(
+    session: Pick<ClassSession, 'sessionRequirement' | 'priceCents'>,
+  ): number {
+    return session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
+  }
+
+  private async resolveBookingPackage(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    session: {
+      id: string;
+      priceCents: number;
+      classType: { id: string; name: string; slug: string };
+    },
+    dto: CreateBookingDto | undefined,
+    requiredSessions: number,
+  ): Promise<string | null> {
+    if (dto?.userPackageId) {
+      const selected = await this.packageUsage.getValidatedUserPackageForBooking(
+        tx,
+        userId,
+        dto.userPackageId,
+        session.classType,
+      );
+      await this.packageUsage.consumeSession(tx, selected.id);
+      return selected.id;
+    }
+
+    if (requiredSessions <= 0) {
+      await this.packageUsage.assertCanBookWithoutPackageCredit(
+        tx,
+        userId,
+        session.classType,
+      );
+      return null;
+    }
+
+    const dropInPayment = await tx.payment.findFirst({
+      where: {
+        userId,
+        description: `Drop-in session ${session.id}`,
+        status: PaymentStatus.SUCCEEDED,
+      },
+      select: { id: true },
+    });
+    if (dropInPayment) {
+      return null;
+    }
+
+    const eligiblePackages =
+      await this.packageUsage.listEligibleUserPackages(
+        tx,
+        userId,
+        session.classType,
+      );
+
+    if (eligiblePackages.length === 1) {
+      await this.packageUsage.consumeSession(tx, eligiblePackages[0].id);
+      return eligiblePackages[0].id;
+    }
+    if (eligiblePackages.length > 1) {
+      throw new BadRequestException(
+        'Please choose a package for this booking.',
+      );
+    }
+
+    if (session.priceCents > 0) {
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { giftCreditsCents: true },
+      });
+      const credits = user?.giftCreditsCents ?? 0;
+      if (credits < session.priceCents) {
+        throw new BadRequestException(
+          'Active package, payment, or gift credits required for this class',
+        );
+      }
+      await tx.user.update({
+        where: { id: userId },
+        data: { giftCreditsCents: { decrement: session.priceCents } },
+      });
+      await tx.payment.create({
+        data: {
+          userId,
+          amountCents: session.priceCents,
+          status: PaymentStatus.SUCCEEDED,
+          description: `Gift credit spend ${session.id}`,
+        },
+      });
+      return null;
+    }
+
+    throw new BadRequestException(
+      'Active package or payment required for this class',
+    );
   }
 
   private async releaseSlot(

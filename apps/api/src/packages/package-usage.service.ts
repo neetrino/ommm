@@ -87,7 +87,53 @@ export class PackageUsageService {
     classType: PackageClassTypeRef,
     now: Date = new Date(),
   ): Promise<PackageWithPlan[]> {
-    const packages = await tx.userPackage.findMany({
+    const packages = await this.listActiveUserPackages(tx, userId, now);
+    return packages.filter((pkg) => this.isUserPackageBookable(pkg, classType));
+  }
+
+  /** Active packages whose plan covers the class type (including zero remaining). */
+  async listCoveringUserPackages(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    classType: PackageClassTypeRef,
+    now: Date = new Date(),
+  ): Promise<PackageWithPlan[]> {
+    const packages = await this.listActiveUserPackages(tx, userId, now);
+    return packages.filter((pkg) =>
+      isPlanEligibleForClassType(pkg.plan, classType),
+    );
+  }
+
+  /** Blocks complimentary bookings when the member only has depleted covering packages. */
+  async assertCanBookWithoutPackageCredit(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    classType: PackageClassTypeRef,
+    now: Date = new Date(),
+  ): Promise<void> {
+    const covering = await this.listCoveringUserPackages(
+      tx,
+      userId,
+      classType,
+      now,
+    );
+    if (covering.length === 0) {
+      return;
+    }
+    const hasBookable = covering.some((pkg) =>
+      this.isUserPackageBookable(pkg, classType),
+    );
+    if (!hasBookable) {
+      throw new BadRequestException('This package has no remaining visits.');
+    }
+  }
+
+  private async listActiveUserPackages(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    now: Date,
+  ): Promise<PackageWithPlan[]> {
+    return tx.userPackage.findMany({
       where: {
         userId,
         status: PackageStatus.ACTIVE,
@@ -97,7 +143,6 @@ export class PackageUsageService {
       include: { plan: { select: PACKAGE_PLAN_SELECT } },
       orderBy: { currentPeriodEnd: 'asc' },
     });
-    return packages.filter((pkg) => this.isUserPackageBookable(pkg, classType));
   }
 
   private isUserPackageBookable(

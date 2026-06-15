@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
 
 export type EligibleBookingPackage = {
   userPackageId: string;
@@ -12,7 +13,10 @@ export type EligibleBookingPackage = {
   planName: string;
   planType: "SINGLE" | "COMBINED";
   remainingSessions: number | null;
+  totalSessions: number | null;
+  usedSessions: number | null;
   isUnlimited: boolean;
+  currentPeriodStart: string;
   currentPeriodEnd: string;
   includedCategories: string[];
 };
@@ -62,6 +66,23 @@ export function BookingPackageSelectModal({
     eligiblePackages[0]?.userPackageId ?? "",
   );
   const [busy, setBusy] = useState(false);
+  const duplicatePlanSuffixes = useMemo(
+    () => buildDuplicatePlanNameSuffixes(eligiblePackages),
+    [eligiblePackages],
+  );
+
+  useEffect(() => {
+    if (eligiblePackages.length === 0) {
+      setSelectedId("");
+      return;
+    }
+    setSelectedId((current) => {
+      if (eligiblePackages.some((pkg) => pkg.userPackageId === current)) {
+        return current;
+      }
+      return eligiblePackages[0]?.userPackageId ?? "";
+    });
+  }, [eligiblePackages]);
 
   async function confirmSelection() {
     if (!selectedId || busy) {
@@ -105,6 +126,14 @@ export function BookingPackageSelectModal({
           <ul className="flex flex-col gap-3">
             {eligiblePackages.map((pkg) => {
               const isSelected = pkg.userPackageId === selectedId;
+              const duplicateSuffix = duplicatePlanSuffixes.get(pkg.userPackageId);
+              const displayPlanName =
+                duplicateSuffix !== undefined
+                  ? t("packageDuplicatePlanName", {
+                      planName: pkg.planName,
+                      index: duplicateSuffix,
+                    })
+                  : pkg.planName;
               const planTypeLabel =
                 pkg.planType === "COMBINED"
                   ? t("packageTypeCombined")
@@ -114,7 +143,12 @@ export function BookingPackageSelectModal({
                 : t("packageRemainingVisits", {
                     count: pkg.remainingSessions ?? 0,
                   });
-              const expiryLabel = formatExpiryLabel(
+              const periodStartLabel = formatExpiryLabel(
+                locale,
+                pkg.currentPeriodStart,
+                t("packageNoStartDate"),
+              );
+              const periodEndLabel = formatExpiryLabel(
                 locale,
                 pkg.currentPeriodEnd,
                 t("packageNoExpiry"),
@@ -134,7 +168,7 @@ export function BookingPackageSelectModal({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-medium text-sage-900">{pkg.planName}</p>
+                        <p className="font-medium text-sage-900">{displayPlanName}</p>
                         <p className="mt-1 text-xs text-sage-500">{planTypeLabel}</p>
                       </div>
                       {isSelected ? (
@@ -145,7 +179,12 @@ export function BookingPackageSelectModal({
                     </div>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-sage-600">
                       <span>{visitsLabel}</span>
-                      <span>{t("packageExpires", { date: expiryLabel })}</span>
+                      <span>
+                        {t("packageValidPeriod", {
+                          start: periodStartLabel,
+                          end: periodEndLabel,
+                        })}
+                      </span>
                     </div>
                     {pkg.includedCategories.length > 0 ? (
                       <p className="mt-2 text-xs text-sage-500">

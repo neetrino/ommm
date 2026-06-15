@@ -3632,7 +3632,10 @@
       "packageRemainingVisits": "{count} այց մնաց",
       "packageUnlimitedVisits": "Անսահմանափակ այցեր",
       "packageExpires": "Վավեր է մինչև {date}",
+      "packageValidPeriod": "Վավեր է {start}-ից մինչև {end}",
       "packageNoExpiry": "Ավարտի ամսաթիվ չկա",
+      "packageNoStartDate": "Սկզբի ամսաթիվ չկա",
+      "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Ներառում է՝ {categories}",
       "packageSelectedBadge": "Ընտրված"
     },
