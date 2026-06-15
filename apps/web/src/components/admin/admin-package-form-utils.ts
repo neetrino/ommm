@@ -170,6 +170,16 @@ export function packageRowToFormValues(
   };
 }
 
+/** Derives per-session AMD for tier forms from raw price and session count inputs. */
+export function resolveTierPricePerSessionField(price: string, sessionsCount: string): string {
+  const priceAmount = parsePriceToCents(price);
+  const sessions = parseSessionsCount(sessionsCount);
+  if (priceAmount === null || sessions === null) {
+    return "";
+  }
+  return deriveTierPricePerSessionAmount(priceAmount, sessions);
+}
+
 /** Derives per-session AMD amount from stored total price and session count. */
 export function deriveTierPricePerSessionAmount(priceCents: number, sessions: number): string {
   if (

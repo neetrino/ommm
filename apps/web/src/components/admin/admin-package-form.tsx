@@ -25,6 +25,7 @@ import {
   preventNumberArrowStep,
   buildPackageSessionNameFromCount,
   packageRowToTierFormValues,
+  resolveTierPricePerSessionField,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
 import { AdminPackageCategorySelect } from "@/components/admin/admin-package-category-select";
@@ -172,6 +173,16 @@ export function AdminPackageForm({
     setValues((current) => ({ ...current, ...patch }));
   }
 
+  function updateTierPricingValues(patch: Partial<AdminPackageFormValues>) {
+    setValues((current) => {
+      const next = { ...current, ...patch };
+      if ("price" in patch || "sessionsCount" in patch) {
+        next.pricePerSession = resolveTierPricePerSessionField(next.price, next.sessionsCount);
+      }
+      return next;
+    });
+  }
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending || submitLockRef.current) {
@@ -202,7 +213,13 @@ export function AdminPackageForm({
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
-    const pricePerSessionCents = parsePriceToCents(values.pricePerSession);
+    const pricePerSessionCents =
+      parsePriceToCents(values.pricePerSession) ??
+      (priceCents !== null && sessionsPerMonth !== null
+        ? parsePriceToCents(
+            resolveTierPricePerSessionField(String(priceCents), String(sessionsPerMonth)),
+          )
+        : null);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
     const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
@@ -481,7 +498,7 @@ export function AdminPackageForm({
                 step={1}
                 inputMode="numeric"
                 value={values.sessionsCount}
-                onChange={(event) => updateValues({ sessionsCount: event.target.value })}
+                onChange={(event) => updateTierPricingValues({ sessionsCount: event.target.value })}
                 onKeyDown={preventNumberArrowStep}
                 placeholder={t("fieldSessionsCountPlaceholder")}
                 required
@@ -493,7 +510,7 @@ export function AdminPackageForm({
               <AmdMoneyInput
                 name="price"
                 value={values.price}
-                onValueChange={(nextValue) => updateValues({ price: nextValue })}
+                onValueChange={(nextValue) => updateTierPricingValues({ price: nextValue })}
                 disabled={pending}
                 required
                 align="start"
@@ -506,7 +523,6 @@ export function AdminPackageForm({
                 value={values.pricePerSession}
                 onValueChange={(nextValue) => updateValues({ pricePerSession: nextValue })}
                 disabled={pending}
-                required
                 align="start"
               />
             </label>
