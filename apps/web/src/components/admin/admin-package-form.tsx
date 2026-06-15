@@ -213,6 +213,7 @@ export function AdminPackageForm({
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
+    const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const pricePerSessionCents =
       parsePriceToCents(values.pricePerSession) ??
       (priceCents !== null && sessionsPerMonth !== null
@@ -222,7 +223,6 @@ export function AdminPackageForm({
         : null);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
-    const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const resolvedSessions = sessionsPerMonth ?? MIN_PACKAGE_SESSIONS;
     const generatedSessionName = buildPackageSessionNameFromCount(resolvedSessions);
     const isTierPackage =

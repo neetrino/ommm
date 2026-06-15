@@ -23,6 +23,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { PackageUsageService } from '../packages/package-usage.service';
+import { resolvePlanAllowedCategories } from '../packages/package-eligibility.util';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
@@ -109,9 +110,45 @@ export class BookingsService {
     private readonly realtime: RealtimePublisherService,
   ) {}
 
+  async listEligiblePackagesForSession(userId: string, sessionId: string) {
+    const session = await this.prisma.classSession.findUnique({
+      where: { id: sessionId },
+      include: { classType: { select: { id: true, name: true, slug: true } } },
+    });
+    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+      throw new NotFoundException('Session not found');
+    }
+    if (session.startsAt < new Date()) {
+      throw new BadRequestException('Session already started');
+    }
+
+    await this.packageUsage.syncExpiredMemberships(userId);
+
+    const eligible = await this.packageUsage.listEligibleUserPackages(
+      this.prisma,
+      userId,
+      session.classType,
+    );
+
+    return eligible.map((pkg) => {
+      const usage = this.packageUsage.computeUsageStats(pkg);
+      return {
+        userPackageId: pkg.id,
+        planId: pkg.planId,
+        planName: pkg.plan.name,
+        planType: pkg.plan.planType,
+        remainingSessions: usage.remainingSessions,
+        isUnlimited: usage.isUnlimited,
+        currentPeriodEnd: pkg.currentPeriodEnd,
+        includedCategories: resolvePlanAllowedCategories(pkg.plan),
+      };
+    });
+  }
+
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
+      include: { classType: { select: { id: true, name: true, slug: true } } },
     });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
       throw new NotFoundException('Session not found');
@@ -160,13 +197,32 @@ export class BookingsService {
             select: { id: true },
           });
           if (!dropInPayment) {
-            const usablePackage = await this.packageUsage.findUsablePackage(
-              tx,
-              userId,
-            );
-            if (usablePackage) {
-              await this.packageUsage.consumeSession(tx, usablePackage.id);
-              userPackageId = usablePackage.id;
+            const eligiblePackages =
+              await this.packageUsage.listEligibleUserPackages(
+                tx,
+                userId,
+                session.classType,
+              );
+
+            if (dto?.userPackageId) {
+              const selected = await this.packageUsage.getValidatedUserPackageForBooking(
+                tx,
+                userId,
+                dto.userPackageId,
+                session.classType,
+              );
+              await this.packageUsage.consumeSession(tx, selected.id);
+              userPackageId = selected.id;
+            } else if (eligiblePackages.length === 1) {
+              await this.packageUsage.consumeSession(
+                tx,
+                eligiblePackages[0].id,
+              );
+              userPackageId = eligiblePackages[0].id;
+            } else if (eligiblePackages.length > 1) {
+              throw new BadRequestException(
+                'Please choose a package for this booking.',
+              );
             } else if (session.priceCents > 0) {
               const user = await tx.user.findUnique({
                 where: { id: userId },
@@ -423,6 +479,11 @@ export class BookingsService {
         include: {
           classType: true,
           coach: { include: { user: { select: { name: true } } } },
+        },
+      },
+      userPackage: {
+        include: {
+          plan: { select: { id: true, name: true, planType: true } },
         },
       },
     } satisfies Prisma.BookingInclude;

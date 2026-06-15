@@ -14,6 +14,7 @@ import {
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminPackageForm } from "@/components/admin/admin-package-form";
+import { AdminCombinedPackageForm } from "@/components/admin/admin-combined-package-form";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -22,12 +23,15 @@ import {
   clearPackageModalQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_QUERY_KEY,
+  PACKAGE_KIND_COMBINED_VALUE,
+  PACKAGE_KIND_QUERY_KEY,
   PACKAGE_MODAL_CREATE_VALUE,
   PACKAGE_MODAL_PRICING_VALUE,
   PACKAGE_MODAL_EDIT_TIER_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
+  parsePackageCreateKind,
 } from "@/components/admin/admin-packages-url";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 
@@ -36,6 +40,7 @@ const BANNER_MS = 8000;
 type AdminPackagesShellProps = {
   children: ReactNode;
   packages: readonly AdminPackageRow[];
+  allPackages?: readonly AdminPackageRow[];
   categoryOptions: readonly AdminPackagesCategoryOption[];
   defaultCategoryName?: string;
   onPackageCreated?: (saved: AdminPackageRow) => void;
@@ -45,6 +50,7 @@ type AdminPackagesShellProps = {
 export function AdminPackagesShell({
   children,
   packages,
+  allPackages,
   categoryOptions,
   defaultCategoryName = "",
   onPackageCreated,
@@ -61,6 +67,9 @@ export function AdminPackagesShell({
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isCreateModalOpen = searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_CREATE_VALUE;
+  const createPackageKind = parsePackageCreateKind(
+    isCreateModalOpen ? searchParams.get(PACKAGE_KIND_QUERY_KEY) : undefined,
+  );
   const editingPackageId = searchParams.get(PACKAGE_EDIT_QUERY_KEY);
   const pricingPackageId = searchParams.get(PACKAGE_PRICING_QUERY_KEY);
   const categoryIdFromQuery = searchParams.get(PACKAGE_CATEGORY_QUERY_KEY);
@@ -155,6 +164,26 @@ export function AdminPackagesShell({
     router.replace(buildPackagesPathname(pathname, params));
   }, [pathname, router, searchParams]);
 
+  const setCreatePackageKind = useCallback(
+    (kind: "single" | "combined") => {
+      if (!isCreateModalOpen) {
+        return;
+      }
+      const params = new URLSearchParams(searchParams.toString());
+      const currentKind = parsePackageCreateKind(params.get(PACKAGE_KIND_QUERY_KEY));
+      if (currentKind === kind) {
+        return;
+      }
+      if (kind === "combined") {
+        params.set(PACKAGE_KIND_QUERY_KEY, PACKAGE_KIND_COMBINED_VALUE);
+      } else {
+        params.delete(PACKAGE_KIND_QUERY_KEY);
+      }
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [isCreateModalOpen, pathname, router, searchParams],
+  );
+
   const showSuccessBanner = useCallback(
     (message: string) => {
       if (bannerTimerRef.current !== null) {
@@ -230,7 +259,9 @@ export function AdminPackagesShell({
           ? t("editTierTitle")
           : modalMode === "add-tier"
             ? t("addTierTitle")
-            : t("createTitle");
+            : createPackageKind === "combined"
+              ? t("combinedForm.createTitle")
+              : t("createTitle");
   const modalDescription =
     modalMode === "edit"
       ? t("editDescription")
@@ -240,7 +271,9 @@ export function AdminPackagesShell({
           ? t("editTierDescription")
           : modalMode === "add-tier"
             ? t("addTierDescription")
-            : t("createDescription");
+            : createPackageKind === "combined"
+              ? t("combinedForm.createDescription")
+              : t("createDescription");
   const packageModalPanelClass =
     "mt-auto flex max-h-[min(92vh,760px)] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
@@ -301,6 +334,39 @@ export function AdminPackagesShell({
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+            {modalMode === "create" ? (
+              <div className="mb-5 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    createPackageKind === "single"
+                      ? "bg-sand-100 text-sage-900"
+                      : "bg-white/80 text-sage-600 hover:bg-white"
+                  }`}
+                  onClick={() => setCreatePackageKind("single")}
+                >
+                  {t("packageKindSingle")}
+                </button>
+                <button
+                  type="button"
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    createPackageKind === "combined"
+                      ? "bg-sand-100 text-sage-900"
+                      : "bg-white/80 text-sage-600 hover:bg-white"
+                  }`}
+                  onClick={() => setCreatePackageKind("combined")}
+                >
+                  {t("packageKindCombined")}
+                </button>
+              </div>
+            ) : null}
+            {modalMode === "create" && createPackageKind === "combined" ? (
+              <AdminCombinedPackageForm
+                packages={allPackages ?? packages}
+                onSaved={onCreated}
+                onCancel={closeModal}
+              />
+            ) : (
             <AdminPackageForm
               mode={modalMode}
               packageId={
@@ -334,6 +400,7 @@ export function AdminPackagesShell({
               }}
               onCancel={closeModal}
             />
+            )}
           </div>
         </div>
       </OmmModalPortal>

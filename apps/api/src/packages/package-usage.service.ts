@@ -5,6 +5,10 @@ import {
 } from '@nestjs/common';
 import { PackageStatus, Prisma, type UserPackage } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  isPlanEligibleForClassType,
+  type PackageClassTypeRef,
+} from './package-eligibility.util';
 
 export type PackageUsageStats = {
   totalSessions: number | null;
@@ -13,9 +17,29 @@ export type PackageUsageStats = {
   isUnlimited: boolean;
 };
 
-type PackageWithPlan = UserPackage & {
-  plan: { isUnlimited: boolean; sessionsPerMonth: number | null };
+type PackagePlanUsageRef = {
+  id: string;
+  name: string;
+  planType: 'SINGLE' | 'COMBINED';
+  categoryName: string;
+  allowedCategoryNames: string[];
+  isUnlimited: boolean;
+  sessionsPerMonth: number | null;
 };
+
+type PackageWithPlan = UserPackage & {
+  plan: PackagePlanUsageRef;
+};
+
+const PACKAGE_PLAN_SELECT = {
+  id: true,
+  name: true,
+  planType: true,
+  categoryName: true,
+  allowedCategoryNames: true,
+  isUnlimited: true,
+  sessionsPerMonth: true,
+} satisfies Prisma.PackagePlanSelect;
 
 @Injectable()
 export class PackageUsageService {
@@ -57,11 +81,12 @@ export class PackageUsageService {
     return { sessionsTotal: total, sessionsRemaining: total };
   }
 
-  async findUsablePackage(
+  async listEligibleUserPackages(
     tx: Prisma.TransactionClient,
     userId: string,
+    classType: PackageClassTypeRef,
     now: Date = new Date(),
-  ): Promise<PackageWithPlan | null> {
+  ): Promise<PackageWithPlan[]> {
     const packages = await tx.userPackage.findMany({
       where: {
         userId,
@@ -69,20 +94,72 @@ export class PackageUsageService {
         currentPeriodEnd: { gt: now },
         currentPeriodStart: { lte: now },
       },
-      include: {
-        plan: { select: { isUnlimited: true, sessionsPerMonth: true } },
-      },
+      include: { plan: { select: PACKAGE_PLAN_SELECT } },
       orderBy: { currentPeriodEnd: 'asc' },
     });
-    for (const pkg of packages) {
-      if (pkg.plan.isUnlimited) {
-        return pkg;
-      }
-      if ((pkg.sessionsRemaining ?? 0) > 0) {
-        return pkg;
-      }
+    return packages.filter((pkg) => this.isUserPackageBookable(pkg, classType));
+  }
+
+  private isUserPackageBookable(
+    pkg: PackageWithPlan,
+    classType: PackageClassTypeRef,
+  ): boolean {
+    if (!isPlanEligibleForClassType(pkg.plan, classType)) {
+      return false;
     }
-    return null;
+    if (pkg.plan.isUnlimited) {
+      return true;
+    }
+    return (pkg.sessionsRemaining ?? 0) > 0;
+  }
+
+  async findUsablePackage(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    classType: PackageClassTypeRef,
+    now: Date = new Date(),
+  ): Promise<PackageWithPlan | null> {
+    const eligible = await this.listEligibleUserPackages(
+      tx,
+      userId,
+      classType,
+      now,
+    );
+    return eligible[0] ?? null;
+  }
+
+  async getValidatedUserPackageForBooking(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    userPackageId: string,
+    classType: PackageClassTypeRef,
+    now: Date = new Date(),
+  ): Promise<PackageWithPlan> {
+    const pkg = await tx.userPackage.findFirst({
+      where: { id: userPackageId, userId },
+      include: { plan: { select: PACKAGE_PLAN_SELECT } },
+    });
+    if (!pkg) {
+      throw new NotFoundException('Package not found');
+    }
+    if (pkg.status !== PackageStatus.ACTIVE) {
+      throw new BadRequestException('This package is not active');
+    }
+    if (pkg.currentPeriodEnd <= now) {
+      throw new BadRequestException('This package has expired.');
+    }
+    if (pkg.currentPeriodStart > now) {
+      throw new BadRequestException('This package is not active');
+    }
+    if (!isPlanEligibleForClassType(pkg.plan, classType)) {
+      throw new BadRequestException(
+        'This package cannot be used for the selected class.',
+      );
+    }
+    if (!pkg.plan.isUnlimited && (pkg.sessionsRemaining ?? 0) <= 0) {
+      throw new BadRequestException('This package has no remaining visits.');
+    }
+    return pkg;
   }
 
   async consumeSession(
@@ -111,7 +188,7 @@ export class PackageUsageService {
       data: { sessionsRemaining: { decrement: 1 } },
     });
     if (updated.count === 0) {
-      throw new BadRequestException('No package sessions remaining');
+      throw new BadRequestException('This package has no remaining visits.');
     }
   }
 

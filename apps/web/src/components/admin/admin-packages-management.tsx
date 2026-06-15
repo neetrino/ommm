@@ -637,6 +637,7 @@ export function AdminPackagesManagement({
 
       <AdminPackagesShell
         packages={filteredPackages}
+        allPackages={sortedPackages}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
         onPackageCreated={handlePackageCreated}

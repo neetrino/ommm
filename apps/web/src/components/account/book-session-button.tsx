@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
+import { useSessionBooking } from "@/hooks/use-session-booking";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
@@ -36,32 +37,27 @@ export function BookSessionButton({
   onBooked,
 }: Props) {
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("forms.bookSession");
   const bookLabel = label ?? t("book");
   const payDropInLabel = dropInLabel ?? t("dropIn");
   const [msg, setMsg] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  async function bookFreeOrMembership() {
-    setBusy(true);
-    setMsg(null);
-    try {
-      const booking = await apiFetch<BookSessionResponse>(
-        `/bookings/sessions/${sessionId}`,
-        { method: "POST" },
-      );
-      onBooked?.(booking.id);
+  const [dropInBusy, setDropInBusy] = useState(false);
+  const { busy: bookingBusy, initiateBooking, packageModal } = useSessionBooking({
+    sessionId,
+    locale,
+    onBooked: (bookingId) => {
+      onBooked?.(bookingId);
       dispatchNotificationsRefresh();
       router.refresh();
-    } catch (e) {
-      setMsg(e instanceof ApiError ? e.message : t("bookFailed"));
-    } finally {
-      setBusy(false);
-    }
-  }
+    },
+    onError: (message) => setMsg(message),
+  });
+
+  const busy = bookingBusy || dropInBusy;
 
   async function bookDropIn() {
-    setBusy(true);
+    setDropInBusy(true);
     setMsg(null);
     try {
       const payment = await apiFetch<PendingPaymentResponse & { amountCents: number }>(
@@ -79,7 +75,7 @@ export function BookSessionButton({
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("checkoutFailed"));
     } finally {
-      setBusy(false);
+      setDropInBusy(false);
     }
   }
 
@@ -89,7 +85,7 @@ export function BookSessionButton({
       variant="primary"
       size={size}
       disabled={busy}
-      onClick={() => void bookFreeOrMembership()}
+      onClick={() => void initiateBooking()}
     >
       {bookLabel}
     </OmmButton>
@@ -127,6 +123,7 @@ export function BookSessionButton({
         )}
       </div>
       {msg ? <p className="text-xs text-amber-900">{msg}</p> : null}
+      {packageModal}
     </div>
   );
 }

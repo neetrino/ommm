@@ -82,6 +82,11 @@ enum PackageStatus {
   PENDING
 }
 
+enum PackagePlanType {
+  SINGLE
+  COMBINED
+}
+
 enum ManualPaymentMethod {
   CASH
   CARD
@@ -363,11 +368,33 @@ model PackagePlan {
   displayOrder     Int      @default(0)
   guestCount       Int      @default(0)
   isActive         Boolean  @default(true)
+  planType         PackagePlanType @default(SINGLE)
+  /** Union of allowed package category labels (snapshots for combined plans). */
+  allowedCategoryNames String[] @default([])
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  userPackages UserPackage[]
-  payments     Payment[]
+  userPackages       UserPackage[]
+  payments           Payment[]
+  combinedComponents PackagePlanComponent[] @relation("CombinedPlanComponents")
+  sourceComponents   PackagePlanComponent[] @relation("SourcePlanComponents")
+}
+
+model PackagePlanComponent {
+  id                         String   @id @default(cuid())
+  combinedPackagePlanId      String
+  combinedPackagePlan        PackagePlan @relation("CombinedPlanComponents", fields: [combinedPackagePlanId], references: [id], onDelete: Cascade)
+  sourcePackagePlanId        String?
+  sourcePackagePlan          PackagePlan? @relation("SourcePlanComponents", fields: [sourcePackagePlanId], references: [id], onDelete: SetNull)
+  sourcePackageNameSnapshot  String
+  sourceCategoryNameSnapshot String
+  sourceClassTypeIdSnapshot  String?
+  sessionsPerMonthSnapshot   Int?
+  isUnlimitedSnapshot        Boolean  @default(false)
+  createdAt                  DateTime @default(now())
+
+  @@index([combinedPackagePlanId])
+  @@index([sourcePackagePlanId])
 }
 
 model UserPackage {

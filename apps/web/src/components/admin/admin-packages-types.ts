@@ -2,6 +2,10 @@
 export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow {
   return {
     ...row,
+    planType: row.planType ?? "SINGLE",
+    allowedCategoryNames: Array.isArray(row.allowedCategoryNames)
+      ? row.allowedCategoryNames
+      : [],
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
     pricePerSessionCents:
       typeof row.pricePerSessionCents === "number" ? row.pricePerSessionCents : 0,
@@ -14,6 +18,8 @@ export type AdminPackageRow = {
   name: string;
   categoryName: string;
   classTypeId?: string | null;
+  planType?: "SINGLE" | "COMBINED";
+  allowedCategoryNames?: string[];
   description: string | null;
   priceCents: number;
   pricePerSessionCents?: number;

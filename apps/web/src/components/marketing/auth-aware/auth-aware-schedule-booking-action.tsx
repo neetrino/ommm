@@ -1,11 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useState, type ReactNode } from "react";
 import {
   CancelBookingButton,
   CANCEL_BOOKING_ERROR_MESSAGE_CLASS,
 } from "@/components/account/cancel-booking-button";
+import { useSessionBooking } from "@/hooks/use-session-booking";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import {
   SCHEDULE_BOOK_BTN,
@@ -14,16 +15,12 @@ import {
 } from "@/components/marketing/schedule/schedule-public-design";
 import { Link, useRouter } from "@/i18n/navigation";
 import { OmmmCenterToast } from "@/components/ui/ommm-center-toast";
-import { ApiError, apiFetch } from "@/lib/api";
 import { buildLoginHrefWithReturnUrl } from "@/lib/auth-redirect";
+import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 
 const SCHEDULE_RETURN_PATH = "/schedule";
-
-type BookSessionResponse = {
-  id: string;
-};
 
 type AuthAwareScheduleBookingActionProps = {
   sessionId: string;
@@ -61,7 +58,7 @@ export function AuthAwareScheduleBookingAction({
   onCancelled,
 }: AuthAwareScheduleBookingActionProps) {
   const router = useRouter();
-  const tBook = useTranslations("forms.bookSession");
+  const locale = useLocale();
   const tWaitlist = useTranslations("forms.joinWaitlist");
   const tLeaveWaitlist = useTranslations("forms.leaveWaitlist");
   const tSchedule = useTranslations("marketingPages.schedule");
@@ -69,7 +66,19 @@ export function AuthAwareScheduleBookingAction({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [cancelMsg, setCancelMsg] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busyWaitlist, setBusyWaitlist] = useState(false);
+  const { busy: busyBooking, initiateBooking, packageModal } = useSessionBooking({
+    sessionId,
+    locale,
+    onBooked: (bookingId) => {
+      setBookingId(bookingId);
+      onBooked?.(bookingId);
+      dispatchNotificationsRefresh();
+      router.refresh();
+    },
+    onError: (message) => setErrorMsg(message),
+  });
+  const busy = busyBooking || busyWaitlist;
   const [bookingId, setBookingId] = useState<string | undefined>(userBookingId);
   const [onWaitlist, setOnWaitlist] = useState(initialOnWaitlist);
   const [prevUserBookingId, setPrevUserBookingId] = useState(userBookingId);
@@ -179,33 +188,15 @@ export function AuthAwareScheduleBookingAction({
         type="button"
         className={className}
         disabled={busy}
-        onClick={() => void (isFull ? joinWaitlist() : bookSession())}
+        onClick={() => void (isFull ? joinWaitlist() : initiateBooking())}
       >
         {isFull ? tWaitlist("action") : bookLabel}
       </button>
     );
   }
 
-  async function bookSession() {
-    setBusy(true);
-    setErrorMsg(null);
-    try {
-      const booking = await apiFetch<BookSessionResponse>(`/bookings/sessions/${sessionId}`, {
-        method: "POST",
-      });
-      setBookingId(booking.id);
-      onBooked?.(booking.id);
-      dispatchNotificationsRefresh();
-      router.refresh();
-    } catch (error) {
-      setErrorMsg(error instanceof ApiError ? error.message : tBook("bookFailed"));
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function leaveWaitlist() {
-    setBusy(true);
+    setBusyWaitlist(true);
     setErrorMsg(null);
     try {
       await apiFetch(`/waitlist/sessions/${sessionId}`, { method: "DELETE" });
@@ -216,12 +207,12 @@ export function AuthAwareScheduleBookingAction({
     } catch (error) {
       setErrorMsg(error instanceof ApiError ? error.message : tLeaveWaitlist("failed"));
     } finally {
-      setBusy(false);
+      setBusyWaitlist(false);
     }
   }
 
   async function joinWaitlist() {
-    setBusy(true);
+    setBusyWaitlist(true);
     setErrorMsg(null);
     try {
       await apiFetch(`/waitlist/sessions/${sessionId}`, { method: "POST" });
@@ -238,7 +229,7 @@ export function AuthAwareScheduleBookingAction({
         setErrorMsg(message);
       }
     } finally {
-      setBusy(false);
+      setBusyWaitlist(false);
     }
   }
 
@@ -255,6 +246,7 @@ export function AuthAwareScheduleBookingAction({
         tone="success"
         onDismiss={() => setSuccessToast(null)}
       />
+      {packageModal}
     </>
   );
 }

@@ -15,6 +15,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { CreateCombinedPlanDto } from './dto/create-combined-plan.dto';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { ChangePackagePlanDto } from './dto/change-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
@@ -52,6 +53,13 @@ export class PackagesController {
   @Roles(Role.ADMIN)
   createPlan(@Body() dto: CreatePlanDto) {
     return this.packages.createPlan(dto);
+  }
+
+  @Post('plans/combined')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  createCombinedPlan(@Body() dto: CreateCombinedPlanDto) {
+    return this.packages.createCombinedPlan(dto);
   }
 
   @Patch('plans/:id')

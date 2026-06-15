@@ -116,7 +116,16 @@ export function AdminPackagesCategoryTable({
                 exit="exit"
               >
                 <div className="ommm-admin-packages-table-grid">
-                  <TableCell emphasis>{packageName}</TableCell>
+                  <TableCell emphasis>
+                    <div className="flex flex-col gap-1">
+                      <span>{packageName}</span>
+                      {pkg.planType === "COMBINED" ? (
+                        <span className="text-xs font-medium uppercase tracking-wide text-sand-700">
+                          {t("packageKindCombined")}
+                        </span>
+                      ) : null}
+                    </div>
+                  </TableCell>
                   <TableCell emphasis>
                     {sessions !== null ? sessions : <EmptyCell />}
                   </TableCell>

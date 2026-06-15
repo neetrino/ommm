@@ -10,6 +10,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import {
   ManualPaymentMethod,
+  PackagePlanType,
   PackageStatus,
   PaymentStatus,
   Prisma,
@@ -26,8 +27,13 @@ import {
 } from '../cache/public-cache-keys';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
+import type { CreateCombinedPlanDto } from './dto/create-combined-plan.dto';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+import {
+  dedupeCategoryNames,
+  packageCategoryComparisonKey,
+} from './package-eligibility.util';
 import { syncClassTypeForPackageCategory } from './package-category-class-type.sync';
 import {
   PACKAGE_PLAN_DELETION_BLOCKING_STATUSES,
@@ -38,8 +44,12 @@ import { PackageUsageService } from './package-usage.service';
 
 const MIN_PRORATED_SESSIONS = 1;
 const PACKAGE_PAYMENT_SOURCE = 'PACKAGE';
+const MIN_COMBINED_SOURCE_PLAN_COUNT = 2;
+const MAX_COMBINED_SOURCE_PLAN_COUNT = 20;
 export const PACKAGE_PLAN_UNAVAILABLE_MESSAGE =
   'This package is currently unavailable.';
+export const COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE =
+  'One of the selected packages is no longer available.';
 
 @Injectable()
 export class PackagesService {
@@ -149,6 +159,8 @@ export class PackagesService {
             isActive: dto.isActive ?? true,
             displayOrder: dto.displayOrder ?? 0,
             guestCount: this.normalizeGuestCount(dto.guestCount),
+            planType: PackagePlanType.SINGLE,
+            allowedCategoryNames: [categoryName],
           },
         });
         await syncClassTypeForPackageCategory(tx, { categoryName });
@@ -186,10 +198,132 @@ export class PackagesService {
     }
   }
 
+  async createCombinedPlan(dto: CreateCombinedPlanDto) {
+    const sourceIds = [...new Set(dto.sourcePlanIds)];
+    if (sourceIds.length < MIN_COMBINED_SOURCE_PLAN_COUNT) {
+      throw new BadRequestException(
+        'Please select at least two packages to combine.',
+      );
+    }
+    if (sourceIds.length > MAX_COMBINED_SOURCE_PLAN_COUNT) {
+      throw new BadRequestException(
+        `You can combine up to ${MAX_COMBINED_SOURCE_PLAN_COUNT} packages.`,
+      );
+    }
+    if (dto.sourcePlanIds.length !== sourceIds.length) {
+      throw new BadRequestException(
+        'The same package cannot be selected twice.',
+      );
+    }
+
+    const sourcePlans = await this.prisma.packagePlan.findMany({
+      where: { id: { in: sourceIds } },
+    });
+    if (sourcePlans.length !== sourceIds.length) {
+      throw new BadRequestException(COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE);
+    }
+    for (const plan of sourcePlans) {
+      if (!plan.isActive) {
+        throw new BadRequestException(COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE);
+      }
+      if (plan.planType === PackagePlanType.COMBINED) {
+        throw new BadRequestException(
+          'Combined packages cannot be used as source packages.',
+        );
+      }
+    }
+
+    const orderedSources = sourceIds.map(
+      (id) => sourcePlans.find((plan) => plan.id === id)!,
+    );
+    const categorySnapshots = dedupeCategoryNames(
+      orderedSources.map((plan) => plan.categoryName),
+    );
+    if (categorySnapshots.length === 0) {
+      throw new BadRequestException(COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE);
+    }
+
+    const classTypes = await this.prisma.classType.findMany({
+      select: { id: true, name: true, slug: true },
+    });
+    const slug = this.resolveSlug(dto.name, dto.slug);
+    const resolvedName = dto.name.trim();
+    if (resolvedName.length === 0) {
+      throw new BadRequestException('Package name is required.');
+    }
+    const categoryName = resolvedName;
+
+    try {
+      const plan = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.packagePlan.create({
+          data: {
+            name: resolvedName,
+            categoryName,
+            slug,
+            description: dto.description,
+            priceCents: dto.priceCents,
+            pricePerSessionCents: this.normalizePricePerSessionCents(
+              dto.pricePerSessionCents,
+            ),
+            currency: this.normalizeCurrency(dto.currency),
+            sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
+            isUnlimited: dto.isUnlimited,
+            periodDays: dto.periodDays,
+            billingPeriod: this.normalizeBillingPeriod(dto.billingPeriod),
+            features: [],
+            buttonLabel: 'Choose plan',
+            isPopular: dto.isPopular ?? false,
+            isActive: dto.isActive ?? true,
+            displayOrder: dto.displayOrder ?? 0,
+            guestCount: this.normalizeGuestCount(dto.guestCount),
+            planType: PackagePlanType.COMBINED,
+            allowedCategoryNames: categorySnapshots,
+          },
+        });
+
+        for (const source of orderedSources) {
+          const classType = classTypes.find(
+            (row) =>
+              packageCategoryComparisonKey(row.name) ===
+              packageCategoryComparisonKey(source.categoryName),
+          );
+          await tx.packagePlanComponent.create({
+            data: {
+              combinedPackagePlanId: created.id,
+              sourcePackagePlanId: source.id,
+              sourcePackageNameSnapshot: source.name,
+              sourceCategoryNameSnapshot: source.categoryName,
+              sourceClassTypeIdSnapshot: classType?.id ?? null,
+              sessionsPerMonthSnapshot: source.sessionsPerMonth,
+              isUnlimitedSnapshot: source.isUnlimited,
+            },
+          });
+        }
+
+        for (const snapshotCategory of categorySnapshots) {
+          await syncClassTypeForPackageCategory(tx, {
+            categoryName: snapshotCategory,
+          });
+        }
+
+        return created;
+      });
+      await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+      return plan;
+    } catch (error) {
+      if (this.isUniquePlanConflict(error)) {
+        throw new ConflictException(
+          'Membership plan with this slug already exists.',
+        );
+      }
+      throw error;
+    }
+  }
+
   async updatePlan(planId: string, dto: UpdatePlanDto) {
     const existing = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
-      select: { id: true, slug: true, categoryName: true },
+      select: { id: true, slug: true, categoryName: true, planType: true },
     });
     if (existing === null) {
       throw new NotFoundException('Plan not found');
@@ -247,6 +381,12 @@ export class PackagesService {
     }
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('No updatable fields were provided');
+    }
+    if (
+      existing.planType === PackagePlanType.SINGLE &&
+      resolvedCategoryName !== undefined
+    ) {
+      Object.assign(data, { allowedCategoryNames: [resolvedCategoryName] });
     }
     let updated;
     try {
