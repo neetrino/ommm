@@ -512,8 +512,13 @@ export function AdminPackageForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col gap-5"
+      className="flex min-h-0 flex-1 flex-col"
     >
+      <div
+        className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 sm:px-7${
+          mode === "create" ? "" : " pt-5 sm:pt-6"
+        }`}
+      >
       {mode === "create" || mode === "edit" ? (
         <AdminPackageFormSection
           heading={t("formSections.details.heading")}
@@ -798,8 +803,9 @@ export function AdminPackageForm({
           {error}
         </p>
       ) : null}
+      </div>
 
-      <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-7 sm:px-7">
+      <div className="shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:px-7">
         <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
           {t("cancelButton")}
         </OmmButton>

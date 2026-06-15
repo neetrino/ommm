@@ -333,9 +333,9 @@ export function AdminPackagesShell({
               </svg>
             </button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {modalMode === "create" ? (
-              <div className="mb-5 flex flex-wrap gap-2">
+              <div className="mb-5 flex shrink-0 flex-wrap gap-2 px-5 pt-5 sm:px-7 sm:pt-6">
                 <button
                   type="button"
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
@@ -360,6 +360,7 @@ export function AdminPackagesShell({
                 </button>
               </div>
             ) : null}
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {modalMode === "create" && createPackageKind === "combined" ? (
               <AdminCombinedPackageForm
                 packages={allPackages ?? packages}
@@ -401,6 +402,7 @@ export function AdminPackagesShell({
               onCancel={closeModal}
             />
             )}
+            </div>
           </div>
         </div>
       </OmmModalPortal>
