@@ -25,6 +25,7 @@ import {
   preventNumberArrowStep,
   buildPackageSessionNameFromCount,
   packageRowToTierFormValues,
+  createEmptyTierFormValues,
   resolveTierPricePerSessionField,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
@@ -125,12 +126,7 @@ function buildInitialValues(
       const base =
         initialPackage.priceCents > 0
           ? packageRowToTierFormValues(initialPackage, initialCategoryName)
-          : {
-              ...createEmptyPackageFormValues(initialCategoryName),
-              guestCount: "",
-              price: "",
-              pricePerSession: "",
-            };
+          : createEmptyTierFormValues(initialCategoryName);
       return withCombinedTierAllocations(base, initialPackage);
     }
     if (initialPackage.priceCents > 0) {
@@ -139,8 +135,10 @@ function buildInitialValues(
         guestCount: "",
         price: "",
         pricePerSession: "",
+        durationDays: "",
       };
     }
+    return createEmptyTierFormValues(initialCategoryName);
   }
   return createEmptyPackageFormValues(initialCategoryName);
 }
@@ -220,7 +218,9 @@ export function AdminPackageForm({
     setValues((current) => {
       const next = { ...current, ...patch };
       if ("price" in patch || "sessionsCount" in patch) {
-        next.pricePerSession = resolveTierPricePerSessionField(next.price, next.sessionsCount);
+        const derived = resolveTierPricePerSessionField(next.price, next.sessionsCount);
+        next.pricePerSession =
+          derived.length > 0 ? derived : next.pricePerSession;
       }
       return next;
     });
@@ -239,11 +239,13 @@ export function AdminPackageForm({
       };
       const total = sumCombinedSessionAllocations(nextAllocations);
       const sessionsCount = total > 0 ? String(total) : current.sessionsCount;
+      const derivedPerSession = resolveTierPricePerSessionField(current.price, sessionsCount);
       return {
         ...current,
         sourceSessionAllocations: nextAllocations,
         sessionsCount,
-        pricePerSession: resolveTierPricePerSessionField(current.price, sessionsCount),
+        pricePerSession:
+          derivedPerSession.length > 0 ? derivedPerSession : current.pricePerSession,
       };
     });
   }
@@ -606,6 +608,7 @@ export function AdminPackageForm({
                 disabled={pending}
                 required
                 align="start"
+                placeholder={t("fieldPricePlaceholder")}
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -616,6 +619,7 @@ export function AdminPackageForm({
                 onValueChange={(nextValue) => updateValues({ pricePerSession: nextValue })}
                 disabled={pending}
                 align="start"
+                placeholder={t("fieldPricePerSessionPlaceholder")}
               />
             </label>
             <label className="flex flex-col gap-1.5">

@@ -137,6 +137,17 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
   };
 }
 
+/** Empty pricing fields for add-tier / edit-tier forms (no prefilled numbers). */
+export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackageFormValues {
+  return {
+    ...createEmptyPackageFormValues(initialCategoryName),
+    price: "",
+    pricePerSession: "",
+    durationDays: "",
+    guestCount: "",
+  };
+}
+
 export function packageRowToFormValues(
   pkg: {
   name: string;
