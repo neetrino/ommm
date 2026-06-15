@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
+import { displayPhoneOrFallback } from "@/lib/phone";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -135,7 +136,7 @@ function AdminUserDetailsContent({ locale, userId }: { locale: string; userId: s
     <div className="space-y-4 text-sm">
       <section className="rounded-xl border border-white/60 bg-white/80 p-3">
         <p className="font-medium text-sage-900">{fullName(data.name, data.lastName)}</p>
-        <p className="text-sage-700">{data.phone ?? "—"}</p>
+        <p className="text-sage-700">{displayPhoneOrFallback(data.phone)}</p>
         <p className="text-sage-600">{data.email}</p>
       </section>
       <section>

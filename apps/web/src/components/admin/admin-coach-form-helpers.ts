@@ -1,5 +1,7 @@
 "use client";
 
+import { isValidPhone as isValidPhoneNumber } from "@/lib/phone";
+
 export const COACH_MIN_AGE = 16;
 export const COACH_MAX_AGE = 100;
 export const MAX_SPECIALIZATION_LENGTH = 200;
@@ -84,11 +86,7 @@ export function countDigits(value: string): number {
 }
 
 export function isValidPhone(trimmed: string): boolean {
-  if (trimmed.length < MIN_PHONE_DIGITS || trimmed.length > MAX_PHONE_CHARS) {
-    return false;
-  }
-  const digits = countDigits(trimmed);
-  return digits >= MIN_PHONE_DIGITS && digits <= MAX_PHONE_DIGITS;
+  return isValidPhoneNumber(trimmed);
 }
 
 export function isValidTime(value: string): boolean {

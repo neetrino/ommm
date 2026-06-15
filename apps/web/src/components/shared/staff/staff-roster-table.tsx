@@ -16,6 +16,7 @@ import {
   STAFF_ROSTER_LIST_ROW_CLASS,
   STAFF_ROSTER_LIST_TABLE_CLASS,
 } from "@/components/shared/staff/staff-roster-list-layout";
+import { displayPhoneOrEmail } from "@/lib/phone";
 import type { StaffRosterRowData } from "@/components/shared/staff/staff-roster-row";
 
 export type StaffRosterTableItem = {
@@ -86,7 +87,7 @@ function StaffRosterTableRow({
           {userLabel}
         </p>
         <p className="mt-0.5 truncate text-xs text-sage-500">
-          {row.user.phone ?? row.user.email}
+          {displayPhoneOrEmail(row.user.phone ?? null, row.user.email)}
         </p>
       </div>
 

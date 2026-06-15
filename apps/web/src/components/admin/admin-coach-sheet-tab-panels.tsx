@@ -13,7 +13,6 @@ import {
   COACH_MIN_AGE,
   MAX_BIO_LENGTH,
   MAX_EXPERIENCE_YEARS,
-  MAX_PHONE_CHARS,
   MAX_SPECIALIZATION_LENGTH,
   MIN_SCHEDULE_SPOTS,
   sanitizeCoachPreviewSrc,
@@ -30,7 +29,8 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { formatBirthdayInput, formatDateForUi, parseBirthdayDisplayToIso } from "@/lib/date-display";
-import { formatPhoneInput } from "@/lib/phone-input";
+import { formatPhoneDisplay } from "@/lib/phone";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
@@ -188,15 +188,11 @@ export function CoachSheetTabPanels({
               />
             </AdminSheetEditableField>
             <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
-              <input
-                type="tel"
+              <PhoneInputField
                 autoComplete="tel"
                 className="ommm-input"
                 value={form.phone}
-                onChange={(event) =>
-                  controller.updateField("phone", formatPhoneInput(event.target.value))
-                }
-                maxLength={MAX_PHONE_CHARS}
+                onValueChange={(value) => controller.updateField("phone", value)}
                 disabled={busy}
               />
             </AdminSheetEditableField>

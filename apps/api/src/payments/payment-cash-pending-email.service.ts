@@ -5,6 +5,7 @@ import {
   PaymentStatus,
 } from '@prisma/client';
 import { getEmailLogoAttachment } from '../mail/email-logo';
+import { formatPhoneForDisplay } from '../common/phone';
 import { MailService } from '../mail/mail.service';
 import { renderPaymentCashPendingCustomerEmail } from '../mail/templates/payment-cash-pending-customer.template';
 import { PrismaService } from '../prisma/prisma.service';
@@ -95,7 +96,7 @@ export class PaymentCashPendingEmailService {
           bookingAccessNote: resolveCashBookingAccessNote(payment.source),
           studioName: studio?.studioName?.trim() || 'Ommm',
           studioAddress: studio?.address?.trim() ?? '',
-          studioPhone: studio?.contactPhone?.trim() ?? '',
+          studioPhone: formatPhoneForDisplay(studio?.contactPhone),
           studioHours: studio?.workingHours?.trim() ?? '',
         }),
         attachments: [logoAttachment],

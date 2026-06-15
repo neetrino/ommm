@@ -18,6 +18,10 @@ import {
 } from '../cache/public-cache-keys';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { hashPassword } from '../common/password-crypto';
+import {
+  normalizeOptionalPhone,
+  normalizeRequiredPhone,
+} from '../common/phone';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
@@ -154,7 +158,7 @@ export class CoachesService {
 
   async create(dto: CreateCoachDto) {
     const email = dto.email.toLowerCase().trim();
-    const phone = dto.phone.trim();
+    const phone = normalizeRequiredPhone(dto.phone);
     const specialization = dto.specialization.trim();
     const classType = dto.classType.trim();
     const assignedClassTypeIds = this.normalizeAssignedClassTypeIds(
@@ -162,10 +166,6 @@ export class CoachesService {
     );
     const availabilitySlots = this.normalizeSchedule(dto.schedule);
     const normalizedPhotoUrl = this.normalizePhotoUrl(dto.photoUrl);
-    const phoneDigits = phone.replace(/\D/g, '');
-    if (phoneDigits.length < 8 || phoneDigits.length > 15) {
-      throw new BadRequestException('Invalid phone number');
-    }
     if (specialization.length === 0) {
       throw new BadRequestException('Specialization is required');
     }
@@ -396,7 +396,7 @@ export class CoachesService {
     const normalizedPhone =
       dto.phone === undefined
         ? undefined
-        : this.normalizeOptionalPhone(dto.phone ?? null);
+        : normalizeOptionalPhone(dto.phone ?? null);
     const normalizedSpecialization =
       dto.specialization === undefined
         ? undefined
@@ -909,18 +909,6 @@ export class CoachesService {
     } catch {
       // Old upload cleanup is best effort.
     }
-  }
-
-  private normalizeOptionalPhone(phone: string | null): string | null {
-    const normalizedPhone = (phone ?? '').trim();
-    if (normalizedPhone.length === 0) {
-      return null;
-    }
-    const phoneDigits = normalizedPhone.replace(/\D/g, '');
-    if (phoneDigits.length < 8 || phoneDigits.length > 15) {
-      throw new BadRequestException('Invalid phone number');
-    }
-    return normalizedPhone;
   }
 
   private calculateAgeFromDateOfBirth(dateOfBirth: Date | null): number | null {

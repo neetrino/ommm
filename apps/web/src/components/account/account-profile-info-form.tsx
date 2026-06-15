@@ -12,7 +12,12 @@ import {
   formatIsoDateToUi,
   parseBirthdayDisplayToIso,
 } from "@/lib/date-display";
-import { formatPhoneInput } from "@/lib/phone-input";
+import {
+  ARMENIA_PHONE_DISPLAY_PLACEHOLDER,
+  formatPhoneDisplay,
+  normalizePhoneForApi,
+} from "@/lib/phone";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
@@ -64,6 +69,7 @@ type ProfileFieldProps = {
   emptyLabel: string;
   multiline?: boolean;
   maxLength?: number;
+  usePhoneInput?: boolean;
 } & Pick<InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "inputMode" | "placeholder"> &
   Pick<TextareaHTMLAttributes<HTMLTextAreaElement>, "rows">;
 
@@ -80,6 +86,7 @@ function ProfileField({
   emptyLabel,
   multiline = false,
   maxLength,
+  usePhoneInput = false,
   rows = 4,
   type = "text",
   autoComplete,
@@ -106,6 +113,15 @@ function ProfileField({
             value={inputValue}
             onChange={(event) => onChange?.(event.target.value)}
             disabled={disabled}
+          />
+        ) : usePhoneInput ? (
+          <PhoneInputField
+            id={id}
+            className={PROFILE_FIELD_INPUT_CLASS}
+            value={inputValue}
+            onValueChange={(value) => onChange?.(value)}
+            disabled={disabled}
+            placeholder={placeholder ?? ARMENIA_PHONE_DISPLAY_PLACEHOLDER}
           />
         ) : (
           <input
@@ -142,7 +158,7 @@ function initialFormState(user: ProfileFormUser, bio: string | null | undefined)
     email: user.email,
     name: user.name ?? "",
     lastName: user.lastName ?? "",
-    phone: user.phone ?? "",
+    phone: formatPhoneDisplay(user.phone ?? ""),
     dateOfBirth: formatIsoDateToUi(user.dateOfBirth),
     bio: bio ?? "",
   };
@@ -242,7 +258,7 @@ export function AccountProfileInfoForm({
           email,
           name: name === "" ? null : name,
           lastName: lastName === "" ? null : lastName,
-          phone: phone === "" ? null : phone,
+          phone: phone === "" ? null : normalizePhoneForApi(phone),
           dateOfBirth,
         }),
       });
@@ -358,12 +374,11 @@ export function AccountProfileInfoForm({
         <ProfileField
           id="profile-phone"
           label={tProfile("labels.phone")}
-          displayValue={initialUser.phone ?? ""}
+          displayValue={formatPhoneDisplay(initialUser.phone)}
           editing={isEditing}
           inputValue={form.phone}
-          onChange={(value) => updateField("phone", formatPhoneInput(value))}
-          type="tel"
-          autoComplete="tel"
+          onChange={(value) => updateField("phone", value)}
+          usePhoneInput
           disabled={isSaving}
           emptyLabel={empty}
         />

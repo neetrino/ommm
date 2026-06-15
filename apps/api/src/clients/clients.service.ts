@@ -13,6 +13,7 @@ import {
   type User,
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { normalizeOptionalPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AdminClientQuickFilter,
@@ -209,7 +210,9 @@ export class ClientsService {
       ...(dto.email !== undefined && { email: dto.email.toLowerCase() }),
       ...(dto.name !== undefined && { name: dto.name }),
       ...(dto.lastName !== undefined && { lastName: dto.lastName }),
-      ...(dto.phone !== undefined && { phone: dto.phone }),
+      ...(dto.phone !== undefined && {
+        phone: normalizeOptionalPhone(dto.phone ?? null),
+      }),
       ...(dto.dateOfBirth !== undefined && {
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
       }),

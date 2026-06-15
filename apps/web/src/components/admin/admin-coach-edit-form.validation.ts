@@ -14,15 +14,13 @@ import {
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
 import { parseBirthdayDisplayToIso } from "@/lib/date-display";
+import { isValidPhone, normalizePhoneForApi } from "@/lib/phone";
 import {
   completeCoachScheduleRows,
   type CoachEditFormErrors,
   type CoachEditFormState,
   type CoachUpdatePayload,
 } from "@/components/admin/admin-coach-edit-form.types";
-
-const MIN_PHONE_DIGITS = 8;
-const MAX_PHONE_DIGITS = 15;
 
 type ValidateCoachFormArgs = {
   form: CoachEditFormState;
@@ -75,8 +73,7 @@ export function validateCoachEditForm({
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = labels.emailInvalid;
   }
-  const phoneDigits = phone.replace(/\D/g, "").length;
-  if (phone.length > 0 && (phoneDigits < MIN_PHONE_DIGITS || phoneDigits > MAX_PHONE_DIGITS)) {
+  if (phone.length > 0 && !isValidPhone(phone)) {
     errors.phone = labels.phoneInvalid;
   }
   if (age !== null && (!Number.isInteger(age) || age < COACH_MIN_AGE || age > COACH_MAX_AGE)) {
@@ -123,7 +120,7 @@ export function validateCoachEditForm({
     email,
     name: name.length > 0 ? name : null,
     lastName: lastName.length > 0 ? lastName : null,
-    phone: phone.length > 0 ? phone : null,
+    phone: phone.length > 0 ? normalizePhoneForApi(phone) : null,
     ...(age !== null ? { age } : {}),
     birthday: birthdayDisplay === "" ? null : birthday,
     bio: bio.length > 0 ? bio : null,

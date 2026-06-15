@@ -22,6 +22,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
+import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
 type ListRow = {
@@ -227,7 +228,7 @@ export function AdminBookingDetailsSheet({
             <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
               <DetailRow label={t("bookingDetailsClient")} value={row.user.name ?? row.user.email} />
               <DetailRow label={t("bookingDetailsEmail")} value={row.user.email} />
-              <DetailRow label={t("bookingDetailsPhone")} value={row.user.phone ?? "—"} />
+              <DetailRow label={t("bookingDetailsPhone")} value={displayPhoneOrFallback(row.user.phone)} />
               <DetailRow label={t("bookingDetailsClass")} value={row.session.classType.name} />
               <DetailRow
                 label={t("bookingDetailsCoach")}

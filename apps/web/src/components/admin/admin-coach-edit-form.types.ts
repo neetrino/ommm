@@ -5,6 +5,7 @@ import {
   type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
 import { formatIsoDateToUi } from "@/lib/date-display";
+import { formatPhoneDisplay } from "@/lib/phone";
 
 export type CoachEditFormState = {
   email: string;
@@ -74,7 +75,7 @@ export function coachFormFromInitial(
     email: initial.email,
     name: initial.name,
     lastName: initial.lastName,
-    phone: initial.phone,
+    phone: formatPhoneDisplay(initial.phone),
     age: initial.age === null ? "" : String(initial.age),
     birthday: formatIsoDateToUi(initial.birthday),
     photoUrl: initial.photoUrl ?? "",

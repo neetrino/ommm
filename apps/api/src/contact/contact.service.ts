@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
+import { normalizeRequiredPhone, formatPhoneForDisplay } from '../common/phone';
 import { getEmailLogoAttachment } from '../mail/email-logo';
 import { renderContactAdminNotificationEmail } from '../mail/templates/contact-admin-notification.template';
 import { renderContactCustomerConfirmationEmail } from '../mail/templates/contact-customer-confirmation.template';
@@ -36,12 +37,13 @@ export class ContactService {
 
     const subject = dto.subject?.trim() ?? '';
     const message = dto.message.trim();
+    const phone = normalizeRequiredPhone(dto.phone);
 
     const msg = await this.prisma.contactMessage.create({
       data: {
         name: dto.name.trim(),
         email: dto.email.trim().toLowerCase(),
-        phone: dto.phone.trim(),
+        phone,
         subject: subject.length > 0 ? subject : null,
         message,
       },
@@ -63,7 +65,7 @@ export class ContactService {
           submittedAt,
           name: dto.name.trim(),
           email: dto.email.trim(),
-          phone: dto.phone.trim(),
+          phone: formatPhoneForDisplay(phone),
           subject,
           message,
         }),

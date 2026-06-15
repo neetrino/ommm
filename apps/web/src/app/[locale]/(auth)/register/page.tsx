@@ -11,14 +11,16 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
-import { syncPhoneInputElement } from "@/lib/phone-input";
+import {
+  ARMENIA_PHONE_DISPLAY_PLACEHOLDER,
+  isValidPhone,
+  normalizePhoneForApi,
+} from "@/lib/phone";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_NAME_LENGTH = 120;
-const MIN_PHONE_DIGITS = 8;
-const MAX_PHONE_DIGITS = 15;
-const MAX_PHONE_CHARS = 32;
 
 function buildGoogleAuthStartUrl(): string {
   const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
@@ -38,24 +40,13 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
 }
 
-function countDigits(value: string): number {
-  return (value.match(/\d/g) ?? []).length;
-}
-
-function isValidPhone(trimmed: string): boolean {
-  if (trimmed.length < MIN_PHONE_DIGITS || trimmed.length > MAX_PHONE_CHARS) {
-    return false;
-  }
-  const digits = countDigits(trimmed);
-  return digits >= MIN_PHONE_DIGITS && digits <= MAX_PHONE_DIGITS;
-}
-
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlLocale = useLocale();
   const t = useTranslations("common");
   const tAuth = useTranslations("auth.register");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
@@ -72,7 +63,7 @@ function RegisterForm() {
     const confirmPassword = String(fd.get("confirmPassword") ?? "");
     const firstNameRaw = String(fd.get("firstName") ?? "").trim();
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
-    const phoneRaw = String(fd.get("phone") ?? "").trim();
+    const phoneRaw = phone.trim();
 
     setError(null);
 
@@ -133,7 +124,7 @@ function RegisterForm() {
             password,
             name: firstNameRaw,
             lastName: lastNameRaw,
-            phone: phoneRaw,
+            phone: normalizePhoneForApi(phoneRaw),
             locale: urlLocale,
           }),
         },
@@ -190,15 +181,13 @@ function RegisterForm() {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">
             <span className="ommm-label">{tAuth("phone")}</span>
-            <input
+            <PhoneInputField
               name="phone"
-              type="tel"
               required
-              autoComplete="tel"
               className="ommm-input"
-              maxLength={MAX_PHONE_CHARS}
-              inputMode="tel"
-              onInput={(event) => syncPhoneInputElement(event.currentTarget)}
+              value={phone}
+              onValueChange={setPhone}
+              placeholder={ARMENIA_PHONE_DISPLAY_PLACEHOLDER}
             />
           </label>
           <label className="flex flex-col gap-1.5">

@@ -15,6 +15,7 @@ import { Prisma, BookingStatus, Role } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth.service';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { isAppUiLocale } from '../common/app-ui-locales';
+import { normalizeOptionalPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import {
@@ -103,16 +104,7 @@ export class UsersService {
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.lastName !== undefined) data.lastName = dto.lastName;
     if (dto.phone !== undefined) {
-      const normalizedPhone = (dto.phone ?? '').trim();
-      if (normalizedPhone === '') {
-        data.phone = null;
-      } else {
-        const phoneDigits = normalizedPhone.replace(/\D/g, '');
-        if (phoneDigits.length < 8 || phoneDigits.length > 15) {
-          throw new BadRequestException('Invalid phone number');
-        }
-        data.phone = normalizedPhone;
-      }
+      data.phone = normalizeOptionalPhone(dto.phone ?? null);
     }
     if (dto.dateOfBirth !== undefined) {
       data.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;

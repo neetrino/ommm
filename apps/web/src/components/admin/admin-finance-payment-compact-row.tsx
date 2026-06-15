@@ -30,6 +30,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
+import { displayPhoneOrEmail } from "@/lib/phone";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 
@@ -85,7 +86,7 @@ export function AdminFinancePaymentCompactRow({
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
         <AdminListMobileLabel label={tTable("colUser")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
-        <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? row.user.email}</p>
+        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.user.phone, row.user.email)}</p>
       </div>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>

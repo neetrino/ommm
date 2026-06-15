@@ -4,7 +4,7 @@ import {
   AdminSheetEditableField,
   adminSheetFieldInputClass,
 } from "@/components/admin/admin-sheet-editable-field";
-import { formatPhoneInput } from "@/lib/phone-input";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
 
 export type StudioContactFieldErrors = Partial<
   Record<
@@ -76,11 +76,10 @@ export function AdminStudioContactSettingsFields({
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <AdminSheetEditableField label={labels.contactPhone} hint={labels.hints.contactPhone}>
-        <input
-          type="tel"
+        <PhoneInputField
           className={adminSheetFieldInputClass()}
           value={contactPhone}
-          onChange={(event) => onContactPhoneChange(formatPhoneInput(event.target.value))}
+          onValueChange={onContactPhoneChange}
           disabled={busy}
         />
       </AdminSheetEditableField>
