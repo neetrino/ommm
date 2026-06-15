@@ -1,0 +1,197 @@
+import type { Prisma } from '@prisma/client';
+
+const MAX_CLASS_TYPE_SLUG_LENGTH = 120;
+
+type ClassTypeRecord = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+type PackageCategoryClassTypeDb = Pick<Prisma.TransactionClient, 'classType'>;
+
+export type SyncPackageCategoryClassTypeParams = {
+  categoryName: string;
+  previousCategoryName?: string;
+};
+
+/** Builds the ClassType slug used for a package category label. */
+export function buildClassTypeSlugFromPackageCategory(
+  categoryName: string,
+): string {
+  return categoryName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .split('-')
+    .filter((segment) => segment.length > 0)
+    .join('-')
+    .slice(0, MAX_CLASS_TYPE_SLUG_LENGTH);
+}
+
+function normalizePackageCategoryLabel(name: string): string {
+  return name.trim().replace(/\s+/g, ' ');
+}
+
+function categoryComparisonKey(name: string): string {
+  return normalizePackageCategoryLabel(name).toLocaleLowerCase();
+}
+
+function isSingularPluralSlugPair(left: string, right: string): boolean {
+  return left === `${right}s` || right === `${left}s`;
+}
+
+async function findClassTypeBySlug(
+  db: PackageCategoryClassTypeDb,
+  slug: string,
+): Promise<ClassTypeRecord | null> {
+  if (slug.length === 0) {
+    return null;
+  }
+  return db.classType.findUnique({
+    where: { slug },
+    select: { id: true, name: true, slug: true },
+  });
+}
+
+async function findClassTypeByName(
+  db: PackageCategoryClassTypeDb,
+  name: string,
+): Promise<ClassTypeRecord | null> {
+  const normalized = normalizePackageCategoryLabel(name);
+  if (normalized.length === 0) {
+    return null;
+  }
+  return db.classType.findFirst({
+    where: { name: { equals: normalized, mode: 'insensitive' } },
+    select: { id: true, name: true, slug: true },
+  });
+}
+
+async function listClassTypes(
+  db: PackageCategoryClassTypeDb,
+): Promise<ClassTypeRecord[]> {
+  return db.classType.findMany({
+    select: { id: true, name: true, slug: true },
+  });
+}
+
+async function findClassTypeForCategoryLabel(
+  db: PackageCategoryClassTypeDb,
+  label: string,
+): Promise<ClassTypeRecord | null> {
+  const normalizedLabel = normalizePackageCategoryLabel(label);
+  if (normalizedLabel.length === 0) {
+    return null;
+  }
+
+  const slug = buildClassTypeSlugFromPackageCategory(normalizedLabel);
+  const bySlug = await findClassTypeBySlug(db, slug);
+  if (bySlug !== null) {
+    return bySlug;
+  }
+
+  const byName = await findClassTypeByName(db, normalizedLabel);
+  if (byName !== null) {
+    return byName;
+  }
+
+  const labelKey = categoryComparisonKey(normalizedLabel);
+  const allTypes = await listClassTypes(db);
+  const keyMatches = allTypes.filter(
+    (row) => categoryComparisonKey(row.name) === labelKey,
+  );
+  if (keyMatches.length === 1) {
+    return keyMatches[0];
+  }
+
+  if (slug.length === 0) {
+    return null;
+  }
+
+  const slugMatches = allTypes.filter(
+    (row) =>
+      row.slug === slug || isSingularPluralSlugPair(row.slug, slug),
+  );
+  if (slugMatches.length === 1) {
+    return slugMatches[0];
+  }
+
+  return null;
+}
+
+async function updateClassTypeRecord(
+  db: PackageCategoryClassTypeDb,
+  id: string,
+  data: { name: string; slug?: string },
+): Promise<void> {
+  await db.classType.update({
+    where: { id },
+    data,
+  });
+}
+
+async function applyClassTypeCategorySync(
+  db: PackageCategoryClassTypeDb,
+  target: ClassTypeRecord,
+  categoryName: string,
+  slug: string,
+): Promise<void> {
+  if (target.name === categoryName && target.slug === slug) {
+    return;
+  }
+
+  const slugOwner = await findClassTypeBySlug(db, slug);
+  if (slugOwner !== null && slugOwner.id !== target.id) {
+    if (target.name !== categoryName) {
+      await updateClassTypeRecord(db, target.id, { name: categoryName });
+    }
+    return;
+  }
+
+  await updateClassTypeRecord(db, target.id, {
+    name: categoryName,
+    slug,
+  });
+}
+
+/**
+ * Keeps `ClassType` names aligned with package category labels when admins add or edit plans.
+ */
+export async function syncClassTypeForPackageCategory(
+  db: PackageCategoryClassTypeDb,
+  params: SyncPackageCategoryClassTypeParams,
+): Promise<void> {
+  const categoryName = normalizePackageCategoryLabel(params.categoryName);
+  const slug = buildClassTypeSlugFromPackageCategory(categoryName);
+  if (slug.length === 0) {
+    return;
+  }
+
+  const previousCategoryName =
+    params.previousCategoryName !== undefined
+      ? normalizePackageCategoryLabel(params.previousCategoryName)
+      : undefined;
+  if (
+    previousCategoryName !== undefined &&
+    categoryComparisonKey(previousCategoryName) ===
+      categoryComparisonKey(categoryName)
+  ) {
+    return;
+  }
+
+  const lookupLabel = previousCategoryName ?? categoryName;
+  const target = await findClassTypeForCategoryLabel(db, lookupLabel);
+  if (target !== null) {
+    await applyClassTypeCategorySync(db, target, categoryName, slug);
+    return;
+  }
+
+  await db.classType.create({
+    data: {
+      name: categoryName,
+      slug,
+    },
+  });
+}

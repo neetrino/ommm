@@ -28,6 +28,7 @@ import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+import { syncClassTypeForPackageCategory } from './package-category-class-type.sync';
 import {
   PACKAGE_PLAN_DELETION_BLOCKING_STATUSES,
   PACKAGE_PLAN_DELETION_PURGEABLE_STATUSES,
@@ -126,28 +127,32 @@ export class PackagesService {
     const slug = this.resolveSlug(dto.name, dto.slug);
     const categoryName = await this.resolveCategoryName(dto.categoryName);
     try {
-      const plan = await this.prisma.packagePlan.create({
-        data: {
-          name: dto.name,
-          categoryName,
-          slug,
-          description: dto.description,
-          priceCents: dto.priceCents,
-          pricePerSessionCents: this.normalizePricePerSessionCents(
-            dto.pricePerSessionCents,
-          ),
-          currency: this.normalizeCurrency(dto.currency),
-          sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
-          isUnlimited: dto.isUnlimited,
-          periodDays: dto.periodDays,
-          billingPeriod: this.normalizeBillingPeriod(dto.billingPeriod),
-          features: this.normalizeFeatures(dto.features),
-          buttonLabel: this.normalizeButtonLabel(dto.buttonLabel),
-          isPopular: dto.isPopular ?? false,
-          isActive: dto.isActive ?? true,
-          displayOrder: dto.displayOrder ?? 0,
-          guestCount: this.normalizeGuestCount(dto.guestCount),
-        },
+      const plan = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.packagePlan.create({
+          data: {
+            name: dto.name,
+            categoryName,
+            slug,
+            description: dto.description,
+            priceCents: dto.priceCents,
+            pricePerSessionCents: this.normalizePricePerSessionCents(
+              dto.pricePerSessionCents,
+            ),
+            currency: this.normalizeCurrency(dto.currency),
+            sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
+            isUnlimited: dto.isUnlimited,
+            periodDays: dto.periodDays,
+            billingPeriod: this.normalizeBillingPeriod(dto.billingPeriod),
+            features: this.normalizeFeatures(dto.features),
+            buttonLabel: this.normalizeButtonLabel(dto.buttonLabel),
+            isPopular: dto.isPopular ?? false,
+            isActive: dto.isActive ?? true,
+            displayOrder: dto.displayOrder ?? 0,
+            guestCount: this.normalizeGuestCount(dto.guestCount),
+          },
+        });
+        await syncClassTypeForPackageCategory(tx, { categoryName });
+        return created;
       });
       await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
       return plan;
@@ -163,6 +168,7 @@ export class PackagesService {
           slug,
           categoryName,
         );
+        await syncClassTypeForPackageCategory(this.prisma, { categoryName });
         await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
         return plan;
       }
@@ -170,6 +176,7 @@ export class PackagesService {
         throw error;
       }
       const legacyPlan = await this.createPlanLegacy(dto, slug, categoryName);
+      await syncClassTypeForPackageCategory(this.prisma, { categoryName });
       await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
       return this.withMarketingDefaults({
         ...legacyPlan,
@@ -182,7 +189,7 @@ export class PackagesService {
   async updatePlan(planId: string, dto: UpdatePlanDto) {
     const existing = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
-      select: { id: true, slug: true },
+      select: { id: true, slug: true, categoryName: true },
     });
     if (existing === null) {
       throw new NotFoundException('Plan not found');
@@ -243,9 +250,18 @@ export class PackagesService {
     }
     let updated;
     try {
-      updated = await this.prisma.packagePlan.update({
-        where: { id: planId },
-        data,
+      updated = await this.prisma.$transaction(async (tx) => {
+        const saved = await tx.packagePlan.update({
+          where: { id: planId },
+          data,
+        });
+        if (resolvedCategoryName !== undefined) {
+          await syncClassTypeForPackageCategory(tx, {
+            categoryName: resolvedCategoryName,
+            previousCategoryName: existing.categoryName,
+          });
+        }
+        return saved;
       });
     } catch (error) {
       if (this.isUniquePlanConflict(error)) {
@@ -260,9 +276,18 @@ export class PackagesService {
         const guestCountValue = data.guestCount as number;
         const dataWithoutGuest = { ...data };
         delete dataWithoutGuest.guestCount;
-        updated = await this.prisma.packagePlan.update({
-          where: { id: planId },
-          data: dataWithoutGuest,
+        updated = await this.prisma.$transaction(async (tx) => {
+          const saved = await tx.packagePlan.update({
+            where: { id: planId },
+            data: dataWithoutGuest,
+          });
+          if (resolvedCategoryName !== undefined) {
+            await syncClassTypeForPackageCategory(tx, {
+              categoryName: resolvedCategoryName,
+              previousCategoryName: existing.categoryName,
+            });
+          }
+          return saved;
         });
         await this.persistGuestCount(planId, guestCountValue);
         updated = await this.loadPlanWithGuestCount(planId, guestCountValue);
