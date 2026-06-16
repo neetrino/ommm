@@ -18,6 +18,8 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
     pricePerSessionCents:
       typeof row.pricePerSessionCents === "number" ? row.pricePerSessionCents : 0,
+    showPricePerSession:
+      typeof row.showPricePerSession === "boolean" ? row.showPricePerSession : true,
     features: Array.isArray(row.features) ? row.features : [],
   };
 }
@@ -41,6 +43,7 @@ export type AdminPackageRow = {
   description: string | null;
   priceCents: number;
   pricePerSessionCents?: number;
+  showPricePerSession?: boolean;
   currency: string;
   billingPeriod: string;
   periodDays: number;

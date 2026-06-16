@@ -98,6 +98,7 @@ export function AdminCombinedPackageForm({
           description: descriptionTrimmed.length > 0 ? descriptionTrimmed : null,
           priceCents: 0,
           pricePerSessionCents: 0,
+          showPricePerSession: true,
           currency: "AMD",
           isUnlimited: false,
           sessionsPerMonth: 0,

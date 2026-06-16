@@ -85,7 +85,9 @@ export function PublicPackageMobileTierCard({
 
       <div className={styles.metaList}>
         <MetaRow label={t("packagesTablePrice")} value={priceLabel} />
-        <MetaRow label={t("packagesTablePricePerSession")} value={pricePerSession} />
+        {plan.showPricePerSession !== false ? (
+          <MetaRow label={t("packagesTablePricePerSession")} value={pricePerSession} />
+        ) : null}
         <MetaRow label={t("packagesTableValidity")} value={validityLabel} />
         <MetaRow label={t("packagesTableGuests")} value={guestLabel} />
       </div>

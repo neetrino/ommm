@@ -2493,11 +2493,13 @@
       "fieldButtonLabel": "Button label",
       "fieldPopular": "Popular",
       "fieldActive": "Active",
+      "fieldShowPricePerSession": "Show Price / Session",
       "fieldDisplayOrder": "Display order",
       "fieldPeriodDaysHint": "Number of days in one billing cycle.",
       "fieldDisplayOrderHint": "Lower numbers appear first on the site.",
       "fieldPopularHint": "Highlights this plan with a popular badge.",
       "fieldActiveHint": "Inactive plans are hidden from the public site.",
+      "fieldShowPricePerSessionHint": "Display price per session on package cards.",
       "formSections": {
         "details": {
           "heading": "Package details",

@@ -141,7 +141,7 @@ export function AdminPackagesCategoryTable({
                     )}
                   </TableCell>
                   <TableCell>{formatPackagePriceLabel(pkg, locale)}</TableCell>
-                  <TableCell>{pricePerSession ?? <EmptyCell />}</TableCell>
+                  <TableCell>{pkg.showPricePerSession === false ? null : pricePerSession ?? <EmptyCell />}</TableCell>
                   <TableCell>{validityLabel}</TableCell>
                   <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
                   <TableCell>

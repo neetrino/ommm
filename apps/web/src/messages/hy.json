@@ -2484,11 +2484,13 @@
       "fieldButtonLabel": "Կոճակի տեքստ",
       "fieldPopular": "Հանրաճանաչ",
       "fieldActive": "Ակտիվ",
+      "fieldShowPricePerSession": "Ցույց տալ Գին / սեսիա",
       "fieldDisplayOrder": "Ցուցադրման հերթականություն",
       "fieldPeriodDaysHint": "Մեկ վճարման ցիկլի օրերի քանակը։",
       "fieldDisplayOrderHint": "Ցածր արժեքները կայքում ցուցադրվում են առաջինը։",
       "fieldPopularHint": "Այս պլանը նշում է «Հանրաճանաչ» նշանով։",
       "fieldActiveHint": "Պասիվ փաթեթները թաքցված են հանրային կայքից։",
+      "fieldShowPricePerSessionHint": "Ցուցադրել սեսիայի գինը փաթեթների քարտերում։",
       "formSections": {
         "details": {
           "heading": "Փաթեթի տվյալներ",

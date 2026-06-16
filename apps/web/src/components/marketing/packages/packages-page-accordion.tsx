@@ -190,13 +190,27 @@ function ExpandedTierTable({
   onSubscribe,
 }: ExpandedTierTableProps) {
   const t = useTranslations("marketing");
+  const showPricePerSessionColumn = category.plans.some(
+    (plan) => plan.showPricePerSession !== false,
+  );
+  const tierColumnsStyle = useMemo(
+    () =>
+      ({
+        ["--packages-page-tier-columns" as string]: showPricePerSessionColumn
+          ? "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)"
+          : "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)",
+      }) as CSSProperties,
+    [showPricePerSessionColumn],
+  );
 
   return (
-    <div className={accordionStyles.tierTableLayout}>
+    <div className={accordionStyles.tierTableLayout} style={tierColumnsStyle}>
       <div className={accordionStyles.columnHeaders} role="row">
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableSessions")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePrice")}</span>
-        <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePricePerSession")}</span>
+        {showPricePerSessionColumn ? (
+          <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePricePerSession")}</span>
+        ) : null}
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableValidity")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
         <span
@@ -212,6 +226,7 @@ function ExpandedTierTable({
             key={plan.id}
             locale={locale}
             plan={plan}
+            showPricePerSessionColumn={showPricePerSessionColumn}
             audience={audience}
             onSubscribe={onSubscribe}
           />
@@ -224,11 +239,18 @@ function ExpandedTierTable({
 type ExpandedTierRowProps = {
   locale: string;
   plan: PublicPackagePlan;
+  showPricePerSessionColumn: boolean;
   audience: PublicPackageCategoryCardsAudience;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
-function ExpandedTierRow({ locale, plan, audience, onSubscribe }: ExpandedTierRowProps) {
+function ExpandedTierRow({
+  locale,
+  plan,
+  showPricePerSessionColumn,
+  audience,
+  onSubscribe,
+}: ExpandedTierRowProps) {
   const t = useTranslations("marketing");
   const sessions = formatPublicPackageTierSessionsHeadline(plan, {
     unlimited: t("packagesSessionsUnlimitedShort"),
@@ -247,9 +269,11 @@ function ExpandedTierRow({ locale, plan, audience, onSubscribe }: ExpandedTierRo
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPrice}`}>
         {formatPackagePriceLabel(plan, locale)}
       </div>
-      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPricePerSession}`}>
-        {pricePerSession ?? <EmptyCell />}
-      </div>
+      {showPricePerSessionColumn ? (
+        <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPricePerSession}`}>
+          {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}
+        </div>
+      ) : null}
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierValidity}`}>
         {validityLabel ?? <EmptyCell />}
       </div>

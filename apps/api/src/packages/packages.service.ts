@@ -172,6 +172,7 @@ export class PackagesService {
             pricePerSessionCents: this.normalizePricePerSessionCents(
               dto.pricePerSessionCents,
             ),
+            showPricePerSession: dto.showPricePerSession ?? true,
             currency: this.normalizeCurrency(dto.currency),
             sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
             isUnlimited: dto.isUnlimited,
@@ -289,6 +290,7 @@ export class PackagesService {
             pricePerSessionCents: this.normalizePricePerSessionCents(
               dto.pricePerSessionCents,
             ),
+            showPricePerSession: dto.showPricePerSession ?? true,
             currency: this.normalizeCurrency(dto.currency),
             sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
             isUnlimited: dto.isUnlimited,
@@ -390,6 +392,9 @@ export class PackagesService {
         pricePerSessionCents: this.normalizePricePerSessionCents(
           dto.pricePerSessionCents,
         ),
+      }),
+      ...(dto.showPricePerSession !== undefined && {
+        showPricePerSession: dto.showPricePerSession,
       }),
       ...(dto.currency !== undefined && {
         currency: this.normalizeCurrency(dto.currency),
@@ -1385,6 +1390,7 @@ export class PackagesService {
         pricePerSessionCents: this.normalizePricePerSessionCents(
           dto.pricePerSessionCents,
         ),
+        showPricePerSession: dto.showPricePerSession ?? true,
         currency: this.normalizeCurrency(dto.currency),
         sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
         isUnlimited: dto.isUnlimited,
@@ -1403,6 +1409,7 @@ export class PackagesService {
     }
     return this.withMarketingDefaults({ ...plan, guestCount });
   }
+
 
   private async createPlanLegacy(
     dto: CreatePlanDto,
@@ -1520,6 +1527,7 @@ export class PackagesService {
       displayOrder?: number;
       guestCount?: number;
       pricePerSessionCents?: number;
+      showPricePerSession?: boolean;
     },
   >(
     plan: T,
@@ -1533,6 +1541,7 @@ export class PackagesService {
     displayOrder: number;
     guestCount: number;
     pricePerSessionCents: number;
+    showPricePerSession: boolean;
   } {
     const categoryRaw =
       'categoryName' in plan && typeof plan.categoryName === 'string'
@@ -1557,8 +1566,14 @@ export class PackagesService {
         typeof plan.pricePerSessionCents === 'number'
           ? this.normalizePricePerSessionCents(plan.pricePerSessionCents)
           : 0,
+      showPricePerSession:
+        'showPricePerSession' in plan &&
+        typeof plan.showPricePerSession === 'boolean'
+          ? plan.showPricePerSession
+          : true,
     };
   }
+
 
   private createPaymentReference(prefix: string): string {
     return `${prefix}-${randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;

@@ -38,6 +38,22 @@ function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
 }
 
+function resolveDesktopTableClassName(
+  showGuestsColumn: boolean,
+  showPricePerSessionColumn: boolean,
+): string {
+  if (showGuestsColumn && showPricePerSessionColumn) {
+    return `${styles.table} ${styles.tableWithGuests}`;
+  }
+  if (showGuestsColumn) {
+    return `${styles.table} ${styles.tableWithGuestsNoPerSession}`;
+  }
+  if (showPricePerSessionColumn) {
+    return styles.table;
+  }
+  return `${styles.table} ${styles.tableNoPerSession}`;
+}
+
 export function PublicPackageCategoryListTable({
   locale,
   categoryLabel,
@@ -61,6 +77,10 @@ export function PublicPackageCategoryListTable({
       }),
     );
   }, [categoryLabel, plans]);
+  const showPricePerSessionColumn = useMemo(
+    () => plans.some((plan) => plan.showPricePerSession !== false),
+    [plans],
+  );
 
   function openPayment(planId: string) {
     setPaymentPlanId(planId);
@@ -81,15 +101,18 @@ export function PublicPackageCategoryListTable({
       </div>
 
       <div
-        className={`ommm-public-packages-table ${styles.desktopTable} ${styles.table} ${
-          showGuestsColumn ? styles.tableWithGuests : ""
-        }`}
+        className={`ommm-public-packages-table ${styles.desktopTable} ${resolveDesktopTableClassName(
+          showGuestsColumn,
+          showPricePerSessionColumn,
+        )}`}
       >
         <div className={styles.headerRow}>
           <div className={styles.headCell}>{t("packagesTablePlan")}</div>
           <div className={styles.headCell}>{t("packagesTableSessions")}</div>
           <div className={styles.headCell}>{t("packagesTablePrice")}</div>
-          <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
+          {showPricePerSessionColumn ? (
+            <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
+          ) : null}
           <div className={styles.headCell}>{t("packagesTableValidity")}</div>
           {showGuestsColumn ? (
             <div className={styles.headCell}>{t("packagesTableGuests")}</div>
@@ -129,7 +152,11 @@ export function PublicPackageCategoryListTable({
                 )}
               </div>
               <div className={styles.cell}>{formatPackagePriceLabel(plan, locale)}</div>
-              <div className={styles.cell}>{pricePerSession ?? <EmptyCell />}</div>
+              {showPricePerSessionColumn ? (
+                <div className={styles.cell}>
+                  {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}
+                </div>
+              ) : null}
               <div className={styles.cell}>{validityLabel ?? <EmptyCell />}</div>
               {showGuestsColumn ? (
                 <div className={styles.cell}>

@@ -51,6 +51,10 @@ export class UpdatePlanDto {
   pricePerSessionCents?: number;
 
   @IsOptional()
+  @IsBoolean()
+  showPricePerSession?: boolean;
+
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(8)

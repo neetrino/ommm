@@ -5,6 +5,8 @@ export type PublicPackagePlan = {
   categoryName: string;
   description: string | null;
   priceCents: number;
+  pricePerSessionCents?: number;
+  showPricePerSession?: boolean;
   currency: string;
   billingPeriod: string;
   periodDays: number;
@@ -36,6 +38,8 @@ export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPacka
         ? plan.categoryName.trim()
         : "General",
     sessionsPerMonth: coerceSessionsPerMonth(plan.sessionsPerMonth),
+    showPricePerSession:
+      typeof plan.showPricePerSession === "boolean" ? plan.showPricePerSession : true,
     guestCount: typeof plan.guestCount === "number" ? plan.guestCount : 0,
     features: Array.isArray(plan.features) ? plan.features : [],
   };

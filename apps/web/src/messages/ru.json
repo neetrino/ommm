@@ -2485,11 +2485,13 @@
       "fieldButtonLabel": "Текст кнопки",
       "fieldPopular": "Популярный",
       "fieldActive": "Активен",
+      "fieldShowPricePerSession": "Показывать цену / сессию",
       "fieldDisplayOrder": "Порядок отображения",
       "fieldPeriodDaysHint": "Количество дней в одном платёжном цикле.",
       "fieldDisplayOrderHint": "Меньшие значения отображаются первыми на сайте.",
       "fieldPopularHint": "Выделяет этот план значком «Популярный».",
       "fieldActiveHint": "Неактивные планы скрыты с публичного сайта.",
+      "fieldShowPricePerSessionHint": "Показывать цену за сессию на карточках пакетов.",
       "formSections": {
         "details": {
           "heading": "Данные пакета",

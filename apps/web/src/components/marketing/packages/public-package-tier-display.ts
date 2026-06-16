@@ -69,6 +69,9 @@ export function formatPublicPackageTierPricePerSession(
   if (plan.isUnlimited) {
     return null;
   }
+  if (plan.showPricePerSession === false) {
+    return null;
+  }
   if (typeof plan.pricePerSessionCents === "number" && plan.pricePerSessionCents > 0) {
     return formatAmdFromCents(plan.pricePerSessionCents, locale);
   }

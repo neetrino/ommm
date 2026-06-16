@@ -118,6 +118,7 @@ export type AdminPackageFormValues = {
   guestCount: string;
   isPopular: boolean;
   isActive: boolean;
+  showPricePerSession: boolean;
   sourceSessionAllocations: Record<string, string>;
 };
 
@@ -133,6 +134,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     guestCount: "",
     isPopular: false,
     isActive: true,
+    showPricePerSession: true,
     sourceSessionAllocations: {},
   };
 }
@@ -159,6 +161,7 @@ export function packageRowToFormValues(
   billingPeriod: string;
   isPopular: boolean;
   isActive: boolean;
+  showPricePerSession?: boolean;
   guestCount?: number;
   sessionsPerMonth?: number | null;
 },
@@ -180,6 +183,8 @@ export function packageRowToFormValues(
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
+    showPricePerSession:
+      typeof pkg.showPricePerSession === "boolean" ? pkg.showPricePerSession : true,
     sourceSessionAllocations: {},
   };
 }

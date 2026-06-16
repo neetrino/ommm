@@ -10,6 +10,7 @@ export type PackageTableDisplayRow = Pick<
   AdminPackageRow,
   | "priceCents"
   | "pricePerSessionCents"
+  | "showPricePerSession"
   | "periodDays"
   | "sessionsPerMonth"
   | "isUnlimited"
@@ -37,6 +38,9 @@ export function formatPackageValidityLabel(
 /** Session count for the packages table; null when unset. */
 export function formatPackageSessionsLabel(pkg: PackageTableDisplayRow): number | null {
   if (pkg.isUnlimited) {
+    return null;
+  }
+  if (pkg.showPricePerSession === false) {
     return null;
   }
   const sessions = pkg.sessionsPerMonth;
