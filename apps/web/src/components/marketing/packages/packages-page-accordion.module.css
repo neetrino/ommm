@@ -13,6 +13,16 @@
   gap: var(--packages-page-accordion-gap);
 }
 
+.accordionRowCentered {
+  width: calc(
+    (
+        (100% - (var(--packages-page-desktop-cards-per-row) - 1) * var(--packages-page-accordion-gap))
+        / var(--packages-page-desktop-cards-per-row)
+      ) * 2 + var(--packages-page-accordion-gap)
+  );
+  margin-inline: auto;
+}
+
 .accordionRows {
   display: flex;
   flex-direction: column;

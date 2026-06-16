@@ -135,6 +135,13 @@ function layoutStyleVars(): CSSProperties {
   };
 }
 
+function rowLayoutStyleVars(cardsPerRow: number): CSSProperties {
+  return {
+    ...layoutStyleVars(),
+    ["--packages-page-desktop-cards-per-row" as string]: String(cardsPerRow),
+  };
+}
+
 function mobilePanelStyleVars(gradientStartColor: string): CSSProperties {
   const mobile = PACKAGES_PAGE_MOBILE_FIGMA;
 
@@ -683,12 +690,17 @@ export function PackagesPageAccordion({
           const rowExpandedCategory =
             row.find((category) => category.id === expandedCategory?.id) ?? null;
           const isRowAccordionMode = rowExpandedCategory !== null;
+          const isIncompleteRow = row.length < normalizedDesktopCardsPerRow;
+          const rowClassName =
+            isIncompleteRow && !isRowAccordionMode
+              ? `${accordionStyles.accordionRow} ${accordionStyles.accordionRowCentered}`
+              : accordionStyles.accordionRow;
 
           return (
             <div
               key={`row-${rowIndex}`}
-              className={accordionStyles.accordionRow}
-              style={layoutStyleVars()}
+              className={rowClassName}
+              style={rowLayoutStyleVars(normalizedDesktopCardsPerRow)}
             >
               {row.map((category, indexInRow) => (
               <PackagesPageReveal
@@ -713,17 +725,6 @@ export function PackagesPageAccordion({
                   onClose={() => updateExpandedCategory(null)}
                 />
               </PackagesPageReveal>
-              ))}
-              {Array.from({
-                length: Math.max(0, normalizedDesktopCardsPerRow - row.length),
-              }).map((_, placeholderIndex) => (
-                <div
-                  key={`placeholder-${rowIndex}-${placeholderIndex}`}
-                  className={`${resolveAccordionSlotClass(isRowAccordionMode, false)} ${accordionStyles.accordionSlotPlaceholder}`}
-                  aria-hidden
-                >
-                  <div className={accordionStyles.slotContent} />
-                </div>
               ))}
             </div>
           );
