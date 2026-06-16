@@ -6,6 +6,7 @@ import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
+import { pickDefaultBookingPackageId } from "@/lib/booking-package-selection";
 
 export type EligibleBookingPackage = {
   userPackageId: string;
@@ -16,6 +17,7 @@ export type EligibleBookingPackage = {
   totalSessions: number | null;
   usedSessions: number | null;
   isUnlimited: boolean;
+  canBook: boolean;
   currentPeriodStart: string;
   currentPeriodEnd: string;
   includedCategories: string[];
@@ -63,7 +65,7 @@ export function BookingPackageSelectModal({
   const t = useTranslations("forms.bookSession");
   const titleId = useId();
   const [selectedId, setSelectedId] = useState<string>(
-    eligiblePackages[0]?.userPackageId ?? "",
+    pickDefaultBookingPackageId(eligiblePackages),
   );
   const [busy, setBusy] = useState(false);
   const duplicatePlanSuffixes = useMemo(
@@ -77,15 +79,21 @@ export function BookingPackageSelectModal({
       return;
     }
     setSelectedId((current) => {
-      if (eligiblePackages.some((pkg) => pkg.userPackageId === current)) {
+      const currentPkg = eligiblePackages.find(
+        (pkg) => pkg.userPackageId === current,
+      );
+      if (currentPkg?.canBook) {
         return current;
       }
-      return eligiblePackages[0]?.userPackageId ?? "";
+      return pickDefaultBookingPackageId(eligiblePackages);
     });
   }, [eligiblePackages]);
 
   async function confirmSelection() {
-    if (!selectedId || busy) {
+    const selected = eligiblePackages.find(
+      (pkg) => pkg.userPackageId === selectedId,
+    );
+    if (!selectedId || !selected?.canBook || busy) {
       return;
     }
     setBusy(true);
@@ -126,6 +134,7 @@ export function BookingPackageSelectModal({
           <ul className="flex flex-col gap-3">
             {eligiblePackages.map((pkg) => {
               const isSelected = pkg.userPackageId === selectedId;
+              const isDisabled = busy || !pkg.canBook;
               const duplicateSuffix = duplicatePlanSuffixes.get(pkg.userPackageId);
               const displayPlanName =
                 duplicateSuffix !== undefined
@@ -140,9 +149,11 @@ export function BookingPackageSelectModal({
                   : t("packageTypeSingle");
               const visitsLabel = pkg.isUnlimited
                 ? t("packageUnlimitedVisits")
-                : t("packageRemainingVisits", {
-                    count: pkg.remainingSessions ?? 0,
-                  });
+                : pkg.canBook
+                  ? t("packageRemainingVisits", {
+                      count: pkg.remainingSessions ?? 0,
+                    })
+                  : t("packageNoVisitsLeft");
               const periodStartLabel = formatExpiryLabel(
                 locale,
                 pkg.currentPeriodStart,
@@ -159,12 +170,20 @@ export function BookingPackageSelectModal({
                   <button
                     type="button"
                     className={`w-full rounded-2xl border p-4 text-left transition-colors ${
-                      isSelected
-                        ? "border-sand-500/50 bg-sand-50/80 shadow-sm"
-                        : "border-white/70 bg-white/80 hover:border-sand-200 hover:bg-white"
+                      isDisabled
+                        ? "cursor-not-allowed border-white/60 bg-white/50 opacity-70"
+                        : isSelected
+                          ? "border-sand-500/50 bg-sand-50/80 shadow-sm"
+                          : "border-white/70 bg-white/80 hover:border-sand-200 hover:bg-white"
                     }`}
-                    onClick={() => setSelectedId(pkg.userPackageId)}
-                    disabled={busy}
+                    onClick={() => {
+                      if (!pkg.canBook) {
+                        return;
+                      }
+                      setSelectedId(pkg.userPackageId);
+                    }}
+                    disabled={isDisabled}
+                    aria-disabled={!pkg.canBook}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -208,7 +227,13 @@ export function BookingPackageSelectModal({
             type="button"
             variant="primary"
             size="md"
-            disabled={busy || selectedId.length === 0}
+            disabled={
+              busy ||
+              selectedId.length === 0 ||
+              !eligiblePackages.some(
+                (pkg) => pkg.userPackageId === selectedId && pkg.canBook,
+              )
+            }
             onClick={() => void confirmSelection()}
           >
             {busy ? t("packageModalConfirming") : t("packageModalConfirm")}

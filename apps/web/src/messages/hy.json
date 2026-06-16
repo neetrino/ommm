@@ -3630,6 +3630,7 @@
       "packageTypeSingle": "Մեկ փաթեթ",
       "packageTypeCombined": "Կապակցված փաթեթ",
       "packageRemainingVisits": "{count} այց մնաց",
+      "packageNoVisitsLeft": "Այցեր չեն մնացել",
       "packageUnlimitedVisits": "Անսահմանափակ այցեր",
       "packageExpires": "Վավեր է մինչև {date}",
       "packageValidPeriod": "Վավեր է {start}-ից մինչև {end}",

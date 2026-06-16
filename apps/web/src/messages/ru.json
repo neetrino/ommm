@@ -3631,6 +3631,7 @@
       "packageTypeSingle": "Один пакет",
       "packageTypeCombined": "Комбинированный пакет",
       "packageRemainingVisits": "Осталось посещений: {count}",
+      "packageNoVisitsLeft": "Посещения закончились",
       "packageUnlimitedVisits": "Безлимитные посещения",
       "packageExpires": "Действует до {date}",
       "packageValidPeriod": "Действует с {start} по {end}",

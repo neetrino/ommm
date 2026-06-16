@@ -40,7 +40,59 @@ describe('package-eligibility.util', () => {
       categoryName: 'Dance + Mat Pilates',
       allowedCategoryNames: ['Dance', 'Mat Pilates'],
     });
-    expect(categories).toEqual(['Dance', 'Mat Pilates']);
+    expect(categories).toEqual(['Dance', 'Mat Pilates', 'Dance + Mat Pilates']);
+  });
+
+  it('includes combined category label for eligibility against synced class types', () => {
+    const combinedPlan = {
+      planType: PackagePlanType.COMBINED,
+      categoryName: 'Daaaaanccceeee + Dances',
+      allowedCategoryNames: ['Daaaaanccceeee', 'Dance'],
+    };
+    const combinedClassType = {
+      id: 'ct-combined',
+      name: 'Daaaaanccceeee + Dances',
+      slug: 'daaaaanccceeee-dances',
+    };
+    expect(resolvePlanAllowedCategories(combinedPlan)).toEqual([
+      'Daaaaanccceeee',
+      'Dance',
+      'Daaaaanccceeee + Dances',
+    ]);
+    expect(isPlanEligibleForClassType(combinedPlan, combinedClassType)).toBe(
+      true,
+    );
+  });
+
+  it('matches component class types for combined plan source categories', () => {
+    const combinedPlan = {
+      planType: PackagePlanType.COMBINED,
+      categoryName: 'Daaaaanccceeee + Dances',
+      allowedCategoryNames: ['Daaaaanccceeee', 'Dance'],
+    };
+    const componentClassType = {
+      id: 'ct-component',
+      name: 'Daaaaanccceeee',
+      slug: 'daaaaanccceeee',
+    };
+    expect(isPlanEligibleForClassType(combinedPlan, componentClassType)).toBe(
+      true,
+    );
+  });
+
+  it('allows single plans on combined-named class types when a component matches', () => {
+    const singlePlan = {
+      planType: PackagePlanType.SINGLE,
+      categoryName: 'Daaaaanccceeee',
+      allowedCategoryNames: ['Daaaaanccceeee'],
+    };
+    const combinedClassType = {
+      id: 'ct-combined',
+      name: 'Daaaaanccceeee + Dances',
+      slug: 'daaaaanccceeee-dances',
+    };
+    expect(isPlanEligibleForClassType(singlePlan, combinedClassType)).toBe(true);
+    expect(isPlanEligibleForClassType(singlePlan, danceClassType)).toBe(false);
   });
 
   it('checks combined plan eligibility across union categories', () => {

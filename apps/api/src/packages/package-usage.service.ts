@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PackageStatus, Prisma, type UserPackage } from '@prisma/client';
+import { BookingStatus, PackageStatus, Prisma, type UserPackage } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   isPlanEligibleForClassType,
@@ -271,5 +271,45 @@ export class PackageUsageService {
       },
       data: { status: PackageStatus.EXPIRED },
     });
+    await this.reconcileSessionsRemaining(userId);
+  }
+
+  /**
+   * Keeps `sessionsRemaining` aligned with active BOOKED rows per package.
+   * Heals drift when consume/restore and booking state diverge.
+   */
+  async reconcileSessionsRemaining(userId?: string): Promise<void> {
+    const packages = await this.prisma.userPackage.findMany({
+      where: {
+        ...(userId ? { userId } : {}),
+        status: PackageStatus.ACTIVE,
+        plan: { isUnlimited: false },
+      },
+      include: { plan: { select: { isUnlimited: true, sessionsPerMonth: true } } },
+    });
+
+    for (const pkg of packages) {
+      const total = pkg.sessionsTotal ?? pkg.plan.sessionsPerMonth ?? 0;
+      if (total <= 0) {
+        continue;
+      }
+
+      const bookedCount = await this.prisma.booking.count({
+        where: {
+          userPackageId: pkg.id,
+          status: BookingStatus.BOOKED,
+        },
+      });
+
+      const expectedRemaining = Math.max(0, total - bookedCount);
+      if (pkg.sessionsRemaining === expectedRemaining) {
+        continue;
+      }
+
+      await this.prisma.userPackage.update({
+        where: { id: pkg.id },
+        data: { sessionsRemaining: expectedRemaining },
+      });
+    }
   }
 }

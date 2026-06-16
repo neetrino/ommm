@@ -124,14 +124,16 @@ export class BookingsService {
 
     await this.packageUsage.syncExpiredMemberships(userId);
 
-    const eligible = await this.packageUsage.listEligibleUserPackages(
+    const covering = await this.packageUsage.listCoveringUserPackages(
       this.prisma,
       userId,
       session.classType,
     );
 
-    return eligible.map((pkg) => {
+    return covering.map((pkg) => {
       const usage = this.packageUsage.computeUsageStats(pkg);
+      const canBook =
+        pkg.plan.isUnlimited || (pkg.sessionsRemaining ?? 0) > 0;
       return {
         userPackageId: pkg.id,
         planId: pkg.planId,
@@ -141,6 +143,7 @@ export class BookingsService {
         totalSessions: usage.totalSessions,
         usedSessions: usage.usedSessions,
         isUnlimited: usage.isUnlimited,
+        canBook,
         currentPeriodStart: pkg.currentPeriodStart,
         currentPeriodEnd: pkg.currentPeriodEnd,
         includedCategories: resolvePlanAllowedCategories(pkg.plan),

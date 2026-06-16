@@ -14,6 +14,10 @@ import {
 } from "@/lib/book-package-session-url";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import {
+  resolveAutoBookPackageId,
+  shouldPromptBookingPackageSelection,
+} from "@/lib/booking-package-selection";
 
 type BookSessionResponse = {
   id: string;
@@ -100,12 +104,17 @@ export function useSessionBooking({
     }
     setBusy(true);
     try {
-      const eligible = await fetchEligiblePackages();
-      if (eligible.length > 1) {
-        openPackageModal(eligible);
+      const packages = await fetchEligiblePackages();
+      if (shouldPromptBookingPackageSelection(packages)) {
+        openPackageModal(packages);
         return;
       }
-      await bookWithOptionalPackage(eligible[0]?.userPackageId);
+      const autoPackageId = resolveAutoBookPackageId(packages);
+      if (autoPackageId === undefined) {
+        onErrorRef.current?.(t("packageNoVisitsLeft"));
+        return;
+      }
+      await bookWithOptionalPackage(autoPackageId);
     } catch (error) {
       const message = error instanceof ApiError ? error.message : t("bookFailed");
       onErrorRef.current?.(message);
@@ -128,12 +137,12 @@ export function useSessionBooking({
     async function restorePackageModal(): Promise<void> {
       setBusy(true);
       try {
-        const eligible = await fetchEligiblePackages();
+        const packages = await fetchEligiblePackages();
         if (cancelled) {
           return;
         }
-        if (eligible.length > 1) {
-          setEligiblePackages(eligible);
+        if (shouldPromptBookingPackageSelection(packages)) {
+          setEligiblePackages(packages);
           setPackageModalOpen(true);
           return;
         }

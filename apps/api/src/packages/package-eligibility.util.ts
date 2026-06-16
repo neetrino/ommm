@@ -25,6 +25,54 @@ function isSingularPluralSlugPair(left: string, right: string): boolean {
   return left === `${right}s` || right === `${left}s`;
 }
 
+const COMBINED_CLASS_NAME_SEPARATOR = ' + ';
+
+/** Splits a combined class type label into its source category labels. */
+export function resolveClassTypeComponentLabels(
+  classType: PackageClassTypeRef,
+): string[] {
+  const normalized = normalizePackageCategoryLabel(classType.name);
+  if (!normalized.includes(COMBINED_CLASS_NAME_SEPARATOR)) {
+    return [normalized].filter((label) => label.length > 0);
+  }
+  return dedupeCategoryNames(
+    normalized.split(COMBINED_CLASS_NAME_SEPARATOR),
+  );
+}
+
+function packageCategoryLabelsMatch(left: string, right: string): boolean {
+  const normalizedLeft = normalizePackageCategoryLabel(left);
+  const normalizedRight = normalizePackageCategoryLabel(right);
+  if (
+    packageCategoryComparisonKey(normalizedLeft) ===
+    packageCategoryComparisonKey(normalizedRight)
+  ) {
+    return true;
+  }
+  const leftSlug = buildClassTypeSlugFromPackageCategory(normalizedLeft);
+  const rightSlug = buildClassTypeSlugFromPackageCategory(normalizedRight);
+  if (leftSlug.length === 0 || rightSlug.length === 0) {
+    return false;
+  }
+  return (
+    leftSlug === rightSlug ||
+    isSingularPluralSlugPair(leftSlug, rightSlug)
+  );
+}
+
+function planCategoryMatchesCombinedClassComponent(
+  categoryName: string,
+  classType: PackageClassTypeRef,
+): boolean {
+  const classComponents = resolveClassTypeComponentLabels(classType);
+  if (classComponents.length <= 1) {
+    return false;
+  }
+  return classComponents.some((component) =>
+    packageCategoryLabelsMatch(categoryName, component),
+  );
+}
+
 /** Whether a session class type is covered by a package category label. */
 export function classTypeMatchesPackageCategory(
   categoryName: string,
@@ -52,13 +100,15 @@ export function classTypeMatchesPackageCategory(
 export function resolvePlanAllowedCategories(
   plan: PackagePlanEligibilityRef,
 ): string[] {
-  if (
-    plan.planType === PackagePlanType.COMBINED &&
-    plan.allowedCategoryNames.length > 0
-  ) {
-    return plan.allowedCategoryNames.map(normalizePackageCategoryLabel).filter(
-      (label) => label.length > 0,
-    );
+  if (plan.planType === PackagePlanType.COMBINED) {
+    const componentLabels = plan.allowedCategoryNames
+      .map(normalizePackageCategoryLabel)
+      .filter((label) => label.length > 0);
+    const combinedLabel = normalizePackageCategoryLabel(plan.categoryName);
+    if (combinedLabel.length === 0) {
+      return dedupeCategoryNames(componentLabels);
+    }
+    return dedupeCategoryNames([...componentLabels, combinedLabel]);
   }
   const single = normalizePackageCategoryLabel(plan.categoryName);
   return single.length > 0 ? [single] : [];
@@ -69,9 +119,12 @@ export function isPlanEligibleForClassType(
   classType: PackageClassTypeRef,
 ): boolean {
   const categories = resolvePlanAllowedCategories(plan);
-  return categories.some((category) =>
-    classTypeMatchesPackageCategory(category, classType),
-  );
+  return categories.some((category) => {
+    if (classTypeMatchesPackageCategory(category, classType)) {
+      return true;
+    }
+    return planCategoryMatchesCombinedClassComponent(category, classType);
+  });
 }
 
 export function buildCombinedPackageName(sourceNames: readonly string[]): string {

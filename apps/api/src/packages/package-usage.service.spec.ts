@@ -183,4 +183,33 @@ describe('PackageUsageService', () => {
       ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
+
+  describe('reconcileSessionsRemaining', () => {
+    it('aligns remaining sessions with active booked rows', async () => {
+      const update = jest.fn();
+      const service = new PackageUsageService({
+        userPackage: {
+          findMany: jest.fn().mockResolvedValue([
+            {
+              id: 'pkg-combined',
+              sessionsTotal: 4,
+              sessionsRemaining: 0,
+              plan: { isUnlimited: false, sessionsPerMonth: 4 },
+            },
+          ]),
+          update,
+        },
+        booking: {
+          count: jest.fn().mockResolvedValue(1),
+        },
+      } as never);
+
+      await service.reconcileSessionsRemaining('user-1');
+
+      expect(update).toHaveBeenCalledWith({
+        where: { id: 'pkg-combined' },
+        data: { sessionsRemaining: 3 },
+      });
+    });
+  });
 });

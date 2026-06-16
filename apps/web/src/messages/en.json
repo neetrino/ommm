@@ -3683,6 +3683,7 @@
       "packageTypeSingle": "Single package",
       "packageTypeCombined": "Combined package",
       "packageRemainingVisits": "{count} visits remaining",
+      "packageNoVisitsLeft": "No visits left",
       "packageUnlimitedVisits": "Unlimited visits",
       "packageExpires": "Valid until {date}",
       "packageValidPeriod": "Valid {start} – {end}",
