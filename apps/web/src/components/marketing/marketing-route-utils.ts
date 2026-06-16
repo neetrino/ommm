@@ -43,6 +43,8 @@ export function isMarketingSchedulePath(pathname: string): boolean {
 /** Public membership/packages pages — scroll-reveal cards + footer. */
 export function isMarketingMembershipPath(pathname: string): boolean {
   return (
+    pathname === "/package" ||
+    pathname.startsWith("/package/") ||
     pathname === "/membership" ||
     pathname.startsWith("/membership/") ||
     pathname === "/memberships" ||

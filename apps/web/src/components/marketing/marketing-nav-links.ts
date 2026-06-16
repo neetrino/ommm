@@ -7,7 +7,7 @@ export const MARKETING_NAV_LINKS = [
   { href: "/", key: "home" },
   { href: "/story", key: "story" },
   { href: "/schedule", key: "schedule" },
-  { href: "/membership", key: "memberships" },
+  { href: "/package", key: "memberships" },
   { href: "/coaches", key: "coaches" },
   { href: "/explore", key: "explore" },
   { href: "/contact", key: "contact" },

@@ -130,7 +130,17 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/:locale/memberships",
-        destination: "/:locale/membership",
+        destination: "/:locale/package",
+        permanent: false,
+      },
+      {
+        source: "/:locale/membership",
+        destination: "/:locale/package",
+        permanent: false,
+      },
+      {
+        source: "/:locale/packages",
+        destination: "/:locale/package",
         permanent: false,
       },
       {
