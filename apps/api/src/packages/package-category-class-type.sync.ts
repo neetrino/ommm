@@ -44,7 +44,10 @@ export function buildClassTypeSlugFromPackageCategory(
   categoryName: string,
 ): string {
   const normalized = trimHyphenEdges(
-    categoryName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-'),
+    categoryName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-'),
   );
   return normalized
     .split('-')

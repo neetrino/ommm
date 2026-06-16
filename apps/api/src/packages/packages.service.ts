@@ -1105,7 +1105,10 @@ export class PackagesService {
   private resolveSlug(name: string, rawSlug?: string): string {
     const source = rawSlug?.trim().length ? rawSlug : name;
     const slug = trimHyphenEdges(
-      source.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-'),
+      source
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-'),
     );
     if (slug.length === 0) {
       throw new BadRequestException('Slug is required');
@@ -1482,7 +1485,6 @@ export class PackagesService {
     return this.withMarketingDefaults({ ...plan, guestCount });
   }
 
-
   private async createPlanLegacy(
     dto: CreatePlanDto,
     slug: string,
@@ -1645,7 +1647,6 @@ export class PackagesService {
           : true,
     };
   }
-
 
   private createPaymentReference(prefix: string): string {
     return `${prefix}-${randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
