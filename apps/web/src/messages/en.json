@@ -3692,8 +3692,9 @@
       "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Includes: {categories}",
       "packageSelectedBadge": "Selected",
-      "purchaseNoticeMissing": "We'd love to see you in this class! You don't have a matching package yet, but you're just one step away — pick the option that suits you below and your spot is reserved instantly.",
-      "purchaseNoticeDepleted": "So glad you're keeping up your practice! Your package is out of visits for this class — choose a new one below and pick up right where you left off.",
+      "purchaseNoticeMissing": "Dear {firstName}, you don't have an active package for this class yet. Please select one of the packages below and complete your payment to reserve your spot. We would be delighted to welcome you to this group and look forward to seeing you in class!",
+      "purchaseNoticeDepleted": "Dear {firstName}, your package has no visits left for this class. Please choose one of the packages below and complete your payment to keep your spot. We'd be delighted to see you in class again!",
+      "purchaseNoticeFallbackName": "friend",
       "packageNoPurchasePlans": "No packages are available for this class right now."
     },
     "joinWaitlist": {

@@ -26,6 +26,7 @@ import {
   shouldPromptBookingPackageSelection,
 } from "@/lib/booking-package-selection";
 import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
+import type { MeApiResponse } from "@/lib/me-api-types";
 
 type BookSessionResponse = {
   id: string;
@@ -114,6 +115,15 @@ export function useSessionBooking({
     );
   }
 
+  async function fetchFirstName(): Promise<string> {
+    try {
+      const me = await apiFetch<MeApiResponse>("/users/me");
+      return me.user?.name?.trim() ?? "";
+    } catch {
+      return "";
+    }
+  }
+
   async function openPurchaseModal(
     packages: readonly EligibleBookingPackage[],
     options: { fromUrl?: boolean } = {},
@@ -128,10 +138,12 @@ export function useSessionBooking({
     }
     const suggested =
       packages.find((pkg) => !pkg.canBook)?.planId ?? plans[0]?.id;
+    const firstName =
+      (await fetchFirstName()) || t("purchaseNoticeFallbackName");
     const notice =
       packages.length === 0
-        ? t("purchaseNoticeMissing")
-        : t("purchaseNoticeDepleted");
+        ? t("purchaseNoticeMissing", { firstName })
+        : t("purchaseNoticeDepleted", { firstName });
     setPurchaseNotice(notice);
     setPurchasePlans(plans);
     setSuggestedPlanId(suggested);
