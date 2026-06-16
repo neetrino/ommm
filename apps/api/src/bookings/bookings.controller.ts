@@ -36,6 +36,12 @@ export class BookingsController {
     return this.bookings.listEligiblePackagesForSession(user.id, sessionId);
   }
 
+  @Get('sessions/:sessionId/purchase-plans')
+  @UseGuards(JwtAuthGuard)
+  listPurchasePlans(@Param('sessionId') sessionId: string) {
+    return this.bookings.listPurchasePlansForSession(sessionId);
+  }
+
   @Post('sessions/:sessionId')
   @UseGuards(JwtAuthGuard)
   book(

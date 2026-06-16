@@ -8,6 +8,9 @@ import {
   type EligibleBookingPackage,
 } from "@/components/account/booking-package-select-modal";
 import {
+  BookingPackagePurchaseModal,
+} from "@/components/account/booking-package-purchase-modal";
+import {
   clearBookPackageSessionQuery,
   readBookPackageSessionId,
   setBookPackageSessionQuery,
@@ -15,9 +18,11 @@ import {
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
+  hasBookablePackage,
   resolveAutoBookPackageId,
   shouldPromptBookingPackageSelection,
 } from "@/lib/booking-package-selection";
+import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
 
 type BookSessionResponse = {
   id: string;
@@ -48,6 +53,11 @@ export function useSessionBooking({
 
   const [busy, setBusy] = useState(false);
   const [packageModalOpen, setPackageModalOpen] = useState(false);
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+  const [purchasePlans, setPurchasePlans] = useState<
+    readonly PackageSubscribePlanOption[]
+  >([]);
+  const [suggestedPlanId, setSuggestedPlanId] = useState<string | undefined>();
   const [eligiblePackages, setEligiblePackages] = useState<
     readonly EligibleBookingPackage[]
   >([]);
@@ -79,10 +89,35 @@ export function useSessionBooking({
     }
   }
 
+  function closePurchaseModal(): void {
+    setPurchaseModalOpen(false);
+  }
+
   async function fetchEligiblePackages(): Promise<EligibleBookingPackage[]> {
     return apiFetch<EligibleBookingPackage[]>(
       `/bookings/sessions/${sessionId}/eligible-packages`,
     );
+  }
+
+  async function fetchPurchasePlans(): Promise<PackageSubscribePlanOption[]> {
+    return apiFetch<PackageSubscribePlanOption[]>(
+      `/bookings/sessions/${sessionId}/purchase-plans`,
+    );
+  }
+
+  async function openPurchaseModal(
+    packages: readonly EligibleBookingPackage[],
+  ): Promise<void> {
+    const plans = await fetchPurchasePlans();
+    if (plans.length === 0) {
+      onErrorRef.current?.(t("packageNoPurchasePlans"));
+      return;
+    }
+    const suggested =
+      packages.find((pkg) => !pkg.canBook)?.planId ?? plans[0]?.id;
+    setPurchasePlans(plans);
+    setSuggestedPlanId(suggested);
+    setPurchaseModalOpen(true);
   }
 
   async function bookWithOptionalPackage(userPackageId?: string): Promise<void> {
@@ -109,9 +144,13 @@ export function useSessionBooking({
         openPackageModal(packages);
         return;
       }
+      if (!hasBookablePackage(packages)) {
+        await openPurchaseModal(packages);
+        return;
+      }
       const autoPackageId = resolveAutoBookPackageId(packages);
       if (autoPackageId === undefined) {
-        onErrorRef.current?.(t("packageNoVisitsLeft"));
+        await openPurchaseModal(packages);
         return;
       }
       await bookWithOptionalPackage(autoPackageId);
@@ -144,6 +183,11 @@ export function useSessionBooking({
         if (shouldPromptBookingPackageSelection(packages)) {
           setEligiblePackages(packages);
           setPackageModalOpen(true);
+          return;
+        }
+        if (!hasBookablePackage(packages)) {
+          await openPurchaseModal(packages);
+          replaceSearchParams(clearBookPackageSessionQuery);
           return;
         }
         replaceSearchParams(clearBookPackageSessionQuery);
@@ -185,9 +229,28 @@ export function useSessionBooking({
       />
     ) : null;
 
+  const purchaseModal = purchaseModalOpen ? (
+    <BookingPackagePurchaseModal
+      isOpen={purchaseModalOpen}
+      locale={locale}
+      plans={purchasePlans}
+      initialPlanId={suggestedPlanId}
+      onClose={closePurchaseModal}
+    />
+  ) : null;
+
+  const bookingModals = (
+    <>
+      {packageModal}
+      {purchaseModal}
+    </>
+  );
+
   return {
     busy,
     initiateBooking,
-    packageModal,
+    packageModal: bookingModals,
+    purchaseModal,
+    bookingModals,
   };
 }

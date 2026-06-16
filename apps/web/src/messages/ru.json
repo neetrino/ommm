@@ -3639,7 +3639,15 @@
       "packageNoStartDate": "Без даты начала",
       "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Включает: {categories}",
-      "packageSelectedBadge": "Выбран"
+      "packageSelectedBadge": "Выбран",
+      "purchaseModalMissingTitle": "У вас нет пакета для этого занятия",
+      "purchaseModalMissingDescription": "Купите пакет, чтобы записаться на это занятие. Оплату можно оформить сразу.",
+      "purchaseModalDepletedTitle": "В пакете не осталось посещений",
+      "purchaseModalDepletedDescription": "В вашем текущем пакете не осталось посещений для этого занятия. Купите новый пакет, чтобы продолжить запись.",
+      "purchaseModalBuy": "Купить пакет",
+      "purchaseModalCancel": "Не сейчас",
+      "purchaseModalClose": "Закрыть",
+      "packageNoPurchasePlans": "Для этого занятия сейчас нет доступных пакетов."
     },
     "joinWaitlist": {
       "action": "В лист ожидания",

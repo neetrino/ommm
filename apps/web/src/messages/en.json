@@ -3691,7 +3691,15 @@
       "packageNoStartDate": "No start date",
       "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Includes: {categories}",
-      "packageSelectedBadge": "Selected"
+      "packageSelectedBadge": "Selected",
+      "purchaseModalMissingTitle": "You don't have a package for this class",
+      "purchaseModalMissingDescription": "Purchase a package to book this session. You can complete payment right away.",
+      "purchaseModalDepletedTitle": "No visits left on your package",
+      "purchaseModalDepletedDescription": "Your current package has no remaining visits for this class. Purchase a new package to continue booking.",
+      "purchaseModalBuy": "Buy package",
+      "purchaseModalCancel": "Not now",
+      "purchaseModalClose": "Close",
+      "packageNoPurchasePlans": "No packages are available for this class right now."
     },
     "joinWaitlist": {
       "action": "Join waitlist",

@@ -23,7 +23,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { PackageUsageService } from '../packages/package-usage.service';
-import { resolvePlanAllowedCategories } from '../packages/package-eligibility.util';
+import {
+  isPlanEligibleForClassType,
+  resolvePlanAllowedCategories,
+} from '../packages/package-eligibility.util';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
@@ -149,6 +152,46 @@ export class BookingsService {
         includedCategories: resolvePlanAllowedCategories(pkg.plan),
       };
     });
+  }
+
+  async listPurchasePlansForSession(sessionId: string) {
+    const session = await this.prisma.classSession.findUnique({
+      where: { id: sessionId },
+      include: { classType: { select: { id: true, name: true, slug: true } } },
+    });
+    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+      throw new NotFoundException('Session not found');
+    }
+    if (session.startsAt < new Date()) {
+      throw new BadRequestException('Session already started');
+    }
+
+    const plans = await this.prisma.packagePlan.findMany({
+      where: { isActive: true },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+      select: {
+        id: true,
+        name: true,
+        planType: true,
+        categoryName: true,
+        allowedCategoryNames: true,
+        priceCents: true,
+        periodDays: true,
+        isUnlimited: true,
+        sessionsPerMonth: true,
+      },
+    });
+
+    return plans
+      .filter((plan) => isPlanEligibleForClassType(plan, session.classType))
+      .map((plan) => ({
+        id: plan.id,
+        name: plan.name,
+        priceCents: plan.priceCents,
+        periodDays: plan.periodDays,
+        isUnlimited: plan.isUnlimited,
+        sessionsPerMonth: plan.sessionsPerMonth,
+      }));
   }
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
