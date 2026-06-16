@@ -3,7 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { BookingStatus, PackageStatus, Prisma, type UserPackage } from '@prisma/client';
+import {
+  BookingStatus,
+  PackageStatus,
+  Prisma,
+  type UserPackage,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   isPlanEligibleForClassType,
@@ -285,7 +290,9 @@ export class PackageUsageService {
         status: PackageStatus.ACTIVE,
         plan: { isUnlimited: false },
       },
-      include: { plan: { select: { isUnlimited: true, sessionsPerMonth: true } } },
+      include: {
+        plan: { select: { isUnlimited: true, sessionsPerMonth: true } },
+      },
     });
 
     for (const pkg of packages) {

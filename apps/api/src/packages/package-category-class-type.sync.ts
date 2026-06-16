@@ -121,8 +121,7 @@ async function findClassTypeForCategoryLabel(
   }
 
   const slugMatches = allTypes.filter(
-    (row) =>
-      row.slug === slug || isSingularPluralSlugPair(row.slug, slug),
+    (row) => row.slug === slug || isSingularPluralSlugPair(row.slug, slug),
   );
   if (slugMatches.length === 1) {
     return slugMatches[0];

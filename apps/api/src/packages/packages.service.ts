@@ -402,7 +402,10 @@ export class PackagesService {
     } else if (dto.sessionsPerMonth !== undefined) {
       Object.assign(data, { sessionsPerMonth: dto.sessionsPerMonth });
     }
-    if (Object.keys(data).length === 0 && dto.sourceSessionAllocations === undefined) {
+    if (
+      Object.keys(data).length === 0 &&
+      dto.sourceSessionAllocations === undefined
+    ) {
       throw new BadRequestException('No updatable fields were provided');
     }
     if (
@@ -678,7 +681,9 @@ export class PackagesService {
         where: { id: { in: ids } },
         select: { categoryName: true },
       });
-      const removedCategoryNames = plansToDelete.map((plan) => plan.categoryName);
+      const removedCategoryNames = plansToDelete.map(
+        (plan) => plan.categoryName,
+      );
 
       const blockingCount = await tx.userPackage.count({
         where: {

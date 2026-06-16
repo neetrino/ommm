@@ -16,10 +16,7 @@ import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { normalizeAppUiLocale } from '../common/app-ui-locales';
-import {
-  isValidPhoneNumber,
-  normalizePhoneForStorage,
-} from '../common/phone';
+import { isValidPhoneNumber, normalizePhoneForStorage } from '../common/phone';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 

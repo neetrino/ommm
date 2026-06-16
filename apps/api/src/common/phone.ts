@@ -51,7 +51,9 @@ export function isArmenianPhoneCandidate(value: string): boolean {
 }
 
 /** Formats a phone number for display. Armenian numbers use +374 XX XXXXXX. */
-export function formatPhoneForDisplay(value: string | null | undefined): string {
+export function formatPhoneForDisplay(
+  value: string | null | undefined,
+): string {
   if (value === null || value === undefined) {
     return '';
   }

@@ -23,15 +23,13 @@ describe('package-eligibility.util', () => {
   };
 
   it('matches class type by category label', () => {
-    expect(
-      classTypeMatchesPackageCategory('Dance', danceClassType),
-    ).toBe(true);
+    expect(classTypeMatchesPackageCategory('Dance', danceClassType)).toBe(true);
     expect(
       classTypeMatchesPackageCategory('Mat Pilates', pilatesClassType),
     ).toBe(true);
-    expect(
-      classTypeMatchesPackageCategory('Dance', pilatesClassType),
-    ).toBe(false);
+    expect(classTypeMatchesPackageCategory('Dance', pilatesClassType)).toBe(
+      false,
+    );
   });
 
   it('resolves allowed categories for combined plans', () => {
@@ -91,7 +89,9 @@ describe('package-eligibility.util', () => {
       name: 'Daaaaanccceeee + Dances',
       slug: 'daaaaanccceeee-dances',
     };
-    expect(isPlanEligibleForClassType(singlePlan, combinedClassType)).toBe(true);
+    expect(isPlanEligibleForClassType(singlePlan, combinedClassType)).toBe(
+      true,
+    );
     expect(isPlanEligibleForClassType(singlePlan, danceClassType)).toBe(false);
   });
 

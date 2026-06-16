@@ -29,7 +29,9 @@ export function validateCombinedSessionAllocations(
   let sum = 0;
   for (const allocation of allocations) {
     if (!componentIds.has(allocation.componentId)) {
-      throw new BadRequestException('Invalid combined package source allocation.');
+      throw new BadRequestException(
+        'Invalid combined package source allocation.',
+      );
     }
     sum += allocation.sessionCount;
   }

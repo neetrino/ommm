@@ -35,9 +35,7 @@ export function resolveClassTypeComponentLabels(
   if (!normalized.includes(COMBINED_CLASS_NAME_SEPARATOR)) {
     return [normalized].filter((label) => label.length > 0);
   }
-  return dedupeCategoryNames(
-    normalized.split(COMBINED_CLASS_NAME_SEPARATOR),
-  );
+  return dedupeCategoryNames(normalized.split(COMBINED_CLASS_NAME_SEPARATOR));
 }
 
 function packageCategoryLabelsMatch(left: string, right: string): boolean {
@@ -55,8 +53,7 @@ function packageCategoryLabelsMatch(left: string, right: string): boolean {
     return false;
   }
   return (
-    leftSlug === rightSlug ||
-    isSingularPluralSlugPair(leftSlug, rightSlug)
+    leftSlug === rightSlug || isSingularPluralSlugPair(leftSlug, rightSlug)
   );
 }
 
@@ -127,8 +124,13 @@ export function isPlanEligibleForClassType(
   });
 }
 
-export function buildCombinedPackageName(sourceNames: readonly string[]): string {
-  return sourceNames.map((name) => name.trim()).filter(Boolean).join(' + ');
+export function buildCombinedPackageName(
+  sourceNames: readonly string[],
+): string {
+  return sourceNames
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .join(' + ');
 }
 
 export function dedupeCategoryNames(categories: readonly string[]): string[] {

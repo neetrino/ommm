@@ -22,7 +22,10 @@ import {
   PUBLIC_SCHEDULE_SESSION_INCLUDE,
   type PublicScheduleItem,
 } from './map-sessions-to-public-schedule-items';
-import { resolvePublicScheduleRange, publicScheduleCacheDayKey } from './public-schedule-range';
+import {
+  resolvePublicScheduleRange,
+  publicScheduleCacheDayKey,
+} from './public-schedule-range';
 
 const DAY_ORDER: Record<ScheduleDayOfWeek, number> = {
   SUNDAY: 0,

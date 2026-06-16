@@ -135,8 +135,7 @@ export class BookingsService {
 
     return covering.map((pkg) => {
       const usage = this.packageUsage.computeUsageStats(pkg);
-      const canBook =
-        pkg.plan.isUnlimited || (pkg.sessionsRemaining ?? 0) > 0;
+      const canBook = pkg.plan.isUnlimited || (pkg.sessionsRemaining ?? 0) > 0;
       return {
         userPackageId: pkg.id,
         planId: pkg.planId,
@@ -373,12 +372,13 @@ export class BookingsService {
     requiredSessions: number,
   ): Promise<string | null> {
     if (dto?.userPackageId) {
-      const selected = await this.packageUsage.getValidatedUserPackageForBooking(
-        tx,
-        userId,
-        dto.userPackageId,
-        session.classType,
-      );
+      const selected =
+        await this.packageUsage.getValidatedUserPackageForBooking(
+          tx,
+          userId,
+          dto.userPackageId,
+          session.classType,
+        );
       await this.packageUsage.consumeSession(tx, selected.id);
       return selected.id;
     }
@@ -404,12 +404,11 @@ export class BookingsService {
       return null;
     }
 
-    const eligiblePackages =
-      await this.packageUsage.listEligibleUserPackages(
-        tx,
-        userId,
-        session.classType,
-      );
+    const eligiblePackages = await this.packageUsage.listEligibleUserPackages(
+      tx,
+      userId,
+      session.classType,
+    );
 
     if (eligiblePackages.length === 1) {
       await this.packageUsage.consumeSession(tx, eligiblePackages[0].id);

@@ -31,15 +31,17 @@ describe('syncClassTypeForPackageCategory', () => {
 
   it('renames an existing class type when a package category is renamed', async () => {
     const db = createDb();
-    db.classType.findUnique.mockImplementation(async ({ where }: { where: { slug: string } }) => {
-      if (where.slug === 'dance') {
+    db.classType.findUnique.mockImplementation(
+      ({ where }: { where: { slug: string } }) => {
+        if (where.slug === 'dance') {
+          return null;
+        }
+        if (where.slug === 'dances') {
+          return { id: 'ct-1', name: 'Dances', slug: 'dances' };
+        }
         return null;
-      }
-      if (where.slug === 'dances') {
-        return { id: 'ct-1', name: 'Dances', slug: 'dances' };
-      }
-      return null;
-    });
+      },
+    );
     db.classType.findFirst.mockResolvedValue(null);
     db.classType.findMany.mockResolvedValue([
       { id: 'ct-1', name: 'Dances', slug: 'dances' },
@@ -59,15 +61,17 @@ describe('syncClassTypeForPackageCategory', () => {
 
   it('updates an existing class type when renaming to a new label with no slug match', async () => {
     const db = createDb();
-    db.classType.findUnique.mockImplementation(async ({ where }: { where: { slug: string } }) => {
-      if (where.slug === 'aaa') {
+    db.classType.findUnique.mockImplementation(
+      ({ where }: { where: { slug: string } }) => {
+        if (where.slug === 'aaa') {
+          return null;
+        }
+        if (where.slug === 'yoga') {
+          return { id: 'ct-2', name: 'Yoga', slug: 'yoga' };
+        }
         return null;
-      }
-      if (where.slug === 'yoga') {
-        return { id: 'ct-2', name: 'Yoga', slug: 'yoga' };
-      }
-      return null;
-    });
+      },
+    );
     db.classType.findFirst.mockResolvedValue(null);
     db.classType.findMany.mockResolvedValue([
       { id: 'ct-2', name: 'Yoga', slug: 'yoga' },
@@ -116,11 +120,13 @@ describe('syncMissingClassTypesForPackageCategories', () => {
       create: jest.fn().mockResolvedValue(undefined),
     };
     const packagePlan = {
-      findMany: jest.fn().mockResolvedValue([
-        { categoryName: 'Dance' },
-        { categoryName: 'Daaaaanccceeee + Dance' },
-        { categoryName: 'Inactive Category' },
-      ]),
+      findMany: jest
+        .fn()
+        .mockResolvedValue([
+          { categoryName: 'Dance' },
+          { categoryName: 'Daaaaanccceeee + Dance' },
+          { categoryName: 'Inactive Category' },
+        ]),
     };
 
     await syncMissingClassTypesForPackageCategories({ classType, packagePlan });
@@ -139,12 +145,14 @@ describe('cleanupClassTypesForRemovedPackageCategories', () => {
         findMany: jest.fn().mockResolvedValue([{ categoryName: 'Dance' }]),
       },
       classType: {
-        findUnique: jest.fn().mockImplementation(async ({ where }: { where: { slug: string } }) => {
-          if (where.slug === 'yoga') {
-            return { id: 'ct-yoga', name: 'Yoga', slug: 'yoga' };
-          }
-          return null;
-        }),
+        findUnique: jest
+          .fn()
+          .mockImplementation(({ where }: { where: { slug: string } }) => {
+            if (where.slug === 'yoga') {
+              return { id: 'ct-yoga', name: 'Yoga', slug: 'yoga' };
+            }
+            return null;
+          }),
         findFirst: jest.fn().mockResolvedValue(null),
         findMany: jest.fn().mockResolvedValue([]),
         delete: jest.fn().mockResolvedValue(undefined),

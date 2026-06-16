@@ -8,10 +8,6 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 
-type BookSessionResponse = {
-  id: string;
-};
-
 type Props = {
   sessionId: string;
   label?: string;

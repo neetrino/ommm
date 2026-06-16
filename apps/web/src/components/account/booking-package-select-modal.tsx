@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -72,28 +72,19 @@ export function BookingPackageSelectModal({
     () => buildDuplicatePlanNameSuffixes(eligiblePackages),
     [eligiblePackages],
   );
-
-  useEffect(() => {
-    if (eligiblePackages.length === 0) {
-      setSelectedId("");
-      return;
+  const activeSelectedId = useMemo(() => {
+    const selected = eligiblePackages.find((pkg) => pkg.userPackageId === selectedId);
+    if (selected?.canBook) {
+      return selectedId;
     }
-    setSelectedId((current) => {
-      const currentPkg = eligiblePackages.find(
-        (pkg) => pkg.userPackageId === current,
-      );
-      if (currentPkg?.canBook) {
-        return current;
-      }
-      return pickDefaultBookingPackageId(eligiblePackages);
-    });
-  }, [eligiblePackages]);
+    return pickDefaultBookingPackageId(eligiblePackages);
+  }, [eligiblePackages, selectedId]);
 
   async function confirmSelection() {
     const selected = eligiblePackages.find(
-      (pkg) => pkg.userPackageId === selectedId,
+      (pkg) => pkg.userPackageId === activeSelectedId,
     );
-    if (!selectedId || !selected?.canBook || busy) {
+    if (!activeSelectedId || !selected?.canBook || busy) {
       return;
     }
     setBusy(true);
@@ -102,7 +93,7 @@ export function BookingPackageSelectModal({
         `/bookings/sessions/${sessionId}`,
         {
           method: "POST",
-          body: JSON.stringify({ userPackageId: selectedId }),
+          body: JSON.stringify({ userPackageId: activeSelectedId }),
         },
       );
       onBooked(booking.id);
@@ -133,7 +124,7 @@ export function BookingPackageSelectModal({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
           <ul className="flex flex-col gap-3">
             {eligiblePackages.map((pkg) => {
-              const isSelected = pkg.userPackageId === selectedId;
+              const isSelected = pkg.userPackageId === activeSelectedId;
               const isDisabled = busy || !pkg.canBook;
               const duplicateSuffix = duplicatePlanSuffixes.get(pkg.userPackageId);
               const displayPlanName =
@@ -229,9 +220,9 @@ export function BookingPackageSelectModal({
             size="md"
             disabled={
               busy ||
-              selectedId.length === 0 ||
+              activeSelectedId.length === 0 ||
               !eligiblePackages.some(
-                (pkg) => pkg.userPackageId === selectedId && pkg.canBook,
+                (pkg) => pkg.userPackageId === activeSelectedId && pkg.canBook,
               )
             }
             onClick={() => void confirmSelection()}

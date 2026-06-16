@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import {
   ManualPaymentMethod,
   PackageStatus,
@@ -11,6 +11,13 @@ import {
 import { PackageUsageService } from './package-usage.service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+type PlanCategoryResult = { categoryName: string };
+type CategoryPlanStatusResult = {
+  id: string;
+  categoryName: string;
+  isActive: boolean;
+};
 
 describe('PackagesService', () => {
   function createService() {
@@ -391,7 +398,9 @@ describe('PackagesService', () => {
     const { service, prisma, audit, cache } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
     prisma.packagePlan.findMany
-      .mockResolvedValueOnce([{ categoryName: 'Yoga' }])
+      .mockResolvedValueOnce([
+        { categoryName: 'Yoga' } satisfies PlanCategoryResult,
+      ])
       .mockResolvedValueOnce([]);
     prisma.classType.findUnique.mockResolvedValue({
       id: 'ct-yoga',
@@ -446,7 +455,9 @@ describe('PackagesService', () => {
   it('blocks plan deletion when active memberships remain', async () => {
     const { service, prisma } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
-    prisma.packagePlan.findMany.mockResolvedValue([{ categoryName: 'Yoga' }]);
+    prisma.packagePlan.findMany.mockResolvedValue([
+      { categoryName: 'Yoga' } satisfies PlanCategoryResult,
+    ]);
     mockDeleteTransaction(prisma);
     prisma.userPackage.updateMany.mockResolvedValue({ count: 0 });
     prisma.userPackage.count.mockResolvedValue(2);
@@ -462,7 +473,9 @@ describe('PackagesService', () => {
     const { service, prisma } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
     prisma.packagePlan.findMany
-      .mockResolvedValueOnce([{ categoryName: 'Yoga' }])
+      .mockResolvedValueOnce([
+        { categoryName: 'Yoga' } satisfies PlanCategoryResult,
+      ])
       .mockResolvedValueOnce([]);
     prisma.classType.findUnique.mockResolvedValue({
       id: 'ct-yoga',
@@ -555,11 +568,11 @@ describe('PackagesService', () => {
       .mockResolvedValueOnce([
         { id: 'plan-1', categoryName: 'Yoga' },
         { id: 'plan-2', categoryName: 'Yoga' },
-      ])
+      ] satisfies PlanCategoryResult[])
       .mockResolvedValueOnce([
         { id: 'plan-1', categoryName: 'Yoga', isActive: false },
         { id: 'plan-2', categoryName: 'Yoga', isActive: false },
-      ]);
+      ] satisfies CategoryPlanStatusResult[]);
 
     const result = await service.adminSetCategoryPlanStatus('Yoga', false);
 
@@ -571,9 +584,18 @@ describe('PackagesService', () => {
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'MEMBERSHIP_PLAN_CATEGORY_STATUS_UPDATED',
-        payload: expect.objectContaining({ categoryName: 'Yoga', isActive: false }),
       }),
     );
+    const categoryStatusAuditCall = audit.log.mock.calls[0] as [
+      {
+        payload: {
+          categoryName: string;
+          isActive: boolean;
+        };
+      },
+    ];
+    expect(categoryStatusAuditCall[0].payload.categoryName).toBe('Yoga');
+    expect(categoryStatusAuditCall[0].payload.isActive).toBe(false);
     expect(cache.invalidate).toHaveBeenCalled();
   });
 });

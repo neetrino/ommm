@@ -6,16 +6,6 @@ export const STUDIO_TIMEZONE = 'Asia/Yerevan';
 /** `Date.getTimezoneOffset()` convention for {@link STUDIO_TIMEZONE} (UTC+4 → -240). */
 export const STUDIO_TIMEZONE_OFFSET_MINUTES = -240;
 
-const DAY_OF_WEEK_VALUES: readonly ScheduleDayOfWeek[] = [
-  'SUNDAY',
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-];
-
 const STUDIO_WALL_CLOCK_TIME = new Intl.DateTimeFormat('en-GB', {
   timeZone: STUDIO_TIMEZONE,
   hour: '2-digit',

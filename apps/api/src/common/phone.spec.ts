@@ -59,7 +59,9 @@ describe('phone utilities', () => {
     });
 
     it('throws for invalid numbers', () => {
-      expect(() => normalizeRequiredPhone('123')).toThrow('Invalid phone number');
+      expect(() => normalizeRequiredPhone('123')).toThrow(
+        'Invalid phone number',
+      );
     });
   });
 

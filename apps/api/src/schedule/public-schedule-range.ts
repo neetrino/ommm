@@ -55,6 +55,8 @@ export function resolvePublicScheduleRange(
 }
 
 /** Studio calendar day string for cache keying. */
-export function publicScheduleCacheDayKey(reference: Date = new Date()): string {
+export function publicScheduleCacheDayKey(
+  reference: Date = new Date(),
+): string {
   return utcToStudioCalendarDate(reference);
 }
