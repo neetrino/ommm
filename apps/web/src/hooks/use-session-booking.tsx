@@ -39,6 +39,52 @@ type UseSessionBookingOptions = {
   onError?: (message: string) => void;
 };
 
+type CachedPurchase = {
+  plans: PackageSubscribePlanOption[];
+  notice: string;
+  suggestedPlanId?: string;
+};
+
+const PURCHASE_CACHE_PREFIX = "ommm:buyPackage:";
+
+/** Snapshot of the open purchase modal so a refresh can restore it instantly. */
+function readCachedPurchase(sessionId: string): CachedPurchase | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const raw = window.sessionStorage.getItem(PURCHASE_CACHE_PREFIX + sessionId);
+    return raw ? (JSON.parse(raw) as CachedPurchase) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedPurchase(sessionId: string, value: CachedPurchase): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.sessionStorage.setItem(
+      PURCHASE_CACHE_PREFIX + sessionId,
+      JSON.stringify(value),
+    );
+  } catch {
+    // Ignore quota/serialization errors — cache is best-effort.
+  }
+}
+
+function clearCachedPurchase(sessionId: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.sessionStorage.removeItem(PURCHASE_CACHE_PREFIX + sessionId);
+  } catch {
+    // Ignore — cache is best-effort.
+  }
+}
+
 export function useSessionBooking({
   sessionId,
   locale,
@@ -56,14 +102,25 @@ export function useSessionBooking({
   onBookedRef.current = onBooked;
   onErrorRef.current = onError;
 
+  const initialCachedPurchaseRef = useRef<CachedPurchase | null>(
+    urlBuySessionId === sessionId ? readCachedPurchase(sessionId) : null,
+  );
+  const initialCachedPurchase = initialCachedPurchaseRef.current;
+
   const [busy, setBusy] = useState(false);
   const [packageModalOpen, setPackageModalOpen] = useState(false);
-  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
-  const [purchaseNotice, setPurchaseNotice] = useState<string>("");
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(
+    initialCachedPurchase !== null,
+  );
+  const [purchaseNotice, setPurchaseNotice] = useState<string>(
+    initialCachedPurchase?.notice ?? "",
+  );
   const [purchasePlans, setPurchasePlans] = useState<
     readonly PackageSubscribePlanOption[]
-  >([]);
-  const [suggestedPlanId, setSuggestedPlanId] = useState<string | undefined>();
+  >(initialCachedPurchase?.plans ?? []);
+  const [suggestedPlanId, setSuggestedPlanId] = useState<string | undefined>(
+    initialCachedPurchase?.suggestedPlanId,
+  );
   const [eligiblePackages, setEligiblePackages] = useState<
     readonly EligibleBookingPackage[]
   >([]);
@@ -98,6 +155,7 @@ export function useSessionBooking({
 
   function closePurchaseModal(): void {
     setPurchaseModalOpen(false);
+    clearCachedPurchase(sessionId);
     if (urlBuySessionId === sessionId) {
       replaceSearchParams(clearBuyPackageSessionQuery);
     }
@@ -124,22 +182,14 @@ export function useSessionBooking({
     }
   }
 
-  async function openPurchaseModal(
+  function applyPurchaseData(
     packages: readonly EligibleBookingPackage[],
-    options: { fromUrl?: boolean } = {},
-  ): Promise<void> {
-    const plans = await fetchPurchasePlans();
-    if (plans.length === 0) {
-      onErrorRef.current?.(t("packageNoPurchasePlans"));
-      if (options.fromUrl) {
-        replaceSearchParams(clearBuyPackageSessionQuery);
-      }
-      return;
-    }
+    plans: readonly PackageSubscribePlanOption[],
+    rawFirstName: string,
+  ): void {
+    const firstName = rawFirstName || t("purchaseNoticeFallbackName");
     const suggested =
       packages.find((pkg) => !pkg.canBook)?.planId ?? plans[0]?.id;
-    const firstName =
-      (await fetchFirstName()) || t("purchaseNoticeFallbackName");
     const notice =
       packages.length === 0
         ? t("purchaseNoticeMissing", { firstName })
@@ -147,6 +197,29 @@ export function useSessionBooking({
     setPurchaseNotice(notice);
     setPurchasePlans(plans);
     setSuggestedPlanId(suggested);
+    writeCachedPurchase(sessionId, {
+      plans: [...plans],
+      notice,
+      suggestedPlanId: suggested,
+    });
+  }
+
+  async function openPurchaseModal(
+    packages: readonly EligibleBookingPackage[],
+    options: { fromUrl?: boolean } = {},
+  ): Promise<void> {
+    const [plans, rawFirstName] = await Promise.all([
+      fetchPurchasePlans(),
+      fetchFirstName(),
+    ]);
+    if (plans.length === 0) {
+      onErrorRef.current?.(t("packageNoPurchasePlans"));
+      if (options.fromUrl) {
+        replaceSearchParams(clearBuyPackageSessionQuery);
+      }
+      return;
+    }
+    applyPurchaseData(packages, plans, rawFirstName);
     setPurchaseModalOpen(true);
     if (!options.fromUrl) {
       skipNextBuyUrlRestoreRef.current = true;
@@ -258,26 +331,36 @@ export function useSessionBooking({
     }
 
     let cancelled = false;
+    const hasCachedData = initialCachedPurchase !== null;
+    setPurchaseModalOpen(true);
 
     async function restorePurchaseModal(): Promise<void> {
-      setBusy(true);
       try {
-        const packages = await fetchEligiblePackages();
+        const [packages, plans, rawFirstName] = await Promise.all([
+          fetchEligiblePackages(),
+          fetchPurchasePlans(),
+          fetchFirstName(),
+        ]);
         if (cancelled) {
           return;
         }
-        await openPurchaseModal(packages, { fromUrl: true });
+        if (plans.length === 0) {
+          onErrorRef.current?.(t("packageNoPurchasePlans"));
+          setPurchaseModalOpen(false);
+          clearCachedPurchase(sessionId);
+          replaceSearchParams(clearBuyPackageSessionQuery);
+          return;
+        }
+        applyPurchaseData(packages, plans, rawFirstName);
       } catch (error) {
-        if (cancelled) {
+        if (cancelled || hasCachedData) {
           return;
         }
+        setPurchaseModalOpen(false);
+        clearCachedPurchase(sessionId);
         replaceSearchParams(clearBuyPackageSessionQuery);
         const message = error instanceof ApiError ? error.message : t("bookFailed");
         onErrorRef.current?.(message);
-      } finally {
-        if (!cancelled) {
-          setBusy(false);
-        }
       }
     }
 
@@ -305,16 +388,17 @@ export function useSessionBooking({
       />
     ) : null;
 
-  const purchaseModal = purchaseModalOpen ? (
-    <BookingPackagePurchaseModal
-      isOpen={purchaseModalOpen}
-      locale={locale}
-      plans={purchasePlans}
-      initialPlanId={suggestedPlanId}
-      notice={purchaseNotice}
-      onClose={closePurchaseModal}
-    />
-  ) : null;
+  const purchaseModal =
+    purchaseModalOpen && purchasePlans.length > 0 ? (
+      <BookingPackagePurchaseModal
+        isOpen={purchaseModalOpen}
+        locale={locale}
+        plans={purchasePlans}
+        initialPlanId={suggestedPlanId}
+        notice={purchaseNotice}
+        onClose={closePurchaseModal}
+      />
+    ) : null;
 
   const bookingModals = (
     <>
