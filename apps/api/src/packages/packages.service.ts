@@ -50,6 +50,21 @@ const MIN_PRORATED_SESSIONS = 1;
 const PACKAGE_PAYMENT_SOURCE = 'PACKAGE';
 const MIN_COMBINED_SOURCE_PLAN_COUNT = 2;
 const MAX_COMBINED_SOURCE_PLAN_COUNT = 20;
+
+function trimHyphenEdges(value: string): string {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end && value.charCodeAt(start) === 45) {
+    start += 1;
+  }
+  while (end > start && value.charCodeAt(end - 1) === 45) {
+    end -= 1;
+  }
+
+  return value.slice(start, end);
+}
+
 export const PACKAGE_PLAN_UNAVAILABLE_MESSAGE =
   'This package is currently unavailable.';
 export const COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE =
@@ -1049,11 +1064,9 @@ export class PackagesService {
 
   private resolveSlug(name: string, rawSlug?: string): string {
     const source = rawSlug?.trim().length ? rawSlug : name;
-    const slug = source
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    const slug = trimHyphenEdges(
+      source.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-'),
+    );
     if (slug.length === 0) {
       throw new BadRequestException('Slug is required');
     }

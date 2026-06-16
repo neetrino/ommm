@@ -2,6 +2,20 @@ import type { Prisma } from '@prisma/client';
 
 const MAX_CLASS_TYPE_SLUG_LENGTH = 120;
 
+function trimHyphenEdges(value: string): string {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end && value.charCodeAt(start) === 45) {
+    start += 1;
+  }
+  while (end > start && value.charCodeAt(end - 1) === 45) {
+    end -= 1;
+  }
+
+  return value.slice(start, end);
+}
+
 type ClassTypeRecord = {
   id: string;
   name: string;
@@ -29,11 +43,10 @@ export type SyncPackageCategoryClassTypeParams = {
 export function buildClassTypeSlugFromPackageCategory(
   categoryName: string,
 ): string {
-  return categoryName
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  const normalized = trimHyphenEdges(
+    categoryName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-'),
+  );
+  return normalized
     .split('-')
     .filter((segment) => segment.length > 0)
     .join('-')
