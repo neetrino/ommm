@@ -15,6 +15,11 @@ type PackageCategoryClassTypeSyncDb = Pick<
   'classType' | 'packagePlan'
 >;
 
+type PackageCategoryClassTypeCleanupDb = Pick<
+  Prisma.TransactionClient,
+  'classType' | 'classSession' | 'packagePlan'
+>;
+
 export type SyncPackageCategoryClassTypeParams = {
   categoryName: string;
   previousCategoryName?: string;
@@ -222,5 +227,64 @@ export async function syncMissingClassTypesForPackageCategories(
     }
     seenKeys.add(key);
     await syncClassTypeForPackageCategory(db, { categoryName: label });
+  }
+}
+
+/**
+ * Removes orphaned `ClassType` rows when their package categories are deleted.
+ * A class type is kept when another package still references that category label
+ * or when class sessions are linked to the class type.
+ */
+export async function cleanupClassTypesForRemovedPackageCategories(
+  db: PackageCategoryClassTypeCleanupDb,
+  params: { removedCategoryNames: readonly string[] },
+): Promise<void> {
+  const removedKeys = new Set<string>();
+  const removedLabelsByKey = new Map<string, string>();
+  for (const rawLabel of params.removedCategoryNames) {
+    const label = normalizePackageCategoryLabel(rawLabel);
+    if (label.length === 0) {
+      continue;
+    }
+    const key = categoryComparisonKey(label);
+    if (removedKeys.has(key)) {
+      continue;
+    }
+    removedKeys.add(key);
+    removedLabelsByKey.set(key, label);
+  }
+  if (removedKeys.size === 0) {
+    return;
+  }
+
+  const rows = await db.packagePlan.findMany({
+    select: { categoryName: true },
+  });
+  const activeCategoryKeys = new Set<string>();
+  for (const row of rows) {
+    const label = normalizePackageCategoryLabel(row.categoryName);
+    if (label.length === 0) {
+      continue;
+    }
+    activeCategoryKeys.add(categoryComparisonKey(label));
+  }
+
+  for (const [key, label] of removedLabelsByKey.entries()) {
+    if (activeCategoryKeys.has(key)) {
+      continue;
+    }
+    const target = await findClassTypeForCategoryLabel(db, label);
+    if (target === null) {
+      continue;
+    }
+    const linkedSessions = await db.classSession.count({
+      where: { classTypeId: target.id },
+    });
+    if (linkedSessions > 0) {
+      continue;
+    }
+    await db.classType.delete({
+      where: { id: target.id },
+    });
   }
 }

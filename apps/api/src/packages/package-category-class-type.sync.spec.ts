@@ -1,4 +1,5 @@
 import {
+  cleanupClassTypesForRemovedPackageCategories,
   buildClassTypeSlugFromPackageCategory,
   syncClassTypeForPackageCategory,
   syncMissingClassTypesForPackageCategories,
@@ -128,5 +129,67 @@ describe('syncMissingClassTypesForPackageCategories', () => {
       select: { categoryName: true },
     });
     expect(classType.create).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('cleanupClassTypesForRemovedPackageCategories', () => {
+  it('deletes class type when category no longer exists and no sessions are linked', async () => {
+    const db = {
+      packagePlan: {
+        findMany: jest.fn().mockResolvedValue([{ categoryName: 'Dance' }]),
+      },
+      classType: {
+        findUnique: jest.fn().mockImplementation(async ({ where }: { where: { slug: string } }) => {
+          if (where.slug === 'yoga') {
+            return { id: 'ct-yoga', name: 'Yoga', slug: 'yoga' };
+          }
+          return null;
+        }),
+        findFirst: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
+      classSession: {
+        count: jest.fn().mockResolvedValue(0),
+      },
+    };
+
+    await cleanupClassTypesForRemovedPackageCategories(db, {
+      removedCategoryNames: ['Yoga'],
+    });
+
+    expect(db.classSession.count).toHaveBeenCalledWith({
+      where: { classTypeId: 'ct-yoga' },
+    });
+    expect(db.classType.delete).toHaveBeenCalledWith({
+      where: { id: 'ct-yoga' },
+    });
+  });
+
+  it('keeps class type when sessions are still linked', async () => {
+    const db = {
+      packagePlan: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      classType: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'ct-yoga',
+          name: 'Yoga',
+          slug: 'yoga',
+        }),
+        findFirst: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
+      classSession: {
+        count: jest.fn().mockResolvedValue(2),
+      },
+    };
+
+    await cleanupClassTypesForRemovedPackageCategories(db, {
+      removedCategoryNames: ['Yoga'],
+    });
+
+    expect(db.classType.delete).not.toHaveBeenCalled();
   });
 });

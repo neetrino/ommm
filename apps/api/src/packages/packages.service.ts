@@ -35,7 +35,10 @@ import {
   dedupeCategoryNames,
   packageCategoryComparisonKey,
 } from './package-eligibility.util';
-import { syncClassTypeForPackageCategory } from './package-category-class-type.sync';
+import {
+  cleanupClassTypesForRemovedPackageCategories,
+  syncClassTypeForPackageCategory,
+} from './package-category-class-type.sync';
 import {
   PACKAGE_PLAN_DELETION_BLOCKING_STATUSES,
   PACKAGE_PLAN_DELETION_PURGEABLE_STATUSES,
@@ -671,6 +674,12 @@ export class PackagesService {
     await this.syncExpiredMembershipsForPlans(ids);
 
     await this.prisma.$transaction(async (tx) => {
+      const plansToDelete = await tx.packagePlan.findMany({
+        where: { id: { in: ids } },
+        select: { categoryName: true },
+      });
+      const removedCategoryNames = plansToDelete.map((plan) => plan.categoryName);
+
       const blockingCount = await tx.userPackage.count({
         where: {
           planId: { in: ids },
@@ -692,6 +701,10 @@ export class PackagesService {
 
       await tx.packagePlan.deleteMany({
         where: { id: { in: ids } },
+      });
+
+      await cleanupClassTypesForRemovedPackageCategories(tx, {
+        removedCategoryNames,
       });
     });
   }

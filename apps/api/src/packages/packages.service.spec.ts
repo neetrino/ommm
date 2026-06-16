@@ -20,7 +20,7 @@ describe('PackagesService', () => {
       },
       userPackage: {
         findFirst: jest.fn(),
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
         deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
@@ -33,6 +33,17 @@ describe('PackagesService', () => {
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+      classType: {
+        findUnique: jest.fn(),
+        findFirst: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
+        create: jest.fn().mockResolvedValue(undefined),
+        update: jest.fn().mockResolvedValue(undefined),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
+      classSession: {
+        count: jest.fn().mockResolvedValue(0),
       },
       $transaction: jest.fn(),
     };
@@ -379,6 +390,14 @@ describe('PackagesService', () => {
   it('deletes a plan when only cancelled or expired memberships exist', async () => {
     const { service, prisma, audit, cache } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.findMany
+      .mockResolvedValueOnce([{ categoryName: 'Yoga' }])
+      .mockResolvedValueOnce([]);
+    prisma.classType.findUnique.mockResolvedValue({
+      id: 'ct-yoga',
+      name: 'Yoga',
+      slug: 'yoga',
+    });
     mockDeleteTransaction(prisma);
     prisma.userPackage.updateMany.mockResolvedValue({ count: 0 });
     prisma.userPackage.count.mockResolvedValue(0);
@@ -409,6 +428,12 @@ describe('PackagesService', () => {
     expect(prisma.packagePlan.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ['plan-1'] } },
     });
+    expect(prisma.classSession.count).toHaveBeenCalledWith({
+      where: { classTypeId: 'ct-yoga' },
+    });
+    expect(prisma.classType.delete).toHaveBeenCalledWith({
+      where: { id: 'ct-yoga' },
+    });
     expect(cache.invalidate).toHaveBeenCalled();
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -421,6 +446,7 @@ describe('PackagesService', () => {
   it('blocks plan deletion when active memberships remain', async () => {
     const { service, prisma } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.findMany.mockResolvedValue([{ categoryName: 'Yoga' }]);
     mockDeleteTransaction(prisma);
     prisma.userPackage.updateMany.mockResolvedValue({ count: 0 });
     prisma.userPackage.count.mockResolvedValue(2);
@@ -435,6 +461,14 @@ describe('PackagesService', () => {
   it('expires overdue active memberships before evaluating deletion blockers', async () => {
     const { service, prisma } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.findMany
+      .mockResolvedValueOnce([{ categoryName: 'Yoga' }])
+      .mockResolvedValueOnce([]);
+    prisma.classType.findUnique.mockResolvedValue({
+      id: 'ct-yoga',
+      name: 'Yoga',
+      slug: 'yoga',
+    });
     mockDeleteTransaction(prisma);
     prisma.userPackage.updateMany
       .mockResolvedValueOnce({ count: 1 })
