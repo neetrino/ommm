@@ -31,6 +31,18 @@ export function listPublicPackageCategorySubscribablePlans(
       if (left.displayOrder !== right.displayOrder) {
         return left.displayOrder - right.displayOrder;
       }
-      return left.priceCents - right.priceCents;
+      const leftPrice =
+        typeof left.discountedPriceCents === "number" &&
+        left.discountedPriceCents > 0 &&
+        left.discountedPriceCents < left.priceCents
+          ? left.discountedPriceCents
+          : left.priceCents;
+      const rightPrice =
+        typeof right.discountedPriceCents === "number" &&
+        right.discountedPriceCents > 0 &&
+        right.discountedPriceCents < right.priceCents
+          ? right.discountedPriceCents
+          : right.priceCents;
+      return leftPrice - rightPrice;
     });
 }

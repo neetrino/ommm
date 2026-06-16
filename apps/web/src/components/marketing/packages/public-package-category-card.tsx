@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   formatPublicPackagePlanName,
   formatPublicPackagePriceParts,
+  resolvePublicPackageFinalPriceCents,
   formatPublicPackageTierPriceLine,
   shouldShowPublicPackageTierName,
 } from "@/components/marketing/packages/public-package-card-format";
@@ -85,10 +86,19 @@ export function PublicPackageCategoryCard({
               : t("packagesSessionsCount", { count: plan.sessionsPerMonth ?? 0 });
             const guestCount = plan.guestCount ?? 0;
             const tierPriceLine = formatPublicPackageTierPriceLine(
-              plan.priceCents,
+              resolvePublicPackageFinalPriceCents(plan),
               locale,
               (values) => t("packagesPriceLine", values),
             );
+            const hasDiscount =
+              typeof plan.discountedPriceCents === "number" &&
+              plan.discountedPriceCents > 0 &&
+              plan.discountedPriceCents < plan.priceCents;
+            const originalPriceLine = hasDiscount
+              ? formatPublicPackageTierPriceLine(plan.priceCents, locale, (values) =>
+                  t("packagesPriceLine", values),
+                )
+              : null;
             const planName = formatPublicPackagePlanName(
               plan.name,
               plan.sessionsPerMonth,
@@ -102,7 +112,15 @@ export function PublicPackageCategoryCard({
                 {shouldShowPublicPackageTierName(planName, category.label) ? (
                   <p className="text-sm font-semibold text-sage-800">{planName}</p>
                 ) : null}
-                <p className="mt-1 text-sm font-medium text-sage-700">{tierPriceLine}</p>
+                {hasDiscount && originalPriceLine !== null ? (
+                  <p className="mt-1 text-xs text-sage-500 line-through">{originalPriceLine}</p>
+                ) : null}
+                <p className="mt-1 text-sm font-semibold text-sage-800">{tierPriceLine}</p>
+                {hasDiscount ? (
+                  <p className="mt-1 inline-flex w-fit rounded-full bg-sand-200/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-sand-900">
+                    {t("packagesDiscountBadge")}
+                  </p>
+                ) : null}
                 <p className="mt-1 text-sm text-sage-500">
                   {plan.billingPeriod} ·{" "}
                   {t("packagesPeriodDaysShort", { days: plan.periodDays })}

@@ -356,6 +356,7 @@ model PackagePlan {
   slug             String   @unique
   description      String?
   priceCents           Int
+  discountedPriceCents Int?
   pricePerSessionCents Int      @default(0)
   showPricePerSession  Boolean  @default(true)
   currency             String   @default("USD")

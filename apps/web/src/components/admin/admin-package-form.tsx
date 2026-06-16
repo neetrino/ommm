@@ -280,6 +280,7 @@ export function AdminPackageForm({
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
+    const discountAmountCents = parsePriceToCents(values.discountedPrice);
     const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const pricePerSessionCents =
       parsePriceToCents(values.pricePerSession) ??
@@ -336,6 +337,20 @@ export function AdminPackageForm({
       if (priceCents === null) {
         setError(t("priceInvalid"));
         return;
+      }
+      if (values.discountedPrice.trim().length > 0) {
+        if (discountAmountCents === null) {
+          setError(t("discountedPriceInvalid"));
+          return;
+        }
+        if (discountAmountCents < 0) {
+          setError(t("discountedPriceNegative"));
+          return;
+        }
+        if (discountAmountCents >= priceCents) {
+          setError(t("discountedPriceLowerThanPrice"));
+          return;
+        }
       }
       if (isAddTierMode || isEditTierMode) {
         if (pricePerSessionCents === null) {
@@ -395,6 +410,10 @@ export function AdminPackageForm({
     const tierBillingPeriod = resolvePackageBillingPeriod(initialPackage);
     const pricingFields = {
       priceCents: priceCents ?? 0,
+      discountedPriceCents:
+        values.discountedPrice.trim().length > 0 && discountAmountCents !== null
+          ? (priceCents ?? 0) - discountAmountCents
+          : null,
       ...(isAddTierMode || isEditTierMode
         ? { pricePerSessionCents: pricePerSessionCents ?? 0 }
         : {}),
@@ -618,6 +637,20 @@ export function AdminPackageForm({
               />
             </label>
             <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldDiscountedPrice")}
+              </span>
+              <AmdMoneyInput
+                name="discountedPrice"
+                value={values.discountedPrice}
+                onValueChange={(nextValue) => updateTierPricingValues({ discountedPrice: nextValue })}
+                disabled={pending}
+                align="start"
+                placeholder={t("fieldDiscountedPricePlaceholder")}
+              />
+              <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
+            </label>
+            <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPricePerSession")}</span>
               <AmdMoneyInput
                 name="pricePerSession"
@@ -706,6 +739,20 @@ export function AdminPackageForm({
                   disabled={pending}
                   align="start"
                 />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="ommm-label text-xs uppercase tracking-wide">
+                  {t("fieldDiscountedPrice")}
+                </span>
+                <AmdMoneyInput
+                  name="discountedPrice"
+                  value={values.discountedPrice}
+                  onValueChange={(nextValue) => updateValues({ discountedPrice: nextValue })}
+                  disabled={pending}
+                  align="start"
+                  placeholder={t("fieldDiscountedPricePlaceholder")}
+                />
+                <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
               </label>
             </div>
           </AdminPackageFormSection>

@@ -10,11 +10,14 @@ import {
   formatPackageSessionsLabel,
 } from "@/components/admin/admin-packages-display";
 import {
+  resolvePublicPackageFinalPriceCents,
+  shouldShowPublicPackageTierName,
+} from "@/components/marketing/packages/public-package-card-format";
+import {
   formatPublicPackageTierPricePerSession,
   formatPublicPackageValidityLabel,
 } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
-import { shouldShowPublicPackageTierName } from "@/components/marketing/packages/public-package-card-format";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
@@ -130,6 +133,13 @@ export function PublicPackageCategoryListTable({
           });
           const showTierName = shouldShowPublicPackageTierName(plan.name, categoryLabel);
           const guestValue = formatGuestCellValue(plan.guestCount);
+          const hasDiscount =
+            typeof plan.discountedPriceCents === "number" &&
+            plan.discountedPriceCents > 0 &&
+            plan.discountedPriceCents < plan.priceCents;
+          const originalPrice = hasDiscount
+            ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
+            : null;
 
           return (
             <div
@@ -151,7 +161,24 @@ export function PublicPackageCategoryListTable({
                   <EmptyCell />
                 )}
               </div>
-              <div className={styles.cell}>{formatPackagePriceLabel(plan, locale)}</div>
+              <div className={styles.cell}>
+                {hasDiscount && originalPrice !== null ? (
+                  <div className="flex flex-col">
+                    <span className="text-xs text-sage-500 line-through">{originalPrice}</span>
+                    <span className="font-semibold text-sage-900">
+                      {formatPackagePriceLabel(
+                        { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
+                        locale,
+                      )}
+                    </span>
+                  </div>
+                ) : (
+                  formatPackagePriceLabel(
+                    { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
+                    locale,
+                  )
+                )}
+              </div>
               {showPricePerSessionColumn ? (
                 <div className={styles.cell}>
                   {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}

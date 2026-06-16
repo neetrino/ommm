@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
 import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
+import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import {
   formatPublicPackageTierPricePerSession,
   formatPublicPackageTierSessionsHeadline,
@@ -48,7 +49,17 @@ export function PublicPackageMobileTierCard({
     unlimited: t("packagesSessionsUnlimitedShort"),
     count: (values) => t("packagesTierSessionsLabel", values),
   });
-  const priceLabel = formatPackagePriceLabel(plan, locale);
+  const priceLabel = formatPackagePriceLabel(
+    { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
+    locale,
+  );
+  const hasDiscount =
+    typeof plan.discountedPriceCents === "number" &&
+    plan.discountedPriceCents > 0 &&
+    plan.discountedPriceCents < plan.priceCents;
+  const originalPrice = hasDiscount
+    ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
+    : null;
   const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
   const validityLabel = formatPublicPackageValidityLabel(plan, {
     days: (count) => t("packagesValidityDays", { count }),
@@ -84,7 +95,13 @@ export function PublicPackageMobileTierCard({
       <h3 className={styles.planName}>{planLabel}</h3>
 
       <div className={styles.metaList}>
-        <MetaRow label={t("packagesTablePrice")} value={priceLabel} />
+        <MetaRow
+          label={t("packagesTablePrice")}
+          value={hasDiscount && originalPrice !== null ? `${priceLabel} (${t("packagesDiscountBadge")})` : priceLabel}
+        />
+        {hasDiscount && originalPrice !== null ? (
+          <MetaRow label={t("packagesOriginalPrice")} value={originalPrice} />
+        ) : null}
         {plan.showPricePerSession !== false ? (
           <MetaRow label={t("packagesTablePricePerSession")} value={pricePerSession} />
         ) : null}

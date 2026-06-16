@@ -288,6 +288,7 @@ describe('PackagesService', () => {
       name: 'Monthly',
       isActive: true,
       priceCents: 20_000,
+      discountedPriceCents: 16_000,
       periodDays: 30,
       isUnlimited: false,
       sessionsPerMonth: 8,
@@ -331,6 +332,7 @@ describe('PackagesService', () => {
     expect(paymentCreateCall[0].data.paymentMethod).toBe(
       ManualPaymentMethod.CASH,
     );
+    expect(paymentCreateCall[0].data.amountCents).toBe(16_000);
     expect(payments.confirmPendingCardPayment).not.toHaveBeenCalled();
     expect(payments.notifyCashPaymentPending).toHaveBeenCalledWith('pay-cash');
     expect(result.paymentReference).toBe('PKG-REF-1');
@@ -354,6 +356,7 @@ describe('PackagesService', () => {
       name: 'Monthly',
       isActive: true,
       priceCents: 20_000,
+      discountedPriceCents: null,
       periodDays: 30,
       isUnlimited: false,
       sessionsPerMonth: 8,
@@ -519,6 +522,7 @@ describe('PackagesService', () => {
       name: 'Monthly',
       isActive: false,
       priceCents: 20_000,
+      discountedPriceCents: null,
       periodDays: 30,
     });
 
@@ -532,6 +536,25 @@ describe('PackagesService', () => {
       response: { message: PACKAGE_PLAN_UNAVAILABLE_MESSAGE },
     });
     expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('rejects plan creation when discount is not lower than original price', async () => {
+    const { service } = createService();
+    await expect(
+      service.createPlan({
+        name: 'Plan A',
+        categoryName: 'Yoga',
+        priceCents: 20_000,
+        discountedPriceCents: 20_000,
+        isUnlimited: false,
+        sessionsPerMonth: 8,
+        periodDays: 30,
+      }),
+    ).rejects.toMatchObject({
+      response: {
+        message: 'Discounted price must be lower than the original price.',
+      },
+    });
   });
 
   it('updates plan active status and invalidates public cache', async () => {

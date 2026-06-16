@@ -48,6 +48,11 @@ export class UpdatePlanDto {
   @IsOptional()
   @IsInt()
   @Min(0)
+  discountedPriceCents?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
   pricePerSessionCents?: number;
 
   @IsOptional()

@@ -293,6 +293,30 @@
   color: var(--packages-page-text-color);
 }
 
+.tierPriceWithDiscount {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.tierPriceOriginal {
+  font-size: clamp(0.68rem, 1.05vw, calc(var(--packages-page-tier-meta-size) * 0.92));
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgba(106, 100, 84, 0.72);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.tierPriceFinal {
+  font-size: clamp(0.78rem, 1.25vw, calc(var(--packages-page-tier-meta-size) * 1.08));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--packages-page-text-color);
+}
+
 .tierPricePerSession {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: clamp(0.75rem, 1.2vw, var(--packages-page-tier-meta-size));

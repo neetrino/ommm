@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
+import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
 import type { PackagesPageAccordionCategory } from "@/components/marketing/packages/packages-page-category-data";
@@ -262,12 +263,30 @@ function ExpandedTierRow({
     months: (count) => t("packagesValidityMonths", { count }),
   });
   const guestCount = plan.guestCount ?? 0;
+  const hasDiscount =
+    typeof plan.discountedPriceCents === "number" &&
+    plan.discountedPriceCents > 0 &&
+    plan.discountedPriceCents < plan.priceCents;
+  const finalPriceLabel = formatPackagePriceLabel(
+    { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
+    locale,
+  );
+  const originalPriceLabel = hasDiscount
+    ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
+    : null;
 
   return (
     <div className={accordionStyles.tierRow}>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierSessions}`}>{sessions}</div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPrice}`}>
-        {formatPackagePriceLabel(plan, locale)}
+        {hasDiscount && originalPriceLabel !== null ? (
+          <span className={accordionStyles.tierPriceWithDiscount}>
+            <span className={accordionStyles.tierPriceOriginal}>{originalPriceLabel}</span>
+            <span className={accordionStyles.tierPriceFinal}>{finalPriceLabel}</span>
+          </span>
+        ) : (
+          finalPriceLabel
+        )}
       </div>
       {showPricePerSessionColumn ? (
         <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPricePerSession}`}>

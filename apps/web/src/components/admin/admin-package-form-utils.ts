@@ -112,6 +112,7 @@ export type AdminPackageFormValues = {
   categoryName: string;
   description: string;
   price: string;
+  discountedPrice: string;
   pricePerSession: string;
   durationDays: string;
   sessionsCount: string;
@@ -128,6 +129,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     categoryName: initialCategoryName,
     description: "",
     price: "",
+    discountedPrice: "",
     pricePerSession: "",
     durationDays: String(PACKAGE_DAYS_PER_MONTH),
     sessionsCount: "1",
@@ -144,6 +146,7 @@ export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackag
   return {
     ...createEmptyPackageFormValues(initialCategoryName),
     price: "",
+    discountedPrice: "",
     pricePerSession: "",
     durationDays: "",
     guestCount: "",
@@ -156,6 +159,7 @@ export function packageRowToFormValues(
   categoryName: string;
   description: string | null;
   priceCents: number;
+  discountedPriceCents?: number | null;
   pricePerSessionCents?: number;
   periodDays: number;
   billingPeriod: string;
@@ -171,11 +175,18 @@ export function packageRowToFormValues(
     typeof pkg.sessionsPerMonth === "number" && pkg.sessionsPerMonth > 0
       ? pkg.sessionsPerMonth
       : MIN_PACKAGE_SESSIONS;
+  const discountAmountCents =
+    typeof pkg.discountedPriceCents === "number" &&
+    pkg.discountedPriceCents >= 0 &&
+    pkg.discountedPriceCents < pkg.priceCents
+      ? pkg.priceCents - pkg.discountedPriceCents
+      : null;
   return {
     name: pkg.name,
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: String(pkg.priceCents),
+    discountedPrice: discountAmountCents !== null ? String(discountAmountCents) : "",
     pricePerSession: formatStoredPricePerSessionAmount(pkg),
     durationDays: periodDaysToFormDurationDays(pkg.periodDays),
     sessionsCount: String(sessions),

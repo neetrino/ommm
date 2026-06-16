@@ -5,6 +5,8 @@ export type PublicPackagePlan = {
   categoryName: string;
   description: string | null;
   priceCents: number;
+  discountedPriceCents?: number | null;
+  finalPriceCents?: number;
   pricePerSessionCents?: number;
   showPricePerSession?: boolean;
   currency: string;
@@ -31,6 +33,14 @@ function coerceSessionsPerMonth(value: unknown): number | null {
 }
 
 export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPackagePlan {
+  const normalizedDiscount =
+    typeof plan.discountedPriceCents === "number" &&
+    Number.isFinite(plan.discountedPriceCents) &&
+    plan.discountedPriceCents >= 0 &&
+    plan.discountedPriceCents < plan.priceCents
+      ? Math.floor(plan.discountedPriceCents)
+      : null;
+  const finalPriceCents = normalizedDiscount ?? plan.priceCents;
   return {
     ...plan,
     categoryName:
@@ -40,6 +50,8 @@ export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPacka
     sessionsPerMonth: coerceSessionsPerMonth(plan.sessionsPerMonth),
     showPricePerSession:
       typeof plan.showPricePerSession === "boolean" ? plan.showPricePerSession : true,
+    discountedPriceCents: normalizedDiscount,
+    finalPriceCents,
     guestCount: typeof plan.guestCount === "number" ? plan.guestCount : 0,
     features: Array.isArray(plan.features) ? plan.features : [],
   };

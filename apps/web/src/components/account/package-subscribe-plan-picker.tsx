@@ -79,7 +79,19 @@ export function PackageSubscribePlanPicker({
             <span className={styles.packageSubscribePlanOptionHeader}>
               <span className={styles.packageSubscribePlanOptionTitle}>{sessionName}</span>
               <span className={styles.packageSubscribePlanOptionPrice}>
-                {formatAmdFromCents(plan.priceCents, locale)}
+                {plan.discountedPriceCents !== null &&
+                plan.discountedPriceCents < plan.priceCents ? (
+                  <span className="flex flex-col items-end">
+                    <span className="text-xs font-medium text-sage-500 line-through">
+                      {formatAmdFromCents(plan.priceCents, locale)}
+                    </span>
+                    <span className="text-sand-800">
+                      {formatAmdFromCents(plan.finalPriceCents, locale)}
+                    </span>
+                  </span>
+                ) : (
+                  formatAmdFromCents(plan.priceCents, locale)
+                )}
               </span>
             </span>
             <span className={styles.packageSubscribePlanOptionMeta}>
@@ -113,7 +125,7 @@ function PackageSubscribePlanSummary({ plan, locale }: PackageSubscribePlanSumma
     <div className={styles.packageSubscribePlanSummary}>
       <p className="text-sm font-medium text-sage-800">{sessionName}</p>
       <p className="mt-1 text-sm font-semibold text-sage-700">
-        {formatAmdFromCents(plan.priceCents, locale)}
+        {formatAmdFromCents(plan.finalPriceCents, locale)}
       </p>
       <p className="mt-1 text-sm text-sage-500">
         {t("periodDays", { days: plan.periodDays })} · {sessionsLabel}

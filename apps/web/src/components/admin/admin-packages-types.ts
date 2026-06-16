@@ -16,6 +16,8 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
         }))
       : [],
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
+    discountedPriceCents:
+      typeof row.discountedPriceCents === "number" ? row.discountedPriceCents : null,
     pricePerSessionCents:
       typeof row.pricePerSessionCents === "number" ? row.pricePerSessionCents : 0,
     showPricePerSession:
@@ -42,6 +44,7 @@ export type AdminPackageRow = {
   combinedComponents?: AdminCombinedPlanComponent[];
   description: string | null;
   priceCents: number;
+  discountedPriceCents?: number | null;
   pricePerSessionCents?: number;
   showPricePerSession?: boolean;
   currency: string;

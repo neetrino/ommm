@@ -158,6 +158,10 @@ export class PackagesService {
   }
 
   async createPlan(dto: CreatePlanDto) {
+    const discountedPriceCents = this.resolveDiscountedPriceCents(
+      dto.priceCents,
+      dto.discountedPriceCents,
+    );
     const slug = this.resolveSlug(dto.name, dto.slug);
     const categoryName = await this.resolveCategoryName(dto.categoryName);
     try {
@@ -169,6 +173,7 @@ export class PackagesService {
             slug,
             description: dto.description,
             priceCents: dto.priceCents,
+            discountedPriceCents,
             pricePerSessionCents: this.normalizePricePerSessionCents(
               dto.pricePerSessionCents,
             ),
@@ -224,6 +229,10 @@ export class PackagesService {
   }
 
   async createCombinedPlan(dto: CreateCombinedPlanDto) {
+    const discountedPriceCents = this.resolveDiscountedPriceCents(
+      dto.priceCents,
+      dto.discountedPriceCents,
+    );
     const sourceIds = [...new Set(dto.sourcePlanIds)];
     if (sourceIds.length < MIN_COMBINED_SOURCE_PLAN_COUNT) {
       throw new BadRequestException(
@@ -287,6 +296,7 @@ export class PackagesService {
             slug,
             description: dto.description,
             priceCents: dto.priceCents,
+            discountedPriceCents,
             pricePerSessionCents: this.normalizePricePerSessionCents(
               dto.pricePerSessionCents,
             ),
@@ -380,6 +390,13 @@ export class PackagesService {
     if (resolvedSlug !== undefined && resolvedSlug !== existing.slug) {
       await this.assertSlugAvailable(resolvedSlug, planId);
     }
+    const nextPriceCents = dto.priceCents ?? existing.priceCents;
+    const nextDiscountedPriceCents = this.resolveDiscountedPriceCents(
+      nextPriceCents,
+      dto.discountedPriceCents === undefined
+        ? existing.discountedPriceCents
+        : dto.discountedPriceCents,
+    );
     const data = {
       ...(dto.name !== undefined && { name: dto.name }),
       ...(resolvedCategoryName !== undefined && {
@@ -388,6 +405,13 @@ export class PackagesService {
       ...(resolvedSlug !== undefined && { slug: resolvedSlug }),
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
+      ...(dto.discountedPriceCents !== undefined && {
+        discountedPriceCents: nextDiscountedPriceCents,
+      }),
+      ...(dto.priceCents !== undefined &&
+        dto.discountedPriceCents === undefined && {
+          discountedPriceCents: nextDiscountedPriceCents,
+        }),
       ...(dto.pricePerSessionCents !== undefined && {
         pricePerSessionCents: this.normalizePricePerSessionCents(
           dto.pricePerSessionCents,
@@ -776,6 +800,10 @@ export class PackagesService {
     if (plan.priceCents <= 0) {
       throw new BadRequestException('This plan is not available for purchase');
     }
+    const payableAmountCents = this.resolvePayablePriceCents({
+      priceCents: plan.priceCents,
+      discountedPriceCents: plan.discountedPriceCents,
+    });
     const existing = await this.prisma.userPackage.findFirst({
       where: {
         userId,
@@ -814,7 +842,7 @@ export class PackagesService {
         const payment = await tx.payment.create({
           data: this.withInternalPaymentCreateFields({
             userId,
-            amountCents: plan.priceCents,
+            amountCents: payableAmountCents,
             currency: 'amd',
             status: PaymentStatus.PENDING,
             paymentReference: this.createPaymentReference('PACKAGE'),
@@ -845,7 +873,7 @@ export class PackagesService {
       action: 'MEMBERSHIP_PAYMENT_REQUESTED',
       entityType: 'UserPackage',
       entityId: userPackage.id,
-      payload: { planId, paymentMethod, amountCents: plan.priceCents },
+      payload: { planId, paymentMethod, amountCents: payableAmountCents },
     });
     return {
       ...userPackage,
@@ -877,6 +905,7 @@ export class PackagesService {
         name: string;
         categoryName: string;
         priceCents: number;
+        discountedPriceCents: number | null;
         periodDays: number;
       };
     },
@@ -1001,8 +1030,14 @@ export class PackagesService {
       include: { plan: true },
     });
     const prorationAdjustment = this.calculateProrationAdjustmentCents({
-      oldPriceCents: membership.plan.priceCents,
-      newPriceCents: plan.priceCents,
+      oldPriceCents: this.resolvePayablePriceCents({
+        priceCents: membership.plan.priceCents,
+        discountedPriceCents: membership.plan.discountedPriceCents,
+      }),
+      newPriceCents: this.resolvePayablePriceCents({
+        priceCents: plan.priceCents,
+        discountedPriceCents: plan.discountedPriceCents,
+      }),
       remainingRatio: planChangePolicy.remainingRatio,
       prorationApplied: planChangePolicy.prorationApplied,
     });
@@ -1180,6 +1215,43 @@ export class PackagesService {
       );
     }
     return amount;
+  }
+
+  private resolveDiscountedPriceCents(
+    priceCents: number,
+    discountedPriceCents: number | null | undefined,
+  ): number | null {
+    if (discountedPriceCents === undefined || discountedPriceCents === null) {
+      return null;
+    }
+    if (!Number.isInteger(discountedPriceCents)) {
+      throw new BadRequestException(
+        'Discounted price must be a non-negative integer.',
+      );
+    }
+    if (discountedPriceCents < 0) {
+      throw new BadRequestException('Discounted price cannot be negative.');
+    }
+    if (discountedPriceCents >= priceCents) {
+      throw new BadRequestException(
+        'Discounted price must be lower than the original price.',
+      );
+    }
+    return discountedPriceCents;
+  }
+
+  private resolvePayablePriceCents(plan: {
+    priceCents: number;
+    discountedPriceCents: number | null;
+  }): number {
+    if (
+      typeof plan.discountedPriceCents === 'number' &&
+      plan.discountedPriceCents > 0 &&
+      plan.discountedPriceCents < plan.priceCents
+    ) {
+      return plan.discountedPriceCents;
+    }
+    return plan.priceCents;
   }
 
   private normalizeButtonLabel(label?: string): string {
