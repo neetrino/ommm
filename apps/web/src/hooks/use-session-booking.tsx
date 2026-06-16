@@ -204,9 +204,28 @@ export function useSessionBooking({
     });
   }
 
+  /** Opens the drawer in one batch (slide-in animation) from already-fetched data. */
+  function showPurchaseModal(
+    packages: readonly EligibleBookingPackage[],
+    plans: readonly PackageSubscribePlanOption[],
+    rawFirstName: string,
+  ): boolean {
+    if (plans.length === 0) {
+      onErrorRef.current?.(t("packageNoPurchasePlans"));
+      return false;
+    }
+    applyPurchaseData(packages, plans, rawFirstName);
+    setPurchaseModalOpen(true);
+    skipNextBuyUrlRestoreRef.current = true;
+    replaceSearchParams((params) => {
+      clearBookPackageSessionQuery(params);
+      setBuyPackageSessionQuery(params, sessionId);
+    });
+    return true;
+  }
+
   async function openPurchaseModal(
     packages: readonly EligibleBookingPackage[],
-    options: { fromUrl?: boolean } = {},
   ): Promise<void> {
     const [plans, rawFirstName] = await Promise.all([
       fetchPurchasePlans(),
@@ -214,20 +233,11 @@ export function useSessionBooking({
     ]);
     if (plans.length === 0) {
       onErrorRef.current?.(t("packageNoPurchasePlans"));
-      if (options.fromUrl) {
-        replaceSearchParams(clearBuyPackageSessionQuery);
-      }
+      replaceSearchParams(clearBuyPackageSessionQuery);
       return;
     }
     applyPurchaseData(packages, plans, rawFirstName);
     setPurchaseModalOpen(true);
-    if (!options.fromUrl) {
-      skipNextBuyUrlRestoreRef.current = true;
-      replaceSearchParams((params) => {
-        clearBookPackageSessionQuery(params);
-        setBuyPackageSessionQuery(params, sessionId);
-      });
-    }
   }
 
   async function bookWithOptionalPackage(userPackageId?: string): Promise<void> {
@@ -249,18 +259,18 @@ export function useSessionBooking({
     }
     setBusy(true);
     try {
-      const packages = await fetchEligiblePackages();
+      const [packages, plans, rawFirstName] = await Promise.all([
+        fetchEligiblePackages(),
+        fetchPurchasePlans().catch(() => [] as PackageSubscribePlanOption[]),
+        fetchFirstName(),
+      ]);
       if (shouldPromptBookingPackageSelection(packages)) {
         openPackageModal(packages);
         return;
       }
-      if (!hasBookablePackage(packages)) {
-        await openPurchaseModal(packages);
-        return;
-      }
       const autoPackageId = resolveAutoBookPackageId(packages);
-      if (autoPackageId === undefined) {
-        await openPurchaseModal(packages);
+      if (!hasBookablePackage(packages) || autoPackageId === undefined) {
+        showPurchaseModal(packages, plans, rawFirstName);
         return;
       }
       await bookWithOptionalPackage(autoPackageId);
