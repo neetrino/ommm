@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
-import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
@@ -67,7 +66,6 @@ export function AdminPackagePlanStatusActions({
       setTone("ok");
       setMessage(nextIsActive ? t("messages.enabledSuccess") : t("messages.disabledSuccess"));
       setPendingConfirm(null);
-      await revalidatePublicPackages();
     } catch (error) {
       setTone("err");
       setMessage(error instanceof ApiError ? error.message : t("genericError"));
