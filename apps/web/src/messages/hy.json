@@ -3639,13 +3639,8 @@
       "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Ներառում է՝ {categories}",
       "packageSelectedBadge": "Ընտրված",
-      "purchaseModalMissingTitle": "Դուք չունեք այս դասի համար փաթեթ",
-      "purchaseModalMissingDescription": "Գնեք փաթեթ՝ այս դասին գրանցվելու համար։ Կարող եք անմիջապես կատարել վճարումը։",
-      "purchaseModalDepletedTitle": "Ձեր փաթեթում այցեր չեն մնացել",
-      "purchaseModalDepletedDescription": "Ձեր ընթացիկ փաթեթում այս դասի համար այցեր չեն մնացել։ Գնեք նոր փաթեթ՝ շարունակելու գրանցվելը։",
-      "purchaseModalBuy": "Գնել փաթեթ",
-      "purchaseModalCancel": "Հիմա չէ",
-      "purchaseModalClose": "Փակել",
+      "purchaseNoticeMissing": "Դուք դեռ չունեք այս դասի փաթեթը — ընտրեք ստորև և կատարեք վճարումը՝ ձեր տեղը ամրագրելու համար։",
+      "purchaseNoticeDepleted": "Ձեր փաթեթում այս դասի համար այցեր չեն մնացել — ընտրեք փաթեթ ստորև՝ գրանցումը շարունակելու համար։",
       "packageNoPurchasePlans": "Այս դասի համար հասանելի փաթեթներ չկան։"
     },
     "joinWaitlist": {

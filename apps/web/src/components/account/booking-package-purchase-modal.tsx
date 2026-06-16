@@ -8,6 +8,7 @@ type BookingPackagePurchaseModalProps = {
   locale: string;
   plans: readonly PackageSubscribePlanOption[];
   initialPlanId?: string;
+  notice?: string;
   onClose: () => void;
 };
 
@@ -17,6 +18,7 @@ export function BookingPackagePurchaseModal({
   locale,
   plans,
   initialPlanId,
+  notice,
   onClose,
 }: BookingPackagePurchaseModalProps) {
   return (
@@ -25,6 +27,7 @@ export function BookingPackagePurchaseModal({
       locale={locale}
       plans={plans}
       initialPlanId={initialPlanId}
+      notice={notice}
       onClose={onClose}
     />
   );

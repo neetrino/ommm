@@ -54,6 +54,7 @@ export function useSessionBooking({
   const [busy, setBusy] = useState(false);
   const [packageModalOpen, setPackageModalOpen] = useState(false);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+  const [purchaseNotice, setPurchaseNotice] = useState<string>("");
   const [purchasePlans, setPurchasePlans] = useState<
     readonly PackageSubscribePlanOption[]
   >([]);
@@ -115,6 +116,11 @@ export function useSessionBooking({
     }
     const suggested =
       packages.find((pkg) => !pkg.canBook)?.planId ?? plans[0]?.id;
+    const notice =
+      packages.length === 0
+        ? t("purchaseNoticeMissing")
+        : t("purchaseNoticeDepleted");
+    setPurchaseNotice(notice);
     setPurchasePlans(plans);
     setSuggestedPlanId(suggested);
     setPurchaseModalOpen(true);
@@ -235,6 +241,7 @@ export function useSessionBooking({
       locale={locale}
       plans={purchasePlans}
       initialPlanId={suggestedPlanId}
+      notice={purchaseNotice}
       onClose={closePurchaseModal}
     />
   ) : null;

@@ -3692,13 +3692,8 @@
       "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Includes: {categories}",
       "packageSelectedBadge": "Selected",
-      "purchaseModalMissingTitle": "You don't have a package for this class",
-      "purchaseModalMissingDescription": "Purchase a package to book this session. You can complete payment right away.",
-      "purchaseModalDepletedTitle": "No visits left on your package",
-      "purchaseModalDepletedDescription": "Your current package has no remaining visits for this class. Purchase a new package to continue booking.",
-      "purchaseModalBuy": "Buy package",
-      "purchaseModalCancel": "Not now",
-      "purchaseModalClose": "Close",
+      "purchaseNoticeMissing": "You don't have a package for this class yet — choose one below and complete payment to book your spot.",
+      "purchaseNoticeDepleted": "Your package has no visits left for this class — pick a package below to keep booking.",
       "packageNoPurchasePlans": "No packages are available for this class right now."
     },
     "joinWaitlist": {
