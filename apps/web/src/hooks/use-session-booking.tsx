@@ -12,8 +12,11 @@ import {
 } from "@/components/account/booking-package-purchase-modal";
 import {
   clearBookPackageSessionQuery,
+  clearBuyPackageSessionQuery,
   readBookPackageSessionId,
+  readBuyPackageSessionId,
   setBookPackageSessionQuery,
+  setBuyPackageSessionQuery,
 } from "@/lib/book-package-session-url";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -46,6 +49,7 @@ export function useSessionBooking({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const urlPickSessionId = readBookPackageSessionId(searchParams);
+  const urlBuySessionId = readBuyPackageSessionId(searchParams);
   const onBookedRef = useRef(onBooked);
   const onErrorRef = useRef(onError);
   onBookedRef.current = onBooked;
@@ -63,6 +67,7 @@ export function useSessionBooking({
     readonly EligibleBookingPackage[]
   >([]);
   const skipNextUrlRestoreRef = useRef(false);
+  const skipNextBuyUrlRestoreRef = useRef(false);
 
   function replaceSearchParams(mutate: (params: URLSearchParams) => void): void {
     const params = new URLSearchParams(searchParams.toString());
@@ -92,6 +97,9 @@ export function useSessionBooking({
 
   function closePurchaseModal(): void {
     setPurchaseModalOpen(false);
+    if (urlBuySessionId === sessionId) {
+      replaceSearchParams(clearBuyPackageSessionQuery);
+    }
   }
 
   async function fetchEligiblePackages(): Promise<EligibleBookingPackage[]> {
@@ -108,10 +116,14 @@ export function useSessionBooking({
 
   async function openPurchaseModal(
     packages: readonly EligibleBookingPackage[],
+    options: { fromUrl?: boolean } = {},
   ): Promise<void> {
     const plans = await fetchPurchasePlans();
     if (plans.length === 0) {
       onErrorRef.current?.(t("packageNoPurchasePlans"));
+      if (options.fromUrl) {
+        replaceSearchParams(clearBuyPackageSessionQuery);
+      }
       return;
     }
     const suggested =
@@ -124,6 +136,13 @@ export function useSessionBooking({
     setPurchasePlans(plans);
     setSuggestedPlanId(suggested);
     setPurchaseModalOpen(true);
+    if (!options.fromUrl) {
+      skipNextBuyUrlRestoreRef.current = true;
+      replaceSearchParams((params) => {
+        clearBookPackageSessionQuery(params);
+        setBuyPackageSessionQuery(params, sessionId);
+      });
+    }
   }
 
   async function bookWithOptionalPackage(userPackageId?: string): Promise<void> {
@@ -193,7 +212,6 @@ export function useSessionBooking({
         }
         if (!hasBookablePackage(packages)) {
           await openPurchaseModal(packages);
-          replaceSearchParams(clearBookPackageSessionQuery);
           return;
         }
         replaceSearchParams(clearBookPackageSessionQuery);
@@ -217,6 +235,46 @@ export function useSessionBooking({
       cancelled = true;
     };
   }, [sessionId, urlPickSessionId, pathname, router, searchParams, t]);
+
+  useEffect(() => {
+    if (urlBuySessionId !== sessionId) {
+      return;
+    }
+    if (skipNextBuyUrlRestoreRef.current) {
+      skipNextBuyUrlRestoreRef.current = false;
+      return;
+    }
+
+    let cancelled = false;
+
+    async function restorePurchaseModal(): Promise<void> {
+      setBusy(true);
+      try {
+        const packages = await fetchEligiblePackages();
+        if (cancelled) {
+          return;
+        }
+        await openPurchaseModal(packages, { fromUrl: true });
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+        replaceSearchParams(clearBuyPackageSessionQuery);
+        const message = error instanceof ApiError ? error.message : t("bookFailed");
+        onErrorRef.current?.(message);
+      } finally {
+        if (!cancelled) {
+          setBusy(false);
+        }
+      }
+    }
+
+    void restorePurchaseModal();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, urlBuySessionId, pathname, router, searchParams, t]);
 
   const packageModal =
     packageModalOpen ? (
