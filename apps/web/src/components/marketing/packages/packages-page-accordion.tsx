@@ -40,7 +40,29 @@ import type { PublicPackagePlan } from "@/lib/public-package-plan";
 type PackagesPageAccordionProps = {
   locale: string;
   categories: readonly PackagesPageAccordionCategory[];
+  desktopCardsPerRow?: number;
 };
+
+const DEFAULT_DESKTOP_CARDS_PER_ROW = 5;
+const MIN_DESKTOP_CARDS_PER_ROW = 1;
+
+function clampDesktopCardsPerRow(value: number | undefined): number {
+  if (value === undefined) {
+    return DEFAULT_DESKTOP_CARDS_PER_ROW;
+  }
+  return Math.max(MIN_DESKTOP_CARDS_PER_ROW, Math.floor(value));
+}
+
+function splitAccordionRows(
+  categories: readonly PackagesPageAccordionCategory[],
+  cardsPerRow: number,
+): readonly (readonly PackagesPageAccordionCategory[])[] {
+  const rows: PackagesPageAccordionCategory[][] = [];
+  for (let index = 0; index < categories.length; index += cardsPerRow) {
+    rows.push(categories.slice(index, index + cardsPerRow));
+  }
+  return rows;
+}
 
 /** Locates a plan (and its category) by id across all accordion categories. */
 function toAccordionCategoryGroups(
@@ -597,6 +619,7 @@ function PackagesSubscribeModalHost(props: PackagesSubscribeModalHostProps) {
 export function PackagesPageAccordion({
   locale,
   categories,
+  desktopCardsPerRow,
 }: PackagesPageAccordionProps) {
   const t = useTranslations("marketing");
   const audience = useMarketingAudience();
@@ -646,38 +669,65 @@ export function PackagesPageAccordion({
     );
   }
 
+  const normalizedDesktopCardsPerRow = clampDesktopCardsPerRow(desktopCardsPerRow);
+  const desktopRows = splitAccordionRows(categories, normalizedDesktopCardsPerRow);
   const cardRowGridColumns = Math.min(
-    categories.length,
+    normalizedDesktopCardsPerRow,
     PACKAGES_PAGE_SCROLL_REVEAL.cardRowGridColumns,
   );
 
   const desktopContent = (
     <div className={cardStyles.desktopOnly}>
-      <div className={accordionStyles.accordionRow} style={layoutStyleVars()}>
-        {categories.map((category, index) => (
-          <PackagesPageReveal
-            key={category.id}
-            index={index}
-            gridColumns={cardRowGridColumns}
-            className={resolveAccordionSlotClass(
-              expandedCategory !== null,
-              expandedCategory?.id === category.id,
-            )}
-          >
-            <DesktopAccordionSlot
-              locale={locale}
-              category={category}
-              expandedCategory={expandedCategory}
-              detailsLabel={t("packagesDetailsCta")}
-              openLabel={t("packagesOpenDetailsAria", { name: category.label })}
-              closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
-              audience={audience}
-              onSubscribe={handleSubscribe}
-              onOpen={updateExpandedCategory}
-              onClose={() => updateExpandedCategory(null)}
-            />
-          </PackagesPageReveal>
-        ))}
+      <div className={accordionStyles.accordionRows}>
+        {desktopRows.map((row, rowIndex) => {
+          const rowExpandedCategory =
+            row.find((category) => category.id === expandedCategory?.id) ?? null;
+          const isRowAccordionMode = rowExpandedCategory !== null;
+
+          return (
+            <div
+              key={`row-${rowIndex}`}
+              className={accordionStyles.accordionRow}
+              style={layoutStyleVars()}
+            >
+              {row.map((category, indexInRow) => (
+              <PackagesPageReveal
+                key={category.id}
+                index={rowIndex * normalizedDesktopCardsPerRow + indexInRow}
+                gridColumns={cardRowGridColumns}
+                className={resolveAccordionSlotClass(
+                  isRowAccordionMode,
+                  rowExpandedCategory?.id === category.id,
+                )}
+              >
+                <DesktopAccordionSlot
+                  locale={locale}
+                  category={category}
+                  expandedCategory={rowExpandedCategory}
+                  detailsLabel={t("packagesDetailsCta")}
+                  openLabel={t("packagesOpenDetailsAria", { name: category.label })}
+                  closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
+                  audience={audience}
+                  onSubscribe={handleSubscribe}
+                  onOpen={updateExpandedCategory}
+                  onClose={() => updateExpandedCategory(null)}
+                />
+              </PackagesPageReveal>
+              ))}
+              {Array.from({
+                length: Math.max(0, normalizedDesktopCardsPerRow - row.length),
+              }).map((_, placeholderIndex) => (
+                <div
+                  key={`placeholder-${rowIndex}-${placeholderIndex}`}
+                  className={`${resolveAccordionSlotClass(isRowAccordionMode, false)} ${accordionStyles.accordionSlotPlaceholder}`}
+                  aria-hidden
+                >
+                  <div className={accordionStyles.slotContent} />
+                </div>
+              ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

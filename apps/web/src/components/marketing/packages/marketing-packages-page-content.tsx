@@ -12,10 +12,12 @@ import {
 
 type MarketingPackagesPageContentProps = {
   locale: string;
+  desktopCardsPerRow?: number;
 };
 
 export async function MarketingPackagesPageContent({
   locale,
+  desktopCardsPerRow,
 }: MarketingPackagesPageContentProps) {
   const [m, plansRes] = await Promise.all([
     getTranslations({ locale, namespace: "marketing" }),
@@ -39,7 +41,11 @@ export async function MarketingPackagesPageContent({
           </p>
         </PackagesPageReveal>
       ) : null}
-      <PackagesPageAccordion locale={locale} categories={categories} />
+      <PackagesPageAccordion
+        locale={locale}
+        categories={categories}
+        desktopCardsPerRow={desktopCardsPerRow}
+      />
       <PackagesPageLoginHint index={categories.length} />
     </div>
   );

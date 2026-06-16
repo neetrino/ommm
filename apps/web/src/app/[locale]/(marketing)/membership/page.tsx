@@ -15,7 +15,7 @@ export default async function MembershipMarketingPage({
   return (
     <MarketingMembershipPageSection title={m("packagesPageTitle")} lead={m("packagesPageLead")}>
       <Suspense fallback={<MarketingMembershipPackagesSkeleton />}>
-        <MarketingPackagesPageContent locale={locale} />
+        <MarketingPackagesPageContent locale={locale} desktopCardsPerRow={3} />
       </Suspense>
     </MarketingMembershipPageSection>
   );
