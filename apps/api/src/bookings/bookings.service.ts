@@ -24,7 +24,7 @@ import { RealtimePublisherService } from '../realtime/realtime-publisher.service
 import { ScheduleService } from '../schedule/schedule.service';
 import { PackageUsageService } from '../packages/package-usage.service';
 import {
-  isPlanEligibleForClassType,
+  classTypeMatchesPackageCategory,
   resolvePlanAllowedCategories,
 } from '../packages/package-eligibility.util';
 import { WaitlistService } from '../waitlist/waitlist.service';
@@ -183,7 +183,9 @@ export class BookingsService {
     });
 
     return plans
-      .filter((plan) => isPlanEligibleForClassType(plan, session.classType))
+      .filter((plan) =>
+        classTypeMatchesPackageCategory(plan.categoryName, session.classType),
+      )
       .map((plan) => ({
         id: plan.id,
         name: plan.name,
