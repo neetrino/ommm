@@ -133,6 +133,13 @@ export function AdminPackagesShell({
         normalizePackageCategoryKey(pkg.categoryName) === categoryKey && pkg.priceCents > 0,
     ).length;
   }, [addTierCategoryName, isAddTierModalOpen, packages]);
+  const nextDisplayOrder = useMemo(() => {
+    if (packages.length === 0) {
+      return 1;
+    }
+    const maxDisplayOrder = Math.max(...packages.map((pkg) => pkg.displayOrder));
+    return maxDisplayOrder + 1;
+  }, [packages]);
   const initialCategoryName = useMemo(() => {
     if (editingPackage !== undefined && editingPackage.categoryName.trim().length > 0) {
       return editingPackage.categoryName.trim();
@@ -387,6 +394,7 @@ export function AdminPackagesShell({
                     : editingPackage
               }
               configuredTierCount={configuredTierCount}
+              nextDisplayOrder={nextDisplayOrder}
               onSaved={(saved) => {
                 if (
                   modalMode === "edit" ||

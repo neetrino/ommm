@@ -79,6 +79,7 @@ type AdminPackageFormProps = {
   categoryOptions: readonly CategoryOption[];
   initialPackage?: AdminPackageRow;
   configuredTierCount?: number;
+  nextDisplayOrder?: number;
   onSaved: (saved: AdminPackageRow) => void;
   onCancel: () => void;
 };
@@ -148,6 +149,7 @@ export function AdminPackageForm({
   initialCategoryName,
   categoryOptions,
   initialPackage,
+  nextDisplayOrder,
   onSaved,
   onCancel,
 }: AdminPackageFormProps) {
@@ -473,6 +475,7 @@ export function AdminPackageForm({
           guestCount: 0,
           periodDays: PACKAGE_DAYS_PER_MONTH,
           billingPeriod: "monthly",
+          displayOrder: nextDisplayOrder ?? 1,
           isPopular: false,
           isActive: true,
         }
@@ -488,6 +491,7 @@ export function AdminPackageForm({
               slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
               description: initialPackage?.description ?? null,
               ...pricingFields,
+              displayOrder: nextDisplayOrder ?? 1,
               isPopular: false,
               isActive: true,
             }

@@ -489,10 +489,14 @@ export function AdminPackagesManagement({
   const handleCategoryRenamed = useCallback(
     (fromName: string, toName: string, updated: readonly AdminPackageRow[]) => {
       const previousCategoryKey = normalizePackageCategoryKey(fromName);
-      const nextCategoryName = updated[0]?.categoryName ?? toName.trim();
+      const normalizedUpdated = updated.map(normalizeAdminPackageRow);
+      const nextCategoryName = normalizedUpdated[0]?.categoryName ?? toName.trim();
       setPackageRows((current) => {
-        let next = current;
-        for (const row of updated) {
+        const withoutPreviousCategory = current.filter(
+          (row) => normalizePackageCategoryKey(row.categoryName) !== previousCategoryKey,
+        );
+        let next = withoutPreviousCategory;
+        for (const row of normalizedUpdated) {
           next = upsertAdminPackageRow(next, row);
         }
         return next;
