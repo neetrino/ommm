@@ -512,10 +512,10 @@ export function AdminPackageForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col"
+      className="flex min-h-0 flex-1 flex-col"
     >
       <div
-        className={`flex flex-col gap-5 px-5 sm:px-7${
+        className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 sm:px-7${
           mode === "create" ? "" : " pt-5 sm:pt-6"
         }`}
       >
