@@ -15,11 +15,14 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { CreateCombinedPlanDto } from './dto/create-combined-plan.dto';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { ChangePackagePlanDto } from './dto/change-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
+import { UpdatePlanStatusDto } from './dto/update-plan-status.dto';
+import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { PackagesService } from './packages.service';
 
 @Controller('packages')
@@ -52,11 +55,25 @@ export class PackagesController {
     return this.packages.createPlan(dto);
   }
 
+  @Post('plans/combined')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  createCombinedPlan(@Body() dto: CreateCombinedPlanDto) {
+    return this.packages.createCombinedPlan(dto);
+  }
+
   @Patch('plans/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
     return this.packages.updatePlan(id, dto);
+  }
+
+  @Patch('admin/plans/:id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminPlanStatus(@Param('id') id: string, @Body() dto: UpdatePlanStatusDto) {
+    return this.packages.adminSetPlanStatus(id, dto.isActive);
   }
 
   @Get('admin/plans/:id/deletion-blockers')
@@ -78,6 +95,16 @@ export class PackagesController {
   @Roles(Role.ADMIN)
   deleteCategory(@Body() dto: DeleteCategoryDto) {
     return this.packages.deletePlansByCategory(dto.categoryName);
+  }
+
+  @Patch('admin/categories/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminCategoryStatus(@Body() dto: UpdateCategoryStatusDto) {
+    return this.packages.adminSetCategoryPlanStatus(
+      dto.categoryName,
+      dto.isActive,
+    );
   }
 
   /** Account packages RSC page — same burst pattern as `GET /users/me`. */

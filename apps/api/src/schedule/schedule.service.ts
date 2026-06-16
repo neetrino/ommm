@@ -22,7 +22,10 @@ import {
   PUBLIC_SCHEDULE_SESSION_INCLUDE,
   type PublicScheduleItem,
 } from './map-sessions-to-public-schedule-items';
-import { resolvePublicScheduleRange } from './public-schedule-range';
+import {
+  resolvePublicScheduleRange,
+  publicScheduleCacheDayKey,
+} from './public-schedule-range';
 
 const DAY_ORDER: Record<ScheduleDayOfWeek, number> = {
   SUNDAY: 0,
@@ -96,7 +99,7 @@ export class ScheduleService {
 
   async listPublicActive(params?: { from?: string; to?: string }) {
     const range = resolvePublicScheduleRange(params?.from, params?.to);
-    const dayKey = range.from.toISOString().slice(0, 10);
+    const dayKey = publicScheduleCacheDayKey(range.from);
     const items = await this.cache.getOrSet(
       `${PUBLIC_CACHE_KEYS.schedule}:${dayKey}`,
       PUBLIC_CACHE_TTL_SEC.schedule,

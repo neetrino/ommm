@@ -15,6 +15,8 @@ import type { PublicPackageCategoryGroup } from "@/lib/public-package-categories
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { PackagesGuestHint } from "@/components/marketing/packages/packages-guest-hint";
+import { resolvePackagesGuestHintCopy } from "@/components/marketing/packages/packages-guest-hint-copy";
 
 type PublicPackageCategoryPanelProps = {
   locale: string;
@@ -30,6 +32,8 @@ export function PublicPackageCategoryPanel({
   variant = "list",
 }: PublicPackageCategoryPanelProps) {
   const t = useTranslations("marketing");
+  const common = useTranslations("common");
+  const guestHintCopy = resolvePackagesGuestHintCopy(common, t);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentPlanId, setPaymentPlanId] = useState<string | undefined>(undefined);
 
@@ -79,7 +83,13 @@ export function PublicPackageCategoryPanel({
           audience === "member" ? t("packagesViewAllCta") : t("packagesAccountCta")
         }
         secondaryHref={audience === "member" ? categoryHref : "/user/packages"}
-        hint={audience === "member" ? t("packagesMemberHint") : t("packagesLoginHint")}
+        hint={
+          audience === "member" ? (
+            <p className="text-center text-xs leading-relaxed text-sage-500">{t("packagesMemberHint")}</p>
+          ) : (
+            <PackagesGuestHint {...guestHintCopy} variant="footer" />
+          )
+        }
         onSubscribe={audience === "member" ? () => openPayment() : undefined}
         rootClassName={styles.footer}
         actionsClassName={styles.footerActions}

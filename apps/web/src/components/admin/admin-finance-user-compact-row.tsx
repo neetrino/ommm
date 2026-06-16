@@ -20,6 +20,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
+import { displayPhoneOrEmail } from "@/lib/phone";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 
 type AdminFinanceUserCompactRowProps = {
@@ -73,7 +74,7 @@ export function AdminFinanceUserCompactRow({
       <div className={ADMIN_FINANCE_USER_LIST_CELL}>
         <AdminListMobileLabel label={t("colUser")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
-        <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? row.email}</p>
+        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.phone, row.email)}</p>
       </div>
 
       <div className={ADMIN_FINANCE_USER_LIST_CELL}>

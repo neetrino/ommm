@@ -118,6 +118,7 @@ export type AdminPackageFormValues = {
   guestCount: string;
   isPopular: boolean;
   isActive: boolean;
+  sourceSessionAllocations: Record<string, string>;
 };
 
 export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPackageFormValues {
@@ -132,6 +133,18 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     guestCount: "",
     isPopular: false,
     isActive: true,
+    sourceSessionAllocations: {},
+  };
+}
+
+/** Empty pricing fields for add-tier / edit-tier forms (no prefilled numbers). */
+export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackageFormValues {
+  return {
+    ...createEmptyPackageFormValues(initialCategoryName),
+    price: "",
+    pricePerSession: "",
+    durationDays: "",
+    guestCount: "",
   };
 }
 
@@ -167,7 +180,18 @@ export function packageRowToFormValues(
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
+    sourceSessionAllocations: {},
   };
+}
+
+/** Derives per-session AMD for tier forms from raw price and session count inputs. */
+export function resolveTierPricePerSessionField(price: string, sessionsCount: string): string {
+  const priceAmount = parsePriceToCents(price);
+  const sessions = parseSessionsCount(sessionsCount);
+  if (priceAmount === null || sessions === null) {
+    return "";
+  }
+  return deriveTierPricePerSessionAmount(priceAmount, sessions);
 }
 
 /** Derives per-session AMD amount from stored total price and session count. */

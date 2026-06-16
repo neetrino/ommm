@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ScheduleSessionDateTimeCell } from "@/components/shared/schedule/schedule-session-datetime-cell";
+import { displayPhoneOrEmail } from "@/lib/phone";
 import {
   STAFF_ROSTER_LIST_ACTIONS_CELL,
   STAFF_ROSTER_LIST_CLASS_CELL,
@@ -40,7 +41,7 @@ export async function StaffRosterRow({ locale, row, actions }: StaffRosterRowPro
           {userLabel}
         </p>
         <p className="mt-0.5 truncate text-xs text-sage-500">
-          {row.user.phone ?? row.user.email}
+          {displayPhoneOrEmail(row.user.phone ?? null, row.user.email)}
         </p>
       </div>
 

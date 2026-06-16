@@ -9,6 +9,7 @@ import {
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
+import { formatPhoneDisplay } from "@/lib/phone";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { userDisplayName } from "@/lib/user-display-name";
 
@@ -39,7 +40,7 @@ function memberInitials(name: string): string {
 
 function memberContactLine(user: SessionRegistrationRow["user"]): string {
   if (user.phone?.trim()) {
-    return user.phone.trim();
+    return formatPhoneDisplay(user.phone);
   }
   return user.email.trim();
 }

@@ -4,6 +4,7 @@ export const REALTIME_REFETCH_KEYS = {
   SCHEDULE_PUBLIC: "schedule/public",
   BOOKINGS_ME: "bookings/me",
   WAITLIST_ME: "waitlist/me",
+  PACKAGES_ME: "packages/me",
   SCHEDULE_ADMIN: "classes/admin/sessions",
   BOOKINGS_ADMIN: "bookings/admin",
   WAITLIST_ADMIN: "waitlist/admin",
@@ -28,6 +29,7 @@ export function refetchKeysForEvent(event: ParsedRealtimeEvent): RealtimeRefetch
       return [
         REALTIME_REFETCH_KEYS.BOOKINGS_ME,
         REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC,
+        REALTIME_REFETCH_KEYS.PACKAGES_ME,
         REALTIME_REFETCH_KEYS.BOOKINGS_ADMIN,
         REALTIME_REFETCH_KEYS.WAITLIST_ADMIN,
       ];

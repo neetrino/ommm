@@ -37,7 +37,7 @@ export const PACKAGE_SUBSCRIBE_PAYMENT_COLUMN_CLASS =
   "min-h-0 flex flex-col overflow-hidden tablet:ps-1";
 
 /** Keep in sync with CSS transitions on the desktop panel. */
-export const PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS = 300;
+export const PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS = 420;
 
 /** Keep in sync with CSS transitions on the mobile bottom sheet. */
 export const PACKAGE_SUBSCRIBE_MOBILE_MOTION_MS = 300;

@@ -14,7 +14,13 @@ import styles from "@/components/marketing/contact/marketing-contact-message-for
 import { MarketingContactSuccessToast } from "@/components/marketing/contact/marketing-contact-success-toast";
 import { ApiError, apiFetch } from "@/lib/api";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
-import { syncPhoneInputElement } from "@/lib/phone-input";
+import {
+  ARMENIA_PHONE_DISPLAY_PLACEHOLDER,
+  formatPhoneDisplay,
+  isValidPhone,
+  normalizePhoneForApi,
+} from "@/lib/phone";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
 
 const CONTACT_REQUIRED_FIELDS = ["name", "phone", "email", "subject", "message"] as const;
 
@@ -95,6 +101,8 @@ type ContactMessageFormProps = {
 export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormProps) {
   const t = useTranslations("forms.contact");
   const tPage = useTranslations("marketingPages.contact");
+  const tAuth = useTranslations("auth.register");
+  const [phone, setPhone] = useState(() => formatPhoneDisplay(prefill?.phone ?? ""));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -128,6 +136,14 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
       return;
     }
 
+    const phoneValue = phone.trim();
+    if (!isValidPhone(phoneValue)) {
+      setInvalidFields(new Set(["phone"]));
+      setErrorMsg(tAuth("invalidPhone"));
+      setSuccessToast(null);
+      return;
+    }
+
     setInvalidFields(new Set());
     const form = new FormData(formElement);
     const email = String(form.get("email") ?? "").trim();
@@ -142,13 +158,14 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
         body: JSON.stringify({
           name: String(form.get("name") ?? "").trim(),
           email,
-          phone: String(form.get("phone") ?? "").trim(),
+          phone: normalizePhoneForApi(phoneValue),
           subject: String(form.get("subject") ?? "").trim() || undefined,
           message,
         }),
       });
       setSuccessToast(t("thankYou"));
       formElement.reset();
+      setPhone("");
     } catch (err) {
       setErrorMsg(err instanceof ApiError ? err.message : t("sendError"));
     } finally {
@@ -181,16 +198,16 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
           </label>
           <label className={styles.field}>
             <span className={styles.label}>{t("phone")}</span>
-            <input
+            <PhoneInputField
               name="phone"
               required
               autoComplete="tel"
-              placeholder={t("placeholders.phone")}
+              placeholder={ARMENIA_PHONE_DISPLAY_PLACEHOLDER}
               aria-invalid={invalidFields.has("phone")}
               className={fieldInputClass("phone", invalidFields, styles.input)}
-              defaultValue={prefill?.phone}
-              onInput={(event) => {
-                syncPhoneInputElement(event.currentTarget);
+              value={phone}
+              onValueChange={(value) => {
+                setPhone(value);
                 clearInvalidField("phone");
               }}
             />

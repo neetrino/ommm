@@ -20,6 +20,7 @@ import {
   ADMIN_LIST_TITLE_TEXT_CLASS,
 } from "@/components/admin/admin-list-table-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { displayPhoneOrFallback } from "@/lib/phone";
 import { normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
 
 type BookingRow = {
@@ -103,7 +104,7 @@ export function AdminBookingCompactRow({
         >
           {userLabel}
         </button>
-        <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? "—"}</p>
+        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(row.user.phone)}</p>
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_COACH_CELL}>

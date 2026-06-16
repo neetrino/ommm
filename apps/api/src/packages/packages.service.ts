@@ -10,6 +10,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import {
   ManualPaymentMethod,
+  PackagePlanType,
   PackageStatus,
   PaymentStatus,
   Prisma,
@@ -26,8 +27,18 @@ import {
 } from '../cache/public-cache-keys';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
+import type { CreateCombinedPlanDto } from './dto/create-combined-plan.dto';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+import { validateCombinedSessionAllocations } from './combined-plan-allocations.util';
+import {
+  dedupeCategoryNames,
+  packageCategoryComparisonKey,
+} from './package-eligibility.util';
+import {
+  cleanupClassTypesForRemovedPackageCategories,
+  syncClassTypeForPackageCategory,
+} from './package-category-class-type.sync';
 import {
   PACKAGE_PLAN_DELETION_BLOCKING_STATUSES,
   PACKAGE_PLAN_DELETION_PURGEABLE_STATUSES,
@@ -37,6 +48,27 @@ import { PackageUsageService } from './package-usage.service';
 
 const MIN_PRORATED_SESSIONS = 1;
 const PACKAGE_PAYMENT_SOURCE = 'PACKAGE';
+const MIN_COMBINED_SOURCE_PLAN_COUNT = 2;
+const MAX_COMBINED_SOURCE_PLAN_COUNT = 20;
+
+function trimHyphenEdges(value: string): string {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end && value.charCodeAt(start) === 45) {
+    start += 1;
+  }
+  while (end > start && value.charCodeAt(end - 1) === 45) {
+    end -= 1;
+  }
+
+  return value.slice(start, end);
+}
+
+export const PACKAGE_PLAN_UNAVAILABLE_MESSAGE =
+  'This package is currently unavailable.';
+export const COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE =
+  'One of the selected packages is no longer available.';
 
 @Injectable()
 export class PackagesService {
@@ -58,10 +90,11 @@ export class PackagesService {
     );
   }
 
-  /** Full Admin catalog for the public `/packages` page — UI filters inactive tiers for subscribe. */
+  /** Active plans only — inactive tiers remain visible in Admin. */
   private async loadPublicPlansFromDb() {
     try {
       return await this.prisma.packagePlan.findMany({
+        where: { isActive: true },
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       });
     } catch (error) {
@@ -74,7 +107,7 @@ export class PackagesService {
       if (!this.isMissingColumn(error)) {
         throw error;
       }
-      const legacyPlans = await this.fetchLegacyPlans({ onlyActive: false });
+      const legacyPlans = await this.fetchLegacyPlans({ onlyActive: true });
       return legacyPlans.map((plan) => this.withMarketingDefaults(plan));
     }
   }
@@ -104,6 +137,11 @@ export class PackagesService {
     try {
       return await this.prisma.packagePlan.findMany({
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+        include: {
+          combinedComponents: {
+            orderBy: { createdAt: 'asc' },
+          },
+        },
       });
     } catch (error) {
       if (this.isDatabaseUnreachable(error)) {
@@ -123,28 +161,34 @@ export class PackagesService {
     const slug = this.resolveSlug(dto.name, dto.slug);
     const categoryName = await this.resolveCategoryName(dto.categoryName);
     try {
-      const plan = await this.prisma.packagePlan.create({
-        data: {
-          name: dto.name,
-          categoryName,
-          slug,
-          description: dto.description,
-          priceCents: dto.priceCents,
-          pricePerSessionCents: this.normalizePricePerSessionCents(
-            dto.pricePerSessionCents,
-          ),
-          currency: this.normalizeCurrency(dto.currency),
-          sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
-          isUnlimited: dto.isUnlimited,
-          periodDays: dto.periodDays,
-          billingPeriod: this.normalizeBillingPeriod(dto.billingPeriod),
-          features: this.normalizeFeatures(dto.features),
-          buttonLabel: this.normalizeButtonLabel(dto.buttonLabel),
-          isPopular: dto.isPopular ?? false,
-          isActive: dto.isActive ?? true,
-          displayOrder: dto.displayOrder ?? 0,
-          guestCount: this.normalizeGuestCount(dto.guestCount),
-        },
+      const plan = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.packagePlan.create({
+          data: {
+            name: dto.name,
+            categoryName,
+            slug,
+            description: dto.description,
+            priceCents: dto.priceCents,
+            pricePerSessionCents: this.normalizePricePerSessionCents(
+              dto.pricePerSessionCents,
+            ),
+            currency: this.normalizeCurrency(dto.currency),
+            sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
+            isUnlimited: dto.isUnlimited,
+            periodDays: dto.periodDays,
+            billingPeriod: this.normalizeBillingPeriod(dto.billingPeriod),
+            features: this.normalizeFeatures(dto.features),
+            buttonLabel: this.normalizeButtonLabel(dto.buttonLabel),
+            isPopular: dto.isPopular ?? false,
+            isActive: dto.isActive ?? true,
+            displayOrder: dto.displayOrder ?? 0,
+            guestCount: this.normalizeGuestCount(dto.guestCount),
+            planType: PackagePlanType.SINGLE,
+            allowedCategoryNames: [categoryName],
+          },
+        });
+        await syncClassTypeForPackageCategory(tx, { categoryName });
+        return created;
       });
       await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
       return plan;
@@ -160,6 +204,7 @@ export class PackagesService {
           slug,
           categoryName,
         );
+        await syncClassTypeForPackageCategory(this.prisma, { categoryName });
         await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
         return plan;
       }
@@ -167,6 +212,7 @@ export class PackagesService {
         throw error;
       }
       const legacyPlan = await this.createPlanLegacy(dto, slug, categoryName);
+      await syncClassTypeForPackageCategory(this.prisma, { categoryName });
       await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
       return this.withMarketingDefaults({
         ...legacyPlan,
@@ -176,10 +222,146 @@ export class PackagesService {
     }
   }
 
+  async createCombinedPlan(dto: CreateCombinedPlanDto) {
+    const sourceIds = [...new Set(dto.sourcePlanIds)];
+    if (sourceIds.length < MIN_COMBINED_SOURCE_PLAN_COUNT) {
+      throw new BadRequestException(
+        'Please select at least two packages to combine.',
+      );
+    }
+    if (sourceIds.length > MAX_COMBINED_SOURCE_PLAN_COUNT) {
+      throw new BadRequestException(
+        `You can combine up to ${MAX_COMBINED_SOURCE_PLAN_COUNT} packages.`,
+      );
+    }
+    if (dto.sourcePlanIds.length !== sourceIds.length) {
+      throw new BadRequestException(
+        'The same package cannot be selected twice.',
+      );
+    }
+
+    const sourcePlans = await this.prisma.packagePlan.findMany({
+      where: { id: { in: sourceIds } },
+    });
+    if (sourcePlans.length !== sourceIds.length) {
+      throw new BadRequestException(COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE);
+    }
+    for (const plan of sourcePlans) {
+      if (!plan.isActive) {
+        throw new BadRequestException(COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE);
+      }
+      if (plan.planType === PackagePlanType.COMBINED) {
+        throw new BadRequestException(
+          'Combined packages cannot be used as source packages.',
+        );
+      }
+    }
+
+    const orderedSources = sourceIds.map(
+      (id) => sourcePlans.find((plan) => plan.id === id)!,
+    );
+    const categorySnapshots = dedupeCategoryNames(
+      orderedSources.map((plan) => plan.categoryName),
+    );
+    if (categorySnapshots.length === 0) {
+      throw new BadRequestException(COMBINED_PLAN_SOURCE_UNAVAILABLE_MESSAGE);
+    }
+
+    const classTypes = await this.prisma.classType.findMany({
+      select: { id: true, name: true, slug: true },
+    });
+    const slug = this.resolveSlug(dto.name, dto.slug);
+    const resolvedName = dto.name.trim();
+    if (resolvedName.length === 0) {
+      throw new BadRequestException('Package name is required.');
+    }
+    const categoryName = resolvedName;
+
+    try {
+      const plan = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.packagePlan.create({
+          data: {
+            name: resolvedName,
+            categoryName,
+            slug,
+            description: dto.description,
+            priceCents: dto.priceCents,
+            pricePerSessionCents: this.normalizePricePerSessionCents(
+              dto.pricePerSessionCents,
+            ),
+            currency: this.normalizeCurrency(dto.currency),
+            sessionsPerMonth: dto.isUnlimited ? null : dto.sessionsPerMonth,
+            isUnlimited: dto.isUnlimited,
+            periodDays: dto.periodDays,
+            billingPeriod: this.normalizeBillingPeriod(dto.billingPeriod),
+            features: [],
+            buttonLabel: 'Choose plan',
+            isPopular: dto.isPopular ?? false,
+            isActive: dto.isActive ?? true,
+            displayOrder: dto.displayOrder ?? 0,
+            guestCount: this.normalizeGuestCount(dto.guestCount),
+            planType: PackagePlanType.COMBINED,
+            allowedCategoryNames: categorySnapshots,
+          },
+        });
+
+        for (const source of orderedSources) {
+          const classType = classTypes.find(
+            (row) =>
+              packageCategoryComparisonKey(row.name) ===
+              packageCategoryComparisonKey(source.categoryName),
+          );
+          await tx.packagePlanComponent.create({
+            data: {
+              combinedPackagePlanId: created.id,
+              sourcePackagePlanId: source.id,
+              sourcePackageNameSnapshot: source.name,
+              sourceCategoryNameSnapshot: source.categoryName,
+              sourceClassTypeIdSnapshot: classType?.id ?? null,
+              sessionsPerMonthSnapshot: source.sessionsPerMonth,
+              isUnlimitedSnapshot: source.isUnlimited,
+            },
+          });
+        }
+
+        for (const snapshotCategory of dedupeCategoryNames([
+          categoryName,
+          ...categorySnapshots,
+        ])) {
+          await syncClassTypeForPackageCategory(tx, {
+            categoryName: snapshotCategory,
+          });
+        }
+
+        return tx.packagePlan.findUniqueOrThrow({
+          where: { id: created.id },
+          include: {
+            combinedComponents: {
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+        });
+      });
+      await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+      return plan;
+    } catch (error) {
+      if (this.isUniquePlanConflict(error)) {
+        throw new ConflictException(
+          'Membership plan with this slug already exists.',
+        );
+      }
+      throw error;
+    }
+  }
+
   async updatePlan(planId: string, dto: UpdatePlanDto) {
     const existing = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
-      select: { id: true, slug: true },
+      include: {
+        combinedComponents: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
     });
     if (existing === null) {
       throw new NotFoundException('Plan not found');
@@ -235,14 +417,73 @@ export class PackagesService {
     } else if (dto.sessionsPerMonth !== undefined) {
       Object.assign(data, { sessionsPerMonth: dto.sessionsPerMonth });
     }
-    if (Object.keys(data).length === 0) {
+    if (
+      Object.keys(data).length === 0 &&
+      dto.sourceSessionAllocations === undefined
+    ) {
       throw new BadRequestException('No updatable fields were provided');
+    }
+    if (
+      existing.planType === PackagePlanType.SINGLE &&
+      resolvedCategoryName !== undefined
+    ) {
+      Object.assign(data, { allowedCategoryNames: [resolvedCategoryName] });
+    }
+    if (
+      existing.planType === PackagePlanType.COMBINED &&
+      dto.isUnlimited !== true &&
+      dto.sessionsPerMonth !== undefined &&
+      dto.sessionsPerMonth > 0 &&
+      dto.sourceSessionAllocations === undefined
+    ) {
+      throw new BadRequestException(
+        'Please set session counts for each combined source package.',
+      );
     }
     let updated;
     try {
-      updated = await this.prisma.packagePlan.update({
-        where: { id: planId },
-        data,
+      updated = await this.prisma.$transaction(async (tx) => {
+        const saved =
+          Object.keys(data).length > 0
+            ? await tx.packagePlan.update({
+                where: { id: planId },
+                data,
+              })
+            : existing;
+        if (resolvedCategoryName !== undefined) {
+          await syncClassTypeForPackageCategory(tx, {
+            categoryName: resolvedCategoryName,
+            previousCategoryName: existing.categoryName,
+          });
+        }
+        if (
+          existing.planType === PackagePlanType.COMBINED &&
+          dto.sourceSessionAllocations !== undefined
+        ) {
+          const expectedTotal =
+            dto.isUnlimited === true
+              ? null
+              : (dto.sessionsPerMonth ?? saved.sessionsPerMonth);
+          validateCombinedSessionAllocations(
+            existing.combinedComponents,
+            dto.sourceSessionAllocations,
+            expectedTotal,
+          );
+          for (const allocation of dto.sourceSessionAllocations) {
+            await tx.packagePlanComponent.update({
+              where: { id: allocation.componentId },
+              data: { sessionAllocation: allocation.sessionCount },
+            });
+          }
+        }
+        return tx.packagePlan.findUniqueOrThrow({
+          where: { id: planId },
+          include: {
+            combinedComponents: {
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+        });
       });
     } catch (error) {
       if (this.isUniquePlanConflict(error)) {
@@ -257,9 +498,18 @@ export class PackagesService {
         const guestCountValue = data.guestCount as number;
         const dataWithoutGuest = { ...data };
         delete dataWithoutGuest.guestCount;
-        updated = await this.prisma.packagePlan.update({
-          where: { id: planId },
-          data: dataWithoutGuest,
+        updated = await this.prisma.$transaction(async (tx) => {
+          const saved = await tx.packagePlan.update({
+            where: { id: planId },
+            data: dataWithoutGuest,
+          });
+          if (resolvedCategoryName !== undefined) {
+            await syncClassTypeForPackageCategory(tx, {
+              categoryName: resolvedCategoryName,
+              previousCategoryName: existing.categoryName,
+            });
+          }
+          return saved;
         });
         await this.persistGuestCount(planId, guestCountValue);
         updated = await this.loadPlanWithGuestCount(planId, guestCountValue);
@@ -279,6 +529,51 @@ export class PackagesService {
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
     return updated;
+  }
+
+  async adminSetPlanStatus(planId: string, isActive: boolean) {
+    const existing = await this.prisma.packagePlan.findUnique({
+      where: { id: planId },
+      select: { id: true, isActive: true },
+    });
+    if (existing === null) {
+      throw new NotFoundException('Plan not found');
+    }
+    const updated = await this.prisma.packagePlan.update({
+      where: { id: planId },
+      data: { isActive },
+    });
+    await this.audit.log({
+      action: 'MEMBERSHIP_PLAN_STATUS_UPDATED',
+      entityType: 'PackagePlan',
+      entityId: planId,
+      payload: { isActive },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+    return updated;
+  }
+
+  async adminSetCategoryPlanStatus(categoryName: string, isActive: boolean) {
+    const planIds = await this.findPlanIdsByCategoryName(categoryName);
+    if (planIds.length === 0) {
+      throw new NotFoundException('Category not found');
+    }
+    await this.prisma.packagePlan.updateMany({
+      where: { id: { in: planIds } },
+      data: { isActive },
+    });
+    await this.audit.log({
+      action: 'MEMBERSHIP_PLAN_CATEGORY_STATUS_UPDATED',
+      entityType: 'PackagePlan',
+      entityId: planIds[0],
+      payload: { categoryName, isActive, planIds },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+    const updated = await this.prisma.packagePlan.findMany({
+      where: { id: { in: planIds } },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+    return { categoryName, isActive, plans: updated };
   }
 
   async deletePlan(planId: string) {
@@ -397,6 +692,14 @@ export class PackagesService {
     await this.syncExpiredMembershipsForPlans(ids);
 
     await this.prisma.$transaction(async (tx) => {
+      const plansToDelete = await tx.packagePlan.findMany({
+        where: { id: { in: ids } },
+        select: { categoryName: true },
+      });
+      const removedCategoryNames = plansToDelete.map(
+        (plan) => plan.categoryName,
+      );
+
       const blockingCount = await tx.userPackage.count({
         where: {
           planId: { in: ids },
@@ -418,6 +721,10 @@ export class PackagesService {
 
       await tx.packagePlan.deleteMany({
         where: { id: { in: ids } },
+      });
+
+      await cleanupClassTypesForRemovedPackageCategories(tx, {
+        removedCategoryNames,
       });
     });
   }
@@ -455,8 +762,11 @@ export class PackagesService {
     const plan = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
     });
-    if (!plan || !plan.isActive) {
+    if (!plan) {
       throw new NotFoundException('Plan not found');
+    }
+    if (!plan.isActive) {
+      throw new BadRequestException(PACKAGE_PLAN_UNAVAILABLE_MESSAGE);
     }
     if (plan.priceCents <= 0) {
       throw new BadRequestException('This plan is not available for purchase');
@@ -656,8 +966,11 @@ export class PackagesService {
     if (!membership) {
       throw new NotFoundException();
     }
-    if (!plan || !plan.isActive) {
+    if (!plan) {
       throw new NotFoundException('Target plan not found');
+    }
+    if (!plan.isActive) {
+      throw new BadRequestException(PACKAGE_PLAN_UNAVAILABLE_MESSAGE);
     }
     if (membership.planId === plan.id) {
       throw new BadRequestException('Membership already uses this plan');
@@ -751,11 +1064,9 @@ export class PackagesService {
 
   private resolveSlug(name: string, rawSlug?: string): string {
     const source = rawSlug?.trim().length ? rawSlug : name;
-    const slug = source
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    const slug = trimHyphenEdges(
+      source.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-'),
+    );
     if (slug.length === 0) {
       throw new BadRequestException('Slug is required');
     }

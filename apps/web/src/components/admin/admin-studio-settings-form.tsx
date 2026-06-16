@@ -12,6 +12,7 @@ import {
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { formatPhoneDisplay, normalizePhoneForApi } from "@/lib/phone";
 import {
   collectStudioSettingsFieldErrors,
   type StudioSettingsFieldErrors,
@@ -72,7 +73,9 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
 
   const [studioName, setStudioName] = useState(initial.studioName);
   const [contactEmail, setContactEmail] = useState(initial.contactEmail ?? "");
-  const [contactPhone, setContactPhone] = useState(initial.contactPhone ?? "");
+  const [contactPhone, setContactPhone] = useState(
+    formatPhoneDisplay(initial.contactPhone ?? ""),
+  );
   const [whatsappUrl, setWhatsappUrl] = useState(initial.whatsappUrl ?? "");
   const [address, setAddress] = useState(initial.address ?? "");
   const [mapEmbedUrl, setMapEmbedUrl] = useState(initial.mapEmbedUrl ?? "");
@@ -140,7 +143,7 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
         body: JSON.stringify({
           studioName: studioName.trim(),
           contactEmail: contactEmail.trim() || null,
-          contactPhone: contactPhone.trim() || null,
+          contactPhone: contactPhone.trim() ? normalizePhoneForApi(contactPhone) : null,
           whatsappUrl: whatsappUrl.trim() || null,
           address: address.trim() || null,
           mapEmbedUrl: mapEmbedUrl.trim() || null,

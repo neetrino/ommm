@@ -4,19 +4,15 @@ import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
   HOME_FOOTER_LEGAL_LINKS,
-  HOME_FOOTER_NAV_LINKS,
   HOME_FOOTER_SOCIAL_LINKS,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
-type FooterNavKey = (typeof HOME_FOOTER_NAV_LINKS)[number]["navKey"];
 type FooterLegalKey = (typeof HOME_FOOTER_LEGAL_LINKS)[number]["labelKey"];
 
 export type MarketingPublicHomeFooterMobileProps = {
   wordmarkLabel: string;
-  topNavAria: string;
-  navLabels: Record<FooterNavKey, string>;
   illustrationAlt: string;
   phone: string;
   email: string;
@@ -33,8 +29,6 @@ export type MarketingPublicHomeFooterMobileProps = {
 /** Figma mobile footer `97:5944`. */
 export function MarketingPublicHomeFooterMobile({
   wordmarkLabel,
-  topNavAria,
-  navLabels,
   illustrationAlt,
   phone,
   email,
@@ -51,13 +45,6 @@ export function MarketingPublicHomeFooterMobile({
     <div className={styles.mobileStack}>
       <div className={styles.mobileHero}>
         <p className={styles.wordmark}>{wordmarkLabel}</p>
-        <nav className={styles.mobileNav} aria-label={topNavAria}>
-          {HOME_FOOTER_NAV_LINKS.map((item) => (
-            <Link key={item.href} href={item.href} className={styles.mobileNavLink}>
-              {navLabels[item.navKey]}
-            </Link>
-          ))}
-        </nav>
         <div className={styles.mobileIllustration} aria-hidden>
           <div className={styles.illustrationFrame}>
             <Image

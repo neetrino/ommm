@@ -25,6 +25,8 @@ import {
   preventNumberArrowStep,
   buildPackageSessionNameFromCount,
   packageRowToTierFormValues,
+  createEmptyTierFormValues,
+  resolveTierPricePerSessionField,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
 import { AdminPackageCategorySelect } from "@/components/admin/admin-package-category-select";
@@ -35,6 +37,12 @@ import {
   resolvePackageCategoryName,
 } from "@/components/admin/package-category-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
+import { AdminCombinedTierSessionAllocations } from "@/components/admin/admin-combined-tier-session-allocations";
+import {
+  buildCombinedAllocationFormValues,
+  buildSourceSessionAllocationsPayload,
+  sumCombinedSessionAllocations,
+} from "@/components/admin/admin-combined-tier-session-allocations.util";
 import { ApiError, apiFetch } from "@/lib/api";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -76,13 +84,33 @@ type AdminPackageFormProps = {
   onCancel: () => void;
 };
 
+function withCombinedTierAllocations(
+  base: AdminPackageFormValues,
+  initialPackage: AdminPackageRow,
+): AdminPackageFormValues {
+  const allocations = buildCombinedAllocationFormValues(initialPackage.combinedComponents);
+  const total = sumCombinedSessionAllocations(allocations);
+  return {
+    ...base,
+    sourceSessionAllocations: allocations,
+    sessionsCount: total > 0 ? String(total) : base.sessionsCount,
+  };
+}
+
 function buildInitialValues(
   mode: AdminPackageFormMode,
   initialCategoryName: string,
   initialPackage?: AdminPackageRow,
 ): AdminPackageFormValues {
   if (mode === "edit-tier" && initialPackage !== undefined) {
-    return packageRowToTierFormValues(initialPackage, initialCategoryName);
+    const base = packageRowToTierFormValues(initialPackage, initialCategoryName);
+    if (
+      initialPackage.planType === "COMBINED" &&
+      (initialPackage.combinedComponents?.length ?? 0) >= 2
+    ) {
+      return withCombinedTierAllocations(base, initialPackage);
+    }
+    return base;
   }
   if (
     (mode === "edit" || mode === "pricing") &&
@@ -90,13 +118,27 @@ function buildInitialValues(
   ) {
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
-  if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
-    return {
-      ...packageRowToTierFormValues(initialPackage, initialCategoryName),
-      guestCount: "",
-      price: "",
-      pricePerSession: "",
-    };
+  if (mode === "add-tier" && initialPackage !== undefined) {
+    if (
+      initialPackage.planType === "COMBINED" &&
+      (initialPackage.combinedComponents?.length ?? 0) >= 2
+    ) {
+      const base =
+        initialPackage.priceCents > 0
+          ? packageRowToTierFormValues(initialPackage, initialCategoryName)
+          : createEmptyTierFormValues(initialCategoryName);
+      return withCombinedTierAllocations(base, initialPackage);
+    }
+    if (initialPackage.priceCents > 0) {
+      return {
+        ...packageRowToTierFormValues(initialPackage, initialCategoryName),
+        guestCount: "",
+        price: "",
+        pricePerSession: "",
+        durationDays: "",
+      };
+    }
+    return createEmptyTierFormValues(initialCategoryName);
   }
   return createEmptyPackageFormValues(initialCategoryName);
 }
@@ -172,6 +214,42 @@ export function AdminPackageForm({
     setValues((current) => ({ ...current, ...patch }));
   }
 
+  function updateTierPricingValues(patch: Partial<AdminPackageFormValues>) {
+    setValues((current) => {
+      const next = { ...current, ...patch };
+      if ("price" in patch || "sessionsCount" in patch) {
+        const derived = resolveTierPricePerSessionField(next.price, next.sessionsCount);
+        next.pricePerSession =
+          derived.length > 0 ? derived : next.pricePerSession;
+      }
+      return next;
+    });
+  }
+
+  const isCombinedTierForm =
+    (mode === "add-tier" || mode === "edit-tier") &&
+    initialPackage?.planType === "COMBINED" &&
+    (initialPackage.combinedComponents?.length ?? 0) >= 2;
+
+  function updateCombinedAllocation(componentId: string, rawValue: string) {
+    setValues((current) => {
+      const nextAllocations = {
+        ...current.sourceSessionAllocations,
+        [componentId]: rawValue,
+      };
+      const total = sumCombinedSessionAllocations(nextAllocations);
+      const sessionsCount = total > 0 ? String(total) : current.sessionsCount;
+      const derivedPerSession = resolveTierPricePerSessionField(current.price, sessionsCount);
+      return {
+        ...current,
+        sourceSessionAllocations: nextAllocations,
+        sessionsCount,
+        pricePerSession:
+          derivedPerSession.length > 0 ? derivedPerSession : current.pricePerSession,
+      };
+    });
+  }
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending || submitLockRef.current) {
@@ -202,10 +280,16 @@ export function AdminPackageForm({
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
-    const pricePerSessionCents = parsePriceToCents(values.pricePerSession);
+    const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
+    const pricePerSessionCents =
+      parsePriceToCents(values.pricePerSession) ??
+      (priceCents !== null && sessionsPerMonth !== null
+        ? parsePriceToCents(
+            resolveTierPricePerSessionField(String(priceCents), String(sessionsPerMonth)),
+          )
+        : null);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
-    const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const resolvedSessions = sessionsPerMonth ?? MIN_PACKAGE_SESSIONS;
     const generatedSessionName = buildPackageSessionNameFromCount(resolvedSessions);
     const isTierPackage =
@@ -286,6 +370,19 @@ export function AdminPackageForm({
       }
     }
 
+    let sourceSessionAllocations: Array<{ componentId: string; sessionCount: number }> | undefined;
+    if (isCombinedTierForm && initialPackage?.combinedComponents !== undefined) {
+      const allocationPayload = buildSourceSessionAllocationsPayload(
+        initialPackage.combinedComponents,
+        values.sourceSessionAllocations,
+      );
+      if (allocationPayload === null) {
+        setError(t("combinedForm.sourceAllocationInvalid"));
+        return;
+      }
+      sourceSessionAllocations = allocationPayload;
+    }
+
     const preservedDisplayFields =
       (isEditMode || isPricingMode) && initialPackage !== undefined
         ? {
@@ -307,6 +404,9 @@ export function AdminPackageForm({
       guestCount: guestCount ?? 0,
       periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
       billingPeriod: tierBillingPeriod,
+      ...(sourceSessionAllocations !== undefined
+        ? { sourceSessionAllocations }
+        : {}),
     };
 
     const shellTierTarget =
@@ -412,8 +512,13 @@ export function AdminPackageForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col gap-5"
+      className="flex flex-col"
     >
+      <div
+        className={`flex flex-col gap-5 px-5 sm:px-7${
+          mode === "create" ? "" : " pt-5 sm:pt-6"
+        }`}
+      >
       {mode === "create" || mode === "edit" ? (
         <AdminPackageFormSection
           heading={t("formSections.details.heading")}
@@ -469,7 +574,16 @@ export function AdminPackageForm({
             mode === "edit-tier" ? t("editTierFormDescription") : t("addTierFormDescription")
           }
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-4">
+            {isCombinedTierForm && initialPackage?.combinedComponents !== undefined ? (
+              <AdminCombinedTierSessionAllocations
+                components={initialPackage.combinedComponents}
+                allocations={values.sourceSessionAllocations}
+                totalSessions={sumCombinedSessionAllocations(values.sourceSessionAllocations)}
+                onAllocationChange={updateCombinedAllocation}
+                disabled={pending}
+              />
+            ) : (
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
               <input
@@ -481,22 +595,25 @@ export function AdminPackageForm({
                 step={1}
                 inputMode="numeric"
                 value={values.sessionsCount}
-                onChange={(event) => updateValues({ sessionsCount: event.target.value })}
+                onChange={(event) => updateTierPricingValues({ sessionsCount: event.target.value })}
                 onKeyDown={preventNumberArrowStep}
                 placeholder={t("fieldSessionsCountPlaceholder")}
                 required
                 disabled={pending}
               />
             </label>
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
               <AmdMoneyInput
                 name="price"
                 value={values.price}
-                onValueChange={(nextValue) => updateValues({ price: nextValue })}
+                onValueChange={(nextValue) => updateTierPricingValues({ price: nextValue })}
                 disabled={pending}
                 required
                 align="start"
+                placeholder={t("fieldPricePlaceholder")}
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -506,8 +623,8 @@ export function AdminPackageForm({
                 value={values.pricePerSession}
                 onValueChange={(nextValue) => updateValues({ pricePerSession: nextValue })}
                 disabled={pending}
-                required
                 align="start"
+                placeholder={t("fieldPricePerSessionPlaceholder")}
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -546,6 +663,7 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
+            </div>
           </div>
         </AdminPackageFormSection>
       ) : null}
@@ -685,8 +803,9 @@ export function AdminPackageForm({
           {error}
         </p>
       ) : null}
+      </div>
 
-      <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-7 sm:px-7">
+      <div className="shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
         <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
           {t("cancelButton")}
         </OmmButton>

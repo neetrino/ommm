@@ -16,7 +16,6 @@ import {
   HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_MOBILE_LAYOUT,
   HOME_FOOTER_TABLET_LAYOUT,
-  HOME_FOOTER_NAV_LINKS,
   HOME_FOOTER_SOCIAL_LINKS,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
@@ -117,7 +116,6 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
 
 type FooterContentProps = {
   wordmark: ReactNode;
-  topNav: ReactNode;
   illustration: ReactNode;
   contact: ReactNode;
   social: ReactNode;
@@ -125,26 +123,17 @@ type FooterContentProps = {
   copyright: ReactNode;
 };
 
-type FooterDesktopLayerProps = FooterContentProps & {
-  topNavAria: string;
-};
-
 function FooterDesktopLayer({
   wordmark,
-  topNav,
   illustration,
   contact,
   social,
   legal,
   copyright,
-  topNavAria,
-}: FooterDesktopLayerProps) {
+}: FooterContentProps) {
   return (
     <div className={styles.desktopLayer}>
       <div className={styles.wordmarkSlot}>{wordmark}</div>
-      <nav className={styles.navSlot} aria-label={topNavAria}>
-        {topNav}
-      </nav>
       <div className={styles.illustrationSlot}>{illustration}</div>
       <div className={styles.contactSlot}>{contact}</div>
       <div className={styles.socialSlot}>{social}</div>
@@ -162,17 +151,6 @@ export async function MarketingPublicHomeFooter({
   surfaceVariant = "home",
 }: MarketingPublicHomeFooterProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const tNav = await getTranslations({ locale, namespace: "nav" });
-
-  const topNav = (
-    <div className={styles.topNav}>
-      {HOME_FOOTER_NAV_LINKS.map((item) => (
-        <Link key={item.href} href={item.href} className={styles.topNavLink}>
-          {tNav(item.navKey)}
-        </Link>
-      ))}
-    </div>
-  );
 
   const wordmark = <p className={styles.wordmark}>{t("footerWordmark")}</p>;
 
@@ -266,9 +244,7 @@ export async function MarketingPublicHomeFooter({
       <footer className={`${marketingMontserrat.variable} ${styles.shell}`}>
         <HomePageReveal index={0} className={styles.inner}>
         <FooterDesktopLayer
-          topNavAria={t("footerTopNavAria")}
           wordmark={wordmark}
-          topNav={topNav}
           illustration={illustration}
           contact={contact}
           social={social}
@@ -278,15 +254,6 @@ export async function MarketingPublicHomeFooter({
 
         <MarketingPublicHomeFooterMobile
           wordmarkLabel={t("footerWordmark")}
-          topNavAria={t("footerTopNavAria")}
-          navLabels={{
-            story: tNav("story"),
-            schedule: tNav("schedule"),
-            coaches: tNav("coaches"),
-            memberships: tNav("memberships"),
-            explore: tNav("explore"),
-            contact: tNav("contact"),
-          }}
           illustrationAlt={t("footerIllustrationAlt")}
           phone={t("footerPhone")}
           email={t("footerEmail")}

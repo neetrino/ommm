@@ -37,3 +37,12 @@ export function categoryHasConfiguredPackages(
 ): boolean {
   return configuredPackagesInCategory(packages, categoryId).length > 0;
 }
+
+/** Category is enabled when every plan in the group is active. */
+export function isPackageCategoryActive(
+  packages: readonly AdminPackageRow[],
+  categoryId: string,
+): boolean {
+  const inCategory = packagesInCategory(packages, categoryId);
+  return inCategory.length > 0 && inCategory.every((pkg) => pkg.isActive);
+}

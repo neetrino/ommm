@@ -6,7 +6,8 @@ import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
 import { formatBirthdayInput, parseBirthdayDisplayToIso } from "@/lib/date-display";
-import { syncPhoneInputElement } from "@/lib/phone-input";
+import { normalizePhoneForApi } from "@/lib/phone";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import {
@@ -28,7 +29,6 @@ import {
   MAX_EXPERIENCE_YEARS,
   MAX_NAME_LENGTH,
   MAX_PHOTO_BYTES,
-  MAX_PHONE_CHARS,
   MAX_SPECIALIZATION_LENGTH,
   MIN_PASSWORD_LENGTH,
   MIN_SCHEDULE_SPOTS,
@@ -79,6 +79,7 @@ export function AdminCreateCoachForm({
   const submitLockRef = useRef(false);
   const [classTypeValue, setClassTypeValue] = useState("");
   const [birthdayValue, setBirthdayValue] = useState("");
+  const [phone, setPhone] = useState("");
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [scheduleRows, setScheduleRows] = useState<CoachScheduleInput[]>([
     createScheduleRow(),
@@ -149,7 +150,7 @@ export function AdminCreateCoachForm({
     const nameRaw = String(fd.get("name") ?? "").trim();
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
-    const phoneRaw = String(fd.get("phone") ?? "").trim();
+    const phoneRaw = phone.trim();
     const ageRaw = String(fd.get("age") ?? "").trim();
     const birthdayRaw = String(fd.get("birthday") ?? "").trim();
     const bioRaw = String(fd.get("bio") ?? "").trim();
@@ -305,7 +306,7 @@ export function AdminCreateCoachForm({
           password,
           name: nameRaw,
           lastName: lastNameRaw,
-          phone: phoneRaw,
+          phone: normalizePhoneForApi(phoneRaw),
           age: ageNum,
           birthday: birthdayIso,
           bio: bioRaw,
@@ -413,14 +414,12 @@ export function AdminCreateCoachForm({
             <span className="ommm-label text-xs uppercase tracking-wide">
               {t("phoneLabel")}
             </span>
-            <input
+            <PhoneInputField
               name="phone"
-              type="tel"
               className="ommm-input"
-              autoComplete="tel"
-              maxLength={MAX_PHONE_CHARS}
+              value={phone}
+              onValueChange={setPhone}
               required
-              onInput={(event) => syncPhoneInputElement(event.currentTarget)}
             />
           </label>
           <label className="flex flex-col gap-1">

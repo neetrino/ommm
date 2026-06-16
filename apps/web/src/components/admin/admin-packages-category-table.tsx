@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { adminFilterRevealVariants } from "@/components/admin/admin-filter-reveal-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { AdminPackageRowMenu } from "@/components/admin/admin-package-row-menu";
+import { AdminPackagePlanStatusActions } from "@/components/admin/admin-package-plan-status-actions";
+import { AdminPackagePlanStatusBadge } from "@/components/admin/admin-package-plan-status-badge";
 import {
   PACKAGE_CATEGORY_TABLE_PAGE_SIZE,
 } from "@/components/admin/admin-packages.constants";
@@ -15,6 +17,7 @@ import {
   formatPackagePriceLabel,
   formatPackagePricePerSession,
   formatPackageSessionsLabel,
+  formatCombinedPackageSessionsBreakdown,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -26,6 +29,7 @@ type AdminPackagesCategoryTableProps = {
   onAddTier: () => void;
   onEditPackage: (packageId: string) => void;
   onDeletePackage: (packageId: string) => void;
+  onPackageStatusUpdated: (saved: AdminPackageRow) => void;
 };
 
 function EmptyCell() {
@@ -58,6 +62,7 @@ export function AdminPackagesCategoryTable({
   onAddTier,
   onEditPackage,
   onDeletePackage,
+  onPackageStatusUpdated,
 }: AdminPackagesCategoryTableProps) {
   const t = useTranslations("adminPages.packages");
   const reducedMotion = usePrefersReducedMotion();
@@ -79,20 +84,22 @@ export function AdminPackagesCategoryTable({
 
   return (
     <div className="ommm-admin-packages-table">
-      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[60rem]">
+      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[68rem]">
         <div>{t("tableSessionName")}</div>
         <div>{t("tableSessions")}</div>
         <div>{t("tablePrice")}</div>
         <div>{t("tablePricePerSession")}</div>
         <div>{t("tableValidity")}</div>
         <div>{t("tableGuests")}</div>
+        <div>{t("colStatus")}</div>
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
-      <div className="min-w-[60rem]">
+      <div className="min-w-[68rem]">
         <AnimatePresence mode="popLayout" initial={false}>
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
             const sessions = formatPackageSessionsLabel(pkg);
+            const sessionsBreakdown = formatCombinedPackageSessionsBreakdown(pkg);
             const pricePerSession = formatPackagePricePerSession(pkg, locale);
             const guestCount = formatPackageGuestCount(pkg);
             const validityLabel = formatPackageValidityLabel(pkg, {
@@ -111,21 +118,47 @@ export function AdminPackagesCategoryTable({
                 exit="exit"
               >
                 <div className="ommm-admin-packages-table-grid">
-                  <TableCell emphasis>{packageName}</TableCell>
                   <TableCell emphasis>
-                    {sessions !== null ? sessions : <EmptyCell />}
+                    <div className="flex flex-col gap-1">
+                      <span>{packageName}</span>
+                      {pkg.planType === "COMBINED" ? (
+                        <span className="text-xs font-medium uppercase tracking-wide text-sand-700">
+                          {t("packageKindCombined")}
+                        </span>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                  <TableCell emphasis>
+                    {sessions !== null ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span>{sessions}</span>
+                        {sessionsBreakdown !== null ? (
+                          <span className="text-xs text-sage-500">{sessionsBreakdown}</span>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <EmptyCell />
+                    )}
                   </TableCell>
                   <TableCell>{formatPackagePriceLabel(pkg, locale)}</TableCell>
                   <TableCell>{pricePerSession ?? <EmptyCell />}</TableCell>
                   <TableCell>{validityLabel}</TableCell>
                   <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                  <TableCell>
+                    <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
+                  </TableCell>
                   <div className="ommm-admin-packages-table-actions">
-                    <AdminPackageRowMenu
-                      packageId={pkg.id}
-                      isActive={pkg.isActive}
-                      onEdit={() => onEditPackage(pkg.id)}
-                      onDeletePackage={() => onDeletePackage(pkg.id)}
-                    />
+                    <div className="flex items-center justify-end gap-1">
+                      <AdminPackagePlanStatusActions
+                        packageId={pkg.id}
+                        isActive={pkg.isActive}
+                        onUpdated={onPackageStatusUpdated}
+                      />
+                      <AdminPackageRowMenu
+                        onEdit={() => onEditPackage(pkg.id)}
+                        onDeletePackage={() => onDeletePackage(pkg.id)}
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>

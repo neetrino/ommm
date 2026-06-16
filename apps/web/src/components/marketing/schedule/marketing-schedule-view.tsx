@@ -104,14 +104,25 @@ function mapDayToDate(
   return addDays(weekStart, dayToOffset[day]);
 }
 
+function calendarDateToLocalDay(dateIso: string): Date {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateIso.trim());
+  if (match === null) {
+    return startOfLocalDay(new Date(dateIso));
+  }
+  return startOfLocalDay(
+    new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+  );
+}
+
 function scheduleItemDate(
   item: MarketingScheduleItem,
   baselineWeekStart: Date,
   dayToOffset: Record<MarketingScheduleDayOfWeek, number>,
 ): Date {
-  return item.sessionDate !== null
-    ? startOfLocalDay(new Date(item.sessionDate))
-    : mapDayToDate(baselineWeekStart, item.dayOfWeek, dayToOffset);
+  if (item.sessionDate !== null) {
+    return calendarDateToLocalDay(item.sessionDate);
+  }
+  return mapDayToDate(baselineWeekStart, item.dayOfWeek, dayToOffset);
 }
 
 export function MarketingScheduleView({ initialItems }: MarketingScheduleViewProps) {

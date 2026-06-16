@@ -3,6 +3,7 @@ import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
 } from '../cache/public-cache-keys';
+import { normalizeOptionalContactPhone } from '../common/phone';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { UpdateStudioDto } from './dto/update-studio.dto';
@@ -34,9 +35,15 @@ export class StudioService {
 
   async update(dto: UpdateStudioDto) {
     const current = await this.loadPublicFromDb();
+    const data = {
+      ...dto,
+      ...(dto.contactPhone !== undefined && {
+        contactPhone: normalizeOptionalContactPhone(dto.contactPhone),
+      }),
+    };
     const updated = await this.prisma.studioSettings.update({
       where: { id: current.id },
-      data: dto,
+      data,
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);
     return updated;

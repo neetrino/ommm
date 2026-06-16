@@ -2,6 +2,19 @@
 export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow {
   return {
     ...row,
+    planType: row.planType ?? "SINGLE",
+    allowedCategoryNames: Array.isArray(row.allowedCategoryNames)
+      ? row.allowedCategoryNames
+      : [],
+    combinedComponents: Array.isArray(row.combinedComponents)
+      ? row.combinedComponents.map((component) => ({
+          ...component,
+          sessionAllocation:
+            typeof component.sessionAllocation === "number"
+              ? component.sessionAllocation
+              : null,
+        }))
+      : [],
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
     pricePerSessionCents:
       typeof row.pricePerSessionCents === "number" ? row.pricePerSessionCents : 0,
@@ -9,11 +22,22 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
   };
 }
 
+export type AdminCombinedPlanComponent = {
+  id: string;
+  sourcePackagePlanId: string | null;
+  sourcePackageNameSnapshot: string;
+  sourceCategoryNameSnapshot: string;
+  sessionAllocation: number | null;
+};
+
 export type AdminPackageRow = {
   id: string;
   name: string;
   categoryName: string;
   classTypeId?: string | null;
+  planType?: "SINGLE" | "COMBINED";
+  allowedCategoryNames?: string[];
+  combinedComponents?: AdminCombinedPlanComponent[];
   description: string | null;
   priceCents: number;
   pricePerSessionCents?: number;

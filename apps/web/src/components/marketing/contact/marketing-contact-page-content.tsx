@@ -8,6 +8,7 @@ import { MarketingContactMapSection } from "@/components/marketing/contact/marke
 import { MarketingContactStudioCard } from "@/components/marketing/contact/marketing-contact-studio-card";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
+import { formatPhoneDisplay, formatPhoneTelHref } from "@/lib/phone";
 import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
 import {
   listStudioSocialLinks,
@@ -52,12 +53,13 @@ function buildContactStudioRows(
 
   const phone = studio?.contactPhone?.trim();
   if (phone !== undefined && phone.length > 0) {
+    const displayPhone = formatPhoneDisplay(phone);
     rows.push({
       key: "phone",
       iconSrc: CONTACT_PAGE_ASSETS.iconPhone,
       label: labels.phone,
-      value: phone,
-      href: `tel:${phone.replace(/\s+/g, "")}`,
+      value: displayPhone,
+      href: `tel:${formatPhoneTelHref(phone)}`,
     });
   }
 

@@ -7,6 +7,8 @@ import { UserMembershipBoardCard } from "@/components/account/user-membership-bo
 import { UserMembershipCompactRow } from "@/components/account/user-membership-compact-row";
 import { UserMembershipDetailsSheet } from "@/components/account/user-membership-details-sheet";
 import { normalizeUserPackageStatus } from "@/components/account/user-membership-display";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import {
   buildUserPackagesFilterFields,
   DEFAULT_USER_PACKAGE_FILTER_VALUES,
@@ -81,6 +83,10 @@ export function UserPackagesSection({
     },
     [pathname, router, searchParams],
   );
+
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.PACKAGES_ME, () => {
+    router.refresh();
+  });
 
   const selectedId = useMemo(() => {
     if (embeddedInSheet) {

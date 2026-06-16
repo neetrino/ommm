@@ -5,17 +5,19 @@ import { PackagesPageAccordion } from "@/components/marketing/packages/packages-
 import { PackagesPageLoginHint } from "@/components/marketing/packages/packages-page-login-hint";
 import { PackagesPageReveal } from "@/components/marketing/packages/packages-page-reveal";
 import { fetchPublicPackagesListCached } from "@/lib/fetch-public-packages";
-import { groupAllPublicPackageCategories } from "@/lib/public-package-categories";
+import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
 import {
   normalizePublicPackagePlan,
 } from "@/lib/public-package-plan";
 
 type MarketingPackagesPageContentProps = {
   locale: string;
+  desktopCardsPerRow?: number;
 };
 
 export async function MarketingPackagesPageContent({
   locale,
+  desktopCardsPerRow,
 }: MarketingPackagesPageContentProps) {
   const [m, plansRes] = await Promise.all([
     getTranslations({ locale, namespace: "marketing" }),
@@ -23,7 +25,7 @@ export async function MarketingPackagesPageContent({
   ]);
 
   const apiCategories = plansRes.ok
-    ? groupAllPublicPackageCategories(plansRes.data.map(normalizePublicPackagePlan))
+    ? groupVisiblePublicPackageCategories(plansRes.data.map(normalizePublicPackagePlan))
     : [];
 
   const categories = buildPackagesPageAccordionCategories(apiCategories, locale, {
@@ -39,7 +41,11 @@ export async function MarketingPackagesPageContent({
           </p>
         </PackagesPageReveal>
       ) : null}
-      <PackagesPageAccordion locale={locale} categories={categories} />
+      <PackagesPageAccordion
+        locale={locale}
+        categories={categories}
+        desktopCardsPerRow={desktopCardsPerRow}
+      />
       <PackagesPageLoginHint index={categories.length} />
     </div>
   );

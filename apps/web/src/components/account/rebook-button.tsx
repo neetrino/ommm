@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
-import { ApiError, apiFetch } from "@/lib/api";
+import { useSessionBooking } from "@/hooks/use-session-booking";
+import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 
 type RebookButtonProps = {
   sessionId: string;
@@ -12,25 +13,18 @@ type RebookButtonProps = {
 
 export function RebookButton({ sessionId }: RebookButtonProps) {
   const t = useTranslations("forms.rebook");
+  const locale = useLocale();
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-
-  async function run() {
-    if (busy) {
-      return;
-    }
-    setBusy(true);
-    setMessage(null);
-    try {
-      await apiFetch(`/bookings/sessions/${sessionId}`, { method: "POST" });
+  const { busy, initiateBooking, packageModal } = useSessionBooking({
+    sessionId,
+    locale,
+    onBooked: () => {
+      dispatchNotificationsRefresh();
       router.refresh();
-    } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : t("failed"));
-    } finally {
-      setBusy(false);
-    }
-  }
+    },
+    onError: (message) => setMessage(message),
+  });
 
   return (
     <div className="flex flex-col items-start gap-1">
@@ -38,12 +32,13 @@ export function RebookButton({ sessionId }: RebookButtonProps) {
         type="button"
         variant="primary"
         size="sm"
-        onClick={() => void run()}
+        onClick={() => void initiateBooking()}
         disabled={busy}
       >
         {busy ? t("working") : t("action")}
       </OmmButton>
       {message ? <p className="text-xs text-amber-800">{message}</p> : null}
+      {packageModal}
     </div>
   );
 }

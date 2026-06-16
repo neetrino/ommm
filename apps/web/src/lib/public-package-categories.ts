@@ -64,7 +64,7 @@ export function groupVisiblePublicPackageCategories(
 
 /**
  * All Admin package categories for the public `/packages` page.
- * Priced tiers match the Admin table; subscribe flow filters to `isActive` plans.
+ * Priced tiers match the Admin table; inactive plans are excluded by the API.
  */
 export function groupAllPublicPackageCategories(
   plans: readonly PublicPackagePlan[],

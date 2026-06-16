@@ -21,23 +21,12 @@ export function formatTimeForUiFromIso(iso: string, locale?: string): string {
 }
 
 /**
- * Formats API `HH:mm` schedule wall times for UI.
- * Uses UTC so SSR and client render the same string.
+ * Formats API `HH:mm` schedule wall times for UI (already studio wall clock).
  */
-export function formatScheduleTimeHHmm(locale: string, value: string): string {
-  const [hourPart, minutePart] = value.split(":");
-  const hour = Number(hourPart);
-  const minute = Number(minutePart);
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
-    return value;
+export function formatScheduleTimeHHmm(_locale: string, value: string): string {
+  const match = /^(\d{2}):(\d{2})$/.exec(value.trim());
+  if (match !== null) {
+    return `${match[1]}:${match[2]}`;
   }
-
-  const normalizedHour = ((Math.trunc(hour) % 24) + 24) % 24;
-  const normalizedMinute = ((Math.trunc(minute) % 60) + 60) % 60;
-  const date = new Date(Date.UTC(1970, 0, 1, normalizedHour, normalizedMinute));
-
-  return new Intl.DateTimeFormat(locale, {
-    ...TIME_DISPLAY_24H_OPTIONS,
-    timeZone: "UTC",
-  }).format(date);
+  return value;
 }

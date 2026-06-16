@@ -1,10 +1,14 @@
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 import { PUBLIC_SCHEDULE_RANGE_DAYS } from "@/lib/public-schedule-constants";
-import { isWithinPublicScheduleWindow } from "@/lib/schedule-session-range";
+import {
+  addStudioCalendarDays,
+  resolveStudioCalendarDateFromSessionDate,
+  studioWallClockToUtc,
+  utcToStudioCalendarDate,
+} from "@/lib/studio-timezone";
 
 /**
- * Resolves when a public schedule row starts using the same wall-clock fields shown in UI
+ * Resolves when a public schedule row starts using studio wall-clock fields
  * (`sessionDate` calendar day + API `startTime` HH:mm).
  */
 export function resolvePublicScheduleSessionStart(
@@ -14,16 +18,17 @@ export function resolvePublicScheduleSessionStart(
     return null;
   }
 
-  const [hourPart, minutePart] = item.startTime.split(":");
-  const hour = Number(hourPart);
-  const minute = Number(minutePart);
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
+  const calendarDate = resolveStudioCalendarDateFromSessionDate(item.sessionDate);
+  if (calendarDate === null) {
+    return null;
+  }
+
+  const timeMatch = /^(\d{2}):(\d{2})$/.exec(item.startTime.trim());
+  if (timeMatch === null) {
     return new Date(item.sessionDate);
   }
 
-  const day = startOfLocalDay(new Date(item.sessionDate));
-  day.setHours(hour, minute, 0, 0);
-  return day;
+  return studioWallClockToUtc(calendarDate, item.startTime);
 }
 
 /** True while the displayed session start time is still in the future. */
@@ -51,4 +56,20 @@ export function filterBookablePublicScheduleItems(
       isWithinPublicScheduleWindow(item.sessionDate, rangeDays, reference) &&
       isUpcomingPublicScheduleSession(item, reference),
   );
+}
+
+/** Keeps only sessions whose studio calendar day falls inside the rolling public window. */
+export function isWithinPublicScheduleWindow(
+  sessionDateIso: string,
+  rangeDays: number = PUBLIC_SCHEDULE_RANGE_DAYS,
+  referenceDate: Date = new Date(),
+): boolean {
+  const sessionDay = resolveStudioCalendarDateFromSessionDate(sessionDateIso);
+  if (sessionDay === null) {
+    return false;
+  }
+
+  const today = utcToStudioCalendarDate(referenceDate);
+  const maxDay = addStudioCalendarDays(today, rangeDays);
+  return sessionDay >= today && sessionDay <= maxDay;
 }

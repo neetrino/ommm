@@ -27,6 +27,21 @@ import { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 export class BookingsController {
   constructor(private readonly bookings: BookingsService) {}
 
+  @Get('sessions/:sessionId/eligible-packages')
+  @UseGuards(JwtAuthGuard)
+  listEligiblePackages(
+    @CurrentUser() user: { id: string },
+    @Param('sessionId') sessionId: string,
+  ) {
+    return this.bookings.listEligiblePackagesForSession(user.id, sessionId);
+  }
+
+  @Get('sessions/:sessionId/purchase-plans')
+  @UseGuards(JwtAuthGuard)
+  listPurchasePlans(@Param('sessionId') sessionId: string) {
+    return this.bookings.listPurchasePlansForSession(sessionId);
+  }
+
   @Post('sessions/:sessionId')
   @UseGuards(JwtAuthGuard)
   book(

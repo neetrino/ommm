@@ -8,6 +8,7 @@ type RefetchKey =
   | 'schedule/public'
   | 'bookings/me'
   | 'waitlist/me'
+  | 'packages/me'
   | 'classes/admin/sessions'
   | 'bookings/admin'
   | 'waitlist/admin';
@@ -22,6 +23,7 @@ function refetchKeysForEvent(type: string): RefetchKey[] {
       return [
         'bookings/me',
         'schedule/public',
+        'packages/me',
         'bookings/admin',
         'waitlist/admin',
       ];
@@ -48,6 +50,7 @@ describe('realtime refetch key mapping', () => {
     expect(keys).toEqual([
       'bookings/me',
       'schedule/public',
+      'packages/me',
       'bookings/admin',
       'waitlist/admin',
       'classes/admin/sessions',

@@ -20,6 +20,7 @@ import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpe
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
+import { displayPhoneOrFallback } from "@/lib/phone";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -66,7 +67,7 @@ export function AdminCoachCompactRow({
             <p className={ADMIN_LIST_TITLE_TEXT_CLASS} title={displayName}>
               {displayName}
             </p>
-            <p className="mt-0.5 truncate text-xs text-sage-500">{coach.user.phone ?? "—"}</p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(coach.user.phone)}</p>
           </div>
         </div>
       </div>

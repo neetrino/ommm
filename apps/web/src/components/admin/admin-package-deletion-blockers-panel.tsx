@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { PackageDeletionBlockerRow } from "@/components/admin/admin-package-deletion-blocker-types";
+import { formatPhoneDisplay } from "@/lib/phone";
 import { formatDateForUi } from "@/lib/date-display";
 import { userDisplayName } from "@/lib/user-display-name";
 
@@ -31,7 +32,7 @@ function memberInitials(name: string): string {
 
 function memberContactLine(user: PackageDeletionBlockerRow["user"]): string {
   if (user.phone?.trim()) {
-    return user.phone.trim();
+    return formatPhoneDisplay(user.phone);
   }
   return user.email.trim();
 }

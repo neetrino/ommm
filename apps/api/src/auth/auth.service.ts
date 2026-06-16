@@ -16,6 +16,7 @@ import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { normalizeAppUiLocale } from '../common/app-ui-locales';
+import { isValidPhoneNumber, normalizePhoneForStorage } from '../common/phone';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 
@@ -81,12 +82,12 @@ export class AuthService {
     if (existing) {
       throw new ConflictException('Email already registered');
     }
-    const phoneDigits = dto.phone.replace(/\D/g, '');
-    if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+    if (!isValidPhoneNumber(dto.phone)) {
       throw new BadRequestException('Invalid phone number');
     }
+    const phone = normalizePhoneForStorage(dto.phone);
     const phoneTaken = await this.prisma.user.findUnique({
-      where: { phone: dto.phone },
+      where: { phone },
     });
     if (phoneTaken) {
       throw new ConflictException('Phone number already registered');
@@ -99,7 +100,7 @@ export class AuthService {
         passwordHash,
         name: displayFirst,
         lastName: dto.lastName,
-        phone: dto.phone,
+        phone,
         locale: normalizeAppUiLocale(dto.locale, DEFAULT_UI_LOCALE),
       },
     });

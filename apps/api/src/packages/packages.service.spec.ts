@@ -4,10 +4,20 @@ import {
   PackageStatus,
   PaymentStatus,
 } from '@prisma/client';
+import {
+  PACKAGE_PLAN_UNAVAILABLE_MESSAGE,
+  PackagesService,
+} from './packages.service';
 import { PackageUsageService } from './package-usage.service';
-import { PackagesService } from './packages.service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+type PlanCategoryResult = { categoryName: string };
+type CategoryPlanStatusResult = {
+  id: string;
+  categoryName: string;
+  isActive: boolean;
+};
 
 describe('PackagesService', () => {
   function createService() {
@@ -17,7 +27,7 @@ describe('PackagesService', () => {
       },
       userPackage: {
         findFirst: jest.fn(),
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
         deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
@@ -27,7 +37,20 @@ describe('PackagesService', () => {
       packagePlan: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
+        update: jest.fn(),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+      classType: {
+        findUnique: jest.fn(),
+        findFirst: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
+        create: jest.fn().mockResolvedValue(undefined),
+        update: jest.fn().mockResolvedValue(undefined),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
+      classSession: {
+        count: jest.fn().mockResolvedValue(0),
       },
       $transaction: jest.fn(),
     };
@@ -374,6 +397,16 @@ describe('PackagesService', () => {
   it('deletes a plan when only cancelled or expired memberships exist', async () => {
     const { service, prisma, audit, cache } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.findMany
+      .mockResolvedValueOnce([
+        { categoryName: 'Yoga' } satisfies PlanCategoryResult,
+      ])
+      .mockResolvedValueOnce([]);
+    prisma.classType.findUnique.mockResolvedValue({
+      id: 'ct-yoga',
+      name: 'Yoga',
+      slug: 'yoga',
+    });
     mockDeleteTransaction(prisma);
     prisma.userPackage.updateMany.mockResolvedValue({ count: 0 });
     prisma.userPackage.count.mockResolvedValue(0);
@@ -404,6 +437,12 @@ describe('PackagesService', () => {
     expect(prisma.packagePlan.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ['plan-1'] } },
     });
+    expect(prisma.classSession.count).toHaveBeenCalledWith({
+      where: { classTypeId: 'ct-yoga' },
+    });
+    expect(prisma.classType.delete).toHaveBeenCalledWith({
+      where: { id: 'ct-yoga' },
+    });
     expect(cache.invalidate).toHaveBeenCalled();
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -416,6 +455,9 @@ describe('PackagesService', () => {
   it('blocks plan deletion when active memberships remain', async () => {
     const { service, prisma } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.findMany.mockResolvedValue([
+      { categoryName: 'Yoga' } satisfies PlanCategoryResult,
+    ]);
     mockDeleteTransaction(prisma);
     prisma.userPackage.updateMany.mockResolvedValue({ count: 0 });
     prisma.userPackage.count.mockResolvedValue(2);
@@ -430,6 +472,16 @@ describe('PackagesService', () => {
   it('expires overdue active memberships before evaluating deletion blockers', async () => {
     const { service, prisma } = createService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.findMany
+      .mockResolvedValueOnce([
+        { categoryName: 'Yoga' } satisfies PlanCategoryResult,
+      ])
+      .mockResolvedValueOnce([]);
+    prisma.classType.findUnique.mockResolvedValue({
+      id: 'ct-yoga',
+      name: 'Yoga',
+      slug: 'yoga',
+    });
     mockDeleteTransaction(prisma);
     prisma.userPackage.updateMany
       .mockResolvedValueOnce({ count: 1 })
@@ -458,5 +510,92 @@ describe('PackagesService', () => {
       Date,
     );
     expect(expireMembershipsCall[0].data.status).toBe(PackageStatus.EXPIRED);
+  });
+
+  it('rejects subscription to an inactive plan', async () => {
+    const { service, prisma } = createService();
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-inactive',
+      name: 'Monthly',
+      isActive: false,
+      priceCents: 20_000,
+      periodDays: 30,
+    });
+
+    await expect(
+      service.subscribeWithManualPayment(
+        'u1',
+        'plan-inactive',
+        ManualPaymentMethod.CASH,
+      ),
+    ).rejects.toMatchObject({
+      response: { message: PACKAGE_PLAN_UNAVAILABLE_MESSAGE },
+    });
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('updates plan active status and invalidates public cache', async () => {
+    const { service, prisma, audit, cache } = createService();
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-1',
+      isActive: true,
+    });
+    prisma.packagePlan.update.mockResolvedValue({
+      id: 'plan-1',
+      isActive: false,
+    });
+
+    const updated = await service.adminSetPlanStatus('plan-1', false);
+
+    expect(updated.isActive).toBe(false);
+    expect(prisma.packagePlan.update).toHaveBeenCalledWith({
+      where: { id: 'plan-1' },
+      data: { isActive: false },
+    });
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'MEMBERSHIP_PLAN_STATUS_UPDATED',
+        entityId: 'plan-1',
+        payload: { isActive: false },
+      }),
+    );
+    expect(cache.invalidate).toHaveBeenCalled();
+  });
+
+  it('updates all plans in a category and invalidates public cache', async () => {
+    const { service, prisma, audit, cache } = createService();
+    prisma.packagePlan.findMany
+      .mockResolvedValueOnce([
+        { id: 'plan-1', categoryName: 'Yoga' },
+        { id: 'plan-2', categoryName: 'Yoga' },
+      ] satisfies PlanCategoryResult[])
+      .mockResolvedValueOnce([
+        { id: 'plan-1', categoryName: 'Yoga', isActive: false },
+        { id: 'plan-2', categoryName: 'Yoga', isActive: false },
+      ] satisfies CategoryPlanStatusResult[]);
+
+    const result = await service.adminSetCategoryPlanStatus('Yoga', false);
+
+    expect(prisma.packagePlan.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['plan-1', 'plan-2'] } },
+      data: { isActive: false },
+    });
+    expect(result.plans).toHaveLength(2);
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'MEMBERSHIP_PLAN_CATEGORY_STATUS_UPDATED',
+      }),
+    );
+    const categoryStatusAuditCall = audit.log.mock.calls[0] as [
+      {
+        payload: {
+          categoryName: string;
+          isActive: boolean;
+        };
+      },
+    ];
+    expect(categoryStatusAuditCall[0].payload.categoryName).toBe('Yoga');
+    expect(categoryStatusAuditCall[0].payload.isActive).toBe(false);
+    expect(cache.invalidate).toHaveBeenCalled();
   });
 });

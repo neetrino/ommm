@@ -13,6 +13,26 @@
   gap: var(--packages-page-accordion-gap);
 }
 
+.accordionRowCentered {
+  width: calc(
+    (
+        (100% - (var(--packages-page-desktop-cards-per-row) - 1) * var(--packages-page-accordion-gap))
+        / var(--packages-page-desktop-cards-per-row)
+      ) * 2 + var(--packages-page-accordion-gap)
+  );
+  margin-inline: auto;
+}
+
+.accordionRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--packages-page-accordion-gap);
+}
+
+.accordionRows > .accordionRow:nth-child(n + 2) {
+  margin-top: clamp(0.5rem, 1.2vw, 0.875rem);
+}
+
 .accordionSlot {
   position: relative;
   z-index: 0;
@@ -34,6 +54,11 @@
   z-index: 1;
   flex: 1 1 0;
   min-width: 0;
+}
+
+.accordionSlotPlaceholder {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .slotContent {

@@ -3,16 +3,11 @@ import {
   ClassSessionStatus,
   type ScheduleDayOfWeek,
 } from '@prisma/client';
-
-const DAY_OF_WEEK_VALUES: readonly ScheduleDayOfWeek[] = [
-  'SUNDAY',
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-];
+import {
+  utcToStudioCalendarDate,
+  utcToStudioDayOfWeek,
+  utcToStudioWallClockTime,
+} from '../common/studio-timezone';
 
 const PUBLIC_SESSION_STATUSES: readonly ClassSessionStatus[] = [
   ClassSessionStatus.ACTIVE,
@@ -54,16 +49,6 @@ export type PublicScheduleItem = {
   updatedAt: Date;
 };
 
-function dayOfWeekFromDate(value: Date): ScheduleDayOfWeek {
-  return DAY_OF_WEEK_VALUES[value.getDay()];
-}
-
-function formatTime24h(value: Date): string {
-  const hours = String(value.getUTCHours()).padStart(2, '0');
-  const minutes = String(value.getUTCMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
-}
-
 function durationMinutesFromRange(startTime: string, endTime: string): number {
   const [startHour, startMinute] = startTime.split(':').map(Number);
   const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -84,9 +69,9 @@ export function mapSessionsToPublicScheduleItems(
       continue;
     }
 
-    const dayOfWeek = dayOfWeekFromDate(session.startsAt);
-    const startTime = formatTime24h(session.startsAt);
-    const endTime = formatTime24h(session.endsAt);
+    const dayOfWeek = utcToStudioDayOfWeek(session.startsAt);
+    const startTime = utcToStudioWallClockTime(session.startsAt);
+    const endTime = utcToStudioWallClockTime(session.endsAt);
     const className = session.title.trim();
     const instructorName = session.coach.user.name?.trim() || '—';
     const classTypeName = session.classType.name.trim();
@@ -107,7 +92,7 @@ export function mapSessionsToPublicScheduleItems(
       availableSpots,
       level: session.level,
       status: session.status,
-      sessionDate: session.startsAt.toISOString(),
+      sessionDate: utcToStudioCalendarDate(session.startsAt),
       description: session.description,
       isActive: true,
       createdAt: session.createdAt,

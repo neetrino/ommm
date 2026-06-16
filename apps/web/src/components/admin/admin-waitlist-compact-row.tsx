@@ -11,6 +11,7 @@ import {
 } from "@/components/admin/admin-waitlist-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
+import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
 type AdminWaitlistRow = {
@@ -65,7 +66,7 @@ export function AdminWaitlistCompactRow({
         >
           {userLabel}
         </button>
-        <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? "—"}</p>
+        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(row.user.phone)}</p>
       </div>
 
       <div className={ADMIN_WAITLIST_LIST_CELL}>

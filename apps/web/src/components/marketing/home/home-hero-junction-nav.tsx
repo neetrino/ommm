@@ -7,6 +7,7 @@ import {
   HOME_HERO_JUNCTION_NAV_ASSETS,
   HOME_HERO_JUNCTION_NAV_FIGMA,
 } from "@/components/marketing/home/home-hero-junction-nav-tokens";
+import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 /** Figma hero ↔ schedule seam controls `196:1455` — hero photo carousel wiring comes later. */
 export function HomeHeroJunctionNav() {
@@ -27,6 +28,7 @@ export function HomeHeroJunctionNav() {
           height={HOME_HERO_JUNCTION_NAV_FIGMA.buttonSizePx}
           unoptimized
           className={`${styles.icon} ${styles.iconUp}`}
+          {...aboveFoldImageProps()}
         />
       </button>
       <button
@@ -42,6 +44,7 @@ export function HomeHeroJunctionNav() {
           height={HOME_HERO_JUNCTION_NAV_FIGMA.buttonSizePx}
           unoptimized
           className={`${styles.icon} ${styles.iconDown}`}
+          {...aboveFoldImageProps()}
         />
       </button>
     </nav>

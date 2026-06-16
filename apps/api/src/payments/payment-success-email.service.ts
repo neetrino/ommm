@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PaymentSource, PaymentStatus, Prisma } from '@prisma/client';
 import { getEmailLogoAttachment } from '../mail/email-logo';
 import { MailService } from '../mail/mail.service';
+import { formatPhoneForDisplay } from '../common/phone';
 import { renderPaymentAdminNotificationEmail } from '../mail/templates/payment-admin-notification.template';
 import { renderPaymentCustomerConfirmationEmail } from '../mail/templates/payment-customer-confirmation.template';
 import { PrismaService } from '../prisma/prisma.service';
@@ -189,7 +190,7 @@ export class PaymentSuccessEmailService {
       paymentId: payment.id,
       customerName: formatCustomerDisplayName(payment.user),
       customerEmail: payment.user.email,
-      customerPhone: payment.user.phone?.trim() ?? '',
+      customerPhone: formatPhoneForDisplay(payment.user.phone),
       amountLabel: formatPaymentAmount(payment.amountCents, payment.currency),
       currency: payment.currency,
       paymentTypeLabel: formatPaymentSourceLabel(payment.source),

@@ -157,16 +157,6 @@ export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
   wordmarkLineHeightPx: 40,
 } as const;
 
-/** Top nav — Figma `196:1196`. Labels from `nav` namespace. */
-export const HOME_FOOTER_NAV_LINKS = [
-  { href: "/story", navKey: "story" },
-  { href: "/schedule", navKey: "schedule" },
-  { href: "/coaches", navKey: "coaches" },
-  { href: "/packages", navKey: "memberships" },
-  { href: "/explore", navKey: "explore" },
-  { href: "/contact", navKey: "contact" },
-] as const;
-
 export const HOME_FOOTER_COPYRIGHT_COMPANY_HREF = "https://neetrino.com" as const;
 
 export const HOME_FOOTER_LEGAL_LINKS = [

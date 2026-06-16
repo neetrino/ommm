@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/admin-coaches-list-layout";
 import { AdminCoachBoardCard } from "@/components/admin/admin-coach-board-card";
 import { AdminCoachDetailsDrawer } from "@/components/admin/admin-coach-details-drawer";
+import { COACH_PROFILE_TAB_QUERY_KEY } from "@/components/admin/admin-coach-sheet-tabs";
 import { useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
 import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-view-mode";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
@@ -180,6 +181,7 @@ export function AdminCoachesDirectory({
     setVisibleCoachId(null);
     updateQuery((params) => {
       params.delete("coachProfile");
+      params.delete(COACH_PROFILE_TAB_QUERY_KEY);
     });
   }, [updateQuery]);
 

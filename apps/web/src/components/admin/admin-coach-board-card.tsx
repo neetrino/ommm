@@ -16,6 +16,7 @@ import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-as
 import { OmmButton } from "@/components/ui/omm-button";
 import { firstRowGridImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { displayPhoneOrFallback } from "@/lib/phone";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type AdminCoachBoardCardProps = {
@@ -129,7 +130,7 @@ function AdminCoachCardSummary({ coach }: { coach: AdminCoachDirectoryRow }) {
           })}
         </p>
         <p className="mt-1 truncate text-xs font-medium text-sage-600">
-          {coach.user.phone ?? "—"}
+          {displayPhoneOrFallback(coach.user.phone)}
         </p>
       </div>
       <StatusBadge isActive={coach.isActive} />

@@ -22,7 +22,8 @@ import {
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { apiFetch } from "@/lib/api";
 import { formatBirthdayInput, formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
-import { formatPhoneInput } from "@/lib/phone-input";
+import { formatPhoneDisplay } from "@/lib/phone";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -158,15 +159,12 @@ export function ClientSheetTabPanels({
                   disabled={busy}
                 />
               </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldPhone")} error={undefined}>
-                <input
-                  type="tel"
+              <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
+                <PhoneInputField
                   autoComplete="tel"
                   className="ommm-input"
                   value={form.phone}
-                  onChange={(event) =>
-                    controller.updateField("phone", formatPhoneInput(event.target.value))
-                  }
+                  onValueChange={(value) => controller.updateField("phone", value)}
                   disabled={busy}
                 />
               </AdminSheetEditableField>
@@ -207,7 +205,7 @@ export function ClientSheetTabPanels({
               />
               <AdminSheetReadOnlyField
                 label={t("fieldPhone")}
-                value={form.phone.trim().length > 0 ? form.phone : "—"}
+                value={form.phone.trim().length > 0 ? formatPhoneDisplay(form.phone) : "—"}
               />
               <AdminSheetReadOnlyField
                 label={t("fieldBirthday")}

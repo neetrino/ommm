@@ -19,6 +19,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { CoachFinanceRow } from "@/components/admin/admin-finance-types";
+import { displayPhoneOrEmail } from "@/lib/phone";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 
@@ -67,7 +68,7 @@ export function AdminFinanceCoachCompactRow({
       <div className={ADMIN_FINANCE_COACH_LIST_COACH_CELL}>
         <AdminListMobileLabel label={t("colCoach")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName(row)}</p>
-        <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? row.user.email}</p>
+        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.user.phone, row.user.email)}</p>
       </div>
 
       <div className={ADMIN_FINANCE_COACH_LIST_MONEY_CELL}>

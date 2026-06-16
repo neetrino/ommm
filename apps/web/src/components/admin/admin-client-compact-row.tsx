@@ -19,6 +19,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow, ClientTag } from "@/components/admin/admin-clients-types";
+import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateCompactForUi, formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -60,7 +61,7 @@ export function AdminClientCompactRow({
             <p className={ADMIN_LIST_TITLE_TEXT_CLASS} title={name}>
               {name}
             </p>
-            <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? "—"}</p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(row.phone)}</p>
           </div>
         </div>
       </div>

@@ -20,6 +20,7 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
+import { AdminPackageCategoryStatusActions } from "@/components/admin/admin-package-category-status-actions";
 import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
 import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
@@ -28,6 +29,7 @@ import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages
 import {
   buildPackageCategoryOptions,
   categoryHasConfiguredPackages,
+  isPackageCategoryActive,
   packagesInCategory,
 } from "@/components/admin/admin-packages-categories";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
@@ -436,6 +438,16 @@ export function AdminPackagesManagement({
     setPackageRows((current) => upsertAdminPackageRow(current, normalizeAdminPackageRow(saved)));
   }, []);
 
+  const handleCategoryPlansUpdated = useCallback((updated: readonly AdminPackageRow[]) => {
+    setPackageRows((current) => {
+      let next = current;
+      for (const row of updated) {
+        next = upsertAdminPackageRow(next, normalizeAdminPackageRow(row));
+      }
+      return next;
+    });
+  }, []);
+
   const closeDeletePackage = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     clearPackageDeleteQueryKeys(params);
@@ -625,6 +637,7 @@ export function AdminPackagesManagement({
 
       <AdminPackagesShell
         packages={filteredPackages}
+        allPackages={sortedPackages}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
         onPackageCreated={handlePackageCreated}
@@ -679,6 +692,8 @@ export function AdminPackagesManagement({
                         onEditPackage={openEditTier}
                         onAddTier={() => openAddTier(category.id)}
                         onDeletePackage={openDeletePackage}
+                        onPackageStatusUpdated={handlePackageUpdated}
+                        onCategoryPlansUpdated={handleCategoryPlansUpdated}
                       />
                     </motion.div>
                   ))}
@@ -738,6 +753,8 @@ type CategoryAccordionProps = {
   onEditPackage: (packageId: string) => void;
   onAddTier: () => void;
   onDeletePackage: (packageId: string) => void;
+  onPackageStatusUpdated: (saved: AdminPackageRow) => void;
+  onCategoryPlansUpdated: (plans: readonly AdminPackageRow[]) => void;
 };
 
 function CategoryAccordion({
@@ -751,11 +768,18 @@ function CategoryAccordion({
   onEditPackage,
   onAddTier,
   onDeletePackage,
+  onPackageStatusUpdated,
+  onCategoryPlansUpdated,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
 
   const categoryPackages = useMemo(
     () => packagesInCategory(packages, category.id),
+    [category.id, packages],
+  );
+
+  const categoryIsActive = useMemo(
+    () => isPackageCategoryActive(packages, category.id),
     [category.id, packages],
   );
 
@@ -772,12 +796,21 @@ function CategoryAccordion({
         onAddTier={onAddTier}
         onEditPackage={onEditPackage}
         onDeletePackage={onDeletePackage}
+        onPackageStatusUpdated={onPackageStatusUpdated}
       />
     ) : undefined;
 
   return (
     <AdminAccordionPanel
       title={category.label}
+      statusControl={
+        <AdminPackageCategoryStatusActions
+          categoryName={category.id}
+          isActive={categoryIsActive}
+          disabled={categoryPackages.length === 0}
+          onUpdated={onCategoryPlansUpdated}
+        />
+      }
       editLabel={t("editCategory")}
       deleteLabel={t("deleteCategoryButton")}
       onEdit={onEditCategory}

@@ -11,14 +11,17 @@ export type ClientEditInitialValues = ClientEditFormState;
 export type ClientEditFormErrors = {
   email?: string;
   dateOfBirth?: string;
+  phone?: string;
 };
+
+import { formatPhoneDisplay } from "@/lib/phone";
 
 export function clientFormFromInitial(initial: ClientEditInitialValues): ClientEditFormState {
   return {
     email: initial.email,
     name: initial.name,
     lastName: initial.lastName,
-    phone: initial.phone,
+    phone: formatPhoneDisplay(initial.phone),
     dateOfBirth: initial.dateOfBirth,
   };
 }

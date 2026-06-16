@@ -205,11 +205,6 @@
 
 .footerHint {
   margin-top: 1rem;
-  text-align: center;
-  font-family: var(--font-montserrat-marketing, var(--font-sans));
-  font-size: 0.75rem;
-  line-height: 1.125rem;
-  color: var(--dances-label-color);
 }
 
 @media (max-width: 639px) {

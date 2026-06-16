@@ -1,10 +1,12 @@
 import { parseBirthdayDisplayToIso } from "@/lib/date-display";
+import { isValidPhone, normalizePhoneForApi } from "@/lib/phone";
 import type { ClientEditFormErrors, ClientEditFormState } from "@/components/admin/admin-client-edit-form.types";
 
 type ClientValidationLabels = {
   emailRequired: string;
   emailInvalid: string;
   birthdayInvalid: string;
+  phoneInvalid: string;
 };
 
 export type ClientUpdatePayload = {
@@ -33,6 +35,11 @@ export function validateClientEditForm({
     errors.email = labels.emailInvalid;
   }
 
+  const phone = form.phone.trim();
+  if (phone !== "" && !isValidPhone(phone)) {
+    errors.phone = labels.phoneInvalid;
+  }
+
   const birthdayDisplay = form.dateOfBirth.trim();
   let dateOfBirth = "";
   if (birthdayDisplay !== "") {
@@ -54,7 +61,7 @@ export function validateClientEditForm({
       email,
       name: form.name.trim(),
       lastName: form.lastName.trim(),
-      phone: form.phone.trim(),
+      phone: phone === "" ? "" : normalizePhoneForApi(phone),
       dateOfBirth,
     },
   };

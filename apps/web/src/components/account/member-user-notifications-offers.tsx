@@ -5,13 +5,46 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
-import { ApiError, apiFetch } from "@/lib/api";
+import { useSessionBooking } from "@/hooks/use-session-booking";
+import { ApiError } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import { formatTimeForUi } from "@/lib/format-time-display";
 
-type BookSessionResponse = {
-  id: string;
-};
+function WaitlistOfferBookButton({
+  sessionId,
+  onBooked,
+}: {
+  sessionId: string;
+  onBooked: () => Promise<void>;
+}) {
+  const locale = useLocale();
+  const tHeader = useTranslations("headerNotifications");
+  const [error, setError] = useState<string | null>(null);
+  const { busy, initiateBooking, packageModal } = useSessionBooking({
+    sessionId,
+    locale,
+    onBooked: () => {
+      void onBooked();
+    },
+    onError: (message) => setError(message),
+  });
+
+  return (
+    <>
+      <OmmButton
+        type="button"
+        variant="primary"
+        size="sm"
+        disabled={busy}
+        onClick={() => void initiateBooking()}
+      >
+        {tHeader("bookNow")}
+      </OmmButton>
+      {error ? <p className="mt-2 text-xs text-amber-900">{error}</p> : null}
+      {packageModal}
+    </>
+  );
+}
 
 function formatSessionWhen(locale: string, startsAt: string, endsAt: string): string {
   const start = new Date(startsAt);
@@ -35,12 +68,9 @@ export function MemberUserNotificationsOffers() {
   const { offeredRows, loading, error, refetch } = useMemberWaitlistData(true);
   const [bookError, setBookError] = useState<string | null>(null);
 
-  async function bookSession(sessionId: string): Promise<void> {
+  async function handleBooked(): Promise<void> {
     setBookError(null);
     try {
-      await apiFetch<BookSessionResponse>(`/bookings/sessions/${sessionId}`, {
-        method: "POST",
-      });
       dispatchNotificationsRefresh();
       router.refresh();
       await refetch({ silent: true });
@@ -76,16 +106,10 @@ export function MemberUserNotificationsOffers() {
                 {formatSessionWhen(locale, row.session.startsAt, row.session.endsAt)}
               </p>
               <div className="mt-2">
-                <OmmButton
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => {
-                    void bookSession(row.session.id);
-                  }}
-                >
-                  {tHeader("bookNow")}
-                </OmmButton>
+                <WaitlistOfferBookButton
+                  sessionId={row.session.id}
+                  onBooked={handleBooked}
+                />
               </div>
             </li>
           ))}

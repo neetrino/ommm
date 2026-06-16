@@ -96,6 +96,7 @@ function AdminClientDrawerInner({
   initialDetail?: ClientDetail | null;
 }) {
   const t = useTranslations("adminPages.clients");
+  const tAuth = useTranslations("auth.register");
   const titleId = useId();
   const [activeTab, setActiveTab] = useState<ClientSheetTabId>(CLIENT_SHEET_TAB_PROFILE);
   const matchingInitialDetail =
@@ -158,8 +159,9 @@ function AdminClientDrawerInner({
       emailRequired: t("emailRequired"),
       emailInvalid: t("emailInvalid"),
       birthdayInvalid: t("birthdayInvalid"),
+      phoneInvalid: tAuth("invalidPhone"),
     }),
-    [t],
+    [t, tAuth],
   );
 
   const fallbackInitial = useMemo<ClientEditInitialValues>(

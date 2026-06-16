@@ -1,4 +1,5 @@
 import type { AdminScheduleClassType } from "@/components/admin/admin-schedule-management";
+import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 
@@ -23,6 +24,18 @@ export async function resolveSessionClassTypeId(
   );
   if (existing?.classTypeId !== null && existing?.classTypeId !== undefined) {
     return { classTypeId: existing.classTypeId };
+  }
+  const packageKey = normalizePackageCategoryKey(name);
+  const linkedByCategoryKey = options.find(
+    (item) =>
+      item.classTypeId !== null &&
+      normalizePackageCategoryKey(item.label) === packageKey,
+  );
+  if (
+    linkedByCategoryKey?.classTypeId !== null &&
+    linkedByCategoryKey?.classTypeId !== undefined
+  ) {
+    return { classTypeId: linkedByCategoryKey.classTypeId };
   }
   const slug = buildClassTypeSlugFromName(name);
   if (name.length === 0 || slug.length === 0) {

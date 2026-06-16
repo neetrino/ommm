@@ -133,4 +133,83 @@ describe('PackageUsageService', () => {
       expect(update).not.toHaveBeenCalled();
     });
   });
+
+  describe('assertCanBookWithoutPackageCredit', () => {
+    const danceClassType = { id: 'ct-1', name: 'Dance', slug: 'dance' };
+
+    it('allows booking when no covering packages exist', async () => {
+      const tx = {
+        userPackage: {
+          findMany: jest.fn().mockResolvedValue([]),
+        },
+      };
+
+      await expect(
+        service.assertCanBookWithoutPackageCredit(
+          tx as never,
+          'user-1',
+          danceClassType,
+        ),
+      ).resolves.toBeUndefined();
+    });
+
+    it('blocks booking when covering packages are depleted', async () => {
+      const tx = {
+        userPackage: {
+          findMany: jest.fn().mockResolvedValue([
+            {
+              id: 'pkg-1',
+              sessionsRemaining: 0,
+              plan: {
+                id: 'plan-1',
+                name: '5 Sessions',
+                planType: 'SINGLE',
+                categoryName: 'Dance',
+                allowedCategoryNames: ['Dance'],
+                isUnlimited: false,
+                sessionsPerMonth: 5,
+              },
+            },
+          ]),
+        },
+      };
+
+      await expect(
+        service.assertCanBookWithoutPackageCredit(
+          tx as never,
+          'user-1',
+          danceClassType,
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+  });
+
+  describe('reconcileSessionsRemaining', () => {
+    it('aligns remaining sessions with active booked rows', async () => {
+      const update = jest.fn();
+      const service = new PackageUsageService({
+        userPackage: {
+          findMany: jest.fn().mockResolvedValue([
+            {
+              id: 'pkg-combined',
+              sessionsTotal: 4,
+              sessionsRemaining: 0,
+              plan: { isUnlimited: false, sessionsPerMonth: 4 },
+            },
+          ]),
+          update,
+        },
+        booking: {
+          count: jest.fn().mockResolvedValue(1),
+        },
+      } as never);
+
+      await service.reconcileSessionsRemaining('user-1');
+
+      expect(update).toHaveBeenCalledWith({
+        where: { id: 'pkg-combined' },
+        data: { sessionsRemaining: 3 },
+      });
+    });
+  });
 });
