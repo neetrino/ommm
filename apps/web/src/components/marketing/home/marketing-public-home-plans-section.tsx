@@ -57,7 +57,7 @@ export async function MarketingPublicHomePlansSection({
     priceFromPrefix: t("planCardPriceFromPrefix"),
   });
 
-  const plansCtaHref = audience === "member" ? "/packages" : "/membership";
+  const plansCtaHref = audience === "member" ? "/packages" : "/package";
 
   const interactiveCardsProps = {
     audience,

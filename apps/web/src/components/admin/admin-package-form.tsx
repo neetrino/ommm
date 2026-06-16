@@ -23,7 +23,6 @@ import {
   parseSessionsCount,
   parsePriceToCents,
   preventNumberArrowStep,
-  buildPackageSessionNameFromCount,
   packageRowToTierFormValues,
   createEmptyTierFormValues,
   resolveTierPricePerSessionField,
@@ -80,6 +79,7 @@ type AdminPackageFormProps = {
   categoryOptions: readonly CategoryOption[];
   initialPackage?: AdminPackageRow;
   configuredTierCount?: number;
+  nextDisplayOrder?: number;
   onSaved: (saved: AdminPackageRow) => void;
   onCancel: () => void;
 };
@@ -149,6 +149,7 @@ export function AdminPackageForm({
   initialCategoryName,
   categoryOptions,
   initialPackage,
+  nextDisplayOrder,
   onSaved,
   onCancel,
 }: AdminPackageFormProps) {
@@ -217,8 +218,12 @@ export function AdminPackageForm({
   function updateTierPricingValues(patch: Partial<AdminPackageFormValues>) {
     setValues((current) => {
       const next = { ...current, ...patch };
-      if ("price" in patch || "sessionsCount" in patch) {
-        const derived = resolveTierPricePerSessionField(next.price, next.sessionsCount);
+      if ("price" in patch || "sessionsCount" in patch || "discountedPrice" in patch) {
+        const derived = resolveTierPricePerSessionField(
+          next.price,
+          next.sessionsCount,
+          next.discountedPrice,
+        );
         next.pricePerSession =
           derived.length > 0 ? derived : next.pricePerSession;
       }
@@ -239,7 +244,11 @@ export function AdminPackageForm({
       };
       const total = sumCombinedSessionAllocations(nextAllocations);
       const sessionsCount = total > 0 ? String(total) : current.sessionsCount;
-      const derivedPerSession = resolveTierPricePerSessionField(current.price, sessionsCount);
+      const derivedPerSession = resolveTierPricePerSessionField(
+        current.price,
+        sessionsCount,
+        current.discountedPrice,
+      );
       return {
         ...current,
         sourceSessionAllocations: nextAllocations,
@@ -280,29 +289,33 @@ export function AdminPackageForm({
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
+    const discountAmountCents = parsePriceToCents(values.discountedPrice);
     const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const pricePerSessionCents =
       parsePriceToCents(values.pricePerSession) ??
       (priceCents !== null && sessionsPerMonth !== null
         ? parsePriceToCents(
-            resolveTierPricePerSessionField(String(priceCents), String(sessionsPerMonth)),
+            resolveTierPricePerSessionField(
+              String(priceCents),
+              String(sessionsPerMonth),
+              String(discountAmountCents ?? ""),
+            ),
           )
         : null);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
-    const resolvedSessions = sessionsPerMonth ?? MIN_PACKAGE_SESSIONS;
-    const generatedSessionName = buildPackageSessionNameFromCount(resolvedSessions);
+    const sessionName = values.name.trim();
     const isTierPackage =
       initialPackage !== undefined && initialPackage.priceCents > 0;
-    const usesGeneratedSessionName =
+    const usesSessionNameField =
       isPricingMode || isAddTierMode || isEditTierMode || (isEditMode && isTierPackage);
-    const slugSource = usesGeneratedSessionName
-      ? generatedSessionName
+    const slugSource = usesSessionNameField
+      ? sessionName
       : detailsName.length > 0
         ? detailsName
         : initialPackage?.name ?? FALLBACK_PACKAGE_SLUG_PREFIX;
     const slug = buildPackageSlug(slugSource);
-    const payloadName = usesGeneratedSessionName ? generatedSessionName : detailsName;
+    const payloadName = usesSessionNameField ? sessionName : detailsName;
 
     if (isCreateMode || isEditMode) {
       if (detailsName.length === 0) {
@@ -332,10 +345,35 @@ export function AdminPackageForm({
       return;
     }
 
+    if (usesSessionNameField) {
+      if (sessionName.length === 0) {
+        setError(t("sessionNameRequired"));
+        return;
+      }
+      if (sessionName.length > MAX_NAME_LENGTH) {
+        setError(t("sessionNameTooLong"));
+        return;
+      }
+    }
+
     if (isPricingMode || isEditMode || isAddTierMode || isEditTierMode) {
       if (priceCents === null) {
         setError(t("priceInvalid"));
         return;
+      }
+      if (values.discountedPrice.trim().length > 0) {
+        if (discountAmountCents === null) {
+          setError(t("discountedPriceInvalid"));
+          return;
+        }
+        if (discountAmountCents < 0) {
+          setError(t("discountedPriceNegative"));
+          return;
+        }
+        if (discountAmountCents >= priceCents) {
+          setError(t("discountedPriceLowerThanPrice"));
+          return;
+        }
       }
       if (isAddTierMode || isEditTierMode) {
         if (pricePerSessionCents === null) {
@@ -395,9 +433,14 @@ export function AdminPackageForm({
     const tierBillingPeriod = resolvePackageBillingPeriod(initialPackage);
     const pricingFields = {
       priceCents: priceCents ?? 0,
+      discountedPriceCents:
+        values.discountedPrice.trim().length > 0 && discountAmountCents !== null
+          ? (priceCents ?? 0) - discountAmountCents
+          : null,
       ...(isAddTierMode || isEditTierMode
         ? { pricePerSessionCents: pricePerSessionCents ?? 0 }
         : {}),
+      showPricePerSession: values.showPricePerSession,
       currency: "AMD" as const,
       isUnlimited: false,
       sessionsPerMonth: sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
@@ -432,34 +475,36 @@ export function AdminPackageForm({
           guestCount: 0,
           periodDays: PACKAGE_DAYS_PER_MONTH,
           billingPeriod: "monthly",
+          displayOrder: nextDisplayOrder ?? 1,
           isPopular: false,
           isActive: true,
         }
       : isAddTierMode
         ? shellTierTarget
           ? {
-              name: generatedSessionName,
+              name: payloadName,
               ...pricingFields,
             }
           : {
-              name: generatedSessionName,
+              name: payloadName,
               categoryName,
               slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
               description: initialPackage?.description ?? null,
               ...pricingFields,
+              displayOrder: nextDisplayOrder ?? 1,
               isPopular: false,
               isActive: true,
             }
         : isPricingMode
           ? {
-              name: generatedSessionName,
+              name: payloadName,
               ...pricingFields,
               isPopular: values.isPopular,
               isActive: values.isActive,
             }
           : isEditTierMode
             ? {
-                name: generatedSessionName,
+                name: payloadName,
                 ...pricingFields,
                 isPopular: initialPackage?.isPopular ?? false,
                 isActive: initialPackage?.isActive ?? true,
@@ -512,10 +557,10 @@ export function AdminPackageForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col"
+      className="flex min-h-0 flex-1 flex-col"
     >
       <div
-        className={`flex flex-col gap-5 px-5 sm:px-7${
+        className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 sm:px-7${
           mode === "create" ? "" : " pt-5 sm:pt-6"
         }`}
       >
@@ -603,6 +648,21 @@ export function AdminPackageForm({
               />
             </label>
             )}
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldSessionName")}
+              </span>
+              <input
+                name="name"
+                className="ommm-input"
+                maxLength={MAX_NAME_LENGTH}
+                value={values.name}
+                onChange={(event) => updateValues({ name: event.target.value })}
+                placeholder={t("fieldSessionNamePlaceholder")}
+                required
+                disabled={pending}
+              />
+            </label>
             <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
@@ -617,15 +677,49 @@ export function AdminPackageForm({
               />
             </label>
             <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldDiscountedPrice")}
+              </span>
+              <AmdMoneyInput
+                name="discountedPrice"
+                value={values.discountedPrice}
+                onValueChange={(nextValue) => updateTierPricingValues({ discountedPrice: nextValue })}
+                disabled={pending}
+                align="start"
+                placeholder={t("fieldDiscountedPricePlaceholder")}
+              />
+              <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
+            </label>
+            <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPricePerSession")}</span>
               <AmdMoneyInput
                 name="pricePerSession"
                 value={values.pricePerSession}
                 onValueChange={(nextValue) => updateValues({ pricePerSession: nextValue })}
-                disabled={pending}
+                disabled={pending || !values.showPricePerSession}
                 align="start"
                 placeholder={t("fieldPricePerSessionPlaceholder")}
               />
+              <label className="mt-1.5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-3 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+                <input
+                  type="checkbox"
+                  name="showPricePerSessionInline"
+                  checked={values.showPricePerSession}
+                  onChange={(event) =>
+                    updateValues({ showPricePerSession: event.target.checked })
+                  }
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 focus:ring-sand-500/30"
+                  disabled={pending}
+                />
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-sm font-medium text-sage-800">
+                    {t("fieldShowPricePerSession")}
+                  </span>
+                  <span className="text-xs text-sage-500">
+                    {t("fieldShowPricePerSessionHint")}
+                  </span>
+                </span>
+              </label>
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationDays")}</span>
@@ -686,6 +780,20 @@ export function AdminPackageForm({
                   align="start"
                 />
               </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="ommm-label text-xs uppercase tracking-wide">
+                  {t("fieldDiscountedPrice")}
+                </span>
+                <AmdMoneyInput
+                  name="discountedPrice"
+                  value={values.discountedPrice}
+                  onValueChange={(nextValue) => updateValues({ discountedPrice: nextValue })}
+                  disabled={pending}
+                  align="start"
+                  placeholder={t("fieldDiscountedPricePlaceholder")}
+                />
+                <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
+              </label>
             </div>
           </AdminPackageFormSection>
 
@@ -710,6 +818,21 @@ export function AdminPackageForm({
                   onChange={(event) => updateValues({ sessionsCount: event.target.value })}
                   onKeyDown={preventNumberArrowStep}
                   placeholder={t("fieldSessionsCountPlaceholder")}
+                  required
+                  disabled={pending}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 sm:col-span-2">
+                <span className="ommm-label text-xs uppercase tracking-wide">
+                  {t("fieldSessionName")}
+                </span>
+                <input
+                  name="name"
+                  className="ommm-input"
+                  maxLength={MAX_NAME_LENGTH}
+                  value={values.name}
+                  onChange={(event) => updateValues({ name: event.target.value })}
+                  placeholder={t("fieldSessionNamePlaceholder")}
                   required
                   disabled={pending}
                 />

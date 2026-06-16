@@ -67,7 +67,6 @@ function mergeDancesPlanWithCanonical(
 ): PublicPackagePlan {
   return {
     ...apiPlan,
-    name: canonical.name,
     priceCents: canonical.priceCents,
     sessionsPerMonth: canonical.sessionsPerMonth,
     periodDays: canonical.periodDays,

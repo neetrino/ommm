@@ -40,7 +40,16 @@ export class CreateCombinedPlanDto {
   @IsOptional()
   @IsInt()
   @Min(0)
+  discountedPriceCents?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
   pricePerSessionCents?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  showPricePerSession?: boolean;
 
   @IsOptional()
   @IsString()

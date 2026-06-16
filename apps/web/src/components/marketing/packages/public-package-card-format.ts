@@ -32,3 +32,17 @@ export function formatPublicPackageTierPriceLine(
   const suffix = tierPrice.symbol.length > 0 ? ` ${tierPrice.symbol}` : "";
   return `${priceLine({ amount: tierPrice.value })}${suffix}`;
 }
+
+export function resolvePublicPackageFinalPriceCents(plan: {
+  priceCents: number;
+  discountedPriceCents?: number | null;
+}): number {
+  if (
+    typeof plan.discountedPriceCents === "number" &&
+    plan.discountedPriceCents > 0 &&
+    plan.discountedPriceCents < plan.priceCents
+  ) {
+    return plan.discountedPriceCents;
+  }
+  return plan.priceCents;
+}

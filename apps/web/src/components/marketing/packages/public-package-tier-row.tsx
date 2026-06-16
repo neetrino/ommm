@@ -8,6 +8,7 @@ import {
   formatPackagePriceLabel,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
+import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import styles from "@/components/marketing/packages/public-package-category-panel.module.css";
 import { PUBLIC_PACKAGE_DANCES_ICON } from "@/components/marketing/packages/public-package-category-icons";
 import {
@@ -89,7 +90,15 @@ function TierRowBody({
     unlimited: t("packagesTierSessionsUnlimited"),
     count: (values) => t("packagesTierSessionsLabel", values),
   });
-  const totalPrice = formatPackagePriceLabel(plan, locale);
+  const totalPrice = formatPackagePriceLabel(
+    { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
+    locale,
+  );
+  const hasDiscount =
+    typeof plan.discountedPriceCents === "number" &&
+    plan.discountedPriceCents > 0 &&
+    plan.discountedPriceCents < plan.priceCents;
+  const originalPrice = hasDiscount ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale) : null;
   const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
   const showDaysLimit = shouldShowPublicPackageTierDaysLimit(plan);
   const daysLimitValue = showDaysLimit
@@ -114,7 +123,15 @@ function TierRowBody({
       </div>
       <div className={styles.tierPrimary}>
         <p className={styles.tierSessions}>{sessionsHeadline}</p>
-        <p className={styles.tierPrice}>{totalPrice}</p>
+        {hasDiscount && originalPrice !== null ? (
+          <div className={styles.tierPriceStack}>
+            <p className={styles.tierPriceOriginal}>{originalPrice}</p>
+            <p className={styles.tierPrice}>{totalPrice}</p>
+            <span className={styles.tierDiscountBadge}>{t("packagesDiscountBadge")}</span>
+          </div>
+        ) : (
+          <p className={styles.tierPrice}>{totalPrice}</p>
+        )}
       </div>
       <div className={styles.tierMetaGroup}>
         {pricePerSession !== null ? (

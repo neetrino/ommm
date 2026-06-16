@@ -102,6 +102,14 @@ export function AdminPackagesCategoryTable({
             const sessionsBreakdown = formatCombinedPackageSessionsBreakdown(pkg);
             const pricePerSession = formatPackagePricePerSession(pkg, locale);
             const guestCount = formatPackageGuestCount(pkg);
+            const hasDiscount =
+              typeof pkg.discountedPriceCents === "number" &&
+              pkg.discountedPriceCents > 0 &&
+              pkg.discountedPriceCents < pkg.priceCents;
+            const originalPriceLabel = hasDiscount
+              ? formatPackagePriceLabel({ ...pkg, discountedPriceCents: null }, locale)
+              : null;
+            const finalPriceLabel = formatPackagePriceLabel(pkg, locale);
             const validityLabel = formatPackageValidityLabel(pkg, {
               days: (count) => t("validityDays", { count }),
               months: (count) => t("validityMonths", { count }),
@@ -140,8 +148,19 @@ export function AdminPackagesCategoryTable({
                       <EmptyCell />
                     )}
                   </TableCell>
-                  <TableCell>{formatPackagePriceLabel(pkg, locale)}</TableCell>
-                  <TableCell>{pricePerSession ?? <EmptyCell />}</TableCell>
+                  <TableCell>
+                    {hasDiscount && originalPriceLabel !== null ? (
+                      <span className="inline-flex flex-col items-center gap-0.5">
+                        <span className="text-xs leading-tight text-sage-500 line-through">
+                          {originalPriceLabel}
+                        </span>
+                        <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
+                      </span>
+                    ) : (
+                      finalPriceLabel
+                    )}
+                  </TableCell>
+                  <TableCell>{pkg.showPricePerSession === false ? null : pricePerSession ?? <EmptyCell />}</TableCell>
                   <TableCell>{validityLabel}</TableCell>
                   <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
                   <TableCell>

@@ -10,11 +10,14 @@ import {
   formatPackageSessionsLabel,
 } from "@/components/admin/admin-packages-display";
 import {
+  resolvePublicPackageFinalPriceCents,
+  shouldShowPublicPackageTierName,
+} from "@/components/marketing/packages/public-package-card-format";
+import {
   formatPublicPackageTierPricePerSession,
   formatPublicPackageValidityLabel,
 } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
-import { shouldShowPublicPackageTierName } from "@/components/marketing/packages/public-package-card-format";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
@@ -36,6 +39,22 @@ function formatGuestCellValue(guestCount: number | undefined): string | null {
 
 function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
+}
+
+function resolveDesktopTableClassName(
+  showGuestsColumn: boolean,
+  showPricePerSessionColumn: boolean,
+): string {
+  if (showGuestsColumn && showPricePerSessionColumn) {
+    return `${styles.table} ${styles.tableWithGuests}`;
+  }
+  if (showGuestsColumn) {
+    return `${styles.table} ${styles.tableWithGuestsNoPerSession}`;
+  }
+  if (showPricePerSessionColumn) {
+    return styles.table;
+  }
+  return `${styles.table} ${styles.tableNoPerSession}`;
 }
 
 export function PublicPackageCategoryListTable({
@@ -61,6 +80,10 @@ export function PublicPackageCategoryListTable({
       }),
     );
   }, [categoryLabel, plans]);
+  const showPricePerSessionColumn = useMemo(
+    () => plans.some((plan) => plan.showPricePerSession !== false),
+    [plans],
+  );
 
   function openPayment(planId: string) {
     setPaymentPlanId(planId);
@@ -81,15 +104,18 @@ export function PublicPackageCategoryListTable({
       </div>
 
       <div
-        className={`ommm-public-packages-table ${styles.desktopTable} ${styles.table} ${
-          showGuestsColumn ? styles.tableWithGuests : ""
-        }`}
+        className={`ommm-public-packages-table ${styles.desktopTable} ${resolveDesktopTableClassName(
+          showGuestsColumn,
+          showPricePerSessionColumn,
+        )}`}
       >
         <div className={styles.headerRow}>
           <div className={styles.headCell}>{t("packagesTablePlan")}</div>
           <div className={styles.headCell}>{t("packagesTableSessions")}</div>
           <div className={styles.headCell}>{t("packagesTablePrice")}</div>
-          <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
+          {showPricePerSessionColumn ? (
+            <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
+          ) : null}
           <div className={styles.headCell}>{t("packagesTableValidity")}</div>
           {showGuestsColumn ? (
             <div className={styles.headCell}>{t("packagesTableGuests")}</div>
@@ -107,6 +133,13 @@ export function PublicPackageCategoryListTable({
           });
           const showTierName = shouldShowPublicPackageTierName(plan.name, categoryLabel);
           const guestValue = formatGuestCellValue(plan.guestCount);
+          const hasDiscount =
+            typeof plan.discountedPriceCents === "number" &&
+            plan.discountedPriceCents > 0 &&
+            plan.discountedPriceCents < plan.priceCents;
+          const originalPrice = hasDiscount
+            ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
+            : null;
 
           return (
             <div
@@ -128,8 +161,29 @@ export function PublicPackageCategoryListTable({
                   <EmptyCell />
                 )}
               </div>
-              <div className={styles.cell}>{formatPackagePriceLabel(plan, locale)}</div>
-              <div className={styles.cell}>{pricePerSession ?? <EmptyCell />}</div>
+              <div className={styles.cell}>
+                {hasDiscount && originalPrice !== null ? (
+                  <div className="flex flex-col">
+                    <span className="text-xs text-sage-500 line-through">{originalPrice}</span>
+                    <span className="font-semibold text-sage-900">
+                      {formatPackagePriceLabel(
+                        { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
+                        locale,
+                      )}
+                    </span>
+                  </div>
+                ) : (
+                  formatPackagePriceLabel(
+                    { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
+                    locale,
+                  )
+                )}
+              </div>
+              {showPricePerSessionColumn ? (
+                <div className={styles.cell}>
+                  {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}
+                </div>
+              ) : null}
               <div className={styles.cell}>{validityLabel ?? <EmptyCell />}</div>
               {showGuestsColumn ? (
                 <div className={styles.cell}>

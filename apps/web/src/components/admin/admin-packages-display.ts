@@ -9,7 +9,9 @@ const MIN_SESSIONS_FOR_PER_SESSION_PRICE = 2;
 export type PackageTableDisplayRow = Pick<
   AdminPackageRow,
   | "priceCents"
+  | "discountedPriceCents"
   | "pricePerSessionCents"
+  | "showPricePerSession"
   | "periodDays"
   | "sessionsPerMonth"
   | "isUnlimited"
@@ -37,6 +39,9 @@ export function formatPackageValidityLabel(
 /** Session count for the packages table; null when unset. */
 export function formatPackageSessionsLabel(pkg: PackageTableDisplayRow): number | null {
   if (pkg.isUnlimited) {
+    return null;
+  }
+  if (pkg.showPricePerSession === false) {
     return null;
   }
   const sessions = pkg.sessionsPerMonth;
@@ -67,19 +72,31 @@ export function formatPackagePricePerSession(
   if (typeof pkg.pricePerSessionCents === "number" && pkg.pricePerSessionCents > 0) {
     return formatAmdFromCents(pkg.pricePerSessionCents, locale);
   }
+  const effectivePriceCents =
+    typeof pkg.discountedPriceCents === "number" &&
+    pkg.discountedPriceCents > 0 &&
+    pkg.discountedPriceCents < pkg.priceCents
+      ? pkg.discountedPriceCents
+      : pkg.priceCents;
   const sessions = pkg.sessionsPerMonth;
   if (sessions !== null && sessions >= MIN_SESSIONS_FOR_PER_SESSION_PRICE) {
-    return formatAmdFromCents(Math.round(pkg.priceCents / sessions), locale);
+    return formatAmdFromCents(Math.round(effectivePriceCents / sessions), locale);
   }
   const months = resolvePackageDurationMonths(pkg.periodDays);
   if (months >= 1) {
-    return formatAmdFromCents(Math.round(pkg.priceCents / months), locale);
+    return formatAmdFromCents(Math.round(effectivePriceCents / months), locale);
   }
   return null;
 }
 
 export function formatPackagePriceLabel(pkg: PackageTableDisplayRow, locale: string): string {
-  return formatAmdFromCents(pkg.priceCents, locale);
+  const payablePriceCents =
+    typeof pkg.discountedPriceCents === "number" &&
+    pkg.discountedPriceCents > 0 &&
+    pkg.discountedPriceCents < pkg.priceCents
+      ? pkg.discountedPriceCents
+      : pkg.priceCents;
+  return formatAmdFromCents(payablePriceCents, locale);
 }
 
 export function formatPackagePlanName(
@@ -87,6 +104,14 @@ export function formatPackagePlanName(
   sessionsPerMonth: number | null,
 ): string {
   const normalizedName = planName.trim();
+  if (normalizedName.length === 0) {
+    if (sessionsPerMonth === null || sessionsPerMonth <= 0) {
+      return "Session";
+    }
+    return sessionsPerMonth === 1
+      ? "1 Session"
+      : `${sessionsPerMonth} Sessions`;
+  }
   if (sessionsPerMonth === null || sessionsPerMonth <= 0) {
     return normalizedName;
   }

@@ -44,7 +44,19 @@ export function groupPublicPlansByCategory(
         if (left.displayOrder !== right.displayOrder) {
           return left.displayOrder - right.displayOrder;
         }
-        return left.priceCents - right.priceCents;
+        const leftPrice =
+          typeof left.discountedPriceCents === "number" &&
+          left.discountedPriceCents > 0 &&
+          left.discountedPriceCents < left.priceCents
+            ? left.discountedPriceCents
+            : left.priceCents;
+        const rightPrice =
+          typeof right.discountedPriceCents === "number" &&
+          right.discountedPriceCents > 0 &&
+          right.discountedPriceCents < right.priceCents
+            ? right.discountedPriceCents
+            : right.priceCents;
+        return leftPrice - rightPrice;
       }),
     }))
     .sort((left, right) => left.label.localeCompare(right.label));
@@ -79,7 +91,13 @@ export function resolveCategoryStartingPriceCents(
   plans: readonly PublicPackagePlan[],
 ): number {
   const priced = plans
-    .map((plan) => plan.priceCents)
+    .map((plan) =>
+      typeof plan.discountedPriceCents === "number" &&
+      plan.discountedPriceCents > 0 &&
+      plan.discountedPriceCents < plan.priceCents
+        ? plan.discountedPriceCents
+        : plan.priceCents,
+    )
     .filter((priceCents) => priceCents > 0);
   if (priced.length > 0) {
     return Math.min(...priced);

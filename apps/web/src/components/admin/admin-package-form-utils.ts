@@ -87,14 +87,6 @@ export function parseSessionsCount(raw: string): number | null {
   return count;
 }
 
-/** Builds the stored plan name from session count (e.g. "1 Session", "4 Sessions"). */
-export function buildPackageSessionNameFromCount(count: number): string {
-  if (!Number.isInteger(count) || count <= 0) {
-    return buildPackageSessionNameFromCount(MIN_PACKAGE_SESSIONS);
-  }
-  return count === 1 ? "1 Session" : `${count} Sessions`;
-}
-
 export function parseDurationDays(raw: string): number | null {
   const normalized = raw.trim();
   if (normalized.length === 0) {
@@ -112,12 +104,14 @@ export type AdminPackageFormValues = {
   categoryName: string;
   description: string;
   price: string;
+  discountedPrice: string;
   pricePerSession: string;
   durationDays: string;
   sessionsCount: string;
   guestCount: string;
   isPopular: boolean;
   isActive: boolean;
+  showPricePerSession: boolean;
   sourceSessionAllocations: Record<string, string>;
 };
 
@@ -127,12 +121,14 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     categoryName: initialCategoryName,
     description: "",
     price: "",
+    discountedPrice: "",
     pricePerSession: "",
     durationDays: String(PACKAGE_DAYS_PER_MONTH),
     sessionsCount: "1",
     guestCount: "",
     isPopular: false,
     isActive: true,
+    showPricePerSession: true,
     sourceSessionAllocations: {},
   };
 }
@@ -142,6 +138,7 @@ export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackag
   return {
     ...createEmptyPackageFormValues(initialCategoryName),
     price: "",
+    discountedPrice: "",
     pricePerSession: "",
     durationDays: "",
     guestCount: "",
@@ -154,11 +151,13 @@ export function packageRowToFormValues(
   categoryName: string;
   description: string | null;
   priceCents: number;
+  discountedPriceCents?: number | null;
   pricePerSessionCents?: number;
   periodDays: number;
   billingPeriod: string;
   isPopular: boolean;
   isActive: boolean;
+  showPricePerSession?: boolean;
   guestCount?: number;
   sessionsPerMonth?: number | null;
 },
@@ -168,11 +167,18 @@ export function packageRowToFormValues(
     typeof pkg.sessionsPerMonth === "number" && pkg.sessionsPerMonth > 0
       ? pkg.sessionsPerMonth
       : MIN_PACKAGE_SESSIONS;
+  const discountAmountCents =
+    typeof pkg.discountedPriceCents === "number" &&
+    pkg.discountedPriceCents >= 0 &&
+    pkg.discountedPriceCents < pkg.priceCents
+      ? pkg.priceCents - pkg.discountedPriceCents
+      : null;
   return {
     name: pkg.name,
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: String(pkg.priceCents),
+    discountedPrice: discountAmountCents !== null ? String(discountAmountCents) : "",
     pricePerSession: formatStoredPricePerSessionAmount(pkg),
     durationDays: periodDaysToFormDurationDays(pkg.periodDays),
     sessionsCount: String(sessions),
@@ -180,18 +186,31 @@ export function packageRowToFormValues(
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
+    showPricePerSession:
+      typeof pkg.showPricePerSession === "boolean" ? pkg.showPricePerSession : true,
     sourceSessionAllocations: {},
   };
 }
 
 /** Derives per-session AMD for tier forms from raw price and session count inputs. */
-export function resolveTierPricePerSessionField(price: string, sessionsCount: string): string {
+export function resolveTierPricePerSessionField(
+  price: string,
+  sessionsCount: string,
+  discountAmount = "",
+): string {
   const priceAmount = parsePriceToCents(price);
   const sessions = parseSessionsCount(sessionsCount);
+  const discount = parsePriceToCents(discountAmount);
   if (priceAmount === null || sessions === null) {
     return "";
   }
-  return deriveTierPricePerSessionAmount(priceAmount, sessions);
+  if (discountAmount.trim().length === 0) {
+    return deriveTierPricePerSessionAmount(priceAmount, sessions);
+  }
+  if (discount === null || discount < 0 || discount >= priceAmount) {
+    return "";
+  }
+  return deriveTierPricePerSessionAmount(priceAmount - discount, sessions);
 }
 
 /** Derives per-session AMD amount from stored total price and session count. */

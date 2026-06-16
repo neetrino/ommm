@@ -133,6 +133,13 @@ export function AdminPackagesShell({
         normalizePackageCategoryKey(pkg.categoryName) === categoryKey && pkg.priceCents > 0,
     ).length;
   }, [addTierCategoryName, isAddTierModalOpen, packages]);
+  const nextDisplayOrder = useMemo(() => {
+    if (packages.length === 0) {
+      return 1;
+    }
+    const maxDisplayOrder = Math.max(...packages.map((pkg) => pkg.displayOrder));
+    return maxDisplayOrder + 1;
+  }, [packages]);
   const initialCategoryName = useMemo(() => {
     if (editingPackage !== undefined && editingPackage.categoryName.trim().length > 0) {
       return editingPackage.categoryName.trim();
@@ -302,7 +309,7 @@ export function AdminPackagesShell({
           ref={panelRef}
           aria-labelledby={titleId}
           aria-describedby={descId}
-          className="flex flex-col"
+          className="flex min-h-0 flex-1 flex-col"
         >
           <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
             <div>
@@ -333,7 +340,7 @@ export function AdminPackagesShell({
               </svg>
             </button>
           </div>
-          <div className="flex flex-col">
+          <div className="flex min-h-0 flex-1 flex-col">
             {modalMode === "create" ? (
               <div className="mb-5 flex shrink-0 flex-wrap gap-2 px-5 pt-5 sm:px-7 sm:pt-6">
                 <button
@@ -360,7 +367,7 @@ export function AdminPackagesShell({
                 </button>
               </div>
             ) : null}
-            <div className="flex flex-col">
+            <div className="flex min-h-0 flex-1 flex-col">
             {modalMode === "create" && createPackageKind === "combined" ? (
               <AdminCombinedPackageForm
                 packages={allPackages ?? packages}
@@ -387,6 +394,7 @@ export function AdminPackagesShell({
                     : editingPackage
               }
               configuredTierCount={configuredTierCount}
+              nextDisplayOrder={nextDisplayOrder}
               onSaved={(saved) => {
                 if (
                   modalMode === "edit" ||

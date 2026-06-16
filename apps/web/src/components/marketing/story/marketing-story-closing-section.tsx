@@ -53,7 +53,7 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
               <p className={styles.callout}>{t("closingCallout")}</p>
               <p className={styles.signoff}>{t("closingSignoff")}</p>
             </div>
-            <Link href="/membership" className={styles.cta}>
+            <Link href="/package" className={styles.cta}>
               <span>{t("closingCta")}</span>
               <span className={styles.ctaArrow} aria-hidden="true">
                 →

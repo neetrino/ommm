@@ -55,7 +55,7 @@ function useHomePlanInteractiveCards({
         }
         return {
           ...card,
-          href: "/membership",
+          href: "/package",
         };
       }),
     [audience, cards, openCategorySubscribe],

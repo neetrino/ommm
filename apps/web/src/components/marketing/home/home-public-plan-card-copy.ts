@@ -30,7 +30,21 @@ function resolveCategoryDetails(
   }
 
   const pricedPlans = plans.filter((plan) => plan.priceCents > 0);
-  const featuredPlan = pricedPlans.sort((left, right) => left.priceCents - right.priceCents)[0];
+  const featuredPlan = pricedPlans.sort((left, right) => {
+    const leftFinal =
+      typeof left.discountedPriceCents === "number" &&
+      left.discountedPriceCents > 0 &&
+      left.discountedPriceCents < left.priceCents
+        ? left.discountedPriceCents
+        : left.priceCents;
+    const rightFinal =
+      typeof right.discountedPriceCents === "number" &&
+      right.discountedPriceCents > 0 &&
+      right.discountedPriceCents < right.priceCents
+        ? right.discountedPriceCents
+        : right.priceCents;
+    return leftFinal - rightFinal;
+  })[0];
   if (featuredPlan !== undefined) {
     if (featuredPlan.isUnlimited) {
       return labels.sessionsUnlimited;

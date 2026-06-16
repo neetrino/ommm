@@ -11,6 +11,9 @@
   margin-inline: 0;
   align-items: stretch;
   gap: var(--packages-page-accordion-gap);
+  transition:
+    width var(--packages-page-transition-duration) var(--packages-page-transition-easing),
+    margin-inline var(--packages-page-transition-duration) var(--packages-page-transition-easing);
 }
 
 .accordionRowCentered {
@@ -18,7 +21,8 @@
     (
         (100% - (var(--packages-page-desktop-cards-per-row) - 1) * var(--packages-page-accordion-gap))
         / var(--packages-page-desktop-cards-per-row)
-      ) * 2 + var(--packages-page-accordion-gap)
+      ) * var(--packages-page-row-item-count) +
+      (var(--packages-page-row-item-count) - 1) * var(--packages-page-accordion-gap)
   );
   margin-inline: auto;
 }
@@ -290,6 +294,30 @@
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0.04em;
+  color: var(--packages-page-text-color);
+}
+
+.tierPriceWithDiscount {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.tierPriceOriginal {
+  font-size: clamp(0.68rem, 1.05vw, calc(var(--packages-page-tier-meta-size) * 0.92));
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgba(106, 100, 84, 0.72);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.tierPriceFinal {
+  font-size: clamp(0.78rem, 1.25vw, calc(var(--packages-page-tier-meta-size) * 1.08));
+  font-weight: 700;
+  line-height: 1.2;
   color: var(--packages-page-text-color);
 }
 

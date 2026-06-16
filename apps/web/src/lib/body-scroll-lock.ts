@@ -12,6 +12,7 @@ const ALLOWED_TOUCH_SCROLL_SELECTOR =
 
 let lockCount = 0;
 let savedScrollY = 0;
+let savedViewportScrollY = 0;
 
 type ScrollLockSnapshot = {
   htmlOverflow: string;
@@ -63,6 +64,17 @@ function onLockedTouchMove(event: TouchEvent): void {
 function resolveUnlockScrollY(): number {
   const hubScrollY = peekMemberHubSheetScrollY();
   return hubScrollY !== null ? hubScrollY : savedScrollY;
+}
+
+function readWorkspaceScrollY(): number {
+  if (typeof document === "undefined") {
+    return 0;
+  }
+  const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
+  if (pane !== null) {
+    return pane.scrollTop;
+  }
+  return window.scrollY;
 }
 
 function performBodyScrollUnlock(): void {
@@ -123,7 +135,8 @@ export function lockBodyScroll(): () => void {
 
   if (lockCount === 1 && typeof document !== "undefined") {
     const hubScrollY = peekMemberHubSheetScrollY();
-    savedScrollY = hubScrollY !== null ? hubScrollY : window.scrollY;
+    savedScrollY = hubScrollY !== null ? hubScrollY : readWorkspaceScrollY();
+    savedViewportScrollY = window.scrollY;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
 
@@ -142,7 +155,7 @@ export function lockBodyScroll(): () => void {
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
-    document.body.style.top = `-${savedScrollY}px`;
+    document.body.style.top = `-${savedViewportScrollY}px`;
     document.body.style.left = "0";
     document.body.style.right = "0";
     document.body.style.width = "100%";
