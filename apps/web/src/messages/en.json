@@ -2666,7 +2666,7 @@
       "fieldGuestCountHint": "Maximum guests allowed on this package (shown in the Guests column).",
       "guestCountInvalid": "Enter a whole number of guests from 0 to 99.",
       "fieldSessionName": "Session name",
-      "fieldSessionNamePlaceholder": "e.g. Morning Yoga",
+      "fieldSessionNamePlaceholder": "e.g. Single Session",
       "sessionNameRequired": "Enter a session name.",
       "sessionNameTooLong": "Session name must be 120 characters or fewer.",
       "savePricingButton": "Save pricing",

@@ -104,6 +104,14 @@ export function formatPackagePlanName(
   sessionsPerMonth: number | null,
 ): string {
   const normalizedName = planName.trim();
+  if (normalizedName.length === 0) {
+    if (sessionsPerMonth === null || sessionsPerMonth <= 0) {
+      return "Session";
+    }
+    return sessionsPerMonth === 1
+      ? "1 Session"
+      : `${sessionsPerMonth} Sessions`;
+  }
   if (sessionsPerMonth === null || sessionsPerMonth <= 0) {
     return normalizedName;
   }

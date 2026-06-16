@@ -13,15 +13,6 @@ type TierSessionsLabel = {
   count: (values: { count: number }) => string;
 };
 
-function parseSessionCountFromPlanName(name: string): number | null {
-  const match = name.match(/(\d+)\s*sessions?\b/i);
-  if (match === null) {
-    return null;
-  }
-  const count = Number.parseInt(match[1], 10);
-  return Number.isFinite(count) && count > 0 ? count : null;
-}
-
 /** Resolves session count for tier row (field, plan name, then default). */
 export function resolvePublicPackageTierSessionCount(plan: PublicPackageTierPlan): number {
   if (plan.isUnlimited) {
@@ -32,19 +23,8 @@ export function resolvePublicPackageTierSessionCount(plan: PublicPackageTierPlan
     typeof plan.sessionsPerMonth === "number" && plan.sessionsPerMonth > 0
       ? plan.sessionsPerMonth
       : null;
-  const fromName =
-    typeof plan.name === "string" && plan.name.trim().length > 0
-      ? parseSessionCountFromPlanName(plan.name)
-      : null;
-
-  if (fromField !== null && fromName !== null) {
-    return Math.max(fromField, fromName);
-  }
   if (fromField !== null) {
     return fromField;
-  }
-  if (fromName !== null) {
-    return fromName;
   }
   return 1;
 }

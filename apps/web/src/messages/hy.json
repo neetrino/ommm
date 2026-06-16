@@ -2657,7 +2657,7 @@
       "fieldGuestCountHint": "Այս փաթեթով թույլատրված հյուրերի առավելագույն քանակ (աղյուսակի Guests սյունակ)։",
       "guestCountInvalid": "Մուտքագրեք հյուրերի ամբողջ թիվ 0-ից 99-ի սահմաններում։",
       "fieldSessionName": "Session-ի անուն",
-      "fieldSessionNamePlaceholder": "օր. Morning Yoga",
+      "fieldSessionNamePlaceholder": "օր. Մեկ սեսիա",
       "sessionNameRequired": "Մուտքագրեք session-ի անունը։",
       "sessionNameTooLong": "Session-ի անունը պետք է լինի առավելագույնը 120 նիշ։",
       "savePricingButton": "Պահպանել գնի կարգավորումները",

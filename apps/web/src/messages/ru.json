@@ -2658,7 +2658,7 @@
       "fieldGuestCountHint": "Максимум гостей по этому пакету (колонка Guests в таблице).",
       "guestCountInvalid": "Введите целое число гостей от 0 до 99.",
       "fieldSessionName": "Название сеанса",
-      "fieldSessionNamePlaceholder": "напр. Morning Yoga",
+      "fieldSessionNamePlaceholder": "напр. Разовое занятие",
       "sessionNameRequired": "Введите название сеанса.",
       "sessionNameTooLong": "Название сеанса должно быть не длиннее 120 символов.",
       "savePricingButton": "Сохранить цену",

@@ -87,14 +87,6 @@ export function parseSessionsCount(raw: string): number | null {
   return count;
 }
 
-/** Builds the stored plan name from session count (e.g. "1 Session", "4 Sessions"). */
-export function buildPackageSessionNameFromCount(count: number): string {
-  if (!Number.isInteger(count) || count <= 0) {
-    return buildPackageSessionNameFromCount(MIN_PACKAGE_SESSIONS);
-  }
-  return count === 1 ? "1 Session" : `${count} Sessions`;
-}
-
 export function parseDurationDays(raw: string): number | null {
   const normalized = raw.trim();
   if (normalized.length === 0) {
