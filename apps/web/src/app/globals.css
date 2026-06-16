@@ -519,7 +519,7 @@ html {
     @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
     pointer-events: auto;
     opacity: 0;
-    transition: opacity 520ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .ommm-package-subscribe-desktop-overlay[data-state="open"]
@@ -542,17 +542,23 @@ html {
     right: 0;
     bottom: 0;
     pointer-events: auto;
-    transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0) scale(0.975);
     opacity: 0;
+    filter: blur(7px) saturate(92%) brightness(0.9);
     transition:
-      transform 520ms cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 420ms cubic-bezier(0.16, 1, 0.3, 1);
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: right center;
+    will-change: transform, opacity, filter;
   }
 
   .ommm-package-subscribe-desktop-overlay[data-state="open"]
     .ommm-package-subscribe-desktop-panel {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) scale(1);
     opacity: 1;
+    filter: blur(0) saturate(100%) brightness(1);
+    transition-delay: 90ms, 90ms, 90ms;
   }
 
   @media (prefers-reduced-motion: reduce) {
