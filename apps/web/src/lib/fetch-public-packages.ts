@@ -1,10 +1,9 @@
-import { fetchPublicJsonCached } from "@/lib/cached-public-api";
-import { PUBLIC_CACHE_TAGS } from "@/lib/public-cache-tags";
+import { serverApiJsonPublic } from "@/lib/server-api";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
-/** Cached public package catalog — same ISR path as coaches list. */
+/** Live public package catalog for immediate admin pricing visibility updates. */
 export function fetchPublicPackagesListCached() {
-  return fetchPublicJsonCached<PublicPackagePlan[]>("/packages/plans", {
-    tags: [PUBLIC_CACHE_TAGS.packages],
+  return serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans", {
+    cacheMode: "no-store",
   });
 }
