@@ -338,7 +338,7 @@ export function useSessionBooking({
         }
         replaceSearchParams(clearBookPackageSessionQuery);
         const message = error instanceof ApiError ? error.message : t("bookFailed");
-        onErrorRef.current?.(message);
+        callbacksRef.current.onError?.(message);
       } finally {
         if (!cancelled) {
           setBusy(false);
