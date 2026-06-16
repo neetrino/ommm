@@ -217,8 +217,12 @@ export function AdminPackageForm({
   function updateTierPricingValues(patch: Partial<AdminPackageFormValues>) {
     setValues((current) => {
       const next = { ...current, ...patch };
-      if ("price" in patch || "sessionsCount" in patch) {
-        const derived = resolveTierPricePerSessionField(next.price, next.sessionsCount);
+      if ("price" in patch || "sessionsCount" in patch || "discountedPrice" in patch) {
+        const derived = resolveTierPricePerSessionField(
+          next.price,
+          next.sessionsCount,
+          next.discountedPrice,
+        );
         next.pricePerSession =
           derived.length > 0 ? derived : next.pricePerSession;
       }
@@ -239,7 +243,11 @@ export function AdminPackageForm({
       };
       const total = sumCombinedSessionAllocations(nextAllocations);
       const sessionsCount = total > 0 ? String(total) : current.sessionsCount;
-      const derivedPerSession = resolveTierPricePerSessionField(current.price, sessionsCount);
+      const derivedPerSession = resolveTierPricePerSessionField(
+        current.price,
+        sessionsCount,
+        current.discountedPrice,
+      );
       return {
         ...current,
         sourceSessionAllocations: nextAllocations,
@@ -286,7 +294,11 @@ export function AdminPackageForm({
       parsePriceToCents(values.pricePerSession) ??
       (priceCents !== null && sessionsPerMonth !== null
         ? parsePriceToCents(
-            resolveTierPricePerSessionField(String(priceCents), String(sessionsPerMonth)),
+            resolveTierPricePerSessionField(
+              String(priceCents),
+              String(sessionsPerMonth),
+              String(discountAmountCents ?? ""),
+            ),
           )
         : null);
     const periodDays = parseDurationDays(values.durationDays);
