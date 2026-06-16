@@ -136,10 +136,11 @@ function layoutStyleVars(): CSSProperties {
   };
 }
 
-function rowLayoutStyleVars(cardsPerRow: number): CSSProperties {
+function rowLayoutStyleVars(cardsPerRow: number, rowItemCount: number): CSSProperties {
   return {
     ...layoutStyleVars(),
     ["--packages-page-desktop-cards-per-row" as string]: String(cardsPerRow),
+    ["--packages-page-row-item-count" as string]: String(rowItemCount),
   };
 }
 
@@ -743,7 +744,7 @@ export function PackagesPageAccordion({
             <div
               key={`row-${rowIndex}`}
               className={rowClassName}
-              style={rowLayoutStyleVars(normalizedDesktopCardsPerRow)}
+              style={rowLayoutStyleVars(normalizedDesktopCardsPerRow, row.length)}
             >
               {row.map((category, indexInRow) => (
               <PackagesPageReveal
