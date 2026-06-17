@@ -169,7 +169,13 @@ export const HOME_FOOTER_LEGAL_LINKS = [
 
 export const HOME_FOOTER_SOCIAL_LINKS = [
   { id: "facebook", href: "https://facebook.com", asset: HOME_SECTION_ASSETS.footerSocialFacebook, width: 13, height: 23 },
-  { id: "instagram", href: "https://instagram.com", asset: HOME_SECTION_ASSETS.footerSocialInstagram, width: 23, height: 23 },
+  {
+    id: "instagram",
+    href: "https://www.instagram.com/ommm.space/",
+    asset: HOME_SECTION_ASSETS.footerSocialInstagram,
+    width: 23,
+    height: 23,
+  },
   { id: "telegram", href: "https://t.me", asset: HOME_SECTION_ASSETS.footerSocialTelegram, width: 24, height: 24 },
   { id: "youtube", href: "https://youtube.com", asset: HOME_SECTION_ASSETS.footerSocialYoutube, width: 25, height: 18 },
   { id: "whatsapp", href: "https://wa.me", asset: HOME_SECTION_ASSETS.footerSocialWhatsapp, width: 24, height: 24 },
