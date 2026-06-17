@@ -158,6 +158,8 @@ export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
 } as const;
 
 export const HOME_FOOTER_COPYRIGHT_COMPANY_HREF = "https://neetrino.com" as const;
+export const HOME_FOOTER_ADDRESS_HREF =
+  "https://yandex.com/maps/10262/yerevan/house/pushkini_poghots_25/YE0YcwZiTkYCQFpqfX15c31qYw==/?ll=44.512935%2C40.182167&z=20.44" as const;
 
 export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/contact", labelKey: "footerPrivacy" },

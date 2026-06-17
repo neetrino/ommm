@@ -17,6 +17,7 @@ export type MarketingPublicHomeFooterMobileProps = {
   phone: string;
   email: string;
   address: string;
+  addressHref: string;
   socialTitle: string;
   socialAria: (network: string) => string;
   legalNavAria: string;
@@ -33,6 +34,7 @@ export function MarketingPublicHomeFooterMobile({
   phone,
   email,
   address,
+  addressHref,
   socialTitle,
   socialAria,
   legalNavAria,
@@ -98,7 +100,9 @@ export function MarketingPublicHomeFooterMobile({
             className={styles.mobileContactIcon}
             aria-hidden
           />
-          <span className={styles.mobileContactText}>{address}</span>
+          <a href={addressHref} className={styles.mobileContactText} target="_blank" rel="noopener noreferrer">
+            {address}
+          </a>
         </div>
       </div>
 
