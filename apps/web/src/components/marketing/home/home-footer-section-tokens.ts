@@ -179,7 +179,7 @@ export const HOME_FOOTER_SOCIAL_LINKS = [
   { id: "telegram", href: "https://t.me", asset: HOME_SECTION_ASSETS.footerSocialTelegram, width: 24, height: 24 },
   { id: "youtube", href: "https://youtube.com", asset: HOME_SECTION_ASSETS.footerSocialYoutube, width: 25, height: 18 },
   { id: "whatsapp", href: "https://wa.me", asset: HOME_SECTION_ASSETS.footerSocialWhatsapp, width: 24, height: 24 },
-  { id: "viber", href: "viber://chat", asset: HOME_SECTION_ASSETS.footerSocialViber, width: 22, height: 24 },
+  { id: "threads", href: "https://www.threads.net/@ommm.space", asset: HOME_SECTION_ASSETS.footerSocialThreads, width: 23, height: 23 },
 ] as const;
 
 export const HOME_FOOTER_ASSETS = {
