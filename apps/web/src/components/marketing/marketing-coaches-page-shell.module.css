@@ -21,7 +21,7 @@
 }
 
 .shell:has([data-marketing-explore-coming-soon]) {
-  background: #1a1714;
+  background: #ece8d2;
 }
 
 .shell:has([data-marketing-explore-coming-soon]) .main {

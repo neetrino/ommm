@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import {
-  isMarketingExploreComingSoonPath,
   isMarketingHomePath,
   isMarketingScrollRevealFooterPath,
 } from "@/components/marketing/marketing-route-utils";
@@ -31,7 +30,7 @@ export function MarketingFooterGate({
     ? (clientPathname ?? serverMarketingPath)
     : serverMarketingPath;
 
-  if (isMarketingHomePath(marketingPath) || isMarketingExploreComingSoonPath(marketingPath)) {
+  if (isMarketingHomePath(marketingPath)) {
     return null;
   }
 

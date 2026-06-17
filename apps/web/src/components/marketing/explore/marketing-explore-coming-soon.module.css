@@ -61,7 +61,7 @@
 
 .image {
   object-fit: cover;
-  object-position: center center;
+  object-position: center bottom;
   animation: explore-page-bg-enter var(--explore-page-enter-bg-duration, 400ms)
     cubic-bezier(0.4, 0, 0.2, 1) both;
 }

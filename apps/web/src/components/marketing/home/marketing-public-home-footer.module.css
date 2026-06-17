@@ -6,6 +6,14 @@
   background-color: var(--home-footer-wrap-bg, #598090);
 }
 
+/* Explore coming-soon: footer must attach directly to the hero image. */
+:global(.marketing-layout-shell:has([data-marketing-explore-coming-soon]))
+  .sectionWrapInner {
+  margin-top: calc(-1 * (var(--home-footer-wrap-padding-top) + var(--home-footer-radius)));
+  padding-top: calc(var(--home-footer-wrap-padding-top) + var(--home-footer-radius));
+  background-color: transparent;
+}
+
 .shell {
   width: 100%;
   border-top-left-radius: var(--home-footer-radius);
