@@ -27,6 +27,17 @@ class SourceSessionAllocationDto {
   sessionCount!: number;
 }
 
+class TypeSessionAllocationDto {
+  @IsString()
+  @MinLength(1)
+  classTypeId!: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(999)
+  sessionCount!: number;
+}
+
 export class UpsertPackagePlanDto {
   @IsOptional()
   @IsString()
@@ -148,4 +159,12 @@ export class UpsertPackagePlanDto {
   @ValidateNested({ each: true })
   @Type(() => SourceSessionAllocationDto)
   sourceSessionAllocations?: SourceSessionAllocationDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => TypeSessionAllocationDto)
+  typeSessionAllocations?: TypeSessionAllocationDto[];
 }

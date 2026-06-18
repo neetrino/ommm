@@ -23,6 +23,8 @@ import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
 import { AdminPackageCategoryStatusActions } from "@/components/admin/admin-package-category-status-actions";
 import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
 import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
+import { AdminPackageTypeSessionsModal } from "@/components/admin/admin-package-type-sessions-modal";
+import { AdminPackageTypeSessionsViewModal } from "@/components/admin/admin-package-type-sessions-view-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
@@ -328,6 +330,29 @@ export function AdminPackagesManagement({
     return packageRows.find((row) => row.id === deletingPackageId) ?? null;
   }, [deletingPackageId, packageRows]);
   const isDeletePackageOpen = deletingPackage !== null;
+  const [typeSessionsPackageId, setTypeSessionsPackageId] = useState<string | null>(null);
+  const [typeSessionsModalMode, setTypeSessionsModalMode] = useState<"view" | "edit">("edit");
+  const typeSessionsPackage = useMemo(() => {
+    if (typeSessionsPackageId === null) {
+      return null;
+    }
+    return packageRows.find((row) => row.id === typeSessionsPackageId) ?? null;
+  }, [packageRows, typeSessionsPackageId]);
+
+  const openTypeSessionsView = useCallback((packageId: string) => {
+    setTypeSessionsPackageId(packageId);
+    setTypeSessionsModalMode("view");
+  }, []);
+
+  const openTypeSessionsEdit = useCallback((packageId: string) => {
+    setTypeSessionsPackageId(packageId);
+    setTypeSessionsModalMode("edit");
+  }, []);
+
+  const closeTypeSessionsModal = useCallback(() => {
+    setTypeSessionsPackageId(null);
+    setTypeSessionsModalMode("edit");
+  }, []);
   const [prevDeletePackageRevealId, setPrevDeletePackageRevealId] = useState<string | null>(
     null,
   );
@@ -700,6 +725,8 @@ export function AdminPackagesManagement({
                         onDeletePackage={openDeletePackage}
                         onPackageStatusUpdated={handlePackageUpdated}
                         onCategoryPlansUpdated={handleCategoryPlansUpdated}
+                        onConfigureTypeSessions={openTypeSessionsEdit}
+                        onViewTypeSessions={openTypeSessionsView}
                       />
                     </motion.div>
                   ))}
@@ -744,6 +771,24 @@ export function AdminPackagesManagement({
         tone="ok"
         onDismiss={() => setToastMessage(null)}
       />
+      <AdminPackageTypeSessionsViewModal
+        isOpen={typeSessionsPackage !== null && typeSessionsModalMode === "view"}
+        packageRow={typeSessionsPackage}
+        classTypeOptions={classTypeOptions}
+        onClose={closeTypeSessionsModal}
+        onEdit={() => setTypeSessionsModalMode("edit")}
+      />
+      <AdminPackageTypeSessionsModal
+        isOpen={typeSessionsPackage !== null && typeSessionsModalMode === "edit"}
+        packageRow={typeSessionsPackage}
+        classTypeOptions={classTypeOptions}
+        onClose={closeTypeSessionsModal}
+        onSaved={(saved) => {
+          handlePackageUpdated(saved);
+          setToastMessage(t("typeSessionsModal.messages.saveSuccess"));
+          closeTypeSessionsModal();
+        }}
+      />
     </div>
   );
 }
@@ -761,6 +806,8 @@ type CategoryAccordionProps = {
   onDeletePackage: (packageId: string) => void;
   onPackageStatusUpdated: (saved: AdminPackageRow) => void;
   onCategoryPlansUpdated: (plans: readonly AdminPackageRow[]) => void;
+  onConfigureTypeSessions: (packageId: string) => void;
+  onViewTypeSessions: (packageId: string) => void;
 };
 
 function CategoryAccordion({
@@ -776,6 +823,8 @@ function CategoryAccordion({
   onDeletePackage,
   onPackageStatusUpdated,
   onCategoryPlansUpdated,
+  onConfigureTypeSessions,
+  onViewTypeSessions,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
 
@@ -803,6 +852,8 @@ function CategoryAccordion({
         onEditPackage={onEditPackage}
         onDeletePackage={onDeletePackage}
         onPackageStatusUpdated={onPackageStatusUpdated}
+        onConfigureTypeSessions={onConfigureTypeSessions}
+        onViewTypeSessions={onViewTypeSessions}
       />
     ) : undefined;
 

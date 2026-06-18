@@ -354,10 +354,6 @@ export function AdminPackageForm({
       setError(t("categoryRequired"));
       return;
     }
-    if (isAddTierMode && tierClassTypeId.length === 0) {
-      setError(t("classTypeRequired"));
-      return;
-    }
 
     if (usesSessionNameField) {
       if (sessionName.length === 0) {
@@ -399,6 +395,8 @@ export function AdminPackageForm({
       }
       if (
         !isCombinedTierForm &&
+        !isAddTierMode &&
+        !isEditTierMode &&
         (parsedSessionsPerMonth === null ||
           parsedSessionsPerMonth < MIN_PACKAGE_SESSIONS ||
           parsedSessionsPerMonth > MAX_PACKAGE_SESSIONS)
@@ -419,6 +417,19 @@ export function AdminPackageForm({
 
     let sourceSessionAllocations: Array<{ componentId: string; sessionCount: number }> | undefined;
     let resolvedSessionsPerMonth = parsedSessionsPerMonth;
+    if ((isAddTierMode || isEditTierMode) && !isCombinedTierForm) {
+      const fromPlanSessions =
+        typeof initialPackage?.sessionsPerMonth === "number" &&
+        initialPackage.sessionsPerMonth > 0
+          ? initialPackage.sessionsPerMonth
+          : null;
+      if (
+        resolvedSessionsPerMonth === null ||
+        resolvedSessionsPerMonth < MIN_PACKAGE_SESSIONS
+      ) {
+        resolvedSessionsPerMonth = fromPlanSessions ?? MIN_PACKAGE_SESSIONS;
+      }
+    }
     if (isCombinedTierForm && initialPackage?.combinedComponents !== undefined) {
       const allocationSummary = buildSourceSessionAllocationsPayload(
         initialPackage.combinedComponents,
@@ -442,13 +453,6 @@ export function AdminPackageForm({
             ),
           )
         : null);
-    if (
-      (isAddTierMode || isEditTierMode) &&
-      pricePerSessionCents === null
-    ) {
-      setError(t("pricePerSessionInvalid"));
-      return;
-    }
     if (
       resolvedSessionsPerMonth === null ||
       resolvedSessionsPerMonth < MIN_PACKAGE_SESSIONS ||
@@ -519,12 +523,12 @@ export function AdminPackageForm({
         ? shellTierTarget
           ? {
               name: payloadName,
-              classTypeId: tierClassTypeId,
+              ...(tierClassTypeId.length > 0 ? { classTypeId: tierClassTypeId } : {}),
               ...pricingFields,
             }
           : {
               name: payloadName,
-              classTypeId: tierClassTypeId,
+              ...(tierClassTypeId.length > 0 ? { classTypeId: tierClassTypeId } : {}),
               categoryName,
               slug: buildPackageTierSlug(categoryName, resolvedSessionsPerMonth),
               description: initialPackage?.description ?? null,

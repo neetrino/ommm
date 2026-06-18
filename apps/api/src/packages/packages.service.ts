@@ -56,9 +56,21 @@ type AdminPlanWithComponents = {
   isPopular: boolean;
   isActive: boolean;
   displayOrder: number;
+  typeSessionAllocations?: unknown;
   createdAt: Date;
   updatedAt: Date;
   combinedAsParent?: AdminCombinedPlanComponentRow[];
+};
+
+type StoredTypeSessionAllocation = {
+  classTypeId: string;
+  sessionCount: number;
+};
+
+type ResolvedTypeSessionAllocations = {
+  allocations: StoredTypeSessionAllocation[];
+  totalSessions: number;
+  classTypeId: string | null;
 };
 
 const USER_PACKAGE_STATUS = {
@@ -114,14 +126,26 @@ export class PackagesService {
       dto.priceCents ?? 0,
       dto.discountedPriceCents ?? null,
     );
+    const resolvedTypeSessions =
+      dto.typeSessionAllocations !== undefined
+        ? await this.resolveTypeSessionAllocations(dto.typeSessionAllocations)
+        : undefined;
     const created = await this.prisma.packagePlan.create({
       data: {
         name,
         slug,
         categoryName,
-        ...(dto.classTypeId !== undefined && dto.classTypeId !== null
-          ? { classType: { connect: { id: dto.classTypeId } } }
-          : {}),
+        ...(resolvedTypeSessions !== undefined
+          ? resolvedTypeSessions.classTypeId === null
+            ? {}
+            : {
+                classType: {
+                  connect: { id: resolvedTypeSessions.classTypeId },
+                },
+              }
+          : dto.classTypeId !== undefined && dto.classTypeId !== null
+            ? { classType: { connect: { id: dto.classTypeId } } }
+            : {}),
         planType: dto.planType ?? PackagePlanType.SINGLE,
         description: this.normalizeNullableString(dto.description),
         priceCents: dto.priceCents ?? 0,
@@ -131,7 +155,9 @@ export class PackagesService {
         currency: this.normalizeCurrency(dto.currency),
         billingPeriod: dto.billingPeriod ?? DEFAULT_BILLING_PERIOD,
         periodDays: dto.periodDays ?? DEFAULT_PERIOD_DAYS,
-        sessionsPerMonth: this.normalizeSessionsPerMonth(dto),
+        sessionsPerMonth:
+          resolvedTypeSessions?.totalSessions ??
+          this.normalizeSessionsPerMonth(dto),
         isUnlimited: dto.isUnlimited ?? false,
         guestCount: dto.guestCount ?? 0,
         buttonLabel: dto.buttonLabel?.trim() || 'Buy now',
@@ -140,6 +166,9 @@ export class PackagesService {
         isActive: dto.isActive ?? true,
         displayOrder:
           dto.displayOrder ?? (await this.resolveNextDisplayOrder()),
+        ...(resolvedTypeSessions !== undefined
+          ? { typeSessionAllocations: resolvedTypeSessions.allocations }
+          : {}),
       },
     });
     return this.toAdminPlanRow(await this.withCombinedComponents(created));
@@ -289,6 +318,19 @@ export class PackagesService {
     if (current.planType === PackagePlanType.COMBINED && dto.isUnlimited === true) {
       throw new BadRequestException('Combined plans cannot be unlimited');
     }
+    if (
+      current.planType === PackagePlanType.COMBINED &&
+      dto.typeSessionAllocations !== undefined
+    ) {
+      throw new BadRequestException(
+        'Type session allocations apply only to single plans',
+      );
+    }
+
+    const resolvedTypeSessions =
+      dto.typeSessionAllocations !== undefined
+        ? await this.resolveTypeSessionAllocations(dto.typeSessionAllocations)
+        : undefined;
 
     const updated = await this.prisma.$transaction(async (tx) => {
       if (dto.sourceSessionAllocations !== undefined) {
@@ -315,7 +357,15 @@ export class PackagesService {
             ? dto.classTypeId === null
               ? { classType: { disconnect: true } }
               : { classType: { connect: { id: dto.classTypeId } } }
-            : {}),
+            : resolvedTypeSessions !== undefined
+              ? resolvedTypeSessions.classTypeId === null
+                ? { classType: { disconnect: true } }
+                : {
+                    classType: {
+                      connect: { id: resolvedTypeSessions.classTypeId },
+                    },
+                  }
+              : {}),
           ...(dto.planType !== undefined ? { planType: dto.planType } : {}),
           ...(dto.description !== undefined
             ? { description: this.normalizeNullableString(dto.description) }
@@ -346,7 +396,9 @@ export class PackagesService {
             : {}),
           ...(dto.sessionsPerMonth !== undefined
             ? { sessionsPerMonth: dto.sessionsPerMonth }
-            : {}),
+            : resolvedTypeSessions !== undefined
+              ? { sessionsPerMonth: resolvedTypeSessions.totalSessions }
+              : {}),
           ...(dto.isUnlimited !== undefined
             ? { isUnlimited: dto.isUnlimited }
             : {}),
@@ -363,6 +415,9 @@ export class PackagesService {
           ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
           ...(dto.displayOrder !== undefined
             ? { displayOrder: dto.displayOrder }
+            : {}),
+          ...(resolvedTypeSessions !== undefined
+            ? { typeSessionAllocations: resolvedTypeSessions.allocations }
             : {}),
         },
       });
@@ -657,6 +712,9 @@ export class PackagesService {
       sessionsPerMonth: plan.sessionsPerMonth,
       isUnlimited: plan.isUnlimited,
       guestCount: plan.guestCount,
+      typeSessionAllocations: this.parseStoredTypeSessionAllocations(
+        plan.typeSessionAllocations,
+      ),
       createdAt: plan.createdAt.toISOString(),
     };
   }
@@ -925,6 +983,43 @@ export class PackagesService {
       }
       return;
     }
+    const typeAllocations = this.parseStoredTypeSessionAllocations(
+      params.plan.typeSessionAllocations,
+    );
+    if (typeAllocations.length > 0) {
+      const classTypes = await tx.classType.findMany({
+        where: { id: { in: typeAllocations.map((item) => item.classTypeId) } },
+        select: { id: true, name: true },
+      });
+      const classTypeNameById = new Map(
+        classTypes.map((classType) => [classType.id, classType.name]),
+      );
+      for (const allocation of typeAllocations) {
+        const classTypeName = classTypeNameById.get(allocation.classTypeId);
+        if (classTypeName === undefined) {
+          continue;
+        }
+        await (
+          tx as unknown as {
+            userPackageBalance: {
+              create(args: unknown): Promise<unknown>;
+            };
+          }
+        ).userPackageBalance.create({
+          data: {
+            userPackageId: params.userPackageId,
+            sourcePlanId: params.plan.id,
+            coverageKey: `${params.userPackageId}:${params.plan.id}:${allocation.classTypeId}`,
+            sourcePackageNameSnapshot: params.plan.name,
+            sourceCategoryNameSnapshot: classTypeName,
+            sessionsTotal: allocation.sessionCount,
+            sessionsRemaining: allocation.sessionCount,
+            isUnlimited: false,
+          },
+        });
+      }
+      return;
+    }
     await (
       tx as unknown as {
         userPackageBalance: {
@@ -951,5 +1046,82 @@ export class PackagesService {
 
   private createPaymentReference(prefix: string): string {
     return `${prefix}-${randomBytes(6).toString('hex').toUpperCase()}`;
+  }
+
+  private parseStoredTypeSessionAllocations(
+    value: unknown,
+  ): StoredTypeSessionAllocation[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    const allocations: StoredTypeSessionAllocation[] = [];
+    for (const item of value) {
+      if (
+        typeof item !== 'object' ||
+        item === null ||
+        !('classTypeId' in item) ||
+        !('sessionCount' in item)
+      ) {
+        continue;
+      }
+      const classTypeId = String(item.classTypeId).trim();
+      const sessionCount = Number(item.sessionCount);
+      if (
+        classTypeId.length === 0 ||
+        !Number.isInteger(sessionCount) ||
+        sessionCount <= 0
+      ) {
+        continue;
+      }
+      allocations.push({ classTypeId, sessionCount });
+    }
+    return allocations;
+  }
+
+  private async resolveTypeSessionAllocations(
+    allocations: Array<{ classTypeId: string; sessionCount: number }>,
+  ): Promise<ResolvedTypeSessionAllocations> {
+    if (allocations.length === 0) {
+      throw new BadRequestException(
+        'At least one type session allocation is required',
+      );
+    }
+    const classTypeIds = allocations.map((item) => item.classTypeId.trim());
+    const uniqueClassTypeIds = new Set(classTypeIds);
+    if (uniqueClassTypeIds.size !== classTypeIds.length) {
+      throw new BadRequestException('Each type can appear only once');
+    }
+    if (classTypeIds.some((classTypeId) => classTypeId.length === 0)) {
+      throw new BadRequestException('Type is required for every row');
+    }
+    if (
+      allocations.some(
+        (item) =>
+          !Number.isInteger(item.sessionCount) || item.sessionCount <= 0,
+      )
+    ) {
+      throw new BadRequestException(
+        'Session count must be a positive whole number',
+      );
+    }
+    const existingClassTypes = await this.prisma.classType.findMany({
+      where: { id: { in: classTypeIds } },
+      select: { id: true },
+    });
+    if (existingClassTypes.length !== classTypeIds.length) {
+      throw new BadRequestException('One or more selected types are invalid');
+    }
+    const totalSessions = allocations.reduce(
+      (sum, item) => sum + item.sessionCount,
+      0,
+    );
+    return {
+      allocations: allocations.map((item) => ({
+        classTypeId: item.classTypeId.trim(),
+        sessionCount: item.sessionCount,
+      })),
+      totalSessions,
+      classTypeId: allocations.length === 1 ? allocations[0]!.classTypeId : null,
+    };
   }
 }

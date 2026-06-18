@@ -547,6 +547,13 @@ export class PackageUsageService {
           normalized,
       );
     }
+    if (membership.balances.length > 1) {
+      return membership.balances.some(
+        (balance) =>
+          balance.sourceCategoryNameSnapshot.trim().toLowerCase() ===
+          normalized,
+      );
+    }
     return membership.plan.categoryName.trim().toLowerCase() === normalized;
   }
 
@@ -577,6 +584,9 @@ export class PackageUsageService {
       return exact;
     }
     if (membership.plan.planType === PackagePlanType.SINGLE) {
+      if (membership.balances.length > 1) {
+        return null;
+      }
       return membership.balances[0] ?? null;
     }
     return null;

@@ -1083,6 +1083,7 @@ html {
     display: grid;
     grid-template-columns:
       minmax(8rem, 1.8fr)
+      minmax(4.5rem, 0.75fr)
       minmax(5rem, 1fr)
       minmax(5rem, 1fr)
       minmax(4.5rem, 0.9fr)
