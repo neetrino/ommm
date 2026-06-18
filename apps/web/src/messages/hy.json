@@ -2704,11 +2704,12 @@
         "viewTitle": "Type sessions",
         "viewDescription": "Այս package-ի համար կարգավորված class type-երն ու session-ների քանակը։",
         "viewEmpty": "Type sessions դեռ կարգավորված չէ։",
+        "formEmpty": "Տողեր դեռ չկան։ Type sessions կարգավորելու համար ավելացրեք տող։",
         "closeButton": "Փակել",
         "editButton": "Խմբագրել",
         "fieldType": "Type",
         "fieldTypePlaceholder": "Ընտրեք type",
-        "fieldSessionCount": "Session (count)",
+        "fieldSessionCount": "Session",
         "fieldSessionCountPlaceholder": "օր. 10",
         "addRowButton": "Ավելացնել տող",
         "removeRowAria": "Հեռացնել {index} տողը",
@@ -2722,6 +2723,7 @@
         "missingTypeError": "Լրացված յուրաքանչյուր տողի համար ընտրեք type։",
         "duplicateTypeError": "Նույն type-ը կարող է լինել միայն մեկ անգամ։",
         "invalidSessionCountError": "Մուտքագրեք վավեր session count (1–999) յուրաքանչյուր տողի համար։",
+        "emptyError": "Պահպանելուց առաջ ավելացրեք առնվազն մեկ type session տող։",
         "genericError": "Չհաջողվեց պահպանել type sessions-ը։ Կրկին փորձեք։",
         "messages": {
           "saveSuccess": "Type sessions-ը պահպանվեց։"

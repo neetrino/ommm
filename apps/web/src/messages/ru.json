@@ -2705,11 +2705,12 @@
         "viewTitle": "Type sessions",
         "viewDescription": "Типы занятий и количество сеансов для этого пакета.",
         "viewEmpty": "Type sessions ещё не настроены.",
+        "formEmpty": "Строк пока нет. Добавьте строку, чтобы настроить type sessions.",
         "closeButton": "Закрыть",
         "editButton": "Редактировать",
         "fieldType": "Type",
         "fieldTypePlaceholder": "Выберите тип",
-        "fieldSessionCount": "Session (count)",
+        "fieldSessionCount": "Session",
         "fieldSessionCountPlaceholder": "напр. 10",
         "addRowButton": "Добавить строку",
         "removeRowAria": "Удалить строку {index}",
@@ -2723,6 +2724,7 @@
         "missingTypeError": "Выберите тип для каждой заполненной строки.",
         "duplicateTypeError": "Каждый тип может быть указан только один раз.",
         "invalidSessionCountError": "Введите корректное количество сеансов (1–999) для каждой строки.",
+        "emptyError": "Добавьте хотя бы одну строку type sessions перед сохранением.",
         "genericError": "Не удалось сохранить type sessions. Попробуйте снова.",
         "messages": {
           "saveSuccess": "Type sessions сохранены."

@@ -32,31 +32,17 @@ export function entriesFromPackage(
   pkg: AdminPackageRow,
 ): PackageTypeSessionFormEntry[] {
   const stored = pkg.typeSessionAllocations ?? [];
-  if (stored.length > 0) {
-    return stored.map((allocation) => ({
-      id:
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `${allocation.classTypeId}-${allocation.sessionCount}`,
-      classTypeId: allocation.classTypeId,
-      sessionCount: String(allocation.sessionCount),
-    }));
+  if (stored.length === 0) {
+    return [];
   }
-  if (
-    typeof pkg.classTypeId === "string" &&
-    pkg.classTypeId.length > 0 &&
-    typeof pkg.sessionsPerMonth === "number" &&
-    pkg.sessionsPerMonth > 0
-  ) {
-    return [
-      {
-        ...createEmptyTypeSessionEntry(),
-        classTypeId: pkg.classTypeId,
-        sessionCount: String(pkg.sessionsPerMonth),
-      },
-    ];
-  }
-  return [createEmptyTypeSessionEntry()];
+  return stored.map((allocation) => ({
+    id:
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${allocation.classTypeId}-${allocation.sessionCount}`,
+    classTypeId: allocation.classTypeId,
+    sessionCount: String(allocation.sessionCount),
+  }));
 }
 
 export function sumTypeSessionEntries(
@@ -75,48 +61,21 @@ export type TypeSessionValidationError =
   | "invalidSessionCount";
 
 export function hasPackageTypeSessions(pkg: AdminPackageRow): boolean {
-  if ((pkg.typeSessionAllocations?.length ?? 0) > 0) {
-    return true;
-  }
-  return (
-    typeof pkg.classTypeId === "string" &&
-    pkg.classTypeId.length > 0 &&
-    typeof pkg.sessionsPerMonth === "number" &&
-    pkg.sessionsPerMonth > 0
-  );
+  return (pkg.typeSessionAllocations?.length ?? 0) > 0;
 }
 
 export function resolvePackageTypeSessionAllocations(
   pkg: AdminPackageRow,
 ): PackageTypeSessionAllocation[] {
-  if ((pkg.typeSessionAllocations?.length ?? 0) > 0) {
-    return pkg.typeSessionAllocations ?? [];
-  }
-  if (
-    typeof pkg.classTypeId === "string" &&
-    pkg.classTypeId.length > 0 &&
-    typeof pkg.sessionsPerMonth === "number" &&
-    pkg.sessionsPerMonth > 0
-  ) {
-    return [
-      {
-        classTypeId: pkg.classTypeId,
-        sessionCount: pkg.sessionsPerMonth,
-      },
-    ];
-  }
-  return [];
+  return pkg.typeSessionAllocations ?? [];
 }
 
 export function resolvePackageTotalSessions(pkg: AdminPackageRow): number | null {
   const allocations = resolvePackageTypeSessionAllocations(pkg);
-  if (allocations.length > 0) {
-    return allocations.reduce((total, allocation) => total + allocation.sessionCount, 0);
+  if (allocations.length === 0) {
+    return null;
   }
-  if (typeof pkg.sessionsPerMonth === "number" && pkg.sessionsPerMonth > 0) {
-    return pkg.sessionsPerMonth;
-  }
-  return null;
+  return allocations.reduce((total, allocation) => total + allocation.sessionCount, 0);
 }
 
 export function buildTypeSessionAllocationsPayload(

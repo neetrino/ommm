@@ -6,7 +6,6 @@ import {
   buildTypeSessionAllocationsPayload,
   createEmptyTypeSessionEntry,
   entriesFromPackage,
-  sumTypeSessionEntries,
   validateTypeSessionEntries,
   type PackageTypeSessionFormEntry,
 } from "@/components/admin/admin-package-type-sessions.util";
@@ -39,9 +38,7 @@ export function AdminPackageTypeSessionsModal({
   onSaved,
 }: AdminPackageTypeSessionsModalProps) {
   const t = useTranslations("adminPages.packages.typeSessionsModal");
-  const [entries, setEntries] = useState<PackageTypeSessionFormEntry[]>(() => [
-    createEmptyTypeSessionEntry(),
-  ]);
+  const [entries, setEntries] = useState<PackageTypeSessionFormEntry[]>([]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +51,6 @@ export function AdminPackageTypeSessionsModal({
     setPending(false);
   }, [isOpen, packageRow]);
 
-  const totalSessions = useMemo(() => sumTypeSessionEntries(entries), [entries]);
   const dropdownOptions = useMemo(
     () =>
       classTypeOptions.map((classType) => ({
@@ -78,10 +74,7 @@ export function AdminPackageTypeSessionsModal({
   }
 
   function removeEntry(entryId: string): void {
-    setEntries((current) => {
-      const next = current.filter((entry) => entry.id !== entryId);
-      return next.length > 0 ? next : [createEmptyTypeSessionEntry()];
-    });
+    setEntries((current) => current.filter((entry) => entry.id !== entryId));
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
@@ -98,7 +91,9 @@ export function AdminPackageTypeSessionsModal({
             ? t("missingTypeError")
             : validation.error === "invalidSessionCount"
               ? t("invalidSessionCountError")
-              : t("invalidEntries"),
+              : validation.error === "empty"
+                ? t("emptyError")
+                : t("invalidEntries"),
       );
       return;
     }
@@ -167,75 +162,79 @@ export function AdminPackageTypeSessionsModal({
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-7">
-          <ul className="flex flex-col gap-3">
-            {entries.map((entry, index) => (
-              <li
-                key={entry.id}
-                className="grid gap-3 rounded-[20px] border border-[rgba(151,144,124,0.28)] bg-white/75 p-4 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end"
-              >
-                <label className="flex min-w-0 flex-col gap-1.5">
-                  <span className="ommm-label text-xs uppercase tracking-wide">
-                    {t("fieldType")}
-                  </span>
-                  <OmmFormDropdown
-                    value={entry.classTypeId}
-                    ariaLabel={t("fieldType")}
-                    placeholderLabel={t("fieldTypePlaceholder")}
-                    options={dropdownOptions}
-                    onChange={(nextValue) =>
-                      updateEntry(entry.id, { classTypeId: nextValue })
-                    }
-                    disabled={pending}
-                    name={`type-${entry.id}`}
-                    required
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="ommm-label text-xs uppercase tracking-wide">
-                    {t("fieldSessionCount")}
-                  </span>
-                  <input
-                    type="number"
-                    className={OMMM_INPUT_NUMBER_CLASS}
-                    min={MIN_PACKAGE_SESSIONS}
-                    max={MAX_PACKAGE_SESSIONS}
-                    step={1}
-                    inputMode="numeric"
-                    value={entry.sessionCount}
-                    onChange={(event) =>
-                      updateEntry(entry.id, { sessionCount: event.target.value })
-                    }
-                    onKeyDown={preventNumberArrowStep}
-                    placeholder={t("fieldSessionCountPlaceholder")}
-                    disabled={pending}
-                    required
-                  />
-                </label>
-                <div className="flex items-end justify-end sm:justify-center">
-                  <button
-                    type="button"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-600 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:opacity-50"
-                    aria-label={t("removeRowAria", { index: index + 1 })}
-                    onClick={() => removeEntry(entry.id)}
-                    disabled={pending}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.8}
-                      strokeLinecap="round"
-                      className="h-4 w-4"
-                      aria-hidden
+          {entries.length === 0 ? (
+            <p className="text-sm text-sage-600">{t("formEmpty")}</p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {entries.map((entry, index) => (
+                <li
+                  key={entry.id}
+                  className="grid gap-3 rounded-[20px] border border-[rgba(151,144,124,0.28)] bg-white/75 p-4 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end"
+                >
+                  <label className="flex min-w-0 flex-col gap-1.5">
+                    <span className="ommm-label text-xs uppercase tracking-wide">
+                      {t("fieldType")}
+                    </span>
+                    <OmmFormDropdown
+                      value={entry.classTypeId}
+                      ariaLabel={t("fieldType")}
+                      placeholderLabel={t("fieldTypePlaceholder")}
+                      options={dropdownOptions}
+                      onChange={(nextValue) =>
+                        updateEntry(entry.id, { classTypeId: nextValue })
+                      }
+                      disabled={pending}
+                      name={`type-${entry.id}`}
+                      required
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="ommm-label text-xs uppercase tracking-wide">
+                      {t("fieldSessionCount")}
+                    </span>
+                    <input
+                      type="number"
+                      className={OMMM_INPUT_NUMBER_CLASS}
+                      min={MIN_PACKAGE_SESSIONS}
+                      max={MAX_PACKAGE_SESSIONS}
+                      step={1}
+                      inputMode="numeric"
+                      value={entry.sessionCount}
+                      onChange={(event) =>
+                        updateEntry(entry.id, { sessionCount: event.target.value })
+                      }
+                      onKeyDown={preventNumberArrowStep}
+                      placeholder={t("fieldSessionCountPlaceholder")}
+                      disabled={pending}
+                      required
+                    />
+                  </label>
+                  <div className="flex items-end justify-end sm:justify-center">
+                    <button
+                      type="button"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-600 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:opacity-50"
+                      aria-label={t("removeRowAria", { index: index + 1 })}
+                      onClick={() => removeEntry(entry.id)}
+                      disabled={pending}
                     >
-                      <path d="M5 7h14M9 7V5h6v2M10 11v6M14 11v6M7 7l1 14h8l1-14" />
-                    </svg>
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.8}
+                        strokeLinecap="round"
+                        className="h-4 w-4"
+                        aria-hidden
+                      >
+                        <path d="M5 7h14M9 7V5h6v2M10 11v6M14 11v6M7 7l1 14h8l1-14" />
+                      </svg>
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
 
           <div>
             <OmmButton
@@ -248,10 +247,6 @@ export function AdminPackageTypeSessionsModal({
               {t("addRowButton")}
             </OmmButton>
           </div>
-
-          <p className="text-sm font-medium text-sage-800">
-            {t("totalSessions", { count: totalSessions })}
-          </p>
 
           {error !== null ? (
             <p className="app-alert-warn text-sm" role="alert">

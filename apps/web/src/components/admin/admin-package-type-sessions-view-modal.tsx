@@ -3,9 +3,7 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
-  entriesFromPackage,
   resolvePackageTypeSessionAllocations,
-  sumTypeSessionEntries,
 } from "@/components/admin/admin-package-type-sessions.util";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
@@ -48,13 +46,6 @@ export function AdminPackageTypeSessionsViewModal({
       sessionCount: allocation.sessionCount,
     }));
   }, [classTypeNameById, packageRow]);
-
-  const totalSessions = useMemo(() => {
-    if (packageRow === null) {
-      return 0;
-    }
-    return sumTypeSessionEntries(entriesFromPackage(packageRow));
-  }, [packageRow]);
 
   if (!isOpen || packageRow === null) {
     return null;
@@ -122,11 +113,6 @@ export function AdminPackageTypeSessionsViewModal({
                   </li>
                 ))}
               </ul>
-              <div className="border-t border-[rgba(151,144,124,0.28)] bg-sand-50/95 px-4 py-3.5 sm:px-5">
-                <p className="text-sm font-semibold text-sage-900">
-                  {t("totalSessions", { count: totalSessions })}
-                </p>
-              </div>
             </div>
           )}
         </div>

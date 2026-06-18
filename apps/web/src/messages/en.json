@@ -2713,11 +2713,12 @@
         "viewTitle": "Type sessions",
         "viewDescription": "Class types and session counts configured for this package.",
         "viewEmpty": "No type sessions configured yet.",
+        "formEmpty": "No rows yet. Add a row to configure type sessions.",
         "closeButton": "Close",
         "editButton": "Edit",
         "fieldType": "Type",
         "fieldTypePlaceholder": "Select type",
-        "fieldSessionCount": "Session (count)",
+        "fieldSessionCount": "Session",
         "fieldSessionCountPlaceholder": "e.g. 10",
         "addRowButton": "Add row",
         "removeRowAria": "Remove row {index}",
@@ -2731,6 +2732,7 @@
         "missingTypeError": "Select a type for every filled row.",
         "duplicateTypeError": "Each type can only appear once.",
         "invalidSessionCountError": "Enter a valid session count (1–999) for every row.",
+        "emptyError": "Add at least one type session row before saving.",
         "genericError": "Could not save type sessions. Please try again.",
         "messages": {
           "saveSuccess": "Type sessions saved."
