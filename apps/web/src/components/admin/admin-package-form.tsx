@@ -307,6 +307,7 @@ export function AdminPackageForm({
     const parsedSessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
+    const tierClassTypeId = (initialPackage?.classTypeId ?? values.classTypeId).trim();
     const sessionName = values.name.trim();
     const isTierPackage =
       initialPackage !== undefined && initialPackage.priceCents > 0;
@@ -353,7 +354,7 @@ export function AdminPackageForm({
       setError(t("categoryRequired"));
       return;
     }
-    if (isAddTierMode && values.classTypeId.trim().length === 0) {
+    if (isAddTierMode && tierClassTypeId.length === 0) {
       setError(t("classTypeRequired"));
       return;
     }
@@ -518,12 +519,12 @@ export function AdminPackageForm({
         ? shellTierTarget
           ? {
               name: payloadName,
-              classTypeId: values.classTypeId,
+              classTypeId: tierClassTypeId,
               ...pricingFields,
             }
           : {
               name: payloadName,
-              classTypeId: values.classTypeId,
+              classTypeId: tierClassTypeId,
               categoryName,
               slug: buildPackageTierSlug(categoryName, resolvedSessionsPerMonth),
               description: initialPackage?.description ?? null,
@@ -666,26 +667,6 @@ export function AdminPackageForm({
           }
         >
           <div className="flex flex-col gap-4">
-            {mode === "add-tier" ? (
-              <label className="flex flex-col gap-1.5">
-                <span className="ommm-label text-xs uppercase tracking-wide">
-                  {t("fieldClassType")}
-                </span>
-                <OmmFormDropdown
-                  value={values.classTypeId}
-                  ariaLabel={t("fieldClassType")}
-                  placeholderLabel={t("fieldClassTypePlaceholder")}
-                  options={classTypeOptions.map((classType) => ({
-                    value: classType.id,
-                    label: classType.name,
-                  }))}
-                  onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
-                  disabled={pending}
-                  name="classTypeId"
-                  required
-                />
-              </label>
-            ) : null}
             {isCombinedTierForm && initialPackage?.combinedComponents !== undefined ? (
               <AdminCombinedTierSessionAllocations
                 components={initialPackage.combinedComponents}
@@ -694,26 +675,7 @@ export function AdminPackageForm({
                 onAllocationChange={updateCombinedAllocation}
                 disabled={pending}
               />
-            ) : (
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
-              <input
-                name="sessionsCount"
-                type="number"
-                className={OMMM_INPUT_NUMBER_CLASS}
-                min={MIN_PACKAGE_SESSIONS}
-                max={MAX_PACKAGE_SESSIONS}
-                step={1}
-                inputMode="numeric"
-                value={values.sessionsCount}
-                onChange={(event) => updateTierPricingValues({ sessionsCount: event.target.value })}
-                onKeyDown={preventNumberArrowStep}
-                placeholder={t("fieldSessionsCountPlaceholder")}
-                required
-                disabled={pending}
-              />
-            </label>
-            )}
+            ) : null}
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">
                 {t("fieldSessionName")}

@@ -16,8 +16,6 @@ import {
   formatPackagePlanName,
   formatPackagePriceLabel,
   formatPackagePricePerSession,
-  formatPackageSessionsLabel,
-  formatCombinedPackageSessionsBreakdown,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -84,9 +82,8 @@ export function AdminPackagesCategoryTable({
 
   return (
     <div className="ommm-admin-packages-table">
-      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[68rem]">
+      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[61rem]">
         <div>{t("tableSessionName")}</div>
-        <div>{t("tableSessions")}</div>
         <div>{t("tablePrice")}</div>
         <div>{t("tablePricePerSession")}</div>
         <div>{t("tableValidity")}</div>
@@ -94,12 +91,10 @@ export function AdminPackagesCategoryTable({
         <div>{t("colStatus")}</div>
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
-      <div className="min-w-[68rem]">
+      <div className="min-w-[61rem]">
         <AnimatePresence mode="popLayout" initial={false}>
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
-            const sessions = formatPackageSessionsLabel(pkg);
-            const sessionsBreakdown = formatCombinedPackageSessionsBreakdown(pkg);
             const pricePerSession = formatPackagePricePerSession(pkg, locale);
             const guestCount = formatPackageGuestCount(pkg);
             const hasDiscount =
@@ -135,18 +130,6 @@ export function AdminPackagesCategoryTable({
                         </span>
                       ) : null}
                     </div>
-                  </TableCell>
-                  <TableCell emphasis>
-                    {sessions !== null ? (
-                      <div className="flex flex-col gap-0.5">
-                        <span>{sessions}</span>
-                        {sessionsBreakdown !== null ? (
-                          <span className="text-xs text-sage-500">{sessionsBreakdown}</span>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <EmptyCell />
-                    )}
                   </TableCell>
                   <TableCell>
                     {hasDiscount && originalPriceLabel !== null ? (
