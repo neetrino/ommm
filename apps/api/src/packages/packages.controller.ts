@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreateCombinedPackagePlanDto } from './dto/create-combined-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
+import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
@@ -62,6 +63,20 @@ export class PackagesController {
   @Roles(Role.ADMIN, Role.MANAGER)
   getDeletionBlockers(@Param('id') id: string) {
     return this.packages.getDeletionBlockers(id);
+  }
+
+  @Post('admin/sync-expired')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  syncExpired(@Body() dto: ReconcilePackagesDto) {
+    return this.packages.syncExpired(dto);
+  }
+
+  @Post('admin/reconcile-sessions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  reconcileSessions(@Body() dto: ReconcilePackagesDto) {
+    return this.packages.reconcileSessions(dto);
   }
 
   @Post('plans')

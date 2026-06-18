@@ -184,6 +184,14 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 - Add reconciliation command/job for balance drift detection.
 - Add structured logs around booking credit operations.
 
+### Change Note (2026-06-18)
+
+- Added admin maintenance endpoints to trigger package lifecycle hardening:
+  - `POST /packages/admin/sync-expired`
+  - `POST /packages/admin/reconcile-sessions`
+- Added package payment activation fulfillment in `PaymentsService` so `PENDING`
+  member packages move to `ACTIVE` when payment is confirmed.
+
 ### Acceptance Criteria
 
 - Critical package-booking scenarios are covered by automated tests.

@@ -14,9 +14,11 @@ import { randomBytes } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCombinedPackagePlanDto } from './dto/create-combined-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
+import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
+import { PackageUsageService } from './package-usage.service';
 
 type AdminCombinedPlanComponentRow = {
   id: string;
@@ -71,7 +73,10 @@ const CATEGORY_FALLBACK = 'General';
 
 @Injectable()
 export class PackagesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly packageUsage: PackageUsageService,
+  ) {}
 
   async listPlans() {
     const plans = await this.prisma.packagePlan.findMany({
@@ -400,6 +405,16 @@ export class PackagesService {
       take: 1000,
     });
     return { count: memberships.length, memberships };
+  }
+
+  async syncExpired(dto: ReconcilePackagesDto) {
+    await this.packageUsage.syncExpiredMemberships(dto.userId);
+    return { ok: true };
+  }
+
+  async reconcileSessions(dto: ReconcilePackagesDto) {
+    await this.packageUsage.reconcileSessionsRemaining(dto.userId);
+    return { ok: true };
   }
 
   async listMine(userId: string) {

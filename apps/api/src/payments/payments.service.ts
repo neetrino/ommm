@@ -12,6 +12,7 @@ import {
   ManualPaymentMethod,
   Prisma,
   PaymentStatus,
+  UserPackageStatus,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
@@ -476,6 +477,8 @@ export class PaymentsService {
           existing.userId,
           existing.sourceId ?? null,
         );
+      } else if (existing.source === INTERNAL_PAYMENT_SOURCE.PACKAGE) {
+        await this.fulfillPackagePayment(tx, existing.sourceId ?? null);
       } else if (existing.source === INTERNAL_PAYMENT_SOURCE.GIFT) {
         const email = await this.fulfillGiftPayment(tx, {
           userId: existing.userId,
@@ -696,6 +699,29 @@ export class PaymentsService {
         data: { status: ClassSessionStatus.FULL },
       });
     }
+  }
+
+  private async fulfillPackagePayment(
+    tx: Prisma.TransactionClient,
+    userPackageId: string | null,
+  ): Promise<void> {
+    if (!userPackageId) {
+      throw new BadRequestException('Package payment is missing package id');
+    }
+    const userPackage = await tx.userPackage.findUnique({
+      where: { id: userPackageId },
+      select: { id: true, status: true },
+    });
+    if (!userPackage) {
+      throw new NotFoundException('User package not found for payment');
+    }
+    if (userPackage.status !== UserPackageStatus.PENDING) {
+      return;
+    }
+    await tx.userPackage.update({
+      where: { id: userPackageId },
+      data: { status: UserPackageStatus.ACTIVE },
+    });
   }
 
   private async fulfillGiftPayment(
