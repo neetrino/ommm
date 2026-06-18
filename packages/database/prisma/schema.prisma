@@ -73,20 +73,6 @@ enum PaymentSource {
   OTHER
 }
 
-enum PackageStatus {
-  ACTIVE
-  PAUSED
-  CANCELLED
-  EXPIRED
-  /** Awaiting manual / offline payment confirmation by admin. */
-  PENDING
-}
-
-enum PackagePlanType {
-  SINGLE
-  COMBINED
-}
-
 enum ManualPaymentMethod {
   CASH
   CARD
@@ -148,7 +134,6 @@ model User {
   bookings          Booking[]
   waitlistEntries   WaitlistEntry[]
   payments          Payment[]
-  userPackages      UserPackage[]
   giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
   giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
   giftCardBatchesCreated GiftCardBatch[] @relation("GiftCardBatchPurchaser")
@@ -291,8 +276,6 @@ model Booking {
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   sessionId     String
   session       ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  userPackageId String?
-  userPackage   UserPackage?  @relation(fields: [userPackageId], references: [id], onDelete: SetNull)
   status        BookingStatus @default(BOOKED)
   channel       BookingChannel @default(WEBSITE)
   attendedAt    DateTime?
@@ -306,7 +289,6 @@ model Booking {
   @@unique([userId, sessionId])
   @@index([sessionId])
   @@index([userId])
-  @@index([userPackageId])
   @@index([status, createdAt])
 }
 
@@ -349,79 +331,6 @@ model WaitlistEntry {
   @@index([sessionId])
 }
 
-model PackagePlan {
-  id               String   @id @default(cuid())
-  name             String
-  categoryName     String   @default("General")
-  slug             String   @unique
-  description      String?
-  priceCents           Int
-  discountedPriceCents Int?
-  pricePerSessionCents Int      @default(0)
-  showPricePerSession  Boolean  @default(true)
-  currency             String   @default("USD")
-  sessionsPerMonth Int?
-  isUnlimited      Boolean  @default(false)
-  periodDays       Int      @default(30)
-  billingPeriod    String   @default("monthly")
-  features         String[] @default([])
-  buttonLabel      String   @default("Choose plan")
-  isPopular        Boolean  @default(false)
-  displayOrder     Int      @default(0)
-  guestCount       Int      @default(0)
-  isActive         Boolean  @default(true)
-  planType         PackagePlanType @default(SINGLE)
-  /** Union of allowed package category labels (snapshots for combined plans). */
-  allowedCategoryNames String[] @default([])
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  userPackages       UserPackage[]
-  payments           Payment[]
-  combinedComponents PackagePlanComponent[] @relation("CombinedPlanComponents")
-  sourceComponents   PackagePlanComponent[] @relation("SourcePlanComponents")
-}
-
-model PackagePlanComponent {
-  id                         String   @id @default(cuid())
-  combinedPackagePlanId      String
-  combinedPackagePlan        PackagePlan @relation("CombinedPlanComponents", fields: [combinedPackagePlanId], references: [id], onDelete: Cascade)
-  sourcePackagePlanId        String?
-  sourcePackagePlan          PackagePlan? @relation("SourcePlanComponents", fields: [sourcePackagePlanId], references: [id], onDelete: SetNull)
-  sourcePackageNameSnapshot  String
-  sourceCategoryNameSnapshot String
-  sourceClassTypeIdSnapshot  String?
-  sessionsPerMonthSnapshot   Int?
-  /** Sessions from this source category included in the combined pricing tier. */
-  sessionAllocation          Int?
-  isUnlimitedSnapshot        Boolean  @default(false)
-  createdAt                  DateTime @default(now())
-
-  @@index([combinedPackagePlanId])
-  @@index([sourcePackagePlanId])
-}
-
-model UserPackage {
-  id                   String        @id @default(cuid())
-  userId               String
-  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId               String
-  plan                 PackagePlan   @relation(fields: [planId], references: [id])
-  status               PackageStatus @default(ACTIVE)
-  /** Total sessions included in the current billing period (null when unlimited). */
-  sessionsTotal        Int?
-  sessionsRemaining    Int?
-  currentPeriodStart   DateTime
-  currentPeriodEnd     DateTime
-  pausedUntil          DateTime?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  pendingPayment       Payment?
-  bookings             Booking[]
-
-  @@index([userId])
-}
-
 model Payment {
   id              String               @id @default(cuid())
   userId          String
@@ -438,18 +347,13 @@ model Payment {
   successEmailSentAt DateTime?
   cashPendingEmailSentAt DateTime?
   confirmedByAdminId String?
-  planId          String?
-  plan            PackagePlan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
   paymentMethod   ManualPaymentMethod?
-  userPackageId   String?              @unique
-  userPackage     UserPackage?         @relation(fields: [userPackageId], references: [id], onDelete: SetNull)
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
 
   @@index([userId])
   @@index([status, createdAt])
   @@index([createdAt])
-  @@index([planId, status])
   @@index([source, sourceId])
 }
 

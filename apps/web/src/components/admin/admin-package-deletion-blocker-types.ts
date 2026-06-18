@@ -1,8 +1,8 @@
-import type { PackageStatus } from "@prisma/client";
+type LegacyPackageStatus = "ACTIVE" | "PAUSED" | "CANCELLED" | "EXPIRED" | "PENDING";
 
 export type PackageDeletionBlockerRow = {
   id: string;
-  status: PackageStatus;
+  status: LegacyPackageStatus;
   currentPeriodStart: string;
   currentPeriodEnd: string;
   user: {

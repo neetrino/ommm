@@ -35,7 +35,6 @@ import type {
 } from './dto/create-session-batch.dto';
 import type { CreateSessionDto } from './dto/create-session.dto';
 import type { UpdateClassTypeDto } from './dto/update-class-type.dto';
-import { syncMissingClassTypesForPackageCategories } from '../packages/package-category-class-type.sync';
 import type { UpdateSessionDto } from './dto/update-session.dto';
 
 type SessionRecurrencePayload = {
@@ -108,7 +107,6 @@ export class ClassesService {
   }
 
   async listTypes() {
-    await syncMissingClassTypesForPackageCategories(this.prisma);
     return this.prisma.classType.findMany({ orderBy: { name: 'asc' } });
   }
 

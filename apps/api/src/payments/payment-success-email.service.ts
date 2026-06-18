@@ -61,22 +61,6 @@ export class PaymentSuccessEmailService {
             phone: true,
           },
         },
-        plan: {
-          select: {
-            name: true,
-            categoryName: true,
-          },
-        },
-        userPackage: {
-          include: {
-            plan: {
-              select: {
-                name: true,
-                categoryName: true,
-              },
-            },
-          },
-        },
       },
     });
 
@@ -206,12 +190,7 @@ export class PaymentSuccessEmailService {
     metadata: PaymentMetadata,
   ): Promise<string> {
     if (payment.source === PaymentSource.PACKAGE) {
-      const plan = payment.userPackage?.plan ?? payment.plan;
-      if (!plan) {
-        return payment.description?.trim() ?? '';
-      }
-      const category = plan.categoryName?.trim();
-      return category ? `${plan.name} (${category})` : plan.name;
+      return payment.description?.trim() ?? 'Package payment';
     }
 
     if (payment.source === PaymentSource.DROPIN && payment.sourceId) {
@@ -309,14 +288,4 @@ type PaymentWithRelations = {
     lastName: string | null;
     phone: string | null;
   };
-  plan: {
-    name: string;
-    categoryName: string | null;
-  } | null;
-  userPackage: {
-    plan: {
-      name: string;
-      categoryName: string | null;
-    };
-  } | null;
 };

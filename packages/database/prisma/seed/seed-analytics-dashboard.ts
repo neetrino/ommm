@@ -8,7 +8,6 @@ import {
   PrismaClient,
 } from "@prisma/client";
 import { addDays } from "./class-data";
-import type { SeededPlanBySlug } from "./seed-packages";
 import type { SeededUsers } from "./seed-users";
 
 export const SEED_ANALYTICS_SESSION_PREFIX = "[Seed Analytics]";
@@ -107,11 +106,7 @@ function resolveMembers(users: SeededUsers): ResolvedMember[] {
 async function seedDailyRevenuePayments(
   prisma: PrismaClient,
   members: ResolvedMember[],
-  plans: SeededPlanBySlug,
 ): Promise<void> {
-  const dropInPlan = plans.get("yoga-1-session");
-  const packagePlan = plans.get("reformer-group-8-sessions");
-
   for (let index = 0; index < ANALYTICS_HISTORY_DAYS; index += 1) {
     const dayOffset = index - (ANALYTICS_HISTORY_DAYS - 1);
     const paymentDate = dayAt(dayOffset, 11);
@@ -134,12 +129,6 @@ async function seedDailyRevenuePayments(
           paymentReference: `${SEED_ANALYTICS_PAYMENT_REF_PREFIX}d${index}-c${chunkIndex}`,
           source: chunk.source,
           description: `Seed analytics ${chunk.source.toLowerCase()} revenue`,
-          planId:
-            chunk.source === PaymentSource.PACKAGE
-              ? packagePlan?.id
-              : chunk.source === PaymentSource.DROPIN
-                ? dropInPlan?.id
-                : null,
           paymentMethod: ManualPaymentMethod.CARD,
           confirmedAt: paymentDate,
           createdAt: paymentDate,
@@ -259,7 +248,6 @@ async function markRecentUsers(prisma: PrismaClient, users: SeededUsers): Promis
 export async function seedAnalyticsDashboard(
   prisma: PrismaClient,
   users: SeededUsers,
-  plans: SeededPlanBySlug,
 ): Promise<void> {
   await cleanupAnalyticsSeed(prisma);
 
@@ -276,7 +264,7 @@ export async function seedAnalyticsDashboard(
 
   const ctx: SessionContext = { classTypeId: classType.id, coachId: coach.profileId };
 
-  await seedDailyRevenuePayments(prisma, members, plans);
+  await seedDailyRevenuePayments(prisma, members);
   await seedHistoricalSessionsAndBookings(prisma, members, ctx);
   await markRecentUsers(prisma, users);
 }

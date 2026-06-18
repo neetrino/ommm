@@ -10,7 +10,6 @@ import {
   ClassSessionStatus,
   GiftCardStatus,
   ManualPaymentMethod,
-  PackageStatus,
   Prisma,
   PaymentStatus,
 } from '@prisma/client';
@@ -75,7 +74,6 @@ type InternalPaymentRecord = {
   source?: InternalPaymentSource;
   sourceId?: string | null;
   metadata?: Prisma.JsonValue | null;
-  userPackageId?: string | null;
 };
 
 @Injectable()
@@ -472,9 +470,7 @@ export class PaymentsService {
         throw new ConflictException('Only pending payments can be confirmed');
       }
 
-      if (existing.source === INTERNAL_PAYMENT_SOURCE.PACKAGE) {
-        await this.fulfillPackagePayment(tx, existing.userPackageId ?? null);
-      } else if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
+      if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
         await this.fulfillDropInPayment(
           tx,
           existing.userId,
@@ -570,14 +566,12 @@ export class PaymentsService {
       throw new BadRequestException('Invalid date range');
     }
     const sourceFilter = this.buildSourceFilter(query.source);
-    const packageFilter = await this.buildPackagePaymentFilter(query);
     const search = query.q?.trim();
     const order = resolveDateListPrismaOrder(query.order);
     const where: Prisma.PaymentWhereInput = {
       ...(query.userId ? { userId: query.userId } : {}),
       ...(query.status ? { status: query.status } : {}),
       ...(sourceFilter ?? {}),
-      ...(packageFilter ?? {}),
       ...(query.from || query.to
         ? {
             createdAt: {
@@ -651,24 +645,6 @@ export class PaymentsService {
       take,
       offset,
     };
-  }
-
-  private async fulfillPackagePayment(
-    tx: Prisma.TransactionClient,
-    userPackageId: string | null,
-  ) {
-    if (!userPackageId) {
-      throw new BadRequestException(
-        'Package payment is not linked to a package',
-      );
-    }
-    await tx.userPackage.updateMany({
-      where: {
-        id: userPackageId,
-        status: { not: PackageStatus.CANCELLED },
-      },
-      data: { status: PackageStatus.ACTIVE },
-    });
   }
 
   private async fulfillDropInPayment(
@@ -783,72 +759,6 @@ export class PaymentsService {
       },
     });
     return recipientEmail ? { to: recipientEmail, code } : null;
-  }
-
-  private async buildPackagePaymentFilter(
-    query: AdminListPaymentsQueryDto,
-  ): Promise<Prisma.PaymentWhereInput | undefined> {
-    const filters: Prisma.PaymentWhereInput[] = [];
-    const planWhere: Prisma.PackagePlanWhereInput = {};
-
-    if (query.planId?.trim()) {
-      filters.push({ planId: query.planId.trim() });
-    }
-
-    if (query.packageClass?.trim()) {
-      const matchingPlans = await this.prisma.packagePlan.findMany({
-        where: {
-          categoryName: {
-            equals: query.packageClass.trim(),
-            mode: 'insensitive',
-          },
-        },
-        select: { id: true },
-      });
-      if (matchingPlans.length === 0) {
-        return { planId: { in: [] } };
-      }
-      planWhere.id = { in: matchingPlans.map((plan) => plan.id) };
-    }
-
-    const sessionsFilter = this.buildPackageSessionsPlanFilter(query.sessions);
-    if (sessionsFilter) {
-      Object.assign(planWhere, sessionsFilter);
-    }
-
-    if (Object.keys(planWhere).length > 0) {
-      filters.push({ plan: planWhere });
-    }
-
-    if (filters.length === 0) {
-      return undefined;
-    }
-    if (filters.length === 1) {
-      return filters[0];
-    }
-    return { AND: filters };
-  }
-
-  private buildPackageSessionsPlanFilter(
-    sessions: string | undefined,
-  ):
-    | Pick<Prisma.PackagePlanWhereInput, 'isUnlimited' | 'sessionsPerMonth'>
-    | undefined {
-    const raw = sessions?.trim();
-    if (!raw) {
-      return undefined;
-    }
-    if (raw === 'unlimited') {
-      return { isUnlimited: true };
-    }
-    const count = Number.parseInt(raw, 10);
-    if (!Number.isInteger(count) || count <= 0) {
-      return undefined;
-    }
-    return {
-      sessionsPerMonth: count,
-      isUnlimited: false,
-    };
   }
 
   private buildSourceFilter(
