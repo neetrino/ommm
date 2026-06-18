@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PackagePlanType, type Prisma, type UserPackage } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -52,6 +52,8 @@ type UserPackageWithPlanAndBalances = UserPackage & {
 
 @Injectable()
 export class PackageUsageService {
+  private readonly logger = new Logger(PackageUsageService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   computeUsageStats(membership: {
@@ -266,6 +268,9 @@ export class PackageUsageService {
     if (params.requiredSessions <= 0) {
       return;
     }
+    this.logger.debug(
+      `consumeSession bookingId=${params.bookingId} membershipId=${params.membership.id} requiredSessions=${params.requiredSessions}`,
+    );
     const balance = this.pickBalanceForCategory(
       params.membership,
       params.sessionCategoryName,
@@ -293,6 +298,9 @@ export class PackageUsageService {
       return;
     }
     if (balance.sessionsRemaining < params.requiredSessions) {
+      this.logger.warn(
+        `consumeSession insufficient balance bookingId=${params.bookingId} membershipId=${params.membership.id} remaining=${balance.sessionsRemaining} required=${params.requiredSessions}`,
+      );
       throw new BadRequestException(
         'Selected package has no remaining sessions',
       );
@@ -334,6 +342,9 @@ export class PackageUsageService {
         consumedSessions: params.requiredSessions,
       },
     });
+    this.logger.log(
+      `consumeSession applied bookingId=${params.bookingId} membershipId=${params.membership.id} consumed=${params.requiredSessions}`,
+    );
   }
 
   async restoreSession(params: {
@@ -358,6 +369,9 @@ export class PackageUsageService {
       where: { bookingId: params.bookingId, restoredAt: null },
       orderBy: { createdAt: 'asc' },
     });
+    this.logger.debug(
+      `restoreSession bookingId=${params.bookingId} pendingConsumptions=${consumptions.length}`,
+    );
     for (const consumption of consumptions) {
       if (
         consumption.consumedSessions > 0 &&
@@ -400,6 +414,9 @@ export class PackageUsageService {
         data: { restoredAt: new Date() },
       });
     }
+    this.logger.log(
+      `restoreSession completed bookingId=${params.bookingId} restoredConsumptions=${consumptions.length}`,
+    );
   }
 
   async syncExpiredMemberships(userId?: string): Promise<void> {
@@ -448,6 +465,9 @@ export class PackageUsageService {
         },
       },
     });
+    this.logger.log(
+      `reconcileSessionsRemaining started memberships=${memberships.length}${userId ? ` userId=${userId}` : ''}`,
+    );
     for (const membership of memberships) {
       const hasUnlimited = membership.balances.some(
         (balance) => balance.isUnlimited,
@@ -479,6 +499,9 @@ export class PackageUsageService {
         data: { sessionsRemaining: nextRemaining },
       });
     }
+    this.logger.log(
+      `reconcileSessionsRemaining finished memberships=${memberships.length}${userId ? ` userId=${userId}` : ''}`,
+    );
   }
 
   private toEligibleBookingPackage(

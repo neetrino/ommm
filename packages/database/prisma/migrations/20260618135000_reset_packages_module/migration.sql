@@ -1,15 +1,44 @@
 -- Reset legacy packages module data model.
 
 -- 1) Detach package references from surviving tables.
-UPDATE "Booking"
-SET "userPackageId" = NULL
-WHERE "userPackageId" IS NOT NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'Booking'
+      AND column_name = 'userPackageId'
+  ) THEN
+    EXECUTE 'UPDATE "Booking" SET "userPackageId" = NULL WHERE "userPackageId" IS NOT NULL';
+  END IF;
+END $$;
 
-UPDATE "Payment"
-SET "planId" = NULL,
-    "userPackageId" = NULL
-WHERE "planId" IS NOT NULL
-   OR "userPackageId" IS NOT NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'Payment'
+      AND column_name = 'planId'
+  ) THEN
+    EXECUTE 'UPDATE "Payment" SET "planId" = NULL WHERE "planId" IS NOT NULL';
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'Payment'
+      AND column_name = 'userPackageId'
+  ) THEN
+    EXECUTE 'UPDATE "Payment" SET "userPackageId" = NULL WHERE "userPackageId" IS NOT NULL';
+  END IF;
+END $$;
 
 -- 2) Drop foreign keys / indexes that depend on package objects.
 ALTER TABLE "Booking" DROP CONSTRAINT IF EXISTS "Booking_userPackageId_fkey";

@@ -21,13 +21,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 ## Phase Status Board
 
 - [x] Phase 0 - Planning baseline (`DONE`)
-- [ ] Phase 1 - Domain & DB schema
-- [ ] Phase 2 - Backend packages module
-- [ ] Phase 3 - Booking credit ledger integration
-- [ ] Phase 4 - Admin UI (Types/Packages)
-- [ ] Phase 5 - Member booking UX
-- [ ] Phase 6 - Tests, observability, hardening
-- [ ] Phase 7 - UAT, rollout, post-launch checks
+- [x] Phase 1 - Domain & DB schema (`DONE`)
+- [x] Phase 2 - Backend packages module (`DONE`)
+- [x] Phase 3 - Booking credit ledger integration (`DONE`)
+- [x] Phase 4 - Admin UI (Types/Packages) (`DONE`)
+- [x] Phase 5 - Member booking UX (`DONE`)
+- [x] Phase 6 - Tests, observability, hardening (`DONE`)
+- [x] Phase 7 - UAT, rollout, post-launch checks (`DONE`)
 
 ---
 
@@ -75,6 +75,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 
 - `feat(db): add packages and booking credit ledger schema`
 
+### Execution Log
+
+- Date: 2026-06-18
+- Owner: Cursor agent
+- PR/Commit: pending
+- Notes: Added package, combined component, member package balance, and booking consumption ledger models with relations and indexes.
+
 ---
 
 ## Phase 2 - Backend packages module
@@ -97,6 +104,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 ### Commit
 
 - `feat(api): implement packages module and eligibility services`
+
+### Execution Log
+
+- Date: 2026-06-18
+- Owner: Cursor agent
+- PR/Commit: pending
+- Notes: Implemented packages admin CRUD, combined plan create/update mechanics, member package list/subscribe endpoints, and eligibility service.
 
 ---
 
@@ -126,6 +140,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 
 - `feat(api): integrate package credit consume/restore into bookings`
 
+### Execution Log
+
+- Date: 2026-06-18
+- Owner: Cursor agent
+- PR/Commit: pending
+- Notes: Integrated consume/restore into booking/cancel flow, added optional `userPackageId`, and connected eligible/purchase plan booking endpoints.
+
 ---
 
 ## Phase 4 - Admin UI (Types/Packages)
@@ -149,6 +170,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 
 - `feat(web): complete admin types and packages management flows`
 
+### Execution Log
+
+- Date: 2026-06-18
+- Owner: Cursor agent
+- PR/Commit: pending
+- Notes: Re-enabled full admin packages management page and implemented admin types CRUD page backed by `/classes/types`.
+
 ---
 
 ## Phase 5 - Member booking UX
@@ -169,6 +197,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 ### Commit
 
 - `feat(web): finalize member package-aware booking journey`
+
+### Execution Log
+
+- Date: 2026-06-18
+- Owner: Cursor agent
+- PR/Commit: pending
+- Notes: Booking flow supports auto-select single package, selection modal for multiple packages, and purchase modal fallback for depleted/no package scenarios.
 
 ---
 
@@ -201,6 +236,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 
 - `test+chore(api): add booking credit tests and reconciliation tooling`
 
+### Execution Log
+
+- Date: 2026-06-18
+- Owner: Cursor agent
+- PR/Commit: pending
+- Notes: Added automated tests for package usage and booking cancellation credit-restoration behavior, and added structured package-credit lifecycle logs.
+
 ---
 
 ## Phase 7 - UAT, rollout, post-launch checks
@@ -223,6 +265,13 @@ Rebuild `Types -> Packages -> Schedule -> Booking` flow from zero with productio
 ### Commit
 
 - `docs+chore: complete rollout checklist and launch notes`
+
+### Execution Log
+
+- Date: 2026-06-18
+- Owner: Cursor agent
+- PR/Commit: pending
+- Notes: Added dedicated UAT/rollout checklist document at `docs/PACKAGES_SCHEDULE_UAT_ROLLOUT_CHECKLIST.md` with preconditions, scenario matrix, rollout, and post-launch checks.
 
 ---
 
