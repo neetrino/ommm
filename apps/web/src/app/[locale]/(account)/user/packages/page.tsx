@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import { MemberUserPackagesRouteContent } from "@/components/account/member-user-packages-route-content";
+import { MemberUserRouteFrame } from "@/components/account/member-user-route-frame";
 
 export default async function UserPackagesPage({
   params,
@@ -6,5 +7,10 @@ export default async function UserPackagesPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/package`);
+
+  return (
+    <MemberUserRouteFrame>
+      <MemberUserPackagesRouteContent locale={locale} />
+    </MemberUserRouteFrame>
+  );
 }

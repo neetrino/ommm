@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import { MemberHubSheetPage } from "@/components/account/member-hub-sheet-page";
+import { MemberUserPackagesRouteContent } from "@/components/account/member-user-packages-route-content";
 
 export default async function UserPackagesSheetPage({
   params,
@@ -6,5 +7,10 @@ export default async function UserPackagesSheetPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/package`);
+
+  return (
+    <MemberHubSheetPage titleNamespace="userPages.packages">
+      <MemberUserPackagesRouteContent locale={locale} embeddedInSheet />
+    </MemberHubSheetPage>
+  );
 }
