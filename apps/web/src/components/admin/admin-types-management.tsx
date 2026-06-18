@@ -20,12 +20,11 @@ type AdminTypesManagementProps = {
 
 type FormState = {
   name: string;
-  slug: string;
   description: string;
 };
 
 function emptyFormState(): FormState {
-  return { name: "", slug: "", description: "" };
+  return { name: "", description: "" };
 }
 
 function normalizeFormPayload(form: FormState): {
@@ -34,7 +33,7 @@ function normalizeFormPayload(form: FormState): {
   description?: string;
 } {
   const name = form.name.trim();
-  const slug = form.slug.trim().toLowerCase();
+  const slug = buildClassTypeSlugFromName(name);
   const description = form.description.trim();
   return {
     name,
@@ -75,7 +74,6 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
     setSelectedId(row.id);
     setForm({
       name: row.name,
-      slug: row.slug,
       description: row.description ?? "",
     });
     setError(null);
@@ -98,10 +96,6 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
       setError(t("nameRequired"));
       return;
     }
-    if (payload.slug.length === 0) {
-      setError(t("slugInvalid"));
-      return;
-    }
 
     setPending(true);
     setError(null);
@@ -118,7 +112,6 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
         setSelectedId(created.id);
         setForm({
           name: created.name,
-          slug: created.slug,
           description: created.description ?? "",
         });
         setSuccess(t("messages.createSuccess"));
@@ -246,27 +239,8 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
               <input
                 className="ommm-input w-full"
                 value={form.name}
-                onChange={(event) => {
-                  const name = event.target.value;
-                  setForm((current) => ({
-                    ...current,
-                    name,
-                    slug:
-                      current.slug.trim().length > 0 ? current.slug : buildClassTypeSlugFromName(name),
-                  }));
-                }}
-                disabled={pending}
-              />
-            </label>
-            <label className="block space-y-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-sage-600">
-                {t("fieldSlug")}
-              </span>
-              <input
-                className="ommm-input w-full"
-                value={form.slug}
                 onChange={(event) =>
-                  setForm((current) => ({ ...current, slug: event.target.value }))
+                  setForm((current) => ({ ...current, name: event.target.value }))
                 }
                 disabled={pending}
               />

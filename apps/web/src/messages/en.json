@@ -2478,6 +2478,8 @@
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
       "modalNeedsClassCategory": "Create at least one class category before adding a package. Use Schedule or class-type tools in admin, then try again.",
+      "fieldClassType": "Class type",
+      "fieldClassTypePlaceholder": "Select class type",
       "fieldCategory": "Class category",
       "fieldName": "Package name",
       "fieldDescription": "Description",
@@ -2527,6 +2529,7 @@
         }
       },
       "nameRequired": "Package name is required.",
+      "classTypeRequired": "Select a class type.",
       "categoryRequired": "Select a class category.",
       "nameTooLong": "Package name is too long.",
       "descriptionTooLong": "Description is too long.",

@@ -28,7 +28,6 @@ import {
   resolveTierPricePerSessionField,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
-import { AdminPackageCategorySelect } from "@/components/admin/admin-package-category-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import {
   categoryNamesToOptions,
@@ -77,6 +76,7 @@ type AdminPackageFormProps = {
   packageId?: string;
   initialCategoryName: string;
   categoryOptions: readonly CategoryOption[];
+  classTypeOptions: readonly { id: string; name: string }[];
   initialPackage?: AdminPackageRow;
   configuredTierCount?: number;
   nextDisplayOrder?: number;
@@ -148,6 +148,7 @@ export function AdminPackageForm({
   packageId,
   initialCategoryName,
   categoryOptions,
+  classTypeOptions,
   initialPackage,
   nextDisplayOrder,
   onSaved,
@@ -170,7 +171,6 @@ export function AdminPackageForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categoryNamesFromApi, setCategoryNamesFromApi] = useState<readonly string[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const submitLockRef = useRef(false);
 
   useEffect(() => {
@@ -184,11 +184,6 @@ export function AdminPackageForm({
       .catch(() => {
         if (!cancelled) {
           setCategoryNamesFromApi([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setCategoriesLoading(false);
         }
       });
     return () => {
@@ -210,6 +205,13 @@ export function AdminPackageForm({
     () => mergedCategoryOptions.map((option) => option.label),
     [mergedCategoryOptions],
   );
+  const classTypeNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const classType of classTypeOptions) {
+      map.set(classType.id, classType.name.trim());
+    }
+    return map;
+  }, [classTypeOptions]);
 
   function updateValues(patch: Partial<AdminPackageFormValues>) {
     setValues((current) => ({ ...current, ...patch }));
@@ -278,14 +280,21 @@ export function AdminPackageForm({
       initialCategoryName.trim(),
       categoryNameCandidates,
     );
+    const selectedClassTypeName = classTypeNameById.get(values.classTypeId) ?? "";
+    const selectedClassCategoryName =
+      selectedClassTypeName.length > 0
+        ? resolvePackageCategoryName(selectedClassTypeName, categoryNameCandidates)
+        : "";
     const editableCategoryName = resolvePackageCategoryName(
       values.categoryName.trim(),
       categoryNameCandidates,
     );
     const categoryName = isCreateMode
-      ? resolvePackageCategoryName(detailsName, categoryNameCandidates)
+      ? selectedClassCategoryName
       : isAddTierMode
         ? tierCategoryName
+        : isEditMode && selectedClassCategoryName.length > 0
+          ? selectedClassCategoryName
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
@@ -318,6 +327,10 @@ export function AdminPackageForm({
     const payloadName = usesSessionNameField ? sessionName : detailsName;
 
     if (isCreateMode || isEditMode) {
+      if (values.classTypeId.trim().length === 0) {
+        setError(t("classTypeRequired"));
+        return;
+      }
       if (detailsName.length === 0) {
         setError(t("nameRequired"));
         return;
@@ -465,6 +478,7 @@ export function AdminPackageForm({
     const payload = isCreateMode
       ? {
           name: payloadName,
+          classTypeId: values.classTypeId,
           categoryName,
           slug,
           description: description.length > 0 ? description : null,
@@ -511,6 +525,7 @@ export function AdminPackageForm({
               }
             : {
               name: payloadName,
+              classTypeId: values.classTypeId,
               categoryName,
               ...(shouldIncludeSlugInPayload ? { slug } : {}),
               description: description.length > 0 ? description : null,
@@ -570,20 +585,25 @@ export function AdminPackageForm({
           description={t("formSections.details.description")}
         >
           <div className="flex flex-col gap-4">
-            {mode === "edit" ? (
-              <label className="flex flex-col gap-1.5">
-                <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldCategory")}</span>
-                <AdminPackageCategorySelect
-                  value={values.categoryName}
-                  options={mergedCategoryOptions}
-                  onChange={(next) => updateValues({ categoryName: next })}
-                  disabled={pending}
-                  loading={categoriesLoading}
-                  required
-                  ariaLabel={t("fieldCategory")}
-                />
-              </label>
-            ) : null}
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldClassType")}
+              </span>
+              <select
+                className="ommm-input"
+                value={values.classTypeId}
+                onChange={(event) => updateValues({ classTypeId: event.target.value })}
+                disabled={pending || classTypeOptions.length === 0}
+                required
+              >
+                <option value="">{t("fieldClassTypePlaceholder")}</option>
+                {classTypeOptions.map((classType) => (
+                  <option key={classType.id} value={classType.id}>
+                    {classType.name}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
               <input

@@ -77,6 +77,7 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
+  classTypeOptions: readonly { id: string; name: string }[];
   locale: string;
   initialFilters: PackageFilterValues;
 };
@@ -133,6 +134,7 @@ function PackagesEmptyState({ children }: { children: ReactNode }) {
 
 export function AdminPackagesManagement({
   packages: packagesFromServer,
+  classTypeOptions,
   locale,
   initialFilters,
 }: AdminPackagesManagementProps) {
@@ -642,6 +644,7 @@ export function AdminPackagesManagement({
       <AdminPackagesShell
         packages={filteredPackages}
         allPackages={sortedPackages}
+        classTypeOptions={classTypeOptions}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
         onPackageCreated={handlePackageCreated}

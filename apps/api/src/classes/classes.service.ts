@@ -112,7 +112,13 @@ export class ClassesService {
 
   async createType(dto: CreateClassTypeDto): Promise<ClassType> {
     const name = dto.name.trim();
-    const slug = dto.slug.trim().toLowerCase();
+    const slug =
+      dto.slug !== undefined && dto.slug.trim().length > 0
+        ? dto.slug.trim().toLowerCase()
+        : this.buildSlugFromName(name);
+    if (name.length === 0 || slug.length === 0) {
+      throw new BadRequestException('Class type name and slug are required.');
+    }
     await this.assertClassTypeUnique({ name, slug });
     return this.prisma.classType.create({
       data: {

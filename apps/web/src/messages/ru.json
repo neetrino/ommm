@@ -2470,6 +2470,8 @@
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть диалог",
       "modalNeedsClassCategory": "Сначала создайте хотя бы одну категорию классов (Schedule или инструменты типов классов в админке), затем повторите попытку.",
+      "fieldClassType": "Тип занятия",
+      "fieldClassTypePlaceholder": "Выберите тип занятия",
       "fieldCategory": "Категория занятия",
       "fieldName": "Название пакета",
       "fieldDescription": "Описание",
@@ -2519,6 +2521,7 @@
         }
       },
       "nameRequired": "Название пакета обязательно.",
+      "classTypeRequired": "Выберите тип занятия.",
       "categoryRequired": "Выберите категорию занятия.",
       "nameTooLong": "Название пакета слишком длинное.",
       "descriptionTooLong": "Описание слишком длинное.",

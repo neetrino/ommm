@@ -41,6 +41,7 @@ type AdminPackagesShellProps = {
   children: ReactNode;
   packages: readonly AdminPackageRow[];
   allPackages?: readonly AdminPackageRow[];
+  classTypeOptions: readonly { id: string; name: string }[];
   categoryOptions: readonly AdminPackagesCategoryOption[];
   defaultCategoryName?: string;
   onPackageCreated?: (saved: AdminPackageRow) => void;
@@ -51,6 +52,7 @@ export function AdminPackagesShell({
   children,
   packages,
   allPackages,
+  classTypeOptions,
   categoryOptions,
   defaultCategoryName = "",
   onPackageCreated,
@@ -386,6 +388,7 @@ export function AdminPackagesShell({
               }
               initialCategoryName={initialCategoryName}
               categoryOptions={categoryOptions}
+              classTypeOptions={classTypeOptions}
               initialPackage={
                 modalMode === "pricing" || modalMode === "edit-tier"
                   ? pricingPackage

@@ -2469,6 +2469,8 @@
       "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պատուհանը",
       "modalNeedsClassCategory": "Փաթեթ ավելացնելուց առաջ ստեղծեք առնվազն մեկ դասի կատեգորիա (ադմինի Schedule կամ դասի տեսակների գործիքներ), ապա կրկին փորձեք։",
+      "fieldClassType": "Դասի տեսակ",
+      "fieldClassTypePlaceholder": "Ընտրել դասի տեսակը",
       "fieldCategory": "Դասի կատեգորիա",
       "fieldName": "Փաթեթի անվանում",
       "fieldDescription": "Նկարագրություն",
@@ -2518,6 +2520,7 @@
         }
       },
       "nameRequired": "Փաթեթի անվանումը պարտադիր է։",
+      "classTypeRequired": "Ընտրեք դասի տեսակ։",
       "categoryRequired": "Ընտրեք դասի կատեգորիա։",
       "nameTooLong": "Փաթեթի անվանումը չափազանց երկար է։",
       "descriptionTooLong": "Նկարագրությունը չափազանց երկար է։",

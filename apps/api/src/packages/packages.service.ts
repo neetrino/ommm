@@ -119,6 +119,9 @@ export class PackagesService {
         name,
         slug,
         categoryName,
+        ...(dto.classTypeId !== undefined && dto.classTypeId !== null
+          ? { classType: { connect: { id: dto.classTypeId } } }
+          : {}),
         planType: dto.planType ?? PackagePlanType.SINGLE,
         description: this.normalizeNullableString(dto.description),
         priceCents: dto.priceCents ?? 0,
@@ -247,6 +250,11 @@ export class PackagesService {
             : {}),
           ...(dto.categoryName !== undefined
             ? { categoryName: this.normalizeCategoryName(dto.categoryName) }
+            : {}),
+          ...(dto.classTypeId !== undefined
+            ? dto.classTypeId === null
+              ? { classType: { disconnect: true } }
+              : { classType: { connect: { id: dto.classTypeId } } }
             : {}),
           ...(dto.planType !== undefined ? { planType: dto.planType } : {}),
           ...(dto.description !== undefined
