@@ -642,7 +642,7 @@ export function AdminPackagesManagement({
       ) : null}
 
       <AdminPackagesShell
-        packages={filteredPackages}
+        packages={sortedPackages}
         classTypeOptions={classTypeOptions}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}

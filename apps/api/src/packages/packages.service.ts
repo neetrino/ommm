@@ -146,19 +146,61 @@ export class PackagesService {
   }
 
   async createCombinedPlan(dto: CreateCombinedPackagePlanDto) {
+    const sourcePlanIds = Array.from(
+      new Set(
+        dto.sourcePlanIds
+          .map((planId) => planId.trim())
+          .filter((planId) => planId.length > 0),
+      ),
+    );
+    if (sourcePlanIds.length < 2) {
+      throw new BadRequestException(
+        'Combined plan requires at least two source plans',
+      );
+    }
     const sourcePlans = await this.prisma.packagePlan.findMany({
-      where: { id: { in: dto.sourcePlanIds } },
-      orderBy: { createdAt: 'asc' },
+      where: {
+        id: { in: sourcePlanIds },
+        planType: PackagePlanType.SINGLE,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        categoryName: true,
+      },
     });
-    if (sourcePlans.length !== dto.sourcePlanIds.length) {
-      throw new BadRequestException('One or more source plans were not found');
+    if (sourcePlans.length !== sourcePlanIds.length) {
+      throw new BadRequestException(
+        'Combined source plans must be active single plans',
+      );
     }
-    if (
-      sourcePlans.some((plan) => plan.planType === PackagePlanType.COMBINED)
-    ) {
-      throw new BadRequestException('Combined plans cannot be nested');
+    const sourcePlanById = new Map(sourcePlans.map((plan) => [plan.id, plan]));
+    const orderedSourcePlans = sourcePlanIds.map((planId) =>
+      sourcePlanById.get(planId),
+    );
+    if (orderedSourcePlans.some((plan) => plan === undefined)) {
+      throw new BadRequestException(
+        'Combined source plans must be active single plans',
+      );
     }
-    const categoryName = this.buildCombinedCategoryName(sourcePlans);
+    const resolvedSourcePlans = orderedSourcePlans.filter(
+      (
+        plan,
+      ): plan is { id: string; name: string; categoryName: string } =>
+        plan !== undefined,
+    );
+    const sourceCategoryKeys = new Set(
+      resolvedSourcePlans.map((plan) =>
+        this.normalizeCategoryKey(plan.categoryName),
+      ),
+    );
+    if (sourceCategoryKeys.size !== resolvedSourcePlans.length) {
+      throw new BadRequestException(
+        'Combined source plans must come from distinct categories',
+      );
+    }
+    const categoryName = this.buildCombinedCategoryName(resolvedSourcePlans);
     const name = this.requireNonEmptyString(dto.name, 'Plan name is required');
     const slug = this.normalizeSlug(name);
     await this.assertSlugUnique(slug);
@@ -185,7 +227,7 @@ export class PackagesService {
           displayOrder: await this.resolveNextDisplayOrder(tx),
         },
       });
-      for (const source of sourcePlans) {
+      for (const source of resolvedSourcePlans) {
         await (
           tx as unknown as {
             combinedPlanComponent: {
@@ -198,7 +240,7 @@ export class PackagesService {
             sourcePlanId: source.id,
             sourcePackageNameSnapshot: source.name,
             sourceCategoryNameSnapshot: source.categoryName,
-            sessionAllocation: null,
+            sessionAllocation: 0,
           },
         });
       }
@@ -625,6 +667,10 @@ export class PackagesService {
   private normalizeCategoryName(value: string | undefined): string {
     const next = value?.trim() ?? '';
     return next.length > 0 ? next : CATEGORY_FALLBACK;
+  }
+
+  private normalizeCategoryKey(value: string): string {
+    return value.trim().toLowerCase();
   }
 
   private normalizeSlug(value: string): string {
