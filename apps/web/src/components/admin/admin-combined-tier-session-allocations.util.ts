@@ -35,8 +35,9 @@ export function sumCombinedSessionAllocations(allocations: Record<string, string
 export function buildSourceSessionAllocationsPayload(
   components: readonly AdminCombinedPlanComponent[],
   allocations: Record<string, string>,
-): Array<{ componentId: string; sessionCount: number }> | null {
+): { payload: Array<{ componentId: string; sessionCount: number }>; totalSessions: number } | null {
   const payload: Array<{ componentId: string; sessionCount: number }> = [];
+  let totalSessions = 0;
   for (const component of components) {
     const parsed = parseSessionsCount(allocations[component.id] ?? "");
     if (
@@ -46,9 +47,10 @@ export function buildSourceSessionAllocationsPayload(
     ) {
       return null;
     }
+    totalSessions += parsed;
     payload.push({ componentId: component.id, sessionCount: parsed });
   }
-  return payload;
+  return { payload, totalSessions };
 }
 
 export function formatCombinedSessionsBreakdown(

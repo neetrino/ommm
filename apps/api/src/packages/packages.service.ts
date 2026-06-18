@@ -200,6 +200,9 @@ export class PackagesService {
         'Combined source plans must come from distinct categories',
       );
     }
+    if (dto.isUnlimited === true) {
+      throw new BadRequestException('Combined plans cannot be unlimited');
+    }
     const categoryName = this.buildCombinedCategoryName(resolvedSourcePlans);
     const name = this.requireNonEmptyString(dto.name, 'Plan name is required');
     const slug = this.normalizeSlug(name);
@@ -271,6 +274,21 @@ export class PackagesService {
         ? current.discountedPriceCents
         : dto.discountedPriceCents;
     this.assertDiscountBounds(nextPrice, nextDiscount ?? null);
+    if (dto.planType !== undefined && dto.planType !== current.planType) {
+      throw new BadRequestException('Plan type cannot be changed');
+    }
+    if (
+      current.planType === PackagePlanType.COMBINED &&
+      dto.sourceSessionAllocations === undefined &&
+      dto.sessionsPerMonth !== undefined
+    ) {
+      throw new BadRequestException(
+        'Combined sessions must be updated via source allocations',
+      );
+    }
+    if (current.planType === PackagePlanType.COMBINED && dto.isUnlimited === true) {
+      throw new BadRequestException('Combined plans cannot be unlimited');
+    }
 
     const updated = await this.prisma.$transaction(async (tx) => {
       if (dto.sourceSessionAllocations !== undefined) {
@@ -804,7 +822,23 @@ export class PackagesService {
     planId: string,
     allocations: Array<{ componentId: string; sessionCount: number }>,
   ) {
+    const plan = await tx.packagePlan.findUnique({
+      where: { id: planId },
+      select: { id: true, planType: true },
+    });
+    if (plan === null) {
+      throw new NotFoundException('Plan not found');
+    }
+    if (plan.planType !== PackagePlanType.COMBINED) {
+      throw new BadRequestException(
+        'Source allocations are allowed only for combined plans',
+      );
+    }
     const componentIds = allocations.map((item) => item.componentId);
+    const uniqueComponentIds = new Set(componentIds);
+    if (uniqueComponentIds.size !== componentIds.length) {
+      throw new BadRequestException('Source allocation component ids must be unique');
+    }
     const components = await (
       tx as unknown as {
         combinedPlanComponent: {
@@ -813,11 +847,26 @@ export class PackagesService {
         };
       }
     ).combinedPlanComponent.findMany({
-      where: { combinedPlanId: planId, id: { in: componentIds } },
+      where: { combinedPlanId: planId },
       select: { id: true },
     });
+    if (components.length === 0) {
+      throw new BadRequestException('Combined plan has no source components');
+    }
     if (components.length !== allocations.length) {
-      throw new BadRequestException('Invalid source allocation component ids');
+      throw new BadRequestException(
+        'Source allocations must include every combined component',
+      );
+    }
+    for (const component of components) {
+      if (!uniqueComponentIds.has(component.id)) {
+        throw new BadRequestException(
+          'Source allocations must include every combined component',
+        );
+      }
+    }
+    if (allocations.some((allocation) => allocation.sessionCount <= 0)) {
+      throw new BadRequestException('Source allocation session count must be positive');
     }
     let sum = 0;
     for (const allocation of allocations) {
@@ -835,7 +884,7 @@ export class PackagesService {
     }
     await tx.packagePlan.update({
       where: { id: planId },
-      data: { sessionsPerMonth: sum },
+      data: { sessionsPerMonth: sum, isUnlimited: false },
     });
   }
 

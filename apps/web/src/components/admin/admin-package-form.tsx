@@ -304,18 +304,7 @@ export function AdminPackageForm({
 
     const priceCents = parsePriceToCents(values.price);
     const discountAmountCents = parsePriceToCents(values.discountedPrice);
-    const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
-    const pricePerSessionCents =
-      parsePriceToCents(values.pricePerSession) ??
-      (priceCents !== null && sessionsPerMonth !== null
-        ? parsePriceToCents(
-            resolveTierPricePerSessionField(
-              String(priceCents),
-              String(sessionsPerMonth),
-              String(discountAmountCents ?? ""),
-            ),
-          )
-        : null);
+    const parsedSessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
     const sessionName = values.name.trim();
@@ -399,12 +388,6 @@ export function AdminPackageForm({
           return;
         }
       }
-      if (isAddTierMode || isEditTierMode) {
-        if (pricePerSessionCents === null) {
-          setError(t("pricePerSessionInvalid"));
-          return;
-        }
-      }
       if (
         periodDays === null ||
         periodDays < MIN_PACKAGE_DURATION_DAYS ||
@@ -414,9 +397,10 @@ export function AdminPackageForm({
         return;
       }
       if (
-        sessionsPerMonth === null ||
-        sessionsPerMonth < MIN_PACKAGE_SESSIONS ||
-        sessionsPerMonth > MAX_PACKAGE_SESSIONS
+        !isCombinedTierForm &&
+        (parsedSessionsPerMonth === null ||
+          parsedSessionsPerMonth < MIN_PACKAGE_SESSIONS ||
+          parsedSessionsPerMonth > MAX_PACKAGE_SESSIONS)
       ) {
         setError(t("sessionsCountInvalid"));
         return;
@@ -433,16 +417,44 @@ export function AdminPackageForm({
     }
 
     let sourceSessionAllocations: Array<{ componentId: string; sessionCount: number }> | undefined;
+    let resolvedSessionsPerMonth = parsedSessionsPerMonth;
     if (isCombinedTierForm && initialPackage?.combinedComponents !== undefined) {
-      const allocationPayload = buildSourceSessionAllocationsPayload(
+      const allocationSummary = buildSourceSessionAllocationsPayload(
         initialPackage.combinedComponents,
         values.sourceSessionAllocations,
       );
-      if (allocationPayload === null) {
+      if (allocationSummary === null) {
         setError(t("combinedForm.sourceAllocationInvalid"));
         return;
       }
-      sourceSessionAllocations = allocationPayload;
+      sourceSessionAllocations = allocationSummary.payload;
+      resolvedSessionsPerMonth = allocationSummary.totalSessions;
+    }
+    const pricePerSessionCents =
+      parsePriceToCents(values.pricePerSession) ??
+      (priceCents !== null && resolvedSessionsPerMonth !== null
+        ? parsePriceToCents(
+            resolveTierPricePerSessionField(
+              String(priceCents),
+              String(resolvedSessionsPerMonth),
+              String(discountAmountCents ?? ""),
+            ),
+          )
+        : null);
+    if (
+      (isAddTierMode || isEditTierMode) &&
+      pricePerSessionCents === null
+    ) {
+      setError(t("pricePerSessionInvalid"));
+      return;
+    }
+    if (
+      resolvedSessionsPerMonth === null ||
+      resolvedSessionsPerMonth < MIN_PACKAGE_SESSIONS ||
+      resolvedSessionsPerMonth > MAX_PACKAGE_SESSIONS
+    ) {
+      setError(t("sessionsCountInvalid"));
+      return;
     }
 
     const preservedDisplayFields =
@@ -467,7 +479,7 @@ export function AdminPackageForm({
       showPricePerSession: values.showPricePerSession,
       currency: "AMD" as const,
       isUnlimited: false,
-      sessionsPerMonth: sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
+      sessionsPerMonth: resolvedSessionsPerMonth,
       guestCount: guestCount ?? 0,
       periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
       billingPeriod: tierBillingPeriod,
@@ -513,7 +525,7 @@ export function AdminPackageForm({
               name: payloadName,
               classTypeId: values.classTypeId,
               categoryName,
-              slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
+              slug: buildPackageTierSlug(categoryName, resolvedSessionsPerMonth),
               description: initialPackage?.description ?? null,
               ...pricingFields,
               displayOrder: nextDisplayOrder ?? 1,
