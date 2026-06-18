@@ -47,6 +47,7 @@ export type AdminCombinedPlanComponent = {
 export type PackageTypeSessionAllocation = {
   classTypeId: string;
   sessionCount: number;
+  description?: string | null;
 };
 
 export type AdminPackageRow = {

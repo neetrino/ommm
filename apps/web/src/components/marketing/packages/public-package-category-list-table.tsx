@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
@@ -20,6 +21,7 @@ import {
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
+import { resolvePublicPackageTypeSessionDescription } from "@/components/marketing/packages/public-package-type-session-description";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import styles from "@/components/marketing/packages/public-package-category-list-table.module.css";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
@@ -58,6 +60,8 @@ export function PublicPackageCategoryListTable({
   showGuestsColumn = false,
 }: PublicPackageCategoryListTableProps) {
   const t = useTranslations("marketing");
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentPlanId, setPaymentPlanId] = useState<string | undefined>(undefined);
@@ -78,6 +82,28 @@ export function PublicPackageCategoryListTable({
     setPaymentOpen(true);
   }
 
+  const selectedPlanDescription = useMemo(() => {
+    if (selectedPlanId === null) {
+      return null;
+    }
+    const selectedPlan = plans.find((plan) => plan.id === selectedPlanId);
+    if (selectedPlan === undefined) {
+      return null;
+    }
+    return resolvePublicPackageTypeSessionDescription(selectedPlan.typeSessionAllocations);
+  }, [plans, selectedPlanId]);
+
+  function onSelectPlan(planId: string): void {
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.get("plan") === planId) {
+      params.delete("plan");
+    } else {
+      params.set("plan", planId);
+    }
+    const query = params.toString();
+    router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
   return (
     <>
       <div className={styles.mobileTierList}>
@@ -87,6 +113,7 @@ export function PublicPackageCategoryListTable({
           plans={plans}
           audience={audience}
           selectedPlanId={selectedPlanId}
+          onSelectPlan={onSelectPlan}
           onSubscribe={audience === "member" ? openPayment : undefined}
         />
       </div>
@@ -134,7 +161,14 @@ export function PublicPackageCategoryListTable({
               data-selected={isSelected ? "true" : "false"}
             >
               <div className={`${styles.cell} ${styles.cellEmphasis}`}>
-                {showTierName ? packageName : categoryLabel}
+                <button
+                  type="button"
+                  className={styles.planNameButton}
+                  aria-pressed={isSelected}
+                  onClick={() => onSelectPlan(plan.id)}
+                >
+                  {showTierName ? packageName : categoryLabel}
+                </button>
               </div>
               <div className={`${styles.cell} ${styles.cellEmphasis}`}>
                 {plan.isUnlimited ? (
@@ -188,6 +222,12 @@ export function PublicPackageCategoryListTable({
           );
         })}
       </div>
+
+      {selectedPlanDescription !== null ? (
+        <div className={styles.planDescriptionPanel}>
+          <p className={styles.planDescriptionText}>{selectedPlanDescription}</p>
+        </div>
+      ) : null}
 
       {audience === "member" ? (
         <PackageSubscribePaymentModal

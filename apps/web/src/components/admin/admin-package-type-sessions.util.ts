@@ -8,12 +8,14 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 export type PackageTypeSessionAllocation = {
   classTypeId: string;
   sessionCount: number;
+  description?: string | null;
 };
 
 export type PackageTypeSessionFormEntry = {
   id: string;
   classTypeId: string;
   sessionCount: string;
+  description: string;
 };
 
 export function createEmptyTypeSessionEntry(): PackageTypeSessionFormEntry {
@@ -25,6 +27,7 @@ export function createEmptyTypeSessionEntry(): PackageTypeSessionFormEntry {
     id,
     classTypeId: "",
     sessionCount: "",
+    description: "",
   };
 }
 
@@ -42,6 +45,7 @@ export function entriesFromPackage(
         : `${allocation.classTypeId}-${allocation.sessionCount}`,
     classTypeId: allocation.classTypeId,
     sessionCount: String(allocation.sessionCount),
+    description: allocation.description ?? "",
   }));
 }
 
@@ -112,7 +116,12 @@ export function validateTypeSessionEntries(
     ) {
       return { ok: false, error: "invalidSessionCount" };
     }
-    payload.push({ classTypeId, sessionCount });
+    const description = entry.description.trim();
+    payload.push({
+      classTypeId,
+      sessionCount,
+      ...(description.length > 0 ? { description } : {}),
+    });
   }
   if (payload.length === 0) {
     return { ok: false, error: "empty" };

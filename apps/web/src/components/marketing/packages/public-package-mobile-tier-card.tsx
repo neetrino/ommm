@@ -9,6 +9,7 @@ import {
   formatPublicPackageValidityLabel,
   resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
+import { resolvePublicPackageTypeSessionDescription } from "@/components/marketing/packages/public-package-type-session-description";
 import styles from "@/components/marketing/packages/public-package-mobile-tier-card.module.css";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
@@ -19,6 +20,7 @@ type PublicPackageMobileTierCardProps = {
   plan: PublicPackagePlan;
   audience: PublicPackageCategoryCardsAudience;
   isSelected?: boolean;
+  onSelectPlan?: (planId: string) => void;
   onSubscribe?: (planId: string) => void;
 };
 
@@ -41,10 +43,14 @@ export function PublicPackageMobileTierCard({
   plan,
   audience,
   isSelected = false,
+  onSelectPlan,
   onSubscribe,
 }: PublicPackageMobileTierCardProps) {
   const t = useTranslations("marketing");
   const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+  const typeSessionDescription = resolvePublicPackageTypeSessionDescription(
+    plan.typeSessionAllocations,
+  );
   const totalSessions = resolvePublicPackageTotalSessions(plan);
   const totalSessionsLabel = plan.isUnlimited
     ? t("packagesSessionsUnlimitedShort")
@@ -93,7 +99,24 @@ export function PublicPackageMobileTierCard({
       data-selected={isSelected ? "true" : "false"}
       aria-label={`${categoryLabel} — ${packageName}`}
     >
-      <h3 className={styles.planName}>{packageName}</h3>
+      <h3 className={styles.planName}>
+        {onSelectPlan !== undefined ? (
+          <button
+            type="button"
+            className={styles.planNameButton}
+            aria-pressed={isSelected}
+            onClick={() => onSelectPlan(plan.id)}
+          >
+            {packageName}
+          </button>
+        ) : (
+          packageName
+        )}
+      </h3>
+
+      {isSelected && typeSessionDescription !== null ? (
+        <p className={styles.planDescription}>{typeSessionDescription}</p>
+      ) : null}
 
       <div className={styles.metaList}>
         <MetaRow label={t("packagesTableTotalSessions")} value={totalSessionsLabel} />

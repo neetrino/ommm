@@ -35,6 +35,7 @@ import { usePackageSubscribeUrlState } from "@/hooks/use-package-subscribe-url-s
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { resolvePackageSubscribeCategoryContext } from "@/lib/package-subscribe-category-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
+import { resolvePublicPackageTypeSessionDescription } from "@/components/marketing/packages/public-package-type-session-description";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type PackagesPageAccordionProps = {
@@ -181,6 +182,8 @@ type ExpandedTierTableProps = {
   locale: string;
   category: PackagesPageAccordionCategory;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
@@ -188,6 +191,8 @@ function ExpandedTierTable({
   locale,
   category,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
 }: ExpandedTierTableProps) {
   const t = useTranslations("marketing");
@@ -222,10 +227,41 @@ function ExpandedTierTable({
             locale={locale}
             plan={plan}
             audience={audience}
+            isSelected={selectedPlanId === plan.id}
+            onSelectPlan={onSelectPlan}
             onSubscribe={onSubscribe}
           />
         ))}
       </div>
+
+      {selectedPlanId !== null ? (
+        <ExpandedTierDescription
+          plans={category.plans}
+          selectedPlanId={selectedPlanId}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function ExpandedTierDescription({
+  plans,
+  selectedPlanId,
+}: {
+  plans: readonly PublicPackagePlan[];
+  selectedPlanId: string;
+}) {
+  const selectedPlan = plans.find((plan) => plan.id === selectedPlanId);
+  const description =
+    selectedPlan !== undefined
+      ? resolvePublicPackageTypeSessionDescription(selectedPlan.typeSessionAllocations)
+      : null;
+  if (description === null) {
+    return null;
+  }
+  return (
+    <div className={accordionStyles.planDescriptionPanel}>
+      <p className={accordionStyles.planDescriptionText}>{description}</p>
     </div>
   );
 }
@@ -234,6 +270,8 @@ type ExpandedTierRowProps = {
   locale: string;
   plan: PublicPackagePlan;
   audience: PublicPackageCategoryCardsAudience;
+  isSelected: boolean;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
@@ -241,6 +279,8 @@ function ExpandedTierRow({
   locale,
   plan,
   audience,
+  isSelected,
+  onSelectPlan,
   onSubscribe,
 }: ExpandedTierRowProps) {
   const t = useTranslations("marketing");
@@ -264,9 +304,19 @@ function ExpandedTierRow({
     : null;
 
   return (
-    <div className={accordionStyles.tierRow}>
+    <div
+      className={`${accordionStyles.tierRow} ${isSelected ? accordionStyles.tierRowSelected : ""}`}
+      data-selected={isSelected ? "true" : "false"}
+    >
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPlanName}`}>
-        {packageName}
+        <button
+          type="button"
+          className={accordionStyles.tierPlanNameButton}
+          aria-pressed={isSelected}
+          onClick={() => onSelectPlan(plan.id)}
+        >
+          {packageName}
+        </button>
       </div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierSessions}`}>
         {plan.isUnlimited ? (
@@ -335,6 +385,8 @@ type DesktopAccordionPanelProps = {
   openLabel: string;
   closeLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
   onOpen: (categoryId: string) => void;
   onClose: () => void;
@@ -348,6 +400,8 @@ function DesktopAccordionPanel({
   openLabel,
   closeLabel,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
   onOpen,
   onClose,
@@ -420,6 +474,8 @@ function DesktopAccordionPanel({
                 locale={locale}
                 category={category}
                 audience={audience}
+                selectedPlanId={selectedPlanId}
+                onSelectPlan={onSelectPlan}
                 onSubscribe={onSubscribe}
               />
             ) : null}
@@ -466,6 +522,8 @@ type MobileAccordionSlotProps = {
   openLabel: string;
   closeLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
@@ -479,6 +537,8 @@ function MobileAccordionSlot({
   openLabel,
   closeLabel,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
 }: MobileAccordionSlotProps) {
   return (
@@ -517,6 +577,8 @@ function MobileAccordionSlot({
               categoryLabel={category.label}
               plans={category.plans}
               audience={audience}
+              selectedPlanId={selectedPlanId}
+              onSelectPlan={onSelectPlan}
               onSubscribe={(planId) => {
                 const plan = category.plans.find((item) => item.id === planId);
                 if (plan !== undefined) {
@@ -553,6 +615,8 @@ type DesktopAccordionSlotProps = {
   openLabel: string;
   closeLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
@@ -566,6 +630,8 @@ function DesktopAccordionSlot({
   openLabel,
   closeLabel,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
 }: DesktopAccordionSlotProps) {
   const isAccordionMode = expandedCategory !== null;
@@ -582,6 +648,8 @@ function DesktopAccordionSlot({
         openLabel={openLabel}
         closeLabel={closeLabel}
         audience={audience}
+        selectedPlanId={selectedPlanId}
+        onSelectPlan={onSelectPlan}
         onSubscribe={onSubscribe}
         onOpen={onOpen}
         onClose={onClose}
@@ -671,6 +739,7 @@ export function PackagesPageAccordion({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
+  const selectedPlanId = searchParams.get("plan");
   const { openSubscribe } = usePackageSubscribeUrlState();
   const expandedId = useMemo(
     () => resolveExpandedCategoryId(categories, categoryParam),
@@ -691,6 +760,22 @@ export function PackagesPageAccordion({
         params.set("category", categoryId);
       } else {
         params.delete("category");
+        params.delete("plan");
+      }
+      const query = params.toString();
+      router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const onSelectPlan = useCallback(
+    (planId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const currentPlanId = params.get("plan");
+      if (currentPlanId === planId) {
+        params.delete("plan");
+      } else {
+        params.set("plan", planId);
       }
       const query = params.toString();
       router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
@@ -757,6 +842,8 @@ export function PackagesPageAccordion({
                   openLabel={t("packagesOpenDetailsAria", { name: category.label })}
                   closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
                   audience={audience}
+                  selectedPlanId={selectedPlanId}
+                  onSelectPlan={onSelectPlan}
                   onSubscribe={handleSubscribe}
                   onOpen={updateExpandedCategory}
                   onClose={() => updateExpandedCategory(null)}
@@ -783,6 +870,8 @@ export function PackagesPageAccordion({
               openLabel={t("packagesOpenDetailsAria", { name: category.label })}
               closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
               audience={audience}
+              selectedPlanId={selectedPlanId}
+              onSelectPlan={onSelectPlan}
               onSubscribe={handleSubscribe}
               onOpen={updateExpandedCategory}
               onClose={() => updateExpandedCategory(null)}

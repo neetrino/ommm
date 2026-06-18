@@ -44,6 +44,7 @@ export function AdminPackageTypeSessionsViewModal({
       id: allocation.classTypeId,
       typeName: classTypeNameById.get(allocation.classTypeId) ?? allocation.classTypeId,
       sessionCount: allocation.sessionCount,
+      description: allocation.description?.trim() ?? "",
     }));
   }, [classTypeNameById, packageRow]);
 
@@ -98,18 +99,22 @@ export function AdminPackageTypeSessionsViewModal({
             <p className="text-sm text-sage-600">{t("viewEmpty")}</p>
           ) : (
             <div className="overflow-hidden rounded-[20px] border border-[rgba(151,144,124,0.28)] bg-white/75">
-              <div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-3 border-b border-[rgba(151,144,124,0.22)] bg-[rgba(151,144,124,0.12)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-sage-600 sm:px-5">
+              <div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-3 border-b border-[rgba(151,144,124,0.22)] bg-[rgba(151,144,124,0.12)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-sage-600 sm:grid-cols-[minmax(0,1fr)_7rem_minmax(0,1.2fr)] sm:px-5">
                 <span>{t("fieldType")}</span>
                 <span className="text-right">{t("fieldSessionCount")}</span>
+                <span className="hidden sm:inline">{t("fieldDescription")}</span>
               </div>
               <ul className="divide-y divide-[rgba(151,144,124,0.22)]">
                 {rows.map((row) => (
                   <li
                     key={row.id}
-                    className="grid grid-cols-[minmax(0,1fr)_7rem] gap-3 px-4 py-3.5 text-sm text-sage-900 sm:px-5"
+                    className="grid grid-cols-[minmax(0,1fr)_7rem] gap-3 px-4 py-3.5 text-sm text-sage-900 sm:grid-cols-[minmax(0,1fr)_7rem_minmax(0,1.2fr)] sm:px-5"
                   >
                     <span className="font-medium">{row.typeName}</span>
                     <span className="text-right font-semibold">{row.sessionCount}</span>
+                    <span className="col-span-2 whitespace-pre-wrap text-sage-600 sm:col-span-1 sm:text-left">
+                      {row.description.length > 0 ? row.description : "—"}
+                    </span>
                   </li>
                 ))}
               </ul>

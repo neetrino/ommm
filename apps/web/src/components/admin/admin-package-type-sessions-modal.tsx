@@ -10,6 +10,7 @@ import {
   type PackageTypeSessionFormEntry,
 } from "@/components/admin/admin-package-type-sessions.util";
 import {
+  MAX_DESCRIPTION_LENGTH,
   MAX_PACKAGE_SESSIONS,
   MIN_PACKAGE_SESSIONS,
   OMMM_INPUT_NUMBER_CLASS,
@@ -62,7 +63,9 @@ export function AdminPackageTypeSessionsModal({
 
   function updateEntry(
     entryId: string,
-    patch: Partial<Pick<PackageTypeSessionFormEntry, "classTypeId" | "sessionCount">>,
+    patch: Partial<
+      Pick<PackageTypeSessionFormEntry, "classTypeId" | "sessionCount" | "description">
+    >,
   ): void {
     setEntries((current) =>
       current.map((entry) => (entry.id === entryId ? { ...entry, ...patch } : entry)),
@@ -171,44 +174,62 @@ export function AdminPackageTypeSessionsModal({
                   key={entry.id}
                   className="grid gap-3 rounded-[20px] border border-[rgba(151,144,124,0.28)] bg-white/75 p-4 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end"
                 >
-                  <label className="flex min-w-0 flex-col gap-1.5">
-                    <span className="ommm-label text-xs uppercase tracking-wide">
-                      {t("fieldType")}
-                    </span>
-                    <OmmFormDropdown
-                      value={entry.classTypeId}
-                      ariaLabel={t("fieldType")}
-                      placeholderLabel={t("fieldTypePlaceholder")}
-                      options={dropdownOptions}
-                      onChange={(nextValue) =>
-                        updateEntry(entry.id, { classTypeId: nextValue })
-                      }
-                      disabled={pending}
-                      name={`type-${entry.id}`}
-                      required
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1.5">
-                    <span className="ommm-label text-xs uppercase tracking-wide">
-                      {t("fieldSessionCount")}
-                    </span>
-                    <input
-                      type="number"
-                      className={OMMM_INPUT_NUMBER_CLASS}
-                      min={MIN_PACKAGE_SESSIONS}
-                      max={MAX_PACKAGE_SESSIONS}
-                      step={1}
-                      inputMode="numeric"
-                      value={entry.sessionCount}
-                      onChange={(event) =>
-                        updateEntry(entry.id, { sessionCount: event.target.value })
-                      }
-                      onKeyDown={preventNumberArrowStep}
-                      placeholder={t("fieldSessionCountPlaceholder")}
-                      disabled={pending}
-                      required
-                    />
-                  </label>
+                  <div className="flex min-w-0 flex-col gap-3 sm:col-span-2 sm:grid sm:grid-cols-[minmax(0,1fr)_9rem] sm:items-end sm:gap-3">
+                    <label className="flex min-w-0 flex-col gap-1.5">
+                      <span className="ommm-label text-xs uppercase tracking-wide">
+                        {t("fieldType")}
+                      </span>
+                      <OmmFormDropdown
+                        value={entry.classTypeId}
+                        ariaLabel={t("fieldType")}
+                        placeholderLabel={t("fieldTypePlaceholder")}
+                        options={dropdownOptions}
+                        onChange={(nextValue) =>
+                          updateEntry(entry.id, { classTypeId: nextValue })
+                        }
+                        disabled={pending}
+                        name={`type-${entry.id}`}
+                        required
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="ommm-label text-xs uppercase tracking-wide">
+                        {t("fieldSessionCount")}
+                      </span>
+                      <input
+                        type="number"
+                        className={OMMM_INPUT_NUMBER_CLASS}
+                        min={MIN_PACKAGE_SESSIONS}
+                        max={MAX_PACKAGE_SESSIONS}
+                        step={1}
+                        inputMode="numeric"
+                        value={entry.sessionCount}
+                        onChange={(event) =>
+                          updateEntry(entry.id, { sessionCount: event.target.value })
+                        }
+                        onKeyDown={preventNumberArrowStep}
+                        placeholder={t("fieldSessionCountPlaceholder")}
+                        disabled={pending}
+                        required
+                      />
+                    </label>
+                    <label className="flex min-w-0 flex-col gap-1.5 sm:col-span-2">
+                      <span className="ommm-label text-xs uppercase tracking-wide">
+                        {t("fieldDescription")}
+                      </span>
+                      <textarea
+                        className="ommm-input min-h-[4.5rem] resize-y"
+                        value={entry.description}
+                        onChange={(event) =>
+                          updateEntry(entry.id, { description: event.target.value })
+                        }
+                        placeholder={t("fieldDescriptionPlaceholder")}
+                        disabled={pending}
+                        maxLength={MAX_DESCRIPTION_LENGTH}
+                        rows={2}
+                      />
+                    </label>
+                  </div>
                   <div className="flex items-end justify-end sm:justify-center">
                     <button
                       type="button"

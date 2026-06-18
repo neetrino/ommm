@@ -30,6 +30,31 @@
   color: #ffffff;
 }
 
+.planNameButton {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline transparent;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 150ms ease;
+}
+
+.planNameButton:hover,
+.planNameButton[aria-pressed="true"] {
+  text-decoration-color: currentColor;
+}
+
+.planDescription {
+  margin: -0.25rem 0 0;
+  white-space: pre-wrap;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+}
+
 .metaList {
   display: flex;
   flex-direction: column;

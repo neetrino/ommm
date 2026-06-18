@@ -65,6 +65,7 @@ type AdminPlanWithComponents = {
 type StoredTypeSessionAllocation = {
   classTypeId: string;
   sessionCount: number;
+  description?: string | null;
 };
 
 type ResolvedTypeSessionAllocations = {
@@ -662,9 +663,13 @@ export class PackagesService {
     features: string[];
     guestCount: number;
     displayOrder: number;
+    typeSessionAllocations?: unknown;
   }) {
     return {
       ...plan,
+      typeSessionAllocations: this.parseStoredTypeSessionAllocations(
+        plan.typeSessionAllocations,
+      ),
       finalPriceCents: this.resolveFinalPriceCents(plan),
     };
   }
@@ -1073,13 +1078,23 @@ export class PackagesService {
       ) {
         continue;
       }
-      allocations.push({ classTypeId, sessionCount });
+      allocations.push({
+        classTypeId,
+        sessionCount,
+        ...(typeof item.description === "string" && item.description.trim().length > 0
+          ? { description: item.description.trim() }
+          : {}),
+      });
     }
     return allocations;
   }
 
   private async resolveTypeSessionAllocations(
-    allocations: Array<{ classTypeId: string; sessionCount: number }>,
+    allocations: Array<{
+      classTypeId: string;
+      sessionCount: number;
+      description?: string;
+    }>,
   ): Promise<ResolvedTypeSessionAllocations> {
     if (allocations.length === 0) {
       throw new BadRequestException(
@@ -1116,10 +1131,14 @@ export class PackagesService {
       0,
     );
     return {
-      allocations: allocations.map((item) => ({
-        classTypeId: item.classTypeId.trim(),
-        sessionCount: item.sessionCount,
-      })),
+      allocations: allocations.map((item) => {
+        const description = item.description?.trim() ?? "";
+        return {
+          classTypeId: item.classTypeId.trim(),
+          sessionCount: item.sessionCount,
+          ...(description.length > 0 ? { description } : {}),
+        };
+      }),
       totalSessions,
       classTypeId: allocations.length === 1 ? allocations[0]!.classTypeId : null,
     };

@@ -2721,6 +2721,8 @@
         "fieldTypePlaceholder": "Select type",
         "fieldSessionCount": "Session",
         "fieldSessionCountPlaceholder": "e.g. 10",
+        "fieldDescription": "Description",
+        "fieldDescriptionPlaceholder": "Optional details shown on the package page",
         "addRowButton": "Add row",
         "removeRowAria": "Remove row {index}",
         "totalSessions": "Total sessions: {count}",

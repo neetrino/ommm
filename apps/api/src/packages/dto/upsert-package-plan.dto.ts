@@ -36,6 +36,11 @@ class TypeSessionAllocationDto {
   @Min(1)
   @Max(999)
   sessionCount!: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string;
 }
 
 export class UpsertPackagePlanDto {

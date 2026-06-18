@@ -2713,6 +2713,8 @@
         "fieldTypePlaceholder": "Выберите тип",
         "fieldSessionCount": "Session",
         "fieldSessionCountPlaceholder": "напр. 10",
+        "fieldDescription": "Description",
+        "fieldDescriptionPlaceholder": "Дополнительный текст на странице пакета",
         "addRowButton": "Добавить строку",
         "removeRowAria": "Удалить строку {index}",
         "totalSessions": "Всего сеансов: {count}",
