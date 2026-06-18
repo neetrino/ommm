@@ -6,7 +6,6 @@ import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
 import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
 import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import {
-  formatPublicPackageTierPricePerSession,
   formatPublicPackageTierSessionsHeadline,
   formatPublicPackageValidityLabel,
 } from "@/components/marketing/packages/public-package-tier-display";
@@ -60,7 +59,6 @@ export function PublicPackageMobileTierCard({
   const originalPrice = hasDiscount
     ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
     : null;
-  const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
   const validityLabel = formatPublicPackageValidityLabel(plan, {
     days: (count) => t("packagesValidityDays", { count }),
     months: (count) => t("packagesValidityMonths", { count }),
@@ -101,9 +99,6 @@ export function PublicPackageMobileTierCard({
         />
         {hasDiscount && originalPrice !== null ? (
           <MetaRow label={t("packagesOriginalPrice")} value={originalPrice} />
-        ) : null}
-        {plan.showPricePerSession !== false ? (
-          <MetaRow label={t("packagesTablePricePerSession")} value={pricePerSession} />
         ) : null}
         <MetaRow label={t("packagesTableValidity")} value={validityLabel} />
         <MetaRow label={t("packagesTableGuests")} value={guestLabel} />

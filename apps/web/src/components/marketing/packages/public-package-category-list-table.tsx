@@ -14,7 +14,6 @@ import {
   shouldShowPublicPackageTierName,
 } from "@/components/marketing/packages/public-package-card-format";
 import {
-  formatPublicPackageTierPricePerSession,
   formatPublicPackageValidityLabel,
 } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
@@ -43,16 +42,9 @@ function EmptyCell() {
 
 function resolveDesktopTableClassName(
   showGuestsColumn: boolean,
-  showPricePerSessionColumn: boolean,
 ): string {
-  if (showGuestsColumn && showPricePerSessionColumn) {
-    return `${styles.table} ${styles.tableWithGuests}`;
-  }
   if (showGuestsColumn) {
     return `${styles.table} ${styles.tableWithGuestsNoPerSession}`;
-  }
-  if (showPricePerSessionColumn) {
-    return styles.table;
   }
   return `${styles.table} ${styles.tableNoPerSession}`;
 }
@@ -80,11 +72,6 @@ export function PublicPackageCategoryListTable({
       }),
     );
   }, [categoryLabel, plans]);
-  const showPricePerSessionColumn = useMemo(
-    () => plans.some((plan) => plan.showPricePerSession !== false),
-    [plans],
-  );
-
   function openPayment(planId: string) {
     setPaymentPlanId(planId);
     setPaymentOpen(true);
@@ -106,16 +93,12 @@ export function PublicPackageCategoryListTable({
       <div
         className={`ommm-public-packages-table ${styles.desktopTable} ${resolveDesktopTableClassName(
           showGuestsColumn,
-          showPricePerSessionColumn,
         )}`}
       >
         <div className={styles.headerRow}>
           <div className={styles.headCell}>{t("packagesTablePlan")}</div>
           <div className={styles.headCell}>{t("packagesTableSessions")}</div>
           <div className={styles.headCell}>{t("packagesTablePrice")}</div>
-          {showPricePerSessionColumn ? (
-            <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
-          ) : null}
           <div className={styles.headCell}>{t("packagesTableValidity")}</div>
           {showGuestsColumn ? (
             <div className={styles.headCell}>{t("packagesTableGuests")}</div>
@@ -126,7 +109,6 @@ export function PublicPackageCategoryListTable({
         {plans.map((plan) => {
           const isSelected = selectedPlanId === plan.id;
           const sessions = formatPackageSessionsLabel(plan);
-          const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
           const validityLabel = formatPublicPackageValidityLabel(plan, {
             days: (count) => t("packagesValidityDays", { count }),
             months: (count) => t("packagesValidityMonths", { count }),
@@ -179,11 +161,6 @@ export function PublicPackageCategoryListTable({
                   )
                 )}
               </div>
-              {showPricePerSessionColumn ? (
-                <div className={styles.cell}>
-                  {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}
-                </div>
-              ) : null}
               <div className={styles.cell}>{validityLabel ?? <EmptyCell />}</div>
               {showGuestsColumn ? (
                 <div className={styles.cell}>

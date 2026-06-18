@@ -16,7 +16,6 @@ import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
-  formatPublicPackageTierPricePerSession,
   formatPublicPackageTierSessionsHeadline,
   formatPublicPackageValidityLabel,
 } from "@/components/marketing/packages/public-package-tier-display";
@@ -192,17 +191,13 @@ function ExpandedTierTable({
   onSubscribe,
 }: ExpandedTierTableProps) {
   const t = useTranslations("marketing");
-  const showPricePerSessionColumn = category.plans.some(
-    (plan) => plan.showPricePerSession !== false,
-  );
   const tierColumnsStyle = useMemo(
     () =>
       ({
-        ["--packages-page-tier-columns" as string]: showPricePerSessionColumn
-          ? "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)"
-          : "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)",
+        ["--packages-page-tier-columns" as string]:
+          "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)",
       }) as CSSProperties,
-    [showPricePerSessionColumn],
+    [],
   );
 
   return (
@@ -210,9 +205,6 @@ function ExpandedTierTable({
       <div className={accordionStyles.columnHeaders} role="row">
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableSessions")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePrice")}</span>
-        {showPricePerSessionColumn ? (
-          <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePricePerSession")}</span>
-        ) : null}
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableValidity")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
         <span
@@ -228,7 +220,6 @@ function ExpandedTierTable({
             key={plan.id}
             locale={locale}
             plan={plan}
-            showPricePerSessionColumn={showPricePerSessionColumn}
             audience={audience}
             onSubscribe={onSubscribe}
           />
@@ -241,7 +232,6 @@ function ExpandedTierTable({
 type ExpandedTierRowProps = {
   locale: string;
   plan: PublicPackagePlan;
-  showPricePerSessionColumn: boolean;
   audience: PublicPackageCategoryCardsAudience;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
@@ -249,7 +239,6 @@ type ExpandedTierRowProps = {
 function ExpandedTierRow({
   locale,
   plan,
-  showPricePerSessionColumn,
   audience,
   onSubscribe,
 }: ExpandedTierRowProps) {
@@ -258,7 +247,6 @@ function ExpandedTierRow({
     unlimited: t("packagesSessionsUnlimitedShort"),
     count: (values) => t("packagesTierSessionsLabel", values),
   });
-  const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
   const validityLabel = formatPublicPackageValidityLabel(plan, {
     days: (count) => t("packagesValidityDays", { count }),
     months: (count) => t("packagesValidityMonths", { count }),
@@ -289,11 +277,6 @@ function ExpandedTierRow({
           finalPriceLabel
         )}
       </div>
-      {showPricePerSessionColumn ? (
-        <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPricePerSession}`}>
-          {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}
-        </div>
-      ) : null}
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierValidity}`}>
         {validityLabel ?? <EmptyCell />}
       </div>

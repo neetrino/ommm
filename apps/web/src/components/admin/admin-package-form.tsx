@@ -719,37 +719,6 @@ export function AdminPackageForm({
               <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPricePerSession")}</span>
-              <AmdMoneyInput
-                name="pricePerSession"
-                value={values.pricePerSession}
-                onValueChange={(nextValue) => updateValues({ pricePerSession: nextValue })}
-                disabled={pending || !values.showPricePerSession}
-                align="start"
-                placeholder={t("fieldPricePerSessionPlaceholder")}
-              />
-              <label className="mt-1.5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-3 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
-                <input
-                  type="checkbox"
-                  name="showPricePerSessionInline"
-                  checked={values.showPricePerSession}
-                  onChange={(event) =>
-                    updateValues({ showPricePerSession: event.target.checked })
-                  }
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 focus:ring-sand-500/30"
-                  disabled={pending}
-                />
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-sm font-medium text-sage-800">
-                    {t("fieldShowPricePerSession")}
-                  </span>
-                  <span className="text-xs text-sage-500">
-                    {t("fieldShowPricePerSessionHint")}
-                  </span>
-                </span>
-              </label>
-            </label>
-            <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationDays")}</span>
               <input
                 name="durationDays"

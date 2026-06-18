@@ -15,7 +15,6 @@ import {
   formatPackageGuestCount,
   formatPackagePlanName,
   formatPackagePriceLabel,
-  formatPackagePricePerSession,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -82,20 +81,18 @@ export function AdminPackagesCategoryTable({
 
   return (
     <div className="ommm-admin-packages-table">
-      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[61rem]">
+      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[56rem]">
         <div>{t("tableSessionName")}</div>
         <div>{t("tablePrice")}</div>
-        <div>{t("tablePricePerSession")}</div>
         <div>{t("tableValidity")}</div>
         <div>{t("tableGuests")}</div>
         <div>{t("colStatus")}</div>
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
-      <div className="min-w-[61rem]">
+      <div className="min-w-[56rem]">
         <AnimatePresence mode="popLayout" initial={false}>
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
-            const pricePerSession = formatPackagePricePerSession(pkg, locale);
             const guestCount = formatPackageGuestCount(pkg);
             const hasDiscount =
               typeof pkg.discountedPriceCents === "number" &&
@@ -143,7 +140,6 @@ export function AdminPackagesCategoryTable({
                       finalPriceLabel
                     )}
                   </TableCell>
-                  <TableCell>{pkg.showPricePerSession === false ? null : pricePerSession ?? <EmptyCell />}</TableCell>
                   <TableCell>{validityLabel}</TableCell>
                   <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
                   <TableCell>
