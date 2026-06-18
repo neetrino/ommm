@@ -17,6 +17,8 @@ import {
   type User,
 } from '@prisma/client';
 import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
+import { PackagesService } from '../packages/packages.service';
+import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -101,29 +103,44 @@ export class BookingsService {
     private readonly cancelIntent: BookingCancelIntentService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
+    private readonly packageUsage: PackageUsageService,
+    private readonly packages: PackagesService,
   ) {}
 
   async listEligiblePackagesForSession(userId: string, sessionId: string) {
-    const session = await this.prisma.classSession.findUnique({ where: { id: sessionId } });
+    const session = await this.prisma.classSession.findUnique({
+      where: { id: sessionId },
+      include: { classType: { select: { id: true, name: true } } },
+    });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
       throw new NotFoundException('Session not found');
     }
     if (session.startsAt < new Date()) {
       throw new BadRequestException('Session already started');
     }
-    void userId;
-    return [];
+    return this.packageUsage.listEligibleUserPackages({
+      userId,
+      session: {
+        id: session.id,
+        classType: {
+          id: session.classType.id,
+          name: session.classType.name,
+        },
+      },
+    });
   }
 
   async listPurchasePlansForSession(sessionId: string) {
-    const session = await this.prisma.classSession.findUnique({ where: { id: sessionId } });
+    const session = await this.prisma.classSession.findUnique({
+      where: { id: sessionId },
+    });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
       throw new NotFoundException('Session not found');
     }
     if (session.startsAt < new Date()) {
       throw new BadRequestException('Session already started');
     }
-    return [];
+    return this.packages.listPlans();
   }
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
@@ -147,6 +164,8 @@ export class BookingsService {
     if (booked >= session.capacity) {
       throw new BadRequestException('Session is full — join waitlist');
     }
+    const requiredSessions =
+      session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
 
     const booking = await this.prisma.$transaction(
       async (tx) => {
@@ -157,27 +176,53 @@ export class BookingsService {
           throw new BadRequestException('Already booked');
         }
 
-        if (existingBooking) {
-          return tx.booking.update({
-            where: { id: existingBooking.id },
-            data: {
-              status: BookingStatus.BOOKED,
-              channel: dto?.channel ?? BookingChannel.WEBSITE,
-              cancelledAt: null,
-              attendedAt: null,
-            },
-            include: { session: { include: { classType: true } } },
+        const packageMembership =
+          requiredSessions > 0
+            ? await this.packageUsage.getValidatedUserPackageForBooking({
+                tx,
+                userId,
+                session: {
+                  id: session.id,
+                  classType: {
+                    id: session.classType.id,
+                    name: session.classType.name,
+                  },
+                },
+                userPackageId: dto?.userPackageId,
+              })
+            : null;
+
+        const savedBooking = existingBooking
+          ? await tx.booking.update({
+              where: { id: existingBooking.id },
+              data: {
+                status: BookingStatus.BOOKED,
+                channel: dto?.channel ?? BookingChannel.WEBSITE,
+                cancelledAt: null,
+                attendedAt: null,
+              },
+              include: { session: { include: { classType: true } } },
+            })
+          : await tx.booking.create({
+              data: {
+                userId,
+                sessionId,
+                status: BookingStatus.BOOKED,
+                channel: dto?.channel ?? BookingChannel.WEBSITE,
+              },
+              include: { session: { include: { classType: true } } },
+            });
+
+        if (packageMembership && requiredSessions > 0) {
+          await this.packageUsage.consumeSession({
+            tx,
+            bookingId: savedBooking.id,
+            membership: packageMembership,
+            sessionCategoryName: session.classType.name,
+            requiredSessions,
           });
         }
-        return tx.booking.create({
-          data: {
-            userId,
-            sessionId,
-            status: BookingStatus.BOOKED,
-            channel: dto?.channel ?? BookingChannel.WEBSITE,
-          },
-          include: { session: { include: { classType: true } } },
-        });
+        return savedBooking;
       },
       { timeout: BOOKING_INTERACTIVE_TX_TIMEOUT_MS },
     );
@@ -302,6 +347,12 @@ export class BookingsService {
       });
       if (hasDropInPayment) {
         return;
+      }
+      if (!options.applyPenalty) {
+        await this.packageUsage.restoreSession({
+          tx,
+          bookingId: booking.id,
+        });
       }
     });
     await this.prisma.classSession.updateMany({
