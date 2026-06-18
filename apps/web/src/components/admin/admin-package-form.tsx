@@ -44,6 +44,7 @@ import {
 import { ApiError, apiFetch } from "@/lib/api";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 
 export type AdminPackageFormMode = "create" | "edit" | "pricing" | "add-tier" | "edit-tier";
 
@@ -589,20 +590,19 @@ export function AdminPackageForm({
               <span className="ommm-label text-xs uppercase tracking-wide">
                 {t("fieldClassType")}
               </span>
-              <select
-                className="ommm-input"
+              <OmmFormDropdown
                 value={values.classTypeId}
-                onChange={(event) => updateValues({ classTypeId: event.target.value })}
-                disabled={pending || classTypeOptions.length === 0}
+                ariaLabel={t("fieldClassType")}
+                placeholderLabel={t("fieldClassTypePlaceholder")}
+                options={classTypeOptions.map((classType) => ({
+                  value: classType.id,
+                  label: classType.name,
+                }))}
+                onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
+                disabled={pending}
+                name="classTypeId"
                 required
-              >
-                <option value="">{t("fieldClassTypePlaceholder")}</option>
-                {classTypeOptions.map((classType) => (
-                  <option key={classType.id} value={classType.id}>
-                    {classType.name}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
