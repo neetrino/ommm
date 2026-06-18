@@ -277,6 +277,10 @@ export function AdminPackageForm({
     const isEditMode = mode === "edit";
     const detailsName = values.name.trim();
     const description = values.description.trim();
+    const createCategoryName = resolvePackageCategoryName(
+      detailsName,
+      categoryNameCandidates,
+    );
     const tierCategoryName = resolvePackageCategoryName(
       initialCategoryName.trim(),
       categoryNameCandidates,
@@ -291,7 +295,7 @@ export function AdminPackageForm({
       categoryNameCandidates,
     );
     const categoryName = isCreateMode
-      ? selectedClassCategoryName
+      ? createCategoryName
       : isAddTierMode
         ? tierCategoryName
         : isEditMode && selectedClassCategoryName.length > 0
@@ -328,10 +332,6 @@ export function AdminPackageForm({
     const payloadName = usesSessionNameField ? sessionName : detailsName;
 
     if (isCreateMode || isEditMode) {
-      if (values.classTypeId.trim().length === 0) {
-        setError(t("classTypeRequired"));
-        return;
-      }
       if (detailsName.length === 0) {
         setError(t("nameRequired"));
         return;
@@ -340,17 +340,23 @@ export function AdminPackageForm({
         setError(t("nameTooLong"));
         return;
       }
-      if (categoryName.length === 0) {
-        setError(t("categoryRequired"));
-        return;
-      }
-      if (categoryName.length > MAX_CATEGORY_NAME_LENGTH) {
-        setError(t("categoryTooLong"));
-        return;
-      }
-      if (description.length > MAX_DESCRIPTION_LENGTH) {
-        setError(t("descriptionTooLong"));
-        return;
+      if (isEditMode) {
+        if (values.classTypeId.trim().length === 0) {
+          setError(t("classTypeRequired"));
+          return;
+        }
+        if (categoryName.length === 0) {
+          setError(t("categoryRequired"));
+          return;
+        }
+        if (categoryName.length > MAX_CATEGORY_NAME_LENGTH) {
+          setError(t("categoryTooLong"));
+          return;
+        }
+        if (description.length > MAX_DESCRIPTION_LENGTH) {
+          setError(t("descriptionTooLong"));
+          return;
+        }
       }
     }
 
@@ -479,10 +485,8 @@ export function AdminPackageForm({
     const payload = isCreateMode
       ? {
           name: payloadName,
-          classTypeId: values.classTypeId,
           categoryName,
           slug,
-          description: description.length > 0 ? description : null,
           priceCents: 0,
           currency: "AMD",
           isUnlimited: false,
@@ -587,24 +591,6 @@ export function AdminPackageForm({
         >
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">
-                {t("fieldClassType")}
-              </span>
-              <OmmFormDropdown
-                value={values.classTypeId}
-                ariaLabel={t("fieldClassType")}
-                placeholderLabel={t("fieldClassTypePlaceholder")}
-                options={classTypeOptions.map((classType) => ({
-                  value: classType.id,
-                  label: classType.name,
-                }))}
-                onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
-                disabled={pending}
-                name="classTypeId"
-                required
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
               <input
                 name="name"
@@ -615,17 +601,39 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
-              <textarea
-                name="description"
-                className="ommm-input min-h-24 resize-y"
-                maxLength={MAX_DESCRIPTION_LENGTH}
-                value={values.description}
-                onChange={(event) => updateValues({ description: event.target.value })}
-                disabled={pending}
-              />
-            </label>
+            {mode === "edit" ? (
+              <>
+                <label className="flex flex-col gap-1.5">
+                  <span className="ommm-label text-xs uppercase tracking-wide">
+                    {t("fieldClassType")}
+                  </span>
+                  <OmmFormDropdown
+                    value={values.classTypeId}
+                    ariaLabel={t("fieldClassType")}
+                    placeholderLabel={t("fieldClassTypePlaceholder")}
+                    options={classTypeOptions.map((classType) => ({
+                      value: classType.id,
+                      label: classType.name,
+                    }))}
+                    onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
+                    disabled={pending}
+                    name="classTypeId"
+                    required
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5">
+                  <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
+                  <textarea
+                    name="description"
+                    className="ommm-input min-h-24 resize-y"
+                    maxLength={MAX_DESCRIPTION_LENGTH}
+                    value={values.description}
+                    onChange={(event) => updateValues({ description: event.target.value })}
+                    disabled={pending}
+                  />
+                </label>
+              </>
+            ) : null}
           </div>
         </AdminPackageFormSection>
       ) : null}

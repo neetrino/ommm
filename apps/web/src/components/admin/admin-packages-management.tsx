@@ -643,7 +643,6 @@ export function AdminPackagesManagement({
 
       <AdminPackagesShell
         packages={filteredPackages}
-        allPackages={sortedPackages}
         classTypeOptions={classTypeOptions}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
