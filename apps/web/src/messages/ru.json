@@ -2582,7 +2582,7 @@
       "noPackageCategoriesYet": "Пакетов пока нет. Нажмите Add Package, чтобы создать первый план.",
       "noCategoriesSelected": "Выберите одну или несколько категорий выше, чтобы просмотреть пакеты.",
       "selectCategoryHint": "Выберите эту категорию выше, чтобы просмотреть и управлять её пакетами.",
-      "tableSessionName": "Session Name",
+      "tableSessionName": "Package Name",
       "tableSessions": "Сессии",
       "tablePrice": "Цена",
       "tablePricePerSession": "Цена / сессия",

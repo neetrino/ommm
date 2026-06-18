@@ -2590,7 +2590,7 @@
       "noPackageCategoriesYet": "No packages yet. Click Add Package to create your first plan.",
       "noCategoriesSelected": "Select one or more categories above to view their packages.",
       "selectCategoryHint": "Select this category above to view and manage its packages.",
-      "tableSessionName": "Session Name",
+      "tableSessionName": "Package Name",
       "tableSessions": "Sessions",
       "tablePrice": "Price",
       "tablePricePerSession": "Price / Session",

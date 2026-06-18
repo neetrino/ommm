@@ -2581,7 +2581,7 @@
       "noPackageCategoriesYet": "Դեռ փաթեթներ չկան։ Սեղմեք Add Package՝ առաջին պլանը ստեղծելու համար։",
       "noCategoriesSelected": "Փաթեթները դիտելու համար վերևից ընտրեք մեկ կամ մի քանի կատեգորիա։",
       "selectCategoryHint": "Փաթեթները դիտելու և կառավարելու համար վերևից ընտրեք այս կատեգորիան։",
-      "tableSessionName": "Session Name",
+      "tableSessionName": "Package Name",
       "tableSessions": "Սեսիաներ",
       "tablePrice": "Գին",
       "tablePricePerSession": "Գին / սեսիա",

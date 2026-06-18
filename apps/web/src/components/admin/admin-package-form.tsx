@@ -364,6 +364,10 @@ export function AdminPackageForm({
       setError(t("categoryRequired"));
       return;
     }
+    if (isAddTierMode && values.classTypeId.trim().length === 0) {
+      setError(t("classTypeRequired"));
+      return;
+    }
 
     if (usesSessionNameField) {
       if (sessionName.length === 0) {
@@ -502,10 +506,12 @@ export function AdminPackageForm({
         ? shellTierTarget
           ? {
               name: payloadName,
+              classTypeId: values.classTypeId,
               ...pricingFields,
             }
           : {
               name: payloadName,
+              classTypeId: values.classTypeId,
               categoryName,
               slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
               description: initialPackage?.description ?? null,
@@ -648,6 +654,26 @@ export function AdminPackageForm({
           }
         >
           <div className="flex flex-col gap-4">
+            {mode === "add-tier" ? (
+              <label className="flex flex-col gap-1.5">
+                <span className="ommm-label text-xs uppercase tracking-wide">
+                  {t("fieldClassType")}
+                </span>
+                <OmmFormDropdown
+                  value={values.classTypeId}
+                  ariaLabel={t("fieldClassType")}
+                  placeholderLabel={t("fieldClassTypePlaceholder")}
+                  options={classTypeOptions.map((classType) => ({
+                    value: classType.id,
+                    label: classType.name,
+                  }))}
+                  onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
+                  disabled={pending}
+                  name="classTypeId"
+                  required
+                />
+              </label>
+            ) : null}
             {isCombinedTierForm && initialPackage?.combinedComponents !== undefined ? (
               <AdminCombinedTierSessionAllocations
                 components={initialPackage.combinedComponents}
