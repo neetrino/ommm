@@ -279,6 +279,14 @@
   justify-self: center;
 }
 
+.tierPlanName {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.8125rem, 1.35vw, var(--packages-page-tier-sessions-size));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--packages-page-text-color);
+}
+
 .tierSessions {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: clamp(0.8125rem, 1.35vw, var(--packages-page-tier-sessions-size));

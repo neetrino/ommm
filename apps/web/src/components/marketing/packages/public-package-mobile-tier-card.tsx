@@ -3,11 +3,11 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
-import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
+import { formatPackagePlanName, formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
 import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import {
-  formatPublicPackageTierSessionsHeadline,
   formatPublicPackageValidityLabel,
+  resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
 import styles from "@/components/marketing/packages/public-package-mobile-tier-card.module.css";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
@@ -44,10 +44,13 @@ export function PublicPackageMobileTierCard({
   onSubscribe,
 }: PublicPackageMobileTierCardProps) {
   const t = useTranslations("marketing");
-  const planLabel = formatPublicPackageTierSessionsHeadline(plan, {
-    unlimited: t("packagesSessionsUnlimitedShort"),
-    count: (values) => t("packagesTierSessionsLabel", values),
-  });
+  const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+  const totalSessions = resolvePublicPackageTotalSessions(plan);
+  const totalSessionsLabel = plan.isUnlimited
+    ? t("packagesSessionsUnlimitedShort")
+    : totalSessions !== null
+      ? String(totalSessions)
+      : null;
   const priceLabel = formatPackagePriceLabel(
     { ...plan, priceCents: resolvePublicPackageFinalPriceCents(plan) },
     locale,
@@ -88,11 +91,12 @@ export function PublicPackageMobileTierCard({
     <article
       className={`${styles.card} ${isSelected ? styles.cardSelected : ""}`}
       data-selected={isSelected ? "true" : "false"}
-      aria-label={`${categoryLabel} — ${planLabel}`}
+      aria-label={`${categoryLabel} — ${packageName}`}
     >
-      <h3 className={styles.planName}>{planLabel}</h3>
+      <h3 className={styles.planName}>{packageName}</h3>
 
       <div className={styles.metaList}>
+        <MetaRow label={t("packagesTableTotalSessions")} value={totalSessionsLabel} />
         <MetaRow
           label={t("packagesTablePrice")}
           value={hasDiscount && originalPrice !== null ? `${priceLabel} (${t("packagesDiscountBadge")})` : priceLabel}

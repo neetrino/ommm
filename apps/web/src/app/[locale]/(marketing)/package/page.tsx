@@ -1,5 +1,8 @@
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { MarketingMembershipPageSection } from "@/components/marketing/packages/marketing-membership-page-section";
+import { MarketingMembershipPackagesSkeleton } from "@/components/marketing/packages/marketing-membership-packages-skeleton";
+import { MarketingPackagesPageContent } from "@/components/marketing/packages/marketing-packages-page-content";
 
 export default async function PackageMarketingPage({
   params,
@@ -11,9 +14,9 @@ export default async function PackageMarketingPage({
 
   return (
     <MarketingMembershipPageSection title={m("packagesPageTitle")} lead={m("packagesPageLead")}>
-      <div className="rounded-2xl border border-white/60 bg-white/80 p-6 text-sm text-sage-700">
-        Packages module is empty. New logic will be rebuilt from zero.
-      </div>
+      <Suspense fallback={<MarketingMembershipPackagesSkeleton />}>
+        <MarketingPackagesPageContent locale={locale} />
+      </Suspense>
     </MarketingMembershipPageSection>
   );
 }

@@ -6,8 +6,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
+  formatPackagePlanName,
   formatPackagePriceLabel,
-  formatPackageSessionsLabel,
 } from "@/components/admin/admin-packages-display";
 import {
   resolvePublicPackageFinalPriceCents,
@@ -15,6 +15,7 @@ import {
 } from "@/components/marketing/packages/public-package-card-format";
 import {
   formatPublicPackageValidityLabel,
+  resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
@@ -97,7 +98,7 @@ export function PublicPackageCategoryListTable({
       >
         <div className={styles.headerRow}>
           <div className={styles.headCell}>{t("packagesTablePlan")}</div>
-          <div className={styles.headCell}>{t("packagesTableSessions")}</div>
+          <div className={styles.headCell}>{t("packagesTableTotalSessions")}</div>
           <div className={styles.headCell}>{t("packagesTablePrice")}</div>
           <div className={styles.headCell}>{t("packagesTableValidity")}</div>
           {showGuestsColumn ? (
@@ -108,7 +109,8 @@ export function PublicPackageCategoryListTable({
 
         {plans.map((plan) => {
           const isSelected = selectedPlanId === plan.id;
-          const sessions = formatPackageSessionsLabel(plan);
+          const totalSessions = resolvePublicPackageTotalSessions(plan);
+          const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
           const validityLabel = formatPublicPackageValidityLabel(plan, {
             days: (count) => t("packagesValidityDays", { count }),
             months: (count) => t("packagesValidityMonths", { count }),
@@ -132,13 +134,13 @@ export function PublicPackageCategoryListTable({
               data-selected={isSelected ? "true" : "false"}
             >
               <div className={`${styles.cell} ${styles.cellEmphasis}`}>
-                {showTierName ? plan.name : categoryLabel}
+                {showTierName ? packageName : categoryLabel}
               </div>
               <div className={`${styles.cell} ${styles.cellEmphasis}`}>
-                {sessions !== null ? (
-                  sessions
-                ) : plan.isUnlimited ? (
+                {plan.isUnlimited ? (
                   t("packagesSessionsUnlimitedShort")
+                ) : totalSessions !== null ? (
+                  totalSessions
                 ) : (
                   <EmptyCell />
                 )}

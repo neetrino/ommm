@@ -5,7 +5,7 @@ import { Suspense, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
-import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
+import { formatPackagePlanName, formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
 import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
@@ -16,8 +16,8 @@ import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
-  formatPublicPackageTierSessionsHeadline,
   formatPublicPackageValidityLabel,
+  resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
 import {
   PACKAGES_PAGE_ACCORDION_FIGMA,
@@ -195,7 +195,7 @@ function ExpandedTierTable({
     () =>
       ({
         ["--packages-page-tier-columns" as string]:
-          "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)",
+          "minmax(0, 1.05fr) minmax(0, 0.65fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 0.45fr) minmax(0, 1.05fr)",
       }) as CSSProperties,
     [],
   );
@@ -203,7 +203,8 @@ function ExpandedTierTable({
   return (
     <div className={accordionStyles.tierTableLayout} style={tierColumnsStyle}>
       <div className={accordionStyles.columnHeaders} role="row">
-        <span className={accordionStyles.columnHeaderPill}>{t("packagesTableSessions")}</span>
+        <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePlan")}</span>
+        <span className={accordionStyles.columnHeaderPill}>{t("packagesTableTotalSessions")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePrice")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableValidity")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
@@ -243,10 +244,8 @@ function ExpandedTierRow({
   onSubscribe,
 }: ExpandedTierRowProps) {
   const t = useTranslations("marketing");
-  const sessions = formatPublicPackageTierSessionsHeadline(plan, {
-    unlimited: t("packagesSessionsUnlimitedShort"),
-    count: (values) => t("packagesTierSessionsLabel", values),
-  });
+  const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+  const totalSessions = resolvePublicPackageTotalSessions(plan);
   const validityLabel = formatPublicPackageValidityLabel(plan, {
     days: (count) => t("packagesValidityDays", { count }),
     months: (count) => t("packagesValidityMonths", { count }),
@@ -266,7 +265,18 @@ function ExpandedTierRow({
 
   return (
     <div className={accordionStyles.tierRow}>
-      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierSessions}`}>{sessions}</div>
+      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPlanName}`}>
+        {packageName}
+      </div>
+      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierSessions}`}>
+        {plan.isUnlimited ? (
+          t("packagesSessionsUnlimitedShort")
+        ) : totalSessions !== null ? (
+          totalSessions
+        ) : (
+          <EmptyCell />
+        )}
+      </div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPrice}`}>
         {hasDiscount && originalPriceLabel !== null ? (
           <span className={accordionStyles.tierPriceWithDiscount}>
