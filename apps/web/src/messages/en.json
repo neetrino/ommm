@@ -2029,7 +2029,6 @@
         "modalBackdropClose": "Close dialog",
         "addButton": "Add type",
         "emptyTitle": "No class types yet",
-        "emptyBody": "Use Add type above to create your first one — for example Reformer, Yoga, or Mat Pilates.",
         "formCreateTitle": "New class type",
         "formEditTitle": "Edit class type",
         "fieldName": "Name",

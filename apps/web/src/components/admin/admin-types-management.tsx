@@ -162,7 +162,6 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
     <div className="space-y-5">
       <AdminPageHero
         title={t("modalTitle")}
-        description={t("emptyBody")}
         search={
           <input
             value={query}

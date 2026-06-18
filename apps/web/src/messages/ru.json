@@ -2020,7 +2020,6 @@
         "modalBackdropClose": "Закрыть окно",
         "addButton": "Добавить тип",
         "emptyTitle": "Типов занятий пока нет",
-        "emptyBody": "Нажмите «Добавить тип» выше, чтобы создать первый — например Reformer, Yoga или Mat Pilates.",
         "formCreateTitle": "Новый тип",
         "formEditTitle": "Редактировать тип",
         "fieldName": "Название",
