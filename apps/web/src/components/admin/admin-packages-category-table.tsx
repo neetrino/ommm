@@ -118,8 +118,26 @@ export function AdminPackagesCategoryTable({
             const typeSessionRows = resolvePackageTypeSessionAllocations(pkg);
             const hasTypeSessionRows = typeSessionRows.length > 0;
             const totalSessions = resolvePackageTotalSessions(pkg);
-            const canViewTypeSessions =
-              pkg.planType !== "COMBINED" && hasTypeSessionRows;
+            const isRowClickable = pkg.planType !== "COMBINED";
+
+            function activatePackageRow(): void {
+              if (!isRowClickable) {
+                return;
+              }
+              if (hasTypeSessionRows) {
+                onViewTypeSessions(pkg.id);
+                return;
+              }
+              onConfigureTypeSessions(pkg.id);
+            }
+
+            function handleRowKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
+              if (event.key !== "Enter" && event.key !== " ") {
+                return;
+              }
+              event.preventDefault();
+              activatePackageRow();
+            }
 
             return (
               <motion.div
@@ -131,18 +149,26 @@ export function AdminPackagesCategoryTable({
                 animate="animate"
                 exit="exit"
               >
-                <div className="ommm-admin-packages-table-grid">
-                  <TableCell emphasis>
-                    {canViewTypeSessions ? (
-                      <button
-                        type="button"
-                        className="flex w-full flex-col items-center rounded-2xl px-2 py-1 text-center transition-colors hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/30"
-                        aria-label={t("typeSessionsViewAria", { name: packageName })}
-                        onClick={() => onViewTypeSessions(pkg.id)}
-                      >
-                        <span>{packageName}</span>
-                      </button>
-                    ) : (
+                <div className="ommm-admin-packages-table-row-layout">
+                  <div
+                    className={
+                      isRowClickable
+                        ? "ommm-admin-packages-table-grid--data ommm-admin-packages-table-grid--clickable"
+                        : "ommm-admin-packages-table-grid--data"
+                    }
+                    role={isRowClickable ? "button" : undefined}
+                    tabIndex={isRowClickable ? 0 : undefined}
+                    aria-label={
+                      isRowClickable
+                        ? hasTypeSessionRows
+                          ? t("typeSessionsViewAria", { name: packageName })
+                          : t("typeSessionsAddAria")
+                        : undefined
+                    }
+                    onClick={isRowClickable ? activatePackageRow : undefined}
+                    onKeyDown={isRowClickable ? handleRowKeyDown : undefined}
+                  >
+                    <TableCell emphasis>
                       <div className="flex flex-col gap-1">
                         <span>{packageName}</span>
                         {pkg.planType === "COMBINED" ? (
@@ -151,29 +177,29 @@ export function AdminPackagesCategoryTable({
                           </span>
                         ) : null}
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {totalSessions !== null ? totalSessions : <EmptyCell />}
-                  </TableCell>
-                  <TableCell>
-                    {hasDiscount && originalPriceLabel !== null ? (
-                      <span className="inline-flex flex-col items-center gap-0.5">
-                        <span className="text-xs leading-tight text-sage-500 line-through">
-                          {originalPriceLabel}
+                    </TableCell>
+                    <TableCell>
+                      {totalSessions !== null ? totalSessions : <EmptyCell />}
+                    </TableCell>
+                    <TableCell>
+                      {hasDiscount && originalPriceLabel !== null ? (
+                        <span className="inline-flex flex-col items-center gap-0.5">
+                          <span className="text-xs leading-tight text-sage-500 line-through">
+                            {originalPriceLabel}
+                          </span>
+                          <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
                         </span>
-                        <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
-                      </span>
-                    ) : (
-                      finalPriceLabel
-                    )}
-                  </TableCell>
-                  <TableCell>{validityLabel}</TableCell>
-                  <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
-                  <TableCell>
-                    <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
-                  </TableCell>
-                  <div className="ommm-admin-packages-table-actions">
+                      ) : (
+                        finalPriceLabel
+                      )}
+                    </TableCell>
+                    <TableCell>{validityLabel}</TableCell>
+                    <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                    <TableCell>
+                      <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
+                    </TableCell>
+                  </div>
+                  <div className="ommm-admin-packages-table-actions shrink-0">
                     <div className="flex items-center justify-end gap-1">
                       <AdminPackagePlanStatusActions
                         packageId={pkg.id}
