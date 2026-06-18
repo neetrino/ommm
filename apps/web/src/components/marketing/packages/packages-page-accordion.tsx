@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { Suspense, useCallback, useMemo } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
@@ -35,7 +35,14 @@ import { usePackageSubscribeUrlState } from "@/hooks/use-package-subscribe-url-s
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { resolvePackageSubscribeCategoryContext } from "@/lib/package-subscribe-category-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
-import { resolvePublicPackageTypeSessionDescription } from "@/components/marketing/packages/public-package-type-session-description";
+import {
+  PublicPackageTypeSessionsBreakdown,
+  PublicPackageTypeSessionsExpandButton,
+} from "@/components/marketing/packages/public-package-type-sessions-breakdown";
+import {
+  hasPublicPackageTypeSessions,
+  resolvePublicPackageTypeSessionRows,
+} from "@/components/marketing/packages/public-package-type-session-rows";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type PackagesPageAccordionProps = {
@@ -196,6 +203,7 @@ function ExpandedTierTable({
   onSubscribe,
 }: ExpandedTierTableProps) {
   const t = useTranslations("marketing");
+  const [expandedMixPlanId, setExpandedMixPlanId] = useState<string | null>(null);
   const tierColumnsStyle = useMemo(
     () =>
       ({
@@ -228,40 +236,15 @@ function ExpandedTierTable({
             plan={plan}
             audience={audience}
             isSelected={selectedPlanId === plan.id}
+            isMixExpanded={expandedMixPlanId === plan.id}
             onSelectPlan={onSelectPlan}
             onSubscribe={onSubscribe}
+            onToggleMixExpand={() =>
+              setExpandedMixPlanId((current) => (current === plan.id ? null : plan.id))
+            }
           />
         ))}
       </div>
-
-      {selectedPlanId !== null ? (
-        <ExpandedTierDescription
-          plans={category.plans}
-          selectedPlanId={selectedPlanId}
-        />
-      ) : null}
-    </div>
-  );
-}
-
-function ExpandedTierDescription({
-  plans,
-  selectedPlanId,
-}: {
-  plans: readonly PublicPackagePlan[];
-  selectedPlanId: string;
-}) {
-  const selectedPlan = plans.find((plan) => plan.id === selectedPlanId);
-  const description =
-    selectedPlan !== undefined
-      ? resolvePublicPackageTypeSessionDescription(selectedPlan.typeSessionAllocations)
-      : null;
-  if (description === null) {
-    return null;
-  }
-  return (
-    <div className={accordionStyles.planDescriptionPanel}>
-      <p className={accordionStyles.planDescriptionText}>{description}</p>
     </div>
   );
 }
@@ -271,8 +254,10 @@ type ExpandedTierRowProps = {
   plan: PublicPackagePlan;
   audience: PublicPackageCategoryCardsAudience;
   isSelected: boolean;
+  isMixExpanded: boolean;
   onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
+  onToggleMixExpand: () => void;
 };
 
 function ExpandedTierRow({
@@ -280,8 +265,10 @@ function ExpandedTierRow({
   plan,
   audience,
   isSelected,
+  isMixExpanded,
   onSelectPlan,
   onSubscribe,
+  onToggleMixExpand,
 }: ExpandedTierRowProps) {
   const t = useTranslations("marketing");
   const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
@@ -302,6 +289,8 @@ function ExpandedTierRow({
   const originalPriceLabel = hasDiscount
     ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
     : null;
+  const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
+  const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
 
   return (
     <div
@@ -309,14 +298,30 @@ function ExpandedTierRow({
       data-selected={isSelected ? "true" : "false"}
     >
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPlanName}`}>
-        <button
-          type="button"
-          className={accordionStyles.tierPlanNameButton}
-          aria-pressed={isSelected}
-          onClick={() => onSelectPlan(plan.id)}
-        >
-          {packageName}
-        </button>
+        <div className={accordionStyles.tierPlanNameColumn}>
+          <div className={accordionStyles.tierPlanNameWrap}>
+            <button
+              type="button"
+              className={accordionStyles.tierPlanNameButton}
+              aria-pressed={isSelected}
+              onClick={() => onSelectPlan(plan.id)}
+            >
+              {packageName}
+            </button>
+            {hasMixSessions ? (
+              <PublicPackageTypeSessionsExpandButton
+                expanded={isMixExpanded}
+                packageName={packageName}
+                onToggle={onToggleMixExpand}
+              />
+            ) : null}
+          </div>
+          {isMixExpanded ? (
+            <div className={accordionStyles.tierMixBreakdown}>
+              <PublicPackageTypeSessionsBreakdown rows={mixSessionRows} />
+            </div>
+          ) : null}
+        </div>
       </div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierSessions}`}>
         {plan.isUnlimited ? (

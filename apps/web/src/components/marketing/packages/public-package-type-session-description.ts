@@ -1,5 +1,6 @@
 export type PublicTypeSessionAllocation = {
   classTypeId: string;
+  classTypeName?: string;
   sessionCount: number;
   description?: string | null;
 };

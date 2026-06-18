@@ -64,6 +64,7 @@ type AdminPlanWithComponents = {
 
 type StoredTypeSessionAllocation = {
   classTypeId: string;
+  classTypeName?: string;
   sessionCount: number;
   description?: string | null;
 };
@@ -99,7 +100,8 @@ export class PackagesService {
       },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
-    return plans.map((plan) => this.toPublicPlan(plan));
+    const classTypeNameById = await this.resolveClassTypeNameMapForAllocations(plans);
+    return plans.map((plan) => this.toPublicPlan(plan, classTypeNameById));
   }
 
   async listPlansAdmin() {
@@ -644,7 +646,8 @@ export class PackagesService {
     return Promise.all(plans.map((plan) => this.withCombinedComponents(plan)));
   }
 
-  private toPublicPlan(plan: {
+  private toPublicPlan(
+    plan: {
     id: string;
     name: string;
     categoryName: string;
@@ -664,11 +667,14 @@ export class PackagesService {
     guestCount: number;
     displayOrder: number;
     typeSessionAllocations?: unknown;
-  }) {
+  },
+    classTypeNameById?: Map<string, string>,
+  ) {
     return {
       ...plan,
-      typeSessionAllocations: this.parseStoredTypeSessionAllocations(
+      typeSessionAllocations: this.enrichStoredTypeSessionAllocations(
         plan.typeSessionAllocations,
+        classTypeNameById,
       ),
       finalPriceCents: this.resolveFinalPriceCents(plan),
     };
@@ -1051,6 +1057,42 @@ export class PackagesService {
 
   private createPaymentReference(prefix: string): string {
     return `${prefix}-${randomBytes(6).toString('hex').toUpperCase()}`;
+  }
+
+  private async resolveClassTypeNameMapForAllocations(
+    plans: readonly { typeSessionAllocations?: unknown }[],
+  ): Promise<Map<string, string>> {
+    const classTypeIds = new Set<string>();
+    for (const plan of plans) {
+      for (const allocation of this.parseStoredTypeSessionAllocations(
+        plan.typeSessionAllocations,
+      )) {
+        classTypeIds.add(allocation.classTypeId);
+      }
+    }
+    if (classTypeIds.size === 0) {
+      return new Map();
+    }
+    const classTypes = await this.prisma.classType.findMany({
+      where: { id: { in: [...classTypeIds] } },
+      select: { id: true, name: true },
+    });
+    return new Map(classTypes.map((classType) => [classType.id, classType.name]));
+  }
+
+  private enrichStoredTypeSessionAllocations(
+    value: unknown,
+    classTypeNameById?: Map<string, string>,
+  ): StoredTypeSessionAllocation[] {
+    return this.parseStoredTypeSessionAllocations(value).map((allocation) => {
+      const classTypeName = classTypeNameById?.get(allocation.classTypeId);
+      return {
+        ...allocation,
+        ...(classTypeName !== undefined && classTypeName.trim().length > 0
+          ? { classTypeName: classTypeName.trim() }
+          : {}),
+      };
+    });
   }
 
   private parseStoredTypeSessionAllocations(

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
@@ -9,7 +10,14 @@ import {
   formatPublicPackageValidityLabel,
   resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
-import { resolvePublicPackageTypeSessionDescription } from "@/components/marketing/packages/public-package-type-session-description";
+import {
+  hasPublicPackageTypeSessions,
+  resolvePublicPackageTypeSessionRows,
+} from "@/components/marketing/packages/public-package-type-session-rows";
+import {
+  PublicPackageTypeSessionsBreakdown,
+  PublicPackageTypeSessionsExpandButton,
+} from "@/components/marketing/packages/public-package-type-sessions-breakdown";
 import styles from "@/components/marketing/packages/public-package-mobile-tier-card.module.css";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
@@ -47,10 +55,10 @@ export function PublicPackageMobileTierCard({
   onSubscribe,
 }: PublicPackageMobileTierCardProps) {
   const t = useTranslations("marketing");
+  const [isMixExpanded, setIsMixExpanded] = useState(false);
   const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
-  const typeSessionDescription = resolvePublicPackageTypeSessionDescription(
-    plan.typeSessionAllocations,
-  );
+  const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
+  const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
   const totalSessions = resolvePublicPackageTotalSessions(plan);
   const totalSessionsLabel = plan.isUnlimited
     ? t("packagesSessionsUnlimitedShort")
@@ -100,22 +108,33 @@ export function PublicPackageMobileTierCard({
       aria-label={`${categoryLabel} — ${packageName}`}
     >
       <h3 className={styles.planName}>
-        {onSelectPlan !== undefined ? (
-          <button
-            type="button"
-            className={styles.planNameButton}
-            aria-pressed={isSelected}
-            onClick={() => onSelectPlan(plan.id)}
-          >
-            {packageName}
-          </button>
-        ) : (
-          packageName
-        )}
+        <span className={styles.planNameWrap}>
+          {onSelectPlan !== undefined ? (
+            <button
+              type="button"
+              className={styles.planNameButton}
+              aria-pressed={isSelected}
+              onClick={() => onSelectPlan(plan.id)}
+            >
+              {packageName}
+            </button>
+          ) : (
+            packageName
+          )}
+          {hasMixSessions ? (
+            <PublicPackageTypeSessionsExpandButton
+              expanded={isMixExpanded}
+              packageName={packageName}
+              onToggle={() => setIsMixExpanded((current) => !current)}
+            />
+          ) : null}
+        </span>
       </h3>
 
-      {isSelected && typeSessionDescription !== null ? (
-        <p className={styles.planDescription}>{typeSessionDescription}</p>
+      {isMixExpanded ? (
+        <div className={styles.mixBreakdown}>
+          <PublicPackageTypeSessionsBreakdown rows={mixSessionRows} />
+        </div>
       ) : null}
 
       <div className={styles.metaList}>

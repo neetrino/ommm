@@ -47,12 +47,17 @@
   text-decoration-color: currentColor;
 }
 
-.planDescription {
-  margin: -0.25rem 0 0;
-  white-space: pre-wrap;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.88);
+.planNameWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.mixBreakdown {
+  width: 100%;
+  min-width: 0;
 }
 
 .metaList {

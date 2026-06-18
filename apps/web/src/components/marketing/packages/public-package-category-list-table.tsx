@@ -21,7 +21,14 @@ import {
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
-import { resolvePublicPackageTypeSessionDescription } from "@/components/marketing/packages/public-package-type-session-description";
+import {
+  hasPublicPackageTypeSessions,
+  resolvePublicPackageTypeSessionRows,
+} from "@/components/marketing/packages/public-package-type-session-rows";
+import {
+  PublicPackageTypeSessionsBreakdown,
+  PublicPackageTypeSessionsExpandButton,
+} from "@/components/marketing/packages/public-package-type-sessions-breakdown";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import styles from "@/components/marketing/packages/public-package-category-list-table.module.css";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
@@ -65,6 +72,7 @@ export function PublicPackageCategoryListTable({
   const searchParams = useSearchParams();
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentPlanId, setPaymentPlanId] = useState<string | undefined>(undefined);
+  const [expandedMixPlanId, setExpandedMixPlanId] = useState<string | null>(null);
 
   const selectedPlanId = searchParams.get("plan");
   const subscribePlans = useMemo(() => {
@@ -81,17 +89,6 @@ export function PublicPackageCategoryListTable({
     setPaymentPlanId(planId);
     setPaymentOpen(true);
   }
-
-  const selectedPlanDescription = useMemo(() => {
-    if (selectedPlanId === null) {
-      return null;
-    }
-    const selectedPlan = plans.find((plan) => plan.id === selectedPlanId);
-    if (selectedPlan === undefined) {
-      return null;
-    }
-    return resolvePublicPackageTypeSessionDescription(selectedPlan.typeSessionAllocations);
-  }, [plans, selectedPlanId]);
 
   function onSelectPlan(planId: string): void {
     const params = new URLSearchParams(searchParams.toString());
@@ -151,6 +148,9 @@ export function PublicPackageCategoryListTable({
           const originalPrice = hasDiscount
             ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
             : null;
+          const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
+          const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
+          const isMixExpanded = expandedMixPlanId === plan.id;
 
           return (
             <div
@@ -160,15 +160,35 @@ export function PublicPackageCategoryListTable({
               }`}
               data-selected={isSelected ? "true" : "false"}
             >
-              <div className={`${styles.cell} ${styles.cellEmphasis}`}>
-                <button
-                  type="button"
-                  className={styles.planNameButton}
-                  aria-pressed={isSelected}
-                  onClick={() => onSelectPlan(plan.id)}
-                >
-                  {showTierName ? packageName : categoryLabel}
-                </button>
+              <div className={`${styles.cell} ${styles.cellEmphasis} ${styles.planNameCell}`}>
+                <div className={styles.planNameColumn}>
+                  <div className={styles.planNameWrap}>
+                    <button
+                      type="button"
+                      className={styles.planNameButton}
+                      aria-pressed={isSelected}
+                      onClick={() => onSelectPlan(plan.id)}
+                    >
+                      {showTierName ? packageName : categoryLabel}
+                    </button>
+                    {hasMixSessions ? (
+                      <PublicPackageTypeSessionsExpandButton
+                        expanded={isMixExpanded}
+                        packageName={packageName}
+                        onToggle={() =>
+                          setExpandedMixPlanId((current) =>
+                            current === plan.id ? null : plan.id,
+                          )
+                        }
+                      />
+                    ) : null}
+                  </div>
+                  {isMixExpanded ? (
+                    <div className={styles.mixBreakdown}>
+                      <PublicPackageTypeSessionsBreakdown rows={mixSessionRows} />
+                    </div>
+                  ) : null}
+                </div>
               </div>
               <div className={`${styles.cell} ${styles.cellEmphasis}`}>
                 {plan.isUnlimited ? (
@@ -222,12 +242,6 @@ export function PublicPackageCategoryListTable({
           );
         })}
       </div>
-
-      {selectedPlanDescription !== null ? (
-        <div className={styles.planDescriptionPanel}>
-          <p className={styles.planDescriptionText}>{selectedPlanDescription}</p>
-        </div>
-      ) : null}
 
       {audience === "member" ? (
         <PackageSubscribePaymentModal
