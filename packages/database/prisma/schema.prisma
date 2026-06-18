@@ -109,6 +109,19 @@ enum SessionRecurrencePattern {
   CUSTOM_WEEKDAYS
 }
 
+enum PackagePlanType {
+  SINGLE
+  COMBINED
+}
+
+enum UserPackageStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
 model User {
   id             String    @id @default(cuid())
   email          String    @unique
@@ -132,6 +145,7 @@ model User {
 
   coachProfile      CoachProfile?
   bookings          Booking[]
+  userPackages      UserPackage[]
   waitlistEntries   WaitlistEntry[]
   payments          Payment[]
   giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
@@ -238,7 +252,8 @@ model ClassType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sessions        ClassSession[]
+  sessions     ClassSession[]
+  packagePlans PackagePlan[]
 }
 
 model ClassSession {
@@ -285,11 +300,129 @@ model Booking {
 
   notes BookingNote[]
   reminderLog ClassReminderSendLog?
+  consumptions BookingConsumption[]
 
   @@unique([userId, sessionId])
   @@index([sessionId])
   @@index([userId])
   @@index([status, createdAt])
+}
+
+model PackagePlan {
+  id                   String          @id @default(cuid())
+  name                 String
+  slug                 String          @unique
+  categoryName         String
+  classTypeId          String?
+  classType            ClassType?      @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+  planType             PackagePlanType @default(SINGLE)
+  description          String?
+  priceCents           Int             @default(0)
+  discountedPriceCents Int?
+  pricePerSessionCents Int             @default(0)
+  showPricePerSession  Boolean         @default(true)
+  currency             String          @default("AMD")
+  billingPeriod        String          @default("monthly")
+  periodDays           Int             @default(30)
+  sessionsPerMonth     Int?
+  isUnlimited          Boolean         @default(false)
+  guestCount           Int             @default(0)
+  buttonLabel          String          @default("Buy now")
+  features             String[]        @default([])
+  isPopular            Boolean         @default(false)
+  isActive             Boolean         @default(true)
+  displayOrder         Int             @default(1)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  combinedAsParent     CombinedPlanComponent[] @relation("CombinedPlanParent")
+  combinedAsSource     CombinedPlanComponent[] @relation("CombinedPlanSource")
+  userPackages         UserPackage[]
+  sourceBalances       UserPackageBalance[]    @relation("BalanceSourcePlan")
+
+  @@index([categoryName, displayOrder])
+  @@index([isActive, planType, displayOrder])
+}
+
+model CombinedPlanComponent {
+  id                        String      @id @default(cuid())
+  combinedPlanId            String
+  combinedPlan              PackagePlan @relation("CombinedPlanParent", fields: [combinedPlanId], references: [id], onDelete: Cascade)
+  sourcePlanId              String
+  sourcePlan                PackagePlan @relation("CombinedPlanSource", fields: [sourcePlanId], references: [id], onDelete: Restrict)
+  sourcePackageNameSnapshot String
+  sourceCategoryNameSnapshot String
+  sessionAllocation         Int?
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
+
+  @@unique([combinedPlanId, sourcePlanId])
+  @@index([sourcePlanId])
+}
+
+model UserPackage {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId             String
+  plan               PackagePlan       @relation(fields: [planId], references: [id], onDelete: Restrict)
+  status             UserPackageStatus @default(PENDING)
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  sessionsTotal      Int?
+  sessionsRemaining  Int?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  balances      UserPackageBalance[]
+  consumptions  BookingConsumption[]
+
+  @@index([userId, status])
+  @@index([userId, currentPeriodEnd])
+  @@index([planId])
+}
+
+model UserPackageBalance {
+  id                         String      @id @default(cuid())
+  userPackageId              String
+  userPackage                UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+  sourcePlanId               String?
+  sourcePlan                 PackagePlan? @relation("BalanceSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
+  coverageKey                String
+  sourcePackageNameSnapshot  String
+  sourceCategoryNameSnapshot String
+  sessionsTotal              Int?
+  sessionsUsed               Int         @default(0)
+  sessionsRemaining          Int?
+  isUnlimited                Boolean     @default(false)
+  createdAt                  DateTime    @default(now())
+  updatedAt                  DateTime    @updatedAt
+
+  consumptions BookingConsumption[]
+
+  @@unique([userPackageId, coverageKey])
+  @@index([userPackageId, sessionsRemaining])
+  @@index([sourcePlanId])
+}
+
+model BookingConsumption {
+  id                   String              @id @default(cuid())
+  bookingId            String
+  booking              Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userPackageId        String
+  userPackage          UserPackage         @relation(fields: [userPackageId], references: [id], onDelete: Restrict)
+  userPackageBalanceId String?
+  userPackageBalance   UserPackageBalance? @relation(fields: [userPackageBalanceId], references: [id], onDelete: SetNull)
+  consumedSessions     Int                 @default(1)
+  consumedAt           DateTime            @default(now())
+  restoredAt           DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  @@index([bookingId])
+  @@index([userPackageId])
+  @@index([userPackageBalanceId])
+  @@index([restoredAt])
 }
 
 model BookingNote {
