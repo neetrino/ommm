@@ -34,7 +34,7 @@ function MarketingContactStudioCardPlaceholder() {
   return (
     <div
       aria-hidden
-      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} min-h-[clamp(22rem,55vw,28rem)] opacity-60`}
+      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} min-h-[clamp(16rem,40vw,20rem)] opacity-60`}
     />
   );
 }

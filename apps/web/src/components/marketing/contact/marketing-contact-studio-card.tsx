@@ -59,7 +59,6 @@ const CARD_STYLE = {
   "--contact-heading-color": CONTACT_PAGE_SURFACE.headingColor,
   "--contact-label-color": CONTACT_PAGE_SURFACE.labelColor,
   "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
-  "--contact-social-icon-size": `${CONTACT_PAGE_LAYOUT.socialIconSizePx}px`,
 } as CSSProperties;
 
 /** Studio contact details card — phone, email, address, hours. */
@@ -101,29 +100,30 @@ export function MarketingContactStudioCard({
             </div>
           </li>
         ))}
+        {socialIconLinks.map((link) => (
+          <li key={link.id} className={`${styles.row} ${styles.rowSocial}`}>
+            <span className={styles.iconWrap}>
+              <ContactSocialBrandIcon id={link.id} />
+            </span>
+            <div className={styles.rowBody}>
+              <span className={styles.label}>{socialLabel(link.id)}</span>
+              <a
+                href={link.href}
+                className={styles.valueLink}
+                aria-label={socialAria(link.id)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                {socialLabel(link.id)}
+              </a>
+            </div>
+          </li>
+        ))}
       </ul>
       <div className={styles.callout}>
         <ContactStarIcon />
         <p className={styles.calloutText}>{replyCallout}</p>
       </div>
-      {socialIconLinks.length > 0 ? (
-        <ul className={styles.socialList}>
-          {socialIconLinks.map((link) => (
-            <li key={link.id}>
-              <a
-                href={link.href}
-                className={styles.socialLink}
-                aria-label={socialAria(link.id)}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <ContactSocialBrandIcon id={link.id} />
-                <span className={styles.socialLabel}>{socialLabel(link.id)}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : null}
     </article>
   );
 }
