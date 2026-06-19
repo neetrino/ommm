@@ -4,14 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   BookingStatus,
   BookingChannel,
   type ClassSession,
   ClassSessionStatus,
   ManualPaymentMethod,
-  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -19,14 +17,11 @@ import {
   type User,
 } from '@prisma/client';
 import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
+import { PackagesService } from '../packages/packages.service';
+import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
-import { PackageUsageService } from '../packages/package-usage.service';
-import {
-  classTypeMatchesPackageCategory,
-  resolvePlanAllowedCategories,
-} from '../packages/package-eligibility.util';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
@@ -57,7 +52,6 @@ type ManagementBooking = {
   id: string;
   userId: string;
   sessionId: string;
-  userPackageId: string | null;
   status: BookingStatus;
   channel: BookingChannel;
   createdAt: Date;
@@ -106,17 +100,17 @@ export class BookingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly waitlist: WaitlistService,
-    private readonly packageUsage: PackageUsageService,
-    private readonly config: ConfigService,
     private readonly cancelIntent: BookingCancelIntentService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
+    private readonly packageUsage: PackageUsageService,
+    private readonly packages: PackagesService,
   ) {}
 
   async listEligiblePackagesForSession(userId: string, sessionId: string) {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
-      include: { classType: { select: { id: true, name: true, slug: true } } },
+      include: { classType: { select: { id: true, name: true } } },
     });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
       throw new NotFoundException('Session not found');
@@ -124,39 +118,21 @@ export class BookingsService {
     if (session.startsAt < new Date()) {
       throw new BadRequestException('Session already started');
     }
-
-    await this.packageUsage.syncExpiredMemberships(userId);
-
-    const covering = await this.packageUsage.listCoveringUserPackages(
-      this.prisma,
+    return this.packageUsage.listEligibleUserPackages({
       userId,
-      session.classType,
-    );
-
-    return covering.map((pkg) => {
-      const usage = this.packageUsage.computeUsageStats(pkg);
-      const canBook = pkg.plan.isUnlimited || (pkg.sessionsRemaining ?? 0) > 0;
-      return {
-        userPackageId: pkg.id,
-        planId: pkg.planId,
-        planName: pkg.plan.name,
-        planType: pkg.plan.planType,
-        remainingSessions: usage.remainingSessions,
-        totalSessions: usage.totalSessions,
-        usedSessions: usage.usedSessions,
-        isUnlimited: usage.isUnlimited,
-        canBook,
-        currentPeriodStart: pkg.currentPeriodStart,
-        currentPeriodEnd: pkg.currentPeriodEnd,
-        includedCategories: resolvePlanAllowedCategories(pkg.plan),
-      };
+      session: {
+        id: session.id,
+        classType: {
+          id: session.classType.id,
+          name: session.classType.name,
+        },
+      },
     });
   }
 
   async listPurchasePlansForSession(sessionId: string) {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
-      include: { classType: { select: { id: true, name: true, slug: true } } },
     });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
       throw new NotFoundException('Session not found');
@@ -164,35 +140,7 @@ export class BookingsService {
     if (session.startsAt < new Date()) {
       throw new BadRequestException('Session already started');
     }
-
-    const plans = await this.prisma.packagePlan.findMany({
-      where: { isActive: true },
-      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
-      select: {
-        id: true,
-        name: true,
-        planType: true,
-        categoryName: true,
-        allowedCategoryNames: true,
-        priceCents: true,
-        periodDays: true,
-        isUnlimited: true,
-        sessionsPerMonth: true,
-      },
-    });
-
-    return plans
-      .filter((plan) =>
-        classTypeMatchesPackageCategory(plan.categoryName, session.classType),
-      )
-      .map((plan) => ({
-        id: plan.id,
-        name: plan.name,
-        priceCents: plan.priceCents,
-        periodDays: plan.periodDays,
-        isUnlimited: plan.isUnlimited,
-        sessionsPerMonth: plan.sessionsPerMonth,
-      }));
+    return this.packages.listPlans();
   }
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
@@ -216,14 +164,11 @@ export class BookingsService {
     if (booked >= session.capacity) {
       throw new BadRequestException('Session is full — join waitlist');
     }
-
-    await this.packageUsage.syncExpiredMemberships(userId);
+    const requiredSessions =
+      session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
 
     const booking = await this.prisma.$transaction(
       async (tx) => {
-        const requiredSessions = this.resolveSessionCreditRequirement(session);
-        let userPackageId: string | null = null;
-
         const existingBooking = await tx.booking.findUnique({
           where: { userId_sessionId: { userId, sessionId } },
         });
@@ -231,43 +176,53 @@ export class BookingsService {
           throw new BadRequestException('Already booked');
         }
 
-        const canAttachPackage =
-          !existingBooking ||
-          existingBooking.status === BookingStatus.CANCELLED;
+        const packageMembership =
+          requiredSessions > 0
+            ? await this.packageUsage.getValidatedUserPackageForBooking({
+                tx,
+                userId,
+                session: {
+                  id: session.id,
+                  classType: {
+                    id: session.classType.id,
+                    name: session.classType.name,
+                  },
+                },
+                userPackageId: dto?.userPackageId,
+              })
+            : null;
 
-        if (canAttachPackage) {
-          userPackageId = await this.resolveBookingPackage(
+        const savedBooking = existingBooking
+          ? await tx.booking.update({
+              where: { id: existingBooking.id },
+              data: {
+                status: BookingStatus.BOOKED,
+                channel: dto?.channel ?? BookingChannel.WEBSITE,
+                cancelledAt: null,
+                attendedAt: null,
+              },
+              include: { session: { include: { classType: true } } },
+            })
+          : await tx.booking.create({
+              data: {
+                userId,
+                sessionId,
+                status: BookingStatus.BOOKED,
+                channel: dto?.channel ?? BookingChannel.WEBSITE,
+              },
+              include: { session: { include: { classType: true } } },
+            });
+
+        if (packageMembership && requiredSessions > 0) {
+          await this.packageUsage.consumeSession({
             tx,
-            userId,
-            session,
-            dto,
+            bookingId: savedBooking.id,
+            membership: packageMembership,
+            sessionCategoryName: session.classType.name,
             requiredSessions,
-          );
-        }
-
-        if (existingBooking) {
-          return tx.booking.update({
-            where: { id: existingBooking.id },
-            data: {
-              status: BookingStatus.BOOKED,
-              channel: dto?.channel ?? BookingChannel.WEBSITE,
-              cancelledAt: null,
-              attendedAt: null,
-              userPackageId,
-            },
-            include: { session: { include: { classType: true } } },
           });
         }
-        return tx.booking.create({
-          data: {
-            userId,
-            sessionId,
-            status: BookingStatus.BOOKED,
-            channel: dto?.channel ?? BookingChannel.WEBSITE,
-            userPackageId,
-          },
-          include: { session: { include: { classType: true } } },
-        });
+        return savedBooking;
       },
       { timeout: BOOKING_INTERACTIVE_TX_TIMEOUT_MS },
     );
@@ -354,109 +309,11 @@ export class BookingsService {
     return { ok: true, penalized: applyPenalty };
   }
 
-  private resolveSessionCreditRequirement(
-    session: Pick<ClassSession, 'sessionRequirement' | 'priceCents'>,
-  ): number {
-    return session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
-  }
-
-  private async resolveBookingPackage(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    session: {
-      id: string;
-      priceCents: number;
-      classType: { id: string; name: string; slug: string };
-    },
-    dto: CreateBookingDto | undefined,
-    requiredSessions: number,
-  ): Promise<string | null> {
-    if (dto?.userPackageId) {
-      const selected =
-        await this.packageUsage.getValidatedUserPackageForBooking(
-          tx,
-          userId,
-          dto.userPackageId,
-          session.classType,
-        );
-      await this.packageUsage.consumeSession(tx, selected.id);
-      return selected.id;
-    }
-
-    if (requiredSessions <= 0) {
-      await this.packageUsage.assertCanBookWithoutPackageCredit(
-        tx,
-        userId,
-        session.classType,
-      );
-      return null;
-    }
-
-    const dropInPayment = await tx.payment.findFirst({
-      where: {
-        userId,
-        description: `Drop-in session ${session.id}`,
-        status: PaymentStatus.SUCCEEDED,
-      },
-      select: { id: true },
-    });
-    if (dropInPayment) {
-      return null;
-    }
-
-    const eligiblePackages = await this.packageUsage.listEligibleUserPackages(
-      tx,
-      userId,
-      session.classType,
-    );
-
-    if (eligiblePackages.length === 1) {
-      await this.packageUsage.consumeSession(tx, eligiblePackages[0].id);
-      return eligiblePackages[0].id;
-    }
-    if (eligiblePackages.length > 1) {
-      throw new BadRequestException(
-        'Please choose a package for this booking.',
-      );
-    }
-
-    if (session.priceCents > 0) {
-      const user = await tx.user.findUnique({
-        where: { id: userId },
-        select: { giftCreditsCents: true },
-      });
-      const credits = user?.giftCreditsCents ?? 0;
-      if (credits < session.priceCents) {
-        throw new BadRequestException(
-          'Active package, payment, or gift credits required for this class',
-        );
-      }
-      await tx.user.update({
-        where: { id: userId },
-        data: { giftCreditsCents: { decrement: session.priceCents } },
-      });
-      await tx.payment.create({
-        data: {
-          userId,
-          amountCents: session.priceCents,
-          status: PaymentStatus.SUCCEEDED,
-          description: `Gift credit spend ${session.id}`,
-        },
-      });
-      return null;
-    }
-
-    throw new BadRequestException(
-      'Active package or payment required for this class',
-    );
-  }
-
   private async releaseSlot(
     booking: {
       id: string;
       userId: string;
       sessionId: string;
-      userPackageId: string | null;
       session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
     },
     options: { applyPenalty: boolean } = { applyPenalty: false },
@@ -464,7 +321,7 @@ export class BookingsService {
     await this.prisma.$transaction(async (tx) => {
       const current = await tx.booking.findUnique({
         where: { id: booking.id },
-        select: { status: true, userPackageId: true },
+        select: { status: true },
       });
       if (!current || current.status !== BookingStatus.BOOKED) {
         return;
@@ -473,13 +330,7 @@ export class BookingsService {
         where: { id: booking.id },
         data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
       });
-      const packageId = current.userPackageId ?? booking.userPackageId;
-      if (packageId) {
-        if (!options.applyPenalty) {
-          await this.packageUsage.restoreSession(tx, packageId);
-        }
-        return;
-      }
+      void options.applyPenalty;
       const requiredSessions =
         booking.session.sessionRequirement ??
         (booking.session.priceCents > 0 ? 1 : 0);
@@ -496,6 +347,12 @@ export class BookingsService {
       });
       if (hasDropInPayment) {
         return;
+      }
+      if (!options.applyPenalty) {
+        await this.packageUsage.restoreSession({
+          tx,
+          bookingId: booking.id,
+        });
       }
     });
     await this.prisma.classSession.updateMany({
@@ -567,11 +424,6 @@ export class BookingsService {
         include: {
           classType: true,
           coach: { include: { user: { select: { name: true } } } },
-        },
-      },
-      userPackage: {
-        include: {
-          plan: { select: { id: true, name: true, planType: true } },
         },
       },
     } satisfies Prisma.BookingInclude;
@@ -898,7 +750,7 @@ export class BookingsService {
         ...waitlists.map((row) => row.user.id),
       ]),
     );
-    const [payments, memberships] = userIds.length
+    const payments = userIds.length
       ? await Promise.all([
           this.prisma.payment.findMany({
             where: { userId: { in: userIds } },
@@ -908,38 +760,13 @@ export class BookingsService {
               status: true,
               description: true,
               paymentMethod: true,
-              userPackageId: true,
               createdAt: true,
             },
             orderBy: { createdAt: 'desc' },
             take: 5000,
           }),
-          this.prisma.userPackage.findMany({
-            where: {
-              userId: { in: userIds },
-              status: {
-                in: [
-                  PackageStatus.ACTIVE,
-                  PackageStatus.PENDING,
-                  PackageStatus.PAUSED,
-                ],
-              },
-            },
-            select: {
-              userId: true,
-              sessionsRemaining: true,
-              plan: {
-                select: {
-                  name: true,
-                  sessionsPerMonth: true,
-                  isUnlimited: true,
-                },
-              },
-            },
-            orderBy: { createdAt: 'desc' },
-          }),
-        ])
-      : [[], []];
+        ]).then(([rows]) => rows)
+      : [];
 
     const paymentByUser = new Map<string, typeof payments>();
     for (const row of payments) {
@@ -947,13 +774,6 @@ export class BookingsService {
       current.push(row);
       paymentByUser.set(row.userId, current);
     }
-    const membershipByUser = new Map<string, (typeof memberships)[number]>();
-    for (const membership of memberships) {
-      if (!membershipByUser.has(membership.userId)) {
-        membershipByUser.set(membership.userId, membership);
-      }
-    }
-
     const bookingRows = bookings.map((booking) => {
       const userPayments = paymentByUser.get(booking.userId) ?? [];
       const paymentStatus = this.resolvePaymentStatus({
@@ -964,7 +784,6 @@ export class BookingsService {
         booking,
         payments: userPayments,
       });
-      const membership = membershipByUser.get(booking.userId);
       return {
         id: booking.id,
         recordType: 'BOOKING',
@@ -993,15 +812,7 @@ export class BookingsService {
             name: booking.session.coach.user.name,
           },
         },
-        package:
-          membership === undefined
-            ? null
-            : {
-                planName: membership.plan.name,
-                sessionsRemaining: membership.sessionsRemaining,
-                sessionsPerMonth: membership.plan.sessionsPerMonth,
-                isUnlimited: membership.plan.isUnlimited,
-              },
+        package: null,
         latestNote:
           booking.notes[0] === undefined
             ? null
@@ -1015,7 +826,6 @@ export class BookingsService {
     });
 
     const waitlistRows = waitlists.map((row) => {
-      const membership = membershipByUser.get(row.user.id);
       return {
         id: row.id,
         recordType: 'WAITLIST',
@@ -1044,15 +854,7 @@ export class BookingsService {
             name: row.session.coach.user.name,
           },
         },
-        package:
-          membership === undefined
-            ? null
-            : {
-                planName: membership.plan.name,
-                sessionsRemaining: membership.sessionsRemaining,
-                sessionsPerMonth: membership.plan.sessionsPerMonth,
-                isUnlimited: membership.plan.isUnlimited,
-              },
+        package: null,
         latestNote: null,
         waitlistPosition: row.position,
       };
@@ -1203,7 +1005,6 @@ export class BookingsService {
         status: true,
         description: true,
         paymentMethod: true,
-        userPackageId: true,
       },
       orderBy: { createdAt: 'desc' },
       take: 100,
@@ -1347,12 +1148,10 @@ export class BookingsService {
   private resolveBookingPaymentMethod(params: {
     booking: {
       sessionId: string;
-      userPackageId: string | null;
     };
     payments: Array<{
       paymentMethod: ManualPaymentMethod | null;
       description: string | null;
-      userPackageId: string | null;
     }>;
   }): ManualPaymentMethod | null {
     const dropInDescription = `Drop-in session ${params.booking.sessionId}`;
@@ -1361,15 +1160,6 @@ export class BookingsService {
     );
     if (sessionPayment?.paymentMethod) {
       return sessionPayment.paymentMethod;
-    }
-
-    if (params.booking.userPackageId) {
-      const packagePayment = params.payments.find(
-        (payment) => payment.userPackageId === params.booking.userPackageId,
-      );
-      if (packagePayment?.paymentMethod) {
-        return packagePayment.paymentMethod;
-      }
     }
 
     return null;

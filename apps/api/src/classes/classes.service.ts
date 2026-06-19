@@ -35,7 +35,6 @@ import type {
 } from './dto/create-session-batch.dto';
 import type { CreateSessionDto } from './dto/create-session.dto';
 import type { UpdateClassTypeDto } from './dto/update-class-type.dto';
-import { syncMissingClassTypesForPackageCategories } from '../packages/package-category-class-type.sync';
 import type { UpdateSessionDto } from './dto/update-session.dto';
 
 type SessionRecurrencePayload = {
@@ -108,13 +107,18 @@ export class ClassesService {
   }
 
   async listTypes() {
-    await syncMissingClassTypesForPackageCategories(this.prisma);
     return this.prisma.classType.findMany({ orderBy: { name: 'asc' } });
   }
 
   async createType(dto: CreateClassTypeDto): Promise<ClassType> {
     const name = dto.name.trim();
-    const slug = dto.slug.trim().toLowerCase();
+    const slug =
+      dto.slug !== undefined && dto.slug.trim().length > 0
+        ? dto.slug.trim().toLowerCase()
+        : this.buildSlugFromName(name);
+    if (name.length === 0 || slug.length === 0) {
+      throw new BadRequestException('Class type name and slug are required.');
+    }
     await this.assertClassTypeUnique({ name, slug });
     return this.prisma.classType.create({
       data: {

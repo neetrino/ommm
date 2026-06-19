@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class DeleteCategoryDto {
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(80)
+  @MinLength(1)
+  @MaxLength(120)
   categoryName!: string;
 }

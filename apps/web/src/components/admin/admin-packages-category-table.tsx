@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { adminFilterRevealVariants } from "@/components/admin/admin-filter-reveal-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
@@ -15,11 +15,12 @@ import {
   formatPackageGuestCount,
   formatPackagePlanName,
   formatPackagePriceLabel,
-  formatPackagePricePerSession,
-  formatPackageSessionsLabel,
-  formatCombinedPackageSessionsBreakdown,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
+import {
+  resolvePackageTotalSessions,
+  resolvePackageTypeSessionAllocations,
+} from "@/components/admin/admin-package-type-sessions.util";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 
@@ -30,6 +31,8 @@ type AdminPackagesCategoryTableProps = {
   onEditPackage: (packageId: string) => void;
   onDeletePackage: (packageId: string) => void;
   onPackageStatusUpdated: (saved: AdminPackageRow) => void;
+  onConfigureTypeSessions: (packageId: string) => void;
+  onViewTypeSessions: (packageId: string) => void;
 };
 
 function EmptyCell() {
@@ -63,6 +66,8 @@ export function AdminPackagesCategoryTable({
   onEditPackage,
   onDeletePackage,
   onPackageStatusUpdated,
+  onConfigureTypeSessions,
+  onViewTypeSessions,
 }: AdminPackagesCategoryTableProps) {
   const t = useTranslations("adminPages.packages");
   const reducedMotion = usePrefersReducedMotion();
@@ -84,23 +89,19 @@ export function AdminPackagesCategoryTable({
 
   return (
     <div className="ommm-admin-packages-table">
-      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[68rem]">
+      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[62rem]">
         <div>{t("tableSessionName")}</div>
-        <div>{t("tableSessions")}</div>
+        <div>{t("tableTotalSessions")}</div>
         <div>{t("tablePrice")}</div>
-        <div>{t("tablePricePerSession")}</div>
         <div>{t("tableValidity")}</div>
         <div>{t("tableGuests")}</div>
         <div>{t("colStatus")}</div>
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
-      <div className="min-w-[68rem]">
+      <div className="min-w-[62rem]">
         <AnimatePresence mode="popLayout" initial={false}>
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
-            const sessions = formatPackageSessionsLabel(pkg);
-            const sessionsBreakdown = formatCombinedPackageSessionsBreakdown(pkg);
-            const pricePerSession = formatPackagePricePerSession(pkg, locale);
             const guestCount = formatPackageGuestCount(pkg);
             const hasDiscount =
               typeof pkg.discountedPriceCents === "number" &&
@@ -114,6 +115,29 @@ export function AdminPackagesCategoryTable({
               days: (count) => t("validityDays", { count }),
               months: (count) => t("validityMonths", { count }),
             });
+            const typeSessionRows = resolvePackageTypeSessionAllocations(pkg);
+            const hasTypeSessionRows = typeSessionRows.length > 0;
+            const totalSessions = resolvePackageTotalSessions(pkg);
+            const isRowClickable = pkg.planType !== "COMBINED";
+
+            function activatePackageRow(): void {
+              if (!isRowClickable) {
+                return;
+              }
+              if (hasTypeSessionRows) {
+                onViewTypeSessions(pkg.id);
+                return;
+              }
+              onConfigureTypeSessions(pkg.id);
+            }
+
+            function handleRowKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
+              if (event.key !== "Enter" && event.key !== " ") {
+                return;
+              }
+              event.preventDefault();
+              activatePackageRow();
+            }
 
             return (
               <motion.div
@@ -125,54 +149,112 @@ export function AdminPackagesCategoryTable({
                 animate="animate"
                 exit="exit"
               >
-                <div className="ommm-admin-packages-table-grid">
-                  <TableCell emphasis>
-                    <div className="flex flex-col gap-1">
-                      <span>{packageName}</span>
-                      {pkg.planType === "COMBINED" ? (
-                        <span className="text-xs font-medium uppercase tracking-wide text-sand-700">
-                          {t("packageKindCombined")}
-                        </span>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                  <TableCell emphasis>
-                    {sessions !== null ? (
-                      <div className="flex flex-col gap-0.5">
-                        <span>{sessions}</span>
-                        {sessionsBreakdown !== null ? (
-                          <span className="text-xs text-sage-500">{sessionsBreakdown}</span>
+                <div className="ommm-admin-packages-table-row-layout">
+                  <div
+                    className={
+                      isRowClickable
+                        ? "ommm-admin-packages-table-grid--data ommm-admin-packages-table-grid--clickable"
+                        : "ommm-admin-packages-table-grid--data"
+                    }
+                    role={isRowClickable ? "button" : undefined}
+                    tabIndex={isRowClickable ? 0 : undefined}
+                    aria-label={
+                      isRowClickable
+                        ? hasTypeSessionRows
+                          ? t("typeSessionsViewAria", { name: packageName })
+                          : t("typeSessionsAddAria")
+                        : undefined
+                    }
+                    onClick={isRowClickable ? activatePackageRow : undefined}
+                    onKeyDown={isRowClickable ? handleRowKeyDown : undefined}
+                  >
+                    <TableCell emphasis>
+                      <div className="flex flex-col gap-1">
+                        <span>{packageName}</span>
+                        {pkg.planType === "COMBINED" ? (
+                          <span className="text-xs font-medium uppercase tracking-wide text-sand-700">
+                            {t("packageKindCombined")}
+                          </span>
                         ) : null}
                       </div>
-                    ) : (
-                      <EmptyCell />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {hasDiscount && originalPriceLabel !== null ? (
-                      <span className="inline-flex flex-col items-center gap-0.5">
-                        <span className="text-xs leading-tight text-sage-500 line-through">
-                          {originalPriceLabel}
+                    </TableCell>
+                    <TableCell>
+                      {totalSessions !== null ? totalSessions : <EmptyCell />}
+                    </TableCell>
+                    <TableCell>
+                      {hasDiscount && originalPriceLabel !== null ? (
+                        <span className="inline-flex flex-col items-center gap-0.5">
+                          <span className="text-xs leading-tight text-sage-500 line-through">
+                            {originalPriceLabel}
+                          </span>
+                          <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
                         </span>
-                        <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
-                      </span>
-                    ) : (
-                      finalPriceLabel
-                    )}
-                  </TableCell>
-                  <TableCell>{pkg.showPricePerSession === false ? null : pricePerSession ?? <EmptyCell />}</TableCell>
-                  <TableCell>{validityLabel}</TableCell>
-                  <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
-                  <TableCell>
-                    <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
-                  </TableCell>
-                  <div className="ommm-admin-packages-table-actions">
+                      ) : (
+                        finalPriceLabel
+                      )}
+                    </TableCell>
+                    <TableCell>{validityLabel}</TableCell>
+                    <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                    <TableCell>
+                      <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
+                    </TableCell>
+                  </div>
+                  <div className="ommm-admin-packages-table-actions shrink-0">
                     <div className="flex items-center justify-end gap-1">
                       <AdminPackagePlanStatusActions
                         packageId={pkg.id}
                         isActive={pkg.isActive}
                         onUpdated={onPackageStatusUpdated}
                       />
+                      {pkg.planType !== "COMBINED" ? (
+                        <button
+                          type="button"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-sand-300/80 bg-white text-sage-700 transition-colors hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+                          aria-label={
+                            hasTypeSessionRows
+                              ? t("typeSessionsViewAria", { name: packageName })
+                              : t("typeSessionsAddAria")
+                          }
+                          title={
+                            hasTypeSessionRows
+                              ? t("typeSessionsViewButton")
+                              : t("typeSessionsAddButton")
+                          }
+                          onClick={() =>
+                            hasTypeSessionRows
+                              ? onViewTypeSessions(pkg.id)
+                              : onConfigureTypeSessions(pkg.id)
+                          }
+                        >
+                          {hasTypeSessionRows ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.9}
+                              strokeLinecap="round"
+                              className="h-4 w-4"
+                              aria-hidden
+                            >
+                              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+                            </svg>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.9}
+                              strokeLinecap="round"
+                              className="h-4 w-4"
+                              aria-hidden
+                            >
+                              <path d="M12 4v16M4 12h16" />
+                            </svg>
+                          )}
+                        </button>
+                      ) : null}
                       <AdminPackageRowMenu
                         onEdit={() => onEditPackage(pkg.id)}
                         onDeletePackage={() => onDeletePackage(pkg.id)}

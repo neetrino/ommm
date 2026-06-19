@@ -1,7 +1,7 @@
 /** Page root markers — shell/footer styling follows mounted content via `:has()`, not URL. */
 export const MARKETING_HOME_PAGE_MARKER = "data-marketing-home";
 export const MARKETING_INNER_PAGE_MARKER = "data-marketing-inner";
-/** Explore index — full-bleed coming soon surface without inner-page gradient or footer. */
+/** Explore index — full-bleed coming soon surface without inner-page gradient. */
 export const MARKETING_EXPLORE_COMING_SOON_MARKER = "data-marketing-explore-coming-soon";
 /** Coaches hero keeps cream header ink over the teal gradient (`62:2182`). */
 export const MARKETING_COACHES_HERO_MARKER = "data-marketing-coaches-hero";

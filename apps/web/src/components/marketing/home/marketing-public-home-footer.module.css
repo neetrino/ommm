@@ -6,6 +6,14 @@
   background-color: var(--home-footer-wrap-bg, #598090);
 }
 
+/* Explore coming-soon: footer must attach directly to the hero image. */
+:global(.marketing-layout-shell:has([data-marketing-explore-coming-soon]))
+  .sectionWrapInner {
+  margin-top: calc(-1 * (var(--home-footer-wrap-padding-top) + var(--home-footer-radius)));
+  padding-top: calc(var(--home-footer-wrap-padding-top) + var(--home-footer-radius));
+  background-color: transparent;
+}
+
 .shell {
   width: 100%;
   border-top-left-radius: var(--home-footer-radius);
@@ -105,6 +113,20 @@
   letter-spacing: var(--home-footer-body-tracking);
   color: var(--home-footer-text);
   white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+.contactText:hover {
+  opacity: 0.75;
+  color: color-mix(in srgb, var(--home-footer-text) 88%, black 12%);
+}
+
+.contactText:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .socialBlock {
@@ -122,13 +144,33 @@
 
 .socialLink {
   display: inline-flex;
+  position: relative;
+  z-index: 0;
   align-items: center;
   justify-content: center;
-  transition: opacity 150ms ease;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.socialLink::after {
+  content: "";
+  position: absolute;
+  inset: -0.35rem;
+  border-radius: 999px;
+  background-color: transparent;
+  transition: background-color 150ms ease;
+  z-index: -1;
 }
 
 .socialLink:hover {
-  opacity: 0.75;
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.socialLink:hover::after,
+.socialLink:focus-visible::after {
+  background-color: rgb(151 144 124 / 0.14);
 }
 
 .socialLink:focus-visible {
@@ -262,6 +304,20 @@
   font-weight: 400;
   line-height: var(--home-footer-mobile-body-line-height);
   color: var(--home-footer-text);
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+.mobileContactText:hover {
+  opacity: 0.75;
+  color: color-mix(in srgb, var(--home-footer-text) 88%, black 12%);
+}
+
+.mobileContactText:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .mobileSocial {

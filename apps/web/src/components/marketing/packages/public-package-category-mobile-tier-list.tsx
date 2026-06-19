@@ -11,6 +11,7 @@ type PublicPackageCategoryMobileTierListProps = {
   plans: readonly PublicPackagePlan[];
   audience: PublicPackageCategoryCardsAudience;
   selectedPlanId?: string | null;
+  onSelectPlan?: (planId: string) => void;
   onSubscribe?: (planId: string) => void;
 };
 
@@ -20,6 +21,7 @@ export function PublicPackageCategoryMobileTierList({
   plans,
   audience,
   selectedPlanId,
+  onSelectPlan,
   onSubscribe,
 }: PublicPackageCategoryMobileTierListProps) {
   return (
@@ -32,6 +34,7 @@ export function PublicPackageCategoryMobileTierList({
             plan={plan}
             audience={audience}
             isSelected={selectedPlanId === plan.id}
+            onSelectPlan={onSelectPlan}
             onSubscribe={onSubscribe}
           />
         </li>

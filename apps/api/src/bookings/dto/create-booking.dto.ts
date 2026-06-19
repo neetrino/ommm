@@ -1,5 +1,5 @@
 import { BookingChannel } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateBookingDto {
   @IsOptional()
@@ -8,5 +8,6 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsString()
+  @MinLength(1)
   userPackageId?: string;
 }

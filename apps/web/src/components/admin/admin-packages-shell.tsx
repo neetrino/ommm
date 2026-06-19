@@ -13,8 +13,8 @@ import {
 } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminPackageForm } from "@/components/admin/admin-package-form";
 import { AdminCombinedPackageForm } from "@/components/admin/admin-combined-package-form";
+import { AdminPackageForm } from "@/components/admin/admin-package-form";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -23,13 +23,13 @@ import {
   clearPackageModalQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_QUERY_KEY,
-  PACKAGE_KIND_COMBINED_VALUE,
-  PACKAGE_KIND_QUERY_KEY,
   PACKAGE_MODAL_CREATE_VALUE,
   PACKAGE_MODAL_PRICING_VALUE,
   PACKAGE_MODAL_EDIT_TIER_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
+  PACKAGE_KIND_QUERY_KEY,
+  PACKAGE_KIND_COMBINED_VALUE,
   PACKAGE_PRICING_QUERY_KEY,
   parsePackageCreateKind,
 } from "@/components/admin/admin-packages-url";
@@ -40,7 +40,7 @@ const BANNER_MS = 8000;
 type AdminPackagesShellProps = {
   children: ReactNode;
   packages: readonly AdminPackageRow[];
-  allPackages?: readonly AdminPackageRow[];
+  classTypeOptions: readonly { id: string; name: string }[];
   categoryOptions: readonly AdminPackagesCategoryOption[];
   defaultCategoryName?: string;
   onPackageCreated?: (saved: AdminPackageRow) => void;
@@ -50,7 +50,7 @@ type AdminPackagesShellProps = {
 export function AdminPackagesShell({
   children,
   packages,
-  allPackages,
+  classTypeOptions,
   categoryOptions,
   defaultCategoryName = "",
   onPackageCreated,
@@ -67,9 +67,6 @@ export function AdminPackagesShell({
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isCreateModalOpen = searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_CREATE_VALUE;
-  const createPackageKind = parsePackageCreateKind(
-    isCreateModalOpen ? searchParams.get(PACKAGE_KIND_QUERY_KEY) : undefined,
-  );
   const editingPackageId = searchParams.get(PACKAGE_EDIT_QUERY_KEY);
   const pricingPackageId = searchParams.get(PACKAGE_PRICING_QUERY_KEY);
   const categoryIdFromQuery = searchParams.get(PACKAGE_CATEGORY_QUERY_KEY);
@@ -102,6 +99,8 @@ export function AdminPackagesShell({
         : isAddTierModalOpen
           ? "add-tier"
           : "create";
+  const createKind = parsePackageCreateKind(searchParams.get(PACKAGE_KIND_QUERY_KEY));
+  const isCombinedCreateMode = isCreateModalOpen && createKind === "combined";
   const editingPackage =
     isEditModalOpen && editingPackageId !== null
       ? packages.find((pkg) => pkg.id === editingPackageId)
@@ -170,26 +169,6 @@ export function AdminPackagesShell({
     clearPackageModalQueryKeys(params);
     router.replace(buildPackagesPathname(pathname, params));
   }, [pathname, router, searchParams]);
-
-  const setCreatePackageKind = useCallback(
-    (kind: "single" | "combined") => {
-      if (!isCreateModalOpen) {
-        return;
-      }
-      const params = new URLSearchParams(searchParams.toString());
-      const currentKind = parsePackageCreateKind(params.get(PACKAGE_KIND_QUERY_KEY));
-      if (currentKind === kind) {
-        return;
-      }
-      if (kind === "combined") {
-        params.set(PACKAGE_KIND_QUERY_KEY, PACKAGE_KIND_COMBINED_VALUE);
-      } else {
-        params.delete(PACKAGE_KIND_QUERY_KEY);
-      }
-      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
-    },
-    [isCreateModalOpen, pathname, router, searchParams],
-  );
 
   const showSuccessBanner = useCallback(
     (message: string) => {
@@ -266,7 +245,7 @@ export function AdminPackagesShell({
           ? t("editTierTitle")
           : modalMode === "add-tier"
             ? t("addTierTitle")
-            : createPackageKind === "combined"
+            : isCombinedCreateMode
               ? t("combinedForm.createTitle")
               : t("createTitle");
   const modalDescription =
@@ -278,7 +257,7 @@ export function AdminPackagesShell({
           ? t("editTierDescription")
           : modalMode === "add-tier"
             ? t("addTierDescription")
-            : createPackageKind === "combined"
+            : isCombinedCreateMode
               ? t("combinedForm.createDescription")
               : t("createDescription");
   const packageModalPanelClass =
@@ -341,75 +320,92 @@ export function AdminPackagesShell({
             </button>
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
-            {modalMode === "create" ? (
-              <div className="mb-5 flex shrink-0 flex-wrap gap-2 px-5 pt-5 sm:px-7 sm:pt-6">
-                <button
-                  type="button"
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                    createPackageKind === "single"
-                      ? "bg-sand-100 text-sage-900"
-                      : "bg-white/80 text-sage-600 hover:bg-white"
-                  }`}
-                  onClick={() => setCreatePackageKind("single")}
-                >
-                  {t("packageKindSingle")}
-                </button>
-                <button
-                  type="button"
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                    createPackageKind === "combined"
-                      ? "bg-sand-100 text-sage-900"
-                      : "bg-white/80 text-sage-600 hover:bg-white"
-                  }`}
-                  onClick={() => setCreatePackageKind("combined")}
-                >
-                  {t("packageKindCombined")}
-                </button>
-              </div>
-            ) : null}
             <div className="flex min-h-0 flex-1 flex-col">
-            {modalMode === "create" && createPackageKind === "combined" ? (
-              <AdminCombinedPackageForm
-                packages={allPackages ?? packages}
-                onSaved={onCreated}
-                onCancel={closeModal}
-              />
-            ) : (
-            <AdminPackageForm
-              mode={modalMode}
-              packageId={
-                modalMode === "pricing" || modalMode === "edit-tier"
-                  ? pricingPackage?.id
-                  : modalMode === "add-tier"
-                    ? addTierShellPlan?.id
-                    : editingPackage?.id
-              }
-              initialCategoryName={initialCategoryName}
-              categoryOptions={categoryOptions}
-              initialPackage={
-                modalMode === "pricing" || modalMode === "edit-tier"
-                  ? pricingPackage
-                  : modalMode === "add-tier"
-                    ? addTierShellPlan ?? addTierCategoryAnchor
-                    : editingPackage
-              }
-              configuredTierCount={configuredTierCount}
-              nextDisplayOrder={nextDisplayOrder}
-              onSaved={(saved) => {
-                if (
-                  modalMode === "edit" ||
-                  modalMode === "pricing" ||
-                  modalMode === "add-tier" ||
-                  modalMode === "edit-tier"
-                ) {
-                  onUpdated(saved);
-                } else {
-                  onCreated(saved);
-                }
-              }}
-              onCancel={closeModal}
-            />
-            )}
+              {isCreateModalOpen ? (
+                <div className="px-5 pt-5 sm:px-7 sm:pt-6">
+                  <div
+                    className="grid grid-cols-2 gap-2 rounded-2xl border border-white/70 bg-white/70 p-1"
+                    role="radiogroup"
+                    aria-label={t("createTitle")}
+                  >
+                    <button
+                      type="button"
+                      className="rounded-xl px-3 py-2 text-sm font-medium transition-colors data-[selected=true]:bg-sand-500 data-[selected=true]:text-white data-[selected=false]:text-sage-700"
+                      data-selected={createKind === "single"}
+                      aria-pressed={createKind === "single"}
+                      onClick={() => {
+                        if (createKind === "single") {
+                          return;
+                        }
+                        const params = new URLSearchParams(searchParams.toString());
+                        params.delete(PACKAGE_KIND_QUERY_KEY);
+                        router.replace(buildPackagesPathname(pathname, params));
+                      }}
+                    >
+                      {t("packageKindSingle")}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-xl px-3 py-2 text-sm font-medium transition-colors data-[selected=true]:bg-sand-500 data-[selected=true]:text-white data-[selected=false]:text-sage-700"
+                      data-selected={createKind === "combined"}
+                      aria-pressed={createKind === "combined"}
+                      onClick={() => {
+                        if (createKind === "combined") {
+                          return;
+                        }
+                        const params = new URLSearchParams(searchParams.toString());
+                        params.set(PACKAGE_KIND_QUERY_KEY, PACKAGE_KIND_COMBINED_VALUE);
+                        router.replace(buildPackagesPathname(pathname, params));
+                      }}
+                    >
+                      {t("packageKindCombined")}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+              {isCombinedCreateMode ? (
+                <AdminCombinedPackageForm
+                  packages={packages}
+                  onSaved={onCreated}
+                  onCancel={closeModal}
+                />
+              ) : (
+                <AdminPackageForm
+                  mode={modalMode}
+                  packageId={
+                    modalMode === "pricing" || modalMode === "edit-tier"
+                      ? pricingPackage?.id
+                      : modalMode === "add-tier"
+                        ? addTierShellPlan?.id
+                        : editingPackage?.id
+                  }
+                  initialCategoryName={initialCategoryName}
+                  categoryOptions={categoryOptions}
+                  classTypeOptions={classTypeOptions}
+                  initialPackage={
+                    modalMode === "pricing" || modalMode === "edit-tier"
+                      ? pricingPackage
+                      : modalMode === "add-tier"
+                        ? addTierShellPlan ?? addTierCategoryAnchor
+                        : editingPackage
+                  }
+                  configuredTierCount={configuredTierCount}
+                  nextDisplayOrder={nextDisplayOrder}
+                  onSaved={(saved) => {
+                    if (
+                      modalMode === "edit" ||
+                      modalMode === "pricing" ||
+                      modalMode === "add-tier" ||
+                      modalMode === "edit-tier"
+                    ) {
+                      onUpdated(saved);
+                    } else {
+                      onCreated(saved);
+                    }
+                  }}
+                  onCancel={closeModal}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -1,215 +1,203 @@
 import { BadRequestException } from '@nestjs/common';
-import { PackageStatus } from '@prisma/client';
+import { PackagePlanType } from '@prisma/client';
 import { PackageUsageService } from './package-usage.service';
 
+type MockTx = {
+  userPackageBalance: { update: jest.Mock };
+  userPackage: { update: jest.Mock };
+  bookingConsumption: {
+    create: jest.Mock;
+    findMany: jest.Mock;
+    update: jest.Mock;
+  };
+};
+
+function createServiceWithPrismaMock() {
+  const prisma = {
+    userPackage: {
+      findMany: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
+    },
+  };
+  return {
+    prisma,
+    service: new PackageUsageService(prisma as never),
+  };
+}
+
+function createMembership(params?: {
+  id?: string;
+  planType?: PackagePlanType;
+  categoryName?: string;
+  remaining?: number | null;
+  balanceRemaining?: number | null;
+  isUnlimited?: boolean;
+}) {
+  const now = new Date();
+  const id = params?.id ?? 'user-package-1';
+  const categoryName = params?.categoryName ?? 'Reformer';
+  const remaining = params?.remaining ?? 5;
+  const balanceRemaining = params?.balanceRemaining ?? remaining;
+  const isUnlimited = params?.isUnlimited ?? false;
+  return {
+    id,
+    userId: 'user-1',
+    planId: 'plan-1',
+    status: 'ACTIVE',
+    currentPeriodStart: now,
+    currentPeriodEnd: new Date(now.getTime() + 86_400_000),
+    sessionsTotal: isUnlimited ? null : 8,
+    sessionsRemaining: isUnlimited ? null : remaining,
+    createdAt: now,
+    updatedAt: now,
+    cancelledAt: null,
+    pausedUntil: null,
+    pausedAt: null,
+    plan: {
+      id: 'plan-1',
+      name: 'Reformer Pack',
+      planType: params?.planType ?? PackagePlanType.SINGLE,
+      categoryName,
+      isUnlimited,
+    },
+    balances: [
+      {
+        id: 'balance-1',
+        sourceCategoryNameSnapshot: categoryName,
+        sessionsTotal: isUnlimited ? null : 8,
+        sessionsUsed: isUnlimited ? 0 : 3,
+        sessionsRemaining: isUnlimited ? null : balanceRemaining,
+        isUnlimited,
+      },
+    ],
+  };
+}
+
 describe('PackageUsageService', () => {
-  const service = new PackageUsageService({} as never);
+  it('lists eligible packages with canBook=false for depleted balances', async () => {
+    const { prisma, service } = createServiceWithPrismaMock();
+    prisma.userPackage.findMany.mockResolvedValue([
+      createMembership({ remaining: 0, balanceRemaining: 0 }),
+    ]);
 
-  describe('computeUsageStats', () => {
-    it('returns null counts for unlimited plans', () => {
-      expect(
-        service.computeUsageStats({
-          sessionsTotal: null,
-          sessionsRemaining: null,
-          plan: { isUnlimited: true, sessionsPerMonth: null },
-        }),
-      ).toEqual({
-        totalSessions: null,
-        usedSessions: null,
-        remainingSessions: null,
-        isUnlimited: true,
-      });
+    const rows = await service.listEligibleUserPackages({
+      userId: 'user-1',
+      session: {
+        id: 'session-1',
+        classType: { id: 'type-1', name: 'Reformer' },
+      },
     });
 
-    it('derives used sessions from total and remaining', () => {
-      expect(
-        service.computeUsageStats({
-          sessionsTotal: 12,
-          sessionsRemaining: 8,
-          plan: { isUnlimited: false, sessionsPerMonth: 12 },
-        }),
-      ).toEqual({
-        totalSessions: 12,
-        usedSessions: 4,
-        remainingSessions: 8,
-        isUnlimited: false,
-      });
-    });
-
-    it('never returns negative used sessions', () => {
-      expect(
-        service.computeUsageStats({
-          sessionsTotal: 8,
-          sessionsRemaining: 10,
-          plan: { isUnlimited: false, sessionsPerMonth: 8 },
-        }).usedSessions,
-      ).toBe(0);
-    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.canBook).toBe(false);
+    expect(rows[0]?.includedCategories).toEqual(['Reformer']);
   });
 
-  describe('consumeSession', () => {
-    it('decrements remaining when sessions are available', async () => {
-      const updateMany = jest.fn().mockResolvedValue({ count: 1 });
-      const tx = {
-        userPackage: {
-          findUnique: jest.fn().mockResolvedValue({
-            id: 'pkg-1',
-            status: PackageStatus.ACTIVE,
-            plan: { isUnlimited: false },
-          }),
-          updateMany,
-        },
-      };
-
-      await service.consumeSession(tx as never, 'pkg-1');
-
-      expect(updateMany).toHaveBeenCalledWith({
-        where: {
-          id: 'pkg-1',
-          status: PackageStatus.ACTIVE,
-          sessionsRemaining: { gt: 0 },
-        },
-        data: { sessionsRemaining: { decrement: 1 } },
-      });
-    });
-
-    it('throws when no sessions remain', async () => {
-      const tx = {
-        userPackage: {
-          findUnique: jest.fn().mockResolvedValue({
-            id: 'pkg-1',
-            status: PackageStatus.ACTIVE,
-            plan: { isUnlimited: false },
-          }),
-          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-        },
-      };
-
-      await expect(
-        service.consumeSession(tx as never, 'pkg-1'),
-      ).rejects.toBeInstanceOf(BadRequestException);
-    });
-  });
-
-  describe('restoreSession', () => {
-    it('increments remaining when below total', async () => {
-      const update = jest.fn();
-      const tx = {
-        userPackage: {
-          findUnique: jest.fn().mockResolvedValue({
-            id: 'pkg-1',
-            sessionsTotal: 12,
-            sessionsRemaining: 8,
-            plan: { isUnlimited: false },
-          }),
-          update,
-        },
-      };
-
-      await service.restoreSession(tx as never, 'pkg-1');
-
-      expect(update).toHaveBeenCalledWith({
-        where: { id: 'pkg-1' },
-        data: { sessionsRemaining: { increment: 1 } },
-      });
-    });
-
-    it('does not restore when already at total', async () => {
-      const update = jest.fn();
-      const tx = {
-        userPackage: {
-          findUnique: jest.fn().mockResolvedValue({
-            id: 'pkg-1',
-            sessionsTotal: 12,
-            sessionsRemaining: 12,
-            plan: { isUnlimited: false },
-          }),
-          update,
-        },
-      };
-
-      await service.restoreSession(tx as never, 'pkg-1');
-
-      expect(update).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('assertCanBookWithoutPackageCredit', () => {
-    const danceClassType = { id: 'ct-1', name: 'Dance', slug: 'dance' };
-
-    it('allows booking when no covering packages exist', async () => {
-      const tx = {
-        userPackage: {
-          findMany: jest.fn().mockResolvedValue([]),
-        },
-      };
-
-      await expect(
-        service.assertCanBookWithoutPackageCredit(
-          tx as never,
-          'user-1',
-          danceClassType,
-        ),
-      ).resolves.toBeUndefined();
-    });
-
-    it('blocks booking when covering packages are depleted', async () => {
-      const tx = {
-        userPackage: {
-          findMany: jest.fn().mockResolvedValue([
-            {
-              id: 'pkg-1',
-              sessionsRemaining: 0,
-              plan: {
-                id: 'plan-1',
-                name: '5 Sessions',
-                planType: 'SINGLE',
-                categoryName: 'Dance',
-                allowedCategoryNames: ['Dance'],
-                isUnlimited: false,
-                sessionsPerMonth: 5,
-              },
-            },
+  it('throws when explicit package is not bookable', async () => {
+    const { service } = createServiceWithPrismaMock();
+    const tx = {
+      userPackage: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            createMembership({ remaining: 0, balanceRemaining: 0 }),
           ]),
-        },
-      };
+      },
+    };
 
-      await expect(
-        service.assertCanBookWithoutPackageCredit(
-          tx as never,
-          'user-1',
-          danceClassType,
-        ),
-      ).rejects.toBeInstanceOf(BadRequestException);
-    });
+    await expect(
+      service.getValidatedUserPackageForBooking({
+        tx: tx as never,
+        userId: 'user-1',
+        userPackageId: 'user-package-1',
+        session: {
+          id: 'session-1',
+          classType: { id: 'type-1', name: 'Reformer' },
+        },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  describe('reconcileSessionsRemaining', () => {
-    it('aligns remaining sessions with active booked rows', async () => {
-      const update = jest.fn();
-      const service = new PackageUsageService({
-        userPackage: {
-          findMany: jest.fn().mockResolvedValue([
-            {
-              id: 'pkg-combined',
-              sessionsTotal: 4,
-              sessionsRemaining: 0,
-              plan: { isUnlimited: false, sessionsPerMonth: 4 },
-            },
-          ]),
-          update,
-        },
-        booking: {
-          count: jest.fn().mockResolvedValue(1),
-        },
-      } as never);
+  it('consumes session credits for limited package', async () => {
+    const { service } = createServiceWithPrismaMock();
+    const tx: MockTx = {
+      userPackageBalance: { update: jest.fn() },
+      userPackage: { update: jest.fn() },
+      bookingConsumption: {
+        create: jest.fn(),
+        findMany: jest.fn(),
+        update: jest.fn(),
+      },
+    };
 
-      await service.reconcileSessionsRemaining('user-1');
+    await service.consumeSession({
+      tx: tx as never,
+      bookingId: 'booking-1',
+      membership: createMembership() as never,
+      sessionCategoryName: 'Reformer',
+      requiredSessions: 1,
+    });
 
-      expect(update).toHaveBeenCalledWith({
-        where: { id: 'pkg-combined' },
-        data: { sessionsRemaining: 3 },
-      });
+    expect(tx.userPackageBalance.update).toHaveBeenCalledTimes(1);
+    expect(tx.userPackage.update).toHaveBeenCalledTimes(1);
+    expect(tx.bookingConsumption.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('restores consumed sessions and marks rows restored', async () => {
+    const { service } = createServiceWithPrismaMock();
+    const tx: MockTx = {
+      userPackageBalance: { update: jest.fn() },
+      userPackage: { update: jest.fn() },
+      bookingConsumption: {
+        create: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'consumption-1',
+            userPackageId: 'user-package-1',
+            userPackageBalanceId: 'balance-1',
+            consumedSessions: 2,
+          },
+        ]),
+        update: jest.fn(),
+      },
+    };
+
+    await service.restoreSession({
+      tx: tx as never,
+      bookingId: 'booking-1',
+    });
+
+    expect(tx.userPackageBalance.update).toHaveBeenCalledTimes(1);
+    expect(tx.userPackage.update).toHaveBeenCalledTimes(1);
+    expect(tx.bookingConsumption.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('reconciles sessionsRemaining from component balances', async () => {
+    const { prisma, service } = createServiceWithPrismaMock();
+    prisma.userPackage.findMany.mockResolvedValue([
+      {
+        id: 'finite-membership',
+        balances: [
+          { sessionsRemaining: 2, isUnlimited: false },
+          { sessionsRemaining: 3, isUnlimited: false },
+        ],
+      },
+      {
+        id: 'unlimited-membership',
+        balances: [{ sessionsRemaining: null, isUnlimited: true }],
+      },
+    ]);
+
+    await service.reconcileSessionsRemaining();
+
+    expect(prisma.userPackage.update).toHaveBeenCalledWith({
+      where: { id: 'finite-membership' },
+      data: { sessionsRemaining: 5 },
+    });
+    expect(prisma.userPackage.update).toHaveBeenCalledWith({
+      where: { id: 'unlimited-membership' },
+      data: { sessionsRemaining: null },
     });
   });
 });

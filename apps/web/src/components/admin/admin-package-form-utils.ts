@@ -101,6 +101,7 @@ export function parseDurationDays(raw: string): number | null {
 
 export type AdminPackageFormValues = {
   name: string;
+  classTypeId: string;
   categoryName: string;
   description: string;
   price: string;
@@ -118,6 +119,7 @@ export type AdminPackageFormValues = {
 export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPackageFormValues {
   return {
     name: "",
+    classTypeId: "",
     categoryName: initialCategoryName,
     description: "",
     price: "",
@@ -148,6 +150,7 @@ export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackag
 export function packageRowToFormValues(
   pkg: {
   name: string;
+  classTypeId?: string | null;
   categoryName: string;
   description: string | null;
   priceCents: number;
@@ -175,6 +178,7 @@ export function packageRowToFormValues(
       : null;
   return {
     name: pkg.name,
+    classTypeId: pkg.classTypeId ?? "",
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: String(pkg.priceCents),

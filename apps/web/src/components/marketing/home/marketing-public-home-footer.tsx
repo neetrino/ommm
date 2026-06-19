@@ -7,6 +7,7 @@ import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
 import {
   HOME_FOOTER_ASSETS,
+  HOME_FOOTER_ADDRESS_HREF,
   HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_FIGMA_POSITIONS,
@@ -185,7 +186,9 @@ export async function MarketingPublicHomeFooter({
         </li>
         <li className={styles.contactRow}>
           <Image src={HOME_FOOTER_ASSETS.location} alt="" width={24} height={24} unoptimized className={styles.contactIcon} aria-hidden />
-          <span className={styles.contactText}>{t("footerAddress")}</span>
+          <a href={HOME_FOOTER_ADDRESS_HREF} className={styles.contactText} target="_blank" rel="noopener noreferrer">
+            {t("footerAddress")}
+          </a>
         </li>
       </ul>
     </div>
@@ -258,6 +261,7 @@ export async function MarketingPublicHomeFooter({
           phone={t("footerPhone")}
           email={t("footerEmail")}
           address={t("footerAddress")}
+          addressHref={HOME_FOOTER_ADDRESS_HREF}
           socialTitle={t("footerSocialTitle")}
           socialAria={(network) => t("footerSocialAria", { network })}
           legalNavAria={t("footerLegalNavAria")}

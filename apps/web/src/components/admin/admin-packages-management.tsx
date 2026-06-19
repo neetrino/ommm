@@ -23,6 +23,8 @@ import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
 import { AdminPackageCategoryStatusActions } from "@/components/admin/admin-package-category-status-actions";
 import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
 import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
+import { AdminPackageTypeSessionsModal } from "@/components/admin/admin-package-type-sessions-modal";
+import { AdminPackageTypeSessionsViewModal } from "@/components/admin/admin-package-type-sessions-view-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
@@ -58,6 +60,7 @@ import {
   buildPackagesPathname,
   clearPackageModalQueryKeys,
   clearPackageDeleteQueryKeys,
+  clearTypeSessionsModalQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_QUERY_KEY,
@@ -69,7 +72,12 @@ import {
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
+  PACKAGE_TYPE_SESSIONS_MODE_EDIT,
+  PACKAGE_TYPE_SESSIONS_MODE_QUERY_KEY,
+  PACKAGE_TYPE_SESSIONS_MODE_VIEW,
+  PACKAGE_TYPE_SESSIONS_PACKAGE_QUERY_KEY,
   parsePackageFiltersFromSearch,
+  parseTypeSessionsModalMode,
 } from "@/components/admin/admin-packages-url";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -77,6 +85,7 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
+  classTypeOptions: readonly { id: string; name: string }[];
   locale: string;
   initialFilters: PackageFilterValues;
 };
@@ -133,6 +142,7 @@ function PackagesEmptyState({ children }: { children: ReactNode }) {
 
 export function AdminPackagesManagement({
   packages: packagesFromServer,
+  classTypeOptions,
   locale,
   initialFilters,
 }: AdminPackagesManagementProps) {
@@ -326,9 +336,87 @@ export function AdminPackagesManagement({
     return packageRows.find((row) => row.id === deletingPackageId) ?? null;
   }, [deletingPackageId, packageRows]);
   const isDeletePackageOpen = deletingPackage !== null;
+  const typeSessionsPackageId = searchParams.get(PACKAGE_TYPE_SESSIONS_PACKAGE_QUERY_KEY);
+  const typeSessionsModalMode = parseTypeSessionsModalMode(
+    searchParams.get(PACKAGE_TYPE_SESSIONS_MODE_QUERY_KEY),
+  );
+  const typeSessionsPackage = useMemo(() => {
+    if (typeSessionsPackageId === null || typeSessionsPackageId.trim().length === 0) {
+      return null;
+    }
+    return packageRows.find((row) => row.id === typeSessionsPackageId) ?? null;
+  }, [packageRows, typeSessionsPackageId]);
+  const isTypeSessionsModalOpen =
+    typeSessionsPackage !== null && typeSessionsModalMode !== null;
+
+  const replacePackagesSearchParams = useCallback(
+    (mutate: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutate(params);
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const openTypeSessionsView = useCallback(
+    (packageId: string) => {
+      replacePackagesSearchParams((params) => {
+        params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+        params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+        clearPackageDeleteQueryKeys(params);
+        clearPackageModalQueryKeys(params);
+        params.set(PACKAGE_TYPE_SESSIONS_PACKAGE_QUERY_KEY, packageId);
+        params.set(PACKAGE_TYPE_SESSIONS_MODE_QUERY_KEY, PACKAGE_TYPE_SESSIONS_MODE_VIEW);
+      });
+    },
+    [replacePackagesSearchParams],
+  );
+
+  const openTypeSessionsEdit = useCallback(
+    (packageId: string) => {
+      replacePackagesSearchParams((params) => {
+        params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+        params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+        clearPackageDeleteQueryKeys(params);
+        clearPackageModalQueryKeys(params);
+        params.set(PACKAGE_TYPE_SESSIONS_PACKAGE_QUERY_KEY, packageId);
+        params.set(PACKAGE_TYPE_SESSIONS_MODE_QUERY_KEY, PACKAGE_TYPE_SESSIONS_MODE_EDIT);
+      });
+    },
+    [replacePackagesSearchParams],
+  );
+
+  const closeTypeSessionsModal = useCallback(() => {
+    replacePackagesSearchParams((params) => {
+      clearTypeSessionsModalQueryKeys(params);
+    });
+  }, [replacePackagesSearchParams]);
+
+  const openTypeSessionsEditFromView = useCallback(() => {
+    replacePackagesSearchParams((params) => {
+      params.set(PACKAGE_TYPE_SESSIONS_MODE_QUERY_KEY, PACKAGE_TYPE_SESSIONS_MODE_EDIT);
+    });
+  }, [replacePackagesSearchParams]);
+  const [prevTypeSessionsRevealId, setPrevTypeSessionsRevealId] = useState<string | null>(
+    null,
+  );
   const [prevDeletePackageRevealId, setPrevDeletePackageRevealId] = useState<string | null>(
     null,
   );
+
+  if (
+    typeSessionsPackage !== null &&
+    typeSessionsPackage.id !== prevTypeSessionsRevealId
+  ) {
+    setPrevTypeSessionsRevealId(typeSessionsPackage.id);
+    revealPackageCategoryInFilters(
+      typeSessionsPackage.categoryName,
+      setSelectedCategoryIds,
+      setExpandedCategoryKeys,
+    );
+  } else if (typeSessionsPackage === null && prevTypeSessionsRevealId !== null) {
+    setPrevTypeSessionsRevealId(null);
+  }
 
   if (
     deletingPackage !== null &&
@@ -361,6 +449,25 @@ export function AdminPackagesManagement({
     clearPackageDeleteQueryKeys(params);
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [deletingPackageId, isDeletePackageOpen, pathname, router, searchParams]);
+
+  useEffect(() => {
+    if (typeSessionsPackageId === null || typeSessionsModalMode === null) {
+      return;
+    }
+    if (typeSessionsPackage !== null) {
+      return;
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    clearTypeSessionsModalQueryKeys(params);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [
+    pathname,
+    router,
+    searchParams,
+    typeSessionsModalMode,
+    typeSessionsPackage,
+    typeSessionsPackageId,
+  ]);
 
   const visibleCategories = useMemo(
     () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
@@ -640,8 +747,8 @@ export function AdminPackagesManagement({
       ) : null}
 
       <AdminPackagesShell
-        packages={filteredPackages}
-        allPackages={sortedPackages}
+        packages={sortedPackages}
+        classTypeOptions={classTypeOptions}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
         onPackageCreated={handlePackageCreated}
@@ -698,6 +805,8 @@ export function AdminPackagesManagement({
                         onDeletePackage={openDeletePackage}
                         onPackageStatusUpdated={handlePackageUpdated}
                         onCategoryPlansUpdated={handleCategoryPlansUpdated}
+                        onConfigureTypeSessions={openTypeSessionsEdit}
+                        onViewTypeSessions={openTypeSessionsView}
                       />
                     </motion.div>
                   ))}
@@ -742,6 +851,24 @@ export function AdminPackagesManagement({
         tone="ok"
         onDismiss={() => setToastMessage(null)}
       />
+      <AdminPackageTypeSessionsViewModal
+        isOpen={isTypeSessionsModalOpen && typeSessionsModalMode === "view"}
+        packageRow={typeSessionsPackage}
+        classTypeOptions={classTypeOptions}
+        onClose={closeTypeSessionsModal}
+        onEdit={openTypeSessionsEditFromView}
+      />
+      <AdminPackageTypeSessionsModal
+        isOpen={isTypeSessionsModalOpen && typeSessionsModalMode === "edit"}
+        packageRow={typeSessionsPackage}
+        classTypeOptions={classTypeOptions}
+        onClose={closeTypeSessionsModal}
+        onSaved={(saved) => {
+          handlePackageUpdated(saved);
+          setToastMessage(t("typeSessionsModal.messages.saveSuccess"));
+          closeTypeSessionsModal();
+        }}
+      />
     </div>
   );
 }
@@ -759,6 +886,8 @@ type CategoryAccordionProps = {
   onDeletePackage: (packageId: string) => void;
   onPackageStatusUpdated: (saved: AdminPackageRow) => void;
   onCategoryPlansUpdated: (plans: readonly AdminPackageRow[]) => void;
+  onConfigureTypeSessions: (packageId: string) => void;
+  onViewTypeSessions: (packageId: string) => void;
 };
 
 function CategoryAccordion({
@@ -774,6 +903,8 @@ function CategoryAccordion({
   onDeletePackage,
   onPackageStatusUpdated,
   onCategoryPlansUpdated,
+  onConfigureTypeSessions,
+  onViewTypeSessions,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
 
@@ -801,6 +932,8 @@ function CategoryAccordion({
         onEditPackage={onEditPackage}
         onDeletePackage={onDeletePackage}
         onPackageStatusUpdated={onPackageStatusUpdated}
+        onConfigureTypeSessions={onConfigureTypeSessions}
+        onViewTypeSessions={onViewTypeSessions}
       />
     ) : undefined;
 

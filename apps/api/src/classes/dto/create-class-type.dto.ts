@@ -6,10 +6,11 @@ export class CreateClassTypeDto {
   @MaxLength(120)
   name!: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  slug!: string;
+  slug?: string;
 
   @IsOptional()
   @IsString()

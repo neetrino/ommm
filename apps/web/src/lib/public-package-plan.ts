@@ -19,6 +19,12 @@ export type PublicPackagePlan = {
   features: string[];
   guestCount?: number;
   displayOrder: number;
+  typeSessionAllocations?: Array<{
+    classTypeId: string;
+    classTypeName?: string;
+    sessionCount: number;
+    description?: string | null;
+  }>;
 };
 
 function coerceSessionsPerMonth(value: unknown): number | null {
@@ -54,5 +60,27 @@ export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPacka
     finalPriceCents,
     guestCount: typeof plan.guestCount === "number" ? plan.guestCount : 0,
     features: Array.isArray(plan.features) ? plan.features : [],
+    typeSessionAllocations: Array.isArray(plan.typeSessionAllocations)
+      ? plan.typeSessionAllocations
+          .filter(
+            (allocation): allocation is NonNullable<PublicPackagePlan["typeSessionAllocations"]>[number] =>
+              typeof allocation?.classTypeId === "string" &&
+              allocation.classTypeId.length > 0 &&
+              typeof allocation.sessionCount === "number" &&
+              Number.isInteger(allocation.sessionCount) &&
+              allocation.sessionCount > 0,
+          )
+          .map((allocation) => ({
+            classTypeId: allocation.classTypeId,
+            sessionCount: allocation.sessionCount,
+            ...(typeof allocation.classTypeName === "string" &&
+            allocation.classTypeName.trim().length > 0
+              ? { classTypeName: allocation.classTypeName.trim() }
+              : {}),
+            ...(typeof allocation.description === "string" && allocation.description.trim().length > 0
+              ? { description: allocation.description.trim() }
+              : {}),
+          }))
+      : [],
   };
 }

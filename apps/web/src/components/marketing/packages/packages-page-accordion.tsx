@@ -1,11 +1,11 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { Suspense, useCallback, useMemo } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
-import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
+import { formatPackagePlanName, formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
 import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
@@ -16,9 +16,8 @@ import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
-  formatPublicPackageTierPricePerSession,
-  formatPublicPackageTierSessionsHeadline,
   formatPublicPackageValidityLabel,
+  resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
 import {
   PACKAGES_PAGE_ACCORDION_FIGMA,
@@ -36,6 +35,14 @@ import { usePackageSubscribeUrlState } from "@/hooks/use-package-subscribe-url-s
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { resolvePackageSubscribeCategoryContext } from "@/lib/package-subscribe-category-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
+import {
+  PublicPackageTypeSessionsBreakdown,
+  PublicPackageTypeSessionsExpandButton,
+} from "@/components/marketing/packages/public-package-type-sessions-breakdown";
+import {
+  hasPublicPackageTypeSessions,
+  resolvePublicPackageTypeSessionRows,
+} from "@/components/marketing/packages/public-package-type-session-rows";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type PackagesPageAccordionProps = {
@@ -182,6 +189,8 @@ type ExpandedTierTableProps = {
   locale: string;
   category: PackagesPageAccordionCategory;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
@@ -189,30 +198,27 @@ function ExpandedTierTable({
   locale,
   category,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
 }: ExpandedTierTableProps) {
   const t = useTranslations("marketing");
-  const showPricePerSessionColumn = category.plans.some(
-    (plan) => plan.showPricePerSession !== false,
-  );
+  const [expandedMixPlanId, setExpandedMixPlanId] = useState<string | null>(null);
   const tierColumnsStyle = useMemo(
     () =>
       ({
-        ["--packages-page-tier-columns" as string]: showPricePerSessionColumn
-          ? "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)"
-          : "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 1.05fr)",
+        ["--packages-page-tier-columns" as string]:
+          "minmax(0, 1.05fr) minmax(0, 0.65fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 0.45fr) minmax(0, 1.05fr)",
       }) as CSSProperties,
-    [showPricePerSessionColumn],
+    [],
   );
 
   return (
     <div className={accordionStyles.tierTableLayout} style={tierColumnsStyle}>
       <div className={accordionStyles.columnHeaders} role="row">
-        <span className={accordionStyles.columnHeaderPill}>{t("packagesTableSessions")}</span>
+        <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePlan")}</span>
+        <span className={accordionStyles.columnHeaderPill}>{t("packagesTableTotalSessions")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePrice")}</span>
-        {showPricePerSessionColumn ? (
-          <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePricePerSession")}</span>
-        ) : null}
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableValidity")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
         <span
@@ -228,9 +234,14 @@ function ExpandedTierTable({
             key={plan.id}
             locale={locale}
             plan={plan}
-            showPricePerSessionColumn={showPricePerSessionColumn}
             audience={audience}
+            isSelected={selectedPlanId === plan.id}
+            isMixExpanded={expandedMixPlanId === plan.id}
+            onSelectPlan={onSelectPlan}
             onSubscribe={onSubscribe}
+            onToggleMixExpand={() =>
+              setExpandedMixPlanId((current) => (current === plan.id ? null : plan.id))
+            }
           />
         ))}
       </div>
@@ -241,24 +252,27 @@ function ExpandedTierTable({
 type ExpandedTierRowProps = {
   locale: string;
   plan: PublicPackagePlan;
-  showPricePerSessionColumn: boolean;
   audience: PublicPackageCategoryCardsAudience;
+  isSelected: boolean;
+  isMixExpanded: boolean;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
+  onToggleMixExpand: () => void;
 };
 
 function ExpandedTierRow({
   locale,
   plan,
-  showPricePerSessionColumn,
   audience,
+  isSelected,
+  isMixExpanded,
+  onSelectPlan,
   onSubscribe,
+  onToggleMixExpand,
 }: ExpandedTierRowProps) {
   const t = useTranslations("marketing");
-  const sessions = formatPublicPackageTierSessionsHeadline(plan, {
-    unlimited: t("packagesSessionsUnlimitedShort"),
-    count: (values) => t("packagesTierSessionsLabel", values),
-  });
-  const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
+  const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+  const totalSessions = resolvePublicPackageTotalSessions(plan);
   const validityLabel = formatPublicPackageValidityLabel(plan, {
     days: (count) => t("packagesValidityDays", { count }),
     months: (count) => t("packagesValidityMonths", { count }),
@@ -275,10 +289,49 @@ function ExpandedTierRow({
   const originalPriceLabel = hasDiscount
     ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
     : null;
+  const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
+  const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
 
   return (
-    <div className={accordionStyles.tierRow}>
-      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierSessions}`}>{sessions}</div>
+    <div
+      className={`${accordionStyles.tierRow} ${isSelected ? accordionStyles.tierRowSelected : ""}`}
+      data-selected={isSelected ? "true" : "false"}
+    >
+      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPlanName}`}>
+        <div className={accordionStyles.tierPlanNameColumn}>
+          <div className={accordionStyles.tierPlanNameWrap}>
+            <button
+              type="button"
+              className={accordionStyles.tierPlanNameButton}
+              aria-pressed={isSelected}
+              onClick={() => onSelectPlan(plan.id)}
+            >
+              {packageName}
+            </button>
+            {hasMixSessions ? (
+              <PublicPackageTypeSessionsExpandButton
+                expanded={isMixExpanded}
+                packageName={packageName}
+                onToggle={onToggleMixExpand}
+              />
+            ) : null}
+          </div>
+          {isMixExpanded ? (
+            <div className={accordionStyles.tierMixBreakdown}>
+              <PublicPackageTypeSessionsBreakdown rows={mixSessionRows} />
+            </div>
+          ) : null}
+        </div>
+      </div>
+      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierSessions}`}>
+        {plan.isUnlimited ? (
+          t("packagesSessionsUnlimitedShort")
+        ) : totalSessions !== null ? (
+          totalSessions
+        ) : (
+          <EmptyCell />
+        )}
+      </div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPrice}`}>
         {hasDiscount && originalPriceLabel !== null ? (
           <span className={accordionStyles.tierPriceWithDiscount}>
@@ -289,11 +342,6 @@ function ExpandedTierRow({
           finalPriceLabel
         )}
       </div>
-      {showPricePerSessionColumn ? (
-        <div className={`${accordionStyles.tierCell} ${accordionStyles.tierPricePerSession}`}>
-          {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}
-        </div>
-      ) : null}
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierValidity}`}>
         {validityLabel ?? <EmptyCell />}
       </div>
@@ -342,6 +390,8 @@ type DesktopAccordionPanelProps = {
   openLabel: string;
   closeLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
   onOpen: (categoryId: string) => void;
   onClose: () => void;
@@ -355,6 +405,8 @@ function DesktopAccordionPanel({
   openLabel,
   closeLabel,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
   onOpen,
   onClose,
@@ -427,6 +479,8 @@ function DesktopAccordionPanel({
                 locale={locale}
                 category={category}
                 audience={audience}
+                selectedPlanId={selectedPlanId}
+                onSelectPlan={onSelectPlan}
                 onSubscribe={onSubscribe}
               />
             ) : null}
@@ -473,6 +527,8 @@ type MobileAccordionSlotProps = {
   openLabel: string;
   closeLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
@@ -486,6 +542,8 @@ function MobileAccordionSlot({
   openLabel,
   closeLabel,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
 }: MobileAccordionSlotProps) {
   return (
@@ -524,6 +582,8 @@ function MobileAccordionSlot({
               categoryLabel={category.label}
               plans={category.plans}
               audience={audience}
+              selectedPlanId={selectedPlanId}
+              onSelectPlan={onSelectPlan}
               onSubscribe={(planId) => {
                 const plan = category.plans.find((item) => item.id === planId);
                 if (plan !== undefined) {
@@ -560,6 +620,8 @@ type DesktopAccordionSlotProps = {
   openLabel: string;
   closeLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
@@ -573,6 +635,8 @@ function DesktopAccordionSlot({
   openLabel,
   closeLabel,
   audience,
+  selectedPlanId,
+  onSelectPlan,
   onSubscribe,
 }: DesktopAccordionSlotProps) {
   const isAccordionMode = expandedCategory !== null;
@@ -589,6 +653,8 @@ function DesktopAccordionSlot({
         openLabel={openLabel}
         closeLabel={closeLabel}
         audience={audience}
+        selectedPlanId={selectedPlanId}
+        onSelectPlan={onSelectPlan}
         onSubscribe={onSubscribe}
         onOpen={onOpen}
         onClose={onClose}
@@ -678,6 +744,7 @@ export function PackagesPageAccordion({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
+  const selectedPlanId = searchParams.get("plan");
   const { openSubscribe } = usePackageSubscribeUrlState();
   const expandedId = useMemo(
     () => resolveExpandedCategoryId(categories, categoryParam),
@@ -698,6 +765,22 @@ export function PackagesPageAccordion({
         params.set("category", categoryId);
       } else {
         params.delete("category");
+        params.delete("plan");
+      }
+      const query = params.toString();
+      router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const onSelectPlan = useCallback(
+    (planId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const currentPlanId = params.get("plan");
+      if (currentPlanId === planId) {
+        params.delete("plan");
+      } else {
+        params.set("plan", planId);
       }
       const query = params.toString();
       router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
@@ -764,6 +847,8 @@ export function PackagesPageAccordion({
                   openLabel={t("packagesOpenDetailsAria", { name: category.label })}
                   closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
                   audience={audience}
+                  selectedPlanId={selectedPlanId}
+                  onSelectPlan={onSelectPlan}
                   onSubscribe={handleSubscribe}
                   onOpen={updateExpandedCategory}
                   onClose={() => updateExpandedCategory(null)}
@@ -790,6 +875,8 @@ export function PackagesPageAccordion({
               openLabel={t("packagesOpenDetailsAria", { name: category.label })}
               closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
               audience={audience}
+              selectedPlanId={selectedPlanId}
+              onSelectPlan={onSelectPlan}
               onSubscribe={handleSubscribe}
               onOpen={updateExpandedCategory}
               onClose={() => updateExpandedCategory(null)}

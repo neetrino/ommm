@@ -3,23 +3,32 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
+  formatPackagePlanName,
   formatPackagePriceLabel,
-  formatPackageSessionsLabel,
 } from "@/components/admin/admin-packages-display";
 import {
   resolvePublicPackageFinalPriceCents,
   shouldShowPublicPackageTierName,
 } from "@/components/marketing/packages/public-package-card-format";
 import {
-  formatPublicPackageTierPricePerSession,
   formatPublicPackageValidityLabel,
+  resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
+import {
+  hasPublicPackageTypeSessions,
+  resolvePublicPackageTypeSessionRows,
+} from "@/components/marketing/packages/public-package-type-session-rows";
+import {
+  PublicPackageTypeSessionsBreakdown,
+  PublicPackageTypeSessionsExpandButton,
+} from "@/components/marketing/packages/public-package-type-sessions-breakdown";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import styles from "@/components/marketing/packages/public-package-category-list-table.module.css";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
@@ -43,16 +52,9 @@ function EmptyCell() {
 
 function resolveDesktopTableClassName(
   showGuestsColumn: boolean,
-  showPricePerSessionColumn: boolean,
 ): string {
-  if (showGuestsColumn && showPricePerSessionColumn) {
-    return `${styles.table} ${styles.tableWithGuests}`;
-  }
   if (showGuestsColumn) {
     return `${styles.table} ${styles.tableWithGuestsNoPerSession}`;
-  }
-  if (showPricePerSessionColumn) {
-    return styles.table;
   }
   return `${styles.table} ${styles.tableNoPerSession}`;
 }
@@ -65,9 +67,12 @@ export function PublicPackageCategoryListTable({
   showGuestsColumn = false,
 }: PublicPackageCategoryListTableProps) {
   const t = useTranslations("marketing");
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentPlanId, setPaymentPlanId] = useState<string | undefined>(undefined);
+  const [expandedMixPlanId, setExpandedMixPlanId] = useState<string | null>(null);
 
   const selectedPlanId = searchParams.get("plan");
   const subscribePlans = useMemo(() => {
@@ -80,14 +85,20 @@ export function PublicPackageCategoryListTable({
       }),
     );
   }, [categoryLabel, plans]);
-  const showPricePerSessionColumn = useMemo(
-    () => plans.some((plan) => plan.showPricePerSession !== false),
-    [plans],
-  );
-
   function openPayment(planId: string) {
     setPaymentPlanId(planId);
     setPaymentOpen(true);
+  }
+
+  function onSelectPlan(planId: string): void {
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.get("plan") === planId) {
+      params.delete("plan");
+    } else {
+      params.set("plan", planId);
+    }
+    const query = params.toString();
+    router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
   return (
@@ -99,6 +110,7 @@ export function PublicPackageCategoryListTable({
           plans={plans}
           audience={audience}
           selectedPlanId={selectedPlanId}
+          onSelectPlan={onSelectPlan}
           onSubscribe={audience === "member" ? openPayment : undefined}
         />
       </div>
@@ -106,16 +118,12 @@ export function PublicPackageCategoryListTable({
       <div
         className={`ommm-public-packages-table ${styles.desktopTable} ${resolveDesktopTableClassName(
           showGuestsColumn,
-          showPricePerSessionColumn,
         )}`}
       >
         <div className={styles.headerRow}>
           <div className={styles.headCell}>{t("packagesTablePlan")}</div>
-          <div className={styles.headCell}>{t("packagesTableSessions")}</div>
+          <div className={styles.headCell}>{t("packagesTableTotalSessions")}</div>
           <div className={styles.headCell}>{t("packagesTablePrice")}</div>
-          {showPricePerSessionColumn ? (
-            <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
-          ) : null}
           <div className={styles.headCell}>{t("packagesTableValidity")}</div>
           {showGuestsColumn ? (
             <div className={styles.headCell}>{t("packagesTableGuests")}</div>
@@ -125,8 +133,8 @@ export function PublicPackageCategoryListTable({
 
         {plans.map((plan) => {
           const isSelected = selectedPlanId === plan.id;
-          const sessions = formatPackageSessionsLabel(plan);
-          const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
+          const totalSessions = resolvePublicPackageTotalSessions(plan);
+          const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
           const validityLabel = formatPublicPackageValidityLabel(plan, {
             days: (count) => t("packagesValidityDays", { count }),
             months: (count) => t("packagesValidityMonths", { count }),
@@ -140,6 +148,9 @@ export function PublicPackageCategoryListTable({
           const originalPrice = hasDiscount
             ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
             : null;
+          const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
+          const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
+          const isMixExpanded = expandedMixPlanId === plan.id;
 
           return (
             <div
@@ -149,14 +160,41 @@ export function PublicPackageCategoryListTable({
               }`}
               data-selected={isSelected ? "true" : "false"}
             >
-              <div className={`${styles.cell} ${styles.cellEmphasis}`}>
-                {showTierName ? plan.name : categoryLabel}
+              <div className={`${styles.cell} ${styles.cellEmphasis} ${styles.planNameCell}`}>
+                <div className={styles.planNameColumn}>
+                  <div className={styles.planNameWrap}>
+                    <button
+                      type="button"
+                      className={styles.planNameButton}
+                      aria-pressed={isSelected}
+                      onClick={() => onSelectPlan(plan.id)}
+                    >
+                      {showTierName ? packageName : categoryLabel}
+                    </button>
+                    {hasMixSessions ? (
+                      <PublicPackageTypeSessionsExpandButton
+                        expanded={isMixExpanded}
+                        packageName={packageName}
+                        onToggle={() =>
+                          setExpandedMixPlanId((current) =>
+                            current === plan.id ? null : plan.id,
+                          )
+                        }
+                      />
+                    ) : null}
+                  </div>
+                  {isMixExpanded ? (
+                    <div className={styles.mixBreakdown}>
+                      <PublicPackageTypeSessionsBreakdown rows={mixSessionRows} />
+                    </div>
+                  ) : null}
+                </div>
               </div>
               <div className={`${styles.cell} ${styles.cellEmphasis}`}>
-                {sessions !== null ? (
-                  sessions
-                ) : plan.isUnlimited ? (
+                {plan.isUnlimited ? (
                   t("packagesSessionsUnlimitedShort")
+                ) : totalSessions !== null ? (
+                  totalSessions
                 ) : (
                   <EmptyCell />
                 )}
@@ -179,11 +217,6 @@ export function PublicPackageCategoryListTable({
                   )
                 )}
               </div>
-              {showPricePerSessionColumn ? (
-                <div className={styles.cell}>
-                  {plan.showPricePerSession !== false ? pricePerSession ?? <EmptyCell /> : null}
-                </div>
-              ) : null}
               <div className={styles.cell}>{validityLabel ?? <EmptyCell />}</div>
               {showGuestsColumn ? (
                 <div className={styles.cell}>

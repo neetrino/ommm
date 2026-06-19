@@ -6,23 +6,19 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
-import { PackageStatus, Role } from '@prisma/client';
+import { Role, type User } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { CreateCombinedPlanDto } from './dto/create-combined-plan.dto';
-import { CreatePlanDto } from './dto/create-plan.dto';
-import { ChangePackagePlanDto } from './dto/change-package-plan.dto';
+import { CreateCombinedPackagePlanDto } from './dto/create-combined-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
+import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
-import { UpdatePlanDto } from './dto/update-plan.dto';
-import { UpdatePlanStatusDto } from './dto/update-plan-status.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
+import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { PackagesService } from './packages.service';
 
 @Controller('packages')
@@ -36,147 +32,90 @@ export class PackagesController {
 
   @Get('admin/plans')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   listPlansAdmin() {
     return this.packages.listPlansAdmin();
   }
 
   @Get('admin/categories')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   listCategoryNamesAdmin() {
     return this.packages.listCategoryNamesAdmin();
   }
 
+  @Patch('admin/categories/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  updateCategoryStatus(@Body() dto: UpdateCategoryStatusDto) {
+    return this.packages.updateCategoryStatus(dto);
+  }
+
+  @Delete('admin/categories')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  deleteCategory(@Body() dto: DeleteCategoryDto) {
+    return this.packages.deleteCategory(dto);
+  }
+
+  @Get('admin/plans/:id/deletion-blockers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  getDeletionBlockers(@Param('id') id: string) {
+    return this.packages.getDeletionBlockers(id);
+  }
+
+  @Post('admin/sync-expired')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  syncExpired(@Body() dto: ReconcilePackagesDto) {
+    return this.packages.syncExpired(dto);
+  }
+
+  @Post('admin/reconcile-sessions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  reconcileSessions(@Body() dto: ReconcilePackagesDto) {
+    return this.packages.reconcileSessions(dto);
+  }
+
   @Post('plans')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  createPlan(@Body() dto: CreatePlanDto) {
+  @Roles(Role.ADMIN, Role.MANAGER)
+  createPlan(@Body() dto: UpsertPackagePlanDto) {
     return this.packages.createPlan(dto);
   }
 
   @Post('plans/combined')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  createCombinedPlan(@Body() dto: CreateCombinedPlanDto) {
+  @Roles(Role.ADMIN, Role.MANAGER)
+  createCombinedPlan(@Body() dto: CreateCombinedPackagePlanDto) {
     return this.packages.createCombinedPlan(dto);
   }
 
   @Patch('plans/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
+  @Roles(Role.ADMIN, Role.MANAGER)
+  updatePlan(@Param('id') id: string, @Body() dto: UpsertPackagePlanDto) {
     return this.packages.updatePlan(id, dto);
-  }
-
-  @Patch('admin/plans/:id/status')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  adminPlanStatus(@Param('id') id: string, @Body() dto: UpdatePlanStatusDto) {
-    return this.packages.adminSetPlanStatus(id, dto.isActive);
-  }
-
-  @Get('admin/plans/:id/deletion-blockers')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  listPlanDeletionBlockers(@Param('id') id: string) {
-    return this.packages.listPlanDeletionBlockers(id);
   }
 
   @Delete('plans/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   deletePlan(@Param('id') id: string) {
     return this.packages.deletePlan(id);
   }
 
-  @Delete('admin/categories')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  deleteCategory(@Body() dto: DeleteCategoryDto) {
-    return this.packages.deletePlansByCategory(dto.categoryName);
-  }
-
-  @Patch('admin/categories/status')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  adminCategoryStatus(@Body() dto: UpdateCategoryStatusDto) {
-    return this.packages.adminSetCategoryPlanStatus(
-      dto.categoryName,
-      dto.isActive,
-    );
-  }
-
-  /** Account packages RSC page — same burst pattern as `GET /users/me`. */
   @Get('me')
-  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
-  mine(@CurrentUser() user: { id: string }) {
+  mine(@CurrentUser() user: User) {
     return this.packages.listMine(user.id);
   }
 
   @Post('me/subscribe')
   @UseGuards(JwtAuthGuard)
-  subscribe(
-    @CurrentUser() user: { id: string },
-    @Body() dto: SubscribePackageDto,
-  ) {
-    return this.packages.subscribeWithManualPayment(
-      user.id,
-      dto.planId,
-      dto.paymentMethod,
-    );
-  }
-
-  @Patch('me/:id/pause')
-  @UseGuards(JwtAuthGuard)
-  pause(@CurrentUser() user: { id: string }, @Param('id') id: string) {
-    return this.packages.pause(user.id, id);
-  }
-
-  @Patch('me/:id/cancel')
-  @UseGuards(JwtAuthGuard)
-  cancel(@CurrentUser() user: { id: string }, @Param('id') id: string) {
-    return this.packages.cancel(user.id, id);
-  }
-
-  @Patch('me/:id/renew')
-  @UseGuards(JwtAuthGuard)
-  renew(@CurrentUser() user: { id: string }, @Param('id') id: string) {
-    return this.packages.renew(user.id, id);
-  }
-
-  @Patch('me/:id/change-plan')
-  @UseGuards(JwtAuthGuard)
-  changePlan(
-    @CurrentUser() user: { id: string },
-    @Param('id') id: string,
-    @Body() dto: ChangePackagePlanDto,
-  ) {
-    return this.packages.changePlan(user.id, id, dto.planId);
-  }
-
-  @Get('admin/all')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  adminAll(@Query('take') take?: string, @Query('offset') offset?: string) {
-    return this.packages.listAllAdmin({
-      take: take ? Number.parseInt(take, 10) : undefined,
-      offset: offset ? Number.parseInt(offset, 10) : undefined,
-    });
-  }
-
-  @Post('admin/assign')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  assign(@Body('userId') userId: string, @Body('planId') planId: string) {
-    return this.packages.assignManual(userId, planId);
-  }
-
-  @Patch('admin/:id/status')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  adminStatus(@Param('id') id: string, @Body('status') status: PackageStatus) {
-    return this.packages.adminSetStatus(id, status);
+  subscribe(@CurrentUser() user: User, @Body() dto: SubscribePackageDto) {
+    return this.packages.subscribe(user.id, dto);
   }
 }

@@ -1,19 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import {
-  BookingStatus,
-  PackageStatus,
-  Prisma,
-  type UserPackage,
-} from '@prisma/client';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { PackagePlanType, type Prisma, type UserPackage } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  isPlanEligibleForClassType,
-  type PackageClassTypeRef,
-} from './package-eligibility.util';
 
 export type PackageUsageStats = {
   totalSessions: number | null;
@@ -22,56 +9,70 @@ export type PackageUsageStats = {
   isUnlimited: boolean;
 };
 
-type PackagePlanUsageRef = {
-  id: string;
-  name: string;
+export type EligibleBookingPackage = {
+  userPackageId: string;
+  planId: string;
+  planName: string;
   planType: 'SINGLE' | 'COMBINED';
-  categoryName: string;
-  allowedCategoryNames: string[];
+  remainingSessions: number | null;
+  totalSessions: number | null;
+  usedSessions: number | null;
   isUnlimited: boolean;
-  sessionsPerMonth: number | null;
+  canBook: boolean;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  includedCategories: string[];
 };
 
-type PackageWithPlan = UserPackage & {
-  plan: PackagePlanUsageRef;
+type SessionShape = {
+  id: string;
+  classType: {
+    id: string;
+    name: string;
+  };
 };
 
-const PACKAGE_PLAN_SELECT = {
-  id: true,
-  name: true,
-  planType: true,
-  categoryName: true,
-  allowedCategoryNames: true,
-  isUnlimited: true,
-  sessionsPerMonth: true,
-} satisfies Prisma.PackagePlanSelect;
+type UserPackageWithPlanAndBalances = UserPackage & {
+  plan: {
+    id: string;
+    name: string;
+    planType: PackagePlanType;
+    categoryName: string;
+    isUnlimited: boolean;
+  };
+  balances: Array<{
+    id: string;
+    sourceCategoryNameSnapshot: string;
+    sessionsTotal: number | null;
+    sessionsUsed: number;
+    sessionsRemaining: number | null;
+    isUnlimited: boolean;
+  }>;
+};
 
 @Injectable()
 export class PackageUsageService {
+  private readonly logger = new Logger(PackageUsageService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  computeUsageStats(
-    membership: Pick<UserPackage, 'sessionsTotal' | 'sessionsRemaining'> & {
-      plan: { isUnlimited: boolean; sessionsPerMonth: number | null };
-    },
-  ): PackageUsageStats {
-    if (membership.plan.isUnlimited) {
-      return {
-        totalSessions: null,
-        usedSessions: null,
-        remainingSessions: null,
-        isUnlimited: true,
-      };
-    }
-    const total =
-      membership.sessionsTotal ?? membership.plan.sessionsPerMonth ?? 0;
-    const remaining = membership.sessionsRemaining ?? 0;
-    const used = Math.max(0, Math.min(total, total - remaining));
+  computeUsageStats(membership: {
+    sessionsTotal: number | null;
+    sessionsRemaining: number | null;
+    plan: { isUnlimited: boolean };
+  }): PackageUsageStats {
+    const totalSessions = membership.sessionsTotal;
+    const remainingSessions = membership.sessionsRemaining;
+    const isUnlimited = membership.plan.isUnlimited;
+    const usedSessions =
+      totalSessions === null || remainingSessions === null
+        ? null
+        : Math.max(totalSessions - remainingSessions, 0);
     return {
-      totalSessions: total,
-      usedSessions: used,
-      remainingSessions: remaining,
-      isUnlimited: false,
+      totalSessions,
+      usedSessions,
+      remainingSessions,
+      isUnlimited,
     };
   }
 
@@ -86,197 +87,348 @@ export class PackageUsageService {
     return { sessionsTotal: total, sessionsRemaining: total };
   }
 
-  async listEligibleUserPackages(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    classType: PackageClassTypeRef,
-    now: Date = new Date(),
-  ): Promise<PackageWithPlan[]> {
-    const packages = await this.listActiveUserPackages(tx, userId, now);
-    return packages.filter((pkg) => this.isUserPackageBookable(pkg, classType));
+  async listEligibleUserPackages(params: {
+    userId: string;
+    session: SessionShape;
+  }): Promise<EligibleBookingPackage[]> {
+    const memberships = await this.listCoveringUserPackages({
+      userId: params.userId,
+      session: params.session,
+      includeDepleted: true,
+    });
+    return memberships.map((membership) =>
+      this.toEligibleBookingPackage(membership, params.session.classType.name),
+    );
   }
 
   /** Active packages whose plan covers the class type (including zero remaining). */
-  async listCoveringUserPackages(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    classType: PackageClassTypeRef,
-    now: Date = new Date(),
-  ): Promise<PackageWithPlan[]> {
-    const packages = await this.listActiveUserPackages(tx, userId, now);
-    return packages.filter((pkg) =>
-      isPlanEligibleForClassType(pkg.plan, classType),
+  async listCoveringUserPackages(params: {
+    userId: string;
+    session: SessionShape;
+    includeDepleted?: boolean;
+  }): Promise<UserPackageWithPlanAndBalances[]> {
+    const now = new Date();
+    const memberships = await (
+      this.prisma as unknown as {
+        userPackage: {
+          findMany(args: unknown): Promise<UserPackageWithPlanAndBalances[]>;
+        };
+      }
+    ).userPackage.findMany({
+      where: {
+        userId: params.userId,
+        status: 'ACTIVE',
+        currentPeriodStart: { lte: now },
+        currentPeriodEnd: { gt: now },
+      },
+      include: {
+        plan: {
+          select: {
+            id: true,
+            name: true,
+            planType: true,
+            categoryName: true,
+            isUnlimited: true,
+          },
+        },
+        balances: {
+          select: {
+            id: true,
+            sourceCategoryNameSnapshot: true,
+            sessionsTotal: true,
+            sessionsUsed: true,
+            sessionsRemaining: true,
+            isUnlimited: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    const matching = memberships.filter((membership) =>
+      this.membershipCoversSessionType(
+        membership,
+        params.session.classType.name,
+      ),
+    );
+    if (params.includeDepleted === true) {
+      return matching;
+    }
+    return matching.filter((membership) =>
+      this.hasAnyBookableCredit(membership, params.session.classType.name),
     );
   }
 
   /** Blocks complimentary bookings when the member only has depleted covering packages. */
-  async assertCanBookWithoutPackageCredit(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    classType: PackageClassTypeRef,
-    now: Date = new Date(),
-  ): Promise<void> {
-    const covering = await this.listCoveringUserPackages(
-      tx,
-      userId,
-      classType,
-      now,
-    );
+  async assertCanBookWithoutPackageCredit(params: {
+    userId: string;
+    session: SessionShape;
+  }): Promise<void> {
+    const covering = await this.listCoveringUserPackages({
+      userId: params.userId,
+      session: params.session,
+      includeDepleted: true,
+    });
     if (covering.length === 0) {
       return;
     }
-    const hasBookable = covering.some((pkg) =>
-      this.isUserPackageBookable(pkg, classType),
+    const hasBookable = covering.some((membership) =>
+      this.hasAnyBookableCredit(membership, params.session.classType.name),
     );
     if (!hasBookable) {
-      throw new BadRequestException('This package has no remaining visits.');
-    }
-  }
-
-  private async listActiveUserPackages(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    now: Date,
-  ): Promise<PackageWithPlan[]> {
-    return tx.userPackage.findMany({
-      where: {
-        userId,
-        status: PackageStatus.ACTIVE,
-        currentPeriodEnd: { gt: now },
-        currentPeriodStart: { lte: now },
-      },
-      include: { plan: { select: PACKAGE_PLAN_SELECT } },
-      orderBy: { currentPeriodEnd: 'asc' },
-    });
-  }
-
-  private isUserPackageBookable(
-    pkg: PackageWithPlan,
-    classType: PackageClassTypeRef,
-  ): boolean {
-    if (!isPlanEligibleForClassType(pkg.plan, classType)) {
-      return false;
-    }
-    if (pkg.plan.isUnlimited) {
-      return true;
-    }
-    return (pkg.sessionsRemaining ?? 0) > 0;
-  }
-
-  async findUsablePackage(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    classType: PackageClassTypeRef,
-    now: Date = new Date(),
-  ): Promise<PackageWithPlan | null> {
-    const eligible = await this.listEligibleUserPackages(
-      tx,
-      userId,
-      classType,
-      now,
-    );
-    return eligible[0] ?? null;
-  }
-
-  async getValidatedUserPackageForBooking(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    userPackageId: string,
-    classType: PackageClassTypeRef,
-    now: Date = new Date(),
-  ): Promise<PackageWithPlan> {
-    const pkg = await tx.userPackage.findFirst({
-      where: { id: userPackageId, userId },
-      include: { plan: { select: PACKAGE_PLAN_SELECT } },
-    });
-    if (!pkg) {
-      throw new NotFoundException('Package not found');
-    }
-    if (pkg.status !== PackageStatus.ACTIVE) {
-      throw new BadRequestException('This package is not active');
-    }
-    if (pkg.currentPeriodEnd <= now) {
-      throw new BadRequestException('This package has expired.');
-    }
-    if (pkg.currentPeriodStart > now) {
-      throw new BadRequestException('This package is not active');
-    }
-    if (!isPlanEligibleForClassType(pkg.plan, classType)) {
       throw new BadRequestException(
-        'This package cannot be used for the selected class.',
+        'No remaining sessions in eligible packages',
       );
     }
-    if (!pkg.plan.isUnlimited && (pkg.sessionsRemaining ?? 0) <= 0) {
-      throw new BadRequestException('This package has no remaining visits.');
-    }
-    return pkg;
   }
 
-  async consumeSession(
-    tx: Prisma.TransactionClient,
-    userPackageId: string,
-  ): Promise<void> {
-    const pkg = await tx.userPackage.findUnique({
-      where: { id: userPackageId },
-      include: { plan: { select: { isUnlimited: true } } },
-    });
-    if (!pkg) {
-      throw new NotFoundException('Package not found');
-    }
-    if (pkg.status !== PackageStatus.ACTIVE) {
-      throw new BadRequestException('Package is not active');
-    }
-    if (pkg.plan.isUnlimited) {
-      return;
-    }
-    const updated = await tx.userPackage.updateMany({
+  async getValidatedUserPackageForBooking(params: {
+    tx: Prisma.TransactionClient;
+    userId: string;
+    session: SessionShape;
+    userPackageId?: string;
+  }): Promise<UserPackageWithPlanAndBalances> {
+    const memberships = await (
+      params.tx as unknown as {
+        userPackage: {
+          findMany(args: unknown): Promise<UserPackageWithPlanAndBalances[]>;
+        };
+      }
+    ).userPackage.findMany({
       where: {
-        id: userPackageId,
-        status: PackageStatus.ACTIVE,
-        sessionsRemaining: { gt: 0 },
+        userId: params.userId,
+        status: 'ACTIVE',
+        currentPeriodStart: { lte: new Date() },
+        currentPeriodEnd: { gt: new Date() },
       },
-      data: { sessionsRemaining: { decrement: 1 } },
+      include: {
+        plan: {
+          select: {
+            id: true,
+            name: true,
+            planType: true,
+            categoryName: true,
+            isUnlimited: true,
+          },
+        },
+        balances: {
+          select: {
+            id: true,
+            sourceCategoryNameSnapshot: true,
+            sessionsTotal: true,
+            sessionsUsed: true,
+            sessionsRemaining: true,
+            isUnlimited: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
     });
-    if (updated.count === 0) {
-      throw new BadRequestException('This package has no remaining visits.');
+    const covering = memberships.filter((membership) =>
+      this.membershipCoversSessionType(
+        membership,
+        params.session.classType.name,
+      ),
+    );
+    const bookable = covering.filter((membership) =>
+      this.hasAnyBookableCredit(membership, params.session.classType.name),
+    );
+
+    if (params.userPackageId !== undefined) {
+      const explicit = bookable.find(
+        (membership) => membership.id === params.userPackageId,
+      );
+      if (explicit === undefined) {
+        throw new BadRequestException(
+          'Selected package is not eligible for booking',
+        );
+      }
+      return explicit;
     }
+
+    if (bookable.length === 0) {
+      throw new BadRequestException(
+        'No eligible package found for this session',
+      );
+    }
+    if (bookable.length > 1) {
+      throw new BadRequestException(
+        'Multiple eligible packages found. Select one package.',
+      );
+    }
+    return bookable[0];
   }
 
-  async restoreSession(
-    tx: Prisma.TransactionClient,
-    userPackageId: string,
-  ): Promise<void> {
-    const pkg = await tx.userPackage.findUnique({
-      where: { id: userPackageId },
-      include: { plan: { select: { isUnlimited: true } } },
+  async consumeSession(params: {
+    tx: Prisma.TransactionClient;
+    bookingId: string;
+    membership: UserPackageWithPlanAndBalances;
+    sessionCategoryName: string;
+    requiredSessions: number;
+  }): Promise<void> {
+    if (params.requiredSessions <= 0) {
+      return;
+    }
+    this.logger.debug(
+      `consumeSession bookingId=${params.bookingId} membershipId=${params.membership.id} requiredSessions=${params.requiredSessions}`,
+    );
+    const balance = this.pickBalanceForCategory(
+      params.membership,
+      params.sessionCategoryName,
+    );
+    if (balance === null) {
+      throw new BadRequestException(
+        'No matching package balance for this session',
+      );
+    }
+    if (balance.isUnlimited || balance.sessionsRemaining === null) {
+      await (
+        params.tx as unknown as {
+          bookingConsumption: {
+            create(args: unknown): Promise<unknown>;
+          };
+        }
+      ).bookingConsumption.create({
+        data: {
+          bookingId: params.bookingId,
+          userPackageId: params.membership.id,
+          userPackageBalanceId: balance.id,
+          consumedSessions: 0,
+        },
+      });
+      return;
+    }
+    if (balance.sessionsRemaining < params.requiredSessions) {
+      this.logger.warn(
+        `consumeSession insufficient balance bookingId=${params.bookingId} membershipId=${params.membership.id} remaining=${balance.sessionsRemaining} required=${params.requiredSessions}`,
+      );
+      throw new BadRequestException(
+        'Selected package has no remaining sessions',
+      );
+    }
+    await (
+      params.tx as unknown as {
+        userPackageBalance: {
+          update(args: unknown): Promise<unknown>;
+        };
+      }
+    ).userPackageBalance.update({
+      where: { id: balance.id },
+      data: {
+        sessionsUsed: { increment: params.requiredSessions },
+        sessionsRemaining: { decrement: params.requiredSessions },
+      },
     });
-    if (!pkg) {
-      return;
-    }
-    if (pkg.plan.isUnlimited) {
-      return;
-    }
-    const total = pkg.sessionsTotal ?? pkg.sessionsRemaining ?? 0;
-    const remaining = pkg.sessionsRemaining ?? 0;
-    if (remaining >= total) {
-      return;
-    }
-    await tx.userPackage.update({
-      where: { id: userPackageId },
-      data: { sessionsRemaining: { increment: 1 } },
+    await (
+      params.tx as unknown as {
+        userPackage: {
+          update(args: unknown): Promise<unknown>;
+        };
+      }
+    ).userPackage.update({
+      where: { id: params.membership.id },
+      data: { sessionsRemaining: { decrement: params.requiredSessions } },
     });
+    await (
+      params.tx as unknown as {
+        bookingConsumption: {
+          create(args: unknown): Promise<unknown>;
+        };
+      }
+    ).bookingConsumption.create({
+      data: {
+        bookingId: params.bookingId,
+        userPackageId: params.membership.id,
+        userPackageBalanceId: balance.id,
+        consumedSessions: params.requiredSessions,
+      },
+    });
+    this.logger.log(
+      `consumeSession applied bookingId=${params.bookingId} membershipId=${params.membership.id} consumed=${params.requiredSessions}`,
+    );
+  }
+
+  async restoreSession(params: {
+    tx: Prisma.TransactionClient;
+    bookingId: string;
+  }): Promise<void> {
+    const consumptions = await (
+      params.tx as unknown as {
+        bookingConsumption: {
+          findMany(args: unknown): Promise<
+            Array<{
+              id: string;
+              userPackageId: string;
+              userPackageBalanceId: string | null;
+              consumedSessions: number;
+            }>
+          >;
+          update(args: unknown): Promise<unknown>;
+        };
+      }
+    ).bookingConsumption.findMany({
+      where: { bookingId: params.bookingId, restoredAt: null },
+      orderBy: { createdAt: 'asc' },
+    });
+    this.logger.debug(
+      `restoreSession bookingId=${params.bookingId} pendingConsumptions=${consumptions.length}`,
+    );
+    for (const consumption of consumptions) {
+      if (
+        consumption.consumedSessions > 0 &&
+        consumption.userPackageBalanceId
+      ) {
+        await (
+          params.tx as unknown as {
+            userPackageBalance: {
+              update(args: unknown): Promise<unknown>;
+            };
+          }
+        ).userPackageBalance.update({
+          where: { id: consumption.userPackageBalanceId },
+          data: {
+            sessionsUsed: { decrement: consumption.consumedSessions },
+            sessionsRemaining: { increment: consumption.consumedSessions },
+          },
+        });
+        await (
+          params.tx as unknown as {
+            userPackage: {
+              update(args: unknown): Promise<unknown>;
+            };
+          }
+        ).userPackage.update({
+          where: { id: consumption.userPackageId },
+          data: {
+            sessionsRemaining: { increment: consumption.consumedSessions },
+          },
+        });
+      }
+      await (
+        params.tx as unknown as {
+          bookingConsumption: {
+            update(args: unknown): Promise<unknown>;
+          };
+        }
+      ).bookingConsumption.update({
+        where: { id: consumption.id },
+        data: { restoredAt: new Date() },
+      });
+    }
+    this.logger.log(
+      `restoreSession completed bookingId=${params.bookingId} restoredConsumptions=${consumptions.length}`,
+    );
   }
 
   async syncExpiredMemberships(userId?: string): Promise<void> {
+    const now = new Date();
     await this.prisma.userPackage.updateMany({
       where: {
         ...(userId ? { userId } : {}),
-        status: PackageStatus.ACTIVE,
-        currentPeriodEnd: { lte: new Date() },
+        status: 'ACTIVE',
+        currentPeriodEnd: { lte: now },
       },
-      data: { status: PackageStatus.EXPIRED },
+      data: { status: 'EXPIRED' },
     });
-    await this.reconcileSessionsRemaining(userId);
   }
 
   /**
@@ -284,39 +436,159 @@ export class PackageUsageService {
    * Heals drift when consume/restore and booking state diverge.
    */
   async reconcileSessionsRemaining(userId?: string): Promise<void> {
-    const packages = await this.prisma.userPackage.findMany({
+    const memberships = await (
+      this.prisma as unknown as {
+        userPackage: {
+          findMany(args: unknown): Promise<
+            Array<{
+              id: string;
+              balances: Array<{
+                sessionsRemaining: number | null;
+                isUnlimited: boolean;
+              }>;
+            }>
+          >;
+          update(args: unknown): Promise<unknown>;
+        };
+      }
+    ).userPackage.findMany({
       where: {
         ...(userId ? { userId } : {}),
-        status: PackageStatus.ACTIVE,
-        plan: { isUnlimited: false },
+        status: 'ACTIVE',
       },
       include: {
-        plan: { select: { isUnlimited: true, sessionsPerMonth: true } },
+        balances: {
+          select: {
+            sessionsRemaining: true,
+            isUnlimited: true,
+          },
+        },
       },
     });
-
-    for (const pkg of packages) {
-      const total = pkg.sessionsTotal ?? pkg.plan.sessionsPerMonth ?? 0;
-      if (total <= 0) {
+    this.logger.log(
+      `reconcileSessionsRemaining started memberships=${memberships.length}${userId ? ` userId=${userId}` : ''}`,
+    );
+    for (const membership of memberships) {
+      const hasUnlimited = membership.balances.some(
+        (balance) => balance.isUnlimited,
+      );
+      if (hasUnlimited) {
+        await (
+          this.prisma as unknown as {
+            userPackage: {
+              update(args: unknown): Promise<unknown>;
+            };
+          }
+        ).userPackage.update({
+          where: { id: membership.id },
+          data: { sessionsRemaining: null },
+        });
         continue;
       }
-
-      const bookedCount = await this.prisma.booking.count({
-        where: {
-          userPackageId: pkg.id,
-          status: BookingStatus.BOOKED,
-        },
-      });
-
-      const expectedRemaining = Math.max(0, total - bookedCount);
-      if (pkg.sessionsRemaining === expectedRemaining) {
-        continue;
-      }
-
-      await this.prisma.userPackage.update({
-        where: { id: pkg.id },
-        data: { sessionsRemaining: expectedRemaining },
+      const nextRemaining = membership.balances.reduce((sum, balance) => {
+        return sum + (balance.sessionsRemaining ?? 0);
+      }, 0);
+      await (
+        this.prisma as unknown as {
+          userPackage: {
+            update(args: unknown): Promise<unknown>;
+          };
+        }
+      ).userPackage.update({
+        where: { id: membership.id },
+        data: { sessionsRemaining: nextRemaining },
       });
     }
+    this.logger.log(
+      `reconcileSessionsRemaining finished memberships=${memberships.length}${userId ? ` userId=${userId}` : ''}`,
+    );
+  }
+
+  private toEligibleBookingPackage(
+    membership: UserPackageWithPlanAndBalances,
+    classTypeName: string,
+  ): EligibleBookingPackage {
+    const usage = this.computeUsageStats(membership);
+    const includedCategories = Array.from(
+      new Set(
+        membership.balances
+          .map((balance) => balance.sourceCategoryNameSnapshot.trim())
+          .filter((value) => value.length > 0),
+      ),
+    );
+    return {
+      userPackageId: membership.id,
+      planId: membership.plan.id,
+      planName: membership.plan.name,
+      planType: membership.plan.planType,
+      remainingSessions: usage.remainingSessions,
+      totalSessions: usage.totalSessions,
+      usedSessions: usage.usedSessions,
+      isUnlimited: usage.isUnlimited,
+      canBook: this.hasAnyBookableCredit(membership, classTypeName),
+      currentPeriodStart: membership.currentPeriodStart.toISOString(),
+      currentPeriodEnd: membership.currentPeriodEnd.toISOString(),
+      includedCategories,
+    };
+  }
+
+  private membershipCoversSessionType(
+    membership: UserPackageWithPlanAndBalances,
+    classTypeName: string,
+  ): boolean {
+    const normalized = classTypeName.trim().toLowerCase();
+    if (normalized.length === 0) {
+      return false;
+    }
+    if (membership.plan.planType === PackagePlanType.COMBINED) {
+      return membership.balances.some(
+        (balance) =>
+          balance.sourceCategoryNameSnapshot.trim().toLowerCase() ===
+          normalized,
+      );
+    }
+    if (membership.balances.length > 1) {
+      return membership.balances.some(
+        (balance) =>
+          balance.sourceCategoryNameSnapshot.trim().toLowerCase() ===
+          normalized,
+      );
+    }
+    return membership.plan.categoryName.trim().toLowerCase() === normalized;
+  }
+
+  private hasAnyBookableCredit(
+    membership: UserPackageWithPlanAndBalances,
+    classTypeName: string,
+  ): boolean {
+    const balance = this.pickBalanceForCategory(membership, classTypeName);
+    if (balance === null) {
+      return false;
+    }
+    if (balance.isUnlimited || balance.sessionsRemaining === null) {
+      return true;
+    }
+    return balance.sessionsRemaining > 0;
+  }
+
+  private pickBalanceForCategory(
+    membership: UserPackageWithPlanAndBalances,
+    classTypeName: string,
+  ) {
+    const normalized = classTypeName.trim().toLowerCase();
+    const exact = membership.balances.find(
+      (balance) =>
+        balance.sourceCategoryNameSnapshot.trim().toLowerCase() === normalized,
+    );
+    if (exact !== undefined) {
+      return exact;
+    }
+    if (membership.plan.planType === PackagePlanType.SINGLE) {
+      if (membership.balances.length > 1) {
+        return null;
+      }
+      return membership.balances[0] ?? null;
+    }
+    return null;
   }
 }

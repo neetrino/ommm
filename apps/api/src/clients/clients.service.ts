@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import {
   BookingStatus,
-  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -58,16 +57,6 @@ const clientInclude = Prisma.validator<Prisma.UserInclude>()({
     take: 100,
   },
   payments: { orderBy: { createdAt: 'desc' }, take: 50 },
-  userPackages: {
-    where: {
-      status: { notIn: [PackageStatus.CANCELLED, PackageStatus.EXPIRED] },
-    },
-    orderBy: { currentPeriodEnd: 'desc' },
-    take: 1,
-    include: {
-      plan: { select: { name: true, priceCents: true } },
-    },
-  },
   giftCardsPurchased: { orderBy: { createdAt: 'desc' }, take: 20 },
   giftCardsReceived: { orderBy: { createdAt: 'desc' }, take: 20 },
   clientNotesReceived: {
@@ -348,7 +337,6 @@ export class ClientsService {
     const classLevels = this.getClassLevels(user);
     const tags = this.getTags({ user, paymentBehavior, classLevels });
     const preferredCoach = this.getPreferredCoach(user);
-    const activePackage = user.userPackages[0] ?? null;
     return {
       id: user.id,
       email: user.email,
@@ -376,12 +364,11 @@ export class ClientsService {
       birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
       hasGiftCardActivity: this.hasGiftCardActivity(user),
       isBlocked: user.isBlocked,
-      activePlanName: activePackage?.plan.name ?? null,
-      activePlanCostCents: activePackage?.plan.priceCents ?? null,
-      activePlanExpiresAt:
-        activePackage?.currentPeriodEnd.toISOString() ?? null,
-      activePackageId: activePackage?.id ?? null,
-      activePackageStatus: activePackage?.status ?? null,
+      activePlanName: null,
+      activePlanCostCents: null,
+      activePlanExpiresAt: null,
+      activePackageId: null,
+      activePackageStatus: null,
     };
   }
 

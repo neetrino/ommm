@@ -29,6 +29,17 @@ export function resolvePublicPackageTierSessionCount(plan: PublicPackageTierPlan
   return 1;
 }
 
+/** Session count for public tier tables; null when unset. */
+export function resolvePublicPackageTotalSessions(plan: PublicPackageTierPlan): number | null {
+  if (plan.isUnlimited) {
+    return null;
+  }
+  if (typeof plan.sessionsPerMonth === "number" && plan.sessionsPerMonth > 0) {
+    return plan.sessionsPerMonth;
+  }
+  return null;
+}
+
 /** Session headline for tier row — e.g. "2 Sessions". */
 export function formatPublicPackageTierSessionsHeadline(
   plan: PublicPackageTierPlan,

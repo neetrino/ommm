@@ -1082,14 +1082,34 @@ html {
   .ommm-admin-packages-table-grid {
     display: grid;
     grid-template-columns:
-      minmax(8rem, 1.4fr)
+      minmax(8rem, 1.8fr)
+      minmax(4.5rem, 0.75fr)
       minmax(5rem, 1fr)
-      minmax(5rem, 1fr)
-      minmax(5.5rem, 1.1fr)
       minmax(5rem, 1fr)
       minmax(4.5rem, 0.9fr)
       minmax(5.5rem, 0.95fr)
       minmax(6.5rem, auto);
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .ommm-admin-packages-table-grid--data {
+    display: grid;
+    grid-template-columns:
+      minmax(8rem, 1.8fr)
+      minmax(4.5rem, 0.75fr)
+      minmax(5rem, 1fr)
+      minmax(5rem, 1fr)
+      minmax(4.5rem, 0.9fr)
+      minmax(5.5rem, 0.95fr);
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .ommm-admin-packages-table-row-layout {
+    display: flex;
     align-items: center;
     gap: 0.75rem;
   }
@@ -1134,11 +1154,21 @@ html {
     @apply border-t border-[rgba(212,196,183,0.1)] py-1 first:border-t-0;
   }
 
-  .ommm-admin-packages-table-row .ommm-admin-packages-table-grid {
+  .ommm-admin-packages-table-row .ommm-admin-packages-table-grid,
+  .ommm-admin-packages-table-row .ommm-admin-packages-table-row-layout {
     @apply rounded-[25px] px-1 py-2 text-base text-[#1b1c1a] transition-colors;
   }
 
-  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-grid {
+  .ommm-admin-packages-table-grid--clickable {
+    cursor: pointer;
+  }
+
+  .ommm-admin-packages-table-grid--clickable:focus-visible {
+    @apply outline-none ring-2 ring-sand-500/30 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-grid,
+  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-row-layout {
     background-color: rgba(151, 144, 124, 0.26);
   }
 

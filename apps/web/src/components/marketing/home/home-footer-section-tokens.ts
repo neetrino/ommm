@@ -158,6 +158,8 @@ export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
 } as const;
 
 export const HOME_FOOTER_COPYRIGHT_COMPANY_HREF = "https://neetrino.com" as const;
+export const HOME_FOOTER_ADDRESS_HREF =
+  "https://yandex.com/maps/10262/yerevan/house/pushkini_poghots_25/YE0YcwZiTkYCQFpqfX15c31qYw==/?ll=44.512935%2C40.182167&z=20.44" as const;
 
 export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/contact", labelKey: "footerPrivacy" },
@@ -166,12 +168,18 @@ export const HOME_FOOTER_LEGAL_LINKS = [
 ] as const;
 
 export const HOME_FOOTER_SOCIAL_LINKS = [
+  {
+    id: "instagram",
+    href: "https://www.instagram.com/ommm.space/",
+    asset: HOME_SECTION_ASSETS.footerSocialInstagram,
+    width: 23,
+    height: 23,
+  },
+  { id: "threads", href: "https://www.threads.net/@ommm.space", asset: HOME_SECTION_ASSETS.footerSocialThreads, width: 23, height: 23 },
   { id: "facebook", href: "https://facebook.com", asset: HOME_SECTION_ASSETS.footerSocialFacebook, width: 13, height: 23 },
-  { id: "instagram", href: "https://instagram.com", asset: HOME_SECTION_ASSETS.footerSocialInstagram, width: 23, height: 23 },
-  { id: "telegram", href: "https://t.me", asset: HOME_SECTION_ASSETS.footerSocialTelegram, width: 24, height: 24 },
   { id: "youtube", href: "https://youtube.com", asset: HOME_SECTION_ASSETS.footerSocialYoutube, width: 25, height: 18 },
   { id: "whatsapp", href: "https://wa.me", asset: HOME_SECTION_ASSETS.footerSocialWhatsapp, width: 24, height: 24 },
-  { id: "viber", href: "viber://chat", asset: HOME_SECTION_ASSETS.footerSocialViber, width: 22, height: 24 },
+  { id: "telegram", href: "https://t.me", asset: HOME_SECTION_ASSETS.footerSocialTelegram, width: 24, height: 24 },
 ] as const;
 
 export const HOME_FOOTER_ASSETS = {

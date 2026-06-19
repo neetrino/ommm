@@ -6,7 +6,7 @@ import { BookingsController } from './bookings.controller';
 import { BookingsService } from './bookings.service';
 
 @Module({
-  imports: [WaitlistModule, PackagesModule, ScheduleItemsModule],
+  imports: [WaitlistModule, ScheduleItemsModule, PackagesModule],
   controllers: [BookingsController],
   providers: [BookingsService],
   exports: [BookingsService],

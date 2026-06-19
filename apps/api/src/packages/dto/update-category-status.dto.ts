@@ -1,9 +1,9 @@
-import { IsBoolean, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateCategoryStatusDto {
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(80)
+  @MinLength(1)
+  @MaxLength(120)
   categoryName!: string;
 
   @IsBoolean()

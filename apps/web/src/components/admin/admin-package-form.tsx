@@ -28,7 +28,6 @@ import {
   resolveTierPricePerSessionField,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
-import { AdminPackageCategorySelect } from "@/components/admin/admin-package-category-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import {
   categoryNamesToOptions,
@@ -45,6 +44,7 @@ import {
 import { ApiError, apiFetch } from "@/lib/api";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 
 export type AdminPackageFormMode = "create" | "edit" | "pricing" | "add-tier" | "edit-tier";
 
@@ -77,6 +77,7 @@ type AdminPackageFormProps = {
   packageId?: string;
   initialCategoryName: string;
   categoryOptions: readonly CategoryOption[];
+  classTypeOptions: readonly { id: string; name: string }[];
   initialPackage?: AdminPackageRow;
   configuredTierCount?: number;
   nextDisplayOrder?: number;
@@ -148,6 +149,7 @@ export function AdminPackageForm({
   packageId,
   initialCategoryName,
   categoryOptions,
+  classTypeOptions,
   initialPackage,
   nextDisplayOrder,
   onSaved,
@@ -170,7 +172,6 @@ export function AdminPackageForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categoryNamesFromApi, setCategoryNamesFromApi] = useState<readonly string[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const submitLockRef = useRef(false);
 
   useEffect(() => {
@@ -184,11 +185,6 @@ export function AdminPackageForm({
       .catch(() => {
         if (!cancelled) {
           setCategoryNamesFromApi([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setCategoriesLoading(false);
         }
       });
     return () => {
@@ -210,6 +206,13 @@ export function AdminPackageForm({
     () => mergedCategoryOptions.map((option) => option.label),
     [mergedCategoryOptions],
   );
+  const classTypeNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const classType of classTypeOptions) {
+      map.set(classType.id, classType.name.trim());
+    }
+    return map;
+  }, [classTypeOptions]);
 
   function updateValues(patch: Partial<AdminPackageFormValues>) {
     setValues((current) => ({ ...current, ...patch }));
@@ -274,36 +277,37 @@ export function AdminPackageForm({
     const isEditMode = mode === "edit";
     const detailsName = values.name.trim();
     const description = values.description.trim();
+    const createCategoryName = resolvePackageCategoryName(
+      detailsName,
+      categoryNameCandidates,
+    );
     const tierCategoryName = resolvePackageCategoryName(
       initialCategoryName.trim(),
       categoryNameCandidates,
     );
+    const selectedClassTypeName = classTypeNameById.get(values.classTypeId) ?? "";
+    const selectedClassCategoryName =
+      selectedClassTypeName.length > 0
+        ? resolvePackageCategoryName(selectedClassTypeName, categoryNameCandidates)
+        : "";
     const editableCategoryName = resolvePackageCategoryName(
       values.categoryName.trim(),
       categoryNameCandidates,
     );
     const categoryName = isCreateMode
-      ? resolvePackageCategoryName(detailsName, categoryNameCandidates)
+      ? createCategoryName
       : isAddTierMode
         ? tierCategoryName
+        : isEditMode && selectedClassCategoryName.length > 0
+          ? selectedClassCategoryName
         : editableCategoryName;
 
     const priceCents = parsePriceToCents(values.price);
     const discountAmountCents = parsePriceToCents(values.discountedPrice);
-    const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
-    const pricePerSessionCents =
-      parsePriceToCents(values.pricePerSession) ??
-      (priceCents !== null && sessionsPerMonth !== null
-        ? parsePriceToCents(
-            resolveTierPricePerSessionField(
-              String(priceCents),
-              String(sessionsPerMonth),
-              String(discountAmountCents ?? ""),
-            ),
-          )
-        : null);
+    const parsedSessionsPerMonth = parseSessionsCount(values.sessionsCount);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
+    const tierClassTypeId = (initialPackage?.classTypeId ?? values.classTypeId).trim();
     const sessionName = values.name.trim();
     const isTierPackage =
       initialPackage !== undefined && initialPackage.priceCents > 0;
@@ -326,17 +330,23 @@ export function AdminPackageForm({
         setError(t("nameTooLong"));
         return;
       }
-      if (categoryName.length === 0) {
-        setError(t("categoryRequired"));
-        return;
-      }
-      if (categoryName.length > MAX_CATEGORY_NAME_LENGTH) {
-        setError(t("categoryTooLong"));
-        return;
-      }
-      if (description.length > MAX_DESCRIPTION_LENGTH) {
-        setError(t("descriptionTooLong"));
-        return;
+      if (isEditMode) {
+        if (values.classTypeId.trim().length === 0) {
+          setError(t("classTypeRequired"));
+          return;
+        }
+        if (categoryName.length === 0) {
+          setError(t("categoryRequired"));
+          return;
+        }
+        if (categoryName.length > MAX_CATEGORY_NAME_LENGTH) {
+          setError(t("categoryTooLong"));
+          return;
+        }
+        if (description.length > MAX_DESCRIPTION_LENGTH) {
+          setError(t("descriptionTooLong"));
+          return;
+        }
       }
     }
 
@@ -375,12 +385,6 @@ export function AdminPackageForm({
           return;
         }
       }
-      if (isAddTierMode || isEditTierMode) {
-        if (pricePerSessionCents === null) {
-          setError(t("pricePerSessionInvalid"));
-          return;
-        }
-      }
       if (
         periodDays === null ||
         periodDays < MIN_PACKAGE_DURATION_DAYS ||
@@ -390,9 +394,12 @@ export function AdminPackageForm({
         return;
       }
       if (
-        sessionsPerMonth === null ||
-        sessionsPerMonth < MIN_PACKAGE_SESSIONS ||
-        sessionsPerMonth > MAX_PACKAGE_SESSIONS
+        !isCombinedTierForm &&
+        !isAddTierMode &&
+        !isEditTierMode &&
+        (parsedSessionsPerMonth === null ||
+          parsedSessionsPerMonth < MIN_PACKAGE_SESSIONS ||
+          parsedSessionsPerMonth > MAX_PACKAGE_SESSIONS)
       ) {
         setError(t("sessionsCountInvalid"));
         return;
@@ -409,16 +416,50 @@ export function AdminPackageForm({
     }
 
     let sourceSessionAllocations: Array<{ componentId: string; sessionCount: number }> | undefined;
+    let resolvedSessionsPerMonth = parsedSessionsPerMonth;
+    if ((isAddTierMode || isEditTierMode) && !isCombinedTierForm) {
+      const fromPlanSessions =
+        typeof initialPackage?.sessionsPerMonth === "number" &&
+        initialPackage.sessionsPerMonth > 0
+          ? initialPackage.sessionsPerMonth
+          : null;
+      if (
+        resolvedSessionsPerMonth === null ||
+        resolvedSessionsPerMonth < MIN_PACKAGE_SESSIONS
+      ) {
+        resolvedSessionsPerMonth = fromPlanSessions ?? MIN_PACKAGE_SESSIONS;
+      }
+    }
     if (isCombinedTierForm && initialPackage?.combinedComponents !== undefined) {
-      const allocationPayload = buildSourceSessionAllocationsPayload(
+      const allocationSummary = buildSourceSessionAllocationsPayload(
         initialPackage.combinedComponents,
         values.sourceSessionAllocations,
       );
-      if (allocationPayload === null) {
+      if (allocationSummary === null) {
         setError(t("combinedForm.sourceAllocationInvalid"));
         return;
       }
-      sourceSessionAllocations = allocationPayload;
+      sourceSessionAllocations = allocationSummary.payload;
+      resolvedSessionsPerMonth = allocationSummary.totalSessions;
+    }
+    const pricePerSessionCents =
+      parsePriceToCents(values.pricePerSession) ??
+      (priceCents !== null && resolvedSessionsPerMonth !== null
+        ? parsePriceToCents(
+            resolveTierPricePerSessionField(
+              String(priceCents),
+              String(resolvedSessionsPerMonth),
+              String(discountAmountCents ?? ""),
+            ),
+          )
+        : null);
+    if (
+      resolvedSessionsPerMonth === null ||
+      resolvedSessionsPerMonth < MIN_PACKAGE_SESSIONS ||
+      resolvedSessionsPerMonth > MAX_PACKAGE_SESSIONS
+    ) {
+      setError(t("sessionsCountInvalid"));
+      return;
     }
 
     const preservedDisplayFields =
@@ -443,7 +484,7 @@ export function AdminPackageForm({
       showPricePerSession: values.showPricePerSession,
       currency: "AMD" as const,
       isUnlimited: false,
-      sessionsPerMonth: sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
+      sessionsPerMonth: resolvedSessionsPerMonth,
       guestCount: guestCount ?? 0,
       periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
       billingPeriod: tierBillingPeriod,
@@ -467,7 +508,6 @@ export function AdminPackageForm({
           name: payloadName,
           categoryName,
           slug,
-          description: description.length > 0 ? description : null,
           priceCents: 0,
           currency: "AMD",
           isUnlimited: false,
@@ -483,12 +523,14 @@ export function AdminPackageForm({
         ? shellTierTarget
           ? {
               name: payloadName,
+              ...(tierClassTypeId.length > 0 ? { classTypeId: tierClassTypeId } : {}),
               ...pricingFields,
             }
           : {
               name: payloadName,
+              ...(tierClassTypeId.length > 0 ? { classTypeId: tierClassTypeId } : {}),
               categoryName,
-              slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
+              slug: buildPackageTierSlug(categoryName, resolvedSessionsPerMonth),
               description: initialPackage?.description ?? null,
               ...pricingFields,
               displayOrder: nextDisplayOrder ?? 1,
@@ -511,6 +553,7 @@ export function AdminPackageForm({
               }
             : {
               name: payloadName,
+              classTypeId: values.classTypeId,
               categoryName,
               ...(shouldIncludeSlugInPayload ? { slug } : {}),
               description: description.length > 0 ? description : null,
@@ -570,20 +613,6 @@ export function AdminPackageForm({
           description={t("formSections.details.description")}
         >
           <div className="flex flex-col gap-4">
-            {mode === "edit" ? (
-              <label className="flex flex-col gap-1.5">
-                <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldCategory")}</span>
-                <AdminPackageCategorySelect
-                  value={values.categoryName}
-                  options={mergedCategoryOptions}
-                  onChange={(next) => updateValues({ categoryName: next })}
-                  disabled={pending}
-                  loading={categoriesLoading}
-                  required
-                  ariaLabel={t("fieldCategory")}
-                />
-              </label>
-            ) : null}
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
               <input
@@ -595,17 +624,39 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
-              <textarea
-                name="description"
-                className="ommm-input min-h-24 resize-y"
-                maxLength={MAX_DESCRIPTION_LENGTH}
-                value={values.description}
-                onChange={(event) => updateValues({ description: event.target.value })}
-                disabled={pending}
-              />
-            </label>
+            {mode === "edit" ? (
+              <>
+                <label className="flex flex-col gap-1.5">
+                  <span className="ommm-label text-xs uppercase tracking-wide">
+                    {t("fieldClassType")}
+                  </span>
+                  <OmmFormDropdown
+                    value={values.classTypeId}
+                    ariaLabel={t("fieldClassType")}
+                    placeholderLabel={t("fieldClassTypePlaceholder")}
+                    options={classTypeOptions.map((classType) => ({
+                      value: classType.id,
+                      label: classType.name,
+                    }))}
+                    onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
+                    disabled={pending}
+                    name="classTypeId"
+                    required
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5">
+                  <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
+                  <textarea
+                    name="description"
+                    className="ommm-input min-h-24 resize-y"
+                    maxLength={MAX_DESCRIPTION_LENGTH}
+                    value={values.description}
+                    onChange={(event) => updateValues({ description: event.target.value })}
+                    disabled={pending}
+                  />
+                </label>
+              </>
+            ) : null}
           </div>
         </AdminPackageFormSection>
       ) : null}
@@ -628,26 +679,7 @@ export function AdminPackageForm({
                 onAllocationChange={updateCombinedAllocation}
                 disabled={pending}
               />
-            ) : (
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
-              <input
-                name="sessionsCount"
-                type="number"
-                className={OMMM_INPUT_NUMBER_CLASS}
-                min={MIN_PACKAGE_SESSIONS}
-                max={MAX_PACKAGE_SESSIONS}
-                step={1}
-                inputMode="numeric"
-                value={values.sessionsCount}
-                onChange={(event) => updateTierPricingValues({ sessionsCount: event.target.value })}
-                onKeyDown={preventNumberArrowStep}
-                placeholder={t("fieldSessionsCountPlaceholder")}
-                required
-                disabled={pending}
-              />
-            </label>
-            )}
+            ) : null}
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">
                 {t("fieldSessionName")}
@@ -689,37 +721,6 @@ export function AdminPackageForm({
                 placeholder={t("fieldDiscountedPricePlaceholder")}
               />
               <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPricePerSession")}</span>
-              <AmdMoneyInput
-                name="pricePerSession"
-                value={values.pricePerSession}
-                onValueChange={(nextValue) => updateValues({ pricePerSession: nextValue })}
-                disabled={pending || !values.showPricePerSession}
-                align="start"
-                placeholder={t("fieldPricePerSessionPlaceholder")}
-              />
-              <label className="mt-1.5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-3 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
-                <input
-                  type="checkbox"
-                  name="showPricePerSessionInline"
-                  checked={values.showPricePerSession}
-                  onChange={(event) =>
-                    updateValues({ showPricePerSession: event.target.checked })
-                  }
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 focus:ring-sand-500/30"
-                  disabled={pending}
-                />
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-sm font-medium text-sage-800">
-                    {t("fieldShowPricePerSession")}
-                  </span>
-                  <span className="text-xs text-sage-500">
-                    {t("fieldShowPricePerSessionHint")}
-                  </span>
-                </span>
-              </label>
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationDays")}</span>

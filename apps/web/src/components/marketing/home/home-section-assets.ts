@@ -41,5 +41,5 @@ export const HOME_SECTION_ASSETS = {
   footerSocialTelegram: "/marketing/home/sections/footer/home-footer-social-telegram.svg",
   footerSocialYoutube: "/marketing/home/sections/footer/home-footer-social-youtube.svg",
   footerSocialWhatsapp: "/marketing/home/sections/footer/home-footer-social-whatsapp.svg",
-  footerSocialViber: "/marketing/home/sections/footer/home-footer-social-viber.svg",
+  footerSocialThreads: "/marketing/home/sections/footer/home-footer-social-threads.svg",
 } as const;

@@ -1,6 +1,6 @@
 import {
-  ArrayMaxSize,
   ArrayMinSize,
+  ArrayUnique,
   IsArray,
   IsBoolean,
   IsInt,
@@ -12,11 +12,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-const MAX_PACKAGE_GUEST_COUNT = 99;
-const MIN_COMBINED_SOURCE_PLAN_COUNT = 2;
-const MAX_COMBINED_SOURCE_PLAN_COUNT = 20;
-
-export class CreateCombinedPlanDto {
+export class CreateCombinedPackagePlanDto {
   @IsString()
   @MinLength(1)
   @MaxLength(120)
@@ -24,27 +20,19 @@ export class CreateCombinedPlanDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(1)
-  @MaxLength(120)
-  slug?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(4000)
-  description?: string;
-
-  @IsInt()
-  @Min(0)
-  priceCents!: number;
+  @MaxLength(3000)
+  description?: string | null;
 
   @IsOptional()
   @IsInt()
   @Min(0)
-  discountedPriceCents?: number;
+  @Max(100_000_000)
+  priceCents?: number;
 
   @IsOptional()
   @IsInt()
   @Min(0)
+  @Max(100_000_000)
   pricePerSessionCents?: number;
 
   @IsOptional()
@@ -54,26 +42,36 @@ export class CreateCombinedPlanDto {
   @IsOptional()
   @IsString()
   @MinLength(1)
-  @MaxLength(8)
+  @MaxLength(16)
   currency?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isUnlimited?: boolean;
 
   @IsOptional()
   @IsInt()
   @Min(0)
+  @Max(500)
   sessionsPerMonth?: number;
 
-  @IsBoolean()
-  isUnlimited!: boolean;
-
+  @IsOptional()
   @IsInt()
   @Min(1)
-  periodDays!: number;
+  @Max(3650)
+  periodDays?: number;
 
   @IsOptional()
   @IsString()
   @MinLength(1)
-  @MaxLength(32)
+  @MaxLength(64)
   billingPeriod?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(50)
+  guestCount?: number;
 
   @IsOptional()
   @IsBoolean()
@@ -83,20 +81,9 @@ export class CreateCombinedPlanDto {
   @IsBoolean()
   isActive?: boolean;
 
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  displayOrder?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(MAX_PACKAGE_GUEST_COUNT)
-  guestCount?: number;
-
   @IsArray()
-  @ArrayMinSize(MIN_COMBINED_SOURCE_PLAN_COUNT)
-  @ArrayMaxSize(MAX_COMBINED_SOURCE_PLAN_COUNT)
+  @ArrayUnique()
+  @ArrayMinSize(2)
   @IsString({ each: true })
   sourcePlanIds!: string[];
 }

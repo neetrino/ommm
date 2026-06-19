@@ -117,6 +117,7 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/clients", icon: "users", labelKey: "clients" },
   { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches" },
   { href: "/admin/schedule", icon: "calendar", labelKey: "schedule" },
+  { href: "/admin/types", icon: "listOrdered", labelKey: "types" },
   { href: "/admin/packages", icon: "tag", labelKey: "packages" },
   { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards" },
   { href: "/admin/finance", icon: "wallet", labelKey: "finance" },

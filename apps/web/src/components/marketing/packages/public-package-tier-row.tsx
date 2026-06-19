@@ -12,7 +12,6 @@ import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/pack
 import styles from "@/components/marketing/packages/public-package-category-panel.module.css";
 import { PUBLIC_PACKAGE_DANCES_ICON } from "@/components/marketing/packages/public-package-category-icons";
 import {
-  formatPublicPackageTierPricePerSession,
   formatPublicPackageTierSessionsHeadline,
   shouldShowPublicPackageTierDaysLimit,
 } from "@/components/marketing/packages/public-package-tier-display";
@@ -99,7 +98,6 @@ function TierRowBody({
     plan.discountedPriceCents > 0 &&
     plan.discountedPriceCents < plan.priceCents;
   const originalPrice = hasDiscount ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale) : null;
-  const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
   const showDaysLimit = shouldShowPublicPackageTierDaysLimit(plan);
   const daysLimitValue = showDaysLimit
     ? formatPackageValidityLabel(plan, {
@@ -134,18 +132,11 @@ function TierRowBody({
         )}
       </div>
       <div className={styles.tierMetaGroup}>
-        {pricePerSession !== null ? (
-          <TierMetaBlock
-            label={t("packagesTierPricePerSessionLabel")}
-            value={pricePerSession}
-            withDivider
-          />
-        ) : null}
         {daysLimitValue !== null ? (
           <TierMetaBlock
             label={t("packagesTierDaysLimitLabel")}
             value={daysLimitValue}
-            withDivider={pricePerSession !== null}
+            withDivider={false}
             labelPrefix={<CalendarIcon />}
           />
         ) : null}

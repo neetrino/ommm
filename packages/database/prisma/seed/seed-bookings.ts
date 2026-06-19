@@ -20,12 +20,7 @@ export async function seedBookingsForSessions(
     throw new Error("Seed bookings missing required users");
   }
 
-  const activePackage = await prisma.userPackage.findFirst({
-    where: { userId: member.id, status: "ACTIVE" },
-    orderBy: { createdAt: "desc" },
-  });
-
-  await seedMemberBookings(prisma, member.id, activePackage?.id ?? null, sessionIds, coachUser.id);
+  await seedMemberBookings(prisma, member.id, sessionIds, coachUser.id);
   await seedMemberWaitlist(prisma, member.id, sessionIds, member2.id, member3.id);
   await seedClientNote(prisma, member.id, coachUser.id);
 }
@@ -33,7 +28,6 @@ export async function seedBookingsForSessions(
 async function seedMemberBookings(
   prisma: PrismaClient,
   memberId: string,
-  activePackageId: string | null,
   sessionIds: Map<string, string>,
   coachUserId: string,
 ): Promise<void> {
@@ -47,7 +41,6 @@ async function seedMemberBookings(
     await upsertBooking(prisma, {
       userId: memberId,
       sessionId: tomorrowSession,
-      userPackageId: activePackageId,
       status: BookingStatus.BOOKED,
       channel: BookingChannel.WEBSITE,
     });
@@ -57,7 +50,6 @@ async function seedMemberBookings(
     const booking = await upsertBooking(prisma, {
       userId: memberId,
       sessionId: pastSession,
-      userPackageId: activePackageId,
       status: BookingStatus.COMPLETED,
       channel: BookingChannel.WEBSITE,
       attendedAt: addDays(new Date(), -7),
@@ -78,7 +70,6 @@ async function seedMemberBookings(
     await upsertBooking(prisma, {
       userId: memberId,
       sessionId: yogaSession,
-      userPackageId: null,
       status: BookingStatus.CANCELLED,
       channel: BookingChannel.WEBSITE,
       cancelledAt: addDays(new Date(), -1),
@@ -89,7 +80,6 @@ async function seedMemberBookings(
     await upsertBooking(prisma, {
       userId: memberId,
       sessionId: matSession,
-      userPackageId: null,
       status: BookingStatus.MISSED,
       channel: BookingChannel.APP,
     });
@@ -99,7 +89,6 @@ async function seedMemberBookings(
     await upsertBooking(prisma, {
       userId: memberId,
       sessionId: convertedSession,
-      userPackageId: null,
       status: BookingStatus.BOOKED,
       channel: BookingChannel.APP,
     });
@@ -124,14 +113,12 @@ async function seedMemberWaitlist(
     await upsertBooking(prisma, {
       userId: fillerUser2Id,
       sessionId: fullSession,
-      userPackageId: null,
       status: BookingStatus.BOOKED,
       channel: BookingChannel.WEBSITE,
     });
     await upsertBooking(prisma, {
       userId: fillerUser3Id,
       sessionId: fullSession,
-      userPackageId: null,
       status: BookingStatus.BOOKED,
       channel: BookingChannel.WEBSITE,
     });
@@ -147,14 +134,12 @@ async function seedMemberWaitlist(
     await upsertBooking(prisma, {
       userId: fillerUser2Id,
       sessionId: offeredSession,
-      userPackageId: null,
       status: BookingStatus.BOOKED,
       channel: BookingChannel.WEBSITE,
     });
     await upsertBooking(prisma, {
       userId: fillerUser3Id,
       sessionId: offeredSession,
-      userPackageId: null,
       status: BookingStatus.BOOKED,
       channel: BookingChannel.WEBSITE,
     });
@@ -220,7 +205,6 @@ async function seedClientNote(
 type BookingSeed = {
   userId: string;
   sessionId: string;
-  userPackageId: string | null;
   status: BookingStatus;
   channel: BookingChannel;
   attendedAt?: Date;
@@ -236,14 +220,12 @@ async function upsertBooking(
     update: {
       status: seed.status,
       channel: seed.channel,
-      userPackageId: seed.userPackageId,
       attendedAt: seed.attendedAt ?? null,
       cancelledAt: seed.cancelledAt ?? null,
     },
     create: {
       userId: seed.userId,
       sessionId: seed.sessionId,
-      userPackageId: seed.userPackageId,
       status: seed.status,
       channel: seed.channel,
       attendedAt: seed.attendedAt ?? null,

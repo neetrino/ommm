@@ -45,21 +45,6 @@ export class AdminListPaymentsQueryDto {
   @IsString()
   q?: string;
 
-  /** Filters package payments by purchased plan id. */
-  @IsOptional()
-  @IsString()
-  planId?: string;
-
-  /** Filters package payments by plan category name (case-insensitive). */
-  @IsOptional()
-  @IsString()
-  packageClass?: string;
-
-  /** Filters package payments by session count (`unlimited` or positive integer string). */
-  @IsOptional()
-  @IsString()
-  sessions?: string;
-
   @IsOptional()
   @Type(() => Number)
   @IsInt()
