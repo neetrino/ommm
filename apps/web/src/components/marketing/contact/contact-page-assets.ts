@@ -5,5 +5,4 @@ export const CONTACT_PAGE_ASSETS = {
   iconHours: "/marketing/contact/icons/contact-icon-hours.webp",
   iconInstagram: "/marketing/contact/icons/contact-icon-instagram.webp",
   iconFacebook: "/marketing/contact/icons/contact-icon-facebook.webp",
-  sendArrow: "/marketing/home/sections/plans/home-plans-cta-arrow.svg",
 } as const;
