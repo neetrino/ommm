@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  buildTypeSessionAllocationsPayload,
   createEmptyTypeSessionEntry,
   entriesFromPackage,
   validateTypeSessionEntries,
@@ -39,18 +38,21 @@ export function AdminPackageTypeSessionsModal({
   onSaved,
 }: AdminPackageTypeSessionsModalProps) {
   const t = useTranslations("adminPages.packages.typeSessionsModal");
+  const resetKey =
+    isOpen && packageRow !== null ? `${packageRow.id}:edit` : "closed";
   const [entries, setEntries] = useState<PackageTypeSessionFormEntry[]>([]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
 
-  useEffect(() => {
-    if (!isOpen || packageRow === null) {
-      return;
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
+    if (isOpen && packageRow !== null) {
+      setEntries(entriesFromPackage(packageRow));
+      setError(null);
+      setPending(false);
     }
-    setEntries(entriesFromPackage(packageRow));
-    setError(null);
-    setPending(false);
-  }, [isOpen, packageRow]);
+  }
 
   const dropdownOptions = useMemo(
     () =>

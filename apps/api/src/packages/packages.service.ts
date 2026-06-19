@@ -100,7 +100,8 @@ export class PackagesService {
       },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
-    const classTypeNameById = await this.resolveClassTypeNameMapForAllocations(plans);
+    const classTypeNameById =
+      await this.resolveClassTypeNameMapForAllocations(plans);
     return plans.map((plan) => this.toPublicPlan(plan, classTypeNameById));
   }
 
@@ -217,9 +218,7 @@ export class PackagesService {
       );
     }
     const resolvedSourcePlans = orderedSourcePlans.filter(
-      (
-        plan,
-      ): plan is { id: string; name: string; categoryName: string } =>
+      (plan): plan is { id: string; name: string; categoryName: string } =>
         plan !== undefined,
     );
     const sourceCategoryKeys = new Set(
@@ -318,7 +317,10 @@ export class PackagesService {
         'Combined sessions must be updated via source allocations',
       );
     }
-    if (current.planType === PackagePlanType.COMBINED && dto.isUnlimited === true) {
+    if (
+      current.planType === PackagePlanType.COMBINED &&
+      dto.isUnlimited === true
+    ) {
       throw new BadRequestException('Combined plans cannot be unlimited');
     }
     if (
@@ -648,26 +650,26 @@ export class PackagesService {
 
   private toPublicPlan(
     plan: {
-    id: string;
-    name: string;
-    categoryName: string;
-    description: string | null;
-    priceCents: number;
-    discountedPriceCents: number | null;
-    pricePerSessionCents: number;
-    showPricePerSession: boolean;
-    currency: string;
-    billingPeriod: string;
-    periodDays: number;
-    sessionsPerMonth: number | null;
-    isUnlimited: boolean;
-    isPopular: boolean;
-    isActive: boolean;
-    features: string[];
-    guestCount: number;
-    displayOrder: number;
-    typeSessionAllocations?: unknown;
-  },
+      id: string;
+      name: string;
+      categoryName: string;
+      description: string | null;
+      priceCents: number;
+      discountedPriceCents: number | null;
+      pricePerSessionCents: number;
+      showPricePerSession: boolean;
+      currency: string;
+      billingPeriod: string;
+      periodDays: number;
+      sessionsPerMonth: number | null;
+      isUnlimited: boolean;
+      isPopular: boolean;
+      isActive: boolean;
+      features: string[];
+      guestCount: number;
+      displayOrder: number;
+      typeSessionAllocations?: unknown;
+    },
     classTypeNameById?: Map<string, string>,
   ) {
     return {
@@ -906,7 +908,9 @@ export class PackagesService {
     const componentIds = allocations.map((item) => item.componentId);
     const uniqueComponentIds = new Set(componentIds);
     if (uniqueComponentIds.size !== componentIds.length) {
-      throw new BadRequestException('Source allocation component ids must be unique');
+      throw new BadRequestException(
+        'Source allocation component ids must be unique',
+      );
     }
     const components = await (
       tx as unknown as {
@@ -935,7 +939,9 @@ export class PackagesService {
       }
     }
     if (allocations.some((allocation) => allocation.sessionCount <= 0)) {
-      throw new BadRequestException('Source allocation session count must be positive');
+      throw new BadRequestException(
+        'Source allocation session count must be positive',
+      );
     }
     let sum = 0;
     for (const allocation of allocations) {
@@ -1077,7 +1083,9 @@ export class PackagesService {
       where: { id: { in: [...classTypeIds] } },
       select: { id: true, name: true },
     });
-    return new Map(classTypes.map((classType) => [classType.id, classType.name]));
+    return new Map(
+      classTypes.map((classType) => [classType.id, classType.name]),
+    );
   }
 
   private enrichStoredTypeSessionAllocations(
@@ -1111,8 +1119,9 @@ export class PackagesService {
       ) {
         continue;
       }
-      const classTypeId = String(item.classTypeId).trim();
-      const sessionCount = Number(item.sessionCount);
+      const record = item as Record<string, unknown>;
+      const classTypeId = String(record.classTypeId).trim();
+      const sessionCount = Number(record.sessionCount);
       if (
         classTypeId.length === 0 ||
         !Number.isInteger(sessionCount) ||
@@ -1120,12 +1129,12 @@ export class PackagesService {
       ) {
         continue;
       }
+      const description =
+        typeof record.description === 'string' ? record.description.trim() : '';
       allocations.push({
         classTypeId,
         sessionCount,
-        ...(typeof item.description === "string" && item.description.trim().length > 0
-          ? { description: item.description.trim() }
-          : {}),
+        ...(description.length > 0 ? { description } : {}),
       });
     }
     return allocations;
@@ -1174,7 +1183,7 @@ export class PackagesService {
     );
     return {
       allocations: allocations.map((item) => {
-        const description = item.description?.trim() ?? "";
+        const description = item.description?.trim() ?? '';
         return {
           classTypeId: item.classTypeId.trim(),
           sessionCount: item.sessionCount,
@@ -1182,7 +1191,7 @@ export class PackagesService {
         };
       }),
       totalSessions,
-      classTypeId: allocations.length === 1 ? allocations[0]!.classTypeId : null,
+      classTypeId: allocations.length === 1 ? allocations[0].classTypeId : null,
     };
   }
 }
