@@ -1499,7 +1499,6 @@
     "settings": {
       "title": "Settings",
       "studioDescription": "Manage studio identity, contact details, and operational defaults.",
-      "homeSectionsDescription": "Control which marketing home sections appear on the public website and navigation.",
       "tabs": {
         "aria": "Settings sections",
         "studio": "Studio",
@@ -1516,8 +1515,11 @@
       "homeSections": {
         "loadFailed": "Could not load home page section settings ({status}).",
         "panelTitle": "Home Page Sections",
-        "panelDescription": "Enable or disable each public marketing section independently. Changes apply to the home page, top navigation, and linked pages.",
+        "summaryLabel": "Visibility overview",
         "summary": "{count} of {total} sections enabled",
+        "badgeEnabled": "Enabled",
+        "badgeDisabled": "Disabled",
+        "rowSaving": "Saving…",
         "save": "Save visibility",
         "saving": "Saving...",
         "saved": "Home page section visibility updated.",

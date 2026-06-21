@@ -10,10 +10,10 @@ import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-p
 
 function resolveSettingsDescriptionKey(
   tab: ReturnType<typeof resolveAdminSettingsTabFromPathname>,
-): string {
+): string | null {
   switch (tab) {
     case "home-sections":
-      return "homeSectionsDescription";
+      return null;
     case "identity":
     case "location":
     case "contact":
@@ -39,7 +39,9 @@ function AdminSettingsUnifiedHeaderInner() {
           <AdminSettingsTabNav />
         </div>
       </div>
-      <p className="ommm-body-muted mt-1 max-w-3xl text-sm">{t(descriptionKey)}</p>
+      {descriptionKey ? (
+        <p className="ommm-body-muted mt-1 max-w-3xl text-sm">{t(descriptionKey)}</p>
+      ) : null}
     </WorkspaceStickyPageHeader>
   );
 }
