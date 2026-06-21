@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm exec next dev",
-    "build": "pnpm exec next build",
+    "build": "pnpm -w run build:database && pnpm exec next build",
     "start": "pnpm exec next start",
     "lint": "pnpm exec eslint",
     "test:e2e": "pnpm exec playwright test"
