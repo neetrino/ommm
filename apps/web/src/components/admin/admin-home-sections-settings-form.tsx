@@ -90,8 +90,8 @@ export function AdminHomeSectionsSettingsForm({
 
         <section className={`${adminChrome.panel} p-0 sm:p-0`}>
           <div className="border-b border-white/50 px-4 py-4 sm:px-5 sm:py-5">
-            <div className="flex justify-end">
-              <div className={adminChrome.metricCard}>
+            <div className="flex justify-center">
+              <div className={`${adminChrome.metricCard} w-full max-w-md text-center`}>
                 <p className={adminChrome.metricLabel}>{t("summaryLabel")}</p>
                 <p className={`${adminChrome.metricValue} text-xl`}>
                   {t("summary", {
