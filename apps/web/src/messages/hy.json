@@ -1508,6 +1508,8 @@
         "panelTitle": "Գլխավոր էջի բաժիններ",
         "summaryLabel": "Տեսանելիության ակնարկ",
         "summary": "Միացված է {count}/{total} բաժին",
+        "statusNoticeTitle": "Զգույշ եղեք բաժնի կարգավիճակը փոխելիս",
+        "statusNoticeDetail": "Անջատելիս այն կհանվի կայքի header նավիգացիայից։",
         "badgeEnabled": "Միացված",
         "badgeDisabled": "Անջատված",
         "rowSaving": "Պահպանում…",

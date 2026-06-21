@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { AdminHomeSectionVisibilityRow } from "@/components/admin/admin-home-section-visibility-row";
+import { AdminHomeSectionsStatusNotice } from "@/components/admin/admin-home-sections-status-notice";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -90,7 +91,7 @@ export function AdminHomeSectionsSettingsForm({
 
         <section className={`${adminChrome.panel} p-0 sm:p-0`}>
           <div className="border-b border-white/50 px-4 py-4 sm:px-5 sm:py-5">
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center">
               <div className={`${adminChrome.metricCard} w-full max-w-md text-center`}>
                 <p className={adminChrome.metricLabel}>{t("summaryLabel")}</p>
                 <p className={`${adminChrome.metricValue} text-xl`}>
@@ -100,6 +101,7 @@ export function AdminHomeSectionsSettingsForm({
                   })}
                 </p>
               </div>
+              <AdminHomeSectionsStatusNotice />
             </div>
           </div>
 

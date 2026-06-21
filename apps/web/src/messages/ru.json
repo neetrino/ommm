@@ -1508,6 +1508,8 @@
         "panelTitle": "Разделы главной страницы",
         "summaryLabel": "Обзор видимости",
         "summary": "Включено разделов: {count} из {total}",
+        "statusNoticeTitle": "Будьте внимательны при изменении статуса раздела",
+        "statusNoticeDetail": "Отключение убирает его из навигации в шапке сайта.",
         "badgeEnabled": "Включено",
         "badgeDisabled": "Отключено",
         "rowSaving": "Сохранение…",

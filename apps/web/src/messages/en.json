@@ -1517,6 +1517,8 @@
         "panelTitle": "Home Page Sections",
         "summaryLabel": "Visibility overview",
         "summary": "{count} of {total} sections enabled",
+        "statusNoticeTitle": "Be careful when changing a section’s status",
+        "statusNoticeDetail": "Disabling a section removes it from the site header navigation.",
         "badgeEnabled": "Enabled",
         "badgeDisabled": "Disabled",
         "rowSaving": "Saving…",
