@@ -1,6 +1,7 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
+import { AdminClientsPageView } from "@/components/admin/admin-clients-page-view";
 import {
   buildAdminClientsApiSearchParams,
   pickAdminClientsInitialFilters,
@@ -37,11 +38,13 @@ export default async function AdminClientsPage({
 
   return (
     <AdminContentFrame>
-      <AdminClientsManagement
-        initial={clientsRes.data}
-        locale={locale}
-        initialFilters={pickAdminClientsInitialFilters(search)}
-      />
+      <Suspense fallback={null}>
+        <AdminClientsPageView
+          initial={clientsRes.data}
+          locale={locale}
+          initialFilters={pickAdminClientsInitialFilters(search)}
+        />
+      </Suspense>
     </AdminContentFrame>
   );
 }

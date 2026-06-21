@@ -34,6 +34,7 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import {
@@ -58,6 +59,10 @@ type Props = {
   initial: AdminClientsPayload;
   locale: string;
   initialFilters: Record<string, string>;
+  /** Opens the create-client modal (admin only). */
+  onAddUser?: () => void;
+  /** Registers list refetch for post-create refresh. */
+  onRegisterRefetch?: (refetch: () => void) => void;
   /** Staff surfaces (manager): list canon without hero/filters/summary. */
   variant?: "full" | "staff";
   staffBanner?: string;
@@ -70,6 +75,8 @@ export function AdminClientsManagement({
   initial,
   locale,
   initialFilters,
+  onAddUser,
+  onRegisterRefetch,
   variant = "full",
   staffBanner,
   readOnly = false,
@@ -272,7 +279,7 @@ export function AdminClientsManagement({
     });
   }
 
-  function refetchClients(): void {
+  const refetchClients = useCallback((): void => {
     startTransition(() => {
       void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
         .then((next) => {
@@ -283,7 +290,11 @@ export function AdminClientsManagement({
           setError("Could not load matching clients.");
         });
     });
-  }
+  }, [apiQueryString]);
+
+  useEffect(() => {
+    onRegisterRefetch?.(refetchClients);
+  }, [onRegisterRefetch, refetchClients]);
 
   function resetFilters() {
     setFilters({
@@ -430,6 +441,20 @@ export function AdminClientsManagement({
                 resetLabel={tFilters("resetFilters")}
               />
             }
+            trailing={
+              onAddUser && !readOnly ? (
+                <OmmButton
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={onAddUser}
+                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+                >
+                  <AddUserGlyph className="h-5 w-5 shrink-0" />
+                  {t("addUserButton")}
+                </OmmButton>
+              ) : null
+            }
           />
           <Summary payload={payload} />
           {error ? <div className="app-alert-warn">{error}</div> : null}
@@ -516,5 +541,25 @@ function ClientsTable({
         />
       ))}
     </div>
+  );
+}
+
+function AddUserGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.65}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M19 8v6m3-3h-6" />
+    </svg>
   );
 }

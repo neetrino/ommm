@@ -5,6 +5,10 @@ import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
+import {
+  CLIENT_MODAL_QUERY_KEY,
+  CLIENT_MODAL_QUERY_VALUE,
+} from "@/components/admin/admin-clients-modal";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
@@ -19,6 +23,7 @@ import {
 import { shouldMemberHardNavigate } from "@/lib/member-user-nav-hard-navigate";
 
 const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users", "/admin/profile"]);
+const ADMIN_CLIENTS_HREF = "/admin/clients";
 
 function navActive(pathname: string, href: string) {
   return dashboardNavPathActive(pathname, href);
@@ -112,6 +117,7 @@ export function DashboardSidebarNav({
 }: DashboardSidebarNavProps) {
   const locale = useLocale();
   const tShell = useTranslations("dashboard.shell");
+  const tClients = useTranslations("adminPages.clients");
   const isOliveShell = isOliveDashboardShell(variant);
   const isAdmin = variant === "admin";
   const firstMutedIndex = isAdmin
@@ -185,6 +191,16 @@ export function DashboardSidebarNav({
                 {rowContent}
               </Link>
             )}
+            {isAdmin && item.href === ADMIN_CLIENTS_HREF && !collapsed ? (
+              <Link
+                href={`${ADMIN_CLIENTS_HREF}?${CLIENT_MODAL_QUERY_KEY}=${CLIENT_MODAL_QUERY_VALUE}`}
+                prefetch={WORKSPACE_ROUTE_PREFETCH}
+                className="ommm-admin-sidebar-action-button mx-8 mt-2 inline-flex w-[calc(100%-4rem)] justify-center"
+                onClick={onNavigate}
+              >
+                {tClients("addUserButton")}
+              </Link>
+            ) : null}
           </div>
         );
       })}
