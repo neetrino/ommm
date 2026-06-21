@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import {
+  parseHomePageSectionVisibilityJson,
+  serializeHomePageSectionVisibility,
+  type HomePageSectionVisibility,
+} from '@ommm/database';
+import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
 } from '../cache/public-cache-keys';
@@ -19,8 +24,15 @@ export class StudioService {
     return this.cache.getOrSet(
       PUBLIC_CACHE_KEYS.studio,
       PUBLIC_CACHE_TTL_SEC.studio,
-      () => this.loadPublicFromDb(),
+      async () => this.withParsedHomeSections(await this.loadPublicFromDb()),
     );
+  }
+
+  async getHomeSections() {
+    const publicRow = await this.getPublic();
+    return {
+      sections: publicRow.homeSectionsVisibility,
+    };
   }
 
   private async loadPublicFromDb() {
@@ -46,6 +58,31 @@ export class StudioService {
       data,
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);
-    return updated;
+    return this.withParsedHomeSections(updated);
+  }
+
+  async updateHomeSections(sections: HomePageSectionVisibility) {
+    const current = await this.loadPublicFromDb();
+    const updated = await this.prisma.studioSettings.update({
+      where: { id: current.id },
+      data: {
+        homeSectionsVisibilityJson: serializeHomePageSectionVisibility(sections),
+      },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);
+    return {
+      sections: parseHomePageSectionVisibilityJson(updated.homeSectionsVisibilityJson),
+    };
+  }
+
+  private withParsedHomeSections<T extends { homeSectionsVisibilityJson: string | null }>(
+    row: T,
+  ) {
+    return {
+      ...row,
+      homeSectionsVisibility: parseHomePageSectionVisibilityJson(
+        row.homeSectionsVisibilityJson,
+      ),
+    };
   }
 }

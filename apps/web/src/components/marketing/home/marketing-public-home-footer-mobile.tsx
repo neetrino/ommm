@@ -18,6 +18,7 @@ export type MarketingPublicHomeFooterMobileProps = {
   email: string;
   address: string;
   addressHref: string;
+  showContactSection?: boolean;
   socialTitle: string;
   socialAria: (network: string) => string;
   legalNavAria: string;
@@ -35,6 +36,7 @@ export function MarketingPublicHomeFooterMobile({
   email,
   address,
   addressHref,
+  showContactSection = true,
   socialTitle,
   socialAria,
   legalNavAria,
@@ -61,50 +63,52 @@ export function MarketingPublicHomeFooterMobile({
         </div>
       </div>
 
-      <div className={styles.mobileContact}>
-        <div className={styles.mobileContactRow}>
-          <Image
-            src={HOME_FOOTER_ASSETS.phone}
-            alt=""
-            width={20}
-            height={20}
-            unoptimized
-            className={styles.mobileContactIcon}
-            aria-hidden
-          />
-          <a href={`tel:${phone.replace(/\s/g, "")}`} className={styles.mobileContactText}>
-            {phone}
-          </a>
+      {showContactSection ? (
+        <div className={styles.mobileContact}>
+          <div className={styles.mobileContactRow}>
+            <Image
+              src={HOME_FOOTER_ASSETS.phone}
+              alt=""
+              width={20}
+              height={20}
+              unoptimized
+              className={styles.mobileContactIcon}
+              aria-hidden
+            />
+            <a href={`tel:${phone.replace(/\s/g, "")}`} className={styles.mobileContactText}>
+              {phone}
+            </a>
+          </div>
+          <div className={styles.mobileContactRow}>
+            <Image
+              src={HOME_FOOTER_ASSETS.mail}
+              alt=""
+              width={20}
+              height={20}
+              unoptimized
+              className={styles.mobileContactIcon}
+              aria-hidden
+            />
+            <a href={`mailto:${email}`} className={styles.mobileContactText}>
+              {email}
+            </a>
+          </div>
+          <div className={styles.mobileContactRow}>
+            <Image
+              src={HOME_FOOTER_ASSETS.location}
+              alt=""
+              width={20}
+              height={20}
+              unoptimized
+              className={styles.mobileContactIcon}
+              aria-hidden
+            />
+            <a href={addressHref} className={styles.mobileContactText} target="_blank" rel="noopener noreferrer">
+              {address}
+            </a>
+          </div>
         </div>
-        <div className={styles.mobileContactRow}>
-          <Image
-            src={HOME_FOOTER_ASSETS.mail}
-            alt=""
-            width={20}
-            height={20}
-            unoptimized
-            className={styles.mobileContactIcon}
-            aria-hidden
-          />
-          <a href={`mailto:${email}`} className={styles.mobileContactText}>
-            {email}
-          </a>
-        </div>
-        <div className={styles.mobileContactRow}>
-          <Image
-            src={HOME_FOOTER_ASSETS.location}
-            alt=""
-            width={20}
-            height={20}
-            unoptimized
-            className={styles.mobileContactIcon}
-            aria-hidden
-          />
-          <a href={addressHref} className={styles.mobileContactText} target="_blank" rel="noopener noreferrer">
-            {address}
-          </a>
-        </div>
-      </div>
+      ) : null}
 
       <div className={styles.mobileSocial}>
         <p className={styles.mobileSocialTitle}>{socialTitle}</p>

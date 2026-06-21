@@ -4,6 +4,7 @@ import { Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { UpdateHomeSectionsDto } from './dto/update-home-sections.dto';
 import { UpdateStudioDto } from './dto/update-studio.dto';
 import { StudioService } from './studio.service';
 
@@ -21,10 +22,23 @@ export class StudioController {
     return this.studio.getPublic();
   }
 
+  @Get('home-sections')
+  @SkipThrottle()
+  getHomeSections() {
+    return this.studio.getHomeSections();
+  }
+
   @Patch()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   update(@Body() dto: UpdateStudioDto) {
     return this.studio.update(dto);
+  }
+
+  @Patch('home-sections')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  updateHomeSections(@Body() dto: UpdateHomeSectionsDto) {
+    return this.studio.updateHomeSections(dto.sections);
   }
 }

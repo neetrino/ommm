@@ -598,6 +598,7 @@ model StudioSettings {
   socialLinksJson         String?
   cancellationHoursNotice Int      @default(24)
   waitlistOfferMinutes    Int      @default(30)
+  homeSectionsVisibilityJson String?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 }

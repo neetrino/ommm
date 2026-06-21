@@ -1,3 +1,5 @@
+import type { HomePageSectionVisibility } from "@/lib/home-page-sections";
+
 export type StudioSocialLink = {
   label: string;
   url: string;
@@ -16,6 +18,7 @@ export type StudioPublicSettings = {
   socialLinksJson: string | null;
   cancellationHoursNotice: number;
   waitlistOfferMinutes: number;
+  homeSectionsVisibility?: HomePageSectionVisibility;
 };
 
 function capitalizePlatform(name: string): string {

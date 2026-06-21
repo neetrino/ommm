@@ -1496,6 +1496,60 @@
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."
     },
+    "settings": {
+      "title": "Settings",
+      "studioDescription": "Manage studio identity, contact details, and operational defaults.",
+      "homeSectionsDescription": "Control which marketing home sections appear on the public website and navigation.",
+      "tabs": {
+        "aria": "Settings sections",
+        "studio": "Studio",
+        "homeSections": "Home Page Sections",
+        "identity": "Identity",
+        "location": "Location",
+        "contact": "Contact"
+      },
+      "studioSections": {
+        "identity": "Public studio name",
+        "location": "Map embed for the public contact page",
+        "contact": "Shown on the public contact page — phone, email, address, hours, and social links"
+      },
+      "homeSections": {
+        "loadFailed": "Could not load home page section settings ({status}).",
+        "panelTitle": "Home Page Sections",
+        "panelDescription": "Enable or disable each public marketing section independently. Changes apply to the home page, top navigation, and linked pages.",
+        "summary": "{count} of {total} sections enabled",
+        "save": "Save visibility",
+        "saving": "Saving...",
+        "saved": "Home page section visibility updated.",
+        "failed": "Could not update home page section visibility.",
+        "toggleAria": "Toggle {section} — currently {state}",
+        "stateEnabled": "enabled",
+        "stateDisabled": "disabled",
+        "sections": {
+          "home": {
+            "description": "Hero banner at the top of the home page."
+          },
+          "story": {
+            "description": "Story page and navigation link."
+          },
+          "schedule": {
+            "description": "Weekly schedule banner, classes preview on home, and Schedule page."
+          },
+          "memberships": {
+            "description": "Membership plans on the home page and Packages page."
+          },
+          "coaches": {
+            "description": "Coaches carousel on the home page and Coaches page."
+          },
+          "explore": {
+            "description": "Explore gallery on the home page and Explore pages."
+          },
+          "contact": {
+            "description": "Contact block in the footer, Contact page, and navigation link."
+          }
+        }
+      }
+    },
     "bookings": {
       "title": "Bookings",
       "description": "Manage all bookings from website and mobile app, including statuses, attendance, and actions.",
@@ -3946,6 +4000,12 @@
       "saving": "Saving...",
       "saved": "Settings updated.",
       "failed": "Could not update settings.",
+      "tabs": {
+        "aria": "Studio settings sections",
+        "identity": "Identity",
+        "location": "Location",
+        "contact": "Contact"
+      },
       "tiles": {
         "identity": {
           "title": "Studio identity",

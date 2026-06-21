@@ -7,6 +7,7 @@ import {
   type MarketingHeaderAccount,
 } from "@/components/marketing/marketing-site-header";
 import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links";
+import type { MarketingNavLinkDefinition } from "@/lib/home-page-sections";
 import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
 import { MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT } from "@/components/marketing/marketing-site-header-layout";
 import { useMarketingHeaderOffsetSync } from "@/components/marketing/use-marketing-header-offset-sync";
@@ -26,11 +27,13 @@ export type WorkspaceShellProps = Omit<
   "withSiteHeader" | "drawerOpen" | "onDrawerOpenChange"
 > & {
   account: MarketingHeaderAccount;
+  marketingNavLinks?: readonly MarketingNavLinkDefinition[];
 };
 
 /** Authenticated workspace chrome — global site header + dashboard shell. */
 export function WorkspaceShell({
   account,
+  marketingNavLinks = MARKETING_NAV_LINKS,
   notificationRoute,
   navRole,
   children,
@@ -75,7 +78,7 @@ export function WorkspaceShell({
         style={shellStyle}
       >
       <MarketingSiteHeader
-        navLinks={MARKETING_NAV_LINKS}
+        navLinks={marketingNavLinks}
         account={account}
         workspaceHeaderChrome
         memberWorkspaceHeader={isMemberShell}

@@ -1,10 +1,10 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { AdminStudioSettingsOverview } from "@/components/admin/admin-studio-settings-overview";
+import { AdminStudioSettingsSectionForm } from "@/components/admin/admin-studio-settings-section-form";
 import { serverApiJson } from "@/lib/server-api";
 import type { StudioPublicSettings } from "@/lib/studio-social-links";
 
-export default async function AdminSettingsPage({
+export default async function AdminSettingsContactPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -20,5 +20,5 @@ export default async function AdminSettingsPage({
     );
   }
 
-  return <AdminStudioSettingsOverview initial={res.data} />;
+  return <AdminStudioSettingsSectionForm initial={res.data} section="contact" />;
 }
