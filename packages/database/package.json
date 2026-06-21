@@ -9,6 +9,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./home-page-sections": {
+      "types": "./src/home-page-sections.ts",
+      "import": "./src/home-page-sections.ts",
+      "default": "./src/home-page-sections.ts"
     }
   },
   "scripts": {

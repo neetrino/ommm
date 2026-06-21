@@ -8,13 +8,13 @@ export {
   type HomePageSectionDefinition,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
-} from "@ommm/database";
+} from "@ommm/database/home-page-sections";
 
 import {
   HOME_PAGE_SECTION_DEFINITIONS,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
-} from "@ommm/database";
+} from "@ommm/database/home-page-sections";
 import {
   MARKETING_NAV_LINKS,
   type MarketingNavKey,
