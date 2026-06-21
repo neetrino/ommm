@@ -3,10 +3,6 @@
 import { useTranslations } from "next-intl";
 import { homeSectionDashboardIcon } from "@/components/admin/admin-home-section-icons";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import {
-  ADMIN_COACH_STATUS_BADGE_CLASS,
-  coachStatusBadgeTone,
-} from "@/components/admin/admin-coach-list-badges";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import type { HomePageSectionKey } from "@/lib/home-page-sections";
@@ -23,34 +19,6 @@ function marketingNavKeyForSection(
   key: HomePageSectionKey,
 ): "home" | "story" | "schedule" | "memberships" | "coaches" | "explore" | "contact" {
   return key;
-}
-
-function HomeSectionStatusBadge({
-  enabled,
-  saving,
-}: {
-  enabled: boolean;
-  saving: boolean;
-}) {
-  const t = useTranslations("adminPages.settings.homeSections");
-
-  if (saving) {
-    return (
-      <span
-        className={`${ADMIN_COACH_STATUS_BADGE_CLASS} bg-sand-100 text-sage-700 transition-colors duration-200`}
-      >
-        {t("rowSaving")}
-      </span>
-    );
-  }
-
-  return (
-    <span
-      className={`${ADMIN_COACH_STATUS_BADGE_CLASS} ${coachStatusBadgeTone(enabled)} transition-colors duration-200`}
-    >
-      {enabled ? t("badgeEnabled") : t("badgeDisabled")}
-    </span>
-  );
 }
 
 export function AdminHomeSectionVisibilityRow({
@@ -88,8 +56,7 @@ export function AdminHomeSectionVisibilityRow({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 pl-[3.25rem] sm:shrink-0 sm:justify-end sm:pl-0 sm:gap-4">
-          <HomeSectionStatusBadge enabled={enabled} saving={saving} />
+        <div className="flex items-center pl-[3.25rem] sm:shrink-0 sm:justify-end sm:pl-0">
           <button
             type="button"
             className="inline-flex shrink-0 cursor-pointer items-center rounded-full p-1 transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40"

@@ -1,12 +1,19 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminHomeSectionVisibilityRow } from "@/components/admin/admin-home-section-visibility-row";
 import { AdminHomeSectionsStatusNotice } from "@/components/admin/admin-home-sections-status-notice";
+import {
+  HOME_SECTIONS_VIEW_QUERY_KEY,
+  parseHomeSectionsViewQuery,
+  resolveHomeSectionPendingToggle,
+} from "@/components/admin/admin-home-sections-query";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicStudio } from "@/lib/revalidate-public-studio";
 import {
@@ -26,11 +33,35 @@ export function AdminHomeSectionsSettingsForm({
   initial,
 }: AdminHomeSectionsSettingsFormProps) {
   const t = useTranslations("adminPages.settings.homeSections");
+  const tNav = useTranslations("nav");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchParamsStringRef = useRef(searchParams.toString());
   const saveInFlightRef = useRef(false);
   const [sections, setSections] = useState<HomePageSectionVisibility>(initial);
   const [savingKey, setSavingKey] = useState<HomePageSectionKey | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
+
+  useEffect(() => {
+    searchParamsStringRef.current = searchParams.toString();
+  }, [searchParams]);
+
+  const viewSectionKey = parseHomeSectionsViewQuery(
+    searchParams.get(HOME_SECTIONS_VIEW_QUERY_KEY),
+  );
+  const pendingToggle =
+    viewSectionKey === null ? null : resolveHomeSectionPendingToggle(viewSectionKey, sections);
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParamsStringRef.current);
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router],
+  );
 
   const enabledCount = useMemo(
     () => HOME_PAGE_SECTION_KEYS.filter((key) => sections[key]).length,
@@ -43,9 +74,9 @@ export function AdminHomeSectionsSettingsForm({
     key: HomePageSectionKey,
     enabled: boolean,
     previous: HomePageSectionVisibility,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (saveInFlightRef.current) {
-      return;
+      return false;
     }
 
     const nextSections: HomePageSectionVisibility = { ...previous, [key]: enabled };
@@ -62,25 +93,70 @@ export function AdminHomeSectionsSettingsForm({
       await revalidatePublicStudio();
       setToast({ message: t("saved"), tone: "ok" });
       router.refresh();
+      return true;
     } catch (error) {
       setSections(previous);
       setToast({
         message: error instanceof ApiError ? error.message : t("failed"),
         tone: "err",
       });
+      return false;
     } finally {
       saveInFlightRef.current = false;
       setSavingKey(null);
     }
   }
 
-  function setSectionEnabled(key: HomePageSectionKey, enabled: boolean): void {
+  function requestSectionToggle(key: HomePageSectionKey, enabled: boolean): void {
     if (isBusy || sections[key] === enabled) {
       return;
     }
 
-    void persistSection(key, enabled, sections);
+    replaceSearchParams((params) => {
+      params.set(HOME_SECTIONS_VIEW_QUERY_KEY, key);
+    });
   }
+
+  function closeConfirm(): void {
+    if (isBusy) {
+      return;
+    }
+
+    replaceSearchParams((params) => {
+      params.delete(HOME_SECTIONS_VIEW_QUERY_KEY);
+    });
+  }
+
+  async function confirmSectionToggle(): Promise<void> {
+    if (pendingToggle === null || isBusy) {
+      return;
+    }
+
+    const { key, enabled } = pendingToggle;
+    const saved = await persistSection(key, enabled, sections);
+    if (saved) {
+      closeConfirm();
+    }
+  }
+
+  const pendingSectionLabel =
+    pendingToggle === null ? "" : tNav(pendingToggle.key);
+  const confirmCopy =
+    pendingToggle?.enabled === false
+      ? {
+          title: t("confirmDisableTitle", { section: pendingSectionLabel }),
+          description: t("confirmDisableDescription", { section: pendingSectionLabel }),
+          confirmLabel: t("disableSectionButton"),
+          tone: "danger" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--danger",
+        }
+      : {
+          title: t("confirmEnableTitle", { section: pendingSectionLabel }),
+          description: t("confirmEnableDescription", { section: pendingSectionLabel }),
+          confirmLabel: t("enableSectionButton"),
+          tone: "success" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--success",
+        };
 
   return (
     <>
@@ -113,7 +189,7 @@ export function AdminHomeSectionsSettingsForm({
                 enabled={sections[definition.key]}
                 disabled={isBusy}
                 saving={savingKey === definition.key}
-                onToggle={setSectionEnabled}
+                onToggle={requestSectionToggle}
               />
             ))}
           </div>
@@ -127,6 +203,22 @@ export function AdminHomeSectionsSettingsForm({
           onDismiss={() => setToast(null)}
         />
       ) : null}
+
+      <OmmConfirmDialog
+        isOpen={pendingToggle !== null}
+        title={confirmCopy.title}
+        description={confirmCopy.description}
+        confirmLabel={isBusy ? t("saving") : confirmCopy.confirmLabel}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone={confirmCopy.tone}
+        confirmClassName={confirmCopy.confirmClassName}
+        pending={isBusy}
+        onConfirm={() => {
+          void confirmSectionToggle();
+        }}
+        onCancel={closeConfirm}
+      />
     </>
   );
 }

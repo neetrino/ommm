@@ -1510,9 +1510,6 @@
         "summary": "Включено разделов: {count} из {total}",
         "statusNoticeTitle": "Будьте внимательны при изменении статуса раздела",
         "statusNoticeDetail": "Отключение убирает его из навигации в шапке сайта.",
-        "badgeEnabled": "Включено",
-        "badgeDisabled": "Отключено",
-        "rowSaving": "Сохранение…",
         "save": "Сохранить видимость",
         "saving": "Сохранение...",
         "saved": "Видимость разделов обновлена.",
@@ -1520,6 +1517,14 @@
         "toggleAria": "Переключить «{section}» — сейчас {state}",
         "stateEnabled": "включено",
         "stateDisabled": "отключено",
+        "cancelButton": "Отмена",
+        "modalBackdropClose": "Закрыть окно",
+        "disableSectionButton": "Отключить раздел",
+        "enableSectionButton": "Включить раздел",
+        "confirmDisableTitle": "Отключить раздел «{section}»?",
+        "confirmDisableDescription": "Этот раздел будет скрыт на публичном сайте — он исчезнет из навигации в шапке и с соответствующих страниц. Вы сможете включить его снова в любой момент.",
+        "confirmEnableTitle": "Включить раздел «{section}»?",
+        "confirmEnableDescription": "Этот раздел снова станет видимым на публичном сайте — в навигации в шапке и на соответствующих страницах.",
         "sections": {
           "home": {
             "description": "Главный баннер в верхней части домашней страницы."

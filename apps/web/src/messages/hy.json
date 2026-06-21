@@ -1510,9 +1510,6 @@
         "summary": "Միացված է {count}/{total} բաժին",
         "statusNoticeTitle": "Զգույշ եղեք բաժնի կարգավիճակը փոխելիս",
         "statusNoticeDetail": "Անջատելիս այն կհանվի կայքի header նավիգացիայից։",
-        "badgeEnabled": "Միացված",
-        "badgeDisabled": "Անջատված",
-        "rowSaving": "Պահպանում…",
         "save": "Պահպանել տեսանելիությունը",
         "saving": "Պահպանում...",
         "saved": "Գլխավոր էջի բաժինների տեսանելիությունը թարմացվեց։",
@@ -1520,6 +1517,14 @@
         "toggleAria": "Փոխել {section} — ներկայում {state}",
         "stateEnabled": "միացված",
         "stateDisabled": "անջատված",
+        "cancelButton": "Չեղարկել",
+        "modalBackdropClose": "Փակել պատուհանը",
+        "disableSectionButton": "Անջատել բաժինը",
+        "enableSectionButton": "Միացնել բաժինը",
+        "confirmDisableTitle": "Անջատե՞լ «{section}» բաժինը",
+        "confirmDisableDescription": "Այս բաժինը կթաքցվի հրապարակային կայքից՝ այլևս չի ցուցադրվի header նավիգացիայում և կապված էջերում։ Կարող եք ցանկացած պահի նորից միացնել։",
+        "confirmEnableTitle": "Միացնե՞լ «{section}» բաժինը",
+        "confirmEnableDescription": "Այս բաժինը կրկին կհայտնվի հրապարակային կայքում՝ header նավիգացիայում և կապված էջերում։",
         "sections": {
           "home": {
             "description": "Գլխավոր էջի վերին hero բաները։"

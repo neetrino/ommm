@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminHomeSectionsSettingsForm } from "@/components/admin/admin-home-sections-settings-form";
@@ -26,8 +27,10 @@ export default async function AdminHomeSectionsSettingsPage({
   }
 
   return (
-    <AdminHomeSectionsSettingsForm
-      initial={res.data.sections ?? createDefaultHomePageSectionVisibility()}
-    />
+    <Suspense fallback={null}>
+      <AdminHomeSectionsSettingsForm
+        initial={res.data.sections ?? createDefaultHomePageSectionVisibility()}
+      />
+    </Suspense>
   );
 }

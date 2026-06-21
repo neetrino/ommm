@@ -1519,9 +1519,6 @@
         "summary": "{count} of {total} sections enabled",
         "statusNoticeTitle": "Be careful when changing a section’s status",
         "statusNoticeDetail": "Disabling a section removes it from the site header navigation.",
-        "badgeEnabled": "Enabled",
-        "badgeDisabled": "Disabled",
-        "rowSaving": "Saving…",
         "save": "Save visibility",
         "saving": "Saving...",
         "saved": "Home page section visibility updated.",
@@ -1529,6 +1526,14 @@
         "toggleAria": "Toggle {section} — currently {state}",
         "stateEnabled": "enabled",
         "stateDisabled": "disabled",
+        "cancelButton": "Cancel",
+        "modalBackdropClose": "Close dialog",
+        "disableSectionButton": "Disable section",
+        "enableSectionButton": "Enable section",
+        "confirmDisableTitle": "Disable {section}?",
+        "confirmDisableDescription": "This section will be hidden from the public site — it will no longer appear in the header navigation or on its related pages. You can re-enable it at any time.",
+        "confirmEnableTitle": "Enable {section}?",
+        "confirmEnableDescription": "This section will become visible on the public site again, including in the header navigation and on its related pages.",
         "sections": {
           "home": {
             "description": "Hero banner at the top of the home page."
