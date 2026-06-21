@@ -8,6 +8,7 @@ import { MarketingLayoutHeaderSlot } from "@/components/marketing/marketing-layo
 import { MarketingLayoutShell } from "@/components/marketing/marketing-layout-shell";
 import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-main";
 import { MarketingSiteHeaderWithClientAccount } from "@/components/marketing/marketing-site-header-with-client-account";
+import { MarketingSectionsVisibilityProvider } from "@/components/marketing/marketing-sections-visibility-context";
 import { MarketingRealtimeRoot } from "@/components/realtime/marketing-realtime-root";
 import { routing } from "@/i18n/routing";
 import {
@@ -59,29 +60,31 @@ export default async function MarketingLayout({
   const showFooterContact = isHomeSectionEnabled(visibility, "contact");
 
   return (
-    <MarketingRealtimeRoot serverAuthenticated={headerAccount !== null}>
-      <MarketingLayoutShell>
-        <Suspense
-          fallback={
-            <MarketingSiteHeaderWithClientAccount
-              navLinks={navLinks}
-              serverAccount={null}
-            />
-          }
-        >
-          <MarketingLayoutHeaderSlot navLinks={navLinks} />
-        </Suspense>
-        <MarketingLayoutMain>{children}</MarketingLayoutMain>
-        <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
-          <Suspense fallback={<MarketingFooterLoading />}>
-            <MarketingPublicHomeFooter
-              locale={locale}
-              surfaceVariant="inner"
-              showContactSection={showFooterContact}
-            />
+    <MarketingSectionsVisibilityProvider visibility={visibility}>
+      <MarketingRealtimeRoot serverAuthenticated={headerAccount !== null}>
+        <MarketingLayoutShell>
+          <Suspense
+            fallback={
+              <MarketingSiteHeaderWithClientAccount
+                navLinks={navLinks}
+                serverAccount={null}
+              />
+            }
+          >
+            <MarketingLayoutHeaderSlot navLinks={navLinks} />
           </Suspense>
-        </MarketingFooterGate>
-      </MarketingLayoutShell>
-    </MarketingRealtimeRoot>
+          <MarketingLayoutMain>{children}</MarketingLayoutMain>
+          <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
+            <Suspense fallback={<MarketingFooterLoading />}>
+              <MarketingPublicHomeFooter
+                locale={locale}
+                surfaceVariant="inner"
+                showContactSection={showFooterContact}
+              />
+            </Suspense>
+          </MarketingFooterGate>
+        </MarketingLayoutShell>
+      </MarketingRealtimeRoot>
+    </MarketingSectionsVisibilityProvider>
   );
 }

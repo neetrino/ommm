@@ -66,6 +66,27 @@ export function isHomeSectionEnabled(
   return visibility[key] !== false;
 }
 
+/** Maps a marketing href (`/schedule`, `/packages`, …) to a section key. */
+export function resolveMarketingSectionKeyFromHref(
+  href: string,
+): HomePageSectionKey | null {
+  const path = href.split("?")[0]?.split("#")[0] ?? href;
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return resolveMarketingSectionKeyFromPath(normalized);
+}
+
+/** Whether a marketing href should navigate (false when its section is disabled). */
+export function isMarketingHrefEnabled(
+  href: string,
+  visibility: HomePageSectionVisibility,
+): boolean {
+  const sectionKey = resolveMarketingSectionKeyFromHref(href);
+  if (sectionKey === null || sectionKey === "home") {
+    return true;
+  }
+  return isHomeSectionEnabled(visibility, sectionKey);
+}
+
 export type MarketingNavLinkDefinition = (typeof MARKETING_NAV_LINKS)[number];
 
 export function filterMarketingNavLinks(

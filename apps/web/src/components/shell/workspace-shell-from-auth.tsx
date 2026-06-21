@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { MarketingSectionsVisibilityBoundary } from "@/components/marketing/marketing-sections-visibility-boundary";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
 import type { LayoutAuthUser } from "@/server/require-role-layout";
 import { getFilteredMarketingNavLinks } from "@/server/home-sections-visibility";
@@ -28,8 +29,10 @@ export async function WorkspaceShellFromAuth({
   const marketingNavLinks = await getFilteredMarketingNavLinks();
 
   return (
-    <WorkspaceShell account={account} marketingNavLinks={marketingNavLinks} {...shellProps}>
-      {children}
-    </WorkspaceShell>
+    <MarketingSectionsVisibilityBoundary>
+      <WorkspaceShell account={account} marketingNavLinks={marketingNavLinks} {...shellProps}>
+        {children}
+      </WorkspaceShell>
+    </MarketingSectionsVisibilityBoundary>
   );
 }
