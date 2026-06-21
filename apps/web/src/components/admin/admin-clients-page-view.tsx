@@ -3,7 +3,7 @@
 import { useCallback, useRef } from "react";
 import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
 import { AdminClientsShell } from "@/components/admin/admin-clients-shell";
-import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
+import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 
 type AdminClientsPageViewProps = {
   initial: AdminClientsPayload;
@@ -24,7 +24,7 @@ export function AdminClientsPageView({
 }: AdminClientsPageViewProps) {
   const refetchRef = useRef<(() => void) | null>(null);
 
-  const handleClientCreated = useCallback((_client: ClientRow) => {
+  const handleClientCreated = useCallback(() => {
     refetchRef.current?.();
   }, []);
 

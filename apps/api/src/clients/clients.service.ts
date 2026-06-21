@@ -20,7 +20,10 @@ import { AuditService } from '../audit/audit.service';
 import { PASSWORD_RESET_TTL_MS } from '../common/constants';
 import { generateSecurePassword } from '../common/generate-secure-password';
 import { hashPassword } from '../common/password-crypto';
-import { normalizeOptionalPhone, normalizeRequiredPhone } from '../common/phone';
+import {
+  normalizeOptionalPhone,
+  normalizeRequiredPhone,
+} from '../common/phone';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateClientDto } from './dto/admin-create-client.dto';

@@ -10,9 +10,7 @@ import {
 } from '@ommm/database';
 
 @ValidatorConstraint({ name: 'homePageSectionVisibilityMap', async: false })
-class HomePageSectionVisibilityMapConstraint
-  implements ValidatorConstraintInterface
-{
+class HomePageSectionVisibilityMapConstraint implements ValidatorConstraintInterface {
   validate(value: unknown): boolean {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
       return false;

@@ -66,18 +66,21 @@ export class StudioService {
     const updated = await this.prisma.studioSettings.update({
       where: { id: current.id },
       data: {
-        homeSectionsVisibilityJson: serializeHomePageSectionVisibility(sections),
+        homeSectionsVisibilityJson:
+          serializeHomePageSectionVisibility(sections),
       },
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);
     return {
-      sections: parseHomePageSectionVisibilityJson(updated.homeSectionsVisibilityJson),
+      sections: parseHomePageSectionVisibilityJson(
+        updated.homeSectionsVisibilityJson,
+      ),
     };
   }
 
-  private withParsedHomeSections<T extends { homeSectionsVisibilityJson: string | null }>(
-    row: T,
-  ) {
+  private withParsedHomeSections<
+    T extends { homeSectionsVisibilityJson: string | null },
+  >(row: T) {
     return {
       ...row,
       homeSectionsVisibility: parseHomePageSectionVisibilityJson(
