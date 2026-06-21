@@ -1,5 +1,7 @@
+"use client";
+
+import { MarketingSectionLink } from "@/components/marketing/marketing-section-link";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { Link } from "@/i18n/navigation";
 import {
   HOME_HERO_CTA_FROST_BG,
   HOME_HERO_CTA_GOLD_BG,
@@ -25,6 +27,8 @@ export type HomeMarketingPillLinkProps = {
  */
 export function HomeMarketingPillLink({ href, label, variant }: HomeMarketingPillLinkProps) {
   const pill = pillStyles[variant];
+  const linkClassName = `${marketingMontserrat.className} relative flex h-14 min-h-14 items-center justify-center rounded-full border-[5px] px-5 text-center text-lg font-bold leading-7 text-white transition-[filter,transform] hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent active:translate-y-px ${pill.minWidthClass}`;
+
   return (
     <div className="relative shrink-0 sm:min-w-0">
       <div
@@ -32,16 +36,17 @@ export function HomeMarketingPillLink({ href, label, variant }: HomeMarketingPil
         style={{ borderColor: pill.highlight }}
         aria-hidden
       />
-      <Link
+      <MarketingSectionLink
         href={href}
-        className={`${marketingMontserrat.className} relative flex h-14 min-h-14 items-center justify-center rounded-full border-[5px] px-5 text-center text-lg font-bold leading-7 text-white transition-[filter,transform] hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent active:translate-y-px ${pill.minWidthClass}`}
+        className={linkClassName}
+        disabledClassName={`${linkClassName} pointer-events-none opacity-60`}
         style={{
           borderColor: pill.border,
           backgroundImage: pill.backgroundImage,
         }}
       >
         {label}
-      </Link>
+      </MarketingSectionLink>
     </div>
   );
 }

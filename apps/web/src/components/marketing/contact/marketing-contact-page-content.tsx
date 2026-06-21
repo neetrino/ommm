@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { ContactMessageForm } from "@/components/marketing/contact-message-form";
 import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import { CONTACT_PAGE_CARD_SHELL_CLASS } from "@/components/marketing/contact/contact-page-tokens";
 import { MarketingContactAnimatedSections } from "@/components/marketing/contact/marketing-contact-animated-sections";
@@ -35,7 +34,7 @@ function MarketingContactStudioCardPlaceholder() {
   return (
     <div
       aria-hidden
-      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} min-h-[clamp(22rem,55vw,28rem)] opacity-60`}
+      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} min-h-[clamp(16rem,40vw,20rem)] opacity-60`}
     />
   );
 }
@@ -97,7 +96,7 @@ function buildContactStudioRows(
   return rows;
 }
 
-/** Contact cards — form paints immediately; studio + map stream in parallel. */
+/** Contact cards — studio + map stream in parallel. */
 export function MarketingContactPageLayout({
   locale,
   studioFetch,
@@ -110,7 +109,6 @@ export function MarketingContactPageLayout({
             <MarketingContactStudioSection locale={locale} studioFetch={studioFetch} />
           </Suspense>
         }
-        messageForm={<ContactMessageForm />}
       />
       <Suspense fallback={null}>
         <MarketingContactMapEmbedSection locale={locale} studioFetch={studioFetch} />

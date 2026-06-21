@@ -1,6 +1,5 @@
 .card {
   display: flex;
-  height: 100%;
   flex-direction: column;
   gap: var(--contact-card-gap);
   padding: var(--contact-card-padding);
@@ -18,13 +17,23 @@
 
 .list {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  justify-content: space-between;
   gap: clamp(1.25rem, 2.8vh, 2rem);
   margin: 0;
   padding: 0.25rem 0;
   list-style: none;
+}
+
+@media (min-width: 768px) {
+  .list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .rowSocial {
+    grid-column: 2;
+  }
 }
 
 .row {
@@ -95,7 +104,6 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  margin-top: auto;
   border-radius: var(--contact-callout-radius);
   border: 1px solid rgba(255, 255, 255, 0.6);
   background: var(--contact-callout-bg);
@@ -116,61 +124,9 @@
   color: var(--contact-label-color);
 }
 
-.socialList {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1.5rem 2rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (max-width: 743px) {
-  .socialList {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .socialLink {
-    gap: 0.75rem;
-  }
-
-  .socialLabel {
-    font-size: 0.9375rem;
-  }
-}
-
-.socialLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  transition: opacity 150ms ease;
-}
-
-.socialLabel {
-  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1rem, 1.6vw, 1.125rem);
-  font-weight: 500;
-  line-height: 1.35;
-  color: var(--contact-value-color);
-}
-
-.socialLink:hover {
-  opacity: 0.72;
-}
-
-.socialLink:focus-visible {
-  outline: 2px solid var(--contact-value-color);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
 .socialBrandIcon {
-  width: var(--contact-social-icon-size, 1.625rem);
-  height: var(--contact-social-icon-size, 1.625rem);
+  width: calc(var(--contact-icon-size) * 0.5);
+  height: calc(var(--contact-icon-size) * 0.5);
   flex-shrink: 0;
   color: var(--contact-value-color);
   opacity: 0.88;

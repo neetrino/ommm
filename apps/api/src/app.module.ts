@@ -14,7 +14,6 @@ import { BookingsModule } from './bookings/bookings.module';
 import { ClassesModule } from './classes/classes.module';
 import { ClientsModule } from './clients/clients.module';
 import { CoachesModule } from './coaches/coaches.module';
-import { ContactModule } from './contact/contact.module';
 import { ContentModule } from './content/content.module';
 import { GiftCardsModule } from './gift-cards/gift-cards.module';
 import { MailModule } from './mail/mail.module';
@@ -89,7 +88,6 @@ function createPinoHttpConfig(): Record<string, unknown> {
     AuthModule,
     UsersModule,
     StudioModule,
-    ContactModule,
     CoachesModule,
     ClassesModule,
     BookingsModule,

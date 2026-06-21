@@ -8,7 +8,7 @@ import { marketingHeaderMobileMenuNavLinkClass } from "@/components/marketing/ma
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
-import { Link } from "@/i18n/navigation";
+import { MarketingSectionLink } from "@/components/marketing/marketing-section-link";
 
 type MarketingMobileMenuModalProps = {
   isOpen: boolean;
@@ -116,7 +116,7 @@ export function MarketingMobileMenuModal({
             aria-label={tUi("mobilePrimaryNavAria")}
           >
             {navLinks.map(({ href, key }) => (
-              <Link
+              <MarketingSectionLink
                 key={href}
                 href={href}
                 className={marketingHeaderMobileMenuNavLinkClass(
@@ -125,17 +125,18 @@ export function MarketingMobileMenuModal({
                 onClick={onClose}
               >
                 {tNav(key)}
-              </Link>
+              </MarketingSectionLink>
             ))}
           </nav>
           <div className={navPillStyles.mobileDivider}>
-            <Link
+            <MarketingSectionLink
               href="/schedule"
               className={navPillStyles.mobileCtaPrimary}
+              disabledClassName={`${navPillStyles.mobileCtaPrimary} pointer-events-none opacity-60`}
               onClick={onClose}
             >
               {tUi("bookAClass")}
-            </Link>
+            </MarketingSectionLink>
           </div>
         </div>
       </div>

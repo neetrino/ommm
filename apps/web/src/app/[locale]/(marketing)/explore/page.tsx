@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { MarketingExploreComingSoon } from "@/components/marketing/explore/marketing-explore-coming-soon";
 import { MarketingExplorePageSection } from "@/components/marketing/explore/marketing-explore-page-section";
+import { ensureMarketingSectionEnabled } from "@/server/ensure-marketing-section-enabled";
 
 export async function generateMetadata({
   params,
@@ -24,6 +25,7 @@ export default async function ExplorePage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
+  await ensureMarketingSectionEnabled("explore");
   const { locale } = await params;
 
   return (

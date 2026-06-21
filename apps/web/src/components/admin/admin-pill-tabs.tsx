@@ -32,8 +32,8 @@ export function AdminPillTabs({ items, activeId, onChange, ariaLabel }: AdminPil
             aria-selected={active}
             className={
               active
-                ? "ommm-admin-pill-tab ommm-admin-pill-tab-active shrink-0"
-                : "ommm-admin-pill-tab shrink-0"
+                ? "ommm-admin-pill-tab ommm-admin-pill-tab-active shrink-0 px-4 normal-case tracking-normal"
+                : "ommm-admin-pill-tab shrink-0 px-4 normal-case tracking-normal"
             }
             onClick={() => onChange(item.id)}
           >

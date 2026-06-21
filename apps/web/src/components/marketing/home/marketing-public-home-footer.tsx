@@ -29,6 +29,7 @@ type MarketingPublicHomeFooterProps = {
   locale: string;
   /** Home page uses gallery underlap; inner routes blend layout gradient behind footer. */
   surfaceVariant?: HomeFooterSurfaceVariant;
+  showContactSection?: boolean;
 };
 
 function pct(value: number): string {
@@ -150,6 +151,7 @@ function FooterDesktopLayer({
 export async function MarketingPublicHomeFooter({
   locale,
   surfaceVariant = "home",
+  showContactSection = true,
 }: MarketingPublicHomeFooterProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
 
@@ -168,7 +170,7 @@ export async function MarketingPublicHomeFooter({
     </div>
   );
 
-  const contact = (
+  const contact = showContactSection ? (
     <div>
       <p className={styles.sectionTitle}>{t("footerContactTitle")}</p>
       <ul className={styles.contactList}>
@@ -192,7 +194,7 @@ export async function MarketingPublicHomeFooter({
         </li>
       </ul>
     </div>
-  );
+  ) : null;
 
   const social = (
     <div className={styles.socialBlock}>
@@ -262,6 +264,7 @@ export async function MarketingPublicHomeFooter({
           email={t("footerEmail")}
           address={t("footerAddress")}
           addressHref={HOME_FOOTER_ADDRESS_HREF}
+          showContactSection={showContactSection}
           socialTitle={t("footerSocialTitle")}
           socialAria={(network) => t("footerSocialAria", { network })}
           legalNavAria={t("footerLegalNavAria")}

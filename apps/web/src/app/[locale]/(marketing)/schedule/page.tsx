@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { MarketingSchedulePageLayout } from "@/components/marketing/schedule/marketing-schedule-page-content";
 import { MarketingSchedulePageSection } from "@/components/marketing/schedule/marketing-schedule-page-section";
+import { ensureMarketingSectionEnabled } from "@/server/ensure-marketing-section-enabled";
 
 export async function generateMetadata({
   params,
@@ -21,6 +22,7 @@ export default async function ScheduleMarketingPage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
+  await ensureMarketingSectionEnabled("schedule");
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "marketingPages.schedule" });
 

@@ -1,15 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminStudioContactSettingsFields } from "@/components/admin/admin-studio-contact-settings-fields";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import type { StudioSettingsSectionId } from "@/components/admin/admin-studio-settings-module";
 import {
   AdminSheetEditableField,
   adminSheetFieldInputClass,
 } from "@/components/admin/admin-sheet-editable-field";
-import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatPhoneDisplay, normalizePhoneForApi } from "@/lib/phone";
@@ -23,48 +23,15 @@ import {
   type StudioPublicSettings,
 } from "@/lib/studio-social-links";
 
-type AdminStudioSettingsFormProps = {
+type AdminStudioSettingsSectionFormProps = {
   initial: StudioPublicSettings;
+  section: StudioSettingsSectionId;
 };
 
-type SettingsSectionProps = {
-  heading: string;
-  description: string;
-  children: React.ReactNode;
-  className?: string;
-};
-
-function SettingsSection({ heading, description, children, className = "" }: SettingsSectionProps) {
-  return (
-    <section className={`${adminChrome.panel} ${className}`.trim()}>
-      <h2 className={adminChrome.panelHeading}>{heading}</h2>
-      <p className={`${adminChrome.metaText} mt-1 max-w-2xl`}>{description}</p>
-      <div className="mt-5">{children}</div>
-    </section>
-  );
-}
-
-type SummaryMetricProps = {
-  icon: "settings" | "send";
-  label: string;
-  value: string;
-  helper: string;
-};
-
-function SummaryMetric({ icon, label, value, helper }: SummaryMetricProps) {
-  return (
-    <article className={adminChrome.metricCard}>
-      <div className="flex items-start justify-between gap-3">
-        <p className={adminChrome.metricLabel}>{label}</p>
-        <DashboardNavIcon name={icon} className="h-4 w-4 shrink-0 text-sage-500" />
-      </div>
-      <p className="mt-2 truncate text-lg font-semibold text-sage-900">{value}</p>
-      <p className={`${adminChrome.metaText} mt-1`}>{helper}</p>
-    </article>
-  );
-}
-
-export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProps) {
+export function AdminStudioSettingsSectionForm({
+  initial,
+  section,
+}: AdminStudioSettingsSectionFormProps) {
   const t = useTranslations("adminActions.studio");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -86,26 +53,6 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
   );
   const [facebookUrl, setFacebookUrl] = useState(() =>
     getStudioSocialPlatformUrl(initial.socialLinksJson, "facebook"),
-  );
-
-  const summaryMetrics = useMemo(
-    () => [
-      {
-        key: "identity",
-        icon: "settings" as const,
-        label: t("tiles.identity.title"),
-        value: studioName.trim() || t("tiles.identity.empty"),
-        helper: t("tiles.identity.helper"),
-      },
-      {
-        key: "contact",
-        icon: "send" as const,
-        label: t("tiles.contact.title"),
-        value: contactEmail.trim() || contactPhone.trim() || t("tiles.contact.empty"),
-        helper: t("tiles.contact.helper"),
-      },
-    ],
-    [contactEmail, contactPhone, studioName, t],
   );
 
   const statusBanner = msg && tone === "ok" ? msg : null;
@@ -164,17 +111,6 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
 
   return (
     <form onSubmit={save} className="flex flex-col gap-6">
-      <section className="rounded-[24px] border border-white/50 bg-white/35 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:p-5">
-        <p className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-sage-500">
-          {t("title")}
-        </p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {summaryMetrics.map(({ key, ...metric }) => (
-            <SummaryMetric key={key} {...metric} />
-          ))}
-        </div>
-      </section>
-
       <AdminSectionShell banner={statusBanner}>
         {msg && tone === "err" ? (
           <p
@@ -185,11 +121,8 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
           </p>
         ) : null}
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <SettingsSection
-            heading={t("sections.identity.heading")}
-            description={t("sections.identity.description")}
-          >
+        <section className={adminChrome.panel}>
+          {section === "identity" ? (
             <AdminSheetEditableField
               label={t("studioName")}
               hint={t("hints.studioName")}
@@ -203,12 +136,9 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
                 required
               />
             </AdminSheetEditableField>
-          </SettingsSection>
+          ) : null}
 
-          <SettingsSection
-            heading={t("sections.location.heading")}
-            description={t("sections.location.description")}
-          >
+          {section === "location" ? (
             <AdminSheetEditableField
               label={t("mapEmbedUrl")}
               hint={t("hints.mapEmbedUrl")}
@@ -223,13 +153,9 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
                 placeholder="https://"
               />
             </AdminSheetEditableField>
-          </SettingsSection>
+          ) : null}
 
-          <SettingsSection
-            heading={t("sections.contact.heading")}
-            description={t("sections.contact.description")}
-            className="lg:col-span-2"
-          >
+          {section === "contact" ? (
             <AdminStudioContactSettingsFields
               busy={busy}
               contactPhone={contactPhone}
@@ -266,8 +192,8 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
               onFacebookUrlChange={setFacebookUrl}
               onWhatsappUrlChange={setWhatsappUrl}
             />
-          </SettingsSection>
-        </div>
+          ) : null}
+        </section>
       </AdminSectionShell>
 
       <footer className={`${adminChrome.panel} flex justify-end`}>

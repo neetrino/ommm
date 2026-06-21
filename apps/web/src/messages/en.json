@@ -43,7 +43,7 @@
     "home": "Home",
     "story": "Story",
     "coaches": "Coaches",
-    "memberships": "Membership",
+    "memberships": "Packages",
     "packages": "Packages",
     "explore": "Explore",
     "schedule": "Schedule",
@@ -1213,11 +1213,9 @@
   "marketingPages": {
     "contact": {
       "title": "Contact",
-      "lede": "Send a message to the studio team. We read every note and reply by phone or email when appropriate.",
+      "lede": "Reach the studio team by phone, email, or social — we reply within one business day when appropriate.",
       "studioHeading": "Studio",
-      "formHeading": "Send a message",
       "replyCallout": "We usually reply within 1 business day.",
-      "securityNote": "Your information is safe and will never be shared.",
       "phone": "Phone",
       "email": "Email",
       "whatsApp": "WhatsApp",
@@ -1498,6 +1496,69 @@
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."
     },
+    "settings": {
+      "title": "Settings",
+      "studioDescription": "Manage studio identity, contact details, and operational defaults.",
+      "tabs": {
+        "aria": "Settings sections",
+        "studio": "Studio",
+        "homeSections": "Home Page Sections",
+        "identity": "Identity",
+        "location": "Location",
+        "contact": "Contact"
+      },
+      "studioSections": {
+        "identity": "Public studio name",
+        "location": "Map embed for the public contact page",
+        "contact": "Shown on the public contact page — phone, email, address, hours, and social links"
+      },
+      "homeSections": {
+        "loadFailed": "Could not load home page section settings ({status}).",
+        "panelTitle": "Home Page Sections",
+        "summaryLabel": "Visibility overview",
+        "summary": "{count} of {total} sections enabled",
+        "statusNoticeTitle": "Be careful when changing a section’s status",
+        "statusNoticeDetail": "Disabling a section removes it from the site header navigation.",
+        "save": "Save visibility",
+        "saving": "Saving...",
+        "saved": "Home page section visibility updated.",
+        "failed": "Could not update home page section visibility.",
+        "toggleAria": "Toggle {section} — currently {state}",
+        "stateEnabled": "enabled",
+        "stateDisabled": "disabled",
+        "cancelButton": "Cancel",
+        "modalBackdropClose": "Close dialog",
+        "disableSectionButton": "Disable section",
+        "enableSectionButton": "Enable section",
+        "confirmDisableTitle": "Disable {section}?",
+        "confirmDisableDescription": "This section will be hidden from the public site — it will no longer appear in the header navigation or on its related pages. You can re-enable it at any time.",
+        "confirmEnableTitle": "Enable {section}?",
+        "confirmEnableDescription": "This section will become visible on the public site again, including in the header navigation and on its related pages.",
+        "sections": {
+          "home": {
+            "description": "Hero banner at the top of the home page."
+          },
+          "story": {
+            "description": "Story page and navigation link."
+          },
+          "schedule": {
+            "description": "Weekly schedule banner, classes preview on home, and Schedule page."
+          },
+          "memberships": {
+            "description": "Membership plans on the home page and Packages page."
+          },
+          "coaches": {
+            "description": "Coaches carousel on the home page and Coaches page."
+          },
+          "explore": {
+            "description": "Explore gallery on the home page and Explore pages."
+          },
+          "contact": {
+            "description": "Contact block in the footer, Contact page, and navigation link."
+          }
+        }
+      }
+    },
     "bookings": {
       "title": "Bookings",
       "description": "Manage all bookings from website and mobile app, including statuses, attendance, and actions.",
@@ -1646,6 +1707,56 @@
       "statusInactive": "Inactive",
       "editClient": "Edit client",
       "edit": "Edit",
+      "addUserButton": "Add User",
+      "create": {
+        "panelTitle": "Add User",
+        "panelLead": "Create a client account with login credentials. Share the credentials securely with the customer after creation.",
+        "sectionPersonal": "Personal information",
+        "sectionPersonalLead": "Required identity and contact details for the new client.",
+        "sectionAccess": "Account access",
+        "sectionAccessLead": "Set a password or generate one automatically. The client can sign in immediately after creation.",
+        "nameLabel": "First name",
+        "lastNameLabel": "Last name",
+        "emailLabel": "Email address",
+        "emailHint": "Must be unique. Used as the login username.",
+        "phoneLabel": "Phone number",
+        "birthdayLabel": "Date of birth",
+        "birthdayOptionalHint": "Optional — used for birthday campaigns and profile.",
+        "passwordLabel": "Temporary password",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
+        "generatePassword": "Generate secure password",
+        "autoGenerateHint": "A secure password will be generated when you create the account.",
+        "forceResetLabel": "Require password change on first sign-in",
+        "forceResetHint": "The client receives a one-time reset link instead of a visible temporary password.",
+        "forceResetHandoverHint": "Share this reset link with the client so they can choose their own password.",
+        "welcomeEmailLabel": "Send welcome email",
+        "welcomeEmailHint": "Sends account details when email delivery is configured.",
+        "notesLabel": "Internal notes",
+        "notesPlaceholder": "Optional notes visible to staff in the client profile",
+        "notesHint": "Optional — saved as an internal staff note on the client record.",
+        "submit": "Create account",
+        "submitting": "Creating account…",
+        "nameRequired": "First name is required.",
+        "lastNameRequired": "Last name is required.",
+        "phoneRequired": "Phone number is required.",
+        "phoneInvalid": "Enter a valid phone number.",
+        "passwordRequired": "Enter a password or use Generate secure password.",
+        "passwordTooShort": "Password must be at least {min} characters.",
+        "birthdayInvalid": "Enter a valid date of birth.",
+        "genericError": "Could not create the account. Try again.",
+        "successTitle": "Account created",
+        "successLead": "Share these credentials with the client securely. They can sign in right away.",
+        "credentialsEmailLabel": "Email",
+        "credentialsPasswordLabel": "Temporary password",
+        "credentialsResetLabel": "Password reset link",
+        "copyCredentials": "Copy credentials",
+        "copyCredentialsSuccess": "Credentials copied to clipboard.",
+        "copyCredentialsFailed": "Could not copy — copy manually.",
+        "welcomeEmailSent": "Welcome email sent.",
+        "doneButton": "Done",
+        "listBannerSuccess": "{name} was added to the client list."
+      },
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
       "fieldEmail": "Email",
@@ -3862,25 +3973,6 @@
       "dateOfBirthInvalid": "Enter the date of birth in DD/MM/YYYY format.",
       "bioTooLong": "Bio is too long."
     },
-    "contact": {
-      "name": "Name",
-      "phone": "Phone",
-      "email": "Email",
-      "subject": "Subject",
-      "message": "Message",
-      "placeholders": {
-        "name": "Sofia Martirosyan",
-        "phone": "+374 99 123 456",
-        "email": "sofia@example.com",
-        "subject": "Morning class schedule",
-        "message": "Hi! I'd like to know more about your morning Pilates classes."
-      },
-      "send": "Send",
-      "sending": "Sending…",
-      "thankYou": "Thank you — your message was sent.",
-      "sent": "Sent",
-      "sendError": "Error"
-    },
     "adminBroadcast": {
       "sendFailed": "Could not send broadcast.",
       "testSent": "Test email sent.",
@@ -3967,6 +4059,12 @@
       "saving": "Saving...",
       "saved": "Settings updated.",
       "failed": "Could not update settings.",
+      "tabs": {
+        "aria": "Studio settings sections",
+        "identity": "Identity",
+        "location": "Location",
+        "contact": "Contact"
+      },
       "tiles": {
         "identity": {
           "title": "Studio identity",

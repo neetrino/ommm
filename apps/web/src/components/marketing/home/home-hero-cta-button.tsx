@@ -12,9 +12,9 @@ import {
   HOME_HERO_MOBILE_CTA_LAYOUT,
   isMarketingLongMembershipCtaLocale,
 } from "@/components/marketing/home/home-hero-banner-tokens";
+import { MarketingSectionLink } from "@/components/marketing/marketing-section-link";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
-import { Link } from "@/i18n/navigation";
 
 export type HomeHeroCtaVariant = "booking" | "membership" | "coachesDetails" | "plansDetails";
 
@@ -68,9 +68,10 @@ export function HomeHeroCtaButton({
   const imageLoadingProps = sizeContext === "hero" ? aboveFoldImageProps() : belowFoldImageProps();
 
   return (
-    <Link
+    <MarketingSectionLink
       href={href}
       className={`${marketingMontserrat.className} ${styles.cta} ${variantClass ?? ""} ${mobileLabelCenteredClass}`}
+      disabledClassName={`${marketingMontserrat.className} ${styles.cta} ${variantClass ?? ""} ${mobileLabelCenteredClass} pointer-events-none opacity-60`}
       style={{
         ["--hero-cta-width" as string]: mobileLayout?.width ?? desktopLayout.width,
         ["--hero-cta-width-lg" as string]: desktopLayout.width,
@@ -140,6 +141,6 @@ export function HomeHeroCtaButton({
           {...imageLoadingProps}
         />
       </span>
-    </Link>
+    </MarketingSectionLink>
   );
 }

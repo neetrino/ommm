@@ -18,6 +18,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto';
 import { AddClientNoteDto } from './dto/add-client-note.dto';
+import { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientsService } from './clients.service';
@@ -37,6 +38,12 @@ export class ClientsController {
   @SkipThrottle()
   list(@Query() query: AdminListClientsQueryDto) {
     return this.clients.list(query);
+  }
+
+  @Post()
+  @Roles(Role.ADMIN)
+  create(@CurrentUser() user: User, @Body() dto: AdminCreateClientDto) {
+    return this.clients.create(user, dto);
   }
 
   @Get(':id/bookings')
