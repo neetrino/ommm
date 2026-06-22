@@ -80,7 +80,7 @@ function buildFallKeyframes(
       1,
     ),
     offset: fallEnd * sample.timeRatio,
-    ...(sample.easing ? { easing: sample.easing } : {}),
+    ...("easing" in sample ? { easing: sample.easing } : {}),
   }));
 }
 
