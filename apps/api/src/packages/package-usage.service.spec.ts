@@ -1,5 +1,4 @@
 import { BadRequestException } from '@nestjs/common';
-import { PackagePlanType } from '@prisma/client';
 import { PackageUsageService } from './package-usage.service';
 
 type MockTx = {
@@ -28,7 +27,6 @@ function createServiceWithPrismaMock() {
 
 function createMembership(params?: {
   id?: string;
-  planType?: PackagePlanType;
   categoryName?: string;
   remaining?: number | null;
   balanceRemaining?: number | null;
@@ -57,7 +55,6 @@ function createMembership(params?: {
     plan: {
       id: 'plan-1',
       name: 'Reformer Pack',
-      planType: params?.planType ?? PackagePlanType.SINGLE,
       categoryName,
       isUnlimited,
     },

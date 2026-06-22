@@ -109,11 +109,6 @@ enum SessionRecurrencePattern {
   CUSTOM_WEEKDAYS
 }
 
-enum PackagePlanType {
-  SINGLE
-  COMBINED
-}
-
 enum UserPackageStatus {
   ACTIVE
   PAUSED
@@ -315,7 +310,6 @@ model PackagePlan {
   categoryName         String
   classTypeId          String?
   classType            ClassType?      @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
-  planType             PackagePlanType @default(SINGLE)
   description          String?
   priceCents           Int             @default(0)
   discountedPriceCents Int?
@@ -336,29 +330,11 @@ model PackagePlan {
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @updatedAt
 
-  combinedAsParent     CombinedPlanComponent[] @relation("CombinedPlanParent")
-  combinedAsSource     CombinedPlanComponent[] @relation("CombinedPlanSource")
   userPackages         UserPackage[]
   sourceBalances       UserPackageBalance[]    @relation("BalanceSourcePlan")
 
   @@index([categoryName, displayOrder])
-  @@index([isActive, planType, displayOrder])
-}
-
-model CombinedPlanComponent {
-  id                        String      @id @default(cuid())
-  combinedPlanId            String
-  combinedPlan              PackagePlan @relation("CombinedPlanParent", fields: [combinedPlanId], references: [id], onDelete: Cascade)
-  sourcePlanId              String
-  sourcePlan                PackagePlan @relation("CombinedPlanSource", fields: [sourcePlanId], references: [id], onDelete: Restrict)
-  sourcePackageNameSnapshot String
-  sourceCategoryNameSnapshot String
-  sessionAllocation         Int?
-  createdAt                 DateTime    @default(now())
-  updatedAt                 DateTime    @updatedAt
-
-  @@unique([combinedPlanId, sourcePlanId])
-  @@index([sourcePlanId])
+  @@index([isActive, displayOrder])
 }
 
 model UserPackage {

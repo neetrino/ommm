@@ -17,10 +17,7 @@ import {
   formatPackagePriceLabel,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
-import {
-  resolvePackageTotalSessions,
-  resolvePackageTypeSessionAllocations,
-} from "@/components/admin/admin-package-type-sessions.util";
+import { resolvePackageTotalSessions } from "@/components/admin/admin-package-type-sessions.util";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 
@@ -31,8 +28,6 @@ type AdminPackagesCategoryTableProps = {
   onEditPackage: (packageId: string) => void;
   onDeletePackage: (packageId: string) => void;
   onPackageStatusUpdated: (saved: AdminPackageRow) => void;
-  onConfigureTypeSessions: (packageId: string) => void;
-  onViewTypeSessions: (packageId: string) => void;
 };
 
 function EmptyCell() {
@@ -66,8 +61,6 @@ export function AdminPackagesCategoryTable({
   onEditPackage,
   onDeletePackage,
   onPackageStatusUpdated,
-  onConfigureTypeSessions,
-  onViewTypeSessions,
 }: AdminPackagesCategoryTableProps) {
   const t = useTranslations("adminPages.packages");
   const reducedMotion = usePrefersReducedMotion();
@@ -90,7 +83,7 @@ export function AdminPackagesCategoryTable({
   return (
     <div className="ommm-admin-packages-table">
       <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[62rem]">
-        <div>{t("tableSessionName")}</div>
+        <div>{t("tablePageName")}</div>
         <div>{t("tableTotalSessions")}</div>
         <div>{t("tablePrice")}</div>
         <div>{t("tableValidity")}</div>
@@ -115,20 +108,10 @@ export function AdminPackagesCategoryTable({
               days: (count) => t("validityDays", { count }),
               months: (count) => t("validityMonths", { count }),
             });
-            const typeSessionRows = resolvePackageTypeSessionAllocations(pkg);
-            const hasTypeSessionRows = typeSessionRows.length > 0;
             const totalSessions = resolvePackageTotalSessions(pkg);
-            const isRowClickable = pkg.planType !== "COMBINED";
 
             function activatePackageRow(): void {
-              if (!isRowClickable) {
-                return;
-              }
-              if (hasTypeSessionRows) {
-                onViewTypeSessions(pkg.id);
-                return;
-              }
-              onConfigureTypeSessions(pkg.id);
+              onEditPackage(pkg.id);
             }
 
             function handleRowKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
@@ -151,32 +134,15 @@ export function AdminPackagesCategoryTable({
               >
                 <div className="ommm-admin-packages-table-row-layout">
                   <div
-                    className={
-                      isRowClickable
-                        ? "ommm-admin-packages-table-grid--data ommm-admin-packages-table-grid--clickable"
-                        : "ommm-admin-packages-table-grid--data"
-                    }
-                    role={isRowClickable ? "button" : undefined}
-                    tabIndex={isRowClickable ? 0 : undefined}
-                    aria-label={
-                      isRowClickable
-                        ? hasTypeSessionRows
-                          ? t("typeSessionsViewAria", { name: packageName })
-                          : t("typeSessionsAddAria")
-                        : undefined
-                    }
-                    onClick={isRowClickable ? activatePackageRow : undefined}
-                    onKeyDown={isRowClickable ? handleRowKeyDown : undefined}
+                    className="ommm-admin-packages-table-grid--data ommm-admin-packages-table-grid--clickable"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={t("editPageAria", { name: packageName })}
+                    onClick={activatePackageRow}
+                    onKeyDown={handleRowKeyDown}
                   >
                     <TableCell emphasis>
-                      <div className="flex flex-col gap-1">
-                        <span>{packageName}</span>
-                        {pkg.planType === "COMBINED" ? (
-                          <span className="text-xs font-medium uppercase tracking-wide text-sand-700">
-                            {t("packageKindCombined")}
-                          </span>
-                        ) : null}
-                      </div>
+                      <span>{packageName}</span>
                     </TableCell>
                     <TableCell>
                       {totalSessions !== null ? totalSessions : <EmptyCell />}
@@ -206,55 +172,6 @@ export function AdminPackagesCategoryTable({
                         isActive={pkg.isActive}
                         onUpdated={onPackageStatusUpdated}
                       />
-                      {pkg.planType !== "COMBINED" ? (
-                        <button
-                          type="button"
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-sand-300/80 bg-white text-sage-700 transition-colors hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
-                          aria-label={
-                            hasTypeSessionRows
-                              ? t("typeSessionsViewAria", { name: packageName })
-                              : t("typeSessionsAddAria")
-                          }
-                          title={
-                            hasTypeSessionRows
-                              ? t("typeSessionsViewButton")
-                              : t("typeSessionsAddButton")
-                          }
-                          onClick={() =>
-                            hasTypeSessionRows
-                              ? onViewTypeSessions(pkg.id)
-                              : onConfigureTypeSessions(pkg.id)
-                          }
-                        >
-                          {hasTypeSessionRows ? (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={1.9}
-                              strokeLinecap="round"
-                              className="h-4 w-4"
-                              aria-hidden
-                            >
-                              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-                            </svg>
-                          ) : (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={1.9}
-                              strokeLinecap="round"
-                              className="h-4 w-4"
-                              aria-hidden
-                            >
-                              <path d="M12 4v16M4 12h16" />
-                            </svg>
-                          )}
-                        </button>
-                      ) : null}
                       <AdminPackageRowMenu
                         onEdit={() => onEditPackage(pkg.id)}
                         onDeletePackage={() => onDeletePackage(pkg.id)}
@@ -282,8 +199,8 @@ export function AdminPackagesCategoryTable({
         <button
           type="button"
           className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-sand-300/80 bg-white text-sage-700 shadow-[0_8px_20px_-14px_rgba(45,40,35,0.35)] transition-colors hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
-          aria-label={t("addTierAria")}
-          title={t("addTierButton")}
+          aria-label={t("addPageAria")}
+          title={t("addPageButton")}
           onClick={onAddTier}
         >
           <svg

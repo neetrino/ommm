@@ -22,6 +22,19 @@ type AdminSheetReadOnlyFieldProps = {
   className?: string;
 };
 
+/** Required-field asterisk for admin forms. */
+export function AdminRequiredMark() {
+  return (
+    <span className="text-red-600" aria-hidden>
+      {" "}
+      *
+    </span>
+  );
+}
+
+/** Thin red outline for invalid admin form controls. */
+export const ADMIN_INVALID_FIELD_CLASS = "border-red-400 !shadow-none ring-2 ring-red-400/15";
+
 /** Input class helper — error border for validated sheet fields. */
 export function adminSheetFieldInputClass(invalid = false, extra = ""): string {
   const classes = ["ommm-input", invalid ? "border-red-300" : "", extra].filter(Boolean);

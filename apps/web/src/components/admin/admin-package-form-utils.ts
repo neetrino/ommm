@@ -113,7 +113,6 @@ export type AdminPackageFormValues = {
   isPopular: boolean;
   isActive: boolean;
   showPricePerSession: boolean;
-  sourceSessionAllocations: Record<string, string>;
 };
 
 export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPackageFormValues {
@@ -131,7 +130,6 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     isPopular: false,
     isActive: true,
     showPricePerSession: true,
-    sourceSessionAllocations: {},
   };
 }
 
@@ -192,7 +190,6 @@ export function packageRowToFormValues(
     isActive: pkg.isActive,
     showPricePerSession:
       typeof pkg.showPricePerSession === "boolean" ? pkg.showPricePerSession : true,
-    sourceSessionAllocations: {},
   };
 }
 

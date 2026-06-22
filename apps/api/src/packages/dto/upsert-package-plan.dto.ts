@@ -1,10 +1,8 @@
-import { PackagePlanType } from '@prisma/client';
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -16,17 +14,6 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class SourceSessionAllocationDto {
-  @IsString()
-  @MinLength(1)
-  componentId!: string;
-
-  @IsInt()
-  @Min(1)
-  @Max(500)
-  sessionCount!: number;
-}
-
 class TypeSessionAllocationDto {
   @IsString()
   @MinLength(1)
@@ -36,11 +23,6 @@ class TypeSessionAllocationDto {
   @Min(1)
   @Max(999)
   sessionCount!: number;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  description?: string;
 }
 
 export class UpsertPackagePlanDto {
@@ -70,10 +52,6 @@ export class UpsertPackagePlanDto {
   @IsOptional()
   @IsString()
   classTypeId?: string | null;
-
-  @IsOptional()
-  @IsEnum(PackagePlanType)
-  planType?: PackagePlanType;
 
   @IsOptional()
   @IsInt()
@@ -156,14 +134,6 @@ export class UpsertPackagePlanDto {
   @Min(1)
   @Max(10000)
   displayOrder?: number;
-
-  @IsOptional()
-  @IsArray()
-  @ArrayMinSize(1)
-  @ArrayMaxSize(50)
-  @ValidateNested({ each: true })
-  @Type(() => SourceSessionAllocationDto)
-  sourceSessionAllocations?: SourceSessionAllocationDto[];
 
   @IsOptional()
   @IsArray()

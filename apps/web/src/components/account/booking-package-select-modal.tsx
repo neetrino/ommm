@@ -12,7 +12,6 @@ export type EligibleBookingPackage = {
   userPackageId: string;
   planId: string;
   planName: string;
-  planType: "SINGLE" | "COMBINED";
   remainingSessions: number | null;
   totalSessions: number | null;
   usedSessions: number | null;
@@ -134,10 +133,6 @@ export function BookingPackageSelectModal({
                       index: duplicateSuffix,
                     })
                   : pkg.planName;
-              const planTypeLabel =
-                pkg.planType === "COMBINED"
-                  ? t("packageTypeCombined")
-                  : t("packageTypeSingle");
               const visitsLabel = pkg.isUnlimited
                 ? t("packageUnlimitedVisits")
                 : pkg.canBook
@@ -179,7 +174,6 @@ export function BookingPackageSelectModal({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-medium text-sage-900">{displayPlanName}</p>
-                        <p className="mt-1 text-xs text-sage-500">{planTypeLabel}</p>
                       </div>
                       {isSelected ? (
                         <span className="shrink-0 rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-sand-800">

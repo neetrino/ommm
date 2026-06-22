@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { PackagePlanType, type Prisma, type UserPackage } from '@prisma/client';
+import { type Prisma, type UserPackage } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export type PackageUsageStats = {
@@ -13,7 +13,6 @@ export type EligibleBookingPackage = {
   userPackageId: string;
   planId: string;
   planName: string;
-  planType: 'SINGLE' | 'COMBINED';
   remainingSessions: number | null;
   totalSessions: number | null;
   usedSessions: number | null;
@@ -36,7 +35,6 @@ type UserPackageWithPlanAndBalances = UserPackage & {
   plan: {
     id: string;
     name: string;
-    planType: PackagePlanType;
     categoryName: string;
     isUnlimited: boolean;
   };
@@ -126,7 +124,6 @@ export class PackageUsageService {
           select: {
             id: true,
             name: true,
-            planType: true,
             categoryName: true,
             isUnlimited: true,
           },
@@ -205,7 +202,6 @@ export class PackageUsageService {
           select: {
             id: true,
             name: true,
-            planType: true,
             categoryName: true,
             isUnlimited: true,
           },
@@ -520,7 +516,6 @@ export class PackageUsageService {
       userPackageId: membership.id,
       planId: membership.plan.id,
       planName: membership.plan.name,
-      planType: membership.plan.planType,
       remainingSessions: usage.remainingSessions,
       totalSessions: usage.totalSessions,
       usedSessions: usage.usedSessions,
@@ -539,13 +534,6 @@ export class PackageUsageService {
     const normalized = classTypeName.trim().toLowerCase();
     if (normalized.length === 0) {
       return false;
-    }
-    if (membership.plan.planType === PackagePlanType.COMBINED) {
-      return membership.balances.some(
-        (balance) =>
-          balance.sourceCategoryNameSnapshot.trim().toLowerCase() ===
-          normalized,
-      );
     }
     if (membership.balances.length > 1) {
       return membership.balances.some(
@@ -583,12 +571,9 @@ export class PackageUsageService {
     if (exact !== undefined) {
       return exact;
     }
-    if (membership.plan.planType === PackagePlanType.SINGLE) {
-      if (membership.balances.length > 1) {
-        return null;
-      }
-      return membership.balances[0] ?? null;
+    if (membership.balances.length > 1) {
+      return null;
     }
-    return null;
+    return membership.balances[0] ?? null;
   }
 }

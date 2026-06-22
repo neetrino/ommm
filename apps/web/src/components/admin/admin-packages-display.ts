@@ -1,5 +1,4 @@
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
-import { formatCombinedSessionsBreakdown } from "@/components/admin/admin-combined-tier-session-allocations.util";
 import { resolvePackageDurationMonths } from "@/components/admin/admin-package-form-utils";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -16,8 +15,6 @@ export type PackageTableDisplayRow = Pick<
   | "sessionsPerMonth"
   | "isUnlimited"
   | "guestCount"
-  | "planType"
-  | "combinedComponents"
 >;
 
 type ValidityLabels = {
@@ -49,16 +46,6 @@ export function formatPackageSessionsLabel(pkg: PackageTableDisplayRow): number 
     return sessions;
   }
   return null;
-}
-
-/** Per-source session breakdown for combined pricing tiers. */
-export function formatCombinedPackageSessionsBreakdown(
-  pkg: PackageTableDisplayRow,
-): string | null {
-  if (pkg.planType !== "COMBINED") {
-    return null;
-  }
-  return formatCombinedSessionsBreakdown(pkg.combinedComponents);
 }
 
 /** Price per session — uses stored value when set, otherwise total divided by sessions. */

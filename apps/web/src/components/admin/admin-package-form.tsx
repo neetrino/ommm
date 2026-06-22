@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AdminPackageFormSection } from "@/components/admin/admin-package-form-section";
 import {
   createEmptyPackageFormValues,
@@ -35,13 +35,18 @@ import {
   resolvePackageCategoryName,
 } from "@/components/admin/package-category-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
-import { AdminCombinedTierSessionAllocations } from "@/components/admin/admin-combined-tier-session-allocations";
+import { AdminPackageTierCompactFields } from "@/components/admin/admin-package-tier-compact-fields";
 import {
-  buildCombinedAllocationFormValues,
-  buildSourceSessionAllocationsPayload,
-  sumCombinedSessionAllocations,
-} from "@/components/admin/admin-combined-tier-session-allocations.util";
+  collectTierFieldErrors,
+  type TierFieldErrors,
+  initialTypeSessionEntries,
+  sumTypeSessionEntries,
+  validateTypeSessionEntries,
+  type PackageTypeSessionFormEntry,
+  type TypeSessionValidationError,
+} from "@/components/admin/admin-package-type-sessions.util";
 import { ApiError, apiFetch } from "@/lib/api";
+import { adminChrome } from "@/components/admin/admin-chrome";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
@@ -79,24 +84,11 @@ type AdminPackageFormProps = {
   categoryOptions: readonly CategoryOption[];
   classTypeOptions: readonly { id: string; name: string }[];
   initialPackage?: AdminPackageRow;
-  configuredTierCount?: number;
   nextDisplayOrder?: number;
   onSaved: (saved: AdminPackageRow) => void;
   onCancel: () => void;
+  showCloseButton?: boolean;
 };
-
-function withCombinedTierAllocations(
-  base: AdminPackageFormValues,
-  initialPackage: AdminPackageRow,
-): AdminPackageFormValues {
-  const allocations = buildCombinedAllocationFormValues(initialPackage.combinedComponents);
-  const total = sumCombinedSessionAllocations(allocations);
-  return {
-    ...base,
-    sourceSessionAllocations: allocations,
-    sessionsCount: total > 0 ? String(total) : base.sessionsCount,
-  };
-}
 
 function buildInitialValues(
   mode: AdminPackageFormMode,
@@ -104,42 +96,16 @@ function buildInitialValues(
   initialPackage?: AdminPackageRow,
 ): AdminPackageFormValues {
   if (mode === "edit-tier" && initialPackage !== undefined) {
-    const base = packageRowToTierFormValues(initialPackage, initialCategoryName);
-    if (
-      initialPackage.planType === "COMBINED" &&
-      (initialPackage.combinedComponents?.length ?? 0) >= 2
-    ) {
-      return withCombinedTierAllocations(base, initialPackage);
-    }
-    return base;
+    return packageRowToTierFormValues(initialPackage, initialCategoryName);
+  }
+  if (mode === "add-tier") {
+    return createEmptyTierFormValues(initialCategoryName);
   }
   if (
     (mode === "edit" || mode === "pricing") &&
     initialPackage !== undefined
   ) {
     return packageRowToFormValues(initialPackage, initialCategoryName);
-  }
-  if (mode === "add-tier" && initialPackage !== undefined) {
-    if (
-      initialPackage.planType === "COMBINED" &&
-      (initialPackage.combinedComponents?.length ?? 0) >= 2
-    ) {
-      const base =
-        initialPackage.priceCents > 0
-          ? packageRowToTierFormValues(initialPackage, initialCategoryName)
-          : createEmptyTierFormValues(initialCategoryName);
-      return withCombinedTierAllocations(base, initialPackage);
-    }
-    if (initialPackage.priceCents > 0) {
-      return {
-        ...packageRowToTierFormValues(initialPackage, initialCategoryName),
-        guestCount: "",
-        price: "",
-        pricePerSession: "",
-        durationDays: "",
-      };
-    }
-    return createEmptyTierFormValues(initialCategoryName);
   }
   return createEmptyPackageFormValues(initialCategoryName);
 }
@@ -154,8 +120,10 @@ export function AdminPackageForm({
   nextDisplayOrder,
   onSaved,
   onCancel,
+  showCloseButton = false,
 }: AdminPackageFormProps) {
   const t = useTranslations("adminPages.packages");
+  const createGroupTitleId = useId();
   const formKey =
     mode === "create"
       ? "create"
@@ -169,10 +137,25 @@ export function AdminPackageForm({
   const [values, setValues] = useState<AdminPackageFormValues>(() =>
     buildInitialValues(mode, initialCategoryName, initialPackage),
   );
+  const [typeSessionEntries, setTypeSessionEntries] = useState<PackageTypeSessionFormEntry[]>(() =>
+    mode === "add-tier" || mode === "edit-tier"
+      ? initialTypeSessionEntries(mode === "edit-tier" ? initialPackage : undefined)
+      : [],
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tierFieldErrors, setTierFieldErrors] = useState<TierFieldErrors>({});
   const [categoryNamesFromApi, setCategoryNamesFromApi] = useState<readonly string[]>([]);
   const submitLockRef = useRef(false);
+
+  useEffect(() => {
+    if (mode !== "add-tier" && mode !== "edit-tier") {
+      return;
+    }
+    setTypeSessionEntries(
+      initialTypeSessionEntries(mode === "edit-tier" ? initialPackage : undefined),
+    );
+  }, [formKey, initialPackage, mode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -214,17 +197,29 @@ export function AdminPackageForm({
     return map;
   }, [classTypeOptions]);
 
+  function clearTierValidationState(): void {
+    setTierFieldErrors({});
+    setError(null);
+  }
+
   function updateValues(patch: Partial<AdminPackageFormValues>) {
+    if (mode === "add-tier" || mode === "edit-tier") {
+      clearTierValidationState();
+    }
     setValues((current) => ({ ...current, ...patch }));
   }
 
   function updateTierPricingValues(patch: Partial<AdminPackageFormValues>) {
+    if (mode === "add-tier" || mode === "edit-tier") {
+      clearTierValidationState();
+    }
     setValues((current) => {
       const next = { ...current, ...patch };
-      if ("price" in patch || "sessionsCount" in patch || "discountedPrice" in patch) {
+      if ("price" in patch || "discountedPrice" in patch) {
+        const sessionsCount = String(sumTypeSessionEntries(typeSessionEntries));
         const derived = resolveTierPricePerSessionField(
           next.price,
-          next.sessionsCount,
+          sessionsCount,
           next.discountedPrice,
         );
         next.pricePerSession =
@@ -234,32 +229,28 @@ export function AdminPackageForm({
     });
   }
 
-  const isCombinedTierForm =
-    (mode === "add-tier" || mode === "edit-tier") &&
-    initialPackage?.planType === "COMBINED" &&
-    (initialPackage.combinedComponents?.length ?? 0) >= 2;
+  function handleTypeSessionEntriesChange(entries: PackageTypeSessionFormEntry[]): void {
+    if (mode === "add-tier" || mode === "edit-tier") {
+      clearTierValidationState();
+    }
+    setTypeSessionEntries(entries);
+  }
 
-  function updateCombinedAllocation(componentId: string, rawValue: string) {
-    setValues((current) => {
-      const nextAllocations = {
-        ...current.sourceSessionAllocations,
-        [componentId]: rawValue,
-      };
-      const total = sumCombinedSessionAllocations(nextAllocations);
-      const sessionsCount = total > 0 ? String(total) : current.sessionsCount;
-      const derivedPerSession = resolveTierPricePerSessionField(
-        current.price,
-        sessionsCount,
-        current.discountedPrice,
-      );
-      return {
-        ...current,
-        sourceSessionAllocations: nextAllocations,
-        sessionsCount,
-        pricePerSession:
-          derivedPerSession.length > 0 ? derivedPerSession : current.pricePerSession,
-      };
-    });
+  function resolveTypeSessionErrorMessage(error: TypeSessionValidationError): string {
+    const typeSessionsT = (key: string) => t(`typeSessionsForm.${key}`);
+    if (error === "duplicateType") {
+      return typeSessionsT("duplicateTypeError");
+    }
+    if (error === "missingType") {
+      return typeSessionsT("missingTypeError");
+    }
+    if (error === "invalidSessionCount") {
+      return typeSessionsT("invalidSessionCountError");
+    }
+    if (error === "empty") {
+      return typeSessionsT("emptyError");
+    }
+    return typeSessionsT("invalidEntries");
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -269,12 +260,28 @@ export function AdminPackageForm({
     }
 
     setError(null);
+    setTierFieldErrors({});
 
     const isCreateMode = mode === "create";
     const isPricingMode = mode === "pricing";
     const isAddTierMode = mode === "add-tier";
     const isEditTierMode = mode === "edit-tier";
     const isEditMode = mode === "edit";
+
+    if (isAddTierMode || isEditTierMode) {
+      const tierValidation = collectTierFieldErrors(values, typeSessionEntries);
+      if (tierValidation !== null) {
+        setTierFieldErrors(tierValidation.errors);
+        setError(
+          tierValidation.messageScope === "typeSessions"
+            ? t(`typeSessionsForm.${tierValidation.messageKey}`)
+            : t(tierValidation.messageKey),
+        );
+        return;
+      }
+      setTierFieldErrors({});
+    }
+
     const detailsName = values.name.trim();
     const description = values.description.trim();
     const createCategoryName = resolvePackageCategoryName(
@@ -394,7 +401,6 @@ export function AdminPackageForm({
         return;
       }
       if (
-        !isCombinedTierForm &&
         !isAddTierMode &&
         !isEditTierMode &&
         (parsedSessionsPerMonth === null ||
@@ -415,32 +421,19 @@ export function AdminPackageForm({
       }
     }
 
-    let sourceSessionAllocations: Array<{ componentId: string; sessionCount: number }> | undefined;
+    let typeSessionAllocations: Array<{ classTypeId: string; sessionCount: number }> | undefined;
     let resolvedSessionsPerMonth = parsedSessionsPerMonth;
-    if ((isAddTierMode || isEditTierMode) && !isCombinedTierForm) {
-      const fromPlanSessions =
-        typeof initialPackage?.sessionsPerMonth === "number" &&
-        initialPackage.sessionsPerMonth > 0
-          ? initialPackage.sessionsPerMonth
-          : null;
-      if (
-        resolvedSessionsPerMonth === null ||
-        resolvedSessionsPerMonth < MIN_PACKAGE_SESSIONS
-      ) {
-        resolvedSessionsPerMonth = fromPlanSessions ?? MIN_PACKAGE_SESSIONS;
-      }
-    }
-    if (isCombinedTierForm && initialPackage?.combinedComponents !== undefined) {
-      const allocationSummary = buildSourceSessionAllocationsPayload(
-        initialPackage.combinedComponents,
-        values.sourceSessionAllocations,
-      );
-      if (allocationSummary === null) {
-        setError(t("combinedForm.sourceAllocationInvalid"));
+    if (isAddTierMode || isEditTierMode) {
+      const typeSessionValidation = validateTypeSessionEntries(typeSessionEntries);
+      if (!typeSessionValidation.ok) {
+        setError(resolveTypeSessionErrorMessage(typeSessionValidation.error));
         return;
       }
-      sourceSessionAllocations = allocationSummary.payload;
-      resolvedSessionsPerMonth = allocationSummary.totalSessions;
+      typeSessionAllocations = typeSessionValidation.payload;
+      resolvedSessionsPerMonth = typeSessionValidation.payload.reduce(
+        (sum, allocation) => sum + allocation.sessionCount,
+        0,
+      );
     }
     const pricePerSessionCents =
       parsePriceToCents(values.pricePerSession) ??
@@ -488,9 +481,7 @@ export function AdminPackageForm({
       guestCount: guestCount ?? 0,
       periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
       billingPeriod: tierBillingPeriod,
-      ...(sourceSessionAllocations !== undefined
-        ? { sourceSessionAllocations }
-        : {}),
+      ...(typeSessionAllocations !== undefined ? { typeSessionAllocations } : {}),
     };
 
     const shellTierTarget =
@@ -594,27 +585,79 @@ export function AdminPackageForm({
     }
   }
 
+  const isCompactCreateForm = mode === "create";
+  const isTierFormMode = mode === "add-tier" || mode === "edit-tier";
+
   return (
     <form
       key={formKey}
+      noValidate={isTierFormMode}
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex min-h-0 flex-1 flex-col"
+      className={
+        isCompactCreateForm
+          ? "ommm-admin-create-group-form flex flex-col"
+          : "flex min-h-0 flex-1 flex-col"
+      }
+      aria-labelledby={isCompactCreateForm ? createGroupTitleId : undefined}
     >
+      {isCompactCreateForm ? (
+        <div className="flex items-start justify-between gap-4 px-6 pt-5">
+          <h2 id={createGroupTitleId} className={`${adminChrome.panelHeading} text-base`}>
+            {t("createGroupTitle")}
+          </h2>
+          {showCloseButton ? (
+            <button
+              type="button"
+              className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              aria-label={t("modalCloseAria")}
+              onClick={onCancel}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                strokeLinecap="round"
+                className="h-5 w-5"
+                aria-hidden
+              >
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       <div
-        className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 sm:px-7${
-          mode === "create" ? "" : " pt-5 sm:pt-6"
-        }`}
+        className={
+          isCompactCreateForm
+            ? "flex flex-col gap-4 px-6 pb-5 pt-4"
+            : "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6"
+        }
       >
-      {mode === "create" || mode === "edit" ? (
+      {isCompactCreateForm ? (
+        <label className="flex flex-col gap-1.5">
+          <span className="ommm-label">{t("fieldGroupName")}</span>
+          <input
+            name="name"
+            className="ommm-input"
+            maxLength={MAX_NAME_LENGTH}
+            value={values.name}
+            onChange={(event) => updateValues({ name: event.target.value })}
+            placeholder={t("fieldGroupNamePlaceholder")}
+            disabled={pending}
+          />
+        </label>
+      ) : mode === "edit" ? (
         <AdminPackageFormSection
           heading={t("formSections.details.heading")}
           description={t("formSections.details.description")}
         >
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldGroupName")}</span>
               <input
                 name="name"
                 className="ommm-input"
@@ -624,143 +667,50 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
-            {mode === "edit" ? (
-              <>
-                <label className="flex flex-col gap-1.5">
-                  <span className="ommm-label text-xs uppercase tracking-wide">
-                    {t("fieldClassType")}
-                  </span>
-                  <OmmFormDropdown
-                    value={values.classTypeId}
-                    ariaLabel={t("fieldClassType")}
-                    placeholderLabel={t("fieldClassTypePlaceholder")}
-                    options={classTypeOptions.map((classType) => ({
-                      value: classType.id,
-                      label: classType.name,
-                    }))}
-                    onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
-                    disabled={pending}
-                    name="classTypeId"
-                    required
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
-                  <textarea
-                    name="description"
-                    className="ommm-input min-h-24 resize-y"
-                    maxLength={MAX_DESCRIPTION_LENGTH}
-                    value={values.description}
-                    onChange={(event) => updateValues({ description: event.target.value })}
-                    disabled={pending}
-                  />
-                </label>
-              </>
-            ) : null}
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldClassType")}
+              </span>
+              <OmmFormDropdown
+                value={values.classTypeId}
+                ariaLabel={t("fieldClassType")}
+                placeholderLabel={t("fieldClassTypePlaceholder")}
+                options={classTypeOptions.map((classType) => ({
+                  value: classType.id,
+                  label: classType.name,
+                }))}
+                onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
+                disabled={pending}
+                name="classTypeId"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
+              <textarea
+                name="description"
+                className="ommm-input min-h-24 resize-y"
+                maxLength={MAX_DESCRIPTION_LENGTH}
+                value={values.description}
+                onChange={(event) => updateValues({ description: event.target.value })}
+                disabled={pending}
+              />
+            </label>
           </div>
         </AdminPackageFormSection>
       ) : null}
 
       {mode === "add-tier" || mode === "edit-tier" ? (
-        <AdminPackageFormSection
-          heading={
-            mode === "edit-tier" ? t("editTierFormHeading") : t("addTierFormHeading")
-          }
-          description={
-            mode === "edit-tier" ? t("editTierFormDescription") : t("addTierFormDescription")
-          }
-        >
-          <div className="flex flex-col gap-4">
-            {isCombinedTierForm && initialPackage?.combinedComponents !== undefined ? (
-              <AdminCombinedTierSessionAllocations
-                components={initialPackage.combinedComponents}
-                allocations={values.sourceSessionAllocations}
-                totalSessions={sumCombinedSessionAllocations(values.sourceSessionAllocations)}
-                onAllocationChange={updateCombinedAllocation}
-                disabled={pending}
-              />
-            ) : null}
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">
-                {t("fieldSessionName")}
-              </span>
-              <input
-                name="name"
-                className="ommm-input"
-                maxLength={MAX_NAME_LENGTH}
-                value={values.name}
-                onChange={(event) => updateValues({ name: event.target.value })}
-                placeholder={t("fieldSessionNamePlaceholder")}
-                required
-                disabled={pending}
-              />
-            </label>
-            <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
-              <AmdMoneyInput
-                name="price"
-                value={values.price}
-                onValueChange={(nextValue) => updateTierPricingValues({ price: nextValue })}
-                disabled={pending}
-                required
-                align="start"
-                placeholder={t("fieldPricePlaceholder")}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">
-                {t("fieldDiscountedPrice")}
-              </span>
-              <AmdMoneyInput
-                name="discountedPrice"
-                value={values.discountedPrice}
-                onValueChange={(nextValue) => updateTierPricingValues({ discountedPrice: nextValue })}
-                disabled={pending}
-                align="start"
-                placeholder={t("fieldDiscountedPricePlaceholder")}
-              />
-              <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationDays")}</span>
-              <input
-                name="durationDays"
-                type="number"
-                className={OMMM_INPUT_NUMBER_CLASS}
-                min={MIN_PACKAGE_DURATION_DAYS}
-                max={MAX_PACKAGE_DURATION_DAYS}
-                step={1}
-                inputMode="numeric"
-                value={values.durationDays}
-                onChange={(event) => updateValues({ durationDays: event.target.value })}
-                onKeyDown={preventNumberArrowStep}
-                placeholder={t("fieldDurationDaysPlaceholder")}
-                required
-                disabled={pending}
-              />
-              <span className="text-xs text-sage-500">{t("fieldValidityHint")}</span>
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldGuestCount")}</span>
-              <input
-                name="guestCount"
-                type="number"
-                className={OMMM_INPUT_NUMBER_CLASS}
-                min={MIN_PACKAGE_GUEST_COUNT}
-                max={MAX_PACKAGE_GUEST_COUNT}
-                step={1}
-                inputMode="numeric"
-                value={values.guestCount}
-                onChange={(event) => updateValues({ guestCount: event.target.value })}
-                onKeyDown={preventNumberArrowStep}
-                placeholder={t("fieldGuestCountPlaceholder")}
-                disabled={pending}
-              />
-            </label>
-            </div>
-          </div>
-        </AdminPackageFormSection>
+        <AdminPackageTierCompactFields
+          values={values}
+          typeSessionEntries={typeSessionEntries}
+          classTypeOptions={classTypeOptions}
+          fieldErrors={tierFieldErrors}
+          pending={pending}
+          onValuesChange={updateValues}
+          onTierPricingChange={updateTierPricingValues}
+          onTypeSessionEntriesChange={handleTypeSessionEntriesChange}
+        />
       ) : null}
 
       {mode === "pricing" || mode === "edit" ? (
@@ -929,7 +879,13 @@ export function AdminPackageForm({
       ) : null}
       </div>
 
-      <div className="shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
+      <div
+        className={
+          isCompactCreateForm
+            ? "grid shrink-0 grid-cols-2 gap-3 px-6 pb-6"
+            : "shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7"
+        }
+      >
         <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
           {t("cancelButton")}
         </OmmButton>
