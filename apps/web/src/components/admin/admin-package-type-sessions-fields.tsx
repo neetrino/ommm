@@ -7,13 +7,18 @@ import {
   OMMM_INPUT_NUMBER_CLASS,
   preventNumberArrowStep,
 } from "@/components/admin/admin-package-form-utils";
-import type { PackageTypeSessionFormEntry } from "@/components/admin/admin-package-type-sessions.util";
+import {
+  canAddTypeSessionRow,
+  resolveClassTypeOptionsForEntry,
+  type PackageClassTypeOption,
+  type PackageTypeSessionFormEntry,
+} from "@/components/admin/admin-package-type-sessions.util";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 
 type AdminPackageTypeSessionsFieldsProps = {
   entries: readonly PackageTypeSessionFormEntry[];
-  classTypeOptions: readonly { id: string; name: string }[];
+  classTypeOptions: readonly PackageClassTypeOption[];
   disabled?: boolean;
   onChange: (entries: PackageTypeSessionFormEntry[]) => void;
   onAddRow: () => void;
@@ -29,11 +34,7 @@ export function AdminPackageTypeSessionsFields({
   onRemoveRow,
 }: AdminPackageTypeSessionsFieldsProps) {
   const t = useTranslations("adminPages.packages.typeSessionsForm");
-
-  const dropdownOptions = classTypeOptions.map((classType) => ({
-    value: classType.id,
-    label: classType.name,
-  }));
+  const canAddRow = canAddTypeSessionRow(entries, classTypeOptions.length);
 
   function updateEntry(
     entryId: string,
@@ -50,7 +51,17 @@ export function AdminPackageTypeSessionsFields({
         <p className="text-sm text-sage-600">{t("empty")}</p>
       ) : (
         <ul className="flex flex-col gap-3">
-          {entries.map((entry, index) => (
+          {entries.map((entry, index) => {
+            const rowTypeOptions = resolveClassTypeOptionsForEntry(
+              entry,
+              entries,
+              classTypeOptions,
+            ).map((classType) => ({
+              value: classType.id,
+              label: classType.name,
+            }));
+
+            return (
             <li
               key={entry.id}
               className="grid gap-3 border-b border-[rgba(212,196,183,0.2)] pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end"
@@ -61,7 +72,7 @@ export function AdminPackageTypeSessionsFields({
                   value={entry.classTypeId}
                   ariaLabel={t("fieldType")}
                   placeholderLabel={t("fieldTypePlaceholder")}
-                  options={dropdownOptions}
+                  options={rowTypeOptions}
                   onChange={(nextValue) => updateEntry(entry.id, { classTypeId: nextValue })}
                   disabled={disabled}
                   name={`type-${entry.id}`}
@@ -112,11 +123,18 @@ export function AdminPackageTypeSessionsFields({
                 </button>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
       <div>
-        <OmmButton type="button" variant="secondary" size="md" onClick={onAddRow} disabled={disabled}>
+        <OmmButton
+          type="button"
+          variant="secondary"
+          size="md"
+          onClick={onAddRow}
+          disabled={disabled || !canAddRow}
+        >
           {t("addRowButton")}
         </OmmButton>
       </div>

@@ -16,6 +16,36 @@ export type PackageTypeSessionFormEntry = {
   sessionCount: string;
 };
 
+export type PackageClassTypeOption = {
+  id: string;
+  name: string;
+};
+
+/** Class types not yet selected in other session-type rows (current row selection stays visible). */
+export function resolveClassTypeOptionsForEntry(
+  entry: PackageTypeSessionFormEntry,
+  allEntries: readonly PackageTypeSessionFormEntry[],
+  classTypeOptions: readonly PackageClassTypeOption[],
+): PackageClassTypeOption[] {
+  const selectedInOtherRows = new Set(
+    allEntries
+      .filter((row) => row.id !== entry.id && row.classTypeId.trim().length > 0)
+      .map((row) => row.classTypeId.trim()),
+  );
+  const currentSelection = entry.classTypeId.trim();
+  return classTypeOptions.filter(
+    (option) => option.id === currentSelection || !selectedInOtherRows.has(option.id),
+  );
+}
+
+/** Whether another session-type row can be added (one row per class type). */
+export function canAddTypeSessionRow(
+  entries: readonly PackageTypeSessionFormEntry[],
+  classTypeOptionCount: number,
+): boolean {
+  return entries.length < classTypeOptionCount;
+}
+
 export function createEmptyTypeSessionEntry(): PackageTypeSessionFormEntry {
   const id =
     typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
