@@ -11,8 +11,19 @@ type HomeFooterSphereBounceProps = {
   children: ReactNode;
 };
 
-const RISE_EASING = "cubic-bezier(0.25, 0.68, 0.32, 1)";
-const FALL_EASING = "linear";
+/** Decelerates into the apex — near-zero speed before the drop. */
+const RISE_EASING = "cubic-bezier(0.12, 0.84, 0.22, 1)";
+const SQUASH_EASING = "linear";
+/** Quadratic fall samples — constant acceleration, no velocity jump after the apex. */
+const FALL_MOTION_SAMPLES = [
+  { timeRatio: 0, distanceRatio: 0 },
+  { timeRatio: 0.12, distanceRatio: 0, easing: "linear" as const },
+  { timeRatio: 0.32, distanceRatio: 0.035, easing: "cubic-bezier(0.14, 0, 0.48, 0.92)" as const },
+  { timeRatio: 0.52, distanceRatio: 0.14, easing: "linear" as const },
+  { timeRatio: 0.72, distanceRatio: 0.36, easing: "linear" as const },
+  { timeRatio: 0.88, distanceRatio: 0.64, easing: "linear" as const },
+  { timeRatio: 1, distanceRatio: 1, easing: "linear" as const },
+] as const;
 
 function isBounceViewport(): boolean {
   return window.matchMedia(`(min-width: ${HOME_FOOTER_SPHERE_BOUNCE.minWidthPx}px)`).matches;
@@ -46,6 +57,21 @@ function nextDriftX(currentX: number, driftPx: number): number {
 function randomPeakPx(basePx: number, boostMinPx: number, boostMaxPx: number): number {
   const boostPx = boostMinPx + Math.random() * (boostMaxPx - boostMinPx);
   return Math.round(basePx + boostPx);
+}
+
+function buildFallKeyframes(
+  x: number,
+  startY: number,
+  groundY: number,
+  fallEnd: number,
+): Keyframe[] {
+  const fallDrop = groundY - startY;
+
+  return FALL_MOTION_SAMPLES.map((sample) => ({
+    transform: ballTransform(x, startY + fallDrop * sample.distanceRatio, 1, 1),
+    offset: fallEnd * sample.timeRatio,
+    ...(sample.easing ? { easing: sample.easing } : {}),
+  }));
 }
 
 /**
@@ -100,16 +126,11 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
 
       activeAnim = el.animate(
         [
-          { transform: ballTransform(x, startY, 1, 1) },
-          {
-            transform: ballTransform(x, groundY, 1, 1),
-            offset: fallEnd,
-            easing: FALL_EASING,
-          },
+          ...buildFallKeyframes(x, startY, groundY, fallEnd),
           {
             transform: ballTransform(x, groundY, squashScaleX, squashScaleY),
             offset: squashEnd,
-            easing: FALL_EASING,
+            easing: SQUASH_EASING,
           },
           {
             transform: ballTransform(x, groundY, squashScaleX, squashScaleY),
