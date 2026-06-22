@@ -98,23 +98,14 @@ function buildInitialValues(
   if (mode === "edit-tier" && initialPackage !== undefined) {
     return packageRowToTierFormValues(initialPackage, initialCategoryName);
   }
+  if (mode === "add-tier") {
+    return createEmptyTierFormValues(initialCategoryName);
+  }
   if (
     (mode === "edit" || mode === "pricing") &&
     initialPackage !== undefined
   ) {
     return packageRowToFormValues(initialPackage, initialCategoryName);
-  }
-  if (mode === "add-tier" && initialPackage !== undefined) {
-    if (initialPackage.priceCents > 0) {
-      return {
-        ...packageRowToTierFormValues(initialPackage, initialCategoryName),
-        guestCount: "",
-        price: "",
-        pricePerSession: "",
-        durationDays: "",
-      };
-    }
-    return createEmptyTierFormValues(initialCategoryName);
   }
   return createEmptyPackageFormValues(initialCategoryName);
 }
