@@ -1141,12 +1141,9 @@ export class PackagesService {
       ) {
         continue;
       }
-      const description =
-        typeof record.description === 'string' ? record.description.trim() : '';
       allocations.push({
         classTypeId,
         sessionCount,
-        ...(description.length > 0 ? { description } : {}),
       });
     }
     return allocations;
@@ -1156,7 +1153,6 @@ export class PackagesService {
     allocations: Array<{
       classTypeId: string;
       sessionCount: number;
-      description?: string;
     }>,
   ): Promise<ResolvedTypeSessionAllocations> {
     if (allocations.length === 0) {
@@ -1194,14 +1190,10 @@ export class PackagesService {
       0,
     );
     return {
-      allocations: allocations.map((item) => {
-        const description = item.description?.trim() ?? '';
-        return {
-          classTypeId: item.classTypeId.trim(),
-          sessionCount: item.sessionCount,
-          ...(description.length > 0 ? { description } : {}),
-        };
-      }),
+      allocations: allocations.map((item) => ({
+        classTypeId: item.classTypeId.trim(),
+        sessionCount: item.sessionCount,
+      })),
       totalSessions,
       classTypeId: allocations.length === 1 ? allocations[0].classTypeId : null,
     };

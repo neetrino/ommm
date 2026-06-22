@@ -35,12 +35,15 @@ import {
   resolvePackageCategoryName,
 } from "@/components/admin/package-category-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
-import { AdminCombinedTierSessionAllocations } from "@/components/admin/admin-combined-tier-session-allocations";
+import { AdminPackageTypeSessionsFields } from "@/components/admin/admin-package-type-sessions-fields";
 import {
-  buildCombinedAllocationFormValues,
-  buildSourceSessionAllocationsPayload,
-  sumCombinedSessionAllocations,
-} from "@/components/admin/admin-combined-tier-session-allocations.util";
+  createEmptyTypeSessionEntry,
+  initialTypeSessionEntries,
+  sumTypeSessionEntries,
+  validateTypeSessionEntries,
+  type PackageTypeSessionFormEntry,
+  type TypeSessionValidationError,
+} from "@/components/admin/admin-package-type-sessions.util";
 import { ApiError, apiFetch } from "@/lib/api";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -79,24 +82,10 @@ type AdminPackageFormProps = {
   categoryOptions: readonly CategoryOption[];
   classTypeOptions: readonly { id: string; name: string }[];
   initialPackage?: AdminPackageRow;
-  configuredTierCount?: number;
   nextDisplayOrder?: number;
   onSaved: (saved: AdminPackageRow) => void;
   onCancel: () => void;
 };
-
-function withCombinedTierAllocations(
-  base: AdminPackageFormValues,
-  initialPackage: AdminPackageRow,
-): AdminPackageFormValues {
-  const allocations = buildCombinedAllocationFormValues(initialPackage.combinedComponents);
-  const total = sumCombinedSessionAllocations(allocations);
-  return {
-    ...base,
-    sourceSessionAllocations: allocations,
-    sessionsCount: total > 0 ? String(total) : base.sessionsCount,
-  };
-}
 
 function buildInitialValues(
   mode: AdminPackageFormMode,
@@ -104,14 +93,7 @@ function buildInitialValues(
   initialPackage?: AdminPackageRow,
 ): AdminPackageFormValues {
   if (mode === "edit-tier" && initialPackage !== undefined) {
-    const base = packageRowToTierFormValues(initialPackage, initialCategoryName);
-    if (
-      initialPackage.planType === "COMBINED" &&
-      (initialPackage.combinedComponents?.length ?? 0) >= 2
-    ) {
-      return withCombinedTierAllocations(base, initialPackage);
-    }
-    return base;
+    return packageRowToTierFormValues(initialPackage, initialCategoryName);
   }
   if (
     (mode === "edit" || mode === "pricing") &&
@@ -120,16 +102,6 @@ function buildInitialValues(
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
   if (mode === "add-tier" && initialPackage !== undefined) {
-    if (
-      initialPackage.planType === "COMBINED" &&
-      (initialPackage.combinedComponents?.length ?? 0) >= 2
-    ) {
-      const base =
-        initialPackage.priceCents > 0
-          ? packageRowToTierFormValues(initialPackage, initialCategoryName)
-          : createEmptyTierFormValues(initialCategoryName);
-      return withCombinedTierAllocations(base, initialPackage);
-    }
     if (initialPackage.priceCents > 0) {
       return {
         ...packageRowToTierFormValues(initialPackage, initialCategoryName),
@@ -169,10 +141,24 @@ export function AdminPackageForm({
   const [values, setValues] = useState<AdminPackageFormValues>(() =>
     buildInitialValues(mode, initialCategoryName, initialPackage),
   );
+  const [typeSessionEntries, setTypeSessionEntries] = useState<PackageTypeSessionFormEntry[]>(() =>
+    mode === "add-tier" || mode === "edit-tier"
+      ? initialTypeSessionEntries(mode === "edit-tier" ? initialPackage : undefined)
+      : [],
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categoryNamesFromApi, setCategoryNamesFromApi] = useState<readonly string[]>([]);
   const submitLockRef = useRef(false);
+
+  useEffect(() => {
+    if (mode !== "add-tier" && mode !== "edit-tier") {
+      return;
+    }
+    setTypeSessionEntries(
+      initialTypeSessionEntries(mode === "edit-tier" ? initialPackage : undefined),
+    );
+  }, [formKey, initialPackage, mode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -221,10 +207,11 @@ export function AdminPackageForm({
   function updateTierPricingValues(patch: Partial<AdminPackageFormValues>) {
     setValues((current) => {
       const next = { ...current, ...patch };
-      if ("price" in patch || "sessionsCount" in patch || "discountedPrice" in patch) {
+      if ("price" in patch || "discountedPrice" in patch) {
+        const sessionsCount = String(sumTypeSessionEntries(typeSessionEntries));
         const derived = resolveTierPricePerSessionField(
           next.price,
-          next.sessionsCount,
+          sessionsCount,
           next.discountedPrice,
         );
         next.pricePerSession =
@@ -234,32 +221,21 @@ export function AdminPackageForm({
     });
   }
 
-  const isCombinedTierForm =
-    (mode === "add-tier" || mode === "edit-tier") &&
-    initialPackage?.planType === "COMBINED" &&
-    (initialPackage.combinedComponents?.length ?? 0) >= 2;
-
-  function updateCombinedAllocation(componentId: string, rawValue: string) {
-    setValues((current) => {
-      const nextAllocations = {
-        ...current.sourceSessionAllocations,
-        [componentId]: rawValue,
-      };
-      const total = sumCombinedSessionAllocations(nextAllocations);
-      const sessionsCount = total > 0 ? String(total) : current.sessionsCount;
-      const derivedPerSession = resolveTierPricePerSessionField(
-        current.price,
-        sessionsCount,
-        current.discountedPrice,
-      );
-      return {
-        ...current,
-        sourceSessionAllocations: nextAllocations,
-        sessionsCount,
-        pricePerSession:
-          derivedPerSession.length > 0 ? derivedPerSession : current.pricePerSession,
-      };
-    });
+  function resolveTypeSessionErrorMessage(error: TypeSessionValidationError): string {
+    const typeSessionsT = (key: string) => t(`typeSessionsForm.${key}`);
+    if (error === "duplicateType") {
+      return typeSessionsT("duplicateTypeError");
+    }
+    if (error === "missingType") {
+      return typeSessionsT("missingTypeError");
+    }
+    if (error === "invalidSessionCount") {
+      return typeSessionsT("invalidSessionCountError");
+    }
+    if (error === "empty") {
+      return typeSessionsT("emptyError");
+    }
+    return typeSessionsT("invalidEntries");
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -394,7 +370,6 @@ export function AdminPackageForm({
         return;
       }
       if (
-        !isCombinedTierForm &&
         !isAddTierMode &&
         !isEditTierMode &&
         (parsedSessionsPerMonth === null ||
@@ -415,32 +390,19 @@ export function AdminPackageForm({
       }
     }
 
-    let sourceSessionAllocations: Array<{ componentId: string; sessionCount: number }> | undefined;
+    let typeSessionAllocations: Array<{ classTypeId: string; sessionCount: number }> | undefined;
     let resolvedSessionsPerMonth = parsedSessionsPerMonth;
-    if ((isAddTierMode || isEditTierMode) && !isCombinedTierForm) {
-      const fromPlanSessions =
-        typeof initialPackage?.sessionsPerMonth === "number" &&
-        initialPackage.sessionsPerMonth > 0
-          ? initialPackage.sessionsPerMonth
-          : null;
-      if (
-        resolvedSessionsPerMonth === null ||
-        resolvedSessionsPerMonth < MIN_PACKAGE_SESSIONS
-      ) {
-        resolvedSessionsPerMonth = fromPlanSessions ?? MIN_PACKAGE_SESSIONS;
-      }
-    }
-    if (isCombinedTierForm && initialPackage?.combinedComponents !== undefined) {
-      const allocationSummary = buildSourceSessionAllocationsPayload(
-        initialPackage.combinedComponents,
-        values.sourceSessionAllocations,
-      );
-      if (allocationSummary === null) {
-        setError(t("combinedForm.sourceAllocationInvalid"));
+    if (isAddTierMode || isEditTierMode) {
+      const typeSessionValidation = validateTypeSessionEntries(typeSessionEntries);
+      if (!typeSessionValidation.ok) {
+        setError(resolveTypeSessionErrorMessage(typeSessionValidation.error));
         return;
       }
-      sourceSessionAllocations = allocationSummary.payload;
-      resolvedSessionsPerMonth = allocationSummary.totalSessions;
+      typeSessionAllocations = typeSessionValidation.payload;
+      resolvedSessionsPerMonth = typeSessionValidation.payload.reduce(
+        (sum, allocation) => sum + allocation.sessionCount,
+        0,
+      );
     }
     const pricePerSessionCents =
       parsePriceToCents(values.pricePerSession) ??
@@ -488,9 +450,7 @@ export function AdminPackageForm({
       guestCount: guestCount ?? 0,
       periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
       billingPeriod: tierBillingPeriod,
-      ...(sourceSessionAllocations !== undefined
-        ? { sourceSessionAllocations }
-        : {}),
+      ...(typeSessionAllocations !== undefined ? { typeSessionAllocations } : {}),
     };
 
     const shellTierTarget =
@@ -614,7 +574,7 @@ export function AdminPackageForm({
         >
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldGroupName")}</span>
               <input
                 name="name"
                 className="ommm-input"
@@ -671,18 +631,9 @@ export function AdminPackageForm({
           }
         >
           <div className="flex flex-col gap-4">
-            {isCombinedTierForm && initialPackage?.combinedComponents !== undefined ? (
-              <AdminCombinedTierSessionAllocations
-                components={initialPackage.combinedComponents}
-                allocations={values.sourceSessionAllocations}
-                totalSessions={sumCombinedSessionAllocations(values.sourceSessionAllocations)}
-                onAllocationChange={updateCombinedAllocation}
-                disabled={pending}
-              />
-            ) : null}
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">
-                {t("fieldSessionName")}
+                {t("fieldPageName")}
               </span>
               <input
                 name="name"
@@ -690,7 +641,7 @@ export function AdminPackageForm({
                 maxLength={MAX_NAME_LENGTH}
                 value={values.name}
                 onChange={(event) => updateValues({ name: event.target.value })}
-                placeholder={t("fieldSessionNamePlaceholder")}
+                placeholder={t("fieldPageNamePlaceholder")}
                 required
                 disabled={pending}
               />
@@ -760,6 +711,28 @@ export function AdminPackageForm({
             </label>
             </div>
           </div>
+        </AdminPackageFormSection>
+      ) : null}
+
+      {mode === "add-tier" || mode === "edit-tier" ? (
+        <AdminPackageFormSection
+          heading={t("formSections.typeSessions.heading")}
+          description={t("formSections.typeSessions.description")}
+        >
+          <AdminPackageTypeSessionsFields
+            entries={typeSessionEntries}
+            classTypeOptions={classTypeOptions}
+            disabled={pending}
+            onChange={setTypeSessionEntries}
+            onAddRow={() =>
+              setTypeSessionEntries((current) => [...current, createEmptyTypeSessionEntry()])
+            }
+            onRemoveRow={(entryId) =>
+              setTypeSessionEntries((current) =>
+                current.length <= 1 ? current : current.filter((entry) => entry.id !== entryId),
+              )
+            }
+          />
         </AdminPackageFormSection>
       ) : null}
 

@@ -8,14 +8,12 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 export type PackageTypeSessionAllocation = {
   classTypeId: string;
   sessionCount: number;
-  description?: string | null;
 };
 
 export type PackageTypeSessionFormEntry = {
   id: string;
   classTypeId: string;
   sessionCount: string;
-  description: string;
 };
 
 export function createEmptyTypeSessionEntry(): PackageTypeSessionFormEntry {
@@ -27,13 +25,10 @@ export function createEmptyTypeSessionEntry(): PackageTypeSessionFormEntry {
     id,
     classTypeId: "",
     sessionCount: "",
-    description: "",
   };
 }
 
-export function entriesFromPackage(
-  pkg: AdminPackageRow,
-): PackageTypeSessionFormEntry[] {
+export function entriesFromPackage(pkg: AdminPackageRow): PackageTypeSessionFormEntry[] {
   const stored = pkg.typeSessionAllocations ?? [];
   if (stored.length === 0) {
     return [];
@@ -45,8 +40,17 @@ export function entriesFromPackage(
         : `${allocation.classTypeId}-${allocation.sessionCount}`,
     classTypeId: allocation.classTypeId,
     sessionCount: String(allocation.sessionCount),
-    description: allocation.description ?? "",
   }));
+}
+
+export function initialTypeSessionEntries(
+  pkg: AdminPackageRow | undefined,
+): PackageTypeSessionFormEntry[] {
+  if (pkg === undefined) {
+    return [createEmptyTypeSessionEntry()];
+  }
+  const fromPackage = entriesFromPackage(pkg);
+  return fromPackage.length > 0 ? fromPackage : [createEmptyTypeSessionEntry()];
 }
 
 export function sumTypeSessionEntries(
@@ -116,11 +120,9 @@ export function validateTypeSessionEntries(
     ) {
       return { ok: false, error: "invalidSessionCount" };
     }
-    const description = entry.description.trim();
     payload.push({
       classTypeId,
       sessionCount,
-      ...(description.length > 0 ? { description } : {}),
     });
   }
   if (payload.length === 0) {

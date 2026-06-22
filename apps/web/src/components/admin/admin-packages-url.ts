@@ -17,16 +17,6 @@ export const PACKAGE_DELETE_CATEGORY_QUERY_KEY = "deleteCategoryId";
 export const PACKAGE_DELETE_QUERY_KEY = "deletePackageId";
 export const PACKAGE_DELETE_MEMBER_QUERY_KEY = "deletePackageMemberId";
 export const PACKAGE_DELETE_SHOW_MEMBERS_QUERY_KEY = "deletePackageShowMembers";
-export const PACKAGE_KIND_QUERY_KEY = "packageKind";
-export const PACKAGE_KIND_COMBINED_VALUE = "combined";
-export const PACKAGE_TYPE_SESSIONS_PACKAGE_QUERY_KEY = "typeSessionsPackage";
-export const PACKAGE_TYPE_SESSIONS_MODE_QUERY_KEY = "typeSessionsMode";
-export const PACKAGE_TYPE_SESSIONS_MODE_VIEW = "view";
-export const PACKAGE_TYPE_SESSIONS_MODE_EDIT = "edit";
-
-export type PackageTypeSessionsModalMode = "view" | "edit";
-
-export type PackageCreateKind = "single" | "combined";
 
 /** Filter keys cleared and rewritten when filters sync to the URL. */
 export const PACKAGE_FILTER_QUERY_KEYS = ["search", "status", "order"] as const;
@@ -95,38 +85,11 @@ export function packageFiltersQueryKey(values: PackageFilterValues): string {
   return [values.search, values.status, values.order].join("|");
 }
 
-export function parsePackageCreateKind(
-  value: string | string[] | null | undefined,
-): PackageCreateKind {
-  const raw = firstParam(value ?? undefined);
-  return raw === PACKAGE_KIND_COMBINED_VALUE ? "combined" : "single";
-}
-
-export function parseTypeSessionsModalMode(
-  value: string | null | undefined,
-): PackageTypeSessionsModalMode | null {
-  const raw = firstParam(value ?? undefined);
-  if (raw === PACKAGE_TYPE_SESSIONS_MODE_VIEW) {
-    return "view";
-  }
-  if (raw === PACKAGE_TYPE_SESSIONS_MODE_EDIT) {
-    return "edit";
-  }
-  return null;
-}
-
-export function clearTypeSessionsModalQueryKeys(params: URLSearchParams): void {
-  params.delete(PACKAGE_TYPE_SESSIONS_PACKAGE_QUERY_KEY);
-  params.delete(PACKAGE_TYPE_SESSIONS_MODE_QUERY_KEY);
-}
-
 export function clearPackageModalQueryKeys(params: URLSearchParams): void {
   params.delete(PACKAGE_MODAL_QUERY_KEY);
   params.delete(PACKAGE_EDIT_QUERY_KEY);
   params.delete(PACKAGE_PRICING_QUERY_KEY);
   params.delete(PACKAGE_CATEGORY_QUERY_KEY);
-  params.delete(PACKAGE_KIND_QUERY_KEY);
-  clearTypeSessionsModalQueryKeys(params);
 }
 
 export function clearPackageDeleteQueryKeys(params: URLSearchParams): void {
