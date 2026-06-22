@@ -68,6 +68,7 @@ export const HOME_FOOTER_LAYOUT = {
   navLinkPaddingLeftPx: 48,
   navLinkGapPx: 10,
   contactSectionGapPx: 21,
+  contactTitleGapPx: 32,
   contactRowGapPx: 19,
   socialTitleGapPx: 22,
   socialIconGapPx: 22,
@@ -253,49 +254,14 @@ export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/refund", labelKey: "footerRefund" },
 ] as const;
 
-/** Figma `605:1002` — Facebook → Instagram → Telegram → YouTube → WhatsApp → Viber. */
+/** Figma `605:1002` — Instagram only. */
 export const HOME_FOOTER_SOCIAL_LINKS = [
-  {
-    id: "facebook",
-    href: "https://facebook.com",
-    asset: HOME_SECTION_ASSETS.footerSocialFacebook,
-    width: 13,
-    height: 23,
-  },
   {
     id: "instagram",
     href: "https://www.instagram.com/ommm.space/",
     asset: HOME_SECTION_ASSETS.footerSocialInstagram,
     width: 23,
     height: 23,
-  },
-  {
-    id: "telegram",
-    href: "https://t.me",
-    asset: HOME_SECTION_ASSETS.footerSocialTelegram,
-    width: 24,
-    height: 24,
-  },
-  {
-    id: "youtube",
-    href: "https://youtube.com",
-    asset: HOME_SECTION_ASSETS.footerSocialYoutube,
-    width: 25,
-    height: 18,
-  },
-  {
-    id: "whatsapp",
-    href: "https://wa.me",
-    asset: HOME_SECTION_ASSETS.footerSocialWhatsapp,
-    width: 24,
-    height: 24,
-  },
-  {
-    id: "viber",
-    href: "https://viber.com",
-    asset: HOME_SECTION_ASSETS.footerSocialViber,
-    width: 22,
-    height: 24,
   },
 ] as const;
 
@@ -316,7 +282,6 @@ export const HOME_FOOTER_PAYMENT_LOGOS = [
 
 export const HOME_FOOTER_ASSETS = {
   illustration: HOME_SECTION_ASSETS.footerIllustration,
-  phone: HOME_SECTION_ASSETS.footerIconPhone,
   mail: HOME_SECTION_ASSETS.footerIconMail,
   location: HOME_SECTION_ASSETS.footerIconLocation,
 } as const;

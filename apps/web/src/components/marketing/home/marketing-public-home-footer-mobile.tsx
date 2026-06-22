@@ -16,7 +16,6 @@ type FooterLegalKey = (typeof HOME_FOOTER_LEGAL_LINKS)[number]["labelKey"];
 export type MarketingPublicHomeFooterMobileProps = {
   wordmarkLabel: string;
   illustrationAlt: string;
-  phone: string;
   email: string;
   address: string;
   addressHref: string;
@@ -35,7 +34,6 @@ export type MarketingPublicHomeFooterMobileProps = {
 export function MarketingPublicHomeFooterMobile({
   wordmarkLabel,
   illustrationAlt,
-  phone,
   email,
   address,
   addressHref,
@@ -55,20 +53,6 @@ export function MarketingPublicHomeFooterMobile({
 
       {showContactSection ? (
         <div className={styles.mobileContact}>
-          <div className={styles.mobileContactRow}>
-            <Image
-              src={HOME_FOOTER_ASSETS.phone}
-              alt=""
-              width={20}
-              height={20}
-              unoptimized
-              className={styles.mobileContactIcon}
-              aria-hidden
-            />
-            <a href={`tel:${phone.replace(/\s/g, "")}`} className={styles.mobileContactText}>
-              {phone}
-            </a>
-          </div>
           <div className={styles.mobileContactRow}>
             <Image
               src={HOME_FOOTER_ASSETS.mail}

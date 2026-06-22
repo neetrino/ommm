@@ -104,6 +104,7 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-legal-top" as string]: pct(pos.legal.top),
     ["--home-footer-nav-link-padding" as string]: `${layout.navLinkPaddingLeftPx}px`,
     ["--home-footer-contact-gap" as string]: `${layout.contactSectionGapPx}px`,
+    ["--home-footer-contact-title-gap" as string]: `${layout.contactTitleGapPx}px`,
     ["--home-footer-contact-row-gap" as string]: `${layout.contactRowGapPx}px`,
     ["--home-footer-social-title-gap" as string]: `${layout.socialTitleGapPx}px`,
     ["--home-footer-social-icon-gap" as string]: `${layout.socialIconGapPx}px`,
@@ -230,12 +231,6 @@ export async function MarketingPublicHomeFooter({
       <p className={styles.sectionTitle}>{t("footerContactTitle")}</p>
       <ul className={styles.contactList}>
         <li className={styles.contactRow}>
-          <Image src={HOME_FOOTER_ASSETS.phone} alt="" width={24} height={24} unoptimized className={styles.contactIcon} aria-hidden />
-          <a href={`tel:${t("footerPhone").replace(/\s/g, "")}`} className={styles.contactText}>
-            {t("footerPhone")}
-          </a>
-        </li>
-        <li className={styles.contactRow}>
           <Image src={HOME_FOOTER_ASSETS.mail} alt="" width={25} height={24} unoptimized className={styles.contactIcon} aria-hidden />
           <a href={`mailto:${t("footerEmail")}`} className={styles.contactText}>
             {t("footerEmail")}
@@ -313,7 +308,6 @@ export async function MarketingPublicHomeFooter({
           <MarketingPublicHomeFooterMobile
             wordmarkLabel={t("footerWordmark")}
             illustrationAlt={t("footerIllustrationAlt")}
-            phone={t("footerPhone")}
             email={t("footerEmail")}
             address={t("footerAddress")}
             addressHref={HOME_FOOTER_ADDRESS_HREF}
