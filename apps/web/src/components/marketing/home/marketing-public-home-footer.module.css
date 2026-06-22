@@ -868,7 +868,8 @@
     --home-footer-mini-nav-gap: 1.5rem;
     --home-footer-mini-column-gap: 2rem;
     --home-footer-mini-section-gap: 1.5rem;
-    --home-footer-mini-legal-divider-pt: 1.5rem;
+    --home-footer-mini-below-logo-lift: 7rem;
+    --home-footer-mini-legal-divider-pt: 0.75rem;
     --home-footer-mini-legal-gap: 1.5rem;
     --home-footer-mini-copyright-mt: 1rem;
     --home-footer-mini-legal-address-offset: calc(
@@ -998,12 +999,14 @@
     grid-area: contact;
     align-self: start;
     justify-self: start;
+    margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
   }
 
   .socialSlot {
     grid-area: social;
     align-self: start;
     justify-self: end;
+    margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
   }
 
   .socialBlock {
@@ -1020,7 +1023,9 @@
     grid-area: social;
     align-self: start;
     justify-self: end;
-    margin-top: var(--home-footer-mini-legal-address-offset);
+    margin-top: calc(
+      var(--home-footer-mini-legal-address-offset) - var(--home-footer-mini-below-logo-lift)
+    );
   }
 
   .legalSlot .legalNav {

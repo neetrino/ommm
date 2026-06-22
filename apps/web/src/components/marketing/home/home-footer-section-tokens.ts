@@ -248,6 +248,8 @@ export const HOME_FOOTER_IPAD_MINI_DESKTOP_LAYOUT = {
   shellPaddingInline: "1.5rem",
   columnGap: "2rem",
   sectionGap: "1.5rem",
+  /** Pull contact + footer rows closer to the sphere (logo stays put). */
+  belowLogoLiftRem: 7,
   illustrationMaxRem: 12,
   illustrationViewportRatio: 0.28,
   wordmarkFontSizePx: 20,
@@ -256,7 +258,7 @@ export const HOME_FOOTER_IPAD_MINI_DESKTOP_LAYOUT = {
   bodyFontSizePx: 14,
   bodyLineHeightPx: 20,
   navLinkGapPx: 24,
-  legalDividerPaddingTopPx: 24,
+  legalDividerPaddingTopPx: 12,
   legalLinkGapPx: 24,
   copyrightMarginTopPx: 16,
   paymentMarginTopPx: 32,
