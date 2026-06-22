@@ -43,6 +43,11 @@ function nextDriftX(currentX: number, driftPx: number): number {
   return Math.max(-limit, Math.min(limit, currentX + delta));
 }
 
+function randomPeakPx(basePx: number, boostMinPx: number, boostMaxPx: number): number {
+  const boostPx = boostMinPx + Math.random() * (boostMaxPx - boostMinPx);
+  return Math.round(basePx + boostPx);
+}
+
 /**
  * Desktop footer sphere — falls to the site edge, squashes on impact, bounces up and drifts.
  */
@@ -57,7 +62,9 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
     }
 
     const {
-      peakPx,
+      peakBasePx,
+      peakBoostMinPx,
+      peakBoostMaxPx,
       fallMs,
       squashMs,
       impactHoldMs,
@@ -89,6 +96,7 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
 
       const groundY = measureGroundY(el, startY, groundReachPx);
       const endX = nextDriftX(x, driftPx);
+      const cyclePeakPx = randomPeakPx(peakBasePx, peakBoostMinPx, peakBoostMaxPx);
 
       activeAnim = el.animate(
         [
@@ -110,21 +118,21 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
           {
             transform: ballTransform(
               endX,
-              -peakPx * 0.38,
+              -cyclePeakPx * 0.38,
               riseStretchScaleX,
               riseStretchScaleY,
             ),
             offset: riseLaunch,
             easing: RISE_EASING,
           },
-          { transform: ballTransform(endX, -peakPx, 1, 1), easing: RISE_EASING },
+          { transform: ballTransform(endX, -cyclePeakPx, 1, 1), easing: RISE_EASING },
         ],
         { duration: totalMs, fill: "forwards" },
       );
 
       activeAnim.onfinish = () => {
         x = endX;
-        startY = -peakPx;
+        startY = -cyclePeakPx;
         runCycle();
       };
     };

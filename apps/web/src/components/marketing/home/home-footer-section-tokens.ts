@@ -119,11 +119,16 @@ const HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX = Math.max(
   ),
 );
 
+const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX = 100;
+const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX = 300;
+
 /** Desktop footer sphere bounce — WAAPI loop in `HomeFooterSphereBounce`. */
 export const HOME_FOOTER_SPHERE_BOUNCE = {
   /** Match footer illustration layout — tablet grid and full desktop. */
   minWidthPx: 744,
-  peakPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX,
+  peakBasePx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX,
+  peakBoostMinPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX,
+  peakBoostMaxPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX,
   fallMs: 900,
   /** Squash at the floor — only after the ball reaches the screen edge. */
   squashMs: 120,
