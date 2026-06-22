@@ -11,9 +11,9 @@
       "default": "./dist/index.js"
     },
     "./home-page-sections": {
-      "types": "./src/home-page-sections.ts",
-      "import": "./src/home-page-sections.ts",
-      "default": "./src/home-page-sections.ts"
+      "types": "./dist/home-page-sections.d.ts",
+      "import": "./dist/home-page-sections.js",
+      "default": "./dist/home-page-sections.js"
     }
   },
   "scripts": {
