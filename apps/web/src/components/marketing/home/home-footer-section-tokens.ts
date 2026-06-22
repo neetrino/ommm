@@ -134,7 +134,9 @@ export const HOME_FOOTER_SPHERE_BOUNCE = {
   squashMs: 120,
   impactHoldMs: 70,
   riseMs: 780,
-  driftPx: 14,
+  /** Horizontal step per bounce — random left/right drift. */
+  driftPx: 58,
+  driftMaxPx: 168,
   /** Optical overlap so the sphere graphic touches the site edge (PNG padding). */
   groundReachPx: 14,
   squashScaleX: 1.065,

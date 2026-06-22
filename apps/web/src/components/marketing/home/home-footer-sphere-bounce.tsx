@@ -48,10 +48,14 @@ function measureGroundY(el: HTMLElement, logicalY: number, reachPx: number): num
   return Math.max(0, floor - restBottom + reachPx);
 }
 
-function nextDriftX(currentX: number, driftPx: number): number {
+function nextDriftX(currentX: number, driftPx: number, driftMaxPx: number): number {
   const delta = (Math.random() * 2 - 1) * driftPx;
-  const limit = driftPx * 2.5;
-  return Math.max(-limit, Math.min(limit, currentX + delta));
+  return Math.max(-driftMaxPx, Math.min(driftMaxPx, currentX + delta));
+}
+
+function randomStartDriftX(driftPx: number, driftMaxPx: number): number {
+  const spread = Math.min(driftMaxPx, driftPx * 1.25);
+  return (Math.random() * 2 - 1) * spread;
 }
 
 function randomPeakPx(basePx: number, boostMinPx: number, boostMaxPx: number): number {
@@ -60,7 +64,8 @@ function randomPeakPx(basePx: number, boostMinPx: number, boostMaxPx: number): n
 }
 
 function buildFallKeyframes(
-  x: number,
+  startX: number,
+  endX: number,
   startY: number,
   groundY: number,
   fallEnd: number,
@@ -68,7 +73,12 @@ function buildFallKeyframes(
   const fallDrop = groundY - startY;
 
   return FALL_MOTION_SAMPLES.map((sample) => ({
-    transform: ballTransform(x, startY + fallDrop * sample.distanceRatio, 1, 1),
+    transform: ballTransform(
+      startX + (endX - startX) * sample.distanceRatio,
+      startY + fallDrop * sample.distanceRatio,
+      1,
+      1,
+    ),
     offset: fallEnd * sample.timeRatio,
     ...(sample.easing ? { easing: sample.easing } : {}),
   }));
@@ -97,6 +107,7 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
       riseMs,
       driftPx,
       groundReachPx,
+      driftMaxPx,
       squashScaleX,
       squashScaleY,
       riseStretchScaleX,
@@ -109,7 +120,7 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
     const impactEnd = (fallMs + squashMs + impactHoldMs) / totalMs;
     const riseLaunch = impactEnd + (1 - impactEnd) * 0.28;
 
-    let x = 0;
+    let x = randomStartDriftX(driftPx, driftMaxPx);
     let startY = 0;
     let cancelled = false;
     let activeAnim: Animation | null = null;
@@ -121,19 +132,19 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
       }
 
       const groundY = measureGroundY(el, startY, groundReachPx);
-      const endX = nextDriftX(x, driftPx);
+      const endX = nextDriftX(x, driftPx, driftMaxPx);
       const cyclePeakPx = randomPeakPx(peakBasePx, peakBoostMinPx, peakBoostMaxPx);
 
       activeAnim = el.animate(
         [
-          ...buildFallKeyframes(x, startY, groundY, fallEnd),
+          ...buildFallKeyframes(x, endX, startY, groundY, fallEnd),
           {
-            transform: ballTransform(x, groundY, squashScaleX, squashScaleY),
+            transform: ballTransform(endX, groundY, squashScaleX, squashScaleY),
             offset: squashEnd,
             easing: SQUASH_EASING,
           },
           {
-            transform: ballTransform(x, groundY, squashScaleX, squashScaleY),
+            transform: ballTransform(endX, groundY, squashScaleX, squashScaleY),
             offset: impactEnd,
           },
           {
@@ -168,7 +179,7 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
 
       activeAnim?.cancel();
       startY = 0;
-      x = 0;
+      x = randomStartDriftX(driftPx, driftMaxPx);
       cancelled = false;
       runCycle();
     };
