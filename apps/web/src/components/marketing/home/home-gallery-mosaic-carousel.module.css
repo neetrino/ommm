@@ -9,6 +9,15 @@
   height: var(--home-gallery-viewport-height, 80dvh);
   overflow: hidden;
   container-type: inline-size;
+  touch-action: pan-y pinch-zoom;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.viewportDragging {
+  cursor: grabbing;
+  touch-action: none;
 }
 
 .track {
@@ -51,6 +60,9 @@
 .slideImage {
   object-fit: cover;
   object-position: center center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .slideSheen {

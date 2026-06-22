@@ -14,6 +14,7 @@ import {
   type HomeGalleryCarouselSlide,
 } from "@/components/marketing/home/home-gallery-section-tokens";
 import { MarketingGlassCircleButton } from "@/components/marketing/home/marketing-glass-circle-button";
+import { useGalleryCarouselPointerDrag } from "@/hooks/use-gallery-carousel-pointer-drag";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
@@ -136,7 +137,7 @@ function useGalleryCarouselMetrics(visualSlideIndex: number) {
   const stepPx = slideWidthPx + HOME_GALLERY_CAROUSEL.gapPx;
   const translatePx = layoutReady ? -visualSlideIndex * stepPx : 0;
 
-  return { viewportRef, edgePadPx, translatePx, layoutReady };
+  return { viewportRef, edgePadPx, translatePx, stepPx, layoutReady };
 }
 
 type GalleryCarouselSlideProps = {
@@ -200,15 +201,8 @@ export function HomeGalleryMosaicCarousel({
   const recenteringRef = useRef(false);
 
   const reducedMotion = usePrefersReducedMotion();
-  const { viewportRef, edgePadPx, translatePx, layoutReady } =
+  const { viewportRef, edgePadPx, translatePx, stepPx, layoutReady } =
     useGalleryCarouselMetrics(trackVisualIndex);
-
-  const active = useMemo(() => {
-    if (!useInfiniteTrack) {
-      return 0;
-    }
-    return realIndexFromDisplay(slideCount, trackVisualIndex);
-  }, [slideCount, trackVisualIndex, useInfiniteTrack]);
 
   const goPrev = useCallback(() => {
     if (!useInfiniteTrack) {
@@ -223,6 +217,22 @@ export function HomeGalleryMosaicCarousel({
     }
     setTrackVisualIndex((prev) => prev + 1);
   }, [useInfiniteTrack]);
+
+  const { dragOffsetPx, isDragging, dragHandlers } = useGalleryCarouselPointerDrag({
+    stepPx,
+    enabled: useInfiniteTrack && layoutReady,
+    dragStartThresholdPx: HOME_GALLERY_CAROUSEL.dragStartThresholdPx,
+    dragCommitRatio: HOME_GALLERY_CAROUSEL.dragCommitRatio,
+    onPrev: goPrev,
+    onNext: goNext,
+  });
+
+  const active = useMemo(() => {
+    if (!useInfiniteTrack) {
+      return 0;
+    }
+    return realIndexFromDisplay(slideCount, trackVisualIndex);
+  }, [slideCount, trackVisualIndex, useInfiniteTrack]);
 
   const selectSlide = useCallback(
     (index: number) => {
@@ -241,7 +251,7 @@ export function HomeGalleryMosaicCarousel({
   }, []);
 
   useEffect(() => {
-    if (!useInfiniteTrack || reducedMotion) {
+    if (!useInfiniteTrack || reducedMotion || isDragging) {
       return;
     }
     let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -275,10 +285,10 @@ export function HomeGalleryMosaicCarousel({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       clearIntervalIfSet();
     };
-  }, [goNext, reducedMotion, trackVisualIndex, useInfiniteTrack]);
+  }, [goNext, isDragging, reducedMotion, trackVisualIndex, useInfiniteTrack]);
 
   const trackTransition =
-    reducedMotion || !canAnimateSlides || !layoutReady || instantTransform
+    reducedMotion || !canAnimateSlides || !layoutReady || instantTransform || isDragging
       ? undefined
       : `transform var(--home-gallery-carousel-ms) cubic-bezier(0.22, 1, 0.36, 1)`;
 
@@ -349,14 +359,18 @@ export function HomeGalleryMosaicCarousel({
   return (
     <div style={carouselStyleVars()}>
       <div className={styles.stage}>
-        <div ref={viewportRef} className={styles.viewport}>
+        <div
+          ref={viewportRef}
+          className={`${styles.viewport} ${isDragging ? styles.viewportDragging : ""}`}
+          {...dragHandlers}
+        >
           <div
             className={`${styles.track} ${layoutReady ? styles.trackReady : styles.trackHidden}`}
             style={{
               gap: `${HOME_GALLERY_CAROUSEL.gapPx}px`,
               paddingLeft: `${edgePadPx}px`,
               paddingRight: `${edgePadPx}px`,
-              transform: `translate3d(${translatePx}px, 0, 0)`,
+              transform: `translate3d(${translatePx + dragOffsetPx}px, 0, 0)`,
               transition: trackTransition,
             }}
             onTransitionEnd={handleTrackTransitionEnd}

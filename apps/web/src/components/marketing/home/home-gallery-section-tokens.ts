@@ -143,6 +143,9 @@ export const HOME_GALLERY_CAROUSEL = {
   peekCloneCount: 2,
   /** Prev/next sit flush to the viewport edges of the full-bleed track. */
   navEdgeInsetPx: 24,
+  /** Drag farther than this fraction of one slide width to advance. */
+  dragCommitRatio: 0.18,
+  dragStartThresholdPx: 6,
 } as const;
 
 /** First real slide index inside the padded display track. */
