@@ -246,7 +246,8 @@
       "footerTerms": "Условия",
       "footerRefund": "Возврат",
       "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
-      "footerCopyrightCompany": "NEETRINO IT COMPANY",
+      "footerCopyrightCompanyPart1": "NEETRINO IT",
+      "footerCopyrightCompanyPart2": "COMPANY",
       "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
       "footerIllustrationAlt": "Декоративная иллюстрация Om"
     }

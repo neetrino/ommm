@@ -2,11 +2,12 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import {
   HOME_FOOTER_ASSETS,
-  HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
+  HOME_FOOTER_FIGMA,
   HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_PAYMENT_LOGOS,
   HOME_FOOTER_SOCIAL_LINKS,
 } from "@/components/marketing/home/home-footer-section-tokens";
+import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
@@ -25,7 +26,8 @@ export type MarketingPublicHomeFooterMobileProps = {
   legalNavAria: string;
   legalLabels: Record<FooterLegalKey, string>;
   copyrightPrefix: string;
-  copyrightCompany: string;
+  copyrightCompanyPart1: string;
+  copyrightCompanyPart2: string;
   copyrightSuffix: string;
 };
 
@@ -43,7 +45,8 @@ export function MarketingPublicHomeFooterMobile({
   legalNavAria,
   legalLabels,
   copyrightPrefix,
-  copyrightCompany,
+  copyrightCompanyPart1,
+  copyrightCompanyPart2,
   copyrightSuffix,
 }: MarketingPublicHomeFooterMobileProps) {
   return (
@@ -100,16 +103,17 @@ export function MarketingPublicHomeFooterMobile({
       {showContactSection ? (
         <div className={styles.mobilePayment}>
           {HOME_FOOTER_PAYMENT_LOGOS.map((logo) => (
-            <Image
-              key={logo.id}
-              src={logo.src}
-              alt=""
-              width={logo.width}
-              height={logo.height}
-              unoptimized
-              className={styles.paymentLogo}
-              aria-hidden
-            />
+            <span key={logo.id} className={styles.paymentLogoItem}>
+              <Image
+                src={logo.src}
+                alt=""
+                width={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
+                height={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
+                unoptimized
+                className={styles.paymentLogo}
+                aria-hidden
+              />
+            </span>
           ))}
         </div>
       ) : null}
@@ -140,18 +144,13 @@ export function MarketingPublicHomeFooterMobile({
         ))}
       </nav>
 
-      <p className={styles.mobileCopyright}>
-        {copyrightPrefix}
-        <a
-          href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
-          className={styles.copyrightCompany}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {copyrightCompany}
-        </a>
-        {copyrightSuffix}
-      </p>
+      <MarketingPublicHomeFooterCopyright
+        className={styles.mobileCopyright}
+        prefix={copyrightPrefix}
+        companyPart1={copyrightCompanyPart1}
+        companyPart2={copyrightCompanyPart2}
+        suffix={copyrightSuffix}
+      />
 
       <div className={styles.mobileIllustration} aria-hidden>
         <div className={styles.illustrationFrame}>

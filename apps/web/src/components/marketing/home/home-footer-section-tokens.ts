@@ -23,6 +23,9 @@ export const HOME_FOOTER_FIGMA = {
   artboardHeightPx: 428,
   illustrationSizePx: 412,
   paymentGapPx: 16,
+  paymentLogoHeightPx: 28,
+  paymentArcaDisplayHeightPx: 20,
+  paymentArcaOffsetXPx: 24,
   paymentMastercardWidthPx: 35,
   paymentMastercardHeightPx: 28,
   paymentArcaWidthPx: 78,
@@ -45,7 +48,11 @@ export const HOME_FOOTER_FIGMA_POSITIONS = {
   payment: { left: 74 / 1440, top: 358 / 428 },
   social: { left: 1132 / 1440, top: 183 / 428 },
   legal: { left: 1166 / 1440, top: 299 / 428 },
-  copyright: { left: 1084 / 1440, top: 327 / 428, width: 291 / 1440 },
+  copyright: {
+    /** Line 2 ~10px below payment row top (347px block top on 428px artboard). */
+    top: (358 - 21 + 10) / 428,
+    width: 291 / 1440,
+  },
 } as const;
 
 export const HOME_FOOTER_LAYOUT = {
@@ -67,6 +74,10 @@ export const HOME_FOOTER_LAYOUT = {
   copyrightFontSizePx: 14,
   copyrightLineHeightPx: 21,
   copyrightLetterSpacingPx: 2.4,
+  /** Contact Us + Social Media — shift up from Figma baseline. */
+  contactSocialLiftPx: 20,
+  /** Top nav + legal links — shift up from Figma baseline. */
+  topBarLegalLiftPx: 10,
 } as const;
 
 /** Figma mobile footer — container `97:5944`. */
@@ -106,7 +117,7 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
 export const HOME_FOOTER_MOBILE_LAYOUT = {
   galleryOverlap: "2.5rem",
   wrapPaddingTop: "2.5rem",
-  sectionPaddingX: "1.5rem",
+  sectionPaddingX: "1rem",
   sectionPaddingTop: "3rem",
   sectionPaddingBottom: "1.5rem",
   topRadius: "2.5rem",
@@ -137,7 +148,7 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   illustrationHeight: "clamp(15.5rem, calc(100svw * 396 / 394), 24.75rem)",
   heroMinHeight: "clamp(11rem, calc(100svw * 267 / 394), 16.75rem)",
   paymentMarginTop: "1.5rem",
-  paymentGap: "1rem",
+  paymentGap: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentGapPx}px`,
 } as const;
 
 const homeFooterTabletCornerCoverPx = HOME_FOOTER_SECTION_MOBILE_FIGMA.topRadiusPx + 12;
@@ -237,20 +248,14 @@ export const HOME_FOOTER_PAYMENT_LOGOS = [
   {
     id: "mastercard",
     src: HOME_SECTION_ASSETS.footerPaymentMastercard,
-    width: HOME_FOOTER_FIGMA.paymentMastercardWidthPx,
-    height: HOME_FOOTER_FIGMA.paymentMastercardHeightPx,
   },
   {
     id: "arca",
     src: HOME_SECTION_ASSETS.footerPaymentArca,
-    width: HOME_FOOTER_FIGMA.paymentArcaWidthPx,
-    height: HOME_FOOTER_FIGMA.paymentArcaHeightPx,
   },
   {
     id: "visa",
     src: HOME_SECTION_ASSETS.footerPaymentVisa,
-    width: HOME_FOOTER_FIGMA.paymentVisaWidthPx,
-    height: HOME_FOOTER_FIGMA.paymentVisaHeightPx,
   },
 ] as const;
 

@@ -2,13 +2,13 @@ import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_ADDRESS_HREF,
-  HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_FIGMA_POSITIONS,
   HOME_FOOTER_INNER_MOBILE_LAYOUT,
@@ -86,24 +86,18 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
     ["--home-footer-max-width" as string]: `${MARKETING_CONTENT_MAX_WIDTH_PX}px`,
     ["--home-footer-min-height" as string]: `clamp(24rem, ${pct(HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx)}, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`,
-    ["--home-footer-top-bar-left" as string]: pct(pos.topBar.left),
     ["--home-footer-top-bar-top" as string]: pct(pos.topBar.top),
-    ["--home-footer-illustration-left" as string]: pct(pos.illustration.left),
     ["--home-footer-illustration-bottom" as string]: pct(-pos.illustration.bottomOverflow),
     ["--home-footer-illustration-width" as string]: pct(pos.illustration.width),
     ["--home-footer-illustration-height" as string]: pct(pos.illustration.height),
-    ["--home-footer-contact-left" as string]: pct(pos.contact.left),
     ["--home-footer-contact-top" as string]: pct(pos.contact.top),
-    ["--home-footer-payment-left" as string]: pct(pos.payment.left),
     ["--home-footer-payment-top" as string]: pct(pos.payment.top),
     ["--home-footer-payment-gap" as string]: `${HOME_FOOTER_FIGMA.paymentGapPx}px`,
-    ["--home-footer-social-left" as string]: pct(pos.social.left),
+    ["--home-footer-payment-logo-height" as string]: `${HOME_FOOTER_FIGMA.paymentLogoHeightPx}px`,
+    ["--home-footer-payment-arca-height" as string]: `${HOME_FOOTER_FIGMA.paymentArcaDisplayHeightPx}px`,
+    ["--home-footer-payment-arca-offset-x" as string]: `${HOME_FOOTER_FIGMA.paymentArcaOffsetXPx}px`,
     ["--home-footer-social-top" as string]: pct(pos.social.top),
-    ["--home-footer-legal-left" as string]: pct(pos.legal.left),
     ["--home-footer-legal-top" as string]: pct(pos.legal.top),
-    ["--home-footer-copyright-left" as string]: pct(pos.copyright.left),
-    ["--home-footer-copyright-top" as string]: pct(pos.copyright.top),
-    ["--home-footer-copyright-width" as string]: pct(pos.copyright.width),
     ["--home-footer-nav-link-padding" as string]: `${layout.navLinkPaddingLeftPx}px`,
     ["--home-footer-contact-gap" as string]: `${layout.contactSectionGapPx}px`,
     ["--home-footer-contact-row-gap" as string]: `${layout.contactRowGapPx}px`,
@@ -118,6 +112,8 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-copyright-size" as string]: `${layout.copyrightFontSizePx}px`,
     ["--home-footer-copyright-line-height" as string]: `${layout.copyrightLineHeightPx}px`,
     ["--home-footer-copyright-tracking" as string]: `${layout.copyrightLetterSpacingPx}px`,
+    ["--home-footer-contact-social-lift" as string]: `${layout.contactSocialLiftPx}px`,
+    ["--home-footer-top-bar-legal-lift" as string]: `${layout.topBarLegalLiftPx}px`,
   };
 }
 
@@ -154,19 +150,22 @@ function FooterDesktopLayer({
 }
 
 function FooterPaymentLogos({ className }: { className: string }) {
+  const logoHeightPx = HOME_FOOTER_FIGMA.paymentLogoHeightPx;
+
   return (
     <div className={className}>
       {HOME_FOOTER_PAYMENT_LOGOS.map((logo) => (
-        <Image
-          key={logo.id}
-          src={logo.src}
-          alt=""
-          width={logo.width}
-          height={logo.height}
-          unoptimized
-          className={styles.paymentLogo}
-          aria-hidden
-        />
+        <span key={logo.id} className={styles.paymentLogoItem}>
+          <Image
+            src={logo.src}
+            alt=""
+            width={logoHeightPx}
+            height={logoHeightPx}
+            unoptimized
+            className={styles.paymentLogo}
+            aria-hidden
+          />
+        </span>
       ))}
     </div>
   );
@@ -270,18 +269,13 @@ export async function MarketingPublicHomeFooter({
   );
 
   const copyright = (
-    <p className={styles.copyright}>
-      {t("footerCopyrightPrefix")}
-      <a
-        href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
-        className={styles.copyrightCompany}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {t("footerCopyrightCompany")}
-      </a>
-      {t("footerCopyrightSuffix")}
-    </p>
+    <MarketingPublicHomeFooterCopyright
+      className={styles.copyright}
+      prefix={t("footerCopyrightPrefix")}
+      companyPart1={t("footerCopyrightCompanyPart1")}
+      companyPart2={t("footerCopyrightCompanyPart2")}
+      suffix={t("footerCopyrightSuffix")}
+    />
   );
 
   return (
@@ -318,7 +312,8 @@ export async function MarketingPublicHomeFooter({
               footerRefund: t("footerRefund"),
             }}
             copyrightPrefix={t("footerCopyrightPrefix")}
-            copyrightCompany={t("footerCopyrightCompany")}
+            copyrightCompanyPart1={t("footerCopyrightCompanyPart1")}
+            copyrightCompanyPart2={t("footerCopyrightCompanyPart2")}
             copyrightSuffix={t("footerCopyrightSuffix")}
           />
         </HomePageReveal>

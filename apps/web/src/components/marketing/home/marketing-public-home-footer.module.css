@@ -26,10 +26,20 @@
 .inner {
   position: relative;
   margin-inline: auto;
-  width: 100%;
+  width: min(
+    var(--home-footer-max-width),
+    calc(100% - var(--ommm-content-inline-margin, 2rem))
+  );
   max-width: var(--home-footer-max-width);
   min-height: var(--home-footer-min-height);
   overflow: visible;
+  box-sizing: border-box;
+  padding-inline-start: calc(
+    env(safe-area-inset-left, 0px) + var(--marketing-header-optical-inset-start, 0px)
+  );
+  padding-inline-end: calc(
+    env(safe-area-inset-right, 0px) + var(--marketing-header-optical-inset-end, 0px)
+  );
 }
 
 .wordmark {
@@ -49,7 +59,7 @@
 }
 
 .topBarSlot {
-  max-width: calc(100% - var(--home-footer-top-bar-left, 5%) - 1rem);
+  max-width: 100%;
 }
 
 .topNav {
@@ -105,23 +115,42 @@
   z-index: 1;
 }
 
-.paymentLogos {
+.paymentLogos,
+.mobilePayment {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: var(--home-footer-payment-gap, 1rem);
+  gap: var(--home-footer-payment-gap, 16px);
+}
+
+.paymentLogoItem {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: var(--home-footer-payment-logo-height, 28px);
 }
 
 .paymentLogo {
-  flex-shrink: 0;
+  display: block;
+  height: var(--home-footer-payment-logo-height, 28px);
   width: auto;
-  height: auto;
-  max-height: 1.75rem;
+  max-width: none;
+  object-fit: contain;
+}
+
+.paymentLogoItem:nth-child(2) {
+  height: var(--home-footer-payment-arca-height, 20px);
+  margin-inline-start: var(--home-footer-payment-arca-offset-x, 24px);
+}
+
+.paymentLogoItem:nth-child(2) .paymentLogo {
+  height: var(--home-footer-payment-arca-height, 20px);
 }
 
 .paymentSlot {
   position: absolute;
-  left: var(--home-footer-payment-left);
+  left: 0;
   top: var(--home-footer-payment-top);
 }
 
@@ -258,6 +287,11 @@
   border-radius: 2px;
 }
 
+.copyrightLine {
+  display: block;
+  white-space: nowrap;
+}
+
 .copyright {
   font-size: var(--home-footer-copyright-size);
   font-weight: 400;
@@ -342,7 +376,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--home-footer-mobile-contact-row-gap);
-  margin-top: var(--home-footer-mobile-contact-margin-top);
+  margin-top: calc(
+    var(--home-footer-mobile-contact-margin-top) - var(--home-footer-contact-social-lift, 0px)
+  );
 }
 
 .mobileContactRow {
@@ -382,7 +418,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--home-footer-mobile-social-title-gap);
-  margin-top: var(--home-footer-mobile-social-margin-top);
+  margin-top: calc(
+    var(--home-footer-mobile-social-margin-top) - var(--home-footer-contact-social-lift, 0px)
+  );
 }
 
 .mobileSocialTitle {
@@ -404,7 +442,9 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--home-footer-mobile-legal-gap);
-  margin-top: var(--home-footer-mobile-legal-margin-top);
+  margin-top: calc(
+    var(--home-footer-mobile-legal-margin-top) - var(--home-footer-top-bar-legal-lift, 0px)
+  );
 }
 
 .mobileLegalLink {
@@ -439,14 +479,23 @@
   .wordmark {
     font-size: var(--home-footer-mobile-wordmark-size);
     line-height: var(--home-footer-mobile-wordmark-line-height);
+    margin-top: calc(-1 * var(--home-footer-top-bar-legal-lift, 0px));
   }
 
   .mobileStack {
     display: flex;
     flex-direction: column;
     position: relative;
-    padding: var(--home-footer-mobile-py) var(--home-footer-mobile-px) var(--home-footer-mobile-pb);
+    padding-top: var(--home-footer-mobile-py);
     padding-bottom: calc(var(--home-footer-mobile-pb) + 5rem);
+    padding-inline-start: calc(
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem) +
+        var(--marketing-header-optical-inset-start, 0px)
+    );
+    padding-inline-end: calc(
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem) +
+        var(--marketing-header-optical-inset-end, 0px)
+    );
   }
 
   .shell {
@@ -475,10 +524,6 @@
 }
 
 .mobilePayment {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--home-footer-mobile-payment-gap, 1rem);
   margin-top: var(--home-footer-mobile-payment-margin-top, 1.5rem);
 }
 
@@ -522,10 +567,11 @@
   }
 
   .topBarSlot {
-    left: var(--home-footer-top-bar-left);
-    top: var(--home-footer-top-bar-top);
+    left: 0;
+    right: 0;
+    top: calc(var(--home-footer-top-bar-top) - var(--home-footer-top-bar-legal-lift, 0px));
     transform: translateY(-50%);
-    max-width: calc(100% - var(--home-footer-top-bar-left) - 1rem);
+    max-width: none;
   }
 
   .wordmarkSlot {
@@ -537,35 +583,42 @@
   }
 
   .illustrationSlot {
-    left: var(--home-footer-illustration-left);
+    left: 50%;
     bottom: var(--home-footer-illustration-bottom);
     top: auto;
     width: var(--home-footer-illustration-width);
     height: var(--home-footer-illustration-height);
+    transform: translateX(-50%);
   }
 
   .contactSlot {
     position: absolute;
-    left: var(--home-footer-contact-left);
-    top: var(--home-footer-contact-top);
+    left: 0;
+    top: calc(var(--home-footer-contact-top) - var(--home-footer-contact-social-lift, 0px));
     width: 14.8125rem;
   }
 
   .socialSlot {
-    left: var(--home-footer-social-left);
-    top: var(--home-footer-social-top);
+    right: 0;
+    left: auto;
+    top: calc(var(--home-footer-social-top) - var(--home-footer-contact-social-lift, 0px));
     width: 15.1875rem;
   }
 
   .legalSlot {
-    left: var(--home-footer-legal-left);
-    top: var(--home-footer-legal-top);
+    right: 0;
+    left: auto;
+    top: calc(var(--home-footer-legal-top) - var(--home-footer-top-bar-legal-lift, 0px));
   }
 
   .copyrightSlot {
-    left: var(--home-footer-copyright-left);
-    top: var(--home-footer-copyright-top);
-    width: var(--home-footer-copyright-width);
+    right: 0;
+    left: auto;
+    top: calc(
+      var(--home-footer-payment-top) - var(--home-footer-copyright-line-height) + 10px
+    );
+    width: min(18.1875rem, 100%);
+    max-width: 18.1875rem;
   }
 }
 
@@ -600,20 +653,14 @@
   .sectionWrapInner .mobileStack {
     padding-top: var(--home-footer-mobile-py);
     padding-bottom: var(--home-footer-mobile-pb);
-    padding-left: calc(
-      var(--home-footer-mobile-px) + var(--marketing-header-optical-inset-start, 0px)
+    padding-inline-start: calc(
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem) +
+        var(--marketing-header-optical-inset-start, 0px)
     );
-    padding-right: calc(
-      var(--home-footer-mobile-px) + var(--marketing-header-optical-inset-end, 0px)
+    padding-inline-end: calc(
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem) +
+        var(--marketing-header-optical-inset-end, 0px)
     );
-  }
-}
-
-@media (min-width: 46.5rem) {
-  .inner {
-    padding-inline-start: var(--marketing-header-optical-inset-start, 0px);
-    padding-inline-end: var(--marketing-header-optical-inset-end, 0px);
-    box-sizing: border-box;
   }
 }
 
@@ -629,7 +676,7 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
     grid-template-rows: auto auto auto auto auto;
     gap: 0.75rem 1.5rem;
-    padding: 2rem 1.5rem 1.5rem;
+    padding: 2rem 0 1.5rem;
     inset: auto;
   }
 
@@ -654,13 +701,14 @@
   .topBarSlot {
     grid-column: 1 / -1;
     grid-row: 1;
+    margin-top: calc(-1 * var(--home-footer-top-bar-legal-lift, 0px));
   }
 
   .contactSlot {
     grid-column: 1;
     grid-row: 2;
     align-self: start;
-    margin-top: 1rem;
+    margin-top: calc(1rem - var(--home-footer-contact-social-lift, 0px));
   }
 
   .paymentSlot {
@@ -674,7 +722,7 @@
     grid-column: 1;
     grid-row: 4;
     align-self: end;
-    margin-top: 1rem;
+    margin-top: calc(1rem - var(--home-footer-contact-social-lift, 0px));
   }
 
   .illustrationSlot {
@@ -694,6 +742,7 @@
     justify-self: end;
     align-self: end;
     width: 16rem;
+    transform: translateY(calc(-1 * var(--home-footer-top-bar-legal-lift, 0px)));
   }
 
   .legalSlot .legalNav {
@@ -704,10 +753,11 @@
     grid-column: 2;
     grid-row: 3;
     justify-self: end;
-    align-self: end;
+    align-self: start;
     width: 16rem;
     max-width: 16rem;
-    margin-top: 0.75rem;
+    margin-top: 0;
+    transform: translateY(calc(-1 * var(--home-footer-copyright-line-height) + 10px));
   }
 
   .copyrightSlot .copyright {
