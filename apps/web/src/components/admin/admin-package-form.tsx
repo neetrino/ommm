@@ -45,6 +45,7 @@ import {
   type TypeSessionValidationError,
 } from "@/components/admin/admin-package-type-sessions.util";
 import { ApiError, apiFetch } from "@/lib/api";
+import { adminChrome } from "@/components/admin/admin-chrome";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
@@ -57,7 +58,6 @@ type CategoryOption = {
 };
 
 const FALLBACK_PACKAGE_SLUG_PREFIX = "package";
-const CREATE_GROUP_BUTTON_MIN_WIDTH_CLASS = "min-w-40";
 
 function buildPackageSlug(name: string): string {
   const normalized = name
@@ -131,7 +131,7 @@ export function AdminPackageForm({
   showCloseButton = false,
 }: AdminPackageFormProps) {
   const t = useTranslations("adminPages.packages");
-  const createGroupNameLabelId = useId();
+  const createGroupTitleId = useId();
   const formKey =
     mode === "create"
       ? "create"
@@ -566,39 +566,22 @@ export function AdminPackageForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className={isCompactCreateForm ? "flex flex-col" : "flex min-h-0 flex-1 flex-col"}
-      aria-labelledby={isCompactCreateForm ? createGroupNameLabelId : undefined}
+      className={
+        isCompactCreateForm
+          ? "ommm-admin-create-group-form flex flex-col"
+          : "flex min-h-0 flex-1 flex-col"
+      }
+      aria-labelledby={isCompactCreateForm ? createGroupTitleId : undefined}
     >
-      <div
-        className={
-          isCompactCreateForm
-            ? "px-5 pt-3 sm:px-7"
-            : "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6"
-        }
-      >
       {isCompactCreateForm ? (
-        <div className="flex items-start gap-2.5">
-          <label className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <span
-              id={createGroupNameLabelId}
-              className="text-[11px] font-medium uppercase tracking-[0.14em] text-sage-600"
-            >
-              {t("addGroupNameFieldLabel")}
-            </span>
-            <input
-              name="name"
-              className="ommm-input rounded-lg px-3 py-2 text-sm"
-              maxLength={MAX_NAME_LENGTH}
-              value={values.name}
-              onChange={(event) => updateValues({ name: event.target.value })}
-              placeholder={t("fieldGroupNamePlaceholder")}
-              disabled={pending}
-            />
-          </label>
+        <div className="flex items-start justify-between gap-4 px-6 pt-5">
+          <h2 id={createGroupTitleId} className={`${adminChrome.panelHeading} text-base`}>
+            {t("createGroupTitle")}
+          </h2>
           {showCloseButton ? (
             <button
               type="button"
-              className="-mr-1 shrink-0 rounded-full p-1.5 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
               aria-label={t("modalCloseAria")}
               onClick={onCancel}
             >
@@ -617,6 +600,27 @@ export function AdminPackageForm({
             </button>
           ) : null}
         </div>
+      ) : null}
+      <div
+        className={
+          isCompactCreateForm
+            ? "flex flex-col gap-4 px-6 pb-5 pt-4"
+            : "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6"
+        }
+      >
+      {isCompactCreateForm ? (
+        <label className="flex flex-col gap-1.5">
+          <span className="ommm-label">{t("fieldGroupName")}</span>
+          <input
+            name="name"
+            className="ommm-input"
+            maxLength={MAX_NAME_LENGTH}
+            value={values.name}
+            onChange={(event) => updateValues({ name: event.target.value })}
+            placeholder={t("fieldGroupNamePlaceholder")}
+            disabled={pending}
+          />
+        </label>
       ) : mode === "edit" ? (
         <AdminPackageFormSection
           heading={t("formSections.details.heading")}
@@ -937,35 +941,14 @@ export function AdminPackageForm({
       <div
         className={
           isCompactCreateForm
-            ? "flex shrink-0 justify-center gap-3 border-t border-white/60 px-5 pb-4 pt-4 sm:px-7"
+            ? "grid shrink-0 grid-cols-2 gap-3 px-6 pb-6"
             : "shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7"
         }
       >
-        <OmmButton
-          type="button"
-          variant="secondary"
-          size="md"
-          onClick={onCancel}
-          disabled={pending}
-          className={
-            isCompactCreateForm
-              ? `${CREATE_GROUP_BUTTON_MIN_WIDTH_CLASS} justify-center px-8 py-3.5`
-              : undefined
-          }
-        >
+        <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
           {t("cancelButton")}
         </OmmButton>
-        <OmmButton
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={pending}
-          className={
-            isCompactCreateForm
-              ? `${CREATE_GROUP_BUTTON_MIN_WIDTH_CLASS} justify-center px-8 py-3.5`
-              : undefined
-          }
-        >
+        <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
           {pending
             ? t("savingButton")
             : mode === "create"

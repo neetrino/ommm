@@ -243,7 +243,7 @@ export function AdminPackagesShell({
   const isCreateGroupModal = modalMode === "create";
   const showModalDescription = !isCreateGroupModal;
   const packageModalPanelClass = isCreateGroupModal
-    ? "mt-auto flex w-full max-w-[min(560px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]"
+    ? "mt-auto flex w-full max-w-[min(480px,95vw)] flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white/90 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.4)] backdrop-blur-md sm:mt-0"
     : "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
   return (
@@ -270,7 +270,7 @@ export function AdminPackagesShell({
           <div
             ref={panelRef}
             aria-labelledby={isCreateGroupModal ? undefined : titleId}
-            aria-label={isCreateGroupModal ? t("addGroupNameFieldLabel") : undefined}
+            aria-label={isCreateGroupModal ? t("createGroupTitle") : undefined}
             aria-describedby={showModalDescription ? descId : undefined}
             className="flex flex-col"
           >
