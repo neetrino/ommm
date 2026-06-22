@@ -79,6 +79,11 @@ export function isMarketingStoryPath(pathname: string): boolean {
   return pathname === "/story" || pathname.startsWith("/story/");
 }
 
+/** Cancellation & refund policy — scroll-reveal content + footer. */
+export function isMarketingRefundPath(pathname: string): boolean {
+  return pathname === "/refund" || pathname.startsWith("/refund/");
+}
+
 /** Marketing pages whose layout footer uses the shared scroll-reveal entrance. */
 export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
   return (
@@ -87,7 +92,8 @@ export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
     isMarketingSchedulePath(pathname) ||
     isMarketingPackagesPath(pathname) ||
     isMarketingContactPath(pathname) ||
-    isMarketingStoryPath(pathname)
+    isMarketingStoryPath(pathname) ||
+    isMarketingRefundPath(pathname)
   );
 }
 
