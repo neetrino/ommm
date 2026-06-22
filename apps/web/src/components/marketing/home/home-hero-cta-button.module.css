@@ -11,7 +11,14 @@
   overflow: visible;
   width: var(--hero-cta-width);
   height: var(--hero-cta-height);
+  cursor: pointer;
   transition: transform 220ms ease;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    transform: translateY(-3px) scale(1.03);
+  }
 }
 
 .cta:active {
@@ -29,6 +36,21 @@
   pointer-events: none;
   object-fit: fill;
   transition: filter 220ms ease;
+}
+
+/* Light glass → solid dark fill on hover (text stays white). */
+@media (hover: hover) {
+  .booking:hover .shape,
+  .membership:hover .shape,
+  .coachesDetails:hover .shape {
+    filter: brightness(0) saturate(100%) invert(34%) sepia(16%) saturate(1050%) hue-rotate(358deg)
+      brightness(90%) contrast(90%);
+  }
+
+  .plansDetails:hover .shape {
+    filter: brightness(0) saturate(100%) invert(28%) sepia(22%) saturate(1200%) hue-rotate(155deg)
+      brightness(86%) contrast(92%);
+  }
 }
 
 .shapeDesktop {
@@ -55,17 +77,11 @@
   z-index: 2;
 }
 
-@media (hover: hover) {
-  .cta:hover .shape {
-    filter: brightness(1.06);
-  }
-}
-
 .label {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   height: 100%;
   width: var(--hero-cta-label-width);
@@ -86,7 +102,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   height: 100%;
   width: var(--hero-cta-arrow-zone-width);
@@ -99,6 +115,13 @@
   height: auto;
   /* Arrow glyph reads left of its bbox — nudge into the circle cap. */
   transform: translateX(6%);
+  transition: transform 220ms ease;
+}
+
+@media (hover: hover) {
+  .cta:hover .arrow {
+    transform: translateX(14%) scale(1.12);
+  }
 }
 
 @media (min-width: 744px) {
@@ -161,12 +184,12 @@
   }
 }
 .coachesDetails .label {
-  z-index: 1;
+  z-index: 2;
   color: #97907c;
 }
 
 .coachesDetails .arrowZone {
-  z-index: 1;
+  z-index: 2;
 }
 
 .coachesDetails:focus-visible {
@@ -191,5 +214,24 @@
     justify-content: center;
     padding-inline: 0.25rem;
     text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta,
+  .cta:hover,
+  .cta:active,
+  .arrow,
+  .shape {
+    transition: none;
+  }
+
+  .cta:hover,
+  .cta:active {
+    transform: none;
+  }
+
+  .cta:hover .arrow {
+    transform: translateX(6%);
   }
 }
