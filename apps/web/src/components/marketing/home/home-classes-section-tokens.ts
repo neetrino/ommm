@@ -1,5 +1,5 @@
 /**
- * Figma **Classes Section** `196:1074` — gradient, cards `196:1082`–`196:1106`, CTA `196:1113`.
+ * Figma **Classes Section** `605:844` (desktop), legacy `196:1074`.
  * Mobile container `97:5683`, carousel `97:6025`, card `97:6043`.
  */
 
@@ -11,7 +11,7 @@ import {
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 
-/** Shared with weekly schedule outer bands — olive → teal (`196:1074`). */
+/** Figma `605:844` — olive → cream page surface. */
 export const HOME_CLASSES_SECTION_BACKGROUND = `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.classesGradientFrom}, ${HOME_PAGE_SURFACE.classesGradientTo})`;
 
 export const HOME_CLASSES_SECTION_FIGMA = {

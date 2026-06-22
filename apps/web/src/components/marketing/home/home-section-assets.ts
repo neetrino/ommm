@@ -32,7 +32,10 @@ export const HOME_SECTION_ASSETS = {
   carouselArrow: "/marketing/home/sections/home-carousel-arrow.webp",
   eventFabCircle: "/marketing/home/sections/home-icon-circle-glass.webp",
   eventFabArrow: "/marketing/home/sections/home-icon-arrow-upright.webp",
-  footerIllustration: "/marketing/home/sections/footer/home-footer-illustration.webp",
+  footerIllustration: "/marketing/home/sections/footer/home-footer-sphere-illustration.png",
+  footerPaymentMastercard: "/marketing/home/sections/footer/home-footer-payment-mastercard.png",
+  footerPaymentArca: "/marketing/home/sections/footer/home-footer-payment-arca.png",
+  footerPaymentVisa: "/marketing/home/sections/footer/home-footer-payment-visa.png",
   footerIconPhone: "/marketing/home/sections/footer/home-footer-icon-phone.svg",
   footerIconMail: "/marketing/home/sections/footer/home-footer-icon-mail.svg",
   footerIconLocation: "/marketing/home/sections/footer/home-footer-icon-location.svg",
@@ -42,4 +45,5 @@ export const HOME_SECTION_ASSETS = {
   footerSocialYoutube: "/marketing/home/sections/footer/home-footer-social-youtube.svg",
   footerSocialWhatsapp: "/marketing/home/sections/footer/home-footer-social-whatsapp.svg",
   footerSocialThreads: "/marketing/home/sections/footer/home-footer-social-threads.svg",
+  footerSocialViber: "/marketing/home/sections/footer/home-footer-social-viber.svg",
 } as const;

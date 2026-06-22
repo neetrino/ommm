@@ -4,6 +4,7 @@ import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
   HOME_FOOTER_LEGAL_LINKS,
+  HOME_FOOTER_PAYMENT_LOGOS,
   HOME_FOOTER_SOCIAL_LINKS,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
@@ -47,21 +48,7 @@ export function MarketingPublicHomeFooterMobile({
 }: MarketingPublicHomeFooterMobileProps) {
   return (
     <div className={styles.mobileStack}>
-      <div className={styles.mobileHero}>
-        <p className={styles.wordmark}>{wordmarkLabel}</p>
-        <div className={styles.mobileIllustration} aria-hidden>
-          <div className={styles.illustrationFrame}>
-            <Image
-              src={HOME_FOOTER_ASSETS.illustration}
-              alt={illustrationAlt}
-              fill
-              sizes="(max-width: 743px) 70vw, 0"
-              className={`${styles.illustration} ${styles.mobileIllustrationImage}`}
-              {...belowFoldImageProps()}
-            />
-          </div>
-        </div>
-      </div>
+      <p className={styles.wordmark}>{wordmarkLabel}</p>
 
       {showContactSection ? (
         <div className={styles.mobileContact}>
@@ -110,6 +97,23 @@ export function MarketingPublicHomeFooterMobile({
         </div>
       ) : null}
 
+      {showContactSection ? (
+        <div className={styles.mobilePayment}>
+          {HOME_FOOTER_PAYMENT_LOGOS.map((logo) => (
+            <Image
+              key={logo.id}
+              src={logo.src}
+              alt=""
+              width={logo.width}
+              height={logo.height}
+              unoptimized
+              className={styles.paymentLogo}
+              aria-hidden
+            />
+          ))}
+        </div>
+      ) : null}
+
       <div className={styles.mobileSocial}>
         <p className={styles.mobileSocialTitle}>{socialTitle}</p>
         <div className={styles.mobileSocialList}>
@@ -148,6 +152,19 @@ export function MarketingPublicHomeFooterMobile({
         </a>
         {copyrightSuffix}
       </p>
+
+      <div className={styles.mobileIllustration} aria-hidden>
+        <div className={styles.illustrationFrame}>
+          <Image
+            src={HOME_FOOTER_ASSETS.illustration}
+            alt={illustrationAlt}
+            fill
+            sizes="(max-width: 743px) 70vw, 0"
+            className={`${styles.illustration} ${styles.mobileIllustrationImage}`}
+            {...belowFoldImageProps()}
+          />
+        </div>
+      </div>
     </div>
   );
 }

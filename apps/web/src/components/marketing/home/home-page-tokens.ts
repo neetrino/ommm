@@ -5,7 +5,8 @@
 export const HOME_PAGE_SURFACE = {
   pageBackground: "#fbf5d5",
   classesGradientFrom: "#97907c",
-  classesGradientTo: "#577f91",
+  /** Figma Classes Section `605:844` — olive band fades to page cream. */
+  classesGradientTo: "#fbf5d5",
   coachesGradientFrom: "#598090",
   coachesGradientTo: "#ede9dd",
   eventsGradientFrom: "#598090",

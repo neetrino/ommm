@@ -1,5 +1,5 @@
 /**
- * Figma **Gallery** `196:1162` — mosaic `196:1163`, nav `196:1168`, dots `196:1175`, CTA `196:1179`, heading `196:1187`.
+ * Figma **Gallery** `605:932` (desktop), legacy `196:1162`.
  * Mobile container `97:5853`.
  */
 
@@ -8,16 +8,18 @@ import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens"
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 import { scaleIpadAirPx } from "@/lib/viewport-breakpoints";
 
-const HOME_GALLERY_GRADIENT_CREAM = HOME_PAGE_SURFACE.coachesGradientTo;
-const HOME_GALLERY_GRADIENT_TEAL = HOME_PAGE_SURFACE.eventsGradientFrom;
+/** Figma `605:932` — solid page cream (`#fbf5d5`). */
+export const HOME_GALLERY_SECTION_BACKGROUND = HOME_PAGE_SURFACE.pageBackground;
 
-/** Smooth cream → teal ramp (gallery section only). */
-const HOME_GALLERY_GRADIENT_BLEND = {
-  soft: "#dce6ea",
-  mid: "#c5d8de",
-  teal: "#94acb6",
-  deep: "#729aa8",
-} as const;
+/** Figma `605:932` — olive heading on cream band. */
+const HOME_GALLERY_HEADING_COLOR = HOME_PAGE_SURFACE.classesGradientFrom;
+
+/** Figma `605:932` — muted body on cream. */
+const HOME_GALLERY_SUBTITLE_COLOR = "rgba(98, 98, 98, 0.84)";
+
+/** Carousel dots on cream — olive active, muted idle. */
+const HOME_GALLERY_DOT_ACTIVE = HOME_GALLERY_HEADING_COLOR;
+const HOME_GALLERY_DOT_INACTIVE = "rgba(151, 144, 124, 0.35)";
 
 /** Figma mobile gallery — container `97:5853`. */
 export const HOME_GALLERY_SECTION_MOBILE_FIGMA = {
@@ -43,17 +45,11 @@ export const HOME_GALLERY_SECTION_MOBILE_FIGMA = {
   dotsToCtaGapPx: 32,
   dotSizePx: 9,
   dotGapPx: 8,
-  headingColor: "#fbf5d5",
-  subtitleColor: "rgba(255, 255, 255, 0.84)",
-  dotActive: "#fbf5d5",
-  dotInactive: "rgba(251, 245, 213, 0.4)",
+  headingColor: HOME_GALLERY_HEADING_COLOR,
+  subtitleColor: HOME_GALLERY_SUBTITLE_COLOR,
+  dotActive: HOME_GALLERY_DOT_ACTIVE,
+  dotInactive: HOME_GALLERY_DOT_INACTIVE,
 } as const;
-
-/** Teal → cream ramp — bottom holds teal (no light fade into footer seam). */
-export const HOME_GALLERY_MOBILE_BACKGROUND = `linear-gradient(to bottom, #598090 0%, #637b95 7.14%, #6e8e9b 14.29%, #7896a0 21.43%, #829da6 28.57%, #8da5ab 35.71%, #97acb1 42.86%, #598090 50%, #598090 100%)`;
-
-/** Bottom stop — matches gallery band teal. */
-export const HOME_GALLERY_MOBILE_GRADIENT_END = HOME_GALLERY_GRADIENT_TEAL;
 
 /** Mobile layout from Figma `97:5853`. */
 export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
@@ -80,14 +76,13 @@ export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
 } as const;
 
 export const HOME_GALLERY_FIGMA = {
-  gradientFrom: HOME_PAGE_SURFACE.eventsGradientFrom,
-  gradientTo: HOME_PAGE_SURFACE.eventsGradientTo,
-  /** Cream heading band; ramp to teal — teal holds through footer backdrop. */
-  sectionBackground: `linear-gradient(to bottom, ${HOME_GALLERY_GRADIENT_CREAM} 0%, ${HOME_GALLERY_GRADIENT_CREAM} 8%, ${HOME_GALLERY_GRADIENT_BLEND.soft} 14%, ${HOME_GALLERY_GRADIENT_BLEND.mid} 22%, ${HOME_GALLERY_GRADIENT_BLEND.teal} 30%, ${HOME_GALLERY_GRADIENT_BLEND.deep} 36%, ${HOME_GALLERY_GRADIENT_TEAL} 42%, ${HOME_GALLERY_GRADIENT_TEAL} 100%)`,
-  headingColor: HOME_PAGE_SURFACE.plansHeading,
-  subtitleColor: "rgba(98, 98, 98, 0.84)",
-  dotInactive: "rgba(255, 255, 255, 0.38)",
-  dotActive: "#fbf5d5",
+  gradientFrom: HOME_PAGE_SURFACE.pageBackground,
+  gradientTo: HOME_PAGE_SURFACE.pageBackground,
+  sectionBackground: HOME_GALLERY_SECTION_BACKGROUND,
+  headingColor: HOME_GALLERY_HEADING_COLOR,
+  subtitleColor: HOME_GALLERY_SUBTITLE_COLOR,
+  dotInactive: HOME_GALLERY_DOT_INACTIVE,
+  dotActive: HOME_GALLERY_DOT_ACTIVE,
   tileRadiusPx: 15,
 } as const;
 
@@ -129,10 +124,10 @@ export const HOME_GALLERY_TABLET_NAV_LAYOUT = {
   buttonOutwardTranslatePercent: 32,
 } as const;
 
-/** iPad Air + Pro — teal gallery band matches footer overlap (744px–1366px). */
+/** iPad Air + Pro — cream gallery band matches footer overlap (744px–1366px). */
 export const HOME_GALLERY_TABLET_LAYOUT = {
   footerUnderlap: HOME_FOOTER_TABLET_LAYOUT.galleryOverlap,
-  footerUnderlapBackground: HOME_GALLERY_GRADIENT_TEAL,
+  footerUnderlapBackground: HOME_GALLERY_SECTION_BACKGROUND,
 } as const;
 
 export type HomeGalleryTileKey = "leftTop" | "leftBottom" | "center" | "side";

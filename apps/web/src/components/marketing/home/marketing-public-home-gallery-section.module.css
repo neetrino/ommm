@@ -1,5 +1,5 @@
 /**
- * Mobile: Figma `97:5853`. Desktop (lg+): section `196:1162` — single outer `<section>`.
+ * Mobile: Figma `97:5853`. Desktop (lg+): section `605:932`.
  */
 
 .section {
@@ -147,7 +147,7 @@
   }
 }
 
-/* iPad Air + Pro — extend teal through footer cap corners (744px–1366px). */
+/* iPad Air + Pro — extend cream through footer cap corners (744px–1366px). */
 @media (min-width: 744px) and (max-width: 1366px) {
   .section {
     padding-bottom: calc(
@@ -163,7 +163,7 @@
     bottom: 0;
     height: var(--home-gallery-tablet-footer-underlap, 5.75rem);
     transform: translateY(100%);
-    background: var(--home-gallery-tablet-underlap-bg, #598090);
+    background: var(--home-gallery-tablet-underlap-bg, #fbf5d5);
     pointer-events: none;
   }
 }
