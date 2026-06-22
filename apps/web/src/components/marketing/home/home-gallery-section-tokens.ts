@@ -137,10 +137,16 @@ export const HOME_GALLERY_CAROUSEL = {
   gapPx: 28,
   transformMs: 560,
   autoAdvanceMs: 6000,
-  slideAspectRatio: "613 / 613",
+  /** Tall viewport so interior photos read clearly. */
+  viewportHeightRatio: 0.8,
+  /** Two clones per side — keeps half-peeks filled during infinite wrap. */
+  peekCloneCount: 2,
   /** Prev/next sit flush to the viewport edges of the full-bleed track. */
   navEdgeInsetPx: 24,
 } as const;
+
+/** First real slide index inside the padded display track. */
+export const HOME_GALLERY_CAROUSEL_START_INDEX = HOME_GALLERY_CAROUSEL.peekCloneCount;
 
 export type HomeGalleryCarouselSlide = {
   id: string;

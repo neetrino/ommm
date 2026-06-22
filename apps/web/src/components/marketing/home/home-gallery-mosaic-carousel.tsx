@@ -2,16 +2,18 @@
 
 import type { CSSProperties, TransitionEvent } from "react";
 import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import styles from "@/components/marketing/home/home-gallery-mosaic-carousel.module.css";
 import {
   HOME_GALLERY_CAROUSEL,
+  HOME_GALLERY_CAROUSEL_START_INDEX,
   HOME_GALLERY_FIGMA,
   HOME_GALLERY_IPAD_AIR_LAYOUT,
   HOME_GALLERY_LAYOUT,
   HOME_GALLERY_SLIDES,
   type HomeGalleryCarouselSlide,
 } from "@/components/marketing/home/home-gallery-section-tokens";
+import { MarketingGlassCircleButton } from "@/components/marketing/home/marketing-glass-circle-button";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
@@ -29,9 +31,7 @@ type GalleryCarouselLayout = {
   slideWidthPx: number;
 };
 
-type GalleryNavArrowProps = {
-  direction: "prev" | "next";
-};
+const PEEK_CLONE_COUNT = HOME_GALLERY_CAROUSEL.peekCloneCount;
 
 function buildGalleryDisplaySlides(
   slides: readonly HomeGalleryCarouselSlide[],
@@ -39,23 +39,29 @@ function buildGalleryDisplaySlides(
   if (slides.length <= 1) {
     return [...slides];
   }
-  const last = slides[slides.length - 1];
-  const first = slides[0];
-  if (last === undefined || first === undefined) {
-    return [...slides];
+  const slideCount = slides.length;
+  const prepend: HomeGalleryCarouselSlide[] = [];
+  const append: HomeGalleryCarouselSlide[] = [];
+  for (let index = 0; index < PEEK_CLONE_COUNT; index += 1) {
+    const prependIdx = (slideCount - PEEK_CLONE_COUNT + index + slideCount) % slideCount;
+    const appendSlide = slides[index % slideCount];
+    const prependSlide = slides[prependIdx];
+    if (prependSlide !== undefined) {
+      prepend.push(prependSlide);
+    }
+    if (appendSlide !== undefined) {
+      append.push(appendSlide);
+    }
   }
-  return [last, ...slides, first];
+  return [...prepend, ...slides, ...append];
 }
 
-function displayIndexToRealIndex(displayLength: number, displayIndex: number): number {
-  const sourceCount = displayLength - 2;
-  if (displayIndex === 0) {
-    return sourceCount - 1;
-  }
-  if (displayIndex === displayLength - 1) {
-    return 0;
-  }
-  return displayIndex - 1;
+function realIndexFromDisplay(slideCount: number, displayIndex: number): number {
+  return ((displayIndex - PEEK_CLONE_COUNT) % slideCount + slideCount) % slideCount;
+}
+
+function isCloneDisplayIndex(slideCount: number, displayIndex: number): boolean {
+  return displayIndex < PEEK_CLONE_COUNT || displayIndex >= PEEK_CLONE_COUNT + slideCount;
 }
 
 function resolveGallerySlideLane(
@@ -72,39 +78,20 @@ function resolveGallerySlideLane(
   return "far";
 }
 
-function GalleryNavArrow({ direction }: GalleryNavArrowProps) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 26 19"
-      className={`${styles.navArrow} ${direction === "prev" ? styles.navArrowPrev : ""}`}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M1.25 7.95495C0.559644 7.95495 0 8.5146 0 9.20495C0 9.89531 0.559644 10.455 1.25 10.455V9.20495V7.95495ZM25.3017 10.0888C25.7898 9.60068 25.7898 8.80922 25.3017 8.32107L17.3467 0.366117C16.8586 -0.122039 16.0671 -0.122039 15.5789 0.366117C15.0908 0.854272 15.0908 1.64573 15.5789 2.13388L22.65 9.20495L15.5789 16.276C15.0908 16.7642 15.0908 17.5556 15.5789 18.0438C16.0671 18.5319 16.8586 18.5319 17.3467 18.0438L25.3017 10.0888ZM1.25 9.20495V10.455H24.4178V9.20495V7.95495H1.25V9.20495Z"
-        fill="black"
-      />
-    </svg>
-  );
-}
-
 function carouselStyleVars(): CSSProperties {
   return {
     ["--home-gallery-tile-radius" as string]: `${HOME_GALLERY_FIGMA.tileRadiusPx}px`,
-    ["--home-gallery-nav-size" as string]: `${HOME_GALLERY_LAYOUT.navButtonSizePx}px`,
     ["--home-gallery-dot-size" as string]: `${HOME_GALLERY_LAYOUT.dotSizePx}px`,
     ["--home-gallery-dot-gap" as string]: `${HOME_GALLERY_LAYOUT.dotGapPx}px`,
     ["--home-gallery-dot-inactive" as string]: HOME_GALLERY_FIGMA.dotInactive,
     ["--home-gallery-dot-active" as string]: HOME_GALLERY_FIGMA.dotActive,
     ["--home-gallery-dots-offset" as string]: `${HOME_GALLERY_LAYOUT.mosaicToDotsGapPx}px`,
-    ["--home-gallery-nav-size-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.navButtonSizePx}px`,
     ["--home-gallery-dot-size-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.dotSizePx}px`,
     ["--home-gallery-dot-gap-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.dotGapPx}px`,
     ["--home-gallery-dots-offset-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.mosaicToDotsGapPx}px`,
     ["--home-gallery-nav-edge-inset" as string]: `${HOME_GALLERY_CAROUSEL.navEdgeInsetPx}px`,
     ["--home-gallery-nav-y-offset" as string]: `${HOME_GALLERY_LAYOUT.navVerticalOffsetPx}px`,
-    ["--home-gallery-slide-aspect" as string]: HOME_GALLERY_CAROUSEL.slideAspectRatio,
+    ["--home-gallery-viewport-height" as string]: `${HOME_GALLERY_CAROUSEL.viewportHeightRatio * 100}dvh`,
     ["--home-gallery-carousel-gap" as string]: `${HOME_GALLERY_CAROUSEL.gapPx}px`,
     ["--home-gallery-carousel-ms" as string]: `${HOME_GALLERY_CAROUSEL.transformMs}ms`,
   };
@@ -149,23 +136,32 @@ function useGalleryCarouselMetrics(visualSlideIndex: number) {
   const stepPx = slideWidthPx + HOME_GALLERY_CAROUSEL.gapPx;
   const translatePx = layoutReady ? -visualSlideIndex * stepPx : 0;
 
-  return { viewportRef, edgePadPx, translatePx, slideWidthPx, layoutReady };
+  return { viewportRef, edgePadPx, translatePx, layoutReady };
 }
 
 type GalleryCarouselSlideProps = {
   slide: HomeGalleryCarouselSlide;
   lane: GallerySlideLane;
   isActive: boolean;
+  instantSnap: boolean;
   ariaHidden?: boolean;
 };
 
-function GalleryCarouselSlide({ slide, lane, isActive, ariaHidden }: GalleryCarouselSlideProps) {
+function GalleryCarouselSlide({
+  slide,
+  lane,
+  isActive,
+  instantSnap,
+  ariaHidden,
+}: GalleryCarouselSlideProps) {
   const laneClass =
     lane === "center" ? styles.slideCenter : lane === "side" ? styles.slideSide : styles.slideFar;
 
   return (
     <article
-      className={`${styles.slideItem} ${laneClass} ${isActive ? styles.slideItemActive : ""}`}
+      className={`${styles.slideItem} ${laneClass} ${isActive ? styles.slideItemActive : ""} ${
+        instantSnap ? styles.slideInstantSnap : ""
+      }`}
       aria-hidden={ariaHidden ? true : undefined}
     >
       <div className={styles.slideFrame}>
@@ -173,7 +169,7 @@ function GalleryCarouselSlide({ slide, lane, isActive, ariaHidden }: GalleryCaro
           src={slide.src}
           alt=""
           fill
-          sizes="(max-width: 768px) 50vw, 33vw"
+          sizes="50vw"
           className={styles.slideImage}
           {...belowFoldImageProps()}
         />
@@ -193,27 +189,50 @@ export function HomeGalleryMosaicCarousel({
   const slideCount = slides.length;
   const lastIndex = Math.max(0, slideCount - 1);
   const displaySlides = buildGalleryDisplaySlides(slides);
-  const useCloneBookends = slideCount > 1;
-  const displayLength = displaySlides.length;
+  const useInfiniteTrack = slideCount > 1;
+  const trailingBound = PEEK_CLONE_COUNT + slideCount;
 
-  const [active, setActive] = useState(0);
-  const [trackVisualIndex, setTrackVisualIndex] = useState(() => (useCloneBookends ? 1 : 0));
+  const [trackVisualIndex, setTrackVisualIndex] = useState(() =>
+    useInfiniteTrack ? HOME_GALLERY_CAROUSEL_START_INDEX : 0,
+  );
   const [instantTransform, setInstantTransform] = useState(false);
   const [canAnimateSlides, setCanAnimateSlides] = useState(false);
-  const prevActiveRef = useRef(active);
   const recenteringRef = useRef(false);
 
   const reducedMotion = usePrefersReducedMotion();
   const { viewportRef, edgePadPx, translatePx, layoutReady } =
     useGalleryCarouselMetrics(trackVisualIndex);
 
+  const active = useMemo(() => {
+    if (!useInfiniteTrack) {
+      return 0;
+    }
+    return realIndexFromDisplay(slideCount, trackVisualIndex);
+  }, [slideCount, trackVisualIndex, useInfiniteTrack]);
+
   const goPrev = useCallback(() => {
-    setActive((prev) => (prev - 1 + slideCount) % slideCount);
-  }, [slideCount]);
+    if (!useInfiniteTrack) {
+      return;
+    }
+    setTrackVisualIndex((prev) => prev - 1);
+  }, [useInfiniteTrack]);
 
   const goNext = useCallback(() => {
-    setActive((prev) => (prev + 1) % slideCount);
-  }, [slideCount]);
+    if (!useInfiniteTrack) {
+      return;
+    }
+    setTrackVisualIndex((prev) => prev + 1);
+  }, [useInfiniteTrack]);
+
+  const selectSlide = useCallback(
+    (index: number) => {
+      if (!useInfiniteTrack) {
+        return;
+      }
+      setTrackVisualIndex(PEEK_CLONE_COUNT + Math.min(Math.max(0, index), lastIndex));
+    },
+    [lastIndex, useInfiniteTrack],
+  );
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -221,35 +240,8 @@ export function HomeGalleryMosaicCarousel({
     });
   }, []);
 
-  useLayoutEffect(() => {
-    queueMicrotask(() => {
-      if (slideCount <= 1) {
-        setTrackVisualIndex(active);
-        prevActiveRef.current = active;
-        return;
-      }
-      if (reducedMotion) {
-        setTrackVisualIndex(active + 1);
-        prevActiveRef.current = active;
-        return;
-      }
-      if (prevActiveRef.current === active) {
-        return;
-      }
-      const prev = prevActiveRef.current;
-      if (prev === lastIndex && active === 0) {
-        setTrackVisualIndex(displayLength - 1);
-      } else if (prev === 0 && active === lastIndex) {
-        setTrackVisualIndex(0);
-      } else {
-        setTrackVisualIndex(active + 1);
-      }
-      prevActiveRef.current = active;
-    });
-  }, [active, displayLength, lastIndex, reducedMotion, slideCount]);
-
   useEffect(() => {
-    if (slideCount <= 1 || reducedMotion) {
+    if (!useInfiniteTrack || reducedMotion) {
       return;
     }
     let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -283,40 +275,75 @@ export function HomeGalleryMosaicCarousel({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       clearIntervalIfSet();
     };
-  }, [active, goNext, reducedMotion, slideCount]);
+  }, [goNext, reducedMotion, trackVisualIndex, useInfiniteTrack]);
 
   const trackTransition =
     reducedMotion || !canAnimateSlides || !layoutReady || instantTransform
       ? undefined
       : `transform var(--home-gallery-carousel-ms) cubic-bezier(0.22, 1, 0.36, 1)`;
 
+  const recenterIfNeeded = useCallback(
+    (visualIndex: number) => {
+      if (!useInfiniteTrack || slideCount <= 1) {
+        return false;
+      }
+      if (visualIndex < PEEK_CLONE_COUNT) {
+        setInstantTransform(true);
+        setTrackVisualIndex(visualIndex + slideCount);
+        return true;
+      }
+      if (visualIndex >= trailingBound) {
+        setInstantTransform(true);
+        setTrackVisualIndex(visualIndex - slideCount);
+        return true;
+      }
+      return false;
+    },
+    [slideCount, trailingBound, useInfiniteTrack],
+  );
+
+  useLayoutEffect(() => {
+    if (!reducedMotion || !useInfiniteTrack) {
+      return;
+    }
+    recenterIfNeeded(trackVisualIndex);
+  }, [recenterIfNeeded, reducedMotion, trackVisualIndex, useInfiniteTrack]);
+
+  const finishRecenter = useCallback(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setInstantTransform(false);
+        recenteringRef.current = false;
+      });
+    });
+  }, []);
+
   const handleTrackTransitionEnd = useCallback(
     (event: TransitionEvent<HTMLDivElement>) => {
       if (event.propertyName !== "transform" || event.target !== event.currentTarget) {
         return;
       }
-      if (!useCloneBookends || slideCount <= 1 || reducedMotion) {
+      if (!useInfiniteTrack || slideCount <= 1 || reducedMotion || recenteringRef.current) {
         return;
       }
-      if (recenteringRef.current) {
-        return;
-      }
-      const atTrailingClone = trackVisualIndex === displayLength - 1;
-      const atLeadingClone = trackVisualIndex === 0;
-      if (!atTrailingClone && !atLeadingClone) {
+      const needsRecenter =
+        trackVisualIndex < PEEK_CLONE_COUNT || trackVisualIndex >= trailingBound;
+      if (!needsRecenter) {
         return;
       }
       recenteringRef.current = true;
-      setInstantTransform(true);
-      setTrackVisualIndex(atTrailingClone ? 1 : displayLength - 2);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setInstantTransform(false);
-          recenteringRef.current = false;
-        });
-      });
+      recenterIfNeeded(trackVisualIndex);
+      finishRecenter();
     },
-    [displayLength, reducedMotion, slideCount, trackVisualIndex, useCloneBookends],
+    [
+      finishRecenter,
+      recenterIfNeeded,
+      reducedMotion,
+      slideCount,
+      trackVisualIndex,
+      trailingBound,
+      useInfiniteTrack,
+    ],
   );
 
   return (
@@ -335,23 +362,18 @@ export function HomeGalleryMosaicCarousel({
             onTransitionEnd={handleTrackTransitionEnd}
           >
             {displaySlides.map((slide, displayIndex) => {
-              const realIndex = useCloneBookends
-                ? displayIndexToRealIndex(displaySlides.length, displayIndex)
+              const realIndex = useInfiniteTrack
+                ? realIndexFromDisplay(slideCount, displayIndex)
                 : displayIndex;
-              const isClone =
-                useCloneBookends &&
-                (displayIndex === 0 || displayIndex === displaySlides.length - 1);
+              const isClone = useInfiniteTrack && isCloneDisplayIndex(slideCount, displayIndex);
               const lane = resolveGallerySlideLane(displayIndex, trackVisualIndex);
               return (
                 <GalleryCarouselSlide
-                  key={
-                    isClone
-                      ? `gallery-clone-${displayIndex}-${slide.id}`
-                      : `gallery-slide-${realIndex}-${slide.id}`
-                  }
+                  key={`gallery-${displayIndex}-${slide.id}`}
                   slide={slide}
                   lane={lane}
                   isActive={active === realIndex}
+                  instantSnap={instantTransform}
                   ariaHidden={isClone}
                 />
               );
@@ -360,22 +382,12 @@ export function HomeGalleryMosaicCarousel({
         </div>
 
         <div className={styles.navRow}>
-          <button
-            type="button"
-            className={styles.navButtonPrev}
-            aria-label={prevLabel}
-            onClick={goPrev}
-          >
-            <GalleryNavArrow direction="prev" />
-          </button>
-          <button
-            type="button"
-            className={styles.navButtonNext}
-            aria-label={nextLabel}
-            onClick={goNext}
-          >
-            <GalleryNavArrow direction="next" />
-          </button>
+          <div className={styles.navButtonPrev}>
+            <MarketingGlassCircleButton arrow="prev" label={prevLabel} onPress={goPrev} />
+          </div>
+          <div className={styles.navButtonNext}>
+            <MarketingGlassCircleButton arrow="next" label={nextLabel} onPress={goNext} />
+          </div>
         </div>
       </div>
 
@@ -390,7 +402,7 @@ export function HomeGalleryMosaicCarousel({
               aria-label={getGoToSlideAria(index)}
               className={`${styles.dot} ${index === active ? styles.dotActive : ""}`}
               onClick={() => {
-                setActive(Math.min(Math.max(0, index), lastIndex));
+                selectSlide(index);
               }}
             />
           ))}
