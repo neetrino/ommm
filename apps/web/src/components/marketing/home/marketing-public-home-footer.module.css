@@ -859,7 +859,7 @@
     --home-footer-mini-shell-pt: 2.5rem;
     --home-footer-mini-shell-pb: 2rem;
     --home-footer-mini-shell-px: 1.5rem;
-    --home-footer-mini-illo-max: clamp(14rem, 38vw, 17.5rem);
+    --home-footer-mini-illo-max: clamp(10rem, 28vw, 12rem);
     --home-footer-mini-wordmark-size: 1.25rem;
     --home-footer-mini-wordmark-line-height: 1.75rem;
     --home-footer-mini-wordmark-nav-gap: 1rem;
@@ -871,7 +871,10 @@
     --home-footer-mini-legal-divider-pt: 1.5rem;
     --home-footer-mini-legal-gap: 1.5rem;
     --home-footer-mini-copyright-mt: 1rem;
-    --home-footer-mini-payment-mt: 2rem;
+    --home-footer-mini-legal-address-offset: calc(
+      var(--home-footer-mini-body-line-height) + var(--home-footer-contact-title-gap) +
+        1.5rem + var(--home-footer-contact-row-gap)
+    );
   }
 
   .shell {
@@ -891,15 +894,22 @@
       "nav nav"
       "illo illo"
       "contact social"
-      "legal legal"
-      "copyright copyright"
-      "payment payment";
+      "payment copyright";
     gap: var(--home-footer-mini-section-gap) var(--home-footer-mini-column-gap);
     padding:
       var(--home-footer-mini-shell-pt) var(--home-footer-mini-shell-px)
       var(--home-footer-mini-shell-pb);
     inset: auto;
     overflow: visible;
+  }
+
+  .desktopLayer::before {
+    content: "";
+    grid-column: 1 / -1;
+    grid-row: 4;
+    align-self: start;
+    border-top: 1px solid color-mix(in srgb, var(--home-footer-text) 22%, transparent);
+    pointer-events: none;
   }
 
   .wordmarkSlot,
@@ -1007,24 +1017,29 @@
   }
 
   .legalSlot {
-    grid-area: legal;
-    border-top: 1px solid color-mix(in srgb, var(--home-footer-text) 22%, transparent);
-    padding-top: var(--home-footer-mini-legal-divider-pt);
+    grid-area: social;
+    align-self: start;
+    justify-self: end;
+    margin-top: var(--home-footer-mini-legal-address-offset);
   }
 
   .legalSlot .legalNav {
-    justify-content: center;
+    justify-content: flex-end;
     gap: var(--home-footer-mini-legal-gap);
   }
 
   .copyrightSlot {
     grid-area: copyright;
-    margin-top: calc(var(--home-footer-mini-copyright-mt) - var(--home-footer-mini-section-gap));
+    align-self: center;
+    justify-self: end;
+    padding-top: var(--home-footer-mini-legal-divider-pt);
+    margin-top: 0;
   }
 
   .copyrightSlot .copyright {
-    width: 100%;
-    text-align: center;
+    width: auto;
+    max-width: 100%;
+    text-align: right;
     font-size: 0.6875rem;
     line-height: 1rem;
     letter-spacing: 0.075rem;
@@ -1033,12 +1048,14 @@
 
   .paymentSlot {
     grid-area: payment;
-    justify-self: center;
-    margin-top: calc(var(--home-footer-mini-payment-mt) - var(--home-footer-mini-section-gap));
+    align-self: center;
+    justify-self: start;
+    padding-top: var(--home-footer-mini-legal-divider-pt);
+    margin-top: 0;
   }
 
   .paymentLogos {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
