@@ -1,35 +1,20 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import type { CSSProperties, TransitionEvent } from "react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import styles from "@/components/marketing/home/home-gallery-mosaic-carousel.module.css";
 import {
+  HOME_GALLERY_CAROUSEL,
   HOME_GALLERY_FIGMA,
   HOME_GALLERY_IPAD_AIR_LAYOUT,
   HOME_GALLERY_LAYOUT,
   HOME_GALLERY_SLIDES,
-  HOME_GALLERY_TABLET_NAV_LAYOUT,
-  type HomeGallerySlide,
-  type HomeGalleryTileKey,
+  type HomeGalleryCarouselSlide,
 } from "@/components/marketing/home/home-gallery-section-tokens";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
-
-const GALLERY_AUTO_ADVANCE_MS = 6000;
-
-const TILE_CLASS: Record<HomeGalleryTileKey, string> = {
-  leftTop: styles.tileLeftTop,
-  leftBottom: styles.tileLeftBottom,
-  center: styles.tileCenter,
-  side: styles.tileSide,
-};
-
-/** Right narrow tile — `contain` keeps portrait asset readable; left + center use `cover`. */
-const CONTAIN_TILE_KEYS: ReadonlySet<HomeGalleryTileKey> = new Set(["side"]);
-
-function galleryTileImageClass(key: HomeGalleryTileKey): string {
-  return CONTAIN_TILE_KEYS.has(key) ? styles.tileImageContain : styles.tileImageCover;
-}
 
 type HomeGalleryMosaicCarouselProps = {
   prevLabel: string;
@@ -37,14 +22,55 @@ type HomeGalleryMosaicCarouselProps = {
   getGoToSlideAria: (index: number) => string;
 };
 
-type GalleryCarouselState = {
-  active: number;
-  mountedSlides: ReadonlySet<number>;
+type GallerySlideLane = "center" | "side" | "far";
+
+type GalleryCarouselLayout = {
+  viewportWidth: number;
+  slideWidthPx: number;
 };
 
 type GalleryNavArrowProps = {
   direction: "prev" | "next";
 };
+
+function buildGalleryDisplaySlides(
+  slides: readonly HomeGalleryCarouselSlide[],
+): HomeGalleryCarouselSlide[] {
+  if (slides.length <= 1) {
+    return [...slides];
+  }
+  const last = slides[slides.length - 1];
+  const first = slides[0];
+  if (last === undefined || first === undefined) {
+    return [...slides];
+  }
+  return [last, ...slides, first];
+}
+
+function displayIndexToRealIndex(displayLength: number, displayIndex: number): number {
+  const sourceCount = displayLength - 2;
+  if (displayIndex === 0) {
+    return sourceCount - 1;
+  }
+  if (displayIndex === displayLength - 1) {
+    return 0;
+  }
+  return displayIndex - 1;
+}
+
+function resolveGallerySlideLane(
+  displayIndex: number,
+  visualSlideIndex: number,
+): GallerySlideLane {
+  const dist = Math.abs(displayIndex - visualSlideIndex);
+  if (dist === 0) {
+    return "center";
+  }
+  if (dist === 1) {
+    return "side";
+  }
+  return "far";
+}
 
 function GalleryNavArrow({ direction }: GalleryNavArrowProps) {
   return (
@@ -63,10 +89,8 @@ function GalleryNavArrow({ direction }: GalleryNavArrowProps) {
   );
 }
 
-function mosaicStyleVars(): CSSProperties {
+function carouselStyleVars(): CSSProperties {
   return {
-    ["--home-gallery-mosaic-max-width" as string]: `${HOME_GALLERY_LAYOUT.contentMaxWidthPx}px`,
-    ["--home-gallery-mosaic-gap" as string]: `${HOME_GALLERY_LAYOUT.mosaicGapPx}px`,
     ["--home-gallery-tile-radius" as string]: `${HOME_GALLERY_FIGMA.tileRadiusPx}px`,
     ["--home-gallery-nav-size" as string]: `${HOME_GALLERY_LAYOUT.navButtonSizePx}px`,
     ["--home-gallery-dot-size" as string]: `${HOME_GALLERY_LAYOUT.dotSizePx}px`,
@@ -78,77 +102,156 @@ function mosaicStyleVars(): CSSProperties {
     ["--home-gallery-dot-size-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.dotSizePx}px`,
     ["--home-gallery-dot-gap-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.dotGapPx}px`,
     ["--home-gallery-dots-offset-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.mosaicToDotsGapPx}px`,
-    ["--home-gallery-nav-edge-inset-tablet" as string]: `${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonEdgeInsetPx}px`,
-    ["--home-gallery-nav-prev-x-tablet" as string]: `-${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonOutwardTranslatePercent}%`,
-    ["--home-gallery-nav-next-x-tablet" as string]: `${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonOutwardTranslatePercent}%`,
+    ["--home-gallery-nav-edge-inset" as string]: `${HOME_GALLERY_CAROUSEL.navEdgeInsetPx}px`,
     ["--home-gallery-nav-y-offset" as string]: `${HOME_GALLERY_LAYOUT.navVerticalOffsetPx}px`,
+    ["--home-gallery-slide-aspect" as string]: HOME_GALLERY_CAROUSEL.slideAspectRatio,
+    ["--home-gallery-carousel-gap" as string]: `${HOME_GALLERY_CAROUSEL.gapPx}px`,
+    ["--home-gallery-carousel-ms" as string]: `${HOME_GALLERY_CAROUSEL.transformMs}ms`,
   };
 }
 
-function GalleryMosaicSlide({ slide }: { slide: HomeGallerySlide }) {
+function useGalleryCarouselMetrics(visualSlideIndex: number) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const visualSlideIndexRef = useRef(visualSlideIndex);
+  const [layout, setLayout] = useState<GalleryCarouselLayout>({
+    viewportWidth: 0,
+    slideWidthPx: 0,
+  });
+  const isClientMounted = useIsClientMounted();
+
+  useLayoutEffect(() => {
+    visualSlideIndexRef.current = visualSlideIndex;
+  }, [visualSlideIndex]);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+    const read = () => {
+      const viewportWidth = viewport.clientWidth;
+      const slideWidthPx = viewportWidth * HOME_GALLERY_CAROUSEL.slideWidthRatio;
+      setLayout({ viewportWidth, slideWidthPx });
+    };
+    read();
+    const rafId = requestAnimationFrame(read);
+    const ro = new ResizeObserver(read);
+    ro.observe(viewport);
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
+  }, []);
+
+  const { viewportWidth, slideWidthPx } = layout;
+  const layoutReady = isClientMounted && viewportWidth > 0 && slideWidthPx > 0;
+  const edgePadPx = layoutReady ? Math.max(0, (viewportWidth - slideWidthPx) / 2) : 0;
+  const stepPx = slideWidthPx + HOME_GALLERY_CAROUSEL.gapPx;
+  const translatePx = layoutReady ? -visualSlideIndex * stepPx : 0;
+
+  return { viewportRef, edgePadPx, translatePx, slideWidthPx, layoutReady };
+}
+
+type GalleryCarouselSlideProps = {
+  slide: HomeGalleryCarouselSlide;
+  lane: GallerySlideLane;
+  isActive: boolean;
+  ariaHidden?: boolean;
+};
+
+function GalleryCarouselSlide({ slide, lane, isActive, ariaHidden }: GalleryCarouselSlideProps) {
+  const laneClass =
+    lane === "center" ? styles.slideCenter : lane === "side" ? styles.slideSide : styles.slideFar;
+
   return (
-    <div className={styles.mosaic}>
-      {(Object.keys(TILE_CLASS) as HomeGalleryTileKey[]).map((key) => {
-        const tile = slide.tiles[key];
-        return (
-          <div key={key} className={`${styles.tile} ${TILE_CLASS[key]}`}>
-            <Image
-              src={tile.src}
-              alt=""
-              fill
-              sizes="(max-width: 768px) 50vw, 33vw"
-              className={galleryTileImageClass(key)}
-              {...belowFoldImageProps()}
-            />
-          </div>
-        );
-      })}
-    </div>
+    <article
+      className={`${styles.slideItem} ${laneClass} ${isActive ? styles.slideItemActive : ""}`}
+      aria-hidden={ariaHidden ? true : undefined}
+    >
+      <div className={styles.slideFrame}>
+        <Image
+          src={slide.src}
+          alt=""
+          fill
+          sizes="(max-width: 768px) 50vw, 33vw"
+          className={styles.slideImage}
+          {...belowFoldImageProps()}
+        />
+        <div className={styles.slideSheen} aria-hidden />
+      </div>
+    </article>
   );
 }
 
-function getGalleryCarouselState(
-  active: number,
-  mountedSlides: ReadonlySet<number>,
-): GalleryCarouselState {
-  if (mountedSlides.has(active)) {
-    return { active, mountedSlides };
-  }
-  const nextMountedSlides = new Set(mountedSlides);
-  nextMountedSlides.add(active);
-  return { active, mountedSlides: nextMountedSlides };
-}
-
-/** Figma Gallery mosaic `196:1163` with prev/next `196:1168` and dots `196:1175`. */
+/** Desktop gallery — centered peek carousel with half-visible neighbours. */
 export function HomeGalleryMosaicCarousel({
   prevLabel,
   nextLabel,
   getGoToSlideAria,
 }: HomeGalleryMosaicCarouselProps) {
-  const slideCount = HOME_GALLERY_SLIDES.length;
+  const slides = HOME_GALLERY_SLIDES;
+  const slideCount = slides.length;
   const lastIndex = Math.max(0, slideCount - 1);
-  const [{ active, mountedSlides }, setCarouselState] = useState<GalleryCarouselState>(() => ({
-    active: 0,
-    mountedSlides: new Set([0]),
-  }));
+  const displaySlides = buildGalleryDisplaySlides(slides);
+  const useCloneBookends = slideCount > 1;
+  const displayLength = displaySlides.length;
+
+  const [active, setActive] = useState(0);
+  const [trackVisualIndex, setTrackVisualIndex] = useState(() => (useCloneBookends ? 1 : 0));
+  const [instantTransform, setInstantTransform] = useState(false);
+  const [canAnimateSlides, setCanAnimateSlides] = useState(false);
+  const prevActiveRef = useRef(active);
+  const recenteringRef = useRef(false);
+
+  const reducedMotion = usePrefersReducedMotion();
+  const { viewportRef, edgePadPx, translatePx, layoutReady } =
+    useGalleryCarouselMetrics(trackVisualIndex);
 
   const goPrev = useCallback(() => {
-    setCarouselState((prev) =>
-      getGalleryCarouselState((prev.active - 1 + slideCount) % slideCount, prev.mountedSlides),
-    );
+    setActive((prev) => (prev - 1 + slideCount) % slideCount);
   }, [slideCount]);
 
   const goNext = useCallback(() => {
-    setCarouselState((prev) =>
-      getGalleryCarouselState((prev.active + 1) % slideCount, prev.mountedSlides),
-    );
+    setActive((prev) => (prev + 1) % slideCount);
   }, [slideCount]);
 
   useEffect(() => {
-    if (slideCount <= 1) {
+    queueMicrotask(() => {
+      setCanAnimateSlides(true);
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    queueMicrotask(() => {
+      if (slideCount <= 1) {
+        setTrackVisualIndex(active);
+        prevActiveRef.current = active;
+        return;
+      }
+      if (reducedMotion) {
+        setTrackVisualIndex(active + 1);
+        prevActiveRef.current = active;
+        return;
+      }
+      if (prevActiveRef.current === active) {
+        return;
+      }
+      const prev = prevActiveRef.current;
+      if (prev === lastIndex && active === 0) {
+        setTrackVisualIndex(displayLength - 1);
+      } else if (prev === 0 && active === lastIndex) {
+        setTrackVisualIndex(0);
+      } else {
+        setTrackVisualIndex(active + 1);
+      }
+      prevActiveRef.current = active;
+    });
+  }, [active, displayLength, lastIndex, reducedMotion, slideCount]);
+
+  useEffect(() => {
+    if (slideCount <= 1 || reducedMotion) {
       return;
     }
-    const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
     let intervalId: ReturnType<typeof setInterval> | undefined;
 
     const clearIntervalIfSet = () => {
@@ -160,18 +263,14 @@ export function HomeGalleryMosaicCarousel({
 
     const armInterval = () => {
       clearIntervalIfSet();
-      if (motionMq.matches) {
-        return;
-      }
       intervalId = setInterval(() => {
         if (document.visibilityState === "visible") {
           goNext();
         }
-      }, GALLERY_AUTO_ADVANCE_MS);
+      }, HOME_GALLERY_CAROUSEL.autoAdvanceMs);
     };
 
     armInterval();
-    motionMq.addEventListener("change", armInterval);
     const onVisibilityChange = () => {
       if (document.visibilityState !== "visible") {
         clearIntervalIfSet();
@@ -181,26 +280,85 @@ export function HomeGalleryMosaicCarousel({
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
-      motionMq.removeEventListener("change", armInterval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       clearIntervalIfSet();
     };
-  }, [active, goNext, slideCount]);
+  }, [active, goNext, reducedMotion, slideCount]);
+
+  const trackTransition =
+    reducedMotion || !canAnimateSlides || !layoutReady || instantTransform
+      ? undefined
+      : `transform var(--home-gallery-carousel-ms) cubic-bezier(0.22, 1, 0.36, 1)`;
+
+  const handleTrackTransitionEnd = useCallback(
+    (event: TransitionEvent<HTMLDivElement>) => {
+      if (event.propertyName !== "transform" || event.target !== event.currentTarget) {
+        return;
+      }
+      if (!useCloneBookends || slideCount <= 1 || reducedMotion) {
+        return;
+      }
+      if (recenteringRef.current) {
+        return;
+      }
+      const atTrailingClone = trackVisualIndex === displayLength - 1;
+      const atLeadingClone = trackVisualIndex === 0;
+      if (!atTrailingClone && !atLeadingClone) {
+        return;
+      }
+      recenteringRef.current = true;
+      setInstantTransform(true);
+      setTrackVisualIndex(atTrailingClone ? 1 : displayLength - 2);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setInstantTransform(false);
+          recenteringRef.current = false;
+        });
+      });
+    },
+    [displayLength, reducedMotion, slideCount, trackVisualIndex, useCloneBookends],
+  );
 
   return (
-    <div style={mosaicStyleVars()}>
+    <div style={carouselStyleVars()}>
       <div className={styles.stage}>
-        <div className={styles.viewport}>
-          {HOME_GALLERY_SLIDES.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={`${styles.slide} ${index === active ? styles.slideActive : ""}`}
-              aria-hidden={index !== active}
-            >
-              {mountedSlides.has(index) ? <GalleryMosaicSlide slide={slide} /> : null}
-            </div>
-          ))}
+        <div ref={viewportRef} className={styles.viewport}>
+          <div
+            className={`${styles.track} ${layoutReady ? styles.trackReady : styles.trackHidden}`}
+            style={{
+              gap: `${HOME_GALLERY_CAROUSEL.gapPx}px`,
+              paddingLeft: `${edgePadPx}px`,
+              paddingRight: `${edgePadPx}px`,
+              transform: `translate3d(${translatePx}px, 0, 0)`,
+              transition: trackTransition,
+            }}
+            onTransitionEnd={handleTrackTransitionEnd}
+          >
+            {displaySlides.map((slide, displayIndex) => {
+              const realIndex = useCloneBookends
+                ? displayIndexToRealIndex(displaySlides.length, displayIndex)
+                : displayIndex;
+              const isClone =
+                useCloneBookends &&
+                (displayIndex === 0 || displayIndex === displaySlides.length - 1);
+              const lane = resolveGallerySlideLane(displayIndex, trackVisualIndex);
+              return (
+                <GalleryCarouselSlide
+                  key={
+                    isClone
+                      ? `gallery-clone-${displayIndex}-${slide.id}`
+                      : `gallery-slide-${realIndex}-${slide.id}`
+                  }
+                  slide={slide}
+                  lane={lane}
+                  isActive={active === realIndex}
+                  ariaHidden={isClone}
+                />
+              );
+            })}
+          </div>
         </div>
+
         <div className={styles.navRow}>
           <button
             type="button"
@@ -223,7 +381,7 @@ export function HomeGalleryMosaicCarousel({
 
       <div className={styles.dotsWrap}>
         <div className={styles.dots} role="tablist">
-          {HOME_GALLERY_SLIDES.map((slide, index) => (
+          {slides.map((slide, index) => (
             <button
               key={slide.id}
               type="button"
@@ -232,12 +390,7 @@ export function HomeGalleryMosaicCarousel({
               aria-label={getGoToSlideAria(index)}
               className={`${styles.dot} ${index === active ? styles.dotActive : ""}`}
               onClick={() => {
-                setCarouselState((prev) =>
-                  getGalleryCarouselState(
-                    Math.min(Math.max(0, index), lastIndex),
-                    prev.mountedSlides,
-                  ),
-                );
+                setActive(Math.min(Math.max(0, index), lastIndex));
               }}
             />
           ))}

@@ -144,17 +144,22 @@ export function MarketingPublicHomeGallerySection() {
               </p>
             </header>
           </HomePageReveal>
+        </div>
 
-          <HomePageReveal index={1}>
-            <div style={{ marginTop: HOME_GALLERY_LAYOUT.headerToMosaicGapPx, width: "100%" }}>
-              <HomeGalleryMosaicCarousel
-                prevLabel={t("galleryPrevAria")}
-                nextLabel={t("galleryNextAria")}
-                getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
-              />
-            </div>
-          </HomePageReveal>
+        <HomePageReveal index={1}>
+          <div
+            className={styles.desktopCarouselBleed}
+            style={{ marginTop: HOME_GALLERY_LAYOUT.headerToMosaicGapPx }}
+          >
+            <HomeGalleryMosaicCarousel
+              prevLabel={t("galleryPrevAria")}
+              nextLabel={t("galleryNextAria")}
+              getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
+            />
+          </div>
+        </HomePageReveal>
 
+        <div className="mx-auto flex w-full max-w-[min(82.375rem,calc(100%-2rem))] flex-col items-center">
           <HomePageReveal index={2} className="flex w-full justify-center">
             <div style={{ marginTop: HOME_GALLERY_LAYOUT.dotsToCtaGapPx }}>
               <HomeHeroCtaButton
