@@ -1,33 +1,64 @@
 /**
- * Figma **Footer** `196:1191` — artboard 1440×635.
- * Mobile container `97:5944`.
+ * Figma **Footer** `605:961` — artboard 1440×428.
+ * Mobile container `632:1081`.
  */
 
 import { MARKETING_CONTENT_INLINE_INSET } from "@/components/marketing/marketing-content-layout";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
+const HOME_FOOTER_OLIVE_RGB = "151, 144, 124";
+const HOME_FOOTER_CREAM_RGB = "251, 245, 213";
+
+/** Figma `605:961` — subtle olive → cream wash on page cream. */
+export const HOME_FOOTER_SHELL_BACKGROUND = `linear-gradient(to bottom, rgba(${HOME_FOOTER_OLIVE_RGB}, 0.09) 0%, rgba(${HOME_FOOTER_CREAM_RGB}, 0.09) 100%), ${HOME_PAGE_SURFACE.pageBackground}`;
+
 export const HOME_FOOTER_FIGMA = {
   surface: HOME_PAGE_SURFACE.pageBackground,
-  /** Same rounded cap as Packages panel `196:1251`. */
-  wrapBackground: HOME_PAGE_SURFACE.eventsGradientFrom,
-  topRadiusPx: HOME_PAGE_SURFACE.plansPanelRadiusPx,
+  wrapBackground: HOME_PAGE_SURFACE.pageBackground,
+  shellBackground: HOME_FOOTER_SHELL_BACKGROUND,
+  topRadiusPx: 64,
   text: "#97907c",
   artboardWidthPx: 1440,
-  artboardHeightPx: 635,
-  illustrationWidthPx: 596,
-  illustrationHeightPx: 471,
+  artboardHeightPx: 428,
+  illustrationSizePx: 412,
+  /** Visual scale vs Figma — tuned on device. */
+  illustrationDisplayScale: 0.65,
+  /** Keep the sphere inside the footer shell — no bleed below the bottom edge. */
+  illustrationBottomInsetPx: 0,
+  /** Mobile / tablet — 0 keeps the logo in the footer. */
+  illustrationBottomBleedRatio: 0,
+  paymentGapPx: 16,
+  paymentLogoHeightPx: 28,
+  paymentArcaDisplayHeightPx: 20,
+  paymentArcaOffsetXPx: 24,
+  paymentMastercardWidthPx: 35,
+  paymentMastercardHeightPx: 28,
+  paymentArcaWidthPx: 78,
+  paymentArcaHeightPx: 20,
+  paymentVisaWidthPx: 63,
+  paymentVisaHeightPx: 22,
 } as const;
 
-/** Positions from Figma metadata — percentages of artboard width/height. */
+/** Positions from Figma `605:961` metadata — percentages of artboard width/height. */
 export const HOME_FOOTER_FIGMA_POSITIONS = {
-  wordmark: { left: 69 / 1440, top: 65 / 635 },
-  nav: { left: 372 / 1440, top: 65 / 635 },
-  illustration: { left: 422 / 1440, top: 138 / 635, width: 596 / 1440, height: 471 / 635 },
-  contact: { left: 66 / 1440, top: 304 / 635 },
-  social: { left: 71 / 1440, top: 517 / 635 },
-  legal: { left: 1051 / 1440, top: 499 / 635 },
-  copyright: { left: 1051 / 1440, top: 548 / 635, width: 330 / 1440 },
+  topBar: { left: 71 / 1440, top: 81 / 428 },
+  illustration: {
+    left: 515 / 1440,
+    width: 412 / 1440,
+    height: 412 / 428,
+    /** Sphere bottom extends 147px below the 428px artboard — clipped by footer shell. */
+    bottomOverflow: (163 + 412 - 428) / 428,
+  },
+  contact: { left: 71 / 1440, top: 163 / 428 },
+  payment: { left: 74 / 1440, top: 358 / 428 },
+  social: { left: 1132 / 1440, top: 183 / 428 },
+  legal: { left: 1166 / 1440, top: 299 / 428 },
+  copyright: {
+    /** Line 2 ~10px below payment row top (347px block top on 428px artboard). */
+    top: (358 - 21 + 10) / 428,
+    width: 291 / 1440,
+  },
 } as const;
 
 export const HOME_FOOTER_LAYOUT = {
@@ -37,10 +68,11 @@ export const HOME_FOOTER_LAYOUT = {
   navLinkPaddingLeftPx: 48,
   navLinkGapPx: 10,
   contactSectionGapPx: 21,
-  contactRowGapPx: 18,
+  contactTitleGapPx: 32,
+  contactRowGapPx: 19,
   socialTitleGapPx: 22,
   socialIconGapPx: 22,
-  legalLinkGapPx: 26,
+  legalLinkGapPx: 34,
   wordmarkFontSizePx: 20,
   wordmarkLineHeightPx: 28,
   bodyFontSizePx: 16,
@@ -49,9 +81,62 @@ export const HOME_FOOTER_LAYOUT = {
   copyrightFontSizePx: 14,
   copyrightLineHeightPx: 21,
   copyrightLetterSpacingPx: 2.4,
+  /** Contact Us + Social Media — shift up from Figma baseline. */
+  contactSocialLiftPx: 20,
+  /** Top nav + legal links — shift up from Figma baseline. */
+  topBarLegalLiftPx: 10,
 } as const;
 
-/** Figma mobile footer — container `97:5944`. */
+function homeFooterIllustrationTopAtRestPx(
+  artboardHeightPx: number,
+  displayScale: number,
+  bottomInsetPx: number,
+): number {
+  const scaledHeightPx =
+    HOME_FOOTER_FIGMA_POSITIONS.illustration.height * artboardHeightPx * displayScale;
+  return artboardHeightPx - bottomInsetPx - scaledHeightPx;
+}
+
+function homeFooterContactTitleBottomPx(artboardHeightPx: number): number {
+  const contactTopPx =
+    HOME_FOOTER_FIGMA_POSITIONS.contact.top * artboardHeightPx - HOME_FOOTER_LAYOUT.contactSocialLiftPx;
+  return contactTopPx + HOME_FOOTER_LAYOUT.bodyLineHeightPx;
+}
+
+const HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX = 100;
+
+const HOME_FOOTER_FLOAT_PEAK_MAX_PX = Math.max(
+  0,
+  Math.round(
+    homeFooterIllustrationTopAtRestPx(
+      HOME_FOOTER_FIGMA.artboardHeightPx,
+      HOME_FOOTER_FIGMA.illustrationDisplayScale,
+      HOME_FOOTER_FIGMA.illustrationBottomInsetPx,
+    ) -
+      homeFooterContactTitleBottomPx(HOME_FOOTER_FIGMA.artboardHeightPx) -
+      6 +
+      HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX,
+  ),
+);
+
+/** Idle float — ball bounce: overshoot at peaks, gravity fall, soft ground rebound. */
+export const HOME_FOOTER_FLOAT_MOTION = {
+  durationMs: 8200,
+  /** Optical gap below the Contact us title at max rise (Figma `605:961`). */
+  gapUnderContactTitlePx: 6,
+  peakExtraLiftPx: HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX,
+  peakMaxPx: HOME_FOOTER_FLOAT_PEAK_MAX_PX,
+  peakHighPx: Math.round(HOME_FOOTER_FLOAT_PEAK_MAX_PX * 0.79),
+  peakMidPx: Math.round(HOME_FOOTER_FLOAT_PEAK_MAX_PX * 0.57),
+  peakOvershootRatio: 1.035,
+  secondaryPeakOvershootRatio: 1.025,
+  dipLowPx: 2,
+  dipMidPx: 3,
+  /** Per-segment easing is set on keyframes; root timing is linear. */
+  easing: "linear",
+} as const;
+
+/** Figma mobile footer — container `632:1081`. */
 export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   artboardWidthPx: 394,
   sectionPaddingXPx: 24,
@@ -64,25 +149,33 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   bodyLineHeightPx: 20,
   navGapPx: 10,
   wordmarkToNavGapPx: 16,
+  navToContactGapPx: 11,
+  contactBlockPaddingTopPx: 16,
   contactIconGapPx: 12,
-  contactRowGapPx: 12,
-  contactSectionMarginTopPx: 16,
+  contactRowGapPx: 14,
+  contactTitleToRowsGapPx: 14,
   socialTitleToIconsGapPx: 16,
   socialIconGapPx: 20,
   socialSectionMarginTopPx: 32,
+  paymentSectionMarginTopPx: 32,
   legalGapPx: 24,
   legalSectionMarginTopPx: 32,
   copyrightMarginTopPx: 24,
   copyrightFontSizePx: 12,
   copyrightLineHeightPx: 16,
   copyrightLetterSpacingPx: 1.2,
-  illustrationTopPx: 14,
-  illustrationLeftPx: 70,
+  illustrationTopPx: 56,
   illustrationWidthPx: 400,
   illustrationHeightPx: 396,
+  /** Half of the sphere bleeds off the right edge. */
+  illustrationHalfVisibleShiftRatio: 0.5,
+  paymentGapPx: 16,
+  paymentMastercardHeightPx: 22,
+  paymentArcaHeightPx: 16,
+  paymentVisaHeightPx: 18,
 } as const;
 
-/** Mobile layout from Figma `97:5944`. */
+/** Mobile layout from Figma `632:1081`. */
 export const HOME_FOOTER_MOBILE_LAYOUT = {
   galleryOverlap: "2.5rem",
   wrapPaddingTop: "2.5rem",
@@ -98,12 +191,15 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
     HOME_FOOTER_SECTION_MOBILE_FIGMA.bodyLineHeightPx / HOME_FOOTER_SECTION_MOBILE_FIGMA.bodyFontSizePx,
   navGap: "0.625rem",
   wordmarkToNavGap: "1rem",
+  navToContactGap: "0.6875rem",
+  contactBlockPaddingTop: "1rem",
   contactIconGap: "0.75rem",
-  contactRowGap: "0.75rem",
-  contactSectionMarginTop: "1rem",
+  contactRowGap: "0.875rem",
+  contactTitleToRowsGap: "0.875rem",
   socialTitleToIconsGap: "1rem",
   socialIconGap: "1.25rem",
   socialSectionMarginTop: "2rem",
+  paymentSectionMarginTop: "2rem",
   legalGap: "1.5rem",
   legalSectionMarginTop: "2rem",
   copyrightMarginTop: "1.5rem",
@@ -111,14 +207,18 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   copyrightLineHeight:
     HOME_FOOTER_SECTION_MOBILE_FIGMA.copyrightLineHeightPx / HOME_FOOTER_SECTION_MOBILE_FIGMA.copyrightFontSizePx,
   copyrightLetterSpacing: "0.075rem",
-  illustrationTop: "clamp(-2.125rem, calc(100svw * -34 / 394), -2.125rem)",
-  illustrationLeft: "clamp(3.25rem, calc(100svw * 70 / 394), 4.375rem)",
+  illustrationTop: "clamp(2rem, calc(100svw * 56 / 394), 3.5rem)",
+  illustrationRight: "0",
+  illustrationShiftX: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.illustrationHalfVisibleShiftRatio * 100}%`,
   illustrationWidth: "clamp(15.75rem, calc(100svw * 400 / 394), 25rem)",
   illustrationHeight: "clamp(15.5rem, calc(100svw * 396 / 394), 24.75rem)",
-  heroMinHeight: "clamp(11rem, calc(100svw * 267 / 394), 16.75rem)",
+  paymentMarginTop: "2rem",
+  paymentGap: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentGapPx}px`,
+  paymentMastercardHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentMastercardHeightPx}px`,
+  paymentArcaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaHeightPx}px`,
+  paymentVisaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentVisaHeightPx}px`,
 } as const;
 
-/** Pull teal through rounded footer cap corners — same idea as Our Core Practices / schedule join. */
 const homeFooterTabletCornerCoverPx = HOME_FOOTER_SECTION_MOBILE_FIGMA.topRadiusPx + 12;
 
 /** iPad Air + Pro — footer cap + gallery underlap (744px–1366px). */
@@ -141,20 +241,96 @@ export const HOME_FOOTER_INNER_MOBILE_LAYOUT = {
 
 export type HomeFooterSurfaceVariant = "home" | "inner";
 
-/** iPad Air — footer grid; Contact us block sits under Explore (744px–1023px). */
-export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
-  desktopPadding: "2rem 1.5rem 1.5rem",
-  columnGap: "1.5rem",
+/** iPad Mini — centered stacked footer (744px–819px). */
+export const HOME_FOOTER_IPAD_MINI_DESKTOP_LAYOUT = {
+  shellPaddingTop: "2.5rem",
+  shellPaddingBottom: "2rem",
+  shellPaddingInline: "1.5rem",
+  columnGap: "2rem",
+  sectionGap: "1.5rem",
+  /** Pull contact + footer rows closer to the sphere (logo stays put). */
+  belowLogoLiftRem: 7,
+  illustrationMaxRem: 12,
+  illustrationViewportRatio: 0.28,
+  wordmarkFontSizePx: 20,
+  wordmarkLineHeightPx: 28,
+  wordmarkToNavGapPx: 16,
+  bodyFontSizePx: 14,
+  bodyLineHeightPx: 20,
+  navLinkGapPx: 24,
+  legalDividerPaddingTopPx: 12,
+  legalLinkGapPx: 24,
+  copyrightMarginTopPx: 16,
+  paymentMarginTopPx: 32,
+  topRadiusPx: 48,
+} as const;
+
+/** iPad Air tier — compact desktop footer (820px–1023px). */
+export const HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT = {
+  shellPaddingTop: "1.75rem",
+  shellPaddingBottom: "1.5rem",
+  columnGap: "1.25rem",
   rowGap: "0.75rem",
-  navLinkPaddingLeftPx: 0,
-  /** Flex spacer between nav and Contact us block. */
+  illustrationColumn: "minmax(7rem, 9.5rem)",
+  illustrationMaxRem: 9.5,
+  wordmarkFontSizePx: 20,
+  wordmarkLineHeightPx: 28,
+  bodyFontSizePx: 14,
+  bodyLineHeightPx: 20,
+  navLinkPaddingLeftPx: 16,
+  navLinkGapPx: 8,
+  topRadiusPx: 48,
+  paymentArcaOffsetPx: 16,
+  /** Pull contact + footer rows closer to the sphere (logo stays put). */
+  belowLogoLiftRem: 7,
+  legalDividerPaddingTopPx: 12,
+  legalLinkGapPx: 24,
+  contactSocialColumnGapRem: 2,
+  sectionGapRem: 1.5,
+  contentInsetPx: 24,
+} as const;
+
+/** iPad Pro tier — roomier compact desktop footer (1024px–1366px). */
+export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
+  shellPaddingTop: "2.25rem",
+  shellPaddingBottom: "1.75rem",
+  columnGap: "1.75rem",
+  rowGap: "0.875rem",
+  illustrationColumn: "minmax(8.5rem, 12rem)",
+  illustrationMaxRem: 12,
+  wordmarkFontSizePx: 20,
+  wordmarkLineHeightPx: 28,
+  bodyFontSizePx: 15,
+  bodyLineHeightPx: 20,
+  navLinkPaddingLeftPx: 24,
+  navLinkGapPx: 10,
+  topRadiusPx: 56,
+  paymentArcaOffsetPx: 20,
+  belowLogoLiftRem: 7,
+  legalDividerPaddingTopPx: 12,
+  legalLinkGapPx: 24,
+  contactSocialColumnGapRem: 2,
+  sectionGapRem: 1.5,
+  contentInsetPx: 32,
+} as const;
+export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT;
+
+/** Full desktop footer — absolute Figma layout (1367px+). */
+export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
+
+/** @deprecated Use HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT — kept for reference values. */
+export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
+  desktopPadding: "1.75rem 0 1.5rem",
+  columnGap: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.columnGap,
+  rowGap: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.rowGap,
+  navLinkPaddingLeftPx: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.navLinkPaddingLeftPx,
   navToContactSpacerMin: "1rem",
   contactToSocialGap: "1rem",
   navLinkGap: "0.5rem",
   navToContactBlockMarginPx: 48,
   legalCopyrightGap: "0.75rem",
-  wordmarkFontSizePx: 36,
-  wordmarkLineHeightPx: 40,
+  wordmarkFontSizePx: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.wordmarkFontSizePx,
+  wordmarkLineHeightPx: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.wordmarkLineHeightPx,
 } as const;
 
 export const HOME_FOOTER_COPYRIGHT_COMPANY_HREF = "https://neetrino.com" as const;
@@ -167,6 +343,7 @@ export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/refund", labelKey: "footerRefund" },
 ] as const;
 
+/** Figma `605:1002` — Instagram only. */
 export const HOME_FOOTER_SOCIAL_LINKS = [
   {
     id: "instagram",
@@ -175,16 +352,25 @@ export const HOME_FOOTER_SOCIAL_LINKS = [
     width: 23,
     height: 23,
   },
-  { id: "threads", href: "https://www.threads.net/@ommm.space", asset: HOME_SECTION_ASSETS.footerSocialThreads, width: 23, height: 23 },
-  { id: "facebook", href: "https://facebook.com", asset: HOME_SECTION_ASSETS.footerSocialFacebook, width: 13, height: 23 },
-  { id: "youtube", href: "https://youtube.com", asset: HOME_SECTION_ASSETS.footerSocialYoutube, width: 25, height: 18 },
-  { id: "whatsapp", href: "https://wa.me", asset: HOME_SECTION_ASSETS.footerSocialWhatsapp, width: 24, height: 24 },
-  { id: "telegram", href: "https://t.me", asset: HOME_SECTION_ASSETS.footerSocialTelegram, width: 24, height: 24 },
+] as const;
+
+export const HOME_FOOTER_PAYMENT_LOGOS = [
+  {
+    id: "mastercard",
+    src: HOME_SECTION_ASSETS.footerPaymentMastercard,
+  },
+  {
+    id: "arca",
+    src: HOME_SECTION_ASSETS.footerPaymentArca,
+  },
+  {
+    id: "visa",
+    src: HOME_SECTION_ASSETS.footerPaymentVisa,
+  },
 ] as const;
 
 export const HOME_FOOTER_ASSETS = {
   illustration: HOME_SECTION_ASSETS.footerIllustration,
-  phone: HOME_SECTION_ASSETS.footerIconPhone,
   mail: HOME_SECTION_ASSETS.footerIconMail,
   location: HOME_SECTION_ASSETS.footerIconLocation,
 } as const;

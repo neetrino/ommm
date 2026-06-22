@@ -1,6 +1,6 @@
 /**
- * Figma **Packages** `196:1251` — frosted panel, heading `196:1252`, cards `196:1256`, CTA `196:1260`.
- * Mobile container `97:5888`, carousel `104:6141`, card `104:6142`, CTA `108:6677`.
+ * Figma **Packages** — desktop band `605:932` (cream `#fbf5d5`), cards `196:1256`, CTA `196:1260`.
+ * Legacy frosted panel `196:1251`. Mobile container `97:5888`.
  */
 
 import { HOME_HERO_FIGMA } from "@/components/marketing/home/home-hero-banner-tokens";
@@ -106,7 +106,11 @@ export const HOME_PLANS_SECTION_MOBILE_LAYOUT = {
   categoryCornerInsetY: "1.25rem",
 } as const;
 
+/** Figma `605:932` — solid page cream behind Choose Your Package. */
+export const HOME_PLANS_SECTION_BACKGROUND = HOME_PAGE_SURFACE.pageBackground;
+
 export const HOME_PLANS_SECTION_FIGMA = {
+  sectionBackground: HOME_PLANS_SECTION_BACKGROUND,
   panelFill: HOME_HERO_FIGMA.frostPanelFill,
   headingColor: HOME_PAGE_SURFACE.plansHeading,
   subtitleColor: "rgba(98, 98, 98, 0.84)",

@@ -31,7 +31,7 @@ type MarketingPublicHomeClassesSectionProps = {
 };
 
 /**
- * Figma **Classes Section** `196:1074` (desktop), mobile container `97:5683`.
+ * Figma **Classes Section** `605:844` (desktop), mobile container `97:5683`.
  */
 export async function MarketingPublicHomeClassesSection({
   locale,

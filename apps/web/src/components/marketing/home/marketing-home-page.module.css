@@ -1,5 +1,5 @@
 /**
- * Home page — clip upper sections; gallery/footer seam is solid teal; footer overlaps gallery.
+ * Home page — clip upper sections; gallery/footer seam is page cream; footer overlaps gallery.
  */
 
 .page {
@@ -20,7 +20,7 @@
   position: relative;
   z-index: 0;
   min-width: 0;
-  background-color: var(--home-gallery-seam-bg, #598090);
+  background-color: var(--home-gallery-seam-bg, #fbf5d5);
 }
 
 .galleryFooterSeam :global([data-home-section="gallery"]) {
@@ -45,14 +45,12 @@
 
   .galleryFooterSeam {
     overflow: visible;
-    background-color: var(--home-gallery-seam-bg, #598090);
-    /* Cream cap only — gallery top radius reads against Plans; footer seam stays teal. */
+    background-color: var(--home-gallery-seam-bg, #fbf5d5);
+    /* Cream band — gallery top radius reads against Plans; footer seam stays cream. */
     background-image: linear-gradient(
       180deg,
       var(--home-page-bg, #fbf5d5) 0,
-      var(--home-page-bg, #fbf5d5) 2.5rem,
-      var(--home-gallery-seam-bg, #598090) 2.5rem,
-      var(--home-gallery-seam-bg, #598090) 100%
+      var(--home-page-bg, #fbf5d5) 100%
     );
   }
 

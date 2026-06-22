@@ -8,7 +8,7 @@ import {
   HOME_GALLERY_FIGMA,
   HOME_GALLERY_IPAD_AIR_LAYOUT,
   HOME_GALLERY_LAYOUT,
-  HOME_GALLERY_MOBILE_BACKGROUND,
+  HOME_GALLERY_SECTION_BACKGROUND,
   HOME_GALLERY_SECTION_MOBILE_FIGMA,
   HOME_GALLERY_SECTION_MOBILE_LAYOUT,
   HOME_GALLERY_TABLET_LAYOUT,
@@ -20,7 +20,7 @@ import styles from "@/components/marketing/home/marketing-public-home-gallery-se
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 /**
- * Figma **Gallery** `196:1162` — desktop unchanged; mobile `97:5853` in inner layer.
+ * Figma **Gallery** `605:932` — desktop; mobile `97:5853` in inner layer.
  */
 export function MarketingPublicHomeGallerySection() {
   const t = useTranslations("marketingPublic.home");
@@ -33,7 +33,7 @@ export function MarketingPublicHomeGallerySection() {
   );
 
   const sectionStyle = {
-    ["--home-gallery-mobile-bg" as string]: HOME_GALLERY_MOBILE_BACKGROUND,
+    ["--home-gallery-mobile-bg" as string]: HOME_GALLERY_SECTION_BACKGROUND,
     ["--home-gallery-mobile-top-radius" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionTopRadius,
     ["--home-gallery-mobile-px" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionPaddingX,
     ["--home-gallery-mobile-pt" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionPaddingTop,
@@ -57,7 +57,7 @@ export function MarketingPublicHomeGallerySection() {
     ["--home-gallery-footer-underlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
     ["--home-gallery-tablet-footer-underlap" as string]: HOME_GALLERY_TABLET_LAYOUT.footerUnderlap,
     ["--home-gallery-tablet-underlap-bg" as string]: HOME_GALLERY_TABLET_LAYOUT.footerUnderlapBackground,
-    ["--home-gallery-desktop-bg" as string]: HOME_GALLERY_FIGMA.sectionBackground,
+    ["--home-gallery-desktop-bg" as string]: HOME_GALLERY_SECTION_BACKGROUND,
     ["--home-gallery-desktop-pt" as string]: HOME_GALLERY_LAYOUT.sectionPaddingTop,
     ["--home-gallery-desktop-pb" as string]: HOME_GALLERY_LAYOUT.sectionPaddingBottom,
     ["--home-gallery-desktop-title-size" as string]: HOME_GALLERY_LAYOUT.titleFontSize,

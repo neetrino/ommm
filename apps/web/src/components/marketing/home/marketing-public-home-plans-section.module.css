@@ -1,5 +1,5 @@
 /**
- * Mobile: Figma `97:5888`. Desktop (lg+): section `196:1251`.
+ * Mobile: Figma `97:5888`. Desktop (744px+): cream band `605:932`, cards `196:1256`.
  */
 
 .mobileSection {
@@ -95,6 +95,74 @@
   display: none;
 }
 
+.desktopPanel {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--home-plans-panel-radius, 50px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    var(--home-plans-panel-shadow),
+    0 0 0 1px rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6px);
+  background-color: var(--home-plans-panel-fill, rgba(255, 255, 255, 0.2));
+  background-image: var(--home-plans-panel-bg-image);
+}
+
+.desktopPanelGloss {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image: var(--home-plans-panel-gloss);
+}
+
+.desktopPanelContent {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--home-plans-panel-gap, 4.0625rem);
+  padding-inline: var(--home-plans-panel-px, clamp(1rem, 5vw, 5rem));
+  padding-top: var(--home-plans-panel-pt, clamp(3rem, 11vw, 6.5rem));
+  padding-bottom: var(--home-plans-panel-pb, clamp(2.5rem, 8vw, 4.5rem));
+}
+
+.desktopHeader {
+  display: flex;
+  width: 100%;
+  max-width: 52.125rem;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--home-plans-panel-header-gap, 2.5625rem);
+}
+
+.desktopTitle {
+  font-size: var(--home-plans-desktop-title-size);
+  line-height: var(--home-plans-desktop-title-line-height);
+  color: var(--home-plans-heading-color, #577f91);
+}
+
+.desktopSubtitle {
+  max-width: var(--home-plans-desktop-subtitle-max-width, 39.25rem);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--home-plans-subtitle-color, rgba(98, 98, 98, 0.84));
+}
+
+.desktopCta {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
 @media (min-width: 744px) {
   .mobileSection {
     display: none;
@@ -102,5 +170,10 @@
 
   .desktopSection {
     display: block;
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    background: var(--home-plans-desktop-bg, #fbf5d5);
+    padding: 4rem 0;
   }
 }

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm exec next dev",
+    "dev": "pnpm -w run build:database && pnpm exec next dev",
     "build": "pnpm -w run build:database && pnpm exec next build",
     "start": "pnpm exec next start",
     "lint": "pnpm exec eslint",

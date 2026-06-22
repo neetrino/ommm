@@ -31,7 +31,6 @@ export default async function MarketingHomePage({ params }: PageProps) {
   const visibility = await getHomeSectionsVisibility();
   const showCoaches = isHomeSectionEnabled(visibility, "coaches");
   const showPlans = isHomeSectionEnabled(visibility, "memberships");
-  const showGallery = isHomeSectionEnabled(visibility, "explore");
   const showFooterContact = isHomeSectionEnabled(visibility, "contact");
 
   return (
@@ -82,21 +81,19 @@ export default async function MarketingHomePage({ params }: PageProps) {
         className={homePageStyles.galleryFooterSeam}
         style={
           {
-            "--home-gallery-seam-bg": HOME_PAGE_SURFACE.eventsGradientFrom,
-            "--home-footer-wrap-bg": HOME_PAGE_SURFACE.eventsGradientFrom,
+            "--home-gallery-seam-bg": HOME_PAGE_SURFACE.pageBackground,
+            "--home-footer-wrap-bg": HOME_PAGE_SURFACE.pageBackground,
           } as CSSProperties
         }
       >
-        {showGallery ? (
-          <ProgressiveRevealSection
-            id="gallery"
-            preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
-            mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
-            placeholderClassName={HOME_LAZY_SECTION.placeholders.gallery}
-          >
-            <HomeGallerySectionDeferred />
-          </ProgressiveRevealSection>
-        ) : null}
+        <ProgressiveRevealSection
+          id="gallery"
+          preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
+          mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
+          placeholderClassName={HOME_LAZY_SECTION.placeholders.gallery}
+        >
+          <HomeGallerySectionDeferred />
+        </ProgressiveRevealSection>
 
         <MarketingPublicHomeFooter
           locale={locale}
