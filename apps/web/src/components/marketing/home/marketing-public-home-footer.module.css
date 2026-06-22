@@ -1068,23 +1068,30 @@
   }
 }
 
-/* iPad Air + Pro — compact desktop footer grid (820px–1366px). */
+/* iPad Air + Pro — same stacked layout as iPad Mini (820px–1366px). */
 @media (min-width: 820px) and (max-width: 1366px) {
   .sectionWrap {
     --home-footer-tablet-shell-pt: 1.75rem;
     --home-footer-tablet-shell-pb: 1.5rem;
-    --home-footer-tablet-column-gap: 1.25rem;
-    --home-footer-tablet-row-gap: 0.75rem;
-    --home-footer-tablet-illo-col: minmax(7rem, 9.5rem);
-    --home-footer-tablet-illustration-max: 9.5rem;
+    --home-footer-tablet-section-gap: 1.5rem;
+    --home-footer-tablet-column-gap: 2rem;
+    --home-footer-tablet-illo-max: clamp(10rem, 28vw, 12rem);
     --home-footer-tablet-wordmark-size: 1.25rem;
     --home-footer-tablet-wordmark-line-height: 1.75rem;
+    --home-footer-tablet-wordmark-nav-gap: 1rem;
     --home-footer-tablet-body-size: 14px;
     --home-footer-tablet-body-line-height: 20px;
-    --home-footer-tablet-nav-link-padding: 16px;
-    --home-footer-tablet-nav-link-gap: 0.5rem;
+    --home-footer-tablet-nav-gap: 1.5rem;
+    --home-footer-tablet-below-logo-lift: 7rem;
+    --home-footer-tablet-legal-divider-pt: 0.75rem;
+    --home-footer-tablet-legal-gap: 1.5rem;
+    --home-footer-tablet-legal-address-offset: calc(
+      var(--home-footer-tablet-body-line-height) + var(--home-footer-contact-title-gap) +
+        1.5rem + var(--home-footer-contact-row-gap)
+    );
     --home-footer-tablet-radius: 48px;
     --home-footer-tablet-payment-arca-offset: 16px;
+    --home-footer-tablet-shell-px: 1.5rem;
   }
 
   .shell {
@@ -1096,60 +1103,30 @@
     min-height: 0;
   }
 
-  .wordmark {
-    font-size: var(--home-footer-tablet-wordmark-size);
-    line-height: var(--home-footer-tablet-wordmark-line-height);
-  }
-
-  .topBar {
-    row-gap: 0.375rem;
-  }
-
-  .topNav {
-    gap: var(--home-footer-tablet-nav-link-gap);
-  }
-
-  .topNavLink {
-    padding-left: var(--home-footer-tablet-nav-link-padding);
-    font-size: var(--home-footer-tablet-body-size);
-    line-height: var(--home-footer-tablet-body-line-height);
-  }
-
-  .topNavLink:first-child {
-    padding-left: 0;
-  }
-
-  .sectionTitle,
-  .contactText,
-  .legalLink {
-    font-size: var(--home-footer-tablet-body-size);
-    line-height: var(--home-footer-tablet-body-line-height);
-  }
-
-  .contactText {
-    white-space: normal;
-  }
-
-  .copyright {
-    font-size: calc(var(--home-footer-tablet-body-size) - 1px);
-    line-height: var(--home-footer-tablet-body-line-height);
-  }
-
   .desktopLayer {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--home-footer-tablet-illo-col);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
       "nav nav"
-      "contact illo"
-      "payment illo"
-      "social illo"
-      "legal legal"
-      "copyright copyright";
-    gap: var(--home-footer-tablet-row-gap) var(--home-footer-tablet-column-gap);
-    padding: var(--home-footer-tablet-shell-pt) 0 var(--home-footer-tablet-shell-pb);
+      "illo illo"
+      "contact social"
+      "payment copyright";
+    gap: var(--home-footer-tablet-section-gap) var(--home-footer-tablet-column-gap);
+    padding:
+      var(--home-footer-tablet-shell-pt) var(--home-footer-tablet-shell-px)
+      var(--home-footer-tablet-shell-pb);
     inset: auto;
     overflow: visible;
+  }
+
+  .desktopLayer::before {
+    content: "";
+    grid-column: 1 / -1;
+    grid-row: 4;
+    align-self: start;
+    border-top: 1px solid color-mix(in srgb, var(--home-footer-text) 22%, transparent);
+    pointer-events: none;
   }
 
   .wordmarkSlot,
@@ -1174,41 +1151,58 @@
     grid-area: nav;
   }
 
-  .contactSlot {
-    grid-area: contact;
-    align-self: start;
+  .topBar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    row-gap: var(--home-footer-tablet-wordmark-nav-gap);
+    width: 100%;
   }
 
-  .paymentSlot {
-    grid-area: payment;
-    align-self: start;
+  .wordmark {
+    font-size: var(--home-footer-tablet-wordmark-size);
+    line-height: var(--home-footer-tablet-wordmark-line-height);
+    font-weight: 700;
   }
 
-  .paymentSlot .paymentLogoItem:nth-child(2) {
-    margin-inline-start: var(--home-footer-tablet-payment-arca-offset);
+  .topNav {
+    justify-content: center;
+    gap: var(--home-footer-tablet-nav-gap);
   }
 
-  .socialSlot {
-    grid-area: social;
-    align-self: start;
+  .topNavLink {
+    padding-left: 0;
+    font-size: var(--home-footer-tablet-body-size);
+    line-height: var(--home-footer-tablet-body-line-height);
   }
 
-  .socialBlock {
-    align-items: flex-start;
-    text-align: left;
+  .topNavLink:first-child {
+    padding-left: 0;
   }
 
-  .socialList {
-    justify-content: flex-start;
+  .sectionTitle,
+  .contactText,
+  .legalLink {
+    font-size: var(--home-footer-tablet-body-size);
+    line-height: var(--home-footer-tablet-body-line-height);
+  }
+
+  .contactText {
+    white-space: normal;
+  }
+
+  .contactList {
+    margin-top: var(--home-footer-contact-title-gap);
   }
 
   .illustrationSlot {
     grid-area: illo;
-    align-self: center;
     justify-self: center;
-    width: min(100%, var(--home-footer-tablet-illustration-max));
+    align-self: center;
+    width: var(--home-footer-tablet-illo-max);
     aspect-ratio: 1 / 1;
     height: auto;
+    margin-block: 0.25rem;
   }
 
   .illustrationSlot .footerFloatIllustration {
@@ -1217,67 +1211,101 @@
     transform: none;
   }
 
-  .legalSlot {
-    grid-area: legal;
-    justify-self: stretch;
+  .contactSlot {
+    grid-area: contact;
     align-self: start;
+    justify-self: start;
+    margin-top: calc(-1 * var(--home-footer-tablet-below-logo-lift));
+  }
+
+  .socialSlot {
+    grid-area: social;
+    align-self: start;
+    justify-self: end;
+    margin-top: calc(-1 * var(--home-footer-tablet-below-logo-lift));
+  }
+
+  .socialBlock {
+    align-items: flex-end;
+    text-align: right;
+    gap: var(--home-footer-social-title-gap);
+  }
+
+  .socialList {
+    justify-content: flex-end;
+  }
+
+  .legalSlot {
+    grid-area: social;
+    align-self: start;
+    justify-self: end;
+    margin-top: calc(
+      var(--home-footer-tablet-legal-address-offset) - var(--home-footer-tablet-below-logo-lift)
+    );
   }
 
   .legalSlot .legalNav {
-    justify-content: flex-start;
-    gap: 1rem;
+    justify-content: flex-end;
+    gap: var(--home-footer-tablet-legal-gap);
   }
 
   .copyrightSlot {
     grid-area: copyright;
-    justify-self: stretch;
-    align-self: start;
+    align-self: center;
+    justify-self: end;
+    padding-top: var(--home-footer-tablet-legal-divider-pt);
     margin-top: 0;
   }
 
   .copyrightSlot .copyright {
-    width: 100%;
-    text-align: left;
+    width: auto;
+    max-width: 100%;
+    text-align: right;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.075rem;
+    text-transform: uppercase;
+  }
+
+  .paymentSlot {
+    grid-area: payment;
+    align-self: center;
+    justify-self: start;
+    padding-top: var(--home-footer-tablet-legal-divider-pt);
+    margin-top: 0;
+  }
+
+  .paymentLogos {
+    justify-content: flex-start;
+  }
+
+  .paymentSlot .paymentLogoItem:nth-child(2) {
+    margin-inline-start: 0;
   }
 }
 
-/* iPad Pro — 1024px–1366px */
+/* iPad Pro — larger tokens (1024px–1366px). */
 @media (min-width: 1024px) and (max-width: 1366px) {
   .sectionWrap {
     --home-footer-tablet-shell-pt: 2.25rem;
     --home-footer-tablet-shell-pb: 1.75rem;
-    --home-footer-tablet-column-gap: 1.75rem;
-    --home-footer-tablet-row-gap: 0.875rem;
-    --home-footer-tablet-illo-col: minmax(8.5rem, 12rem);
-    --home-footer-tablet-illustration-max: 12rem;
+    --home-footer-tablet-column-gap: 2rem;
+    --home-footer-tablet-illo-max: clamp(11rem, 30vw, 14rem);
     --home-footer-tablet-body-size: 15px;
     --home-footer-tablet-body-line-height: 20px;
-    --home-footer-tablet-nav-link-padding: 24px;
-    --home-footer-tablet-nav-link-gap: 0.625rem;
+    --home-footer-tablet-nav-gap: 1.75rem;
     --home-footer-tablet-radius: 56px;
     --home-footer-tablet-payment-arca-offset: 20px;
-  }
-
-  .desktopLayer {
-    grid-template-areas:
-      "nav nav"
-      "contact illo"
-      "payment illo"
-      "social illo"
-      "legal copyright";
-  }
-
-  .legalSlot .legalNav {
-    gap: 1.25rem;
-  }
-
-  .copyrightSlot {
-    justify-self: end;
-    align-self: center;
+    --home-footer-tablet-shell-px: 2rem;
+    --home-footer-tablet-legal-address-offset: calc(
+      var(--home-footer-tablet-body-line-height) + var(--home-footer-contact-title-gap) +
+        1.5rem + var(--home-footer-contact-row-gap)
+    );
   }
 
   .copyrightSlot .copyright {
-    text-align: right;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
   }
 }
 

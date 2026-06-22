@@ -281,6 +281,13 @@ export const HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT = {
   navLinkGapPx: 8,
   topRadiusPx: 48,
   paymentArcaOffsetPx: 16,
+  /** Pull contact + footer rows closer to the sphere (logo stays put). */
+  belowLogoLiftRem: 7,
+  legalDividerPaddingTopPx: 12,
+  legalLinkGapPx: 24,
+  contactSocialColumnGapRem: 2,
+  sectionGapRem: 1.5,
+  contentInsetPx: 24,
 } as const;
 
 /** iPad Pro tier — roomier compact desktop footer (1024px–1366px). */
@@ -299,9 +306,13 @@ export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
   navLinkGapPx: 10,
   topRadiusPx: 56,
   paymentArcaOffsetPx: 20,
+  belowLogoLiftRem: 7,
+  legalDividerPaddingTopPx: 12,
+  legalLinkGapPx: 24,
+  contactSocialColumnGapRem: 2,
+  sectionGapRem: 1.5,
+  contentInsetPx: 32,
 } as const;
-
-/** @deprecated Use HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT — CSS vars are tiered in the module. */
 export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT;
 
 /** Full desktop footer — absolute Figma layout (1367px+). */
