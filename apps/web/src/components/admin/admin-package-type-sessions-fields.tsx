@@ -53,7 +53,7 @@ export function AdminPackageTypeSessionsFields({
           {entries.map((entry, index) => (
             <li
               key={entry.id}
-              className="grid gap-3 rounded-[20px] border border-[rgba(151,144,124,0.28)] bg-white/75 p-4 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end"
+              className="grid gap-3 border-b border-[rgba(212,196,183,0.2)] pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end"
             >
               <label className="flex min-w-0 flex-col gap-1.5">
                 <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldType")}</span>

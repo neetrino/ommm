@@ -240,8 +240,11 @@ export function AdminPackagesShell({
           : modalMode === "add-tier"
             ? t("addPageDescription")
             : t("createGroupDescription");
+  const showModalDescription = modalMode !== "create";
   const packageModalPanelClass =
-    "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
+    modalMode === "create"
+      ? "mt-auto flex w-full max-w-[min(420px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]"
+      : "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
   return (
     <>
@@ -267,7 +270,7 @@ export function AdminPackagesShell({
         <div
           ref={panelRef}
           aria-labelledby={titleId}
-          aria-describedby={descId}
+          aria-describedby={showModalDescription ? descId : undefined}
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
@@ -275,9 +278,11 @@ export function AdminPackagesShell({
               <h2 id={titleId} className={adminChrome.panelHeading}>
                 {modalTitle}
               </h2>
-              <p id={descId} className="ommm-body-muted mt-1 text-sm">
-                {modalDescription}
-              </p>
+              {showModalDescription ? (
+                <p id={descId} className="ommm-body-muted mt-1 text-sm">
+                  {modalDescription}
+                </p>
+              ) : null}
             </div>
             <button
               type="button"

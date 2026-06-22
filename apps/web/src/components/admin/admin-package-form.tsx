@@ -563,11 +563,24 @@ export function AdminPackageForm({
       className="flex min-h-0 flex-1 flex-col"
     >
       <div
-        className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 sm:px-7${
-          mode === "create" ? "" : " pt-5 sm:pt-6"
+        className={`flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6${
+          mode === "create" || mode === "add-tier" || mode === "edit-tier" ? "" : ""
         }`}
       >
-      {mode === "create" || mode === "edit" ? (
+      {mode === "create" ? (
+        <label className="flex flex-col gap-1.5">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldGroupName")}</span>
+          <input
+            name="name"
+            className="ommm-input"
+            maxLength={MAX_NAME_LENGTH}
+            value={values.name}
+            onChange={(event) => updateValues({ name: event.target.value })}
+            placeholder={t("fieldGroupNamePlaceholder")}
+            disabled={pending}
+          />
+        </label>
+      ) : mode === "edit" ? (
         <AdminPackageFormSection
           heading={t("formSections.details.heading")}
           description={t("formSections.details.description")}
@@ -584,69 +597,57 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
-            {mode === "edit" ? (
-              <>
-                <label className="flex flex-col gap-1.5">
-                  <span className="ommm-label text-xs uppercase tracking-wide">
-                    {t("fieldClassType")}
-                  </span>
-                  <OmmFormDropdown
-                    value={values.classTypeId}
-                    ariaLabel={t("fieldClassType")}
-                    placeholderLabel={t("fieldClassTypePlaceholder")}
-                    options={classTypeOptions.map((classType) => ({
-                      value: classType.id,
-                      label: classType.name,
-                    }))}
-                    onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
-                    disabled={pending}
-                    name="classTypeId"
-                    required
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
-                  <textarea
-                    name="description"
-                    className="ommm-input min-h-24 resize-y"
-                    maxLength={MAX_DESCRIPTION_LENGTH}
-                    value={values.description}
-                    onChange={(event) => updateValues({ description: event.target.value })}
-                    disabled={pending}
-                  />
-                </label>
-              </>
-            ) : null}
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldClassType")}
+              </span>
+              <OmmFormDropdown
+                value={values.classTypeId}
+                ariaLabel={t("fieldClassType")}
+                placeholderLabel={t("fieldClassTypePlaceholder")}
+                options={classTypeOptions.map((classType) => ({
+                  value: classType.id,
+                  label: classType.name,
+                }))}
+                onChange={(nextValue) => updateValues({ classTypeId: nextValue })}
+                disabled={pending}
+                name="classTypeId"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
+              <textarea
+                name="description"
+                className="ommm-input min-h-24 resize-y"
+                maxLength={MAX_DESCRIPTION_LENGTH}
+                value={values.description}
+                onChange={(event) => updateValues({ description: event.target.value })}
+                disabled={pending}
+              />
+            </label>
           </div>
         </AdminPackageFormSection>
       ) : null}
 
       {mode === "add-tier" || mode === "edit-tier" ? (
-        <AdminPackageFormSection
-          heading={
-            mode === "edit-tier" ? t("editTierFormHeading") : t("addTierFormHeading")
-          }
-          description={
-            mode === "edit-tier" ? t("editTierFormDescription") : t("addTierFormDescription")
-          }
-        >
-          <div className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">
-                {t("fieldPageName")}
-              </span>
-              <input
-                name="name"
-                className="ommm-input"
-                maxLength={MAX_NAME_LENGTH}
-                value={values.name}
-                onChange={(event) => updateValues({ name: event.target.value })}
-                placeholder={t("fieldPageNamePlaceholder")}
-                required
-                disabled={pending}
-              />
-            </label>
-            <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-5">
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("fieldPageName")}
+            </span>
+            <input
+              name="name"
+              className="ommm-input"
+              maxLength={MAX_NAME_LENGTH}
+              value={values.name}
+              onChange={(event) => updateValues({ name: event.target.value })}
+              placeholder={t("fieldPageNamePlaceholder")}
+              required
+              disabled={pending}
+            />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
               <AmdMoneyInput
@@ -671,7 +672,6 @@ export function AdminPackageForm({
                 align="start"
                 placeholder={t("fieldDiscountedPricePlaceholder")}
               />
-              <span className="text-xs text-sage-500">{t("fieldDiscountedPriceHint")}</span>
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationDays")}</span>
@@ -690,7 +690,6 @@ export function AdminPackageForm({
                 required
                 disabled={pending}
               />
-              <span className="text-xs text-sage-500">{t("fieldValidityHint")}</span>
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldGuestCount")}</span>
@@ -709,31 +708,27 @@ export function AdminPackageForm({
                 disabled={pending}
               />
             </label>
-            </div>
           </div>
-        </AdminPackageFormSection>
-      ) : null}
-
-      {mode === "add-tier" || mode === "edit-tier" ? (
-        <AdminPackageFormSection
-          heading={t("formSections.typeSessions.heading")}
-          description={t("formSections.typeSessions.description")}
-        >
-          <AdminPackageTypeSessionsFields
-            entries={typeSessionEntries}
-            classTypeOptions={classTypeOptions}
-            disabled={pending}
-            onChange={setTypeSessionEntries}
-            onAddRow={() =>
-              setTypeSessionEntries((current) => [...current, createEmptyTypeSessionEntry()])
-            }
-            onRemoveRow={(entryId) =>
-              setTypeSessionEntries((current) =>
-                current.length <= 1 ? current : current.filter((entry) => entry.id !== entryId),
-              )
-            }
-          />
-        </AdminPackageFormSection>
+          <div className="flex flex-col gap-3 border-t border-[rgba(212,196,183,0.25)] pt-4">
+            <p className="ommm-label text-xs uppercase tracking-wide">
+              {t("formSections.typeSessions.heading")}
+            </p>
+            <AdminPackageTypeSessionsFields
+              entries={typeSessionEntries}
+              classTypeOptions={classTypeOptions}
+              disabled={pending}
+              onChange={setTypeSessionEntries}
+              onAddRow={() =>
+                setTypeSessionEntries((current) => [...current, createEmptyTypeSessionEntry()])
+              }
+              onRemoveRow={(entryId) =>
+                setTypeSessionEntries((current) =>
+                  current.length <= 1 ? current : current.filter((entry) => entry.id !== entryId),
+                )
+              }
+            />
+          </div>
+        </div>
       ) : null}
 
       {mode === "pricing" || mode === "edit" ? (

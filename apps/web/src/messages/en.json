@@ -2615,6 +2615,7 @@
       "fieldClassTypePlaceholder": "Select class type",
       "fieldCategory": "Class category",
       "fieldGroupName": "Group name",
+      "fieldGroupNamePlaceholder": "e.g. Reformer, Yoga",
       "fieldPageName": "Page name",
       "fieldPageNamePlaceholder": "e.g. Mix, Reformer Group",
       "fieldName": "Group name",
