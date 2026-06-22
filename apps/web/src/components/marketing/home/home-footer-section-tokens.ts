@@ -241,64 +241,83 @@ export const HOME_FOOTER_INNER_MOBILE_LAYOUT = {
 
 export type HomeFooterSurfaceVariant = "home" | "inner";
 
-/** iPad — compact desktop footer grid (744px–1366px). */
-export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = {
-  shellPaddingTop: "2rem",
+/** iPad Mini — centered stacked footer (744px–819px). */
+export const HOME_FOOTER_IPAD_MINI_DESKTOP_LAYOUT = {
+  shellPaddingTop: "2.5rem",
+  shellPaddingBottom: "2rem",
+  shellPaddingInline: "1.5rem",
+  columnGap: "2rem",
+  sectionGap: "1.5rem",
+  illustrationMaxRem: 17.5,
+  illustrationViewportRatio: 0.38,
+  wordmarkFontSizePx: 20,
+  wordmarkLineHeightPx: 28,
+  wordmarkToNavGapPx: 16,
+  bodyFontSizePx: 14,
+  bodyLineHeightPx: 20,
+  navLinkGapPx: 24,
+  legalDividerPaddingTopPx: 24,
+  legalLinkGapPx: 24,
+  copyrightMarginTopPx: 16,
+  paymentMarginTopPx: 32,
+  topRadiusPx: 48,
+} as const;
+
+/** iPad Air tier — compact desktop footer (820px–1023px). */
+export const HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT = {
+  shellPaddingTop: "1.75rem",
   shellPaddingBottom: "1.5rem",
-  columnGap: "1.5rem",
+  columnGap: "1.25rem",
   rowGap: "0.75rem",
-  gridSecondColumn: "1.15fr",
-  illustrationMaxRem: 18,
-  illustrationScale: 0.52,
-  sideColumnMaxWidthRem: 16,
+  illustrationColumn: "minmax(7rem, 9.5rem)",
+  illustrationMaxRem: 9.5,
   wordmarkFontSizePx: 20,
   wordmarkLineHeightPx: 28,
   bodyFontSizePx: 14,
   bodyLineHeightPx: 20,
-  navLinkPaddingLeftPx: 20,
+  navLinkPaddingLeftPx: 16,
   navLinkGapPx: 8,
   topRadiusPx: 48,
-  contactSocialLiftPx: 0,
-  topBarLegalLiftPx: 0,
+  paymentArcaOffsetPx: 16,
 } as const;
 
-/** iPad Pro — slightly roomier compact desktop footer (1024px–1366px). */
+/** iPad Pro tier — roomier compact desktop footer (1024px–1366px). */
 export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
   shellPaddingTop: "2.25rem",
   shellPaddingBottom: "1.75rem",
-  columnGap: "2rem",
+  columnGap: "1.75rem",
   rowGap: "0.875rem",
-  gridSecondColumn: "1.2fr",
-  illustrationMaxRem: 20,
-  illustrationScale: 0.58,
-  sideColumnMaxWidthRem: 17,
+  illustrationColumn: "minmax(8.5rem, 12rem)",
+  illustrationMaxRem: 12,
   wordmarkFontSizePx: 20,
   wordmarkLineHeightPx: 28,
   bodyFontSizePx: 15,
   bodyLineHeightPx: 20,
-  navLinkPaddingLeftPx: 28,
+  navLinkPaddingLeftPx: 24,
   navLinkGapPx: 10,
   topRadiusPx: 56,
-  contactSocialLiftPx: 0,
-  topBarLegalLiftPx: 0,
+  paymentArcaOffsetPx: 20,
 } as const;
+
+/** @deprecated Use HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT — CSS vars are tiered in the module. */
+export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT;
 
 /** Full desktop footer — absolute Figma layout (1367px+). */
 export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
 
-/** @deprecated Use HOME_FOOTER_TABLET_DESKTOP_LAYOUT — kept for reference values. */
+/** @deprecated Use HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT — kept for reference values. */
 export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
-  desktopPadding: "2rem 1.5rem 1.5rem",
-  columnGap: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.columnGap,
-  rowGap: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.rowGap,
-  navLinkPaddingLeftPx: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.navLinkPaddingLeftPx,
+  desktopPadding: "1.75rem 0 1.5rem",
+  columnGap: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.columnGap,
+  rowGap: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.rowGap,
+  navLinkPaddingLeftPx: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.navLinkPaddingLeftPx,
   navToContactSpacerMin: "1rem",
   contactToSocialGap: "1rem",
   navLinkGap: "0.5rem",
   navToContactBlockMarginPx: 48,
   legalCopyrightGap: "0.75rem",
-  wordmarkFontSizePx: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.wordmarkFontSizePx,
-  wordmarkLineHeightPx: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.wordmarkLineHeightPx,
+  wordmarkFontSizePx: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.wordmarkFontSizePx,
+  wordmarkLineHeightPx: HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT.wordmarkLineHeightPx,
 } as const;
 
 export const HOME_FOOTER_COPYRIGHT_COMPANY_HREF = "https://neetrino.com" as const;

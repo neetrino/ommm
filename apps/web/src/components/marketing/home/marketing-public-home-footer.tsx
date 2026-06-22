@@ -20,7 +20,6 @@ import {
   HOME_FOOTER_PAYMENT_LOGOS,
   HOME_FOOTER_SHELL_BACKGROUND,
   HOME_FOOTER_SOCIAL_LINKS,
-  HOME_FOOTER_TABLET_DESKTOP_LAYOUT,
   HOME_FOOTER_TABLET_LAYOUT,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
@@ -41,28 +40,6 @@ function pct(value: number): string {
   return `${value * 100}%`;
 }
 
-function footerTabletDesktopStyleVars(): CSSProperties {
-  const tablet = HOME_FOOTER_TABLET_DESKTOP_LAYOUT;
-  return {
-    ["--home-footer-tablet-shell-pt" as string]: tablet.shellPaddingTop,
-    ["--home-footer-tablet-shell-pb" as string]: tablet.shellPaddingBottom,
-    ["--home-footer-tablet-column-gap" as string]: tablet.columnGap,
-    ["--home-footer-tablet-row-gap" as string]: tablet.rowGap,
-    ["--home-footer-tablet-grid-second-col" as string]: tablet.gridSecondColumn,
-    ["--home-footer-tablet-illustration-max" as string]: `${tablet.illustrationMaxRem}rem`,
-    ["--home-footer-tablet-illustration-scale" as string]: String(tablet.illustrationScale),
-    ["--home-footer-tablet-side-max-width" as string]: `${tablet.sideColumnMaxWidthRem}rem`,
-    ["--home-footer-tablet-wordmark-size" as string]: `${tablet.wordmarkFontSizePx}px`,
-    ["--home-footer-tablet-wordmark-line-height" as string]: `${tablet.wordmarkLineHeightPx}px`,
-    ["--home-footer-tablet-body-size" as string]: `${tablet.bodyFontSizePx}px`,
-    ["--home-footer-tablet-body-line-height" as string]: `${tablet.bodyLineHeightPx}px`,
-    ["--home-footer-tablet-nav-link-padding" as string]: `${tablet.navLinkPaddingLeftPx}px`,
-    ["--home-footer-tablet-radius" as string]: `${tablet.topRadiusPx}px`,
-    ["--home-footer-tablet-contact-social-lift" as string]: `${tablet.contactSocialLiftPx}px`,
-    ["--home-footer-tablet-top-bar-legal-lift" as string]: `${tablet.topBarLegalLiftPx}px`,
-  };
-}
-
 function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSProperties {
   const pos = HOME_FOOTER_FIGMA_POSITIONS;
   const layout = HOME_FOOTER_LAYOUT;
@@ -70,7 +47,6 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
   const mobileLayout = isInner ? HOME_FOOTER_INNER_MOBILE_LAYOUT : HOME_FOOTER_MOBILE_LAYOUT;
   const tabletLayout = isInner ? HOME_FOOTER_INNER_TABLET_LAYOUT : HOME_FOOTER_TABLET_LAYOUT;
   return {
-    ...footerTabletDesktopStyleVars(),
     ["--home-footer-shell-bg" as string]: HOME_FOOTER_SHELL_BACKGROUND,
     ["--home-footer-surface" as string]: HOME_FOOTER_FIGMA.surface,
     ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
