@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AdminPackageFormSection } from "@/components/admin/admin-package-form-section";
 import {
   createEmptyPackageFormValues,
@@ -57,6 +57,7 @@ type CategoryOption = {
 };
 
 const FALLBACK_PACKAGE_SLUG_PREFIX = "package";
+const CREATE_GROUP_BUTTON_MIN_WIDTH_CLASS = "min-w-40";
 
 function buildPackageSlug(name: string): string {
   const normalized = name
@@ -85,6 +86,7 @@ type AdminPackageFormProps = {
   nextDisplayOrder?: number;
   onSaved: (saved: AdminPackageRow) => void;
   onCancel: () => void;
+  showCloseButton?: boolean;
 };
 
 function buildInitialValues(
@@ -126,8 +128,10 @@ export function AdminPackageForm({
   nextDisplayOrder,
   onSaved,
   onCancel,
+  showCloseButton = false,
 }: AdminPackageFormProps) {
   const t = useTranslations("adminPages.packages");
+  const createGroupNameLabelId = useId();
   const formKey =
     mode === "create"
       ? "create"
@@ -554,32 +558,65 @@ export function AdminPackageForm({
     }
   }
 
+  const isCompactCreateForm = mode === "create";
+
   return (
     <form
       key={formKey}
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex min-h-0 flex-1 flex-col"
+      className={isCompactCreateForm ? "flex flex-col" : "flex min-h-0 flex-1 flex-col"}
+      aria-labelledby={isCompactCreateForm ? createGroupNameLabelId : undefined}
     >
       <div
-        className={`flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6${
-          mode === "create" || mode === "add-tier" || mode === "edit-tier" ? "" : ""
-        }`}
+        className={
+          isCompactCreateForm
+            ? "px-5 pt-3 sm:px-7"
+            : "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6"
+        }
       >
-      {mode === "create" ? (
-        <label className="flex flex-col gap-1.5">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldGroupName")}</span>
-          <input
-            name="name"
-            className="ommm-input"
-            maxLength={MAX_NAME_LENGTH}
-            value={values.name}
-            onChange={(event) => updateValues({ name: event.target.value })}
-            placeholder={t("fieldGroupNamePlaceholder")}
-            disabled={pending}
-          />
-        </label>
+      {isCompactCreateForm ? (
+        <div className="flex items-start gap-2.5">
+          <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <span
+              id={createGroupNameLabelId}
+              className="text-[11px] font-medium uppercase tracking-[0.14em] text-sage-600"
+            >
+              {t("addGroupNameFieldLabel")}
+            </span>
+            <input
+              name="name"
+              className="ommm-input rounded-lg px-3 py-2 text-sm"
+              maxLength={MAX_NAME_LENGTH}
+              value={values.name}
+              onChange={(event) => updateValues({ name: event.target.value })}
+              placeholder={t("fieldGroupNamePlaceholder")}
+              disabled={pending}
+            />
+          </label>
+          {showCloseButton ? (
+            <button
+              type="button"
+              className="-mr-1 shrink-0 rounded-full p-1.5 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              aria-label={t("modalCloseAria")}
+              onClick={onCancel}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                strokeLinecap="round"
+                className="h-5 w-5"
+                aria-hidden
+              >
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          ) : null}
+        </div>
       ) : mode === "edit" ? (
         <AdminPackageFormSection
           heading={t("formSections.details.heading")}
@@ -897,11 +934,38 @@ export function AdminPackageForm({
       ) : null}
       </div>
 
-      <div className="shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
-        <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
+      <div
+        className={
+          isCompactCreateForm
+            ? "flex shrink-0 justify-center gap-3 border-t border-white/60 px-5 pb-4 pt-4 sm:px-7"
+            : "shrink-0 flex w-full flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7"
+        }
+      >
+        <OmmButton
+          type="button"
+          variant="secondary"
+          size="md"
+          onClick={onCancel}
+          disabled={pending}
+          className={
+            isCompactCreateForm
+              ? `${CREATE_GROUP_BUTTON_MIN_WIDTH_CLASS} justify-center px-8 py-3.5`
+              : undefined
+          }
+        >
           {t("cancelButton")}
         </OmmButton>
-        <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
+        <OmmButton
+          type="submit"
+          variant="primary"
+          size="md"
+          disabled={pending}
+          className={
+            isCompactCreateForm
+              ? `${CREATE_GROUP_BUTTON_MIN_WIDTH_CLASS} justify-center px-8 py-3.5`
+              : undefined
+          }
+        >
           {pending
             ? t("savingButton")
             : mode === "create"

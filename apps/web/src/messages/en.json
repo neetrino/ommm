@@ -2569,6 +2569,7 @@
       "emptyState": "No package configuration available yet.",
       "errorAuth": "Studio admin sign-in required.",
       "errorLoad": "Could not load packages ({status}).",
+      "addGroupNameFieldLabel": "Add Group Name",
       "addGroupButton": "Add Group",
       "addPackageButton": "Add Group",
       "addClassTypeButton": "Add class type",

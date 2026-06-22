@@ -240,11 +240,11 @@ export function AdminPackagesShell({
           : modalMode === "add-tier"
             ? t("addPageDescription")
             : t("createGroupDescription");
-  const showModalDescription = modalMode !== "create";
-  const packageModalPanelClass =
-    modalMode === "create"
-      ? "mt-auto flex w-full max-w-[min(420px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]"
-      : "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
+  const isCreateGroupModal = modalMode === "create";
+  const showModalDescription = !isCreateGroupModal;
+  const packageModalPanelClass = isCreateGroupModal
+    ? "mt-auto flex w-full max-w-[min(560px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]"
+    : "mt-auto flex max-h-[92vh] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
   return (
     <>
@@ -267,12 +267,30 @@ export function AdminPackagesShell({
         overlayClassName="ommm-modal-overlay z-[100]"
         panelClassName={packageModalPanelClass}
       >
-        <div
-          ref={panelRef}
-          aria-labelledby={titleId}
-          aria-describedby={showModalDescription ? descId : undefined}
-          className="flex min-h-0 flex-1 flex-col"
-        >
+          <div
+            ref={panelRef}
+            aria-labelledby={isCreateGroupModal ? undefined : titleId}
+            aria-label={isCreateGroupModal ? t("addGroupNameFieldLabel") : undefined}
+            aria-describedby={showModalDescription ? descId : undefined}
+            className="flex flex-col"
+          >
+          {isCreateGroupModal ? (
+            <div className="flex min-h-0 flex-col">
+              <AdminPackageForm
+                mode={modalMode}
+                packageId={undefined}
+                initialCategoryName={initialCategoryName}
+                categoryOptions={categoryOptions}
+                classTypeOptions={classTypeOptions}
+                initialPackage={undefined}
+                nextDisplayOrder={nextDisplayOrder}
+                onSaved={onCreated}
+                onCancel={closeModal}
+                showCloseButton
+              />
+            </div>
+          ) : (
+            <>
           <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
             <div>
               <h2 id={titleId} className={adminChrome.panelHeading}>
@@ -340,6 +358,8 @@ export function AdminPackagesShell({
               onCancel={closeModal}
             />
           </div>
+            </>
+          )}
         </div>
       </OmmModalPortal>
     </>

@@ -2560,6 +2560,7 @@
       "emptyState": "Դեռ փաթեթների կարգավորում չկա։",
       "errorAuth": "Պահանջվում է ստուդիայի ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել փաթեթները ({status})։",
+      "addGroupNameFieldLabel": "Խմբի անուն",
       "addGroupButton": "Ավելացնել խումբ",
       "addPackageButton": "Ավելացնել խումբ",
       "addClassTypeButton": "Ավելացնել դասի տեսակ",

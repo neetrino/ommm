@@ -2561,6 +2561,7 @@
       "emptyState": "Конфигурация пакетов пока недоступна.",
       "errorAuth": "Нужен вход администратора студии.",
       "errorLoad": "Не удалось загрузить пакеты ({status}).",
+      "addGroupNameFieldLabel": "Название группы",
       "addGroupButton": "Добавить группу",
       "addPackageButton": "Добавить группу",
       "addClassTypeButton": "Добавить тип класса",
