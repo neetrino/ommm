@@ -35,9 +35,8 @@ import {
   resolvePackageCategoryName,
 } from "@/components/admin/package-category-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
-import { AdminPackageTypeSessionsFields } from "@/components/admin/admin-package-type-sessions-fields";
+import { AdminPackageTierCompactFields } from "@/components/admin/admin-package-tier-compact-fields";
 import {
-  createEmptyTypeSessionEntry,
   initialTypeSessionEntries,
   sumTypeSessionEntries,
   validateTypeSessionEntries,
@@ -672,104 +671,15 @@ export function AdminPackageForm({
       ) : null}
 
       {mode === "add-tier" || mode === "edit-tier" ? (
-        <div className="flex flex-col gap-5">
-          <label className="flex flex-col gap-1.5">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("fieldPageName")}
-            </span>
-            <input
-              name="name"
-              className="ommm-input"
-              maxLength={MAX_NAME_LENGTH}
-              value={values.name}
-              onChange={(event) => updateValues({ name: event.target.value })}
-              placeholder={t("fieldPageNamePlaceholder")}
-              required
-              disabled={pending}
-            />
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
-              <AmdMoneyInput
-                name="price"
-                value={values.price}
-                onValueChange={(nextValue) => updateTierPricingValues({ price: nextValue })}
-                disabled={pending}
-                required
-                align="start"
-                placeholder={t("fieldPricePlaceholder")}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">
-                {t("fieldDiscountedPrice")}
-              </span>
-              <AmdMoneyInput
-                name="discountedPrice"
-                value={values.discountedPrice}
-                onValueChange={(nextValue) => updateTierPricingValues({ discountedPrice: nextValue })}
-                disabled={pending}
-                align="start"
-                placeholder={t("fieldDiscountedPricePlaceholder")}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationDays")}</span>
-              <input
-                name="durationDays"
-                type="number"
-                className={OMMM_INPUT_NUMBER_CLASS}
-                min={MIN_PACKAGE_DURATION_DAYS}
-                max={MAX_PACKAGE_DURATION_DAYS}
-                step={1}
-                inputMode="numeric"
-                value={values.durationDays}
-                onChange={(event) => updateValues({ durationDays: event.target.value })}
-                onKeyDown={preventNumberArrowStep}
-                placeholder={t("fieldDurationDaysPlaceholder")}
-                required
-                disabled={pending}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldGuestCount")}</span>
-              <input
-                name="guestCount"
-                type="number"
-                className={OMMM_INPUT_NUMBER_CLASS}
-                min={MIN_PACKAGE_GUEST_COUNT}
-                max={MAX_PACKAGE_GUEST_COUNT}
-                step={1}
-                inputMode="numeric"
-                value={values.guestCount}
-                onChange={(event) => updateValues({ guestCount: event.target.value })}
-                onKeyDown={preventNumberArrowStep}
-                placeholder={t("fieldGuestCountPlaceholder")}
-                disabled={pending}
-              />
-            </label>
-          </div>
-          <div className="flex flex-col gap-3 border-t border-[rgba(212,196,183,0.25)] pt-4">
-            <p className="ommm-label text-xs uppercase tracking-wide">
-              {t("formSections.typeSessions.heading")}
-            </p>
-            <AdminPackageTypeSessionsFields
-              entries={typeSessionEntries}
-              classTypeOptions={classTypeOptions}
-              disabled={pending}
-              onChange={setTypeSessionEntries}
-              onAddRow={() =>
-                setTypeSessionEntries((current) => [...current, createEmptyTypeSessionEntry()])
-              }
-              onRemoveRow={(entryId) =>
-                setTypeSessionEntries((current) =>
-                  current.length <= 1 ? current : current.filter((entry) => entry.id !== entryId),
-                )
-              }
-            />
-          </div>
-        </div>
+        <AdminPackageTierCompactFields
+          values={values}
+          typeSessionEntries={typeSessionEntries}
+          classTypeOptions={classTypeOptions}
+          pending={pending}
+          onValuesChange={updateValues}
+          onTierPricingChange={updateTierPricingValues}
+          onTypeSessionEntriesChange={setTypeSessionEntries}
+        />
       ) : null}
 
       {mode === "pricing" || mode === "edit" ? (

@@ -34,6 +34,7 @@ export function AdminPackageTypeSessionsFields({
   onRemoveRow,
 }: AdminPackageTypeSessionsFieldsProps) {
   const t = useTranslations("adminPages.packages.typeSessionsForm");
+  const tPackages = useTranslations("adminPages.packages");
   const canAddRow = canAddTypeSessionRow(entries, classTypeOptions.length);
 
   function updateEntry(
@@ -45,12 +46,33 @@ export function AdminPackageTypeSessionsFields({
     );
   }
 
+  function handleTypeChange(entryId: string, currentTypeId: string, nextValue: string): void {
+    if (nextValue === currentTypeId && currentTypeId.trim().length > 0) {
+      updateEntry(entryId, { classTypeId: "" });
+      return;
+    }
+    updateEntry(entryId, { classTypeId: nextValue });
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {entries.length === 0 ? (
         <p className="text-sm text-sage-600">{t("empty")}</p>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
+          <div
+            className="grid grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 px-0.5"
+            aria-hidden
+          >
+            <span className="ommm-label text-[10px] uppercase tracking-wide">
+              {tPackages("formSections.typeSessions.heading")}
+            </span>
+            <span className="ommm-label text-[10px] uppercase tracking-wide">
+              {t("fieldSessionCount")}
+            </span>
+            <span className="sr-only">{t("removeRowAria", { index: 0 })}</span>
+          </div>
+          <ul className="flex flex-col gap-2">
           {entries.map((entry, index) => {
             const rowTypeOptions = resolveClassTypeOptionsForEntry(
               entry,
@@ -64,25 +86,20 @@ export function AdminPackageTypeSessionsFields({
             return (
             <li
               key={entry.id}
-              className="grid gap-3 border-b border-[rgba(212,196,183,0.2)] pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end"
+              className="grid grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3"
             >
-              <label className="flex min-w-0 flex-col gap-1.5">
-                <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldType")}</span>
+              <div className="min-w-0">
                 <OmmFormDropdown
                   value={entry.classTypeId}
                   ariaLabel={t("fieldType")}
                   placeholderLabel={t("fieldTypePlaceholder")}
                   options={rowTypeOptions}
-                  onChange={(nextValue) => updateEntry(entry.id, { classTypeId: nextValue })}
+                  onChange={(nextValue) => handleTypeChange(entry.id, entry.classTypeId, nextValue)}
                   disabled={disabled}
                   name={`type-${entry.id}`}
-                  required
                 />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span className="ommm-label text-xs uppercase tracking-wide">
-                  {t("fieldSessionCount")}
-                </span>
+              </div>
+              <div>
                 <input
                   type="number"
                   className={OMMM_INPUT_NUMBER_CLASS}
@@ -98,9 +115,10 @@ export function AdminPackageTypeSessionsFields({
                   placeholder={t("fieldSessionCountPlaceholder")}
                   disabled={disabled}
                   required
+                  aria-label={t("fieldSessionCount")}
                 />
-              </label>
-              <div className="flex items-end justify-end sm:justify-center">
+              </div>
+              <div className="flex items-center justify-end sm:justify-center">
                 <button
                   type="button"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-600 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:opacity-50"
@@ -125,7 +143,8 @@ export function AdminPackageTypeSessionsFields({
             </li>
             );
           })}
-        </ul>
+          </ul>
+        </div>
       )}
       <div>
         <OmmButton
