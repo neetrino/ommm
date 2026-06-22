@@ -11,9 +11,8 @@ type HomeFooterSphereBounceProps = {
   children: ReactNode;
 };
 
-const FALL_EASING = "cubic-bezier(0.55, 0.05, 0.95, 0.45)";
 const RISE_EASING = "cubic-bezier(0.25, 0.68, 0.32, 1)";
-const IMPACT_EASING = "cubic-bezier(0.4, 0, 0.95, 0.55)";
+const FALL_EASING = "linear";
 
 function isBounceViewport(): boolean {
   return window.matchMedia(`(min-width: ${HOME_FOOTER_SPHERE_BOUNCE.minWidthPx}px)`).matches;
@@ -60,21 +59,21 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
     const {
       peakPx,
       fallMs,
+      squashMs,
+      impactHoldMs,
       riseMs,
-      impactMs,
       driftPx,
       groundReachPx,
       squashScaleX,
       squashScaleY,
-      fallStretchScaleX,
-      fallStretchScaleY,
       riseStretchScaleX,
       riseStretchScaleY,
     } = HOME_FOOTER_SPHERE_BOUNCE;
 
-    const totalMs = fallMs + impactMs + riseMs;
+    const totalMs = fallMs + squashMs + impactHoldMs + riseMs;
     const fallEnd = fallMs / totalMs;
-    const impactEnd = (fallMs + impactMs) / totalMs;
+    const squashEnd = (fallMs + squashMs) / totalMs;
+    const impactEnd = (fallMs + squashMs + impactHoldMs) / totalMs;
     const riseLaunch = impactEnd + (1 - impactEnd) * 0.28;
 
     let x = 0;
@@ -90,25 +89,19 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
 
       const groundY = measureGroundY(el, startY, groundReachPx);
       const endX = nextDriftX(x, driftPx);
-      const fallStretchY = Math.max(startY, groundY - Math.max(12, (groundY - startY) * 0.08));
 
       activeAnim = el.animate(
         [
           { transform: ballTransform(x, startY, 1, 1) },
           {
-            transform: ballTransform(
-              x,
-              fallStretchY,
-              fallStretchScaleX,
-              fallStretchScaleY,
-            ),
-            offset: fallEnd * 0.9,
+            transform: ballTransform(x, groundY, 1, 1),
+            offset: fallEnd,
             easing: FALL_EASING,
           },
           {
             transform: ballTransform(x, groundY, squashScaleX, squashScaleY),
-            offset: fallEnd,
-            easing: IMPACT_EASING,
+            offset: squashEnd,
+            easing: FALL_EASING,
           },
           {
             transform: ballTransform(x, groundY, squashScaleX, squashScaleY),

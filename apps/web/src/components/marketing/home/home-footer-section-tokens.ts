@@ -125,15 +125,15 @@ export const HOME_FOOTER_SPHERE_BOUNCE = {
   minWidthPx: 744,
   peakPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX,
   fallMs: 900,
+  /** Squash at the floor — only after the ball reaches the screen edge. */
+  squashMs: 120,
+  impactHoldMs: 70,
   riseMs: 780,
-  impactMs: 70,
   driftPx: 14,
   /** Optical overlap so the sphere graphic touches the site edge (PNG padding). */
   groundReachPx: 14,
   squashScaleX: 1.065,
   squashScaleY: 0.885,
-  fallStretchScaleX: 1.012,
-  fallStretchScaleY: 1.024,
   riseStretchScaleX: 0.985,
   riseStretchScaleY: 1.042,
 } as const;
