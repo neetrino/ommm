@@ -5,14 +5,12 @@ import {
 } from '@nestjs/common';
 import {
   ManualPaymentMethod,
-  PackagePlanType,
   PaymentSource,
   PaymentStatus,
   type Prisma,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCombinedPackagePlanDto } from './dto/create-combined-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
@@ -20,26 +18,12 @@ import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { PackageUsageService } from './package-usage.service';
 
-type AdminCombinedPlanComponentRow = {
-  id: string;
-  sourcePlanId: string;
-  sourcePackageNameSnapshot: string;
-  sourceCategoryNameSnapshot: string;
-  sessionAllocation: number | null;
-  sourcePlan?: {
-    id: string;
-    name: string;
-    categoryName: string;
-  };
-};
-
-type AdminPlanWithComponents = {
+type AdminPlanRecord = {
   id: string;
   name: string;
   slug: string;
   categoryName: string;
   classTypeId?: string | null;
-  planType: PackagePlanType;
   description: string | null;
   priceCents: number;
   discountedPriceCents: number | null;
@@ -59,7 +43,6 @@ type AdminPlanWithComponents = {
   typeSessionAllocations?: unknown;
   createdAt: Date;
   updatedAt: Date;
-  combinedAsParent?: AdminCombinedPlanComponentRow[];
 };
 
 type StoredTypeSessionAllocation = {
@@ -150,7 +133,6 @@ export class PackagesService {
           : dto.classTypeId !== undefined && dto.classTypeId !== null
             ? { classType: { connect: { id: dto.classTypeId } } }
             : {}),
-        planType: dto.planType ?? PackagePlanType.SINGLE,
         description: this.normalizeNullableString(dto.description),
         priceCents: dto.priceCents ?? 0,
         discountedPriceCents: dto.discountedPriceCents ?? null,
@@ -175,112 +157,7 @@ export class PackagesService {
           : {}),
       },
     });
-    return this.toAdminPlanRow(await this.withCombinedComponents(created));
-  }
-
-  async createCombinedPlan(dto: CreateCombinedPackagePlanDto) {
-    const sourcePlanIds = Array.from(
-      new Set(
-        dto.sourcePlanIds
-          .map((planId) => planId.trim())
-          .filter((planId) => planId.length > 0),
-      ),
-    );
-    if (sourcePlanIds.length < 2) {
-      throw new BadRequestException(
-        'Combined plan requires at least two source plans',
-      );
-    }
-    const sourcePlans = await this.prisma.packagePlan.findMany({
-      where: {
-        id: { in: sourcePlanIds },
-        planType: PackagePlanType.SINGLE,
-        isActive: true,
-      },
-      select: {
-        id: true,
-        name: true,
-        categoryName: true,
-      },
-    });
-    if (sourcePlans.length !== sourcePlanIds.length) {
-      throw new BadRequestException(
-        'Combined source plans must be active single plans',
-      );
-    }
-    const sourcePlanById = new Map(sourcePlans.map((plan) => [plan.id, plan]));
-    const orderedSourcePlans = sourcePlanIds.map((planId) =>
-      sourcePlanById.get(planId),
-    );
-    if (orderedSourcePlans.some((plan) => plan === undefined)) {
-      throw new BadRequestException(
-        'Combined source plans must be active single plans',
-      );
-    }
-    const resolvedSourcePlans = orderedSourcePlans.filter(
-      (plan): plan is { id: string; name: string; categoryName: string } =>
-        plan !== undefined,
-    );
-    const sourceCategoryKeys = new Set(
-      resolvedSourcePlans.map((plan) =>
-        this.normalizeCategoryKey(plan.categoryName),
-      ),
-    );
-    if (sourceCategoryKeys.size !== resolvedSourcePlans.length) {
-      throw new BadRequestException(
-        'Combined source plans must come from distinct categories',
-      );
-    }
-    if (dto.isUnlimited === true) {
-      throw new BadRequestException('Combined plans cannot be unlimited');
-    }
-    const categoryName = this.buildCombinedCategoryName(resolvedSourcePlans);
-    const name = this.requireNonEmptyString(dto.name, 'Plan name is required');
-    const slug = this.normalizeSlug(name);
-    await this.assertSlugUnique(slug);
-
-    const created = await this.prisma.$transaction(async (tx) => {
-      const plan = await tx.packagePlan.create({
-        data: {
-          name,
-          slug,
-          categoryName,
-          planType: PackagePlanType.COMBINED,
-          description: this.normalizeNullableString(dto.description),
-          priceCents: dto.priceCents ?? 0,
-          pricePerSessionCents: dto.pricePerSessionCents ?? 0,
-          showPricePerSession: dto.showPricePerSession ?? true,
-          currency: this.normalizeCurrency(dto.currency),
-          billingPeriod: dto.billingPeriod ?? DEFAULT_BILLING_PERIOD,
-          periodDays: dto.periodDays ?? DEFAULT_PERIOD_DAYS,
-          sessionsPerMonth: dto.sessionsPerMonth ?? 0,
-          isUnlimited: dto.isUnlimited ?? false,
-          guestCount: dto.guestCount ?? 0,
-          isPopular: dto.isPopular ?? false,
-          isActive: dto.isActive ?? true,
-          displayOrder: await this.resolveNextDisplayOrder(tx),
-        },
-      });
-      for (const source of resolvedSourcePlans) {
-        await (
-          tx as unknown as {
-            combinedPlanComponent: {
-              create(args: unknown): Promise<unknown>;
-            };
-          }
-        ).combinedPlanComponent.create({
-          data: {
-            combinedPlanId: plan.id,
-            sourcePlanId: source.id,
-            sourcePackageNameSnapshot: source.name,
-            sourceCategoryNameSnapshot: source.categoryName,
-            sessionAllocation: 0,
-          },
-        });
-      }
-      return tx.packagePlan.findUniqueOrThrow({ where: { id: plan.id } });
-    });
-    return this.toAdminPlanRow(await this.withCombinedComponents(created));
+    return this.toAdminPlanRow(created);
   }
 
   async updatePlan(id: string, dto: UpsertPackagePlanDto) {
@@ -305,32 +182,6 @@ export class PackagesService {
         ? current.discountedPriceCents
         : dto.discountedPriceCents;
     this.assertDiscountBounds(nextPrice, nextDiscount ?? null);
-    if (dto.planType !== undefined && dto.planType !== current.planType) {
-      throw new BadRequestException('Plan type cannot be changed');
-    }
-    if (
-      current.planType === PackagePlanType.COMBINED &&
-      dto.sourceSessionAllocations === undefined &&
-      dto.sessionsPerMonth !== undefined
-    ) {
-      throw new BadRequestException(
-        'Combined sessions must be updated via source allocations',
-      );
-    }
-    if (
-      current.planType === PackagePlanType.COMBINED &&
-      dto.isUnlimited === true
-    ) {
-      throw new BadRequestException('Combined plans cannot be unlimited');
-    }
-    if (
-      current.planType === PackagePlanType.COMBINED &&
-      dto.typeSessionAllocations !== undefined
-    ) {
-      throw new BadRequestException(
-        'Type session allocations apply only to single plans',
-      );
-    }
 
     const resolvedTypeSessions =
       dto.typeSessionAllocations !== undefined
@@ -338,9 +189,6 @@ export class PackagesService {
         : undefined;
 
     const updated = await this.prisma.$transaction(async (tx) => {
-      if (dto.sourceSessionAllocations !== undefined) {
-        await this.applySourceAllocations(tx, id, dto.sourceSessionAllocations);
-      }
       return tx.packagePlan.update({
         where: { id },
         data: {
@@ -371,7 +219,6 @@ export class PackagesService {
                     },
                   }
               : {}),
-          ...(dto.planType !== undefined ? { planType: dto.planType } : {}),
           ...(dto.description !== undefined
             ? { description: this.normalizeNullableString(dto.description) }
             : {}),
@@ -427,25 +274,12 @@ export class PackagesService {
         },
       });
     });
-    return this.toAdminPlanRow(await this.withCombinedComponents(updated));
+    return this.toAdminPlanRow(updated);
   }
 
   async deletePlan(id: string) {
     await this.assertPlanDeletable(id);
-    await this.prisma.$transaction(async (tx) => {
-      await (
-        tx as unknown as {
-          combinedPlanComponent: {
-            deleteMany(args: unknown): Promise<unknown>;
-          };
-        }
-      ).combinedPlanComponent.deleteMany({
-        where: {
-          OR: [{ combinedPlanId: id }, { sourcePlanId: id }],
-        },
-      });
-      await tx.packagePlan.delete({ where: { id } });
-    });
+    await this.prisma.packagePlan.delete({ where: { id } });
     return { ok: true };
   }
 
@@ -459,13 +293,10 @@ export class PackagesService {
       where: { categoryName },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
-    const withComponents = await Promise.all(
-      plans.map((plan) => this.withCombinedComponents(plan)),
-    );
     return {
       categoryName,
       isActive: dto.isActive,
-      plans: withComponents.map((plan) => this.toAdminPlanRow(plan)),
+      plans: plans.map((plan) => this.toAdminPlanRow(plan)),
     };
   }
 
@@ -482,20 +313,7 @@ export class PackagesService {
       await this.assertPlanDeletable(row.id);
     }
     const ids = rows.map((row) => row.id);
-    await this.prisma.$transaction(async (tx) => {
-      await (
-        tx as unknown as {
-          combinedPlanComponent: {
-            deleteMany(args: unknown): Promise<unknown>;
-          };
-        }
-      ).combinedPlanComponent.deleteMany({
-        where: {
-          OR: [{ combinedPlanId: { in: ids } }, { sourcePlanId: { in: ids } }],
-        },
-      });
-      await tx.packagePlan.deleteMany({ where: { id: { in: ids } } });
-    });
+    await this.prisma.packagePlan.deleteMany({ where: { id: { in: ids } } });
     return { deletedIds: ids };
   }
 
@@ -584,7 +402,6 @@ export class PackagesService {
     if (plan === null || !plan.isActive || plan.priceCents <= 0) {
       throw new NotFoundException('Package plan not found');
     }
-    const planWithComponents = await this.withCombinedComponents(plan);
     const now = new Date();
     const periodEnd = new Date(now.getTime() + plan.periodDays * 86_400_000);
     const paymentReference = this.createPaymentReference('PACKAGE');
@@ -607,7 +424,7 @@ export class PackagesService {
         },
       });
       await this.createBalancesForUserPackage(tx, {
-        plan: planWithComponents,
+        plan,
         userPackageId: userPackage.id,
       });
       const payment = await tx.payment.create({
@@ -642,10 +459,9 @@ export class PackagesService {
   }
 
   private async findPlansForAdmin() {
-    const plans = await this.prisma.packagePlan.findMany({
+    return this.prisma.packagePlan.findMany({
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
-    return Promise.all(plans.map((plan) => this.withCombinedComponents(plan)));
   }
 
   private toPublicPlan(
@@ -682,33 +498,12 @@ export class PackagesService {
     };
   }
 
-  private toAdminPlanRow(plan: AdminPlanWithComponents) {
-    const combinedComponents = (plan.combinedAsParent ?? []).map(
-      (component) => ({
-        id: component.id,
-        sourcePackagePlanId: component.sourcePlan?.id ?? component.sourcePlanId,
-        sourcePackageNameSnapshot: component.sourcePackageNameSnapshot,
-        sourceCategoryNameSnapshot: component.sourceCategoryNameSnapshot,
-        sessionAllocation: component.sessionAllocation,
-      }),
-    );
+  private toAdminPlanRow(plan: AdminPlanRecord) {
     return {
       id: plan.id,
       name: plan.name,
       categoryName: plan.categoryName,
       classTypeId: plan.classTypeId ?? null,
-      planType: plan.planType,
-      allowedCategoryNames:
-        plan.planType === PackagePlanType.COMBINED
-          ? Array.from(
-              new Set(
-                combinedComponents.map(
-                  (component) => component.sourceCategoryNameSnapshot,
-                ),
-              ),
-            )
-          : [plan.categoryName],
-      combinedComponents,
       description: plan.description,
       priceCents: plan.priceCents,
       discountedPriceCents: plan.discountedPriceCents,
@@ -732,34 +527,9 @@ export class PackagesService {
     };
   }
 
-  private async withCombinedComponents<T extends { id: string }>(
-    plan: T,
-  ): Promise<T & { combinedAsParent: AdminCombinedPlanComponentRow[] }> {
-    const components = await (
-      this.prisma as unknown as {
-        combinedPlanComponent: {
-          findMany(args: unknown): Promise<AdminCombinedPlanComponentRow[]>;
-        };
-      }
-    ).combinedPlanComponent.findMany({
-      where: { combinedPlanId: plan.id },
-      include: {
-        sourcePlan: {
-          select: { id: true, name: true, categoryName: true },
-        },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-    return { ...plan, combinedAsParent: components };
-  }
-
   private normalizeCategoryName(value: string | undefined): string {
     const next = value?.trim() ?? '';
     return next.length > 0 ? next : CATEGORY_FALLBACK;
-  }
-
-  private normalizeCategoryKey(value: string): string {
-    return value.trim().toLowerCase();
   }
 
   private normalizeSlug(value: string): string {
@@ -842,26 +612,6 @@ export class PackagesService {
     return (maxRow?.displayOrder ?? 0) + 1;
   }
 
-  private buildCombinedCategoryName(
-    plans: Array<{ categoryName: string; name: string }>,
-  ): string {
-    const categories = Array.from(
-      new Set(
-        plans
-          .map((plan) => plan.categoryName.trim())
-          .filter((categoryName) => categoryName.length > 0),
-      ),
-    );
-    if (categories.length > 0) {
-      return categories.join(' + ').slice(0, 120);
-    }
-    return plans
-      .map((plan) => plan.name.trim())
-      .filter(Boolean)
-      .join(' + ')
-      .slice(0, 120);
-  }
-
   private assertDiscountBounds(
     priceCents: number,
     discountedPriceCents: number | null,
@@ -900,81 +650,6 @@ export class PackagesService {
     return dto.sessionsPerMonth;
   }
 
-  private async applySourceAllocations(
-    tx: Prisma.TransactionClient,
-    planId: string,
-    allocations: Array<{ componentId: string; sessionCount: number }>,
-  ) {
-    const plan = await tx.packagePlan.findUnique({
-      where: { id: planId },
-      select: { id: true, planType: true },
-    });
-    if (plan === null) {
-      throw new NotFoundException('Plan not found');
-    }
-    if (plan.planType !== PackagePlanType.COMBINED) {
-      throw new BadRequestException(
-        'Source allocations are allowed only for combined plans',
-      );
-    }
-    const componentIds = allocations.map((item) => item.componentId);
-    const uniqueComponentIds = new Set(componentIds);
-    if (uniqueComponentIds.size !== componentIds.length) {
-      throw new BadRequestException(
-        'Source allocation component ids must be unique',
-      );
-    }
-    const components = await (
-      tx as unknown as {
-        combinedPlanComponent: {
-          findMany(args: unknown): Promise<Array<{ id: string }>>;
-          update(args: unknown): Promise<unknown>;
-        };
-      }
-    ).combinedPlanComponent.findMany({
-      where: { combinedPlanId: planId },
-      select: { id: true },
-    });
-    if (components.length === 0) {
-      throw new BadRequestException('Combined plan has no source components');
-    }
-    if (components.length !== allocations.length) {
-      throw new BadRequestException(
-        'Source allocations must include every combined component',
-      );
-    }
-    for (const component of components) {
-      if (!uniqueComponentIds.has(component.id)) {
-        throw new BadRequestException(
-          'Source allocations must include every combined component',
-        );
-      }
-    }
-    if (allocations.some((allocation) => allocation.sessionCount <= 0)) {
-      throw new BadRequestException(
-        'Source allocation session count must be positive',
-      );
-    }
-    let sum = 0;
-    for (const allocation of allocations) {
-      sum += allocation.sessionCount;
-      await (
-        tx as unknown as {
-          combinedPlanComponent: {
-            update(args: unknown): Promise<unknown>;
-          };
-        }
-      ).combinedPlanComponent.update({
-        where: { id: allocation.componentId },
-        data: { sessionAllocation: allocation.sessionCount },
-      });
-    }
-    await tx.packagePlan.update({
-      where: { id: planId },
-      data: { sessionsPerMonth: sum, isUnlimited: false },
-    });
-  }
-
   private async assertPlanDeletable(planId: string) {
     const blockers = await this.getDeletionBlockers(planId);
     if (blockers.count > 0) {
@@ -986,32 +661,8 @@ export class PackagesService {
 
   private async createBalancesForUserPackage(
     tx: Prisma.TransactionClient,
-    params: { plan: AdminPlanWithComponents; userPackageId: string },
+    params: { plan: AdminPlanRecord; userPackageId: string },
   ) {
-    if (params.plan.planType === PackagePlanType.COMBINED) {
-      for (const component of params.plan.combinedAsParent ?? []) {
-        const total = component.sessionAllocation;
-        await (
-          tx as unknown as {
-            userPackageBalance: {
-              create(args: unknown): Promise<unknown>;
-            };
-          }
-        ).userPackageBalance.create({
-          data: {
-            userPackageId: params.userPackageId,
-            sourcePlanId: component.sourcePlan?.id ?? component.sourcePlanId,
-            coverageKey: `${params.userPackageId}:${component.id}`,
-            sourcePackageNameSnapshot: component.sourcePackageNameSnapshot,
-            sourceCategoryNameSnapshot: component.sourceCategoryNameSnapshot,
-            sessionsTotal: total,
-            sessionsRemaining: total,
-            isUnlimited: total === null,
-          },
-        });
-      }
-      return;
-    }
     const typeAllocations = this.parseStoredTypeSessionAllocations(
       params.plan.typeSessionAllocations,
     );

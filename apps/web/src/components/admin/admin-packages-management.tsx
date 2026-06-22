@@ -791,10 +791,7 @@ function CategoryAccordion({
   );
 
   const configuredPackages = useMemo(
-    () =>
-      categoryPackages.filter(
-        (pkg) => pkg.priceCents > 0 && (pkg.planType ?? "SINGLE") !== "COMBINED",
-      ),
+    () => categoryPackages.filter((pkg) => pkg.priceCents > 0),
     [categoryPackages],
   );
 
