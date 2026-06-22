@@ -1232,6 +1232,20 @@
       "whatsapp": "WhatsApp",
       "socialAria": "{network} profile"
     },
+    "refund": {
+      "title": "Cancellation & Refund Policy",
+      "metaDescription": "How to cancel classes and request package refunds at Ommm. studio.",
+      "intro": "At Ommm., we know life moves — plans shift, mornings get away from us, and unexpected things come up. This policy exists to keep things fair for everyone: for you, for the women waiting for a spot, and for the instructors who prepare thoughtfully for each class. We've kept it simple.",
+      "cancellingTitle": "Cancelling a Class",
+      "cancellingP1": "You can cancel any class free of charge up to 24 hours before it begins. Your session will be returned to your package, ready to use whenever you're next ready.",
+      "cancellingP2": "If a class is cancelled less than 24 hours before it begins, or if you do not attend without prior notice, the session will be deducted from your package. Reserved spots are often in high demand, and late cancellations make it difficult for someone else to enjoy that time.",
+      "cancellingP3": "To cancel a booking, simply use the Ommm. app or website, or contact us by phone or WhatsApp. This helps us keep every schedule accurate and fair.",
+      "refundsTitle": "Refunds",
+      "refundsP1": "If you change your mind, you may request a refund within 14 days of your purchase, provided that your package has not expired.",
+      "refundsP2": "We will refund the value of your package minus the cost of any sessions already used.",
+      "refundsP3": "After 14 days, packages become non-refundable. However, they don't have to go to waste — unused sessions may be transferred to a friend or family member, so your moment of wellbeing can become theirs.",
+      "closing": "Thank you for helping us create a thoughtful, respectful community where every spot, every instructor's time, and every member's experience is valued."
+    },
     "story": {
       "title": "About Ommm.",
       "lede": "A women's wellness space in the heart of Yerevan — created for movement, calm, and the moment that belongs only to you.",

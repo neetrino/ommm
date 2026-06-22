@@ -164,7 +164,7 @@ export const HOME_FOOTER_ADDRESS_HREF =
 export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/contact", labelKey: "footerPrivacy" },
   { href: "/contact", labelKey: "footerTerms" },
-  { href: "/contact", labelKey: "footerRefund" },
+  { href: "/refund", labelKey: "footerRefund" },
 ] as const;
 
 export const HOME_FOOTER_SOCIAL_LINKS = [
