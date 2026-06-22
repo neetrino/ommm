@@ -6,10 +6,10 @@ import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
+import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-sphere-bounce";
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_ADDRESS_HREF,
-  HOME_FOOTER_FLOAT_MOTION,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_FIGMA_POSITIONS,
   HOME_FOOTER_INNER_MOBILE_LAYOUT,
@@ -124,17 +124,6 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-copyright-tracking" as string]: `${layout.copyrightLetterSpacingPx}px`,
     ["--home-footer-contact-social-lift" as string]: `${layout.contactSocialLiftPx}px`,
     ["--home-footer-top-bar-legal-lift" as string]: `${layout.topBarLegalLiftPx}px`,
-    ["--home-footer-float-duration" as string]: `${HOME_FOOTER_FLOAT_MOTION.durationMs}ms`,
-    ["--home-footer-float-easing" as string]: HOME_FOOTER_FLOAT_MOTION.easing,
-    ["--home-footer-float-peak-max" as string]: `${HOME_FOOTER_FLOAT_MOTION.peakMaxPx}px`,
-    ["--home-footer-float-peak-high" as string]: `${HOME_FOOTER_FLOAT_MOTION.peakHighPx}px`,
-    ["--home-footer-float-peak-mid" as string]: `${HOME_FOOTER_FLOAT_MOTION.peakMidPx}px`,
-    ["--home-footer-float-dip-low" as string]: `${HOME_FOOTER_FLOAT_MOTION.dipLowPx}px`,
-    ["--home-footer-float-dip-mid" as string]: `${HOME_FOOTER_FLOAT_MOTION.dipMidPx}px`,
-    ["--home-footer-float-peak-overshoot" as string]: String(HOME_FOOTER_FLOAT_MOTION.peakOvershootRatio),
-    ["--home-footer-float-secondary-overshoot" as string]: String(
-      HOME_FOOTER_FLOAT_MOTION.secondaryPeakOvershootRatio,
-    ),
   };
 }
 
@@ -219,7 +208,7 @@ export async function MarketingPublicHomeFooter({
   );
 
   const illustration = (
-    <div className={`${styles.illustrationFrame} ${styles.footerFloatIllustration}`}>
+    <HomeFooterSphereBounce className={`${styles.illustrationFrame} ${styles.footerFloatIllustration}`}>
       <Image
         src={HOME_FOOTER_ASSETS.illustration}
         alt={t("footerIllustrationAlt")}
@@ -228,7 +217,7 @@ export async function MarketingPublicHomeFooter({
         className={styles.illustration}
         {...belowFoldImageProps()}
       />
-    </div>
+    </HomeFooterSphereBounce>
   );
 
   const contact = showContactSection ? (
