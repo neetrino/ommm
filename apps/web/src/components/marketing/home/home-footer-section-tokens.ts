@@ -241,19 +241,64 @@ export const HOME_FOOTER_INNER_MOBILE_LAYOUT = {
 
 export type HomeFooterSurfaceVariant = "home" | "inner";
 
-/** iPad Air — footer grid; Contact us block sits under Explore (744px–1023px). */
-export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
-  desktopPadding: "2rem 1.5rem 1.5rem",
+/** iPad — compact desktop footer grid (744px–1366px). */
+export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = {
+  shellPaddingTop: "2rem",
+  shellPaddingBottom: "1.5rem",
   columnGap: "1.5rem",
   rowGap: "0.75rem",
-  navLinkPaddingLeftPx: 0,
+  gridSecondColumn: "1.15fr",
+  illustrationMaxRem: 18,
+  illustrationScale: 0.52,
+  sideColumnMaxWidthRem: 16,
+  wordmarkFontSizePx: 20,
+  wordmarkLineHeightPx: 28,
+  bodyFontSizePx: 14,
+  bodyLineHeightPx: 20,
+  navLinkPaddingLeftPx: 20,
+  navLinkGapPx: 8,
+  topRadiusPx: 48,
+  contactSocialLiftPx: 0,
+  topBarLegalLiftPx: 0,
+} as const;
+
+/** iPad Pro — slightly roomier compact desktop footer (1024px–1366px). */
+export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
+  shellPaddingTop: "2.25rem",
+  shellPaddingBottom: "1.75rem",
+  columnGap: "2rem",
+  rowGap: "0.875rem",
+  gridSecondColumn: "1.2fr",
+  illustrationMaxRem: 20,
+  illustrationScale: 0.58,
+  sideColumnMaxWidthRem: 17,
+  wordmarkFontSizePx: 20,
+  wordmarkLineHeightPx: 28,
+  bodyFontSizePx: 15,
+  bodyLineHeightPx: 20,
+  navLinkPaddingLeftPx: 28,
+  navLinkGapPx: 10,
+  topRadiusPx: 56,
+  contactSocialLiftPx: 0,
+  topBarLegalLiftPx: 0,
+} as const;
+
+/** Full desktop footer — absolute Figma layout (1367px+). */
+export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
+
+/** @deprecated Use HOME_FOOTER_TABLET_DESKTOP_LAYOUT — kept for reference values. */
+export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
+  desktopPadding: "2rem 1.5rem 1.5rem",
+  columnGap: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.columnGap,
+  rowGap: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.rowGap,
+  navLinkPaddingLeftPx: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.navLinkPaddingLeftPx,
   navToContactSpacerMin: "1rem",
   contactToSocialGap: "1rem",
   navLinkGap: "0.5rem",
   navToContactBlockMarginPx: 48,
   legalCopyrightGap: "0.75rem",
-  wordmarkFontSizePx: 36,
-  wordmarkLineHeightPx: 40,
+  wordmarkFontSizePx: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.wordmarkFontSizePx,
+  wordmarkLineHeightPx: HOME_FOOTER_TABLET_DESKTOP_LAYOUT.wordmarkLineHeightPx,
 } as const;
 
 export const HOME_FOOTER_COPYRIGHT_COMPANY_HREF = "https://neetrino.com" as const;

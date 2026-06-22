@@ -726,13 +726,18 @@
     border-top-right-radius: var(--home-footer-radius);
   }
 
+  .desktopLayer {
+    display: block;
+  }
+}
+
+@media (min-width: 1367px) {
   .inner {
     min-height: var(--home-footer-min-height);
     overflow: visible;
   }
 
   .desktopLayer {
-    display: block;
     position: absolute;
     inset: 0;
     overflow: visible;
@@ -847,19 +852,51 @@
   }
 }
 
-/* iPad Air — Contact us under Explore; left column + illustration (744px–1023px). */
-@media (min-width: 744px) and (max-width: 1023px) {
+/* iPad — compact desktop footer grid (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .shell {
+    border-top-left-radius: var(--home-footer-tablet-radius, 3rem);
+    border-top-right-radius: var(--home-footer-tablet-radius, 3rem);
+  }
+
   .inner {
     min-height: 0;
+  }
+
+  .wordmark {
+    font-size: var(--home-footer-tablet-wordmark-size, 1.25rem);
+    line-height: var(--home-footer-tablet-wordmark-line-height, 1.75rem);
+  }
+
+  .topNavLink {
+    padding-left: var(--home-footer-tablet-nav-link-padding, 1.25rem);
+    font-size: var(--home-footer-tablet-body-size, 0.875rem);
+    line-height: var(--home-footer-tablet-body-line-height, 1.25rem);
+  }
+
+  .topNavLink:first-child {
+    padding-left: 0;
+  }
+
+  .sectionTitle,
+  .contactText,
+  .legalLink {
+    font-size: var(--home-footer-tablet-body-size, 0.875rem);
+    line-height: var(--home-footer-tablet-body-line-height, 1.25rem);
+  }
+
+  .copyright {
+    font-size: calc(var(--home-footer-tablet-body-size, 0.875rem) - 2px);
+    line-height: var(--home-footer-tablet-body-line-height, 1.25rem);
   }
 
   .desktopLayer {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--home-footer-tablet-grid-second-col, 1.15fr));
     grid-template-rows: auto auto auto auto auto;
-    gap: 0.75rem 1.5rem;
-    padding: 2rem 0 1.5rem;
+    gap: var(--home-footer-tablet-row-gap, 0.75rem) var(--home-footer-tablet-column-gap, 1.5rem);
+    padding: var(--home-footer-tablet-shell-pt, 2rem) 0 var(--home-footer-tablet-shell-pb, 1.5rem);
     inset: auto;
     overflow: visible;
   }
@@ -885,14 +922,14 @@
   .topBarSlot {
     grid-column: 1 / -1;
     grid-row: 1;
-    margin-top: calc(-1 * var(--home-footer-top-bar-legal-lift, 0px));
+    margin-top: calc(-1 * var(--home-footer-tablet-top-bar-legal-lift, 0px));
   }
 
   .contactSlot {
     grid-column: 1;
     grid-row: 2;
     align-self: start;
-    margin-top: calc(1rem - var(--home-footer-contact-social-lift, 0px));
+    margin-top: calc(1rem - var(--home-footer-tablet-contact-social-lift, 0px));
   }
 
   .paymentSlot {
@@ -906,7 +943,7 @@
     grid-column: 1;
     grid-row: 4;
     align-self: end;
-    margin-top: calc(1rem - var(--home-footer-contact-social-lift, 0px));
+    margin-top: calc(1rem - var(--home-footer-tablet-contact-social-lift, 0px));
   }
 
   .illustrationSlot {
@@ -914,10 +951,16 @@
     grid-row: 1 / span 4;
     align-self: end;
     justify-self: center;
-    width: min(100%, calc(20rem * var(--home-footer-illustration-scale, 1)));
+    width: min(100%, calc(var(--home-footer-tablet-illustration-max, 18rem) * var(--home-footer-tablet-illustration-scale, 0.52)));
     aspect-ratio: 1 / 1;
     height: auto;
     transform: translateY(var(--home-footer-tablet-illustration-bleed, 0%));
+  }
+
+  .illustrationSlot .footerFloatIllustration {
+    animation: none;
+    will-change: auto;
+    transform: none;
   }
 
   .legalSlot {
@@ -925,12 +968,13 @@
     grid-row: 2;
     justify-self: end;
     align-self: end;
-    width: 16rem;
-    transform: translateY(calc(-1 * var(--home-footer-top-bar-legal-lift, 0px)));
+    width: var(--home-footer-tablet-side-max-width, 16rem);
+    transform: translateY(calc(-1 * var(--home-footer-tablet-top-bar-legal-lift, 0px)));
   }
 
   .legalSlot .legalNav {
     justify-content: flex-end;
+    gap: 1rem;
   }
 
   .copyrightSlot {
@@ -938,8 +982,8 @@
     grid-row: 3;
     justify-self: end;
     align-self: start;
-    width: 16rem;
-    max-width: 16rem;
+    width: var(--home-footer-tablet-side-max-width, 16rem);
+    max-width: var(--home-footer-tablet-side-max-width, 16rem);
     margin-top: 0;
     transform: translateY(calc(-1 * var(--home-footer-copyright-line-height) + 10px));
   }
@@ -947,6 +991,40 @@
   .copyrightSlot .copyright {
     width: 100%;
     text-align: right;
+  }
+}
+
+/* iPad Pro — roomier compact desktop footer (1024px–1366px). */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .shell {
+    border-top-left-radius: 3.5rem;
+    border-top-right-radius: 3.5rem;
+  }
+
+  .topNavLink {
+    padding-left: 1.75rem;
+    font-size: 0.9375rem;
+  }
+
+  .sectionTitle,
+  .contactText,
+  .legalLink {
+    font-size: 0.9375rem;
+  }
+
+  .desktopLayer {
+    gap: 0.875rem 2rem;
+    padding: 2.25rem 0 1.75rem;
+  }
+
+  .illustrationSlot {
+    width: min(100%, calc(20rem * 0.58));
+  }
+
+  .legalSlot,
+  .copyrightSlot {
+    width: 17rem;
+    max-width: 17rem;
   }
 }
 
