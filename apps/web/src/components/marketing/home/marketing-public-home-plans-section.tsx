@@ -30,7 +30,7 @@ type MarketingPublicHomePlansSectionProps = {
 };
 
 /**
- * Figma **Packages** — desktop `196:1251`, mobile container `97:5888`.
+ * Figma **Packages** — desktop cream band `605:932`, mobile container `97:5888`.
  */
 export async function MarketingPublicHomePlansSection({
   locale,
@@ -93,6 +93,27 @@ export async function MarketingPublicHomePlansSection({
       ? t("plansEmpty")
       : null;
 
+  const desktopStyle = {
+    ["--home-plans-desktop-bg" as string]: HOME_PLANS_SECTION_FIGMA.sectionBackground,
+    ["--home-plans-panel-fill" as string]: HOME_PLANS_SECTION_FIGMA.panelFill,
+    ["--home-plans-panel-radius" as string]: `${HOME_PLANS_SECTION_FIGMA.panelRadiusPx}px`,
+    ["--home-plans-panel-bg-image" as string]: HOME_PAGE_SURFACE.plansCardFill,
+    ["--home-plans-panel-shadow" as string]: HOME_PAGE_SURFACE.plansCardShadow,
+    ["--home-plans-panel-gloss" as string]: HOME_PAGE_SURFACE.plansCardGlossOverlay,
+    ["--home-plans-panel-px" as string]: HOME_PLANS_SECTION_LAYOUT.sectionPaddingX,
+    ["--home-plans-panel-pt" as string]: HOME_PLANS_SECTION_LAYOUT.sectionPaddingTop,
+    ["--home-plans-panel-pb" as string]: HOME_PLANS_SECTION_LAYOUT.sectionPaddingBottom,
+    ["--home-plans-panel-gap" as string]: `${HOME_PLANS_SECTION_LAYOUT.sectionGapPx}px`,
+    ["--home-plans-panel-header-gap" as string]: `${HOME_PLANS_SECTION_LAYOUT.headerGapPx}px`,
+    ["--home-plans-heading-color" as string]: HOME_PLANS_SECTION_FIGMA.headingColor,
+    ["--home-plans-subtitle-color" as string]: HOME_PLANS_SECTION_FIGMA.subtitleColor,
+    ["--home-plans-desktop-title-size" as string]: HOME_PLANS_SECTION_LAYOUT.titleFontSize,
+    ["--home-plans-desktop-title-line-height" as string]: String(
+      HOME_PLANS_SECTION_LAYOUT.titleLineHeight,
+    ),
+    ["--home-plans-desktop-subtitle-max-width" as string]: HOME_PLANS_SECTION_LAYOUT.subtitleMaxWidth,
+  };
+
   return (
     <>
       <section
@@ -150,53 +171,22 @@ export async function MarketingPublicHomePlansSection({
 
       <section
         aria-labelledby="home-plans-heading"
-        className={`${marketingMontserrat.variable} ${styles.desktopSection} w-full min-w-0 px-0 py-16`}
-        style={{ backgroundColor: HOME_PAGE_SURFACE.coachesGradientTo }}
+        className={`${marketingMontserrat.variable} ${styles.desktopSection}`}
+        style={desktopStyle}
       >
-        <div
-          className="relative isolate w-full min-w-0 overflow-hidden rounded-[50px] border border-white/55 ring-1 ring-white/35 backdrop-blur-[6px]"
-          style={{
-            backgroundColor: HOME_PLANS_SECTION_FIGMA.panelFill,
-            backgroundImage: HOME_PAGE_SURFACE.plansCardFill,
-            boxShadow: HOME_PAGE_SURFACE.plansCardShadow,
-          }}
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{ backgroundImage: HOME_PAGE_SURFACE.plansCardGlossOverlay }}
-          />
-          <div
-            className="relative z-10 flex flex-col items-center"
-            style={{
-              paddingInline: HOME_PLANS_SECTION_LAYOUT.sectionPaddingX,
-              paddingTop: HOME_PLANS_SECTION_LAYOUT.sectionPaddingTop,
-              paddingBottom: HOME_PLANS_SECTION_LAYOUT.sectionPaddingBottom,
-              gap: HOME_PLANS_SECTION_LAYOUT.sectionGapPx,
-            }}
-          >
+        <div className={styles.desktopPanel}>
+          <div aria-hidden className={styles.desktopPanelGloss} />
+          <div className={styles.desktopPanelContent}>
             <HomePageReveal index={0}>
-              <header
-                className="mx-auto flex w-full max-w-[834px] flex-col items-center text-center"
-                style={{ gap: HOME_PLANS_SECTION_LAYOUT.headerGapPx }}
-              >
+              <header className={styles.desktopHeader}>
                 <h2
                   id="home-plans-heading"
-                  className="font-serif font-semibold tracking-tight text-balance"
-                  style={{
-                    color: HOME_PLANS_SECTION_FIGMA.headingColor,
-                    fontSize: HOME_PLANS_SECTION_LAYOUT.titleFontSize,
-                    lineHeight: HOME_PLANS_SECTION_LAYOUT.titleLineHeight,
-                  }}
+                  className={`${styles.desktopTitle} font-serif font-semibold tracking-tight text-balance`}
                 >
                   {t("plansSectionTitle")}
                 </h2>
                 <p
-                  className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
-                  style={{
-                    color: HOME_PLANS_SECTION_FIGMA.subtitleColor,
-                    maxWidth: HOME_PLANS_SECTION_LAYOUT.subtitleMaxWidth,
-                  }}
+                  className={`${styles.desktopSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
                 >
                   {t("plansSectionSubtitle")}
                 </p>
@@ -216,12 +206,14 @@ export async function MarketingPublicHomePlansSection({
               <HomePlansDesktopCards {...interactiveCardsProps} />
             )}
 
-            <HomePageReveal index={3} className="flex w-full justify-center">
-              <HomeHeroCtaButton
-                href={plansCtaHref}
-                label={t("plansMoreDetails")}
-                variant="membership"
-              />
+            <HomePageReveal index={3}>
+              <div className={styles.desktopCta}>
+                <HomeHeroCtaButton
+                  href={plansCtaHref}
+                  label={t("plansMoreDetails")}
+                  variant="membership"
+                />
+              </div>
             </HomePageReveal>
           </div>
         </div>

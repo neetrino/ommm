@@ -18,6 +18,7 @@ export const HOME_PAGE_SURFACE = {
     "linear-gradient(155deg, rgba(255,255,255,0.44) 0%, rgba(255,255,255,0.12) 32%, rgba(255,255,255,0) 54%), linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.045) 26%, rgba(255,255,255,0) 48%), linear-gradient(105deg, rgba(255,255,255,0) 4%, rgba(255,255,255,0.055) 46%, rgba(255,255,255,0.075) 52%, rgba(255,255,255,0) 96%), radial-gradient(120% 88% at 88% 5%, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0) 46%)",
   plansCardShadow:
     "0 26px 58px -24px rgba(45, 55, 62, 0.32), inset 0 1px 0 rgba(255,255,255,0.94), inset 0 -1px 0 rgba(87,127,145,0.12)",
+  /** Figma Packages panel `196:1251` — heading on frosted card. */
   plansHeading: "#577f91",
   cardTitle: "#1d1c15",
   cardBody: "#4a4738",
