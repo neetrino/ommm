@@ -22,6 +22,12 @@ export const HOME_FOOTER_FIGMA = {
   artboardWidthPx: 1440,
   artboardHeightPx: 428,
   illustrationSizePx: 412,
+  /** Visual scale vs Figma — tuned on device. */
+  illustrationDisplayScale: 0.65,
+  /** Keep the sphere inside the footer shell — no bleed below the bottom edge. */
+  illustrationBottomInsetPx: 0,
+  /** Mobile / tablet — 0 keeps the logo in the footer. */
+  illustrationBottomBleedRatio: 0,
   paymentGapPx: 16,
   paymentLogoHeightPx: 28,
   paymentArcaDisplayHeightPx: 20,
@@ -78,6 +84,55 @@ export const HOME_FOOTER_LAYOUT = {
   contactSocialLiftPx: 20,
   /** Top nav + legal links — shift up from Figma baseline. */
   topBarLegalLiftPx: 10,
+} as const;
+
+function homeFooterIllustrationTopAtRestPx(
+  artboardHeightPx: number,
+  displayScale: number,
+  bottomInsetPx: number,
+): number {
+  const scaledHeightPx =
+    HOME_FOOTER_FIGMA_POSITIONS.illustration.height * artboardHeightPx * displayScale;
+  return artboardHeightPx - bottomInsetPx - scaledHeightPx;
+}
+
+function homeFooterContactTitleBottomPx(artboardHeightPx: number): number {
+  const contactTopPx =
+    HOME_FOOTER_FIGMA_POSITIONS.contact.top * artboardHeightPx - HOME_FOOTER_LAYOUT.contactSocialLiftPx;
+  return contactTopPx + HOME_FOOTER_LAYOUT.bodyLineHeightPx;
+}
+
+const HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX = 100;
+
+const HOME_FOOTER_FLOAT_PEAK_MAX_PX = Math.max(
+  0,
+  Math.round(
+    homeFooterIllustrationTopAtRestPx(
+      HOME_FOOTER_FIGMA.artboardHeightPx,
+      HOME_FOOTER_FIGMA.illustrationDisplayScale,
+      HOME_FOOTER_FIGMA.illustrationBottomInsetPx,
+    ) -
+      homeFooterContactTitleBottomPx(HOME_FOOTER_FIGMA.artboardHeightPx) -
+      6 +
+      HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX,
+  ),
+);
+
+/** Idle float — ball bounce: overshoot at peaks, gravity fall, soft ground rebound. */
+export const HOME_FOOTER_FLOAT_MOTION = {
+  durationMs: 8200,
+  /** Optical gap below the Contact us title at max rise (Figma `605:961`). */
+  gapUnderContactTitlePx: 6,
+  peakExtraLiftPx: HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX,
+  peakMaxPx: HOME_FOOTER_FLOAT_PEAK_MAX_PX,
+  peakHighPx: Math.round(HOME_FOOTER_FLOAT_PEAK_MAX_PX * 0.79),
+  peakMidPx: Math.round(HOME_FOOTER_FLOAT_PEAK_MAX_PX * 0.57),
+  peakOvershootRatio: 1.035,
+  secondaryPeakOvershootRatio: 1.025,
+  dipLowPx: 2,
+  dipMidPx: 3,
+  /** Per-segment easing is set on keyframes; root timing is linear. */
+  easing: "linear",
 } as const;
 
 /** Figma mobile footer — container `97:5944`. */

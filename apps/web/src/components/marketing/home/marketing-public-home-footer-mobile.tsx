@@ -153,7 +153,7 @@ export function MarketingPublicHomeFooterMobile({
       />
 
       <div className={styles.mobileIllustration} aria-hidden>
-        <div className={styles.illustrationFrame}>
+        <div className={`${styles.illustrationFrame} ${styles.footerFloatIllustration}`}>
           <Image
             src={HOME_FOOTER_ASSETS.illustration}
             alt={illustrationAlt}

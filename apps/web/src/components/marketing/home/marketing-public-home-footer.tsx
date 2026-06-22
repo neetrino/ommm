@@ -9,6 +9,7 @@ import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/mar
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_ADDRESS_HREF,
+  HOME_FOOTER_FLOAT_MOTION,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_FIGMA_POSITIONS,
   HOME_FOOTER_INNER_MOBILE_LAYOUT,
@@ -87,7 +88,10 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-max-width" as string]: `${MARKETING_CONTENT_MAX_WIDTH_PX}px`,
     ["--home-footer-min-height" as string]: `clamp(24rem, ${pct(HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx)}, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`,
     ["--home-footer-top-bar-top" as string]: pct(pos.topBar.top),
-    ["--home-footer-illustration-bottom" as string]: pct(-pos.illustration.bottomOverflow),
+    ["--home-footer-illustration-scale" as string]: String(HOME_FOOTER_FIGMA.illustrationDisplayScale),
+    ["--home-footer-illustration-bottom" as string]: `${HOME_FOOTER_FIGMA.illustrationBottomInsetPx}px`,
+    ["--home-footer-mobile-illustration-bleed" as string]: `${HOME_FOOTER_FIGMA.illustrationBottomBleedRatio * 100}%`,
+    ["--home-footer-tablet-illustration-bleed" as string]: `${HOME_FOOTER_FIGMA.illustrationBottomBleedRatio * 100}%`,
     ["--home-footer-illustration-width" as string]: pct(pos.illustration.width),
     ["--home-footer-illustration-height" as string]: pct(pos.illustration.height),
     ["--home-footer-contact-top" as string]: pct(pos.contact.top),
@@ -114,6 +118,17 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-copyright-tracking" as string]: `${layout.copyrightLetterSpacingPx}px`,
     ["--home-footer-contact-social-lift" as string]: `${layout.contactSocialLiftPx}px`,
     ["--home-footer-top-bar-legal-lift" as string]: `${layout.topBarLegalLiftPx}px`,
+    ["--home-footer-float-duration" as string]: `${HOME_FOOTER_FLOAT_MOTION.durationMs}ms`,
+    ["--home-footer-float-easing" as string]: HOME_FOOTER_FLOAT_MOTION.easing,
+    ["--home-footer-float-peak-max" as string]: `${HOME_FOOTER_FLOAT_MOTION.peakMaxPx}px`,
+    ["--home-footer-float-peak-high" as string]: `${HOME_FOOTER_FLOAT_MOTION.peakHighPx}px`,
+    ["--home-footer-float-peak-mid" as string]: `${HOME_FOOTER_FLOAT_MOTION.peakMidPx}px`,
+    ["--home-footer-float-dip-low" as string]: `${HOME_FOOTER_FLOAT_MOTION.dipLowPx}px`,
+    ["--home-footer-float-dip-mid" as string]: `${HOME_FOOTER_FLOAT_MOTION.dipMidPx}px`,
+    ["--home-footer-float-peak-overshoot" as string]: String(HOME_FOOTER_FLOAT_MOTION.peakOvershootRatio),
+    ["--home-footer-float-secondary-overshoot" as string]: String(
+      HOME_FOOTER_FLOAT_MOTION.secondaryPeakOvershootRatio,
+    ),
   };
 }
 
@@ -198,7 +213,7 @@ export async function MarketingPublicHomeFooter({
   );
 
   const illustration = (
-    <div className={styles.illustrationFrame}>
+    <div className={`${styles.illustrationFrame} ${styles.footerFloatIllustration}`}>
       <Image
         src={HOME_FOOTER_ASSETS.illustration}
         alt={t("footerIllustrationAlt")}
