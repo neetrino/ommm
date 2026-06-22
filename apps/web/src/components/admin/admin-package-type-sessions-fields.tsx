@@ -7,18 +7,21 @@ import {
   OMMM_INPUT_NUMBER_CLASS,
   preventNumberArrowStep,
 } from "@/components/admin/admin-package-form-utils";
+import type { TypeSessionRowFieldErrors } from "@/components/admin/admin-package-type-sessions.util";
 import {
   canAddTypeSessionRow,
   resolveClassTypeOptionsForEntry,
   type PackageClassTypeOption,
   type PackageTypeSessionFormEntry,
 } from "@/components/admin/admin-package-type-sessions.util";
+import { AdminRequiredMark, ADMIN_INVALID_FIELD_CLASS } from "@/components/admin/admin-sheet-editable-field";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 
 type AdminPackageTypeSessionsFieldsProps = {
   entries: readonly PackageTypeSessionFormEntry[];
   classTypeOptions: readonly PackageClassTypeOption[];
+  rowFieldErrors?: Readonly<Record<string, TypeSessionRowFieldErrors>>;
   disabled?: boolean;
   onChange: (entries: PackageTypeSessionFormEntry[]) => void;
   onAddRow: () => void;
@@ -28,6 +31,7 @@ type AdminPackageTypeSessionsFieldsProps = {
 export function AdminPackageTypeSessionsFields({
   entries,
   classTypeOptions,
+  rowFieldErrors = {},
   disabled = false,
   onChange,
   onAddRow,
@@ -66,23 +70,17 @@ export function AdminPackageTypeSessionsFields({
           >
             <span className="ommm-label text-[10px] uppercase tracking-wide">
               {tPackages("formSections.typeSessions.heading")}
-              <span className="text-red-600" aria-hidden>
-                {" "}
-                *
-              </span>
+              <AdminRequiredMark />
             </span>
             <span className="ommm-label text-[10px] uppercase tracking-wide">
               {t("fieldSessionCount")}
-              <span className="text-red-600" aria-hidden>
-                {" "}
-                *
-              </span>
+              <AdminRequiredMark />
             </span>
             <span className="sr-only">{t("removeRowAria", { index: 0 })}</span>
           </div>
-          <p className="text-xs text-sage-500">{t("requiredHint")}</p>
           <ul className="flex flex-col gap-2">
           {entries.map((entry, index) => {
+            const rowErrors = rowFieldErrors[entry.id];
             const rowTypeOptions = resolveClassTypeOptionsForEntry(
               entry,
               entries,
@@ -106,12 +104,13 @@ export function AdminPackageTypeSessionsFields({
                   onChange={(nextValue) => handleTypeChange(entry.id, entry.classTypeId, nextValue)}
                   disabled={disabled}
                   name={`type-${entry.id}`}
+                  triggerClassName={rowErrors?.type === true ? ADMIN_INVALID_FIELD_CLASS : undefined}
                 />
               </div>
               <div>
                 <input
                   type="number"
-                  className={OMMM_INPUT_NUMBER_CLASS}
+                  className={`${OMMM_INPUT_NUMBER_CLASS} ${rowErrors?.sessions === true ? ADMIN_INVALID_FIELD_CLASS : ""}`}
                   min={MIN_PACKAGE_SESSIONS}
                   max={MAX_PACKAGE_SESSIONS}
                   step={1}
@@ -124,7 +123,7 @@ export function AdminPackageTypeSessionsFields({
                   placeholder={t("fieldSessionCountPlaceholder")}
                   disabled={disabled}
                   aria-label={t("fieldSessionCount")}
-                  aria-required="true"
+                  aria-invalid={rowErrors?.sessions === true}
                 />
               </div>
               <div className="flex items-center justify-end sm:justify-center">

@@ -37,6 +37,8 @@ import {
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
 import { AdminPackageTierCompactFields } from "@/components/admin/admin-package-tier-compact-fields";
 import {
+  collectTierFieldErrors,
+  type TierFieldErrors,
   initialTypeSessionEntries,
   sumTypeSessionEntries,
   validateTypeSessionEntries,
@@ -151,6 +153,7 @@ export function AdminPackageForm({
   );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tierFieldErrors, setTierFieldErrors] = useState<TierFieldErrors>({});
   const [categoryNamesFromApi, setCategoryNamesFromApi] = useState<readonly string[]>([]);
   const submitLockRef = useRef(false);
 
@@ -203,11 +206,22 @@ export function AdminPackageForm({
     return map;
   }, [classTypeOptions]);
 
+  function clearTierValidationState(): void {
+    setTierFieldErrors({});
+    setError(null);
+  }
+
   function updateValues(patch: Partial<AdminPackageFormValues>) {
+    if (mode === "add-tier" || mode === "edit-tier") {
+      clearTierValidationState();
+    }
     setValues((current) => ({ ...current, ...patch }));
   }
 
   function updateTierPricingValues(patch: Partial<AdminPackageFormValues>) {
+    if (mode === "add-tier" || mode === "edit-tier") {
+      clearTierValidationState();
+    }
     setValues((current) => {
       const next = { ...current, ...patch };
       if ("price" in patch || "discountedPrice" in patch) {
@@ -222,6 +236,13 @@ export function AdminPackageForm({
       }
       return next;
     });
+  }
+
+  function handleTypeSessionEntriesChange(entries: PackageTypeSessionFormEntry[]): void {
+    if (mode === "add-tier" || mode === "edit-tier") {
+      clearTierValidationState();
+    }
+    setTypeSessionEntries(entries);
   }
 
   function resolveTypeSessionErrorMessage(error: TypeSessionValidationError): string {
@@ -248,12 +269,28 @@ export function AdminPackageForm({
     }
 
     setError(null);
+    setTierFieldErrors({});
 
     const isCreateMode = mode === "create";
     const isPricingMode = mode === "pricing";
     const isAddTierMode = mode === "add-tier";
     const isEditTierMode = mode === "edit-tier";
     const isEditMode = mode === "edit";
+
+    if (isAddTierMode || isEditTierMode) {
+      const tierValidation = collectTierFieldErrors(values, typeSessionEntries);
+      if (tierValidation !== null) {
+        setTierFieldErrors(tierValidation.errors);
+        setError(
+          tierValidation.messageScope === "typeSessions"
+            ? t(`typeSessionsForm.${tierValidation.messageKey}`)
+            : t(tierValidation.messageKey),
+        );
+        return;
+      }
+      setTierFieldErrors({});
+    }
+
     const detailsName = values.name.trim();
     const description = values.description.trim();
     const createCategoryName = resolvePackageCategoryName(
@@ -558,10 +595,12 @@ export function AdminPackageForm({
   }
 
   const isCompactCreateForm = mode === "create";
+  const isTierFormMode = mode === "add-tier" || mode === "edit-tier";
 
   return (
     <form
       key={formKey}
+      noValidate={isTierFormMode}
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
@@ -675,10 +714,11 @@ export function AdminPackageForm({
           values={values}
           typeSessionEntries={typeSessionEntries}
           classTypeOptions={classTypeOptions}
+          fieldErrors={tierFieldErrors}
           pending={pending}
           onValuesChange={updateValues}
           onTierPricingChange={updateTierPricingValues}
-          onTypeSessionEntriesChange={setTypeSessionEntries}
+          onTypeSessionEntriesChange={handleTypeSessionEntriesChange}
         />
       ) : null}
 

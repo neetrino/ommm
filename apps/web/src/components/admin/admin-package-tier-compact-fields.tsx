@@ -2,13 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import type { TierFieldErrors } from "@/components/admin/admin-package-type-sessions.util";
 import {
   MAX_NAME_LENGTH,
   MAX_PACKAGE_DURATION_DAYS,
   MAX_PACKAGE_GUEST_COUNT,
   MIN_PACKAGE_DURATION_DAYS,
   MIN_PACKAGE_GUEST_COUNT,
-  OMMM_INPUT_NUMBER_CLASS,
   preventNumberArrowStep,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
@@ -19,6 +19,7 @@ import {
   type PackageTypeSessionFormEntry,
 } from "@/components/admin/admin-package-type-sessions.util";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
+import { AdminRequiredMark, ADMIN_INVALID_FIELD_CLASS } from "@/components/admin/admin-sheet-editable-field";
 
 const INLINE_INPUT_CLASS =
   "min-w-0 flex-1 border-0 bg-transparent p-0 text-sm tabular-nums text-sage-900 shadow-none placeholder:text-sage-500/60 focus:outline-none focus:ring-0";
@@ -90,13 +91,27 @@ type TierIconFieldProps = {
   label: string;
   children: ReactNode;
   className?: string;
+  required?: boolean;
+  invalid?: boolean;
 };
 
-function TierIconField({ tone, label, children, className = "" }: TierIconFieldProps) {
+function TierIconField({
+  tone,
+  label,
+  children,
+  className = "",
+  required = false,
+  invalid = false,
+}: TierIconFieldProps) {
   return (
     <label className={`flex min-w-0 flex-col gap-1 ${className}`.trim()}>
-      <span className="ommm-label text-[10px] uppercase tracking-wide">{label}</span>
-      <div className="ommm-input flex min-h-10 items-center gap-2 !py-2">
+      <span className="ommm-label text-[10px] uppercase tracking-wide">
+        {label}
+        {required ? <AdminRequiredMark /> : null}
+      </span>
+      <div
+        className={`ommm-input flex min-h-10 items-center gap-2 !py-2 ${invalid ? ADMIN_INVALID_FIELD_CLASS : ""}`}
+      >
         <TierFieldIcon tone={tone} />
         {children}
       </div>
@@ -108,6 +123,7 @@ type AdminPackageTierCompactFieldsProps = {
   values: AdminPackageFormValues;
   typeSessionEntries: readonly PackageTypeSessionFormEntry[];
   classTypeOptions: readonly PackageClassTypeOption[];
+  fieldErrors: TierFieldErrors;
   pending: boolean;
   onValuesChange: (patch: Partial<AdminPackageFormValues>) => void;
   onTierPricingChange: (patch: Partial<AdminPackageFormValues>) => void;
@@ -118,6 +134,7 @@ export function AdminPackageTierCompactFields({
   values,
   typeSessionEntries,
   classTypeOptions,
+  fieldErrors,
   pending,
   onValuesChange,
   onTierPricingChange,
@@ -127,7 +144,7 @@ export function AdminPackageTierCompactFields({
 
   return (
     <div className="flex flex-col gap-4">
-      <TierIconField tone="name" label={t("fieldPageName")}>
+      <TierIconField tone="name" label={t("fieldPageName")} required invalid={fieldErrors.name === true}>
         <input
           name="name"
           className={INLINE_INPUT_CLASS}
@@ -135,27 +152,31 @@ export function AdminPackageTierCompactFields({
           value={values.name}
           onChange={(event) => onValuesChange({ name: event.target.value })}
           placeholder={t("fieldPageNamePlaceholder")}
-          required
           disabled={pending}
+          aria-invalid={fieldErrors.name === true}
         />
       </TierIconField>
 
       <div className="grid grid-cols-2 gap-3">
-        <TierIconField tone="price" label={t("fieldPrice")}>
+        <TierIconField tone="price" label={t("fieldPrice")} required invalid={fieldErrors.price === true}>
           <AmdMoneyInput
             name="price"
             value={values.price}
             onValueChange={(nextValue) => onTierPricingChange({ price: nextValue })}
             disabled={pending}
-            required
             align="start"
             placeholder={t("fieldPricePlaceholder")}
             className={MONEY_INLINE_CLASS}
             containerClassName="min-w-0 flex-1"
+            aria-invalid={fieldErrors.price === true}
           />
         </TierIconField>
 
-        <TierIconField tone="discount" label={t("fieldDiscountedPrice")}>
+        <TierIconField
+          tone="discount"
+          label={t("fieldDiscountedPrice")}
+          invalid={fieldErrors.discountedPrice === true}
+        >
           <AmdMoneyInput
             name="discountedPrice"
             value={values.discountedPrice}
@@ -165,10 +186,16 @@ export function AdminPackageTierCompactFields({
             placeholder={t("fieldDiscountedPricePlaceholder")}
             className={MONEY_INLINE_CLASS}
             containerClassName="min-w-0 flex-1"
+            aria-invalid={fieldErrors.discountedPrice === true}
           />
         </TierIconField>
 
-        <TierIconField tone="duration" label={t("fieldDurationDays")}>
+        <TierIconField
+          tone="duration"
+          label={t("fieldDurationDays")}
+          required
+          invalid={fieldErrors.duration === true}
+        >
           <input
             name="durationDays"
             type="number"
@@ -181,8 +208,8 @@ export function AdminPackageTierCompactFields({
             onChange={(event) => onValuesChange({ durationDays: event.target.value })}
             onKeyDown={preventNumberArrowStep}
             placeholder={t("fieldDurationDaysPlaceholder")}
-            required
             disabled={pending}
+            aria-invalid={fieldErrors.duration === true}
           />
         </TierIconField>
 
@@ -207,6 +234,7 @@ export function AdminPackageTierCompactFields({
       <AdminPackageTypeSessionsFields
         entries={typeSessionEntries}
         classTypeOptions={classTypeOptions}
+        rowFieldErrors={fieldErrors.typeSessionRows}
         disabled={pending}
         onChange={onTypeSessionEntriesChange}
         onAddRow={() =>
