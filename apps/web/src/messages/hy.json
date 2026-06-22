@@ -207,18 +207,6 @@
           "imageAlt": "Մարզիչի դիմանկար"
         }
       ],
-      "plansSectionTitle": "Ընտրեք ձեր փաթեթը",
-      "plansSectionSubtitle": "Մշակված դասեր՝ ձեր ֆիզիկական և հոգեկան բարեկեցությունը խնամելու համար։",
-      "plansMoreDetails": "Ավելի մանրամասն",
-      "planCardCtaAria": "Բացել «{planName}» պլանի մանրամասները",
-      "planCardSessionsUnlimited": "Անսահմանափակ դասեր",
-      "planCardSessionsCount": "{count, plural, one {# դաս} other {# դաս}}",
-      "planCardGuestCount": "{count, plural, one {# հյուր} other {# հյուր}}",
-      "planCardCategoryPackages": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
-      "planCardPriceFromPrefix": "Սկսած",
-      "planPopularBadge": "Հանրաճանաչ",
-      "plansEmpty": "Փաթեթները կհայտնվեն այստեղ ադմին վահանակում հրապարակելուց հետո։",
-      "plansLoadFailed": "Չհաջողվեց բեռնել փաթեթները ({status})։",
       "galleryTitle": "Բռնակայություն յուրաքանչյուր մարմնի համար",
       "galleryTitleLine1": "Բռնակայություն յուրաքանչյուր",
       "galleryTitleLine2": "մարմնի համար",
@@ -1551,7 +1539,7 @@
             "description": "Շաբաթական ժամանակացույցը, դասերի preview-ը գլխավոր էջում և Schedule էջը։"
           },
           "memberships": {
-            "description": "Անդամության պլանները գլխավոր էջում և Packages էջը։"
+            "description": "Packages էջը և նավիգացիայի հղումը։"
           },
           "coaches": {
             "description": "Մարզիչների բլոկը գլխավոր էջում և Coaches էջը։"

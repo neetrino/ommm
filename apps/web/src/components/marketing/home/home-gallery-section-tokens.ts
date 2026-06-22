@@ -130,43 +130,37 @@ export const HOME_GALLERY_TABLET_LAYOUT = {
   footerUnderlapBackground: HOME_GALLERY_SECTION_BACKGROUND,
 } as const;
 
-export type HomeGalleryTileKey = "leftTop" | "leftBottom" | "center" | "side";
+/** Desktop peek carousel — center slide full width, neighbours half visible. */
+export const HOME_GALLERY_CAROUSEL = {
+  /** Each slide occupies 50% of the viewport so adjacent slides peek by half. */
+  slideWidthRatio: 0.5,
+  gapPx: 28,
+  transformMs: 560,
+  autoAdvanceMs: 6000,
+  /** Tall viewport so interior photos read clearly. */
+  viewportHeightRatio: 0.8,
+  /** Two clones per side — keeps half-peeks filled during infinite wrap. */
+  peekCloneCount: 2,
+  /** Prev/next sit flush to the viewport edges of the full-bleed track. */
+  navEdgeInsetPx: 24,
+  /** Drag farther than this fraction of one slide width to advance. */
+  dragCommitRatio: 0.18,
+  dragStartThresholdPx: 6,
+} as const;
 
-export type HomeGallerySlide = {
+/** First real slide index inside the padded display track. */
+export const HOME_GALLERY_CAROUSEL_START_INDEX = HOME_GALLERY_CAROUSEL.peekCloneCount;
+
+export type HomeGalleryCarouselSlide = {
   id: string;
-  tiles: Record<HomeGalleryTileKey, { src: string }>;
+  src: string;
 };
 
-/** Shared left/right tiles — stable across slides. */
-const HOME_GALLERY_DESKTOP_SIDE_TILES = {
-  leftTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
-  leftBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
-  side: { src: HOME_SECTION_ASSETS.galleryVipSide },
-} as const satisfies Pick<HomeGallerySlide["tiles"], "leftTop" | "leftBottom" | "side">;
-
-/** Four tiles — 2 stacked left, tall center, tall narrow right. Center varies per slide. */
-export const HOME_GALLERY_SLIDES: readonly HomeGallerySlide[] = [
-  {
-    id: "studio-arches",
-    tiles: {
-      ...HOME_GALLERY_DESKTOP_SIDE_TILES,
-      center: { src: HOME_SECTION_ASSETS.galleryVipMain },
-    },
-  },
-  {
-    id: "reception-lounge",
-    tiles: {
-      ...HOME_GALLERY_DESKTOP_SIDE_TILES,
-      center: { src: HOME_SECTION_ASSETS.galleryCafe },
-    },
-  },
-  {
-    id: "reformers-hall",
-    tiles: {
-      ...HOME_GALLERY_DESKTOP_SIDE_TILES,
-      center: { src: HOME_SECTION_ASSETS.galleryVipSide },
-    },
-  },
+/** One photo per slide — centered peek carousel on desktop. */
+export const HOME_GALLERY_SLIDES: readonly HomeGalleryCarouselSlide[] = [
+  { id: "studio-arches", src: HOME_SECTION_ASSETS.galleryVipMain },
+  { id: "reception-lounge", src: HOME_SECTION_ASSETS.galleryCafe },
+  { id: "reformers-hall", src: HOME_SECTION_ASSETS.galleryVipSide },
 ] as const;
 
 export type HomeGalleryMobileTileKey = "left" | "rightTop" | "rightBottom";

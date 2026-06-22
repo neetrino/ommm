@@ -103,9 +103,9 @@ function homeFooterContactTitleBottomPx(artboardHeightPx: number): number {
   return contactTopPx + HOME_FOOTER_LAYOUT.bodyLineHeightPx;
 }
 
-const HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX = 100;
+const HOME_FOOTER_SPHERE_BOUNCE_PEAK_EXTRA_LIFT_PX = 100;
 
-const HOME_FOOTER_FLOAT_PEAK_MAX_PX = Math.max(
+const HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX = Math.max(
   0,
   Math.round(
     homeFooterIllustrationTopAtRestPx(
@@ -115,25 +115,34 @@ const HOME_FOOTER_FLOAT_PEAK_MAX_PX = Math.max(
     ) -
       homeFooterContactTitleBottomPx(HOME_FOOTER_FIGMA.artboardHeightPx) -
       6 +
-      HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX,
+      HOME_FOOTER_SPHERE_BOUNCE_PEAK_EXTRA_LIFT_PX,
   ),
 );
 
-/** Idle float — ball bounce: overshoot at peaks, gravity fall, soft ground rebound. */
-export const HOME_FOOTER_FLOAT_MOTION = {
-  durationMs: 8200,
-  /** Optical gap below the Contact us title at max rise (Figma `605:961`). */
-  gapUnderContactTitlePx: 6,
-  peakExtraLiftPx: HOME_FOOTER_FLOAT_PEAK_EXTRA_LIFT_PX,
-  peakMaxPx: HOME_FOOTER_FLOAT_PEAK_MAX_PX,
-  peakHighPx: Math.round(HOME_FOOTER_FLOAT_PEAK_MAX_PX * 0.79),
-  peakMidPx: Math.round(HOME_FOOTER_FLOAT_PEAK_MAX_PX * 0.57),
-  peakOvershootRatio: 1.035,
-  secondaryPeakOvershootRatio: 1.025,
-  dipLowPx: 2,
-  dipMidPx: 3,
-  /** Per-segment easing is set on keyframes; root timing is linear. */
-  easing: "linear",
+const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX = 100;
+const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX = 300;
+
+/** Desktop footer sphere bounce — WAAPI loop in `HomeFooterSphereBounce`. */
+export const HOME_FOOTER_SPHERE_BOUNCE = {
+  /** Match footer illustration layout — tablet grid and full desktop. */
+  minWidthPx: 744,
+  peakBasePx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX,
+  peakBoostMinPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX,
+  peakBoostMaxPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX,
+  fallMs: 900,
+  /** Squash at the floor — only after the ball reaches the screen edge. */
+  squashMs: 120,
+  impactHoldMs: 70,
+  riseMs: 780,
+  /** Horizontal step per bounce — random left/right drift. */
+  driftPx: 58,
+  driftMaxPx: 168,
+  /** Optical overlap so the sphere graphic touches the site edge (PNG padding). */
+  groundReachPx: 14,
+  squashScaleX: 1.065,
+  squashScaleY: 0.885,
+  riseStretchScaleX: 0.985,
+  riseStretchScaleY: 1.042,
 } as const;
 
 /** Figma mobile footer — container `632:1081`. */

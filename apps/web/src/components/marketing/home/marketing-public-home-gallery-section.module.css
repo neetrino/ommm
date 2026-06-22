@@ -136,6 +136,14 @@
   }
 }
 
+@media (min-width: 744px) {
+  .desktopCarouselBleed {
+    width: 100vw;
+    max-width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+}
+
 @media (min-width: 744px) and (max-width: 1023px) {
   .desktopTitle {
     font-size: var(--home-gallery-air-title-size, var(--home-gallery-desktop-title-size));

@@ -8,16 +8,6 @@ function sectionPlaceholder(className: string) {
 }
 
 /** Async server sections — must use dynamic() from a Server Module, not `"use client"`. */
-export const HomePlansSectionDeferred = dynamic(
-  () =>
-    import("@/components/marketing/home/marketing-public-home-plans-section").then(
-      (module) => module.MarketingPublicHomePlansSection,
-    ),
-  {
-    loading: sectionPlaceholder(HOME_LAZY_SECTION.placeholders.plans),
-  },
-);
-
 export const HomeCoachesSectionDeferred = dynamic(
   () =>
     import("@/components/marketing/home/marketing-public-home-coaches-section-server").then(

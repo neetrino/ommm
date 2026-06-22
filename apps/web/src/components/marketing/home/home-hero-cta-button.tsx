@@ -16,7 +16,7 @@ import { MarketingSectionLink } from "@/components/marketing/marketing-section-l
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
 
-export type HomeHeroCtaVariant = "booking" | "membership" | "coachesDetails" | "plansDetails";
+export type HomeHeroCtaVariant = "booking" | "membership" | "coachesDetails";
 
 export type HomeHeroCtaButtonProps = {
   href: string;
@@ -59,9 +59,7 @@ export function HomeHeroCtaButton({
         ? styles.membership
         : variant === "coachesDetails"
           ? styles.coachesDetails
-          : variant === "plansDetails"
-            ? styles.plansDetails
-            : undefined;
+          : undefined;
   const shapeMobile = "shapeMobile" in assets ? assets.shapeMobile : undefined;
   const arrowMobile = "arrowMobile" in assets ? assets.arrowMobile : undefined;
   const mobileLabelOffsetPx = labelOffsetPx ?? mobileLayout?.labelOffsetPx ?? desktopLayout.labelOffsetPx;
