@@ -46,11 +46,6 @@
     filter: brightness(0) saturate(100%) invert(34%) sepia(16%) saturate(1050%) hue-rotate(358deg)
       brightness(90%) contrast(90%);
   }
-
-  .plansDetails:hover .shape {
-    filter: brightness(0) saturate(100%) invert(28%) sepia(22%) saturate(1200%) hue-rotate(155deg)
-      brightness(86%) contrast(92%);
-  }
 }
 
 .shapeDesktop {
@@ -195,16 +190,6 @@
 .coachesDetails:focus-visible {
   box-shadow:
     0 0 0 2px #97907c,
-    0 0 0 4px rgba(255, 255, 255, 0.55);
-}
-
-.plansDetails .label {
-  color: #fff;
-}
-
-.plansDetails:focus-visible {
-  box-shadow:
-    0 0 0 2px #598090,
     0 0 0 4px rgba(255, 255, 255, 0.55);
 }
 

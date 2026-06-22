@@ -207,18 +207,6 @@
           "imageAlt": "Coach portrait"
         }
       ],
-      "plansSectionTitle": "Choose Your Package",
-      "plansSectionSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
-      "plansMoreDetails": "More Details",
-      "planCardCtaAria": "View {planName} details",
-      "planCardSessionsUnlimited": "Unlimited sessions",
-      "planCardSessionsCount": "{count, plural, one {# session} other {# sessions}}",
-      "planCardGuestCount": "{count, plural, one {# guest} other {# guests}}",
-      "planCardCategoryPackages": "{count, plural, one {# package} other {# packages}}",
-      "planCardPriceFromPrefix": "From",
-      "planPopularBadge": "Popular",
-      "plansEmpty": "Packages will appear here once they are published in the admin panel.",
-      "plansLoadFailed": "Could not load packages ({status}).",
       "galleryTitle": "A Sanctuary for Every Body",
       "galleryTitleLine1": "A Sanctuary",
       "galleryTitleLine2": "for Every Body",
@@ -1560,7 +1548,7 @@
             "description": "Weekly schedule banner, classes preview on home, and Schedule page."
           },
           "memberships": {
-            "description": "Membership plans on the home page and Packages page."
+            "description": "Packages page and navigation link."
           },
           "coaches": {
             "description": "Coaches carousel on the home page and Coaches page."

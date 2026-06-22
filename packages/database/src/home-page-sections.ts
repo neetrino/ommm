@@ -26,7 +26,7 @@ export const HOME_PAGE_SECTION_DEFINITIONS: readonly HomePageSectionDefinition[]
   { key: "home", routePath: "/", rendersOnHomePage: true },
   { key: "story", routePath: "/story", rendersOnHomePage: false },
   { key: "schedule", routePath: "/schedule", rendersOnHomePage: true },
-  { key: "memberships", routePath: "/package", rendersOnHomePage: true },
+  { key: "memberships", routePath: "/package", rendersOnHomePage: false },
   { key: "coaches", routePath: "/coaches", rendersOnHomePage: true },
   { key: "explore", routePath: "/explore", rendersOnHomePage: true },
   { key: "contact", routePath: "/contact", rendersOnHomePage: true },

@@ -207,18 +207,6 @@
           "imageAlt": "Портрет преподавателя"
         }
       ],
-      "plansSectionTitle": "Выберите пакет",
-      "plansSectionSubtitle": "Продуманные занятия для заботы о вашем физическом и душевном благополучии.",
-      "plansMoreDetails": "Подробнее",
-      "planCardCtaAria": "Открыть детали «{planName}»",
-      "planCardSessionsUnlimited": "Безлимитные занятия",
-      "planCardSessionsCount": "{count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
-      "planCardGuestCount": "{count, plural, one {# гость} few {# гостя} many {# гостей} other {# гостя}}",
-      "planCardCategoryPackages": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
-      "planCardPriceFromPrefix": "От",
-      "planPopularBadge": "Популярный",
-      "plansEmpty": "Пакеты появятся здесь после публикации в админ-панели.",
-      "plansLoadFailed": "Не удалось загрузить пакеты ({status}).",
       "galleryTitle": "Убежище для каждого тела",
       "galleryTitleLine1": "Убежище для",
       "galleryTitleLine2": "каждого тела",
@@ -1551,7 +1539,7 @@
             "description": "Блок расписания на главной, превью занятий и страница Schedule."
           },
           "memberships": {
-            "description": "Тарифы на главной и страница Packages."
+            "description": "Страница Packages и ссылка в навигации."
           },
           "coaches": {
             "description": "Блок тренеров на главной и страница Coaches."

@@ -1,9 +1,6 @@
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
-import {
-  HomeCoachesSectionDeferred,
-  HomePlansSectionDeferred,
-} from "@/components/marketing/home/home-deferred-server-sections";
+import { HomeCoachesSectionDeferred } from "@/components/marketing/home/home-deferred-server-sections";
 import { HomeGallerySectionDeferred } from "@/components/marketing/home/home-deferred-sections";
 import { HOME_LAZY_SECTION } from "@/components/marketing/home/home-lazy-section-tokens";
 import homePageStyles from "@/components/marketing/home/marketing-home-page.module.css";
@@ -30,7 +27,6 @@ export default async function MarketingHomePage({ params }: PageProps) {
 
   const visibility = await getHomeSectionsVisibility();
   const showCoaches = isHomeSectionEnabled(visibility, "coaches");
-  const showPlans = isHomeSectionEnabled(visibility, "memberships");
   const showFooterContact = isHomeSectionEnabled(visibility, "contact");
 
   return (
@@ -65,16 +61,6 @@ export default async function MarketingHomePage({ params }: PageProps) {
           </ProgressiveRevealSection>
         ) : null}
 
-        {showPlans ? (
-          <ProgressiveRevealSection
-            id="plans"
-            preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
-            mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
-            placeholderClassName={HOME_LAZY_SECTION.placeholders.plans}
-          >
-            <HomePlansSectionDeferred locale={locale} />
-          </ProgressiveRevealSection>
-        ) : null}
       </div>
 
       <div

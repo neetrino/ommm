@@ -198,10 +198,6 @@ export const HOME_HERO_CTA_ASSETS = {
     shape: "/marketing/home/sections/home-coaches-cta-shape.svg",
     arrow: "/marketing/home/sections/home-coaches-cta-arrow.svg",
   },
-  plansDetails: {
-    shape: "/marketing/home/sections/plans/home-plans-cta-shape.svg",
-    arrow: "/marketing/home/sections/plans/home-plans-cta-arrow.svg",
-  },
 } as const;
 
 export const HOME_HERO_CTA_LAYOUT = {
@@ -238,16 +234,6 @@ export const HOME_HERO_CTA_LAYOUT = {
   },
   /** Figma Featured Coaches CTA `196:1149` — same Union proportions as booking. */
   coachesDetails: {
-    widthPx: 236.625,
-    heightPx: 61.136,
-    width: "clamp(10rem, calc(100svw * 236.625 * 0.88 / 1440), 13rem)",
-    height: "clamp(2.5rem, calc(100svw * 61.136 * 0.88 / 1440), 3.375rem)",
-    labelWidthRatio: 136.25 / 236.625,
-    arrowZoneWidthRatio: (2 * (236.625 - 206)) / 236.625,
-    labelOffsetPx: 11,
-  },
-  /** Figma Packages CTA `196:1260` — Union `196:1261`, arrow `196:1266`. */
-  plansDetails: {
     widthPx: 236.625,
     heightPx: 61.136,
     width: "clamp(10rem, calc(100svw * 236.625 * 0.88 / 1440), 13rem)",
@@ -296,10 +282,6 @@ export const HOME_HERO_CTA_TABLET_LAYOUT = {
     width: `clamp(14rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 18rem)`,
     height: `clamp(3.5rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 4.375rem)`,
   },
-  plansDetails: {
-    width: `clamp(14rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 18rem)`,
-    height: `clamp(3.5rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 4.375rem)`,
-  },
 } as const;
 
 /** Hero-only iPad Pro tier — same scale bump, slightly above sections (1024px–1366px). */
@@ -317,10 +299,6 @@ export const HOME_HERO_CTA_TABLET_HERO_LAYOUT = {
     height: `clamp(3.625rem, calc(100svw * 61 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 4.5rem)`,
   },
   coachesDetails: {
-    width: `clamp(14.25rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 18.5rem)`,
-    height: `clamp(3.625rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 4.5rem)`,
-  },
-  plansDetails: {
     width: `clamp(14.25rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 18.5rem)`,
     height: `clamp(3.625rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 4.5rem)`,
   },
