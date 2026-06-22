@@ -13,9 +13,18 @@ import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type FooterLegalKey = (typeof HOME_FOOTER_LEGAL_LINKS)[number]["labelKey"];
 
+export type MarketingPublicHomeFooterMobileNavLink = {
+  href: string;
+  key: string;
+  label: string;
+};
+
 export type MarketingPublicHomeFooterMobileProps = {
   wordmarkLabel: string;
   illustrationAlt: string;
+  navAria: string;
+  navLinks: readonly MarketingPublicHomeFooterMobileNavLink[];
+  contactTitle: string;
   email: string;
   address: string;
   addressHref: string;
@@ -30,10 +39,13 @@ export type MarketingPublicHomeFooterMobileProps = {
   copyrightSuffix: string;
 };
 
-/** Figma mobile footer `97:5944`. */
+/** Figma mobile footer `632:1081`. */
 export function MarketingPublicHomeFooterMobile({
   wordmarkLabel,
   illustrationAlt,
+  navAria,
+  navLinks,
+  contactTitle,
   email,
   address,
   addressHref,
@@ -51,54 +63,49 @@ export function MarketingPublicHomeFooterMobile({
     <div className={styles.mobileStack}>
       <p className={styles.wordmark}>{wordmarkLabel}</p>
 
-      {showContactSection ? (
-        <div className={styles.mobileContact}>
-          <div className={styles.mobileContactRow}>
-            <Image
-              src={HOME_FOOTER_ASSETS.mail}
-              alt=""
-              width={20}
-              height={20}
-              unoptimized
-              className={styles.mobileContactIcon}
-              aria-hidden
-            />
-            <a href={`mailto:${email}`} className={styles.mobileContactText}>
-              {email}
-            </a>
-          </div>
-          <div className={styles.mobileContactRow}>
-            <Image
-              src={HOME_FOOTER_ASSETS.location}
-              alt=""
-              width={20}
-              height={20}
-              unoptimized
-              className={styles.mobileContactIcon}
-              aria-hidden
-            />
-            <a href={addressHref} className={styles.mobileContactText} target="_blank" rel="noopener noreferrer">
-              {address}
-            </a>
-          </div>
-        </div>
+      {navLinks.length > 0 ? (
+        <nav className={styles.mobileNav} aria-label={navAria}>
+          {navLinks.map(({ href, key, label }) => (
+            <Link key={key} href={href} className={styles.mobileNavLink}>
+              {label}
+            </Link>
+          ))}
+        </nav>
       ) : null}
 
       {showContactSection ? (
-        <div className={styles.mobilePayment}>
-          {HOME_FOOTER_PAYMENT_LOGOS.map((logo) => (
-            <span key={logo.id} className={styles.paymentLogoItem}>
+        <div className={styles.mobileContactSection}>
+          <p className={styles.mobileContactTitle}>{contactTitle}</p>
+          <div className={styles.mobileContact}>
+            <div className={styles.mobileContactRow}>
               <Image
-                src={logo.src}
+                src={HOME_FOOTER_ASSETS.mail}
                 alt=""
-                width={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
-                height={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
+                width={20}
+                height={20}
                 unoptimized
-                className={styles.paymentLogo}
+                className={styles.mobileContactIcon}
                 aria-hidden
               />
-            </span>
-          ))}
+              <a href={`mailto:${email}`} className={styles.mobileContactText}>
+                {email}
+              </a>
+            </div>
+            <div className={styles.mobileContactRow}>
+              <Image
+                src={HOME_FOOTER_ASSETS.location}
+                alt=""
+                width={20}
+                height={20}
+                unoptimized
+                className={styles.mobileContactIcon}
+                aria-hidden
+              />
+              <a href={addressHref} className={styles.mobileContactText} target="_blank" rel="noopener noreferrer">
+                {address}
+              </a>
+            </div>
+          </div>
         </div>
       ) : null}
 
@@ -120,6 +127,24 @@ export function MarketingPublicHomeFooterMobile({
         </div>
       </div>
 
+      {showContactSection ? (
+        <div className={styles.mobilePayment}>
+          {HOME_FOOTER_PAYMENT_LOGOS.map((logo) => (
+            <span key={logo.id} className={styles.paymentLogoItem}>
+              <Image
+                src={logo.src}
+                alt=""
+                width={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
+                height={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
+                unoptimized
+                className={styles.paymentLogo}
+                aria-hidden
+              />
+            </span>
+          ))}
+        </div>
+      ) : null}
+
       <nav className={styles.mobileLegal} aria-label={legalNavAria}>
         {HOME_FOOTER_LEGAL_LINKS.map((item) => (
           <Link key={item.labelKey} href={item.href} className={styles.mobileLegalLink}>
@@ -137,7 +162,7 @@ export function MarketingPublicHomeFooterMobile({
       />
 
       <div className={styles.mobileIllustration} aria-hidden>
-        <div className={`${styles.illustrationFrame} ${styles.footerFloatIllustration}`}>
+        <div className={styles.illustrationFrame}>
           <Image
             src={HOME_FOOTER_ASSETS.illustration}
             alt={illustrationAlt}

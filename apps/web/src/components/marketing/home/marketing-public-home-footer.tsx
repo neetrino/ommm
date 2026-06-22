@@ -64,12 +64,15 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-mobile-body-line-height" as string]: String(mobileLayout.bodyLineHeight),
     ["--home-footer-mobile-nav-gap" as string]: mobileLayout.navGap,
     ["--home-footer-mobile-wordmark-nav-gap" as string]: mobileLayout.wordmarkToNavGap,
+    ["--home-footer-mobile-nav-to-contact-gap" as string]: mobileLayout.navToContactGap,
+    ["--home-footer-mobile-contact-block-pt" as string]: mobileLayout.contactBlockPaddingTop,
     ["--home-footer-mobile-contact-icon-gap" as string]: mobileLayout.contactIconGap,
     ["--home-footer-mobile-contact-row-gap" as string]: mobileLayout.contactRowGap,
-    ["--home-footer-mobile-contact-margin-top" as string]: mobileLayout.contactSectionMarginTop,
+    ["--home-footer-mobile-contact-title-gap" as string]: mobileLayout.contactTitleToRowsGap,
     ["--home-footer-mobile-social-title-gap" as string]: mobileLayout.socialTitleToIconsGap,
     ["--home-footer-mobile-social-icon-gap" as string]: mobileLayout.socialIconGap,
     ["--home-footer-mobile-social-margin-top" as string]: mobileLayout.socialSectionMarginTop,
+    ["--home-footer-mobile-payment-margin-top" as string]: mobileLayout.paymentSectionMarginTop,
     ["--home-footer-mobile-legal-gap" as string]: mobileLayout.legalGap,
     ["--home-footer-mobile-legal-margin-top" as string]: mobileLayout.legalSectionMarginTop,
     ["--home-footer-mobile-copyright-margin-top" as string]: mobileLayout.copyrightMarginTop,
@@ -77,12 +80,14 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-mobile-copyright-line-height" as string]: String(mobileLayout.copyrightLineHeight),
     ["--home-footer-mobile-copyright-tracking" as string]: mobileLayout.copyrightLetterSpacing,
     ["--home-footer-mobile-illustration-top" as string]: mobileLayout.illustrationTop,
-    ["--home-footer-mobile-illustration-left" as string]: mobileLayout.illustrationLeft,
+    ["--home-footer-mobile-illustration-right" as string]: mobileLayout.illustrationRight,
+    ["--home-footer-mobile-illustration-shift-x" as string]: mobileLayout.illustrationShiftX,
     ["--home-footer-mobile-illustration-width" as string]: mobileLayout.illustrationWidth,
     ["--home-footer-mobile-illustration-height" as string]: mobileLayout.illustrationHeight,
-    ["--home-footer-mobile-hero-min-height" as string]: mobileLayout.heroMinHeight,
-    ["--home-footer-mobile-payment-margin-top" as string]: mobileLayout.paymentMarginTop,
     ["--home-footer-mobile-payment-gap" as string]: mobileLayout.paymentGap,
+    ["--home-footer-mobile-payment-mastercard-height" as string]: mobileLayout.paymentMastercardHeight,
+    ["--home-footer-mobile-payment-arca-height" as string]: mobileLayout.paymentArcaHeight,
+    ["--home-footer-mobile-payment-visa-height" as string]: mobileLayout.paymentVisaHeight,
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
     ["--home-footer-max-width" as string]: `${MARKETING_CONTENT_MAX_WIDTH_PX}px`,
@@ -308,6 +313,13 @@ export async function MarketingPublicHomeFooter({
           <MarketingPublicHomeFooterMobile
             wordmarkLabel={t("footerWordmark")}
             illustrationAlt={t("footerIllustrationAlt")}
+            navAria={t("footerTopNavAria")}
+            navLinks={footerNavLinks.map(({ href, key }) => ({
+              href,
+              key,
+              label: navT(key as MarketingNavKey),
+            }))}
+            contactTitle={t("footerContactTitle")}
             email={t("footerEmail")}
             address={t("footerAddress")}
             addressHref={HOME_FOOTER_ADDRESS_HREF}

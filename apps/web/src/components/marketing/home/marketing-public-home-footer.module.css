@@ -104,9 +104,14 @@
 .footerFloatIllustration {
   --home-footer-float-scale: 1;
   transform-origin: center bottom;
-  animation: home-footer-ball-float var(--home-footer-float-duration, 8200ms)
-    var(--home-footer-float-easing, linear) infinite;
-  will-change: transform;
+}
+
+@media (min-width: 744px) {
+  .illustrationSlot .footerFloatIllustration {
+    animation: home-footer-ball-float var(--home-footer-float-duration, 8200ms)
+      var(--home-footer-float-easing, linear) infinite;
+    will-change: transform;
+  }
 }
 
 @keyframes home-footer-ball-float {
@@ -458,6 +463,7 @@
 }
 
 .mobileNavLink {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-mobile-body-size);
   font-weight: 400;
   line-height: var(--home-footer-mobile-body-line-height);
@@ -475,40 +481,55 @@
   border-radius: 2px;
 }
 
-.mobileIllustration {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  top: auto;
-  z-index: 2;
-  overflow: visible;
-  width: min(
-    calc(72vw * var(--home-footer-illustration-scale, 1)),
-    calc(16.5rem * var(--home-footer-illustration-scale, 1))
-  );
-  height: auto;
-  aspect-ratio: 1 / 1;
-  transform: translate(-50%, var(--home-footer-mobile-illustration-bleed, 0%));
-  pointer-events: none;
-}
-
 .mobileStack > :not(.mobileIllustration) {
   position: relative;
   z-index: 1;
 }
 
+.mobileIllustration {
+  position: absolute;
+  top: var(--home-footer-mobile-illustration-top, 2rem);
+  right: var(--home-footer-mobile-illustration-right, 0);
+  left: auto;
+  bottom: auto;
+  z-index: 0;
+  overflow: visible;
+  width: var(--home-footer-mobile-illustration-width, 25rem);
+  height: var(--home-footer-mobile-illustration-height, 24.75rem);
+  transform: translateX(var(--home-footer-mobile-illustration-shift-x, 50%));
+  pointer-events: none;
+}
+
+.mobileIllustration .illustrationFrame {
+  width: 100%;
+  height: 100%;
+}
+
 .mobileIllustrationImage {
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center center;
+}
+
+.mobileContactSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-footer-mobile-contact-title-gap);
+  margin-top: var(--home-footer-mobile-nav-to-contact-gap);
+  padding-top: var(--home-footer-mobile-contact-block-pt);
+}
+
+.mobileContactTitle {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--home-footer-mobile-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-body-line-height);
+  color: var(--home-footer-text);
 }
 
 .mobileContact {
   display: flex;
   flex-direction: column;
   gap: var(--home-footer-mobile-contact-row-gap);
-  margin-top: calc(
-    var(--home-footer-mobile-contact-margin-top) - var(--home-footer-contact-social-lift, 0px)
-  );
 }
 
 .mobileContactRow {
@@ -524,6 +545,7 @@
 }
 
 .mobileContactText {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-mobile-body-size);
   font-weight: 400;
   line-height: var(--home-footer-mobile-body-line-height);
@@ -548,12 +570,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--home-footer-mobile-social-title-gap);
-  margin-top: calc(
-    var(--home-footer-mobile-social-margin-top) - var(--home-footer-contact-social-lift, 0px)
-  );
+  margin-top: var(--home-footer-mobile-social-margin-top);
 }
 
 .mobileSocialTitle {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-mobile-body-size);
   font-weight: 400;
   line-height: var(--home-footer-mobile-body-line-height);
@@ -572,12 +593,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--home-footer-mobile-legal-gap);
-  margin-top: calc(
-    var(--home-footer-mobile-legal-margin-top) - var(--home-footer-top-bar-legal-lift, 0px)
-  );
+  margin-top: var(--home-footer-mobile-legal-margin-top);
 }
 
 .mobileLegalLink {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-mobile-body-size);
   font-weight: 400;
   line-height: var(--home-footer-mobile-body-line-height);
@@ -609,15 +629,17 @@
   .wordmark {
     font-size: var(--home-footer-mobile-wordmark-size);
     line-height: var(--home-footer-mobile-wordmark-line-height);
-    margin-top: calc(-1 * var(--home-footer-top-bar-legal-lift, 0px));
+    font-weight: 600;
+    margin-top: 0;
   }
 
   .mobileStack {
     display: flex;
     flex-direction: column;
     position: relative;
+    min-height: 0;
     padding-top: var(--home-footer-mobile-py);
-    padding-bottom: calc(var(--home-footer-mobile-pb) + 5rem);
+    padding-bottom: var(--home-footer-mobile-pb);
     padding-inline-start: calc(
       env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem) +
         var(--marketing-header-optical-inset-start, 0px)
@@ -631,7 +653,8 @@
   .shell {
     position: relative;
     z-index: 1;
-    overflow: visible;
+    overflow-x: clip;
+    overflow-y: visible;
     border-top-left-radius: var(--home-footer-mobile-radius);
     border-top-right-radius: var(--home-footer-mobile-radius);
   }
@@ -654,7 +677,34 @@
 }
 
 .mobilePayment {
-  margin-top: var(--home-footer-mobile-payment-margin-top, 1.5rem);
+  margin-top: var(--home-footer-mobile-payment-margin-top, 2rem);
+}
+
+@media (max-width: 743px) {
+  .mobilePayment .paymentLogoItem:nth-child(1) {
+    height: var(--home-footer-mobile-payment-mastercard-height, 22px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(1) .paymentLogo {
+    height: var(--home-footer-mobile-payment-mastercard-height, 22px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(2) {
+    height: var(--home-footer-mobile-payment-arca-height, 16px);
+    margin-inline-start: 0;
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(2) .paymentLogo {
+    height: var(--home-footer-mobile-payment-arca-height, 16px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(3) {
+    height: var(--home-footer-mobile-payment-visa-height, 18px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(3) .paymentLogo {
+    height: var(--home-footer-mobile-payment-visa-height, 18px);
+  }
 }
 
 @media (min-width: 744px) {
@@ -901,7 +951,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .footerFloatIllustration {
+  .illustrationSlot .footerFloatIllustration {
     animation: none;
     will-change: auto;
     transform: none;

@@ -1,6 +1,6 @@
 /**
  * Figma **Footer** `605:961` — artboard 1440×428.
- * Mobile container `97:5944`.
+ * Mobile container `632:1081`.
  */
 
 import { MARKETING_CONTENT_INLINE_INSET } from "@/components/marketing/marketing-content-layout";
@@ -136,7 +136,7 @@ export const HOME_FOOTER_FLOAT_MOTION = {
   easing: "linear",
 } as const;
 
-/** Figma mobile footer — container `97:5944`. */
+/** Figma mobile footer — container `632:1081`. */
 export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   artboardWidthPx: 394,
   sectionPaddingXPx: 24,
@@ -149,31 +149,37 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   bodyLineHeightPx: 20,
   navGapPx: 10,
   wordmarkToNavGapPx: 16,
+  navToContactGapPx: 11,
+  contactBlockPaddingTopPx: 16,
   contactIconGapPx: 12,
-  contactRowGapPx: 12,
-  contactSectionMarginTopPx: 16,
+  contactRowGapPx: 14,
+  contactTitleToRowsGapPx: 14,
   socialTitleToIconsGapPx: 16,
   socialIconGapPx: 20,
   socialSectionMarginTopPx: 32,
+  paymentSectionMarginTopPx: 32,
   legalGapPx: 24,
   legalSectionMarginTopPx: 32,
   copyrightMarginTopPx: 24,
   copyrightFontSizePx: 12,
   copyrightLineHeightPx: 16,
   copyrightLetterSpacingPx: 1.2,
-  illustrationTopPx: 14,
-  illustrationLeftPx: 70,
+  illustrationTopPx: 56,
   illustrationWidthPx: 400,
   illustrationHeightPx: 396,
-  paymentMarginTopPx: 24,
+  /** Half of the sphere bleeds off the right edge. */
+  illustrationHalfVisibleShiftRatio: 0.5,
   paymentGapPx: 16,
+  paymentMastercardHeightPx: 22,
+  paymentArcaHeightPx: 16,
+  paymentVisaHeightPx: 18,
 } as const;
 
-/** Mobile layout from Figma `97:5944`. */
+/** Mobile layout from Figma `632:1081`. */
 export const HOME_FOOTER_MOBILE_LAYOUT = {
   galleryOverlap: "2.5rem",
   wrapPaddingTop: "2.5rem",
-  sectionPaddingX: "1rem",
+  sectionPaddingX: "1.5rem",
   sectionPaddingTop: "3rem",
   sectionPaddingBottom: "1.5rem",
   topRadius: "2.5rem",
@@ -185,12 +191,15 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
     HOME_FOOTER_SECTION_MOBILE_FIGMA.bodyLineHeightPx / HOME_FOOTER_SECTION_MOBILE_FIGMA.bodyFontSizePx,
   navGap: "0.625rem",
   wordmarkToNavGap: "1rem",
+  navToContactGap: "0.6875rem",
+  contactBlockPaddingTop: "1rem",
   contactIconGap: "0.75rem",
-  contactRowGap: "0.75rem",
-  contactSectionMarginTop: "1rem",
+  contactRowGap: "0.875rem",
+  contactTitleToRowsGap: "0.875rem",
   socialTitleToIconsGap: "1rem",
   socialIconGap: "1.25rem",
   socialSectionMarginTop: "2rem",
+  paymentSectionMarginTop: "2rem",
   legalGap: "1.5rem",
   legalSectionMarginTop: "2rem",
   copyrightMarginTop: "1.5rem",
@@ -198,13 +207,16 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   copyrightLineHeight:
     HOME_FOOTER_SECTION_MOBILE_FIGMA.copyrightLineHeightPx / HOME_FOOTER_SECTION_MOBILE_FIGMA.copyrightFontSizePx,
   copyrightLetterSpacing: "0.075rem",
-  illustrationTop: "clamp(-2.125rem, calc(100svw * -34 / 394), -2.125rem)",
-  illustrationLeft: "clamp(3.25rem, calc(100svw * 70 / 394), 4.375rem)",
+  illustrationTop: "clamp(2rem, calc(100svw * 56 / 394), 3.5rem)",
+  illustrationRight: "0",
+  illustrationShiftX: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.illustrationHalfVisibleShiftRatio * 100}%`,
   illustrationWidth: "clamp(15.75rem, calc(100svw * 400 / 394), 25rem)",
   illustrationHeight: "clamp(15.5rem, calc(100svw * 396 / 394), 24.75rem)",
-  heroMinHeight: "clamp(11rem, calc(100svw * 267 / 394), 16.75rem)",
-  paymentMarginTop: "1.5rem",
+  paymentMarginTop: "2rem",
   paymentGap: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentGapPx}px`,
+  paymentMastercardHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentMastercardHeightPx}px`,
+  paymentArcaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaHeightPx}px`,
+  paymentVisaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentVisaHeightPx}px`,
 } as const;
 
 const homeFooterTabletCornerCoverPx = HOME_FOOTER_SECTION_MOBILE_FIGMA.topRadiusPx + 12;
