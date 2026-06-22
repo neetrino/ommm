@@ -2827,7 +2827,8 @@
         "duplicateTypeError": "Յուրաքանչյուր դասի տեսակը կարող է լինել միայն մեկ անգամ։",
         "missingTypeError": "Ընտրեք դասի տեսակ յուրաքանչյուր տողի համար։",
         "invalidSessionCountError": "Մուտքագրեք session count 1-ից 999։",
-        "emptyError": "Ավելացրեք առնվազն մեկ դասի տեսակ session count-ով։",
+        "emptyError": "Պահպանելուց առաջ ավելացրեք առնվազն մեկ session type և session count։",
+        "requiredHint": "Պարտադիր է առնվազն մեկ session type և session count։",
         "invalidEntries": "Ուղղեք session type տողերը պահպանելուց առաջ։"
       }
     },

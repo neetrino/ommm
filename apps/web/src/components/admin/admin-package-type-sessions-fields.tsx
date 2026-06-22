@@ -66,12 +66,21 @@ export function AdminPackageTypeSessionsFields({
           >
             <span className="ommm-label text-[10px] uppercase tracking-wide">
               {tPackages("formSections.typeSessions.heading")}
+              <span className="text-red-600" aria-hidden>
+                {" "}
+                *
+              </span>
             </span>
             <span className="ommm-label text-[10px] uppercase tracking-wide">
               {t("fieldSessionCount")}
+              <span className="text-red-600" aria-hidden>
+                {" "}
+                *
+              </span>
             </span>
             <span className="sr-only">{t("removeRowAria", { index: 0 })}</span>
           </div>
+          <p className="text-xs text-sage-500">{t("requiredHint")}</p>
           <ul className="flex flex-col gap-2">
           {entries.map((entry, index) => {
             const rowTypeOptions = resolveClassTypeOptionsForEntry(
@@ -114,8 +123,8 @@ export function AdminPackageTypeSessionsFields({
                   onKeyDown={preventNumberArrowStep}
                   placeholder={t("fieldSessionCountPlaceholder")}
                   disabled={disabled}
-                  required
                   aria-label={t("fieldSessionCount")}
+                  aria-required="true"
                 />
               </div>
               <div className="flex items-center justify-end sm:justify-center">

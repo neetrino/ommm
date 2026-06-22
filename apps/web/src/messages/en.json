@@ -2836,7 +2836,8 @@
         "duplicateTypeError": "Each class type can appear only once.",
         "missingTypeError": "Select a class type for every row.",
         "invalidSessionCountError": "Enter a whole number of sessions from 1 to 999.",
-        "emptyError": "Add at least one class type with a session count.",
+        "emptyError": "Add at least one session type with a session count before saving.",
+        "requiredHint": "At least one session type and session count are required.",
         "invalidEntries": "Fix the session type rows before saving."
       }
     },
