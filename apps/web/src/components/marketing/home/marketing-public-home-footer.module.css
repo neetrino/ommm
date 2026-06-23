@@ -569,7 +569,7 @@
 
   .mobilePayment .paymentLogoItem:nth-child(2) {
     height: var(--home-footer-mobile-payment-arca-height, 16px);
-    margin-inline-start: 0;
+    margin-inline-start: var(--home-footer-mobile-payment-arca-offset, 16px);
   }
 
   .mobilePayment .paymentLogoItem:nth-child(2) .paymentLogo {
@@ -748,6 +748,7 @@
     --home-footer-mini-legal-divider-pt: 0.75rem;
     --home-footer-mini-legal-gap: 1.5rem;
     --home-footer-mini-copyright-mt: 1rem;
+    --home-footer-mini-payment-arca-offset: 16px;
     --home-footer-mini-legal-address-offset: calc(
       var(--home-footer-mini-body-line-height) + var(--home-footer-contact-title-gap) +
         1.5rem + var(--home-footer-contact-row-gap)
@@ -934,7 +935,7 @@
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
-    margin-inline-start: 0;
+    margin-inline-start: var(--home-footer-mini-payment-arca-offset, 16px);
   }
 }
 
@@ -1144,7 +1145,7 @@
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
-    margin-inline-start: 0;
+    margin-inline-start: var(--home-footer-tablet-payment-arca-offset, 16px);
   }
 }
 

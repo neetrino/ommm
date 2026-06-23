@@ -184,6 +184,7 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   paymentGapPx: 16,
   paymentMastercardHeightPx: 22,
   paymentArcaHeightPx: 16,
+  paymentArcaOffsetPx: 16,
   paymentVisaHeightPx: 18,
 } as const;
 
@@ -228,6 +229,7 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   paymentGap: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentGapPx}px`,
   paymentMastercardHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentMastercardHeightPx}px`,
   paymentArcaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaHeightPx}px`,
+  paymentArcaOffset: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaOffsetPx}px`,
   paymentVisaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentVisaHeightPx}px`,
 } as const;
 
