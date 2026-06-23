@@ -1,4 +1,5 @@
 import type { APIRequestContext } from "@playwright/test";
+import { STUDIO_TIMEZONE } from "../../src/lib/studio-timezone";
 
 export const E2E_API_ORIGIN =
   process.env.E2E_API_ORIGIN?.trim() || "http://localhost:4000";
@@ -10,6 +11,7 @@ export type PublicScheduleRow = {
   className: string;
   availableSpots: number;
   status: string;
+  sessionDate?: string;
 };
 
 export type UserBookingRow = {
@@ -81,20 +83,31 @@ export async function fetchPublicSchedule(
   return (await res.json()) as PublicScheduleRow[];
 }
 
-/** First ACTIVE row with at least `minSpots` available (works without seed data). */
+function studioTodayIso(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: STUDIO_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+/** First ACTIVE row with at least `minSpots` on the studio calendar today. */
 export async function findBookableSession(
   request: APIRequestContext,
   minSpots = 1,
 ): Promise<PublicScheduleRow> {
   const rows = await fetchPublicSchedule(request);
+  const todayIso = studioTodayIso();
   const match = rows.find(
     (row) =>
       row.status === "ACTIVE" &&
-      row.availableSpots >= minSpots,
+      row.availableSpots >= minSpots &&
+      row.sessionDate?.slice(0, 10) === todayIso,
   );
   if (match === undefined) {
     throw new Error(
-      `No ACTIVE public session with >= ${minSpots} spots in schedule window`,
+      `No ACTIVE public session with >= ${minSpots} spots on ${todayIso} (studio calendar)`,
     );
   }
   return match;
