@@ -316,7 +316,10 @@ export function HomeGalleryMosaicCarousel({
     if (!reducedMotion || !useInfiniteTrack) {
       return;
     }
-    recenterIfNeeded(trackVisualIndex);
+    const frame = requestAnimationFrame(() => {
+      recenterIfNeeded(trackVisualIndex);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [recenterIfNeeded, reducedMotion, trackVisualIndex, useInfiniteTrack]);
 
   const finishRecenter = useCallback(() => {

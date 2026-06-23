@@ -13,7 +13,7 @@ import {
 } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminPackageForm } from "@/components/admin/admin-package-form";
+import { AdminPackageForm, resolveAdminPackageFormKey } from "@/components/admin/admin-package-form";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -147,6 +147,17 @@ export function AdminPackagesShell({
     }
     return categoryOptions[0]?.id ?? defaultCategoryName;
   }, [categoryIdFromQuery, categoryOptions, defaultCategoryName, editingPackage, pricingPackage]);
+  const modalPackageId =
+    modalMode === "pricing" || modalMode === "edit-tier"
+      ? pricingPackage?.id
+      : modalMode === "add-tier"
+        ? addTierShellPlan?.id
+        : editingPackage?.id;
+  const modalFormKey = resolveAdminPackageFormKey(
+    modalMode,
+    modalPackageId,
+    initialCategoryName,
+  );
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -277,6 +288,7 @@ export function AdminPackagesShell({
           {isCreateGroupModal ? (
             <div className="flex min-h-0 flex-col">
               <AdminPackageForm
+                key={modalFormKey}
                 mode={modalMode}
                 packageId={undefined}
                 initialCategoryName={initialCategoryName}
@@ -324,6 +336,7 @@ export function AdminPackagesShell({
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
             <AdminPackageForm
+              key={modalFormKey}
               mode={modalMode}
               packageId={
                 modalMode === "pricing" || modalMode === "edit-tier"

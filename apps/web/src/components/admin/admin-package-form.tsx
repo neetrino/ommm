@@ -53,6 +53,26 @@ import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 
 export type AdminPackageFormMode = "create" | "edit" | "pricing" | "add-tier" | "edit-tier";
 
+export function resolveAdminPackageFormKey(
+  mode: AdminPackageFormMode,
+  packageId: string | undefined,
+  initialCategoryName: string,
+): string {
+  if (mode === "create") {
+    return "create";
+  }
+  if (mode === "add-tier") {
+    return `add-tier-${initialCategoryName}-${packageId ?? "new"}`;
+  }
+  if (mode === "edit-tier") {
+    return `edit-tier-${packageId ?? "unknown"}`;
+  }
+  if (packageId !== undefined) {
+    return `${mode}-${packageId}`;
+  }
+  return mode;
+}
+
 type CategoryOption = {
   id: string;
   label: string;
@@ -124,16 +144,7 @@ export function AdminPackageForm({
 }: AdminPackageFormProps) {
   const t = useTranslations("adminPages.packages");
   const createGroupTitleId = useId();
-  const formKey =
-    mode === "create"
-      ? "create"
-      : mode === "add-tier"
-        ? `add-tier-${initialCategoryName}-${packageId ?? "new"}`
-        : mode === "edit-tier"
-          ? `edit-tier-${packageId ?? "unknown"}`
-          : packageId !== undefined
-          ? `${mode}-${packageId}`
-          : mode;
+  const formKey = resolveAdminPackageFormKey(mode, packageId, initialCategoryName);
   const [values, setValues] = useState<AdminPackageFormValues>(() =>
     buildInitialValues(mode, initialCategoryName, initialPackage),
   );
@@ -147,15 +158,6 @@ export function AdminPackageForm({
   const [tierFieldErrors, setTierFieldErrors] = useState<TierFieldErrors>({});
   const [categoryNamesFromApi, setCategoryNamesFromApi] = useState<readonly string[]>([]);
   const submitLockRef = useRef(false);
-
-  useEffect(() => {
-    if (mode !== "add-tier" && mode !== "edit-tier") {
-      return;
-    }
-    setTypeSessionEntries(
-      initialTypeSessionEntries(mode === "edit-tier" ? initialPackage : undefined),
-    );
-  }, [formKey, initialPackage, mode]);
 
   useEffect(() => {
     let cancelled = false;

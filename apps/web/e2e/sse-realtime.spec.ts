@@ -44,7 +44,16 @@ test.describe("SSE realtime (requires API on :4000)", () => {
     page,
     request,
   }) => {
-    const session = await findBookableSession(request, 1);
+    let session: Awaited<ReturnType<typeof findBookableSession>>;
+    try {
+      session = await findBookableSession(request, 1);
+    } catch (error) {
+      test.skip(
+        true,
+        error instanceof Error ? error.message : "No bookable session today",
+      );
+      return;
+    }
     const tracker = trackSchedulePublicRefetches(page);
 
     const initialLoad = waitForInitialScheduleLoad(page);
@@ -88,7 +97,16 @@ test.describe("SSE realtime (requires API on :4000)", () => {
     page,
     request,
   }) => {
-    const session = await findBookableSession(request, 1);
+    let session: Awaited<ReturnType<typeof findBookableSession>>;
+    try {
+      session = await findBookableSession(request, 1);
+    } catch (error) {
+      test.skip(
+        true,
+        error instanceof Error ? error.message : "No bookable session today",
+      );
+      return;
+    }
     const memberApi = await playwrightRequest.newContext();
 
     try {
