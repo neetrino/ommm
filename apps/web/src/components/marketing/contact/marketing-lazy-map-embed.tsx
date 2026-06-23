@@ -6,14 +6,13 @@ import { MARKETING_LAZY_SECTION } from "@/components/marketing/marketing-lazy-se
 import styles from "@/components/marketing/contact/marketing-contact-page-content.module.css";
 
 type MarketingLazyMapEmbedProps = {
-  heading: string;
   embedHtml: string;
 };
 
 const MAP_MOUNT_MARGIN_PX = MARKETING_LAZY_SECTION.mountMarginPx;
 
 /** Renders the studio map iframe only when the section nears the viewport. */
-export function MarketingLazyMapEmbed({ heading, embedHtml }: MarketingLazyMapEmbedProps) {
+export function MarketingLazyMapEmbed({ embedHtml }: MarketingLazyMapEmbedProps) {
   const containerRef = useRef<HTMLElement | null>(null);
   const [shouldRenderMap, setShouldRenderMap] = useState(false);
 
@@ -75,7 +74,6 @@ export function MarketingLazyMapEmbed({ heading, embedHtml }: MarketingLazyMapEm
 
   return (
     <section ref={containerRef} className={styles.mapSection}>
-      <h2 className={styles.mapHeading}>{heading}</h2>
       {shouldRenderMap ? (
         <div
           className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.mapFrame}`}

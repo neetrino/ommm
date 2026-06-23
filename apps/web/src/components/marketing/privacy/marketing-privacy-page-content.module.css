@@ -8,6 +8,7 @@
 }
 
 .intro,
+.lead,
 .paragraph,
 .closing {
   margin: 0;
@@ -43,7 +44,18 @@
   width: 100%;
 }
 
-.closing {
-  padding-top: 0.25rem;
-  font-style: italic;
+.list {
+  margin: 0;
+  padding-inline-start: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.listItem {
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--coaches-page-lead-color);
 }
