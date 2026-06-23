@@ -23,8 +23,16 @@ type MarketingContactPageLayoutProps = MarketingContactLocaleProps & {
   studioFetch?: ReturnType<typeof fetchPublicJsonCached<StudioPublicSettings>>;
 };
 
+type ContactStudioRowKey = "phone" | "address" | "email" | "hours";
+
+const CONTACT_PRIMARY_ROW_KEYS: readonly ContactStudioRowKey[] = [
+  "phone",
+  "address",
+  "email",
+];
+
 type ContactStudioRow = {
-  key: string;
+  key: ContactStudioRowKey;
   iconSrc: string;
   label: string;
   value: string;
@@ -72,17 +80,6 @@ function buildContactStudioRows(
     });
   }
 
-  const email = publicContact.email.trim();
-  if (email.length > 0) {
-    rows.push({
-      key: "email",
-      iconSrc: CONTACT_PAGE_ASSETS.iconMail,
-      label: labels.email,
-      value: email,
-      href: `mailto:${email}`,
-    });
-  }
-
   const address = publicContact.address.trim();
   if (address.length > 0) {
     rows.push({
@@ -91,6 +88,17 @@ function buildContactStudioRows(
       label: labels.address,
       value: address,
       href: publicContact.addressHref,
+    });
+  }
+
+  const email = publicContact.email.trim();
+  if (email.length > 0) {
+    rows.push({
+      key: "email",
+      iconSrc: CONTACT_PAGE_ASSETS.iconMail,
+      label: labels.email,
+      value: email,
+      href: `mailto:${email}`,
     });
   }
 

@@ -15,7 +15,13 @@
   color: var(--contact-heading-color);
 }
 
-.list {
+.bodyGrid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2.8vh, 2rem);
+}
+
+.primaryList {
   display: flex;
   flex-direction: column;
   gap: clamp(1.25rem, 2.8vh, 2rem);
@@ -24,15 +30,26 @@
   list-style: none;
 }
 
+.secondaryColumn {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2.8vh, 2rem);
+}
+
+@media (max-width: 767px) {
+  .bodyGrid,
+  .primaryList,
+  .secondaryColumn {
+    gap: var(--contact-mobile-row-gap, 2.5rem);
+  }
+}
+
 @media (min-width: 768px) {
-  .list {
+  .bodyGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 4vw, 3rem);
-  }
-
-  .rowSocial {
-    grid-column: 2;
+    align-items: start;
   }
 }
 
@@ -90,6 +107,9 @@
 
 .valueLink {
   composes: value;
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
   text-decoration: none;
   transition: opacity 150ms ease;
 }

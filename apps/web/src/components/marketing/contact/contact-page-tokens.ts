@@ -18,6 +18,7 @@ export const CONTACT_PAGE_LAYOUT = {
   iconSizePx: 56,
   socialIconSizePx: 40,
   calloutRadiusPx: 16,
+  mobileRowGapPx: 40,
 } as const;
 
 /** Above-fold cards — quick mount fade/slide (no scroll intersection wait). */
