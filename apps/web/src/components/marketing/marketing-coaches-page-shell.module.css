@@ -62,3 +62,21 @@
     padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
   }
 }
+
+/* Policy pages — gallery cream surface (overrides inner gradient). */
+.shell:has([data-marketing-policy]) {
+  --home-footer-wrap-bg: var(--ommm-policy-page-background);
+  background: var(--ommm-policy-page-background);
+  min-height: 100dvh;
+}
+
+.shell:has([data-marketing-policy]) .main {
+  background: var(--ommm-policy-page-background);
+}
+
+@media (max-width: 743px) {
+  .shell:has([data-marketing-policy]) .main {
+    background: transparent;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
+}

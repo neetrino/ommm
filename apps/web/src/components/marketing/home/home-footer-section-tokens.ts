@@ -10,8 +10,10 @@ import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-as
 const HOME_FOOTER_OLIVE_RGB = "151, 144, 124";
 const HOME_FOOTER_CREAM_RGB = "251, 245, 213";
 
-/** Figma `605:961` — subtle olive → cream wash on page cream. */
-export const HOME_FOOTER_SHELL_BACKGROUND = `linear-gradient(to bottom, rgba(${HOME_FOOTER_OLIVE_RGB}, 0.09) 0%, rgba(${HOME_FOOTER_CREAM_RGB}, 0.09) 100%), ${HOME_PAGE_SURFACE.pageBackground}`;
+/** Figma `605:961` — olive → cream wash (180deg) on page cream. */
+export const HOME_FOOTER_SHELL_GRADIENT = `linear-gradient(180deg, rgba(${HOME_FOOTER_OLIVE_RGB}, 0.09) 0%, rgba(${HOME_FOOTER_CREAM_RGB}, 0.09) 100%)`;
+
+export const HOME_FOOTER_SHELL_BACKGROUND = `${HOME_FOOTER_SHELL_GRADIENT}, ${HOME_PAGE_SURFACE.pageBackground}`;
 
 export const HOME_FOOTER_FIGMA = {
   surface: HOME_PAGE_SURFACE.pageBackground,
@@ -122,10 +124,13 @@ const HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX = Math.max(
 const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX = 100;
 const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX = 300;
 
+/** Full desktop footer — absolute Figma layout (1367px+). */
+export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
+
 /** Desktop footer sphere bounce — WAAPI loop in `HomeFooterSphereBounce`. */
 export const HOME_FOOTER_SPHERE_BOUNCE = {
-  /** Match footer illustration layout — tablet grid and full desktop. */
-  minWidthPx: 744,
+  /** Full desktop only — iPad footer keeps a static illustration. */
+  minWidthPx: HOME_FOOTER_DESKTOP_MIN_WIDTH_PX,
   peakBasePx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX,
   peakBoostMinPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX,
   peakBoostMaxPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX,
@@ -181,6 +186,7 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   paymentGapPx: 16,
   paymentMastercardHeightPx: 22,
   paymentArcaHeightPx: 16,
+  paymentArcaOffsetPx: 16,
   paymentVisaHeightPx: 18,
 } as const;
 
@@ -225,6 +231,7 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   paymentGap: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentGapPx}px`,
   paymentMastercardHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentMastercardHeightPx}px`,
   paymentArcaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaHeightPx}px`,
+  paymentArcaOffset: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaOffsetPx}px`,
   paymentVisaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentVisaHeightPx}px`,
 } as const;
 
@@ -324,9 +331,6 @@ export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
 } as const;
 export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT;
 
-/** Full desktop footer — absolute Figma layout (1367px+). */
-export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
-
 /** @deprecated Use HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT — kept for reference values. */
 export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
   desktopPadding: "1.75rem 0 1.5rem",
@@ -347,8 +351,8 @@ export const HOME_FOOTER_ADDRESS_HREF =
   "https://yandex.com/maps/10262/yerevan/house/pushkini_poghots_25/YE0YcwZiTkYCQFpqfX15c31qYw==/?ll=44.512935%2C40.182167&z=20.44" as const;
 
 export const HOME_FOOTER_LEGAL_LINKS = [
-  { href: "/contact", labelKey: "footerPrivacy" },
-  { href: "/contact", labelKey: "footerTerms" },
+  { href: "/privacy", labelKey: "footerPrivacy" },
+  { href: "/terms", labelKey: "footerTerms" },
   { href: "/refund", labelKey: "footerRefund" },
 ] as const;
 

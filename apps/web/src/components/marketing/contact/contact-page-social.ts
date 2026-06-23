@@ -7,10 +7,9 @@ export type ContactSocialIconLink = {
   href: string;
 };
 
+/** Platforms shown on the contact page — add `facebook` / `whatsapp` when URLs are ready. */
 const CONTACT_SOCIAL_PLATFORM_ORDER: readonly ContactSocialPlatform[] = [
   "instagram",
-  "facebook",
-  "whatsapp",
 ];
 
 function resolveSocialHref(

@@ -13,10 +13,10 @@ export async function seedStudioSettings(prisma: PrismaClient): Promise<void> {
       where: { id: existing.id },
       data: {
         studioName: "Ommm Pilates & Movement",
-        contactEmail: "hello@ommm.am",
+        contactEmail: "info@ommm.am",
         contactPhone: "+37410123456",
         whatsappUrl: "https://wa.me/37410123456",
-        address: "12 Abovyan Street, Yerevan, Armenia",
+        address: "25 Pushkin St,Yerevan",
         workingHours: "Mon–Sat 7:00–21:00 · Sun 9:00–18:00",
         socialLinksJson: JSON.stringify({
           instagram: "https://instagram.com/ommm.studio",
@@ -32,10 +32,10 @@ export async function seedStudioSettings(prisma: PrismaClient): Promise<void> {
   await prisma.studioSettings.create({
     data: {
       studioName: "Ommm Pilates & Movement",
-      contactEmail: "hello@ommm.am",
+      contactEmail: "info@ommm.am",
       contactPhone: "+37410123456",
       whatsappUrl: "https://wa.me/37410123456",
-      address: "12 Abovyan Street, Yerevan, Armenia",
+      address: "25 Pushkin St,Yerevan",
       workingHours: "Mon–Sat 7:00–21:00 · Sun 9:00–18:00",
       socialLinksJson: JSON.stringify({
         instagram: "https://instagram.com/ommm.studio",

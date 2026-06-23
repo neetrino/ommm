@@ -225,7 +225,7 @@
       "footerTopNavAria": "Footer navigation",
       "footerContactTitle": "Contact Us",
       "footerPhone": "+ 33333333",
-      "footerEmail": "ommm@mail.com",
+      "footerEmail": "info@ommm.am",
       "footerAddress": "25 Pushkin St,Yerevan",
       "footerSocialTitle": "Social Media",
       "footerSocialAria": "{network} profile",
@@ -1202,9 +1202,8 @@
   "marketingPages": {
     "contact": {
       "title": "Contact",
-      "lede": "Reach the studio team by phone, email, or social — we reply within one business day when appropriate.",
+      "lede": "Get in touch with our studio — by email or Instagram.",
       "studioHeading": "Studio",
-      "replyCallout": "We usually reply within 1 business day.",
       "phone": "Phone",
       "email": "Email",
       "whatsApp": "WhatsApp",
@@ -1212,8 +1211,8 @@
       "address": "Address",
       "hours": "Hours",
       "fallbackPhone": "+374 000 00 00 00",
-      "fallbackEmail": "hello@ommm.am",
-      "fallbackAddress": "Yerevan, Armenia",
+      "fallbackEmail": "info@ommm.am",
+      "fallbackAddress": "25 Pushkin St,Yerevan",
       "fallbackHours": "Mon – Sat / 8:00 – 21:00",
       "mapHeading": "Map",
       "instagram": "Instagram",
@@ -1234,6 +1233,145 @@
       "refundsP2": "We will refund the value of your package minus the cost of any sessions already used.",
       "refundsP3": "After 14 days, packages become non-refundable. However, they don't have to go to waste — unused sessions may be transferred to a friend or family member, so your moment of wellbeing can become theirs.",
       "closing": "Thank you for helping us create a thoughtful, respectful community where every spot, every instructor's time, and every member's experience is valued."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "metaDescription": "How Ommm. collects, uses, stores, and protects your personal data on ommm.am.",
+      "introP1": "By visiting the website https://ommm.am/ (hereinafter referred to as the \"Website\") and making purchases, you automatically consent to the collection, processing, and use of your personal data.",
+      "introP2": "By \"Personal Data,\" we mean any information that allows or may allow us to directly or indirectly identify your identity, such as your name, surname, address, email, phone number, and other data (hereinafter referred to as \"Data\").",
+      "introP3": "In this Privacy Policy, \"we,\" \"us,\" and \"our\" refer to the Website (for more information, please visit the \"About Us\" section), while \"you,\" \"your,\" and \"yours\" refer to any individual who visits the Website or uses our services.",
+      "collectedTitle": "1. Collected Data",
+      "collectedLead": "We may collect the following types of information:",
+      "collectedItems": [
+        "Contact information – name, surname, address, phone number, email address",
+        "Purchase information – products purchased, payment methods",
+        "Technical information – device type, browser, operating system",
+        "Cookies and tracking technologies – for website usage analysis"
+      ],
+      "useTitle": "2. Use of Data",
+      "useLead": "Collected data is never sold or provided to third parties for marketing purposes. It is used only for the following purposes:",
+      "useItems": [
+        "Processing and shipping orders",
+        "Providing user support",
+        "Improving website functionality",
+        "Complying with legal requirements"
+      ],
+      "retentionTitle": "3. Data Retention Periods",
+      "retentionLead": "Your personal data is stored as follows:",
+      "retentionItems": [
+        "User account data – as long as the account is active",
+        "Purchase history – 5 years (to comply with tax and accounting regulations)",
+        "Marketing data – 2 years or until the user opts out"
+      ],
+      "securityTitle": "4. Data Security",
+      "securityLead": "We implement appropriate technical and organizational measures to ensure the protection of your data, including:",
+      "securityItems": [
+        "SSL encryption – to secure payment and personal data transmission",
+        "Access control – limited access to personal data",
+        "Regular audits – to detect potential security vulnerabilities"
+      ],
+      "sharingTitle": "5. Sharing Data with Third Parties",
+      "sharingLead": "We do not sell or provide your data to third parties, except for:",
+      "sharingItems": [
+        "Shipping services – to ensure order delivery",
+        "Payment systems – for secure payment processing",
+        "Law enforcement authorities – in cases required by law"
+      ],
+      "sharingClosing": "All third parties are obligated to protect your data and cannot use it for other purposes.",
+      "rightsTitle": "6. User Rights",
+      "rightsLead": "You have the right to:",
+      "rightsItems": [
+        "Receive a copy of your personal data",
+        "Edit or delete your data (through our website settings or customer support)",
+        "Opt-out of marketing emails (via the \"unsubscribe\" link in each email)",
+        "Request that your data is not processed for specific purposes, except in cases required by law"
+      ],
+      "cookiesTitle": "7. Cookies Usage",
+      "cookiesLead": "Our website uses cookies to optimize user experience. We use:",
+      "cookiesItems": [
+        "Functional cookies – to ensure proper website operation",
+        "Analytical cookies – to understand user behavior and improve the website",
+        "Marketing cookies (only with your consent) – to provide more relevant advertisements"
+      ],
+      "cookiesClosing": "You can change your preferences at any time by adjusting cookies in your browser.",
+      "changesTitle": "8. Policy Changes",
+      "changesLead": "We reserve the right to make legally permitted changes to this page and the above sections. Updates will be posted on the Website."
+    },
+    "terms": {
+      "title": "Terms and Conditions",
+      "metaDescription": "Terms and conditions for using the Ommm. website and services at ommm.am.",
+      "generalTitle": "1. GENERAL PROVISIONS",
+      "generalParagraphs": [
+        "1.1. These Terms and Conditions govern the use of https://ommm.am/ website (hereinafter referred to as the \"Website\").",
+        "1.2. By accessing or using the Website, you agree to these Terms.",
+        "1.3. If you do not agree to any part of these Terms, please do not use the Website.",
+        "1.4. The Website reserves the right to modify these Terms without prior notice. Changes become effective upon their publication on the Website.",
+        "1.5. Continued use of the Website implies acceptance of the updated Terms."
+      ],
+      "definitionsTitle": "2. KEY DEFINITIONS",
+      "definitionsLead": "The following definitions apply in these Terms:",
+      "definitionsItems": [
+        "Website – The online platform https://ommm.am/ offering services, content, and various functionalities.",
+        "User – Any individual or legal entity accessing or using the Website.",
+        "Services – All products, services, content, and tools available via the Website.",
+        "Content – Any text, images, videos, audio, or other materials available on the Website.",
+        "Intellectual Property – Website name, logo, texts, software, and other elements protected by copyright or trademark law.",
+        "Transaction – Any purchase, service registration, or other contractual agreement on the Website."
+      ],
+      "obligationsTitle": "3. USER OBLIGATIONS",
+      "obligationsLead": "3.1. The User agrees to:",
+      "obligationsItems": [
+        "Use the Website only for lawful purposes.",
+        "Not interfere with the Website's technical operation.",
+        "Not distribute viruses, malware, or any harmful code.",
+        "Not attempt to illegally access Website servers or data.",
+        "Not publish or distribute illegal, offensive, defamatory, or hate-inducing content."
+      ],
+      "obligationsClosing": "3.2. The Website reserves the right to block any User who violates these Terms.",
+      "liabilityTitle": "4. LIMITATION OF LIABILITY",
+      "liabilityParagraphs": [
+        "4.1. The Website is provided \"as is\" without any warranties."
+      ],
+      "liabilityLead": "4.2. The Website is not responsible for:",
+      "liabilityItems": [
+        "Any errors or technical malfunctions.",
+        "Incorrect or false information entered by Users.",
+        "Damages resulting from third-party interactions with the Website.",
+        "The accuracy, reliability, or timeliness of the content provided."
+      ],
+      "liabilityClosing": "4.3. The Website is not liable for indirect damages, including lost revenue or data loss.",
+      "ipTitle": "5. INTELLECTUAL PROPERTY",
+      "ipParagraphs": [
+        "5.1. All materials on the Website, including texts, images, logos, and software, belong to the Website or its rightful owners.",
+        "5.2. Copying, distributing, selling, or using any content without prior written permission is strictly prohibited.",
+        "5.3. The User has no right to use the Website's trademark or domain name without written permission."
+      ],
+      "paymentsTitle": "6. PAYMENTS AND REFUNDS",
+      "paymentsParagraphs": [
+        "6.1. If the Website offers paid services, payments must be made under the specified conditions.",
+        "6.2. The Website may change prices or payment terms without prior notice.",
+        "6.3. If applicable, refund policies will be outlined separately on the Website."
+      ],
+      "disputesTitle": "7. DISPUTE RESOLUTION",
+      "disputesParagraphs": [
+        "7.1. These Terms are governed by the laws of the Republic of Armenia.",
+        "7.2. All disputes should first be resolved through negotiations.",
+        "7.3. If negotiations fail, disputes will be handled in the competent courts of Armenia."
+      ],
+      "forceMajeureTitle": "8. FORCE MAJEURE",
+      "forceMajeureLead": "8.1. The Website is not responsible for failure or delay in fulfilling obligations due to force majeure circumstances, including:",
+      "forceMajeureItems": [
+        "Natural disasters (earthquakes, floods, fires, etc.).",
+        "Governmental restrictions or prohibitions.",
+        "Military conflicts, terrorism, or civil unrest.",
+        "Technical failures beyond the Website's control."
+      ],
+      "privacyTitle": "9. PRIVACY AND DATA PROTECTION",
+      "privacyParagraphs": [
+        "9.1. The Website commits to protecting user data in accordance with the Privacy Policy.",
+        "9.2. The Website may collect and process user data for legal purposes.",
+        "9.3. The Website reserves the right to disclose user data to authorities as required by law."
+      ]
     },
     "story": {
       "title": "About Ommm.",

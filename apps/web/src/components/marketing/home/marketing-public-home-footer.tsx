@@ -87,6 +87,7 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-mobile-payment-gap" as string]: mobileLayout.paymentGap,
     ["--home-footer-mobile-payment-mastercard-height" as string]: mobileLayout.paymentMastercardHeight,
     ["--home-footer-mobile-payment-arca-height" as string]: mobileLayout.paymentArcaHeight,
+    ["--home-footer-mobile-payment-arca-offset" as string]: mobileLayout.paymentArcaOffset,
     ["--home-footer-mobile-payment-visa-height" as string]: mobileLayout.paymentVisaHeight,
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,

@@ -515,13 +515,12 @@
     min-height: 0;
     padding-top: var(--home-footer-mobile-py);
     padding-bottom: var(--home-footer-mobile-pb);
+    /* Match `ommm-container` — revealSlot forces `.inner` to full width on mobile. */
     padding-inline-start: calc(
-      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-start, 0px)
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
     padding-inline-end: calc(
-      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-end, 0px)
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
   }
 
@@ -544,6 +543,10 @@
 
   .inner {
     min-height: 0;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
   }
 }
 
@@ -566,7 +569,7 @@
 
   .mobilePayment .paymentLogoItem:nth-child(2) {
     height: var(--home-footer-mobile-payment-arca-height, 16px);
-    margin-inline-start: 0;
+    margin-inline-start: var(--home-footer-mobile-payment-arca-offset, 16px);
   }
 
   .mobilePayment .paymentLogoItem:nth-child(2) .paymentLogo {
@@ -717,12 +720,10 @@
     padding-top: var(--home-footer-mobile-py);
     padding-bottom: var(--home-footer-mobile-pb);
     padding-inline-start: calc(
-      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-start, 0px)
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
     padding-inline-end: calc(
-      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-end, 0px)
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
   }
 }
@@ -747,6 +748,7 @@
     --home-footer-mini-legal-divider-pt: 0.75rem;
     --home-footer-mini-legal-gap: 1.5rem;
     --home-footer-mini-copyright-mt: 1rem;
+    --home-footer-mini-payment-arca-offset: 16px;
     --home-footer-mini-legal-address-offset: calc(
       var(--home-footer-mini-body-line-height) + var(--home-footer-contact-title-gap) +
         1.5rem + var(--home-footer-contact-row-gap)
@@ -933,7 +935,7 @@
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
-    margin-inline-start: 0;
+    margin-inline-start: var(--home-footer-mini-payment-arca-offset, 16px);
   }
 }
 
@@ -1143,7 +1145,7 @@
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
-    margin-inline-start: 0;
+    margin-inline-start: var(--home-footer-tablet-payment-arca-offset, 16px);
   }
 }
 
@@ -1175,5 +1177,44 @@
 @media (prefers-reduced-motion: reduce) {
   .footerFloatIllustration {
     will-change: auto;
+  }
+}
+
+/* iPad footer — static sphere + no scroll-reveal (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .inner {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .footerFloatIllustration {
+    will-change: auto;
+  }
+}
+
+/* Policy routes — gallery cream page + Figma 605:961 footer cap (gradient shell). */
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap,
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrapInner {
+  background-color: var(--ommm-policy-page-background);
+}
+
+:global(.marketing-layout-shell:has([data-marketing-policy])) .shell {
+  background: var(--home-footer-shell-bg, var(--home-footer-surface));
+  border-top-left-radius: var(--home-footer-radius, 64px);
+  border-top-right-radius: var(--home-footer-radius, 64px);
+}
+
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 743px) {
+  :global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap {
+    background-color: var(--ommm-policy-page-background);
+  }
+
+  :global(.marketing-layout-shell:has([data-marketing-policy])) .shell {
+    border-top-left-radius: var(--home-footer-mobile-radius, 2.5rem);
+    border-top-right-radius: var(--home-footer-mobile-radius, 2.5rem);
   }
 }

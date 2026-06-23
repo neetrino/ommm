@@ -80,13 +80,6 @@
   transition: opacity var(--home-gallery-carousel-ms, 560ms) ease;
 }
 
-.slideCenter .slideFrame {
-  box-shadow:
-    0 28px 64px rgba(45, 55, 62, 0.16),
-    0 10px 28px rgba(45, 55, 62, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
-}
-
 .slideCenter .slideSheen {
   opacity: 1;
 }

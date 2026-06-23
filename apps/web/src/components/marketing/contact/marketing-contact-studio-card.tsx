@@ -1,131 +1,103 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import {
   CONTACT_PAGE_CARD_SHELL_CLASS,
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
 import { ContactSocialBrandIcon } from "@/components/marketing/contact/contact-social-brand-icon";
-import type { ContactSocialIconLink } from "@/components/marketing/contact/contact-page-social";
+import type { MarketingContactGridTile } from "@/components/marketing/contact/marketing-contact-grid-tile";
 import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
 
-type ContactStudioRow = {
-  key: string;
-  iconSrc: string;
-  label: string;
-  value: string;
-  href?: string;
-};
-
 type MarketingContactStudioCardProps = {
-  heading: string;
-  rows: ContactStudioRow[];
-  replyCallout: string;
-  socialIconLinks: ContactSocialIconLink[];
-  socialLabel: (network: ContactSocialIconLink["id"]) => string;
-  socialAria: (network: string) => string;
+  tiles: MarketingContactGridTile[];
 };
-
-function ContactStarIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={styles.calloutIcon}
-      aria-hidden
-    >
-      <path
-        d="M8 1.5L9.4 5.8H14L10.3 8.4L11.7 12.7L8 10.1L4.3 12.7L5.7 8.4L2 5.8H6.6L8 1.5Z"
-        stroke="currentColor"
-        strokeWidth="1.1"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 const CARD_STYLE = {
-  "--contact-card-padding": `${CONTACT_PAGE_LAYOUT.cardPaddingPx}px`,
-  "--contact-card-gap": `${CONTACT_PAGE_LAYOUT.cardGapPx}px`,
-  "--contact-icon-size": `${CONTACT_PAGE_LAYOUT.iconSizePx}px`,
+  "--contact-grid-gap": `${CONTACT_PAGE_LAYOUT.gridGapPx}px`,
+  "--contact-mobile-row-gap": `${CONTACT_PAGE_LAYOUT.mobileRowGapPx}px`,
+  "--contact-tile-padding": `${CONTACT_PAGE_LAYOUT.tilePaddingPx}px`,
+  "--contact-tile-padding-mobile": `${CONTACT_PAGE_LAYOUT.tilePaddingMobilePx}px`,
+  "--contact-tile-row-gap": `${CONTACT_PAGE_LAYOUT.tileRowGapPx}px`,
+  "--contact-tile-row-gap-mobile": `${CONTACT_PAGE_LAYOUT.tileRowGapMobilePx}px`,
+  "--contact-tile-min-height": `${CONTACT_PAGE_LAYOUT.tileMinHeightPx}px`,
+  "--contact-tile-min-height-mobile":
+    CONTACT_PAGE_LAYOUT.tileMinHeightMobilePx === 0
+      ? "auto"
+      : `${CONTACT_PAGE_LAYOUT.tileMinHeightMobilePx}px`,
+  "--contact-icon-size-desktop": `${CONTACT_PAGE_LAYOUT.iconSizePx}px`,
+  "--contact-icon-size-mobile": `${CONTACT_PAGE_LAYOUT.iconSizeMobilePx}px`,
+  "--contact-icon-size": `${CONTACT_PAGE_LAYOUT.iconSizeMobilePx}px`,
   "--contact-icon-bg": CONTACT_PAGE_SURFACE.iconBackground,
-  "--contact-callout-radius": `${CONTACT_PAGE_LAYOUT.calloutRadiusPx}px`,
-  "--contact-callout-bg": CONTACT_PAGE_SURFACE.calloutBackground,
-  "--contact-heading-color": CONTACT_PAGE_SURFACE.headingColor,
   "--contact-label-color": CONTACT_PAGE_SURFACE.labelColor,
   "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
+  "--contact-tile-hover-lift": `-${CONTACT_PAGE_LAYOUT.tileHoverLiftPx}px`,
+  "--contact-tile-hover-duration": `${CONTACT_PAGE_LAYOUT.tileHoverDurationMs}ms`,
 } as CSSProperties;
 
-/** Studio contact details card — phone, email, address, hours. */
-export function MarketingContactStudioCard({
-  heading,
-  rows,
-  replyCallout,
-  socialIconLinks,
-  socialLabel,
-  socialAria,
-}: MarketingContactStudioCardProps) {
+function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
+  if (tile.href !== undefined) {
+    return (
+      <a
+        href={tile.href}
+        className={styles.valueLink}
+        {...(tile.href.startsWith("http")
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
+      >
+        {tile.value}
+      </a>
+    );
+  }
+
+  return <p className={styles.value}>{tile.value}</p>;
+}
+
+function ContactGridTileCard({
+  tile,
+  imagePriority,
+}: {
+  tile: MarketingContactGridTile;
+  imagePriority: "above" | "below";
+}) {
   return (
-    <article className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.card}`} style={CARD_STYLE}>
-      <h2 className={styles.heading}>{heading}</h2>
-      <ul className={styles.list}>
-        {rows.map((row, index) => (
-          <li key={row.key} className={styles.row}>
-            <span className={styles.iconWrap}>
-              <Image
-                src={row.iconSrc}
-                alt=""
-                width={CONTACT_PAGE_LAYOUT.iconSizePx}
-                height={CONTACT_PAGE_LAYOUT.iconSizePx}
-                className={styles.icon}
-                unoptimized
-                aria-hidden
-                {...(index === 0 ? aboveFoldImageProps() : belowFoldImageProps())}
-              />
-            </span>
-            <div className={styles.rowBody}>
-              <span className={styles.label}>{row.label}</span>
-              {row.href !== undefined ? (
-                <a href={row.href} className={styles.valueLink}>
-                  {row.value}
-                </a>
-              ) : (
-                <span className={styles.value}>{row.value}</span>
-              )}
-            </div>
-          </li>
-        ))}
-        {socialIconLinks.map((link) => (
-          <li key={link.id} className={`${styles.row} ${styles.rowSocial}`}>
-            <span className={styles.iconWrap}>
-              <ContactSocialBrandIcon id={link.id} />
-            </span>
-            <div className={styles.rowBody}>
-              <span className={styles.label}>{socialLabel(link.id)}</span>
-              <a
-                href={link.href}
-                className={styles.valueLink}
-                aria-label={socialAria(link.id)}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                {socialLabel(link.id)}
-              </a>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div className={styles.callout}>
-        <ContactStarIcon />
-        <p className={styles.calloutText}>{replyCallout}</p>
+    <article className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.tile}`}>
+      <span className={styles.iconWrap}>
+        {tile.socialIcon !== undefined ? (
+          <ContactSocialBrandIcon id={tile.socialIcon} />
+        ) : tile.iconSrc !== undefined ? (
+          <Image
+            src={tile.iconSrc}
+            alt=""
+            width={CONTACT_PAGE_LAYOUT.iconSizePx}
+            height={CONTACT_PAGE_LAYOUT.iconSizePx}
+            className={styles.icon}
+            unoptimized
+            aria-hidden
+            {...(imagePriority === "above" ? aboveFoldImageProps() : belowFoldImageProps())}
+          />
+        ) : null}
+      </span>
+      <div className={styles.body}>
+        {tile.label !== undefined ? <span className={styles.label}>{tile.label}</span> : null}
+        <ContactTileValue tile={tile} />
       </div>
     </article>
   );
 }
 
-export { CONTACT_PAGE_ASSETS };
+/** Contact page — glass tile grid (address, email, Instagram, hours). */
+export function MarketingContactStudioCard({ tiles }: MarketingContactStudioCardProps) {
+  return (
+    <div className={styles.grid} style={CARD_STYLE}>
+      {tiles.map((tile, index) => (
+        <ContactGridTileCard
+          key={tile.key}
+          tile={tile}
+          imagePriority={index < 2 ? "above" : "below"}
+        />
+      ))}
+    </div>
+  );
+}

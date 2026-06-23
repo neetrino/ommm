@@ -20,7 +20,7 @@
   font-family: var(--font-serif);
   font-size: clamp(2rem, 4.8vw, 3.25rem);
   font-style: italic;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.1;
   color: var(--coaches-page-heading-color);
 }

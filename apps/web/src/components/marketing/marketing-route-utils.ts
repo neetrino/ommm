@@ -79,9 +79,31 @@ export function isMarketingStoryPath(pathname: string): boolean {
   return pathname === "/story" || pathname.startsWith("/story/");
 }
 
+/** Legal policy routes — olive surface matching marketing navbar glass pill. */
+export const MARKETING_POLICY_PAGE_MARKER = "data-marketing-policy";
+
 /** Cancellation & refund policy — scroll-reveal content + footer. */
 export function isMarketingRefundPath(pathname: string): boolean {
   return pathname === "/refund" || pathname.startsWith("/refund/");
+}
+
+/** Privacy policy — scroll-reveal content + footer. */
+export function isMarketingPrivacyPath(pathname: string): boolean {
+  return pathname === "/privacy" || pathname.startsWith("/privacy/");
+}
+
+/** Terms and conditions — scroll-reveal content + footer. */
+export function isMarketingTermsPath(pathname: string): boolean {
+  return pathname === "/terms" || pathname.startsWith("/terms/");
+}
+
+/** Privacy, terms, and refund — shared olive policy surface (not coaches gradient). */
+export function isMarketingPolicyPath(pathname: string): boolean {
+  return (
+    isMarketingRefundPath(pathname) ||
+    isMarketingPrivacyPath(pathname) ||
+    isMarketingTermsPath(pathname)
+  );
 }
 
 /** Marketing pages whose layout footer uses the shared scroll-reveal entrance. */
@@ -93,7 +115,9 @@ export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
     isMarketingPackagesPath(pathname) ||
     isMarketingContactPath(pathname) ||
     isMarketingStoryPath(pathname) ||
-    isMarketingRefundPath(pathname)
+    isMarketingRefundPath(pathname) ||
+    isMarketingPrivacyPath(pathname) ||
+    isMarketingTermsPath(pathname)
   );
 }
 
