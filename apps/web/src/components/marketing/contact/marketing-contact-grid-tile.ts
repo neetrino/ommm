@@ -1,6 +1,6 @@
 import type { ContactSocialPlatform } from "@/components/marketing/contact/contact-page-social";
 
-/** Single contact info tile in the 3×2 grid. */
+/** Single contact info tile in the contact grid. */
 export type MarketingContactGridTile = {
   key: string;
   label?: string;
@@ -8,7 +8,6 @@ export type MarketingContactGridTile = {
   href?: string;
   iconSrc?: string;
   socialIcon?: ContactSocialPlatform;
-  variant?: "callout";
 };
 
 /** Instagram profile URL → `@handle` for display. */

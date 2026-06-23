@@ -225,7 +225,7 @@
       "footerTopNavAria": "Footer navigation",
       "footerContactTitle": "Contact Us",
       "footerPhone": "+ 33333333",
-      "footerEmail": "info@ommm.com",
+      "footerEmail": "info@ommm.am",
       "footerAddress": "25 Pushkin St,Yerevan",
       "footerSocialTitle": "Social Media",
       "footerSocialAria": "{network} profile",
@@ -1202,9 +1202,8 @@
   "marketingPages": {
     "contact": {
       "title": "Contact",
-      "lede": "Get in touch with our studio — by phone, email, or Instagram. We usually reply within one business day.",
+      "lede": "Get in touch with our studio — by email or Instagram.",
       "studioHeading": "Studio",
-      "replyCallout": "We usually reply within 1 business day.",
       "phone": "Phone",
       "email": "Email",
       "whatsApp": "WhatsApp",
@@ -1212,7 +1211,7 @@
       "address": "Address",
       "hours": "Hours",
       "fallbackPhone": "+374 000 00 00 00",
-      "fallbackEmail": "info@ommm.com",
+      "fallbackEmail": "info@ommm.am",
       "fallbackAddress": "25 Pushkin St,Yerevan",
       "fallbackHours": "Mon – Sat / 8:00 – 21:00",
       "mapHeading": "Map",

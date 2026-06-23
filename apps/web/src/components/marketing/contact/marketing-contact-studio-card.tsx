@@ -14,55 +14,34 @@ type MarketingContactStudioCardProps = {
   tiles: MarketingContactGridTile[];
 };
 
-function ContactStarIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={styles.calloutIcon}
-      aria-hidden
-    >
-      <path
-        d="M8 1.5L9.4 5.8H14L10.3 8.4L11.7 12.7L8 10.1L4.3 12.7L5.7 8.4L2 5.8H6.6L8 1.5Z"
-        stroke="currentColor"
-        strokeWidth="1.1"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 const CARD_STYLE = {
   "--contact-grid-gap": `${CONTACT_PAGE_LAYOUT.gridGapPx}px`,
   "--contact-mobile-row-gap": `${CONTACT_PAGE_LAYOUT.mobileRowGapPx}px`,
   "--contact-tile-padding": `${CONTACT_PAGE_LAYOUT.tilePaddingPx}px`,
   "--contact-tile-padding-mobile": `${CONTACT_PAGE_LAYOUT.tilePaddingMobilePx}px`,
   "--contact-tile-row-gap": `${CONTACT_PAGE_LAYOUT.tileRowGapPx}px`,
+  "--contact-tile-row-gap-mobile": `${CONTACT_PAGE_LAYOUT.tileRowGapMobilePx}px`,
   "--contact-tile-min-height": `${CONTACT_PAGE_LAYOUT.tileMinHeightPx}px`,
-  "--contact-icon-size": `${CONTACT_PAGE_LAYOUT.iconSizePx}px`,
+  "--contact-tile-min-height-mobile":
+    CONTACT_PAGE_LAYOUT.tileMinHeightMobilePx === 0
+      ? "auto"
+      : `${CONTACT_PAGE_LAYOUT.tileMinHeightMobilePx}px`,
+  "--contact-icon-size-desktop": `${CONTACT_PAGE_LAYOUT.iconSizePx}px`,
+  "--contact-icon-size-mobile": `${CONTACT_PAGE_LAYOUT.iconSizeMobilePx}px`,
+  "--contact-icon-size": `${CONTACT_PAGE_LAYOUT.iconSizeMobilePx}px`,
   "--contact-icon-bg": CONTACT_PAGE_SURFACE.iconBackground,
-  "--contact-callout-tile-bg": CONTACT_PAGE_SURFACE.calloutTileBackground,
   "--contact-label-color": CONTACT_PAGE_SURFACE.labelColor,
   "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
   "--contact-tile-hover-lift": `-${CONTACT_PAGE_LAYOUT.tileHoverLiftPx}px`,
   "--contact-tile-hover-duration": `${CONTACT_PAGE_LAYOUT.tileHoverDurationMs}ms`,
 } as CSSProperties;
 
-function ContactTileValue({
-  tile,
-  isCallout,
-}: {
-  tile: MarketingContactGridTile;
-  isCallout: boolean;
-}) {
+function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
   if (tile.href !== undefined) {
     return (
       <a
         href={tile.href}
-        className={isCallout ? styles.calloutValue : styles.valueLink}
+        className={styles.valueLink}
         {...(tile.href.startsWith("http")
           ? { target: "_blank", rel: "noopener noreferrer" }
           : {})}
@@ -72,9 +51,7 @@ function ContactTileValue({
     );
   }
 
-  return (
-    <p className={isCallout ? styles.calloutValue : styles.value}>{tile.value}</p>
-  );
+  return <p className={styles.value}>{tile.value}</p>;
 }
 
 function ContactGridTileCard({
@@ -84,16 +61,10 @@ function ContactGridTileCard({
   tile: MarketingContactGridTile;
   imagePriority: "above" | "below";
 }) {
-  const isCallout = tile.variant === "callout";
-
   return (
-    <article
-      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.tile}${isCallout ? ` ${styles.tileCallout}` : ""}`}
-    >
+    <article className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.tile}`}>
       <span className={styles.iconWrap}>
-        {isCallout ? (
-          <ContactStarIcon />
-        ) : tile.socialIcon !== undefined ? (
+        {tile.socialIcon !== undefined ? (
           <ContactSocialBrandIcon id={tile.socialIcon} />
         ) : tile.iconSrc !== undefined ? (
           <Image
@@ -110,13 +81,13 @@ function ContactGridTileCard({
       </span>
       <div className={styles.body}>
         {tile.label !== undefined ? <span className={styles.label}>{tile.label}</span> : null}
-        <ContactTileValue tile={tile} isCallout={isCallout} />
+        <ContactTileValue tile={tile} />
       </div>
     </article>
   );
 }
 
-/** Contact page — 3×2 glass tile grid (phone, email, Instagram / address, hours, reply). */
+/** Contact page — glass tile grid (address, email, Instagram, hours). */
 export function MarketingContactStudioCard({ tiles }: MarketingContactStudioCardProps) {
   return (
     <div className={styles.grid} style={CARD_STYLE}>
@@ -124,7 +95,7 @@ export function MarketingContactStudioCard({ tiles }: MarketingContactStudioCard
         <ContactGridTileCard
           key={tile.key}
           tile={tile}
-          imagePriority={index < 3 ? "above" : "below"}
+          imagePriority={index < 2 ? "above" : "below"}
         />
       ))}
     </div>

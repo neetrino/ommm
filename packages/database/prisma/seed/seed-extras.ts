@@ -13,7 +13,7 @@ export async function seedStudioSettings(prisma: PrismaClient): Promise<void> {
       where: { id: existing.id },
       data: {
         studioName: "Ommm Pilates & Movement",
-        contactEmail: "info@ommm.com",
+        contactEmail: "info@ommm.am",
         contactPhone: "+37410123456",
         whatsappUrl: "https://wa.me/37410123456",
         address: "25 Pushkin St,Yerevan",
@@ -32,7 +32,7 @@ export async function seedStudioSettings(prisma: PrismaClient): Promise<void> {
   await prisma.studioSettings.create({
     data: {
       studioName: "Ommm Pilates & Movement",
-      contactEmail: "info@ommm.com",
+      contactEmail: "info@ommm.am",
       contactPhone: "+37410123456",
       whatsappUrl: "https://wa.me/37410123456",
       address: "25 Pushkin St,Yerevan",

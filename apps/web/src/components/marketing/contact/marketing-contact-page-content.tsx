@@ -13,7 +13,6 @@ import { MarketingContactStudioCard } from "@/components/marketing/contact/marke
 import styles from "@/components/marketing/contact/marketing-contact-page-content.module.css";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
-import { formatPhoneDisplay, formatPhoneTelHref } from "@/lib/phone";
 import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
 import { HOME_FOOTER_ADDRESS_HREF } from "@/components/marketing/home/home-footer-section-tokens";
 import {
@@ -33,7 +32,6 @@ type ContactPublicDefaults = {
   email: string;
   address: string;
   addressHref: string;
-  phone?: string;
   hours?: string;
 };
 
@@ -41,12 +39,12 @@ function MarketingContactStudioCardPlaceholder() {
   return (
     <div
       aria-hidden
-      className="grid min-h-[clamp(20rem,52vw,28rem)] grid-cols-1 gap-4 opacity-60 lg:grid-cols-3"
+      className="grid min-h-[clamp(16rem,40vw,22rem)] grid-cols-1 gap-4 opacity-60 min-[744px]:grid-cols-2"
     >
-      {Array.from({ length: 6 }, (_, index) => (
+      {Array.from({ length: 4 }, (_, index) => (
         <div
           key={index}
-          className={`${CONTACT_PAGE_CARD_SHELL_CLASS} min-h-[9.25rem]`}
+          className={`${CONTACT_PAGE_CARD_SHELL_CLASS} min-h-[7.5rem]`}
         />
       ))}
     </div>
@@ -56,29 +54,15 @@ function MarketingContactStudioCardPlaceholder() {
 function buildContactGridTiles(
   studio: StudioPublicSettings | null,
   labels: {
-    phone: string;
     email: string;
     address: string;
     hours: string;
     instagram: string;
-    replyCallout: string;
   },
   publicContact: ContactPublicDefaults,
   instagramHref?: string,
 ): MarketingContactGridTile[] {
   const tiles: MarketingContactGridTile[] = [];
-
-  const phone = studio?.contactPhone?.trim() || publicContact.phone?.trim();
-  if (phone !== undefined && phone.length > 0) {
-    const displayPhone = formatPhoneDisplay(phone);
-    tiles.push({
-      key: "phone",
-      label: labels.phone,
-      value: displayPhone,
-      href: `tel:${formatPhoneTelHref(phone)}`,
-      iconSrc: CONTACT_PAGE_ASSETS.iconPhone,
-    });
-  }
 
   const address = publicContact.address.trim();
   if (address.length > 0) {
@@ -122,12 +106,6 @@ function buildContactGridTiles(
     });
   }
 
-  tiles.push({
-    key: "reply",
-    value: labels.replyCallout,
-    variant: "callout",
-  });
-
   return tiles;
 }
 
@@ -166,18 +144,15 @@ async function MarketingContactStudioSection({
   const tiles = buildContactGridTiles(
     studio,
     {
-      phone: t("phone"),
       email: t("email"),
       address: t("address"),
       hours: t("hours"),
       instagram: t("instagram"),
-      replyCallout: t("replyCallout"),
     },
     {
       email: tHome("footerEmail"),
       address: tHome("footerAddress"),
       addressHref: HOME_FOOTER_ADDRESS_HREF,
-      phone: t("fallbackPhone"),
       hours: t("fallbackHours"),
     },
     instagramLink?.href,

@@ -8,16 +8,18 @@ export const CONTACT_PAGE_SURFACE = {
   labelColor: "#4a4738",
   valueColor: "#1d1c15",
   iconBackground: "rgba(255, 255, 255, 0.85)",
-  calloutTileBackground: "rgba(255, 248, 235, 0.58)",
 } as const;
 
 export const CONTACT_PAGE_LAYOUT = {
   gridGapPx: 20,
   tilePaddingPx: 24,
-  tilePaddingMobilePx: 28,
+  tilePaddingMobilePx: 18,
   tileRowGapPx: 18,
+  tileRowGapMobilePx: 14,
   tileMinHeightPx: 104,
+  tileMinHeightMobilePx: 0,
   iconSizePx: 56,
+  iconSizeMobilePx: 48,
   mobileRowGapPx: 16,
   tileHoverLiftPx: 4,
   tileHoverDurationMs: 280,

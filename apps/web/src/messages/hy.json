@@ -225,7 +225,7 @@
       "footerTopNavAria": "Վերջնամասի նավիգացիա",
       "footerContactTitle": "Կապ",
       "footerPhone": "+ 33333333",
-      "footerEmail": "info@ommm.com",
+      "footerEmail": "info@ommm.am",
       "footerAddress": "Պուշկինի փողոց 25, Երևան",
       "footerSocialTitle": "Սոցիալական ցանցեր",
       "footerSocialAria": "{network} էջ",
@@ -1202,9 +1202,8 @@
   "marketingPages": {
     "contact": {
       "title": "Կապ",
-      "lede": "Կապվեք մեր ստուդիայի հետ՝ հեռախոսով, էլ. փոստով կամ Instagram-ով։ Սովորաբար պատասխանում ենք մեկ աշխատանքային օրվա ընթացքում։",
+      "lede": "Կապվեք մեր ստուդիայի հետ՝ էլ. փոստով կամ Instagram-ով։",
       "studioHeading": "Ստուդիա",
-      "replyCallout": "Սովորաբար պատասխանում ենք մեկ աշխատանքային օրվա ընթացքում։",
       "phone": "Հեռախոս",
       "email": "Էլ. փոստ",
       "whatsApp": "WhatsApp",
@@ -1212,7 +1211,7 @@
       "address": "Հասցե",
       "hours": "Ժամեր",
       "fallbackPhone": "+374 000 00 00 00",
-      "fallbackEmail": "info@ommm.com",
+      "fallbackEmail": "info@ommm.am",
       "fallbackAddress": "Պուշկինի փողոց 25, Երևան",
       "fallbackHours": "Երկ – Շբ / 8:00 – 21:00",
       "mapHeading": "Քարտեզ",
