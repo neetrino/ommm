@@ -10,8 +10,10 @@ import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-as
 const HOME_FOOTER_OLIVE_RGB = "151, 144, 124";
 const HOME_FOOTER_CREAM_RGB = "251, 245, 213";
 
-/** Figma `605:961` — subtle olive → cream wash on page cream. */
-export const HOME_FOOTER_SHELL_BACKGROUND = `linear-gradient(to bottom, rgba(${HOME_FOOTER_OLIVE_RGB}, 0.09) 0%, rgba(${HOME_FOOTER_CREAM_RGB}, 0.09) 100%), ${HOME_PAGE_SURFACE.pageBackground}`;
+/** Figma `605:961` — olive → cream wash (180deg) on page cream. */
+export const HOME_FOOTER_SHELL_GRADIENT = `linear-gradient(180deg, rgba(${HOME_FOOTER_OLIVE_RGB}, 0.09) 0%, rgba(${HOME_FOOTER_CREAM_RGB}, 0.09) 100%)`;
+
+export const HOME_FOOTER_SHELL_BACKGROUND = `${HOME_FOOTER_SHELL_GRADIENT}, ${HOME_PAGE_SURFACE.pageBackground}`;
 
 export const HOME_FOOTER_FIGMA = {
   surface: HOME_PAGE_SURFACE.pageBackground,

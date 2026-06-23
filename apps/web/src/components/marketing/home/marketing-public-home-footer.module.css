@@ -1191,3 +1191,30 @@
     will-change: auto;
   }
 }
+
+/* Policy routes — gallery cream page + Figma 605:961 footer cap (gradient shell). */
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap,
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrapInner {
+  background-color: var(--ommm-policy-page-background);
+}
+
+:global(.marketing-layout-shell:has([data-marketing-policy])) .shell {
+  background: var(--home-footer-shell-bg, var(--home-footer-surface));
+  border-top-left-radius: var(--home-footer-radius, 64px);
+  border-top-right-radius: var(--home-footer-radius, 64px);
+}
+
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 743px) {
+  :global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap {
+    background-color: var(--ommm-policy-page-background);
+  }
+
+  :global(.marketing-layout-shell:has([data-marketing-policy])) .shell {
+    border-top-left-radius: var(--home-footer-mobile-radius, 2.5rem);
+    border-top-right-radius: var(--home-footer-mobile-radius, 2.5rem);
+  }
+}
