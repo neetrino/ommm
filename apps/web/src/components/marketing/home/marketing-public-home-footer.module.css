@@ -515,13 +515,12 @@
     min-height: 0;
     padding-top: var(--home-footer-mobile-py);
     padding-bottom: var(--home-footer-mobile-pb);
+    /* Match `ommm-container` — revealSlot forces `.inner` to full width on mobile. */
     padding-inline-start: calc(
-      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-start, 0px)
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
     padding-inline-end: calc(
-      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-end, 0px)
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
   }
 
@@ -544,6 +543,10 @@
 
   .inner {
     min-height: 0;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
   }
 }
 
@@ -717,12 +720,10 @@
     padding-top: var(--home-footer-mobile-py);
     padding-bottom: var(--home-footer-mobile-pb);
     padding-inline-start: calc(
-      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-start, 0px)
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
     padding-inline-end: calc(
-      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem) +
-        var(--marketing-header-optical-inset-end, 0px)
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem)
     );
   }
 }
