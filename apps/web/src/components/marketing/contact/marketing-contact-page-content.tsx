@@ -9,6 +9,7 @@ import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-r
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { formatPhoneDisplay, formatPhoneTelHref } from "@/lib/phone";
 import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
+import { HOME_FOOTER_ADDRESS_HREF } from "@/components/marketing/home/home-footer-section-tokens";
 import {
   listStudioSocialLinks,
   type StudioPublicSettings,
@@ -39,6 +40,14 @@ function MarketingContactStudioCardPlaceholder() {
   );
 }
 
+type ContactPublicDefaults = {
+  email: string;
+  address: string;
+  addressHref: string;
+  phone?: string;
+  hours?: string;
+};
+
 function buildContactStudioRows(
   studio: StudioPublicSettings | null,
   labels: {
@@ -47,10 +56,11 @@ function buildContactStudioRows(
     address: string;
     hours: string;
   },
+  publicContact: ContactPublicDefaults,
 ): ContactStudioRow[] {
   const rows: ContactStudioRow[] = [];
 
-  const phone = studio?.contactPhone?.trim();
+  const phone = studio?.contactPhone?.trim() || publicContact.phone?.trim();
   if (phone !== undefined && phone.length > 0) {
     const displayPhone = formatPhoneDisplay(phone);
     rows.push({
@@ -62,8 +72,8 @@ function buildContactStudioRows(
     });
   }
 
-  const email = studio?.contactEmail?.trim();
-  if (email !== undefined && email.length > 0) {
+  const email = publicContact.email.trim();
+  if (email.length > 0) {
     rows.push({
       key: "email",
       iconSrc: CONTACT_PAGE_ASSETS.iconMail,
@@ -73,17 +83,18 @@ function buildContactStudioRows(
     });
   }
 
-  const address = studio?.address?.trim();
-  if (address !== undefined && address.length > 0) {
+  const address = publicContact.address.trim();
+  if (address.length > 0) {
     rows.push({
       key: "address",
       iconSrc: CONTACT_PAGE_ASSETS.iconLocation,
       label: labels.address,
       value: address,
+      href: publicContact.addressHref,
     });
   }
 
-  const hours = studio?.workingHours?.trim();
+  const hours = publicContact.hours?.trim() || studio?.workingHours?.trim();
   if (hours !== undefined && hours.length > 0) {
     rows.push({
       key: "hours",
@@ -122,16 +133,27 @@ async function MarketingContactStudioSection({
   studioFetch,
 }: MarketingContactPageLayoutProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
+  const tHome = await getTranslations({ locale, namespace: "marketingPublic.home" });
   const studioRes = await (studioFetch ?? fetchPublicJsonCached<StudioPublicSettings>("/studio"));
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
   const socialIconLinks = resolveContactSocialIconLinks(social, studio?.whatsappUrl);
-  const studioRows = buildContactStudioRows(studio, {
-    phone: t("phone"),
-    email: t("email"),
-    address: t("address"),
-    hours: t("hours"),
-  });
+  const studioRows = buildContactStudioRows(
+    studio,
+    {
+      phone: t("phone"),
+      email: t("email"),
+      address: t("address"),
+      hours: t("hours"),
+    },
+    {
+      email: tHome("footerEmail"),
+      address: tHome("footerAddress"),
+      addressHref: HOME_FOOTER_ADDRESS_HREF,
+      phone: t("fallbackPhone"),
+      hours: t("fallbackHours"),
+    },
+  );
 
   return (
     <MarketingContactStudioCard

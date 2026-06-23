@@ -91,7 +91,13 @@ export function MarketingContactStudioCard({
             <div className={styles.rowBody}>
               <span className={styles.label}>{row.label}</span>
               {row.href !== undefined ? (
-                <a href={row.href} className={styles.valueLink}>
+                <a
+                  href={row.href}
+                  className={styles.valueLink}
+                  {...(row.href.startsWith("http")
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                >
                   {row.value}
                 </a>
               ) : (
