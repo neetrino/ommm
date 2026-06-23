@@ -4,7 +4,7 @@ import { MarketingSectionsVisibilityBoundary } from "@/components/marketing/mark
 import { MarketingSiteHeaderWithClientAccount } from "@/components/marketing/marketing-site-header-with-client-account";
 import { MARKETING_MOBILE_HEADER } from "@/components/marketing/marketing-site-header-layout";
 import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
-import { SignupBannerParticles } from "@/components/auth/signup-banner-particles";
+import { AuthShellBackgroundDecor } from "@/components/auth/auth-shell-background-decor";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
 import { getFilteredMarketingNavLinks } from "@/server/home-sections-visibility";
 import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
@@ -30,7 +30,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
         data-auth-shell
         style={AUTH_SHELL_STYLE}
       >
-        <SignupBannerParticles />
+        <AuthShellBackgroundDecor />
         <MarketingSiteHeaderWithClientAccount
           navLinks={navLinks}
           serverAccount={headerAccount}
