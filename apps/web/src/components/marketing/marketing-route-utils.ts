@@ -84,6 +84,16 @@ export function isMarketingRefundPath(pathname: string): boolean {
   return pathname === "/refund" || pathname.startsWith("/refund/");
 }
 
+/** Privacy policy — scroll-reveal content + footer. */
+export function isMarketingPrivacyPath(pathname: string): boolean {
+  return pathname === "/privacy" || pathname.startsWith("/privacy/");
+}
+
+/** Terms and conditions — scroll-reveal content + footer. */
+export function isMarketingTermsPath(pathname: string): boolean {
+  return pathname === "/terms" || pathname.startsWith("/terms/");
+}
+
 /** Marketing pages whose layout footer uses the shared scroll-reveal entrance. */
 export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
   return (
@@ -93,7 +103,9 @@ export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
     isMarketingPackagesPath(pathname) ||
     isMarketingContactPath(pathname) ||
     isMarketingStoryPath(pathname) ||
-    isMarketingRefundPath(pathname)
+    isMarketingRefundPath(pathname) ||
+    isMarketingPrivacyPath(pathname) ||
+    isMarketingTermsPath(pathname)
   );
 }
 
