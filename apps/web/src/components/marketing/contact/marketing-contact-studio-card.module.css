@@ -1,62 +1,58 @@
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--contact-card-gap);
-  padding: var(--contact-card-padding);
+.grid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: var(--contact-mobile-row-gap);
+  grid-template-columns: 1fr;
 }
 
-.heading {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 2.6vw, 1.875rem);
-  font-style: italic;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--contact-heading-color);
-}
-
-.bodyGrid {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.25rem, 2.8vh, 2rem);
-}
-
-.primaryList {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.25rem, 2.8vh, 2rem);
-  margin: 0;
-  padding: 0.25rem 0;
-  list-style: none;
-}
-
-.secondaryColumn {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.25rem, 2.8vh, 2rem);
-}
-
-@media (max-width: 767px) {
-  .bodyGrid,
-  .primaryList,
-  .secondaryColumn {
-    gap: var(--contact-mobile-row-gap, 2.5rem);
+@media (min-width: 1024px) {
+  .grid {
+    gap: var(--contact-grid-gap);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 768px) {
-  .bodyGrid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 4vw, 3rem);
-    align-items: start;
-  }
-}
-
-.row {
+.tile {
   display: flex;
+  min-height: var(--contact-tile-min-height);
+  flex-direction: row;
   align-items: center;
-  gap: 1.125rem;
+  gap: var(--contact-tile-row-gap);
+  padding: var(--contact-tile-padding-mobile);
+}
+
+@media (min-width: 1024px) {
+  .tile {
+    padding: var(--contact-tile-padding);
+  }
+}
+
+@media (min-width: 744px) and (hover: hover) {
+  .tile {
+    transition:
+      transform var(--contact-tile-hover-duration) ease,
+      box-shadow var(--contact-tile-hover-duration) ease;
+  }
+
+  .tile:hover {
+    transform: translateY(var(--contact-tile-hover-lift));
+    box-shadow: 0 24px 48px -24px rgba(45, 40, 35, 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+
+  .tile:hover {
+    transform: none;
+  }
+}
+
+.tileCallout {
+  background: var(--contact-callout-tile-bg);
 }
 
 .iconWrap {
@@ -79,26 +75,36 @@
   background: var(--contact-icon-bg);
 }
 
-.rowBody {
+.socialBrandIcon {
+  width: calc(var(--contact-icon-size) * 0.5);
+  height: calc(var(--contact-icon-size) * 0.5);
+  flex-shrink: 0;
+  color: var(--contact-value-color);
+  opacity: 0.88;
+}
+
+.body {
   display: flex;
   min-width: 0;
   flex: 1;
   flex-direction: column;
+  justify-content: center;
   gap: 0.375rem;
 }
 
 .label {
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--contact-label-color);
 }
 
 .value {
+  margin: 0;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.0625rem, 1.9vw, 1.3125rem);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
   font-weight: 300;
   line-height: 1.35;
   color: var(--contact-value-color);
@@ -120,34 +126,13 @@
   text-underline-offset: 3px;
 }
 
-.callout {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  border-radius: var(--contact-callout-radius);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: var(--contact-callout-bg);
-  padding: 1rem 1.125rem;
+.calloutValue {
+  composes: value;
+  font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
+  line-height: 1.45;
 }
 
 .calloutIcon {
   flex-shrink: 0;
   color: var(--contact-label-color);
-}
-
-.calloutText {
-  margin: 0;
-  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.45;
-  color: var(--contact-label-color);
-}
-
-.socialBrandIcon {
-  width: calc(var(--contact-icon-size) * 0.5);
-  height: calc(var(--contact-icon-size) * 0.5);
-  flex-shrink: 0;
-  color: var(--contact-value-color);
-  opacity: 0.88;
 }

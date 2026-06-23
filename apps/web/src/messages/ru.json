@@ -1202,7 +1202,7 @@
   "marketingPages": {
     "contact": {
       "title": "Контакты",
-      "lede": "Свяжитесь с командой студии по телефону, email или в соцсетях — обычно отвечаем в течение одного рабочего дня.",
+      "lede": "Свяжитесь со студией — по телефону, email или в Instagram. Обычно отвечаем в течение одного рабочего дня.",
       "studioHeading": "Студия",
       "replyCallout": "Обычно отвечаем в течение одного рабочего дня.",
       "phone": "Телефон",
@@ -1214,7 +1214,7 @@
       "fallbackPhone": "+374 000 00 00 00",
       "fallbackEmail": "info@ommm.com",
       "fallbackAddress": "ул. Пушкина, 25, Ереван",
-      "fallbackHours": "Пн–Сб 7:00–21:00 · Вс 9:00–18:00",
+      "fallbackHours": "Пн – Сб / 8:00 – 21:00",
       "mapHeading": "Карта",
       "instagram": "Instagram",
       "facebook": "Facebook",

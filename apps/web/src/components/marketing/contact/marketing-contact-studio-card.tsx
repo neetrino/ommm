@@ -1,50 +1,24 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import Image from "next/image";
-import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import {
   CONTACT_PAGE_CARD_SHELL_CLASS,
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
 import { ContactSocialBrandIcon } from "@/components/marketing/contact/contact-social-brand-icon";
-import type { ContactSocialIconLink } from "@/components/marketing/contact/contact-page-social";
+import type { MarketingContactGridTile } from "@/components/marketing/contact/marketing-contact-grid-tile";
 import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
 
-type ContactStudioRowKey = "phone" | "address" | "email" | "hours";
-
-const CONTACT_PRIMARY_ROW_KEYS: readonly ContactStudioRowKey[] = [
-  "phone",
-  "address",
-  "email",
-];
-
-type ContactStudioRow = {
-  key: ContactStudioRowKey;
-  iconSrc: string;
-  label: string;
-  value: string;
-  href?: string;
-};
-
-function isPrimaryContactRow(key: ContactStudioRowKey): boolean {
-  return CONTACT_PRIMARY_ROW_KEYS.includes(key);
-}
-
 type MarketingContactStudioCardProps = {
-  heading: string;
-  rows: ContactStudioRow[];
-  replyCallout: string;
-  socialIconLinks: ContactSocialIconLink[];
-  socialLabel: (network: ContactSocialIconLink["id"]) => string;
-  socialAria: (network: string) => string;
+  tiles: MarketingContactGridTile[];
 };
 
 function ContactStarIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="22"
+      height="22"
       viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -62,124 +36,97 @@ function ContactStarIcon() {
 }
 
 const CARD_STYLE = {
-  "--contact-card-padding": `${CONTACT_PAGE_LAYOUT.cardPaddingPx}px`,
-  "--contact-card-gap": `${CONTACT_PAGE_LAYOUT.cardGapPx}px`,
+  "--contact-grid-gap": `${CONTACT_PAGE_LAYOUT.gridGapPx}px`,
+  "--contact-mobile-row-gap": `${CONTACT_PAGE_LAYOUT.mobileRowGapPx}px`,
+  "--contact-tile-padding": `${CONTACT_PAGE_LAYOUT.tilePaddingPx}px`,
+  "--contact-tile-padding-mobile": `${CONTACT_PAGE_LAYOUT.tilePaddingMobilePx}px`,
+  "--contact-tile-row-gap": `${CONTACT_PAGE_LAYOUT.tileRowGapPx}px`,
+  "--contact-tile-min-height": `${CONTACT_PAGE_LAYOUT.tileMinHeightPx}px`,
   "--contact-icon-size": `${CONTACT_PAGE_LAYOUT.iconSizePx}px`,
   "--contact-icon-bg": CONTACT_PAGE_SURFACE.iconBackground,
-  "--contact-callout-radius": `${CONTACT_PAGE_LAYOUT.calloutRadiusPx}px`,
-  "--contact-callout-bg": CONTACT_PAGE_SURFACE.calloutBackground,
-  "--contact-heading-color": CONTACT_PAGE_SURFACE.headingColor,
+  "--contact-callout-tile-bg": CONTACT_PAGE_SURFACE.calloutTileBackground,
   "--contact-label-color": CONTACT_PAGE_SURFACE.labelColor,
   "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
-  "--contact-mobile-row-gap": `${CONTACT_PAGE_LAYOUT.mobileRowGapPx}px`,
+  "--contact-tile-hover-lift": `-${CONTACT_PAGE_LAYOUT.tileHoverLiftPx}px`,
+  "--contact-tile-hover-duration": `${CONTACT_PAGE_LAYOUT.tileHoverDurationMs}ms`,
 } as CSSProperties;
 
-function ContactStudioRowItem({
-  row,
-  imagePriority,
-  as = "li",
+function ContactTileValue({
+  tile,
+  isCallout,
 }: {
-  row: ContactStudioRow;
-  imagePriority: "above" | "below";
-  as?: "li" | "div";
+  tile: MarketingContactGridTile;
+  isCallout: boolean;
 }) {
-  const Tag = as;
+  if (tile.href !== undefined) {
+    return (
+      <a
+        href={tile.href}
+        className={isCallout ? styles.calloutValue : styles.valueLink}
+        {...(tile.href.startsWith("http")
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
+      >
+        {tile.value}
+      </a>
+    );
+  }
+
   return (
-    <Tag className={styles.row}>
+    <p className={isCallout ? styles.calloutValue : styles.value}>{tile.value}</p>
+  );
+}
+
+function ContactGridTileCard({
+  tile,
+  imagePriority,
+}: {
+  tile: MarketingContactGridTile;
+  imagePriority: "above" | "below";
+}) {
+  const isCallout = tile.variant === "callout";
+
+  return (
+    <article
+      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.tile}${isCallout ? ` ${styles.tileCallout}` : ""}`}
+    >
       <span className={styles.iconWrap}>
-        <Image
-          src={row.iconSrc}
-          alt=""
-          width={CONTACT_PAGE_LAYOUT.iconSizePx}
-          height={CONTACT_PAGE_LAYOUT.iconSizePx}
-          className={styles.icon}
-          unoptimized
-          aria-hidden
-          {...(imagePriority === "above" ? aboveFoldImageProps() : belowFoldImageProps())}
-        />
+        {isCallout ? (
+          <ContactStarIcon />
+        ) : tile.socialIcon !== undefined ? (
+          <ContactSocialBrandIcon id={tile.socialIcon} />
+        ) : tile.iconSrc !== undefined ? (
+          <Image
+            src={tile.iconSrc}
+            alt=""
+            width={CONTACT_PAGE_LAYOUT.iconSizePx}
+            height={CONTACT_PAGE_LAYOUT.iconSizePx}
+            className={styles.icon}
+            unoptimized
+            aria-hidden
+            {...(imagePriority === "above" ? aboveFoldImageProps() : belowFoldImageProps())}
+          />
+        ) : null}
       </span>
-      <div className={styles.rowBody}>
-        <span className={styles.label}>{row.label}</span>
-        {row.href !== undefined ? (
-          <a
-            href={row.href}
-            className={styles.valueLink}
-            {...(row.href.startsWith("http")
-              ? { target: "_blank", rel: "noopener noreferrer" }
-              : {})}
-          >
-            {row.value}
-          </a>
-        ) : (
-          <span className={styles.value}>{row.value}</span>
-        )}
-      </div>
-    </Tag>
-  );
-}
-
-function ReplyCallout({ children }: { children: ReactNode }) {
-  return (
-    <div className={styles.callout}>
-      <ContactStarIcon />
-      <p className={styles.calloutText}>{children}</p>
-    </div>
-  );
-}
-
-/** Studio contact details card — phone, email, address, hours. */
-export function MarketingContactStudioCard({
-  heading,
-  rows,
-  replyCallout,
-  socialIconLinks,
-  socialLabel,
-  socialAria,
-}: MarketingContactStudioCardProps) {
-  const primaryRows = rows.filter((row) => isPrimaryContactRow(row.key));
-  const secondaryRows = rows.filter((row) => !isPrimaryContactRow(row.key));
-
-  return (
-    <article className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.card}`} style={CARD_STYLE}>
-      <h2 className={styles.heading}>{heading}</h2>
-      <div className={styles.bodyGrid}>
-        <ul className={styles.primaryList}>
-          {primaryRows.map((row, index) => (
-            <ContactStudioRowItem
-              key={row.key}
-              row={row}
-              imagePriority={index === 0 ? "above" : "below"}
-            />
-          ))}
-        </ul>
-        <div className={styles.secondaryColumn}>
-          {secondaryRows.map((row) => (
-            <ContactStudioRowItem key={row.key} row={row} imagePriority="below" as="div" />
-          ))}
-          {socialIconLinks.map((link) => (
-            <div key={link.id} className={styles.row}>
-              <span className={styles.iconWrap}>
-                <ContactSocialBrandIcon id={link.id} />
-              </span>
-              <div className={styles.rowBody}>
-                <span className={styles.label}>{socialLabel(link.id)}</span>
-                <a
-                  href={link.href}
-                  className={styles.valueLink}
-                  aria-label={socialAria(link.id)}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {socialLabel(link.id)}
-                </a>
-              </div>
-            </div>
-          ))}
-          <ReplyCallout>{replyCallout}</ReplyCallout>
-        </div>
+      <div className={styles.body}>
+        {tile.label !== undefined ? <span className={styles.label}>{tile.label}</span> : null}
+        <ContactTileValue tile={tile} isCallout={isCallout} />
       </div>
     </article>
   );
 }
 
-export { CONTACT_PAGE_ASSETS };
+/** Contact page — 3×2 glass tile grid (phone, email, Instagram / address, hours, reply). */
+export function MarketingContactStudioCard({ tiles }: MarketingContactStudioCardProps) {
+  return (
+    <div className={styles.grid} style={CARD_STYLE}>
+      {tiles.map((tile, index) => (
+        <ContactGridTileCard
+          key={tile.key}
+          tile={tile}
+          imagePriority={index < 3 ? "above" : "below"}
+        />
+      ))}
+    </div>
+  );
+}
