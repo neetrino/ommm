@@ -122,10 +122,13 @@ const HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX = Math.max(
 const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX = 100;
 const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX = 300;
 
+/** Full desktop footer — absolute Figma layout (1367px+). */
+export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
+
 /** Desktop footer sphere bounce — WAAPI loop in `HomeFooterSphereBounce`. */
 export const HOME_FOOTER_SPHERE_BOUNCE = {
-  /** Match footer illustration layout — tablet grid and full desktop. */
-  minWidthPx: 744,
+  /** Full desktop only — iPad footer keeps a static illustration. */
+  minWidthPx: HOME_FOOTER_DESKTOP_MIN_WIDTH_PX,
   peakBasePx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX,
   peakBoostMinPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX,
   peakBoostMaxPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX,
@@ -323,9 +326,6 @@ export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
   contentInsetPx: 32,
 } as const;
 export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT;
-
-/** Full desktop footer — absolute Figma layout (1367px+). */
-export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
 
 /** @deprecated Use HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT — kept for reference values. */
 export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
