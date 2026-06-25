@@ -70,8 +70,9 @@
   min-height: 100dvh;
 }
 
-/* Story page — cream surface matching home footer wrap. */
+/* Story page — cream surface + home-style footer wrap. */
 .shell:has([data-marketing-story]) {
+  --home-footer-wrap-bg: #fbf5d5;
   background: #fbf5d5;
 }
 

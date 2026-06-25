@@ -32,6 +32,8 @@ export const STORY_PAGE_LAYOUT = {
   heroBackgroundWidthBleed: "100.14%",
   /** Figma `672:869` — frame nudge above shell top. */
   heroBackgroundTopOffset: "-0.125rem",
+  /** Bottom corners — aligned with home footer top radius (64px at 1440). */
+  heroBackgroundBottomRadius: "clamp(2.5rem, 4vw, 4rem)",
   heroMinHeight: "clamp(36rem, 58.75vw, 52.9375rem)",
   /** Figma title top — shell 152 + header 68 + copy 26 = 246px at 1440. */
   heroContentPaddingTop: "clamp(7.5rem, 17.08vw, 15.375rem)",

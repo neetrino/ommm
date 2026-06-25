@@ -26,6 +26,7 @@ const HERO_LAYOUT_STYLE = {
   ["--story-hero-background-height" as string]: STORY_PAGE_LAYOUT.heroBackgroundHeight,
   ["--story-hero-background-width-bleed" as string]: STORY_PAGE_LAYOUT.heroBackgroundWidthBleed,
   ["--story-hero-background-top-offset" as string]: STORY_PAGE_LAYOUT.heroBackgroundTopOffset,
+  ["--story-hero-background-bottom-radius" as string]: STORY_PAGE_LAYOUT.heroBackgroundBottomRadius,
   ["--story-hero-min-height" as string]: STORY_PAGE_LAYOUT.heroMinHeight,
   ["--story-hero-content-padding-top" as string]: STORY_PAGE_LAYOUT.heroContentPaddingTop,
   ["--story-hero-content-padding-top-mobile" as string]:
