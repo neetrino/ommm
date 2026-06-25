@@ -1751,6 +1751,15 @@ html:has([data-marketing-policy]) body {
   background-color: var(--ommm-policy-page-background);
 }
 
+/* Story page — page cream through safe area + footer rounded-cap corners. */
+html:has([data-marketing-story]) {
+  background-color: #fbf5d5;
+}
+
+html:has([data-marketing-story]) body {
+  background-color: #fbf5d5;
+}
+
 /*
  * iOS Safari auto-zooms focused fields when font-size is below 16px.
  * Applies to auth, contact, and any other mobile form controls.

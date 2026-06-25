@@ -70,8 +70,25 @@
   min-height: 100dvh;
 }
 
+/* Story page — cream surface + Our Values footer wrap (beats inline coaches wrap token). */
+.shell:has([data-marketing-story]) {
+  --home-footer-wrap-bg: #fbf5d5 !important;
+  background: #fbf5d5;
+}
+
+.shell:has([data-marketing-story]) .main {
+  background: #fbf5d5;
+}
+
 .shell:has([data-marketing-policy]) .main {
   background: var(--ommm-policy-page-background);
+}
+
+@media (max-width: 743px) {
+  .shell:has([data-marketing-story]) .main {
+    background: #fbf5d5;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
 }
 
 @media (max-width: 743px) {

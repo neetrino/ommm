@@ -5,6 +5,8 @@ export const MARKETING_INNER_PAGE_MARKER = "data-marketing-inner";
 export const MARKETING_EXPLORE_COMING_SOON_MARKER = "data-marketing-explore-coming-soon";
 /** Coaches hero keeps cream header ink over the teal gradient (`62:2182`). */
 export const MARKETING_COACHES_HERO_MARKER = "data-marketing-coaches-hero";
+/** Story page — cream surface matching values section (`670:801`). */
+export const MARKETING_STORY_PAGE_MARKER = "data-marketing-story";
 
 /** Locale-aware pathname from `@/i18n/navigation` (no locale prefix). */
 export function isMarketingHomePath(pathname: string): boolean {

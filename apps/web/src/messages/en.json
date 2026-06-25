@@ -1375,6 +1375,8 @@
     },
     "story": {
       "title": "About Ommm.",
+      "titlePrefix": "About ",
+      "titleBrand": "Ommm.",
       "lede": "A women's wellness space in the heart of Yerevan — created for movement, calm, and the moment that belongs only to you.",
       "featurePauseTitle": "A pause held on purpose.",
       "featurePauseBody": "Every detail invites you to slow down — from the first breath at the door to the quiet after class. This is time set aside for you, without rush or noise.",

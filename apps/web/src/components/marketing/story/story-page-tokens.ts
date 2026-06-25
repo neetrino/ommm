@@ -1,9 +1,11 @@
 /** Figma Story page — surface, typography, and layout tokens. */
-import { HOME_COACHES_SECTION_FIGMA } from "@/components/marketing/home/home-coaches-section-tokens";
 
 export const STORY_PAGE_SURFACE = {
+  pageBackground: "#fbf5d5",
   cardBackground: "#fdf9f6",
   cardBackgroundAlt: "#fdf9f6",
+  /** Closing banner — page cream, slightly darker. */
+  closingBannerBackground: "#f0e8c8",
   body: "#5c574f",
   bodyMuted: "#8a847a",
   heading: "#1d1c15",
@@ -26,16 +28,40 @@ export const STORY_PAGE_LAYOUT = {
   closingCardRadius: "clamp(1.75rem, 3vw, 2.25rem)",
   storyCardShadow:
     "0 1rem 2.5rem -1.25rem rgba(45, 40, 35, 0.08), 0 0.25rem 0.75rem -0.25rem rgba(45, 40, 35, 0.06)",
-  heroArchRadiusTop: "clamp(8rem, 26vw, 15rem)",
-  heroArchRadiusBottom: "clamp(2.25rem, 5vw, 3rem)",
-  heroVisualMaxWidth: "clamp(22rem, 42vw, 32rem)",
-  /** iPad Mini / tablet hero — narrow title (~3 words per line) + portrait beside copy. */
-  heroTabletTitleMaxWidth: "11ch",
-  heroTabletLeadMaxWidth: "13.5rem",
-  heroTabletVisualMaxWidth: "clamp(13rem, 36vw, 17rem)",
-  heroTabletVisualNudgeY: "-0.25rem",
-  heroTabletCopyNudgeY: "-1.25rem",
-  heroVisualAspectRatio: "6 / 7",
+  /** Figma `672:869` — background frame height at 1440px artboard. */
+  heroBackgroundHeight: "clamp(36rem, 58.75vw, 52.9375rem)",
+  /** Figma `672:869` — 1442px width on 1440 artboard. */
+  heroBackgroundWidthBleed: "100.14%",
+  /** Figma `672:869` — frame nudge above shell top. */
+  heroBackgroundTopOffset: "-0.125rem",
+  /** Bottom corners — aligned with home footer top radius (64px at 1440). */
+  heroBackgroundBottomRadius: "clamp(2.5rem, 4vw, 4rem)",
+  heroMinHeight: "clamp(36rem, 58.75vw, 52.9375rem)",
+  /** Figma title top — shell 152 + header 68 + copy 26 = 246px at 1440. */
+  heroContentPaddingTop: "clamp(7.5rem, 17.08vw, 15.375rem)",
+  heroContentPaddingTopMobile:
+    "calc(var(--marketing-mobile-header-height, 4.25rem) + clamp(2.5rem, 12vw, 5rem))",
+  /** Figma `670:815` — Newsreader SemiBold 116px. */
+  heroTitleSize: "clamp(3.5rem, 8vw, 7.25rem)",
+  /** Mobile — shrink to fit before the grid shifts; keeps copy anchored. */
+  heroTitleSizeMobile:
+    "min(3.5rem, max(1.75rem, calc((100vw - 3.5rem) / 6)))",
+  /** Figma `670:816` — Montserrat Light 18px / 303px. */
+  heroLedeSize: "clamp(1rem, 1.25vw, 1.125rem)",
+  heroLedeMaxWidth: "18.9375rem",
+  /** Figma `670:822` / `670:831` — feature intro titles at 27px. */
+  heroFeatureTitleSize: "clamp(1.375rem, 1.9vw, 1.6875rem)",
+  /** Figma `670:823` / `670:832` — feature intro body at 14px. */
+  heroFeatureBodySize: "clamp(0.8125rem, 1vw, 0.875rem)",
+  /** Figma feature copy block width — 553.5px at 1440. */
+  heroFeatureMaxWidth: "34.59375rem",
+  /** Visual gap between first body and second title — Figma ~26px at 1440. */
+  heroFeatureGap: "clamp(0.75rem, 1.8vw, 1.625rem)",
+  /** Figma — 60px from lede bottom to first feature block at 1440. */
+  heroFeatureMarginTop: "clamp(2rem, 4.17vw, 3.75rem)",
+  heroFeatureMarginTopMobile: "clamp(10rem, 26vw, 14rem)",
+  /** Mobile — extra space between wellness lede and first feature block. */
+  heroLedeFeatureGapMobile: "clamp(2.5rem, 6vw, 3.5rem)",
   sectionGap: "clamp(2rem, 5vw, 3.5rem)",
   cardPadding: "clamp(1.25rem, 3vw, 2.5rem)",
   valuesGridGap: "clamp(1rem, 2.5vw, 1.5rem)",
@@ -45,18 +71,15 @@ export const STORY_PAGE_LAYOUT = {
   /** iPad Mini — equal taller cards so copy fits in three columns. */
   valuesCardMinHeightTablet: "30rem",
   valuesCardImageMinHeightTablet: "12rem",
-  valuesHeadingColor: HOME_COACHES_SECTION_FIGMA.headingColor,
-  valuesSubtitleColor: HOME_COACHES_SECTION_FIGMA.subtitleColor,
-  valuesSectionMarginTop: "clamp(2.5rem, 6vw, 4rem)",
-  valuesSectionMarginTopMobile: "clamp(6rem, 22vw, 8rem)",
-  /** Feature cards pulled up over the hero portrait. */
-  featureCardsHeroOverlap: "clamp(6rem, 14vw, 11rem)",
+  valuesHeadingColor: "#97907c",
+  valuesSubtitleColor: "#97907c",
+  valuesSectionMarginTop: "clamp(4.5rem, 8vw, 6rem)",
+  valuesSectionMarginTopMobile: "clamp(4.5rem, 10vw, 6rem)",
+  featureCardsHeroOverlap: "0",
   featureCardRadius: "clamp(2.25rem, 4vw, 3rem)",
+  /** Closing banner CTA — feature tan, slightly darker. */
+  closingBannerCtaBackground: "#cfbea7",
+  closingBannerCtaHover: "#c0af98",
   featureCardCtaBackground: "#dbcab3",
   featureCardCtaHover: "#d0b89e",
-  /** Hero portrait nudge toward the text column (desktop). */
-  heroVisualOffsetLeftPx: 50,
-  /** Hero branch fine-tune — right and up from base anchor (desktop). */
-  heroBranchOffsetRightPx: 150,
-  heroBranchOffsetUpPx: 60,
 } as const;

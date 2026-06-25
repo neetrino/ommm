@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { COACHES_PAGE_SURFACE } from "@/components/marketing/coaches/coaches-page-tokens";
-import { POLICY_PAGE_SURFACE } from "@/components/marketing/policy/policy-page-tokens";
 import { HOME_FOOTER_MOBILE_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
+import { POLICY_PAGE_SURFACE } from "@/components/marketing/policy/policy-page-tokens";
 import {
   MARKETING_CONTENT_INLINE_INSET,
   MARKETING_CONTENT_INLINE_MARGIN,
