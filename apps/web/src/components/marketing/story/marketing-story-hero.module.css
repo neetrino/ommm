@@ -82,12 +82,15 @@
 .titleBrand {
   grid-column: 2;
   grid-row: 1;
+  justify-self: end;
 }
 
 .lede {
   grid-column: 2;
   grid-row: 2;
+  justify-self: end;
   margin: clamp(0.5rem, 1.25vw, 1rem) 0 0;
+  width: min(100%, var(--story-hero-lede-max-width, 18.9375rem));
   max-width: var(--story-hero-lede-max-width, 18.9375rem);
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: var(--story-hero-lede-size, clamp(1rem, 1.25vw, 1.125rem));
@@ -101,7 +104,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--story-hero-feature-gap, clamp(3rem, 8.2vw, 7.375rem));
+  gap: var(--story-hero-feature-gap, clamp(0.75rem, 1.8vw, 1.625rem));
   width: min(100%, var(--story-hero-feature-max-width, 34.59375rem));
   margin-top: var(--story-hero-feature-margin-top, clamp(1.5rem, 6vw, 4.5rem));
   margin-inline: 0;

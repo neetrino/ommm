@@ -33,10 +33,10 @@ export const STORY_PAGE_LAYOUT = {
   /** Figma `672:869` — frame nudge above shell top. */
   heroBackgroundTopOffset: "-0.125rem",
   heroMinHeight: "clamp(36rem, 58.75vw, 52.9375rem)",
-  /** Figma `670:809` header top — 152px at 1440. */
-  heroContentPaddingTop: "clamp(5.5rem, 10.5vw, 9.5rem)",
+  /** Figma title top — shell 152 + header 68 + copy 26 = 246px at 1440. */
+  heroContentPaddingTop: "clamp(7.5rem, 17.08vw, 15.375rem)",
   heroContentPaddingTopMobile:
-    "calc(var(--marketing-mobile-header-height, 4.25rem) + clamp(1rem, 3vw, 1.5rem))",
+    "calc(var(--marketing-mobile-header-height, 4.25rem) + clamp(2.5rem, 12vw, 5rem))",
   /** Figma `670:815` — Newsreader SemiBold 116px. */
   heroTitleSize: "clamp(3.5rem, 8vw, 7.25rem)",
   /** Figma `670:816` — Montserrat Light 18px / 303px. */
@@ -48,10 +48,10 @@ export const STORY_PAGE_LAYOUT = {
   heroFeatureBodySize: "clamp(0.8125rem, 1vw, 0.875rem)",
   /** Figma feature copy block width — 553.5px at 1440. */
   heroFeatureMaxWidth: "34.59375rem",
-  /** Figma `670:819` → `670:828` — 118px between block tops at 1440. */
-  heroFeatureGap: "clamp(3rem, 8.2vw, 7.375rem)",
-  /** Figma feature blocks — left edge of header (`left: 0`). */
-  heroFeatureMarginTop: "clamp(1.5rem, 6vw, 4.5rem)",
+  /** Visual gap between first body and second title — Figma ~26px at 1440. */
+  heroFeatureGap: "clamp(0.75rem, 1.8vw, 1.625rem)",
+  /** Figma — 60px from lede bottom to first feature block at 1440. */
+  heroFeatureMarginTop: "clamp(2rem, 4.17vw, 3.75rem)",
   sectionGap: "clamp(2rem, 5vw, 3.5rem)",
   cardPadding: "clamp(1.25rem, 3vw, 2.5rem)",
   valuesGridGap: "clamp(1rem, 2.5vw, 1.5rem)",
