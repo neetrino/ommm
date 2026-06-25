@@ -68,28 +68,9 @@
   letter-spacing: -0.02em;
 }
 
-.statusPill {
-  display: inline-flex;
-  margin-top: 0.875rem;
-  border-radius: 9999px;
-  padding: 0.3rem 0.85rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.statusPillSuccess {
-  background: rgb(209 250 229 / 0.82);
-  color: rgb(6 78 59);
-}
-
-.statusPillFailed {
-  background: rgb(254 226 226 / 0.88);
-  color: rgb(127 29 29);
-}
-
 .lead {
   max-width: 28rem;
-  margin: 1rem auto 0;
+  margin: 0.85rem auto 0;
   font-size: 0.9375rem;
   line-height: 1.65;
 }

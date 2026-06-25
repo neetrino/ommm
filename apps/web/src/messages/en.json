@@ -1100,9 +1100,9 @@
             "title": "Drop-in payment"
           },
           "package": {
-            "description": "Complete your membership payment.",
-            "eyebrow": "Membership checkout",
-            "title": "Membership payment"
+            "description": "Complete your package payment.",
+            "eyebrow": "Package checkout",
+            "title": "Package payment"
           },
           "other": {
             "description": "Complete your payment.",
@@ -1134,10 +1134,10 @@
             "failedLead": "Your drop-in payment failed. Please try again."
           },
           "package": {
-            "successTitle": "Membership payment successful",
-            "successLead": "Your membership is now active.",
-            "failedTitle": "Membership payment failed",
-            "failedLead": "Your membership payment failed. Please try again."
+            "successTitle": "Package payment successful",
+            "successLead": "Your package is now active.",
+            "failedTitle": "Package payment failed",
+            "failedLead": "Your package payment failed. Please try again."
           },
           "other": {
             "successTitle": "Payment successful",

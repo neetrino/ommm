@@ -56,13 +56,6 @@ export function PaymentOutcomeScreen({
       <h1 className={`${styles.title} text-sage-950`}>
         {isSuccess ? t(`sources.${source}.successTitle`) : t(`sources.${source}.failedTitle`)}
       </h1>
-      <p
-        className={`${styles.statusPill} ${
-          isSuccess ? styles.statusPillSuccess : styles.statusPillFailed
-        }`}
-      >
-        {isSuccess ? t("statusSuccess") : t("statusFailed")}
-      </p>
       <p className={`${styles.lead} text-sage-600`}>
         {isSuccess ? t(`sources.${source}.successLead`) : t(`sources.${source}.failedLead`)}
       </p>

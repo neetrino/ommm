@@ -1100,9 +1100,9 @@
             "title": "Оплата drop-in"
           },
           "package": {
-            "description": "Завершите оплату membership.",
-            "eyebrow": "Membership",
-            "title": "Оплата membership"
+            "description": "Завершите оплату пакета.",
+            "eyebrow": "Пакет",
+            "title": "Оплата пакета"
           },
           "other": {
             "description": "Завершите оплату.",
@@ -1134,10 +1134,10 @@
             "failedLead": "Drop-in оплата не прошла. Попробуйте снова."
           },
           "package": {
-            "successTitle": "Membership оплата прошла успешно",
-            "successLead": "Ваш membership активен.",
-            "failedTitle": "Membership оплата не прошла",
-            "failedLead": "Оплата membership не прошла. Попробуйте снова."
+            "successTitle": "Оплата пакета прошла успешно",
+            "successLead": "Ваш пакет активен.",
+            "failedTitle": "Оплата пакета не прошла",
+            "failedLead": "Оплата пакета не прошла. Попробуйте снова."
           },
           "other": {
             "successTitle": "Оплата прошла успешно",

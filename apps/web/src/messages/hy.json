@@ -1100,9 +1100,9 @@
             "title": "Drop-in ոռարման"
           },
           "package": {
-            "description": "Աոնտրեք membership-ի ոռարմանը։",
-            "eyebrow": "Membership",
-            "title": "Membership ոռարման"
+            "description": "Ավարտեք փաթեթի վճարումը։",
+            "eyebrow": "Փաթեթ",
+            "title": "Փաթեթի վճարում"
           },
           "other": {
             "description": "Աոնտրեք ոռարմանը։",
@@ -1134,10 +1134,10 @@
             "failedLead": "Drop-in վճարումը չի հաստատվել։ Խնդրում ենք կրկին փորդել։"
           },
           "package": {
-            "successTitle": "Membership ոռարմանը հաջոբ է։",
-            "successLead": "Սա membership-ը աքիվ է։",
-            "failedTitle": "Membership ոռարմանը չեգոբվել է։",
-            "failedLead": "Membership-ի վճարումը չի հաստատվել։ Խնդրում ենք կրկին փորդել։"
+            "successTitle": "Փաթեթի վճարումը հաջող է",
+            "successLead": "Ձեր փաթեթն ակտիվ է։",
+            "failedTitle": "Փաթեթի վճարումը չի ավարտվել",
+            "failedLead": "Փաթեթի վճարումը չի հաստատվել։ Խնդրում ենք կրկին փորձել։"
           },
           "other": {
             "successTitle": "Ոռարմանը հաջոբ է։",
