@@ -6,15 +6,16 @@ import {
   type MarketingNavLinkDefinition,
 } from "@/lib/home-page-sections";
 import { serverApiJsonPublic } from "@/lib/server-api";
+import { PUBLIC_CACHE_TAGS } from "@/lib/public-cache-tags";
 
 type HomeSectionsResponse = {
   sections: HomePageSectionVisibility;
 };
 
-/** Fresh visibility read for route guards — no Next/Redis cache staleness. */
-async function fetchHomeSectionsVisibilityFresh(): Promise<HomePageSectionVisibility> {
+/** Tagged visibility read — busted via `revalidatePublicStudio` after admin home-section edits. */
+async function fetchHomeSectionsVisibilityCached(): Promise<HomePageSectionVisibility> {
   const res = await serverApiJsonPublic<HomeSectionsResponse>("/studio/home-sections", {
-    cacheMode: "no-store",
+    tags: [PUBLIC_CACHE_TAGS.homeSections],
   });
   if (!res.ok) {
     return createDefaultHomePageSectionVisibility();
@@ -23,8 +24,8 @@ async function fetchHomeSectionsVisibilityFresh(): Promise<HomePageSectionVisibi
   return res.data.sections ?? createDefaultHomePageSectionVisibility();
 }
 
-/** Deduped per request; always no-store upstream (API reads DB directly). */
-export const getHomeSectionsVisibility = cache(fetchHomeSectionsVisibilityFresh);
+/** Deduped per request; tagged cache with admin invalidation. */
+export const getHomeSectionsVisibility = cache(fetchHomeSectionsVisibilityCached);
 
 export async function getFilteredMarketingNavLinks(): Promise<MarketingNavLinkDefinition[]> {
   const visibility = await getHomeSectionsVisibility();

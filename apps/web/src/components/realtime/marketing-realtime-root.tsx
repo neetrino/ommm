@@ -10,7 +10,6 @@ import {
   type SetStateAction,
 } from "react";
 import { RealtimeProvider } from "@/components/realtime/realtime-provider";
-import { MarketingLazyMotion } from "@/components/marketing/marketing-lazy-motion";
 
 const RealtimeAuthSetterContext = createContext<
   Dispatch<SetStateAction<boolean>> | null
@@ -19,12 +18,15 @@ const RealtimeAuthSetterContext = createContext<
 type MarketingRealtimeRootProps = {
   children: ReactNode;
   serverAuthenticated: boolean;
+  /** Guests: connect public SSE only on live schedule surfaces (home, /schedule). */
+  enableGuestRealtime?: boolean;
 };
 
 /** Marketing layout — one SSE connection per tab; auth mode syncs from header account state. */
 export function MarketingRealtimeRoot({
   children,
   serverAuthenticated,
+  enableGuestRealtime = false,
 }: MarketingRealtimeRootProps) {
   const [authenticated, setAuthenticated] = useState(serverAuthenticated);
   const [prevServerAuthenticated, setPrevServerAuthenticated] =
@@ -37,11 +39,12 @@ export function MarketingRealtimeRoot({
 
   return (
     <RealtimeAuthSetterContext.Provider value={setAuthenticated}>
-      <MarketingLazyMotion>
-        <RealtimeProvider authenticated={authenticated} enablePublic={!authenticated}>
-          {children}
-        </RealtimeProvider>
-      </MarketingLazyMotion>
+      <RealtimeProvider
+        authenticated={authenticated}
+        enablePublic={!authenticated && enableGuestRealtime}
+      >
+        {children}
+      </RealtimeProvider>
     </RealtimeAuthSetterContext.Provider>
   );
 }

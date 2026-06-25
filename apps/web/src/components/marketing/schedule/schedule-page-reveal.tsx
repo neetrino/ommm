@@ -1,12 +1,10 @@
 "use client";
 
-import { m } from "framer-motion";
 import type { CSSProperties, ReactNode } from "react";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
-import { marketingScrollRevealMotionProps } from "@/components/marketing/marketing-scroll-reveal-motion";
 import revealStyles from "@/components/marketing/marketing-scroll-reveal.module.css";
 import { SCHEDULE_PAGE_SCROLL_REVEAL } from "@/components/marketing/schedule/schedule-page-scroll-reveal-tokens";
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { useMarketingListItemReveal } from "@/hooks/use-marketing-list-item-reveal";
 
 type SchedulePageRevealProps = {
   index: number;
@@ -43,22 +41,21 @@ export function SchedulePageListItemReveal({
   className,
   style,
 }: SchedulePageListItemRevealProps) {
-  const reducedMotion = usePrefersReducedMotion();
+  const { ref, motionClassName, motionStyle } = useMarketingListItemReveal({
+    index,
+    gridColumns: SCHEDULE_PAGE_SCROLL_REVEAL.sessionListGridColumns,
+  });
   const slotClassName = className
     ? `${revealStyles.revealSlot} ${className}`
     : revealStyles.revealSlot;
 
   return (
-    <m.li
-      className={slotClassName}
-      style={style}
-      {...marketingScrollRevealMotionProps(
-        index,
-        reducedMotion,
-        SCHEDULE_PAGE_SCROLL_REVEAL.sessionListGridColumns,
-      )}
+    <li
+      ref={ref}
+      className={`${slotClassName} ${motionClassName}`}
+      style={{ ...motionStyle, ...style }}
     >
       {children}
-    </m.li>
+    </li>
   );
 }

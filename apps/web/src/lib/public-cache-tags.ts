@@ -3,4 +3,5 @@ export const PUBLIC_CACHE_TAGS = {
   coaches: "public-coaches",
   packages: "public-packages",
   studio: "public-studio",
+  homeSections: "public-home-sections",
 } as const;

@@ -138,6 +138,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
 
         <HomePageReveal
           index={0}
+          entrance="aboveFold"
           className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
         >
           <div className={`${styles.homeHeroLogoMark} tablet:mb-1 tablet:shrink-0`}>
