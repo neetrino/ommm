@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ManualPaymentMethod,
   PaymentSource,
@@ -10,12 +11,18 @@ import {
   type Prisma,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
+import {
+  PUBLIC_CACHE_KEYS,
+  PUBLIC_CACHE_TTL_SEC,
+} from '../cache/public-cache-keys';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
+import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
 import { PackageUsageService } from './package-usage.service';
 
 type AdminPlanRecord = {
@@ -73,9 +80,19 @@ export class PackagesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly packageUsage: PackageUsageService,
+    private readonly config: ConfigService,
+    private readonly cache: RedisCacheService,
   ) {}
 
   async listPlans() {
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.packages,
+      PUBLIC_CACHE_TTL_SEC.packages,
+      () => this.loadPublicPlansFromDb(),
+    );
+  }
+
+  private async loadPublicPlansFromDb() {
     const plans = await this.prisma.packagePlan.findMany({
       where: {
         isActive: true,
@@ -86,6 +103,10 @@ export class PackagesService {
     const classTypeNameById =
       await this.resolveClassTypeNameMapForAllocations(plans);
     return plans.map((plan) => this.toPublicPlan(plan, classTypeNameById));
+  }
+
+  private async invalidatePublicPlansCache(): Promise<void> {
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
   }
 
   async listPlansAdmin() {
@@ -157,6 +178,7 @@ export class PackagesService {
           : {}),
       },
     });
+    await this.invalidatePublicPlansCache();
     return this.toAdminPlanRow(created);
   }
 
@@ -274,12 +296,14 @@ export class PackagesService {
         },
       });
     });
+    await this.invalidatePublicPlansCache();
     return this.toAdminPlanRow(updated);
   }
 
   async deletePlan(id: string) {
     await this.assertPlanDeletable(id);
     await this.prisma.packagePlan.delete({ where: { id } });
+    await this.invalidatePublicPlansCache();
     return { ok: true };
   }
 
@@ -293,6 +317,7 @@ export class PackagesService {
       where: { categoryName },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
+    await this.invalidatePublicPlansCache();
     return {
       categoryName,
       isActive: dto.isActive,
@@ -314,6 +339,7 @@ export class PackagesService {
     }
     const ids = rows.map((row) => row.id);
     await this.prisma.packagePlan.deleteMany({ where: { id: { in: ids } } });
+    await this.invalidatePublicPlansCache();
     return { deletedIds: ids };
   }
 
@@ -454,7 +480,9 @@ export class PackagesService {
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
-      requiresArcaCheckout: dto.paymentMethod === ManualPaymentMethod.CARD,
+      requiresArcaCheckout:
+        dto.paymentMethod === ManualPaymentMethod.CARD &&
+        isArcaCheckoutEnabled(this.config),
     };
   }
 

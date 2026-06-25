@@ -15,6 +15,7 @@ import {
   type CoachSlideCopy,
 } from "@/components/marketing/home/marketing-public-home-coaches-carousel";
 import { FeaturedCoachesMobileCarouselStrip } from "@/components/marketing/home/marketing-public-home-coaches-mobile-carousel";
+import { MarketingLazyMotion } from "@/components/marketing/marketing-lazy-motion";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 const FEATURED_COACHES_AUTO_ADVANCE_MS = 5000;
@@ -163,7 +164,9 @@ export function MarketingPublicHomeCoachesSection({
           </header>
 
           <div className={styles.mobileCarouselWrap}>
-            <FeaturedCoachesMobileCarouselStrip {...carouselProps} />
+            <MarketingLazyMotion>
+              <FeaturedCoachesMobileCarouselStrip {...carouselProps} />
+            </MarketingLazyMotion>
           </div>
 
           {slideCount > 1 ? (
@@ -229,16 +232,18 @@ export function MarketingPublicHomeCoachesSection({
         </div>
 
         <div className="w-full overflow-x-clip">
-          <FeaturedCoachesCarouselStrip
-            slides={slides}
-            active={active}
-            onSelectSlide={setActive}
-            goPrev={goPrev}
-            goNext={goNext}
-            prevLabel={t("coachesPrevAria")}
-            nextLabel={t("coachesNextAria")}
-            getGoToSlideAria={(name) => t("coachesGoToSlideAria", { name })}
-          />
+          <MarketingLazyMotion>
+            <FeaturedCoachesCarouselStrip
+              slides={slides}
+              active={active}
+              onSelectSlide={setActive}
+              goPrev={goPrev}
+              goNext={goNext}
+              prevLabel={t("coachesPrevAria")}
+              nextLabel={t("coachesNextAria")}
+              getGoToSlideAria={(name) => t("coachesGoToSlideAria", { name })}
+            />
+          </MarketingLazyMotion>
         </div>
 
         <div className="mx-auto mt-10 flex max-w-[min(80rem,calc(100%-2rem))] justify-center px-4 sm:px-6 md:px-10 tablet:px-20">

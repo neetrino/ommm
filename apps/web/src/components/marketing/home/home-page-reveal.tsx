@@ -9,6 +9,7 @@ type HomePageRevealProps = {
   children: ReactNode;
   className?: string;
   gridColumns?: number;
+  entrance?: "scroll" | "aboveFold";
 };
 
 /** Scroll-triggered reveal wrapper for home page sections and cards. */
@@ -17,9 +18,15 @@ export function HomePageReveal({
   children,
   className,
   gridColumns = HOME_PAGE_SCROLL_REVEAL.sectionGridColumns,
+  entrance,
 }: HomePageRevealProps) {
   return (
-    <MarketingScrollReveal index={index} gridColumns={gridColumns} className={className}>
+    <MarketingScrollReveal
+      index={index}
+      gridColumns={gridColumns}
+      className={className}
+      entrance={entrance}
+    >
       {children}
     </MarketingScrollReveal>
   );

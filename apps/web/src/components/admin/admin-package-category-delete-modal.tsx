@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
@@ -50,6 +51,7 @@ export function AdminPackageCategoryDeleteModal({
         body: JSON.stringify({ categoryName: trimmedName }),
       });
       onDeleted(trimmedName, result.deletedIds);
+      await revalidatePublicPackages();
       onClose();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("genericError"));

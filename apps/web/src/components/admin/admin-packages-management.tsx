@@ -59,6 +59,7 @@ import {
   clearPackageModalQueryKeys,
   clearPackageDeleteQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
+  PACKAGE_CATEGORIES_PAGE_QUERY_KEY,
   PACKAGE_DELETE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_QUERY_KEY,
   PACKAGE_EDIT_CATEGORY_QUERY_KEY,
@@ -73,7 +74,14 @@ import {
 } from "@/components/admin/admin-packages-url";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { PlusIcon } from "@/components/ui/plus-icon";
+import {
+  ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE,
+} from "@/components/admin/admin-packages.constants";
+import {
+  clampListPage,
+} from "@/lib/list-pagination";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
@@ -381,6 +389,37 @@ export function AdminPackagesManagement({
     );
   }, [filteredPackages, filtersActive, visibleCategories]);
 
+  const categoryPage = (() => {
+    const raw = searchParams.get(PACKAGE_CATEGORIES_PAGE_QUERY_KEY);
+    if (raw === null || raw.trim() === "") {
+      return 1;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  })();
+  const categoryListPageClamped = clampListPage(
+    categoryPage,
+    displayCategories.length,
+    ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE,
+  );
+  const pagedDisplayCategories = useMemo(() => {
+    const offset = (categoryListPageClamped - 1) * ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE;
+    return displayCategories.slice(offset, offset + ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE);
+  }, [categoryListPageClamped, displayCategories]);
+
+  const syncCategoryListPage = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (page <= 1) {
+        params.delete(PACKAGE_CATEGORIES_PAGE_QUERY_KEY);
+      } else {
+        params.set(PACKAGE_CATEGORIES_PAGE_QUERY_KEY, String(page));
+      }
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   const defaultCategoryId = useMemo(() => {
     const firstSelected = categoryOptions.find((option) => selectedCategoryIds.has(option.id));
     return firstSelected?.id ?? categoryOptions[0]?.id ?? "";
@@ -668,7 +707,7 @@ export function AdminPackagesManagement({
                 transition={{ duration: reducedMotion ? 0 : 0.22 }}
               >
                 <AnimatePresence mode="popLayout" initial={false}>
-                  {displayCategories.map((category, index) => (
+                  {pagedDisplayCategories.map((category, index) => (
                     <motion.div
                       key={category.id}
                       layout={!reducedMotion}
@@ -705,6 +744,15 @@ export function AdminPackagesManagement({
                     </motion.div>
                   ))}
                 </AnimatePresence>
+                {displayCategories.length > ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE ? (
+                  <OmmListPagination
+                    total={displayCategories.length}
+                    page={categoryListPageClamped}
+                    pageSize={ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE}
+                    offset={(categoryListPageClamped - 1) * ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE}
+                    onPageChange={syncCategoryListPage}
+                  />
+                ) : null}
               </motion.div>
             )}
           </AnimatePresence>

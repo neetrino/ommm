@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { buildHomeWeeklyScheduleDays } from "@/components/marketing/home/build-home-weekly-schedule-days";
 import { getDefaultWeeklyScheduleDay } from "@/components/marketing/home/get-default-weekly-schedule-day";
 import { HomeWeeklyScheduleDayView } from "@/components/marketing/home/home-weekly-schedule-compact-view";
@@ -53,18 +53,6 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
       // Keep current rows on transient errors.
     }
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    queueMicrotask(() => {
-      if (!cancelled) {
-        void refreshSchedule();
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [refreshSchedule]);
 
   useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC, refreshSchedule);
 

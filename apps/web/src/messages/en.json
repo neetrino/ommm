@@ -1100,9 +1100,9 @@
             "title": "Drop-in payment"
           },
           "package": {
-            "description": "Complete your membership payment.",
-            "eyebrow": "Membership checkout",
-            "title": "Membership payment"
+            "description": "Complete your package payment.",
+            "eyebrow": "Package checkout",
+            "title": "Package payment"
           },
           "other": {
             "description": "Complete your payment.",
@@ -1125,25 +1125,25 @@
             "successTitle": "Gift card payment successful",
             "successLead": "Your gift card payment was confirmed. The card is now available in your account.",
             "failedTitle": "Gift card payment failed",
-            "failedLead": "The card payment was not completed. You can try again from the gift cards page."
+            "failedLead": "Your gift card payment failed. Please try again."
           },
           "dropin": {
             "successTitle": "Drop-in payment successful",
             "successLead": "Your session is booked. See you in class!",
             "failedTitle": "Drop-in payment failed",
-            "failedLead": "The card payment was not completed. You can try again from your schedule."
+            "failedLead": "Your drop-in payment failed. Please try again."
           },
           "package": {
-            "successTitle": "Membership payment successful",
-            "successLead": "Your membership is now active.",
-            "failedTitle": "Membership payment failed",
-            "failedLead": "The card payment was not completed. You can subscribe again from the packages page."
+            "successTitle": "Package payment successful",
+            "successLead": "Your package is now active.",
+            "failedTitle": "Package payment failed",
+            "failedLead": "Your package payment failed. Please try again."
           },
           "other": {
             "successTitle": "Payment successful",
             "successLead": "Your payment was confirmed.",
             "failedTitle": "Payment failed",
-            "failedLead": "The card payment was not completed. Please try again."
+            "failedLead": "Your payment failed. Please try again."
           }
         }
       },

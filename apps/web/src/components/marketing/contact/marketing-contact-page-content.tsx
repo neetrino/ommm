@@ -12,7 +12,7 @@ import {
 import { MarketingContactStudioCard } from "@/components/marketing/contact/marketing-contact-studio-card";
 import styles from "@/components/marketing/contact/marketing-contact-page-content.module.css";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
-import { fetchPublicJsonCached } from "@/lib/cached-public-api";
+import { fetchPublicStudioCached } from "@/lib/fetch-public-studio";
 import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
 import { HOME_FOOTER_ADDRESS_HREF } from "@/components/marketing/home/home-footer-section-tokens";
 import {
@@ -25,7 +25,7 @@ type MarketingContactLocaleProps = {
 };
 
 type MarketingContactPageLayoutProps = MarketingContactLocaleProps & {
-  studioFetch?: ReturnType<typeof fetchPublicJsonCached<StudioPublicSettings>>;
+  studioFetch?: ReturnType<typeof fetchPublicStudioCached>;
 };
 
 type ContactPublicDefaults = {
@@ -136,7 +136,7 @@ async function MarketingContactStudioSection({
 }: MarketingContactPageLayoutProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
   const tHome = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const studioRes = await (studioFetch ?? fetchPublicJsonCached<StudioPublicSettings>("/studio"));
+  const studioRes = await (studioFetch ?? fetchPublicStudioCached());
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
   const socialIconLinks = resolveContactSocialIconLinks(social, studio?.whatsappUrl);
@@ -164,7 +164,7 @@ async function MarketingContactStudioSection({
 async function MarketingContactMapEmbedSection({
   studioFetch,
 }: Pick<MarketingContactPageLayoutProps, "studioFetch">) {
-  const studioRes = await (studioFetch ?? fetchPublicJsonCached<StudioPublicSettings>("/studio"));
+  const studioRes = await (studioFetch ?? fetchPublicStudioCached());
   const studioMapEmbedUrl = studioRes.ok ? studioRes.data.mapEmbedUrl : null;
   const embedHtml = resolveContactMapEmbedHtml(studioMapEmbedUrl);
 

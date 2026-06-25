@@ -278,6 +278,8 @@ model ClassSession {
 
   bookings        Booking[]
   waitlistEntries WaitlistEntry[]
+
+  @@index([status, startsAt])
 }
 
 model Booking {

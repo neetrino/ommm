@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { fetchExplorePost } from "@/components/marketing/explore/explore-post-data";
 import { MarketingExplorePostPageContent } from "@/components/marketing/explore/marketing-explore-post-page-content";
 import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
-import { ensureMarketingSectionEnabled } from "@/server/ensure-marketing-section-enabled";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -20,7 +19,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ExplorePostPage({ params }: Props) {
-  await ensureMarketingSectionEnabled("explore");
   const { locale, slug } = await params;
 
   return (

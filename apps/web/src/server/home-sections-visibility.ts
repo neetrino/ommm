@@ -1,19 +1,31 @@
+import { cache } from "react";
 import {
   createDefaultHomePageSectionVisibility,
   filterMarketingNavLinks,
   type HomePageSectionVisibility,
   type MarketingNavLinkDefinition,
 } from "@/lib/home-page-sections";
-import { fetchPublicStudioCached } from "@/lib/fetch-public-studio";
+import { serverApiJsonPublic } from "@/lib/server-api";
+import { PUBLIC_CACHE_TAGS } from "@/lib/public-cache-tags";
 
-export async function getHomeSectionsVisibility(): Promise<HomePageSectionVisibility> {
-  const res = await fetchPublicStudioCached();
+type HomeSectionsResponse = {
+  sections: HomePageSectionVisibility;
+};
+
+/** Tagged visibility read — busted via `revalidatePublicStudio` after admin home-section edits. */
+async function fetchHomeSectionsVisibilityCached(): Promise<HomePageSectionVisibility> {
+  const res = await serverApiJsonPublic<HomeSectionsResponse>("/studio/home-sections", {
+    tags: [PUBLIC_CACHE_TAGS.homeSections],
+  });
   if (!res.ok) {
     return createDefaultHomePageSectionVisibility();
   }
 
-  return res.data.homeSectionsVisibility ?? createDefaultHomePageSectionVisibility();
+  return res.data.sections ?? createDefaultHomePageSectionVisibility();
 }
+
+/** Deduped per request; tagged cache with admin invalidation. */
+export const getHomeSectionsVisibility = cache(fetchHomeSectionsVisibilityCached);
 
 export async function getFilteredMarketingNavLinks(): Promise<MarketingNavLinkDefinition[]> {
   const visibility = await getHomeSectionsVisibility();

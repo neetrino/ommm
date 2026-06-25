@@ -1,5 +1,6 @@
 import { getRequestConfig } from "next-intl/server";
 import { headers } from "next/headers";
+import { pickRouteMessages } from "@/i18n/pick-route-messages";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import { routing } from "./routing";
 
@@ -20,10 +21,12 @@ function localeFromPathnameHeader(pathname: string | null): (typeof routing.loca
 
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
+  let pathname: string | null = null;
 
   try {
     const h = await headers();
-    const fromPath = localeFromPathnameHeader(h.get(OMMM_PATHNAME_HEADER));
+    pathname = h.get(OMMM_PATHNAME_HEADER);
+    const fromPath = localeFromPathnameHeader(pathname);
     if (fromPath !== undefined) {
       /** URL segment wins so RSC `getTranslations("…")` matches `[locale]` in the address bar. */
       locale = fromPath;
@@ -40,8 +43,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
   if (!isRoutingLocale(locale)) {
     locale = routing.defaultLocale;
   }
+
+  const allMessages = (await import(`../messages/${locale}.json`)).default;
+
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    messages: pickRouteMessages(pathname, allMessages),
   };
 });

@@ -35,6 +35,29 @@ export function AuthLoginSphereField() {
     };
   }, [group]);
 
+  useEffect(() => {
+    if (reducedMotion) {
+      return;
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      group.setPointer({ x: event.clientX, y: event.clientY });
+    };
+
+    const onPointerLeave = () => {
+      group.clearPointer();
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerleave", onPointerLeave);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", onPointerLeave);
+      group.clearPointer();
+    };
+  }, [group, reducedMotion]);
+
   return (
     <AuthLoginSphereGroupContext.Provider value={group}>
       <div className={styles.layer} aria-hidden="true">

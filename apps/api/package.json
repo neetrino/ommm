@@ -8,6 +8,7 @@
   "scripts": {
     "predev": "pnpm -w run db:generate",
     "dev": "pnpm exec nest start --watch",
+    "db:migrate:deploy": "pnpm -w run db:migrate:deploy",
     "build": "pnpm exec nest build",
     "format": "pnpm exec prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "pnpm exec nest start",

@@ -29,10 +29,18 @@ export class StudioService {
   }
 
   async getHomeSections() {
-    const publicRow = await this.getPublic();
-    return {
-      sections: publicRow.homeSectionsVisibility,
-    };
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.homeSections,
+      PUBLIC_CACHE_TTL_SEC.homeSections,
+      async () => {
+        const row = await this.loadPublicFromDb();
+        return {
+          sections: parseHomePageSectionVisibilityJson(
+            row.homeSectionsVisibilityJson,
+          ),
+        };
+      },
+    );
   }
 
   private async loadPublicFromDb() {
@@ -71,6 +79,7 @@ export class StudioService {
       },
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.homeSections);
     return {
       sections: parseHomePageSectionVisibilityJson(
         updated.homeSectionsVisibilityJson,

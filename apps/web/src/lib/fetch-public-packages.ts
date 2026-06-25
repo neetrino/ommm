@@ -1,9 +1,10 @@
 import { serverApiJsonPublic } from "@/lib/server-api";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
+import { PUBLIC_CACHE_TAGS } from "@/lib/public-cache-tags";
 
-/** Live public package catalog for immediate admin pricing visibility updates. */
+/** Tagged public package catalog — busted via `revalidatePublicPackages` after admin edits. */
 export function fetchPublicPackagesListCached() {
   return serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans", {
-    cacheMode: "no-store",
+    tags: [PUBLIC_CACHE_TAGS.packages],
   });
 }
