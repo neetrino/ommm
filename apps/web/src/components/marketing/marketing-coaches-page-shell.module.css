@@ -70,9 +70,9 @@
   min-height: 100dvh;
 }
 
-/* Story page — cream surface + home-style footer wrap. */
+/* Story page — cream surface + Our Values footer wrap (beats inline coaches wrap token). */
 .shell:has([data-marketing-story]) {
-  --home-footer-wrap-bg: #fbf5d5;
+  --home-footer-wrap-bg: #fbf5d5 !important;
   background: #fbf5d5;
 }
 
