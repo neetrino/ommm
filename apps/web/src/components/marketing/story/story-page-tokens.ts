@@ -1,7 +1,7 @@
 /** Figma Story page — surface, typography, and layout tokens. */
-import { HOME_COACHES_SECTION_FIGMA } from "@/components/marketing/home/home-coaches-section-tokens";
 
 export const STORY_PAGE_SURFACE = {
+  pageBackground: "#fbf5d5",
   cardBackground: "#fdf9f6",
   cardBackgroundAlt: "#fdf9f6",
   body: "#5c574f",
@@ -61,8 +61,8 @@ export const STORY_PAGE_LAYOUT = {
   /** iPad Mini — equal taller cards so copy fits in three columns. */
   valuesCardMinHeightTablet: "30rem",
   valuesCardImageMinHeightTablet: "12rem",
-  valuesHeadingColor: HOME_COACHES_SECTION_FIGMA.headingColor,
-  valuesSubtitleColor: HOME_COACHES_SECTION_FIGMA.subtitleColor,
+  valuesHeadingColor: "#97907c",
+  valuesSubtitleColor: "#97907c",
   valuesSectionMarginTop: "clamp(2.5rem, 6vw, 4rem)",
   valuesSectionMarginTopMobile: "clamp(2.5rem, 8vw, 4rem)",
   featureCardsHeroOverlap: "0",

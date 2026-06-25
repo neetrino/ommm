@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import { COACHES_PAGE_SURFACE } from "@/components/marketing/coaches/coaches-page-tokens";
-import { POLICY_PAGE_SURFACE } from "@/components/marketing/policy/policy-page-tokens";
+import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_FOOTER_MOBILE_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
+import { POLICY_PAGE_SURFACE } from "@/components/marketing/policy/policy-page-tokens";
 import {
   MARKETING_CONTENT_INLINE_INSET,
   MARKETING_CONTENT_INLINE_MARGIN,
@@ -23,7 +24,7 @@ const MARKETING_SHELL_STYLE = {
   "--coaches-page-gradient-from": COACHES_PAGE_SURFACE.gradientFrom,
   "--coaches-page-gradient-to": COACHES_PAGE_SURFACE.gradientTo,
   "--policy-page-background": POLICY_PAGE_SURFACE.background,
-  "--home-footer-wrap-bg": COACHES_PAGE_SURFACE.gradientTo,
+  "--home-footer-wrap-bg": HOME_PAGE_SURFACE.pageBackground,
   "--marketing-footer-mobile-overlap": HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
 } as CSSProperties;
 

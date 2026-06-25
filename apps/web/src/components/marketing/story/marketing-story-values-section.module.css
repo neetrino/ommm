@@ -27,7 +27,7 @@
   font-weight: 600;
   line-height: 0.95;
   letter-spacing: -0.02em;
-  color: var(--story-values-heading-color, #fbf5d5);
+  color: var(--story-values-heading-color, #97907c);
 }
 
 .sectionSubtitle {
@@ -39,7 +39,7 @@
   font-weight: 400;
   line-height: 1.45;
   letter-spacing: 0.01em;
-  color: var(--story-values-subtitle-color, rgba(255, 255, 255, 0.84));
+  color: var(--story-values-subtitle-color, #97907c);
 }
 
 .grid {

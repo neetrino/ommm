@@ -22,7 +22,7 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
         className={`${marketingMontserrat.variable} ${styles.card}`}
         style={{
           ["--story-card-radius" as string]: STORY_PAGE_LAYOUT.closingCardRadius,
-          ["--story-card-bg" as string]: STORY_PAGE_SURFACE.cardBackgroundAlt,
+          ["--story-card-bg" as string]: STORY_PAGE_SURFACE.pageBackground,
           ["--story-card-shadow" as string]: STORY_PAGE_LAYOUT.storyCardShadow,
           ["--story-accent" as string]: STORY_PAGE_SURFACE.accent,
           ["--story-heading-color" as string]: STORY_PAGE_SURFACE.heading,
