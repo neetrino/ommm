@@ -8,6 +8,7 @@ import { isApiError, confirmSimulatedCardCheckout, isArcaCheckoutEnabled, startA
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ManualPaymentMethod } from "@/lib/manual-payment-method";
 import type { PaymentCheckoutSource } from "@/lib/payment-checkout-source";
+import { PAYMENT_SUCCESS_PATH } from "@/lib/payment-result-paths";
 import { MARKETING_SCHEDULE_PATH } from "@/lib/auth-redirect";
 
 type CheckoutPaymentMethod = Extract<ManualPaymentMethod, "CARD" | "CASH">;
@@ -55,7 +56,7 @@ export function PendingPaymentCheckoutForm({
       }
       await confirmSimulatedCardCheckout(paymentReference, source);
       const params = new URLSearchParams({ source, reference: paymentReference });
-      router.push(`/user/payments/success?${params.toString()}`);
+      router.push(`${PAYMENT_SUCCESS_PATH}?${params.toString()}`);
       router.refresh();
     } catch (err) {
       setError(isApiError(err) ? err.message : t("payFailed"));

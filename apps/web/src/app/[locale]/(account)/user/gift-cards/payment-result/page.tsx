@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PAYMENT_FAIL_PATH, PAYMENT_SUCCESS_PATH } from "@/lib/payment-result-paths";
 
 type GiftPaymentResultPageProps = {
   params: Promise<{ locale: string }>;
@@ -19,6 +20,6 @@ export default async function GiftPaymentResultPage({
   if (reference) {
     query.set("reference", reference);
   }
-  const path = status === "success" ? "success" : "fail";
-  redirect(`/${locale}/user/payments/${path}?${query.toString()}`);
+  const targetPath = status === "success" ? PAYMENT_SUCCESS_PATH : PAYMENT_FAIL_PATH;
+  redirect(`/${locale}${targetPath}?${query.toString()}`);
 }
