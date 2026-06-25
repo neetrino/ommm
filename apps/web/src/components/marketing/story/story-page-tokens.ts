@@ -4,6 +4,8 @@ export const STORY_PAGE_SURFACE = {
   pageBackground: "#fbf5d5",
   cardBackground: "#fdf9f6",
   cardBackgroundAlt: "#fdf9f6",
+  /** Closing banner — page cream, slightly darker. */
+  closingBannerBackground: "#f0e8c8",
   body: "#5c574f",
   bodyMuted: "#8a847a",
   heading: "#1d1c15",
@@ -69,6 +71,9 @@ export const STORY_PAGE_LAYOUT = {
   valuesSectionMarginTopMobile: "clamp(4.5rem, 10vw, 6rem)",
   featureCardsHeroOverlap: "0",
   featureCardRadius: "clamp(2.25rem, 4vw, 3rem)",
+  /** Closing banner CTA — feature tan, slightly darker. */
+  closingBannerCtaBackground: "#cfbea7",
+  closingBannerCtaHover: "#c0af98",
   featureCardCtaBackground: "#dbcab3",
   featureCardCtaHover: "#d0b89e",
 } as const;

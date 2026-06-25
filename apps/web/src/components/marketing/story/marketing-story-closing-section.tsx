@@ -22,14 +22,14 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
         className={`${marketingMontserrat.variable} ${styles.card}`}
         style={{
           ["--story-card-radius" as string]: STORY_PAGE_LAYOUT.closingCardRadius,
-          ["--story-card-bg" as string]: STORY_PAGE_SURFACE.pageBackground,
+          ["--story-card-bg" as string]: STORY_PAGE_SURFACE.closingBannerBackground,
           ["--story-card-shadow" as string]: STORY_PAGE_LAYOUT.storyCardShadow,
           ["--story-accent" as string]: STORY_PAGE_SURFACE.accent,
           ["--story-heading-color" as string]: STORY_PAGE_SURFACE.heading,
           ["--story-body-color" as string]: STORY_PAGE_SURFACE.body,
           ["--story-body-muted" as string]: STORY_PAGE_SURFACE.bodyMuted,
-          ["--story-cta-bg" as string]: STORY_PAGE_LAYOUT.featureCardCtaBackground,
-          ["--story-cta-hover" as string]: STORY_PAGE_LAYOUT.featureCardCtaHover,
+          ["--story-cta-bg" as string]: STORY_PAGE_LAYOUT.closingBannerCtaBackground,
+          ["--story-cta-hover" as string]: STORY_PAGE_LAYOUT.closingBannerCtaHover,
         }}
         aria-labelledby="story-closing-heading"
       >
