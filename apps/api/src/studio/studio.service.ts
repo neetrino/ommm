@@ -29,9 +29,11 @@ export class StudioService {
   }
 
   async getHomeSections() {
-    const publicRow = await this.getPublic();
+    const row = await this.loadPublicFromDb();
     return {
-      sections: publicRow.homeSectionsVisibility,
+      sections: parseHomePageSectionVisibilityJson(
+        row.homeSectionsVisibilityJson,
+      ),
     };
   }
 

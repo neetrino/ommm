@@ -45,6 +45,8 @@ export default async function MarketingLayout({
   const sectionKey = resolveMarketingSectionKeyFromPath(serverMarketingPath);
   const visibility = await getHomeSectionsVisibility();
 
+  // Intentional 404 only when admin disabled the section (fresh DB read, no stale cache).
+  // API unavailable → visibility defaults to all enabled (see getHomeSectionsVisibility).
   if (
     sectionKey !== null &&
     sectionKey !== "home" &&

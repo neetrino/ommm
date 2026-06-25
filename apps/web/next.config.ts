@@ -12,10 +12,19 @@ loadEnv({
   quiet: true,
 });
 
+if (process.env.NODE_ENV !== "production") {
+  // Root `.env` sets API_PORT/API PORT for Nest — do not let PORT hijack Next dev.
+  delete process.env.PORT;
+}
+
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const apiInternal =
   process.env.API_INTERNAL_URL ?? "http://127.0.0.1:4000";
+
+if (process.env.NODE_ENV !== "production") {
+  console.log(`[web] next.config API_INTERNAL_URL → ${apiInternal}/v1`);
+}
 
 function collectLanIpv4Hosts(): string[] {
   const nets = os.networkInterfaces();

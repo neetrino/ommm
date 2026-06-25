@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm -w run build:database && pnpm exec next dev",
+    "dev": "pnpm -w run build:database && pnpm exec next dev -p 3000",
     "build": "pnpm -w run build:database && pnpm exec next build",
-    "start": "pnpm exec next start",
+    "start": "pnpm exec next start -p 3000",
     "lint": "pnpm exec eslint",
     "test:e2e": "pnpm exec playwright test"
   },

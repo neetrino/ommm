@@ -1,19 +1,30 @@
+import { cache } from "react";
 import {
   createDefaultHomePageSectionVisibility,
   filterMarketingNavLinks,
   type HomePageSectionVisibility,
   type MarketingNavLinkDefinition,
 } from "@/lib/home-page-sections";
-import { fetchPublicStudioCached } from "@/lib/fetch-public-studio";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
-export async function getHomeSectionsVisibility(): Promise<HomePageSectionVisibility> {
-  const res = await fetchPublicStudioCached();
+type HomeSectionsResponse = {
+  sections: HomePageSectionVisibility;
+};
+
+/** Fresh visibility read for route guards — no Next/Redis cache staleness. */
+async function fetchHomeSectionsVisibilityFresh(): Promise<HomePageSectionVisibility> {
+  const res = await serverApiJsonPublic<HomeSectionsResponse>("/studio/home-sections", {
+    cacheMode: "no-store",
+  });
   if (!res.ok) {
     return createDefaultHomePageSectionVisibility();
   }
 
-  return res.data.homeSectionsVisibility ?? createDefaultHomePageSectionVisibility();
+  return res.data.sections ?? createDefaultHomePageSectionVisibility();
 }
+
+/** Deduped per request; always no-store upstream (API reads DB directly). */
+export const getHomeSectionsVisibility = cache(fetchHomeSectionsVisibilityFresh);
 
 export async function getFilteredMarketingNavLinks(): Promise<MarketingNavLinkDefinition[]> {
   const visibility = await getHomeSectionsVisibility();
