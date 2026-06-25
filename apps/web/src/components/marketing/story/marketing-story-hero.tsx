@@ -32,6 +32,7 @@ const HERO_LAYOUT_STYLE = {
   ["--story-hero-content-padding-top-mobile" as string]:
     STORY_PAGE_LAYOUT.heroContentPaddingTopMobile,
   ["--story-hero-title-size" as string]: STORY_PAGE_LAYOUT.heroTitleSize,
+  ["--story-hero-title-size-mobile" as string]: STORY_PAGE_LAYOUT.heroTitleSizeMobile,
   ["--story-hero-lede-size" as string]: STORY_PAGE_LAYOUT.heroLedeSize,
   ["--story-hero-lede-max-width" as string]: STORY_PAGE_LAYOUT.heroLedeMaxWidth,
   ["--story-hero-feature-title-size" as string]: STORY_PAGE_LAYOUT.heroFeatureTitleSize,
@@ -39,6 +40,9 @@ const HERO_LAYOUT_STYLE = {
   ["--story-hero-feature-max-width" as string]: STORY_PAGE_LAYOUT.heroFeatureMaxWidth,
   ["--story-hero-feature-gap" as string]: STORY_PAGE_LAYOUT.heroFeatureGap,
   ["--story-hero-feature-margin-top" as string]: STORY_PAGE_LAYOUT.heroFeatureMarginTop,
+  ["--story-hero-feature-margin-top-mobile" as string]:
+    STORY_PAGE_LAYOUT.heroFeatureMarginTopMobile,
+  ["--story-hero-lede-feature-gap-mobile" as string]: STORY_PAGE_LAYOUT.heroLedeFeatureGapMobile,
 } as const;
 
 /** Story hero — full-bleed background, title + lede, and intro feature copy. */

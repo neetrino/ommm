@@ -43,6 +43,9 @@ export const STORY_PAGE_LAYOUT = {
     "calc(var(--marketing-mobile-header-height, 4.25rem) + clamp(2.5rem, 12vw, 5rem))",
   /** Figma `670:815` — Newsreader SemiBold 116px. */
   heroTitleSize: "clamp(3.5rem, 8vw, 7.25rem)",
+  /** Mobile — shrink to fit before the grid shifts; keeps copy anchored. */
+  heroTitleSizeMobile:
+    "min(3.5rem, max(1.75rem, calc((100vw - 3.5rem) / 6)))",
   /** Figma `670:816` — Montserrat Light 18px / 303px. */
   heroLedeSize: "clamp(1rem, 1.25vw, 1.125rem)",
   heroLedeMaxWidth: "18.9375rem",
@@ -56,6 +59,9 @@ export const STORY_PAGE_LAYOUT = {
   heroFeatureGap: "clamp(0.75rem, 1.8vw, 1.625rem)",
   /** Figma — 60px from lede bottom to first feature block at 1440. */
   heroFeatureMarginTop: "clamp(2rem, 4.17vw, 3.75rem)",
+  heroFeatureMarginTopMobile: "clamp(10rem, 26vw, 14rem)",
+  /** Mobile — extra space between wellness lede and first feature block. */
+  heroLedeFeatureGapMobile: "clamp(2.5rem, 6vw, 3.5rem)",
   sectionGap: "clamp(2rem, 5vw, 3.5rem)",
   cardPadding: "clamp(1.25rem, 3vw, 2.5rem)",
   valuesGridGap: "clamp(1rem, 2.5vw, 1.5rem)",
