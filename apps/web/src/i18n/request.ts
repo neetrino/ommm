@@ -1,6 +1,5 @@
 import { getRequestConfig } from "next-intl/server";
 import { headers } from "next/headers";
-import { pickRouteMessages } from "@/i18n/pick-route-messages";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import { routing } from "./routing";
 
@@ -44,10 +43,15 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
-  const allMessages = (await import(`../messages/${locale}.json`)).default;
+  const messages = (await import(`../messages/${locale}.json`)).default;
 
   return {
     locale,
-    messages: pickRouteMessages(pathname, allMessages),
+    /**
+     * Ship the full catalog: `[locale]/layout` keeps one `NextIntlClientProvider`
+     * across client navigations, so route-scoped subsets leave missing keys until
+     * a full reload.
+     */
+    messages,
   };
 });
