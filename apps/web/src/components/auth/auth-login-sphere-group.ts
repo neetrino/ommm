@@ -2,21 +2,23 @@ import { AUTH_LOGIN_SPHERE_ROAM } from "@/components/auth/auth-login-sphere-roam
 import {
   applyEntryPosition,
   clampPoint,
+  fleeFromPointer,
   measureBounds,
-  pickTargetAwayFromNeighbors,
-  separatePair,
+  pickRandomRoamTarget,
   type AuthLoginSphereEntry,
   type AuthLoginSphereLayoutSeed,
+  type RoamPoint,
 } from "@/components/auth/auth-login-sphere-roam-math";
 
 export type { AuthLoginSphereLayoutSeed } from "@/components/auth/auth-login-sphere-roam-math";
 
-/** Coordinates slow login-sphere roam and keeps spheres from overlapping. */
+/** Coordinates slow login-sphere roam across the full viewport. */
 export class AuthLoginSphereGroup {
   private readonly spheres = new Map<string, AuthLoginSphereEntry>();
   private rafId = 0;
   private lastTimestamp = 0;
   private running = false;
+  private pointer: RoamPoint | null = null;
 
   addSphere(
     id: string,
@@ -46,7 +48,6 @@ export class AuthLoginSphereGroup {
     };
 
     this.spheres.set(id, entry);
-    this.resolveAllOverlaps();
     applyEntryPosition(entry);
 
     if (movementDelayMs > 0) {
@@ -66,6 +67,14 @@ export class AuthLoginSphereGroup {
     this.spheres.delete(id);
   }
 
+  setPointer(point: RoamPoint): void {
+    this.pointer = point;
+  }
+
+  clearPointer(): void {
+    this.pointer = null;
+  }
+
   start(): void {
     if (this.running) {
       return;
@@ -83,7 +92,6 @@ export class AuthLoginSphereGroup {
 
   freeze(): void {
     this.stop();
-    this.resolveAllOverlaps();
     this.applyAllPositions();
   }
 
@@ -97,7 +105,6 @@ export class AuthLoginSphereGroup {
       entry.targetX = clamped.x;
       entry.targetY = clamped.y;
     }
-    this.resolveAllOverlaps();
     this.applyAllPositions();
     for (const entry of this.spheres.values()) {
       this.assignTarget(entry);
@@ -114,9 +121,14 @@ export class AuthLoginSphereGroup {
 
     for (const entry of this.spheres.values()) {
       this.advanceTowardTarget(entry, deltaMs);
+      const bounds = measureBounds(entry.size);
+      const fled = fleeFromPointer(entry, this.pointer, bounds, deltaMs);
+      if (fled) {
+        entry.targetX = entry.x;
+        entry.targetY = entry.y;
+      }
     }
 
-    this.resolveAllOverlaps();
     this.applyAllPositions();
 
     for (const entry of this.spheres.values()) {
@@ -152,28 +164,9 @@ export class AuthLoginSphereGroup {
 
   private assignTarget(entry: AuthLoginSphereEntry): void {
     const bounds = measureBounds(entry.size);
-    const target = pickTargetAwayFromNeighbors(entry, bounds, this.spheres);
+    const target = pickRandomRoamTarget(bounds);
     entry.targetX = target.x;
     entry.targetY = target.y;
-  }
-
-  private resolveAllOverlaps(): void {
-    const entries = [...this.spheres.values()];
-
-    for (let iteration = 0; iteration < AUTH_LOGIN_SPHERE_ROAM.repulsionIterations; iteration += 1) {
-      for (let index = 0; index < entries.length; index += 1) {
-        for (let otherIndex = index + 1; otherIndex < entries.length; otherIndex += 1) {
-          separatePair(entries[index], entries[otherIndex]);
-        }
-      }
-
-      for (const entry of entries) {
-        const bounds = measureBounds(entry.size);
-        const clamped = clampPoint({ x: entry.x, y: entry.y }, bounds);
-        entry.x = clamped.x;
-        entry.y = clamped.y;
-      }
-    }
   }
 
   private applyAllPositions(): void {
