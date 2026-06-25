@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ManualPaymentMethod,
   PaymentSource,
@@ -16,6 +17,7 @@ import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
+import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
 import { PackageUsageService } from './package-usage.service';
 
 type AdminPlanRecord = {
@@ -73,6 +75,7 @@ export class PackagesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly packageUsage: PackageUsageService,
+    private readonly config: ConfigService,
   ) {}
 
   async listPlans() {
@@ -454,7 +457,9 @@ export class PackagesService {
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
-      requiresArcaCheckout: dto.paymentMethod === ManualPaymentMethod.CARD,
+      requiresArcaCheckout:
+        dto.paymentMethod === ManualPaymentMethod.CARD &&
+        isArcaCheckoutEnabled(this.config),
     };
   }
 
