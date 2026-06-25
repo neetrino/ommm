@@ -11,29 +11,6 @@ type MarketingStoryValuesSectionProps = {
   locale: string;
 };
 
-/** Eight-spoked asterisk — SVG so mobile OS fonts cannot swap the glyph. */
-function StoryValuesDecorMark() {
-  return (
-    <span className={styles.decorMark} aria-hidden>
-      <svg
-        width={18}
-        height={18}
-        viewBox="0 0 18 18"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={styles.decorMarkIcon}
-      >
-        <path
-          d="M9 2.25v13.5M2.25 9h13.5M4.1 4.1l9.8 9.8M13.9 4.1l-9.8 9.8"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    </span>
-  );
-}
-
 type ValueCardConfig = {
   titleKey: "valuePeaceTitle" | "valueStrengthTitle" | "valueCommunityTitle";
   bodyKey: "valuePeaceBody" | "valueStrengthBody" | "valueCommunityBody";
@@ -115,16 +92,15 @@ export async function MarketingStoryValuesSection({ locale }: MarketingStoryValu
                 className={styles.card}
                 style={{ ["--story-value-surface" as string]: card.surface }}
               >
-                <div className={styles.copy}>
-                  <div className={styles.copyTop}>
-                    <span className={styles.indexBadge}>
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <StoryValuesDecorMark />
+                  <div className={styles.copy}>
+                    <div className={styles.copyTop}>
+                      <span className={styles.indexBadge}>
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <h3 className={styles.title}>{t(card.titleKey)}</h3>
+                    <p className={styles.body}>{t(card.bodyKey)}</p>
                   </div>
-                  <h3 className={styles.title}>{t(card.titleKey)}</h3>
-                  <p className={styles.body}>{t(card.bodyKey)}</p>
-                </div>
                 <div className={styles.media}>
                   <Image
                     src={card.imageSrc}
