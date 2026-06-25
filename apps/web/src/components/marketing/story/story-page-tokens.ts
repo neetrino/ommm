@@ -26,16 +26,32 @@ export const STORY_PAGE_LAYOUT = {
   closingCardRadius: "clamp(1.75rem, 3vw, 2.25rem)",
   storyCardShadow:
     "0 1rem 2.5rem -1.25rem rgba(45, 40, 35, 0.08), 0 0.25rem 0.75rem -0.25rem rgba(45, 40, 35, 0.06)",
-  heroArchRadiusTop: "clamp(8rem, 26vw, 15rem)",
-  heroArchRadiusBottom: "clamp(2.25rem, 5vw, 3rem)",
-  heroVisualMaxWidth: "clamp(22rem, 42vw, 32rem)",
-  /** iPad Mini / tablet hero — narrow title (~3 words per line) + portrait beside copy. */
-  heroTabletTitleMaxWidth: "11ch",
-  heroTabletLeadMaxWidth: "13.5rem",
-  heroTabletVisualMaxWidth: "clamp(13rem, 36vw, 17rem)",
-  heroTabletVisualNudgeY: "-0.25rem",
-  heroTabletCopyNudgeY: "-1.25rem",
-  heroVisualAspectRatio: "6 / 7",
+  /** Figma `672:869` — background frame height at 1440px artboard. */
+  heroBackgroundHeight: "clamp(36rem, 58.75vw, 52.9375rem)",
+  /** Figma `672:869` — 1442px width on 1440 artboard. */
+  heroBackgroundWidthBleed: "100.14%",
+  /** Figma `672:869` — frame nudge above shell top. */
+  heroBackgroundTopOffset: "-0.125rem",
+  heroMinHeight: "clamp(36rem, 58.75vw, 52.9375rem)",
+  /** Figma `670:809` header top — 152px at 1440. */
+  heroContentPaddingTop: "clamp(5.5rem, 10.5vw, 9.5rem)",
+  heroContentPaddingTopMobile:
+    "calc(var(--marketing-mobile-header-height, 4.25rem) + clamp(1rem, 3vw, 1.5rem))",
+  /** Figma `670:815` — Newsreader SemiBold 116px. */
+  heroTitleSize: "clamp(3.5rem, 8vw, 7.25rem)",
+  /** Figma `670:816` — Montserrat Light 18px / 303px. */
+  heroLedeSize: "clamp(1rem, 1.25vw, 1.125rem)",
+  heroLedeMaxWidth: "18.9375rem",
+  /** Figma `670:822` / `670:831` — feature intro titles at 27px. */
+  heroFeatureTitleSize: "clamp(1.375rem, 1.9vw, 1.6875rem)",
+  /** Figma `670:823` / `670:832` — feature intro body at 14px. */
+  heroFeatureBodySize: "clamp(0.8125rem, 1vw, 0.875rem)",
+  /** Figma feature copy block width — 553.5px at 1440. */
+  heroFeatureMaxWidth: "34.59375rem",
+  /** Figma `670:819` → `670:828` — 118px between block tops at 1440. */
+  heroFeatureGap: "clamp(3rem, 8.2vw, 7.375rem)",
+  /** Figma feature blocks — left edge of header (`left: 0`). */
+  heroFeatureMarginTop: "clamp(1.5rem, 6vw, 4.5rem)",
   sectionGap: "clamp(2rem, 5vw, 3.5rem)",
   cardPadding: "clamp(1.25rem, 3vw, 2.5rem)",
   valuesGridGap: "clamp(1rem, 2.5vw, 1.5rem)",
@@ -48,15 +64,9 @@ export const STORY_PAGE_LAYOUT = {
   valuesHeadingColor: HOME_COACHES_SECTION_FIGMA.headingColor,
   valuesSubtitleColor: HOME_COACHES_SECTION_FIGMA.subtitleColor,
   valuesSectionMarginTop: "clamp(2.5rem, 6vw, 4rem)",
-  valuesSectionMarginTopMobile: "clamp(6rem, 22vw, 8rem)",
-  /** Feature cards pulled up over the hero portrait. */
-  featureCardsHeroOverlap: "clamp(6rem, 14vw, 11rem)",
+  valuesSectionMarginTopMobile: "clamp(2.5rem, 8vw, 4rem)",
+  featureCardsHeroOverlap: "0",
   featureCardRadius: "clamp(2.25rem, 4vw, 3rem)",
   featureCardCtaBackground: "#dbcab3",
   featureCardCtaHover: "#d0b89e",
-  /** Hero portrait nudge toward the text column (desktop). */
-  heroVisualOffsetLeftPx: 50,
-  /** Hero branch fine-tune — right and up from base anchor (desktop). */
-  heroBranchOffsetRightPx: 150,
-  heroBranchOffsetUpPx: 60,
 } as const;
