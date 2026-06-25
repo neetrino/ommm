@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import dynamic from "next/dynamic";
 import { Suspense, useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -14,7 +15,6 @@ import { PackagesPageReveal } from "@/components/marketing/packages/packages-pag
 import { PACKAGES_PAGE_SCROLL_REVEAL } from "@/components/marketing/packages/packages-page-scroll-reveal-tokens";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
-import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
   formatPublicPackageValidityLabel,
   resolvePublicPackageTotalSessions,
@@ -44,6 +44,14 @@ import {
   resolvePublicPackageTypeSessionRows,
 } from "@/components/marketing/packages/public-package-type-session-rows";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
+
+const PackageSubscribePaymentModal = dynamic(
+  () =>
+    import("@/components/account/package-subscribe-payment-modal").then((mod) => ({
+      default: mod.PackageSubscribePaymentModal,
+    })),
+  { ssr: false },
+);
 
 type PackagesPageAccordionProps = {
   locale: string;

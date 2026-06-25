@@ -46,6 +46,7 @@ import {
   type TypeSessionValidationError,
 } from "@/components/admin/admin-package-type-sessions.util";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -573,6 +574,7 @@ export function AdminPackageForm({
             body: JSON.stringify(payload),
           });
       onSaved(saved);
+      await revalidatePublicPackages();
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);

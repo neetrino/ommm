@@ -14,6 +14,7 @@ import {
 } from "@/components/admin/admin-packages-url";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
 
 const DELETE_PACKAGE_CONFIRM_CLASS = "ommm-btn-lifecycle-action--danger";
 
@@ -146,6 +147,7 @@ export function AdminPackageDeleteModal({
     setError(null);
     try {
       await apiFetch(`/packages/plans/${packageId}`, { method: "DELETE" });
+      await revalidatePublicPackages();
       onDeleted(packageId);
       onClose();
     } catch (err) {

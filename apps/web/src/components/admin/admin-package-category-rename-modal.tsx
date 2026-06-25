@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
@@ -66,6 +67,7 @@ export function AdminPackageCategoryRenameModal({
         updated.push(saved);
       }
       onRenamed(categoryName.trim(), trimmed, updated);
+      await revalidatePublicPackages();
       onClose();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("genericError"));

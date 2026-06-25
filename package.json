@@ -14,6 +14,8 @@
     "build:database": "pnpm --filter @ommm/database run build",
     "build:api": "pnpm run build:database && pnpm --filter api build",
     "db:generate": "pnpm exec prisma generate --schema packages/database/prisma/schema.prisma",
+    "db:migrate:deploy": "pnpm --filter @ommm/database run migrate:deploy",
+    "db:migrate:dev": "pnpm --filter @ommm/database run migrate:dev",
     "setup": "pnpm install",
     "test": "pnpm --filter api test",
     "test:e2e:web": "pnpm --filter web test:e2e"

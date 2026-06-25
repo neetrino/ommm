@@ -56,7 +56,9 @@ export function MarketingSiteHeaderWithClientAccount({
   const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(() =>
     readInitialCachedAccount(serverAccount),
   );
-  const [cachedAccountValidated, setCachedAccountValidated] = useState(false);
+  const [cachedAccountValidated, setCachedAccountValidated] = useState(
+    () => serverAccount !== null,
+  );
   const account = serverAccount ?? cachedAccount;
 
   useEffect(() => {
