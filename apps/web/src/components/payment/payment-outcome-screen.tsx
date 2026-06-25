@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -10,9 +9,8 @@ import {
   type PaymentCheckoutSource,
 } from "@/lib/payment-checkout-source";
 import { PAYMENT_FAIL_PATH } from "@/lib/payment-result-paths";
+import { PaymentOutcomeSphereLogo } from "@/components/payment/payment-outcome-sphere-logo";
 import styles from "./payment-outcome-screen.module.css";
-
-const PAYMENT_BRAND_MARK_SRC = "/marketing/home/brand-mark.webp";
 
 type PaymentOutcomeScreenProps = {
   outcome: "success" | "failed";
@@ -38,16 +36,7 @@ export function PaymentOutcomeScreen({
 
   return (
     <section className={styles.panel}>
-      <Link href="/" className={styles.brandLink} aria-label={tNav("home")}>
-        <Image
-          src={PAYMENT_BRAND_MARK_SRC}
-          alt={tCommon("brand")}
-          width={72}
-          height={72}
-          className={styles.brandMark}
-          priority
-        />
-      </Link>
+      <PaymentOutcomeSphereLogo alt={tCommon("brand")} homeAriaLabel={tNav("home")} />
 
       <div
         className={`${styles.iconRing} ${

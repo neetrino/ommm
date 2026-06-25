@@ -2,13 +2,17 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
-import {
-  HOME_FOOTER_SPHERE_BOUNCE,
-} from "@/components/marketing/home/home-footer-section-tokens";
+import type {
+  MeasureSphereGroundY,
+  SphereBounceConfig,
+} from "@/components/marketing/home/sphere-bounce-types";
+import { HOME_FOOTER_SPHERE_BOUNCE } from "@/components/marketing/home/home-footer-section-tokens";
 
 type HomeFooterSphereBounceProps = {
   className?: string;
   children: ReactNode;
+  bounceConfig?: SphereBounceConfig;
+  measureGroundY?: MeasureSphereGroundY;
 };
 
 /** Decelerates into the apex — near-zero speed before the drop. */
@@ -25,10 +29,6 @@ const FALL_MOTION_SAMPLES = [
   { timeRatio: 1, distanceRatio: 1, easing: "linear" as const },
 ] as const;
 
-function isBounceViewport(): boolean {
-  return window.matchMedia(`(min-width: ${HOME_FOOTER_SPHERE_BOUNCE.minWidthPx}px)`).matches;
-}
-
 function ballTransform(x: number, y: number, scaleX: number, scaleY: number): string {
   return `translate3d(${x}px, ${y}px, 0) scale(${scaleX}, ${scaleY})`;
 }
@@ -37,7 +37,11 @@ function ballTransform(x: number, y: number, scaleX: number, scaleY: number): st
  * Fall distance from rest (logicalY = 0) to the site floor.
  * Floor = bottom of the footer section or viewport — whichever is higher — plus optical reach.
  */
-function measureGroundY(el: HTMLElement, logicalY: number, reachPx: number): number {
+function measureFooterSphereGroundY(
+  el: HTMLElement,
+  logicalY: number,
+  reachPx: number,
+): number {
   const rect = el.getBoundingClientRect();
   const restBottom = rect.bottom - logicalY;
   const viewportFloor = window.innerHeight;
@@ -85,15 +89,21 @@ function buildFallKeyframes(
 }
 
 /**
- * Desktop footer sphere — falls to the site edge, squashes on impact, bounces up and drifts.
+ * Bouncing sphere — footer desktop default; configurable for payment outcome card.
  */
-export function HomeFooterSphereBounce({ className, children }: HomeFooterSphereBounceProps) {
+export function HomeFooterSphereBounce({
+  className,
+  children,
+  bounceConfig = HOME_FOOTER_SPHERE_BOUNCE,
+  measureGroundY = measureFooterSphereGroundY,
+}: HomeFooterSphereBounceProps) {
   const ref = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || reducedMotion || !isBounceViewport()) {
+    const viewportMq = window.matchMedia(`(min-width: ${bounceConfig.minWidthPx}px)`);
+    if (!el || reducedMotion || !viewportMq.matches) {
       return;
     }
 
@@ -112,7 +122,7 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
       squashScaleY,
       riseStretchScaleX,
       riseStretchScaleY,
-    } = HOME_FOOTER_SPHERE_BOUNCE;
+    } = bounceConfig;
 
     const totalMs = fallMs + squashMs + impactHoldMs + riseMs;
     const fallEnd = fallMs / totalMs;
@@ -124,7 +134,6 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
     let startY = 0;
     let cancelled = false;
     let activeAnim: Animation | null = null;
-    const desktopMq = window.matchMedia(`(min-width: ${HOME_FOOTER_SPHERE_BOUNCE.minWidthPx}px)`);
 
     const runCycle = () => {
       if (cancelled) {
@@ -170,7 +179,7 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
     };
 
     const onViewportChange = () => {
-      if (!desktopMq.matches) {
+      if (!viewportMq.matches) {
         cancelled = true;
         activeAnim?.cancel();
         el.style.transform = "";
@@ -186,17 +195,17 @@ export function HomeFooterSphereBounce({ className, children }: HomeFooterSphere
 
     runCycle();
 
-    desktopMq.addEventListener("change", onViewportChange);
+    viewportMq.addEventListener("change", onViewportChange);
     window.addEventListener("resize", onViewportChange);
 
     return () => {
       cancelled = true;
       activeAnim?.cancel();
       el.style.transform = "";
-      desktopMq.removeEventListener("change", onViewportChange);
+      viewportMq.removeEventListener("change", onViewportChange);
       window.removeEventListener("resize", onViewportChange);
     };
-  }, [reducedMotion]);
+  }, [bounceConfig, measureGroundY, reducedMotion]);
 
   return (
     <div ref={ref} className={className}>
