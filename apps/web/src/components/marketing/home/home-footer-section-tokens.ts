@@ -127,10 +127,12 @@ const HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX = 300;
 /** Full desktop footer — absolute Figma layout (1367px+). */
 export const HOME_FOOTER_DESKTOP_MIN_WIDTH_PX = 1367 as const;
 
+const HOME_FOOTER_MOBILE_BOUNCE_SCALE = 0.48;
+
 /** Desktop footer sphere bounce — WAAPI loop in `HomeFooterSphereBounce`. */
 export const HOME_FOOTER_SPHERE_BOUNCE = {
-  /** Full desktop only — iPad footer keeps a static illustration. */
-  minWidthPx: HOME_FOOTER_DESKTOP_MIN_WIDTH_PX,
+  /** Tablet + desktop — 744px+ (mobile uses `HOME_FOOTER_MOBILE_SPHERE_BOUNCE`). */
+  minWidthPx: 744,
   peakBasePx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_PX,
   peakBoostMinPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MIN_PX,
   peakBoostMaxPx: HOME_FOOTER_SPHERE_BOUNCE_PEAK_BOOST_MAX_PX,
@@ -148,6 +150,22 @@ export const HOME_FOOTER_SPHERE_BOUNCE = {
   squashScaleY: 0.885,
   riseStretchScaleX: 0.985,
   riseStretchScaleY: 1.042,
+} as const;
+
+function scaleFooterSphereBouncePx(value: number): number {
+  return Math.round(value * HOME_FOOTER_MOBILE_BOUNCE_SCALE);
+}
+
+/** Mobile footer sphere — same loop, scaled for the corner illustration. */
+export const HOME_FOOTER_MOBILE_SPHERE_BOUNCE = {
+  ...HOME_FOOTER_SPHERE_BOUNCE,
+  minWidthPx: 0,
+  maxWidthPx: 743,
+  peakBasePx: scaleFooterSphereBouncePx(HOME_FOOTER_SPHERE_BOUNCE.peakBasePx),
+  peakBoostMinPx: scaleFooterSphereBouncePx(HOME_FOOTER_SPHERE_BOUNCE.peakBoostMinPx),
+  peakBoostMaxPx: scaleFooterSphereBouncePx(HOME_FOOTER_SPHERE_BOUNCE.peakBoostMaxPx),
+  driftPx: scaleFooterSphereBouncePx(HOME_FOOTER_SPHERE_BOUNCE.driftPx),
+  driftMaxPx: scaleFooterSphereBouncePx(HOME_FOOTER_SPHERE_BOUNCE.driftMaxPx),
 } as const;
 
 /** Figma mobile footer — container `632:1081`. */

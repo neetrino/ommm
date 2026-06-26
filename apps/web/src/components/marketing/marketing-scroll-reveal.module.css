@@ -3,6 +3,12 @@
   min-width: 0;
 }
 
+:global(.marketing-footer-reveal) {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+
 .revealEnter {
   opacity: 0;
   transform: translateY(var(--marketing-reveal-offset, 14px));

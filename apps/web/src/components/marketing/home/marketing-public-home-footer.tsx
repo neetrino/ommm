@@ -24,6 +24,7 @@ import {
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
+import { MARKETING_FOOTER_MARKER } from "@/components/marketing/marketing-route-utils";
 import { MARKETING_CONTENT_MAX_WIDTH_PX } from "@/components/marketing/marketing-content-layout";
 import { filterMarketingNavLinks } from "@/lib/home-page-sections";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -285,6 +286,7 @@ export async function MarketingPublicHomeFooter({
 
   return (
     <section
+      {...{ [MARKETING_FOOTER_MARKER]: "" }}
       className={`${styles.sectionWrap}${surfaceVariant === "inner" ? ` ${styles.sectionWrapInner}` : ""}`}
       style={footerStyleVars(surfaceVariant)}
     >

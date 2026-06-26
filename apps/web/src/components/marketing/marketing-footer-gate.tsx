@@ -36,7 +36,11 @@ export function MarketingFooterGate({
 
   if (isMarketingScrollRevealFooterPath(marketingPath)) {
     return (
-      <MarketingScrollReveal index={0} gridColumns={MARKETING_FOOTER_REVEAL_GRID_COLUMNS}>
+      <MarketingScrollReveal
+        index={0}
+        gridColumns={MARKETING_FOOTER_REVEAL_GRID_COLUMNS}
+        className="marketing-footer-reveal"
+      >
         {children}
       </MarketingScrollReveal>
     );

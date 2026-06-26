@@ -87,6 +87,8 @@
 }
 
 .shell:has([data-marketing-practices-inner]) .main {
+  position: relative;
+  z-index: 1;
   background: #fbf5d5;
 }
 
