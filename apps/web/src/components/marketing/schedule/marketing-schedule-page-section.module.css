@@ -17,10 +17,11 @@
 .title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(2.5rem, 5.8vw, 3.875rem);
+  font-size: clamp(2.75rem, 6.4vw, 3.875rem);
   font-style: italic;
   font-weight: 600;
-  line-height: 1.05;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
   color: var(--coaches-page-heading-color);
 }
 

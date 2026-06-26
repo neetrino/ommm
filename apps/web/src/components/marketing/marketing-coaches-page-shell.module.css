@@ -80,6 +80,23 @@
   background: #fbf5d5;
 }
 
+/* Schedule / Packages / Contact — cream surface (Our Core Practices end tone). */
+.shell:has([data-marketing-practices-inner]) {
+  --home-footer-wrap-bg: #fbf5d5 !important;
+  background: #fbf5d5;
+}
+
+.shell:has([data-marketing-practices-inner]) .main {
+  background: #fbf5d5;
+}
+
+@media (max-width: 743px) {
+  .shell:has([data-marketing-practices-inner]) .main {
+    background: #fbf5d5;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
+}
+
 .shell:has([data-marketing-policy]) .main {
   background: var(--ommm-policy-page-background);
 }
