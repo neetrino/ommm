@@ -1,9 +1,11 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-sphere-bounce";
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_LEGAL_LINKS,
+  HOME_FOOTER_MOBILE_SPHERE_BOUNCE,
   HOME_FOOTER_PAYMENT_LOGOS,
   HOME_FOOTER_SOCIAL_LINKS,
 } from "@/components/marketing/home/home-footer-section-tokens";
@@ -162,7 +164,10 @@ export function MarketingPublicHomeFooterMobile({
       />
 
       <div className={styles.mobileIllustration} aria-hidden>
-        <div className={styles.illustrationFrame}>
+        <HomeFooterSphereBounce
+          className={`${styles.illustrationFrame} ${styles.footerFloatIllustration}`}
+          bounceConfig={HOME_FOOTER_MOBILE_SPHERE_BOUNCE}
+        >
           <Image
             src={HOME_FOOTER_ASSETS.illustration}
             alt={illustrationAlt}
@@ -171,7 +176,7 @@ export function MarketingPublicHomeFooterMobile({
             className={`${styles.illustration} ${styles.mobileIllustrationImage}`}
             {...belowFoldImageProps()}
           />
-        </div>
+        </HomeFooterSphereBounce>
       </div>
     </div>
   );

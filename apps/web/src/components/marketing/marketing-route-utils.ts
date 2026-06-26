@@ -7,6 +7,10 @@ export const MARKETING_EXPLORE_COMING_SOON_MARKER = "data-marketing-explore-comi
 export const MARKETING_COACHES_HERO_MARKER = "data-marketing-coaches-hero";
 /** Story page — cream surface matching values section (`670:801`). */
 export const MARKETING_STORY_PAGE_MARKER = "data-marketing-story";
+/** Schedule, Packages, Contact — cream surface (Our Core Practices end tone). */
+export const MARKETING_PRACTICES_INNER_PAGE_MARKER = "data-marketing-practices-inner";
+/** Layout + home gallery seam footer — sphere bounce stacking target. */
+export const MARKETING_FOOTER_MARKER = "data-marketing-footer";
 
 /** Locale-aware pathname from `@/i18n/navigation` (no locale prefix). */
 export function isMarketingHomePath(pathname: string): boolean {

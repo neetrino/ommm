@@ -1,5 +1,7 @@
 export type SphereBounceConfig = {
   minWidthPx: number;
+  /** When set, bounce runs only up to this viewport width (mobile-only loops). */
+  maxWidthPx?: number;
   peakBasePx: number;
   peakBoostMinPx: number;
   peakBoostMaxPx: number;

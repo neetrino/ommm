@@ -102,7 +102,11 @@ export function HomeFooterSphereBounce({
 
   useEffect(() => {
     const el = ref.current;
-    const viewportMq = window.matchMedia(`(min-width: ${bounceConfig.minWidthPx}px)`);
+    const viewportQuery =
+      bounceConfig.maxWidthPx !== undefined
+        ? `(max-width: ${bounceConfig.maxWidthPx}px)`
+        : `(min-width: ${bounceConfig.minWidthPx}px)`;
+    const viewportMq = window.matchMedia(viewportQuery);
     if (!el || reducedMotion || !viewportMq.matches) {
       return;
     }

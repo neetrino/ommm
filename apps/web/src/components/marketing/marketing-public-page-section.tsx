@@ -3,6 +3,7 @@ import {
   COACHES_PAGE_LAYOUT,
   COACHES_PAGE_SURFACE,
 } from "@/components/marketing/coaches/coaches-page-tokens";
+import { MARKETING_PRACTICES_INNER_PAGE_SURFACE } from "@/components/marketing/marketing-practices-inner-page-tokens";
 import {
   MARKETING_INNER_PAGE_CONTAINER_CLASS,
 } from "@/components/marketing/marketing-content-layout";
@@ -33,6 +34,13 @@ export const MARKETING_PUBLIC_PAGE_SECTION_STYLE = {
   "--coaches-page-hero-mobile-gap": `${COACHES_PAGE_LAYOUT.heroTitleMobileGapBelowHeaderRem}rem`,
   "--coaches-page-hero-lead-gap": `clamp(0.75rem, ${((COACHES_PAGE_LAYOUT.heroLeadTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx - (COACHES_PAGE_LAYOUT.heroTitleTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx)) / COACHES_PAGE_LAYOUT.artboardWidthPx) * 100}vw, 1.75rem)`,
   "--coaches-page-content-margin-top": `clamp(1.25rem, ${((COACHES_PAGE_LAYOUT.gridTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx - COACHES_PAGE_LAYOUT.heroLeadTopPx - COACHES_PAGE_LAYOUT.heroOffsetExtraPx - 24) / COACHES_PAGE_LAYOUT.artboardWidthPx) * 100}vw, 2.25rem)`,
+} as CSSProperties;
+
+/** Schedule / Packages / Contact — Our Values hero ink on Our Core Practices gradient. */
+export const MARKETING_PRACTICES_INNER_PAGE_SECTION_STYLE = {
+  ...MARKETING_PUBLIC_PAGE_SECTION_STYLE,
+  "--coaches-page-heading-color": MARKETING_PRACTICES_INNER_PAGE_SURFACE.heading,
+  "--coaches-page-lead-color": MARKETING_PRACTICES_INNER_PAGE_SURFACE.lead,
 } as CSSProperties;
 
 /**

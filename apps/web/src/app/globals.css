@@ -1760,6 +1760,15 @@ html:has([data-marketing-story]) body {
   background-color: #fbf5d5;
 }
 
+/* Schedule / Packages / Contact — cream surface through safe area. */
+html:has([data-marketing-practices-inner]) {
+  background-color: #fbf5d5;
+}
+
+html:has([data-marketing-practices-inner]) body {
+  background-color: #fbf5d5;
+}
+
 /*
  * iOS Safari auto-zooms focused fields when font-size is below 16px.
  * Applies to auth, contact, and any other mobile form controls.
