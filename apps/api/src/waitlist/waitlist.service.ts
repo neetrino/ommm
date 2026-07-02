@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { AdminWaitlistActiveQueryDto } from './dto/admin-waitlist-active-query.dto';
+import { WaitlistAdminListService } from './waitlist-admin-list.service';
 import { WaitlistAdminService } from './waitlist-admin.service';
 import { WaitlistCapacityService } from './waitlist-capacity.service';
 import { WaitlistClientService } from './waitlist-client.service';
@@ -12,6 +13,7 @@ export class WaitlistService {
     private readonly capacity: WaitlistCapacityService,
     private readonly client: WaitlistClientService,
     private readonly admin: WaitlistAdminService,
+    private readonly adminList: WaitlistAdminListService,
     private readonly offers: WaitlistOffersService,
   ) {}
 
@@ -44,7 +46,7 @@ export class WaitlistService {
   }
 
   listAdminActive(query: AdminWaitlistActiveQueryDto = {}) {
-    return this.admin.listAdminActive(query);
+    return this.adminList.listAdminActive(query);
   }
 
   offerNextIfSlot(sessionId: string) {

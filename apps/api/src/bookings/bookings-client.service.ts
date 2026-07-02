@@ -8,12 +8,8 @@ import {
   BookingStatus,
   BookingChannel,
   ClassSessionStatus,
-  Prisma,
 } from '@prisma/client';
 import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
-import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
-import { SessionListOrder } from '../common/enums/list-order.enum';
-import { resolveBookingSessionOrderBy } from '../common/list-order.helpers';
 import { PackagesService } from '../packages/packages.service';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -26,11 +22,9 @@ import {
   isPenalizedCancellation,
   resolveCancellationPenaltyHours,
 } from './cancellation-policy';
+import { BookingsClientListService } from './bookings-client-list.service';
 import type { CreateBookingDto } from './dto/create-booking.dto';
-import {
-  ListMyBookingsQueryDto,
-  MyBookingsScope,
-} from './dto/list-my-bookings-query.dto';
+import type { ListMyBookingsQueryDto } from './dto/list-my-bookings-query.dto';
 
 @Injectable()
 export class BookingsClientService {
@@ -43,6 +37,7 @@ export class BookingsClientService {
     private readonly packageUsage: PackageUsageService,
     private readonly packages: PackagesService,
     private readonly slots: BookingsSlotService,
+    private readonly clientList: BookingsClientListService,
   ) {}
 
   async listEligiblePackagesForSession(userId: string, sessionId: string) {
@@ -248,69 +243,6 @@ export class BookingsClientService {
   }
 
   listMine(userId: string, query: ListMyBookingsQueryDto = {}) {
-    if (!query.scope) {
-      return this.listMineAll(userId);
-    }
-    if (query.scope === MyBookingsScope.UPCOMING) {
-      return this.listMineUpcoming(userId, query.order);
-    }
-    return this.listMinePast(userId, query);
-  }
-
-  private listMineAll(userId: string) {
-    return this.prisma.booking.findMany({
-      where: { userId },
-      include: this.listMineInclude(),
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  private listMineUpcoming(userId: string, order?: SessionListOrder) {
-    const sessionOrder = resolveBookingSessionOrderBy(order);
-    return this.prisma.booking.findMany({
-      where: {
-        userId,
-        status: BookingStatus.BOOKED,
-        session: { startsAt: { gt: new Date() } },
-      },
-      include: this.listMineInclude(),
-      orderBy: sessionOrder,
-    });
-  }
-
-  private async listMinePast(userId: string, query: ListMyBookingsQueryDto) {
-    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
-    const offset = query.offset ?? 0;
-    const now = new Date();
-    const sessionOrder = resolveBookingSessionOrderBy(query.order);
-    const where: Prisma.BookingWhereInput = {
-      userId,
-      OR: [
-        { status: { not: BookingStatus.BOOKED } },
-        { session: { startsAt: { lte: now } } },
-      ],
-    };
-    const [rows, total] = await Promise.all([
-      this.prisma.booking.findMany({
-        where,
-        include: this.listMineInclude(),
-        orderBy: sessionOrder,
-        take,
-        skip: offset,
-      }),
-      this.prisma.booking.count({ where }),
-    ]);
-    return { rows, total, take, offset };
-  }
-
-  private listMineInclude() {
-    return {
-      session: {
-        include: {
-          classType: true,
-          coach: { include: { user: { select: { name: true } } } },
-        },
-      },
-    } satisfies Prisma.BookingInclude;
+    return this.clientList.listMine(userId, query);
   }
 }

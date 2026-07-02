@@ -68,7 +68,7 @@ export class BookingsService {
     from?: Date;
     to?: Date;
   }) {
-    return this.adminManagement.listAdmin(filters);
+    return this.admin.listAdmin(filters);
   }
 
   listAdminManagement(params: {

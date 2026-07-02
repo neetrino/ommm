@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
-import { GiftCardsAdminBatchService } from './gift-cards-admin-batch.service';
+import { GiftCardsAdminBatchLifecycleService } from './gift-cards-admin-batch-lifecycle.service';
+import { GiftCardsAdminBatchWriteService } from './gift-cards-admin-batch-write.service';
 import { GiftCardsAdminBoardService } from './gift-cards-admin-board.service';
 import { GiftCardsAdminCardsService } from './gift-cards-admin-cards.service';
 import { GiftCardsClientService } from './gift-cards-client.service';
@@ -15,7 +16,8 @@ import { GiftCardsService } from './gift-cards.service';
     GiftCardsClientService,
     GiftCardsAdminBoardService,
     GiftCardsAdminCardsService,
-    GiftCardsAdminBatchService,
+    GiftCardsAdminBatchWriteService,
+    GiftCardsAdminBatchLifecycleService,
     GiftCardsImageService,
     R2HomeImageStorage,
   ],

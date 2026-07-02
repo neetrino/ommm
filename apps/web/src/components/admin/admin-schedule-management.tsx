@@ -1,881 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { adminChrome } from "@/components/admin/admin-chrome";
-import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
-import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
-import {
-  adminScheduleIntegratedFilterValues,
-  buildAdminScheduleFilterFields,
-  parseAdminScheduleListFilter,
-  serializeAdminScheduleListFilter,
-} from "@/components/admin/admin-schedule-filter-fields";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
-import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
-import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
-import { OmmButton } from "@/components/ui/omm-button";
-import { PlusIcon } from "@/components/ui/plus-icon";
-import { TimePickerInput } from "@/components/ui/time-picker-input";
-import { ApiError, apiFetch } from "@/lib/api";
-import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
-import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
-import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
-import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
-import {
-  buildCoachDropdownState,
-  coachDropdownPlaceholderKey,
-  filterCoachesByClassType,
-} from "@/components/admin/admin-schedule-coach-filter";
-import { buildSessionLevelOptions, resolveSessionClassTypeId, sessionTitleFromClassTypeSelection, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
+import { AdminScheduleManagementToast } from "@/components/admin/admin-schedule-management-toast";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
+import { SessionFormSheet } from "@/components/admin/admin-schedule-session-form-sheet";
+import { ScheduleViews } from "@/components/admin/admin-schedule-session-views";
+import type { AdminScheduleManagementProps } from "@/components/admin/admin-schedule-session.types";
+import { SummaryGrid } from "@/components/admin/admin-schedule-summary-grid";
+import { useAdminScheduleManagement } from "@/components/admin/use-admin-schedule-management";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
-import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
-import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
-import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
-import {
-  resolveScheduleView,
-  type ScheduleView,
-} from "@/components/admin/admin-schedule-view";
-import { AdminScheduleSessionsListHeader } from "@/components/admin/admin-schedule-sessions-list-header";
-import {
-  ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS,
-  ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS,
-} from "@/components/admin/admin-schedule-sessions-list-layout";
-import {
-  matchesScheduleQuickFilters,
-  SCHEDULE_QUICK_FILTER_VALUES,
-  type ScheduleQuickFilter,
-} from "@/components/admin/admin-schedule-quick-filters";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import {
-  ADMIN_SCHEDULE_LIST_PAGE_KEYS,
-  parseAdminScheduleListPageParams,
-} from "@/components/admin/admin-schedule-query";
-import {
-  ADMIN_SCHEDULE_LIST_FILTER_KEYS,
-  buildScheduleFiltersQuery,
-  defaultScheduleListFilters,
-  type ScheduleListFilterState,
-} from "@/components/admin/admin-schedule-url";
-import {
-  buildSchedulePackageFilterOptions,
-  resolveScheduleSelectedClassTypeIds,
-} from "@/components/admin/admin-schedule-package-filter-options";
-import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import { PlusIcon } from "@/components/ui/plus-icon";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
-import {
-  AdminScheduleDateStrip,
-} from "@/components/admin/admin-schedule-date-strip";
-import {
-  localIsoDateFromValue,
-  scheduleSessionLocalIsoDay,
-} from "@/lib/local-iso-date";
-import {
-  parseSessionSortOrder,
-  sortAdminSessionRows,
-  toggleSessionDateSortOrder,
-  type SessionSortOrder,
-} from "@/lib/list-sort";
-import {
-  ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
-  ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_LEDE_CLASS,
-  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_TITLE_CLASS,
-  ADMIN_WIDE_DRAWER_PANEL_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
+import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
 
-type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
-type ScheduleDayOfWeek =
-  | "SUNDAY"
-  | "MONDAY"
-  | "TUESDAY"
-  | "WEDNESDAY"
-  | "THURSDAY"
-  | "FRIDAY"
-  | "SATURDAY";
 export type { ScheduleView } from "@/components/admin/admin-schedule-view";
-type AvailabilityOption = "available" | "full";
-type TimeOfDayOption = "morning" | "afternoon" | "evening";
+export type {
+  AdminScheduleClassType,
+  AdminScheduleCoach,
+  AdminScheduleSession,
+} from "@/components/admin/admin-schedule-session.types";
 
-export type AdminScheduleSession = {
-  id: string;
-  title: string;
-  description: string | null;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  level: string | null;
-  classFormat: string | null;
-  status: SessionStatus;
-  classType: { id: string; name: string };
-  coach: { id: string; user: { name: string | null } };
-  _count: { bookings: number };
-};
-
-export type AdminScheduleClassType = {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-};
-
-export type AdminScheduleCoach = {
-  id: string;
-  isActive: boolean;
-  assignedClassTypeIds: string[];
-  user: { name: string | null; lastName: string | null; email: string };
-};
-
-type Props = {
-  locale: string;
-  sessions: AdminScheduleSession[];
-  listPagination: { total: number; take: number; offset: number } | null;
-  classTypes: AdminScheduleClassType[];
-  packages: AdminPackageRow[];
-  coaches: AdminScheduleCoach[];
-  initialView: ScheduleView;
-  initialFilterState: ScheduleListFilterState;
-  /** Staff surfaces (manager): list-only read-only rows with admin filters. */
-  variant?: "full" | "staff";
-  staffBanner?: string;
-};
-
-type Filters = {
-  q: string;
-  from: string;
-  to: string;
-  coachIds: string[];
-  typeIds: string[];
-  levels: string[];
-  statuses: SessionStatus[];
-  availability: AvailabilityOption[];
-  timeOfDay: TimeOfDayOption[];
-  order: SessionSortOrder;
-};
-
-type FormState = {
-  description: string;
-  classTypeId: string;
-  coachId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  capacity: string;
-  levels: string[];
-  status: SessionStatus;
-};
-
-type CalendarScheduleSlot = {
-  id: string;
-  weekday: ScheduleDayOfWeek;
-  startTime: string;
-  endTime: string;
-};
-
-type ScheduleToastTone = "ok" | "err";
-
-type ScheduleToast = {
-  tone: ScheduleToastTone;
-  message: string;
-};
-
-const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
-const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-];
-const SEARCH_DEBOUNCE_MS = 300;
-const ADMIN_SCHEDULE_TOAST_DISMISS_MS = 5000;
-const SCHEDULE_MODAL_QUERY_KEY = "modal";
-const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
-const LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
-const LEGACY_EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
-const SESSION_LEVEL_SEPARATOR = ", ";
-const DEFAULT_SESSION_CAPACITY = "10";
-
-function replaceScheduleModalInUrl(
-  pathname: string,
-  searchParams: URLSearchParams,
-  router: ReturnType<typeof useRouter>,
-  modal: string | null,
-): void {
-  const params = new URLSearchParams(searchParams.toString());
-  if (modal === null) {
-    params.delete(SCHEDULE_MODAL_QUERY_KEY);
-    params.delete(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY);
-  } else {
-    params.set(SCHEDULE_MODAL_QUERY_KEY, modal);
-    params.delete(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY);
-  }
-  const qs = params.toString();
-  router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-}
-
-function timeValue(value: Date | string): string {
-  return new Date(value).toTimeString().slice(0, 5);
-}
-
-function addDays(value: Date | string, days: number): Date {
-  const next = new Date(value);
-  next.setDate(next.getDate() + days);
-  return next;
-}
-
-function createScheduleSlotId(): string {
-  return globalThis.crypto?.randomUUID?.() ?? `slot-${Date.now()}-${Math.random()}`;
-}
-
-function weekdayFromDate(value: Date | string): ScheduleDayOfWeek {
-  const day = new Date(value).getDay();
-  return (["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const)[day];
-}
-
-function initialCalendarSlot(form: FormState, anchorDay?: string | null): CalendarScheduleSlot {
-  const day = anchorDay ?? form.date;
-  return {
-    id: createScheduleSlotId(),
-    weekday: weekdayFromDate(`${day}T00:00:00`),
-    startTime: form.startTime,
-    endTime: form.endTime,
-  };
-}
-
-function initialCalendarSchedule(
-  form: FormState,
-  anchorDay?: string | null,
-): {
-  calendarStartDate: string;
-  calendarEndDate: string;
-  calendarSlots: CalendarScheduleSlot[];
-} {
-  const startDay = anchorDay ?? form.date;
-  const endDay =
-    anchorDay ?? localIsoDateFromValue(addDays(`${form.date}T00:00:00`, 29));
-  return {
-    calendarStartDate: startDay,
-    calendarEndDate: endDay,
-    calendarSlots: [initialCalendarSlot(form, anchorDay)],
-  };
-}
-
-function coachName(coach: AdminScheduleCoach | AdminScheduleSession["coach"]): string {
-  if ("lastName" in coach.user) {
-    return [coach.user.name, coach.user.lastName].filter(Boolean).join(" ") || coach.user.email;
-  }
-  return coach.user.name ?? "—";
-}
-
-function spotsLeft(row: AdminScheduleSession): number {
-  return Math.max(row.capacity - row._count.bookings, 0);
-}
-
-function splitSessionLevels(level: string | null | undefined): string[] {
-  if (!level) {
-    return [];
-  }
-  return level
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
-
-function joinSessionLevels(levels: readonly string[]): string | undefined {
-  const uniqueLevels = Array.from(new Set(levels.map((value) => value.trim()).filter(Boolean)));
-  return uniqueLevels.length > 0 ? uniqueLevels.join(SESSION_LEVEL_SEPARATOR) : undefined;
-}
-
-function matchesAvailability(row: AdminScheduleSession, selected: readonly AvailabilityOption[]): boolean {
-  if (selected.length === 0) {
-    return true;
-  }
-  const available = spotsLeft(row) > 0;
-  const full = spotsLeft(row) === 0;
-  return (
-    (selected.includes("available") && available) ||
-    (selected.includes("full") && full)
-  );
-}
-
-function matchesTimeOfDaySelection(row: AdminScheduleSession, selected: readonly TimeOfDayOption[]): boolean {
-  if (selected.length === 0) {
-    return true;
-  }
-  const hour = new Date(row.startsAt).getHours();
-  return (
-    (selected.includes("morning") && hour < 12) ||
-    (selected.includes("afternoon") && hour >= 12 && hour < 17) ||
-    (selected.includes("evening") && hour >= 17)
-  );
-}
-
-function initialForm(
-  classTypeOptions: readonly SessionClassTypeOption[],
-  coaches: readonly AdminScheduleCoach[],
-  row?: AdminScheduleSession,
-): FormState {
-  const start = row ? new Date(row.startsAt) : new Date();
-  const end = row ? new Date(row.endsAt) : new Date(start.getTime() + 60 * 60000);
-  const classTypeId = row?.classType.id ?? "";
-  const coachDropdown = buildCoachDropdownState(
-    coaches,
-    classTypeId,
-    classTypeOptions,
-    row?.coach.id ?? "",
-    coachName,
-  );
-  return {
-    description: row?.description ?? "",
-    classTypeId,
-    coachId: coachDropdown.coachId,
-    date: localIsoDateFromValue(start),
-    startTime: timeValue(start),
-    endTime: timeValue(end),
-    capacity: row ? String(row.capacity) : DEFAULT_SESSION_CAPACITY,
-    levels: splitSessionLevels(row?.level),
-    status: row?.status ?? "ACTIVE",
-  };
-}
-
-function formPayload(form: FormState, classTypeId: string, title: string) {
-  return {
-    title: title.trim(),
-    description: form.description.trim() || undefined,
-    classTypeId,
-    coachId: form.coachId,
-    startsAt: new Date(`${form.date}T${form.startTime}:00`).toISOString(),
-    endsAt: new Date(`${form.date}T${form.endTime}:00`).toISOString(),
-    capacity: Number(form.capacity),
-    level: joinSessionLevels(form.levels),
-    status: form.status,
-  };
-}
-
-function batchFormPayload(
-  form: FormState,
-  classTypeId: string,
-  title: string,
-  startDate: string,
-  endDate: string,
-  slots: readonly CalendarScheduleSlot[],
-) {
-  return {
-    title: title.trim(),
-    description: form.description.trim() || undefined,
-    classTypeId,
-    coachId: form.coachId,
-    capacity: Number(form.capacity),
-    level: joinSessionLevels(form.levels),
-    status: form.status,
-    startDate,
-    endDate,
-    timezoneOffsetMinutes: new Date().getTimezoneOffset(),
-    slots: slots.map(({ weekday, startTime, endTime }) => ({ weekday, startTime, endTime })),
-  };
-}
-
-function buildSessionClassTypeOptions(
-  classTypes: readonly AdminScheduleClassType[],
-): SessionClassTypeOption[] {
-  return classTypes
-    .map((type) => ({
-      value: type.id,
-      label: type.name,
-      classTypeId: type.id,
-    }))
-    .sort((left, right) => left.label.localeCompare(right.label));
-}
-
-export function AdminScheduleManagement({
-  locale,
-  sessions,
-  listPagination,
-  classTypes: initialClassTypes,
-  packages,
-  coaches,
-  initialView,
-  initialFilterState,
-  variant = "full",
-  staffBanner,
-}: Props) {
-  const isStaff = variant === "staff";
-  const t = useTranslations("adminPages.classes");
+export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
+  const { locale, staffBanner } = props;
   const tPage = useTranslations("adminPages.schedule");
-  const tSort = useTranslations("listSort");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [, startScheduleRefresh] = useTransition();
-  const refreshScheduleFromServer = useCallback(() => {
-    startScheduleRefresh(() => {
-      router.refresh();
-    });
-  }, [router]);
-  useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_ADMIN, refreshScheduleFromServer);
-  useRealtimeRefetch(REALTIME_REFETCH_KEYS.BOOKINGS_ADMIN, refreshScheduleFromServer);
-  const hasMounted = useRef(false);
-  const filterStateRef = useRef(initialFilterState);
-  const [rows, setRows] = useState(sessions);
-  const [prevSessions, setPrevSessions] = useState(sessions);
-  const [classTypes, setClassTypes] = useState(initialClassTypes);
-  const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
-  const [view, setView] = useScheduleViewUrl(resolveScheduleView(initialView));
-  const [filters, setFilters] = useState<Filters>(() => initialFilterState.filters);
-  const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
-    () => initialFilterState.quickFilters,
-  );
-  const [searchDraft, setSearchDraft] = useState(() => initialFilterState.filters.q);
-  const [prevInitialFilterState, setPrevInitialFilterState] = useState(initialFilterState);
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
-  const [details, setDetails] = useState<AdminScheduleSession | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [toast, setToast] = useState<ScheduleToast | null>(null);
+  const schedule = useAdminScheduleManagement(props);
 
-  const scheduleModalParam = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
-  const addClassOpen = scheduleModalParam === ADD_CLASS_MODAL_QUERY_VALUE;
-
-  const openAddClassModal = useCallback(() => {
-    replaceScheduleModalInUrl(pathname, searchParams, router, ADD_CLASS_MODAL_QUERY_VALUE);
-  }, [pathname, router, searchParams]);
-
-  const closeAddClassModal = useCallback(() => {
-    if (searchParams.get(SCHEDULE_MODAL_QUERY_KEY) === ADD_CLASS_MODAL_QUERY_VALUE) {
-      replaceScheduleModalInUrl(pathname, searchParams, router, null);
-    }
-  }, [pathname, router, searchParams]);
-
-  const sessionModalConfig = useMemo(() => {
-    if (addClassOpen) {
-      return { mode: "create" as const, row: undefined };
-    }
-    if (editing === null || editing.id !== "") {
-      return null;
-    }
-    return { mode: "duplicate" as const, row: editing };
-  }, [addClassOpen, editing]);
-
-  if (prevInitialClassTypes !== initialClassTypes) {
-    setPrevInitialClassTypes(initialClassTypes);
-    setClassTypes(initialClassTypes);
-  }
-
-  if (sessions !== prevSessions) {
-    setPrevSessions(sessions);
-    setRows((current) => {
-      const byId = new Map(sessions.map((row) => [row.id, row]));
-      for (const row of current) {
-        if (!byId.has(row.id)) {
-          byId.set(row.id, row);
-        }
-      }
-      return Array.from(byId.values()).sort((first, second) =>
-        first.startsAt.localeCompare(second.startsAt),
-      );
-    });
-  }
-
-  if (initialFilterState !== prevInitialFilterState) {
-    setPrevInitialFilterState(initialFilterState);
-    setFilters(initialFilterState.filters);
-    setQuickFilters(initialFilterState.quickFilters);
-    setSearchDraft(initialFilterState.filters.q);
-  }
-
-  useEffect(() => {
-    filterStateRef.current = { filters, quickFilters };
-  }, [filters, quickFilters]);
-
-  useEffect(() => {
-    const modal = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
-    if (
-      modal === LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE ||
-      searchParams.has(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY)
-    ) {
-      replaceScheduleModalInUrl(pathname, searchParams, router, null);
-    }
-  }, [pathname, router, searchParams]);
-
-  const listPage = useMemo(
-    () => parseAdminScheduleListPageParams(Object.fromEntries(searchParams.entries())),
-    [searchParams],
-  );
-
-  const syncFilterStateToUrl = useCallback(
-    (state: ScheduleListFilterState, resetPage = false) => {
-      const params = new URLSearchParams(searchParams.toString());
-      for (const key of ADMIN_SCHEDULE_LIST_FILTER_KEYS) {
-        params.delete(key);
-      }
-      if (resetPage && listPagination !== null) {
-        resetListPageQuery(params, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
-      }
-      const filterQuery = buildScheduleFiltersQuery(state.filters, state.quickFilters);
-      if (filterQuery.length > 0) {
-        for (const [key, value] of new URLSearchParams(filterQuery)) {
-          params.set(key, value);
-        }
-      }
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [listPagination, pathname, router, searchParams],
-  );
-
-  const patchFilterState = useCallback(
-    (
-      patch: {
-        filters?: Partial<Filters>;
-        quickFilters?: ScheduleQuickFilter[];
-      },
-      resetPage = true,
-    ) => {
-      const next: ScheduleListFilterState = {
-        filters: { ...filterStateRef.current.filters, ...patch.filters },
-        quickFilters: patch.quickFilters ?? filterStateRef.current.quickFilters,
-      };
-      setFilters(next.filters);
-      setQuickFilters(next.quickFilters);
-      filterStateRef.current = next;
-      syncFilterStateToUrl(next, resetPage);
-    },
-    [syncFilterStateToUrl],
-  );
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return undefined;
-    }
-    const handle = window.setTimeout(() => {
-      const trimmed = searchDraft.trim();
-      if (filterStateRef.current.filters.q === trimmed) {
-        return;
-      }
-      patchFilterState({ filters: { q: trimmed } }, true);
-    }, SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(handle);
-  }, [patchFilterState, searchDraft]);
-
-  useEffect(() => {
-    if (toast === null) {
-      return undefined;
-    }
-    const handle = window.setTimeout(() => setToast(null), ADMIN_SCHEDULE_TOAST_DISMISS_MS);
-    return () => window.clearTimeout(handle);
-  }, [toast]);
-
-  const levels = useMemo(() => {
-    return Array.from(
-      new Set(rows.flatMap((row) => splitSessionLevels(row.level))),
-    ).sort();
-  }, [rows]);
-
-  const packageOptions = useMemo(
-    () => buildSchedulePackageFilterOptions(packages, classTypes),
-    [classTypes, packages],
-  );
-
-  const validSelectedPackageIds = useMemo(() => {
-    const validPackageIds = new Set(packageOptions.map((option) => option.id));
-    return filters.typeIds.filter((id) => validPackageIds.has(id));
-  }, [filters.typeIds, packageOptions]);
-
-  const selectedClassTypeIds = useMemo(
-    () => resolveScheduleSelectedClassTypeIds(validSelectedPackageIds, packageOptions),
-    [packageOptions, validSelectedPackageIds],
-  );
-
-  const sessionClassTypeOptions = useMemo(
-    () => buildSessionClassTypeOptions(classTypes),
-    [classTypes],
-  );
-
-  const isListView = isStaff || view === "list";
-
-  const filteredRows = useMemo(() => {
-    const q = filters.q.trim().toLowerCase();
-    return rows.filter((row) => {
-      if (q && !`${row.title} ${row.classType.name} ${coachName(row.coach)}`.toLowerCase().includes(q)) return false;
-      if (filters.from && scheduleSessionLocalIsoDay(row.startsAt) < filters.from) return false;
-      if (filters.to && scheduleSessionLocalIsoDay(row.startsAt) > filters.to) return false;
-      if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
-      if (validSelectedPackageIds.length > 0 && !selectedClassTypeIds.includes(row.classType.id)) return false;
-      if (
-        filters.levels.length > 0 &&
-        !splitSessionLevels(row.level).some((level) => filters.levels.includes(level))
-      ) return false;
-      if (filters.statuses.length > 0 && !filters.statuses.includes(row.status)) return false;
-      if (!matchesAvailability(row, filters.availability)) return false;
-      if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
-      return matchesScheduleQuickFilters(row, quickFilters);
-    });
-  }, [filters, quickFilters, rows, selectedClassTypeIds, validSelectedPackageIds]);
-
-  const displayRows = isListView ? rows : filteredRows;
-
-  const summary = useMemo(() => {
-    const now = new Date();
-    const source = displayRows;
-    return {
-      total: isListView && listPagination !== null ? listPagination.total : source.length,
-      active: source.filter((row) => row.status === "ACTIVE").length,
-      upcoming: source.filter((row) => new Date(row.startsAt) >= now).length,
-      full: source.filter((row) => spotsLeft(row) === 0).length,
-      cancelled: source.filter((row) => row.status === "CANCELLED").length,
-      draft: source.filter((row) => row.status === "DRAFT").length,
-    };
-  }, [displayRows, isListView, listPagination]);
-
-  function resetFilters() {
-    const cleared: ScheduleListFilterState = {
-      filters: defaultScheduleListFilters,
-      quickFilters: [],
-    };
-    setSearchDraft("");
-    setFilters(cleared.filters);
-    setQuickFilters(cleared.quickFilters);
-    filterStateRef.current = cleared;
-    syncFilterStateToUrl(cleared, true);
-  }
-
-  const setListPage = useCallback(
-    (page: number, pageSize?: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      syncListPageQuery(params, page, pageSize, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const quickOptions = useMemo(
-    () =>
-      SCHEDULE_QUICK_FILTER_VALUES.map((value) => ({
-        value,
-        label: t(`quick.${value}`),
-      })),
-    [t],
-  );
-
-  const scheduleMultiSelectFormat = useCallback(
-    (count: number) => t("filters.selectedCount", { count }),
-    [t],
-  );
-
-  const filterFields = useMemo(
-    () =>
-      buildAdminScheduleFilterFields({
-        labels: {
-          fromDate: t("filters.fromDateLabel"),
-          toDate: t("filters.toDateLabel"),
-          coach: t("filters.coachLabel"),
-          type: t("filters.typeLabel"),
-          level: t("filters.levelLabel"),
-          status: t("filters.statusLabel"),
-          availability: t("filters.availabilityLabel"),
-          timeOfDay: t("filters.timeOfDayLabel"),
-          quick: t("filters.quickFilterLabel"),
-          sort: tSort("sort"),
-          sortUpcoming: tSort("upcoming"),
-          sortDateAsc: tSort("dateAsc"),
-          sortDateDesc: tSort("dateDesc"),
-        },
-        renderCoachIds: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            wrapLabel
-            formatSelectedCount={scheduleMultiSelectFormat}
-            ariaLabel={t("filters.coachLabel")}
-            allLabel={t("filters.allCoaches")}
-            selectedValues={parseAdminScheduleListFilter(value)}
-            onChange={(values) => onChange(serializeAdminScheduleListFilter(values))}
-            options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
-          />
-        ),
-        renderTypeIds: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            wrapLabel
-            formatSelectedCount={scheduleMultiSelectFormat}
-            ariaLabel={t("filters.typeLabel")}
-            allLabel={t("filters.allTypes")}
-            selectedValues={parseAdminScheduleListFilter(value)}
-            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
-            options={packageOptions.map((option) => ({
-              value: option.id,
-              label: option.label,
-            }))}
-          />
-        ),
-        renderLevels: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            wrapLabel
-            formatSelectedCount={scheduleMultiSelectFormat}
-            ariaLabel={t("filters.levelLabel")}
-            allLabel={t("filters.allLevels")}
-            selectedValues={parseAdminScheduleListFilter(value)}
-            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
-            options={levels.map((level) => ({ value: level, label: level }))}
-          />
-        ),
-        renderStatuses: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            wrapLabel
-            formatSelectedCount={scheduleMultiSelectFormat}
-            ariaLabel={t("filters.statusLabel")}
-            allLabel={t("filters.allStatuses")}
-            selectedValues={parseAdminScheduleListFilter(value)}
-            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
-            options={STATUS_OPTIONS.map((status) => ({
-              value: status,
-              label: t(`status.${status}`),
-            }))}
-          />
-        ),
-        renderAvailability: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            wrapLabel
-            formatSelectedCount={scheduleMultiSelectFormat}
-            ariaLabel={t("filters.availabilityLabel")}
-            allLabel={t("filters.allAvailability")}
-            selectedValues={parseAdminScheduleListFilter(value)}
-            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
-            options={[
-              { value: "available", label: t("filters.availableOnly") },
-              { value: "full", label: t("filters.fullOnly") },
-            ]}
-          />
-        ),
-        renderTimeOfDay: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            wrapLabel
-            formatSelectedCount={scheduleMultiSelectFormat}
-            ariaLabel={t("filters.timeOfDayLabel")}
-            allLabel={t("filters.allTimes")}
-            selectedValues={parseAdminScheduleListFilter(value)}
-            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
-            options={[
-              { value: "morning", label: t("filters.morning") },
-              { value: "afternoon", label: t("filters.afternoon") },
-              { value: "evening", label: t("filters.evening") },
-            ]}
-          />
-        ),
-        renderQuick: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            variant="accent"
-            wrapLabel
-            formatSelectedCount={scheduleMultiSelectFormat}
-            ariaLabel={t("filters.quickFilterLabel")}
-            allLabel={t("filters.allQuickFilters")}
-            selectedValues={parseAdminScheduleListFilter(value)}
-            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
-            options={quickOptions}
-          />
-        ),
-      }),
-    [coaches, levels, packageOptions, quickOptions, scheduleMultiSelectFormat, t, tSort],
-  );
-
-  const integratedFilterValues = useMemo(
-    () =>
-      adminScheduleIntegratedFilterValues(
-        {
-          from: filters.from,
-          to: filters.to,
-          coachIds: filters.coachIds,
-          typeIds: filters.typeIds,
-          levels: filters.levels,
-          statuses: filters.statuses,
-          availability: filters.availability,
-          timeOfDay: filters.timeOfDay,
-          order: filters.order,
-        },
-        quickFilters,
-      ),
-    [filters, quickFilters],
-  );
-
-  function handleIntegratedFilterChange(key: string, value: string) {
-    switch (key) {
-      case "from":
-        patchFilterState({ filters: { from: value } });
-        break;
-      case "to":
-        patchFilterState({ filters: { to: value } });
-        break;
-      case "order":
-        patchFilterState({
-          filters: { order: parseSessionSortOrder(value) },
-        });
-        break;
-      case "coachIds":
-        patchFilterState({ filters: { coachIds: parseAdminScheduleListFilter(value) } });
-        break;
-      case "typeIds":
-        patchFilterState({ filters: { typeIds: parseAdminScheduleListFilter(value) } });
-        break;
-      case "levels":
-        patchFilterState({ filters: { levels: parseAdminScheduleListFilter(value) } });
-        break;
-      case "statuses":
-        patchFilterState({
-          filters: { statuses: parseAdminScheduleListFilter(value) as SessionStatus[] },
-        });
-        break;
-      case "availability":
-        patchFilterState({
-          filters: {
-            availability: parseAdminScheduleListFilter(value) as AvailabilityOption[],
-          },
-        });
-        break;
-      case "timeOfDay":
-        patchFilterState({
-          filters: { timeOfDay: parseAdminScheduleListFilter(value) as TimeOfDayOption[] },
-        });
-        break;
-      case "quick":
-        patchFilterState({
-          quickFilters: parseAdminScheduleListFilter(value) as ScheduleQuickFilter[],
-        });
-        break;
-      default:
-        break;
-    }
-  }
-
-  async function runRowAction(row: AdminScheduleSession, action: () => Promise<AdminScheduleSession | void>, ok: string) {
-    setBusyId(row.id);
-    setToast(null);
-    try {
-      const updated = await action();
-      if (updated) setRows((current) => current.map((item) => (item.id === updated.id ? updated : item)));
-      setToast({ tone: "ok", message: ok });
-      router.refresh();
-    } catch (error) {
-      setToast({
-        tone: "err",
-        message: error instanceof ApiError ? error.message : t("messages.genericError"),
-      });
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  if (isStaff) {
-    const staffRows = displayRows.map(mapAdminScheduleSessionToListRow);
+  if (schedule.isStaff) {
+    const staffRows = schedule.displayRows.map(mapAdminScheduleSessionToListRow);
     return (
       <div className="space-y-5">
         <StaffListPageLayout
@@ -883,52 +40,44 @@ export function AdminScheduleManagement({
           banner={staffBanner}
           search={
             <ListPageSearchFilters
-              search={searchDraft}
-              onSearchChange={setSearchDraft}
-              searchPlaceholder={t("filters.searchPlaceholder")}
-              fields={filterFields}
-              filterValues={integratedFilterValues}
-              onFilterChange={handleIntegratedFilterChange}
-              onClearAll={resetFilters}
-              resetLabel={t("filters.reset")}
+              search={schedule.searchDraft}
+              onSearchChange={schedule.setSearchDraft}
+              searchPlaceholder={schedule.t("filters.searchPlaceholder")}
+              fields={schedule.filterFields}
+              filterValues={schedule.integratedFilterValues}
+              onFilterChange={schedule.handleIntegratedFilterChange}
+              onClearAll={schedule.resetFilters}
+              resetLabel={schedule.t("filters.reset")}
             />
           }
-          searchTrailing={<ScheduleViewSwitcher value={view} onChange={setView} />}
-          metrics={<SummaryGrid summary={summary} />}
+          searchTrailing={
+            <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
+          }
+          metrics={<SummaryGrid summary={schedule.summary} />}
         >
           <StaffScheduleListWeekViews
             locale={locale}
-            view={view}
+            view={schedule.view}
             rows={staffRows}
             preset="staffWithCoach"
             showCoachInWeek
-            emptyTitle={t("empty.filteredTitle")}
-            emptyBody={t("empty.filteredBody")}
+            emptyTitle={schedule.t("empty.filteredTitle")}
+            emptyBody={schedule.t("empty.filteredBody")}
           />
-          {view === "list" && listPagination !== null && listPagination.total > 0 ? (
+          {schedule.view === "list" &&
+          schedule.listPagination !== null &&
+          schedule.listPagination.total > 0 ? (
             <OmmListPagination
-              total={listPagination.total}
-              page={listPage.page}
-              pageSize={listPage.pageSize}
-              offset={listPagination.offset}
-              onPageChange={setListPage}
-              disabled={busyId !== null}
+              total={schedule.listPagination.total}
+              page={schedule.listPage.page}
+              pageSize={schedule.listPage.pageSize}
+              offset={schedule.listPagination.offset}
+              onPageChange={schedule.setListPage}
+              disabled={schedule.busyId !== null}
             />
           ) : null}
         </StaffListPageLayout>
-        {toast ? (
-          <div
-            role="status"
-            aria-live="polite"
-            className={`fixed bottom-4 right-4 z-[95] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
-              toast.tone === "ok"
-                ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
-                : "border-red-200/80 bg-red-50/95 text-red-900"
-            }`}
-          >
-            {toast.message}
-          </div>
-        ) : null}
+        {schedule.toast ? <AdminScheduleManagementToast toast={schedule.toast} /> : null}
       </div>
     );
   }
@@ -940,705 +89,94 @@ export function AdminScheduleManagement({
         search={
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <ListPageSearchFilters
-              search={searchDraft}
-              onSearchChange={setSearchDraft}
-              searchPlaceholder={t("filters.searchPlaceholder")}
-              fields={filterFields}
-              filterValues={integratedFilterValues}
-              onFilterChange={handleIntegratedFilterChange}
-              onClearAll={resetFilters}
-              resetLabel={t("filters.reset")}
+              search={schedule.searchDraft}
+              onSearchChange={schedule.setSearchDraft}
+              searchPlaceholder={schedule.t("filters.searchPlaceholder")}
+              fields={schedule.filterFields}
+              filterValues={schedule.integratedFilterValues}
+              onFilterChange={schedule.handleIntegratedFilterChange}
+              onClearAll={schedule.resetFilters}
+              resetLabel={schedule.t("filters.reset")}
             />
-            <ScheduleViewSwitcher value={view} onChange={setView} />
+            <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
           </div>
         }
         trailing={
-          <>
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={openAddClassModal}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-            >
-              <PlusIcon className="h-5 w-5 shrink-0" />
-              {t("addClassButton")}
-            </OmmButton>
-          </>
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={schedule.openAddClassModal}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+          >
+            <PlusIcon className="h-5 w-5 shrink-0" />
+            {schedule.t("addClassButton")}
+          </OmmButton>
         }
       />
-      <SummaryGrid summary={summary} />
-      {toast ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`fixed bottom-4 right-4 z-[95] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
-            toast.tone === "ok"
-              ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
-              : "border-red-200/80 bg-red-50/95 text-red-900"
-          }`}
-        >
-          {toast.message}
-        </div>
-      ) : null}
+      <SummaryGrid summary={schedule.summary} />
+      {schedule.toast ? <AdminScheduleManagementToast toast={schedule.toast} /> : null}
       <ScheduleViews
         locale={locale}
-        view={view}
-        rows={displayRows}
-        sortOrder={filters.order}
-        onDateTimeSort={() => {
-          patchFilterState({
-            filters: { order: toggleSessionDateSortOrder(filters.order) },
-          });
-        }}
-        selectedDay={selectedDay}
-        onSelectDay={(day) => setSelectedDay((current) => (current === day ? null : day))}
-        onDetails={setDetails}
-        busyId={busyId}
-        onCancel={(row) => {
-          void runRowAction(
-            row,
-            () =>
-              apiFetch(`/classes/sessions/${row.id}/status`, {
-                method: "POST",
-                body: JSON.stringify({ status: "CANCELLED" }),
-              }),
-            t("messages.cancelSuccess"),
-          );
-        }}
-        onActivate={(row) => {
-          void runRowAction(
-            row,
-            () =>
-              apiFetch(`/classes/sessions/${row.id}/status`, {
-                method: "POST",
-                body: JSON.stringify({ status: "ACTIVE" }),
-              }),
-            t("messages.activateSuccess"),
-          );
-        }}
-        onDelete={(row) => {
-          void runRowAction(
-            row,
-            async () => {
-              await apiFetch(`/classes/sessions/${row.id}`, { method: "DELETE" });
-              setRows((current) => current.filter((item) => item.id !== row.id));
-            },
-            t("messages.deleteSuccess"),
-          );
-        }}
-        onDuplicate={(row) => setEditing({ ...row, id: "" })}
+        view={schedule.view}
+        rows={schedule.displayRows}
+        sortOrder={schedule.filters.order}
+        onDateTimeSort={schedule.handleDateTimeSort}
+        selectedDay={schedule.selectedDay}
+        onSelectDay={schedule.handleSelectDay}
+        onDetails={schedule.setDetails}
+        busyId={schedule.busyId}
+        onCancel={schedule.handleCancel}
+        onActivate={schedule.handleActivate}
+        onDelete={schedule.handleDelete}
+        onDuplicate={schedule.handleDuplicate}
       />
-      {view === "list" && listPagination !== null && listPagination.total > 0 ? (
+      {schedule.view === "list" &&
+      schedule.listPagination !== null &&
+      schedule.listPagination.total > 0 ? (
         <OmmListPagination
-          total={listPagination.total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={listPagination.offset}
-          onPageChange={setListPage}
-          disabled={busyId !== null}
+          total={schedule.listPagination.total}
+          page={schedule.listPage.page}
+          pageSize={schedule.listPage.pageSize}
+          offset={schedule.listPagination.offset}
+          onPageChange={schedule.setListPage}
+          disabled={schedule.busyId !== null}
         />
       ) : null}
-      {sessionModalConfig ? (
+      {schedule.sessionModalConfig ? (
         <SessionFormSheet
           key={
-            addClassOpen
-              ? `create-${selectedDay ?? "default"}`
-              : `${sessionModalConfig.mode}-${sessionModalConfig.row?.id ?? "new"}`
+            schedule.addClassOpen
+              ? `create-${schedule.selectedDay ?? "default"}`
+              : `${schedule.sessionModalConfig.mode}-${schedule.sessionModalConfig.row?.id ?? "new"}`
           }
           isOpen
-          mode={sessionModalConfig.mode}
-          row={sessionModalConfig.row}
+          mode={schedule.sessionModalConfig.mode}
+          row={schedule.sessionModalConfig.row}
           anchorDay={
-            addClassOpen
-              ? selectedDay
-              : sessionModalConfig.mode === "duplicate" && sessionModalConfig.row
-                ? scheduleSessionLocalIsoDay(sessionModalConfig.row.startsAt)
+            schedule.addClassOpen
+              ? schedule.selectedDay
+              : schedule.sessionModalConfig.mode === "duplicate" && schedule.sessionModalConfig.row
+                ? scheduleSessionLocalIsoDay(schedule.sessionModalConfig.row.startsAt)
                 : null
           }
-          classTypeOptions={sessionClassTypeOptions}
-          coaches={coaches}
-          onClose={() => {
-            if (addClassOpen) {
-              closeAddClassModal();
-              return;
-            }
-            setEditing(null);
-          }}
-          onSaved={(saved) => {
-            const savedRows = Array.isArray(saved) ? saved : [saved];
-            const createdClassTypes = savedRows
-              .map((row) => row.classType)
-              .filter((type) => !classTypes.some((item) => item.id === type.id));
-            if (createdClassTypes.length > 0) {
-              setClassTypes((current) => {
-                const byId = new Map(current.map((type) => [type.id, type]));
-                for (const type of createdClassTypes) {
-                  byId.set(type.id, {
-                    id: type.id,
-                    name: type.name,
-                    slug: buildClassTypeSlugFromName(type.name),
-                  });
-                }
-                return Array.from(byId.values()).sort((first, second) =>
-                  first.name.localeCompare(second.name),
-                );
-              });
-            }
-            setRows((current) => {
-              const byId = new Map(current.map((row) => [row.id, row]));
-              for (const savedRow of savedRows) {
-                byId.set(savedRow.id, savedRow);
-              }
-              return Array.from(byId.values()).sort((first, second) =>
-                first.startsAt.localeCompare(second.startsAt),
-              );
-            });
-            const createdDays = savedRows.map((row) => scheduleSessionLocalIsoDay(row.startsAt));
-            if (createdDays.length > 0) {
-              setSelectedDay((current) => {
-                if (current !== null && createdDays.includes(current)) {
-                  return current;
-                }
-                return createdDays[0] ?? null;
-              });
-            }
-            setToast({
-              tone: "ok",
-              message:
-                sessionModalConfig.mode === "create"
-                  ? t("messages.createSuccess")
-                  : sessionModalConfig.mode === "duplicate"
-                    ? t("messages.duplicateSuccess")
-                    : t("messages.updateSuccess"),
-            });
-            if (addClassOpen) {
-              closeAddClassModal();
-            } else {
-              setEditing(null);
-            }
-            router.refresh();
-          }}
+          classTypeOptions={schedule.sessionClassTypeOptions}
+          coaches={schedule.coaches}
+          onClose={schedule.handleFormClose}
+          onSaved={schedule.handleFormSaved}
         />
       ) : null}
       <AdminScheduleSessionDetailsSheet
         locale={locale}
-        row={details}
-        classTypeOptions={sessionClassTypeOptions}
-        coaches={coaches}
-        actionBusy={busyId !== null && details !== null && busyId === details.id}
-        onClose={() => setDetails(null)}
-        onSaved={(saved) => {
-          setRows((current) =>
-            current
-              .map((item) => (item.id === saved.id ? saved : item))
-              .sort((first, second) => first.startsAt.localeCompare(second.startsAt)),
-          );
-          setDetails(saved);
-        }}
-        onDuplicate={(row) => {
-          setDetails(null);
-          setEditing({ ...row, id: "" });
-        }}
-        onDelete={(row) => {
-          void runRowAction(
-            row,
-            async () => {
-              await apiFetch(`/classes/sessions/${row.id}`, { method: "DELETE" });
-              setRows((current) => current.filter((item) => item.id !== row.id));
-              setDetails(null);
-            },
-            t("messages.deleteSuccess"),
-          );
-        }}
+        row={schedule.details}
+        classTypeOptions={schedule.sessionClassTypeOptions}
+        coaches={schedule.coaches}
+        actionBusy={schedule.busyId !== null && schedule.details !== null && schedule.busyId === schedule.details.id}
+        onClose={() => schedule.setDetails(null)}
+        onSaved={schedule.handleDetailsSaved}
+        onDuplicate={schedule.handleDuplicateFromDetails}
+        onDelete={schedule.handleDeleteFromDetails}
       />
     </div>
-  );
-}
-
-function SummaryGrid({ summary }: { summary: Record<"total" | "active" | "upcoming" | "full" | "cancelled" | "draft", number> }) {
-  const t = useTranslations("adminPages.classes.summary");
-  return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-      {(["total", "active", "upcoming", "full", "cancelled", "draft"] as const).map((key) => (
-        <div key={key} className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t(key)}</p>
-          <p className={adminChrome.metricValue}>{summary[key]}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ScheduleViews(props: {
-  locale: string;
-  view: ScheduleView;
-  rows: AdminScheduleSession[];
-  sortOrder: SessionSortOrder;
-  onDateTimeSort: () => void;
-  selectedDay: string | null;
-  busyId: string | null;
-  onSelectDay: (day: string) => void;
-  onDetails: (row: AdminScheduleSession) => void;
-  onCancel: (row: AdminScheduleSession) => void;
-  onActivate: (row: AdminScheduleSession) => void;
-  onDelete: (row: AdminScheduleSession) => void;
-  onDuplicate: (row: AdminScheduleSession) => void;
-}) {
-  if (props.view === "weekly") return <ScheduleWeekPanel {...props} />;
-  return (
-    <div className="space-y-3">
-      <AdminScheduleDateStrip
-        locale={props.locale}
-        rows={props.rows}
-        selectedDay={props.selectedDay}
-        onSelectDay={props.onSelectDay}
-      />
-      <SessionTable
-        {...props}
-        rows={props.rows}
-        sortOrder={props.sortOrder}
-        onDateTimeSort={props.onDateTimeSort}
-      />
-    </div>
-  );
-}
-
-function SessionTable(
-  props: Omit<Parameters<typeof ScheduleViews>[0], "view"> & {
-    sortOrder: SessionSortOrder;
-    onDateTimeSort: () => void;
-  },
-) {
-  const t = useTranslations("adminPages.classes");
-  const rows = sortAdminSessionRows(
-    props.selectedDay === null
-      ? props.rows
-      : props.rows.filter(
-          (row) => scheduleSessionLocalIsoDay(row.startsAt) === props.selectedDay,
-        ),
-    props.sortOrder,
-  );
-  if (rows.length === 0) {
-    return (
-      <div className={adminChrome.panel}>
-        <p className="font-medium text-sage-900">{t("empty.filteredTitle")}</p>
-        <p className="mt-1 text-sm text-sage-600">{t("empty.filteredBody")}</p>
-      </div>
-    );
-  }
-  return (
-    <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
-      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
-        <AdminScheduleSessionsListHeader
-          sortOrder={props.sortOrder}
-          onDateTimeSort={props.onDateTimeSort}
-        />
-      </div>
-      {rows.map((row) => (
-        <AdminScheduleSessionCompactRow
-          key={row.id}
-          row={row}
-          locale={props.locale}
-          busy={props.busyId === row.id}
-          onDetails={props.onDetails}
-          onDuplicate={props.onDuplicate}
-          onCancel={props.onCancel}
-          onActivate={props.onActivate}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ScheduleWeekPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
-  const tPage = useTranslations("adminPages.schedule");
-
-  return (
-    <ScheduleWeekColumnsView
-      locale={props.locale}
-      rows={props.rows}
-      showCoach
-      onSessionClick={props.onDetails}
-      labels={{
-        gridAria: tPage("weekView.gridAria"),
-        todayBadge: tPage("weekView.todayBadge"),
-        emptyDay: tPage("weekView.emptyDay"),
-      }}
-    />
-  );
-}
-
-function SessionFormSheet({
-  isOpen,
-  mode,
-  row,
-  anchorDay,
-  classTypeOptions,
-  coaches,
-  onClose,
-  onSaved,
-}: {
-  isOpen: boolean;
-  mode: "create" | "edit" | "duplicate";
-  row?: AdminScheduleSession;
-  anchorDay?: string | null;
-  classTypeOptions: readonly SessionClassTypeOption[];
-  coaches: readonly AdminScheduleCoach[];
-  onClose: () => void;
-  onSaved: (row: AdminScheduleSession | AdminScheduleSession[]) => void;
-}) {
-  const t = useTranslations("adminPages.classes");
-  const titleId = useId();
-  const formId = useId();
-  const [form, setForm] = useState(() => initialForm(classTypeOptions, coaches, row));
-  const initialCalendar = initialCalendarSchedule(form, anchorDay);
-  const [calendarStartDate, setCalendarStartDate] = useState(initialCalendar.calendarStartDate);
-  const [calendarEndDate, setCalendarEndDate] = useState(initialCalendar.calendarEndDate);
-  const [calendarSlots, setCalendarSlots] = useState<CalendarScheduleSlot[]>(
-    initialCalendar.calendarSlots,
-  );
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const isBatchCreate = mode !== "edit";
-  const levelOptions = useMemo(
-    () => buildSessionLevelOptions((key) => t(key), [...splitSessionLevels(row?.level), ...form.levels]),
-    [form.levels, row?.level, t],
-  );
-  const coachDropdown = useMemo(
-    () =>
-      buildCoachDropdownState(
-        coaches,
-        form.classTypeId,
-        classTypeOptions,
-        form.coachId,
-        coachName,
-      ),
-    [classTypeOptions, coaches, form.classTypeId, form.coachId],
-  );
-
-  function onClassTypeChange(value: string): void {
-    setForm((current) => {
-      const nextCoachDropdown = buildCoachDropdownState(
-        coaches,
-        value,
-        classTypeOptions,
-        current.coachId,
-        coachName,
-      );
-      return {
-        ...current,
-        classTypeId: value,
-        coachId: nextCoachDropdown.coachId,
-      };
-    });
-  }
-
-  function addCalendarSlot(): void {
-    setCalendarSlots((current) => [
-      ...current,
-      {
-        id: createScheduleSlotId(),
-        weekday:
-          current.at(-1)?.weekday ?? weekdayFromDate(`${calendarStartDate}T00:00:00`),
-        startTime: form.startTime,
-        endTime: form.endTime,
-      },
-    ]);
-  }
-
-  function updateCalendarSlot<K extends keyof Omit<CalendarScheduleSlot, "id">>(
-    id: string,
-    key: K,
-    value: CalendarScheduleSlot[K],
-  ): void {
-    setCalendarSlots((current) =>
-      current.map((slot) => (slot.id === id ? { ...slot, [key]: value } : slot)),
-    );
-  }
-
-  function removeCalendarSlot(id: string): void {
-    setCalendarSlots((current) => current.filter((slot) => slot.id !== id));
-  }
-
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPending(true);
-    setError(null);
-    try {
-      const resolvedClassType = resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
-      const title = sessionTitleFromClassTypeSelection(form.classTypeId, classTypeOptions);
-      if (title.length === 0) {
-        throw new Error(t("validation.classTypeRequired"));
-      }
-      const capacity = Number(form.capacity);
-      if (!Number.isInteger(capacity) || capacity < 1) {
-        throw new Error(t("validation.capacityInvalid"));
-      }
-      const eligibleCoaches = filterCoachesByClassType(
-        coaches,
-        resolvedClassType.classTypeId,
-      );
-      if (
-        eligibleCoaches.length === 0 ||
-        !eligibleCoaches.some((coach) => coach.id === form.coachId)
-      ) {
-        throw new Error(t("validation.coachNotAssigned"));
-      }
-      if (isBatchCreate) {
-        const payload = batchFormPayload(
-          form,
-          resolvedClassType.classTypeId,
-          title,
-          calendarStartDate,
-          calendarEndDate,
-          calendarSlots,
-        );
-        const saved = await apiFetch<AdminScheduleSession[]>("/classes/sessions/batch", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-        onSaved(saved);
-        return;
-      }
-      const saved = await apiFetch<AdminScheduleSession>(
-        row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
-        { method: "PATCH", body: JSON.stringify(formPayload(form, resolvedClassType.classTypeId, title)) },
-      );
-      onSaved(saved);
-    } catch (requestError) {
-      setError(
-        requestError instanceof ApiError ? requestError.message : t("messages.genericError"),
-      );
-    } finally {
-      setPending(false);
-    }
-  }
-
-  return (
-    <OmmDrawerPortal
-      isOpen={isOpen}
-      onClose={onClose}
-      backdropAriaLabel={t("modalBackdropClose")}
-      ariaLabelledBy={titleId}
-      closeDisabled={pending}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
-    >
-      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
-              {mode === "create"
-                ? t("createTitle")
-                : mode === "duplicate"
-                  ? t("duplicateTitle")
-                  : t("editTitle")}
-            </h2>
-            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
-              {mode === "duplicate"
-                ? t("duplicateDescription")
-                : mode === "create"
-                  ? t("createDescription")
-                  : t("editDescription")}
-            </p>
-          </div>
-          <button
-            type="button"
-            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-            onClick={onClose}
-            aria-label={t("modalCloseAria")}
-            disabled={pending}
-          >
-            ×
-          </button>
-        </div>
-      </header>
-      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
-        <form
-          id={formId}
-          className="grid gap-3 sm:grid-cols-2"
-          onSubmit={(event) => {
-            void submit(event);
-          }}
-        >
-        <OmmFormDropdown
-          value={form.classTypeId}
-          ariaLabel={t("form.classType")}
-          placeholderLabel={t("form.classType")}
-          options={classTypeOptions.map((type) => ({ value: type.value, label: type.label }))}
-          onChange={onClassTypeChange}
-          disabled={pending}
-        />
-        <OmmFormDropdown
-          value={coachDropdown.coachId}
-          ariaLabel={t("form.coach")}
-          placeholderLabel={t(coachDropdownPlaceholderKey(coachDropdown.placeholder))}
-          options={coachDropdown.options}
-          onChange={(value) => setForm((current) => ({ ...current, coachId: value }))}
-          disabled={pending || coachDropdown.disabled}
-          required
-        />
-        {!isBatchCreate ? (
-          <>
-            <DatePickerInput
-              name="date"
-              value={form.date}
-              onChange={(value) => setForm((current) => ({ ...current, date: value }))}
-              ariaLabel={t("form.date")}
-              required
-            />
-            <TimePickerInput
-              name="startTime"
-              value={form.startTime}
-              onChange={(value) => setForm((current) => ({ ...current, startTime: value }))}
-              required
-            />
-            <TimePickerInput
-              name="endTime"
-              value={form.endTime}
-              onChange={(value) => setForm((current) => ({ ...current, endTime: value }))}
-              required
-            />
-          </>
-        ) : null}
-        <label className="flex min-w-0 flex-col gap-1">
-          <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
-            {t("form.capacityHint")}
-          </span>
-          <input
-            className="ommm-input"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={form.capacity}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, capacity: event.target.value.replace(/\D/g, "") }))
-            }
-            placeholder={t("form.capacity")}
-            required
-          />
-        </label>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
-            {t("form.level")}
-          </span>
-          <OmmFilterMultiSelect
-            ariaLabel={t("form.level")}
-            allLabel={t("filters.allLevels")}
-            selectedValues={form.levels}
-            options={levelOptions}
-            onChange={(value) => setForm((current) => ({ ...current, levels: value }))}
-            className="w-full"
-            formatSelectedCount={(count) => t("filters.selectedCount", { count })}
-          />
-        </div>
-        {isBatchCreate ? (
-          <section className="rounded-2xl border border-sand-500/20 bg-white/70 p-4 sm:col-span-2">
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-sage-950">
-                {t("calendarSchedule.title")}
-              </h3>
-              <p className="text-sm text-sage-600">{t("calendarSchedule.description")}</p>
-            </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="space-y-1">
-                <span className="text-sm font-semibold text-sage-950">
-                  {t("calendarSchedule.startDate")}
-                </span>
-                <DatePickerInput
-                  name="calendar-start-date"
-                  value={calendarStartDate}
-                  onChange={setCalendarStartDate}
-                  ariaLabel={t("calendarSchedule.startDate")}
-                  required
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-sm font-semibold text-sage-950">
-                  {t("calendarSchedule.endDate")}
-                </span>
-                <DatePickerInput
-                  name="calendar-end-date"
-                  value={calendarEndDate}
-                  onChange={setCalendarEndDate}
-                  ariaLabel={t("calendarSchedule.endDate")}
-                  required
-                />
-              </label>
-            </div>
-            <div className="mt-4 space-y-3">
-              <h4 className="text-sm font-semibold text-sage-950">
-                {t("calendarSchedule.weeklySlots")}
-              </h4>
-              <div className="space-y-2 rounded-2xl border border-sand-500/15 bg-white/75 p-2">
-                {calendarSlots.map((slot) => (
-                  <div
-                    key={slot.id}
-                    className="grid gap-2 rounded-xl border border-sand-500/15 bg-white/80 p-2 sm:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_3.5rem]"
-                  >
-                    <OmmFormDropdown
-                      value={slot.weekday}
-                      ariaLabel={t("calendarSchedule.weekday")}
-                      placeholderLabel={t("calendarSchedule.weekday")}
-                      options={SCHEDULE_WEEKDAYS.map((weekday) => ({
-                        value: weekday,
-                        label: t(`weekday.${weekday}`),
-                      }))}
-                      onChange={(value) =>
-                        updateCalendarSlot(slot.id, "weekday", value as ScheduleDayOfWeek)
-                      }
-                    />
-                    <TimePickerInput
-                      name={`calendar-start-time-${slot.id}`}
-                      value={slot.startTime}
-                      onChange={(value) => updateCalendarSlot(slot.id, "startTime", value)}
-                      ariaLabel={t("calendarSchedule.startTime")}
-                      required
-                    />
-                    <TimePickerInput
-                      name={`calendar-end-time-${slot.id}`}
-                      value={slot.endTime}
-                      onChange={(value) => updateCalendarSlot(slot.id, "endTime", value)}
-                      ariaLabel={t("calendarSchedule.endTime")}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="inline-flex min-h-11 items-center justify-center rounded-xl border border-sand-500/25 bg-white/80 text-sage-600 transition-colors hover:bg-sand-50 disabled:opacity-45"
-                      onClick={() => removeCalendarSlot(slot.id)}
-                      disabled={calendarSlots.length === 1}
-                      aria-label={t("calendarSchedule.removeSlot")}
-                    >
-                      x
-                    </button>
-                  </div>
-                ))}
-                <OmmButton type="button" variant="ghost" size="sm" onClick={addCalendarSlot}>
-                  <PlusIcon className="h-3.5 w-3.5" />
-                  {t("calendarSchedule.addSlot")}
-                </OmmButton>
-              </div>
-            </div>
-          </section>
-        ) : null}
-        <textarea
-          className="ommm-input min-h-24 sm:col-span-2"
-          value={form.description}
-          onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-          placeholder={t("form.description")}
-        />
-        {error ? <p className="app-alert-warn text-sm sm:col-span-2">{error}</p> : null}
-        </form>
-      </div>
-      <footer className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} flex justify-end gap-2`}>
-        <OmmButton type="button" size="sm" variant="ghost" onClick={onClose} disabled={pending}>
-          {t("cancelButton")}
-        </OmmButton>
-        <OmmButton type="submit" size="sm" variant="primary" form={formId} disabled={pending}>
-          {pending ? t("savingButton") : mode === "create" ? t("createButton") : t("saveButton")}
-        </OmmButton>
-      </footer>
-    </OmmDrawerPortal>
   );
 }

@@ -1,4 +1,4 @@
-import { BookingStatus } from '@prisma/client';
+import { BookingStatus, ClassSessionStatus } from '@prisma/client';
 import {
   resolveAttendanceStatus,
   resolveBookingPaymentMethod,
@@ -103,6 +103,52 @@ export function mapManagementWaitlistRow(row: ManagementWaitlist) {
     latestNote: null,
     waitlistPosition: row.position,
   };
+}
+
+export function mapManagementSessionSlots(
+  sessions: Array<{
+    id: string;
+    title: string | null;
+    status: ClassSessionStatus;
+    startsAt: Date;
+    endsAt: Date;
+    capacity: number;
+    level: string | null;
+    classFormat: string | null;
+    classType: { id: string; name: string };
+    coach: { id: string; user: { name: string | null } };
+    _count: { bookings: number };
+  }>,
+) {
+  return sessions.map((session) => {
+    const bookedCount = session._count.bookings;
+    const spotsLeft = Math.max(session.capacity - bookedCount, 0);
+    const status =
+      session.status === ClassSessionStatus.ACTIVE &&
+      bookedCount >= session.capacity
+        ? ClassSessionStatus.FULL
+        : session.status;
+    return {
+      id: session.id,
+      title: session.title,
+      status,
+      startsAt: session.startsAt.toISOString(),
+      endsAt: session.endsAt.toISOString(),
+      capacity: session.capacity,
+      bookedCount,
+      spotsLeft,
+      level: session.level,
+      classFormat: session.classFormat,
+      classType: {
+        id: session.classType.id,
+        name: session.classType.name,
+      },
+      coach: {
+        id: session.coach.id,
+        name: session.coach.user.name,
+      },
+    };
+  });
 }
 
 export function summarizeManagementRows(

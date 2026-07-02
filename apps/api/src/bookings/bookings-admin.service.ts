@@ -20,6 +20,7 @@ import {
   resolveBookingPaymentMethod,
   resolvePaymentStatus,
 } from './bookings-management.helpers';
+import { BookingsAdminListService } from './bookings-admin-list.service';
 import { BookingsSlotService } from './bookings-slot.service';
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
@@ -28,11 +29,16 @@ import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 export class BookingsAdminService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly adminList: BookingsAdminListService,
     private readonly waitlist: WaitlistService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
     private readonly slots: BookingsSlotService,
   ) {}
+
+  listAdmin(filters: Parameters<BookingsAdminListService['listAdmin']>[0]) {
+    return this.adminList.listAdmin(filters);
+  }
 
   async adminCancel(bookingId: string) {
     const booking = await this.prisma.booking.findUnique({

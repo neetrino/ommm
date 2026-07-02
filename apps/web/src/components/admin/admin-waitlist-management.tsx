@@ -19,6 +19,7 @@ import { formatAdminWaitlistUserLabel } from "@/components/admin/admin-waitlist-
 import type { AdminWaitlistManagementProps } from "@/components/admin/admin-waitlist-management.types";
 import {
   buildAdminWaitlistActiveEndpoint,
+  type AdminWaitlistActivePayload,
   type AdminWaitlistRow,
 } from "@/components/admin/admin-waitlist-query";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";

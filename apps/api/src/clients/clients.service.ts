@@ -5,6 +5,7 @@ import {
   AdminClientOrder,
   type AdminListClientsQueryDto,
 } from './dto/admin-list-clients-query.dto';
+import { ClientsAdminCreateService } from './clients-admin-create.service';
 import { ClientsAdminService } from './clients-admin.service';
 import {
   CLIENTS_POST_PROCESS_SCAN_LIMIT,
@@ -20,22 +21,22 @@ import {
   filterOptionsFromRows,
   summaryFromRows,
 } from './clients-list-summary';
-import {
-  clientInclude,
-  matchesClientFilters,
-  sortClientRows,
-  toClientRow,
-} from './clients-row.mapper';
+import { matchesClientFilters, sortClientRows } from './clients-row-filters';
+import { clientInclude, toClientRow } from './clients-row.mapper';
 
 @Injectable()
 export class ClientsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly adminCreate: ClientsAdminCreateService,
     private readonly admin: ClientsAdminService,
   ) {}
 
-  create(actor: Parameters<ClientsAdminService['create']>[0], dto: Parameters<ClientsAdminService['create']>[1]) {
-    return this.admin.create(actor, dto);
+  create(
+    actor: Parameters<ClientsAdminCreateService['create']>[0],
+    dto: Parameters<ClientsAdminCreateService['create']>[1],
+  ) {
+    return this.adminCreate.create(actor, dto);
   }
 
   updateBasicInfo(

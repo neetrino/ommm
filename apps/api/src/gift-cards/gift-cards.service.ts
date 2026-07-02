@@ -4,7 +4,8 @@ import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import type { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
-import { GiftCardsAdminBatchService } from './gift-cards-admin-batch.service';
+import { GiftCardsAdminBatchLifecycleService } from './gift-cards-admin-batch-lifecycle.service';
+import { GiftCardsAdminBatchWriteService } from './gift-cards-admin-batch-write.service';
 import { GiftCardsAdminBoardService } from './gift-cards-admin-board.service';
 import { GiftCardsAdminCardsService } from './gift-cards-admin-cards.service';
 import { GiftCardsClientService } from './gift-cards-client.service';
@@ -15,7 +16,8 @@ export class GiftCardsService {
     private readonly client: GiftCardsClientService,
     private readonly adminBoard: GiftCardsAdminBoardService,
     private readonly adminCards: GiftCardsAdminCardsService,
-    private readonly adminBatch: GiftCardsAdminBatchService,
+    private readonly adminBatchWrite: GiftCardsAdminBatchWriteService,
+    private readonly adminBatchLifecycle: GiftCardsAdminBatchLifecycleService,
   ) {}
 
   listMine(userId: string, query: ListMyGiftCardsQueryDto = {}) {
@@ -63,11 +65,11 @@ export class GiftCardsService {
     dto: AdminCreateGiftCardDto,
     imageFile?: Express.Multer.File,
   ) {
-    return this.adminBatch.createAdminCard(adminId, dto, imageFile);
+    return this.adminBatchWrite.createAdminCard(adminId, dto, imageFile);
   }
 
   updateBatch(batchId: string, dto: AdminUpdateGiftCardBatchDto) {
-    return this.adminBatch.updateBatch(batchId, dto);
+    return this.adminBatchWrite.updateBatch(batchId, dto);
   }
 
   assignRecipient(giftCardId: string, userId: string) {
@@ -75,27 +77,27 @@ export class GiftCardsService {
   }
 
   assignBatchRecipient(batchId: string, userId: string) {
-    return this.adminBatch.assignBatchRecipient(batchId, userId);
+    return this.adminBatchLifecycle.assignBatchRecipient(batchId, userId);
   }
 
   deactivateBatch(id: string) {
-    return this.adminBatch.deactivateBatch(id);
+    return this.adminBatchLifecycle.deactivateBatch(id);
   }
 
   activateBatch(id: string) {
-    return this.adminBatch.activateBatch(id);
+    return this.adminBatchLifecycle.activateBatch(id);
   }
 
   deleteBatch(id: string, actorId: string) {
-    return this.adminBatch.deleteBatch(id, actorId);
+    return this.adminBatchLifecycle.deleteBatch(id, actorId);
   }
 
   resendBatchEmail(id: string) {
-    return this.adminBatch.resendBatchEmail(id);
+    return this.adminBatchLifecycle.resendBatchEmail(id);
   }
 
   getBatchHistory(batchId: string) {
-    return this.adminBatch.getBatchHistory(batchId);
+    return this.adminBatchLifecycle.getBatchHistory(batchId);
   }
 
   getRedemptionHistory(giftCardId: string) {

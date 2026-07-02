@@ -1,5 +1,4 @@
 import { BadRequestException } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import type { PrismaService } from '../prisma/prisma.service';
 import type { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
@@ -8,7 +7,6 @@ import {
   DEFAULT_BILLING_PERIOD,
   type AdminPlanRecord,
   type PublicPlanSource,
-  type ResolvedTypeSessionAllocations,
   type StoredTypeSessionAllocation,
 } from './packages-plan.types';
 
@@ -86,7 +84,7 @@ export function buildUniqueCategorySlug(baseName: string): string {
   return `${prefix}-${randomBytes(4).toString('hex')}`.slice(0, 120);
 }
 
-export function trimEdgeHyphens(value: string): string {
+function trimEdgeHyphens(value: string): string {
   let start = 0;
   let end = value.length;
   while (start < end && value[start] === '-') {
@@ -129,35 +127,6 @@ export function requireNonEmptyString(
     throw new BadRequestException(message);
   }
   return next;
-}
-
-export async function assertSlugUnique(
-  prisma: PrismaService,
-  slug: string,
-  excludeId?: string,
-): Promise<void> {
-  const conflict = await prisma.packagePlan.findFirst({
-    where: {
-      slug,
-      ...(excludeId ? { id: { not: excludeId } } : {}),
-    },
-    select: { id: true },
-  });
-  if (conflict !== null) {
-    throw new BadRequestException('Package slug already exists');
-  }
-}
-
-export async function resolveNextDisplayOrder(
-  prisma: PrismaService,
-  tx?: Prisma.TransactionClient,
-): Promise<number> {
-  const client = tx ?? prisma;
-  const maxRow = await client.packagePlan.findFirst({
-    orderBy: { displayOrder: 'desc' },
-    select: { displayOrder: true },
-  });
-  return (maxRow?.displayOrder ?? 0) + 1;
 }
 
 export function assertDiscountBounds(
@@ -275,122 +244,6 @@ export function parseStoredTypeSessionAllocations(
     });
   }
   return allocations;
-}
-
-export async function resolveTypeSessionAllocations(
-  prisma: PrismaService,
-  allocations: Array<{
-    classTypeId: string;
-    sessionCount: number;
-  }>,
-): Promise<ResolvedTypeSessionAllocations> {
-  if (allocations.length === 0) {
-    throw new BadRequestException(
-      'At least one type session allocation is required',
-    );
-  }
-  const classTypeIds = allocations.map((item) => item.classTypeId.trim());
-  const uniqueClassTypeIds = new Set(classTypeIds);
-  if (uniqueClassTypeIds.size !== classTypeIds.length) {
-    throw new BadRequestException('Each type can appear only once');
-  }
-  if (classTypeIds.some((classTypeId) => classTypeId.length === 0)) {
-    throw new BadRequestException('Type is required for every row');
-  }
-  if (
-    allocations.some(
-      (item) =>
-        !Number.isInteger(item.sessionCount) || item.sessionCount <= 0,
-    )
-  ) {
-    throw new BadRequestException(
-      'Session count must be a positive whole number',
-    );
-  }
-  const existingClassTypes = await prisma.classType.findMany({
-    where: { id: { in: classTypeIds } },
-    select: { id: true },
-  });
-  if (existingClassTypes.length !== classTypeIds.length) {
-    throw new BadRequestException('One or more selected types are invalid');
-  }
-  const totalSessions = allocations.reduce(
-    (sum, item) => sum + item.sessionCount,
-    0,
-  );
-  return {
-    allocations: allocations.map((item) => ({
-      classTypeId: item.classTypeId.trim(),
-      sessionCount: item.sessionCount,
-    })),
-    totalSessions,
-    classTypeId: allocations.length === 1 ? allocations[0].classTypeId : null,
-  };
-}
-
-export async function createBalancesForUserPackage(
-  tx: Prisma.TransactionClient,
-  params: { plan: AdminPlanRecord; userPackageId: string },
-): Promise<void> {
-  const typeAllocations = parseStoredTypeSessionAllocations(
-    params.plan.typeSessionAllocations,
-  );
-  if (typeAllocations.length > 0) {
-    const classTypes = await tx.classType.findMany({
-      where: { id: { in: typeAllocations.map((item) => item.classTypeId) } },
-      select: { id: true, name: true },
-    });
-    const classTypeNameById = new Map(
-      classTypes.map((classType) => [classType.id, classType.name]),
-    );
-    for (const allocation of typeAllocations) {
-      const classTypeName = classTypeNameById.get(allocation.classTypeId);
-      if (classTypeName === undefined) {
-        continue;
-      }
-      await (
-        tx as unknown as {
-          userPackageBalance: {
-            create(args: unknown): Promise<unknown>;
-          };
-        }
-      ).userPackageBalance.create({
-        data: {
-          userPackageId: params.userPackageId,
-          sourcePlanId: params.plan.id,
-          coverageKey: `${params.userPackageId}:${params.plan.id}:${allocation.classTypeId}`,
-          sourcePackageNameSnapshot: params.plan.name,
-          sourceCategoryNameSnapshot: classTypeName,
-          sessionsTotal: allocation.sessionCount,
-          sessionsRemaining: allocation.sessionCount,
-          isUnlimited: false,
-        },
-      });
-    }
-    return;
-  }
-  await (
-    tx as unknown as {
-      userPackageBalance: {
-        create(args: unknown): Promise<unknown>;
-      };
-    }
-  ).userPackageBalance.create({
-    data: {
-      userPackageId: params.userPackageId,
-      sourcePlanId: params.plan.id,
-      coverageKey: `${params.userPackageId}:${params.plan.id}`,
-      sourcePackageNameSnapshot: params.plan.name,
-      sourceCategoryNameSnapshot: params.plan.categoryName,
-      sessionsTotal: params.plan.isUnlimited
-        ? null
-        : (params.plan.sessionsPerMonth ?? 0),
-      sessionsRemaining: params.plan.isUnlimited
-        ? null
-        : (params.plan.sessionsPerMonth ?? 0),
-      isUnlimited: params.plan.isUnlimited,
-    },
-  });
 }
 
 export function resolveBillingPeriod(value: string | undefined): string {

@@ -14,6 +14,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { buildScopedSessionFilter } from './bookings-management.helpers';
 import {
   mapManagementBookingRow,
+  mapManagementSessionSlots,
   mapManagementWaitlistRow,
   summarizeManagementRows,
 } from './bookings-management.mapper';
@@ -26,47 +27,6 @@ import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-manag
 @Injectable()
 export class BookingsAdminManagementService {
   constructor(private readonly prisma: PrismaService) {}
-
-  listAdmin(filters: {
-    actor: User;
-    sessionId?: string;
-    userId?: string;
-    from?: Date;
-    to?: Date;
-  }) {
-    const coachScope =
-      filters.actor.role === Role.COACH
-        ? ({
-            coach: { userId: filters.actor.id },
-          } as Prisma.ClassSessionWhereInput)
-        : undefined;
-    const sessionFilter: Prisma.ClassSessionWhereInput | undefined =
-      filters.from && filters.to
-        ? {
-            startsAt: { gte: filters.from, lte: filters.to },
-            ...(coachScope ?? {}),
-          }
-        : coachScope;
-    return this.prisma.booking.findMany({
-      where: {
-        ...(filters.sessionId && { sessionId: filters.sessionId }),
-        ...(filters.userId && { userId: filters.userId }),
-        ...(sessionFilter && { session: sessionFilter }),
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true, phone: true } },
-        session: {
-          include: {
-            classType: true,
-            coach: { include: { user: { select: { id: true, name: true } } } },
-          },
-        },
-        notes: { include: { author: { select: { name: true } } } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 500,
-    });
-  }
 
   async listAdminManagement(params: {
     actor: User;
@@ -282,35 +242,7 @@ export class BookingsAdminManagementService {
     const offset = params.query.offset ?? 0;
     const pagedRows = paginate ? rows.slice(offset, offset + take) : rows;
 
-    const sessionSlots = sessionsRaw.map((session) => {
-      const bookedCount = session._count.bookings;
-      const spotsLeft = Math.max(session.capacity - bookedCount, 0);
-      const status =
-        session.status === ClassSessionStatus.ACTIVE &&
-        bookedCount >= session.capacity
-          ? ClassSessionStatus.FULL
-          : session.status;
-      return {
-        id: session.id,
-        title: session.title,
-        status,
-        startsAt: session.startsAt.toISOString(),
-        endsAt: session.endsAt.toISOString(),
-        capacity: session.capacity,
-        bookedCount,
-        spotsLeft,
-        level: session.level,
-        classFormat: session.classFormat,
-        classType: {
-          id: session.classType.id,
-          name: session.classType.name,
-        },
-        coach: {
-          id: session.coach.id,
-          name: session.coach.user.name,
-        },
-      };
-    });
+    const sessionSlots = mapManagementSessionSlots(sessionsRaw);
 
     return {
       rows: pagedRows,

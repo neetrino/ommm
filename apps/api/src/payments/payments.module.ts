@@ -9,6 +9,7 @@ import { PaymentCashPendingEmailService } from './payment-cash-pending-email.ser
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { PaymentsAdminService } from './payments-admin.service';
 import { PaymentsCheckoutService } from './payments-checkout.service';
+import { PaymentsConfirmService } from './payments-confirm.service';
 import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import { PaymentsService } from './payments.service';
 
@@ -18,6 +19,7 @@ import { PaymentsService } from './payments.service';
   providers: [
     PaymentsService,
     PaymentsCheckoutService,
+    PaymentsConfirmService,
     PaymentsFulfillmentService,
     PaymentsAdminService,
     PaymentCashPendingEmailService,

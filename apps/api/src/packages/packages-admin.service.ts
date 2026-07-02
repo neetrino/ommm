@@ -4,28 +4,23 @@ import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
-import { PackageUsageService } from './package-usage.service';
 import {
-  assertDiscountBounds,
   assertSlugUnique,
-  buildUniqueCategorySlug,
-  normalizeCategoryName,
-  normalizeCurrency,
-  normalizeFeatures,
-  normalizeNullableString,
-  normalizeSessionsPerMonth,
-  normalizeSlug,
-  requireNonEmptyString,
-  resolveBillingPeriod,
+  buildCreatePlanData,
+  buildUpdatePlanData,
   resolveNextDisplayOrder,
   resolveTypeSessionAllocations,
+} from './packages-admin-plan.helpers';
+import {
+  assertDiscountBounds,
+  buildUniqueCategorySlug,
+  normalizeCategoryName,
+  normalizeSlug,
+  requireNonEmptyString,
   toAdminPlanRow,
 } from './packages-plan.helpers';
-import {
-  DEFAULT_BILLING_PERIOD,
-  DEFAULT_PERIOD_DAYS,
-  USER_PACKAGE_STATUS,
-} from './packages-plan.types';
+import { USER_PACKAGE_STATUS } from './packages-plan.types';
+import { PackageUsageService } from './package-usage.service';
 import { PackagesPublicService } from './packages-public.service';
 
 @Injectable()
@@ -37,7 +32,9 @@ export class PackagesAdminService {
   ) {}
 
   async listPlansAdmin() {
-    const plans = await this.findPlansForAdmin();
+    const plans = await this.prisma.packagePlan.findMany({
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+    });
     return plans.map((plan) => toAdminPlanRow(plan));
   }
 
@@ -78,7 +75,7 @@ export class PackagesAdminService {
     const displayOrder =
       dto.displayOrder ?? (await resolveNextDisplayOrder(this.prisma));
     const created = await this.prisma.packagePlan.create({
-      data: this.buildCreatePlanData(
+      data: buildCreatePlanData(
         dto,
         name,
         slug,
@@ -126,12 +123,7 @@ export class PackagesAdminService {
     const updated = await this.prisma.$transaction(async (tx) => {
       return tx.packagePlan.update({
         where: { id },
-        data: this.buildUpdatePlanData(
-          dto,
-          current,
-          nextSlug,
-          resolvedTypeSessions,
-        ),
+        data: buildUpdatePlanData(dto, nextSlug, resolvedTypeSessions),
       });
     });
     await this.publicService.invalidatePublicPlansCache();
@@ -232,165 +224,5 @@ export class PackagesAdminService {
   async reconcileSessions(dto: ReconcilePackagesDto) {
     await this.packageUsage.reconcileSessionsRemaining(dto.userId);
     return { ok: true };
-  }
-
-  private async findPlansForAdmin() {
-    return this.prisma.packagePlan.findMany({
-      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
-    });
-  }
-
-  private buildCreatePlanData(
-    dto: UpsertPackagePlanDto,
-    name: string,
-    slug: string,
-    categoryName: string,
-    categorySlug: string,
-    resolvedTypeSessions: Awaited<
-      ReturnType<typeof resolveTypeSessionAllocations>
-    > | undefined,
-    displayOrder: number,
-  ) {
-    return {
-      name,
-      slug,
-      categoryName,
-      categorySlug,
-      ...this.resolveClassTypeConnect(dto, resolvedTypeSessions),
-      description: normalizeNullableString(dto.description),
-      priceCents: dto.priceCents ?? 0,
-      discountedPriceCents: dto.discountedPriceCents ?? null,
-      pricePerSessionCents: dto.pricePerSessionCents ?? 0,
-      showPricePerSession: dto.showPricePerSession ?? true,
-      currency: normalizeCurrency(dto.currency),
-      billingPeriod: dto.billingPeriod ?? DEFAULT_BILLING_PERIOD,
-      periodDays: dto.periodDays ?? DEFAULT_PERIOD_DAYS,
-      sessionsPerMonth:
-        resolvedTypeSessions?.totalSessions ??
-        normalizeSessionsPerMonth(dto),
-      isUnlimited: dto.isUnlimited ?? false,
-      guestCount: dto.guestCount ?? 0,
-      buttonLabel: dto.buttonLabel?.trim() || 'Buy now',
-      features: normalizeFeatures(dto.features),
-      isPopular: dto.isPopular ?? false,
-      isActive: dto.isActive ?? true,
-      displayOrder,
-      ...(resolvedTypeSessions !== undefined
-        ? { typeSessionAllocations: resolvedTypeSessions.allocations }
-        : {}),
-    };
-  }
-
-  private buildUpdatePlanData(
-    dto: UpsertPackagePlanDto,
-    current: { slug: string },
-    nextSlug: string,
-    resolvedTypeSessions: Awaited<
-      ReturnType<typeof resolveTypeSessionAllocations>
-    > | undefined,
-  ) {
-    return {
-      ...(dto.name !== undefined
-        ? {
-            name: requireNonEmptyString(dto.name, 'Plan name is required'),
-          }
-        : {}),
-      ...(dto.slug !== undefined || dto.name !== undefined
-        ? { slug: nextSlug }
-        : {}),
-      ...(dto.categoryName !== undefined
-        ? { categoryName: normalizeCategoryName(dto.categoryName) }
-        : {}),
-      ...(dto.categorySlug !== undefined && dto.categorySlug.trim().length > 0
-        ? { categorySlug: normalizeSlug(dto.categorySlug) }
-        : {}),
-      ...this.resolveClassTypeUpdate(dto, resolvedTypeSessions),
-      ...(dto.description !== undefined
-        ? { description: normalizeNullableString(dto.description) }
-        : {}),
-      ...(dto.priceCents !== undefined ? { priceCents: dto.priceCents } : {}),
-      ...(dto.discountedPriceCents !== undefined
-        ? { discountedPriceCents: dto.discountedPriceCents }
-        : {}),
-      ...(dto.pricePerSessionCents !== undefined
-        ? { pricePerSessionCents: dto.pricePerSessionCents }
-        : {}),
-      ...(dto.showPricePerSession !== undefined
-        ? { showPricePerSession: dto.showPricePerSession }
-        : {}),
-      ...(dto.currency !== undefined
-        ? { currency: normalizeCurrency(dto.currency) }
-        : {}),
-      ...(dto.billingPeriod !== undefined
-        ? { billingPeriod: resolveBillingPeriod(dto.billingPeriod) }
-        : {}),
-      ...(dto.periodDays !== undefined ? { periodDays: dto.periodDays } : {}),
-      ...(dto.sessionsPerMonth !== undefined
-        ? { sessionsPerMonth: dto.sessionsPerMonth }
-        : resolvedTypeSessions !== undefined
-          ? { sessionsPerMonth: resolvedTypeSessions.totalSessions }
-          : {}),
-      ...(dto.isUnlimited !== undefined
-        ? { isUnlimited: dto.isUnlimited }
-        : {}),
-      ...(dto.guestCount !== undefined ? { guestCount: dto.guestCount } : {}),
-      ...(dto.buttonLabel !== undefined
-        ? { buttonLabel: dto.buttonLabel.trim() || 'Buy now' }
-        : {}),
-      ...(dto.features !== undefined
-        ? { features: normalizeFeatures(dto.features) }
-        : {}),
-      ...(dto.isPopular !== undefined ? { isPopular: dto.isPopular } : {}),
-      ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
-      ...(dto.displayOrder !== undefined
-        ? { displayOrder: dto.displayOrder }
-        : {}),
-      ...(resolvedTypeSessions !== undefined
-        ? { typeSessionAllocations: resolvedTypeSessions.allocations }
-        : {}),
-    };
-  }
-
-  private resolveClassTypeConnect(
-    dto: UpsertPackagePlanDto,
-    resolvedTypeSessions: Awaited<
-      ReturnType<typeof resolveTypeSessionAllocations>
-    > | undefined,
-  ) {
-    if (resolvedTypeSessions !== undefined) {
-      if (resolvedTypeSessions.classTypeId === null) {
-        return {};
-      }
-      return {
-        classType: { connect: { id: resolvedTypeSessions.classTypeId } },
-      };
-    }
-    if (dto.classTypeId !== undefined && dto.classTypeId !== null) {
-      return { classType: { connect: { id: dto.classTypeId } } };
-    }
-    return {};
-  }
-
-  private resolveClassTypeUpdate(
-    dto: UpsertPackagePlanDto,
-    resolvedTypeSessions: Awaited<
-      ReturnType<typeof resolveTypeSessionAllocations>
-    > | undefined,
-  ) {
-    if (dto.classTypeId !== undefined) {
-      if (dto.classTypeId === null) {
-        return { classType: { disconnect: true } };
-      }
-      return { classType: { connect: { id: dto.classTypeId } } };
-    }
-    if (resolvedTypeSessions !== undefined) {
-      if (resolvedTypeSessions.classTypeId === null) {
-        return { classType: { disconnect: true } };
-      }
-      return {
-        classType: { connect: { id: resolvedTypeSessions.classTypeId } },
-      };
-    }
-    return {};
   }
 }

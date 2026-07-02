@@ -1,8 +1,6 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -19,6 +17,7 @@ import {
   assertGiftBatchForCheckout,
   findOwnedPendingPaymentByReference,
 } from './payments-checkout.helpers';
+import { PaymentsConfirmService } from './payments-confirm.service';
 import {
   createPaymentReference,
   withInternalPaymentCreateFields,
@@ -29,7 +28,6 @@ import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import {
   INTERNAL_PAYMENT_SOURCE,
   type GiftEmailPayload,
-  type InternalPaymentRecord,
   type PaymentMetadata,
 } from './payments.types';
 
@@ -39,6 +37,7 @@ export class PaymentsCheckoutService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly fulfillment: PaymentsFulfillmentService,
+    private readonly confirm: PaymentsConfirmService,
     private readonly paymentSuccessEmail: PaymentSuccessEmailService,
     private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
   ) {}
@@ -248,7 +247,9 @@ export class PaymentsCheckoutService {
         }),
       });
     });
-    await this.dispatchGiftEmails(giftEmails);
+    for (const email of giftEmails) {
+      await this.fulfillment.sendGiftCardEmail(email.to, email.code);
+    }
     await this.paymentSuccessEmail.trySendSuccessEmails(
       payment.id,
       PaymentStatus.PENDING,
@@ -256,56 +257,11 @@ export class PaymentsCheckoutService {
     return payment;
   }
 
-  async confirmPayment(
+  confirmPayment(
     paymentId: string,
     adminId: string | null,
     options?: { paymentMethod?: ManualPaymentMethod },
   ) {
-    const giftEmails: GiftEmailPayload[] = [];
-    const payment = await this.prisma.$transaction(async (tx) => {
-      const existing = (await tx.payment.findUnique({
-        where: { id: paymentId },
-      })) as InternalPaymentRecord | null;
-      if (!existing) {
-        throw new NotFoundException('Payment not found');
-      }
-      if (existing.status !== PaymentStatus.PENDING) {
-        throw new ConflictException('Only pending payments can be confirmed');
-      }
-
-      const giftEmail = await this.fulfillment.fulfillPaymentBySource(
-        tx,
-        existing,
-      );
-      if (giftEmail) {
-        giftEmails.push(giftEmail);
-      }
-
-      return tx.payment.update({
-        where: { id: paymentId },
-        data: withInternalPaymentUpdateFields({
-          status: PaymentStatus.SUCCEEDED,
-          confirmedAt: new Date(),
-          ...(adminId ? { confirmedByAdminId: adminId } : {}),
-          ...(options?.paymentMethod
-            ? { paymentMethod: options.paymentMethod }
-            : {}),
-        }),
-      });
-    });
-
-    await this.dispatchGiftEmails(giftEmails);
-    await this.fulfillment.emitDropInBookingRealtimeIfNeeded(payment);
-    await this.paymentSuccessEmail.trySendSuccessEmails(
-      payment.id,
-      PaymentStatus.PENDING,
-    );
-    return payment;
-  }
-
-  private async dispatchGiftEmails(giftEmails: GiftEmailPayload[]): Promise<void> {
-    for (const email of giftEmails) {
-      await this.fulfillment.sendGiftCardEmail(email.to, email.code);
-    }
+    return this.confirm.confirmPayment(paymentId, adminId, options);
   }
 }
