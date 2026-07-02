@@ -118,9 +118,9 @@
       "secondaryCta": "Դիտել աբոնեմենտները",
       "heroImageAlt": "Մարդ է մեդիտացիայի դիրքում՝ լուսավոր մինիմալիստ ստուդիայում, օվալ պատուհանով դեպի ծով",
       "logoAlt": "Ommm ստուդիայի նշան",
-      "junctionNavAria": "Hero նկարների navigation",
-      "junctionNavPrevAria": "Նախորդ hero նկար",
-      "junctionNavNextAria": "Հաջորդ hero նկար"
+      "junctionNavAria": "Hero մեդիա navigation",
+      "junctionNavPrevAria": "Ցուցադրել hero տեսանյութ",
+      "junctionNavNextAria": "Ցուցադրել hero նկար"
     },
     "home": {
       "weeklyScheduleTitle": "Շաբաթական դասացուցակ",

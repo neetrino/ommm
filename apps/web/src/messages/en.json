@@ -118,9 +118,9 @@
       "secondaryCta": "View Membership",
       "heroImageAlt": "Person meditating in a bright minimal studio with an oval opening to the sea",
       "logoAlt": "Ommm studio emblem",
-      "junctionNavAria": "Hero photo navigation",
-      "junctionNavPrevAria": "Previous hero photo",
-      "junctionNavNextAria": "Next hero photo"
+      "junctionNavAria": "Hero media navigation",
+      "junctionNavPrevAria": "Show hero video",
+      "junctionNavNextAria": "Show hero photo"
     },
     "home": {
       "weeklyScheduleTitle": "Weekly Schedule",

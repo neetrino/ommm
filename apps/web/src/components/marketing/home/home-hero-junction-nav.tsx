@@ -7,11 +7,13 @@ import {
   HOME_HERO_JUNCTION_NAV_ASSETS,
   HOME_HERO_JUNCTION_NAV_FIGMA,
 } from "@/components/marketing/home/home-hero-junction-nav-tokens";
+import { useHomeHeroSlide } from "@/components/marketing/home/home-hero-slide-context";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
-/** Figma hero ↔ schedule seam controls `196:1455` — hero photo carousel wiring comes later. */
+/** Figma hero ↔ schedule seam controls `196:1455` — toggles intro video and hero photo. */
 export function HomeHeroJunctionNav() {
   const t = useTranslations("marketingPublic.hero");
+  const { canGoPrev, canGoNext, goPrev, goNext } = useHomeHeroSlide();
 
   return (
     <nav className={styles.junctionNav} aria-label={t("junctionNavAria")}>
@@ -19,7 +21,8 @@ export function HomeHeroJunctionNav() {
         type="button"
         className={styles.button}
         aria-label={t("junctionNavPrevAria")}
-        disabled
+        disabled={!canGoPrev}
+        onClick={goPrev}
       >
         <Image
           src={HOME_HERO_JUNCTION_NAV_ASSETS.arrow}
@@ -35,7 +38,8 @@ export function HomeHeroJunctionNav() {
         type="button"
         className={styles.button}
         aria-label={t("junctionNavNextAria")}
-        disabled
+        disabled={!canGoNext}
+        onClick={goNext}
       >
         <Image
           src={HOME_HERO_JUNCTION_NAV_ASSETS.arrow}

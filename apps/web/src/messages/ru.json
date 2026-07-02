@@ -118,9 +118,9 @@
       "secondaryCta": "Посмотреть абонементы",
       "heroImageAlt": "Человек в позе медитации в светлой минималистичной студии с овальным проёмом к морю",
       "logoAlt": "Эмблема студии Ommm",
-      "junctionNavAria": "Навигация по фото hero",
-      "junctionNavPrevAria": "Предыдущее фото hero",
-      "junctionNavNextAria": "Следующее фото hero"
+      "junctionNavAria": "Навигация по hero-медиа",
+      "junctionNavPrevAria": "Показать hero-видео",
+      "junctionNavNextAria": "Показать hero-фото"
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",

@@ -133,6 +133,21 @@ export const HOME_HERO_ASSETS = {
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
 
+/** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */
+export const HOME_HERO_INTRO_VIDEO_R2_KEY = "marketing/home/hero/home-hero-intro.webm";
+
+function normalizePublicBase(url: string): string {
+  return url.trim().replace(/\/+$/, "");
+}
+
+/** Resolves the public hero intro video URL from `R2_PUBLIC_URL`. */
+export function resolveHomeHeroIntroVideoUrl(r2PublicUrl: string | undefined): string | null {
+  if (!r2PublicUrl || r2PublicUrl.trim().length === 0) {
+    return null;
+  }
+  return `${normalizePublicBase(r2PublicUrl)}/${HOME_HERO_INTRO_VIDEO_R2_KEY}`;
+}
+
 const MOBILE_CTA_WIDTH_PX = 342.48;
 const MOBILE_CTA_HEIGHT_PX = 61.747;
 const MOBILE_CTA_LABEL_WIDTH_PX = 268.581;
