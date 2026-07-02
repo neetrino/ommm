@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useSyncExternalStore } from "react";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import {
   isMarketingHomePath,
@@ -9,35 +8,11 @@ import {
   isMarketingScrollRevealFooterPath,
 } from "@/components/marketing/marketing-route-utils";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import { usePathname } from "@/i18n/navigation";
 
 /** Single footer block — row stagger is not used. */
 const MARKETING_FOOTER_REVEAL_GRID_COLUMNS = 1;
-
-/** Matches marketing footer / header phone breakpoint. */
-const MARKETING_PHONE_MEDIA_QUERY = "(max-width: 743px)";
-
-function subscribeMarketingPhoneViewport(onStoreChange: () => void): () => void {
-  const mediaQuery = window.matchMedia(MARKETING_PHONE_MEDIA_QUERY);
-  mediaQuery.addEventListener("change", onStoreChange);
-  return () => mediaQuery.removeEventListener("change", onStoreChange);
-}
-
-function getMarketingPhoneViewportSnapshot(): boolean {
-  return window.matchMedia(MARKETING_PHONE_MEDIA_QUERY).matches;
-}
-
-function getMarketingPhoneViewportServerSnapshot(): boolean {
-  return false;
-}
-
-function useIsMarketingPhoneViewport(): boolean {
-  return useSyncExternalStore(
-    subscribeMarketingPhoneViewport,
-    getMarketingPhoneViewportSnapshot,
-    getMarketingPhoneViewportServerSnapshot,
-  );
-}
 
 export type MarketingFooterGateProps = {
   children: ReactNode;
