@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
+import { configuredPackagesInCategory } from "@/components/admin/admin-packages-categories";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
-import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 const DELETE_CATEGORY_CONFIRM_CLASS = "ommm-btn-lifecycle-action--danger";
@@ -34,10 +34,7 @@ export function AdminPackageCategoryDeleteModal({
   }
 
   const trimmedName = categoryName.trim();
-  const categoryKey = normalizePackageCategoryKey(trimmedName);
-  const categoryPackages = packages.filter(
-    (pkg) => normalizePackageCategoryKey(pkg.categoryName) === categoryKey,
-  );
+  const configuredPackages = configuredPackagesInCategory(packages, trimmedName);
 
   async function onConfirm(): Promise<void> {
     if (pending || trimmedName.length === 0) {
@@ -75,8 +72,8 @@ export function AdminPackageCategoryDeleteModal({
       onCancel={onClose}
     >
       <p className="rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-900">
-        {categoryPackages.length > 0
-          ? t("deleteCategoryWarning", { count: categoryPackages.length })
+        {configuredPackages.length > 0
+          ? t("deleteCategoryWarning", { count: configuredPackages.length })
           : t("deleteCategoryWarningEmpty")}
       </p>
       {error !== null ? (
