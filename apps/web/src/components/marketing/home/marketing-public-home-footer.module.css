@@ -1198,22 +1198,29 @@
   background-color: #fbf5d5;
 }
 
-/* Schedule / Packages / Contact — cream footer seam + sphere above page content (home parity). */
-:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] {
-  position: relative;
-  z-index: 2;
-  overflow: visible;
-}
+/* Schedule / Packages / Contact — cream footer seam + sphere stacking (tablet / desktop). */
+@media (min-width: 744px) {
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] {
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+  }
 
-:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .shell,
-:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .inner {
-  overflow: visible;
-}
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .shell,
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .inner {
+    overflow: visible;
+  }
 
-:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .illustrationSlot,
-:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .mobileIllustration {
-  position: relative;
-  z-index: 5;
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .illustrationSlot {
+    position: relative;
+    z-index: 5;
+  }
+
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrap,
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrapInner {
+    --home-footer-wrap-bg: #fbf5d5 !important;
+    background-color: #fbf5d5;
+  }
 }
 
 @media (min-width: 1367px) {
@@ -1223,10 +1230,17 @@
   }
 }
 
-:global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrap,
-:global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrapInner {
-  --home-footer-wrap-bg: #fbf5d5 !important;
-  background-color: #fbf5d5;
+/* Practices-inner mobile — match home gallery/footer seam (overlap + stacking). */
+@media (max-width: 743px) {
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] {
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+  }
+
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .shell {
+    overflow: visible;
+  }
 }
 
 :global(.marketing-layout-shell:has([data-marketing-story])) .shell {
@@ -1236,12 +1250,6 @@
 @media (max-width: 743px) {
   :global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrap,
   :global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrapInner {
-    --home-footer-wrap-bg: #fbf5d5 !important;
-    background-color: #fbf5d5;
-  }
-
-  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrap,
-  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrapInner {
     --home-footer-wrap-bg: #fbf5d5 !important;
     background-color: #fbf5d5;
   }

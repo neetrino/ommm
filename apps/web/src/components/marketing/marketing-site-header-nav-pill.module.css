@@ -32,6 +32,20 @@
     -webkit-backdrop-filter 220ms ease;
 }
 
+@media (max-width: 743px) {
+  /* Schedule / Packages / Contact — match page title (`--coaches-page-heading-color` / #97907c). */
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner]))
+    .headerShell:not([data-elevated="true"]) {
+    --ommm-marketing-header-ink: #97907c;
+    --ommm-marketing-header-ink-hover-surface: rgba(151, 144, 124, 0.12);
+    --ommm-marketing-header-focus-ring: rgba(151, 144, 124, 0.45);
+    --ommm-marketing-nav-ink: #97907c;
+    --ommm-marketing-nav-ink-active: #97907c;
+    --ommm-marketing-nav-ink-hover: #878068;
+    --marketing-nav-active-bar-color: #97907c;
+  }
+}
+
 /* Header shell stays transparent on every route — glass lives on the pill bars only. */
 .headerShell[data-elevated="true"],
 .headerShell[data-menu-open="true"] {

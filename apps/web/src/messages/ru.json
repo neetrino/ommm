@@ -115,12 +115,12 @@
       "subLine1": "Пространство для внутреннего спокойствия,",
       "subLine2": "баланса и осознанного движения.",
       "primaryCta": "Записаться",
-      "secondaryCta": "Посмотреть абонементы",
+      "secondaryCta": "Смотреть пакеты",
       "heroImageAlt": "Человек в позе медитации в светлой минималистичной студии с овальным проёмом к морю",
       "logoAlt": "Эмблема студии Ommm",
-      "junctionNavAria": "Навигация по фото hero",
-      "junctionNavPrevAria": "Предыдущее фото hero",
-      "junctionNavNextAria": "Следующее фото hero"
+      "junctionNavAria": "Навигация по hero-медиа",
+      "junctionNavPrevAria": "Показать hero-видео",
+      "junctionNavNextAria": "Показать hero-фото"
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",
@@ -1391,6 +1391,11 @@
       "valueStrengthBody": "Движение, которое строится изнутри — выверенное, осознанное и настроенное на ваше тело, а не на чужой темп.",
       "valueCommunityTitle": "Сообщество",
       "valueCommunityBody": "Круг женщин, которые приходят для себя и друг для друга — общая энергия без сравнения и давления.",
+      "founderVoiceEyebrow": "Голос основателя",
+      "founderVoiceQuoteLead": "Я создавала Ommm. не для того, чтобы добавить в ваш день ещё одно дело. Я создавала её, чтобы вернуть вам одну вещь:",
+      "founderVoiceQuoteEmphasis": "момент, который принадлежит вам.",
+      "founderVoiceBrand": "Ommm.",
+      "founderVoicePortraitAlt": "Портрет основателя студии Ommm",
       "closingTitle": "Пауза в Ommm.",
       "closingBody": "Название несёт звук продолжительного выдоха — пространство между усилием и лёгкостью. Три буквы, один длинный вдох и напоминание, что гармонию можно вернуть.",
       "closingCallout": "Это ваш момент гармонии.",

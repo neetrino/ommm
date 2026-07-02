@@ -1,0 +1,147 @@
+.card {
+  display: grid;
+  overflow: hidden;
+  margin-top: var(--story-founder-banner-margin-top-mobile, clamp(4.5rem, 10vw, 6rem));
+  border-radius: var(--story-founder-banner-radius, clamp(2rem, 4vw, 2.75rem));
+  background: var(--story-founder-banner-bg, #f7f2ea);
+}
+
+@media (min-width: 900px) {
+  .card {
+    margin-top: var(--story-founder-banner-margin-top, clamp(4.5rem, 8vw, 6rem));
+  }
+}
+
+@media (min-width: 768px) {
+  .card {
+    grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+    min-height: clamp(18rem, 28vw, 22rem);
+  }
+}
+
+.portraitWrap {
+  position: relative;
+  width: 100%;
+  min-height: clamp(14rem, 52vw, 18rem);
+  overflow: hidden;
+  border-radius: 0 0
+    var(--story-founder-banner-portrait-radius, clamp(1.25rem, 2.5vw, 1.75rem))
+    var(--story-founder-banner-portrait-radius, clamp(1.25rem, 2.5vw, 1.75rem));
+}
+
+@media (min-width: 768px) {
+  .portraitWrap {
+    min-height: 100%;
+    border-radius: 0
+      var(--story-founder-banner-portrait-radius, clamp(1.25rem, 2.5vw, 1.75rem))
+      var(--story-founder-banner-portrait-radius, clamp(1.25rem, 2.5vw, 1.75rem))
+      0;
+  }
+}
+
+.portrait {
+  object-fit: cover;
+  object-position: center 40%;
+}
+
+.copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 3vw, 2.5rem);
+  text-align: center;
+}
+
+.copy::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 55%;
+  background: radial-gradient(
+    ellipse 80% 70% at 100% 50%,
+    rgba(184, 156, 126, 0.14) 0%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.eyebrowWrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.eyebrowLine {
+  display: block;
+  width: 2.5rem;
+  height: 1px;
+  background: var(--story-founder-banner-eyebrow, #b89c7e);
+  opacity: 0.85;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--story-founder-banner-eyebrow, #b89c7e);
+}
+
+.quote {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.625rem, 1.5vw, 0.875rem);
+  margin: 0;
+  max-width: 28rem;
+  border: none;
+}
+
+.quoteLead {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.125rem, 2.2vw, 1.625rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--story-founder-banner-heading, #1d1c15);
+}
+
+.quoteLead::before {
+  content: "\201C";
+  color: var(--story-founder-banner-accent, #b89c7e);
+}
+
+:lang(hy) .quoteLead::before,
+:lang(ru) .quoteLead::before {
+  content: "\00AB\00A0";
+}
+
+.quoteEmphasis {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.375rem, 2.8vw, 2rem);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--story-founder-banner-accent, #b89c7e);
+}
+
+.quoteEmphasis::after {
+  content: "\201D";
+  color: var(--story-founder-banner-accent, #b89c7e);
+}
+
+:lang(hy) .quoteEmphasis::after,
+:lang(ru) .quoteEmphasis::after {
+  content: "\00A0\00BB";
+}

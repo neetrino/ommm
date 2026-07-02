@@ -2,7 +2,10 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { HomeHeroJunctionNavDeferred } from "@/components/marketing/home/home-deferred-sections";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomeHeroMediaBackground } from "@/components/marketing/home/home-hero-media-background";
+import { HomeHeroPhotoContentLayer } from "@/components/marketing/home/home-hero-photo-content-layer";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
+import { HomeHeroSlideProvider } from "@/components/marketing/home/home-hero-slide-context";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import {
   HOME_HERO_ASSETS,
@@ -12,6 +15,7 @@ import {
   HOME_HERO_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
+  resolveHomeHeroIntroVideoUrl,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
   HOME_WEEKLY_SCHEDULE_LAYOUT,
@@ -29,8 +33,118 @@ type HomeHeroPhotoBannerProps = {
  */
 export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
+  const heroIntroVideoUrl = resolveHomeHeroIntroVideoUrl(process.env.R2_PUBLIC_URL);
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
+
+  const heroBackground = heroIntroVideoUrl ? (
+    <HomeHeroMediaBackground imageAlt={t("heroImageAlt")} />
+  ) : (
+    <div className={styles.homeHeroBackgroundLayer} aria-hidden>
+      <div className={styles.homeHeroBackgroundCrop}>
+        <Image
+          src={HOME_HERO_ASSETS.backgroundImage}
+          alt={t("heroImageAlt")}
+          fill
+          sizes="100vw"
+          className={`${styles.homeHeroBackground} pointer-events-none object-cover`}
+          {...lcpImageProps()}
+        />
+      </div>
+    </div>
+  );
+
+  const heroContent = (
+    <>
+      <div
+        className={`${styles.homeHeroPortal} pointer-events-none absolute inset-x-0 z-[1] flex justify-center px-4 sm:px-6`}
+        style={{ top: HOME_HERO_LAYOUT.portalTop }}
+        aria-hidden
+      >
+        <Image
+          src={HOME_HERO_ASSETS.portalEllipse}
+          alt=""
+          width={1256}
+          height={519}
+          unoptimized
+          className="h-auto w-[87.2%] max-w-full"
+          {...aboveFoldImageProps()}
+        />
+      </div>
+
+      <HomePageReveal
+        index={0}
+        entrance="aboveFold"
+        className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
+      >
+        <div className={`${styles.homeHeroLogoMark} tablet:mb-1 tablet:shrink-0`}>
+          <div className={styles.homeHeroLogoInner}>
+            <div className={styles.homeHeroLogoCrop}>
+              <Image
+                src={HOME_HERO_ASSETS.logoMark}
+                alt={t("logoAlt")}
+                fill
+                sizes="(max-width: 743px) 61vw, 21rem"
+                className={styles.homeHeroLogoImage}
+                {...aboveFoldImageProps()}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.homeHeroTextStack}>
+          <div
+            id="home-hero-heading"
+            className={`${styles.homeHeroTitle} w-full shrink-0 text-center font-serif font-bold text-white`}
+          >
+            <h1>
+              <span className={`${styles.homeHeroTitleLine} mb-0`}>
+                <span>{t("titleLine1")}</span>
+                <span style={{ color: HOME_HERO_FIGMA.titleAccentSpace }}> </span>
+                <span>{t("brandName")}</span>
+              </span>
+              <span className={`${styles.homeHeroTitleLine} mt-0`}>{t("titleLine2")}</span>
+            </h1>
+          </div>
+
+          <p className={`${styles.homeHeroSubtitle} ${marketingMontserrat.className}`}>
+            <span className={styles.homeHeroSubtitleLine}>{t("subLine1")}</span>
+            <span className={styles.homeHeroSubtitleLine}>{t("subLine2")}</span>
+          </p>
+        </div>
+
+        <div className={styles.homeHeroCtas}>
+          <HomeHeroCtaButton
+            href="/schedule"
+            label={t("primaryCta")}
+            variant="booking"
+            sizeContext="hero"
+          />
+          <HomeHeroCtaButton
+            href="/packages"
+            label={t("secondaryCta")}
+            variant="membership"
+            sizeContext="hero"
+          />
+        </div>
+      </HomePageReveal>
+    </>
+  );
+
+  const heroInner = (
+    <>
+      {heroBackground}
+
+      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
+        {heroIntroVideoUrl ? (
+          <HomeHeroPhotoContentLayer>{heroContent}</HomeHeroPhotoContentLayer>
+        ) : (
+          heroContent
+        )}
+      </div>
+      {heroIntroVideoUrl ? <HomeHeroJunctionNavDeferred /> : null}
+    </>
+  );
 
   return (
     <section
@@ -106,94 +220,11 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
       }}
     >
-      <div className={styles.homeHeroBackgroundLayer} aria-hidden>
-        <div className={styles.homeHeroBackgroundCrop}>
-          <Image
-            src={HOME_HERO_ASSETS.backgroundImage}
-            alt={t("heroImageAlt")}
-            fill
-            sizes="100vw"
-            className={`${styles.homeHeroBackground} pointer-events-none object-cover`}
-            {...lcpImageProps()}
-          />
-        </div>
-      </div>
-
-      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
-        <div
-          className={`${styles.homeHeroPortal} pointer-events-none absolute inset-x-0 z-[1] flex justify-center px-4 sm:px-6`}
-          style={{ top: HOME_HERO_LAYOUT.portalTop }}
-          aria-hidden
-        >
-          <Image
-            src={HOME_HERO_ASSETS.portalEllipse}
-            alt=""
-            width={1256}
-            height={519}
-            unoptimized
-            className="h-auto w-[87.2%] max-w-full"
-            {...aboveFoldImageProps()}
-          />
-        </div>
-
-        <HomePageReveal
-          index={0}
-          entrance="aboveFold"
-          className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
-        >
-          <div className={`${styles.homeHeroLogoMark} tablet:mb-1 tablet:shrink-0`}>
-            <div className={styles.homeHeroLogoInner}>
-              <div className={styles.homeHeroLogoCrop}>
-                <Image
-                  src={HOME_HERO_ASSETS.logoMark}
-                  alt={t("logoAlt")}
-                  fill
-                  sizes="(max-width: 743px) 61vw, 21rem"
-                  className={styles.homeHeroLogoImage}
-                  {...aboveFoldImageProps()}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.homeHeroTextStack}>
-            <div
-              id="home-hero-heading"
-              className={`${styles.homeHeroTitle} w-full shrink-0 text-center font-serif font-bold text-white`}
-            >
-              <h1>
-                <span className={`${styles.homeHeroTitleLine} mb-0`}>
-                  <span>{t("titleLine1")}</span>
-                  <span style={{ color: HOME_HERO_FIGMA.titleAccentSpace }}> </span>
-                  <span>{t("brandName")}</span>
-                </span>
-                <span className={`${styles.homeHeroTitleLine} mt-0`}>{t("titleLine2")}</span>
-              </h1>
-            </div>
-
-            <p className={`${styles.homeHeroSubtitle} ${marketingMontserrat.className}`}>
-              <span className={styles.homeHeroSubtitleLine}>{t("subLine1")}</span>
-              <span className={styles.homeHeroSubtitleLine}>{t("subLine2")}</span>
-            </p>
-          </div>
-
-          <div className={styles.homeHeroCtas}>
-            <HomeHeroCtaButton
-              href="/schedule"
-              label={t("primaryCta")}
-              variant="booking"
-              sizeContext="hero"
-            />
-            <HomeHeroCtaButton
-              href="/packages"
-              label={t("secondaryCta")}
-              variant="membership"
-              sizeContext="hero"
-            />
-          </div>
-        </HomePageReveal>
-      </div>
-      <HomeHeroJunctionNavDeferred />
+      {heroIntroVideoUrl ? (
+        <HomeHeroSlideProvider videoUrl={heroIntroVideoUrl}>{heroInner}</HomeHeroSlideProvider>
+      ) : (
+        heroInner
+      )}
     </section>
   );
 }

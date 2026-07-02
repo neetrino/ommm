@@ -80,9 +80,8 @@
   background: #fbf5d5;
 }
 
-/* Schedule / Packages / Contact — cream surface (Our Core Practices end tone). */
+/* Schedule / Packages / Contact — cream page; mobile footer overlap matches home. */
 .shell:has([data-marketing-practices-inner]) {
-  --home-footer-wrap-bg: #fbf5d5 !important;
   background: #fbf5d5;
 }
 

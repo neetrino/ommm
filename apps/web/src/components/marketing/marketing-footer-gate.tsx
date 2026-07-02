@@ -4,9 +4,11 @@ import type { ReactNode } from "react";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import {
   isMarketingHomePath,
+  isMarketingPracticesInnerPath,
   isMarketingScrollRevealFooterPath,
 } from "@/components/marketing/marketing-route-utils";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import { usePathname } from "@/i18n/navigation";
 
 /** Single footer block — row stagger is not used. */
@@ -25,6 +27,7 @@ export function MarketingFooterGate({
 }: MarketingFooterGateProps) {
   const clientPathname = usePathname();
   const hasHydrated = useIsClientMounted();
+  const isPhoneViewport = useIsMarketingPhoneViewport();
 
   const marketingPath = hasHydrated
     ? (clientPathname ?? serverMarketingPath)
@@ -34,7 +37,10 @@ export function MarketingFooterGate({
     return null;
   }
 
-  if (isMarketingScrollRevealFooterPath(marketingPath)) {
+  const skipScrollReveal =
+    isMarketingPracticesInnerPath(marketingPath) && isPhoneViewport;
+
+  if (!skipScrollReveal && isMarketingScrollRevealFooterPath(marketingPath)) {
     return (
       <MarketingScrollReveal
         index={0}
