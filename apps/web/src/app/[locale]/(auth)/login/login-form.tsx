@@ -11,16 +11,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
-
-function buildGoogleAuthStartUrl(): string {
-  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (!rawApiUrl) {
-    return "/api/v1/auth/google";
-  }
-  const trimmed = rawApiUrl.replace(/\/+$/, "");
-  const apiBase = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
-  return `${apiBase}/auth/google`;
-}
+import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 
 export function LoginForm() {
   const router = useRouter();

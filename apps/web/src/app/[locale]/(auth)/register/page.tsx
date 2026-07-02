@@ -17,20 +17,11 @@ import {
   normalizePhoneForApi,
 } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_NAME_LENGTH = 120;
-
-function buildGoogleAuthStartUrl(): string {
-  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (!rawApiUrl) {
-    return "/api/v1/auth/google";
-  }
-  const trimmed = rawApiUrl.replace(/\/+$/, "");
-  const apiBase = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
-  return `${apiBase}/auth/google`;
-}
 
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
