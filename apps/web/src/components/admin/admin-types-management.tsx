@@ -170,11 +170,6 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
             className="ommm-input w-full"
           />
         }
-        trailing={
-          <OmmButton type="button" variant="secondary" onClick={startCreate}>
-            {t("addButton")}
-          </OmmButton>
-        }
       />
 
       {success ? (
