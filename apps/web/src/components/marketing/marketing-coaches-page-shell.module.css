@@ -80,7 +80,7 @@
   background: #fbf5d5;
 }
 
-/* Schedule / Packages / Contact — cream page; footer uses home surface variant in layout. */
+/* Schedule / Packages / Contact — cream page; mobile footer overlap matches home. */
 .shell:has([data-marketing-practices-inner]) {
   background: #fbf5d5;
 }
@@ -95,12 +95,6 @@
   .shell:has([data-marketing-practices-inner]) .main {
     background: #fbf5d5;
     padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
-  }
-
-  .shell:has([data-marketing-practices-inner]) {
-    --marketing-mobile-header-height: calc(
-      max(1rem, env(safe-area-inset-top, 0px)) + 0.75rem + calc(0.4375rem * 2) + 2.625rem
-    );
   }
 }
 

@@ -49,7 +49,6 @@ import {
   isMarketingHeroHeaderPath,
   isMarketingHomePath,
   isMarketingPolicyPath,
-  isMarketingPracticesInnerPath,
   isUserAccountPath,
 } from "@/components/marketing/marketing-route-utils";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
@@ -128,7 +127,6 @@ export function MarketingSiteHeader({
   const marketingPath = pathname ?? "";
   const isMarketingHome = isMarketingHomePath(marketingPath);
   const isPolicyPage = isMarketingPolicyPath(marketingPath);
-  const isPracticesInnerPage = isMarketingPracticesInnerPath(marketingPath);
   const isWorkspaceChrome = workspaceHeaderChrome || workspaceDrawer !== undefined;
   const isAuthShell = isAuthPath(marketingPath);
   const isAccountShell =
@@ -138,7 +136,7 @@ export function MarketingSiteHeader({
       !isAuthShell &&
       isMarketingHeroHeaderPath(marketingPath),
   );
-  const elevated = isWorkspaceChrome || isPolicyPage || isPracticesInnerPage ? true : scrollElevated;
+  const elevated = isWorkspaceChrome || isPolicyPage ? true : scrollElevated;
   const workspaceDrawerOpen = workspaceDrawer?.open ?? false;
   const anyOverlayOpen = publicMenuOpen || workspaceDrawerOpen;
   const showMobileGlassPill = elevated && !anyOverlayOpen;
