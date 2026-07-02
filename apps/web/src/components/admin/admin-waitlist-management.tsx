@@ -1,44 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
-import { AdminWaitlistCompactRow } from "@/components/admin/admin-waitlist-compact-row";
-import {
-  ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL,
-  ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER,
-  ADMIN_WAITLIST_LIST_HEADER_CLASS,
-  ADMIN_WAITLIST_LIST_TABLE_CLASS,
-} from "@/components/admin/admin-waitlist-list-layout";
-import {
-  WAITLIST_CLASS_TYPE_KEY,
-  WAITLIST_ORDER_KEY,
-  WAITLIST_SEARCH_KEY,
-  type AdminWaitlistToastTone,
-} from "@/components/admin/admin-waitlist-management.constants";
+import { AdminWaitlistListBody } from "@/components/admin/admin-waitlist-list-body";
+import { useAdminWaitlistFilterFields } from "@/components/admin/admin-waitlist-filter-fields";
+import { useAdminWaitlistFilters } from "@/components/admin/use-admin-waitlist-filters";
+import type { AdminWaitlistToastTone } from "@/components/admin/admin-waitlist-management.constants";
 import { AdminWaitlistRemoveConfirmModal } from "@/components/admin/admin-waitlist-remove-confirm-modal";
 import { formatAdminWaitlistUserLabel } from "@/components/admin/admin-waitlist-user-label";
 import {
   buildAdminWaitlistActiveEndpoint,
-  parseAdminWaitlistSortOrder,
   type AdminWaitlistActivePayload,
   type AdminWaitlistRow,
-  type AdminWaitlistSortOrder,
 } from "@/components/admin/admin-waitlist-query";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
-import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
-import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
+import { useRouter } from "@/i18n/navigation";
+import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 type AdminWaitlistManagementProps = {
   locale: string;
@@ -54,44 +40,35 @@ export function AdminWaitlistManagement({
   staffBanner,
 }: AdminWaitlistManagementProps) {
   const t = useTranslations("adminPages.waitlists");
-  const tSort = useTranslations("listSort");
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [payload, setPayload] = usePropSyncedState(initial);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
   const [busyAction, setBusyAction] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ tone: AdminWaitlistToastTone; message: string } | null>(null);
+  const [toast, setToast] = useState<{ tone: AdminWaitlistToastTone; message: string } | null>(
+    null,
+  );
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [pendingRemove, setPendingRemove] = useState<AdminWaitlistRow | null>(null);
   const [, startRefreshTransition] = useTransition();
   const refreshRequestId = useRef(0);
-  const urlSearchDraft = searchParams.get(WAITLIST_SEARCH_KEY)?.trim() ?? "";
-  const [searchDraft, setSearchDraft] = useState(urlSearchDraft);
-  const [prevUrlSearchDraft, setPrevUrlSearchDraft] = useState(urlSearchDraft);
-  if (urlSearchDraft !== prevUrlSearchDraft) {
-    setPrevUrlSearchDraft(urlSearchDraft);
-    setSearchDraft(urlSearchDraft);
-  }
-  const classTypeFilter = searchParams.get(WAITLIST_CLASS_TYPE_KEY)?.trim() ?? "";
-  const orderFilter = parseAdminWaitlistSortOrder(
-    searchParams.get(WAITLIST_ORDER_KEY) ?? undefined,
-  );
+
+  const {
+    searchDraft,
+    setSearchDraft,
+    classTypeFilter,
+    orderFilter,
+    filterValues: waitlistFilterValues,
+    handleFilterChange: handleWaitlistFilterChange,
+    resetFilters: resetWaitlistFilters,
+    replaceSearchParams,
+  } = useAdminWaitlistFilters();
+  const waitlistFilterFields = useAdminWaitlistFilterFields({ items: payload.items });
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
-  );
-
-  const replaceSearchParams = useCallback(
-    (mutator: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
-      mutator(params);
-      const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-    },
-    [pathname, router, searchParams],
   );
 
   const setListPage = useCallback(
@@ -102,109 +79,6 @@ export function AdminWaitlistManagement({
     },
     [replaceSearchParams],
   );
-
-  useEffect(() => {
-    const handle = window.setTimeout(() => {
-      const trimmed = searchDraft.trim();
-      const current = searchParams.get(WAITLIST_SEARCH_KEY)?.trim() ?? "";
-      if (trimmed === current) {
-        return;
-      }
-      replaceSearchParams((params) => {
-        resetListPageQuery(params);
-        if (trimmed.length > 0) {
-          params.set(WAITLIST_SEARCH_KEY, trimmed);
-        } else {
-          params.delete(WAITLIST_SEARCH_KEY);
-        }
-      });
-    }, 300);
-    return () => window.clearTimeout(handle);
-  }, [replaceSearchParams, searchDraft, searchParams]);
-
-  const classTypeOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const row of payload.items) {
-      map.set(row.session.classType.id, row.session.classType.name);
-    }
-    return Array.from(map.entries())
-      .map(([value, label]) => ({ value, label }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [payload.items]);
-
-  const waitlistFilterFields = useMemo((): AdminIntegratedFilterField[] => {
-    return [
-      {
-        key: WAITLIST_CLASS_TYPE_KEY,
-        label: t("colClassType"),
-        render: ({ value, onChange }) => (
-          <OmmFilterDropdown
-            allValue=""
-            value={value}
-            ariaLabel={t("colClassType")}
-            allLabel={t("filterClassAll")}
-            onChange={onChange}
-            options={classTypeOptions}
-          />
-        ),
-      },
-      {
-        key: WAITLIST_ORDER_KEY,
-        label: tSort("sort"),
-        emptyValue: "newest",
-        options: [
-          { value: "newest", label: tSort("newest") },
-          { value: "oldest", label: tSort("oldest") },
-          { value: "upcoming", label: tSort("upcoming") },
-          { value: "date-asc", label: tSort("dateAsc") },
-          { value: "date-desc", label: tSort("dateDesc") },
-        ],
-      },
-    ];
-  }, [classTypeOptions, t, tSort]);
-
-  const waitlistFilterValues = useMemo(
-    () => ({
-      [WAITLIST_CLASS_TYPE_KEY]: classTypeFilter,
-      [WAITLIST_ORDER_KEY]: orderFilter,
-    }),
-    [classTypeFilter, orderFilter],
-  );
-
-  function handleWaitlistFilterChange(key: string, value: string) {
-    if (key === WAITLIST_CLASS_TYPE_KEY) {
-      replaceSearchParams((params) => {
-        resetListPageQuery(params);
-        if (value.trim().length > 0) {
-          params.set(WAITLIST_CLASS_TYPE_KEY, value);
-        } else {
-          params.delete(WAITLIST_CLASS_TYPE_KEY);
-        }
-      });
-      return;
-    }
-    if (key === WAITLIST_ORDER_KEY) {
-      replaceSearchParams((params) => {
-        resetListPageQuery(params);
-        const nextOrder = parseAdminWaitlistSortOrder(value) as AdminWaitlistSortOrder;
-        if (nextOrder === "newest") {
-          params.delete(WAITLIST_ORDER_KEY);
-        } else {
-          params.set(WAITLIST_ORDER_KEY, nextOrder);
-        }
-      });
-    }
-  }
-
-  function resetWaitlistFilters() {
-    setSearchDraft("");
-    replaceSearchParams((params) => {
-      resetListPageQuery(params);
-      params.delete(WAITLIST_SEARCH_KEY);
-      params.delete(WAITLIST_CLASS_TYPE_KEY);
-      params.delete(WAITLIST_ORDER_KEY);
-    });
-  }
 
   const filteredRows = useMemo(() => {
     const q = searchDraft.trim().toLowerCase();
@@ -343,75 +217,46 @@ export function AdminWaitlistManagement({
   const waitlistBody = !hasRows ? (
     <div className={adminChrome.panel}>{t("empty")}</div>
   ) : (
-    <>
-      <div className={ADMIN_WAITLIST_LIST_TABLE_CLASS}>
-        <div className={ADMIN_WAITLIST_LIST_HEADER_CLASS}>
-          <span>{t("colUser")}</span>
-          <span className={ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
-          <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
-            {t("colWaitlistCount")}
-          </span>
-          <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
-            {t("colWaitlistDate")}
-          </span>
-          <span aria-hidden="true" />
-          <span className={ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-        </div>
-        {rows.map((row) => {
-          const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
-          const userLabel = formatAdminWaitlistUserLabel(
-            row.user.name,
-            row.user.lastName,
-            row.user.email,
-          );
-          return (
-            <AdminWaitlistCompactRow
-              key={row.id}
-              locale={locale}
-              row={row}
-              rowBusy={rowBusy}
-              userLabel={userLabel}
-              onOpenUser={setSelectedUserId}
-              onPromote={() =>
-                void runAction(
-                  row,
-                  "promote",
-                  () =>
-                    apiFetch(`/waitlist/entries/${row.id}/promote`, {
-                      method: "POST",
-                      body: JSON.stringify({ targetSessionId: row.session.id }),
-                    }),
-                  t("successPromote"),
-                )
-              }
-              onNotify={() =>
-                void runAction(
-                  row,
-                  "notify",
-                  () =>
-                    apiFetch(`/waitlist/entries/${row.id}/notify`, {
-                      method: "POST",
-                      body: JSON.stringify({}),
-                    }),
-                  t("successNotify"),
-                )
-              }
-              onRemove={() => setPendingRemove(row)}
-            />
-          );
-        })}
-      </div>
-      {payload.total > 0 ? (
-        <OmmListPagination
-          total={payload.total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={payload.offset}
-          onPageChange={(page) => setListPage(page)}
-          disabled={loading || busyAction !== null}
-        />
-      ) : null}
-    </>
+    <AdminWaitlistListBody
+      locale={locale}
+      rows={rows}
+      total={payload.total}
+      listPage={listPage}
+      offset={payload.offset}
+      loading={loading}
+      busyAction={busyAction}
+      userLabelForRow={(row) =>
+        formatAdminWaitlistUserLabel(row.user.name, row.user.lastName, row.user.email)
+      }
+      onOpenUser={setSelectedUserId}
+      onPromote={(row) =>
+        void runAction(
+          row,
+          "promote",
+          () =>
+            apiFetch(`/waitlist/entries/${row.id}/promote`, {
+              method: "POST",
+              body: JSON.stringify({ targetSessionId: row.session.id }),
+            }),
+          t("successPromote"),
+        )
+      }
+      onNotify={(row) =>
+        void runAction(
+          row,
+          "notify",
+          () =>
+            apiFetch(`/waitlist/entries/${row.id}/notify`, {
+              method: "POST",
+              body: JSON.stringify({}),
+            }),
+          t("successNotify"),
+        )
+      }
+      onRemove={setPendingRemove}
+      onPageChange={setListPage}
+      t={t}
+    />
   );
 
   return (

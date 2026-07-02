@@ -4,17 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import {
-  BookingPackageSelectModal,
-  type EligibleBookingPackage,
-} from "@/components/account/booking-package-select-modal";
-import {
-  BookingPackagePurchaseModal,
-} from "@/components/account/booking-package-purchase-modal";
-import {
   clearBookPackageSessionQuery,
   clearBuyPackageSessionQuery,
-  readBookPackageSessionId,
-  readBuyPackageSessionId,
   setBookPackageSessionQuery,
   setBuyPackageSessionQuery,
 } from "@/lib/book-package-session-url";
@@ -27,63 +18,24 @@ import {
 } from "@/lib/booking-package-selection";
 import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
 import type { MeApiResponse } from "@/lib/me-api-types";
+import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
+import {
+  clearSessionBookingCachedPurchase,
+  readSessionBookingCachedPurchase,
+  writeSessionBookingCachedPurchase,
+} from "@/hooks/session-booking-cache";
+import { SessionBookingModals } from "@/hooks/session-booking-modals";
+import {
+  readBookPackageSessionId,
+  readBuyPackageSessionId,
+  useSessionBookingUrlRestore,
+} from "@/hooks/use-session-booking-url-restore";
+import type {
+  BookSessionResponse,
+  UseSessionBookingOptions,
+} from "@/hooks/use-session-booking.types";
 
-type BookSessionResponse = {
-  id: string;
-};
-
-type UseSessionBookingOptions = {
-  sessionId: string;
-  locale: string;
-  onBooked?: (bookingId: string) => void;
-  onError?: (message: string) => void;
-};
-
-type CachedPurchase = {
-  plans: PackageSubscribePlanOption[];
-  notice: string;
-  suggestedPlanId?: string;
-};
-
-const PURCHASE_CACHE_PREFIX = "ommm:buyPackage:";
-
-/** Snapshot of the open purchase modal so a refresh can restore it instantly. */
-function readCachedPurchase(sessionId: string): CachedPurchase | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  try {
-    const raw = window.sessionStorage.getItem(PURCHASE_CACHE_PREFIX + sessionId);
-    return raw ? (JSON.parse(raw) as CachedPurchase) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeCachedPurchase(sessionId: string, value: CachedPurchase): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  try {
-    window.sessionStorage.setItem(
-      PURCHASE_CACHE_PREFIX + sessionId,
-      JSON.stringify(value),
-    );
-  } catch {
-    // Ignore quota/serialization errors — cache is best-effort.
-  }
-}
-
-function clearCachedPurchase(sessionId: string): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  try {
-    window.sessionStorage.removeItem(PURCHASE_CACHE_PREFIX + sessionId);
-  } catch {
-    // Ignore — cache is best-effort.
-  }
-}
+export type { UseSessionBookingOptions } from "@/hooks/use-session-booking.types";
 
 export function useSessionBooking({
   sessionId,
@@ -100,7 +52,7 @@ export function useSessionBooking({
   const initialCachedPurchase = useMemo(
     () =>
       urlBuySessionId === sessionId
-        ? readCachedPurchase(sessionId)
+        ? readSessionBookingCachedPurchase(sessionId)
         : null,
     [sessionId, urlBuySessionId],
   );
@@ -129,8 +81,8 @@ export function useSessionBooking({
     callbacksRef.current = { onBooked, onError };
   }, [onBooked, onError]);
 
-  const initialCachedPurchaseRef = useRef<CachedPurchase | null>(
-    urlBuySessionId === sessionId ? readCachedPurchase(sessionId) : null,
+  const initialCachedPurchaseRef = useRef(
+    urlBuySessionId === sessionId ? readSessionBookingCachedPurchase(sessionId) : null,
   );
   useEffect(() => {
     initialCachedPurchaseRef.current = initialCachedPurchase;
@@ -138,7 +90,7 @@ export function useSessionBooking({
 
   const replaceSearchParams = useCallback(
     (mutate: (params: URLSearchParams) => void): void => {
-    const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams.toString());
       mutate(params);
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
@@ -148,7 +100,7 @@ export function useSessionBooking({
 
   const openPackageModal = useCallback(
     (eligible: readonly EligibleBookingPackage[]): void => {
-    skipNextUrlRestoreRef.current = true;
+      skipNextUrlRestoreRef.current = true;
       setEligiblePackages(eligible);
       setPackageModalOpen(true);
       replaceSearchParams((params) => {
@@ -170,7 +122,7 @@ export function useSessionBooking({
 
   const closePurchaseModal = useCallback((): void => {
     setPurchaseModalOpen(false);
-    clearCachedPurchase(sessionId);
+    clearSessionBookingCachedPurchase(sessionId);
     if (urlBuySessionId === sessionId) {
       replaceSearchParams(clearBuyPackageSessionQuery);
     }
@@ -217,7 +169,7 @@ export function useSessionBooking({
       setPurchaseNotice(notice);
       setPurchasePlans(plans);
       setSuggestedPlanId(suggested);
-      writeCachedPurchase(sessionId, {
+      writeSessionBookingCachedPurchase(sessionId, {
         plans: [...plans],
         notice,
         suggestedPlanId: suggested,
@@ -226,7 +178,6 @@ export function useSessionBooking({
     [sessionId, t],
   );
 
-  /** Opens the drawer in one batch (slide-in animation) from already-fetched data. */
   const showPurchaseModal = useCallback((
     packages: readonly EligibleBookingPackage[],
     plans: readonly PackageSubscribePlanOption[],
@@ -304,162 +255,53 @@ export function useSessionBooking({
     }
   }
 
-  useEffect(() => {
-    if (urlPickSessionId !== sessionId) {
-      return;
-    }
-    if (skipNextUrlRestoreRef.current) {
-      skipNextUrlRestoreRef.current = false;
-      return;
-    }
-
-    let cancelled = false;
-
-    async function restorePackageModal(): Promise<void> {
-      setBusy(true);
-      try {
-        const packages = await fetchEligiblePackages();
-        if (cancelled) {
-          return;
-        }
-        if (shouldPromptBookingPackageSelection(packages)) {
-          setEligiblePackages(packages);
-          setPackageModalOpen(true);
-          return;
-        }
-        if (!hasBookablePackage(packages)) {
-          await openPurchaseModal(packages);
-          return;
-        }
-        replaceSearchParams(clearBookPackageSessionQuery);
-      } catch (error) {
-        if (cancelled) {
-          return;
-        }
-        replaceSearchParams(clearBookPackageSessionQuery);
-        const message = error instanceof ApiError ? error.message : t("bookFailed");
-        callbacksRef.current.onError?.(message);
-      } finally {
-        if (!cancelled) {
-          setBusy(false);
-        }
-      }
-    }
-
-    void restorePackageModal();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    fetchEligiblePackages,
-    openPurchaseModal,
-    replaceSearchParams,
+  useSessionBookingUrlRestore({
     sessionId,
-    t,
     urlPickSessionId,
-  ]);
-
-  useEffect(() => {
-    if (urlBuySessionId !== sessionId) {
-      return;
-    }
-    if (skipNextBuyUrlRestoreRef.current) {
-      skipNextBuyUrlRestoreRef.current = false;
-      return;
-    }
-
-    let cancelled = false;
-    const hasCachedData = initialCachedPurchaseRef.current !== null;
-    setPurchaseModalOpen(true);
-
-    async function restorePurchaseModal(): Promise<void> {
-      try {
-        const [packages, plans, rawFirstName] = await Promise.all([
-          fetchEligiblePackages(),
-          fetchPurchasePlans(),
-          fetchFirstName(),
-        ]);
-        if (cancelled) {
-          return;
-        }
-        if (plans.length === 0) {
-          callbacksRef.current.onError?.(t("packageNoPurchasePlans"));
-          setPurchaseModalOpen(false);
-          clearCachedPurchase(sessionId);
-          replaceSearchParams(clearBuyPackageSessionQuery);
-          return;
-        }
-        applyPurchaseData(packages, plans, rawFirstName);
-      } catch (error) {
-        if (cancelled || hasCachedData) {
-          return;
-        }
-        setPurchaseModalOpen(false);
-        clearCachedPurchase(sessionId);
-        replaceSearchParams(clearBuyPackageSessionQuery);
-        const message = error instanceof ApiError ? error.message : t("bookFailed");
-        callbacksRef.current.onError?.(message);
-      }
-    }
-
-    void restorePurchaseModal();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    applyPurchaseData,
-    fetchEligiblePackages,
-    fetchFirstName,
-    fetchPurchasePlans,
-    replaceSearchParams,
-    sessionId,
-    t,
     urlBuySessionId,
-  ]);
-
-  const packageModal =
-    packageModalOpen ? (
-      <BookingPackageSelectModal
-        isOpen={packageModalOpen}
-        sessionId={sessionId}
-        eligiblePackages={eligiblePackages}
-        locale={locale}
-        onClose={closePackageModal}
-        onBooked={(bookingId) => {
-          setPackageModalOpen(false);
-          replaceSearchParams(clearBookPackageSessionQuery);
-          callbacksRef.current.onBooked?.(bookingId);
-        }}
-        onError={(message) => callbacksRef.current.onError?.(message)}
-      />
-    ) : null;
-
-  const purchaseModal =
-    purchaseModalOpen && purchasePlans.length > 0 ? (
-      <BookingPackagePurchaseModal
-        isOpen={purchaseModalOpen}
-        locale={locale}
-        plans={purchasePlans}
-        initialPlanId={suggestedPlanId}
-        notice={purchaseNotice}
-        onClose={closePurchaseModal}
-      />
-    ) : null;
+    skipNextUrlRestoreRef,
+    skipNextBuyUrlRestoreRef,
+    initialCachedPurchaseRef,
+    callbacksRef,
+    t,
+    setBusy,
+    setEligiblePackages,
+    setPackageModalOpen,
+    setPurchaseModalOpen,
+    fetchEligiblePackages,
+    fetchPurchasePlans,
+    fetchFirstName,
+    openPurchaseModal,
+    applyPurchaseData,
+    replaceSearchParams,
+  });
 
   const bookingModals = (
-    <>
-      {packageModal}
-      {purchaseModal}
-    </>
+    <SessionBookingModals
+      locale={locale}
+      sessionId={sessionId}
+      packageModalOpen={packageModalOpen}
+      purchaseModalOpen={purchaseModalOpen}
+      eligiblePackages={eligiblePackages}
+      purchasePlans={purchasePlans}
+      suggestedPlanId={suggestedPlanId}
+      purchaseNotice={purchaseNotice}
+      onClosePackageModal={closePackageModal}
+      onClosePurchaseModal={closePurchaseModal}
+      onBooked={(bookingId) => {
+        setPackageModalOpen(false);
+        callbacksRef.current.onBooked?.(bookingId);
+      }}
+      onError={(message) => callbacksRef.current.onError?.(message)}
+      replaceSearchParams={replaceSearchParams}
+    />
   );
 
   return {
     busy,
     initiateBooking,
     packageModal: bookingModals,
-    purchaseModal,
+    purchaseModal: bookingModals,
     bookingModals,
   };
 }

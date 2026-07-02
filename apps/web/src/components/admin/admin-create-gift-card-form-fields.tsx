@@ -237,5 +237,3 @@ export function AdminCreateGiftCardFormFields({
     </>
   );
 }
-
-export { ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES, isAcceptedGiftCardImageType };

@@ -20,11 +20,7 @@ import {
   INTEGRATED_SEARCH_FILTER_PANEL_POSITION_CLASS,
   INTEGRATED_SEARCH_FILTER_PANEL_SURFACE_CLASS,
 } from "@/components/shared/search/integrated-search-filters.constants";
-import {
-  IntegratedSearchFilterClearGlyph,
-  IntegratedSearchFilterGlyph,
-  IntegratedSearchFilterSearchGlyph,
-} from "@/components/shared/search/integrated-search-filters-icons";
+import { IntegratedSearchFilterBar } from "@/components/shared/search/integrated-search-filter-bar";
 import { usePortaledFilterPanelPosition } from "@/components/shared/search/use-portaled-filter-panel-position";
 
 export type IntegratedSearchFiltersProps = {
@@ -319,92 +315,39 @@ export function IntegratedSearchFilters({
       </div>
     ) : null;
 
-  const barClickable = hideSearch && hasFilters;
-  const barIsPrimaryButton = barClickable && visibleChips.length === 0;
-
   return (
     <div
       ref={containerRef}
       className={`relative flex w-full min-w-0 flex-col gap-2 ${panelOpen && hasFilters ? "z-[126]" : ""} ${className}`}
     >
-      <div
-        role={barIsPrimaryButton ? "button" : undefined}
-        tabIndex={barIsPrimaryButton ? 0 : undefined}
-        aria-expanded={barClickable ? panelOpen : undefined}
-        aria-controls={barClickable ? INTEGRATED_SEARCH_FILTER_PANEL_ID : undefined}
-        onClick={barClickable ? handleFilterBarClick : undefined}
-        onKeyDown={barIsPrimaryButton ? handleFilterBarKeyDown : undefined}
-        onPointerDown={hideSearch ? undefined : handleBarPointerDown}
-        className={`flex min-h-11 w-full min-w-0 items-center gap-2 rounded-full border border-white/60 bg-[rgba(192,187,176,0.32)] px-2 shadow-none transition-shadow ${
-          panelOpen && hasFilters ? "relative z-[127] bg-[rgba(192,187,176,0.42)]" : ""
-        } ${showQueryRing || showPanelRing ? "ring-2 ring-sand-500/35" : ""} ${
-          !panelOpen && searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""
-        } ${barClickable ? "cursor-pointer" : ""}`}
-      >
-        {hideSearch && hasFilters && visibleChips.length === 0 ? (
-          <span className="flex h-9 min-w-0 flex-1 items-center px-1 text-sm text-sage-600">
-            {searchPlaceholder}
-          </span>
-        ) : null}
-        {hideSearch && visibleChips.length > 0 ? (
-          <IntegratedSearchFilterChips
-            chips={visibleChips}
-            onActivate={hasFilters ? openFilterPanel : undefined}
-            onRemove={onFilterChange ? handleRemoveChip : undefined}
-          />
-        ) : null}
-        {!hideSearch ? (
-          <div className="relative min-w-0 flex-1">
-            <IntegratedSearchFilterSearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
-            {hasFilters ? (
-              <button
-                type="button"
-                className={`absolute top-1/2 right-1.5 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-white/50 ${
-                  panelOpen
-                    ? "bg-white/50 text-sage-900"
-                    : visibleChips.length > 0
-                      ? "text-sage-700"
-                      : "text-sage-500"
-                }`}
-                aria-label={filterToggleAriaLabel}
-                aria-expanded={panelOpen}
-                aria-controls={INTEGRATED_SEARCH_FILTER_PANEL_ID}
-                onClick={handleFilterToggleClick}
-              >
-                <IntegratedSearchFilterGlyph className="h-4 w-4 shrink-0" />
-              </button>
-            ) : null}
-            <input
-              ref={searchInputRef}
-              type="search"
-              value={search}
-              onChange={(event) => handleSearchChange(event.target.value)}
-              onFocus={handleSearchFocus}
-              onClick={handleSearchFocus}
-              onKeyDown={handleSearchKeyDown}
-              onBlur={handleSearchBlur}
-              placeholder={searchPlaceholder}
-              aria-label={searchPlaceholder}
-              role={hasFilters ? "combobox" : "searchbox"}
-              aria-expanded={hasFilters ? panelOpen : undefined}
-              aria-controls={hasFilters ? INTEGRATED_SEARCH_FILTER_PANEL_ID : undefined}
-              className={`ommm-search-input-no-native-clear h-9 w-full min-w-0 border-0 bg-transparent pl-9 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0 ${
-                hasFilters ? "pr-10" : "pr-2"
-              }`}
-            />
-          </div>
-        ) : null}
-        {showClearButton ? (
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sage-600 transition-colors hover:bg-white/50 hover:text-sage-900"
-            aria-label={clearAriaLabel}
-            onClick={handleReset}
-          >
-            <IntegratedSearchFilterClearGlyph className="h-4 w-4" />
-          </button>
-        ) : null}
-      </div>
+      <IntegratedSearchFilterBar
+        containerRef={containerRef}
+        searchInputRef={searchInputRef}
+        hideSearch={hideSearch}
+        hasFilters={hasFilters}
+        panelOpen={panelOpen}
+        searchFocused={searchFocused}
+        search={search}
+        searchPlaceholder={searchPlaceholder}
+        visibleChips={visibleChips}
+        showClearButton={showClearButton}
+        showQueryRing={showQueryRing}
+        showPanelRing={showPanelRing}
+        filterToggleAriaLabel={filterToggleAriaLabel}
+        clearAriaLabel={clearAriaLabel}
+        onFilterToggleClick={handleFilterToggleClick}
+        onBarPointerDown={handleBarPointerDown}
+        onFilterBarClick={handleFilterBarClick}
+        onFilterBarKeyDown={handleFilterBarKeyDown}
+        onSearchChange={handleSearchChange}
+        onSearchFocus={handleSearchFocus}
+        onSearchBlur={handleSearchBlur}
+        onSearchKeyDown={handleSearchKeyDown}
+        onReset={handleReset}
+        onOpenFilterPanel={openFilterPanel}
+        onRemoveChip={handleRemoveChip}
+        canRemoveChip={Boolean(onFilterChange)}
+      />
 
       {!hideSearch && visibleChips.length > 0 ? (
         <IntegratedSearchFilterChips
