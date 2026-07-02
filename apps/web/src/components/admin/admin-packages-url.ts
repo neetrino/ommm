@@ -9,6 +9,7 @@ export const PACKAGE_MODAL_CREATE_VALUE = "add-package";
 export const PACKAGE_MODAL_PRICING_VALUE = "configure-pricing";
 export const PACKAGE_MODAL_ADD_TIER_VALUE = "add-tier";
 export const PACKAGE_MODAL_EDIT_TIER_VALUE = "edit-tier";
+export const PACKAGE_MODAL_TYPES_VALUE = "types";
 export const PACKAGE_EDIT_QUERY_KEY = "editPackage";
 export const PACKAGE_PRICING_QUERY_KEY = "pricingPackage";
 export const PACKAGE_CATEGORY_QUERY_KEY = "categoryId";

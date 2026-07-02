@@ -2702,6 +2702,7 @@
       "addGroupButton": "Add Group",
       "addPackageButton": "Add Group",
       "addClassTypeButton": "Add class type",
+      "manageTypesButton": "Manage types",
       "createGroupTitle": "Add group",
       "createGroupDescription": "Create a container group for membership pages on the public site.",
       "createTitle": "Add group",

@@ -7,7 +7,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { OmmButton } from "@/components/ui/omm-button";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 
-type AdminClassTypeRow = {
+export type AdminClassTypeRow = {
   id: string;
   name: string;
   slug: string;
@@ -16,41 +16,54 @@ type AdminClassTypeRow = {
 
 type AdminTypesManagementProps = {
   initialTypes: readonly AdminClassTypeRow[];
+  embedded?: boolean;
+  onTypesChanged?: (types: readonly AdminClassTypeRow[]) => void;
 };
 
 type FormState = {
   name: string;
-  description: string;
 };
 
 function emptyFormState(): FormState {
-  return { name: "", description: "" };
+  return { name: "" };
 }
 
 function normalizeFormPayload(form: FormState): {
   name: string;
   slug: string;
-  description?: string;
 } {
   const name = form.name.trim();
   const slug = buildClassTypeSlugFromName(name);
-  const description = form.description.trim();
-  return {
-    name,
-    slug,
-    ...(description.length > 0 ? { description } : {}),
-  };
+  return { name, slug };
 }
 
-export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps) {
+export function AdminTypesManagement({
+  initialTypes,
+  embedded = false,
+  onTypesChanged,
+}: AdminTypesManagementProps) {
   const t = useTranslations("adminPages.classes.classTypes");
   const [rows, setRows] = useState<readonly AdminClassTypeRow[]>(initialTypes);
+  const [prevInitialTypes, setPrevInitialTypes] = useState(initialTypes);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyFormState);
+
+  if (prevInitialTypes !== initialTypes) {
+    setPrevInitialTypes(initialTypes);
+    setRows(initialTypes);
+  }
+
+  function syncRows(updater: (current: readonly AdminClassTypeRow[]) => readonly AdminClassTypeRow[]): void {
+    setRows((current) => {
+      const next = updater(current);
+      onTypesChanged?.(next);
+      return next;
+    });
+  }
 
   const selected = useMemo(
     () => rows.find((row) => row.id === selectedId) ?? null,
@@ -72,10 +85,7 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
 
   function selectForEdit(row: AdminClassTypeRow): void {
     setSelectedId(row.id);
-    setForm({
-      name: row.name,
-      description: row.description ?? "",
-    });
+    setForm({ name: row.name });
     setError(null);
     setSuccess(null);
   }
@@ -106,21 +116,18 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
           method: "POST",
           body: JSON.stringify(payload),
         });
-        setRows((current) =>
+        syncRows((current) =>
           [...current, created].sort((left, right) => left.name.localeCompare(right.name)),
         );
         setSelectedId(created.id);
-        setForm({
-          name: created.name,
-          description: created.description ?? "",
-        });
+        setForm({ name: created.name });
         setSuccess(t("messages.createSuccess"));
       } else {
         const updated = await apiFetch<AdminClassTypeRow>(`/classes/types/${selectedId}`, {
           method: "PATCH",
           body: JSON.stringify(payload),
         });
-        setRows((current) =>
+        syncRows((current) =>
           current
             .map((row) => (row.id === updated.id ? updated : row))
             .sort((left, right) => left.name.localeCompare(right.name)),
@@ -145,7 +152,7 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
     setSuccess(null);
     try {
       await apiFetch(`/classes/types/${selectedId}`, { method: "DELETE" });
-      setRows((current) => current.filter((row) => row.id !== selectedId));
+      syncRows((current) => current.filter((row) => row.id !== selectedId));
       setSelectedId(null);
       setForm(emptyFormState());
       setSuccess(t("messages.deleteSuccess"));
@@ -158,19 +165,20 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
     }
   }
 
+  const searchField = (
+    <input
+      value={query}
+      onChange={(event) => setQuery(event.target.value)}
+      placeholder={t("listSearchPlaceholder")}
+      className="ommm-input w-full"
+    />
+  );
+
   return (
     <div className="space-y-5">
-      <AdminPageHero
-        title={t("modalTitle")}
-        search={
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t("listSearchPlaceholder")}
-            className="ommm-input w-full"
-          />
-        }
-      />
+      {embedded ? searchField : (
+        <AdminPageHero title={t("modalTitle")} search={searchField} />
+      )}
 
       {success ? (
         <p className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800">
@@ -204,9 +212,6 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
                     >
                       <p className="text-sm font-semibold">{row.name}</p>
                       <p className="mt-1 text-xs text-sage-500">{row.slug}</p>
-                      {row.description ? (
-                        <p className="mt-2 line-clamp-2 text-xs text-sage-600">{row.description}</p>
-                      ) : null}
                     </button>
                   </li>
                 );
@@ -235,19 +240,6 @@ export function AdminTypesManagement({ initialTypes }: AdminTypesManagementProps
                 value={form.name}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, name: event.target.value }))
-                }
-                disabled={pending}
-              />
-            </label>
-            <label className="block space-y-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-sage-600">
-                {t("fieldDescription")}
-              </span>
-              <textarea
-                className="ommm-input min-h-24 w-full resize-y"
-                value={form.description}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, description: event.target.value }))
                 }
                 disabled={pending}
               />

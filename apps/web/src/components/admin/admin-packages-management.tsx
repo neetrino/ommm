@@ -24,6 +24,8 @@ import { AdminPackageCategoryStatusActions } from "@/components/admin/admin-pack
 import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
 import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
+import { AdminTypesModal } from "@/components/admin/admin-types-modal";
+import type { AdminClassTypeRow } from "@/components/admin/admin-types-management";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
 import {
@@ -68,6 +70,7 @@ import {
   PACKAGE_MODAL_EDIT_TIER_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
+  PACKAGE_MODAL_TYPES_VALUE,
   PACKAGE_PRICING_QUERY_KEY,
   parsePackageFiltersFromSearch,
 } from "@/components/admin/admin-packages-url";
@@ -84,7 +87,7 @@ import {
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
-  classTypeOptions: readonly { id: string; name: string }[];
+  initialClassTypes: readonly AdminClassTypeRow[];
   locale: string;
   initialFilters: PackageFilterValues;
 };
@@ -144,7 +147,7 @@ function PackagesEmptyState({ children }: { children: ReactNode }) {
 
 export function AdminPackagesManagement({
   packages: packagesFromServer,
-  classTypeOptions,
+  initialClassTypes,
   locale,
   initialFilters,
 }: AdminPackagesManagementProps) {
@@ -155,6 +158,12 @@ export function AdminPackagesManagement({
   const searchParams = useSearchParams();
   const filtersRef = useRef(initialFilters);
   const searchParamsRef = useRef(searchParams.toString());
+  const [classTypes, setClassTypes] = useState<readonly AdminClassTypeRow[]>(initialClassTypes);
+  const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
+  const classTypeOptions = useMemo(
+    () => classTypes.map((type) => ({ id: type.id, name: type.name })),
+    [classTypes],
+  );
   const [packageRows, setPackageRows] = useState<readonly AdminPackageRow[]>(() =>
     packagesFromServer.map(normalizeAdminPackageRow),
   );
@@ -168,6 +177,11 @@ export function AdminPackagesManagement({
     status: initialFilters.status,
     order: initialFilters.order,
   });
+
+  if (prevInitialClassTypes !== initialClassTypes) {
+    setPrevInitialClassTypes(initialClassTypes);
+    setClassTypes(initialClassTypes);
+  }
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();
@@ -587,6 +601,31 @@ export function AdminPackagesManagement({
     router.replace(buildPackagesPathname(pathname, params));
   }, [pathname, router, searchParams]);
 
+  const isTypesModalOpen =
+    searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_TYPES_VALUE;
+
+  const openTypesModal = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+    params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+    clearPackageDeleteQueryKeys(params);
+    params.delete(PACKAGE_EDIT_QUERY_KEY);
+    clearPackageModalQueryKeys(params);
+    params.delete(PACKAGE_CATEGORY_QUERY_KEY);
+    params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_TYPES_VALUE);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const closeTypesModal = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    clearPackageModalQueryKeys(params);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const handleClassTypesChanged = useCallback((nextTypes: readonly AdminClassTypeRow[]) => {
+    setClassTypes(nextTypes);
+  }, []);
+
   const openEditCategory = useCallback(
     (categoryId: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -635,16 +674,27 @@ export function AdminPackagesManagement({
           />
         }
         trailing={
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={openAddModal}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-          >
-            <PlusIcon className="h-5 w-5 shrink-0" />
-            {t("addGroupButton")}
-          </OmmButton>
+          <>
+            <OmmButton
+              type="button"
+              variant="ghost"
+              size="md"
+              onClick={openTypesModal}
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full"
+            >
+              {t("manageTypesButton")}
+            </OmmButton>
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={openAddModal}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+            >
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              {t("addGroupButton")}
+            </OmmButton>
+          </>
         }
       />
 
@@ -733,6 +783,12 @@ export function AdminPackagesManagement({
         )}
       </AdminPackagesShell>
 
+      <AdminTypesModal
+        isOpen={isTypesModalOpen}
+        initialTypes={classTypes}
+        onClose={closeTypesModal}
+        onTypesChanged={handleClassTypesChanged}
+      />
       <AdminPackageCategoryRenameModal
         key={editingCategorySlug ? `rename-category-${editingCategorySlug}` : "rename-category-closed"}
         isOpen={isEditCategoryOpen}
