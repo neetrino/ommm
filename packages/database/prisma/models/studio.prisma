@@ -1,0 +1,94 @@
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String
+  subject   String?
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model StudioSettings {
+  id                      String   @id @default(cuid())
+  studioName              String   @default("Ommm")
+  contactEmail            String?
+  contactPhone            String?
+  whatsappUrl             String?
+  address                 String?
+  mapEmbedUrl             String?
+  workingHours            String?
+  socialLinksJson         String?
+  cancellationHoursNotice Int      @default(24)
+  waitlistOfferMinutes    Int      @default(30)
+  homeSectionsVisibilityJson String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model ScheduleItem {
+  id              String            @id @default(cuid())
+  className       String
+  instructorName  String
+  classType       String
+  dayOfWeek       ScheduleDayOfWeek
+  startTime       String
+  endTime         String?
+  durationMinutes Int?
+  availableSpots  Int
+  description     String?
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([isActive, dayOfWeek, startTime])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  description String?
+  threshold   Int
+  createdAt   DateTime @default(now())
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@id([userId, achievementId])
+}
+
+model NotificationPreference {
+  userId              String  @id
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingReminders    Boolean @default(true)
+  waitlistAlerts      Boolean @default(true)
+  promotions          Boolean @default(false)
+  communityUpdates    Boolean @default(true)
+}
+
+model ClassReminderSendLog {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  sentAt    DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorRole  String?
+  action     String
+  entityType String
+  entityId   String
+  payload    String?
+  createdAt  DateTime @default(now())
+}

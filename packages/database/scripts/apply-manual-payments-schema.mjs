@@ -7,6 +7,6 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 config({ path: join(root, '../../.env') });
 
 execSync(
-  'npx prisma db execute --schema prisma/schema.prisma --file prisma/scripts/apply-manual-payments-schema.sql',
+  'npx prisma db execute --schema prisma --file prisma/scripts/apply-manual-payments-schema.sql',
   { stdio: 'inherit', cwd: root, env: process.env },
 );

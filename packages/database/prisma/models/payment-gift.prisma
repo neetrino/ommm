@@ -1,0 +1,73 @@
+model Payment {
+  id              String               @id @default(cuid())
+  userId          String
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amountCents     Int
+  currency        String               @default("amd")
+  status          PaymentStatus        @default(PENDING)
+  paymentReference String?             @unique
+  source          PaymentSource        @default(OTHER)
+  sourceId        String?
+  description     String?
+  metadata        Json?
+  confirmedAt     DateTime?
+  successEmailSentAt DateTime?
+  cashPendingEmailSentAt DateTime?
+  confirmedByAdminId String?
+  paymentMethod   ManualPaymentMethod?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([userId])
+  @@index([status, createdAt])
+  @@index([createdAt])
+  @@index([source, sourceId])
+}
+
+model GiftCard {
+  id              String         @id @default(cuid())
+  batchId         String?
+  batch           GiftCardBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  code            String         @unique
+  amountAmd       Int            @map("amountCents")
+  balanceAmd      Int            @map("balanceCents")
+  imageUrl        String?
+  status          GiftCardStatus @default(ACTIVE)
+  purchaserId     String
+  purchaser       User           @relation("GiftCardPurchaser", fields: [purchaserId], references: [id])
+  recipientId     String?
+  recipient       User?          @relation("GiftCardRecipient", fields: [recipientId], references: [id])
+  recipientEmail  String?
+  recipientName   String?
+  message         String?
+  expiresAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([batchId])
+}
+
+model GiftCardBatch {
+  id                String         @id @default(cuid())
+  amountAmd         Int            @map("amountCents")
+  imageUrl          String?
+  status            GiftCardStatus @default(ACTIVE)
+  totalQuantity     Int
+  availableQuantity Int
+  purchaserId       String
+  purchaser         User           @relation("GiftCardBatchPurchaser", fields: [purchaserId], references: [id], onDelete: Restrict)
+  recipientId       String?
+  recipient         User?          @relation("GiftCardBatchRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  recipientEmail    String?
+  recipientName     String?
+  message           String?
+  expiresAt         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  giftCards GiftCard[]
+
+  @@index([status, createdAt])
+  @@index([purchaserId])
+  @@index([recipientId])
+}
