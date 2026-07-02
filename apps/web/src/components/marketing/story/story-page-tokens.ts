@@ -76,8 +76,8 @@ export const STORY_PAGE_LAYOUT = {
   valuesCardImageMinHeightTablet: "12rem",
   valuesHeadingColor: "#97907c",
   valuesSubtitleColor: "#97907c",
-  valuesSectionMarginTop: "clamp(4.5rem, 8vw, 6rem)",
-  valuesSectionMarginTopMobile: "clamp(4.5rem, 10vw, 6rem)",
+  valuesSectionMarginTop: "clamp(3.5rem, 7vw, 5rem)",
+  valuesSectionMarginTopMobile: "clamp(3rem, 8vw, 4.5rem)",
   featureCardsHeroOverlap: "0",
   featureCardRadius: "clamp(2.25rem, 4vw, 3rem)",
   /** Closing banner CTA — feature tan, slightly darker. */
@@ -86,5 +86,7 @@ export const STORY_PAGE_LAYOUT = {
   featureCardCtaBackground: "#dbcab3",
   featureCardCtaHover: "#d0b89e",
   founderBannerRadius: "clamp(2rem, 4vw, 2.75rem)",
-  founderBannerMarginTop: "clamp(2rem, 5vw, 3.5rem)",
+  founderBannerMarginTop: "clamp(4.5rem, 8vw, 6rem)",
+  founderBannerMarginTopMobile: "clamp(4.5rem, 10vw, 6rem)",
+  founderBannerPortraitRadius: "clamp(1.25rem, 2.5vw, 1.75rem)",
 } as const;

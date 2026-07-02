@@ -14,11 +14,12 @@ type MarketingStoryFoundersVoiceBannerProps = {
 const FOUNDER_BANNER_STYLE = {
   ["--story-founder-banner-radius" as string]: STORY_PAGE_LAYOUT.founderBannerRadius,
   ["--story-founder-banner-margin-top" as string]: STORY_PAGE_LAYOUT.founderBannerMarginTop,
+  ["--story-founder-banner-margin-top-mobile" as string]: STORY_PAGE_LAYOUT.founderBannerMarginTopMobile,
   ["--story-founder-banner-bg" as string]: STORY_PAGE_SURFACE.founderBannerBackground,
+  ["--story-founder-banner-portrait-radius" as string]: STORY_PAGE_LAYOUT.founderBannerPortraitRadius,
   ["--story-founder-banner-eyebrow" as string]: STORY_PAGE_SURFACE.founderBannerEyebrow,
   ["--story-founder-banner-heading" as string]: STORY_PAGE_SURFACE.heading,
   ["--story-founder-banner-accent" as string]: STORY_PAGE_SURFACE.accent,
-  ["--story-founder-banner-brand-border" as string]: STORY_PAGE_SURFACE.badgeBorder,
 } as const;
 
 /** Founder's Voice quote card — portrait + founder message. */
@@ -39,7 +40,8 @@ export async function MarketingStoryFoundersVoiceBanner({
             src={STORY_PAGE_ASSETS.founderPortrait}
             alt={t("founderVoicePortraitAlt")}
             fill
-            sizes="(max-width: 767px) 100vw, 42vw"
+            unoptimized
+            sizes="(max-width: 767px) 100vw, (max-width: 1440px) 42vw, 36rem"
             className={styles.portrait}
             {...belowFoldImageProps()}
           />
@@ -55,7 +57,6 @@ export async function MarketingStoryFoundersVoiceBanner({
             <p className={styles.quoteLead}>{t("founderVoiceQuoteLead")}</p>
             <p className={styles.quoteEmphasis}>{t("founderVoiceQuoteEmphasis")}</p>
           </blockquote>
-          <span className={styles.brandMark}>{t("founderVoiceBrand")}</span>
         </div>
       </article>
     </StoryPageReveal>

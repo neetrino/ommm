@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import styles from "@/components/marketing/story/marketing-story-values-section.module.css";
-import { MarketingStoryFoundersVoiceBanner } from "@/components/marketing/story/marketing-story-founders-voice-banner";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
@@ -117,7 +116,6 @@ export async function MarketingStoryValuesSection({ locale }: MarketingStoryValu
           </li>
         ))}
       </ul>
-      <MarketingStoryFoundersVoiceBanner locale={locale} />
     </section>
   );
 }

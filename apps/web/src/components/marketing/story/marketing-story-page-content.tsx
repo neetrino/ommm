@@ -1,4 +1,5 @@
 import { MarketingStoryGallerySection } from "@/components/marketing/story/marketing-story-gallery-section";
+import { MarketingStoryFoundersVoiceBanner } from "@/components/marketing/story/marketing-story-founders-voice-banner";
 import { MarketingStoryHero } from "@/components/marketing/story/marketing-story-hero";
 import { MarketingStoryValuesSection } from "@/components/marketing/story/marketing-story-values-section";
 import {
@@ -15,6 +16,7 @@ export function MarketingStoryPageContent({ locale }: MarketingStoryPageContentP
     <>
       <MarketingStoryHero locale={locale} />
       <div className={MARKETING_INNER_PAGE_CONTAINER_CLASS}>
+        <MarketingStoryFoundersVoiceBanner locale={locale} />
         <MarketingStoryValuesSection locale={locale} />
       </div>
       <MarketingStoryGallerySection />
