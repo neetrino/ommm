@@ -511,7 +511,7 @@ export function AdminPackageForm({
           billingPeriod: "monthly",
           displayOrder: nextDisplayOrder ?? 1,
           isPopular: false,
-          isActive: true,
+          isActive: false,
         }
       : isAddTierMode
         ? shellTierTarget
@@ -529,7 +529,7 @@ export function AdminPackageForm({
               ...pricingFields,
               displayOrder: nextDisplayOrder ?? 1,
               isPopular: false,
-              isActive: true,
+              isActive: false,
             }
         : isPricingMode
           ? {
