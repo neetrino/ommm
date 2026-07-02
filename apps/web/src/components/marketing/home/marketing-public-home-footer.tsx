@@ -17,8 +17,6 @@ import {
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import { MarketingPublicHomeFooterSurface } from "@/components/marketing/home/marketing-public-home-footer-surface";
-import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
-import { filterMarketingNavLinks } from "@/lib/home-page-sections";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
