@@ -1,4 +1,5 @@
 @layer components {
+  .ommm-admin-packages-table {
     overflow-x: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;

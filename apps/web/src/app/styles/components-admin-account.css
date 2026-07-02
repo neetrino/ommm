@@ -1,4 +1,5 @@
 @layer components {
+  .ommm-admin-content {
     @apply mx-auto w-full max-w-[1280px];
   }
 

@@ -148,4 +148,6 @@
   }
 
   .ommm-admin-row-icon-button-toggle {
+    @apply h-10 w-10 rounded-full px-1;
+  }
 }
