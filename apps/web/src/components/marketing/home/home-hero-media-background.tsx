@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
 import { useHomeHeroSlide } from "@/components/marketing/home/home-hero-slide-context";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
@@ -11,15 +11,48 @@ type HomeHeroMediaBackgroundProps = {
   imageAlt: string;
 };
 
+type HomeHeroPhotoSlideProps = {
+  imageAlt: string;
+};
+
+function HomeHeroPhotoSlide({ imageAlt }: HomeHeroPhotoSlideProps) {
+  return (
+    <div className={styles.homeHeroMediaSlide}>
+      <div className={styles.homeHeroBackgroundCrop}>
+        <Image
+          src={HOME_HERO_ASSETS.backgroundImage}
+          alt={imageAlt}
+          fill
+          sizes="100vw"
+          className={`${styles.homeHeroBackground} pointer-events-none object-cover`}
+          {...lcpImageProps()}
+        />
+      </div>
+    </div>
+  );
+}
+
 /** Sliding hero media — intro video (R2) then static photo background. */
 export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundProps) {
-  const { activeSlide, videoUrl, videoRef, onVideoEnded, isVideoActive } = useHomeHeroSlide();
+  const {
+    activeSlide,
+    activeView,
+    trackOffset,
+    videoUrl,
+    videoLeftRef,
+    videoRightRef,
+    onVideoEnded,
+    isVideoActive,
+    normalizePhotoToCenter,
+  } = useHomeHeroSlide();
+  const [skipTransition, setSkipTransition] = useState(false);
 
   useEffect(() => {
-    if (!isVideoActive) {
+    if (!isVideoActive || activeView.kind !== "video") {
       return;
     }
-    const video = videoRef.current;
+    const video =
+      activeView.entry === "left" ? videoLeftRef.current : videoRightRef.current;
     if (!video) {
       return;
     }
@@ -27,7 +60,26 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
     void video.play().catch(() => {
       /* Autoplay may be blocked until user gesture. */
     });
-  }, [isVideoActive, videoRef, videoUrl]);
+  }, [activeView, isVideoActive, videoLeftRef, videoRightRef, videoUrl]);
+
+  const handleTrackTransitionEnd = useCallback(
+    (event: React.TransitionEvent<HTMLDivElement>) => {
+      if (event.target !== event.currentTarget || event.propertyName !== "transform") {
+        return;
+      }
+      if (activeView.kind !== "photo" || activeView.entry === "center") {
+        return;
+      }
+      setSkipTransition(true);
+      normalizePhotoToCenter();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setSkipTransition(false);
+        });
+      });
+    },
+    [activeView, normalizePhotoToCenter],
+  );
 
   return (
     <div
@@ -36,11 +88,14 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
       data-hero-slide={activeSlide}
     >
       <div
-        className={`${styles.homeHeroMediaTrack} ${activeSlide === "photo" ? styles.homeHeroMediaTrackPhoto : ""}`}
+        className={`${styles.homeHeroMediaTrack} ${skipTransition ? styles.homeHeroMediaTrackNoTransition : ""}`}
+        style={{ ["--home-hero-track-offset" as string]: trackOffset }}
+        onTransitionEnd={handleTrackTransitionEnd}
       >
+        <HomeHeroPhotoSlide imageAlt={imageAlt} />
         <div className={styles.homeHeroMediaSlide}>
           <video
-            ref={videoRef}
+            ref={videoLeftRef}
             className={styles.homeHeroVideo}
             src={videoUrl}
             muted
@@ -49,18 +104,19 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
             onEnded={onVideoEnded}
           />
         </div>
+        <HomeHeroPhotoSlide imageAlt={imageAlt} />
         <div className={styles.homeHeroMediaSlide}>
-          <div className={styles.homeHeroBackgroundCrop}>
-            <Image
-              src={HOME_HERO_ASSETS.backgroundImage}
-              alt={imageAlt}
-              fill
-              sizes="100vw"
-              className={`${styles.homeHeroBackground} pointer-events-none object-cover`}
-              {...lcpImageProps()}
-            />
-          </div>
+          <video
+            ref={videoRightRef}
+            className={styles.homeHeroVideo}
+            src={videoUrl}
+            muted
+            playsInline
+            preload="auto"
+            onEnded={onVideoEnded}
+          />
         </div>
+        <HomeHeroPhotoSlide imageAlt={imageAlt} />
       </div>
     </div>
   );
