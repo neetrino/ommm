@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPackagesManagementModals } from "@/components/admin/admin-packages-management-modals";
 import { useAdminPackagesFilterSync } from "@/components/admin/use-admin-packages-filter-sync";
-import { useAdminPackagesModalUrl } from "@/components/admin/use-admin-packages-modal-url";
 import { useAdminPackagesCategoryDisplay } from "@/components/admin/use-admin-packages-category-display";
 import { useAdminPackagesRowHandlers } from "@/components/admin/use-admin-packages-row-handlers";
 import type { AdminClassTypeRow } from "@/components/admin/admin-types-management";
@@ -89,35 +88,6 @@ export function AdminPackagesManagement({
   );
 
   const {
-    openEditTier,
-    openAddTier,
-    closeDeletePackage,
-    openDeletePackage,
-    openAddModal,
-    isTypesModalOpen,
-    openTypesModal,
-    closeTypesModal,
-    openEditCategory,
-    closeEditCategory,
-    openDeleteCategory,
-    closeDeleteCategory,
-  } = useAdminPackagesModalUrl({
-    packageRows,
-    sortedPackages,
-    setSelectedCategoryIds: () => {},
-    setExpandedCategoryKeys: () => {},
-  });
-
-  const categoryDisplay = useAdminPackagesCategoryDisplay({
-    sortedPackages,
-    filteredPackages,
-    filterValues,
-    categoryOptions,
-    packageRows,
-    closeDeletePackage,
-  });
-
-  const {
     selectedCategoryIds,
     setSelectedCategoryIds,
     expandedCategoryKeys,
@@ -135,7 +105,25 @@ export function AdminPackagesManagement({
     pagedDisplayCategories,
     syncCategoryListPage,
     defaultCategoryId,
-  } = categoryDisplay;
+    openEditTier,
+    openAddTier,
+    closeDeletePackage,
+    openDeletePackage,
+    openAddModal,
+    isTypesModalOpen,
+    openTypesModal,
+    closeTypesModal,
+    openEditCategory,
+    closeEditCategory,
+    openDeleteCategory,
+    closeDeleteCategory,
+  } = useAdminPackagesCategoryDisplay({
+    sortedPackages,
+    filteredPackages,
+    filterValues,
+    categoryOptions,
+    packageRows,
+  });
 
   const {
     handlePackageCreated,

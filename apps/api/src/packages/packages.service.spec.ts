@@ -1,4 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { PackagesAdminService } from './packages-admin.service';
+import { PackagesPublicService } from './packages-public.service';
 import { PackagesService } from './packages.service';
 
 function createPackagesService() {
@@ -20,19 +22,27 @@ function createPackagesService() {
 
   const cache = {
     invalidate: jest.fn(),
+    getOrSet: jest.fn(),
   };
 
   const config = {
     get: jest.fn(),
   };
 
+  const publicService = new PackagesPublicService(
+    prisma as never,
+    config as never,
+    cache as never,
+  );
+  const adminService = new PackagesAdminService(
+    prisma as never,
+    publicService,
+    packageUsage as never,
+  );
+  const service = new PackagesService(publicService, adminService);
+
   return {
-    service: new PackagesService(
-      prisma as never,
-      packageUsage as never,
-      config as never,
-      cache as never,
-    ),
+    service,
     prisma,
     cache,
   };

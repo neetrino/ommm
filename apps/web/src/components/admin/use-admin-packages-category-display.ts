@@ -20,6 +20,7 @@ import {
 } from "@/components/admin/admin-packages-url";
 import { ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE } from "@/components/admin/admin-packages.constants";
 import { clampListPage } from "@/lib/list-pagination";
+import { useAdminPackagesModalUrl } from "@/components/admin/use-admin-packages-modal-url";
 
 type UseAdminPackagesCategoryDisplayOptions = {
   sortedPackages: readonly AdminPackageRow[];
@@ -27,7 +28,6 @@ type UseAdminPackagesCategoryDisplayOptions = {
   filterValues: PackageFilterValues;
   categoryOptions: readonly AdminPackagesCategoryOption[];
   packageRows: readonly AdminPackageRow[];
-  closeDeletePackage: () => void;
 };
 
 export function useAdminPackagesCategoryDisplay({
@@ -36,7 +36,6 @@ export function useAdminPackagesCategoryDisplay({
   filterValues,
   categoryOptions,
   packageRows,
-  closeDeletePackage,
 }: UseAdminPackagesCategoryDisplayOptions) {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,6 +48,26 @@ export function useAdminPackagesCategoryDisplay({
   const [expandedCategoryKeys, setExpandedCategoryKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
+
+  const {
+    openEditTier,
+    openAddTier,
+    closeDeletePackage,
+    openDeletePackage,
+    openAddModal,
+    isTypesModalOpen,
+    openTypesModal,
+    closeTypesModal,
+    openEditCategory,
+    closeEditCategory,
+    openDeleteCategory,
+    closeDeleteCategory,
+  } = useAdminPackagesModalUrl({
+    packageRows,
+    sortedPackages,
+    setSelectedCategoryIds,
+    setExpandedCategoryKeys,
+  });
 
   useEffect(() => {
     setSelectedCategoryIds((current) =>
@@ -191,5 +210,17 @@ export function useAdminPackagesCategoryDisplay({
     pagedDisplayCategories,
     syncCategoryListPage,
     defaultCategoryId,
+    openEditTier,
+    openAddTier,
+    closeDeletePackage,
+    openDeletePackage,
+    openAddModal,
+    isTypesModalOpen,
+    openTypesModal,
+    closeTypesModal,
+    openEditCategory,
+    closeEditCategory,
+    openDeleteCategory,
+    closeDeleteCategory,
   };
 }

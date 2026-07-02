@@ -7,31 +7,26 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
+import { AdminWaitlistEmptyState } from "@/components/admin/admin-waitlist-empty-state";
 import { AdminWaitlistListBody } from "@/components/admin/admin-waitlist-list-body";
+import { AdminWaitlistLoadErrorShell } from "@/components/admin/admin-waitlist-load-error-shell";
 import { useAdminWaitlistFilterFields } from "@/components/admin/admin-waitlist-filter-fields";
 import { useAdminWaitlistFilters } from "@/components/admin/use-admin-waitlist-filters";
 import type { AdminWaitlistToastTone } from "@/components/admin/admin-waitlist-management.constants";
 import { AdminWaitlistRemoveConfirmModal } from "@/components/admin/admin-waitlist-remove-confirm-modal";
+import { AdminWaitlistToast } from "@/components/admin/admin-waitlist-toast";
 import { formatAdminWaitlistUserLabel } from "@/components/admin/admin-waitlist-user-label";
+import type { AdminWaitlistManagementProps } from "@/components/admin/admin-waitlist-management.types";
 import {
   buildAdminWaitlistActiveEndpoint,
-  type AdminWaitlistActivePayload,
   type AdminWaitlistRow,
 } from "@/components/admin/admin-waitlist-query";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useRouter } from "@/i18n/navigation";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
-
-type AdminWaitlistManagementProps = {
-  locale: string;
-  initial: AdminWaitlistActivePayload;
-  initialLoadError: string | null;
-  staffBanner?: string;
-};
 
 export function AdminWaitlistManagement({
   locale,
@@ -193,29 +188,16 @@ export function AdminWaitlistManagement({
 
   if (loadError && !hasLoadedRows) {
     return (
-      <StaffListPageLayout
-        title={t("title")}
-        banner={staffBanner}
-        status={
-          <div className={adminChrome.panel}>
-            <p className="text-sm text-red-800">{loadError}</p>
-            <button
-              type="button"
-              className="ommm-cta-secondary mt-3 h-9 px-4"
-              onClick={() => void loadRows()}
-            >
-              {t("retry")}
-            </button>
-          </div>
-        }
-      >
-        <span className="sr-only">{t("loadFailed")}</span>
-      </StaffListPageLayout>
+      <AdminWaitlistLoadErrorShell
+        staffBanner={staffBanner}
+        loadError={loadError}
+        onRetry={() => void loadRows()}
+      />
     );
   }
 
   const waitlistBody = !hasRows ? (
-    <div className={adminChrome.panel}>{t("empty")}</div>
+    <AdminWaitlistEmptyState />
   ) : (
     <AdminWaitlistListBody
       locale={locale}
@@ -281,18 +263,7 @@ export function AdminWaitlistManagement({
         {waitlistBody}
       </StaffListPageLayout>
 
-      {toast ? (
-        <div
-          role="status"
-          className={`fixed bottom-4 right-4 z-[95] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] ${
-            toast.tone === "ok"
-              ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
-              : "border-red-200/80 bg-red-50/95 text-red-900"
-          }`}
-        >
-          {toast.message}
-        </div>
-      ) : null}
+      {toast ? <AdminWaitlistToast toast={toast} /> : null}
 
       {pendingRemove ? (
         <AdminWaitlistRemoveConfirmModal

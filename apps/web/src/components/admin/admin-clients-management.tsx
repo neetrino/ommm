@@ -1,70 +1,29 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
 import { AdminClientsAddUserGlyph } from "@/components/admin/admin-clients-add-user-glyph";
-import { resolveAdminClientsOrderLabel } from "@/components/admin/admin-clients-order-label";
 import { AdminClientsSummary } from "@/components/admin/admin-clients-summary";
 import { AdminClientsTable } from "@/components/admin/admin-clients-table";
-import {
-  adminClientsFilterValuesFromState,
-  buildAdminClientsFilterFields,
-  segmentFilterOptions,
-  serializeAdminClientSegmentFilters,
-} from "@/components/admin/admin-clients-filter-fields";
-import {
-  parseAdminClientSegmentFilters,
-  type AdminClientSegmentFilter,
-} from "@/components/admin/admin-clients-segment-filters";
+import { useAdminClientsFilterFields } from "@/components/admin/use-admin-clients-filter-fields";
+import { useAdminClientsManagement } from "@/components/admin/use-admin-clients-management";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import {
-  OmmSelectDropdown,
-  ommOptionsFromTuples,
-} from "@/components/ui/omm-select-dropdown";
-import { apiFetch } from "@/lib/api";
-import {
-  parseListPageParams,
-  resetListPageQuery,
-  syncListPageQuery,
-} from "@/lib/list-pagination";
-import {
-  ADMIN_CLIENTS_FILTER_KEYS,
-  areUrlSearchQueriesEqual,
-  mergeAdminClientsUrlQuery,
-  VIEW_CLIENT_QUERY_KEY,
-} from "@/components/admin/admin-clients-query";
-import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
+import type { AdminClientsPayload } from "./admin-clients-types";
 
-type Props = {
+type AdminClientsManagementProps = {
   initial: AdminClientsPayload;
   locale: string;
   initialFilters: Record<string, string>;
-  /** Opens the create-client modal (admin only). */
   onAddUser?: () => void;
-  /** Registers list refetch for post-create refresh. */
   onRegisterRefetch?: (refetch: () => void) => void;
-  /** Staff surfaces (manager): list canon without hero/filters/summary. */
   variant?: "full" | "staff";
   staffBanner?: string;
   readOnly?: boolean;
 };
-
-const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
 
 export function AdminClientsManagement({
   initial,
@@ -75,303 +34,43 @@ export function AdminClientsManagement({
   variant = "full",
   staffBanner,
   readOnly = false,
-}: Props) {
+}: AdminClientsManagementProps) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const searchParamsStringRef = useRef(searchParams.toString());
-  const hasMounted = useRef(false);
-  const requestId = useRef(0);
-  const [payload, setPayload] = useState(initial);
-  const [filters, setFilters] = useState(() => ({
-    search: initialFilters.search ?? "",
-    tag: initialFilters.tag ?? "",
-    status: initialFilters.status ?? "",
-    classLevel: initialFilters.classLevel ?? "",
-    paymentStatus: initialFilters.paymentStatus ?? "",
-    source: initialFilters.source ?? "",
-    preferredCoachId: initialFilters.preferredCoachId ?? "",
-    attendance: initialFilters.attendance ?? "",
-    birthdayMonth: initialFilters.birthdayMonth ?? "",
-    order: initialFilters.order ?? "newest",
-    quick: initialFilters.quick ?? "",
-  }));
-  const [fetchedClient, setFetchedClient] = useState<ClientRow | null>(null);
-  const [loading, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-  const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
-  const [visibleClientId, setVisibleClientId] = useState<string | null>(viewClientId);
-  const [prevViewClientId, setPrevViewClientId] = useState(viewClientId);
-  if (viewClientId !== prevViewClientId) {
-    setPrevViewClientId(viewClientId);
-    setVisibleClientId(viewClientId);
-  }
-  const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
-    [searchParams],
+
+  const {
+    payload,
+    filters,
+    loading,
+    error,
+    selected,
+    listPage,
+    integratedFilterValues,
+    selectClient,
+    closeClientView,
+    setListPage,
+    updateFilter,
+    refetchClients,
+    resetFilters,
+    handleIntegratedFilterChange,
+    handleClientChanged,
+  } = useAdminClientsManagement({ initial, initialFilters, onRegisterRefetch });
+
+  const filterFields = useAdminClientsFilterFields(payload);
+
+  const searchFilters = (
+    <ListPageSearchFilters
+      search={filters.search}
+      onSearchChange={(value) => updateFilter("search", value)}
+      searchPlaceholder={tFilters("searchPlaceholder")}
+      fields={filterFields}
+      filterValues={integratedFilterValues}
+      onFilterChange={handleIntegratedFilterChange}
+      onClearAll={resetFilters}
+      resetLabel={tFilters("resetFilters")}
+    />
   );
-
-  useEffect(() => {
-    searchParamsStringRef.current = searchParams.toString();
-  }, [searchParams]);
-
-  const selected = useMemo(() => {
-    if (visibleClientId === null) {
-      return null;
-    }
-    const fromRows = payload.rows.find((row) => row.id === visibleClientId);
-    if (fromRows) {
-      return fromRows;
-    }
-    if (fetchedClient?.id === visibleClientId) {
-      return fetchedClient;
-    }
-    return null;
-  }, [fetchedClient, payload.rows, visibleClientId]);
-
-  const replaceSearchParams = useCallback(
-    (mutator: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParamsStringRef.current);
-      mutator(params);
-      const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-    },
-    [pathname, router],
-  );
-
-  const selectClient = useCallback(
-    (row: ClientRow) => {
-      setVisibleClientId(row.id);
-      replaceSearchParams((params) => {
-        params.set(VIEW_CLIENT_QUERY_KEY, row.id);
-      });
-    },
-    [replaceSearchParams],
-  );
-
-  const closeClientView = useCallback(() => {
-    setVisibleClientId(null);
-    replaceSearchParams((params) => {
-      params.delete(VIEW_CLIENT_QUERY_KEY);
-    });
-  }, [replaceSearchParams]);
-
-  const restoredViewClientIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!viewClientId) {
-      restoredViewClientIdRef.current = null;
-      return undefined;
-    }
-
-    const fromRows = payload.rows.find((row) => row.id === viewClientId);
-    if (fromRows) {
-      restoredViewClientIdRef.current = viewClientId;
-      return undefined;
-    }
-
-    if (restoredViewClientIdRef.current === viewClientId) {
-      return undefined;
-    }
-
-    restoredViewClientIdRef.current = viewClientId;
-    let cancelled = false;
-
-    void apiFetch<{ activity: ClientRow }>(`/clients/${viewClientId}`)
-      .then((detail) => {
-        if (!cancelled) {
-          setFetchedClient(detail.activity);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          restoredViewClientIdRef.current = null;
-          replaceSearchParams((params) => {
-            params.delete(VIEW_CLIENT_QUERY_KEY);
-          });
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [payload.rows, replaceSearchParams, viewClientId]);
-
-  const urlQueryString = useMemo(() => {
-    const params = new URLSearchParams();
-    for (const key of filterKeys) {
-      const value = filters[key].trim();
-      if (value !== "" && !(key === "order" && value === "newest")) {
-        params.set(key, value);
-      }
-    }
-    return params.toString();
-  }, [filters]);
-
-  const apiQueryString = useMemo(() => {
-    const params = new URLSearchParams(urlQueryString);
-    params.set("meta", "true");
-    params.set("take", String(listPage.take));
-    params.set("offset", String(listPage.offset));
-    return params.toString();
-  }, [listPage.offset, listPage.take, urlQueryString]);
-
-  const setListPage = useCallback(
-    (page: number, pageSize?: number) => {
-      replaceSearchParams((params) => {
-        syncListPageQuery(params, page, pageSize);
-      });
-    },
-    [replaceSearchParams],
-  );
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return undefined;
-    }
-
-    const handle = window.setTimeout(() => {
-      const nextRequestId = requestId.current + 1;
-      requestId.current = nextRequestId;
-      startTransition(() => {
-        void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
-          .then((next) => {
-            if (requestId.current !== nextRequestId) return;
-            setPayload(next);
-            setError(null);
-          })
-          .catch(() => {
-            if (requestId.current === nextRequestId) {
-              setError("Could not load matching clients.");
-            }
-          });
-      });
-      const currentQuery = searchParamsStringRef.current;
-      const nextQuery = mergeAdminClientsUrlQuery(
-        urlQueryString,
-        Object.fromEntries(new URLSearchParams(currentQuery)),
-      );
-      if (!areUrlSearchQueriesEqual(currentQuery, nextQuery)) {
-        const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
-        router.replace(nextUrl, { scroll: false });
-      }
-    }, 300);
-    return () => window.clearTimeout(handle);
-  }, [apiQueryString, listPage.offset, listPage.page, pathname, router, urlQueryString]);
-
-  const handleClientChanged = useCallback(() => {
-    router.refresh();
-  }, [router]);
-
-  function updateFilter(key: keyof typeof filters, value: string) {
-    setFilters((current) => ({ ...current, [key]: value }));
-    replaceSearchParams((params) => {
-      resetListPageQuery(params);
-    });
-  }
-
-  const refetchClients = useCallback((): void => {
-    startTransition(() => {
-      void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
-        .then((next) => {
-          setPayload(next);
-          setError(null);
-        })
-        .catch(() => {
-          setError("Could not load matching clients.");
-        });
-    });
-  }, [apiQueryString]);
-
-  useEffect(() => {
-    onRegisterRefetch?.(refetchClients);
-  }, [onRegisterRefetch, refetchClients]);
-
-  function resetFilters() {
-    setFilters({
-      search: "",
-      tag: "",
-      status: "",
-      classLevel: "",
-      paymentStatus: "",
-      source: "",
-      preferredCoachId: "",
-      attendance: "",
-      birthdayMonth: "",
-      order: "newest",
-      quick: "",
-    });
-    replaceSearchParams((params) => {
-      resetListPageQuery(params);
-    });
-  }
-
-  const segmentOptions = useMemo(
-    () =>
-      segmentFilterOptions.map(([value, label]) => ({
-        value,
-        label,
-      })),
-    [],
-  );
-
-  const filterFields = useMemo(
-    () =>
-      buildAdminClientsFilterFields({
-        payload,
-        resolveOrderChipLabel: resolveAdminClientsOrderLabel,
-        renderSegments: ({ value, onChange }) => (
-          <OmmFilterMultiSelect
-            variant="accent"
-            wrapLabel
-            ariaLabel="Client segment filters"
-            allLabel="All clients"
-            selectedValues={parseAdminClientSegmentFilters(value)}
-            onChange={(values) =>
-              onChange(
-                serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]),
-              )
-            }
-            formatSelectedCount={(count) =>
-              count === 1 ? "1 segment selected" : `${count} segments selected`
-            }
-            options={segmentOptions}
-          />
-        ),
-        renderOrder: ({ value, onChange }) => (
-          <OmmSelectDropdown
-            ariaLabel={tFilters("orderLabel")}
-            label={resolveAdminClientsOrderLabel(value)}
-            value={value}
-            options={ommOptionsFromTuples([
-              ["newest", "Newest clients first"],
-              ["oldest", "Oldest clients first"],
-              ["most-active", "Most active"],
-              ["highest-lifetime-value", "Highest lifetime value"],
-              ["last-visit-newest", "Last visit newest"],
-              ["last-visit-oldest", "Last visit oldest"],
-              ["most-bookings", "Most bookings"],
-              ["most-cancellations", "Most cancellations"],
-            ])}
-            onChange={onChange}
-          />
-        ),
-      }),
-    [payload, segmentOptions, tFilters],
-  );
-
-  const integratedFilterValues = useMemo(
-    () => adminClientsFilterValuesFromState(filters),
-    [filters],
-  );
-
-  function handleIntegratedFilterChange(key: string, value: string) {
-    updateFilter(key as keyof typeof filters, value);
-  }
 
   const clientsList = (
     <>
@@ -403,18 +102,7 @@ export function AdminClientsManagement({
         <StaffListPageLayout
           title={t("title")}
           banner={staffBanner}
-          search={
-            <ListPageSearchFilters
-              search={filters.search}
-              onSearchChange={(value) => updateFilter("search", value)}
-              searchPlaceholder={tFilters("searchPlaceholder")}
-              fields={filterFields}
-              filterValues={integratedFilterValues}
-              onFilterChange={handleIntegratedFilterChange}
-              onClearAll={resetFilters}
-              resetLabel={tFilters("resetFilters")}
-            />
-          }
+          search={searchFilters}
           metrics={<AdminClientsSummary payload={payload} />}
           status={error ? <div className="app-alert-warn">{error}</div> : null}
         >
@@ -424,18 +112,7 @@ export function AdminClientsManagement({
         <>
           <AdminPageHero
             title={t("title")}
-            search={
-              <ListPageSearchFilters
-                search={filters.search}
-                onSearchChange={(value) => updateFilter("search", value)}
-                searchPlaceholder={tFilters("searchPlaceholder")}
-                fields={filterFields}
-                filterValues={integratedFilterValues}
-                onFilterChange={handleIntegratedFilterChange}
-                onClearAll={resetFilters}
-                resetLabel={tFilters("resetFilters")}
-              />
-            }
+            search={searchFilters}
             trailing={
               onAddUser && !readOnly ? (
                 <OmmButton

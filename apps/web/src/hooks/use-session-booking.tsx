@@ -10,12 +10,11 @@ import {
   setBuyPackageSessionQuery,
 } from "@/lib/book-package-session-url";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import {
-  hasBookablePackage,
-  resolveAutoBookPackageId,
-  shouldPromptBookingPackageSelection,
-} from "@/lib/booking-package-selection";
+  postSessionBooking,
+  useSessionBookingInitiate,
+} from "@/hooks/use-session-booking-initiate";
 import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
 import type { MeApiResponse } from "@/lib/me-api-types";
 import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
@@ -31,7 +30,6 @@ import {
   useSessionBookingUrlRestore,
 } from "@/hooks/use-session-booking-url-restore";
 import type {
-  BookSessionResponse,
   UseSessionBookingOptions,
 } from "@/hooks/use-session-booking.types";
 
@@ -214,46 +212,22 @@ export function useSessionBooking({
   }, [applyPurchaseData, fetchFirstName, fetchPurchasePlans, replaceSearchParams, t]);
 
   const bookWithOptionalPackage = useCallback(async (userPackageId?: string): Promise<void> => {
-    const booking = await apiFetch<BookSessionResponse>(
-      `/bookings/sessions/${sessionId}`,
-      {
-        method: "POST",
-        body: JSON.stringify(
-          userPackageId !== undefined ? { userPackageId } : {},
-        ),
-      },
-    );
+    const booking = await postSessionBooking(sessionId, userPackageId);
     callbacksRef.current.onBooked?.(booking.id);
   }, [sessionId]);
 
-  async function initiateBooking(): Promise<void> {
-    if (busy) {
-      return;
-    }
-    setBusy(true);
-    try {
-      const [packages, plans, rawFirstName] = await Promise.all([
-        fetchEligiblePackages(),
-        fetchPurchasePlans().catch(() => [] as PackageSubscribePlanOption[]),
-        fetchFirstName(),
-      ]);
-      if (shouldPromptBookingPackageSelection(packages)) {
-        openPackageModal(packages);
-        return;
-      }
-      const autoPackageId = resolveAutoBookPackageId(packages);
-      if (!hasBookablePackage(packages) || autoPackageId === undefined) {
-        showPurchaseModal(packages, plans, rawFirstName);
-        return;
-      }
-      await bookWithOptionalPackage(autoPackageId);
-    } catch (error) {
-      const message = error instanceof ApiError ? error.message : t("bookFailed");
-      callbacksRef.current.onError?.(message);
-    } finally {
-      setBusy(false);
-    }
-  }
+  const { initiateBooking } = useSessionBookingInitiate({
+    sessionId,
+    busy,
+    setBusy,
+    fetchEligiblePackages,
+    fetchPurchasePlans,
+    fetchFirstName,
+    openPackageModal,
+    showPurchaseModal,
+    bookWithOptionalPackage,
+    onError: (message) => callbacksRef.current.onError?.(message),
+  });
 
   useSessionBookingUrlRestore({
     sessionId,
