@@ -241,7 +241,8 @@ export class PackagesService {
           ...(dto.categoryName !== undefined
             ? { categoryName: this.normalizeCategoryName(dto.categoryName) }
             : {}),
-          ...(dto.categorySlug !== undefined && dto.categorySlug.trim().length > 0
+          ...(dto.categorySlug !== undefined &&
+          dto.categorySlug.trim().length > 0
             ? { categorySlug: this.normalizeSlug(dto.categorySlug) }
             : {}),
           ...(dto.classTypeId !== undefined

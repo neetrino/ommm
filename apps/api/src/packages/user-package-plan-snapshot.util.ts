@@ -85,7 +85,8 @@ export function resolveUserPackagePlanCategoryName(params: {
     return params.balances[0]?.sourceCategoryNameSnapshot.trim() ?? '';
   }
   if (params.balances.length === 1) {
-    const balanceCategory = params.balances[0]?.sourceCategoryNameSnapshot.trim();
+    const balanceCategory =
+      params.balances[0]?.sourceCategoryNameSnapshot.trim();
     if (balanceCategory !== undefined && balanceCategory.length > 0) {
       return balanceCategory;
     }

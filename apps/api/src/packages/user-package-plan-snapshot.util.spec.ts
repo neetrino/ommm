@@ -82,9 +82,7 @@ describe('user-package-plan-snapshot.util', () => {
       resolveUserPackagePlanCategoryName({
         plan: null,
         planCategoryNameSnapshot: snapshots.planCategoryNameSnapshot,
-        balances: [
-          { sourceCategoryNameSnapshot: 'Reformer' },
-        ],
+        balances: [{ sourceCategoryNameSnapshot: 'Reformer' }],
       }),
     ).toBe('Reformer');
   });
