@@ -56,13 +56,10 @@ export function AdminPackagePlanStatusActions({
     setMessage(null);
 
     try {
-      const saved = await apiFetch<AdminPackageRow>(
-        `/packages/admin/plans/${packageId}/status`,
-        {
-          method: "PATCH",
-          body: JSON.stringify({ isActive: nextIsActive }),
-        },
-      );
+      const saved = await apiFetch<AdminPackageRow>(`/packages/plans/${packageId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive: nextIsActive }),
+      });
       onUpdated(saved);
       await revalidatePublicPackages();
       setTone("ok");

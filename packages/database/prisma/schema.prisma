@@ -239,6 +239,7 @@ model CoachAvailabilitySlot {
   @@index([coachProfileId, slotDate, slotTime])
 }
 
+/// Canonical catalog of schedulable class kinds. Admin schedule sessions must reference this table only.
 model ClassType {
   id          String   @id @default(cuid())
   name        String
@@ -255,8 +256,9 @@ model ClassSession {
   id                 String             @id @default(cuid())
   title              String             @default("")
   description        String?
+  /// FK to ClassType only — not package categories or free text.
   classTypeId        String
-  classType          ClassType          @relation(fields: [classTypeId], references: [id])
+  classType          ClassType          @relation(fields: [classTypeId], references: [id], onDelete: Restrict)
   coachId            String
   coach              CoachProfile       @relation("SessionCoach", fields: [coachId], references: [id])
   substituteCoachId  String?
@@ -310,6 +312,7 @@ model PackagePlan {
   name                 String
   slug                 String          @unique
   categoryName         String
+  categorySlug         String
   classTypeId          String?
   classType            ClassType?      @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
   description          String?
@@ -336,22 +339,30 @@ model PackagePlan {
   sourceBalances       UserPackageBalance[]    @relation("BalanceSourcePlan")
 
   @@index([categoryName, displayOrder])
+  @@index([categorySlug, displayOrder])
   @@index([isActive, displayOrder])
 }
 
 model UserPackage {
-  id                 String            @id @default(cuid())
-  userId             String
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId             String
-  plan               PackagePlan       @relation(fields: [planId], references: [id], onDelete: Restrict)
-  status             UserPackageStatus @default(PENDING)
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  sessionsTotal      Int?
-  sessionsRemaining  Int?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  id                           String            @id @default(cuid())
+  userId                       String
+  user                         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId                       String?
+  plan                         PackagePlan?      @relation(fields: [planId], references: [id], onDelete: SetNull)
+  sourcePlanIdSnapshot         String
+  planNameSnapshot             String
+  planCategoryNameSnapshot     String
+  planPriceCentsSnapshot       Int
+  planPeriodDaysSnapshot       Int               @default(30)
+  planIsUnlimitedSnapshot      Boolean           @default(false)
+  planSessionsPerMonthSnapshot Int?
+  status                       UserPackageStatus @default(PENDING)
+  currentPeriodStart           DateTime
+  currentPeriodEnd             DateTime
+  sessionsTotal                Int?
+  sessionsRemaining            Int?
+  createdAt                    DateTime          @default(now())
+  updatedAt                    DateTime          @updatedAt
 
   balances      UserPackageBalance[]
   consumptions  BookingConsumption[]
@@ -359,6 +370,7 @@ model UserPackage {
   @@index([userId, status])
   @@index([userId, currentPeriodEnd])
   @@index([planId])
+  @@index([sourcePlanIdSnapshot])
 }
 
 model UserPackageBalance {

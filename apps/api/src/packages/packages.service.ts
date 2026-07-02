@@ -24,12 +24,17 @@ import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
 import { PackageUsageService } from './package-usage.service';
+import {
+  buildUserPackagePlanSnapshot,
+  resolveUserPackagePlan,
+} from './user-package-plan-snapshot.util';
 
 type AdminPlanRecord = {
   id: string;
   name: string;
   slug: string;
   categoryName: string;
+  categorySlug: string;
   classTypeId?: string | null;
   description: string | null;
   priceCents: number;
@@ -127,8 +132,15 @@ export class PackagesService {
 
   async createPlan(dto: UpsertPackagePlanDto) {
     const name = this.requireNonEmptyString(dto.name, 'Plan name is required');
-    const slug = this.normalizeSlug(dto.slug ?? name);
     const categoryName = this.normalizeCategoryName(dto.categoryName);
+    const categorySlug =
+      dto.categorySlug !== undefined && dto.categorySlug.trim().length > 0
+        ? this.normalizeSlug(dto.categorySlug)
+        : this.buildUniqueCategorySlug(categoryName);
+    const slug =
+      dto.slug !== undefined && dto.slug.trim().length > 0
+        ? this.normalizeSlug(dto.slug)
+        : this.buildUniqueCategorySlug(name);
     await this.assertSlugUnique(slug);
     this.assertDiscountBounds(
       dto.priceCents ?? 0,
@@ -143,6 +155,7 @@ export class PackagesService {
         name,
         slug,
         categoryName,
+        categorySlug,
         ...(resolvedTypeSessions !== undefined
           ? resolvedTypeSessions.classTypeId === null
             ? {}
@@ -228,6 +241,10 @@ export class PackagesService {
           ...(dto.categoryName !== undefined
             ? { categoryName: this.normalizeCategoryName(dto.categoryName) }
             : {}),
+          ...(dto.categorySlug !== undefined &&
+          dto.categorySlug.trim().length > 0
+            ? { categorySlug: this.normalizeSlug(dto.categorySlug) }
+            : {}),
           ...(dto.classTypeId !== undefined
             ? dto.classTypeId === null
               ? { classType: { disconnect: true } }
@@ -301,41 +318,44 @@ export class PackagesService {
   }
 
   async deletePlan(id: string) {
-    await this.assertPlanDeletable(id);
+    const plan = await this.prisma.packagePlan.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (plan === null) {
+      throw new NotFoundException('Plan not found');
+    }
     await this.prisma.packagePlan.delete({ where: { id } });
     await this.invalidatePublicPlansCache();
     return { ok: true };
   }
 
   async updateCategoryStatus(dto: UpdateCategoryStatusDto) {
-    const categoryName = this.normalizeCategoryName(dto.categoryName);
+    const categorySlug = this.normalizeSlug(dto.categorySlug);
     await this.prisma.packagePlan.updateMany({
-      where: { categoryName },
+      where: { categorySlug },
       data: { isActive: dto.isActive },
     });
     const plans = await this.prisma.packagePlan.findMany({
-      where: { categoryName },
+      where: { categorySlug },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
     await this.invalidatePublicPlansCache();
     return {
-      categoryName,
+      categorySlug,
       isActive: dto.isActive,
       plans: plans.map((plan) => this.toAdminPlanRow(plan)),
     };
   }
 
   async deleteCategory(dto: DeleteCategoryDto) {
-    const categoryName = this.normalizeCategoryName(dto.categoryName);
+    const categorySlug = this.normalizeSlug(dto.categorySlug);
     const rows = await this.prisma.packagePlan.findMany({
-      where: { categoryName },
+      where: { categorySlug },
       select: { id: true },
     });
     if (rows.length === 0) {
       return { deletedIds: [] as string[] };
-    }
-    for (const row of rows) {
-      await this.assertPlanDeletable(row.id);
     }
     const ids = rows.map((row) => row.id);
     await this.prisma.packagePlan.deleteMany({ where: { id: { in: ids } } });
@@ -376,7 +396,11 @@ export class PackagesService {
       orderBy: { currentPeriodEnd: 'asc' },
       take: 1000,
     });
-    return { count: memberships.length, memberships };
+    return {
+      count: memberships.length,
+      allowsDeletion: true,
+      memberships,
+    };
   }
 
   async syncExpired(dto: ReconcilePackagesDto) {
@@ -396,29 +420,27 @@ export class PackagesService {
       orderBy: { createdAt: 'desc' },
       take: 200,
     });
-    return rows.map((row) => ({
-      id: row.id,
-      status: row.status,
-      sessionsRemaining: row.sessionsRemaining,
-      totalSessions: row.sessionsTotal,
-      usedSessions:
-        row.sessionsTotal === null || row.sessionsRemaining === null
-          ? null
-          : Math.max(row.sessionsTotal - row.sessionsRemaining, 0),
-      remainingSessions: row.sessionsRemaining,
-      isUnlimited: row.plan.isUnlimited,
-      currentPeriodStart: row.currentPeriodStart.toISOString(),
-      currentPeriodEnd: row.currentPeriodEnd.toISOString(),
-      plan: {
-        id: row.plan.id,
-        name: row.plan.name,
-        categoryName: row.plan.categoryName,
-        priceCents: row.plan.priceCents,
-        periodDays: row.plan.periodDays,
-        isUnlimited: row.plan.isUnlimited,
-        sessionsPerMonth: row.plan.sessionsPerMonth,
-      },
-    }));
+    return rows.map((row) => {
+      const resolvedPlan = resolveUserPackagePlan({
+        plan: row.plan,
+        snapshots: row,
+      });
+      return {
+        id: row.id,
+        status: row.status,
+        sessionsRemaining: row.sessionsRemaining,
+        totalSessions: row.sessionsTotal,
+        usedSessions:
+          row.sessionsTotal === null || row.sessionsRemaining === null
+            ? null
+            : Math.max(row.sessionsTotal - row.sessionsRemaining, 0),
+        remainingSessions: row.sessionsRemaining,
+        isUnlimited: resolvedPlan.isUnlimited,
+        currentPeriodStart: row.currentPeriodStart.toISOString(),
+        currentPeriodEnd: row.currentPeriodEnd.toISOString(),
+        plan: resolvedPlan,
+      };
+    });
   }
 
   async subscribe(userId: string, dto: SubscribePackageDto) {
@@ -437,6 +459,7 @@ export class PackagesService {
         data: {
           userId,
           planId: plan.id,
+          ...buildUserPackagePlanSnapshot(plan),
           status:
             dto.paymentMethod === ManualPaymentMethod.CARD
               ? USER_PACKAGE_STATUS.PENDING
@@ -497,6 +520,7 @@ export class PackagesService {
       id: string;
       name: string;
       categoryName: string;
+      categorySlug: string;
       description: string | null;
       priceCents: number;
       discountedPriceCents: number | null;
@@ -531,6 +555,7 @@ export class PackagesService {
       id: plan.id,
       name: plan.name,
       categoryName: plan.categoryName,
+      categorySlug: plan.categorySlug,
       classTypeId: plan.classTypeId ?? null,
       description: plan.description,
       priceCents: plan.priceCents,
@@ -571,6 +596,18 @@ export class PackagesService {
       return normalized;
     }
     return `plan-${randomBytes(4).toString('hex')}`;
+  }
+
+  /** Unique slug for a new package group or plan row (display names may repeat). */
+  private buildUniqueCategorySlug(baseName: string): string {
+    const normalized = this.trimEdgeHyphens(
+      baseName
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-'),
+    ).slice(0, 100);
+    const prefix = normalized.length > 0 ? normalized : 'group';
+    return `${prefix}-${randomBytes(4).toString('hex')}`.slice(0, 120);
   }
 
   private trimEdgeHyphens(value: string): string {

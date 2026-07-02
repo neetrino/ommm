@@ -46,6 +46,12 @@ export class UpsertPackagePlanDto {
 
   @IsOptional()
   @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  categorySlug?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(3000)
   description?: string | null;
 

@@ -16,5 +16,6 @@ export type PackageDeletionBlockerRow = {
 
 export type PackageDeletionBlockersResponse = {
   count: number;
+  allowsDeletion?: boolean;
   memberships: PackageDeletionBlockerRow[];
 };

@@ -23,13 +23,10 @@ import {
   HOME_FOOTER_TABLET_LAYOUT,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
-import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 import { MARKETING_FOOTER_MARKER } from "@/components/marketing/marketing-route-utils";
 import { MARKETING_CONTENT_MAX_WIDTH_PX } from "@/components/marketing/marketing-content-layout";
-import { filterMarketingNavLinks } from "@/lib/home-page-sections";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
-import { getHomeSectionsVisibility } from "@/server/home-sections-visibility";
 
 type MarketingPublicHomeFooterProps = {
   locale: string;
@@ -192,21 +189,11 @@ export async function MarketingPublicHomeFooter({
   showContactSection = true,
 }: MarketingPublicHomeFooterProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const navT = await getTranslations({ locale, namespace: "nav" });
-  const visibility = await getHomeSectionsVisibility();
-  const footerNavLinks = filterMarketingNavLinks(visibility).filter((link) => link.key !== "home");
 
   const topBar = (
-    <nav className={styles.topBar} aria-label={t("footerTopNavAria")}>
+    <div className={styles.topBar}>
       <p className={styles.wordmark}>{t("footerWordmark")}</p>
-      <div className={styles.topNav}>
-        {footerNavLinks.map(({ href, key }) => (
-          <Link key={key} href={href} className={styles.topNavLink}>
-            {navT(key as MarketingNavKey)}
-          </Link>
-        ))}
-      </div>
-    </nav>
+    </div>
   );
 
   const illustration = (
@@ -305,12 +292,6 @@ export async function MarketingPublicHomeFooter({
           <MarketingPublicHomeFooterMobile
             wordmarkLabel={t("footerWordmark")}
             illustrationAlt={t("footerIllustrationAlt")}
-            navAria={t("footerTopNavAria")}
-            navLinks={footerNavLinks.map(({ href, key }) => ({
-              href,
-              key,
-              label: navT(key as MarketingNavKey),
-            }))}
             contactTitle={t("footerContactTitle")}
             email={t("footerEmail")}
             address={t("footerAddress")}

@@ -10,7 +10,7 @@ import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 type CategoryStatusResponse = {
-  categoryName: string;
+  categorySlug: string;
   isActive: boolean;
   plans: AdminPackageRow[];
 };
@@ -18,14 +18,14 @@ type CategoryStatusResponse = {
 type PendingConfirm = "enable" | "disable";
 
 type AdminPackageCategoryStatusActionsProps = {
-  categoryName: string;
+  categorySlug: string;
   isActive: boolean;
   disabled?: boolean;
   onUpdated: (plans: readonly AdminPackageRow[]) => void;
 };
 
 export function AdminPackageCategoryStatusActions({
-  categoryName,
+  categorySlug,
   isActive,
   disabled = false,
   onUpdated,
@@ -65,7 +65,7 @@ export function AdminPackageCategoryStatusActions({
         "/packages/admin/categories/status",
         {
           method: "PATCH",
-          body: JSON.stringify({ categoryName, isActive: nextIsActive }),
+          body: JSON.stringify({ categorySlug, isActive: nextIsActive }),
         },
       );
       onUpdated(saved.plans);

@@ -1,6 +1,6 @@
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
-import { categoryNamesToOptions } from "@/components/admin/package-category-utils";
+import { categoryPackagesToOptions } from "@/components/admin/package-category-utils";
 
 export type FinancePaymentPackageFilterOption = {
   value: string;
@@ -49,12 +49,10 @@ export function buildFinancePaymentPackageFilterOptions({
     label: formatPackagePlanName(plan.name, plan.sessionsPerMonth),
   }));
 
-  const classOptions = categoryNamesToOptions(plans.map((plan) => plan.categoryName)).map(
-    (option) => ({
-      value: option.label,
-      label: option.label,
-    }),
-  );
+  const classOptions = categoryPackagesToOptions(plans).map((option) => ({
+    value: option.label,
+    label: option.label,
+  }));
 
   const sessionCounts = new Set<number>();
   let hasUnlimited = false;

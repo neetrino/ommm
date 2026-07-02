@@ -15,17 +15,9 @@ import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type FooterLegalKey = (typeof HOME_FOOTER_LEGAL_LINKS)[number]["labelKey"];
 
-export type MarketingPublicHomeFooterMobileNavLink = {
-  href: string;
-  key: string;
-  label: string;
-};
-
 export type MarketingPublicHomeFooterMobileProps = {
   wordmarkLabel: string;
   illustrationAlt: string;
-  navAria: string;
-  navLinks: readonly MarketingPublicHomeFooterMobileNavLink[];
   contactTitle: string;
   email: string;
   address: string;
@@ -45,8 +37,6 @@ export type MarketingPublicHomeFooterMobileProps = {
 export function MarketingPublicHomeFooterMobile({
   wordmarkLabel,
   illustrationAlt,
-  navAria,
-  navLinks,
   contactTitle,
   email,
   address,
@@ -64,16 +54,6 @@ export function MarketingPublicHomeFooterMobile({
   return (
     <div className={styles.mobileStack}>
       <p className={styles.wordmark}>{wordmarkLabel}</p>
-
-      {navLinks.length > 0 ? (
-        <nav className={styles.mobileNav} aria-label={navAria}>
-          {navLinks.map(({ href, key, label }) => (
-            <Link key={key} href={href} className={styles.mobileNavLink}>
-              {label}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
 
       {showContactSection ? (
         <div className={styles.mobileContactSection}>

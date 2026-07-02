@@ -4,5 +4,5 @@ export class DeleteCategoryDto {
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  categoryName!: string;
+  categorySlug!: string;
 }

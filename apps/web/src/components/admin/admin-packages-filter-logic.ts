@@ -4,7 +4,6 @@ import type {
   PackageSortOrder,
   PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
-import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 
 /** Searchable text for a package row (name, category, description, features). */
 export function buildPackageSearchHaystack(pkg: AdminPackageRow): string {
@@ -28,7 +27,7 @@ function buildCategoryShellHaystacks(
     if (pkg.priceCents > 0) {
       continue;
     }
-    const key = normalizePackageCategoryKey(pkg.categoryName);
+    const key = pkg.categorySlug;
     const current = haystacks.get(key) ?? "";
     haystacks.set(key, `${current} ${buildPackageSearchHaystack(pkg)}`.trim());
   }
@@ -53,10 +52,9 @@ function packageMatchesSearch(
   search: string,
   categoryShellHaystacks: ReadonlyMap<string, string>,
 ): boolean {
-  const categoryKey = normalizePackageCategoryKey(pkg.categoryName);
   const combined = [
     buildPackageSearchHaystack(pkg),
-    categoryShellHaystacks.get(categoryKey) ?? "",
+    categoryShellHaystacks.get(pkg.categorySlug) ?? "",
   ]
     .join(" ")
     .trim();
@@ -103,7 +101,7 @@ export function filterPackages(
       return true;
     }
     if (
-      categoryKeysMatchingShell.has(normalizePackageCategoryKey(pkg.categoryName)) &&
+      categoryKeysMatchingShell.has(pkg.categorySlug) &&
       pkg.priceCents > 0
     ) {
       return true;

@@ -2702,6 +2702,7 @@
       "addGroupButton": "Add Group",
       "addPackageButton": "Add Group",
       "addClassTypeButton": "Add class type",
+      "manageTypesButton": "Manage types",
       "createGroupTitle": "Add group",
       "createGroupDescription": "Create a container group for membership pages on the public site.",
       "createTitle": "Add group",
@@ -2811,11 +2812,11 @@
       "deletePackageConfirmButton": "Yes / Delete",
       "deletionBlockers": {
         "loading": "Checking active subscriptions…",
-        "blockedSummary": "This package cannot be deleted because {count} members still have active, pending, or paused subscriptions.",
+        "blockedSummary": "{count} members still have active, pending, or paused subscriptions. Their purchased packages will stay active after deletion.",
         "viewMembersButton": "View {count} members",
-        "listHeading": "Blocking members ({count})",
+        "listHeading": "Members with active subscriptions ({count})",
         "validUntil": "Valid until {date}",
-        "resolveHint": "Cancel or expire these subscriptions in Clients before deleting this package.",
+        "resolveHint": "Deleting this catalog package removes it from public listings only. Existing member packages remain valid until they expire.",
         "statusLabels": {
           "ACTIVE": "Active",
           "PAUSED": "Paused",

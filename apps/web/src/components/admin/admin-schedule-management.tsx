@@ -65,7 +65,6 @@ import {
 import {
   buildSchedulePackageFilterOptions,
   resolveScheduleSelectedClassTypeIds,
-  type SchedulePackageOption,
 } from "@/components/admin/admin-schedule-package-filter-options";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
@@ -206,7 +205,6 @@ const LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const LEGACY_EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
 const SESSION_LEVEL_SEPARATOR = ", ";
 const DEFAULT_SESSION_CAPACITY = "10";
-const PACKAGE_CLASS_TYPE_VALUE_PREFIX = "package:";
 
 function replaceScheduleModalInUrl(
   pathname: string,
@@ -390,29 +388,14 @@ function batchFormPayload(
 
 function buildSessionClassTypeOptions(
   classTypes: readonly AdminScheduleClassType[],
-  packageOptions: readonly SchedulePackageOption[],
 ): SessionClassTypeOption[] {
-  const options: SessionClassTypeOption[] = classTypes.map((type) => ({
-    value: type.id,
-    label: type.name,
-    classTypeId: type.id,
-  }));
-  const classTypeIds = new Set(classTypes.map((type) => type.id));
-
-  for (const option of packageOptions) {
-    const linkedClassTypeId = option.classTypeIds.find((id) => classTypeIds.has(id)) ?? null;
-    if (linkedClassTypeId !== null) {
-      continue;
-    }
-    options.push({
-      value: `${PACKAGE_CLASS_TYPE_VALUE_PREFIX}${option.id}`,
-      label: option.label,
-      classTypeId: null,
-      packageLabel: option.label,
-    });
-  }
-
-  return options.sort((left, right) => left.label.localeCompare(right.label));
+  return classTypes
+    .map((type) => ({
+      value: type.id,
+      label: type.name,
+      classTypeId: type.id,
+    }))
+    .sort((left, right) => left.label.localeCompare(right.label));
 }
 
 export function AdminScheduleManagement({
@@ -616,8 +599,8 @@ export function AdminScheduleManagement({
   );
 
   const sessionClassTypeOptions = useMemo(
-    () => buildSessionClassTypeOptions(classTypes, packageOptions),
-    [classTypes, packageOptions],
+    () => buildSessionClassTypeOptions(classTypes),
+    [classTypes],
   );
 
   const isListView = isStaff || view === "list";
@@ -1168,16 +1151,6 @@ export function AdminScheduleManagement({
             t("messages.deleteSuccess"),
           );
         }}
-        onClassTypeCreated={(created) => {
-          setClassTypes((current) => {
-            if (current.some((type) => type.id === created.id)) {
-              return current;
-            }
-            return [...current, created].sort((first, second) =>
-              first.name.localeCompare(second.name),
-            );
-          });
-        }}
       />
     </div>
   );
@@ -1393,12 +1366,8 @@ function SessionFormSheet({
     setPending(true);
     setError(null);
     try {
-      const resolvedClassType = await resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
-      const title = sessionTitleFromClassTypeSelection(
-        form.classTypeId,
-        classTypeOptions,
-        resolvedClassType,
-      );
+      const resolvedClassType = resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
+      const title = sessionTitleFromClassTypeSelection(form.classTypeId, classTypeOptions);
       if (title.length === 0) {
         throw new Error(t("validation.classTypeRequired"));
       }

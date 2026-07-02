@@ -24,6 +24,8 @@ import { AdminPackageCategoryStatusActions } from "@/components/admin/admin-pack
 import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
 import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
+import { AdminTypesModal } from "@/components/admin/admin-types-modal";
+import type { AdminClassTypeRow } from "@/components/admin/admin-types-management";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
 import {
@@ -52,7 +54,6 @@ import {
   type PackageFilterValues,
   upsertAdminPackageRow,
 } from "@/components/admin/admin-packages-types";
-import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import {
   buildPackageUrlFiltersQuery,
   buildPackagesPathname,
@@ -69,6 +70,7 @@ import {
   PACKAGE_MODAL_EDIT_TIER_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
+  PACKAGE_MODAL_TYPES_VALUE,
   PACKAGE_PRICING_QUERY_KEY,
   parsePackageFiltersFromSearch,
 } from "@/components/admin/admin-packages-url";
@@ -85,7 +87,7 @@ import {
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
-  classTypeOptions: readonly { id: string; name: string }[];
+  initialClassTypes: readonly AdminClassTypeRow[];
   locale: string;
   initialFilters: PackageFilterValues;
 };
@@ -99,25 +101,28 @@ const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
 const PACKAGE_SEARCH_DEBOUNCE_MS = 300;
 
 function revealPackageCategoryInFilters(
-  categoryName: string,
+  categorySlug: string,
   setSelectedCategoryIds: Dispatch<SetStateAction<ReadonlySet<string>>>,
   setExpandedCategoryKeys: Dispatch<SetStateAction<ReadonlySet<string>>>,
 ): void {
-  const categoryKey = normalizePackageCategoryKey(categoryName);
+  const normalizedSlug = categorySlug.trim();
+  if (normalizedSlug.length === 0) {
+    return;
+  }
   setSelectedCategoryIds((current) => {
-    if (current.has(categoryName)) {
+    if (current.has(normalizedSlug)) {
       return current;
     }
     const next = new Set(current);
-    next.add(categoryName);
+    next.add(normalizedSlug);
     return next;
   });
   setExpandedCategoryKeys((current) => {
-    if (current.has(categoryKey)) {
+    if (current.has(normalizedSlug)) {
       return current;
     }
     const next = new Set(current);
-    next.add(categoryKey);
+    next.add(normalizedSlug);
     return next;
   });
 }
@@ -142,7 +147,7 @@ function PackagesEmptyState({ children }: { children: ReactNode }) {
 
 export function AdminPackagesManagement({
   packages: packagesFromServer,
-  classTypeOptions,
+  initialClassTypes,
   locale,
   initialFilters,
 }: AdminPackagesManagementProps) {
@@ -153,6 +158,12 @@ export function AdminPackagesManagement({
   const searchParams = useSearchParams();
   const filtersRef = useRef(initialFilters);
   const searchParamsRef = useRef(searchParams.toString());
+  const [classTypes, setClassTypes] = useState<readonly AdminClassTypeRow[]>(initialClassTypes);
+  const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
+  const classTypeOptions = useMemo(
+    () => classTypes.map((type) => ({ id: type.id, name: type.name })),
+    [classTypes],
+  );
   const [packageRows, setPackageRows] = useState<readonly AdminPackageRow[]>(() =>
     packagesFromServer.map(normalizeAdminPackageRow),
   );
@@ -166,6 +177,11 @@ export function AdminPackagesManagement({
     status: initialFilters.status,
     order: initialFilters.order,
   });
+
+  if (prevInitialClassTypes !== initialClassTypes) {
+    setPrevInitialClassTypes(initialClassTypes);
+    setClassTypes(initialClassTypes);
+  }
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();
@@ -305,26 +321,23 @@ export function AdminPackagesManagement({
     prevCategoryOptionsRef.current = categoryOptions;
   }, [categoryOptions]);
 
-  const editingCategoryName = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
-  const deletingCategoryId = searchParams.get(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+  const editingCategorySlug = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
   const isEditCategoryOpen =
-    editingCategoryName !== null &&
-    editingCategoryName.trim().length > 0 &&
-    sortedPackages.some(
-      (pkg) =>
-        normalizePackageCategoryKey(pkg.categoryName) ===
-        normalizePackageCategoryKey(editingCategoryName),
-    );
+    editingCategorySlug !== null &&
+    editingCategorySlug.trim().length > 0 &&
+    sortedPackages.some((pkg) => pkg.categorySlug === editingCategorySlug.trim());
+  const editingCategory = useMemo(() => {
+    if (editingCategorySlug === null || editingCategorySlug.trim().length === 0) {
+      return null;
+    }
+    return categoryOptions.find((option) => option.id === editingCategorySlug.trim()) ?? null;
+  }, [categoryOptions, editingCategorySlug]);
+  const deletingCategoryId = searchParams.get(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
   const deletingCategory = useMemo(() => {
     if (deletingCategoryId === null || deletingCategoryId.trim().length === 0) {
       return null;
     }
-    const deletingKey = normalizePackageCategoryKey(deletingCategoryId);
-    return (
-      categoryOptions.find(
-        (option) => normalizePackageCategoryKey(option.id) === deletingKey,
-      ) ?? null
-    );
+    return categoryOptions.find((option) => option.id === deletingCategoryId.trim()) ?? null;
   }, [categoryOptions, deletingCategoryId]);
   const isDeleteCategoryOpen = deletingCategory !== null;
 
@@ -347,7 +360,7 @@ export function AdminPackagesManagement({
   ) {
     setPrevDeletePackageRevealId(deletingPackage.id);
     revealPackageCategoryInFilters(
-      deletingPackage.categoryName,
+      deletingPackage.categorySlug,
       setSelectedCategoryIds,
       setExpandedCategoryKeys,
     );
@@ -430,12 +443,12 @@ export function AdminPackagesManagement({
     setPackageRows((current) => upsertAdminPackageRow(current, normalized));
     setSelectedCategoryIds((current) => {
       const next = new Set(current);
-      next.add(normalized.categoryName);
+      next.add(normalized.categorySlug);
       return next;
     });
     setExpandedCategoryKeys((current) => {
       const next = new Set(current);
-      next.add(normalizePackageCategoryKey(normalized.categoryName));
+      next.add(normalized.categorySlug);
       return next;
     });
   }, []);
@@ -455,11 +468,9 @@ export function AdminPackagesManagement({
   );
 
   const openAddTier = useCallback(
-    (categoryId: string) => {
-      const categoryKey = normalizePackageCategoryKey(categoryId);
+    (categorySlug: string) => {
       const shellPlan = sortedPackages.find(
-        (pkg) =>
-          normalizePackageCategoryKey(pkg.categoryName) === categoryKey && pkg.priceCents <= 0,
+        (pkg) => pkg.categorySlug === categorySlug && pkg.priceCents <= 0,
       );
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
@@ -467,7 +478,7 @@ export function AdminPackagesManagement({
       clearPackageDeleteQueryKeys(params);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_ADD_TIER_VALUE);
-      params.set(PACKAGE_CATEGORY_QUERY_KEY, categoryId);
+      params.set(PACKAGE_CATEGORY_QUERY_KEY, categorySlug);
       if (shellPlan !== undefined) {
         params.set(PACKAGE_PRICING_QUERY_KEY, shellPlan.id);
       }
@@ -513,7 +524,7 @@ export function AdminPackagesManagement({
         return;
       }
       revealPackageCategoryInFilters(
-        target.categoryName,
+        target.categorySlug,
         setSelectedCategoryIds,
         setExpandedCategoryKeys,
       );
@@ -529,36 +540,21 @@ export function AdminPackagesManagement({
   );
 
   const handleCategoryRenamed = useCallback(
-    (fromName: string, toName: string, updated: readonly AdminPackageRow[]) => {
-      const previousCategoryKey = normalizePackageCategoryKey(fromName);
+    (
+      categorySlug: string,
+      _fromName: string,
+      _toName: string,
+      updated: readonly AdminPackageRow[],
+    ) => {
       const normalizedUpdated = updated.map(normalizeAdminPackageRow);
-      const nextCategoryName = normalizedUpdated[0]?.categoryName ?? toName.trim();
       setPackageRows((current) => {
         const withoutPreviousCategory = current.filter(
-          (row) => normalizePackageCategoryKey(row.categoryName) !== previousCategoryKey,
+          (row) => row.categorySlug !== categorySlug,
         );
         let next = withoutPreviousCategory;
         for (const row of normalizedUpdated) {
           next = upsertAdminPackageRow(next, row);
         }
-        return next;
-      });
-      setSelectedCategoryIds((current) => {
-        const next = new Set<string>();
-        for (const id of current) {
-          next.add(
-            normalizePackageCategoryKey(id) === previousCategoryKey ? nextCategoryName : id,
-          );
-        }
-        return next;
-      });
-      setExpandedCategoryKeys((current) => {
-        if (!current.has(previousCategoryKey)) {
-          return current;
-        }
-        const next = new Set(current);
-        next.delete(previousCategoryKey);
-        next.add(normalizePackageCategoryKey(nextCategoryName));
         return next;
       });
       router.refresh();
@@ -567,31 +563,24 @@ export function AdminPackagesManagement({
   );
 
   const handleCategoryDeleted = useCallback(
-    (categoryName: string, deletedPackageIds: readonly string[]) => {
-      const deletedCategoryKey = normalizePackageCategoryKey(categoryName);
+    (categorySlug: string, deletedPackageIds: readonly string[]) => {
       const removed = new Set(deletedPackageIds);
       setPackageRows((current) =>
         current.filter(
-          (row) =>
-            !removed.has(row.id) &&
-            normalizePackageCategoryKey(row.categoryName) !== deletedCategoryKey,
+          (row) => !removed.has(row.id) && row.categorySlug !== categorySlug,
         ),
       );
       setSelectedCategoryIds((current) => {
-        const next = new Set<string>();
-        for (const id of current) {
-          if (normalizePackageCategoryKey(id) !== deletedCategoryKey) {
-            next.add(id);
-          }
-        }
+        const next = new Set(current);
+        next.delete(categorySlug);
         return next;
       });
       setExpandedCategoryKeys((current) => {
-        if (!current.has(deletedCategoryKey)) {
+        if (!current.has(categorySlug)) {
           return current;
         }
         const next = new Set(current);
-        next.delete(deletedCategoryKey);
+        next.delete(categorySlug);
         return next;
       });
       setToastMessage(t("messages.categoryDeleteSuccess"));
@@ -611,6 +600,31 @@ export function AdminPackagesManagement({
     params.delete(PACKAGE_CATEGORY_QUERY_KEY);
     router.replace(buildPackagesPathname(pathname, params));
   }, [pathname, router, searchParams]);
+
+  const isTypesModalOpen =
+    searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_TYPES_VALUE;
+
+  const openTypesModal = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+    params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+    clearPackageDeleteQueryKeys(params);
+    params.delete(PACKAGE_EDIT_QUERY_KEY);
+    clearPackageModalQueryKeys(params);
+    params.delete(PACKAGE_CATEGORY_QUERY_KEY);
+    params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_TYPES_VALUE);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const closeTypesModal = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    clearPackageModalQueryKeys(params);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const handleClassTypesChanged = useCallback((nextTypes: readonly AdminClassTypeRow[]) => {
+    setClassTypes(nextTypes);
+  }, []);
 
   const openEditCategory = useCallback(
     (categoryId: string) => {
@@ -660,16 +674,27 @@ export function AdminPackagesManagement({
           />
         }
         trailing={
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={openAddModal}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-          >
-            <PlusIcon className="h-5 w-5 shrink-0" />
-            {t("addGroupButton")}
-          </OmmButton>
+          <>
+            <OmmButton
+              type="button"
+              variant="ghost"
+              size="md"
+              onClick={openTypesModal}
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full"
+            >
+              {t("manageTypesButton")}
+            </OmmButton>
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={openAddModal}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+            >
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              {t("addGroupButton")}
+            </OmmButton>
+          </>
         }
       />
 
@@ -720,15 +745,14 @@ export function AdminPackagesManagement({
                         category={category}
                         packages={filteredPackages}
                         locale={locale}
-                        open={expandedCategoryKeys.has(normalizePackageCategoryKey(category.id))}
+                        open={expandedCategoryKeys.has(category.id)}
                         onOpenChange={(next) => {
-                          const categoryKey = normalizePackageCategoryKey(category.id);
                           setExpandedCategoryKeys((current) => {
                             const updated = new Set(current);
                             if (next) {
-                              updated.add(categoryKey);
+                              updated.add(category.id);
                             } else {
-                              updated.delete(categoryKey);
+                              updated.delete(category.id);
                             }
                             return updated;
                           });
@@ -759,10 +783,17 @@ export function AdminPackagesManagement({
         )}
       </AdminPackagesShell>
 
+      <AdminTypesModal
+        isOpen={isTypesModalOpen}
+        initialTypes={classTypes}
+        onClose={closeTypesModal}
+        onTypesChanged={handleClassTypesChanged}
+      />
       <AdminPackageCategoryRenameModal
-        key={editingCategoryName ? `rename-category-${editingCategoryName}` : "rename-category-closed"}
+        key={editingCategorySlug ? `rename-category-${editingCategorySlug}` : "rename-category-closed"}
         isOpen={isEditCategoryOpen}
-        categoryName={editingCategoryName ?? ""}
+        categorySlug={editingCategorySlug ?? ""}
+        categoryName={editingCategory?.label ?? ""}
         packages={packageRows}
         onClose={closeEditCategory}
         onRenamed={handleCategoryRenamed}
@@ -770,6 +801,7 @@ export function AdminPackagesManagement({
       <AdminPackageCategoryDeleteModal
         key={deletingCategory ? `delete-category-${deletingCategory.id}` : "delete-category-closed"}
         isOpen={isDeleteCategoryOpen}
+        categorySlug={deletingCategory?.id ?? ""}
         categoryName={deletingCategory?.label ?? ""}
         packages={packageRows}
         onClose={closeDeleteCategory}
@@ -860,7 +892,7 @@ function CategoryAccordion({
       title={category.label}
       statusControl={
         <AdminPackageCategoryStatusActions
-          categoryName={category.id}
+          categorySlug={category.id}
           isActive={categoryIsActive}
           disabled={categoryPackages.length === 0}
           onUpdated={onCategoryPlansUpdated}

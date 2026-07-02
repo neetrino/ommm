@@ -86,10 +86,14 @@ export function resolveMarketingPackageCategoryByKey(
   apiCategories: readonly PublicPackageCategoryGroup[],
   categoryKey: string,
 ): PublicPackageCategoryGroup | null {
-  const normalizedKey = normalizePackageCategoryKey(decodeURIComponent(categoryKey));
+  const decodedKey = decodeURIComponent(categoryKey).trim();
+  const normalizedKey = normalizePackageCategoryKey(decodedKey);
   return (
     listPublicPackageCategoriesForPage(apiCategories).find(
-      (category) => normalizePackageCategoryKey(category.id) === normalizedKey,
+      (category) =>
+        category.id === decodedKey ||
+        normalizePackageCategoryKey(category.id) === normalizedKey ||
+        normalizePackageCategoryKey(category.label) === normalizedKey,
     ) ?? null
   );
 }

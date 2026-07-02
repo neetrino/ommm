@@ -22,7 +22,6 @@ type UseSessionEditFormArgs = {
   classTypeOptions: readonly SessionClassTypeOption[];
   coaches: readonly AdminScheduleCoach[];
   onSaved: (saved: AdminScheduleSession) => void;
-  onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 };
 
 export function useSessionEditForm({
@@ -32,7 +31,6 @@ export function useSessionEditForm({
   classTypeOptions,
   coaches,
   onSaved,
-  onClassTypeCreated,
 }: UseSessionEditFormArgs) {
   const submitLockRef = useRef(false);
 
@@ -78,10 +76,7 @@ export function useSessionEditForm({
     setBusy(true);
     setMessage(null);
     try {
-      const resolved = await resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
-      if (resolved.created) {
-        onClassTypeCreated?.(resolved.created);
-      }
+      const resolved = resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
       const eligibleCoaches = filterCoachesByClassType(coaches, resolved.classTypeId);
       if (
         eligibleCoaches.length === 0 ||
