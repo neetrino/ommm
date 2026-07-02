@@ -38,6 +38,9 @@
 | `R2_SECRET_ACCESS_KEY` | S3 secret։ |
 | `R2_BUCKET_NAME` | Որքան `.env`-ում։ |
 | `R2_PUBLIC_URL` | Հանրային asset base URL։ |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID (միայն Render — Vercel-ում **չդնես**)։ |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth secret (միայն Render)։ |
+| `GOOGLE_CALLBACK_URL` | `https://ommm.am/api/v1/auth/google/callback` (frontend origin + Next proxy, **ոչ** `onrender.com`)։ |
 
 `MAIL_TRANSPORT` քո `.env`-ում չկա — production-ում Nest-ը default-ով **Resend** է վերցնում; եթե ուզես log-only, Render-ում ավելացրու `MAIL_TRANSPORT=log`։
 
