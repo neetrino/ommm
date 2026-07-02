@@ -18,21 +18,7 @@ export function resolveSelectedClassTypeId(
   }
 
   const option = options.find((item) => item.value === selectedValue);
-  if (option?.classTypeId !== null && option?.classTypeId !== undefined) {
-    return option.classTypeId;
-  }
-
-  const name = option?.packageLabel?.trim() ?? option?.label.trim() ?? "";
-  if (name.length === 0) {
-    return null;
-  }
-
-  const existing = options.find(
-    (item) =>
-      item.classTypeId !== null &&
-      item.label.toLocaleLowerCase() === name.toLocaleLowerCase(),
-  );
-  return existing?.classTypeId ?? null;
+  return option?.classTypeId ?? null;
 }
 
 /** Active coaches assigned to the given class type. */

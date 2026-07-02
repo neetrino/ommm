@@ -239,6 +239,7 @@ model CoachAvailabilitySlot {
   @@index([coachProfileId, slotDate, slotTime])
 }
 
+/// Canonical catalog of schedulable class kinds. Admin schedule sessions must reference this table only.
 model ClassType {
   id          String   @id @default(cuid())
   name        String
@@ -255,8 +256,9 @@ model ClassSession {
   id                 String             @id @default(cuid())
   title              String             @default("")
   description        String?
+  /// FK to ClassType only — not package categories or free text.
   classTypeId        String
-  classType          ClassType          @relation(fields: [classTypeId], references: [id])
+  classType          ClassType          @relation(fields: [classTypeId], references: [id], onDelete: Restrict)
   coachId            String
   coach              CoachProfile       @relation("SessionCoach", fields: [coachId], references: [id])
   substituteCoachId  String?

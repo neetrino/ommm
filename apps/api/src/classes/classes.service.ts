@@ -417,6 +417,16 @@ export class ClassesService {
     }
   }
 
+  private async assertClassTypeExists(classTypeId: string): Promise<void> {
+    const classType = await this.prisma.classType.findUnique({
+      where: { id: classTypeId },
+      select: { id: true },
+    });
+    if (classType === null) {
+      throw new BadRequestException('Class type not found');
+    }
+  }
+
   private async assertCoachAssignedToClassType(
     coachId: string,
     classTypeId: string,
@@ -631,6 +641,7 @@ export class ClassesService {
   }
 
   async createSession(dto: CreateSessionDto): Promise<AdminSessionRow> {
+    await this.assertClassTypeExists(dto.classTypeId);
     await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
     if (dto.substituteCoachId) {
       await this.assertCoachAssignedToClassType(
@@ -674,6 +685,7 @@ export class ClassesService {
   async createSessionBatch(
     dto: CreateSessionBatchDto,
   ): Promise<AdminSessionRow[]> {
+    await this.assertClassTypeExists(dto.classTypeId);
     await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
     const title = await this.resolveSessionTitle(dto.title, dto.classTypeId);
     const createRows = this.buildBatchSessionData(dto, title);
@@ -704,6 +716,7 @@ export class ClassesService {
 
     const nextClassTypeId = dto.classTypeId ?? existing.classTypeId;
     const nextCoachId = dto.coachId ?? existing.coachId;
+    await this.assertClassTypeExists(nextClassTypeId);
     await this.assertCoachAssignedToClassType(nextCoachId, nextClassTypeId);
     if (dto.substituteCoachId) {
       await this.assertCoachAssignedToClassType(
