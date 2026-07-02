@@ -312,6 +312,7 @@ model PackagePlan {
   name                 String
   slug                 String          @unique
   categoryName         String
+  categorySlug         String
   classTypeId          String?
   classType            ClassType?      @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
   description          String?
@@ -338,6 +339,7 @@ model PackagePlan {
   sourceBalances       UserPackageBalance[]    @relation("BalanceSourcePlan")
 
   @@index([categoryName, displayOrder])
+  @@index([categorySlug, displayOrder])
   @@index([isActive, displayOrder])
 }
 

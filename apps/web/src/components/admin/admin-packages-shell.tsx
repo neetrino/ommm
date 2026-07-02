@@ -29,7 +29,6 @@ import {
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
 } from "@/components/admin/admin-packages-url";
-import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 
 const BANNER_MS = 8000;
 
@@ -66,10 +65,10 @@ export function AdminPackagesShell({
   const editingPackageId = searchParams.get(PACKAGE_EDIT_QUERY_KEY);
   const pricingPackageId = searchParams.get(PACKAGE_PRICING_QUERY_KEY);
   const categoryIdFromQuery = searchParams.get(PACKAGE_CATEGORY_QUERY_KEY);
-  const addTierCategoryName = categoryIdFromQuery?.trim() ?? "";
+  const addTierCategorySlug = categoryIdFromQuery?.trim() ?? "";
   const isAddTierModalOpen =
     searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_ADD_TIER_VALUE &&
-    addTierCategoryName.length > 0;
+    addTierCategorySlug.length > 0;
   const isEditTierModalOpen =
     searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_EDIT_TIER_VALUE &&
     pricingPackageId !== null &&
@@ -111,11 +110,8 @@ export function AdminPackagesShell({
     if (!isAddTierModalOpen) {
       return undefined;
     }
-    const categoryKey = normalizePackageCategoryKey(addTierCategoryName);
-    return packages.find(
-      (pkg) => normalizePackageCategoryKey(pkg.categoryName) === categoryKey,
-    );
-  }, [addTierCategoryName, isAddTierModalOpen, packages]);
+    return packages.find((pkg) => pkg.categorySlug === addTierCategorySlug);
+  }, [addTierCategorySlug, isAddTierModalOpen, packages]);
   const nextDisplayOrder = useMemo(() => {
     if (packages.length === 0) {
       return 1;
@@ -124,29 +120,24 @@ export function AdminPackagesShell({
     return maxDisplayOrder + 1;
   }, [packages]);
   const initialCategoryName = useMemo(() => {
+    if (isAddTierModalOpen && addTierCategorySlug.length > 0) {
+      return addTierCategorySlug;
+    }
     if (editingPackage !== undefined && editingPackage.categoryName.trim().length > 0) {
       return editingPackage.categoryName.trim();
     }
     if (pricingPackage !== undefined && pricingPackage.categoryName.trim().length > 0) {
       return pricingPackage.categoryName.trim();
     }
-    if (categoryIdFromQuery !== null && categoryIdFromQuery.trim().length > 0) {
-      return categoryIdFromQuery.trim();
-    }
-    if (
-      categoryIdFromQuery !== null &&
-      categoryOptions.some(
-        (option) => normalizePackageCategoryKey(option.id) === normalizePackageCategoryKey(categoryIdFromQuery),
-      )
-    ) {
-      const matched = categoryOptions.find(
-        (option) =>
-          normalizePackageCategoryKey(option.id) === normalizePackageCategoryKey(categoryIdFromQuery),
-      );
-      return matched?.id ?? categoryIdFromQuery;
-    }
-    return categoryOptions[0]?.id ?? defaultCategoryName;
-  }, [categoryIdFromQuery, categoryOptions, defaultCategoryName, editingPackage, pricingPackage]);
+    return categoryOptions[0]?.label ?? defaultCategoryName;
+  }, [
+    addTierCategorySlug,
+    categoryOptions,
+    defaultCategoryName,
+    editingPackage,
+    isAddTierModalOpen,
+    pricingPackage,
+  ]);
   const modalPackageId =
     modalMode === "pricing" || modalMode === "edit-tier"
       ? pricingPackage?.id

@@ -4,7 +4,7 @@ export class UpdateCategoryStatusDto {
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  categoryName!: string;
+  categorySlug!: string;
 
   @IsBoolean()
   isActive!: boolean;

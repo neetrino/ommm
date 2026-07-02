@@ -12,14 +12,16 @@ const DELETE_CATEGORY_CONFIRM_CLASS = "ommm-btn-lifecycle-action--danger";
 
 type AdminPackageCategoryDeleteModalProps = {
   isOpen: boolean;
+  categorySlug: string;
   categoryName: string;
   packages: readonly AdminPackageRow[];
   onClose: () => void;
-  onDeleted: (categoryName: string, deletedPackageIds: readonly string[]) => void;
+  onDeleted: (categorySlug: string, deletedPackageIds: readonly string[]) => void;
 };
 
 export function AdminPackageCategoryDeleteModal({
   isOpen,
+  categorySlug,
   categoryName,
   packages,
   onClose,
@@ -34,10 +36,10 @@ export function AdminPackageCategoryDeleteModal({
   }
 
   const trimmedName = categoryName.trim();
-  const configuredPackages = configuredPackagesInCategory(packages, trimmedName);
+  const configuredPackages = configuredPackagesInCategory(packages, categorySlug);
 
   async function onConfirm(): Promise<void> {
-    if (pending || trimmedName.length === 0) {
+    if (pending || categorySlug.trim().length === 0) {
       return;
     }
     setPending(true);
@@ -45,9 +47,9 @@ export function AdminPackageCategoryDeleteModal({
     try {
       const result = await apiFetch<{ deletedIds: string[] }>("/packages/admin/categories", {
         method: "DELETE",
-        body: JSON.stringify({ categoryName: trimmedName }),
+        body: JSON.stringify({ categorySlug }),
       });
-      onDeleted(trimmedName, result.deletedIds);
+      onDeleted(categorySlug, result.deletedIds);
       await revalidatePublicPackages();
       onClose();
     } catch (err) {

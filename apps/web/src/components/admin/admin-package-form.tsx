@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { AdminPackageFormSection } from "@/components/admin/admin-package-form-section";
 import {
   createEmptyPackageFormValues,
@@ -30,9 +30,11 @@ import {
 } from "@/components/admin/admin-package-form-utils";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import {
-  categoryNamesToOptions,
-  mergePackageCategoryOptions,
+  categoryPackagesToOptions,
+  normalizePackageCategoryLabel,
   resolvePackageCategoryName,
+  buildUniquePackageCategorySlug,
+  resolvePackageCategorySlug,
 } from "@/components/admin/package-category-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
 import { AdminPackageTierCompactFields } from "@/components/admin/admin-package-tier-compact-fields";
@@ -157,36 +159,19 @@ export function AdminPackageForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tierFieldErrors, setTierFieldErrors] = useState<TierFieldErrors>({});
-  const [categoryNamesFromApi, setCategoryNamesFromApi] = useState<readonly string[]>([]);
   const submitLockRef = useRef(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    void apiFetch<string[]>("/packages/admin/categories")
-      .then((names) => {
-        if (!cancelled) {
-          setCategoryNamesFromApi(names);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setCategoryNamesFromApi([]);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const mergedCategoryOptions = useMemo(() => {
-    const fromProps = categoryNamesToOptions(categoryOptions.map((option) => option.label));
-    const fromApi = categoryNamesToOptions(categoryNamesFromApi);
-    const merged = mergePackageCategoryOptions(fromProps, [
-      ...fromApi.map((option) => option.label),
-      ...(values.categoryName.length > 0 ? [values.categoryName] : []),
-    ]);
-    return merged;
-  }, [categoryNamesFromApi, categoryOptions, values.categoryName]);
+  const mergedCategoryOptions = useMemo(
+    () =>
+      categoryPackagesToOptions(
+        categoryOptions.map((option) => ({
+          categoryName: option.label,
+          categorySlug: option.id,
+          slug: option.id,
+        })),
+      ),
+    [categoryOptions],
+  );
 
   const categoryNameCandidates = useMemo(
     () => mergedCategoryOptions.map((option) => option.label),
@@ -287,23 +272,26 @@ export function AdminPackageForm({
 
     const detailsName = values.name.trim();
     const description = values.description.trim();
-    const createCategoryName = resolvePackageCategoryName(
-      detailsName,
-      categoryNameCandidates,
-    );
-    const tierCategoryName = resolvePackageCategoryName(
+    const createCategoryName = normalizePackageCategoryLabel(detailsName);
+    const tierCategorySlug = resolvePackageCategorySlug(
       initialCategoryName.trim(),
-      categoryNameCandidates,
+      initialPackage !== undefined ? [initialPackage] : categoryOptions.map((option) => ({
+        categoryName: option.label,
+        categorySlug: option.id,
+        slug: option.id,
+      })),
     );
+    const tierCategoryOption = mergedCategoryOptions.find((option) => option.id === tierCategorySlug);
+    const tierCategoryName =
+      tierCategoryOption?.label ??
+      (normalizePackageCategoryLabel(initialCategoryName) ||
+        normalizePackageCategoryLabel(initialPackage?.categoryName ?? ""));
     const selectedClassTypeName = classTypeNameById.get(values.classTypeId) ?? "";
     const selectedClassCategoryName =
       selectedClassTypeName.length > 0
         ? resolvePackageCategoryName(selectedClassTypeName, categoryNameCandidates)
         : "";
-    const editableCategoryName = resolvePackageCategoryName(
-      values.categoryName.trim(),
-      categoryNameCandidates,
-    );
+    const editableCategoryName = normalizePackageCategoryLabel(values.categoryName.trim());
     const categoryName = isCreateMode
       ? createCategoryName
       : isAddTierMode
@@ -328,7 +316,9 @@ export function AdminPackageForm({
       : detailsName.length > 0
         ? detailsName
         : initialPackage?.name ?? FALLBACK_PACKAGE_SLUG_PREFIX;
-    const slug = buildPackageSlug(slugSource);
+    const slug = isCreateMode
+      ? buildUniquePackageCategorySlug(slugSource)
+      : buildPackageSlug(slugSource);
     const payloadName = usesSessionNameField ? sessionName : detailsName;
 
     if (isCreateMode || isEditMode) {
@@ -500,7 +490,8 @@ export function AdminPackageForm({
     const payload = isCreateMode
       ? {
           name: payloadName,
-          categoryName,
+          categoryName: createCategoryName,
+          categorySlug: slug,
           slug,
           priceCents: 0,
           currency: "AMD",
@@ -523,8 +514,9 @@ export function AdminPackageForm({
           : {
               name: payloadName,
               ...(tierClassTypeId.length > 0 ? { classTypeId: tierClassTypeId } : {}),
-              categoryName,
-              slug: buildPackageTierSlug(categoryName, resolvedSessionsPerMonth),
+              categoryName: tierCategoryName,
+              categorySlug: tierCategorySlug,
+              slug: buildPackageTierSlug(tierCategorySlug, resolvedSessionsPerMonth),
               description: initialPackage?.description ?? null,
               ...pricingFields,
               displayOrder: nextDisplayOrder ?? 1,

@@ -15,14 +15,14 @@ export function buildSchedulePackageFilterOptions(
   const classTypeIdByCategoryKey = new Map(
     classTypes.map((type) => [normalizePackageCategoryKey(type.name), type.id]),
   );
-  const byCategoryKey = new Map<string, { label: string; classTypeIds: Set<string> }>();
-  const shellLabelByCategoryKey = new Map<string, string>();
+  const byCategorySlug = new Map<string, { label: string; classTypeIds: Set<string> }>();
+  const shellLabelByCategorySlug = new Map<string, string>();
 
   for (const pkg of packages) {
-    const categoryKey = normalizePackageCategoryKey(pkg.categoryName);
+    const categorySlug = pkg.categorySlug;
     const name = pkg.name.trim();
-    if (pkg.isActive && pkg.priceCents <= 0 && categoryKey.length > 0 && name.length > 0) {
-      shellLabelByCategoryKey.set(categoryKey, name);
+    if (pkg.isActive && pkg.priceCents <= 0 && categorySlug.length > 0 && name.length > 0) {
+      shellLabelByCategorySlug.set(categorySlug, name);
     }
   }
 
@@ -34,12 +34,13 @@ export function buildSchedulePackageFilterOptions(
     if (categoryLabel.length === 0) {
       continue;
     }
-    const categoryKey = normalizePackageCategoryKey(categoryLabel);
-    const label = shellLabelByCategoryKey.get(categoryKey) ?? categoryLabel;
-    const mappedClassTypeId = pkg.classTypeId ?? classTypeIdByCategoryKey.get(categoryKey);
-    const current = byCategoryKey.get(categoryKey);
+    const categorySlug = pkg.categorySlug;
+    const label = shellLabelByCategorySlug.get(categorySlug) ?? categoryLabel;
+    const mappedClassTypeId =
+      pkg.classTypeId ?? classTypeIdByCategoryKey.get(normalizePackageCategoryKey(categoryLabel));
+    const current = byCategorySlug.get(categorySlug);
     if (current === undefined) {
-      byCategoryKey.set(categoryKey, {
+      byCategorySlug.set(categorySlug, {
         label,
         classTypeIds: new Set(mappedClassTypeId === undefined ? [] : [mappedClassTypeId]),
       });
@@ -50,7 +51,7 @@ export function buildSchedulePackageFilterOptions(
     }
   }
 
-  return [...byCategoryKey.entries()]
+  return [...byCategorySlug.entries()]
     .map(([id, option]) => ({
       id,
       label: option.label,

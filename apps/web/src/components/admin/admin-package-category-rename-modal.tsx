@@ -8,18 +8,26 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { MAX_CATEGORY_NAME_LENGTH } from "@/components/admin/admin-package-form-utils";
-import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
+import { normalizePackageCategoryLabel } from "@/components/admin/package-category-utils";
+import { packagesInCategory } from "@/components/admin/admin-packages-categories";
 
 type AdminPackageCategoryRenameModalProps = {
   isOpen: boolean;
+  categorySlug: string;
   categoryName: string;
   packages: readonly AdminPackageRow[];
   onClose: () => void;
-  onRenamed: (fromName: string, toName: string, updated: readonly AdminPackageRow[]) => void;
+  onRenamed: (
+    categorySlug: string,
+    fromName: string,
+    toName: string,
+    updated: readonly AdminPackageRow[],
+  ) => void;
 };
 
 export function AdminPackageCategoryRenameModal({
   isOpen,
+  categorySlug,
   categoryName,
   packages,
   onClose,
@@ -35,14 +43,11 @@ export function AdminPackageCategoryRenameModal({
     return null;
   }
 
-  const categoryKey = normalizePackageCategoryKey(categoryName);
-  const categoryPackages = packages.filter(
-    (pkg) => normalizePackageCategoryKey(pkg.categoryName) === categoryKey,
-  );
+  const categoryPackages = packagesInCategory(packages, categorySlug);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const trimmed = nextName.trim();
+    const trimmed = normalizePackageCategoryLabel(nextName);
     if (trimmed.length === 0) {
       setError(t("categoryRequired"));
       return;
@@ -51,7 +56,7 @@ export function AdminPackageCategoryRenameModal({
       setError(t("categoryTooLong"));
       return;
     }
-    if (trimmed === categoryName.trim()) {
+    if (trimmed === normalizePackageCategoryLabel(categoryName)) {
       onClose();
       return;
     }
@@ -66,7 +71,7 @@ export function AdminPackageCategoryRenameModal({
         });
         updated.push(saved);
       }
-      onRenamed(categoryName.trim(), trimmed, updated);
+      onRenamed(categorySlug, categoryName.trim(), trimmed, updated);
       await revalidatePublicPackages();
       onClose();
     } catch (err) {

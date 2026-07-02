@@ -25,19 +25,22 @@ export function listConfiguredPublicPackagePlans(
 export function groupPublicPlansByCategory(
   plans: readonly PublicPackagePlan[],
 ): PublicPackageCategoryGroup[] {
-  const byKey = new Map<string, PublicPackageCategoryGroup>();
+  const bySlug = new Map<string, PublicPackageCategoryGroup>();
   for (const plan of plans) {
     const label = normalizePackageCategoryLabel(plan.categoryName);
-    const key = normalizePackageCategoryKey(label);
-    const existing = byKey.get(key);
+    const slug =
+      typeof plan.categorySlug === "string" && plan.categorySlug.trim().length > 0
+        ? plan.categorySlug.trim()
+        : normalizePackageCategoryKey(label);
+    const existing = bySlug.get(slug);
     if (existing !== undefined) {
       existing.plans.push(plan);
       continue;
     }
-    byKey.set(key, { id: key, label, plans: [plan] });
+    bySlug.set(slug, { id: slug, label, plans: [plan] });
   }
 
-  return [...byKey.values()]
+  return [...bySlug.values()]
     .map((category) => ({
       ...category,
       plans: [...category.plans].sort((left, right) => {
