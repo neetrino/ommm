@@ -4,8 +4,8 @@
  */
 
 .junctionNav {
-  --home-hero-junction-button-size: clamp(2.5rem, calc(100svw * 62 / 394), 3.875rem);
-  --home-hero-junction-gap: clamp(0.625rem, calc(100svw * 14 / 394), 0.875rem);
+  --home-hero-junction-button-size: clamp(2.125rem, calc(100svw * 54 / 394), 3.375rem);
+  --home-hero-junction-gap: clamp(0.5rem, calc(100svw * 12 / 394), 0.75rem);
   --home-hero-junction-button-fill: #ffffff;
   --home-hero-junction-bottom: calc(
     clamp(1rem, calc(100svw * 19 / 394), 1.25rem) - var(--home-hero-junction-button-size) / 2 + 10px
@@ -16,7 +16,7 @@
   left: 50%;
   bottom: var(--home-hero-junction-bottom);
   z-index: 40;
-  display: none;
+  display: flex;
   align-items: center;
   transform: translateX(-50%);
   gap: var(--home-hero-junction-gap);
