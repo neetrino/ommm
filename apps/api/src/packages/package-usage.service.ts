@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { type Prisma, type UserPackage } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  resolveUserPackagePlanCategoryName,
+  resolveUserPackagePlanIsUnlimited,
+  type UserPackagePlanSnapshotFields,
+} from './user-package-plan-snapshot.util';
 
 export type PackageUsageStats = {
   totalSessions: number | null;
@@ -31,22 +36,23 @@ type SessionShape = {
   };
 };
 
-type UserPackageWithPlanAndBalances = UserPackage & {
-  plan: {
-    id: string;
-    name: string;
-    categoryName: string;
-    isUnlimited: boolean;
+type UserPackageWithPlanAndBalances = UserPackage &
+  UserPackagePlanSnapshotFields & {
+    plan: {
+      id: string;
+      name: string;
+      categoryName: string;
+      isUnlimited: boolean;
+    } | null;
+    balances: Array<{
+      id: string;
+      sourceCategoryNameSnapshot: string;
+      sessionsTotal: number | null;
+      sessionsUsed: number;
+      sessionsRemaining: number | null;
+      isUnlimited: boolean;
+    }>;
   };
-  balances: Array<{
-    id: string;
-    sourceCategoryNameSnapshot: string;
-    sessionsTotal: number | null;
-    sessionsUsed: number;
-    sessionsRemaining: number | null;
-    isUnlimited: boolean;
-  }>;
-};
 
 @Injectable()
 export class PackageUsageService {
@@ -57,11 +63,12 @@ export class PackageUsageService {
   computeUsageStats(membership: {
     sessionsTotal: number | null;
     sessionsRemaining: number | null;
-    plan: { isUnlimited: boolean };
+    plan: { isUnlimited: boolean } | null;
+    planIsUnlimitedSnapshot: boolean;
   }): PackageUsageStats {
     const totalSessions = membership.sessionsTotal;
     const remainingSessions = membership.sessionsRemaining;
-    const isUnlimited = membership.plan.isUnlimited;
+    const isUnlimited = resolveUserPackagePlanIsUnlimited(membership);
     const usedSessions =
       totalSessions === null || remainingSessions === null
         ? null
@@ -514,8 +521,8 @@ export class PackageUsageService {
     );
     return {
       userPackageId: membership.id,
-      planId: membership.plan.id,
-      planName: membership.plan.name,
+      planId: membership.plan?.id ?? membership.sourcePlanIdSnapshot,
+      planName: membership.plan?.name ?? membership.planNameSnapshot,
       remainingSessions: usage.remainingSessions,
       totalSessions: usage.totalSessions,
       usedSessions: usage.usedSessions,
@@ -542,7 +549,12 @@ export class PackageUsageService {
           normalized,
       );
     }
-    return membership.plan.categoryName.trim().toLowerCase() === normalized;
+    const categoryName = resolveUserPackagePlanCategoryName({
+      plan: membership.plan,
+      planCategoryNameSnapshot: membership.planCategoryNameSnapshot,
+      balances: membership.balances,
+    });
+    return categoryName.trim().toLowerCase() === normalized;
   }
 
   private hasAnyBookableCredit(

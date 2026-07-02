@@ -24,6 +24,10 @@ import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
 import { PackageUsageService } from './package-usage.service';
+import {
+  buildUserPackagePlanSnapshot,
+  resolveUserPackagePlan,
+} from './user-package-plan-snapshot.util';
 
 type AdminPlanRecord = {
   id: string;
@@ -301,7 +305,13 @@ export class PackagesService {
   }
 
   async deletePlan(id: string) {
-    await this.assertPlanDeletable(id);
+    const plan = await this.prisma.packagePlan.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (plan === null) {
+      throw new NotFoundException('Plan not found');
+    }
     await this.prisma.packagePlan.delete({ where: { id } });
     await this.invalidatePublicPlansCache();
     return { ok: true };
@@ -333,9 +343,6 @@ export class PackagesService {
     });
     if (rows.length === 0) {
       return { deletedIds: [] as string[] };
-    }
-    for (const row of rows) {
-      await this.assertPlanDeletable(row.id);
     }
     const ids = rows.map((row) => row.id);
     await this.prisma.packagePlan.deleteMany({ where: { id: { in: ids } } });
@@ -376,7 +383,11 @@ export class PackagesService {
       orderBy: { currentPeriodEnd: 'asc' },
       take: 1000,
     });
-    return { count: memberships.length, memberships };
+    return {
+      count: memberships.length,
+      allowsDeletion: true,
+      memberships,
+    };
   }
 
   async syncExpired(dto: ReconcilePackagesDto) {
@@ -396,29 +407,27 @@ export class PackagesService {
       orderBy: { createdAt: 'desc' },
       take: 200,
     });
-    return rows.map((row) => ({
-      id: row.id,
-      status: row.status,
-      sessionsRemaining: row.sessionsRemaining,
-      totalSessions: row.sessionsTotal,
-      usedSessions:
-        row.sessionsTotal === null || row.sessionsRemaining === null
-          ? null
-          : Math.max(row.sessionsTotal - row.sessionsRemaining, 0),
-      remainingSessions: row.sessionsRemaining,
-      isUnlimited: row.plan.isUnlimited,
-      currentPeriodStart: row.currentPeriodStart.toISOString(),
-      currentPeriodEnd: row.currentPeriodEnd.toISOString(),
-      plan: {
-        id: row.plan.id,
-        name: row.plan.name,
-        categoryName: row.plan.categoryName,
-        priceCents: row.plan.priceCents,
-        periodDays: row.plan.periodDays,
-        isUnlimited: row.plan.isUnlimited,
-        sessionsPerMonth: row.plan.sessionsPerMonth,
-      },
-    }));
+    return rows.map((row) => {
+      const resolvedPlan = resolveUserPackagePlan({
+        plan: row.plan,
+        snapshots: row,
+      });
+      return {
+        id: row.id,
+        status: row.status,
+        sessionsRemaining: row.sessionsRemaining,
+        totalSessions: row.sessionsTotal,
+        usedSessions:
+          row.sessionsTotal === null || row.sessionsRemaining === null
+            ? null
+            : Math.max(row.sessionsTotal - row.sessionsRemaining, 0),
+        remainingSessions: row.sessionsRemaining,
+        isUnlimited: resolvedPlan.isUnlimited,
+        currentPeriodStart: row.currentPeriodStart.toISOString(),
+        currentPeriodEnd: row.currentPeriodEnd.toISOString(),
+        plan: resolvedPlan,
+      };
+    });
   }
 
   async subscribe(userId: string, dto: SubscribePackageDto) {
@@ -437,6 +446,7 @@ export class PackagesService {
         data: {
           userId,
           planId: plan.id,
+          ...buildUserPackagePlanSnapshot(plan),
           status:
             dto.paymentMethod === ManualPaymentMethod.CARD
               ? USER_PACKAGE_STATUS.PENDING

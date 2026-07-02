@@ -340,18 +340,25 @@ model PackagePlan {
 }
 
 model UserPackage {
-  id                 String            @id @default(cuid())
-  userId             String
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId             String
-  plan               PackagePlan       @relation(fields: [planId], references: [id], onDelete: Restrict)
-  status             UserPackageStatus @default(PENDING)
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  sessionsTotal      Int?
-  sessionsRemaining  Int?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  id                           String            @id @default(cuid())
+  userId                       String
+  user                         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId                       String?
+  plan                         PackagePlan?      @relation(fields: [planId], references: [id], onDelete: SetNull)
+  sourcePlanIdSnapshot         String
+  planNameSnapshot             String
+  planCategoryNameSnapshot     String
+  planPriceCentsSnapshot       Int
+  planPeriodDaysSnapshot       Int               @default(30)
+  planIsUnlimitedSnapshot      Boolean           @default(false)
+  planSessionsPerMonthSnapshot Int?
+  status                       UserPackageStatus @default(PENDING)
+  currentPeriodStart           DateTime
+  currentPeriodEnd             DateTime
+  sessionsTotal                Int?
+  sessionsRemaining            Int?
+  createdAt                    DateTime          @default(now())
+  updatedAt                    DateTime          @updatedAt
 
   balances      UserPackageBalance[]
   consumptions  BookingConsumption[]
@@ -359,6 +366,7 @@ model UserPackage {
   @@index([userId, status])
   @@index([userId, currentPeriodEnd])
   @@index([planId])
+  @@index([sourcePlanIdSnapshot])
 }
 
 model UserPackageBalance {
