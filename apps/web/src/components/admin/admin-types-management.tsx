@@ -211,7 +211,6 @@ export function AdminTypesManagement({
                       }`}
                     >
                       <p className="text-sm font-semibold">{row.name}</p>
-                      <p className="mt-1 text-xs text-sage-500">{row.slug}</p>
                     </button>
                   </li>
                 );
