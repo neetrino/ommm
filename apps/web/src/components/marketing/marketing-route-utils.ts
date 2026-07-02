@@ -82,6 +82,15 @@ export function isMarketingContactPath(pathname: string): boolean {
   return pathname === "/contact" || pathname.startsWith("/contact/");
 }
 
+/** Schedule, Packages, Contact — cream inner routes (shared header + footer chrome). */
+export function isMarketingPracticesInnerPath(pathname: string): boolean {
+  return (
+    isMarketingSchedulePath(pathname) ||
+    isMarketingMembershipPath(pathname) ||
+    isMarketingContactPath(pathname)
+  );
+}
+
 /** Public story page — scroll-reveal content + footer. */
 export function isMarketingStoryPath(pathname: string): boolean {
   return pathname === "/story" || pathname.startsWith("/story/");

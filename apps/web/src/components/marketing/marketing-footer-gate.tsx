@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import {
   isMarketingHomePath,
+  isMarketingPracticesInnerPath,
   isMarketingScrollRevealFooterPath,
 } from "@/components/marketing/marketing-route-utils";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
@@ -32,6 +33,10 @@ export function MarketingFooterGate({
 
   if (isMarketingHomePath(marketingPath)) {
     return null;
+  }
+
+  if (isMarketingPracticesInnerPath(marketingPath)) {
+    return children;
   }
 
   if (isMarketingScrollRevealFooterPath(marketingPath)) {

@@ -16,6 +16,7 @@ import {
 } from "@/lib/home-page-sections";
 import { marketingPathNeedsGuestRealtime } from "@/lib/marketing-guest-realtime-paths";
 import { localeFreePathFromRequestPathname } from "@/lib/marketing-path-from-request";
+import { isMarketingPracticesInnerPath } from "@/components/marketing/marketing-route-utils";
 import type { MarketingNavLinkDefinition } from "@/lib/home-page-sections";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
@@ -53,6 +54,9 @@ export async function MarketingLayoutPathBoundary({
   const headerAccount = resolveMarketingHeaderAccount(await getOptionalLayoutAuthUser());
   const showFooterContact = isHomeSectionEnabled(visibility, "contact");
   const enableGuestRealtime = marketingPathNeedsGuestRealtime(serverMarketingPath);
+  const footerSurfaceVariant = isMarketingPracticesInnerPath(serverMarketingPath)
+    ? "home"
+    : "inner";
 
   return (
     <MarketingRealtimeRoot
@@ -72,7 +76,7 @@ export async function MarketingLayoutPathBoundary({
           <Suspense fallback={<MarketingFooterLoading />}>
             <MarketingPublicHomeFooter
               locale={locale}
-              surfaceVariant="inner"
+              surfaceVariant={footerSurfaceVariant}
               showContactSection={showFooterContact}
             />
           </Suspense>
