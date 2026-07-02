@@ -14,6 +14,9 @@ export const STORY_PAGE_SURFACE = {
   valuePeaceSurface: "#fdf9f6",
   valueStrengthSurface: "#fdf9f6",
   valueCommunitySurface: "#fdf9f6",
+  /** Founder's Voice banner — warm cream panel. */
+  founderBannerBackground: "#f7f2ea",
+  founderBannerEyebrow: "#b89c7e",
 } as const;
 
 export const STORY_PAGE_LAYOUT = {
@@ -82,4 +85,6 @@ export const STORY_PAGE_LAYOUT = {
   closingBannerCtaHover: "#c0af98",
   featureCardCtaBackground: "#dbcab3",
   featureCardCtaHover: "#d0b89e",
+  founderBannerRadius: "clamp(2rem, 4vw, 2.75rem)",
+  founderBannerMarginTop: "clamp(2rem, 5vw, 3.5rem)",
 } as const;

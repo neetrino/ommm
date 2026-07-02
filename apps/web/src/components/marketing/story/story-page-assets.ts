@@ -8,4 +8,5 @@ export const STORY_PAGE_ASSETS = {
   valuesStrength: "/marketing/story/story-values-strength.webp",
   valuesCommunity: "/marketing/story/story-values-community-v3.webp",
   closingPortrait: "/marketing/story/story-closing-still-life.webp",
+  founderPortrait: "/marketing/story/story-founder-portrait.png",
 } as const;
