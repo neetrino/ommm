@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
 import { AdminBookingDetailsSheet } from "@/components/admin/admin-booking-details-sheet";
+import { AdminBookingsMetric } from "@/components/admin/admin-bookings-metric";
+import { AdminBookingsMoveDialog } from "@/components/admin/admin-bookings-move-dialog";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
 import {
   adminBookingsFilterValuesFromState,
@@ -22,10 +24,12 @@ import {
   parseBookingRowKey,
   type AdminBookingDetailPayload,
   type AdminBookingRow,
-  type AdminBookingSessionSlot,
-  type AdminBookingsFilterState,
-  type AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
+import type {
+  AdminBookingsManagementProps,
+  BookingConfirmKind,
+  PendingBookingConfirm,
+} from "@/components/admin/admin-bookings-management.types";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
@@ -42,31 +46,12 @@ import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateTimeForUi } from "@/lib/date-display";
 import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 type BookingRow = AdminBookingRow;
-
-type Props = {
-  locale: string;
-  initial: AdminBookingsManagementPayload;
-  initialFilters: AdminBookingsFilterState;
-  /** Staff surfaces (manager): list-only canon rows, no calendar hero/metrics. */
-  variant?: "full" | "staff";
-  staffBanner?: string;
-};
-
-type BookingConfirmKind = "cancel" | "delete" | "attended" | "activate";
-
-type PendingBookingConfirm = {
-  kind: BookingConfirmKind;
-  row: BookingRow;
-};
 
 export function AdminBookingsManagement({
   locale,
@@ -74,7 +59,7 @@ export function AdminBookingsManagement({
   initialFilters,
   variant = "full",
   staffBanner,
-}: Props) {
+}: AdminBookingsManagementProps) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.bookings");
   const tSchedule = useTranslations("adminPages.schedule");
@@ -551,10 +536,10 @@ export function AdminBookingsManagement({
 
       {!isStaff ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <Metric title={t("summaryTotal")} value={summary.total} />
-          <Metric title={t("summaryBooked")} value={summary.booked} />
-          <Metric title={t("summaryWaitlisted")} value={summary.waitlisted} />
-          <Metric title={t("summaryToday")} value={summary.today} />
+          <AdminBookingsMetric title={t("summaryTotal")} value={summary.total} />
+          <AdminBookingsMetric title={t("summaryBooked")} value={summary.booked} />
+          <AdminBookingsMetric title={t("summaryWaitlisted")} value={summary.waitlisted} />
+          <AdminBookingsMetric title={t("summaryToday")} value={summary.today} />
         </div>
       ) : null}
 
@@ -576,10 +561,10 @@ export function AdminBookingsManagement({
           }
           metrics={
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <Metric title={t("summaryTotal")} value={summary.total} />
-              <Metric title={t("summaryBooked")} value={summary.booked} />
-              <Metric title={t("summaryWaitlisted")} value={summary.waitlisted} />
-              <Metric title={t("summaryToday")} value={summary.today} />
+              <AdminBookingsMetric title={t("summaryTotal")} value={summary.total} />
+              <AdminBookingsMetric title={t("summaryBooked")} value={summary.booked} />
+              <AdminBookingsMetric title={t("summaryWaitlisted")} value={summary.waitlisted} />
+              <AdminBookingsMetric title={t("summaryToday")} value={summary.today} />
             </div>
           }
           status={
@@ -642,7 +627,7 @@ export function AdminBookingsManagement({
         />
       ) : null}
       {showMoveModal && selectedRow ? (
-        <MoveBookingDialog
+        <AdminBookingsMoveDialog
           booking={selectedRow}
           onClose={closeMoveModal}
           onSubmit={(targetSessionId) => {
@@ -708,109 +693,5 @@ export function AdminBookingsManagement({
         onCancel={closeBookingConfirm}
       />
     </div>
-  );
-}
-
-function Metric({ title, value }: { title: string; value: number }) {
-  return <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3"><p className="text-xs uppercase tracking-wide text-sage-500">{title}</p><p className="mt-1 text-2xl font-semibold text-sage-900">{value}</p></div>;
-}
-
-function MoveBookingDialog({
-  booking,
-  onClose,
-  onSubmit,
-}: {
-  booking: BookingRow;
-  onClose: () => void;
-  onSubmit: (targetSessionId: string) => void;
-}) {
-  const t = useTranslations("adminPages.bookings");
-  const [targetSessionId, setTargetSessionId] = useState("");
-  const [options, setOptions] = useState<
-    Array<{
-      id: string;
-      startsAt: string;
-      classType: { name: string };
-      coach: { user: { name: string | null } };
-    }>
-  >([]);
-  useEffect(() => {
-    const from = new Date();
-    const to = new Date();
-    to.setDate(to.getDate() + 30);
-    const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&typeId=${encodeURIComponent(booking.session.classType.id)}`;
-    void apiFetch(`/classes/admin/sessions?${q}`)
-      .then((payload) =>
-        setOptions(
-          (
-            payload as Array<{
-              id: string;
-              startsAt: string;
-              status: AdminBookingSessionSlot["status"];
-              classType: { name: string };
-              coach: { user: { name: string | null } };
-            }>
-          )
-            .filter(
-              (row) =>
-                row.id !== booking.session.id &&
-                row.status !== "CANCELLED" &&
-                row.status !== "DRAFT",
-            )
-            .map((row) => ({
-              id: row.id,
-              startsAt: row.startsAt,
-              classType: row.classType,
-              coach: { user: { name: row.coach.user.name } },
-            })),
-        ),
-      )
-      .catch(() => setOptions([]));
-  }, [booking.session.classType.id, booking.session.id]);
-  const slotOptions = options.map((row) => ({
-    value: row.id,
-    label: `${formatDateTimeForUi(row.startsAt)} · ${row.classType.name} · ${row.coach.user.name ?? "—"}`,
-  }));
-
-  return (
-    <OmmModalPortal
-      isOpen
-      onClose={onClose}
-      backdropAriaLabel={t("close")}
-      overlayClassName="ommm-modal-overlay z-[110] items-center p-4"
-      panelClassName="w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4"
-    >
-      <h3 className="text-base font-semibold text-sage-900">{t("actionMove")}</h3>
-      <p className="mt-1 text-sm text-sage-600">
-        {booking.user.name ?? booking.user.email} · {booking.session.classType.name}
-      </p>
-      <div className="mt-3">
-        <OmmFilterDropdown
-          allValue=""
-          value={targetSessionId}
-          ariaLabel={t("selectClassSlot")}
-          allLabel={t("selectClassSlot")}
-          onChange={setTargetSessionId}
-          options={slotOptions}
-          disabled={slotOptions.length === 0}
-        />
-      </div>
-      {options.length === 0 ? (
-        <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p>
-      ) : null}
-      <div className="mt-4 flex justify-end gap-2">
-        <OmmButton size="sm" variant="ghost" onClick={onClose}>
-          {t("close")}
-        </OmmButton>
-        <OmmButton
-          size="sm"
-          variant="primary"
-          disabled={targetSessionId === ""}
-          onClick={() => onSubmit(targetSessionId)}
-        >
-          {t("actionMove")}
-        </OmmButton>
-      </div>
-    </OmmModalPortal>
   );
 }

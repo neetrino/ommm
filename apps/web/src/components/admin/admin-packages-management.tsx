@@ -7,23 +7,24 @@ import {
   useMemo,
   useRef,
   useState,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
 } from "react";
 import { useTranslations } from "next-intl";
 import {
-  adminFilterEmptyStateVariants,
   adminFilterRevealVariants,
 } from "@/components/admin/admin-filter-reveal-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
-import { AdminPackageCategoryStatusActions } from "@/components/admin/admin-package-category-status-actions";
 import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
 import { AdminPackageDeleteModal } from "@/components/admin/admin-package-delete-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
+import { AdminPackagesCategoryAccordion } from "@/components/admin/admin-packages-category-accordion";
+import { AdminPackagesEmptyState } from "@/components/admin/admin-packages-empty-state";
+import {
+  DEFAULT_PACKAGE_FILTER_VALUES,
+  PACKAGE_SEARCH_DEBOUNCE_MS,
+} from "@/components/admin/admin-packages-management.constants";
+import { revealPackageCategoryInFilters } from "@/components/admin/admin-packages-management.helpers";
 import { AdminTypesModal } from "@/components/admin/admin-types-modal";
 import type { AdminClassTypeRow } from "@/components/admin/admin-types-management";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
@@ -31,12 +32,9 @@ import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages
 import {
   buildPackageCategoryOptions,
   categoryHasConfiguredPackages,
-  isPackageCategoryActive,
-  packagesInCategory,
 } from "@/components/admin/admin-packages-categories";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminPackagesShell } from "@/components/admin/admin-packages-shell";
-import { AdminPackagesCategoryTable } from "@/components/admin/admin-packages-category-table";
 import {
   syncPackageCategorySelection,
   type AdminPackagesCategoryOption,
@@ -91,59 +89,6 @@ type AdminPackagesManagementProps = {
   locale: string;
   initialFilters: PackageFilterValues;
 };
-
-const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
-  search: "",
-  status: "all",
-  order: "displayOrder",
-};
-
-const PACKAGE_SEARCH_DEBOUNCE_MS = 300;
-
-function revealPackageCategoryInFilters(
-  categorySlug: string,
-  setSelectedCategoryIds: Dispatch<SetStateAction<ReadonlySet<string>>>,
-  setExpandedCategoryKeys: Dispatch<SetStateAction<ReadonlySet<string>>>,
-): void {
-  const normalizedSlug = categorySlug.trim();
-  if (normalizedSlug.length === 0) {
-    return;
-  }
-  setSelectedCategoryIds((current) => {
-    if (current.has(normalizedSlug)) {
-      return current;
-    }
-    const next = new Set(current);
-    next.add(normalizedSlug);
-    return next;
-  });
-  setExpandedCategoryKeys((current) => {
-    if (current.has(normalizedSlug)) {
-      return current;
-    }
-    const next = new Set(current);
-    next.add(normalizedSlug);
-    return next;
-  });
-}
-
-function PackagesEmptyState({ children }: { children: ReactNode }) {
-  const reducedMotion = usePrefersReducedMotion();
-
-  return (
-    <motion.div
-      className="flex min-h-[min(48vh,32rem)] w-full items-center justify-center px-4 py-16 sm:py-20"
-      variants={adminFilterEmptyStateVariants(reducedMotion)}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-    >
-      <div className="max-w-xl rounded-[22px] border border-white/60 bg-white/55 px-8 py-10 text-center shadow-[0_16px_36px_-24px_rgba(45,40,35,0.2)] backdrop-blur-md">
-        <p className="text-sm leading-relaxed text-sage-600">{children}</p>
-      </div>
-    </motion.div>
-  );
-}
 
 export function AdminPackagesManagement({
   packages: packagesFromServer,
@@ -715,13 +660,13 @@ export function AdminPackagesManagement({
         onPackageUpdated={handlePackageUpdated}
       >
         {sortedPackages.length === 0 ? (
-          <PackagesEmptyState>{t("noPackageCategoriesYet")}</PackagesEmptyState>
+          <AdminPackagesEmptyState>{t("noPackageCategoriesYet")}</AdminPackagesEmptyState>
         ) : visibleCategories.length === 0 ? (
           <p className="text-sm text-sage-500">{t("noCategoriesSelected")}</p>
         ) : (
           <AnimatePresence mode="wait" initial={false}>
             {displayCategories.length === 0 ? (
-              <PackagesEmptyState key="packages-filter-empty">{t("empty")}</PackagesEmptyState>
+              <AdminPackagesEmptyState key="packages-filter-empty">{t("empty")}</AdminPackagesEmptyState>
             ) : (
               <motion.div
                 key="packages-filter-list"
@@ -741,7 +686,7 @@ export function AdminPackagesManagement({
                       animate="animate"
                       exit="exit"
                     >
-                      <CategoryAccordion
+                      <AdminPackagesCategoryAccordion
                         category={category}
                         packages={filteredPackages}
                         locale={locale}
@@ -826,88 +771,5 @@ export function AdminPackagesManagement({
         onDismiss={() => setToastMessage(null)}
       />
     </div>
-  );
-}
-
-type CategoryAccordionProps = {
-  category: AdminPackagesCategoryOption;
-  packages: readonly AdminPackageRow[];
-  locale: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onEditCategory: () => void;
-  onDeleteCategory: () => void;
-  onEditPackage: (packageId: string) => void;
-  onAddTier: () => void;
-  onDeletePackage: (packageId: string) => void;
-  onPackageStatusUpdated: (saved: AdminPackageRow) => void;
-  onCategoryPlansUpdated: (plans: readonly AdminPackageRow[]) => void;
-};
-
-function CategoryAccordion({
-  category,
-  packages,
-  locale,
-  open,
-  onOpenChange,
-  onEditCategory,
-  onDeleteCategory,
-  onEditPackage,
-  onAddTier,
-  onDeletePackage,
-  onPackageStatusUpdated,
-  onCategoryPlansUpdated,
-}: CategoryAccordionProps) {
-  const t = useTranslations("adminPages.packages");
-
-  const categoryPackages = useMemo(
-    () => packagesInCategory(packages, category.id),
-    [category.id, packages],
-  );
-
-  const categoryIsActive = useMemo(
-    () => isPackageCategoryActive(packages, category.id),
-    [category.id, packages],
-  );
-
-  const configuredPackages = useMemo(
-    () => categoryPackages.filter((pkg) => pkg.priceCents > 0),
-    [categoryPackages],
-  );
-
-  const body =
-    categoryPackages.length > 0 ? (
-      <AdminPackagesCategoryTable
-        packages={configuredPackages}
-        locale={locale}
-        onAddTier={onAddTier}
-        onEditPackage={onEditPackage}
-        onDeletePackage={onDeletePackage}
-        onPackageStatusUpdated={onPackageStatusUpdated}
-      />
-    ) : undefined;
-
-  return (
-    <AdminAccordionPanel
-      title={category.label}
-      statusControl={
-        <AdminPackageCategoryStatusActions
-          categorySlug={category.id}
-          isActive={categoryIsActive}
-          disabled={categoryPackages.length === 0}
-          onUpdated={onCategoryPlansUpdated}
-        />
-      }
-      editLabel={t("editCategory")}
-      deleteLabel={t("deleteCategoryButton")}
-      onEdit={onEditCategory}
-      onDelete={onDeleteCategory}
-      open={open}
-      onOpenChange={onOpenChange}
-      contentVariant="table"
-      emptyLabel={categoryPackages.length === 0 ? t("categoryEmpty") : undefined}
-    >
-      {body}
-    </AdminAccordionPanel>
   );
 }

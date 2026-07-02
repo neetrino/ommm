@@ -12,14 +12,10 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
-import { AdminClientCompactRow } from "@/components/admin/admin-client-compact-row";
-import {
-  ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL,
-  ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER,
-  ADMIN_CLIENTS_LIST_HEADER_CLASS,
-  ADMIN_CLIENTS_LIST_TABLE_CLASS,
-  ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS,
-} from "@/components/admin/admin-clients-list-layout";
+import { AdminClientsAddUserGlyph } from "@/components/admin/admin-clients-add-user-glyph";
+import { resolveAdminClientsOrderLabel } from "@/components/admin/admin-clients-order-label";
+import { AdminClientsSummary } from "@/components/admin/admin-clients-summary";
+import { AdminClientsTable } from "@/components/admin/admin-clients-table";
 import {
   adminClientsFilterValuesFromState,
   buildAdminClientsFilterFields,
@@ -33,7 +29,6 @@ import {
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -328,7 +323,7 @@ export function AdminClientsManagement({
     () =>
       buildAdminClientsFilterFields({
         payload,
-        resolveOrderChipLabel: orderLabel,
+        resolveOrderChipLabel: resolveAdminClientsOrderLabel,
         renderSegments: ({ value, onChange }) => (
           <OmmFilterMultiSelect
             variant="accent"
@@ -350,7 +345,7 @@ export function AdminClientsManagement({
         renderOrder: ({ value, onChange }) => (
           <OmmSelectDropdown
             ariaLabel={tFilters("orderLabel")}
-            label={orderLabel(value)}
+            label={resolveAdminClientsOrderLabel(value)}
             value={value}
             options={ommOptionsFromTuples([
               ["newest", "Newest clients first"],
@@ -380,7 +375,7 @@ export function AdminClientsManagement({
 
   const clientsList = (
     <>
-      <ClientsTable
+      <AdminClientsTable
         rows={payload.rows}
         onSelect={selectClient}
         onChanged={refetchClients}
@@ -420,7 +415,7 @@ export function AdminClientsManagement({
               resetLabel={tFilters("resetFilters")}
             />
           }
-          metrics={<Summary payload={payload} />}
+          metrics={<AdminClientsSummary payload={payload} />}
           status={error ? <div className="app-alert-warn">{error}</div> : null}
         >
           {clientsList}
@@ -450,13 +445,13 @@ export function AdminClientsManagement({
                   onClick={onAddUser}
                   className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
                 >
-                  <AddUserGlyph className="h-5 w-5 shrink-0" />
+                  <AdminClientsAddUserGlyph className="h-5 w-5 shrink-0" />
                   {t("addUserButton")}
                 </OmmButton>
               ) : null
             }
           />
-          <Summary payload={payload} />
+          <AdminClientsSummary payload={payload} />
           {error ? <div className="app-alert-warn">{error}</div> : null}
           {clientsList}
         </>
@@ -468,98 +463,5 @@ export function AdminClientsManagement({
         onChanged={handleClientChanged}
       />
     </div>
-  );
-}
-
-function Summary({ payload }: { payload: AdminClientsPayload }) {
-  const cards = [
-    ["Total", payload.summary.total],
-    ["Active", payload.summary.active],
-    ["VIP", payload.summary.vip],
-    ["Visits", payload.summary.totalVisits],
-  ];
-  return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {cards.map(([label, value]) => (
-        <article key={label} className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{label}</p>
-          <p className={adminChrome.metricValue}>{value}</p>
-        </article>
-      ))}
-    </section>
-  );
-}
-
-function orderLabel(order: string): string {
-  const labels: Record<string, string> = {
-    newest: "Newest clients first",
-    oldest: "Oldest clients first",
-    "most-active": "Most active",
-    "highest-lifetime-value": "Highest lifetime value",
-    "last-visit-newest": "Last visit newest",
-    "last-visit-oldest": "Last visit oldest",
-    "most-bookings": "Most bookings",
-    "most-cancellations": "Most cancellations",
-  };
-  return labels[order] ?? "Newest clients first";
-}
-
-function ClientsTable({
-  rows,
-  onSelect,
-  onChanged,
-  readOnly = false,
-}: {
-  rows: ClientRow[];
-  onSelect: (row: ClientRow) => void;
-  onChanged: () => void;
-  readOnly?: boolean;
-}) {
-  const t = useTranslations("adminPages.clients");
-  const tableClass = readOnly
-    ? ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS
-    : ADMIN_CLIENTS_LIST_TABLE_CLASS;
-
-  return (
-    <div className={tableClass}>
-      <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
-        <span>{t("colName")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
-        {readOnly ? null : (
-          <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-        )}
-      </div>
-      {rows.map((row) => (
-        <AdminClientCompactRow
-          key={row.id}
-          row={row}
-          onSelect={onSelect}
-          onChanged={onChanged}
-          readOnly={readOnly}
-        />
-      ))}
-    </div>
-  );
-}
-
-function AddUserGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M19 8v6m3-3h-6" />
-    </svg>
   );
 }

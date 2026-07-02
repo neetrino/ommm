@@ -1,0 +1,178 @@
+@layer components {
+  }
+
+  .ommm-toggle-switch {
+    @apply inline-flex shrink-0 items-center;
+  }
+
+  .ommm-toggle-switch-track {
+    @apply relative block h-4 w-7 rounded-full transition-colors duration-200 ease-out;
+  }
+
+  .ommm-toggle-switch-off .ommm-toggle-switch-track {
+    @apply bg-zinc-300;
+  }
+
+  .ommm-toggle-switch-on .ommm-toggle-switch-track {
+    background-color: #7cb868;
+  }
+
+  .ommm-toggle-switch-knob {
+    @apply absolute top-0.5 left-0.5 block h-3 w-3 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out;
+  }
+
+  .ommm-toggle-switch-on .ommm-toggle-switch-knob {
+    transform: translateX(0.75rem);
+  }
+
+  .ommm-toggle-switch-board .ommm-toggle-switch-track {
+    @apply h-5 w-9;
+  }
+
+  .ommm-toggle-switch-board .ommm-toggle-switch-knob {
+    @apply h-4 w-4 shadow-none;
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-on .ommm-toggle-switch-knob {
+    transform: translateX(1rem);
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-off .ommm-toggle-switch-track {
+    @apply bg-zinc-300;
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-on .ommm-toggle-switch-track {
+    background-color: #7cb868;
+  }
+
+  .ommm-admin-row-icon-button-danger {
+    @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
+  }
+
+  .ommm-admin-row-icon-button-subtle {
+    @apply border-white/50 bg-white/60 text-sage-500 hover:border-white/70 hover:bg-white hover:text-sage-900;
+  }
+
+  .ommm-admin-profile-chip {
+    @apply inline-flex items-center gap-2 rounded-full py-0.5 pl-0.5 pr-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
+  }
+
+  .ommm-admin-account-cluster {
+    @apply inline-flex shrink-0 items-center gap-1 rounded-full border border-white/70 bg-white/85 p-1 shadow-sm backdrop-blur-sm;
+  }
+
+  .ommm-admin-account-hover-anchor {
+    @apply relative inline-flex items-center gap-1;
+  }
+
+  .ommm-admin-account-logout-popover {
+    @apply shrink-0;
+  }
+
+  @media (min-width: 1024px) {
+    .ommm-admin-account-hover-anchor {
+      @apply gap-0;
+    }
+
+    .ommm-admin-account-logout-popover {
+      @apply pointer-events-none absolute left-1/2 top-full z-30 -translate-x-1/2 pt-1.5 opacity-0;
+      transform: translateX(-50%) translateY(-4px);
+      transition:
+        opacity 150ms ease,
+        transform 150ms ease;
+    }
+
+    .ommm-admin-account-hover-anchor:hover .ommm-admin-account-logout-popover,
+    .ommm-admin-account-hover-anchor:focus-within .ommm-admin-account-logout-popover {
+      @apply pointer-events-auto opacity-100;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  .ommm-admin-account-logout {
+    @apply inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[14px] border border-white/70 bg-white text-sage-700 transition-[background-color,border-color,box-shadow,color,transform];
+    @apply hover:border-white hover:bg-red-50 hover:text-red-800 hover:shadow-sm active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .ommm-admin-profile-avatar {
+    @apply flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(212,163,115,0.2)];
+  }
+
+  /** User profile placeholder — matches navbar glass pill brown. */
+  .ommm-user-avatar-placeholder-surface {
+    background-color: rgba(151, 144, 124, 0.77);
+  }
+
+  .ommm-marketing-account-menu {
+    @apply inline-flex shrink-0 overflow-visible;
+  }
+
+  .ommm-marketing-account-logout-popover {
+    @apply -mt-2 w-max pt-2;
+  }
+
+  .ommm-marketing-account-logout-btn {
+    @apply inline-flex cursor-pointer items-center gap-1 rounded-full bg-white/75 px-2 py-1 text-[0.5625rem] font-medium text-sage-700 shadow-sm backdrop-blur-sm;
+    @apply transition-[background-color,box-shadow,transform] duration-200 ease-out;
+    @apply hover:bg-white hover:shadow-[0_4px_14px_-10px_rgba(45,40,35,0.28)] active:scale-[0.98];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30 focus-visible:ring-offset-1;
+    @apply disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-logout-btn-pending {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    opacity: 1;
+    outline: none;
+    appearance: none;
+    cursor: wait;
+    color: var(--color-sage-700);
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    backdrop-filter: none;
+  }
+
+  .ommm-marketing-account-logout-btn svg {
+    @apply h-3.5 w-3.5 shrink-0;
+  }
+
+  .ommm-admin-menu-button {
+    @apply inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm transition-[background-color,border-color,box-shadow,color,transform];
+    @apply hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .ommm-admin-pill-tab {
+    @apply inline-flex h-11 min-w-[5rem] items-center justify-center rounded-full border border-[#97907c] px-4 text-xs font-semibold uppercase tracking-[0.12em] text-[#97907c] transition-colors;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
+  }
+
+  .ommm-admin-pill-tab:not(.ommm-admin-pill-tab-active) {
+    @apply hover:bg-white/40 hover:text-[#97907c];
+    @apply active:bg-white/60 active:text-[#6b6452];
+  }
+
+  .ommm-admin-pill-tab-active {
+    @apply border-transparent bg-[rgba(151,144,124,0.77)] text-[#fbf5d5];
+    @apply hover:border-transparent hover:bg-[#97907c] hover:text-[#fbf5d5];
+    @apply active:border-transparent active:bg-[#8a836f] active:text-[#fbf5d5];
+  }
+
+  .ommm-admin-accordion {
+    @apply flex min-h-[98px] flex-col justify-center rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 px-6 py-5 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.16)] backdrop-blur-md sm:px-10 sm:py-[21px];
+  }
+
+  .ommm-admin-accordion[data-expanded="true"] {
+    @apply min-h-0 justify-start pb-10 pt-8 sm:px-[41px];
+  }
+
+  .ommm-admin-accordion-nested {
+    @apply min-h-0 bg-white/60 px-5 py-4 sm:px-8;
+  }
+
+}

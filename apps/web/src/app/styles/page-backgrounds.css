@@ -1,0 +1,25 @@
+html:has([data-marketing-policy]) {
+  background-color: var(--ommm-policy-page-background);
+}
+
+html:has([data-marketing-policy]) body {
+  background-color: var(--ommm-policy-page-background);
+}
+
+/* Story page — page cream through safe area + footer rounded-cap corners. */
+html:has([data-marketing-story]) {
+  background-color: #fbf5d5;
+}
+
+html:has([data-marketing-story]) body {
+  background-color: #fbf5d5;
+}
+
+/* Schedule / Packages / Contact — cream surface through safe area. */
+html:has([data-marketing-practices-inner]) {
+  background-color: #fbf5d5;
+}
+
+html:has([data-marketing-practices-inner]) body {
+  background-color: #fbf5d5;
+}

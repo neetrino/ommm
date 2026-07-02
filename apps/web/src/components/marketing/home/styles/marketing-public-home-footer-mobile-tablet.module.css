@@ -1,0 +1,187 @@
+@media (max-width: 743px) {
+  .wordmark {
+    font-size: var(--home-footer-mobile-wordmark-size);
+    line-height: var(--home-footer-mobile-wordmark-line-height);
+    font-weight: 600;
+    margin-top: 0;
+  }
+
+  .mobileStack {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-height: 0;
+    padding-top: var(--home-footer-mobile-py);
+    padding-bottom: var(--home-footer-mobile-pb);
+    /* Match `ommm-container` — revealSlot forces `.inner` to full width on mobile. */
+    padding-inline-start: calc(
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem)
+    );
+    padding-inline-end: calc(
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem)
+    );
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    overflow-x: clip;
+    overflow-y: visible;
+    border-top-left-radius: var(--home-footer-mobile-radius);
+    border-top-right-radius: var(--home-footer-mobile-radius);
+  }
+
+  .sectionWrap {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--home-footer-mobile-overlap, 2.5rem));
+    padding-top: var(--home-footer-mobile-wrap-padding-top, 2.5rem);
+    background-color: transparent;
+  }
+
+  .inner {
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}
+
+.desktopLayer {
+  display: none;
+}
+
+.mobilePayment {
+  margin-top: var(--home-footer-mobile-payment-margin-top, 2rem);
+}
+
+@media (max-width: 743px) {
+  .mobilePayment .paymentLogoItem:nth-child(1) {
+    height: var(--home-footer-mobile-payment-mastercard-height, 22px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(1) .paymentLogo {
+    height: var(--home-footer-mobile-payment-mastercard-height, 22px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(2) {
+    height: var(--home-footer-mobile-payment-arca-height, 16px);
+    margin-inline-start: var(--home-footer-mobile-payment-arca-offset, 16px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(2) .paymentLogo {
+    height: var(--home-footer-mobile-payment-arca-height, 16px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(3) {
+    height: var(--home-footer-mobile-payment-visa-height, 18px);
+  }
+
+  .mobilePayment .paymentLogoItem:nth-child(3) .paymentLogo {
+    height: var(--home-footer-mobile-payment-visa-height, 18px);
+  }
+}
+
+@media (min-width: 744px) {
+  .mobileStack {
+    display: none;
+  }
+
+  .sectionWrap {
+    margin-top: 0;
+    padding-top: var(--home-footer-wrap-padding-top);
+    background-color: var(--home-footer-wrap-bg, #fbf5d5);
+  }
+
+  .shell {
+    position: static;
+    z-index: auto;
+    overflow: visible;
+    border-top-left-radius: var(--home-footer-radius);
+    border-top-right-radius: var(--home-footer-radius);
+  }
+
+  .desktopLayer {
+    display: block;
+  }
+}
+
+@media (min-width: 1367px) {
+  .inner {
+    min-height: var(--home-footer-min-height);
+    overflow: visible;
+  }
+
+  .desktopLayer {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+  }
+
+  .wordmarkSlot,
+  .topBarSlot,
+  .contactSlot,
+  .paymentSlot,
+  .socialSlot,
+  .illustrationSlot,
+  .legalSlot,
+  .copyrightSlot {
+    position: absolute;
+  }
+
+  .topBarSlot {
+    left: 0;
+    right: 0;
+    top: calc(var(--home-footer-top-bar-top) - var(--home-footer-top-bar-legal-lift, 0px));
+    transform: translateY(-50%);
+    max-width: none;
+  }
+
+  .wordmarkSlot {
+    display: none;
+  }
+
+  .navSlot {
+    display: none;
+  }
+
+  .illustrationSlot {
+    left: 50%;
+    bottom: var(--home-footer-illustration-bottom);
+    top: auto;
+    width: calc(var(--home-footer-illustration-width) * var(--home-footer-illustration-scale, 1));
+    height: calc(var(--home-footer-illustration-height) * var(--home-footer-illustration-scale, 1));
+    transform: translateX(-50%);
+  }
+
+  .contactSlot {
+    position: absolute;
+    left: 0;
+    top: calc(var(--home-footer-contact-top) - var(--home-footer-contact-social-lift, 0px));
+    width: 14.8125rem;
+  }
+
+  .socialSlot {
+    right: 0;
+    left: auto;
+    top: calc(var(--home-footer-social-top) - var(--home-footer-contact-social-lift, 0px));
+    width: 15.1875rem;
+  }
+
+  .legalSlot {
+    right: 0;
+    left: auto;
+    top: calc(var(--home-footer-legal-top) - var(--home-footer-top-bar-legal-lift, 0px));
+  }
+
+  .copyrightSlot {
+    right: 0;
+    left: auto;
+    top: calc(
+      var(--home-footer-payment-top) - var(--home-footer-copyright-line-height) + 10px
+    );
+    width: min(18.1875rem, 100%);
+    max-width: 18.1875rem;
+  }
+}

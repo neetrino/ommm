@@ -1,4 +1,7 @@
 import { ContentStatus, ContentType, Role } from '@prisma/client';
+import { ContentAdminService } from './content-admin.service';
+import { ContentCoverImageService } from './content-cover-image.service';
+import { ContentPublicService } from './content-public.service';
 import { ContentService } from './content.service';
 import { ReviewDecision } from './dto/review-post.dto';
 
@@ -12,6 +15,9 @@ describe('ContentService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn().mockResolvedValue(undefined),
+      },
+      contentPostTranslation: {
+        findFirst: jest.fn().mockResolvedValue(null),
       },
     };
     const audit = {
@@ -32,14 +38,15 @@ describe('ContentService', () => {
       isConfigured: jest.fn().mockReturnValue(false),
       putObject: jest.fn(),
     };
+    const publicContent = new ContentPublicService(prisma as never, cache as never);
+    const adminContent = new ContentAdminService(
+      prisma as never,
+      audit as never,
+      publicContent,
+    );
+    const coverImage = new ContentCoverImageService(config as never, r2Storage as never);
     return {
-      service: new ContentService(
-        prisma as never,
-        audit as never,
-        cache as never,
-        config as never,
-        r2Storage as never,
-      ),
+      service: new ContentService(publicContent, adminContent, coverImage),
       prisma,
       audit,
     };
