@@ -1,8 +1,5 @@
-import {
-  formatIsoDateToUi,
-  formatPhoneDisplay,
-} from "@/lib/date-display";
-import { formatPhoneDisplay as formatPhoneDisplayFromLib } from "@/lib/phone";
+import { formatIsoDateToUi } from "@/lib/date-display";
+import { formatPhoneDisplay } from "@/lib/phone";
 import type {
   AccountProfileFormState,
   ProfileFormUser,
@@ -16,7 +13,7 @@ export function accountProfileInitialFormState(
     email: user.email,
     name: user.name ?? "",
     lastName: user.lastName ?? "",
-    phone: formatPhoneDisplayFromLib(user.phone ?? ""),
+    phone: formatPhoneDisplay(user.phone ?? ""),
     dateOfBirth: formatIsoDateToUi(user.dateOfBirth),
     bio: bio ?? "",
   };

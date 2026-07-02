@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { IntegratedSearchFilterChips } from "@/components/shared/search/integrated-search-filter-chips";
 import {
@@ -14,75 +14,18 @@ import {
   resolveIntegratedFilterEmptyValue,
   type IntegratedFilterField,
 } from "@/components/shared/search/integrated-search-filter-types";
-
-const EMPTY_FILTER_VALUES: Record<string, string> = {};
-
-const PANEL_ID = "integrated-search-filter-panel";
-
-const PANEL_POSITION_CLASS =
-  "absolute top-[calc(100%+0.5rem)] left-0 z-20 w-full min-w-[16rem] max-w-full max-h-[min(52dvh,22rem)] overflow-y-auto overscroll-y-contain";
-
-const PANEL_SURFACE_CLASS =
-  "rounded-2xl border border-white/60 bg-white/95 p-4 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] backdrop-blur-md ring-1 ring-sage-700/10";
-
-const PANEL_GAP_PX = 8;
-const PANEL_MIN_WIDTH_PX = 384;
-const PANEL_MAX_WIDTH_PX = 640;
-const PANEL_VIEWPORT_EDGE_PX = 16;
-const PANEL_MIN_HEIGHT_PX = 140;
-
-function usePortaledFilterPanelPosition(
-  containerRef: RefObject<HTMLDivElement | null>,
-  panelOpen: boolean,
-  enabled: boolean,
-): { top: number; left: number; width: number; maxHeight: number } | null {
-  const [position, setPosition] = useState<{
-    top: number;
-    left: number;
-    width: number;
-    maxHeight: number;
-  } | null>(null);
-  const panelEnabled = enabled && panelOpen;
-
-  useLayoutEffect(() => {
-    if (!panelEnabled) {
-      return undefined;
-    }
-
-    const update = (): void => {
-      const element = containerRef.current;
-      if (element === null) {
-        return;
-      }
-      const rect = element.getBoundingClientRect();
-      const width = Math.min(
-        PANEL_MAX_WIDTH_PX,
-        window.innerWidth - PANEL_VIEWPORT_EDGE_PX * 2,
-        Math.max(rect.width, PANEL_MIN_WIDTH_PX),
-      );
-      const left = Math.max(
-        PANEL_VIEWPORT_EDGE_PX,
-        Math.min(rect.left, window.innerWidth - width - PANEL_VIEWPORT_EDGE_PX),
-      );
-      const maxHeight = Math.max(
-        PANEL_MIN_HEIGHT_PX,
-        window.innerHeight - rect.bottom - PANEL_GAP_PX - PANEL_VIEWPORT_EDGE_PX,
-      );
-      setPosition({ top: rect.bottom + PANEL_GAP_PX, left, width, maxHeight });
-    };
-
-    update();
-    window.addEventListener("scroll", update, true);
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update, true);
-      window.removeEventListener("resize", update);
-    };
-  }, [containerRef, panelEnabled]);
-
-  const resolvedPosition = panelEnabled ? position : null;
-  return resolvedPosition;
-}
+import {
+  EMPTY_FILTER_VALUES,
+  INTEGRATED_SEARCH_FILTER_PANEL_ID,
+  INTEGRATED_SEARCH_FILTER_PANEL_POSITION_CLASS,
+  INTEGRATED_SEARCH_FILTER_PANEL_SURFACE_CLASS,
+} from "@/components/shared/search/integrated-search-filters.constants";
+import {
+  IntegratedSearchFilterClearGlyph,
+  IntegratedSearchFilterGlyph,
+  IntegratedSearchFilterSearchGlyph,
+} from "@/components/shared/search/integrated-search-filters-icons";
+import { usePortaledFilterPanelPosition } from "@/components/shared/search/use-portaled-filter-panel-position";
 
 export type IntegratedSearchFiltersProps = {
   search: string;
@@ -106,41 +49,6 @@ export type IntegratedSearchFiltersProps = {
   /** When false, active filter chips are hidden (e.g. once list results are found). */
   showActiveFilterChips?: boolean;
 };
-
-function SearchGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.85}
-      className={className}
-      aria-hidden
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function FilterGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.85}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
-    </svg>
-  );
-}
 
 /** Search focuses the keyboard; filter button opens the filter panel. */
 export function IntegratedSearchFilters({
@@ -196,7 +104,7 @@ export function IntegratedSearchFilters({
       if (containerRef.current?.contains(target)) {
         return;
       }
-      if (target.closest(`#${PANEL_ID}`)) {
+      if (target.closest(`#${INTEGRATED_SEARCH_FILTER_PANEL_ID}`)) {
         return;
       }
       if (target.closest("#ommm-overlay-portal")) {
@@ -217,7 +125,6 @@ export function IntegratedSearchFilters({
       }
     };
 
-    // Defer so the pointer event that opened the panel does not immediately close it.
     const openTimer = window.setTimeout(() => {
       document.addEventListener("pointerdown", onPointerDown);
       document.addEventListener("keydown", onKeyDown);
@@ -346,7 +253,7 @@ export function IntegratedSearchFilters({
       if (containerRef.current?.contains(active)) {
         return;
       }
-      if (active instanceof Element && active.closest(`#${PANEL_ID}`)) {
+      if (active instanceof Element && active.closest(`#${INTEGRATED_SEARCH_FILTER_PANEL_ID}`)) {
         return;
       }
       if (active instanceof Element && active.closest(".ommm-dropdown-menu")) {
@@ -375,13 +282,13 @@ export function IntegratedSearchFilters({
   const filterPanel =
     hasFilters && panelOpen ? (
       <div
-        id={PANEL_ID}
+        id={INTEGRATED_SEARCH_FILTER_PANEL_ID}
         role="dialog"
         aria-label={filterPanelAriaLabel}
         className={
           portalFilterPanel
-            ? `fixed ${PANEL_SURFACE_CLASS}`
-            : `${PANEL_POSITION_CLASS} ${PANEL_SURFACE_CLASS}`
+            ? `fixed ${INTEGRATED_SEARCH_FILTER_PANEL_SURFACE_CLASS}`
+            : `${INTEGRATED_SEARCH_FILTER_PANEL_POSITION_CLASS} ${INTEGRATED_SEARCH_FILTER_PANEL_SURFACE_CLASS}`
         }
         style={
           portalFilterPanel && portaledPanelPosition
@@ -424,7 +331,7 @@ export function IntegratedSearchFilters({
         role={barIsPrimaryButton ? "button" : undefined}
         tabIndex={barIsPrimaryButton ? 0 : undefined}
         aria-expanded={barClickable ? panelOpen : undefined}
-        aria-controls={barClickable ? PANEL_ID : undefined}
+        aria-controls={barClickable ? INTEGRATED_SEARCH_FILTER_PANEL_ID : undefined}
         onClick={barClickable ? handleFilterBarClick : undefined}
         onKeyDown={barIsPrimaryButton ? handleFilterBarKeyDown : undefined}
         onPointerDown={hideSearch ? undefined : handleBarPointerDown}
@@ -432,9 +339,7 @@ export function IntegratedSearchFilters({
           panelOpen && hasFilters ? "relative z-[127] bg-[rgba(192,187,176,0.42)]" : ""
         } ${showQueryRing || showPanelRing ? "ring-2 ring-sand-500/35" : ""} ${
           !panelOpen && searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""
-        } ${
-          barClickable ? "cursor-pointer" : ""
-        }`}
+        } ${barClickable ? "cursor-pointer" : ""}`}
       >
         {hideSearch && hasFilters && visibleChips.length === 0 ? (
           <span className="flex h-9 min-w-0 flex-1 items-center px-1 text-sm text-sage-600">
@@ -450,7 +355,7 @@ export function IntegratedSearchFilters({
         ) : null}
         {!hideSearch ? (
           <div className="relative min-w-0 flex-1">
-            <SearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
+            <IntegratedSearchFilterSearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
             {hasFilters ? (
               <button
                 type="button"
@@ -463,10 +368,10 @@ export function IntegratedSearchFilters({
                 }`}
                 aria-label={filterToggleAriaLabel}
                 aria-expanded={panelOpen}
-                aria-controls={PANEL_ID}
+                aria-controls={INTEGRATED_SEARCH_FILTER_PANEL_ID}
                 onClick={handleFilterToggleClick}
               >
-                <FilterGlyph className="h-4 w-4 shrink-0" />
+                <IntegratedSearchFilterGlyph className="h-4 w-4 shrink-0" />
               </button>
             ) : null}
             <input
@@ -482,7 +387,7 @@ export function IntegratedSearchFilters({
               aria-label={searchPlaceholder}
               role={hasFilters ? "combobox" : "searchbox"}
               aria-expanded={hasFilters ? panelOpen : undefined}
-              aria-controls={hasFilters ? PANEL_ID : undefined}
+              aria-controls={hasFilters ? INTEGRATED_SEARCH_FILTER_PANEL_ID : undefined}
               className={`ommm-search-input-no-native-clear h-9 w-full min-w-0 border-0 bg-transparent pl-9 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0 ${
                 hasFilters ? "pr-10" : "pr-2"
               }`}
@@ -496,17 +401,7 @@ export function IntegratedSearchFilters({
             aria-label={clearAriaLabel}
             onClick={handleReset}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              className="h-4 w-4"
-              aria-hidden
-            >
-              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-            </svg>
+            <IntegratedSearchFilterClearGlyph className="h-4 w-4" />
           </button>
         ) : null}
       </div>

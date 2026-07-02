@@ -15,6 +15,14 @@ import {
   ADMIN_WAITLIST_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-waitlist-list-layout";
 import {
+  WAITLIST_CLASS_TYPE_KEY,
+  WAITLIST_ORDER_KEY,
+  WAITLIST_SEARCH_KEY,
+  type AdminWaitlistToastTone,
+} from "@/components/admin/admin-waitlist-management.constants";
+import { AdminWaitlistRemoveConfirmModal } from "@/components/admin/admin-waitlist-remove-confirm-modal";
+import { formatAdminWaitlistUserLabel } from "@/components/admin/admin-waitlist-user-label";
+import {
   buildAdminWaitlistActiveEndpoint,
   parseAdminWaitlistSortOrder,
   type AdminWaitlistActivePayload,
@@ -32,23 +40,12 @@ import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/li
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 
-const WAITLIST_SEARCH_KEY = "search";
-const WAITLIST_CLASS_TYPE_KEY = "classTypeId";
-const WAITLIST_ORDER_KEY = "order";
-
-type ToastTone = "ok" | "err";
-
 type AdminWaitlistManagementProps = {
   locale: string;
   initial: AdminWaitlistActivePayload;
   initialLoadError: string | null;
   staffBanner?: string;
 };
-
-function toUserLabel(name: string | null, lastName: string | null, email: string): string {
-  const full = [name, lastName].filter((part) => part && part.trim().length > 0).join(" ");
-  return full.length > 0 ? full : email;
-}
 
 export function AdminWaitlistManagement({
   locale,
@@ -65,7 +62,7 @@ export function AdminWaitlistManagement({
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
   const [busyAction, setBusyAction] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ tone: ToastTone; message: string } | null>(null);
+  const [toast, setToast] = useState<{ tone: AdminWaitlistToastTone; message: string } | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [pendingRemove, setPendingRemove] = useState<AdminWaitlistRow | null>(null);
   const [, startRefreshTransition] = useTransition();
@@ -218,7 +215,11 @@ export function AdminWaitlistManagement({
       if (q.length === 0) {
         return true;
       }
-      const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email).toLowerCase();
+      const userLabel = formatAdminWaitlistUserLabel(
+        row.user.name,
+        row.user.lastName,
+        row.user.email,
+      ).toLowerCase();
       const haystack = [
         userLabel,
         row.user.email.toLowerCase(),
@@ -309,7 +310,7 @@ export function AdminWaitlistManagement({
     if (pendingRemove === null) {
       return "";
     }
-    return toUserLabel(
+    return formatAdminWaitlistUserLabel(
       pendingRemove.user.name,
       pendingRemove.user.lastName,
       pendingRemove.user.email,
@@ -358,7 +359,11 @@ export function AdminWaitlistManagement({
         </div>
         {rows.map((row) => {
           const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
-          const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email);
+          const userLabel = formatAdminWaitlistUserLabel(
+            row.user.name,
+            row.user.lastName,
+            row.user.email,
+          );
           return (
             <AdminWaitlistCompactRow
               key={row.id}
@@ -445,47 +450,22 @@ export function AdminWaitlistManagement({
       ) : null}
 
       {pendingRemove ? (
-        <div className="ommm-modal-overlay z-[95] items-center p-4" role="presentation">
-          <button
-            type="button"
-            className="ommm-modal-backdrop"
-            aria-label={t("removeConfirm.cancel")}
-            onClick={() => setPendingRemove(null)}
-            disabled={busyAction !== null}
-          />
-          <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/60 bg-white p-5 shadow-[0_20px_50px_-25px_rgba(45,40,35,0.35)]">
-            <h3 className="text-base font-semibold text-sage-900">{t("removeConfirm.title")}</h3>
-            <p className="mt-2 text-sm text-sage-700">
-              {t("removeConfirm.description", { user: confirmRemoveLabel })}
-            </p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                className="ommm-cta-secondary h-9 px-4"
-                onClick={() => setPendingRemove(null)}
-                disabled={busyAction !== null}
-              >
-                {t("removeConfirm.cancel")}
-              </button>
-              <button
-                type="button"
-                className="ommm-cta-primary h-9 px-4"
-                onClick={() => {
-                  void runAction(
-                    pendingRemove,
-                    "remove",
-                    () => apiFetch(`/waitlist/entries/${pendingRemove.id}`, { method: "DELETE" }),
-                    t("successRemove"),
-                  );
-                  setPendingRemove(null);
-                }}
-                disabled={busyAction !== null}
-              >
-                {t("removeConfirm.confirm")}
-              </button>
-            </div>
-          </div>
-        </div>
+        <AdminWaitlistRemoveConfirmModal
+          pendingRemove={pendingRemove}
+          confirmRemoveLabel={confirmRemoveLabel}
+          busyAction={busyAction}
+          onCancel={closeRemoveConfirm}
+          onConfirm={() => {
+            void runAction(
+              pendingRemove,
+              "remove",
+              () => apiFetch(`/waitlist/entries/${pendingRemove.id}`, { method: "DELETE" }),
+              t("successRemove"),
+            );
+            setPendingRemove(null);
+          }}
+          t={t}
+        />
       ) : null}
 
       <AdminUserDetailsDrawer

@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
 import { AdminBookingDetailsSheet } from "@/components/admin/admin-booking-details-sheet";
+import { AdminBookingsConfirmDialog } from "@/components/admin/admin-bookings-confirm-dialog";
+import { AdminBookingsListView } from "@/components/admin/admin-bookings-list-view";
 import { AdminBookingsMetric } from "@/components/admin/admin-bookings-metric";
 import { AdminBookingsMoveDialog } from "@/components/admin/admin-bookings-move-dialog";
+import { useAdminBookingsRowActions } from "@/components/admin/admin-bookings-row-actions";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
 import {
   adminBookingsFilterValuesFromState,
@@ -25,33 +27,21 @@ import {
   type AdminBookingDetailPayload,
   type AdminBookingRow,
 } from "@/components/admin/admin-bookings-query";
-import type {
-  AdminBookingsManagementProps,
-  BookingConfirmKind,
-  PendingBookingConfirm,
-} from "@/components/admin/admin-bookings-management.types";
+import type { AdminBookingsManagementProps } from "@/components/admin/admin-bookings-management.types";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
-import {
-  ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER,
-  ADMIN_BOOKINGS_LIST_HEADER_CELL,
-  ADMIN_BOOKINGS_LIST_HEADER_CLASS,
-  ADMIN_BOOKINGS_LIST_TABLE_CLASS,
-} from "@/components/admin/admin-bookings-list-layout";
 import { resolveBookingsView } from "@/components/admin/admin-bookings-view";
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
 import { useUrlViewState } from "@/hooks/use-url-view-state";
 import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
-import { OmmButton } from "@/components/ui/omm-button";
-import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import type { PendingBookingConfirm } from "@/components/admin/admin-bookings-management.types";
 
-type BookingRow = AdminBookingRow;
+export type { AdminBookingsManagementProps } from "@/components/admin/admin-bookings-management.types";
 
 export function AdminBookingsManagement({
   locale,
@@ -91,7 +81,7 @@ export function AdminBookingsManagement({
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(urlBookingKey);
   const [prevUrlBookingKey, setPrevUrlBookingKey] = useState(urlBookingKey);
-  const [fetchedRow, setFetchedRow] = useState<BookingRow | null>(null);
+  const [fetchedRow, setFetchedRow] = useState<AdminBookingRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [pendingConfirm, setPendingConfirm] = useState<PendingBookingConfirm | null>(null);
 
@@ -125,7 +115,7 @@ export function AdminBookingsManagement({
   );
 
   const openBookingDetails = useCallback(
-    (row: BookingRow) => {
+    (row: AdminBookingRow) => {
       const key = bookingRowKey(row);
       setSelectedRowKey(key);
       pushSearchParams((params) => {
@@ -145,7 +135,7 @@ export function AdminBookingsManagement({
   }, [replaceSearchParams]);
 
   const openMoveModal = useCallback(
-    (row: BookingRow) => {
+    (row: AdminBookingRow) => {
       const key = bookingRowKey(row);
       setSelectedRowKey(key);
       pushSearchParams((params) => {
@@ -209,11 +199,11 @@ export function AdminBookingsManagement({
 
     let cancelled = false;
     void apiFetch(`/bookings/admin/${parsed.id}`)
-      .then((payload) => {
+      .then((detail) => {
         if (cancelled) {
           return;
         }
-        setFetchedRow(mapAdminBookingDetailToRow(payload as AdminBookingDetailPayload));
+        setFetchedRow(mapAdminBookingDetailToRow(detail as AdminBookingDetailPayload));
       })
       .catch(() => {
         if (!cancelled) {
@@ -264,136 +254,21 @@ export function AdminBookingsManagement({
     });
   }, [calendarSessions, filters.classTypeId, filters.coachId, filters.from, filters.to]);
 
-  const listRows = payload.rows;
-  const summary = payload.summary;
-  const pagination = payload.pagination;
-
-  async function runRowAction(id: string, action: () => Promise<void>, ok: string) {
-    setBusyId(id);
-    setStatusMessage(null);
-    try {
-      await action();
-      setStatusMessage(ok);
-      router.refresh();
-    } catch (error) {
-      setStatusMessage(error instanceof ApiError ? error.message : t("actionFailed"));
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  function openBookingConfirm(kind: BookingConfirmKind, row: BookingRow): void {
-    if (busyId !== null) {
-      return;
-    }
-    setPendingConfirm({ kind, row });
-  }
-
-  function closeBookingConfirm(): void {
-    if (pendingConfirm !== null && busyId === pendingConfirm.row.id) {
-      return;
-    }
-    setPendingConfirm(null);
-  }
-
-  async function confirmBookingAction(): Promise<void> {
-    if (pendingConfirm === null) {
-      return;
-    }
-
-    const { kind, row } = pendingConfirm;
-
-    if (kind === "attended") {
-      await runRowAction(row.id, async () => {
-        await apiFetch(`/bookings/admin/${row.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ status: "COMPLETED" }),
-        });
-        setPayload((prev) => ({
-          ...prev,
-          rows: prev.rows.map((item) =>
-            item.id === row.id ? { ...item, status: "COMPLETED" } : item,
-          ),
-        }));
-      }, t("successMarkedAttended"));
-    } else if (kind === "cancel") {
-      await runRowAction(row.id, async () => {
-        await apiFetch(`/bookings/admin/${row.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ status: "CANCELLED" }),
-        });
-        setPayload((prev) => ({
-          ...prev,
-          rows: prev.rows.map((item) =>
-            item.id === row.id ? { ...item, status: "CANCELLED" } : item,
-          ),
-        }));
-      }, t("successCancelled"));
-    } else if (kind === "activate") {
-      await runRowAction(row.id, async () => {
-        await apiFetch(`/bookings/admin/${row.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ status: "BOOKED" }),
-        });
-        setPayload((prev) => ({
-          ...prev,
-          rows: prev.rows.map((item) =>
-            item.id === row.id ? { ...item, status: "BOOKED" } : item,
-          ),
-        }));
-      }, t("successActivated"));
-    } else {
-      await runRowAction(row.id, async () => {
-        await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" });
-        setPayload((prev) => ({
-          ...prev,
-          rows: prev.rows.filter((item) => item.id !== row.id),
-        }));
-        if (selectedRowKey === bookingRowKey(row)) {
-          closeBookingDetails();
-        }
-      }, t("successDeleted"));
-    }
-
-    setPendingConfirm(null);
-  }
-
-  function rowActionHandlers(row: BookingRow) {
-    return {
-      onEdit: () => openBookingDetails(row),
-      onMarkAttended: () => openBookingConfirm("attended", row),
-      onCancel: () => openBookingConfirm("cancel", row),
-      onDeactivate: () => openBookingConfirm("cancel", row),
-      onActivate: () => openBookingConfirm("activate", row),
-      onMove: () => openMoveModal(row),
-      onChangeStatus: (nextStatus: BookingRow["status"]) => {
-        if (nextStatus === row.status) {
-          return;
-        }
-        if (nextStatus === "CANCELLED") {
-          openBookingConfirm("cancel", row);
-          return;
-        }
-        if (nextStatus === "COMPLETED") {
-          openBookingConfirm("attended", row);
-          return;
-        }
-        void runRowAction(row.id, async () => {
-          await apiFetch(`/bookings/admin/${row.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({ status: nextStatus }),
-          });
-          setPayload((prev) => ({
-            ...prev,
-            rows: prev.rows.map((item) =>
-              item.id === row.id ? { ...item, status: nextStatus } : item,
-            ),
-          }));
-        }, t("successEdited"));
-      },
-      onDelete: () => openBookingConfirm("delete", row),
-    };
-  }
+  const { runRowAction, rowActionHandlers, closeBookingConfirm, confirmBookingAction } =
+    useAdminBookingsRowActions({
+      busyId,
+      setBusyId,
+      setStatusMessage,
+      setPayload,
+      router,
+      selectedRowKey,
+      closeBookingDetails,
+      openBookingDetails,
+      openMoveModal,
+      pendingConfirm,
+      setPendingConfirm,
+      t,
+    });
 
   const bookingFilterFields = useMemo(
     () =>
@@ -466,50 +341,30 @@ export function AdminBookingsManagement({
   );
 
   const bookingsList = (
-    <>
-      <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
-        <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
-          <span className={ADMIN_BOOKINGS_LIST_HEADER_CELL}>{t("colUserPhone")}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colCoach")}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colStatus")}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colActions")}</span>
-        </div>
-        {listRows.map((row) => {
-          const handlers = rowActionHandlers(row);
-          return (
-            <AdminBookingCompactRow
-              key={bookingRowKey(row)}
-              locale={locale}
-              row={row}
-              busy={busyId === row.id}
-              onOpenDetails={() => openBookingDetails(row)}
-              onOpenUser={setActiveUserId}
-              onEdit={handlers.onEdit}
-              onMove={handlers.onMove}
-              onDeactivate={handlers.onDeactivate}
-              onActivate={handlers.onActivate}
-              onChangeStatus={handlers.onChangeStatus}
-            />
-          );
-        })}
-      </div>
-      {(isStaff || view === "list") && pagination ? (
-        <OmmListPagination
-          total={pagination.total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={pagination.offset}
-          onPageChange={(page) => setListPage(page)}
-          disabled={loading}
-        />
-      ) : null}
-    </>
+    <AdminBookingsListView
+      locale={locale}
+      listRows={payload.rows}
+      busyId={busyId}
+      pagination={payload.pagination}
+      listPage={listPage}
+      loading={loading}
+      showPagination={isStaff || view === "list"}
+      colUserPhone={t("colUserPhone")}
+      colCoach={t("colCoach")}
+      colClassType={t("colClassType")}
+      colDateTime={t("colDateTime")}
+      colStatus={t("colStatus")}
+      colActions={t("colActions")}
+      onOpenDetails={openBookingDetails}
+      onOpenUser={setActiveUserId}
+      onPageChange={setListPage}
+      rowActionHandlers={rowActionHandlers}
+    />
   );
 
   const detailActionRow = drawerRow ? (selectedRow ?? drawerRow) : null;
   const detailHandlers = detailActionRow ? rowActionHandlers(detailActionRow) : null;
+  const summary = payload.summary;
 
   return (
     <div className="space-y-4">
@@ -645,52 +500,14 @@ export function AdminBookingsManagement({
           }}
         />
       ) : null}
-      <OmmConfirmDialog
-        isOpen={pendingConfirm !== null}
-        title={
-          pendingConfirm?.kind === "delete"
-            ? t("confirmDeleteTitle")
-            : pendingConfirm?.kind === "attended"
-              ? t("confirmAttendedTitle")
-              : pendingConfirm?.kind === "activate"
-                ? t("confirmActivateTitle")
-                : t("confirmCancelTitle")
-        }
-        description={
-          pendingConfirm?.kind === "delete"
-            ? t("confirmDelete")
-            : pendingConfirm?.kind === "attended"
-              ? t("confirmAttended")
-              : pendingConfirm?.kind === "activate"
-                ? t("confirmActivate")
-                : t("confirmCancel")
-        }
-        confirmLabel={
-          pendingConfirm?.kind === "delete"
-            ? t("confirmDialogDelete")
-            : pendingConfirm?.kind === "attended"
-              ? t("confirmDialogYes")
-              : pendingConfirm?.kind === "activate"
-                ? t("confirmDialogYes")
-                : t("confirmDialogCancel")
-        }
-        cancelLabel={t("confirmDialogNo")}
-        backdropAriaLabel={t("confirmDialogBackdrop")}
-        tone={
-          pendingConfirm?.kind === "attended" || pendingConfirm?.kind === "activate"
-            ? "success"
-            : "danger"
-        }
-        confirmClassName={
-          pendingConfirm?.kind === "attended" || pendingConfirm?.kind === "activate"
-            ? "ommm-btn-lifecycle-action--success"
-            : "ommm-btn-lifecycle-action--danger"
-        }
-        pending={pendingConfirm !== null && busyId === pendingConfirm.row.id}
+      <AdminBookingsConfirmDialog
+        pendingConfirm={pendingConfirm}
+        busyId={busyId}
         onConfirm={() => {
           void confirmBookingAction();
         }}
         onCancel={closeBookingConfirm}
+        t={t}
       />
     </div>
   );
