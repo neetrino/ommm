@@ -5,12 +5,8 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminPackagesManagement } from "@/components/admin/admin-packages-management";
 import { parsePackageFiltersFromSearch } from "@/components/admin/admin-packages-url";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import type { AdminClassTypeRow } from "@/components/admin/admin-types-management";
 import { serverApiJson } from "@/lib/server-api";
-
-type ClassTypeOption = {
-  id: string;
-  name: string;
-};
 
 export default async function AdminPackagesPage({
   params,
@@ -26,7 +22,7 @@ export default async function AdminPackagesPage({
   const initialFilters = parsePackageFiltersFromSearch(search);
   const [packagesRes, classTypesRes] = await Promise.all([
     serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
-    serverApiJson<ClassTypeOption[]>("/classes/types", cookie),
+    serverApiJson<AdminClassTypeRow[]>("/classes/types", cookie),
   ]);
 
   if (!packagesRes.ok || !classTypesRes.ok) {
@@ -48,7 +44,7 @@ export default async function AdminPackagesPage({
       <Suspense fallback={null}>
         <AdminPackagesManagement
           packages={packagesRes.data}
-          classTypeOptions={classTypesRes.data}
+          initialClassTypes={classTypesRes.data}
           locale={locale}
           initialFilters={initialFilters}
         />

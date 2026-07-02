@@ -18,13 +18,13 @@
   },
   "scripts": {
     "build": "pnpm -w exec tsc -p packages/database/tsconfig.json",
-    "generate": "pnpm -w exec prisma generate --schema packages/database/prisma/schema.prisma",
-    "migrate:dev": "dotenv -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma/schema.prisma",
-    "migrate:deploy": "dotenv -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma/schema.prisma",
+    "generate": "pnpm -w exec prisma generate --schema packages/database/prisma",
+    "migrate:dev": "dotenv -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma",
+    "migrate:deploy": "dotenv -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma",
     "apply:manual-payments": "node scripts/apply-manual-payments-schema.mjs",
     "apply:package-rename": "node scripts/apply-package-rename-schema.mjs",
     "apply:package-session-usage": "node scripts/apply-package-session-usage-schema.mjs",
-    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma/schema.prisma",
+    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma",
     "seed": "dotenv -e ../../.env -- pnpm exec tsx prisma/seed.ts"
   },
   "dependencies": {

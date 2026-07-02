@@ -117,8 +117,8 @@ export function AdminPackageDeleteModal({
 
   const trimmedName = packageName.trim();
   const blockerCount = blockers?.count ?? 0;
-  const hasBlockers = blockerCount > 0;
-  const deleteDisabled = pending || hasBlockers;
+  const hasActiveMembers = blockerCount > 0;
+  const deleteDisabled = pending;
   const memberDrawerOpen = selectedMemberId !== null;
 
   async function loadBlockers(showList: boolean): Promise<void> {
@@ -203,7 +203,7 @@ export function AdminPackageDeleteModal({
         tone="danger"
         confirmClassName={DELETE_PACKAGE_CONFIRM_CLASS}
         pending={pending}
-        confirmPending={deleteDisabled}
+        confirmPending={pending}
         lockBodyScroll={!memberDrawerOpen}
         closeOnEscape={!memberDrawerOpen}
         onConfirm={() => void onConfirm()}
@@ -217,9 +217,9 @@ export function AdminPackageDeleteModal({
           <p className="text-sm text-sage-600">{tBlockers("loading")}</p>
         ) : null}
 
-        {!loadingBlockers && hasBlockers ? (
+        {!loadingBlockers && hasActiveMembers ? (
           <div className="space-y-3">
-            <p className="text-sm text-red-800" role="status">
+            <p className="text-sm text-amber-950" role="status">
               {tBlockers("blockedSummary", { count: blockerCount })}
             </p>
             {!showMemberList ? (
@@ -244,7 +244,7 @@ export function AdminPackageDeleteModal({
             <p className="text-sm text-red-800" role="alert">
               {error}
             </p>
-            {hasBlockers && !showMemberList ? (
+            {hasActiveMembers && !showMemberList ? (
               <button
                 type="button"
                 className="inline-flex items-center rounded-full border border-amber-300/90 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"

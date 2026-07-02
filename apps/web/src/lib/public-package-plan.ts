@@ -3,6 +3,7 @@ export type PublicPackagePlan = {
   id: string;
   name: string;
   categoryName: string;
+  categorySlug?: string;
   description: string | null;
   priceCents: number;
   discountedPriceCents?: number | null;
@@ -53,6 +54,12 @@ export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPacka
       typeof plan.categoryName === "string" && plan.categoryName.trim().length > 0
         ? plan.categoryName.trim()
         : "General",
+    categorySlug:
+      typeof plan.categorySlug === "string" && plan.categorySlug.trim().length > 0
+        ? plan.categorySlug.trim()
+        : typeof plan.categoryName === "string" && plan.categoryName.trim().length > 0
+          ? plan.categoryName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")
+          : "general",
     sessionsPerMonth: coerceSessionsPerMonth(plan.sessionsPerMonth),
     showPricePerSession:
       typeof plan.showPricePerSession === "boolean" ? plan.showPricePerSession : true,

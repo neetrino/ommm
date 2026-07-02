@@ -1,4 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { PackagesAdminService } from './packages-admin.service';
+import { PackagesPublicService } from './packages-public.service';
 import { PackagesService } from './packages.service';
 
 function createPackagesService() {
@@ -8,6 +10,7 @@ function createPackagesService() {
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
     },
     $transaction: jest.fn(),
   };
@@ -17,9 +20,31 @@ function createPackagesService() {
     reconcileSessionsRemaining: jest.fn(),
   };
 
+  const cache = {
+    invalidate: jest.fn(),
+    getOrSet: jest.fn(),
+  };
+
+  const config = {
+    get: jest.fn(),
+  };
+
+  const publicService = new PackagesPublicService(
+    prisma as never,
+    config as never,
+    cache as never,
+  );
+  const adminService = new PackagesAdminService(
+    prisma as never,
+    publicService,
+    packageUsage as never,
+  );
+  const service = new PackagesService(publicService, adminService);
+
   return {
-    service: new PackagesService(prisma as never, packageUsage as never),
+    service,
     prisma,
+    cache,
   };
 }
 
@@ -47,5 +72,19 @@ describe('PackagesService', () => {
       service.updatePlan('plan-1', { discountedPriceCents: 10000 }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('deletes a plan even when active memberships exist', async () => {
+    const { service, prisma, cache } = createPackagesService();
+    prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.delete.mockResolvedValue({ id: 'plan-1' });
+    cache.invalidate.mockResolvedValue(undefined);
+
+    await expect(service.deletePlan('plan-1')).resolves.toEqual({ ok: true });
+
+    expect(prisma.packagePlan.delete).toHaveBeenCalledWith({
+      where: { id: 'plan-1' },
+    });
+    expect(cache.invalidate).toHaveBeenCalled();
   });
 });

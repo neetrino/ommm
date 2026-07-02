@@ -1,7 +1,12 @@
 /** Ensures guestCount is present when the API omits it (pre-migration rows). */
 export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow {
+  const categorySlug =
+    typeof row.categorySlug === "string" && row.categorySlug.trim().length > 0
+      ? row.categorySlug.trim()
+      : row.id;
   return {
     ...row,
+    categorySlug,
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
     discountedPriceCents:
       typeof row.discountedPriceCents === "number" ? row.discountedPriceCents : null,
@@ -32,6 +37,7 @@ export type AdminPackageRow = {
   id: string;
   name: string;
   categoryName: string;
+  categorySlug: string;
   classTypeId?: string | null;
   typeSessionAllocations?: PackageTypeSessionAllocation[];
   description: string | null;

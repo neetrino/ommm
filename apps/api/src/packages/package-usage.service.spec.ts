@@ -1,4 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
+import { PackageUsageEligibilityService } from './package-usage-eligibility.service';
+import { PackageUsageLedgerService } from './package-usage-ledger.service';
+import { PackageUsageMaintenanceService } from './package-usage-maintenance.service';
 import { PackageUsageService } from './package-usage.service';
 
 type MockTx = {
@@ -21,7 +24,11 @@ function createServiceWithPrismaMock() {
   };
   return {
     prisma,
-    service: new PackageUsageService(prisma as never),
+    service: new PackageUsageService(
+      new PackageUsageEligibilityService(prisma as never),
+      new PackageUsageLedgerService(),
+      new PackageUsageMaintenanceService(prisma as never),
+    ),
   };
 }
 
@@ -42,6 +49,13 @@ function createMembership(params?: {
     id,
     userId: 'user-1',
     planId: 'plan-1',
+    sourcePlanIdSnapshot: 'plan-1',
+    planNameSnapshot: 'Reformer Pack',
+    planCategoryNameSnapshot: categoryName,
+    planPriceCentsSnapshot: 25000,
+    planPeriodDaysSnapshot: 30,
+    planIsUnlimitedSnapshot: isUnlimited,
+    planSessionsPerMonthSnapshot: isUnlimited ? null : 8,
     status: 'ACTIVE',
     currentPeriodStart: now,
     currentPeriodEnd: new Date(now.getTime() + 86_400_000),

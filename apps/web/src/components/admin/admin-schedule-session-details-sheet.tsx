@@ -40,7 +40,6 @@ type AdminScheduleSessionDetailsSheetProps = {
   onSaved: (row: AdminScheduleSession) => void;
   onDuplicate: (row: AdminScheduleSession) => void;
   onDelete: (row: AdminScheduleSession) => void;
-  onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 };
 
 export function AdminScheduleSessionDetailsSheet({
@@ -53,7 +52,6 @@ export function AdminScheduleSessionDetailsSheet({
   onSaved,
   onDuplicate,
   onDelete,
-  onClassTypeCreated,
 }: AdminScheduleSessionDetailsSheetProps) {
   if (row === null) {
     return null;
@@ -70,7 +68,6 @@ export function AdminScheduleSessionDetailsSheet({
       onSaved={onSaved}
       onDuplicate={onDuplicate}
       onDelete={onDelete}
-      onClassTypeCreated={onClassTypeCreated}
     />
   );
 }
@@ -85,7 +82,6 @@ function AdminScheduleSessionDetailsSheetInner({
   onSaved,
   onDuplicate,
   onDelete,
-  onClassTypeCreated,
 }: {
   locale: string;
   row: AdminScheduleSession;
@@ -130,7 +126,6 @@ function AdminScheduleSessionDetailsSheetInner({
     onSaved: (saved) => {
       onSaved(saved);
     },
-    onClassTypeCreated,
   });
 
   const sheetBusy = editForm.busy || statusBusy || actionBusy;

@@ -1,168 +1,32 @@
 "use client";
 
-import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { AccountProfileField } from "@/components/account/account-profile-field";
+import {
+  accountProfileInitialFormState,
+  formatPhoneDisplay,
+} from "@/components/account/account-profile-info-form.helpers";
+import type {
+  AccountProfileFormState,
+  AccountProfileInfoFormProps,
+} from "@/components/account/account-profile-info-form.types";
 import { MAX_BIO_LENGTH } from "@/components/admin/admin-coach-form-helpers";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
   formatBirthdayInput,
   formatDateForUi,
-  formatIsoDateToUi,
   parseBirthdayDisplayToIso,
 } from "@/lib/date-display";
-import {
-  ARMENIA_PHONE_DISPLAY_PLACEHOLDER,
-  formatPhoneDisplay,
-  normalizePhoneForApi,
-} from "@/lib/phone";
-import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { normalizePhoneForApi } from "@/lib/phone";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
+import { useRouter } from "@/i18n/navigation";
+import type { ProfileFormUser } from "@/components/account/account-profile-info-form.types";
 
-const PROFILE_FIELD_CELL_CLASS = "ommm-inset-row flex flex-col gap-0.5";
-const PROFILE_FIELD_LABEL_CLASS = "text-xs text-sage-500";
-const PROFILE_FIELD_VALUE_CLASS = "text-sm font-medium text-sage-800";
-const PROFILE_FIELD_VALUE_EMPTY_CLASS = "text-sm italic text-sage-500";
-const PROFILE_FIELD_INPUT_CLASS =
-  "w-full border-0 bg-transparent p-0 text-sm font-medium text-sage-800 shadow-none outline-none focus:ring-0 placeholder:font-normal placeholder:text-sage-400 disabled:cursor-not-allowed disabled:opacity-60";
-
-type ProfileFormUser = {
-  email: string;
-  name: string | null;
-  lastName: string | null;
-  phone: string | null;
-  dateOfBirth?: string | null;
-  locale: string;
-  role?: string;
-};
-
-type AccountProfileInfoFormProps = {
-  initialUser: ProfileFormUser;
-  showRole?: boolean;
-  /** When set, shows the shared coach-profile bio field (same source as admin coaches). */
-  coachProfileId?: string | null;
-  initialBio?: string | null;
-};
-
-type FormState = {
-  email: string;
-  name: string;
-  lastName: string;
-  phone: string;
-  dateOfBirth: string;
-  bio: string;
-};
-
-type ProfileFieldProps = {
-  id: string;
-  label: string;
-  displayValue: string;
-  editing: boolean;
-  inputValue: string;
-  onChange?: (value: string) => void;
-  span?: 1 | 2;
-  readOnly?: boolean;
-  disabled?: boolean;
-  emptyLabel: string;
-  multiline?: boolean;
-  maxLength?: number;
-  usePhoneInput?: boolean;
-} & Pick<InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "inputMode" | "placeholder"> &
-  Pick<TextareaHTMLAttributes<HTMLTextAreaElement>, "rows">;
-
-function ProfileField({
-  id,
-  label,
-  displayValue,
-  editing,
-  inputValue,
-  onChange,
-  span = 1,
-  readOnly = false,
-  disabled = false,
-  emptyLabel,
-  multiline = false,
-  maxLength,
-  usePhoneInput = false,
-  rows = 4,
-  type = "text",
-  autoComplete,
-  inputMode,
-  placeholder,
-}: ProfileFieldProps) {
-  const isEmpty = displayValue.trim() === "";
-  const spanClass = span === 2 ? "sm:col-span-2" : "";
-  const textareaClass = `${PROFILE_FIELD_INPUT_CLASS} min-h-[6rem] resize-y`;
-
-  return (
-    <div className={`${PROFILE_FIELD_CELL_CLASS} ${spanClass}`.trim()}>
-      <label className={PROFILE_FIELD_LABEL_CLASS} htmlFor={id}>
-        {label}
-      </label>
-      {editing && !readOnly ? (
-        multiline ? (
-          <textarea
-            id={id}
-            rows={rows}
-            maxLength={maxLength}
-            placeholder={placeholder}
-            className={textareaClass}
-            value={inputValue}
-            onChange={(event) => onChange?.(event.target.value)}
-            disabled={disabled}
-          />
-        ) : usePhoneInput ? (
-          <PhoneInputField
-            id={id}
-            className={PROFILE_FIELD_INPUT_CLASS}
-            value={inputValue}
-            onValueChange={(value) => onChange?.(value)}
-            disabled={disabled}
-            placeholder={placeholder ?? ARMENIA_PHONE_DISPLAY_PLACEHOLDER}
-          />
-        ) : (
-          <input
-            id={id}
-            type={type}
-            autoComplete={autoComplete}
-            inputMode={inputMode}
-            placeholder={placeholder}
-            className={PROFILE_FIELD_INPUT_CLASS}
-            value={inputValue}
-            onChange={(event) => onChange?.(event.target.value)}
-            disabled={disabled}
-          />
-        )
-      ) : (
-        <p
-          className={
-            multiline && !isEmpty
-              ? `${PROFILE_FIELD_VALUE_CLASS} whitespace-pre-wrap`
-              : isEmpty
-                ? PROFILE_FIELD_VALUE_EMPTY_CLASS
-                : PROFILE_FIELD_VALUE_CLASS
-          }
-        >
-          {isEmpty ? emptyLabel : displayValue}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function initialFormState(user: ProfileFormUser, bio: string | null | undefined): FormState {
-  return {
-    email: user.email,
-    name: user.name ?? "",
-    lastName: user.lastName ?? "",
-    phone: formatPhoneDisplay(user.phone ?? ""),
-    dateOfBirth: formatIsoDateToUi(user.dateOfBirth),
-    bio: bio ?? "",
-  };
-}
+export type { AccountProfileInfoFormProps, ProfileFormUser } from "@/components/account/account-profile-info-form.types";
 
 export function AccountProfileInfoForm({
   initialUser,
@@ -178,8 +42,8 @@ export function AccountProfileInfoForm({
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const [form, setForm] = useState<FormState>(() =>
-    initialFormState(initialUser, initialBio),
+  const [form, setForm] = useState<AccountProfileFormState>(() =>
+    accountProfileInitialFormState(initialUser, initialBio),
   );
   const [savedBio, setSavedBio] = useState<string | null>(null);
   const showCoachBio = coachProfileId !== null && coachProfileId.length > 0;
@@ -187,10 +51,10 @@ export function AccountProfileInfoForm({
   const empty = tProfile("emptyValue");
 
   function resetFormState() {
-    setForm(initialFormState(initialUser, initialBio));
+    setForm(accountProfileInitialFormState(initialUser, initialBio));
   }
 
-  function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
+  function updateField<K extends keyof AccountProfileFormState>(key: K, value: AccountProfileFormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -336,7 +200,7 @@ export function AccountProfileInfoForm({
           }
         }}
       >
-        <ProfileField
+        <AccountProfileField
           id="profile-name"
           label={tProfile("labels.name")}
           displayValue={initialUser.name ?? ""}
@@ -347,7 +211,7 @@ export function AccountProfileInfoForm({
           disabled={isSaving}
           emptyLabel={empty}
         />
-        <ProfileField
+        <AccountProfileField
           id="profile-last-name"
           label={tProfile("labels.lastName")}
           displayValue={initialUser.lastName ?? ""}
@@ -358,7 +222,7 @@ export function AccountProfileInfoForm({
           disabled={isSaving}
           emptyLabel={empty}
         />
-        <ProfileField
+        <AccountProfileField
           id="profile-email"
           label={tProfile("labels.email")}
           displayValue={initialUser.email}
@@ -371,7 +235,7 @@ export function AccountProfileInfoForm({
           disabled={isSaving}
           emptyLabel={empty}
         />
-        <ProfileField
+        <AccountProfileField
           id="profile-phone"
           label={tProfile("labels.phone")}
           displayValue={formatPhoneDisplay(initialUser.phone)}
@@ -382,7 +246,7 @@ export function AccountProfileInfoForm({
           disabled={isSaving}
           emptyLabel={empty}
         />
-        <ProfileField
+        <AccountProfileField
           id="profile-dob"
           label={tProfile("labels.dateOfBirth")}
           displayValue={displayDob === empty ? "" : displayDob}
@@ -396,7 +260,7 @@ export function AccountProfileInfoForm({
           emptyLabel={empty}
         />
         {showCoachBio ? (
-          <ProfileField
+          <AccountProfileField
             id="profile-bio"
             label={tProfile("labels.bio")}
             displayValue={displayBio}
@@ -411,7 +275,7 @@ export function AccountProfileInfoForm({
           />
         ) : null}
         {showRole ? (
-          <ProfileField
+          <AccountProfileField
             id="profile-role"
             label={tStaff("role")}
             displayValue={initialUser.role ?? ""}

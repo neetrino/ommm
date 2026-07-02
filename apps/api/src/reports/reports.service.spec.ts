@@ -3,12 +3,20 @@ import {
   ClassSessionStatus,
   PaymentStatus,
 } from '@prisma/client';
+import { ReportsAnalyticsService } from './reports-analytics.service';
+import { ReportsDashboardService } from './reports-dashboard.service';
+import { ReportsExportService } from './reports-export.service';
 import { ReportsService } from './reports.service';
 
 function createServiceWithPrisma(
   prismaMock: Record<string, unknown>,
 ): ReportsService {
-  return new ReportsService(prismaMock as never);
+  const prisma = prismaMock as never;
+  return new ReportsService(
+    new ReportsDashboardService(prisma),
+    new ReportsExportService(prisma),
+    new ReportsAnalyticsService(prisma),
+  );
 }
 
 type DashboardOverviewResult = {

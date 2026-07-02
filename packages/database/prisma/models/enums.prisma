@@ -1,0 +1,108 @@
+enum Role {
+  USER
+  COACH
+  MANAGER
+  CONTENT_ADMIN
+  ADMIN
+}
+
+enum ClassSessionStatus {
+  DRAFT
+  ACTIVE
+  FULL
+  CANCELLED
+}
+
+enum BookingStatus {
+  BOOKED
+  COMPLETED
+  CANCELLED
+  MISSED
+}
+
+enum BookingChannel {
+  WEBSITE
+  APP
+}
+
+enum WaitlistStatus {
+  ACTIVE
+  OFFERED
+  EXPIRED
+  CONVERTED
+  REMOVED
+}
+
+enum ContentType {
+  EVENT
+  BLOG
+  NEWS
+  UPDATE
+  KNOWLEDGE_ARTICLE
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  REJECTED
+  PUBLISHED
+  HIDDEN
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentSource {
+  PACKAGE
+  DROPIN
+  GIFT
+  OTHER
+}
+
+enum ManualPaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  OTHER
+}
+
+enum GiftCardStatus {
+  ACTIVE
+  REDEEMED
+  EXPIRED
+  DEACTIVATED
+}
+
+enum AuthTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+enum ScheduleDayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum SessionRecurrencePattern {
+  NONE
+  DAILY
+  WEEKLY
+  CUSTOM_WEEKDAYS
+}
+
+enum UserPackageStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+  PENDING
+}
