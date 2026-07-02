@@ -38,13 +38,19 @@ describe('ContentService', () => {
       isConfigured: jest.fn().mockReturnValue(false),
       putObject: jest.fn(),
     };
-    const publicContent = new ContentPublicService(prisma as never, cache as never);
+    const publicContent = new ContentPublicService(
+      prisma as never,
+      cache as never,
+    );
     const adminContent = new ContentAdminService(
       prisma as never,
       audit as never,
       publicContent,
     );
-    const coverImage = new ContentCoverImageService(config as never, r2Storage as never);
+    const coverImage = new ContentCoverImageService(
+      config as never,
+      r2Storage as never,
+    );
     return {
       service: new ContentService(publicContent, adminContent, coverImage),
       prisma,

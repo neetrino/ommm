@@ -1,4 +1,4 @@
-import { BookingStatus, ClassSessionStatus, Prisma } from '@prisma/client';
+import { ClassSessionStatus, Prisma } from '@prisma/client';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
 
 /** Local calendar day bounds — shared by dashboard stats and today's class list. */
@@ -87,10 +87,7 @@ export function detectPaymentSource(
   description: string | null,
 ): 'package' | 'dropin' | 'gift' | 'other' {
   const normalized = (description ?? '').toLowerCase();
-  if (
-    normalized.startsWith('membership') ||
-    normalized.startsWith('package')
-  ) {
+  if (normalized.startsWith('membership') || normalized.startsWith('package')) {
     return 'package';
   }
   if (normalized.startsWith('drop-in')) {
@@ -123,7 +120,5 @@ export function readGiftAmount(card: {
 }
 
 export function toCsvRow(cells: ReadonlyArray<string | number>): string {
-  return cells
-    .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-    .join(',');
+  return cells.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',');
 }

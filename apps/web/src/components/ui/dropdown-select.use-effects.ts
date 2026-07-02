@@ -154,9 +154,10 @@ export function useDropdownSelectEffects({
   }, [isMenuOpen, openOnHover, optionRefs, safeFocusedIndex]);
 
   useEffect(() => {
+    const hoverCloseTimer = hoverCloseTimerRef;
     return () => {
-      if (hoverCloseTimerRef.current !== null) {
-        clearTimeout(hoverCloseTimerRef.current);
+      if (hoverCloseTimer.current !== null) {
+        clearTimeout(hoverCloseTimer.current);
       }
     };
   }, [hoverCloseTimerRef]);

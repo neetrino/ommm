@@ -1,8 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
-import {
-  PaymentSourceFilter,
-} from './dto/admin-list-payments-query.dto';
+import { PaymentSourceFilter } from './dto/admin-list-payments-query.dto';
 import {
   INTERNAL_PAYMENT_SOURCE,
   type InternalPaymentSource,
@@ -14,21 +12,21 @@ export function createPaymentReference(prefix: string): string {
   return `${prefix}-${randomBytes(6).toString('hex').toUpperCase()}`;
 }
 
-export function withInternalPaymentCreateFields<T extends Record<string, unknown>>(
-  data: T,
-): Prisma.PaymentUncheckedCreateInput {
+export function withInternalPaymentCreateFields<
+  T extends Record<string, unknown>,
+>(data: T): Prisma.PaymentUncheckedCreateInput {
   return data as unknown as Prisma.PaymentUncheckedCreateInput;
 }
 
-export function withInternalPaymentUpdateFields<T extends Record<string, unknown>>(
-  data: T,
-): Prisma.PaymentUncheckedUpdateInput {
+export function withInternalPaymentUpdateFields<
+  T extends Record<string, unknown>,
+>(data: T): Prisma.PaymentUncheckedUpdateInput {
   return data;
 }
 
-export function withInternalPaymentWhereFields<T extends Record<string, unknown>>(
-  where: T,
-): Prisma.PaymentWhereInput {
+export function withInternalPaymentWhereFields<
+  T extends Record<string, unknown>,
+>(where: T): Prisma.PaymentWhereInput {
   return where;
 }
 
@@ -107,10 +105,7 @@ export function detectPaymentSource(
   if (source === INTERNAL_PAYMENT_SOURCE.DROPIN) return 'dropin';
   if (source === INTERNAL_PAYMENT_SOURCE.GIFT) return 'gift';
   const normalized = (description ?? '').toLowerCase();
-  if (
-    normalized.startsWith('membership') ||
-    normalized.startsWith('package')
-  ) {
+  if (normalized.startsWith('membership') || normalized.startsWith('package')) {
     return 'package';
   }
   if (normalized.startsWith('drop-in')) {

@@ -55,7 +55,11 @@ const DASHBOARD_ALERT_RULES: ReadonlyArray<{
   field: keyof DashboardAlertInput;
 }> = [
   { code: 'classes_full_today', level: 'info', field: 'fullClassesToday' },
-  { code: 'waitlist_pressure', level: 'warning', field: 'waitlistPressureCount' },
+  {
+    code: 'waitlist_pressure',
+    level: 'warning',
+    field: 'waitlistPressureCount',
+  },
   {
     code: 'classes_cancelled_today',
     level: 'warning',

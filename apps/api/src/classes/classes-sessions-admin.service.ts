@@ -3,10 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  ClassSessionStatus,
-  type Prisma,
-} from '@prisma/client';
+import { ClassSessionStatus } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import {
   resolveSessionListOrderBy,
@@ -143,7 +140,7 @@ export class ClassesSessionsAdminService {
         recurrenceWeekdays: recurrence.recurrenceWeekdays,
         recurrenceEndsAt: recurrence.recurrenceEndsAt,
         recurrenceCount: recurrence.recurrenceCount,
-      } as Prisma.ClassSessionUncheckedCreateInput,
+      },
     });
     await this.invalidatePublicScheduleAndEmit(created.id);
     return this.findSessionAdminOrThrow(created.id);
@@ -230,7 +227,7 @@ export class ClassesSessionsAdminService {
         recurrenceWeekdays: recurrence.recurrenceWeekdays,
         recurrenceEndsAt: recurrence.recurrenceEndsAt,
         recurrenceCount: recurrence.recurrenceCount,
-      } as Prisma.ClassSessionUncheckedUpdateInput,
+      },
     });
     await this.invalidatePublicScheduleAndEmit(id);
     return this.findSessionAdminOrThrow(id);

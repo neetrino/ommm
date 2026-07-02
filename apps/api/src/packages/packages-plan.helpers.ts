@@ -192,9 +192,7 @@ export async function resolveClassTypeNameMapForAllocations(
     where: { id: { in: [...classTypeIds] } },
     select: { id: true, name: true },
   });
-  return new Map(
-    classTypes.map((classType) => [classType.id, classType.name]),
-  );
+  return new Map(classTypes.map((classType) => [classType.id, classType.name]));
 }
 
 export function enrichStoredTypeSessionAllocations(

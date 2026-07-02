@@ -4,16 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  BookingStatus,
-  Prisma,
-  Role,
-  type User,
-} from '@prisma/client';
+import { BookingStatus, Prisma, Role, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
-import {
-  normalizeOptionalPhone,
-} from '../common/phone';
+import { normalizeOptionalPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
 import type { UpdateClientDto } from './dto/update-client.dto';
 

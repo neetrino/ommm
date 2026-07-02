@@ -1,12 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  ManualPaymentMethod,
-  PaymentStatus,
-} from '@prisma/client';
+import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 import { isArcaCheckoutEnabled } from './payment-arca.util';

@@ -8,10 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
 import { PaymentsFulfillmentService } from './payments-fulfillment.service';
-import type {
-  GiftEmailPayload,
-  InternalPaymentRecord,
-} from './payments.types';
+import type { GiftEmailPayload, InternalPaymentRecord } from './payments.types';
 
 @Injectable()
 export class PaymentsConfirmService {
@@ -68,7 +65,9 @@ export class PaymentsConfirmService {
     return payment;
   }
 
-  private async dispatchGiftEmails(giftEmails: GiftEmailPayload[]): Promise<void> {
+  private async dispatchGiftEmails(
+    giftEmails: GiftEmailPayload[],
+  ): Promise<void> {
     for (const email of giftEmails) {
       await this.fulfillment.sendGiftCardEmail(email.to, email.code);
     }

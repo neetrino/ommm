@@ -12,7 +12,6 @@ import {
   readBatchAmount,
   readGiftCardAmount,
   readGiftCardBalance,
-  readGiftCardImage,
   serializeUserGiftCard,
 } from './gift-cards.mapper';
 

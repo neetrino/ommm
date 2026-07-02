@@ -217,7 +217,6 @@ export function useSessionBooking({
   }, [sessionId]);
 
   const { initiateBooking } = useSessionBookingInitiate({
-    sessionId,
     busy,
     setBusy,
     fetchEligiblePackages,

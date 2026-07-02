@@ -1,10 +1,6 @@
 "use client";
 
 import type { useTranslations } from "next-intl";
-import {
-  ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES,
-  isAcceptedGiftCardImageType,
-} from "@/components/admin/admin-create-gift-card-form.helpers";
 import type { AdminGiftCardFormMode } from "@/components/admin/admin-create-gift-card-form.types";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";

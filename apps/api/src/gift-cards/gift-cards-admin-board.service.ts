@@ -155,14 +155,10 @@ export class GiftCardsAdminBoardService {
     }
 
     if (query.amountMin !== undefined) {
-      rows = rows.filter(
-        (batch) => readBatchAmount(batch) >= query.amountMin!,
-      );
+      rows = rows.filter((batch) => readBatchAmount(batch) >= query.amountMin!);
     }
     if (query.amountMax !== undefined) {
-      rows = rows.filter(
-        (batch) => readBatchAmount(batch) <= query.amountMax!,
-      );
+      rows = rows.filter((batch) => readBatchAmount(batch) <= query.amountMax!);
     }
 
     if (query.quick === 'active') {
@@ -228,8 +224,7 @@ export class GiftCardsAdminBoardService {
       ].join('|');
       const existing = grouped.get(key);
       const isAvailable =
-        card.status === GiftCardStatus.ACTIVE &&
-        readGiftCardBalance(card) > 0
+        card.status === GiftCardStatus.ACTIVE && readGiftCardBalance(card) > 0
           ? 1
           : 0;
       if (!existing) {

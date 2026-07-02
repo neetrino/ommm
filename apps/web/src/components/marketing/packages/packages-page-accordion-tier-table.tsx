@@ -1,8 +1,6 @@
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { formatPackagePlanName, formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
-import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
 import type { ExpandedTierTableProps } from "@/components/marketing/packages/packages-page-accordion.types";
 import { PackagesPageAccordionTierRow } from "@/components/marketing/packages/packages-page-accordion-tier-row";

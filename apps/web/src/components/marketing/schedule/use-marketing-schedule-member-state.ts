@@ -17,10 +17,8 @@ import {
 import type { UserBookingRow } from "@/lib/user-booking-types";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
 import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
-import { startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 
 type UseMarketingScheduleMemberStateOptions = {
   isMember: boolean;

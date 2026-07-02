@@ -27,9 +27,7 @@ import {
   paginateFilteredRows,
   requiresScheduledPostProcessing,
 } from './notifications-list-filters';
-import {
-  fetchAndMapScheduledBroadcasts,
-} from './notifications-scheduled.mapper';
+import { fetchAndMapScheduledBroadcasts } from './notifications-scheduled.mapper';
 import {
   hasScheduledTerminalStatus,
   resolveAudienceRoles,
@@ -220,10 +218,7 @@ export class NotificationsBroadcastService {
         'Cannot update non-pending scheduled broadcast',
       );
     }
-    const effective = resolveEffectiveScheduledPayload(
-      base.payload,
-      timeline,
-    );
+    const effective = resolveEffectiveScheduledPayload(base.payload, timeline);
     if (!effective) {
       throw new BadRequestException('Invalid scheduled broadcast payload');
     }

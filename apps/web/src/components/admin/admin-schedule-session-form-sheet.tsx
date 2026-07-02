@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  buildCoachDropdownState,
   coachDropdownPlaceholderKey,
 } from "@/components/admin/admin-schedule-coach-filter";
 import {

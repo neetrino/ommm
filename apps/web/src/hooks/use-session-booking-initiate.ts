@@ -13,7 +13,6 @@ import type { EligibleBookingPackage } from "@/components/account/booking-packag
 import type { BookSessionResponse } from "@/hooks/use-session-booking.types";
 
 type UseSessionBookingInitiateArgs = {
-  sessionId: string;
   busy: boolean;
   setBusy: (busy: boolean) => void;
   fetchEligiblePackages: () => Promise<readonly EligibleBookingPackage[]>;
@@ -30,7 +29,6 @@ type UseSessionBookingInitiateArgs = {
 };
 
 export function useSessionBookingInitiate({
-  sessionId,
   busy,
   setBusy,
   fetchEligiblePackages,

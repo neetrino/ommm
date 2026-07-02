@@ -10,10 +10,7 @@ import {
   resolveContentPostLocale,
   type ContentPostLocale,
 } from './content-locales';
-import {
-  toPublicPost,
-  type PublicContentPost,
-} from './content-post.helpers';
+import { toPublicPost, type PublicContentPost } from './content-post.helpers';
 
 @Injectable()
 export class ContentPublicService {

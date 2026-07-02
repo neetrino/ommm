@@ -5,11 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  AuthTokenType,
-  Role,
-  type User,
-} from '@prisma/client';
+import { AuthTokenType, Role, type User } from '@prisma/client';
 import { createHash, randomBytes } from 'node:crypto';
 import { AuditService } from '../audit/audit.service';
 import { PASSWORD_RESET_TTL_MS } from '../common/constants';

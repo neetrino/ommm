@@ -69,8 +69,7 @@ export async function resolveTypeSessionAllocations(
   }
   if (
     allocations.some(
-      (item) =>
-        !Number.isInteger(item.sessionCount) || item.sessionCount <= 0,
+      (item) => !Number.isInteger(item.sessionCount) || item.sessionCount <= 0,
     )
   ) {
     throw new BadRequestException(

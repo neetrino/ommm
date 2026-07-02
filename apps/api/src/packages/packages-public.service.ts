@@ -21,7 +21,10 @@ import {
   resolveFinalPriceCents,
   toPublicPlan,
 } from './packages-plan.helpers';
-import { type AdminPlanRecord, USER_PACKAGE_STATUS } from './packages-plan.types';
+import {
+  type AdminPlanRecord,
+  USER_PACKAGE_STATUS,
+} from './packages-plan.types';
 import {
   buildUserPackagePlanSnapshot,
   resolveUserPackagePlan,
@@ -151,8 +154,10 @@ export class PackagesPublicService {
       },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
-    const classTypeNameById =
-      await resolveClassTypeNameMapForAllocations(this.prisma, plans);
+    const classTypeNameById = await resolveClassTypeNameMapForAllocations(
+      this.prisma,
+      plans,
+    );
     return plans.map((plan) => toPublicPlan(plan, classTypeNameById));
   }
 

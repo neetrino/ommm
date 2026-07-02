@@ -61,9 +61,10 @@ export type GiftCardBatchSnapshot = {
   createdAt: Date;
 };
 
-export function giftCardBatchDelegate(client: unknown): GiftCardBatchDelegateLike {
-  return (client as { giftCardBatch: GiftCardBatchDelegateLike })
-    .giftCardBatch;
+export function giftCardBatchDelegate(
+  client: unknown,
+): GiftCardBatchDelegateLike {
+  return (client as { giftCardBatch: GiftCardBatchDelegateLike }).giftCardBatch;
 }
 
 export function readGiftCardAmount(card: unknown): number {
@@ -136,10 +137,7 @@ export function serializeAdminBoardBatch(batch: AdminBoardBatchRow) {
 }
 
 export function resolveBatchQuantityUpdate(
-  existing: Pick<
-    GiftCardBatchSnapshot,
-    'totalQuantity' | 'availableQuantity'
-  >,
+  existing: Pick<GiftCardBatchSnapshot, 'totalQuantity' | 'availableQuantity'>,
   nextQuantity: number,
 ): Pick<GiftCardBatchSnapshot, 'totalQuantity' | 'availableQuantity'> | null {
   if (!Number.isInteger(nextQuantity) || nextQuantity < 1) {

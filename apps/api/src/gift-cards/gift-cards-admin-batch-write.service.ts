@@ -158,10 +158,7 @@ export class GiftCardsAdminBatchWriteService {
         dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
     };
     if (dto.quantity !== undefined) {
-      const quantityUpdate = resolveBatchQuantityUpdate(
-        existing,
-        dto.quantity,
-      );
+      const quantityUpdate = resolveBatchQuantityUpdate(existing, dto.quantity);
       if (quantityUpdate !== null) {
         updateData.totalQuantity = quantityUpdate.totalQuantity;
         updateData.availableQuantity = quantityUpdate.availableQuantity;

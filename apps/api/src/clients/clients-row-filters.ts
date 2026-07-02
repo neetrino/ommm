@@ -41,18 +41,14 @@ function matchesClassLevel(levels: string[], filter: string) {
   );
 }
 
-function matchesQuickFilter(
-  row: ClientRow,
-  filter: AdminClientQuickFilter,
-) {
+function matchesQuickFilter(row: ClientRow, filter: AdminClientQuickFilter) {
   if (filter === AdminClientQuickFilter.BIRTHDAY_THIS_MONTH) {
     return row.birthdayMonth === new Date().getMonth() + 1;
   }
   if (filter === AdminClientQuickFilter.INACTIVE_30_DAYS) {
     if (row.lastVisitDate === null) return row.status === 'Inactive';
     return (
-      Date.now() - row.lastVisitDate.getTime() >
-      INACTIVE_CLIENT_DAYS * 86400000
+      Date.now() - row.lastVisitDate.getTime() > INACTIVE_CLIENT_DAYS * 86400000
     );
   }
   if (filter === AdminClientQuickFilter.UNPAID)
@@ -71,12 +67,12 @@ export function matchesClientFilters(
 ) {
   if (query.tag && !matchesTag(row.tags, query.tag)) return false;
   if (query.status && !matchesStatus(row.status, query.status)) return false;
-  if (
-    query.classLevel &&
-    !matchesClassLevel(row.classLevels, query.classLevel)
-  )
+  if (query.classLevel && !matchesClassLevel(row.classLevels, query.classLevel))
     return false;
-  if (query.paymentStatus && row.paymentBehavior !== String(query.paymentStatus))
+  if (
+    query.paymentStatus &&
+    row.paymentBehavior !== String(query.paymentStatus)
+  )
     return false;
   if (query.source && row.source !== query.source) return false;
   if (

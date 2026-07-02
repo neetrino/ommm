@@ -1,6 +1,4 @@
-import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import type {
-  AdminBookingDetailPayload,
   AdminBookingRow,
   AdminBookingsFilterState,
   AdminBookingsManagementPayload,

@@ -32,7 +32,9 @@ export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
   _count: { select: { clientNotesReceived: true } },
 });
 
-export type ClientRecord = Prisma.UserGetPayload<{ include: typeof clientInclude }>;
+export type ClientRecord = Prisma.UserGetPayload<{
+  include: typeof clientInclude;
+}>;
 export type ClientTag = 'VIP' | 'New' | 'At Risk' | 'Beginner';
 export type ClientStatus = 'Active' | 'Inactive' | 'Blocked';
 export type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
@@ -92,7 +94,9 @@ function getClientStatus(user: ClientRecord): ClientStatus {
     : 'Inactive';
 }
 
-function getSource(user: ClientRecord): 'website' | 'mobile-app' | 'admin' | null {
+function getSource(
+  user: ClientRecord,
+): 'website' | 'mobile-app' | 'admin' | null {
   const firstBooking = [...user.bookings].sort(
     (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
   )[0];
@@ -103,10 +107,14 @@ function getSource(user: ClientRecord): 'website' | 'mobile-app' | 'admin' | nul
 }
 
 function getPaymentBehavior(user: ClientRecord): PaymentBehavior {
-  if (user.payments.some((payment) => payment.status === PaymentStatus.FAILED)) {
+  if (
+    user.payments.some((payment) => payment.status === PaymentStatus.FAILED)
+  ) {
     return 'overdue';
   }
-  if (user.payments.some((payment) => payment.status === PaymentStatus.PENDING)) {
+  if (
+    user.payments.some((payment) => payment.status === PaymentStatus.PENDING)
+  ) {
     return 'unpaid';
   }
   return user.payments.some(
@@ -139,8 +147,7 @@ function getClassLevels(user: ClientRecord) {
     new Set(
       user.bookings
         .map(
-          (booking) =>
-            booking.session.level ?? booking.session.classType.name,
+          (booking) => booking.session.level ?? booking.session.classType.name,
         )
         .filter((value): value is string => Boolean(value)),
     ),
@@ -154,8 +161,7 @@ function getTags(params: {
 }): ClientTag[] {
   const tags: ClientTag[] = [];
   const createdMs = params.user.createdAt.getTime();
-  const isNew =
-    Date.now() - createdMs <= NEW_CLIENT_DAYS * 24 * 60 * 60 * 1000;
+  const isNew = Date.now() - createdMs <= NEW_CLIENT_DAYS * 24 * 60 * 60 * 1000;
   if (isNew) tags.push('New');
   if (
     params.paymentBehavior === 'overdue' ||
@@ -164,9 +170,7 @@ function getTags(params: {
     tags.push('At Risk');
   }
   if (
-    params.classLevels.some((level) =>
-      level.toLowerCase().includes('beginner'),
-    )
+    params.classLevels.some((level) => level.toLowerCase().includes('beginner'))
   ) {
     tags.push('Beginner');
   }
@@ -174,10 +178,7 @@ function getTags(params: {
 }
 
 function getPreferredCoach(user: ClientRecord) {
-  const counts = new Map<
-    string,
-    { id: string; name: string; count: number }
-  >();
+  const counts = new Map<string, { id: string; name: string; count: number }>();
   for (const booking of user.bookings) {
     const coach = booking.session.coach;
     const name = [coach.user.name, coach.user.lastName]

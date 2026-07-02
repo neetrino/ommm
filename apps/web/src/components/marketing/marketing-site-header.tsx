@@ -15,11 +15,7 @@ import {
   MARKETING_MOBILE_HEADER,
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
-import type {
-  MarketingHeaderAccount,
-  MarketingSiteHeaderProps,
-  WorkspaceDrawerControl,
-} from "@/components/marketing/marketing-site-header.types";
+import type { MarketingSiteHeaderProps } from "@/components/marketing/marketing-site-header.types";
 import { useMarketingHeaderElevated } from "@/hooks/use-marketing-header-elevated";
 import {
   isAuthPath,

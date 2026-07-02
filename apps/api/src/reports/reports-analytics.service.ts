@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { BookingStatus, ClassSessionStatus, PaymentStatus } from '@prisma/client';
+import {
+  BookingStatus,
+  ClassSessionStatus,
+  PaymentStatus,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   aggregateCoachAnalytics,

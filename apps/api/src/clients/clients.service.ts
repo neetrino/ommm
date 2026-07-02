@@ -7,9 +7,7 @@ import {
 } from './dto/admin-list-clients-query.dto';
 import { ClientsAdminCreateService } from './clients-admin-create.service';
 import { ClientsAdminService } from './clients-admin.service';
-import {
-  CLIENTS_POST_PROCESS_SCAN_LIMIT,
-} from './clients-list.constants';
+import { CLIENTS_POST_PROCESS_SCAN_LIMIT } from './clients-list.constants';
 import {
   buildClientsListWhere,
   requiresClientsPostProcessing,
@@ -51,12 +49,7 @@ export class ClientsService {
     return this.admin.remove(actor, id);
   }
 
-  addNote(
-    authorId: string,
-    authorRole: Role,
-    userId: string,
-    body: string,
-  ) {
+  addNote(authorId: string, authorRole: Role, userId: string, body: string) {
     return this.admin.addNote(authorId, authorRole, userId, body);
   }
 

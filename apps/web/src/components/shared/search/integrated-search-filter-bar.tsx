@@ -13,7 +13,6 @@ import {
 import type { IntegratedFilterChip } from "@/components/shared/search/integrated-search-filter-types";
 
 type IntegratedSearchFilterBarProps = {
-  containerRef: RefObject<HTMLDivElement | null>;
   searchInputRef: RefObject<HTMLInputElement | null>;
   hideSearch: boolean;
   hasFilters: boolean;
@@ -42,7 +41,6 @@ type IntegratedSearchFilterBarProps = {
 };
 
 export function IntegratedSearchFilterBar({
-  containerRef: _containerRef,
   searchInputRef,
   hideSearch,
   hasFilters,

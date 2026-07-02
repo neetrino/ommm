@@ -233,9 +233,7 @@ export function normalizeCoachUpdateFields(
         ? undefined
         : normalizeOptionalText(dto.classType),
     normalizedPhotoUrl:
-      dto.photoUrl === undefined
-        ? undefined
-        : normalizePhotoUrl(dto.photoUrl),
+      dto.photoUrl === undefined ? undefined : normalizePhotoUrl(dto.photoUrl),
     normalizedAssignedClassTypeIds:
       dto.assignedClassTypeIds === undefined
         ? undefined

@@ -4,11 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  ClassSessionStatus,
-  Role,
-  WaitlistStatus,
-} from '@prisma/client';
+import { ClassSessionStatus, Role, WaitlistStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { WaitlistCapacityService } from './waitlist-capacity.service';

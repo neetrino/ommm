@@ -7,7 +7,6 @@ import {
 import {
   BookingStatus,
   ClassSessionStatus,
-  Prisma,
   Role,
   type User,
 } from '@prisma/client';

@@ -10,9 +10,7 @@ import { AuditService } from '../audit/audit.service';
 import { PUBLIC_CACHE_KEYS } from '../cache/public-cache-keys';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { hashPassword } from '../common/password-crypto';
-import {
-  normalizeRequiredPhone,
-} from '../common/phone';
+import { normalizeRequiredPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import type { UpdateCoachDto } from './dto/update-coach.dto';

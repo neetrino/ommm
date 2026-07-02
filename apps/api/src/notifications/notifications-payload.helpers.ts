@@ -15,7 +15,11 @@ export type ScheduledBroadcastPayload = {
   scheduleAt: string;
 };
 
-export type ScheduledBroadcastStatus = 'PENDING' | 'SENT' | 'FAILED' | 'CANCELLED';
+export type ScheduledBroadcastStatus =
+  | 'PENDING'
+  | 'SENT'
+  | 'FAILED'
+  | 'CANCELLED';
 
 export type TimelineEntry = {
   action: string;

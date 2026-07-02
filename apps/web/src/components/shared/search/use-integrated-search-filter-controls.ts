@@ -13,7 +13,6 @@ type UseIntegratedSearchFilterControlsOptions = {
   hasFilters: boolean;
   fields: readonly IntegratedFilterField[] | undefined;
   filterValues: Record<string, string>;
-  search: string;
   onSearchChange: (value: string) => void;
   onFilterChange?: (key: string, value: string) => void;
   onClearAll?: () => void;
@@ -26,7 +25,6 @@ export function useIntegratedSearchFilterControls({
   hasFilters,
   fields,
   filterValues,
-  search,
   onSearchChange,
   onFilterChange,
   onClearAll,

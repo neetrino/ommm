@@ -12,7 +12,6 @@ import {
 } from '@prisma/client';
 import { withInternalPaymentWhereFields } from './payments.helpers';
 import {
-  INTERNAL_PAYMENT_SOURCE,
   type InternalPaymentRecord,
   type InternalPaymentSource,
 } from './payments.types';
@@ -49,7 +48,9 @@ export function assertGiftBatchForCheckout(
     throw new BadRequestException('Gift card is out of stock');
   }
   if (amountCents !== Number(batch.amountAmd)) {
-    throw new BadRequestException('Invalid gift-card amount for selected batch');
+    throw new BadRequestException(
+      'Invalid gift-card amount for selected batch',
+    );
   }
 }
 

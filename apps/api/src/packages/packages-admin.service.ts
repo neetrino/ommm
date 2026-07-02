@@ -61,10 +61,7 @@ export class PackagesAdminService {
         ? normalizeSlug(dto.slug)
         : buildUniqueCategorySlug(name);
     await assertSlugUnique(this.prisma, slug);
-    assertDiscountBounds(
-      dto.priceCents ?? 0,
-      dto.discountedPriceCents ?? null,
-    );
+    assertDiscountBounds(dto.priceCents ?? 0, dto.discountedPriceCents ?? null);
     const resolvedTypeSessions =
       dto.typeSessionAllocations !== undefined
         ? await resolveTypeSessionAllocations(

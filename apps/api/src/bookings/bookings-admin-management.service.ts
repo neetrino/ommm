@@ -3,7 +3,6 @@ import {
   BookingStatus,
   ClassSessionStatus,
   Prisma,
-  Role,
   WaitlistStatus,
   type User,
 } from '@prisma/client';
@@ -206,10 +205,7 @@ export class BookingsAdminManagementService {
     }
 
     const bookingRows = bookings.map((booking) =>
-      mapManagementBookingRow(
-        booking,
-        paymentByUser.get(booking.userId) ?? [],
-      ),
+      mapManagementBookingRow(booking, paymentByUser.get(booking.userId) ?? []),
     );
     const waitlistRows = waitlists.map((row) => mapManagementWaitlistRow(row));
 

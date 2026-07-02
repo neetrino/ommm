@@ -7,18 +7,13 @@ import {
 import { randomUUID } from 'node:crypto';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
-import {
-  PUBLIC_CACHE_KEYS,
-} from '../cache/public-cache-keys';
+import { PUBLIC_CACHE_KEYS } from '../cache/public-cache-keys';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import { absolutePathForStoredUpload } from '../users/user-upload.helpers';
 import type { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
-import {
-  COACH_PHOTO_MAX_BYTES,
-  COACH_PHOTO_MIME_EXT,
-} from './coaches.types';
+import { COACH_PHOTO_MAX_BYTES, COACH_PHOTO_MIME_EXT } from './coaches.types';
 
 @Injectable()
 export class CoachesPhotoService {

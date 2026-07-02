@@ -93,7 +93,6 @@ export function IntegratedSearchFilters({
     hasFilters,
     fields,
     filterValues,
-    search,
     onSearchChange,
     onFilterChange,
     onClearAll,
@@ -157,7 +156,6 @@ export function IntegratedSearchFilters({
       className={`relative flex w-full min-w-0 flex-col gap-2 ${panelOpen && hasFilters ? "z-[126]" : ""} ${className}`}
     >
       <IntegratedSearchFilterBar
-        containerRef={containerRef}
         searchInputRef={searchInputRef}
         hideSearch={hideSearch}
         hasFilters={hasFilters}

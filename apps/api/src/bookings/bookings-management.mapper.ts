@@ -152,7 +152,10 @@ export function mapManagementSessionSlots(
 }
 
 export function summarizeManagementRows(
-  rows: Array<{ status: BookingStatus | 'WAITLISTED'; session: { startsAt: string } }>,
+  rows: Array<{
+    status: BookingStatus | 'WAITLISTED';
+    session: { startsAt: string };
+  }>,
 ) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

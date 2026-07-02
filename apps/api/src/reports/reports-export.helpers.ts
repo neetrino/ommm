@@ -121,7 +121,10 @@ export function buildGiftCreditCsvRows(input: {
         readGiftAmount(card),
         input.currency,
         card.code,
-        card.recipientEmail ?? card.recipient?.email ?? card.recipientName ?? '',
+        card.recipientEmail ??
+          card.recipient?.email ??
+          card.recipientName ??
+          '',
       ]),
     );
   }

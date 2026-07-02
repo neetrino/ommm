@@ -6,9 +6,7 @@ import {
   type Prisma,
   type ScheduleDayOfWeek,
 } from '@prisma/client';
-import type {
-  CreateSessionBatchDto,
-} from './dto/create-session-batch.dto';
+import type { CreateSessionBatchDto } from './dto/create-session-batch.dto';
 import type { CreateSessionDto } from './dto/create-session.dto';
 import type { UpdateSessionDto } from './dto/update-session.dto';
 

@@ -69,10 +69,7 @@ export class PackageUsageEligibilityService {
       orderBy: { createdAt: 'asc' },
     });
     const matching = memberships.filter((membership) =>
-      membershipCoversSessionType(
-        membership,
-        params.session.classType.name,
-      ),
+      membershipCoversSessionType(membership, params.session.classType.name),
     );
     if (params.includeDepleted === true) {
       return matching;
@@ -146,10 +143,7 @@ export class PackageUsageEligibilityService {
       orderBy: { createdAt: 'asc' },
     });
     const covering = memberships.filter((membership) =>
-      membershipCoversSessionType(
-        membership,
-        params.session.classType.name,
-      ),
+      membershipCoversSessionType(membership, params.session.classType.name),
     );
     const bookable = covering.filter((membership) =>
       hasAnyBookableCredit(membership, params.session.classType.name),

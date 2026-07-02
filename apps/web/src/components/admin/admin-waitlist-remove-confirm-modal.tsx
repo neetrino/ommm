@@ -13,7 +13,6 @@ type AdminWaitlistRemoveConfirmModalProps = {
 };
 
 export function AdminWaitlistRemoveConfirmModal({
-  pendingRemove,
   confirmRemoveLabel,
   busyAction,
   onCancel,

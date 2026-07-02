@@ -9,7 +9,6 @@ export function buildAdminPackageFormSubmitPayload(
   prepared: AdminPackageFormSubmitPrepared,
 ): Record<string, unknown> {
   const {
-    mode,
     packageId,
     initialPackage,
     nextDisplayOrder,

@@ -50,9 +50,7 @@ export function toPublicPost(
   },
   locale: ContentPostLocale,
 ): PublicContentPost | null {
-  const translation = post.translations.find(
-    (item) => item.locale === locale,
-  );
+  const translation = post.translations.find((item) => item.locale === locale);
   const title = translation?.title?.trim() || post.title;
   if (title.trim().length === 0) {
     return null;
