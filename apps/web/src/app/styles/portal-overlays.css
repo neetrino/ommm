@@ -1,0 +1,19 @@
+#ommm-overlay-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+#ommm-overlay-portal > * {
+  pointer-events: auto;
+}
+
+body[data-ommm-dropdown-open] header {
+  z-index: 30 !important;
+}
+
+.ommm-dropdown-menu {
+  isolation: isolate;
+}

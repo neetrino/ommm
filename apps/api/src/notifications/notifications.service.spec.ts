@@ -1,3 +1,6 @@
+import { NotificationsAnalyticsService } from './notifications-analytics.service';
+import { NotificationsBroadcastService } from './notifications-broadcast.service';
+import { NotificationsCronService } from './notifications-cron.service';
 import { NotificationsService } from './notifications.service';
 import { BroadcastAudience } from './dto/broadcast.dto';
 
@@ -30,16 +33,28 @@ describe('NotificationsService', () => {
     const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
     const expoPush = { send: jest.fn().mockResolvedValue(undefined) };
     const audit = { log: jest.fn().mockResolvedValue(undefined) };
+    const broadcast = new NotificationsBroadcastService(
+      prisma as never,
+      mail as never,
+      audit as never,
+    );
+    const analytics = new NotificationsAnalyticsService(prisma as never);
+    const cron = new NotificationsCronService(
+      prisma as never,
+      mail as never,
+      expoPush as never,
+      audit as never,
+      broadcast,
+    );
+    const service = new NotificationsService(broadcast, analytics);
     return {
-      service: new NotificationsService(
-        prisma as never,
-        mail as never,
-        expoPush as never,
-        audit as never,
-      ),
+      service,
       prisma,
       mail,
       audit,
+      broadcast,
+      analytics,
+      cron,
     };
   }
 

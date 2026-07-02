@@ -300,3 +300,49 @@ export function paginateSessionRows<T>(
     offset,
   };
 }
+
+export function normalizeSessionsListQuery(
+  query: AdminListSessionsQueryDto,
+): AdminListSessionsQueryDto {
+  const coachIds = [
+    ...(query.coachIds
+      ?.split(',')
+      .map((item) => item.trim())
+      .filter(Boolean) ?? []),
+    ...(query.coachId ? [query.coachId] : []),
+  ];
+  const classTypeIds = [
+    ...(query.classTypeIds
+      ?.split(',')
+      .map((item) => item.trim())
+      .filter(Boolean) ?? []),
+    ...(query.typeId ? [query.typeId] : []),
+  ];
+  const statuses = [
+    ...(query.statuses
+      ?.split(',')
+      .map((item) => item.trim())
+      .filter(Boolean) ?? []),
+    ...(query.status ? [query.status] : []),
+  ];
+  const levels = [
+    ...(query.levels
+      ?.split(',')
+      .map((item) => item.trim())
+      .filter(Boolean) ?? []),
+    ...(query.level ? [query.level] : []),
+  ];
+
+  return {
+    ...query,
+    coachIds:
+      coachIds.length > 0 ? [...new Set(coachIds)].join(',') : query.coachIds,
+    classTypeIds:
+      classTypeIds.length > 0
+        ? [...new Set(classTypeIds)].join(',')
+        : query.classTypeIds,
+    statuses:
+      statuses.length > 0 ? [...new Set(statuses)].join(',') : query.statuses,
+    levels: levels.length > 0 ? [...new Set(levels)].join(',') : query.levels,
+  };
+}

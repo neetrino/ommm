@@ -1,0 +1,81 @@
+model Booking {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId     String
+  session       ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  status        BookingStatus @default(BOOKED)
+  channel       BookingChannel @default(WEBSITE)
+  attendedAt    DateTime?
+  cancelledAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  notes BookingNote[]
+  reminderLog ClassReminderSendLog?
+  consumptions BookingConsumption[]
+
+  @@unique([userId, sessionId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([status, createdAt])
+}
+
+model BookingNote {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("BookingNoteAuthor", fields: [authorId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model BookingConsumption {
+  id                   String              @id @default(cuid())
+  bookingId            String
+  booking              Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userPackageId        String
+  userPackage          UserPackage         @relation(fields: [userPackageId], references: [id], onDelete: Restrict)
+  userPackageBalanceId String?
+  userPackageBalance   UserPackageBalance? @relation(fields: [userPackageBalanceId], references: [id], onDelete: SetNull)
+  consumedSessions     Int                 @default(1)
+  consumedAt           DateTime            @default(now())
+  restoredAt           DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  @@index([bookingId])
+  @@index([userPackageId])
+  @@index([userPackageBalanceId])
+  @@index([restoredAt])
+}
+
+model ClientNote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("ClientNoteSubject", fields: [userId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("ClientNoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model WaitlistEntry {
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId      String
+  session        ClassSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  position       Int
+  status         WaitlistStatus @default(ACTIVE)
+  offeredAt      DateTime?
+  offerExpiresAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([userId, sessionId])
+  @@index([sessionId])
+}

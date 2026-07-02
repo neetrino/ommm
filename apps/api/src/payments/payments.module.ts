@@ -7,6 +7,10 @@ import { ArcaService } from './arca/arca.service';
 import { PaymentsController } from './payments.controller';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
+import { PaymentsAdminService } from './payments-admin.service';
+import { PaymentsCheckoutService } from './payments-checkout.service';
+import { PaymentsConfirmService } from './payments-confirm.service';
+import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import { PaymentsService } from './payments.service';
 
 @Module({
@@ -14,6 +18,10 @@ import { PaymentsService } from './payments.service';
   controllers: [PaymentsController, ArcaPaymentsController],
   providers: [
     PaymentsService,
+    PaymentsCheckoutService,
+    PaymentsConfirmService,
+    PaymentsFulfillmentService,
+    PaymentsAdminService,
     PaymentCashPendingEmailService,
     PaymentSuccessEmailService,
     ArcaConfig,

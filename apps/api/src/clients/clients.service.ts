@@ -1,45 +1,13 @@
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import {
-  AuthTokenType,
-  BookingStatus,
-  PaymentStatus,
-  Prisma,
-  Role,
-  type User,
-} from '@prisma/client';
-import { createHash, randomBytes } from 'node:crypto';
-import { AuditService } from '../audit/audit.service';
-import { PASSWORD_RESET_TTL_MS } from '../common/constants';
-import { generateSecurePassword } from '../common/generate-secure-password';
-import { hashPassword } from '../common/password-crypto';
-import {
-  normalizeOptionalPhone,
-  normalizeRequiredPhone,
-} from '../common/phone';
-import { MailService } from '../mail/mail.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import type { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import {
-  AdminClientQuickFilter,
-  AdminClientStatusFilter,
-  AdminClientTagFilter,
   AdminClientOrder,
   type AdminListClientsQueryDto,
 } from './dto/admin-list-clients-query.dto';
-import type { UpdateClientDto } from './dto/update-client.dto';
-import {
-  CLIENTS_POST_PROCESS_SCAN_LIMIT,
-  INACTIVE_CLIENT_DAYS,
-  NEW_CLIENT_DAYS,
-} from './clients-list.constants';
+import { ClientsAdminCreateService } from './clients-admin-create.service';
+import { ClientsAdminService } from './clients-admin.service';
+import { CLIENTS_POST_PROCESS_SCAN_LIMIT } from './clients-list.constants';
 import {
   buildClientsListWhere,
   requiresClientsPostProcessing,
@@ -51,197 +19,38 @@ import {
   filterOptionsFromRows,
   summaryFromRows,
 } from './clients-list-summary';
-
-const clientInclude = Prisma.validator<Prisma.UserInclude>()({
-  bookings: {
-    include: {
-      session: {
-        include: {
-          classType: true,
-          coach: {
-            include: {
-              user: { select: { id: true, name: true, lastName: true } },
-            },
-          },
-        },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 100,
-  },
-  payments: { orderBy: { createdAt: 'desc' }, take: 50 },
-  giftCardsPurchased: { orderBy: { createdAt: 'desc' }, take: 20 },
-  giftCardsReceived: { orderBy: { createdAt: 'desc' }, take: 20 },
-  clientNotesReceived: {
-    orderBy: { createdAt: 'desc' },
-    take: 1,
-    include: { author: { select: { id: true, name: true, email: true } } },
-  },
-  _count: { select: { clientNotesReceived: true } },
-});
-
-type ClientRecord = Prisma.UserGetPayload<{ include: typeof clientInclude }>;
-type ClientTag = 'VIP' | 'New' | 'At Risk' | 'Beginner';
-type ClientStatus = 'Active' | 'Inactive' | 'Blocked';
-type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
-type AttendanceBehavior =
-  | 'regular'
-  | 'no-show'
-  | 'often-cancels'
-  | 'low-attendance';
-
-function hashOpaqueToken(raw: string): string {
-  return createHash('sha256').update(raw, 'utf8').digest('hex');
-}
-
-function newOpaqueToken(): string {
-  return randomBytes(32).toString('base64url');
-}
+import { matchesClientFilters, sortClientRows } from './clients-row-filters';
+import { clientInclude, toClientRow } from './clients-row.mapper';
 
 @Injectable()
 export class ClientsService {
-  private readonly logger = new Logger(ClientsService.name);
-
   constructor(
     private readonly prisma: PrismaService,
-    private readonly audit: AuditService,
-    private readonly mail: MailService,
-    private readonly config: ConfigService,
+    private readonly adminCreate: ClientsAdminCreateService,
+    private readonly admin: ClientsAdminService,
   ) {}
 
-  async create(actor: User, dto: AdminCreateClientDto) {
-    const email = dto.email.toLowerCase().trim();
-    const phone = normalizeRequiredPhone(dto.phone);
-    const notes = dto.notes?.trim() ?? '';
-    const autoGenerate = dto.autoGeneratePassword === true;
-    const forceReset = dto.forcePasswordResetOnFirstLogin === true;
+  create(
+    actor: Parameters<ClientsAdminCreateService['create']>[0],
+    dto: Parameters<ClientsAdminCreateService['create']>[1],
+  ) {
+    return this.adminCreate.create(actor, dto);
+  }
 
-    let plainPassword = dto.password?.trim() ?? '';
-    if (autoGenerate || plainPassword.length === 0) {
-      plainPassword = generateSecurePassword();
-    }
-    if (plainPassword.length < 8) {
-      throw new BadRequestException('Password must be at least 8 characters');
-    }
+  updateBasicInfo(
+    actor: Parameters<ClientsAdminService['updateBasicInfo']>[0],
+    id: string,
+    dto: Parameters<ClientsAdminService['updateBasicInfo']>[2],
+  ) {
+    return this.admin.updateBasicInfo(actor, id, dto);
+  }
 
-    const [emailTaken, phoneTaken] = await Promise.all([
-      this.prisma.user.findUnique({ where: { email } }),
-      this.prisma.user.findUnique({ where: { phone } }),
-    ]);
-    if (emailTaken) {
-      throw new ConflictException('An account with this email already exists.');
-    }
-    if (phoneTaken) {
-      throw new ConflictException(
-        'An account with this phone number already exists.',
-      );
-    }
+  remove(actor: Parameters<ClientsAdminService['remove']>[0], id: string) {
+    return this.admin.remove(actor, id);
+  }
 
-    const passwordHash = await hashPassword(plainPassword);
-    const dateOfBirth =
-      dto.dateOfBirth !== undefined && dto.dateOfBirth.length > 0
-        ? new Date(dto.dateOfBirth)
-        : null;
-    if (dateOfBirth !== null && Number.isNaN(dateOfBirth.getTime())) {
-      throw new BadRequestException('Invalid date of birth');
-    }
-
-    const createdUser = await this.prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          email,
-          passwordHash,
-          name: dto.name.trim(),
-          lastName: dto.lastName.trim(),
-          phone,
-          dateOfBirth,
-          role: Role.USER,
-          emailVerified: new Date(),
-        },
-        include: clientInclude,
-      });
-
-      if (notes.length > 0) {
-        await tx.clientNote.create({
-          data: {
-            userId: user.id,
-            authorId: actor.id,
-            body: notes,
-          },
-        });
-      }
-
-      return user;
-    });
-
-    const freshUser = await this.prisma.user.findFirstOrThrow({
-      where: { id: createdUser.id },
-      include: clientInclude,
-    });
-
-    let passwordResetUrl: string | null = null;
-    if (forceReset) {
-      const raw = newOpaqueToken();
-      const tokenHash = hashOpaqueToken(raw);
-      const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
-      await this.prisma.authToken.create({
-        data: {
-          userId: createdUser.id,
-          tokenHash,
-          type: AuthTokenType.PASSWORD_RESET,
-          expiresAt,
-        },
-      });
-      const webUrl =
-        this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-      const locale = createdUser.locale.trim() || 'en';
-      passwordResetUrl = `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(raw)}`;
-    }
-
-    let welcomeEmailSent = false;
-    if (dto.sendWelcomeEmail === true) {
-      const greet = [createdUser.name, createdUser.lastName]
-        .filter(Boolean)
-        .join(' ');
-      const webUrl =
-        this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-      const loginUrl = `${webUrl}/${createdUser.locale || 'en'}/login`;
-      const credentialBlock = forceReset
-        ? `<p>Please set your password using this link: <a href="${passwordResetUrl}">Choose a password</a></p>`
-        : `<p>Sign in at <a href="${loginUrl}">${loginUrl}</a> with your email and the temporary password provided by the studio.</p>`;
-      try {
-        await this.mail.sendEmail({
-          to: createdUser.email,
-          subject: 'Welcome to Ommm',
-          html: `<p>Hi${greet ? ` ${greet}` : ''},</p><p>Your client account has been created.</p>${credentialBlock}`,
-        });
-        welcomeEmailSent = true;
-      } catch (error) {
-        this.logger.warn(
-          `Welcome email failed for ${createdUser.email}: ${error instanceof Error ? error.message : 'unknown error'}`,
-        );
-      }
-    }
-
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'CLIENT_CREATED',
-      entityType: 'User',
-      entityId: createdUser.id,
-      payload: { email, phone },
-    });
-
-    const client = this.toClientRow(freshUser);
-    return {
-      client,
-      credentials: {
-        email: createdUser.email,
-        temporaryPassword: forceReset ? null : plainPassword,
-        passwordResetUrl,
-      },
-      welcomeEmailSent,
-    };
+  addNote(authorId: string, authorRole: Role, userId: string, body: string) {
+    return this.admin.addNote(authorId, authorRole, userId, body);
   }
 
   async list(query: AdminListClientsQueryDto) {
@@ -260,7 +69,7 @@ export class ClientsService {
         orderBy: resolveClientsListOrderBy(query),
         take,
       });
-      return users.map((user) => this.toClientRow(user));
+      return users.map((user) => toClientRow(user));
     }
 
     const [total, users, summary, filterOptions] = await Promise.all([
@@ -277,12 +86,12 @@ export class ClientsService {
         this.prisma,
         where,
         clientInclude,
-        (user) => this.toClientRow(user),
+        (user) => toClientRow(user),
       ),
     ]);
 
     return {
-      rows: users.map((user) => this.toClientRow(user)),
+      rows: users.map((user) => toClientRow(user)),
       summary,
       filterOptions,
       pagination: { total, take, offset },
@@ -302,10 +111,10 @@ export class ClientsService {
       orderBy: { createdAt: 'desc' },
       take: CLIENTS_POST_PROCESS_SCAN_LIMIT,
     });
-    const filtered = this.sortRows(
+    const filtered = sortClientRows(
       users
-        .map((user) => this.toClientRow(user))
-        .filter((row) => this.matchesClientFilters(row, query)),
+        .map((user) => toClientRow(user))
+        .filter((row) => matchesClientFilters(row, query)),
       order,
     );
 
@@ -329,7 +138,7 @@ export class ClientsService {
     if (!user) {
       throw new NotFoundException();
     }
-    const notes = await this.listNotes(id);
+    const notes = await this.admin.listNotes(id);
     return {
       id: user.id,
       email: user.email,
@@ -339,468 +148,8 @@ export class ClientsService {
       dateOfBirth: user.dateOfBirth,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
-      activity: this.toClientRow(user),
+      activity: toClientRow(user),
       notes,
     };
-  }
-
-  async updateBasicInfo(actor: User, id: string, dto: UpdateClientDto) {
-    if (dto.isBlocked !== undefined && actor.role !== Role.ADMIN) {
-      throw new ForbiddenException('Only admins can block or unblock clients');
-    }
-    const user = await this.prisma.user.findFirst({
-      where: { id, role: Role.USER },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new NotFoundException();
-    }
-    const data = {
-      ...(dto.email !== undefined && { email: dto.email.toLowerCase() }),
-      ...(dto.name !== undefined && { name: dto.name }),
-      ...(dto.lastName !== undefined && { lastName: dto.lastName }),
-      ...(dto.phone !== undefined && {
-        phone: normalizeOptionalPhone(dto.phone ?? null),
-      }),
-      ...(dto.dateOfBirth !== undefined && {
-        dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
-      }),
-      ...(dto.isBlocked !== undefined && { isBlocked: dto.isBlocked }),
-    };
-    if (Object.keys(data).length === 0) {
-      throw new BadRequestException('No updatable fields were provided');
-    }
-    const updated = await this.prisma.user.update({
-      where: { id },
-      data,
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        lastName: true,
-        phone: true,
-      },
-    });
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'CLIENT_UPDATED',
-      entityType: 'User',
-      entityId: id,
-      payload: data,
-    });
-    return updated;
-  }
-
-  async remove(actor: User, id: string): Promise<void> {
-    if (actor.role !== Role.ADMIN) {
-      throw new ForbiddenException('Only admins can delete clients');
-    }
-    const user = await this.prisma.user.findFirst({
-      where: { id, role: Role.USER },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new NotFoundException('Client not found');
-    }
-
-    const activeBookings = await this.prisma.booking.count({
-      where: { userId: id, status: BookingStatus.BOOKED },
-    });
-    if (activeBookings > 0) {
-      throw new BadRequestException(
-        'Cannot delete a client with active bookings. Cancel bookings or block the client instead.',
-      );
-    }
-
-    try {
-      await this.prisma.user.delete({ where: { id } });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2003'
-      ) {
-        throw new BadRequestException(
-          'This client account has linked records and cannot be deleted. Block the client instead.',
-        );
-      }
-      throw error;
-    }
-
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'CLIENT_DELETED',
-      entityType: 'User',
-      entityId: id,
-    });
-  }
-
-  private async listNotes(userId: string) {
-    await this.assertUserExists(userId);
-    return this.prisma.clientNote.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        author: { select: { id: true, name: true, email: true } },
-      },
-      take: 200,
-    });
-  }
-
-  async addNote(
-    authorId: string,
-    authorRole: Role,
-    userId: string,
-    body: string,
-  ) {
-    await this.assertUserExists(userId);
-    const note = await this.prisma.clientNote.create({
-      data: {
-        userId,
-        authorId,
-        body: body.trim(),
-      },
-      include: {
-        author: { select: { id: true, name: true, email: true } },
-      },
-    });
-    await this.audit.log({
-      actorId: authorId,
-      actorRole: authorRole,
-      action: 'CLIENT_NOTE_ADDED',
-      entityType: 'ClientNote',
-      entityId: note.id,
-      payload: { userId },
-    });
-    return note;
-  }
-
-  private async assertUserExists(id: string) {
-    const exists = await this.prisma.user.findFirst({
-      where: { id, role: Role.USER },
-      select: { id: true },
-    });
-    if (!exists) {
-      throw new NotFoundException();
-    }
-  }
-
-  private toClientRow(user: ClientRecord) {
-    const latestBooking = this.getLatestVisit(user);
-    const totals = this.getBookingTotals(user);
-    const lifetimeValueCents = user.payments
-      .filter((payment) => payment.status === PaymentStatus.SUCCEEDED)
-      .reduce((sum, payment) => sum + payment.amountCents, 0);
-    const paymentBehavior = this.getPaymentBehavior(user);
-    const attendanceBehavior = this.getAttendanceBehavior(totals);
-    const classLevels = this.getClassLevels(user);
-    const tags = this.getTags({ user, paymentBehavior, classLevels });
-    const preferredCoach = this.getPreferredCoach(user);
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      lastName: user.lastName,
-      phone: user.phone,
-      dateOfBirth: user.dateOfBirth,
-      avatarUrl: user.avatarUrl,
-      createdAt: user.createdAt,
-      status: this.getClientStatus(user),
-      source: this.getSource(user),
-      preferredCoach,
-      paymentBehavior,
-      attendanceBehavior,
-      classLevels,
-      tags,
-      noteCount: user._count.clientNotesReceived,
-      latestNote: user.clientNotesReceived[0] ?? null,
-      totalVisits: totals.attended,
-      totalBookings: totals.total,
-      totalCancellations: totals.cancelled,
-      totalNoShows: totals.noShows,
-      lifetimeValueCents,
-      lastVisitDate: latestBooking?.session.startsAt ?? null,
-      birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
-      hasGiftCardActivity: this.hasGiftCardActivity(user),
-      isBlocked: user.isBlocked,
-      activePlanName: null,
-      activePlanCostCents: null,
-      activePlanExpiresAt: null,
-      activePackageId: null,
-      activePackageStatus: null,
-    };
-  }
-
-  private hasGiftCardActivity(user: ClientRecord): boolean {
-    if (user.giftCardsReceived.length > 0) {
-      return true;
-    }
-    return user.giftCardsPurchased.some(
-      (card) => card.balanceAmd < card.amountAmd || card.status === 'REDEEMED',
-    );
-  }
-
-  private getLatestVisit(user: ClientRecord) {
-    return (
-      user.bookings
-        .filter((booking) => booking.status === BookingStatus.COMPLETED)
-        .sort(
-          (a, b) => b.session.startsAt.getTime() - a.session.startsAt.getTime(),
-        )[0] ?? null
-    );
-  }
-
-  private getBookingTotals(user: ClientRecord) {
-    return {
-      total: user.bookings.length,
-      attended: user.bookings.filter(
-        (booking) => booking.status === BookingStatus.COMPLETED,
-      ).length,
-      cancelled: user.bookings.filter(
-        (booking) => booking.status === BookingStatus.CANCELLED,
-      ).length,
-      noShows: user.bookings.filter(
-        (booking) => booking.status === BookingStatus.MISSED,
-      ).length,
-    };
-  }
-
-  private getClientStatus(user: ClientRecord): ClientStatus {
-    if (user.isBlocked) {
-      return 'Blocked';
-    }
-    const latestVisit = this.getLatestVisit(user);
-    if (!latestVisit) {
-      return 'Inactive';
-    }
-    const inactiveMs = INACTIVE_CLIENT_DAYS * 24 * 60 * 60 * 1000;
-    return Date.now() - latestVisit.session.startsAt.getTime() <= inactiveMs
-      ? 'Active'
-      : 'Inactive';
-  }
-
-  private getSource(
-    user: ClientRecord,
-  ): 'website' | 'mobile-app' | 'admin' | null {
-    const firstBooking = [...user.bookings].sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
-    )[0];
-    if (!firstBooking) {
-      return null;
-    }
-    return firstBooking.channel === 'APP' ? 'mobile-app' : 'website';
-  }
-
-  private getPaymentBehavior(user: ClientRecord): PaymentBehavior {
-    if (
-      user.payments.some((payment) => payment.status === PaymentStatus.FAILED)
-    ) {
-      return 'overdue';
-    }
-    if (
-      user.payments.some((payment) => payment.status === PaymentStatus.PENDING)
-    ) {
-      return 'unpaid';
-    }
-    return user.payments.some(
-      (payment) => payment.status === PaymentStatus.SUCCEEDED,
-    )
-      ? 'paid'
-      : 'unpaid';
-  }
-
-  private getAttendanceBehavior(params: {
-    total: number;
-    attended: number;
-    cancelled: number;
-    noShows: number;
-  }): AttendanceBehavior {
-    if (params.noShows > 0) {
-      return 'no-show';
-    }
-    if (params.total >= 3 && params.cancelled / params.total >= 0.35) {
-      return 'often-cancels';
-    }
-    if (params.total >= 3 && params.attended / params.total < 0.5) {
-      return 'low-attendance';
-    }
-    return 'regular';
-  }
-
-  private getClassLevels(user: ClientRecord) {
-    return Array.from(
-      new Set(
-        user.bookings
-          .map(
-            (booking) =>
-              booking.session.level ?? booking.session.classType.name,
-          )
-          .filter((value): value is string => Boolean(value)),
-      ),
-    );
-  }
-
-  private getTags(params: {
-    user: ClientRecord;
-    paymentBehavior: PaymentBehavior;
-    classLevels: string[];
-  }): ClientTag[] {
-    const tags: ClientTag[] = [];
-    const createdMs = params.user.createdAt.getTime();
-    const isNew =
-      Date.now() - createdMs <= NEW_CLIENT_DAYS * 24 * 60 * 60 * 1000;
-    if (isNew) tags.push('New');
-    if (
-      params.paymentBehavior === 'overdue' ||
-      params.paymentBehavior === 'unpaid'
-    ) {
-      tags.push('At Risk');
-    }
-    if (
-      params.classLevels.some((level) =>
-        level.toLowerCase().includes('beginner'),
-      )
-    ) {
-      tags.push('Beginner');
-    }
-    return tags;
-  }
-
-  private getPreferredCoach(user: ClientRecord) {
-    const counts = new Map<
-      string,
-      { id: string; name: string; count: number }
-    >();
-    for (const booking of user.bookings) {
-      const coach = booking.session.coach;
-      const name = [coach.user.name, coach.user.lastName]
-        .filter(Boolean)
-        .join(' ');
-      const current = counts.get(coach.id);
-      counts.set(coach.id, {
-        id: coach.id,
-        name: name || '—',
-        count: (current?.count ?? 0) + 1,
-      });
-    }
-    return [...counts.values()].sort((a, b) => b.count - a.count)[0] ?? null;
-  }
-
-  private matchesClientFilters(
-    row: ReturnType<ClientsService['toClientRow']>,
-    query: AdminListClientsQueryDto,
-  ) {
-    if (query.tag && !this.matchesTag(row.tags, query.tag)) return false;
-    if (query.status && !this.matchesStatus(row.status, query.status))
-      return false;
-    if (
-      query.classLevel &&
-      !this.matchesClassLevel(row.classLevels, query.classLevel)
-    )
-      return false;
-    if (
-      query.paymentStatus &&
-      row.paymentBehavior !== String(query.paymentStatus)
-    )
-      return false;
-    if (query.source && row.source !== query.source) return false;
-    if (
-      query.preferredCoachId &&
-      row.preferredCoach?.id !== query.preferredCoachId
-    )
-      return false;
-    if (query.attendance && row.attendanceBehavior !== String(query.attendance))
-      return false;
-    if (query.birthdayMonth && row.birthdayMonth !== query.birthdayMonth)
-      return false;
-    if (query.giftCardOnly && !row.hasGiftCardActivity) return false;
-    if (
-      query.quick?.length &&
-      !query.quick.some((filter) => this.matchesQuickFilter(row, filter))
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  private matchesTag(tags: ClientTag[], tag: AdminClientTagFilter) {
-    const label =
-      tag === AdminClientTagFilter.AT_RISK
-        ? 'At Risk'
-        : tag === AdminClientTagFilter.NEW
-          ? 'New'
-          : tag === AdminClientTagFilter.VIP
-            ? 'VIP'
-            : 'Beginner';
-    return tags.includes(label);
-  }
-
-  private matchesStatus(status: ClientStatus, filter: AdminClientStatusFilter) {
-    if (filter === AdminClientStatusFilter.BLOCKED) return status === 'Blocked';
-    if (filter === AdminClientStatusFilter.FROZEN) return false;
-    if (filter === AdminClientStatusFilter.ACTIVE) return status === 'Active';
-    return status === 'Inactive';
-  }
-
-  private matchesClassLevel(levels: string[], filter: string) {
-    return levels.some((level) =>
-      level.toLowerCase().includes(filter.toLowerCase()),
-    );
-  }
-
-  private matchesQuickFilter(
-    row: ReturnType<ClientsService['toClientRow']>,
-    filter: AdminClientQuickFilter,
-  ) {
-    if (filter === AdminClientQuickFilter.BIRTHDAY_THIS_MONTH) {
-      return row.birthdayMonth === new Date().getMonth() + 1;
-    }
-    if (filter === AdminClientQuickFilter.INACTIVE_30_DAYS) {
-      if (row.lastVisitDate === null) return row.status === 'Inactive';
-      return (
-        Date.now() - row.lastVisitDate.getTime() >
-        INACTIVE_CLIENT_DAYS * 86400000
-      );
-    }
-    if (filter === AdminClientQuickFilter.UNPAID)
-      return row.paymentBehavior === 'unpaid';
-    if (filter === AdminClientQuickFilter.NO_SHOW)
-      return row.attendanceBehavior === 'no-show';
-    if (filter === AdminClientQuickFilter.AT_RISK)
-      return row.tags.includes('At Risk');
-    if (filter === AdminClientQuickFilter.VIP) return row.tags.includes('VIP');
-    return row.tags.includes('New');
-  }
-
-  private sortRows(
-    rows: Array<ReturnType<ClientsService['toClientRow']>>,
-    order: AdminClientOrder,
-  ) {
-    return [...rows].sort((a, b) => {
-      if (order === AdminClientOrder.OLDEST)
-        return a.createdAt.getTime() - b.createdAt.getTime();
-      if (order === AdminClientOrder.MOST_ACTIVE)
-        return b.totalVisits - a.totalVisits;
-      if (order === AdminClientOrder.HIGHEST_LIFETIME_VALUE)
-        return b.lifetimeValueCents - a.lifetimeValueCents;
-      if (order === AdminClientOrder.LAST_VISIT_NEWEST)
-        return (
-          this.dateValue(b.lastVisitDate) - this.dateValue(a.lastVisitDate)
-        );
-      if (order === AdminClientOrder.LAST_VISIT_OLDEST)
-        return (
-          this.dateValue(a.lastVisitDate) - this.dateValue(b.lastVisitDate)
-        );
-      if (order === AdminClientOrder.MOST_BOOKINGS)
-        return b.totalBookings - a.totalBookings;
-      if (order === AdminClientOrder.MOST_CANCELLATIONS)
-        return b.totalCancellations - a.totalCancellations;
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
-  }
-
-  private dateValue(value: Date | null) {
-    return value?.getTime() ?? 0;
   }
 }

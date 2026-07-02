@@ -1,0 +1,249 @@
+@media (min-width: 744px) and (max-width: 1366px) {
+  .sectionWrap {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--home-footer-tablet-overlap, 5.75rem));
+    padding-top: var(--home-footer-tablet-wrap-padding-top, 5.75rem);
+    background-color: var(--home-footer-wrap-bg, #fbf5d5);
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    border-top-left-radius: var(--home-footer-radius, 4rem);
+    border-top-right-radius: var(--home-footer-radius, 4rem);
+  }
+
+  /* Inner routes — same as desktop: gradient wrap, no gallery pull-up. */
+  .sectionWrapInner {
+    margin-top: 0;
+    padding-top: var(--home-footer-wrap-padding-top);
+  }
+
+  .sectionWrapInner .shell {
+    border-top-left-radius: var(--home-footer-radius);
+    border-top-right-radius: var(--home-footer-radius);
+  }
+
+  .sectionWrapInner .mobileStack {
+    padding-top: var(--home-footer-mobile-py);
+    padding-bottom: var(--home-footer-mobile-pb);
+    padding-inline-start: calc(
+      env(safe-area-inset-left, 0px) + var(--marketing-content-inline-inset, 1rem)
+    );
+    padding-inline-end: calc(
+      env(safe-area-inset-right, 0px) + var(--marketing-content-inline-inset, 1rem)
+    );
+  }
+}
+
+/* iPad Mini — centered stacked footer (744px–819px). Tokens: HOME_FOOTER_IPAD_MINI_DESKTOP_LAYOUT */
+@media (min-width: 744px) and (max-width: 819px) {
+  .sectionWrap {
+    --home-footer-tablet-radius: 48px;
+    --home-footer-mini-shell-pt: 2.5rem;
+    --home-footer-mini-shell-pb: 2rem;
+    --home-footer-mini-shell-px: 1.5rem;
+    --home-footer-mini-illo-max: clamp(10rem, 28vw, 12rem);
+    --home-footer-mini-wordmark-size: 1.25rem;
+    --home-footer-mini-wordmark-line-height: 1.75rem;
+    --home-footer-mini-wordmark-nav-gap: 1rem;
+    --home-footer-mini-body-size: 14px;
+    --home-footer-mini-body-line-height: 20px;
+    --home-footer-mini-nav-gap: 1.5rem;
+    --home-footer-mini-column-gap: 2rem;
+    --home-footer-mini-section-gap: 1.5rem;
+    --home-footer-mini-below-logo-lift: 7rem;
+    --home-footer-mini-legal-divider-pt: 0.75rem;
+    --home-footer-mini-legal-gap: 1.5rem;
+    --home-footer-mini-copyright-mt: 1rem;
+    --home-footer-mini-payment-arca-offset: 16px;
+    --home-footer-mini-legal-address-offset: calc(
+      var(--home-footer-mini-body-line-height) + var(--home-footer-contact-title-gap) +
+        1.5rem + var(--home-footer-contact-row-gap)
+    );
+  }
+
+  .shell {
+    border-top-left-radius: var(--home-footer-tablet-radius);
+    border-top-right-radius: var(--home-footer-tablet-radius);
+  }
+
+  .inner {
+    min-height: 0;
+  }
+
+  .desktopLayer {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "nav nav"
+      "illo illo"
+      "contact social"
+      "payment copyright";
+    gap: var(--home-footer-mini-section-gap) var(--home-footer-mini-column-gap);
+    padding:
+      var(--home-footer-mini-shell-pt) var(--home-footer-mini-shell-px)
+      var(--home-footer-mini-shell-pb);
+    inset: auto;
+    overflow: visible;
+  }
+
+  .desktopLayer::before {
+    content: "";
+    grid-column: 1 / -1;
+    grid-row: 4;
+    align-self: start;
+    border-top: 1px solid color-mix(in srgb, var(--home-footer-text) 22%, transparent);
+    pointer-events: none;
+  }
+
+  .wordmarkSlot,
+  .topBarSlot,
+  .contactSlot,
+  .paymentSlot,
+  .socialSlot,
+  .illustrationSlot,
+  .legalSlot,
+  .copyrightSlot {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+  }
+
+  .wordmarkSlot {
+    display: none;
+  }
+
+  .topBarSlot {
+    grid-area: nav;
+  }
+
+  .topBar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    row-gap: var(--home-footer-mini-wordmark-nav-gap);
+    width: 100%;
+  }
+
+  .wordmark {
+    font-size: var(--home-footer-mini-wordmark-size);
+    line-height: var(--home-footer-mini-wordmark-line-height);
+    font-weight: 700;
+  }
+
+  .topNav {
+    justify-content: center;
+    gap: var(--home-footer-mini-nav-gap);
+  }
+
+  .topNavLink {
+    padding-left: 0;
+    font-size: var(--home-footer-mini-body-size);
+    line-height: var(--home-footer-mini-body-line-height);
+  }
+
+  .topNavLink:first-child {
+    padding-left: 0;
+  }
+
+  .sectionTitle,
+  .contactText,
+  .legalLink {
+    font-size: var(--home-footer-mini-body-size);
+    line-height: var(--home-footer-mini-body-line-height);
+  }
+
+  .contactText {
+    white-space: normal;
+  }
+
+  .contactList {
+    margin-top: var(--home-footer-contact-title-gap);
+  }
+
+  .illustrationSlot {
+    grid-area: illo;
+    justify-self: center;
+    align-self: center;
+    width: var(--home-footer-mini-illo-max);
+    aspect-ratio: 1 / 1;
+    height: auto;
+    margin-block: 0.25rem;
+  }
+
+  .contactSlot {
+    grid-area: contact;
+    align-self: start;
+    justify-self: start;
+    margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
+  }
+
+  .socialSlot {
+    grid-area: social;
+    align-self: start;
+    justify-self: end;
+    margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
+  }
+
+  .socialBlock {
+    align-items: flex-end;
+    text-align: right;
+    gap: var(--home-footer-social-title-gap);
+  }
+
+  .socialList {
+    justify-content: flex-end;
+  }
+
+  .legalSlot {
+    grid-area: social;
+    align-self: start;
+    justify-self: end;
+    margin-top: calc(
+      var(--home-footer-mini-legal-address-offset) - var(--home-footer-mini-below-logo-lift)
+    );
+  }
+
+  .legalSlot .legalNav {
+    justify-content: flex-end;
+    gap: var(--home-footer-mini-legal-gap);
+  }
+
+  .copyrightSlot {
+    grid-area: copyright;
+    align-self: center;
+    justify-self: end;
+    padding-top: var(--home-footer-mini-legal-divider-pt);
+    margin-top: 0;
+  }
+
+  .copyrightSlot .copyright {
+    width: auto;
+    max-width: 100%;
+    text-align: right;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.075rem;
+    text-transform: uppercase;
+  }
+
+  .paymentSlot {
+    grid-area: payment;
+    align-self: center;
+    justify-self: start;
+    padding-top: var(--home-footer-mini-legal-divider-pt);
+    margin-top: 0;
+  }
+
+  .paymentLogos {
+    justify-content: flex-start;
+  }
+
+  .paymentSlot .paymentLogoItem:nth-child(2) {
+    margin-inline-start: var(--home-footer-mini-payment-arca-offset, 16px);
+  }
+}

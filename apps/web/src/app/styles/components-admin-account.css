@@ -1,0 +1,23 @@
+@layer components {
+  .ommm-admin-content {
+    @apply mx-auto w-full max-w-[1280px];
+  }
+
+  .ommm-admin-add-button {
+    @apply inline-flex h-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#5f5a4a] px-5 text-xs font-semibold uppercase tracking-[0.12em] text-[#fbf5d5] shadow-sm transition-[background-color,box-shadow,transform,color];
+    @apply hover:bg-[#4b4537] hover:shadow-[0_12px_28px_-18px_rgba(45,40,35,0.42)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .ommm-inset-row {
+    @apply rounded-[20px] border border-white/55 bg-white/45 px-3 py-2.5 text-sm text-sage-500 backdrop-blur-md;
+  }
+
+  .ommm-account-section {
+    @apply rounded-[28px] border border-white/60 bg-white/55 p-5 shadow-[0_20px_45px_-28px_rgba(45,40,35,0.26)] backdrop-blur-md sm:p-6;
+  }
+
+  .ommm-link-sage {
+    @apply cursor-pointer rounded-sm font-medium text-sage-700 underline decoration-sand-500/40 underline-offset-4 transition-colors hover:text-sand-700 hover:decoration-sand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+}

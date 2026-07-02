@@ -1,0 +1,190 @@
+@media (min-width: 744px) {
+  .mobileMenuModal {
+    display: none;
+  }
+}
+
+.mobileMenuScrim {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(26, 28, 27, 0.42);
+  transition: background-color 180ms ease-out;
+  animation: marketing-mobile-menu-scrim-enter 260ms ease-out both;
+}
+
+.mobileMenuScrim:hover {
+  background-color: rgba(26, 28, 27, 0.5);
+}
+
+.mobileMenuScrim:focus-visible {
+  outline: 2px solid rgba(251, 245, 213, 0.72);
+  outline-offset: -4px;
+}
+
+.mobileMenuModalClosing .mobileMenuScrim {
+  animation: marketing-mobile-menu-scrim-exit 260ms ease-in both;
+}
+
+.mobileMenuCardSlot {
+  position: absolute;
+  top: var(--marketing-mobile-header-height, 4.25rem);
+  right: 1rem;
+  left: 1rem;
+  z-index: 1;
+  pointer-events: none;
+}
+.mobileMenuCardSlot .mobilePanel {
+  pointer-events: auto;
+}
+
+
+@keyframes marketing-header-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pill {
+  position: relative;
+  isolation: isolate;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--marketing-glass-border);
+  background-color: var(--marketing-glass-bg);
+  backdrop-filter: blur(var(--marketing-glass-blur)) saturate(var(--marketing-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--marketing-glass-blur)) saturate(var(--marketing-glass-saturate));
+  box-shadow:
+    var(--marketing-glass-shadow-contact),
+    var(--marketing-glass-shadow-float),
+    var(--marketing-glass-shadow-ambient),
+    inset 0 1px 0 var(--marketing-glass-inset-top),
+    var(--marketing-glass-inset-glow),
+    inset 0 -1px 0 var(--marketing-glass-inset-bottom);
+}
+
+.pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    168deg,
+    rgba(255, 255, 255, 0.52) 0%,
+    rgba(255, 255, 255, 0.16) 34%,
+    rgba(255, 255, 255, 0.1) 58%,
+    rgba(255, 255, 255, 0.34) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.pill::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 22%,
+    rgba(255, 255, 255, 0) 48%
+  );
+}
+
+.pillHero {
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(48, 56, 64, 0.035) 0%,
+      rgba(48, 56, 64, 0.015) 50%,
+      rgba(48, 56, 64, 0.04) 100%
+    ),
+    linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.08) 46%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+}
+
+.pillElevated {
+  --marketing-glass-blur: 36px;
+  --marketing-glass-saturate: 225%;
+  --marketing-glass-border: rgba(255, 255, 255, 0.34);
+  --marketing-glass-shadow-float: 0 32px 72px -12px rgba(45, 40, 35, 0.38);
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(48, 56, 64, 0.055) 0%,
+      rgba(48, 56, 64, 0.025) 50%,
+      rgba(48, 56, 64, 0.065) 100%
+    ),
+    linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.1) 44%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  box-shadow:
+    var(--marketing-glass-shadow-contact),
+    var(--marketing-glass-shadow-float),
+    var(--marketing-glass-shadow-ambient),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 2px 12px rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.pillElevated::before {
+  background: linear-gradient(
+    168deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.2) 36%,
+    rgba(255, 255, 255, 0.12) 62%,
+    rgba(255, 255, 255, 0.4) 100%
+  );
+}
+
+.pillElevated::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.05) 24%,
+    rgba(255, 255, 255, 0) 50%
+  );
+}
+
+/* Shared olive glass pill — mobile scrolled + desktop unified bar. */
+.marketingGlassPill,
+.mobileHeaderBar {
+  --marketing-glass-pill-bg: rgba(151, 144, 124, 0.72);
+  --marketing-glass-pill-border: rgba(251, 245, 213, 0.28);
+  --marketing-glass-pill-blur: 24px;
+  --marketing-glass-pill-saturate: 170%;
+  --marketing-glass-pill-transition-duration: 420ms;
+  --marketing-glass-pill-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.marketingGlassPill {
+  border: 1px solid transparent;
+  background-color: transparent;

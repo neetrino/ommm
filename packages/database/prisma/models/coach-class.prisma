@@ -1,0 +1,75 @@
+model CoachProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio            String?
+  specialization String?
+  classType      String?
+  assignedClassTypeIds String[] @default([])
+  experienceYears Int?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sessions            ClassSession[] @relation("SessionCoach")
+  substituteSessions  ClassSession[] @relation("SessionSubstituteCoach")
+  availabilitySlots   CoachAvailabilitySlot[]
+}
+
+model CoachAvailabilitySlot {
+  id              String       @id @default(cuid())
+  coachProfileId  String
+  coachProfile    CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  slotDate        DateTime
+  slotTime        String
+  availableSpots  Int
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([coachProfileId, slotDate, slotTime])
+}
+
+/// Canonical catalog of schedulable class kinds. Admin schedule sessions must reference this table only.
+model ClassType {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions     ClassSession[]
+  packagePlans PackagePlan[]
+}
+
+model ClassSession {
+  id                 String             @id @default(cuid())
+  title              String             @default("")
+  description        String?
+  /// FK to ClassType only — not package categories or free text.
+  classTypeId        String
+  classType          ClassType          @relation(fields: [classTypeId], references: [id], onDelete: Restrict)
+  coachId            String
+  coach              CoachProfile       @relation("SessionCoach", fields: [coachId], references: [id])
+  substituteCoachId  String?
+  substituteCoach    CoachProfile?      @relation("SessionSubstituteCoach", fields: [substituteCoachId], references: [id])
+  startsAt           DateTime
+  endsAt             DateTime
+  capacity           Int
+  level              String?
+  classFormat        String?
+  priceCents         Int                @default(0)
+  sessionRequirement Int?
+  status             ClassSessionStatus @default(ACTIVE)
+  recurrencePattern  SessionRecurrencePattern @default(NONE)
+  recurrenceWeekdays ScheduleDayOfWeek[] @default([])
+  recurrenceEndsAt   DateTime?
+  recurrenceCount    Int?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  bookings        Booking[]
+  waitlistEntries WaitlistEntry[]
+
+  @@index([status, startsAt])
+}
