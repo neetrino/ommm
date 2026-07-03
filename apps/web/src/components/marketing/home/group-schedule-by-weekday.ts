@@ -1,3 +1,7 @@
+import {
+  getHomeWeeklyScheduleTabCalendarDate,
+  resolveHomeWeeklyScheduleItemCalendarDate,
+} from "@/components/marketing/home/home-weekly-schedule-date.helpers";
 import type {
   MarketingScheduleDayOfWeek,
   MarketingScheduleItem,
@@ -23,22 +27,29 @@ function compareSessions(a: MarketingScheduleItem, b: MarketingScheduleItem): nu
   return a.startTime.localeCompare(b.startTime);
 }
 
-/** Groups active schedule rows by weekday for the home weekly schedule day tabs. */
+/** Groups active schedule rows by weekday tab for the current studio calendar week. */
 export function groupScheduleByWeekday(
   items: readonly MarketingScheduleItem[],
+  reference: Date = new Date(),
 ): ScheduleItemsByWeekday {
   const buckets = Object.fromEntries(
     HOME_WEEKLY_SCHEDULE_DAY_ORDER.map((day) => [day, [] as MarketingScheduleItem[]]),
   ) as Record<MarketingScheduleDayOfWeek, MarketingScheduleItem[]>;
 
-  for (const item of items) {
-    if (!item.isActive) {
-      continue;
-    }
-    buckets[item.dayOfWeek].push(item);
-  }
-
   for (const day of HOME_WEEKLY_SCHEDULE_DAY_ORDER) {
+    const tabCalendarDate = getHomeWeeklyScheduleTabCalendarDate(day, reference);
+
+    for (const item of items) {
+      if (!item.isActive) {
+        continue;
+      }
+
+      const itemCalendarDate = resolveHomeWeeklyScheduleItemCalendarDate(item, reference);
+      if (itemCalendarDate === tabCalendarDate) {
+        buckets[day].push(item);
+      }
+    }
+
     buckets[day].sort(compareSessions);
   }
 
