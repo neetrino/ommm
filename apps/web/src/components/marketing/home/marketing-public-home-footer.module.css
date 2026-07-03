@@ -863,7 +863,7 @@
       "nav nav"
       "illo illo"
       "contact legal"
-      "payment copyright";
+      "copyright payment";
     gap: var(--home-footer-mini-section-gap) var(--home-footer-mini-column-gap);
     padding:
       var(--home-footer-mini-shell-pt) var(--home-footer-mini-shell-px)
@@ -982,7 +982,7 @@
   .copyrightSlot {
     grid-area: copyright;
     align-self: center;
-    justify-self: end;
+    justify-self: start;
     padding-top: var(--home-footer-mini-legal-divider-pt);
     margin-top: 0;
   }
@@ -990,7 +990,7 @@
   .copyrightSlot .copyright {
     width: auto;
     max-width: 100%;
-    text-align: right;
+    text-align: left;
     font-size: 0.6875rem;
     line-height: 1rem;
     letter-spacing: 0.075rem;
@@ -1000,13 +1000,16 @@
   .paymentSlot {
     grid-area: payment;
     align-self: center;
-    justify-self: start;
+    justify-self: end;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
     padding-top: var(--home-footer-mini-legal-divider-pt);
     margin-top: 0;
   }
 
-  .paymentLogos {
-    justify-content: flex-start;
+  .paymentSlot .paymentLogos {
+    justify-content: flex-end;
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
@@ -1057,7 +1060,7 @@
       "nav nav"
       "illo illo"
       "contact legal"
-      "payment copyright";
+      "copyright payment";
     gap: var(--home-footer-tablet-section-gap) var(--home-footer-tablet-column-gap);
     padding:
       var(--home-footer-tablet-shell-pt) var(--home-footer-tablet-shell-px)
@@ -1176,7 +1179,7 @@
   .copyrightSlot {
     grid-area: copyright;
     align-self: center;
-    justify-self: end;
+    justify-self: start;
     padding-top: var(--home-footer-tablet-legal-divider-pt);
     margin-top: 0;
   }
@@ -1184,7 +1187,7 @@
   .copyrightSlot .copyright {
     width: auto;
     max-width: 100%;
-    text-align: right;
+    text-align: left;
     font-size: 0.6875rem;
     line-height: 1rem;
     letter-spacing: 0.075rem;
@@ -1194,13 +1197,16 @@
   .paymentSlot {
     grid-area: payment;
     align-self: center;
-    justify-self: start;
+    justify-self: end;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
     padding-top: var(--home-footer-tablet-legal-divider-pt);
     margin-top: 0;
   }
 
-  .paymentLogos {
-    justify-content: flex-start;
+  .paymentSlot .paymentLogos {
+    justify-content: flex-end;
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
