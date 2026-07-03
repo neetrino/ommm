@@ -5,7 +5,6 @@
   "scripts": {
     "postinstall": "pnpm run db:generate",
     "dev": "node ./scripts/dev-guide.cjs",
-    "dev:all": "node ./scripts/dev-all-safe.cjs",
     "dev:web": "pnpm --filter web dev",
     "build": "pnpm run build:web",
     "build:web": "pnpm run build:database && pnpm --filter web build",

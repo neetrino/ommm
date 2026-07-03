@@ -1914,10 +1914,9 @@ Full list: `.env.example`, `docs/DEPLOY_ENV_PLACEMENT.md`, `docs/VERCEL_ENV.md`
 |---------|--------------|
 | `pnpm install` | Install deps + auto `db:generate` (postinstall) |
 | `pnpm dev` | Shows dev guide (run web + api separately) |
-| `pnpm dev:web` | Start Next.js on :3000 |
-| `pnpm dev:api` | Start NestJS on :4000 |
-| `pnpm dev:mobile` | Start Expo dev server |
-| `pnpm dev:all` | Start web + api + mobile in parallel |
+| `pnpm dev:api` | Start NestJS on :4000 (separate terminal, start first) |
+| `pnpm dev:web` | Start Next.js on :3000 (separate terminal) |
+| `pnpm dev:mobile` | Start Expo dev server (optional third terminal) |
 | `pnpm build:web` | Production Next.js build |
 | `pnpm build:api` | Build database package + NestJS |
 | `pnpm db:generate` | Generate Prisma client |
