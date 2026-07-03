@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
+import { MarketingPublicHomeFooterInstagramRow } from "@/components/marketing/home/marketing-public-home-footer-instagram-row";
+import { MarketingPublicHomeFooterPolicies } from "@/components/marketing/home/marketing-public-home-footer-policies";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
@@ -10,10 +11,7 @@ import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_ADDRESS_HREF,
-  HOME_FOOTER_FIGMA,
-  HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_PAYMENT_LOGOS,
-  HOME_FOOTER_SOCIAL_LINKS,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import { MarketingPublicHomeFooterSurface } from "@/components/marketing/home/marketing-public-home-footer-surface";
@@ -33,7 +31,6 @@ type FooterContentProps = {
   illustration: ReactNode;
   contact: ReactNode;
   payment: ReactNode;
-  social: ReactNode;
   legal: ReactNode;
   copyright: ReactNode;
 };
@@ -43,7 +40,6 @@ function FooterDesktopLayer({
   illustration,
   contact,
   payment,
-  social,
   legal,
   copyright,
 }: FooterContentProps) {
@@ -53,7 +49,6 @@ function FooterDesktopLayer({
       <div className={styles.illustrationSlot}>{illustration}</div>
       <div className={styles.contactSlot}>{contact}</div>
       <div className={styles.paymentSlot}>{payment}</div>
-      <div className={styles.socialSlot}>{social}</div>
       <div className={styles.legalSlot}>{legal}</div>
       <div className={styles.copyrightSlot}>{copyright}</div>
     </div>
@@ -61,8 +56,6 @@ function FooterDesktopLayer({
 }
 
 function FooterPaymentLogos({ className }: { className: string }) {
-  const logoHeightPx = HOME_FOOTER_FIGMA.paymentLogoHeightPx;
-
   return (
     <div className={className}>
       {HOME_FOOTER_PAYMENT_LOGOS.map((logo) => (
@@ -70,8 +63,8 @@ function FooterPaymentLogos({ className }: { className: string }) {
           <Image
             src={logo.src}
             alt=""
-            width={logoHeightPx}
-            height={logoHeightPx}
+            width={logo.widthPx}
+            height={logo.heightPx}
             unoptimized
             className={styles.paymentLogo}
             aria-hidden
@@ -128,40 +121,32 @@ export async function MarketingPublicHomeFooter({
             {t("footerAddress")}
           </a>
         </li>
+        <MarketingPublicHomeFooterInstagramRow
+          rowClassName={styles.contactRow}
+          iconClassName={styles.contactIcon}
+          textClassName={styles.contactText}
+          ariaLabel={t("footerInstagramAria")}
+        />
       </ul>
     </div>
   ) : null;
 
   const payment = showContactSection ? <FooterPaymentLogos className={styles.paymentLogos} /> : null;
 
-  const social = (
-    <div className={styles.socialBlock}>
-      <p className={styles.sectionTitle}>{t("footerSocialTitle")}</p>
-      <div className={styles.socialList}>
-        {HOME_FOOTER_SOCIAL_LINKS.map((item) => (
-          <a
-            key={item.id}
-            href={item.href}
-            className={styles.socialLink}
-            aria-label={t("footerSocialAria", { network: item.id })}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image src={item.asset} alt="" width={item.width} height={item.height} unoptimized />
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-
   const legal = (
-    <nav className={styles.legalNav} aria-label={t("footerLegalNavAria")}>
-      {HOME_FOOTER_LEGAL_LINKS.map((item) => (
-        <Link key={item.labelKey} href={item.href} className={styles.legalLink}>
-          {t(item.labelKey)}
-        </Link>
-      ))}
-    </nav>
+    <MarketingPublicHomeFooterPolicies
+      title={t("footerPoliciesTitle")}
+      navAria={t("footerLegalNavAria")}
+      labels={{
+        footerPrivacy: t("footerPrivacy"),
+        footerTerms: t("footerTerms"),
+        footerRefund: t("footerRefund"),
+      }}
+      blockClassName={styles.policiesBlock}
+      titleClassName={styles.sectionTitle}
+      navClassName={styles.policiesNav}
+      linkClassName={styles.legalLink}
+    />
   );
 
   const copyright = (
@@ -186,7 +171,6 @@ export async function MarketingPublicHomeFooter({
             illustration={illustration}
             contact={contact}
             payment={payment}
-            social={social}
             legal={legal}
             copyright={copyright}
           />
@@ -199,8 +183,8 @@ export async function MarketingPublicHomeFooter({
             address={t("footerAddress")}
             addressHref={HOME_FOOTER_ADDRESS_HREF}
             showContactSection={showContactSection}
-            socialTitle={t("footerSocialTitle")}
-            socialAria={(network) => t("footerSocialAria", { network })}
+            instagramAria={t("footerInstagramAria")}
+            policiesTitle={t("footerPoliciesTitle")}
             legalNavAria={t("footerLegalNavAria")}
             legalLabels={{
               footerPrivacy: t("footerPrivacy"),

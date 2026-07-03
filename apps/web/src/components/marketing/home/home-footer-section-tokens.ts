@@ -34,6 +34,7 @@ export const HOME_FOOTER_FIGMA = {
   paymentLogoHeightPx: 28,
   paymentArcaDisplayHeightPx: 20,
   paymentArcaOffsetXPx: 24,
+  paymentVisaOffsetXPx: 16,
   paymentMastercardWidthPx: 35,
   paymentMastercardHeightPx: 28,
   paymentArcaWidthPx: 78,
@@ -87,6 +88,8 @@ export const HOME_FOOTER_LAYOUT = {
   contactSocialLiftPx: 20,
   /** Top nav + legal links — shift up from Figma baseline. */
   topBarLegalLiftPx: 10,
+  /** Extra space above copyright + payment row (desktop 1367px+). */
+  copyrightPaymentRowOffsetPx: 17,
 } as const;
 
 function homeFooterIllustrationTopAtRestPx(
@@ -205,6 +208,7 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   paymentMastercardHeightPx: 22,
   paymentArcaHeightPx: 16,
   paymentArcaOffsetPx: 16,
+  paymentVisaOffsetPx: 12,
   paymentVisaHeightPx: 18,
 } as const;
 
@@ -250,6 +254,7 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   paymentMastercardHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentMastercardHeightPx}px`,
   paymentArcaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaHeightPx}px`,
   paymentArcaOffset: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentArcaOffsetPx}px`,
+  paymentVisaOffset: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentVisaOffsetPx}px`,
   paymentVisaHeight: `${HOME_FOOTER_SECTION_MOBILE_FIGMA.paymentVisaHeightPx}px`,
 } as const;
 
@@ -374,29 +379,33 @@ export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/refund", labelKey: "footerRefund" },
 ] as const;
 
-/** Figma `605:1002` — Instagram only. */
-export const HOME_FOOTER_SOCIAL_LINKS = [
-  {
-    id: "instagram",
-    href: "https://www.instagram.com/ommm.space/",
-    asset: HOME_SECTION_ASSETS.footerSocialInstagram,
-    width: 23,
-    height: 23,
-  },
-] as const;
+/** Footer contact row — Instagram under address. */
+export const HOME_FOOTER_INSTAGRAM = {
+  href: "https://www.instagram.com/ommm.space/",
+  handle: "@ommm.space",
+  asset: HOME_SECTION_ASSETS.footerSocialInstagram,
+  iconWidthPx: 23,
+  iconHeightPx: 23,
+} as const;
 
 export const HOME_FOOTER_PAYMENT_LOGOS = [
   {
     id: "mastercard",
     src: HOME_SECTION_ASSETS.footerPaymentMastercard,
+    widthPx: HOME_FOOTER_FIGMA.paymentMastercardWidthPx,
+    heightPx: HOME_FOOTER_FIGMA.paymentMastercardHeightPx,
   },
   {
     id: "arca",
     src: HOME_SECTION_ASSETS.footerPaymentArca,
+    widthPx: HOME_FOOTER_FIGMA.paymentArcaWidthPx,
+    heightPx: HOME_FOOTER_FIGMA.paymentArcaDisplayHeightPx,
   },
   {
     id: "visa",
     src: HOME_SECTION_ASSETS.footerPaymentVisa,
+    widthPx: HOME_FOOTER_FIGMA.paymentVisaWidthPx,
+    heightPx: HOME_FOOTER_FIGMA.paymentVisaHeightPx,
   },
 ] as const;
 

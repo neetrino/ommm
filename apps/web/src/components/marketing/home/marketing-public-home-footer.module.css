@@ -157,6 +157,15 @@
   height: var(--home-footer-payment-arca-height, 20px);
 }
 
+.paymentLogoItem:nth-child(3) {
+  height: var(--home-footer-payment-visa-height, 22px);
+  margin-inline-start: var(--home-footer-payment-visa-offset-x, 16px);
+}
+
+.paymentLogoItem:nth-child(3) .paymentLogo {
+  height: var(--home-footer-payment-visa-height, 22px);
+}
+
 .paymentSlot {
   position: absolute;
   left: 0;
@@ -164,9 +173,10 @@
 }
 
 .sectionTitle {
-  font-size: var(--home-footer-body-size);
-  font-weight: 400;
-  line-height: var(--home-footer-body-line-height);
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--home-footer-wordmark-size);
+  font-weight: 700;
+  line-height: var(--home-footer-wordmark-line-height);
   letter-spacing: var(--home-footer-body-tracking);
   color: var(--home-footer-text);
 }
@@ -276,12 +286,29 @@
   gap: var(--home-footer-legal-gap);
 }
 
+.policiesBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: var(--home-footer-social-title-gap);
+}
+
+.policiesNav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--home-footer-contact-gap);
+  width: 100%;
+}
+
 .legalLink {
   font-size: var(--home-footer-body-size);
   font-weight: 400;
   line-height: var(--home-footer-body-line-height);
   letter-spacing: var(--home-footer-body-tracking);
   color: var(--home-footer-text);
+  text-align: right;
   white-space: nowrap;
   transition: opacity 150ms ease;
 }
@@ -296,11 +323,6 @@
   border-radius: 2px;
 }
 
-.copyrightLine {
-  display: block;
-  white-space: nowrap;
-}
-
 .copyright {
   font-size: var(--home-footer-copyright-size);
   font-weight: 400;
@@ -309,6 +331,7 @@
   color: var(--home-footer-text);
   text-align: right;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .copyrightCompany {
@@ -398,9 +421,9 @@
 
 .mobileContactTitle {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--home-footer-mobile-body-size);
-  font-weight: 400;
-  line-height: var(--home-footer-mobile-body-line-height);
+  font-size: var(--home-footer-mobile-wordmark-size);
+  font-weight: 600;
+  line-height: var(--home-footer-mobile-wordmark-line-height);
   color: var(--home-footer-text);
 }
 
@@ -466,6 +489,53 @@
   gap: var(--home-footer-mobile-social-icon-gap);
 }
 
+.mobilePolicies {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: var(--home-footer-mobile-social-title-gap);
+  margin-top: var(--home-footer-mobile-legal-margin-top);
+  width: 100%;
+}
+
+.mobilePoliciesTitle {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--home-footer-mobile-wordmark-size);
+  font-weight: 600;
+  line-height: var(--home-footer-mobile-wordmark-line-height);
+  color: var(--home-footer-text);
+}
+
+.mobilePoliciesNav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--home-footer-mobile-contact-row-gap);
+  width: 100%;
+}
+
+.mobilePoliciesLink {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--home-footer-mobile-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-body-line-height);
+  color: var(--home-footer-text);
+  text-align: right;
+  white-space: nowrap;
+  transition: opacity 150ms ease;
+}
+
+.mobilePoliciesLink:hover {
+  opacity: 0.75;
+}
+
+.mobilePoliciesLink:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 .mobileLegal {
   display: flex;
   flex-wrap: wrap;
@@ -501,6 +571,7 @@
   letter-spacing: var(--home-footer-mobile-copyright-tracking);
   color: var(--home-footer-text);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 @media (max-width: 743px) {
@@ -581,6 +652,7 @@
 
   .mobilePayment .paymentLogoItem:nth-child(3) {
     height: var(--home-footer-mobile-payment-visa-height, 18px);
+    margin-inline-start: var(--home-footer-mobile-payment-visa-offset, 12px);
   }
 
   .mobilePayment .paymentLogoItem:nth-child(3) .paymentLogo {
@@ -614,7 +686,7 @@
 
 @media (min-width: 1367px) {
   .inner {
-    min-height: var(--home-footer-min-height);
+    min-height: calc(var(--home-footer-min-height) + var(--home-footer-desktop-bottom-row-offset, 0px));
     overflow: visible;
   }
 
@@ -677,17 +749,34 @@
   .legalSlot {
     right: 0;
     left: auto;
-    top: calc(var(--home-footer-legal-top) - var(--home-footer-top-bar-legal-lift, 0px));
+    top: calc(var(--home-footer-contact-top) - var(--home-footer-contact-social-lift, 0px));
+    width: min(20.5rem, 100%);
+    max-width: 20.5rem;
   }
 
-  .copyrightSlot {
+  .paymentSlot {
     right: 0;
     left: auto;
     top: calc(
-      var(--home-footer-payment-top) - var(--home-footer-copyright-line-height) + 10px
+      var(--home-footer-payment-top) - var(--home-footer-copyright-line-height) + 10px +
+        var(--home-footer-desktop-bottom-row-offset, 0px)
     );
-    width: min(18.1875rem, 100%);
-    max-width: 18.1875rem;
+  }
+
+  .paymentSlot .paymentLogos {
+    justify-content: flex-end;
+  }
+
+  .copyrightSlot {
+    left: 0;
+    right: auto;
+    top: calc(var(--home-footer-payment-top) + var(--home-footer-desktop-bottom-row-offset, 0px));
+    width: auto;
+    max-width: none;
+  }
+
+  .copyrightSlot .copyright {
+    text-align: left;
   }
 }
 
@@ -774,8 +863,8 @@
     grid-template-areas:
       "nav nav"
       "illo illo"
-      "contact social"
-      "payment copyright";
+      "contact legal"
+      "copyright payment";
     gap: var(--home-footer-mini-section-gap) var(--home-footer-mini-column-gap);
     padding:
       var(--home-footer-mini-shell-pt) var(--home-footer-mini-shell-px)
@@ -844,11 +933,15 @@
     padding-left: 0;
   }
 
-  .sectionTitle,
   .contactText,
   .legalLink {
     font-size: var(--home-footer-mini-body-size);
     line-height: var(--home-footer-mini-body-line-height);
+  }
+
+  .sectionTitle {
+    font-size: var(--home-footer-mini-wordmark-size);
+    line-height: var(--home-footer-mini-wordmark-line-height);
   }
 
   .contactText {
@@ -876,41 +969,21 @@
     margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
   }
 
-  .socialSlot {
-    grid-area: social;
+  .legalSlot {
+    grid-area: legal;
     align-self: start;
     justify-self: end;
     margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
   }
 
-  .socialBlock {
+  .legalSlot .policiesNav {
     align-items: flex-end;
-    text-align: right;
-    gap: var(--home-footer-social-title-gap);
-  }
-
-  .socialList {
-    justify-content: flex-end;
-  }
-
-  .legalSlot {
-    grid-area: social;
-    align-self: start;
-    justify-self: end;
-    margin-top: calc(
-      var(--home-footer-mini-legal-address-offset) - var(--home-footer-mini-below-logo-lift)
-    );
-  }
-
-  .legalSlot .legalNav {
-    justify-content: flex-end;
-    gap: var(--home-footer-mini-legal-gap);
   }
 
   .copyrightSlot {
     grid-area: copyright;
     align-self: center;
-    justify-self: end;
+    justify-self: start;
     padding-top: var(--home-footer-mini-legal-divider-pt);
     margin-top: 0;
   }
@@ -918,7 +991,7 @@
   .copyrightSlot .copyright {
     width: auto;
     max-width: 100%;
-    text-align: right;
+    text-align: left;
     font-size: 0.6875rem;
     line-height: 1rem;
     letter-spacing: 0.075rem;
@@ -928,13 +1001,16 @@
   .paymentSlot {
     grid-area: payment;
     align-self: center;
-    justify-self: start;
+    justify-self: end;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
     padding-top: var(--home-footer-mini-legal-divider-pt);
     margin-top: 0;
   }
 
-  .paymentLogos {
-    justify-content: flex-start;
+  .paymentSlot .paymentLogos {
+    justify-content: flex-end;
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {
@@ -984,8 +1060,8 @@
     grid-template-areas:
       "nav nav"
       "illo illo"
-      "contact social"
-      "payment copyright";
+      "contact legal"
+      "copyright payment";
     gap: var(--home-footer-tablet-section-gap) var(--home-footer-tablet-column-gap);
     padding:
       var(--home-footer-tablet-shell-pt) var(--home-footer-tablet-shell-px)
@@ -1054,11 +1130,15 @@
     padding-left: 0;
   }
 
-  .sectionTitle,
   .contactText,
   .legalLink {
     font-size: var(--home-footer-tablet-body-size);
     line-height: var(--home-footer-tablet-body-line-height);
+  }
+
+  .sectionTitle {
+    font-size: var(--home-footer-tablet-wordmark-size);
+    line-height: var(--home-footer-tablet-wordmark-line-height);
   }
 
   .contactText {
@@ -1086,41 +1166,21 @@
     margin-top: calc(-1 * var(--home-footer-tablet-below-logo-lift));
   }
 
-  .socialSlot {
-    grid-area: social;
+  .legalSlot {
+    grid-area: legal;
     align-self: start;
     justify-self: end;
     margin-top: calc(-1 * var(--home-footer-tablet-below-logo-lift));
   }
 
-  .socialBlock {
+  .legalSlot .policiesNav {
     align-items: flex-end;
-    text-align: right;
-    gap: var(--home-footer-social-title-gap);
-  }
-
-  .socialList {
-    justify-content: flex-end;
-  }
-
-  .legalSlot {
-    grid-area: social;
-    align-self: start;
-    justify-self: end;
-    margin-top: calc(
-      var(--home-footer-tablet-legal-address-offset) - var(--home-footer-tablet-below-logo-lift)
-    );
-  }
-
-  .legalSlot .legalNav {
-    justify-content: flex-end;
-    gap: var(--home-footer-tablet-legal-gap);
   }
 
   .copyrightSlot {
     grid-area: copyright;
     align-self: center;
-    justify-self: end;
+    justify-self: start;
     padding-top: var(--home-footer-tablet-legal-divider-pt);
     margin-top: 0;
   }
@@ -1128,7 +1188,7 @@
   .copyrightSlot .copyright {
     width: auto;
     max-width: 100%;
-    text-align: right;
+    text-align: left;
     font-size: 0.6875rem;
     line-height: 1rem;
     letter-spacing: 0.075rem;
@@ -1138,13 +1198,16 @@
   .paymentSlot {
     grid-area: payment;
     align-self: center;
-    justify-self: start;
+    justify-self: end;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
     padding-top: var(--home-footer-tablet-legal-divider-pt);
     margin-top: 0;
   }
 
-  .paymentLogos {
-    justify-content: flex-start;
+  .paymentSlot .paymentLogos {
+    justify-content: flex-end;
   }
 
   .paymentSlot .paymentLogoItem:nth-child(2) {

@@ -65,6 +65,7 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-mobile-payment-mastercard-height" as string]: mobileLayout.paymentMastercardHeight,
     ["--home-footer-mobile-payment-arca-height" as string]: mobileLayout.paymentArcaHeight,
     ["--home-footer-mobile-payment-arca-offset" as string]: mobileLayout.paymentArcaOffset,
+    ["--home-footer-mobile-payment-visa-offset" as string]: mobileLayout.paymentVisaOffset,
     ["--home-footer-mobile-payment-visa-height" as string]: mobileLayout.paymentVisaHeight,
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
@@ -83,6 +84,8 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-payment-logo-height" as string]: `${HOME_FOOTER_FIGMA.paymentLogoHeightPx}px`,
     ["--home-footer-payment-arca-height" as string]: `${HOME_FOOTER_FIGMA.paymentArcaDisplayHeightPx}px`,
     ["--home-footer-payment-arca-offset-x" as string]: `${HOME_FOOTER_FIGMA.paymentArcaOffsetXPx}px`,
+    ["--home-footer-payment-visa-offset-x" as string]: `${HOME_FOOTER_FIGMA.paymentVisaOffsetXPx}px`,
+    ["--home-footer-payment-visa-height" as string]: `${HOME_FOOTER_FIGMA.paymentVisaHeightPx}px`,
     ["--home-footer-social-top" as string]: pct(pos.social.top),
     ["--home-footer-legal-top" as string]: pct(pos.legal.top),
     ["--home-footer-nav-link-padding" as string]: `${layout.navLinkPaddingLeftPx}px`,
@@ -102,5 +105,6 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-copyright-tracking" as string]: `${layout.copyrightLetterSpacingPx}px`,
     ["--home-footer-contact-social-lift" as string]: `${layout.contactSocialLiftPx}px`,
     ["--home-footer-top-bar-legal-lift" as string]: `${layout.topBarLegalLiftPx}px`,
+    ["--home-footer-desktop-bottom-row-offset" as string]: `${layout.copyrightPaymentRowOffsetPx}px`,
   };
 }

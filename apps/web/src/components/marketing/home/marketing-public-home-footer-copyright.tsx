@@ -9,7 +9,7 @@ export type MarketingPublicHomeFooterCopyrightProps = {
   suffix: string;
 };
 
-/** Figma footer — copyright on two lines after “NEETRINO IT”. */
+/** Figma footer — single-line copyright with linked company name. */
 export function MarketingPublicHomeFooterCopyright({
   className,
   prefix,
@@ -19,28 +19,16 @@ export function MarketingPublicHomeFooterCopyright({
 }: MarketingPublicHomeFooterCopyrightProps) {
   return (
     <p className={className}>
-      <span className={styles.copyrightLine}>
-        {prefix}
-        <a
-          href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
-          className={styles.copyrightCompany}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {companyPart1}
-        </a>
-      </span>
-      <span className={styles.copyrightLine}>
-        <a
-          href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
-          className={styles.copyrightCompany}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {companyPart2}
-        </a>
-        {suffix}
-      </span>
+      {prefix}
+      <a
+        href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
+        className={styles.copyrightCompany}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {companyPart1} {companyPart2}
+      </a>
+      {suffix}
     </p>
   );
 }
