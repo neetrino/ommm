@@ -105,8 +105,8 @@ export function MarketingPublicHomeFooterMobile({
               <Image
                 src={logo.src}
                 alt=""
-                width={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
-                height={HOME_FOOTER_FIGMA.paymentLogoHeightPx}
+                width={logo.widthPx}
+                height={logo.heightPx}
                 unoptimized
                 className={styles.paymentLogo}
                 aria-hidden

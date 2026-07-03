@@ -157,6 +157,15 @@
   height: var(--home-footer-payment-arca-height, 20px);
 }
 
+.paymentLogoItem:nth-child(3) {
+  height: var(--home-footer-payment-visa-height, 22px);
+  margin-inline-start: var(--home-footer-payment-visa-offset-x, 16px);
+}
+
+.paymentLogoItem:nth-child(3) .paymentLogo {
+  height: var(--home-footer-payment-visa-height, 22px);
+}
+
 .paymentSlot {
   position: absolute;
   left: 0;
@@ -643,6 +652,7 @@
 
   .mobilePayment .paymentLogoItem:nth-child(3) {
     height: var(--home-footer-mobile-payment-visa-height, 18px);
+    margin-inline-start: var(--home-footer-mobile-payment-visa-offset, 12px);
   }
 
   .mobilePayment .paymentLogoItem:nth-child(3) .paymentLogo {

@@ -11,7 +11,6 @@ import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_ADDRESS_HREF,
-  HOME_FOOTER_FIGMA,
   HOME_FOOTER_PAYMENT_LOGOS,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
@@ -57,8 +56,6 @@ function FooterDesktopLayer({
 }
 
 function FooterPaymentLogos({ className }: { className: string }) {
-  const logoHeightPx = HOME_FOOTER_FIGMA.paymentLogoHeightPx;
-
   return (
     <div className={className}>
       {HOME_FOOTER_PAYMENT_LOGOS.map((logo) => (
@@ -66,8 +63,8 @@ function FooterPaymentLogos({ className }: { className: string }) {
           <Image
             src={logo.src}
             alt=""
-            width={logoHeightPx}
-            height={logoHeightPx}
+            width={logo.widthPx}
+            height={logo.heightPx}
             unoptimized
             className={styles.paymentLogo}
             aria-hidden
