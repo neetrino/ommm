@@ -296,11 +296,6 @@
   border-radius: 2px;
 }
 
-.copyrightLine {
-  display: block;
-  white-space: nowrap;
-}
-
 .copyright {
   font-size: var(--home-footer-copyright-size);
   font-weight: 400;
@@ -309,6 +304,7 @@
   color: var(--home-footer-text);
   text-align: right;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .copyrightCompany {
@@ -501,6 +497,7 @@
   letter-spacing: var(--home-footer-mobile-copyright-tracking);
   color: var(--home-footer-text);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 @media (max-width: 743px) {
@@ -680,14 +677,28 @@
     top: calc(var(--home-footer-legal-top) - var(--home-footer-top-bar-legal-lift, 0px));
   }
 
-  .copyrightSlot {
+  .paymentSlot {
     right: 0;
     left: auto;
     top: calc(
       var(--home-footer-payment-top) - var(--home-footer-copyright-line-height) + 10px
     );
-    width: min(18.1875rem, 100%);
-    max-width: 18.1875rem;
+  }
+
+  .paymentSlot .paymentLogos {
+    justify-content: flex-end;
+  }
+
+  .copyrightSlot {
+    left: 0;
+    right: auto;
+    top: var(--home-footer-payment-top);
+    width: auto;
+    max-width: none;
+  }
+
+  .copyrightSlot .copyright {
+    text-align: left;
   }
 }
 
@@ -774,7 +785,7 @@
     grid-template-areas:
       "nav nav"
       "illo illo"
-      "contact social"
+      "contact legal"
       "payment copyright";
     gap: var(--home-footer-mini-section-gap) var(--home-footer-mini-column-gap);
     padding:
@@ -876,30 +887,11 @@
     margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
   }
 
-  .socialSlot {
-    grid-area: social;
+  .legalSlot {
+    grid-area: legal;
     align-self: start;
     justify-self: end;
     margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
-  }
-
-  .socialBlock {
-    align-items: flex-end;
-    text-align: right;
-    gap: var(--home-footer-social-title-gap);
-  }
-
-  .socialList {
-    justify-content: flex-end;
-  }
-
-  .legalSlot {
-    grid-area: social;
-    align-self: start;
-    justify-self: end;
-    margin-top: calc(
-      var(--home-footer-mini-legal-address-offset) - var(--home-footer-mini-below-logo-lift)
-    );
   }
 
   .legalSlot .legalNav {
@@ -984,7 +976,7 @@
     grid-template-areas:
       "nav nav"
       "illo illo"
-      "contact social"
+      "contact legal"
       "payment copyright";
     gap: var(--home-footer-tablet-section-gap) var(--home-footer-tablet-column-gap);
     padding:
@@ -1086,30 +1078,11 @@
     margin-top: calc(-1 * var(--home-footer-tablet-below-logo-lift));
   }
 
-  .socialSlot {
-    grid-area: social;
+  .legalSlot {
+    grid-area: legal;
     align-self: start;
     justify-self: end;
     margin-top: calc(-1 * var(--home-footer-tablet-below-logo-lift));
-  }
-
-  .socialBlock {
-    align-items: flex-end;
-    text-align: right;
-    gap: var(--home-footer-social-title-gap);
-  }
-
-  .socialList {
-    justify-content: flex-end;
-  }
-
-  .legalSlot {
-    grid-area: social;
-    align-self: start;
-    justify-self: end;
-    margin-top: calc(
-      var(--home-footer-tablet-legal-address-offset) - var(--home-footer-tablet-below-logo-lift)
-    );
   }
 
   .legalSlot .legalNav {

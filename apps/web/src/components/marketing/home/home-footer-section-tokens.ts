@@ -374,16 +374,14 @@ export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/refund", labelKey: "footerRefund" },
 ] as const;
 
-/** Figma `605:1002` — Instagram only. */
-export const HOME_FOOTER_SOCIAL_LINKS = [
-  {
-    id: "instagram",
-    href: "https://www.instagram.com/ommm.space/",
-    asset: HOME_SECTION_ASSETS.footerSocialInstagram,
-    width: 23,
-    height: 23,
-  },
-] as const;
+/** Footer contact row — Instagram under address. */
+export const HOME_FOOTER_INSTAGRAM = {
+  href: "https://www.instagram.com/ommm.space/",
+  handle: "@ommm.space",
+  asset: HOME_SECTION_ASSETS.footerSocialInstagram,
+  iconWidthPx: 23,
+  iconHeightPx: 23,
+} as const;
 
 export const HOME_FOOTER_PAYMENT_LOGOS = [
   {
