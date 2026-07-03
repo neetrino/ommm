@@ -279,6 +279,10 @@ export function useAdminScheduleManagement({
     setSelectedDay((current) => (current === day ? null : day));
   }, []);
 
+  const handleShowAllDays = useCallback(() => {
+    setSelectedDay(null);
+  }, []);
+
   return {
     isStaff,
     t,
@@ -300,6 +304,7 @@ export function useAdminScheduleManagement({
     busyId,
     selectedDay,
     handleSelectDay,
+    handleShowAllDays,
     handleDateTimeSort,
     setDetails,
     details,

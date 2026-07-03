@@ -124,6 +124,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         onDateTimeSort={schedule.handleDateTimeSort}
         selectedDay={schedule.selectedDay}
         onSelectDay={schedule.handleSelectDay}
+        onShowAllDays={schedule.handleShowAllDays}
         onDetails={schedule.setDetails}
         busyId={schedule.busyId}
         onCancel={schedule.handleCancel}

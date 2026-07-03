@@ -2179,6 +2179,8 @@
       "previousDay": "Предыдущий день",
       "nextDay": "Следующий день",
       "today": "Сегодня",
+      "showAllClasses": "Все занятия",
+      "showAllClassesAria": "Показать все занятия ({count} всего)",
       "weekView": {
         "gridAria": "Недельное расписание по дням",
         "todayBadge": "Сегодня",

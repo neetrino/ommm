@@ -2190,6 +2190,8 @@
       "previousDay": "Previous day",
       "nextDay": "Next day",
       "today": "Today",
+      "showAllClasses": "All classes",
+      "showAllClassesAria": "Show all classes ({count} total)",
       "weekView": {
         "gridAria": "Weekly schedule by day",
         "todayBadge": "Today",

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { addDays, startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
+import { AdminScheduleAllClassesButton } from "@/components/admin/admin-schedule-all-classes-button";
 import styles from "@/components/admin/admin-schedule-date-strip.module.css";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
 import {
@@ -34,6 +35,7 @@ type AdminScheduleDateStripProps = {
   rows: readonly ScheduleDateStripRow[];
   selectedDay: string | null;
   onSelectDay: (day: string) => void;
+  onShowAllDays: () => void;
 };
 
 /** Default list order: today and future first (asc), past sessions last (asc). */
@@ -207,6 +209,7 @@ export function AdminScheduleDateStrip({
   rows,
   selectedDay,
   onSelectDay,
+  onShowAllDays,
 }: AdminScheduleDateStripProps) {
   const { scrollRef, dragHandlers, shouldSuppressClick } = useHorizontalDragScroll();
   const todayButtonRef = useRef<HTMLButtonElement>(null);
@@ -226,14 +229,22 @@ export function AdminScheduleDateStrip({
 
   if (days.length === 0) return null;
 
+  const showAllSelected = selectedDay === null;
+
   return (
     <div className="rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md">
-      <div
-        ref={scrollRef}
-        className={styles.viewport}
-        style={SCHEDULE_DATE_STRIP_VIEWPORT_STYLE}
-        {...dragHandlers}
-      >
+      <div className="flex min-w-0 items-stretch gap-2">
+        <AdminScheduleAllClassesButton
+          selected={showAllSelected}
+          sessionCount={rows.length}
+          onClick={onShowAllDays}
+        />
+        <div
+          ref={scrollRef}
+          className={styles.viewport}
+          style={SCHEDULE_DATE_STRIP_VIEWPORT_STYLE}
+          {...dragHandlers}
+        >
         {days.map((day) => (
           <ScheduleDayCard
             key={day}
@@ -250,6 +261,7 @@ export function AdminScheduleDateStrip({
             }}
           />
         ))}
+        </div>
       </div>
     </div>
   );
