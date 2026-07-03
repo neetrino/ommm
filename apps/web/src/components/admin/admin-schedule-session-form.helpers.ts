@@ -4,6 +4,7 @@ import {
   DEFAULT_SESSION_CAPACITY,
   LEGACY_EDIT_CLASS_TYPE_QUERY_KEY,
   SCHEDULE_MODAL_QUERY_KEY,
+  SCHEDULE_WEEKDAYS,
   SESSION_LEVEL_SEPARATOR,
 } from "@/components/admin/admin-schedule-management.constants";
 import type { SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
@@ -36,6 +37,25 @@ export function weekdayFromDate(value: Date | string): ScheduleDayOfWeek {
   return (["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const)[
     day
   ];
+}
+
+/** Next calendar day in Mon→Sun order (Sunday wraps to Monday). */
+export function nextScheduleWeekday(weekday: ScheduleDayOfWeek): ScheduleDayOfWeek {
+  const index = SCHEDULE_WEEKDAYS.indexOf(weekday);
+  if (index === -1) {
+    return weekday;
+  }
+  return SCHEDULE_WEEKDAYS[(index + 1) % SCHEDULE_WEEKDAYS.length];
+}
+
+/** All seven weekdays starting from the anchor date's day of week. */
+export function scheduleWeekdaysFromDate(value: Date | string): readonly ScheduleDayOfWeek[] {
+  const anchor = weekdayFromDate(value);
+  const index = SCHEDULE_WEEKDAYS.indexOf(anchor);
+  if (index === -1) {
+    return SCHEDULE_WEEKDAYS;
+  }
+  return [...SCHEDULE_WEEKDAYS.slice(index), ...SCHEDULE_WEEKDAYS.slice(0, index)];
 }
 
 export function joinSessionLevels(levels: readonly string[]): string | undefined {

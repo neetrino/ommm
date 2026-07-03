@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { SCHEDULE_WEEKDAYS } from "@/components/admin/admin-schedule-management.constants";
+import { scheduleWeekdaysFromDate } from "@/components/admin/admin-schedule-session-form.helpers";
 import type {
   CalendarScheduleSlot,
   ScheduleDayOfWeek,
@@ -38,6 +39,10 @@ export function SessionFormCalendarSection({
   onRemoveSlot,
 }: SessionFormCalendarSectionProps) {
   const t = useTranslations("adminPages.classes");
+  const weekdayOptions = useMemo(
+    () => scheduleWeekdaysFromDate(`${calendarStartDate}T00:00:00`),
+    [calendarStartDate],
+  );
 
   return (
     <section className="rounded-2xl border border-sand-500/20 bg-white/70 p-4 sm:col-span-2">
@@ -87,7 +92,7 @@ export function SessionFormCalendarSection({
                 value={slot.weekday}
                 ariaLabel={t("calendarSchedule.weekday")}
                 placeholderLabel={t("calendarSchedule.weekday")}
-                options={SCHEDULE_WEEKDAYS.map((weekday) => ({
+                options={weekdayOptions.map((weekday) => ({
                   value: weekday,
                   label: t(`weekday.${weekday}`),
                 }))}

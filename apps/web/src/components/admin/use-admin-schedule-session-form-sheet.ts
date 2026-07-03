@@ -10,6 +10,7 @@ import {
   formPayload,
   initialCalendarSchedule,
   initialForm,
+  nextScheduleWeekday,
   weekdayFromDate,
 } from "@/components/admin/admin-schedule-session-form.helpers";
 import { coachName, splitSessionLevels } from "@/components/admin/admin-schedule-session.helpers";
@@ -93,16 +94,21 @@ export function useAdminScheduleSessionFormSheet({
   }
 
   function addCalendarSlot(): void {
-    setCalendarSlots((current) => [
-      ...current,
-      {
-        id: createScheduleSlotId(),
-        weekday:
-          current.at(-1)?.weekday ?? weekdayFromDate(`${calendarStartDate}T00:00:00`),
-        startTime: form.startTime,
-        endTime: form.endTime,
-      },
-    ]);
+    setCalendarSlots((current) => {
+      const lastWeekday = current.at(-1)?.weekday;
+      const weekday = lastWeekday
+        ? nextScheduleWeekday(lastWeekday)
+        : weekdayFromDate(`${calendarStartDate}T00:00:00`);
+      return [
+        ...current,
+        {
+          id: createScheduleSlotId(),
+          weekday,
+          startTime: form.startTime,
+          endTime: form.endTime,
+        },
+      ];
+    });
   }
 
   function updateCalendarSlot<K extends keyof Omit<CalendarScheduleSlot, "id">>(
