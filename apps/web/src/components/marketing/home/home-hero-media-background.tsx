@@ -45,9 +45,11 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
     trackOffset,
     desktopVideoUrl,
     mobileVideoUrl,
+    mobileVideoMp4Url,
     videoLeftRefs,
     videoRightRefs,
     onVideoEnded,
+    onVideoError,
     isVideoActive,
     normalizePhotoToCenter,
   } = slide;
@@ -76,7 +78,7 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
     return () => {
       video.removeEventListener("loadeddata", playFromStart);
     };
-  }, [activeView, desktopVideoUrl, isVideoActive, mobileVideoUrl, slide]);
+  }, [activeView, desktopVideoUrl, isVideoActive, mobileVideoMp4Url, mobileVideoUrl, slide]);
 
   const handleTrackTransitionEnd = useCallback(
     (event: React.TransitionEvent<HTMLDivElement>) => {
@@ -113,10 +115,12 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
           <HomeHeroVideoSlot
             desktopVideoUrl={desktopVideoUrl}
             mobileVideoUrl={mobileVideoUrl}
+            mobileVideoMp4Url={mobileVideoMp4Url}
             desktopRef={videoLeftRefs.desktop}
             mobileRef={videoLeftRefs.mobile}
             autoPlay
             onEnded={onVideoEnded}
+            onError={onVideoError}
           />
         </div>
         <HomeHeroPhotoSlide imageAlt={imageAlt} />
@@ -124,9 +128,11 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
           <HomeHeroVideoSlot
             desktopVideoUrl={desktopVideoUrl}
             mobileVideoUrl={mobileVideoUrl}
+            mobileVideoMp4Url={mobileVideoMp4Url}
             desktopRef={videoRightRefs.desktop}
             mobileRef={videoRightRefs.mobile}
             onEnded={onVideoEnded}
+            onError={onVideoError}
           />
         </div>
         <HomeHeroPhotoSlide imageAlt={imageAlt} />

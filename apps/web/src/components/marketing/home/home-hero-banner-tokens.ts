@@ -140,6 +140,10 @@ export const HOME_HERO_INTRO_VIDEO_R2_KEY = "marketing/home/hero/home-hero-intro
 export const HOME_HERO_INTRO_VIDEO_MOBILE_PUBLIC_PATH =
   "/marketing/home/hero/home-hero-intro-mobile.webm";
 
+/** Mobile hero intro — H.264 for iOS Safari (WebM unsupported before iOS 17.4). */
+export const HOME_HERO_INTRO_VIDEO_MOBILE_MP4_PUBLIC_PATH =
+  "/marketing/home/hero/home-hero-intro-mobile.mp4";
+
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro-mobile.webm`). */
 export const HOME_HERO_INTRO_VIDEO_MOBILE_R2_KEY =
   "marketing/home/hero/home-hero-intro-mobile.webm";
@@ -159,6 +163,11 @@ export function resolveHomeHeroIntroVideoUrl(r2PublicUrl: string | undefined): s
 /** Mobile hero intro — bundled public asset (portrait crop). */
 export function resolveHomeHeroIntroMobileVideoUrl(_r2PublicUrl?: string): string {
   return HOME_HERO_INTRO_VIDEO_MOBILE_PUBLIC_PATH;
+}
+
+/** Mobile hero intro — H.264 fallback for Safari on iPhone/iPad. */
+export function resolveHomeHeroIntroMobileVideoMp4Url(_r2PublicUrl?: string): string {
+  return HOME_HERO_INTRO_VIDEO_MOBILE_MP4_PUBLIC_PATH;
 }
 
 export function hasHomeHeroIntroVideo(r2PublicUrl: string | undefined): boolean {
