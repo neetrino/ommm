@@ -183,8 +183,8 @@ export async function MarketingPublicHomeFooter({
             address={t("footerAddress")}
             addressHref={HOME_FOOTER_ADDRESS_HREF}
             showContactSection={showContactSection}
-            instagramAria={t("footerInstagramAria")}
-            policiesTitle={t("footerPoliciesTitle")}
+            socialTitle={t("footerSocialTitle")}
+            socialAria={(network) => t("footerSocialAria", { network })}
             legalNavAria={t("footerLegalNavAria")}
             legalLabels={{
               footerPrivacy: t("footerPrivacy"),
