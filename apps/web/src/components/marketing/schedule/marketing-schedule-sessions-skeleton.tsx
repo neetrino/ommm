@@ -1,15 +1,15 @@
-import { SCHEDULE_ROW_DIVIDER } from "@/components/marketing/schedule/schedule-public-design";
+import { SCHEDULE_SESSION_ROW } from "@/components/marketing/schedule/schedule-public-design";
 
 const SKELETON_ROW_COUNT = 4;
 
 /** Session list placeholder — card chrome paints first, rows stream in. */
 export function MarketingScheduleSessionsSkeleton() {
   return (
-    <ul className="list-none overflow-hidden p-0" aria-hidden>
+    <ul className="flex list-none flex-col gap-3 p-0" aria-hidden>
       {Array.from({ length: SKELETON_ROW_COUNT }, (_, index) => (
         <li
           key={index}
-          className={`flex animate-pulse flex-col gap-4 py-5 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_auto] sm:items-center sm:gap-6 ${SCHEDULE_ROW_DIVIDER}`}
+          className={`flex animate-pulse flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_auto] sm:items-center sm:gap-6 ${SCHEDULE_SESSION_ROW}`}
         >
           <div className="space-y-2">
             <div className="h-4 w-12 rounded-md bg-white/55" />
