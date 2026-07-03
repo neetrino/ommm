@@ -41,7 +41,7 @@ import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { toggleSessionDateSortOrder } from "@/lib/list-sort";
-import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
+import { scheduleSessionLocalIsoDay, scheduleTodayIsoDate } from "@/lib/local-iso-date";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 
 export function useAdminScheduleManagement({
@@ -78,7 +78,7 @@ export function useAdminScheduleManagement({
   );
   const [searchDraft, setSearchDraft] = useState(() => initialFilterState.filters.q);
   const [prevInitialFilterState, setPrevInitialFilterState] = useState(initialFilterState);
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string | null>(() => scheduleTodayIsoDate());
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
