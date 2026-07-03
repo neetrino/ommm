@@ -144,7 +144,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
                 : ""
           }
         >
-          <ul key={renderedDayKey} className="list-none overflow-hidden p-0">
+          <ul key={renderedDayKey} className="flex list-none flex-col gap-3 p-0">
             {!sessionsReady ? (
               <MarketingScheduleSessionsSkeleton />
             ) : renderedSessions.length === 0 ? (

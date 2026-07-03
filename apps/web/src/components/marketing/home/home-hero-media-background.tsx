@@ -3,7 +3,11 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
-import { useHomeHeroSlide } from "@/components/marketing/home/home-hero-slide-context";
+import {
+  resolveActiveHomeHeroVideoElement,
+  useHomeHeroSlide,
+} from "@/components/marketing/home/home-hero-slide-context";
+import { HomeHeroVideoSlot } from "@/components/marketing/home/home-hero-video-slot";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import { lcpImageProps } from "@/lib/image-loading-props";
 
@@ -34,33 +38,45 @@ function HomeHeroPhotoSlide({ imageAlt }: HomeHeroPhotoSlideProps) {
 
 /** Sliding hero media — intro video (R2) then static photo background. */
 export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundProps) {
+  const slide = useHomeHeroSlide();
   const {
     activeSlide,
     activeView,
     trackOffset,
-    videoUrl,
-    videoLeftRef,
-    videoRightRef,
+    desktopVideoUrl,
+    mobileVideoUrl,
+    videoLeftRefs,
+    videoRightRefs,
     onVideoEnded,
     isVideoActive,
     normalizePhotoToCenter,
-  } = useHomeHeroSlide();
+  } = slide;
   const [skipTransition, setSkipTransition] = useState(false);
 
   useEffect(() => {
     if (!isVideoActive || activeView.kind !== "video") {
       return;
     }
-    const video =
-      activeView.entry === "left" ? videoLeftRef.current : videoRightRef.current;
+    const video = resolveActiveHomeHeroVideoElement(activeView.entry, slide);
     if (!video) {
       return;
     }
-    video.currentTime = 0;
-    void video.play().catch(() => {
-      /* Autoplay may be blocked until user gesture. */
-    });
-  }, [activeView, isVideoActive, videoLeftRef, videoRightRef, videoUrl]);
+    const playFromStart = () => {
+      video.currentTime = 0;
+      void video.play().catch(() => {
+        /* Autoplay may be blocked until user gesture. */
+      });
+    };
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      playFromStart();
+      return;
+    }
+    video.addEventListener("loadeddata", playFromStart, { once: true });
+    video.load();
+    return () => {
+      video.removeEventListener("loadeddata", playFromStart);
+    };
+  }, [activeView, desktopVideoUrl, isVideoActive, mobileVideoUrl, slide]);
 
   const handleTrackTransitionEnd = useCallback(
     (event: React.TransitionEvent<HTMLDivElement>) => {
@@ -94,25 +110,22 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
       >
         <HomeHeroPhotoSlide imageAlt={imageAlt} />
         <div className={styles.homeHeroMediaSlide}>
-          <video
-            ref={videoLeftRef}
-            className={styles.homeHeroVideo}
-            src={videoUrl}
-            muted
-            playsInline
-            preload="auto"
+          <HomeHeroVideoSlot
+            desktopVideoUrl={desktopVideoUrl}
+            mobileVideoUrl={mobileVideoUrl}
+            desktopRef={videoLeftRefs.desktop}
+            mobileRef={videoLeftRefs.mobile}
+            autoPlay
             onEnded={onVideoEnded}
           />
         </div>
         <HomeHeroPhotoSlide imageAlt={imageAlt} />
         <div className={styles.homeHeroMediaSlide}>
-          <video
-            ref={videoRightRef}
-            className={styles.homeHeroVideo}
-            src={videoUrl}
-            muted
-            playsInline
-            preload="auto"
+          <HomeHeroVideoSlot
+            desktopVideoUrl={desktopVideoUrl}
+            mobileVideoUrl={mobileVideoUrl}
+            desktopRef={videoRightRefs.desktop}
+            mobileRef={videoRightRefs.mobile}
             onEnded={onVideoEnded}
           />
         </div>

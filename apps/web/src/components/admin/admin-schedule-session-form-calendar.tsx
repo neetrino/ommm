@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { SCHEDULE_WEEKDAYS } from "@/components/admin/admin-schedule-management.constants";
+import { scheduleWeekdaysFromDate } from "@/components/admin/admin-schedule-session-form.helpers";
 import type {
   CalendarScheduleSlot,
   ScheduleDayOfWeek,
@@ -38,6 +39,10 @@ export function SessionFormCalendarSection({
   onRemoveSlot,
 }: SessionFormCalendarSectionProps) {
   const t = useTranslations("adminPages.classes");
+  const weekdayOptions = useMemo(
+    () => scheduleWeekdaysFromDate(`${calendarStartDate}T00:00:00`),
+    [calendarStartDate],
+  );
 
   return (
     <section className="rounded-2xl border border-sand-500/20 bg-white/70 p-4 sm:col-span-2">
@@ -87,7 +92,7 @@ export function SessionFormCalendarSection({
                 value={slot.weekday}
                 ariaLabel={t("calendarSchedule.weekday")}
                 placeholderLabel={t("calendarSchedule.weekday")}
-                options={SCHEDULE_WEEKDAYS.map((weekday) => ({
+                options={weekdayOptions.map((weekday) => ({
                   value: weekday,
                   label: t(`weekday.${weekday}`),
                 }))}
@@ -111,12 +116,12 @@ export function SessionFormCalendarSection({
               />
               <button
                 type="button"
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-sand-500/25 bg-white/80 text-sage-600 transition-colors hover:bg-sand-50 disabled:opacity-45"
+                className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-xl font-semibold leading-none text-red-700 transition-colors hover:bg-red-50 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45"
                 onClick={() => onRemoveSlot(slot.id)}
                 disabled={calendarSlots.length === 1}
                 aria-label={t("calendarSchedule.removeSlot")}
               >
-                x
+                ×
               </button>
             </div>
           ))}

@@ -7,7 +7,9 @@ export const SCHEDULE_INTERACTIVE_LIFT =
 export const SCHEDULE_BOOK_BTN = `ommm-btn-compact-primary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm ${SCHEDULE_INTERACTIVE_LIFT}`;
 export const SCHEDULE_CANCEL_BTN = `ommm-btn-compact-secondary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm ${SCHEDULE_INTERACTIVE_LIFT}`;
 export const SCHEDULE_BOOKED_BTN = `ommm-session-booked-button ommm-session-booked-button--schedule min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm ${SCHEDULE_INTERACTIVE_LIFT}`;
-export const SCHEDULE_ROW_DIVIDER = "border-b border-white/55";
+/** Individual session row surface — separated by gap + shadow in the list. */
+export const SCHEDULE_SESSION_ROW =
+  "rounded-2xl border border-white/60 bg-white/55 px-4 py-5 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:px-5";
 /** Full-width week strip surface in wellness card tone. */
 export const SCHEDULE_DATE_STRIP_PANEL =
   "w-full rounded-[24px] border border-white/60 bg-white/55 px-2 py-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:px-4 sm:py-5";

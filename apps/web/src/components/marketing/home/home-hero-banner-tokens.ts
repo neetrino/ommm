@@ -136,6 +136,14 @@ export const HOME_HERO_ASSETS = {
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */
 export const HOME_HERO_INTRO_VIDEO_R2_KEY = "marketing/home/hero/home-hero-intro.webm";
 
+/** Mobile hero intro — portrait crop (`C0223_14.webm`). */
+export const HOME_HERO_INTRO_VIDEO_MOBILE_PUBLIC_PATH =
+  "/marketing/home/hero/home-hero-intro-mobile.webm";
+
+/** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro-mobile.webm`). */
+export const HOME_HERO_INTRO_VIDEO_MOBILE_R2_KEY =
+  "marketing/home/hero/home-hero-intro-mobile.webm";
+
 function normalizePublicBase(url: string): string {
   return url.trim().replace(/\/+$/, "");
 }
@@ -146,6 +154,18 @@ export function resolveHomeHeroIntroVideoUrl(r2PublicUrl: string | undefined): s
     return null;
   }
   return `${normalizePublicBase(r2PublicUrl)}/${HOME_HERO_INTRO_VIDEO_R2_KEY}`;
+}
+
+/** Mobile hero intro — bundled public asset (portrait crop). */
+export function resolveHomeHeroIntroMobileVideoUrl(_r2PublicUrl?: string): string {
+  return HOME_HERO_INTRO_VIDEO_MOBILE_PUBLIC_PATH;
+}
+
+export function hasHomeHeroIntroVideo(r2PublicUrl: string | undefined): boolean {
+  return (
+    resolveHomeHeroIntroVideoUrl(r2PublicUrl) !== null ||
+    resolveHomeHeroIntroMobileVideoUrl(r2PublicUrl).length > 0
+  );
 }
 
 const MOBILE_CTA_WIDTH_PX = 342.48;

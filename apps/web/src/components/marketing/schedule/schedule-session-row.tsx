@@ -6,7 +6,7 @@ import {
   SCHEDULE_BOOK_BTN,
   SCHEDULE_INK,
   SCHEDULE_MUTED,
-  SCHEDULE_ROW_DIVIDER,
+  SCHEDULE_SESSION_ROW,
 } from "@/components/marketing/schedule/schedule-public-design";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 
@@ -55,7 +55,7 @@ export function ScheduleSessionRow({
 }: ScheduleSessionRowProps) {
   return (
     <li
-      className={`flex flex-col gap-4 py-5 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_auto] sm:items-center sm:gap-6 ${SCHEDULE_ROW_DIVIDER} ${className ?? ""}`}
+      className={`flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_auto] sm:items-center sm:gap-6 ${SCHEDULE_SESSION_ROW} ${className ?? ""}`}
       style={style}
     >
       <div className="shrink-0">
