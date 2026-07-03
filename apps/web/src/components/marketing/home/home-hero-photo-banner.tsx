@@ -17,6 +17,7 @@ import {
   HOME_HERO_MOBILE_LAYOUT,
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
+  resolveHomeHeroIntroMobileVideoMp4Url,
   hasHomeHeroIntroVideo,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
@@ -37,6 +38,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
   const heroIntroVideoUrl = resolveHomeHeroIntroVideoUrl(process.env.R2_PUBLIC_URL);
   const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl(process.env.R2_PUBLIC_URL);
+  const heroIntroMobileVideoMp4Url = resolveHomeHeroIntroMobileVideoMp4Url(process.env.R2_PUBLIC_URL);
   const hasHeroIntroVideo = hasHomeHeroIntroVideo(process.env.R2_PUBLIC_URL);
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
@@ -228,6 +230,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         <HomeHeroSlideProvider
           desktopVideoUrl={heroIntroVideoUrl}
           mobileVideoUrl={heroIntroMobileVideoUrl}
+          mobileVideoMp4Url={heroIntroMobileVideoMp4Url}
         >
           {heroInner}
         </HomeHeroSlideProvider>

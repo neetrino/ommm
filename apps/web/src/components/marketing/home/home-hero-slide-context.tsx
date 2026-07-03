@@ -46,6 +46,7 @@ type HomeHeroSlideContextValue = {
   canGoNext: boolean;
   desktopVideoUrl: string | null;
   mobileVideoUrl: string;
+  mobileVideoMp4Url: string;
   videoLeftRefs: HomeHeroVideoSlotRefs;
   videoRightRefs: HomeHeroVideoSlotRefs;
   goToVideoFromLeft: () => void;
@@ -56,6 +57,7 @@ type HomeHeroSlideContextValue = {
   goPrev: () => void;
   goNext: () => void;
   onVideoEnded: () => void;
+  onVideoError: () => void;
 };
 
 const HomeHeroSlideContext = createContext<HomeHeroSlideContextValue | null>(null);
@@ -63,6 +65,7 @@ const HomeHeroSlideContext = createContext<HomeHeroSlideContextValue | null>(nul
 type HomeHeroSlideProviderProps = {
   desktopVideoUrl: string | null;
   mobileVideoUrl: string;
+  mobileVideoMp4Url: string;
   children: ReactNode;
 };
 
@@ -105,6 +108,7 @@ function resolveTrackOffset(view: HomeHeroView): string {
 export function HomeHeroSlideProvider({
   desktopVideoUrl,
   mobileVideoUrl,
+  mobileVideoMp4Url,
   children,
 }: HomeHeroSlideProviderProps) {
   const reducedMotion = usePrefersReducedMotion();
@@ -208,6 +212,11 @@ export function HomeHeroSlideProvider({
     setActiveView({ kind: "photo", entry: "center" });
   }, [pauseAllVideos]);
 
+  const onVideoError = useCallback(() => {
+    pauseAllVideos();
+    setActiveView({ kind: "photo", entry: "center" });
+  }, [pauseAllVideos]);
+
   const value = useMemo<HomeHeroSlideContextValue>(
     () => ({
       activeView,
@@ -219,6 +228,7 @@ export function HomeHeroSlideProvider({
       canGoNext: true,
       desktopVideoUrl,
       mobileVideoUrl,
+      mobileVideoMp4Url,
       videoLeftRefs,
       videoRightRefs,
       goToVideoFromLeft,
@@ -229,6 +239,7 @@ export function HomeHeroSlideProvider({
       goPrev,
       goNext,
       onVideoEnded,
+      onVideoError,
     }),
     [
       activeView,
@@ -239,9 +250,11 @@ export function HomeHeroSlideProvider({
       goToPhotoFromRight,
       goToVideoFromLeft,
       goToVideoFromRight,
+      mobileVideoMp4Url,
       mobileVideoUrl,
       normalizePhotoToCenter,
       onVideoEnded,
+      onVideoError,
       videoLeftRefs,
       videoRightRefs,
     ],
