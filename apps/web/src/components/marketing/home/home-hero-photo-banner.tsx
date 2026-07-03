@@ -16,6 +16,8 @@ import {
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
   resolveHomeHeroIntroVideoUrl,
+  resolveHomeHeroIntroMobileVideoUrl,
+  hasHomeHeroIntroVideo,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
   HOME_WEEKLY_SCHEDULE_LAYOUT,
@@ -34,10 +36,12 @@ type HomeHeroPhotoBannerProps = {
 export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
   const heroIntroVideoUrl = resolveHomeHeroIntroVideoUrl(process.env.R2_PUBLIC_URL);
+  const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl(process.env.R2_PUBLIC_URL);
+  const hasHeroIntroVideo = hasHomeHeroIntroVideo(process.env.R2_PUBLIC_URL);
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
 
-  const heroBackground = heroIntroVideoUrl ? (
+  const heroBackground = hasHeroIntroVideo ? (
     <HomeHeroMediaBackground imageAlt={t("heroImageAlt")} />
   ) : (
     <div className={styles.homeHeroBackgroundLayer} aria-hidden>
@@ -136,13 +140,13 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
       {heroBackground}
 
       <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
-        {heroIntroVideoUrl ? (
+        {hasHeroIntroVideo ? (
           <HomeHeroPhotoContentLayer>{heroContent}</HomeHeroPhotoContentLayer>
         ) : (
           heroContent
         )}
       </div>
-      {heroIntroVideoUrl ? <HomeHeroJunctionNavDeferred /> : null}
+      {hasHeroIntroVideo ? <HomeHeroJunctionNavDeferred /> : null}
     </>
   );
 
@@ -220,8 +224,13 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
       }}
     >
-      {heroIntroVideoUrl ? (
-        <HomeHeroSlideProvider videoUrl={heroIntroVideoUrl}>{heroInner}</HomeHeroSlideProvider>
+      {hasHeroIntroVideo ? (
+        <HomeHeroSlideProvider
+          desktopVideoUrl={heroIntroVideoUrl}
+          mobileVideoUrl={heroIntroMobileVideoUrl}
+        >
+          {heroInner}
+        </HomeHeroSlideProvider>
       ) : (
         heroInner
       )}

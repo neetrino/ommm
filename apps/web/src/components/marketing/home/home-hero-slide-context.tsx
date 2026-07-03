@@ -8,7 +8,9 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from "react";
+import { MARKETING_PHONE_VIEWPORT_MEDIA_QUERY } from "@/hooks/use-is-marketing-phone-viewport";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 export type HomeHeroVideoEntry = "left" | "right";
@@ -19,6 +21,11 @@ export type HomeHeroView =
   | { kind: "photo"; entry: HomeHeroPhotoEntry };
 
 export type HomeHeroSlide = HomeHeroView["kind"];
+
+type HomeHeroVideoSlotRefs = {
+  desktop: RefObject<HTMLVideoElement | null>;
+  mobile: RefObject<HTMLVideoElement | null>;
+};
 
 /** Five-slide track: photo-left | video-left | photo-center | video-right | photo-right. */
 export const HOME_HERO_MEDIA_TRACK_OFFSETS = {
@@ -37,9 +44,10 @@ type HomeHeroSlideContextValue = {
   isPhotoActive: boolean;
   canGoPrev: boolean;
   canGoNext: boolean;
-  videoUrl: string;
-  videoLeftRef: React.RefObject<HTMLVideoElement | null>;
-  videoRightRef: React.RefObject<HTMLVideoElement | null>;
+  desktopVideoUrl: string | null;
+  mobileVideoUrl: string;
+  videoLeftRefs: HomeHeroVideoSlotRefs;
+  videoRightRefs: HomeHeroVideoSlotRefs;
   goToVideoFromLeft: () => void;
   goToVideoFromRight: () => void;
   goToPhotoFromLeft: () => void;
@@ -53,9 +61,30 @@ type HomeHeroSlideContextValue = {
 const HomeHeroSlideContext = createContext<HomeHeroSlideContextValue | null>(null);
 
 type HomeHeroSlideProviderProps = {
-  videoUrl: string;
+  desktopVideoUrl: string | null;
+  mobileVideoUrl: string;
   children: ReactNode;
 };
+
+function isMarketingPhoneViewport(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia(MARKETING_PHONE_VIEWPORT_MEDIA_QUERY).matches
+  );
+}
+
+function resolveVideoElement(
+  entry: HomeHeroVideoEntry,
+  leftRefs: HomeHeroVideoSlotRefs,
+  rightRefs: HomeHeroVideoSlotRefs,
+  desktopVideoUrl: string | null,
+): HTMLVideoElement | null {
+  const slot = entry === "left" ? leftRefs : rightRefs;
+  if (isMarketingPhoneViewport() || desktopVideoUrl === null) {
+    return slot.mobile.current;
+  }
+  return slot.desktop.current;
+}
 
 function resolveTrackOffset(view: HomeHeroView): string {
   if (view.kind === "photo") {
@@ -73,29 +102,53 @@ function resolveTrackOffset(view: HomeHeroView): string {
     : HOME_HERO_MEDIA_TRACK_OFFSETS.videoRight;
 }
 
-export function HomeHeroSlideProvider({ videoUrl, children }: HomeHeroSlideProviderProps) {
+export function HomeHeroSlideProvider({
+  desktopVideoUrl,
+  mobileVideoUrl,
+  children,
+}: HomeHeroSlideProviderProps) {
   const reducedMotion = usePrefersReducedMotion();
-  const videoLeftRef = useRef<HTMLVideoElement | null>(null);
-  const videoRightRef = useRef<HTMLVideoElement | null>(null);
+  const videoLeftDesktopRef = useRef<HTMLVideoElement | null>(null);
+  const videoLeftMobileRef = useRef<HTMLVideoElement | null>(null);
+  const videoRightDesktopRef = useRef<HTMLVideoElement | null>(null);
+  const videoRightMobileRef = useRef<HTMLVideoElement | null>(null);
+  const videoLeftRefs = useMemo(
+    () => ({ desktop: videoLeftDesktopRef, mobile: videoLeftMobileRef }),
+    [],
+  );
+  const videoRightRefs = useMemo(
+    () => ({ desktop: videoRightDesktopRef, mobile: videoRightMobileRef }),
+    [],
+  );
   const [activeView, setActiveView] = useState<HomeHeroView>(
     reducedMotion ? { kind: "photo", entry: "center" } : { kind: "video", entry: "left" },
   );
 
   const pauseAllVideos = useCallback(() => {
-    videoLeftRef.current?.pause();
-    videoRightRef.current?.pause();
+    videoLeftDesktopRef.current?.pause();
+    videoLeftMobileRef.current?.pause();
+    videoRightDesktopRef.current?.pause();
+    videoRightMobileRef.current?.pause();
   }, []);
 
-  const playVideoFromStart = useCallback((entry: HomeHeroVideoEntry) => {
-    const video = entry === "left" ? videoLeftRef.current : videoRightRef.current;
-    if (!video) {
-      return;
-    }
-    video.currentTime = 0;
-    void video.play().catch(() => {
-      /* Autoplay may be blocked until user gesture. */
-    });
-  }, []);
+  const playVideoFromStart = useCallback(
+    (entry: HomeHeroVideoEntry) => {
+      const video = resolveVideoElement(
+        entry,
+        videoLeftRefs,
+        videoRightRefs,
+        desktopVideoUrl,
+      );
+      if (!video) {
+        return;
+      }
+      video.currentTime = 0;
+      void video.play().catch(() => {
+        /* Autoplay may be blocked until user gesture. */
+      });
+    },
+    [desktopVideoUrl, videoLeftRefs, videoRightRefs],
+  );
 
   const goToVideoFromLeft = useCallback(() => {
     setActiveView({ kind: "video", entry: "left" });
@@ -164,9 +217,10 @@ export function HomeHeroSlideProvider({ videoUrl, children }: HomeHeroSlideProvi
       isPhotoActive: activeView.kind === "photo",
       canGoPrev: true,
       canGoNext: true,
-      videoUrl,
-      videoLeftRef,
-      videoRightRef,
+      desktopVideoUrl,
+      mobileVideoUrl,
+      videoLeftRefs,
+      videoRightRefs,
       goToVideoFromLeft,
       goToVideoFromRight,
       goToPhotoFromLeft,
@@ -178,15 +232,18 @@ export function HomeHeroSlideProvider({ videoUrl, children }: HomeHeroSlideProvi
     }),
     [
       activeView,
+      desktopVideoUrl,
       goNext,
       goPrev,
       goToPhotoFromLeft,
       goToPhotoFromRight,
       goToVideoFromLeft,
       goToVideoFromRight,
+      mobileVideoUrl,
       normalizePhotoToCenter,
       onVideoEnded,
-      videoUrl,
+      videoLeftRefs,
+      videoRightRefs,
     ],
   );
 
@@ -201,4 +258,19 @@ export function useHomeHeroSlide(): HomeHeroSlideContextValue {
     throw new Error("useHomeHeroSlide must be used within HomeHeroSlideProvider");
   }
   return context;
+}
+
+export function resolveActiveHomeHeroVideoElement(
+  entry: HomeHeroVideoEntry,
+  context: Pick<
+    HomeHeroSlideContextValue,
+    "videoLeftRefs" | "videoRightRefs" | "desktopVideoUrl"
+  >,
+): HTMLVideoElement | null {
+  return resolveVideoElement(
+    entry,
+    context.videoLeftRefs,
+    context.videoRightRefs,
+    context.desktopVideoUrl,
+  );
 }
