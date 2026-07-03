@@ -620,9 +620,8 @@ Mobile-ը **ավելի փոքր scope** ունի web-ի համեմատ — նո�
 ```bash
 pnpm install          # postinstall → prisma generate
 pnpm run dev          # web + api
-pnpm run dev:web      # Next.js only
-pnpm run dev:api      # NestJS only
-pnpm run dev:all      # web + api + mobile
+pnpm run dev:web      # Next.js only (terminal 2)
+pnpm run dev:api      # NestJS only (terminal 1, start first)
 pnpm run build:api    # API build check
 ```
 

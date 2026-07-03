@@ -641,11 +641,9 @@ Never store real secret values in docs or code.
 ### Commands for dev/build/lint/test (from package.json files)
 
 #### Root (`package.json`)
-- `pnpm run dev` — web + API (`dev:stack`)
-- `pnpm run dev:stack` — same as `dev`
-- `pnpm run dev:all` — web + API + mobile in parallel
-- `pnpm run dev:web` — Next.js only
-- `pnpm run dev:api` — NestJS only
+- `pnpm run dev` — prints dev commands (does not start apps)
+- `pnpm run dev:api` — NestJS only (port 4000, start first)
+- `pnpm run dev:web` — Next.js only (port 3000, second terminal)
 - `pnpm run dev:mobile` — Expo only
 - `pnpm run build`
 - `pnpm run build:web`

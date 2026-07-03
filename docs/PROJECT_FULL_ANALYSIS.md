@@ -56,10 +56,9 @@ ommm/
 
 ```bash
 pnpm install              # postinstall → prisma generate
-pnpm run dev              # web + api (dev:stack)
-pnpm run dev:web          # Next.js only
-pnpm run dev:api          # NestJS only
-pnpm run dev:all          # web + api + mobile
+pnpm run dev              # prints dev guide (does not start apps)
+pnpm run dev:web          # Next.js only (terminal 2)
+pnpm run dev:api          # NestJS only (terminal 1, start first)
 pnpm run build:api        # database build + Nest build
 pnpm run test             # API Jest tests
 pnpm run test:e2e:web     # Playwright e2e

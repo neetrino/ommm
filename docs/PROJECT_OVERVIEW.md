@@ -403,8 +403,9 @@ API prefix-ը `/v1` է, domain-ներով.
 
 Main commands.
 
-- `pnpm run dev`
-- `pnpm run dev:all`
+- `pnpm run dev` — prints dev commands (does not start apps)
+- `pnpm run dev:api` — NestJS only (port 4000)
+- `pnpm run dev:web` — Next.js only (port 3000)
 - `pnpm run build`
 - `pnpm run test`
 

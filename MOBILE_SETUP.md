@@ -12,15 +12,21 @@ pnpm install
 
 Root `postinstall` runs `pnpm run db:generate` (Prisma Client from `packages/database/prisma/schema.prisma`). If installs use `--ignore-scripts`, run `pnpm run db:generate` manually before `pnpm run dev` / `build:api`.
 
-## Run full monorepo (web + API + mobile)
+## Run web + API + mobile (separate terminals)
+
+Start each app in its own terminal — do not use a combined starter:
 
 ```bash
-pnpm run dev:all
+# Terminal 1 — API (port 4000)
+pnpm run dev:api
+
+# Terminal 2 — Web (port 3000)
+pnpm run dev:web
 ```
 
-This runs `dev` in parallel for each package under `apps/*` (web, api, mobile). For web + API only, start them in **two terminals**: `pnpm run dev:api`, then `pnpm run dev:web`.
+If ports are stuck from a previous session: `npx kill-port 3000 4000`
 
-The Expo CLI opens in the same terminal multiplex — use a dedicated terminal for mobile if you prefer a clearer Metro log:
+For mobile, use a dedicated terminal (clearer Metro logs):
 
 ```bash
 pnpm run dev:mobile
@@ -33,8 +39,7 @@ pnpm run dev:mobile
 | `pnpm run dev`        | Prints dev commands (does not start apps) |
 | `pnpm run dev:api`    | NestJS only (port 4000) — start first |
 | `pnpm run dev:web`    | Next.js only (port 3000) — start second |
-| `pnpm run dev:all`    | Web + API + mobile in parallel       |
-| `pnpm run dev:mobile` | Expo (Metro) only                    |
+| `pnpm run dev:mobile` | Expo (Metro) only — optional third terminal |
 
 Ensure the API is running before testing the mobile health screen.
 
