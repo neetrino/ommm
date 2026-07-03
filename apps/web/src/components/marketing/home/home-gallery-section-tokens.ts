@@ -32,7 +32,7 @@ export const HOME_GALLERY_SECTION_MOBILE_FIGMA = {
   headerMaxWidthPx: 346,
   titleFontSizePx: 36,
   titleLineHeightPx: 40,
-  titleLineGapPx: 26,
+  titleLineGapPx: 10,
   subtitleFontSizePx: 14,
   subtitleLineHeightPx: 20,
   headerSubtitleGapPx: 24,
@@ -62,7 +62,7 @@ export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
   titleFontSize: "clamp(2rem, calc(100svw * 36 / 394), 2.25rem)",
   titleLineHeight:
     HOME_GALLERY_SECTION_MOBILE_FIGMA.titleLineHeightPx / HOME_GALLERY_SECTION_MOBILE_FIGMA.titleFontSizePx,
-  titleLineGap: "clamp(1rem, calc(100svw * 26 / 394), 1.5rem)",
+  titleLineGap: "clamp(0.375rem, calc(100svw * 10 / 394), 0.625rem)",
   subtitleFontSize: "clamp(0.8125rem, calc(100svw * 14 / 394), 0.875rem)",
   subtitleLineHeight:
     HOME_GALLERY_SECTION_MOBILE_FIGMA.subtitleLineHeightPx / HOME_GALLERY_SECTION_MOBILE_FIGMA.subtitleFontSizePx,
