@@ -24,6 +24,7 @@ export type AdminScheduleSessionViewsProps = {
   selectedDay: string | null;
   busyId: string | null;
   onSelectDay: (day: string) => void;
+  onShowAllDays: () => void;
   onDetails: (row: AdminScheduleSession) => void;
   onCancel: (row: AdminScheduleSession) => void;
   onActivate: (row: AdminScheduleSession) => void;
@@ -46,6 +47,7 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
         rows={props.rows}
         selectedDay={props.selectedDay}
         onSelectDay={props.onSelectDay}
+        onShowAllDays={props.onShowAllDays}
       />
       <SessionTable {...props} />
     </div>

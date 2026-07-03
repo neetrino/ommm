@@ -1478,6 +1478,15 @@
           "subtitle": "Ալեքս Մորգան • Հանգիստ սրահ"
         }
       }
+    },
+    "scheduleLive": {
+      "title": "Կենդանի ժամանակացույց",
+      "login": "Մուտք",
+      "register": "Գրանցվել",
+      "loadFailed": "Չհաջողվեց բեռնել ժամանակացույցը ({status})։",
+      "empty": "Այս պատուհանում առաջիկա դասեր չկան։",
+      "coach": "Մարզիչ",
+      "capacity": "{booked}/{capacity} ամրագրված"
     }
   },
   "adminHome": {
@@ -2181,6 +2190,8 @@
       "previousDay": "Նախորդ օրը",
       "nextDay": "Հաջորդ օրը",
       "today": "Այսօր",
+      "showAllClasses": "Բոլոր դասերը",
+      "showAllClassesAria": "Ցույց տալ բոլոր դասերը ({count} ընդամենը)",
       "weekView": {
         "gridAria": "Շաբաթական դասացուցակ ըստ օրերի",
         "todayBadge": "Այսօր",
@@ -3236,16 +3247,23 @@
       "userTab": {
         "searchPlaceholder": "Որոնել անուն, հեռախոս կամ email",
         "filterPaymentStatus": "Վճարման կարգավիճակ",
+        "filterPackage": "Փաթեթի ծրագիր",
         "filterAll": "Բոլորը",
         "statusPaid": "Վճարված",
         "statusUnpaid": "Չվճարված",
         "statusOverdue": "Ժամկետանց",
         "statusPartial": "Մասնակի",
+        "packageSingle": "Մեկ դաս",
+        "packageMonthly": "Ամսական փաթեթ",
+        "packageVip": "VIP փաթեթ",
+        "expirationFrom": "Ավարտից",
+        "expirationTo": "Ավարտը մինչև",
         "sortLabel": "Դասավորել",
         "sortNewest": "Նորերից",
         "sortOldest": "Հիներից",
         "sortHighestCost": "Ամենաթանկ",
         "sortLowestCost": "Ամենաէժան",
+        "sortNearestExpiration": "Մոտակա ավարտ",
         "giftCardOnly": "Միայն նվեր քարտով",
         "clearFilters": "Reset Filters",
         "loading": "Բեռնում…",
@@ -3262,11 +3280,48 @@
         "noActivePackage": "Ակտիվ փաթեթ չկա",
         "giftCardYes": "Այո",
         "giftCardNo": "Ոչ",
+        "billingHistory": "Վճարումների պատմություն",
+        "billingHint": "Վերջին վճարումները payments API-ից ընտրված ամսաթվերի միջակայքի համար։",
         "quickPaid": "Վճարված",
         "quickPending": "Սպասող",
         "quickOverdue": "Ժամկետանց",
         "quickGiftCard": "Նվեր քարտ",
         "quickActive": "Ակտիվ փաթեթներ"
+      },
+      "coachTab": {
+        "unsupportedNote": "Մարզիչների վճարման կարգավիճակն ու աշխատավարձի գումարները հիմնված են coach salary-ի գոյություն ունեցող բանաձևի վրա (սեսիաների գնահատական)։ Payroll գրառումներ, ամսական աշխատավարձի դաշտեր, խմբագրում/դադարեցում և paid/canceled/cash կարգավիճակները backend-ում չեն պահվում։",
+        "searchPlaceholder": "Որոնել մարզչի անուն կամ հեռախոս",
+        "monthLabel": "Ամիս",
+        "payoutStatusLabel": "Վճարման կարգավիճակ",
+        "filterAll": "Բոլորը",
+        "statusPaid": "Վճարված (գնահատված)",
+        "statusPending": "Սպասող (գնահատված)",
+        "statusNone": "Չկան եկամուտներ",
+        "sortLabel": "Դասավորել",
+        "sortHighestSalary": "Ամենաբարձր աշխատավարձ",
+        "sortOldest": "Ամենահին մարզիչներ",
+        "clearFilters": "Reset Filters",
+        "rowCount": "{count} մարզիչ",
+        "empty": "Ընտրված ֆիլտրերով մարզիչներ չկան։",
+        "colCoach": "Մարզիչ",
+        "colSalary": "Գնահատված եկամուտ",
+        "colSessions": "Սեսիաներ",
+        "colMonth": "Ամիս",
+        "colPayoutStatus": "Վճարման կարգավիճակ",
+        "quickPaid": "Վճարված մարզիչներ",
+        "quickPending": "Սպասող աշխատավարձեր",
+        "quickHighSalary": "Բարձր աշխատավարձ",
+        "quickRecent": "Վերջին վճարումներ"
+      },
+      "coachDrawer": {
+        "close": "Փակել",
+        "monthLabel": "Սեսիաներ {month} ամսի համար",
+        "earningsHint": "Սեսիայի մասնակցությունը հաշվարկվում է coach salary վահանակի նույն բանաձևով։",
+        "loading": "Սեսիաները բեռնվում են…",
+        "loadFailed": "Չհաջողվեց բեռնել մարզչի սեսիաները։",
+        "empty": "Այս ամսին սեսիաներ չեն գտնվել։",
+        "attribution": "Գնահատված մասնակցություն՝ {amount}",
+        "noAttribution": "Ավարտված ամրագրումներ չկան — մասնակցություն չկա"
       }
     },
     "analytics": {

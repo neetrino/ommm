@@ -1476,6 +1476,15 @@
           "subtitle": "Алекс Морган • тихая комната"
         }
       }
+    },
+    "scheduleLive": {
+      "title": "Актуальное расписание",
+      "login": "Войти",
+      "register": "Регистрация",
+      "loadFailed": "Не удалось загрузить расписание ({status}).",
+      "empty": "В этом окне нет предстоящих занятий.",
+      "coach": "Тренер",
+      "capacity": "{booked}/{capacity} забронировано"
     }
   },
   "adminHome": {
@@ -2179,6 +2188,8 @@
       "previousDay": "Предыдущий день",
       "nextDay": "Следующий день",
       "today": "Сегодня",
+      "showAllClasses": "Все занятия",
+      "showAllClassesAria": "Показать все занятия ({count} всего)",
       "weekView": {
         "gridAria": "Недельное расписание по дням",
         "todayBadge": "Сегодня",
@@ -3235,16 +3246,23 @@
       "userTab": {
         "searchPlaceholder": "Поиск по имени, телефону или email",
         "filterPaymentStatus": "Статус оплаты",
+        "filterPackage": "Тарифный план",
         "filterAll": "Все",
         "statusPaid": "Оплачено",
         "statusUnpaid": "Не оплачено",
         "statusOverdue": "Просрочено",
         "statusPartial": "Частично",
+        "packageSingle": "Разовое занятие",
+        "packageMonthly": "Месячный пакет",
+        "packageVip": "VIP-пакет",
+        "expirationFrom": "Окончание с",
+        "expirationTo": "Окончание до",
         "sortLabel": "Сортировка",
         "sortNewest": "Сначала новые",
         "sortOldest": "Сначала старые",
         "sortHighestCost": "Дороже",
         "sortLowestCost": "Дешевле",
+        "sortNearestExpiration": "Ближайшее окончание",
         "giftCardOnly": "Только с подарочной картой",
         "clearFilters": "Сбросить фильтры",
         "loading": "Загрузка…",
@@ -3261,11 +3279,48 @@
         "noActivePackage": "Нет активного пакета",
         "giftCardYes": "Да",
         "giftCardNo": "Нет",
+        "billingHistory": "История платежей",
+        "billingHint": "Недавние платежи из payments API за выбранный период.",
         "quickPaid": "Оплаченные",
         "quickPending": "Ожидающие",
         "quickOverdue": "Просроченные",
         "quickGiftCard": "С подарочной картой",
         "quickActive": "Активные пакеты"
+      },
+      "coachTab": {
+        "unsupportedNote": "Статус выплат и суммы зарплат тренеров рассчитываются по существующей формуле coach salary (оценка по сессиям). Записи payroll, месячные поля зарплаты, редактирование/пауза и статусы paid/canceled/cash в backend не хранятся.",
+        "searchPlaceholder": "Поиск по имени или телефону тренера",
+        "monthLabel": "Месяц",
+        "payoutStatusLabel": "Статус выплаты",
+        "filterAll": "Все",
+        "statusPaid": "Оплачено (оценка)",
+        "statusPending": "Ожидает (оценка)",
+        "statusNone": "Нет начислений",
+        "sortLabel": "Сортировка",
+        "sortHighestSalary": "Самая высокая зарплата",
+        "sortOldest": "Старейшие тренеры",
+        "clearFilters": "Сбросить фильтры",
+        "rowCount": "{count} тренеров",
+        "empty": "Нет тренеров по текущим фильтрам.",
+        "colCoach": "Тренер",
+        "colSalary": "Оценка начислений",
+        "colSessions": "Сессии",
+        "colMonth": "Месяц",
+        "colPayoutStatus": "Статус выплаты",
+        "quickPaid": "Оплаченные тренеры",
+        "quickPending": "Ожидающие выплаты",
+        "quickHighSalary": "Высокая зарплата",
+        "quickRecent": "Недавние выплаты"
+      },
+      "coachDrawer": {
+        "close": "Закрыть",
+        "monthLabel": "Сессии за {month}",
+        "earningsHint": "Атрибуция по сессиям использует ту же формулу, что и панель зарплаты тренера.",
+        "loading": "Загрузка сессий…",
+        "loadFailed": "Не удалось загрузить сессии тренера.",
+        "empty": "Сессии за этот месяц не найдены.",
+        "attribution": "Оценка атрибуции: {amount}",
+        "noAttribution": "Нет завершённых бронирований — атрибуции нет"
       }
     },
     "analytics": {

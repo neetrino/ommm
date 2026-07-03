@@ -46,3 +46,10 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
+
+.allClassesCard {
+  flex-shrink: 0;
+  width: 6.25rem;
+  aspect-ratio: 1 / 1;
+  min-width: 6.25rem;
+}
