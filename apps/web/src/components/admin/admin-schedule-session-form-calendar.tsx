@@ -111,12 +111,12 @@ export function SessionFormCalendarSection({
               />
               <button
                 type="button"
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-sand-500/25 bg-white/80 text-sage-600 transition-colors hover:bg-sand-50 disabled:opacity-45"
+                className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-xl font-semibold leading-none text-red-700 transition-colors hover:bg-red-50 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45"
                 onClick={() => onRemoveSlot(slot.id)}
                 disabled={calendarSlots.length === 1}
                 aria-label={t("calendarSchedule.removeSlot")}
               >
-                x
+                ×
               </button>
             </div>
           ))}
