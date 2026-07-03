@@ -323,6 +323,11 @@
   border-radius: 2px;
 }
 
+.copyrightLine {
+  display: block;
+  white-space: nowrap;
+}
+
 .copyright {
   font-size: var(--home-footer-copyright-size);
   font-weight: 400;
@@ -421,9 +426,9 @@
 
 .mobileContactTitle {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--home-footer-mobile-wordmark-size);
-  font-weight: 600;
-  line-height: var(--home-footer-mobile-wordmark-line-height);
+  font-size: var(--home-footer-mobile-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-body-line-height);
   color: var(--home-footer-text);
 }
 
@@ -571,7 +576,6 @@
   letter-spacing: var(--home-footer-mobile-copyright-tracking);
   color: var(--home-footer-text);
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
 @media (max-width: 743px) {

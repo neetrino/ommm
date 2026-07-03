@@ -388,6 +388,17 @@ export const HOME_FOOTER_INSTAGRAM = {
   iconHeightPx: 23,
 } as const;
 
+/** Mobile footer — social icon row (legacy layout). */
+export const HOME_FOOTER_SOCIAL_LINKS = [
+  {
+    id: "instagram",
+    href: HOME_FOOTER_INSTAGRAM.href,
+    asset: HOME_FOOTER_INSTAGRAM.asset,
+    width: HOME_FOOTER_INSTAGRAM.iconWidthPx,
+    height: HOME_FOOTER_INSTAGRAM.iconHeightPx,
+  },
+] as const;
+
 export const HOME_FOOTER_PAYMENT_LOGOS = [
   {
     id: "mastercard",

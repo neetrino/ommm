@@ -227,6 +227,8 @@
       "footerPhone": "+ 33333333",
       "footerEmail": "info@ommm.am",
       "footerAddress": "ул. Пушкина, 25, Ереван",
+      "footerSocialTitle": "Соцсети",
+      "footerSocialAria": "Профиль {network}",
       "footerInstagramAria": "Instagram @ommm.space",
       "footerPoliciesTitle": "Политики",
       "footerLegalNavAria": "Политики",
