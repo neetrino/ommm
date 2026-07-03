@@ -88,6 +88,8 @@ export const HOME_FOOTER_LAYOUT = {
   contactSocialLiftPx: 20,
   /** Top nav + legal links — shift up from Figma baseline. */
   topBarLegalLiftPx: 10,
+  /** Extra space above copyright + payment row (desktop 1367px+). */
+  copyrightPaymentRowOffsetPx: 17,
 } as const;
 
 function homeFooterIllustrationTopAtRestPx(

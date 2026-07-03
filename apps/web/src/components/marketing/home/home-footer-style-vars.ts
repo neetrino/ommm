@@ -105,5 +105,6 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-copyright-tracking" as string]: `${layout.copyrightLetterSpacingPx}px`,
     ["--home-footer-contact-social-lift" as string]: `${layout.contactSocialLiftPx}px`,
     ["--home-footer-top-bar-legal-lift" as string]: `${layout.topBarLegalLiftPx}px`,
+    ["--home-footer-desktop-bottom-row-offset" as string]: `${layout.copyrightPaymentRowOffsetPx}px`,
   };
 }

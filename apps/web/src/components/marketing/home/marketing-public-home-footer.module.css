@@ -686,7 +686,7 @@
 
 @media (min-width: 1367px) {
   .inner {
-    min-height: var(--home-footer-min-height);
+    min-height: calc(var(--home-footer-min-height) + var(--home-footer-desktop-bottom-row-offset, 0px));
     overflow: visible;
   }
 
@@ -758,7 +758,8 @@
     right: 0;
     left: auto;
     top: calc(
-      var(--home-footer-payment-top) - var(--home-footer-copyright-line-height) + 10px
+      var(--home-footer-payment-top) - var(--home-footer-copyright-line-height) + 10px +
+        var(--home-footer-desktop-bottom-row-offset, 0px)
     );
   }
 
@@ -769,7 +770,7 @@
   .copyrightSlot {
     left: 0;
     right: auto;
-    top: var(--home-footer-payment-top);
+    top: calc(var(--home-footer-payment-top) + var(--home-footer-desktop-bottom-row-offset, 0px));
     width: auto;
     max-width: none;
   }
