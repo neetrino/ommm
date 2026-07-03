@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Link } from "@/i18n/navigation";
 import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-sphere-bounce";
 import {
   HOME_FOOTER_ASSETS,
@@ -10,6 +9,7 @@ import {
 } from "@/components/marketing/home/home-footer-section-tokens";
 import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
 import { MarketingPublicHomeFooterInstagramRow } from "@/components/marketing/home/marketing-public-home-footer-instagram-row";
+import { MarketingPublicHomeFooterPolicies } from "@/components/marketing/home/marketing-public-home-footer-policies";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
@@ -24,6 +24,7 @@ export type MarketingPublicHomeFooterMobileProps = {
   addressHref: string;
   showContactSection?: boolean;
   instagramAria: string;
+  policiesTitle: string;
   legalNavAria: string;
   legalLabels: Record<FooterLegalKey, string>;
   copyrightPrefix: string;
@@ -42,6 +43,7 @@ export function MarketingPublicHomeFooterMobile({
   addressHref,
   showContactSection = true,
   instagramAria,
+  policiesTitle,
   legalNavAria,
   legalLabels,
   copyrightPrefix,
@@ -114,13 +116,15 @@ export function MarketingPublicHomeFooterMobile({
         </div>
       ) : null}
 
-      <nav className={styles.mobileLegal} aria-label={legalNavAria}>
-        {HOME_FOOTER_LEGAL_LINKS.map((item) => (
-          <Link key={item.labelKey} href={item.href} className={styles.mobileLegalLink}>
-            {legalLabels[item.labelKey]}
-          </Link>
-        ))}
-      </nav>
+      <MarketingPublicHomeFooterPolicies
+        title={policiesTitle}
+        navAria={legalNavAria}
+        labels={legalLabels}
+        blockClassName={styles.mobilePolicies}
+        titleClassName={styles.mobilePoliciesTitle}
+        navClassName={styles.mobilePoliciesNav}
+        linkClassName={styles.mobilePoliciesLink}
+      />
 
       <MarketingPublicHomeFooterCopyright
         className={styles.mobileCopyright}

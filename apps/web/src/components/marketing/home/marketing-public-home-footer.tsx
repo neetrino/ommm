@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
 import { MarketingPublicHomeFooterInstagramRow } from "@/components/marketing/home/marketing-public-home-footer-instagram-row";
+import { MarketingPublicHomeFooterPolicies } from "@/components/marketing/home/marketing-public-home-footer-policies";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
@@ -12,7 +12,6 @@ import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_ADDRESS_HREF,
   HOME_FOOTER_FIGMA,
-  HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_PAYMENT_LOGOS,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
@@ -138,13 +137,19 @@ export async function MarketingPublicHomeFooter({
   const payment = showContactSection ? <FooterPaymentLogos className={styles.paymentLogos} /> : null;
 
   const legal = (
-    <nav className={styles.legalNav} aria-label={t("footerLegalNavAria")}>
-      {HOME_FOOTER_LEGAL_LINKS.map((item) => (
-        <Link key={item.labelKey} href={item.href} className={styles.legalLink}>
-          {t(item.labelKey)}
-        </Link>
-      ))}
-    </nav>
+    <MarketingPublicHomeFooterPolicies
+      title={t("footerPoliciesTitle")}
+      navAria={t("footerLegalNavAria")}
+      labels={{
+        footerPrivacy: t("footerPrivacy"),
+        footerTerms: t("footerTerms"),
+        footerRefund: t("footerRefund"),
+      }}
+      blockClassName={styles.policiesBlock}
+      titleClassName={styles.sectionTitle}
+      navClassName={styles.policiesNav}
+      linkClassName={styles.legalLink}
+    />
   );
 
   const copyright = (
@@ -182,6 +187,7 @@ export async function MarketingPublicHomeFooter({
             addressHref={HOME_FOOTER_ADDRESS_HREF}
             showContactSection={showContactSection}
             instagramAria={t("footerInstagramAria")}
+            policiesTitle={t("footerPoliciesTitle")}
             legalNavAria={t("footerLegalNavAria")}
             legalLabels={{
               footerPrivacy: t("footerPrivacy"),
