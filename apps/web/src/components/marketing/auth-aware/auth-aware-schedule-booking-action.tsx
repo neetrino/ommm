@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   CancelBookingButton,
   CANCEL_BOOKING_ERROR_MESSAGE_CLASS,
@@ -110,6 +110,15 @@ export function AuthAwareScheduleBookingAction({
   const resolvedBookingId = bookingId ?? userBookingId;
   const isBooked = resolvedBookingId !== undefined;
   const showOnWaitlist = !isBooked && (onWaitlist || initialOnWaitlist);
+  const overlayModalOpen = packageModalOpen || purchaseModalOpen;
+  const [prevOverlayModalOpen, setPrevOverlayModalOpen] = useState(overlayModalOpen);
+
+  if (overlayModalOpen !== prevOverlayModalOpen) {
+    setPrevOverlayModalOpen(overlayModalOpen);
+    if (overlayModalOpen && bookSplashOpen) {
+      setBookSplashOpen(false);
+    }
+  }
 
   function renderErrorHint(): ReactNode {
     if (!errorMsg) {
@@ -155,15 +164,6 @@ export function AuthAwareScheduleBookingAction({
       </div>
     );
   }
-
-  useEffect(() => {
-    if (!bookSplashOpen) {
-      return;
-    }
-    if (packageModalOpen || purchaseModalOpen) {
-      setBookSplashOpen(false);
-    }
-  }, [bookSplashOpen, packageModalOpen, purchaseModalOpen]);
 
   function openGuestBookSplash(): void {
     pendingBookActionRef.current = () => {
