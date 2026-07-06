@@ -19,7 +19,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         createdAt: baseDate,
         updatedAt: baseDate,
         classType: { name: 'Yoga' },
-        coach: { user: { name: 'Alex Coach' } },
+        coach: { user: { name: 'Alex', lastName: 'Coach' } },
         _count: { bookings: 3 },
       },
       {
@@ -34,13 +34,14 @@ describe('mapSessionsToPublicScheduleItems', () => {
         createdAt: baseDate,
         updatedAt: baseDate,
         classType: { name: 'Yoga' },
-        coach: { user: { name: 'Alex Coach' } },
+        coach: { user: { name: 'Alex', lastName: 'Coach' } },
         _count: { bookings: 0 },
       },
     ]);
 
     expect(items).toHaveLength(1);
     expect(items[0]?.className).toBe('Morning Flow');
+    expect(items[0]?.instructorName).toBe('Alex Coach');
     expect(items[0]?.availableSpots).toBe(9);
     expect(items[0]?.dayOfWeek).toBe('TUESDAY');
     expect(items[0]?.startTime).toBe('13:00');
@@ -64,7 +65,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         createdAt: baseDate,
         updatedAt: baseDate,
         classType: { name: 'Pilates' },
-        coach: { user: { name: 'Sam' } },
+        coach: { user: { name: 'Sam', lastName: null } },
         _count: { bookings: 0 },
       },
       {
@@ -79,7 +80,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         createdAt: secondWeek,
         updatedAt: secondWeek,
         classType: { name: 'Pilates' },
-        coach: { user: { name: 'Sam' } },
+        coach: { user: { name: 'Sam', lastName: null } },
         _count: { bookings: 0 },
       },
     ]);
@@ -103,7 +104,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         createdAt: startsAt,
         updatedAt: startsAt,
         classType: { name: 'Dance' },
-        coach: { user: { name: 'Coach' } },
+        coach: { user: { name: 'Coach', lastName: 'Example' } },
         _count: { bookings: 0 },
       },
     ]);
