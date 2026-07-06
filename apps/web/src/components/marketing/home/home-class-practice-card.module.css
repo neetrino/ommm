@@ -30,6 +30,10 @@
   max-width: 12.7rem;
 }
 
+.card[data-card-id="yoga"] .copy {
+  max-width: 20rem;
+}
+
 .copy {
   position: relative;
   z-index: 20;
@@ -132,6 +136,10 @@
     max-width: 14rem;
   }
 
+  .card[data-card-id="yoga"] .copy {
+    max-width: 17rem;
+  }
+
   .imageZone {
     position: absolute;
     top: auto;
@@ -205,6 +213,10 @@
 
   .card[data-card-id="power-pilates"] .copy {
     max-width: 14rem;
+  }
+
+  .card[data-card-id="yoga"] .copy {
+    max-width: 17rem;
   }
 
   .body {
