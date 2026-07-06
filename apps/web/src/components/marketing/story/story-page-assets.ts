@@ -1,6 +1,6 @@
 /** Public assets for the Story marketing page. */
 export const STORY_PAGE_ASSETS = {
-  heroBackground: "/marketing/story/story-hero-background.png",
+  heroBackground: "/marketing/story/story-hero-background.webp",
   featureStones: "/marketing/story/story-feature-stones.webp",
   featurePauseStudio: "/marketing/story/story-feature-pause-studio.webp",
   featureFabric: "/marketing/story/story-feature-fabric.webp",
