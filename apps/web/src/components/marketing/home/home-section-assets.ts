@@ -1,10 +1,10 @@
 /** Local raster paths for Figma **Main** home sections. */
 export const HOME_SECTION_ASSETS = {
-  /** Our Core Practices cards — Figma `Omm_Web-02`–`Omm_Web-06`. */
-  classReformerPilates: "/marketing/home/sections/classes/home-class-reformer-pilates.webp",
-  classMatPilates: "/marketing/home/sections/classes/home-class-mat-pilates.webp",
-  classPowerPilates: "/marketing/home/sections/classes/home-class-power-pilates.webp",
-  classYoga: "/marketing/home/sections/classes/home-class-yoga.webp",
+  /** Our Core Practices cards — photo-only assets. */
+  classReformerPilates: "/marketing/home/sections/classes/home-class-reformer-pilates-photo.webp",
+  classMatPilates: "/marketing/home/sections/classes/home-class-mat-pilates-photo.webp",
+  classPowerPilates: "/marketing/home/sections/classes/home-class-power-pilates-photo.webp",
+  classYoga: "/marketing/home/sections/classes/home-class-yoga-photo.webp",
   classStretching: "/marketing/home/sections/classes/home-class-stretching-photo.webp",
   /** Figma portrait `-427 1` node `163:878` (Frame `163:879`). */
   coachPortrait: "/marketing/home/sections/home-coach-featured-427.webp",

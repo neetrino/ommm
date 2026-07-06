@@ -103,7 +103,7 @@ export type HomeClassCardVisual = {
 export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
   {
     id: "reformer-pilates",
-    background: "#3a3f44",
+    background: "#232730",
     bordered: false,
     imageSrc: HOME_SECTION_ASSETS.classReformerPilates,
     imageVariant: "fullBleed",
@@ -112,7 +112,7 @@ export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
   },
   {
     id: "mat-pilates",
-    background: "#6b4a3a",
+    background: "#32231b",
     bordered: false,
     imageSrc: HOME_SECTION_ASSETS.classMatPilates,
     imageVariant: "fullBleed",
@@ -121,14 +121,14 @@ export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
   },
   {
     id: "power-pilates",
-    background: "#f0e6cc",
+    background: "#f7e894",
     bordered: false,
     imageSrc: HOME_SECTION_ASSETS.classPowerPilates,
     imageVariant: "fullBleed",
   },
   {
     id: "yoga",
-    background: "#e5e0d5",
+    background: "#caa96f",
     bordered: false,
     imageSrc: HOME_SECTION_ASSETS.classYoga,
     imageVariant: "fullBleed",

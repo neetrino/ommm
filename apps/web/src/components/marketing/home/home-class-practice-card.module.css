@@ -112,6 +112,10 @@
     padding: 1.5rem 1.25rem 0.75rem;
   }
 
+  .card[data-card-id="stretching"] .copy {
+    max-width: 14rem;
+  }
+
   .imageZone {
     position: absolute;
     top: auto;
@@ -173,6 +177,10 @@
   .cardFullBleed .copy {
     max-width: 17rem;
     padding: clamp(1.5rem, 2.5vw, 2rem) clamp(1.5rem, 2.5vw, 2rem) 1rem;
+  }
+
+  .card[data-card-id="stretching"] .copy {
+    max-width: 14rem;
   }
 
   .body {
