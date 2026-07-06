@@ -5,7 +5,7 @@ export const HOME_SECTION_ASSETS = {
   classMatPilates: "/marketing/home/sections/classes/home-class-mat-pilates.webp",
   classPowerPilates: "/marketing/home/sections/classes/home-class-power-pilates.webp",
   classYoga: "/marketing/home/sections/classes/home-class-yoga.webp",
-  classStretching: "/marketing/home/sections/classes/home-class-stretching.webp",
+  classStretching: "/marketing/home/sections/classes/home-class-stretching-photo.webp",
   /** Figma portrait `-427 1` node `163:878` (Frame `163:879`). */
   coachPortrait: "/marketing/home/sections/home-coach-featured-427.webp",
   /** Featured Coaches nav buttons — Figma nodes `163:898` (prev), `163:899` (next). */

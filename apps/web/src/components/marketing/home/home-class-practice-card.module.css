@@ -9,6 +9,19 @@
   isolation: isolate;
 }
 
+.cardFullBleed .copy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  max-width: 16.5rem;
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.card[data-card-id="stretching"] .copy {
+  max-width: 14rem;
+}
+
 .copy {
   position: relative;
   z-index: 20;
@@ -96,6 +109,7 @@
 
   .cardFullBleed .copy {
     max-width: 14.5rem;
+    padding: 1.5rem 1.25rem 0.75rem;
   }
 
   .imageZone {
@@ -154,6 +168,11 @@
   .copy {
     max-width: 17rem;
     padding: clamp(1.75rem, 2.5vw, 2.125rem) clamp(1.5rem, 2.5vw, 2rem) 1.125rem;
+  }
+
+  .cardFullBleed .copy {
+    max-width: 17rem;
+    padding: clamp(1.5rem, 2.5vw, 2rem) clamp(1.5rem, 2.5vw, 2rem) 1rem;
   }
 
   .body {

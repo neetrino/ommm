@@ -135,7 +135,7 @@ export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
   },
   {
     id: "stretching",
-    background: "#f5e9d0",
+    background: "#cab179",
     bordered: false,
     imageSrc: HOME_SECTION_ASSETS.classStretching,
     imageVariant: "fullBleed",
