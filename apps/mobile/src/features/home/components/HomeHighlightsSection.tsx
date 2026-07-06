@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   title: {
-    fontFamily: fontFamilies.newsreader.semiBold,
+    fontFamily: fontFamilies.gtSuperDs.medium,
     fontSize: typography.sectionTitle + 6,
     lineHeight: 30,
     color: colors.primaryGreen,
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     opacity: 0.92,
   },
   cardTitle: {
-    fontFamily: fontFamilies.newsreader.semiBold,
+    fontFamily: fontFamilies.gtSuperDs.medium,
     fontSize: typography.body + 2,
     lineHeight: 26,
     color: colors.primaryGreen,

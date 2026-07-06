@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   heading: {
     marginTop: space.lg,
     marginHorizontal: space.screenHorizontal,
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle,
     color: colors.primaryGreen80,
   },
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   rowTitle: {
-    fontFamily: fontFamilies.newsreader.regular,
+    fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: typography.body,
     color: colors.ink,
   },

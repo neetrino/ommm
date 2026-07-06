@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   bookLabel: {
-    fontFamily: fontFamilies.montserrat.regular,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bookCta,
     color: colors.white,
     letterSpacing: 1.6,

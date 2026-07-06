@@ -1,4 +1,5 @@
 import { Platform, StyleSheet } from "react-native";
+import { fontFamilies } from "../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../theme/tokens";
 
 /** Shared OMMM styling for the mobile account hub menu. */
@@ -57,7 +58,7 @@ export const accountHubLayout = StyleSheet.create({
     minWidth: 0,
   },
   name: {
-    fontFamily: "Newsreader_600SemiBold",
+    fontFamily: fontFamilies.gtSuperDs.medium,
     fontSize: typography.sectionTitle + 2,
     lineHeight: 28,
     color: colors.primaryGreen,

@@ -58,7 +58,7 @@ export function HomeClassPracticeCard({
           ))}
         </h3>
         <p
-          className={`${styles.body} ${marketingMontserrat.className} font-normal`}
+          className={`${styles.body} font-sans font-normal`}
           style={{ color: HOME_CLASSES_SECTION_FIGMA.cardBodyColor }}
         >
           {body}

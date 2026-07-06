@@ -29,7 +29,7 @@ export const nextClassStyles = StyleSheet.create({
     marginBottom: space.section,
   },
   sectionTitle: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle,
     lineHeight: 24,
     color: colors.primaryGreen80,
@@ -105,7 +105,7 @@ export const nextClassStyles = StyleSheet.create({
   classTitle: {
     flex: 1,
     marginRight: space.sm,
-    fontFamily: fontFamilies.newsreader.regular,
+    fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.white,
@@ -199,13 +199,13 @@ export const nextClassStyles = StyleSheet.create({
     gap: space.xs + 4,
   },
   timeText: {
-    fontFamily: fontFamilies.montserrat.regular,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,
     lineHeight: 20,
     color: colors.black,
   },
   instructorText: {
-    fontFamily: fontFamilies.montserrat.light,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.caption,
     lineHeight: 16,
     color: colors.black,
@@ -217,7 +217,7 @@ export const nextClassStyles = StyleSheet.create({
     flexShrink: 0,
   },
   statusText: {
-    fontFamily: fontFamilies.montserrat.regular,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.caption,
     lineHeight: 16,
     color: colors.black,
@@ -233,7 +233,7 @@ export const nextClassStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   metaText: {
-    fontFamily: fontFamilies.montserrat.light,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.caption,
     lineHeight: 16,
     color: colors.black,

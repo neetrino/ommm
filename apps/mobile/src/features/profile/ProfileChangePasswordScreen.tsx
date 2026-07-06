@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     gap: space.xl,
   },
   title: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle + 6,
     lineHeight: 32,
     color: colors.primaryGreen,

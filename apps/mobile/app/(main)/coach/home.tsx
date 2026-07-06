@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   title: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle + 8,
     color: colors.primaryGreen,
     textAlign: "center",

@@ -113,7 +113,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
             </h1>
           </div>
 
-          <p className={`${styles.homeHeroSubtitle} ${marketingMontserrat.className}`}>
+          <p className={`${styles.homeHeroSubtitle} font-serif font-light`}>
             <span className={styles.homeHeroSubtitleLine}>{t("subLine1")}</span>
             <span className={styles.homeHeroSubtitleLine}>{t("subLine2")}</span>
           </p>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Newsreader } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { routing } from "@/i18n/routing";
+import { gtSuperDsTrial } from "@/lib/fonts/gt-super-ds-trial";
 import { resolveSiteMetadataBase, siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
@@ -8,14 +9,6 @@ const manrope = Manrope({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-manrope",
-  display: "swap",
-});
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
   display: "swap",
 });
 
@@ -68,7 +61,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${manrope.variable} ${newsreader.variable} h-full`}
+      className={`${manrope.variable} ${gtSuperDsTrial.variable} h-full`}
       lang={routing.defaultLocale}
       suppressHydrationWarning
     >

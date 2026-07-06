@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     gap: space.xs,
   },
   title: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.body,
     color: colors.ink,
   },

@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     marginTop: space.sm,
-    fontFamily: fontFamilies.montserrat.bold,
+    fontFamily: fontFamilies.manrope.semiBold,
     fontSize: typography.caption,
     letterSpacing: EYEBROW_TRACKING,
     textTransform: "uppercase",
@@ -170,14 +170,14 @@ const styles = StyleSheet.create({
   },
   display: {
     marginTop: space.sm,
-    fontFamily: fontFamilies.newsreader.semiBold,
+    fontFamily: fontFamilies.gtSuperDs.medium,
     fontSize: DISPLAY_FONT_SIZE,
     lineHeight: DISPLAY_LINE_HEIGHT,
     color: colors.primaryGreen,
     maxWidth: 280,
   },
   displayItalic: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
   },
   lead: {
     marginTop: space.sm,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     bottom: space.lg,
   },
   previewEyebrow: {
-    fontFamily: fontFamilies.montserrat.bold,
+    fontFamily: fontFamilies.manrope.semiBold,
     fontSize: typography.caption,
     letterSpacing: 1.8,
     textTransform: "uppercase",
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   previewTitle: {
     marginTop: space.sm,
-    fontFamily: fontFamilies.newsreader.semiBold,
+    fontFamily: fontFamilies.gtSuperDs.medium,
     fontSize: 22,
     lineHeight: 28,
     color: colors.white,

@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     opacity: 0.92,
   },
   label: {
-    fontFamily: fontFamilies.newsreader.regularItalic,
+    fontFamily: fontFamilies.gtSuperDs.regularItalic,
     fontSize: typography.sectionTitle,
     lineHeight: 24,
     color: colors.white,
