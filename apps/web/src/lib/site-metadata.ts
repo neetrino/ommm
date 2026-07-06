@@ -3,7 +3,7 @@ const SITE_NAME = "Ommm․";
 const SITE_DESCRIPTION =
   "Calm studio, personal experience — thoughtful scheduling, packages, and class booking.";
 
-const OG_IMAGE_PATH = "/og-image.png";
+const OG_IMAGE_PATH = "/og-image.webp";
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
 
@@ -35,6 +35,6 @@ export const siteMetadata = {
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,
     alt: "Ommm studio emblem",
-    type: "image/png",
+    type: "image/webp",
   },
 } as const;

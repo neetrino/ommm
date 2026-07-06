@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   welcomeLine: {
-    fontFamily: fontFamilies.newsreader.regularItalic,
+    fontFamily: fontFamilies.gtSuperDs.regularItalic,
     fontSize: 16,
     lineHeight: 18,
     color: colors.secondarySage,
@@ -100,13 +100,13 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   headlinePlain: {
-    fontFamily: fontFamilies.newsreader.regular,
+    fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: 16,
     lineHeight: 16,
     color: colors.primaryGreen,
   },
   headlineAccent: {
-    fontFamily: fontFamilies.newsreader.lightItalic,
+    fontFamily: fontFamilies.gtSuperDs.lightItalic,
     fontSize: 16,
     lineHeight: 16,
     color: colors.primaryGreen,

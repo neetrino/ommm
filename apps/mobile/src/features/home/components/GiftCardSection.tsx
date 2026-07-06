@@ -111,13 +111,13 @@ const styles = StyleSheet.create({
     marginTop: giftCard.titleTopOffset,
   },
   titlePlain: {
-    fontFamily: fontFamilies.newsreader.regular,
+    fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: typography.body,
     lineHeight: 20,
     color: colors.white,
   },
   titleAccent: {
-    fontFamily: fontFamilies.newsreader.lightItalic,
+    fontFamily: fontFamilies.gtSuperDs.lightItalic,
     fontSize: typography.body,
     lineHeight: 20,
     color: colors.white,

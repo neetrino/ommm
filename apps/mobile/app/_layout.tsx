@@ -3,19 +3,6 @@ import {
   Manrope_600SemiBold,
   Manrope_700Bold,
 } from "@expo-google-fonts/manrope";
-import {
-  Montserrat_300Light,
-  Montserrat_400Regular,
-  Montserrat_700Bold,
-} from "@expo-google-fonts/montserrat";
-import {
-  Newsreader_300Light_Italic,
-  Newsreader_400Regular,
-  Newsreader_400Regular_Italic,
-  Newsreader_500Medium_Italic,
-  Newsreader_600SemiBold,
-  Newsreader_600SemiBold_Italic,
-} from "@expo-google-fonts/newsreader";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -27,18 +14,17 @@ import { colors } from "../src/theme/tokens";
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    Newsreader_400Regular,
-    Newsreader_400Regular_Italic,
-    Newsreader_300Light_Italic,
-    Newsreader_500Medium_Italic,
-    Newsreader_600SemiBold,
-    Newsreader_600SemiBold_Italic,
     Manrope_400Regular,
     Manrope_600SemiBold,
     Manrope_700Bold,
-    Montserrat_300Light,
-    Montserrat_400Regular,
-    Montserrat_700Bold,
+    GTSuperDsTrial_Light: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-light.ttf"),
+    GTSuperDsTrial_Regular: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-regular.ttf"),
+    GTSuperDsTrial_Medium: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-medium.ttf"),
+    GTSuperDsTrial_Bold: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-bold.ttf"),
+    GTSuperDsTrial_LightItalic: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-light-italic.ttf"),
+    GTSuperDsTrial_RegularItalic: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-regular-italic.ttf"),
+    GTSuperDsTrial_MediumItalic: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-medium-italic.ttf"),
+    GTSuperDsTrial_BoldItalic: require("../assets/fonts/gt-super-ds-trial/gt-super-ds-trial-bold-italic.ttf"),
   });
 
   if (!loaded) {

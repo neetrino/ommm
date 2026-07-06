@@ -102,9 +102,9 @@ const MARKETING_DESKTOP_BAR_RADIUS_CLASS = "rounded-[80px]";
 /** Figma link spacing `442:1883` — 48px between items. */
 const MARKETING_NAV_LINK_GAP_CLASS = "gap-3 lg:gap-4 nav-desktop:gap-12";
 const MARKETING_NAV_LINK_GAP_COMPACT_CLASS =
-  "gap-1 sm:gap-2 md:gap-2.5 lg:gap-3 nav-desktop:gap-4 xl:gap-5";
+  "gap-2 sm:gap-3 md:gap-4 lg:gap-5 nav-desktop:gap-8 xl:gap-10";
 
-/** Locales whose nav labels are longer than English — use tighter header spacing. */
+/** Locales whose nav labels are longer than English — use smaller nav type, roomier link gaps. */
 const COMPACT_HEADER_LOCALES = new Set(["hy", "ru"]);
 
 /** Header ink — driven by `--ommm-marketing-header-ink*` on `.headerShell`. */

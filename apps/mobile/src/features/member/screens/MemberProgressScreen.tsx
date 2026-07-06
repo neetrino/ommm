@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   title: {
     marginTop: space.lg,
     marginHorizontal: space.screenHorizontal,
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle,
     color: colors.primaryGreen80,
   },

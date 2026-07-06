@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.overlayWhite38,
   },
   sectionTitle: {
-    fontFamily: fontFamilies.newsreader.semiBold,
+    fontFamily: fontFamilies.gtSuperDs.medium,
     fontSize: typography.sectionTitle,
     color: colors.primaryGreen,
   },

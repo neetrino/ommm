@@ -148,14 +148,14 @@ const styles = StyleSheet.create({
     opacity: 0.92,
   },
   tabLabel: {
-    fontFamily: fontFamilies.montserrat.regular,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: 10,
     lineHeight: 12,
     color: colors.creamHighlight,
     textAlign: "center",
   },
   tabLabelActive: {
-    fontFamily: fontFamilies.montserrat.bold,
+    fontFamily: fontFamilies.manrope.semiBold,
     lineHeight: 12,
     color: colors.taupe,
     maxWidth: TAB_HIGHLIGHT_SIZE - 12,

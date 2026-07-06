@@ -1,11 +1,11 @@
 /** Local raster paths for Figma **Main** home sections. */
 export const HOME_SECTION_ASSETS = {
-  /** Figma Classes Section `196:1082`–`196:1106`. */
-  classReformerGroup: "/marketing/home/sections/classes/home-class-reformer-group.webp",
-  classReformerIndividual: "/marketing/home/sections/classes/home-class-reformer-individual.webp",
-  classYoga: "/marketing/home/sections/classes/home-class-yoga.webp",
-  classMatPilates: "/marketing/home/sections/classes/home-class-mat-pilates.webp",
-  classDances: "/marketing/home/sections/classes/home-class-dances.webp",
+  /** Our Core Practices cards — photo-only assets. */
+  classReformerPilates: "/marketing/home/sections/classes/home-class-reformer-pilates-photo.webp",
+  classMatPilates: "/marketing/home/sections/classes/home-class-mat-pilates-photo.webp",
+  classPowerPilates: "/marketing/home/sections/classes/home-class-power-pilates-photo.webp",
+  classYoga: "/marketing/home/sections/classes/home-class-yoga-photo.webp",
+  classStretching: "/marketing/home/sections/classes/home-class-stretching-photo.webp",
   /** Figma portrait `-427 1` node `163:878` (Frame `163:879`). */
   coachPortrait: "/marketing/home/sections/home-coach-featured-427.webp",
   /** Featured Coaches nav buttons — Figma nodes `163:898` (prev), `163:899` (next). */
@@ -26,10 +26,10 @@ export const HOME_SECTION_ASSETS = {
   carouselArrow: "/marketing/home/sections/home-carousel-arrow.webp",
   eventFabCircle: "/marketing/home/sections/home-icon-circle-glass.webp",
   eventFabArrow: "/marketing/home/sections/home-icon-arrow-upright.webp",
-  footerIllustration: "/marketing/home/sections/footer/home-footer-sphere-illustration.png",
-  footerPaymentMastercard: "/marketing/home/sections/footer/home-footer-payment-mastercard.png",
-  footerPaymentArca: "/marketing/home/sections/footer/home-footer-payment-arca.png",
-  footerPaymentVisa: "/marketing/home/sections/footer/home-footer-payment-visa.png",
+  footerIllustration: "/marketing/home/sections/footer/home-footer-sphere-illustration.webp",
+  footerPaymentMastercard: "/marketing/home/sections/footer/home-footer-payment-mastercard.webp",
+  footerPaymentArca: "/marketing/home/sections/footer/home-footer-payment-arca.webp",
+  footerPaymentVisa: "/marketing/home/sections/footer/home-footer-payment-visa.webp",
   footerIconPhone: "/marketing/home/sections/footer/home-footer-icon-phone.svg",
   footerIconMail: "/marketing/home/sections/footer/home-footer-icon-mail.svg",
   footerIconLocation: "/marketing/home/sections/footer/home-footer-icon-location.svg",

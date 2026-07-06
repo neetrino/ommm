@@ -1,11 +1,5 @@
-import { Montserrat } from "next/font/google";
-
 /**
- * Montserrat — matches Figma hero subcopy and CTA typography (nodes 161:302, 161:364).
+ * @deprecated Use `gtSuperDsTrial` from `@/lib/fonts/gt-super-ds-trial`.
+ * Kept for existing marketing imports while typography migrates off Montserrat.
  */
-export const marketingMontserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["300", "400", "600", "700", "800"],
-  variable: "--font-montserrat-marketing",
-  display: "swap",
-});
+export { gtSuperDsTrial as marketingMontserrat } from "./gt-super-ds-trial";

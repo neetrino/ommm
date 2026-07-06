@@ -24,13 +24,13 @@ export const exploreStyles = StyleSheet.create({
     position: "absolute",
     right: -space.md,
     top: -space.xl,
-    fontFamily: fontFamilies.newsreader.regularItalic,
+    fontFamily: fontFamilies.gtSuperDs.regularItalic,
     fontSize: typography.watermark,
     lineHeight: typography.watermark,
     color: colors.watermark,
   },
   title: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle,
     lineHeight: 24,
     color: colors.exploreTitle,
@@ -109,7 +109,7 @@ export const exploreStyles = StyleSheet.create({
     textShadowRadius: 5,
   },
   journalTitle: {
-    fontFamily: fontFamilies.newsreader.regular,
+    fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.white,
@@ -180,7 +180,7 @@ export const exploreStyles = StyleSheet.create({
     color: colors.white,
   },
   tileTitle: {
-    fontFamily: fontFamilies.newsreader.semiBold,
+    fontFamily: fontFamilies.gtSuperDs.medium,
     fontSize: typography.body,
     lineHeight: 20,
     color: colors.tileTitle,

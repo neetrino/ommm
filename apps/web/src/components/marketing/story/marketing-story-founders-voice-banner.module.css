@@ -86,7 +86,7 @@
 
 .eyebrow {
   margin: 0;
-  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.18em;

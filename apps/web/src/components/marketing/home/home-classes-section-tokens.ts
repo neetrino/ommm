@@ -26,9 +26,6 @@ export const HOME_CLASSES_SECTION_FIGMA = {
   cardMinHeightPx: 327,
 } as const;
 
-/** Card 3 (yoga) — desktop photo nudge down. */
-export const HOME_CLASS_CARD_YOGA_IMAGE_OFFSET_DESKTOP_PX = 20;
-
 export const HOME_CLASSES_SECTION_LAYOUT = {
   titleFontSize: "clamp(2.25rem, 5vw, 4.375rem)",
   titleLineHeight: 1.1,
@@ -59,29 +56,7 @@ export const HOME_CLASSES_SECTION_MOBILE_FIGMA = {
   cardBodyFontSizePx: 12,
   cardBodyLineHeightPx: 17,
   cardImageRotationDeg: 8.8,
-  /** Card 2 — upright portrait; no carousel tilt. */
-  uprightCardImageRotationDeg: 0,
-  /** Card 3 — rotated on mobile carousel. */
-  yogaMobileImageRotationDeg: 360,
-  /** Card 3 — nudge photo up in the image zone. */
-  yogaMobileImageOffsetUpPx: 16,
-  /** Card 4 — nudge photo up in the image zone. */
-  matPilatesMobileImageOffsetUpPx: 16,
 } as const;
-
-/** Mobile carousel cards whose photo sits upright (no 8.8° tilt). */
-export const HOME_CLASS_CARD_MOBILE_UPRIGHT_IDS = ["reformer-individual"] as const;
-
-/** Resolves per-card mobile image rotation for Our Core Practices carousel. */
-export function homeClassCardMobileImageRotationDeg(cardId: string): number {
-  if (cardId === "yoga") {
-    return HOME_CLASSES_SECTION_MOBILE_FIGMA.yogaMobileImageRotationDeg;
-  }
-  if ((HOME_CLASS_CARD_MOBILE_UPRIGHT_IDS as readonly string[]).includes(cardId)) {
-    return HOME_CLASSES_SECTION_MOBILE_FIGMA.uprightCardImageRotationDeg;
-  }
-  return HOME_CLASSES_SECTION_MOBILE_FIGMA.cardImageRotationDeg;
-}
 
 const mobileClassesCornerCoverPx = HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.panelRadiusPx + 12;
 
@@ -103,14 +78,15 @@ export const HOME_CLASSES_SECTION_MOBILE_LAYOUT = {
   carouselHeight: "26.1875rem",
   cardMinHeightPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardHeightPx,
   cardRadiusPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardRadiusPx,
-  cardImageRotationDeg: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardImageRotationDeg,
-  uprightCardImageRotationDeg: HOME_CLASSES_SECTION_MOBILE_FIGMA.uprightCardImageRotationDeg,
-  yogaMobileImageRotationDeg: HOME_CLASSES_SECTION_MOBILE_FIGMA.yogaMobileImageRotationDeg,
-  yogaMobileImageOffsetUpPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.yogaMobileImageOffsetUpPx,
-  matPilatesMobileImageOffsetUpPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.matPilatesMobileImageOffsetUpPx,
   /** Pull gradient through weekly schedule bottom corners on mobile. */
   sectionClassesOverlap: `calc(${HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionOuterPaddingBottom} + ${mobileClassesCornerCoverPx}px)`,
   sectionToClassesHeadingGapAdjustPx: -15,
+} as const;
+
+/** Per-card copy colors for dark-background practice cards. */
+export const HOME_CLASS_CARD_LIGHT_COPY = {
+  title: "#ffffff",
+  body: "rgba(255, 255, 255, 0.85)",
 } as const;
 
 export type HomeClassCardVisual = {
@@ -118,45 +94,51 @@ export type HomeClassCardVisual = {
   background: string;
   bordered: boolean;
   imageSrc: string;
-  imageVariant: "default" | "wide" | "flipY";
+  imageVariant: "default" | "wide" | "flipY" | "fullBleed";
+  titleColor?: string;
+  bodyColor?: string;
 };
 
 /** Figma card order — row 1: cards 1–3, row 2: cards 4–5 (offset grid). */
 export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
   {
-    id: "reformer-group",
-    background: "#e5f4f9",
+    id: "reformer-pilates",
+    background: "#232730",
     bordered: false,
-    imageSrc: HOME_SECTION_ASSETS.classReformerGroup,
-    imageVariant: "default",
+    imageSrc: HOME_SECTION_ASSETS.classReformerPilates,
+    imageVariant: "fullBleed",
+    titleColor: HOME_CLASS_CARD_LIGHT_COPY.title,
+    bodyColor: HOME_CLASS_CARD_LIGHT_COPY.body,
   },
   {
     id: "mat-pilates",
-    background: "#bbd2da",
+    background: "#32231b",
     bordered: false,
     imageSrc: HOME_SECTION_ASSETS.classMatPilates,
-    imageVariant: "wide",
+    imageVariant: "fullBleed",
+    titleColor: HOME_CLASS_CARD_LIGHT_COPY.title,
+    bodyColor: HOME_CLASS_CARD_LIGHT_COPY.body,
   },
   {
-    id: "reformer-individual",
-    background: "#ede9dd",
+    id: "power-pilates",
+    background: "#f7e894",
     bordered: false,
-    imageSrc: HOME_SECTION_ASSETS.classReformerIndividual,
-    imageVariant: "wide",
+    imageSrc: HOME_SECTION_ASSETS.classPowerPilates,
+    imageVariant: "fullBleed",
   },
   {
     id: "yoga",
-    background: "#f6d0bd",
-    bordered: true,
+    background: "#caa96f",
+    bordered: false,
     imageSrc: HOME_SECTION_ASSETS.classYoga,
-    imageVariant: "flipY",
+    imageVariant: "fullBleed",
   },
   {
-    id: "dances",
-    background: "#cbc2b4",
+    id: "stretching",
+    background: "#cab179",
     bordered: false,
-    imageSrc: HOME_SECTION_ASSETS.classDances,
-    imageVariant: "default",
+    imageSrc: HOME_SECTION_ASSETS.classStretching,
+    imageVariant: "fullBleed",
   },
 ] as const;
 

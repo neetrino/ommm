@@ -170,7 +170,7 @@
 }
 
 .tierMetaLabel {
-  font-family: var(--font-montserrat-marketing, var(--font-sans));
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   line-height: 1rem;
   letter-spacing: 0.01em;

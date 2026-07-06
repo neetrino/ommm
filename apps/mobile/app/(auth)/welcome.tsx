@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     marginBottom: space.xs,
   },
   title: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle + 14,
     lineHeight: 40,
     color: colors.primaryGreen,

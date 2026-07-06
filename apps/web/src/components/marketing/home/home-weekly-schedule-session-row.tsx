@@ -13,7 +13,6 @@ import {
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 
@@ -53,7 +52,7 @@ export function HomeWeeklyScheduleSessionRow({
 
   return (
     <article
-      className={`${marketingMontserrat.className} ${styles.row} group w-full min-w-0`}
+      className={`${styles.row} group w-full min-w-0`}
       style={{
         background: rowGradientDesktop,
         ["--home-schedule-row-gradient" as string]: rowGradientMobile,

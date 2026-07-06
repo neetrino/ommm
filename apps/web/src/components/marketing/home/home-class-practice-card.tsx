@@ -5,7 +5,6 @@ import {
   HOME_CLASSES_SECTION_FIGMA,
   type HomeClassCardVisual,
 } from "@/components/marketing/home/home-classes-section-tokens";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { visibleRowImageProps } from "@/lib/image-loading-props";
 
 type HomeClassPracticeCardProps = {
@@ -25,18 +24,24 @@ export function HomeClassPracticeCard({
   imageIndex,
   style,
 }: HomeClassPracticeCardProps) {
-  const imageZoneClass =
-    visual.imageVariant === "wide"
+  const titleColor = visual.titleColor ?? HOME_CLASSES_SECTION_FIGMA.cardTitleColor;
+  const bodyColor = visual.bodyColor ?? HOME_CLASSES_SECTION_FIGMA.cardBodyColor;
+  const isFullBleed = visual.imageVariant === "fullBleed";
+
+  const imageZoneClass = isFullBleed
+    ? styles.imageZoneFullBleed
+    : visual.imageVariant === "wide"
       ? `${styles.imageZone} ${styles.imageZoneWide}`
       : styles.imageZone;
-  const imageClass =
-    visual.imageVariant === "flipY"
+  const imageClass = isFullBleed
+    ? styles.imageFullBleed
+    : visual.imageVariant === "flipY"
       ? `${styles.image} ${styles.imageFlipY}`
       : styles.image;
 
   return (
     <article
-      className={`${gridClassName} ${styles.card}`}
+      className={`${gridClassName} ${styles.card} ${isFullBleed ? styles.cardFullBleed : ""}`}
       data-card-id={visual.id}
       style={{
         backgroundColor: visual.background,
@@ -48,8 +53,8 @@ export function HomeClassPracticeCard({
     >
       <div className={styles.copy}>
         <h3
-          className={`${styles.title} ${marketingMontserrat.className} font-extrabold tracking-[0.045rem]`}
-          style={{ color: HOME_CLASSES_SECTION_FIGMA.cardTitleColor }}
+          className={`${styles.title} font-serif font-semibold italic tracking-[0.02em]`}
+          style={{ color: titleColor }}
         >
           {titleLines.map((line) => (
             <span key={line} className="block">
@@ -57,10 +62,7 @@ export function HomeClassPracticeCard({
             </span>
           ))}
         </h3>
-        <p
-          className={`${styles.body} ${marketingMontserrat.className} font-normal`}
-          style={{ color: HOME_CLASSES_SECTION_FIGMA.cardBodyColor }}
-        >
+        <p className={`${styles.body} font-sans font-normal`} style={{ color: bodyColor }}>
           {body}
         </p>
       </div>
@@ -68,9 +70,10 @@ export function HomeClassPracticeCard({
         <Image
           src={visual.imageSrc}
           alt=""
-          width={480}
-          height={640}
-          sizes="(max-width: 768px) 45vw, (max-width: 1366px) 38vw, 240px"
+          fill={isFullBleed}
+          width={isFullBleed ? undefined : 480}
+          height={isFullBleed ? undefined : 640}
+          sizes="(max-width: 768px) 72vw, (max-width: 1366px) 32vw, 420px"
           className={imageClass}
           {...visibleRowImageProps(imageIndex)}
         />

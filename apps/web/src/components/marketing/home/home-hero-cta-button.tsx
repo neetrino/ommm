@@ -13,7 +13,6 @@ import {
   isMarketingLongMembershipCtaLocale,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { MarketingSectionLink } from "@/components/marketing/marketing-section-link";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
 
 export type HomeHeroCtaVariant = "booking" | "membership" | "coachesDetails";
@@ -68,8 +67,8 @@ export function HomeHeroCtaButton({
   return (
     <MarketingSectionLink
       href={href}
-      className={`${marketingMontserrat.className} ${styles.cta} ${variantClass ?? ""} ${mobileLabelCenteredClass}`}
-      disabledClassName={`${marketingMontserrat.className} ${styles.cta} ${variantClass ?? ""} ${mobileLabelCenteredClass} pointer-events-none opacity-60`}
+      className={`font-sans ${styles.cta} ${variantClass ?? ""} ${mobileLabelCenteredClass}`}
+      disabledClassName={`font-sans ${styles.cta} ${variantClass ?? ""} ${mobileLabelCenteredClass} pointer-events-none opacity-60`}
       style={{
         ["--hero-cta-width" as string]: mobileLayout?.width ?? desktopLayout.width,
         ["--hero-cta-width-lg" as string]: desktopLayout.width,

@@ -15,7 +15,6 @@ import {
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 export type HomeWeeklyScheduleCompactDay = {
   day: MarketingScheduleDayOfWeek;
@@ -76,7 +75,7 @@ export function HomeWeeklyScheduleDayView({
 
   return (
     <div
-      className={`${marketingMontserrat.className} ${styles.root}`}
+      className={`font-sans ${styles.root}`}
       style={{
         ["--home-schedule-panel-gap" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelGap,
         ["--home-schedule-day-tabs-section-padding-top" as string]:

@@ -79,8 +79,10 @@
   --font-sans:
     var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif:
-    var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
+  --font-display:
+    var(--font-gt-super-ds-trial), ui-serif, Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-display);
+  --font-montserrat-marketing: var(--font-display);
 
   /* Full desktop marketing nav — above largest iPad Pro landscape (1366px). */
   --breakpoint-nav-desktop: 85.4375rem;

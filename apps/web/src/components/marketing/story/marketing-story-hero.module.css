@@ -173,7 +173,7 @@
 
 .featureBody {
   margin: 0;
-  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--story-hero-feature-body-size, clamp(0.8125rem, 1vw, 0.875rem));
   font-weight: 300;
   line-height: 1.55;

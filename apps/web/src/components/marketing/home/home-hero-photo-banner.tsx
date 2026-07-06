@@ -37,8 +37,8 @@ type HomeHeroPhotoBannerProps = {
 export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
   const heroIntroVideoUrl = resolveHomeHeroIntroVideoUrl(process.env.R2_PUBLIC_URL);
-  const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl(process.env.R2_PUBLIC_URL);
-  const heroIntroMobileVideoMp4Url = resolveHomeHeroIntroMobileVideoMp4Url(process.env.R2_PUBLIC_URL);
+  const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl();
+  const heroIntroMobileVideoMp4Url = resolveHomeHeroIntroMobileVideoMp4Url();
   const hasHeroIntroVideo = hasHomeHeroIntroVideo(process.env.R2_PUBLIC_URL);
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
@@ -113,7 +113,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
             </h1>
           </div>
 
-          <p className={`${styles.homeHeroSubtitle} ${marketingMontserrat.className}`}>
+          <p className={`${styles.homeHeroSubtitle} font-serif font-light`}>
             <span className={styles.homeHeroSubtitleLine}>{t("subLine1")}</span>
             <span className={styles.homeHeroSubtitleLine}>{t("subLine2")}</span>
           </p>
