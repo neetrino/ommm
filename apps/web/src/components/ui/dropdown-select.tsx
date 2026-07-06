@@ -31,6 +31,7 @@ export function DropdownSelect<T extends string>({
   noResultsLabel = "",
   renderValue,
   renderOption,
+  resolveOptionSelected,
   showChevron = true,
   menuMinWidth,
   menuAlign,
@@ -163,6 +164,7 @@ export function DropdownSelect<T extends string>({
               visibleOptions={visibleOptions}
               value={value}
               renderOption={renderOption}
+              resolveOptionSelected={resolveOptionSelected}
               wrapLabel={wrapLabel}
               safeFocusedIndex={safeFocusedIndex}
               optionRefs={optionRefs}

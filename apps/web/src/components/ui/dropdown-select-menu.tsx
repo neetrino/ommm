@@ -34,6 +34,7 @@ type DropdownSelectMenuProps<T extends string> = {
   visibleOptions: DropdownOption<T>[];
   value: T;
   renderOption?: (option: DropdownOption<T>, selected: boolean) => React.ReactNode;
+  resolveOptionSelected?: (option: DropdownOption<T>, value: T) => boolean;
   wrapLabel: boolean;
   safeFocusedIndex: number;
   optionRefs: RefObject<Array<HTMLButtonElement | null>>;
@@ -70,6 +71,7 @@ export function DropdownSelectMenu<T extends string>({
   visibleOptions,
   value,
   renderOption,
+  resolveOptionSelected,
   wrapLabel,
   safeFocusedIndex,
   optionRefs,
@@ -131,7 +133,9 @@ export function DropdownSelectMenu<T extends string>({
           </li>
         ) : null}
         {visibleOptions.map((option, index) => {
-          const isSelected = option.value === value;
+          const isSelected = resolveOptionSelected
+            ? resolveOptionSelected(option, value)
+            : option.value === value;
           return (
             <li key={option.value} role="presentation">
               <button

@@ -28,6 +28,8 @@ export type DropdownSelectProps<T extends string> = {
   noResultsLabel?: string;
   renderValue?: (option: DropdownOption<T> | undefined) => ReactNode;
   renderOption?: (option: DropdownOption<T>, selected: boolean) => ReactNode;
+  /** Override default `option.value === value` selection for menu checkmarks and aria. */
+  resolveOptionSelected?: (option: DropdownOption<T>, value: T) => boolean;
   showChevron?: boolean;
   /** Minimum floating menu width in px when wider than the trigger. */
   menuMinWidth?: number;
