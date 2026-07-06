@@ -8,3 +8,4 @@ packages/database/dist
 .env.*
 *.log
 .DS_Store
+.cloud-run-env.yaml
