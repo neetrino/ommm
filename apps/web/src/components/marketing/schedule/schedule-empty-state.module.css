@@ -1,0 +1,32 @@
+.emptyState {
+  margin: 0;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  background: rgb(255 255 255 / 0.55);
+  padding: clamp(2rem, 5vw, 2.75rem) clamp(1.25rem, 4vw, 2rem);
+  text-align: center;
+  box-shadow: 0 12px 32px -24px rgb(45 40 35 / 0.22);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.375rem, 3.6vw, 1.75rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--coaches-page-heading-color, rgb(45 55 48));
+}
+
+.body {
+  margin: 0.75rem auto 0;
+  max-width: 22rem;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--coaches-page-lead-color, rgb(107 114 104));
+}

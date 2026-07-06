@@ -1448,6 +1448,8 @@
       "actionLoading": "…",
       "prevDatesAria": "Previous dates",
       "nextDatesAria": "Next dates",
+      "emptyTitle": "Nothing scheduled for this day",
+      "emptyBody": "Try another date or adjust your filters — new classes open throughout the week.",
       "empty": "No schedule items yet.",
       "loadFailed": "Could not load schedule ({status}).",
       "loginCta": "Log in",

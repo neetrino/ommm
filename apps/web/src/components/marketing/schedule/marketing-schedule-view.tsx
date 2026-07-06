@@ -11,7 +11,6 @@ import { ScheduleDateControls } from "@/components/marketing/schedule/schedule-d
 import { type ScheduleFilterOption } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-filters-header";
 import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-session-row";
-import { SCHEDULE_MUTED } from "@/components/marketing/schedule/schedule-public-design";
 import {
   isBeforeCalendarDay,
   isSameCalendarDay,
@@ -34,6 +33,7 @@ import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { MarketingScheduleSessionsSkeleton } from "@/components/marketing/schedule/marketing-schedule-sessions-skeleton";
+import { ScheduleEmptyState } from "@/components/marketing/schedule/schedule-empty-state";
 import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
 
 type MarketingScheduleViewProps = {
@@ -149,11 +149,10 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
               <MarketingScheduleSessionsSkeleton />
             ) : renderedSessions.length === 0 ? (
               <li
-                className={`py-12 text-center text-sm ${SCHEDULE_MUTED} ${
-                  animationPhase === "enter" ? styles.scheduleItemEnter : ""
-                }`}
+                className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
+                style={getItemStyle(0)}
               >
-                {t("empty")}
+                <ScheduleEmptyState />
               </li>
             ) : (
               renderedSessions.map((row, index) => {

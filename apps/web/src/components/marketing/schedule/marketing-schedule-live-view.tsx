@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
+import { ScheduleEmptyState } from "@/components/marketing/schedule/schedule-empty-state";
 import { buildRegisterHrefForScheduleBooking } from "@/lib/auth-redirect";
 
 export async function MarketingScheduleLiveView({
@@ -33,7 +34,9 @@ export async function MarketingScheduleLiveView({
         </div>
       </div>
       {sessions.length === 0 ? (
-        <p className="mt-6 text-sm text-sage-600">{t("empty")}</p>
+        <div className="mt-6">
+          <ScheduleEmptyState />
+        </div>
       ) : (
         <ul className="mt-6 space-y-3">
           {sessions.map((s) => {
