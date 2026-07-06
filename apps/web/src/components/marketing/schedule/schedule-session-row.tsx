@@ -1,12 +1,15 @@
 import type { CSSProperties } from "react";
 import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-aware/auth-aware-schedule-booking-action";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
+import { getHomeWeeklyScheduleRowGradient } from "@/components/marketing/home/get-home-weekly-schedule-row-gradient";
 import { ScheduleSessionSpotsLabel } from "@/components/marketing/schedule/schedule-session-spots-label";
 import {
   SCHEDULE_BOOK_BTN,
-  SCHEDULE_INK,
-  SCHEDULE_MUTED,
+  SCHEDULE_CLASS_SUBTITLE,
+  SCHEDULE_CLASS_TITLE,
+  SCHEDULE_DURATION_LABEL,
   SCHEDULE_SESSION_ROW,
+  SCHEDULE_TIME_LABEL,
 } from "@/components/marketing/schedule/schedule-public-design";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 
@@ -53,18 +56,20 @@ export function ScheduleSessionRow({
   className,
   style,
 }: ScheduleSessionRowProps) {
+  const rowBackground = getHomeWeeklyScheduleRowGradient(row.classType, "desktop");
+
   return (
     <li
-      className={`flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_auto] sm:items-center sm:gap-6 ${SCHEDULE_SESSION_ROW} ${className ?? ""}`}
-      style={style}
+      className={`${SCHEDULE_SESSION_ROW} ${className ?? ""}`}
+      style={{ ...style, background: rowBackground }}
     >
       <div className="shrink-0">
-        <p className={`text-base font-semibold ${SCHEDULE_INK}`}>{timeLabel}</p>
-        <p className={`mt-0.5 text-xs ${SCHEDULE_MUTED}`}>{durationLabel}</p>
+        <p className={SCHEDULE_TIME_LABEL}>{timeLabel}</p>
+        <p className={SCHEDULE_DURATION_LABEL}>{durationLabel}</p>
       </div>
       <div className="min-w-0">
-        <p className={`text-base font-semibold leading-snug ${SCHEDULE_INK}`}>{row.className}</p>
-        <p className={`mt-1 text-sm ${SCHEDULE_MUTED}`}>{subtitle}</p>
+        <p className={SCHEDULE_CLASS_TITLE}>{row.className}</p>
+        <p className={SCHEDULE_CLASS_SUBTITLE}>{subtitle}</p>
         <ScheduleSessionSpotsLabel
           availableSpots={row.availableSpots}
           status={row.status}
@@ -74,7 +79,7 @@ export function ScheduleSessionRow({
           spotsLoadingLabel={spotsLoadingLabel}
         />
       </div>
-      <div className="flex items-end justify-end">
+      <div className="flex items-end justify-end sm:items-center">
         <AuthAwareScheduleBookingAction
           sessionId={row.id}
           sessionDate={row.sessionDate}

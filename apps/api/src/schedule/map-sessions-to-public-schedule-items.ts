@@ -26,7 +26,7 @@ type SessionForPublicSchedule = {
   createdAt: Date;
   updatedAt: Date;
   classType: { name: string };
-  coach: { user: { name: string | null } };
+  coach: { user: { name: string | null; lastName: string | null } };
   _count: { bookings: number };
 };
 
@@ -55,6 +55,14 @@ function durationMinutesFromRange(startTime: string, endTime: string): number {
   return endHour * 60 + endMinute - (startHour * 60 + startMinute);
 }
 
+function formatCoachInstructorName(
+  name: string | null | undefined,
+  lastName: string | null | undefined,
+): string {
+  const fullName = [name?.trim(), lastName?.trim()].filter(Boolean).join(' ');
+  return fullName.length > 0 ? fullName : '—';
+}
+
 /**
  * Maps bookable class sessions into public marketing rows.
  * Each row keeps the real session id so the public Book button targets a bookable class.
@@ -73,7 +81,10 @@ export function mapSessionsToPublicScheduleItems(
     const startTime = utcToStudioWallClockTime(session.startsAt);
     const endTime = utcToStudioWallClockTime(session.endsAt);
     const className = session.title.trim();
-    const instructorName = session.coach.user.name?.trim() || '—';
+    const instructorName = formatCoachInstructorName(
+      session.coach.user.name,
+      session.coach.user.lastName,
+    );
     const classTypeName = session.classType.name.trim();
 
     const bookedCount = session._count.bookings;
@@ -106,7 +117,7 @@ export function mapSessionsToPublicScheduleItems(
 export const PUBLIC_SCHEDULE_SESSION_INCLUDE = {
   classType: { select: { name: true } },
   coach: {
-    include: { user: { select: { name: true } } },
+    include: { user: { select: { name: true, lastName: true } } },
   },
   _count: {
     select: {

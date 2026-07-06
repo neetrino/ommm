@@ -1,4 +1,7 @@
-import { SCHEDULE_MUTED } from "@/components/marketing/schedule/schedule-public-design";
+import {
+  SCHEDULE_SPOTS_LABEL,
+  SCHEDULE_SPOTS_LABEL_URGENT,
+} from "@/components/marketing/schedule/schedule-public-design";
 import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 
 type ScheduleSessionSpotsLabelProps = {
@@ -23,7 +26,7 @@ export function ScheduleSessionSpotsLabel({
   if (!spotsReady) {
     return (
       <p
-        className={`mt-1 text-sm tabular-nums ${SCHEDULE_MUTED} ${className ?? ""}`}
+        className={`${SCHEDULE_SPOTS_LABEL} ${className ?? ""}`}
         aria-busy="true"
         aria-label={spotsLoadingLabel}
       >
@@ -35,11 +38,11 @@ export function ScheduleSessionSpotsLabel({
   const full = isScheduleSessionFull(availableSpots, status);
   const urgent = !full && availableSpots <= 2;
   const label = full ? fullLabel : spotsLeftLabel;
-  const toneClass = full || urgent ? "font-medium text-amber-800" : SCHEDULE_MUTED;
+  const toneClass = full || urgent ? SCHEDULE_SPOTS_LABEL_URGENT : "";
 
   return (
     <p
-      className={`mt-1 text-sm tabular-nums ${toneClass} ${className ?? ""}`}
+      className={`${SCHEDULE_SPOTS_LABEL} ${toneClass} ${className ?? ""}`}
       aria-label={label}
     >
       {label}

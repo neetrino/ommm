@@ -273,6 +273,8 @@ export function useSessionBooking({
   return {
     busy,
     initiateBooking,
+    packageModalOpen,
+    purchaseModalOpen,
     packageModal: bookingModals,
     purchaseModal: bookingModals,
     bookingModals,

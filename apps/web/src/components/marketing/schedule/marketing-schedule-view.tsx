@@ -6,12 +6,15 @@ import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
 } from "@/lib/schedule-session-spots";
+import {
+  SCHEDULE_SESSION_LIST,
+  SCHEDULE_VIEW_SHELL,
+} from "@/components/marketing/schedule/schedule-public-design";
 import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
 import { ScheduleDateControls } from "@/components/marketing/schedule/schedule-date-controls";
 import { type ScheduleFilterOption } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-filters-header";
 import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-session-row";
-import { SCHEDULE_MUTED } from "@/components/marketing/schedule/schedule-public-design";
 import {
   isBeforeCalendarDay,
   isSameCalendarDay,
@@ -34,6 +37,7 @@ import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { MarketingScheduleSessionsSkeleton } from "@/components/marketing/schedule/marketing-schedule-sessions-skeleton";
+import { ScheduleEmptyState } from "@/components/marketing/schedule/schedule-empty-state";
 import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
 
 type MarketingScheduleViewProps = {
@@ -109,7 +113,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
     });
 
   return (
-    <div className="ommm-card flex w-full min-w-0 flex-col gap-6 p-5 sm:p-8">
+    <div className={SCHEDULE_VIEW_SHELL}>
       <ScheduleFiltersHeader
         filterClassType={classType}
         filterInstructor={instructor}
@@ -144,16 +148,15 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
                 : ""
           }
         >
-          <ul key={renderedDayKey} className="flex list-none flex-col gap-3 p-0">
+          <ul key={renderedDayKey} className={SCHEDULE_SESSION_LIST}>
             {!sessionsReady ? (
               <MarketingScheduleSessionsSkeleton />
             ) : renderedSessions.length === 0 ? (
               <li
-                className={`py-12 text-center text-sm ${SCHEDULE_MUTED} ${
-                  animationPhase === "enter" ? styles.scheduleItemEnter : ""
-                }`}
+                className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
+                style={getItemStyle(0)}
               >
-                {t("empty")}
+                <ScheduleEmptyState />
               </li>
             ) : (
               renderedSessions.map((row, index) => {

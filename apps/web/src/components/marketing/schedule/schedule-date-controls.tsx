@@ -3,13 +3,17 @@
 import { useTranslations } from "next-intl";
 import {
   SCHEDULE_ARROW_BTN,
-  SCHEDULE_DATE_CHIP_ACTIVE,
   SCHEDULE_DATE_CHIP_IDLE,
   SCHEDULE_DATE_CHIP_PAST,
+  SCHEDULE_DATE_CHIP_SELECTED,
+  SCHEDULE_DATE_CHIP_TODAY,
   SCHEDULE_DATE_STRIP_PANEL,
-  SCHEDULE_INK,
   SCHEDULE_INTERACTIVE_LIFT,
-  SCHEDULE_MUTED,
+  SCHEDULE_MONTH_LABEL,
+  SCHEDULE_SELECTED_DAY_DIVIDER,
+  SCHEDULE_SELECTED_DAY_LABEL,
+  SCHEDULE_WEEKDAY_LABEL,
+  SCHEDULE_WEEKDAY_LABEL_ACTIVE,
 } from "@/components/marketing/schedule/schedule-public-design";
 import {
   addDays,
@@ -72,15 +76,15 @@ export function ScheduleDateControls({
 
   return (
     <>
-      <div className="mt-10">
-        <p className={`text-lg font-semibold capitalize ${SCHEDULE_INK}`}>{monthLabel}</p>
+      <div className="mt-6 sm:mt-8">
+        <p className={SCHEDULE_MONTH_LABEL}>{monthLabel}</p>
       </div>
 
       <div className={`mt-4 ${SCHEDULE_DATE_STRIP_PANEL}`}>
         <div className="flex w-full min-w-0 items-stretch gap-2 sm:gap-3">
           <button
             type="button"
-            className={`${SCHEDULE_ARROW_BTN} disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/85`}
+            className={SCHEDULE_ARROW_BTN}
             aria-label={t("prevDatesAria")}
             disabled={!canShiftPrev}
             aria-disabled={!canShiftPrev}
@@ -90,19 +94,21 @@ export function ScheduleDateControls({
           </button>
           <div className="grid min-w-0 flex-1 grid-cols-7 gap-1 sm:gap-2">
             {stripDays.map((day) => {
-              const active = isSameCalendarDay(day, selectedDate);
+              const isSelected = isSameCalendarDay(day, selectedDate);
               const isToday = isSameCalendarDay(day, today);
               const isPast =
                 isBeforeCalendarDay(day, today) ||
                 (maxDate !== undefined && isAfterCalendarDay(day, maxDate));
               const dayNum = String(day.getDate());
               const wk = formatWeekdayShort(locale, day).toUpperCase();
-              const weekdayClass = `w-full truncate text-center text-[9px] font-medium uppercase tracking-wide sm:text-[10px] ${SCHEDULE_MUTED}`;
+              const weekdayClass = `${SCHEDULE_WEEKDAY_LABEL} ${isSelected ? SCHEDULE_WEEKDAY_LABEL_ACTIVE : ""}`;
               const chipClass = isPast
                 ? SCHEDULE_DATE_CHIP_PAST
-                : active
-                  ? SCHEDULE_DATE_CHIP_ACTIVE
-                  : SCHEDULE_DATE_CHIP_IDLE;
+                : isToday
+                  ? SCHEDULE_DATE_CHIP_TODAY
+                  : isSelected
+                    ? SCHEDULE_DATE_CHIP_SELECTED
+                    : SCHEDULE_DATE_CHIP_IDLE;
 
               if (isPast) {
                 return (
@@ -122,25 +128,17 @@ export function ScheduleDateControls({
                   key={day.getTime()}
                   type="button"
                   onClick={() => onSelectDay(startOfLocalDay(day))}
-                  className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${SCHEDULE_INTERACTIVE_LIFT}`}
+                  className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#97907c]/30 ${SCHEDULE_INTERACTIVE_LIFT}`}
                 >
-                  <span
-                    className={`w-full truncate text-center text-[9px] font-medium uppercase tracking-wide transition-colors duration-300 ease-out sm:text-[10px] ${active ? "text-sage-700" : SCHEDULE_MUTED}`}
-                  >
-                    {wk}
-                  </span>
-                  <span
-                    className={`${chipClass} ${isToday ? "border border-black/70" : ""}`}
-                  >
-                    {dayNum}
-                  </span>
+                  <span className={weekdayClass}>{wk}</span>
+                  <span className={chipClass}>{dayNum}</span>
                 </button>
               );
             })}
           </div>
           <button
             type="button"
-            className={`${SCHEDULE_ARROW_BTN} disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/85`}
+            className={SCHEDULE_ARROW_BTN}
             aria-label={t("nextDatesAria")}
             disabled={!canShiftNext}
             aria-disabled={!canShiftNext}
@@ -151,9 +149,8 @@ export function ScheduleDateControls({
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col gap-1 border-b border-white/55 pb-3 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
-        <p className={`text-lg font-semibold capitalize ${SCHEDULE_INK}`}>{selectedLong}</p>
-        <p className={`text-xs leading-relaxed sm:max-w-md ${SCHEDULE_MUTED}`}>{t("timezoneNote")}</p>
+      <div className={SCHEDULE_SELECTED_DAY_DIVIDER}>
+        <p className={SCHEDULE_SELECTED_DAY_LABEL}>{selectedLong}</p>
       </div>
     </>
   );
