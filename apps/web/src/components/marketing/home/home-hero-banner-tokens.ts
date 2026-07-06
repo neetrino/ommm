@@ -161,19 +161,19 @@ export function resolveHomeHeroIntroVideoUrl(r2PublicUrl: string | undefined): s
 }
 
 /** Mobile hero intro — bundled public asset (portrait crop). */
-export function resolveHomeHeroIntroMobileVideoUrl(_r2PublicUrl?: string): string {
+export function resolveHomeHeroIntroMobileVideoUrl(): string {
   return HOME_HERO_INTRO_VIDEO_MOBILE_PUBLIC_PATH;
 }
 
 /** Mobile hero intro — H.264 fallback for Safari on iPhone/iPad. */
-export function resolveHomeHeroIntroMobileVideoMp4Url(_r2PublicUrl?: string): string {
+export function resolveHomeHeroIntroMobileVideoMp4Url(): string {
   return HOME_HERO_INTRO_VIDEO_MOBILE_MP4_PUBLIC_PATH;
 }
 
 export function hasHomeHeroIntroVideo(r2PublicUrl: string | undefined): boolean {
   return (
     resolveHomeHeroIntroVideoUrl(r2PublicUrl) !== null ||
-    resolveHomeHeroIntroMobileVideoUrl(r2PublicUrl).length > 0
+    resolveHomeHeroIntroMobileVideoUrl().length > 0
   );
 }
 
