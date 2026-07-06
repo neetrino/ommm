@@ -7,3 +7,5 @@ import { AuditService } from './audit.service';
   exports: [AuditService],
 })
 export class AuditModule {}
+
+console.log('AuditModule loaded');
