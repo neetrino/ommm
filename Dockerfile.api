@@ -1,0 +1,20 @@
+FROM node:20-bookworm
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+
+COPY . .
+
+RUN pnpm install --frozen-lockfile
+
+RUN pnpm run db:generate
+RUN pnpm run build:api
+
+WORKDIR /app/apps/api
+
+ENV NODE_ENV=production
+
+EXPOSE 8080
+
+CMD ["node", "dist/main"]

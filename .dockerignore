@@ -1,0 +1,11 @@
+.git
+node_modules
+**/node_modules
+apps/web/.next
+apps/api/dist
+packages/database/dist
+.env
+.env.*
+*.log
+.DS_Store
+.cloud-run-env.yaml
