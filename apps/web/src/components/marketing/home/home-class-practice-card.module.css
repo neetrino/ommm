@@ -5,6 +5,10 @@
   border-radius: var(--home-class-card-radius, 2.5rem);
 }
 
+.cardFullBleed {
+  isolation: isolate;
+}
+
 .copy {
   position: relative;
   z-index: 20;
@@ -38,11 +42,23 @@
   max-width: 18rem;
 }
 
+.imageZoneFullBleed {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
 .image {
   height: 100%;
   width: 100%;
   object-fit: cover;
   object-position: top center;
+}
+
+.imageFullBleed {
+  object-fit: cover;
+  object-position: center;
 }
 
 .imageFlipY {
@@ -76,6 +92,10 @@
     margin-top: 0;
     font-size: var(--home-class-card-body-size, 0.75rem);
     line-height: var(--home-class-card-body-line-height, 1.0625rem);
+  }
+
+  .cardFullBleed .copy {
+    max-width: 14.5rem;
   }
 
   .imageZone {
@@ -117,31 +137,6 @@
     width: 112%;
     object-position: center top;
   }
-
-  /* Card 2 — upright portrait; cancel default carousel tilt. */
-  .card[data-card-id="reformer-individual"] .image {
-    transform: rotate(var(--home-class-card-image-rotation, 0deg));
-  }
-
-  /* Card 3 — rotated on mobile (replaces flipY + carousel tilt). */
-  .card[data-card-id="yoga"] .imageFlipY {
-    bottom: 0;
-    transform: rotate(var(--home-class-card-image-rotation, 90deg))
-      translateY(var(--home-class-yoga-image-offset-mobile, -1rem));
-  }
-
-  /*
-   * Card 4 — wide pose asset; keep bottom bleed and show full figure (cover + bottom:0 clipped limbs).
-   */
-  .card[data-card-id="mat-pilates"] .image {
-    bottom: -8%;
-    height: 125%;
-    width: 112%;
-    object-fit: contain;
-    object-position: center bottom;
-    transform: rotate(var(--home-class-card-image-rotation, 8.8deg))
-      translateY(var(--home-class-mat-pilates-image-offset-mobile, -1rem));
-  }
 }
 
 @media (min-width: 744px) {
@@ -152,12 +147,6 @@
   .imageZoneWide {
     max-width: 24.75rem;
     width: 58%;
-  }
-
-  /* Card 3 — yoga: shift photo down on desktop grid. */
-  .card[data-card-id="yoga"] .imageFlipY {
-    object-position: center bottom;
-    transform: scaleY(-1) rotate(180deg) translateY(var(--home-class-yoga-image-offset-desktop, 1.25rem));
   }
 }
 
@@ -179,11 +168,5 @@
   .imageZoneWide {
     width: 60%;
     max-width: 24rem;
-  }
-
-  /* Card 2 — reformer individual: shift photo down. */
-  .card[data-card-id="reformer-individual"] .image {
-    object-position: center bottom;
-    transform: translateY(10%);
   }
 }
