@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  SCHEDULE_FILTER_LABEL,
+  SCHEDULE_FILTER_TRIGGER,
+} from "@/components/marketing/schedule/schedule-public-design";
+import {
   DropdownSelect,
   type DropdownOption,
 } from "@/components/ui/dropdown-select";
@@ -52,6 +56,10 @@ export function ScheduleFilterDropdown<T extends string>({
       disabled={disabled}
       required={required}
       openOnHover={openOnHover}
+      triggerClassName={SCHEDULE_FILTER_TRIGGER}
+      renderValue={(option) => (
+        <span className={SCHEDULE_FILTER_LABEL}>{option?.label ?? label}</span>
+      )}
       resolveOptionSelected={isScheduleFilterOptionSelected}
     />
   );
