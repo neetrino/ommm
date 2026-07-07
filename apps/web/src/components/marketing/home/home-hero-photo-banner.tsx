@@ -21,6 +21,8 @@ import {
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
   HOME_HERO_PROMO_BANNER_LAYOUT,
+  HOME_HERO_PROMO_COPY_LAYOUT,
+  HOME_HERO_PROMO_TYPOGRAPHY,
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
   resolveHomeHeroIntroMobileVideoMp4Url,
@@ -170,6 +172,29 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
     ["--home-hero-promo-object-position" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.objectPosition,
     ["--home-hero-promo-section-bg" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.sectionBackground,
     ["--home-hero-promo-text-max-width" as string]: `${HOME_HERO_PROMO_BANNER_LAYOUT.textMaxWidthRatio * 100}%`,
+    ["--home-hero-promo-text-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.textColor,
+    ["--home-hero-promo-phone-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.phoneColor,
+    ["--home-hero-promo-artboard-width-px" as string]: String(
+      HOME_HERO_PROMO_BANNER_LAYOUT.artboardWidthPx,
+    ),
+    ["--home-hero-promo-content-padding-left-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.contentPaddingLeftPx,
+    ),
+    ["--home-hero-promo-content-max-width-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.contentMaxWidthPx,
+    ),
+    ["--home-hero-promo-headline-size-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.headlineFontSizePx,
+    ),
+    ["--home-hero-promo-headline-line-height" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.headlineLineHeightRatio,
+    ),
+    ["--home-hero-promo-subline-size-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.sublineFontSizePx,
+    ),
+    ["--home-hero-promo-subline-margin-top-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.sublineMarginTopPx,
+    ),
     ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,

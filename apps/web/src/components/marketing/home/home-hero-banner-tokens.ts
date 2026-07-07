@@ -150,7 +150,23 @@ export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   figmaNodeId: "783:800",
   sectionBackground: "#b58e49",
   objectPosition: "right center",
-  textMaxWidthRatio: 0.4,
+  textMaxWidthRatio: 0.44,
+} as const;
+
+/** Promo copy layout — proportional to artboard `1672×941` reference mockup. */
+export const HOME_HERO_PROMO_COPY_LAYOUT = {
+  contentPaddingLeftPx: 118,
+  contentMaxWidthPx: 540,
+  headlineFontSizePx: 78,
+  headlineLineHeightRatio: 1.06,
+  sublineFontSizePx: 28,
+  sublineMarginTopPx: 34,
+} as const;
+
+/** Promo copy colors — cream headline on gold photo. */
+export const HOME_HERO_PROMO_TYPOGRAPHY = {
+  textColor: "#fbf5d5",
+  phoneColor: "#2c2418",
 } as const;
 
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */
