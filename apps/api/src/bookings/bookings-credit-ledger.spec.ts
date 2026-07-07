@@ -61,6 +61,25 @@ describe('BookingsSlotService package credit release', () => {
     });
   });
 
+  it('restores package credits for free package-backed cancellations', async () => {
+    const { service, tx, packageUsage } = createSlotServiceAndDeps();
+    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });
+    tx.payment.findFirst.mockResolvedValue(null);
+
+    await service.releaseSlot(
+      {
+        ...booking,
+        session: { priceCents: 0, sessionRequirement: null },
+      },
+      { applyPenalty: false },
+    );
+
+    expect(packageUsage.restoreSession).toHaveBeenCalledWith({
+      tx,
+      bookingId: booking.id,
+    });
+  });
+
   it('does not restore package credits when cancellation is penalized', async () => {
     const { service, tx, packageUsage } = createSlotServiceAndDeps();
     tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });

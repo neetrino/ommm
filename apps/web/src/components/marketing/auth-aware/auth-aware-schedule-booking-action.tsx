@@ -11,6 +11,7 @@ import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/
 import {
   SCHEDULE_BOOK_BTN,
   SCHEDULE_BOOKED_BTN,
+  SCHEDULE_BOOK_ACTION_GROUP,
   SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
 import { useRouter } from "@/i18n/navigation";
@@ -18,10 +19,11 @@ import { OmmmCenterToast } from "@/components/ui/ommm-center-toast";
 import { buildLoginHrefWithReturnUrl } from "@/lib/auth-redirect";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
+import { dispatchPackagesRefresh } from "@/lib/packages-refresh-event";
 import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 import { ScheduleBookSplashModal } from "@/components/marketing/schedule/schedule-book-splash-modal";
 
-const SCHEDULE_RETURN_PATH = "/schedule";
+const DEFAULT_LOGIN_RETURN_PATH = "/schedule";
 
 type AuthAwareScheduleBookingActionProps = {
   sessionId: string;
@@ -35,6 +37,8 @@ type AuthAwareScheduleBookingActionProps = {
   userBookingId?: string;
   bookingStateReady?: boolean;
   initialOnWaitlist?: boolean;
+  /** Post-login destination for guest booking intents (locale-free path). */
+  loginReturnPath?: string;
   onWaitlisted?: () => void;
   onWaitlistLeft?: () => void;
   onBooked?: (bookingId: string) => void;
@@ -53,6 +57,7 @@ export function AuthAwareScheduleBookingAction({
   userBookingId,
   bookingStateReady = true,
   initialOnWaitlist = false,
+  loginReturnPath = DEFAULT_LOGIN_RETURN_PATH,
   onWaitlisted,
   onWaitlistLeft,
   onBooked,
@@ -84,6 +89,7 @@ export function AuthAwareScheduleBookingAction({
       setBookingId(bookingId);
       onBooked?.(bookingId);
       dispatchNotificationsRefresh();
+      dispatchPackagesRefresh();
       router.refresh();
     },
     onError: (message) => {
@@ -137,7 +143,7 @@ export function AuthAwareScheduleBookingAction({
         {cancelMsg ? (
           <p className={`${CANCEL_BOOKING_ERROR_MESSAGE_CLASS} text-right`}>{cancelMsg}</p>
         ) : null}
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className={SCHEDULE_BOOK_ACTION_GROUP}>
           <CancelBookingButton
             bookingId={resolvedBookingId}
             sessionDate={sessionDate}
@@ -167,7 +173,7 @@ export function AuthAwareScheduleBookingAction({
 
   function openGuestBookSplash(): void {
     pendingBookActionRef.current = () => {
-      router.push(buildLoginHrefWithReturnUrl(SCHEDULE_RETURN_PATH));
+      router.push(buildLoginHrefWithReturnUrl(loginReturnPath));
     };
     setBookSplashVariant("guest");
     setBookSplashOpen(true);

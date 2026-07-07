@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { GoogleSignupPasswordForm } from "@/components/auth/google-signup-password-form";
 import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
 import { homePathForRole } from "@/lib/role-home";
 import { serverApiJson } from "@/lib/server-api";
@@ -14,10 +15,18 @@ type MePayload = {
 
 export default async function SetPasswordPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ token?: string }>;
 }) {
   const { locale } = await params;
+  const { token } = await searchParams;
+
+  if (token) {
+    return <GoogleSignupPasswordForm token={token} />;
+  }
+
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MePayload>("/users/me", cookie);
   if (!res.ok) {

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import styles from "@/components/marketing/home/home-weekly-schedule-compact-view.module.css";
 import { HomeWeeklyScheduleSessionRow } from "@/components/marketing/home/home-weekly-schedule-session-row";
+import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import transitionStyles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
 import { useScheduleDayTransition } from "@/components/marketing/schedule/use-schedule-day-transition";
 import {
@@ -15,6 +16,10 @@ import {
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import {
+  resolveMemberOnWaitlistBadge,
+  resolveMemberScheduleRowDisplay,
+} from "@/lib/schedule-session-spots";
 
 export type HomeWeeklyScheduleCompactDay = {
   day: MarketingScheduleDayOfWeek;
@@ -34,12 +39,34 @@ type HomeWeeklyScheduleDayViewProps = {
   locale: string;
   days: readonly HomeWeeklyScheduleCompactDay[];
   initialDay: MarketingScheduleDayOfWeek;
+  audience: PublicPackageCategoryCardsAudience;
+  bookLabel: string;
+  bookingEnabled: boolean;
+  bookedBySessionId: Readonly<Record<string, string>>;
+  memberActionStateReady: boolean;
+  memberWaitlistLoaded: boolean;
+  waitlistedSessionIds: ReadonlySet<string>;
+  onBooked: (sessionId: string, bookingId: string) => void;
+  onCancelled: (sessionId: string) => void;
+  onWaitlisted: (sessionId: string) => void;
+  onWaitlistLeft: (sessionId: string) => void;
 };
 
 export function HomeWeeklyScheduleDayView({
   locale,
   days,
   initialDay,
+  audience,
+  bookLabel,
+  bookingEnabled,
+  bookedBySessionId,
+  memberActionStateReady,
+  memberWaitlistLoaded,
+  waitlistedSessionIds,
+  onBooked,
+  onCancelled,
+  onWaitlisted,
+  onWaitlistLeft,
 }: HomeWeeklyScheduleDayViewProps) {
   const t = useTranslations("marketingPublic.home");
   const [selectedDay, setSelectedDay] = useState<MarketingScheduleDayOfWeek>(initialDay);
@@ -184,25 +211,54 @@ export function HomeWeeklyScheduleDayView({
                     {renderedDay.emptyLabel}
                   </div>
                 ) : (
-                  renderedSessions.map((session, index) => (
-                    <div
-                      key={session.id}
-                      className={
-                        animationPhase === "enter" ? transitionStyles.scheduleItemEnter : undefined
-                      }
-                      style={getItemStyle(index)}
-                    >
-                      <HomeWeeklyScheduleSessionRow
-                        item={session.item}
-                        locale={locale}
-                        reserveLabel={t("weeklyScheduleReserve")}
-                        withInstructorLabel={session.withInstructorLabel}
-                        durationLabel={session.durationLabel}
-                        spotsLeftLabel={session.spotsLeftLabel}
-                        bookAriaLabel={session.bookAriaLabel}
-                      />
-                    </div>
-                  ))
+                  renderedSessions.map((session, index) => {
+                    const userOnWaitlist =
+                      bookedBySessionId[session.item.id] === undefined &&
+                      waitlistedSessionIds.has(session.item.id);
+                    const displayRow = resolveMemberScheduleRowDisplay({
+                      row: session.item,
+                      onWaitlist: userOnWaitlist,
+                      capacityReady: memberWaitlistLoaded,
+                    });
+                    const showOnWaitlist = resolveMemberOnWaitlistBadge({
+                      userBookingId: bookedBySessionId[session.item.id],
+                      onWaitlist: userOnWaitlist,
+                      availableSpots: displayRow.availableSpots,
+                      sessionStatus: displayRow.status,
+                      capacityReady: memberWaitlistLoaded,
+                    });
+                    const spotsLeftLabel = t("weeklyScheduleSpotsLeft", {
+                      count: displayRow.availableSpots,
+                    });
+
+                    return (
+                      <div
+                        key={session.id}
+                        className={
+                          animationPhase === "enter" ? transitionStyles.scheduleItemEnter : undefined
+                        }
+                        style={getItemStyle(index)}
+                      >
+                        <HomeWeeklyScheduleSessionRow
+                          item={displayRow}
+                          locale={locale}
+                          bookLabel={bookLabel}
+                          withInstructorLabel={session.withInstructorLabel}
+                          durationLabel={session.durationLabel}
+                          spotsLeftLabel={spotsLeftLabel}
+                          audience={audience}
+                          bookingEnabled={bookingEnabled}
+                          userBookingId={bookedBySessionId[session.item.id]}
+                          bookingStateReady={memberActionStateReady}
+                          isOnWaitlist={showOnWaitlist}
+                          onBooked={onBooked}
+                          onCancelled={onCancelled}
+                          onWaitlisted={onWaitlisted}
+                          onWaitlistLeft={onWaitlistLeft}
+                        />
+                      </div>
+                    );
+                  })
                 )}
               </div>
             )}

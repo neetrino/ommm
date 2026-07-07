@@ -39,12 +39,6 @@ export class BookingsSlotService {
         data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
       });
       void options.applyPenalty;
-      const requiredSessions =
-        booking.session.sessionRequirement ??
-        (booking.session.priceCents > 0 ? 1 : 0);
-      if (requiredSessions <= 0) {
-        return;
-      }
       const hasDropInPayment = await tx.payment.findFirst({
         where: {
           userId: booking.userId,

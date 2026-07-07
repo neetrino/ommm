@@ -9,8 +9,10 @@ export const SCHEDULE_VIEW_SHELL = styles.viewShell;
 export const SCHEDULE_SESSION_LIST = styles.sessionList;
 export const SCHEDULE_SESSION_ROW = styles.sessionRow;
 export const SCHEDULE_BOOK_BTN = styles.bookBtn;
-export const SCHEDULE_CANCEL_BTN = `ommm-btn-compact-secondary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm transition-transform duration-300 ease-out hover:-translate-y-0.5 motion-reduce:transform-none`;
-export const SCHEDULE_BOOKED_BTN = `ommm-session-booked-button ommm-session-booked-button--schedule min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm transition-transform duration-300 ease-out hover:-translate-y-0.5 motion-reduce:transform-none`;
+export const SCHEDULE_BOOK_BTN_HOME = `${styles.bookBtn} ${styles.bookBtnHomeLayout}`;
+export const SCHEDULE_CANCEL_BTN = styles.cancelBtn;
+export const SCHEDULE_BOOKED_BTN = styles.bookedBtn;
+export const SCHEDULE_BOOK_ACTION_GROUP = styles.bookActionGroup;
 
 export const SCHEDULE_FILTER_TRIGGER = `${styles.filterTrigger} ommm-dropdown-trigger`;
 export const SCHEDULE_FILTER_LABEL = styles.filterLabel;

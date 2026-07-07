@@ -301,34 +301,37 @@
 
 .bookBtn {
   display: inline-flex;
-  min-height: 2.75rem;
-  min-width: 5.5rem;
+  min-height: 3rem;
+  min-width: 9.0625rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   border: 1px solid rgb(255 255 255 / 0.55);
   background: rgb(255 255 255 / 0.33);
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.85);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  line-height: 1;
-  letter-spacing: 0.1em;
+  line-height: 1.125rem;
+  letter-spacing: 0.0625rem;
   text-transform: uppercase;
   color: #1d1c15;
+  white-space: nowrap;
+  cursor: pointer;
+  isolation: isolate;
   transition:
-    background-color 280ms ease,
-    border-color 280ms ease,
-    transform 280ms ease;
+    background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bookBtn:hover:enabled {
   border-color: rgb(255 255 255 / 0.68);
-  background: rgb(255 255 255 / 0.48);
+  background: rgb(255 255 255 / 0.42);
   transform: translateY(-2px);
 }
 
@@ -346,6 +349,94 @@
   pointer-events: none;
 }
 
+@media (min-width: 744px) and (max-width: 1366px) {
+  .bookBtn {
+    min-width: 11.5rem;
+    min-height: 3.75rem;
+    padding: 1rem 1.375rem;
+    font-size: 1rem;
+    line-height: 1.125rem;
+  }
+}
+
+.bookBtnHomeLayout {
+  width: 9.0625rem;
+}
+
+@media (min-width: 744px) and (max-width: 1366px) {
+  .bookBtnHomeLayout {
+    width: 11.5rem;
+  }
+}
+
+@media (max-width: 743px) {
+  .bookBtnHomeLayout {
+    width: 100%;
+    min-width: 0;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    letter-spacing: 0.0375rem;
+    color: #0e0e0d;
+  }
+}
+
+.cancelBtn {
+  composes: bookBtn;
+  min-width: 5.5rem;
+  width: auto;
+  background: rgb(255 255 255 / 0.55);
+  color: #4a4738;
+}
+
+.cancelBtn:hover:enabled {
+  background: rgb(255 255 255 / 0.72);
+}
+
+.bookedBtn {
+  display: inline-flex;
+  min-height: 3rem;
+  min-width: 5.5rem;
+  width: auto;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(95 122 104 / 0.55);
+  background: #5f7a68;
+  padding: 0.75rem 1rem;
+  box-shadow:
+    0 6px 18px -12px rgb(45 74 58 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  letter-spacing: 0.0625rem;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  cursor: default;
+  -webkit-font-smoothing: antialiased;
+  opacity: 1;
+}
+
+.bookedBtn:disabled {
+  opacity: 1;
+  cursor: default;
+  pointer-events: none;
+}
+
+.bookActionGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .sessionList {
   display: flex;
   flex-direction: column;
@@ -357,20 +448,28 @@
 @media (prefers-reduced-motion: reduce) {
   .dateChipIdle:hover,
   .arrowBtn:hover:enabled,
-  .bookBtn:hover:enabled {
+  .bookBtn:hover:enabled,
+  .cancelBtn:hover:enabled {
     transform: none;
+  }
+
+  .bookBtn,
+  .cancelBtn {
+    transition-duration: 150ms;
   }
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .viewShell,
   .dateStripPanel,
-  .bookBtn {
+  .bookBtn,
+  .cancelBtn {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
-  .bookBtn {
+  .bookBtn,
+  .cancelBtn {
     background: rgb(255 255 255 / 0.72);
   }
 }

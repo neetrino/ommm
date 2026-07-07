@@ -37,7 +37,7 @@ import { isApiError, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/
 import { apiFetch } from "@/lib/api";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import {
-  MANUAL_PAYMENT_METHODS,
+  PACKAGE_SUBSCRIBE_PAYMENT_METHODS,
   type ManualPaymentMethod,
 } from "@/lib/manual-payment-method";
 import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
@@ -360,7 +360,7 @@ function PaymentMethodPicker({ value, onChange, disabled }: PaymentMethodPickerP
         {t("methodLegend")}
       </legend>
       <div className={formStyles.sectionCards}>
-      {MANUAL_PAYMENT_METHODS.map((method) => (
+      {PACKAGE_SUBSCRIBE_PAYMENT_METHODS.map((method) => (
         <label key={method} className={formStyles.paymentMethodOption}>
           <input
             type="radio"

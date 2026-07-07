@@ -80,74 +80,18 @@
   white-space: nowrap;
 }
 
-.reserve {
+.bookAction {
   display: flex;
-  width: 9.0625rem;
-  height: 3rem;
-  padding: 0.75rem 1rem;
-  justify-content: center;
-  align-items: center;
-  gap: 0.625rem;
   flex-shrink: 0;
-  border-radius: 1048575rem;
-  border: 1px solid var(--home-schedule-reserve-border, rgba(255, 255, 255, 0.55));
-  background-color: var(--home-schedule-reserve-fill, rgba(255, 255, 255, 0.33));
-  color: var(--home-schedule-reserve-text-lg, var(--home-schedule-reserve-text, #000));
-  box-shadow: inset 0 1px 0 var(--home-schedule-reserve-edge, rgba(255, 255, 255, 0.85));
-  backdrop-filter: blur(var(--home-schedule-reserve-blur, 10px));
-  -webkit-backdrop-filter: blur(var(--home-schedule-reserve-blur, 10px));
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.125rem;
-  letter-spacing: 0.0625rem;
-  text-transform: uppercase;
-  text-decoration: none;
-  white-space: nowrap;
+  flex-direction: column;
+  align-items: stretch;
   align-self: flex-start;
-  isolation: isolate;
-  transition-property: background-color, border-color, transform;
-  transition-duration: 300ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.reserve:hover {
-  background-color: var(--home-schedule-reserve-hover-fill, rgba(255, 255, 255, 0.42));
-  border-color: rgba(255, 255, 255, 0.68);
-  transform: translateY(-0.125rem);
 }
 
 @media (min-width: 768px) {
-  .reserve {
+  .bookAction {
     align-self: center;
-  }
-}
-
-@media (min-width: 744px) and (max-width: 1366px) {
-  .reserve {
-    width: 11.5rem;
-    height: 3.75rem;
-    padding: 1rem 1.375rem;
-    font-size: 1rem;
-    line-height: 1.125rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reserve {
-    transition-duration: 150ms;
-  }
-
-  .reserve:hover {
-    transform: none;
-  }
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .reserve {
-    background-color: rgba(255, 255, 255, 0.55);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    align-items: flex-end;
   }
 }
 
@@ -231,14 +175,8 @@
     letter-spacing: 0.03125rem;
   }
 
-  .reserve {
+  .bookAction {
     width: 100%;
-    height: var(--home-schedule-reserve-height, 2.5rem);
-    padding: 0 1rem;
     align-self: stretch;
-    font-size: var(--home-schedule-reserve-font-size, 0.75rem);
-    line-height: 1rem;
-    letter-spacing: var(--home-schedule-reserve-tracking, 0.0375rem);
-    color: var(--home-schedule-reserve-text, #0e0e0d);
   }
 }
