@@ -1,39 +1,60 @@
-import Image from "next/image";
-import { AuthAwareScheduleReserveLink } from "@/components/marketing/auth-aware/auth-aware-schedule-reserve-link";
+import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-aware/auth-aware-schedule-booking-action";
 import styles from "@/components/marketing/home/home-weekly-schedule-session-row.module.css";
 import { buildMarketingScheduleItemDateTimeRange } from "@/components/marketing/home/build-marketing-schedule-item-datetime-range";
 import { formatScheduleTime } from "@/components/marketing/home/format-schedule-time";
 import { getHomeWeeklyScheduleRowGradient } from "@/components/marketing/home/get-home-weekly-schedule-row-gradient";
+import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
+import {
+  SCHEDULE_BOOK_BTN_HOME,
+} from "@/components/marketing/schedule/schedule-public-design";
 import { SessionDateTimeListDateChip } from "@/components/shared/schedule/session-datetime-list-display";
 import {
   HOME_WEEKLY_SCHEDULE_ASSETS,
   HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
-  HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA,
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
+import Image from "next/image";
+
+const HOME_BOOKING_LOGIN_RETURN_PATH = "/";
 
 type HomeWeeklyScheduleSessionRowProps = {
   item: MarketingScheduleItem;
   locale: string;
-  reserveLabel: string;
+  bookLabel: string;
   withInstructorLabel: string;
   durationLabel: string;
   spotsLeftLabel: string;
-  bookAriaLabel: string;
+  audience: PublicPackageCategoryCardsAudience;
+  bookingEnabled: boolean;
+  userBookingId?: string;
+  bookingStateReady?: boolean;
+  isOnWaitlist?: boolean;
+  onBooked?: (sessionId: string, bookingId: string) => void;
+  onCancelled?: (sessionId: string) => void;
+  onWaitlisted?: (sessionId: string) => void;
+  onWaitlistLeft?: (sessionId: string) => void;
 };
 
 export function HomeWeeklyScheduleSessionRow({
   item,
   locale,
-  reserveLabel,
+  bookLabel,
   withInstructorLabel,
   durationLabel,
   spotsLeftLabel,
-  bookAriaLabel,
+  audience,
+  bookingEnabled,
+  userBookingId,
+  bookingStateReady = true,
+  isOnWaitlist = false,
+  onBooked,
+  onCancelled,
+  onWaitlisted,
+  onWaitlistLeft,
 }: HomeWeeklyScheduleSessionRowProps) {
   const dateTimeRange = buildMarketingScheduleItemDateTimeRange(item);
   const dateTimeDisplay =
@@ -61,9 +82,6 @@ export function HomeWeeklyScheduleSessionRow({
         ["--home-schedule-row-radius-mobile" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowRadius,
         ["--home-schedule-row-padding" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowPadding,
-        ["--home-schedule-reserve-height" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.reserveButtonHeightPx}px`,
-        ["--home-schedule-reserve-font-size" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.reserveButtonFontSizePx / 16}rem`,
-        ["--home-schedule-reserve-tracking" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.reserveButtonLetterSpacingPx}px`,
       }}
     >
       <div className={styles.info}>
@@ -124,25 +142,37 @@ export function HomeWeeklyScheduleSessionRow({
         </div>
       </div>
 
-      <AuthAwareScheduleReserveLink
-        ariaLabel={bookAriaLabel}
-        className={`${styles.reserve} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-2 active:scale-[0.99]`}
-        style={{
-          ["--home-schedule-reserve-fill" as string]:
-            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonFill,
-          ["--home-schedule-reserve-hover-fill" as string]:
-            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonHoverFill,
-          ["--home-schedule-reserve-text" as string]:
-            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonText,
-          ["--home-schedule-reserve-border" as string]:
-            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonBorder,
-          ["--home-schedule-reserve-edge" as string]:
-            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonEdgeHighlight,
-          ["--home-schedule-reserve-blur" as string]: `${HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonBlurPx}px`,
-        }}
-      >
-        {reserveLabel}
-      </AuthAwareScheduleReserveLink>
+      <div className={styles.bookAction}>
+        {bookingEnabled ? (
+          <AuthAwareScheduleBookingAction
+            sessionId={item.id}
+            sessionDate={item.sessionDate}
+            sessionStartTime={item.startTime}
+            availableSpots={item.availableSpots}
+            sessionStatus={item.status}
+            bookLabel={bookLabel}
+            audience={audience}
+            className={SCHEDULE_BOOK_BTN_HOME}
+            userBookingId={userBookingId}
+            bookingStateReady={bookingStateReady}
+            initialOnWaitlist={isOnWaitlist}
+            loginReturnPath={HOME_BOOKING_LOGIN_RETURN_PATH}
+            onBooked={(bookingId) => onBooked?.(item.id, bookingId)}
+            onCancelled={() => onCancelled?.(item.id)}
+            onWaitlisted={() => onWaitlisted?.(item.id)}
+            onWaitlistLeft={() => onWaitlistLeft?.(item.id)}
+          />
+        ) : (
+          <button
+            type="button"
+            className={`${SCHEDULE_BOOK_BTN_HOME} cursor-not-allowed opacity-60`}
+            disabled
+            aria-disabled="true"
+          >
+            {bookLabel}
+          </button>
+        )}
+      </div>
     </article>
   );
 }

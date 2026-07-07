@@ -1,16 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { buildHomeWeeklyScheduleDays } from "@/components/marketing/home/build-home-weekly-schedule-days";
 import { getDefaultWeeklyScheduleDay } from "@/components/marketing/home/get-default-weekly-schedule-day";
 import { HomeWeeklyScheduleDayView } from "@/components/marketing/home/home-weekly-schedule-compact-view";
 import { HOME_WEEKLY_SCHEDULE_FALLBACK_ITEMS } from "@/components/marketing/home/home-weekly-schedule-fallback-items";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
-import { fetchPublicScheduleClient } from "@/lib/fetch-public-schedule-client";
+import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
+import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 
 type HomeWeeklyScheduleLiveGridProps = {
   locale: string;
@@ -43,18 +42,24 @@ function sortScheduleItems(items: readonly MarketingScheduleItem[]): MarketingSc
 /** Renders the shared public schedule data; fallback is used only when no live rows exist. */
 export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyScheduleLiveGridProps) {
   const t = useTranslations("marketingPublic.home");
-  const [items, setItems] = useState<readonly MarketingScheduleItem[]>(initialItems);
+  const tSchedule = useTranslations("marketingPages.schedule");
+  const audience = useMarketingAudience();
+  const isMember = audience === "member";
 
-  const refreshSchedule = useCallback(async () => {
-    try {
-      const { items: nextItems } = await fetchPublicScheduleClient();
-      setItems(nextItems);
-    } catch {
-      // Keep current rows on transient errors.
-    }
-  }, []);
-
-  useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC, refreshSchedule);
+  const {
+    items,
+    bookedBySessionId,
+    memberWaitlistLoaded,
+    waitlistedSessionIds,
+    memberActionStateReady,
+    handleBooked,
+    handleCancelled,
+    handleWaitlisted,
+    handleWaitlistLeft,
+  } = useMarketingScheduleMemberState({
+    isMember,
+    initialItems: [...initialItems],
+  });
 
   const activeItems = useMemo(
     () => sortScheduleItems(items.filter((item) => item.isActive)),
@@ -86,7 +91,22 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
       role="region"
       aria-label={t("weeklyScheduleGridAria")}
     >
-      <HomeWeeklyScheduleDayView locale={locale} days={days} initialDay={initialDay} />
+      <HomeWeeklyScheduleDayView
+        locale={locale}
+        days={days}
+        initialDay={initialDay}
+        audience={audience}
+        bookLabel={tSchedule("bookCta")}
+        bookingEnabled={!usingFallback}
+        bookedBySessionId={bookedBySessionId}
+        memberActionStateReady={memberActionStateReady}
+        memberWaitlistLoaded={memberWaitlistLoaded}
+        waitlistedSessionIds={waitlistedSessionIds}
+        onBooked={handleBooked}
+        onCancelled={handleCancelled}
+        onWaitlisted={handleWaitlisted}
+        onWaitlistLeft={handleWaitlistLeft}
+      />
     </div>
   );
 }
