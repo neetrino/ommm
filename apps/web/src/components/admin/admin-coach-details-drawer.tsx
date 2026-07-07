@@ -24,6 +24,7 @@ import { CoachSheetTabPanels } from "@/components/admin/admin-coach-sheet-tab-pa
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
@@ -217,7 +218,7 @@ function AdminCoachDetailsDrawerInner({
           <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
             {headerName}
           </h2>
-          <div className="flex shrink-0 items-center">
+          <div className="flex shrink-0 items-center gap-2">
             <AdminCoachStatusAction
               coachId={coach.id}
               isActive={coach.isActive}
@@ -228,6 +229,15 @@ function AdminCoachDetailsDrawerInner({
               onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
               onChanged={onClose}
             />
+            <button
+              type="button"
+              className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
+              aria-label={t("modalCloseAria")}
+              disabled={sheetBusy}
+              onClick={handleClose}
+            >
+              ×
+            </button>
           </div>
         </div>
       </header>
