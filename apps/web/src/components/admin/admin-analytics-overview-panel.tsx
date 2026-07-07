@@ -33,7 +33,6 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
     () => ({
       active: t("sections.users.active"),
       vip: t("sections.users.vip"),
-      atRisk: t("sections.users.atRisk"),
     }),
     [t],
   );

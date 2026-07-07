@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { formatIsoDateToUi } from "@/lib/date-display";
 import { AdminClientStatusAction } from "@/components/admin/admin-client-status-action";
@@ -114,6 +114,7 @@ function AdminClientDrawerInner({
   const [giftAmount, setGiftAmount] = useState("10000");
   const [tabRefreshKey, setTabRefreshKey] = useState(0);
   const [personalInfoEditing, setPersonalInfoEditing] = useState(false);
+  const [avatarPreviewOpen, setAvatarPreviewOpen] = useState(false);
 
   const refreshDetail = useCallback(async () => {
     const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
@@ -226,7 +227,13 @@ function AdminClientDrawerInner({
     const saved = await editForm.save(t("updateSuccess"), t("genericError"));
     if (saved) {
       setPersonalInfoEditing(false);
+      onClose();
     }
+  }
+
+  function handlePersonalInfoFormSubmit(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    void handleSavePersonalInfo();
   }
 
   async function runAction(
@@ -273,6 +280,7 @@ function AdminClientDrawerInner({
       isOpen
       onClose={handleClose}
       closeDisabled={sheetBusy}
+      closeOnEscape={!avatarPreviewOpen}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -356,6 +364,8 @@ function AdminClientDrawerInner({
             tabRefreshKey={tabRefreshKey}
             personalInfoEditing={personalInfoEditing}
             onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
+            onPersonalInfoSubmit={handlePersonalInfoFormSubmit}
+            onAvatarPreviewOpenChange={setAvatarPreviewOpen}
           />
         )}
       </div>

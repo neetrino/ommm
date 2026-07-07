@@ -1,4 +1,4 @@
-export type ClientTag = "VIP" | "New" | "At Risk" | "Beginner";
+export type ClientTag = "VIP" | "New" | "Beginner";
 export type ClientStatus = "Active" | "Inactive" | "Frozen" | "Blocked";
 export type PaymentBehavior = "paid" | "unpaid" | "overdue" | "partial";
 export type AttendanceBehavior =
@@ -53,7 +53,6 @@ export type AdminClientsPayload = {
     total: number;
     active: number;
     vip: number;
-    atRisk: number;
     totalVisits: number;
     lifetimeValueCents: number;
   };

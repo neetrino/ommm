@@ -689,11 +689,14 @@
     "pagination": {
       "ariaLabel": "List pagination",
       "empty": "No results",
-      "range": "Showing {from}–{to} of {total}",
+      "range": "Showing {from} – {to} of {total}",
+      "rangePrefix": "Showing",
+      "rangeValue": "{from} – {to} of {total}",
       "prev": "Previous",
       "next": "Next",
       "prevAria": "Previous page",
       "nextAria": "Next page",
+      "pageAria": "Page {page}",
       "pagesAria": "Pages"
     },
     "packages": {
@@ -1655,11 +1658,14 @@
     "pagination": {
       "ariaLabel": "List pagination",
       "empty": "No results",
-      "range": "Showing {from}–{to} of {total}",
+      "range": "Showing {from} – {to} of {total}",
+      "rangePrefix": "Showing",
+      "rangeValue": "{from} – {to} of {total}",
       "prev": "Previous",
       "next": "Next",
       "prevAria": "Previous page",
       "nextAria": "Next page",
+      "pageAria": "Page {page}",
       "pagesAria": "Pages"
     },
     "home": {
@@ -1864,7 +1870,6 @@
       "colTags": "Labels",
       "tagVip": "VIP",
       "tagNew": "New",
-      "tagAtRisk": "At Risk",
       "tagBeginner": "Beginner",
       "colEmail": "Email",
       "colRole": "Role",
@@ -1962,6 +1967,8 @@
         "source": "Source",
         "preferredCoach": "Preferred coach",
         "noTags": "No labels",
+        "viewPhoto": "View profile photo",
+        "photoPreviewAlt": "Profile photo of {name}",
         "personalInfo": "Personal info",
         "totalVisits": "Total visits",
         "totalBookings": "Total bookings",
@@ -2046,6 +2053,7 @@
       },
       "addCoachButton": "Add Coach",
       "editCoach": "Edit coach",
+      "edit": "Edit",
       "fieldEmail": "Email",
       "fieldName": "First name",
       "fieldLastName": "Surname",
@@ -3070,6 +3078,8 @@
       "loading": "Loading active waitlist entries...",
       "retry": "Retry",
       "empty": "No active waitlist entries.",
+      "emptyTitle": "No active waitlist entries",
+      "emptyDescription": "When members join a waitlist for a full class, they'll appear here for you to manage.",
       "actionFailed": "Action failed.",
       "colUser": "User",
       "colClassType": "Class type",
@@ -3241,7 +3251,6 @@
           "total": "Total clients",
           "active": "Active clients",
           "vip": "VIP clients",
-          "atRisk": "At-risk clients",
           "visits": "Total visits",
           "ltv": "Lifetime value",
           "chartAria": "User activity chart"

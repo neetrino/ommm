@@ -4,14 +4,12 @@
       minmax(0, 1.1fr)
       minmax(0, 1fr)
       minmax(0, 1fr)
-      minmax(0, 1fr)
       auto;
   }
 
   .tableReadOnly {
     grid-template-columns:
       minmax(0, 1.1fr)
-      minmax(0, 1fr)
       minmax(0, 1fr)
       minmax(0, 1fr);
   }

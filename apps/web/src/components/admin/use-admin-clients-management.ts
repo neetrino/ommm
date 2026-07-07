@@ -18,15 +18,12 @@ import {
   ADMIN_CLIENTS_FILTER_KEYS,
   areUrlSearchQueriesEqual,
   mergeAdminClientsUrlQuery,
+  parseAdminClientsListPageParams,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
 import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 import { apiFetch } from "@/lib/api";
-import {
-  parseListPageParams,
-  resetListPageQuery,
-  syncListPageQuery,
-} from "@/lib/list-pagination";
+import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
 
@@ -77,7 +74,7 @@ export function useAdminClientsManagement({
   }, [searchParams]);
 
   const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    () => parseAdminClientsListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
 
@@ -226,17 +223,6 @@ export function useAdminClientsManagement({
     return () => window.clearTimeout(handle);
   }, [apiQueryString, listPage.offset, listPage.page, pathname, router, urlQueryString]);
 
-  const handleClientChanged = useCallback(() => {
-    router.refresh();
-  }, [router]);
-
-  function updateFilter(key: keyof typeof filters, value: string) {
-    setFilters((current) => ({ ...current, [key]: value }));
-    replaceSearchParams((params) => {
-      resetListPageQuery(params);
-    });
-  }
-
   const refetchClients = useCallback((): void => {
     startTransition(() => {
       void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
@@ -250,9 +236,21 @@ export function useAdminClientsManagement({
     });
   }, [apiQueryString]);
 
+  const handleClientChanged = useCallback(() => {
+    refetchClients();
+    router.refresh();
+  }, [refetchClients, router]);
+
   useEffect(() => {
     onRegisterRefetch?.(refetchClients);
   }, [onRegisterRefetch, refetchClients]);
+
+  function updateFilter(key: keyof typeof filters, value: string) {
+    setFilters((current) => ({ ...current, [key]: value }));
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+    });
+  }
 
   function resetFilters() {
     setFilters(ADMIN_CLIENTS_EMPTY_FILTERS);

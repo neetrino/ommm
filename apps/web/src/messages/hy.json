@@ -689,11 +689,14 @@
     "pagination": {
       "ariaLabel": "Ցանկի էջավորում",
       "empty": "Արդյունքներ չկան",
-      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "range": "Ցուցադրվում է {from} – {to}՝ {total}-ից",
+      "rangePrefix": "Ցուցադրվում է",
+      "rangeValue": "{from} – {to}՝ {total}-ից",
       "prev": "Նախորդ",
       "next": "Հաջորդ",
       "prevAria": "Նախորդ էջ",
       "nextAria": "Հաջորդ էջ",
+      "pageAria": "Էջ {page}",
       "pagesAria": "Էջեր"
     },
     "packages": {
@@ -1655,11 +1658,14 @@
     "pagination": {
       "ariaLabel": "Ցանկի էջավորում",
       "empty": "Արդյունքներ չկան",
-      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "range": "Ցուցադրվում է {from} – {to}՝ {total}-ից",
+      "rangePrefix": "Ցուցադրվում է",
+      "rangeValue": "{from} – {to}՝ {total}-ից",
       "prev": "Նախորդ",
       "next": "Հաջորդ",
       "prevAria": "Նախորդ էջ",
       "nextAria": "Հաջորդ էջ",
+      "pageAria": "Էջ {page}",
       "pagesAria": "Էջեր"
     },
     "home": {
@@ -1864,7 +1870,6 @@
       "colTags": "Պիտակներ",
       "tagVip": "VIP",
       "tagNew": "Նոր",
-      "tagAtRisk": "Ռիսկի տակ",
       "tagBeginner": "Սկսնակ",
       "colEmail": "Էլ. փոստ",
       "colRole": "Դեր",
@@ -1962,6 +1967,8 @@
         "source": "Աղբյուր",
         "preferredCoach": "Նախընտրելի մարզիչ",
         "noTags": "Պիտակներ չկան",
+        "viewPhoto": "Դիտել պրոֆիլի նկարը",
+        "photoPreviewAlt": "{name}-ի պրոֆիլի նկար",
         "personalInfo": "Անձնական տվյալներ",
         "totalVisits": "Ընդամենը այցեր",
         "totalBookings": "Ընդամենը ամրագրումներ",
@@ -2046,6 +2053,7 @@
       },
       "addCoachButton": "Ավելացնել մարզիչ",
       "editCoach": "Խմբագրել մարզիչին",
+      "edit": "Խմբագրել",
       "fieldEmail": "Էլ. փոստ",
       "fieldName": "Անուն",
       "fieldLastName": "Ազգանուն",
@@ -3070,6 +3078,8 @@
       "loading": "Բեռնվում են ակտիվ սպասման գրառումները...",
       "retry": "Կրկնել",
       "empty": "Ակտիվ սպասման գրառումներ չկան։",
+      "emptyTitle": "Ակտիվ սպասման գրառումներ չկան",
+      "emptyDescription": "Երբ անդամները լիքը դասի սպասման ցուցակին միանան, դրանք կհայտնվեն այստեղ՝ կառավարման համար։",
       "actionFailed": "Գործողությունը չհաջողվեց։",
       "colUser": "Օգտատեր",
       "colClassType": "Դասի տեսակ",
@@ -3471,7 +3481,6 @@
           "total": "Ընդամենը հաճախորդներ",
           "active": "Ակտիվ հաճախորդներ",
           "vip": "VIP հաճախորդներ",
-          "atRisk": "Ռիսկի տակ հաճախորդներ",
           "visits": "Ընդամենը այցեր",
           "ltv": "Lifetime value",
           "chartAria": "Օգտատերերի ակտիվության գրաֆիկ"

@@ -689,11 +689,14 @@
     "pagination": {
       "ariaLabel": "Пагинация списка",
       "empty": "Нет результатов",
-      "range": "Показано {from}–{to} из {total}",
+      "range": "Показано {from} – {to} из {total}",
+      "rangePrefix": "Показано",
+      "rangeValue": "{from} – {to} из {total}",
       "prev": "Назад",
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
+      "pageAria": "Страница {page}",
       "pagesAria": "Страницы"
     },
     "packages": {
@@ -1653,11 +1656,14 @@
     "pagination": {
       "ariaLabel": "Пагинация списка",
       "empty": "Нет результатов",
-      "range": "Показано {from}–{to} из {total}",
+      "range": "Показано {from} – {to} из {total}",
+      "rangePrefix": "Показано",
+      "rangeValue": "{from} – {to} из {total}",
       "prev": "Назад",
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
+      "pageAria": "Страница {page}",
       "pagesAria": "Страницы"
     },
     "home": {
@@ -1862,7 +1868,6 @@
       "colTags": "Метки",
       "tagVip": "VIP",
       "tagNew": "Новый",
-      "tagAtRisk": "В зоне риска",
       "tagBeginner": "Новичок",
       "colEmail": "Email",
       "colRole": "Роль",
@@ -1960,6 +1965,8 @@
         "source": "Источник",
         "preferredCoach": "Предпочитаемый тренер",
         "noTags": "Без меток",
+        "viewPhoto": "Открыть фото профиля",
+        "photoPreviewAlt": "Фото профиля: {name}",
         "personalInfo": "Личные данные",
         "totalVisits": "Всего визитов",
         "totalBookings": "Всего бронирований",
@@ -2044,6 +2051,7 @@
       },
       "addCoachButton": "Добавить тренера",
       "editCoach": "Редактировать тренера",
+      "edit": "Редактировать",
       "fieldEmail": "Email",
       "fieldName": "Имя",
       "fieldLastName": "Фамилия",
@@ -3069,6 +3077,8 @@
       "loading": "Загрузка активных записей листа ожидания...",
       "retry": "Повторить",
       "empty": "Активных записей листа ожидания нет.",
+      "emptyTitle": "Активных записей листа ожидания нет",
+      "emptyDescription": "Когда участники встанут в очередь на полное занятие, они появятся здесь для управления.",
       "actionFailed": "Не удалось выполнить действие.",
       "colUser": "Пользователь",
       "colClassType": "Тип занятия",
@@ -3470,7 +3480,6 @@
           "total": "Всего клиентов",
           "active": "Активные клиенты",
           "vip": "VIP клиенты",
-          "atRisk": "Клиенты в зоне риска",
           "visits": "Всего визитов",
           "ltv": "Lifetime value",
           "chartAria": "График активности пользователей"

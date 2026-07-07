@@ -1,10 +1,12 @@
 "use client";
 
+import type { FormEvent } from "react";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachEditableAvatar } from "@/components/admin/admin-coach-editable-avatar";
 import {
   AdminSheetEditableField,
+  AdminSheetReadOnlyField,
   ADMIN_SHEET_FORM_SECTION_CLASS,
 } from "@/components/admin/admin-sheet-editable-field";
 import {
@@ -29,7 +31,9 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { formatBirthdayInput, formatDateForUi, parseBirthdayDisplayToIso } from "@/lib/date-display";
+import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
@@ -57,6 +61,9 @@ type CoachSheetTabPanelsProps = {
   photoPreviewUrl: string | null;
   controller: CoachFormController;
   overview?: CoachSheetOverviewContext;
+  personalInfoEditing: boolean;
+  onStartPersonalInfoEdit: () => void;
+  onPersonalInfoSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
 const SECTION_CLASS = ADMIN_SHEET_FORM_SECTION_CLASS;
@@ -72,6 +79,9 @@ export function CoachSheetTabPanels({
   photoPreviewUrl,
   controller,
   overview,
+  personalInfoEditing,
+  onStartPersonalInfoEdit,
+  onPersonalInfoSubmit,
 }: CoachSheetTabPanelsProps) {
   const t = useTranslations("adminPages.coaches");
   const labels = getCoachFormSectionLabels(locale);
@@ -150,86 +160,127 @@ export function CoachSheetTabPanels({
         ) : null}
 
         <section className={SECTION_CLASS}>
-          <SectionHeading
-            title={labels.personalInfoHeading}
-            description={labels.personalInfoDescription}
-          />
-          <div className="grid gap-4 lg:grid-cols-2">
-            <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
-              <input
-                name="email"
-                type="email"
-                autoComplete="email"
-                className="ommm-input"
-                value={form.email}
-                onChange={(event) => controller.updateField("email", event.target.value)}
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+                {labels.personalInfoHeading}
+              </h3>
+              <p className="mt-1 text-xs text-sage-500">{labels.personalInfoDescription}</p>
+            </div>
+            {!personalInfoEditing ? (
+              <EditActionButton
+                ariaLabel={t("edit")}
+                onClick={onStartPersonalInfoEdit}
                 disabled={busy}
               />
-            </AdminSheetEditableField>
-            <AdminSheetEditableField label={t("fieldName")} error={errors.name}>
-              <input
-                type="text"
-                autoComplete="given-name"
-                className="ommm-input"
-                value={form.name}
-                onChange={(event) => controller.updateField("name", event.target.value)}
-                disabled={busy}
-              />
-            </AdminSheetEditableField>
-            <AdminSheetEditableField label={t("fieldLastName")} error={errors.lastName}>
-              <input
-                type="text"
-                autoComplete="family-name"
-                className="ommm-input"
-                value={form.lastName}
-                onChange={(event) => controller.updateField("lastName", event.target.value)}
-                disabled={busy}
-              />
-            </AdminSheetEditableField>
-            <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
-              <PhoneInputField
-                autoComplete="tel"
-                className="ommm-input"
-                value={form.phone}
-                onValueChange={(value) => controller.updateField("phone", value)}
-                disabled={busy}
-              />
-            </AdminSheetEditableField>
-            <AdminSheetEditableField label={t("fieldBirthday")} error={errors.birthday}>
-              <input
-                name="birthdayDisplay"
-                type="text"
-                inputMode="numeric"
-                autoComplete="bday"
-                maxLength={10}
-                className="ommm-input"
-                value={form.birthday}
-                placeholder={labels.birthdayPlaceholder}
-                onChange={(event) => {
-                  const nextValue = formatBirthdayInput(event.target.value);
-                  controller.updateField("birthday", nextValue);
-                  const iso = parseBirthdayDisplayToIso(nextValue);
-                  const derivedAge = iso === null ? null : calculateAgeFromBirthday(iso);
-                  if (derivedAge !== null) {
-                    controller.updateField("age", String(derivedAge));
-                  }
-                }}
-                disabled={busy}
-              />
-            </AdminSheetEditableField>
-            <AdminSheetEditableField label={t("fieldAge")} error={errors.age}>
-              <input
-                type="number"
-                min={COACH_MIN_AGE}
-                max={COACH_MAX_AGE}
-                inputMode="numeric"
-                className="ommm-input"
-                value={form.age}
-                onChange={(event) => controller.updateField("age", event.target.value)}
-                disabled={busy}
-              />
-            </AdminSheetEditableField>
+            ) : null}
           </div>
+          {personalInfoEditing ? (
+            <form className="grid gap-4 lg:grid-cols-2" onSubmit={onPersonalInfoSubmit}>
+              <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
+                <input
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  className="ommm-input"
+                  value={form.email}
+                  onChange={(event) => controller.updateField("email", event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("fieldName")} error={errors.name}>
+                <input
+                  type="text"
+                  autoComplete="given-name"
+                  className="ommm-input"
+                  value={form.name}
+                  onChange={(event) => controller.updateField("name", event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("fieldLastName")} error={errors.lastName}>
+                <input
+                  type="text"
+                  autoComplete="family-name"
+                  className="ommm-input"
+                  value={form.lastName}
+                  onChange={(event) => controller.updateField("lastName", event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
+                <PhoneInputField
+                  autoComplete="tel"
+                  className="ommm-input"
+                  value={form.phone}
+                  onValueChange={(value) => controller.updateField("phone", value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("fieldBirthday")} error={errors.birthday}>
+                <input
+                  name="birthdayDisplay"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="bday"
+                  maxLength={10}
+                  className="ommm-input"
+                  value={form.birthday}
+                  placeholder={labels.birthdayPlaceholder}
+                  onChange={(event) => {
+                    const nextValue = formatBirthdayInput(event.target.value);
+                    controller.updateField("birthday", nextValue);
+                    const iso = parseBirthdayDisplayToIso(nextValue);
+                    const derivedAge = iso === null ? null : calculateAgeFromBirthday(iso);
+                    if (derivedAge !== null) {
+                      controller.updateField("age", String(derivedAge));
+                    }
+                  }}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField label={t("fieldAge")} error={errors.age}>
+                <input
+                  type="number"
+                  min={COACH_MIN_AGE}
+                  max={COACH_MAX_AGE}
+                  inputMode="numeric"
+                  className="ommm-input"
+                  value={form.age}
+                  onChange={(event) => controller.updateField("age", event.target.value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+            </form>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <AdminSheetReadOnlyField
+                label={t("fieldEmail")}
+                value={form.email.trim().length > 0 ? form.email : "—"}
+                className="lg:col-span-2"
+              />
+              <AdminSheetReadOnlyField
+                label={t("fieldName")}
+                value={form.name.trim().length > 0 ? form.name : "—"}
+              />
+              <AdminSheetReadOnlyField
+                label={t("fieldLastName")}
+                value={form.lastName.trim().length > 0 ? form.lastName : "—"}
+              />
+              <AdminSheetReadOnlyField
+                label={t("fieldPhone")}
+                value={form.phone.trim().length > 0 ? formatPhoneDisplay(form.phone) : "—"}
+              />
+              <AdminSheetReadOnlyField
+                label={t("fieldBirthday")}
+                value={form.birthday.trim().length > 0 ? form.birthday : "—"}
+              />
+              <AdminSheetReadOnlyField
+                label={t("fieldAge")}
+                value={form.age.trim().length > 0 ? form.age : "—"}
+              />
+            </div>
+          )}
         </section>
       </div>
     );

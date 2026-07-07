@@ -185,15 +185,13 @@ export function AdminPackagesCategoryTable({
         </AnimatePresence>
       </div>
       {showPager ? (
-        <div className="border-t border-[rgba(212,196,183,0.15)] px-3 py-4">
-          <OmmListPagination
-            total={packages.length}
-            page={page}
-            pageSize={pageSize}
-            offset={offset}
-            onPageChange={setPage}
-          />
-        </div>
+        <OmmListPagination
+          total={packages.length}
+          page={page}
+          pageSize={pageSize}
+          offset={offset}
+          onPageChange={setPage}
+        />
       ) : null}
       <div className="flex justify-center border-t border-[rgba(212,196,183,0.15)] px-1 py-5">
         <button

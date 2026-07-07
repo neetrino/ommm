@@ -3,22 +3,26 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_CLIENT_TAG_BADGE_CLASS,
+  ADMIN_CLIENT_AVATAR_LAYER_CLASS,
+  ADMIN_CLIENT_AVATAR_SIZE_CLASS,
+  ADMIN_CLIENT_AVATAR_WRAPPER_CLASS,
+  ADMIN_CLIENT_TAG_OVERLAY_BADGE_CLASS,
   clientTagBadgeTone,
   clientTagLabelKey,
 } from "@/components/admin/admin-client-list-badges";
 import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
 import {
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
-  ADMIN_CLIENTS_LIST_CELL,
   ADMIN_CLIENTS_LIST_DATE_CELL,
+  ADMIN_CLIENTS_LIST_NAME_CELL,
   ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_CLIENTS_LIST_ROW_CLASS,
-  ADMIN_CLIENTS_LIST_TAGS_CELL,
+  ADMIN_CLIENTS_LIST_SUBTITLE_CLASS,
+  ADMIN_CLIENTS_LIST_TITLE_CLASS,
+  ADMIN_CLIENTS_LIST_VALUE_CLASS,
 } from "@/components/admin/admin-clients-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
-import type { ClientRow, ClientTag } from "@/components/admin/admin-clients-types";
+import type { ClientRow } from "@/components/admin/admin-clients-types";
 import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateCompactForUi, formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
@@ -53,34 +57,29 @@ export function AdminClientCompactRow({
       }}
       className={ADMIN_CLIENTS_LIST_ROW_CLASS}
     >
-      <div className={ADMIN_CLIENTS_LIST_CELL}>
+      <div className={ADMIN_CLIENTS_LIST_NAME_CELL}>
         <AdminListMobileLabel label={t("colName")} />
-        <div className="flex min-w-0 items-center gap-3">
-          <ClientAvatar row={row} />
+        <div className="flex min-w-0 items-center gap-4 overflow-visible">
+          <ClientAvatarWithTags row={row} />
           <div className="min-w-0 flex-1">
-            <p className={ADMIN_LIST_TITLE_TEXT_CLASS} title={name}>
+            <p className={ADMIN_CLIENTS_LIST_TITLE_CLASS} title={name}>
               {name}
             </p>
-            <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(row.phone)}</p>
+            <p className={ADMIN_CLIENTS_LIST_SUBTITLE_CLASS}>{displayPhoneOrFallback(row.phone)}</p>
           </div>
         </div>
       </div>
 
       <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
         <AdminListMobileLabel label={t("fieldBirthday")} />
-        <p className="text-sm text-sage-800">
+        <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>
           {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
         </p>
       </div>
 
-      <div className={ADMIN_CLIENTS_LIST_TAGS_CELL}>
-        <AdminListMobileLabel label={t("colTags")} />
-        <ClientTags tags={row.tags} />
-      </div>
-
       <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
         <AdminListMobileLabel label={t("colJoined")} />
-        <p className="text-sm text-sage-800">{formatDateCompactForUi(row.createdAt)}</p>
+        <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
       </div>
 
       {readOnly ? null : (
@@ -101,24 +100,23 @@ export function AdminClientCompactRow({
   );
 }
 
-function ClientTags({ tags }: { tags: readonly ClientTag[] }) {
+function ClientAvatarWithTags({ row }: { row: ClientRow }) {
   const t = useTranslations("adminPages.clients");
-
-  if (tags.length === 0) {
-    return <span className="text-sm text-sage-400">—</span>;
-  }
+  const primaryTag = row.tags[0];
 
   return (
-    <>
-      {tags.map((tag) => (
+    <div className={ADMIN_CLIENT_AVATAR_WRAPPER_CLASS}>
+      <div className={ADMIN_CLIENT_AVATAR_LAYER_CLASS}>
+        <ClientAvatar row={row} />
+      </div>
+      {primaryTag ? (
         <span
-          key={tag}
-          className={`${ADMIN_CLIENT_TAG_BADGE_CLASS} ${clientTagBadgeTone(tag)}`}
+          className={`${ADMIN_CLIENT_TAG_OVERLAY_BADGE_CLASS} ${clientTagBadgeTone(primaryTag)}`}
         >
-          {t(clientTagLabelKey(tag))}
+          {t(clientTagLabelKey(primaryTag))}
         </span>
-      ))}
-    </>
+      ) : null}
+    </div>
   );
 }
 
@@ -129,9 +127,9 @@ function ClientAvatar({ row }: { row: ClientRow }) {
       <Image
         src={src}
         alt=""
-        width={40}
-        height={40}
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
+        width={48}
+        height={48}
+        className={`${ADMIN_CLIENT_AVATAR_SIZE_CLASS} rounded-full object-cover`}
         unoptimized
       />
     );
@@ -142,7 +140,7 @@ function ClientAvatar({ row }: { row: ClientRow }) {
     .map((part) => part[0]?.toUpperCase())
     .join("");
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
+    <div className="flex h-full w-full items-center justify-center rounded-full bg-sand-100 text-base font-semibold text-sage-800">
       {initials || "?"}
     </div>
   );
