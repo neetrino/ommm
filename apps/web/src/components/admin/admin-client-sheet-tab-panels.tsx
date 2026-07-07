@@ -1,5 +1,6 @@
 "use client";
 
+import type { FormEvent } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
@@ -48,6 +49,7 @@ type ClientSheetTabPanelsProps = {
   tabRefreshKey?: number;
   personalInfoEditing: boolean;
   onStartPersonalInfoEdit: () => void;
+  onPersonalInfoSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
 export function ClientSheetTabPanels({
@@ -67,6 +69,7 @@ export function ClientSheetTabPanels({
   tabRefreshKey = 0,
   personalInfoEditing,
   onStartPersonalInfoEdit,
+  onPersonalInfoSubmit,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
   const activity = detail.activity;
@@ -127,7 +130,7 @@ export function ClientSheetTabPanels({
             ) : null}
           </div>
           {personalInfoEditing ? (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <form className="grid gap-4 lg:grid-cols-2" onSubmit={onPersonalInfoSubmit}>
               <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
                 <input
                   name="email"
@@ -187,7 +190,7 @@ export function ClientSheetTabPanels({
                   disabled={busy}
                 />
               </AdminSheetEditableField>
-            </div>
+            </form>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
               <AdminSheetReadOnlyField

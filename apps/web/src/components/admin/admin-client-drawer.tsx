@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { formatIsoDateToUi } from "@/lib/date-display";
 import { AdminClientStatusAction } from "@/components/admin/admin-client-status-action";
@@ -226,7 +226,13 @@ function AdminClientDrawerInner({
     const saved = await editForm.save(t("updateSuccess"), t("genericError"));
     if (saved) {
       setPersonalInfoEditing(false);
+      onClose();
     }
+  }
+
+  function handlePersonalInfoFormSubmit(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    void handleSavePersonalInfo();
   }
 
   async function runAction(
@@ -356,6 +362,7 @@ function AdminClientDrawerInner({
             tabRefreshKey={tabRefreshKey}
             personalInfoEditing={personalInfoEditing}
             onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
+            onPersonalInfoSubmit={handlePersonalInfoFormSubmit}
           />
         )}
       </div>
