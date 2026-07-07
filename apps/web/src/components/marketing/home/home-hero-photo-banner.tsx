@@ -21,6 +21,7 @@ import {
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
   HOME_HERO_PROMO_BANNER_LAYOUT,
+  HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT,
   HOME_HERO_PROMO_COPY_LAYOUT,
   HOME_HERO_PROMO_TYPOGRAPHY,
   resolveHomeHeroIntroVideoUrl,
@@ -52,7 +53,10 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
 
   const heroBackground = hasHeroIntroVideo ? (
-    <HomeHeroMediaBackground heroImageAlt={t("heroImageAlt")} />
+    <HomeHeroMediaBackground
+      heroImageAlt={t("heroImageAlt")}
+      promoBannerAlt={t("promoBanner3Alt")}
+    />
   ) : (
     <div className={styles.homeHeroBackgroundLayer} aria-hidden>
       <div className={styles.homeHeroBackgroundCrop}>
@@ -169,8 +173,14 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
     ["--home-hero-section-bg" as string]: HOME_HERO_FIGMA.sectionBackground,
     ["--home-hero-slide-count" as string]: String(HOME_HERO_CAROUSEL_SLIDE_COUNT),
     ["--home-hero-promo-aspect-ratio" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.aspectRatio,
+    ["--home-hero-promo-aspect-ratio-mobile" as string]:
+      HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.aspectRatio,
     ["--home-hero-promo-object-position" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.objectPosition,
+    ["--home-hero-promo-object-position-mobile" as string]:
+      HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.objectPosition,
     ["--home-hero-promo-section-bg" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.sectionBackground,
+    ["--home-hero-promo-section-bg-mobile" as string]:
+      HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.sectionBackground,
     ["--home-hero-promo-text-max-width" as string]: `${HOME_HERO_PROMO_BANNER_LAYOUT.textMaxWidthRatio * 100}%`,
     ["--home-hero-promo-text-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.textColor,
     ["--home-hero-promo-artboard-width-px" as string]: String(
@@ -289,7 +299,12 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         mobileVideoUrl={heroIntroMobileVideoUrl}
         mobileVideoMp4Url={heroIntroMobileVideoMp4Url}
       >
-        <HomeHeroSectionShell style={heroSectionStyle}>{heroInner}</HomeHeroSectionShell>
+        <HomeHeroSectionShell
+          promoBannerAriaLabel={t("promoBanner3Alt")}
+          style={heroSectionStyle}
+        >
+          {heroInner}
+        </HomeHeroSectionShell>
       </HomeHeroSlideProvider>
     );
   }

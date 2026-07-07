@@ -15,14 +15,11 @@ import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroMediaBackgroundProps = {
   heroImageAlt: string;
+  promoBannerAlt: string;
 };
 
 type HomeHeroLegacyPhotoSlideProps = {
   imageAlt: string;
-};
-
-type HomeHeroPromoBannerSlideProps = {
-  assetKey: HomeHeroPromoBannerKey;
 };
 
 function HomeHeroLegacyPhotoSlide({ imageAlt }: HomeHeroLegacyPhotoSlideProps) {
@@ -42,17 +39,50 @@ function HomeHeroLegacyPhotoSlide({ imageAlt }: HomeHeroLegacyPhotoSlideProps) {
   );
 }
 
-function HomeHeroPromoBannerSlide({ assetKey }: HomeHeroPromoBannerSlideProps) {
+type HomeHeroPromoBannerSlideProps = {
+  assetKey: HomeHeroPromoBannerKey;
+  imageAlt: string;
+};
+
+function resolvePromoBannerSources(assetKey: HomeHeroPromoBannerKey): {
+  desktop: string;
+  mobile: string;
+} {
+  if (assetKey === "promoBanner3") {
+    return {
+      desktop: HOME_HERO_ASSETS.promoBanner3,
+      mobile: HOME_HERO_ASSETS.promoBanner3Mobile,
+    };
+  }
+  return {
+    desktop: HOME_HERO_ASSETS.promoBanner3,
+    mobile: HOME_HERO_ASSETS.promoBanner3Mobile,
+  };
+}
+
+function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSlideProps) {
+  const sources = resolvePromoBannerSources(assetKey);
+
   return (
     <div className={styles.homeHeroMediaSlide}>
       <div className={styles.homeHeroPromoBackgroundCrop}>
         <Image
-          src={HOME_HERO_ASSETS[assetKey]}
+          src={sources.mobile}
+          alt={imageAlt}
+          fill
+          unoptimized
+          sizes="100vw"
+          className={`${styles.homeHeroPromoBackground} ${styles.homeHeroPromoBackgroundMobile} pointer-events-none`}
+          {...aboveFoldImageProps()}
+        />
+        <Image
+          src={sources.desktop}
           alt=""
           fill
           unoptimized
           sizes="100vw"
-          className={`${styles.homeHeroPromoBackground} pointer-events-none`}
+          className={`${styles.homeHeroPromoBackground} ${styles.homeHeroPromoBackgroundDesktop} pointer-events-none`}
+          aria-hidden
           {...aboveFoldImageProps()}
         />
       </div>
@@ -61,7 +91,10 @@ function HomeHeroPromoBannerSlide({ assetKey }: HomeHeroPromoBannerSlideProps) {
 }
 
 /** Hero carousel — intro video, promo banner, then legacy meditation hero. */
-export function HomeHeroMediaBackground({ heroImageAlt }: HomeHeroMediaBackgroundProps) {
+export function HomeHeroMediaBackground({
+  heroImageAlt,
+  promoBannerAlt,
+}: HomeHeroMediaBackgroundProps) {
   const slide = useHomeHeroSlide();
   const {
     activeSlide,
@@ -138,6 +171,7 @@ export function HomeHeroMediaBackground({ heroImageAlt }: HomeHeroMediaBackgroun
             <HomeHeroPromoBannerSlide
               key={`hero-slide-${index}`}
               assetKey={carouselSlide.assetKey}
+              imageAlt={promoBannerAlt}
             />
           );
         })}

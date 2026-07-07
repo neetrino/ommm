@@ -109,13 +109,21 @@
 
 .homeHeroPromoBackground {
   object-fit: cover;
-  object-position: var(--home-hero-promo-object-position, right center);
+  object-position: var(--home-hero-promo-object-position-mobile, center top);
+}
+
+.homeHeroPromoBackgroundDesktop {
+  display: none;
+}
+
+.homeHeroPromoBackgroundMobile {
+  display: block;
 }
 
 .homeHeroPromoAspectSpacer {
   display: block;
   width: 100%;
-  aspect-ratio: var(--home-hero-promo-aspect-ratio, 1672 / 941);
+  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 941 / 1672);
 }
 
 .homeHeroFramePromo {
@@ -126,7 +134,7 @@
 }
 
 .homeHeroSectionPromo {
-  background-color: var(--home-hero-promo-section-bg, #c59d46);
+  background-color: var(--home-hero-promo-section-bg-mobile, #c5a04a);
 }
 
 .homeHeroBackground {
@@ -285,6 +293,10 @@
   .homeHeroCtas {
     transform: translateY(var(--home-hero-cta-down-offset, 0));
   }
+
+  .homeHeroPromoSlideTrack {
+    display: none;
+  }
 }
 @media (min-width: 640px) {
   .homeHeroTitleLine {
@@ -297,6 +309,26 @@
 }
 
 @media (min-width: 744px) {
+  .homeHeroPromoBackground {
+    object-position: var(--home-hero-promo-object-position, right center);
+  }
+
+  .homeHeroPromoBackgroundDesktop {
+    display: block;
+  }
+
+  .homeHeroPromoBackgroundMobile {
+    display: none;
+  }
+
+  .homeHeroPromoAspectSpacer {
+    aspect-ratio: var(--home-hero-promo-aspect-ratio, 1672 / 941);
+  }
+
+  .homeHeroSectionPromo {
+    background-color: var(--home-hero-promo-section-bg, #c59d46);
+  }
+
   .homeHeroFrame {
     display: block;
     min-height: var(--home-hero-min-h-lg);
@@ -313,10 +345,6 @@
 
   .homeHeroSection {
     background-color: var(--home-hero-section-bg, #faf3cb);
-  }
-
-  .homeHeroSectionPromo {
-    background-color: var(--home-hero-promo-section-bg, #c59d46);
   }
 
   .homeHeroBackgroundCrop {

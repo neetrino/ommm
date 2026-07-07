@@ -1,7 +1,10 @@
 /** Contact page — glass tile grid tokens. */
 
-export const CONTACT_PAGE_CARD_SHELL_CLASS =
-  "ommm-card shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]";
+export const CONTACT_PAGE_CARD_SHELL_CLASS = "ommm-card";
+
+/** Desktop card elevation — omitted on phone to avoid clipped edge bands. */
+export const CONTACT_PAGE_CARD_DESKTOP_SHADOW =
+  "0 24px 50px -30px rgba(45, 40, 35, 0.28)";
 
 export const CONTACT_PAGE_SURFACE = {
   headingColor: "#1d1c15",

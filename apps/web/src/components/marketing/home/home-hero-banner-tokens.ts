@@ -130,6 +130,8 @@ export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
+  /** Figma `801:830` — mobile portrait promo (copy baked into art). */
+  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile.webp",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -151,6 +153,19 @@ export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   sectionBackground: "#b58e49",
   objectPosition: "right center",
   textMaxWidthRatio: 0.44,
+} as const;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 941;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1672;
+
+/** Figma `801:830` — full mobile promo slide (portrait art with baked-in copy). */
+export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
+  artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
+  artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
+  aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
+  figmaNodeId: "801:830",
+  sectionBackground: "#c5a04a",
+  objectPosition: "center top",
 } as const;
 
 /** Promo copy layout — proportional to artboard `1672×941` reference mockup. */

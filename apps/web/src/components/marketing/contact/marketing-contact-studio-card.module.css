@@ -21,6 +21,7 @@
   align-items: center;
   gap: var(--contact-tile-row-gap-mobile);
   padding: var(--contact-tile-padding-mobile);
+  box-shadow: none;
 }
 
 @media (min-width: 744px) {
@@ -28,6 +29,7 @@
     min-height: var(--contact-tile-min-height);
     gap: var(--contact-tile-row-gap);
     padding: var(--contact-tile-padding);
+    box-shadow: var(--contact-card-desktop-shadow);
   }
 }
 
@@ -63,8 +65,14 @@
   height: var(--contact-icon-size);
   border-radius: 50%;
   background: var(--contact-icon-bg);
-  box-shadow: 0 0 0 1px rgba(29, 28, 21, 0.08);
+  box-shadow: none;
   overflow: hidden;
+}
+
+@media (min-width: 744px) {
+  .iconWrap {
+    box-shadow: 0 0 0 1px rgba(29, 28, 21, 0.08);
+  }
 }
 
 .icon {

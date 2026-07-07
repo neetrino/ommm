@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import {
   CONTACT_PAGE_CARD_SHELL_CLASS,
+  CONTACT_PAGE_CARD_DESKTOP_SHADOW,
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
@@ -34,6 +35,7 @@ const CARD_STYLE = {
   "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
   "--contact-tile-hover-lift": `-${CONTACT_PAGE_LAYOUT.tileHoverLiftPx}px`,
   "--contact-tile-hover-duration": `${CONTACT_PAGE_LAYOUT.tileHoverDurationMs}ms`,
+  "--contact-card-desktop-shadow": CONTACT_PAGE_CARD_DESKTOP_SHADOW,
 } as CSSProperties;
 
 function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
