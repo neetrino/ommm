@@ -70,6 +70,13 @@ describe('PaymentSuccessEmailService', () => {
     await service.trySendSuccessEmails('p1', PaymentStatus.PENDING);
 
     expect(mail.sendEmail).toHaveBeenCalledTimes(2);
+    const adminCall = mail.sendEmail.mock.calls.find(
+      ([payload]) => payload.to === 'admin@studio.test',
+    );
+    expect(adminCall?.[0].html).not.toContain('Reference');
+    expect(adminCall?.[0].html).not.toContain('Payment ID');
+    expect(adminCall?.[0].html).not.toContain('Related details');
+    expect(adminCall?.[0].html).not.toContain('PKG-ABC123');
     expect(prisma.payment.updateMany).toHaveBeenCalledTimes(1);
     const updateManyMock = prisma.payment.updateMany as jest.Mock<
       Promise<{ count: number }>,

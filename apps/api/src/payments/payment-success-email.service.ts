@@ -147,9 +147,6 @@ export class PaymentSuccessEmailService {
           paymentTypeLabel: context.paymentTypeLabel,
           statusLabel: context.statusLabel,
           confirmedAtLabel: context.confirmedAtLabel,
-          paymentId: context.paymentId,
-          paymentReference: context.paymentReference,
-          relatedDetails: context.relatedDetails,
         }),
         attachments: [logoAttachment],
       });
