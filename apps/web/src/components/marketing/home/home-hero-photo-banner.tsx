@@ -173,7 +173,6 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
     ["--home-hero-promo-section-bg" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.sectionBackground,
     ["--home-hero-promo-text-max-width" as string]: `${HOME_HERO_PROMO_BANNER_LAYOUT.textMaxWidthRatio * 100}%`,
     ["--home-hero-promo-text-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.textColor,
-    ["--home-hero-promo-phone-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.phoneColor,
     ["--home-hero-promo-artboard-width-px" as string]: String(
       HOME_HERO_PROMO_BANNER_LAYOUT.artboardWidthPx,
     ),

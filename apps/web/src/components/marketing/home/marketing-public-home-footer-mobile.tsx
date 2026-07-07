@@ -19,6 +19,8 @@ export type MarketingPublicHomeFooterMobileProps = {
   wordmarkLabel: string;
   illustrationAlt: string;
   contactTitle: string;
+  phone: string;
+  phoneHref: string;
   email: string;
   address: string;
   addressHref: string;
@@ -38,6 +40,8 @@ export function MarketingPublicHomeFooterMobile({
   wordmarkLabel,
   illustrationAlt,
   contactTitle,
+  phone,
+  phoneHref,
   email,
   address,
   addressHref,
@@ -59,6 +63,22 @@ export function MarketingPublicHomeFooterMobile({
         <div className={styles.mobileContactSection}>
           <p className={styles.mobileContactTitle}>{contactTitle}</p>
           <div className={styles.mobileContact}>
+            {phoneHref.length > 0 ? (
+              <div className={styles.mobileContactRow}>
+                <Image
+                  src={HOME_FOOTER_ASSETS.phone}
+                  alt=""
+                  width={20}
+                  height={20}
+                  unoptimized
+                  className={styles.mobileContactIcon}
+                  aria-hidden
+                />
+                <a href={`tel:${phoneHref}`} className={styles.mobileContactText}>
+                  {phone}
+                </a>
+              </div>
+            ) : null}
             <div className={styles.mobileContactRow}>
               <Image
                 src={HOME_FOOTER_ASSETS.mail}

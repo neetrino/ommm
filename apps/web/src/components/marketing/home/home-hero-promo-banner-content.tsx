@@ -1,8 +1,5 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-promo-content-layer.module.css";
-import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroPromoBannerContentProps = {
   locale: string;
@@ -29,22 +26,6 @@ export async function HomeHeroPromoBannerContent({ locale }: HomeHeroPromoBanner
           <strong className={styles.promoSublineBold}>{t("promoBanner3Subline2Bold")}</strong>
         </span>
       </p>
-
-      <a className={styles.promoPhonePill} href={`tel:${t("promoBanner3PhoneHref")}`}>
-        <span className={styles.promoPhoneEmblem} aria-hidden>
-          <span className={styles.promoPhoneEmblemCrop}>
-            <Image
-              src={HOME_HERO_ASSETS.logoMark}
-              alt=""
-              fill
-              sizes="48px"
-              className={styles.promoPhoneEmblemImage}
-              {...aboveFoldImageProps()}
-            />
-          </span>
-        </span>
-        <span className={`${styles.promoPhoneNumber} font-serif`}>{t("promoBanner3Phone")}</span>
-      </a>
     </div>
   );
 }

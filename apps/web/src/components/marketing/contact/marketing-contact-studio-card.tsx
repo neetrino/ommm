@@ -37,11 +37,13 @@ const CARD_STYLE = {
 } as CSSProperties;
 
 function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
+  const phoneClassName = tile.key === "phone" ? styles.valuePhone : undefined;
+
   if (tile.href !== undefined) {
     return (
       <a
         href={tile.href}
-        className={styles.valueLink}
+        className={phoneClassName !== undefined ? `${styles.valueLink} ${phoneClassName}` : styles.valueLink}
         {...(tile.href.startsWith("http")
           ? { target: "_blank", rel: "noopener noreferrer" }
           : {})}
@@ -51,7 +53,11 @@ function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
     );
   }
 
-  return <p className={styles.value}>{tile.value}</p>;
+  return (
+    <p className={phoneClassName !== undefined ? `${styles.value} ${phoneClassName}` : styles.value}>
+      {tile.value}
+    </p>
+  );
 }
 
 function ContactGridTileCard({

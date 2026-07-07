@@ -166,7 +166,6 @@ export const HOME_HERO_PROMO_COPY_LAYOUT = {
 /** Promo copy colors — cream headline on gold photo. */
 export const HOME_HERO_PROMO_TYPOGRAPHY = {
   textColor: "#fbf5d5",
-  phoneColor: "#2c2418",
 } as const;
 
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */

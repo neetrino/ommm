@@ -16,6 +16,7 @@ import {
 } from "@/components/marketing/home/home-footer-section-tokens";
 import { MarketingPublicHomeFooterSurface } from "@/components/marketing/home/marketing-public-home-footer-surface";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { formatPhoneTelHref } from "@/lib/phone";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type MarketingPublicHomeFooterProps = {
@@ -105,10 +106,21 @@ export async function MarketingPublicHomeFooter({
     </HomeFooterSphereBounce>
   );
 
+  const footerPhone = t("footerPhone");
+  const footerPhoneHref = formatPhoneTelHref(footerPhone);
+
   const contact = showContactSection ? (
     <div>
       <p className={styles.sectionTitle}>{t("footerContactTitle")}</p>
       <ul className={styles.contactList}>
+        {footerPhoneHref.length > 0 ? (
+          <li className={styles.contactRow}>
+            <Image src={HOME_FOOTER_ASSETS.phone} alt="" width={24} height={24} unoptimized className={styles.contactIcon} aria-hidden />
+            <a href={`tel:${footerPhoneHref}`} className={styles.contactText}>
+              {footerPhone}
+            </a>
+          </li>
+        ) : null}
         <li className={styles.contactRow}>
           <Image src={HOME_FOOTER_ASSETS.mail} alt="" width={25} height={24} unoptimized className={styles.contactIcon} aria-hidden />
           <a href={`mailto:${t("footerEmail")}`} className={styles.contactText}>
@@ -179,6 +191,8 @@ export async function MarketingPublicHomeFooter({
             wordmarkLabel={t("footerWordmark")}
             illustrationAlt={t("footerIllustrationAlt")}
             contactTitle={t("footerContactTitle")}
+            phone={footerPhone}
+            phoneHref={footerPhoneHref}
             email={t("footerEmail")}
             address={t("footerAddress")}
             addressHref={HOME_FOOTER_ADDRESS_HREF}
