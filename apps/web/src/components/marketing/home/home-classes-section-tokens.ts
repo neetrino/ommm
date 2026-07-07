@@ -56,6 +56,8 @@ export const HOME_CLASSES_SECTION_MOBILE_FIGMA = {
   cardBodyFontSizePx: 12,
   cardBodyLineHeightPx: 17,
   cardImageRotationDeg: 8.8,
+  /** Narrow mobile body copy — ~3 words per line at 12px. */
+  practiceCardNarrowBodyMaxWidthPx: 144,
 } as const;
 
 const mobileClassesCornerCoverPx = HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.panelRadiusPx + 12;
@@ -78,6 +80,7 @@ export const HOME_CLASSES_SECTION_MOBILE_LAYOUT = {
   carouselHeight: "26.1875rem",
   cardMinHeightPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardHeightPx,
   cardRadiusPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardRadiusPx,
+  practiceCardNarrowBodyMaxWidth: `clamp(5.5rem, calc(100svw * ${HOME_CLASSES_SECTION_MOBILE_FIGMA.practiceCardNarrowBodyMaxWidthPx} / ${HOME_CLASSES_SECTION_MOBILE_FIGMA.artboardWidthPx}), 9rem)`,
   /** Pull gradient through weekly schedule bottom corners on mobile. */
   sectionClassesOverlap: `calc(${HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionOuterPaddingBottom} + ${mobileClassesCornerCoverPx}px)`,
   sectionToClassesHeadingGapAdjustPx: -15,
