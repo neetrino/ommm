@@ -177,7 +177,10 @@ export class PaymentsFulfillmentService {
   async fulfillPaymentBySource(
     tx: Prisma.TransactionClient,
     existing: InternalPaymentRecord,
-  ): Promise<{ giftEmail: GiftEmailPayload | null; packageStockTracked: boolean }> {
+  ): Promise<{
+    giftEmail: GiftEmailPayload | null;
+    packageStockTracked: boolean;
+  }> {
     if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
       await this.fulfillDropInPayment(
         tx,

@@ -14,25 +14,26 @@ export function toPublicPlan(
   plan: PublicPlanSource,
   classTypeNameById?: Map<string, string>,
 ) {
-  const {
-    availableQuantity: _availableQuantity,
-    createdAt: _createdAt,
-    updatedAt: _updatedAt,
-    slug: _slug,
-    classTypeId: _classTypeId,
-    buttonLabel: _buttonLabel,
-    ...publicFields
-  } = plan as PublicPlanSource & {
-    availableQuantity?: number | null;
-    createdAt?: Date;
-    updatedAt?: Date;
-    slug?: string;
-    classTypeId?: string | null;
-    buttonLabel?: string;
-  };
-
   return {
-    ...publicFields,
+    id: plan.id,
+    name: plan.name,
+    categoryName: plan.categoryName,
+    categorySlug: plan.categorySlug,
+    description: plan.description,
+    priceCents: plan.priceCents,
+    discountedPriceCents: plan.discountedPriceCents,
+    pricePerSessionCents: plan.pricePerSessionCents,
+    showPricePerSession: plan.showPricePerSession,
+    currency: plan.currency,
+    billingPeriod: plan.billingPeriod,
+    periodDays: plan.periodDays,
+    sessionsPerMonth: plan.sessionsPerMonth,
+    isUnlimited: plan.isUnlimited,
+    isPopular: plan.isPopular,
+    isActive: plan.isActive,
+    features: plan.features,
+    guestCount: plan.guestCount,
+    displayOrder: plan.displayOrder,
     typeSessionAllocations: enrichStoredTypeSessionAllocations(
       plan.typeSessionAllocations,
       classTypeNameById,

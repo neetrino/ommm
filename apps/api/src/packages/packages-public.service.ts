@@ -129,7 +129,9 @@ export class PackagesPublicService {
           userId,
           amountCents: resolveFinalPriceCents(plan),
           currency: plan.currency.toLowerCase(),
-          status: isCardPayment ? PaymentStatus.PENDING : PaymentStatus.SUCCEEDED,
+          status: isCardPayment
+            ? PaymentStatus.PENDING
+            : PaymentStatus.SUCCEEDED,
           paymentReference,
           source: PaymentSource.PACKAGE,
           sourceId: userPackage.id,
@@ -155,8 +157,7 @@ export class PackagesPublicService {
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
-      requiresArcaCheckout:
-        isCardPayment && isArcaCheckoutEnabled(this.config),
+      requiresArcaCheckout: isCardPayment && isArcaCheckoutEnabled(this.config),
     };
   }
 
