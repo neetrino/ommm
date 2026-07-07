@@ -2,13 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { BookingStatus, ClassSessionStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
+/** Defensive cap for public session list queries within the 30-day window. */
+export const PUBLIC_CLASS_SESSIONS_LIST_LIMIT = 2000;
+
 @Injectable()
 export class ClassesSessionsPublicService {
   constructor(private readonly prisma: PrismaService) {}
 
   listSessionsPublic(params: {
     from: Date;
-    to?: Date;
+    to: Date;
     coachId?: string;
     typeId?: string;
   }) {
@@ -17,7 +20,7 @@ export class ClassesSessionsPublicService {
         status: { in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL] },
         startsAt: {
           gte: params.from,
-          ...(params.to !== undefined ? { lte: params.to } : {}),
+          lte: params.to,
         },
         ...(params.coachId && { coachId: params.coachId }),
         ...(params.typeId && { classTypeId: params.typeId }),
@@ -34,6 +37,7 @@ export class ClassesSessionsPublicService {
         },
       },
       orderBy: { startsAt: 'asc' },
+      take: PUBLIC_CLASS_SESSIONS_LIST_LIMIT,
     });
   }
 

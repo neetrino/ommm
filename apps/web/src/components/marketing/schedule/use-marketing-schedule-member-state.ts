@@ -109,34 +109,16 @@ export function useMarketingScheduleMemberState({
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    if (initialItems.length > 0) {
+      return;
+    }
 
+    let cancelled = false;
     const runRefresh = (): void => {
       if (!cancelled) {
         void refreshSchedule();
       }
     };
-
-    if (initialItems.length > 0) {
-      let idleCallbackId: number | undefined;
-      let timeoutId: number | undefined;
-
-      if (typeof requestIdleCallback !== "undefined") {
-        idleCallbackId = requestIdleCallback(runRefresh, { timeout: 2_000 });
-      } else {
-        timeoutId = window.setTimeout(runRefresh, 300);
-      }
-
-      return () => {
-        cancelled = true;
-        if (idleCallbackId !== undefined) {
-          cancelIdleCallback(idleCallbackId);
-        }
-        if (timeoutId !== undefined) {
-          window.clearTimeout(timeoutId);
-        }
-      };
-    }
 
     runRefresh();
     return () => {
@@ -155,12 +137,6 @@ export function useMarketingScheduleMemberState({
     () => refetchMemberBookings(false),
     isMember,
   );
-  useRealtimeRefetch(
-    REALTIME_REFETCH_KEYS.WAITLIST_ME,
-    () => refetchWaitlist({ silent: true }),
-    isMember,
-  );
-
   useScheduleLiveSync({ onSync: syncLiveSchedule });
 
   const debouncedRefetchBookings = useDebouncedCallback(() => {

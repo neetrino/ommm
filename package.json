@@ -17,7 +17,8 @@
     "db:migrate:dev": "pnpm --filter @ommm/database run migrate:dev",
     "setup": "pnpm install",
     "test": "pnpm --filter api test",
-    "test:e2e:web": "pnpm --filter web test:e2e"
+    "test:e2e:web": "pnpm --filter web test:e2e",
+    "load:local:smoke": "k6 run tests/load/local-smoke.js"
   },
   "engines": {
     "node": ">=20"

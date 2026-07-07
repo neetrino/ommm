@@ -26,7 +26,6 @@ export class CoachesPublicService {
                 id: true,
                 name: true,
                 lastName: true,
-                email: true,
                 avatarUrl: true,
               },
             },

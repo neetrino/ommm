@@ -53,6 +53,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
+    if (user.isBlocked) {
+      throw new UnauthorizedException();
+    }
     return user;
   }
 }
