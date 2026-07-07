@@ -34,7 +34,6 @@ export function AdminClientsTable({
       <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
         <span>{t("colName")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
         {readOnly ? null : (
           <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>

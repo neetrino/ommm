@@ -31,7 +31,7 @@ export const ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS = buildClientsListTableClas
 export const ADMIN_CLIENTS_LIST_HEADER_CLASS = buildAdminListHeaderClass();
 
 /** Desktop row height — avatar + name/phone block; keeps every client row uniform. */
-const ADMIN_CLIENTS_LIST_ROW_HEIGHT_CLASS = "md:h-[4.5rem] md:overflow-hidden";
+const ADMIN_CLIENTS_LIST_ROW_HEIGHT_CLASS = "md:min-h-[4.5rem] md:overflow-visible";
 
 export const ADMIN_CLIENTS_LIST_ROW_CLASS = [
   ADMIN_LIST_ROW_CLASS,
@@ -42,12 +42,11 @@ export const ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL = ADMIN_LIST_ROW_ACTION
 
 export const ADMIN_CLIENTS_LIST_CELL = USER_LIST_CELL_CLASS;
 
-export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
+/** Name column — allow avatar tag ribbon to render above the icon without clipping. */
+export const ADMIN_CLIENTS_LIST_NAME_CELL =
+  "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left";
 
-export const ADMIN_CLIENTS_LIST_TAGS_CELL = [
-  USER_LIST_CELL_CLASS,
-  "flex min-h-[1.375rem] flex-row flex-wrap items-center gap-1 md:h-full md:overflow-hidden",
-].join(" ");
+export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
 
 export const ADMIN_CLIENTS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
 
