@@ -1,10 +1,13 @@
 import type { ClientTag } from "@/components/admin/admin-clients-types";
 
 /** Avatar shell — isolates badge stacking above the image/initials layer. */
-export const ADMIN_CLIENT_AVATAR_WRAPPER_CLASS =
-  "relative isolate h-10 w-10 shrink-0 overflow-visible";
+export const ADMIN_CLIENT_AVATAR_SIZE_CLASS = "h-12 w-12";
 
-export const ADMIN_CLIENT_AVATAR_LAYER_CLASS = "relative z-0 h-10 w-10";
+export const ADMIN_CLIENT_AVATAR_WRAPPER_CLASS =
+  `relative isolate ${ADMIN_CLIENT_AVATAR_SIZE_CLASS} shrink-0 overflow-visible`;
+
+export const ADMIN_CLIENT_AVATAR_LAYER_CLASS =
+  `relative z-0 ${ADMIN_CLIENT_AVATAR_SIZE_CLASS}`;
 
 /** Slanted ribbon on the top-left of the client avatar in list rows. */
 export const ADMIN_CLIENT_TAG_OVERLAY_BADGE_CLASS =

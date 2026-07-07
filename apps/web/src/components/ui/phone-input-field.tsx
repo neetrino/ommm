@@ -4,6 +4,7 @@ import type { InputHTMLAttributes } from "react";
 import { useRef } from "react";
 import { applyPhoneInputChange } from "@/lib/phone-input";
 import {
+  ARMENIA_COUNTRY_CODE,
   ARMENIA_PHONE_DISPLAY_PLACEHOLDER,
   formatPhoneDisplay,
   PHONE_INPUT_DEFAULT_PREFIX,
@@ -37,13 +38,13 @@ export function PhoneInputField({
 
   function handleFocus(event: React.FocusEvent<HTMLInputElement>) {
     if (value.trim().length === 0) {
-      onValueChange(PHONE_INPUT_DEFAULT_PREFIX);
+      onValueChange(ARMENIA_COUNTRY_CODE);
     }
     onFocus?.(event);
   }
 
   function handleBlur(event: React.FocusEvent<HTMLInputElement>) {
-    if (value === PHONE_INPUT_DEFAULT_PREFIX) {
+    if (value === PHONE_INPUT_DEFAULT_PREFIX || value === ARMENIA_COUNTRY_CODE) {
       onValueChange("");
     }
     onBlur?.(event);
