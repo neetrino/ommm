@@ -12,7 +12,7 @@ import {
 type ClientListRowSummaryFields = {
   classLevels: string[];
   preferredCoach: { id: string; name: string } | null;
-  tags: Array<'VIP' | 'New' | 'At Risk' | 'Beginner'>;
+  tags: Array<'VIP' | 'New' | 'Beginner'>;
   status: 'Active' | 'Inactive' | 'Blocked';
   totalVisits: number;
   lifetimeValueCents: number;
@@ -39,46 +39,28 @@ export async function computeClientsSummaryFromDb(
       },
     ],
   };
-  const atRiskWhere: Prisma.UserWhereInput = {
-    AND: [
-      where,
-      {
-        OR: [
-          { payments: { some: { status: PaymentStatus.FAILED } } },
-          {
-            payments: { none: { status: PaymentStatus.SUCCEEDED } },
-            NOT: { payments: { some: { status: PaymentStatus.FAILED } } },
-          },
-        ],
+  const [total, active, totalVisits, paymentAggregate] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.count({ where: activeWhere }),
+    prisma.booking.count({
+      where: {
+        status: BookingStatus.COMPLETED,
+        user: where,
       },
-    ],
-  };
-
-  const [total, active, atRisk, totalVisits, paymentAggregate] =
-    await Promise.all([
-      prisma.user.count({ where }),
-      prisma.user.count({ where: activeWhere }),
-      prisma.user.count({ where: atRiskWhere }),
-      prisma.booking.count({
-        where: {
-          status: BookingStatus.COMPLETED,
-          user: where,
-        },
-      }),
-      prisma.payment.aggregate({
-        where: {
-          status: PaymentStatus.SUCCEEDED,
-          user: where,
-        },
-        _sum: { amountCents: true },
-      }),
-    ]);
+    }),
+    prisma.payment.aggregate({
+      where: {
+        status: PaymentStatus.SUCCEEDED,
+        user: where,
+      },
+      _sum: { amountCents: true },
+    }),
+  ]);
 
   return {
     total,
     active,
     vip: 0,
-    atRisk,
     totalVisits,
     lifetimeValueCents: paymentAggregate._sum.amountCents ?? 0,
   };
@@ -89,7 +71,6 @@ export function summaryFromRows(rows: ClientListRowSummaryFields[]) {
     total: rows.length,
     active: rows.filter((row) => row.status === 'Active').length,
     vip: rows.filter((row) => row.tags.includes('VIP')).length,
-    atRisk: rows.filter((row) => row.tags.includes('At Risk')).length,
     totalVisits: rows.reduce((sum, row) => sum + row.totalVisits, 0),
     lifetimeValueCents: rows.reduce(
       (sum, row) => sum + row.lifetimeValueCents,

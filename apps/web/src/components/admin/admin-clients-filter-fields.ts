@@ -9,7 +9,6 @@ import {
 const segmentFilterOptions: ReadonlyArray<readonly [AdminClientSegmentFilter, string]> = [
   ["new", "New Clients"],
   ["vip", "VIP Clients"],
-  ["at-risk", "At Risk Clients"],
   ["unpaid", "Unpaid Clients"],
   ["birthday-this-month", "Birthday This Month"],
   ["inactive-30-days", "Inactive 30+ Days"],
@@ -50,7 +49,6 @@ export function buildAdminClientsFilterFields({
       options: [
         { value: "vip", label: "VIP" },
         { value: "new", label: "New" },
-        { value: "at-risk", label: "At Risk" },
         { value: "beginner", label: "Beginner" },
       ],
     },

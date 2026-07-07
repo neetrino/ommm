@@ -115,7 +115,6 @@ export type AnalyticsClientsSummary = {
   total: number;
   active: number;
   vip: number;
-  atRisk: number;
   totalVisits: number;
   lifetimeValueCents: number;
 };

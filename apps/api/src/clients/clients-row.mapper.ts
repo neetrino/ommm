@@ -35,7 +35,7 @@ export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
 export type ClientRecord = Prisma.UserGetPayload<{
   include: typeof clientInclude;
 }>;
-export type ClientTag = 'VIP' | 'New' | 'At Risk' | 'Beginner';
+export type ClientTag = 'VIP' | 'New' | 'Beginner';
 export type ClientStatus = 'Active' | 'Inactive' | 'Blocked';
 export type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
 export type AttendanceBehavior =
@@ -156,19 +156,12 @@ function getClassLevels(user: ClientRecord) {
 
 function getTags(params: {
   user: ClientRecord;
-  paymentBehavior: PaymentBehavior;
   classLevels: string[];
 }): ClientTag[] {
   const tags: ClientTag[] = [];
   const createdMs = params.user.createdAt.getTime();
   const isNew = Date.now() - createdMs <= NEW_CLIENT_DAYS * 24 * 60 * 60 * 1000;
   if (isNew) tags.push('New');
-  if (
-    params.paymentBehavior === 'overdue' ||
-    params.paymentBehavior === 'unpaid'
-  ) {
-    tags.push('At Risk');
-  }
   if (
     params.classLevels.some((level) => level.toLowerCase().includes('beginner'))
   ) {
@@ -203,7 +196,7 @@ export function toClientRow(user: ClientRecord) {
   const paymentBehavior = getPaymentBehavior(user);
   const attendanceBehavior = getAttendanceBehavior(totals);
   const classLevels = getClassLevels(user);
-  const tags = getTags({ user, paymentBehavior, classLevels });
+  const tags = getTags({ user, classLevels });
   const preferredCoach = getPreferredCoach(user);
   return {
     id: user.id,

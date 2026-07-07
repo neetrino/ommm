@@ -18,13 +18,11 @@ function dateValue(value: Date | null) {
 
 function matchesTag(tags: ClientTag[], tag: AdminClientTagFilter) {
   const label =
-    tag === AdminClientTagFilter.AT_RISK
-      ? 'At Risk'
-      : tag === AdminClientTagFilter.NEW
-        ? 'New'
-        : tag === AdminClientTagFilter.VIP
-          ? 'VIP'
-          : 'Beginner';
+    tag === AdminClientTagFilter.NEW
+      ? 'New'
+      : tag === AdminClientTagFilter.VIP
+        ? 'VIP'
+        : 'Beginner';
   return tags.includes(label);
 }
 
@@ -55,8 +53,6 @@ function matchesQuickFilter(row: ClientRow, filter: AdminClientQuickFilter) {
     return row.paymentBehavior === 'unpaid';
   if (filter === AdminClientQuickFilter.NO_SHOW)
     return row.attendanceBehavior === 'no-show';
-  if (filter === AdminClientQuickFilter.AT_RISK)
-    return row.tags.includes('At Risk');
   if (filter === AdminClientQuickFilter.VIP) return row.tags.includes('VIP');
   return row.tags.includes('New');
 }

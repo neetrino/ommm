@@ -1853,7 +1853,6 @@
       "colTags": "Метки",
       "tagVip": "VIP",
       "tagNew": "Новый",
-      "tagAtRisk": "В зоне риска",
       "tagBeginner": "Новичок",
       "colEmail": "Email",
       "colRole": "Роль",
@@ -3461,7 +3460,6 @@
           "total": "Всего клиентов",
           "active": "Активные клиенты",
           "vip": "VIP клиенты",
-          "atRisk": "Клиенты в зоне риска",
           "visits": "Всего визитов",
           "ltv": "Lifetime value",
           "chartAria": "График активности пользователей"

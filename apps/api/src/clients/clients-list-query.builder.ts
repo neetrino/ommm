@@ -29,13 +29,6 @@ const unpaidPaymentWhere: Prisma.UserWhereInput = {
   NOT: { payments: { some: { status: PaymentStatus.FAILED } } },
 };
 
-const atRiskPaymentWhere: Prisma.UserWhereInput = {
-  OR: [
-    { payments: { some: { status: PaymentStatus.FAILED } } },
-    unpaidPaymentWhere,
-  ],
-};
-
 /** Filters/orders that still need in-memory row computation after DB pre-filter. */
 export function requiresClientsPostProcessing(
   query: AdminListClientsQueryDto,
@@ -214,10 +207,6 @@ function appendTagFilter(
     and.push({ createdAt: { gte: newClientThreshold() } });
     return;
   }
-  if (tag === AdminClientTagFilter.AT_RISK) {
-    and.push(atRiskPaymentWhere);
-    return;
-  }
   if (tag === AdminClientTagFilter.BEGINNER) {
     and.push({
       bookings: {
@@ -274,10 +263,6 @@ function appendQuickFilters(
     }
     if (filter === AdminClientQuickFilter.NO_SHOW) {
       quickOr.push({ bookings: { some: { status: BookingStatus.MISSED } } });
-      continue;
-    }
-    if (filter === AdminClientQuickFilter.AT_RISK) {
-      quickOr.push(atRiskPaymentWhere);
       continue;
     }
     if (filter === AdminClientQuickFilter.INACTIVE_30_DAYS) {

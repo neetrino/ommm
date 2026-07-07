@@ -30,7 +30,6 @@ export enum AdminClientOrder {
 export enum AdminClientTagFilter {
   VIP = 'vip',
   NEW = 'new',
-  AT_RISK = 'at-risk',
   BEGINNER = 'beginner',
 }
 
@@ -64,7 +63,6 @@ export enum AdminClientAttendanceFilter {
 export enum AdminClientQuickFilter {
   NEW = 'new',
   VIP = 'vip',
-  AT_RISK = 'at-risk',
   UNPAID = 'unpaid',
   BIRTHDAY_THIS_MONTH = 'birthday-this-month',
   INACTIVE_30_DAYS = 'inactive-30-days',

@@ -22,7 +22,6 @@ export function AdminAnalyticsMembersPanel({ data }: AdminAnalyticsMembersPanelP
     () => ({
       active: t("sections.users.active"),
       vip: t("sections.users.vip"),
-      atRisk: t("sections.users.atRisk"),
     }),
     [t],
   );
@@ -48,7 +47,6 @@ export function AdminAnalyticsMembersPanel({ data }: AdminAnalyticsMembersPanelP
     { key: "total", label: t("sections.users.total"), value: String(data.clients.total) },
     { key: "active", label: t("sections.users.active"), value: String(data.clients.active) },
     { key: "vip", label: t("sections.users.vip"), value: String(data.clients.vip) },
-    { key: "atRisk", label: t("sections.users.atRisk"), value: String(data.clients.atRisk) },
     { key: "visits", label: t("sections.users.visits"), value: String(data.clients.totalVisits) },
     {
       key: "ltv",

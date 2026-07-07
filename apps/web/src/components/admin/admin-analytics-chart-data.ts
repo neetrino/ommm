@@ -23,7 +23,6 @@ type AnalyticsChartLabels = {
   users: {
     active: string;
     vip: string;
-    atRisk: string;
   };
   attendance: {
     completed: string;
@@ -81,7 +80,6 @@ export function buildMemberSegmentItems(
   return [
     { key: "active", label: userLabels.active, value: data.clients.active },
     { key: "vip", label: userLabels.vip, value: data.clients.vip },
-    { key: "atRisk", label: userLabels.atRisk, value: data.clients.atRisk },
   ];
 }
 

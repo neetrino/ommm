@@ -1855,7 +1855,6 @@
       "colTags": "Labels",
       "tagVip": "VIP",
       "tagNew": "New",
-      "tagAtRisk": "At Risk",
       "tagBeginner": "Beginner",
       "colEmail": "Email",
       "colRole": "Role",
@@ -3232,7 +3231,6 @@
           "total": "Total clients",
           "active": "Active clients",
           "vip": "VIP clients",
-          "atRisk": "At-risk clients",
           "visits": "Total visits",
           "ltv": "Lifetime value",
           "chartAria": "User activity chart"
