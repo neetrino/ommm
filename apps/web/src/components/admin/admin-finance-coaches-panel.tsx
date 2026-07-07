@@ -86,7 +86,6 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
           recent: t("quickRecent"),
         }}
       />
-      <p className="text-sm text-sage-600">{t("rowCount", { count: initial.total })}</p>
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
           <span className={ADMIN_FINANCE_COACH_LIST_HEADER_CELL}>{t("colCoach")}</span>

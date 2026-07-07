@@ -18,15 +18,12 @@ import {
   ADMIN_CLIENTS_FILTER_KEYS,
   areUrlSearchQueriesEqual,
   mergeAdminClientsUrlQuery,
+  parseAdminClientsListPageParams,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
 import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 import { apiFetch } from "@/lib/api";
-import {
-  parseListPageParams,
-  resetListPageQuery,
-  syncListPageQuery,
-} from "@/lib/list-pagination";
+import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
 
@@ -77,7 +74,7 @@ export function useAdminClientsManagement({
   }, [searchParams]);
 
   const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    () => parseAdminClientsListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
 

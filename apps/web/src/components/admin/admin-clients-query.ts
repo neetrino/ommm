@@ -4,6 +4,15 @@ import {
   parseListPageParams,
 } from "@/lib/list-pagination";
 
+/** Admin / manager clients directory — one page of compact rows. */
+export const ADMIN_CLIENTS_LIST_PAGE_SIZE = 10;
+
+export function parseAdminClientsListPageParams(
+  search: Record<string, string | undefined>,
+) {
+  return parseListPageParams(search, { defaultPageSize: ADMIN_CLIENTS_LIST_PAGE_SIZE });
+}
+
 /** URL filter keys synced with `AdminListClientsQueryDto` (excluding `meta`). */
 export const ADMIN_CLIENTS_FILTER_KEYS = [
   "search",
@@ -43,7 +52,7 @@ export function buildAdminClientsApiSearchParams(
       params.set(key, value);
     }
   }
-  const listPage = parseListPageParams(search);
+  const listPage = parseAdminClientsListPageParams(search);
   params.set("take", String(listPage.take));
   params.set("offset", String(listPage.offset));
   return params;

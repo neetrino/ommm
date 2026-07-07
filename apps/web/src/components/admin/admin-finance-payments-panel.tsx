@@ -162,7 +162,6 @@ export function AdminFinancePaymentsPanel({
     <div className="space-y-4">
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
-      <p className="text-sm text-sage-600">{t("rowCount", { count: paymentsPayload.total })}</p>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS}>

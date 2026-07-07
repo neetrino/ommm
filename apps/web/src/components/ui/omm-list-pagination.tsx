@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import {
   clampListPage,
   listPageRange,
@@ -13,7 +12,8 @@ export const OMMM_LIST_PAGINATION_FOOTER_CLASS =
   "flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between";
 
 const PAGINATION_RANGE_WRAP_CLASS = "min-w-0 space-y-1";
-const PAGINATION_RANGE_EYEBROW_CLASS = adminChrome.metricLabel;
+const PAGINATION_RANGE_EYEBROW_CLASS =
+  "text-xs font-medium uppercase tracking-wide text-sage-500";
 const PAGINATION_RANGE_VALUE_CLASS =
   "font-serif text-xl italic leading-none tracking-tight text-sage-900 tabular-nums sm:text-[1.35rem]";
 
