@@ -680,11 +680,14 @@
     "pagination": {
       "ariaLabel": "Ցանկի էջավորում",
       "empty": "Արդյունքներ չկան",
-      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "range": "Ցուցադրվում է {from} – {to}՝ {total}-ից",
+      "rangePrefix": "Ցուցադրվում է",
+      "rangeValue": "{from} – {to}՝ {total}-ից",
       "prev": "Նախորդ",
       "next": "Հաջորդ",
       "prevAria": "Նախորդ էջ",
       "nextAria": "Հաջորդ էջ",
+      "pageAria": "Էջ {page}",
       "pagesAria": "Էջեր"
     },
     "packages": {
@@ -1646,11 +1649,14 @@
     "pagination": {
       "ariaLabel": "Ցանկի էջավորում",
       "empty": "Արդյունքներ չկան",
-      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "range": "Ցուցադրվում է {from} – {to}՝ {total}-ից",
+      "rangePrefix": "Ցուցադրվում է",
+      "rangeValue": "{from} – {to}՝ {total}-ից",
       "prev": "Նախորդ",
       "next": "Հաջորդ",
       "prevAria": "Նախորդ էջ",
       "nextAria": "Հաջորդ էջ",
+      "pageAria": "Էջ {page}",
       "pagesAria": "Էջեր"
     },
     "home": {

@@ -680,11 +680,14 @@
     "pagination": {
       "ariaLabel": "Пагинация списка",
       "empty": "Нет результатов",
-      "range": "Показано {from}–{to} из {total}",
+      "range": "Показано {from} – {to} из {total}",
+      "rangePrefix": "Показано",
+      "rangeValue": "{from} – {to} из {total}",
       "prev": "Назад",
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
+      "pageAria": "Страница {page}",
       "pagesAria": "Страницы"
     },
     "packages": {
@@ -1644,11 +1647,14 @@
     "pagination": {
       "ariaLabel": "Пагинация списка",
       "empty": "Нет результатов",
-      "range": "Показано {from}–{to} из {total}",
+      "range": "Показано {from} – {to} из {total}",
+      "rangePrefix": "Показано",
+      "rangeValue": "{from} – {to} из {total}",
       "prev": "Назад",
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
+      "pageAria": "Страница {page}",
       "pagesAria": "Страницы"
     },
     "home": {

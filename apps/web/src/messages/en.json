@@ -680,11 +680,14 @@
     "pagination": {
       "ariaLabel": "List pagination",
       "empty": "No results",
-      "range": "Showing {from}–{to} of {total}",
+      "range": "Showing {from} – {to} of {total}",
+      "rangePrefix": "Showing",
+      "rangeValue": "{from} – {to} of {total}",
       "prev": "Previous",
       "next": "Next",
       "prevAria": "Previous page",
       "nextAria": "Next page",
+      "pageAria": "Page {page}",
       "pagesAria": "Pages"
     },
     "packages": {
@@ -1646,11 +1649,14 @@
     "pagination": {
       "ariaLabel": "List pagination",
       "empty": "No results",
-      "range": "Showing {from}–{to} of {total}",
+      "range": "Showing {from} – {to} of {total}",
+      "rangePrefix": "Showing",
+      "rangeValue": "{from} – {to} of {total}",
       "prev": "Previous",
       "next": "Next",
       "prevAria": "Previous page",
       "nextAria": "Next page",
+      "pageAria": "Page {page}",
       "pagesAria": "Pages"
     },
     "home": {
