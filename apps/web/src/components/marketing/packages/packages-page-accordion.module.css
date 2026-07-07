@@ -176,6 +176,41 @@
   line-height: 1.2;
   color: var(--packages-page-text-color);
   text-align: center;
+  white-space: nowrap;
+}
+
+.collapsedPriceFromPrefix {
+  margin: 0 auto;
+  width: auto;
+  max-width: 100%;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--packages-page-collapsed-price-size);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--packages-page-text-color);
+  text-align: center;
+}
+
+.collapsedPriceWithDiscount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  margin: 0 auto;
+  width: auto;
+  max-width: 100%;
+}
+
+.collapsedPriceOriginal {
+  margin: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: calc(var(--packages-page-collapsed-price-size) * 0.92);
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgba(106, 100, 84, 0.72);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  white-space: nowrap;
 }
 
 .panelFabFooter {

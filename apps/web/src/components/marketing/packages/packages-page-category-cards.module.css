@@ -126,6 +126,26 @@
   white-space: nowrap;
 }
 
+.priceWithDiscount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  margin: 0;
+}
+
+.priceOriginal {
+  margin: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.75rem, 1.75vw, calc(var(--packages-page-price-size) * 0.92));
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgba(106, 100, 84, 0.72);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  white-space: nowrap;
+}
+
 .cardFooter {
   display: flex;
   min-height: var(--packages-page-fab-size);
