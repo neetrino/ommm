@@ -25,7 +25,7 @@ export function buildAdminPackageFormSubmitPayload(
     tierCategoryName,
     categoryName,
     priceCents,
-    discountAmountCents,
+    discountedPriceCents,
     periodDays,
     guestCount,
     stockCount,
@@ -51,8 +51,8 @@ export function buildAdminPackageFormSubmitPayload(
   const pricingFields = {
     priceCents,
     discountedPriceCents:
-      values.discountedPrice.trim().length > 0 && discountAmountCents !== null
-        ? priceCents - discountAmountCents
+      values.discountedPrice.trim().length > 0 && discountedPriceCents !== null
+        ? discountedPriceCents
         : null,
     ...(isAddTierMode || isEditTierMode
       ? { pricePerSessionCents: pricePerSessionCents ?? 0 }

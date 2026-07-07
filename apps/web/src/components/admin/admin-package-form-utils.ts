@@ -198,11 +198,11 @@ export function packageRowToFormValues(
     typeof pkg.sessionsPerMonth === "number" && pkg.sessionsPerMonth > 0
       ? pkg.sessionsPerMonth
       : MIN_PACKAGE_SESSIONS;
-  const discountAmountCents =
+  const storedDiscountedPriceCents =
     typeof pkg.discountedPriceCents === "number" &&
     pkg.discountedPriceCents >= 0 &&
     pkg.discountedPriceCents < pkg.priceCents
-      ? pkg.priceCents - pkg.discountedPriceCents
+      ? pkg.discountedPriceCents
       : null;
   return {
     name: pkg.name,
@@ -210,7 +210,8 @@ export function packageRowToFormValues(
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: String(pkg.priceCents),
-    discountedPrice: discountAmountCents !== null ? String(discountAmountCents) : "",
+    discountedPrice:
+      storedDiscountedPriceCents !== null ? String(storedDiscountedPriceCents) : "",
     pricePerSession: formatStoredPricePerSessionAmount(pkg),
     durationDays: periodDaysToFormDurationDays(pkg.periodDays),
     sessionsCount: String(sessions),
@@ -231,21 +232,22 @@ export function packageRowToFormValues(
 export function resolveTierPricePerSessionField(
   price: string,
   sessionsCount: string,
-  discountAmount = "",
+  discountedPrice = "",
 ): string {
   const priceAmount = parsePriceToCents(price);
   const sessions = parseSessionsCount(sessionsCount);
-  const discount = parsePriceToCents(discountAmount);
+  const parsedDiscountedPrice = parsePriceToCents(discountedPrice);
   if (priceAmount === null || sessions === null) {
     return "";
   }
-  if (discountAmount.trim().length === 0) {
-    return deriveTierPricePerSessionAmount(priceAmount, sessions);
-  }
-  if (discount === null || discount < 0 || discount >= priceAmount) {
-    return "";
-  }
-  return deriveTierPricePerSessionAmount(priceAmount - discount, sessions);
+  const effectivePrice =
+    discountedPrice.trim().length > 0 &&
+    parsedDiscountedPrice !== null &&
+    parsedDiscountedPrice >= 0 &&
+    parsedDiscountedPrice < priceAmount
+      ? parsedDiscountedPrice
+      : priceAmount;
+  return deriveTierPricePerSessionAmount(effectivePrice, sessions);
 }
 
 /** Derives per-session AMD amount from stored total price and session count. */
