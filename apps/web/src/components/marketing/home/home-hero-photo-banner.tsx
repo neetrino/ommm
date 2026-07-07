@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { HomeHeroCarouselFrame } from "@/components/marketing/home/home-hero-carousel-frame";
 import { HomeHeroJunctionNavDeferred } from "@/components/marketing/home/home-deferred-sections";
+import { HomeHeroSectionShell } from "@/components/marketing/home/home-hero-section-shell";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomeHeroMediaBackground } from "@/components/marketing/home/home-hero-media-background";
 import { HomeHeroPhotoContentLayer } from "@/components/marketing/home/home-hero-photo-content-layer";
@@ -9,12 +11,14 @@ import { HomeHeroSlideProvider } from "@/components/marketing/home/home-hero-sli
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import {
   HOME_HERO_ASSETS,
+  HOME_HERO_CAROUSEL_SLIDE_COUNT,
   HOME_HERO_FIGMA,
   HOME_HERO_CTA_LAYOUT,
   HOME_HERO_IPAD_AIR_LAYOUT,
   HOME_HERO_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
+  HOME_HERO_PROMO_BANNER_LAYOUT,
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
   resolveHomeHeroIntroMobileVideoMp4Url,
@@ -40,11 +44,14 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
   const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl();
   const heroIntroMobileVideoMp4Url = resolveHomeHeroIntroMobileVideoMp4Url();
   const hasHeroIntroVideo = hasHomeHeroIntroVideo(process.env.R2_PUBLIC_URL);
+  const promoBannerAlts = {
+    promoBanner3: t("promoBanner3Alt"),
+  } as const;
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
 
   const heroBackground = hasHeroIntroVideo ? (
-    <HomeHeroMediaBackground imageAlt={t("heroImageAlt")} />
+    <HomeHeroMediaBackground heroImageAlt={t("heroImageAlt")} promoBannerAlts={promoBannerAlts} />
   ) : (
     <div className={styles.homeHeroBackgroundLayer} aria-hidden>
       <div className={styles.homeHeroBackgroundCrop}>
@@ -141,24 +148,24 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
     <>
       {heroBackground}
 
-      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
-        {hasHeroIntroVideo ? (
+      {hasHeroIntroVideo ? (
+        <HomeHeroCarouselFrame>
           <HomeHeroPhotoContentLayer>{heroContent}</HomeHeroPhotoContentLayer>
-        ) : (
-          heroContent
-        )}
-      </div>
+        </HomeHeroCarouselFrame>
+      ) : (
+        <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>{heroContent}</div>
+      )}
       {hasHeroIntroVideo ? <HomeHeroJunctionNavDeferred /> : null}
     </>
   );
 
-  return (
-    <section
-      aria-labelledby="home-hero-heading"
-      className={`${marketingMontserrat.variable} ${styles.homeHeroSection} relative w-full min-w-0`}
-      style={{
-        ["--home-hero-section-bg" as string]: HOME_HERO_FIGMA.sectionBackground,
-        ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
+  const heroSectionStyle = {
+    ["--home-hero-section-bg" as string]: HOME_HERO_FIGMA.sectionBackground,
+    ["--home-hero-slide-count" as string]: String(HOME_HERO_CAROUSEL_SLIDE_COUNT),
+    ["--home-hero-promo-aspect-ratio" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.aspectRatio,
+    ["--home-hero-promo-object-position" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.objectPosition,
+    ["--home-hero-promo-section-bg" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.sectionBackground,
+    ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,
         ["--home-hero-bg-width" as string]: `${HOME_HERO_MOBILE_LAYOUT.backgroundImageWidthPercent}%`,
@@ -224,19 +231,27 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
         ["--home-schedule-hero-overlap-lg" as string]:
           HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
-      }}
+  } as const;
+
+  if (hasHeroIntroVideo) {
+    return (
+      <HomeHeroSlideProvider
+        desktopVideoUrl={heroIntroVideoUrl}
+        mobileVideoUrl={heroIntroMobileVideoUrl}
+        mobileVideoMp4Url={heroIntroMobileVideoMp4Url}
+      >
+        <HomeHeroSectionShell style={heroSectionStyle}>{heroInner}</HomeHeroSectionShell>
+      </HomeHeroSlideProvider>
+    );
+  }
+
+  return (
+    <section
+      aria-labelledby="home-hero-heading"
+      className={`${marketingMontserrat.variable} ${styles.homeHeroSection} relative w-full min-w-0`}
+      style={heroSectionStyle}
     >
-      {hasHeroIntroVideo ? (
-        <HomeHeroSlideProvider
-          desktopVideoUrl={heroIntroVideoUrl}
-          mobileVideoUrl={heroIntroMobileVideoUrl}
-          mobileVideoMp4Url={heroIntroMobileVideoMp4Url}
-        >
-          {heroInner}
-        </HomeHeroSlideProvider>
-      ) : (
-        heroInner
-      )}
+      {heroInner}
     </section>
   );
 }

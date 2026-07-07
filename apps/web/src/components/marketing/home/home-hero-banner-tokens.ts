@@ -129,8 +129,24 @@ export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
+  promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.png",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
+} as const;
+
+/** Must match `HOME_HERO_CAROUSEL_SLIDES.length` in home-hero-slide-context. */
+export const HOME_HERO_CAROUSEL_SLIDE_COUNT = 3;
+
+const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 820;
+const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 461;
+
+/** Promo banner — native 820×461. */
+export const HOME_HERO_PROMO_BANNER_LAYOUT = {
+  artboardWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
+  artboardHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
+  aspectRatio: `${HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX}`,
+  sectionBackground: "#b58e49",
+  objectPosition: "center",
 } as const;
 
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */

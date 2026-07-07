@@ -10,52 +10,59 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import { HOME_HERO_CAROUSEL_SLIDE_COUNT } from "@/components/marketing/home/home-hero-banner-tokens";
 import { MARKETING_PHONE_VIEWPORT_MEDIA_QUERY } from "@/hooks/use-is-marketing-phone-viewport";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
-export type HomeHeroVideoEntry = "left" | "right";
-export type HomeHeroPhotoEntry = "left" | "center" | "right";
+export { HOME_HERO_CAROUSEL_SLIDE_COUNT };
 
-export type HomeHeroView =
-  | { kind: "video"; entry: HomeHeroVideoEntry }
-  | { kind: "photo"; entry: HomeHeroPhotoEntry };
+export const HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX = 1;
 
-export type HomeHeroSlide = HomeHeroView["kind"];
+export const HOME_HERO_VIDEO_SLIDE_INDEX = 0;
+
+export type HomeHeroPromoBannerKey = "promoBanner3";
+
+export type HomeHeroCarouselSlide =
+  | { kind: "video" }
+  | { kind: "legacy-photo" }
+  | { kind: "promo-banner"; assetKey: HomeHeroPromoBannerKey };
+
+/** video | legacy meditation hero | founding memberships promo. */
+export const HOME_HERO_CAROUSEL_SLIDES: readonly HomeHeroCarouselSlide[] = [
+  { kind: "video" },
+  { kind: "legacy-photo" },
+  { kind: "promo-banner", assetKey: "promoBanner3" },
+] as const;
+
+const SLIDE_WIDTH_PERCENT = 100 / HOME_HERO_CAROUSEL_SLIDE_COUNT;
+
+export function resolveHomeHeroTrackOffset(slideIndex: number): string {
+  return `${-slideIndex * SLIDE_WIDTH_PERCENT}%`;
+}
 
 type HomeHeroVideoSlotRefs = {
   desktop: RefObject<HTMLVideoElement | null>;
   mobile: RefObject<HTMLVideoElement | null>;
 };
 
-/** Five-slide track: photo-left | video-left | photo-center | video-right | photo-right. */
-export const HOME_HERO_MEDIA_TRACK_OFFSETS = {
-  photoLeft: "0%",
-  videoLeft: "-20%",
-  photoCenter: "-40%",
-  videoRight: "-60%",
-  photoRight: "-80%",
-} as const;
-
 type HomeHeroSlideContextValue = {
-  activeView: HomeHeroView;
-  activeSlide: HomeHeroSlide;
+  activeSlideIndex: number;
+  activeSlide: HomeHeroCarouselSlide;
   trackOffset: string;
   isVideoActive: boolean;
+  isLegacyPhotoActive: boolean;
+  isPromoBannerActive: boolean;
+  /** @deprecated Use isLegacyPhotoActive — kept for HomeHeroPhotoContentLayer. */
   isPhotoActive: boolean;
   canGoPrev: boolean;
   canGoNext: boolean;
   desktopVideoUrl: string | null;
   mobileVideoUrl: string;
   mobileVideoMp4Url: string;
-  videoLeftRefs: HomeHeroVideoSlotRefs;
-  videoRightRefs: HomeHeroVideoSlotRefs;
-  goToVideoFromLeft: () => void;
-  goToVideoFromRight: () => void;
-  goToPhotoFromLeft: () => void;
-  goToPhotoFromRight: () => void;
-  normalizePhotoToCenter: () => void;
+  videoRefs: HomeHeroVideoSlotRefs;
   goPrev: () => void;
   goNext: () => void;
+  goToSlide: (index: number) => void;
   onVideoEnded: () => void;
   onVideoError: () => void;
 };
@@ -77,32 +84,20 @@ function isMarketingPhoneViewport(): boolean {
 }
 
 function resolveVideoElement(
-  entry: HomeHeroVideoEntry,
-  leftRefs: HomeHeroVideoSlotRefs,
-  rightRefs: HomeHeroVideoSlotRefs,
+  refs: HomeHeroVideoSlotRefs,
   desktopVideoUrl: string | null,
 ): HTMLVideoElement | null {
-  const slot = entry === "left" ? leftRefs : rightRefs;
   if (isMarketingPhoneViewport() || desktopVideoUrl === null) {
-    return slot.mobile.current;
+    return refs.mobile.current;
   }
-  return slot.desktop.current;
+  return refs.desktop.current;
 }
 
-function resolveTrackOffset(view: HomeHeroView): string {
-  if (view.kind === "photo") {
-    switch (view.entry) {
-      case "left":
-        return HOME_HERO_MEDIA_TRACK_OFFSETS.photoLeft;
-      case "right":
-        return HOME_HERO_MEDIA_TRACK_OFFSETS.photoRight;
-      default:
-        return HOME_HERO_MEDIA_TRACK_OFFSETS.photoCenter;
-    }
-  }
-  return view.entry === "left"
-    ? HOME_HERO_MEDIA_TRACK_OFFSETS.videoLeft
-    : HOME_HERO_MEDIA_TRACK_OFFSETS.videoRight;
+function wrapSlideIndex(index: number): number {
+  return (
+    ((index % HOME_HERO_CAROUSEL_SLIDE_COUNT) + HOME_HERO_CAROUSEL_SLIDE_COUNT) %
+    HOME_HERO_CAROUSEL_SLIDE_COUNT
+  );
 }
 
 export function HomeHeroSlideProvider({
@@ -112,151 +107,98 @@ export function HomeHeroSlideProvider({
   children,
 }: HomeHeroSlideProviderProps) {
   const reducedMotion = usePrefersReducedMotion();
-  const videoLeftDesktopRef = useRef<HTMLVideoElement | null>(null);
-  const videoLeftMobileRef = useRef<HTMLVideoElement | null>(null);
-  const videoRightDesktopRef = useRef<HTMLVideoElement | null>(null);
-  const videoRightMobileRef = useRef<HTMLVideoElement | null>(null);
-  const videoLeftRefs = useMemo(
-    () => ({ desktop: videoLeftDesktopRef, mobile: videoLeftMobileRef }),
+  const videoDesktopRef = useRef<HTMLVideoElement | null>(null);
+  const videoMobileRef = useRef<HTMLVideoElement | null>(null);
+  const videoRefs = useMemo(
+    () => ({ desktop: videoDesktopRef, mobile: videoMobileRef }),
     [],
   );
-  const videoRightRefs = useMemo(
-    () => ({ desktop: videoRightDesktopRef, mobile: videoRightMobileRef }),
-    [],
-  );
-  const [activeView, setActiveView] = useState<HomeHeroView>(
-    reducedMotion ? { kind: "photo", entry: "center" } : { kind: "video", entry: "left" },
+  const [activeSlideIndex, setActiveSlideIndex] = useState(() =>
+    reducedMotion ? HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX : HOME_HERO_VIDEO_SLIDE_INDEX,
   );
 
-  const pauseAllVideos = useCallback(() => {
-    videoLeftDesktopRef.current?.pause();
-    videoLeftMobileRef.current?.pause();
-    videoRightDesktopRef.current?.pause();
-    videoRightMobileRef.current?.pause();
+  const pauseVideo = useCallback(() => {
+    videoDesktopRef.current?.pause();
+    videoMobileRef.current?.pause();
   }, []);
 
-  const playVideoFromStart = useCallback(
-    (entry: HomeHeroVideoEntry) => {
-      const video = resolveVideoElement(
-        entry,
-        videoLeftRefs,
-        videoRightRefs,
-        desktopVideoUrl,
-      );
-      if (!video) {
+  const playVideoFromStart = useCallback(() => {
+    const video = resolveVideoElement(videoRefs, desktopVideoUrl);
+    if (!video) {
+      return;
+    }
+    video.currentTime = 0;
+    void video.play().catch(() => {
+      /* Autoplay may be blocked until user gesture. */
+    });
+  }, [desktopVideoUrl, videoRefs]);
+
+  const goToSlide = useCallback(
+    (index: number) => {
+      const nextIndex = wrapSlideIndex(index);
+      setActiveSlideIndex(nextIndex);
+      if (nextIndex === HOME_HERO_VIDEO_SLIDE_INDEX) {
+        playVideoFromStart();
         return;
       }
-      video.currentTime = 0;
-      void video.play().catch(() => {
-        /* Autoplay may be blocked until user gesture. */
-      });
+      pauseVideo();
     },
-    [desktopVideoUrl, videoLeftRefs, videoRightRefs],
+    [pauseVideo, playVideoFromStart],
   );
 
-  const goToVideoFromLeft = useCallback(() => {
-    setActiveView({ kind: "video", entry: "left" });
-    playVideoFromStart("left");
-  }, [playVideoFromStart]);
-
-  const goToVideoFromRight = useCallback(() => {
-    setActiveView({ kind: "video", entry: "right" });
-    playVideoFromStart("right");
-  }, [playVideoFromStart]);
-
-  const goToPhotoFromLeft = useCallback(() => {
-    pauseAllVideos();
-    if (activeView.kind === "video" && activeView.entry === "right") {
-      setActiveView({ kind: "photo", entry: "center" });
-      return;
-    }
-    setActiveView({ kind: "photo", entry: "left" });
-  }, [activeView, pauseAllVideos]);
-
-  const goToPhotoFromRight = useCallback(() => {
-    pauseAllVideos();
-    if (activeView.kind === "video" && activeView.entry === "left") {
-      setActiveView({ kind: "photo", entry: "center" });
-      return;
-    }
-    setActiveView({ kind: "photo", entry: "right" });
-  }, [activeView, pauseAllVideos]);
-
-  const normalizePhotoToCenter = useCallback(() => {
-    setActiveView((current) => {
-      if (current.kind !== "photo" || current.entry === "center") {
-        return current;
-      }
-      return { kind: "photo", entry: "center" };
-    });
-  }, []);
-
   const goPrev = useCallback(() => {
-    if (activeView.kind === "photo") {
-      goToVideoFromLeft();
-      return;
-    }
-    goToPhotoFromLeft();
-  }, [activeView.kind, goToPhotoFromLeft, goToVideoFromLeft]);
+    goToSlide(activeSlideIndex - 1);
+  }, [activeSlideIndex, goToSlide]);
 
   const goNext = useCallback(() => {
-    if (activeView.kind === "photo") {
-      goToVideoFromRight();
-      return;
-    }
-    goToPhotoFromRight();
-  }, [activeView.kind, goToPhotoFromRight, goToVideoFromRight]);
+    goToSlide(activeSlideIndex + 1);
+  }, [activeSlideIndex, goToSlide]);
 
   const onVideoEnded = useCallback(() => {
-    pauseAllVideos();
-    setActiveView({ kind: "photo", entry: "center" });
-  }, [pauseAllVideos]);
+    pauseVideo();
+    setActiveSlideIndex(HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX);
+  }, [pauseVideo]);
 
   const onVideoError = useCallback(() => {
-    pauseAllVideos();
-    setActiveView({ kind: "photo", entry: "center" });
-  }, [pauseAllVideos]);
+    pauseVideo();
+    setActiveSlideIndex(HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX);
+  }, [pauseVideo]);
+
+  const activeSlide = HOME_HERO_CAROUSEL_SLIDES[activeSlideIndex] ?? HOME_HERO_CAROUSEL_SLIDES[0];
 
   const value = useMemo<HomeHeroSlideContextValue>(
     () => ({
-      activeView,
-      activeSlide: activeView.kind,
-      trackOffset: resolveTrackOffset(activeView),
-      isVideoActive: activeView.kind === "video",
-      isPhotoActive: activeView.kind === "photo",
+      activeSlideIndex,
+      activeSlide,
+      trackOffset: resolveHomeHeroTrackOffset(activeSlideIndex),
+      isVideoActive: activeSlideIndex === HOME_HERO_VIDEO_SLIDE_INDEX,
+      isLegacyPhotoActive: activeSlideIndex === HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX,
+      isPromoBannerActive: activeSlideIndex > HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX,
+      isPhotoActive: activeSlideIndex === HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX,
       canGoPrev: true,
       canGoNext: true,
       desktopVideoUrl,
       mobileVideoUrl,
       mobileVideoMp4Url,
-      videoLeftRefs,
-      videoRightRefs,
-      goToVideoFromLeft,
-      goToVideoFromRight,
-      goToPhotoFromLeft,
-      goToPhotoFromRight,
-      normalizePhotoToCenter,
+      videoRefs,
       goPrev,
       goNext,
+      goToSlide,
       onVideoEnded,
       onVideoError,
     }),
     [
-      activeView,
+      activeSlide,
+      activeSlideIndex,
       desktopVideoUrl,
       goNext,
       goPrev,
-      goToPhotoFromLeft,
-      goToPhotoFromRight,
-      goToVideoFromLeft,
-      goToVideoFromRight,
+      goToSlide,
       mobileVideoMp4Url,
       mobileVideoUrl,
-      normalizePhotoToCenter,
       onVideoEnded,
       onVideoError,
-      videoLeftRefs,
-      videoRightRefs,
+      videoRefs,
     ],
   );
 
@@ -274,16 +216,7 @@ export function useHomeHeroSlide(): HomeHeroSlideContextValue {
 }
 
 export function resolveActiveHomeHeroVideoElement(
-  entry: HomeHeroVideoEntry,
-  context: Pick<
-    HomeHeroSlideContextValue,
-    "videoLeftRefs" | "videoRightRefs" | "desktopVideoUrl"
-  >,
+  context: Pick<HomeHeroSlideContextValue, "videoRefs" | "desktopVideoUrl">,
 ): HTMLVideoElement | null {
-  return resolveVideoElement(
-    entry,
-    context.videoLeftRefs,
-    context.videoRightRefs,
-    context.desktopVideoUrl,
-  );
+  return resolveVideoElement(context.videoRefs, context.desktopVideoUrl);
 }
