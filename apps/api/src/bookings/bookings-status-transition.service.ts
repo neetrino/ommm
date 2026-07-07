@@ -10,7 +10,9 @@ export class BookingsStatusTransitionService {
   private readonly cronEnabled: boolean;
 
   constructor(private readonly prisma: PrismaService) {
-    this.cronEnabled = isEnabledEnv(process.env[ENABLE_BOOKING_BACKGROUND_JOBS_ENV]);
+    this.cronEnabled = isEnabledEnv(
+      process.env[ENABLE_BOOKING_BACKGROUND_JOBS_ENV],
+    );
   }
 
   /** Marks past BOOKED sessions as COMPLETED once the class end time has passed. */

@@ -154,7 +154,9 @@ export class PaymentSuccessEmailService {
     }
   }
 
-  private buildEmailContext(payment: PaymentWithRelations): PaymentEmailContext {
+  private buildEmailContext(
+    payment: PaymentWithRelations,
+  ): PaymentEmailContext {
     const confirmedAt = payment.confirmedAt ?? payment.updatedAt;
 
     return {
