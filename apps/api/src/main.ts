@@ -47,6 +47,7 @@ async function bootstrap() {
     index: false,
   });
   app.setGlobalPrefix(API_GLOBAL_PREFIX);
+  app.enableShutdownHooks();
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

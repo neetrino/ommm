@@ -36,6 +36,12 @@ tmp/
 temp/
 .cache/
 
+# k6 local load-test generated output (keep scripts/docs)
+tests/load/*summary*.json
+tests/load/*.tmp
+tests/load/*.log
+k6-summary.json
+
 # IDE (optional, uncomment if needed)
 # .idea/
 # .vscode/

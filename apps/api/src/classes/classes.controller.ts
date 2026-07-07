@@ -14,6 +14,7 @@ import { ClassSessionStatus, Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { resolvePublicScheduleRange } from '../schedule/public-schedule-range';
 import { ClassesService } from './classes.service';
 import { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import { CreateClassTypeDto } from './dto/create-class-type.dto';
@@ -56,16 +57,15 @@ export class ClassesController {
 
   @Get('sessions')
   listSessions(
-    @Query('from') from: string,
+    @Query('from') from?: string,
     @Query('to') to?: string,
     @Query('coachId') coachId?: string,
     @Query('typeId') typeId?: string,
   ) {
-    const fromD = new Date(from);
-    const toD = to !== undefined && to.length > 0 ? new Date(to) : undefined;
+    const range = resolvePublicScheduleRange(from, to);
     return this.classes.listSessionsPublic({
-      from: fromD,
-      to: toD,
+      from: range.from,
+      to: range.to,
       coachId,
       typeId,
     });

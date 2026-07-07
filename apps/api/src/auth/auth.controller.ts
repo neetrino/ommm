@@ -8,6 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { ACCESS_TOKEN_COOKIE, OAUTH_STATE_COOKIE } from '../common/constants';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -23,6 +24,7 @@ import { CompleteGoogleSignupDto } from './dto/complete-google-signup.dto';
 
 const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const OAUTH_STATE_COOKIE_MAX_AGE_MS = 10 * 60 * 1000;
+const AUTH_MUTATION_THROTTLE = { default: { limit: 10, ttl: 60_000 } };
 
 function oauthStateCookieOptions(): {
   httpOnly: true;
@@ -94,6 +96,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @Throttle(AUTH_MUTATION_THROTTLE)
   async register(
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
@@ -107,6 +110,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle(AUTH_MUTATION_THROTTLE)
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -166,12 +170,14 @@ export class AuthController {
   }
 
   @Post('request-password-reset')
+  @Throttle(AUTH_MUTATION_THROTTLE)
   async requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
     await this.auth.requestPasswordReset(dto.email);
     return { ok: true };
   }
 
   @Post('reset-password')
+  @Throttle(AUTH_MUTATION_THROTTLE)
   async resetPassword(@Body() dto: ResetPasswordDto) {
     await this.auth.resetPassword(dto.token, dto.newPassword);
     return { ok: true };

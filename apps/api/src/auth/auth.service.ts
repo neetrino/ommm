@@ -125,6 +125,9 @@ export class AuthService {
     if (!ok) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    if (user.isBlocked) {
+      throw new UnauthorizedException();
+    }
     if (user.passwordHash.startsWith('$argon2')) {
       const passwordHash = await hashPassword(dto.password);
       await this.prisma.user.update({

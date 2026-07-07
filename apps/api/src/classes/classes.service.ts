@@ -36,7 +36,7 @@ export class ClassesService {
 
   listSessionsPublic(params: {
     from: Date;
-    to?: Date;
+    to: Date;
     coachId?: string;
     typeId?: string;
   }) {
