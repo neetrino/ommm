@@ -88,7 +88,7 @@
   display: flex;
   min-height: 0;
   min-width: 0;
-  flex: 1;
+  flex-shrink: 0;
   flex-direction: column;
   gap: 0;
   border: 0;
@@ -108,11 +108,10 @@
 .packageSubscribePlanPickerCards {
   display: flex;
   min-height: 0;
-  flex: 1;
+  flex-shrink: 0;
   flex-direction: column;
   gap: 0.625rem;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overflow: visible;
 }
 
 .packageSubscribePlanSummary {

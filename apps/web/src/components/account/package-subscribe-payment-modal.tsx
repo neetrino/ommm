@@ -20,9 +20,6 @@ import {
   PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
-  PACKAGE_SUBSCRIBE_FORM_GRID_CLASS,
-  PACKAGE_SUBSCRIBE_PAYMENT_COLUMN_CLASS,
-  PACKAGE_SUBSCRIBE_PLANS_COLUMN_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
@@ -228,41 +225,37 @@ function PackageSubscribePaymentModalSession({
           </div>
         ) : null}
         <p className="shrink-0 text-sm text-sage-600">{t("lead")}</p>
-        <div className={PACKAGE_SUBSCRIBE_FORM_GRID_CLASS}>
-          <div className={PACKAGE_SUBSCRIBE_PLANS_COLUMN_CLASS}>
-            <PackageSubscribePlanPicker
-              plans={plans}
-              selectedPlanId={selectedPlan.id}
-              locale={locale}
-              onSelect={handlePlanSelect}
-            />
-          </div>
-          <div className={PACKAGE_SUBSCRIBE_PAYMENT_COLUMN_CLASS}>
-            <PaymentMethodPicker
-              value={paymentMethod}
-              onChange={setPaymentMethod}
-              disabled={busy}
-            />
-          </div>
-        </div>
+        <PackageSubscribePlanPicker
+          plans={plans}
+          selectedPlanId={selectedPlan.id}
+          locale={locale}
+          onSelect={handlePlanSelect}
+        />
         {error !== null ? (
           <p className="shrink-0 text-sm text-red-800" role="alert">
             {error}
           </p>
         ) : null}
-        <div className="flex shrink-0 flex-wrap justify-end gap-3 pt-1">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={onClose}
+        <div className={formStyles.formFooter}>
+          <PaymentMethodPicker
+            value={paymentMethod}
+            onChange={setPaymentMethod}
             disabled={busy}
-          >
-            {t("cancel")}
-          </OmmButton>
-          <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
-            {busy ? t("submitting") : t("confirm")}
-          </OmmButton>
+          />
+          <div className="flex shrink-0 flex-wrap justify-end gap-3">
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={onClose}
+              disabled={busy}
+            >
+              {t("cancel")}
+            </OmmButton>
+            <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
+              {busy ? t("submitting") : t("confirm")}
+            </OmmButton>
+          </div>
         </div>
       </form>
     );
