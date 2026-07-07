@@ -10,6 +10,7 @@ import { BookingsClientService } from './bookings-client.service';
 import { BookingsController } from './bookings.controller';
 import { BookingsService } from './bookings.service';
 import { BookingsSlotService } from './bookings-slot.service';
+import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 
 @Module({
   imports: [WaitlistModule, ScheduleItemsModule, PackagesModule],
@@ -22,6 +23,7 @@ import { BookingsSlotService } from './bookings-slot.service';
     BookingsAdminListService,
     BookingsAdminManagementService,
     BookingsSlotService,
+    BookingsStatusTransitionService,
   ],
   exports: [BookingsService],
 })

@@ -22,15 +22,21 @@ import type {
   ManagementWaitlist,
 } from './bookings-management.types';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
+import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 
 @Injectable()
 export class BookingsAdminManagementService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly statusTransition: BookingsStatusTransitionService,
+  ) {}
 
   async listAdminManagement(params: {
     actor: User;
     query: AdminBookingsManagementQueryDto;
   }) {
+    await this.statusTransition.completePastBookedSessions();
+
     const sessionFilter = buildScopedSessionFilter({
       actor: params.actor,
       from: params.query.from,
