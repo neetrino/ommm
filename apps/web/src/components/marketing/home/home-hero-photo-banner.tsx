@@ -7,7 +7,7 @@ import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-but
 import { HomeHeroMediaBackground } from "@/components/marketing/home/home-hero-media-background";
 import { HomeHeroPhotoContentLayer } from "@/components/marketing/home/home-hero-photo-content-layer";
 import { HomeHeroPromoBannerContent } from "@/components/marketing/home/home-hero-promo-banner-content";
-import { HomeHeroPromoContentLayer } from "@/components/marketing/home/home-hero-promo-content-layer";
+import { HomeHeroPromoSlideTrack } from "@/components/marketing/home/home-hero-promo-slide-track";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { HomeHeroSlideProvider } from "@/components/marketing/home/home-hero-slide-context";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
@@ -154,9 +154,9 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           <HomeHeroCarouselFrame>
             <HomeHeroPhotoContentLayer>{heroContent}</HomeHeroPhotoContentLayer>
           </HomeHeroCarouselFrame>
-          <HomeHeroPromoContentLayer>
+          <HomeHeroPromoSlideTrack>
             <HomeHeroPromoBannerContent locale={locale} />
-          </HomeHeroPromoContentLayer>
+          </HomeHeroPromoSlideTrack>
         </>
       ) : (
         <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>{heroContent}</div>
