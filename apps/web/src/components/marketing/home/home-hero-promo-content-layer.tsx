@@ -8,7 +8,7 @@ type HomeHeroPromoContentLayerProps = {
   children: ReactNode;
 };
 
-/** Founding-membership copy over Figma `783:800` photo — slide 3 only. */
+/** Founding-membership copy over Figma `783:800` photo — promo slide only. */
 export function HomeHeroPromoContentLayer({ children }: HomeHeroPromoContentLayerProps) {
   const { isPromoBannerActive } = useHomeHeroSlide();
 

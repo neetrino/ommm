@@ -60,7 +60,7 @@ function HomeHeroPromoBannerSlide({ assetKey }: HomeHeroPromoBannerSlideProps) {
   );
 }
 
-/** Hero carousel — intro video, legacy photo hero, then promo banners. */
+/** Hero carousel — intro video, promo banner, then legacy meditation hero. */
 export function HomeHeroMediaBackground({ heroImageAlt }: HomeHeroMediaBackgroundProps) {
   const slide = useHomeHeroSlide();
   const {

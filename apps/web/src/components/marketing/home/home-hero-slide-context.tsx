@@ -16,9 +16,11 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 export { HOME_HERO_CAROUSEL_SLIDE_COUNT };
 
-export const HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX = 1;
-
 export const HOME_HERO_VIDEO_SLIDE_INDEX = 0;
+
+export const HOME_HERO_PROMO_BANNER_SLIDE_INDEX = 1;
+
+export const HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX = 2;
 
 export type HomeHeroPromoBannerKey = "promoBanner3";
 
@@ -27,11 +29,11 @@ export type HomeHeroCarouselSlide =
   | { kind: "legacy-photo" }
   | { kind: "promo-banner"; assetKey: HomeHeroPromoBannerKey };
 
-/** video | legacy meditation hero | founding memberships promo. */
+/** video | founding memberships promo | legacy meditation hero. */
 export const HOME_HERO_CAROUSEL_SLIDES: readonly HomeHeroCarouselSlide[] = [
   { kind: "video" },
-  { kind: "legacy-photo" },
   { kind: "promo-banner", assetKey: "promoBanner3" },
+  { kind: "legacy-photo" },
 ] as const;
 
 const SLIDE_WIDTH_PERCENT = 100 / HOME_HERO_CAROUSEL_SLIDE_COUNT;
@@ -156,12 +158,12 @@ export function HomeHeroSlideProvider({
 
   const onVideoEnded = useCallback(() => {
     pauseVideo();
-    setActiveSlideIndex(HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX);
+    setActiveSlideIndex(HOME_HERO_PROMO_BANNER_SLIDE_INDEX);
   }, [pauseVideo]);
 
   const onVideoError = useCallback(() => {
     pauseVideo();
-    setActiveSlideIndex(HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX);
+    setActiveSlideIndex(HOME_HERO_PROMO_BANNER_SLIDE_INDEX);
   }, [pauseVideo]);
 
   const activeSlide = HOME_HERO_CAROUSEL_SLIDES[activeSlideIndex] ?? HOME_HERO_CAROUSEL_SLIDES[0];
@@ -173,7 +175,7 @@ export function HomeHeroSlideProvider({
       trackOffset: resolveHomeHeroTrackOffset(activeSlideIndex),
       isVideoActive: activeSlideIndex === HOME_HERO_VIDEO_SLIDE_INDEX,
       isLegacyPhotoActive: activeSlideIndex === HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX,
-      isPromoBannerActive: activeSlideIndex > HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX,
+      isPromoBannerActive: activeSlideIndex === HOME_HERO_PROMO_BANNER_SLIDE_INDEX,
       isPhotoActive: activeSlideIndex === HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX,
       canGoPrev: true,
       canGoNext: true,
