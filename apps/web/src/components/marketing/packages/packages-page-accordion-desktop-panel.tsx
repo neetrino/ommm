@@ -8,6 +8,7 @@ import type { DesktopAccordionPanelProps } from "@/components/marketing/packages
 import { PackagesPageAccordionTierTable } from "@/components/marketing/packages/packages-page-accordion-tier-table";
 import { PACKAGES_PAGE_VISIBLE_TIER_COUNT } from "@/components/marketing/packages/packages-page-tokens";
 import { PackagesPageCardFabImage } from "@/components/marketing/packages/packages-page-card-fab";
+import { PackagesPageCategoryCardPrice } from "@/components/marketing/packages/packages-page-category-card-price";
 
 export function PackagesPageAccordionDesktopPanel({
   locale,
@@ -61,10 +62,13 @@ export function PackagesPageAccordionDesktopPanel({
           <h2 className={cardStyles.title}>{category.label}</h2>
           {category.priceAmount !== null ? (
             <div className={cardStyles.priceBlock}>
-              {category.priceFromPrefix !== undefined ? (
-                <p className={cardStyles.priceFromPrefix}>{category.priceFromPrefix}</p>
-              ) : null}
-              <p className={cardStyles.price}>{category.priceAmount}</p>
+              <PackagesPageCategoryCardPrice
+                category={category}
+                fromPrefixClassName={cardStyles.priceFromPrefix}
+                priceClassName={cardStyles.price}
+                priceWithDiscountClassName={cardStyles.priceWithDiscount}
+                originalPriceClassName={cardStyles.priceOriginal}
+              />
             </div>
           ) : null}
         </div>
@@ -74,7 +78,13 @@ export function PackagesPageAccordionDesktopPanel({
         <div className={accordionStyles.collapsedTop}>
           <p className={accordionStyles.collapsedTitle}>{category.label}</p>
           {category.priceAmount !== null ? (
-            <p className={accordionStyles.collapsedPrice}>{category.priceAmount}</p>
+            <PackagesPageCategoryCardPrice
+              category={category}
+              fromPrefixClassName={accordionStyles.collapsedPriceFromPrefix}
+              priceClassName={accordionStyles.collapsedPrice}
+              priceWithDiscountClassName={accordionStyles.collapsedPriceWithDiscount}
+              originalPriceClassName={accordionStyles.collapsedPriceOriginal}
+            />
           ) : null}
         </div>
       ) : null}

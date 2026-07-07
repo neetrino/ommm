@@ -3,6 +3,29 @@ import { PackagesAdminService } from './packages-admin.service';
 import { PackagesPublicService } from './packages-public.service';
 import { PackagesService } from './packages.service';
 
+type PackagePlanUpdateArgs = {
+  where: { id: string };
+  data: {
+    availableQuantity?: number | null;
+    isActive?: boolean;
+  };
+};
+
+type PackagePlanUpdateResult = {
+  id: string;
+  isActive: boolean;
+  availableQuantity: number;
+  createdAt: Date;
+};
+
+function getMockCallArg<T>(mock: jest.Mock, callIndex = 0): T {
+  const call = mock.mock.calls[callIndex] as [T] | undefined;
+  if (call === undefined) {
+    throw new Error('Expected mock to be called');
+  }
+  return call[0];
+}
+
 function createPackagesService() {
   const prisma = {
     packagePlan: {
@@ -76,34 +99,36 @@ describe('PackagesService', () => {
 
   it('deactivates a plan when tracked stock is set to zero', async () => {
     const { service, prisma, cache } = createPackagesService();
-    const update = jest.fn().mockResolvedValue({
-      id: 'plan-1',
-      isActive: false,
-      availableQuantity: 0,
-      createdAt: new Date(),
-    });
+    const update = jest
+      .fn<Promise<PackagePlanUpdateResult>, [PackagePlanUpdateArgs]>()
+      .mockResolvedValue({
+        id: 'plan-1',
+        isActive: false,
+        availableQuantity: 0,
+        createdAt: new Date(),
+      });
     prisma.packagePlan.findUnique.mockResolvedValue({
       id: 'plan-1',
       slug: 'plan-1',
       priceCents: 10000,
       discountedPriceCents: null,
     });
-    prisma.$transaction.mockImplementation(async (callback) =>
-      callback({
-        packagePlan: { update },
-      }),
+    prisma.$transaction.mockImplementation(
+      (callback: (tx: { packagePlan: { update: typeof update } }) => unknown) =>
+        Promise.resolve(callback({ packagePlan: { update } })),
     );
     cache.invalidate.mockResolvedValue(undefined);
 
-    await service.updatePlan('plan-1', { availableQuantity: 0, isActive: true });
-
-    expect(update).toHaveBeenCalledWith({
-      where: { id: 'plan-1' },
-      data: expect.objectContaining({
-        availableQuantity: 0,
-        isActive: false,
-      }),
+    await service.updatePlan('plan-1', {
+      availableQuantity: 0,
+      isActive: true,
     });
+
+    expect(update).toHaveBeenCalledTimes(1);
+    const updateArgs = getMockCallArg<PackagePlanUpdateArgs>(update);
+    expect(updateArgs.where).toEqual({ id: 'plan-1' });
+    expect(updateArgs.data.availableQuantity).toBe(0);
+    expect(updateArgs.data.isActive).toBe(false);
     expect(cache.invalidate).toHaveBeenCalled();
   });
 

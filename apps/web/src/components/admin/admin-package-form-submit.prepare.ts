@@ -131,7 +131,7 @@ export function prepareAdminPackageFormSubmit(
         : editableCategoryName;
 
   const priceCents = parsePriceToCents(values.price);
-  const discountAmountCents = parsePriceToCents(values.discountedPrice);
+  const discountedPriceCents = parsePriceToCents(values.discountedPrice);
   const parsedSessionsPerMonth = parseSessionsCount(values.sessionsCount);
   const periodDays = parseDurationDays(values.durationDays);
   const guestCount = parseGuestCount(values.guestCount);
@@ -193,13 +193,13 @@ export function prepareAdminPackageFormSubmit(
       return { ok: false, error: t("priceInvalid") };
     }
     if (values.discountedPrice.trim().length > 0) {
-      if (discountAmountCents === null) {
+      if (discountedPriceCents === null) {
         return { ok: false, error: t("discountedPriceInvalid") };
       }
-      if (discountAmountCents < 0) {
+      if (discountedPriceCents < 0) {
         return { ok: false, error: t("discountedPriceNegative") };
       }
-      if (discountAmountCents >= priceCents) {
+      if (discountedPriceCents >= priceCents) {
         return { ok: false, error: t("discountedPriceLowerThanPrice") };
       }
     }
@@ -261,7 +261,7 @@ export function prepareAdminPackageFormSubmit(
           resolveTierPricePerSessionField(
             String(priceCents),
             String(resolvedSessionsPerMonth),
-            String(discountAmountCents ?? ""),
+            String(discountedPriceCents ?? ""),
           ),
         )
       : null);
@@ -296,7 +296,7 @@ export function prepareAdminPackageFormSubmit(
       tierCategoryName,
       categoryName,
       priceCents: priceCents ?? 0,
-      discountAmountCents,
+      discountedPriceCents,
       periodDays,
       guestCount,
       stockCount,

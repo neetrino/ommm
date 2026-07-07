@@ -6,7 +6,7 @@ import { MARKETING_REFORMER_INDIVIDUAL_CATEGORY_LABEL } from "@/components/marke
 import { MARKETING_YOGA_CATEGORY_LABEL } from "@/components/marketing/packages/public-package-category-yoga";
 import {
   categoryHasMultiplePricedTiers,
-  resolveCategoryStartingPriceCents,
+  resolveCategoryCardPriceCents,
   type PublicPackageCategoryGroup,
 } from "@/lib/public-package-categories";
 import { assignPackageCardGradientStartColors } from "@/lib/package-card-colors";
@@ -17,6 +17,7 @@ export type PackagesPageCategoryCardCopy = {
   id: string;
   label: string;
   priceAmount: string | null;
+  originalPriceAmount?: string | null;
   priceFromPrefix?: string;
   hasPlans: boolean;
 };
@@ -134,8 +135,10 @@ export function buildPackagesPageAccordionCategories(
       };
     }
 
-    const startingPriceCents = resolveCategoryStartingPriceCents(category.plans);
-    const priceAmount = formatAmdFromCents(startingPriceCents, locale);
+    const { finalCents, originalCents } = resolveCategoryCardPriceCents(category.plans);
+    const priceAmount = formatAmdFromCents(finalCents, locale);
+    const originalPriceAmount =
+      originalCents !== null ? formatAmdFromCents(originalCents, locale) : null;
     const priceFromPrefix = categoryHasMultiplePricedTiers(category.plans)
       ? labels.priceFromPrefix
       : undefined;
@@ -144,6 +147,7 @@ export function buildPackagesPageAccordionCategories(
       id: category.id,
       label: category.label,
       priceAmount,
+      originalPriceAmount,
       priceFromPrefix,
       hasPlans: true,
       plans,

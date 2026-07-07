@@ -90,22 +90,51 @@ export function groupAllPublicPackageCategories(
   }));
 }
 
+function planHasPublicDiscount(plan: PublicPackagePlan): boolean {
+  return (
+    typeof plan.discountedPriceCents === "number" &&
+    plan.discountedPriceCents > 0 &&
+    plan.discountedPriceCents < plan.priceCents
+  );
+}
+
+function resolvePlanFinalPriceCents(plan: PublicPackagePlan): number {
+  return planHasPublicDiscount(plan)
+    ? (plan.discountedPriceCents as number)
+    : plan.priceCents;
+}
+
+/** Lowest tier final price for category cards; original when that tier is discounted. */
+export function resolveCategoryCardPriceCents(plans: readonly PublicPackagePlan[]): {
+  finalCents: number;
+  originalCents: number | null;
+} {
+  const pricedPlans = plans.filter((plan) => plan.priceCents > 0);
+  if (pricedPlans.length === 0) {
+    return {
+      finalCents: Math.min(...plans.map((plan) => plan.priceCents)),
+      originalCents: null,
+    };
+  }
+
+  let finalCents = Infinity;
+  let originalCents: number | null = null;
+
+  for (const plan of pricedPlans) {
+    const planFinalCents = resolvePlanFinalPriceCents(plan);
+    if (planFinalCents < finalCents) {
+      finalCents = planFinalCents;
+      originalCents = planHasPublicDiscount(plan) ? plan.priceCents : null;
+    }
+  }
+
+  return { finalCents, originalCents };
+}
+
 export function resolveCategoryStartingPriceCents(
   plans: readonly PublicPackagePlan[],
 ): number {
-  const priced = plans
-    .map((plan) =>
-      typeof plan.discountedPriceCents === "number" &&
-      plan.discountedPriceCents > 0 &&
-      plan.discountedPriceCents < plan.priceCents
-        ? plan.discountedPriceCents
-        : plan.priceCents,
-    )
-    .filter((priceCents) => priceCents > 0);
-  if (priced.length > 0) {
-    return Math.min(...priced);
-  }
-  return Math.min(...plans.map((plan) => plan.priceCents));
+  return resolveCategoryCardPriceCents(plans).finalCents;
 }
 
 export function categoryHasMultiplePricedTiers(
