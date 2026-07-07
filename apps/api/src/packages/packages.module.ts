@@ -21,6 +21,6 @@ import { PackagesService } from './packages.service';
     PackageUsageLedgerService,
     PackageUsageMaintenanceService,
   ],
-  exports: [PackagesService, PackageUsageService],
+  exports: [PackagesService, PackageUsageService, PackagesPublicService],
 })
 export class PackagesModule {}

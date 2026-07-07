@@ -7,6 +7,8 @@ export const MIN_PACKAGE_DURATION_DAYS = 1;
 export const MAX_PACKAGE_DURATION_DAYS = 3600;
 export const MIN_PACKAGE_GUEST_COUNT = 0;
 export const MAX_PACKAGE_GUEST_COUNT = 99;
+export const MIN_PACKAGE_STOCK_COUNT = 0;
+export const MAX_PACKAGE_STOCK_COUNT = 99_999;
 export const MIN_PACKAGE_SESSIONS = 1;
 export const MAX_PACKAGE_SESSIONS = 999;
 
@@ -75,6 +77,18 @@ export function parseGuestCount(raw: string): number | null {
   return count;
 }
 
+export function parseStockCount(raw: string): number | null {
+  const normalized = raw.trim();
+  if (normalized.length === 0) {
+    return null;
+  }
+  const count = Number.parseInt(normalized, 10);
+  if (!Number.isInteger(count)) {
+    return null;
+  }
+  return count;
+}
+
 export function parseSessionsCount(raw: string): number | null {
   const normalized = raw.trim();
   if (normalized.length === 0) {
@@ -110,6 +124,7 @@ export type AdminPackageFormValues = {
   durationDays: string;
   sessionsCount: string;
   guestCount: string;
+  stockCount: string;
   isPopular: boolean;
   isActive: boolean;
   showPricePerSession: boolean;
@@ -127,6 +142,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     durationDays: String(PACKAGE_DAYS_PER_MONTH),
     sessionsCount: "1",
     guestCount: "",
+    stockCount: "",
     isPopular: false,
     isActive: true,
     showPricePerSession: true,
@@ -142,6 +158,7 @@ export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackag
     pricePerSession: "",
     durationDays: "",
     guestCount: "",
+    stockCount: "",
   };
 }
 
@@ -160,6 +177,7 @@ export function packageRowToFormValues(
   isActive: boolean;
   showPricePerSession?: boolean;
   guestCount?: number;
+  availableQuantity?: number | null;
   sessionsPerMonth?: number | null;
 },
   fallbackCategoryName = "",
@@ -186,6 +204,10 @@ export function packageRowToFormValues(
     sessionsCount: String(sessions),
     guestCount:
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
+    stockCount:
+      typeof pkg.availableQuantity === "number" && pkg.availableQuantity >= 0
+        ? String(pkg.availableQuantity)
+        : "",
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
     showPricePerSession:

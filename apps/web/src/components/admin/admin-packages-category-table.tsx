@@ -15,6 +15,7 @@ import {
   formatPackageGuestCount,
   formatPackagePlanName,
   formatPackagePriceLabel,
+  formatPackageStockCount,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import { resolvePackageTotalSessions } from "@/components/admin/admin-package-type-sessions.util";
@@ -37,21 +38,21 @@ function EmptyCell() {
 function TableCell({
   children,
   emphasis = false,
+  lead = false,
 }: {
   children: ReactNode;
   emphasis?: boolean;
+  lead?: boolean;
 }) {
-  return (
-    <div
-      className={
-        emphasis
-          ? "ommm-admin-packages-table-cell ommm-admin-packages-table-cell--emphasis"
-          : "ommm-admin-packages-table-cell"
-      }
-    >
-      {children}
-    </div>
-  );
+  const classes = [
+    "ommm-admin-packages-table-cell",
+    emphasis ? "ommm-admin-packages-table-cell--emphasis" : "",
+    lead ? "ommm-admin-packages-table-cell--lead" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return <div className={classes}>{children}</div>;
 }
 
 export function AdminPackagesCategoryTable({
@@ -82,20 +83,22 @@ export function AdminPackagesCategoryTable({
 
   return (
     <div className="ommm-admin-packages-table">
-      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[62rem]">
+      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header">
         <div>{t("tablePageName")}</div>
         <div>{t("tableTotalSessions")}</div>
         <div>{t("tablePrice")}</div>
         <div>{t("tableValidity")}</div>
         <div>{t("tableGuests")}</div>
+        <div>{t("tableStockCount")}</div>
         <div>{t("colStatus")}</div>
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
-      <div className="min-w-[62rem]">
+      <div>
         <AnimatePresence mode="popLayout" initial={false}>
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
             const guestCount = formatPackageGuestCount(pkg);
+            const stockCount = formatPackageStockCount(pkg);
             const hasDiscount =
               typeof pkg.discountedPriceCents === "number" &&
               pkg.discountedPriceCents > 0 &&
@@ -132,40 +135,43 @@ export function AdminPackagesCategoryTable({
                 animate="animate"
                 exit="exit"
               >
-                <div className="ommm-admin-packages-table-row-layout">
-                  <div
-                    className="ommm-admin-packages-table-grid--data ommm-admin-packages-table-grid--clickable"
-                    role="button"
-                    tabIndex={0}
-                    aria-label={t("editPageAria", { name: packageName })}
-                    onClick={activatePackageRow}
-                    onKeyDown={handleRowKeyDown}
-                  >
-                    <TableCell emphasis>
-                      <span>{packageName}</span>
-                    </TableCell>
-                    <TableCell>
-                      {totalSessions !== null ? totalSessions : <EmptyCell />}
-                    </TableCell>
-                    <TableCell>
-                      {hasDiscount && originalPriceLabel !== null ? (
-                        <span className="inline-flex flex-col items-center gap-0.5">
-                          <span className="text-xs leading-tight text-sage-500 line-through">
-                            {originalPriceLabel}
-                          </span>
-                          <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
+                <div
+                  className="ommm-admin-packages-table-row-layout ommm-admin-packages-table-row-layout--clickable"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={t("editPageAria", { name: packageName })}
+                  onClick={activatePackageRow}
+                  onKeyDown={handleRowKeyDown}
+                >
+                  <TableCell emphasis lead>
+                    <span>{packageName}</span>
+                  </TableCell>
+                  <TableCell>
+                    {totalSessions !== null ? totalSessions : <EmptyCell />}
+                  </TableCell>
+                  <TableCell>
+                    {hasDiscount && originalPriceLabel !== null ? (
+                      <span className="inline-flex flex-col items-center gap-0.5">
+                        <span className="text-xs leading-tight text-sage-500 line-through">
+                          {originalPriceLabel}
                         </span>
-                      ) : (
-                        finalPriceLabel
-                      )}
-                    </TableCell>
-                    <TableCell>{validityLabel}</TableCell>
-                    <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
-                    <TableCell>
-                      <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
-                    </TableCell>
-                  </div>
-                  <div className="ommm-admin-packages-table-actions shrink-0">
+                        <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
+                      </span>
+                    ) : (
+                      finalPriceLabel
+                    )}
+                  </TableCell>
+                  <TableCell>{validityLabel}</TableCell>
+                  <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                  <TableCell>{stockCount !== null ? stockCount : <EmptyCell />}</TableCell>
+                  <TableCell>
+                    <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
+                  </TableCell>
+                  <div
+                    className="ommm-admin-packages-table-actions shrink-0"
+                    onClick={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => event.stopPropagation()}
+                  >
                     <div className="flex items-center justify-end gap-1">
                       <AdminPackagePlanStatusActions
                         packageId={pkg.id}

@@ -176,6 +176,7 @@ export type TierFieldErrors = {
   price?: boolean;
   duration?: boolean;
   discountedPrice?: boolean;
+  stockCount?: boolean;
   typeSessionRows?: Readonly<Record<string, TypeSessionRowFieldErrors>>;
 };
 

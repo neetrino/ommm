@@ -162,7 +162,7 @@
   }
 
   /**
-   * Package subscribe payment — desktop drawer from the right, half viewport width.
+   * Package subscribe payment — desktop drawer from the right, compact width.
    */
   .ommm-package-subscribe-desktop-overlay {
     position: fixed;
@@ -208,7 +208,7 @@
   }
 
   .ommm-package-subscribe-desktop-panel {
-    @apply fixed z-10 flex w-1/2 max-w-[50vw] flex-col overflow-hidden;
+    @apply fixed z-10 flex w-[min(26rem,38vw)] max-w-[26rem] flex-col overflow-hidden;
     @apply rounded-tl-[40px] rounded-bl-[40px];
     @apply border border-white/55 border-r-0;
     background: color-mix(in srgb, white 22%, transparent);

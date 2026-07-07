@@ -22,6 +22,11 @@ import {
   toPublicPlan,
 } from './packages-plan.helpers';
 import {
+  assertPackageHasAvailableStock,
+  decrementPackagePlanStock,
+  packageHasPublicStock,
+} from './packages-stock.helpers';
+import {
   type AdminPlanRecord,
   USER_PACKAGE_STATUS,
 } from './packages-plan.types';
@@ -84,12 +89,19 @@ export class PackagesPublicService {
     const plan = await this.prisma.packagePlan.findUnique({
       where: { id: dto.planId },
     });
-    if (plan === null || !plan.isActive || plan.priceCents <= 0) {
+    if (
+      plan === null ||
+      !plan.isActive ||
+      plan.priceCents <= 0 ||
+      !packageHasPublicStock(plan)
+    ) {
       throw new NotFoundException('Package plan not found');
     }
+    assertPackageHasAvailableStock(plan);
     const now = new Date();
     const periodEnd = new Date(now.getTime() + plan.periodDays * 86_400_000);
     const paymentReference = createPaymentReference('PACKAGE');
+    const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
 
     const created = await this.prisma.$transaction(async (tx) => {
       const userPackage = await tx.userPackage.create({
@@ -97,10 +109,9 @@ export class PackagesPublicService {
           userId,
           planId: plan.id,
           ...buildUserPackagePlanSnapshot(plan),
-          status:
-            dto.paymentMethod === ManualPaymentMethod.CARD
-              ? USER_PACKAGE_STATUS.PENDING
-              : USER_PACKAGE_STATUS.ACTIVE,
+          status: isCardPayment
+            ? USER_PACKAGE_STATUS.PENDING
+            : USER_PACKAGE_STATUS.ACTIVE,
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
           sessionsTotal: plan.isUnlimited ? null : (plan.sessionsPerMonth ?? 0),
@@ -118,31 +129,35 @@ export class PackagesPublicService {
           userId,
           amountCents: resolveFinalPriceCents(plan),
           currency: plan.currency.toLowerCase(),
-          status:
-            dto.paymentMethod === ManualPaymentMethod.CARD
-              ? PaymentStatus.PENDING
-              : PaymentStatus.SUCCEEDED,
+          status: isCardPayment
+            ? PaymentStatus.PENDING
+            : PaymentStatus.SUCCEEDED,
           paymentReference,
           source: PaymentSource.PACKAGE,
           sourceId: userPackage.id,
           description: `Package ${plan.id}`,
-          confirmedAt:
-            dto.paymentMethod === ManualPaymentMethod.CARD ? null : new Date(),
+          confirmedAt: isCardPayment ? null : new Date(),
           paymentMethod: dto.paymentMethod,
         },
       });
+      if (!isCardPayment) {
+        await decrementPackagePlanStock(tx, plan.id);
+      }
       return {
         userPackageId: userPackage.id,
         paymentReference: payment.paymentReference,
+        stockTracked: !isCardPayment && plan.availableQuantity !== null,
       };
     });
+
+    if (created.stockTracked) {
+      await this.invalidatePublicPlansCache();
+    }
 
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
-      requiresArcaCheckout:
-        dto.paymentMethod === ManualPaymentMethod.CARD &&
-        isArcaCheckoutEnabled(this.config),
+      requiresArcaCheckout: isCardPayment && isArcaCheckoutEnabled(this.config),
     };
   }
 
@@ -151,6 +166,7 @@ export class PackagesPublicService {
       where: {
         isActive: true,
         priceCents: { gt: 0 },
+        OR: [{ availableQuantity: null }, { availableQuantity: { gt: 0 } }],
       },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });

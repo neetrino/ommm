@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
+import { PackagesPublicService } from '../packages/packages-public.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
@@ -16,6 +17,7 @@ export class PaymentsConfirmService {
     private readonly prisma: PrismaService,
     private readonly fulfillment: PaymentsFulfillmentService,
     private readonly paymentSuccessEmail: PaymentSuccessEmailService,
+    private readonly packagesPublic: PackagesPublicService,
   ) {}
 
   async confirmPayment(
@@ -24,6 +26,7 @@ export class PaymentsConfirmService {
     options?: { paymentMethod?: ManualPaymentMethod },
   ) {
     const giftEmails: GiftEmailPayload[] = [];
+    let packageStockTracked = false;
     const payment = await this.prisma.$transaction(async (tx) => {
       const existing = (await tx.payment.findUnique({
         where: { id: paymentId },
@@ -35,13 +38,14 @@ export class PaymentsConfirmService {
         throw new ConflictException('Only pending payments can be confirmed');
       }
 
-      const giftEmail = await this.fulfillment.fulfillPaymentBySource(
+      const fulfillment = await this.fulfillment.fulfillPaymentBySource(
         tx,
         existing,
       );
-      if (giftEmail) {
-        giftEmails.push(giftEmail);
+      if (fulfillment.giftEmail) {
+        giftEmails.push(fulfillment.giftEmail);
       }
+      packageStockTracked = fulfillment.packageStockTracked;
 
       return tx.payment.update({
         where: { id: paymentId },
@@ -57,6 +61,9 @@ export class PaymentsConfirmService {
     });
 
     await this.dispatchGiftEmails(giftEmails);
+    if (packageStockTracked) {
+      await this.packagesPublic.invalidatePublicPlansCache();
+    }
     await this.fulfillment.emitDropInBookingRealtimeIfNeeded(payment);
     await this.paymentSuccessEmail.trySendSuccessEmails(
       payment.id,

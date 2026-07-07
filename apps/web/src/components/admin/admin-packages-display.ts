@@ -108,6 +108,20 @@ export function formatPackagePlanName(
     .trim();
 }
 
+/** Remaining purchasable units for admin table; null when unlimited. */
+export function formatPackageStockCount(
+  pkg: Pick<AdminPackageRow, "availableQuantity">,
+): number | null {
+  const count = pkg.availableQuantity;
+  if (count === null || count === undefined) {
+    return null;
+  }
+  if (!Number.isInteger(count) || count < 0) {
+    return null;
+  }
+  return count;
+}
+
 /** Guest count for the packages table; null when zero or unset. */
 export function formatPackageGuestCount(pkg: PackageTableDisplayRow): number | null {
   const count = pkg.guestCount ?? 0;

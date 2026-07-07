@@ -1,3 +1,20 @@
+.formFooter {
+  display: flex;
+  margin-top: auto;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0.25rem;
+}
+
+.formFooter .sectionFieldset {
+  flex: none;
+}
+
+.formFooter .sectionCards {
+  flex: none;
+  overflow: visible;
+}
+
 .sectionFieldset {
   display: flex;
   min-height: 0;
@@ -52,6 +69,11 @@
 .paymentMethodOption:hover {
   border-color: rgba(255, 255, 255, 0.8);
   background: rgba(255, 255, 255, 0.7);
+}
+
+.paymentMethodOption:has(:checked) {
+  border-color: rgba(151, 144, 124, 0.55);
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .paymentMethodOption:has(:disabled) {

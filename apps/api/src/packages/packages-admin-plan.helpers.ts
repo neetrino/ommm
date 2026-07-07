@@ -124,6 +124,7 @@ export function buildCreatePlanData(
       resolvedTypeSessions?.totalSessions ?? normalizeSessionsPerMonth(dto),
     isUnlimited: dto.isUnlimited ?? false,
     guestCount: dto.guestCount ?? 0,
+    availableQuantity: dto.availableQuantity ?? null,
     buttonLabel: dto.buttonLabel?.trim() || 'Buy now',
     features: normalizeFeatures(dto.features),
     isPopular: dto.isPopular ?? false,
@@ -183,6 +184,9 @@ export function buildUpdatePlanData(
         : {}),
     ...(dto.isUnlimited !== undefined ? { isUnlimited: dto.isUnlimited } : {}),
     ...(dto.guestCount !== undefined ? { guestCount: dto.guestCount } : {}),
+    ...(dto.availableQuantity !== undefined
+      ? { availableQuantity: dto.availableQuantity }
+      : {}),
     ...(dto.buttonLabel !== undefined
       ? { buttonLabel: dto.buttonLabel.trim() || 'Buy now' }
       : {}),
