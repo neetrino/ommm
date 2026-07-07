@@ -74,6 +74,39 @@ describe('PackagesService', () => {
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
+  it('deactivates a plan when tracked stock is set to zero', async () => {
+    const { service, prisma, cache } = createPackagesService();
+    const update = jest.fn().mockResolvedValue({
+      id: 'plan-1',
+      isActive: false,
+      availableQuantity: 0,
+      createdAt: new Date(),
+    });
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-1',
+      slug: 'plan-1',
+      priceCents: 10000,
+      discountedPriceCents: null,
+    });
+    prisma.$transaction.mockImplementation(async (callback) =>
+      callback({
+        packagePlan: { update },
+      }),
+    );
+    cache.invalidate.mockResolvedValue(undefined);
+
+    await service.updatePlan('plan-1', { availableQuantity: 0, isActive: true });
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'plan-1' },
+      data: expect.objectContaining({
+        availableQuantity: 0,
+        isActive: false,
+      }),
+    });
+    expect(cache.invalidate).toHaveBeenCalled();
+  });
+
   it('deletes a plan even when active memberships exist', async () => {
     const { service, prisma, cache } = createPackagesService();
     prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });

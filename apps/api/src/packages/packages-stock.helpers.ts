@@ -20,6 +20,13 @@ export function packageHasPublicStock(plan: PackageStockSnapshot): boolean {
   return plan.availableQuantity === null || plan.availableQuantity > 0;
 }
 
+/** Tracked inventory at zero — hide from public listings and block purchase. */
+export function packageStockRequiresDeactivation(
+  availableQuantity: number | null | undefined,
+): boolean {
+  return availableQuantity === 0;
+}
+
 /** Atomically decrements tracked stock; no-op when inventory is unlimited. */
 export async function decrementPackagePlanStock(
   tx: Prisma.TransactionClient,
@@ -33,6 +40,13 @@ export async function decrementPackagePlanStock(
     data: { availableQuantity: { decrement: 1 } },
   });
   if (decremented.count === 1) {
+    await tx.packagePlan.updateMany({
+      where: {
+        id: planId,
+        availableQuantity: 0,
+      },
+      data: { isActive: false },
+    });
     return true;
   }
 

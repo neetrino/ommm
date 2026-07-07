@@ -17,6 +17,7 @@ import {
   DEFAULT_PERIOD_DAYS,
   type ResolvedTypeSessionAllocations,
 } from './packages-plan.types';
+import { packageStockRequiresDeactivation } from './packages-stock.helpers';
 
 export async function assertSlugUnique(
   prisma: PrismaService,
@@ -128,7 +129,9 @@ export function buildCreatePlanData(
     buttonLabel: dto.buttonLabel?.trim() || 'Buy now',
     features: normalizeFeatures(dto.features),
     isPopular: dto.isPopular ?? false,
-    isActive: dto.isActive ?? true,
+    isActive: packageStockRequiresDeactivation(dto.availableQuantity)
+      ? false
+      : (dto.isActive ?? true),
     displayOrder,
     ...(resolvedTypeSessions !== undefined
       ? { typeSessionAllocations: resolvedTypeSessions.allocations }
@@ -195,6 +198,9 @@ export function buildUpdatePlanData(
       : {}),
     ...(dto.isPopular !== undefined ? { isPopular: dto.isPopular } : {}),
     ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+    ...(packageStockRequiresDeactivation(dto.availableQuantity)
+      ? { isActive: false }
+      : {}),
     ...(dto.displayOrder !== undefined
       ? { displayOrder: dto.displayOrder }
       : {}),

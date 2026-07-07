@@ -89,6 +89,18 @@ export function parseStockCount(raw: string): number | null {
   return count;
 }
 
+/** Zero tracked stock hides the package from public listings. */
+export function resolvePackageActiveFromStock(params: {
+  stockCount: number | null;
+  stockFieldProvided: boolean;
+  currentIsActive: boolean;
+}): boolean {
+  if (params.stockFieldProvided && params.stockCount === 0) {
+    return false;
+  }
+  return params.currentIsActive;
+}
+
 export function parseSessionsCount(raw: string): number | null {
   const normalized = raw.trim();
   if (normalized.length === 0) {

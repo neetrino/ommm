@@ -2,6 +2,7 @@ import type { AdminPackageFormSubmitPrepared } from "@/components/admin/admin-pa
 import {
   PACKAGE_DAYS_PER_MONTH,
   resolvePackageBillingPeriod,
+  resolvePackageActiveFromStock,
 } from "@/components/admin/admin-package-form-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
 
@@ -128,7 +129,11 @@ export function buildAdminPackageFormSubmitPayload(
       name: payloadName,
       ...pricingFields,
       isPopular: values.isPopular,
-      isActive: values.isActive,
+      isActive: resolvePackageActiveFromStock({
+        stockCount,
+        stockFieldProvided: values.stockCount.trim().length > 0,
+        currentIsActive: values.isActive,
+      }),
     };
   }
 
@@ -137,7 +142,11 @@ export function buildAdminPackageFormSubmitPayload(
       name: payloadName,
       ...pricingFields,
       isPopular: initialPackage?.isPopular ?? false,
-      isActive: initialPackage?.isActive ?? true,
+      isActive: resolvePackageActiveFromStock({
+        stockCount,
+        stockFieldProvided: values.stockCount.trim().length > 0,
+        currentIsActive: initialPackage?.isActive ?? true,
+      }),
     };
   }
 
