@@ -185,7 +185,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--home-footer-contact-gap);
-  margin-top: var(--home-footer-contact-title-gap);
+  margin-top: var(--home-footer-social-title-gap);
   list-style: none;
   padding: 0;
 }
@@ -583,7 +583,7 @@
     font-size: var(--home-footer-mobile-wordmark-size);
     line-height: var(--home-footer-mobile-wordmark-line-height);
     font-weight: 600;
-    margin-top: 0;
+    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
   }
 
   .mobileStack {
@@ -753,7 +753,10 @@
   .legalSlot {
     right: 0;
     left: auto;
-    top: calc(var(--home-footer-contact-top) - var(--home-footer-contact-social-lift, 0px));
+    top: calc(
+      var(--home-footer-contact-top) - var(--home-footer-contact-social-lift, 0px) +
+        var(--home-footer-contact-policies-bottom-align-offset, 0px)
+    );
     width: min(20.5rem, 100%);
     max-width: 20.5rem;
   }
@@ -840,7 +843,7 @@
     --home-footer-mini-nav-gap: 1.5rem;
     --home-footer-mini-column-gap: 2rem;
     --home-footer-mini-section-gap: 1.5rem;
-    --home-footer-mini-below-logo-lift: 7rem;
+    --home-footer-mini-below-logo-lift: 8.5rem;
     --home-footer-mini-legal-divider-pt: 0.75rem;
     --home-footer-mini-legal-gap: 1.5rem;
     --home-footer-mini-copyright-mt: 1rem;
@@ -906,6 +909,7 @@
 
   .topBarSlot {
     grid-area: nav;
+    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
   }
 
   .topBar {
@@ -953,7 +957,7 @@
   }
 
   .contactList {
-    margin-top: var(--home-footer-contact-title-gap);
+    margin-top: var(--home-footer-social-title-gap);
   }
 
   .illustrationSlot {
@@ -975,7 +979,7 @@
 
   .legalSlot {
     grid-area: legal;
-    align-self: start;
+    align-self: end;
     justify-self: end;
     margin-top: calc(-1 * var(--home-footer-mini-below-logo-lift));
   }
@@ -1036,7 +1040,7 @@
     --home-footer-tablet-body-size: 14px;
     --home-footer-tablet-body-line-height: 20px;
     --home-footer-tablet-nav-gap: 1.5rem;
-    --home-footer-tablet-below-logo-lift: 7rem;
+    --home-footer-tablet-below-logo-lift: 8.5rem;
     --home-footer-tablet-legal-divider-pt: 0.75rem;
     --home-footer-tablet-legal-gap: 1.5rem;
     --home-footer-tablet-legal-address-offset: calc(
@@ -1103,6 +1107,7 @@
 
   .topBarSlot {
     grid-area: nav;
+    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
   }
 
   .topBar {
@@ -1150,7 +1155,7 @@
   }
 
   .contactList {
-    margin-top: var(--home-footer-contact-title-gap);
+    margin-top: var(--home-footer-social-title-gap);
   }
 
   .illustrationSlot {
@@ -1172,7 +1177,7 @@
 
   .legalSlot {
     grid-area: legal;
-    align-self: start;
+    align-self: end;
     justify-self: end;
     margin-top: calc(-1 * var(--home-footer-tablet-below-logo-lift));
   }

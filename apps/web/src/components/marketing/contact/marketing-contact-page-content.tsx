@@ -15,6 +15,7 @@ import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-r
 import { fetchPublicStudioCached } from "@/lib/fetch-public-studio";
 import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
 import { HOME_FOOTER_ADDRESS_HREF } from "@/components/marketing/home/home-footer-section-tokens";
+import { formatPhoneTelHref } from "@/lib/phone";
 import {
   listStudioSocialLinks,
   type StudioPublicSettings,
@@ -29,6 +30,7 @@ type MarketingContactPageLayoutProps = MarketingContactLocaleProps & {
 };
 
 type ContactPublicDefaults = {
+  phone: string;
   email: string;
   address: string;
   addressHref: string;
@@ -54,6 +56,7 @@ function MarketingContactStudioCardPlaceholder() {
 function buildContactGridTiles(
   studio: StudioPublicSettings | null,
   labels: {
+    phone: string;
     email: string;
     address: string;
     hours: string;
@@ -63,6 +66,18 @@ function buildContactGridTiles(
   instagramHref?: string,
 ): MarketingContactGridTile[] {
   const tiles: MarketingContactGridTile[] = [];
+
+  const phone = publicContact.phone.trim();
+  const phoneHref = formatPhoneTelHref(phone);
+  if (phone.length > 0 && phoneHref.length > 0) {
+    tiles.push({
+      key: "phone",
+      label: labels.phone,
+      value: phone,
+      href: `tel:${phoneHref}`,
+      iconSrc: CONTACT_PAGE_ASSETS.iconPhone,
+    });
+  }
 
   const address = publicContact.address.trim();
   if (address.length > 0) {
@@ -144,12 +159,14 @@ async function MarketingContactStudioSection({
   const tiles = buildContactGridTiles(
     studio,
     {
+      phone: t("phone"),
       email: t("email"),
       address: t("address"),
       hours: t("hours"),
       instagram: t("instagram"),
     },
     {
+      phone: tHome("footerPhone") || t("fallbackPhone"),
       email: tHome("footerEmail"),
       address: tHome("footerAddress"),
       addressHref: HOME_FOOTER_ADDRESS_HREF,

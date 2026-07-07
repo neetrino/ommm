@@ -26,9 +26,17 @@
   overflow: hidden;
 }
 
+.homeHeroPromoSlideTrack {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+
 .homeHeroMediaTrack {
   display: flex;
-  width: 500%;
+  width: calc(var(--home-hero-slide-count, 5) * 100%);
   height: 100%;
   transform: translateX(var(--home-hero-track-offset, 0%));
   transition: transform 640ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -40,7 +48,7 @@
 
 .homeHeroMediaSlide {
   position: relative;
-  width: 20%;
+  width: calc(100% / var(--home-hero-slide-count, 5));
   height: 100%;
   flex-shrink: 0;
   overflow: hidden;
@@ -92,6 +100,41 @@
   height: var(--home-hero-bg-height, 103.92%);
   left: var(--home-hero-bg-left, -148.43%);
   top: var(--home-hero-bg-top, -3.38%);
+}
+
+.homeHeroPromoBackgroundCrop {
+  position: absolute;
+  inset: 0;
+}
+
+.homeHeroPromoBackground {
+  object-fit: cover;
+  object-position: var(--home-hero-promo-object-position-mobile, center top);
+}
+
+.homeHeroPromoBackgroundDesktop {
+  display: none;
+}
+
+.homeHeroPromoBackgroundMobile {
+  display: block;
+}
+
+.homeHeroPromoAspectSpacer {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 576 / 1024);
+}
+
+.homeHeroFramePromo {
+  min-height: unset;
+  max-height: unset;
+  height: auto;
+  padding-bottom: 0;
+}
+
+.homeHeroSectionPromo {
+  background-color: var(--home-hero-promo-section-bg-mobile, #c5a04a);
 }
 
 .homeHeroBackground {
@@ -250,6 +293,10 @@
   .homeHeroCtas {
     transform: translateY(var(--home-hero-cta-down-offset, 0));
   }
+
+  .homeHeroPromoSlideTrack {
+    display: none;
+  }
 }
 @media (min-width: 640px) {
   .homeHeroTitleLine {
@@ -262,12 +309,38 @@
 }
 
 @media (min-width: 744px) {
+  .homeHeroPromoBackground {
+    object-position: var(--home-hero-promo-object-position, right center);
+  }
+
+  .homeHeroPromoBackgroundDesktop {
+    display: block;
+  }
+
+  .homeHeroPromoBackgroundMobile {
+    display: none;
+  }
+
+  .homeHeroPromoAspectSpacer {
+    aspect-ratio: var(--home-hero-promo-aspect-ratio, 1672 / 941);
+  }
+
+  .homeHeroSectionPromo {
+    background-color: var(--home-hero-promo-section-bg, #c59d46);
+  }
+
   .homeHeroFrame {
     display: block;
     min-height: var(--home-hero-min-h-lg);
     max-height: none;
     overflow: visible;
     padding-bottom: var(--home-schedule-hero-overlap-lg, 12rem);
+  }
+
+  .homeHeroFramePromo {
+    min-height: unset;
+    max-height: unset;
+    padding-bottom: 0;
   }
 
   .homeHeroSection {

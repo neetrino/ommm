@@ -64,6 +64,9 @@ export const HOME_FOOTER_FIGMA_POSITIONS = {
   },
 } as const;
 
+/** Shared title → options gap (Contact Us list, Policies links). */
+const HOME_FOOTER_SECTION_TITLE_GAP_PX = 22;
+
 export const HOME_FOOTER_LAYOUT = {
   maxWidthPx: HOME_FOOTER_FIGMA.artboardWidthPx,
   minHeightPx: HOME_FOOTER_FIGMA.artboardHeightPx,
@@ -71,9 +74,9 @@ export const HOME_FOOTER_LAYOUT = {
   navLinkPaddingLeftPx: 48,
   navLinkGapPx: 10,
   contactSectionGapPx: 21,
-  contactTitleGapPx: 32,
+  contactTitleGapPx: HOME_FOOTER_SECTION_TITLE_GAP_PX,
   contactRowGapPx: 19,
-  socialTitleGapPx: 22,
+  socialTitleGapPx: HOME_FOOTER_SECTION_TITLE_GAP_PX,
   socialIconGapPx: 22,
   legalLinkGapPx: 34,
   wordmarkFontSizePx: 20,
@@ -81,16 +84,29 @@ export const HOME_FOOTER_LAYOUT = {
   bodyFontSizePx: 16,
   bodyLineHeightPx: 20,
   bodyLetterSpacingPx: -0.35,
+  /** Contact rows include 24px icons — taller than body line height. */
+  contactRowVisualHeightPx: 24,
   copyrightFontSizePx: 14,
   copyrightLineHeightPx: 21,
   copyrightLetterSpacingPx: 2.4,
-  /** Contact Us + Social Media — shift up from Figma baseline. */
-  contactSocialLiftPx: 20,
-  /** Top nav + legal links — shift up from Figma baseline. */
-  topBarLegalLiftPx: 10,
+  /** Contact Us + Policies row — shift up from Figma baseline (desktop). */
+  contactSocialLiftPx: 54,
+  /** Ommm.Space wordmark — lift up from Figma baseline. */
+  wordmarkLiftPx: 28,
   /** Extra space above copyright + payment row (desktop 1367px+). */
   copyrightPaymentRowOffsetPx: 17,
+  /** Contact rows in footer (phone, email, address, Instagram). */
+  contactRowCount: 4,
+  /** Policy links stacked under Policies title. */
+  policiesLinkCount: 3,
 } as const;
+
+/** Desktop absolute layout — Policies top offset for bottom alignment with Contact Us. */
+export const HOME_FOOTER_CONTACT_POLICIES_BOTTOM_ALIGN_OFFSET_PX =
+  HOME_FOOTER_LAYOUT.contactRowCount * HOME_FOOTER_LAYOUT.contactRowVisualHeightPx +
+  (HOME_FOOTER_LAYOUT.contactRowCount - 1) * HOME_FOOTER_LAYOUT.contactSectionGapPx -
+  (HOME_FOOTER_LAYOUT.policiesLinkCount * HOME_FOOTER_LAYOUT.bodyLineHeightPx +
+    (HOME_FOOTER_LAYOUT.policiesLinkCount - 1) * HOME_FOOTER_LAYOUT.contactSectionGapPx);
 
 function homeFooterIllustrationTopAtRestPx(
   artboardHeightPx: number,
@@ -188,7 +204,7 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   contactBlockPaddingTopPx: 16,
   contactIconGapPx: 12,
   contactRowGapPx: 14,
-  contactTitleToRowsGapPx: 14,
+  contactTitleToRowsGapPx: 16,
   socialTitleToIconsGapPx: 16,
   socialIconGapPx: 20,
   socialSectionMarginTopPx: 32,
@@ -232,7 +248,7 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   contactBlockPaddingTop: "1rem",
   contactIconGap: "0.75rem",
   contactRowGap: "0.875rem",
-  contactTitleToRowsGap: "0.875rem",
+  contactTitleToRowsGap: "1rem",
   socialTitleToIconsGap: "1rem",
   socialIconGap: "1.25rem",
   socialSectionMarginTop: "2rem",
@@ -388,17 +404,6 @@ export const HOME_FOOTER_INSTAGRAM = {
   iconHeightPx: 23,
 } as const;
 
-/** Mobile footer — social icon row (legacy layout). */
-export const HOME_FOOTER_SOCIAL_LINKS = [
-  {
-    id: "instagram",
-    href: HOME_FOOTER_INSTAGRAM.href,
-    asset: HOME_FOOTER_INSTAGRAM.asset,
-    width: HOME_FOOTER_INSTAGRAM.iconWidthPx,
-    height: HOME_FOOTER_INSTAGRAM.iconHeightPx,
-  },
-] as const;
-
 export const HOME_FOOTER_PAYMENT_LOGOS = [
   {
     id: "mastercard",
@@ -422,6 +427,7 @@ export const HOME_FOOTER_PAYMENT_LOGOS = [
 
 export const HOME_FOOTER_ASSETS = {
   illustration: HOME_SECTION_ASSETS.footerIllustration,
+  phone: HOME_SECTION_ASSETS.footerIconPhone,
   mail: HOME_SECTION_ASSETS.footerIconMail,
   location: HOME_SECTION_ASSETS.footerIconLocation,
 } as const;

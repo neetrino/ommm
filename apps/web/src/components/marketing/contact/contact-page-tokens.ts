@@ -1,7 +1,10 @@
 /** Contact page — glass tile grid tokens. */
 
-export const CONTACT_PAGE_CARD_SHELL_CLASS =
-  "ommm-card shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]";
+export const CONTACT_PAGE_CARD_SHELL_CLASS = "ommm-card";
+
+/** Desktop card elevation — omitted on phone to avoid clipped edge bands. */
+export const CONTACT_PAGE_CARD_DESKTOP_SHADOW =
+  "0 20px 44px -12px rgba(45, 40, 35, 0.22)";
 
 export const CONTACT_PAGE_SURFACE = {
   headingColor: "#1d1c15",
@@ -23,6 +26,8 @@ export const CONTACT_PAGE_LAYOUT = {
   mobileRowGapPx: 16,
   tileHoverLiftPx: 4,
   tileHoverDurationMs: 280,
+  /** Room inside clipped page content so desktop card shadows fade naturally. */
+  cardShadowBleedPx: 20,
 } as const;
 
 /** Above-fold cards — quick mount fade/slide (no scroll intersection wait). */

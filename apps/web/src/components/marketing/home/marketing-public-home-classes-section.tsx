@@ -125,6 +125,8 @@ export async function MarketingPublicHomeClassesSection({
             ["--home-class-card-title-line-height" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardTitleLineHeightPx}px`,
             ["--home-class-card-body-size" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardBodyFontSizePx}px`,
             ["--home-class-card-body-line-height" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardBodyLineHeightPx}px`,
+            ["--home-class-practice-narrow-body-max-width" as string]:
+              HOME_CLASSES_SECTION_MOBILE_LAYOUT.practiceCardNarrowBodyMaxWidth,
           }}
         >
           <div className={styles.carouselTrack}>

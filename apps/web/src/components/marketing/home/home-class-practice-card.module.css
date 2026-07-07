@@ -124,16 +124,22 @@
     padding: 1.5rem 1.25rem 0.75rem;
   }
 
+  .card[data-card-id="reformer-pilates"] .copy,
+  .card[data-card-id="power-pilates"] .copy,
   .card[data-card-id="stretching"] .copy {
-    max-width: 14rem;
+    max-width: none;
   }
 
-  .card[data-card-id="reformer-pilates"] .copy {
-    max-width: 15rem;
+  .card[data-card-id="reformer-pilates"] .title,
+  .card[data-card-id="power-pilates"] .title,
+  .card[data-card-id="stretching"] .title {
+    white-space: nowrap;
   }
 
-  .card[data-card-id="power-pilates"] .copy {
-    max-width: 14rem;
+  .card[data-card-id="reformer-pilates"] .body,
+  .card[data-card-id="power-pilates"] .body,
+  .card[data-card-id="stretching"] .body {
+    max-width: var(--home-class-practice-narrow-body-max-width, 9rem);
   }
 
   .card[data-card-id="yoga"] .copy {

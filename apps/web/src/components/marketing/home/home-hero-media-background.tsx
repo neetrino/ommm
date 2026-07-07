@@ -1,25 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
+  HOME_HERO_CAROUSEL_SLIDES,
   resolveActiveHomeHeroVideoElement,
+  type HomeHeroPromoBannerKey,
   useHomeHeroSlide,
 } from "@/components/marketing/home/home-hero-slide-context";
 import { HomeHeroVideoSlot } from "@/components/marketing/home/home-hero-video-slot";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
-import { lcpImageProps } from "@/lib/image-loading-props";
+import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroMediaBackgroundProps = {
+  heroImageAlt: string;
+  promoBannerAlt: string;
+};
+
+type HomeHeroLegacyPhotoSlideProps = {
   imageAlt: string;
 };
 
-type HomeHeroPhotoSlideProps = {
-  imageAlt: string;
-};
-
-function HomeHeroPhotoSlide({ imageAlt }: HomeHeroPhotoSlideProps) {
+function HomeHeroLegacyPhotoSlide({ imageAlt }: HomeHeroLegacyPhotoSlideProps) {
   return (
     <div className={styles.homeHeroMediaSlide}>
       <div className={styles.homeHeroBackgroundCrop}>
@@ -36,30 +39,81 @@ function HomeHeroPhotoSlide({ imageAlt }: HomeHeroPhotoSlideProps) {
   );
 }
 
-/** Sliding hero media — intro video (R2) then static photo background. */
-export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundProps) {
+type HomeHeroPromoBannerSlideProps = {
+  assetKey: HomeHeroPromoBannerKey;
+  imageAlt: string;
+};
+
+function resolvePromoBannerSources(assetKey: HomeHeroPromoBannerKey): {
+  desktop: string;
+  mobile: string;
+} {
+  if (assetKey === "promoBanner3") {
+    return {
+      desktop: HOME_HERO_ASSETS.promoBanner3,
+      mobile: HOME_HERO_ASSETS.promoBanner3Mobile,
+    };
+  }
+  return {
+    desktop: HOME_HERO_ASSETS.promoBanner3,
+    mobile: HOME_HERO_ASSETS.promoBanner3Mobile,
+  };
+}
+
+function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSlideProps) {
+  const sources = resolvePromoBannerSources(assetKey);
+
+  return (
+    <div className={styles.homeHeroMediaSlide}>
+      <div className={styles.homeHeroPromoBackgroundCrop}>
+        <Image
+          src={sources.mobile}
+          alt={imageAlt}
+          fill
+          unoptimized
+          sizes="100vw"
+          className={`${styles.homeHeroPromoBackground} ${styles.homeHeroPromoBackgroundMobile} pointer-events-none`}
+          {...aboveFoldImageProps()}
+        />
+        <Image
+          src={sources.desktop}
+          alt=""
+          fill
+          unoptimized
+          sizes="100vw"
+          className={`${styles.homeHeroPromoBackground} ${styles.homeHeroPromoBackgroundDesktop} pointer-events-none`}
+          aria-hidden
+          {...aboveFoldImageProps()}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Hero carousel — intro video, promo banner, then legacy meditation hero. */
+export function HomeHeroMediaBackground({
+  heroImageAlt,
+  promoBannerAlt,
+}: HomeHeroMediaBackgroundProps) {
   const slide = useHomeHeroSlide();
   const {
     activeSlide,
-    activeView,
+    activeSlideIndex,
     trackOffset,
     desktopVideoUrl,
     mobileVideoUrl,
     mobileVideoMp4Url,
-    videoLeftRefs,
-    videoRightRefs,
+    videoRefs,
     onVideoEnded,
     onVideoError,
     isVideoActive,
-    normalizePhotoToCenter,
   } = slide;
-  const [skipTransition, setSkipTransition] = useState(false);
 
   useEffect(() => {
-    if (!isVideoActive || activeView.kind !== "video") {
+    if (!isVideoActive) {
       return;
     }
-    const video = resolveActiveHomeHeroVideoElement(activeView.entry, slide);
+    const video = resolveActiveHomeHeroVideoElement(slide);
     if (!video) {
       return;
     }
@@ -78,64 +132,49 @@ export function HomeHeroMediaBackground({ imageAlt }: HomeHeroMediaBackgroundPro
     return () => {
       video.removeEventListener("loadeddata", playFromStart);
     };
-  }, [activeView, desktopVideoUrl, isVideoActive, mobileVideoMp4Url, mobileVideoUrl, slide]);
-
-  const handleTrackTransitionEnd = useCallback(
-    (event: React.TransitionEvent<HTMLDivElement>) => {
-      if (event.target !== event.currentTarget || event.propertyName !== "transform") {
-        return;
-      }
-      if (activeView.kind !== "photo" || activeView.entry === "center") {
-        return;
-      }
-      setSkipTransition(true);
-      normalizePhotoToCenter();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setSkipTransition(false);
-        });
-      });
-    },
-    [activeView, normalizePhotoToCenter],
-  );
+  }, [activeSlideIndex, desktopVideoUrl, isVideoActive, mobileVideoMp4Url, mobileVideoUrl, slide]);
 
   return (
     <div
       className={styles.homeHeroBackgroundLayer}
       aria-hidden
-      data-hero-slide={activeSlide}
+      data-hero-slide={activeSlide.kind}
+      data-hero-slide-index={activeSlideIndex}
     >
       <div
-        className={`${styles.homeHeroMediaTrack} ${skipTransition ? styles.homeHeroMediaTrackNoTransition : ""}`}
+        className={styles.homeHeroMediaTrack}
         style={{ ["--home-hero-track-offset" as string]: trackOffset }}
-        onTransitionEnd={handleTrackTransitionEnd}
       >
-        <HomeHeroPhotoSlide imageAlt={imageAlt} />
-        <div className={styles.homeHeroMediaSlide}>
-          <HomeHeroVideoSlot
-            desktopVideoUrl={desktopVideoUrl}
-            mobileVideoUrl={mobileVideoUrl}
-            mobileVideoMp4Url={mobileVideoMp4Url}
-            desktopRef={videoLeftRefs.desktop}
-            mobileRef={videoLeftRefs.mobile}
-            autoPlay
-            onEnded={onVideoEnded}
-            onError={onVideoError}
-          />
-        </div>
-        <HomeHeroPhotoSlide imageAlt={imageAlt} />
-        <div className={styles.homeHeroMediaSlide}>
-          <HomeHeroVideoSlot
-            desktopVideoUrl={desktopVideoUrl}
-            mobileVideoUrl={mobileVideoUrl}
-            mobileVideoMp4Url={mobileVideoMp4Url}
-            desktopRef={videoRightRefs.desktop}
-            mobileRef={videoRightRefs.mobile}
-            onEnded={onVideoEnded}
-            onError={onVideoError}
-          />
-        </div>
-        <HomeHeroPhotoSlide imageAlt={imageAlt} />
+        {HOME_HERO_CAROUSEL_SLIDES.map((carouselSlide, index) => {
+          if (carouselSlide.kind === "video") {
+            return (
+              <div key={`hero-slide-${index}`} className={styles.homeHeroMediaSlide}>
+                <HomeHeroVideoSlot
+                  desktopVideoUrl={desktopVideoUrl}
+                  mobileVideoUrl={mobileVideoUrl}
+                  mobileVideoMp4Url={mobileVideoMp4Url}
+                  desktopRef={videoRefs.desktop}
+                  mobileRef={videoRefs.mobile}
+                  autoPlay={activeSlideIndex === index}
+                  onEnded={onVideoEnded}
+                  onError={onVideoError}
+                />
+              </div>
+            );
+          }
+          if (carouselSlide.kind === "legacy-photo") {
+            return (
+              <HomeHeroLegacyPhotoSlide key={`hero-slide-${index}`} imageAlt={heroImageAlt} />
+            );
+          }
+          return (
+            <HomeHeroPromoBannerSlide
+              key={`hero-slide-${index}`}
+              assetKey={carouselSlide.assetKey}
+              imageAlt={promoBannerAlt}
+            />
+          );
+        })}
       </div>
     </div>
   );

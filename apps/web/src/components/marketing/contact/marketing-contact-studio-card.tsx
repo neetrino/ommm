@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import {
   CONTACT_PAGE_CARD_SHELL_CLASS,
+  CONTACT_PAGE_CARD_DESKTOP_SHADOW,
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
@@ -34,14 +35,18 @@ const CARD_STYLE = {
   "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
   "--contact-tile-hover-lift": `-${CONTACT_PAGE_LAYOUT.tileHoverLiftPx}px`,
   "--contact-tile-hover-duration": `${CONTACT_PAGE_LAYOUT.tileHoverDurationMs}ms`,
+  "--contact-card-desktop-shadow": CONTACT_PAGE_CARD_DESKTOP_SHADOW,
+  "--contact-card-shadow-bleed": `${CONTACT_PAGE_LAYOUT.cardShadowBleedPx}px`,
 } as CSSProperties;
 
 function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
+  const phoneClassName = tile.key === "phone" ? styles.valuePhone : undefined;
+
   if (tile.href !== undefined) {
     return (
       <a
         href={tile.href}
-        className={styles.valueLink}
+        className={phoneClassName !== undefined ? `${styles.valueLink} ${phoneClassName}` : styles.valueLink}
         {...(tile.href.startsWith("http")
           ? { target: "_blank", rel: "noopener noreferrer" }
           : {})}
@@ -51,7 +56,11 @@ function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
     );
   }
 
-  return <p className={styles.value}>{tile.value}</p>;
+  return (
+    <p className={phoneClassName !== undefined ? `${styles.value} ${phoneClassName}` : styles.value}>
+      {tile.value}
+    </p>
+  );
 }
 
 function ContactGridTileCard({
@@ -89,8 +98,15 @@ function ContactGridTileCard({
 
 /** Contact page — glass tile grid (address, email, Instagram, hours). */
 export function MarketingContactStudioCard({ tiles }: MarketingContactStudioCardProps) {
+  const desktopParity = tiles.length % 2 === 0 ? "even" : "odd";
+
   return (
-    <div className={styles.grid} style={CARD_STYLE}>
+    <div
+      className={styles.grid}
+      style={CARD_STYLE}
+      data-contact-tile-count={tiles.length}
+      data-contact-desktop-parity={desktopParity}
+    >
       {tiles.map((tile, index) => (
         <ContactGridTileCard
           key={tile.key}

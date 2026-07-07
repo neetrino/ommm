@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-sphere-bounce";
+import { MarketingPublicHomeFooterInstagramRow } from "@/components/marketing/home/marketing-public-home-footer-instagram-row";
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_MOBILE_SPHERE_BOUNCE,
   HOME_FOOTER_PAYMENT_LOGOS,
-  HOME_FOOTER_SOCIAL_LINKS,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
@@ -19,6 +19,8 @@ export type MarketingPublicHomeFooterMobileProps = {
   wordmarkLabel: string;
   illustrationAlt: string;
   contactTitle: string;
+  phone: string;
+  phoneHref: string;
   email: string;
   address: string;
   addressHref: string;
@@ -38,6 +40,8 @@ export function MarketingPublicHomeFooterMobile({
   wordmarkLabel,
   illustrationAlt,
   contactTitle,
+  phone,
+  phoneHref,
   email,
   address,
   addressHref,
@@ -59,6 +63,22 @@ export function MarketingPublicHomeFooterMobile({
         <div className={styles.mobileContactSection}>
           <p className={styles.mobileContactTitle}>{contactTitle}</p>
           <div className={styles.mobileContact}>
+            {phoneHref.length > 0 ? (
+              <div className={styles.mobileContactRow}>
+                <Image
+                  src={HOME_FOOTER_ASSETS.phone}
+                  alt=""
+                  width={20}
+                  height={20}
+                  unoptimized
+                  className={styles.mobileContactIcon}
+                  aria-hidden
+                />
+                <a href={`tel:${phoneHref}`} className={styles.mobileContactText}>
+                  {phone}
+                </a>
+              </div>
+            ) : null}
             <div className={styles.mobileContactRow}>
               <Image
                 src={HOME_FOOTER_ASSETS.mail}
@@ -94,18 +114,13 @@ export function MarketingPublicHomeFooterMobile({
       <div className={styles.mobileSocial}>
         <p className={styles.mobileSocialTitle}>{socialTitle}</p>
         <div className={styles.mobileSocialList}>
-          {HOME_FOOTER_SOCIAL_LINKS.map((item) => (
-            <a
-              key={item.id}
-              href={item.href}
-              className={styles.socialLink}
-              aria-label={socialAria(item.id)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image src={item.asset} alt="" width={item.width} height={item.height} unoptimized />
-            </a>
-          ))}
+          <MarketingPublicHomeFooterInstagramRow
+            rowClassName={styles.mobileContactRow}
+            iconClassName={styles.mobileContactIcon}
+            textClassName={styles.mobileContactText}
+            ariaLabel={socialAria("instagram")}
+            as="div"
+          />
         </div>
       </div>
 
