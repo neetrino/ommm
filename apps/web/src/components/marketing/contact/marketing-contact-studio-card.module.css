@@ -11,6 +11,9 @@
     gap: var(--contact-grid-gap);
     grid-template-columns: repeat(2, minmax(0, 1fr));
     --contact-icon-size: var(--contact-icon-size-desktop);
+    box-sizing: border-box;
+    padding: var(--contact-card-shadow-bleed, 1.25rem);
+    margin: calc(-1 * var(--contact-card-shadow-bleed, 1.25rem));
   }
 }
 
@@ -42,7 +45,7 @@
 
   .tile:hover {
     transform: translateY(var(--contact-tile-hover-lift));
-    box-shadow: 0 24px 48px -24px rgba(45, 40, 35, 0.18);
+    box-shadow: 0 24px 52px -10px rgba(45, 40, 35, 0.24);
   }
 }
 

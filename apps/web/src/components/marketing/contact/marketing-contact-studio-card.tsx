@@ -36,6 +36,7 @@ const CARD_STYLE = {
   "--contact-tile-hover-lift": `-${CONTACT_PAGE_LAYOUT.tileHoverLiftPx}px`,
   "--contact-tile-hover-duration": `${CONTACT_PAGE_LAYOUT.tileHoverDurationMs}ms`,
   "--contact-card-desktop-shadow": CONTACT_PAGE_CARD_DESKTOP_SHADOW,
+  "--contact-card-shadow-bleed": `${CONTACT_PAGE_LAYOUT.cardShadowBleedPx}px`,
 } as CSSProperties;
 
 function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {

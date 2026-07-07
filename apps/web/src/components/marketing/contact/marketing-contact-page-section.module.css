@@ -50,3 +50,10 @@
   margin-top: var(--coaches-page-content-margin-top);
   padding-bottom: clamp(2rem, 5vw, 3.5rem);
 }
+
+@media (min-width: 744px) {
+  .content {
+    overflow: visible;
+    overflow-x: visible;
+  }
+}
