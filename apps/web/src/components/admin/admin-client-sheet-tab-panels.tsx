@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
 import type {
@@ -25,6 +26,7 @@ import { apiFetch } from "@/lib/api";
 import { formatBirthdayInput, formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -50,6 +52,7 @@ type ClientSheetTabPanelsProps = {
   personalInfoEditing: boolean;
   onStartPersonalInfoEdit: () => void;
   onPersonalInfoSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onAvatarPreviewOpenChange?: (open: boolean) => void;
 };
 
 export function ClientSheetTabPanels({
@@ -70,6 +73,7 @@ export function ClientSheetTabPanels({
   personalInfoEditing,
   onStartPersonalInfoEdit,
   onPersonalInfoSubmit,
+  onAvatarPreviewOpenChange,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
   const activity = detail.activity;
@@ -79,7 +83,7 @@ export function ClientSheetTabPanels({
       <div className="space-y-5">
         <section className={SECTION_CLASS}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-            <ClientAvatar client={detail} />
+            <ClientAvatar client={detail} onPreviewOpenChange={onAvatarPreviewOpenChange} />
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               <StatusBadge label={activity.status} />
               <span className="text-sm text-sage-600">
@@ -317,12 +321,20 @@ export function ClientSheetTabPanels({
   return null;
 }
 
+const CLIENT_AVATAR_BUTTON_CLASS =
+  "group relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-white/70 bg-sand-100 shadow-[0_12px_32px_-20px_rgba(45,40,35,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+
 function ClientAvatar({
   client,
+  onPreviewOpenChange,
 }: {
   client: { avatarUrl: string | null; name: string | null; lastName: string | null; email: string };
+  onPreviewOpenChange?: (open: boolean) => void;
 }) {
-  const initials = clientDisplayName(client)
+  const t = useTranslations("adminPages.clients");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const displayName = clientDisplayName(client);
+  const initials = displayName
     .split(/\s+/)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
@@ -332,16 +344,54 @@ function ClientAvatar({
       ? resolveApiAssetUrl(client.avatarUrl) ?? client.avatarUrl
       : null;
 
+  useEffect(() => {
+    onPreviewOpenChange?.(previewOpen);
+  }, [onPreviewOpenChange, previewOpen]);
+
+  useEffect(
+    () => () => {
+      onPreviewOpenChange?.(false);
+    },
+    [onPreviewOpenChange],
+  );
+
+  function closePreview(): void {
+    setPreviewOpen(false);
+  }
+
   if (src !== null) {
     return (
-      <Image
-        src={src}
-        alt=""
-        width={96}
-        height={96}
-        className="h-24 w-24 shrink-0 rounded-2xl object-cover"
-        unoptimized
-      />
+      <>
+        <button
+          type="button"
+          className={CLIENT_AVATAR_BUTTON_CLASS}
+          aria-label={t("drawer.viewPhoto")}
+          onClick={(event) => {
+            event.stopPropagation();
+            setPreviewOpen(true);
+          }}
+        >
+          <Image
+            src={src}
+            alt=""
+            width={96}
+            height={96}
+            className="h-full w-full object-cover"
+            unoptimized
+          />
+          <span className="absolute inset-0 flex items-center justify-center bg-sage-900/0 text-xs font-medium text-white opacity-0 transition group-hover:bg-sage-900/35 group-hover:opacity-100 group-focus-visible:bg-sage-900/35 group-focus-visible:opacity-100">
+            {t("drawer.viewPhoto")}
+          </span>
+        </button>
+        <ImagePreviewModal
+          isOpen={previewOpen}
+          imageSrc={src}
+          imageAlt={t("drawer.photoPreviewAlt", { name: displayName })}
+          closeAriaLabel={t("modalCloseAria")}
+          backdropAriaLabel={t("modalBackdropClose")}
+          onClose={closePreview}
+        />
+      </>
     );
   }
 

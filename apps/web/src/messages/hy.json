@@ -1952,6 +1952,8 @@
         "source": "Աղբյուր",
         "preferredCoach": "Նախընտրելի մարզիչ",
         "noTags": "Պիտակներ չկան",
+        "viewPhoto": "Դիտել պրոֆիլի նկարը",
+        "photoPreviewAlt": "{name}-ի պրոֆիլի նկար",
         "personalInfo": "Անձնական տվյալներ",
         "totalVisits": "Ընդամենը այցեր",
         "totalBookings": "Ընդամենը ամրագրումներ",

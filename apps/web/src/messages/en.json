@@ -1952,6 +1952,8 @@
         "source": "Source",
         "preferredCoach": "Preferred coach",
         "noTags": "No labels",
+        "viewPhoto": "View profile photo",
+        "photoPreviewAlt": "Profile photo of {name}",
         "personalInfo": "Personal info",
         "totalVisits": "Total visits",
         "totalBookings": "Total bookings",

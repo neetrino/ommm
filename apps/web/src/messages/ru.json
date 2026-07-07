@@ -1950,6 +1950,8 @@
         "source": "Источник",
         "preferredCoach": "Предпочитаемый тренер",
         "noTags": "Без меток",
+        "viewPhoto": "Открыть фото профиля",
+        "photoPreviewAlt": "Фото профиля: {name}",
         "personalInfo": "Личные данные",
         "totalVisits": "Всего визитов",
         "totalBookings": "Всего бронирований",

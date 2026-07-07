@@ -114,6 +114,7 @@ function AdminClientDrawerInner({
   const [giftAmount, setGiftAmount] = useState("10000");
   const [tabRefreshKey, setTabRefreshKey] = useState(0);
   const [personalInfoEditing, setPersonalInfoEditing] = useState(false);
+  const [avatarPreviewOpen, setAvatarPreviewOpen] = useState(false);
 
   const refreshDetail = useCallback(async () => {
     const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
@@ -279,6 +280,7 @@ function AdminClientDrawerInner({
       isOpen
       onClose={handleClose}
       closeDisabled={sheetBusy}
+      closeOnEscape={!avatarPreviewOpen}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -363,6 +365,7 @@ function AdminClientDrawerInner({
             personalInfoEditing={personalInfoEditing}
             onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
             onPersonalInfoSubmit={handlePersonalInfoFormSubmit}
+            onAvatarPreviewOpenChange={setAvatarPreviewOpen}
           />
         )}
       </div>
