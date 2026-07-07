@@ -19,7 +19,7 @@ export function PackagesPageAccordionTierTable({
     () =>
       ({
         ["--packages-page-tier-columns" as string]:
-          "minmax(0, 1.05fr) minmax(0, 0.65fr) minmax(0, 0.95fr) minmax(0, 0.55fr) minmax(0, 0.45fr) minmax(0, 1.05fr)",
+          "repeat(6, minmax(0, 1fr))",
       }) as CSSProperties,
     [],
   );

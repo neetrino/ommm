@@ -147,7 +147,9 @@ function PackageSubscribePaymentModalSession({
   const [selectedPlanId, setSelectedPlanId] = useState(() =>
     resolveDefaultPlanId(plans, initialPlanId),
   );
-  const [paymentMethod, setPaymentMethod] = useState<ManualPaymentMethod>("CARD");
+  const [paymentMethod, setPaymentMethod] = useState<ManualPaymentMethod>(
+    () => PACKAGE_SUBSCRIBE_PAYMENT_METHODS[0] ?? "CARD",
+  );
   const [busy, setBusy] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);

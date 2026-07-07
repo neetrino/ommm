@@ -54,6 +54,11 @@
   background: rgba(255, 255, 255, 0.7);
 }
 
+.paymentMethodOption:has(:checked) {
+  border-color: rgba(151, 144, 124, 0.55);
+  background: rgba(255, 255, 255, 0.88);
+}
+
 .paymentMethodOption:has(:disabled) {
   pointer-events: none;
   cursor: not-allowed;
