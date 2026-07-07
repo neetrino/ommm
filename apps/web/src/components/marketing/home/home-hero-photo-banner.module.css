@@ -123,7 +123,7 @@
 .homeHeroPromoAspectSpacer {
   display: block;
   width: 100%;
-  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 941 / 1672);
+  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 576 / 1024);
 }
 
 .homeHeroFramePromo {

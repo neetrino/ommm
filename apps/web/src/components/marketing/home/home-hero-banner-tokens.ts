@@ -155,15 +155,14 @@ export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   textMaxWidthRatio: 0.44,
 } as const;
 
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 941;
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1672;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 576;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1024;
 
-/** Figma `801:830` — full mobile promo slide (portrait art with baked-in copy). */
+/** Mobile promo slide — portrait art with baked-in copy (replaces Figma `801:830`). */
 export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
-  figmaNodeId: "801:830",
   sectionBackground: "#c5a04a",
   objectPosition: "center top",
 } as const;
