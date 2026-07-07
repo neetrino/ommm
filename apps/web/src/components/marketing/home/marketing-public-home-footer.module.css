@@ -583,7 +583,7 @@
     font-size: var(--home-footer-mobile-wordmark-size);
     line-height: var(--home-footer-mobile-wordmark-line-height);
     font-weight: 600;
-    margin-top: 0;
+    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
   }
 
   .mobileStack {
@@ -909,6 +909,7 @@
 
   .topBarSlot {
     grid-area: nav;
+    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
   }
 
   .topBar {
@@ -1106,6 +1107,7 @@
 
   .topBarSlot {
     grid-area: nav;
+    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
   }
 
   .topBar {

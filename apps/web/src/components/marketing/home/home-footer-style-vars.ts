@@ -106,7 +106,8 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-copyright-tracking" as string]: `${layout.copyrightLetterSpacingPx}px`,
     ["--home-footer-contact-social-lift" as string]: `${layout.contactSocialLiftPx}px`,
     ["--home-footer-contact-policies-bottom-align-offset" as string]: `${HOME_FOOTER_CONTACT_POLICIES_BOTTOM_ALIGN_OFFSET_PX}px`,
-    ["--home-footer-top-bar-legal-lift" as string]: `${layout.topBarLegalLiftPx}px`,
+    ["--home-footer-wordmark-lift" as string]: `${layout.wordmarkLiftPx}px`,
+    ["--home-footer-top-bar-legal-lift" as string]: `${layout.wordmarkLiftPx}px`,
     ["--home-footer-desktop-bottom-row-offset" as string]: `${layout.copyrightPaymentRowOffsetPx}px`,
   };
 }

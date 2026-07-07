@@ -84,13 +84,15 @@ export const HOME_FOOTER_LAYOUT = {
   bodyFontSizePx: 16,
   bodyLineHeightPx: 20,
   bodyLetterSpacingPx: -0.35,
+  /** Contact rows include 24px icons — taller than body line height. */
+  contactRowVisualHeightPx: 24,
   copyrightFontSizePx: 14,
   copyrightLineHeightPx: 21,
   copyrightLetterSpacingPx: 2.4,
   /** Contact Us + Policies row — shift up from Figma baseline (desktop). */
   contactSocialLiftPx: 54,
-  /** Top nav + legal links — shift up from Figma baseline. */
-  topBarLegalLiftPx: 10,
+  /** Ommm.Space wordmark — lift up from Figma baseline. */
+  wordmarkLiftPx: 28,
   /** Extra space above copyright + payment row (desktop 1367px+). */
   copyrightPaymentRowOffsetPx: 17,
   /** Contact rows in footer (phone, email, address, Instagram). */
@@ -101,7 +103,7 @@ export const HOME_FOOTER_LAYOUT = {
 
 /** Desktop absolute layout — Policies top offset for bottom alignment with Contact Us. */
 export const HOME_FOOTER_CONTACT_POLICIES_BOTTOM_ALIGN_OFFSET_PX =
-  HOME_FOOTER_LAYOUT.contactRowCount * HOME_FOOTER_LAYOUT.bodyLineHeightPx +
+  HOME_FOOTER_LAYOUT.contactRowCount * HOME_FOOTER_LAYOUT.contactRowVisualHeightPx +
   (HOME_FOOTER_LAYOUT.contactRowCount - 1) * HOME_FOOTER_LAYOUT.contactSectionGapPx -
   (HOME_FOOTER_LAYOUT.policiesLinkCount * HOME_FOOTER_LAYOUT.bodyLineHeightPx +
     (HOME_FOOTER_LAYOUT.policiesLinkCount - 1) * HOME_FOOTER_LAYOUT.contactSectionGapPx);
