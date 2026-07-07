@@ -115,6 +115,13 @@ export class UpsertPackagePlanDto {
   @Max(50)
   guestCount?: number;
 
+  /** Remaining purchasable units; omit or null for unlimited stock. */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100_000)
+  availableQuantity?: number | null;
+
   @IsOptional()
   @IsString()
   @MaxLength(120)

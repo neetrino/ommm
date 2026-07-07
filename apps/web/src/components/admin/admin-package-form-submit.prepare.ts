@@ -12,10 +12,13 @@ import {
   MAX_PACKAGE_GUEST_COUNT,
   MIN_PACKAGE_DURATION_DAYS,
   MIN_PACKAGE_GUEST_COUNT,
+  MIN_PACKAGE_STOCK_COUNT,
+  MAX_PACKAGE_STOCK_COUNT,
   MIN_PACKAGE_SESSIONS,
   MAX_PACKAGE_SESSIONS,
   parseDurationDays,
   parseGuestCount,
+  parseStockCount,
   parseSessionsCount,
   parsePriceToCents,
   resolveTierPricePerSessionField,
@@ -132,6 +135,7 @@ export function prepareAdminPackageFormSubmit(
   const parsedSessionsPerMonth = parseSessionsCount(values.sessionsCount);
   const periodDays = parseDurationDays(values.durationDays);
   const guestCount = parseGuestCount(values.guestCount);
+  const stockCount = parseStockCount(values.stockCount);
   const tierClassTypeId = (initialPackage?.classTypeId ?? values.classTypeId).trim();
   const sessionName = values.name.trim();
   const isTierPackage =
@@ -223,6 +227,15 @@ export function prepareAdminPackageFormSubmit(
     ) {
       return { ok: false, error: t("guestCountInvalid") };
     }
+    if (
+      (isAddTierMode || isEditTierMode) &&
+      values.stockCount.trim().length > 0 &&
+      (stockCount === null ||
+        stockCount < MIN_PACKAGE_STOCK_COUNT ||
+        stockCount > MAX_PACKAGE_STOCK_COUNT)
+    ) {
+      return { ok: false, error: t("stockCountInvalid") };
+    }
   }
 
   let typeSessionAllocations: Array<{ classTypeId: string; sessionCount: number }> | undefined;
@@ -286,6 +299,7 @@ export function prepareAdminPackageFormSubmit(
       discountAmountCents,
       periodDays,
       guestCount,
+      stockCount,
       tierClassTypeId,
       payloadName,
       slug,

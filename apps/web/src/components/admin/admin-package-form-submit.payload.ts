@@ -27,6 +27,7 @@ export function buildAdminPackageFormSubmitPayload(
     discountAmountCents,
     periodDays,
     guestCount,
+    stockCount,
     tierClassTypeId,
     payloadName,
     slug,
@@ -60,6 +61,12 @@ export function buildAdminPackageFormSubmitPayload(
     isUnlimited: false,
     sessionsPerMonth: resolvedSessionsPerMonth,
     guestCount: guestCount ?? 0,
+    availableQuantity:
+      isAddTierMode || isEditTierMode
+        ? values.stockCount.trim().length > 0
+          ? (stockCount ?? null)
+          : null
+        : undefined,
     periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
     billingPeriod: tierBillingPeriod,
     ...(typeSessionAllocations !== undefined ? { typeSessionAllocations } : {}),

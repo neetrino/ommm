@@ -9,6 +9,8 @@ import {
   MAX_PACKAGE_GUEST_COUNT,
   MIN_PACKAGE_DURATION_DAYS,
   MIN_PACKAGE_GUEST_COUNT,
+  MIN_PACKAGE_STOCK_COUNT,
+  MAX_PACKAGE_STOCK_COUNT,
   preventNumberArrowStep,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
@@ -26,7 +28,7 @@ const INLINE_INPUT_CLASS =
 
 const MONEY_INLINE_CLASS = `${INLINE_INPUT_CLASS} !py-0 !pl-6 !pr-0`;
 
-type TierFieldTone = "name" | "price" | "discount" | "duration" | "guests";
+type TierFieldTone = "name" | "price" | "discount" | "duration" | "guests" | "stock";
 
 const ICON_CLASS: Record<TierFieldTone, string> = {
   name: "bg-sand-100 text-sand-700",
@@ -34,6 +36,7 @@ const ICON_CLASS: Record<TierFieldTone, string> = {
   discount: "bg-amber-100 text-amber-800",
   duration: "bg-sky-100 text-sky-800",
   guests: "bg-violet-100 text-violet-800",
+  stock: "bg-rose-100 text-rose-800",
 };
 
 function TierFieldIcon({ tone }: { tone: TierFieldTone }) {
@@ -72,6 +75,15 @@ function TierFieldIcon({ tone }: { tone: TierFieldTone }) {
         <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth={2}>
           <rect x="4" y="5" width="16" height="16" rx="2" />
           <path d="M8 3v4M16 3v4M4 11h16" strokeLinecap="round" />
+        </svg>
+      </span>
+    );
+  }
+  if (tone === "stock") {
+    return (
+      <span className={base} aria-hidden>
+        <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth={2}>
+          <path d="M4 7h16M4 12h16M4 17h10" strokeLinecap="round" />
         </svg>
       </span>
     );
@@ -227,6 +239,28 @@ export function AdminPackageTierCompactFields({
             onKeyDown={preventNumberArrowStep}
             placeholder={t("fieldGuestCountPlaceholder")}
             disabled={pending}
+          />
+        </TierIconField>
+
+        <TierIconField
+          tone="stock"
+          label={t("fieldStockCount")}
+          invalid={fieldErrors.stockCount === true}
+        >
+          <input
+            name="stockCount"
+            type="number"
+            className={INLINE_INPUT_CLASS}
+            min={MIN_PACKAGE_STOCK_COUNT}
+            max={MAX_PACKAGE_STOCK_COUNT}
+            step={1}
+            inputMode="numeric"
+            value={values.stockCount}
+            onChange={(event) => onValuesChange({ stockCount: event.target.value })}
+            onKeyDown={preventNumberArrowStep}
+            placeholder={t("fieldStockCountPlaceholder")}
+            disabled={pending}
+            aria-invalid={fieldErrors.stockCount === true}
           />
         </TierIconField>
       </div>

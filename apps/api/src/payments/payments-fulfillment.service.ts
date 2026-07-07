@@ -15,6 +15,7 @@ import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { decrementPackagePlanStock } from '../packages/packages-stock.helpers';
 import { parsePaymentMetadata } from './payments.helpers';
 import {
   INTERNAL_PAYMENT_SOURCE,
@@ -86,24 +87,28 @@ export class PaymentsFulfillmentService {
   async fulfillPackagePayment(
     tx: Prisma.TransactionClient,
     userPackageId: string | null,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (!userPackageId) {
       throw new BadRequestException('Package payment is missing package id');
     }
     const userPackage = await tx.userPackage.findUnique({
       where: { id: userPackageId },
-      select: { id: true, status: true },
+      select: { id: true, status: true, planId: true },
     });
     if (!userPackage) {
       throw new NotFoundException('User package not found for payment');
     }
     if (userPackage.status !== UserPackageStatus.PENDING) {
-      return;
+      return false;
     }
     await tx.userPackage.update({
       where: { id: userPackageId },
       data: { status: UserPackageStatus.ACTIVE },
     });
+    if (userPackage.planId === null) {
+      return false;
+    }
+    return decrementPackagePlanStock(tx, userPackage.planId);
   }
 
   async fulfillGiftPayment(
@@ -172,28 +177,32 @@ export class PaymentsFulfillmentService {
   async fulfillPaymentBySource(
     tx: Prisma.TransactionClient,
     existing: InternalPaymentRecord,
-  ): Promise<GiftEmailPayload | null> {
+  ): Promise<{ giftEmail: GiftEmailPayload | null; packageStockTracked: boolean }> {
     if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
       await this.fulfillDropInPayment(
         tx,
         existing.userId,
         existing.sourceId ?? null,
       );
-      return null;
+      return { giftEmail: null, packageStockTracked: false };
     }
     if (existing.source === INTERNAL_PAYMENT_SOURCE.PACKAGE) {
-      await this.fulfillPackagePayment(tx, existing.sourceId ?? null);
-      return null;
+      const packageStockTracked = await this.fulfillPackagePayment(
+        tx,
+        existing.sourceId ?? null,
+      );
+      return { giftEmail: null, packageStockTracked };
     }
     if (existing.source !== INTERNAL_PAYMENT_SOURCE.GIFT) {
-      return null;
+      return { giftEmail: null, packageStockTracked: false };
     }
-    return this.fulfillGiftPayment(tx, {
+    const giftEmail = await this.fulfillGiftPayment(tx, {
       userId: existing.userId,
       amountCents: existing.amountCents,
       sourceId: existing.sourceId ?? null,
       metadata: existing.metadata ?? null,
     });
+    return { giftEmail, packageStockTracked: false };
   }
 
   async sendGiftCardEmail(to: string, code: string): Promise<void> {

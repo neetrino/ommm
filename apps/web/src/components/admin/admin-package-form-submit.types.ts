@@ -61,6 +61,7 @@ export type AdminPackageFormSubmitPrepared = {
   discountAmountCents: number | null;
   periodDays: number | null;
   guestCount: number | null;
+  stockCount: number | null;
   tierClassTypeId: string;
   payloadName: string;
   slug: string;

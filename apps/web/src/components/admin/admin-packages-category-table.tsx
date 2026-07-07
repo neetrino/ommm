@@ -15,6 +15,7 @@ import {
   formatPackageGuestCount,
   formatPackagePlanName,
   formatPackagePriceLabel,
+  formatPackageStockCount,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import { resolvePackageTotalSessions } from "@/components/admin/admin-package-type-sessions.util";
@@ -82,20 +83,22 @@ export function AdminPackagesCategoryTable({
 
   return (
     <div className="ommm-admin-packages-table">
-      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[62rem]">
+      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header min-w-[68rem]">
         <div>{t("tablePageName")}</div>
         <div>{t("tableTotalSessions")}</div>
         <div>{t("tablePrice")}</div>
         <div>{t("tableValidity")}</div>
         <div>{t("tableGuests")}</div>
+        <div>{t("tableStockCount")}</div>
         <div>{t("colStatus")}</div>
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
-      <div className="min-w-[62rem]">
+      <div className="min-w-[68rem]">
         <AnimatePresence mode="popLayout" initial={false}>
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
             const guestCount = formatPackageGuestCount(pkg);
+            const stockCount = formatPackageStockCount(pkg);
             const hasDiscount =
               typeof pkg.discountedPriceCents === "number" &&
               pkg.discountedPriceCents > 0 &&
@@ -161,6 +164,7 @@ export function AdminPackagesCategoryTable({
                     </TableCell>
                     <TableCell>{validityLabel}</TableCell>
                     <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                    <TableCell>{stockCount !== null ? stockCount : <EmptyCell />}</TableCell>
                     <TableCell>
                       <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
                     </TableCell>

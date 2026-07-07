@@ -14,6 +14,8 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
       typeof row.pricePerSessionCents === "number" ? row.pricePerSessionCents : 0,
     showPricePerSession:
       typeof row.showPricePerSession === "boolean" ? row.showPricePerSession : true,
+    availableQuantity:
+      typeof row.availableQuantity === "number" ? row.availableQuantity : null,
     typeSessionAllocations: Array.isArray(row.typeSessionAllocations)
       ? row.typeSessionAllocations.filter(
           (allocation): allocation is PackageTypeSessionAllocation =>
@@ -56,6 +58,7 @@ export type AdminPackageRow = {
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
   guestCount?: number;
+  availableQuantity?: number | null;
   createdAt: string;
 };
 

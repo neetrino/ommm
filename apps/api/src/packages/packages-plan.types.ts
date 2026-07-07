@@ -16,6 +16,7 @@ export type AdminPlanRecord = {
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
   guestCount: number;
+  availableQuantity: number | null;
   buttonLabel: string;
   features: string[];
   isPopular: boolean;

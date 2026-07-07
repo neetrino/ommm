@@ -14,8 +14,25 @@ export function toPublicPlan(
   plan: PublicPlanSource,
   classTypeNameById?: Map<string, string>,
 ) {
+  const {
+    availableQuantity: _availableQuantity,
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    slug: _slug,
+    classTypeId: _classTypeId,
+    buttonLabel: _buttonLabel,
+    ...publicFields
+  } = plan as PublicPlanSource & {
+    availableQuantity?: number | null;
+    createdAt?: Date;
+    updatedAt?: Date;
+    slug?: string;
+    classTypeId?: string | null;
+    buttonLabel?: string;
+  };
+
   return {
-    ...plan,
+    ...publicFields,
     typeSessionAllocations: enrichStoredTypeSessionAllocations(
       plan.typeSessionAllocations,
       classTypeNameById,
@@ -47,6 +64,7 @@ export function toAdminPlanRow(plan: AdminPlanRecord) {
     sessionsPerMonth: plan.sessionsPerMonth,
     isUnlimited: plan.isUnlimited,
     guestCount: plan.guestCount,
+    availableQuantity: plan.availableQuantity,
     typeSessionAllocations: parseStoredTypeSessionAllocations(
       plan.typeSessionAllocations,
     ),
