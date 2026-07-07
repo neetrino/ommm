@@ -58,7 +58,7 @@ export function PasswordInput({
         disabled={props.disabled}
         className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-md p-1 text-sage-500/80 transition-colors hover:text-sage-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500/35 disabled:cursor-not-allowed disabled:opacity-45"
       >
-        {visible ? <EyeOffIcon /> : <EyeIcon />}
+        {visible ? <EyeIcon /> : <EyeOffIcon />}
       </button>
     </div>
   );

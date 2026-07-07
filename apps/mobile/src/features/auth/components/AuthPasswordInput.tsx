@@ -50,7 +50,7 @@ export function AuthPasswordInput({
         hitSlop={8}
       >
         <MaterialCommunityIcons
-          name={visible ? "eye-off-outline" : "eye-outline"}
+          name={visible ? "eye-outline" : "eye-off-outline"}
           size={EYE_ICON_SIZE}
           color={colors.secondarySage}
           accessibilityElementsHidden
