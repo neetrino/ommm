@@ -45,43 +45,21 @@ export function useMarketingScheduleMemberState({
   const memberActionStateReady =
     !isMember || (memberBookingsLoaded && memberWaitlistLoaded);
 
-  const refetchMemberBookings = useCallback(async (markLoaded: boolean) => {
-    if (!isMember) {
-      setMemberBookingsLoaded(true);
-      setBookedBySessionId({});
-      return;
-    }
-    try {
-      const rows = await apiFetch<UserBookingRow[]>("/bookings/me");
-      const next: Record<string, string> = {};
-      for (const row of rows) {
-        if (row.status === "BOOKED") {
-          next[row.session.id] = row.id;
-        }
-      }
-      setBookedBySessionId(next);
-    } catch {
-      // Keep the previous map on transient load errors.
-    } finally {
-      if (markLoaded) {
-        setMemberBookingsLoaded(true);
-      }
-    }
-  }, [isMember]);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
+  const refetchMemberBookings = useCallback(
+    async (markLoaded: boolean, isActive: () => boolean = () => true) => {
       if (!isMember) {
-        if (!cancelled) {
-          setMemberBookingsLoaded(true);
-          setBookedBySessionId({});
+        if (!isActive()) {
+          return;
         }
+        setMemberBookingsLoaded(true);
+        setBookedBySessionId((current) =>
+          Object.keys(current).length === 0 ? current : {},
+        );
         return;
       }
       try {
         const rows = await apiFetch<UserBookingRow[]>("/bookings/me");
-        if (cancelled) {
+        if (!isActive()) {
           return;
         }
         const next: Record<string, string> = {};
@@ -94,15 +72,21 @@ export function useMarketingScheduleMemberState({
       } catch {
         // Keep the previous map on transient load errors.
       } finally {
-        if (!cancelled) {
+        if (markLoaded && isActive()) {
           setMemberBookingsLoaded(true);
         }
       }
-    })();
+    },
+    [isMember],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    void refetchMemberBookings(true, () => !cancelled);
     return () => {
       cancelled = true;
     };
-  }, [initialItems, isMember]);
+  }, [isMember, refetchMemberBookings]);
 
   const refreshSchedule = useCallback(async () => {
     try {

@@ -58,7 +58,7 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
     handleWaitlistLeft,
   } = useMarketingScheduleMemberState({
     isMember,
-    initialItems: [...initialItems],
+    initialItems,
   });
 
   const activeItems = useMemo(
