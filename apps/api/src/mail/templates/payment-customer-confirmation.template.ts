@@ -9,7 +9,6 @@ export type PaymentCustomerConfirmationParams = {
   currency: string;
   paymentTypeLabel: string;
   confirmedAtLabel: string;
-  paymentReference: string;
 };
 
 const CONFIRMATION_BODY = `Thank you for your payment.
@@ -25,8 +24,6 @@ export function renderPaymentCustomerConfirmationEmail(
   params: PaymentCustomerConfirmationParams,
 ): string {
   const greetingName = params.customerName.trim();
-  const reference =
-    params.paymentReference.trim().length > 0 ? params.paymentReference : '—';
 
   const bodyHtml = `
 <h1 style="margin:0 0 16px;font-size:28px;line-height:1.25;font-weight:400;color:${EMAIL_BRAND.headingColor};">Payment Confirmed</h1>
@@ -50,10 +47,6 @@ ${plainTextToHtml(CONFIRMATION_BODY)}
   <tr>
     <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Confirmed at</td>
     <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(params.confirmedAtLabel)}</td>
-  </tr>
-  <tr>
-    <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Reference</td>
-    <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(reference)}</td>
   </tr>
 </table>
 <p style="margin:28px 0 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;line-height:1.65;color:${EMAIL_BRAND.bodyColor};">

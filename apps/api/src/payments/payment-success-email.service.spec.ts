@@ -70,9 +70,14 @@ describe('PaymentSuccessEmailService', () => {
     await service.trySendSuccessEmails('p1', PaymentStatus.PENDING);
 
     expect(mail.sendEmail).toHaveBeenCalledTimes(2);
+    const customerCall = mail.sendEmail.mock.calls.find(
+      ([payload]) => payload.to === 'customer@studio.test',
+    );
     const adminCall = mail.sendEmail.mock.calls.find(
       ([payload]) => payload.to === 'admin@studio.test',
     );
+    expect(customerCall?.[0].html).not.toContain('Reference');
+    expect(customerCall?.[0].html).not.toContain('PKG-ABC123');
     expect(adminCall?.[0].html).not.toContain('Reference');
     expect(adminCall?.[0].html).not.toContain('Payment ID');
     expect(adminCall?.[0].html).not.toContain('Related details');
