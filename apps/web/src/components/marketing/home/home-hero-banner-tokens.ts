@@ -129,7 +129,7 @@ export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
-  promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.png",
+  promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
