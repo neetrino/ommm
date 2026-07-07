@@ -75,6 +75,58 @@
   font-weight: 700;
 }
 
+.promoPhonePill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: calc(
+    100svw * var(--home-hero-promo-pill-margin-top-px, 52) / var(--home-hero-promo-artboard-width-px, 1672)
+  );
+  padding: calc(
+      100svw * var(--home-hero-promo-pill-padding-block-px, 8) / var(--home-hero-promo-artboard-width-px, 1672)
+    )
+    calc(
+      100svw * var(--home-hero-promo-pill-padding-inline-end-px, 28) / var(--home-hero-promo-artboard-width-px, 1672)
+    )
+    calc(
+      100svw * var(--home-hero-promo-pill-padding-block-px, 8) / var(--home-hero-promo-artboard-width-px, 1672)
+    )
+    calc(
+      100svw * var(--home-hero-promo-pill-padding-inline-start-px, 28) / var(--home-hero-promo-artboard-width-px, 1672)
+    );
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--home-hero-promo-pill-gradient-start, #c49a42) 0%,
+    var(--home-hero-promo-pill-gradient-mid, #e6d7a8) 42%,
+    var(--home-hero-promo-pill-gradient-end, #f7f1e2) 100%
+  );
+  box-shadow: 0 1px 3px rgb(0 0 0 / 14%);
+  color: var(--home-hero-promo-phone-color, #2c1a0a);
+  text-decoration: none;
+}
+
+.promoPhonePill:hover .promoPhoneNumber {
+  text-decoration: underline;
+}
+
+.promoPhonePill:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--home-hero-promo-text-color, #fbf5d5),
+    0 0 0 4px rgb(44 26 10 / 35%);
+}
+
+.promoPhoneNumber {
+  font-size: clamp(
+    0.875rem,
+    calc(100svw * var(--home-hero-promo-phone-size-px, 30) / var(--home-hero-promo-artboard-width-px, 1672)),
+    calc(var(--home-hero-promo-phone-size-px, 30) * 1px)
+  );
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
 @media (max-width: 743px) {
   .promoContentLayer {
     align-items: flex-start;
@@ -84,5 +136,11 @@
   .promoContent {
     width: min(62%, 14.5rem);
     padding-inline-start: clamp(0.875rem, calc(100svw * 22 / 394), 1.25rem);
+  }
+
+  .promoPhonePill {
+    margin-top: clamp(0.5rem, calc(100svw * 14 / 394), 0.875rem);
+    transform: scale(0.9);
+    transform-origin: left center;
   }
 }

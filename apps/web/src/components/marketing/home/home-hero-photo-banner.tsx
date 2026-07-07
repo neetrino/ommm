@@ -194,6 +194,26 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
     ["--home-hero-promo-subline-margin-top-px" as string]: String(
       HOME_HERO_PROMO_COPY_LAYOUT.sublineMarginTopPx,
     ),
+    ["--home-hero-promo-pill-margin-top-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.pillMarginTopPx,
+    ),
+    ["--home-hero-promo-phone-size-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.phoneFontSizePx,
+    ),
+    ["--home-hero-promo-pill-padding-inline-start-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.pillPaddingInlineStartPx,
+    ),
+    ["--home-hero-promo-pill-padding-block-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.pillPaddingBlockPx,
+    ),
+    ["--home-hero-promo-pill-padding-inline-end-px" as string]: String(
+      HOME_HERO_PROMO_COPY_LAYOUT.pillPaddingInlineEndPx,
+    ),
+    ["--home-hero-promo-phone-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.phoneColor,
+    ["--home-hero-promo-pill-gradient-start" as string]:
+      HOME_HERO_PROMO_TYPOGRAPHY.pillGradientStart,
+    ["--home-hero-promo-pill-gradient-mid" as string]: HOME_HERO_PROMO_TYPOGRAPHY.pillGradientMid,
+    ["--home-hero-promo-pill-gradient-end" as string]: HOME_HERO_PROMO_TYPOGRAPHY.pillGradientEnd,
     ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,

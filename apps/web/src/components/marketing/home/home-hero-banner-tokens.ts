@@ -161,11 +161,20 @@ export const HOME_HERO_PROMO_COPY_LAYOUT = {
   headlineLineHeightRatio: 1.06,
   sublineFontSizePx: 28,
   sublineMarginTopPx: 34,
+  pillMarginTopPx: 52,
+  phoneFontSizePx: 30,
+  pillPaddingBlockPx: 8,
+  pillPaddingInlineStartPx: 28,
+  pillPaddingInlineEndPx: 28,
 } as const;
 
-/** Promo copy colors — cream headline on gold photo. */
+/** Promo copy colors — cream headline and gold phone pill on photo. */
 export const HOME_HERO_PROMO_TYPOGRAPHY = {
   textColor: "#fbf5d5",
+  phoneColor: "#2c1a0a",
+  pillGradientStart: "#c49a42",
+  pillGradientMid: "#e6d7a8",
+  pillGradientEnd: "#f7f1e2",
 } as const;
 
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */
