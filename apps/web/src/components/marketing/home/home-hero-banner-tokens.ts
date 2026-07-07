@@ -137,16 +137,20 @@ export const HOME_HERO_ASSETS = {
 /** Must match `HOME_HERO_CAROUSEL_SLIDES.length` in home-hero-slide-context. */
 export const HOME_HERO_CAROUSEL_SLIDE_COUNT = 3;
 
-const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 820;
-const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 461;
+const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1672;
+const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 941;
 
-/** Promo banner — native 820×461. */
+/** Figma `783:800` — photo layer; copy in `HomeHeroPromoBannerContent`. */
 export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
+  imageWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
+  imageHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX}`,
+  figmaNodeId: "783:800",
   sectionBackground: "#b58e49",
-  objectPosition: "center",
+  objectPosition: "right center",
+  textMaxWidthRatio: 0.4,
 } as const;
 
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */

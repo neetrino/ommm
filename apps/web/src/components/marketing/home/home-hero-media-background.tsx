@@ -15,7 +15,6 @@ import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroMediaBackgroundProps = {
   heroImageAlt: string;
-  promoBannerAlts: Record<HomeHeroPromoBannerKey, string>;
 };
 
 type HomeHeroLegacyPhotoSlideProps = {
@@ -24,7 +23,6 @@ type HomeHeroLegacyPhotoSlideProps = {
 
 type HomeHeroPromoBannerSlideProps = {
   assetKey: HomeHeroPromoBannerKey;
-  imageAlt: string;
 };
 
 function HomeHeroLegacyPhotoSlide({ imageAlt }: HomeHeroLegacyPhotoSlideProps) {
@@ -44,13 +42,13 @@ function HomeHeroLegacyPhotoSlide({ imageAlt }: HomeHeroLegacyPhotoSlideProps) {
   );
 }
 
-function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSlideProps) {
+function HomeHeroPromoBannerSlide({ assetKey }: HomeHeroPromoBannerSlideProps) {
   return (
     <div className={styles.homeHeroMediaSlide}>
       <div className={styles.homeHeroPromoBackgroundCrop}>
         <Image
           src={HOME_HERO_ASSETS[assetKey]}
-          alt={imageAlt}
+          alt=""
           fill
           unoptimized
           sizes="100vw"
@@ -63,10 +61,7 @@ function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSli
 }
 
 /** Hero carousel — intro video, legacy photo hero, then promo banners. */
-export function HomeHeroMediaBackground({
-  heroImageAlt,
-  promoBannerAlts,
-}: HomeHeroMediaBackgroundProps) {
+export function HomeHeroMediaBackground({ heroImageAlt }: HomeHeroMediaBackgroundProps) {
   const slide = useHomeHeroSlide();
   const {
     activeSlide,
@@ -143,7 +138,6 @@ export function HomeHeroMediaBackground({
             <HomeHeroPromoBannerSlide
               key={`hero-slide-${index}`}
               assetKey={carouselSlide.assetKey}
-              imageAlt={promoBannerAlts[carouselSlide.assetKey]}
             />
           );
         })}

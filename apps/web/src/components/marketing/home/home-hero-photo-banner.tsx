@@ -6,6 +6,8 @@ import { HomeHeroSectionShell } from "@/components/marketing/home/home-hero-sect
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomeHeroMediaBackground } from "@/components/marketing/home/home-hero-media-background";
 import { HomeHeroPhotoContentLayer } from "@/components/marketing/home/home-hero-photo-content-layer";
+import { HomeHeroPromoBannerContent } from "@/components/marketing/home/home-hero-promo-banner-content";
+import { HomeHeroPromoContentLayer } from "@/components/marketing/home/home-hero-promo-content-layer";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { HomeHeroSlideProvider } from "@/components/marketing/home/home-hero-slide-context";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
@@ -44,14 +46,11 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
   const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl();
   const heroIntroMobileVideoMp4Url = resolveHomeHeroIntroMobileVideoMp4Url();
   const hasHeroIntroVideo = hasHomeHeroIntroVideo(process.env.R2_PUBLIC_URL);
-  const promoBannerAlts = {
-    promoBanner3: t("promoBanner3Alt"),
-  } as const;
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
 
   const heroBackground = hasHeroIntroVideo ? (
-    <HomeHeroMediaBackground heroImageAlt={t("heroImageAlt")} promoBannerAlts={promoBannerAlts} />
+    <HomeHeroMediaBackground heroImageAlt={t("heroImageAlt")} />
   ) : (
     <div className={styles.homeHeroBackgroundLayer} aria-hidden>
       <div className={styles.homeHeroBackgroundCrop}>
@@ -149,9 +148,14 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
       {heroBackground}
 
       {hasHeroIntroVideo ? (
-        <HomeHeroCarouselFrame>
-          <HomeHeroPhotoContentLayer>{heroContent}</HomeHeroPhotoContentLayer>
-        </HomeHeroCarouselFrame>
+        <>
+          <HomeHeroCarouselFrame>
+            <HomeHeroPhotoContentLayer>{heroContent}</HomeHeroPhotoContentLayer>
+          </HomeHeroCarouselFrame>
+          <HomeHeroPromoContentLayer>
+            <HomeHeroPromoBannerContent locale={locale} />
+          </HomeHeroPromoContentLayer>
+        </>
       ) : (
         <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>{heroContent}</div>
       )}
@@ -165,6 +169,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
     ["--home-hero-promo-aspect-ratio" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.aspectRatio,
     ["--home-hero-promo-object-position" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.objectPosition,
     ["--home-hero-promo-section-bg" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.sectionBackground,
+    ["--home-hero-promo-text-max-width" as string]: `${HOME_HERO_PROMO_BANNER_LAYOUT.textMaxWidthRatio * 100}%`,
     ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,

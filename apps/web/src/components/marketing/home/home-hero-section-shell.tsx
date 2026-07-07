@@ -16,7 +16,7 @@ export function HomeHeroSectionShell({ children, style }: HomeHeroSectionShellPr
 
   return (
     <section
-      aria-labelledby="home-hero-heading"
+      aria-labelledby={isPromoBannerActive ? "home-hero-promo-heading" : "home-hero-heading"}
       className={`${marketingMontserrat.variable} ${styles.homeHeroSection} ${isPromoBannerActive ? styles.homeHeroSectionPromo : ""} relative w-full min-w-0`}
       style={style}
     >
