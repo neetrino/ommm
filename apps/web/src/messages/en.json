@@ -3069,6 +3069,8 @@
       "loading": "Loading active waitlist entries...",
       "retry": "Retry",
       "empty": "No active waitlist entries.",
+      "emptyTitle": "No active waitlist entries",
+      "emptyDescription": "When members join a waitlist for a full class, they'll appear here for you to manage.",
       "actionFailed": "Action failed.",
       "colUser": "User",
       "colClassType": "Class type",
