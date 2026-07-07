@@ -12,8 +12,6 @@ type SalarySummary = {
   pendingPayoutCents: number;
   paidOutCents: number;
   completedSessions: number;
-  basePerSessionCents: number;
-  perAttendeeShareCents: number;
 };
 
 export default async function CoachSalaryPage({
@@ -48,7 +46,7 @@ export default async function CoachSalaryPage({
 
   return (
     <AdminContentFrame>
-      <StaffListPageLayout title={t("title")} description={t("lead")}>
+      <StaffListPageLayout title={t("title")}>
       <AdminSectionShell>
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className={adminChrome.metricCard}>
@@ -75,20 +73,6 @@ export default async function CoachSalaryPage({
           </div>
         </dl>
       </AdminSectionShell>
-
-      <div className="mt-8">
-        <AdminSectionShell>
-          <article className={adminChrome.panel}>
-            <p className={adminChrome.panelHeading}>{t("lead")}</p>
-            <p className={`mt-2 ${adminChrome.metaText}`}>
-              {t("formula", {
-                base: formatAmdFromCents(data.basePerSessionCents, locale),
-                perAttendee: formatAmdFromCents(data.perAttendeeShareCents, locale),
-              })}
-            </p>
-          </article>
-        </AdminSectionShell>
-      </div>
       </StaffListPageLayout>
     </AdminContentFrame>
   );

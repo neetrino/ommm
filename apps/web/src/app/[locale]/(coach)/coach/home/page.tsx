@@ -60,7 +60,7 @@ export default async function CoachHomePage({
 
   return (
     <AdminContentFrame>
-      <StaffListPageLayout title={pageTitle} description={t("description")}>
+      <StaffListPageLayout title={pageTitle}>
       <section>
         <h2 className={adminChrome.sectionTitle}>{t("todayAtGlance")}</h2>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PaymentSource, PaymentStatus, Prisma } from '@prisma/client';
+import { PaymentSource, PaymentStatus } from '@prisma/client';
 import { getEmailLogoAttachment } from '../mail/email-logo';
 import { MailService } from '../mail/mail.service';
 import { formatPhoneForDisplay } from '../common/phone';
@@ -14,11 +14,6 @@ import {
   formatPaymentSourceLabel,
   formatPaymentStatusLabel,
 } from './payment-email-format.util';
-
-type PaymentMetadata = {
-  recipientName?: string;
-  recipientEmail?: string;
-};
 
 @Injectable()
 export class PaymentSuccessEmailService {
@@ -71,7 +66,7 @@ export class PaymentSuccessEmailService {
       return;
     }
 
-    const context = await this.buildEmailContext(payment);
+    const context = this.buildEmailContext(payment);
     const logoAttachment = getEmailLogoAttachment();
     const customerSent = await this.sendCustomerEmail(context, logoAttachment);
     const adminSent = await this.sendAdminEmail(context, logoAttachment);
@@ -105,7 +100,6 @@ export class PaymentSuccessEmailService {
           currency: context.currency,
           paymentTypeLabel: context.paymentTypeLabel,
           confirmedAtLabel: context.confirmedAtLabel,
-          paymentReference: context.paymentReference,
         }),
         attachments: [logoAttachment],
       });
@@ -147,9 +141,6 @@ export class PaymentSuccessEmailService {
           paymentTypeLabel: context.paymentTypeLabel,
           statusLabel: context.statusLabel,
           confirmedAtLabel: context.confirmedAtLabel,
-          paymentId: context.paymentId,
-          paymentReference: context.paymentReference,
-          relatedDetails: context.relatedDetails,
         }),
         attachments: [logoAttachment],
       });
@@ -163,12 +154,10 @@ export class PaymentSuccessEmailService {
     }
   }
 
-  private async buildEmailContext(
+  private buildEmailContext(
     payment: PaymentWithRelations,
-  ): Promise<PaymentEmailContext> {
+  ): PaymentEmailContext {
     const confirmedAt = payment.confirmedAt ?? payment.updatedAt;
-    const metadata = this.parsePaymentMetadata(payment.metadata);
-    const relatedDetails = await this.resolveRelatedDetails(payment, metadata);
 
     return {
       paymentId: payment.id,
@@ -180,78 +169,7 @@ export class PaymentSuccessEmailService {
       paymentTypeLabel: formatPaymentSourceLabel(payment.source),
       statusLabel: formatPaymentStatusLabel(payment.status),
       confirmedAtLabel: formatPaymentDateTime(confirmedAt),
-      paymentReference: payment.paymentReference?.trim() ?? '',
-      relatedDetails,
     };
-  }
-
-  private async resolveRelatedDetails(
-    payment: PaymentWithRelations,
-    metadata: PaymentMetadata,
-  ): Promise<string> {
-    if (payment.source === PaymentSource.PACKAGE) {
-      return payment.description?.trim() ?? 'Package payment';
-    }
-
-    if (payment.source === PaymentSource.DROPIN && payment.sourceId) {
-      const session = await this.prisma.classSession.findUnique({
-        where: { id: payment.sourceId },
-        select: {
-          title: true,
-          startsAt: true,
-          classType: { select: { name: true } },
-        },
-      });
-      if (!session) {
-        return payment.description?.trim() ?? '';
-      }
-      const sessionTitle =
-        session.title.trim().length > 0
-          ? session.title
-          : session.classType.name;
-      return `${sessionTitle} — ${formatPaymentDateTime(session.startsAt)}`;
-    }
-
-    if (payment.source === PaymentSource.GIFT) {
-      const recipient = metadata.recipientName ?? metadata.recipientEmail;
-      if (recipient) {
-        return `Gift card for ${recipient}`;
-      }
-      if (payment.sourceId) {
-        const batch = await this.prisma.giftCardBatch.findUnique({
-          where: { id: payment.sourceId },
-          select: { amountAmd: true },
-        });
-        if (batch) {
-          return `Gift card batch — ${formatPaymentAmount(batch.amountAmd, payment.currency)}`;
-        }
-      }
-      return payment.description?.trim() ?? 'Gift card purchase';
-    }
-
-    return payment.description?.trim() ?? '';
-  }
-
-  private parsePaymentMetadata(
-    value: Prisma.JsonValue | null,
-  ): PaymentMetadata {
-    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-      return {};
-    }
-    return {
-      recipientName: this.readMetadataString(value, 'recipientName'),
-      recipientEmail: this.readMetadataString(value, 'recipientEmail'),
-    };
-  }
-
-  private readMetadataString(
-    value: object,
-    key: keyof PaymentMetadata,
-  ): string | undefined {
-    const candidate = (value as Record<string, unknown>)[key];
-    return typeof candidate === 'string' && candidate.trim().length > 0
-      ? candidate.trim()
-      : undefined;
   }
 }
 
@@ -265,8 +183,6 @@ type PaymentEmailContext = {
   paymentTypeLabel: string;
   statusLabel: string;
   confirmedAtLabel: string;
-  paymentReference: string;
-  relatedDetails: string;
 };
 
 type PaymentWithRelations = {
@@ -275,10 +191,6 @@ type PaymentWithRelations = {
   currency: string;
   status: PaymentStatus;
   source: PaymentSource;
-  sourceId: string | null;
-  description: string | null;
-  metadata: Prisma.JsonValue | null;
-  paymentReference: string | null;
   confirmedAt: Date | null;
   updatedAt: Date;
   successEmailSentAt: Date | null;

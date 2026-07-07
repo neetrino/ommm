@@ -21,6 +21,7 @@ import {
 } from './bookings-management.helpers';
 import { BookingsAdminListService } from './bookings-admin-list.service';
 import { BookingsSlotService } from './bookings-slot.service';
+import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 
@@ -33,6 +34,7 @@ export class BookingsAdminService {
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
     private readonly slots: BookingsSlotService,
+    private readonly statusTransition: BookingsStatusTransitionService,
   ) {}
 
   listAdmin(filters: Parameters<BookingsAdminListService['listAdmin']>[0]) {
@@ -166,6 +168,8 @@ export class BookingsAdminService {
   }
 
   async adminGetById(actor: User, bookingId: string) {
+    await this.statusTransition.completePastBookedSessions();
+
     const booking = await this.prisma.booking.findUnique({
       where: { id: bookingId },
       include: {

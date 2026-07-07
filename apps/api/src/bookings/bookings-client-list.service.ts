@@ -8,6 +8,7 @@ import {
   ListMyBookingsQueryDto,
   MyBookingsScope,
 } from './dto/list-my-bookings-query.dto';
+import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 
 const listMineInclude = {
   session: {
@@ -20,9 +21,13 @@ const listMineInclude = {
 
 @Injectable()
 export class BookingsClientListService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly statusTransition: BookingsStatusTransitionService,
+  ) {}
 
-  listMine(userId: string, query: ListMyBookingsQueryDto = {}) {
+  async listMine(userId: string, query: ListMyBookingsQueryDto = {}) {
+    await this.statusTransition.completePastBookedSessions();
     if (!query.scope) {
       return this.listMineAll(userId);
     }

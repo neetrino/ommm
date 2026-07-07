@@ -1,6 +1,23 @@
 import { PaymentSource, PaymentStatus } from '@prisma/client';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 
+type SendEmailParams = {
+  to: string;
+  subject: string;
+  html: string;
+  replyTo?: string;
+};
+
+type SendEmailMock = jest.Mock<Promise<void>, [SendEmailParams]>;
+
+function getSentHtml(
+  sendEmail: SendEmailMock,
+  recipient: string,
+): string | undefined {
+  return sendEmail.mock.calls.find(([payload]) => payload.to === recipient)?.[0]
+    .html;
+}
+
 describe('PaymentSuccessEmailService', () => {
   function createService() {
     const prisma = {
@@ -15,7 +32,9 @@ describe('PaymentSuccessEmailService', () => {
         findUnique: jest.fn(),
       },
     };
-    const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
+    const mail = {
+      sendEmail: jest.fn().mockResolvedValue(undefined) as SendEmailMock,
+    };
     const config = {
       get: jest.fn((key: string) =>
         key === 'CONTACT_RECEIVER_EMAIL' ? 'admin@studio.test' : undefined,
@@ -70,6 +89,18 @@ describe('PaymentSuccessEmailService', () => {
     await service.trySendSuccessEmails('p1', PaymentStatus.PENDING);
 
     expect(mail.sendEmail).toHaveBeenCalledTimes(2);
+
+    const customerHtml = getSentHtml(mail.sendEmail, 'customer@studio.test');
+    const adminHtml = getSentHtml(mail.sendEmail, 'admin@studio.test');
+
+    expect(customerHtml).toBeDefined();
+    expect(customerHtml).not.toContain('Reference');
+    expect(customerHtml).not.toContain('PKG-ABC123');
+    expect(adminHtml).toBeDefined();
+    expect(adminHtml).not.toContain('Reference');
+    expect(adminHtml).not.toContain('Payment ID');
+    expect(adminHtml).not.toContain('Related details');
+    expect(adminHtml).not.toContain('PKG-ABC123');
     expect(prisma.payment.updateMany).toHaveBeenCalledTimes(1);
     const updateManyMock = prisma.payment.updateMany as jest.Mock<
       Promise<{ count: number }>,

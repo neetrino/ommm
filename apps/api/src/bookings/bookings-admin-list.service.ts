@@ -1,18 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Role, type User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 
 @Injectable()
 export class BookingsAdminListService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly statusTransition: BookingsStatusTransitionService,
+  ) {}
 
-  listAdmin(filters: {
+  async listAdmin(filters: {
     actor: User;
     sessionId?: string;
     userId?: string;
     from?: Date;
     to?: Date;
   }) {
+    await this.statusTransition.completePastBookedSessions();
+
     const coachScope =
       filters.actor.role === Role.COACH
         ? ({

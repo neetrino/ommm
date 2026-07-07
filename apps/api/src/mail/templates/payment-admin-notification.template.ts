@@ -12,9 +12,6 @@ export type PaymentAdminNotificationParams = {
   paymentTypeLabel: string;
   statusLabel: string;
   confirmedAtLabel: string;
-  paymentId: string;
-  paymentReference: string;
-  relatedDetails: string;
 };
 
 const ADMIN_INTRO = `A payment has been successfully confirmed in the Ommm system.
@@ -25,14 +22,8 @@ Please review the payment details below for your records.`;
 export function renderPaymentAdminNotificationEmail(
   params: PaymentAdminNotificationParams,
 ): string {
-  const reference =
-    params.paymentReference.trim().length > 0
-      ? params.paymentReference
-      : params.paymentId;
   const phone =
     params.customerPhone.trim().length > 0 ? params.customerPhone : '—';
-  const relatedDetails =
-    params.relatedDetails.trim().length > 0 ? params.relatedDetails : '—';
 
   const bodyHtml = `
 <h1 style="margin:0 0 16px;font-size:28px;line-height:1.25;font-weight:400;color:${EMAIL_BRAND.headingColor};">Payment Successfully Confirmed</h1>
@@ -58,9 +49,6 @@ ${plainTextToHtml(ADMIN_INTRO)}
       label: 'Confirmed at',
       value: escapeHtml(params.confirmedAtLabel),
     },
-    { label: 'Reference', value: escapeHtml(reference) },
-    { label: 'Payment ID', value: escapeHtml(params.paymentId) },
-    { label: 'Related details', value: escapeHtml(relatedDetails) },
   ])}
 </table>`;
 
