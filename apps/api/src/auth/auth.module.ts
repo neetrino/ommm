@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { GoogleOAuthService } from './google-oauth.service';
+import { OAuthPendingSignupService } from './oauth-pending-signup.service';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
@@ -23,7 +24,7 @@ import { JwtStrategy } from './jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleOAuthService, JwtStrategy],
+  providers: [AuthService, GoogleOAuthService, OAuthPendingSignupService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

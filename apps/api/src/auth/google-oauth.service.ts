@@ -5,13 +5,18 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma, Role, type User } from '@prisma/client';
+import { Prisma, type User } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
+import {
+  GOOGLE_PROVIDER,
+  type GoogleAuthCompletion,
+  type GoogleOAuthProfile,
+} from './google-oauth.types';
+import { OAuthPendingSignupService } from './oauth-pending-signup.service';
 
-const GOOGLE_PROVIDER = 'google';
 const GOOGLE_OAUTH_SCOPES = ['openid', 'email', 'profile'];
 const DEFAULT_UI_LOCALE = 'en';
 const WEB_DEFAULT_URL = 'http://localhost:3000';
@@ -22,15 +27,6 @@ type GoogleOAuthConfig = {
   clientId: string;
   clientSecret: string;
   callbackUrl: string;
-};
-
-type GoogleProfile = {
-  providerAccountId: string;
-  providerEmail: string;
-  providerEmailVerified: true;
-  name: string | null;
-  lastName: string | null;
-  avatarUrl: string | null;
 };
 
 function normalizeEmail(email: string): string {
@@ -79,6 +75,7 @@ export class GoogleOAuthService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly auth: AuthService,
+    private readonly pendingSignup: OAuthPendingSignupService,
   ) {}
 
   startGoogleAuth(): { authorizationUrl: string; state: string } {
@@ -101,15 +98,23 @@ export class GoogleOAuthService {
     code?: string;
     state?: string;
     storedState?: string;
-  }): Promise<{ accessToken: string; redirectUrl: string }> {
+  }): Promise<GoogleAuthCompletion> {
     this.assertState(params.state, params.storedState);
     const code = this.requireCode(params.code);
     const profile = await this.fetchVerifiedGoogleProfile(code);
-    const user = await this.resolveUserForGoogleProfile(profile);
-    return {
-      accessToken: this.auth.issueAccessTokenForUser(user),
-      redirectUrl: this.resolveWebEntryUrl(user),
-    };
+    return this.resolveGoogleAuthCompletion(profile);
+  }
+
+  completePendingGoogleSignup(
+    token: string,
+    newPassword: string,
+    confirmNewPassword: string,
+  ): Promise<User> {
+    return this.pendingSignup.completePendingSignup(
+      token,
+      newPassword,
+      confirmNewPassword,
+    );
   }
 
   private getGoogleConfig(): GoogleOAuthConfig {
@@ -141,7 +146,7 @@ export class GoogleOAuthService {
 
   private async fetchVerifiedGoogleProfile(
     code: string,
-  ): Promise<GoogleProfile> {
+  ): Promise<GoogleOAuthProfile> {
     const { clientId, clientSecret, callbackUrl } = this.getGoogleConfig();
     const client = new OAuth2Client({
       clientId,
@@ -196,9 +201,9 @@ export class GoogleOAuthService {
     };
   }
 
-  private async resolveUserForGoogleProfile(
-    profile: GoogleProfile,
-  ): Promise<User> {
+  private async resolveGoogleAuthCompletion(
+    profile: GoogleOAuthProfile,
+  ): Promise<GoogleAuthCompletion> {
     const linked = await this.prisma.oAuthAccount.findUnique({
       where: {
         provider_providerAccountId: {
@@ -209,20 +214,33 @@ export class GoogleOAuthService {
       include: { user: true },
     });
     if (linked) {
-      return linked.user;
+      return this.sessionCompletion(linked.user);
     }
+
     const existingUser = await this.prisma.user.findUnique({
       where: { email: profile.providerEmail },
     });
     if (existingUser) {
-      return this.linkOAuthToExistingUser(existingUser, profile);
+      const user = await this.linkOAuthToExistingUser(existingUser, profile);
+      return this.sessionCompletion(user);
     }
-    return this.createUserWithOAuth(profile);
+
+    const { redirectUrl } =
+      await this.pendingSignup.createOrRefreshPendingSignup(profile);
+    return { mode: 'pending-signup', redirectUrl };
+  }
+
+  private sessionCompletion(user: User): GoogleAuthCompletion {
+    return {
+      mode: 'session',
+      accessToken: this.auth.issueAccessTokenForUser(user),
+      redirectUrl: this.resolveWebEntryUrl(user),
+    };
   }
 
   private async linkOAuthToExistingUser(
     user: User,
-    profile: GoogleProfile,
+    profile: GoogleOAuthProfile,
   ): Promise<User> {
     try {
       const [, updatedUser] = await this.prisma.$transaction([
@@ -263,29 +281,6 @@ export class GoogleOAuthService {
       }
       throw error;
     }
-  }
-
-  private createUserWithOAuth(profile: GoogleProfile): Promise<User> {
-    return this.prisma.user.create({
-      data: {
-        email: profile.providerEmail,
-        passwordHash: null,
-        role: Role.USER,
-        locale: DEFAULT_UI_LOCALE,
-        emailVerified: new Date(),
-        name: profile.name,
-        lastName: profile.lastName,
-        avatarUrl: profile.avatarUrl,
-        oauthAccounts: {
-          create: {
-            provider: GOOGLE_PROVIDER,
-            providerAccountId: profile.providerAccountId,
-            providerEmail: profile.providerEmail,
-            providerEmailVerified: profile.providerEmailVerified,
-          },
-        },
-      },
-    });
   }
 
   private resolveWebEntryUrl(user: Pick<User, 'passwordHash'>): string {

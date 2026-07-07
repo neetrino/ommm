@@ -7,7 +7,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthTokenType, type Role, type User } from '@prisma/client';
-import { createHash, randomBytes } from 'node:crypto';
+import {
+  hashOpaqueToken,
+  newOpaqueToken,
+} from '../common/opaque-token';
 import {
   EMAIL_VERIFY_TTL_MS,
   PASSWORD_RESET_TTL_MS,
@@ -21,14 +24,6 @@ import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 
 const DEFAULT_UI_LOCALE = 'en';
-
-function hashOpaqueToken(raw: string): string {
-  return createHash('sha256').update(raw, 'utf8').digest('hex');
-}
-
-function newOpaqueToken(): string {
-  return randomBytes(32).toString('base64url');
-}
 
 export type SafeUser = Omit<User, 'passwordHash'> & { hasPassword: boolean };
 

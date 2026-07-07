@@ -664,7 +664,8 @@
   },
   "setPasswordPage": {
     "title": "Set your password",
-    "lead": "You signed in with Google. Set a password to also use email login."
+    "lead": "You signed in with Google. Set a password to also use email login.",
+    "backToLogin": "Back to login"
   },
   "userPages": {
     "accountHub": {

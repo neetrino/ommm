@@ -50,6 +50,24 @@ model AuthToken {
   @@index([userId, type])
 }
 
+model PendingOAuthSignup {
+  id                    String   @id @default(cuid())
+  tokenHash             String   @unique
+  provider              String
+  providerAccountId     String
+  providerEmail         String
+  providerEmailVerified Boolean  @default(true)
+  name                  String?
+  lastName              String?
+  avatarUrl             String?
+  expiresAt             DateTime
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([expiresAt])
+}
+
 model OAuthAccount {
   id                    String   @id @default(cuid())
   userId                String
