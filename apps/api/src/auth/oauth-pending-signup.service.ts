@@ -7,15 +7,9 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma, Role, type User } from '@prisma/client';
 import { GOOGLE_OAUTH_SIGNUP_TTL_MS } from '../common/constants';
 import { hashPassword } from '../common/password-crypto';
-import {
-  hashOpaqueToken,
-  newOpaqueToken,
-} from '../common/opaque-token';
+import { hashOpaqueToken, newOpaqueToken } from '../common/opaque-token';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  GOOGLE_PROVIDER,
-  type GoogleOAuthProfile,
-} from './google-oauth.types';
+import { GOOGLE_PROVIDER, type GoogleOAuthProfile } from './google-oauth.types';
 
 const DEFAULT_UI_LOCALE = 'en';
 const WEB_DEFAULT_URL = 'http://localhost:3000';

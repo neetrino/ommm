@@ -77,7 +77,9 @@ function createSlotHarness() {
     },
   };
   const prisma = {
-    $transaction: jest.fn(async (cb: (value: MockTx) => Promise<void>) => cb(tx)),
+    $transaction: jest.fn(async (cb: (value: MockTx) => Promise<void>) =>
+      cb(tx),
+    ),
     classSession: { updateMany: jest.fn() },
   };
   const ledger = new PackageUsageLedgerService();
@@ -94,7 +96,10 @@ function createSlotHarness() {
 }
 
 describe('bookings package usage flow', () => {
-  const freeSession = { priceCents: 0, sessionRequirement: null as number | null };
+  const freeSession = {
+    priceCents: 0,
+    sessionRequirement: null as number | null,
+  };
 
   it('charges one package credit for free sessions booked with a package', () => {
     expect(

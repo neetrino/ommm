@@ -24,7 +24,12 @@ import { JwtStrategy } from './jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleOAuthService, OAuthPendingSignupService, JwtStrategy],
+  providers: [
+    AuthService,
+    GoogleOAuthService,
+    OAuthPendingSignupService,
+    JwtStrategy,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

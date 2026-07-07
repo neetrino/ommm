@@ -7,10 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthTokenType, type Role, type User } from '@prisma/client';
-import {
-  hashOpaqueToken,
-  newOpaqueToken,
-} from '../common/opaque-token';
+import { hashOpaqueToken, newOpaqueToken } from '../common/opaque-token';
 import {
   EMAIL_VERIFY_TTL_MS,
   PASSWORD_RESET_TTL_MS,

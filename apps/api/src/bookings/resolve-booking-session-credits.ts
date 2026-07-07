@@ -1,6 +1,9 @@
 import type { ClassSession } from '@prisma/client';
 
-type SessionCreditFields = Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
+type SessionCreditFields = Pick<
+  ClassSession,
+  'priceCents' | 'sessionRequirement'
+>;
 
 type ResolveBookingSessionCreditsParams = {
   session: SessionCreditFields;

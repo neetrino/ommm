@@ -23,14 +23,14 @@ import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 
 type UseMarketingScheduleMemberStateOptions = {
   isMember: boolean;
-  initialItems: MarketingScheduleItem[];
+  initialItems: readonly MarketingScheduleItem[];
 };
 
 export function useMarketingScheduleMemberState({
   isMember,
   initialItems,
 }: UseMarketingScheduleMemberStateOptions) {
-  const [items, setItems] = useState<MarketingScheduleItem[]>(initialItems);
+  const [items, setItems] = useState<MarketingScheduleItem[]>(() => [...initialItems]);
   const [sessionsReady, setSessionsReady] = useState(initialItems.length > 0);
   const [bookedBySessionId, setBookedBySessionId] = useState<Record<string, string>>({});
   const [memberBookingsLoaded, setMemberBookingsLoaded] = useState(!isMember);
@@ -83,9 +83,15 @@ export function useMarketingScheduleMemberState({
 
   useEffect(() => {
     let cancelled = false;
-    void refetchMemberBookings(true, () => !cancelled);
+    const runRefetch = (): void => {
+      if (!cancelled) {
+        void refetchMemberBookings(true, () => !cancelled);
+      }
+    };
+    const timeoutId = window.setTimeout(runRefetch, 0);
     return () => {
       cancelled = true;
+      window.clearTimeout(timeoutId);
     };
   }, [isMember, refetchMemberBookings]);
 
