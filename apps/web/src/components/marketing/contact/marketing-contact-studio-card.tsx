@@ -98,8 +98,15 @@ function ContactGridTileCard({
 
 /** Contact page — glass tile grid (address, email, Instagram, hours). */
 export function MarketingContactStudioCard({ tiles }: MarketingContactStudioCardProps) {
+  const desktopParity = tiles.length % 2 === 0 ? "even" : "odd";
+
   return (
-    <div className={styles.grid} style={CARD_STYLE}>
+    <div
+      className={styles.grid}
+      style={CARD_STYLE}
+      data-contact-tile-count={tiles.length}
+      data-contact-desktop-parity={desktopParity}
+    >
       {tiles.map((tile, index) => (
         <ContactGridTileCard
           key={tile.key}

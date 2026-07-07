@@ -9,11 +9,29 @@
 @media (min-width: 744px) {
   .grid {
     gap: var(--contact-grid-gap);
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     --contact-icon-size: var(--contact-icon-size-desktop);
     box-sizing: border-box;
     padding: var(--contact-card-shadow-bleed, 1.25rem);
     margin: calc(-1 * var(--contact-card-shadow-bleed, 1.25rem));
+  }
+
+  /* Even count — two cards per row. */
+  .grid[data-contact-desktop-parity="even"] .tile {
+    grid-column: span 3;
+  }
+
+  /* Odd count — first row: three cards; following rows: two cards. */
+  .grid[data-contact-desktop-parity="odd"] .tile:nth-child(-n + 3) {
+    grid-column: span 2;
+  }
+
+  .grid[data-contact-desktop-parity="odd"] .tile:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+
+  .grid[data-contact-tile-count="1"] .tile {
+    grid-column: 2 / span 4;
   }
 }
 
