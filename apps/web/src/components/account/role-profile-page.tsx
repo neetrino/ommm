@@ -69,6 +69,8 @@ export async function RoleProfilePage({
     workspaceNoteVariant !== undefined
       ? tStaff(`workspace.${workspaceNoteVariant}.body`)
       : null;
+  const heroDescription =
+    workspaceNoteVariant === "coach" ? undefined : t("description");
 
   const isMemberProfile = shellChrome === "member";
 
@@ -98,7 +100,9 @@ export async function RoleProfilePage({
         />
       </AccountSection>
 
-      {workspaceHeading !== null && workspaceBody !== null ? (
+      {workspaceHeading !== null &&
+      workspaceBody !== null &&
+      workspaceNoteVariant !== "coach" ? (
         <AccountSection title={workspaceHeading}>
           <p className="ommm-body-muted text-sm">{workspaceBody}</p>
         </AccountSection>
@@ -117,7 +121,7 @@ export async function RoleProfilePage({
     return (
       <AdminContentFrame>
         <div className="space-y-4">
-          <AdminPageHero title={t("title")} description={t("description")} />
+          <AdminPageHero title={t("title")} description={heroDescription} />
           {body}
         </div>
       </AdminContentFrame>
@@ -131,7 +135,7 @@ export async function RoleProfilePage({
   return (
     <MemberContentFrame>
       <div className="space-y-4">
-        <AdminPageHero title={t("title")} description={t("description")} />
+        <AdminPageHero title={t("title")} description={heroDescription} />
         {body}
       </div>
     </MemberContentFrame>

@@ -3734,7 +3734,6 @@
     "home": {
       "title": "Hi {name}",
       "titleFallback": "Coach home",
-      "description": "Quick overview of today and your upcoming teaching load.",
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "todayAtGlance": "Today at a glance",
@@ -3840,14 +3839,12 @@
     },
     "salary": {
       "title": "Salary",
-      "lead": "Estimated payout summary from completed attendance.",
       "loadFailed": "Could not load salary data ({status}).",
       "noProfile": "No coach profile is linked to this account.",
       "total": "Total earnings",
       "pending": "Pending payout",
       "paid": "Paid out",
-      "sessions": "Completed sessions",
-      "formula": "Formula: base {base} per completed session + {perAttendee} per attended participant."
+      "sessions": "Completed sessions"
     }
   },
   "contentAdminPages": {
