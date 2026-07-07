@@ -116,6 +116,7 @@ function AdminCoachDetailsDrawerInner({
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
+  const [personalInfoEditing, setPersonalInfoEditing] = useState(false);
   const initial = useMemo(() => coachInitialValues(coach), [coach]);
 
   const updateCoachTabQuery = useCallback(
@@ -182,7 +183,13 @@ function AdminCoachDetailsDrawerInner({
     if (editForm.busy || statusBusy) {
       return;
     }
+    setPersonalInfoEditing(false);
     onClose();
+  }
+
+  function handleCancelPersonalInfoEdit(): void {
+    editForm.cancelEdits();
+    setPersonalInfoEditing(false);
   }
 
   const statusLabels = useMemo(
@@ -202,6 +209,19 @@ function AdminCoachDetailsDrawerInner({
   const sheetBusy = editForm.busy || statusBusy;
   const toastMessage = editForm.message ?? statusNotice?.message ?? null;
   const toastTone = editForm.message ? editForm.messageTone : statusNotice?.tone ?? "ok";
+
+  async function handleSaveCoach(): Promise<void> {
+    const successMessage = t("updateSuccess");
+    const saved = await editForm.save(successMessage, t("genericError"), {
+      silentSuccess: true,
+    });
+    if (!saved) {
+      return;
+    }
+    setPersonalInfoEditing(false);
+    onSaveSuccess?.(successMessage);
+    onClose();
+  }
 
   return (
     <OmmDrawerPortal
@@ -279,6 +299,12 @@ function AdminCoachDetailsDrawerInner({
             availabilitySlotsCount: coach.schedule.length,
             initials: coachCardInitials(coach.user),
           }}
+          personalInfoEditing={personalInfoEditing}
+          onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
+          onPersonalInfoSubmit={(event) => {
+            event.preventDefault();
+            void handleSaveCoach();
+          }}
         />
       </div>
 
@@ -286,21 +312,11 @@ function AdminCoachDetailsDrawerInner({
         saveLabel={t("saveButton")}
         cancelLabel={t("cancelButton")}
         savingLabel={t("savingButton")}
-        dirty={editForm.dirty}
+        dirty={editForm.dirty || personalInfoEditing}
         busy={editForm.busy}
-        onCancel={editForm.cancelEdits}
+        onCancel={handleCancelPersonalInfoEdit}
         onSave={() => {
-          void (async () => {
-            const successMessage = t("updateSuccess");
-            const saved = await editForm.save(successMessage, t("genericError"), {
-              silentSuccess: true,
-            });
-            if (!saved) {
-              return;
-            }
-            onSaveSuccess?.(successMessage);
-            onClose();
-          })();
+          void handleSaveCoach();
         }}
       />
     </OmmDrawerPortal>

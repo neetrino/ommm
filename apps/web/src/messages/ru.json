@@ -2036,6 +2036,7 @@
       },
       "addCoachButton": "Добавить тренера",
       "editCoach": "Редактировать тренера",
+      "edit": "Редактировать",
       "fieldEmail": "Email",
       "fieldName": "Имя",
       "fieldLastName": "Фамилия",
