@@ -19,6 +19,7 @@ import { OmmmCenterToast } from "@/components/ui/ommm-center-toast";
 import { buildLoginHrefWithReturnUrl } from "@/lib/auth-redirect";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
+import { dispatchPackagesRefresh } from "@/lib/packages-refresh-event";
 import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 import { ScheduleBookSplashModal } from "@/components/marketing/schedule/schedule-book-splash-modal";
 
@@ -88,6 +89,7 @@ export function AuthAwareScheduleBookingAction({
       setBookingId(bookingId);
       onBooked?.(bookingId);
       dispatchNotificationsRefresh();
+      dispatchPackagesRefresh();
       router.refresh();
     },
     onError: (message) => {

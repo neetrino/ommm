@@ -23,6 +23,10 @@ import {
   resolveCancellationPenaltyHours,
 } from './cancellation-policy';
 import { BookingsClientListService } from './bookings-client-list.service';
+import {
+  resolveBookingSessionCredits,
+  shouldValidatePackageForBooking,
+} from './resolve-booking-session-credits';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import type { ListMyBookingsQueryDto } from './dto/list-my-bookings-query.dto';
 
@@ -97,8 +101,14 @@ export class BookingsClientService {
     if (booked >= session.capacity) {
       throw new BadRequestException('Session is full — join waitlist');
     }
-    const requiredSessions =
-      session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
+    const requiredSessions = resolveBookingSessionCredits({
+      session,
+      userPackageId: dto?.userPackageId,
+    });
+    const usePackageCredit = shouldValidatePackageForBooking({
+      session,
+      userPackageId: dto?.userPackageId,
+    });
 
     const booking = await this.prisma.$transaction(
       async (tx) => {
@@ -109,21 +119,20 @@ export class BookingsClientService {
           throw new BadRequestException('Already booked');
         }
 
-        const packageMembership =
-          requiredSessions > 0
-            ? await this.packageUsage.getValidatedUserPackageForBooking({
-                tx,
-                userId,
-                session: {
-                  id: session.id,
-                  classType: {
-                    id: session.classType.id,
-                    name: session.classType.name,
-                  },
+        const packageMembership = usePackageCredit
+          ? await this.packageUsage.getValidatedUserPackageForBooking({
+              tx,
+              userId,
+              session: {
+                id: session.id,
+                classType: {
+                  id: session.classType.id,
+                  name: session.classType.name,
                 },
-                userPackageId: dto?.userPackageId,
-              })
-            : null;
+              },
+              userPackageId: dto?.userPackageId,
+            })
+          : null;
 
         const savedBooking = existingBooking
           ? await tx.booking.update({

@@ -8,6 +8,7 @@ import {
   dispatchNotificationsRefresh,
   NOTIFICATIONS_REFRESH_EVENT,
 } from "@/lib/notifications-refresh-event";
+import { dispatchPackagesRefresh } from "@/lib/packages-refresh-event";
 import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import {
@@ -223,6 +224,7 @@ export function useMarketingScheduleMemberState({
       );
       void refreshSchedule();
       dispatchNotificationsRefresh();
+      dispatchPackagesRefresh();
     },
     [refreshSchedule],
   );

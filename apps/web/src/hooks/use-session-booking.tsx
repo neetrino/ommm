@@ -23,6 +23,7 @@ import {
   readSessionBookingCachedPurchase,
   writeSessionBookingCachedPurchase,
 } from "@/hooks/session-booking-cache";
+import { dispatchPackagesRefresh } from "@/lib/packages-refresh-event";
 import { SessionBookingModals } from "@/hooks/session-booking-modals";
 import {
   readBookPackageSessionId,
@@ -213,6 +214,7 @@ export function useSessionBooking({
 
   const bookWithOptionalPackage = useCallback(async (userPackageId?: string): Promise<void> => {
     const booking = await postSessionBooking(sessionId, userPackageId);
+    dispatchPackagesRefresh();
     callbacksRef.current.onBooked?.(booking.id);
   }, [sessionId]);
 

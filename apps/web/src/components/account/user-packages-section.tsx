@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { UserMembershipBoardCard } from "@/components/account/user-membership-board-card";
@@ -30,6 +30,7 @@ import {
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { PACKAGES_REFRESH_EVENT } from "@/lib/packages-refresh-event";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserMembershipRow } from "@/lib/user-package-types";
 import {
@@ -87,6 +88,16 @@ export function UserPackagesSection({
   useRealtimeRefetch(REALTIME_REFETCH_KEYS.PACKAGES_ME, () => {
     router.refresh();
   });
+
+  useEffect(() => {
+    const handlePackagesRefresh = (): void => {
+      router.refresh();
+    };
+    window.addEventListener(PACKAGES_REFRESH_EVENT, handlePackagesRefresh);
+    return () => {
+      window.removeEventListener(PACKAGES_REFRESH_EVENT, handlePackagesRefresh);
+    };
+  }, [router]);
 
   const selectedId = useMemo(() => {
     if (embeddedInSheet) {
