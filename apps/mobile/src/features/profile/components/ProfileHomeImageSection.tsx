@@ -11,6 +11,7 @@ import { useSession } from "../../../auth/SessionProvider";
 import type { UploadPickResult } from "../../../lib/api/usersClient";
 import { deleteHomeImage, uploadHomeImage } from "../../../lib/api/usersClient";
 import { colors } from "../../../theme/tokens";
+import { ProfileGlassCard } from "./ProfileGlassCard";
 import { profileHomeImageSectionStyles as styles } from "./profileHomeImageSection.styles";
 
 const HOME_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
@@ -124,7 +125,7 @@ export function ProfileHomeImageSection() {
   }, [busy, pendingPick, refreshProfile]);
 
   return (
-    <View style={styles.card}>
+    <ProfileGlassCard contentStyle={styles.card}>
       <Text style={styles.sectionTitle}>Profile photo</Text>
       <Text style={styles.sectionLead}>
         Shown on your Home tab and account pages. JPG, PNG, or WEBP up to 5 MB.
@@ -262,6 +263,6 @@ export function ProfileHomeImageSection() {
           )}
         </Pressable>
       )}
-    </View>
+    </ProfileGlassCard>
   );
 }

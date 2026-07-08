@@ -1,9 +1,24 @@
 import { Platform, StyleSheet } from "react-native";
 import { fontFamilies } from "../../theme/fontFamilies";
-import { colors, radii, space, typography } from "../../theme/tokens";
+import { colors, space, typography } from "../../theme/tokens";
 
-/** Shared OMMM styling for the mobile account hub menu. */
-export const ACCOUNT_HUB_AVATAR_SIZE = 72;
+/** Shared OMMM styling — aligned with web `ommm-member-account-hub-*`. */
+export const ACCOUNT_HUB_AVATAR_SIZE = 68;
+
+const HUB_OLIVE_ICON = "#97907c";
+const HUB_ROW_LABEL = "#2d3530";
+const HUB_ROW_CHEVRON = "rgba(161,150,133,0.9)";
+const HUB_AVATAR_FILL = "rgba(151,144,124,0.77)";
+const HUB_ROW_BORDER = "rgba(255,255,255,0.7)";
+const HUB_DANGER_BORDER = "rgba(245,245,244,0.8)";
+const HUB_DANGER_TEXT = "#7f1d1d";
+const HUB_DANGER_CHEVRON = "rgba(185, 28, 28, 0.75)";
+const HUB_EMAIL = "rgba(107,114,110,0.8)";
+
+export const accountHubIconColor = HUB_OLIVE_ICON;
+export const accountHubChevronColor = HUB_ROW_CHEVRON;
+export const accountHubDangerChevronColor = HUB_DANGER_CHEVRON;
+export const accountHubDangerTextColor = HUB_DANGER_TEXT;
 
 export const accountHubLayout = StyleSheet.create({
   header: {
@@ -12,30 +27,28 @@ export const accountHubLayout = StyleSheet.create({
     gap: space.md,
   },
   avatarWrap: {
-    borderRadius: radii.pill,
+    borderRadius: 9999,
     borderWidth: 2,
-    borderColor: colors.white,
+    borderColor: "rgba(255,255,255,0.9)",
     padding: 3,
-    backgroundColor: colors.cardTint,
+    overflow: "hidden",
     ...Platform.select({
       ios: {
         shadowColor: "#2d2823",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.12,
-        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.2,
+        shadowRadius: 14,
       },
-      android: {
-        elevation: 4,
-      },
+      android: { elevation: 4 },
       default: {},
     }),
   },
   avatarRing: {
     width: ACCOUNT_HUB_AVATAR_SIZE,
     height: ACCOUNT_HUB_AVATAR_SIZE,
-    borderRadius: radii.pill,
+    borderRadius: 9999,
     overflow: "hidden",
-    backgroundColor: "rgba(212,163,115,0.22)",
+    backgroundColor: HUB_AVATAR_FILL,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -46,7 +59,7 @@ export const accountHubLayout = StyleSheet.create({
   avatarPlaceholder: {
     width: "100%",
     height: "100%",
-    backgroundColor: colors.taupe,
+    backgroundColor: HUB_AVATAR_FILL,
   },
   avatarInitialsShell: {
     width: "100%",
@@ -55,10 +68,10 @@ export const accountHubLayout = StyleSheet.create({
     justifyContent: "center",
   },
   avatarInitialsText: {
-    fontFamily: "Manrope_600SemiBold",
-    fontSize: typography.sectionTitle,
-    lineHeight: typography.sectionTitle + 4,
-    color: colors.primaryGreen,
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 28,
+    lineHeight: 32,
+    color: HUB_ROW_LABEL,
     textAlign: "center",
   },
   textBlock: {
@@ -67,75 +80,62 @@ export const accountHubLayout = StyleSheet.create({
   },
   name: {
     fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle + 2,
-    lineHeight: 28,
-    color: colors.primaryGreen,
+    fontSize: typography.sectionTitle + 4,
+    lineHeight: 30,
+    color: colors.ink,
   },
   email: {
     marginTop: space.xxs,
-    fontFamily: "Manrope_400Regular",
-    fontSize: typography.caption,
-    lineHeight: 18,
-    color: colors.bodyMuted,
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.bodySmall,
+    lineHeight: 22,
+    color: HUB_EMAIL,
   },
   menuCard: {
     overflow: "hidden",
-    borderRadius: 28,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.8)",
-    backgroundColor: "rgba(255,255,255,0.95)",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#2d2823",
-        shadowOffset: { width: 0, height: 22 },
-        shadowOpacity: 0.14,
-        shadowRadius: 28,
-      },
-      android: {
-        elevation: 6,
-      },
-      default: {},
-    }),
   },
   menuRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: space.md,
-    paddingHorizontal: space.lg + 4,
-    paddingVertical: space.md + 4,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.72)",
+    gap: 14,
+    paddingHorizontal: 20,
+    paddingVertical: space.md,
+  },
+  menuRowBorderTop: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: HUB_ROW_BORDER,
   },
   menuRowPressed: {
-    backgroundColor: "rgba(255,255,255,0.72)",
-  },
-  menuRowLast: {
-    borderBottomWidth: 0,
+    backgroundColor: "rgba(255,255,255,0.42)",
   },
   menuRowDanger: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(151,144,124,0.22)",
-    borderBottomWidth: 0,
+    borderTopColor: HUB_DANGER_BORDER,
+  },
+  menuRowDangerPressed: {
+    backgroundColor: "rgba(254, 242, 242, 0.7)",
   },
   iconWrap: {
-    width: 28,
+    width: 36,
+    height: 36,
     alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     flex: 1,
-    fontFamily: "Manrope_600SemiBold",
-    fontSize: typography.bodySmall + 1,
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: 15,
     lineHeight: 22,
-    color: colors.secondarySage,
+    color: HUB_ROW_LABEL,
   },
   labelDanger: {
-    color: colors.danger,
+    color: HUB_DANGER_TEXT,
   },
   logoutRow: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: space.lg,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(151,144,124,0.22)",
+    borderTopColor: HUB_DANGER_BORDER,
   },
 });

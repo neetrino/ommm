@@ -1,35 +1,27 @@
 import { StyleSheet } from "react-native";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { profileSectionCardBase, profileSectionLayout } from "../profileSectionLayout";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 
 export const PROFILE_PHOTO_PREVIEW_HEIGHT = 200;
 
+const HUB_AVATAR_FILL = "rgba(151,144,124,0.77)";
+const HUB_ROW_LABEL = "#2d3530";
+
 export const profileHomeImageSectionStyles = StyleSheet.create({
-  card: {
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radii.labelCard,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.overlayWhite38,
-  },
+  card: profileSectionCardBase,
   sectionTitle: {
-    fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle,
-    color: colors.primaryGreen,
+    ...profileSectionLayout.sectionTitle,
   },
   sectionLead: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 20,
-    color: colors.secondarySage,
+    ...profileSectionLayout.sectionLead,
   },
   previewWrap: {
-    borderRadius: radii.labelCard,
+    borderRadius: 20,
     overflow: "hidden",
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.primaryGreen,
+    borderColor: "rgba(255,255,255,0.55)",
+    backgroundColor: HUB_AVATAR_FILL,
   },
   previewWrapPending: {
     borderWidth: StyleSheet.hairlineWidth * 2,
@@ -43,15 +35,15 @@ export const profileHomeImageSectionStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     minHeight: PROFILE_PHOTO_PREVIEW_HEIGHT,
-    borderRadius: radii.labelCard,
+    borderRadius: 20,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: "rgba(212,163,115,0.22)",
+    borderColor: "rgba(255,255,255,0.55)",
+    backgroundColor: HUB_AVATAR_FILL,
   },
   initialsPreviewText: {
     fontFamily: fontFamilies.manrope.semiBold,
     fontSize: typography.sectionTitle + 12,
-    color: colors.primaryGreen,
+    color: HUB_ROW_LABEL,
   },
   pendingHint: {
     fontFamily: fontFamilies.manrope.regular,
@@ -61,14 +53,10 @@ export const profileHomeImageSectionStyles = StyleSheet.create({
     fontStyle: "italic",
   },
   feedbackOk: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
+    ...profileSectionLayout.feedbackOk,
   },
   feedbackErr: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.danger,
+    ...profileSectionLayout.feedbackErr,
   },
   row: {
     flexDirection: "row",
@@ -85,8 +73,8 @@ export const profileHomeImageSectionStyles = StyleSheet.create({
     paddingHorizontal: space.md,
     borderRadius: radii.pill,
     borderWidth: StyleSheet.hairlineWidth * 2,
-    borderColor: colors.overlayGreen20,
-    backgroundColor: colors.overlayWhite20,
+    borderColor: "rgba(255,255,255,0.8)",
+    backgroundColor: "rgba(255,255,255,0.85)",
   },
   secondaryPressed: {
     opacity: 0.88,

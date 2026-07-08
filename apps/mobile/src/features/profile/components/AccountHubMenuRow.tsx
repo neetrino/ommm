@@ -1,11 +1,16 @@
 import type { ComponentProps } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
-import { accountHubLayout } from "../accountHubLayout";
-import { colors } from "../../../theme/tokens";
+import {
+  accountHubChevronColor,
+  accountHubDangerChevronColor,
+  accountHubDangerTextColor,
+  accountHubIconColor,
+  accountHubLayout,
+} from "../accountHubLayout";
 
-const CHEVRON_SIZE = 18;
-const ICON_COLOR = colors.taupe;
+const CHEVRON_SIZE = 16;
+const ICON_SIZE = 20;
 
 type AccountHubMenuRowProps = {
   label: string;
@@ -14,7 +19,7 @@ type AccountHubMenuRowProps = {
   danger?: boolean;
   showChevron?: boolean;
   showIcon?: boolean;
-  isLast?: boolean;
+  showTopBorder?: boolean;
 };
 
 export function AccountHubMenuRow({
@@ -24,26 +29,29 @@ export function AccountHubMenuRow({
   danger = false,
   showChevron = true,
   showIcon = true,
-  isLast = false,
+  showTopBorder = false,
 }: AccountHubMenuRowProps) {
+  const iconColor = danger ? accountHubDangerTextColor : accountHubIconColor;
+  const chevronColor = danger ? accountHubDangerChevronColor : accountHubChevronColor;
+
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         accountHubLayout.menuRow,
+        showTopBorder ? accountHubLayout.menuRowBorderTop : null,
         danger ? accountHubLayout.menuRowDanger : null,
-        isLast ? accountHubLayout.menuRowLast : null,
-        pressed ? accountHubLayout.menuRowPressed : null,
+        pressed
+          ? danger
+            ? accountHubLayout.menuRowDangerPressed
+            : accountHubLayout.menuRowPressed
+          : null,
       ]}
       accessibilityRole="button"
     >
       <View style={accountHubLayout.iconWrap}>
         {showIcon ? (
-          <MaterialCommunityIcons
-            name={icon}
-            size={22}
-            color={danger ? colors.danger : ICON_COLOR}
-          />
+          <MaterialCommunityIcons name={icon} size={ICON_SIZE} color={iconColor} />
         ) : null}
       </View>
       <Text style={[accountHubLayout.label, danger && accountHubLayout.labelDanger]}>
@@ -53,7 +61,7 @@ export function AccountHubMenuRow({
         <MaterialCommunityIcons
           name="chevron-right"
           size={CHEVRON_SIZE}
-          color={danger ? colors.danger : ICON_COLOR}
+          color={chevronColor}
         />
       ) : null}
     </Pressable>

@@ -13,8 +13,9 @@ import {
 } from "../../../auth/passwordPolicy";
 import { AuthPasswordInput } from "../../auth/components/AuthPasswordInput";
 import { patchPassword } from "../../../lib/api/usersClient";
-import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import { profileSectionLayout } from "../profileSectionLayout";
+import { ProfileGlassCard } from "./ProfileGlassCard";
+import { colors, space } from "../../../theme/tokens";
 
 export function ProfileChangePasswordSection() {
   const [current, setCurrent] = useState("");
@@ -67,14 +68,13 @@ export function ProfileChangePasswordSection() {
   }, [confirm, current, next]);
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.sectionTitle}>Change password</Text>
-      <Text style={styles.sectionLead}>
+    <ProfileGlassCard contentStyle={profileSectionLayout.sectionCard}>
+      <Text style={profileSectionLayout.sectionLead}>
         Use a strong password you do not reuse elsewhere.
       </Text>
 
       <View style={styles.fieldGap}>
-        <Text style={styles.label}>Current password</Text>
+        <Text style={profileSectionLayout.fieldLabel}>Current password</Text>
         <AuthPasswordInput
           value={current}
           onChangeText={setCurrent}
@@ -86,7 +86,7 @@ export function ProfileChangePasswordSection() {
       </View>
 
       <View style={styles.fieldGap}>
-        <Text style={styles.label}>New password</Text>
+        <Text style={profileSectionLayout.fieldLabel}>New password</Text>
         <AuthPasswordInput
           value={next}
           onChangeText={setNext}
@@ -98,7 +98,7 @@ export function ProfileChangePasswordSection() {
       </View>
 
       <View style={styles.fieldGap}>
-        <Text style={styles.label}>Confirm new password</Text>
+        <Text style={profileSectionLayout.fieldLabel}>Confirm new password</Text>
         <AuthPasswordInput
           value={confirm}
           onChangeText={setConfirm}
@@ -111,7 +111,11 @@ export function ProfileChangePasswordSection() {
 
       {feedback ? (
         <Text
-          style={feedback.kind === "ok" ? styles.feedbackOk : styles.feedbackErr}
+          style={
+            feedback.kind === "ok"
+              ? profileSectionLayout.feedbackOk
+              : profileSectionLayout.feedbackErr
+          }
           accessibilityLiveRegion="polite"
         >
           {feedback.text}
@@ -122,9 +126,9 @@ export function ProfileChangePasswordSection() {
         onPress={() => void onSubmit()}
         disabled={busy}
         style={({ pressed }) => [
-          styles.primaryBtn,
-          pressed && !busy && styles.primaryBtnPressed,
-          busy && styles.primaryBtnDisabled,
+          profileSectionLayout.primaryBtn,
+          pressed && !busy && profileSectionLayout.primaryBtnPressed,
+          busy && profileSectionLayout.primaryBtnDisabled,
         ]}
         accessibilityRole="button"
         accessibilityLabel="Update password"
@@ -133,72 +137,15 @@ export function ProfileChangePasswordSection() {
         {busy ? (
           <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={styles.primaryBtnLabel}>Update password</Text>
+          <Text style={profileSectionLayout.primaryBtnLabel}>Update password</Text>
         )}
       </Pressable>
-    </View>
+    </ProfileGlassCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radii.labelCard,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.overlayWhite38,
-  },
-  sectionTitle: {
-    fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle,
-    color: colors.primaryGreen,
-  },
-  sectionLead: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 20,
-    color: colors.secondarySage,
-    marginBottom: space.xs,
-  },
   fieldGap: {
     gap: space.xs,
-  },
-  label: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.caption,
-    color: colors.secondarySage,
-  },
-  feedbackOk: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
-  },
-  feedbackErr: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.danger,
-  },
-  primaryBtn: {
-    marginTop: space.sm,
-    alignSelf: "stretch",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 52,
-    paddingVertical: space.sm + 2,
-    paddingHorizontal: space.lg,
-    borderRadius: radii.pill,
-    backgroundColor: colors.primaryGreen,
-  },
-  primaryBtnPressed: {
-    opacity: 0.9,
-  },
-  primaryBtnDisabled: {
-    opacity: 0.65,
-  },
-  primaryBtnLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.body,
-    color: colors.white,
   },
 });
