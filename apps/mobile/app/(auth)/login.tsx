@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import {
@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthBackToHomeRow } from "../../src/features/auth/components/AuthBackToHomeRow";
@@ -17,7 +18,9 @@ import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenSh
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
-const LOGIN_ICON_SIZE = 56;
+const LOGIN_LOGO_LAYOUT_SIZE = 72;
+/** Visual scale only — layout slot stays fixed so other elements do not move. */
+const LOGIN_LOGO_VISUAL_SCALE = 3;
 
 export default function LoginRoute() {
   const router = useRouter();
@@ -75,13 +78,15 @@ export default function LoginRoute() {
       topLeading={<AuthBackToHomeRow onPress={() => router.replace("/home")} />}
     >
       <View style={styles.brandBlock}>
-        <MaterialCommunityIcons
-          name="lock-outline"
-          size={LOGIN_ICON_SIZE}
-          color={colors.primaryGreen}
-          style={styles.icon}
-          accessibilityIgnoresInvertColors
-        />
+        <View style={styles.logoSlot}>
+          <Image
+            source={figmaRemoteAssets.brandMark}
+            style={styles.logo}
+            contentFit="contain"
+            accessibilityLabel="Ommm logo"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
         <Text style={styles.title} accessibilityRole="header">
           Sign in
         </Text>
@@ -161,9 +166,19 @@ const styles = StyleSheet.create({
     gap: space.md,
     marginBottom: space.sm,
   },
-  icon: {
-    opacity: 0.94,
+  logoSlot: {
+    width: LOGIN_LOGO_LAYOUT_SIZE,
+    height: LOGIN_LOGO_LAYOUT_SIZE,
     marginBottom: space.xs,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "visible",
+  },
+  logo: {
+    width: LOGIN_LOGO_LAYOUT_SIZE,
+    height: LOGIN_LOGO_LAYOUT_SIZE,
+    transform: [{ scale: LOGIN_LOGO_VISUAL_SCALE }],
+    opacity: 0.94,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
