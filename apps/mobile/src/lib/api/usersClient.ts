@@ -217,7 +217,16 @@ export async function deleteHomeImage(): Promise<{ message: string }> {
   return { message: (parsed as { message: string }).message };
 }
 
-export async function deleteAccount(): Promise<void> {
+function isDeleteAccountResponse(value: unknown): value is { ok: true } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    (value as { ok?: unknown }).ok === true
+  );
+}
+
+/** Permanently deletes the signed-in user (`DELETE /v1/users/me`). */
+export async function deleteAccount(): Promise<{ ok: true }> {
   const token = await readStoredAccessToken();
   if (token === null) {
     throw new Error("Not signed in");
@@ -234,8 +243,18 @@ export async function deleteAccount(): Promise<void> {
     },
     base,
   );
+  const raw = await res.text();
   if (!res.ok) {
-    const raw = await res.text();
     throw new Error(extractErrorMessage(raw, res.statusText));
   }
+  let parsed: unknown;
+  try {
+    parsed = raw.trim() === "" ? {} : JSON.parse(raw);
+  } catch {
+    throw new Error("Unexpected response from server");
+  }
+  if (!isDeleteAccountResponse(parsed)) {
+    throw new Error("Unexpected response from server");
+  }
+  return parsed;
 }

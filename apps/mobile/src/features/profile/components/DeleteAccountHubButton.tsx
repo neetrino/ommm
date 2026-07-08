@@ -1,7 +1,8 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { OmmConfirmDialog } from "../../../components/ui/OmmConfirmDialog";
 import { useSession } from "../../../auth/SessionProvider";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { deleteAccount } from "../../../lib/api/usersClient";
@@ -15,18 +16,33 @@ export function DeleteAccountHubButton() {
   const router = useRouter();
   const { role, signOut } = useSession();
   const tProfile = useTranslations("userPages.profile");
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const closeConfirm = useCallback(() => {
+    if (busy) {
+      return;
+    }
+    setErrorMessage(null);
+    setConfirmOpen(false);
+  }, [busy]);
 
   const confirmDelete = useCallback(async () => {
     setBusy(true);
+    setErrorMessage(null);
     try {
-      await deleteAccount();
+      const result = await deleteAccount();
+      if (result.ok !== true) {
+        throw new Error(tProfile("deleteAccountFailed"));
+      }
       await signOut();
+      setConfirmOpen(false);
       router.replace(HOME_HREF);
     } catch (e) {
       const message =
         e instanceof Error ? e.message : tProfile("deleteAccountFailed");
-      Alert.alert(tProfile("deleteAccount"), message);
+      setErrorMessage(message);
     } finally {
       setBusy(false);
     }
@@ -36,22 +52,9 @@ export function DeleteAccountHubButton() {
     if (busy) {
       return;
     }
-    Alert.alert(
-      tProfile("deleteAccountConfirmTitle"),
-      tProfile("deleteAccountConfirmDescription"),
-      [
-        {
-          text: tProfile("deleteAccountConfirmNo"),
-          style: "cancel",
-        },
-        {
-          text: tProfile("deleteAccountConfirmYes"),
-          style: "destructive",
-          onPress: () => void confirmDelete(),
-        },
-      ],
-    );
-  }, [busy, confirmDelete, tProfile]);
+    setErrorMessage(null);
+    setConfirmOpen(true);
+  }, [busy]);
 
   if (role === "COACH") {
     return null;
@@ -60,34 +63,52 @@ export function DeleteAccountHubButton() {
   const label = busy ? tProfile("deleteAccountDeleting") : tProfile("deleteAccount");
 
   return (
-    <Pressable
-      onPress={onDeletePress}
-      disabled={busy}
-      style={({ pressed }) => [
-        styles.deleteBtn,
-        pressed && !busy && styles.deleteBtnPressed,
-        busy && styles.deleteBtnDisabled,
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled: busy, busy }}
-    >
-      <View style={styles.iconWrap}>
+    <>
+      <Pressable
+        onPress={onDeletePress}
+        disabled={busy}
+        style={({ pressed }) => [
+          styles.deleteBtn,
+          pressed && !busy && styles.deleteBtnPressed,
+          busy && styles.deleteBtnDisabled,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: busy, busy }}
+      >
+        <View style={styles.iconWrap}>
+          <MaterialCommunityIcons
+            name="trash-can-outline"
+            size={tokens.iconSize}
+            color={tokens.iconColor}
+          />
+        </View>
+
+        <Text style={styles.deleteBtnLabel}>{label}</Text>
+
         <MaterialCommunityIcons
-          name="trash-can-outline"
-          size={tokens.iconSize}
-          color={tokens.iconColor}
+          name="chevron-right"
+          size={tokens.chevronSize}
+          color={tokens.chevronColor}
         />
-      </View>
+      </Pressable>
 
-      <Text style={styles.deleteBtnLabel}>{label}</Text>
-
-      <MaterialCommunityIcons
-        name="chevron-right"
-        size={tokens.chevronSize}
-        color={tokens.chevronColor}
+      <OmmConfirmDialog
+        visible={confirmOpen}
+        title={tProfile("deleteAccountConfirmTitle")}
+        description={tProfile("deleteAccountConfirmDescription")}
+        confirmLabel={
+          busy ? tProfile("deleteAccountDeleting") : tProfile("deleteAccountConfirmYes")
+        }
+        cancelLabel={tProfile("deleteAccountConfirmNo")}
+        backdropAriaLabel={tProfile("deleteAccountBackdropClose")}
+        pending={busy}
+        tone="danger"
+        errorMessage={errorMessage}
+        onConfirm={() => void confirmDelete()}
+        onCancel={closeConfirm}
       />
-    </Pressable>
+    </>
   );
 }
 
