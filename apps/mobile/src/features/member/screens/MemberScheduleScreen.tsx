@@ -29,12 +29,12 @@ import { ScheduleFiltersHeader } from "../../schedule/components/ScheduleFilters
 import type { ScheduleFilterOption } from "../../schedule/components/ScheduleFilterField";
 import { useScheduleDayTransition } from "../../schedule/hooks/useScheduleDayTransition";
 import { ScheduleViewShell } from "../../schedule/components/ScheduleViewShell";
-import { scheduleCopy } from "../../schedule/scheduleCopy";
+import { useScheduleCopy } from "../../schedule/useScheduleCopy";
 import { scheduleColors } from "../../schedule/scheduleTokens";
+import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
 import { colors, layout, space } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
-const LOCALE = "en-US";
 const FILTER_ALL = "all";
 
 function sessionRange(): { from: Date; to: Date } {
@@ -62,6 +62,8 @@ function isSessionFull(session: ClassSessionRow): boolean {
 export function MemberScheduleScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const scheduleCopy = useScheduleCopy();
+  const bookingCopy = useMemberBookingCopy();
   const [sessions, setSessions] = useState<ClassSessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export function MemberScheduleScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [scheduleCopy.loadError]);
 
   useFocusEffect(
     useCallback(() => {
@@ -105,7 +107,7 @@ export function MemberScheduleScreen() {
         ),
         scheduleCopy.filterClassTypeAll,
       ),
-    [sessions],
+    [scheduleCopy.filterClassTypeAll, sessions],
   );
 
   const instructorOptions = useMemo(
@@ -120,7 +122,7 @@ export function MemberScheduleScreen() {
         ),
         scheduleCopy.filterInstructorAll,
       ),
-    [sessions],
+    [scheduleCopy.filterInstructorAll, sessions],
   );
 
   const visibleSessions = useMemo(() => {
@@ -162,22 +164,28 @@ export function MemberScheduleScreen() {
       try {
         if (isSessionFull(session)) {
           await joinWaitlistSession(token, session.id);
-          Alert.alert("Waitlist", "You are on the waitlist for this class.");
+          Alert.alert(
+            bookingCopy.waitlistSuccessTitle,
+            bookingCopy.waitlistSuccessBody,
+          );
         } else {
           await bookSession(token, session.id);
-          Alert.alert("Booked", "Your spot is reserved.");
+          Alert.alert(
+            bookingCopy.bookSuccessTitle,
+            bookingCopy.bookSuccessBody,
+          );
         }
         await load();
       } catch (e) {
         Alert.alert(
-          "Could not complete",
-          e instanceof Error ? e.message : "Try again later.",
+          bookingCopy.actionFailedTitle,
+          e instanceof Error ? e.message : bookingCopy.actionFailedFallback,
         );
       } finally {
         setBookingSessionId(null);
       }
     },
-    [load, router],
+    [bookingCopy, load, router],
   );
 
   const bottomPad =
@@ -204,7 +212,7 @@ export function MemberScheduleScreen() {
           />
 
           <ScheduleDateControls
-            locale={LOCALE}
+            locale={scheduleCopy.intlLocale}
             selectedDate={nav.selectedDate}
             windowStart={nav.windowStart}
             maxDate={maxDate}
@@ -224,7 +232,7 @@ export function MemberScheduleScreen() {
             <Text style={styles.error}>{error}</Text>
           ) : (
             <ScheduleDayContent
-              locale={LOCALE}
+              locale={scheduleCopy.intlLocale}
               animationPhase={animationPhase}
               containerStyle={containerStyle}
               renderedSessions={renderedSessions}

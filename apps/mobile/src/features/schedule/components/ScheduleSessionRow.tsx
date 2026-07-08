@@ -4,7 +4,8 @@ import type { ClassSessionRow } from "../../../lib/api/memberClient";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { resolveScheduleRowGradientColors } from "../../../lib/schedule/scheduleRowGradients";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { formatScheduleTimeHHmm, scheduleCopy } from "../scheduleCopy";
+import { formatScheduleTimeHHmm } from "../scheduleFormat";
+import { useScheduleCopy } from "../useScheduleCopy";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
 
 type ScheduleSessionRowProps = {
@@ -24,7 +25,8 @@ export function ScheduleSessionRow({
   onBookPress,
   booking = false,
 }: ScheduleSessionRowProps) {
-  const coach = session.coach.user.name?.trim() || "Coach";
+  const scheduleCopy = useScheduleCopy();
+  const coach = session.coach.user.name?.trim() || scheduleCopy.coachLabel;
   const classType = session.classType.name.trim();
   const timeLabel = formatScheduleTimeHHmm(session.startsAt, locale);
   const durationLabel = scheduleCopy.minutesShort(

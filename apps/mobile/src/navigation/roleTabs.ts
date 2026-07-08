@@ -12,9 +12,12 @@ export type TabIconName =
   | "layers-outline"
   | "account-circle-outline";
 
+export type RoleTabLabelNamespace = "dashboard.nav" | "common";
+
 export type RoleTabItem = {
   key: string;
-  label: string;
+  labelKey: string;
+  labelNamespace: RoleTabLabelNamespace;
   href: Href;
   iconName: TabIconName;
   iconSize: number;
@@ -33,87 +36,127 @@ const ICON = {
 } as const;
 
 const USER_TABS: RoleTabItem[] = [
-  { key: "home", label: "Home", href: "/user/home", ...ICON.home },
+  {
+    key: "home",
+    labelKey: "USER.home",
+    labelNamespace: "dashboard.nav",
+    href: "/user/home",
+    ...ICON.home,
+  },
   {
     key: "schedule",
-    label: "Schedule",
+    labelKey: "USER.schedule",
+    labelNamespace: "dashboard.nav",
     href: "/user/schedule",
     ...ICON.schedule,
   },
   {
     key: "classes",
-    label: "My Bookings",
+    labelKey: "USER.bookings",
+    labelNamespace: "dashboard.nav",
     href: "/user/classes",
     ...ICON.bookings,
   },
   {
     key: "packages",
-    label: "Packages",
+    labelKey: "USER.packages",
+    labelNamespace: "dashboard.nav",
     href: "/user/packages",
     ...ICON.userPlans,
   },
   {
     key: "profile",
-    label: "My Account",
+    labelKey: "account",
+    labelNamespace: "common",
     href: "/user/profile",
     ...ICON.account,
   },
 ];
 
 const ADMIN_TABS: RoleTabItem[] = [
-  { key: "admin-home", label: "Home", href: "/admin/home", ...ICON.home },
+  {
+    key: "admin-home",
+    labelKey: "ADMIN.dashboard",
+    labelNamespace: "dashboard.nav",
+    href: "/admin/home",
+    ...ICON.home,
+  },
   {
     key: "admin-users",
-    label: "Users",
+    labelKey: "ADMIN.clients",
+    labelNamespace: "dashboard.nav",
     href: "/admin/clients",
     ...ICON.users,
   },
   {
     key: "admin-profile",
-    label: "Profile",
+    labelKey: "ADMIN.profile",
+    labelNamespace: "dashboard.nav",
     href: "/admin/profile",
     ...ICON.profile,
   },
 ];
 
-/** Mobile stack has no `/content-admin/*`; keep tabs to safe admin routes. */
 const CONTENT_ADMIN_TABS: RoleTabItem[] = [
-  { key: "content-admin-home", label: "Home", href: "/admin/home", ...ICON.home },
+  {
+    key: "content-admin-home",
+    labelKey: "CONTENT_ADMIN.home",
+    labelNamespace: "dashboard.nav",
+    href: "/admin/home",
+    ...ICON.home,
+  },
   {
     key: "content-admin-profile",
-    label: "Profile",
+    labelKey: "CONTENT_ADMIN.profile",
+    labelNamespace: "dashboard.nav",
     href: "/admin/profile",
     ...ICON.profile,
   },
 ];
 
 const COACH_TABS: RoleTabItem[] = [
-  { key: "coach-home", label: "Home", href: "/coach/home", ...ICON.home },
+  {
+    key: "coach-home",
+    labelKey: "COACH.dashboard",
+    labelNamespace: "dashboard.nav",
+    href: "/coach/home",
+    ...ICON.home,
+  },
   {
     key: "coach-profile",
-    label: "Profile",
+    labelKey: "COACH.profile",
+    labelNamespace: "dashboard.nav",
     href: "/coach/profile",
     ...ICON.profile,
   },
 ];
 
 const MANAGER_TABS: RoleTabItem[] = [
-  { key: "manager-home", label: "Home", href: "/manager/home", ...ICON.home },
+  {
+    key: "manager-home",
+    labelKey: "MANAGER.home",
+    labelNamespace: "dashboard.nav",
+    href: "/manager/home",
+    ...ICON.home,
+  },
   {
     key: "manager-bookings",
-    label: "Bookings",
+    labelKey: "MANAGER.bookings",
+    labelNamespace: "dashboard.nav",
     href: "/manager/bookings",
     ...ICON.schedule,
   },
   {
     key: "manager-clients",
-    label: "Clients",
+    labelKey: "MANAGER.clients",
+    labelNamespace: "dashboard.nav",
     href: "/manager/clients",
     ...ICON.users,
   },
   {
     key: "manager-profile",
-    label: "Profile",
+    labelKey: "MANAGER.profile",
+    labelNamespace: "dashboard.nav",
     href: "/manager/profile",
     ...ICON.profile,
   },

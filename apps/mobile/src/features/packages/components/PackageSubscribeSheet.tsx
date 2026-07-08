@@ -1,7 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { packagesCopy } from "../../../lib/packages/packagesCopy";
+import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
+import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
 import {
-  formatPackagePlanName,
   formatPackagePriceLabel,
   formatPackageValidityLabel,
 } from "../../../lib/packages/formatPackageDisplay";
@@ -27,16 +27,22 @@ export function PackageSubscribeSheet({
   onClose,
   onConfirm,
 }: PackageSubscribeSheetProps) {
+  const packagesCopy = usePackagesCopy();
+  const displayCopy = usePackageDisplayCopy();
+
   if (plan === null) {
     return null;
   }
 
-  const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+  const packageName = displayCopy.formatPlanName(plan.name, plan.sessionsPerMonth);
   const priceLabel = formatPackagePriceLabel({
     ...plan,
     priceCents: resolvePublicPackageFinalPriceCents(plan),
   });
-  const validityLabel = formatPackageValidityLabel(plan);
+  const validityLabel = formatPackageValidityLabel(
+    plan,
+    packagesCopy.formatPackageValidityDays,
+  );
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>

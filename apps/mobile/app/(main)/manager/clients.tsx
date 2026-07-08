@@ -1,10 +1,8 @@
 import { PlaceholderTabScreen } from "../../../src/features/shell/PlaceholderTabScreen";
+import { usePlaceholderTabCopy } from "../../../src/features/shell/usePlaceholderTabCopy";
 
 export default function ManagerClientsMobileRoute() {
-  return (
-    <PlaceholderTabScreen
-      title="Clients"
-      subtitle="Use the web manager tools for full client records."
-    />
-  );
+  const copy = usePlaceholderTabCopy("MANAGER", "clients");
+
+  return <PlaceholderTabScreen title={copy.title} subtitle={copy.subtitle} />;
 }

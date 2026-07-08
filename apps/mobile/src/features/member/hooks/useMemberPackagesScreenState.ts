@@ -7,7 +7,9 @@ import {
 } from "../../../lib/api/packagesClient";
 import { buildAccordionCategoriesFromPlans } from "../../../lib/packages/packagesPageCategoryData";
 import type { PackagesPageAccordionCategory } from "../../../lib/packages/packagesPageCategoryData";
-import { packagesCopy } from "../../../lib/packages/packagesCopy";
+import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
+import { useLocale } from "../../../i18n/I18nProvider";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import type { PublicPackagePlan } from "../../../lib/packages/publicPackagePlan";
 import {
   normalizeUserPackageStatus,
@@ -17,13 +19,14 @@ import { isArcaCheckoutEnabled, startArcaCardCheckout } from "../../../lib/payme
 
 export type PackagesScreenMode = "mine" | "catalog";
 
-const CHECKOUT_LOCALE = "en";
-
 type UseMemberPackagesScreenStateParams = {
   isSignedIn: boolean;
 };
 
 export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesScreenStateParams) {
+  const packagesCopy = usePackagesCopy();
+  const checkoutLocale = useLocale();
+  const tMarketing = useTranslations("marketing");
   const [mode, setMode] = useState<PackagesScreenMode>(isSignedIn ? "mine" : "catalog");
   const [memberships, setMemberships] = useState<UserMembershipRow[]>([]);
   const [categories, setCategories] = useState<PackagesPageAccordionCategory[]>([]);
@@ -41,13 +44,18 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     }
     const rows = await fetchUserMemberships(token);
     setMemberships(rows);
-  }, []);
+  }, [packagesCopy.loadMembershipsError]);
 
   const loadCatalog = useCallback(async () => {
     const plans = await fetchPublicPackages();
     setCatalogPlans(plans);
-    setCategories(buildAccordionCategoriesFromPlans(plans, "From"));
-  }, []);
+    setCategories(
+      buildAccordionCategoriesFromPlans(
+        plans,
+        tMarketing("packagesCardPriceFromPrefix"),
+      ),
+    );
+  }, [tMarketing]);
 
   const loadForMode = useCallback(
     async (targetMode: PackagesScreenMode) => {
@@ -77,7 +85,7 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
         setLoading(false);
       }
     },
-    [isSignedIn, loadCatalog, loadMine],
+    [isSignedIn, loadCatalog, loadMine, packagesCopy.loadError, packagesCopy.loadMembershipsError],
   );
 
   const load = useCallback(async () => {
@@ -131,7 +139,7 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
         result.requiresArcaCheckout === true &&
         result.paymentReference
       ) {
-        await startArcaCardCheckout(token, result.paymentReference, CHECKOUT_LOCALE);
+        await startArcaCardCheckout(token, result.paymentReference, checkoutLocale);
         return true;
       }
       return true;
@@ -143,7 +151,7 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     } finally {
       setSubscribeBusy(false);
     }
-  }, [loadForMode, subscribePlanId]);
+  }, [checkoutLocale, loadForMode, packagesCopy.subscribeFailed, subscribePlanId]);
 
   const selectedSubscribePlan =
     subscribePlanId === null

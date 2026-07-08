@@ -1,13 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import {
-  buildMembershipSessionsSummary,
-  formatMembershipStatusLabel,
-  formatMembershipValidityLabel,
-  type UserMembershipRow,
-  type UserPackageStatus,
-} from "../../../lib/packages/userMembership";
-import { formatPackagePlanName, formatPackagePriceLabel } from "../../../lib/packages/formatPackageDisplay";
-import { packagesCopy } from "../../../lib/packages/packagesCopy";
+import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
+import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
+import { formatPackagePriceLabel } from "../../../lib/packages/formatPackageDisplay";
+import { useMembershipLabels } from "../../../lib/packages/useMembershipLabels";
+import type { UserMembershipRow, UserPackageStatus } from "../../../lib/packages/userMembership";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 
@@ -33,7 +29,10 @@ function statusColors(status: UserPackageStatus): { bg: string; border: string; 
 }
 
 export function UserMembershipCard({ membership, status }: UserMembershipCardProps) {
-  const sessionName = formatPackagePlanName(
+  const packagesCopy = usePackagesCopy();
+  const displayCopy = usePackageDisplayCopy();
+  const labels = useMembershipLabels();
+  const sessionName = displayCopy.formatPlanName(
     membership.plan.name,
     membership.plan.sessionsPerMonth,
   );
@@ -41,8 +40,8 @@ export function UserMembershipCard({ membership, status }: UserMembershipCardPro
     priceCents: membership.plan.priceCents,
     discountedPriceCents: null,
   });
-  const validityLabel = formatMembershipValidityLabel(membership);
-  const sessionsSummary = buildMembershipSessionsSummary(membership);
+  const validityLabel = labels.formatValidityLabel(membership);
+  const sessionsSummary = labels.formatSessionsSummary(membership);
   const badge = statusColors(status);
 
   return (
@@ -54,7 +53,7 @@ export function UserMembershipCard({ membership, status }: UserMembershipCardPro
         </View>
         <View style={[styles.badge, { backgroundColor: badge.bg, borderColor: badge.border }]}>
           <Text style={[styles.badgeLabel, { color: badge.text }]}>
-            {formatMembershipStatusLabel(status)}
+            {labels.formatStatusLabel(status)}
           </Text>
         </View>
       </View>

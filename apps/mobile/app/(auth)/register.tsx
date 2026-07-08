@@ -7,6 +7,7 @@ import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthBackToHomeRow } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { useTranslations, useLocale } from "../../src/i18n/I18nProvider";
 import { formatPhoneInput } from "../../src/lib/phone-input";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
@@ -31,6 +32,9 @@ function isValidPhone(trimmed: string): boolean {
 
 export default function RegisterRoute() {
   const router = useRouter();
+  const locale = useLocale();
+  const tCommon = useTranslations("common");
+  const tAuth = useTranslations("auth.register");
   const { isReady, isSignedIn, homeHref, registerAccount } = useSession();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -51,31 +55,31 @@ export default function RegisterRoute() {
     const family = lastName.trim();
     const phoneTrim = phone.trim();
     if (given.length < 1) {
-      setFormError("Please enter your first name.");
+      setFormError(tAuth("firstNameRequired"));
       return;
     }
     if (family.length < 1) {
-      setFormError("Please enter your last name.");
+      setFormError(tAuth("lastNameRequired"));
       return;
     }
     if (phoneTrim.length < 1) {
-      setFormError("Please enter your phone number.");
+      setFormError(tAuth("phoneRequired"));
       return;
     }
     if (!isValidPhone(phoneTrim)) {
-      setFormError("Enter a valid phone number (8–15 digits).");
+      setFormError(tAuth("invalidPhone"));
       return;
     }
     if (!isValidEmail(email)) {
-      setFormError("Please enter a valid email address.");
+      setFormError(tAuth("invalidEmail"));
       return;
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
-      setFormError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      setFormError(tAuth("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
     if (password !== confirmPassword) {
-      setFormError("Passwords do not match.");
+      setFormError(tAuth("passwordMismatch"));
       return;
     }
 
@@ -88,17 +92,17 @@ export default function RegisterRoute() {
         name: given,
         lastName: family,
         phone: phoneTrim,
+        locale,
       });
       router.replace(nextHref);
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Something went wrong. Please try again.";
+      const message = e instanceof Error ? e.message : tAuth("registerFailed");
       setFormError(message);
     } finally {
       setBusy(false);
       submitLockRef.current = false;
     }
-  }, [busy, confirmPassword, email, firstName, lastName, password, phone, registerAccount, router]);
+  }, [busy, confirmPassword, email, firstName, lastName, locale, password, phone, registerAccount, router, tAuth]);
 
   if (isReady && isSignedIn) {
     return <Redirect href={homeHref} />;
@@ -126,74 +130,71 @@ export default function RegisterRoute() {
           accessibilityIgnoresInvertColors
         />
         <Text style={styles.title} accessibilityRole="header">
-          Create account
+          {tAuth("createAccount")}
         </Text>
-        <Text style={styles.lead}>
-          Join the studio to book classes, follow your schedule, and manage your
-          membership.
-        </Text>
+        <Text style={styles.lead}>{tAuth("lead")}</Text>
       </View>
 
       <View style={styles.form}>
         <TextInput
           value={firstName}
           onChangeText={setFirstName}
-          placeholder="First name"
+          placeholder={tAuth("firstName")}
           placeholderTextColor={colors.bodyMuted}
           style={styles.input}
           autoCapitalize="words"
           autoCorrect={false}
           textContentType="givenName"
-          accessibilityLabel="First name"
+          accessibilityLabel={tAuth("firstName")}
         />
         <TextInput
           value={lastName}
           onChangeText={setLastName}
-          placeholder="Last name"
+          placeholder={tAuth("lastName")}
           placeholderTextColor={colors.bodyMuted}
           style={styles.input}
           autoCapitalize="words"
           autoCorrect={false}
           textContentType="familyName"
-          accessibilityLabel="Last name"
+          accessibilityLabel={tAuth("lastName")}
         />
         <TextInput
           value={phone}
           onChangeText={(value) => setPhone(formatPhoneInput(value))}
-          placeholder="Phone"
+          placeholder={tAuth("phone")}
           placeholderTextColor={colors.bodyMuted}
           style={styles.input}
           keyboardType="phone-pad"
           textContentType="telephoneNumber"
-          accessibilityLabel="Phone"
+          accessibilityLabel={tAuth("phone")}
         />
         <TextInput
           value={email}
           onChangeText={setEmail}
-          placeholder="Email"
+          placeholder={tAuth("email")}
           placeholderTextColor={colors.bodyMuted}
           style={styles.input}
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
           textContentType="emailAddress"
-          accessibilityLabel="Email"
+          accessibilityLabel={tAuth("email")}
         />
         <AuthPasswordInput
           value={password}
           onChangeText={setPassword}
-          placeholder="Password"
+          placeholder={tAuth("password")}
           textContentType="newPassword"
           autoComplete="password-new"
-          accessibilityLabel="Password"
+          accessibilityLabel={tAuth("password")}
         />
         <AuthPasswordInput
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          placeholder="Confirm password"
+          placeholder={tAuth("confirmPassword")}
           textContentType="newPassword"
           autoComplete="password-new"
-          accessibilityLabel="Confirm password"
+          accessibilityLabel={tAuth("confirmPassword")}
         />
 
         {formError ? <Text style={styles.formError}>{formError}</Text> : null}
@@ -207,13 +208,13 @@ export default function RegisterRoute() {
             busy && styles.submitDisabled,
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Create account and continue"
+          accessibilityLabel={tAuth("createAccount")}
           accessibilityState={{ disabled: busy }}
         >
           {busy ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.submitLabel}>Sign up</Text>
+            <Text style={styles.submitLabel}>{tAuth("createAccount")}</Text>
           )}
         </Pressable>
       </View>
@@ -222,10 +223,10 @@ export default function RegisterRoute() {
         onPress={() => router.replace("/login")}
         style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
         accessibilityRole="button"
-        accessibilityLabel="Go to sign in"
+        accessibilityLabel={tCommon("login")}
       >
-        <Text style={styles.linkText}>Already have an account? </Text>
-        <Text style={styles.linkStrong}>Sign in</Text>
+        <Text style={styles.linkText}>{tAuth("alreadyHavePrompt")} </Text>
+        <Text style={styles.linkStrong}>{tCommon("login")}</Text>
       </Pressable>
     </AuthScreenShell>
   );

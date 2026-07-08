@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { scheduleCopy } from "../scheduleCopy";
+import { useScheduleCopy } from "../useScheduleCopy";
 import {
   ScheduleFilterField,
   type ScheduleFilterOption,
@@ -22,6 +22,8 @@ export function ScheduleFiltersHeader({
   onClassTypeChange,
   onInstructorChange,
 }: ScheduleFiltersHeaderProps) {
+  const scheduleCopy = useScheduleCopy();
+
   return (
     <View style={styles.grid}>
       <ScheduleFilterField

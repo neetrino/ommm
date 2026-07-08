@@ -5,7 +5,7 @@ import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
-import { packagesCopy } from "../../../lib/packages/packagesCopy";
+import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { PackageSubscribeSheet } from "../../packages/components/PackageSubscribeSheet";
 import {
@@ -25,6 +25,7 @@ import { fontFamilies } from "../../../theme/fontFamilies";
 export function MemberPackagesScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const packagesCopy = usePackagesCopy();
   const { isSignedIn } = useSession();
   const {
     mode,

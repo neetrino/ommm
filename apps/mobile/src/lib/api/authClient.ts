@@ -12,6 +12,8 @@ export type AuthUserSummary = {
   lastName: string | null;
   /** Public path or absolute URL for custom Home banner; null if unset. */
   homeImageUrl: string | null;
+  /** UI locale preference from the API (`hy` | `en` | `ru`). */
+  locale?: string | null;
 };
 
 export type AuthSuccessResponse = {
@@ -62,6 +64,13 @@ function isAuthUserSummary(value: unknown): value is AuthUserSummary {
   ) {
     return false;
   }
+  if (
+    u.locale !== null &&
+    u.locale !== undefined &&
+    typeof u.locale !== "string"
+  ) {
+    return false;
+  }
   return true;
 }
 
@@ -71,6 +80,7 @@ function mapAuthUser(u: {
   name: string | null;
   lastName?: string | null;
   homeImageUrl?: string | null;
+  locale?: string | null;
 }): AuthUserSummary {
   return {
     role: u.role,
@@ -81,6 +91,7 @@ function mapAuthUser(u: {
       u.homeImageUrl === undefined || u.homeImageUrl === null
         ? null
         : u.homeImageUrl,
+    locale: u.locale === undefined || u.locale === null ? null : u.locale,
   };
 }
 
@@ -172,6 +183,7 @@ async function postAuth(path: string, body: unknown): Promise<AuthSuccessRespons
       name: u.name ?? null,
       lastName: (u as { lastName?: string | null }).lastName ?? null,
       homeImageUrl: u.homeImageUrl ?? null,
+      locale: (u as { locale?: string | null }).locale ?? null,
     }),
   };
 }
@@ -192,6 +204,7 @@ export async function authRegister(params: {
   name: string;
   lastName: string;
   phone: string;
+  locale?: string;
 }): Promise<AuthSuccessResponse> {
   return postAuth("/v1/auth/register", {
     email: params.email.trim().toLowerCase(),
@@ -199,6 +212,7 @@ export async function authRegister(params: {
     name: params.name.trim(),
     lastName: params.lastName.trim(),
     phone: params.phone.trim(),
+    locale: params.locale,
   });
 }
 
@@ -256,5 +270,6 @@ export async function fetchSessionUser(accessToken: string): Promise<AuthUserSum
     name: u.name ?? null,
     lastName: (u as { lastName?: string | null }).lastName ?? null,
     homeImageUrl: (u as { homeImageUrl?: string | null }).homeImageUrl ?? null,
+    locale: (u as { locale?: string | null }).locale ?? null,
   });
 }

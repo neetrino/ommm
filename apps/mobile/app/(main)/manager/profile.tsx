@@ -1,10 +1,8 @@
 import { PlaceholderTabScreen } from "../../../src/features/shell/PlaceholderTabScreen";
+import { usePlaceholderTabCopy } from "../../../src/features/shell/usePlaceholderTabCopy";
 
 export default function ManagerProfileMobileRoute() {
-  return (
-    <PlaceholderTabScreen
-      title="Profile"
-      subtitle="Studio operations profile details are available on the web app."
-    />
-  );
+  const copy = usePlaceholderTabCopy("MANAGER", "profile");
+
+  return <PlaceholderTabScreen title={copy.title} subtitle={copy.subtitle} />;
 }

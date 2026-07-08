@@ -1,21 +1,3 @@
-/** Copy aligned with web `marketingPages.schedule`. */
-export const scheduleCopy = {
-  pageTitle: "Find a Class",
-  filterClassTypeAll: "All class types",
-  filterInstructorAll: "All instructors",
-  prevDatesAria: "Previous dates",
-  nextDatesAria: "Next dates",
-  emptyTitle: "Nothing scheduled for this day",
-  emptyBody:
-    "Try another date or adjust your filters — new classes open throughout the week.",
-  loading: "Loading…",
-  loadError: "Could not load schedule",
-  minutesShort: (count: number) => `${count} min`,
-  spotsLeft: (count: number) => (count === 1 ? "1 spot left" : `${count} spots left`),
-  spotsFull: "Full",
-  bookCta: "Book",
-} as const;
-
 export function formatScheduleSelectedDayLabel(date: Date, locale: string): string {
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
   const day = String(date.getDate()).padStart(2, "0");

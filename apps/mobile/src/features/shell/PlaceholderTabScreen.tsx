@@ -6,12 +6,12 @@ import { colors, layout, space, typography } from "../../theme/tokens";
 
 type PlaceholderTabScreenProps = {
   title: string;
-  subtitle?: string;
+  subtitle: string;
 };
 
 export function PlaceholderTabScreen({
   title,
-  subtitle = "This section will connect to the API when endpoints are available.",
+  subtitle,
 }: PlaceholderTabScreenProps) {
   const insets = useSafeAreaInsets();
   const bottomPad =

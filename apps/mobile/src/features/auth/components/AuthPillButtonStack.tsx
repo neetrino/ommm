@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import { colors, radii, shadows, space, typography } from "../../../theme/tokens";
 
 /** Share of screen width for the stacked auth CTAs (reference ~80–85%). */
 const AUTH_STACK_WIDTH_RATIO = 0.82;
@@ -17,6 +18,8 @@ export function AuthPillButtonStack({
   onSignInPress,
   onCreateAccountPress,
 }: AuthPillButtonStackProps) {
+  const tCommon = useTranslations("common");
+  const tAuth = useTranslations("auth.register");
   const { width: screenWidth } = useWindowDimensions();
   const stackWidth = screenWidth * AUTH_STACK_WIDTH_RATIO;
 
@@ -26,17 +29,17 @@ export function AuthPillButtonStack({
         onPress={onSignInPress}
         style={({ pressed }) => [styles.primary, pressed && styles.pressed]}
         accessibilityRole="button"
-        accessibilityLabel="Sign in"
+        accessibilityLabel={tCommon("login")}
       >
-        <Text style={styles.primaryLabel}>Sign in</Text>
+        <Text style={styles.primaryLabel}>{tCommon("login")}</Text>
       </Pressable>
       <Pressable
         onPress={onCreateAccountPress}
         style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}
         accessibilityRole="button"
-        accessibilityLabel="Create account"
+        accessibilityLabel={tAuth("createAccount")}
       >
-        <Text style={styles.secondaryLabel}>Create account</Text>
+        <Text style={styles.secondaryLabel}>{tAuth("createAccount")}</Text>
       </Pressable>
     </View>
   );

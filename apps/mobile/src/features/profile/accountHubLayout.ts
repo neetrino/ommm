@@ -94,6 +94,10 @@ export const accountHubLayout = StyleSheet.create({
   menuCard: {
     overflow: "hidden",
   },
+  languageRow: {
+    marginTop: space.md,
+    marginBottom: space.sm,
+  },
   menuRow: {
     flexDirection: "row",
     alignItems: "center",

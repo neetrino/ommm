@@ -2,21 +2,21 @@ import type { WaitlistMineRow } from "../../../lib/api/memberClient";
 import type { WaitlistItem } from "../../../lib/mocks/homeMock";
 import { formatSessionScheduleShort } from "../../../lib/member/formatSessionLabels";
 
-const DEFAULT_LOCALE = "en-US";
+export type WaitlistBadgeFormatter = (args: {
+  index: number;
+  status: string;
+}) => string;
 
 export function waitlistRowsToItems(
   rows: WaitlistMineRow[],
-  locale = DEFAULT_LOCALE,
+  locale: string,
+  formatBadge: WaitlistBadgeFormatter,
 ): WaitlistItem[] {
-  return rows.map((row, index) => {
-    const statusLabel =
-      row.status === "OFFERED" ? "Spot offered" : `#${row.position} in line`;
-    return {
-      id: row.id,
-      spotLabel: statusLabel.toUpperCase(),
-      title: row.session.classType.name,
-      scheduleLabel: formatSessionScheduleShort(row.session.startsAt, locale),
-      variant: index % 2 === 0 ? "light" : "dark",
-    } satisfies WaitlistItem;
-  });
+  return rows.map((row, index) => ({
+    id: row.id,
+    spotLabel: formatBadge({ index: index + 1, status: row.status }).toUpperCase(),
+    title: row.session.classType.name,
+    scheduleLabel: formatSessionScheduleShort(row.session.startsAt, locale),
+    variant: index % 2 === 0 ? "light" : "dark",
+  }));
 }

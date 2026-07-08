@@ -2,12 +2,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { SCHEDULE_EMPTY_GRADIENT } from "../../../lib/schedule/schedulePageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { scheduleCopy } from "../scheduleCopy";
+import { useScheduleCopy } from "../useScheduleCopy";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
 
 const CARD_RADIUS = scheduleLayout.emptyRadius;
 
 export function ScheduleEmptyState() {
+  const scheduleCopy = useScheduleCopy();
+
   return (
     <View style={styles.shadowShell}>
       <View style={styles.clipShell}>

@@ -3,8 +3,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import { AuthPillButtonStack } from "../../../features/auth/components/AuthPillButtonStack";
+import { useHomeMarketingCopy } from "../hooks/useHomeContent";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { homeMarketingCopy } from "../content/homeMarketingCopy";
 import {
   colors,
   radii,
@@ -33,12 +33,13 @@ export function HomeHeroSection({
   onPreviewPress,
 }: HomeHeroSectionProps) {
   const { width } = useWindowDimensions();
+  const copy = useHomeMarketingCopy();
   const horizontalPad = space.screenHorizontal;
   const imageMaxWidth = Math.min(width - horizontalPad * 2, layoutMaxImageWidth(width));
 
   const primaryLabel = isSignedIn
-    ? homeMarketingCopy.hero.primaryCtaSignedIn
-    : homeMarketingCopy.hero.primaryCtaSignedOut;
+    ? copy.hero.primaryCtaSignedIn
+    : copy.hero.primaryCtaSignedOut;
 
   return (
     <View style={[styles.section, { paddingHorizontal: horizontalPad }]}>
@@ -47,14 +48,14 @@ export function HomeHeroSection({
         <View style={[styles.glowOrb, styles.glowOrbRight]} />
       </View>
 
-      <Text style={styles.eyebrow}>{homeMarketingCopy.hero.eyebrow}</Text>
+      <Text style={styles.eyebrow}>{copy.hero.eyebrow}</Text>
 
       <Text style={styles.display}>
-        {homeMarketingCopy.hero.titleLine1}{" "}
-        <Text style={styles.displayItalic}>{homeMarketingCopy.hero.titleAccent}</Text>
+        {copy.hero.titleLine1}{" "}
+        <Text style={styles.displayItalic}>{copy.hero.titleAccent}</Text>
       </Text>
 
-      <Text style={styles.lead}>{homeMarketingCopy.hero.lead}</Text>
+      <Text style={styles.lead}>{copy.hero.lead}</Text>
 
       {isSignedIn ? (
         <View style={styles.ctaRow}>
@@ -70,9 +71,9 @@ export function HomeHeroSection({
             onPress={onSecondaryPress}
             style={({ pressed }) => [styles.ctaGhost, pressed && styles.ctaPressed]}
             accessibilityRole="button"
-            accessibilityLabel={homeMarketingCopy.hero.secondaryCta}
+            accessibilityLabel={copy.hero.secondaryCta}
           >
-            <Text style={styles.ctaGhostLabel}>{homeMarketingCopy.hero.secondaryCta}</Text>
+            <Text style={styles.ctaGhostLabel}>{copy.hero.secondaryCta}</Text>
           </Pressable>
         </View>
       ) : (
@@ -86,8 +87,8 @@ export function HomeHeroSection({
 
       <Text style={styles.footnote}>
         {isSignedIn
-          ? homeMarketingCopy.hero.footnote
-          : homeMarketingCopy.hero.footnoteSignedOut}
+          ? copy.hero.footnote
+          : copy.hero.footnoteSignedOut}
       </Text>
 
       <Pressable
@@ -99,7 +100,7 @@ export function HomeHeroSection({
           shadows.exploreHero,
         ]}
         accessibilityRole="button"
-        accessibilityLabel={`${homeMarketingCopy.hero.previewTitle}. ${homeMarketingCopy.hero.previewCta}`}
+        accessibilityLabel={`${copy.hero.previewTitle}. ${copy.hero.previewCta}`}
       >
         <View style={styles.previewImageWrap}>
           <Image
@@ -115,10 +116,10 @@ export function HomeHeroSection({
             style={StyleSheet.absoluteFill}
           />
           <View style={styles.previewCopy}>
-            <Text style={styles.previewEyebrow}>{homeMarketingCopy.hero.previewEyebrow}</Text>
-            <Text style={styles.previewTitle}>{homeMarketingCopy.hero.previewTitle}</Text>
+            <Text style={styles.previewEyebrow}>{copy.hero.previewEyebrow}</Text>
+            <Text style={styles.previewTitle}>{copy.hero.previewTitle}</Text>
             <Text style={styles.previewCta}>
-              {homeMarketingCopy.hero.previewCta}
+              {copy.hero.previewCta}
               <Text style={styles.previewArrow}> →</Text>
             </Text>
           </View>

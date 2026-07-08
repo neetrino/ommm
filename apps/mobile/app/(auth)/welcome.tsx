@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../src/auth/SessionProvider";
 import { AuthPillButtonStack } from "../../src/features/auth/components/AuthPillButtonStack";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { useTranslations } from "../../src/i18n/I18nProvider";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, space, typography } from "../../src/theme/tokens";
 
@@ -12,6 +13,8 @@ const MEDITATION_ICON_SIZE = 64;
 export default function WelcomeRoute() {
   const router = useRouter();
   const { isReady, isSignedIn, homeHref } = useSession();
+  const tBrand = useTranslations("common");
+  const tHome = useTranslations("dashboard.subtitles.user");
 
   if (isReady && isSignedIn) {
     return <Redirect href={homeHref} />;
@@ -36,11 +39,9 @@ export default function WelcomeRoute() {
           accessibilityIgnoresInvertColors
         />
         <Text style={styles.title} accessibilityRole="header">
-          Welcome
+          {tBrand("brand")}
         </Text>
-        <Text style={styles.lead}>
-          Sign in to continue to your classes, schedule, and profile.
-        </Text>
+        <Text style={styles.lead}>{tHome("home")}</Text>
       </View>
 
       <View style={styles.actions}>

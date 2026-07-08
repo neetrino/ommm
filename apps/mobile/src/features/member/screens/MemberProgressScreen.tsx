@@ -3,11 +3,17 @@ import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import { fetchMemberMe, type MemberMePayload } from "../../../lib/api/memberClient";
+import { useLocale, useTranslations } from "../../../i18n/I18nProvider";
+import { intlLocaleTag } from "../../../i18n/locales";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { colors, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
 export function MemberProgressScreen() {
+  const locale = useLocale();
+  const intlLocale = intlLocaleTag(locale);
+  const tProgress = useTranslations("userPages.progress");
+  const tDashboard = useTranslations("account.dashboard");
   const [data, setData] = useState<MemberMePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,10 +28,12 @@ export function MemberProgressScreen() {
       const me = await fetchMemberMe(token);
       setData(me);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load progress");
+      setError(
+        e instanceof Error ? e.message : tDashboard("waitlist.error"),
+      );
       setData(null);
     }
-  }, []);
+  }, [tDashboard]);
 
   useFocusEffect(
     useCallback(() => {
@@ -36,10 +44,10 @@ export function MemberProgressScreen() {
   return (
     <View style={styles.root}>
       <GradientBackdrop />
-      <Text style={styles.title}>Progress</Text>
+      <Text style={styles.title}>{tProgress("title")}</Text>
       {error !== null ? <Text style={styles.error}>{error}</Text> : null}
       {data !== null && data.achievements.length === 0 ? (
-        <Text style={styles.meta}>No achievements yet — keep training.</Text>
+        <Text style={styles.meta}>{tProgress("achievementsEmpty")}</Text>
       ) : null}
       {data !== null && data.achievements.length > 0 ? (
         <FlatList
@@ -51,7 +59,9 @@ export function MemberProgressScreen() {
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Text style={styles.cardDesc}>{item.description}</Text>
               <Text style={styles.cardDate}>
-                {new Date(item.unlockedAt).toLocaleDateString()}
+                {tProgress("unlocked", {
+                  date: new Date(item.unlockedAt).toLocaleDateString(intlLocale),
+                })}
               </Text>
             </View>
           )}

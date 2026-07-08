@@ -5,9 +5,9 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import {
-  type RoleTabItem,
-  tabItemsForRole,
-} from "../../../navigation/roleTabs";
+  type TranslatedRoleTabItem,
+  useRoleTabs,
+} from "../../../navigation/useRoleTabs";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, gradients, layout, radii, shadows, space } from "../../../theme/tokens";
 
@@ -26,7 +26,7 @@ export function FloatingTabBar() {
   const router = useRouter();
   const pathname = usePathname();
   const { role } = useSession();
-  const tabItems: RoleTabItem[] = tabItemsForRole(role);
+  const tabItems: TranslatedRoleTabItem[] = useRoleTabs(role);
 
   const bottom = Math.max(insets.bottom, space.sm) + space.xs;
 

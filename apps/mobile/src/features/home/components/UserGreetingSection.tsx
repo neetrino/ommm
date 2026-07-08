@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, layout, radii, space } from "../../../theme/tokens";
 
@@ -17,6 +18,8 @@ export function UserGreetingSection({
   avatarImageUri,
   avatarInitials,
 }: UserGreetingSectionProps) {
+  const tDashboard = useTranslations("account.dashboard");
+
   return (
     <View style={styles.row}>
       <View style={styles.leftCluster}>
@@ -42,13 +45,13 @@ export function UserGreetingSection({
           </View>
         </View>
         <View style={styles.welcomeBlock}>
-          <Text style={styles.welcomeLine}>Welcome back,</Text>
+          <Text style={styles.welcomeLine}>{tDashboard("greeting")}</Text>
           <Text style={styles.welcomeLine}>{displayName}</Text>
         </View>
       </View>
       <View style={styles.headlineBlock}>
-        <Text style={styles.headlinePlain}>Find your</Text>
-        <Text style={styles.headlineAccent}>center today.</Text>
+        <Text style={styles.headlinePlain}>{tDashboard("titleStart")}</Text>
+        <Text style={styles.headlineAccent}>{tDashboard("titleAccent")}</Text>
       </View>
     </View>
   );

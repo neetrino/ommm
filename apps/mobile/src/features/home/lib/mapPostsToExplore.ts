@@ -1,21 +1,20 @@
 import type { ContentPostRow } from "../../../lib/api/memberClient";
 import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
-import { homeMock } from "../../../lib/mocks/homeMock";
+import type { ExploreFallbackContent } from "../hooks/useHomeContent";
 
 function typeToTag(type: string): string {
   return type.replace(/_/g, " ").slice(0, 18).toUpperCase();
 }
 
-export function postsToExploreContent(posts: ContentPostRow[]): {
-  journalEyebrow: string;
-  journalTitle: string;
-  tiles: ExploreTileMock[];
-} {
+export function postsToExploreContent(
+  posts: ContentPostRow[],
+  fallback: ExploreFallbackContent,
+): ExploreFallbackContent {
   if (posts.length === 0) {
     return {
-      journalEyebrow: homeMock.explore.journalEyebrow,
-      journalTitle: homeMock.explore.journalTitle,
-      tiles: [...homeMock.explore.tiles],
+      journalEyebrow: fallback.journalEyebrow,
+      journalTitle: fallback.journalTitle,
+      tiles: [...fallback.tiles],
     };
   }
   const [first, ...rest] = posts;
@@ -32,6 +31,6 @@ export function postsToExploreContent(posts: ContentPostRow[]): {
           tagVariant: i % 2 === 0 ? "light" : "dark",
           imageLayout: i % 2 === 0 ? "square" : "roundedPortrait",
         }))
-      : [...homeMock.explore.tiles];
+      : [...fallback.tiles];
   return { journalEyebrow, journalTitle, tiles };
 }

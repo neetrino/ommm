@@ -7,6 +7,7 @@ import {
   fetchWithReachabilityHint,
 } from "./authClient";
 import { getApiBaseUrl, joinApiPath } from "./config";
+import type { AppUiLocale } from "../../i18n/locales";
 
 export type UploadPickResult = {
   uri: string;
@@ -54,6 +55,31 @@ export async function patchPassword(params: {
     throw new Error("Unexpected response from server");
   }
   return { message: (parsed as { message: string }).message };
+}
+
+export async function patchUserLocale(locale: AppUiLocale): Promise<void> {
+  const token = await readStoredAccessToken();
+  if (token === null) {
+    return;
+  }
+  const base = getApiBaseUrl();
+  const res = await fetchWithReachabilityHint(
+    joinApiPath(base, "/v1/users/me"),
+    {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ locale }),
+    },
+    base,
+  );
+  if (!res.ok) {
+    const raw = await res.text();
+    throw new Error(extractErrorMessage(raw, res.statusText));
+  }
 }
 
 async function pickUriToBase64(uri: string): Promise<string> {

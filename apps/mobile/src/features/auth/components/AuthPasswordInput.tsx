@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCallback, useState } from "react";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
@@ -23,6 +24,7 @@ export function AuthPasswordInput({
   autoComplete,
   accessibilityLabel,
 }: AuthPasswordInputProps) {
+  const tAuth = useTranslations("auth.login");
   const [visible, setVisible] = useState(false);
   const toggle = useCallback(() => {
     setVisible((v) => !v);
@@ -45,7 +47,7 @@ export function AuthPasswordInput({
         onPress={toggle}
         style={({ pressed }) => [styles.eyeWrap, pressed && styles.eyePressed]}
         accessibilityRole="button"
-        accessibilityLabel={visible ? "Hide password" : "Show password"}
+        accessibilityLabel={visible ? tAuth("hidePassword") : tAuth("showPassword")}
         accessibilityState={{ selected: visible }}
         hitSlop={8}
       >

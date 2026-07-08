@@ -1,13 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
+import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
 import {
-  formatPackagePlanName,
   formatPackagePriceLabel,
   formatPackageValidityLabel,
   resolvePublicPackageTotalSessions,
 } from "../../../lib/packages/formatPackageDisplay";
-import { packagesCopy } from "../../../lib/packages/packagesCopy";
 import { PACKAGES_PAGE_MOBILE } from "../../../lib/packages/packagesPageTokens";
 import type { PublicPackagePlan } from "../../../lib/packages/publicPackagePlan";
 import { resolvePublicPackageFinalPriceCents } from "../../../lib/packages/publicPackagePlan";
@@ -36,8 +36,12 @@ function MetaRow({ label, value }: { label: string; value: string | null }) {
 
 function TypeSessionsBreakdown({
   rows,
+  typeLabel,
+  sessionLabel,
 }: {
   rows: ReturnType<typeof resolvePublicPackageTypeSessionRows>;
+  typeLabel: string;
+  sessionLabel: string;
 }) {
   if (rows.length === 0) {
     return null;
@@ -45,9 +49,9 @@ function TypeSessionsBreakdown({
   return (
     <View style={styles.mixBreakdown}>
       <View style={styles.mixHeader}>
-        <Text style={styles.mixHeaderCell}>{packagesCopy.typeSessionsType}</Text>
+        <Text style={styles.mixHeaderCell}>{typeLabel}</Text>
         <Text style={[styles.mixHeaderCell, styles.mixHeaderSession]}>
-          {packagesCopy.typeSessionsSession}
+          {sessionLabel}
         </Text>
       </View>
       {rows.map((row) => (
@@ -65,8 +69,10 @@ export function PackageMobileTierCard({
   plan,
   onSubscribePress,
 }: PackageMobileTierCardProps) {
+  const packagesCopy = usePackagesCopy();
+  const displayCopy = usePackageDisplayCopy();
   const [isMixExpanded, setIsMixExpanded] = useState(false);
-  const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+  const packageName = displayCopy.formatPlanName(plan.name, plan.sessionsPerMonth);
   const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
   const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
   const totalSessions = resolvePublicPackageTotalSessions(plan);
@@ -86,7 +92,10 @@ export function PackageMobileTierCard({
   const originalPrice = hasDiscount
     ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null })
     : null;
-  const validityLabel = formatPackageValidityLabel(plan);
+  const validityLabel = formatPackageValidityLabel(
+    plan,
+    packagesCopy.formatPackageValidityDays,
+  );
   const guestCount = plan.guestCount ?? 0;
   const guestLabel = guestCount > 0 ? String(guestCount) : null;
   const priceRowValue =
@@ -117,7 +126,13 @@ export function PackageMobileTierCard({
         ) : null}
       </View>
 
-      {isMixExpanded ? <TypeSessionsBreakdown rows={mixSessionRows} /> : null}
+      {isMixExpanded ? (
+        <TypeSessionsBreakdown
+          rows={mixSessionRows}
+          typeLabel={packagesCopy.typeSessionsType}
+          sessionLabel={packagesCopy.typeSessionsSession}
+        />
+      ) : null}
 
       <View style={styles.metaList}>
         <MetaRow label={packagesCopy.tableTotalSessions} value={totalSessionsLabel} />

@@ -22,6 +22,7 @@ import {
   formatSessionStartLabel,
 } from "../../../lib/member/formatSessionLabels";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
 import { colors, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
@@ -39,6 +40,7 @@ function isSessionFull(s: ClassSessionRow): boolean {
 
 export function MemberClassesScreen() {
   const router = useRouter();
+  const bookingCopy = useMemberBookingCopy();
   const [sessions, setSessions] = useState<ClassSessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,12 +53,14 @@ export function MemberClassesScreen() {
       const rows = await fetchClassSessionsRange(range);
       setSessions(rows);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load classes");
+      setError(
+        e instanceof Error ? e.message : bookingCopy.loadClassesError,
+      );
       setSessions([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [bookingCopy.loadClassesError]);
 
   useFocusEffect(
     useCallback(() => {
@@ -74,16 +78,22 @@ export function MemberClassesScreen() {
     try {
       if (full) {
         await joinWaitlistSession(token, s.id);
-        Alert.alert("Waitlist", "You are on the waitlist for this class.");
+        Alert.alert(
+          bookingCopy.waitlistSuccessTitle,
+          bookingCopy.waitlistSuccessBody,
+        );
       } else {
         await bookSession(token, s.id);
-        Alert.alert("Booked", "Your spot is reserved.");
+        Alert.alert(
+          bookingCopy.bookSuccessTitle,
+          bookingCopy.bookSuccessBody,
+        );
       }
       await load();
     } catch (e) {
       Alert.alert(
-        "Could not complete",
-        e instanceof Error ? e.message : "Try again later.",
+        bookingCopy.actionFailedTitle,
+        e instanceof Error ? e.message : bookingCopy.actionFailedFallback,
       );
     }
   }
@@ -92,7 +102,7 @@ export function MemberClassesScreen() {
     <View style={styles.root}>
       <GradientBackdrop />
       {loading ? (
-        <Text style={styles.meta}>Loading schedule…</Text>
+        <Text style={styles.meta}>{bookingCopy.loading}</Text>
       ) : error !== null ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -101,22 +111,30 @@ export function MemberClassesScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listPad}
           ListEmptyComponent={
-            <Text style={styles.meta}>No classes in the next two weeks.</Text>
+            <Text style={styles.meta}>{bookingCopy.emptyClasses}</Text>
           }
           renderItem={({ item }) => {
             const full = isSessionFull(item);
-            const coach = item.coach.user.name?.trim() || "Coach";
+            const coach = item.coach.user.name?.trim() || bookingCopy.coachFallback;
             const timeLabel = formatSessionStartLabel(
               item.startsAt,
-              "en-US",
+              bookingCopy.intlLocale,
             );
-            const dur = formatDurationMinutes(item.startsAt, item.endsAt);
+            const dur = formatDurationMinutes(
+              item.startsAt,
+              item.endsAt,
+              bookingCopy.durationMinutes,
+            );
             return (
               <View style={styles.card}>
                 <Text style={styles.title}>{item.classType.name}</Text>
                 <Text style={styles.line}>{timeLabel}</Text>
                 <Text style={styles.lineMuted}>
-                  {dur} · {coach} · {item._count.bookings}/{item.capacity} booked
+                  {dur} · {coach} ·{" "}
+                  {bookingCopy.spotsBookedLine(
+                    item._count.bookings,
+                    item.capacity,
+                  )}
                 </Text>
                 <Pressable
                   onPress={() => void onBookOrWaitlist(item)}
@@ -126,7 +144,7 @@ export function MemberClassesScreen() {
                   ]}
                 >
                   <Text style={styles.ctaText}>
-                    {full ? "Join waitlist" : "Book"}
+                    {full ? bookingCopy.waitlistCta : bookingCopy.bookCta}
                   </Text>
                 </Pressable>
               </View>

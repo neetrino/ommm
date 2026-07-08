@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
-import { packagesCopy } from "../../../lib/packages/packagesCopy";
+import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import type { PackagesPageAccordionCategory } from "../../../lib/packages/packagesPageCategoryData";
 import {
   buildPackagesPageCardGradientColors,
@@ -80,6 +80,7 @@ export function PackageCategoryAccordionItem({
   onToggle,
   onSubscribePress,
 }: PackageCategoryAccordionItemProps) {
+  const packagesCopy = usePackagesCopy();
   const gradientColors = buildPackagesPageCardGradientColors(category.gradientStartColor);
   const animation = usePackageCategoryAccordionAnimation(isExpanded);
   const hasPlans = category.plans.length > 0;

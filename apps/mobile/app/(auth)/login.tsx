@@ -15,6 +15,7 @@ import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthBackToHomeRow, AUTH_BACK_TO_HOME_TOP_RESERVE } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { useTranslations } from "../../src/i18n/I18nProvider";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
@@ -30,6 +31,9 @@ const LOGIN_CONTENT_LIFT =
 
 export default function LoginRoute() {
   const router = useRouter();
+  const tCommon = useTranslations("common");
+  const tAuth = useTranslations("auth.login");
+  const tRegister = useTranslations("auth.register");
   const { isReady, isSignedIn, homeHref, signInWithPassword } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,11 +47,11 @@ export default function LoginRoute() {
       return;
     }
     if (!isValidEmail(email)) {
-      setFormError("Please enter a valid email address.");
+      setFormError(tRegister("invalidEmail"));
       return;
     }
     if (!password.trim()) {
-      setFormError("Please enter your password.");
+      setFormError(tRegister("passwordRequired"));
       return;
     }
 
@@ -57,14 +61,13 @@ export default function LoginRoute() {
       const nextHref = await signInWithPassword(email, password);
       router.replace(nextHref);
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Something went wrong. Please try again.";
+      const message = e instanceof Error ? e.message : tAuth("loginFailed");
       setFormError(message);
     } finally {
       setBusy(false);
       submitLockRef.current = false;
     }
-  }, [busy, email, password, router, signInWithPassword]);
+  }, [busy, email, password, router, signInWithPassword, tAuth, tRegister]);
 
   if (isReady && isSignedIn) {
     return <Redirect href={homeHref} />;
@@ -95,19 +98,16 @@ export default function LoginRoute() {
             />
           </View>
           <Text style={styles.title} accessibilityRole="header">
-            Sign in
+            {tCommon("login")}
           </Text>
-          <Text style={styles.lead}>
-            Enter your email and password to access your classes, schedule, and
-            profile.
-          </Text>
+          <Text style={styles.lead}>{tAuth("lead")}</Text>
         </View>
 
         <View style={styles.form}>
           <TextInput
             value={email}
             onChangeText={setEmail}
-            placeholder="Email"
+            placeholder={tAuth("email")}
             placeholderTextColor={colors.bodyMuted}
             style={styles.input}
             autoCapitalize="none"
@@ -115,15 +115,15 @@ export default function LoginRoute() {
             keyboardType="email-address"
             textContentType="username"
             autoComplete="email"
-            accessibilityLabel="Email"
+            accessibilityLabel={tAuth("email")}
           />
           <AuthPasswordInput
             value={password}
             onChangeText={setPassword}
-            placeholder="Password"
+            placeholder={tAuth("password")}
             textContentType="password"
             autoComplete="password"
-            accessibilityLabel="Password"
+            accessibilityLabel={tAuth("password")}
           />
 
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
@@ -137,13 +137,13 @@ export default function LoginRoute() {
               busy && styles.submitDisabled,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Sign in and continue"
+            accessibilityLabel={tAuth("continue")}
             accessibilityState={{ disabled: busy }}
           >
             {busy ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.submitLabel}>Sign in</Text>
+              <Text style={styles.submitLabel}>{tAuth("continue")}</Text>
             )}
           </Pressable>
         </View>
@@ -152,10 +152,10 @@ export default function LoginRoute() {
           onPress={() => router.push("/register")}
           style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
           accessibilityRole="button"
-          accessibilityLabel="Create a new account"
+          accessibilityLabel={tRegister("createAccount")}
         >
-          <Text style={styles.linkText}>New to the studio? </Text>
-          <Text style={styles.linkStrong}>Create account</Text>
+          <Text style={styles.linkText}>{tAuth("noAccountPrompt")} </Text>
+          <Text style={styles.linkStrong}>{tCommon("register")}</Text>
         </Pressable>
       </View>
     </AuthScreenShell>

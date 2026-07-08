@@ -3,6 +3,7 @@ import { Image } from "expo-image";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 
@@ -12,6 +13,8 @@ type AppHeaderProps = {
 
 export function AppHeader({ onBookPress }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
+  const tHome = useTranslations("home");
+  const tMarketing = useTranslations("marketingUi");
 
   return (
     <View
@@ -37,9 +40,9 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
               pressed && styles.bookButtonPressed,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Book now"
+            accessibilityLabel={tHome("bookNow")}
           >
-            <Text style={styles.bookLabel}>BOOK NOW</Text>
+            <Text style={styles.bookLabel}>{tMarketing("bookAClass").toUpperCase()}</Text>
           </Pressable>
         </View>
       </BlurView>

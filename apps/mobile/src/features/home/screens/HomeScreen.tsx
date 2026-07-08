@@ -12,7 +12,6 @@ import {
   guestPublicTabPath,
   userMemberPath,
 } from "../../../navigation/memberPaths";
-import { homeMock } from "../../../lib/mocks/homeMock";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { colors, layout, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
@@ -28,12 +27,18 @@ import {
 import { NextClassSection } from "../components/NextClassSection";
 import { UserGreetingSection } from "../components/UserGreetingSection";
 import { WaitlistSection } from "../components/WaitlistSection";
+import {
+  useHomeGiftContent,
+  useHomeMarketingCopy,
+} from "../hooks/useHomeContent";
 import { useMemberHomeFeed } from "../hooks/useMemberHomeFeed";
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isSignedIn, userGreetingName, homeImageUri, profileInitials } = useSession();
+  const homeCopy = useHomeMarketingCopy();
+  const giftContent = useHomeGiftContent();
   const feed = useMemberHomeFeed(isSignedIn);
 
   const headerOffset = insets.top + 90;
@@ -104,7 +109,7 @@ export function HomeScreen() {
               onPress={() => router.push(userMemberPath("classes"))}
             />
             <GiftCardSection
-              content={homeMock.giftCard}
+              content={giftContent}
               onBuyPress={() => router.push(userMemberPath("packages"))}
             />
           </>
@@ -142,7 +147,7 @@ export function HomeScreen() {
               />
             </View>
             <GiftCardSection
-              content={homeMock.giftCard}
+              content={giftContent}
               onBuyPress={() => router.push("/login")}
             />
           </>

@@ -6,6 +6,8 @@ const monorepoRoot = path.resolve(projectRoot, "..", "..");
 
 const config = getDefaultConfig(projectRoot);
 
+config.watchFolders = [monorepoRoot];
+
 const reactResolveRoots = [projectRoot, monorepoRoot];
 
 const REACT_MODULES = new Set([

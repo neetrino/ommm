@@ -3,8 +3,10 @@ import { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useSession } from "../../auth/SessionProvider";
 import { useLogoutAction } from "../../auth/useLogoutAction";
+import { LanguageSwitcher } from "../../i18n/LanguageSwitcher";
+import { useTranslations } from "../../i18n/I18nProvider";
 import { accountHubLayout } from "./accountHubLayout";
-import { ACCOUNT_HUB_MENU_ITEMS } from "./accountHubMenu";
+import { useAccountHubMenuItems } from "./accountHubMenu";
 import { AccountHubHeader } from "./components/AccountHubHeader";
 import { AccountHubMenuRow } from "./components/AccountHubMenuRow";
 import { ProfileGlassCard } from "./components/ProfileGlassCard";
@@ -14,6 +16,8 @@ import { colors } from "../../theme/tokens";
 export function ProfileScreen() {
   const router = useRouter();
   const logout = useLogoutAction();
+  const tCommon = useTranslations("common");
+  const menuItems = useAccountHubMenuItems();
   const { userGreetingName, userEmail, homeImageUri, profileInitials } = useSession();
   const [logoutBusy, setLogoutBusy] = useState(false);
 
@@ -36,8 +40,12 @@ export function ProfileScreen() {
         initials={profileInitials}
       />
 
+      <View style={accountHubLayout.languageRow}>
+        <LanguageSwitcher />
+      </View>
+
       <ProfileGlassCard style={accountHubLayout.menuCard}>
-        {ACCOUNT_HUB_MENU_ITEMS.map((item, index) => (
+        {menuItems.map((item, index) => (
           <AccountHubMenuRow
             key={item.key}
             label={item.label}
@@ -53,7 +61,7 @@ export function ProfileScreen() {
           </View>
         ) : (
           <AccountHubMenuRow
-            label="Log out"
+            label={tCommon("logout")}
             icon="logout"
             onPress={onLogoutPress}
             danger

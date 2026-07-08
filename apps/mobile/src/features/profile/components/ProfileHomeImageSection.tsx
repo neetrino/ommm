@@ -10,6 +10,7 @@ import {
 import { useSession } from "../../../auth/SessionProvider";
 import type { UploadPickResult } from "../../../lib/api/usersClient";
 import { deleteHomeImage, uploadHomeImage } from "../../../lib/api/usersClient";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { colors } from "../../../theme/tokens";
 import { ProfileGlassCard } from "./ProfileGlassCard";
 import { profileHomeImageSectionStyles as styles } from "./profileHomeImageSection.styles";
@@ -18,6 +19,8 @@ const HOME_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
 export function ProfileHomeImageSection() {
   const { refreshProfile, homeImageUri, profileInitials } = useSession();
+  const tHomeImage = useTranslations("forms.homeImage");
+  const tProfile = useTranslations("userPages.profile");
   const [pendingPick, setPendingPick] = useState<UploadPickResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<{
@@ -40,7 +43,7 @@ export function ProfileHomeImageSection() {
     if (!perm.granted) {
       setFeedback({
         kind: "err",
-        text: "Photo library access is required to choose an image.",
+        text: tHomeImage("readFailed"),
       });
       return;
     }
@@ -63,7 +66,7 @@ export function ProfileHomeImageSection() {
     ) {
       setFeedback({
         kind: "err",
-        text: "Image is too large. Maximum size is 5 MB.",
+        text: tHomeImage("tooLarge"),
       });
       return;
     }
@@ -92,11 +95,11 @@ export function ProfileHomeImageSection() {
     setFeedback(null);
     try {
       await deleteHomeImage();
-      setFeedback({ kind: "ok", text: "Photo removed successfully." });
+      setFeedback({ kind: "ok", text: tHomeImage("deletePhotoSuccess") });
       await refreshProfile();
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "Something went wrong. Please try again.";
+        e instanceof Error ? e.message : tHomeImage("deletePhotoFailed");
       setFeedback({ kind: "err", text: message });
     } finally {
       setBusy(false);
@@ -112,24 +115,22 @@ export function ProfileHomeImageSection() {
     setFeedback(null);
     try {
       await uploadHomeImage(pendingPick);
-      setFeedback({ kind: "ok", text: "Photo updated successfully." });
+      setFeedback({ kind: "ok", text: tHomeImage("uploadSuccess") });
       setPendingPick(null);
       await refreshProfile();
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "Something went wrong. Please try again.";
+        e instanceof Error ? e.message : tHomeImage("uploadFailed");
       setFeedback({ kind: "err", text: message });
     } finally {
       setBusy(false);
     }
-  }, [busy, pendingPick, refreshProfile]);
+  }, [busy, pendingPick, refreshProfile, tHomeImage]);
 
   return (
     <ProfileGlassCard contentStyle={styles.card}>
-      <Text style={styles.sectionTitle}>Profile photo</Text>
-      <Text style={styles.sectionLead}>
-        Shown on your Home tab and account pages. JPG, PNG, or WEBP up to 5 MB.
-      </Text>
+      <Text style={styles.sectionTitle}>{tProfile("homeImage")}</Text>
+      <Text style={styles.sectionLead}>{tProfile("homeImageLead")}</Text>
 
       {displayPreviewUri !== null && displayPreviewUri !== "" ? (
         <View
@@ -143,11 +144,7 @@ export function ProfileHomeImageSection() {
             style={styles.previewImage}
             contentFit="cover"
             accessibilityRole="image"
-            accessibilityLabel={
-              hasPendingPreview
-                ? "Temporary profile photo preview"
-                : "Profile photo preview"
-            }
+            accessibilityLabel={tHomeImage("previewAlt")}
           />
         </View>
       ) : (
@@ -157,9 +154,7 @@ export function ProfileHomeImageSection() {
       )}
 
       {hasPendingPreview ? (
-        <Text style={styles.pendingHint}>
-          Preview — confirm to save this photo, or remove to choose another.
-        </Text>
+        <Text style={styles.pendingHint}>{tHomeImage("pendingHint")}</Text>
       ) : null}
 
       {feedback ? (
@@ -182,10 +177,10 @@ export function ProfileHomeImageSection() {
               busy && styles.btnDisabled,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Remove selected image"
+            accessibilityLabel={tHomeImage("removePending")}
             accessibilityState={{ disabled: busy }}
           >
-            <Text style={styles.removeLabel}>Remove</Text>
+            <Text style={styles.removeLabel}>{tHomeImage("removePending")}</Text>
           </Pressable>
 
           <Pressable
@@ -197,13 +192,13 @@ export function ProfileHomeImageSection() {
               busy && styles.btnDisabled,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Confirm profile photo"
+            accessibilityLabel={tHomeImage("confirm")}
             accessibilityState={{ disabled: busy }}
           >
             {busy ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.primaryLabel}>Confirm</Text>
+              <Text style={styles.primaryLabel}>{tHomeImage("confirm")}</Text>
             )}
           </Pressable>
         </View>
@@ -218,13 +213,13 @@ export function ProfileHomeImageSection() {
               busy && styles.btnDisabled,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Choose profile photo"
+            accessibilityLabel={tHomeImage("chooseImage")}
             accessibilityState={{ disabled: busy }}
           >
             {busy ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.primaryLabel}>Choose image</Text>
+              <Text style={styles.primaryLabel}>{tHomeImage("chooseImage")}</Text>
             )}
           </Pressable>
 
@@ -237,10 +232,10 @@ export function ProfileHomeImageSection() {
               busy && styles.btnDisabled,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Delete profile photo"
+            accessibilityLabel={tHomeImage("deletePhoto")}
             accessibilityState={{ disabled: busy }}
           >
-            <Text style={styles.removeLabel}>Delete photo</Text>
+            <Text style={styles.removeLabel}>{tHomeImage("deletePhoto")}</Text>
           </Pressable>
         </View>
       ) : (
@@ -253,13 +248,13 @@ export function ProfileHomeImageSection() {
             busy && styles.btnDisabled,
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Choose profile photo"
+          accessibilityLabel={tHomeImage("chooseImage")}
           accessibilityState={{ disabled: busy }}
         >
           {busy ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.primaryLabel}>Choose image</Text>
+            <Text style={styles.primaryLabel}>{tHomeImage("chooseImage")}</Text>
           )}
         </Pressable>
       )}
