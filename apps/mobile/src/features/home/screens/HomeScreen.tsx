@@ -12,10 +12,12 @@ import {
   guestPublicTabPath,
   userMemberPath,
 } from "../../../navigation/memberPaths";
+import { AppHeader } from "../../../components/layout/AppHeader";
+import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
+import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { colors, layout, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { AppHeader } from "../components/AppHeader";
 import { ExploreMoreButton } from "../components/ExploreMoreButton";
 import { ExploreSection } from "../components/ExploreSection";
 import { GiftCardSection } from "../components/GiftCardSection";
@@ -41,17 +43,10 @@ export function HomeScreen() {
   const giftContent = useHomeGiftContent();
   const feed = useMemberHomeFeed(isSignedIn);
 
-  const headerOffset = insets.top + 90;
+  const headerOffset = appHeaderScrollPaddingTop(insets.top);
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
-
-  const onHeaderBookPress = () => {
-    if (isSignedIn) {
-      router.push(userMemberPath("classes"));
-      return;
-    }
-    router.push("/login");
-  };
+  const onHeaderBookPress = useAppHeaderBookPress();
 
   return (
     <View style={styles.root}>

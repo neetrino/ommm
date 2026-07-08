@@ -23,6 +23,9 @@ import {
   type ScheduleNavState,
 } from "../../../lib/schedule/scheduleNav";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { AppHeader } from "../../../components/layout/AppHeader";
+import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
+import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
 import { ScheduleDateControls } from "../../schedule/components/ScheduleDateControls";
 import { ScheduleDayContent } from "../../schedule/components/ScheduleDayContent";
 import { ScheduleFiltersHeader } from "../../schedule/components/ScheduleFiltersHeader";
@@ -190,13 +193,18 @@ export function MemberScheduleScreen() {
 
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
+  const onHeaderBookPress = useAppHeaderBookPress();
+  const headerOffset = appHeaderScrollPaddingTop(insets.top);
 
   return (
     <View style={styles.root}>
       <GradientBackdrop />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: headerOffset, paddingBottom: bottomPad },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.pageTitle}>{scheduleCopy.pageTitle}</Text>
@@ -243,6 +251,7 @@ export function MemberScheduleScreen() {
           )}
         </ScheduleViewShell>
       </ScrollView>
+      <AppHeader onBookPress={onHeaderBookPress} />
     </View>
   );
 }
@@ -253,7 +262,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingTop: space.lg,
     paddingHorizontal: SCHEDULE_PAGE_MOBILE.pageHorizontalPaddingPx,
     gap: SCHEDULE_PAGE_MOBILE.pageTitleToShellGapPx,
   },

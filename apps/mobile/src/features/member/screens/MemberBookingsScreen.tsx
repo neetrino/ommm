@@ -10,6 +10,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { AppHeader } from "../../../components/layout/AppHeader";
+import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
+import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
 import { BookingsEmptyState } from "../components/bookings/BookingsEmptyState";
 import { BookingsErrorState } from "../components/bookings/BookingsErrorState";
 import { BookingsLoadingSkeleton } from "../components/bookings/BookingsLoadingSkeleton";
@@ -38,6 +41,8 @@ export function MemberBookingsScreen() {
 
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
+  const onHeaderBookPress = useAppHeaderBookPress();
+  const headerOffset = appHeaderScrollPaddingTop(insets.top);
 
   const onBrowseSchedule = () => {
     router.push("/user/schedule");
@@ -48,7 +53,10 @@ export function MemberBookingsScreen() {
       <GradientBackdrop />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: headerOffset, paddingBottom: bottomPad },
+        ]}
         keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl
@@ -107,6 +115,7 @@ export function MemberBookingsScreen() {
           </View>
         )}
       </ScrollView>
+      <AppHeader onBookPress={onHeaderBookPress} />
     </View>
   );
 }
@@ -117,7 +126,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingTop: space.lg,
     paddingHorizontal: BOOKINGS_PAGE_MOBILE.pageHorizontalPaddingPx,
     gap: BOOKINGS_PAGE_MOBILE.sectionGapPx,
     width: "100%",

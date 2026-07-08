@@ -4,6 +4,9 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { AppHeader } from "../../../components/layout/AppHeader";
+import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
+import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { layout, space } from "../../../theme/tokens";
 import { profileSectionLayout } from "../profileSectionLayout";
@@ -26,8 +29,11 @@ export function ProfileScreenShell({
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const tProfile = useTranslations("userPages.profile");
+  const onHeaderBookPress = useAppHeaderBookPress();
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.lg;
+  const topPad =
+    variant === "hub" ? appHeaderScrollPaddingTop(insets.top) : space.sm;
 
   return (
     <View style={profileSectionLayout.root}>
@@ -35,7 +41,7 @@ export function ProfileScreenShell({
       <ScrollView
         contentContainerStyle={[
           profileSectionLayout.content,
-          { paddingBottom: bottomPad },
+          { paddingTop: topPad, paddingBottom: bottomPad },
         ]}
         keyboardShouldPersistTaps="handled"
       >
@@ -56,6 +62,7 @@ export function ProfileScreenShell({
           </>
         )}
       </ScrollView>
+      {variant === "hub" ? <AppHeader onBookPress={onHeaderBookPress} /> : null}
     </View>
   );
 }

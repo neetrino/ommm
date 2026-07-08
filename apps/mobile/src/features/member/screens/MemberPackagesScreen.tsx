@@ -7,6 +7,9 @@ import { useSession } from "../../../auth/SessionProvider";
 import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { AppHeader } from "../../../components/layout/AppHeader";
+import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
+import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
 import { PackageSubscribeSheet } from "../../packages/components/PackageSubscribeSheet";
 import {
   PackagesEmptyState,
@@ -80,13 +83,18 @@ export function MemberPackagesScreen() {
 
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
+  const onHeaderBookPress = useAppHeaderBookPress();
+  const headerOffset = appHeaderScrollPaddingTop(insets.top);
 
   return (
     <View style={styles.root}>
       <GradientBackdrop />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: headerOffset, paddingBottom: bottomPad },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         {isSignedIn && showCatalog ? (
@@ -140,6 +148,8 @@ export function MemberPackagesScreen() {
         ) : null}
       </ScrollView>
 
+      <AppHeader onBookPress={onHeaderBookPress} />
+
       <PackageSubscribeSheet
         visible={subscribePlanId !== null}
         plan={selectedSubscribePlan}
@@ -158,7 +168,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingTop: space.lg,
     paddingHorizontal: PACKAGES_PAGE_MOBILE.pageHorizontalPaddingPx,
     gap: space.lg,
     width: "100%",
