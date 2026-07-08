@@ -196,7 +196,8 @@ export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   aspectRatio: `${HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX}`,
   figmaNodeId: "805:802",
   sectionBackground: "#8a7348",
-  objectPosition: "center center",
+  /** Desktop — slightly above center inside the shared hero band. */
+  objectPosition: "center 54%",
 } as const;
 
 /** Mobile promo slide — founding memberships portrait banner with baked-in copy. */

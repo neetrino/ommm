@@ -350,11 +350,12 @@
 
 @media (min-width: 744px) {
   .homeHeroPromoBackground {
-    object-position: var(--home-hero-promo-object-position, right center);
+    object-position: var(--home-hero-promo-object-position, center 54%);
   }
 
   .homeHeroPromoBackgroundDesktop {
     display: block;
+    object-position: var(--home-hero-promo-object-position, center 54%);
   }
 
   .homeHeroPromoBackgroundMobile {
@@ -362,7 +363,7 @@
   }
 
   .homeHeroPromoAspectSpacer {
-    aspect-ratio: var(--home-hero-promo-aspect-ratio, 1440 / 924);
+    display: none;
   }
 
   .homeHeroSectionPromo {
@@ -378,9 +379,10 @@
   }
 
   .homeHeroFramePromo {
-    min-height: unset;
-    max-height: unset;
-    padding-bottom: 0;
+    min-height: var(--home-hero-min-h-lg);
+    max-height: none;
+    height: auto;
+    padding-bottom: var(--home-schedule-hero-overlap-lg, 12rem);
   }
 
   .homeHeroSection {
