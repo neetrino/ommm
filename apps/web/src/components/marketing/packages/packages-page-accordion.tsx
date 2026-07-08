@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
+import { PackagesSlotReveal } from "@/components/marketing/packages/packages-slot-reveal";
 import { PackagesPageReveal } from "@/components/marketing/packages/packages-page-reveal";
 import {
   clampDesktopCardsPerRow,
@@ -118,7 +119,7 @@ export function PackagesPageAccordion({
               className={rowClassName}
               style={rowLayoutStyleVars(normalizedDesktopCardsPerRow, row.length)}
             >
-              {row.map((category) => (
+              {row.map((category, indexInRow) => (
                 <div
                   key={category.id}
                   className={resolveAccordionSlotClass(
@@ -126,7 +127,11 @@ export function PackagesPageAccordion({
                     rowExpandedCategory?.id === category.id,
                   )}
                 >
-                  <PackagesPageAccordionDesktopSlot
+                  <PackagesSlotReveal
+                    index={rowIndex * normalizedDesktopCardsPerRow + indexInRow}
+                    gridColumns={normalizedDesktopCardsPerRow}
+                  >
+                    <PackagesPageAccordionDesktopSlot
                     locale={locale}
                     category={category}
                     expandedCategory={rowExpandedCategory}
@@ -140,6 +145,7 @@ export function PackagesPageAccordion({
                     onOpen={updateExpandedCategory}
                     onClose={() => updateExpandedCategory(null)}
                   />
+                  </PackagesSlotReveal>
                 </div>
               ))}
             </div>
@@ -152,9 +158,10 @@ export function PackagesPageAccordion({
   const mobileContent = (
     <div className={cardStyles.mobileOnly}>
       <div className={accordionStyles.mobileAccordionStack} style={layoutStyleVars()}>
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <div key={category.id} className={accordionStyles.mobileAccordionStackItem}>
-            <PackagesPageAccordionMobileSlot
+            <PackagesSlotReveal index={index} gridColumns={1}>
+              <PackagesPageAccordionMobileSlot
               locale={locale}
               category={category}
               isExpanded={expandedCategory?.id === category.id}
@@ -168,6 +175,7 @@ export function PackagesPageAccordion({
               onOpen={updateExpandedCategory}
               onClose={() => updateExpandedCategory(null)}
             />
+            </PackagesSlotReveal>
           </div>
         ))}
       </div>
