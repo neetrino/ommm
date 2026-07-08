@@ -23,7 +23,9 @@ import {
 } from "../hooks/useMemberPackagesScreenState";
 import { colors, layout, space, typography } from "../../../theme/tokens";
 import { PACKAGES_PAGE_MOBILE } from "../../../lib/packages/packagesPageTokens";
+import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { scheduleColors } from "../../schedule/scheduleTokens";
 
 export function MemberPackagesScreen() {
   const insets = useSafeAreaInsets();
@@ -178,11 +180,11 @@ const styles = StyleSheet.create({
     marginBottom: -space.sm,
   },
   heading: {
-    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
-    fontSize: typography.sectionTitle + 14,
-    lineHeight: 40,
-    letterSpacing: -0.8,
-    color: colors.primaryGreen80,
+    fontFamily: fontFamilies.gtSuperDs.boldItalic,
+    fontSize: SCHEDULE_PAGE_MOBILE.pageTitleSizePx,
+    lineHeight: SCHEDULE_PAGE_MOBILE.pageTitleLineHeightPx,
+    letterSpacing: -0.88,
+    color: scheduleColors.pageTitle,
   },
   lead: {
     fontFamily: fontFamilies.manrope.regular,

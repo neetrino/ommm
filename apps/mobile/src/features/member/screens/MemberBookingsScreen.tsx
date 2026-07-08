@@ -22,6 +22,8 @@ import { useMemberBookingsCopy } from "../hooks/useMemberBookingsCopy";
 import { useMemberBookingsScreenState } from "../hooks/useMemberBookingsScreenState";
 import { BOOKINGS_PAGE_MOBILE } from "../lib/bookingsPageTokens";
 import { bookingsForTab, type MemberBookingsTab } from "../lib/partitionMemberBookings";
+import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
+import { scheduleColors } from "../../schedule/scheduleTokens";
 import { colors, layout, space } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
@@ -135,11 +137,11 @@ const styles = StyleSheet.create({
     gap: BOOKINGS_PAGE_MOBILE.pageTitleToLeadGapPx,
   },
   title: {
-    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
-    fontSize: BOOKINGS_PAGE_MOBILE.pageTitleSizePx,
-    lineHeight: BOOKINGS_PAGE_MOBILE.pageTitleLineHeightPx,
-    letterSpacing: -0.8,
-    color: BOOKINGS_PAGE_MOBILE.pageTitleColor,
+    fontFamily: fontFamilies.gtSuperDs.boldItalic,
+    fontSize: SCHEDULE_PAGE_MOBILE.pageTitleSizePx,
+    lineHeight: SCHEDULE_PAGE_MOBILE.pageTitleLineHeightPx,
+    letterSpacing: -0.88,
+    color: scheduleColors.pageTitle,
   },
   lead: {
     fontFamily: fontFamilies.manrope.regular,
