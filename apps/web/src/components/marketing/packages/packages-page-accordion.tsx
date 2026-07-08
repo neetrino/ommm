@@ -10,13 +10,11 @@ import { PackagesPageReveal } from "@/components/marketing/packages/packages-pag
 import {
   clampDesktopCardsPerRow,
   layoutStyleVars,
-  resolveAccordionSlotClass,
   resolveExpandedCategoryId,
-  rowLayoutStyleVars,
   splitAccordionRows,
 } from "@/components/marketing/packages/packages-page-accordion.helpers";
 import type { PackagesPageAccordionProps } from "@/components/marketing/packages/packages-page-accordion.types";
-import { PackagesPageAccordionDesktopSlot } from "@/components/marketing/packages/packages-page-accordion-desktop-slot";
+import { PackagesPageAccordionDesktopRow } from "@/components/marketing/packages/packages-page-accordion-desktop-row";
 import { PackagesPageAccordionMobileSlot } from "@/components/marketing/packages/packages-page-accordion-mobile-slot";
 import { PackagesPageAccordionSubscribeModalHost } from "@/components/marketing/packages/packages-page-accordion-subscribe-modal";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -103,54 +101,25 @@ export function PackagesPageAccordion({
   const desktopContent = (
     <div className={cardStyles.desktopOnly}>
       <div className={accordionStyles.accordionRows}>
-        {desktopRows.map((row, rowIndex) => {
-          const rowExpandedCategory =
-            row.find((category) => category.id === expandedCategory?.id) ?? null;
-          const isRowAccordionMode = rowExpandedCategory !== null;
-          const isIncompleteRow = row.length < normalizedDesktopCardsPerRow;
-          const rowClassName =
-            isIncompleteRow && !isRowAccordionMode
-              ? `${accordionStyles.accordionRow} ${accordionStyles.accordionRowCentered}`
-              : accordionStyles.accordionRow;
-
-          return (
-            <div
-              key={`row-${rowIndex}`}
-              className={rowClassName}
-              style={rowLayoutStyleVars(normalizedDesktopCardsPerRow, row.length)}
-            >
-              {row.map((category, indexInRow) => (
-                <div
-                  key={category.id}
-                  className={resolveAccordionSlotClass(
-                    isRowAccordionMode,
-                    rowExpandedCategory?.id === category.id,
-                  )}
-                >
-                  <PackagesSlotReveal
-                    index={rowIndex * normalizedDesktopCardsPerRow + indexInRow}
-                    gridColumns={normalizedDesktopCardsPerRow}
-                  >
-                    <PackagesPageAccordionDesktopSlot
-                    locale={locale}
-                    category={category}
-                    expandedCategory={rowExpandedCategory}
-                    detailsLabel={t("packagesDetailsCta")}
-                    openLabel={t("packagesOpenDetailsAria", { name: category.label })}
-                    closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
-                    audience={audience}
-                    selectedPlanId={selectedPlanId}
-                    onSelectPlan={onSelectPlan}
-                    onSubscribe={handleSubscribe}
-                    onOpen={updateExpandedCategory}
-                    onClose={() => updateExpandedCategory(null)}
-                  />
-                  </PackagesSlotReveal>
-                </div>
-              ))}
-            </div>
-          );
-        })}
+        {desktopRows.map((row, rowIndex) => (
+          <PackagesPageAccordionDesktopRow
+            key={`row-${rowIndex}`}
+            locale={locale}
+            row={row}
+            rowIndex={rowIndex}
+            expandedCategory={expandedCategory}
+            cardsPerRow={normalizedDesktopCardsPerRow}
+            detailsLabel={t("packagesDetailsCta")}
+            resolveOpenLabel={(name) => t("packagesOpenDetailsAria", { name })}
+            resolveCloseLabel={(name) => t("packagesAccordionCloseAria", { name })}
+            audience={audience}
+            selectedPlanId={selectedPlanId}
+            onSelectPlan={onSelectPlan}
+            onSubscribe={handleSubscribe}
+            onOpen={updateExpandedCategory}
+            onClose={() => updateExpandedCategory(null)}
+          />
+        ))}
       </div>
     </div>
   );

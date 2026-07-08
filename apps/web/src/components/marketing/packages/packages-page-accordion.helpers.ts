@@ -113,6 +113,40 @@ export function rowLayoutStyleVars(cardsPerRow: number, rowItemCount: number): C
   };
 }
 
+function resolveExpandedColumnFrWeight(rowItemCount: number): number {
+  return Math.max(rowItemCount - 1, 1);
+}
+
+const ACCORDION_COLLAPSED_COLUMN_FR = 1;
+
+export function buildAccordionRowGridColumns(
+  rowItemCount: number,
+  expandedIndexInRow: number | null,
+): string {
+  if (expandedIndexInRow === null) {
+    return Array.from({ length: rowItemCount }, () => "minmax(0, 1fr)").join(" ");
+  }
+
+  const expandedFrWeight = resolveExpandedColumnFrWeight(rowItemCount);
+  return Array.from({ length: rowItemCount }, (_, index) => {
+    if (index === expandedIndexInRow) {
+      return `minmax(0, ${expandedFrWeight}fr)`;
+    }
+    return `minmax(0, ${ACCORDION_COLLAPSED_COLUMN_FR}fr)`;
+  }).join(" ");
+}
+
+export function buildAccordionRowStyle(
+  cardsPerRow: number,
+  rowItemCount: number,
+  gridExpandedIndex: number | null,
+): CSSProperties {
+  return {
+    ...rowLayoutStyleVars(cardsPerRow, rowItemCount),
+    gridTemplateColumns: buildAccordionRowGridColumns(rowItemCount, gridExpandedIndex),
+  };
+}
+
 export function mobilePanelStyleVars(gradientStartColor: string): CSSProperties {
   const mobile = PACKAGES_PAGE_MOBILE_FIGMA;
 
