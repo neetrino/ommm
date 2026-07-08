@@ -11,9 +11,6 @@ export const HOME_SECTION_ASSETS = {
   /** Featured Coaches nav buttons — Figma nodes `163:898` (prev), `163:899` (next). */
   coachNavPrev: "/marketing/home/sections/home-coach-nav-prev.webp",
   coachNavNext: "/marketing/home/sections/home-coach-nav-next.webp",
-  /** Featured Coaches CTA — Figma `196:1149` (Union `196:1150`, arrow `196:1155`). */
-  coachesCtaShape: "/marketing/home/sections/home-coaches-cta-shape.svg",
-  coachesCtaArrow: "/marketing/home/sections/home-coaches-cta-arrow.svg",
   /** Figma Gallery `196:1162` — mosaic tiles `196:1164`–`196:1167`, nav `196:1169`/`196:1172`. */
   galleryVipMain: "/marketing/home/sections/gallery/home-gallery-vip-main.webp",
   galleryVipSide: "/marketing/home/sections/gallery/home-gallery-vip-side.webp",
