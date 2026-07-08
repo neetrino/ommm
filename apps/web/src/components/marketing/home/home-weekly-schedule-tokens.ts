@@ -43,6 +43,7 @@ export const HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA = {
   sessionRowRadiusPx: 16,
   sessionRowPaddingPx: 16,
   sessionRowGapPx: 17,
+  sessionRowHeaderToDetailsGapPx: 17,
   reserveButtonHeightPx: 40,
   reserveButtonFontSizePx: 12,
   reserveButtonLetterSpacingPx: 0.6,
@@ -102,6 +103,8 @@ export const HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT = {
   sessionListGap: "clamp(1rem, calc(100svw * 17 / 394), 1.0625rem)",
   sessionRowRadius: "1rem",
   sessionRowPadding: "1rem",
+  sessionRowHeaderToDetailsGap:
+    "clamp(0.75rem, calc(100svw * 17 / 394), 1.0625rem)",
   ctaBelowPanelGap: "1rem",
   sectionTopGap: mobileWeeklyScheduleSectionTopGap,
   sectionHeroOverlap: `calc(${mobileWeeklyScheduleSectionTopGap} + ${mobileWeeklySchedulePanelTopInsetPx}px)`,

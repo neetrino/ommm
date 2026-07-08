@@ -82,6 +82,8 @@ export function HomeWeeklyScheduleSessionRow({
         ["--home-schedule-row-radius-mobile" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowRadius,
         ["--home-schedule-row-padding" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowPadding,
+        ["--home-schedule-row-header-to-details-gap" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowHeaderToDetailsGap,
       }}
     >
       <div className={styles.timeCluster}>
