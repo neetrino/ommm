@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -14,7 +13,8 @@ import {
   userMemberPath,
 } from "../../../navigation/memberPaths";
 import { homeMock } from "../../../lib/mocks/homeMock";
-import { colors, gradients, layout, space, typography } from "../../../theme/tokens";
+import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { colors, layout, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { AppHeader } from "../components/AppHeader";
 import { ExploreMoreButton } from "../components/ExploreMoreButton";
@@ -50,14 +50,7 @@ export function HomeScreen() {
 
   return (
     <View style={styles.root}>
-      <LinearGradient
-        pointerEvents="none"
-        colors={[...gradients.screen.colors]}
-        locations={[...gradients.screen.locations]}
-        start={gradients.screen.start}
-        end={gradients.screen.end}
-        style={StyleSheet.absoluteFill}
-      />
+      <GradientBackdrop />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

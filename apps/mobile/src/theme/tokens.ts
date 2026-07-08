@@ -5,7 +5,8 @@ import { Platform, StyleSheet } from "react-native";
  * Single source of truth for colors, spacing, radii, and shadows.
  */
 export const colors = {
-  canvas: "#faf9f7",
+  /** Web Schedule / Packages / Contact — `data-marketing-practices-inner` surface. */
+  canvas: "#fbf5d5",
   primaryGreen: "#334537",
   primaryGreen80: "rgba(51,69,55,0.8)",
   secondarySage: "#434843",
@@ -51,12 +52,6 @@ export const colors = {
 } as const;
 
 export const gradients = {
-  screen: {
-    colors: ["#eef0cd", "#faffa0", "#ffe4c3", "#e4f5fd", "#eef0cd"] as const,
-    locations: [0, 0.23, 0.31, 0.68, 0.97] as const,
-    start: { x: 0.15, y: 0 },
-    end: { x: 0.85, y: 1 },
-  },
   navBar: {
     colors: ["#a19685", "#3b3731"] as const,
     start: { x: 0.2, y: 0 },
