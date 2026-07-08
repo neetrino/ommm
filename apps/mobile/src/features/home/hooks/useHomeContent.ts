@@ -65,7 +65,6 @@ export function useHomeMarketingCopy() {
   const tCommon = useTranslations("common");
   const tMarketing = useTranslations("marketing");
   const tPublicHero = useTranslations("marketingPublic.hero");
-  const tPublicHome = useTranslations("marketingPublic.home");
   const tHomeExplore = useTranslations("home.explore.featured");
   const tAccount = useTranslations("account.dashboard");
 
@@ -86,9 +85,9 @@ export function useHomeMarketingCopy() {
         previewCta: tHomeExplore("openLabel"),
       },
       highlights: {
-        title: tPublicHome("homeFeaturesTitle"),
-        lead: tPublicHome("homeFeaturesLead"),
-        cta: tPublicHome("featureCardCta"),
+        title: tMarketing("homeFeaturesTitle"),
+        lead: tMarketing("homeFeaturesLead"),
+        cta: tMarketing("featureCardCta"),
         cards: [
           {
             key: "schedule" as const,
@@ -110,6 +109,6 @@ export function useHomeMarketingCopy() {
       feedError: tAccount("waitlist.error"),
       feedLoading: tCommon("loading"),
     }),
-    [tAccount, tBrand, tCommon, tHomeExplore, tMarketing, tPublicHero, tPublicHome],
+    [tAccount, tBrand, tCommon, tHomeExplore, tMarketing, tPublicHero],
   );
 }
