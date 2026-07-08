@@ -35,6 +35,10 @@
   font-family: var(--font-display);
 }
 
+.metaBlock {
+  display: contents;
+}
+
 .duration {
   grid-area: duration;
   min-width: 0;
@@ -97,6 +101,29 @@
     align-self: center;
     align-items: flex-end;
     margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 1.5rem);
+  }
+}
+
+/* iPad Mini — stack spots below duration (744px–819px). */
+@media (min-width: 744px) and (max-width: 819px) {
+  .metaBlock {
+    display: flex;
+    grid-area: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+  }
+
+  .duration,
+  .spots {
+    grid-area: auto;
+    justify-self: auto;
+    margin-inline-start: 0;
+    white-space: nowrap;
+  }
+
+  .bookAction {
+    margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 1rem);
   }
 }
 

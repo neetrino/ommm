@@ -166,7 +166,14 @@
         },
         {
           "titleLines": ["Yoga"],
-          "body": "Breath and movement, woven together. Sessions to stretch, ground, and soften - space to release the day and return to yourself."
+          "body": "Breath and movement, woven together. Sessions to stretch, ground, and soften - space to release the day and return to yourself.",
+          "bodyLines": [
+            "Breath and movement, woven together.",
+            "Sessions to stretch, ground, and soften - space",
+            "to release the",
+            "day and return",
+            "to yourself."
+          ]
         },
         {
           "titleLines": ["Stretching"],

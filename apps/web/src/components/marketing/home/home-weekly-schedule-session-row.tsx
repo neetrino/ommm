@@ -121,22 +121,24 @@ export function HomeWeeklyScheduleSessionRow({
         </p>
       </div>
 
-      <p
-        className={`${styles.duration} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-        style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
-      >
-        {durationLabel}
-      </p>
-      <p
-        className={`${styles.spots} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-        style={{
-          color: spotsUrgent
-            ? HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgent
-            : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
-        }}
-      >
-        {spotsLeftLabel}
-      </p>
+      <div className={styles.metaBlock}>
+        <p
+          className={`${styles.duration} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
+          style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
+        >
+          {durationLabel}
+        </p>
+        <p
+          className={`${styles.spots} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
+          style={{
+            color: spotsUrgent
+              ? HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgent
+              : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
+          }}
+        >
+          {spotsLeftLabel}
+        </p>
+      </div>
 
       <div className={styles.bookAction}>
         {bookingEnabled ? (

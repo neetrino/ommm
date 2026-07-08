@@ -161,6 +161,17 @@
   }
 }
 
+/* iPad Mini — duration + spots share one column; spots stack under duration. */
+@media (min-width: 744px) and (max-width: 819px) {
+  .sessionList {
+    grid-template-columns:
+      auto
+      minmax(0, 1fr)
+      max-content
+      auto;
+  }
+}
+
 @media (min-width: 1280px) {
   .sessionPanel {
     margin-top: 2rem;

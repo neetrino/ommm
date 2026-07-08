@@ -169,6 +169,15 @@ export const HOME_CLASSES_SECTION_TABLET_LAYOUT = {
   contentMaxWidthPx: 920,
 } as const;
 
+/** iPad Mini — per-card body width + stacked tail words (744px–819px). */
+export const HOME_CLASSES_SECTION_IPAD_MINI_LAYOUT = {
+  practiceCardNarrowBodyMaxWidthPx: 144,
+  /** Power Pilates — extra-narrow body so copy clears the photo subject. */
+  powerPilatesBodyMaxWidthPx: 112,
+  /** Yoga — wider body; short copy reads in fewer lines. */
+  yogaBodyMaxWidth: "18rem",
+} as const;
+
 /** iPad Air — scaled-down Pro tier (744px–1023px). */
 export const HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT = {
   cardMinHeightPx: scaleIpadAirPx(HOME_CLASSES_SECTION_TABLET_LAYOUT.cardMinHeightPx),

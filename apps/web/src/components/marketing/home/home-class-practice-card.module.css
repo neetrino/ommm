@@ -52,6 +52,14 @@
   line-height: var(--home-class-card-body-line-height, 1.45);
 }
 
+.bodyLine {
+  display: inline;
+}
+
+.bodyLine + .bodyLine::before {
+  content: " ";
+}
+
 .imageZone {
   pointer-events: none;
   position: absolute;
@@ -237,5 +245,28 @@
   .imageZoneWide {
     width: 60%;
     max-width: 24rem;
+  }
+}
+
+/* iPad Mini — narrow body column; same font size, copy stacks vertically (744px–819px). */
+@media (min-width: 744px) and (max-width: 819px) {
+  .cardFullBleed .body {
+    max-width: var(--home-class-practice-narrow-body-max-width-mini, 9rem);
+  }
+
+  .card[data-card-id="power-pilates"] .body {
+    max-width: var(--home-class-practice-power-pilates-body-max-width-mini, 7rem);
+  }
+
+  .card[data-card-id="yoga"] .body {
+    max-width: var(--home-class-practice-yoga-body-max-width-mini, 18rem);
+  }
+
+  .card[data-card-id="yoga"] .bodyLine {
+    display: block;
+  }
+
+  .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
+    content: none;
   }
 }
