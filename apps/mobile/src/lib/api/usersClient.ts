@@ -216,3 +216,26 @@ export async function deleteHomeImage(): Promise<{ message: string }> {
   }
   return { message: (parsed as { message: string }).message };
 }
+
+export async function deleteAccount(): Promise<void> {
+  const token = await readStoredAccessToken();
+  if (token === null) {
+    throw new Error("Not signed in");
+  }
+  const base = getApiBaseUrl();
+  const res = await fetchWithReachabilityHint(
+    joinApiPath(base, "/v1/users/me"),
+    {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    base,
+  );
+  if (!res.ok) {
+    const raw = await res.text();
+    throw new Error(extractErrorMessage(raw, res.statusText));
+  }
+}

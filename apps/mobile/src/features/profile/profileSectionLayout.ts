@@ -47,6 +47,10 @@ export const profileSectionLayout = StyleSheet.create({
     paddingTop: space.sm,
     gap: space.lg,
   },
+  backRow: {
+    alignSelf: "flex-start",
+    marginBottom: -space.xs,
+  },
   hubShell: {
     width: "100%",
     maxWidth: 512,

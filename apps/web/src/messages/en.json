@@ -1193,6 +1193,8 @@
       "accountInfo": "Account information",
       "security": "Security",
       "homeImage": "Home image",
+      "dangerZone": "Danger zone",
+      "dangerZoneLead": "Permanently delete your account and sign out. This cannot be undone.",
       "deleteAccount": "Delete account",
       "deleteAccountConfirmTitle": "Delete your account?",
       "deleteAccountConfirmDescription": "This permanently removes your account and signs you out. This cannot be undone.",

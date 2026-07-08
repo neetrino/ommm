@@ -1,3 +1,4 @@
+import { ProfileDangerZoneSection } from "./components/ProfileDangerZoneSection";
 import { ProfileHomeImageSection } from "./components/ProfileHomeImageSection";
 import { ProfileScreenShell } from "./components/ProfileScreenShell";
 import { useTranslations } from "../../i18n/I18nProvider";
@@ -8,6 +9,7 @@ export function ProfilePersonalScreen() {
   return (
     <ProfileScreenShell title={tProfile("accountInfo")}>
       <ProfileHomeImageSection />
+      <ProfileDangerZoneSection />
     </ProfileScreenShell>
   );
 }
