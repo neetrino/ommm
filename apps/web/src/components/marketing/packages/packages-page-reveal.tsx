@@ -19,7 +19,12 @@ export function PackagesPageReveal({
   gridColumns = PACKAGES_PAGE_SCROLL_REVEAL.sectionGridColumns,
 }: PackagesPageRevealProps) {
   return (
-    <MarketingScrollReveal index={index} gridColumns={gridColumns} className={className}>
+    <MarketingScrollReveal
+      index={index}
+      gridColumns={gridColumns}
+      className={className}
+      entrance="aboveFold"
+    >
       {children}
     </MarketingScrollReveal>
   );

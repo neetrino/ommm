@@ -5,12 +5,16 @@
 .accordionRow {
   position: relative;
   display: flex;
+  flex-wrap: nowrap;
   width: 100%;
   max-width: none;
   height: var(--packages-page-row-height);
+  min-height: var(--packages-page-row-height);
+  max-height: var(--packages-page-row-height);
   margin-inline: 0;
   align-items: stretch;
   gap: var(--packages-page-accordion-gap);
+  overflow: hidden;
   transition:
     width var(--packages-page-transition-duration) var(--packages-page-transition-easing),
     margin-inline var(--packages-page-transition-duration) var(--packages-page-transition-easing);
@@ -43,21 +47,31 @@
   display: flex;
   height: 100%;
   min-width: 0;
-  flex: 1 1 0;
+  min-height: 0;
+  flex: 1 1 0%;
+  width: 0;
   transition:
     flex-grow var(--packages-page-transition-duration) var(--packages-page-transition-easing),
     flex-basis var(--packages-page-transition-duration) var(--packages-page-transition-easing),
-    flex-shrink var(--packages-page-transition-duration) var(--packages-page-transition-easing);
+    flex-shrink var(--packages-page-transition-duration) var(--packages-page-transition-easing),
+    width var(--packages-page-transition-duration) var(--packages-page-transition-easing);
 }
 
 .accordionSlotCollapsed {
   flex: 0 0 var(--packages-page-collapsed-width);
+  flex-shrink: 0;
+  width: var(--packages-page-collapsed-width);
+  max-width: var(--packages-page-collapsed-width);
+  overflow: hidden;
 }
 
 .accordionSlotExpanded {
   z-index: 1;
-  flex: 1 1 0;
+  flex: 1 1 0%;
+  width: 0;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .accordionSlotPlaceholder {
@@ -79,7 +93,9 @@
 
 .accordionRow .card {
   height: 100%;
+  max-height: 100%;
   aspect-ratio: auto;
+  overflow: hidden;
   text-align: center;
 }
 
@@ -89,6 +105,7 @@
   width: 100%;
   height: 100%;
   min-width: 0;
+  min-height: 0;
   flex-direction: column;
   overflow: visible;
   border: none;
@@ -100,6 +117,7 @@
 .panelCollapsed {
   align-items: stretch;
   justify-content: space-between;
+  overflow: hidden;
   padding: 1.5625rem 0.75rem 0;
   text-align: center;
 }
@@ -155,6 +173,7 @@
   margin: 0 auto;
   width: auto;
   max-width: 100%;
+  overflow: hidden;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--packages-page-collapsed-title-size);
   font-weight: 700;
@@ -574,6 +593,12 @@
   transform: rotate(-90deg);
 }
 
+.desktopAccordionPanel {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+
 .desktopAccordionPanel[data-expanded="true"] .fabImageHorizontalAnimated {
   transform: rotate(180deg);
 }
@@ -584,6 +609,14 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--packages-page-mobile-accordion-gap);
+}
+
+.mobileAccordionStackItem {
+  position: relative;
+  z-index: 0;
+  flex: none;
+  width: 100%;
+  min-width: 0;
 }
 
 .mobileAccordionItem {
@@ -607,12 +640,18 @@
 .mobileAccordionContent {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--packages-page-transition-duration, 450ms)
-    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    grid-template-rows var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    max-height var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .mobileAccordionItem[data-expanded="true"] .mobileAccordionContent {
   grid-template-rows: 1fr;
+  max-height: 5000px;
 }
 
 .mobileAccordionContentInner {

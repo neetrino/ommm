@@ -105,13 +105,14 @@ export function MarketingScrollReveal({
     ? `${revealStyles.revealSlot} ${className}`
     : revealStyles.revealSlot;
 
-  const motionClassName = skipEntrance
-    ? revealStyles.revealSkipEntrance
-    : visible
-      ? reducedMotion
-        ? `${revealStyles.revealEnter} ${revealStyles.revealEnterReduced}`
-        : `${revealStyles.revealEnter} ${revealStyles.revealEnterVisible}`
-      : revealStyles.revealEnter;
+  const motionClassName =
+    skipEntrance || entrance === "aboveFold"
+      ? revealStyles.revealSkipEntrance
+      : visible
+        ? reducedMotion
+          ? `${revealStyles.revealEnter} ${revealStyles.revealEnterReduced}`
+          : `${revealStyles.revealEnter} ${revealStyles.revealEnterVisible}`
+        : revealStyles.revealEnter;
 
   return (
     <div
