@@ -23,6 +23,7 @@ export const PACKAGES_PAGE_MOBILE = {
   fabFill: "#282828",
   fabFillOpacity: 0.31,
   fabArrowColor: "#ffffff",
+  transitionDurationMs: 450,
 } as const;
 
 export function buildPackagesPageCardGradientColors(

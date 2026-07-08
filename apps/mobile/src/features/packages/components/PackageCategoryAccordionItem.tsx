@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { packagesCopy } from "../../../lib/packages/packagesCopy";
 import type { PackagesPageAccordionCategory } from "../../../lib/packages/packagesPageCategoryData";
 import {
@@ -9,7 +9,10 @@ import {
   PACKAGES_PAGE_MOBILE,
 } from "../../../lib/packages/packagesPageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { usePackageCategoryAccordionAnimation } from "../hooks/usePackageCategoryAccordionAnimation";
 import { PackageMobileTierCard } from "./PackageMobileTierCard";
+
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 type PackageCategoryAccordionItemProps = {
   category: PackagesPageAccordionCategory;
@@ -19,9 +22,11 @@ type PackageCategoryAccordionItemProps = {
 };
 
 function PackagesCardFab({
+  rotation,
   isExpanded,
   onPress,
 }: {
+  rotation: Animated.AnimatedInterpolation<string>;
   isExpanded: boolean;
   onPress: () => void;
 }) {
@@ -33,11 +38,13 @@ function PackagesCardFab({
       accessibilityState={{ expanded: isExpanded }}
     >
       <View style={styles.fabCircle}>
-        <MaterialCommunityIcons
-          name={isExpanded ? "chevron-up" : "chevron-down"}
-          size={28}
-          color={PACKAGES_PAGE_MOBILE.fabArrowColor}
-        />
+        <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={28}
+            color={PACKAGES_PAGE_MOBILE.fabArrowColor}
+          />
+        </Animated.View>
       </View>
     </Pressable>
   );
@@ -50,58 +57,107 @@ export function PackageCategoryAccordionItem({
   onSubscribePress,
 }: PackageCategoryAccordionItemProps) {
   const gradientColors = buildPackagesPageCardGradientColors(category.gradientStartColor);
+  const animation = usePackageCategoryAccordionAnimation(isExpanded);
 
   return (
-    <LinearGradient
+    <AnimatedLinearGradient
       colors={[...gradientColors]}
       start={{ x: 0.12, y: 0 }}
       end={{ x: 0.88, y: 1 }}
-      style={[styles.item, isExpanded && styles.itemExpanded]}
+      style={[
+        styles.item,
+        {
+          paddingTop: animation.animatedPaddingVertical,
+          paddingBottom: animation.animatedPaddingVertical,
+          paddingRight: animation.animatedPaddingRight,
+          paddingLeft: animation.animatedPaddingLeft,
+          minHeight: isExpanded ? undefined : PACKAGES_PAGE_MOBILE.collapsedCardMinHeightPx,
+        },
+      ]}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, isExpanded && styles.headerExpanded]}>
         <View style={styles.headerBody}>
           <Text style={styles.title}>{category.label}</Text>
-          {!isExpanded ? (
+          <Animated.View
+            style={{
+              height: animation.animatedDetailsHeight,
+              opacity: animation.animatedDetailsOpacity,
+              marginTop: animation.animatedDetailsMarginTop,
+              overflow: "hidden",
+            }}
+          >
             <Text style={styles.details}>{packagesCopy.detailsCta}</Text>
-          ) : null}
+          </Animated.View>
         </View>
-        <PackagesCardFab isExpanded={isExpanded} onPress={onToggle} />
+        <PackagesCardFab
+          rotation={animation.animatedFabRotation}
+          isExpanded={isExpanded}
+          onPress={onToggle}
+        />
       </View>
 
-      {isExpanded && category.plans.length > 0 ? (
-        <View style={styles.tierList}>
-          {category.plans.map((plan) => (
-            <PackageMobileTierCard
-              key={plan.id}
-              categoryLabel={category.label}
-              plan={plan}
-              onSubscribePress={onSubscribePress}
-            />
-          ))}
+      <Animated.View
+        style={{
+          height: animation.animatedContentHeight,
+          overflow: "hidden",
+        }}
+      >
+        <Animated.View
+          style={{
+            opacity: animation.animatedContentOpacity,
+            paddingTop: animation.animatedContentPaddingTop,
+          }}
+        >
+          {category.plans.length > 0 ? (
+            <View style={styles.tierList}>
+              {category.plans.map((plan) => (
+                <PackageMobileTierCard
+                  key={plan.id}
+                  categoryLabel={category.label}
+                  plan={plan}
+                  onSubscribePress={onSubscribePress}
+                />
+              ))}
+            </View>
+          ) : null}
+        </Animated.View>
+      </Animated.View>
+
+      {category.plans.length > 0 ? (
+        <View
+          pointerEvents="none"
+          style={styles.measurementHost}
+          onLayout={animation.onContentLayout}
+        >
+          <View style={styles.tierList}>
+            {category.plans.map((plan) => (
+              <PackageMobileTierCard
+                key={`measure-${plan.id}`}
+                categoryLabel={category.label}
+                plan={plan}
+                onSubscribePress={onSubscribePress}
+              />
+            ))}
+          </View>
         </View>
       ) : null}
-    </LinearGradient>
+    </AnimatedLinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   item: {
-    minHeight: PACKAGES_PAGE_MOBILE.collapsedCardMinHeightPx,
     borderRadius: PACKAGES_PAGE_MOBILE.collapsedCardRadiusPx,
-    paddingHorizontal: 16,
-    paddingLeft: 20,
-    paddingVertical: 18,
     overflow: "hidden",
-  },
-  itemExpanded: {
-    minHeight: 0,
-    padding: PACKAGES_PAGE_MOBILE.expandedPanelPaddingPx,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
+  },
+  headerExpanded: {
+    alignItems: "flex-start",
   },
   headerBody: {
     flex: 1,
@@ -141,7 +197,14 @@ const styles = StyleSheet.create({
     backgroundColor: `rgba(40, 40, 40, ${PACKAGES_PAGE_MOBILE.fabFillOpacity})`,
   },
   tierList: {
-    marginTop: PACKAGES_PAGE_MOBILE.tierCardGapPx,
     gap: PACKAGES_PAGE_MOBILE.tierCardGapPx,
+  },
+  measurementHost: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    opacity: 0,
+    zIndex: -1,
   },
 });
