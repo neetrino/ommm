@@ -59,7 +59,7 @@
 }
 
 .sessionPanelViewport {
-  overflow: hidden;
+  overflow: visible;
   transition: height 300ms ease-out;
 }
 
@@ -137,38 +137,19 @@
   }
 
   .sessionList {
-    display: grid;
-    grid-template-columns:
-      auto
-      minmax(0, 1fr)
-      max-content
-      max-content
-      auto;
-    column-gap: clamp(1rem, 2vw, 1.5rem);
-    row-gap: var(--home-schedule-session-list-gap-lg, 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--home-schedule-session-list-gap-lg, 1rem);
   }
 
   .sessionListItem {
-    display: grid;
-    grid-column: 1 / -1;
-    grid-template-columns: subgrid;
+    display: block;
     min-width: 0;
   }
 
   .emptyDay {
     border-radius: var(--home-schedule-session-row-radius-lg, 2rem);
     font-size: 1rem;
-  }
-}
-
-/* iPad Mini — duration + spots share one column; spots stack under duration. */
-@media (min-width: 744px) and (max-width: 819px) {
-  .sessionList {
-    grid-template-columns:
-      auto
-      minmax(0, 1fr)
-      max-content
-      auto;
   }
 }
 

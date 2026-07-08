@@ -108,7 +108,8 @@ export function useScheduleDayTransition<TSession>({
     renderedDayKey: currentDayKey,
     renderedSessions: currentSessions,
     animationPhase: currentPhase,
-    containerStyle: containerHeight === null ? undefined : { height: containerHeight },
+    containerStyle:
+      containerHeight === null ? undefined : { height: containerHeight, overflow: "hidden" },
     getItemStyle: (index) =>
       ({
         "--schedule-item-delay": `${Math.min(index, SCHEDULE_MAX_STAGGERED_ITEMS) * SCHEDULE_CARD_STAGGER_MS}ms`,

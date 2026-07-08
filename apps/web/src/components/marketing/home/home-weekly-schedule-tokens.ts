@@ -167,6 +167,10 @@ export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
   sessionRowDurationSpotsGap: "clamp(1.5rem, 3vw, 2.5rem)",
   /** Desktop session row — space between spots and book button. */
   sessionRowSpotsButtonGap: "clamp(1.5rem, 3vw, 2.5rem)",
+  /** Fixed duration track — aligns duration + spots across rows (Safari-safe). */
+  sessionRowDurationColumnWidth: "4.75rem",
+  /** Fixed time track — aligns session times across desktop rows. */
+  sessionRowTimeColumnWidth: "10.5rem",
 } as const;
 
 /** Overlaps hero — panel `z-10` sits on photo; Our Core Practices gradient overlaps from below. */
