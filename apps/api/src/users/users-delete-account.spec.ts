@@ -26,7 +26,9 @@ describe('UsersService.deleteOwnAccount', () => {
     expect(prisma.booking.count).toHaveBeenCalledWith({
       where: { userId: 'user-1', status: BookingStatus.BOOKED },
     });
-    expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+    expect(prisma.user.delete).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+    });
   });
 
   it('rejects coach self-deletion', async () => {
