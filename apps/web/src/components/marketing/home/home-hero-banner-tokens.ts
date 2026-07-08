@@ -167,15 +167,8 @@ const HOME_HERO_LOGO_MARK_VIDEO_EDGE_CROP_SCALE = 1.14;
 
 const HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_DESKTOP_PX = 80;
 
-/** Start the hidden decoder before the cut so play() lag is absorbed off-screen. */
-const HOME_HERO_LOGO_MARK_VIDEO_LOOP_PREROLL_SEC = 0.1;
-/** Swap before the visible layer reaches `ended` — avoids stop/start. */
-const HOME_HERO_LOGO_MARK_VIDEO_LOOP_SWAP_LEAD_SEC = 0.04;
-
 /** Legacy hero slide — ball sizing matched to static mark. */
 export const HOME_HERO_LOGO_MARK_VIDEO_LAYOUT = {
-  loopPrerollSec: HOME_HERO_LOGO_MARK_VIDEO_LOOP_PREROLL_SEC,
-  loopSwapLeadSec: HOME_HERO_LOGO_MARK_VIDEO_LOOP_SWAP_LEAD_SEC,
   mobileInnerSizeRatio:
     HOME_HERO_LOGO_MARK_VIDEO_MOBILE_INNER_SIZE_RATIO * HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST,
   desktopInnerSizeRatio:
