@@ -131,8 +131,8 @@ export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
   /** Figma `805:802` @2x — 2880×1848 source for retina desktop. */
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
-  /** Figma `805:802` @2x — 1152×2048 portrait crop for retina mobile. */
-  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile.webp",
+  /** Founding memberships mobile banner — 910×2048 @2x (455×1024 artboard). */
+  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v2.webp",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -155,15 +155,15 @@ export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   objectPosition: "center center",
 } as const;
 
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 576;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 455;
 const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1024;
 
-/** Mobile promo slide — portrait crop of Figma `805:802` with baked-in copy. */
+/** Mobile promo slide — founding memberships portrait banner with baked-in copy. */
 export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
-  sectionBackground: "#8a7348",
+  sectionBackground: "#896a3b",
   objectPosition: "center top",
 } as const;
 

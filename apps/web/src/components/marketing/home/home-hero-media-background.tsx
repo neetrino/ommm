@@ -67,6 +67,7 @@ function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSli
     <div className={styles.homeHeroMediaSlide}>
       <div className={styles.homeHeroPromoBackgroundCrop}>
         <Image
+          key={sources.mobile}
           src={sources.mobile}
           alt={imageAlt}
           fill
