@@ -36,6 +36,7 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
         <View style={styles.overlay}>
           <Text style={styles.title} accessibilityRole="header">
             <Text style={styles.titlePlain}>{content.titleLead}</Text>
+            <Text> </Text>
             <Text style={styles.titleAccent}>{content.titleAccent}</Text>
           </Text>
 

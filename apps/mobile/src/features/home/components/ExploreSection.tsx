@@ -17,9 +17,6 @@ export function ExploreSection({
   return (
     <View style={styles.section}>
       <View style={styles.titleWrap}>
-        <Text style={styles.watermark} pointerEvents="none">
-          {t("featured.eyebrow")}
-        </Text>
         <Text style={styles.title}>{t("title")}</Text>
       </View>
 
