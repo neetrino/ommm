@@ -130,6 +130,8 @@ export function HomeWeeklyScheduleDayView({
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowSpotsButtonGap,
         ["--home-schedule-session-row-duration-col-width" as string]:
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowDurationColumnWidth,
+        ["--home-schedule-session-row-spots-col-width" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowSpotsColumnWidth,
         ["--home-schedule-session-row-time-col-width" as string]:
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowTimeColumnWidth,
         ["--home-schedule-session-row-radius" as string]:

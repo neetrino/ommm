@@ -172,6 +172,8 @@ export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
   sessionRowSpotsButtonGap: "clamp(1.5rem, 3vw, 2.5rem)",
   /** Fixed duration track — aligns duration + spots across rows (Safari-safe). */
   sessionRowDurationColumnWidth: "4.75rem",
+  /** Fixed spots track — keeps duration/spots columns aligned across rows. */
+  sessionRowSpotsColumnWidth: "6.75rem",
   /** Fixed time track — aligns session times across desktop rows. */
   sessionRowTimeColumnWidth: "10.5rem",
 } as const;

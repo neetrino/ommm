@@ -68,7 +68,7 @@
       var(--home-schedule-session-row-time-col-width, 10.5rem)
       minmax(0, 1fr)
       var(--home-schedule-session-row-duration-col-width, 4.75rem)
-      max-content
+      var(--home-schedule-session-row-spots-col-width, 6.75rem)
       auto;
     grid-template-areas: none;
     column-gap: clamp(1rem, 2vw, 1.5rem);
@@ -88,13 +88,23 @@
     grid-column: 2;
     grid-row: 1;
     min-width: 0;
+    margin-top: 0;
   }
 
   .duration {
     grid-column: 3;
     grid-row: 1;
     justify-self: start;
+    align-self: center;
     margin: 0;
+    padding: 0;
+    padding-inline-end: max(
+      0px,
+      calc(
+        var(--home-schedule-session-row-duration-spots-gap, 1.5rem) - clamp(1rem, 2vw, 1.5rem)
+      )
+    );
+    text-align: start;
     white-space: nowrap;
   }
 
@@ -102,16 +112,22 @@
     grid-column: 4;
     grid-row: 1;
     justify-self: start;
+    align-self: center;
     margin: 0;
+    padding: 0;
+    text-align: start;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
   .bookAction {
     grid-column: 5;
     grid-row: 1;
+    width: auto;
     align-self: center;
     align-items: flex-end;
     justify-self: end;
+    flex-shrink: 0;
     margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 1.5rem);
   }
 }
@@ -153,7 +169,10 @@
     flex: initial;
     gap: 0;
     min-width: 0;
-    margin-top: var(--home-schedule-row-header-to-details-gap, 1.0625rem);
+    margin-top: var(
+      --home-schedule-row-header-to-details-gap,
+      clamp(0.75rem, calc(100svw * 17 / 394), 1.0625rem)
+    );
   }
 
   .classTitle {
@@ -182,7 +201,10 @@
     align-self: start;
     justify-self: end;
     padding: 0;
-    margin-top: var(--home-schedule-row-header-to-details-gap, 1.0625rem);
+    margin-top: var(
+      --home-schedule-row-header-to-details-gap,
+      clamp(0.75rem, calc(100svw * 17 / 394), 1.0625rem)
+    );
     font-size: var(--home-schedule-row-meta-size, 0.875rem);
     font-weight: 500;
     line-height: 1.75rem;
