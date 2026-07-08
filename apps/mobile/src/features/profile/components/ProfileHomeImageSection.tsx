@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 import { useSession } from "../../../auth/SessionProvider";
-import type { UploadPickResult } from "../../../lib/api/usersClient";
 import { uploadHomeImage } from "../../../lib/api/usersClient";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
@@ -18,16 +17,20 @@ const HOME_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
 export function ProfileHomeImageSection() {
   const { refreshProfile, homeImageUri } = useSession();
-  const [pick, setPick] = useState<UploadPickResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [localPreviewUri, setLocalPreviewUri] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{
     kind: "ok" | "err";
     text: string;
   } | null>(null);
 
-  const displayPreviewUri = pick?.uri ?? homeImageUri;
+  const displayPreviewUri = localPreviewUri ?? homeImageUri;
 
-  const onPickPress = useCallback(async () => {
+  const onChooseAndUploadPress = useCallback(async () => {
+    if (busy) {
+      return;
+    }
+
     setFeedback(null);
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
@@ -61,43 +64,32 @@ export function ProfileHomeImageSection() {
       return;
     }
 
-    setPick({
-      uri: asset.uri,
-      mimeType: asset.mimeType ?? "image/jpeg",
-      fileName: asset.fileName ?? undefined,
-    });
-  }, []);
-
-  const onUploadPress = useCallback(async () => {
-    setFeedback(null);
-    if (pick === null) {
-      setFeedback({
-        kind: "err",
-        text: "Choose an image first.",
-      });
-      return;
-    }
-
     setBusy(true);
+    setLocalPreviewUri(asset.uri);
     try {
-      await uploadHomeImage(pick);
-      setFeedback({ kind: "ok", text: "Home image updated successfully." });
-      setPick(null);
+      await uploadHomeImage({
+        uri: asset.uri,
+        mimeType: asset.mimeType ?? "image/jpeg",
+        fileName: asset.fileName ?? undefined,
+      });
+      setFeedback({ kind: "ok", text: "Photo updated successfully." });
       await refreshProfile();
+      setLocalPreviewUri(null);
     } catch (e) {
+      setLocalPreviewUri(null);
       const message =
         e instanceof Error ? e.message : "Something went wrong. Please try again.";
       setFeedback({ kind: "err", text: message });
     } finally {
       setBusy(false);
     }
-  }, [pick, refreshProfile]);
+  }, [busy, refreshProfile]);
 
   return (
     <View style={styles.card}>
-      <Text style={styles.sectionTitle}>Home image</Text>
+      <Text style={styles.sectionTitle}>Profile photo</Text>
       <Text style={styles.sectionLead}>
-        Custom photo shown at the top of your Home tab. JPG, PNG, or WEBP up to 5 MB.
+        Shown on your Home tab and account pages. JPG, PNG, or WEBP up to 5 MB.
       </Text>
 
       {displayPreviewUri !== null && displayPreviewUri !== "" ? (
@@ -107,11 +99,13 @@ export function ProfileHomeImageSection() {
             style={styles.previewImage}
             contentFit="cover"
             accessibilityRole="image"
-            accessibilityLabel="Home image preview"
+            accessibilityLabel="Profile photo preview"
           />
         </View>
       ) : (
-        <Text style={styles.placeholder}>No custom image yet — default Home layout applies.</Text>
+        <Text style={styles.placeholder}>
+          No custom photo yet — default layout applies.
+        </Text>
       )}
 
       {feedback ? (
@@ -123,40 +117,24 @@ export function ProfileHomeImageSection() {
         </Text>
       ) : null}
 
-      <View style={styles.row}>
-        <Pressable
-          onPress={() => void onPickPress()}
-          disabled={busy}
-          style={({ pressed }) => [
-            styles.secondaryBtn,
-            pressed && !busy && styles.secondaryPressed,
-            busy && styles.btnDisabled,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Choose image"
-        >
-          <Text style={styles.secondaryLabel}>Choose image</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => void onUploadPress()}
-          disabled={busy || pick === null}
-          style={({ pressed }) => [
-            styles.primaryBtn,
-            pressed && !busy && pick !== null && styles.primaryPressed,
-            (busy || pick === null) && styles.btnDisabled,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Upload home image"
-          accessibilityState={{ disabled: busy || pick === null }}
-        >
-          {busy ? (
-            <ActivityIndicator color={colors.white} />
-          ) : (
-            <Text style={styles.primaryLabel}>Save to Home</Text>
-          )}
-        </Pressable>
-      </View>
+      <Pressable
+        onPress={() => void onChooseAndUploadPress()}
+        disabled={busy}
+        style={({ pressed }) => [
+          styles.primaryBtn,
+          pressed && !busy && styles.primaryPressed,
+          busy && styles.btnDisabled,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Choose profile photo"
+        accessibilityState={{ disabled: busy }}
+      >
+        {busy ? (
+          <ActivityIndicator color={colors.white} />
+        ) : (
+          <Text style={styles.primaryLabel}>Choose image</Text>
+        )}
+      </Pressable>
     </View>
   );
 }
@@ -210,30 +188,7 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall,
     color: colors.danger,
   },
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: space.sm,
-    alignItems: "center",
-  },
-  secondaryBtn: {
-    flexGrow: 1,
-    minWidth: 120,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 48,
-    paddingHorizontal: space.md,
-    borderRadius: radii.pill,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderColor: colors.overlayGreen20,
-    backgroundColor: colors.overlayWhite20,
-  },
-  secondaryPressed: {
-    opacity: 0.88,
-  },
   primaryBtn: {
-    flexGrow: 1,
-    minWidth: 140,
     alignItems: "center",
     justifyContent: "center",
     minHeight: 48,
@@ -246,11 +201,6 @@ const styles = StyleSheet.create({
   },
   btnDisabled: {
     opacity: 0.55,
-  },
-  secondaryLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
   },
   primaryLabel: {
     fontFamily: fontFamilies.manrope.semiBold,
