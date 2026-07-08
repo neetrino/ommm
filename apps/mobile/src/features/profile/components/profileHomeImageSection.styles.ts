@@ -2,11 +2,15 @@ import { StyleSheet } from "react-native";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { profileSectionCardBase, profileSectionLayout } from "../profileSectionLayout";
 import { colors, radii, space, typography } from "../../../theme/tokens";
+import {
+  MEMBER_PROFILE_AVATAR_FILL,
+  MEMBER_PROFILE_AVATAR_INITIALS_COLOR,
+} from "../memberProfileAvatarTokens";
 
 export const PROFILE_PHOTO_PREVIEW_HEIGHT = 200;
 
-const HUB_AVATAR_FILL = "rgba(151,144,124,0.77)";
-const HUB_ROW_LABEL = "#2d3530";
+const HUB_AVATAR_FILL = MEMBER_PROFILE_AVATAR_FILL;
+const HUB_ROW_LABEL = MEMBER_PROFILE_AVATAR_INITIALS_COLOR;
 
 export const profileHomeImageSectionStyles = StyleSheet.create({
   card: profileSectionCardBase,

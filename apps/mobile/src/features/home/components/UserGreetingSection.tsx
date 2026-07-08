@@ -1,5 +1,10 @@
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
+import {
+  MEMBER_PROFILE_AVATAR_FILL,
+  MEMBER_PROFILE_AVATAR_INITIALS_COLOR,
+  memberProfileAvatarInitialsFontSize,
+} from "../../profile/memberProfileAvatarTokens";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, layout, radii, space } from "../../../theme/tokens";
@@ -58,6 +63,7 @@ export function UserGreetingSection({
 }
 
 const AVATAR = layout.avatarSize;
+const AVATAR_INITIALS_SIZE = memberProfileAvatarInitialsFontSize(AVATAR);
 
 const styles = StyleSheet.create({
   row: {
@@ -92,7 +98,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: radii.pill,
-    backgroundColor: colors.taupe,
+    backgroundColor: MEMBER_PROFILE_AVATAR_FILL,
   },
   avatarInitialsShell: {
     width: "100%",
@@ -100,20 +106,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.pill,
-    backgroundColor: "rgba(212,163,115,0.22)",
+    backgroundColor: MEMBER_PROFILE_AVATAR_FILL,
   },
   avatarInitialsText: {
     fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 20,
-    lineHeight: 24,
-    color: colors.primaryGreen,
+    fontSize: AVATAR_INITIALS_SIZE,
+    lineHeight: AVATAR_INITIALS_SIZE + 4,
+    color: MEMBER_PROFILE_AVATAR_INITIALS_COLOR,
     textAlign: "center",
   },
   avatarImage: {
     width: "100%",
     height: "100%",
     borderRadius: radii.pill,
-    backgroundColor: colors.taupe,
+    backgroundColor: MEMBER_PROFILE_AVATAR_FILL,
   },
   welcomeBlock: {
     justifyContent: "center",

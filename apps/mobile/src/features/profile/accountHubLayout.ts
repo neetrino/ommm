@@ -1,14 +1,19 @@
 import { Platform, StyleSheet } from "react-native";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { colors, space, typography } from "../../theme/tokens";
+import {
+  MEMBER_PROFILE_AVATAR_FILL,
+  MEMBER_PROFILE_AVATAR_INITIALS_COLOR,
+  memberProfileAvatarInitialsFontSize,
+} from "./memberProfileAvatarTokens";
 
 /** Shared OMMM styling — aligned with web `ommm-member-account-hub-*`. */
 export const ACCOUNT_HUB_AVATAR_SIZE = 68;
 
 const HUB_OLIVE_ICON = "#97907c";
-const HUB_ROW_LABEL = "#2d3530";
+const HUB_ROW_LABEL = MEMBER_PROFILE_AVATAR_INITIALS_COLOR;
 const HUB_ROW_CHEVRON = "rgba(161,150,133,0.9)";
-const HUB_AVATAR_FILL = "rgba(151,144,124,0.77)";
+const HUB_AVATAR_FILL = MEMBER_PROFILE_AVATAR_FILL;
 const HUB_ROW_BORDER = "rgba(255,255,255,0.7)";
 const HUB_DANGER_BORDER = "rgba(245,245,244,0.8)";
 const HUB_DANGER_TEXT = "#7f1d1d";
@@ -69,8 +74,8 @@ export const accountHubLayout = StyleSheet.create({
   },
   avatarInitialsText: {
     fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 28,
-    lineHeight: 32,
+    fontSize: memberProfileAvatarInitialsFontSize(ACCOUNT_HUB_AVATAR_SIZE),
+    lineHeight: memberProfileAvatarInitialsFontSize(ACCOUNT_HUB_AVATAR_SIZE) + 4,
     color: HUB_ROW_LABEL,
     textAlign: "center",
   },
