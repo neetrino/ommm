@@ -1,9 +1,24 @@
-/** English copy aligned with web `marketing` namespace packages strings. */
+/** English copy aligned with web marketing + userPages.packages strings. */
 export const packagesCopy = {
   pageTitle: "Packages",
-  pageLead: "Choose a plan that fits how often you want to practice.",
+  myPackagesTitle: "My packages",
+  myPackagesLead:
+    "Your purchased plans appear here. Browse available packages when you are ready to buy.",
+  catalogLead: "Choose a plan that fits how often you want to practice.",
   detailsCta: "Details",
   subscribeCta: "Subscribe",
+  browsePackagesCta: "Browse packages",
+  backToMyPackagesCta: "Back to my packages",
+  noPackagesYet: "You don't have any packages at the moment.",
+  membershipDetailsPrice: "Price",
+  membershipDetailsValidity: "Validity",
+  detailsClose: "Close",
+  subscribeTitle: "Confirm purchase",
+  subscribeConfirm: "Pay with card",
+  subscribeSuccessTitle: "Purchase started",
+  subscribeSuccessBody:
+    "Your package will appear here once payment is confirmed. If you were redirected to pay, return here after completing checkout.",
+  subscribeFailed: "Could not complete purchase. Try again.",
   discountBadge: "Special offer",
   sessionsUnlimitedShort: "Unlimited",
   tableTotalSessions: "Total sessions",
@@ -15,6 +30,7 @@ export const packagesCopy = {
   typeSessionsSession: "Sessions",
   empty: "No packages available right now.",
   loadError: "Could not load packages",
+  loadMembershipsError: "Could not load your packages",
   loading: "Loading…",
 } as const;
 

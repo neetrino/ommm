@@ -6,7 +6,7 @@ import { PackageCategoryAccordionItem } from "./PackageCategoryAccordionItem";
 
 type PackagesPageAccordionProps = {
   categories: readonly PackagesPageAccordionCategory[];
-  onSubscribePress: () => void;
+  onSubscribePress: (planId: string) => void;
 };
 
 export function PackagesPageAccordion({

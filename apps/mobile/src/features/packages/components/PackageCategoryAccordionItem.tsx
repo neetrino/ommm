@@ -19,7 +19,7 @@ type PackageCategoryAccordionItemProps = {
   category: PackagesPageAccordionCategory;
   isExpanded: boolean;
   onToggle: () => void;
-  onSubscribePress: () => void;
+  onSubscribePress: (planId: string) => void;
 };
 
 function PackageTierList({
@@ -29,7 +29,7 @@ function PackageTierList({
 }: {
   categoryLabel: string;
   plans: readonly PublicPackagePlan[];
-  onSubscribePress: () => void;
+  onSubscribePress: (planId: string) => void;
 }) {
   return (
     <View style={styles.tierList}>

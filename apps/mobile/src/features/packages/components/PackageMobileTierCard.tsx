@@ -20,7 +20,7 @@ import { fontFamilies } from "../../../theme/fontFamilies";
 type PackageMobileTierCardProps = {
   categoryLabel: string;
   plan: PublicPackagePlan;
-  onSubscribePress: () => void;
+  onSubscribePress: (planId: string) => void;
 };
 
 function MetaRow({ label, value }: { label: string; value: string | null }) {
@@ -130,7 +130,7 @@ export function PackageMobileTierCard({
       </View>
 
       <Pressable
-        onPress={onSubscribePress}
+        onPress={() => onSubscribePress(plan.id)}
         style={({ pressed }) => [styles.subscribeButton, pressed && styles.subscribePressed]}
         accessibilityRole="button"
       >

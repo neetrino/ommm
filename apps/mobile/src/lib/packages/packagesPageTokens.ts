@@ -5,6 +5,20 @@ export const PACKAGES_PAGE_CARD = {
   gradientAngleDeg: 173.82,
 } as const;
 
+/** Matches web `.ommm-cta-primary` (sand/taupe pill CTA). */
+export const PACKAGES_PRIMARY_CTA = {
+  minHeightPx: 48,
+  paddingHorizontalPx: 28,
+  paddingVerticalPx: 12,
+  fontSizePx: 14,
+  letterSpacingPx: 2.24,
+  shadowColor: "rgb(107, 92, 76)",
+  shadowOffsetHeightPx: 8,
+  shadowOpacity: 0.45,
+  shadowRadiusPx: 12,
+  androidElevation: 4,
+} as const;
+
 export const PACKAGES_PAGE_MOBILE = {
   accordionGapPx: 18,
   /** Matches web `ommm-container` horizontal inset (`1rem`). */
