@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
+import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
 import { packagesCopy } from "../../../lib/packages/packagesCopy";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { PackageSubscribeSheet } from "../../packages/components/PackageSubscribeSheet";
@@ -87,23 +88,24 @@ export function MemberPackagesScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
         keyboardShouldPersistTaps="handled"
       >
+        {isSignedIn && showCatalog ? (
+          <View style={styles.backRow}>
+            <CircularBackButton
+              onPress={openMine}
+              accessibilityLabel={packagesCopy.backToMyPackagesCta}
+            />
+          </View>
+        ) : null}
+
         <Text style={styles.heading}>{heading}</Text>
         <Text style={styles.lead}>{lead}</Text>
 
-        {isSignedIn ? (
+        {isSignedIn && showMyPackages ? (
           <View style={styles.actionsRow}>
-            {showMyPackages ? (
-              <PackagesPrimaryCta
-                label={packagesCopy.browsePackagesCta}
-                onPress={openCatalog}
-              />
-            ) : (
-              <PackagesPrimaryCta
-                label={packagesCopy.backToMyPackagesCta}
-                onPress={openMine}
-                variant="ghost"
-              />
-            )}
+            <PackagesPrimaryCta
+              label={packagesCopy.browsePackagesCta}
+              onPress={openCatalog}
+            />
           </View>
         ) : null}
 
@@ -160,6 +162,10 @@ const styles = StyleSheet.create({
     gap: space.lg,
     width: "100%",
     minWidth: 0,
+  },
+  backRow: {
+    alignSelf: "flex-start",
+    marginBottom: -space.sm,
   },
   heading: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
