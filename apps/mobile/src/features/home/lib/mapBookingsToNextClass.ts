@@ -4,8 +4,7 @@ import {
   formatDurationMinutes,
   formatSessionStartLabel,
 } from "../../../lib/member/formatSessionLabels";
-
-const DEFAULT_LOCALE = "en-US";
+import type { MemberBookingCopy } from "../../member/hooks/useMemberBookingCopy";
 
 export function pickNextUpcomingBooking(
   rows: BookingMineRow[],
@@ -25,18 +24,31 @@ export function pickNextUpcomingBooking(
 
 export function bookingToNextClassContent(
   b: BookingMineRow,
-  locale = DEFAULT_LOCALE,
+  labels: Pick<
+    MemberBookingCopy,
+    | "intlLocale"
+    | "nextClassBadge"
+    | "nextClassStatusBooked"
+    | "coachFallback"
+    | "withCoach"
+    | "durationMinutes"
+  > & {
+    spotsLabel: (capacity: number) => string;
+  },
 ): NextClassContent {
   const { session } = b;
-  const coachName = session.coach.user.name?.trim() || "Your coach";
-  const bookedApprox = "View schedule for availability";
+  const coachName = session.coach.user.name?.trim() || labels.coachFallback;
   return {
     title: session.classType.name,
-    badge: "COMING UP NEXT",
-    timeLocation: formatSessionStartLabel(session.startsAt, locale),
-    instructor: `with ${coachName}`,
-    durationLabel: formatDurationMinutes(session.startsAt, session.endsAt),
-    spotsLabel: `${bookedApprox} · max ${session.capacity}`,
-    statusLabel: "Confirmed",
+    badge: labels.nextClassBadge,
+    timeLocation: formatSessionStartLabel(session.startsAt, labels.intlLocale),
+    instructor: labels.withCoach(coachName),
+    durationLabel: formatDurationMinutes(
+      session.startsAt,
+      session.endsAt,
+      labels.durationMinutes,
+    ),
+    spotsLabel: labels.spotsLabel(session.capacity),
+    statusLabel: labels.nextClassStatusBooked,
   };
 }

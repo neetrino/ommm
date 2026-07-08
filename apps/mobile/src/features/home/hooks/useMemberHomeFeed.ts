@@ -1,17 +1,22 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   fetchMemberBookings,
   fetchMemberWaitlist,
   fetchPublishedPosts,
 } from "../../../lib/api/memberClient";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
+import { useLocale } from "../../../i18n/I18nProvider";
 import { bookingToNextClassContent, pickNextUpcomingBooking } from "../lib/mapBookingsToNextClass";
 import { postsToExploreContent } from "../lib/mapPostsToExplore";
 import { waitlistRowsToItems } from "../lib/mapWaitlistToItems";
 import type { NextClassContent } from "../components/NextClassSection";
-import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
-import type { WaitlistItem } from "../../../lib/mocks/homeMock";
+import type { ExploreTileMock, WaitlistItem } from "../../../lib/mocks/homeMock";
+import {
+  useExploreFallbackContent,
+  useHomeMarketingCopy,
+} from "./useHomeContent";
+import { useMemberBookingCopy } from "../../member/hooks/useMemberBookingCopy";
 
 export type MemberHomeFeedState = {
   loading: boolean;
@@ -25,21 +30,23 @@ export type MemberHomeFeedState = {
   };
 };
 
-const emptyExplore = postsToExploreContent([]);
-
 export function useMemberHomeFeed(isSignedIn: boolean): MemberHomeFeedState {
+  const locale = useLocale();
+  const exploreFallback = useExploreFallbackContent();
+  const homeCopy = useHomeMarketingCopy();
+  const bookingCopy = useMemberBookingCopy();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [nextClass, setNextClass] = useState<NextClassContent | null>(null);
   const [waitlistItems, setWaitlistItems] = useState<WaitlistItem[]>([]);
-  const [explore, setExplore] = useState(emptyExplore);
+  const [explore, setExplore] = useState(exploreFallback);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const posts = await fetchPublishedPosts();
-      setExplore(postsToExploreContent(posts));
+      setExplore(postsToExploreContent(posts, exploreFallback));
       if (!isSignedIn) {
         setNextClass(null);
         setWaitlistItems([]);
@@ -56,18 +63,33 @@ export function useMemberHomeFeed(isSignedIn: boolean): MemberHomeFeedState {
         fetchMemberWaitlist(token),
       ]);
       const next = pickNextUpcomingBooking(bookings);
-      setNextClass(next === null ? null : bookingToNextClassContent(next));
-      setWaitlistItems(waitlistRowsToItems(waitlist));
+      setNextClass(
+        next === null
+          ? null
+          : bookingToNextClassContent(next, {
+              ...bookingCopy,
+              spotsLabel: bookingCopy.spotsCapacity,
+            }),
+      );
+      setWaitlistItems(
+        waitlistRowsToItems(waitlist, bookingCopy.intlLocale, ({ index, status }) =>
+          bookingCopy.waitlistBadge(index, status),
+        ),
+      );
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Could not load home";
+      const msg = e instanceof Error ? e.message : homeCopy.feedError;
       setError(msg);
-      setExplore(emptyExplore);
+      setExplore(exploreFallback);
       setNextClass(null);
       setWaitlistItems([]);
     } finally {
       setLoading(false);
     }
-  }, [isSignedIn]);
+  }, [bookingCopy, exploreFallback, homeCopy.feedError, isSignedIn]);
+
+  useEffect(() => {
+    void load();
+  }, [locale, load]);
 
   useFocusEffect(
     useCallback(() => {

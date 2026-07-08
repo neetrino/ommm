@@ -2,6 +2,7 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import type { WaitlistItem } from "../../../lib/mocks/homeMock";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 
@@ -175,11 +176,13 @@ function WaitlistGlassCard({ item }: { item: WaitlistItem }) {
 }
 
 export function WaitlistSection({ items }: WaitlistSectionProps) {
+  const tDashboard = useTranslations("account.dashboard.waitlist");
+
   return (
     <View style={styles.section}>
-      <Text style={styles.title}>Waitlist</Text>
+      <Text style={styles.title}>{tDashboard("title")}</Text>
       {items.length === 0 ? (
-        <Text style={styles.empty}>You have no waitlists</Text>
+        <Text style={styles.empty}>{tDashboard("empty")}</Text>
       ) : (
         <View style={styles.grid}>
           {items.map((item) => (

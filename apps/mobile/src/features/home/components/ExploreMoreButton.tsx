@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text } from "react-native";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 
@@ -7,14 +8,16 @@ type ExploreMoreButtonProps = {
 };
 
 export function ExploreMoreButton({ onPress }: ExploreMoreButtonProps) {
+  const t = useTranslations("home.explore");
+
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       accessibilityRole="button"
-      accessibilityLabel="Explore more content"
+      accessibilityLabel={t("exploreMore")}
     >
-      <Text style={styles.label}>Explore More</Text>
+      <Text style={styles.label}>{t("exploreMore")}</Text>
     </Pressable>
   );
 }

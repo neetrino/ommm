@@ -8,6 +8,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { I18nProvider } from "../src/i18n/I18nProvider";
 import { SessionProvider } from "../src/auth/SessionProvider";
 import { PushTokenRegistrar } from "../src/auth/PushTokenRegistrar";
 import { colors } from "../src/theme/tokens";
@@ -37,11 +38,13 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <SessionProvider>
-        <PushTokenRegistrar />
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false }} />
-      </SessionProvider>
+      <I18nProvider>
+        <SessionProvider>
+          <PushTokenRegistrar />
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ headerShown: false }} />
+        </SessionProvider>
+      </I18nProvider>
     </SafeAreaProvider>
   );
 }

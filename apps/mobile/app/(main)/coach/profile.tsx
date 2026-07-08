@@ -1,10 +1,8 @@
 import { PlaceholderTabScreen } from "../../../src/features/shell/PlaceholderTabScreen";
+import { usePlaceholderTabCopy } from "../../../src/features/shell/usePlaceholderTabCopy";
 
 export default function CoachProfileMobileRoute() {
-  return (
-    <PlaceholderTabScreen
-      title="Coach profile"
-      subtitle="Roster and attendance tools live on the web coach dashboard."
-    />
-  );
+  const copy = usePlaceholderTabCopy("COACH", "profile");
+
+  return <PlaceholderTabScreen title={copy.title} subtitle={copy.subtitle} />;
 }

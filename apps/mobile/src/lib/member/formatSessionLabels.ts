@@ -33,12 +33,19 @@ export function formatSessionScheduleShort(iso: string, locale: string): string 
   return `${md}, ${t}`;
 }
 
-export function formatDurationMinutes(startIso: string, endIso: string): string {
+export function formatDurationMinutes(
+  startIso: string,
+  endIso: string,
+  formatMinutes?: (minutes: number) => string,
+): string {
   const a = new Date(startIso).getTime();
   const b = new Date(endIso).getTime();
   if (Number.isNaN(a) || Number.isNaN(b) || b <= a) {
     return "";
   }
   const mins = Math.round((b - a) / 60000);
+  if (formatMinutes) {
+    return formatMinutes(mins);
+  }
   return `${mins} min`;
 }

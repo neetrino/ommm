@@ -1,0 +1,38 @@
+/** Schedule page visual tokens — mirrors web `schedule-public-design.module.css`. */
+export const scheduleColors = {
+  pageTitle: "#97907c",
+  heading: "#3d3a32",
+  ink: "#1d1c15",
+  body: "#4a4738",
+  muted: "#6b7268",
+  olive: "#97907c",
+  oliveActive: "#695f00",
+  canvasText: "#fbf5d5",
+  shellBorder: "rgba(255, 255, 255, 0.72)",
+  stripBorder: "rgba(255, 255, 255, 0.7)",
+  stripBg: "rgba(255, 255, 255, 0.42)",
+  filterBorder: "rgba(151, 144, 124, 0.45)",
+  filterBg: "rgba(255, 255, 255, 0.82)",
+  divider: "rgba(151, 144, 124, 0.22)",
+  chipIdleBorder: "rgba(151, 144, 124, 0.35)",
+  chipIdleBg: "rgba(255, 255, 255, 0.5)",
+  chipPastBorder: "rgba(151, 144, 124, 0.2)",
+  chipPastBg: "rgba(255, 255, 255, 0.35)",
+  chipPastText: "rgba(151, 144, 124, 0.55)",
+  rowBorder: "rgba(255, 255, 255, 0.72)",
+  spotsUrgent: "#af5008",
+  bookBtnBorder: "rgba(255, 255, 255, 0.55)",
+  bookBtnBg: "rgba(255, 255, 255, 0.33)",
+  bookBtnText: "#0e0e0d",
+} as const;
+
+export const scheduleLayout = {
+  pageHorizontalPadding: 16,
+  shellRadius: 28,
+  stripRadius: 20,
+  emptyRadius: 20,
+  rowRadius: 20,
+  arrowSize: 44,
+  chipMaxSize: 52,
+  bookBtnHeight: 40,
+} as const;

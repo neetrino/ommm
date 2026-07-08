@@ -1,10 +1,8 @@
 import { PlaceholderTabScreen } from "../../../src/features/shell/PlaceholderTabScreen";
+import { usePlaceholderTabCopy } from "../../../src/features/shell/usePlaceholderTabCopy";
 
 export default function AdminClientsRoute() {
-  return (
-    <PlaceholderTabScreen
-      title="Clients"
-      subtitle="Full directory and edits are available on the web back-office."
-    />
-  );
+  const copy = usePlaceholderTabCopy("ADMIN", "clients");
+
+  return <PlaceholderTabScreen title={copy.title} subtitle={copy.subtitle} />;
 }

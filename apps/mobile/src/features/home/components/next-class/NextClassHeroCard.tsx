@@ -4,6 +4,7 @@ import { figmaRemoteAssets } from "../../../../assets/figmaRemoteAssets";
 import { shadows } from "../../../../theme/tokens";
 import { nextClassStyles as styles } from "./nextClassStyles";
 import type { NextClassContent } from "./nextClassTypes";
+import { useMemberBookingCopy } from "../../../member/hooks/useMemberBookingCopy";
 
 type NextClassHeroCardProps = {
   content: NextClassContent;
@@ -14,6 +15,8 @@ export function NextClassHeroCard({
   content,
   onOpenClassPress,
 }: NextClassHeroCardProps) {
+  const bookingCopy = useMemberBookingCopy();
+
   return (
     <View style={styles.cardStage}>
       <View style={styles.backCardTilt} pointerEvents="none">
@@ -44,7 +47,7 @@ export function NextClassHeroCard({
               pressed && styles.iconButtonPressed,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Open class details"
+            accessibilityLabel={bookingCopy.nextClassOpenLabel}
           >
             <Image
               source={figmaRemoteAssets.iconArrowOut}

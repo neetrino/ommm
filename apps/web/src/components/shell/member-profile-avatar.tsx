@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { MarketingHeaderUserIcon } from "@/components/marketing/marketing-header-icons";
 import { MARKETING_HEADER_GUEST_USER_ICON_CLASS } from "@/components/marketing/marketing-site-header-layout";
 import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
@@ -15,6 +14,7 @@ type MemberProfileAvatarProps = {
 };
 
 export function MemberProfileAvatar({
+  initials,
   imageSrc,
   className,
   guestIconClassName = MARKETING_HEADER_GUEST_USER_ICON_CLASS,
@@ -26,7 +26,21 @@ export function MemberProfileAvatar({
   const showPhoto = safeSrc !== null && failedSrc !== safeSrc;
 
   if (!showPhoto) {
-    return <MarketingHeaderUserIcon className={guestIconClassName} />;
+    const shellClass = className ?? guestIconClassName;
+    return (
+      <span
+        className={[
+          "inline-flex size-full max-h-full max-w-full shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/70 ommm-user-avatar-placeholder-surface font-semibold leading-none text-sage-800",
+          "text-[0.55rem] lg:text-[0.65rem] nav-desktop:text-[0.7rem]",
+          shellClass,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        aria-hidden
+      >
+        {initials}
+      </span>
+    );
   }
 
   const photoClass = className

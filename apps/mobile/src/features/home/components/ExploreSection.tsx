@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { ExploreFeaturedJournal } from "./explore/ExploreFeaturedJournal";
 import { ExploreTileColumn } from "./explore/ExploreTileColumn";
 import { exploreStyles as styles } from "./explore/exploreStyles";
@@ -10,15 +11,13 @@ export function ExploreSection({
   journalTitle,
   tiles,
 }: ExploreSectionProps) {
+  const t = useTranslations("home.explore");
   const exploreScale = useExploreTileScale();
 
   return (
     <View style={styles.section}>
       <View style={styles.titleWrap}>
-        <Text style={styles.watermark} pointerEvents="none">
-          News
-        </Text>
-        <Text style={styles.title}>Explore</Text>
+        <Text style={styles.title}>{t("title")}</Text>
       </View>
 
       <ExploreFeaturedJournal

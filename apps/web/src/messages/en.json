@@ -100,8 +100,8 @@
       }
     },
     "gift": {
-      "titleStart": "Share",
-      "titleAccent": "Calm.",
+      "titleStart": "Sharm",
+      "titleAccent": "Calm",
       "body": "An Ommm gift card opens the studio for someone you love — classes, retreats, and quiet rituals, on their schedule.",
       "primaryCta": "Buy a gift card",
       "secondaryCta": "How it works"
@@ -481,9 +481,9 @@
         "progress": "Progress",
         "classes": "Classes",
         "schedule": "Schedule",
-        "bookings": "My bookings",
+        "bookings": "My Bookings",
         "waitlists": "Waitlists",
-        "packages": "My packages",
+        "packages": "My Packages",
         "payments": "Payments",
         "giftCards": "Gift cards",
         "notifications": "Notifications",
@@ -699,7 +699,7 @@
       "pagesAria": "Pages"
     },
     "packages": {
-      "title": "My packages",
+      "title": "My Packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
       "statusPending": "Payment completed",
       "paymentStatusSucceeded": "Completed",
@@ -806,7 +806,7 @@
       "unlocked": "Unlocked {date}"
     },
     "bookings": {
-      "title": "My bookings",
+      "title": "My Bookings",
       "tabs": {
         "aria": "Booking time range",
         "past": "Past",
@@ -1192,6 +1192,8 @@
       "accountInfo": "Account information",
       "security": "Security",
       "homeImage": "Home image",
+      "dangerZone": "Danger zone",
+      "dangerZoneLead": "Permanently delete your account and sign out. This cannot be undone.",
       "deleteAccount": "Delete account",
       "deleteAccountConfirmTitle": "Delete your account?",
       "deleteAccountConfirmDescription": "This permanently removes your account and signs you out. This cannot be undone.",
@@ -4108,6 +4110,9 @@
       "removingPhoto": "Removing…",
       "upload": "Upload",
       "uploading": "Uploading…",
+      "confirm": "Confirm",
+      "removePending": "Remove",
+      "pendingHint": "Preview — confirm to save this photo, or remove to choose another.",
       "previewAlt": "Home image preview",
       "emptyState": "No custom image — your dashboard uses the default layout."
     },

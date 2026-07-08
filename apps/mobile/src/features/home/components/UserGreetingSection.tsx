@@ -1,5 +1,11 @@
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
+import {
+  MEMBER_PROFILE_AVATAR_FILL,
+  MEMBER_PROFILE_AVATAR_INITIALS_COLOR,
+  memberProfileAvatarInitialsFontSize,
+} from "../../profile/memberProfileAvatarTokens";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, layout, radii, space } from "../../../theme/tokens";
 
@@ -8,12 +14,17 @@ type UserGreetingSectionProps = {
   displayName: string;
   /** Same custom photo as Home banner; fills the circular avatar when set. */
   avatarImageUri?: string | null;
+  /** Shown inside the avatar when no custom photo is set. */
+  avatarInitials?: string;
 };
 
 export function UserGreetingSection({
   displayName,
   avatarImageUri,
+  avatarInitials,
 }: UserGreetingSectionProps) {
+  const tDashboard = useTranslations("account.dashboard");
+
   return (
     <View style={styles.row}>
       <View style={styles.leftCluster}>
@@ -26,6 +37,10 @@ export function UserGreetingSection({
                 contentFit="cover"
                 accessibilityLabel="Your Home photo"
               />
+            ) : avatarInitials ? (
+              <View style={styles.avatarInitialsShell}>
+                <Text style={styles.avatarInitialsText}>{avatarInitials}</Text>
+              </View>
             ) : (
               <View
                 style={styles.avatarFill}
@@ -35,19 +50,20 @@ export function UserGreetingSection({
           </View>
         </View>
         <View style={styles.welcomeBlock}>
-          <Text style={styles.welcomeLine}>Welcome back,</Text>
+          <Text style={styles.welcomeLine}>{tDashboard("greeting")}</Text>
           <Text style={styles.welcomeLine}>{displayName}</Text>
         </View>
       </View>
       <View style={styles.headlineBlock}>
-        <Text style={styles.headlinePlain}>Find your</Text>
-        <Text style={styles.headlineAccent}>center today.</Text>
+        <Text style={styles.headlinePlain}>{tDashboard("titleStart")}</Text>
+        <Text style={styles.headlineAccent}>{tDashboard("titleAccent")}</Text>
       </View>
     </View>
   );
 }
 
 const AVATAR = layout.avatarSize;
+const AVATAR_INITIALS_SIZE = memberProfileAvatarInitialsFontSize(AVATAR);
 
 const styles = StyleSheet.create({
   row: {
@@ -75,16 +91,35 @@ const styles = StyleSheet.create({
     padding: 2,
     overflow: "hidden",
     backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarFill: {
-    flex: 1,
+    width: "100%",
+    height: "100%",
     borderRadius: radii.pill,
-    backgroundColor: colors.taupe,
+    backgroundColor: MEMBER_PROFILE_AVATAR_FILL,
+  },
+  avatarInitialsShell: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radii.pill,
+    backgroundColor: MEMBER_PROFILE_AVATAR_FILL,
+  },
+  avatarInitialsText: {
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: AVATAR_INITIALS_SIZE,
+    lineHeight: AVATAR_INITIALS_SIZE + 4,
+    color: MEMBER_PROFILE_AVATAR_INITIALS_COLOR,
+    textAlign: "center",
   },
   avatarImage: {
-    flex: 1,
+    width: "100%",
+    height: "100%",
     borderRadius: radii.pill,
-    backgroundColor: colors.taupe,
+    backgroundColor: MEMBER_PROFILE_AVATAR_FILL,
   },
   welcomeBlock: {
     justifyContent: "center",

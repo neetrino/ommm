@@ -1,18 +1,44 @@
 import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { SectionList, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import {
+  bookSession,
   fetchClassSessionsRange,
+  joinWaitlistSession,
   type ClassSessionRow,
 } from "../../../lib/api/memberClient";
 import { MEMBER_SESSION_RANGE_DAYS } from "../../../lib/member/sessionRangeDays";
+import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import {
-  formatDurationMinutes,
-  formatSessionStartLabel,
-} from "../../../lib/member/formatSessionLabels";
+  addDays,
+  isSameCalendarDay,
+  startOfLocalDay,
+} from "../../../lib/schedule/scheduleDateUtils";
+import {
+  buildScheduleInitialNav,
+  shiftScheduleDateWindow,
+  type ScheduleNavState,
+} from "../../../lib/schedule/scheduleNav";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
-import { colors, space, typography } from "../../../theme/tokens";
+import { AppHeader } from "../../../components/layout/AppHeader";
+import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
+import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
+import { ScheduleDateControls } from "../../schedule/components/ScheduleDateControls";
+import { ScheduleDayContent } from "../../schedule/components/ScheduleDayContent";
+import { ScheduleFiltersHeader } from "../../schedule/components/ScheduleFiltersHeader";
+import type { ScheduleFilterOption } from "../../schedule/components/ScheduleFilterField";
+import { useScheduleDayTransition } from "../../schedule/hooks/useScheduleDayTransition";
+import { ScheduleViewShell } from "../../schedule/components/ScheduleViewShell";
+import { useScheduleCopy } from "../../schedule/useScheduleCopy";
+import { scheduleColors } from "../../schedule/scheduleTokens";
+import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
+import { colors, layout, space } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
+
+const FILTER_ALL = "all";
 
 function sessionRange(): { from: Date; to: Date } {
   const from = new Date();
@@ -22,21 +48,39 @@ function sessionRange(): { from: Date; to: Date } {
   return { from, to };
 }
 
-function dayKey(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
+function buildFilterOptions(
+  values: readonly string[],
+  allLabel: string,
+): ScheduleFilterOption[] {
+  return [
+    { value: FILTER_ALL, label: allLabel },
+    ...values.map((value) => ({ value, label: value })),
+  ];
 }
 
-type Section = { title: string; data: ClassSessionRow[] };
+function isSessionFull(session: ClassSessionRow): boolean {
+  return session.status === "FULL" || session._count.bookings >= session.capacity;
+}
 
 export function MemberScheduleScreen() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const scheduleCopy = useScheduleCopy();
+  const bookingCopy = useMemberBookingCopy();
   const [sessions, setSessions] = useState<ClassSessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookingSessionId, setBookingSessionId] = useState<string | null>(null);
+  const [classType, setClassType] = useState(FILTER_ALL);
+  const [instructor, setInstructor] = useState(FILTER_ALL);
+  const [nav, setNav] = useState<ScheduleNavState>(() =>
+    buildScheduleInitialNav(startOfLocalDay(new Date())),
+  );
+
+  const maxDate = useMemo(() => {
+    const d = startOfLocalDay(new Date());
+    return addDays(d, MEMBER_SESSION_RANGE_DAYS);
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -45,12 +89,12 @@ export function MemberScheduleScreen() {
       const rows = await fetchClassSessionsRange(sessionRange());
       setSessions(rows);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load schedule");
+      setError(e instanceof Error ? e.message : scheduleCopy.loadError);
       setSessions([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [scheduleCopy.loadError]);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,60 +102,156 @@ export function MemberScheduleScreen() {
     }, [load]),
   );
 
-  const sections = useMemo<Section[]>(() => {
-    const map = new Map<string, ClassSessionRow[]>();
-    for (const s of sessions) {
-      const k = dayKey(s.startsAt);
-      const arr = map.get(k) ?? [];
-      arr.push(s);
-      map.set(k, arr);
-    }
-    return [...map.entries()].map(([title, data]) => ({
-      title,
-      data: data.sort(
+  const classTypeOptions = useMemo(
+    () =>
+      buildFilterOptions(
+        Array.from(new Set(sessions.map((s) => s.classType.name.trim()))).filter(
+          (name) => name.length > 0,
+        ),
+        scheduleCopy.filterClassTypeAll,
+      ),
+    [scheduleCopy.filterClassTypeAll, sessions],
+  );
+
+  const instructorOptions = useMemo(
+    () =>
+      buildFilterOptions(
+        Array.from(
+          new Set(
+            sessions
+              .map((s) => s.coach.user.name?.trim() ?? "")
+              .filter((name) => name.length > 0),
+          ),
+        ),
+        scheduleCopy.filterInstructorAll,
+      ),
+    [scheduleCopy.filterInstructorAll, sessions],
+  );
+
+  const visibleSessions = useMemo(() => {
+    return sessions
+      .filter((session) => isSameCalendarDay(new Date(session.startsAt), nav.selectedDate))
+      .filter((session) => classType === FILTER_ALL || session.classType.name === classType)
+      .filter((session) => {
+        if (instructor === FILTER_ALL) {
+          return true;
+        }
+        return (session.coach.user.name?.trim() ?? "") === instructor;
+      })
+      .sort(
         (a, b) =>
           new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
-      ),
-    }));
-  }, [sessions]);
+      );
+  }, [sessions, nav.selectedDate, classType, instructor]);
+
+  const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
+  const {
+    renderedSessions,
+    animationPhase,
+    containerStyle,
+    getItemDelayMs,
+  } = useScheduleDayTransition({
+    selectedDayKey,
+    visibleSessions,
+  });
+
+  const onBookPress = useCallback(
+    async (session: ClassSessionRow) => {
+      const token = await readStoredAccessToken();
+      if (token === null) {
+        router.push("/login");
+        return;
+      }
+
+      setBookingSessionId(session.id);
+      try {
+        if (isSessionFull(session)) {
+          await joinWaitlistSession(token, session.id);
+          Alert.alert(
+            bookingCopy.waitlistSuccessTitle,
+            bookingCopy.waitlistSuccessBody,
+          );
+        } else {
+          await bookSession(token, session.id);
+          Alert.alert(
+            bookingCopy.bookSuccessTitle,
+            bookingCopy.bookSuccessBody,
+          );
+        }
+        await load();
+      } catch (e) {
+        Alert.alert(
+          bookingCopy.actionFailedTitle,
+          e instanceof Error ? e.message : bookingCopy.actionFailedFallback,
+        );
+      } finally {
+        setBookingSessionId(null);
+      }
+    },
+    [bookingCopy, load, router],
+  );
+
+  const bottomPad =
+    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
+  const onHeaderBookPress = useAppHeaderBookPress();
+  const headerOffset = appHeaderScrollPaddingTop(insets.top);
 
   return (
     <View style={styles.root}>
       <GradientBackdrop />
-      <Text style={styles.heading}>Schedule</Text>
-      <Text style={styles.sub}>
-        Next {MEMBER_SESSION_RANGE_DAYS} days · same sessions as Classes.
-      </Text>
-      {loading ? (
-        <Text style={styles.meta}>Loading…</Text>
-      ) : error !== null ? (
-        <Text style={styles.error}>{error}</Text>
-      ) : (
-        <SectionList
-          sections={sections}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listPad}
-          ListEmptyComponent={
-            <Text style={styles.meta}>No sessions in range.</Text>
-          }
-          renderSectionHeader={({ section: { title } }) => (
-            <Text style={styles.sectionTitle}>{title}</Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: headerOffset, paddingBottom: bottomPad },
+        ]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.pageTitle}>{scheduleCopy.pageTitle}</Text>
+
+        <ScheduleViewShell>
+          <ScheduleFiltersHeader
+            classType={classType}
+            instructor={instructor}
+            classTypeOptions={classTypeOptions}
+            instructorOptions={instructorOptions}
+            onClassTypeChange={setClassType}
+            onInstructorChange={setInstructor}
+          />
+
+          <ScheduleDateControls
+            locale={scheduleCopy.intlLocale}
+            selectedDate={nav.selectedDate}
+            windowStart={nav.windowStart}
+            maxDate={maxDate}
+            onSelectDay={(date) =>
+              setNav((current) => ({ ...current, selectedDate: date }))
+            }
+            onShiftWindow={(deltaDays) =>
+              setNav((current) =>
+                shiftScheduleDateWindow(current, deltaDays, startOfLocalDay(new Date())),
+              )
+            }
+          />
+
+          {loading ? (
+            <Text style={styles.meta}>{scheduleCopy.loading}</Text>
+          ) : error !== null ? (
+            <Text style={styles.error}>{error}</Text>
+          ) : (
+            <ScheduleDayContent
+              locale={scheduleCopy.intlLocale}
+              animationPhase={animationPhase}
+              containerStyle={containerStyle}
+              renderedSessions={renderedSessions}
+              getItemDelayMs={getItemDelayMs}
+              onBookPress={onBookPress}
+              bookingSessionId={bookingSessionId}
+            />
           )}
-          renderItem={({ item }) => {
-            const coach = item.coach.user.name?.trim() || "Coach";
-            const timeOnly = formatSessionStartLabel(item.startsAt, "en-US");
-            const dur = formatDurationMinutes(item.startsAt, item.endsAt);
-            return (
-              <View style={styles.row}>
-                <Text style={styles.rowTitle}>{item.classType.name}</Text>
-                <Text style={styles.rowMeta}>
-                  {timeOnly} · {dur} · {coach}
-                </Text>
-              </View>
-            );
-          }}
-        />
-      )}
+        </ScheduleViewShell>
+      </ScrollView>
+      <AppHeader onBookPress={onHeaderBookPress} />
     </View>
   );
 }
@@ -121,65 +261,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  heading: {
-    marginTop: space.lg,
-    marginHorizontal: space.screenHorizontal,
-    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
-    fontSize: typography.sectionTitle,
-    color: colors.primaryGreen80,
+  content: {
+    paddingHorizontal: SCHEDULE_PAGE_MOBILE.pageHorizontalPaddingPx,
+    gap: SCHEDULE_PAGE_MOBILE.pageTitleToShellGapPx,
   },
-  sub: {
-    marginTop: space.xs,
-    marginHorizontal: space.screenHorizontal,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.caption,
-    color: colors.bodyMuted,
-  },
-  listPad: {
-    paddingBottom: space.xxl,
-  },
-  sectionTitle: {
-    marginTop: space.lg,
-    marginBottom: space.sm,
-    marginHorizontal: space.screenHorizontal,
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.warmBrown,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  row: {
-    marginHorizontal: space.screenHorizontal,
-    marginBottom: space.sm,
-    padding: space.md,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.white,
-  },
-  rowTitle: {
-    fontFamily: fontFamilies.gtSuperDs.regular,
-    fontSize: typography.body,
-    color: colors.ink,
-  },
-  rowMeta: {
-    marginTop: 4,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.caption,
-    color: colors.bodyMuted,
+  pageTitle: {
+    fontFamily: fontFamilies.gtSuperDs.boldItalic,
+    fontSize: SCHEDULE_PAGE_MOBILE.pageTitleSizePx,
+    lineHeight: SCHEDULE_PAGE_MOBILE.pageTitleLineHeightPx,
+    letterSpacing: -0.88,
+    color: scheduleColors.pageTitle,
   },
   meta: {
-    marginTop: space.lg,
-    marginHorizontal: space.screenHorizontal,
     fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    color: colors.bodyMuted,
+    fontSize: 14,
+    color: scheduleColors.muted,
+    textAlign: "center",
   },
   error: {
-    marginTop: space.lg,
-    marginHorizontal: space.screenHorizontal,
     fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
+    fontSize: 14,
     color: colors.warmBrown,
+    textAlign: "center",
   },
 });

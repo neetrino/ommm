@@ -7,11 +7,11 @@ export function userMemberPath(segment: string): string {
 }
 
 /**
- * Signed-out tab placeholders at `(main)/classes`, `(main)/plans`, etc.
+ * Signed-out tab placeholders at `(main)/classes`, `(main)/packages`, etc.
  * Do not use `/user/*` here — those routes require `Role.USER`.
  */
 export const guestPublicTabPath = {
   classes: "/classes",
-  plans: "/plans",
+  packages: "/packages",
   schedule: "/schedule",
 } as const;

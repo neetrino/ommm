@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import {
@@ -36,12 +36,18 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
         <View style={styles.overlay}>
           <Text style={styles.title} accessibilityRole="header">
             <Text style={styles.titlePlain}>{content.titleLead}</Text>
+            <Text> </Text>
             <Text style={styles.titleAccent}>{content.titleAccent}</Text>
           </Text>
 
           <View style={styles.subtitleBlock}>
             {content.subtitleLines.map((line) => (
-              <Text key={line} style={styles.subtitle}>
+              <Text
+                key={line}
+                style={styles.subtitle}
+                numberOfLines={3}
+                ellipsizeMode="tail"
+              >
                 {line}
               </Text>
             ))}
@@ -80,15 +86,16 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radii.banner,
     overflow: "hidden",
-    minHeight: giftCard.minHeight,
+    height: giftCard.minHeight,
   },
   gradient: {
     ...StyleSheet.absoluteFillObject,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.overlayGreen20,
+    flexDirection: "column",
     alignItems: "center",
+    backgroundColor: colors.overlayGreen20,
     paddingHorizontal: giftCard.overlayPaddingHorizontal,
     paddingBottom: giftCard.overlayPaddingBottom,
   },
@@ -123,28 +130,30 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   subtitleBlock: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
     marginTop: giftCard.subtitleMarginTop,
     maxWidth: giftCard.subtitleMaxWidth,
     minHeight: giftCard.subtitleMinHeight,
     paddingHorizontal: giftCard.subtitleInnerPaddingHorizontal,
-    justifyContent: "center",
   },
   subtitle: {
     fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.body,
-    lineHeight: 24,
+    fontSize: typography.bodySmall,
+    lineHeight: 20,
     textAlign: "center",
     color: colors.white90,
   },
   cta: {
-    marginTop: giftCard.ctaMarginTop,
-    minHeight: giftCard.ctaMinHeight,
+    marginTop: "auto",
+    alignSelf: "center",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.white,
     paddingHorizontal: giftCard.ctaPaddingHorizontal,
     paddingVertical: giftCard.ctaPaddingVertical,
+    minHeight: giftCard.ctaMinHeight,
     borderRadius: giftCard.ctaBorderRadius,
   },
   ctaPressed: {
@@ -153,10 +162,14 @@ const styles = StyleSheet.create({
   ctaLabel: {
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.body,
-    lineHeight: 24,
+    lineHeight: 22,
     letterSpacing: giftCard.ctaLetterSpacing,
     textTransform: "uppercase",
     color: colors.primaryGreen,
     textAlign: "center",
+    ...Platform.select({
+      android: { includeFontPadding: false },
+      default: {},
+    }),
   },
 });

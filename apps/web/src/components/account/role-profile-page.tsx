@@ -9,6 +9,7 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { userDisplayInitials } from "@/lib/user-display-initials";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -61,6 +62,7 @@ export async function RoleProfilePage({
   const coachProfileId = res.data.coachProfileId ?? null;
   const coachBio = user.role === "COACH" ? (res.data.coachBio ?? null) : null;
   const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null) ?? null;
+  const profileInitials = userDisplayInitials(user.name, user.lastName, user.email);
   const workspaceHeading =
     workspaceNoteVariant !== undefined
       ? tStaff(`workspace.${workspaceNoteVariant}.heading`)
@@ -79,7 +81,10 @@ export async function RoleProfilePage({
       <AccountSection title={t("accountInfo")}>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
           <div className="mx-auto w-full max-w-[300px] lg:col-span-4 lg:mx-0 lg:max-w-none xl:col-span-3">
-            <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
+            <AccountHomeImageForm
+              initialPreviewUrl={homePreviewUrl}
+              profileInitials={profileInitials}
+            />
           </div>
           <div className="min-w-0 lg:col-span-8 xl:col-span-9">
             <AccountProfileInfoForm

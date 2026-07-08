@@ -1,16 +1,18 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet } from "react-native";
-import { gradients } from "../../theme/tokens";
+import { StyleSheet, View } from "react-native";
+import { colors } from "../../theme/tokens";
 
+/** Solid page backdrop — matches web Schedule / Packages / Contact (`#fbf5d5`). */
 export function GradientBackdrop() {
   return (
-    <LinearGradient
+    <View
       pointerEvents="none"
-      colors={[...gradients.screen.colors]}
-      locations={[...gradients.screen.locations]}
-      start={gradients.screen.start}
-      end={gradients.screen.end}
-      style={StyleSheet.absoluteFill}
+      style={[StyleSheet.absoluteFill, styles.backdrop]}
     />
   );
 }
+
+const styles = StyleSheet.create({
+  backdrop: {
+    backgroundColor: colors.canvas,
+  },
+});

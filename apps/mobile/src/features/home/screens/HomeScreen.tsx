@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -13,10 +12,12 @@ import {
   guestPublicTabPath,
   userMemberPath,
 } from "../../../navigation/memberPaths";
-import { homeMock } from "../../../lib/mocks/homeMock";
-import { colors, gradients, layout, space, typography } from "../../../theme/tokens";
+import { AppHeader } from "../../../components/layout/AppHeader";
+import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
+import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
+import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { colors, layout, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { AppHeader } from "../components/AppHeader";
 import { ExploreMoreButton } from "../components/ExploreMoreButton";
 import { ExploreSection } from "../components/ExploreSection";
 import { GiftCardSection } from "../components/GiftCardSection";
@@ -28,36 +29,24 @@ import {
 import { NextClassSection } from "../components/NextClassSection";
 import { UserGreetingSection } from "../components/UserGreetingSection";
 import { WaitlistSection } from "../components/WaitlistSection";
+import { useHomeGiftContent } from "../hooks/useHomeContent";
 import { useMemberHomeFeed } from "../hooks/useMemberHomeFeed";
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { isSignedIn, userGreetingName, homeImageUri } = useSession();
+  const { isSignedIn, userGreetingName, homeImageUri, profileInitials } = useSession();
+  const giftContent = useHomeGiftContent();
   const feed = useMemberHomeFeed(isSignedIn);
 
-  const headerOffset = insets.top + 90;
+  const headerOffset = appHeaderScrollPaddingTop(insets.top);
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
-
-  const onHeaderBookPress = () => {
-    if (isSignedIn) {
-      router.push(userMemberPath("classes"));
-      return;
-    }
-    router.push("/login");
-  };
+  const onHeaderBookPress = useAppHeaderBookPress();
 
   return (
     <View style={styles.root}>
-      <LinearGradient
-        pointerEvents="none"
-        colors={[...gradients.screen.colors]}
-        locations={[...gradients.screen.locations]}
-        start={gradients.screen.start}
-        end={gradients.screen.end}
-        style={StyleSheet.absoluteFill}
-      />
+      <GradientBackdrop />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -84,6 +73,7 @@ export function HomeScreen() {
             <UserGreetingSection
               displayName={userGreetingName}
               avatarImageUri={homeImageUri}
+              avatarInitials={profileInitials}
             />
             {!feed.loading && feed.error === null ? (
               <>
@@ -97,9 +87,7 @@ export function HomeScreen() {
                       router.push(userMemberPath("classes"))
                     }
                   />
-                ) : (
-                  <Text style={styles.emptyBlock}>You have no bookings</Text>
-                )}
+                ) : null}
                 <WaitlistSection items={feed.waitlistItems} />
               </>
             ) : null}
@@ -112,8 +100,8 @@ export function HomeScreen() {
               onPress={() => router.push(userMemberPath("classes"))}
             />
             <GiftCardSection
-              content={homeMock.giftCard}
-              onBuyPress={() => router.push(userMemberPath("plans"))}
+              content={giftContent}
+              onBuyPress={() => router.push(userMemberPath("packages"))}
             />
           </>
         ) : (
@@ -131,7 +119,7 @@ export function HomeScreen() {
                   return;
                 }
                 if (key === "packages") {
-                  router.push(guestPublicTabPath.plans);
+                  router.push(guestPublicTabPath.packages);
                   return;
                 }
                 router.push(guestPublicTabPath.classes);
@@ -150,7 +138,7 @@ export function HomeScreen() {
               />
             </View>
             <GiftCardSection
-              content={homeMock.giftCard}
+              content={giftContent}
               onBuyPress={() => router.push("/login")}
             />
           </>
@@ -184,13 +172,5 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall,
     lineHeight: 20,
     color: colors.warmBrown,
-  },
-  emptyBlock: {
-    marginHorizontal: space.screenHorizontal,
-    marginBottom: space.section,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 20,
-    color: colors.bodyMuted,
   },
 });

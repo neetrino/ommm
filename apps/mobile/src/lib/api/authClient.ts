@@ -9,8 +9,11 @@ export type AuthUserSummary = {
   role: string;
   email: string;
   name: string | null;
+  lastName: string | null;
   /** Public path or absolute URL for custom Home banner; null if unset. */
   homeImageUrl: string | null;
+  /** UI locale preference from the API (`hy` | `en` | `ru`). */
+  locale?: string | null;
 };
 
 export type AuthSuccessResponse = {
@@ -51,10 +54,20 @@ function isAuthUserSummary(value: unknown): value is AuthUserSummary {
   if (u.name !== null && u.name !== undefined && typeof u.name !== "string") {
     return false;
   }
+  if (u.lastName !== null && u.lastName !== undefined && typeof u.lastName !== "string") {
+    return false;
+  }
   if (
     u.homeImageUrl !== null &&
     u.homeImageUrl !== undefined &&
     typeof u.homeImageUrl !== "string"
+  ) {
+    return false;
+  }
+  if (
+    u.locale !== null &&
+    u.locale !== undefined &&
+    typeof u.locale !== "string"
   ) {
     return false;
   }
@@ -65,16 +78,20 @@ function mapAuthUser(u: {
   role: string;
   email: string;
   name: string | null;
+  lastName?: string | null;
   homeImageUrl?: string | null;
+  locale?: string | null;
 }): AuthUserSummary {
   return {
     role: u.role,
     email: u.email,
     name: u.name ?? null,
+    lastName: u.lastName === undefined || u.lastName === null ? null : u.lastName,
     homeImageUrl:
       u.homeImageUrl === undefined || u.homeImageUrl === null
         ? null
         : u.homeImageUrl,
+    locale: u.locale === undefined || u.locale === null ? null : u.locale,
   };
 }
 
@@ -164,7 +181,9 @@ async function postAuth(path: string, body: unknown): Promise<AuthSuccessRespons
       role: u.role,
       email: u.email,
       name: u.name ?? null,
+      lastName: (u as { lastName?: string | null }).lastName ?? null,
       homeImageUrl: u.homeImageUrl ?? null,
+      locale: (u as { locale?: string | null }).locale ?? null,
     }),
   };
 }
@@ -185,6 +204,7 @@ export async function authRegister(params: {
   name: string;
   lastName: string;
   phone: string;
+  locale?: string;
 }): Promise<AuthSuccessResponse> {
   return postAuth("/v1/auth/register", {
     email: params.email.trim().toLowerCase(),
@@ -192,6 +212,7 @@ export async function authRegister(params: {
     name: params.name.trim(),
     lastName: params.lastName.trim(),
     phone: params.phone.trim(),
+    locale: params.locale,
   });
 }
 
@@ -247,6 +268,8 @@ export async function fetchSessionUser(accessToken: string): Promise<AuthUserSum
     role: u.role,
     email: u.email,
     name: u.name ?? null,
+    lastName: (u as { lastName?: string | null }).lastName ?? null,
     homeImageUrl: (u as { homeImageUrl?: string | null }).homeImageUrl ?? null,
+    locale: (u as { locale?: string | null }).locale ?? null,
   });
 }

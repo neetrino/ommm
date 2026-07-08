@@ -4,36 +4,46 @@ import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useSession } from "../../../auth/SessionProvider";
 import type { UploadPickResult } from "../../../lib/api/usersClient";
-import { uploadHomeImage } from "../../../lib/api/usersClient";
-import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import { deleteHomeImage, uploadHomeImage } from "../../../lib/api/usersClient";
+import { useTranslations } from "../../../i18n/I18nProvider";
+import { colors } from "../../../theme/tokens";
+import { ProfileGlassCard } from "./ProfileGlassCard";
+import { profileHomeImageSectionStyles as styles } from "./profileHomeImageSection.styles";
 
 const HOME_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
 export function ProfileHomeImageSection() {
-  const { refreshProfile, homeImageUri } = useSession();
-  const [pick, setPick] = useState<UploadPickResult | null>(null);
+  const { refreshProfile, homeImageUri, profileInitials } = useSession();
+  const tHomeImage = useTranslations("forms.homeImage");
+  const tProfile = useTranslations("userPages.profile");
+  const [pendingPick, setPendingPick] = useState<UploadPickResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<{
     kind: "ok" | "err";
     text: string;
   } | null>(null);
 
-  const displayPreviewUri = pick?.uri ?? homeImageUri;
+  const hasPendingPreview = pendingPick !== null;
+  const hasSavedPhoto =
+    !hasPendingPreview && homeImageUri !== null && homeImageUri !== "";
+  const displayPreviewUri = hasPendingPreview ? pendingPick.uri : homeImageUri;
 
-  const onPickPress = useCallback(async () => {
+  const onChoosePress = useCallback(async () => {
+    if (busy || hasPendingPreview) {
+      return;
+    }
+
     setFeedback(null);
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
       setFeedback({
         kind: "err",
-        text: "Photo library access is required to choose an image.",
+        text: tHomeImage("readFailed"),
       });
       return;
     }
@@ -56,63 +66,96 @@ export function ProfileHomeImageSection() {
     ) {
       setFeedback({
         kind: "err",
-        text: "Image is too large. Maximum size is 5 MB.",
+        text: tHomeImage("tooLarge"),
       });
       return;
     }
 
-    setPick({
+    setPendingPick({
       uri: asset.uri,
       mimeType: asset.mimeType ?? "image/jpeg",
       fileName: asset.fileName ?? undefined,
     });
-  }, []);
+  }, [busy, hasPendingPreview, tHomeImage]);
 
-  const onUploadPress = useCallback(async () => {
+  const onRemovePendingPress = useCallback(() => {
+    if (busy) {
+      return;
+    }
+    setPendingPick(null);
     setFeedback(null);
-    if (pick === null) {
-      setFeedback({
-        kind: "err",
-        text: "Choose an image first.",
-      });
+  }, [busy]);
+
+  const onDeleteSavedPress = useCallback(async () => {
+    if (busy || !hasSavedPhoto) {
       return;
     }
 
     setBusy(true);
+    setFeedback(null);
     try {
-      await uploadHomeImage(pick);
-      setFeedback({ kind: "ok", text: "Home image updated successfully." });
-      setPick(null);
+      await deleteHomeImage();
+      setFeedback({ kind: "ok", text: tHomeImage("deletePhotoSuccess") });
       await refreshProfile();
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "Something went wrong. Please try again.";
+        e instanceof Error ? e.message : tHomeImage("deletePhotoFailed");
       setFeedback({ kind: "err", text: message });
     } finally {
       setBusy(false);
     }
-  }, [pick, refreshProfile]);
+  }, [busy, hasSavedPhoto, refreshProfile, tHomeImage]);
+
+  const onConfirmPress = useCallback(async () => {
+    if (busy || pendingPick === null) {
+      return;
+    }
+
+    setBusy(true);
+    setFeedback(null);
+    try {
+      await uploadHomeImage(pendingPick);
+      setFeedback({ kind: "ok", text: tHomeImage("uploadSuccess") });
+      setPendingPick(null);
+      await refreshProfile();
+    } catch (e) {
+      const message =
+        e instanceof Error ? e.message : tHomeImage("uploadFailed");
+      setFeedback({ kind: "err", text: message });
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, pendingPick, refreshProfile, tHomeImage]);
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.sectionTitle}>Home image</Text>
-      <Text style={styles.sectionLead}>
-        Custom photo shown at the top of your Home tab. JPG, PNG, or WEBP up to 5 MB.
-      </Text>
+    <ProfileGlassCard contentStyle={styles.card}>
+      <Text style={styles.sectionTitle}>{tProfile("homeImage")}</Text>
+      <Text style={styles.sectionLead}>{tProfile("homeImageLead")}</Text>
 
       {displayPreviewUri !== null && displayPreviewUri !== "" ? (
-        <View style={styles.previewWrap}>
+        <View
+          style={[
+            styles.previewWrap,
+            hasPendingPreview && styles.previewWrapPending,
+          ]}
+        >
           <Image
             source={{ uri: displayPreviewUri }}
             style={styles.previewImage}
             contentFit="cover"
             accessibilityRole="image"
-            accessibilityLabel="Home image preview"
+            accessibilityLabel={tHomeImage("previewAlt")}
           />
         </View>
       ) : (
-        <Text style={styles.placeholder}>No custom image yet — default Home layout applies.</Text>
+        <View style={styles.initialsPreviewWrap}>
+          <Text style={styles.initialsPreviewText}>{profileInitials}</Text>
+        </View>
       )}
+
+      {hasPendingPreview ? (
+        <Text style={styles.pendingHint}>{tHomeImage("pendingHint")}</Text>
+      ) : null}
 
       {feedback ? (
         <Text
@@ -123,138 +166,98 @@ export function ProfileHomeImageSection() {
         </Text>
       ) : null}
 
-      <View style={styles.row}>
+      {hasPendingPreview ? (
+        <View style={styles.row}>
+          <Pressable
+            onPress={onRemovePendingPress}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.secondaryBtn,
+              pressed && !busy && styles.secondaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={tHomeImage("removePending")}
+            accessibilityState={{ disabled: busy }}
+          >
+            <Text style={styles.removeLabel}>{tHomeImage("removePending")}</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => void onConfirmPress()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && !busy && styles.primaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={tHomeImage("confirm")}
+            accessibilityState={{ disabled: busy }}
+          >
+            {busy ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.primaryLabel}>{tHomeImage("confirm")}</Text>
+            )}
+          </Pressable>
+        </View>
+      ) : hasSavedPhoto ? (
+        <View style={styles.row}>
+          <Pressable
+            onPress={() => void onChoosePress()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && !busy && styles.primaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={tHomeImage("chooseImage")}
+            accessibilityState={{ disabled: busy }}
+          >
+            {busy ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.primaryLabel}>{tHomeImage("chooseImage")}</Text>
+            )}
+          </Pressable>
+
+          <Pressable
+            onPress={() => void onDeleteSavedPress()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.secondaryBtn,
+              pressed && !busy && styles.secondaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={tHomeImage("deletePhoto")}
+            accessibilityState={{ disabled: busy }}
+          >
+            <Text style={styles.removeLabel}>{tHomeImage("deletePhoto")}</Text>
+          </Pressable>
+        </View>
+      ) : (
         <Pressable
-          onPress={() => void onPickPress()}
+          onPress={() => void onChoosePress()}
           disabled={busy}
           style={({ pressed }) => [
-            styles.secondaryBtn,
-            pressed && !busy && styles.secondaryPressed,
+            styles.primaryBtn,
+            pressed && !busy && styles.primaryPressed,
             busy && styles.btnDisabled,
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Choose image"
-        >
-          <Text style={styles.secondaryLabel}>Choose image</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => void onUploadPress()}
-          disabled={busy || pick === null}
-          style={({ pressed }) => [
-            styles.primaryBtn,
-            pressed && !busy && pick !== null && styles.primaryPressed,
-            (busy || pick === null) && styles.btnDisabled,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Upload home image"
-          accessibilityState={{ disabled: busy || pick === null }}
+          accessibilityLabel={tHomeImage("chooseImage")}
+          accessibilityState={{ disabled: busy }}
         >
           {busy ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.primaryLabel}>Save to Home</Text>
+            <Text style={styles.primaryLabel}>{tHomeImage("chooseImage")}</Text>
           )}
         </Pressable>
-      </View>
-    </View>
+      )}
+    </ProfileGlassCard>
   );
 }
-
-const PREVIEW_HEIGHT = 200;
-
-const styles = StyleSheet.create({
-  card: {
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radii.labelCard,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.overlayWhite38,
-  },
-  sectionTitle: {
-    fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle,
-    color: colors.primaryGreen,
-  },
-  sectionLead: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 20,
-    color: colors.secondarySage,
-  },
-  previewWrap: {
-    borderRadius: radii.labelCard,
-    overflow: "hidden",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.primaryGreen,
-  },
-  previewImage: {
-    width: "100%",
-    height: PREVIEW_HEIGHT,
-  },
-  placeholder: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    color: colors.bodyMuted,
-    fontStyle: "italic",
-  },
-  feedbackOk: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
-  },
-  feedbackErr: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.danger,
-  },
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: space.sm,
-    alignItems: "center",
-  },
-  secondaryBtn: {
-    flexGrow: 1,
-    minWidth: 120,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 48,
-    paddingHorizontal: space.md,
-    borderRadius: radii.pill,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderColor: colors.overlayGreen20,
-    backgroundColor: colors.overlayWhite20,
-  },
-  secondaryPressed: {
-    opacity: 0.88,
-  },
-  primaryBtn: {
-    flexGrow: 1,
-    minWidth: 140,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 48,
-    paddingHorizontal: space.md,
-    borderRadius: radii.pill,
-    backgroundColor: colors.primaryGreen,
-  },
-  primaryPressed: {
-    opacity: 0.92,
-  },
-  btnDisabled: {
-    opacity: 0.55,
-  },
-  secondaryLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
-  },
-  primaryLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.white,
-  },
-});

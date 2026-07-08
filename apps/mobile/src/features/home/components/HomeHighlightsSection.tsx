@@ -5,9 +5,9 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { useHomeMarketingCopy } from "../hooks/useHomeContent";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, shadows, space, typography } from "../../../theme/tokens";
-import { homeMarketingCopy } from "../content/homeMarketingCopy";
 
 const CARD_GAP = 20;
 const CARD_MIN_WIDTH = 158;
@@ -19,6 +19,7 @@ type HomeHighlightsSectionProps = {
 };
 
 export function HomeHighlightsSection({ onCardPress }: HomeHighlightsSectionProps) {
+  const copy = useHomeMarketingCopy();
   const { width } = useWindowDimensions();
   const horizontal = space.screenHorizontal;
   const usable = width - horizontal * 2;
@@ -28,12 +29,12 @@ export function HomeHighlightsSection({ onCardPress }: HomeHighlightsSectionProp
   return (
     <View style={[styles.wrap, { paddingHorizontal: horizontal }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>{homeMarketingCopy.highlights.title}</Text>
-        <Text style={styles.lead}>{homeMarketingCopy.highlights.lead}</Text>
+        <Text style={styles.title}>{copy.highlights.title}</Text>
+        <Text style={styles.lead}>{copy.highlights.lead}</Text>
       </View>
 
       <View style={[styles.grid, { gap: CARD_GAP }]}>
-        {homeMarketingCopy.highlights.cards.map((item, index) => {
+        {copy.highlights.cards.map((item, index) => {
           const cardWidthStyle =
             !twoCol || (twoCol && index === 2)
               ? ({ width: "100%" as const } as const)
@@ -49,12 +50,12 @@ export function HomeHighlightsSection({ onCardPress }: HomeHighlightsSectionProp
                 shadows.bookingCard,
               ]}
               accessibilityRole="button"
-              accessibilityLabel={`${item.title}. ${homeMarketingCopy.highlights.cta}`}
+              accessibilityLabel={`${item.title}. ${copy.highlights.cta}`}
             >
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Text style={styles.cardBody}>{item.body}</Text>
               <Text style={styles.cardCta}>
-                {homeMarketingCopy.highlights.cta}
+                {copy.highlights.cta}
                 <Text style={styles.cardArrow}> →</Text>
               </Text>
             </Pressable>

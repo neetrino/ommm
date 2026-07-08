@@ -25,6 +25,10 @@ import {
 import { SESSION_STORAGE_KEY } from "./persistedSession";
 import { homeHrefForRole } from "./roleHome";
 import { sessionGreetingDisplayName } from "./sessionGreetingDisplayName";
+import { buildProfileInitials } from "../features/profile/profileInitials";
+import { useI18n } from "../i18n/I18nProvider";
+import { pickUiLocaleForUser, writeStoredUiLocale } from "../i18n/localeStorage";
+import type { AppUiLocale } from "../i18n/locales";
 
 type SessionContextValue = {
   isReady: boolean;
@@ -39,6 +43,8 @@ type SessionContextValue = {
   userEmail: string;
   /** Resolved absolute URI for custom Home image, or null. */
   homeImageUri: string | null;
+  /** Initials from name/surname when no custom photo is set. */
+  profileInitials: string;
   refreshProfile: () => Promise<void>;
   establishSession: (accessToken: string, user?: AuthUserSummary) => Promise<void>;
   signInWithPassword: (email: string, password: string) => Promise<string>;
@@ -48,6 +54,7 @@ type SessionContextValue = {
     name: string;
     lastName: string;
     phone: string;
+    locale?: AppUiLocale;
   }) => Promise<string>;
   signOut: () => Promise<void>;
 };
@@ -63,6 +70,7 @@ async function clearLegacySignedInFlag(): Promise<void> {
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
+  const { locale, alignLocaleFromUser } = useI18n();
   const [isReady, setIsReady] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [sessionProfile, setSessionProfile] = useState<AuthUserSummary | null>(null);
@@ -95,6 +103,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (!cancelled) {
           setSessionProfile(user);
           setIsSignedIn(true);
+          alignLocaleFromUser(user.locale ?? undefined);
         }
       } catch {
         await clearStoredAccessToken();
@@ -111,22 +120,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [alignLocaleFromUser]);
 
   const establishSession = useCallback(async (accessToken: string, user?: AuthUserSummary) => {
     await persistAccessToken(accessToken);
     const profile = user ?? (await fetchSessionUser(accessToken));
     setSessionProfile(profile);
     setIsSignedIn(true);
-  }, []);
+    alignLocaleFromUser(profile.locale ?? undefined);
+  }, [alignLocaleFromUser]);
 
   const signInWithPassword = useCallback(
     async (email: string, password: string) => {
       const { accessToken, user } = await authLogin({ email, password });
       await establishSession(accessToken, user);
+      void writeStoredUiLocale(pickUiLocaleForUser(user.locale ?? undefined, locale));
       return homeHrefForRole(user.role);
     },
-    [establishSession],
+    [establishSession, locale],
   );
 
   const registerAccount = useCallback(
@@ -136,12 +147,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       name: string;
       lastName: string;
       phone: string;
+      locale?: AppUiLocale;
     }) => {
-      const { accessToken, user } = await authRegister(params);
+      const { accessToken, user } = await authRegister({
+        ...params,
+        locale: params.locale ?? locale,
+      });
       await establishSession(accessToken, user);
+      void writeStoredUiLocale(pickUiLocaleForUser(user.locale ?? undefined, locale));
       return homeHrefForRole(user.role);
     },
-    [establishSession],
+    [establishSession, locale],
   );
 
   const refreshProfile = useCallback(async () => {
@@ -197,6 +213,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [sessionProfile],
   );
 
+  const profileInitials = useMemo(
+    () =>
+      sessionProfile === null
+        ? ""
+        : buildProfileInitials({
+            name: sessionProfile.name,
+            lastName: sessionProfile.lastName,
+            email: sessionProfile.email,
+          }),
+    [sessionProfile],
+  );
+
   const role = useMemo(
     () => (sessionProfile === null ? null : sessionProfile.role),
     [sessionProfile],
@@ -211,6 +239,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       userGreetingName,
       userEmail,
       homeImageUri,
+      profileInitials,
       refreshProfile,
       establishSession,
       signInWithPassword,
@@ -223,6 +252,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       homeImageUri,
       isReady,
       isSignedIn,
+      profileInitials,
       refreshProfile,
       registerAccount,
       role,

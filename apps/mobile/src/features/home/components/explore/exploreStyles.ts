@@ -1,12 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 import { fontFamilies } from "../../../../theme/fontFamilies";
-import {
-  colors,
-  exploreTile,
-  radii,
-  space,
-  typography,
-} from "../../../../theme/tokens";
+import { colors, radii, space, typography } from "../../../../theme/tokens";
 import { EXPLORE_JOURNAL_GLASS_BASE } from "./exploreConstants";
 
 export const exploreStyles = StyleSheet.create({
@@ -16,18 +10,7 @@ export const exploreStyles = StyleSheet.create({
     gap: space.section + space.md,
   },
   titleWrap: {
-    position: "relative",
     justifyContent: "flex-end",
-    minHeight: 40,
-  },
-  watermark: {
-    position: "absolute",
-    right: -space.md,
-    top: -space.xl,
-    fontFamily: fontFamilies.gtSuperDs.regularItalic,
-    fontSize: typography.watermark,
-    lineHeight: typography.watermark,
-    color: colors.watermark,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
