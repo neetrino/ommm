@@ -84,63 +84,59 @@ export function HomeWeeklyScheduleSessionRow({
         ["--home-schedule-row-padding" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowPadding,
       }}
     >
-      <div className={styles.info}>
-        <div className={styles.timeCluster}>
-          {dateTimeDisplay !== null ? (
-            <SessionDateTimeListDateChip display={dateTimeDisplay} />
-          ) : null}
-          <Image
-            src={HOME_WEEKLY_SCHEDULE_ASSETS.clockIcon}
-            alt=""
-            width={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
-            height={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
-            unoptimized
-            className="shrink-0"
-            aria-hidden
-            {...belowFoldImageProps()}
-          />
-          <p
-            className={`${styles.time} text-lg font-bold leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-            style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
-          >
-            {timeLabel}
-          </p>
-        </div>
-
-        <div className={styles.classBlock}>
-          <p
-            className="truncate text-lg font-extrabold leading-[1.875rem] tracking-[0.0375rem] sm:text-xl"
-            style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
-          >
-            {item.className}
-          </p>
-          <p
-            className="truncate text-sm font-normal leading-[1.3125rem]"
-            style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
-          >
-            {withInstructorLabel}
-          </p>
-        </div>
-
-        <div className={styles.meta}>
-          <p
-            className={`${styles.duration} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-            style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
-          >
-            {durationLabel}
-          </p>
-          <p
-            className={`${styles.spots} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-            style={{
-              color: spotsUrgent
-                ? HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgent
-                : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
-            }}
-          >
-            {spotsLeftLabel}
-          </p>
-        </div>
+      <div className={styles.timeCluster}>
+        {dateTimeDisplay !== null ? (
+          <SessionDateTimeListDateChip display={dateTimeDisplay} />
+        ) : null}
+        <Image
+          src={HOME_WEEKLY_SCHEDULE_ASSETS.clockIcon}
+          alt=""
+          width={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
+          height={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
+          unoptimized
+          className="shrink-0"
+          aria-hidden
+          {...belowFoldImageProps()}
+        />
+        <p
+          className={`${styles.time} text-lg font-bold leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
+          style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
+        >
+          {timeLabel}
+        </p>
       </div>
+
+      <div className={styles.classBlock}>
+        <p
+          className="truncate text-lg font-extrabold leading-[1.875rem] tracking-[0.0375rem] sm:text-xl"
+          style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
+        >
+          {item.className}
+        </p>
+        <p
+          className="truncate text-sm font-normal leading-[1.3125rem]"
+          style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
+        >
+          {withInstructorLabel}
+        </p>
+      </div>
+
+      <p
+        className={`${styles.duration} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
+        style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
+      >
+        {durationLabel}
+      </p>
+      <p
+        className={`${styles.spots} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
+        style={{
+          color: spotsUrgent
+            ? HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgent
+            : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
+        }}
+      >
+        {spotsLeftLabel}
+      </p>
 
       <div className={styles.bookAction}>
         {bookingEnabled ? (

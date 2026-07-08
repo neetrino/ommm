@@ -163,6 +163,10 @@ export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
   sectionPanelTopInset: `${weeklySchedulePanelTopInsetPx}px`,
   dayTabGap: "clamp(0.375rem, 1.2vw, 0.75rem)",
   sessionListGap: "clamp(1rem, 2vw, 1rem)",
+  /** Desktop session row — space between duration and spots columns. */
+  sessionRowDurationSpotsGap: "clamp(1.5rem, 3vw, 2.5rem)",
+  /** Desktop session row — space between spots and book button. */
+  sessionRowSpotsButtonGap: "clamp(1.5rem, 3vw, 2.5rem)",
 } as const;
 
 /** Overlaps hero — panel `z-10` sits on photo; Our Core Practices gradient overlaps from below. */

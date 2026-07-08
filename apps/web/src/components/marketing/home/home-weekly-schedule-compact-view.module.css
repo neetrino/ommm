@@ -137,7 +137,22 @@
   }
 
   .sessionList {
-    gap: var(--home-schedule-session-list-gap-lg, 1rem);
+    display: grid;
+    grid-template-columns:
+      auto
+      minmax(0, 1fr)
+      max-content
+      max-content
+      auto;
+    column-gap: clamp(1rem, 2vw, 1.5rem);
+    row-gap: var(--home-schedule-session-list-gap-lg, 1rem);
+  }
+
+  .sessionListItem {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    min-width: 0;
   }
 
   .emptyDay {
