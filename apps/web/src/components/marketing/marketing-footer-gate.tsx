@@ -1,18 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
-import {
-  isMarketingHomePath,
-  isMarketingPracticesInnerPath,
-  isMarketingScrollRevealFooterPath,
-} from "@/components/marketing/marketing-route-utils";
+import { isMarketingHomePath } from "@/components/marketing/marketing-route-utils";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
-import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import { usePathname } from "@/i18n/navigation";
-
-/** Single footer block — row stagger is not used. */
-const MARKETING_FOOTER_REVEAL_GRID_COLUMNS = 1;
 
 export type MarketingFooterGateProps = {
   children: ReactNode;
@@ -27,7 +18,6 @@ export function MarketingFooterGate({
 }: MarketingFooterGateProps) {
   const clientPathname = usePathname();
   const hasHydrated = useIsClientMounted();
-  const isPhoneViewport = useIsMarketingPhoneViewport();
 
   const marketingPath = hasHydrated
     ? (clientPathname ?? serverMarketingPath)
@@ -35,21 +25,6 @@ export function MarketingFooterGate({
 
   if (isMarketingHomePath(marketingPath)) {
     return null;
-  }
-
-  const skipScrollReveal =
-    isMarketingPracticesInnerPath(marketingPath) && isPhoneViewport;
-
-  if (!skipScrollReveal && isMarketingScrollRevealFooterPath(marketingPath)) {
-    return (
-      <MarketingScrollReveal
-        index={0}
-        gridColumns={MARKETING_FOOTER_REVEAL_GRID_COLUMNS}
-        className="marketing-footer-reveal"
-      >
-        {children}
-      </MarketingScrollReveal>
-    );
   }
 
   return children;

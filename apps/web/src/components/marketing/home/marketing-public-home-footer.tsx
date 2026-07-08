@@ -5,7 +5,6 @@ import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/
 import { MarketingPublicHomeFooterInstagramRow } from "@/components/marketing/home/marketing-public-home-footer-instagram-row";
 import { MarketingPublicHomeFooterPolicies } from "@/components/marketing/home/marketing-public-home-footer-policies";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
-import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
 import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-sphere-bounce";
 import {
@@ -177,7 +176,7 @@ export async function MarketingPublicHomeFooter({
       mobileHomeParity={mobileHomeParity}
     >
       <footer className={`${marketingMontserrat.variable} ${styles.shell}`}>
-        <HomePageReveal index={0} className={styles.inner}>
+        <div className={styles.inner}>
           <FooterDesktopLayer
             topBar={topBar}
             illustration={illustration}
@@ -210,7 +209,7 @@ export async function MarketingPublicHomeFooter({
             copyrightCompanyPart2={t("footerCopyrightCompanyPart2")}
             copyrightSuffix={t("footerCopyrightSuffix")}
           />
-        </HomePageReveal>
+        </div>
       </footer>
     </MarketingPublicHomeFooterSurface>
   );

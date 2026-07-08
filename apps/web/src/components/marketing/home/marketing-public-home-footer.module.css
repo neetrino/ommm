@@ -1,4 +1,6 @@
 .sectionWrap {
+  position: relative;
+  z-index: 2;
   width: 100%;
   min-width: 0;
   overflow: visible;
@@ -164,12 +166,6 @@
 
 .paymentLogoItem:nth-child(3) .paymentLogo {
   height: var(--home-footer-payment-visa-height, 22px);
-}
-
-.paymentSlot {
-  position: absolute;
-  left: 0;
-  top: var(--home-footer-payment-top);
 }
 
 .sectionTitle {
@@ -690,13 +686,21 @@
 
 @media (min-width: 1367px) {
   .inner {
-    min-height: calc(var(--home-footer-min-height) + var(--home-footer-desktop-bottom-row-offset, 0px));
+    min-height: max(
+      428px,
+      calc(var(--home-footer-min-height) + var(--home-footer-desktop-bottom-row-offset, 0px))
+    );
+    overflow: visible;
+  }
+
+  .shell {
     overflow: visible;
   }
 
   .desktopLayer {
     position: absolute;
     inset: 0;
+    min-height: inherit;
     overflow: visible;
   }
 
@@ -1252,14 +1256,6 @@
 @media (prefers-reduced-motion: reduce) {
   .footerFloatIllustration {
     will-change: auto;
-  }
-}
-
-/* iPad footer — no scroll-reveal (744px–1366px). */
-@media (min-width: 744px) and (max-width: 1366px) {
-  .inner {
-    opacity: 1 !important;
-    transform: none !important;
   }
 }
 
