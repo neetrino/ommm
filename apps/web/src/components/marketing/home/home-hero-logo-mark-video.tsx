@@ -25,6 +25,7 @@ function HomeHeroLogoVideoLayer({ videoRef, onError }: HomeHeroLogoVideoLayerPro
       className={styles.homeHeroLogoVideoLayer}
       src={HOME_HERO_ASSETS.heroLogoMarkVideo}
       muted
+      autoPlay
       playsInline
       preload="auto"
       aria-hidden

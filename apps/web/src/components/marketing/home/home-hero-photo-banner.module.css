@@ -264,6 +264,8 @@
   height: 100%;
   overflow: hidden;
   border-radius: 50%;
+  isolation: isolate;
+  transform: translateZ(0);
 }
 
 .homeHeroLogoVideoLayer {
@@ -276,9 +278,11 @@
   object-fit: cover;
   object-position: center;
   z-index: 1;
+  pointer-events: none;
   /* H.264 lost source alpha — black matte reads as a ring unless lightened + cropped. */
   mix-blend-mode: lighten;
-  transform: scale(var(--home-hero-logo-video-edge-crop-scale, 1.14));
+  -webkit-transform: scale(var(--home-hero-logo-video-edge-crop-scale, 1.14)) translateZ(0);
+  transform: scale(var(--home-hero-logo-video-edge-crop-scale, 1.14)) translateZ(0);
   transform-origin: center;
 }
 

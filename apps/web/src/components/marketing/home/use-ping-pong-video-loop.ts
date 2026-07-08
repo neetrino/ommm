@@ -6,6 +6,9 @@ type PingPongVideoRefs = {
   secondary: RefObject<HTMLVideoElement | null>;
 };
 
+const ACTIVE_LAYER_Z_INDEX = "2";
+const STANDBY_LAYER_Z_INDEX = "1";
+
 function resolveLayers(
   activeIndex: number,
   primary: HTMLVideoElement,
@@ -17,15 +20,24 @@ function resolveLayers(
   return { current: secondary, next: primary, nextIndex: 0 };
 }
 
+/** Safari throttles `visibility:hidden` videos — hide with opacity only. */
 function setLayerVisible(video: HTMLVideoElement, visible: boolean): void {
   video.style.opacity = visible ? "1" : "0";
-  video.style.visibility = visible ? "visible" : "hidden";
+  video.style.zIndex = visible ? ACTIVE_LAYER_Z_INDEX : STANDBY_LAYER_Z_INDEX;
 }
 
 function resetHiddenLayer(video: HTMLVideoElement): void {
   video.pause();
   video.currentTime = 0;
   setLayerVisible(video, false);
+}
+
+function configureSafariSafePlayback(video: HTMLVideoElement): void {
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
 }
 
 function scheduleFrame(video: HTMLVideoElement, callback: () => void): number {
@@ -47,7 +59,7 @@ function cancelFrame(video: HTMLVideoElement, frameId: number): void {
 
 /**
  * Two decoders ping-pong with an instant cut — the incoming layer is already
- * playing hidden before the swap, so the visible video never stops and restarts.
+ * playing (opacity 0) before the swap, so the visible video never stops.
  */
 export function usePingPongVideoLoop(isPlaying: boolean, refs: PingPongVideoRefs): void {
   const activeIndexRef = useRef(0);
@@ -61,6 +73,9 @@ export function usePingPongVideoLoop(isPlaying: boolean, refs: PingPongVideoRefs
       return;
     }
 
+    configureSafariSafePlayback(primary);
+    configureSafariSafePlayback(secondary);
+
     if (!isPlaying) {
       primary.pause();
       secondary.pause();
@@ -71,6 +86,7 @@ export function usePingPongVideoLoop(isPlaying: boolean, refs: PingPongVideoRefs
     swappedRef.current = false;
     setLayerVisible(primary, true);
     resetHiddenLayer(secondary);
+    secondary.load();
 
     const startCurrent = (): void => {
       void primary.play().catch(() => {
@@ -97,6 +113,7 @@ export function usePingPongVideoLoop(isPlaying: boolean, refs: PingPongVideoRefs
       setLayerVisible(next, true);
       activeIndexRef.current = nextIndex;
       swappedRef.current = true;
+      current.load();
 
       if (next.paused) {
         next.currentTime = 0;
@@ -138,6 +155,10 @@ export function usePingPongVideoLoop(isPlaying: boolean, refs: PingPongVideoRefs
       frameId = scheduleFrame(frameHost, onFrame);
     };
 
+    const onTimeUpdate = (): void => {
+      tickLoop();
+    };
+
     const onEnded = (event: Event): void => {
       const endedVideo = event.currentTarget;
       if (!(endedVideo instanceof HTMLVideoElement)) {
@@ -168,10 +189,14 @@ export function usePingPongVideoLoop(isPlaying: boolean, refs: PingPongVideoRefs
       );
     }
 
+    primary.addEventListener("timeupdate", onTimeUpdate);
+    secondary.addEventListener("timeupdate", onTimeUpdate);
     primary.addEventListener("ended", onEnded);
     secondary.addEventListener("ended", onEnded);
 
     return () => {
+      primary.removeEventListener("timeupdate", onTimeUpdate);
+      secondary.removeEventListener("timeupdate", onTimeUpdate);
       primary.removeEventListener("ended", onEnded);
       secondary.removeEventListener("ended", onEnded);
       cancelFrame(frameHost, frameId);
