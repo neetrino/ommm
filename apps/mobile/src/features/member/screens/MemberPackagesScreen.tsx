@@ -80,7 +80,7 @@ export function MemberPackagesScreen() {
 
   const showMyPackages = isSignedIn && mode === "mine";
   const showCatalog = !isSignedIn || mode === "catalog";
-  const heading = showMyPackages ? packagesCopy.myPackagesTitle : packagesCopy.pageTitle;
+  const heading = packagesCopy.myPackagesTitle;
   const lead = showMyPackages ? packagesCopy.myPackagesLead : packagesCopy.catalogLead;
 
   const bottomPad =

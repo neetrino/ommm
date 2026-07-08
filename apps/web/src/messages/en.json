@@ -482,9 +482,9 @@
         "progress": "Progress",
         "classes": "Classes",
         "schedule": "Schedule",
-        "bookings": "My bookings",
+        "bookings": "My Bookings",
         "waitlists": "Waitlists",
-        "packages": "My packages",
+        "packages": "My Packages",
         "payments": "Payments",
         "giftCards": "Gift cards",
         "notifications": "Notifications",
@@ -700,7 +700,7 @@
       "pagesAria": "Pages"
     },
     "packages": {
-      "title": "My packages",
+      "title": "My Packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
       "statusPending": "Payment completed",
       "paymentStatusSucceeded": "Completed",
@@ -807,7 +807,7 @@
       "unlocked": "Unlocked {date}"
     },
     "bookings": {
-      "title": "My bookings",
+      "title": "My Bookings",
       "tabs": {
         "aria": "Booking time range",
         "past": "Past",
