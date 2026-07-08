@@ -127,21 +127,61 @@ const scheduleGradientSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 
 /** Figma node `172:1059` — “View schedule” pill fill. */
 export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
+const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1440;
+const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 924;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 455;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1024;
+
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
   /** Figma `805:802` @2x — 2880×1848 source for retina desktop. */
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
   /** Founding memberships mobile banner — 1365×3072 @3x (455×1024 artboard), WebP q98. */
   promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v4.webp",
+/** Legacy hero slide — H.264 MP4 for Chrome/Firefox/Android (not ProRes). */
+  heroLogoMarkVideo: "/marketing/home/hero/home-hero-logo-mark.mp4",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
 
+const HOME_HERO_LOGO_MARK_VIDEO_LOOP_CROSSFADE_SEC = 0.5;
+
+/** Static mark raster — visible ball bbox in `home-hero-logo-mark.webp` (524×906 source). */
+const HOME_HERO_LOGO_MARK_STATIC_BALL_WIDTH_PX = 245;
+const HOME_HERO_LOGO_MARK_STATIC_SOURCE_WIDTH_PX = 524;
+
+/**
+ * Visible ball / logo frame height on mobile — matches Figma `97:5658` crop
+ * (`logoImageHeightPercent` + `logoImageTopPercent` on 240×142 frame).
+ */
+const HOME_HERO_LOGO_MARK_VIDEO_MOBILE_INNER_SIZE_RATIO =
+  (HOME_HERO_LOGO_MARK_STATIC_BALL_WIDTH_PX / HOME_HERO_LOGO_MARK_STATIC_SOURCE_WIDTH_PX) /
+  (HOME_HERO_MOBILE_LAYOUT.logoFrameHeightPx / HOME_HERO_MOBILE_LAYOUT.logoFrameWidthPx);
+
+/** Extra scale-down — video ball reads larger than the static raster at matched crop. */
+const HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST = 0.60;
+
+/** Desktop — static mark `object-position: 44% 36%` leaves a small inset vs full frame. */
+const HOME_HERO_LOGO_MARK_VIDEO_DESKTOP_INNER_SIZE_RATIO = 0.9;
+
+/** Crops black matte left after H.264 transcode (source had alpha; sphere ≈ 90% of frame). */
+const HOME_HERO_LOGO_MARK_VIDEO_EDGE_CROP_SCALE = 1.14;
+
+const HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_DESKTOP_PX = 80;
+
+/** Legacy hero slide — seamless crossfade loop + ball sizing matched to static mark. */
+export const HOME_HERO_LOGO_MARK_VIDEO_LAYOUT = {
+  loopCrossfadeSec: HOME_HERO_LOGO_MARK_VIDEO_LOOP_CROSSFADE_SEC,
+  mobileInnerSizeRatio:
+    HOME_HERO_LOGO_MARK_VIDEO_MOBILE_INNER_SIZE_RATIO * HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST,
+  desktopInnerSizeRatio:
+    HOME_HERO_LOGO_MARK_VIDEO_DESKTOP_INNER_SIZE_RATIO * HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST,
+  edgeCropScale: HOME_HERO_LOGO_MARK_VIDEO_EDGE_CROP_SCALE,
+  offsetYDesktopPx: HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_DESKTOP_PX,
+} as const;
+
 /** Must match `HOME_HERO_CAROUSEL_SLIDES.length` in home-hero-slide-context. */
 export const HOME_HERO_CAROUSEL_SLIDE_COUNT = 3;
-
-const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1440;
-const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 924;
 
 /** Figma `805:802` — founding memberships banner (copy baked into art). */
 export const HOME_HERO_PROMO_BANNER_LAYOUT = {
@@ -154,9 +194,6 @@ export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   sectionBackground: "#8a7348",
   objectPosition: "center center",
 } as const;
-
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 455;
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1024;
 
 /** Mobile promo slide — founding memberships portrait banner with baked-in copy. */
 export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {

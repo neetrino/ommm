@@ -217,6 +217,11 @@ export function useHomeHeroSlide(): HomeHeroSlideContextValue {
   return context;
 }
 
+/** Returns null outside the hero carousel provider (static hero fallback). */
+export function useOptionalHomeHeroSlide(): HomeHeroSlideContextValue | null {
+  return useContext(HomeHeroSlideContext);
+}
+
 export function resolveActiveHomeHeroVideoElement(
   context: Pick<HomeHeroSlideContextValue, "videoRefs" | "desktopVideoUrl">,
 ): HTMLVideoElement | null {
