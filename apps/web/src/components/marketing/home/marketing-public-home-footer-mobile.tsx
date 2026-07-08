@@ -12,6 +12,7 @@ import {
 import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { renderAtSignText } from "@/lib/render-at-sign-text";
 
 type FooterLegalKey = (typeof HOME_FOOTER_LEGAL_LINKS)[number]["labelKey"];
 
@@ -89,8 +90,8 @@ export function MarketingPublicHomeFooterMobile({
                 className={styles.mobileContactIcon}
                 aria-hidden
               />
-              <a href={`mailto:${email}`} className={styles.mobileContactText}>
-                {email}
+              <a href={`mailto:${email}`} className={`${styles.mobileContactText} ${styles.contactInlineText}`}>
+                {renderAtSignText(email, styles.atSign)}
               </a>
             </div>
             <div className={styles.mobileContactRow}>
@@ -117,7 +118,8 @@ export function MarketingPublicHomeFooterMobile({
           <MarketingPublicHomeFooterInstagramRow
             rowClassName={styles.mobileContactRow}
             iconClassName={styles.mobileContactIcon}
-            textClassName={styles.mobileContactText}
+            textClassName={`${styles.mobileContactText} ${styles.contactInlineText}`}
+            atSignClassName={styles.atSign}
             ariaLabel={socialAria("instagram")}
             as="div"
           />

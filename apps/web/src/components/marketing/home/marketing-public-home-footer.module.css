@@ -221,6 +221,23 @@
   border-radius: 2px;
 }
 
+.contactInlineText {
+  letter-spacing: normal;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.atSign {
+  font-family: var(--font-sans);
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  font-synthesis: none;
+}
+
 .socialBlock {
   display: flex;
   flex-direction: column;

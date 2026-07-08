@@ -17,6 +17,7 @@ import { MarketingPublicHomeFooterSurface } from "@/components/marketing/home/ma
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { formatPhoneTelHref } from "@/lib/phone";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { renderAtSignText } from "@/lib/render-at-sign-text";
 
 type MarketingPublicHomeFooterProps = {
   locale: string;
@@ -122,8 +123,8 @@ export async function MarketingPublicHomeFooter({
         ) : null}
         <li className={styles.contactRow}>
           <Image src={HOME_FOOTER_ASSETS.mail} alt="" width={25} height={24} unoptimized className={styles.contactIcon} aria-hidden />
-          <a href={`mailto:${t("footerEmail")}`} className={styles.contactText}>
-            {t("footerEmail")}
+          <a href={`mailto:${t("footerEmail")}`} className={`${styles.contactText} ${styles.contactInlineText}`}>
+            {renderAtSignText(t("footerEmail"), styles.atSign)}
           </a>
         </li>
         <li className={styles.contactRow}>
@@ -135,7 +136,8 @@ export async function MarketingPublicHomeFooter({
         <MarketingPublicHomeFooterInstagramRow
           rowClassName={styles.contactRow}
           iconClassName={styles.contactIcon}
-          textClassName={styles.contactText}
+          textClassName={`${styles.contactText} ${styles.contactInlineText}`}
+          atSignClassName={styles.atSign}
           ariaLabel={t("footerInstagramAria")}
         />
       </ul>

@@ -1,10 +1,12 @@
 import Image from "next/image";
 import { HOME_FOOTER_INSTAGRAM } from "@/components/marketing/home/home-footer-section-tokens";
+import { renderAtSignText } from "@/lib/render-at-sign-text";
 
 type MarketingPublicHomeFooterInstagramRowProps = {
   rowClassName: string;
   iconClassName: string;
   textClassName: string;
+  atSignClassName: string;
   ariaLabel: string;
   as?: "li" | "div";
 };
@@ -14,6 +16,7 @@ export function MarketingPublicHomeFooterInstagramRow({
   rowClassName,
   iconClassName,
   textClassName,
+  atSignClassName,
   ariaLabel,
   as: Tag = "li",
 }: MarketingPublicHomeFooterInstagramRowProps) {
@@ -35,7 +38,7 @@ export function MarketingPublicHomeFooterInstagramRow({
         target="_blank"
         rel="noopener noreferrer"
       >
-        {HOME_FOOTER_INSTAGRAM.handle}
+        {renderAtSignText(HOME_FOOTER_INSTAGRAM.handle, atSignClassName)}
       </a>
     </Tag>
   );
