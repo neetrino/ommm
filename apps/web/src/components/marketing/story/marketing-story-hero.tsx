@@ -1,11 +1,9 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import styles from "@/components/marketing/story/marketing-story-hero.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT } from "@/components/marketing/story/story-page-tokens";
 import { MARKETING_INNER_PAGE_CONTAINER_CLASS } from "@/components/marketing/marketing-content-layout";
-import { lcpImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type MarketingStoryHeroProps = {
@@ -57,13 +55,13 @@ export async function MarketingStoryHero({ locale }: MarketingStoryHeroProps) {
         style={HERO_LAYOUT_STYLE}
       >
         <div className={styles.background} aria-hidden>
-          <Image
+          <img
             src={STORY_PAGE_ASSETS.heroBackground}
             alt=""
-            fill
-            sizes="100vw"
             className={styles.backgroundImage}
-            {...lcpImageProps()}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
         </div>
 

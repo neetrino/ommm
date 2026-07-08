@@ -1,10 +1,8 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import styles from "@/components/marketing/story/marketing-story-founders-voice-banner.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type MarketingStoryFoundersVoiceBannerProps = {
@@ -36,14 +34,12 @@ export async function MarketingStoryFoundersVoiceBanner({
         aria-labelledby="story-founder-voice-heading"
       >
         <div className={styles.portraitWrap}>
-          <Image
+          <img
             src={STORY_PAGE_ASSETS.founderPortrait}
             alt={t("founderVoicePortraitAlt")}
-            fill
-            unoptimized
-            sizes="(max-width: 767px) 100vw, (max-width: 1440px) 42vw, 36rem"
             className={styles.portrait}
-            {...belowFoldImageProps()}
+            loading="lazy"
+            decoding="async"
           />
         </div>
         <div className={styles.copy}>

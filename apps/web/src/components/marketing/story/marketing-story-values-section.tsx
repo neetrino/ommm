@@ -1,10 +1,8 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import styles from "@/components/marketing/story/marketing-story-values-section.module.css";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type MarketingStoryValuesSectionProps = {
@@ -92,23 +90,22 @@ export async function MarketingStoryValuesSection({ locale }: MarketingStoryValu
                 className={styles.card}
                 style={{ ["--story-value-surface" as string]: card.surface }}
               >
-                  <div className={styles.copy}>
-                    <div className={styles.copyTop}>
-                      <span className={styles.indexBadge}>
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                    </div>
-                    <h3 className={styles.title}>{t(card.titleKey)}</h3>
-                    <p className={styles.body}>{t(card.bodyKey)}</p>
+                <div className={styles.copy}>
+                  <div className={styles.copyTop}>
+                    <span className={styles.indexBadge}>
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
                   </div>
+                  <h3 className={styles.title}>{t(card.titleKey)}</h3>
+                  <p className={styles.body}>{t(card.bodyKey)}</p>
+                </div>
                 <div className={styles.media}>
-                  <Image
+                  <img
                     src={card.imageSrc}
                     alt=""
-                    fill
-                    sizes="(max-width: 743px) 100vw, 20rem"
                     className={`${styles.image} ${card.imageClassName ?? ""}`}
-                    {...belowFoldImageProps()}
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </article>

@@ -1,11 +1,9 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import styles from "@/components/marketing/story/marketing-story-closing-section.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
 import { Link } from "@/i18n/navigation";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type MarketingStoryClosingSectionProps = {
@@ -34,13 +32,12 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
         aria-labelledby="story-closing-heading"
       >
         <div className={styles.portraitWrap}>
-          <Image
+          <img
             src={STORY_PAGE_ASSETS.closingPortrait}
             alt=""
-            fill
-            sizes="(max-width: 767px) 100vw, 44vw"
             className={styles.portrait}
-            {...belowFoldImageProps()}
+            loading="lazy"
+            decoding="async"
           />
         </div>
         <div className={styles.copy}>
