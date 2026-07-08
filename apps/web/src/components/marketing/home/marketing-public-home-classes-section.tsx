@@ -13,7 +13,6 @@ import {
   HOME_CLASSES_SECTION_MOBILE_FIGMA,
   HOME_CLASSES_SECTION_MOBILE_LAYOUT,
   HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT,
-  HOME_CLASSES_SECTION_IPAD_MINI_LAYOUT,
   HOME_CLASSES_SECTION_TABLET_LAYOUT,
 } from "@/components/marketing/home/home-classes-section-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-classes-section.module.css";
@@ -96,10 +95,10 @@ export async function MarketingPublicHomeClassesSection({
         ["--home-class-card-body-line-height-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyLineHeightPx}px`,
         ["--home-class-card-body-line-height-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardBodyLineHeightPx}px`,
         ["--home-classes-grid-gap-air" as string]: HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.gridGap,
-        ["--home-class-practice-narrow-body-max-width-mini" as string]: `${HOME_CLASSES_SECTION_IPAD_MINI_LAYOUT.practiceCardNarrowBodyMaxWidthPx / 16}rem`,
-        ["--home-class-practice-power-pilates-body-max-width-mini" as string]: `${HOME_CLASSES_SECTION_IPAD_MINI_LAYOUT.powerPilatesBodyMaxWidthPx / 16}rem`,
-        ["--home-class-practice-yoga-body-max-width-mini" as string]:
-          HOME_CLASSES_SECTION_IPAD_MINI_LAYOUT.yogaBodyMaxWidth,
+        ["--home-class-practice-narrow-body-max-width-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.practiceCardNarrowBodyMaxWidthPx / 16}rem`,
+        ["--home-class-practice-power-pilates-body-max-width-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.powerPilatesBodyMaxWidthPx / 16}rem`,
+        ["--home-class-practice-yoga-body-max-width-tablet" as string]:
+          HOME_CLASSES_SECTION_TABLET_LAYOUT.yogaBodyMaxWidth,
       }}
     >
       <div className={styles.shell}>
