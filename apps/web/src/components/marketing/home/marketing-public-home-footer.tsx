@@ -5,7 +5,6 @@ import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/
 import { MarketingPublicHomeFooterInstagramRow } from "@/components/marketing/home/marketing-public-home-footer-instagram-row";
 import { MarketingPublicHomeFooterPolicies } from "@/components/marketing/home/marketing-public-home-footer-policies";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
-import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
 import { HomeFooterSphereBounce } from "@/components/marketing/home/home-footer-sphere-bounce";
 import {
@@ -18,6 +17,7 @@ import { MarketingPublicHomeFooterSurface } from "@/components/marketing/home/ma
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { formatPhoneTelHref } from "@/lib/phone";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { renderAtSignText } from "@/lib/render-at-sign-text";
 
 type MarketingPublicHomeFooterProps = {
   locale: string;
@@ -123,8 +123,8 @@ export async function MarketingPublicHomeFooter({
         ) : null}
         <li className={styles.contactRow}>
           <Image src={HOME_FOOTER_ASSETS.mail} alt="" width={25} height={24} unoptimized className={styles.contactIcon} aria-hidden />
-          <a href={`mailto:${t("footerEmail")}`} className={styles.contactText}>
-            {t("footerEmail")}
+          <a href={`mailto:${t("footerEmail")}`} className={`${styles.contactText} ${styles.contactInlineText}`}>
+            {renderAtSignText(t("footerEmail"), styles.atSign)}
           </a>
         </li>
         <li className={styles.contactRow}>
@@ -136,7 +136,8 @@ export async function MarketingPublicHomeFooter({
         <MarketingPublicHomeFooterInstagramRow
           rowClassName={styles.contactRow}
           iconClassName={styles.contactIcon}
-          textClassName={styles.contactText}
+          textClassName={`${styles.contactText} ${styles.contactInlineText}`}
+          atSignClassName={styles.atSign}
           ariaLabel={t("footerInstagramAria")}
         />
       </ul>
@@ -177,7 +178,7 @@ export async function MarketingPublicHomeFooter({
       mobileHomeParity={mobileHomeParity}
     >
       <footer className={`${marketingMontserrat.variable} ${styles.shell}`}>
-        <HomePageReveal index={0} className={styles.inner}>
+        <div className={styles.inner}>
           <FooterDesktopLayer
             topBar={topBar}
             illustration={illustration}
@@ -210,7 +211,7 @@ export async function MarketingPublicHomeFooter({
             copyrightCompanyPart2={t("footerCopyrightCompanyPart2")}
             copyrightSuffix={t("footerCopyrightSuffix")}
           />
-        </HomePageReveal>
+        </div>
       </footer>
     </MarketingPublicHomeFooterSurface>
   );

@@ -6,8 +6,6 @@ import { HomeHeroSectionShell } from "@/components/marketing/home/home-hero-sect
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomeHeroMediaBackground } from "@/components/marketing/home/home-hero-media-background";
 import { HomeHeroPhotoContentLayer } from "@/components/marketing/home/home-hero-photo-content-layer";
-import { HomeHeroPromoBannerContent } from "@/components/marketing/home/home-hero-promo-banner-content";
-import { HomeHeroPromoSlideTrack } from "@/components/marketing/home/home-hero-promo-slide-track";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { HomeHeroSlideProvider } from "@/components/marketing/home/home-hero-slide-context";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
@@ -22,8 +20,6 @@ import {
   HOME_HERO_MOBILE_LAYOUT,
   HOME_HERO_PROMO_BANNER_LAYOUT,
   HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT,
-  HOME_HERO_PROMO_COPY_LAYOUT,
-  HOME_HERO_PROMO_TYPOGRAPHY,
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
   resolveHomeHeroIntroMobileVideoMp4Url,
@@ -152,9 +148,6 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           <HomeHeroCarouselFrame>
             <HomeHeroPhotoContentLayer>{heroContent}</HomeHeroPhotoContentLayer>
           </HomeHeroCarouselFrame>
-          <HomeHeroPromoSlideTrack>
-            <HomeHeroPromoBannerContent locale={locale} />
-          </HomeHeroPromoSlideTrack>
         </>
       ) : (
         <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>{heroContent}</div>
@@ -175,49 +168,6 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
     ["--home-hero-promo-section-bg" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.sectionBackground,
     ["--home-hero-promo-section-bg-mobile" as string]:
       HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.sectionBackground,
-    ["--home-hero-promo-text-max-width" as string]: `${HOME_HERO_PROMO_BANNER_LAYOUT.textMaxWidthRatio * 100}%`,
-    ["--home-hero-promo-text-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.textColor,
-    ["--home-hero-promo-artboard-width-px" as string]: String(
-      HOME_HERO_PROMO_BANNER_LAYOUT.artboardWidthPx,
-    ),
-    ["--home-hero-promo-content-padding-left-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.contentPaddingLeftPx,
-    ),
-    ["--home-hero-promo-content-max-width-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.contentMaxWidthPx,
-    ),
-    ["--home-hero-promo-headline-size-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.headlineFontSizePx,
-    ),
-    ["--home-hero-promo-headline-line-height" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.headlineLineHeightRatio,
-    ),
-    ["--home-hero-promo-subline-size-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.sublineFontSizePx,
-    ),
-    ["--home-hero-promo-subline-margin-top-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.sublineMarginTopPx,
-    ),
-    ["--home-hero-promo-pill-margin-top-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.pillMarginTopPx,
-    ),
-    ["--home-hero-promo-phone-size-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.phoneFontSizePx,
-    ),
-    ["--home-hero-promo-pill-padding-inline-start-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.pillPaddingInlineStartPx,
-    ),
-    ["--home-hero-promo-pill-padding-block-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.pillPaddingBlockPx,
-    ),
-    ["--home-hero-promo-pill-padding-inline-end-px" as string]: String(
-      HOME_HERO_PROMO_COPY_LAYOUT.pillPaddingInlineEndPx,
-    ),
-    ["--home-hero-promo-phone-color" as string]: HOME_HERO_PROMO_TYPOGRAPHY.phoneColor,
-    ["--home-hero-promo-pill-gradient-start" as string]:
-      HOME_HERO_PROMO_TYPOGRAPHY.pillGradientStart,
-    ["--home-hero-promo-pill-gradient-mid" as string]: HOME_HERO_PROMO_TYPOGRAPHY.pillGradientMid,
-    ["--home-hero-promo-pill-gradient-end" as string]: HOME_HERO_PROMO_TYPOGRAPHY.pillGradientEnd,
     ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,

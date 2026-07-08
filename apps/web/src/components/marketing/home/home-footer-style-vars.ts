@@ -17,6 +17,13 @@ function pct(value: number): string {
   return `${value * 100}%`;
 }
 
+/** Artboard aspect height — `vw` (not `%`) so Safari resolves min-height without a definite parent block. */
+function footerMinHeightVar(): string {
+  const aspectVw =
+    (HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx) * 100;
+  return `clamp(24rem, ${aspectVw}vw, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`;
+}
+
 /** Inline CSS variables for `marketing-public-home-footer.module.css`. */
 export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSProperties {
   const pos = HOME_FOOTER_FIGMA_POSITIONS;
@@ -71,7 +78,7 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
     ["--home-footer-max-width" as string]: `${MARKETING_CONTENT_MAX_WIDTH_PX}px`,
-    ["--home-footer-min-height" as string]: `clamp(24rem, ${pct(HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx)}, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`,
+    ["--home-footer-min-height" as string]: footerMinHeightVar(),
     ["--home-footer-top-bar-top" as string]: pct(pos.topBar.top),
     ["--home-footer-illustration-scale" as string]: String(HOME_FOOTER_FIGMA.illustrationDisplayScale),
     ["--home-footer-illustration-bottom" as string]: `${HOME_FOOTER_FIGMA.illustrationBottomInsetPx}px`,

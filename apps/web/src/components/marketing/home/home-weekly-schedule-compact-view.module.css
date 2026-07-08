@@ -59,7 +59,7 @@
 }
 
 .sessionPanelViewport {
-  overflow: hidden;
+  overflow: visible;
   transition: height 300ms ease-out;
 }
 
@@ -137,7 +137,14 @@
   }
 
   .sessionList {
+    display: flex;
+    flex-direction: column;
     gap: var(--home-schedule-session-list-gap-lg, 1rem);
+  }
+
+  .sessionListItem {
+    display: block;
+    min-width: 0;
   }
 
   .emptyDay {

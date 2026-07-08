@@ -3,14 +3,6 @@
   }
 }
 
-/* iPad footer — no scroll-reveal (744px–1366px). */
-@media (min-width: 744px) and (max-width: 1366px) {
-  .inner {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-}
-
 /* Story page — Our Values cream seam; home footer gradient on the cap only. */
 :global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrap,
 :global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrapInner {

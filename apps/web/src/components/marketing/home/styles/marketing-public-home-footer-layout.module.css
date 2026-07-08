@@ -157,12 +157,6 @@
   height: var(--home-footer-payment-arca-height, 20px);
 }
 
-.paymentSlot {
-  position: absolute;
-  left: 0;
-  top: var(--home-footer-payment-top);
-}
-
 .sectionTitle {
   font-size: var(--home-footer-body-size);
   font-weight: 400;

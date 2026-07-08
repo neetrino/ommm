@@ -43,6 +43,7 @@ export const HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA = {
   sessionRowRadiusPx: 16,
   sessionRowPaddingPx: 16,
   sessionRowGapPx: 17,
+  sessionRowHeaderToDetailsGapPx: 17,
   reserveButtonHeightPx: 40,
   reserveButtonFontSizePx: 12,
   reserveButtonLetterSpacingPx: 0.6,
@@ -102,6 +103,8 @@ export const HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT = {
   sessionListGap: "clamp(1rem, calc(100svw * 17 / 394), 1.0625rem)",
   sessionRowRadius: "1rem",
   sessionRowPadding: "1rem",
+  sessionRowHeaderToDetailsGap:
+    "clamp(0.75rem, calc(100svw * 17 / 394), 1.0625rem)",
   ctaBelowPanelGap: "1rem",
   sectionTopGap: mobileWeeklyScheduleSectionTopGap,
   sectionHeroOverlap: `calc(${mobileWeeklyScheduleSectionTopGap} + ${mobileWeeklySchedulePanelTopInsetPx}px)`,
@@ -163,6 +166,16 @@ export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
   sectionPanelTopInset: `${weeklySchedulePanelTopInsetPx}px`,
   dayTabGap: "clamp(0.375rem, 1.2vw, 0.75rem)",
   sessionListGap: "clamp(1rem, 2vw, 1rem)",
+  /** Desktop session row — space between duration and spots columns. */
+  sessionRowDurationSpotsGap: "clamp(1.5rem, 3vw, 2.5rem)",
+  /** Desktop session row — space between spots and book button. */
+  sessionRowSpotsButtonGap: "clamp(1.5rem, 3vw, 2.5rem)",
+  /** Fixed duration track — aligns duration + spots across rows (Safari-safe). */
+  sessionRowDurationColumnWidth: "4.75rem",
+  /** Fixed spots track — keeps duration/spots columns aligned across rows. */
+  sessionRowSpotsColumnWidth: "6.75rem",
+  /** Fixed time track — aligns session times across desktop rows. */
+  sessionRowTimeColumnWidth: "10.5rem",
 } as const;
 
 /** Overlaps hero — panel `z-10` sits on photo; Our Core Practices gradient overlaps from below. */

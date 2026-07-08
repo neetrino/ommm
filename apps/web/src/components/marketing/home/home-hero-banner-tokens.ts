@@ -129,9 +129,10 @@ export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
+  /** Figma `805:802` @2x — 2880×1848 source for retina desktop. */
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
-  /** Figma `801:830` — mobile portrait promo (copy baked into art). */
-  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile.webp",
+  /** Founding memberships mobile banner — 1365×3072 @3x (455×1024 artboard), WebP q98. */
+  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v4.webp",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -139,56 +140,31 @@ export const HOME_HERO_ASSETS = {
 /** Must match `HOME_HERO_CAROUSEL_SLIDES.length` in home-hero-slide-context. */
 export const HOME_HERO_CAROUSEL_SLIDE_COUNT = 3;
 
-const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1672;
-const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 941;
+const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1440;
+const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 924;
 
-/** Figma `783:800` — photo layer; copy in `HomeHeroPromoBannerContent`. */
+/** Figma `805:802` — founding memberships banner (copy baked into art). */
 export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
   imageWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
   imageHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX}`,
-  figmaNodeId: "783:800",
-  sectionBackground: "#b58e49",
-  objectPosition: "right center",
-  textMaxWidthRatio: 0.44,
+  figmaNodeId: "805:802",
+  sectionBackground: "#8a7348",
+  objectPosition: "center center",
 } as const;
 
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 576;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 455;
 const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1024;
 
-/** Mobile promo slide — portrait art with baked-in copy (replaces Figma `801:830`). */
+/** Mobile promo slide — founding memberships portrait banner with baked-in copy. */
 export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
-  sectionBackground: "#c5a04a",
+  sectionBackground: "#876734",
   objectPosition: "center top",
-} as const;
-
-/** Promo copy layout — proportional to artboard `1672×941` reference mockup. */
-export const HOME_HERO_PROMO_COPY_LAYOUT = {
-  contentPaddingLeftPx: 118,
-  contentMaxWidthPx: 540,
-  headlineFontSizePx: 78,
-  headlineLineHeightRatio: 1.06,
-  sublineFontSizePx: 28,
-  sublineMarginTopPx: 34,
-  pillMarginTopPx: 52,
-  phoneFontSizePx: 30,
-  pillPaddingBlockPx: 8,
-  pillPaddingInlineStartPx: 28,
-  pillPaddingInlineEndPx: 28,
-} as const;
-
-/** Promo copy colors — cream headline and gold phone pill on photo. */
-export const HOME_HERO_PROMO_TYPOGRAPHY = {
-  textColor: "#fbf5d5",
-  phoneColor: "#2c1a0a",
-  pillGradientStart: "#c49a42",
-  pillGradientMid: "#e6d7a8",
-  pillGradientEnd: "#f7f1e2",
 } as const;
 
 /** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */

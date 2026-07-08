@@ -52,6 +52,14 @@
   line-height: var(--home-class-card-body-line-height, 1.45);
 }
 
+.bodyLine {
+  display: inline;
+}
+
+.bodyLine + .bodyLine::before {
+  content: " ";
+}
+
 .imageZone {
   pointer-events: none;
   position: absolute;
@@ -227,6 +235,26 @@
 
   .body {
     margin-top: 0.5rem;
+  }
+
+  .cardFullBleed .body {
+    max-width: var(--home-class-practice-narrow-body-max-width-tablet, 9rem);
+  }
+
+  .card[data-card-id="power-pilates"] .body {
+    max-width: var(--home-class-practice-power-pilates-body-max-width-tablet, 7rem);
+  }
+
+  .card[data-card-id="yoga"] .body {
+    max-width: var(--home-class-practice-yoga-body-max-width-tablet, 18rem);
+  }
+
+  .card[data-card-id="yoga"] .bodyLine {
+    display: block;
+  }
+
+  .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
+    content: none;
   }
 
   .imageZone {

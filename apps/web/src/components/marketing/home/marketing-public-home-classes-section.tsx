@@ -22,6 +22,7 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 type ClassCardCopy = {
   titleLines: string[];
   body: string;
+  bodyLines?: string[];
 };
 
 type MarketingPublicHomeClassesSectionProps = {
@@ -94,6 +95,10 @@ export async function MarketingPublicHomeClassesSection({
         ["--home-class-card-body-line-height-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyLineHeightPx}px`,
         ["--home-class-card-body-line-height-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardBodyLineHeightPx}px`,
         ["--home-classes-grid-gap-air" as string]: HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.gridGap,
+        ["--home-class-practice-narrow-body-max-width-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.practiceCardNarrowBodyMaxWidthPx / 16}rem`,
+        ["--home-class-practice-power-pilates-body-max-width-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.powerPilatesBodyMaxWidthPx / 16}rem`,
+        ["--home-class-practice-yoga-body-max-width-tablet" as string]:
+          HOME_CLASSES_SECTION_TABLET_LAYOUT.yogaBodyMaxWidth,
       }}
     >
       <div className={styles.shell}>
@@ -147,6 +152,7 @@ export async function MarketingPublicHomeClassesSection({
                       visual={visual}
                       titleLines={copy.titleLines}
                       body={copy.body}
+                      bodyLines={copy.bodyLines}
                       gridClassName=""
                       imageIndex={index}
                     />
@@ -175,6 +181,7 @@ export async function MarketingPublicHomeClassesSection({
                   visual={visual}
                   titleLines={copy.titleLines}
                   body={copy.body}
+                  bodyLines={copy.bodyLines}
                   gridClassName=""
                   imageIndex={index}
                   style={{

@@ -1,4 +1,6 @@
 .sectionWrap {
+  position: relative;
+  z-index: 2;
   width: 100%;
   min-width: 0;
   overflow: visible;
@@ -166,12 +168,6 @@
   height: var(--home-footer-payment-visa-height, 22px);
 }
 
-.paymentSlot {
-  position: absolute;
-  left: 0;
-  top: var(--home-footer-payment-top);
-}
-
 .sectionTitle {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-wordmark-size);
@@ -223,6 +219,23 @@
   outline: 2px solid var(--home-footer-text);
   outline-offset: 3px;
   border-radius: 2px;
+}
+
+.contactInlineText {
+  letter-spacing: normal;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.atSign {
+  font-family: var(--font-sans);
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  font-synthesis: none;
 }
 
 .socialBlock {
@@ -690,13 +703,21 @@
 
 @media (min-width: 1367px) {
   .inner {
-    min-height: calc(var(--home-footer-min-height) + var(--home-footer-desktop-bottom-row-offset, 0px));
+    min-height: max(
+      428px,
+      calc(var(--home-footer-min-height) + var(--home-footer-desktop-bottom-row-offset, 0px))
+    );
+    overflow: visible;
+  }
+
+  .shell {
     overflow: visible;
   }
 
   .desktopLayer {
     position: absolute;
     inset: 0;
+    min-height: inherit;
     overflow: visible;
   }
 
@@ -831,20 +852,21 @@
 @media (min-width: 744px) and (max-width: 819px) {
   .sectionWrap {
     --home-footer-tablet-radius: 48px;
-    --home-footer-mini-shell-pt: 2.5rem;
+    --home-footer-mini-shell-pt: 1.5rem;
     --home-footer-mini-shell-pb: 2rem;
     --home-footer-mini-shell-px: 1.5rem;
     --home-footer-mini-illo-max: clamp(10rem, 28vw, 12rem);
     --home-footer-mini-wordmark-size: 1.25rem;
     --home-footer-mini-wordmark-line-height: 1.75rem;
-    --home-footer-mini-wordmark-nav-gap: 1rem;
+    --home-footer-mini-wordmark-nav-gap: 0;
     --home-footer-mini-body-size: 14px;
     --home-footer-mini-body-line-height: 20px;
     --home-footer-mini-nav-gap: 1.5rem;
     --home-footer-mini-column-gap: 2rem;
-    --home-footer-mini-section-gap: 1.5rem;
-    --home-footer-mini-below-logo-lift: 8.5rem;
-    --home-footer-mini-legal-divider-pt: 0.75rem;
+    --home-footer-mini-section-gap: 0;
+    --home-footer-mini-wordmark-illo-gap: 0.5rem;
+    --home-footer-mini-below-logo-lift: 10.5rem;
+    --home-footer-mini-copyright-row-gap: 1.25rem;
     --home-footer-mini-legal-gap: 1.5rem;
     --home-footer-mini-copyright-mt: 1rem;
     --home-footer-mini-payment-arca-offset: 16px;
@@ -881,12 +903,7 @@
   }
 
   .desktopLayer::before {
-    content: "";
-    grid-column: 1 / -1;
-    grid-row: 4;
-    align-self: start;
-    border-top: 1px solid color-mix(in srgb, var(--home-footer-text) 22%, transparent);
-    pointer-events: none;
+    display: none;
   }
 
   .wordmarkSlot,
@@ -909,15 +926,19 @@
 
   .topBarSlot {
     grid-area: nav;
-    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
+    justify-self: start;
+    align-self: start;
+    margin-top: 0;
+    margin-bottom: var(--home-footer-mini-wordmark-illo-gap, 0.5rem);
   }
 
   .topBar {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
-    row-gap: var(--home-footer-mini-wordmark-nav-gap);
-    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    row-gap: 0;
+    width: auto;
   }
 
   .wordmark {
@@ -927,7 +948,7 @@
   }
 
   .topNav {
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--home-footer-mini-nav-gap);
   }
 
@@ -967,7 +988,8 @@
     width: var(--home-footer-mini-illo-max);
     aspect-ratio: 1 / 1;
     height: auto;
-    margin-block: 0.25rem;
+    margin-block: 0;
+    margin-top: 0;
   }
 
   .contactSlot {
@@ -990,9 +1012,9 @@
 
   .copyrightSlot {
     grid-area: copyright;
-    align-self: center;
+    align-self: end;
     justify-self: start;
-    padding-top: var(--home-footer-mini-legal-divider-pt);
+    padding-top: var(--home-footer-mini-copyright-row-gap, 1.25rem);
     margin-top: 0;
   }
 
@@ -1008,12 +1030,13 @@
 
   .paymentSlot {
     grid-area: payment;
-    align-self: center;
+    align-self: end;
     justify-self: end;
     width: 100%;
     display: flex;
+    align-items: flex-end;
     justify-content: flex-end;
-    padding-top: var(--home-footer-mini-legal-divider-pt);
+    padding-top: var(--home-footer-mini-copyright-row-gap, 1.25rem);
     margin-top: 0;
   }
 
@@ -1029,19 +1052,20 @@
 /* iPad Air + Pro — same stacked layout as iPad Mini (820px–1366px). */
 @media (min-width: 820px) and (max-width: 1366px) {
   .sectionWrap {
-    --home-footer-tablet-shell-pt: 1.75rem;
+    --home-footer-tablet-shell-pt: 1.5rem;
     --home-footer-tablet-shell-pb: 1.5rem;
-    --home-footer-tablet-section-gap: 1.5rem;
+    --home-footer-tablet-section-gap: 0;
+    --home-footer-tablet-wordmark-illo-gap: 0.5rem;
     --home-footer-tablet-column-gap: 2rem;
     --home-footer-tablet-illo-max: clamp(10rem, 28vw, 12rem);
     --home-footer-tablet-wordmark-size: 1.25rem;
     --home-footer-tablet-wordmark-line-height: 1.75rem;
-    --home-footer-tablet-wordmark-nav-gap: 1rem;
+    --home-footer-tablet-wordmark-nav-gap: 0;
     --home-footer-tablet-body-size: 14px;
     --home-footer-tablet-body-line-height: 20px;
     --home-footer-tablet-nav-gap: 1.5rem;
-    --home-footer-tablet-below-logo-lift: 8.5rem;
-    --home-footer-tablet-legal-divider-pt: 0.75rem;
+    --home-footer-tablet-below-logo-lift: 10.5rem;
+    --home-footer-tablet-copyright-row-gap: 1.25rem;
     --home-footer-tablet-legal-gap: 1.5rem;
     --home-footer-tablet-legal-address-offset: calc(
       var(--home-footer-tablet-body-line-height) + var(--home-footer-contact-title-gap) +
@@ -1079,12 +1103,7 @@
   }
 
   .desktopLayer::before {
-    content: "";
-    grid-column: 1 / -1;
-    grid-row: 4;
-    align-self: start;
-    border-top: 1px solid color-mix(in srgb, var(--home-footer-text) 22%, transparent);
-    pointer-events: none;
+    display: none;
   }
 
   .wordmarkSlot,
@@ -1107,15 +1126,19 @@
 
   .topBarSlot {
     grid-area: nav;
-    margin-top: calc(-1 * var(--home-footer-wordmark-lift, 0px));
+    justify-self: start;
+    align-self: start;
+    margin-top: 0;
+    margin-bottom: var(--home-footer-tablet-wordmark-illo-gap, 0.5rem);
   }
 
   .topBar {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
-    row-gap: var(--home-footer-tablet-wordmark-nav-gap);
-    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    row-gap: 0;
+    width: auto;
   }
 
   .wordmark {
@@ -1125,7 +1148,7 @@
   }
 
   .topNav {
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--home-footer-tablet-nav-gap);
   }
 
@@ -1165,7 +1188,8 @@
     width: var(--home-footer-tablet-illo-max);
     aspect-ratio: 1 / 1;
     height: auto;
-    margin-block: 0.25rem;
+    margin-block: 0;
+    margin-top: 0;
   }
 
   .contactSlot {
@@ -1188,9 +1212,9 @@
 
   .copyrightSlot {
     grid-area: copyright;
-    align-self: center;
+    align-self: end;
     justify-self: start;
-    padding-top: var(--home-footer-tablet-legal-divider-pt);
+    padding-top: var(--home-footer-tablet-copyright-row-gap, 1.25rem);
     margin-top: 0;
   }
 
@@ -1206,12 +1230,13 @@
 
   .paymentSlot {
     grid-area: payment;
-    align-self: center;
+    align-self: end;
     justify-self: end;
     width: 100%;
     display: flex;
+    align-items: flex-end;
     justify-content: flex-end;
-    padding-top: var(--home-footer-tablet-legal-divider-pt);
+    padding-top: var(--home-footer-tablet-copyright-row-gap, 1.25rem);
     margin-top: 0;
   }
 
@@ -1227,7 +1252,7 @@
 /* iPad Pro — larger tokens (1024px–1366px). */
 @media (min-width: 1024px) and (max-width: 1366px) {
   .sectionWrap {
-    --home-footer-tablet-shell-pt: 2.25rem;
+    --home-footer-tablet-shell-pt: 1.75rem;
     --home-footer-tablet-shell-pb: 1.75rem;
     --home-footer-tablet-column-gap: 2rem;
     --home-footer-tablet-illo-max: clamp(11rem, 30vw, 14rem);
@@ -1252,14 +1277,6 @@
 @media (prefers-reduced-motion: reduce) {
   .footerFloatIllustration {
     will-change: auto;
-  }
-}
-
-/* iPad footer — no scroll-reveal (744px–1366px). */
-@media (min-width: 744px) and (max-width: 1366px) {
-  .inner {
-    opacity: 1 !important;
-    transform: none !important;
   }
 }
 

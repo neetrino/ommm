@@ -117,15 +117,7 @@
       "primaryCta": "Make a booking",
       "secondaryCta": "View Packages",
       "heroImageAlt": "Person meditating in a bright minimal studio with an oval opening to the sea",
-      "promoBanner3Alt": "Founding memberships promotion — woman doing Pilates with a ring on a golden studio background",
-      "promoBanner3HeadlineLine1": "Founding",
-      "promoBanner3HeadlineLine2": "memberships",
-      "promoBanner3HeadlineLine3": "are open.",
-      "promoBanner3Subline1": "Limited packages.",
-      "promoBanner3Subline2Prefix": "Special prices.",
-      "promoBanner3Subline2Bold": "Only 50.",
-      "promoBanner3Phone": "060500400",
-      "promoBanner3PhoneHref": "060500400",
+      "promoBanner3Alt": "Founding memberships promotion — woman doing Pilates with a ring on a golden gradient studio background",
       "logoAlt": "Ommm studio emblem",
       "junctionNavAria": "Hero media navigation",
       "junctionNavPrevAria": "Show hero video",
@@ -174,7 +166,14 @@
         },
         {
           "titleLines": ["Yoga"],
-          "body": "Breath and movement, woven together. Sessions to stretch, ground, and soften - space to release the day and return to yourself."
+          "body": "Breath and movement, woven together. Sessions to stretch, ground, and soften - space to release the day and return to yourself.",
+          "bodyLines": [
+            "Breath and movement, woven together.",
+            "Sessions to stretch, ground, and soften - space",
+            "to release the",
+            "day and return",
+            "to yourself."
+          ]
         },
         {
           "titleLines": ["Stretching"],

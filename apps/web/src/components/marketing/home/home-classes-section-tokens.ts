@@ -158,7 +158,7 @@ export const HOME_CLASS_CARD_GRID_OFFSETS = [
   "tablet:col-start-4 nav-desktop:col-start-7",
 ] as const;
 
-/** iPad Air + Pro tier — 2-column grid; compact vertical footprint (744px–1366px). */
+/** iPad tier — 2-column grid; per-card body copy (744px–1366px). */
 export const HOME_CLASSES_SECTION_TABLET_LAYOUT = {
   cardMinHeightPx: 300,
   cardTitleFontSizePx: 22,
@@ -167,6 +167,11 @@ export const HOME_CLASSES_SECTION_TABLET_LAYOUT = {
   cardBodyLineHeightPx: 17,
   gridGap: "1.5rem",
   contentMaxWidthPx: 920,
+  practiceCardNarrowBodyMaxWidthPx: 144,
+  /** Power Pilates — extra-narrow body so copy clears the photo subject. */
+  powerPilatesBodyMaxWidthPx: 112,
+  /** Yoga — wider body; short copy reads in fewer lines. */
+  yogaBodyMaxWidth: "18rem",
 } as const;
 
 /** iPad Air — scaled-down Pro tier (744px–1023px). */

@@ -163,11 +163,26 @@
 
 .valueLink:hover {
   opacity: 0.75;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 .valuePhone {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-weight: 400;
+}
+
+.valueInline {
+  letter-spacing: normal;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.atSign {
+  font-family: var(--font-sans);
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  font-synthesis: none;
 }

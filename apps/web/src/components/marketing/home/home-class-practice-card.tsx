@@ -11,6 +11,7 @@ type HomeClassPracticeCardProps = {
   visual: HomeClassCardVisual;
   titleLines: readonly string[];
   body: string;
+  bodyLines?: readonly string[];
   gridClassName: string;
   imageIndex: number;
   style?: CSSProperties;
@@ -20,6 +21,7 @@ export function HomeClassPracticeCard({
   visual,
   titleLines,
   body,
+  bodyLines,
   gridClassName,
   imageIndex,
   style,
@@ -63,7 +65,13 @@ export function HomeClassPracticeCard({
           ))}
         </h3>
         <p className={`${styles.body} font-sans font-normal`} style={{ color: bodyColor }}>
-          {body}
+          {bodyLines !== undefined && bodyLines.length > 0
+            ? bodyLines.map((line, index) => (
+                <span key={`${line}-${index}`} className={styles.bodyLine}>
+                  {line}
+                </span>
+              ))
+            : body}
         </p>
       </div>
       <div className={imageZoneClass}>

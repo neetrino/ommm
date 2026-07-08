@@ -124,6 +124,16 @@ export function HomeWeeklyScheduleDayView({
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionListGap,
         ["--home-schedule-session-list-gap-lg" as string]:
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionListGap,
+        ["--home-schedule-session-row-duration-spots-gap" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowDurationSpotsGap,
+        ["--home-schedule-session-row-spots-button-gap" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowSpotsButtonGap,
+        ["--home-schedule-session-row-duration-col-width" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowDurationColumnWidth,
+        ["--home-schedule-session-row-spots-col-width" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowSpotsColumnWidth,
+        ["--home-schedule-session-row-time-col-width" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowTimeColumnWidth,
         ["--home-schedule-session-row-radius" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowRadius,
         ["--home-schedule-session-row-radius-lg" as string]:
@@ -234,9 +244,9 @@ export function HomeWeeklyScheduleDayView({
                     return (
                       <div
                         key={session.id}
-                        className={
-                          animationPhase === "enter" ? transitionStyles.scheduleItemEnter : undefined
-                        }
+                        className={`${styles.sessionListItem} ${
+                          animationPhase === "enter" ? transitionStyles.scheduleItemEnter : ""
+                        }`.trim()}
                         style={getItemStyle(index)}
                       >
                         <HomeWeeklyScheduleSessionRow

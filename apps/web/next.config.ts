@@ -80,6 +80,8 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins,
   images: {
+    /** Serve assets as-is — no `/_next/image` re-encode or resize. */
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

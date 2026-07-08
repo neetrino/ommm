@@ -4,10 +4,13 @@ export const CANVAS_DESIGN_WIDTH_PX = 1440;
 /** Below this width: real mobile layout (no canvas scaling). */
 export const CANVAS_TABLET_MIN_WIDTH_PX = 744;
 
+/** iPad Mini portrait logical width — narrow card body column (744px–819px). */
+export const IPAD_MINI_MAX_WIDTH_PX = 819;
+
 /** iPad Air portrait logical width — scales Pro-tier tokens down. */
 export const IPAD_AIR_REFERENCE_WIDTH_PX = 820;
 
-/** iPad Air tier — same layout as iPad Pro, smaller (744px–1023px). */
+/** iPad Air tier — same layout as iPad Pro, smaller (744px–1023px; Mini uses 744–819 override). */
 export const IPAD_AIR_MIN_WIDTH_PX = CANVAS_TABLET_MIN_WIDTH_PX;
 export const IPAD_AIR_MAX_WIDTH_PX = 1023;
 

@@ -298,22 +298,23 @@ export type HomeFooterSurfaceVariant = "home" | "inner";
 
 /** iPad Mini — centered stacked footer (744px–819px). */
 export const HOME_FOOTER_IPAD_MINI_DESKTOP_LAYOUT = {
-  shellPaddingTop: "2.5rem",
+  shellPaddingTop: "1.5rem",
   shellPaddingBottom: "2rem",
   shellPaddingInline: "1.5rem",
   columnGap: "2rem",
-  sectionGap: "1.5rem",
+  sectionGap: "0",
+  wordmarkToIllustrationGapRem: 0.5,
   /** Pull contact + footer rows closer to the sphere (logo stays put). */
-  belowLogoLiftRem: 7,
+  belowLogoLiftRem: 10.5,
   illustrationMaxRem: 12,
   illustrationViewportRatio: 0.28,
   wordmarkFontSizePx: 20,
   wordmarkLineHeightPx: 28,
-  wordmarkToNavGapPx: 16,
+  wordmarkToNavGapPx: 0,
   bodyFontSizePx: 14,
   bodyLineHeightPx: 20,
   navLinkGapPx: 24,
-  legalDividerPaddingTopPx: 12,
+  copyrightRowGapRem: 1.25,
   legalLinkGapPx: 24,
   copyrightMarginTopPx: 16,
   paymentMarginTopPx: 32,
@@ -322,14 +323,15 @@ export const HOME_FOOTER_IPAD_MINI_DESKTOP_LAYOUT = {
 
 /** iPad Air tier — compact desktop footer (820px–1023px). */
 export const HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT = {
-  shellPaddingTop: "1.75rem",
+  shellPaddingTop: "1.5rem",
   shellPaddingBottom: "1.5rem",
   columnGap: "1.25rem",
-  rowGap: "0.75rem",
+  rowGap: "0",
   illustrationColumn: "minmax(7rem, 9.5rem)",
   illustrationMaxRem: 9.5,
   wordmarkFontSizePx: 20,
   wordmarkLineHeightPx: 28,
+  wordmarkToNavGapPx: 0,
   bodyFontSizePx: 14,
   bodyLineHeightPx: 20,
   navLinkPaddingLeftPx: 16,
@@ -337,20 +339,21 @@ export const HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT = {
   topRadiusPx: 48,
   paymentArcaOffsetPx: 16,
   /** Pull contact + footer rows closer to the sphere (logo stays put). */
-  belowLogoLiftRem: 7,
-  legalDividerPaddingTopPx: 12,
+  belowLogoLiftRem: 10.5,
+  copyrightRowGapRem: 1.25,
   legalLinkGapPx: 24,
   contactSocialColumnGapRem: 2,
-  sectionGapRem: 1.5,
+  sectionGapRem: 0,
+  wordmarkToIllustrationGapRem: 0.5,
   contentInsetPx: 24,
 } as const;
 
 /** iPad Pro tier — roomier compact desktop footer (1024px–1366px). */
 export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
-  shellPaddingTop: "2.25rem",
+  shellPaddingTop: "1.75rem",
   shellPaddingBottom: "1.75rem",
   columnGap: "1.75rem",
-  rowGap: "0.875rem",
+  rowGap: "0",
   illustrationColumn: "minmax(8.5rem, 12rem)",
   illustrationMaxRem: 12,
   wordmarkFontSizePx: 20,
@@ -361,11 +364,12 @@ export const HOME_FOOTER_IPAD_PRO_DESKTOP_LAYOUT = {
   navLinkGapPx: 10,
   topRadiusPx: 56,
   paymentArcaOffsetPx: 20,
-  belowLogoLiftRem: 7,
-  legalDividerPaddingTopPx: 12,
+  belowLogoLiftRem: 10.5,
+  copyrightRowGapRem: 1.25,
   legalLinkGapPx: 24,
   contactSocialColumnGapRem: 2,
-  sectionGapRem: 1.5,
+  sectionGapRem: 0,
+  wordmarkToIllustrationGapRem: 0.5,
   contentInsetPx: 32,
 } as const;
 export const HOME_FOOTER_TABLET_DESKTOP_LAYOUT = HOME_FOOTER_IPAD_AIR_DESKTOP_LAYOUT;

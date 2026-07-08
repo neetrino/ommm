@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import {
   CONTACT_PAGE_CARD_SHELL_CLASS,
@@ -10,6 +10,7 @@ import { ContactSocialBrandIcon } from "@/components/marketing/contact/contact-s
 import type { MarketingContactGridTile } from "@/components/marketing/contact/marketing-contact-grid-tile";
 import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
+import { renderAtSignText } from "@/lib/render-at-sign-text";
 
 type MarketingContactStudioCardProps = {
   tiles: MarketingContactGridTile[];
@@ -39,26 +40,51 @@ const CARD_STYLE = {
   "--contact-card-shadow-bleed": `${CONTACT_PAGE_LAYOUT.cardShadowBleedPx}px`,
 } as CSSProperties;
 
+function contactValueClassName(tile: MarketingContactGridTile): string | undefined {
+  if (tile.key === "phone") {
+    return styles.valuePhone;
+  }
+
+  if (tile.key === "email" || tile.key === "instagram") {
+    return styles.valueInline;
+  }
+
+  return undefined;
+}
+
+function contactTileValueContent(tile: MarketingContactGridTile): ReactNode {
+  if (tile.key === "email" || tile.key === "instagram") {
+    return renderAtSignText(tile.value, styles.atSign);
+  }
+
+  return tile.value;
+}
+
 function ContactTileValue({ tile }: { tile: MarketingContactGridTile }) {
-  const phoneClassName = tile.key === "phone" ? styles.valuePhone : undefined;
+  const valueClassName = contactValueClassName(tile);
+  const content = contactTileValueContent(tile);
 
   if (tile.href !== undefined) {
     return (
       <a
         href={tile.href}
-        className={phoneClassName !== undefined ? `${styles.valueLink} ${phoneClassName}` : styles.valueLink}
+        className={
+          valueClassName !== undefined
+            ? `${styles.valueLink} ${valueClassName}`
+            : styles.valueLink
+        }
         {...(tile.href.startsWith("http")
           ? { target: "_blank", rel: "noopener noreferrer" }
           : {})}
       >
-        {tile.value}
+        {content}
       </a>
     );
   }
 
   return (
-    <p className={phoneClassName !== undefined ? `${styles.value} ${phoneClassName}` : styles.value}>
-      {tile.value}
+    <p className={valueClassName !== undefined ? `${styles.value} ${valueClassName}` : styles.value}>
+      {content}
     </p>
   );
 }

@@ -75,6 +75,23 @@ export type DesktopAccordionSlotProps = {
   onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
+export type DesktopAccordionRowProps = {
+  locale: string;
+  row: readonly PackagesPageAccordionCategory[];
+  rowIndex: number;
+  expandedCategory: PackagesPageAccordionCategory | null;
+  cardsPerRow: number;
+  detailsLabel: string;
+  resolveOpenLabel: (categoryName: string) => string;
+  resolveCloseLabel: (categoryName: string) => string;
+  audience: PublicPackageCategoryCardsAudience;
+  selectedPlanId: string | null;
+  onSelectPlan: (planId: string) => void;
+  onSubscribe: (plan: PublicPackagePlan) => void;
+  onOpen: (categoryId: string) => void;
+  onClose: () => void;
+};
+
 export type PackagesSubscribeModalHostProps = {
   locale: string;
   categories: readonly PackagesPageAccordionCategory[];
