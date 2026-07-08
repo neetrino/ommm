@@ -8,11 +8,14 @@ type UserGreetingSectionProps = {
   displayName: string;
   /** Same custom photo as Home banner; fills the circular avatar when set. */
   avatarImageUri?: string | null;
+  /** Shown inside the avatar when no custom photo is set. */
+  avatarInitials?: string;
 };
 
 export function UserGreetingSection({
   displayName,
   avatarImageUri,
+  avatarInitials,
 }: UserGreetingSectionProps) {
   return (
     <View style={styles.row}>
@@ -26,6 +29,8 @@ export function UserGreetingSection({
                 contentFit="cover"
                 accessibilityLabel="Your Home photo"
               />
+            ) : avatarInitials ? (
+              <Text style={styles.avatarInitials}>{avatarInitials}</Text>
             ) : (
               <View
                 style={styles.avatarFill}
@@ -80,6 +85,16 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: radii.pill,
     backgroundColor: colors.taupe,
+  },
+  avatarInitials: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radii.pill,
+    backgroundColor: "rgba(212,163,115,0.22)",
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 18,
+    color: colors.primaryGreen,
   },
   avatarImage: {
     flex: 1,

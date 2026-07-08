@@ -25,6 +25,7 @@ import {
 import { SESSION_STORAGE_KEY } from "./persistedSession";
 import { homeHrefForRole } from "./roleHome";
 import { sessionGreetingDisplayName } from "./sessionGreetingDisplayName";
+import { buildProfileInitials } from "../features/profile/profileInitials";
 
 type SessionContextValue = {
   isReady: boolean;
@@ -39,6 +40,8 @@ type SessionContextValue = {
   userEmail: string;
   /** Resolved absolute URI for custom Home image, or null. */
   homeImageUri: string | null;
+  /** Initials from name/surname when no custom photo is set. */
+  profileInitials: string;
   refreshProfile: () => Promise<void>;
   establishSession: (accessToken: string, user?: AuthUserSummary) => Promise<void>;
   signInWithPassword: (email: string, password: string) => Promise<string>;
@@ -197,6 +200,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [sessionProfile],
   );
 
+  const profileInitials = useMemo(
+    () =>
+      sessionProfile === null
+        ? ""
+        : buildProfileInitials({
+            name: sessionProfile.name,
+            lastName: sessionProfile.lastName,
+            email: sessionProfile.email,
+          }),
+    [sessionProfile],
+  );
+
   const role = useMemo(
     () => (sessionProfile === null ? null : sessionProfile.role),
     [sessionProfile],
@@ -211,6 +226,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       userGreetingName,
       userEmail,
       homeImageUri,
+      profileInitials,
       refreshProfile,
       establishSession,
       signInWithPassword,
@@ -223,6 +239,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       homeImageUri,
       isReady,
       isSignedIn,
+      profileInitials,
       refreshProfile,
       registerAccount,
       role,

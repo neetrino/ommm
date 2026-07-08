@@ -4,30 +4,33 @@ import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useSession } from "../../../auth/SessionProvider";
-import { uploadHomeImage } from "../../../lib/api/usersClient";
-import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import type { UploadPickResult } from "../../../lib/api/usersClient";
+import { deleteHomeImage, uploadHomeImage } from "../../../lib/api/usersClient";
+import { colors } from "../../../theme/tokens";
+import { profileHomeImageSectionStyles as styles } from "./profileHomeImageSection.styles";
 
 const HOME_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
 export function ProfileHomeImageSection() {
-  const { refreshProfile, homeImageUri } = useSession();
+  const { refreshProfile, homeImageUri, profileInitials } = useSession();
+  const [pendingPick, setPendingPick] = useState<UploadPickResult | null>(null);
   const [busy, setBusy] = useState(false);
-  const [localPreviewUri, setLocalPreviewUri] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{
     kind: "ok" | "err";
     text: string;
   } | null>(null);
 
-  const displayPreviewUri = localPreviewUri ?? homeImageUri;
+  const hasPendingPreview = pendingPick !== null;
+  const hasSavedPhoto =
+    !hasPendingPreview && homeImageUri !== null && homeImageUri !== "";
+  const displayPreviewUri = hasPendingPreview ? pendingPick.uri : homeImageUri;
 
-  const onChooseAndUploadPress = useCallback(async () => {
-    if (busy) {
+  const onChoosePress = useCallback(async () => {
+    if (busy || hasPendingPreview) {
       return;
     }
 
@@ -64,26 +67,61 @@ export function ProfileHomeImageSection() {
       return;
     }
 
+    setPendingPick({
+      uri: asset.uri,
+      mimeType: asset.mimeType ?? "image/jpeg",
+      fileName: asset.fileName ?? undefined,
+    });
+  }, [busy, hasPendingPreview]);
+
+  const onRemovePendingPress = useCallback(() => {
+    if (busy) {
+      return;
+    }
+    setPendingPick(null);
+    setFeedback(null);
+  }, [busy]);
+
+  const onDeleteSavedPress = useCallback(async () => {
+    if (busy || !hasSavedPhoto) {
+      return;
+    }
+
     setBusy(true);
-    setLocalPreviewUri(asset.uri);
+    setFeedback(null);
     try {
-      await uploadHomeImage({
-        uri: asset.uri,
-        mimeType: asset.mimeType ?? "image/jpeg",
-        fileName: asset.fileName ?? undefined,
-      });
-      setFeedback({ kind: "ok", text: "Photo updated successfully." });
+      await deleteHomeImage();
+      setFeedback({ kind: "ok", text: "Photo removed successfully." });
       await refreshProfile();
-      setLocalPreviewUri(null);
     } catch (e) {
-      setLocalPreviewUri(null);
       const message =
         e instanceof Error ? e.message : "Something went wrong. Please try again.";
       setFeedback({ kind: "err", text: message });
     } finally {
       setBusy(false);
     }
-  }, [busy, refreshProfile]);
+  }, [busy, hasSavedPhoto, refreshProfile]);
+
+  const onConfirmPress = useCallback(async () => {
+    if (busy || pendingPick === null) {
+      return;
+    }
+
+    setBusy(true);
+    setFeedback(null);
+    try {
+      await uploadHomeImage(pendingPick);
+      setFeedback({ kind: "ok", text: "Photo updated successfully." });
+      setPendingPick(null);
+      await refreshProfile();
+    } catch (e) {
+      const message =
+        e instanceof Error ? e.message : "Something went wrong. Please try again.";
+      setFeedback({ kind: "err", text: message });
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, pendingPick, refreshProfile]);
 
   return (
     <View style={styles.card}>
@@ -93,20 +131,35 @@ export function ProfileHomeImageSection() {
       </Text>
 
       {displayPreviewUri !== null && displayPreviewUri !== "" ? (
-        <View style={styles.previewWrap}>
+        <View
+          style={[
+            styles.previewWrap,
+            hasPendingPreview && styles.previewWrapPending,
+          ]}
+        >
           <Image
             source={{ uri: displayPreviewUri }}
             style={styles.previewImage}
             contentFit="cover"
             accessibilityRole="image"
-            accessibilityLabel="Profile photo preview"
+            accessibilityLabel={
+              hasPendingPreview
+                ? "Temporary profile photo preview"
+                : "Profile photo preview"
+            }
           />
         </View>
       ) : (
-        <Text style={styles.placeholder}>
-          No custom photo yet — default layout applies.
-        </Text>
+        <View style={styles.initialsPreviewWrap}>
+          <Text style={styles.initialsPreviewText}>{profileInitials}</Text>
+        </View>
       )}
+
+      {hasPendingPreview ? (
+        <Text style={styles.pendingHint}>
+          Preview — confirm to save this photo, or remove to choose another.
+        </Text>
+      ) : null}
 
       {feedback ? (
         <Text
@@ -117,94 +170,98 @@ export function ProfileHomeImageSection() {
         </Text>
       ) : null}
 
-      <Pressable
-        onPress={() => void onChooseAndUploadPress()}
-        disabled={busy}
-        style={({ pressed }) => [
-          styles.primaryBtn,
-          pressed && !busy && styles.primaryPressed,
-          busy && styles.btnDisabled,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel="Choose profile photo"
-        accessibilityState={{ disabled: busy }}
-      >
-        {busy ? (
-          <ActivityIndicator color={colors.white} />
-        ) : (
-          <Text style={styles.primaryLabel}>Choose image</Text>
-        )}
-      </Pressable>
+      {hasPendingPreview ? (
+        <View style={styles.row}>
+          <Pressable
+            onPress={onRemovePendingPress}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.secondaryBtn,
+              pressed && !busy && styles.secondaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Remove selected image"
+            accessibilityState={{ disabled: busy }}
+          >
+            <Text style={styles.removeLabel}>Remove</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => void onConfirmPress()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && !busy && styles.primaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Confirm profile photo"
+            accessibilityState={{ disabled: busy }}
+          >
+            {busy ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.primaryLabel}>Confirm</Text>
+            )}
+          </Pressable>
+        </View>
+      ) : hasSavedPhoto ? (
+        <View style={styles.row}>
+          <Pressable
+            onPress={() => void onChoosePress()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && !busy && styles.primaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Choose profile photo"
+            accessibilityState={{ disabled: busy }}
+          >
+            {busy ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.primaryLabel}>Choose image</Text>
+            )}
+          </Pressable>
+
+          <Pressable
+            onPress={() => void onDeleteSavedPress()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.secondaryBtn,
+              pressed && !busy && styles.secondaryPressed,
+              busy && styles.btnDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Delete profile photo"
+            accessibilityState={{ disabled: busy }}
+          >
+            <Text style={styles.removeLabel}>Delete photo</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable
+          onPress={() => void onChoosePress()}
+          disabled={busy}
+          style={({ pressed }) => [
+            styles.primaryBtn,
+            pressed && !busy && styles.primaryPressed,
+            busy && styles.btnDisabled,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Choose profile photo"
+          accessibilityState={{ disabled: busy }}
+        >
+          {busy ? (
+            <ActivityIndicator color={colors.white} />
+          ) : (
+            <Text style={styles.primaryLabel}>Choose image</Text>
+          )}
+        </Pressable>
+      )}
     </View>
   );
 }
-
-const PREVIEW_HEIGHT = 200;
-
-const styles = StyleSheet.create({
-  card: {
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radii.labelCard,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.overlayWhite38,
-  },
-  sectionTitle: {
-    fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle,
-    color: colors.primaryGreen,
-  },
-  sectionLead: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 20,
-    color: colors.secondarySage,
-  },
-  previewWrap: {
-    borderRadius: radii.labelCard,
-    overflow: "hidden",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.primaryGreen,
-  },
-  previewImage: {
-    width: "100%",
-    height: PREVIEW_HEIGHT,
-  },
-  placeholder: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    color: colors.bodyMuted,
-    fontStyle: "italic",
-  },
-  feedbackOk: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
-  },
-  feedbackErr: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.danger,
-  },
-  primaryBtn: {
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 48,
-    paddingHorizontal: space.md,
-    borderRadius: radii.pill,
-    backgroundColor: colors.primaryGreen,
-  },
-  primaryPressed: {
-    opacity: 0.92,
-  },
-  btnDisabled: {
-    opacity: 0.55,
-  },
-  primaryLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.white,
-  },
-});

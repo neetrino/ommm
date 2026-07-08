@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -16,29 +16,15 @@ import { AccountHubHeader } from "./components/AccountHubHeader";
 import { AccountHubMenuRow } from "./components/AccountHubMenuRow";
 import { colors, layout, space } from "../../theme/tokens";
 
-function buildInitials(displayName: string, email: string): string {
-  const parts = displayName.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
-  }
-  const one = parts[0]?.[0] ?? email[0] ?? "M";
-  return one.toUpperCase();
-}
-
 export function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const logout = useLogoutAction();
-  const { userGreetingName, userEmail, homeImageUri } = useSession();
+  const { userGreetingName, userEmail, homeImageUri, profileInitials } = useSession();
   const [logoutBusy, setLogoutBusy] = useState(false);
 
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.lg;
-
-  const initials = useMemo(
-    () => buildInitials(userGreetingName, userEmail),
-    [userEmail, userGreetingName],
-  );
 
   const onLogoutPress = useCallback(() => {
     if (logoutBusy) {
@@ -61,7 +47,7 @@ export function ProfileScreen() {
           displayName={userGreetingName}
           email={userEmail}
           avatarImageUri={homeImageUri}
-          initials={initials}
+          initials={profileInitials}
         />
 
         <View style={accountHubLayout.menuCard}>

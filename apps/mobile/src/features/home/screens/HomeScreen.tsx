@@ -33,7 +33,7 @@ import { useMemberHomeFeed } from "../hooks/useMemberHomeFeed";
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { isSignedIn, userGreetingName, homeImageUri } = useSession();
+  const { isSignedIn, userGreetingName, homeImageUri, profileInitials } = useSession();
   const feed = useMemberHomeFeed(isSignedIn);
 
   const headerOffset = insets.top + 90;
@@ -84,6 +84,7 @@ export function HomeScreen() {
             <UserGreetingSection
               displayName={userGreetingName}
               avatarImageUri={homeImageUri}
+              avatarInitials={profileInitials}
             />
             {!feed.loading && feed.error === null ? (
               <>

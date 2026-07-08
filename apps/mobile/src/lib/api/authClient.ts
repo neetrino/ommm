@@ -9,6 +9,7 @@ export type AuthUserSummary = {
   role: string;
   email: string;
   name: string | null;
+  lastName: string | null;
   /** Public path or absolute URL for custom Home banner; null if unset. */
   homeImageUrl: string | null;
 };
@@ -51,6 +52,9 @@ function isAuthUserSummary(value: unknown): value is AuthUserSummary {
   if (u.name !== null && u.name !== undefined && typeof u.name !== "string") {
     return false;
   }
+  if (u.lastName !== null && u.lastName !== undefined && typeof u.lastName !== "string") {
+    return false;
+  }
   if (
     u.homeImageUrl !== null &&
     u.homeImageUrl !== undefined &&
@@ -65,12 +69,14 @@ function mapAuthUser(u: {
   role: string;
   email: string;
   name: string | null;
+  lastName?: string | null;
   homeImageUrl?: string | null;
 }): AuthUserSummary {
   return {
     role: u.role,
     email: u.email,
     name: u.name ?? null,
+    lastName: u.lastName === undefined || u.lastName === null ? null : u.lastName,
     homeImageUrl:
       u.homeImageUrl === undefined || u.homeImageUrl === null
         ? null
@@ -164,6 +170,7 @@ async function postAuth(path: string, body: unknown): Promise<AuthSuccessRespons
       role: u.role,
       email: u.email,
       name: u.name ?? null,
+      lastName: (u as { lastName?: string | null }).lastName ?? null,
       homeImageUrl: u.homeImageUrl ?? null,
     }),
   };
@@ -247,6 +254,7 @@ export async function fetchSessionUser(accessToken: string): Promise<AuthUserSum
     role: u.role,
     email: u.email,
     name: u.name ?? null,
+    lastName: (u as { lastName?: string | null }).lastName ?? null,
     homeImageUrl: (u as { homeImageUrl?: string | null }).homeImageUrl ?? null,
   });
 }

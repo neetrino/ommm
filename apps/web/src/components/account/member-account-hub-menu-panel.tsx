@@ -14,7 +14,6 @@ import {
   MemberAccountHubNavIcon,
 } from "@/components/account/member-account-hub-nav-icons";
 import type { MemberAccountHubProfile } from "@/components/account/member-account-hub-profile";
-import { MarketingHeaderUserIcon } from "@/components/marketing/marketing-header-icons";
 import {
   MEMBER_ACCOUNT_HUB_CHANGE_PASSWORD_HREF,
   MEMBER_ACCOUNT_HUB_NAV,
@@ -30,6 +29,7 @@ export function MemberAccountHubMenuPanel({
   displayName,
   email,
   imageSrc,
+  initials,
   presentation = "page",
   onNavigate,
 }: MemberAccountHubMenuPanelProps) {
@@ -57,7 +57,9 @@ export function MemberAccountHubMenuPanel({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <MarketingHeaderUserIcon className="h-[58%] w-auto shrink-0 text-[#fbf5d5] sm:h-[62%]" />
+              <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-sage-800 sm:text-3xl">
+                {initials}
+              </span>
             )}
           </div>
         </div>

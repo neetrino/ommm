@@ -153,7 +153,40 @@ export async function uploadHomeImage(
     role: u.role,
     email: u.email,
     name: typeof u.name === "string" ? u.name : null,
+    lastName: typeof u.lastName === "string" ? u.lastName : null,
     homeImageUrl: typeof u.homeImageUrl === "string" ? u.homeImageUrl : null,
   };
   return { user, message: o.message };
+}
+
+export async function deleteHomeImage(): Promise<{ message: string }> {
+  const token = await readStoredAccessToken();
+  if (token === null) {
+    throw new Error("Not signed in");
+  }
+  const base = getApiBaseUrl();
+  const res = await fetchWithReachabilityHint(
+    joinApiPath(base, "/v1/users/me/home-image"),
+    {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    base,
+  );
+  const raw = await res.text();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(raw, res.statusText));
+  }
+  const parsed: unknown = raw.trim() === "" ? {} : JSON.parse(raw);
+  if (
+    typeof parsed !== "object" ||
+    parsed === null ||
+    typeof (parsed as { message?: unknown }).message !== "string"
+  ) {
+    throw new Error("Unexpected response from server");
+  }
+  return { message: (parsed as { message: string }).message };
 }

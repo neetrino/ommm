@@ -4109,6 +4109,9 @@
       "removingPhoto": "Removing…",
       "upload": "Upload",
       "uploading": "Uploading…",
+      "confirm": "Confirm",
+      "removePending": "Remove",
+      "pendingHint": "Preview — confirm to save this photo, or remove to choose another.",
       "previewAlt": "Home image preview",
       "emptyState": "No custom image — your dashboard uses the default layout."
     },
