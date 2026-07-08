@@ -112,7 +112,7 @@ export function HomeScreen() {
             />
             <GiftCardSection
               content={homeMock.giftCard}
-              onBuyPress={() => router.push(userMemberPath("plans"))}
+              onBuyPress={() => router.push(userMemberPath("packages"))}
             />
           </>
         ) : (
@@ -130,7 +130,7 @@ export function HomeScreen() {
                   return;
                 }
                 if (key === "packages") {
-                  router.push(guestPublicTabPath.plans);
+                  router.push(guestPublicTabPath.packages);
                   return;
                 }
                 router.push(guestPublicTabPath.classes);

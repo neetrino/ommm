@@ -1,10 +1,5 @@
-import { PlaceholderTabScreen } from "../../../src/features/shell/PlaceholderTabScreen";
+import { Redirect } from "expo-router";
 
 export default function UserPlansRoute() {
-  return (
-    <PlaceholderTabScreen
-      title="Plans"
-      subtitle="Memberships and passes will appear here once billing endpoints are connected."
-    />
-  );
+  return <Redirect href="/user/packages" />;
 }

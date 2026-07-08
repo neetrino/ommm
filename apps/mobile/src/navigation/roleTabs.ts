@@ -47,9 +47,9 @@ const USER_TABS: RoleTabItem[] = [
     ...ICON.bookings,
   },
   {
-    key: "progress",
-    label: "Plans",
-    href: "/user/progress",
+    key: "packages",
+    label: "Packages",
+    href: "/user/packages",
     ...ICON.userPlans,
   },
   {
