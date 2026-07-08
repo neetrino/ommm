@@ -131,8 +131,8 @@ export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
   /** Figma `805:802` @2x — 2880×1848 source for retina desktop. */
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
-  /** Founding memberships mobile banner — 910×2048 @2x (455×1024 artboard). */
-  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v2.webp",
+  /** Founding memberships mobile banner — 1365×3072 @3x (455×1024 artboard), WebP q98. */
+  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v4.webp",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -163,7 +163,7 @@ export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
-  sectionBackground: "#896a3b",
+  sectionBackground: "#876734",
   objectPosition: "center top",
 } as const;
 
