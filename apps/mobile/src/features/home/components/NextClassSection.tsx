@@ -3,10 +3,7 @@ import { useTranslations } from "../../../i18n/I18nProvider";
 import { NextClassDetailsPanel } from "./next-class/NextClassDetailsPanel";
 import { NextClassHeroCard } from "./next-class/NextClassHeroCard";
 import { nextClassStyles as styles } from "./next-class/nextClassStyles";
-import type {
-  NextClassContent,
-  NextClassSectionProps,
-} from "./next-class/nextClassTypes";
+import type { NextClassSectionProps } from "./next-class/nextClassTypes";
 
 export type { NextClassContent } from "./next-class/nextClassTypes";
 

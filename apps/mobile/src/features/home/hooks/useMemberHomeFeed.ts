@@ -89,7 +89,7 @@ export function useMemberHomeFeed(isSignedIn: boolean): MemberHomeFeedState {
 
   useEffect(() => {
     void load();
-  }, [locale]);
+  }, [locale, load]);
 
   useFocusEffect(
     useCallback(() => {

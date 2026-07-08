@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
 import { formatPackagePriceLabel } from "../../../lib/packages/formatPackageDisplay";

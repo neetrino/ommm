@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Animated, Easing } from "react-native";
+import { Animated, Easing, StyleSheet, View } from "react-native";
 import type { ClassSessionRow } from "../../../lib/api/memberClient";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { ScheduleEmptyState } from "./ScheduleEmptyState";
@@ -8,7 +8,6 @@ import {
   SCHEDULE_SWITCH_TRANSITION_MS,
   type ScheduleAnimationPhase,
 } from "../hooks/useScheduleDayTransition";
-import { StyleSheet, View } from "react-native";
 
 type ScheduleAnimatedSessionItemProps = {
   animationPhase: ScheduleAnimationPhase;

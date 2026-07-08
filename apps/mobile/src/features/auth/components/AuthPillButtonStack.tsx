@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, radii, shadows, space, typography } from "../../../theme/tokens";
+import { colors, radii, space, typography } from "../../../theme/tokens";
 
 /** Share of screen width for the stacked auth CTAs (reference ~80–85%). */
 const AUTH_STACK_WIDTH_RATIO = 0.82;

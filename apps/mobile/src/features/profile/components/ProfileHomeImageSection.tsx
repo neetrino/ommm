@@ -76,7 +76,7 @@ export function ProfileHomeImageSection() {
       mimeType: asset.mimeType ?? "image/jpeg",
       fileName: asset.fileName ?? undefined,
     });
-  }, [busy, hasPendingPreview]);
+  }, [busy, hasPendingPreview, tHomeImage]);
 
   const onRemovePendingPress = useCallback(() => {
     if (busy) {
@@ -104,7 +104,7 @@ export function ProfileHomeImageSection() {
     } finally {
       setBusy(false);
     }
-  }, [busy, hasSavedPhoto, refreshProfile]);
+  }, [busy, hasSavedPhoto, refreshProfile, tHomeImage]);
 
   const onConfirmPress = useCallback(async () => {
     if (busy || pendingPick === null) {

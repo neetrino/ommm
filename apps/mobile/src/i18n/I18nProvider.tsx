@@ -149,12 +149,12 @@ export function useI18n(): I18nContextValue {
 
 /** Namespace-scoped translator — mirrors `next-intl` `useTranslations`. */
 export function useTranslations(namespace?: string) {
-  const { t, locale, messages } = useI18n();
+  const { t } = useI18n();
   return useMemo(() => {
     const scoped: TranslateFn = (key, values) =>
       t(joinNamespace(namespace, key), values);
     return scoped;
-  }, [locale, messages, namespace, t]);
+  }, [namespace, t]);
 }
 
 export function useLocale(): AppUiLocale {

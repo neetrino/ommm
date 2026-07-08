@@ -76,7 +76,11 @@ export function MemberPackagesScreen() {
       packagesCopy.subscribeSuccessTitle,
       packagesCopy.subscribeSuccessBody,
     );
-  }, [confirmSubscribe]);
+  }, [
+    confirmSubscribe,
+    packagesCopy.subscribeSuccessBody,
+    packagesCopy.subscribeSuccessTitle,
+  ]);
 
   const showMyPackages = isSignedIn && mode === "mine";
   const showCatalog = !isSignedIn || mode === "catalog";

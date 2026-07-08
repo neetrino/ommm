@@ -7,7 +7,8 @@
     "start": "pnpm exec expo start",
     "android": "pnpm exec expo start --android",
     "ios": "pnpm exec expo start --ios",
-    "web": "pnpm exec expo start --web"
+    "web": "pnpm exec expo start --web",
+    "lint": "pnpm exec eslint ."
   },
   "dependencies": {
     "@expo-google-fonts/manrope": "^0.4.2",
@@ -39,6 +40,8 @@
   "devDependencies": {
     "@types/react": "~19.1.0",
     "dotenv": "^17.4.2",
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"
   },
   "private": true

@@ -1,12 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 import { fontFamilies } from "../../../../theme/fontFamilies";
-import {
-  colors,
-  exploreTile,
-  radii,
-  space,
-  typography,
-} from "../../../../theme/tokens";
+import { colors, radii, space, typography } from "../../../../theme/tokens";
 import { EXPLORE_JOURNAL_GLASS_BASE } from "./exploreConstants";
 
 export const exploreStyles = StyleSheet.create({

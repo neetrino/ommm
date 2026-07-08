@@ -27,8 +27,7 @@ import { homeHrefForRole } from "./roleHome";
 import { sessionGreetingDisplayName } from "./sessionGreetingDisplayName";
 import { buildProfileInitials } from "../features/profile/profileInitials";
 import { useI18n } from "../i18n/I18nProvider";
-import { writeStoredUiLocale } from "../i18n/localeStorage";
-import { pickUiLocaleForUser } from "../i18n/localeStorage";
+import { pickUiLocaleForUser, writeStoredUiLocale } from "../i18n/localeStorage";
 import type { AppUiLocale } from "../i18n/locales";
 
 type SessionContextValue = {

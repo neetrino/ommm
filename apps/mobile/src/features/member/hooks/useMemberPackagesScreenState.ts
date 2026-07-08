@@ -8,8 +8,7 @@ import {
 import { buildAccordionCategoriesFromPlans } from "../../../lib/packages/packagesPageCategoryData";
 import type { PackagesPageAccordionCategory } from "../../../lib/packages/packagesPageCategoryData";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
-import { useLocale } from "../../../i18n/I18nProvider";
-import { useTranslations } from "../../../i18n/I18nProvider";
+import { useLocale, useTranslations } from "../../../i18n/I18nProvider";
 import type { PublicPackagePlan } from "../../../lib/packages/publicPackagePlan";
 import {
   normalizeUserPackageStatus,

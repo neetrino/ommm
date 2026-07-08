@@ -29,17 +29,13 @@ import {
 import { NextClassSection } from "../components/NextClassSection";
 import { UserGreetingSection } from "../components/UserGreetingSection";
 import { WaitlistSection } from "../components/WaitlistSection";
-import {
-  useHomeGiftContent,
-  useHomeMarketingCopy,
-} from "../hooks/useHomeContent";
+import { useHomeGiftContent } from "../hooks/useHomeContent";
 import { useMemberHomeFeed } from "../hooks/useMemberHomeFeed";
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isSignedIn, userGreetingName, homeImageUri, profileInitials } = useSession();
-  const homeCopy = useHomeMarketingCopy();
   const giftContent = useHomeGiftContent();
   const feed = useMemberHomeFeed(isSignedIn);
 

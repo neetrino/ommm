@@ -83,5 +83,5 @@ export function usePackageCategoryAccordionAnimation(isExpanded: boolean) {
       animatedPaddingLeft,
       onContentLayout,
     };
-  }, [contentHeight, progress]);
+  }, [contentHeight, onContentLayout, progress]);
 }

@@ -20,12 +20,12 @@ export type PublicPackagePlan = {
   features: string[];
   guestCount?: number;
   displayOrder: number;
-  typeSessionAllocations?: Array<{
+  typeSessionAllocations?: {
     classTypeId: string;
     classTypeName?: string;
     sessionCount: number;
     description?: string | null;
-  }>;
+  }[];
 };
 
 function coerceSessionsPerMonth(value: unknown): number | null {
