@@ -12,7 +12,7 @@ import {
 import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
-import { AuthBackToHomeRow } from "../../src/features/auth/components/AuthBackToHomeRow";
+import { AuthBackToHomeRow, AUTH_BACK_TO_HOME_TOP_RESERVE } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { fontFamilies } from "../../src/theme/fontFamilies";
@@ -20,7 +20,13 @@ import { colors, radii, space, typography } from "../../src/theme/tokens";
 
 const LOGIN_LOGO_LAYOUT_SIZE = 72;
 /** Visual scale only — layout slot stays fixed so other elements do not move. */
-const LOGIN_LOGO_VISUAL_SCALE = 3;
+const LOGIN_LOGO_VISUAL_SCALE = 3.35;
+/** Balance AuthScreenShell top reserve vs bottom inset when vertically centering. */
+const AUTH_SHELL_VERTICAL_PADDING_BIAS =
+  (AUTH_BACK_TO_HOME_TOP_RESERVE - space.xl) / 2;
+/** Locked to scale 3 overflow so logo size tweaks do not shift the form block. */
+const LOGIN_CONTENT_LIFT =
+  (LOGIN_LOGO_LAYOUT_SIZE * (3 - 1)) / 2 + AUTH_SHELL_VERTICAL_PADDING_BIAS;
 
 export default function LoginRoute() {
   const router = useRouter();
@@ -77,79 +83,81 @@ export default function LoginRoute() {
       keyboardAware
       topLeading={<AuthBackToHomeRow onPress={() => router.replace("/home")} />}
     >
-      <View style={styles.brandBlock}>
-        <View style={styles.logoSlot}>
-          <Image
-            source={figmaRemoteAssets.brandMark}
-            style={styles.logo}
-            contentFit="contain"
-            accessibilityLabel="Ommm logo"
-            accessibilityIgnoresInvertColors
-          />
+      <View style={styles.contentBlock}>
+        <View style={styles.brandBlock}>
+          <View style={styles.logoSlot}>
+            <Image
+              source={figmaRemoteAssets.brandMark}
+              style={styles.logo}
+              contentFit="contain"
+              accessibilityLabel="Ommm logo"
+              accessibilityIgnoresInvertColors
+            />
+          </View>
+          <Text style={styles.title} accessibilityRole="header">
+            Sign in
+          </Text>
+          <Text style={styles.lead}>
+            Enter your email and password to access your classes, schedule, and
+            profile.
+          </Text>
         </View>
-        <Text style={styles.title} accessibilityRole="header">
-          Sign in
-        </Text>
-        <Text style={styles.lead}>
-          Enter your email and password to access your classes, schedule, and
-          profile.
-        </Text>
-      </View>
 
-      <View style={styles.form}>
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          textContentType="username"
-          autoComplete="email"
-          accessibilityLabel="Email"
-        />
-        <AuthPasswordInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          textContentType="password"
-          autoComplete="password"
-          accessibilityLabel="Password"
-        />
+        <View style={styles.form}>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            placeholderTextColor={colors.bodyMuted}
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            textContentType="username"
+            autoComplete="email"
+            accessibilityLabel="Email"
+          />
+          <AuthPasswordInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            textContentType="password"
+            autoComplete="password"
+            accessibilityLabel="Password"
+          />
 
-        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+          {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+
+          <Pressable
+            onPress={() => void onSubmit()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.submit,
+              pressed && !busy && styles.submitPressed,
+              busy && styles.submitDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Sign in and continue"
+            accessibilityState={{ disabled: busy }}
+          >
+            {busy ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.submitLabel}>Sign in</Text>
+            )}
+          </Pressable>
+        </View>
 
         <Pressable
-          onPress={() => void onSubmit()}
-          disabled={busy}
-          style={({ pressed }) => [
-            styles.submit,
-            pressed && !busy && styles.submitPressed,
-            busy && styles.submitDisabled,
-          ]}
+          onPress={() => router.push("/register")}
+          style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
           accessibilityRole="button"
-          accessibilityLabel="Sign in and continue"
-          accessibilityState={{ disabled: busy }}
+          accessibilityLabel="Create a new account"
         >
-          {busy ? (
-            <ActivityIndicator color={colors.white} />
-          ) : (
-            <Text style={styles.submitLabel}>Sign in</Text>
-          )}
+          <Text style={styles.linkText}>New to the studio? </Text>
+          <Text style={styles.linkStrong}>Create account</Text>
         </Pressable>
       </View>
-
-      <Pressable
-        onPress={() => router.push("/register")}
-        style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
-        accessibilityRole="button"
-        accessibilityLabel="Create a new account"
-      >
-        <Text style={styles.linkText}>New to the studio? </Text>
-        <Text style={styles.linkStrong}>Create account</Text>
-      </Pressable>
     </AuthScreenShell>
   );
 }
@@ -160,6 +168,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.canvas,
+  },
+  contentBlock: {
+    marginTop: -LOGIN_CONTENT_LIFT,
   },
   brandBlock: {
     alignItems: "center",
