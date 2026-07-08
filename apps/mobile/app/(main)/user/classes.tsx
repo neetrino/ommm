@@ -1,5 +1,5 @@
-import { MemberClassesScreen } from "../../../src/features/member/screens/MemberClassesScreen";
+import { MemberBookingsScreen } from "../../../src/features/member/screens/MemberBookingsScreen";
 
 export default function UserClassesRoute() {
-  return <MemberClassesScreen />;
+  return <MemberBookingsScreen />;
 }
