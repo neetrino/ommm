@@ -36,22 +36,30 @@ export const accountHubLayout = StyleSheet.create({
     borderRadius: radii.pill,
     overflow: "hidden",
     backgroundColor: "rgba(212,163,115,0.22)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarImage: {
     width: "100%",
     height: "100%",
   },
   avatarPlaceholder: {
-    flex: 1,
+    width: "100%",
+    height: "100%",
     backgroundColor: colors.taupe,
   },
-  avatarInitials: {
-    flex: 1,
+  avatarInitialsShell: {
+    width: "100%",
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
+  },
+  avatarInitialsText: {
     fontFamily: "Manrope_600SemiBold",
     fontSize: typography.sectionTitle,
+    lineHeight: typography.sectionTitle + 4,
     color: colors.primaryGreen,
+    textAlign: "center",
   },
   textBlock: {
     flex: 1,

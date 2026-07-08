@@ -30,7 +30,8 @@ export function MemberProfileAvatar({
     return (
       <span
         className={[
-          "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/70 ommm-user-avatar-placeholder-surface text-[0.55rem] font-semibold leading-none text-sage-800 lg:text-[0.65rem] nav-desktop:text-xs",
+          "inline-flex size-full max-h-full max-w-full shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/70 ommm-user-avatar-placeholder-surface font-semibold leading-none text-sage-800",
+          "text-[0.55rem] lg:text-[0.65rem] nav-desktop:text-[0.7rem]",
           shellClass,
         ]
           .filter(Boolean)

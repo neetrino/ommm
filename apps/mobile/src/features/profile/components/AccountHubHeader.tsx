@@ -27,7 +27,9 @@ export function AccountHubHeader({
               accessibilityLabel="Your profile photo"
             />
           ) : initials ? (
-            <Text style={accountHubLayout.avatarInitials}>{initials}</Text>
+            <View style={accountHubLayout.avatarInitialsShell}>
+              <Text style={accountHubLayout.avatarInitialsText}>{initials}</Text>
+            </View>
           ) : (
             <View
               style={accountHubLayout.avatarPlaceholder}

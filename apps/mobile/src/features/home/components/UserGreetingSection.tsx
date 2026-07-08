@@ -30,7 +30,9 @@ export function UserGreetingSection({
                 accessibilityLabel="Your Home photo"
               />
             ) : avatarInitials ? (
-              <Text style={styles.avatarInitials}>{avatarInitials}</Text>
+              <View style={styles.avatarInitialsShell}>
+                <Text style={styles.avatarInitialsText}>{avatarInitials}</Text>
+              </View>
             ) : (
               <View
                 style={styles.avatarFill}
@@ -80,24 +82,33 @@ const styles = StyleSheet.create({
     padding: 2,
     overflow: "hidden",
     backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarFill: {
-    flex: 1,
+    width: "100%",
+    height: "100%",
     borderRadius: radii.pill,
     backgroundColor: colors.taupe,
   },
-  avatarInitials: {
-    flex: 1,
+  avatarInitialsShell: {
+    width: "100%",
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.pill,
     backgroundColor: "rgba(212,163,115,0.22)",
+  },
+  avatarInitialsText: {
     fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 18,
+    fontSize: 20,
+    lineHeight: 24,
     color: colors.primaryGreen,
+    textAlign: "center",
   },
   avatarImage: {
-    flex: 1,
+    width: "100%",
+    height: "100%",
     borderRadius: radii.pill,
     backgroundColor: colors.taupe,
   },
