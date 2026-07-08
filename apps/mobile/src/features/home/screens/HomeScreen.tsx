@@ -98,9 +98,7 @@ export function HomeScreen() {
                       router.push(userMemberPath("classes"))
                     }
                   />
-                ) : (
-                  <Text style={styles.emptyBlock}>You have no bookings</Text>
-                )}
+                ) : null}
                 <WaitlistSection items={feed.waitlistItems} />
               </>
             ) : null}
@@ -185,13 +183,5 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall,
     lineHeight: 20,
     color: colors.warmBrown,
-  },
-  emptyBlock: {
-    marginHorizontal: space.screenHorizontal,
-    marginBottom: space.section,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 20,
-    color: colors.bodyMuted,
   },
 });
