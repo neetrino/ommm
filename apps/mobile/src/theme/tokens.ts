@@ -113,11 +113,10 @@ export const giftCard = {
   subtitleMaxWidth: 246,
   subtitleInnerPaddingHorizontal: 2.53,
   subtitleMinHeight: 50,
-  ctaMarginTop: 20,
   ctaPaddingHorizontal: 40,
-  ctaPaddingVertical: 16,
+  ctaPaddingVertical: 14,
   ctaBorderRadius: 60,
-  ctaMinHeight: 56,
+  ctaMinHeight: 52,
   /** Manrope uppercase label — matches Dev Mode tracking */
   ctaLetterSpacing: 1.6,
   /** `(342 − 246) / 2` — aligns `Container` x=48 with frame width 342 */
