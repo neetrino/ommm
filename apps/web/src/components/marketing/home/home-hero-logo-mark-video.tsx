@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from "react"
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import { useOptionalHomeHeroSlide } from "@/components/marketing/home/home-hero-slide-context";
-import { useCrossfadeVideoLoop } from "@/components/marketing/home/use-crossfade-video-loop";
+import { usePingPongVideoLoop } from "@/components/marketing/home/use-ping-pong-video-loop";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
@@ -66,7 +66,7 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
     setUseFallback(true);
   }, []);
 
-  useCrossfadeVideoLoop(isPlaying, { primary: primaryRef, secondary: secondaryRef });
+  usePingPongVideoLoop(isPlaying, { primary: primaryRef, secondary: secondaryRef });
 
   useEffect(() => {
     if (!reducedMotion || useFallback) {

@@ -144,8 +144,6 @@ export const HOME_HERO_ASSETS = {
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
 
-const HOME_HERO_LOGO_MARK_VIDEO_LOOP_CROSSFADE_SEC = 0.5;
-
 /** Static mark raster — visible ball bbox in `home-hero-logo-mark.webp` (524×906 source). */
 const HOME_HERO_LOGO_MARK_STATIC_BALL_WIDTH_PX = 245;
 const HOME_HERO_LOGO_MARK_STATIC_SOURCE_WIDTH_PX = 524;
@@ -169,9 +167,15 @@ const HOME_HERO_LOGO_MARK_VIDEO_EDGE_CROP_SCALE = 1.14;
 
 const HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_DESKTOP_PX = 80;
 
-/** Legacy hero slide — seamless crossfade loop + ball sizing matched to static mark. */
+/** Start the hidden decoder before the cut so play() lag is absorbed off-screen. */
+const HOME_HERO_LOGO_MARK_VIDEO_LOOP_PREROLL_SEC = 0.1;
+/** Swap before the visible layer reaches `ended` — avoids stop/start. */
+const HOME_HERO_LOGO_MARK_VIDEO_LOOP_SWAP_LEAD_SEC = 0.04;
+
+/** Legacy hero slide — ball sizing matched to static mark. */
 export const HOME_HERO_LOGO_MARK_VIDEO_LAYOUT = {
-  loopCrossfadeSec: HOME_HERO_LOGO_MARK_VIDEO_LOOP_CROSSFADE_SEC,
+  loopPrerollSec: HOME_HERO_LOGO_MARK_VIDEO_LOOP_PREROLL_SEC,
+  loopSwapLeadSec: HOME_HERO_LOGO_MARK_VIDEO_LOOP_SWAP_LEAD_SEC,
   mobileInnerSizeRatio:
     HOME_HERO_LOGO_MARK_VIDEO_MOBILE_INNER_SIZE_RATIO * HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST,
   desktopInnerSizeRatio:

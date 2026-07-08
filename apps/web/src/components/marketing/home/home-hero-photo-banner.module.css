@@ -275,6 +275,7 @@
   border: none;
   object-fit: cover;
   object-position: center;
+  z-index: 1;
   /* H.264 lost source alpha — black matte reads as a ring unless lightened + cropped. */
   mix-blend-mode: lighten;
   transform: scale(var(--home-hero-logo-video-edge-crop-scale, 1.14));
