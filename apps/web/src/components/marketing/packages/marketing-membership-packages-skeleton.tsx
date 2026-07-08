@@ -41,7 +41,7 @@ export function MarketingMembershipPackagesSkeleton() {
           <div
             key={index}
             className="rounded-[24px] border border-white/50 bg-white/35"
-            style={{ minHeight: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardMinHeightPx}px` }}
+            style={{ height: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardMinHeightPx}px` }}
           />
         ))}
       </div>

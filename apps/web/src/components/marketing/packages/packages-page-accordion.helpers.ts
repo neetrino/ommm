@@ -102,6 +102,7 @@ export function layoutStyleVars(): CSSProperties {
     ["--packages-page-mobile-subscribe-height" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.subscribeButtonHeightPx}px`,
     ["--packages-page-mobile-subscribe-size" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.subscribeFontSizePx}px`,
     ["--packages-page-mobile-card-radius" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardRadiusPx}px`,
+    ["--packages-page-mobile-tier-meta-min-height" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.tierMetaBlockMinHeightPx}px`,
   };
 }
 

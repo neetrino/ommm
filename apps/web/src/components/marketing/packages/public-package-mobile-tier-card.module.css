@@ -1,5 +1,7 @@
 .card {
   display: flex;
+  height: 100%;
+  min-height: 100%;
   flex-direction: column;
   gap: 1rem;
   border-radius: var(--packages-page-mobile-tier-card-radius, 1.25rem);
@@ -62,8 +64,10 @@
 
 .metaList {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 0.625rem;
+  min-height: var(--packages-page-mobile-tier-meta-min-height, 8.75rem);
 }
 
 .metaRow {
@@ -100,6 +104,8 @@
 .subscribeButton {
   display: flex;
   width: 100%;
+  flex-shrink: 0;
+  margin-top: auto;
   min-height: var(--packages-page-mobile-subscribe-height, 3rem);
   align-items: center;
   justify-content: center;

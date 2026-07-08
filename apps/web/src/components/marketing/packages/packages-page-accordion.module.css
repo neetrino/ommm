@@ -683,6 +683,11 @@
   overflow: hidden;
 }
 
+.mobileAccordionStackItem .slotReveal {
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .mobileAccordionStackItem .slotReveal:global(.revealEnter) {
   transform: none;
 }
@@ -696,18 +701,30 @@
 
 .mobileAccordionItem {
   display: flex;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   flex-direction: column;
   overflow: hidden;
   border-radius: var(--packages-page-mobile-card-radius, var(--packages-page-card-radius));
   background-image: var(--packages-page-panel-gradient);
   min-height: var(--packages-page-mobile-collapsed-min-height);
-  padding: 1.125rem 1rem 1.125rem 1.25rem;
+  padding: 1.125rem 1.25rem;
   transition:
+    height var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    min-height var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
     padding var(--packages-page-transition-duration, 450ms)
       var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
+.mobileAccordionItem:not([data-expanded="true"]) {
+  height: var(--packages-page-mobile-collapsed-min-height);
+}
+
 .mobileAccordionItem[data-expanded="true"] {
+  height: auto;
   min-height: 0;
   padding: var(--packages-page-mobile-expanded-padding);
 }
@@ -749,12 +766,15 @@
 .mobileAccordionHeader {
   display: flex;
   width: 100%;
+  flex: 1;
+  min-height: 0;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
 }
 
 .mobileAccordionItem[data-expanded="true"] .mobileAccordionHeader {
+  flex: none;
   align-items: flex-start;
 }
 
@@ -778,6 +798,10 @@
   letter-spacing: -0.02em;
   color: var(--packages-page-text-color);
   text-wrap: balance;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .mobileCardDetails {

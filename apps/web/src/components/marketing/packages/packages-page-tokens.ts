@@ -76,7 +76,8 @@ export const PACKAGES_PAGE_ACCORDION_FIGMA = {
 /** Figma Packages mobile accordion — collapsed card + inline expanded panel. */
 export const PACKAGES_PAGE_MOBILE_FIGMA = {
   accordionGapPx: 18,
-  collapsedCardMinHeightPx: 118,
+  /** Title (2 lines) + details + vertical padding — keeps collapsed stack even. */
+  collapsedCardMinHeightPx: 132,
   collapsedCardRadiusPx: 24,
   collapsedTitleSizePx: 28,
   collapsedDetailsSizePx: 16,
@@ -89,6 +90,8 @@ export const PACKAGES_PAGE_MOBILE_FIGMA = {
   tierMetaValueSizePx: 16,
   subscribeButtonHeightPx: 48,
   subscribeFontSizePx: 18,
+  /** Five meta rows + gaps — tier cards align when some plans have discounts. */
+  tierMetaBlockMinHeightPx: 140,
 } as const;
 
 /** Desktop accordion row height — fits {@link PACKAGES_PAGE_VISIBLE_TIER_COUNT} tier rows before scroll. */
