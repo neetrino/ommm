@@ -8,6 +8,7 @@ import {
   PACKAGES_PAGE_CARD,
   PACKAGES_PAGE_MOBILE,
 } from "../../../lib/packages/packagesPageTokens";
+import type { PublicPackagePlan } from "../../../lib/packages/publicPackagePlan";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { usePackageCategoryAccordionAnimation } from "../hooks/usePackageCategoryAccordionAnimation";
 import { PackageMobileTierCard } from "./PackageMobileTierCard";
@@ -20,6 +21,29 @@ type PackageCategoryAccordionItemProps = {
   onToggle: () => void;
   onSubscribePress: () => void;
 };
+
+function PackageTierList({
+  categoryLabel,
+  plans,
+  onSubscribePress,
+}: {
+  categoryLabel: string;
+  plans: readonly PublicPackagePlan[];
+  onSubscribePress: () => void;
+}) {
+  return (
+    <View style={styles.tierList}>
+      {plans.map((plan) => (
+        <PackageMobileTierCard
+          key={plan.id}
+          categoryLabel={categoryLabel}
+          plan={plan}
+          onSubscribePress={onSubscribePress}
+        />
+      ))}
+    </View>
+  );
+}
 
 function PackagesCardFab({
   rotation,
@@ -58,6 +82,7 @@ export function PackageCategoryAccordionItem({
 }: PackageCategoryAccordionItemProps) {
   const gradientColors = buildPackagesPageCardGradientColors(category.gradientStartColor);
   const animation = usePackageCategoryAccordionAnimation(isExpanded);
+  const hasPlans = category.plans.length > 0;
 
   return (
     <AnimatedLinearGradient
@@ -67,6 +92,7 @@ export function PackageCategoryAccordionItem({
       style={[
         styles.item,
         {
+          width: "100%",
           paddingTop: animation.animatedPaddingVertical,
           paddingBottom: animation.animatedPaddingVertical,
           paddingRight: animation.animatedPaddingRight,
@@ -96,50 +122,44 @@ export function PackageCategoryAccordionItem({
         />
       </View>
 
-      <Animated.View
-        style={{
-          height: animation.animatedContentHeight,
-          overflow: "hidden",
-        }}
-      >
-        <Animated.View
-          style={{
-            opacity: animation.animatedContentOpacity,
-            paddingTop: animation.animatedContentPaddingTop,
-          }}
-        >
-          {category.plans.length > 0 ? (
-            <View style={styles.tierList}>
-              {category.plans.map((plan) => (
-                <PackageMobileTierCard
-                  key={plan.id}
-                  categoryLabel={category.label}
-                  plan={plan}
-                  onSubscribePress={onSubscribePress}
-                />
-              ))}
-            </View>
-          ) : null}
-        </Animated.View>
-      </Animated.View>
-
-      {category.plans.length > 0 ? (
-        <View
-          pointerEvents="none"
-          style={styles.measurementHost}
-          onLayout={animation.onContentLayout}
-        >
-          <View style={styles.tierList}>
-            {category.plans.map((plan) => (
-              <PackageMobileTierCard
-                key={`measure-${plan.id}`}
+      {hasPlans ? (
+        <>
+          <Animated.View
+            style={{
+              width: "100%",
+              minWidth: 0,
+              height: animation.animatedContentHeight,
+              overflow: "hidden",
+            }}
+          >
+            <Animated.View
+              style={{
+                width: "100%",
+                minWidth: 0,
+                opacity: animation.animatedContentOpacity,
+                paddingTop: animation.animatedContentPaddingTop,
+              }}
+            >
+              <PackageTierList
                 categoryLabel={category.label}
-                plan={plan}
+                plans={category.plans}
                 onSubscribePress={onSubscribePress}
               />
-            ))}
+            </Animated.View>
+          </Animated.View>
+
+          <View
+            pointerEvents="none"
+            style={styles.measurementHost}
+            onLayout={animation.onContentLayout}
+          >
+            <PackageTierList
+              categoryLabel={category.label}
+              plans={category.plans}
+              onSubscribePress={onSubscribePress}
+            />
           </View>
-        </View>
+        </>
       ) : null}
     </AnimatedLinearGradient>
   );
@@ -147,14 +167,17 @@ export function PackageCategoryAccordionItem({
 
 const styles = StyleSheet.create({
   item: {
+    width: "100%",
+    minWidth: 0,
     borderRadius: PACKAGES_PAGE_MOBILE.collapsedCardRadiusPx,
-    overflow: "hidden",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
+    width: "100%",
+    minWidth: 0,
   },
   headerExpanded: {
     alignItems: "flex-start",
@@ -184,6 +207,7 @@ const styles = StyleSheet.create({
     height: PACKAGES_PAGE_MOBILE.mobileFabSizePx,
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
   fabPressed: {
     opacity: 0.88,
@@ -197,13 +221,15 @@ const styles = StyleSheet.create({
     backgroundColor: `rgba(40, 40, 40, ${PACKAGES_PAGE_MOBILE.fabFillOpacity})`,
   },
   tierList: {
+    width: "100%",
+    minWidth: 0,
     gap: PACKAGES_PAGE_MOBILE.tierCardGapPx,
   },
   measurementHost: {
     position: "absolute",
     left: 0,
     right: 0,
-    top: 0,
+    width: "100%",
     opacity: 0,
     zIndex: -1,
   },

@@ -27,7 +27,9 @@ function MetaRow({ label, value }: { label: string; value: string | null }) {
   return (
     <View style={styles.metaRow}>
       <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={styles.metaValue}>{value ?? "—"}</Text>
+      <View style={styles.metaValueWrap}>
+        <Text style={styles.metaValue}>{value ?? "—"}</Text>
+      </View>
     </View>
   );
 }
@@ -93,7 +95,10 @@ export function PackageMobileTierCard({
       : priceLabel;
 
   return (
-    <View style={styles.card} accessibilityLabel={`${categoryLabel} — ${packageName}`}>
+    <View
+      style={styles.card}
+      accessibilityLabel={`${categoryLabel} — ${packageName}`}
+    >
       <View style={styles.planNameRow}>
         <Text style={styles.planName}>{packageName}</Text>
         {hasMixSessions ? (
@@ -137,6 +142,9 @@ export function PackageMobileTierCard({
 
 const styles = StyleSheet.create({
   card: {
+    width: "100%",
+    alignSelf: "stretch",
+    minWidth: 0,
     gap: 16,
     borderRadius: PACKAGES_PAGE_MOBILE.tierCardRadiusPx,
     borderWidth: 1,
@@ -145,11 +153,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 18,
     paddingBottom: 16,
-    shadowColor: "#2d2823",
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.22,
-    shadowRadius: 36,
-    elevation: 4,
   },
   planNameRow: {
     flexDirection: "row",
@@ -202,23 +205,31 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   metaList: {
+    width: "100%",
     gap: 10,
   },
   metaRow: {
+    width: "100%",
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     gap: 16,
   },
   metaLabel: {
     flexShrink: 0,
+    maxWidth: "52%",
     fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: PACKAGES_PAGE_MOBILE.tierMetaLabelSizePx,
     lineHeight: 18,
     color: "rgba(255, 255, 255, 0.78)",
   },
-  metaValue: {
+  metaValueWrap: {
     flex: 1,
+    minWidth: 0,
+    alignItems: "flex-end",
+  },
+  metaValue: {
+    flexShrink: 1,
     fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: PACKAGES_PAGE_MOBILE.tierMetaValueSizePx,
     lineHeight: 20,
@@ -226,6 +237,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   subscribeButton: {
+    width: "100%",
     minHeight: PACKAGES_PAGE_MOBILE.subscribeButtonHeightPx,
     alignItems: "center",
     justifyContent: "center",

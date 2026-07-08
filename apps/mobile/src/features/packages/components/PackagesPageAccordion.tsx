@@ -36,6 +36,8 @@ export function PackagesPageAccordion({
 
 const styles = StyleSheet.create({
   stack: {
+    width: "100%",
+    minWidth: 0,
     gap: PACKAGES_PAGE_MOBILE.accordionGapPx,
   },
 });

@@ -30,7 +30,9 @@ export function usePackageCategoryAccordionAnimation(isExpanded: boolean) {
   }, []);
 
   return useMemo(() => {
-    const animatedContentHeight = Animated.multiply(progress, contentHeight);
+    const expandedContentHeight =
+      contentHeight + PACKAGES_PAGE_MOBILE.tierCardGapPx;
+    const animatedContentHeight = Animated.multiply(progress, expandedContentHeight);
     const animatedContentOpacity = progress.interpolate({
       inputRange: [0, 0.35, 1],
       outputRange: [0, 0, 1],

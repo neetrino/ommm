@@ -7,6 +7,8 @@ export const PACKAGES_PAGE_CARD = {
 
 export const PACKAGES_PAGE_MOBILE = {
   accordionGapPx: 18,
+  /** Matches web `ommm-container` horizontal inset (`1rem`). */
+  pageHorizontalPaddingPx: 16,
   collapsedCardMinHeightPx: 118,
   collapsedCardRadiusPx: 24,
   collapsedTitleSizePx: 28,

@@ -11,6 +11,7 @@ import { packagesCopy } from "../../../lib/packages/packagesCopy";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { PackagesPageAccordion } from "../../packages/components/PackagesPageAccordion";
 import { colors, layout, space, typography } from "../../../theme/tokens";
+import { PACKAGES_PAGE_MOBILE } from "../../../lib/packages/packagesPageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
 export function MemberPackagesScreen() {
@@ -87,8 +88,10 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: space.lg,
-    paddingHorizontal: space.screenHorizontal,
+    paddingHorizontal: PACKAGES_PAGE_MOBILE.pageHorizontalPaddingPx,
     gap: space.lg,
+    width: "100%",
+    minWidth: 0,
   },
   heading: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
