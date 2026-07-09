@@ -1,0 +1,30 @@
+/**
+ * Presale hero ↔ schedule seam panel — section overlap only; panel shell from weekly schedule.
+ */
+
+.section {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  padding-inline: 0;
+  margin-top: calc(-1 * var(--home-spacer-hero-overlap, 0px));
+  padding-top: var(--home-spacer-panel-top-inset, 0px);
+  padding-bottom: var(--home-spacer-section-bottom-gap, 0px);
+  background-color: transparent;
+}
+
+.presaleInner {
+  min-height: var(--home-presale-panel-min-height, clamp(22rem, 55vw, 36rem));
+  justify-content: center;
+}
+
+@media (min-width: 744px) {
+  .section {
+    margin-top: calc(-1 * var(--home-spacer-hero-overlap-lg, 12rem));
+    padding-top: var(--home-spacer-panel-top-inset-lg, 12rem);
+    padding-bottom: var(--home-spacer-section-bottom-gap-lg, 0px);
+    padding-inline: 0;
+  }
+}

@@ -125,6 +125,7 @@
     },
     "home": {
       "weeklyScheduleTitle": "Weekly Schedule",
+      "presalePackagesTitle": "Presale packages",
       "weeklyScheduleSubtitle": "Join us throughout the week for transformative sessions tailored to your wellness journey.",
       "weeklyScheduleGridAria": "Weekly class schedule by day",
       "weeklyScheduleDayTabsAria": "Choose a day of the week",

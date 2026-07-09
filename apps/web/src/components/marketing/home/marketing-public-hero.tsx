@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { HomeHeroPhotoBanner } from "@/components/marketing/home/home-hero-photo-banner";
+import { HomeHeroScheduleSpacerPanel } from "@/components/marketing/home/home-hero-schedule-spacer-panel";
 import { HomeWeeklyScheduleBanner } from "@/components/marketing/home/home-weekly-schedule-banner";
 import { HomeWeeklyScheduleBannerLoading } from "@/components/marketing/home/home-weekly-schedule-banner-loading";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -24,7 +25,8 @@ export async function MarketingPublicHero({
 
   return (
     <div className={`${marketingMontserrat.variable} w-full min-w-0`}>
-      {showHero ? <HomeHeroPhotoBanner locale={locale} /> : null}
+      {showHero ? <HomeHeroPhotoBanner locale={locale} showScheduleSpacer={showScheduleBanner} /> : null}
+      {showScheduleBanner ? <HomeHeroScheduleSpacerPanel locale={locale} /> : null}
       {showScheduleBanner ? (
         <Suspense fallback={<HomeWeeklyScheduleBannerLoading />}>
           <HomeWeeklyScheduleBanner locale={locale} />

@@ -35,15 +35,10 @@ export async function HomeWeeklyScheduleBanner({
     <section
       aria-labelledby="home-weekly-schedule-heading"
       aria-describedby="home-weekly-schedule-subtitle"
-      className={`${marketingMontserrat.variable} ${styles.section}`}
+      className={`${marketingMontserrat.variable} ${styles.section} ${styles.sectionStacked}`}
       style={{
-        ["--home-schedule-hero-overlap" as string]:
-          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
-        ["--home-schedule-hero-overlap-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
-        ["--home-schedule-panel-top-inset" as string]:
-          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPanelTopInset,
-        ["--home-schedule-panel-top-inset-lg" as string]:
-          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPanelTopInset,
+        ["--home-schedule-stack-gap" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionStackGap,
+        ["--home-schedule-stack-gap-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionStackGap,
         ["--home-schedule-section-padding-bottom" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionOuterPaddingBottom,
         ["--home-schedule-section-padding-bottom-lg" as string]:

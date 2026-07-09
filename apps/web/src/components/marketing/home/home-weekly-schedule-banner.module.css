@@ -15,6 +15,11 @@
   background-color: transparent;
 }
 
+.section.sectionStacked {
+  margin-top: var(--home-schedule-stack-gap, 0px);
+  padding-top: 0;
+}
+
 .shell {
   display: flex;
   width: 100%;
@@ -88,6 +93,11 @@
 }
 
 @media (min-width: 744px) {
+  .section.sectionStacked {
+    margin-top: var(--home-schedule-stack-gap-lg, 0px);
+    padding-top: 0;
+  }
+
   .section {
     margin-top: calc(-1 * var(--home-schedule-hero-overlap-lg, 12rem));
     padding-top: var(--home-schedule-panel-top-inset-lg, 12rem);
