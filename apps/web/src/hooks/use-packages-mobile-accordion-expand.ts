@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useState } from "react";
+import { startTransition, useCallback, useState } from "react";
 
 type UsePackagesMobileAccordionExpandArgs = {
   urlExpandedId: string | null;
@@ -16,15 +16,25 @@ export function usePackagesMobileAccordionExpand({
   openCategory: (categoryId: string) => void;
   closeCategory: () => void;
 } {
-  const [localExpandedId, setLocalExpandedId] = useState<string | null>(urlExpandedId);
+  const [overrideExpandedId, setOverrideExpandedId] = useState<
+    string | null | undefined
+  >(undefined);
+  const [prevUrlExpandedId, setPrevUrlExpandedId] = useState(urlExpandedId);
 
-  useEffect(() => {
-    setLocalExpandedId(urlExpandedId);
-  }, [urlExpandedId]);
+  if (urlExpandedId !== prevUrlExpandedId) {
+    setPrevUrlExpandedId(urlExpandedId);
+    setOverrideExpandedId(undefined);
+  }
+
+  const expandedId =
+    overrideExpandedId !== undefined &&
+    overrideExpandedId !== urlExpandedId
+      ? overrideExpandedId
+      : urlExpandedId;
 
   const openCategory = useCallback(
     (categoryId: string) => {
-      setLocalExpandedId(categoryId);
+      setOverrideExpandedId(categoryId);
       requestAnimationFrame(() => {
         startTransition(() => onUrlExpand(categoryId));
       });
@@ -33,14 +43,14 @@ export function usePackagesMobileAccordionExpand({
   );
 
   const closeCategory = useCallback(() => {
-    setLocalExpandedId(null);
+    setOverrideExpandedId(null);
     requestAnimationFrame(() => {
       startTransition(() => onUrlExpand(null));
     });
   }, [onUrlExpand]);
 
   return {
-    expandedId: localExpandedId,
+    expandedId,
     openCategory,
     closeCategory,
   };
