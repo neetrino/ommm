@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
-import { PackagesSlotReveal } from "@/components/marketing/packages/packages-slot-reveal";
 import { PackagesPageReveal } from "@/components/marketing/packages/packages-page-reveal";
 import {
   clampDesktopCardsPerRow,
@@ -19,6 +18,7 @@ import { PackagesPageAccordionMobileSlot } from "@/components/marketing/packages
 import { PackagesPageAccordionSubscribeModalHost } from "@/components/marketing/packages/packages-page-accordion-subscribe-modal";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { usePackageSubscribeUrlState } from "@/hooks/use-package-subscribe-url-state";
+import { usePackagesMobileAccordionExpand } from "@/hooks/use-packages-mobile-accordion-expand";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -85,6 +85,15 @@ export function PackagesPageAccordion({
     [categories, expandedId],
   );
 
+  const {
+    expandedId: mobileExpandedId,
+    openCategory: openMobileCategory,
+    closeCategory: closeMobileCategory,
+  } = usePackagesMobileAccordionExpand({
+    urlExpandedId: expandedId,
+    onUrlExpand: updateExpandedCategory,
+  });
+
   if (categories.length === 0) {
     return (
       <PackagesPageReveal index={0}>
@@ -127,13 +136,12 @@ export function PackagesPageAccordion({
   const mobileContent = (
     <div className={cardStyles.mobileOnly}>
       <div className={accordionStyles.mobileAccordionStack} style={layoutStyleVars()}>
-        {categories.map((category, index) => (
+        {categories.map((category) => (
           <div key={category.id} className={accordionStyles.mobileAccordionStackItem}>
-            <PackagesSlotReveal index={index} gridColumns={1}>
-              <PackagesPageAccordionMobileSlot
+            <PackagesPageAccordionMobileSlot
               locale={locale}
               category={category}
-              isExpanded={expandedCategory?.id === category.id}
+              isExpanded={mobileExpandedId === category.id}
               detailsLabel={t("packagesDetailsCta")}
               openLabel={t("packagesOpenDetailsAria", { name: category.label })}
               closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
@@ -141,10 +149,9 @@ export function PackagesPageAccordion({
               selectedPlanId={selectedPlanId}
               onSelectPlan={onSelectPlan}
               onSubscribe={handleSubscribe}
-              onOpen={updateExpandedCategory}
-              onClose={() => updateExpandedCategory(null)}
+              onOpen={openMobileCategory}
+              onClose={closeMobileCategory}
             />
-            </PackagesSlotReveal>
           </div>
         ))}
       </div>
