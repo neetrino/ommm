@@ -51,13 +51,18 @@ export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSp
         ["--home-schedule-panel-radius" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.panelRadiusPx}px`,
         ["--home-schedule-panel-radius-lg" as string]: `${HOME_WEEKLY_SCHEDULE_FIGMA.panelRadiusPx}px`,
         ["--home-schedule-panel-fill" as string]: HOME_WEEKLY_SCHEDULE_FIGMA.panelFill,
-        ["--home-schedule-panel-gap" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelGap,
-        ["--home-schedule-panel-gap-lg" as string]: `${HOME_WEEKLY_SCHEDULE_LAYOUT.headerGapPx}px`,
+        ["--home-spacer-panel-padding-top" as string]: HOME_HERO_SCHEDULE_SPACER_LAYOUT.panelPaddingTop,
+        ["--home-spacer-panel-padding-top-lg" as string]:
+          HOME_HERO_SCHEDULE_SPACER_LAYOUT.panelPaddingTopLg,
+        ["--home-spacer-panel-padding-bottom" as string]:
+          HOME_HERO_SCHEDULE_SPACER_LAYOUT.panelPaddingBottom,
+        ["--home-spacer-panel-padding-bottom-lg" as string]:
+          HOME_HERO_SCHEDULE_SPACER_LAYOUT.panelPaddingBottomLg,
+        ["--home-spacer-title-to-content-gap" as string]:
+          HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleToContentGap,
+        ["--home-spacer-title-to-content-gap-lg" as string]:
+          HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleToContentGapLg,
         ["--home-schedule-inner-px-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPaddingX,
-        ["--home-schedule-panel-padding-y" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelPaddingY,
-        ["--home-schedule-panel-padding-top-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPaddingTop,
-        ["--home-schedule-panel-padding-bottom-lg" as string]:
-          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPaddingBottom,
         ["--home-schedule-header-max-width" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.headerMaxWidth,
         ["--home-schedule-heading-color" as string]: HOME_WEEKLY_SCHEDULE_FIGMA.headingColor,
         ["--home-schedule-title-size" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.titleFontSize,

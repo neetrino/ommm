@@ -22,10 +22,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--home-schedule-panel-gap, 1.1875rem);
+  gap: var(--home-spacer-title-to-content-gap, var(--home-schedule-panel-gap, 1.1875rem));
   padding-inline: 0;
-  padding-top: var(--home-schedule-panel-padding-y, 3rem);
-  padding-bottom: var(--home-schedule-panel-padding-y, 3rem);
+  padding-top: var(--home-spacer-panel-padding-top, var(--home-schedule-panel-padding-y, 3rem));
+  padding-bottom: var(
+    --home-spacer-panel-padding-bottom,
+    var(--home-schedule-panel-padding-y, 3rem)
+  );
 }
 
 .presaleHeader {
@@ -59,10 +62,13 @@
 
   .presaleInner {
     max-width: none;
-    gap: var(--home-schedule-panel-gap-lg, 1.75rem);
+    gap: var(--home-spacer-title-to-content-gap-lg, var(--home-schedule-panel-gap-lg, 1.75rem));
     padding-inline: 0;
-    padding-top: var(--home-schedule-panel-padding-top-lg, 3.5rem);
-    padding-bottom: var(--home-schedule-panel-padding-bottom-lg, 3.5rem);
+    padding-top: var(--home-spacer-panel-padding-top-lg, var(--home-schedule-panel-padding-top-lg, 3.5rem));
+    padding-bottom: var(
+      --home-spacer-panel-padding-bottom-lg,
+      var(--home-schedule-panel-padding-bottom-lg, 3.5rem)
+    );
   }
 
   .presaleHeader {
