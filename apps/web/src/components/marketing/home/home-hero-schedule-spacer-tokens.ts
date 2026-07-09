@@ -1,4 +1,8 @@
 import {
+  HOME_CLASSES_SECTION_LAYOUT,
+  HOME_CLASSES_SECTION_MOBILE_LAYOUT,
+} from "@/components/marketing/home/home-classes-section-tokens";
+import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
   HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA,
@@ -12,10 +16,6 @@ const presaleTitleVerticalInset = HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelPaddin
 const presaleTitleVerticalInsetDesktopBase = "clamp(1.5rem, 5vw, 3rem)";
 const presaleTitleVerticalInsetDesktopExtraPx = 64;
 const presaleTitleVerticalInsetLg = `calc(${presaleTitleVerticalInsetDesktopBase} + ${presaleTitleVerticalInsetDesktopExtraPx}px)`;
-
-/** Slightly larger Presale packages title — layout slot stays weekly-schedule size. */
-const presaleTitleFontSize = "clamp(2.5rem, calc(100svw * 54 / 394), 3.375rem)";
-const presaleTitleFontSizeLg = "clamp(2rem, 7.5vw, 5.125rem)";
 
 /** Presale panel between hero video and Weekly Schedule — shares schedule panel shell tokens. */
 export const HOME_HERO_SCHEDULE_SPACER_LAYOUT = {
@@ -31,8 +31,8 @@ export const HOME_HERO_SCHEDULE_SPACER_LAYOUT = {
   panelPaddingBottomLg: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPaddingBottom,
   titleToContentGap: presaleTitleVerticalInset,
   titleToContentGapLg: presaleTitleVerticalInsetLg,
-  titleFontSize: presaleTitleFontSize,
-  titleFontSizeLg: presaleTitleFontSizeLg,
+  titleFontSize: HOME_CLASSES_SECTION_MOBILE_LAYOUT.titleFontSize,
+  titleFontSizeLg: HOME_CLASSES_SECTION_LAYOUT.titleFontSize,
   titleLineHeight: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.titleLineHeight,
   titleLineHeightLg: HOME_WEEKLY_SCHEDULE_LAYOUT.titleLineHeight,
 } as const;
