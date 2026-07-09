@@ -5,6 +5,7 @@ const HOME_SECTION_ICON_BY_KEY: Record<HomePageSectionKey, DashboardNavIcon> = {
   home: "home",
   story: "fileText",
   schedule: "calendar",
+  presalePackages: "tag",
   memberships: "tag",
   coaches: "userCheck",
   explore: "layoutGrid",

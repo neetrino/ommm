@@ -47,6 +47,7 @@
     "packages": "Packages",
     "explore": "Explore",
     "schedule": "Schedule",
+    "presalePackages": "Presale Packages",
     "contact": "Contact Us"
   },
   "footer": {
@@ -1722,6 +1723,9 @@
           },
           "schedule": {
             "description": "Weekly schedule banner on home and Schedule page."
+          },
+          "presalePackages": {
+            "description": "Presale packages banner on the home page."
           },
           "memberships": {
             "description": "Packages page and navigation link."

@@ -19,6 +19,7 @@ import { revalidatePublicStudio } from "@/lib/revalidate-public-studio";
 import {
   HOME_PAGE_SECTION_DEFINITIONS,
   HOME_PAGE_SECTION_KEYS,
+  normalizeHomePageSectionVisibility,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
 } from "@/lib/home-page-sections";
@@ -39,7 +40,9 @@ export function AdminHomeSectionsSettingsForm({
   const searchParams = useSearchParams();
   const searchParamsStringRef = useRef(searchParams.toString());
   const saveInFlightRef = useRef(false);
-  const [sections, setSections] = useState<HomePageSectionVisibility>(initial);
+  const [sections, setSections] = useState<HomePageSectionVisibility>(() =>
+    normalizeHomePageSectionVisibility(initial),
+  );
   const [savingKey, setSavingKey] = useState<HomePageSectionKey | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
 
@@ -79,7 +82,10 @@ export function AdminHomeSectionsSettingsForm({
       return false;
     }
 
-    const nextSections: HomePageSectionVisibility = { ...previous, [key]: enabled };
+    const nextSections: HomePageSectionVisibility = {
+      ...normalizeHomePageSectionVisibility(previous),
+      [key]: enabled,
+    };
     saveInFlightRef.current = true;
     setSavingKey(key);
     setSections(nextSections);

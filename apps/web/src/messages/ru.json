@@ -47,6 +47,7 @@
     "packages": "Пакеты",
     "explore": "Материалы",
     "schedule": "Расписание",
+    "presalePackages": "Presale Packages",
     "contact": "Контакты"
   },
   "footer": {
@@ -1720,6 +1721,9 @@
           },
           "schedule": {
             "description": "Блок расписания на главной и страница Schedule."
+          },
+          "presalePackages": {
+            "description": "Баннер Presale packages на главной странице."
           },
           "memberships": {
             "description": "Страница Packages и ссылка в навигации."

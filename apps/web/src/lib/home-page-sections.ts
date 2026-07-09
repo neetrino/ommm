@@ -12,6 +12,8 @@ export {
 
 import {
   HOME_PAGE_SECTION_DEFINITIONS,
+  HOME_PAGE_SECTION_KEYS,
+  createDefaultHomePageSectionVisibility,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
 } from "@ommm/database/home-page-sections";
@@ -26,6 +28,25 @@ const MEMBERSHIP_ROUTE_PREFIXES = [
   "/memberships",
   "/packages",
 ] as const;
+
+/** Fills missing section keys with defaults — keeps admin toggles aligned with public rendering. */
+export function normalizeHomePageSectionVisibility(
+  visibility: Partial<HomePageSectionVisibility> | null | undefined,
+): HomePageSectionVisibility {
+  const normalized = createDefaultHomePageSectionVisibility();
+  if (visibility === null || visibility === undefined) {
+    return normalized;
+  }
+
+  for (const key of HOME_PAGE_SECTION_KEYS) {
+    const value = visibility[key];
+    if (typeof value === "boolean") {
+      normalized[key] = value;
+    }
+  }
+
+  return normalized;
+}
 
 /** Maps a locale-free marketing pathname to a section key (null when unrelated). */
 export function resolveMarketingSectionKeyFromPath(
@@ -60,10 +81,10 @@ export function resolveMarketingSectionKeyFromPath(
 }
 
 export function isHomeSectionEnabled(
-  visibility: HomePageSectionVisibility,
+  visibility: Partial<HomePageSectionVisibility> | HomePageSectionVisibility,
   key: HomePageSectionKey,
 ): boolean {
-  return visibility[key] !== false;
+  return normalizeHomePageSectionVisibility(visibility)[key];
 }
 
 /** Maps a marketing href (`/schedule`, `/packages`, …) to a section key. */

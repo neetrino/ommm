@@ -4,7 +4,10 @@ import { getTranslations } from "next-intl/server";
 import { AdminHomeSectionsSettingsForm } from "@/components/admin/admin-home-sections-settings-form";
 import { serverApiJson } from "@/lib/server-api";
 import type { HomePageSectionVisibility } from "@/lib/home-page-sections";
-import { createDefaultHomePageSectionVisibility } from "@/lib/home-page-sections";
+import {
+  createDefaultHomePageSectionVisibility,
+  normalizeHomePageSectionVisibility,
+} from "@/lib/home-page-sections";
 
 type HomeSectionsResponse = {
   sections: HomePageSectionVisibility;
@@ -29,7 +32,9 @@ export default async function AdminHomeSectionsSettingsPage({
   return (
     <Suspense fallback={null}>
       <AdminHomeSectionsSettingsForm
-        initial={res.data.sections ?? createDefaultHomePageSectionVisibility()}
+        initial={normalizeHomePageSectionVisibility(
+          res.data.sections ?? createDefaultHomePageSectionVisibility(),
+        )}
       />
     </Suspense>
   );

@@ -17,7 +17,15 @@ type AdminHomeSectionVisibilityRowProps = {
 
 function marketingNavKeyForSection(
   key: HomePageSectionKey,
-): "home" | "story" | "schedule" | "memberships" | "coaches" | "explore" | "contact" {
+):
+  | "home"
+  | "story"
+  | "schedule"
+  | "presalePackages"
+  | "memberships"
+  | "coaches"
+  | "explore"
+  | "contact" {
   return key;
 }
 
