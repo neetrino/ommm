@@ -55,11 +55,6 @@
   background-color: #ede9dd;
 }
 
-.tileImageCover {
-  object-fit: cover;
-  object-position: center center;
-}
-
 .tileLeft {
   grid-column: 1;
   grid-row: 1 / 3;

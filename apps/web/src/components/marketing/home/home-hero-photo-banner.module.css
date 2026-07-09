@@ -237,6 +237,55 @@
   object-position: center;
 }
 
+.homeHeroLogoMarkVideo .homeHeroLogoCrop {
+  inset: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.homeHeroLogoMarkVideo .homeHeroLogoInner {
+  border-radius: 50%;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  height: calc(100% * var(--home-hero-logo-video-inner-ratio, 0.788));
+  width: auto;
+  margin-inline: auto;
+  overflow: hidden;
+  background: transparent;
+}
+
+.homeHeroLogoVideoStack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+.homeHeroLogoVideoLayer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  pointer-events: none;
+  /* H.264 lost source alpha — black matte reads as a ring unless lightened + cropped. */
+  mix-blend-mode: lighten;
+  -webkit-transform: scale(var(--home-hero-logo-video-edge-crop-scale, 1.14)) translateZ(0);
+  transform: scale(var(--home-hero-logo-video-edge-crop-scale, 1.14)) translateZ(0);
+  transform-origin: center;
+}
+
 .homeHeroCtas {
   position: relative;
   z-index: 20;
@@ -257,6 +306,11 @@
 
   .homeHeroVideo {
     object-position: var(--home-hero-bg-position-mobile, center top);
+  }
+
+  .homeHeroLogoMarkVideo {
+    width: var(--home-hero-logo-video-width-mobile, var(--home-hero-logo-width));
+    transform: translateX(-50%) translateY(var(--home-hero-logo-video-offset-y-mobile, 0));
   }
 
   .homeHeroFrame {
@@ -301,11 +355,12 @@
 
 @media (min-width: 744px) {
   .homeHeroPromoBackground {
-    object-position: var(--home-hero-promo-object-position, right center);
+    object-position: var(--home-hero-promo-object-position, center 54%);
   }
 
   .homeHeroPromoBackgroundDesktop {
     display: block;
+    object-position: var(--home-hero-promo-object-position, center 54%);
   }
 
   .homeHeroPromoBackgroundMobile {
@@ -313,7 +368,7 @@
   }
 
   .homeHeroPromoAspectSpacer {
-    aspect-ratio: var(--home-hero-promo-aspect-ratio, 1440 / 924);
+    display: none;
   }
 
   .homeHeroSectionPromo {
@@ -329,9 +384,10 @@
   }
 
   .homeHeroFramePromo {
-    min-height: unset;
-    max-height: unset;
-    padding-bottom: 0;
+    min-height: var(--home-hero-min-h-lg);
+    max-height: none;
+    height: auto;
+    padding-bottom: var(--home-schedule-hero-overlap-lg, 12rem);
   }
 
   .homeHeroSection {
@@ -389,6 +445,17 @@
     border-radius: 9999px;
   }
 
+  .homeHeroLogoMarkVideo {
+    top: auto;
+    margin-top: var(--home-hero-logo-margin-top-lg);
+    transform: translateY(var(--home-hero-logo-video-offset-y-lg, 0px));
+  }
+
+  .homeHeroLogoMarkVideo .homeHeroLogoInner {
+    height: auto;
+    width: calc(100% * var(--home-hero-logo-video-inner-ratio-lg, 0.9));
+  }
+
   .homeHeroLogoCrop {
     inset: 0;
     top: 0;
@@ -399,6 +466,11 @@
   .homeHeroLogoImage {
     object-fit: cover;
     object-position: 44% 36%;
+  }
+
+  .homeHeroLogoMarkVideo .homeHeroLogoVideoLayer {
+    object-fit: cover;
+    object-position: center;
   }
 
   .homeHeroTitle {
@@ -456,6 +528,10 @@
 @media (min-width: 744px) and (max-width: 1366px) {
   .homeHeroCtas {
     gap: clamp(0.875rem, calc(100svw * 18 / 1440), 1.125rem);
+  }
+
+  .homeHeroLogoMarkVideo {
+    transform: translateY(var(--home-hero-logo-video-offset-y-ipad, var(--home-hero-logo-video-offset-y-lg, 0px)));
   }
 }
 

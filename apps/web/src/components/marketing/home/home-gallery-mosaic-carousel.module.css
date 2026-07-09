@@ -57,14 +57,6 @@
   background-color: #ede9dd;
 }
 
-.slideImage {
-  object-fit: cover;
-  object-position: center center;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
 .slideSheen {
   position: absolute;
   inset: 0;

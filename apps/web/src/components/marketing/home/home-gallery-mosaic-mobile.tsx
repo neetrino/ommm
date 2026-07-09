@@ -1,9 +1,9 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import styles from "@/components/marketing/home/home-gallery-mosaic-mobile.module.css";
+import { HomeGalleryWebpImage } from "@/components/marketing/home/home-gallery-webp-image";
 import {
   HOME_GALLERY_MOBILE_SLIDES,
   HOME_GALLERY_SECTION_MOBILE_FIGMA,
@@ -11,7 +11,6 @@ import {
   type HomeGalleryMobileSlide,
   type HomeGalleryMobileTileKey,
 } from "@/components/marketing/home/home-gallery-section-tokens";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 const SCROLL_SYNC_DEBOUNCE_MS = 120;
 const PROGRAMMATIC_SCROLL_COOLDOWN_MS = 480;
@@ -73,14 +72,7 @@ function GalleryMobileMosaicSlide({ slide }: { slide: HomeGalleryMobileSlide }) 
         const tile = slide.tiles[key];
         return (
           <div key={key} className={`${styles.tile} ${TILE_CLASS[key]}`}>
-            <Image
-              src={tile.src}
-              alt=""
-              fill
-              sizes="(max-width: 1023px) 45vw, 0"
-              className={styles.tileImageCover}
-              {...belowFoldImageProps()}
-            />
+            <HomeGalleryWebpImage src={tile.src} />
           </div>
         );
       })}

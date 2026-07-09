@@ -11,13 +11,19 @@ export const HOME_SECTION_ASSETS = {
   /** Featured Coaches nav buttons — Figma nodes `163:898` (prev), `163:899` (next). */
   coachNavPrev: "/marketing/home/sections/home-coach-nav-prev.webp",
   coachNavNext: "/marketing/home/sections/home-coach-nav-next.webp",
-  /** Featured Coaches CTA — Figma `196:1149` (Union `196:1150`, arrow `196:1155`). */
-  coachesCtaShape: "/marketing/home/sections/home-coaches-cta-shape.svg",
-  coachesCtaArrow: "/marketing/home/sections/home-coaches-cta-arrow.svg",
   /** Figma Gallery `196:1162` — mosaic tiles `196:1164`–`196:1167`, nav `196:1169`/`196:1172`. */
   galleryVipMain: "/marketing/home/sections/gallery/home-gallery-vip-main.webp",
   galleryVipSide: "/marketing/home/sections/gallery/home-gallery-vip-side.webp",
   galleryCafe: "/marketing/home/sections/gallery/home-gallery-cafe.webp",
+  galleryCafeLounge: "/marketing/home/sections/gallery/home-gallery-cafe-lounge.webp",
+  galleryChangingHall: "/marketing/home/sections/gallery/home-gallery-changing-hall.webp",
+  galleryChangingLockers: "/marketing/home/sections/gallery/home-gallery-changing-lockers.webp",
+  galleryChangingCorridor: "/marketing/home/sections/gallery/home-gallery-changing-corridor.webp",
+  galleryYogaStudio: "/marketing/home/sections/gallery/home-gallery-yoga-studio.webp",
+  galleryReceptionBoutique: "/marketing/home/sections/gallery/home-gallery-reception-boutique.webp",
+  galleryReceptionOmmm: "/marketing/home/sections/gallery/home-gallery-reception-ommm.webp",
+  galleryCafeArch: "/marketing/home/sections/gallery/home-gallery-cafe-arch.webp",
+  galleryPilatesStudio: "/marketing/home/sections/gallery/home-gallery-pilates-studio.webp",
   galleryNavPrev: "/marketing/home/sections/gallery/home-gallery-nav-prev.svg",
   galleryNavNext: "/marketing/home/sections/gallery/home-gallery-nav-next.svg",
   eventsWide: "/marketing/home/sections/home-events-wide.webp",

@@ -1,9 +1,9 @@
 "use client";
 
 import type { CSSProperties, TransitionEvent } from "react";
-import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import styles from "@/components/marketing/home/home-gallery-mosaic-carousel.module.css";
+import { HomeGalleryWebpImage } from "@/components/marketing/home/home-gallery-webp-image";
 import {
   HOME_GALLERY_CAROUSEL,
   HOME_GALLERY_CAROUSEL_START_INDEX,
@@ -17,7 +17,6 @@ import { MarketingGlassCircleButton } from "@/components/marketing/home/marketin
 import { useGalleryCarouselPointerDrag } from "@/hooks/use-gallery-carousel-pointer-drag";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type HomeGalleryMosaicCarouselProps = {
   prevLabel: string;
@@ -166,14 +165,7 @@ function GalleryCarouselSlide({
       aria-hidden={ariaHidden ? true : undefined}
     >
       <div className={styles.slideFrame}>
-        <Image
-          src={slide.src}
-          alt=""
-          fill
-          sizes="50vw"
-          className={styles.slideImage}
-          {...belowFoldImageProps()}
-        />
+        <HomeGalleryWebpImage src={slide.src} draggable={false} />
         <div className={styles.slideSheen} aria-hidden />
       </div>
     </article>

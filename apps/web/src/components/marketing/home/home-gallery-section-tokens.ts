@@ -161,6 +161,15 @@ export const HOME_GALLERY_SLIDES: readonly HomeGalleryCarouselSlide[] = [
   { id: "studio-arches", src: HOME_SECTION_ASSETS.galleryVipMain },
   { id: "reception-lounge", src: HOME_SECTION_ASSETS.galleryCafe },
   { id: "reformers-hall", src: HOME_SECTION_ASSETS.galleryVipSide },
+  { id: "cafe-lounge", src: HOME_SECTION_ASSETS.galleryCafeLounge },
+  { id: "changing-hall", src: HOME_SECTION_ASSETS.galleryChangingHall },
+  { id: "changing-lockers", src: HOME_SECTION_ASSETS.galleryChangingLockers },
+  { id: "changing-corridor", src: HOME_SECTION_ASSETS.galleryChangingCorridor },
+  { id: "yoga-studio", src: HOME_SECTION_ASSETS.galleryYogaStudio },
+  { id: "reception-boutique", src: HOME_SECTION_ASSETS.galleryReceptionBoutique },
+  { id: "reception-ommm", src: HOME_SECTION_ASSETS.galleryReceptionOmmm },
+  { id: "cafe-arch", src: HOME_SECTION_ASSETS.galleryCafeArch },
+  { id: "pilates-studio", src: HOME_SECTION_ASSETS.galleryPilatesStudio },
 ] as const;
 
 export type HomeGalleryMobileTileKey = "left" | "rightTop" | "rightBottom";
@@ -170,33 +179,38 @@ export type HomeGalleryMobileSlide = {
   tiles: Record<HomeGalleryMobileTileKey, { src: string }>;
 };
 
-/** Shared mobile tiles — portrait left, square bottom-right; top-right varies per slide. */
-const HOME_GALLERY_MOBILE_SIDE_TILES = {
-  left: { src: HOME_SECTION_ASSETS.galleryVipSide },
-  rightBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
-} as const satisfies Pick<HomeGalleryMobileSlide["tiles"], "left" | "rightBottom">;
-
 /** Three-tile mosaic — Figma mobile `97:5865`. Tall left + square right tiles. */
 export const HOME_GALLERY_MOBILE_SLIDES: readonly HomeGalleryMobileSlide[] = [
   {
     id: "studio-arches",
     tiles: {
-      ...HOME_GALLERY_MOBILE_SIDE_TILES,
-      rightTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
+      left: { src: HOME_SECTION_ASSETS.galleryVipMain },
+      rightTop: { src: HOME_SECTION_ASSETS.galleryVipSide },
+      rightBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
     },
   },
   {
-    id: "reception-lounge",
+    id: "sanctuary-interiors",
     tiles: {
-      ...HOME_GALLERY_MOBILE_SIDE_TILES,
-      rightTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
+      left: { src: HOME_SECTION_ASSETS.galleryCafeLounge },
+      rightTop: { src: HOME_SECTION_ASSETS.galleryChangingHall },
+      rightBottom: { src: HOME_SECTION_ASSETS.galleryChangingLockers },
     },
   },
   {
-    id: "reformers-hall",
+    id: "changing-corridor",
     tiles: {
-      ...HOME_GALLERY_MOBILE_SIDE_TILES,
-      rightTop: { src: HOME_SECTION_ASSETS.galleryCafe },
+      left: { src: HOME_SECTION_ASSETS.galleryChangingCorridor },
+      rightTop: { src: HOME_SECTION_ASSETS.galleryYogaStudio },
+      rightBottom: { src: HOME_SECTION_ASSETS.galleryReceptionBoutique },
+    },
+  },
+  {
+    id: "reception-ommm",
+    tiles: {
+      left: { src: HOME_SECTION_ASSETS.galleryReceptionOmmm },
+      rightTop: { src: HOME_SECTION_ASSETS.galleryCafeArch },
+      rightBottom: { src: HOME_SECTION_ASSETS.galleryPilatesStudio },
     },
   },
 ] as const;
