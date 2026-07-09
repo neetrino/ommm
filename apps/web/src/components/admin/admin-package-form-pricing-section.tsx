@@ -136,6 +136,7 @@ export function AdminPackageFormPricingSection({
               value={values.startDate}
               onChange={(nextValue) => onValuesChange({ startDate: nextValue })}
               disabled={pending}
+              allowManualEntry
             />
             <span className="text-xs text-sage-500">{t("fieldStartDateHint")}</span>
           </label>
