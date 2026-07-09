@@ -1,2 +1,3 @@
-export const DEFAULT_DESKTOP_CARDS_PER_ROW = 5;
+export const DEFAULT_DESKTOP_CARDS_PER_ROW = 3;
+export const MAX_DESKTOP_CARDS_PER_ROW = 3;
 export const MIN_DESKTOP_CARDS_PER_ROW = 1;

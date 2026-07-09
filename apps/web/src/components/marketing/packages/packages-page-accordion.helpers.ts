@@ -12,6 +12,7 @@ import {
 } from "@/components/marketing/packages/packages-page-tokens";
 import {
   DEFAULT_DESKTOP_CARDS_PER_ROW,
+  MAX_DESKTOP_CARDS_PER_ROW,
   MIN_DESKTOP_CARDS_PER_ROW,
 } from "@/components/marketing/packages/packages-page-accordion.constants";
 import type { DesktopPanelMode } from "@/components/marketing/packages/packages-page-accordion.types";
@@ -20,7 +21,10 @@ export function clampDesktopCardsPerRow(value: number | undefined): number {
   if (value === undefined) {
     return DEFAULT_DESKTOP_CARDS_PER_ROW;
   }
-  return Math.max(MIN_DESKTOP_CARDS_PER_ROW, Math.floor(value));
+  return Math.min(
+    MAX_DESKTOP_CARDS_PER_ROW,
+    Math.max(MIN_DESKTOP_CARDS_PER_ROW, Math.floor(value)),
+  );
 }
 
 export function splitAccordionRows(
@@ -114,7 +118,8 @@ export function rowLayoutStyleVars(cardsPerRow: number, rowItemCount: number): C
 }
 
 function resolveExpandedColumnFrWeight(rowItemCount: number): number {
-  return Math.max(rowItemCount - 1, 1);
+  const collapsedCount = Math.max(rowItemCount - 1, 1);
+  return collapsedCount * 4;
 }
 
 const ACCORDION_COLLAPSED_COLUMN_FR = 1;

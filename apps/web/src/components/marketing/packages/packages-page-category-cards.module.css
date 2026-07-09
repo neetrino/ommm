@@ -21,7 +21,7 @@
   width: 100%;
   max-width: var(--packages-page-grid-max-width);
   margin-inline: auto;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--packages-page-cards-gap);
 }
 
