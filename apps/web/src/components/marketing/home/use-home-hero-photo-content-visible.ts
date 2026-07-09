@@ -44,8 +44,12 @@ export function useHomeHeroPhotoContentVisible(
       };
     }
 
-    const onTransitionEnd = (event: TransitionEvent): void => {
-      if (event.propertyName === "opacity" && event.target === layer) {
+    const onTransitionEnd = (event: Event): void => {
+      if (
+        event instanceof TransitionEvent &&
+        event.propertyName === "opacity" &&
+        event.target === layer
+      ) {
         markVisible();
       }
     };
