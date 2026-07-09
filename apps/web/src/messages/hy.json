@@ -1708,7 +1708,11 @@
         "summaryLabel": "Տեսանելիության ակնարկ",
         "summary": "Միացված է {count}/{total} բաժին",
         "statusNoticeTitle": "Զգույշ եղեք բաժնի կարգավիճակը փոխելիս",
-        "statusNoticeDetail": "Անջատելիս այն կհանվի կայքի header նավիգացիայից։",
+        "statusNoticeDetail": "Գլխավոր էջի banner-ները թաքցնում են home page-ի բլոկները։ Site section-ները նաև ազդում են header նավիգացիայի և կապված էջերի վրա։",
+        "bannerGroupTitle": "Գլխավոր էջի banner-ներ",
+        "bannerGroupDescription": "Միայն home page-ի դեղին panel-ներ — header նավիգացիայում հղում չեն ավելացնում։",
+        "siteSectionGroupTitle": "Կայքի նավիգացիա և էջեր",
+        "siteSectionGroupDescription": "Header նավիգացիայի հղումներ և դրանց հրապարակային էջերը։",
         "save": "Պահպանել տեսանելիությունը",
         "saving": "Պահպանում...",
         "saved": "Գլխավոր էջի բաժինների տեսանելիությունը թարմացվեց։",
@@ -1722,8 +1726,10 @@
         "enableSectionButton": "Միացնել բաժինը",
         "confirmDisableTitle": "Անջատե՞լ «{section}» բաժինը",
         "confirmDisableDescription": "Այս բաժինը կթաքցվի հրապարակային կայքից՝ այլևս չի ցուցադրվի header նավիգացիայում և կապված էջերում։ Կարող եք ցանկացած պահի նորից միացնել։",
+        "confirmDisableBannerDescription": "Այս banner-ը կթաքցվի միայն home page-ից։ Header նավիգացիան և մյուս էջերը չեն փոխվի։ Կարող եք ցանկացած պահի նորից միացնել։",
         "confirmEnableTitle": "Միացնե՞լ «{section}» բաժինը",
         "confirmEnableDescription": "Այս բաժինը կրկին կհայտնվի հրապարակային կայքում՝ header նավիգացիայում և կապված էջերում։",
+        "confirmEnableBannerDescription": "Այս banner-ը կրկին կհայտնվի home page-ում։ Header նավիգացիան և մյուս էջերը չեն փոխվի։",
         "sections": {
           "home": {
             "description": "Գլխավոր էջի վերին hero բաները։"
@@ -1735,7 +1741,7 @@
             "description": "Շաբաթական ժամանակացույցը գլխավոր էջում և Schedule էջը։"
           },
           "presalePackages": {
-            "description": "Presale packages բաները գլխավոր էջում։"
+            "description": "Presale packages banner-ը home page-ում — նավիգացիայի հղում չէ։"
           },
           "memberships": {
             "description": "Packages էջը և նավիգացիայի հղումը։"

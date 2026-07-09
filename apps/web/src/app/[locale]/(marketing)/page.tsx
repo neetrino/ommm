@@ -45,7 +45,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
       <div className={homePageStyles.pageUpper}>
         <MarketingPublicHero
           locale={locale}
-          showHero={isHomeSectionEnabled(visibility, "home")}
+          showHero
           showPresalePackages={showPresalePackages}
           showScheduleBanner={showSchedule}
         />

@@ -1698,7 +1698,11 @@
         "summaryLabel": "Visibility overview",
         "summary": "{count} of {total} sections enabled",
         "statusNoticeTitle": "Be careful when changing a section’s status",
-        "statusNoticeDetail": "Disabling a section removes it from the site header navigation.",
+        "statusNoticeDetail": "Home page banners hide blocks on the home page. Site sections also affect header navigation and their related pages.",
+        "bannerGroupTitle": "Home page banners",
+        "bannerGroupDescription": "Yellow panels on the home page only — they do not add or remove header navigation links.",
+        "siteSectionGroupTitle": "Site navigation & pages",
+        "siteSectionGroupDescription": "Header navigation links and their related public pages.",
         "save": "Save visibility",
         "saving": "Saving...",
         "saved": "Home page section visibility updated.",
@@ -1712,8 +1716,10 @@
         "enableSectionButton": "Enable section",
         "confirmDisableTitle": "Disable {section}?",
         "confirmDisableDescription": "This section will be hidden from the public site — it will no longer appear in the header navigation or on its related pages. You can re-enable it at any time.",
+        "confirmDisableBannerDescription": "This banner will be hidden on the home page only. Header navigation and other pages stay unchanged. You can re-enable it at any time.",
         "confirmEnableTitle": "Enable {section}?",
         "confirmEnableDescription": "This section will become visible on the public site again, including in the header navigation and on its related pages.",
+        "confirmEnableBannerDescription": "This banner will appear on the home page again. Header navigation and other pages stay unchanged.",
         "sections": {
           "home": {
             "description": "Hero banner at the top of the home page."
@@ -1725,7 +1731,7 @@
             "description": "Weekly schedule banner on home and Schedule page."
           },
           "presalePackages": {
-            "description": "Presale packages banner on the home page."
+            "description": "Presale packages banner on the home page — not a navigation link."
           },
           "memberships": {
             "description": "Packages page and navigation link."

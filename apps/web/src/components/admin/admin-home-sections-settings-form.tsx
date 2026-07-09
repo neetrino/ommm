@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AdminHomeSectionVisibilityRow } from "@/components/admin/admin-home-section-visibility-row";
+import { AdminHomeSectionVisibilityGroup } from "@/components/admin/admin-home-section-visibility-group";
 import { AdminHomeSectionsStatusNotice } from "@/components/admin/admin-home-sections-status-notice";
 import {
   HOME_SECTIONS_VIEW_QUERY_KEY,
@@ -17,8 +17,9 @@ import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicStudio } from "@/lib/revalidate-public-studio";
 import {
+  getHomePageSectionDefinitionsByGroup,
+  HOME_PAGE_ADMIN_VISIBILITY_KEYS,
   HOME_PAGE_SECTION_DEFINITIONS,
-  HOME_PAGE_SECTION_KEYS,
   normalizeHomePageSectionVisibility,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
@@ -47,6 +48,19 @@ export function AdminHomeSectionsSettingsForm({
   const [toast, setToast] = useState<ToastState>(null);
 
   useEffect(() => {
+    setSections(normalizeHomePageSectionVisibility(initial));
+  }, [initial]);
+
+  const bannerDefinitions = useMemo(
+    () => getHomePageSectionDefinitionsByGroup("homeBanner", { adminConfigurableOnly: true }),
+    [],
+  );
+  const siteSectionDefinitions = useMemo(
+    () => getHomePageSectionDefinitionsByGroup("siteSection", { adminConfigurableOnly: true }),
+    [],
+  );
+
+  useEffect(() => {
     searchParamsStringRef.current = searchParams.toString();
   }, [searchParams]);
 
@@ -67,7 +81,7 @@ export function AdminHomeSectionsSettingsForm({
   );
 
   const enabledCount = useMemo(
-    () => HOME_PAGE_SECTION_KEYS.filter((key) => sections[key]).length,
+    () => HOME_PAGE_ADMIN_VISIBILITY_KEYS.filter((key) => sections[key]).length,
     [sections],
   );
 
@@ -147,18 +161,27 @@ export function AdminHomeSectionsSettingsForm({
 
   const pendingSectionLabel =
     pendingToggle === null ? "" : tNav(pendingToggle.key);
+  const pendingIsHomeBanner =
+    pendingToggle === null
+      ? false
+      : HOME_PAGE_SECTION_DEFINITIONS.find((definition) => definition.key === pendingToggle.key)
+          ?.visibilityGroup === "homeBanner";
   const confirmCopy =
     pendingToggle?.enabled === false
       ? {
           title: t("confirmDisableTitle", { section: pendingSectionLabel }),
-          description: t("confirmDisableDescription", { section: pendingSectionLabel }),
+          description: pendingIsHomeBanner
+            ? t("confirmDisableBannerDescription", { section: pendingSectionLabel })
+            : t("confirmDisableDescription", { section: pendingSectionLabel }),
           confirmLabel: t("disableSectionButton"),
           tone: "danger" as const,
           confirmClassName: "ommm-btn-lifecycle-action--danger",
         }
       : {
           title: t("confirmEnableTitle", { section: pendingSectionLabel }),
-          description: t("confirmEnableDescription", { section: pendingSectionLabel }),
+          description: pendingIsHomeBanner
+            ? t("confirmEnableBannerDescription", { section: pendingSectionLabel })
+            : t("confirmEnableDescription", { section: pendingSectionLabel }),
           confirmLabel: t("enableSectionButton"),
           tone: "success" as const,
           confirmClassName: "ommm-btn-lifecycle-action--success",
@@ -179,7 +202,7 @@ export function AdminHomeSectionsSettingsForm({
                 <p className={`${adminChrome.metricValue} text-xl`}>
                   {t("summary", {
                     count: enabledCount,
-                    total: HOME_PAGE_SECTION_KEYS.length,
+                    total: HOME_PAGE_ADMIN_VISIBILITY_KEYS.length,
                   })}
                 </p>
               </div>
@@ -187,17 +210,24 @@ export function AdminHomeSectionsSettingsForm({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1 px-2 pb-3 pt-1 sm:px-3 sm:pb-4 sm:pt-2">
-            {HOME_PAGE_SECTION_DEFINITIONS.map((definition) => (
-              <AdminHomeSectionVisibilityRow
-                key={definition.key}
-                sectionKey={definition.key}
-                enabled={sections[definition.key]}
-                disabled={isBusy}
-                saving={savingKey === definition.key}
-                onToggle={requestSectionToggle}
-              />
-            ))}
+          <div className="flex flex-col gap-4 px-2 pb-3 pt-1 sm:px-3 sm:pb-4 sm:pt-2">
+            <AdminHomeSectionVisibilityGroup
+              group="homeBanner"
+              definitions={bannerDefinitions}
+              sections={sections}
+              disabled={isBusy}
+              savingKey={savingKey}
+              onToggle={requestSectionToggle}
+            />
+            <div className="mx-2 border-t border-white/50 sm:mx-3" aria-hidden />
+            <AdminHomeSectionVisibilityGroup
+              group="siteSection"
+              definitions={siteSectionDefinitions}
+              sections={sections}
+              disabled={isBusy}
+              savingKey={savingKey}
+              onToggle={requestSectionToggle}
+            />
           </div>
         </section>
       </div>

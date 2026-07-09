@@ -1,4 +1,5 @@
 import {
+  HOME_PAGE_ADMIN_VISIBILITY_KEYS,
   isHomePageSectionKey,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
@@ -13,6 +14,12 @@ export type HomeSectionPendingToggle = {
 
 export function parseHomeSectionsViewQuery(value: string | null): HomePageSectionKey | null {
   if (value === null || !isHomePageSectionKey(value)) {
+    return null;
+  }
+
+  if (
+    !(HOME_PAGE_ADMIN_VISIBILITY_KEYS as readonly HomePageSectionKey[]).includes(value)
+  ) {
     return null;
   }
 
