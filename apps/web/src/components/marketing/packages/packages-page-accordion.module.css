@@ -715,6 +715,13 @@
   min-height: var(--packages-page-mobile-collapsed-min-height);
   padding: 1.125rem 1.25rem;
   contain: layout;
+  transition: padding var(--packages-page-transition-duration, 450ms)
+    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.mobileAccordionItem[data-expanded="true"] {
+  min-height: 0;
+  padding: var(--packages-page-mobile-expanded-padding);
 }
 
 .mobileAccordionContent {
@@ -722,23 +729,28 @@
   grid-template-rows: 0fr;
   overflow: hidden;
   transition: grid-template-rows var(--packages-page-transition-duration, 450ms)
-    var(--packages-page-transition-easing, cubic-bezier(0.33, 1, 0.68, 1));
+    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .mobileAccordionItem[data-expanded="true"] .mobileAccordionContent {
   grid-template-rows: 1fr;
 }
 
-@media (max-width: 1023px) {
-  .mobileAccordionContent {
-    transition: none;
-  }
-}
-
 .mobileAccordionContentInner {
   overflow: hidden;
   min-height: 0;
+  padding-top: 0;
+  opacity: 0;
+  transition:
+    padding-top var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity calc(var(--packages-page-transition-duration, 450ms) * 0.65)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.mobileAccordionItem[data-expanded="true"] .mobileAccordionContentInner {
   padding-top: var(--packages-page-mobile-tier-card-gap);
+  opacity: 1;
 }
 
 .mobileAccordionHeader {
@@ -784,6 +796,7 @@
 
 .mobileCardDetails {
   margin: 0;
+  max-height: calc(var(--packages-page-mobile-collapsed-details-size, 16px) + 0.25rem);
   overflow: hidden;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--packages-page-mobile-collapsed-details-size);
@@ -791,10 +804,20 @@
   font-style: italic;
   line-height: 1.2;
   color: var(--packages-page-text-color);
+  opacity: 1;
+  transition:
+    max-height var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity calc(var(--packages-page-transition-duration, 450ms) * 0.55)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    margin var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .mobileAccordionItem[data-expanded="true"] .mobileCardDetails {
-  display: none;
+  max-height: 0;
+  margin-top: -0.75rem;
+  opacity: 0;
 }
 
 .mobileCardFab {
