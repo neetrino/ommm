@@ -21,6 +21,7 @@ import {
   type PackageTypeSessionFormEntry,
 } from "@/components/admin/admin-package-type-sessions.util";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { AdminRequiredMark, ADMIN_INVALID_FIELD_CLASS } from "@/components/admin/admin-sheet-editable-field";
 
 const INLINE_INPUT_CLASS =
@@ -264,6 +265,20 @@ export function AdminPackageTierCompactFields({
           />
         </TierIconField>
       </div>
+
+      <label className="flex min-w-0 flex-col gap-1">
+        <span className="ommm-label text-[10px] uppercase tracking-wide">
+          {t("fieldStartDate")}
+        </span>
+        <DatePickerInput
+          name="startDate"
+          ariaLabel={t("fieldStartDate")}
+          value={values.startDate}
+          onChange={(nextValue) => onValuesChange({ startDate: nextValue })}
+          disabled={pending}
+        />
+        <span className="text-xs text-sage-500">{t("fieldStartDateHint")}</span>
+      </label>
 
       <AdminPackageTypeSessionsFields
         entries={typeSessionEntries}

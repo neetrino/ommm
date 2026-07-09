@@ -15,6 +15,7 @@ import {
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type AdminPackageFormPricingSectionProps = {
   values: AdminPackageFormValues;
@@ -124,6 +125,19 @@ export function AdminPackageFormPricingSection({
               disabled={pending}
             />
             <span className="text-xs text-sage-500">{t("fieldValidityHint")}</span>
+          </label>
+          <label className="flex flex-col gap-1.5 sm:col-span-2">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("fieldStartDate")}
+            </span>
+            <DatePickerInput
+              name="startDate"
+              ariaLabel={t("fieldStartDate")}
+              value={values.startDate}
+              onChange={(nextValue) => onValuesChange({ startDate: nextValue })}
+              disabled={pending}
+            />
+            <span className="text-xs text-sage-500">{t("fieldStartDateHint")}</span>
           </label>
           <label className="flex flex-col gap-1.5">
             <span className="ommm-label text-xs uppercase tracking-wide">

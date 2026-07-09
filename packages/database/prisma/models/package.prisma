@@ -14,6 +14,7 @@ model PackagePlan {
   currency             String          @default("AMD")
   billingPeriod        String          @default("monthly")
   periodDays           Int             @default(30)
+  startDate            DateTime?
   sessionsPerMonth     Int?
   isUnlimited          Boolean         @default(false)
   guestCount           Int             @default(0)

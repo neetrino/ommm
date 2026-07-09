@@ -13,6 +13,7 @@ export type AdminPlanRecord = {
   currency: string;
   billingPeriod: string;
   periodDays: number;
+  startDate?: Date | null;
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
   guestCount: number;
@@ -63,6 +64,7 @@ export type PublicPlanSource = {
   currency: string;
   billingPeriod: string;
   periodDays: number;
+  startDate?: Date | null;
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
   isPopular: boolean;
