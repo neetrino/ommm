@@ -359,6 +359,7 @@
     "packagesDetailsCta": "Details",
     "packagesAccordionCloseAria": "Close {name} details",
     "packagesCardPriceFromPrefix": "From",
+    "packagesCardStartDate": "Starts {date}",
     "packagesBackToList": "Back to packages",
     "packagesOpenDetailsAria": "View package details for {name}",
     "packagesDetailsCloseBackdrop": "Close package details",

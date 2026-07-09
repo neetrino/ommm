@@ -7,11 +7,13 @@ import { MARKETING_YOGA_CATEGORY_LABEL } from "@/components/marketing/packages/p
 import {
   categoryHasMultiplePricedTiers,
   resolveCategoryCardPriceCents,
+  resolveCategoryCardStartDate,
   type PublicPackageCategoryGroup,
 } from "@/lib/public-package-categories";
 import { assignPackageCardGradientStartColors } from "@/lib/package-card-colors";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { formatDateForUi } from "@/lib/date-display";
 
 export type PackagesPageCategoryCardCopy = {
   id: string;
@@ -19,6 +21,7 @@ export type PackagesPageCategoryCardCopy = {
   priceAmount: string | null;
   originalPriceAmount?: string | null;
   priceFromPrefix?: string;
+  startDateLine?: string | null;
   hasPlans: boolean;
 };
 
@@ -29,6 +32,7 @@ export type PackagesPageAccordionCategory = PackagesPageCategoryCardCopy & {
 
 type PackagesPageCardLabels = {
   priceFromPrefix: string;
+  formatCardStartDate?: (date: string) => string;
 };
 
 const FALLBACK_GRADIENT_START_COLOR = "#ede9dd";
@@ -142,6 +146,12 @@ export function buildPackagesPageAccordionCategories(
     const priceFromPrefix = categoryHasMultiplePricedTiers(category.plans)
       ? labels.priceFromPrefix
       : undefined;
+    const categoryStartDate = resolveCategoryCardStartDate(category.plans);
+    const startDateLine =
+      categoryStartDate !== null
+        ? (labels.formatCardStartDate?.(formatDateForUi(categoryStartDate)) ??
+          formatDateForUi(categoryStartDate))
+        : null;
 
     return {
       id: category.id,
@@ -149,6 +159,7 @@ export function buildPackagesPageAccordionCategories(
       priceAmount,
       originalPriceAmount,
       priceFromPrefix,
+      startDateLine,
       hasPlans: true,
       plans,
       gradientStartColor,

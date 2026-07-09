@@ -369,6 +369,7 @@
     "packagesDetailsCta": "Մանրամասներ",
     "packagesAccordionCloseAria": "Փակել {name}-ի մանրամասները",
     "packagesCardPriceFromPrefix": "Սկսած",
+    "packagesCardStartDate": "Սկսվում է {date}-ից",
     "packagesBackToList": "Վերադառնալ փաթեթներ",
     "packagesOpenDetailsAria": "Դիտել {name} փաթեթի մանրամասները",
     "packagesDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",

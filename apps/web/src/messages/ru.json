@@ -359,6 +359,7 @@
     "packagesDetailsCta": "Подробнее",
     "packagesAccordionCloseAria": "Закрыть детали {name}",
     "packagesCardPriceFromPrefix": "От",
+    "packagesCardStartDate": "Начало {date}",
     "packagesBackToList": "Назад к пакетам",
     "packagesOpenDetailsAria": "Открыть детали пакета {name}",
     "packagesDetailsCloseBackdrop": "Закрыть детали пакета",
