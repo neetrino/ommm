@@ -138,7 +138,7 @@ export const HOME_HERO_ASSETS = {
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
   /** Founding memberships mobile banner — 1365×3072 @3x (455×1024 artboard), WebP q98. */
   promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v4.webp",
-/** Legacy hero slide — H.264 MP4 for Chrome/Firefox/Android (not ProRes). */
+/** Legacy hero slide — forward+reverse ping-pong cycle (H.264, ~10s); rebuild via `pnpm assets:hero-logo-mark-pingpong`. */
   heroLogoMarkVideo: "/marketing/home/hero/home-hero-logo-mark.mp4",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",

@@ -4,8 +4,13 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
-import { createHomeHeroLogoMarkPingPongPlayback } from "@/components/marketing/home/home-hero-logo-mark-video-playback";
+import {
+  createHomeHeroLogoMarkVideoPlayback,
+  type HomeHeroLogoMarkVideoPlayback,
+} from "@/components/marketing/home/home-hero-logo-mark-video-playback";
+import { registerHomeHeroLogoMarkPlaybackStart } from "@/components/marketing/home/home-hero-logo-mark-video-playback-registry";
 import { useOptionalHomeHeroSlide } from "@/components/marketing/home/home-hero-slide-context";
+import { useHomeHeroPhotoContentVisible } from "@/components/marketing/home/use-home-hero-photo-content-visible";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
@@ -43,11 +48,13 @@ function HomeHeroLogoMarkFallback({ alt }: HomeHeroLogoMarkVideoProps) {
 /** Rotating OMMM mark on the legacy meditation hero slide — replaces the static logo image. */
 export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
   const slide = useOptionalHomeHeroSlide();
-  const isActive = slide ? slide.isLegacyPhotoActive : true;
+  const isLegacyPhotoActive = slide ? slide.isLegacyPhotoActive : true;
   const reducedMotion = usePrefersReducedMotion();
+  const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playbackRef = useRef<HomeHeroLogoMarkVideoPlayback | null>(null);
   const [useFallback, setUseFallback] = useState(false);
-  const shouldPlay = isActive && !reducedMotion && !useFallback;
+  const contentVisible = useHomeHeroPhotoContentVisible(isLegacyPhotoActive, rootRef);
 
   const handleVideoError = useCallback(() => {
     setUseFallback(true);
@@ -60,13 +67,34 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
     }
 
     configureSafariSafePlayback(video);
+    const playback = createHomeHeroLogoMarkVideoPlayback(video);
+    playbackRef.current = playback;
+    registerHomeHeroLogoMarkPlaybackStart(() => {
+      playback.startFromBeginning();
+    });
 
-    if (!shouldPlay) {
-      video.pause();
+    return () => {
+      registerHomeHeroLogoMarkPlaybackStart(null);
+      playback.dispose();
+      playbackRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const playback = playbackRef.current;
+    if (!video || !playback) {
       return;
     }
 
-    const playback = createHomeHeroLogoMarkPingPongPlayback(video);
+    if (!isLegacyPhotoActive || reducedMotion || useFallback) {
+      playback.pause();
+      return;
+    }
+
+    if (!contentVisible) {
+      return;
+    }
 
     const startWhenReady = (): void => {
       playback.startFromBeginning();
@@ -81,9 +109,9 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
 
     return () => {
       video.removeEventListener("loadeddata", startWhenReady);
-      playback.stop();
+      playback.pause();
     };
-  }, [shouldPlay]);
+  }, [contentVisible, isLegacyPhotoActive, reducedMotion, useFallback]);
 
   if (useFallback) {
     return <HomeHeroLogoMarkFallback alt={alt} />;
@@ -91,6 +119,7 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
 
   return (
     <div
+      ref={rootRef}
       className={`${styles.homeHeroLogoMark} ${styles.homeHeroLogoMarkVideo} tablet:mb-1 tablet:shrink-0`}
       aria-label={alt}
     >
@@ -102,6 +131,7 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
               className={styles.homeHeroLogoVideoLayer}
               src={HOME_HERO_ASSETS.heroLogoMarkVideo}
               muted
+              loop
               playsInline
               preload="auto"
               aria-hidden

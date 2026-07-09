@@ -11,6 +11,7 @@ import {
   type RefObject,
 } from "react";
 import { HOME_HERO_CAROUSEL_SLIDE_COUNT } from "@/components/marketing/home/home-hero-banner-tokens";
+import { beginHomeHeroLogoMarkPlaybackFromUserGesture } from "@/components/marketing/home/home-hero-logo-mark-video-playback-registry";
 import { MARKETING_PHONE_VIEWPORT_MEDIA_QUERY } from "@/hooks/use-is-marketing-phone-viewport";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
@@ -138,6 +139,9 @@ export function HomeHeroSlideProvider({
   const goToSlide = useCallback(
     (index: number) => {
       const nextIndex = wrapSlideIndex(index);
+      if (nextIndex === HOME_HERO_LEGACY_PHOTO_SLIDE_INDEX) {
+        beginHomeHeroLogoMarkPlaybackFromUserGesture();
+      }
       setActiveSlideIndex(nextIndex);
       if (nextIndex === HOME_HERO_VIDEO_SLIDE_INDEX) {
         playVideoFromStart();

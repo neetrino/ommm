@@ -1,81 +1,49 @@
-export type HomeHeroLogoMarkPingPongPlayback = {
+export type HomeHeroLogoMarkVideoPlayback = {
   startFromBeginning: () => void;
-  stop: () => void;
+  pause: () => void;
+  dispose: () => void;
 };
 
-function cancelReversePlayback(
-  reverseRafId: { current: number },
-  reverseLastTimestamp: { current: number },
-): void {
-  if (reverseRafId.current !== 0) {
-    cancelAnimationFrame(reverseRafId.current);
-    reverseRafId.current = 0;
-  }
-  reverseLastTimestamp.current = 0;
-}
-
-/** Forward play, then manual reverse scrub — loops ping-pong (no native reverse playback). */
-export function createHomeHeroLogoMarkPingPongPlayback(
+/** Native muted loop — ping-pong cycle is baked into the MP4 asset (forward + reverse). */
+export function createHomeHeroLogoMarkVideoPlayback(
   video: HTMLVideoElement,
-): HomeHeroLogoMarkPingPongPlayback {
-  const reverseRafId = { current: 0 };
-  const reverseLastTimestamp = { current: 0 };
-  let stopped = false;
+): HomeHeroLogoMarkVideoPlayback {
+  let active = false;
 
-  const playForward = (): void => {
-    if (stopped) {
+  video.loop = true;
+  video.muted = true;
+  video.playsInline = true;
+
+  const tryPlay = (): void => {
+    if (!active) {
       return;
     }
-    cancelReversePlayback(reverseRafId, reverseLastTimestamp);
     void video.play().catch(() => {
       /* Autoplay may be blocked until user gesture. */
     });
   };
 
-  const stepReverse = (timestamp: number): void => {
-    if (stopped) {
-      return;
-    }
-    if (reverseLastTimestamp.current === 0) {
-      reverseLastTimestamp.current = timestamp;
-    }
-    const deltaSec = (timestamp - reverseLastTimestamp.current) / 1000;
-    reverseLastTimestamp.current = timestamp;
-    video.currentTime = Math.max(0, video.currentTime - deltaSec);
-    if (video.currentTime <= 0.01) {
-      video.currentTime = 0;
-      playForward();
-      return;
-    }
-    reverseRafId.current = requestAnimationFrame(stepReverse);
+  const onCanPlay = (): void => {
+    tryPlay();
   };
 
-  const handleEnded = (): void => {
-    if (stopped) {
-      return;
-    }
-    cancelReversePlayback(reverseRafId, reverseLastTimestamp);
-    video.pause();
-    reverseRafId.current = requestAnimationFrame(stepReverse);
-  };
+  video.addEventListener("canplay", onCanPlay);
 
   const startFromBeginning = (): void => {
-    if (stopped) {
-      return;
-    }
-    cancelReversePlayback(reverseRafId, reverseLastTimestamp);
+    active = true;
     video.currentTime = 0;
-    playForward();
+    tryPlay();
   };
 
-  const stop = (): void => {
-    stopped = true;
-    cancelReversePlayback(reverseRafId, reverseLastTimestamp);
-    video.removeEventListener("ended", handleEnded);
+  const pause = (): void => {
+    active = false;
     video.pause();
   };
 
-  video.addEventListener("ended", handleEnded);
+  const dispose = (): void => {
+    pause();
+    video.removeEventListener("canplay", onCanPlay);
+  };
 
-  return { startFromBeginning, stop };
-}
+  return { startFromBeginning, pause, dispose };
+};
