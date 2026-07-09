@@ -39,10 +39,6 @@
   gap: var(--packages-page-accordion-gap);
 }
 
-.accordionRows > .accordionRow:nth-child(n + 2) {
-  margin-top: clamp(0.5rem, 1.2vw, 0.875rem);
-}
-
 .accordionRowGrid {
   display: grid;
   overflow: hidden;
@@ -708,6 +704,7 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--packages-page-mobile-accordion-gap);
+  overflow-anchor: none;
 }
 
 .mobileAccordionStackItem {
@@ -717,23 +714,6 @@
   flex: none;
   width: 100%;
   min-width: 0;
-  overflow: hidden;
-}
-
-.mobileAccordionStackItem .slotReveal {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.mobileAccordionStackItem .slotReveal:global(.revealEnter) {
-  transform: none;
-}
-
-.mobileAccordionStackItem .slotReveal:global(.revealEnterVisible) {
-  transform: none;
-  animation: packagesSlotRevealFade var(--marketing-reveal-duration, 0.68s)
-    cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-  animation-delay: var(--marketing-reveal-delay, 0ms);
 }
 
 .mobileAccordionItem {
@@ -747,21 +727,12 @@
   background-image: var(--packages-page-panel-gradient);
   min-height: var(--packages-page-mobile-collapsed-min-height);
   padding: 1.125rem 1.25rem;
-  transition:
-    height var(--packages-page-transition-duration, 450ms)
-      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
-    min-height var(--packages-page-transition-duration, 450ms)
-      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
-    padding var(--packages-page-transition-duration, 450ms)
-      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
-}
-
-.mobileAccordionItem:not([data-expanded="true"]) {
-  height: var(--packages-page-mobile-collapsed-min-height);
+  contain: layout;
+  transition: padding var(--packages-page-transition-duration, 450ms)
+    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .mobileAccordionItem[data-expanded="true"] {
-  height: auto;
   min-height: 0;
   padding: var(--packages-page-mobile-expanded-padding);
 }
@@ -769,18 +740,13 @@
 .mobileAccordionContent {
   display: grid;
   grid-template-rows: 0fr;
-  max-height: 0;
   overflow: hidden;
-  transition:
-    grid-template-rows var(--packages-page-transition-duration, 450ms)
-      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
-    max-height var(--packages-page-transition-duration, 450ms)
-      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+  transition: grid-template-rows var(--packages-page-transition-duration, 450ms)
+    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .mobileAccordionItem[data-expanded="true"] .mobileAccordionContent {
   grid-template-rows: 1fr;
-  max-height: 5000px;
 }
 
 .mobileAccordionContentInner {
@@ -803,16 +769,12 @@
 .mobileAccordionHeader {
   display: flex;
   width: 100%;
-  flex: 1;
-  min-height: 0;
+  flex: none;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-}
-
-.mobileAccordionItem[data-expanded="true"] .mobileAccordionHeader {
-  flex: none;
-  align-items: flex-start;
+  min-height: 3.625rem;
 }
 
 .mobileCardBody {
@@ -823,6 +785,10 @@
   justify-content: space-between;
   align-self: stretch;
   gap: 0.75rem;
+}
+
+.mobileAccordionItem[data-expanded="true"] .mobileCardBody {
+  gap: 0;
 }
 
 .mobileCardTitle {
@@ -843,7 +809,7 @@
 
 .mobileCardDetails {
   margin: 0;
-  max-height: 1.5rem;
+  max-height: calc(var(--packages-page-mobile-collapsed-details-size, 16px) + 0.25rem);
   overflow: hidden;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--packages-page-mobile-collapsed-details-size);
@@ -858,8 +824,7 @@
     opacity calc(var(--packages-page-transition-duration, 450ms) * 0.55)
       var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
     margin var(--packages-page-transition-duration, 450ms)
-      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
-    color 0.22s ease;
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .mobileAccordionItem[data-expanded="true"] .mobileCardDetails {
@@ -887,6 +852,16 @@
   outline: 2px solid #577f91;
   outline-offset: 3px;
   border-radius: 9999px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mobileCardFab.detailsFabInteractive {
+    transition: none;
+  }
+
+  .mobileCardFab.detailsFabInteractive:active {
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

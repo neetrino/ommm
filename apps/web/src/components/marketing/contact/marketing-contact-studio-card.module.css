@@ -12,8 +12,9 @@
     grid-template-columns: repeat(6, minmax(0, 1fr));
     --contact-icon-size: var(--contact-icon-size-desktop);
     box-sizing: border-box;
-    padding: var(--contact-card-shadow-bleed, 1.25rem);
-    margin: calc(-1 * var(--contact-card-shadow-bleed, 1.25rem));
+    /* Vertical bleed only — keeps card shadows visible without narrowing the grid vs the map. */
+    padding-block: var(--contact-card-shadow-bleed, 1.25rem);
+    margin-block: calc(-1 * var(--contact-card-shadow-bleed, 1.25rem));
   }
 
   /* Even count — two cards per row. */
