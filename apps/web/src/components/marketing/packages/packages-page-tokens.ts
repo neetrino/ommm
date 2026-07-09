@@ -52,7 +52,7 @@ export const PACKAGES_PAGE_CARD_FIGMA = {
 /** Figma expanded accordion — `395:1341` Variant2. */
 export const PACKAGES_PAGE_ACCORDION_FIGMA = {
   collapsedWidthPx: 120,
-  accordionGapPx: 10,
+  accordionGapPx: 28,
   expandedMinTableWidthPx: 760,
   expandedTitleSizePx: 32,
   collapsedTitleSizePx: 22,
@@ -75,7 +75,7 @@ export const PACKAGES_PAGE_ACCORDION_FIGMA = {
 
 /** Figma Packages mobile accordion — collapsed card + inline expanded panel. */
 export const PACKAGES_PAGE_MOBILE_FIGMA = {
-  accordionGapPx: 18,
+  accordionGapPx: 28,
   /** Title (2 lines) + details + vertical padding — keeps collapsed stack even. */
   collapsedCardMinHeightPx: 132,
   collapsedCardRadiusPx: 24,
@@ -137,7 +137,7 @@ export const PACKAGES_PAGE_TIER_TABLE_COLUMNS =
 
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,
-  cardsGap: "clamp(0.75rem, 1.79vw, 1.1875rem)",
+  cardsGap: "clamp(1rem, 2.2vw, 1.75rem)",
   mobileAccordionGap: `${PACKAGES_PAGE_MOBILE_FIGMA.accordionGapPx}px`,
   mobileCollapsedCardMinHeight: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardMinHeightPx}px`,
   mobileFabSize: `${PACKAGES_PAGE_MOBILE_FIGMA.mobileFabSizePx}px`,

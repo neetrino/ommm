@@ -39,10 +39,6 @@
   gap: var(--packages-page-accordion-gap);
 }
 
-.accordionRows > .accordionRow:nth-child(n + 2) {
-  margin-top: clamp(0.5rem, 1.2vw, 0.875rem);
-}
-
 .accordionRowGrid {
   display: grid;
   overflow: hidden;

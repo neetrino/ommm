@@ -100,7 +100,7 @@ export function PackagesPageAccordion({
 
   const desktopContent = (
     <div className={cardStyles.desktopOnly}>
-      <div className={accordionStyles.accordionRows}>
+      <div className={accordionStyles.accordionRows} style={layoutStyleVars()}>
         {desktopRows.map((row, rowIndex) => (
           <PackagesPageAccordionDesktopRow
             key={`row-${rowIndex}`}
