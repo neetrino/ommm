@@ -10,7 +10,7 @@ const presaleTitleVerticalInset = HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelPaddin
 
 /** Desktop symmetric inset above/below Presale packages title — extra room vs mobile `3rem`. */
 const presaleTitleVerticalInsetDesktopBase = "clamp(1.5rem, 5vw, 3rem)";
-const presaleTitleVerticalInsetDesktopExtraPx = 80;
+const presaleTitleVerticalInsetDesktopExtraPx = 64;
 const presaleTitleVerticalInsetLg = `calc(${presaleTitleVerticalInsetDesktopBase} + ${presaleTitleVerticalInsetDesktopExtraPx}px)`;
 
 /** Slightly larger Presale packages title — layout slot stays weekly-schedule size. */
