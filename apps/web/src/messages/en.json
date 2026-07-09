@@ -151,7 +151,7 @@
       },
       "classesTitle": "Our Core Practices",
       "classesSubtitle": "From strength to stillness - find the practice that meets you where you are.",
-      "viewMembership": "View Membership",
+      "viewMembership": "View Packages",
       "viewSchedule": "View schedule",
       "classCards": [
         {
@@ -234,7 +234,7 @@
       "footerWordmark": "Ommm.Space",
       "footerTopNavAria": "Footer navigation",
       "footerContactTitle": "Contact Us",
-      "footerPhone": "060500400",
+      "footerPhone": "+374 (60) - 500 - 400",
       "footerEmail": "info@ommm.am",
       "footerAddress": "25 Pushkin St,Yerevan",
       "footerSocialTitle": "Social Media",
@@ -361,7 +361,9 @@
     "packagesDetailsCta": "Details",
     "packagesAccordionCloseAria": "Close {name} details",
     "packagesCardPriceFromPrefix": "From",
-    "packagesCardStartDate": "Starts {date}",
+    "packagesCardStartDatePurchase": "Available for purchase now",
+    "packagesCardStartDateAttendFromPrefix": "Attend from",
+    "packagesCardStartDateAttendFromDate": "{date}",
     "packagesBackToList": "Back to packages",
     "packagesOpenDetailsAria": "View package details for {name}",
     "packagesDetailsCloseBackdrop": "Close package details",

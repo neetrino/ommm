@@ -151,7 +151,7 @@
       },
       "classesTitle": "Մեր հիմնական պրակտիկաները",
       "classesSubtitle": "Ուժից դեպի հանգստություն — գտեք պրակտիկան, որը հանդիպում է ձեզ հենց այնտեղ, որտեղ եք։",
-      "viewMembership": "Դիտել աբոնեմենտները",
+      "viewMembership": "Դիտել փաթեթները",
       "viewSchedule": "Դասացուցակ",
       "classCards": [
         {
@@ -244,7 +244,7 @@
       "footerWordmark": "Ommm.Space",
       "footerTopNavAria": "Վերջնամասի նավիգացիա",
       "footerContactTitle": "Կապ",
-      "footerPhone": "060500400",
+      "footerPhone": "+374 (60) - 500 - 400",
       "footerEmail": "info@ommm.am",
       "footerAddress": "Պուշկինի փողոց 25, Երևան",
       "footerSocialTitle": "Սոցիալական ցանցեր",
@@ -371,7 +371,9 @@
     "packagesDetailsCta": "Մանրամասներ",
     "packagesAccordionCloseAria": "Փակել {name}-ի մանրամասները",
     "packagesCardPriceFromPrefix": "Սկսած",
-    "packagesCardStartDate": "Սկսվում է {date}-ից",
+    "packagesCardStartDatePurchase": "Կարող եք գնել հիմա",
+    "packagesCardStartDateAttendFromPrefix": "Հաճախել",
+    "packagesCardStartDateAttendFromDate": "{date}-ից",
     "packagesBackToList": "Վերադառնալ փաթեթներ",
     "packagesOpenDetailsAria": "Դիտել {name} փաթեթի մանրամասները",
     "packagesDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",

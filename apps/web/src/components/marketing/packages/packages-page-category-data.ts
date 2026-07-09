@@ -15,13 +15,19 @@ import type { PublicPackagePlan } from "@/lib/public-package-plan";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { formatDateForUi } from "@/lib/date-display";
 
+export type PackagesPageCategoryStartDateCopy = {
+  purchaseLabel: string;
+  attendFromPrefix: string;
+  attendFromDate: string;
+};
+
 export type PackagesPageCategoryCardCopy = {
   id: string;
   label: string;
   priceAmount: string | null;
   originalPriceAmount?: string | null;
   priceFromPrefix?: string;
-  startDateLine?: string | null;
+  startDateCopy?: PackagesPageCategoryStartDateCopy | null;
   hasPlans: boolean;
 };
 
@@ -32,7 +38,7 @@ export type PackagesPageAccordionCategory = PackagesPageCategoryCardCopy & {
 
 type PackagesPageCardLabels = {
   priceFromPrefix: string;
-  formatCardStartDate?: (date: string) => string;
+  formatCardStartDateCopy?: (date: string) => PackagesPageCategoryStartDateCopy;
 };
 
 const FALLBACK_GRADIENT_START_COLOR = "#ede9dd";
@@ -147,10 +153,9 @@ export function buildPackagesPageAccordionCategories(
       ? labels.priceFromPrefix
       : undefined;
     const categoryStartDate = resolveCategoryCardStartDate(category.plans);
-    const startDateLine =
+    const startDateCopy =
       categoryStartDate !== null
-        ? (labels.formatCardStartDate?.(formatDateForUi(categoryStartDate)) ??
-          formatDateForUi(categoryStartDate))
+        ? labels.formatCardStartDateCopy?.(formatDateForUi(categoryStartDate))
         : null;
 
     return {
@@ -159,7 +164,7 @@ export function buildPackagesPageAccordionCategories(
       priceAmount,
       originalPriceAmount,
       priceFromPrefix,
-      startDateLine,
+      startDateCopy,
       hasPlans: true,
       plans,
       gradientStartColor,

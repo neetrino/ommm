@@ -151,7 +151,7 @@
       },
       "classesTitle": "Наши ключевые практики",
       "classesSubtitle": "От силы к тишине — найдите практику, которая встречает вас именно там, где вы находитеся.",
-      "viewMembership": "Посмотреть абонементы",
+      "viewMembership": "Посмотреть пакеты",
       "viewSchedule": "Расписание",
       "classCards": [
         {
@@ -234,7 +234,7 @@
       "footerWordmark": "Ommm.Space",
       "footerTopNavAria": "Навигация в подвале",
       "footerContactTitle": "Связаться с нами",
-      "footerPhone": "060500400",
+      "footerPhone": "+374 (60) - 500 - 400",
       "footerEmail": "info@ommm.am",
       "footerAddress": "ул. Пушкина, 25, Ереван",
       "footerSocialTitle": "Соцсети",
@@ -361,7 +361,9 @@
     "packagesDetailsCta": "Подробнее",
     "packagesAccordionCloseAria": "Закрыть детали {name}",
     "packagesCardPriceFromPrefix": "От",
-    "packagesCardStartDate": "Начало {date}",
+    "packagesCardStartDatePurchase": "Можно купить уже сейчас",
+    "packagesCardStartDateAttendFromPrefix": "Посещение с",
+    "packagesCardStartDateAttendFromDate": "{date}",
     "packagesBackToList": "Назад к пакетам",
     "packagesOpenDetailsAria": "Открыть детали пакета {name}",
     "packagesDetailsCloseBackdrop": "Закрыть детали пакета",
