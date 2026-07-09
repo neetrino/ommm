@@ -9,6 +9,7 @@ export type GoogleOAuthProfile = {
   avatarUrl: string | null;
 };
 
-export type GoogleAuthCompletion =
-  | { mode: 'session'; accessToken: string; redirectUrl: string }
-  | { mode: 'pending-signup'; redirectUrl: string };
+export type GoogleAuthCompletion = {
+  accessToken: string;
+  redirectUrl: string;
+};
