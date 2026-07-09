@@ -84,19 +84,20 @@ export function AdminPackagesCategoryTable({
 
   return (
     <div className="ommm-admin-packages-table">
-      <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header">
-        <div>{t("tablePageName")}</div>
-        <div>{t("tableTotalSessions")}</div>
-        <div>{t("tablePrice")}</div>
-        <div>{t("tableValidity")}</div>
-        <div>{t("tableGuests")}</div>
-        <div>{t("tableStockCount")}</div>
-        <div>{t("tableStartDate")}</div>
-        <div>{t("colStatus")}</div>
-        <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
-      </div>
-      <div>
-        <AnimatePresence mode="popLayout" initial={false}>
+      <div className="ommm-admin-packages-table-scroll">
+        <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header">
+          <div>{t("tablePageName")}</div>
+          <div>{t("tableTotalSessions")}</div>
+          <div>{t("tablePrice")}</div>
+          <div>{t("tableValidity")}</div>
+          <div>{t("tableGuests")}</div>
+          <div>{t("tableStockCount")}</div>
+          <div>{t("tableStartDate")}</div>
+          <div>{t("colStatus")}</div>
+          <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
+        </div>
+        <div>
+          <AnimatePresence mode="popLayout" initial={false}>
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
             const guestCount = formatPackageGuestCount(pkg);
@@ -193,6 +194,7 @@ export function AdminPackagesCategoryTable({
             );
           })}
         </AnimatePresence>
+      </div>
       </div>
       {showPager ? (
         <OmmListPagination
