@@ -2878,6 +2878,7 @@
       "tableValidity": "Срок",
       "tableGuests": "Гости",
       "tableStockCount": "Кол-во",
+      "tableStartDate": "Дата начала",
       "validityDays": "{count} дн.",
       "validityMonths": "{count} мес.",
       "rowActionsAria": "Действия с пакетом",

@@ -1,6 +1,7 @@
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { resolvePackageDurationMonths } from "@/components/admin/admin-package-form-utils";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { formatDateForUi } from "@/lib/date-display";
 
 const MIN_SESSIONS_FOR_PER_SESSION_PRICE = 2;
 
@@ -31,6 +32,18 @@ export function formatPackageValidityLabel(
     return labels.days(0);
   }
   return labels.days(pkg.periodDays);
+}
+
+/** Calendar start date for the packages table; null when unset. */
+export function formatPackageStartDateLabel(
+  pkg: Pick<AdminPackageRow, "startDate">,
+): string | null {
+  const value = pkg.startDate;
+  if (value === null || value === undefined || value.trim().length === 0) {
+    return null;
+  }
+  const formatted = formatDateForUi(value);
+  return formatted.length > 0 ? formatted : null;
 }
 
 /** Session count for the packages table; null when unset. */

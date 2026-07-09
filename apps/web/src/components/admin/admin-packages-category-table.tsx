@@ -16,6 +16,7 @@ import {
   formatPackagePlanName,
   formatPackagePriceLabel,
   formatPackageStockCount,
+  formatPackageStartDateLabel,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import { resolvePackageTotalSessions } from "@/components/admin/admin-package-type-sessions.util";
@@ -90,6 +91,7 @@ export function AdminPackagesCategoryTable({
         <div>{t("tableValidity")}</div>
         <div>{t("tableGuests")}</div>
         <div>{t("tableStockCount")}</div>
+        <div>{t("tableStartDate")}</div>
         <div>{t("colStatus")}</div>
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
@@ -99,6 +101,7 @@ export function AdminPackagesCategoryTable({
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
             const guestCount = formatPackageGuestCount(pkg);
             const stockCount = formatPackageStockCount(pkg);
+            const startDateLabel = formatPackageStartDateLabel(pkg);
             const hasDiscount =
               typeof pkg.discountedPriceCents === "number" &&
               pkg.discountedPriceCents > 0 &&
@@ -164,6 +167,7 @@ export function AdminPackagesCategoryTable({
                   <TableCell>{validityLabel}</TableCell>
                   <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
                   <TableCell>{stockCount !== null ? stockCount : <EmptyCell />}</TableCell>
+                  <TableCell>{startDateLabel !== null ? startDateLabel : <EmptyCell />}</TableCell>
                   <TableCell>
                     <AdminPackagePlanStatusBadge isActive={pkg.isActive} />
                   </TableCell>

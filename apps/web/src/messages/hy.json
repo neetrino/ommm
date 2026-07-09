@@ -2889,6 +2889,7 @@
       "tableValidity": "Վավերականություն",
       "tableGuests": "Հյուրեր",
       "tableStockCount": "Քանակ",
+      "tableStartDate": "Սկսման ամսաթիվ",
       "validityDays": "{count} օր",
       "validityMonths": "{count} ամիս",
       "rowActionsAria": "Փաթեթի գործողություններ",

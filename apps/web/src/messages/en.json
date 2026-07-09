@@ -2879,6 +2879,7 @@
       "tableValidity": "Validity",
       "tableGuests": "Guests",
       "tableStockCount": "Count",
+      "tableStartDate": "Start date",
       "validityDays": "{count} Days",
       "validityMonths": "{count} Months",
       "rowActionsAria": "Package actions",
