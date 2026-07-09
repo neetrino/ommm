@@ -25,6 +25,7 @@ import {
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
   resolveHomeHeroIntroMobileVideoMp4Url,
+  resolveHomeHeroLogoMarkVideoUrl,
   hasHomeHeroIntroVideo,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
@@ -43,10 +44,12 @@ type HomeHeroPhotoBannerProps = {
  */
 export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
-  const heroIntroVideoUrl = resolveHomeHeroIntroVideoUrl(process.env.R2_PUBLIC_URL);
-  const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl();
-  const heroIntroMobileVideoMp4Url = resolveHomeHeroIntroMobileVideoMp4Url();
-  const hasHeroIntroVideo = hasHomeHeroIntroVideo(process.env.R2_PUBLIC_URL);
+  const r2PublicUrl = process.env.R2_PUBLIC_URL;
+  const heroIntroVideoUrl = resolveHomeHeroIntroVideoUrl(r2PublicUrl);
+  const heroIntroMobileVideoUrl = resolveHomeHeroIntroMobileVideoUrl(r2PublicUrl);
+  const heroIntroMobileVideoMp4Url = resolveHomeHeroIntroMobileVideoMp4Url(r2PublicUrl);
+  const heroLogoMarkVideoUrl = resolveHomeHeroLogoMarkVideoUrl(r2PublicUrl);
+  const hasHeroIntroVideo = hasHomeHeroIntroVideo(r2PublicUrl);
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
 
@@ -93,7 +96,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         entrance="aboveFold"
         className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
       >
-        <HomeHeroLogoMarkVideo alt={t("logoAlt")} />
+        <HomeHeroLogoMarkVideo alt={t("logoAlt")} videoUrl={heroLogoMarkVideoUrl} />
 
         <div className={styles.homeHeroTextStack}>
           <div
@@ -240,12 +243,12 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
   } as const;
 
-  if (hasHeroIntroVideo) {
+  if (hasHeroIntroVideo && heroIntroMobileVideoUrl) {
     return (
       <HomeHeroSlideProvider
         desktopVideoUrl={heroIntroVideoUrl}
         mobileVideoUrl={heroIntroMobileVideoUrl}
-        mobileVideoMp4Url={heroIntroMobileVideoMp4Url}
+        mobileVideoMp4Url={heroIntroMobileVideoMp4Url ?? ""}
       >
         <HomeHeroSectionShell
           promoBannerAriaLabel={t("promoBanner3Alt")}

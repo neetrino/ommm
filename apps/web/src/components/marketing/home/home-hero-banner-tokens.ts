@@ -138,8 +138,6 @@ export const HOME_HERO_ASSETS = {
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
   /** Founding memberships mobile banner — 1365×3072 @3x (455×1024 artboard), WebP q98. */
   promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v4.webp",
-/** Legacy hero slide — forward+reverse ping-pong cycle (H.264, ~10s); rebuild via `pnpm assets:hero-logo-mark-pingpong`. */
-  heroLogoMarkVideo: "/marketing/home/hero/home-hero-logo-mark.mp4",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -214,48 +212,56 @@ export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   objectPosition: "center top",
 } as const;
 
-/** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro.webm`). */
+/** R2 object keys — upload via `pnpm --filter web assets:upload-marketing-videos`. */
 export const HOME_HERO_INTRO_VIDEO_R2_KEY = "marketing/home/hero/home-hero-intro.webm";
-
-/** Mobile hero intro — portrait crop (`C0223_14.webm`). */
-export const HOME_HERO_INTRO_VIDEO_MOBILE_PUBLIC_PATH =
-  "/marketing/home/hero/home-hero-intro-mobile.webm";
-
-/** Mobile hero intro — H.264 for iOS Safari (WebM unsupported before iOS 17.4). */
-export const HOME_HERO_INTRO_VIDEO_MOBILE_MP4_PUBLIC_PATH =
-  "/marketing/home/hero/home-hero-intro-mobile.mp4";
-
-/** R2 object key — uploaded via S3 API (`marketing/home/hero/home-hero-intro-mobile.webm`). */
 export const HOME_HERO_INTRO_VIDEO_MOBILE_R2_KEY =
   "marketing/home/hero/home-hero-intro-mobile.webm";
+export const HOME_HERO_INTRO_VIDEO_MOBILE_MP4_R2_KEY =
+  "marketing/home/hero/home-hero-intro-mobile.mp4";
+export const HOME_HERO_LOGO_MARK_VIDEO_R2_KEY = "marketing/home/hero/home-hero-logo-mark.mp4";
 
 function normalizePublicBase(url: string): string {
   return url.trim().replace(/\/+$/, "");
 }
 
-/** Resolves the public hero intro video URL from `R2_PUBLIC_URL`. */
-export function resolveHomeHeroIntroVideoUrl(r2PublicUrl: string | undefined): string | null {
+function resolveMarketingR2AssetUrl(
+  r2PublicUrl: string | undefined,
+  objectKey: string,
+): string | null {
   if (!r2PublicUrl || r2PublicUrl.trim().length === 0) {
     return null;
   }
-  return `${normalizePublicBase(r2PublicUrl)}/${HOME_HERO_INTRO_VIDEO_R2_KEY}`;
+  return `${normalizePublicBase(r2PublicUrl)}/${objectKey}`;
 }
 
-/** Mobile hero intro — bundled public asset (portrait crop). */
-export function resolveHomeHeroIntroMobileVideoUrl(): string {
-  return HOME_HERO_INTRO_VIDEO_MOBILE_PUBLIC_PATH;
+/** Desktop hero intro — landscape WebM on R2. */
+export function resolveHomeHeroIntroVideoUrl(r2PublicUrl: string | undefined): string | null {
+  return resolveMarketingR2AssetUrl(r2PublicUrl, HOME_HERO_INTRO_VIDEO_R2_KEY);
 }
 
-/** Mobile hero intro — H.264 fallback for Safari on iPhone/iPad. */
-export function resolveHomeHeroIntroMobileVideoMp4Url(): string {
-  return HOME_HERO_INTRO_VIDEO_MOBILE_MP4_PUBLIC_PATH;
+/** Mobile hero intro — portrait WebM on R2. */
+export function resolveHomeHeroIntroMobileVideoUrl(
+  r2PublicUrl: string | undefined,
+): string | null {
+  return resolveMarketingR2AssetUrl(r2PublicUrl, HOME_HERO_INTRO_VIDEO_MOBILE_R2_KEY);
+}
+
+/** Mobile hero intro — H.264 on R2 for iOS Safari (WebM unsupported before iOS 17.4). */
+export function resolveHomeHeroIntroMobileVideoMp4Url(
+  r2PublicUrl: string | undefined,
+): string | null {
+  return resolveMarketingR2AssetUrl(r2PublicUrl, HOME_HERO_INTRO_VIDEO_MOBILE_MP4_R2_KEY);
+}
+
+/** Legacy hero slide — ping-pong logo mark video on R2. */
+export function resolveHomeHeroLogoMarkVideoUrl(
+  r2PublicUrl: string | undefined,
+): string | null {
+  return resolveMarketingR2AssetUrl(r2PublicUrl, HOME_HERO_LOGO_MARK_VIDEO_R2_KEY);
 }
 
 export function hasHomeHeroIntroVideo(r2PublicUrl: string | undefined): boolean {
-  return (
-    resolveHomeHeroIntroVideoUrl(r2PublicUrl) !== null ||
-    resolveHomeHeroIntroMobileVideoUrl().length > 0
-  );
+  return resolveHomeHeroIntroMobileVideoUrl(r2PublicUrl) !== null;
 }
 
 const MOBILE_CTA_WIDTH_PX = 342.48;

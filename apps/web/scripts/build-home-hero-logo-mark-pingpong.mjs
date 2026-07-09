@@ -6,12 +6,10 @@ import ffmpegStatic from "ffmpeg-static";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const webRoot = join(scriptDir, "..");
-const inputPath = join(
-  webRoot,
-  "public/marketing/home/hero/home-hero-logo-mark-source.mp4",
-);
-const legacyInputPath = join(webRoot, "public/marketing/home/hero/home-hero-logo-mark.mp4");
-const outputPath = join(webRoot, "public/marketing/home/hero/home-hero-logo-mark.mp4");
+const assetsHeroDir = join(webRoot, "assets/marketing/home/hero");
+const inputPath = join(assetsHeroDir, "home-hero-logo-mark-source.mp4");
+const legacyInputPath = join(assetsHeroDir, "home-hero-logo-mark.mp4");
+const outputPath = join(assetsHeroDir, "home-hero-logo-mark.mp4");
 
 const sourcePath = existsSync(inputPath) ? inputPath : legacyInputPath;
 
