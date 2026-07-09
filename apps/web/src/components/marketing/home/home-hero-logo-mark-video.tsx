@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
+import { createHomeHeroLogoMarkPingPongPlayback } from "@/components/marketing/home/home-hero-logo-mark-video-playback";
 import { useOptionalHomeHeroSlide } from "@/components/marketing/home/home-hero-slide-context";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
@@ -65,23 +66,22 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
       return;
     }
 
-    const playFromStart = (): void => {
-      video.currentTime = 0;
-      void video.play().catch(() => {
-        /* Autoplay may be blocked until user gesture. */
-      });
+    const playback = createHomeHeroLogoMarkPingPongPlayback(video);
+
+    const startWhenReady = (): void => {
+      playback.startFromBeginning();
     };
 
     if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-      playFromStart();
-      return;
+      startWhenReady();
+    } else {
+      video.addEventListener("loadeddata", startWhenReady, { once: true });
+      video.load();
     }
 
-    video.addEventListener("loadeddata", playFromStart, { once: true });
-    video.load();
-
     return () => {
-      video.removeEventListener("loadeddata", playFromStart);
+      video.removeEventListener("loadeddata", startWhenReady);
+      playback.stop();
     };
   }, [shouldPlay]);
 
@@ -102,8 +102,6 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
               className={styles.homeHeroLogoVideoLayer}
               src={HOME_HERO_ASSETS.heroLogoMarkVideo}
               muted
-              loop
-              autoPlay
               playsInline
               preload="auto"
               aria-hidden
