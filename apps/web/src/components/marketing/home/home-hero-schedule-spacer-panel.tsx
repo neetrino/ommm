@@ -1,10 +1,14 @@
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import {
   HOME_HERO_SCHEDULE_SPACER_LAYOUT,
-  HOME_PRESALE_PACKAGES_PANEL_MIN_HEIGHT,
 } from "@/components/marketing/home/home-hero-schedule-spacer-tokens";
 import spacerStyles from "@/components/marketing/home/home-hero-schedule-spacer-panel.module.css";
+import { MARKETING_INNER_PAGE_CONTAINER_CLASS } from "@/components/marketing/marketing-content-layout";
+import alignStyles from "@/components/marketing/marketing-inner-page-align.module.css";
+import { MarketingMembershipPackagesSkeleton } from "@/components/marketing/packages/marketing-membership-packages-skeleton";
+import { MarketingPackagesPageContent } from "@/components/marketing/packages/marketing-packages-page-content";
 import scheduleStyles from "@/components/marketing/home/home-weekly-schedule-banner.module.css";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
@@ -40,7 +44,6 @@ export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSp
           HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionBottomGap,
         ["--home-spacer-section-bottom-gap-lg" as string]:
           HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionBottomGap,
-        ["--home-presale-panel-min-height" as string]: HOME_PRESALE_PACKAGES_PANEL_MIN_HEIGHT,
         ["--home-schedule-section-px" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPaddingX,
         ["--home-schedule-panel-inner-px" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelInnerPaddingX,
@@ -66,12 +69,14 @@ export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSp
           HOME_WEEKLY_SCHEDULE_LAYOUT.titleLineHeight,
         ),
         ["--home-schedule-heading-max-width-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.headingMaxWidth,
+        ["--home-schedule-panel-content-width" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelContentWidth,
       }}
     >
       <div className={scheduleStyles.shell}>
-        <HomePageReveal index={0} className={scheduleStyles.panel}>
-          <div className={`${scheduleStyles.inner} ${spacerStyles.presaleInner}`}>
-            <header className={scheduleStyles.header}>
+        <HomePageReveal index={0} className={`${scheduleStyles.panel} ${spacerStyles.presalePanel}`}>
+          <div className={spacerStyles.presaleInner}>
+            <header className={`${scheduleStyles.header} ${spacerStyles.presaleHeader}`}>
               <h2
                 id="home-presale-packages-heading"
                 className={`${scheduleStyles.title} font-serif font-semibold tracking-tight text-balance`}
@@ -79,6 +84,16 @@ export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSp
                 {t("presalePackagesTitle")}
               </h2>
             </header>
+
+            <div
+              className={`${MARKETING_INNER_PAGE_CONTAINER_CLASS} ${spacerStyles.presalePackagesShell}`}
+            >
+              <div className={`${alignStyles.innerPageContent} ${spacerStyles.presalePackagesWrap}`}>
+                <Suspense fallback={<MarketingMembershipPackagesSkeleton />}>
+                  <MarketingPackagesPageContent locale={locale} />
+                </Suspense>
+              </div>
+            </div>
           </div>
         </HomePageReveal>
       </div>

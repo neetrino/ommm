@@ -14,6 +14,3 @@ export const HOME_HERO_SCHEDULE_SPACER_LAYOUT = {
   sectionPanelTopInsetLg: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPanelTopInset,
   sectionBottomGap: "0px",
 } as const;
-
-/** Matches weekly schedule loading shell — keeps presale panel height aligned with schedule. */
-export const HOME_PRESALE_PACKAGES_PANEL_MIN_HEIGHT = "clamp(22rem,55vw,36rem)";
