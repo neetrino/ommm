@@ -3,9 +3,7 @@ import {
   HOME_CLASSES_SECTION_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-classes-section-tokens";
 import {
-  HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
-  HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA,
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 

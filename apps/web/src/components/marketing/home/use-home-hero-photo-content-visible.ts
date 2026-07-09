@@ -19,18 +19,23 @@ export function useHomeHeroPhotoContentVisible(
   isLegacyPhotoActive: boolean,
   rootRef: RefObject<HTMLElement | null>,
 ): boolean {
-  const [visible, setVisible] = useState(isLegacyPhotoActive);
+  const [fadeComplete, setFadeComplete] = useState(isLegacyPhotoActive);
+  const [prevLegacyActive, setPrevLegacyActive] = useState(isLegacyPhotoActive);
+
+  if (prevLegacyActive !== isLegacyPhotoActive) {
+    setPrevLegacyActive(isLegacyPhotoActive);
+    setFadeComplete(false);
+  }
 
   useEffect(() => {
     if (!isLegacyPhotoActive) {
-      setVisible(false);
       return;
     }
 
     let cancelled = false;
     const markVisible = (): void => {
       if (!cancelled) {
-        setVisible(true);
+        setFadeComplete(true);
       }
     };
 
@@ -75,5 +80,5 @@ export function useHomeHeroPhotoContentVisible(
     };
   }, [isLegacyPhotoActive, rootRef]);
 
-  return visible;
+  return isLegacyPhotoActive && fadeComplete;
 }

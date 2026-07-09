@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 import styles from "@/components/marketing/story/marketing-story-values-section.module.css";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
@@ -100,12 +102,13 @@ export async function MarketingStoryValuesSection({ locale }: MarketingStoryValu
                   <p className={styles.body}>{t(card.bodyKey)}</p>
                 </div>
                 <div className={styles.media}>
-                  <img
+                  <Image
                     src={card.imageSrc}
                     alt=""
+                    fill
+                    sizes="(min-width: 900px) 33vw, 100vw"
                     className={`${styles.image} ${card.imageClassName ?? ""}`}
-                    loading="lazy"
-                    decoding="async"
+                    {...belowFoldImageProps()}
                   />
                 </div>
               </article>

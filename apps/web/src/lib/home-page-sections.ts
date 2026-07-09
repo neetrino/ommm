@@ -16,7 +16,6 @@ export {
 
 import {
   HOME_PAGE_SECTION_DEFINITIONS,
-  HOME_PAGE_SECTION_KEYS,
   normalizeHomePageSectionVisibility,
   type HomePageSectionKey,
   type HomePageSectionVisibility,

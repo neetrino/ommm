@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { lcpImageProps } from "@/lib/image-loading-props";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import styles from "@/components/marketing/story/marketing-story-hero.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
@@ -55,13 +57,13 @@ export async function MarketingStoryHero({ locale }: MarketingStoryHeroProps) {
         style={HERO_LAYOUT_STYLE}
       >
         <div className={styles.background} aria-hidden>
-          <img
+          <Image
             src={STORY_PAGE_ASSETS.heroBackground}
             alt=""
+            fill
+            sizes="100vw"
             className={styles.backgroundImage}
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
+            {...lcpImageProps()}
           />
         </div>
 

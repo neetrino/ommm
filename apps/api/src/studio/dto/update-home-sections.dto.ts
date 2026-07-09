@@ -29,7 +29,9 @@ class HomePageSectionVisibilityMapConstraint implements ValidatorConstraintInter
       return false;
     }
 
-    return HOME_PAGE_SECTION_KEYS.every((key) => typeof record[key] === 'boolean');
+    return HOME_PAGE_SECTION_KEYS.every(
+      (key) => typeof record[key] === 'boolean',
+    );
   }
 
   defaultMessage(args: ValidationArguments): string {

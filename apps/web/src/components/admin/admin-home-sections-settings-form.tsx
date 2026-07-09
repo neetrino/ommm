@@ -44,12 +44,14 @@ export function AdminHomeSectionsSettingsForm({
   const [sections, setSections] = useState<HomePageSectionVisibility>(() =>
     normalizeHomePageSectionVisibility(initial),
   );
+  const [prevInitial, setPrevInitial] = useState(initial);
   const [savingKey, setSavingKey] = useState<HomePageSectionKey | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
 
-  useEffect(() => {
+  if (prevInitial !== initial) {
+    setPrevInitial(initial);
     setSections(normalizeHomePageSectionVisibility(initial));
-  }, [initial]);
+  }
 
   const bannerDefinitions = useMemo(
     () => getHomePageSectionDefinitionsByGroup("homeBanner", { adminConfigurableOnly: true }),
