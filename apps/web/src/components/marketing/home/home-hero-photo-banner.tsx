@@ -203,6 +203,10 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.edgeCropScale,
         ),
         ["--home-hero-logo-video-offset-y-lg" as string]: `${HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.offsetYDesktopPx}px`,
+        ["--home-hero-logo-video-offset-y-mobile" as string]:
+          HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.offsetYMobile,
+        ["--home-hero-logo-video-width-mobile" as string]:
+          HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.mobileWidth,
         ["--home-hero-logo-margin-top-lg" as string]: "-1.5rem",
         ["--home-hero-logo-margin-top-air" as string]: `${HOME_HERO_IPAD_AIR_LAYOUT.logoMarginTopPx}px`,
         ["--home-hero-subtitle-size" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleFontSize,

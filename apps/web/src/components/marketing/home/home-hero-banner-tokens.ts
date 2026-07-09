@@ -159,6 +159,10 @@ const HOME_HERO_LOGO_MARK_VIDEO_MOBILE_INNER_SIZE_RATIO =
 /** Extra scale-down — video ball reads larger than the static raster at matched crop. */
 const HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST = 0.60;
 
+/** Mobile legacy slide — video mark reads smaller than Figma; boost size + width. */
+const HOME_HERO_LOGO_MARK_VIDEO_MOBILE_SIZE_BOOST = 1.42;
+const HOME_HERO_LOGO_MARK_VIDEO_MOBILE_WIDTH_ARTBOARD_PX = 304;
+
 /** Desktop — static mark `object-position: 44% 36%` leaves a small inset vs full frame. */
 const HOME_HERO_LOGO_MARK_VIDEO_DESKTOP_INNER_SIZE_RATIO = 0.9;
 
@@ -166,15 +170,21 @@ const HOME_HERO_LOGO_MARK_VIDEO_DESKTOP_INNER_SIZE_RATIO = 0.9;
 const HOME_HERO_LOGO_MARK_VIDEO_EDGE_CROP_SCALE = 1.14;
 
 const HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_DESKTOP_PX = 80;
+const HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_MOBILE_PX = 32;
 
 /** Legacy hero slide — ball sizing matched to static mark. */
 export const HOME_HERO_LOGO_MARK_VIDEO_LAYOUT = {
   mobileInnerSizeRatio:
-    HOME_HERO_LOGO_MARK_VIDEO_MOBILE_INNER_SIZE_RATIO * HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST,
+    HOME_HERO_LOGO_MARK_VIDEO_MOBILE_INNER_SIZE_RATIO *
+    HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST *
+    HOME_HERO_LOGO_MARK_VIDEO_MOBILE_SIZE_BOOST,
+  mobileWidth: `clamp(10rem, calc(100svw * ${HOME_HERO_LOGO_MARK_VIDEO_MOBILE_WIDTH_ARTBOARD_PX} / ${HOME_HERO_MOBILE_FIGMA.artboardWidthPx}), 19rem)`,
   desktopInnerSizeRatio:
     HOME_HERO_LOGO_MARK_VIDEO_DESKTOP_INNER_SIZE_RATIO * HOME_HERO_LOGO_MARK_VIDEO_SIZE_ADJUST,
   edgeCropScale: HOME_HERO_LOGO_MARK_VIDEO_EDGE_CROP_SCALE,
   offsetYDesktopPx: HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_DESKTOP_PX,
+  offsetYMobilePx: HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_MOBILE_PX,
+  offsetYMobile: `calc(100svw * ${HOME_HERO_LOGO_MARK_VIDEO_OFFSET_Y_MOBILE_PX} / ${HOME_HERO_MOBILE_FIGMA.artboardWidthPx})`,
 } as const;
 
 /** Must match `HOME_HERO_CAROUSEL_SLIDES.length` in home-hero-slide-context. */

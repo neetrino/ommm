@@ -308,6 +308,11 @@
     object-position: var(--home-hero-bg-position-mobile, center top);
   }
 
+  .homeHeroLogoMarkVideo {
+    width: var(--home-hero-logo-video-width-mobile, var(--home-hero-logo-width));
+    transform: translateX(-50%) translateY(var(--home-hero-logo-video-offset-y-mobile, 0));
+  }
+
   .homeHeroFrame {
     overflow: visible;
   }
