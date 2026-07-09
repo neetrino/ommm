@@ -16,6 +16,7 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
       typeof row.showPricePerSession === "boolean" ? row.showPricePerSession : true,
     availableQuantity:
       typeof row.availableQuantity === "number" ? row.availableQuantity : null,
+    startDate: typeof row.startDate === "string" ? row.startDate : null,
     typeSessionAllocations: Array.isArray(row.typeSessionAllocations)
       ? row.typeSessionAllocations.filter(
           (allocation): allocation is PackageTypeSessionAllocation =>
@@ -50,6 +51,7 @@ export type AdminPackageRow = {
   currency: string;
   billingPeriod: string;
   periodDays: number;
+  startDate?: string | null;
   features: string[];
   buttonLabel: string;
   isPopular: boolean;

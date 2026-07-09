@@ -166,7 +166,7 @@
   }
 
   .ommm-admin-accordion[data-expanded="true"] {
-    @apply min-h-0 justify-start pb-10 pt-8 sm:px-[41px];
+    @apply min-h-0 min-w-0 justify-start pb-10 pt-8 sm:px-[41px];
   }
 
   .ommm-admin-accordion-nested {

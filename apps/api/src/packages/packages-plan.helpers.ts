@@ -9,6 +9,7 @@ import {
   type PublicPlanSource,
   type StoredTypeSessionAllocation,
 } from './packages-plan.types';
+import { parsePlanStartDate } from './user-package-period.util';
 
 export function toPublicPlan(
   plan: PublicPlanSource,
@@ -27,6 +28,7 @@ export function toPublicPlan(
     currency: plan.currency,
     billingPeriod: plan.billingPeriod,
     periodDays: plan.periodDays,
+    startDate: formatPlanStartDateForApi(plan.startDate),
     sessionsPerMonth: plan.sessionsPerMonth,
     isUnlimited: plan.isUnlimited,
     isPopular: plan.isPopular,
@@ -57,6 +59,7 @@ export function toAdminPlanRow(plan: AdminPlanRecord) {
     currency: plan.currency,
     billingPeriod: plan.billingPeriod,
     periodDays: plan.periodDays,
+    startDate: formatPlanStartDateForApi(plan.startDate),
     features: plan.features,
     buttonLabel: plan.buttonLabel,
     isPopular: plan.isPopular,
@@ -125,6 +128,39 @@ export function normalizeNullableString(
 ): string | null {
   const trimmed = value?.trim() ?? '';
   return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * Parses optional YYYY-MM-DD plan start date for create/update.
+ * Empty string clears the value; undefined leaves the field unchanged.
+ */
+export function normalizeOptionalPlanStartDate(
+  value: string | null | undefined,
+): Date | null | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const trimmed = value?.trim() ?? '';
+  if (trimmed.length === 0) {
+    return null;
+  }
+  try {
+    return parsePlanStartDate(trimmed);
+  } catch {
+    throw new BadRequestException('Invalid package start date');
+  }
+}
+
+function formatPlanStartDateForApi(
+  value: Date | null | undefined,
+): string | null {
+  if (value == null) {
+    return null;
+  }
+  const year = value.getUTCFullYear();
+  const month = String(value.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(value.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function normalizeFeatures(value: string[] | undefined): string[] {

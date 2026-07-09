@@ -7,6 +7,7 @@ import {
   normalizeCurrency,
   normalizeFeatures,
   normalizeNullableString,
+  normalizeOptionalPlanStartDate,
   normalizeSessionsPerMonth,
   normalizeSlug,
   requireNonEmptyString,
@@ -121,6 +122,7 @@ export function buildCreatePlanData(
     currency: normalizeCurrency(dto.currency),
     billingPeriod: dto.billingPeriod ?? DEFAULT_BILLING_PERIOD,
     periodDays: dto.periodDays ?? DEFAULT_PERIOD_DAYS,
+    startDate: normalizeOptionalPlanStartDate(dto.startDate) ?? null,
     sessionsPerMonth:
       resolvedTypeSessions?.totalSessions ?? normalizeSessionsPerMonth(dto),
     isUnlimited: dto.isUnlimited ?? false,
@@ -180,6 +182,9 @@ export function buildUpdatePlanData(
       ? { billingPeriod: resolveBillingPeriod(dto.billingPeriod) }
       : {}),
     ...(dto.periodDays !== undefined ? { periodDays: dto.periodDays } : {}),
+    ...(dto.startDate !== undefined
+      ? { startDate: normalizeOptionalPlanStartDate(dto.startDate) ?? null }
+      : {}),
     ...(dto.sessionsPerMonth !== undefined
       ? { sessionsPerMonth: dto.sessionsPerMonth }
       : resolvedTypeSessions !== undefined

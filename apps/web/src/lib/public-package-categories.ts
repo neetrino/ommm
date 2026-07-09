@@ -131,6 +131,19 @@ export function resolveCategoryCardPriceCents(plans: readonly PublicPackagePlan[
   return { finalCents, originalCents };
 }
 
+/** Earliest configured start date among priced tiers for category cards. */
+export function resolveCategoryCardStartDate(
+  plans: readonly PublicPackagePlan[],
+): string | null {
+  const startDates = listConfiguredPublicPackagePlans(plans)
+    .map((plan) => plan.startDate?.trim() ?? "")
+    .filter((value) => value.length > 0);
+  if (startDates.length === 0) {
+    return null;
+  }
+  return [...startDates].sort()[0] ?? null;
+}
+
 export function resolveCategoryStartingPriceCents(
   plans: readonly PublicPackagePlan[],
 ): number {

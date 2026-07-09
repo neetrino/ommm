@@ -1067,7 +1067,7 @@ html {
   }
 
   .ommm-admin-accordion[data-expanded="true"] {
-    @apply min-h-0 justify-start pb-10 pt-8 sm:px-[41px];
+    @apply min-h-0 min-w-0 justify-start pb-10 pt-8 sm:px-[41px];
   }
 
   .ommm-admin-accordion-nested {
@@ -1075,26 +1075,36 @@ html {
   }
 
   .ommm-admin-packages-table {
-    overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    @apply min-w-0;
   }
 
-  .ommm-admin-packages-table::-webkit-scrollbar {
-    display: none;
+  .ommm-admin-packages-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
   }
 
   .ommm-admin-packages-table-grid,
   .ommm-admin-packages-table-row-layout {
     display: grid;
     width: 100%;
-    grid-template-columns: repeat(7, minmax(0, 1fr)) minmax(4.5rem, auto);
+    min-width: var(--ommm-admin-packages-table-min-width, 60rem);
+    grid-template-columns:
+      minmax(11rem, 2.2fr)
+      minmax(5.5rem, 0.8fr)
+      minmax(5.5rem, 0.85fr)
+      minmax(4.75rem, 0.7fr)
+      minmax(4.25rem, 0.55fr)
+      minmax(4.25rem, 0.55fr)
+      minmax(5.75rem, 0.75fr)
+      minmax(5.5rem, 0.7fr)
+      minmax(4.5rem, auto);
     align-items: center;
     column-gap: 1rem;
   }
 
   .ommm-admin-packages-table-row-layout {
-    min-width: 0;
+    box-sizing: border-box;
   }
 
   .ommm-public-packages-table-grid {
@@ -1118,19 +1128,19 @@ html {
   }
 
   .ommm-admin-packages-table-header > div:not(.ommm-admin-packages-table-actions) {
-    @apply text-center leading-snug;
+    @apply text-center leading-snug whitespace-nowrap;
   }
 
   .ommm-admin-packages-table-header > div:first-child {
-    @apply pl-0 text-left;
+    @apply pl-0 text-left whitespace-normal;
   }
 
   .ommm-admin-packages-table-cell {
-    @apply flex min-h-11 items-center justify-center px-2 text-center text-sm font-medium text-[#1b1c1a] sm:text-base;
+    @apply flex min-h-11 items-center justify-center px-2 text-center text-sm font-medium text-[#1b1c1a] whitespace-nowrap sm:text-base;
   }
 
   .ommm-admin-packages-table-cell--lead {
-    @apply justify-start pl-0 text-left;
+    @apply justify-start pl-0 text-left whitespace-normal;
   }
 
   .ommm-admin-packages-table-cell--emphasis {

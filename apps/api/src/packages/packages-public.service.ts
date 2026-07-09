@@ -34,6 +34,7 @@ import {
   buildUserPackagePlanSnapshot,
   resolveUserPackagePlan,
 } from './user-package-plan-snapshot.util';
+import { resolveUserPackagePeriodBounds } from './user-package-period.util';
 
 @Injectable()
 export class PackagesPublicService {
@@ -99,7 +100,12 @@ export class PackagesPublicService {
     }
     assertPackageHasAvailableStock(plan);
     const now = new Date();
-    const periodEnd = new Date(now.getTime() + plan.periodDays * 86_400_000);
+    const { currentPeriodStart, currentPeriodEnd } =
+      resolveUserPackagePeriodBounds({
+        planStartDate: plan.startDate,
+        purchasedAt: now,
+        periodDays: plan.periodDays,
+      });
     const paymentReference = createPaymentReference('PACKAGE');
     const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
 
@@ -112,8 +118,8 @@ export class PackagesPublicService {
           status: isCardPayment
             ? USER_PACKAGE_STATUS.PENDING
             : USER_PACKAGE_STATUS.ACTIVE,
-          currentPeriodStart: now,
-          currentPeriodEnd: periodEnd,
+          currentPeriodStart,
+          currentPeriodEnd,
           sessionsTotal: plan.isUnlimited ? null : (plan.sessionsPerMonth ?? 0),
           sessionsRemaining: plan.isUnlimited
             ? null

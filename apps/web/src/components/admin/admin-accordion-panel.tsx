@@ -155,7 +155,7 @@ export function AdminAccordionPanel({
           id={panelId}
           className={
             contentVariant === "table"
-              ? "mt-8"
+              ? "mt-8 min-w-0"
               : "mt-5 border-t border-white/50 pt-5"
           }
         >

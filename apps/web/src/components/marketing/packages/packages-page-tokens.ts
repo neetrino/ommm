@@ -53,7 +53,7 @@ export const PACKAGES_PAGE_CARD_FIGMA = {
 export const PACKAGES_PAGE_ACCORDION_FIGMA = {
   collapsedWidthPx: 120,
   accordionGapPx: 10,
-  expandedMinTableWidthPx: 640,
+  expandedMinTableWidthPx: 760,
   expandedTitleSizePx: 32,
   collapsedTitleSizePx: 22,
   collapsedPriceSizePx: 20,
@@ -130,6 +130,10 @@ export function resolvePackagesPageExpandedScrollHeightPx(): number {
     visibleTierBlockHeight
   );
 }
+
+/** Desktop expanded tier table — wider plan column for long mixed package names. */
+export const PACKAGES_PAGE_TIER_TABLE_COLUMNS =
+  "minmax(11rem, 2.5fr) minmax(3.25rem, 0.85fr) minmax(4.75rem, 1.05fr) minmax(4rem, 0.9fr) minmax(2.5rem, 0.5fr) minmax(5.75rem, 1.1fr)";
 
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,

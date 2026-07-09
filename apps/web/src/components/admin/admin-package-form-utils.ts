@@ -134,6 +134,7 @@ export type AdminPackageFormValues = {
   discountedPrice: string;
   pricePerSession: string;
   durationDays: string;
+  startDate: string;
   sessionsCount: string;
   guestCount: string;
   stockCount: string;
@@ -141,6 +142,29 @@ export type AdminPackageFormValues = {
   isActive: boolean;
   showPricePerSession: boolean;
 };
+
+export function formatPackageStartDateForForm(
+  value: string | null | undefined,
+): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return "";
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+  const year = parsed.getUTCFullYear();
+  const month = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPackageFormValues {
   return {
@@ -152,6 +176,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     discountedPrice: "",
     pricePerSession: "",
     durationDays: String(PACKAGE_DAYS_PER_MONTH),
+    startDate: "",
     sessionsCount: "1",
     guestCount: "",
     stockCount: "",
@@ -169,6 +194,7 @@ export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackag
     discountedPrice: "",
     pricePerSession: "",
     durationDays: "",
+    startDate: "",
     guestCount: "",
     stockCount: "",
   };
@@ -185,6 +211,7 @@ export function packageRowToFormValues(
   pricePerSessionCents?: number;
   periodDays: number;
   billingPeriod: string;
+  startDate?: string | null;
   isPopular: boolean;
   isActive: boolean;
   showPricePerSession?: boolean;
@@ -214,6 +241,7 @@ export function packageRowToFormValues(
       storedDiscountedPriceCents !== null ? String(storedDiscountedPriceCents) : "",
     pricePerSession: formatStoredPricePerSessionAmount(pkg),
     durationDays: periodDaysToFormDurationDays(pkg.periodDays),
+    startDate: formatPackageStartDateForForm(pkg.startDate),
     sessionsCount: String(sessions),
     guestCount:
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",

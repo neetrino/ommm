@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import type { TierFieldErrors } from "@/components/admin/admin-package-type-sessions.util";
 import {
   MAX_NAME_LENGTH,
@@ -21,10 +21,13 @@ import {
   type PackageTypeSessionFormEntry,
 } from "@/components/admin/admin-package-type-sessions.util";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
+import { DatePickerInput, type DatePickerInputHandle } from "@/components/ui/date-picker-input";
 import { AdminRequiredMark, ADMIN_INVALID_FIELD_CLASS } from "@/components/admin/admin-sheet-editable-field";
 
 const INLINE_INPUT_CLASS =
   "min-w-0 flex-1 border-0 bg-transparent p-0 text-sm tabular-nums text-sage-900 shadow-none placeholder:text-sage-500/60 focus:outline-none focus:ring-0";
+
+const INLINE_NUMBER_INPUT_CLASS = `${INLINE_INPUT_CLASS} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`;
 
 const MONEY_INLINE_CLASS = `${INLINE_INPUT_CLASS} !py-0 !pl-6 !pr-0`;
 
@@ -105,6 +108,8 @@ type TierIconFieldProps = {
   className?: string;
   required?: boolean;
   invalid?: boolean;
+  onIconClick?: () => void;
+  iconAriaLabel?: string;
 };
 
 function TierIconField({
@@ -114,6 +119,8 @@ function TierIconField({
   className = "",
   required = false,
   invalid = false,
+  onIconClick,
+  iconAriaLabel,
 }: TierIconFieldProps) {
   return (
     <label className={`flex min-w-0 flex-col gap-1 ${className}`.trim()}>
@@ -124,7 +131,18 @@ function TierIconField({
       <div
         className={`ommm-input flex min-h-10 items-center gap-2 !py-2 ${invalid ? ADMIN_INVALID_FIELD_CLASS : ""}`}
       >
-        <TierFieldIcon tone={tone} />
+        {onIconClick ? (
+          <button
+            type="button"
+            className="shrink-0 rounded-lg transition-opacity hover:opacity-80"
+            onClick={onIconClick}
+            aria-label={iconAriaLabel ?? label}
+          >
+            <TierFieldIcon tone={tone} />
+          </button>
+        ) : (
+          <TierFieldIcon tone={tone} />
+        )}
         {children}
       </div>
     </label>
@@ -153,6 +171,7 @@ export function AdminPackageTierCompactFields({
   onTypeSessionEntriesChange,
 }: AdminPackageTierCompactFieldsProps) {
   const t = useTranslations("adminPages.packages");
+  const startDatePickerRef = useRef<DatePickerInputHandle>(null);
 
   return (
     <div className="flex flex-col gap-4">
@@ -211,7 +230,7 @@ export function AdminPackageTierCompactFields({
           <input
             name="durationDays"
             type="number"
-            className={INLINE_INPUT_CLASS}
+            className={INLINE_NUMBER_INPUT_CLASS}
             min={MIN_PACKAGE_DURATION_DAYS}
             max={MAX_PACKAGE_DURATION_DAYS}
             step={1}
@@ -229,7 +248,7 @@ export function AdminPackageTierCompactFields({
           <input
             name="guestCount"
             type="number"
-            className={INLINE_INPUT_CLASS}
+            className={INLINE_NUMBER_INPUT_CLASS}
             min={MIN_PACKAGE_GUEST_COUNT}
             max={MAX_PACKAGE_GUEST_COUNT}
             step={1}
@@ -250,7 +269,7 @@ export function AdminPackageTierCompactFields({
           <input
             name="stockCount"
             type="number"
-            className={INLINE_INPUT_CLASS}
+            className={INLINE_NUMBER_INPUT_CLASS}
             min={MIN_PACKAGE_STOCK_COUNT}
             max={MAX_PACKAGE_STOCK_COUNT}
             step={1}
@@ -263,7 +282,28 @@ export function AdminPackageTierCompactFields({
             aria-invalid={fieldErrors.stockCount === true}
           />
         </TierIconField>
+
+        <TierIconField
+          tone="duration"
+          label={t("fieldStartDate")}
+          iconAriaLabel={t("fieldStartDate")}
+          onIconClick={() => startDatePickerRef.current?.togglePicker()}
+        >
+          <DatePickerInput
+            ref={startDatePickerRef}
+            name="startDate"
+            ariaLabel={t("fieldStartDate")}
+            value={values.startDate}
+            onChange={(nextValue) => onValuesChange({ startDate: nextValue })}
+            disabled={pending}
+            allowManualEntry
+            bare
+            showCalendarTrigger={false}
+            inputClassName={INLINE_INPUT_CLASS}
+          />
+        </TierIconField>
       </div>
+      <p className="text-xs text-sage-500">{t("fieldStartDateHint")}</p>
 
       <AdminPackageTypeSessionsFields
         entries={typeSessionEntries}

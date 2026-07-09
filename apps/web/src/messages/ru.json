@@ -359,6 +359,7 @@
     "packagesDetailsCta": "Подробнее",
     "packagesAccordionCloseAria": "Закрыть детали {name}",
     "packagesCardPriceFromPrefix": "От",
+    "packagesCardStartDate": "Начало {date}",
     "packagesBackToList": "Назад к пакетам",
     "packagesOpenDetailsAria": "Открыть детали пакета {name}",
     "packagesDetailsCloseBackdrop": "Закрыть детали пакета",
@@ -747,6 +748,7 @@
       "membershipDetailsPrice": "Цена",
       "membershipDetailsValidity": "Срок действия",
       "validityExpired": "Истёк",
+      "validityStartsOn": "Начинается {date}",
       "validityDaysRemaining": "{count, plural, one {Остался # день} few {Осталось # дня} many {Осталось # дней} other {Осталось # дня}}",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
@@ -1716,7 +1718,7 @@
             "description": "Страница Story и ссылка в навигации."
           },
           "schedule": {
-            "description": "Блок расписания на главной, превью занятий и страница Schedule."
+            "description": "Блок расписания на главной и страница Schedule."
           },
           "memberships": {
             "description": "Страница Packages и ссылка в навигации."
@@ -2877,6 +2879,7 @@
       "tableValidity": "Срок",
       "tableGuests": "Гости",
       "tableStockCount": "Кол-во",
+      "tableStartDate": "Дата начала",
       "validityDays": "{count} дн.",
       "validityMonths": "{count} мес.",
       "rowActionsAria": "Действия с пакетом",
@@ -2990,6 +2993,8 @@
       "fieldSessionsCountPlaceholder": "напр. 10",
       "sessionsCountInvalid": "Введите целое число сеансов от 1 до 999.",
       "fieldValidityHint": "Отображается в колонке «Срок».",
+      "fieldStartDate": "Дата начала (необязательно)",
+      "fieldStartDateHint": "Если указана, срок действия пакета начинается с этой даты, а не с даты покупки.",
       "saveTierButton": "Добавить пакет",
       "editTierTitle": "Редактировать пакет",
       "editTierDescription": "Измените название, цену, срок, гостей и типы занятий для этого пакета.",

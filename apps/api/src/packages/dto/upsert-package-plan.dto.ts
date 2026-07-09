@@ -3,6 +3,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsDateString,
   IsInt,
   IsOptional,
   IsString,
@@ -98,6 +99,11 @@ export class UpsertPackagePlanDto {
   @Min(1)
   @Max(3650)
   periodDays?: number;
+
+  /** Optional calendar date when purchased packages begin their validity period. */
+  @IsOptional()
+  @IsDateString()
+  startDate?: string | null;
 
   @IsOptional()
   @IsInt()

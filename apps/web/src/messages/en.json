@@ -359,6 +359,7 @@
     "packagesDetailsCta": "Details",
     "packagesAccordionCloseAria": "Close {name} details",
     "packagesCardPriceFromPrefix": "From",
+    "packagesCardStartDate": "Starts {date}",
     "packagesBackToList": "Back to packages",
     "packagesOpenDetailsAria": "View package details for {name}",
     "packagesDetailsCloseBackdrop": "Close package details",
@@ -747,6 +748,7 @@
       "membershipDetailsPrice": "Price",
       "membershipDetailsValidity": "Validity",
       "validityExpired": "Expired",
+      "validityStartsOn": "Starts on {date}",
       "validityDaysRemaining": "{count, plural, one {# day remaining} other {# days remaining}}",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
@@ -1718,7 +1720,7 @@
             "description": "Story page and navigation link."
           },
           "schedule": {
-            "description": "Weekly schedule banner, classes preview on home, and Schedule page."
+            "description": "Weekly schedule banner on home and Schedule page."
           },
           "memberships": {
             "description": "Packages page and navigation link."
@@ -2878,6 +2880,7 @@
       "tableValidity": "Validity",
       "tableGuests": "Guests",
       "tableStockCount": "Count",
+      "tableStartDate": "Start date",
       "validityDays": "{count} Days",
       "validityMonths": "{count} Months",
       "rowActionsAria": "Package actions",
@@ -2991,6 +2994,8 @@
       "fieldSessionsCountPlaceholder": "e.g. 10",
       "sessionsCountInvalid": "Enter a whole number of sessions from 1 to 999.",
       "fieldValidityHint": "Shown in the Validity column.",
+      "fieldStartDate": "Start date (optional)",
+      "fieldStartDateHint": "When set, the package validity period begins on this date instead of the purchase date.",
       "saveTierButton": "Add package",
       "editTierTitle": "Edit package",
       "editTierDescription": "Update name, price, validity, guests, and session types for this package.",

@@ -1,8 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { formatDateForUi } from "@/lib/date-display";
+import {
+  formatBirthdayInput,
+  formatDateForUi,
+  formatIsoDateToUi,
+  parseBirthdayDisplayToIso,
+} from "@/lib/date-display";
 import { DatePickerCalendarPopup } from "@/components/ui/date-picker-calendar-popup";
 import { DatePickerCalendarGlyph } from "@/components/ui/date-picker-icons";
 import {
@@ -26,19 +31,45 @@ export type DatePickerInputProps = {
   required?: boolean;
   ariaLabel?: string;
   placeholder?: string;
+  /** Enables DD/MM/YYYY typing alongside the calendar picker. */
+  allowManualEntry?: boolean;
+  /** Skips the outer `ommm-input` shell for embedding in compact fields. */
+  bare?: boolean;
+  inputClassName?: string;
+  containerClassName?: string;
+  /** Hides the inline calendar button (e.g. when an external icon opens the picker). */
+  showCalendarTrigger?: boolean;
 };
 
-export function DatePickerInput({
-  id,
-  name,
-  value,
-  onChange,
-  disabled = false,
-  required = false,
-  ariaLabel,
-  placeholder = "DD/MM/YYYY",
-}: DatePickerInputProps) {
+export type DatePickerInputHandle = {
+  openPicker: () => void;
+  togglePicker: () => void;
+};
+
+const DEFAULT_MANUAL_INPUT_CLASS =
+  "min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-sage-900 shadow-none placeholder:text-sage-500/60 focus:outline-none focus:ring-0";
+
+export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInputProps>(
+  function DatePickerInput(
+    {
+      id,
+      name,
+      value,
+      onChange,
+      disabled = false,
+      required = false,
+      ariaLabel,
+      placeholder = "DD/MM/YYYY",
+      allowManualEntry = false,
+      bare = false,
+      inputClassName = DEFAULT_MANUAL_INPUT_CLASS,
+      containerClassName = "",
+      showCalendarTrigger = true,
+    },
+    ref,
+  ) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const fieldShellRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const selectedDate = useMemo(() => parseIsoDate(value), [value]);
@@ -47,15 +78,58 @@ export function DatePickerInput({
   const [visibleMonth, setVisibleMonth] = useState<Date>(() =>
     startOfMonth(selectedDate ?? new Date()),
   );
+  const [manualDraft, setManualDraft] = useState("");
+  const [isManualFocused, setIsManualFocused] = useState(false);
+
   const closePicker = useCallback(() => {
     setIsOpen(false);
     setPopupPosition(null);
   }, []);
 
+  const openPicker = useCallback(() => {
+    if (disabled) {
+      return;
+    }
+    setIsOpen(true);
+    if (selectedDate !== null) {
+      setVisibleMonth(startOfMonth(selectedDate));
+    }
+  }, [disabled, selectedDate]);
+
+  const togglePicker = useCallback(() => {
+    if (disabled) {
+      return;
+    }
+    setIsOpen((prev) => {
+      if (prev) {
+        setPopupPosition(null);
+        return false;
+      }
+      openPicker();
+      return true;
+    });
+  }, [disabled, openPicker]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      openPicker,
+      togglePicker,
+    }),
+    [openPicker, togglePicker],
+  );
+
   const today = useMemo(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }, []);
+
+  const resolvedManualDisplay = useMemo(() => {
+    if (value.trim().length === 0) {
+      return "";
+    }
+    return formatIsoDateToUi(value);
+  }, [value]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -91,11 +165,12 @@ export function DatePickerInput({
   }, [closePicker, isOpen]);
 
   const updatePopupPosition = useCallback(() => {
-    if (!isOpen || triggerRef.current === null || typeof window === "undefined") {
+    const anchor = showCalendarTrigger ? triggerRef.current : fieldShellRef.current;
+    if (!isOpen || anchor === null || typeof window === "undefined") {
       return;
     }
 
-    const rect = triggerRef.current.getBoundingClientRect();
+    const rect = anchor.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const width = Math.max(
@@ -125,7 +200,7 @@ export function DatePickerInput({
       width,
       maxHeight: viewportHeight - DATE_PICKER_POPUP_EDGE_MARGIN * 2,
     });
-  }, [isOpen]);
+  }, [isOpen, showCalendarTrigger]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -146,6 +221,134 @@ export function DatePickerInput({
     };
   }, [isOpen, updatePopupPosition]);
 
+  const commitManualDraft = useCallback(
+    (draft: string) => {
+      const trimmed = draft.trim();
+      if (trimmed.length === 0) {
+        onChange("");
+        return;
+      }
+      const iso = parseBirthdayDisplayToIso(trimmed);
+      onChange(iso ?? "");
+    },
+    [onChange],
+  );
+
+  const calendarPopup =
+    isOpen && popupPosition !== null
+      ? createPortal(
+          <DatePickerCalendarPopup
+            popupRef={popupRef}
+            popupPosition={popupPosition}
+            visibleMonth={visibleMonth}
+            selectedDate={selectedDate}
+            today={today}
+            onPrevMonth={() => {
+              setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+            }}
+            onNextMonth={() => {
+              setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+            }}
+            onSelectDate={(isoDate) => {
+              onChange(isoDate);
+              closePicker();
+            }}
+            onClear={() => {
+              onChange("");
+              closePicker();
+            }}
+            onSelectToday={() => {
+              onChange(formatIsoDate(today));
+              setVisibleMonth(startOfMonth(today));
+              closePicker();
+            }}
+          />,
+          document.body,
+        )
+      : null;
+
+  const clearDateControl =
+    selectedDate !== null ? (
+      <button
+        type="button"
+        tabIndex={disabled ? -1 : 0}
+        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[15px] leading-none text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700"
+        onClick={(event) => {
+          event.stopPropagation();
+          if (!disabled) {
+            onChange("");
+          }
+        }}
+        aria-label="Clear date"
+      >
+        x
+      </button>
+    ) : null;
+
+  const calendarTrigger = showCalendarTrigger ? (
+    <button
+      ref={triggerRef}
+      type="button"
+      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700 disabled:pointer-events-none disabled:opacity-50"
+      aria-label={ariaLabel}
+      aria-haspopup="dialog"
+      aria-expanded={isOpen}
+      disabled={disabled}
+      onClick={togglePicker}
+    >
+      <DatePickerCalendarGlyph />
+    </button>
+  ) : null;
+
+  if (allowManualEntry) {
+    const manualValue = isManualFocused ? manualDraft : resolvedManualDisplay;
+    const fieldShellClass = bare
+      ? `flex min-w-0 flex-1 items-center gap-1 ${containerClassName}`.trim()
+      : `ommm-input flex min-h-11 items-center gap-2 ${containerClassName}`.trim();
+
+    return (
+      <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
+        <input type="hidden" name={name} value={value} required={required} />
+        <div className={fieldShellClass} ref={fieldShellRef}>
+          <input
+            id={id}
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={10}
+            className={inputClassName}
+            value={manualValue}
+            placeholder={placeholder}
+            aria-label={ariaLabel}
+            disabled={disabled}
+            onFocus={() => {
+              setManualDraft(resolvedManualDisplay);
+              setIsManualFocused(true);
+            }}
+            onChange={(event) => {
+              setManualDraft(formatBirthdayInput(event.target.value));
+            }}
+            onBlur={() => {
+              commitManualDraft(manualDraft);
+              setIsManualFocused(false);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                commitManualDraft(manualDraft);
+                setIsManualFocused(false);
+                event.currentTarget.blur();
+              }
+            }}
+          />
+          {clearDateControl}
+          {calendarTrigger}
+        </div>
+        {calendarPopup}
+      </div>
+    );
+  }
+
   const displayValue =
     selectedDate === null ? placeholder : formatDateForUi(selectedDate);
 
@@ -156,7 +359,7 @@ export function DatePickerInput({
         ref={triggerRef}
         id={id}
         type="button"
-        className="ommm-input flex min-h-11 items-center justify-between gap-2 text-left"
+        className={`ommm-input flex min-h-11 items-center justify-between gap-2 text-left ${containerClassName}`.trim()}
         aria-label={ariaLabel}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
@@ -165,9 +368,7 @@ export function DatePickerInput({
           setIsOpen((prev) => {
             const nextOpen = !prev;
             if (nextOpen) {
-              if (selectedDate !== null) {
-                setVisibleMonth(startOfMonth(selectedDate));
-              }
+              openPicker();
             } else {
               setPopupPosition(null);
             }
@@ -181,67 +382,12 @@ export function DatePickerInput({
           {displayValue}
         </span>
         <span className="inline-flex items-center gap-2 text-sage-500">
-          {selectedDate !== null ? (
-            <span
-              role="button"
-              tabIndex={disabled ? -1 : 0}
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[15px] leading-none transition-colors hover:bg-sand-100 hover:text-sage-700"
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!disabled) {
-                  onChange("");
-                }
-              }}
-              onKeyDown={(event) => {
-                if (disabled) {
-                  return;
-                }
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  onChange("");
-                }
-              }}
-              aria-label="Clear date"
-            >
-              x
-            </span>
-          ) : null}
+          {clearDateControl}
           <DatePickerCalendarGlyph />
         </span>
       </button>
-
-      {isOpen && popupPosition !== null
-        ? createPortal(
-            <DatePickerCalendarPopup
-              popupRef={popupRef}
-              popupPosition={popupPosition}
-              visibleMonth={visibleMonth}
-              selectedDate={selectedDate}
-              today={today}
-              onPrevMonth={() => {
-                setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-              }}
-              onNextMonth={() => {
-                setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-              }}
-              onSelectDate={(isoDate) => {
-                onChange(isoDate);
-                closePicker();
-              }}
-              onClear={() => {
-                onChange("");
-                closePicker();
-              }}
-              onSelectToday={() => {
-                onChange(formatIsoDate(today));
-                setVisibleMonth(startOfMonth(today));
-                closePicker();
-              }}
-            />,
-            document.body,
-          )
-        : null}
+      {calendarPopup}
     </div>
   );
-}
+},
+);

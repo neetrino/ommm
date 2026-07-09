@@ -369,6 +369,7 @@
     "packagesDetailsCta": "Մանրամասներ",
     "packagesAccordionCloseAria": "Փակել {name}-ի մանրամասները",
     "packagesCardPriceFromPrefix": "Սկսած",
+    "packagesCardStartDate": "Սկսվում է {date}-ից",
     "packagesBackToList": "Վերադառնալ փաթեթներ",
     "packagesOpenDetailsAria": "Դիտել {name} փաթեթի մանրամասները",
     "packagesDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",
@@ -757,6 +758,7 @@
       "membershipDetailsPrice": "Գին",
       "membershipDetailsValidity": "Վավերականություն",
       "validityExpired": "Սպառված",
+      "validityStartsOn": "Սկսվում է {date}-ից",
       "validityDaysRemaining": "{count, plural, one {Մնաց # օր} other {Մնաց # օր}}",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
@@ -1728,7 +1730,7 @@
             "description": "Story էջը և նավիգացիայի հղումը։"
           },
           "schedule": {
-            "description": "Շաբաթական ժամանակացույցը, դասերի preview-ը գլխավոր էջում և Schedule էջը։"
+            "description": "Շաբաթական ժամանակացույցը գլխավոր էջում և Schedule էջը։"
           },
           "memberships": {
             "description": "Packages էջը և նավիգացիայի հղումը։"
@@ -2888,6 +2890,7 @@
       "tableValidity": "Վավերականություն",
       "tableGuests": "Հյուրեր",
       "tableStockCount": "Քանակ",
+      "tableStartDate": "Սկսման ամսաթիվ",
       "validityDays": "{count} օր",
       "validityMonths": "{count} ամիս",
       "rowActionsAria": "Փաթեթի գործողություններ",
@@ -3001,6 +3004,8 @@
       "fieldSessionsCountPlaceholder": "օր. 10",
       "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
       "fieldValidityHint": "Ցուցադրվում է Validity սյունակում։",
+      "fieldStartDate": "Սկսման ամսաթիվ (ոչ պարտադիր)",
+      "fieldStartDateHint": "Եթե լրացված է, փաթեթի տևողությունը հաշվարկվում է այս ամսաթվից, ոչ թե գնման օրվանից։",
       "saveTierButton": "Ավելացնել փաթեթ",
       "editTierTitle": "Խմբագրել փաթեթ",
       "editTierDescription": "Թարմացրեք անունը, գինը, ժամկետը, հյուրերին և session type-երը այս փաթեթի համար։",

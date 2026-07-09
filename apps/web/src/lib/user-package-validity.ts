@@ -1,4 +1,5 @@
 import type { UserMembershipRow } from "@/lib/user-package-types";
+import { formatDateForUi } from "@/lib/date-display";
 
 /** One validity day = 24 hours from activation, in milliseconds. */
 export const USER_PACKAGE_VALIDITY_DAY_MS = 24 * 60 * 60 * 1000;
@@ -53,6 +54,13 @@ export function formatMembershipValidityLabel(
   t: (key: string, values?: Record<string, string | number | Date>) => string,
   now: Date = new Date(),
 ): string {
+  const periodStart = parseTimestamp(membership.currentPeriodStart);
+  if (periodStart !== null && periodStart.getTime() > now.getTime()) {
+    return t("validityStartsOn", {
+      date: formatDateForUi(membership.currentPeriodStart),
+    });
+  }
+
   const remainingDays = computeRemainingValidityDays(membership, now);
   if (remainingDays <= 0) {
     return t("validityExpired");

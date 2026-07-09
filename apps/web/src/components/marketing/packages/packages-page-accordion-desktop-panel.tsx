@@ -9,6 +9,7 @@ import { PackagesPageAccordionTierTable } from "@/components/marketing/packages/
 import { PACKAGES_PAGE_VISIBLE_TIER_COUNT } from "@/components/marketing/packages/packages-page-tokens";
 import { PackagesPageCardFabImage } from "@/components/marketing/packages/packages-page-card-fab";
 import { PackagesPageCategoryCardPrice } from "@/components/marketing/packages/packages-page-category-card-price";
+import { PackagesPageCategoryCardStartDate } from "@/components/marketing/packages/packages-page-category-card-start-date";
 
 export function PackagesPageAccordionDesktopPanel({
   locale,
@@ -71,6 +72,10 @@ export function PackagesPageAccordionDesktopPanel({
               />
             </div>
           ) : null}
+          <PackagesPageCategoryCardStartDate
+            startDateLine={category.startDateLine}
+            className={cardStyles.cardStartDate}
+          />
         </div>
       ) : null}
 
@@ -86,6 +91,10 @@ export function PackagesPageAccordionDesktopPanel({
               originalPriceClassName={accordionStyles.collapsedPriceOriginal}
             />
           ) : null}
+          <PackagesPageCategoryCardStartDate
+            startDateLine={category.startDateLine}
+            className={accordionStyles.collapsedStartDate}
+          />
         </div>
       ) : null}
 

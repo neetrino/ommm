@@ -13,6 +13,7 @@ export type PublicPackagePlan = {
   currency: string;
   billingPeriod: string;
   periodDays: number;
+  startDate?: string | null;
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
   isPopular: boolean;
@@ -66,6 +67,10 @@ export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPacka
     discountedPriceCents: normalizedDiscount,
     finalPriceCents,
     guestCount: typeof plan.guestCount === "number" ? plan.guestCount : 0,
+    startDate:
+      typeof plan.startDate === "string" && plan.startDate.trim().length > 0
+        ? plan.startDate.trim()
+        : null,
     features: Array.isArray(plan.features) ? plan.features : [],
     typeSessionAllocations: Array.isArray(plan.typeSessionAllocations)
       ? plan.typeSessionAllocations

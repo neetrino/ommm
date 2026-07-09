@@ -69,6 +69,7 @@ export function buildAdminPackageFormSubmitPayload(
           : null
         : undefined,
     periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
+    startDate: values.startDate.trim().length > 0 ? values.startDate.trim() : null,
     billingPeriod: tierBillingPeriod,
     ...(typeSessionAllocations !== undefined ? { typeSessionAllocations } : {}),
   };
