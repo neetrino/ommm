@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { buildHomeWeeklyScheduleDays } from "@/components/marketing/home/build-home-weekly-schedule-days";
 import { getDefaultWeeklyScheduleDay } from "@/components/marketing/home/get-default-weekly-schedule-day";
 import { HomeWeeklyScheduleDayView } from "@/components/marketing/home/home-weekly-schedule-compact-view";
-import { HOME_WEEKLY_SCHEDULE_FALLBACK_ITEMS } from "@/components/marketing/home/home-weekly-schedule-fallback-items";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
@@ -39,7 +38,7 @@ function sortScheduleItems(items: readonly MarketingScheduleItem[]): MarketingSc
   });
 }
 
-/** Renders the shared public schedule data; fallback is used only when no live rows exist. */
+/** Renders live public schedule rows from the API. */
 export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyScheduleLiveGridProps) {
   const t = useTranslations("marketingPublic.home");
   const tSchedule = useTranslations("marketingPages.schedule");
@@ -65,8 +64,6 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
     () => sortScheduleItems(items.filter((item) => item.isActive)),
     [items],
   );
-  const usingFallback = activeItems.length === 0;
-  const displayItems = usingFallback ? HOME_WEEKLY_SCHEDULE_FALLBACK_ITEMS : activeItems;
 
   const labels = useMemo(
     () => ({
@@ -82,8 +79,8 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
     [t],
   );
 
-  const days = useMemo(() => buildHomeWeeklyScheduleDays(displayItems, labels), [displayItems, labels]);
-  const initialDay = usingFallback ? "MONDAY" : getDefaultWeeklyScheduleDay();
+  const days = useMemo(() => buildHomeWeeklyScheduleDays(activeItems, labels), [activeItems, labels]);
+  const initialDay = getDefaultWeeklyScheduleDay();
 
   return (
     <div
@@ -97,7 +94,7 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
         initialDay={initialDay}
         audience={audience}
         bookLabel={tSchedule("bookCta")}
-        bookingEnabled={!usingFallback}
+        bookingEnabled
         bookedBySessionId={bookedBySessionId}
         memberActionStateReady={memberActionStateReady}
         memberWaitlistLoaded={memberWaitlistLoaded}
