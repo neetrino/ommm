@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   parseHomePageSectionVisibilityJson,
   serializeHomePageSectionVisibility,
+  normalizeHomePageSectionVisibility,
   type HomePageSectionVisibility,
 } from '@ommm/database';
 import {
@@ -70,12 +71,13 @@ export class StudioService {
   }
 
   async updateHomeSections(sections: HomePageSectionVisibility) {
+    const normalized = normalizeHomePageSectionVisibility(sections);
     const current = await this.loadPublicFromDb();
     const updated = await this.prisma.studioSettings.update({
       where: { id: current.id },
       data: {
         homeSectionsVisibilityJson:
-          serializeHomePageSectionVisibility(sections),
+          serializeHomePageSectionVisibility(normalized),
       },
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);

@@ -2,6 +2,7 @@ import { cache } from "react";
 import {
   createDefaultHomePageSectionVisibility,
   filterMarketingNavLinks,
+  normalizeHomePageSectionVisibility,
   type HomePageSectionVisibility,
   type MarketingNavLinkDefinition,
 } from "@/lib/home-page-sections";
@@ -21,7 +22,9 @@ async function fetchHomeSectionsVisibilityCached(): Promise<HomePageSectionVisib
     return createDefaultHomePageSectionVisibility();
   }
 
-  return res.data.sections ?? createDefaultHomePageSectionVisibility();
+  return normalizeHomePageSectionVisibility(
+    res.data.sections ?? createDefaultHomePageSectionVisibility(),
+  );
 }
 
 /** Deduped per request; tagged cache with admin invalidation. */

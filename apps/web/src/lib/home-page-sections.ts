@@ -2,16 +2,21 @@ export {
   HOME_PAGE_SECTION_DEFINITIONS,
   HOME_PAGE_SECTION_KEYS,
   createDefaultHomePageSectionVisibility,
+  getHomePageSectionDefinitionsByGroup,
+  HOME_PAGE_ADMIN_VISIBILITY_KEYS,
   isHomePageSectionKey,
+  normalizeHomePageSectionVisibility,
   parseHomePageSectionVisibilityJson,
   serializeHomePageSectionVisibility,
   type HomePageSectionDefinition,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
+  type HomePageSectionVisibilityGroup,
 } from "@ommm/database/home-page-sections";
 
 import {
   HOME_PAGE_SECTION_DEFINITIONS,
+  normalizeHomePageSectionVisibility,
   type HomePageSectionKey,
   type HomePageSectionVisibility,
 } from "@ommm/database/home-page-sections";
@@ -60,10 +65,10 @@ export function resolveMarketingSectionKeyFromPath(
 }
 
 export function isHomeSectionEnabled(
-  visibility: HomePageSectionVisibility,
+  visibility: Partial<HomePageSectionVisibility> | HomePageSectionVisibility,
   key: HomePageSectionKey,
 ): boolean {
-  return visibility[key] !== false;
+  return normalizeHomePageSectionVisibility(visibility)[key];
 }
 
 /** Maps a marketing href (`/schedule`, `/packages`, …) to a section key. */

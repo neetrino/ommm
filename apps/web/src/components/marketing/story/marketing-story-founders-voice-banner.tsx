@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import styles from "@/components/marketing/story/marketing-story-founders-voice-banner.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
@@ -34,12 +36,13 @@ export async function MarketingStoryFoundersVoiceBanner({
         aria-labelledby="story-founder-voice-heading"
       >
         <div className={styles.portraitWrap}>
-          <img
+          <Image
             src={STORY_PAGE_ASSETS.founderPortrait}
             alt={t("founderVoicePortraitAlt")}
+            fill
+            sizes="(min-width: 768px) 42vw, 100vw"
             className={styles.portrait}
-            loading="lazy"
-            decoding="async"
+            {...belowFoldImageProps()}
           />
         </div>
         <div className={styles.copy}>

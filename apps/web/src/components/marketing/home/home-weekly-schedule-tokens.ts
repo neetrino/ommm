@@ -110,6 +110,8 @@ export const HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT = {
   sectionHeroOverlap: `calc(${mobileWeeklyScheduleSectionTopGap} + ${mobileWeeklySchedulePanelTopInsetPx}px)`,
   sectionPanelTopInset: `${mobileWeeklySchedulePanelTopInsetPx}px`,
   sectionOuterPaddingBottom: "clamp(1.5rem, calc(100svw * 32 / 394), 2.5rem)",
+  /** Gap below hero spacer panel — schedule stacks independently. */
+  sectionStackGap: "0px",
 } as const;
 
 /** Figma session row gradients — yellow, blue, peach (`196:1315` / `196:1334` / `196:1353`). */
@@ -176,6 +178,8 @@ export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
   sessionRowSpotsColumnWidth: "6.75rem",
   /** Fixed time track — aligns session times across desktop rows. */
   sessionRowTimeColumnWidth: "10.5rem",
+  /** Gap below hero spacer panel — schedule stacks independently. */
+  sectionStackGap: "0px",
 } as const;
 
 /** Overlaps hero — panel `z-10` sits on photo; Our Core Practices gradient overlaps from below. */

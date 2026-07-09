@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { HomeHeroPhotoBanner } from "@/components/marketing/home/home-hero-photo-banner";
+import { HomeHeroScheduleSpacerPanel } from "@/components/marketing/home/home-hero-schedule-spacer-panel";
 import { HomeWeeklyScheduleBanner } from "@/components/marketing/home/home-weekly-schedule-banner";
 import { HomeWeeklyScheduleBannerLoading } from "@/components/marketing/home/home-weekly-schedule-banner-loading";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -7,6 +8,7 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 type MarketingPublicHeroProps = {
   locale: string;
   showHero?: boolean;
+  showPresalePackages?: boolean;
   showScheduleBanner?: boolean;
 };
 
@@ -16,18 +18,31 @@ type MarketingPublicHeroProps = {
 export async function MarketingPublicHero({
   locale,
   showHero = true,
+  showPresalePackages = true,
   showScheduleBanner = true,
 }: MarketingPublicHeroProps) {
-  if (!showHero && !showScheduleBanner) {
+  const showHeroPanelOverlap = showPresalePackages || showScheduleBanner;
+
+  if (!showHero && !showPresalePackages && !showScheduleBanner) {
     return null;
   }
 
   return (
     <div className={`${marketingMontserrat.variable} w-full min-w-0`}>
-      {showHero ? <HomeHeroPhotoBanner locale={locale} /> : null}
+      {showHero ? (
+        <HomeHeroPhotoBanner locale={locale} showScheduleSpacer={showHeroPanelOverlap} />
+      ) : null}
+      {showPresalePackages ? <HomeHeroScheduleSpacerPanel locale={locale} /> : null}
       {showScheduleBanner ? (
-        <Suspense fallback={<HomeWeeklyScheduleBannerLoading />}>
-          <HomeWeeklyScheduleBanner locale={locale} />
+        <Suspense
+          fallback={
+            <HomeWeeklyScheduleBannerLoading stackBelowPresalePanel={showPresalePackages} />
+          }
+        >
+          <HomeWeeklyScheduleBanner
+            locale={locale}
+            stackBelowPresalePanel={showPresalePackages}
+          />
         </Suspense>
       ) : null}
     </div>

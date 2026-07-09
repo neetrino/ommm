@@ -47,6 +47,7 @@
     "packages": "Пакеты",
     "explore": "Материалы",
     "schedule": "Расписание",
+    "presalePackages": "Presale Packages",
     "contact": "Контакты"
   },
   "footer": {
@@ -125,6 +126,7 @@
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",
+      "presalePackagesTitle": "Presale Packages",
       "weeklyScheduleSubtitle": "Присоединяйтесь к нам в течение недели — занятия, подобранные под ваш wellness-путь.",
       "weeklyScheduleGridAria": "Недельное расписание по дням",
       "weeklyScheduleDayTabsAria": "Выберите день недели",
@@ -1694,7 +1696,11 @@
         "summaryLabel": "Обзор видимости",
         "summary": "Включено разделов: {count} из {total}",
         "statusNoticeTitle": "Будьте внимательны при изменении статуса раздела",
-        "statusNoticeDetail": "Отключение убирает его из навигации в шапке сайта.",
+        "statusNoticeDetail": "Баннеры главной скрывают блоки только на home page. Разделы сайта также влияют на навигацию в шапке и связанные страницы.",
+        "bannerGroupTitle": "Баннеры главной страницы",
+        "bannerGroupDescription": "Жёлтые панели только на home page — не добавляют ссылок в навигацию.",
+        "siteSectionGroupTitle": "Навигация и страницы сайта",
+        "siteSectionGroupDescription": "Ссылки в шапке и связанные с ними публичные страницы.",
         "save": "Сохранить видимость",
         "saving": "Сохранение...",
         "saved": "Видимость разделов обновлена.",
@@ -1708,8 +1714,10 @@
         "enableSectionButton": "Включить раздел",
         "confirmDisableTitle": "Отключить раздел «{section}»?",
         "confirmDisableDescription": "Этот раздел будет скрыт на публичном сайте — он исчезнет из навигации в шапке и с соответствующих страниц. Вы сможете включить его снова в любой момент.",
+        "confirmDisableBannerDescription": "Этот баннер будет скрыт только на home page. Навигация в шапке и другие страницы не изменятся. Вы сможете включить его снова в любой момент.",
         "confirmEnableTitle": "Включить раздел «{section}»?",
         "confirmEnableDescription": "Этот раздел снова станет видимым на публичном сайте — в навигации в шапке и на соответствующих страницах.",
+        "confirmEnableBannerDescription": "Этот баннер снова появится на home page. Навигация в шапке и другие страницы не изменятся.",
         "sections": {
           "home": {
             "description": "Главный баннер в верхней части домашней страницы."
@@ -1719,6 +1727,9 @@
           },
           "schedule": {
             "description": "Блок расписания на главной и страница Schedule."
+          },
+          "presalePackages": {
+            "description": "Баннер Presale packages на home page — не ссылка в навигации."
           },
           "memberships": {
             "description": "Страница Packages и ссылка в навигации."

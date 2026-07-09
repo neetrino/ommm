@@ -28,21 +28,23 @@ import {
   resolveHomeHeroLogoMarkVideoUrl,
   hasHomeHeroIntroVideo,
 } from "@/components/marketing/home/home-hero-banner-tokens";
-import {
-  HOME_WEEKLY_SCHEDULE_LAYOUT,
-  HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
-} from "@/components/marketing/home/home-weekly-schedule-tokens";
+import { HOME_HERO_SCHEDULE_SPACER_LAYOUT } from "@/components/marketing/home/home-hero-schedule-spacer-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroPhotoBannerProps = {
   locale: string;
+  /** Reserves hero overlap for the empty spacer panel above Weekly Schedule. */
+  showScheduleSpacer?: boolean;
 };
 
 /**
  * Figma hero `196:1404` (desktop) + mobile container `97:5656`.
  */
-export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) {
+export async function HomeHeroPhotoBanner({
+  locale,
+  showScheduleSpacer = false,
+}: HomeHeroPhotoBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
   const r2PublicUrl = process.env.R2_PUBLIC_URL;
   const heroIntroVideoUrl = resolveHomeHeroIntroVideoUrl(r2PublicUrl);
@@ -237,10 +239,12 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         ["--home-hero-cta-bottom" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsBottomOffset,
         ["--home-hero-cta-down-offset" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsDownOffset,
         ["--home-hero-cta-margin-top-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonsMarginTop,
-        ["--home-schedule-hero-overlap" as string]:
-          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
-        ["--home-schedule-hero-overlap-lg" as string]:
-          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
+        ["--home-schedule-hero-overlap" as string]: showScheduleSpacer
+          ? HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionHeroOverlap
+          : "0px",
+        ["--home-schedule-hero-overlap-lg" as string]: showScheduleSpacer
+          ? HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionHeroOverlapLg
+          : "0px",
   } as const;
 
   if (hasHeroIntroVideo && heroIntroMobileVideoUrl) {

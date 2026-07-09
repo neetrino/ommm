@@ -17,16 +17,21 @@ class HomePageSectionVisibilityMapConstraint implements ValidatorConstraintInter
     }
 
     const entries = Object.entries(value);
-    if (entries.length !== HOME_PAGE_SECTION_KEYS.length) {
+    if (entries.length === 0) {
       return false;
     }
 
-    return entries.every(([key, enabled]) => {
-      return (
-        (HOME_PAGE_SECTION_KEYS as readonly string[]).includes(key) &&
-        typeof enabled === 'boolean'
-      );
-    });
+    const record = value as Record<string, unknown>;
+    const hasOnlyKnownKeys = entries.every(([key]) =>
+      (HOME_PAGE_SECTION_KEYS as readonly string[]).includes(key),
+    );
+    if (!hasOnlyKnownKeys) {
+      return false;
+    }
+
+    return HOME_PAGE_SECTION_KEYS.every(
+      (key) => typeof record[key] === 'boolean',
+    );
   }
 
   defaultMessage(args: ValidationArguments): string {

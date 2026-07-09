@@ -1,21 +1,42 @@
 import styles from "@/components/marketing/home/home-weekly-schedule-banner.module.css";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
+  HOME_WEEKLY_SCHEDULE_LAYOUT,
   HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA,
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 
+type HomeWeeklyScheduleBannerLoadingProps = {
+  /** When true, presale panel above owns hero overlap — schedule stacks below it. */
+  stackBelowPresalePanel?: boolean;
+};
+
 /** Reserves weekly schedule space while `/schedule/public` streams in. */
-export function HomeWeeklyScheduleBannerLoading() {
+export function HomeWeeklyScheduleBannerLoading({
+  stackBelowPresalePanel = false,
+}: HomeWeeklyScheduleBannerLoadingProps) {
   return (
     <section
       aria-hidden
-      className={styles.section}
+      className={`${styles.section} ${stackBelowPresalePanel ? styles.sectionStacked : ""}`}
       style={{
-        ["--home-schedule-hero-overlap" as string]:
-          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
-        ["--home-schedule-panel-top-inset" as string]:
-          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPanelTopInset,
+        ...(stackBelowPresalePanel
+          ? {
+              ["--home-schedule-stack-gap" as string]:
+                HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionStackGap,
+              ["--home-schedule-stack-gap-lg" as string]:
+                HOME_WEEKLY_SCHEDULE_LAYOUT.sectionStackGap,
+            }
+          : {
+              ["--home-schedule-hero-overlap" as string]:
+                HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
+              ["--home-schedule-hero-overlap-lg" as string]:
+                HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
+              ["--home-schedule-panel-top-inset" as string]:
+                HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPanelTopInset,
+              ["--home-schedule-panel-top-inset-lg" as string]:
+                HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPanelTopInset,
+            }),
         ["--home-schedule-section-padding-bottom" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionOuterPaddingBottom,
         ["--home-schedule-section-px" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPaddingX,

@@ -27,8 +27,10 @@ export default async function MarketingHomePage({ params }: PageProps) {
 
   const visibility = await getHomeSectionsVisibility();
   const showSchedule = isHomeSectionEnabled(visibility, "schedule");
+  const showPresalePackages = isHomeSectionEnabled(visibility, "presalePackages");
   const showCoaches = isHomeSectionEnabled(visibility, "coaches");
   const showFooterContact = isHomeSectionEnabled(visibility, "contact");
+  const hasHeroPanelAboveClasses = showPresalePackages || showSchedule;
 
   return (
     <div
@@ -43,13 +45,14 @@ export default async function MarketingHomePage({ params }: PageProps) {
       <div className={homePageStyles.pageUpper}>
         <MarketingPublicHero
           locale={locale}
-          showHero={isHomeSectionEnabled(visibility, "home")}
+          showHero
+          showPresalePackages={showPresalePackages}
           showScheduleBanner={showSchedule}
         />
 
         <MarketingPublicHomeClassesSection
           locale={locale}
-          hasScheduleBannerAbove={showSchedule}
+          hasScheduleBannerAbove={hasHeroPanelAboveClasses}
         />
 
         {showCoaches ? (

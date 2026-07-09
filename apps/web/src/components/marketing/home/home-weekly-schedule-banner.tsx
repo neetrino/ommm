@@ -14,6 +14,8 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type HomeWeeklyScheduleBannerProps = {
   locale: string;
+  /** When true, presale panel above owns hero overlap — schedule stacks below it. */
+  stackBelowPresalePanel?: boolean;
 };
 
 /**
@@ -21,6 +23,7 @@ type HomeWeeklyScheduleBannerProps = {
  */
 export async function HomeWeeklyScheduleBanner({
   locale,
+  stackBelowPresalePanel = false,
 }: HomeWeeklyScheduleBannerProps) {
   const [t, heroT, { items }] = await Promise.all([
     getTranslations({ locale, namespace: "marketingPublic.home" }),
@@ -35,15 +38,27 @@ export async function HomeWeeklyScheduleBanner({
     <section
       aria-labelledby="home-weekly-schedule-heading"
       aria-describedby="home-weekly-schedule-subtitle"
-      className={`${marketingMontserrat.variable} ${styles.section}`}
+      className={`${marketingMontserrat.variable} ${styles.section} ${
+        stackBelowPresalePanel ? styles.sectionStacked : ""
+      }`}
       style={{
-        ["--home-schedule-hero-overlap" as string]:
-          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
-        ["--home-schedule-hero-overlap-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
-        ["--home-schedule-panel-top-inset" as string]:
-          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPanelTopInset,
-        ["--home-schedule-panel-top-inset-lg" as string]:
-          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPanelTopInset,
+        ...(stackBelowPresalePanel
+          ? {
+              ["--home-schedule-stack-gap" as string]:
+                HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionStackGap,
+              ["--home-schedule-stack-gap-lg" as string]:
+                HOME_WEEKLY_SCHEDULE_LAYOUT.sectionStackGap,
+            }
+          : {
+              ["--home-schedule-hero-overlap" as string]:
+                HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
+              ["--home-schedule-hero-overlap-lg" as string]:
+                HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
+              ["--home-schedule-panel-top-inset" as string]:
+                HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPanelTopInset,
+              ["--home-schedule-panel-top-inset-lg" as string]:
+                HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPanelTopInset,
+            }),
         ["--home-schedule-section-padding-bottom" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionOuterPaddingBottom,
         ["--home-schedule-section-padding-bottom-lg" as string]:
