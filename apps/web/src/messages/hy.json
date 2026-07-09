@@ -1730,7 +1730,7 @@
             "description": "Story էջը և նավիգացիայի հղումը։"
           },
           "schedule": {
-            "description": "Շաբաթական ժամանակացույցը, դասերի preview-ը գլխավոր էջում և Schedule էջը։"
+            "description": "Շաբաթական ժամանակացույցը գլխավոր էջում և Schedule էջը։"
           },
           "memberships": {
             "description": "Packages էջը և նավիգացիայի հղումը։"

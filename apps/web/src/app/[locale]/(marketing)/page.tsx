@@ -26,6 +26,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
   }
 
   const visibility = await getHomeSectionsVisibility();
+  const showSchedule = isHomeSectionEnabled(visibility, "schedule");
   const showCoaches = isHomeSectionEnabled(visibility, "coaches");
   const showFooterContact = isHomeSectionEnabled(visibility, "contact");
 
@@ -43,12 +44,13 @@ export default async function MarketingHomePage({ params }: PageProps) {
         <MarketingPublicHero
           locale={locale}
           showHero={isHomeSectionEnabled(visibility, "home")}
-          showScheduleBanner={isHomeSectionEnabled(visibility, "schedule")}
+          showScheduleBanner={showSchedule}
         />
 
-        {isHomeSectionEnabled(visibility, "schedule") ? (
-          <MarketingPublicHomeClassesSection locale={locale} />
-        ) : null}
+        <MarketingPublicHomeClassesSection
+          locale={locale}
+          hasScheduleBannerAbove={showSchedule}
+        />
 
         {showCoaches ? (
           <ProgressiveRevealSection

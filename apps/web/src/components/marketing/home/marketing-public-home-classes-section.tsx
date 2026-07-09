@@ -27,6 +27,8 @@ type ClassCardCopy = {
 
 type MarketingPublicHomeClassesSectionProps = {
   locale: string;
+  /** When false, skip negative overlap meant for the weekly schedule panel above. */
+  hasScheduleBannerAbove?: boolean;
 };
 
 /**
@@ -34,9 +36,22 @@ type MarketingPublicHomeClassesSectionProps = {
  */
 export async function MarketingPublicHomeClassesSection({
   locale,
+  hasScheduleBannerAbove = true,
 }: MarketingPublicHomeClassesSectionProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
   const cards = t.raw("classCards") as ClassCardCopy[];
+  const scheduleOverlap = hasScheduleBannerAbove
+    ? HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionClassesOverlap
+    : "0px";
+  const scheduleOverlapLg = hasScheduleBannerAbove
+    ? HOME_WEEKLY_SCHEDULE_LAYOUT.sectionClassesOverlap
+    : "0px";
+  const headingGapAdjust = hasScheduleBannerAbove
+    ? HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionToClassesHeadingGapAdjustPx
+    : 0;
+  const headingGapAdjustLg = hasScheduleBannerAbove
+    ? HOME_WEEKLY_SCHEDULE_LAYOUT.sectionToClassesHeadingGapAdjustPx
+    : 0;
 
   return (
     <section
@@ -45,18 +60,14 @@ export async function MarketingPublicHomeClassesSection({
       className={`${marketingMontserrat.variable} ${styles.section}`}
       style={{
         ["--home-classes-section-bg" as string]: HOME_CLASSES_SECTION_BACKGROUND,
-        ["--home-classes-schedule-overlap" as string]:
-          HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionClassesOverlap,
-        ["--home-classes-schedule-overlap-lg" as string]:
-          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionClassesOverlap,
+        ["--home-classes-schedule-overlap" as string]: scheduleOverlap,
+        ["--home-classes-schedule-overlap-lg" as string]: scheduleOverlapLg,
         ["--home-classes-section-py" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionPaddingY,
         ["--home-classes-section-py-lg" as string]: HOME_CLASSES_SECTION_LAYOUT.sectionPaddingY,
         ["--home-classes-section-px" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionPaddingX,
         ["--home-classes-section-gap" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionGap,
-        ["--home-classes-heading-gap-adjust" as string]:
-          `${HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionToClassesHeadingGapAdjustPx}px`,
-        ["--home-classes-heading-gap-adjust-lg" as string]:
-          `${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionToClassesHeadingGapAdjustPx}px`,
+        ["--home-classes-heading-gap-adjust" as string]: `${headingGapAdjust}px`,
+        ["--home-classes-heading-gap-adjust-lg" as string]: `${headingGapAdjustLg}px`,
         ["--home-classes-heading-color" as string]: HOME_CLASSES_SECTION_FIGMA.headingColor,
         ["--home-classes-subtitle-color" as string]: HOME_CLASSES_SECTION_FIGMA.subtitleColor,
         ["--home-classes-title-size" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.titleFontSize,

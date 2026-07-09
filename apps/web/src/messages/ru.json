@@ -1718,7 +1718,7 @@
             "description": "Страница Story и ссылка в навигации."
           },
           "schedule": {
-            "description": "Блок расписания на главной, превью занятий и страница Schedule."
+            "description": "Блок расписания на главной и страница Schedule."
           },
           "memberships": {
             "description": "Страница Packages и ссылка в навигации."
