@@ -177,8 +177,11 @@
 }
 
 .panelCollapsed {
+  position: relative;
+  display: grid;
   align-items: stretch;
-  justify-content: space-between;
+  justify-content: stretch;
+  grid-template-rows: auto 1fr auto;
   overflow: hidden;
   padding: 1.5625rem 0.75rem 0;
   text-align: center;
@@ -224,12 +227,30 @@
 }
 
 .collapsedTop {
+  position: relative;
+  z-index: 1;
+  grid-row: 1;
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
   gap: 1.25rem;
   text-align: center;
+}
+
+.collapsedMiddle {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0.75rem;
+  pointer-events: none;
+}
+
+.collapsedMiddle > * {
+  pointer-events: auto;
 }
 
 .collapsedTitle {
@@ -295,21 +316,11 @@
   white-space: nowrap;
 }
 
-.collapsedStartDate {
-  margin: 0 auto;
-  width: auto;
-  max-width: 100%;
-  font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: calc(var(--packages-page-collapsed-price-size) * 0.72);
-  font-weight: 600;
-  font-style: italic;
-  line-height: 1.25;
-  color: var(--packages-page-text-color);
-  text-align: center;
-  text-wrap: balance;
-}
-
 .panelFabFooter {
+  position: relative;
+  z-index: 1;
+  grid-row: 3;
+  align-self: end;
   display: flex;
   flex-shrink: 0;
   align-items: flex-end;
@@ -318,6 +329,8 @@
 }
 
 .collapsedFabWrap {
+  position: relative;
+  z-index: 1;
   justify-content: center;
 }
 

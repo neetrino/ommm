@@ -30,7 +30,11 @@ export async function MarketingPackagesPageContent({
 
   const categories = buildPackagesPageAccordionCategories(apiCategories, locale, {
     priceFromPrefix: m("packagesCardPriceFromPrefix"),
-    formatCardStartDate: (date) => m("packagesCardStartDate", { date }),
+    formatCardStartDateCopy: (date) => ({
+      purchaseLabel: m("packagesCardStartDatePurchase"),
+      attendFromPrefix: m("packagesCardStartDateAttendFromPrefix"),
+      attendFromDate: m("packagesCardStartDateAttendFromDate", { date }),
+    }),
   });
 
   return (

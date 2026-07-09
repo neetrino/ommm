@@ -55,12 +55,11 @@
 
 .card {
   position: relative;
-  display: flex;
+  display: grid;
   width: 100%;
   min-width: 0;
   aspect-ratio: var(--packages-page-card-aspect-ratio);
-  flex-direction: column;
-  justify-content: space-between;
+  grid-template-rows: auto 1fr auto;
   overflow: visible;
   border: none;
   border-radius: var(--packages-page-card-radius);
@@ -74,6 +73,9 @@
 }
 
 .cardTop {
+  position: relative;
+  z-index: 1;
+  grid-row: 1;
   display: flex;
   width: 100%;
   min-width: 0;
@@ -81,6 +83,32 @@
   align-items: center;
   gap: clamp(0.5rem, 4%, 1.5rem);
   text-align: center;
+}
+
+.cardMiddle {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: clamp(0.75rem, 9.6%, 1.1875rem);
+  pointer-events: none;
+}
+
+.cardMiddle > * {
+  pointer-events: auto;
+}
+
+.cardFooter {
+  position: relative;
+  z-index: 1;
+  grid-row: 3;
+  align-self: end;
+  display: flex;
+  min-height: var(--packages-page-fab-size);
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .title {
@@ -144,26 +172,6 @@
   text-decoration: line-through;
   text-decoration-thickness: 1px;
   white-space: nowrap;
-}
-
-.cardStartDate {
-  margin: 0;
-  max-width: 11rem;
-  font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: clamp(0.75rem, 1.65vw, 0.9375rem);
-  font-weight: 600;
-  font-style: italic;
-  line-height: 1.25;
-  color: var(--packages-page-text-color);
-  text-align: center;
-  text-wrap: balance;
-}
-
-.cardFooter {
-  display: flex;
-  min-height: var(--packages-page-fab-size);
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .detailsTrigger {

@@ -59,43 +59,52 @@ export function PackagesPageAccordionDesktopPanel({
       aria-label={isIdle ? undefined : category.label}
     >
       {isIdle ? (
-        <div className={cardStyles.cardTop}>
-          <h2 className={cardStyles.title}>{category.label}</h2>
-          {category.priceAmount !== null ? (
-            <div className={cardStyles.priceBlock}>
-              <PackagesPageCategoryCardPrice
-                category={category}
-                fromPrefixClassName={cardStyles.priceFromPrefix}
-                priceClassName={cardStyles.price}
-                priceWithDiscountClassName={cardStyles.priceWithDiscount}
-                originalPriceClassName={cardStyles.priceOriginal}
-              />
+        <>
+          <div className={cardStyles.cardTop}>
+            <h2 className={cardStyles.title}>{category.label}</h2>
+            {category.priceAmount !== null ? (
+              <div className={cardStyles.priceBlock}>
+                <PackagesPageCategoryCardPrice
+                  category={category}
+                  fromPrefixClassName={cardStyles.priceFromPrefix}
+                  priceClassName={cardStyles.price}
+                  priceWithDiscountClassName={cardStyles.priceWithDiscount}
+                  originalPriceClassName={cardStyles.priceOriginal}
+                />
+              </div>
+            ) : null}
+          </div>
+          {category.startDateCopy ? (
+            <div className={cardStyles.cardMiddle}>
+              <PackagesPageCategoryCardStartDate startDateCopy={category.startDateCopy} />
             </div>
           ) : null}
-          <PackagesPageCategoryCardStartDate
-            startDateLine={category.startDateLine}
-            className={cardStyles.cardStartDate}
-          />
-        </div>
+        </>
       ) : null}
 
       {mode === "collapsed" ? (
-        <div className={accordionStyles.collapsedTop}>
-          <p className={accordionStyles.collapsedTitle}>{category.label}</p>
-          {category.priceAmount !== null ? (
-            <PackagesPageCategoryCardPrice
-              category={category}
-              fromPrefixClassName={accordionStyles.collapsedPriceFromPrefix}
-              priceClassName={accordionStyles.collapsedPrice}
-              priceWithDiscountClassName={accordionStyles.collapsedPriceWithDiscount}
-              originalPriceClassName={accordionStyles.collapsedPriceOriginal}
-            />
+        <>
+          <div className={accordionStyles.collapsedTop}>
+            <p className={accordionStyles.collapsedTitle}>{category.label}</p>
+            {category.priceAmount !== null ? (
+              <PackagesPageCategoryCardPrice
+                category={category}
+                fromPrefixClassName={accordionStyles.collapsedPriceFromPrefix}
+                priceClassName={accordionStyles.collapsedPrice}
+                priceWithDiscountClassName={accordionStyles.collapsedPriceWithDiscount}
+                originalPriceClassName={accordionStyles.collapsedPriceOriginal}
+              />
+            ) : null}
+          </div>
+          {category.startDateCopy ? (
+            <div className={accordionStyles.collapsedMiddle}>
+              <PackagesPageCategoryCardStartDate
+                startDateCopy={category.startDateCopy}
+                variant="collapsed"
+              />
+            </div>
           ) : null}
-          <PackagesPageCategoryCardStartDate
-            startDateLine={category.startDateLine}
-            className={accordionStyles.collapsedStartDate}
-          />
-        </div>
+        </>
       ) : null}
 
       {isExpanded ? (
