@@ -62,6 +62,14 @@ export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSp
           HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleToContentGap,
         ["--home-spacer-title-to-content-gap-lg" as string]:
           HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleToContentGapLg,
+        ["--home-spacer-title-size" as string]: HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleFontSize,
+        ["--home-spacer-title-size-lg" as string]: HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleFontSizeLg,
+        ["--home-spacer-title-line-height" as string]: String(
+          HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleLineHeight,
+        ),
+        ["--home-spacer-title-line-height-lg" as string]: String(
+          HOME_HERO_SCHEDULE_SPACER_LAYOUT.titleLineHeightLg,
+        ),
         ["--home-schedule-inner-px-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPaddingX,
         ["--home-schedule-header-max-width" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.headerMaxWidth,
         ["--home-schedule-heading-color" as string]: HOME_WEEKLY_SCHEDULE_FIGMA.headingColor,
@@ -84,7 +92,7 @@ export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSp
             <header className={`${scheduleStyles.header} ${spacerStyles.presaleHeader}`}>
               <h2
                 id="home-presale-packages-heading"
-                className={`${scheduleStyles.title} font-serif font-semibold tracking-tight text-balance`}
+                className={`${spacerStyles.presaleTitle} font-serif font-semibold tracking-tight text-balance`}
               >
                 {t("presalePackagesTitle")}
               </h2>

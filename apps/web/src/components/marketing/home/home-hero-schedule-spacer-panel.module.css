@@ -34,7 +34,21 @@
 .presaleHeader {
   width: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  height: calc(var(--home-schedule-title-size) * var(--home-schedule-title-line-height));
   padding-inline: var(--home-schedule-panel-inner-px, 1rem);
+}
+
+.presaleTitle {
+  width: 100%;
+  margin: 0;
+  font-size: var(--home-spacer-title-size, var(--home-schedule-title-size));
+  line-height: var(--home-spacer-title-line-height, var(--home-schedule-title-line-height));
+  color: var(--home-schedule-heading-color, #695f00);
 }
 
 .presalePanel {
@@ -72,6 +86,18 @@
   }
 
   .presaleHeader {
+    height: calc(
+      var(--home-schedule-title-size-lg, var(--home-schedule-title-size)) *
+        var(--home-schedule-title-line-height-lg, var(--home-schedule-title-line-height))
+    );
     padding-inline: var(--home-schedule-inner-px-lg, 5rem);
+  }
+
+  .presaleTitle {
+    font-size: var(--home-spacer-title-size-lg, var(--home-spacer-title-size));
+    line-height: var(
+      --home-spacer-title-line-height-lg,
+      var(--home-spacer-title-line-height, var(--home-schedule-title-line-height))
+    );
   }
 }

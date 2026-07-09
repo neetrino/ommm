@@ -13,6 +13,10 @@ const presaleTitleVerticalInsetDesktopBase = "clamp(1.5rem, 5vw, 3rem)";
 const presaleTitleVerticalInsetDesktopExtraPx = 80;
 const presaleTitleVerticalInsetLg = `calc(${presaleTitleVerticalInsetDesktopBase} + ${presaleTitleVerticalInsetDesktopExtraPx}px)`;
 
+/** Slightly larger Presale packages title — layout slot stays weekly-schedule size. */
+const presaleTitleFontSize = "clamp(2.5rem, calc(100svw * 54 / 394), 3.375rem)";
+const presaleTitleFontSizeLg = "clamp(2rem, 7.5vw, 5.125rem)";
+
 /** Presale panel between hero video and Weekly Schedule — shares schedule panel shell tokens. */
 export const HOME_HERO_SCHEDULE_SPACER_LAYOUT = {
   sectionPaddingX: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPaddingX,
@@ -27,4 +31,8 @@ export const HOME_HERO_SCHEDULE_SPACER_LAYOUT = {
   panelPaddingBottomLg: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionPaddingBottom,
   titleToContentGap: presaleTitleVerticalInset,
   titleToContentGapLg: presaleTitleVerticalInsetLg,
+  titleFontSize: presaleTitleFontSize,
+  titleFontSizeLg: presaleTitleFontSizeLg,
+  titleLineHeight: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.titleLineHeight,
+  titleLineHeightLg: HOME_WEEKLY_SCHEDULE_LAYOUT.titleLineHeight,
 } as const;
