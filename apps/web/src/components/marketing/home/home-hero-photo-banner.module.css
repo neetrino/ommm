@@ -529,6 +529,10 @@
   .homeHeroCtas {
     gap: clamp(0.875rem, calc(100svw * 18 / 1440), 1.125rem);
   }
+
+  .homeHeroLogoMarkVideo {
+    transform: translateY(var(--home-hero-logo-video-offset-y-ipad, var(--home-hero-logo-video-offset-y-lg, 0px)));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

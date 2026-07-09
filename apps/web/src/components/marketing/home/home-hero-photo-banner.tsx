@@ -203,6 +203,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.edgeCropScale,
         ),
         ["--home-hero-logo-video-offset-y-lg" as string]: `${HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.offsetYDesktopPx}px`,
+        ["--home-hero-logo-video-offset-y-ipad" as string]: `${HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.offsetYIpadPx}px`,
         ["--home-hero-logo-video-offset-y-mobile" as string]:
           HOME_HERO_LOGO_MARK_VIDEO_LAYOUT.offsetYMobile,
         ["--home-hero-logo-video-width-mobile" as string]:
