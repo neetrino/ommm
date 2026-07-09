@@ -16,6 +16,11 @@ import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroLogoMarkVideoProps = {
   alt: string;
+  videoUrl: string | null;
+};
+
+type HomeHeroLogoMarkFallbackProps = {
+  alt: string;
 };
 
 function configureSafariSafePlayback(video: HTMLVideoElement): void {
@@ -26,7 +31,7 @@ function configureSafariSafePlayback(video: HTMLVideoElement): void {
   video.setAttribute("webkit-playsinline", "");
 }
 
-function HomeHeroLogoMarkFallback({ alt }: HomeHeroLogoMarkVideoProps) {
+function HomeHeroLogoMarkFallback({ alt }: HomeHeroLogoMarkFallbackProps) {
   return (
     <div className={`${styles.homeHeroLogoMark} tablet:mb-1 tablet:shrink-0`}>
       <div className={styles.homeHeroLogoInner}>
@@ -46,14 +51,14 @@ function HomeHeroLogoMarkFallback({ alt }: HomeHeroLogoMarkVideoProps) {
 }
 
 /** Rotating OMMM mark on the legacy meditation hero slide — replaces the static logo image. */
-export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
+export function HomeHeroLogoMarkVideo({ alt, videoUrl }: HomeHeroLogoMarkVideoProps) {
   const slide = useOptionalHomeHeroSlide();
   const isLegacyPhotoActive = slide ? slide.isLegacyPhotoActive : true;
   const reducedMotion = usePrefersReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const playbackRef = useRef<HomeHeroLogoMarkVideoPlayback | null>(null);
-  const [useFallback, setUseFallback] = useState(false);
+  const [useFallback, setUseFallback] = useState(videoUrl === null);
   const contentVisible = useHomeHeroPhotoContentVisible(isLegacyPhotoActive, rootRef);
 
   const handleVideoError = useCallback(() => {
@@ -62,7 +67,7 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) {
+    if (!video || videoUrl === null) {
       return;
     }
 
@@ -78,7 +83,7 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
       playback.dispose();
       playbackRef.current = null;
     };
-  }, []);
+  }, [videoUrl]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -111,9 +116,9 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
       video.removeEventListener("loadeddata", startWhenReady);
       playback.pause();
     };
-  }, [contentVisible, isLegacyPhotoActive, reducedMotion, useFallback]);
+  }, [contentVisible, isLegacyPhotoActive, reducedMotion, useFallback, videoUrl]);
 
-  if (useFallback) {
+  if (useFallback || videoUrl === null) {
     return <HomeHeroLogoMarkFallback alt={alt} />;
   }
 
@@ -129,7 +134,7 @@ export function HomeHeroLogoMarkVideo({ alt }: HomeHeroLogoMarkVideoProps) {
             <video
               ref={videoRef}
               className={styles.homeHeroLogoVideoLayer}
-              src={HOME_HERO_ASSETS.heroLogoMarkVideo}
+              src={videoUrl}
               muted
               loop
               playsInline
