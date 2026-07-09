@@ -11,6 +11,18 @@ function deferUntilNextPaint(callback: () => void): () => void {
   };
 }
 
+function scheduleMicrotaskStateUpdate(update: () => void): () => void {
+  let cancelled = false;
+  queueMicrotask(() => {
+    if (!cancelled) {
+      update();
+    }
+  });
+  return () => {
+    cancelled = true;
+  };
+}
+
 /** Defers grid column update by two frames when opening from idle. */
 export function useDeferredAccordionGridIndex(
   expandedIndexInRow: number | null,
@@ -24,24 +36,34 @@ export function useDeferredAccordionGridIndex(
     previousTargetRef.current = expandedIndexInRow;
 
     if (previousTarget === undefined) {
-      setGridIndex(expandedIndexInRow);
-      return undefined;
-    }
-
-    if (expandedIndexInRow === null) {
-      setGridIndex(null);
-      return undefined;
-    }
-
-    if (previousTarget === null && !reducedMotion) {
-      setGridIndex(null);
-      return deferUntilNextPaint(() => {
+      return scheduleMicrotaskStateUpdate(() => {
         setGridIndex(expandedIndexInRow);
       });
     }
 
-    setGridIndex(expandedIndexInRow);
-    return undefined;
+    if (expandedIndexInRow === null) {
+      return scheduleMicrotaskStateUpdate(() => {
+        setGridIndex(null);
+      });
+    }
+
+    if (previousTarget === null && !reducedMotion) {
+      let cancelDeferred = () => {};
+      const cancelImmediate = scheduleMicrotaskStateUpdate(() => {
+        setGridIndex(null);
+        cancelDeferred = deferUntilNextPaint(() => {
+          setGridIndex(expandedIndexInRow);
+        });
+      });
+      return () => {
+        cancelImmediate();
+        cancelDeferred();
+      };
+    }
+
+    return scheduleMicrotaskStateUpdate(() => {
+      setGridIndex(expandedIndexInRow);
+    });
   }, [expandedIndexInRow, reducedMotion]);
 
   return gridIndex;

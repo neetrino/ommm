@@ -151,7 +151,9 @@ export function normalizeOptionalPlanStartDate(
   }
 }
 
-function formatPlanStartDateForApi(value: Date | null | undefined): string | null {
+function formatPlanStartDateForApi(
+  value: Date | null | undefined,
+): string | null {
   if (value == null) {
     return null;
   }

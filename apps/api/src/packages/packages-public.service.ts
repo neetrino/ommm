@@ -100,11 +100,12 @@ export class PackagesPublicService {
     }
     assertPackageHasAvailableStock(plan);
     const now = new Date();
-    const { currentPeriodStart, currentPeriodEnd } = resolveUserPackagePeriodBounds({
-      planStartDate: plan.startDate,
-      purchasedAt: now,
-      periodDays: plan.periodDays,
-    });
+    const { currentPeriodStart, currentPeriodEnd } =
+      resolveUserPackagePeriodBounds({
+        planStartDate: plan.startDate,
+        purchasedAt: now,
+        periodDays: plan.periodDays,
+      });
     const paymentReference = createPaymentReference('PACKAGE');
     const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
 
