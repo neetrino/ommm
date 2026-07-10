@@ -8,6 +8,8 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .srOnly {
@@ -158,8 +160,16 @@
   );
   width: auto;
   aspect-ratio: var(--home-hero-promo-cta-pill-aspect-ratio, 465 / 87);
-  container-type: size;
   pointer-events: auto;
+}
+
+@supports not (aspect-ratio: 1 / 1) {
+  .ctaBadge {
+    width: calc(
+      100% * var(--home-hero-promo-cta-height-px) / var(--home-hero-promo-artboard-height) *
+        var(--home-hero-promo-cta-pill-scale, 1) * var(--home-hero-promo-cta-pill-aspect-ratio, 5.34)
+    );
+  }
 }
 
 .ctaPillImage {
@@ -177,7 +187,11 @@
   justify-content: center;
   padding-left: calc(var(--home-hero-promo-cta-phone-offset-right-px, 10) * 1px);
   font-family: var(--font-gt-super-ds-trial), ui-serif, Georgia, serif;
-  font-size: calc(100cqh * var(--home-hero-promo-cta-phone-font-size-ratio, 0.54));
+  font-size: clamp(
+    0.625rem,
+    calc(100svw * var(--home-hero-promo-cta-phone-size-px, 43) / var(--home-hero-promo-artboard-width)),
+    calc(var(--home-hero-promo-cta-phone-size-px, 43) * 1px)
+  );
   font-weight: 400;
   line-height: 1;
   color: var(--home-hero-promo-cta-phone-color, #795a2b);

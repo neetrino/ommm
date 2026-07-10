@@ -5,21 +5,26 @@ type HomeHeroPromoBannerImageProps = {
   alt: string;
   pictureClassName: string;
   imageClassName: string;
+  width: number;
+  height: number;
 };
 
-/** Static WebP hero promo raster — native `<picture>` for Safari/iOS (no next/image fill). */
+/** Static WebP promo raster — native `<img>` for Safari/iOS (no next/image fill). */
 export function HomeHeroPromoBannerImage({
   src,
   alt,
   pictureClassName,
   imageClassName,
+  width,
+  height,
 }: HomeHeroPromoBannerImageProps) {
   return (
     <picture className={pictureClassName}>
-      <source srcSet={src} type="image/webp" />
       <img
         src={src}
         alt={alt}
+        width={width}
+        height={height}
         loading="eager"
         decoding="async"
         draggable={false}

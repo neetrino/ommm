@@ -3,7 +3,11 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { useEffect } from "react";
-import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
+import {
+  HOME_HERO_ASSETS,
+  HOME_HERO_PROMO_BANNER_LAYOUT,
+  HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT,
+} from "@/components/marketing/home/home-hero-banner-tokens";
 import { HomeHeroPromoBannerImage } from "@/components/marketing/home/home-hero-promo-banner-image";
 import {
   HOME_HERO_CAROUSEL_SLIDES,
@@ -73,12 +77,16 @@ function HomeHeroPromoBannerSlide({ assetKey, imageAlt, overlay }: HomeHeroPromo
         <HomeHeroPromoBannerImage
           src={sources.mobile}
           alt={imageAlt}
+          width={HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.artboardWidthPx}
+          height={HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.artboardHeightPx}
           pictureClassName={`${styles.homeHeroPromoPicture} ${styles.homeHeroPromoPictureMobile}`}
           imageClassName={styles.homeHeroPromoBackgroundMobile}
         />
         <HomeHeroPromoBannerImage
           src={sources.desktop}
           alt=""
+          width={HOME_HERO_PROMO_BANNER_LAYOUT.artboardWidthPx}
+          height={HOME_HERO_PROMO_BANNER_LAYOUT.artboardHeightPx}
           pictureClassName={`${styles.homeHeroPromoPicture} ${styles.homeHeroPromoPictureDesktop}`}
           imageClassName={styles.homeHeroPromoBackgroundDesktop}
         />

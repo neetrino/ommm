@@ -1,7 +1,6 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import Image from "next/image";
 import {
   HOME_HERO_ASSETS,
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA,
@@ -12,7 +11,6 @@ import {
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-promo-banner-overlay.module.css";
 import { formatPhoneTelHref } from "@/lib/phone";
-import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 export type HomeHeroPromoBannerOverlayProps = {
   foundingLine1: string;
@@ -79,6 +77,13 @@ function buildPromoTextStyleVars(
           ["--home-hero-promo-cta-top-px" as string]: String(ctaBadge.topPx),
           ["--home-hero-promo-cta-width-px" as string]: String(ctaBadge.widthPx),
           ["--home-hero-promo-cta-height-px" as string]: String(ctaBadge.heightPx),
+          ["--home-hero-promo-cta-phone-size-px" as string]: String(
+            Math.round(
+              ctaBadge.heightPx *
+                HOME_HERO_PROMO_CTA_PILL.displayScale *
+                HOME_HERO_PROMO_CTA_PHONE.fontSizeHeightRatio,
+            ),
+          ),
         }
       : {}),
   };
@@ -109,9 +114,6 @@ const PROMO_CTA_PHONE_STYLE: CSSProperties = {
   ["--home-hero-promo-cta-phone-color" as string]: HOME_HERO_PROMO_CTA_PHONE.color,
   ["--home-hero-promo-cta-phone-disc-width-ratio" as string]: String(
     HOME_HERO_PROMO_CTA_PHONE.discWidthRatio,
-  ),
-  ["--home-hero-promo-cta-phone-font-size-ratio" as string]: String(
-    HOME_HERO_PROMO_CTA_PHONE.fontSizeHeightRatio,
   ),
   ["--home-hero-promo-cta-phone-offset-right-px" as string]: String(
     HOME_HERO_PROMO_CTA_PHONE.offsetRightPx,
@@ -158,14 +160,15 @@ function PromoBannerCopy({
         aria-label={ctaAriaLabel}
         style={PROMO_CTA_PHONE_STYLE}
       >
-        <Image
+        <img
           src={HOME_HERO_ASSETS.promoBannerCtaPill}
           alt=""
           width={PROMO_CTA_PILL_WIDTH_PX}
           height={PROMO_CTA_PILL_HEIGHT_PX}
-          unoptimized
+          loading="eager"
+          decoding="async"
+          draggable={false}
           className={styles.ctaPillImage}
-          {...aboveFoldImageProps()}
         />
         <span className={styles.ctaPhoneNumber} aria-hidden="true">
           {HOME_HERO_PROMO_CTA_PHONE.display}
