@@ -34,6 +34,7 @@ export type FinancePaymentItem = {
   currency: string;
   status: string;
   description: string | null;
+  relatedItemName: string | null;
   paymentMethod: string | null;
   paymentReference: string | null;
   sourceId: string | null;
