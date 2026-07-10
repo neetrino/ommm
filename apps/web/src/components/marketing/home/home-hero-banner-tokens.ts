@@ -130,15 +130,15 @@ export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
 const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1440;
 const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 924;
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 479;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 393;
 const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 852;
 
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
   /** Figma `887:808` (`887:800` bg + `887:801` subject) @2x — 2880×1848 retina desktop. */
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3-v7.webp",
-  /** Figma `881:800` mobile banner — 1437×2556 @3x (479×852 artboard), WebP q98. */
-  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v7.webp",
+  /** Figma `881:800` mobile banner — 1179×2556 @3x (393×852 artboard), WebP q98. */
+  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v8.webp",
   /** Figma `882:827` — mobile promo CTA pill (SVG). */
   promoBannerMobileCta: "/marketing/home/hero/home-hero-promo-banner-mobile-cta.svg",
   /** Figma `887:807` — desktop promo CTA pill (SVG). */
@@ -208,12 +208,13 @@ export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   objectPosition: "center center",
 } as const;
 
-/** Mobile promo slide — Figma `881:800` portrait banner with baked-in copy. */
+/** Mobile promo slide — Figma `881:800` / phone frame `882:809`. */
 export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
   sectionBackground: "#c4a962",
+  /** Figma crop — image fills frame at 122% width, anchored top. */
   objectPosition: "center top",
 } as const;
 
@@ -233,7 +234,7 @@ export const HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET = `max(${MARKETING_CONTENT_IN
 /** Shifts all promo copy blocks up — subtracted from Figma `topPx` before scaling. */
 export const HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX = {
   desktop: 40,
-  mobile: 24,
+  mobile: 0,
 } as const;
 
 export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
@@ -271,7 +272,7 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
   mobileFounding: {
     figmaNodeId: "882:810",
     leftPx: 41,
-    topPx: 77,
+    topPx: 97,
     heightPx: 100,
     fontSizePx: 50,
     lineHeightPx: 50,
@@ -287,7 +288,8 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
   mobileLimited: {
     figmaNodeId: "882:813",
     leftPx: 41,
-    topPx: 285,
+    topPx: 259,
+    widthPx: 277,
     heightPx: 102,
     fontSizePx: 30,
     lineHeightPx: 34,
@@ -295,8 +297,8 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
   mobileCtaBadge: {
     figmaNodeId: "882:827",
     leftPx: 41,
-    topPx: 415,
-    widthPx: 177,
+    topPx: 389,
+    widthPx: 152,
     heightPx: 33,
   },
 } as const;

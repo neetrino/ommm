@@ -96,6 +96,12 @@
       (var(--home-hero-promo-limited-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
       var(--home-hero-promo-artboard-height)
   );
+  width: calc(
+    100% * var(--home-hero-promo-limited-width-px, 0) / var(--home-hero-promo-artboard-width)
+  );
+  max-width: calc(
+    100% * var(--home-hero-promo-limited-width-px, 0) / var(--home-hero-promo-artboard-width)
+  );
   height: calc(100% * var(--home-hero-promo-limited-height-px) / var(--home-hero-promo-artboard-height));
   display: flex;
   flex-direction: column;
@@ -108,6 +114,19 @@
     calc(var(--home-hero-promo-limited-size-px) * 1px)
   );
   font-weight: 400;
+}
+
+.desktopOnly .limitedBlock {
+  width: auto;
+  max-width: none;
+}
+
+.mobileOnly .limitedLine {
+  white-space: normal;
+}
+
+.mobileOnly .limitedEmphasis {
+  display: block;
 }
 
 .limitedLine {

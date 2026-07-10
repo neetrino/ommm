@@ -31,6 +31,8 @@ type PromoTextBlockLayout = {
   heightPx: number;
   fontSizePx: number;
   lineHeightPx: number;
+  leftPx?: number;
+  widthPx?: number;
 };
 
 type PromoCtaBadgeLayout = {
@@ -63,6 +65,7 @@ function buildPromoTextStyleVars(
     ["--home-hero-promo-are-open-line-height-px" as string]: String(areOpen.lineHeightPx),
     ["--home-hero-promo-limited-top-px" as string]: String(limited.topPx),
     ["--home-hero-promo-limited-height-px" as string]: String(limited.heightPx),
+    ["--home-hero-promo-limited-width-px" as string]: String(limited.widthPx ?? 0),
     ["--home-hero-promo-limited-size-px" as string]: String(limited.fontSizePx),
     ["--home-hero-promo-limited-line-height-px" as string]: String(limited.lineHeightPx),
     ...(ctaBadge
