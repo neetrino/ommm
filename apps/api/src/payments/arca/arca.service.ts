@@ -22,8 +22,10 @@ import { mergeArcaMetadata, readArcaMetadata } from './arca-metadata.util';
 import { ArcaPaymentSyncService } from './arca-payment-sync.service';
 import {
   ARCA_PAYMENT_FAIL_PATH,
+  ARCA_PAYMENT_PENDING_PATH,
   ARCA_PAYMENT_SUCCESS_PATH,
 } from './arca-result-paths';
+import { mapArcaSyncOutcomeToRedirect } from './arca-callback.util';
 import type { ArcaSyncOutcome, ArcaRegisterResponse } from './arca.types';
 
 const SUPPORTED_ARCA_LOCALES = new Set(['hy', 'ru', 'en']);
@@ -165,9 +167,9 @@ export class ArcaService {
       outcome = 'error';
     }
 
-    const result = outcome === 'deposited' ? 'success' : 'failed';
+    const redirect = mapArcaSyncOutcomeToRedirect(outcome);
 
-    return { redirectUrl: this.buildResultUrl(result, locale, resultParams) };
+    return { redirectUrl: this.buildResultUrl(redirect, locale, resultParams) };
   }
 
   private isArcaCurrencySupported(currency: string): boolean {
@@ -224,7 +226,7 @@ export class ArcaService {
   }
 
   private buildResultUrl(
-    outcome: 'success' | 'failed',
+    outcome: 'success' | 'failed' | 'pending',
 
     locale: string,
 
@@ -234,7 +236,9 @@ export class ArcaService {
     const path =
       outcome === 'success'
         ? ARCA_PAYMENT_SUCCESS_PATH
-        : ARCA_PAYMENT_FAIL_PATH;
+        : outcome === 'failed'
+          ? ARCA_PAYMENT_FAIL_PATH
+          : ARCA_PAYMENT_PENDING_PATH;
     const base = `${this.arcaConfig.getAppUrl()}/${safeLocale}${path}`;
 
     const search = new URLSearchParams();

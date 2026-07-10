@@ -29,6 +29,7 @@ const AUTH_HEADER_PATHS = [
   "/reset-password",
   "/payment/success",
   "/payment/fail",
+  "/payment/pending",
 ] as const;
 
 /** Auth sign-in / registration — light surfaces, elevated global header ink. */

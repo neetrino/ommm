@@ -1145,25 +1145,33 @@
             "successTitle": "Gift card payment successful",
             "successLead": "Your gift card payment was confirmed. The card is now available in your account.",
             "failedTitle": "Gift card payment failed",
-            "failedLead": "Your gift card payment failed. Please try again."
+            "failedLead": "Your gift card payment failed. Please try again.",
+            "pendingTitle": "Gift card payment processing",
+            "pendingLead": "We are confirming your payment with the bank. This may take a minute — check your account shortly."
           },
           "dropin": {
             "successTitle": "Drop-in payment successful",
             "successLead": "Your session is booked. See you in class!",
             "failedTitle": "Drop-in payment failed",
-            "failedLead": "Your drop-in payment failed. Please try again."
+            "failedLead": "Your drop-in payment failed. Please try again.",
+            "pendingTitle": "Drop-in payment processing",
+            "pendingLead": "We are confirming your payment with the bank. Your booking will appear once payment is confirmed."
           },
           "package": {
             "successTitle": "Package payment successful",
             "successLead": "Your package is now active.",
             "failedTitle": "Package payment failed",
-            "failedLead": "Your package payment failed. Please try again."
+            "failedLead": "Your package payment failed. Please try again.",
+            "pendingTitle": "Package payment processing",
+            "pendingLead": "We are confirming your payment with the bank. Your package will activate once payment is confirmed."
           },
           "other": {
             "successTitle": "Payment successful",
             "successLead": "Your payment was confirmed.",
             "failedTitle": "Payment failed",
-            "failedLead": "Your payment failed. Please try again."
+            "failedLead": "Your payment failed. Please try again.",
+            "pendingTitle": "Payment processing",
+            "pendingLead": "We are confirming your payment with the bank. Check your account in a few minutes."
           }
         }
       },
