@@ -1,8 +1,8 @@
 /** Figma footer sphere artboard ratio — `HOME_FOOTER_SECTION_MOBILE_FIGMA`. */
 export const SPLASH_SPHERE_ASPECT_RATIO = 396 / 400;
 
-/** Total splash visibility before navigation (~6 seconds). */
-export const SPLASH_DURATION_MS = 6000;
+/** Total splash visibility before navigation (~4 seconds). */
+export const SPLASH_DURATION_MS = 3000;
 
 /** Soft vertical bounce — inspired by web `HOME_FOOTER_MOBILE_SPHERE_BOUNCE`. */
 export const SPLASH_SPHERE_BOUNCE = {
