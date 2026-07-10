@@ -1,3 +1,8 @@
+import {
+  CANVAS_TABLET_MIN_WIDTH_PX,
+  IPAD_AIR_LANDSCAPE_MAX_WIDTH_PX,
+} from "@/lib/viewport-breakpoints";
+
 /** Contact page — glass tile grid tokens. */
 
 export const CONTACT_PAGE_CARD_SHELL_CLASS = "ommm-card";
@@ -28,6 +33,10 @@ export const CONTACT_PAGE_LAYOUT = {
   tileHoverDurationMs: 280,
   /** Room inside clipped page content so desktop card shadows fade naturally. */
   cardShadowBleedPx: 20,
+  /** iPad Mini + Air — row 1: phone, hours; row 2: address, email, Instagram. */
+  ipadGridMinWidthPx: CANVAS_TABLET_MIN_WIDTH_PX,
+  ipadGridMaxWidthPx: IPAD_AIR_LANDSCAPE_MAX_WIDTH_PX,
+  desktopGridMinWidthPx: IPAD_AIR_LANDSCAPE_MAX_WIDTH_PX + 1,
 } as const;
 
 /** Above-fold cards — quick mount fade/slide (no scroll intersection wait). */
