@@ -1,6 +1,5 @@
 import {
   ADMIN_LIST_EMPHASIZED_HEADER,
-  ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_LIST_ROW_SURFACE,
   USER_LIST_CELL_CLASS,
   USER_LIST_DATE_CELL,
@@ -13,16 +12,18 @@ import {
   buildAdminListTableClass,
 } from "@/components/admin/admin-list-table-layout";
 
-/** User · Package · Amount · Date · Time · Source · Status · Method · Actions — nine equal tracks. */
-const FINANCE_PAYMENTS_GRID_CLASS = "md:grid-cols-[repeat(9,minmax(8.5rem,1fr))]";
+/** User · Package · Amount · Date · Time · Source · Status · Method — eight equal tracks. */
+const FINANCE_PAYMENTS_GRID_CLASS = "md:grid-cols-[repeat(8,minmax(8.5rem,1fr))]";
 
-/** Horizontal scroll when the table is wider than the viewport. */
-export const ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS =
-  "w-full max-w-full overflow-x-auto overscroll-x-contain";
+/** Horizontal scroll when the table is wider than the viewport (scrollbar hidden). */
+export const ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS = [
+  "w-full max-w-full overflow-x-auto overscroll-x-contain",
+  "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+].join(" ");
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS = [
   buildAdminListTableClass(FINANCE_PAYMENTS_GRID_CLASS),
-  "md:min-w-[76rem] md:w-full",
+  "md:min-w-[68rem] md:w-full",
 ].join(" ");
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS = [
@@ -36,19 +37,14 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS = [
 export const ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL =
   "min-w-0 text-left text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";
 
-const ADMIN_FINANCE_PAYMENTS_LIST_CENTERED_HEADER_CELL =
-  "min-w-0 text-center text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";
-
-export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL =
-  ADMIN_FINANCE_PAYMENTS_LIST_CENTERED_HEADER_CELL;
-
-export const ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL =
-  ADMIN_FINANCE_PAYMENTS_LIST_CENTERED_HEADER_CELL;
+export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL = [
+  ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
+  "pl-1",
+].join(" ");
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS = [
   ADMIN_LIST_ROW_SURFACE,
   USER_LIST_ROW_INTERACTIVE,
-  "group",
   "grid w-full grid-cols-1 gap-3 text-left",
   USER_LIST_TABLE_ROW_PAD,
   "md:col-span-full md:grid md:grid-cols-subgrid md:items-start md:gap-y-0",
@@ -83,17 +79,9 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL = [
 export const ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL = USER_LIST_CELL_CLASS;
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL =
-  "min-w-0 w-full max-w-full justify-self-stretch text-center";
+  "min-w-0 w-full max-w-full justify-self-stretch text-left pl-1";
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS =
   "text-sm font-medium text-sage-800";
-
-export const ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL = [
-  "min-w-0 w-full max-w-full justify-self-stretch",
-  "flex shrink-0 items-start justify-center md:self-start",
-].join(" ");
-
-export const ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL =
-  ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL;
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;

@@ -11,20 +11,17 @@ import {
   ADMIN_FINANCE_VALUE_BADGE_CLASS,
   financeSourceTone,
 } from "@/components/admin/admin-finance-list-display";
-import { AdminFinancePaymentRowActions } from "@/components/admin/admin-finance-payment-row-actions";
 import {
   AdminFinancePaymentStatusPicker,
   type AdminUpdatablePaymentStatus,
 } from "@/components/admin/admin-finance-payment-status-picker";
 import {
-  ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS,
-  ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL,
@@ -155,15 +152,6 @@ export function AdminFinancePaymentCompactRow({
         <p className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS}>
           {resolveMethodLabel(t, row.paymentMethod)}
         </p>
-      </div>
-
-      <div
-        className={`${ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL} ${ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <AdminListMobileLabel label={tTable("colActions")} />
-        <AdminFinancePaymentRowActions busy={busy} onEdit={onOpenDetails} />
       </div>
     </article>
   );
