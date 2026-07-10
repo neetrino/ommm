@@ -1,5 +1,5 @@
 import { Slot } from "expo-router";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { FloatingTabBar } from "../../src/features/home/components/FloatingTabBar";
 import { useSession } from "../../src/auth/SessionProvider";
 import { colors } from "../../src/theme/tokens";
@@ -10,11 +10,7 @@ export default function MainLayout() {
   const showFloatingTabBar = isSignedIn;
 
   if (!isReady) {
-    return (
-      <View style={styles.boot}>
-        <ActivityIndicator size="large" color={colors.taupe} />
-      </View>
-    );
+    return <View style={styles.boot} />;
   }
 
   return (

@@ -6,7 +6,7 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { I18nProvider } from "../src/i18n/I18nProvider";
 import { SessionProvider } from "../src/auth/SessionProvider";
@@ -29,11 +29,7 @@ export default function RootLayout() {
   });
 
   if (!loaded) {
-    return (
-      <View style={styles.boot}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <View style={styles.boot} />;
   }
 
   return (

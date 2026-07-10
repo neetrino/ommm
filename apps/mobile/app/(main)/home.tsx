@@ -1,14 +1,6 @@
-import { StyleSheet, View } from "react-native";
-import { colors } from "../../src/theme/tokens";
+import { SplashScreen } from "../../src/features/splash/screens/SplashScreen";
 
-/** Public home at `/home` — intentionally blank. */
+/** Public entry at `/home` — branded splash, then Login (or role home when signed in). */
 export default function PublicHomeRoute() {
-  return <View style={styles.blank} />;
+  return <SplashScreen />;
 }
-
-const styles = StyleSheet.create({
-  blank: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-});
