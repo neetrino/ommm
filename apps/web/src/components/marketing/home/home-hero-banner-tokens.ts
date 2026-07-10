@@ -298,8 +298,8 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
     figmaNodeId: "882:827",
     leftPx: 41,
     topPx: 389,
-    widthPx: 152,
-    heightPx: 33,
+    widthPx: 168,
+    heightPx: 36,
   },
 } as const;
 
@@ -314,10 +314,10 @@ export const HOME_HERO_PROMO_CTA_LOGO_LAYOUT = {
 
 /** Mobile CTA pill logo — `882:827`, slightly larger and lower. */
 export const HOME_HERO_PROMO_CTA_LOGO_MOBILE_LAYOUT = {
-  widthRatio: 0.47,
-  heightRatio: 1.83,
-  topOffsetRatio: -0.68,
-  leftOffsetRatio: -0.15,
+  widthRatio: 0.42,
+  heightRatio: 1.73,
+  topOffsetRatio: -0.64,
+  leftOffsetRatio: -0.12,
   objectPosition: "44% 36%",
 } as const;
 

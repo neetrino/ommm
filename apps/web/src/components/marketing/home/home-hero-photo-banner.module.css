@@ -111,7 +111,7 @@
 .homeHeroPromoBackgroundMobile {
   display: block;
   object-fit: cover;
-  object-position: center top;
+  object-position: var(--home-hero-promo-object-position-mobile, center top);
 }
 
 .homeHeroPromoAspectSpacer {
@@ -340,6 +340,23 @@
 
   .homeHeroCtas {
     transform: translateY(var(--home-hero-cta-down-offset, 0));
+  }
+
+  /* Promo — same band height as video/legacy; crop overflow from the bottom only (top unchanged). */
+  .homeHeroFramePromo {
+    min-height: calc(var(--home-hero-min-h) + var(--home-schedule-hero-overlap, 0px));
+    max-height: calc(var(--home-hero-max-h) + var(--home-schedule-hero-overlap, 0px));
+    height: auto;
+    padding-bottom: var(--home-schedule-hero-overlap, 0px);
+    overflow: hidden;
+  }
+
+  .homeHeroPromoAspectSpacer {
+    aspect-ratio: unset;
+    width: 100%;
+    height: var(--home-hero-min-h);
+    min-height: var(--home-hero-min-h);
+    max-height: var(--home-hero-max-h);
   }
 
 }
