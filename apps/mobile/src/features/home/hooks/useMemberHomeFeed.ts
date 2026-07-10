@@ -6,16 +6,13 @@ import {
   fetchPublishedPosts,
 } from "../../../lib/api/memberClient";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
-import { useLocale } from "../../../i18n/I18nProvider";
+import { useLocale, useTranslations } from "../../../i18n/I18nProvider";
 import { bookingToNextClassContent, pickNextUpcomingBooking } from "../lib/mapBookingsToNextClass";
 import { postsToExploreContent } from "../lib/mapPostsToExplore";
 import { waitlistRowsToItems } from "../lib/mapWaitlistToItems";
 import type { NextClassContent } from "../components/NextClassSection";
 import type { ExploreTileMock, WaitlistItem } from "../../../lib/mocks/homeMock";
-import {
-  useExploreFallbackContent,
-  useHomeMarketingCopy,
-} from "./useHomeContent";
+import { useExploreFallbackContent } from "./useHomeContent";
 import { useMemberBookingCopy } from "../../member/hooks/useMemberBookingCopy";
 
 export type MemberHomeFeedState = {
@@ -30,10 +27,10 @@ export type MemberHomeFeedState = {
   };
 };
 
-export function useMemberHomeFeed(isSignedIn: boolean): MemberHomeFeedState {
+export function useMemberHomeFeed(): MemberHomeFeedState {
   const locale = useLocale();
   const exploreFallback = useExploreFallbackContent();
-  const homeCopy = useHomeMarketingCopy();
+  const tAccount = useTranslations("account.dashboard");
   const bookingCopy = useMemberBookingCopy();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,17 +44,14 @@ export function useMemberHomeFeed(isSignedIn: boolean): MemberHomeFeedState {
     try {
       const posts = await fetchPublishedPosts();
       setExplore(postsToExploreContent(posts, exploreFallback));
-      if (!isSignedIn) {
-        setNextClass(null);
-        setWaitlistItems([]);
-        return;
-      }
+
       const token = await readStoredAccessToken();
       if (token === null) {
         setNextClass(null);
         setWaitlistItems([]);
         return;
       }
+
       const [bookings, waitlist] = await Promise.all([
         fetchMemberBookings(token),
         fetchMemberWaitlist(token),
@@ -77,7 +71,7 @@ export function useMemberHomeFeed(isSignedIn: boolean): MemberHomeFeedState {
         ),
       );
     } catch (e) {
-      const msg = e instanceof Error ? e.message : homeCopy.feedError;
+      const msg = e instanceof Error ? e.message : tAccount("waitlist.error");
       setError(msg);
       setExplore(exploreFallback);
       setNextClass(null);
@@ -85,7 +79,7 @@ export function useMemberHomeFeed(isSignedIn: boolean): MemberHomeFeedState {
     } finally {
       setLoading(false);
     }
-  }, [bookingCopy, exploreFallback, homeCopy.feedError, isSignedIn]);
+  }, [bookingCopy, exploreFallback, tAccount]);
 
   useEffect(() => {
     void load();
