@@ -140,10 +140,8 @@ export const HOME_HERO_ASSETS = {
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3-v7.webp",
   /** Figma `881:800` mobile banner — 1179×2556 @3x (393×852 artboard), WebP q98. */
   promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v8.webp",
-  /** Figma `882:827` — mobile promo CTA pill (SVG). */
-  promoBannerMobileCta: "/marketing/home/hero/home-hero-promo-banner-mobile-cta.svg",
-  /** Figma `887:807` — desktop promo CTA pill (SVG). */
-  promoBannerDesktopCta: "/marketing/home/hero/home-hero-promo-banner-desktop-cta.svg",
+  /** Promo CTA pill — 465×87 PNG; leading `0` is baked into the left disc. */
+  promoBannerCtaPill: "/marketing/home/hero/home-hero-promo-banner-cta-pill.png",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -247,6 +245,17 @@ export const HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX = {
   mobile: 0,
 } as const;
 
+/** iPad — tighter gap between founding lines and “are open” (744px–1366px). */
+export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_ARE_OPEN_PULL_UP_PX = 28;
+
+/** iPad — tighter gap between “are open” and limited copy + CTA (744px–1366px). */
+export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_BELOW_ARE_OPEN_GAP_REDUCTION_PX = 28;
+
+/** Total pull-up for limited + CTA — keeps sync with are open + extra below gap trim. */
+export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_AND_CTA_PULL_UP_PX =
+  HOME_HERO_PROMO_BANNER_TEXT_IPAD_ARE_OPEN_PULL_UP_PX +
+  HOME_HERO_PROMO_BANNER_TEXT_IPAD_BELOW_ARE_OPEN_GAP_REDUCTION_PX;
+
 export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
   desktopFounding: {
     figmaNodeId: "887:803",
@@ -313,22 +322,28 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
   },
 } as const;
 
-/** Left logo disc on promo CTA pill — desktop `887:807`. */
-export const HOME_HERO_PROMO_CTA_LOGO_LAYOUT = {
-  widthRatio: 0.32,
-  heightRatio: 1.48,
-  topOffsetRatio: -0.5,
-  leftOffsetRatio: -0.08,
-  objectPosition: "44% 36%",
+/** Promo CTA pill artwork — Figma `887:807` / `882:827`. */
+export const HOME_HERO_PROMO_CTA_PILL = {
+  widthPx: 465,
+  heightPx: 87,
+  aspectRatio: 465 / 87,
+  /** Slightly smaller than Figma box — avoids stretched look on mobile artboard. */
+  displayScale: 0.92,
 } as const;
 
-/** Mobile CTA pill logo — `882:827`, slightly larger and lower. */
-export const HOME_HERO_PROMO_CTA_LOGO_MOBILE_LAYOUT = {
-  widthRatio: 0.42,
-  heightRatio: 1.73,
-  topOffsetRatio: -0.64,
-  leftOffsetRatio: -0.12,
-  objectPosition: "44% 36%",
+/** Studio phone on promo CTA pill — Figma `887:807` / `882:827`. */
+export const HOME_HERO_PROMO_CTA_PHONE = {
+  /** Full local number for `tel:` links. */
+  tel: "060500400",
+  /** Digits shown on the pill (full local number). */
+  display: "060500400",
+  color: "#795A2B",
+  /** Left disc on pill PNG — number sits centered in the remaining yellow area. */
+  discWidthRatio: 0.19,
+  /** Digit cap height — bumped above Figma SVG (~38px on 87px). */
+  fontSizeHeightRatio: 0.54,
+  /** Nudge live number right on the pill (Figma artboard px). */
+  offsetRightPx: 10,
 } as const;
 
 /** R2 object keys — upload via `pnpm --filter web assets:upload-marketing-videos`. */

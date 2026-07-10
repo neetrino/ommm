@@ -113,6 +113,39 @@
   white-space: nowrap;
 }
 
+/* iPad — pull “are open” closer to founding lines (desktop copy only). */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .desktopOnly .areOpenBlock {
+    top: calc(
+      100% *
+        (
+          var(--home-hero-promo-are-open-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
+            var(--home-hero-promo-are-open-ipad-pull-up-px, 0)
+        ) / var(--home-hero-promo-artboard-height)
+    );
+  }
+
+  .desktopOnly .limitedBlock {
+    top: calc(
+      100% *
+        (
+          var(--home-hero-promo-limited-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
+            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
+        ) / var(--home-hero-promo-artboard-height)
+    );
+  }
+
+  .desktopOnly .ctaBadge {
+    top: calc(
+      100% *
+        (
+          var(--home-hero-promo-cta-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
+            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
+        ) / var(--home-hero-promo-artboard-height)
+    );
+  }
+}
+
 .limitedBlock {
   top: calc(
     100% *
@@ -170,32 +203,38 @@
       (var(--home-hero-promo-cta-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
       var(--home-hero-promo-artboard-height)
   );
-  width: calc(100% * var(--home-hero-promo-cta-width-px) / var(--home-hero-promo-artboard-width));
-  height: calc(100% * var(--home-hero-promo-cta-height-px) / var(--home-hero-promo-artboard-height));
+  height: calc(
+    100% * var(--home-hero-promo-cta-height-px) / var(--home-hero-promo-artboard-height) *
+      var(--home-hero-promo-cta-pill-scale, 1)
+  );
+  width: auto;
+  aspect-ratio: var(--home-hero-promo-cta-pill-aspect-ratio, 465 / 87);
+  container-type: size;
   pointer-events: auto;
 }
 
-.ctaImage {
+.ctaPillImage {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: contain;
 }
 
-.ctaLogoDisc {
+.ctaPhoneNumber {
   position: absolute;
-  left: calc(100% * var(--home-hero-promo-cta-logo-left-offset-ratio, 0));
-  top: calc(100% * var(--home-hero-promo-cta-logo-top-offset-ratio, 0));
-  width: calc(100% * var(--home-hero-promo-cta-logo-width-ratio, 0.189));
-  height: calc(100% * var(--home-hero-promo-cta-logo-height-ratio, 1));
-  overflow: hidden;
-  border-radius: 9999px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: calc(var(--home-hero-promo-cta-phone-offset-right-px, 10) * 1px);
+  font-family: var(--font-gt-super-ds-trial), ui-serif, Georgia, serif;
+  font-size: calc(100cqh * var(--home-hero-promo-cta-phone-font-size-ratio, 0.54));
+  font-weight: 400;
+  line-height: 1;
+  color: var(--home-hero-promo-cta-phone-color, #795a2b);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
   pointer-events: none;
-  z-index: 1;
-}
-
-.ctaLogoImage {
-  object-fit: cover;
-  object-position: var(--home-hero-promo-cta-logo-object-position, 44% 36%);
 }
 
 .desktopOnly {

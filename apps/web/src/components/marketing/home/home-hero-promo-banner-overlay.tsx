@@ -7,11 +7,11 @@ import {
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA,
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT,
   HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX,
-  HOME_HERO_PROMO_CTA_LOGO_LAYOUT,
-  HOME_HERO_PROMO_CTA_LOGO_MOBILE_LAYOUT,
+  HOME_HERO_PROMO_CTA_PHONE,
+  HOME_HERO_PROMO_CTA_PILL,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-promo-banner-overlay.module.css";
-import { Link } from "@/i18n/navigation";
+import { formatPhoneTelHref } from "@/lib/phone";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 export type HomeHeroPromoBannerOverlayProps = {
@@ -21,10 +21,7 @@ export type HomeHeroPromoBannerOverlayProps = {
   limitedLine1: string;
   limitedLine2Prefix: string;
   limitedLine2Emphasis: string;
-  mobileCtaHref: string;
-  mobileCtaAriaLabel: string;
-  desktopCtaHref: string;
-  desktopCtaAriaLabel: string;
+  ctaAriaLabel: string;
 };
 
 type PromoTextBlockLayout = {
@@ -99,6 +96,26 @@ const MOBILE_TEXT_STYLE = buildPromoTextStyleVars(
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileCtaBadge,
 );
 
+const PROMO_CTA_PILL_WIDTH_PX = HOME_HERO_PROMO_CTA_PILL.widthPx;
+const PROMO_CTA_PILL_HEIGHT_PX = HOME_HERO_PROMO_CTA_PILL.heightPx;
+
+const PROMO_CTA_PHONE_STYLE: CSSProperties = {
+  ["--home-hero-promo-cta-phone-color" as string]: HOME_HERO_PROMO_CTA_PHONE.color,
+  ["--home-hero-promo-cta-phone-disc-width-ratio" as string]: String(
+    HOME_HERO_PROMO_CTA_PHONE.discWidthRatio,
+  ),
+  ["--home-hero-promo-cta-phone-font-size-ratio" as string]: String(
+    HOME_HERO_PROMO_CTA_PHONE.fontSizeHeightRatio,
+  ),
+  ["--home-hero-promo-cta-phone-offset-right-px" as string]: String(
+    HOME_HERO_PROMO_CTA_PHONE.offsetRightPx,
+  ),
+  ["--home-hero-promo-cta-pill-aspect-ratio" as string]: String(
+    HOME_HERO_PROMO_CTA_PILL.aspectRatio,
+  ),
+  ["--home-hero-promo-cta-pill-scale" as string]: String(HOME_HERO_PROMO_CTA_PILL.displayScale),
+};
+
 function PromoBannerCopy({
   foundingLine1,
   foundingLine2,
@@ -106,27 +123,14 @@ function PromoBannerCopy({
   limitedLine1,
   limitedLine2Prefix,
   limitedLine2Emphasis,
-  mobileCtaHref,
-  mobileCtaAriaLabel,
-  desktopCtaHref,
-  desktopCtaAriaLabel,
+  ctaAriaLabel,
   isDesktop,
   style,
 }: HomeHeroPromoBannerOverlayProps & {
   isDesktop: boolean;
   style: CSSProperties;
 }) {
-  const ctaHref = isDesktop ? desktopCtaHref : mobileCtaHref;
-  const ctaAriaLabel = isDesktop ? desktopCtaAriaLabel : mobileCtaAriaLabel;
-  const ctaAsset = isDesktop
-    ? HOME_HERO_ASSETS.promoBannerDesktopCta
-    : HOME_HERO_ASSETS.promoBannerMobileCta;
-  const ctaLayout = isDesktop
-    ? HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopCtaBadge
-    : HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileCtaBadge;
-  const ctaLogoLayout = isDesktop
-    ? HOME_HERO_PROMO_CTA_LOGO_LAYOUT
-    : HOME_HERO_PROMO_CTA_LOGO_MOBILE_LAYOUT;
+  const ctaTelHref = formatPhoneTelHref(HOME_HERO_PROMO_CTA_PHONE.tel);
 
   return (
     <div className={isDesktop ? styles.desktopOnly : styles.mobileOnly} style={style}>
@@ -144,48 +148,25 @@ function PromoBannerCopy({
           <span className={styles.limitedEmphasis}>{limitedLine2Emphasis}</span>
         </p>
       </div>
-      <Link
-        href={ctaHref}
+      <a
+        href={`tel:${ctaTelHref}`}
         className={styles.ctaBadge}
         aria-label={ctaAriaLabel}
-        style={{
-          ["--home-hero-promo-cta-logo-width-ratio" as string]: String(
-            ctaLogoLayout.widthRatio,
-          ),
-          ["--home-hero-promo-cta-logo-height-ratio" as string]: String(
-            ctaLogoLayout.heightRatio,
-          ),
-          ["--home-hero-promo-cta-logo-top-offset-ratio" as string]: String(
-            ctaLogoLayout.topOffsetRatio,
-          ),
-          ["--home-hero-promo-cta-logo-left-offset-ratio" as string]: String(
-            ctaLogoLayout.leftOffsetRatio,
-          ),
-          ["--home-hero-promo-cta-logo-object-position" as string]:
-            ctaLogoLayout.objectPosition,
-        }}
+        style={PROMO_CTA_PHONE_STYLE}
       >
         <Image
-          src={ctaAsset}
+          src={HOME_HERO_ASSETS.promoBannerCtaPill}
           alt=""
-          width={ctaLayout.widthPx}
-          height={ctaLayout.heightPx}
+          width={PROMO_CTA_PILL_WIDTH_PX}
+          height={PROMO_CTA_PILL_HEIGHT_PX}
           unoptimized
-          className={styles.ctaImage}
+          className={styles.ctaPillImage}
           {...aboveFoldImageProps()}
         />
-        <span className={styles.ctaLogoDisc} aria-hidden="true">
-          <Image
-            src={HOME_HERO_ASSETS.logoMark}
-            alt=""
-            fill
-            unoptimized
-            sizes={`${Math.round(ctaLayout.heightPx)}px`}
-            className={styles.ctaLogoImage}
-            {...aboveFoldImageProps()}
-          />
+        <span className={styles.ctaPhoneNumber} aria-hidden="true">
+          {HOME_HERO_PROMO_CTA_PHONE.display}
         </span>
-      </Link>
+      </a>
     </div>
   );
 }
