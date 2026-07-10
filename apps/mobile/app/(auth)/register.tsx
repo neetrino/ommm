@@ -131,99 +131,101 @@ export default function RegisterRoute() {
         <Text style={styles.lead}>{tAuth("lead")}</Text>
       </View>
 
-      <View style={styles.form}>
-        <TextInput
-          value={firstName}
-          onChangeText={setFirstName}
-          placeholder={tAuth("firstName")}
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          autoCapitalize="words"
-          autoCorrect={false}
-          textContentType="givenName"
-          accessibilityLabel={tAuth("firstName")}
-        />
-        <TextInput
-          value={lastName}
-          onChangeText={setLastName}
-          placeholder={tAuth("lastName")}
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          autoCapitalize="words"
-          autoCorrect={false}
-          textContentType="familyName"
-          accessibilityLabel={tAuth("lastName")}
-        />
-        <TextInput
-          value={phone}
-          onChangeText={(value) => setPhone(formatPhoneInput(value))}
-          placeholder={tAuth("phone")}
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          keyboardType="phone-pad"
-          textContentType="telephoneNumber"
-          accessibilityLabel={tAuth("phone")}
-        />
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder={tAuth("email")}
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          textContentType="emailAddress"
-          accessibilityLabel={tAuth("email")}
-        />
-        <AuthPasswordInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder={tAuth("password")}
-          textContentType="newPassword"
-          autoComplete="password-new"
-          accessibilityLabel={tAuth("password")}
-        />
-        <AuthPasswordInput
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          placeholder={tAuth("confirmPassword")}
-          textContentType="newPassword"
-          autoComplete="password-new"
-          accessibilityLabel={tAuth("confirmPassword")}
-        />
+      <View style={styles.formSection}>
+        <View style={styles.form}>
+          <TextInput
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholder={tAuth("firstName")}
+            placeholderTextColor={colors.bodyMuted}
+            style={styles.input}
+            autoCapitalize="words"
+            autoCorrect={false}
+            textContentType="givenName"
+            accessibilityLabel={tAuth("firstName")}
+          />
+          <TextInput
+            value={lastName}
+            onChangeText={setLastName}
+            placeholder={tAuth("lastName")}
+            placeholderTextColor={colors.bodyMuted}
+            style={styles.input}
+            autoCapitalize="words"
+            autoCorrect={false}
+            textContentType="familyName"
+            accessibilityLabel={tAuth("lastName")}
+          />
+          <TextInput
+            value={phone}
+            onChangeText={(value) => setPhone(formatPhoneInput(value))}
+            placeholder={tAuth("phone")}
+            placeholderTextColor={colors.bodyMuted}
+            style={styles.input}
+            keyboardType="phone-pad"
+            textContentType="telephoneNumber"
+            accessibilityLabel={tAuth("phone")}
+          />
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder={tAuth("email")}
+            placeholderTextColor={colors.bodyMuted}
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            accessibilityLabel={tAuth("email")}
+          />
+          <AuthPasswordInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder={tAuth("password")}
+            textContentType="newPassword"
+            autoComplete="password-new"
+            accessibilityLabel={tAuth("password")}
+          />
+          <AuthPasswordInput
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder={tAuth("confirmPassword")}
+            textContentType="newPassword"
+            autoComplete="password-new"
+            accessibilityLabel={tAuth("confirmPassword")}
+          />
 
-        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+          {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+
+          <Pressable
+            onPress={() => void onSubmit()}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.submit,
+              pressed && !busy && styles.submitPressed,
+              busy && styles.submitDisabled,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={tAuth("createAccount")}
+            accessibilityState={{ disabled: busy }}
+          >
+            {busy ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.submitLabel}>{tAuth("createAccount")}</Text>
+            )}
+          </Pressable>
+        </View>
 
         <Pressable
-          onPress={() => void onSubmit()}
-          disabled={busy}
-          style={({ pressed }) => [
-            styles.submit,
-            pressed && !busy && styles.submitPressed,
-            busy && styles.submitDisabled,
-          ]}
+          onPress={() => router.replace("/login")}
+          style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
           accessibilityRole="button"
-          accessibilityLabel={tAuth("createAccount")}
-          accessibilityState={{ disabled: busy }}
+          accessibilityLabel={tCommon("login")}
         >
-          {busy ? (
-            <ActivityIndicator color={colors.white} />
-          ) : (
-            <Text style={styles.submitLabel}>{tAuth("createAccount")}</Text>
-          )}
+          <Text style={styles.linkText}>{tAuth("alreadyHavePrompt")} </Text>
+          <Text style={styles.linkStrong}>{tCommon("login")}</Text>
         </Pressable>
       </View>
-
-      <Pressable
-        onPress={() => router.replace("/login")}
-        style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
-        accessibilityRole="button"
-        accessibilityLabel={tCommon("login")}
-      >
-        <Text style={styles.linkText}>{tAuth("alreadyHavePrompt")} </Text>
-        <Text style={styles.linkStrong}>{tCommon("login")}</Text>
-      </Pressable>
     </AuthScreenShell>
   );
 }
@@ -259,6 +261,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     maxWidth: 320,
     alignSelf: "center",
+  },
+  formSection: {
+    gap: space.sm,
   },
   form: {
     gap: space.md,
@@ -308,8 +313,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    marginTop: space.lg,
-    paddingVertical: space.sm,
+    paddingVertical: space.xxs,
   },
   linkPressed: {
     opacity: 0.85,
