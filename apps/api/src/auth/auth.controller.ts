@@ -20,8 +20,6 @@ import { RegisterDto } from './dto/register.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
-import { CompleteGoogleSignupDto } from './dto/complete-google-signup.dto';
-
 const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const OAUTH_STATE_COOKIE_MAX_AGE_MS = 10 * 60 * 1000;
 const AUTH_MUTATION_THROTTLE = { default: { limit: 10, ttl: 60_000 } };
@@ -144,12 +142,10 @@ export class AuthController {
         state,
         storedState,
       });
-      if (result.mode === 'session') {
-        res.cookie(ACCESS_TOKEN_COOKIE, result.accessToken, {
-          ...accessTokenCookieBaseOptions(),
-          maxAge: COOKIE_MAX_AGE_MS,
-        });
-      }
+      res.cookie(ACCESS_TOKEN_COOKIE, result.accessToken, {
+        ...accessTokenCookieBaseOptions(),
+        maxAge: COOKIE_MAX_AGE_MS,
+      });
       res.redirect(result.redirectUrl);
     } finally {
       res.clearCookie(OAUTH_STATE_COOKIE, oauthStateCookieClearOptions());
@@ -181,24 +177,6 @@ export class AuthController {
   async resetPassword(@Body() dto: ResetPasswordDto) {
     await this.auth.resetPassword(dto.token, dto.newPassword);
     return { ok: true };
-  }
-
-  @Post('complete-google-signup')
-  async completeGoogleSignup(
-    @Body() dto: CompleteGoogleSignupDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const user = await this.googleOAuth.completePendingGoogleSignup(
-      dto.token,
-      dto.newPassword,
-      dto.confirmNewPassword,
-    );
-    const accessToken = this.auth.issueAccessTokenForUser(user);
-    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
-      ...accessTokenCookieBaseOptions(),
-      maxAge: COOKIE_MAX_AGE_MS,
-    });
-    return { user: sanitizeUser(user), accessToken };
   }
 
   @Post('session')

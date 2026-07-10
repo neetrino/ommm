@@ -13,6 +13,7 @@ import {
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
+import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import {
   createPaymentReference,
@@ -141,7 +142,7 @@ export class PackagesPublicService {
           paymentReference,
           source: PaymentSource.PACKAGE,
           sourceId: userPackage.id,
-          description: `Package ${plan.id}`,
+          description: buildPackagePaymentDescription(plan.name),
           confirmedAt: isCardPayment ? null : new Date(),
           paymentMethod: dto.paymentMethod,
         },

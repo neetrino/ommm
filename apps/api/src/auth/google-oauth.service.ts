@@ -5,9 +5,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma, type User } from '@prisma/client';
+import { Prisma, Role, type User } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import {
@@ -15,13 +16,11 @@ import {
   type GoogleAuthCompletion,
   type GoogleOAuthProfile,
 } from './google-oauth.types';
-import { OAuthPendingSignupService } from './oauth-pending-signup.service';
 
 const GOOGLE_OAUTH_SCOPES = ['openid', 'email', 'profile'];
 const DEFAULT_UI_LOCALE = 'en';
 const WEB_DEFAULT_URL = 'http://localhost:3000';
-const WEB_AUTH_ENTRY_PATH = `/${DEFAULT_UI_LOCALE}/account`;
-const WEB_SET_PASSWORD_PATH = `/${DEFAULT_UI_LOCALE}/set-password`;
+const WEB_AUTH_ENTRY_SEGMENT = 'account';
 
 type GoogleOAuthConfig = {
   clientId: string;
@@ -75,7 +74,6 @@ export class GoogleOAuthService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly auth: AuthService,
-    private readonly pendingSignup: OAuthPendingSignupService,
   ) {}
 
   startGoogleAuth(): { authorizationUrl: string; state: string } {
@@ -103,18 +101,6 @@ export class GoogleOAuthService {
     const code = this.requireCode(params.code);
     const profile = await this.fetchVerifiedGoogleProfile(code);
     return this.resolveGoogleAuthCompletion(profile);
-  }
-
-  completePendingGoogleSignup(
-    token: string,
-    newPassword: string,
-    confirmNewPassword: string,
-  ): Promise<User> {
-    return this.pendingSignup.completePendingSignup(
-      token,
-      newPassword,
-      confirmNewPassword,
-    );
   }
 
   private getGoogleConfig(): GoogleOAuthConfig {
@@ -225,17 +211,64 @@ export class GoogleOAuthService {
       return this.sessionCompletion(user);
     }
 
-    const { redirectUrl } =
-      await this.pendingSignup.createOrRefreshPendingSignup(profile);
-    return { mode: 'pending-signup', redirectUrl };
+    const user = await this.createUserFromGoogleProfile(profile);
+    return this.sessionCompletion(user);
   }
 
   private sessionCompletion(user: User): GoogleAuthCompletion {
     return {
-      mode: 'session',
       accessToken: this.auth.issueAccessTokenForUser(user),
       redirectUrl: this.resolveWebEntryUrl(user),
     };
+  }
+
+  private async createUserFromGoogleProfile(
+    profile: GoogleOAuthProfile,
+  ): Promise<User> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        await tx.pendingOAuthSignup.deleteMany({
+          where: {
+            provider: GOOGLE_PROVIDER,
+            providerAccountId: profile.providerAccountId,
+          },
+        });
+
+        return tx.user.create({
+          data: {
+            email: profile.providerEmail,
+            passwordHash: null,
+            role: Role.USER,
+            locale: DEFAULT_UI_LOCALE,
+            emailVerified: new Date(),
+            name: profile.name,
+            lastName: profile.lastName,
+            avatarUrl: profile.avatarUrl,
+            oauthAccounts: {
+              create: {
+                provider: GOOGLE_PROVIDER,
+                providerAccountId: profile.providerAccountId,
+                providerEmail: profile.providerEmail,
+                providerEmailVerified: profile.providerEmailVerified,
+              },
+            },
+          },
+        });
+      });
+    } catch (error: unknown) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const existingUser = await this.prisma.user.findUnique({
+          where: { email: profile.providerEmail },
+        });
+        if (existingUser) {
+          return this.linkOAuthToExistingUser(existingUser, profile);
+        }
+      }
+      throw error;
+    }
   }
 
   private async linkOAuthToExistingUser(
@@ -283,13 +316,11 @@ export class GoogleOAuthService {
     }
   }
 
-  private resolveWebEntryUrl(user: Pick<User, 'passwordHash'>): string {
+  private resolveWebEntryUrl(user: Pick<User, 'locale'>): string {
     const configured = this.config.get<string>('WEB_APP_URL')?.trim();
     const baseUrl =
       configured && configured.length > 0 ? configured : WEB_DEFAULT_URL;
-    const path = user.passwordHash
-      ? WEB_AUTH_ENTRY_PATH
-      : WEB_SET_PASSWORD_PATH;
-    return `${baseUrl.replace(/\/$/, '')}${path}`;
+    const locale = normalizeAppUiLocale(user.locale, DEFAULT_UI_LOCALE);
+    return `${baseUrl.replace(/\/$/, '')}/${locale}/${WEB_AUTH_ENTRY_SEGMENT}`;
   }
 }

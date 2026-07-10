@@ -17,6 +17,7 @@ import {
   readPaymentSource,
   withInternalPaymentUpdateFields,
 } from './payments.helpers';
+import { resolveAdminPaymentRelatedItemName } from './payments-related-item.util';
 import { PaymentsCheckoutService } from './payments-checkout.service';
 
 @Injectable()
@@ -198,18 +199,68 @@ export class PaymentsAdminService {
       this.prisma.payment.count({ where }),
     ]);
 
+    const packageNameByUserPackageId =
+      await this.loadPackageNamesForPayments(items);
+
     return {
-      items: items.map((payment) => ({
-        ...payment,
-        source: detectPaymentSource(
+      items: items.map((payment) => {
+        const source = detectPaymentSource(
           payment.description,
           readPaymentSource(payment),
-        ),
-      })),
+        );
+        return {
+          ...payment,
+          source,
+          relatedItemName: resolveAdminPaymentRelatedItemName({
+            source,
+            description: payment.description,
+            sourceId: payment.sourceId,
+            packageNameByUserPackageId,
+          }),
+        };
+      }),
       total,
       take,
       offset,
     };
+  }
+
+  private async loadPackageNamesForPayments(
+    items: readonly {
+      sourceId: string | null;
+      source: unknown;
+      description: string | null;
+    }[],
+  ): Promise<Map<string, string>> {
+    const packageUserPackageIds = items
+      .filter((payment) => {
+        const source = detectPaymentSource(
+          payment.description,
+          readPaymentSource(payment),
+        );
+        return source === 'package' && payment.sourceId !== null;
+      })
+      .map((payment) => payment.sourceId as string);
+
+    if (packageUserPackageIds.length === 0) {
+      return new Map();
+    }
+
+    const userPackages = await this.prisma.userPackage.findMany({
+      where: { id: { in: packageUserPackageIds } },
+      select: {
+        id: true,
+        planNameSnapshot: true,
+        plan: { select: { name: true } },
+      },
+    });
+
+    return new Map(
+      userPackages.map((userPackage) => [
+        userPackage.id,
+        userPackage.plan?.name ?? userPackage.planNameSnapshot,
+      ]),
+    );
   }
 
   private resolveAdminStatusConfirmedAt(
