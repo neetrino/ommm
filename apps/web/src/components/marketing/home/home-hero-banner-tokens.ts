@@ -140,8 +140,8 @@ export const HOME_HERO_ASSETS = {
   promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3-v7.webp",
   /** Figma `881:800` mobile banner — 1179×2556 @3x (393×852 artboard), WebP q98. */
   promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v8.webp",
-  /** Promo CTA pill — 465×87 PNG; leading `0` is baked into the left disc. */
-  promoBannerCtaPill: "/marketing/home/hero/home-hero-promo-banner-cta-pill.png",
+  /** Promo CTA pill — 465×87 lossless WebP; leading `0` is baked into the left disc. */
+  promoBannerCtaPill: "/marketing/home/hero/home-hero-promo-banner-cta-pill.webp",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
