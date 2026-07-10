@@ -8,8 +8,7 @@ import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-
 import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-finance-payment-details-sheet";
 import type { AdminUpdatablePaymentStatus } from "@/components/admin/admin-finance-payment-status-picker";
 import {
-  ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL,
-  ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER,
+  ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
@@ -165,16 +164,17 @@ export function AdminFinancePaymentsPanel({
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS}>
-          <span>{tTable("colUser")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colAmount")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colDate")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colTime")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colSource")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colStatus")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colUser")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colPlan")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colAmount")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colDate")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colTime")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colSource")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colStatus")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>
             {tTable("colPaymentMethod")}
           </span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL}>{tTable("colActions")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colActions")}</span>
         </div>
         {paymentsPayload.items.length === 0 ? (
           <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">

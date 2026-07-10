@@ -73,6 +73,9 @@ function resolveRelatedLabel(
   t: ReturnType<typeof useTranslations<"adminPages.finance">>,
   payment: FinancePaymentItem,
 ): string {
+  if (payment.relatedItemName?.trim()) {
+    return payment.relatedItemName;
+  }
   if (payment.description?.trim()) {
     return payment.description;
   }

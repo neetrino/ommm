@@ -20,7 +20,10 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL,
@@ -87,6 +90,13 @@ export function AdminFinancePaymentCompactRow({
         <AdminListMobileLabel label={tTable("colUser")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
         <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.user.phone, row.user.email)}</p>
+      </div>
+
+      <div className={ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL}>
+        <AdminListMobileLabel label={tTable("colPlan")} />
+        <p className={ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS}>
+          {row.source === "package" && row.relatedItemName ? row.relatedItemName : "—"}
+        </p>
       </div>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
