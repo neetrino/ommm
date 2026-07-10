@@ -15,14 +15,16 @@ describe('payments-related-item.util', () => {
 
   describe('readPackageNameFromPaymentDescription', () => {
     it('reads the plan name from new descriptions', () => {
-      expect(readPackageNameFromPaymentDescription('Package: Monthly Yoga')).toBe(
-        'Monthly Yoga',
-      );
+      expect(
+        readPackageNameFromPaymentDescription('Package: Monthly Yoga'),
+      ).toBe('Monthly Yoga');
     });
 
     it('returns null for legacy id-only descriptions', () => {
       expect(
-        readPackageNameFromPaymentDescription('Package cmrb2g4eh0001s601u3jg95zf'),
+        readPackageNameFromPaymentDescription(
+          'Package cmrb2g4eh0001s601u3jg95zf',
+        ),
       ).toBeNull();
     });
   });

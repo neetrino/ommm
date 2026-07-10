@@ -226,7 +226,11 @@ export class PaymentsAdminService {
   }
 
   private async loadPackageNamesForPayments(
-    items: readonly { sourceId: string | null; source: unknown; description: string | null }[],
+    items: readonly {
+      sourceId: string | null;
+      source: unknown;
+      description: string | null;
+    }[],
   ): Promise<Map<string, string>> {
     const packageUserPackageIds = items
       .filter((payment) => {

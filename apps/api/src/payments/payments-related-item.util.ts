@@ -16,7 +16,11 @@ export function readPackageNameFromPaymentDescription(
     return null;
   }
   const normalized = description.trim();
-  if (!normalized.toLowerCase().startsWith(PACKAGE_DESCRIPTION_PREFIX.toLowerCase())) {
+  if (
+    !normalized
+      .toLowerCase()
+      .startsWith(PACKAGE_DESCRIPTION_PREFIX.toLowerCase())
+  ) {
     return null;
   }
   const name = normalized.slice(PACKAGE_DESCRIPTION_PREFIX.length).trim();
