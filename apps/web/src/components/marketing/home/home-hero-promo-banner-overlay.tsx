@@ -24,6 +24,14 @@ export type HomeHeroPromoBannerOverlayProps = {
   ctaAriaLabel: string;
 };
 
+type PromoHeadlineLayout = {
+  topPx: number;
+  heightPx: number;
+  fontSizePx: number;
+  foundingLineHeightPx: number;
+  areOpenLineHeightPx: number;
+};
+
 type PromoTextBlockLayout = {
   topPx: number;
   heightPx: number;
@@ -43,8 +51,7 @@ function buildPromoTextStyleVars(
   artboardWidthPx: number,
   artboardHeightPx: number,
   shiftUpPx: number,
-  founding: PromoTextBlockLayout,
-  areOpen: PromoTextBlockLayout,
+  headline: PromoHeadlineLayout,
   limited: PromoTextBlockLayout,
   ctaBadge?: PromoCtaBadgeLayout,
 ): CSSProperties {
@@ -53,14 +60,15 @@ function buildPromoTextStyleVars(
     ["--home-hero-promo-artboard-height" as string]: String(artboardHeightPx),
     ["--home-hero-promo-text-shift-up-px" as string]: String(shiftUpPx),
     ["--home-hero-promo-text-color" as string]: HOME_HERO_PROMO_BANNER_TEXT_FIGMA.textColor,
-    ["--home-hero-promo-founding-top-px" as string]: String(founding.topPx),
-    ["--home-hero-promo-founding-height-px" as string]: String(founding.heightPx),
-    ["--home-hero-promo-founding-size-px" as string]: String(founding.fontSizePx),
-    ["--home-hero-promo-founding-line-height-px" as string]: String(founding.lineHeightPx),
-    ["--home-hero-promo-are-open-top-px" as string]: String(areOpen.topPx),
-    ["--home-hero-promo-are-open-height-px" as string]: String(areOpen.heightPx),
-    ["--home-hero-promo-are-open-size-px" as string]: String(areOpen.fontSizePx),
-    ["--home-hero-promo-are-open-line-height-px" as string]: String(areOpen.lineHeightPx),
+    ["--home-hero-promo-headline-top-px" as string]: String(headline.topPx),
+    ["--home-hero-promo-headline-height-px" as string]: String(headline.heightPx),
+    ["--home-hero-promo-headline-size-px" as string]: String(headline.fontSizePx),
+    ["--home-hero-promo-headline-founding-line-height-px" as string]: String(
+      headline.foundingLineHeightPx,
+    ),
+    ["--home-hero-promo-headline-are-open-line-height-px" as string]: String(
+      headline.areOpenLineHeightPx,
+    ),
     ["--home-hero-promo-limited-top-px" as string]: String(limited.topPx),
     ["--home-hero-promo-limited-height-px" as string]: String(limited.heightPx),
     ["--home-hero-promo-limited-width-px" as string]: String(limited.widthPx ?? 0),
@@ -80,8 +88,7 @@ const DESKTOP_TEXT_STYLE = buildPromoTextStyleVars(
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA.desktopArtboardWidthPx,
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA.desktopArtboardHeightPx,
   HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX.desktop,
-  HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopFounding,
-  HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopAreOpen,
+  HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopHeadline,
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopLimited,
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopCtaBadge,
 );
@@ -90,8 +97,7 @@ const MOBILE_TEXT_STYLE = buildPromoTextStyleVars(
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA.mobileArtboardWidthPx,
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA.mobileArtboardHeightPx,
   HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX.mobile,
-  HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileFounding,
-  HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileAreOpen,
+  HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileHeadline,
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileLimited,
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileCtaBadge,
 );
@@ -134,12 +140,10 @@ function PromoBannerCopy({
 
   return (
     <div className={isDesktop ? styles.desktopOnly : styles.mobileOnly} style={style}>
-      <div className={`${styles.textBlock} ${styles.foundingBlock}`}>
-        <p className={styles.foundingLine}>{foundingLine1}</p>
-        <p className={styles.foundingLine}>{foundingLine2}</p>
-      </div>
-      <div className={`${styles.textBlock} ${styles.areOpenBlock}`}>
-        <p className={styles.areOpenLine}>{areOpen}</p>
+      <div className={`${styles.textBlock} ${styles.headlineBlock}`}>
+        <p className={styles.headlineLine}>{foundingLine1}</p>
+        <p className={styles.headlineLine}>{foundingLine2}</p>
+        <p className={styles.headlineLineAreOpen}>{areOpen}</p>
       </div>
       <div className={`${styles.textBlock} ${styles.limitedBlock}`}>
         <p className={styles.limitedLine}>{limitedLine1}</p>
@@ -176,7 +180,7 @@ export function HomeHeroPromoBannerOverlay(props: HomeHeroPromoBannerOverlayProp
   return (
     <div className={styles.overlay}>
       <h2 id="home-hero-promo-heading" className={styles.srOnly}>
-        {props.foundingLine1} {props.foundingLine2}. {props.areOpen}. {props.limitedLine1}.{" "}
+        {props.foundingLine1} {props.foundingLine2} {props.areOpen}. {props.limitedLine1}.{" "}
         {props.limitedLine2Prefix}
         {props.limitedLine2Emphasis}
       </h2>

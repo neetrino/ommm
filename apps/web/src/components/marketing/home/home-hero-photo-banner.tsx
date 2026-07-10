@@ -24,8 +24,7 @@ import {
   HOME_HERO_PROMO_BANNER_LAYOUT,
   HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT,
   HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET,
-  HOME_HERO_PROMO_BANNER_TEXT_IPAD_ARE_OPEN_PULL_UP_PX,
-  HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_AND_CTA_PULL_UP_PX,
+  HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_CTA_PULL_UP_PX,
   HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET,
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
@@ -185,11 +184,8 @@ export async function HomeHeroPhotoBanner({
       HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET.air,
     ["--home-hero-promo-text-ipad-pill-offset-pro" as string]:
       HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET.pro,
-    ["--home-hero-promo-are-open-ipad-pull-up-px" as string]: String(
-      HOME_HERO_PROMO_BANNER_TEXT_IPAD_ARE_OPEN_PULL_UP_PX,
-    ),
     ["--home-hero-promo-limited-cta-ipad-pull-up-px" as string]: String(
-      HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_AND_CTA_PULL_UP_PX,
+      HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_CTA_PULL_UP_PX,
     ),
     ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,

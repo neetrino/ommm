@@ -245,78 +245,119 @@ export const HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX = {
   mobile: 0,
 } as const;
 
-/** iPad — tighter gap between founding lines and “are open” (744px–1366px). */
-export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_ARE_OPEN_PULL_UP_PX = 28;
+/** Inter-block vertical gaps — Figma desktop `887:805`–`887:807`. */
+const HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX = {
+  /** Figma `887:805` top (755) − unified headline bottom (656). Full desktop only. */
+  headlineToLimited: 99,
+  limitedToCta: 56,
+} as const;
 
-/** iPad — tighter gap between “are open” and limited copy + CTA (744px–1366px). */
-export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_BELOW_ARE_OPEN_GAP_REDUCTION_PX = 28;
+/** iPad desktop copy — tighter gap before limited block (744px–1366px). */
+const HOME_HERO_PROMO_BANNER_IPAD_HEADLINE_TO_LIMITED_GAP_PX = 58;
 
-/** Total pull-up for limited + CTA — keeps sync with are open + extra below gap trim. */
-export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_AND_CTA_PULL_UP_PX =
-  HOME_HERO_PROMO_BANNER_TEXT_IPAD_ARE_OPEN_PULL_UP_PX +
-  HOME_HERO_PROMO_BANNER_TEXT_IPAD_BELOW_ARE_OPEN_GAP_REDUCTION_PX;
+/** Mobile — tighter headline→limited gap on phone artboard (393×852). */
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TO_LIMITED_GAP_PX = 24;
+
+/** Pull limited + CTA up on iPad to restore smaller headline→limited gap. */
+export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_CTA_PULL_UP_PX =
+  HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.headlineToLimited -
+  HOME_HERO_PROMO_BANNER_IPAD_HEADLINE_TO_LIMITED_GAP_PX;
+
+function scalePromoBannerTextGapToMobileArtboard(gapPx: number): number {
+  return Math.round(
+    (gapPx * HOME_HERO_PROMO_BANNER_TEXT_FIGMA.mobileArtboardHeightPx) /
+      HOME_HERO_PROMO_BANNER_TEXT_FIGMA.desktopArtboardHeightPx,
+  );
+}
+
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX = 266;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FONT_SIZE_PX = 120;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX = 130;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 130;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX =
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX * 2 +
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX;
+
+const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX = 128;
+const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX =
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX +
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX +
+  HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.headlineToLimited;
+
+const HOME_HERO_PROMO_BANNER_DESKTOP_CTA_TOP_PX =
+  HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX +
+  HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX +
+  HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.limitedToCta;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TOP_PX = 97;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FONT_SIZE_PX = 50;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX = 50;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 70;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX =
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX * 2 +
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_HEIGHT_PX = 102;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_TOP_PX =
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TOP_PX +
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX +
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TO_LIMITED_GAP_PX;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_CTA_TOP_PX =
+  HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_TOP_PX +
+  HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_HEIGHT_PX +
+  scalePromoBannerTextGapToMobileArtboard(
+    HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.limitedToCta,
+  );
 
 export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
-  desktopFounding: {
-    figmaNodeId: "887:803",
+  desktopHeadline: {
+    figmaNodeIds: ["887:803", "887:804"],
     leftPx: 110,
-    topPx: 266,
-    heightPx: 260,
-    fontSizePx: 120,
-    lineHeightPx: 130,
-  },
-  desktopAreOpen: {
-    figmaNodeId: "887:804",
-    leftPx: 110,
-    topPx: 567,
-    heightPx: 130,
-    fontSizePx: 120,
-    lineHeightPx: 130,
+    topPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX,
+    heightPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX,
+    fontSizePx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FONT_SIZE_PX,
+    foundingLineHeightPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX,
+    areOpenLineHeightPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX,
   },
   desktopLimited: {
     figmaNodeId: "887:805",
     leftPx: 110,
-    topPx: 755,
-    heightPx: 128,
+    topPx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX,
+    heightPx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX,
     fontSizePx: 60,
     lineHeightPx: 64,
   },
   desktopCtaBadge: {
     figmaNodeId: "887:807",
     leftPx: 110,
-    topPx: 939,
+    topPx: HOME_HERO_PROMO_BANNER_DESKTOP_CTA_TOP_PX,
     widthPx: 465,
     heightPx: 87,
   },
-  mobileFounding: {
-    figmaNodeId: "882:810",
+  mobileHeadline: {
+    figmaNodeIds: ["882:810", "882:811"],
     leftPx: 41,
-    topPx: 97,
-    heightPx: 100,
-    fontSizePx: 50,
-    lineHeightPx: 50,
-  },
-  mobileAreOpen: {
-    figmaNodeId: "882:811",
-    leftPx: 41,
-    topPx: 189,
-    heightPx: 70,
-    fontSizePx: 50,
-    lineHeightPx: 70,
+    topPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TOP_PX,
+    heightPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX,
+    fontSizePx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FONT_SIZE_PX,
+    foundingLineHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX,
+    areOpenLineHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX,
   },
   mobileLimited: {
     figmaNodeId: "882:813",
     leftPx: 41,
-    topPx: 259,
+    topPx: HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_TOP_PX,
     widthPx: 277,
-    heightPx: 102,
+    heightPx: HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_HEIGHT_PX,
     fontSizePx: 30,
     lineHeightPx: 34,
   },
   mobileCtaBadge: {
     figmaNodeId: "882:827",
     leftPx: 41,
-    topPx: 389,
+    topPx: HOME_HERO_PROMO_BANNER_MOBILE_CTA_TOP_PX,
     widthPx: 168,
     heightPx: 36,
   },

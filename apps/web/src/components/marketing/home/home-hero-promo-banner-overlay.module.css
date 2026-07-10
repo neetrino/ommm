@@ -28,8 +28,7 @@
   color: var(--home-hero-promo-text-color, #fbf5d5);
 }
 
-.foundingBlock,
-.areOpenBlock,
+.headlineBlock,
 .limitedBlock,
 .ctaBadge {
   left: var(--home-hero-promo-text-inset-left);
@@ -37,8 +36,7 @@
 
 /* iPad — match narrowed nav pill edge (desktop copy only; see layout tokens). */
 @media (min-width: 744px) and (max-width: 1023px) {
-  .desktopOnly .foundingBlock,
-  .desktopOnly .areOpenBlock,
+  .desktopOnly .headlineBlock,
   .desktopOnly .limitedBlock,
   .desktopOnly .ctaBadge {
     left: calc(
@@ -48,8 +46,7 @@
 }
 
 @media (min-width: 1024px) and (max-width: 1366px) {
-  .desktopOnly .foundingBlock,
-  .desktopOnly .areOpenBlock,
+  .desktopOnly .headlineBlock,
   .desktopOnly .limitedBlock,
   .desktopOnly .ctaBadge {
     left: calc(
@@ -58,13 +55,13 @@
   }
 }
 
-.foundingBlock {
+.headlineBlock {
   top: calc(
     100% *
-      (var(--home-hero-promo-founding-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
+      (var(--home-hero-promo-headline-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
       var(--home-hero-promo-artboard-height)
   );
-  height: calc(100% * var(--home-hero-promo-founding-height-px) / var(--home-hero-promo-artboard-height));
+  height: calc(100% * var(--home-hero-promo-headline-height-px) / var(--home-hero-promo-artboard-height));
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -72,78 +69,30 @@
   font-family: var(--font-gt-super-ds-trial), ui-serif, Georgia, serif;
   font-size: clamp(
     1.75rem,
-    calc(100svw * var(--home-hero-promo-founding-size-px) / var(--home-hero-promo-artboard-width)),
-    calc(var(--home-hero-promo-founding-size-px) * 1px)
+    calc(100svw * var(--home-hero-promo-headline-size-px) / var(--home-hero-promo-artboard-width)),
+    calc(var(--home-hero-promo-headline-size-px) * 1px)
   );
   font-weight: 400;
 }
 
-.foundingLine {
+.headlineLine {
   display: block;
   margin: 0;
-  line-height: calc(var(--home-hero-promo-founding-line-height-px) / var(--home-hero-promo-founding-size-px));
+  line-height: calc(
+    var(--home-hero-promo-headline-founding-line-height-px) / var(--home-hero-promo-headline-size-px)
+  );
   white-space: nowrap;
 }
 
-.areOpenBlock {
-  top: calc(
-    100% *
-      (var(--home-hero-promo-are-open-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
-      var(--home-hero-promo-artboard-height)
+.headlineLineAreOpen {
+  display: block;
+  margin: 0;
+  line-height: calc(
+    var(--home-hero-promo-headline-are-open-line-height-px) / var(--home-hero-promo-headline-size-px)
   );
-  height: calc(100% * var(--home-hero-promo-are-open-height-px) / var(--home-hero-promo-artboard-height));
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  line-height: 0;
-  font-family: var(--font-gt-super-ds-trial), ui-serif, Georgia, serif;
-  font-size: clamp(
-    1.75rem,
-    calc(100svw * var(--home-hero-promo-are-open-size-px) / var(--home-hero-promo-artboard-width)),
-    calc(var(--home-hero-promo-are-open-size-px) * 1px)
-  );
+  white-space: nowrap;
   font-weight: 500;
   font-style: italic;
-}
-
-.areOpenLine {
-  display: block;
-  margin: 0;
-  line-height: calc(var(--home-hero-promo-are-open-line-height-px) / var(--home-hero-promo-are-open-size-px));
-  white-space: nowrap;
-}
-
-/* iPad — pull “are open” closer to founding lines (desktop copy only). */
-@media (min-width: 744px) and (max-width: 1366px) {
-  .desktopOnly .areOpenBlock {
-    top: calc(
-      100% *
-        (
-          var(--home-hero-promo-are-open-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
-            var(--home-hero-promo-are-open-ipad-pull-up-px, 0)
-        ) / var(--home-hero-promo-artboard-height)
-    );
-  }
-
-  .desktopOnly .limitedBlock {
-    top: calc(
-      100% *
-        (
-          var(--home-hero-promo-limited-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
-            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
-        ) / var(--home-hero-promo-artboard-height)
-    );
-  }
-
-  .desktopOnly .ctaBadge {
-    top: calc(
-      100% *
-        (
-          var(--home-hero-promo-cta-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
-            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
-        ) / var(--home-hero-promo-artboard-height)
-    );
-  }
 }
 
 .limitedBlock {
@@ -252,6 +201,29 @@
 
   .mobileOnly {
     display: none;
+  }
+}
+
+/* iPad — smaller headline→limited gap (58px); full desktop (1367px+) keeps 99px. */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .desktopOnly .limitedBlock {
+    top: calc(
+      100% *
+        (
+          var(--home-hero-promo-limited-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
+            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
+        ) / var(--home-hero-promo-artboard-height)
+    );
+  }
+
+  .desktopOnly .ctaBadge {
+    top: calc(
+      100% *
+        (
+          var(--home-hero-promo-cta-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
+            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
+        ) / var(--home-hero-promo-artboard-height)
+    );
   }
 }
 
