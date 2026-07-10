@@ -37,10 +37,8 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS = [
 export const ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL =
   "min-w-0 text-left text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";
 
-export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL = [
-  ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
-  "pl-1",
-].join(" ");
+export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL =
+  "min-w-0 text-center text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS = [
   ADMIN_LIST_ROW_SURFACE,
@@ -79,7 +77,7 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL = [
 export const ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL = USER_LIST_CELL_CLASS;
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL =
-  "min-w-0 w-full max-w-full justify-self-stretch text-left pl-1";
+  "min-w-0 w-full max-w-full justify-self-stretch text-center";
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS =
   "text-sm font-medium text-sage-800";

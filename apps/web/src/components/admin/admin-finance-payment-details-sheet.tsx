@@ -30,7 +30,6 @@ import type { FinancePaymentItem } from "@/components/admin/admin-finance-types"
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
-import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { requiresManualAdminConfirmation } from "@/lib/payment-confirmation";
 
@@ -85,6 +84,10 @@ function resolveRelatedLabel(
   return "—";
 }
 
+function resolvePaymentDateTime(payment: FinancePaymentItem): string {
+  return payment.confirmedAt ?? payment.createdAt;
+}
+
 export function AdminFinancePaymentDetailsSheet({
   payment,
   locale,
@@ -99,7 +102,8 @@ export function AdminFinancePaymentDetailsSheet({
     return null;
   }
 
-  const createdIso = toPaymentIso(payment.createdAt);
+  const paymentDateTime = resolvePaymentDateTime(payment);
+  const paymentDateTimeIso = toPaymentIso(paymentDateTime);
   const userLabel = displayName(payment);
   const showAdminActions = requiresManualAdminConfirmation(
     payment.paymentMethod,
@@ -176,33 +180,21 @@ export function AdminFinancePaymentDetailsSheet({
               <DetailRow label={t("paymentDetails.reference")} value={payment.paymentReference} />
             ) : null}
             <DetailRow
-              label={t("paymentDetails.createdAt")}
+              label={t("paymentDetails.dateTime")}
               value={
                 <span className="inline-flex flex-wrap items-center gap-2">
                   <SessionDateTimeHighlight
                     locale={locale}
-                    startsAt={createdIso}
-                    endsAt={createdIso}
+                    startsAt={paymentDateTimeIso}
+                    endsAt={paymentDateTimeIso}
                     variant="listDateYear"
                   />
                   <span className="text-sm text-sage-700">
-                    {formatPaymentTime(payment.createdAt, locale)}
+                    {formatPaymentTime(paymentDateTime, locale)}
                   </span>
                 </span>
               }
             />
-            {payment.confirmedAt ? (
-              <DetailRow
-                label={t("paymentDetails.confirmedAt")}
-                value={formatDateTimeForUi(payment.confirmedAt, locale)}
-              />
-            ) : null}
-            {payment.confirmedAt ? (
-              <DetailRow
-                label={t("paymentDetails.confirmedDate")}
-                value={formatDateForUi(payment.confirmedAt)}
-              />
-            ) : null}
           </dl>
         </div>
 
