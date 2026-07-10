@@ -20,8 +20,8 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL,
-  ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
@@ -29,9 +29,11 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_TIME_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_USER_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_USER_META_CLASS,
+  ADMIN_FINANCE_PAYMENTS_LIST_USER_TITLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { displayPhoneOrEmail } from "@/lib/phone";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
@@ -86,10 +88,12 @@ export function AdminFinancePaymentCompactRow({
       }}
       className={ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS}
     >
-      <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
+      <div className={ADMIN_FINANCE_PAYMENTS_LIST_USER_CELL}>
         <AdminListMobileLabel label={tTable("colUser")} />
-        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
-        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.user.phone, row.user.email)}</p>
+        <p className={ADMIN_FINANCE_PAYMENTS_LIST_USER_TITLE_CLASS}>{userLabel}</p>
+        <p className={ADMIN_FINANCE_PAYMENTS_LIST_USER_META_CLASS}>
+          {displayPhoneOrEmail(row.user.phone, row.user.email)}
+        </p>
       </div>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL}>
@@ -148,7 +152,7 @@ export function AdminFinancePaymentCompactRow({
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL}>
         <AdminListMobileLabel label={tTable("colPaymentMethod")} />
-        <p className="truncate text-sm font-medium text-sage-800">
+        <p className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS}>
           {resolveMethodLabel(t, row.paymentMethod)}
         </p>
       </div>

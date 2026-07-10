@@ -17,7 +17,7 @@ export function AdminFinancePaymentRowActions({
 
   return (
     <div
-      className="flex items-center justify-end gap-1"
+      className="flex w-full items-center justify-center gap-1"
       role="group"
       aria-label={t("colActions")}
     >

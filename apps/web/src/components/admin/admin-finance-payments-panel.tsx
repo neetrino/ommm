@@ -8,8 +8,11 @@ import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-
 import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-finance-payment-details-sheet";
 import type { AdminUpdatablePaymentStatus } from "@/components/admin/admin-finance-payment-status-picker";
 import {
+  ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS,
+  ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
 import type {
@@ -162,38 +165,40 @@ export function AdminFinancePaymentsPanel({
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
 
-      <div className={ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS}>
-        <div className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS}>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colUser")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colPlan")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colAmount")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colDate")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colTime")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colSource")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colStatus")}</span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>
-            {tTable("colPaymentMethod")}
-          </span>
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colActions")}</span>
+      <div className={ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS}>
+        <div className={ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS}>
+          <div className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS}>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colUser")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colPlan")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colAmount")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colDate")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colTime")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colSource")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colStatus")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL}>
+              {tTable("colPaymentMethod")}
+            </span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL}>{tTable("colActions")}</span>
+          </div>
+          {paymentsPayload.items.length === 0 ? (
+            <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
+              {tTable("empty")}
+            </p>
+          ) : (
+            paymentsPayload.items.map((row) => (
+              <AdminFinancePaymentCompactRow
+                key={row.id}
+                locale={locale}
+                row={row}
+                busy={busyPaymentId === row.id}
+                onOpenDetails={() => setSelectedPayment(row)}
+                onChangeStatus={(nextStatus) => {
+                  void handlePaymentStatusChange(row, nextStatus);
+                }}
+              />
+            ))
+          )}
         </div>
-        {paymentsPayload.items.length === 0 ? (
-          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
-            {tTable("empty")}
-          </p>
-        ) : (
-          paymentsPayload.items.map((row) => (
-            <AdminFinancePaymentCompactRow
-              key={row.id}
-              locale={locale}
-              row={row}
-              busy={busyPaymentId === row.id}
-              onOpenDetails={() => setSelectedPayment(row)}
-              onChangeStatus={(nextStatus) => {
-                void handlePaymentStatusChange(row, nextStatus);
-              }}
-            />
-          ))
-        )}
       </div>
 
       <AdminFinancePaymentDetailsSheet
