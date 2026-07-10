@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
-import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { VercelAnalytics } from "@/components/analytics/vercel-analytics";
 import { routing } from "@/i18n/routing";
 import { gtSuperDsTrial } from "@/lib/fonts/gt-super-ds-trial";
@@ -69,7 +68,6 @@ export default function RootLayout({
     >
       <body className="min-h-screen overflow-x-clip bg-paper font-sans text-sage-900 antialiased">
         {children}
-        <MetaPixel />
         <VercelAnalytics />
       </body>
     </html>

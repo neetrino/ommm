@@ -28,16 +28,14 @@ fbq('init', '${pixelId}');
 export function MetaPixel() {
   const pathname = usePathname();
   const [isScriptReady, setIsScriptReady] = useState(false);
+  const trackPageView = shouldSendMetaPixelPageView(pathname);
 
   useEffect(() => {
-    if (!META_PIXEL_ENABLED || !isScriptReady) {
-      return;
-    }
-    if (!shouldSendMetaPixelPageView(pathname)) {
+    if (!META_PIXEL_ENABLED || !isScriptReady || !trackPageView) {
       return;
     }
     window.fbq?.("track", "PageView");
-  }, [isScriptReady, pathname]);
+  }, [isScriptReady, trackPageView]);
 
   if (!META_PIXEL_ENABLED) {
     return null;
@@ -55,15 +53,17 @@ export function MetaPixel() {
           __html: buildMetaPixelBootstrap(META_PIXEL_ID),
         }}
       />
-      <noscript>
-        <img
-          alt=""
-          height="1"
-          width="1"
-          className="hidden"
-          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
-        />
-      </noscript>
+      {trackPageView ? (
+        <noscript>
+          <img
+            alt=""
+            height="1"
+            width="1"
+            className="hidden"
+            src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          />
+        </noscript>
+      ) : null}
     </>
   );
 }
