@@ -13,7 +13,7 @@ import { PaymentOutcomeSphereLogo } from "@/components/payment/payment-outcome-s
 import styles from "./payment-outcome-screen.module.css";
 
 type PaymentOutcomeScreenProps = {
-  outcome: "success" | "failed";
+  outcome: "success" | "failed" | "pending";
   source: PaymentCheckoutSource;
   reference: string | null;
 };
@@ -28,23 +28,35 @@ export function PaymentOutcomeScreen({
   const tNav = useTranslations("nav");
   const tCheckout = useTranslations("userPages.payments.checkout");
   const isSuccess = outcome === "success";
+  const isPending = outcome === "pending";
   const returnPath = paymentCheckoutReturnPath(source);
   const retryHref =
     reference !== null
       ? `/user/payments/checkout?${new URLSearchParams({ source, reference }).toString()}`
       : PAYMENT_FAIL_PATH;
 
+  const iconRingClass = isSuccess
+    ? styles.iconRingSuccess
+    : isPending
+      ? styles.iconRingPending
+      : styles.iconRingFailed;
+
+  const titleKey = isSuccess
+    ? "successTitle"
+    : isPending
+      ? "pendingTitle"
+      : "failedTitle";
+  const leadKey = isSuccess ? "successLead" : isPending ? "pendingLead" : "failedLead";
+
   return (
     <section className={styles.panel}>
       <PaymentOutcomeSphereLogo alt={tCommon("brand")} homeAriaLabel={tNav("home")} />
 
-      <div
-        className={`${styles.iconRing} ${
-          isSuccess ? styles.iconRingSuccess : styles.iconRingFailed
-        }`}
-      >
+      <div className={`${styles.iconRing} ${iconRingClass}`}>
         {isSuccess ? (
           <CheckCircleGlyph className={styles.iconGlyph} />
+        ) : isPending ? (
+          <ClockGlyph className={styles.iconGlyph} />
         ) : (
           <CancelGlyph className={styles.iconGlyph} />
         )}
@@ -54,22 +66,39 @@ export function PaymentOutcomeScreen({
         {tCheckout(`sources.${source}.eyebrow`)}
       </p>
       <h1 className={`${styles.title} text-sage-950`}>
-        {isSuccess ? t(`sources.${source}.successTitle`) : t(`sources.${source}.failedTitle`)}
+        {t(`sources.${source}.${titleKey}`)}
       </h1>
-      <p className={`${styles.lead} text-sage-600`}>
-        {isSuccess ? t(`sources.${source}.successLead`) : t(`sources.${source}.failedLead`)}
-      </p>
+      <p className={`${styles.lead} text-sage-600`}>{t(`sources.${source}.${leadKey}`)}</p>
 
       <div className={styles.actions}>
         <Link href={returnPath}>
           <OmmButton type="button">{t("doneButton")}</OmmButton>
         </Link>
-        {!isSuccess ? (
+        {!isSuccess && !isPending ? (
           <Link href={retryHref} className="ommm-cta-ghost inline-flex justify-center">
             {t("retryButton")}
           </Link>
         ) : null}
       </div>
     </section>
+  );
+}
+
+function ClockGlyph({ className }: { className: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
   );
 }
