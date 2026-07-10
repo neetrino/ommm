@@ -1,4 +1,5 @@
 import { scaleIpadAirPx } from "@/lib/viewport-breakpoints";
+import { MARKETING_CONTENT_INLINE_INSET } from "@/components/marketing/marketing-content-layout";
 
 export const HOME_HERO_FIGMA = {
   artboardWidthPx: 1440,
@@ -129,15 +130,19 @@ export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
 const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1440;
 const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 924;
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 455;
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1024;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 479;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 852;
 
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
-  /** Figma `805:802` @2x — 2880×1848 source for retina desktop. */
-  promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
-  /** Founding memberships mobile banner — 1365×3072 @3x (455×1024 artboard), WebP q98. */
-  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v4.webp",
+  /** Figma `887:808` (`887:800` bg + `887:801` subject) @2x — 2880×1848 retina desktop. */
+  promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3-v7.webp",
+  /** Figma `881:800` mobile banner — 1437×2556 @3x (479×852 artboard), WebP q98. */
+  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v7.webp",
+  /** Figma `882:827` — mobile promo CTA pill (SVG). */
+  promoBannerMobileCta: "/marketing/home/hero/home-hero-promo-banner-mobile-cta.svg",
+  /** Figma `887:807` — desktop promo CTA pill (SVG). */
+  promoBannerDesktopCta: "/marketing/home/hero/home-hero-promo-banner-desktop-cta.svg",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -190,26 +195,119 @@ export const HOME_HERO_LOGO_MARK_VIDEO_LAYOUT = {
 /** Must match `HOME_HERO_CAROUSEL_SLIDES.length` in home-hero-slide-context. */
 export const HOME_HERO_CAROUSEL_SLIDE_COUNT = 3;
 
-/** Figma `805:802` — founding memberships banner (copy baked into art). */
+/** Figma `887:808` — Pilates promo banner (background `887:800` + subject `887:801`). */
 export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
   imageWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
   imageHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX}`,
-  figmaNodeId: "805:802",
-  sectionBackground: "#8a7348",
-  /** Desktop — slightly above center inside the shared hero band. */
-  objectPosition: "center 54%",
+  figmaNodeId: "887:808",
+  sectionBackground: "#c4a962",
+  /** Desktop — subject sits on the right inside the shared hero band. */
+  objectPosition: "center center",
 } as const;
 
-/** Mobile promo slide — founding memberships portrait banner with baked-in copy. */
+/** Mobile promo slide — Figma `881:800` portrait banner with baked-in copy. */
 export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
-  sectionBackground: "#876734",
+  sectionBackground: "#c4a962",
   objectPosition: "center top",
+} as const;
+
+/** Figma `887:840` Banner correct — live promo copy overlay. */
+export const HOME_HERO_PROMO_BANNER_TEXT_FIGMA = {
+  textColor: "#fbf5d5",
+  desktopArtboardWidthPx: 1896,
+  desktopArtboardHeightPx: 1209,
+  /** Figma `882:809` phone frame — text aligns to `881:800` banner (393×852). */
+  mobileArtboardWidthPx: 393,
+  mobileArtboardHeightPx: 852,
+} as const;
+
+/** Horizontal inset for promo copy — left edge of navbar pill (`ommm-container` edge). */
+export const HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET = `max(${MARKETING_CONTENT_INLINE_INSET}, calc((100vw - min(1280px, 100vw - 2rem)) / 2))`;
+
+/** Shifts all promo copy blocks up — subtracted from Figma `topPx` before scaling. */
+export const HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX = {
+  desktop: 40,
+  mobile: 24,
+} as const;
+
+export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
+  desktopFounding: {
+    figmaNodeId: "887:803",
+    leftPx: 110,
+    topPx: 266,
+    heightPx: 260,
+    fontSizePx: 120,
+    lineHeightPx: 130,
+  },
+  desktopAreOpen: {
+    figmaNodeId: "887:804",
+    leftPx: 110,
+    topPx: 567,
+    heightPx: 130,
+    fontSizePx: 120,
+    lineHeightPx: 130,
+  },
+  desktopLimited: {
+    figmaNodeId: "887:805",
+    leftPx: 110,
+    topPx: 755,
+    heightPx: 128,
+    fontSizePx: 60,
+    lineHeightPx: 64,
+  },
+  desktopCtaBadge: {
+    figmaNodeId: "887:807",
+    leftPx: 110,
+    topPx: 939,
+    widthPx: 465,
+    heightPx: 87,
+  },
+  mobileFounding: {
+    figmaNodeId: "882:810",
+    leftPx: 41,
+    topPx: 77,
+    heightPx: 100,
+    fontSizePx: 50,
+    lineHeightPx: 50,
+  },
+  mobileAreOpen: {
+    figmaNodeId: "882:811",
+    leftPx: 41,
+    topPx: 189,
+    heightPx: 70,
+    fontSizePx: 50,
+    lineHeightPx: 70,
+  },
+  mobileLimited: {
+    figmaNodeId: "882:813",
+    leftPx: 41,
+    topPx: 285,
+    heightPx: 102,
+    fontSizePx: 30,
+    lineHeightPx: 34,
+  },
+  mobileCtaBadge: {
+    figmaNodeId: "882:827",
+    leftPx: 41,
+    topPx: 415,
+    widthPx: 177,
+    heightPx: 33,
+  },
+} as const;
+
+/** Left logo disc on promo CTA pill — tuned for visibility on `882:827` / `887:807`. */
+export const HOME_HERO_PROMO_CTA_LOGO_LAYOUT = {
+  widthRatio: 0.32,
+  heightRatio: 1.48,
+  topOffsetRatio: -0.5,
+  leftOffsetRatio: -0.08,
+  objectPosition: "44% 36%",
 } as const;
 
 /** R2 object keys — upload via `pnpm --filter web assets:upload-marketing-videos`. */

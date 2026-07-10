@@ -117,7 +117,7 @@
 .homeHeroPromoAspectSpacer {
   display: block;
   width: 100%;
-  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 455 / 1024);
+  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 479 / 852);
 }
 
 .homeHeroFramePromo {
@@ -128,7 +128,7 @@
 }
 
 .homeHeroSectionPromo {
-  background-color: var(--home-hero-promo-section-bg-mobile, #8a7348);
+  background-color: var(--home-hero-promo-section-bg-mobile, #c4a962);
 }
 
 .homeHeroBackground {
@@ -372,7 +372,7 @@
   }
 
   .homeHeroSectionPromo {
-    background-color: var(--home-hero-promo-section-bg, #8a7348);
+    background-color: var(--home-hero-promo-section-bg, #c4a962);
   }
 
   .homeHeroFrame {

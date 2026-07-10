@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { useEffect } from "react";
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
@@ -16,6 +17,7 @@ import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 type HomeHeroMediaBackgroundProps = {
   heroImageAlt: string;
   promoBannerAlt: string;
+  promoOverlay?: ReactNode;
 };
 
 type HomeHeroLegacyPhotoSlideProps = {
@@ -42,6 +44,7 @@ function HomeHeroLegacyPhotoSlide({ imageAlt }: HomeHeroLegacyPhotoSlideProps) {
 type HomeHeroPromoBannerSlideProps = {
   assetKey: HomeHeroPromoBannerKey;
   imageAlt: string;
+  overlay?: ReactNode;
 };
 
 function resolvePromoBannerSources(assetKey: HomeHeroPromoBannerKey): {
@@ -60,7 +63,7 @@ function resolvePromoBannerSources(assetKey: HomeHeroPromoBannerKey): {
   };
 }
 
-function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSlideProps) {
+function HomeHeroPromoBannerSlide({ assetKey, imageAlt, overlay }: HomeHeroPromoBannerSlideProps) {
   const sources = resolvePromoBannerSources(assetKey);
 
   return (
@@ -87,6 +90,7 @@ function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSli
           {...aboveFoldImageProps()}
         />
       </div>
+      {overlay}
     </div>
   );
 }
@@ -95,6 +99,7 @@ function HomeHeroPromoBannerSlide({ assetKey, imageAlt }: HomeHeroPromoBannerSli
 export function HomeHeroMediaBackground({
   heroImageAlt,
   promoBannerAlt,
+  promoOverlay,
 }: HomeHeroMediaBackgroundProps) {
   const slide = useHomeHeroSlide();
   const {
@@ -173,6 +178,7 @@ export function HomeHeroMediaBackground({
               key={`hero-slide-${index}`}
               assetKey={carouselSlide.assetKey}
               imageAlt={promoBannerAlt}
+              overlay={promoOverlay}
             />
           );
         })}

@@ -22,7 +22,7 @@ export function HomeHeroSectionShell({
   return (
     <section
       aria-label={isPromoBannerActive ? promoBannerAriaLabel : undefined}
-      aria-labelledby={isPromoBannerActive ? undefined : "home-hero-heading"}
+      aria-labelledby={isPromoBannerActive ? "home-hero-promo-heading" : "home-hero-heading"}
       className={`${marketingMontserrat.variable} ${styles.homeHeroSection} ${isPromoBannerActive ? styles.homeHeroSectionPromo : ""} relative w-full min-w-0`}
       style={style}
     >
