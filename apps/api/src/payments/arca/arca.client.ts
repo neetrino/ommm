@@ -39,15 +39,29 @@ export class ArcaClient {
     });
   }
 
-  async getOrderStatusExtended(
-    orderId: string,
-  ): Promise<ArcaOrderStatusResponse> {
+  /**
+   * Fetches the authoritative order status from the bank.
+   * Accepts either the Arca `orderId` (preferred) or our `orderNumber` (= payment id),
+   * per Merchant Manual §7.1.5.
+   */
+  async getOrderStatusExtended(params: {
+    orderId?: string;
+    orderNumber?: string;
+  }): Promise<ArcaOrderStatusResponse> {
     const { userName, password } = this.arcaConfig.getCredentials();
-    return this.post<ArcaOrderStatusResponse>('getOrderStatusExtended.do', {
-      userName,
-      password,
-      orderId,
-    });
+    const query: Record<string, string> = { userName, password };
+    if (params.orderId) {
+      query.orderId = params.orderId;
+    } else if (params.orderNumber) {
+      query.orderNumber = params.orderNumber;
+    } else {
+      throw new Error('Arca status lookup requires orderId or orderNumber');
+    }
+
+    return this.post<ArcaOrderStatusResponse>(
+      'getOrderStatusExtended.do',
+      query,
+    );
   }
 
   private async post<T>(

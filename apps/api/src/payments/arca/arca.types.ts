@@ -25,12 +25,22 @@ export type ArcaOrderStatusResponse = {
   orderNumber?: string;
   orderStatus?: number;
   actionCode?: number;
+  // Per the Merchant Manual `paymentState` is numeric (N2); some gateways return the string form.
+  paymentState?: string | number;
   paymentAmountInfo?: {
-    paymentState?: string;
+    paymentState?: string | number;
     approvedAmount?: number;
     depositedAmount?: number;
   };
 };
+
+/** Outcome of re-checking a pending Arca payment against the bank. */
+export type ArcaSyncOutcome =
+  | 'deposited'
+  | 'failed'
+  | 'in_progress'
+  | 'not_found'
+  | 'error';
 
 export type ArcaPaymentMetadata = {
   provider?: 'arca';
