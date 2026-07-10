@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { HtmlLangSync } from "@/components/i18n/html-lang-sync";
 import { LocaleScrollRestore } from "@/components/i18n/locale-scroll-restore";
 import { routing } from "@/i18n/routing";
@@ -27,6 +28,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <HtmlLangSync />
       <LocaleScrollRestore />
       {children}
+      <MetaPixel />
     </NextIntlClientProvider>
   );
 }
