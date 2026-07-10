@@ -54,8 +54,13 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
+  const searchParamsRef = useRef(searchParams.toString());
   const [, startTransition] = useTransition();
   const [values, setValues] = usePropSyncedState(initialValues);
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
   const [packagePlans, setPackagePlans] = useState<readonly AdminPackageRow[]>([]);
 
   useEffect(() => {
@@ -140,10 +145,11 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     }
 
     const handle = window.setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const currentSearchParams = searchParamsRef.current;
+      const params = new URLSearchParams(currentSearchParams);
       resetListPageQuery(params, FINANCE_PAYMENTS_PAGE_KEYS);
       const query = buildFinancePaymentsFiltersQuery(values, params);
-      if (query === searchParams.toString()) {
+      if (query === currentSearchParams) {
         return;
       }
       startTransition(() => {
@@ -152,7 +158,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [pathname, router, values]);
 
   function updateField<K extends keyof FinanceFilterValues>(
     key: K,
