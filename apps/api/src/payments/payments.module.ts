@@ -4,6 +4,8 @@ import { ScheduleItemsModule } from '../schedule/schedule.module';
 import { ArcaClient } from './arca/arca.client';
 import { ArcaConfig } from './arca/arca.config';
 import { ArcaPaymentsController } from './arca/arca-payments.controller';
+import { ArcaPaymentSyncService } from './arca/arca-payment-sync.service';
+import { ArcaReconciliationService } from './arca/arca-reconciliation.service';
 import { ArcaService } from './arca/arca.service';
 import { PaymentsController } from './payments.controller';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
@@ -28,6 +30,8 @@ import { PaymentsService } from './payments.service';
     ArcaConfig,
     ArcaClient,
     ArcaService,
+    ArcaPaymentSyncService,
+    ArcaReconciliationService,
   ],
   exports: [PaymentsService],
 })

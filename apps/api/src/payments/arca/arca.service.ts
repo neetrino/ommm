@@ -9,27 +9,22 @@ import {
   ManualPaymentMethod,
   PaymentSource,
   PaymentStatus,
-  Prisma,
 } from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
-
-import { PaymentsService } from '../payments.service';
 
 import { toArcaAmdAmount } from './arca-amount.util';
 
 import { ArcaClient } from './arca.client';
 
 import { ArcaConfig } from './arca.config';
+import { mergeArcaMetadata, readArcaMetadata } from './arca-metadata.util';
+import { ArcaPaymentSyncService } from './arca-payment-sync.service';
 import {
   ARCA_PAYMENT_FAIL_PATH,
   ARCA_PAYMENT_SUCCESS_PATH,
 } from './arca-result-paths';
-import {
-  ARCA_PAYMENT_STATE,
-  type ArcaPaymentMetadata,
-  type ArcaRegisterResponse,
-} from './arca.types';
+import type { ArcaSyncOutcome, ArcaRegisterResponse } from './arca.types';
 
 const SUPPORTED_ARCA_LOCALES = new Set(['hy', 'ru', 'en']);
 
@@ -44,7 +39,7 @@ export class ArcaService {
 
     private readonly prisma: PrismaService,
 
-    private readonly payments: PaymentsService,
+    private readonly paymentSync: ArcaPaymentSyncService,
   ) {}
 
   async initPayment(params: {
@@ -80,7 +75,7 @@ export class ArcaService {
 
     const checkoutSource = this.resolveCheckoutSource(payment.source);
 
-    const metadata = this.readArcaMetadata(payment.metadata);
+    const metadata = readArcaMetadata(payment.metadata);
 
     const attempt = (metadata.arcaRegisterAttempt ?? 0) + 1;
 
@@ -116,7 +111,7 @@ export class ArcaService {
       data: {
         paymentMethod: ManualPaymentMethod.CARD,
 
-        metadata: this.mergeMetadata(payment.metadata, {
+        metadata: mergeArcaMetadata(payment.metadata, {
           provider: 'arca',
 
           arcaOrderId,
@@ -146,7 +141,7 @@ export class ArcaService {
       return { redirectUrl: this.buildResultUrl('failed', 'en', {}) };
     }
 
-    const metadata = this.readArcaMetadata(payment.metadata);
+    const metadata = readArcaMetadata(payment.metadata);
 
     const locale = metadata.checkoutLocale ?? 'en';
 
@@ -159,56 +154,20 @@ export class ArcaService {
       source,
     };
 
-    const orderId = params.arcaOrderId ?? metadata.arcaOrderId;
-
-    if (!orderId) {
-      await this.markFailed(payment.id);
-
-      return {
-        redirectUrl: this.buildResultUrl('failed', locale, resultParams),
-      };
-    }
-
-    if (payment.status === PaymentStatus.SUCCEEDED) {
-      return {
-        redirectUrl: this.buildResultUrl('success', locale, resultParams),
-      };
-    }
-
-    const statusResponse =
-      await this.arcaClient.getOrderStatusExtended(orderId);
-
-    const errorCode = Number(statusResponse.errorCode ?? -1);
-
-    if (errorCode !== 0) {
-      this.logger.warn(
-        `Arca status error for ${payment.id}: ${statusResponse.errorMessage ?? errorCode}`,
+    let outcome: ArcaSyncOutcome;
+    try {
+      outcome = await this.paymentSync.syncPayment(payment.id);
+    } catch (error) {
+      this.logger.error(
+        `Arca callback failed for payment ${payment.id}`,
+        error instanceof Error ? error.stack : String(error),
       );
-
-      await this.markFailed(payment.id, orderId);
-
-      return {
-        redirectUrl: this.buildResultUrl('failed', locale, resultParams),
-      };
+      outcome = 'error';
     }
 
-    const paymentState = statusResponse.paymentAmountInfo?.paymentState;
+    const result = outcome === 'deposited' ? 'success' : 'failed';
 
-    const isDeposited =
-      paymentState === ARCA_PAYMENT_STATE.DEPOSITED ||
-      statusResponse.orderStatus === 2;
-
-    if (isDeposited) {
-      await this.payments.confirmPendingCardPayment(payment.id);
-
-      return {
-        redirectUrl: this.buildResultUrl('success', locale, resultParams),
-      };
-    }
-
-    await this.markFailed(payment.id, orderId);
-
-    return { redirectUrl: this.buildResultUrl('failed', locale, resultParams) };
+    return { redirectUrl: this.buildResultUrl(result, locale, resultParams) };
   }
 
   private isArcaCurrencySupported(currency: string): boolean {
@@ -264,43 +223,6 @@ export class ArcaService {
     );
   }
 
-  private async markFailed(
-    paymentId: string,
-    arcaOrderId?: string,
-  ): Promise<void> {
-    const existing = await this.prisma.payment.findUnique({
-      where: { id: paymentId },
-
-      select: { metadata: true, status: true },
-    });
-
-    if (!existing || existing.status !== PaymentStatus.PENDING) {
-      return;
-    }
-
-    await this.prisma.payment.update({
-      where: { id: paymentId },
-
-      data: {
-        status: PaymentStatus.FAILED,
-
-        confirmedAt: new Date(),
-
-        paymentMethod: ManualPaymentMethod.CARD,
-
-        ...(arcaOrderId
-          ? {
-              metadata: this.mergeMetadata(existing.metadata, {
-                provider: 'arca',
-
-                arcaOrderId,
-              }),
-            }
-          : {}),
-      },
-    });
-  }
-
   private buildResultUrl(
     outcome: 'success' | 'failed',
 
@@ -338,56 +260,5 @@ export class ArcaService {
     }
 
     return this.arcaConfig.getDefaultLanguage();
-  }
-
-  private readArcaMetadata(
-    metadata: Prisma.JsonValue | null,
-  ): ArcaPaymentMetadata {
-    if (
-      metadata === null ||
-      typeof metadata !== 'object' ||
-      Array.isArray(metadata)
-    ) {
-      return {};
-    }
-
-    const record = metadata as Record<string, unknown>;
-
-    return {
-      provider: record.provider === 'arca' ? 'arca' : undefined,
-
-      arcaOrderId:
-        typeof record.arcaOrderId === 'string' ? record.arcaOrderId : undefined,
-
-      checkoutLocale:
-        typeof record.checkoutLocale === 'string'
-          ? record.checkoutLocale
-          : undefined,
-
-      checkoutSource:
-        typeof record.checkoutSource === 'string'
-          ? record.checkoutSource
-          : undefined,
-
-      arcaRegisterAttempt:
-        typeof record.arcaRegisterAttempt === 'number'
-          ? record.arcaRegisterAttempt
-          : undefined,
-    };
-  }
-
-  private mergeMetadata(
-    existing: Prisma.JsonValue | null,
-
-    patch: ArcaPaymentMetadata,
-  ): Prisma.InputJsonValue {
-    const base =
-      existing !== null &&
-      typeof existing === 'object' &&
-      !Array.isArray(existing)
-        ? { ...(existing as Record<string, unknown>) }
-        : {};
-
-    return { ...base, ...patch };
   }
 }

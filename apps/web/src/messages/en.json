@@ -3425,7 +3425,13 @@
         "markedRejected": "Request rejected.",
         "statusUpdated": "Payment status updated.",
         "cardStatusAuto": "Card payments are confirmed automatically.",
-        "actionFailed": "Could not update payment."
+        "actionFailed": "Could not update payment.",
+        "bankCheck": "Check status in bank",
+        "bankChecking": "Checking with bank…",
+        "bankConfirmed": "Bank confirmed the payment.",
+        "bankFailed": "Bank reports this payment failed.",
+        "bankPending": "Bank is still processing — try again shortly.",
+        "bankUnavailable": "Could not reach the bank. Try again."
       },
       "changeStatusAria": "Change payment status — current: {status}",
       "paymentDetails": {

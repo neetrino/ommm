@@ -7,6 +7,11 @@ import {
   formatPaymentTime,
   toPaymentIso,
 } from "@/components/account/user-payment-display";
+import {
+  AdminFinanceArcaSyncButton,
+  arcaOutcomeToStatus,
+  type ArcaSyncOutcome,
+} from "@/components/admin/admin-finance-arca-sync-button";
 import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
 import {
   ADMIN_FINANCE_VALUE_BADGE_CLASS,
@@ -31,7 +36,10 @@ import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/adm
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
-import { requiresManualAdminConfirmation } from "@/lib/payment-confirmation";
+import {
+  isCardPaymentMethod,
+  requiresManualAdminConfirmation,
+} from "@/lib/payment-confirmation";
 
 type AdminFinancePaymentDetailsSheetProps = {
   payment: FinancePaymentItem | null;
@@ -88,6 +96,22 @@ function resolvePaymentDateTime(payment: FinancePaymentItem): string {
   return payment.confirmedAt ?? payment.createdAt;
 }
 
+function arcaOutcomeToast(
+  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
+  outcome: ArcaSyncOutcome,
+): { message: string; tone: AdminCenterToastTone } {
+  if (outcome === "deposited") {
+    return { message: t("paymentActions.bankConfirmed"), tone: "ok" };
+  }
+  if (outcome === "failed") {
+    return { message: t("paymentActions.bankFailed"), tone: "err" };
+  }
+  if (outcome === "in_progress") {
+    return { message: t("paymentActions.bankPending"), tone: "ok" };
+  }
+  return { message: t("paymentActions.bankUnavailable"), tone: "err" };
+}
+
 export function AdminFinancePaymentDetailsSheet({
   payment,
   locale,
@@ -109,6 +133,8 @@ export function AdminFinancePaymentDetailsSheet({
     payment.paymentMethod,
     payment.status,
   );
+  const showArcaSync =
+    isCardPaymentMethod(payment.paymentMethod) && payment.status === "PENDING";
 
   return (
     <>
@@ -218,6 +244,25 @@ export function AdminFinancePaymentDetailsSheet({
                       : t("paymentActions.markedRejected"),
                   tone: nextStatus === "SUCCEEDED" ? "ok" : "err",
                 });
+              }}
+            />
+          </footer>
+        ) : showArcaSync ? (
+          <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
+            <AdminFinanceArcaSyncButton
+              paymentId={payment.id}
+              status={payment.status}
+              paymentMethod={payment.paymentMethod}
+              onSynced={(outcome) => {
+                const nextStatus = arcaOutcomeToStatus(outcome, payment.status);
+                if (nextStatus !== payment.status) {
+                  onPaymentUpdated({
+                    ...payment,
+                    status: nextStatus,
+                    confirmedAt: payment.confirmedAt ?? new Date().toISOString(),
+                  });
+                }
+                setToast(arcaOutcomeToast(t, outcome));
               }}
             />
           </footer>

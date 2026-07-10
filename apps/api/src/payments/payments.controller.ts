@@ -116,4 +116,11 @@ export class PaymentsController {
       user.id,
     );
   }
+
+  @Post('admin/:paymentId/arca/sync')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminSyncArcaPayment(@Param('paymentId') paymentId: string) {
+    return this.payments.adminSyncArcaPayment(paymentId);
+  }
 }

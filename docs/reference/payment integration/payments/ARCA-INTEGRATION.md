@@ -42,6 +42,8 @@ ARCA_LIVE_USERNAME=
 ARCA_LIVE_PASSWORD=
 # App URL (no trailing slash)
 APP_URL=https://yoursite.com
+# Reconciliation cron (default: on when Arca is configured). Set to `false` to disable.
+ARCA_RECONCILIATION_ENABLED=true
 ```
 
 - `ARCA_BANK` — определяет base URL (idbank → `ipay.arca.am`, inecobank → `pg.inecoecom.am`)
@@ -196,7 +198,16 @@ returnUrl передаётся в запросе `register.do`. Arca redirect п
 Arca не отправляет server-to-server callback. Пользователь redirect через браузер на returnUrl. Это значит:
 - `localhost` работает для тестов (Cloudflare Tunnel не нужен)
 - Но если пользователь закроет браузер до redirect — callback не придёт
-- Поэтому рекомендуется также проверять статус по расписанию (cron) для pending заказов
+- Поэтому кроме callback работает cron-сверка pending заказов (см. ниже)
+
+### Cron-сверка pending платежей
+
+Реализована в `apps/api/src/payments/arca/arca-reconciliation.service.ts` (каждые 5 минут):
+- Берёт `Payment` со `status=PENDING`, `paymentMethod=CARD`, `metadata.provider=arca`, старше 2 минут и младше 3 дней.
+- По каждому вызывает `getOrderStatusExtended.do` (по `arcaOrderId`, иначе по `orderNumber`).
+- `DEPOSITED` → подтверждает (тот же путь, что callback); финальный отказ → `FAILED`; промежуточный статус (`CREATED`/`ACS`) → оставляет `PENDING`.
+
+Callback и cron используют общую логику `ArcaPaymentSyncService.syncPayment` — источник правды один. Промежуточные статусы **не** помечаются `FAILED` преждевременно. Управляется `ARCA_RECONCILIATION_ENABLED` (по умолчанию включено).
 
 ### Идентификация заказа в callback
 
@@ -232,7 +243,7 @@ lib/payments/arca/
 - [ ] Checkout: redirect на formUrl (не card modal)
 - [ ] Cart clear: только после DEPOSITED
 - [ ] EHDM: fiscal print после paid (только AMD)
-- [ ] Для pending заказов: рассмотреть cron-проверку статуса (returnUrl может не прийти)
+- [x] Для pending заказов: cron-сверка статуса (`ArcaReconciliationService`, returnUrl может не прийти)
 
 ---
 

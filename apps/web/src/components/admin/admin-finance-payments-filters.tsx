@@ -21,6 +21,7 @@ import {
   parseFinancePackageClassFilter,
   parseFinancePackagePlanFilter,
   parseFinancePackageSessionsFilter,
+  parseFinancePaymentsFiltersFromSearch,
   parseFinanceSourceFilter,
   parseFinanceStatusFilter,
 } from "@/components/admin/admin-finance-url";
@@ -54,8 +55,13 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
+  const searchParamsRef = useRef(searchParams.toString());
   const [, startTransition] = useTransition();
   const [values, setValues] = usePropSyncedState(initialValues);
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
   const [packagePlans, setPackagePlans] = useState<readonly AdminPackageRow[]>([]);
 
   useEffect(() => {
@@ -133,6 +139,20 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
 
   const fromIso = useMemo(() => computeFinanceFromDate(values.rangeDays), [values.rangeDays]);
 
+  const filterQuerySignature = useMemo(
+    () => buildFinancePaymentsFiltersQuery(values, new URLSearchParams()),
+    [
+      values.q,
+      values.rangeDays,
+      values.source,
+      values.status,
+      values.planId,
+      values.packageClass,
+      values.sessions,
+      values.order,
+    ],
+  );
+
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
@@ -140,10 +160,21 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     }
 
     const handle = window.setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const currentSearchParams = searchParamsRef.current;
+      const urlFilterQuery = buildFinancePaymentsFiltersQuery(
+        parseFinancePaymentsFiltersFromSearch(
+          Object.fromEntries(new URLSearchParams(currentSearchParams).entries()),
+        ),
+        new URLSearchParams(),
+      );
+      if (urlFilterQuery === filterQuerySignature) {
+        return;
+      }
+
+      const params = new URLSearchParams(currentSearchParams);
       resetListPageQuery(params, FINANCE_PAYMENTS_PAGE_KEYS);
       const query = buildFinancePaymentsFiltersQuery(values, params);
-      if (query === searchParams.toString()) {
+      if (query === currentSearchParams) {
         return;
       }
       startTransition(() => {
@@ -152,7 +183,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [filterQuerySignature, pathname, router, values]);
 
   function updateField<K extends keyof FinanceFilterValues>(
     key: K,
