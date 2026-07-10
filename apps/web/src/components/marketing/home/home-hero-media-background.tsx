@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { useEffect } from "react";
 import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
+import { HomeHeroPromoBannerImage } from "@/components/marketing/home/home-hero-promo-banner-image";
 import {
   HOME_HERO_CAROUSEL_SLIDES,
   resolveActiveHomeHeroVideoElement,
@@ -12,7 +13,7 @@ import {
 } from "@/components/marketing/home/home-hero-slide-context";
 import { HomeHeroVideoSlot } from "@/components/marketing/home/home-hero-video-slot";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
-import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
+import { lcpImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroMediaBackgroundProps = {
   heroImageAlt: string;
@@ -69,25 +70,17 @@ function HomeHeroPromoBannerSlide({ assetKey, imageAlt, overlay }: HomeHeroPromo
   return (
     <div className={styles.homeHeroMediaSlide}>
       <div className={styles.homeHeroPromoBackgroundCrop}>
-        <Image
-          key={sources.mobile}
+        <HomeHeroPromoBannerImage
           src={sources.mobile}
           alt={imageAlt}
-          fill
-          unoptimized
-          sizes="100vw"
-          className={`${styles.homeHeroPromoBackground} ${styles.homeHeroPromoBackgroundMobile} pointer-events-none`}
-          {...aboveFoldImageProps()}
+          pictureClassName={`${styles.homeHeroPromoPicture} ${styles.homeHeroPromoPictureMobile}`}
+          imageClassName={styles.homeHeroPromoBackgroundMobile}
         />
-        <Image
+        <HomeHeroPromoBannerImage
           src={sources.desktop}
           alt=""
-          fill
-          unoptimized
-          sizes="100vw"
-          className={`${styles.homeHeroPromoBackground} ${styles.homeHeroPromoBackgroundDesktop} pointer-events-none`}
-          aria-hidden
-          {...aboveFoldImageProps()}
+          pictureClassName={`${styles.homeHeroPromoPicture} ${styles.homeHeroPromoPictureDesktop}`}
+          imageClassName={styles.homeHeroPromoBackgroundDesktop}
         />
       </div>
       {overlay}
