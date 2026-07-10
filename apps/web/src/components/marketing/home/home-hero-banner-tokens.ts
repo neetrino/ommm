@@ -303,12 +303,21 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
   },
 } as const;
 
-/** Left logo disc on promo CTA pill — tuned for visibility on `882:827` / `887:807`. */
+/** Left logo disc on promo CTA pill — desktop `887:807`. */
 export const HOME_HERO_PROMO_CTA_LOGO_LAYOUT = {
   widthRatio: 0.32,
   heightRatio: 1.48,
   topOffsetRatio: -0.5,
   leftOffsetRatio: -0.08,
+  objectPosition: "44% 36%",
+} as const;
+
+/** Mobile CTA pill logo — `882:827`, slightly larger and lower. */
+export const HOME_HERO_PROMO_CTA_LOGO_MOBILE_LAYOUT = {
+  widthRatio: 0.47,
+  heightRatio: 1.83,
+  topOffsetRatio: -0.68,
+  leftOffsetRatio: -0.15,
   objectPosition: "44% 36%",
 } as const;
 

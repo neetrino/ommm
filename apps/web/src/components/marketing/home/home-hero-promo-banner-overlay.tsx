@@ -8,6 +8,7 @@ import {
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT,
   HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX,
   HOME_HERO_PROMO_CTA_LOGO_LAYOUT,
+  HOME_HERO_PROMO_CTA_LOGO_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-promo-banner-overlay.module.css";
 import { Link } from "@/i18n/navigation";
@@ -123,6 +124,9 @@ function PromoBannerCopy({
   const ctaLayout = isDesktop
     ? HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopCtaBadge
     : HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileCtaBadge;
+  const ctaLogoLayout = isDesktop
+    ? HOME_HERO_PROMO_CTA_LOGO_LAYOUT
+    : HOME_HERO_PROMO_CTA_LOGO_MOBILE_LAYOUT;
 
   return (
     <div className={isDesktop ? styles.desktopOnly : styles.mobileOnly} style={style}>
@@ -146,19 +150,19 @@ function PromoBannerCopy({
         aria-label={ctaAriaLabel}
         style={{
           ["--home-hero-promo-cta-logo-width-ratio" as string]: String(
-            HOME_HERO_PROMO_CTA_LOGO_LAYOUT.widthRatio,
+            ctaLogoLayout.widthRatio,
           ),
           ["--home-hero-promo-cta-logo-height-ratio" as string]: String(
-            HOME_HERO_PROMO_CTA_LOGO_LAYOUT.heightRatio,
+            ctaLogoLayout.heightRatio,
           ),
           ["--home-hero-promo-cta-logo-top-offset-ratio" as string]: String(
-            HOME_HERO_PROMO_CTA_LOGO_LAYOUT.topOffsetRatio,
+            ctaLogoLayout.topOffsetRatio,
           ),
           ["--home-hero-promo-cta-logo-left-offset-ratio" as string]: String(
-            HOME_HERO_PROMO_CTA_LOGO_LAYOUT.leftOffsetRatio,
+            ctaLogoLayout.leftOffsetRatio,
           ),
           ["--home-hero-promo-cta-logo-object-position" as string]:
-            HOME_HERO_PROMO_CTA_LOGO_LAYOUT.objectPosition,
+            ctaLogoLayout.objectPosition,
         }}
       >
         <Image
