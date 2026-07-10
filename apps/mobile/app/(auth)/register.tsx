@@ -1,7 +1,8 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
@@ -12,7 +13,8 @@ import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
 const MIN_PASSWORD_LENGTH = 8;
-const ACCOUNT_ICON_SIZE = 56;
+const REGISTER_LOGO_LAYOUT_SIZE = 72;
+const REGISTER_LOGO_VISUAL_SCALE = 3.35;
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
@@ -118,13 +120,15 @@ export default function RegisterRoute() {
   return (
     <AuthScreenShell keyboardAware>
       <View style={styles.brandBlock}>
-        <MaterialCommunityIcons
-          name="account-heart"
-          size={ACCOUNT_ICON_SIZE}
-          color={colors.primaryGreen}
-          style={styles.icon}
-          accessibilityIgnoresInvertColors
-        />
+        <View style={styles.logoSlot}>
+          <Image
+            source={figmaRemoteAssets.brandMark}
+            style={styles.logo}
+            contentFit="contain"
+            accessibilityLabel="Ommm logo"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
         <Text style={styles.title} accessibilityRole="header">
           {tAuth("createAccount")}
         </Text>
@@ -242,9 +246,19 @@ const styles = StyleSheet.create({
     gap: space.md,
     marginBottom: space.sm,
   },
-  icon: {
-    opacity: 0.94,
+  logoSlot: {
+    width: REGISTER_LOGO_LAYOUT_SIZE,
+    height: REGISTER_LOGO_LAYOUT_SIZE,
     marginBottom: space.xs,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "visible",
+  },
+  logo: {
+    width: REGISTER_LOGO_LAYOUT_SIZE,
+    height: REGISTER_LOGO_LAYOUT_SIZE,
+    transform: [{ scale: REGISTER_LOGO_VISUAL_SCALE }],
+    opacity: 0.94,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
