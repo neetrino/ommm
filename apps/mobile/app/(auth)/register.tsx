@@ -4,7 +4,6 @@ import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
-import { AuthBackToHomeRow } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { useTranslations, useLocale } from "../../src/i18n/I18nProvider";
@@ -117,10 +116,7 @@ export default function RegisterRoute() {
   }
 
   return (
-    <AuthScreenShell
-      keyboardAware
-      topLeading={<AuthBackToHomeRow onPress={() => router.replace("/home")} />}
-    >
+    <AuthScreenShell keyboardAware>
       <View style={styles.brandBlock}>
         <MaterialCommunityIcons
           name="account-heart"

@@ -12,7 +12,6 @@ import {
 import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
-import { AuthBackToHomeRow, AUTH_BACK_TO_HOME_TOP_RESERVE } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { useTranslations } from "../../src/i18n/I18nProvider";
@@ -22,12 +21,8 @@ import { colors, radii, space, typography } from "../../src/theme/tokens";
 const LOGIN_LOGO_LAYOUT_SIZE = 72;
 /** Visual scale only — layout slot stays fixed so other elements do not move. */
 const LOGIN_LOGO_VISUAL_SCALE = 3.35;
-/** Balance AuthScreenShell top reserve vs bottom inset when vertically centering. */
-const AUTH_SHELL_VERTICAL_PADDING_BIAS =
-  (AUTH_BACK_TO_HOME_TOP_RESERVE - space.xl) / 2;
-/** Locked to scale 3 overflow so logo size tweaks do not shift the form block. */
-const LOGIN_CONTENT_LIFT =
-  (LOGIN_LOGO_LAYOUT_SIZE * (3 - 1)) / 2 + AUTH_SHELL_VERTICAL_PADDING_BIAS;
+/** Compensate scaled logo overflow so the form block stays vertically centered. */
+const LOGIN_CONTENT_LIFT = (LOGIN_LOGO_LAYOUT_SIZE * (LOGIN_LOGO_VISUAL_SCALE - 1)) / 2;
 
 export default function LoginRoute() {
   const router = useRouter();
@@ -82,10 +77,7 @@ export default function LoginRoute() {
   }
 
   return (
-    <AuthScreenShell
-      keyboardAware
-      topLeading={<AuthBackToHomeRow onPress={() => router.replace("/home")} />}
-    >
+    <AuthScreenShell keyboardAware>
       <View style={styles.contentBlock}>
         <View style={styles.brandBlock}>
           <View style={styles.logoSlot}>
