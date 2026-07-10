@@ -4,7 +4,7 @@ import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
-import { PaymentsService } from '../payments.service';
+import { PaymentsCheckoutService } from '../payments-checkout.service';
 
 import { ArcaClient } from './arca.client';
 import { mergeArcaMetadata, readArcaMetadata } from './arca-metadata.util';
@@ -22,7 +22,7 @@ export class ArcaPaymentSyncService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly arcaClient: ArcaClient,
-    private readonly payments: PaymentsService,
+    private readonly checkout: PaymentsCheckoutService,
   ) {}
 
   /** Verifies one pending payment against Arca and confirms/fails it. Never throws. */
@@ -80,7 +80,7 @@ export class ArcaPaymentSyncService {
 
   private async confirm(paymentId: string): Promise<ArcaSyncOutcome> {
     try {
-      await this.payments.confirmPendingCardPayment(paymentId);
+      await this.checkout.confirmPendingCardPayment(paymentId);
       return 'deposited';
     } catch (error) {
       this.logger.error(

@@ -5,6 +5,8 @@ import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
+import { ArcaPaymentSyncService } from './arca/arca-payment-sync.service';
+import type { ArcaSyncOutcome } from './arca/arca.types';
 import { isArcaCheckoutEnabled } from './payment-arca.util';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentsAdminService } from './payments-admin.service';
@@ -17,6 +19,7 @@ export class PaymentsService {
     private readonly checkout: PaymentsCheckoutService,
     private readonly admin: PaymentsAdminService,
     private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
+    private readonly arcaSync: ArcaPaymentSyncService,
   ) {}
 
   /** Sends the branded cash-payment reminder email for a pending cash payment. */
@@ -72,6 +75,14 @@ export class PaymentsService {
     adminId: string,
   ) {
     return this.admin.adminUpdatePaymentStatus(paymentId, status, adminId);
+  }
+
+  /** Re-checks a card payment against Arca and transitions it (admin on-demand). */
+  async adminSyncArcaPayment(
+    paymentId: string,
+  ): Promise<{ outcome: ArcaSyncOutcome }> {
+    const outcome = await this.arcaSync.syncPayment(paymentId);
+    return { outcome };
   }
 
   listPayments(userId: string, query: ListMyPaymentsQueryDto = {}) {
