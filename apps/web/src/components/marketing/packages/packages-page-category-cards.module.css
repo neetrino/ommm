@@ -330,7 +330,8 @@
   min-width: 0;
 }
 
-@media (min-width: 1024px) {
+/* Desktop accordion from iPad Pro landscape up — Mini/Air use mobile (see layout tokens). */
+@media (min-width: 1181px) {
   .desktopOnly {
     display: block;
     width: 100%;

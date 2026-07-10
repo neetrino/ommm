@@ -1,5 +1,6 @@
 import { scaleIpadAirPx } from "@/lib/viewport-breakpoints";
 import { MARKETING_CONTENT_INLINE_INSET } from "@/components/marketing/marketing-content-layout";
+import { MARKETING_DESKTOP_NAV_IPAD_PILL_INSET } from "@/components/marketing/marketing-site-header-layout";
 
 export const HOME_HERO_FIGMA = {
   artboardWidthPx: 1440,
@@ -230,6 +231,15 @@ export const HOME_HERO_PROMO_BANNER_TEXT_FIGMA = {
 
 /** Horizontal inset for promo copy — left edge of navbar pill (`ommm-container` edge). */
 export const HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET = `max(${MARKETING_CONTENT_INLINE_INSET}, calc((100vw - min(1280px, 100vw - 2rem)) / 2))`;
+
+/**
+ * iPad tier — extra inset so promo copy tracks the narrowed nav pill (744px–1366px).
+ * Half of {@link MARKETING_DESKTOP_NAV_IPAD_PILL_INSET} per edge.
+ */
+export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET = {
+  air: `calc(0.5 * ${MARKETING_DESKTOP_NAV_IPAD_PILL_INSET.airTotalRem})`,
+  pro: `calc(0.5 * ${MARKETING_DESKTOP_NAV_IPAD_PILL_INSET.proTotalRem})`,
+} as const;
 
 /** Shifts all promo copy blocks up — subtracted from Figma `topPx` before scaling. */
 export const HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX = {

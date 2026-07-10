@@ -23,6 +23,7 @@ import {
   HOME_HERO_MOBILE_LAYOUT,
   HOME_HERO_PROMO_BANNER_LAYOUT,
   HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT,
+  HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET,
   HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET,
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
@@ -181,6 +182,10 @@ export async function HomeHeroPhotoBanner({
     ["--home-hero-promo-section-bg-mobile" as string]:
       HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.sectionBackground,
     ["--home-hero-promo-text-inset-left" as string]: HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET,
+    ["--home-hero-promo-text-ipad-pill-offset-air" as string]:
+      HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET.air,
+    ["--home-hero-promo-text-ipad-pill-offset-pro" as string]:
+      HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET.pro,
     ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,

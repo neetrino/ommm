@@ -35,6 +35,29 @@
   left: var(--home-hero-promo-text-inset-left);
 }
 
+/* iPad — match narrowed nav pill edge (desktop copy only; see layout tokens). */
+@media (min-width: 744px) and (max-width: 1023px) {
+  .desktopOnly .foundingBlock,
+  .desktopOnly .areOpenBlock,
+  .desktopOnly .limitedBlock,
+  .desktopOnly .ctaBadge {
+    left: calc(
+      var(--home-hero-promo-text-inset-left) + var(--home-hero-promo-text-ipad-pill-offset-air, 2.5rem)
+    );
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .desktopOnly .foundingBlock,
+  .desktopOnly .areOpenBlock,
+  .desktopOnly .limitedBlock,
+  .desktopOnly .ctaBadge {
+    left: calc(
+      var(--home-hero-promo-text-inset-left) + var(--home-hero-promo-text-ipad-pill-offset-pro, 2rem)
+    );
+  }
+}
+
 .foundingBlock {
   top: calc(
     100% *

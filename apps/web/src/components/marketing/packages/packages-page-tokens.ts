@@ -1,3 +1,21 @@
+import {
+  CANVAS_TABLET_MIN_WIDTH_PX,
+  IPAD_AIR_LANDSCAPE_MAX_WIDTH_PX,
+} from "@/lib/viewport-breakpoints";
+
+/** Mobile accordion through iPad Air landscape — desktop accordion from next px up. */
+export const PACKAGES_PAGE_MOBILE_LAYOUT_MAX_WIDTH_PX = IPAD_AIR_LANDSCAPE_MAX_WIDTH_PX;
+
+/** Desktop accordion breakpoint — one px above {@link PACKAGES_PAGE_MOBILE_LAYOUT_MAX_WIDTH_PX}. */
+export const PACKAGES_PAGE_DESKTOP_LAYOUT_MIN_WIDTH_PX =
+  PACKAGES_PAGE_MOBILE_LAYOUT_MAX_WIDTH_PX + 1;
+
+/** iPad Mini + Air — collapsed cards per row in mobile accordion grid. */
+export const PACKAGES_PAGE_TABLET_GRID_COLUMNS = 2;
+
+/** Tablet grid starts at iPad portrait width. */
+export const PACKAGES_PAGE_TABLET_GRID_MIN_WIDTH_PX = CANVAS_TABLET_MIN_WIDTH_PX;
+
 /**
  * Figma **Packages page cards** — component row `395:1652` (1061×495 base artboard).
  * Row height is derived from {@link PACKAGES_PAGE_VISIBLE_TIER_COUNT} visible tiers.

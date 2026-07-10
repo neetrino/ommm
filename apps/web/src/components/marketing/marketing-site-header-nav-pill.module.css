@@ -611,7 +611,7 @@
   opacity: 0.68;
 }
 
-/* Desktop row — always full-width glass pill. */
+/* Desktop row — full-width on nav-desktop; narrower pill on iPad (see layout tokens). */
 .desktopUnifiedBar {
   overflow: hidden;
   border-radius: 80px;
