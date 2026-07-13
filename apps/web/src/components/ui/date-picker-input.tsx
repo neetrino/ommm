@@ -296,7 +296,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       disabled={disabled}
       onClick={togglePicker}
     >
-      <DatePickerCalendarGlyph />
+      <DatePickerCalendarGlyph className="h-4 w-4" />
     </button>
   ) : null;
 
@@ -383,7 +383,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
         </span>
         <span className="inline-flex items-center gap-2 text-sage-500">
           {clearDateControl}
-          <DatePickerCalendarGlyph />
+          <DatePickerCalendarGlyph className="h-4 w-4" />
         </span>
       </button>
       {calendarPopup}
