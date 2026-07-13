@@ -19,7 +19,7 @@ export default function AdminHomeRoute() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/login" />;
   }
 
   return (

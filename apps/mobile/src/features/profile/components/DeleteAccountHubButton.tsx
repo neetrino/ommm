@@ -9,7 +9,7 @@ import { deleteAccount } from "../../../lib/api/usersClient";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { memberAccountHubActionTokens } from "../memberAccountHubActionTokens";
 
-const HOME_HREF = "/home" as const;
+const LOGIN_HREF = "/login" as const;
 const tokens = memberAccountHubActionTokens.deleteBtn;
 
 export function DeleteAccountHubButton() {
@@ -38,7 +38,7 @@ export function DeleteAccountHubButton() {
       }
       await signOut();
       setConfirmOpen(false);
-      router.replace(HOME_HREF);
+      router.replace(LOGIN_HREF);
     } catch (e) {
       const message =
         e instanceof Error ? e.message : tProfile("deleteAccountFailed");

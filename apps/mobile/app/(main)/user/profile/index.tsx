@@ -16,7 +16,7 @@ export default function UserProfileRoute() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/login" />;
   }
 
   return <ProfileScreen />;

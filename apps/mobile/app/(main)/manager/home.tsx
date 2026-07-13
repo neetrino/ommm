@@ -17,7 +17,7 @@ export default function ManagerHomeRoute() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/login" />;
   }
 
   return (

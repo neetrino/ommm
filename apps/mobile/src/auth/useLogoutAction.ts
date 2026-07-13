@@ -2,10 +2,10 @@ import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import { useSession } from "./SessionProvider";
 
-const HOME_HREF = "/home" as const;
+const LOGIN_HREF = "/login" as const;
 
 /**
- * Clears the local session and replaces the navigation stack with Home (guest experience).
+ * Clears the local session and replaces the navigation stack with Login.
  */
 export function useLogoutAction() {
   const router = useRouter();
@@ -13,6 +13,6 @@ export function useLogoutAction() {
 
   return useCallback(async () => {
     await signOut();
-    router.replace(HOME_HREF);
+    router.replace(LOGIN_HREF);
   }, [router, signOut]);
 }

@@ -16,7 +16,7 @@ export default function UserProfileChangePasswordRoute() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/login" />;
   }
 
   return <ProfileChangePasswordScreen />;
