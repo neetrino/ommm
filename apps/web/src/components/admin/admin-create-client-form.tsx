@@ -16,7 +16,6 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { ApiError, apiFetch } from "@/lib/api";
-import { generateSecurePassword } from "@/lib/generate-secure-password";
 import { normalizePhoneForApi } from "@/lib/phone";
 
 type CreateClientApiResponse = {
@@ -42,17 +41,12 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
   const [phone, setPhone] = useState("");
   const [birthdayValue, setBirthdayValue] = useState("");
   const [password, setPassword] = useState("");
-  const [autoGeneratePassword, setAutoGeneratePassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [forcePasswordReset, setForcePasswordReset] = useState(false);
   const [sendWelcomeEmail, setSendWelcomeEmail] = useState(false);
   const [handover, setHandover] = useState<CreateClientApiResponse | null>(null);
   const submitLockRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
-
-  function onGeneratePassword(): void {
-    setAutoGeneratePassword(true);
-    setPassword(generateSecurePassword());
-  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,7 +61,8 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
     const emailRaw = String(fd.get("email") ?? "").trim();
     const phoneRaw = phone.trim();
     const notesRaw = String(fd.get("notes") ?? "").trim();
-    const passwordRaw = autoGeneratePassword ? "" : password.trim();
+    const passwordRaw = password.trim();
+    const confirmPasswordRaw = confirmPassword.trim();
 
     setError(null);
 
@@ -83,6 +78,22 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
       setError(t("emailInvalid"));
       return;
     }
+    if (passwordRaw.length === 0) {
+      setError(t("passwordRequired"));
+      return;
+    }
+    if (passwordRaw.length < MIN_PASSWORD_LENGTH) {
+      setError(t("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
+      return;
+    }
+    if (confirmPasswordRaw.length === 0) {
+      setError(t("confirmPasswordRequired"));
+      return;
+    }
+    if (passwordRaw !== confirmPasswordRaw) {
+      setError(t("passwordMismatch"));
+      return;
+    }
     if (phoneRaw.length === 0) {
       setError(t("phoneRequired"));
       return;
@@ -90,16 +101,6 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
     if (!isValidPhone(phoneRaw)) {
       setError(t("phoneInvalid"));
       return;
-    }
-    if (!autoGeneratePassword) {
-      if (passwordRaw.length === 0) {
-        setError(t("passwordRequired"));
-        return;
-      }
-      if (passwordRaw.length < MIN_PASSWORD_LENGTH) {
-        setError(t("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
-        return;
-      }
     }
     if (birthdayValue.trim().length > 0 && Number.isNaN(Date.parse(birthdayValue))) {
       setError(t("birthdayInvalid"));
@@ -117,9 +118,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           lastName: lastNameRaw,
           phone: normalizePhoneForApi(phoneRaw),
           ...(birthdayValue.trim().length > 0 ? { dateOfBirth: birthdayValue.trim() } : {}),
-          ...(autoGeneratePassword
-            ? { autoGeneratePassword: true }
-            : { password: passwordRaw }),
+          password: passwordRaw,
           forcePasswordResetOnFirstLogin: forcePasswordReset,
           sendWelcomeEmail,
           ...(notesRaw.length > 0 ? { notes: notesRaw } : {}),
@@ -129,7 +128,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
       setPhone("");
       setBirthdayValue("");
       setPassword("");
-      setAutoGeneratePassword(false);
+      setConfirmPassword("");
       setForcePasswordReset(false);
       setSendWelcomeEmail(false);
       setHandover(response);
@@ -215,6 +214,40 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
             <span className="text-xs text-sage-500">{t("emailHint")}</span>
           </label>
           <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("passwordLabel")}</span>
+            <PasswordInput
+              name="password"
+              className="ommm-input"
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD_LENGTH}
+              maxLength={128}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              disabled={pending}
+              showPasswordLabel={t("showPassword")}
+              hidePasswordLabel={t("hidePassword")}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("confirmPasswordLabel")}
+            </span>
+            <PasswordInput
+              name="confirmPassword"
+              className="ommm-input"
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD_LENGTH}
+              maxLength={128}
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
+              disabled={pending}
+              showPasswordLabel={t("showPassword")}
+              hidePasswordLabel={t("hidePassword")}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
             <span className="ommm-label text-xs uppercase tracking-wide">{t("phoneLabel")}</span>
             <PhoneInputField
               name="phone"
@@ -249,41 +282,6 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           <p className="mt-1 text-xs text-sage-500">{t("sectionAccessLead")}</p>
         </div>
         <div className="grid gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="flex flex-col gap-1">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("passwordLabel")}</span>
-              <PasswordInput
-                name="password"
-                className="ommm-input"
-                autoComplete="new-password"
-                minLength={MIN_PASSWORD_LENGTH}
-                maxLength={128}
-                value={password}
-                onChange={(event) => {
-                  setAutoGeneratePassword(false);
-                  setPassword(event.target.value);
-                }}
-                required={!autoGeneratePassword}
-                disabled={pending || autoGeneratePassword}
-                showPasswordLabel={t("showPassword")}
-                hidePasswordLabel={t("hidePassword")}
-              />
-            </label>
-            <div className="flex flex-wrap gap-2">
-              <OmmButton
-                type="button"
-                variant="ghost"
-                size="sm"
-                disabled={pending}
-                onClick={onGeneratePassword}
-              >
-                {t("generatePassword")}
-              </OmmButton>
-              {autoGeneratePassword ? (
-                <p className="text-xs text-sage-600">{t("autoGenerateHint")}</p>
-              ) : null}
-            </div>
-          </div>
           <label className="flex items-start gap-3 text-sm text-sage-700">
             <input
               type="checkbox"
