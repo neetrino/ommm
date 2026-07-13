@@ -2008,6 +2008,8 @@
         "unlimited": "Անսահմանափակ",
         "selectLead": "Ընտրեք հասանելի փաթեթը՝ շարունակելու համար։",
         "selectTierLead": "Ընտրեք այս կատեգորիայի փաթեթի տարբերակը։",
+        "selectPlanAria": "Ընտրել փաթեթը՝ {name}",
+        "selectColumnAria": "Ընտրություն",
         "selectedPlanHint": "Ընտրված է՝ {name}",
         "plansLoading": "Հասանելի փաթեթները բեռնվում են…",
         "plansLoadError": "Չհաջողվեց բեռնել հասանելի փաթեթները։",

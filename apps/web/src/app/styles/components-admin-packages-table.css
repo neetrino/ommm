@@ -96,6 +96,14 @@
     background-color: rgba(151, 144, 124, 0.26);
   }
 
+  .ommm-admin-packages-table-row-layout--selected {
+    background-color: rgba(151, 144, 124, 0.34);
+  }
+
+  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-row-layout--selected {
+    background-color: rgba(151, 144, 124, 0.4);
+  }
+
   .ommm-public-packages-table .ommm-btn-compact-warm {
     max-width: 100%;
     white-space: nowrap;

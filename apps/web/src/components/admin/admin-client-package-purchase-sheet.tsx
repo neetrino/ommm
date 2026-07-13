@@ -96,19 +96,14 @@ export function AdminClientPackagePurchaseSheet({
     onClose();
   }
 
-  function handleSelectPlan(planId: string): void {
+  function handleSelectPlan(planId: string | null): void {
     if (submitting) {
       return;
     }
     setSelectedPlanId(planId);
-  }
-
-  function handleSubscribePlan(planId: string): void {
-    if (submitting) {
-      return;
+    if (planId !== null) {
+      setPaymentMethod("CASH");
     }
-    setSelectedPlanId(planId);
-    setPaymentMethod("CASH");
   }
 
   function handleContinueToConfirm(): void {
@@ -207,7 +202,6 @@ export function AdminClientPackagePurchaseSheet({
                 selectedPlanId={selectedPlanId}
                 disabled={submitting}
                 onSelectPlan={handleSelectPlan}
-                onSubscribe={handleSubscribePlan}
               />
             ) : null}
           </div>

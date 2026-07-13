@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { TrashGlyph } from "@/components/ui/admin-action-glyphs";
 
 type AdminAccordionPanelProps = {
@@ -17,6 +17,11 @@ type AdminAccordionPanelProps = {
   emptyLabel?: string;
   /** Table body layout — Figma expanded category card. */
   contentVariant?: "default" | "table";
+  /**
+   * Optional marketing package-card surface gradient CSS value
+   * (e.g. from `buildPackagesPageCardGradient`).
+   */
+  surfaceBackground?: string;
 };
 
 function ChevronGlyph({ open }: { open: boolean }) {
@@ -75,6 +80,7 @@ export function AdminAccordionPanel({
   onOpenChange,
   emptyLabel,
   contentVariant = "default",
+  surfaceBackground,
 }: AdminAccordionPanelProps) {
   const panelId = useId();
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
@@ -96,11 +102,23 @@ export function AdminAccordionPanel({
 
   const hasBody = children !== undefined && children !== null;
   const showEmpty = open && !hasBody && emptyLabel !== undefined;
+  const surfaceStyle =
+    surfaceBackground !== undefined
+      ? ({
+          ["--ommm-admin-accordion-surface" as string]: surfaceBackground,
+        } as CSSProperties)
+      : undefined;
 
   return (
     <article
-      className="ommm-admin-accordion"
+      className={[
+        "ommm-admin-accordion",
+        surfaceBackground !== undefined ? "ommm-admin-accordion--package-surface" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       data-expanded={open ? "true" : "false"}
+      style={surfaceStyle}
     >
       <div className="flex min-h-[46px] items-center justify-between gap-4">
         <button

@@ -162,11 +162,17 @@
   }
 
   .ommm-admin-accordion {
-    @apply flex min-h-[98px] flex-col justify-center rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 px-6 py-5 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.16)] backdrop-blur-md sm:px-10 sm:py-[21px];
+    @apply flex min-h-[98px] min-w-0 max-w-full flex-col justify-center overflow-x-hidden rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 px-6 py-5 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.16)] backdrop-blur-md sm:px-10 sm:py-[21px];
   }
 
   .ommm-admin-accordion[data-expanded="true"] {
     @apply min-h-0 min-w-0 justify-start pb-10 pt-8 sm:px-[41px];
+  }
+
+  .ommm-admin-accordion--package-surface {
+    border-color: rgba(212, 196, 183, 0.28);
+    background: var(--ommm-admin-accordion-surface);
+    backdrop-filter: none;
   }
 
   .ommm-admin-accordion-nested {

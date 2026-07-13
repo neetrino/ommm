@@ -1996,6 +1996,8 @@
         "unlimited": "Безлимит",
         "selectLead": "Выберите доступный пакет, чтобы продолжить.",
         "selectTierLead": "Выберите тариф в этой категории.",
+        "selectPlanAria": "Выбрать пакет {name}",
+        "selectColumnAria": "Выбор",
         "selectedPlanHint": "Выбрано: {name}",
         "plansLoading": "Загрузка доступных пакетов…",
         "plansLoadError": "Не удалось загрузить доступные пакеты.",

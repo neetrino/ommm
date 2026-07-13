@@ -67,7 +67,7 @@ export const ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS = [
 ].join(" ");
 
 export const ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS =
-  "flex-1 overflow-y-auto overscroll-y-contain px-5 py-5 sm:px-6";
+  "flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-5 py-5 sm:px-6";
 
 export const ADMIN_DETAILS_SHEET_OVERLAY_CLASS =
   "ommm-drawer-overlay z-[105] items-end";

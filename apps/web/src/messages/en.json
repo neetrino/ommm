@@ -1998,6 +1998,8 @@
         "unlimited": "Unlimited",
         "selectLead": "Select an available package to continue.",
         "selectTierLead": "Select a package tier for this category.",
+        "selectPlanAria": "Select package {name}",
+        "selectColumnAria": "Selection",
         "selectedPlanHint": "Selected: {name}",
         "plansLoading": "Loading available packages…",
         "plansLoadError": "Could not load available packages.",
