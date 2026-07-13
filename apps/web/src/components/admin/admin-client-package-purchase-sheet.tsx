@@ -3,11 +3,9 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import type { ClientDetail } from "@/components/admin/admin-clients-types";
+import { AdminClientPackagePurchaseConfirm } from "@/components/admin/admin-client-package-purchase-confirm";
 import { AdminClientPackageSelectCards } from "@/components/admin/admin-client-package-select-cards";
 import {
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS,
@@ -23,7 +21,6 @@ import {
   ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS,
   type AdminClientPackagePaymentMethod,
 } from "@/lib/manual-payment-method";
-import { formatAmdFromCents } from "@/lib/price-amd";
 import {
   normalizePublicPackagePlan,
   type PublicPackagePlan,
@@ -153,15 +150,6 @@ export function AdminClientPackagePurchaseSheet({
     }
   }
 
-  const confirmLabel =
-    paymentMethod === "CASH"
-      ? t("packages.confirmCash")
-      : t("packages.confirmTerminal");
-  const confirmHint =
-    paymentMethod === "CASH"
-      ? t("packages.confirmCashHint")
-      : t("packages.confirmTerminalHint");
-
   return (
     <OmmDrawerPortal
       isOpen
@@ -274,78 +262,19 @@ export function AdminClientPackagePurchaseSheet({
               ) : null}
             </div>
           </div>
-        ) : (
-          <form className="space-y-5" onSubmit={(event) => void handleConfirmPurchase(event)}>
-            <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-              <SummaryRow label={t("packages.clientName")} value={clientDisplayName(client)} />
-              <SummaryRow
-                label={t("packages.packageName")}
-                value={selectedPlan?.name ?? "—"}
-              />
-              <SummaryRow
-                label={t("packages.category")}
-                value={selectedPlan?.categoryName ?? "—"}
-              />
-              <SummaryRow
-                label={t("packages.duration")}
-                value={
-                  selectedPlan
-                    ? t("packages.periodDays", { days: selectedPlan.periodDays })
-                    : "—"
-                }
-              />
-              <SummaryRow
-                label={t("packages.includedSessions")}
-                value={
-                  selectedPlan?.isUnlimited
-                    ? t("packages.unlimited")
-                    : String(selectedPlan?.sessionsPerMonth ?? "—")
-                }
-              />
-              <SummaryRow
-                label={t("packages.finalPrice")}
-                value={
-                  selectedPlan
-                    ? formatAmdFromCents(
-                        selectedPlan.finalPriceCents ?? selectedPlan.priceCents,
-                        locale,
-                      )
-                    : "—"
-                }
-              />
-              <SummaryRow
-                label={t("packages.paymentMethod")}
-                value={tFinance(`paymentMethods.${paymentMethod}`)}
-              />
-            </dl>
-
-            <p className="text-sm text-sage-600">{confirmHint}</p>
-
-            <div className="flex flex-wrap justify-end gap-2">
-              <OmmButton
-                type="button"
-                variant="secondary"
-                disabled={submitting}
-                onClick={() => setStep("select")}
-              >
-                {t("packages.back")}
-              </OmmButton>
-              <OmmButton type="submit" variant="primary" disabled={submitting}>
-                {submitting ? t("packages.submitting") : confirmLabel}
-              </OmmButton>
-            </div>
-          </form>
-        )}
+        ) : selectedPlan !== null ? (
+          <AdminClientPackagePurchaseConfirm
+            clientName={clientDisplayName(client)}
+            locale={locale}
+            paymentMethod={paymentMethod}
+            paymentMethodLabel={tFinance(`paymentMethods.${paymentMethod}`)}
+            plan={selectedPlan}
+            submitting={submitting}
+            onBack={() => setStep("select")}
+            onConfirm={(event) => void handleConfirmPurchase(event)}
+          />
+        ) : null}
       </div>
     </OmmDrawerPortal>
-  );
-}
-
-function SummaryRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-white/60 py-2 last:border-b-0">
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
-    </div>
   );
 }

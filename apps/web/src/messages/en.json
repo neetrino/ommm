@@ -1998,6 +1998,7 @@
         "finalPrice": "Final price",
         "sessionsCount": "{count} sessions",
         "periodDays": "{days}-day period",
+        "confirmLead": "Review the package details, then confirm the payment.",
         "confirmCash": "Confirm cash payment and add package",
         "confirmCashHint": "Confirm only after the cash payment has been received.",
         "confirmTerminal": "Confirm terminal payment and add package",
