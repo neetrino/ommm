@@ -712,6 +712,7 @@
       "paymentMethods": {
         "CASH": "Cash",
         "CARD": "Card",
+        "CARD_TERMINAL": "Card (Terminal)",
         "BANK_TRANSFER": "Bank transfer",
         "OTHER": "Other"
       },
@@ -1086,6 +1087,7 @@
       "paymentMethods": {
         "CASH": "Cash",
         "CARD": "Card",
+        "CARD_TERMINAL": "Card (Terminal)",
         "BANK_TRANSFER": "Bank transfer",
         "OTHER": "Other"
       },
@@ -1959,10 +1961,48 @@
       "confirmDeactivate": "Deactivate this client? They will be blocked from booking.",
       "sheetTabs": {
         "profile": "Profile",
+        "packages": "Packages",
         "bookings": "Bookings",
         "payments": "Payments",
         "gifts": "Gift cards",
         "notes": "Notes"
+      },
+      "packages": {
+        "heading": "Client packages",
+        "addPackage": "Add package",
+        "loading": "Loading packages…",
+        "empty": "No packages for this client yet.",
+        "loadError": "Could not load packages.",
+        "retry": "Retry",
+        "activationDate": "Activation date",
+        "expirationDate": "Expiration date",
+        "totalSessions": "Total sessions",
+        "usedSessions": "Used sessions",
+        "remainingSessions": "Remaining sessions",
+        "paymentMethod": "Payment method",
+        "unlimited": "Unlimited",
+        "selectLead": "Select an available package and payment method.",
+        "plansLoading": "Loading available packages…",
+        "plansLoadError": "Could not load available packages.",
+        "plansEmpty": "No packages are currently available.",
+        "paymentMethodLegend": "Payment method",
+        "continue": "Continue",
+        "back": "Back",
+        "clientName": "Client",
+        "packageName": "Package",
+        "category": "Category",
+        "duration": "Duration",
+        "includedSessions": "Included sessions",
+        "finalPrice": "Final price",
+        "sessionsCount": "{count} sessions",
+        "periodDays": "{days}-day period",
+        "confirmCash": "Confirm cash payment and add package",
+        "confirmCashHint": "Confirm only after the cash payment has been received.",
+        "confirmTerminal": "Confirm terminal payment and add package",
+        "confirmTerminalHint": "Confirm only after the payment has been approved on the physical card terminal.",
+        "submitting": "Adding package…",
+        "purchaseSuccess": "Package added successfully.",
+        "purchaseError": "Could not add the package."
       },
       "drawer": {
         "loading": "Loading client data…",
@@ -3400,8 +3440,9 @@
       },
       "paymentMethods": {
         "CASH": "Cash",
-        "CARD": "Card",
-        "BANK_TRANSFER": "Bank transfer",
+        "CARD": "Online Card",
+        "CARD_TERMINAL": "Card (Terminal)",
+        "BANK_TRANSFER": "Bank Transfer",
         "OTHER": "Other"
       },
       "paymentActions": {

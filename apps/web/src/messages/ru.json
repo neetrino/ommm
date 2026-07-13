@@ -712,6 +712,7 @@
       "paymentMethods": {
         "CASH": "Наличные",
         "CARD": "Карта",
+        "CARD_TERMINAL": "Карта (терминал)",
         "BANK_TRANSFER": "Банковский перевод",
         "OTHER": "Другое"
       },
@@ -1086,6 +1087,7 @@
       "paymentMethods": {
         "CASH": "Наличные",
         "CARD": "Карта",
+        "CARD_TERMINAL": "Карта (терминал)",
         "BANK_TRANSFER": "Банковский перевод",
         "OTHER": "Другое"
       },
@@ -1957,10 +1959,48 @@
       "confirmDeactivate": "Деактивировать этого клиента? Бронирование будет недоступно.",
       "sheetTabs": {
         "profile": "Профиль",
+        "packages": "Пакеты",
         "bookings": "Бронирования",
         "payments": "Платежи",
         "gifts": "Подарочные карты",
         "notes": "Заметки"
+      },
+      "packages": {
+        "heading": "Пакеты клиента",
+        "addPackage": "Добавить пакет",
+        "loading": "Загрузка пакетов…",
+        "empty": "У этого клиента пока нет пакетов.",
+        "loadError": "Не удалось загрузить пакеты.",
+        "retry": "Повторить",
+        "activationDate": "Дата активации",
+        "expirationDate": "Дата окончания",
+        "totalSessions": "Всего занятий",
+        "usedSessions": "Использовано",
+        "remainingSessions": "Осталось",
+        "paymentMethod": "Способ оплаты",
+        "unlimited": "Безлимит",
+        "selectLead": "Выберите доступный пакет и способ оплаты.",
+        "plansLoading": "Загрузка доступных пакетов…",
+        "plansLoadError": "Не удалось загрузить доступные пакеты.",
+        "plansEmpty": "Сейчас нет доступных пакетов.",
+        "paymentMethodLegend": "Способ оплаты",
+        "continue": "Продолжить",
+        "back": "Назад",
+        "clientName": "Клиент",
+        "packageName": "Пакет",
+        "category": "Категория",
+        "duration": "Длительность",
+        "includedSessions": "Включённые занятия",
+        "finalPrice": "Итоговая цена",
+        "sessionsCount": "{count} занятий",
+        "periodDays": "Период {days} дн.",
+        "confirmCash": "Подтвердить оплату наличными и добавить пакет",
+        "confirmCashHint": "Подтверждайте только после получения наличной оплаты.",
+        "confirmTerminal": "Подтвердить оплату через терминал и добавить пакет",
+        "confirmTerminalHint": "Подтверждайте только после одобрения оплаты на физическом карточном терминале.",
+        "submitting": "Добавление пакета…",
+        "purchaseSuccess": "Пакет успешно добавлен.",
+        "purchaseError": "Не удалось добавить пакет."
       },
       "drawer": {
         "loading": "Загрузка данных клиента…",
@@ -3208,7 +3248,8 @@
       },
       "paymentMethods": {
         "CASH": "Наличные",
-        "CARD": "Карта",
+        "CARD": "Онлайн-карта",
+        "CARD_TERMINAL": "Карта (терминал)",
         "BANK_TRANSFER": "Банковский перевод",
         "OTHER": "Другое"
       },

@@ -38,6 +38,8 @@ type AdminClientDrawerProps = {
   useOverlayPortalRoot?: boolean;
   /** Skip the initial profile fetch when the caller already loaded it. */
   initialDetail?: ClientDetail | null;
+  /** Admin-only package purchase in Packages tab. */
+  allowPackagePurchase?: boolean;
 };
 
 function clientHeaderName(client: ClientRow): string {
@@ -62,6 +64,7 @@ export function AdminClientDrawer({
   onChanged,
   useOverlayPortalRoot = false,
   initialDetail = null,
+  allowPackagePurchase = false,
 }: AdminClientDrawerProps) {
   if (client === null) {
     return null;
@@ -76,6 +79,7 @@ export function AdminClientDrawer({
       onChanged={onChanged}
       useOverlayPortalRoot={useOverlayPortalRoot}
       initialDetail={initialDetail}
+      allowPackagePurchase={allowPackagePurchase}
     />
   );
 }
@@ -87,6 +91,7 @@ function AdminClientDrawerInner({
   onChanged,
   useOverlayPortalRoot = false,
   initialDetail = null,
+  allowPackagePurchase = false,
 }: {
   client: ClientRow;
   locale: string;
@@ -94,6 +99,7 @@ function AdminClientDrawerInner({
   onChanged: () => void;
   useOverlayPortalRoot?: boolean;
   initialDetail?: ClientDetail | null;
+  allowPackagePurchase?: boolean;
 }) {
   const t = useTranslations("adminPages.clients");
   const tAuth = useTranslations("auth.register");
@@ -366,6 +372,13 @@ function AdminClientDrawerInner({
             onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
             onPersonalInfoSubmit={handlePersonalInfoFormSubmit}
             onAvatarPreviewOpenChange={setAvatarPreviewOpen}
+            allowPackagePurchase={allowPackagePurchase}
+            onPackagePurchaseSuccess={() => {
+              setActionTone("ok");
+              setActionMessage(t("packages.purchaseSuccess"));
+              onChanged();
+              void refreshDetail();
+            }}
           />
         )}
       </div>

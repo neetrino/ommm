@@ -145,6 +145,7 @@ export function AdminClientsManagement({
         locale={locale}
         onClose={closeClientView}
         onChanged={handleClientChanged}
+        allowPackagePurchase={!readOnly && !isStaff}
       />
     </div>
   );

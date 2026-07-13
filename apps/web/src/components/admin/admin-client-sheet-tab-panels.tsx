@@ -15,7 +15,16 @@ import {
   ClientGiftActionPanel,
   ClientNotesPanel,
 } from "@/components/admin/admin-client-drawer-sections";
+import { ClientPackagesPanel } from "@/components/admin/admin-client-packages-panel";
 import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
+import {
+  CLIENT_SHEET_TAB_BOOKINGS,
+  CLIENT_SHEET_TAB_GIFTS,
+  CLIENT_SHEET_TAB_NOTES,
+  CLIENT_SHEET_TAB_PACKAGES,
+  CLIENT_SHEET_TAB_PAYMENTS,
+  CLIENT_SHEET_TAB_PROFILE,
+} from "@/components/admin/admin-client-sheet-tabs";
 import {
   AdminSheetEditableField,
   AdminSheetReadOnlyField,
@@ -27,6 +36,7 @@ import { formatBirthdayInput, formatDateForUi, formatDateTimeForUi } from "@/lib
 import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
+import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -53,6 +63,8 @@ type ClientSheetTabPanelsProps = {
   onStartPersonalInfoEdit: () => void;
   onPersonalInfoSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onAvatarPreviewOpenChange?: (open: boolean) => void;
+  allowPackagePurchase?: boolean;
+  onPackagePurchaseSuccess?: () => void;
 };
 
 export function ClientSheetTabPanels({
@@ -74,11 +86,14 @@ export function ClientSheetTabPanels({
   onStartPersonalInfoEdit,
   onPersonalInfoSubmit,
   onAvatarPreviewOpenChange,
+  allowPackagePurchase = false,
+  onPackagePurchaseSuccess,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
+  const tFinance = useTranslations("adminPages.finance");
   const activity = detail.activity;
 
-  if (activeTab === "profile") {
+  if (activeTab === CLIENT_SHEET_TAB_PROFILE) {
     return (
       <div className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -219,7 +234,20 @@ export function ClientSheetTabPanels({
     );
   }
 
-  if (activeTab === "bookings") {
+  if (activeTab === CLIENT_SHEET_TAB_PACKAGES) {
+    return (
+      <ClientPackagesPanel
+        client={detail}
+        locale={locale}
+        active
+        refreshKey={tabRefreshKey}
+        allowPurchase={allowPackagePurchase}
+        onPurchaseSuccess={() => onPackagePurchaseSuccess?.()}
+      />
+    );
+  }
+
+  if (activeTab === CLIENT_SHEET_TAB_BOOKINGS) {
     return (
       <ClientSheetPaginatedTab<ClientSheetBookingItem>
         clientId={detail.id}
@@ -242,7 +270,7 @@ export function ClientSheetTabPanels({
     );
   }
 
-  if (activeTab === "payments") {
+  if (activeTab === CLIENT_SHEET_TAB_PAYMENTS) {
     return (
       <ClientSheetPaginatedTab<ClientSheetPaymentItem>
         clientId={detail.id}
@@ -251,17 +279,29 @@ export function ClientSheetTabPanels({
         endpoint={`/clients/${detail.id}/payments`}
         title={t("drawer.paymentHistory")}
         empty={t("drawer.noPayments")}
-        mapItem={(payment) => ({
-          id: payment.id,
-          main: formatAmdFromCents(payment.amountCents, locale),
-          meta: `${payment.status} · ${formatDateForUi(payment.createdAt)}`,
-          extra: payment.description,
-        })}
+        mapItem={(payment) => {
+          const methodLabel =
+            payment.paymentMethod !== null && isManualPaymentMethod(payment.paymentMethod)
+              ? tFinance(`paymentMethods.${payment.paymentMethod}`)
+              : null;
+          return {
+            id: payment.id,
+            main: formatAmdFromCents(payment.amountCents, locale),
+            meta: [
+              payment.status,
+              methodLabel,
+              formatDateForUi(payment.createdAt),
+            ]
+              .filter(Boolean)
+              .join(" · "),
+            extra: payment.description,
+          };
+        }}
       />
     );
   }
 
-  if (activeTab === "gifts") {
+  if (activeTab === CLIENT_SHEET_TAB_GIFTS) {
     return (
       <div className="space-y-5">
         <ClientGiftActionPanel
@@ -289,7 +329,7 @@ export function ClientSheetTabPanels({
     );
   }
 
-  if (activeTab === "notes") {
+  if (activeTab === CLIENT_SHEET_TAB_NOTES) {
     return (
       <ClientNotesPanel
         notes={detail.notes}

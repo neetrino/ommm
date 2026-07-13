@@ -4,6 +4,7 @@ import { PackageUsageEligibilityService } from './package-usage-eligibility.serv
 import { PackageUsageLedgerService } from './package-usage-ledger.service';
 import { PackageUsageMaintenanceService } from './package-usage-maintenance.service';
 import { PackageUsageService } from './package-usage.service';
+import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
 import { PackagesController } from './packages.controller';
 import { PackagesPublicService } from './packages-public.service';
@@ -15,6 +16,7 @@ import { PackagesService } from './packages.service';
   providers: [
     PackagesPublicService,
     PackagesAdminService,
+    PackagesAdminClientPurchaseService,
     PackagesService,
     PackageUsageService,
     PackageUsageEligibilityService,

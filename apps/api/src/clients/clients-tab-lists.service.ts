@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, Role } from '@prisma/client';
+import { PaymentSource, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { resolveUserPackagePlan } from '../packages/user-package-plan-snapshot.util';
 
 const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   session: {
@@ -41,6 +42,7 @@ type ClientPaymentsPage = {
     currency: string;
     status: string;
     description: string | null;
+    paymentMethod: string | null;
     createdAt: Date;
   }>;
   total: number;
@@ -58,6 +60,25 @@ type ClientGiftCardsPage = {
     recipientName: string | null;
     createdAt: Date;
     relation: 'purchased' | 'received';
+  }>;
+  total: number;
+  take: number;
+  offset: number;
+};
+
+type ClientPackagesPage = {
+  items: Array<{
+    id: string;
+    status: string;
+    packageName: string;
+    categoryName: string;
+    activationDate: string;
+    expirationDate: string;
+    totalSessions: number | null;
+    usedSessions: number | null;
+    remainingSessions: number | null;
+    isUnlimited: boolean;
+    paymentMethod: string | null;
   }>;
   total: number;
   take: number;
@@ -105,6 +126,7 @@ export class ClientsTabListsService {
           currency: true,
           status: true,
           description: true,
+          paymentMethod: true,
           createdAt: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -113,6 +135,81 @@ export class ClientsTabListsService {
       }),
     ]);
     return { items: rows, total, take, offset };
+  }
+
+  async listPackages(
+    userId: string,
+    take: number,
+    offset: number,
+  ): Promise<ClientPackagesPage> {
+    await this.assertClientExists(userId);
+    const where = { userId };
+    const [total, rows] = await Promise.all([
+      this.prisma.userPackage.count({ where }),
+      this.prisma.userPackage.findMany({
+        where,
+        include: { plan: true },
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take,
+      }),
+    ]);
+
+    const packageIds = rows.map((row) => row.id);
+    const payments =
+      packageIds.length === 0
+        ? []
+        : await this.prisma.payment.findMany({
+            where: {
+              source: PaymentSource.PACKAGE,
+              sourceId: { in: packageIds },
+            },
+            select: {
+              sourceId: true,
+              paymentMethod: true,
+              createdAt: true,
+            },
+            orderBy: { createdAt: 'desc' },
+          });
+
+    const paymentMethodByPackageId = new Map<string, string | null>();
+    for (const payment of payments) {
+      if (payment.sourceId === null) {
+        continue;
+      }
+      if (!paymentMethodByPackageId.has(payment.sourceId)) {
+        paymentMethodByPackageId.set(payment.sourceId, payment.paymentMethod);
+      }
+    }
+
+    return {
+      items: rows.map((row) => {
+        const resolvedPlan = resolveUserPackagePlan({
+          plan: row.plan,
+          snapshots: row,
+        });
+        const usedSessions =
+          row.sessionsTotal === null || row.sessionsRemaining === null
+            ? null
+            : Math.max(row.sessionsTotal - row.sessionsRemaining, 0);
+        return {
+          id: row.id,
+          status: row.status,
+          packageName: resolvedPlan.name,
+          categoryName: resolvedPlan.categoryName,
+          activationDate: row.currentPeriodStart.toISOString(),
+          expirationDate: row.currentPeriodEnd.toISOString(),
+          totalSessions: row.sessionsTotal,
+          usedSessions,
+          remainingSessions: row.sessionsRemaining,
+          isUnlimited: resolvedPlan.isUnlimited,
+          paymentMethod: paymentMethodByPackageId.get(row.id) ?? null,
+        };
+      }),
+      total,
+      take,
+      offset,
+    };
   }
 
   async listGiftCards(
