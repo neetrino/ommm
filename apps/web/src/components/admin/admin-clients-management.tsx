@@ -12,7 +12,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import type { AdminClientsPayload } from "./admin-clients-types";
+import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
 
 type AdminClientsManagementProps = {
   initial: AdminClientsPayload;
@@ -20,6 +20,7 @@ type AdminClientsManagementProps = {
   initialFilters: Record<string, string>;
   onAddUser?: () => void;
   onRegisterRefetch?: (refetch: () => void) => void;
+  onRegisterSeedCreatedClient?: (seed: (client: ClientRow) => void) => void;
   variant?: "full" | "staff";
   staffBanner?: string;
   readOnly?: boolean;
@@ -31,6 +32,7 @@ export function AdminClientsManagement({
   initialFilters,
   onAddUser,
   onRegisterRefetch,
+  onRegisterSeedCreatedClient,
   variant = "full",
   staffBanner,
   readOnly = false,
@@ -55,7 +57,12 @@ export function AdminClientsManagement({
     resetFilters,
     handleIntegratedFilterChange,
     handleClientChanged,
-  } = useAdminClientsManagement({ initial, initialFilters, onRegisterRefetch });
+  } = useAdminClientsManagement({
+    initial,
+    initialFilters,
+    onRegisterRefetch,
+    onRegisterSeedCreatedClient,
+  });
 
   const filterFields = useAdminClientsFilterFields(payload);
 

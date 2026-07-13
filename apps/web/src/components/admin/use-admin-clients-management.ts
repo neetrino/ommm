@@ -31,12 +31,14 @@ type UseAdminClientsManagementArgs = {
   initial: AdminClientsPayload;
   initialFilters: Record<string, string>;
   onRegisterRefetch?: (refetch: () => void) => void;
+  onRegisterSeedCreatedClient?: (seed: (client: ClientRow) => void) => void;
 };
 
 export function useAdminClientsManagement({
   initial,
   initialFilters,
   onRegisterRefetch,
+  onRegisterSeedCreatedClient,
 }: UseAdminClientsManagementArgs) {
   const router = useRouter();
   const pathname = usePathname();
@@ -104,6 +106,7 @@ export function useAdminClientsManagement({
 
   const selectClient = useCallback(
     (row: ClientRow) => {
+      setFetchedClient(row);
       setVisibleClientId(row.id);
       replaceSearchParams((params) => {
         params.set(VIEW_CLIENT_QUERY_KEY, row.id);
@@ -120,6 +123,13 @@ export function useAdminClientsManagement({
   }, [replaceSearchParams]);
 
   const restoredViewClientIdRef = useRef<string | null>(null);
+
+  /** Opens the detail sheet for a just-created client (URL may already include viewClient). */
+  const seedCreatedClient = useCallback((client: ClientRow) => {
+    setFetchedClient(client);
+    setVisibleClientId(client.id);
+    restoredViewClientIdRef.current = client.id;
+  }, []);
 
   useEffect(() => {
     if (!viewClientId) {
@@ -245,6 +255,10 @@ export function useAdminClientsManagement({
     onRegisterRefetch?.(refetchClients);
   }, [onRegisterRefetch, refetchClients]);
 
+  useEffect(() => {
+    onRegisterSeedCreatedClient?.(seedCreatedClient);
+  }, [onRegisterSeedCreatedClient, seedCreatedClient]);
+
   function updateFilter(key: keyof typeof filters, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));
     replaceSearchParams((params) => {
@@ -277,6 +291,7 @@ export function useAdminClientsManagement({
     listPage,
     integratedFilterValues,
     selectClient,
+    seedCreatedClient,
     closeClientView,
     setListPage,
     updateFilter,

@@ -3,7 +3,7 @@
 import { useCallback, useRef } from "react";
 import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
 import { AdminClientsShell } from "@/components/admin/admin-clients-shell";
-import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
+import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 
 type AdminClientsPageViewProps = {
   initial: AdminClientsPayload;
@@ -23,8 +23,10 @@ export function AdminClientsPageView({
   staffBanner,
 }: AdminClientsPageViewProps) {
   const refetchRef = useRef<(() => void) | null>(null);
+  const seedCreatedClientRef = useRef<((client: ClientRow) => void) | null>(null);
 
-  const handleClientCreated = useCallback(() => {
+  const handleClientCreated = useCallback((client: ClientRow) => {
+    seedCreatedClientRef.current?.(client);
     refetchRef.current?.();
   }, []);
 
@@ -41,6 +43,9 @@ export function AdminClientsPageView({
           onAddUser={readOnly ? undefined : openAddUserModal}
           onRegisterRefetch={(refetch) => {
             refetchRef.current = refetch;
+          }}
+          onRegisterSeedCreatedClient={(seed) => {
+            seedCreatedClientRef.current = seed;
           }}
         />
       )}

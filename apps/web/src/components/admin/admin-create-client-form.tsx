@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { AdminClientCredentialsHandover } from "@/components/admin/admin-client-credentials-handover";
 import {
   isValidEmail,
   isValidPhone,
@@ -28,12 +27,6 @@ import {
 
 type CreateClientApiResponse = {
   client: ClientRow;
-  credentials: {
-    email: string;
-    temporaryPassword: string | null;
-    passwordResetUrl: string | null;
-  };
-  welcomeEmailSent: boolean;
 };
 
 export type AdminCreateClientFormProps = {
@@ -52,13 +45,12 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
   const [confirmPassword, setConfirmPassword] = useState("");
   const [forcePasswordReset, setForcePasswordReset] = useState(false);
   const [sendWelcomeEmail, setSendWelcomeEmail] = useState(false);
-  const [handover, setHandover] = useState<CreateClientApiResponse | null>(null);
   const submitLockRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (pending || submitLockRef.current || handover !== null) {
+    if (pending || submitLockRef.current) {
       return;
     }
 
@@ -130,14 +122,6 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           sendWelcomeEmail,
         }),
       });
-      form.reset();
-      setPhone("");
-      setBirthdayValue("");
-      setPassword("");
-      setConfirmPassword("");
-      setForcePasswordReset(false);
-      setSendWelcomeEmail(false);
-      setHandover(response);
       onCreated(response.client);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -147,27 +131,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
       } else {
         setError(t("genericError"));
       }
-    } finally {
       setPending(false);
       submitLockRef.current = false;
     }
-  }
-
-  if (handover !== null) {
-    return (
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
-        <AdminClientCredentialsHandover
-          email={handover.credentials.email}
-          temporaryPassword={handover.credentials.temporaryPassword}
-          passwordResetUrl={handover.credentials.passwordResetUrl}
-          welcomeEmailSent={handover.welcomeEmailSent}
-          onDone={() => {
-            setHandover(null);
-            onCancel?.();
-          }}
-        />
-      </div>
-    );
   }
 
   return (
