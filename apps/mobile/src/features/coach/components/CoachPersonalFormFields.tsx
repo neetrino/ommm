@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import {
   AccountProfileFormFields,
@@ -20,6 +21,10 @@ type CoachPersonalFormFieldsProps = {
     key: K,
     value: CoachPersonalFormState[K],
   ) => void;
+  /** Shown at the top of the card (e.g. pen edit icon). */
+  headerAction?: ReactNode;
+  /** Shown below fields when editing (save / cancel). */
+  footer?: ReactNode;
 };
 
 export function CoachPersonalFormFields({
@@ -27,11 +32,15 @@ export function CoachPersonalFormFields({
   editing,
   saving,
   onChange,
+  headerAction,
+  footer,
 }: CoachPersonalFormFieldsProps) {
   const tProfile = useTranslations("userPages.profile");
 
   return (
     <ProfileGlassCard contentStyle={styles.card}>
+      {headerAction ?? null}
+
       <AccountProfileFormFields
         form={form}
         editing={editing}
@@ -56,6 +65,8 @@ export function CoachPersonalFormFields({
           </Text>
         )}
       </View>
+
+      {footer ?? null}
     </ProfileGlassCard>
   );
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../../auth/SessionProvider";
 import { PackagesPrimaryCta } from "../../packages/components/PackagesScreenActions";
+import { AccountProfileEditIconButton } from "../../profile/components/AccountProfileEditIconButton";
 import { ProfileHomeImageSection } from "../../profile/components/ProfileHomeImageSection";
 import { ProfileScreenShell } from "../../profile/components/ProfileScreenShell";
 import { useTranslations } from "../../../i18n/I18nProvider";
@@ -10,6 +11,10 @@ import {
   patchCoachAccountFields,
   patchCoachBio,
 } from "../../../lib/api/coachClient";
+import {
+  formatIsoDateToUi,
+  parseBirthdayDisplayToIso,
+} from "../../../lib/birthdayDisplay";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, space, typography } from "../../../theme/tokens";
 import {
@@ -17,10 +22,6 @@ import {
   type CoachPersonalFormState,
 } from "../components/CoachPersonalFormFields";
 import { CoachStateCard } from "../components/CoachMetricCards";
-import {
-  formatIsoDateToUi,
-  parseBirthdayDisplayToIso,
-} from "../../../lib/birthdayDisplay";
 import { COACH_BIO_MAX_LENGTH } from "../lib/constants";
 
 const EMPTY_FORM: CoachPersonalFormState = {
@@ -186,33 +187,37 @@ export function CoachPersonalScreen() {
         editing={editing}
         saving={saving}
         onChange={updateField}
+        headerAction={
+          editing ? undefined : (
+            <AccountProfileEditIconButton
+              onPress={() => {
+                setEditing(true);
+                setMessage(null);
+                setError(null);
+              }}
+            />
+          )
+        }
+        footer={
+          editing ? (
+            <View style={styles.actions}>
+              <PackagesPrimaryCta
+                label={saving ? tForm("saving") : tForm("save")}
+                onPress={() => {
+                  void save();
+                }}
+              />
+              <PackagesPrimaryCta
+                label={tForm("cancel")}
+                onPress={cancelEdit}
+                variant="ghost"
+              />
+            </View>
+          ) : undefined
+        }
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {message ? <Text style={styles.success}>{message}</Text> : null}
-      {editing ? (
-        <View style={styles.actions}>
-          <PackagesPrimaryCta
-            label={saving ? tForm("saving") : tForm("save")}
-            onPress={() => {
-              void save();
-            }}
-          />
-          <PackagesPrimaryCta
-            label={tForm("cancel")}
-            onPress={cancelEdit}
-            variant="ghost"
-          />
-        </View>
-      ) : (
-        <PackagesPrimaryCta
-          label={tForm("edit")}
-          onPress={() => {
-            setEditing(true);
-            setMessage(null);
-            setError(null);
-          }}
-        />
-      )}
     </ProfileScreenShell>
   );
 }

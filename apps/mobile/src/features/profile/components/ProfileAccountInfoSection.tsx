@@ -13,6 +13,7 @@ import {
 } from "../../../lib/birthdayDisplay";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, space, typography } from "../../../theme/tokens";
+import { AccountProfileEditIconButton } from "./AccountProfileEditIconButton";
 import {
   AccountProfileFormFields,
   type AccountProfileFormState,
@@ -90,6 +91,12 @@ export function ProfileAccountInfoSection() {
     setError(null);
   }
 
+  function startEdit() {
+    setEditing(true);
+    setMessage(null);
+    setError(null);
+  }
+
   async function save() {
     if (saving) {
       return;
@@ -153,41 +160,36 @@ export function ProfileAccountInfoSection() {
   return (
     <View style={styles.root}>
       <ProfileGlassCard contentStyle={styles.card}>
+        {!editing ? (
+          <AccountProfileEditIconButton onPress={startEdit} />
+        ) : null}
+
         <AccountProfileFormFields
           form={form}
           editing={editing}
           saving={saving}
           onChange={updateField}
         />
+
+        {editing ? (
+          <View style={styles.actions}>
+            <PackagesPrimaryCta
+              label={saving ? tForm("saving") : tForm("save")}
+              onPress={() => {
+                void save();
+              }}
+            />
+            <PackagesPrimaryCta
+              label={tForm("cancel")}
+              onPress={cancelEdit}
+              variant="ghost"
+            />
+          </View>
+        ) : null}
       </ProfileGlassCard>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {message ? <Text style={styles.success}>{message}</Text> : null}
-
-      {editing ? (
-        <View style={styles.actions}>
-          <PackagesPrimaryCta
-            label={saving ? tForm("saving") : tForm("save")}
-            onPress={() => {
-              void save();
-            }}
-          />
-          <PackagesPrimaryCta
-            label={tForm("cancel")}
-            onPress={cancelEdit}
-            variant="ghost"
-          />
-        </View>
-      ) : (
-        <PackagesPrimaryCta
-          label={tForm("edit")}
-          onPress={() => {
-            setEditing(true);
-            setMessage(null);
-            setError(null);
-          }}
-        />
-      )}
     </View>
   );
 }
@@ -203,6 +205,7 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: space.lg,
+    gap: space.md,
   },
   errorCard: {
     padding: space.lg,
