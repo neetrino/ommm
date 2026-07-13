@@ -296,31 +296,31 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           </h3>
           <p className="mt-1 text-xs text-sage-500">{t("sectionAccessLead")}</p>
         </div>
-        <div className="grid gap-4">
-          <label className="flex items-start gap-3 text-sm text-sage-700">
+        <div className="grid gap-3">
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
             <input
               type="checkbox"
-              className="mt-1 h-4 w-4 rounded border-sage-300"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 accent-sand-500 focus:ring-sand-500/30"
               checked={forcePasswordReset}
               onChange={(event) => setForcePasswordReset(event.target.checked)}
               disabled={pending}
             />
-            <span>
-              <span className="font-medium text-sage-900">{t("forceResetLabel")}</span>
-              <span className="mt-0.5 block text-xs text-sage-500">{t("forceResetHint")}</span>
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-medium text-sage-800">{t("forceResetLabel")}</span>
+              <span className="text-xs text-sage-500">{t("forceResetHint")}</span>
             </span>
           </label>
-          <label className="flex items-start gap-3 text-sm text-sage-700">
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
             <input
               type="checkbox"
-              className="mt-1 h-4 w-4 rounded border-sage-300"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 accent-sand-500 focus:ring-sand-500/30"
               checked={sendWelcomeEmail}
               onChange={(event) => setSendWelcomeEmail(event.target.checked)}
               disabled={pending}
             />
-            <span>
-              <span className="font-medium text-sage-900">{t("welcomeEmailLabel")}</span>
-              <span className="mt-0.5 block text-xs text-sage-500">{t("welcomeEmailHint")}</span>
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-medium text-sage-800">{t("welcomeEmailLabel")}</span>
+              <span className="text-xs text-sage-500">{t("welcomeEmailHint")}</span>
             </span>
           </label>
         </div>
