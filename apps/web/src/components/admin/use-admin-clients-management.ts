@@ -19,8 +19,11 @@ import {
   areUrlSearchQueriesEqual,
   mergeAdminClientsUrlQuery,
   parseAdminClientsListPageParams,
+  readBrowserSearchQuery,
+  replaceAdminClientsSearchParams,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
+import { CLIENT_PROFILE_TAB_QUERY_KEY, CLIENT_ADD_PACKAGE_QUERY_KEY } from "@/components/admin/admin-client-sheet-tabs";
 import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 import { apiFetch } from "@/lib/api";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
@@ -43,7 +46,6 @@ export function useAdminClientsManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const searchParamsStringRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const requestId = useRef(0);
   const [payload, setPayload] = useState(initial);
@@ -71,10 +73,6 @@ export function useAdminClientsManagement({
     setVisibleClientId(viewClientId);
   }
 
-  useEffect(() => {
-    searchParamsStringRef.current = searchParams.toString();
-  }, [searchParams]);
-
   const listPage = useMemo(
     () => parseAdminClientsListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
@@ -82,10 +80,7 @@ export function useAdminClientsManagement({
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParamsStringRef.current);
-      mutator(params);
-      const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      replaceAdminClientsSearchParams(pathname, router, mutator);
     },
     [pathname, router],
   );
@@ -119,6 +114,8 @@ export function useAdminClientsManagement({
     setVisibleClientId(null);
     replaceSearchParams((params) => {
       params.delete(VIEW_CLIENT_QUERY_KEY);
+      params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
+      params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
     });
   }, [replaceSearchParams]);
 
@@ -161,6 +158,8 @@ export function useAdminClientsManagement({
           restoredViewClientIdRef.current = null;
           replaceSearchParams((params) => {
             params.delete(VIEW_CLIENT_QUERY_KEY);
+            params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
+            params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
           });
         }
       });
@@ -220,11 +219,8 @@ export function useAdminClientsManagement({
             }
           });
       });
-      const currentQuery = searchParamsStringRef.current;
-      const nextQuery = mergeAdminClientsUrlQuery(
-        urlQueryString,
-        Object.fromEntries(new URLSearchParams(currentQuery)),
-      );
+      const currentQuery = readBrowserSearchQuery();
+      const nextQuery = mergeAdminClientsUrlQuery(urlQueryString, currentQuery);
       if (!areUrlSearchQueriesEqual(currentQuery, nextQuery)) {
         const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
         router.replace(nextUrl, { scroll: false });

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { formatIsoDateToUi } from "@/lib/date-display";
 import { AdminClientStatusAction } from "@/components/admin/admin-client-status-action";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
@@ -9,8 +10,16 @@ import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-ta
 import { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
 import type { ClientEditInitialValues } from "@/components/admin/admin-client-edit-form.types";
 import {
+  replaceAdminClientsSearchParams,
+} from "@/components/admin/admin-clients-query";
+import {
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
+  CLIENT_ADD_PACKAGE_QUERY_VALUE,
+  CLIENT_PROFILE_TAB_QUERY_KEY,
   CLIENT_SHEET_TAB_ORDER,
+  CLIENT_SHEET_TAB_PACKAGES,
   CLIENT_SHEET_TAB_PROFILE,
+  parseClientSheetTabId,
   type ClientSheetTabId,
 } from "@/components/admin/admin-client-sheet-tabs";
 import { ClientSheetTabPanels } from "@/components/admin/admin-client-sheet-tab-panels";
@@ -28,6 +37,7 @@ import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-t
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal, OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 type AdminClientDrawerProps = {
   client: ClientRow | null;
@@ -104,7 +114,20 @@ function AdminClientDrawerInner({
   const t = useTranslations("adminPages.clients");
   const tAuth = useTranslations("auth.register");
   const titleId = useId();
-  const [activeTab, setActiveTab] = useState<ClientSheetTabId>(CLIENT_SHEET_TAB_PROFILE);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const addPackageFromUrl =
+    searchParams.get(CLIENT_ADD_PACKAGE_QUERY_KEY) === CLIENT_ADD_PACKAGE_QUERY_VALUE;
+  const urlTab = addPackageFromUrl
+    ? CLIENT_SHEET_TAB_PACKAGES
+    : parseClientSheetTabId(searchParams.get(CLIENT_PROFILE_TAB_QUERY_KEY));
+  const [activeTab, setActiveTab] = useState<ClientSheetTabId>(urlTab);
+  const [prevUrlTab, setPrevUrlTab] = useState(urlTab);
+  if (urlTab !== prevUrlTab) {
+    setPrevUrlTab(urlTab);
+    setActiveTab(urlTab);
+  }
   const matchingInitialDetail =
     initialDetail !== null && initialDetail.id === client.id ? initialDetail : null;
   const [detail, setDetail] = useState<ClientDetail | null>(matchingInitialDetail);
@@ -216,11 +239,40 @@ function AdminClientDrawerInner({
 
   const sheetBusy = editForm.busy || statusBusy || actionBusy !== null;
 
+  const updateClientTabQuery = useCallback(
+    (tab: ClientSheetTabId) => {
+      replaceAdminClientsSearchParams(pathname, router, (params) => {
+        if (tab === CLIENT_SHEET_TAB_PROFILE) {
+          params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
+        } else {
+          params.set(CLIENT_PROFILE_TAB_QUERY_KEY, tab);
+        }
+        if (tab !== CLIENT_SHEET_TAB_PACKAGES) {
+          params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
+        }
+      });
+    },
+    [pathname, router],
+  );
+
+  const handleTabChange = useCallback(
+    (value: string) => {
+      const tab = parseClientSheetTabId(value);
+      setActiveTab(tab);
+      updateClientTabQuery(tab);
+    },
+    [updateClientTabQuery],
+  );
+
   function handleClose(): void {
     if (sheetBusy) {
       return;
     }
     setPersonalInfoEditing(false);
+    replaceAdminClientsSearchParams(pathname, router, (params) => {
+      params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
+      params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
+    });
     onClose();
   }
 
@@ -332,7 +384,7 @@ function AdminClientDrawerInner({
       <AdminDetailSheetTabBar
         tabs={tabs}
         activeTab={activeTab}
-        onTabChange={(value) => setActiveTab(value as ClientSheetTabId)}
+        onTabChange={handleTabChange}
       />
 
       <div className={bodyClassName}>

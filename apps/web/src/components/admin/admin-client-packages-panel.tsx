@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import type {
   ClientDetail,
   ClientSheetPackageItem,
@@ -9,12 +10,22 @@ import type {
 } from "@/components/admin/admin-clients-types";
 import { AdminClientPackagePurchaseSheet } from "@/components/admin/admin-client-package-purchase-sheet";
 import {
+  replaceAdminClientsSearchParams,
+} from "@/components/admin/admin-clients-query";
+import {
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
+  CLIENT_ADD_PACKAGE_QUERY_VALUE,
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+  CLIENT_SHEET_TAB_PACKAGES,
+} from "@/components/admin/admin-client-sheet-tabs";
+import {
   ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
@@ -39,19 +50,37 @@ export function ClientPackagesPanel({
 }: ClientPackagesPanelProps) {
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const purchaseOpen =
+    allowPurchase &&
+    searchParams.get(CLIENT_ADD_PACKAGE_QUERY_KEY) === CLIENT_ADD_PACKAGE_QUERY_VALUE;
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(client.id);
   const [items, setItems] = useState<ClientSheetPackageItem[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [purchaseOpen, setPurchaseOpen] = useState(false);
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
 
   if (client.id !== prevClientId) {
     setPrevClientId(client.id);
     setPage(1);
   }
+
+  const openPurchase = useCallback(() => {
+    replaceAdminClientsSearchParams(pathname, router, (params) => {
+      params.set(CLIENT_PROFILE_TAB_QUERY_KEY, CLIENT_SHEET_TAB_PACKAGES);
+      params.set(CLIENT_ADD_PACKAGE_QUERY_KEY, CLIENT_ADD_PACKAGE_QUERY_VALUE);
+    });
+  }, [pathname, router]);
+
+  const closePurchase = useCallback(() => {
+    replaceAdminClientsSearchParams(pathname, router, (params) => {
+      params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
+    });
+  }, [pathname, router]);
 
   const loadPackages = useCallback(async () => {
     setLoading(true);
@@ -94,7 +123,7 @@ export function ClientPackagesPanel({
           {t("packages.heading")}
         </h3>
         {allowPurchase ? (
-          <OmmButton type="button" variant="primary" onClick={() => setPurchaseOpen(true)}>
+          <OmmButton type="button" variant="primary" onClick={openPurchase}>
             {t("packages.addPackage")}
           </OmmButton>
         ) : null}
@@ -168,13 +197,13 @@ export function ClientPackagesPanel({
         />
       ) : null}
 
-      {purchaseOpen && allowPurchase ? (
+      {purchaseOpen ? (
         <AdminClientPackagePurchaseSheet
           client={client}
           locale={locale}
-          onClose={() => setPurchaseOpen(false)}
+          onClose={closePurchase}
           onSuccess={() => {
-            setPurchaseOpen(false);
+            closePurchase();
             onPurchaseSuccess();
           }}
         />
