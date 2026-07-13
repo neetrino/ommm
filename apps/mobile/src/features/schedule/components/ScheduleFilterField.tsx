@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { scheduleColors } from "../scheduleTokens";
 
 export type ScheduleFilterOption = {
@@ -88,11 +89,13 @@ const styles = StyleSheet.create({
     backgroundColor: scheduleColors.filterBg,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    shadowColor: "#2d2823",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 2,
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 8,
+      opacity: 0.1,
+      radius: 16,
+      elevation: 2,
+    }),
   },
   triggerPressed: {
     opacity: 0.92,

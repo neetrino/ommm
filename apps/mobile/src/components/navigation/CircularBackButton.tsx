@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Platform, Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
+import { platformShadow } from "../../theme/platformShadow";
 import { colors } from "../../theme/tokens";
 
 /** Web auth control: `bg-white/75`, `border-white/70`. */
@@ -46,15 +47,12 @@ const styles = StyleSheet.create({
     backgroundColor: BACK_BUTTON_SURFACE,
     alignItems: "center",
     justifyContent: "center",
-    ...Platform.select({
-      ios: {
-        shadowColor: BACK_SHADOW_COLOR,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.12,
-        shadowRadius: 4,
-      },
-      android: { elevation: 3 },
-      default: {},
+    ...platformShadow({
+      color: BACK_SHADOW_COLOR,
+      offsetHeight: 2,
+      opacity: 0.12,
+      radius: 4,
+      elevation: 3,
     }),
   },
   buttonPressed: {

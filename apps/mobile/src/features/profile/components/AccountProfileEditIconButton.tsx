@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { Pressable, StyleSheet } from "react-native";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { colors } from "../../../theme/tokens";
 
@@ -15,14 +15,7 @@ type AccountProfileEditIconButtonProps = {
 /** Web `PencilGlyph` paths from `edit-action-button.tsx`. */
 function PencilGlyph() {
   return (
-    <Svg
-      width={ICON_SIZE}
-      height={ICON_SIZE}
-      viewBox="0 0 24 24"
-      fill="none"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
+    <Svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none">
       <Path
         d="M12 20h9"
         stroke={colors.primaryGreen}

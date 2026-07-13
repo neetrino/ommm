@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Fragment } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
+import { platformShadow } from "../../../theme/platformShadow";
 import {
   addDays,
   compareCalendarDays,
@@ -199,11 +200,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.88)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#2d2823",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 14,
-    elevation: 2,
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 8,
+      opacity: 0.14,
+      radius: 14,
+      elevation: 2,
+    }),
   },
   arrowBtnDisabled: {
     opacity: 0.38,
@@ -252,11 +255,13 @@ const styles = StyleSheet.create({
   chipSelected: {
     borderColor: scheduleColors.olive,
     backgroundColor: "rgba(255, 255, 255, 0.82)",
-    shadowColor: scheduleColors.olive,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.22,
-    shadowRadius: 0,
-    elevation: 0,
+    ...platformShadow({
+      color: scheduleColors.olive,
+      offsetHeight: 0,
+      opacity: 0.22,
+      radius: 0,
+      elevation: 0,
+    }),
   },
   chipPast: {
     borderColor: scheduleColors.chipPastBorder,

@@ -47,7 +47,7 @@ export function ExploreTileColumn({
         ]}
       >
         {isPortraitLayout ? (
-          <View style={styles.pilatesClip} pointerEvents="none">
+          <View style={styles.pilatesClip}>
             <Image
               source={resolveExploreImageSource(tile.imageUriKey)}
               style={{

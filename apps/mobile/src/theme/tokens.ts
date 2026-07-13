@@ -1,4 +1,5 @@
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
+import { platformShadow } from "./platformShadow";
 
 /**
  * Design tokens derived from Figma (Ommm. Space — home 4, node 1:125).
@@ -159,34 +160,25 @@ export const typography = {
 } as const;
 
 export const shadows = StyleSheet.create({
-  bookingCard: Platform.select({
-    ios: {
-      shadowColor: "#000000",
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.04,
-      shadowRadius: 5,
-    },
-    android: { elevation: 6 },
-    default: {},
+  bookingCard: platformShadow({
+    color: "#000000",
+    offsetHeight: 10,
+    opacity: 0.04,
+    radius: 5,
+    elevation: 6,
   }),
-  exploreHero: Platform.select({
-    ios: {
-      shadowColor: "#000000",
-      shadowOffset: { width: 0, height: 25 },
-      shadowOpacity: 0.25,
-      shadowRadius: 50,
-    },
-    android: { elevation: 12 },
-    default: {},
+  exploreHero: platformShadow({
+    color: "#000000",
+    offsetHeight: 25,
+    opacity: 0.25,
+    radius: 50,
+    elevation: 12,
   }),
-  tabBar: Platform.select({
-    ios: {
-      shadowColor: "#000000",
-      shadowOffset: { width: 0, height: 20 },
-      shadowOpacity: 0.1,
-      shadowRadius: 20,
-    },
-    android: { elevation: 16 },
-    default: {},
+  tabBar: platformShadow({
+    color: "#000000",
+    offsetHeight: 20,
+    opacity: 0.1,
+    radius: 20,
+    elevation: 16,
   }),
 });

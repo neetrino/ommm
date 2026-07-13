@@ -1,5 +1,6 @@
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { fontFamilies } from "../../theme/fontFamilies";
+import { platformShadow } from "../../theme/platformShadow";
 import { colors, space, typography } from "../../theme/tokens";
 import {
   MEMBER_PROFILE_AVATAR_FILL,
@@ -37,15 +38,12 @@ export const accountHubLayout = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.9)",
     padding: 3,
     overflow: "hidden",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#2d2823",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.2,
-        shadowRadius: 14,
-      },
-      android: { elevation: 4 },
-      default: {},
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 10,
+      opacity: 0.2,
+      radius: 14,
+      elevation: 4,
     }),
   },
   avatarRing: {

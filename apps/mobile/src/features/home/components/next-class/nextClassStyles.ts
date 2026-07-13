@@ -1,5 +1,6 @@
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { fontFamilies } from "../../../../theme/fontFamilies";
+import { platformShadow } from "../../../../theme/platformShadow";
 import {
   colors,
   layout,
@@ -55,6 +56,7 @@ export const nextClassStyles = StyleSheet.create({
     transform: [{ rotate: "2deg" }],
     alignItems: "center",
     justifyContent: "center",
+    pointerEvents: "none",
   },
   backCard: {
     width: "100%",
@@ -78,6 +80,7 @@ export const nextClassStyles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.scrimDark,
     opacity: 0.15,
+    pointerEvents: "none",
   },
   comingBadge: {
     position: "absolute",
@@ -133,17 +136,12 @@ export const nextClassStyles = StyleSheet.create({
   },
   detailsGlassFrame: {
     borderRadius: radii.card - 3,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#e8f0fa",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.42,
-        shadowRadius: 14,
-      },
-      android: {
-        elevation: 8,
-      },
-      default: {},
+    ...platformShadow({
+      color: "#e8f0fa",
+      offsetHeight: 4,
+      opacity: 0.42,
+      radius: 14,
+      elevation: 8,
     }),
   },
   detailsBlur: {
@@ -155,6 +153,7 @@ export const nextClassStyles = StyleSheet.create({
   },
   detailsGlassSheen: {
     ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
   },
   detailsGlassTopBand: {
     position: "absolute",
@@ -162,15 +161,19 @@ export const nextClassStyles = StyleSheet.create({
     right: 0,
     top: 0,
     height: "24%",
+    pointerEvents: "none",
   },
   detailsGlassDiagonalGleam: {
     ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
   },
   detailsGlassHotSpot: {
     ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
   },
   detailsGlassCornerFlare: {
     ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
   },
   detailsGlassTopEdgeFlare: {
     position: "absolute",
@@ -178,6 +181,7 @@ export const nextClassStyles = StyleSheet.create({
     right: 0,
     top: 0,
     height: 4,
+    pointerEvents: "none",
   },
   detailsInner: {
     position: "relative",

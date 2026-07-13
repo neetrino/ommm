@@ -1,6 +1,7 @@
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { PACKAGES_PRIMARY_CTA } from "../../../lib/packages/packagesPageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 
@@ -62,20 +63,12 @@ export function PackagesEmptyState({
   );
 }
 
-const primaryShadow = Platform.select({
-  ios: {
-    shadowColor: PACKAGES_PRIMARY_CTA.shadowColor,
-    shadowOffset: {
-      width: 0,
-      height: PACKAGES_PRIMARY_CTA.shadowOffsetHeightPx,
-    },
-    shadowOpacity: PACKAGES_PRIMARY_CTA.shadowOpacity,
-    shadowRadius: PACKAGES_PRIMARY_CTA.shadowRadiusPx,
-  },
-  android: {
-    elevation: PACKAGES_PRIMARY_CTA.androidElevation,
-  },
-  default: {},
+const primaryShadow = platformShadow({
+  color: PACKAGES_PRIMARY_CTA.shadowColor,
+  offsetHeight: PACKAGES_PRIMARY_CTA.shadowOffsetHeightPx,
+  opacity: PACKAGES_PRIMARY_CTA.shadowOpacity,
+  radius: PACKAGES_PRIMARY_CTA.shadowRadiusPx,
+  elevation: PACKAGES_PRIMARY_CTA.androidElevation,
 });
 
 const styles = StyleSheet.create({

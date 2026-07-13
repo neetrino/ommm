@@ -67,7 +67,7 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
         </View>
       </View>
 
-      <View style={styles.badge} pointerEvents="none">
+      <View style={styles.badge}>
         <Image
           source={figmaRemoteAssets.giftCardBadge}
           style={styles.badgeImage}
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     height: giftCard.badgeSize,
     borderRadius: giftCard.badgeSize / 2,
     overflow: "hidden",
+    pointerEvents: "none",
   },
   badgeImage: {
     width: "100%",

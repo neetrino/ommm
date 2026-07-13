@@ -55,8 +55,6 @@ export function AuthPasswordInput({
           name={visible ? "eye-outline" : "eye-off-outline"}
           size={EYE_ICON_SIZE}
           color={colors.secondarySage}
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
         />
       </Pressable>
     </View>

@@ -32,7 +32,6 @@ export function FloatingTabBar() {
 
   return (
     <View
-      pointerEvents="box-none"
       style={[styles.outer, { bottom }]}
       accessibilityRole="tablist"
     >
@@ -105,6 +104,7 @@ const styles = StyleSheet.create({
     zIndex: 30,
     maxWidth: layout.designWidth,
     alignSelf: "center",
+    pointerEvents: "box-none",
   },
   bar: {
     width: "100%",

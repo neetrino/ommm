@@ -1,12 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { OmmConfirmDialog } from "../../../components/ui/OmmConfirmDialog";
 import { useSession } from "../../../auth/SessionProvider";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { deleteAccount } from "../../../lib/api/usersClient";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { memberAccountHubActionTokens } from "../memberAccountHubActionTokens";
 
 const LOGIN_HREF = "/login" as const;
@@ -124,15 +125,13 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.backgroundColor,
     paddingVertical: tokens.paddingVertical,
     paddingHorizontal: tokens.paddingHorizontal,
-    ...Platform.select({
-      ios: {
-        shadowColor: tokens.shadowColor,
-        shadowOffset: tokens.shadowOffset,
-        shadowOpacity: tokens.shadowOpacity,
-        shadowRadius: tokens.shadowRadius,
-      },
-      android: { elevation: 2 },
-      default: {},
+    ...platformShadow({
+      color: tokens.shadowColor,
+      offsetWidth: tokens.shadowOffset.width,
+      offsetHeight: tokens.shadowOffset.height,
+      opacity: tokens.shadowOpacity,
+      radius: tokens.shadowRadius,
+      elevation: 2,
     }),
   },
   deleteBtnPressed: {

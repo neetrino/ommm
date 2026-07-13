@@ -1,9 +1,10 @@
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import type { BookingMineRow } from "../../../../lib/api/memberClient";
 import {
   formatDurationMinutes,
 } from "../../../../lib/member/formatSessionLabels";
 import { fontFamilies } from "../../../../theme/fontFamilies";
+import { platformShadow } from "../../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../../theme/tokens";
 import type { MemberBookingsCopy } from "../../hooks/useMemberBookingsCopy";
 import { isUpcomingMemberBooking } from "../../lib/partitionMemberBookings";
@@ -90,15 +91,12 @@ export function MemberBookingCard({ booking, copy }: MemberBookingCardProps) {
   );
 }
 
-const cardShadow = Platform.select({
-  ios: {
-    shadowColor: "#2d2823",
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-  },
-  android: { elevation: 3 },
-  default: {},
+const cardShadow = platformShadow({
+  color: "#2d2823",
+  offsetHeight: 14,
+  opacity: 0.08,
+  radius: 24,
+  elevation: 3,
 });
 
 const styles = StyleSheet.create({

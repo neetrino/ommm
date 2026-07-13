@@ -1,5 +1,4 @@
 import Constants from "expo-constants";
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { registerPushDevice } from "../lib/api/memberClient";
 
@@ -15,7 +14,7 @@ function resolvePlatform(): "ios" | "android" | "web" {
 
 /**
  * Requests notification permission, reads the Expo push token, and registers it with the API.
- * No-ops on web or when permission is denied.
+ * No-ops on web (avoids loading `expo-notifications` listeners in the browser).
  */
 export async function tryRegisterExpoPushToken(
   accessToken: string,
@@ -23,6 +22,10 @@ export async function tryRegisterExpoPushToken(
   if (Platform.OS === "web") {
     return false;
   }
+
+  // Dynamic import keeps web bundles from initializing push-token listeners.
+  const Notifications = await import("expo-notifications");
+
   const existing = await Notifications.getPermissionsAsync();
   let status = existing.status;
   if (status !== "granted") {

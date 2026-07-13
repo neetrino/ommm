@@ -37,7 +37,6 @@ export function ExploreFeaturedJournal({
           style={styles.labelBlur}
         >
           <LinearGradient
-            pointerEvents="none"
             colors={[
               colors.detailsGlassSheenStrong,
               colors.detailsGlassSheenSoft,
@@ -50,7 +49,6 @@ export function ExploreFeaturedJournal({
             style={styles.labelGlassSheen}
           />
           <LinearGradient
-            pointerEvents="none"
             colors={[EXPLORE_JOURNAL_TOP_EDGE_SHEEN, "transparent"]}
             locations={[0, 1]}
             start={{ x: 0.5, y: 0 }}

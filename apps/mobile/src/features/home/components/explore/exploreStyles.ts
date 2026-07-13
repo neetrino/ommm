@@ -1,5 +1,6 @@
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { fontFamilies } from "../../../../theme/fontFamilies";
+import { platformShadow, platformTextShadow } from "../../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../../theme/tokens";
 import { EXPLORE_JOURNAL_GLASS_BASE } from "./exploreConstants";
 
@@ -40,17 +41,12 @@ export const exploreStyles = StyleSheet.create({
     right: space.lg,
     bottom: -space.lg,
     borderRadius: radii.labelCard,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#d8e4ef",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.38,
-        shadowRadius: 18,
-      },
-      android: {
-        elevation: 10,
-      },
-      default: {},
+    ...platformShadow({
+      color: "#d8e4ef",
+      offsetHeight: 6,
+      opacity: 0.38,
+      radius: 18,
+      elevation: 10,
     }),
   },
   labelBlur: {
@@ -62,6 +58,7 @@ export const exploreStyles = StyleSheet.create({
   },
   labelGlassSheen: {
     ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
   },
   labelTopEdgeSheen: {
     position: "absolute",
@@ -69,6 +66,7 @@ export const exploreStyles = StyleSheet.create({
     right: 0,
     top: 0,
     height: 4,
+    pointerEvents: "none",
   },
   labelInner: {
     position: "relative",
@@ -87,18 +85,22 @@ export const exploreStyles = StyleSheet.create({
     letterSpacing: 1.2,
     color: colors.white,
     textTransform: "uppercase",
-    textShadowColor: "rgba(0,0,0,0.35)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 5,
+    ...platformTextShadow({
+      color: "rgba(0,0,0,0.35)",
+      offsetHeight: 1,
+      radius: 5,
+    }),
   },
   journalTitle: {
     fontFamily: fontFamilies.gtSuperDs.regular,
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.white,
-    textShadowColor: "rgba(0,0,0,0.4)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 8,
+    ...platformTextShadow({
+      color: "rgba(0,0,0,0.4)",
+      offsetHeight: 1,
+      radius: 8,
+    }),
   },
   tileGrid: {
     flexDirection: "row",
@@ -124,6 +126,7 @@ export const exploreStyles = StyleSheet.create({
     width: "100%",
     overflow: "hidden",
     backgroundColor: colors.white,
+    pointerEvents: "none",
   },
   tileImage: {
     width: "100%",
@@ -134,6 +137,7 @@ export const exploreStyles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: "row",
+    pointerEvents: "none",
   },
   tileTagRowLeading: {
     justifyContent: "flex-start",

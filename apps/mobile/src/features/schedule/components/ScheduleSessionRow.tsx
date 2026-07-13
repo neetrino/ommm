@@ -1,9 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { ClassSessionRow } from "../../../lib/api/memberClient";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { resolveScheduleRowGradientColors } from "../../../lib/schedule/scheduleRowGradients";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { formatScheduleTimeHHmm } from "../scheduleFormat";
 import { useScheduleCopy } from "../useScheduleCopy";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
@@ -91,14 +92,13 @@ const CARD_RADIUS = scheduleLayout.rowRadius;
 const styles = StyleSheet.create({
   shadowShell: {
     borderRadius: CARD_RADIUS,
-    ...(Platform.OS === "android"
-      ? { elevation: 2 }
-      : {
-          shadowColor: "#2d2823",
-          shadowOffset: { width: 0, height: 18 },
-          shadowOpacity: 0.13,
-          shadowRadius: 28,
-        }),
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 18,
+      opacity: 0.13,
+      radius: 28,
+      elevation: 2,
+    }),
   },
   clipShell: {
     overflow: "hidden",

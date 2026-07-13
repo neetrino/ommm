@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Animated, Platform, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { useSession } from "../../../auth/SessionProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformTextShadow } from "../../../theme/platformShadow";
 import { colors, space } from "../../../theme/tokens";
 import { useSplashSphereBounce } from "../hooks/useSplashSphereBounce";
 import { splashSphereAsset } from "../splashAssets";
@@ -142,9 +143,11 @@ const styles = StyleSheet.create({
   taglineLine: {
     fontFamily: fontFamilies.gtSuperDs.bold,
     color: colors.white,
-    textShadowColor: "rgba(51, 69, 55, 0.22)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 8,
+    ...platformTextShadow({
+      color: "rgba(51, 69, 55, 0.22)",
+      offsetHeight: 1,
+      radius: 8,
+    }),
     ...(Platform.OS === "ios"
       ? {
           paddingVertical: 2,

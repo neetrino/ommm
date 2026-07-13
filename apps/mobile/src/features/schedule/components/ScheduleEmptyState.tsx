@@ -1,7 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SCHEDULE_EMPTY_GRADIENT } from "../../../lib/schedule/schedulePageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { useScheduleCopy } from "../useScheduleCopy";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
 
@@ -29,14 +30,13 @@ export function ScheduleEmptyState() {
 const styles = StyleSheet.create({
   shadowShell: {
     borderRadius: CARD_RADIUS,
-    ...(Platform.OS === "android"
-      ? { elevation: 2 }
-      : {
-          shadowColor: "#2d2823",
-          shadowOffset: { width: 0, height: 18 },
-          shadowOpacity: 0.12,
-          shadowRadius: 28,
-        }),
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 18,
+      opacity: 0.12,
+      radius: 28,
+      elevation: 2,
+    }),
   },
   clipShell: {
     overflow: "hidden",

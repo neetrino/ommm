@@ -5,7 +5,6 @@ import { colors } from "../../theme/tokens";
 export function GradientBackdrop() {
   return (
     <View
-      pointerEvents="none"
       style={[StyleSheet.absoluteFill, styles.backdrop]}
     />
   );
@@ -14,5 +13,6 @@ export function GradientBackdrop() {
 const styles = StyleSheet.create({
   backdrop: {
     backgroundColor: colors.canvas,
+    pointerEvents: "none",
   },
 });
