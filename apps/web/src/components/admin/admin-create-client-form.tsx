@@ -68,7 +68,6 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
     const phoneRaw = phone.trim();
-    const notesRaw = String(fd.get("notes") ?? "").trim();
     const passwordRaw = password.trim();
     const confirmPasswordRaw = confirmPassword.trim();
 
@@ -129,7 +128,6 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           password: passwordRaw,
           forcePasswordResetOnFirstLogin: forcePasswordReset,
           sendWelcomeEmail,
-          ...(notesRaw.length > 0 ? { notes: notesRaw } : {}),
         }),
       });
       form.reset();
@@ -326,20 +324,6 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
             </span>
           </label>
         </div>
-      </section>
-
-      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("notesLabel")}</span>
-          <textarea
-            name="notes"
-            className="ommm-input min-h-[100px] resize-y"
-            maxLength={4000}
-            disabled={pending}
-            placeholder={t("notesPlaceholder")}
-          />
-          <span className="text-xs text-sage-500">{t("notesHint")}</span>
-        </label>
       </section>
 
       {error !== null ? (
