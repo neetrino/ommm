@@ -1,7 +1,16 @@
 import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
@@ -18,6 +27,10 @@ const REGISTER_LOGO_VISUAL_SCALE = 3.35;
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
+const REGISTER_ENTRY_ANIMATION_MS = 760;
+const REGISTER_ENTRY_OFFSET_PX = 16;
+const REGISTER_ENTRY_START_SCALE = 0.985;
+const REGISTER_ENTRY_EASING = Easing.bezier(0.22, 1, 0.36, 1);
 
 function countDigits(value: string): number {
   return (value.match(/\d/g) ?? []).length;
@@ -46,6 +59,38 @@ export default function RegisterRoute() {
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const submitLockRef = useRef(false);
+  const hasPlayedEntranceRef = useRef(false);
+  const entranceOpacity = useRef(new Animated.Value(0)).current;
+  const entranceTranslateY = useRef(new Animated.Value(REGISTER_ENTRY_OFFSET_PX)).current;
+  const entranceScale = useRef(new Animated.Value(REGISTER_ENTRY_START_SCALE)).current;
+
+  useEffect(() => {
+    if (!isReady || hasPlayedEntranceRef.current) {
+      return;
+    }
+
+    hasPlayedEntranceRef.current = true;
+    Animated.parallel([
+      Animated.timing(entranceOpacity, {
+        toValue: 1,
+        duration: REGISTER_ENTRY_ANIMATION_MS,
+        easing: REGISTER_ENTRY_EASING,
+        useNativeDriver: true,
+      }),
+      Animated.timing(entranceTranslateY, {
+        toValue: 0,
+        duration: REGISTER_ENTRY_ANIMATION_MS,
+        easing: REGISTER_ENTRY_EASING,
+        useNativeDriver: true,
+      }),
+      Animated.timing(entranceScale, {
+        toValue: 1,
+        duration: REGISTER_ENTRY_ANIMATION_MS,
+        easing: REGISTER_ENTRY_EASING,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [entranceOpacity, entranceScale, entranceTranslateY, isReady]);
 
   const onSubmit = useCallback(async () => {
     setFormError(null);
@@ -119,117 +164,127 @@ export default function RegisterRoute() {
 
   return (
     <AuthScreenShell keyboardAware>
-      <View style={styles.brandBlock}>
-        <View style={styles.logoSlot}>
-          <Image
-            source={figmaRemoteAssets.brandMark}
-            style={styles.logo}
-            contentFit="contain"
-            accessibilityLabel="Ommm logo"
-            accessibilityIgnoresInvertColors
-          />
+      <Animated.View
+        style={[
+          styles.contentBlock,
+          {
+            opacity: entranceOpacity,
+            transform: [{ translateY: entranceTranslateY }, { scale: entranceScale }],
+          },
+        ]}
+      >
+        <View style={styles.brandBlock}>
+          <View style={styles.logoSlot}>
+            <Image
+              source={figmaRemoteAssets.brandMark}
+              style={styles.logo}
+              contentFit="contain"
+              accessibilityLabel="Ommm logo"
+              accessibilityIgnoresInvertColors
+            />
+          </View>
+          <Text style={styles.title} accessibilityRole="header">
+            {tAuth("createAccount")}
+          </Text>
+          <Text style={styles.lead}>{tAuth("lead")}</Text>
         </View>
-        <Text style={styles.title} accessibilityRole="header">
-          {tAuth("createAccount")}
-        </Text>
-        <Text style={styles.lead}>{tAuth("lead")}</Text>
-      </View>
 
-      <View style={styles.formSection}>
-        <View style={styles.form}>
-          <TextInput
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder={tAuth("firstName")}
-            placeholderTextColor={colors.bodyMuted}
-            style={styles.input}
-            autoCapitalize="words"
-            autoCorrect={false}
-            textContentType="givenName"
-            accessibilityLabel={tAuth("firstName")}
-          />
-          <TextInput
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder={tAuth("lastName")}
-            placeholderTextColor={colors.bodyMuted}
-            style={styles.input}
-            autoCapitalize="words"
-            autoCorrect={false}
-            textContentType="familyName"
-            accessibilityLabel={tAuth("lastName")}
-          />
-          <TextInput
-            value={phone}
-            onChangeText={(value) => setPhone(formatPhoneInput(value))}
-            placeholder={tAuth("phone")}
-            placeholderTextColor={colors.bodyMuted}
-            style={styles.input}
-            keyboardType="phone-pad"
-            textContentType="telephoneNumber"
-            accessibilityLabel={tAuth("phone")}
-          />
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder={tAuth("email")}
-            placeholderTextColor={colors.bodyMuted}
-            style={styles.input}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            accessibilityLabel={tAuth("email")}
-          />
-          <AuthPasswordInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder={tAuth("password")}
-            textContentType="newPassword"
-            autoComplete="password-new"
-            accessibilityLabel={tAuth("password")}
-          />
-          <AuthPasswordInput
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            placeholder={tAuth("confirmPassword")}
-            textContentType="newPassword"
-            autoComplete="password-new"
-            accessibilityLabel={tAuth("confirmPassword")}
-          />
+        <View style={styles.formSection}>
+          <View style={styles.form}>
+            <TextInput
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder={tAuth("firstName")}
+              placeholderTextColor={colors.bodyMuted}
+              style={styles.input}
+              autoCapitalize="words"
+              autoCorrect={false}
+              textContentType="givenName"
+              accessibilityLabel={tAuth("firstName")}
+            />
+            <TextInput
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder={tAuth("lastName")}
+              placeholderTextColor={colors.bodyMuted}
+              style={styles.input}
+              autoCapitalize="words"
+              autoCorrect={false}
+              textContentType="familyName"
+              accessibilityLabel={tAuth("lastName")}
+            />
+            <TextInput
+              value={phone}
+              onChangeText={(value) => setPhone(formatPhoneInput(value))}
+              placeholder={tAuth("phone")}
+              placeholderTextColor={colors.bodyMuted}
+              style={styles.input}
+              keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              accessibilityLabel={tAuth("phone")}
+            />
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder={tAuth("email")}
+              placeholderTextColor={colors.bodyMuted}
+              style={styles.input}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              accessibilityLabel={tAuth("email")}
+            />
+            <AuthPasswordInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder={tAuth("password")}
+              textContentType="newPassword"
+              autoComplete="password-new"
+              accessibilityLabel={tAuth("password")}
+            />
+            <AuthPasswordInput
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder={tAuth("confirmPassword")}
+              textContentType="newPassword"
+              autoComplete="password-new"
+              accessibilityLabel={tAuth("confirmPassword")}
+            />
 
-          {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+            {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+
+            <Pressable
+              onPress={() => void onSubmit()}
+              disabled={busy}
+              style={({ pressed }) => [
+                styles.submit,
+                pressed && !busy && styles.submitPressed,
+                busy && styles.submitDisabled,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={tAuth("createAccount")}
+              accessibilityState={{ disabled: busy }}
+            >
+              {busy ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <Text style={styles.submitLabel}>{tAuth("createAccount")}</Text>
+              )}
+            </Pressable>
+          </View>
 
           <Pressable
-            onPress={() => void onSubmit()}
-            disabled={busy}
-            style={({ pressed }) => [
-              styles.submit,
-              pressed && !busy && styles.submitPressed,
-              busy && styles.submitDisabled,
-            ]}
+            onPress={() => router.replace("/login")}
+            style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
             accessibilityRole="button"
-            accessibilityLabel={tAuth("createAccount")}
-            accessibilityState={{ disabled: busy }}
+            accessibilityLabel={tCommon("login")}
           >
-            {busy ? (
-              <ActivityIndicator color={colors.white} />
-            ) : (
-              <Text style={styles.submitLabel}>{tAuth("createAccount")}</Text>
-            )}
+            <Text style={styles.linkText}>{tAuth("alreadyHavePrompt")} </Text>
+            <Text style={styles.linkStrong}>{tCommon("login")}</Text>
           </Pressable>
         </View>
-
-        <Pressable
-          onPress={() => router.replace("/login")}
-          style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
-          accessibilityRole="button"
-          accessibilityLabel={tCommon("login")}
-        >
-          <Text style={styles.linkText}>{tAuth("alreadyHavePrompt")} </Text>
-          <Text style={styles.linkStrong}>{tCommon("login")}</Text>
-        </Pressable>
-      </View>
+      </Animated.View>
     </AuthScreenShell>
   );
 }
@@ -240,6 +295,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.canvas,
+  },
+  contentBlock: {
+    gap: space.xl,
   },
   brandBlock: {
     alignItems: "center",

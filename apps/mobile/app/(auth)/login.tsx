@@ -25,8 +25,10 @@ const LOGIN_LOGO_LAYOUT_SIZE = 72;
 const LOGIN_LOGO_VISUAL_SCALE = 3.35;
 /** Compensate scaled logo overflow so the form block stays vertically centered. */
 const LOGIN_CONTENT_LIFT = (LOGIN_LOGO_LAYOUT_SIZE * (LOGIN_LOGO_VISUAL_SCALE - 1)) / 2;
-const LOGIN_ENTRY_ANIMATION_MS = 650;
-const LOGIN_ENTRY_OFFSET_PX = 12;
+const LOGIN_ENTRY_ANIMATION_MS = 760;
+const LOGIN_ENTRY_OFFSET_PX = 16;
+const LOGIN_ENTRY_START_SCALE = 0.985;
+const LOGIN_ENTRY_EASING = Easing.bezier(0.22, 1, 0.36, 1);
 
 export default function LoginRoute() {
   const router = useRouter();
@@ -42,6 +44,7 @@ export default function LoginRoute() {
   const hasPlayedEntranceRef = useRef(false);
   const entranceOpacity = useRef(new Animated.Value(0)).current;
   const entranceTranslateY = useRef(new Animated.Value(LOGIN_ENTRY_OFFSET_PX)).current;
+  const entranceScale = useRef(new Animated.Value(LOGIN_ENTRY_START_SCALE)).current;
 
   useEffect(() => {
     if (!isReady || hasPlayedEntranceRef.current) {
@@ -53,17 +56,23 @@ export default function LoginRoute() {
       Animated.timing(entranceOpacity, {
         toValue: 1,
         duration: LOGIN_ENTRY_ANIMATION_MS,
-        easing: Easing.out(Easing.cubic),
+        easing: LOGIN_ENTRY_EASING,
         useNativeDriver: true,
       }),
       Animated.timing(entranceTranslateY, {
         toValue: 0,
         duration: LOGIN_ENTRY_ANIMATION_MS,
-        easing: Easing.out(Easing.cubic),
+        easing: LOGIN_ENTRY_EASING,
+        useNativeDriver: true,
+      }),
+      Animated.timing(entranceScale, {
+        toValue: 1,
+        duration: LOGIN_ENTRY_ANIMATION_MS,
+        easing: LOGIN_ENTRY_EASING,
         useNativeDriver: true,
       }),
     ]).start();
-  }, [entranceOpacity, entranceTranslateY, isReady]);
+  }, [entranceOpacity, entranceScale, entranceTranslateY, isReady]);
 
   const onSubmit = useCallback(async () => {
     setFormError(null);
@@ -112,7 +121,7 @@ export default function LoginRoute() {
           styles.contentBlock,
           {
             opacity: entranceOpacity,
-            transform: [{ translateY: entranceTranslateY }],
+            transform: [{ translateY: entranceTranslateY }, { scale: entranceScale }],
           },
         ]}
       >
