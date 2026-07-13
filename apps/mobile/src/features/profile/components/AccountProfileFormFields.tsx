@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { formatBirthdayInput } from "../../../lib/birthdayDisplay";
@@ -20,6 +21,8 @@ type AccountProfileFormFieldsProps = {
     key: K,
     value: AccountProfileFormState[K],
   ) => void;
+  /** Rendered on the right of the first-name row (e.g. edit pen). */
+  nameTrailingAction?: ReactNode;
 };
 
 export function AccountProfileFormFields({
@@ -27,6 +30,7 @@ export function AccountProfileFormFields({
   editing,
   saving,
   onChange,
+  nameTrailingAction,
 }: AccountProfileFormFieldsProps) {
   const tProfile = useTranslations("userPages.profile");
 
@@ -40,38 +44,57 @@ export function AccountProfileFormFields({
           ["phone", tProfile("labels.phone")],
           ["dateOfBirth", tProfile("labels.dateOfBirth")],
         ] as const
-      ).map(([key, label]) => (
-        <View key={key} style={styles.field}>
-          <Text style={styles.label}>{label}</Text>
-          {editing ? (
-            <TextInput
-              value={form[key]}
-              onChangeText={(value) =>
-                onChange(
-                  key,
-                  key === "dateOfBirth" ? formatBirthdayInput(value) : value,
-                )
-              }
-              style={styles.input}
-              editable={!saving}
-              autoCapitalize={key === "email" ? "none" : "words"}
-              keyboardType={
-                key === "email"
-                  ? "email-address"
-                  : key === "phone"
-                    ? "phone-pad"
-                    : "default"
-              }
-              placeholder={key === "dateOfBirth" ? "DD/MM/YYYY" : undefined}
-              placeholderTextColor={colors.taupe}
-            />
-          ) : (
-            <Text style={styles.value}>
-              {form[key].trim().length > 0 ? form[key] : tProfile("emptyValue")}
-            </Text>
-          )}
-        </View>
-      ))}
+      ).map(([key, label]) => {
+        const fieldBody = (
+          <>
+            <Text style={styles.label}>{label}</Text>
+            {editing ? (
+              <TextInput
+                value={form[key]}
+                onChangeText={(value) =>
+                  onChange(
+                    key,
+                    key === "dateOfBirth" ? formatBirthdayInput(value) : value,
+                  )
+                }
+                style={styles.input}
+                editable={!saving}
+                autoCapitalize={key === "email" ? "none" : "words"}
+                keyboardType={
+                  key === "email"
+                    ? "email-address"
+                    : key === "phone"
+                      ? "phone-pad"
+                      : "default"
+                }
+                placeholder={key === "dateOfBirth" ? "DD/MM/YYYY" : undefined}
+                placeholderTextColor={colors.taupe}
+              />
+            ) : (
+              <Text style={styles.value}>
+                {form[key].trim().length > 0
+                  ? form[key]
+                  : tProfile("emptyValue")}
+              </Text>
+            )}
+          </>
+        );
+
+        if (key === "name" && nameTrailingAction !== undefined) {
+          return (
+            <View key={key} style={styles.nameRow}>
+              <View style={styles.nameField}>{fieldBody}</View>
+              <View style={styles.nameAction}>{nameTrailingAction}</View>
+            </View>
+          );
+        }
+
+        return (
+          <View key={key} style={styles.field}>
+            {fieldBody}
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -82,6 +105,19 @@ const styles = StyleSheet.create({
   },
   field: {
     gap: space.xxs,
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.sm,
+  },
+  nameField: {
+    flex: 1,
+    minWidth: 0,
+    gap: space.xxs,
+  },
+  nameAction: {
+    flexShrink: 0,
   },
   label: {
     fontFamily: fontFamilies.manrope.semiBold,

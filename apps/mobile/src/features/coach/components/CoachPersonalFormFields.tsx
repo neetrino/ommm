@@ -21,8 +21,8 @@ type CoachPersonalFormFieldsProps = {
     key: K,
     value: CoachPersonalFormState[K],
   ) => void;
-  /** Shown at the top of the card (e.g. pen edit icon). */
-  headerAction?: ReactNode;
+  /** Rendered beside the first-name row (e.g. edit pen). */
+  nameTrailingAction?: ReactNode;
   /** Shown below fields when editing (save / cancel). */
   footer?: ReactNode;
 };
@@ -32,20 +32,19 @@ export function CoachPersonalFormFields({
   editing,
   saving,
   onChange,
-  headerAction,
+  nameTrailingAction,
   footer,
 }: CoachPersonalFormFieldsProps) {
   const tProfile = useTranslations("userPages.profile");
 
   return (
     <ProfileGlassCard contentStyle={styles.card}>
-      {headerAction ?? null}
-
       <AccountProfileFormFields
         form={form}
         editing={editing}
         saving={saving}
         onChange={onChange}
+        nameTrailingAction={nameTrailingAction}
       />
 
       <View style={styles.field}>

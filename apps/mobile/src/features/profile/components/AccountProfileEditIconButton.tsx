@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { colors } from "../../../theme/tokens";
@@ -50,24 +50,19 @@ export function AccountProfileEditIconButton({
   const tForm = useTranslations("forms.profileEdit");
 
   return (
-    <View style={styles.wrap}>
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-        accessibilityRole="button"
-        accessibilityLabel={tForm("edit")}
-        hitSlop={PEN_HIT_SLOP}
-      >
-        <PencilGlyph />
-      </Pressable>
-    </View>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      accessibilityRole="button"
+      accessibilityLabel={tForm("edit")}
+      hitSlop={PEN_HIT_SLOP}
+    >
+      <PencilGlyph />
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    alignSelf: "flex-end",
-  },
   button: {
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,

@@ -187,7 +187,7 @@ export function CoachPersonalScreen() {
         editing={editing}
         saving={saving}
         onChange={updateField}
-        headerAction={
+        nameTrailingAction={
           editing ? undefined : (
             <AccountProfileEditIconButton
               onPress={() => {

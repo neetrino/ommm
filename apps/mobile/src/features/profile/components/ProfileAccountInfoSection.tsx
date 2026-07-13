@@ -160,15 +160,16 @@ export function ProfileAccountInfoSection() {
   return (
     <View style={styles.root}>
       <ProfileGlassCard contentStyle={styles.card}>
-        {!editing ? (
-          <AccountProfileEditIconButton onPress={startEdit} />
-        ) : null}
-
         <AccountProfileFormFields
           form={form}
           editing={editing}
           saving={saving}
           onChange={updateField}
+          nameTrailingAction={
+            editing ? undefined : (
+              <AccountProfileEditIconButton onPress={startEdit} />
+            )
+          }
         />
 
         {editing ? (
