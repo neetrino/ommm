@@ -289,7 +289,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
     <button
       ref={triggerRef}
       type="button"
-      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700 disabled:pointer-events-none disabled:opacity-50"
+      className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700 disabled:pointer-events-none disabled:opacity-50"
       aria-label={ariaLabel}
       aria-haspopup="dialog"
       aria-expanded={isOpen}
@@ -304,7 +304,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
     const manualValue = isManualFocused ? manualDraft : resolvedManualDisplay;
     const fieldShellClass = bare
       ? `flex min-w-0 flex-1 items-center gap-1 ${containerClassName}`.trim()
-      : `ommm-input flex min-h-11 items-center gap-2 ${containerClassName}`.trim();
+      : `ommm-input flex items-center gap-2 ${containerClassName}`.trim();
 
     return (
       <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
@@ -359,7 +359,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
         ref={triggerRef}
         id={id}
         type="button"
-        className={`ommm-input flex min-h-11 items-center justify-between gap-2 text-left ${containerClassName}`.trim()}
+        className={`ommm-input flex items-center justify-between gap-2 text-left ${containerClassName}`.trim()}
         aria-label={ariaLabel}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
