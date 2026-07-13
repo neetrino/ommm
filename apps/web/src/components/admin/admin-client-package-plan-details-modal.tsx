@@ -12,6 +12,7 @@ import {
   formatPackagePlanName,
   formatPackagePriceLabel,
   formatPackageStartDateLabel,
+  formatPackageStockCount,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import {
@@ -93,6 +94,7 @@ export function AdminClientPackagePlanDetailsModal({
     months: (count) => tPackages("validityMonths", { count }),
   });
   const guestCount = formatPackageGuestCount(plan);
+  const stockCount = formatPackageStockCount(plan);
   const startDateLabel = formatPackageStartDateLabel(plan);
   const features = plan.features.filter((feature) => feature.trim().length > 0);
   const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
@@ -167,9 +169,7 @@ export function AdminClientPackagePlanDetailsModal({
                 <span className="break-words">{validityLabel}</span>
               </Cell>
               <Cell>{guestCount !== null ? guestCount : <EmptyCell />}</Cell>
-              <Cell>
-                <EmptyCell />
-              </Cell>
+              <Cell>{stockCount !== null ? stockCount : <EmptyCell />}</Cell>
               <Cell>
                 {startDateLabel !== null ? (
                   <span className="break-words">{startDateLabel}</span>

@@ -35,6 +35,7 @@ export function toPublicPlan(
     isActive: plan.isActive,
     features: plan.features,
     guestCount: plan.guestCount,
+    availableQuantity: plan.availableQuantity,
     displayOrder: plan.displayOrder,
     typeSessionAllocations: enrichStoredTypeSessionAllocations(
       plan.typeSessionAllocations,
