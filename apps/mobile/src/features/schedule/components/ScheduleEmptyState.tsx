@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 27,
     letterSpacing: -0.48,
-    color: scheduleColors.heading,
+    color: scheduleColors.pageTitle,
     textAlign: "center",
   },
   body: {
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     letterSpacing: 0.15,
-    color: scheduleColors.muted,
+    color: scheduleColors.pageTitle,
     textAlign: "center",
   },
 });

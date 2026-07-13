@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { PackagesPrimaryCta } from "../../../packages/components/PackagesScreenActions";
 import { fontFamilies } from "../../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../../theme/tokens";
+import { scheduleColors } from "../../../schedule/scheduleTokens";
 
 type BookingsEmptyStateProps = {
   title: string;
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
     fontSize: typography.sectionTitle + 2,
     lineHeight: 30,
     letterSpacing: -0.4,
-    color: colors.primaryGreen80,
+    color: scheduleColors.pageTitle,
   },
   description: {
     fontFamily: fontFamilies.manrope.regular,

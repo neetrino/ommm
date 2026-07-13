@@ -2,6 +2,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { PACKAGES_PRIMARY_CTA } from "../../../lib/packages/packagesPageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
+import { scheduleColors } from "../../schedule/scheduleTokens";
 
 type PackagesPrimaryCtaProps = {
   label: string;
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     fontSize: typography.sectionTitle,
     lineHeight: 28,
     letterSpacing: -0.4,
-    color: colors.primaryGreen80,
+    color: scheduleColors.pageTitle,
   },
   emptyHint: {
     fontFamily: fontFamilies.manrope.regular,

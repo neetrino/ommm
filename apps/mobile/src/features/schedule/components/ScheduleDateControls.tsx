@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 24,
     letterSpacing: -0.44,
-    color: scheduleColors.heading,
+    color: scheduleColors.pageTitle,
     textTransform: "capitalize",
   },
   stripWrap: {
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 21,
     letterSpacing: -0.27,
-    color: scheduleColors.heading,
+    color: scheduleColors.pageTitle,
     textTransform: "capitalize",
   },
 });
