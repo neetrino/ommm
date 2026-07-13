@@ -57,12 +57,17 @@ export function AdminClientPackageCard({
   const statusLabel = formatMembershipStatusLabel(status, t);
   const validityLabel = resolveValidityLabel(item.expirationDate, status, t);
 
+  const remainingSessions = item.remainingSessions;
   const sessionsSummary = item.isUnlimited
     ? tMarketing("packagesSessionsUnlimited")
     : t("sessionsUsedOfTotal", {
         used: item.usedSessions ?? 0,
         total: item.totalSessions ?? 0,
       });
+  const remainingSummary =
+    !item.isUnlimited && remainingSessions !== null
+      ? t("sessionsRemaining", { count: remainingSessions })
+      : null;
 
   const showUsageBar =
     !item.isUnlimited &&
@@ -85,7 +90,12 @@ export function AdminClientPackageCard({
       </div>
 
       <div className="mt-5 space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
-        <p className="text-sm font-medium text-sage-900">{sessionsSummary}</p>
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-sage-900">{sessionsSummary}</p>
+          {remainingSummary !== null ? (
+            <p className="text-sm text-sage-600">{remainingSummary}</p>
+          ) : null}
+        </div>
         {showUsageBar ? (
           <PackageUsageBar
             used={item.usedSessions ?? 0}
