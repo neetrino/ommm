@@ -1,8 +1,10 @@
 import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Pressable,
   StyleSheet,
   Text,
@@ -23,6 +25,8 @@ const LOGIN_LOGO_LAYOUT_SIZE = 72;
 const LOGIN_LOGO_VISUAL_SCALE = 3.35;
 /** Compensate scaled logo overflow so the form block stays vertically centered. */
 const LOGIN_CONTENT_LIFT = (LOGIN_LOGO_LAYOUT_SIZE * (LOGIN_LOGO_VISUAL_SCALE - 1)) / 2;
+const LOGIN_ENTRY_ANIMATION_MS = 650;
+const LOGIN_ENTRY_OFFSET_PX = 12;
 
 export default function LoginRoute() {
   const router = useRouter();
@@ -35,6 +39,31 @@ export default function LoginRoute() {
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const submitLockRef = useRef(false);
+  const hasPlayedEntranceRef = useRef(false);
+  const entranceOpacity = useRef(new Animated.Value(0)).current;
+  const entranceTranslateY = useRef(new Animated.Value(LOGIN_ENTRY_OFFSET_PX)).current;
+
+  useEffect(() => {
+    if (!isReady || hasPlayedEntranceRef.current) {
+      return;
+    }
+
+    hasPlayedEntranceRef.current = true;
+    Animated.parallel([
+      Animated.timing(entranceOpacity, {
+        toValue: 1,
+        duration: LOGIN_ENTRY_ANIMATION_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(entranceTranslateY, {
+        toValue: 0,
+        duration: LOGIN_ENTRY_ANIMATION_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [entranceOpacity, entranceTranslateY, isReady]);
 
   const onSubmit = useCallback(async () => {
     setFormError(null);
@@ -78,7 +107,15 @@ export default function LoginRoute() {
 
   return (
     <AuthScreenShell keyboardAware>
-      <View style={styles.contentBlock}>
+      <Animated.View
+        style={[
+          styles.contentBlock,
+          {
+            opacity: entranceOpacity,
+            transform: [{ translateY: entranceTranslateY }],
+          },
+        ]}
+      >
         <View style={styles.brandBlock}>
           <View style={styles.logoSlot}>
             <Image
@@ -149,7 +186,7 @@ export default function LoginRoute() {
           <Text style={styles.linkText}>{tAuth("noAccountPrompt")} </Text>
           <Text style={styles.linkStrong}>{tCommon("register")}</Text>
         </Pressable>
-      </View>
+      </Animated.View>
     </AuthScreenShell>
   );
 }
