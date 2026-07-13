@@ -3,9 +3,9 @@ import Svg, { Path } from "react-native-svg";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { colors } from "../../../theme/tokens";
 
-/** Matches web `EditActionButton` — 32px circular frosted control. */
-const BUTTON_SIZE = 32;
-const ICON_SIZE = 16;
+/** Circular frosted control — slightly larger than web `h-8 w-8` for mobile. */
+const BUTTON_SIZE = 40;
+const ICON_SIZE = 20;
 const PEN_HIT_SLOP = 8;
 
 type AccountProfileEditIconButtonProps = {
