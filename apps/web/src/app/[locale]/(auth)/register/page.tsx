@@ -12,7 +12,6 @@ import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import {
-  ARMENIA_PHONE_DISPLAY_PLACEHOLDER,
   isValidPhone,
   normalizePhoneForApi,
 } from "@/lib/phone";
@@ -22,6 +21,10 @@ import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_NAME_LENGTH = 120;
+const REGISTER_PSEUDO_FIRST_NAME_PLACEHOLDER = "John";
+const REGISTER_PSEUDO_LAST_NAME_PLACEHOLDER = "Doe";
+const REGISTER_PSEUDO_PHONE_PLACEHOLDER = "+374 99 123456";
+const REGISTER_PSEUDO_EMAIL_PLACEHOLDER = "example@mail.com";
 
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
@@ -156,6 +159,7 @@ function RegisterForm() {
               autoComplete="given-name"
               className="ommm-input"
               maxLength={MAX_NAME_LENGTH}
+              placeholder={REGISTER_PSEUDO_FIRST_NAME_PLACEHOLDER}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -166,6 +170,7 @@ function RegisterForm() {
               autoComplete="family-name"
               className="ommm-input"
               maxLength={MAX_NAME_LENGTH}
+              placeholder={REGISTER_PSEUDO_LAST_NAME_PLACEHOLDER}
             />
           </label>
         </div>
@@ -178,7 +183,7 @@ function RegisterForm() {
               className="ommm-input"
               value={phone}
               onValueChange={setPhone}
-              placeholder={ARMENIA_PHONE_DISPLAY_PLACEHOLDER}
+              placeholder={REGISTER_PSEUDO_PHONE_PLACEHOLDER}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -190,6 +195,7 @@ function RegisterForm() {
               autoComplete="email"
               className="ommm-input"
               maxLength={MAX_EMAIL_LENGTH}
+              placeholder={REGISTER_PSEUDO_EMAIL_PLACEHOLDER}
             />
           </label>
         </div>

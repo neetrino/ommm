@@ -13,6 +13,9 @@ import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 
+const LOGIN_PSEUDO_EMAIL_PLACEHOLDER = "example@mail.com";
+const LOGIN_PSEUDO_PASSWORD_PLACEHOLDER = "••••••••";
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,6 +76,7 @@ export function LoginForm() {
             required
             autoComplete="email"
             className="ommm-input"
+            placeholder={LOGIN_PSEUDO_EMAIL_PLACEHOLDER}
           />
         </label>
         <label className="flex flex-col gap-2">
@@ -82,6 +86,7 @@ export function LoginForm() {
             required
             autoComplete="current-password"
             className="ommm-input"
+            placeholder={LOGIN_PSEUDO_PASSWORD_PLACEHOLDER}
             showPasswordLabel={tAuth("showPassword")}
             hidePasswordLabel={tAuth("hidePassword")}
           />
