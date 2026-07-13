@@ -69,8 +69,7 @@ export function FloatingTabBarIcon({
     return (
       <View style={[styles.iconStack, size]}>
         <Animated.View
-          style={[StyleSheet.absoluteFill, { opacity: pairInactiveOpacity }]}
-          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, styles.iconLayer, { opacity: pairInactiveOpacity }]}
         >
           <Image
             source={sourceInactive}
@@ -80,8 +79,7 @@ export function FloatingTabBarIcon({
           />
         </Animated.View>
         <Animated.View
-          style={[StyleSheet.absoluteFill, { opacity: pairActiveOpacity }]}
-          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, styles.iconLayer, { opacity: pairActiveOpacity }]}
         >
           <Image
             source={sourceActive}
@@ -115,5 +113,8 @@ export function FloatingTabBarIcon({
 const styles = StyleSheet.create({
   iconStack: {
     position: "relative",
+  },
+  iconLayer: {
+    pointerEvents: "none",
   },
 });

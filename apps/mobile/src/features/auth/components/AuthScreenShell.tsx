@@ -58,7 +58,7 @@ export function AuthScreenShell({
     <View style={styles.root}>
       <GradientBackdrop />
       {topLeading ? (
-        <View pointerEvents="box-none" style={styles.topLeadingOverlay}>
+        <View style={styles.topLeadingOverlay}>
           <View
             style={[
               styles.topLeadingColumn,
@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
     alignItems: "center",
     paddingHorizontal: space.screenHorizontal,
+    pointerEvents: "box-none",
   },
   topLeadingColumn: {
     width: "100%",

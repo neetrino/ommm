@@ -1,17 +1,15 @@
-import { Platform, StyleSheet, type ViewStyle } from "react-native";
+import { StyleSheet, type ViewStyle } from "react-native";
 import { fontFamilies } from "../../theme/fontFamilies";
+import { platformShadow } from "../../theme/platformShadow";
 import { colors, space, typography } from "../../theme/tokens";
 
 /** Web: `ommm-account-section`. */
-export const PROFILE_SECTION_CARD_SHADOW = Platform.select({
-  ios: {
-    shadowColor: "#2d2823",
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.15,
-    shadowRadius: 22,
-  },
-  android: { elevation: 5 },
-  default: {},
+export const PROFILE_SECTION_CARD_SHADOW = platformShadow({
+  color: "#2d2823",
+  offsetHeight: 20,
+  opacity: 0.15,
+  radius: 22,
+  elevation: 5,
 });
 
 /** Web: `ommm-account-section` glass blur strength. */

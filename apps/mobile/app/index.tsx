@@ -1,31 +1,6 @@
 import { Redirect } from "expo-router";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { useSession } from "../src/auth/SessionProvider";
-import { colors } from "../src/theme/tokens";
 
+/** App entry — always land on `/home` splash first. */
 export default function Index() {
-  const { isReady, isSignedIn, homeHref } = useSession();
-
-  if (!isReady) {
-    return (
-      <View style={styles.boot}>
-        <ActivityIndicator size="large" color={colors.taupe} />
-      </View>
-    );
-  }
-
-  if (!isSignedIn) {
-    return <Redirect href="/home" />;
-  }
-
-  return <Redirect href={homeHref} />;
+  return <Redirect href="/home" />;
 }
-
-const styles = StyleSheet.create({
-  boot: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.canvas,
-  },
-});

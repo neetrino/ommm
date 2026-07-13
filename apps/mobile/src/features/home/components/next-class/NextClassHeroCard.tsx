@@ -19,7 +19,7 @@ export function NextClassHeroCard({
 
   return (
     <View style={styles.cardStage}>
-      <View style={styles.backCardTilt} pointerEvents="none">
+      <View style={styles.backCardTilt}>
         <View style={styles.backCard} />
       </View>
 
@@ -30,7 +30,7 @@ export function NextClassHeroCard({
           contentFit="cover"
           accessibilityIgnoresInvertColors
         />
-        <View style={styles.cardScrim} pointerEvents="none" />
+        <View style={styles.cardScrim} />
 
         <View style={styles.comingBadge}>
           <Text style={styles.comingBadgeText}>{content.badge}</Text>

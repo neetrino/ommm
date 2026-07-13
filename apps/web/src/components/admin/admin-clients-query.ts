@@ -3,6 +3,10 @@ import {
   LIST_PAGE_SIZE_QUERY_KEY,
   parseListPageParams,
 } from "@/lib/list-pagination";
+import {
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+} from "@/components/admin/admin-client-sheet-tabs";
 
 /** Admin / manager clients directory — one page of compact rows. */
 export const ADMIN_CLIENTS_LIST_PAGE_SIZE = 10;
@@ -33,6 +37,8 @@ const ADMIN_CLIENTS_API_QUERY_KEYS = [...ADMIN_CLIENTS_FILTER_KEYS, "q"] as cons
 /** UI-only query keys kept in the URL but not sent to `GET /clients`. */
 export const ADMIN_CLIENTS_UI_QUERY_KEYS = [
   "viewClient",
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
   LIST_PAGE_QUERY_KEY,
   LIST_PAGE_SIZE_QUERY_KEY,
 ] as const;
@@ -40,6 +46,7 @@ export const ADMIN_CLIENTS_UI_QUERY_KEYS = [
 export { LIST_PAGE_QUERY_KEY, LIST_PAGE_SIZE_QUERY_KEY };
 
 export const VIEW_CLIENT_QUERY_KEY = "viewClient";
+
 
 export function buildAdminClientsApiSearchParams(
   search: Record<string, string | undefined>,
@@ -73,16 +80,46 @@ export function pickAdminClientsInitialFilters(
 
 export function mergeAdminClientsUrlQuery(
   filterQuery: string,
-  uiSearch: Record<string, string | undefined>,
+  currentQuery: string,
 ): string {
   const params = new URLSearchParams(filterQuery);
+  const current = new URLSearchParams(currentQuery);
   for (const key of ADMIN_CLIENTS_UI_QUERY_KEYS) {
-    const value = uiSearch[key];
+    const value = current.get(key);
     if (value) {
       params.set(key, value);
     }
   }
   return params.toString();
+}
+
+/** Reads the live browser query string (no leading `?`). */
+export function readBrowserSearchQuery(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+  return window.location.search.startsWith("?")
+    ? window.location.search.slice(1)
+    : window.location.search;
+}
+
+/**
+ * Mutates the current browser search params and replaces only when the result differs.
+ * Always starts from `window.location` so concurrent replaces cannot drop sibling keys.
+ */
+export function replaceAdminClientsSearchParams(
+  pathname: string,
+  router: { replace: (href: string, options?: { scroll?: boolean }) => void },
+  mutator: (params: URLSearchParams) => void,
+): void {
+  const params = new URLSearchParams(readBrowserSearchQuery());
+  const before = params.toString();
+  mutator(params);
+  const after = params.toString();
+  if (areUrlSearchQueriesEqual(before, after)) {
+    return;
+  }
+  router.replace(after ? `${pathname}?${after}` : pathname, { scroll: false });
 }
 
 /** Compares query strings by key/value pairs (order-independent). */

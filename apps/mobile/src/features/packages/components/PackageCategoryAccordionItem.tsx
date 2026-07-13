@@ -150,7 +150,6 @@ export function PackageCategoryAccordionItem({
           </Animated.View>
 
           <View
-            pointerEvents="none"
             style={styles.measurementHost}
             onLayout={animation.onContentLayout}
           >
@@ -233,5 +232,6 @@ const styles = StyleSheet.create({
     width: "100%",
     opacity: 0,
     zIndex: -1,
+    pointerEvents: "none",
   },
 });

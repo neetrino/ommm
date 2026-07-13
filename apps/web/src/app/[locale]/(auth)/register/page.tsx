@@ -12,12 +12,18 @@ import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import {
-  ARMENIA_PHONE_DISPLAY_PLACEHOLDER,
   isValidPhone,
   normalizePhoneForApi,
 } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
+import {
+  PSEUDO_EMAIL,
+  PSEUDO_FIRST_NAME,
+  PSEUDO_LAST_NAME,
+  PSEUDO_PASSWORD,
+  PSEUDO_PHONE,
+} from "@/lib/pseudo-form-placeholders";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
@@ -156,6 +162,7 @@ function RegisterForm() {
               autoComplete="given-name"
               className="ommm-input"
               maxLength={MAX_NAME_LENGTH}
+              placeholder={PSEUDO_FIRST_NAME}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -166,6 +173,7 @@ function RegisterForm() {
               autoComplete="family-name"
               className="ommm-input"
               maxLength={MAX_NAME_LENGTH}
+              placeholder={PSEUDO_LAST_NAME}
             />
           </label>
         </div>
@@ -178,7 +186,7 @@ function RegisterForm() {
               className="ommm-input"
               value={phone}
               onValueChange={setPhone}
-              placeholder={ARMENIA_PHONE_DISPLAY_PLACEHOLDER}
+              placeholder={PSEUDO_PHONE}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -190,6 +198,7 @@ function RegisterForm() {
               autoComplete="email"
               className="ommm-input"
               maxLength={MAX_EMAIL_LENGTH}
+              placeholder={PSEUDO_EMAIL}
             />
           </label>
         </div>
@@ -203,6 +212,7 @@ function RegisterForm() {
               maxLength={128}
               autoComplete="new-password"
               className="ommm-input"
+              placeholder={PSEUDO_PASSWORD}
               showPasswordLabel={tAuth("showPassword")}
               hidePasswordLabel={tAuth("hidePassword")}
             />
@@ -216,6 +226,7 @@ function RegisterForm() {
               maxLength={128}
               autoComplete="new-password"
               className="ommm-input"
+              placeholder={PSEUDO_PASSWORD}
               showPasswordLabel={tAuth("showPassword")}
               hidePasswordLabel={tAuth("hidePassword")}
             />

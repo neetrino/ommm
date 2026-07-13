@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 import { useLogoutAction } from "../../../auth/useLogoutAction";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { memberAccountHubActionTokens } from "../memberAccountHubActionTokens";
 
 const tokens = memberAccountHubActionTokens.logoutBtn;
@@ -61,15 +62,13 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.backgroundColor,
     paddingVertical: tokens.paddingVertical,
     paddingHorizontal: tokens.paddingHorizontal,
-    ...Platform.select({
-      ios: {
-        shadowColor: tokens.shadowColor,
-        shadowOffset: tokens.shadowOffset,
-        shadowOpacity: tokens.shadowOpacity,
-        shadowRadius: tokens.shadowRadius,
-      },
-      android: { elevation: 3 },
-      default: {},
+    ...platformShadow({
+      color: tokens.shadowColor,
+      offsetWidth: tokens.shadowOffset.width,
+      offsetHeight: tokens.shadowOffset.height,
+      opacity: tokens.shadowOpacity,
+      radius: tokens.shadowRadius,
+      elevation: 3,
     }),
   },
   logoutBtnPressed: {

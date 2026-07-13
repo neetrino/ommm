@@ -15,7 +15,16 @@ import {
   ClientGiftActionPanel,
   ClientNotesPanel,
 } from "@/components/admin/admin-client-drawer-sections";
+import { ClientPackagesPanel } from "@/components/admin/admin-client-packages-panel";
 import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
+import {
+  CLIENT_SHEET_TAB_BOOKINGS,
+  CLIENT_SHEET_TAB_GIFTS,
+  CLIENT_SHEET_TAB_NOTES,
+  CLIENT_SHEET_TAB_PACKAGES,
+  CLIENT_SHEET_TAB_PAYMENTS,
+  CLIENT_SHEET_TAB_PROFILE,
+} from "@/components/admin/admin-client-sheet-tabs";
 import {
   AdminSheetEditableField,
   AdminSheetReadOnlyField,
@@ -27,6 +36,7 @@ import { formatBirthdayInput, formatDateForUi, formatDateTimeForUi } from "@/lib
 import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
+import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -53,6 +63,8 @@ type ClientSheetTabPanelsProps = {
   onStartPersonalInfoEdit: () => void;
   onPersonalInfoSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onAvatarPreviewOpenChange?: (open: boolean) => void;
+  allowPackagePurchase?: boolean;
+  onPackagePurchaseSuccess?: () => void;
 };
 
 export function ClientSheetTabPanels({
@@ -74,37 +86,16 @@ export function ClientSheetTabPanels({
   onStartPersonalInfoEdit,
   onPersonalInfoSubmit,
   onAvatarPreviewOpenChange,
+  allowPackagePurchase = false,
+  onPackagePurchaseSuccess,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
+  const tFinance = useTranslations("adminPages.finance");
   const activity = detail.activity;
 
-  if (activeTab === "profile") {
+  if (activeTab === CLIENT_SHEET_TAB_PROFILE) {
     return (
       <div className="space-y-5">
-        <section className={SECTION_CLASS}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-            <ClientAvatar client={detail} onPreviewOpenChange={onAvatarPreviewOpenChange} />
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-              <StatusBadge label={activity.status} />
-              <span className="text-sm text-sage-600">
-                {t("drawer.registered")}: {formatDateForUi(detail.createdAt)}
-              </span>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {activity.tags.length === 0 ? (
-              <Badge label={t("drawer.noTags")} />
-            ) : (
-              activity.tags.map((tag) => <Badge key={tag} label={tag} />)
-            )}
-          </div>
-          {activity.preferredCoach ? (
-            <p className="mt-3 text-sm text-sage-600">
-              {t("drawer.preferredCoach")}: {activity.preferredCoach.name}
-            </p>
-          ) : null}
-        </section>
-
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Metric label={t("drawer.totalVisits")} value={String(activity.totalVisits)} />
           <Metric label={t("drawer.totalBookings")} value={String(activity.totalBookings)} />
@@ -121,112 +112,142 @@ export function ClientSheetTabPanels({
         </div>
 
         <section className={SECTION_CLASS}>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-              {t("drawer.personalInfo")}
-            </h3>
-            {!personalInfoEditing ? (
-              <EditActionButton
-                ariaLabel={t("edit")}
-                onClick={onStartPersonalInfoEdit}
-                disabled={busy}
-              />
-            ) : null}
-          </div>
-          {personalInfoEditing ? (
-            <form className="grid gap-4 lg:grid-cols-2" onSubmit={onPersonalInfoSubmit}>
-              <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
-                <input
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  className="ommm-input"
-                  value={form.email}
-                  onChange={(event) => controller.updateField("email", event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldName")} error={undefined}>
-                <input
-                  type="text"
-                  autoComplete="given-name"
-                  className="ommm-input"
-                  value={form.name}
-                  onChange={(event) => controller.updateField("name", event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldLastName")} error={undefined}>
-                <input
-                  type="text"
-                  autoComplete="family-name"
-                  className="ommm-input"
-                  value={form.lastName}
-                  onChange={(event) => controller.updateField("lastName", event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
-                <PhoneInputField
-                  autoComplete="tel"
-                  className="ommm-input"
-                  value={form.phone}
-                  onValueChange={(value) => controller.updateField("phone", value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField
-                label={t("fieldBirthday")}
-                error={errors.dateOfBirth}
-                className="lg:col-span-2"
-              >
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="bday"
-                  maxLength={10}
-                  placeholder={t("birthdayPlaceholder")}
-                  className="ommm-input"
-                  value={form.dateOfBirth}
-                  onChange={(event) =>
-                    controller.updateField("dateOfBirth", formatBirthdayInput(event.target.value))
-                  }
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-            </form>
-          ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              <AdminSheetReadOnlyField
-                label={t("fieldEmail")}
-                value={form.email.trim().length > 0 ? form.email : "—"}
-                className="lg:col-span-2"
-              />
-              <AdminSheetReadOnlyField
-                label={t("fieldName")}
-                value={form.name.trim().length > 0 ? form.name : "—"}
-              />
-              <AdminSheetReadOnlyField
-                label={t("fieldLastName")}
-                value={form.lastName.trim().length > 0 ? form.lastName : "—"}
-              />
-              <AdminSheetReadOnlyField
-                label={t("fieldPhone")}
-                value={form.phone.trim().length > 0 ? formatPhoneDisplay(form.phone) : "—"}
-              />
-              <AdminSheetReadOnlyField
-                label={t("fieldBirthday")}
-                value={form.dateOfBirth.trim().length > 0 ? form.dateOfBirth : "—"}
-                className="lg:col-span-2"
-              />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <ClientAvatar client={detail} onPreviewOpenChange={onAvatarPreviewOpenChange} />
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              <StatusBadge label={activity.status} />
+              <span className="text-sm text-sage-600">
+                {t("drawer.registered")}: {formatDateForUi(detail.createdAt)}
+              </span>
             </div>
-          )}
+          </div>
+          {activity.preferredCoach ? (
+            <p className="mt-3 text-sm text-sage-600">
+              {t("drawer.preferredCoach")}: {activity.preferredCoach.name}
+            </p>
+          ) : null}
+
+          <div className="mt-5 border-t border-white/70 pt-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+                {t("drawer.personalInfo")}
+              </h3>
+              {!personalInfoEditing ? (
+                <EditActionButton
+                  ariaLabel={t("edit")}
+                  onClick={onStartPersonalInfoEdit}
+                  disabled={busy}
+                />
+              ) : null}
+            </div>
+            {personalInfoEditing ? (
+              <form className="grid gap-4 lg:grid-cols-2" onSubmit={onPersonalInfoSubmit}>
+                <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
+                  <input
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    className="ommm-input"
+                    value={form.email}
+                    onChange={(event) => controller.updateField("email", event.target.value)}
+                    disabled={busy}
+                  />
+                </AdminSheetEditableField>
+                <AdminSheetEditableField label={t("fieldName")} error={undefined}>
+                  <input
+                    type="text"
+                    autoComplete="given-name"
+                    className="ommm-input"
+                    value={form.name}
+                    onChange={(event) => controller.updateField("name", event.target.value)}
+                    disabled={busy}
+                  />
+                </AdminSheetEditableField>
+                <AdminSheetEditableField label={t("fieldLastName")} error={undefined}>
+                  <input
+                    type="text"
+                    autoComplete="family-name"
+                    className="ommm-input"
+                    value={form.lastName}
+                    onChange={(event) => controller.updateField("lastName", event.target.value)}
+                    disabled={busy}
+                  />
+                </AdminSheetEditableField>
+                <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
+                  <PhoneInputField
+                    autoComplete="tel"
+                    className="ommm-input"
+                    value={form.phone}
+                    onValueChange={(value) => controller.updateField("phone", value)}
+                    disabled={busy}
+                  />
+                </AdminSheetEditableField>
+                <AdminSheetEditableField
+                  label={t("fieldBirthday")}
+                  error={errors.dateOfBirth}
+                  className="lg:col-span-2"
+                >
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="bday"
+                    maxLength={10}
+                    placeholder={t("birthdayPlaceholder")}
+                    className="ommm-input"
+                    value={form.dateOfBirth}
+                    onChange={(event) =>
+                      controller.updateField("dateOfBirth", formatBirthdayInput(event.target.value))
+                    }
+                    disabled={busy}
+                  />
+                </AdminSheetEditableField>
+              </form>
+            ) : (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <AdminSheetReadOnlyField
+                  label={t("fieldEmail")}
+                  value={form.email.trim().length > 0 ? form.email : "—"}
+                  className="lg:col-span-2"
+                />
+                <AdminSheetReadOnlyField
+                  label={t("fieldName")}
+                  value={form.name.trim().length > 0 ? form.name : "—"}
+                />
+                <AdminSheetReadOnlyField
+                  label={t("fieldLastName")}
+                  value={form.lastName.trim().length > 0 ? form.lastName : "—"}
+                />
+                <AdminSheetReadOnlyField
+                  label={t("fieldPhone")}
+                  value={form.phone.trim().length > 0 ? formatPhoneDisplay(form.phone) : "—"}
+                />
+                <AdminSheetReadOnlyField
+                  label={t("fieldBirthday")}
+                  value={form.dateOfBirth.trim().length > 0 ? form.dateOfBirth : "—"}
+                  className="lg:col-span-2"
+                />
+              </div>
+            )}
+          </div>
         </section>
       </div>
     );
   }
 
-  if (activeTab === "bookings") {
+  if (activeTab === CLIENT_SHEET_TAB_PACKAGES) {
+    return (
+      <ClientPackagesPanel
+        client={detail}
+        locale={locale}
+        active
+        refreshKey={tabRefreshKey}
+        allowPurchase={allowPackagePurchase}
+        onPurchaseSuccess={() => onPackagePurchaseSuccess?.()}
+      />
+    );
+  }
+
+  if (activeTab === CLIENT_SHEET_TAB_BOOKINGS) {
     return (
       <ClientSheetPaginatedTab<ClientSheetBookingItem>
         clientId={detail.id}
@@ -249,7 +270,7 @@ export function ClientSheetTabPanels({
     );
   }
 
-  if (activeTab === "payments") {
+  if (activeTab === CLIENT_SHEET_TAB_PAYMENTS) {
     return (
       <ClientSheetPaginatedTab<ClientSheetPaymentItem>
         clientId={detail.id}
@@ -258,17 +279,29 @@ export function ClientSheetTabPanels({
         endpoint={`/clients/${detail.id}/payments`}
         title={t("drawer.paymentHistory")}
         empty={t("drawer.noPayments")}
-        mapItem={(payment) => ({
-          id: payment.id,
-          main: formatAmdFromCents(payment.amountCents, locale),
-          meta: `${payment.status} · ${formatDateForUi(payment.createdAt)}`,
-          extra: payment.description,
-        })}
+        mapItem={(payment) => {
+          const methodLabel =
+            payment.paymentMethod !== null && isManualPaymentMethod(payment.paymentMethod)
+              ? tFinance(`paymentMethods.${payment.paymentMethod}`)
+              : null;
+          return {
+            id: payment.id,
+            main: formatAmdFromCents(payment.amountCents, locale),
+            meta: [
+              payment.status,
+              methodLabel,
+              formatDateForUi(payment.createdAt),
+            ]
+              .filter(Boolean)
+              .join(" · "),
+            extra: payment.description,
+          };
+        }}
       />
     );
   }
 
-  if (activeTab === "gifts") {
+  if (activeTab === CLIENT_SHEET_TAB_GIFTS) {
     return (
       <div className="space-y-5">
         <ClientGiftActionPanel
@@ -296,7 +329,7 @@ export function ClientSheetTabPanels({
     );
   }
 
-  if (activeTab === "notes") {
+  if (activeTab === CLIENT_SHEET_TAB_NOTES) {
     return (
       <ClientNotesPanel
         notes={detail.notes}
@@ -423,14 +456,6 @@ function Metric({ label, value }: { label: string; value: string }) {
 function StatusBadge({ label }: { label: string }) {
   return (
     <span className="inline-flex rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-sage-800">
-      {label}
-    </span>
-  );
-}
-
-function Badge({ label }: { label: string }) {
-  return (
-    <span className="rounded-full border border-sand-200 bg-sand-50 px-2 py-0.5 text-xs font-medium text-sage-800">
       {label}
     </span>
   );

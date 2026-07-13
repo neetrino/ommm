@@ -26,8 +26,14 @@ export function ProfileGlassCard({
         tint="light"
         style={StyleSheet.absoluteFill}
       />
-      <View style={[profileGlassCardTint, StyleSheet.absoluteFill]} pointerEvents="none" />
+      <View style={[profileGlassCardTint, StyleSheet.absoluteFill, styles.tintOverlay]} />
       <View style={contentStyle}>{children}</View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  tintOverlay: {
+    pointerEvents: "none",
+  },
+});

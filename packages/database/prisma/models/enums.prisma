@@ -66,6 +66,7 @@ enum PaymentSource {
 enum ManualPaymentMethod {
   CASH
   CARD
+  CARD_TERMINAL
   BANK_TRANSFER
   OTHER
 }

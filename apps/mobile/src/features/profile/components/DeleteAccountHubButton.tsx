@@ -1,15 +1,16 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { OmmConfirmDialog } from "../../../components/ui/OmmConfirmDialog";
 import { useSession } from "../../../auth/SessionProvider";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { deleteAccount } from "../../../lib/api/usersClient";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { memberAccountHubActionTokens } from "../memberAccountHubActionTokens";
 
-const HOME_HREF = "/home" as const;
+const LOGIN_HREF = "/login" as const;
 const tokens = memberAccountHubActionTokens.deleteBtn;
 
 export function DeleteAccountHubButton() {
@@ -38,7 +39,7 @@ export function DeleteAccountHubButton() {
       }
       await signOut();
       setConfirmOpen(false);
-      router.replace(HOME_HREF);
+      router.replace(LOGIN_HREF);
     } catch (e) {
       const message =
         e instanceof Error ? e.message : tProfile("deleteAccountFailed");
@@ -124,15 +125,13 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.backgroundColor,
     paddingVertical: tokens.paddingVertical,
     paddingHorizontal: tokens.paddingHorizontal,
-    ...Platform.select({
-      ios: {
-        shadowColor: tokens.shadowColor,
-        shadowOffset: tokens.shadowOffset,
-        shadowOpacity: tokens.shadowOpacity,
-        shadowRadius: tokens.shadowRadius,
-      },
-      android: { elevation: 2 },
-      default: {},
+    ...platformShadow({
+      color: tokens.shadowColor,
+      offsetWidth: tokens.shadowOffset.width,
+      offsetHeight: tokens.shadowOffset.height,
+      opacity: tokens.shadowOpacity,
+      radius: tokens.shadowRadius,
+      elevation: 2,
     }),
   },
   deleteBtnPressed: {

@@ -1,20 +1,18 @@
-import { Slot } from "expo-router";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Slot, usePathname } from "expo-router";
+import { StyleSheet, View } from "react-native";
 import { FloatingTabBar } from "../../src/features/home/components/FloatingTabBar";
 import { useSession } from "../../src/auth/SessionProvider";
 import { colors } from "../../src/theme/tokens";
 
 export default function MainLayout() {
   const { isReady, isSignedIn } = useSession();
-  /** Authenticated app shell only — hidden for guests (e.g. public home) and outside `(main)`. */
-  const showFloatingTabBar = isSignedIn;
+  const pathname = usePathname();
+  const isStartupSplashRoute = pathname === "/home";
+  /** Authenticated app shell only — never on startup splash route. */
+  const showFloatingTabBar = isSignedIn && !isStartupSplashRoute;
 
   if (!isReady) {
-    return (
-      <View style={styles.boot}>
-        <ActivityIndicator size="large" color={colors.taupe} />
-      </View>
-    );
+    return <View style={styles.boot} />;
   }
 
   return (

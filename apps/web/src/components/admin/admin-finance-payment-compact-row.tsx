@@ -56,7 +56,7 @@ function resolveMethodLabel(
   if (paymentMethod === null || !isManualPaymentMethod(paymentMethod)) {
     return "—";
   }
-  return t(`paymentMethods.${paymentMethod as "CASH"}`);
+  return t(`paymentMethods.${paymentMethod}`);
 }
 
 export function AdminFinancePaymentCompactRow({

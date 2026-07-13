@@ -16,7 +16,7 @@ export default function ManagerRouteGroupLayout() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/login" />;
   }
 
   if (role !== "MANAGER") {

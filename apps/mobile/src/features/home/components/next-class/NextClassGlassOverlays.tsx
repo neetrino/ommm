@@ -18,7 +18,6 @@ export function NextClassGlassOverlays() {
   return (
     <>
       <LinearGradient
-        pointerEvents="none"
         colors={[
           NEXT_CLASS_GLASS_SHEEN_PEAK,
           NEXT_CLASS_GLASS_SHEEN_MID,
@@ -31,7 +30,6 @@ export function NextClassGlassOverlays() {
         style={styles.detailsGlassSheen}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[
           NEXT_CLASS_GLASS_TOP_GLOW,
           NEXT_CLASS_GLASS_TOP_GLOW_MID,
@@ -43,7 +41,6 @@ export function NextClassGlassOverlays() {
         style={styles.detailsGlassTopBand}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[
           NEXT_CLASS_GLASS_DIAG_GLEAM,
           NEXT_CLASS_GLASS_DIAG_GLEAM_MID,
@@ -56,7 +53,6 @@ export function NextClassGlassOverlays() {
         style={styles.detailsGlassDiagonalGleam}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[NEXT_CLASS_GLASS_HOT_SPOT, "transparent"]}
         locations={[0, 0.32]}
         start={{ x: 0.22, y: 0.08 }}
@@ -64,7 +60,6 @@ export function NextClassGlassOverlays() {
         style={styles.detailsGlassHotSpot}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[
           "transparent",
           NEXT_CLASS_GLASS_CORNER_FLARE,
@@ -76,7 +71,6 @@ export function NextClassGlassOverlays() {
         style={styles.detailsGlassCornerFlare}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[NEXT_CLASS_GLASS_TOP_EDGE_FLARE, "transparent"]}
         locations={[0, 1]}
         start={{ x: 0.5, y: 0 }}

@@ -1,8 +1,10 @@
 import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Pressable,
   StyleSheet,
   Text,
@@ -12,7 +14,6 @@ import {
 import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
-import { AuthBackToHomeRow, AUTH_BACK_TO_HOME_TOP_RESERVE } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { useTranslations } from "../../src/i18n/I18nProvider";
@@ -22,12 +23,12 @@ import { colors, radii, space, typography } from "../../src/theme/tokens";
 const LOGIN_LOGO_LAYOUT_SIZE = 72;
 /** Visual scale only — layout slot stays fixed so other elements do not move. */
 const LOGIN_LOGO_VISUAL_SCALE = 3.35;
-/** Balance AuthScreenShell top reserve vs bottom inset when vertically centering. */
-const AUTH_SHELL_VERTICAL_PADDING_BIAS =
-  (AUTH_BACK_TO_HOME_TOP_RESERVE - space.xl) / 2;
-/** Locked to scale 3 overflow so logo size tweaks do not shift the form block. */
-const LOGIN_CONTENT_LIFT =
-  (LOGIN_LOGO_LAYOUT_SIZE * (3 - 1)) / 2 + AUTH_SHELL_VERTICAL_PADDING_BIAS;
+/** Compensate scaled logo overflow so the form block stays vertically centered. */
+const LOGIN_CONTENT_LIFT = (LOGIN_LOGO_LAYOUT_SIZE * (LOGIN_LOGO_VISUAL_SCALE - 1)) / 2;
+const LOGIN_ENTRY_ANIMATION_MS = 760;
+const LOGIN_ENTRY_OFFSET_PX = 16;
+const LOGIN_ENTRY_START_SCALE = 0.985;
+const LOGIN_ENTRY_EASING = Easing.bezier(0.22, 1, 0.36, 1);
 
 export default function LoginRoute() {
   const router = useRouter();
@@ -40,6 +41,38 @@ export default function LoginRoute() {
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const submitLockRef = useRef(false);
+  const hasPlayedEntranceRef = useRef(false);
+  const entranceOpacity = useRef(new Animated.Value(0)).current;
+  const entranceTranslateY = useRef(new Animated.Value(LOGIN_ENTRY_OFFSET_PX)).current;
+  const entranceScale = useRef(new Animated.Value(LOGIN_ENTRY_START_SCALE)).current;
+
+  useEffect(() => {
+    if (!isReady || hasPlayedEntranceRef.current) {
+      return;
+    }
+
+    hasPlayedEntranceRef.current = true;
+    Animated.parallel([
+      Animated.timing(entranceOpacity, {
+        toValue: 1,
+        duration: LOGIN_ENTRY_ANIMATION_MS,
+        easing: LOGIN_ENTRY_EASING,
+        useNativeDriver: true,
+      }),
+      Animated.timing(entranceTranslateY, {
+        toValue: 0,
+        duration: LOGIN_ENTRY_ANIMATION_MS,
+        easing: LOGIN_ENTRY_EASING,
+        useNativeDriver: true,
+      }),
+      Animated.timing(entranceScale, {
+        toValue: 1,
+        duration: LOGIN_ENTRY_ANIMATION_MS,
+        easing: LOGIN_ENTRY_EASING,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [entranceOpacity, entranceScale, entranceTranslateY, isReady]);
 
   const onSubmit = useCallback(async () => {
     setFormError(null);
@@ -82,11 +115,16 @@ export default function LoginRoute() {
   }
 
   return (
-    <AuthScreenShell
-      keyboardAware
-      topLeading={<AuthBackToHomeRow onPress={() => router.replace("/home")} />}
-    >
-      <View style={styles.contentBlock}>
+    <AuthScreenShell keyboardAware>
+      <Animated.View
+        style={[
+          styles.contentBlock,
+          {
+            opacity: entranceOpacity,
+            transform: [{ translateY: entranceTranslateY }, { scale: entranceScale }],
+          },
+        ]}
+      >
         <View style={styles.brandBlock}>
           <View style={styles.logoSlot}>
             <Image
@@ -157,7 +195,7 @@ export default function LoginRoute() {
           <Text style={styles.linkText}>{tAuth("noAccountPrompt")} </Text>
           <Text style={styles.linkStrong}>{tCommon("register")}</Text>
         </Pressable>
-      </View>
+      </Animated.View>
     </AuthScreenShell>
   );
 }

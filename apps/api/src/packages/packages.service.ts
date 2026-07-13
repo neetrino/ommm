@@ -1,17 +1,24 @@
 import { Injectable } from '@nestjs/common';
+import { ManualPaymentMethod } from '@prisma/client';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
+import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
 import { PackagesPublicService } from './packages-public.service';
+
+type AdminClientPackagePaymentMethod =
+  | typeof ManualPaymentMethod.CASH
+  | typeof ManualPaymentMethod.CARD_TERMINAL;
 
 @Injectable()
 export class PackagesService {
   constructor(
     private readonly publicService: PackagesPublicService,
     private readonly adminService: PackagesAdminService,
+    private readonly adminClientPurchase: PackagesAdminClientPurchaseService,
   ) {}
 
   listPlans() {
@@ -64,5 +71,14 @@ export class PackagesService {
 
   subscribe(userId: string, dto: SubscribePackageDto) {
     return this.publicService.subscribe(userId, dto);
+  }
+
+  adminPurchaseForClient(params: {
+    adminId: string;
+    clientId: string;
+    planId: string;
+    paymentMethod: AdminClientPackagePaymentMethod;
+  }) {
+    return this.adminClientPurchase.purchase(params);
   }
 }

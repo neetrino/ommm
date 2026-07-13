@@ -1,9 +1,10 @@
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import type { WaitlistItem } from "../../../lib/mocks/homeMock";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
+import { platformShadow } from "../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 
 type WaitlistSectionProps = {
@@ -35,7 +36,6 @@ function WaitlistLightGlassOverlays() {
   return (
     <>
       <LinearGradient
-        pointerEvents="none"
         colors={[
           WAITLIST_LIGHT_SHEEN_PEAK,
           WAITLIST_LIGHT_SHEEN_MID,
@@ -45,18 +45,16 @@ function WaitlistLightGlassOverlays() {
         locations={[0, 0.05, 0.16, 0.4]}
         start={{ x: 0.02, y: 0.02 }}
         end={{ x: 0.5, y: 0.4 }}
-        style={StyleSheet.absoluteFillObject}
+        style={styles.glassOverlayFill}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[WAITLIST_LIGHT_DIAG, "transparent", "transparent"]}
         locations={[0, 0.16, 1]}
         start={{ x: 0.12, y: 0.12 }}
         end={{ x: 0.88, y: 0.72 }}
-        style={StyleSheet.absoluteFillObject}
+        style={styles.glassOverlayFill}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[
           WAITLIST_LIGHT_TOP_GLOW,
           WAITLIST_LIGHT_TOP_MID,
@@ -68,7 +66,6 @@ function WaitlistLightGlassOverlays() {
         style={styles.cardGlassTopBand}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[WAITLIST_LIGHT_TOP_EDGE, "transparent"]}
         locations={[0, 1]}
         start={{ x: 0.5, y: 0 }}
@@ -83,7 +80,6 @@ function WaitlistDarkGlassOverlays() {
   return (
     <>
       <LinearGradient
-        pointerEvents="none"
         colors={[
           WAITLIST_DARK_SHEEN_PEAK,
           WAITLIST_DARK_SHEEN_MID,
@@ -93,10 +89,9 @@ function WaitlistDarkGlassOverlays() {
         locations={[0, 0.06, 0.18, 0.44]}
         start={{ x: 0.02, y: 0.02 }}
         end={{ x: 0.52, y: 0.42 }}
-        style={StyleSheet.absoluteFillObject}
+        style={styles.glassOverlayFill}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[WAITLIST_DARK_TOP_GLOW, WAITLIST_DARK_TOP_MID, "transparent"]}
         locations={[0, 0.11, 1]}
         start={{ x: 0.5, y: 0 }}
@@ -104,15 +99,13 @@ function WaitlistDarkGlassOverlays() {
         style={styles.cardGlassTopBand}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[WAITLIST_DARK_DIAG, "transparent", "transparent"]}
         locations={[0, 0.14, 1]}
         start={{ x: 0.1, y: 0.15 }}
         end={{ x: 0.9, y: 0.75 }}
-        style={StyleSheet.absoluteFillObject}
+        style={styles.glassOverlayFill}
       />
       <LinearGradient
-        pointerEvents="none"
         colors={[WAITLIST_DARK_TOP_EDGE, "transparent"]}
         locations={[0, 1]}
         start={{ x: 0.5, y: 0 }}
@@ -219,17 +212,12 @@ const styles = StyleSheet.create({
   cardFrame: {
     flex: 1,
     minWidth: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#e8f0fc",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.48,
-        shadowRadius: 16,
-      },
-      android: {
-        elevation: 10,
-      },
-      default: {},
+    ...platformShadow({
+      color: "#e8f0fc",
+      offsetHeight: 6,
+      opacity: 0.48,
+      radius: 16,
+      elevation: 10,
     }),
   },
   radiusLight: {
@@ -263,6 +251,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: "42%",
+    pointerEvents: "none",
   },
   cardGlassTopEdge: {
     position: "absolute",
@@ -270,6 +259,11 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: 4,
+    pointerEvents: "none",
+  },
+  glassOverlayFill: {
+    ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
   },
   cardInner: {
     position: "relative",

@@ -7,11 +7,9 @@ export function userMemberPath(segment: string): string {
 }
 
 /**
- * Signed-out tab placeholders at `(main)/classes`, `(main)/packages`, etc.
- * Do not use `/user/*` here — those routes require `Role.USER`.
+ * Path helpers for authenticated coach routes (aligned with web `/coach/*`).
  */
-export const guestPublicTabPath = {
-  classes: "/classes",
-  packages: "/packages",
-  schedule: "/schedule",
-} as const;
+export function coachPath(segment: string): string {
+  const clean = segment.replace(/^\/+/, "");
+  return `/coach/${clean}`;
+}

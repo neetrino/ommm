@@ -105,7 +105,22 @@ export type ClientSheetPaymentItem = {
   currency: string;
   status: string;
   description: string | null;
+  paymentMethod: string | null;
   createdAt: string;
+};
+
+export type ClientSheetPackageItem = {
+  id: string;
+  status: string;
+  packageName: string;
+  categoryName: string;
+  activationDate: string;
+  expirationDate: string;
+  totalSessions: number | null;
+  usedSessions: number | null;
+  remainingSessions: number | null;
+  isUnlimited: boolean;
+  paymentMethod: string | null;
 };
 
 export type GiftCardRow = {

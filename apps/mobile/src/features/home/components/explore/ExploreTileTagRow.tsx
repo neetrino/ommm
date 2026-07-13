@@ -20,7 +20,6 @@ export function ExploreTileTagRow({
           ? styles.tileTagRowCentered
           : [styles.tileTagRowLeading, { paddingLeft: retreatLeadingInset }],
       ]}
-      pointerEvents="none"
     >
       <View
         style={[

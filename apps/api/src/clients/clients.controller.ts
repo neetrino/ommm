@@ -20,7 +20,9 @@ import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto'
 import { AddClientNoteDto } from './dto/add-client-note.dto';
 import { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
+import { AdminPurchaseClientPackageDto } from './dto/admin-purchase-client-package.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { ClientsPackagesPurchaseService } from './clients-packages-purchase.service';
 import { ClientsService } from './clients.service';
 import { ClientsTabListsService } from './clients-tab-lists.service';
 
@@ -31,6 +33,7 @@ export class ClientsController {
   constructor(
     private readonly clients: ClientsService,
     private readonly tabLists: ClientsTabListsService,
+    private readonly packagesPurchase: ClientsPackagesPurchaseService,
   ) {}
 
   /** Admin lists (clients, finance members) — same RSC burst pattern as coaches admin list. */
@@ -64,6 +67,26 @@ export class ClientsController {
     const take = query.take ?? 25;
     const offset = query.offset ?? 0;
     return this.tabLists.listPayments(id, take, offset);
+  }
+
+  @Get(':id/packages')
+  listPackages(
+    @Param('id') id: string,
+    @Query() query: ListPaginationQueryDto,
+  ) {
+    const take = query.take ?? 25;
+    const offset = query.offset ?? 0;
+    return this.tabLists.listPackages(id, take, offset);
+  }
+
+  @Post(':id/packages/purchase')
+  @Roles(Role.ADMIN)
+  purchasePackage(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: AdminPurchaseClientPackageDto,
+  ) {
+    return this.packagesPurchase.purchase(user, id, dto);
   }
 
   @Get(':id/gift-cards')

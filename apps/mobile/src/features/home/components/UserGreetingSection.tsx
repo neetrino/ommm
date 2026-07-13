@@ -55,8 +55,8 @@ export function UserGreetingSection({
         </View>
       </View>
       <View style={styles.headlineBlock}>
-        <Text style={styles.headlinePlain}>{tDashboard("titleStart")}</Text>
-        <Text style={styles.headlineAccent}>{tDashboard("titleAccent")}</Text>
+        <Text style={styles.headlinePlain}>Find your bookings</Text>
+        <Text style={styles.headlineAccent}>for today.</Text>
       </View>
     </View>
   );

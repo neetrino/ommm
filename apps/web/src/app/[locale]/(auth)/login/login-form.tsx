@@ -12,6 +12,7 @@ import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
+import { PSEUDO_EMAIL, PSEUDO_PASSWORD } from "@/lib/pseudo-form-placeholders";
 
 export function LoginForm() {
   const router = useRouter();
@@ -73,6 +74,7 @@ export function LoginForm() {
             required
             autoComplete="email"
             className="ommm-input"
+            placeholder={PSEUDO_EMAIL}
           />
         </label>
         <label className="flex flex-col gap-2">
@@ -82,6 +84,7 @@ export function LoginForm() {
             required
             autoComplete="current-password"
             className="ommm-input"
+            placeholder={PSEUDO_PASSWORD}
             showPasswordLabel={tAuth("showPassword")}
             hidePasswordLabel={tAuth("hidePassword")}
           />

@@ -10,6 +10,14 @@ import {
 } from "@/components/admin/admin-coach-form-helpers";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { PasswordInput } from "@/components/ui/password-input";
+import {
+  PSEUDO_BIRTHDAY,
+  PSEUDO_EMAIL,
+  PSEUDO_FIRST_NAME,
+  PSEUDO_LAST_NAME,
+  PSEUDO_PASSWORD,
+  PSEUDO_PHONE,
+} from "@/lib/pseudo-form-placeholders";
 
 type AdminCreateCoachFormPersonalSectionProps = {
   formRef: RefObject<HTMLFormElement | null>;
@@ -44,6 +52,7 @@ export function AdminCreateCoachFormPersonalSection({
             className="ommm-input"
             autoComplete="given-name"
             maxLength={MAX_NAME_LENGTH}
+            placeholder={PSEUDO_FIRST_NAME}
             required
           />
         </label>
@@ -54,6 +63,7 @@ export function AdminCreateCoachFormPersonalSection({
             className="ommm-input"
             autoComplete="family-name"
             maxLength={MAX_NAME_LENGTH}
+            placeholder={PSEUDO_LAST_NAME}
             required
           />
         </label>
@@ -65,6 +75,7 @@ export function AdminCreateCoachFormPersonalSection({
             className="ommm-input"
             autoComplete="email"
             maxLength={MAX_EMAIL_LENGTH}
+            placeholder={PSEUDO_EMAIL}
             required
           />
           <span className="text-xs text-sage-500">{t("emailHint")}</span>
@@ -76,6 +87,7 @@ export function AdminCreateCoachFormPersonalSection({
             className="ommm-input"
             value={phone}
             onValueChange={onPhoneChange}
+            placeholder={PSEUDO_PHONE}
             required
           />
         </label>
@@ -87,6 +99,7 @@ export function AdminCreateCoachFormPersonalSection({
             autoComplete="new-password"
             minLength={MIN_PASSWORD_LENGTH}
             maxLength={128}
+            placeholder={PSEUDO_PASSWORD}
             required
             showPasswordLabel={t("showPassword")}
             hidePasswordLabel={t("hidePassword")}
@@ -103,7 +116,7 @@ export function AdminCreateCoachFormPersonalSection({
             className="ommm-input"
             value={birthdayValue}
             required
-            placeholder="DD/MM/YYYY"
+            placeholder={PSEUDO_BIRTHDAY}
             onChange={(event) => {
               const nextValue = formatBirthdayInput(event.target.value);
               onBirthdayChange(nextValue);

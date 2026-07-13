@@ -18,7 +18,6 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
 
   return (
     <View
-      pointerEvents="box-none"
       style={[styles.wrapper, { paddingTop: insets.top }]}
     >
       <BlurView intensity={40} tint="light" style={styles.blur}>
@@ -65,6 +64,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: radii.header,
     overflow: "hidden",
     backgroundColor: colors.overlayWhite35,
+    pointerEvents: "box-none",
   },
   blur: {
     paddingHorizontal: space.screenHorizontal,

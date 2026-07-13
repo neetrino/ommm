@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { ActivityIndicator, Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { fontFamilies } from "../../theme/fontFamilies";
+import { platformShadow } from "../../theme/platformShadow";
 import { radii, space, typography } from "../../theme/tokens";
 import { ommConfirmDialogTokens as tokens } from "./ommConfirmDialogTokens";
 
@@ -59,15 +60,12 @@ export function OmmConfirmDialog({
                 borderColor: panelBorder,
                 backgroundColor: panelBackground,
               },
-              Platform.select({
-                ios: {
-                  shadowColor: shadowTone.shadowColor,
-                  shadowOffset: { width: 0, height: shadowTone.shadowOffsetY },
-                  shadowOpacity: shadowTone.shadowOpacity,
-                  shadowRadius: shadowTone.shadowRadius,
-                },
-                android: { elevation: 8 },
-                default: {},
+              platformShadow({
+                color: shadowTone.shadowColor,
+                offsetHeight: shadowTone.shadowOffsetY,
+                opacity: shadowTone.shadowOpacity,
+                radius: shadowTone.shadowRadius,
+                elevation: 8,
               }),
             ]}
             accessibilityRole="alert"

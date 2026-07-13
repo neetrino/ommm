@@ -4,7 +4,6 @@ import {
   ManualPaymentMethod,
   PaymentSource,
   PaymentStatus,
-  type Prisma,
 } from '@prisma/client';
 import {
   PUBLIC_CACHE_KEYS,
@@ -17,7 +16,6 @@ import { buildPackagePaymentDescription } from '../payments/payments-related-ite
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import {
   createPaymentReference,
-  parseStoredTypeSessionAllocations,
   resolveClassTypeNameMapForAllocations,
   resolveFinalPriceCents,
   toPublicPlan,
@@ -27,10 +25,8 @@ import {
   decrementPackagePlanStock,
   packageHasPublicStock,
 } from './packages-stock.helpers';
-import {
-  type AdminPlanRecord,
-  USER_PACKAGE_STATUS,
-} from './packages-plan.types';
+import { USER_PACKAGE_STATUS } from './packages-plan.types';
+import { createBalancesForUserPackage } from './packages-user-package-balances.util';
 import {
   buildUserPackagePlanSnapshot,
   resolveUserPackagePlan,
@@ -127,7 +123,7 @@ export class PackagesPublicService {
             : (plan.sessionsPerMonth ?? 0),
         },
       });
-      await this.createBalancesForUserPackage(tx, {
+      await createBalancesForUserPackage(tx, {
         plan,
         userPackageId: userPackage.id,
       });
@@ -182,70 +178,5 @@ export class PackagesPublicService {
       plans,
     );
     return plans.map((plan) => toPublicPlan(plan, classTypeNameById));
-  }
-
-  private async createBalancesForUserPackage(
-    tx: Prisma.TransactionClient,
-    params: { plan: AdminPlanRecord; userPackageId: string },
-  ): Promise<void> {
-    const typeAllocations = parseStoredTypeSessionAllocations(
-      params.plan.typeSessionAllocations,
-    );
-    if (typeAllocations.length > 0) {
-      const classTypes = await tx.classType.findMany({
-        where: { id: { in: typeAllocations.map((item) => item.classTypeId) } },
-        select: { id: true, name: true },
-      });
-      const classTypeNameById = new Map(
-        classTypes.map((classType) => [classType.id, classType.name]),
-      );
-      for (const allocation of typeAllocations) {
-        const classTypeName = classTypeNameById.get(allocation.classTypeId);
-        if (classTypeName === undefined) {
-          continue;
-        }
-        await (
-          tx as unknown as {
-            userPackageBalance: {
-              create(args: unknown): Promise<unknown>;
-            };
-          }
-        ).userPackageBalance.create({
-          data: {
-            userPackageId: params.userPackageId,
-            sourcePlanId: params.plan.id,
-            coverageKey: `${params.userPackageId}:${params.plan.id}:${allocation.classTypeId}`,
-            sourcePackageNameSnapshot: params.plan.name,
-            sourceCategoryNameSnapshot: classTypeName,
-            sessionsTotal: allocation.sessionCount,
-            sessionsRemaining: allocation.sessionCount,
-            isUnlimited: false,
-          },
-        });
-      }
-      return;
-    }
-    await (
-      tx as unknown as {
-        userPackageBalance: {
-          create(args: unknown): Promise<unknown>;
-        };
-      }
-    ).userPackageBalance.create({
-      data: {
-        userPackageId: params.userPackageId,
-        sourcePlanId: params.plan.id,
-        coverageKey: `${params.userPackageId}:${params.plan.id}`,
-        sourcePackageNameSnapshot: params.plan.name,
-        sourceCategoryNameSnapshot: params.plan.categoryName,
-        sessionsTotal: params.plan.isUnlimited
-          ? null
-          : (params.plan.sessionsPerMonth ?? 0),
-        sessionsRemaining: params.plan.isUnlimited
-          ? null
-          : (params.plan.sessionsPerMonth ?? 0),
-        isUnlimited: params.plan.isUnlimited,
-      },
-    });
   }
 }

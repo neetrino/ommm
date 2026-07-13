@@ -18,6 +18,7 @@ import {
   CLIENT_MODAL_QUERY_KEY,
   CLIENT_MODAL_QUERY_VALUE,
 } from "@/components/admin/admin-clients-modal";
+import { VIEW_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 
 const CLIENT_MODAL_BANNER_MS = 8000;
 
@@ -69,8 +70,14 @@ export function AdminClientsShell({
         setBanner(null);
         bannerTimerRef.current = null;
       }, CLIENT_MODAL_BANNER_MS);
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(CLIENT_MODAL_QUERY_KEY);
+      params.set(VIEW_CLIENT_QUERY_KEY, client.id);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
-    [onClientCreated, t],
+    [onClientCreated, pathname, router, searchParams, t],
   );
 
   useEffect(() => {
@@ -175,7 +182,7 @@ export function AdminClientsShell({
                 </svg>
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+            <div className="flex min-h-0 flex-1 flex-col">
               <AdminCreateClientForm
                 onCreated={handleClientCreated}
                 onCancel={closeModal}
