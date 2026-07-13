@@ -3,6 +3,7 @@ import {
   AccountProfileFormFields,
   type AccountProfileFormState,
 } from "../../profile/components/AccountProfileFormFields";
+import { ProfileGlassCard } from "../../profile/components/ProfileGlassCard";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
@@ -30,7 +31,7 @@ export function CoachPersonalFormFields({
   const tProfile = useTranslations("userPages.profile");
 
   return (
-    <View style={styles.card}>
+    <ProfileGlassCard contentStyle={styles.card}>
       <AccountProfileFormFields
         form={form}
         editing={editing}
@@ -55,16 +56,12 @@ export function CoachPersonalFormFields({
           </Text>
         )}
       </View>
-    </View>
+    </ProfileGlassCard>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radii.labelCard,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
     padding: space.lg,
     gap: space.md,
   },
