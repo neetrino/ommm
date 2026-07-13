@@ -34,13 +34,6 @@ export type CoachSalarySummary = {
   paidOutCents: number;
 };
 
-export type CoachNotificationPrefs = {
-  bookingReminders: boolean;
-  waitlistAlerts: boolean;
-  promotions: boolean;
-  communityUpdates: boolean;
-};
-
 export type CoachAccountUser = {
   email: string;
   name: string | null;
@@ -56,7 +49,6 @@ export type CoachAccountMe = {
   user: CoachAccountUser;
   coachProfileId: string | null;
   coachBio: string | null;
-  notificationPrefs: CoachNotificationPrefs;
 };
 
 export type CoachAnalyticsPeakTime = {

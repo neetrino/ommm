@@ -24,10 +24,9 @@ export function useAccountHubMenuItems(
 ): AccountHubMenuItem[] {
   const tHub = useTranslations("userPages.accountHub");
   const tProfile = useTranslations("userPages.profile");
-  const tNav = useTranslations("dashboard.nav");
 
-  return useMemo(() => {
-    const items: AccountHubMenuItem[] = [
+  return useMemo(
+    () => [
       {
         key: "personal",
         label: tProfile("accountInfo"),
@@ -40,17 +39,7 @@ export function useAccountHubMenuItems(
         href: pathForRole(role, "profile/change-password"),
         icon: "lock-outline",
       },
-    ];
-
-    if (role === "COACH") {
-      items.push({
-        key: "notifications",
-        label: tNav("COACH.notifications"),
-        href: coachPath("notifications"),
-        icon: "bell-outline",
-      });
-    }
-
-    return items;
-  }, [role, tHub, tNav, tProfile]);
+    ],
+    [role, tHub, tProfile],
+  );
 }

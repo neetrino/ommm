@@ -2,7 +2,6 @@ import type {
   CoachAccountMe,
   CoachAccountUser,
   CoachAnalyticsPayload,
-  CoachNotificationPrefs,
   CoachPanelBookingRow,
   CoachPanelSessionRow,
   CoachSalarySummary,
@@ -18,23 +17,6 @@ function asStringOrNull(value: unknown): string | null {
     return null;
   }
   return typeof value === "string" ? value : null;
-}
-
-function parseNotificationPrefs(value: unknown): CoachNotificationPrefs {
-  if (!isRecord(value)) {
-    return {
-      bookingReminders: true,
-      waitlistAlerts: true,
-      promotions: false,
-      communityUpdates: true,
-    };
-  }
-  return {
-    bookingReminders: value.bookingReminders !== false,
-    waitlistAlerts: value.waitlistAlerts !== false,
-    promotions: value.promotions === true,
-    communityUpdates: value.communityUpdates !== false,
-  };
 }
 
 function parseAccountUser(value: unknown): CoachAccountUser {
@@ -61,7 +43,6 @@ export function parseCoachAccountMe(body: unknown): CoachAccountMe {
     user: parseAccountUser(body.user),
     coachProfileId: asStringOrNull(body.coachProfileId),
     coachBio: asStringOrNull(body.coachBio),
-    notificationPrefs: parseNotificationPrefs(body.notificationPrefs),
   };
 }
 

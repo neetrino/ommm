@@ -7,7 +7,6 @@ import { getApiBaseUrl, joinApiPath } from "./config";
 import type {
   CoachAccountMe,
   CoachAnalyticsPayload,
-  CoachNotificationPrefs,
   CoachPanelBookingRow,
   CoachPanelSessionRow,
   CoachSalarySummary,
@@ -173,10 +172,4 @@ export async function patchCoachBio(
   bio: string | null,
 ): Promise<void> {
   await authPatch(`/v1/coaches/${encodeURIComponent(coachProfileId)}`, { bio });
-}
-
-export async function patchNotificationPrefs(
-  prefs: CoachNotificationPrefs,
-): Promise<void> {
-  await authPatch("/v1/users/me/notifications", prefs);
 }
