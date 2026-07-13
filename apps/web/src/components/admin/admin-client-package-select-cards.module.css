@@ -1,0 +1,27 @@
+/**
+ * Scales the real desktop Packages accordion to fit the Admin Client purchase sheet.
+ */
+
+.scaleHost {
+  width: 100%;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.scaleInner {
+  width: calc(100% / var(--admin-packages-scale, 0.58));
+  transform: scale(var(--admin-packages-scale, 0.58));
+  transform-origin: top left;
+  pointer-events: auto;
+}
+
+.scaleInnerDisabled {
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.selectedHint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: rgba(106, 100, 84, 0.86);
+}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import type { ClientDetail } from "@/components/admin/admin-clients-types";
+import { AdminClientPackageSelectCards } from "@/components/admin/admin-client-package-select-cards";
 import {
   ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
@@ -56,12 +57,14 @@ export function AdminClientPackagePurchaseSheet({
   const [plansLoading, setPlansLoading] = useState(true);
   const [plansError, setPlansError] = useState<string | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [paymentMethodsOpen, setPaymentMethodsOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] =
     useState<AdminClientPackagePaymentMethod>("CASH");
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
+  const paymentMethodsRef = useRef<HTMLFieldSetElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,8 +105,24 @@ export function AdminClientPackagePurchaseSheet({
     onClose();
   }
 
+  function handleSubscribePlan(planId: string): void {
+    if (submitting) {
+      return;
+    }
+    setSelectedPlanId(planId);
+    setPaymentMethod("CASH");
+    setPaymentMethodsOpen(true);
+  }
+
+  useEffect(() => {
+    if (!paymentMethodsOpen || selectedPlan === null) {
+      return;
+    }
+    paymentMethodsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [paymentMethodsOpen, selectedPlan]);
+
   function handleContinueToConfirm(): void {
-    if (selectedPlan === null || submitting) {
+    if (selectedPlan === null || !paymentMethodsOpen || submitting) {
       return;
     }
     setStep("confirm");
@@ -197,89 +216,62 @@ export function AdminClientPackagePurchaseSheet({
             ) : null}
 
             {!plansLoading && plans.length > 0 ? (
-              <ul className="space-y-3">
-                {plans.map((plan) => {
-                  const selected = plan.id === selectedPlanId;
-                  return (
-                    <li key={plan.id}>
-                      <button
-                        type="button"
-                        disabled={submitting}
-                        onClick={() => setSelectedPlanId(plan.id)}
-                        className={[
-                          ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-                          "w-full text-left transition",
-                          selected
-                            ? "ring-2 ring-sand-500/70"
-                            : "hover:bg-white/80",
-                        ].join(" ")}
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div>
-                            <p className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>
-                              {plan.name}
-                            </p>
-                            <p className="mt-1 text-sm text-sage-600">{plan.categoryName}</p>
-                          </div>
-                          <p className="text-sm font-semibold text-sage-900">
-                            {formatAmdFromCents(plan.finalPriceCents ?? plan.priceCents, locale)}
-                          </p>
-                        </div>
-                        <p className="mt-2 text-sm text-sage-600">
-                          {plan.isUnlimited
-                            ? t("packages.unlimited")
-                            : t("packages.sessionsCount", {
-                                count: plan.sessionsPerMonth ?? 0,
-                              })}
-                          {" · "}
-                          {t("packages.periodDays", { days: plan.periodDays })}
-                        </p>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              <AdminClientPackageSelectCards
+                locale={locale}
+                plans={plans}
+                selectedPlanId={selectedPlanId}
+                disabled={submitting}
+                onSelectPlan={setSelectedPlanId}
+                onSubscribe={handleSubscribePlan}
+              />
             ) : null}
 
-            <fieldset className="space-y-3">
-              <legend className="text-sm font-semibold text-sage-800">
-                {t("packages.paymentMethodLegend")}
-              </legend>
-              <div className="space-y-2">
-                {ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS.map((method) => (
-                  <label
-                    key={method}
-                    className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3"
-                  >
-                    <input
-                      type="radio"
-                      name="admin-client-package-payment-method"
-                      value={method}
-                      checked={paymentMethod === method}
-                      disabled={submitting}
-                      onChange={() => setPaymentMethod(method)}
-                      className="h-4 w-4 accent-sand-600"
-                    />
-                    <span className="text-sm text-sage-800">
-                      {tFinance(`paymentMethods.${method}`)}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
+            {paymentMethodsOpen && selectedPlan !== null ? (
+              <fieldset ref={paymentMethodsRef} className="space-y-3">
+                <legend className="text-sm font-semibold text-sage-800">
+                  {t("packages.paymentMethodLegend")}
+                </legend>
+                <p className="text-sm text-sage-600">
+                  {t("packages.selectedPlanHint", { name: selectedPlan.name })}
+                </p>
+                <div className="space-y-2">
+                  {ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS.map((method) => (
+                    <label
+                      key={method}
+                      className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3"
+                    >
+                      <input
+                        type="radio"
+                        name="admin-client-package-payment-method"
+                        value={method}
+                        checked={paymentMethod === method}
+                        disabled={submitting}
+                        onChange={() => setPaymentMethod(method)}
+                        className="h-4 w-4 accent-sand-600"
+                      />
+                      <span className="text-sm text-sage-800">
+                        {tFinance(`paymentMethods.${method}`)}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
 
             <div className="flex flex-wrap justify-end gap-2">
               <OmmButton type="button" variant="secondary" disabled={submitting} onClick={handleClose}>
                 {t("cancelButton")}
               </OmmButton>
-              <OmmButton
-                type="button"
-                variant="primary"
-                disabled={selectedPlan === null || submitting}
-                onClick={handleContinueToConfirm}
-              >
-                {t("packages.continue")}
-              </OmmButton>
+              {paymentMethodsOpen ? (
+                <OmmButton
+                  type="button"
+                  variant="primary"
+                  disabled={selectedPlan === null || submitting}
+                  onClick={handleContinueToConfirm}
+                >
+                  {t("packages.continue")}
+                </OmmButton>
+              ) : null}
             </div>
           </div>
         ) : (

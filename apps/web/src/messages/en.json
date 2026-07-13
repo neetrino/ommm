@@ -1982,6 +1982,8 @@
         "paymentMethod": "Payment method",
         "unlimited": "Unlimited",
         "selectLead": "Select an available package and payment method.",
+        "selectTierLead": "Select a package tier for this category.",
+        "selectedPlanHint": "Selected: {name}",
         "plansLoading": "Loading available packages…",
         "plansLoadError": "Could not load available packages.",
         "plansEmpty": "No packages are currently available.",
