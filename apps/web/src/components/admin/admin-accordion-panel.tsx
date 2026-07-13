@@ -34,7 +34,7 @@ function ChevronGlyph({ open }: { open: boolean }) {
       strokeWidth={1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={`h-2 w-4 text-sage-600 transition-transform ${open ? "rotate-180" : ""}`}
+      className={`h-2 w-4 text-sage-600 transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
       aria-hidden
     >
       <path d="M1 1.5l7 5 7-5" />
@@ -66,6 +66,7 @@ function DeleteGlyph() {
 
 /**
  * Collapsible admin row — Figma package category accordion pattern.
+ * Expand/collapse motion comes from parent `layout` wrappers (Packages list).
  */
 export function AdminAccordionPanel({
   title,

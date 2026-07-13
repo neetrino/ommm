@@ -1,11 +1,14 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
 import { AdminClientPackageSelectTable } from "@/components/admin/admin-client-package-select-table";
+import { adminFilterRevealVariants } from "@/components/admin/admin-filter-reveal-motion";
 import { buildPackagesPageAccordionCategories } from "@/components/marketing/packages/packages-page-category-data";
 import { buildPackagesPageCardGradient } from "@/components/marketing/packages/packages-page-tokens";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -44,6 +47,7 @@ export function AdminClientPackageSelectCards({
 }: AdminClientPackageSelectCardsProps) {
   const t = useTranslations("adminPages.clients");
   const tMarketing = useTranslations("marketing");
+  const reducedMotion = usePrefersReducedMotion();
 
   const categories = useMemo(() => {
     const grouped = groupVisiblePublicPackageCategories([...plans]);
@@ -90,40 +94,50 @@ export function AdminClientPackageSelectCards({
       role="radiogroup"
       aria-label={t("packages.selectLead")}
     >
-      {categories.map((category) => {
-        const open = expandedCategoryId === category.id;
-        const surfaceBackground = buildPackagesPageCardGradient(
-          category.gradientStartColor,
-        );
-        return (
-          <AdminAccordionPanel
-            key={category.id}
-            title={category.label}
-            open={open}
-            onOpenChange={(nextOpen) => {
-              if (disabled) {
-                return;
-              }
-              setExpandedCategoryId(nextOpen ? category.id : null);
-            }}
-            contentVariant="table"
-            surfaceBackground={surfaceBackground}
-            emptyLabel={
-              category.plans.length === 0 ? t("packages.plansEmpty") : undefined
-            }
-          >
-            {category.plans.length > 0 ? (
-              <AdminClientPackageSelectTable
-                locale={locale}
-                plans={category.plans}
-                selectedPlanId={selectedPlanId}
-                disabled={disabled}
-                onSelectPlan={onSelectPlan}
-              />
-            ) : null}
-          </AdminAccordionPanel>
-        );
-      })}
+      <AnimatePresence mode="popLayout" initial={false}>
+        {categories.map((category, index) => {
+          const open = expandedCategoryId === category.id;
+          const surfaceBackground = buildPackagesPageCardGradient(
+            category.gradientStartColor,
+          );
+          return (
+            <motion.div
+              key={category.id}
+              layout={!reducedMotion}
+              variants={adminFilterRevealVariants(index, reducedMotion)}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <AdminAccordionPanel
+                title={category.label}
+                open={open}
+                onOpenChange={(nextOpen) => {
+                  if (disabled) {
+                    return;
+                  }
+                  setExpandedCategoryId(nextOpen ? category.id : null);
+                }}
+                contentVariant="table"
+                surfaceBackground={surfaceBackground}
+                emptyLabel={
+                  category.plans.length === 0 ? t("packages.plansEmpty") : undefined
+                }
+              >
+                {category.plans.length > 0 ? (
+                  <AdminClientPackageSelectTable
+                    locale={locale}
+                    plans={category.plans}
+                    selectedPlanId={selectedPlanId}
+                    disabled={disabled}
+                    onSelectPlan={onSelectPlan}
+                  />
+                ) : null}
+              </AdminAccordionPanel>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }
