@@ -193,7 +193,12 @@ export function ClientSheetTabPanels({
                       disabled={busy}
                     />
                   </AdminSheetEditableField>
-                  <AdminSheetEditableField compact label={t("fieldEmail")} error={errors.email}>
+                  <AdminSheetEditableField
+                    compact
+                    label={t("fieldEmail")}
+                    error={errors.email}
+                    className="sm:col-span-2"
+                  >
                     <input
                       name="email"
                       type="email"
@@ -204,11 +209,6 @@ export function ClientSheetTabPanels({
                       disabled={busy}
                     />
                   </AdminSheetEditableField>
-                  <AdminSheetReadOnlyField
-                    compact
-                    label={t("drawer.registered")}
-                    value={formatDateForUi(detail.createdAt)}
-                  />
                 </form>
               ) : (
                 <div className={`${PERSONAL_INFO_GRID_CLASS} pr-10`}>
@@ -236,17 +236,17 @@ export function ClientSheetTabPanels({
                     compact
                     label={t("fieldEmail")}
                     value={form.email.trim().length > 0 ? form.email : "—"}
-                  />
-                  <AdminSheetReadOnlyField
-                    compact
-                    label={t("drawer.registered")}
-                    value={formatDateForUi(detail.createdAt)}
+                    className="sm:col-span-2"
                   />
                 </div>
               )}
             </div>
           </div>
         </section>
+
+        <p className="text-right text-[11px] text-sage-500">
+          {t("drawer.registered")}: {formatDateForUi(detail.createdAt)}
+        </p>
       </div>
     );
   }
