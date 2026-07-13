@@ -233,6 +233,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               onChange={setBirthdayValue}
               ariaLabel={t("birthdayLabel")}
               placeholder={tPage("birthdayPlaceholder")}
+              allowManualEntry
               disabled={pending}
             />
             <span className="text-xs text-sage-500">{t("birthdayOptionalHint")}</span>
