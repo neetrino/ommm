@@ -15,8 +15,9 @@ const AUTH_LOGIN_SPHERE_LAYER_STYLE = {
 export function AuthShellBackgroundDecor() {
   const pathname = usePathname();
   const isLoginPage = pathname === "/login";
+  const isRegisterPage = pathname === "/register";
 
-  if (!isLoginPage) {
+  if (!isLoginPage && !isRegisterPage) {
     return null;
   }
 
