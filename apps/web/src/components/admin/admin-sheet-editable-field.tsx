@@ -11,6 +11,8 @@ type AdminSheetEditableFieldProps = {
   error?: string;
   hint?: string;
   required?: boolean;
+  /** Tighter label/control spacing for dense detail sheets. */
+  compact?: boolean;
   className?: string;
   children: ReactNode;
 };
@@ -19,8 +21,17 @@ type AdminSheetReadOnlyFieldProps = {
   label: string;
   value: ReactNode;
   hint?: string;
+  /** Tighter label/value spacing for dense detail sheets. */
+  compact?: boolean;
   className?: string;
 };
+
+const FIELD_LABEL_CLASS = "ommm-label text-xs uppercase tracking-wide";
+const FIELD_LABEL_COMPACT_CLASS = "ommm-label text-[11px] uppercase tracking-wide";
+/** Plain text — no input chrome in resting/read-only state. */
+const READONLY_VALUE_CLASS = "min-h-0 break-words text-sm font-medium text-sage-800";
+const READONLY_VALUE_COMPACT_CLASS =
+  "min-h-0 break-words text-sm font-medium leading-snug text-sage-800";
 
 /** Required-field asterisk for admin forms. */
 export function AdminRequiredMark() {
@@ -49,14 +60,15 @@ export function AdminSheetEditableField({
   error,
   hint,
   required = false,
+  compact = false,
   className = "",
   children,
 }: AdminSheetEditableFieldProps) {
   const hasError = error !== undefined && error.length > 0;
 
   return (
-    <label className={`flex flex-col gap-1.5 ${className}`}>
-      <span className="ommm-label text-xs uppercase tracking-wide">
+    <label className={`flex flex-col ${compact ? "gap-1" : "gap-1.5"} ${className}`}>
+      <span className={compact ? FIELD_LABEL_COMPACT_CLASS : FIELD_LABEL_CLASS}>
         {label}
         {required ? (
           <span className="text-red-600" aria-hidden>
@@ -81,12 +93,16 @@ export function AdminSheetReadOnlyField({
   label,
   value,
   hint,
+  compact = false,
   className = "",
 }: AdminSheetReadOnlyFieldProps) {
   return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
-      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
-      <p className="ommm-input bg-white/40 text-sage-600" aria-live="polite">
+    <div className={`flex flex-col ${compact ? "gap-1" : "gap-1.5"} ${className}`}>
+      <span className={compact ? FIELD_LABEL_COMPACT_CLASS : FIELD_LABEL_CLASS}>{label}</span>
+      <p
+        className={compact ? READONLY_VALUE_COMPACT_CLASS : READONLY_VALUE_CLASS}
+        aria-live="polite"
+      >
         {value}
       </p>
       {hint ? <p className="text-[11px] text-sage-500">{hint}</p> : null}
