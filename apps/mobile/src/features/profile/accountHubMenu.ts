@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { ComponentProps } from "react";
 import type { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslations } from "../../i18n/I18nProvider";
-import { userMemberPath } from "../../navigation/memberPaths";
+import { coachPath, userMemberPath } from "../../navigation/memberPaths";
 
 type AccountHubMenuIcon = ComponentProps<typeof MaterialCommunityIcons>["name"];
 
@@ -13,25 +13,44 @@ export type AccountHubMenuItem = {
   icon: AccountHubMenuIcon;
 };
 
-export function useAccountHubMenuItems(): AccountHubMenuItem[] {
+export type AccountHubRole = "USER" | "COACH";
+
+function pathForRole(role: AccountHubRole, segment: string): string {
+  return role === "COACH" ? coachPath(segment) : userMemberPath(segment);
+}
+
+export function useAccountHubMenuItems(
+  role: AccountHubRole = "USER",
+): AccountHubMenuItem[] {
   const tHub = useTranslations("userPages.accountHub");
   const tProfile = useTranslations("userPages.profile");
+  const tNav = useTranslations("dashboard.nav");
 
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const items: AccountHubMenuItem[] = [
       {
         key: "personal",
         label: tProfile("accountInfo"),
-        href: userMemberPath("profile/personal"),
+        href: pathForRole(role, "profile/personal"),
         icon: "account-outline",
       },
       {
         key: "password",
         label: tHub("changePassword"),
-        href: userMemberPath("profile/change-password"),
+        href: pathForRole(role, "profile/change-password"),
         icon: "lock-outline",
       },
-    ],
-    [tHub, tProfile],
-  );
+    ];
+
+    if (role === "COACH") {
+      items.push({
+        key: "notifications",
+        label: tNav("COACH.notifications"),
+        href: coachPath("notifications"),
+        icon: "bell-outline",
+      });
+    }
+
+    return items;
+  }, [role, tHub, tNav, tProfile]);
 }

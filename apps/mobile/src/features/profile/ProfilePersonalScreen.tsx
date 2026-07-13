@@ -1,3 +1,4 @@
+import { ProfileAccountInfoSection } from "./components/ProfileAccountInfoSection";
 import { ProfileDangerZoneSection } from "./components/ProfileDangerZoneSection";
 import { ProfileHomeImageSection } from "./components/ProfileHomeImageSection";
 import { ProfileScreenShell } from "./components/ProfileScreenShell";
@@ -9,6 +10,7 @@ export function ProfilePersonalScreen() {
   return (
     <ProfileScreenShell title={tProfile("accountInfo")}>
       <ProfileHomeImageSection />
+      <ProfileAccountInfoSection />
       <ProfileDangerZoneSection />
     </ProfileScreenShell>
   );

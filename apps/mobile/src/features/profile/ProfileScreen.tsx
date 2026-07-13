@@ -3,16 +3,24 @@ import { View } from "react-native";
 import { useSession } from "../../auth/SessionProvider";
 import { LanguageSwitcher } from "../../i18n/LanguageSwitcher";
 import { accountHubLayout } from "./accountHubLayout";
-import { useAccountHubMenuItems } from "./accountHubMenu";
+import {
+  type AccountHubRole,
+  useAccountHubMenuItems,
+} from "./accountHubMenu";
 import { AccountHubHeader } from "./components/AccountHubHeader";
 import { AccountHubMenuRow } from "./components/AccountHubMenuRow";
 import { ProfileGlassCard } from "./components/ProfileGlassCard";
 import { ProfileHubMobileActionFooter } from "./components/ProfileHubMobileActionFooter";
 import { ProfileScreenShell } from "./components/ProfileScreenShell";
 
-export function ProfileScreen() {
+type ProfileScreenProps = {
+  /** Defaults to USER account hub routes under `/user/profile/*`. */
+  hubRole?: AccountHubRole;
+};
+
+export function ProfileScreen({ hubRole = "USER" }: ProfileScreenProps) {
   const router = useRouter();
-  const menuItems = useAccountHubMenuItems();
+  const menuItems = useAccountHubMenuItems(hubRole);
   const { userGreetingName, userEmail, homeImageUri, profileInitials } = useSession();
 
   return (

@@ -1,10 +1,10 @@
 import { Redirect } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { useSession } from "../../../src/auth/SessionProvider";
-import { CoachHomeScreen } from "../../../src/features/coach/screens/CoachHomeScreen";
-import { colors } from "../../../src/theme/tokens";
+import { useSession } from "../../../../src/auth/SessionProvider";
+import { ProfileScreen } from "../../../../src/features/profile/ProfileScreen";
+import { colors } from "../../../../src/theme/tokens";
 
-export default function CoachHomeRoute() {
+export default function CoachProfileRoute() {
   const { isReady, isSignedIn } = useSession();
 
   if (!isReady) {
@@ -19,7 +19,7 @@ export default function CoachHomeRoute() {
     return <Redirect href="/login" />;
   }
 
-  return <CoachHomeScreen />;
+  return <ProfileScreen hubRole="COACH" />;
 }
 
 const styles = StyleSheet.create({

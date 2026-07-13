@@ -10,7 +10,8 @@ export type TabIconName =
   | "account-multiple"
   | "clipboard-check-outline"
   | "layers-outline"
-  | "account-circle-outline";
+  | "account-circle-outline"
+  | "chart-box-outline";
 
 export type RoleTabLabelNamespace = "dashboard.nav" | "common";
 
@@ -33,6 +34,7 @@ const ICON = {
   profile: { iconName: "meditation" as const, iconSize: 26 },
   account: { iconName: "account-circle-outline" as const, iconSize: 24 },
   users: { iconName: "account-multiple" as const, iconSize: 22 },
+  analytics: { iconName: "chart-box-outline" as const, iconSize: 22 },
 } as const;
 
 const USER_TABS: RoleTabItem[] = [
@@ -123,11 +125,32 @@ const COACH_TABS: RoleTabItem[] = [
     ...ICON.home,
   },
   {
-    key: "coach-profile",
-    labelKey: "COACH.profile",
+    key: "coach-schedule",
+    labelKey: "COACH.schedule",
     labelNamespace: "dashboard.nav",
+    href: "/coach/schedule",
+    ...ICON.schedule,
+  },
+  {
+    key: "coach-groups",
+    labelKey: "COACH.groups",
+    labelNamespace: "dashboard.nav",
+    href: "/coach/groups",
+    ...ICON.users,
+  },
+  {
+    key: "coach-analytics",
+    labelKey: "COACH.analytics",
+    labelNamespace: "dashboard.nav",
+    href: "/coach/analytics",
+    ...ICON.analytics,
+  },
+  {
+    key: "coach-profile",
+    labelKey: "account",
+    labelNamespace: "common",
     href: "/coach/profile",
-    ...ICON.profile,
+    ...ICON.account,
   },
 ];
 

@@ -258,3 +258,106 @@ export async function deleteAccount(): Promise<{ ok: true }> {
   }
   return parsed;
 }
+
+export type AccountProfileFields = {
+  email: string;
+  name: string | null;
+  lastName: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
+};
+
+function asStringOrNull(value: unknown): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  return typeof value === "string" ? value : null;
+}
+
+function parseAccountProfileFields(body: unknown): AccountProfileFields {
+  if (typeof body !== "object" || body === null) {
+    throw new Error("Unexpected account response");
+  }
+  const user = (body as { user?: unknown }).user;
+  if (typeof user !== "object" || user === null) {
+    throw new Error("Unexpected account response");
+  }
+  const u = user as Record<string, unknown>;
+  if (typeof u.email !== "string") {
+    throw new Error("Unexpected account response");
+  }
+  return {
+    email: u.email,
+    name: asStringOrNull(u.name),
+    lastName: asStringOrNull(u.lastName),
+    phone: asStringOrNull(u.phone),
+    dateOfBirth: asStringOrNull(u.dateOfBirth),
+  };
+}
+
+/** Loads account fields from `GET /v1/users/me`. */
+export async function fetchAccountProfile(): Promise<AccountProfileFields> {
+  const token = await readStoredAccessToken();
+  if (token === null) {
+    throw new Error("Not signed in");
+  }
+  const base = getApiBaseUrl();
+  const res = await fetchWithReachabilityHint(
+    joinApiPath(base, "/v1/users/me"),
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    base,
+  );
+  const raw = await res.text();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(raw, res.statusText));
+  }
+  let parsed: unknown;
+  try {
+    parsed = raw.trim() === "" ? {} : JSON.parse(raw);
+  } catch {
+    throw new Error("Unexpected response from server");
+  }
+  return parseAccountProfileFields(parsed);
+}
+
+export type PatchAccountProfileInput = {
+  email: string;
+  name: string | null;
+  lastName: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
+};
+
+/** Updates account fields via `PATCH /v1/users/me`. */
+export async function patchAccountProfile(
+  fields: PatchAccountProfileInput,
+): Promise<void> {
+  const token = await readStoredAccessToken();
+  if (token === null) {
+    throw new Error("Not signed in");
+  }
+  const base = getApiBaseUrl();
+  const res = await fetchWithReachabilityHint(
+    joinApiPath(base, "/v1/users/me"),
+    {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(fields),
+    },
+    base,
+  );
+  if (!res.ok) {
+    const raw = await res.text();
+    throw new Error(extractErrorMessage(raw, res.statusText));
+  }
+}
