@@ -24,18 +24,13 @@ function resolveInitialExpandedCategoryId(
   categories: readonly { id: string; plans: readonly PublicPackagePlan[] }[],
   selectedPlanId: string | null,
 ): string | null {
-  if (categories.length === 0) {
+  if (categories.length === 0 || selectedPlanId === null) {
     return null;
   }
-  if (selectedPlanId !== null) {
-    const match = categories.find((category) =>
-      category.plans.some((plan) => plan.id === selectedPlanId),
-    );
-    if (match !== undefined) {
-      return match.id;
-    }
-  }
-  return categories[0]?.id ?? null;
+  const match = categories.find((category) =>
+    category.plans.some((plan) => plan.id === selectedPlanId),
+  );
+  return match?.id ?? null;
 }
 
 export function AdminClientPackageSelectCards({
