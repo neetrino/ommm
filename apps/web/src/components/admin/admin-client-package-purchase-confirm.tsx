@@ -6,37 +6,30 @@ import {
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { OmmButton } from "@/components/ui/omm-button";
 import type { AdminClientPackagePaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type AdminClientPackagePurchaseConfirmProps = {
+  formId: string;
   clientName: string;
   locale: string;
   paymentMethod: AdminClientPackagePaymentMethod;
   paymentMethodLabel: string;
   plan: PublicPackagePlan;
-  submitting: boolean;
-  onBack: () => void;
   onConfirm: (event: FormEvent<HTMLFormElement>) => void;
 };
 
 export function AdminClientPackagePurchaseConfirm({
+  formId,
   clientName,
   locale,
   paymentMethod,
   paymentMethodLabel,
   plan,
-  submitting,
-  onBack,
   onConfirm,
 }: AdminClientPackagePurchaseConfirmProps) {
   const t = useTranslations("adminPages.clients");
-  const confirmLabel =
-    paymentMethod === "CASH"
-      ? t("packages.confirmCash")
-      : t("packages.confirmTerminal");
   const confirmHint =
     paymentMethod === "CASH"
       ? t("packages.confirmCashHint")
@@ -50,7 +43,7 @@ export function AdminClientPackagePurchaseConfirm({
   );
 
   return (
-    <form className="space-y-5" onSubmit={onConfirm}>
+    <form id={formId} className="space-y-5" onSubmit={onConfirm}>
       <p className="text-sm text-sage-600">{t("packages.confirmLead")}</p>
 
       <article className="overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-b from-white/95 to-sand-50/50 shadow-[0_16px_40px_-28px_rgba(45,40,35,0.35)]">
@@ -108,15 +101,6 @@ export function AdminClientPackagePurchaseConfirm({
 
       <div className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]">
         {confirmHint}
-      </div>
-
-      <div className="flex flex-wrap justify-end gap-2">
-        <OmmButton type="button" variant="secondary" disabled={submitting} onClick={onBack}>
-          {t("packages.back")}
-        </OmmButton>
-        <OmmButton type="submit" variant="primary" disabled={submitting}>
-          {submitting ? t("packages.submitting") : confirmLabel}
-        </OmmButton>
       </div>
     </form>
   );

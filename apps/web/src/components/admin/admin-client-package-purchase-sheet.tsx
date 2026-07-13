@@ -6,6 +6,7 @@ import type { ClientDetail } from "@/components/admin/admin-clients-types";
 import { AdminClientPackagePurchaseConfirm } from "@/components/admin/admin-client-package-purchase-confirm";
 import { AdminClientPackageSelectCards } from "@/components/admin/admin-client-package-select-cards";
 import {
+  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS,
@@ -49,6 +50,7 @@ export function AdminClientPackagePurchaseSheet({
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
   const titleId = useId();
+  const confirmFormId = useId();
   const [step, setStep] = useState<PurchaseStep>("select");
   const [plans, setPlans] = useState<PublicPackagePlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
@@ -245,36 +247,64 @@ export function AdminClientPackagePurchaseSheet({
                 </div>
               </fieldset>
             ) : null}
-
-            <div className="flex flex-wrap justify-end gap-2">
-              <OmmButton type="button" variant="secondary" disabled={submitting} onClick={handleClose}>
-                {t("cancelButton")}
-              </OmmButton>
-              {paymentMethodsOpen ? (
-                <OmmButton
-                  type="button"
-                  variant="primary"
-                  disabled={selectedPlan === null || submitting}
-                  onClick={handleContinueToConfirm}
-                >
-                  {t("packages.continue")}
-                </OmmButton>
-              ) : null}
-            </div>
           </div>
         ) : selectedPlan !== null ? (
           <AdminClientPackagePurchaseConfirm
+            formId={confirmFormId}
             clientName={clientDisplayName(client)}
             locale={locale}
             paymentMethod={paymentMethod}
             paymentMethodLabel={tFinance(`paymentMethods.${paymentMethod}`)}
             plan={selectedPlan}
-            submitting={submitting}
-            onBack={() => setStep("select")}
             onConfirm={(event) => void handleConfirmPurchase(event)}
           />
         ) : null}
       </div>
+
+      <footer
+        className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} flex flex-wrap items-center justify-end gap-2`}
+      >
+        {step === "select" ? (
+          <>
+            <OmmButton type="button" variant="secondary" disabled={submitting} onClick={handleClose}>
+              {t("cancelButton")}
+            </OmmButton>
+            {paymentMethodsOpen ? (
+              <OmmButton
+                type="button"
+                variant="primary"
+                disabled={selectedPlan === null || submitting}
+                onClick={handleContinueToConfirm}
+              >
+                {t("packages.continue")}
+              </OmmButton>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <OmmButton
+              type="button"
+              variant="secondary"
+              disabled={submitting}
+              onClick={() => setStep("select")}
+            >
+              {t("packages.back")}
+            </OmmButton>
+            <OmmButton
+              type="submit"
+              form={confirmFormId}
+              variant="primary"
+              disabled={submitting || selectedPlan === null}
+            >
+              {submitting
+                ? t("packages.submitting")
+                : paymentMethod === "CASH"
+                  ? t("packages.confirmCash")
+                  : t("packages.confirmTerminal")}
+            </OmmButton>
+          </>
+        )}
+      </footer>
     </OmmDrawerPortal>
   );
 }
