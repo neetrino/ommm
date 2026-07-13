@@ -20,6 +20,7 @@ export type PublicPackagePlan = {
   isActive: boolean;
   features: string[];
   guestCount?: number;
+  availableQuantity?: number | null;
   displayOrder: number;
   typeSessionAllocations?: Array<{
     classTypeId: string;
@@ -38,6 +39,17 @@ function coerceSessionsPerMonth(value: unknown): number | null {
     return null;
   }
   return Math.floor(parsed);
+}
+
+function coerceAvailableQuantity(value: unknown): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || !Number.isInteger(parsed)) {
+    return null;
+  }
+  return parsed;
 }
 
 export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPackagePlan {
@@ -67,6 +79,7 @@ export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPacka
     discountedPriceCents: normalizedDiscount,
     finalPriceCents,
     guestCount: typeof plan.guestCount === "number" ? plan.guestCount : 0,
+    availableQuantity: coerceAvailableQuantity(plan.availableQuantity),
     startDate:
       typeof plan.startDate === "string" && plan.startDate.trim().length > 0
         ? plan.startDate.trim()

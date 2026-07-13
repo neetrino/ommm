@@ -6,7 +6,10 @@ import {
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import type { AdminClientPackagePaymentMethod } from "@/lib/manual-payment-method";
+import {
+  ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS,
+  type AdminClientPackagePaymentMethod,
+} from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -15,8 +18,9 @@ type AdminClientPackagePurchaseConfirmProps = {
   clientName: string;
   locale: string;
   paymentMethod: AdminClientPackagePaymentMethod;
-  paymentMethodLabel: string;
+  disabled?: boolean;
   plan: PublicPackagePlan;
+  onPaymentMethodChange: (method: AdminClientPackagePaymentMethod) => void;
   onConfirm: (event: FormEvent<HTMLFormElement>) => void;
 };
 
@@ -25,11 +29,13 @@ export function AdminClientPackagePurchaseConfirm({
   clientName,
   locale,
   paymentMethod,
-  paymentMethodLabel,
+  disabled = false,
   plan,
+  onPaymentMethodChange,
   onConfirm,
 }: AdminClientPackagePurchaseConfirmProps) {
   const t = useTranslations("adminPages.clients");
+  const tFinance = useTranslations("adminPages.finance");
   const confirmHint =
     paymentMethod === "CASH"
       ? t("packages.confirmCashHint")
@@ -57,16 +63,11 @@ export function AdminClientPackagePurchaseConfirm({
         </div>
 
         <div className="space-y-5 px-5 py-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h3 className="font-serif text-2xl font-normal leading-snug text-sage-900">
-                {plan.name}
-              </h3>
-              <p className="mt-1 text-sm text-sage-600">{plan.categoryName}</p>
-            </div>
-            <span className="inline-flex shrink-0 rounded-full bg-mint-100 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-sage-800">
-              {paymentMethodLabel}
-            </span>
+          <div className="min-w-0">
+            <h3 className="font-serif text-2xl font-normal leading-snug text-sage-900">
+              {plan.name}
+            </h3>
+            <p className="mt-1 text-sm text-sage-600">{plan.categoryName}</p>
           </div>
 
           <div>
@@ -91,13 +92,36 @@ export function AdminClientPackagePurchaseConfirm({
               label={t("packages.category")}
               value={plan.categoryName}
             />
-            <ConfirmField
-              label={t("packages.paymentMethod")}
-              value={paymentMethodLabel}
-            />
           </dl>
         </div>
       </article>
+
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-semibold text-sage-800">
+          {t("packages.paymentMethodLegend")}
+        </legend>
+        <div className="space-y-2">
+          {ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS.map((method) => (
+            <label
+              key={method}
+              className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3"
+            >
+              <input
+                type="radio"
+                name="admin-client-package-payment-method"
+                value={method}
+                checked={paymentMethod === method}
+                disabled={disabled}
+                onChange={() => onPaymentMethodChange(method)}
+                className="h-4 w-4 accent-sand-600"
+              />
+              <span className="text-sm text-sage-800">
+                {tFinance(`paymentMethods.${method}`)}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <div className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]">
         {confirmHint}

@@ -141,16 +141,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
 
   const filterQuerySignature = useMemo(
     () => buildFinancePaymentsFiltersQuery(values, new URLSearchParams()),
-    [
-      values.q,
-      values.rangeDays,
-      values.source,
-      values.status,
-      values.planId,
-      values.packageClass,
-      values.sessions,
-      values.order,
-    ],
+    [values],
   );
 
   useEffect(() => {

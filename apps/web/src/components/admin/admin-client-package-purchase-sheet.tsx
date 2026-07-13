@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import type { ClientDetail } from "@/components/admin/admin-clients-types";
 import { AdminClientPackagePurchaseConfirm } from "@/components/admin/admin-client-package-purchase-confirm";
@@ -18,10 +18,7 @@ import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmDrawerPortal, OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
-import {
-  ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS,
-  type AdminClientPackagePaymentMethod,
-} from "@/lib/manual-payment-method";
+import type { AdminClientPackagePaymentMethod } from "@/lib/manual-payment-method";
 import {
   normalizePublicPackagePlan,
   type PublicPackagePlan,
@@ -48,7 +45,6 @@ export function AdminClientPackagePurchaseSheet({
   onSuccess,
 }: AdminClientPackagePurchaseSheetProps) {
   const t = useTranslations("adminPages.clients");
-  const tFinance = useTranslations("adminPages.finance");
   const titleId = useId();
   const confirmFormId = useId();
   const [step, setStep] = useState<PurchaseStep>("select");
@@ -56,14 +52,12 @@ export function AdminClientPackagePurchaseSheet({
   const [plansLoading, setPlansLoading] = useState(true);
   const [plansError, setPlansError] = useState<string | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [paymentMethodsOpen, setPaymentMethodsOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] =
     useState<AdminClientPackagePaymentMethod>("CASH");
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
-  const paymentMethodsRef = useRef<HTMLFieldSetElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,27 +96,25 @@ export function AdminClientPackagePurchaseSheet({
     onClose();
   }
 
-  function handleSubscribePlan(planId: string): void {
+  function handleSelectPlan(planId: string | null): void {
     if (submitting) {
       return;
     }
     setSelectedPlanId(planId);
-    setPaymentMethod("CASH");
-    setPaymentMethodsOpen(true);
+    if (planId !== null) {
+      setPaymentMethod("CASH");
+    }
   }
 
-  useEffect(() => {
-    if (!paymentMethodsOpen || selectedPlan === null) {
-      return;
-    }
-    paymentMethodsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [paymentMethodsOpen, selectedPlan]);
-
   function handleContinueToConfirm(): void {
-    if (selectedPlan === null || !paymentMethodsOpen || submitting) {
+    if (selectedPlan === null || submitting) {
       return;
     }
-    setStep("confirm");
+    // Defer step change so this click cannot submit the confirm form after React
+    // reuses the footer primary button as type="submit".
+    queueMicrotask(() => {
+      setStep("confirm");
+    });
   }
 
   async function handleConfirmPurchase(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -209,41 +201,8 @@ export function AdminClientPackagePurchaseSheet({
                 plans={plans}
                 selectedPlanId={selectedPlanId}
                 disabled={submitting}
-                onSelectPlan={setSelectedPlanId}
-                onSubscribe={handleSubscribePlan}
+                onSelectPlan={handleSelectPlan}
               />
-            ) : null}
-
-            {paymentMethodsOpen && selectedPlan !== null ? (
-              <fieldset ref={paymentMethodsRef} className="space-y-3">
-                <legend className="text-sm font-semibold text-sage-800">
-                  {t("packages.paymentMethodLegend")}
-                </legend>
-                <p className="text-sm text-sage-600">
-                  {t("packages.selectedPlanHint", { name: selectedPlan.name })}
-                </p>
-                <div className="space-y-2">
-                  {ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS.map((method) => (
-                    <label
-                      key={method}
-                      className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3"
-                    >
-                      <input
-                        type="radio"
-                        name="admin-client-package-payment-method"
-                        value={method}
-                        checked={paymentMethod === method}
-                        disabled={submitting}
-                        onChange={() => setPaymentMethod(method)}
-                        className="h-4 w-4 accent-sand-600"
-                      />
-                      <span className="text-sm text-sage-800">
-                        {tFinance(`paymentMethods.${method}`)}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
             ) : null}
           </div>
         ) : selectedPlan !== null ? (
@@ -252,8 +211,9 @@ export function AdminClientPackagePurchaseSheet({
             clientName={clientDisplayName(client)}
             locale={locale}
             paymentMethod={paymentMethod}
-            paymentMethodLabel={tFinance(`paymentMethods.${paymentMethod}`)}
+            disabled={submitting}
             plan={selectedPlan}
+            onPaymentMethodChange={setPaymentMethod}
             onConfirm={(event) => void handleConfirmPurchase(event)}
           />
         ) : null}
@@ -264,23 +224,29 @@ export function AdminClientPackagePurchaseSheet({
       >
         {step === "select" ? (
           <>
-            <OmmButton type="button" variant="secondary" disabled={submitting} onClick={handleClose}>
+            <OmmButton
+              key="purchase-cancel"
+              type="button"
+              variant="secondary"
+              disabled={submitting}
+              onClick={handleClose}
+            >
               {t("cancelButton")}
             </OmmButton>
-            {paymentMethodsOpen ? (
-              <OmmButton
-                type="button"
-                variant="primary"
-                disabled={selectedPlan === null || submitting}
-                onClick={handleContinueToConfirm}
-              >
-                {t("packages.continue")}
-              </OmmButton>
-            ) : null}
+            <OmmButton
+              key="purchase-continue"
+              type="button"
+              variant="primary"
+              disabled={selectedPlan === null || submitting}
+              onClick={handleContinueToConfirm}
+            >
+              {t("packages.continue")}
+            </OmmButton>
           </>
         ) : (
           <>
             <OmmButton
+              key="purchase-back"
               type="button"
               variant="secondary"
               disabled={submitting}
@@ -289,6 +255,7 @@ export function AdminClientPackagePurchaseSheet({
               {t("packages.back")}
             </OmmButton>
             <OmmButton
+              key="purchase-confirm"
               type="submit"
               form={confirmFormId}
               variant="primary"

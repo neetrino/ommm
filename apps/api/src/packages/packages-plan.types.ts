@@ -71,6 +71,7 @@ export type PublicPlanSource = {
   isActive: boolean;
   features: string[];
   guestCount: number;
+  availableQuantity: number | null;
   displayOrder: number;
   typeSessionAllocations?: unknown;
 };
