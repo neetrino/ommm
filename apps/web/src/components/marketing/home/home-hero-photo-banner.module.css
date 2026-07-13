@@ -166,6 +166,8 @@
   max-height: unset;
   height: auto;
   padding-bottom: 0;
+  /* Let promo copy underneath receive selection / CTA clicks. */
+  pointer-events: none;
 }
 
 .homeHeroSectionPromo {

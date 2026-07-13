@@ -183,7 +183,7 @@ export function HomeHeroPromoBannerOverlay(props: HomeHeroPromoBannerOverlayProp
   return (
     <div className={styles.overlay}>
       <h2 id="home-hero-promo-heading" className={styles.srOnly}>
-        {props.foundingLine1} {props.foundingLine2} {props.areOpen}. {props.limitedLine1}.{" "}
+        {props.foundingLine1} {props.foundingLine2} {props.areOpen} {props.limitedLine1}.{" "}
         {props.limitedLine2Prefix}
         {props.limitedLine2Emphasis}
       </h2>

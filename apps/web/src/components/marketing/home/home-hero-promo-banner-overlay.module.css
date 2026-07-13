@@ -28,6 +28,9 @@
   position: absolute;
   margin: 0;
   color: var(--home-hero-promo-text-color, #fbf5d5);
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .headlineBlock,
