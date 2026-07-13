@@ -1,11 +1,16 @@
 "use client";
 
-import type { KeyboardEvent, ReactNode } from "react";
+import { useState, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { AdminClientPackagePlanDetailsModal } from "@/components/admin/admin-client-package-plan-details-modal";
 import {
   formatPackagePlanName,
   formatPackagePriceLabel,
 } from "@/components/admin/admin-packages-display";
+import {
+  ADMIN_ACTION_ICON_CLASS,
+  EyeGlyph,
+} from "@/components/ui/admin-action-glyphs";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type AdminClientPackageSelectTableProps = {
@@ -17,7 +22,7 @@ type AdminClientPackageSelectTableProps = {
 };
 
 const ROW_CLASS =
-  "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.6fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_1.25rem] items-center gap-x-3";
+  "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.5fr)_minmax(0,0.75fr)_minmax(0,0.8fr)_2rem_1.25rem] items-center gap-x-2 sm:gap-x-3";
 
 function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
@@ -93,6 +98,8 @@ export function AdminClientPackageSelectTable({
 }: AdminClientPackageSelectTableProps) {
   const tPackages = useTranslations("adminPages.packages");
   const tClients = useTranslations("adminPages.clients");
+  const [detailsPlanId, setDetailsPlanId] = useState<string | null>(null);
+  const detailsPlan = plans.find((plan) => plan.id === detailsPlanId) ?? null;
 
   return (
     <div className="w-full min-w-0 max-w-full overflow-x-hidden">
@@ -106,6 +113,7 @@ export function AdminClientPackageSelectTable({
         <div className="flex min-w-0 items-center justify-center text-center leading-snug">
           {tPackages("tablePrice")}
         </div>
+        <div className="h-8 w-8 shrink-0" aria-hidden />
         <div className="h-5 w-5 shrink-0" aria-hidden />
       </div>
 
@@ -179,6 +187,23 @@ export function AdminClientPackageSelectTable({
                     finalPriceLabel
                   )}
                 </Cell>
+                <div className="flex shrink-0 items-center justify-center">
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full text-sage-600 transition-colors hover:bg-white/70 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45"
+                    aria-label={tClients("packages.viewPlanDetailsAria", {
+                      name: packageName,
+                    })}
+                    title={tClients("packages.viewPlanDetails")}
+                    disabled={disabled}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setDetailsPlanId(plan.id);
+                    }}
+                  >
+                    <EyeGlyph className={ADMIN_ACTION_ICON_CLASS} />
+                  </button>
+                </div>
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center">
                   <SelectionGlyph selected={selected} />
                 </div>
@@ -187,6 +212,14 @@ export function AdminClientPackageSelectTable({
           );
         })}
       </div>
+
+      {detailsPlan !== null ? (
+        <AdminClientPackagePlanDetailsModal
+          locale={locale}
+          plan={detailsPlan}
+          onClose={() => setDetailsPlanId(null)}
+        />
+      ) : null}
     </div>
   );
 }
