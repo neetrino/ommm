@@ -18,6 +18,12 @@ import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswo
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { useTranslations, useLocale } from "../../src/i18n/I18nProvider";
 import { formatPhoneInput } from "../../src/lib/phone-input";
+import {
+  PSEUDO_EMAIL,
+  PSEUDO_FIRST_NAME,
+  PSEUDO_LAST_NAME,
+  PSEUDO_PHONE,
+} from "../../src/lib/pseudoFormPlaceholders";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
@@ -27,10 +33,6 @@ const REGISTER_LOGO_VISUAL_SCALE = 3.35;
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
-const REGISTER_PSEUDO_FIRST_NAME_PLACEHOLDER = "Alex";
-const REGISTER_PSEUDO_LAST_NAME_PLACEHOLDER = "Martirosyan";
-const REGISTER_PSEUDO_PHONE_PLACEHOLDER = "+374 99 123456";
-const REGISTER_PSEUDO_EMAIL_PLACEHOLDER = "example@mail.com";
 const REGISTER_ENTRY_ANIMATION_MS = 760;
 const REGISTER_ENTRY_OFFSET_PX = 16;
 const REGISTER_ENTRY_START_SCALE = 0.985;
@@ -198,7 +200,7 @@ export default function RegisterRoute() {
             <TextInput
               value={firstName}
               onChangeText={setFirstName}
-              placeholder={REGISTER_PSEUDO_FIRST_NAME_PLACEHOLDER}
+              placeholder={PSEUDO_FIRST_NAME}
               placeholderTextColor={colors.bodyMuted}
               style={styles.input}
               autoCapitalize="words"
@@ -209,7 +211,7 @@ export default function RegisterRoute() {
             <TextInput
               value={lastName}
               onChangeText={setLastName}
-              placeholder={REGISTER_PSEUDO_LAST_NAME_PLACEHOLDER}
+              placeholder={PSEUDO_LAST_NAME}
               placeholderTextColor={colors.bodyMuted}
               style={styles.input}
               autoCapitalize="words"
@@ -220,7 +222,7 @@ export default function RegisterRoute() {
             <TextInput
               value={phone}
               onChangeText={(value) => setPhone(formatPhoneInput(value))}
-              placeholder={REGISTER_PSEUDO_PHONE_PLACEHOLDER}
+              placeholder={PSEUDO_PHONE}
               placeholderTextColor={colors.bodyMuted}
               style={styles.input}
               keyboardType="phone-pad"
@@ -230,7 +232,7 @@ export default function RegisterRoute() {
             <TextInput
               value={email}
               onChangeText={setEmail}
-              placeholder={REGISTER_PSEUDO_EMAIL_PLACEHOLDER}
+              placeholder={PSEUDO_EMAIL}
               placeholderTextColor={colors.bodyMuted}
               style={styles.input}
               autoCapitalize="none"

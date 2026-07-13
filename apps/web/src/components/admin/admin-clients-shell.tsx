@@ -175,7 +175,7 @@ export function AdminClientsShell({
                 </svg>
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+            <div className="flex min-h-0 flex-1 flex-col">
               <AdminCreateClientForm
                 onCreated={handleClientCreated}
                 onCancel={closeModal}

@@ -17,14 +17,17 @@ import {
 } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
+import {
+  PSEUDO_EMAIL,
+  PSEUDO_FIRST_NAME,
+  PSEUDO_LAST_NAME,
+  PSEUDO_PASSWORD,
+  PSEUDO_PHONE,
+} from "@/lib/pseudo-form-placeholders";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_NAME_LENGTH = 120;
-const REGISTER_PSEUDO_FIRST_NAME_PLACEHOLDER = "John";
-const REGISTER_PSEUDO_LAST_NAME_PLACEHOLDER = "Doe";
-const REGISTER_PSEUDO_PHONE_PLACEHOLDER = "+374 99 123456";
-const REGISTER_PSEUDO_EMAIL_PLACEHOLDER = "example@mail.com";
 
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
@@ -159,7 +162,7 @@ function RegisterForm() {
               autoComplete="given-name"
               className="ommm-input"
               maxLength={MAX_NAME_LENGTH}
-              placeholder={REGISTER_PSEUDO_FIRST_NAME_PLACEHOLDER}
+              placeholder={PSEUDO_FIRST_NAME}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -170,7 +173,7 @@ function RegisterForm() {
               autoComplete="family-name"
               className="ommm-input"
               maxLength={MAX_NAME_LENGTH}
-              placeholder={REGISTER_PSEUDO_LAST_NAME_PLACEHOLDER}
+              placeholder={PSEUDO_LAST_NAME}
             />
           </label>
         </div>
@@ -183,7 +186,7 @@ function RegisterForm() {
               className="ommm-input"
               value={phone}
               onValueChange={setPhone}
-              placeholder={REGISTER_PSEUDO_PHONE_PLACEHOLDER}
+              placeholder={PSEUDO_PHONE}
             />
           </label>
           <label className="flex flex-col gap-1.5">
@@ -195,7 +198,7 @@ function RegisterForm() {
               autoComplete="email"
               className="ommm-input"
               maxLength={MAX_EMAIL_LENGTH}
-              placeholder={REGISTER_PSEUDO_EMAIL_PLACEHOLDER}
+              placeholder={PSEUDO_EMAIL}
             />
           </label>
         </div>
@@ -209,6 +212,7 @@ function RegisterForm() {
               maxLength={128}
               autoComplete="new-password"
               className="ommm-input"
+              placeholder={PSEUDO_PASSWORD}
               showPasswordLabel={tAuth("showPassword")}
               hidePasswordLabel={tAuth("hidePassword")}
             />
@@ -222,6 +226,7 @@ function RegisterForm() {
               maxLength={128}
               autoComplete="new-password"
               className="ommm-input"
+              placeholder={PSEUDO_PASSWORD}
               showPasswordLabel={tAuth("showPassword")}
               hidePasswordLabel={tAuth("hidePassword")}
             />

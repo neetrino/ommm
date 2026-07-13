@@ -17,6 +17,14 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { ApiError, apiFetch } from "@/lib/api";
 import { normalizePhoneForApi } from "@/lib/phone";
+import {
+  PSEUDO_BIRTHDAY,
+  PSEUDO_EMAIL,
+  PSEUDO_FIRST_NAME,
+  PSEUDO_LAST_NAME,
+  PSEUDO_PASSWORD,
+  PSEUDO_PHONE,
+} from "@/lib/pseudo-form-placeholders";
 
 type CreateClientApiResponse = {
   client: ClientRow;
@@ -149,16 +157,18 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
 
   if (handover !== null) {
     return (
-      <AdminClientCredentialsHandover
-        email={handover.credentials.email}
-        temporaryPassword={handover.credentials.temporaryPassword}
-        passwordResetUrl={handover.credentials.passwordResetUrl}
-        welcomeEmailSent={handover.welcomeEmailSent}
-        onDone={() => {
-          setHandover(null);
-          onCancel?.();
-        }}
-      />
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+        <AdminClientCredentialsHandover
+          email={handover.credentials.email}
+          temporaryPassword={handover.credentials.temporaryPassword}
+          passwordResetUrl={handover.credentials.passwordResetUrl}
+          welcomeEmailSent={handover.welcomeEmailSent}
+          onDone={() => {
+            setHandover(null);
+            onCancel?.();
+          }}
+        />
+      </div>
     );
   }
 
@@ -168,8 +178,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col gap-5"
+      className="flex min-h-0 flex-1 flex-col"
     >
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
       <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
         <div className="mb-4">
           <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
@@ -185,6 +196,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               className="ommm-input"
               autoComplete="given-name"
               maxLength={MAX_NAME_LENGTH}
+              placeholder={PSEUDO_FIRST_NAME}
               required
               disabled={pending}
             />
@@ -196,6 +208,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               className="ommm-input"
               autoComplete="family-name"
               maxLength={MAX_NAME_LENGTH}
+              placeholder={PSEUDO_LAST_NAME}
               required
               disabled={pending}
             />
@@ -208,6 +221,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               className="ommm-input"
               autoComplete="email"
               maxLength={MAX_EMAIL_LENGTH}
+              placeholder={PSEUDO_EMAIL}
               required
               disabled={pending}
             />
@@ -223,6 +237,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               maxLength={128}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              placeholder={PSEUDO_PASSWORD}
               required
               disabled={pending}
               showPasswordLabel={t("showPassword")}
@@ -241,6 +256,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               maxLength={128}
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder={PSEUDO_PASSWORD}
               required
               disabled={pending}
               showPasswordLabel={t("showPassword")}
@@ -254,6 +270,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               className="ommm-input"
               value={phone}
               onValueChange={setPhone}
+              placeholder={PSEUDO_PHONE}
               required
               disabled={pending}
             />
@@ -265,7 +282,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               value={birthdayValue}
               onChange={setBirthdayValue}
               ariaLabel={t("birthdayLabel")}
-              placeholder={tPage("birthdayPlaceholder")}
+              placeholder={PSEUDO_BIRTHDAY}
               allowManualEntry
               disabled={pending}
             />
@@ -330,8 +347,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           {error}
         </p>
       ) : null}
+      </div>
 
-      <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-7 sm:px-7">
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
         {onCancel !== undefined ? (
           <OmmButton type="button" variant="secondary" size="md" disabled={pending} onClick={onCancel}>
             {tPage("cancelButton")}
