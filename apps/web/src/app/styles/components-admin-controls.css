@@ -171,8 +171,12 @@
 
   .ommm-admin-accordion--package-surface {
     border-color: rgba(212, 196, 183, 0.28);
-    background: var(--ommm-admin-accordion-surface);
-    backdrop-filter: none;
+    background-color: transparent !important;
+    background-image: var(--ommm-admin-accordion-surface) !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .ommm-admin-accordion-nested {

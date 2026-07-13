@@ -106,6 +106,10 @@ export function AdminAccordionPanel({
     surfaceBackground !== undefined
       ? ({
           ["--ommm-admin-accordion-surface" as string]: surfaceBackground,
+          backgroundImage: surfaceBackground,
+          backgroundColor: "transparent",
+          backdropFilter: "none",
+          WebkitBackdropFilter: "none",
         } as CSSProperties)
       : undefined;
 

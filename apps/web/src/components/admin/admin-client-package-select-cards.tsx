@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
 import { AdminClientPackageSelectTable } from "@/components/admin/admin-client-package-select-table";
+import { buildPackagesPageAccordionCategories } from "@/components/marketing/packages/packages-page-category-data";
 import { buildPackagesPageCardGradient } from "@/components/marketing/packages/packages-page-tokens";
-import { assignPackageCardGradientStartColors } from "@/lib/package-card-colors";
 import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -43,16 +43,19 @@ export function AdminClientPackageSelectCards({
   onSelectPlan,
 }: AdminClientPackageSelectCardsProps) {
   const t = useTranslations("adminPages.clients");
-  const categories = useMemo(
-    () => groupVisiblePublicPackageCategories([...plans]),
-    [plans],
-  );
-  const surfaceBackgrounds = useMemo(() => {
-    const starts = assignPackageCardGradientStartColors(
-      categories.map((category) => category.id),
-    );
-    return starts.map((startColor) => buildPackagesPageCardGradient(startColor));
-  }, [categories]);
+  const tMarketing = useTranslations("marketing");
+
+  const categories = useMemo(() => {
+    const grouped = groupVisiblePublicPackageCategories([...plans]);
+    return buildPackagesPageAccordionCategories(grouped, locale, {
+      priceFromPrefix: tMarketing("packagesCardPriceFromPrefix"),
+      formatCardStartDateCopy: (date) => ({
+        purchaseLabel: tMarketing("packagesCardStartDatePurchase"),
+        attendFromPrefix: tMarketing("packagesCardStartDateAttendFromPrefix"),
+        attendFromDate: tMarketing("packagesCardStartDateAttendFromDate", { date }),
+      }),
+    });
+  }, [locale, plans, tMarketing]);
 
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(() =>
     resolveInitialExpandedCategoryId(categories, selectedPlanId),
@@ -87,9 +90,11 @@ export function AdminClientPackageSelectCards({
       role="radiogroup"
       aria-label={t("packages.selectLead")}
     >
-      {categories.map((category, index) => {
+      {categories.map((category) => {
         const open = expandedCategoryId === category.id;
-        const surfaceBackground = surfaceBackgrounds[index];
+        const surfaceBackground = buildPackagesPageCardGradient(
+          category.gradientStartColor,
+        );
         return (
           <AdminAccordionPanel
             key={category.id}
