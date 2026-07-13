@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import type {
@@ -40,6 +40,13 @@ type ClientPackagesPanelProps = {
   onPurchaseSuccess: () => void;
 };
 
+type PackagesFetchResult = {
+  key: string;
+  items: ClientSheetPackageItem[];
+  total: number;
+  error: string | null;
+};
+
 export function ClientPackagesPanel({
   client,
   locale,
@@ -58,10 +65,8 @@ export function ClientPackagesPanel({
     searchParams.get(CLIENT_ADD_PACKAGE_QUERY_KEY) === CLIENT_ADD_PACKAGE_QUERY_VALUE;
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(client.id);
-  const [items, setItems] = useState<ClientSheetPackageItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
+  const [result, setResult] = useState<PackagesFetchResult | null>(null);
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
 
   if (client.id !== prevClientId) {
@@ -69,45 +74,59 @@ export function ClientPackagesPanel({
     setPage(1);
   }
 
-  const openPurchase = useCallback(() => {
+  const fetchKey = `${client.id}:${page}:${pageSize}:${refreshKey}:${retryKey}`;
+  const loading = active && (result === null || result.key !== fetchKey);
+  const items = result?.key === fetchKey ? result.items : [];
+  const total = result?.key === fetchKey ? result.total : 0;
+  const error = result?.key === fetchKey ? result.error : null;
+
+  const openPurchase = () => {
     replaceAdminClientsSearchParams(pathname, router, (params) => {
       params.set(CLIENT_PROFILE_TAB_QUERY_KEY, CLIENT_SHEET_TAB_PACKAGES);
       params.set(CLIENT_ADD_PACKAGE_QUERY_KEY, CLIENT_ADD_PACKAGE_QUERY_VALUE);
     });
-  }, [pathname, router]);
+  };
 
-  const closePurchase = useCallback(() => {
+  const closePurchase = () => {
     replaceAdminClientsSearchParams(pathname, router, (params) => {
       params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
     });
-  }, [pathname, router]);
-
-  const loadPackages = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    const offset = (page - 1) * pageSize;
-    try {
-      const payload = await apiFetch<ClientSheetPaginatedResponse<ClientSheetPackageItem>>(
-        `/clients/${client.id}/packages?take=${pageSize}&offset=${offset}`,
-      );
-      setItems(payload.items);
-      setTotal(payload.total);
-    } catch (err) {
-      setItems([]);
-      setTotal(0);
-      setError(err instanceof ApiError ? err.message : t("packages.loadError"));
-    } finally {
-      setLoading(false);
-    }
-  }, [client.id, page, pageSize, t]);
+  };
 
   useEffect(() => {
     if (!active) {
       return undefined;
     }
-    void loadPackages();
-    return undefined;
-  }, [active, loadPackages, refreshKey]);
+    let cancelled = false;
+    const offset = (page - 1) * pageSize;
+    void apiFetch<ClientSheetPaginatedResponse<ClientSheetPackageItem>>(
+      `/clients/${client.id}/packages?take=${pageSize}&offset=${offset}`,
+    )
+      .then((payload) => {
+        if (cancelled) {
+          return;
+        }
+        setResult({
+          key: fetchKey,
+          items: payload.items,
+          total: payload.total,
+          error: null,
+        });
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setResult({
+            key: fetchKey,
+            items: [],
+            total: 0,
+            error: err instanceof ApiError ? err.message : t("packages.loadError"),
+          });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [active, client.id, fetchKey, page, pageSize, t]);
 
   function resolvePaymentMethodLabel(paymentMethod: string | null): string {
     if (paymentMethod === null || !isManualPaymentMethod(paymentMethod)) {
@@ -133,7 +152,11 @@ export function ClientPackagesPanel({
       {!loading && error !== null ? (
         <div className="space-y-3 rounded-2xl border border-rose-200/80 bg-rose-50/80 px-4 py-3">
           <p className="text-sm text-rose-800">{error}</p>
-          <OmmButton type="button" variant="secondary" onClick={() => void loadPackages()}>
+          <OmmButton
+            type="button"
+            variant="secondary"
+            onClick={() => setRetryKey((current) => current + 1)}
+          >
             {t("packages.retry")}
           </OmmButton>
         </div>

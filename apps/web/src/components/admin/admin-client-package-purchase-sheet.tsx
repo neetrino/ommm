@@ -67,15 +67,13 @@ export function AdminClientPackagePurchaseSheet({
 
   useEffect(() => {
     let cancelled = false;
-    setPlansLoading(true);
-    setPlansError(null);
     void apiFetch<PublicPackagePlan[]>("/packages/plans")
       .then((payload) => {
         if (cancelled) {
           return;
         }
-        const normalized = payload.map(normalizePublicPackagePlan);
-        setPlans(normalized);
+        setPlans(payload.map(normalizePublicPackagePlan));
+        setPlansError(null);
       })
       .catch((err) => {
         if (!cancelled) {
