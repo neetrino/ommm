@@ -55,6 +55,7 @@ export function MetaPixel() {
       />
       {trackPageView ? (
         <noscript>
+          {/* eslint-disable-next-line @next/next/no-img-element -- Meta Pixel noscript fallback */}
           <img
             alt=""
             height="1"

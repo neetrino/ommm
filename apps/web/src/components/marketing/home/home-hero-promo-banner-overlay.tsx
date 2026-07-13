@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import Image from "next/image";
 import {
   HOME_HERO_ASSETS,
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA,
@@ -160,13 +161,12 @@ function PromoBannerCopy({
         aria-label={ctaAriaLabel}
         style={PROMO_CTA_PHONE_STYLE}
       >
-        <img
+        <Image
           src={HOME_HERO_ASSETS.promoBannerCtaPill}
           alt=""
           width={PROMO_CTA_PILL_WIDTH_PX}
           height={PROMO_CTA_PILL_HEIGHT_PX}
-          loading="eager"
-          decoding="async"
+          priority
           draggable={false}
           className={styles.ctaPillImage}
         />
