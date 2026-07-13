@@ -7,6 +7,7 @@ import { HomeHeroLogoMarkVideo } from "@/components/marketing/home/home-hero-log
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomeHeroMediaBackground } from "@/components/marketing/home/home-hero-media-background";
 import { HomeHeroPhotoContentLayer } from "@/components/marketing/home/home-hero-photo-content-layer";
+import { HomeHeroPromoBannerOverlay } from "@/components/marketing/home/home-hero-promo-banner-overlay";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { HomeHeroSlideProvider } from "@/components/marketing/home/home-hero-slide-context";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
@@ -22,6 +23,9 @@ import {
   HOME_HERO_MOBILE_LAYOUT,
   HOME_HERO_PROMO_BANNER_LAYOUT,
   HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT,
+  HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET,
+  HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_CTA_PULL_UP_PX,
+  HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET,
   resolveHomeHeroIntroVideoUrl,
   resolveHomeHeroIntroMobileVideoUrl,
   resolveHomeHeroIntroMobileVideoMp4Url,
@@ -55,10 +59,23 @@ export async function HomeHeroPhotoBanner({
   const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
   const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
 
+  const promoOverlay = (
+    <HomeHeroPromoBannerOverlay
+      foundingLine1={t("promoBannerFoundingLine1")}
+      foundingLine2={t("promoBannerFoundingLine2")}
+      areOpen={t("promoBannerAreOpen")}
+      limitedLine1={t("promoBannerLimitedLine1")}
+      limitedLine2Prefix={t("promoBannerLimitedLine2Prefix")}
+      limitedLine2Emphasis={t("promoBannerLimitedLine2Emphasis")}
+      ctaAriaLabel={t("promoBannerCtaAria")}
+    />
+  );
+
   const heroBackground = hasHeroIntroVideo ? (
     <HomeHeroMediaBackground
       heroImageAlt={t("heroImageAlt")}
       promoBannerAlt={t("promoBanner3Alt")}
+      promoOverlay={promoOverlay}
     />
   ) : (
     <div className={styles.homeHeroBackgroundLayer} aria-hidden>
@@ -162,6 +179,14 @@ export async function HomeHeroPhotoBanner({
     ["--home-hero-promo-section-bg" as string]: HOME_HERO_PROMO_BANNER_LAYOUT.sectionBackground,
     ["--home-hero-promo-section-bg-mobile" as string]:
       HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.sectionBackground,
+    ["--home-hero-promo-text-inset-left" as string]: HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET,
+    ["--home-hero-promo-text-ipad-pill-offset-air" as string]:
+      HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET.air,
+    ["--home-hero-promo-text-ipad-pill-offset-pro" as string]:
+      HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET.pro,
+    ["--home-hero-promo-limited-cta-ipad-pull-up-px" as string]: String(
+      HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_CTA_PULL_UP_PX,
+    ),
     ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,

@@ -1,6 +1,12 @@
 import type { CSSProperties } from "react";
 import { MARKETING_PAGE_CONTAINER_CLASS } from "@/components/marketing/marketing-content-layout";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import {
+  CANVAS_TABLET_MIN_WIDTH_PX,
+  IPAD_AIR_MAX_WIDTH_PX,
+  IPAD_PRO_MAX_WIDTH_PX,
+  NAV_DESKTOP_MIN_WIDTH_PX,
+} from "@/lib/viewport-breakpoints";
 
 /** Figma mobile HEADER `97:5670` sizing tokens. */
 export const MARKETING_MOBILE_HEADER = {
@@ -95,6 +101,23 @@ export const MARKETING_DESKTOP_NAV = {
   userWidthPx: 26,
   userHeightPx: 30,
 } as const;
+
+/**
+ * iPad tier — shrink the desktop nav pill vs full container width (744px–1366px).
+ * Values are total horizontal inset (both edges); applied as `calc(100% - inset)`.
+ */
+export const MARKETING_DESKTOP_NAV_IPAD_PILL_INSET = {
+  /** iPad Air — 2.5rem per edge (744px–1023px). */
+  airTotalRem: "5rem",
+  /** iPad Pro — 2rem per edge (1024px–1366px). */
+  proTotalRem: "4rem",
+  tabletMinWidthPx: CANVAS_TABLET_MIN_WIDTH_PX,
+  airMaxWidthPx: IPAD_AIR_MAX_WIDTH_PX,
+  proMaxWidthPx: IPAD_PRO_MAX_WIDTH_PX,
+  fullWidthMinPx: NAV_DESKTOP_MIN_WIDTH_PX,
+} as const;
+
+const MARKETING_DESKTOP_BAR_IPAD_INSET_CLASS = `tablet:mx-auto tablet:w-[calc(100%-${MARKETING_DESKTOP_NAV_IPAD_PILL_INSET.airTotalRem})] lg:w-[calc(100%-${MARKETING_DESKTOP_NAV_IPAD_PILL_INSET.proTotalRem})] nav-desktop:mx-0 nav-desktop:w-full`;
 
 const MARKETING_DESKTOP_BAR_HEIGHT_CLASS =
   "h-[40px] min-h-[40px] lg:h-[44px] lg:min-h-[44px] nav-desktop:h-[53px] nav-desktop:min-h-[53px]";
@@ -193,12 +216,13 @@ export function marketingHeaderMobileBrandLinkClass(): string {
   ].join(" ");
 }
 
-/** Desktop header — always full-width glass pill (brand + nav + actions). */
+/** Desktop header — full-width glass pill on desktop; narrower on iPad with extra edge inset. */
 export function marketingHeaderDesktopRowClass(): string {
   return [
     "relative isolate hidden min-w-0 overflow-hidden tablet:grid",
     MARKETING_DESKTOP_BAR_HEIGHT_CLASS,
     MARKETING_DESKTOP_BAR_RADIUS_CLASS,
+    MARKETING_DESKTOP_BAR_IPAD_INSET_CLASS,
     "grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center",
     "pl-4 pr-3 lg:pl-6 lg:pr-4 nav-desktop:pl-[41px] nav-desktop:pr-[30px]",
     "tablet:gap-1.5 lg:gap-2 nav-desktop:gap-3",

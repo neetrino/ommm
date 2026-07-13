@@ -1,4 +1,6 @@
 import { scaleIpadAirPx } from "@/lib/viewport-breakpoints";
+import { MARKETING_CONTENT_INLINE_INSET } from "@/components/marketing/marketing-content-layout";
+import { MARKETING_DESKTOP_NAV_IPAD_PILL_INSET } from "@/components/marketing/marketing-site-header-layout";
 
 export const HOME_HERO_FIGMA = {
   artboardWidthPx: 1440,
@@ -129,15 +131,17 @@ export const HOME_SCHEDULE_CTA_BG = dataUrlFromSvg(scheduleGradientSvg);
 
 const HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX = 1440;
 const HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX = 924;
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 455;
-const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 1024;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX = 393;
+const HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX = 852;
 
 export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.webp",
-  /** Figma `805:802` @2x — 2880×1848 source for retina desktop. */
-  promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3.webp",
-  /** Founding memberships mobile banner — 1365×3072 @3x (455×1024 artboard), WebP q98. */
-  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v4.webp",
+  /** Figma `887:808` (`887:800` bg + `887:801` subject) @2x — 2880×1848 retina desktop. */
+  promoBanner3: "/marketing/home/hero/home-hero-promo-banner-3-v7.webp",
+  /** Figma `881:800` mobile banner — 1179×2556 @3x (393×852 artboard), WebP q98. */
+  promoBanner3Mobile: "/marketing/home/hero/home-hero-promo-banner-3-mobile-v8.webp",
+  /** Promo CTA pill — 465×87 lossless WebP; leading `0` is baked into the left disc. */
+  promoBannerCtaPill: "/marketing/home/hero/home-hero-promo-banner-cta-pill.webp",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.webp",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
@@ -190,26 +194,197 @@ export const HOME_HERO_LOGO_MARK_VIDEO_LAYOUT = {
 /** Must match `HOME_HERO_CAROUSEL_SLIDES.length` in home-hero-slide-context. */
 export const HOME_HERO_CAROUSEL_SLIDE_COUNT = 3;
 
-/** Figma `805:802` — founding memberships banner (copy baked into art). */
+/** Figma `887:808` — Pilates promo banner (background `887:800` + subject `887:801`). */
 export const HOME_HERO_PROMO_BANNER_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
   imageWidthPx: HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX,
   imageHeightPx: HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_ARTBOARD_HEIGHT_PX}`,
-  figmaNodeId: "805:802",
-  sectionBackground: "#8a7348",
-  /** Desktop — slightly above center inside the shared hero band. */
-  objectPosition: "center 54%",
+  figmaNodeId: "887:808",
+  sectionBackground: "#c4a962",
+  /** Desktop — subject sits on the right inside the shared hero band. */
+  objectPosition: "center center",
 } as const;
 
-/** Mobile promo slide — founding memberships portrait banner with baked-in copy. */
+/** Mobile promo slide — Figma `881:800` / phone frame `882:809`. */
 export const HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT = {
   artboardWidthPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX,
   artboardHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX,
   aspectRatio: `${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_WIDTH_PX} / ${HOME_HERO_PROMO_BANNER_MOBILE_ARTBOARD_HEIGHT_PX}`,
-  sectionBackground: "#876734",
+  sectionBackground: "#c4a962",
+  /** Figma crop — image fills frame at 122% width, anchored top. */
   objectPosition: "center top",
+} as const;
+
+/** Figma `887:840` Banner correct — live promo copy overlay. */
+export const HOME_HERO_PROMO_BANNER_TEXT_FIGMA = {
+  textColor: "#fbf5d5",
+  desktopArtboardWidthPx: 1896,
+  desktopArtboardHeightPx: 1209,
+  /** Figma `882:809` phone frame — text aligns to `881:800` banner (393×852). */
+  mobileArtboardWidthPx: 393,
+  mobileArtboardHeightPx: 852,
+} as const;
+
+/** Horizontal inset for promo copy — left edge of navbar pill (`ommm-container` edge). */
+export const HOME_HERO_PROMO_BANNER_TEXT_NAV_INSET = `max(${MARKETING_CONTENT_INLINE_INSET}, calc((100vw - min(1280px, 100vw - 2rem)) / 2))`;
+
+/**
+ * iPad tier — extra inset so promo copy tracks the narrowed nav pill (744px–1366px).
+ * Half of {@link MARKETING_DESKTOP_NAV_IPAD_PILL_INSET} per edge.
+ */
+export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET = {
+  air: `calc(0.5 * ${MARKETING_DESKTOP_NAV_IPAD_PILL_INSET.airTotalRem})`,
+  pro: `calc(0.5 * ${MARKETING_DESKTOP_NAV_IPAD_PILL_INSET.proTotalRem})`,
+} as const;
+
+/** Shifts all promo copy blocks up — subtracted from Figma `topPx` before scaling. */
+export const HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX = {
+  desktop: 40,
+  mobile: 0,
+} as const;
+
+/** Inter-block vertical gaps — Figma desktop `887:805`–`887:807`. */
+const HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX = {
+  /** Figma `887:805` top (755) − unified headline bottom (656). Full desktop only. */
+  headlineToLimited: 99,
+  limitedToCta: 56,
+} as const;
+
+/** iPad desktop copy — tighter gap before limited block (744px–1366px). */
+const HOME_HERO_PROMO_BANNER_IPAD_HEADLINE_TO_LIMITED_GAP_PX = 58;
+
+/** Mobile — tighter headline→limited gap on phone artboard (393×852). */
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TO_LIMITED_GAP_PX = 24;
+
+/** Pull limited + CTA up on iPad to restore smaller headline→limited gap. */
+export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_LIMITED_CTA_PULL_UP_PX =
+  HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.headlineToLimited -
+  HOME_HERO_PROMO_BANNER_IPAD_HEADLINE_TO_LIMITED_GAP_PX;
+
+function scalePromoBannerTextGapToMobileArtboard(gapPx: number): number {
+  return Math.round(
+    (gapPx * HOME_HERO_PROMO_BANNER_TEXT_FIGMA.mobileArtboardHeightPx) /
+      HOME_HERO_PROMO_BANNER_TEXT_FIGMA.desktopArtboardHeightPx,
+  );
+}
+
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX = 266;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FONT_SIZE_PX = 120;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX = 130;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 130;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX =
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX * 2 +
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX;
+
+const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX = 128;
+const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX =
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX +
+  HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX +
+  HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.headlineToLimited;
+
+const HOME_HERO_PROMO_BANNER_DESKTOP_CTA_TOP_PX =
+  HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX +
+  HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX +
+  HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.limitedToCta;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TOP_PX = 97;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FONT_SIZE_PX = 50;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX = 50;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 70;
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX =
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX * 2 +
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_HEIGHT_PX = 102;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_TOP_PX =
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TOP_PX +
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX +
+  HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TO_LIMITED_GAP_PX;
+
+const HOME_HERO_PROMO_BANNER_MOBILE_CTA_TOP_PX =
+  HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_TOP_PX +
+  HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_HEIGHT_PX +
+  scalePromoBannerTextGapToMobileArtboard(
+    HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX.limitedToCta,
+  );
+
+export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
+  desktopHeadline: {
+    figmaNodeIds: ["887:803", "887:804"],
+    leftPx: 110,
+    topPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX,
+    heightPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX,
+    fontSizePx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FONT_SIZE_PX,
+    foundingLineHeightPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX,
+    areOpenLineHeightPx: HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX,
+  },
+  desktopLimited: {
+    figmaNodeId: "887:805",
+    leftPx: 110,
+    topPx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX,
+    heightPx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX,
+    fontSizePx: 60,
+    lineHeightPx: 64,
+  },
+  desktopCtaBadge: {
+    figmaNodeId: "887:807",
+    leftPx: 110,
+    topPx: HOME_HERO_PROMO_BANNER_DESKTOP_CTA_TOP_PX,
+    widthPx: 465,
+    heightPx: 87,
+  },
+  mobileHeadline: {
+    figmaNodeIds: ["882:810", "882:811"],
+    leftPx: 41,
+    topPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TOP_PX,
+    heightPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX,
+    fontSizePx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FONT_SIZE_PX,
+    foundingLineHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX,
+    areOpenLineHeightPx: HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX,
+  },
+  mobileLimited: {
+    figmaNodeId: "882:813",
+    leftPx: 41,
+    topPx: HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_TOP_PX,
+    widthPx: 277,
+    heightPx: HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_HEIGHT_PX,
+    fontSizePx: 30,
+    lineHeightPx: 34,
+  },
+  mobileCtaBadge: {
+    figmaNodeId: "882:827",
+    leftPx: 41,
+    topPx: HOME_HERO_PROMO_BANNER_MOBILE_CTA_TOP_PX,
+    widthPx: 168,
+    heightPx: 36,
+  },
+} as const;
+
+/** Promo CTA pill artwork — Figma `887:807` / `882:827`. */
+export const HOME_HERO_PROMO_CTA_PILL = {
+  widthPx: 465,
+  heightPx: 87,
+  aspectRatio: 465 / 87,
+  /** Slightly smaller than Figma box — avoids stretched look on mobile artboard. */
+  displayScale: 0.92,
+} as const;
+
+/** Studio phone on promo CTA pill — Figma `887:807` / `882:827`. */
+export const HOME_HERO_PROMO_CTA_PHONE = {
+  /** Full local number for `tel:` links. */
+  tel: "060500400",
+  /** Digits shown on the pill (full local number). */
+  display: "060500400",
+  color: "#795A2B",
+  /** Left disc on pill PNG — number sits centered in the remaining yellow area. */
+  discWidthRatio: 0.19,
+  /** Digit cap height — bumped above Figma SVG (~38px on 87px). */
+  fontSizeHeightRatio: 0.54,
+  /** Nudge live number right on the pill (Figma artboard px). */
+  offsetRightPx: 10,
 } as const;
 
 /** R2 object keys — upload via `pnpm --filter web assets:upload-marketing-videos`. */

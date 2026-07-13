@@ -16,6 +16,7 @@ type ValueCardConfig = {
   bodyKey: "valuePeaceBody" | "valueStrengthBody" | "valueCommunityBody";
   imageSrc: string;
   imageClassName?: string;
+  cardClassName?: string;
   surface: string;
 };
 
@@ -32,6 +33,7 @@ const VALUE_CARDS: ValueCardConfig[] = [
     bodyKey: "valueStrengthBody",
     imageSrc: STORY_PAGE_ASSETS.valuesStrength,
     imageClassName: styles.imageStrength,
+    cardClassName: styles.cardStrength,
     surface: STORY_PAGE_SURFACE.valueStrengthSurface,
   },
   {
@@ -57,10 +59,12 @@ const VALUES_SECTION_STYLE = {
   ["--story-values-section-margin-top" as string]: STORY_PAGE_LAYOUT.valuesSectionMarginTop,
   ["--story-values-section-margin-top-mobile" as string]:
     STORY_PAGE_LAYOUT.valuesSectionMarginTopMobile,
-  ["--story-values-card-min-height-tablet" as string]:
-    STORY_PAGE_LAYOUT.valuesCardMinHeightTablet,
-  ["--story-values-image-min-height-tablet" as string]:
-    STORY_PAGE_LAYOUT.valuesCardImageMinHeightTablet,
+  ["--story-values-section-margin-top-ipad" as string]:
+    STORY_PAGE_LAYOUT.valuesSectionMarginTopIpad,
+  ["--story-values-card-min-height-ipad" as string]: STORY_PAGE_LAYOUT.valuesCardMinHeightIpad,
+  ["--story-values-image-height-ipad" as string]: STORY_PAGE_LAYOUT.valuesCardImageHeightIpad,
+  ["--story-values-strength-copy-media-gap-ipad" as string]:
+    STORY_PAGE_LAYOUT.valuesStrengthCopyMediaGapIpad,
 } as const;
 
 /** Three-column values grid — text top, image bottom (reference card layout). */
@@ -89,7 +93,7 @@ export async function MarketingStoryValuesSection({ locale }: MarketingStoryValu
               gridColumns={STORY_PAGE_LAYOUT.valuesGridColumns}
             >
               <article
-                className={styles.card}
+                className={[styles.card, card.cardClassName].filter(Boolean).join(" ")}
                 style={{ ["--story-value-surface" as string]: card.surface }}
               >
                 <div className={styles.copy}>

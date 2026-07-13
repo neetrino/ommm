@@ -707,6 +707,15 @@
   overflow-anchor: none;
 }
 
+/* iPad Mini + Air — two collapsed mobile cards per row (744px–1180px). */
+@media (min-width: 744px) and (max-width: 1180px) {
+  .mobileAccordionStack {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
 .mobileAccordionStackItem {
   position: relative;
   z-index: 0;

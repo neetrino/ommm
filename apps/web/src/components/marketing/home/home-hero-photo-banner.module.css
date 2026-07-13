@@ -14,8 +14,14 @@
 
 .homeHeroSection {
   position: relative;
-  overflow-x: clip;
+  overflow-x: hidden;
   background-color: transparent;
+}
+
+@supports (overflow: clip) {
+  .homeHeroSection {
+    overflow-x: clip;
+  }
 }
 
 .homeHeroBackgroundLayer {
@@ -24,12 +30,15 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  width: 100%;
+  min-height: 100%;
 }
 
 .homeHeroMediaTrack {
   display: flex;
   width: calc(var(--home-hero-slide-count, 5) * 100%);
   height: 100%;
+  -webkit-transform: translateX(var(--home-hero-track-offset, 0%));
   transform: translateX(var(--home-hero-track-offset, 0%));
   transition: transform 640ms cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -97,6 +106,31 @@
 .homeHeroPromoBackgroundCrop {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.homeHeroPromoPicture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  pointer-events: none;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.homeHeroPromoRaster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--home-hero-promo-object-position-mobile, center top);
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .homeHeroPromoBackground {
@@ -110,14 +144,21 @@
 
 .homeHeroPromoBackgroundMobile {
   display: block;
-  object-fit: contain;
-  object-position: center top;
+  object-position: var(--home-hero-promo-object-position-mobile, center top);
+}
+
+.homeHeroPromoPictureMobile {
+  display: block;
+}
+
+.homeHeroPromoPictureDesktop {
+  display: none;
 }
 
 .homeHeroPromoAspectSpacer {
   display: block;
   width: 100%;
-  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 455 / 1024);
+  aspect-ratio: var(--home-hero-promo-aspect-ratio-mobile, 393 / 852);
 }
 
 .homeHeroFramePromo {
@@ -125,10 +166,12 @@
   max-height: unset;
   height: auto;
   padding-bottom: 0;
+  /* Let promo copy underneath receive selection / CTA clicks. */
+  pointer-events: none;
 }
 
 .homeHeroSectionPromo {
-  background-color: var(--home-hero-promo-section-bg-mobile, #8a7348);
+  background-color: var(--home-hero-promo-section-bg-mobile, #c4a962);
 }
 
 .homeHeroBackground {
@@ -342,6 +385,35 @@
     transform: translateY(var(--home-hero-cta-down-offset, 0));
   }
 
+  /* Promo — same band height as video/legacy; crop overflow from the bottom only (top unchanged). */
+  .homeHeroFramePromo {
+    min-height: calc(var(--home-hero-min-h) + var(--home-schedule-hero-overlap, 0px));
+    max-height: calc(var(--home-hero-max-h) + var(--home-schedule-hero-overlap, 0px));
+    height: auto;
+    padding-bottom: var(--home-schedule-hero-overlap, 0px);
+    overflow: hidden;
+  }
+
+  .homeHeroSectionPromo {
+    min-height: calc(var(--home-hero-min-h) + var(--home-schedule-hero-overlap, 0px));
+  }
+
+  .homeHeroSectionPromo .homeHeroBackgroundLayer {
+    min-height: calc(var(--home-hero-min-h) + var(--home-schedule-hero-overlap, 0px));
+  }
+
+  .homeHeroSectionPromo .homeHeroMediaSlide {
+    min-height: calc(var(--home-hero-min-h) + var(--home-schedule-hero-overlap, 0px));
+  }
+
+  .homeHeroPromoAspectSpacer {
+    aspect-ratio: unset;
+    width: 100%;
+    height: var(--home-hero-min-h);
+    min-height: var(--home-hero-min-h);
+    max-height: var(--home-hero-max-h);
+  }
+
 }
 @media (min-width: 640px) {
   .homeHeroTitleLine {
@@ -354,6 +426,7 @@
 }
 
 @media (min-width: 744px) {
+  .homeHeroPromoRaster,
   .homeHeroPromoBackground {
     object-position: var(--home-hero-promo-object-position, center 54%);
   }
@@ -363,7 +436,15 @@
     object-position: var(--home-hero-promo-object-position, center 54%);
   }
 
+  .homeHeroPromoPictureDesktop {
+    display: block;
+  }
+
   .homeHeroPromoBackgroundMobile {
+    display: none;
+  }
+
+  .homeHeroPromoPictureMobile {
     display: none;
   }
 
@@ -372,7 +453,16 @@
   }
 
   .homeHeroSectionPromo {
-    background-color: var(--home-hero-promo-section-bg, #8a7348);
+    background-color: var(--home-hero-promo-section-bg, #c4a962);
+    min-height: var(--home-hero-min-h-lg);
+  }
+
+  .homeHeroSectionPromo .homeHeroBackgroundLayer {
+    min-height: var(--home-hero-min-h-lg);
+  }
+
+  .homeHeroSectionPromo .homeHeroMediaSlide {
+    min-height: var(--home-hero-min-h-lg);
   }
 
   .homeHeroFrame {
@@ -388,6 +478,10 @@
     max-height: none;
     height: auto;
     padding-bottom: var(--home-schedule-hero-overlap-lg, 12rem);
+  }
+
+  .homeHeroSectionPromo {
+    min-height: var(--home-hero-min-h-lg);
   }
 
   .homeHeroSection {

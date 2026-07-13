@@ -1,3 +1,8 @@
+import {
+  CANVAS_TABLET_MIN_WIDTH_PX,
+  IPAD_PRO_MAX_WIDTH_PX,
+} from "@/lib/viewport-breakpoints";
+
 /** Figma Story page — surface, typography, and layout tokens. */
 
 export const STORY_PAGE_SURFACE = {
@@ -71,9 +76,14 @@ export const STORY_PAGE_LAYOUT = {
   valuesCardRadius: "clamp(2.25rem, 4vw, 3rem)",
   valuesCardMinHeight: "clamp(25rem, 46vw, 32rem)",
   valuesCardImageMinHeight: "clamp(12.5rem, 28vw, 17rem)",
-  /** iPad Mini — equal taller cards so copy fits in three columns. */
-  valuesCardMinHeightTablet: "30rem",
-  valuesCardImageMinHeightTablet: "12rem",
+  /** iPad tier (744px–1366px) — extra section offset + equal-height value cards. */
+  valuesSectionMarginTopIpad: "clamp(5rem, 10vw, 7rem)",
+  valuesCardMinHeightIpad: "32rem",
+  valuesCardImageHeightIpad: "11rem",
+  /** Strength card — extra space between body copy and image on iPad. */
+  valuesStrengthCopyMediaGapIpad: "1.25rem",
+  valuesTabletMinWidthPx: CANVAS_TABLET_MIN_WIDTH_PX,
+  valuesIpadMaxWidthPx: IPAD_PRO_MAX_WIDTH_PX,
   valuesHeadingColor: "#97907c",
   valuesSubtitleColor: "#97907c",
   valuesSectionMarginTop: "clamp(3.5rem, 7vw, 5rem)",

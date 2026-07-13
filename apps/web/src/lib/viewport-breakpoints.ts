@@ -14,6 +14,9 @@ export const IPAD_AIR_REFERENCE_WIDTH_PX = 820;
 export const IPAD_AIR_MIN_WIDTH_PX = CANVAS_TABLET_MIN_WIDTH_PX;
 export const IPAD_AIR_MAX_WIDTH_PX = 1023;
 
+/** iPad Air landscape logical width — packages mobile layout through this width (Mini landscape 1133px). */
+export const IPAD_AIR_LANDSCAPE_MAX_WIDTH_PX = 1180;
+
 /** iPad Pro tier reference width for proportional scaling (1024px–1366px). */
 export const IPAD_PRO_TIER_REFERENCE_WIDTH_PX = 1024;
 export const IPAD_PRO_MAX_WIDTH_PX = 1366;

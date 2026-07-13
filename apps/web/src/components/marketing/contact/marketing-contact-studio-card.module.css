@@ -36,6 +36,34 @@
   }
 }
 
+/* iPad Mini + Air — row 1: phone, hours; row 2: address, email, Instagram. */
+@media (min-width: 744px) and (max-width: 1180px) {
+  .grid[data-contact-desktop-parity="odd"] .tile[data-contact-tile-key="phone"] {
+    order: 1;
+    grid-column: span 3;
+  }
+
+  .grid[data-contact-desktop-parity="odd"] .tile[data-contact-tile-key="hours"] {
+    order: 2;
+    grid-column: span 3;
+  }
+
+  .grid[data-contact-desktop-parity="odd"] .tile[data-contact-tile-key="address"] {
+    order: 3;
+    grid-column: span 2;
+  }
+
+  .grid[data-contact-desktop-parity="odd"] .tile[data-contact-tile-key="email"] {
+    order: 4;
+    grid-column: span 2;
+  }
+
+  .grid[data-contact-desktop-parity="odd"] .tile[data-contact-tile-key="instagram"] {
+    order: 5;
+    grid-column: span 2;
+  }
+}
+
 .tile {
   display: flex;
   min-height: var(--contact-tile-min-height-mobile);

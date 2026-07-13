@@ -97,7 +97,10 @@ function ContactGridTileCard({
   imagePriority: "above" | "below";
 }) {
   return (
-    <article className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.tile}`}>
+    <article
+      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.tile}`}
+      data-contact-tile-key={tile.key}
+    >
       <span className={styles.iconWrap}>
         {tile.socialIcon !== undefined ? (
           <ContactSocialBrandIcon id={tile.socialIcon} />

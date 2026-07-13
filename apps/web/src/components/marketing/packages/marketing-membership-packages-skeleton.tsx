@@ -92,15 +92,21 @@ export function MarketingMembershipPackagesSkeleton() {
       </div>
 
       <div
-        className={`${cardStyles.mobileOnly} flex flex-col`}
+        className={`${cardStyles.mobileOnly} ${accordionStyles.mobileAccordionStack}`}
         style={{ gap: PACKAGES_PAGE_LAYOUT.mobileAccordionGap }}
       >
         {Array.from({ length: MOBILE_SKELETON_CARD_COUNT }, (_, index) => (
           <div
             key={index}
-            className="rounded-[24px] border border-white/50 bg-white/35"
-            style={{ height: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardMinHeightPx}px` }}
-          />
+            className={accordionStyles.mobileAccordionStackItem}
+          >
+            <div
+              className="rounded-[24px] border border-white/50 bg-white/35"
+              style={{
+                height: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardMinHeightPx}px`,
+              }}
+            />
+          </div>
         ))}
       </div>
     </div>
