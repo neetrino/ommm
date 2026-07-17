@@ -89,6 +89,12 @@
   white-space: nowrap;
 }
 
+/* hy desktop — space only between «Հիմնադիր» and «աբոնեմենտներ». */
+.desktopOnly[data-locale="hy"] .headlineLine + .headlineLine,
+.desktopOnly[data-locale^="hy-"] .headlineLine + .headlineLine {
+  margin-top: calc(var(--home-hero-promo-headline-founding-gap-extra-px, 0) * 1px);
+}
+
 .headlineLineAreOpen {
   display: block;
   margin: 0;
@@ -133,6 +139,17 @@
 
 .mobileOnly .limitedLine {
   white-space: normal;
+}
+
+/* ru/en — keep limited title on one row on phone. */
+.mobileOnly .limitedLineTitle {
+  white-space: nowrap;
+}
+
+/* hy — «Սահմանափակ / փաթեթներ» on two rows (newline in copy). */
+.mobileOnly[data-locale="hy"] .limitedLineTitle,
+.mobileOnly[data-locale^="hy-"] .limitedLineTitle {
+  white-space: pre-line;
 }
 
 .mobileOnly .limitedEmphasis {
@@ -188,6 +205,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: calc(var(--home-hero-promo-cta-phone-offset-top-px, 0) * 1px);
   padding-left: calc(var(--home-hero-promo-cta-phone-offset-right-px, 10) * 1px);
   font-family: var(--font-gt-super-ds-trial), ui-serif, Georgia, serif;
   font-size: clamp(

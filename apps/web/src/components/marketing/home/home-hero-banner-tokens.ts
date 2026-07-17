@@ -301,7 +301,24 @@ const HOME_HERO_PROMO_BANNER_DESKTOP_CTA_TOP_PX =
 const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TOP_PX = 97;
 const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FONT_SIZE_PX = 50;
 const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX = 50;
-const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 70;
+/** Tighter than Figma so «are open.» sits closer under founding lines. */
+const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 46;
+/** hy mobile — Armenian founding lines read a bit large at 50px. */
+export const HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE = {
+  fontSizePx: 44,
+  /** Extra air between «Հիմնադիր» and «աբոնեմենտներ». */
+  foundingLineHeightPx: 52,
+  areOpenLineHeightPx: 42,
+  /** Extra space under «բաց են.» before limited copy. */
+  afterAreOpenGapExtraPx: 16,
+} as const;
+
+/** hy desktop — extra air between founding lines and under «բաց են.». */
+export const HOME_HERO_PROMO_BANNER_DESKTOP_HY_HEADLINE = {
+  foundingLineGapExtraPx: 20,
+  /** Extra space under «բաց են.» before limited copy. */
+  afterAreOpenGapExtraPx: 24,
+} as const;
 const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX =
   HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX * 2 +
   HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX;
@@ -358,7 +375,8 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
     figmaNodeId: "882:813",
     leftPx: 41,
     topPx: HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_TOP_PX,
-    widthPx: 277,
+    /** Wider than Figma so ru «Ограниченные пакеты» stays on one line. */
+    widthPx: 330,
     heightPx: HOME_HERO_PROMO_BANNER_MOBILE_LIMITED_HEIGHT_PX,
     fontSizePx: 30,
     lineHeightPx: 34,
@@ -394,7 +412,22 @@ export const HOME_HERO_PROMO_CTA_PHONE = {
   fontSizeHeightRatio: 0.54,
   /** Nudge live number right on the pill (Figma artboard px). */
   offsetRightPx: 10,
+  /** Mobile ru/hy — keep digits vertically centered in the yellow pill. */
+  offsetTopPxMobileRuHy: 0,
 } as const;
+
+export function isMarketingRuOrHyLocale(locale: string): boolean {
+  return (
+    locale === "ru" ||
+    locale.startsWith("ru-") ||
+    locale === "hy" ||
+    locale.startsWith("hy-")
+  );
+}
+
+export function isMarketingHyLocale(locale: string): boolean {
+  return locale === "hy" || locale.startsWith("hy-");
+}
 
 /** R2 object keys — upload via `pnpm --filter web assets:upload-marketing-videos`. */
 export const HOME_HERO_INTRO_VIDEO_R2_KEY = "marketing/home/hero/home-hero-intro.webm";
