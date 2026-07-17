@@ -60,15 +60,17 @@
   content: " ";
 }
 
-/* ru only — stack Yoga bodyLines so «к себе.» stays on its own row (en unchanged). */
-:global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine,
-:global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine {
-  display: block;
-}
+/* ru desktop/tablet — stack Yoga rows so «к себе.» is alone; mobile stays inline (more words per line). */
+@media (min-width: 744px) {
+  :global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine,
+  :global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine {
+    display: block;
+  }
 
-:global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
-:global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
-  content: none;
+  :global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+  :global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
+    content: none;
+  }
 }
 
 .imageZone {
