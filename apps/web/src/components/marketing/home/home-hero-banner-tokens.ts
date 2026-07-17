@@ -72,6 +72,15 @@ export const HOME_HERO_MOBILE_LAYOUT = {
   backgroundImageTopPercent: -3.38,
 } as const;
 
+/** Optical hy copy nudges — title up, subtitle + membership CTA down. */
+export const HOME_HERO_HY_COPY_NUDGE = {
+  titleYPx: -10,
+  subtitleYPx: 4,
+  ctaYPx: 4,
+  /** Gap between headline and subtitle. */
+  titleToSubtitleGapPx: 10,
+} as const;
+
 /** Responsive layout derived from Figma artboard `155:108` (1440×924 photo area). */
 export const HOME_HERO_LAYOUT = {
   imageAspectRatio: HOME_HERO_FIGMA.artboardWidthPx / HOME_HERO_FIGMA.imageHeightPx,
@@ -610,16 +619,12 @@ export const HOME_HERO_CTA_TABLET_HERO_LAYOUT = {
   },
 } as const;
 
-/** Smaller label type for long hy/ru membership CTAs — fits pill without resizing button. */
-export const HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE = {
-  mobile: "clamp(0.875rem, calc(100svw * 15 / 394), 1rem)",
-  desktop: "clamp(0.6875rem, calc(100svw * 11 / 1440), 0.75rem)",
-  tablet: "clamp(0.75rem, calc(100svw * 12 / 1440), 0.8125rem)",
+/** Membership CTA label type — readable size across en/ru/hy. */
+export const HOME_HERO_CTA_MEMBERSHIP_LABEL_TYPE = {
+  mobile: "clamp(1rem, calc(100svw * 17 / 394), 1.125rem)",
+  desktop: "clamp(0.8125rem, calc(100svw * 14 / 1440), 0.9375rem)",
+  tablet: "clamp(0.875rem, calc(100svw * 15 / 1440), 1rem)",
 } as const;
-
-export function isMarketingLongMembershipCtaLocale(locale: string): boolean {
-  return locale === "hy" || locale === "ru";
-}
 
 /** Hero mobile layout on iPad — stacked CTAs, taller buttons (744px–1023px). */
 export const HOME_HERO_CTA_TABLET_MOBILE_LAYOUT = {

@@ -58,6 +58,7 @@ export async function MarketingPublicHomeClassesSection({
       aria-labelledby="home-classes-heading"
       aria-describedby="home-classes-subtitle"
       className={`${marketingMontserrat.variable} ${styles.section}`}
+      data-locale={locale}
       style={{
         ["--home-classes-section-bg" as string]: HOME_CLASSES_SECTION_BACKGROUND,
         ["--home-classes-schedule-overlap" as string]: scheduleOverlap,

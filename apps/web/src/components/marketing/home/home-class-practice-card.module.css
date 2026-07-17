@@ -60,6 +60,23 @@
   content: " ";
 }
 
+/* ru/hy desktop/tablet — stack Yoga rows (ending alone); mobile stays inline. en unchanged. */
+@media (min-width: 744px) {
+  :global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine,
+  :global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine,
+  :global([data-locale="hy"]) .card[data-card-id="yoga"] .bodyLine,
+  :global([data-locale^="hy-"]) .card[data-card-id="yoga"] .bodyLine {
+    display: block;
+  }
+
+  :global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+  :global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+  :global([data-locale="hy"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+  :global([data-locale^="hy-"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
+    content: none;
+  }
+}
+
 .imageZone {
   pointer-events: none;
   position: absolute;

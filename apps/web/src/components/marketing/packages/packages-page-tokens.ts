@@ -153,6 +153,16 @@ export function resolvePackagesPageExpandedScrollHeightPx(): number {
 export const PACKAGES_PAGE_TIER_TABLE_COLUMNS =
   "minmax(11rem, 2.5fr) minmax(3.25rem, 0.85fr) minmax(4.75rem, 1.05fr) minmax(4rem, 0.9fr) minmax(2.5rem, 0.5fr) minmax(5.75rem, 1.1fr)";
 
+/** Armenian — leaner plan col so longer hy labels fit in the other pills. */
+export const PACKAGES_PAGE_TIER_TABLE_COLUMNS_HY =
+  "minmax(7.5rem, 1.45fr) minmax(4rem, 1fr) minmax(4.75rem, 1.05fr) minmax(5rem, 1.1fr) minmax(2.5rem, 0.55fr) minmax(7rem, 1.35fr)";
+
+export function resolvePackagesPageTierTableColumns(locale: string): string {
+  return locale === "hy"
+    ? PACKAGES_PAGE_TIER_TABLE_COLUMNS_HY
+    : PACKAGES_PAGE_TIER_TABLE_COLUMNS;
+}
+
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,
   cardsGap: "clamp(1rem, 2.2vw, 1.75rem)",

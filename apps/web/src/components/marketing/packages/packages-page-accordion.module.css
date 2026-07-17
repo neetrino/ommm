@@ -372,6 +372,7 @@
 
 .columnHeaderPill {
   display: inline-flex;
+  box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   align-items: center;
@@ -382,11 +383,13 @@
   border: 1px solid var(--packages-page-text-color);
   border-radius: 9999px;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: clamp(0.5625rem, 0.95vw, var(--packages-page-column-header-size));
+  font-size: clamp(0.5rem, 11cqi, var(--packages-page-column-header-size));
   font-weight: 700;
   line-height: 1rem;
   color: var(--packages-page-text-color);
   white-space: nowrap;
+  overflow: hidden;
+  container-type: inline-size;
 }
 
 .columnHeaderSubscribe {
@@ -571,6 +574,7 @@
 
 .subscribeButton {
   display: inline-flex;
+  box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   min-height: var(--packages-page-subscribe-height);
@@ -580,12 +584,14 @@
   border-radius: 9999px;
   background-color: var(--packages-page-text-color);
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: clamp(0.6875rem, 1.1vw, var(--packages-page-subscribe-size));
+  font-size: clamp(0.5625rem, 13cqi, var(--packages-page-subscribe-size));
   font-weight: 600;
   line-height: 1rem;
   color: var(--packages-page-subscribe-text);
   text-decoration: none;
   white-space: nowrap;
+  overflow: hidden;
+  container-type: inline-size;
 }
 
 .expandedFooter {

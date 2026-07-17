@@ -148,6 +148,7 @@ export async function MarketingPublicHomeFooter({
 
   const legal = (
     <MarketingPublicHomeFooterPolicies
+      locale={locale}
       title={t("footerPoliciesTitle")}
       navAria={t("footerLegalNavAria")}
       labels={{
@@ -189,6 +190,7 @@ export async function MarketingPublicHomeFooter({
           />
 
           <MarketingPublicHomeFooterMobile
+            locale={locale}
             wordmarkLabel={t("footerWordmark")}
             illustrationAlt={t("footerIllustrationAlt")}
             contactTitle={t("footerContactTitle")}
