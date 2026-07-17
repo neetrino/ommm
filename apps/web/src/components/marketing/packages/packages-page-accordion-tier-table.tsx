@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
 import type { ExpandedTierTableProps } from "@/components/marketing/packages/packages-page-accordion.types";
 import { PackagesPageAccordionTierRow } from "@/components/marketing/packages/packages-page-accordion-tier-row";
-import { PACKAGES_PAGE_TIER_TABLE_COLUMNS } from "@/components/marketing/packages/packages-page-tokens";
+import { resolvePackagesPageTierTableColumns } from "@/components/marketing/packages/packages-page-tokens";
 
 export function PackagesPageAccordionTierTable({
   locale,
@@ -19,9 +19,9 @@ export function PackagesPageAccordionTierTable({
   const tierColumnsStyle = useMemo(
     () =>
       ({
-        ["--packages-page-tier-columns" as string]: PACKAGES_PAGE_TIER_TABLE_COLUMNS,
+        ["--packages-page-tier-columns" as string]: resolvePackagesPageTierTableColumns(locale),
       }) as CSSProperties,
-    [],
+    [locale],
   );
 
   return (
