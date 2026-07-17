@@ -7,8 +7,11 @@ import {
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA,
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT,
   HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX,
+  HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE,
   HOME_HERO_PROMO_CTA_PHONE,
   HOME_HERO_PROMO_CTA_PILL,
+  isMarketingHyLocale,
+  isMarketingRuOrHyLocale,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import styles from "@/components/marketing/home/home-hero-promo-banner-overlay.module.css";
 import { formatPhoneTelHref } from "@/lib/phone";
@@ -21,6 +24,7 @@ export type HomeHeroPromoBannerOverlayProps = {
   limitedLine2Prefix: string;
   limitedLine2Emphasis: string;
   ctaAriaLabel: string;
+  locale: string;
 };
 
 type PromoHeadlineLayout = {
@@ -108,22 +112,56 @@ const MOBILE_TEXT_STYLE = buildPromoTextStyleVars(
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileCtaBadge,
 );
 
+/** Extra line for hy limited title («Սահմանափակ» / «փաթեթներ»). */
+const MOBILE_HY_LIMITED_EXTRA_LINE_PX =
+  HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileLimited.lineHeightPx;
+
+function buildMobileTextStyle(locale: string): CSSProperties {
+  if (!isMarketingHyLocale(locale)) {
+    return MOBILE_TEXT_STYLE;
+  }
+
+  const limited = HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileLimited;
+  const cta = HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileCtaBadge;
+  return {
+    ...MOBILE_TEXT_STYLE,
+    ["--home-hero-promo-headline-size-px" as string]: String(
+      HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE.fontSizePx,
+    ),
+    ["--home-hero-promo-headline-founding-line-height-px" as string]: String(
+      HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE.foundingLineHeightPx,
+    ),
+    ["--home-hero-promo-headline-are-open-line-height-px" as string]: String(
+      HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE.areOpenLineHeightPx,
+    ),
+    ["--home-hero-promo-limited-height-px" as string]: String(
+      limited.heightPx + MOBILE_HY_LIMITED_EXTRA_LINE_PX,
+    ),
+    ["--home-hero-promo-cta-top-px" as string]: String(
+      cta.topPx + MOBILE_HY_LIMITED_EXTRA_LINE_PX,
+    ),
+  };
+}
+
 const PROMO_CTA_PILL_WIDTH_PX = HOME_HERO_PROMO_CTA_PILL.widthPx;
 const PROMO_CTA_PILL_HEIGHT_PX = HOME_HERO_PROMO_CTA_PILL.heightPx;
 
-const PROMO_CTA_PHONE_STYLE: CSSProperties = {
-  ["--home-hero-promo-cta-phone-color" as string]: HOME_HERO_PROMO_CTA_PHONE.color,
-  ["--home-hero-promo-cta-phone-disc-width-ratio" as string]: String(
-    HOME_HERO_PROMO_CTA_PHONE.discWidthRatio,
-  ),
-  ["--home-hero-promo-cta-phone-offset-right-px" as string]: String(
-    HOME_HERO_PROMO_CTA_PHONE.offsetRightPx,
-  ),
-  ["--home-hero-promo-cta-pill-aspect-ratio" as string]: String(
-    HOME_HERO_PROMO_CTA_PILL.aspectRatio,
-  ),
-  ["--home-hero-promo-cta-pill-scale" as string]: String(HOME_HERO_PROMO_CTA_PILL.displayScale),
-};
+function buildPromoCtaPhoneStyle(offsetTopPx: number): CSSProperties {
+  return {
+    ["--home-hero-promo-cta-phone-color" as string]: HOME_HERO_PROMO_CTA_PHONE.color,
+    ["--home-hero-promo-cta-phone-disc-width-ratio" as string]: String(
+      HOME_HERO_PROMO_CTA_PHONE.discWidthRatio,
+    ),
+    ["--home-hero-promo-cta-phone-offset-right-px" as string]: String(
+      HOME_HERO_PROMO_CTA_PHONE.offsetRightPx,
+    ),
+    ["--home-hero-promo-cta-phone-offset-top-px" as string]: String(offsetTopPx),
+    ["--home-hero-promo-cta-pill-aspect-ratio" as string]: String(
+      HOME_HERO_PROMO_CTA_PILL.aspectRatio,
+    ),
+    ["--home-hero-promo-cta-pill-scale" as string]: String(HOME_HERO_PROMO_CTA_PILL.displayScale),
+  };
+}
 
 function PromoBannerCopy({
   foundingLine1,
@@ -133,6 +171,7 @@ function PromoBannerCopy({
   limitedLine2Prefix,
   limitedLine2Emphasis,
   ctaAriaLabel,
+  locale,
   isDesktop,
   style,
 }: HomeHeroPromoBannerOverlayProps & {
@@ -140,16 +179,24 @@ function PromoBannerCopy({
   style: CSSProperties;
 }) {
   const ctaTelHref = formatPhoneTelHref(HOME_HERO_PROMO_CTA_PHONE.tel);
+  const phoneOffsetTopPx =
+    !isDesktop && isMarketingRuOrHyLocale(locale)
+      ? HOME_HERO_PROMO_CTA_PHONE.offsetTopPxMobileRuHy
+      : 0;
 
   return (
-    <div className={isDesktop ? styles.desktopOnly : styles.mobileOnly} style={style}>
+    <div
+      className={isDesktop ? styles.desktopOnly : styles.mobileOnly}
+      data-locale={locale}
+      style={style}
+    >
       <div className={`${styles.textBlock} ${styles.headlineBlock}`}>
         <p className={styles.headlineLine}>{foundingLine1}</p>
         <p className={styles.headlineLine}>{foundingLine2}</p>
         <p className={styles.headlineLineAreOpen}>{areOpen}</p>
       </div>
       <div className={`${styles.textBlock} ${styles.limitedBlock}`}>
-        <p className={styles.limitedLine}>{limitedLine1}</p>
+        <p className={`${styles.limitedLine} ${styles.limitedLineTitle}`}>{limitedLine1}</p>
         <p className={styles.limitedLine}>
           {limitedLine2Prefix}
           <span className={styles.limitedEmphasis}>{limitedLine2Emphasis}</span>
@@ -159,7 +206,7 @@ function PromoBannerCopy({
         href={`tel:${ctaTelHref}`}
         className={styles.ctaBadge}
         aria-label={ctaAriaLabel}
-        style={PROMO_CTA_PHONE_STYLE}
+        style={buildPromoCtaPhoneStyle(phoneOffsetTopPx)}
       >
         <Image
           src={HOME_HERO_ASSETS.promoBannerCtaPill}
@@ -180,14 +227,16 @@ function PromoBannerCopy({
 
 /** Live promo copy over the founding banner slide — Figma `881:802` / `882:802`. */
 export function HomeHeroPromoBannerOverlay(props: HomeHeroPromoBannerOverlayProps) {
+  const srLimitedLine1 = props.limitedLine1.replace(/\n/g, " ");
+
   return (
     <div className={styles.overlay}>
       <h2 id="home-hero-promo-heading" className={styles.srOnly}>
-        {props.foundingLine1} {props.foundingLine2} {props.areOpen} {props.limitedLine1}.{" "}
+        {props.foundingLine1} {props.foundingLine2} {props.areOpen} {srLimitedLine1}.{" "}
         {props.limitedLine2Prefix}
         {props.limitedLine2Emphasis}
       </h2>
-      <PromoBannerCopy {...props} isDesktop={false} style={MOBILE_TEXT_STYLE} />
+      <PromoBannerCopy {...props} isDesktop={false} style={buildMobileTextStyle(props.locale)} />
       <PromoBannerCopy {...props} isDesktop={true} style={DESKTOP_TEXT_STYLE} />
     </div>
   );

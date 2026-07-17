@@ -69,6 +69,7 @@ export async function HomeHeroPhotoBanner({
       limitedLine2Prefix={t("promoBannerLimitedLine2Prefix")}
       limitedLine2Emphasis={t("promoBannerLimitedLine2Emphasis")}
       ctaAriaLabel={t("promoBannerCtaAria")}
+      locale={locale}
     />
   );
 
