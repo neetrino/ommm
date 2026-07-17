@@ -223,6 +223,7 @@
   font-size: var(--home-hero-title-size);
   line-height: var(--home-hero-title-line-height);
   letter-spacing: var(--home-hero-title-tracking);
+  transform: translateY(var(--home-hero-title-nudge-y, 0px));
 }
 
 .homeHeroTitleLine {
@@ -242,6 +243,7 @@
   font-weight: 300;
   line-height: var(--home-hero-subtitle-line-height);
   color: var(--home-hero-subtitle-color);
+  transform: translateY(var(--home-hero-subtitle-nudge-y, 0px));
 }
 
 .homeHeroSubtitleLine {
@@ -340,6 +342,7 @@
   align-items: stretch;
   align-self: stretch;
   gap: var(--home-hero-cta-gap);
+  transform: translateY(var(--home-hero-cta-nudge-y, 0px));
 }
 
 @media (max-width: 743px) {
@@ -382,7 +385,9 @@
   }
 
   .homeHeroCtas {
-    transform: translateY(var(--home-hero-cta-down-offset, 0));
+    transform: translateY(
+      calc(var(--home-hero-cta-down-offset, 0px) + var(--home-hero-cta-nudge-y, 0px))
+    );
   }
 
   /* Promo — same band height as video/legacy; crop overflow from the bottom only (top unchanged). */
@@ -578,7 +583,7 @@
   }
 
   .homeHeroSubtitle {
-    margin-top: 0.25rem;
+    margin-top: var(--home-hero-subtitle-margin-top-lg, 0.25rem);
     max-width: var(--home-hero-subtitle-max-width-lg);
     text-align: center;
     font-size: var(--home-hero-subtitle-size-lg);
@@ -592,7 +597,7 @@
     justify-content: center;
     margin-top: var(--home-hero-cta-margin-top-lg);
     padding-top: 0;
-    transform: none;
+    transform: translateY(var(--home-hero-cta-nudge-y, 0px));
     gap: var(--home-hero-cta-gap-lg);
   }
 }

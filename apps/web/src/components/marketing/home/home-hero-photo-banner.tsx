@@ -16,6 +16,7 @@ import {
   HOME_HERO_CAROUSEL_SLIDE_COUNT,
   HOME_HERO_FIGMA,
   HOME_HERO_CTA_LAYOUT,
+  HOME_HERO_HY_COPY_NUDGE,
   HOME_HERO_IPAD_AIR_LAYOUT,
   HOME_HERO_LAYOUT,
   HOME_HERO_LOGO_MARK_VIDEO_LAYOUT,
@@ -256,7 +257,12 @@ export async function HomeHeroPhotoBanner({
         ["--home-hero-subtitle-color" as string]: HOME_HERO_FIGMA.subtitleColor,
         ["--home-hero-subtitle-max-width" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleMaxWidth,
         ["--home-hero-subtitle-max-width-lg" as string]: `${HOME_HERO_LAYOUT.subtitleMaxWidthPx}px`,
-        ["--home-hero-subtitle-margin-top" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleMarginTop,
+        ["--home-hero-subtitle-margin-top" as string]:
+          locale === "hy"
+            ? `${HOME_HERO_HY_COPY_NUDGE.titleToSubtitleGapPx}px`
+            : HOME_HERO_MOBILE_LAYOUT.subtitleMarginTop,
+        ["--home-hero-subtitle-margin-top-lg" as string]:
+          locale === "hy" ? `${HOME_HERO_HY_COPY_NUDGE.titleToSubtitleGapPx}px` : "0.25rem",
         ["--home-hero-text-stack-offset-top" as string]: HOME_HERO_MOBILE_LAYOUT.textStackOffsetTop,
         ["--home-hero-content-down-offset" as string]: HOME_HERO_MOBILE_LAYOUT.contentDownOffset,
         ["--home-hero-cta-gap" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonGap,
@@ -264,6 +270,12 @@ export async function HomeHeroPhotoBanner({
         ["--home-hero-cta-bottom" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsBottomOffset,
         ["--home-hero-cta-down-offset" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsDownOffset,
         ["--home-hero-cta-margin-top-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonsMarginTop,
+        ["--home-hero-title-nudge-y" as string]:
+          locale === "hy" ? `${HOME_HERO_HY_COPY_NUDGE.titleYPx}px` : "0px",
+        ["--home-hero-subtitle-nudge-y" as string]:
+          locale === "hy" ? `${HOME_HERO_HY_COPY_NUDGE.subtitleYPx}px` : "0px",
+        ["--home-hero-cta-nudge-y" as string]:
+          locale === "hy" ? `${HOME_HERO_HY_COPY_NUDGE.ctaYPx}px` : "0px",
         ["--home-schedule-hero-overlap" as string]: showScheduleSpacer
           ? HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionHeroOverlap
           : "0px",

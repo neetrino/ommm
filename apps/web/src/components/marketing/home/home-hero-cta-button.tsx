@@ -1,16 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useLocale } from "next-intl";
 import styles from "@/components/marketing/home/home-hero-cta-button.module.css";
 import {
   HOME_HERO_CTA_ASSETS,
   HOME_HERO_CTA_LAYOUT,
-  HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE,
+  HOME_HERO_CTA_MEMBERSHIP_LABEL_TYPE,
   HOME_HERO_CTA_TABLET_HERO_LAYOUT,
   HOME_HERO_CTA_TABLET_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
-  isMarketingLongMembershipCtaLocale,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { MarketingSectionLink } from "@/components/marketing/marketing-section-link";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
@@ -35,7 +33,6 @@ export function HomeHeroCtaButton({
   sizeContext = "default",
   labelOffsetPx,
 }: HomeHeroCtaButtonProps) {
-  const locale = useLocale();
   const assets = HOME_HERO_CTA_ASSETS[variant];
   const desktopLayout = HOME_HERO_CTA_LAYOUT[variant];
   const tabletLayout =
@@ -46,9 +43,8 @@ export function HomeHeroCtaButton({
     variant === "booking" || variant === "membership"
       ? HOME_HERO_MOBILE_CTA_LAYOUT[variant]
       : null;
-  const isHyRuLocale = isMarketingLongMembershipCtaLocale(locale);
-  const usesLongMembershipLabel =
-    (variant === "membership" || variant === "coachesDetails") && isHyRuLocale;
+  const isMembershipLikeVariant = variant === "membership" || variant === "coachesDetails";
+  const membershipLabelType = isMembershipLikeVariant ? HOME_HERO_CTA_MEMBERSHIP_LABEL_TYPE : null;
   const usesMobileCenteredLabel = mobileLayout !== null;
   const mobileLabelCenteredClass = usesMobileCenteredLabel ? styles.mobileLabelCentered : "";
   const variantClass =
@@ -82,17 +78,13 @@ export function HomeHeroCtaButton({
         ["--hero-cta-arrow-zone-width-lg" as string]: `${desktopLayout.arrowZoneWidthRatio * 100}%`,
         ["--hero-cta-label-offset" as string]: usesMobileCenteredLabel ? "0px" : `${mobileLabelOffsetPx}px`,
         ["--hero-cta-label-offset-lg" as string]: `${desktopLayout.labelOffsetPx}px`,
-        ["--hero-cta-label-font-size" as string]: usesLongMembershipLabel
-          ? HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE.mobile
+        ["--hero-cta-label-font-size" as string]: membershipLabelType
+          ? membershipLabelType.mobile
           : mobileLayout !== null
             ? HOME_HERO_MOBILE_CTA_LAYOUT.labelFontSize
             : undefined,
-        ["--hero-cta-label-font-size-lg" as string]: usesLongMembershipLabel
-          ? HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE.desktop
-          : undefined,
-        ["--hero-cta-label-font-size-tablet" as string]: usesLongMembershipLabel
-          ? HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE.tablet
-          : undefined,
+        ["--hero-cta-label-font-size-lg" as string]: membershipLabelType?.desktop,
+        ["--hero-cta-label-font-size-tablet" as string]: membershipLabelType?.tablet,
       }}
     >
       {shapeMobile ? (
