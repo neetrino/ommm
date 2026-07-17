@@ -60,6 +60,17 @@
   content: " ";
 }
 
+/* ru only — stack Yoga bodyLines so «к себе.» stays on its own row (en unchanged). */
+:global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine,
+:global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine {
+  display: block;
+}
+
+:global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+:global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
+  content: none;
+}
+
 .imageZone {
   pointer-events: none;
   position: absolute;
