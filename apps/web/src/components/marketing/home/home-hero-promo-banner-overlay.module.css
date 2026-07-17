@@ -89,6 +89,12 @@
   white-space: nowrap;
 }
 
+/* hy desktop — space only between «Հիմնադիր» and «աբոնեմենտներ». */
+.desktopOnly[data-locale="hy"] .headlineLine + .headlineLine,
+.desktopOnly[data-locale^="hy-"] .headlineLine + .headlineLine {
+  margin-top: calc(var(--home-hero-promo-headline-founding-gap-extra-px, 0) * 1px);
+}
+
 .headlineLineAreOpen {
   display: block;
   margin: 0;

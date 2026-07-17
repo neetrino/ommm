@@ -309,6 +309,15 @@ export const HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE = {
   /** Extra air between «Հիմնադիր» and «աբոնեմենտներ». */
   foundingLineHeightPx: 52,
   areOpenLineHeightPx: 42,
+  /** Extra space under «բաց են.» before limited copy. */
+  afterAreOpenGapExtraPx: 16,
+} as const;
+
+/** hy desktop — extra air between founding lines and under «բաց են.». */
+export const HOME_HERO_PROMO_BANNER_DESKTOP_HY_HEADLINE = {
+  foundingLineGapExtraPx: 20,
+  /** Extra space under «բաց են.» before limited copy. */
+  afterAreOpenGapExtraPx: 24,
 } as const;
 const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_HEIGHT_PX =
   HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_FOUNDING_LINE_HEIGHT_PX * 2 +

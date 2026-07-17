@@ -7,6 +7,7 @@ import {
   HOME_HERO_PROMO_BANNER_TEXT_FIGMA,
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT,
   HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX,
+  HOME_HERO_PROMO_BANNER_DESKTOP_HY_HEADLINE,
   HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE,
   HOME_HERO_PROMO_CTA_PHONE,
   HOME_HERO_PROMO_CTA_PILL,
@@ -116,6 +117,27 @@ const MOBILE_TEXT_STYLE = buildPromoTextStyleVars(
 const MOBILE_HY_LIMITED_EXTRA_LINE_PX =
   HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileLimited.lineHeightPx;
 
+function buildDesktopTextStyle(locale: string): CSSProperties {
+  if (!isMarketingHyLocale(locale)) {
+    return DESKTOP_TEXT_STYLE;
+  }
+
+  const headline = HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopHeadline;
+  const limited = HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopLimited;
+  const cta = HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.desktopCtaBadge;
+  const foundingGap = HOME_HERO_PROMO_BANNER_DESKTOP_HY_HEADLINE.foundingLineGapExtraPx;
+  const afterAreOpen = HOME_HERO_PROMO_BANNER_DESKTOP_HY_HEADLINE.afterAreOpenGapExtraPx;
+  const stackShift = foundingGap + afterAreOpen;
+
+  return {
+    ...DESKTOP_TEXT_STYLE,
+    ["--home-hero-promo-headline-founding-gap-extra-px" as string]: String(foundingGap),
+    ["--home-hero-promo-headline-height-px" as string]: String(headline.heightPx + foundingGap),
+    ["--home-hero-promo-limited-top-px" as string]: String(limited.topPx + stackShift),
+    ["--home-hero-promo-cta-top-px" as string]: String(cta.topPx + stackShift),
+  };
+}
+
 function buildMobileTextStyle(locale: string): CSSProperties {
   if (!isMarketingHyLocale(locale)) {
     return MOBILE_TEXT_STYLE;
@@ -123,6 +145,7 @@ function buildMobileTextStyle(locale: string): CSSProperties {
 
   const limited = HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileLimited;
   const cta = HOME_HERO_PROMO_BANNER_TEXT_LAYOUT.mobileCtaBadge;
+  const afterAreOpen = HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE.afterAreOpenGapExtraPx;
   return {
     ...MOBILE_TEXT_STYLE,
     ["--home-hero-promo-headline-size-px" as string]: String(
@@ -134,11 +157,12 @@ function buildMobileTextStyle(locale: string): CSSProperties {
     ["--home-hero-promo-headline-are-open-line-height-px" as string]: String(
       HOME_HERO_PROMO_BANNER_MOBILE_HY_HEADLINE.areOpenLineHeightPx,
     ),
+    ["--home-hero-promo-limited-top-px" as string]: String(limited.topPx + afterAreOpen),
     ["--home-hero-promo-limited-height-px" as string]: String(
       limited.heightPx + MOBILE_HY_LIMITED_EXTRA_LINE_PX,
     ),
     ["--home-hero-promo-cta-top-px" as string]: String(
-      cta.topPx + MOBILE_HY_LIMITED_EXTRA_LINE_PX,
+      cta.topPx + afterAreOpen + MOBILE_HY_LIMITED_EXTRA_LINE_PX,
     ),
   };
 }
@@ -237,7 +261,7 @@ export function HomeHeroPromoBannerOverlay(props: HomeHeroPromoBannerOverlayProp
         {props.limitedLine2Emphasis}
       </h2>
       <PromoBannerCopy {...props} isDesktop={false} style={buildMobileTextStyle(props.locale)} />
-      <PromoBannerCopy {...props} isDesktop={true} style={DESKTOP_TEXT_STYLE} />
+      <PromoBannerCopy {...props} isDesktop={true} style={buildDesktopTextStyle(props.locale)} />
     </div>
   );
 }
