@@ -5,18 +5,20 @@ import { MarketingPublicHomeFooterInstagramRow } from "@/components/marketing/ho
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_FIGMA,
-  HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_MOBILE_SPHERE_BOUNCE,
   HOME_FOOTER_PAYMENT_LOGOS,
+  resolveHomeFooterLegalLinks,
+  type HomeFooterLegalLink,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import { MarketingPublicHomeFooterCopyright } from "@/components/marketing/home/marketing-public-home-footer-copyright";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { renderAtSignText } from "@/lib/render-at-sign-text";
 
-type FooterLegalKey = (typeof HOME_FOOTER_LEGAL_LINKS)[number]["labelKey"];
+type FooterLegalKey = HomeFooterLegalLink["labelKey"];
 
 export type MarketingPublicHomeFooterMobileProps = {
+  locale: string;
   wordmarkLabel: string;
   illustrationAlt: string;
   contactTitle: string;
@@ -38,6 +40,7 @@ export type MarketingPublicHomeFooterMobileProps = {
 
 /** Figma mobile footer `632:1081`. */
 export function MarketingPublicHomeFooterMobile({
+  locale,
   wordmarkLabel,
   illustrationAlt,
   contactTitle,
@@ -56,8 +59,10 @@ export function MarketingPublicHomeFooterMobile({
   copyrightCompanyPart2,
   copyrightSuffix,
 }: MarketingPublicHomeFooterMobileProps) {
+  const legalLinks = resolveHomeFooterLegalLinks(locale);
+
   return (
-    <div className={styles.mobileStack}>
+    <div className={styles.mobileStack} data-locale={locale}>
       <p className={styles.wordmark}>{wordmarkLabel}</p>
 
       {showContactSection ? (
@@ -145,7 +150,7 @@ export function MarketingPublicHomeFooterMobile({
       ) : null}
 
       <nav className={styles.mobileLegal} aria-label={legalNavAria}>
-        {HOME_FOOTER_LEGAL_LINKS.map((item) => (
+        {legalLinks.map((item) => (
           <Link key={item.labelKey} href={item.href} className={styles.mobileLegalLink}>
             {legalLabels[item.labelKey]}
           </Link>

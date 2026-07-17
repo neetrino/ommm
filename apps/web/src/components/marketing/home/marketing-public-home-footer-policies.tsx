@@ -1,9 +1,13 @@
 import { Link } from "@/i18n/navigation";
-import { HOME_FOOTER_LEGAL_LINKS } from "@/components/marketing/home/home-footer-section-tokens";
+import {
+  resolveHomeFooterLegalLinks,
+  type HomeFooterLegalLink,
+} from "@/components/marketing/home/home-footer-section-tokens";
 
-type FooterLegalKey = (typeof HOME_FOOTER_LEGAL_LINKS)[number]["labelKey"];
+type FooterLegalKey = HomeFooterLegalLink["labelKey"];
 
 export type MarketingPublicHomeFooterPoliciesProps = {
+  locale: string;
   title: string;
   navAria: string;
   labels: Record<FooterLegalKey, string>;
@@ -15,6 +19,7 @@ export type MarketingPublicHomeFooterPoliciesProps = {
 
 /** Footer policies — title + stacked links, right-aligned. */
 export function MarketingPublicHomeFooterPolicies({
+  locale,
   title,
   navAria,
   labels,
@@ -23,11 +28,13 @@ export function MarketingPublicHomeFooterPolicies({
   navClassName,
   linkClassName,
 }: MarketingPublicHomeFooterPoliciesProps) {
+  const legalLinks = resolveHomeFooterLegalLinks(locale);
+
   return (
     <div className={blockClassName}>
       <p className={titleClassName}>{title}</p>
       <nav className={navClassName} aria-label={navAria}>
-        {HOME_FOOTER_LEGAL_LINKS.map((item) => (
+        {legalLinks.map((item) => (
           <Link key={item.labelKey} href={item.href} className={linkClassName}>
             {labels[item.labelKey]}
           </Link>

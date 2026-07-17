@@ -399,6 +399,20 @@ export const HOME_FOOTER_LEGAL_LINKS = [
   { href: "/refund", labelKey: "footerRefund" },
 ] as const;
 
+export type HomeFooterLegalLink = (typeof HOME_FOOTER_LEGAL_LINKS)[number];
+
+/** hy/ru — Terms before Privacy; en keeps Privacy first. */
+export function resolveHomeFooterLegalLinks(locale: string): readonly HomeFooterLegalLink[] {
+  const isHyOrRu =
+    locale === "hy" || locale.startsWith("hy-") || locale === "ru" || locale.startsWith("ru-");
+  if (!isHyOrRu) {
+    return HOME_FOOTER_LEGAL_LINKS;
+  }
+
+  const [privacy, terms, refund] = HOME_FOOTER_LEGAL_LINKS;
+  return [terms, privacy, refund];
+}
+
 /** Footer contact row — Instagram under address. */
 export const HOME_FOOTER_INSTAGRAM = {
   href: "https://www.instagram.com/ommm.space/",

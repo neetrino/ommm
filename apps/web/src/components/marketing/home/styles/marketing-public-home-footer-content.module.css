@@ -214,6 +214,14 @@
   margin-top: var(--home-footer-mobile-legal-margin-top);
 }
 
+/* ru — long policy labels stack vertically on mobile. */
+.mobileStack[data-locale="ru"] .mobileLegal,
+.mobileStack[data-locale^="ru-"] .mobileLegal {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+
 .mobileLegalLink {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-mobile-body-size);
