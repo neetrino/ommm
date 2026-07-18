@@ -14,7 +14,7 @@ import {
   normalizeUserPackageStatus,
   type UserMembershipRow,
 } from "../../../lib/packages/userMembership";
-import { isArcaCheckoutEnabled, startArcaCardCheckout } from "../../../lib/payments/arcaCheckout";
+import { isArcaCheckoutEnabled, openArcaRedirectUrl } from "../../../lib/payments/arcaCheckout";
 
 export type PackagesScreenMode = "mine" | "catalog";
 
@@ -129,16 +129,17 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
       const result = await subscribeToPackage(token, {
         planId: subscribePlanId,
         paymentMethod: "CARD",
+        locale: checkoutLocale,
       });
       setSubscribePlanId(null);
       setMode("mine");
       await loadForMode("mine");
       if (
         isArcaCheckoutEnabled() &&
-        result.requiresArcaCheckout === true &&
-        result.paymentReference
+        typeof result.redirectUrl === "string" &&
+        result.redirectUrl.length > 0
       ) {
-        await startArcaCardCheckout(token, result.paymentReference, checkoutLocale);
+        await openArcaRedirectUrl(result.redirectUrl);
         return true;
       }
       return true;

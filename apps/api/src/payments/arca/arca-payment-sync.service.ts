@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
+import {
+  ManualPaymentMethod,
+  PaymentSource,
+  PaymentStatus,
+  UserPackageStatus,
+} from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -97,7 +102,12 @@ export class ArcaPaymentSyncService {
   ): Promise<void> {
     const existing = await this.prisma.payment.findUnique({
       where: { id: paymentId },
-      select: { metadata: true, status: true },
+      select: {
+        metadata: true,
+        status: true,
+        source: true,
+        sourceId: true,
+      },
     });
 
     if (!existing || existing.status !== PaymentStatus.PENDING) {
@@ -120,5 +130,18 @@ export class ArcaPaymentSyncService {
           : {}),
       },
     });
+
+    if (
+      existing.source === PaymentSource.PACKAGE &&
+      existing.sourceId !== null
+    ) {
+      await this.prisma.userPackage.updateMany({
+        where: {
+          id: existing.sourceId,
+          status: UserPackageStatus.PENDING,
+        },
+        data: { status: UserPackageStatus.CANCELLED },
+      });
+    }
   }
 }

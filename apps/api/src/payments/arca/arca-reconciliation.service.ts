@@ -6,6 +6,7 @@ import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { ArcaConfig } from './arca.config';
+import { cleanupBanklessOrphanPendingPayments } from './arca-orphan-cleanup.util';
 import { ArcaPaymentSyncService } from './arca-payment-sync.service';
 import {
   ARCA_RECONCILE_BATCH_SIZE,
@@ -40,6 +41,8 @@ export class ArcaReconciliationService {
     if (!this.isEnabled()) {
       return;
     }
+
+    await cleanupBanklessOrphanPendingPayments(this.prisma, this.logger);
 
     const summary = await this.reconcilePendingPayments();
     if (summary.confirmed > 0 || summary.failed > 0) {

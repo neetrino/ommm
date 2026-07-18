@@ -52,17 +52,29 @@ function createPackagesService() {
     get: jest.fn(),
   };
 
+  const arca = {
+    initPayment: jest.fn(),
+  };
+
   const publicService = new PackagesPublicService(
     prisma as never,
     config as never,
     cache as never,
+    arca as never,
   );
   const adminService = new PackagesAdminService(
     prisma as never,
     publicService,
     packageUsage as never,
   );
-  const service = new PackagesService(publicService, adminService);
+  const adminClientPurchase = {
+    purchaseForClient: jest.fn(),
+  };
+  const service = new PackagesService(
+    publicService,
+    adminService,
+    adminClientPurchase as never,
+  );
 
   return {
     service,
