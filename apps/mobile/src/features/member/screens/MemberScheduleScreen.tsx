@@ -34,7 +34,7 @@ import { ScheduleViewShell } from "../../schedule/components/ScheduleViewShell";
 import { useScheduleCopy } from "../../schedule/useScheduleCopy";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
-import { colors, space } from "../../../theme/tokens";
+import { colors } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
 const FILTER_ALL = "all";

@@ -8,7 +8,7 @@ import {
 import { useIsCompactChrome } from "../../../components/layout/useScreenChrome";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, layout, radii, space } from "../../../theme/tokens";
+import { colors, layout, space } from "../../../theme/tokens";
 
 type UserGreetingSectionProps = {
   /** Full name or fallback from session (e.g. email local-part). */

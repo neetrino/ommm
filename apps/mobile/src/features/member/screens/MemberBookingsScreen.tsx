@@ -23,7 +23,7 @@ import { BOOKINGS_PAGE_MOBILE } from "../lib/bookingsPageTokens";
 import { bookingsForTab, type MemberBookingsTab } from "../lib/partitionMemberBookings";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { scheduleColors } from "../../schedule/scheduleTokens";
-import { colors, space } from "../../../theme/tokens";
+import { colors } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
 export function MemberBookingsScreen() {
