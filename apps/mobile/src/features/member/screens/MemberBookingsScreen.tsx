@@ -7,12 +7,11 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { AppHeader } from "../../../components/layout/AppHeader";
-import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { BookingsEmptyState } from "../components/bookings/BookingsEmptyState";
 import { BookingsErrorState } from "../components/bookings/BookingsErrorState";
 import { BookingsLoadingSkeleton } from "../components/bookings/BookingsLoadingSkeleton";
@@ -24,11 +23,10 @@ import { BOOKINGS_PAGE_MOBILE } from "../lib/bookingsPageTokens";
 import { bookingsForTab, type MemberBookingsTab } from "../lib/partitionMemberBookings";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { scheduleColors } from "../../schedule/scheduleTokens";
-import { colors, layout, space } from "../../../theme/tokens";
+import { colors } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
 export function MemberBookingsScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const copy = useMemberBookingsCopy();
   const { isSignedIn } = useSession();
@@ -41,10 +39,9 @@ export function MemberBookingsScreen() {
     [activeTab, bookings],
   );
 
-  const bottomPad =
-    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
+  const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
+    useScreenChromeInsets({ includeScreenGutter: false });
   const onHeaderBookPress = useAppHeaderBookPress();
-  const headerOffset = appHeaderScrollPaddingTop(insets.top);
 
   const onBrowseSchedule = () => {
     router.push("/user/schedule");
@@ -57,7 +54,14 @@ export function MemberBookingsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: headerOffset, paddingBottom: bottomPad },
+          {
+            paddingTop,
+            paddingBottom,
+            paddingLeft:
+              BOOKINGS_PAGE_MOBILE.pageHorizontalPaddingPx + safePaddingLeft,
+            paddingRight:
+              BOOKINGS_PAGE_MOBILE.pageHorizontalPaddingPx + safePaddingRight,
+          },
         ]}
         keyboardShouldPersistTaps="handled"
         refreshControl={
@@ -128,7 +132,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingHorizontal: BOOKINGS_PAGE_MOBILE.pageHorizontalPaddingPx,
     gap: BOOKINGS_PAGE_MOBILE.sectionGapPx,
     width: "100%",
     minWidth: 0,

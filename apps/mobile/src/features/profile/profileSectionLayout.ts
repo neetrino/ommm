@@ -41,7 +41,6 @@ export const profileSectionLayout = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingHorizontal: space.screenHorizontal,
     paddingTop: space.sm,
     gap: space.lg,
   },

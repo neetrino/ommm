@@ -1,7 +1,8 @@
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { figmaRemoteAssets } from "../../../../assets/figmaRemoteAssets";
-import { shadows } from "../../../../theme/tokens";
+import { useIsCompactChrome } from "../../../../components/layout/useScreenChrome";
+import { layout, shadows } from "../../../../theme/tokens";
 import { nextClassStyles as styles } from "./nextClassStyles";
 import type { NextClassContent } from "./nextClassTypes";
 import { useMemberBookingCopy } from "../../../member/hooks/useMemberBookingCopy";
@@ -11,15 +12,28 @@ type NextClassHeroCardProps = {
   onOpenClassPress?: () => void;
 };
 
+const CARD_STAGE_EXTRA = 29;
+const BACK_CARD_SHRINK = 22;
+const NEXT_CLASS_MAX_HEIGHT_RATIO = 0.48;
+const NEXT_CLASS_COMPACT_MIN = 160;
+
 export function NextClassHeroCard({
   content,
   onOpenClassPress,
 }: NextClassHeroCardProps) {
   const bookingCopy = useMemberBookingCopy();
+  const { height: windowHeight } = useWindowDimensions();
+  const compact = useIsCompactChrome();
+  const portraitCardHeight = layout.bookingCardHeight;
+  const compactCardHeight = Math.max(
+    NEXT_CLASS_COMPACT_MIN,
+    Math.min(portraitCardHeight, windowHeight * NEXT_CLASS_MAX_HEIGHT_RATIO),
+  );
+  const cardHeight = compact ? compactCardHeight : portraitCardHeight;
 
   return (
-    <View style={styles.cardStage}>
-      <View style={styles.backCardTilt}>
+    <View style={[styles.cardStage, { height: cardHeight + CARD_STAGE_EXTRA }]}>
+      <View style={[styles.backCardTilt, { height: cardHeight - BACK_CARD_SHRINK }]}>
         <View style={styles.backCard} />
       </View>
 

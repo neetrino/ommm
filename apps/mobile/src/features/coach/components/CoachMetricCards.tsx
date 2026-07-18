@@ -11,8 +11,12 @@ type CoachMetricCardProps = {
 export function CoachMetricCard({ label, value }: CoachMetricCardProps) {
   return (
     <View style={styles.card}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value}</Text>
+      <Text style={styles.label} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>
+        {label}
+      </Text>
+      <Text style={styles.value} numberOfLines={1}>
+        {value}
+      </Text>
     </View>
   );
 }

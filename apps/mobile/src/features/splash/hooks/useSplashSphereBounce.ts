@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
-import { AccessibilityInfo, Animated, Easing } from "react-native";
+import { AccessibilityInfo, Animated, Easing, useWindowDimensions } from "react-native";
+import { COMPACT_CHROME_MAX_HEIGHT } from "../../../components/layout/screenChromeLayout";
 import { SPLASH_SPHERE_BOUNCE } from "../splashSphereTokens";
 
 const RISE_EASING = Easing.bezier(0.12, 0.84, 0.22, 1);
 const FALL_EASING = Easing.in(Easing.quad);
+const COMPACT_PEAK_RATIO = 0.4;
 
 type SplashSphereMotion = {
   opacity: Animated.Value;
@@ -13,6 +15,12 @@ type SplashSphereMotion = {
 };
 
 export function useSplashSphereBounce(): SplashSphereMotion {
+  const { width, height } = useWindowDimensions();
+  const compact = width > height || height <= COMPACT_CHROME_MAX_HEIGHT;
+  const peakPx = compact
+    ? Math.round(SPLASH_SPHERE_BOUNCE.peakPx * COMPACT_PEAK_RATIO)
+    : SPLASH_SPHERE_BOUNCE.peakPx;
+
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const scaleX = useRef(new Animated.Value(1)).current;
@@ -38,7 +46,6 @@ export function useSplashSphereBounce(): SplashSphereMotion {
       }
 
       const {
-        peakPx,
         riseMs,
         fallMs,
         squashMs,
@@ -107,7 +114,7 @@ export function useSplashSphereBounce(): SplashSphereMotion {
       scaleX.stopAnimation();
       scaleY.stopAnimation();
     };
-  }, [opacity, scaleX, scaleY, translateY]);
+  }, [opacity, peakPx, scaleX, scaleY, translateY]);
 
   return { opacity, translateY, scaleX, scaleY };
 }

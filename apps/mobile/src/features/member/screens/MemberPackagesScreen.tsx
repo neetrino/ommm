@@ -2,14 +2,13 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { AppHeader } from "../../../components/layout/AppHeader";
-import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { PackageSubscribeSheet } from "../../packages/components/PackageSubscribeSheet";
 import {
   PackagesEmptyState,
@@ -21,17 +20,19 @@ import {
   normalizeMembershipStatus,
   useMemberPackagesScreenState,
 } from "../hooks/useMemberPackagesScreenState";
-import { colors, layout, space, typography } from "../../../theme/tokens";
+import { colors, space, typography } from "../../../theme/tokens";
 import { PACKAGES_PAGE_MOBILE } from "../../../lib/packages/packagesPageTokens";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 
 export function MemberPackagesScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const packagesCopy = usePackagesCopy();
   const { isSignedIn } = useSession();
+  const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
+    useScreenChromeInsets({ includeScreenGutter: false });
+  const onHeaderBookPress = useAppHeaderBookPress();
   const {
     mode,
     memberships,
@@ -87,11 +88,6 @@ export function MemberPackagesScreen() {
   const heading = packagesCopy.myPackagesTitle;
   const lead = showMyPackages ? packagesCopy.myPackagesLead : packagesCopy.catalogLead;
 
-  const bottomPad =
-    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
-  const onHeaderBookPress = useAppHeaderBookPress();
-  const headerOffset = appHeaderScrollPaddingTop(insets.top);
-
   return (
     <View style={styles.root}>
       <GradientBackdrop />
@@ -99,7 +95,14 @@ export function MemberPackagesScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: headerOffset, paddingBottom: bottomPad },
+          {
+            paddingTop,
+            paddingBottom,
+            paddingLeft:
+              PACKAGES_PAGE_MOBILE.pageHorizontalPaddingPx + safePaddingLeft,
+            paddingRight:
+              PACKAGES_PAGE_MOBILE.pageHorizontalPaddingPx + safePaddingRight,
+          },
         ]}
         keyboardShouldPersistTaps="handled"
       >
@@ -174,7 +177,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingHorizontal: PACKAGES_PAGE_MOBILE.pageHorizontalPaddingPx,
     gap: space.lg,
     width: "100%",
     minWidth: 0,
