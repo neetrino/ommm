@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ManualPaymentMethod,
@@ -49,6 +49,7 @@ export class PackagesPublicService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly cache: RedisCacheService,
+    @Inject(forwardRef(() => ArcaService))
     private readonly arca: ArcaService,
   ) {}
 
