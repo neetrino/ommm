@@ -41,6 +41,7 @@ const config: ExpoConfig = {
   plugins: [
     "expo-router",
     "expo-notifications",
+    "expo-video",
     [
       "expo-image-picker",
       {

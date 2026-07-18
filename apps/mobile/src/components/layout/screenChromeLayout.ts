@@ -5,15 +5,25 @@ import { space } from "../../theme/tokens";
  * Compact values apply in landscape / short viewports (tab bar only).
  */
 
-/** Full brand mark — header row height matches this so the circle never clips. */
-export const APP_HEADER_LOGO_SIZE = 96;
+/**
+ * Small spinning sphere beside Book a Class (matches header CTA height band).
+ */
+export const APP_HEADER_SPHERE_SIZE = 44;
+
+/** Header row height — sphere + vertical breathing room. */
+export const APP_HEADER_ROW_MIN_HEIGHT = APP_HEADER_SPHERE_SIZE + space.xs;
+
+/**
+ * @deprecated Use `APP_HEADER_SPHERE_SIZE` — kept for any leftover imports.
+ */
+export const APP_HEADER_LOGO_SIZE = APP_HEADER_SPHERE_SIZE;
 
 /**
  * Space below safe-area top for scroll content to clear AppHeader
- * (logo row + blur bottom pad + small gap).
+ * (row + blur bottom pad + small gap).
  */
 export const APP_HEADER_CONTENT_CLEARANCE =
-  APP_HEADER_LOGO_SIZE + space.md + space.sm;
+  APP_HEADER_ROW_MIN_HEIGHT + space.md + space.sm;
 
 export const FLOATING_TAB_BAR_HEIGHT = 88;
 /** Landscape / short: icon chip + single-line label fully inside the pill. */

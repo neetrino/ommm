@@ -1,21 +1,21 @@
 import { BlurView } from "expo-blur";
-import { Image } from "expo-image";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { figmaRemoteAssets } from "../../assets/figmaRemoteAssets";
 import { useTranslations } from "../../i18n/I18nProvider";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../theme/tokens";
-import { APP_HEADER_LOGO_SIZE } from "./screenChromeLayout";
+import {
+  APP_HEADER_ROW_MIN_HEIGHT,
+  APP_HEADER_SPHERE_SIZE,
+} from "./screenChromeLayout";
+import { HeaderSpinningSphere } from "./HeaderSpinningSphere";
 
 type AppHeaderProps = {
   onBookPress: () => void;
 };
 
 /**
- * Header chrome: full brand mark + CTA on one row.
- * Row height matches the logo so the circle is never clipped, and the CTA
- * stays vertically centered with the logo (critical on real iPhone landscape).
+ * Header chrome: spinning brand sphere on the left, Book a Class on the right.
  * Horizontal padding includes safe-area left/right for notched landscape.
  */
 export function AppHeader({ onBookPress }: AppHeaderProps) {
@@ -35,25 +35,8 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
       ]}
     >
       <BlurView intensity={40} tint="light" style={styles.blur}>
-        <View style={[styles.row, { minHeight: APP_HEADER_LOGO_SIZE }]}>
-          <View
-            style={[
-              styles.logoWrap,
-              {
-                width: APP_HEADER_LOGO_SIZE,
-                height: APP_HEADER_LOGO_SIZE,
-                borderRadius: APP_HEADER_LOGO_SIZE / 2,
-              },
-            ]}
-            accessibilityLabel="Ommm logo"
-          >
-            <Image
-              source={figmaRemoteAssets.brandMark}
-              style={styles.logo}
-              contentFit="cover"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
+        <View style={[styles.row, { minHeight: APP_HEADER_ROW_MIN_HEIGHT }]}>
+          <HeaderSpinningSphere size={APP_HEADER_SPHERE_SIZE} />
           <Pressable
             onPress={onBookPress}
             style={({ pressed }) => [
@@ -63,7 +46,9 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
             accessibilityRole="button"
             accessibilityLabel={tHome("bookNow")}
           >
-            <Text style={styles.bookLabel}>{tMarketing("bookAClass").toUpperCase()}</Text>
+            <Text style={styles.bookLabel}>
+              {tMarketing("bookAClass").toUpperCase()}
+            </Text>
           </Pressable>
         </View>
       </BlurView>
@@ -91,13 +76,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  logoWrap: {
-    overflow: "hidden",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
   },
   bookButton: {
     backgroundColor: colors.taupe,
