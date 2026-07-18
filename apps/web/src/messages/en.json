@@ -13,6 +13,22 @@
     "sessionDurationMinutes": "{minutes} min",
     "sessionCoach": "Coach"
   },
+  "paymentStatusReasons": {
+    "awaiting_bank": "Waiting for payment",
+    "bank_processing": "Processing at bank",
+    "session_expired": "Payment session expired",
+    "card_declined": "Card declined",
+    "insufficient_funds": "Insufficient funds",
+    "checkout_not_started": "Bank page not opened",
+    "register_failed": "Could not open bank",
+    "abandoned": "Checkout abandoned",
+    "duplicate_attempt": "Duplicate attempt",
+    "reversed": "Cancelled by bank",
+    "refunded": "Refunded",
+    "awaiting_cash": "Awaiting cash",
+    "admin_rejected": "Rejected by studio",
+    "unknown": "Status unknown"
+  },
   "headerNotifications": {
     "title": "Notifications",
     "triggerAria": "Notifications{count, plural, =0 {} other {, {count} unread}}",

@@ -32,6 +32,8 @@ export function readArcaMetadata(
       typeof record.arcaRegisterAttempt === 'number'
         ? record.arcaRegisterAttempt
         : undefined,
+    statusReason:
+      typeof record.statusReason === 'string' ? record.statusReason : undefined,
   };
 }
 

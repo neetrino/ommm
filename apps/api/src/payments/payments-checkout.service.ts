@@ -3,7 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
+import { mergeArcaMetadata } from './arca/arca-metadata.util';
 import { isArcaCheckoutEnabled } from './payment-arca.util';
+import { PAYMENT_STATUS_REASON } from './payment-status-reason';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import {
@@ -175,6 +177,9 @@ export class PaymentsCheckoutService {
         where: { id: existing.id },
         data: withInternalPaymentUpdateFields({
           paymentMethod: ManualPaymentMethod.CASH,
+          metadata: mergeArcaMetadata(existing.metadata ?? null, {
+            statusReason: PAYMENT_STATUS_REASON.AWAITING_CASH,
+          }),
         }),
       });
     });
@@ -201,6 +206,9 @@ export class PaymentsCheckoutService {
           where: { id: existing.id },
           data: withInternalPaymentUpdateFields({
             paymentMethod: ManualPaymentMethod.CASH,
+            metadata: mergeArcaMetadata(existing.metadata ?? null, {
+              statusReason: PAYMENT_STATUS_REASON.AWAITING_CASH,
+            }),
           }),
         });
       });

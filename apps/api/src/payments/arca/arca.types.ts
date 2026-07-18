@@ -48,4 +48,6 @@ export type ArcaPaymentMetadata = {
   checkoutLocale?: string;
   checkoutSource?: string;
   arcaRegisterAttempt?: number;
+  /** Short code explaining PENDING/FAILED (see payment-status-reason.ts). */
+  statusReason?: string;
 };

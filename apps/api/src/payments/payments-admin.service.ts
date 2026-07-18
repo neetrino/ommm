@@ -19,6 +19,11 @@ import {
 } from './payments.helpers';
 import { resolveAdminPaymentRelatedItemName } from './payments-related-item.util';
 import { PaymentsCheckoutService } from './payments-checkout.service';
+import {
+  PAYMENT_STATUS_REASON,
+  readPaymentStatusReason,
+} from './payment-status-reason';
+import { mergeArcaMetadata } from './arca/arca-metadata.util';
 
 @Injectable()
 export class PaymentsAdminService {
@@ -79,6 +84,20 @@ export class PaymentsAdminService {
         )
           ? { paymentMethod: ManualPaymentMethod.CASH }
           : {}),
+        ...(status === PaymentStatus.FAILED
+          ? {
+              metadata: mergeArcaMetadata(payment.metadata, {
+                statusReason: PAYMENT_STATUS_REASON.ADMIN_REJECTED,
+              }),
+            }
+          : {}),
+        ...(status === PaymentStatus.PENDING
+          ? {
+              metadata: mergeArcaMetadata(payment.metadata, {
+                statusReason: PAYMENT_STATUS_REASON.AWAITING_CASH,
+              }),
+            }
+          : {}),
       }),
     });
 
@@ -99,11 +118,15 @@ export class PaymentsAdminService {
     const hasPagination =
       query.take !== undefined || query.offset !== undefined;
     if (!hasPagination) {
-      return this.prisma.payment.findMany({
+      const items = await this.prisma.payment.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         take: 100,
       });
+      return items.map((payment) => ({
+        ...payment,
+        statusReason: readPaymentStatusReason(payment.metadata),
+      }));
     }
 
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
@@ -122,7 +145,15 @@ export class PaymentsAdminService {
       }),
       this.prisma.payment.count({ where }),
     ]);
-    return { items, total, take, offset };
+    return {
+      items: items.map((payment) => ({
+        ...payment,
+        statusReason: readPaymentStatusReason(payment.metadata),
+      })),
+      total,
+      take,
+      offset,
+    };
   }
 
   async adminListPayments(query: AdminListPaymentsQueryDto) {
@@ -217,6 +248,7 @@ export class PaymentsAdminService {
             sourceId: payment.sourceId,
             packageNameByUserPackageId,
           }),
+          statusReason: readPaymentStatusReason(payment.metadata),
         };
       }),
       total,

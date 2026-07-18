@@ -61,6 +61,11 @@ export async function startArcaCardCheckout(
   if (redirectUrl === null) {
     throw new Error("Unexpected payment response");
   }
+  await openArcaRedirectUrl(redirectUrl);
+}
+
+/** Opens an Arca bank payment URL returned from subscribe or init. */
+export async function openArcaRedirectUrl(redirectUrl: string): Promise<void> {
   const canOpen = await Linking.canOpenURL(redirectUrl);
   if (!canOpen) {
     throw new Error("Could not open payment page");

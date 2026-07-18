@@ -9,3 +9,13 @@ export const ARCA_RECONCILE_MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 
 /** Max pending payments processed per reconciliation run to bound Arca API load. */
 export const ARCA_RECONCILE_BATCH_SIZE = 50;
+
+/**
+ * Fail PENDING CARD payments that never reached Arca register (null/missing
+ * metadata.provider). 60 minutes gives the user time to complete a slow checkout
+ * without leaving bankless orphans forever.
+ */
+export const ARCA_ORPHAN_PENDING_MAX_AGE_MS = 60 * 60 * 1000;
+
+/** Max bankless orphan payments cleaned per reconciliation cron run. */
+export const ARCA_ORPHAN_CLEANUP_BATCH_SIZE = 50;

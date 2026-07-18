@@ -1,7 +1,9 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { PackagesPublicService } from '../packages/packages-public.service';
@@ -17,6 +19,7 @@ export class PaymentsConfirmService {
     private readonly prisma: PrismaService,
     private readonly fulfillment: PaymentsFulfillmentService,
     private readonly paymentSuccessEmail: PaymentSuccessEmailService,
+    @Inject(forwardRef(() => PackagesPublicService))
     private readonly packagesPublic: PackagesPublicService,
   ) {}
 

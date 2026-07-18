@@ -41,6 +41,8 @@ export type FinancePaymentItem = {
   source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
   confirmedAt: string | null;
+  /** Short code explaining PENDING/FAILED — see payment-status-reason.ts */
+  statusReason?: string | null;
   user: {
     email: string;
     name: string | null;

@@ -40,6 +40,7 @@ import {
   isCardPaymentMethod,
   requiresManualAdminConfirmation,
 } from "@/lib/payment-confirmation";
+import { PaymentStatusReasonText } from "@/components/shared/payment-status-reason-text";
 
 type AdminFinancePaymentDetailsSheetProps = {
   payment: FinancePaymentItem | null;
@@ -191,11 +192,18 @@ export function AdminFinancePaymentDetailsSheet({
             <DetailRow
               label={t("table.colStatus")}
               value={
-                <span
-                  className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financePaymentStatusTone(payment.status)}`}
-                >
-                  {paymentStatusLabel(t, payment.status)}
-                </span>
+                <div className="flex flex-col items-start gap-1">
+                  <span
+                    className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financePaymentStatusTone(payment.status)}`}
+                  >
+                    {paymentStatusLabel(t, payment.status)}
+                  </span>
+                  <PaymentStatusReasonText
+                    status={payment.status}
+                    reason={payment.statusReason}
+                    className="text-xs font-medium leading-snug text-sage-500"
+                  />
+                </div>
               }
             />
             <DetailRow

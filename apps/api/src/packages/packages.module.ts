@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CacheModule } from '../cache/cache.module';
+import { PaymentsModule } from '../payments/payments.module';
 import { PackageUsageEligibilityService } from './package-usage-eligibility.service';
 import { PackageUsageLedgerService } from './package-usage-ledger.service';
 import { PackageUsageMaintenanceService } from './package-usage-maintenance.service';
@@ -11,7 +12,7 @@ import { PackagesPublicService } from './packages-public.service';
 import { PackagesService } from './packages.service';
 
 @Module({
-  imports: [CacheModule],
+  imports: [CacheModule, forwardRef(() => PaymentsModule)],
   controllers: [PackagesController],
   providers: [
     PackagesPublicService,

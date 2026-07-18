@@ -22,6 +22,7 @@ export type SubscribePackageResponse = {
   id: string;
   paymentReference?: string | null;
   requiresArcaCheckout?: boolean;
+  redirectUrl?: string | null;
 };
 
 async function parseJson(res: Response): Promise<unknown> {
@@ -78,7 +79,7 @@ export async function fetchUserMemberships(
 /** Subscribe to a plan — same endpoint as web package purchase flow. */
 export async function subscribeToPackage(
   accessToken: string,
-  params: { planId: string; paymentMethod: "CARD" },
+  params: { planId: string; paymentMethod: "CARD"; locale?: string },
 ): Promise<SubscribePackageResponse> {
   const base = getApiBaseUrl();
   const res = await fetchWithReachabilityHint(
@@ -103,5 +104,6 @@ export async function subscribeToPackage(
     paymentReference:
       typeof row.paymentReference === "string" ? row.paymentReference : null,
     requiresArcaCheckout: row.requiresArcaCheckout === true,
+    redirectUrl: typeof row.redirectUrl === "string" ? row.redirectUrl : null,
   };
 }
