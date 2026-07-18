@@ -27,17 +27,15 @@ test.describe("SSE realtime (requires API on :4000)", () => {
     test.skip(!apiReady, `API not reachable at ${E2E_API_ORIGIN}`);
   });
 
-  test("guest schedule opens public SSE stream to API origin", async ({ page }) => {
+  test("guest schedule opens public SSE stream via Next proxy", async ({ page }) => {
     const sseRequest = page.waitForRequest(
-      (req) =>
-        req.url().includes("/v1/realtime/public") &&
-        req.url().startsWith(E2E_API_ORIGIN),
+      (req) => req.url().includes("/api/v1/realtime/public"),
       { timeout: 20_000 },
     );
 
     await page.goto("/en/schedule");
     const request = await sseRequest;
-    expect(request.url()).toContain("/v1/realtime/public");
+    expect(request.url()).toContain("/api/v1/realtime/public");
   });
 
   test("cross-user booking triggers guest schedule refetch via SSE", async ({

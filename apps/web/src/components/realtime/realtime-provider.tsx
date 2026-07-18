@@ -12,26 +12,27 @@ import {
 import { RealtimeContext, type RealtimeContextValue } from "@/components/realtime/realtime-context";
 import { refetchKeysForEvent } from "@/lib/realtime/realtime-refetch-keys";
 import { RealtimeRefetchRegistry } from "@/lib/realtime/realtime-refetch-registry";
-import { resolvePublicApiOrigin } from "@/lib/realtime/resolve-api-origin";
 import {
   createRealtimeSseClient,
   type RealtimeConnectionStatus,
 } from "@/lib/realtime/realtime-sse-client";
 
+/** Same-origin paths so the session cookie is sent (Next `/api/v1` rewrite → Nest). */
+const REALTIME_SSE_AUTHENTICATED_PATH = "/api/v1/realtime/events";
+const REALTIME_SSE_PUBLIC_PATH = "/api/v1/realtime/public";
+
 type RealtimeProviderProps = {
   children: ReactNode;
-  /** Logged-in users: `/v1/realtime/events` only (includes public events). */
+  /** Logged-in users: authenticated SSE stream (includes public events). */
   authenticated: boolean;
-  /** Guests on live surfaces: `/v1/realtime/public` only. Ignored when authenticated. */
+  /** Guests on live surfaces: public SSE only. Ignored when authenticated. */
   enablePublic?: boolean;
 };
 
-function buildSseUrl(authenticated: boolean): string | null {
-  const origin = resolvePublicApiOrigin();
-  if (authenticated) {
-    return `${origin}/v1/realtime/events`;
-  }
-  return `${origin}/v1/realtime/public`;
+function buildSseUrl(authenticated: boolean): string {
+  return authenticated
+    ? REALTIME_SSE_AUTHENTICATED_PATH
+    : REALTIME_SSE_PUBLIC_PATH;
 }
 
 export function RealtimeProvider({
@@ -60,13 +61,8 @@ export function RealtimeProvider({
       return undefined;
     }
 
-    const url = buildSseUrl(authenticated);
-    if (url === null) {
-      return undefined;
-    }
-
     const client = createRealtimeSseClient({
-      url,
+      url: buildSseUrl(authenticated),
       withCredentials: true,
       onOpen: () => {
         // Initial connect is covered by client hydration refetch; reconnects force refresh.
