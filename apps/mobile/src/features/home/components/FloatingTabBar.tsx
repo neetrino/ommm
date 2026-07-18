@@ -57,9 +57,24 @@ export function FloatingTabBar() {
       style={[styles.outer, { bottom, left, right }]}
       accessibilityRole="tablist"
     >
-      {/* Shadow outside clip — iOS clips shadow if overflow:hidden is on the same node. */}
-      <View style={[styles.shadowShell, shadows.tabBar, { maxWidth: maxBarWidth }]}>
-        <View style={[styles.clipShell, { borderRadius: barRadius }]}>
+      {/* Shadow outside clip — iOS clips shadow if overflow:hidden is on the same node.
+          Same borderRadius on the shadow shell so web box-shadow is a capsule, not a rect. */}
+      <View
+        style={[
+          styles.shadowShell,
+          shadows.tabBar,
+          { maxWidth: maxBarWidth, borderRadius: barRadius },
+        ]}
+      >
+        <View
+          style={[
+            styles.clipShell,
+            {
+              borderRadius: barRadius,
+              backgroundColor: gradients.navBar.colors[1],
+            },
+          ]}
+        >
           <LinearGradient
             colors={gradients.navBar.colors}
             start={gradients.navBar.start}
@@ -147,6 +162,7 @@ const styles = StyleSheet.create({
   },
   shadowShell: {
     width: "100%",
+    backgroundColor: "transparent",
   },
   clipShell: {
     width: "100%",
@@ -166,6 +182,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 2,
+    backgroundColor: "transparent",
   },
   tabInner: {
     width: "100%",
