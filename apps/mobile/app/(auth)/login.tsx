@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -11,20 +10,18 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { HeaderSpinningSphere } from "../../src/components/layout/HeaderSpinningSphere";
 import { useIsCompactChrome } from "../../src/components/layout/useScreenChrome";
 import { useTranslations } from "../../src/i18n/I18nProvider";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
-const LOGIN_LOGO_LAYOUT_SIZE = 72;
-/** Visual scale only — layout slot stays fixed so other elements do not move. */
-const LOGIN_LOGO_VISUAL_SCALE = 3.35;
-const LOGIN_LOGO_VISUAL_SCALE_COMPACT = 1.65;
+const LOGIN_SPHERE_SIZE = 96;
+const LOGIN_SPHERE_SIZE_COMPACT = 64;
 const LOGIN_ENTRY_ANIMATION_MS = 760;
 const LOGIN_ENTRY_OFFSET_PX = 16;
 const LOGIN_ENTRY_START_SCALE = 0.985;
@@ -46,11 +43,7 @@ export default function LoginRoute() {
   const entranceOpacity = useRef(new Animated.Value(0)).current;
   const entranceTranslateY = useRef(new Animated.Value(LOGIN_ENTRY_OFFSET_PX)).current;
   const entranceScale = useRef(new Animated.Value(LOGIN_ENTRY_START_SCALE)).current;
-  const logoVisualScale = compact
-    ? LOGIN_LOGO_VISUAL_SCALE_COMPACT
-    : LOGIN_LOGO_VISUAL_SCALE;
-  const contentLift =
-    (LOGIN_LOGO_LAYOUT_SIZE * (logoVisualScale - 1)) / 2;
+  const sphereSize = compact ? LOGIN_SPHERE_SIZE_COMPACT : LOGIN_SPHERE_SIZE;
 
   useEffect(() => {
     if (!isReady || hasPlayedEntranceRef.current) {
@@ -125,7 +118,6 @@ export default function LoginRoute() {
       <Animated.View
         style={[
           styles.contentBlock,
-          { marginTop: -contentLift },
           {
             opacity: entranceOpacity,
             transform: [{ translateY: entranceTranslateY }, { scale: entranceScale }],
@@ -133,15 +125,7 @@ export default function LoginRoute() {
         ]}
       >
         <View style={styles.brandBlock}>
-          <View style={styles.logoSlot}>
-            <Image
-              source={figmaRemoteAssets.brandMark}
-              style={[styles.logo, { transform: [{ scale: logoVisualScale }] }]}
-              contentFit="contain"
-              accessibilityLabel="Ommm logo"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
+          <HeaderSpinningSphere size={sphereSize} />
           <Text style={styles.title} accessibilityRole="header">
             {tCommon("login")}
           </Text>
@@ -219,19 +203,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: space.md,
     marginBottom: space.sm,
-  },
-  logoSlot: {
-    width: LOGIN_LOGO_LAYOUT_SIZE,
-    height: LOGIN_LOGO_LAYOUT_SIZE,
-    marginBottom: space.xs,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "visible",
-  },
-  logo: {
-    width: LOGIN_LOGO_LAYOUT_SIZE,
-    height: LOGIN_LOGO_LAYOUT_SIZE,
-    opacity: 0.94,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,

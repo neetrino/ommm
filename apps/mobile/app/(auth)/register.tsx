@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -11,11 +10,11 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { figmaRemoteAssets } from "../../src/assets/figmaRemoteAssets";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { HeaderSpinningSphere } from "../../src/components/layout/HeaderSpinningSphere";
 import { useIsCompactChrome } from "../../src/components/layout/useScreenChrome";
 import { useTranslations, useLocale } from "../../src/i18n/I18nProvider";
 import { formatPhoneInput } from "../../src/lib/phone-input";
@@ -29,9 +28,8 @@ import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
 const MIN_PASSWORD_LENGTH = 8;
-const REGISTER_LOGO_LAYOUT_SIZE = 72;
-const REGISTER_LOGO_VISUAL_SCALE = 3.35;
-const REGISTER_LOGO_VISUAL_SCALE_COMPACT = 1.65;
+const REGISTER_SPHERE_SIZE = 96;
+const REGISTER_SPHERE_SIZE_COMPACT = 64;
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
@@ -72,9 +70,7 @@ export default function RegisterRoute() {
   const entranceOpacity = useRef(new Animated.Value(0)).current;
   const entranceTranslateY = useRef(new Animated.Value(REGISTER_ENTRY_OFFSET_PX)).current;
   const entranceScale = useRef(new Animated.Value(REGISTER_ENTRY_START_SCALE)).current;
-  const logoVisualScale = compact
-    ? REGISTER_LOGO_VISUAL_SCALE_COMPACT
-    : REGISTER_LOGO_VISUAL_SCALE;
+  const sphereSize = compact ? REGISTER_SPHERE_SIZE_COMPACT : REGISTER_SPHERE_SIZE;
 
   useEffect(() => {
     if (!isReady || hasPlayedEntranceRef.current) {
@@ -186,15 +182,7 @@ export default function RegisterRoute() {
         ]}
       >
         <View style={styles.brandBlock}>
-          <View style={styles.logoSlot}>
-            <Image
-              source={figmaRemoteAssets.brandMark}
-              style={[styles.logo, { transform: [{ scale: logoVisualScale }] }]}
-              contentFit="contain"
-              accessibilityLabel="Ommm logo"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
+          <HeaderSpinningSphere size={sphereSize} />
           <Text style={styles.title} accessibilityRole="header">
             {tAuth("createAccount")}
           </Text>
@@ -315,19 +303,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: space.md,
     marginBottom: space.sm,
-  },
-  logoSlot: {
-    width: REGISTER_LOGO_LAYOUT_SIZE,
-    height: REGISTER_LOGO_LAYOUT_SIZE,
-    marginBottom: space.xs,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "visible",
-  },
-  logo: {
-    width: REGISTER_LOGO_LAYOUT_SIZE,
-    height: REGISTER_LOGO_LAYOUT_SIZE,
-    opacity: 0.94,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
