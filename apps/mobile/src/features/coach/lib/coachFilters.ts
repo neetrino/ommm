@@ -35,6 +35,34 @@ function todayIsoDate(): string {
   return localIsoDay(new Date().toISOString());
 }
 
+/**
+ * Parses coach filter date input (`DD/MM/YYYY`) to local ISO day `YYYY-MM-DD`.
+ * Returns null while incomplete or invalid so filters are not applied mid-typing.
+ */
+export function parseCoachFilterDateInput(value: string): string | null {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+  if (match === null) {
+    return null;
+  }
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return null;
+  }
+  const parsed = new Date(year, month - 1, day);
+  if (
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return null;
+  }
+  const monthPad = String(month).padStart(2, "0");
+  const dayPad = String(day).padStart(2, "0");
+  return `${year}-${monthPad}-${dayPad}`;
+}
+
 export function compareSessionStartsAt(
   left: string,
   right: string,
@@ -72,10 +100,12 @@ export function matchesCoachScheduleFilters(
   filters: CoachScheduleFilterValues,
 ): boolean {
   const startsAt = new Date(row.startsAt);
-  if (filters.from && startsAt < new Date(`${filters.from}T00:00:00`)) {
+  const fromIso = parseCoachFilterDateInput(filters.from);
+  const toIso = parseCoachFilterDateInput(filters.to);
+  if (fromIso !== null && startsAt < new Date(`${fromIso}T00:00:00`)) {
     return false;
   }
-  if (filters.to && startsAt > new Date(`${filters.to}T23:59:59`)) {
+  if (toIso !== null && startsAt > new Date(`${toIso}T23:59:59`)) {
     return false;
   }
   if (filters.classType !== "all" && row.classType.name !== filters.classType) {
@@ -110,10 +140,12 @@ export function matchesCoachRosterFilters(
   filters: CoachRosterFilterValues,
 ): boolean {
   const startsAt = new Date(row.session.startsAt);
-  if (filters.from && startsAt < new Date(`${filters.from}T00:00:00`)) {
+  const fromIso = parseCoachFilterDateInput(filters.from);
+  const toIso = parseCoachFilterDateInput(filters.to);
+  if (fromIso !== null && startsAt < new Date(`${fromIso}T00:00:00`)) {
     return false;
   }
-  if (filters.to && startsAt > new Date(`${filters.to}T23:59:59`)) {
+  if (toIso !== null && startsAt > new Date(`${toIso}T23:59:59`)) {
     return false;
   }
   if (

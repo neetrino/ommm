@@ -124,13 +124,13 @@ export function CoachGroupsScreen() {
         <CoachDateField
           label={t("filters.dateFrom")}
           value={filters.from}
-          placeholder="YYYY-MM-DD"
+          placeholder="DD/MM/YYYY"
           onChangeText={(from) => setFilters((prev) => ({ ...prev, from }))}
         />
         <CoachDateField
           label={t("filters.dateTo")}
           value={filters.to}
-          placeholder="YYYY-MM-DD"
+          placeholder="DD/MM/YYYY"
           onChangeText={(to) => setFilters((prev) => ({ ...prev, to }))}
         />
       </View>

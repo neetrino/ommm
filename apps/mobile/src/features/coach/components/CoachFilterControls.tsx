@@ -74,18 +74,18 @@ type CoachDateFieldProps = {
   onChangeText: (value: string) => void;
 };
 
-/** Digits-only → `YYYY-MM-DD` (hyphens inserted; letters never accepted). */
+/** Digits-only → `DD/MM/YYYY` (slashes inserted; letters never accepted). */
 const DATE_INPUT_MAX_DIGITS = 8;
 
-function formatIsoDateDigits(raw: string): string {
+function formatDayMonthYearDigits(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, DATE_INPUT_MAX_DIGITS);
-  if (digits.length <= 4) {
+  if (digits.length <= 2) {
     return digits;
   }
-  if (digits.length <= 6) {
-    return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  if (digits.length <= 4) {
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
   }
-  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
 export function CoachDateField({
@@ -99,7 +99,7 @@ export function CoachDateField({
       <Text style={styles.label}>{label}</Text>
       <TextInput
         value={value}
-        onChangeText={(next) => onChangeText(formatIsoDateDigits(next))}
+        onChangeText={(next) => onChangeText(formatDayMonthYearDigits(next))}
         placeholder={placeholder}
         placeholderTextColor={colors.taupe}
         style={styles.search}
