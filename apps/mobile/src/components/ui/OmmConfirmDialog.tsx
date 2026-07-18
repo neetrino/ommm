@@ -151,10 +151,12 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.backdrop,
     justifyContent: "center",
     paddingHorizontal: space.md,
+    paddingVertical: space.md,
   },
   panelWrap: {
     width: "100%",
     maxWidth: tokens.panelMaxWidth,
+    maxHeight: "90%",
     alignSelf: "center",
   },
   panel: {

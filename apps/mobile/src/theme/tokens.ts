@@ -94,7 +94,8 @@ export const radii = {
 export const layout = {
   designWidth: 390,
   headerMinHeight: 116,
-  tabBarHeight: 80,
+  /** Must match FloatingTabBar portrait height (`FLOATING_TAB_BAR_HEIGHT`). */
+  tabBarHeight: 88,
   bookingCardHeight: 256,
   avatarSize: 56,
 } as const;

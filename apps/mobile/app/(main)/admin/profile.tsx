@@ -8,18 +8,20 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLogoutAction } from "../../../src/auth/useLogoutAction";
 import { GradientBackdrop } from "../../../src/components/layout/GradientBackdrop";
+import { useScreenChromeInsets } from "../../../src/components/layout/useScreenChrome";
 import { fontFamilies } from "../../../src/theme/fontFamilies";
-import { colors, layout, radii, space, typography } from "../../../src/theme/tokens";
+import { colors, radii, space, typography } from "../../../src/theme/tokens";
 
 export default function AdminProfileMobileRoute() {
-  const insets = useSafeAreaInsets();
   const logout = useLogoutAction();
   const [logoutBusy, setLogoutBusy] = useState(false);
-  const bottomPad =
-    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.lg;
+  const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
+    useScreenChromeInsets({
+      header: "safe",
+      contentGap: space.lg,
+    });
 
   const onLogoutPress = useCallback(() => {
     if (logoutBusy) {
@@ -35,7 +37,10 @@ export default function AdminProfileMobileRoute() {
     <View style={styles.root}>
       <GradientBackdrop />
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop, paddingBottom, paddingLeft, paddingRight },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>Profile</Text>
@@ -75,8 +80,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingHorizontal: space.screenHorizontal,
-    paddingTop: space.xxl,
     gap: space.md,
   },
   title: {

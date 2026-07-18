@@ -16,6 +16,7 @@ import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { useIsCompactChrome } from "../../src/components/layout/useScreenChrome";
 import { useTranslations } from "../../src/i18n/I18nProvider";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
@@ -23,8 +24,7 @@ import { colors, radii, space, typography } from "../../src/theme/tokens";
 const LOGIN_LOGO_LAYOUT_SIZE = 72;
 /** Visual scale only — layout slot stays fixed so other elements do not move. */
 const LOGIN_LOGO_VISUAL_SCALE = 3.35;
-/** Compensate scaled logo overflow so the form block stays vertically centered. */
-const LOGIN_CONTENT_LIFT = (LOGIN_LOGO_LAYOUT_SIZE * (LOGIN_LOGO_VISUAL_SCALE - 1)) / 2;
+const LOGIN_LOGO_VISUAL_SCALE_COMPACT = 1.65;
 const LOGIN_ENTRY_ANIMATION_MS = 760;
 const LOGIN_ENTRY_OFFSET_PX = 16;
 const LOGIN_ENTRY_START_SCALE = 0.985;
@@ -32,6 +32,7 @@ const LOGIN_ENTRY_EASING = Easing.bezier(0.22, 1, 0.36, 1);
 
 export default function LoginRoute() {
   const router = useRouter();
+  const compact = useIsCompactChrome();
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth.login");
   const tRegister = useTranslations("auth.register");
@@ -45,6 +46,11 @@ export default function LoginRoute() {
   const entranceOpacity = useRef(new Animated.Value(0)).current;
   const entranceTranslateY = useRef(new Animated.Value(LOGIN_ENTRY_OFFSET_PX)).current;
   const entranceScale = useRef(new Animated.Value(LOGIN_ENTRY_START_SCALE)).current;
+  const logoVisualScale = compact
+    ? LOGIN_LOGO_VISUAL_SCALE_COMPACT
+    : LOGIN_LOGO_VISUAL_SCALE;
+  const contentLift =
+    (LOGIN_LOGO_LAYOUT_SIZE * (logoVisualScale - 1)) / 2;
 
   useEffect(() => {
     if (!isReady || hasPlayedEntranceRef.current) {
@@ -119,6 +125,7 @@ export default function LoginRoute() {
       <Animated.View
         style={[
           styles.contentBlock,
+          { marginTop: -contentLift },
           {
             opacity: entranceOpacity,
             transform: [{ translateY: entranceTranslateY }, { scale: entranceScale }],
@@ -129,7 +136,7 @@ export default function LoginRoute() {
           <View style={styles.logoSlot}>
             <Image
               source={figmaRemoteAssets.brandMark}
-              style={styles.logo}
+              style={[styles.logo, { transform: [{ scale: logoVisualScale }] }]}
               contentFit="contain"
               accessibilityLabel="Ommm logo"
               accessibilityIgnoresInvertColors
@@ -207,9 +214,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.canvas,
   },
-  contentBlock: {
-    marginTop: -LOGIN_CONTENT_LIFT,
-  },
+  contentBlock: {},
   brandBlock: {
     alignItems: "center",
     gap: space.md,
@@ -226,7 +231,6 @@ const styles = StyleSheet.create({
   logo: {
     width: LOGIN_LOGO_LAYOUT_SIZE,
     height: LOGIN_LOGO_LAYOUT_SIZE,
-    transform: [{ scale: LOGIN_LOGO_VISUAL_SCALE }],
     opacity: 0.94,
   },
   title: {

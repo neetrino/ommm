@@ -16,6 +16,7 @@ import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { useIsCompactChrome } from "../../src/components/layout/useScreenChrome";
 import { useTranslations, useLocale } from "../../src/i18n/I18nProvider";
 import { formatPhoneInput } from "../../src/lib/phone-input";
 import {
@@ -30,6 +31,7 @@ import { colors, radii, space, typography } from "../../src/theme/tokens";
 const MIN_PASSWORD_LENGTH = 8;
 const REGISTER_LOGO_LAYOUT_SIZE = 72;
 const REGISTER_LOGO_VISUAL_SCALE = 3.35;
+const REGISTER_LOGO_VISUAL_SCALE_COMPACT = 1.65;
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
@@ -53,6 +55,7 @@ function isValidPhone(trimmed: string): boolean {
 export default function RegisterRoute() {
   const router = useRouter();
   const locale = useLocale();
+  const compact = useIsCompactChrome();
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth.register");
   const { isReady, isSignedIn, homeHref, registerAccount } = useSession();
@@ -69,6 +72,9 @@ export default function RegisterRoute() {
   const entranceOpacity = useRef(new Animated.Value(0)).current;
   const entranceTranslateY = useRef(new Animated.Value(REGISTER_ENTRY_OFFSET_PX)).current;
   const entranceScale = useRef(new Animated.Value(REGISTER_ENTRY_START_SCALE)).current;
+  const logoVisualScale = compact
+    ? REGISTER_LOGO_VISUAL_SCALE_COMPACT
+    : REGISTER_LOGO_VISUAL_SCALE;
 
   useEffect(() => {
     if (!isReady || hasPlayedEntranceRef.current) {
@@ -183,7 +189,7 @@ export default function RegisterRoute() {
           <View style={styles.logoSlot}>
             <Image
               source={figmaRemoteAssets.brandMark}
-              style={styles.logo}
+              style={[styles.logo, { transform: [{ scale: logoVisualScale }] }]}
               contentFit="contain"
               accessibilityLabel="Ommm logo"
               accessibilityIgnoresInvertColors
@@ -321,7 +327,6 @@ const styles = StyleSheet.create({
   logo: {
     width: REGISTER_LOGO_LAYOUT_SIZE,
     height: REGISTER_LOGO_LAYOUT_SIZE,
-    transform: [{ scale: REGISTER_LOGO_VISUAL_SCALE }],
     opacity: 0.94,
   },
   title: {

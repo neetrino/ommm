@@ -8,16 +8,15 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppHeader } from "../../../components/layout/AppHeader";
-import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
 import { useRouter } from "expo-router";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, layout, space, typography } from "../../../theme/tokens";
+import { colors, space, typography } from "../../../theme/tokens";
 
 type CoachScreenShellProps = {
   children?: ReactNode;
@@ -36,14 +35,13 @@ export function CoachScreenShell({
   loading = false,
   contentStyle,
 }: CoachScreenShellProps) {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const tCommon = useTranslations("common");
   const onHeaderBookPress = useAppHeaderBookPress();
-  const headerOffset = appHeaderScrollPaddingTop(insets.top);
-  const bottomPad =
-    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
-  const topPad = showHeader ? headerOffset : Math.max(insets.top, space.sm) + space.sm;
+  const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
+    useScreenChromeInsets({
+      header: showHeader ? "app" : "safe",
+    });
 
   return (
     <View style={styles.root}>
@@ -52,7 +50,7 @@ export function CoachScreenShell({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: topPad, paddingBottom: bottomPad },
+          { paddingTop, paddingBottom, paddingLeft, paddingRight },
           contentStyle,
         ]}
         keyboardShouldPersistTaps="handled"
@@ -89,7 +87,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   scrollContent: {
-    paddingHorizontal: space.screenHorizontal,
     gap: space.md,
   },
   backRow: {
@@ -103,7 +100,7 @@ const styles = StyleSheet.create({
     marginBottom: space.xs,
   },
   loading: {
-    minHeight: 180,
+    minHeight: 120,
     alignItems: "center",
     justifyContent: "center",
   },

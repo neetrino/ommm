@@ -6,14 +6,13 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import { userMemberPath } from "../../../navigation/memberPaths";
 import { AppHeader } from "../../../components/layout/AppHeader";
-import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
-import { colors, layout, space, typography } from "../../../theme/tokens";
+import { colors, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { ExploreMoreButton } from "../components/ExploreMoreButton";
 import { ExploreSection } from "../components/ExploreSection";
@@ -25,15 +24,12 @@ import { useHomeGiftContent } from "../hooks/useHomeContent";
 import { useMemberHomeFeed } from "../hooks/useMemberHomeFeed";
 
 export function HomeScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { userGreetingName, homeImageUri, profileInitials } = useSession();
   const giftContent = useHomeGiftContent();
   const feed = useMemberHomeFeed();
-
-  const headerOffset = appHeaderScrollPaddingTop(insets.top);
-  const bottomPad =
-    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
+  const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
+    useScreenChromeInsets({ includeScreenGutter: false });
   const onHeaderBookPress = useAppHeaderBookPress();
 
   return (
@@ -45,8 +41,10 @@ export function HomeScreen() {
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingTop: headerOffset,
-            paddingBottom: bottomPad,
+            paddingTop,
+            paddingBottom,
+            paddingLeft: safePaddingLeft,
+            paddingRight: safePaddingRight,
           },
         ]}
         keyboardShouldPersistTaps="handled"

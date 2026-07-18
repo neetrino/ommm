@@ -6,11 +6,18 @@ import { figmaRemoteAssets } from "../../assets/figmaRemoteAssets";
 import { useTranslations } from "../../i18n/I18nProvider";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../theme/tokens";
+import { APP_HEADER_LOGO_SIZE } from "./screenChromeLayout";
 
 type AppHeaderProps = {
   onBookPress: () => void;
 };
 
+/**
+ * Header chrome: full brand mark + CTA on one row.
+ * Row height matches the logo so the circle is never clipped, and the CTA
+ * stays vertically centered with the logo (critical on real iPhone landscape).
+ * Horizontal padding includes safe-area left/right for notched landscape.
+ */
 export function AppHeader({ onBookPress }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
   const tHome = useTranslations("home");
@@ -18,19 +25,34 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
 
   return (
     <View
-      style={[styles.wrapper, { paddingTop: insets.top }]}
+      style={[
+        styles.wrapper,
+        {
+          paddingTop: insets.top,
+          paddingLeft: insets.left + space.screenHorizontal,
+          paddingRight: insets.right + space.screenHorizontal,
+        },
+      ]}
     >
       <BlurView intensity={40} tint="light" style={styles.blur}>
-        <View style={styles.row}>
-          <View style={styles.logoSlot}>
-            <View style={styles.logoWrap} accessibilityLabel="Ommm logo">
-              <Image
-                source={figmaRemoteAssets.brandMark}
-                style={styles.logo}
-                contentFit="cover"
-                accessibilityIgnoresInvertColors
-              />
-            </View>
+        <View style={[styles.row, { minHeight: APP_HEADER_LOGO_SIZE }]}>
+          <View
+            style={[
+              styles.logoWrap,
+              {
+                width: APP_HEADER_LOGO_SIZE,
+                height: APP_HEADER_LOGO_SIZE,
+                borderRadius: APP_HEADER_LOGO_SIZE / 2,
+              },
+            ]}
+            accessibilityLabel="Ommm logo"
+          >
+            <Image
+              source={figmaRemoteAssets.brandMark}
+              style={styles.logo}
+              contentFit="cover"
+              accessibilityIgnoresInvertColors
+            />
           </View>
           <Pressable
             onPress={onBookPress}
@@ -49,10 +71,6 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
   );
 }
 
-const LOGO_SIZE = 96;
-/** Bar height stays at original compact strip; logo can draw larger via overflow. */
-const HEADER_ROW_MIN_HEIGHT = 50 + space.xs;
-
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
@@ -67,26 +85,14 @@ const styles = StyleSheet.create({
     pointerEvents: "box-none",
   },
   blur: {
-    paddingHorizontal: space.screenHorizontal,
     paddingBottom: space.md,
-    overflow: "visible",
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    height: HEADER_ROW_MIN_HEIGHT,
-    overflow: "visible",
-  },
-  logoSlot: {
-    height: HEADER_ROW_MIN_HEIGHT,
-    justifyContent: "center",
-    overflow: "visible",
   },
   logoWrap: {
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
-    borderRadius: radii.logo,
     overflow: "hidden",
   },
   logo: {
@@ -98,6 +104,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     paddingVertical: space.sm,
     borderRadius: radii.pill,
+    alignSelf: "center",
   },
   bookButtonPressed: {
     opacity: 0.9,
