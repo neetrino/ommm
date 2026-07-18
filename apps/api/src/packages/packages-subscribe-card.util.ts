@@ -6,6 +6,8 @@ import {
   type PackagePlan,
   type Prisma,
 } from '@prisma/client';
+import { mergeArcaMetadata } from '../payments/arca/arca-metadata.util';
+import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import {
   createPaymentReference,
@@ -109,6 +111,7 @@ export async function failDuplicatePendingCardPurchases(
     await failPendingCardPackagePurchase(db, {
       paymentId: payment.id,
       userPackageId: payment.sourceId,
+      statusReason: PAYMENT_STATUS_REASON.DUPLICATE_ATTEMPT,
     });
   }
   return duplicates.length;
@@ -143,6 +146,9 @@ export async function createPendingCardPackagePurchase(
       description: buildPackagePaymentDescription(params.plan.name),
       confirmedAt: null,
       paymentMethod: ManualPaymentMethod.CARD,
+      metadata: {
+        statusReason: PAYMENT_STATUS_REASON.CHECKOUT_NOT_STARTED,
+      },
     },
   });
   return {
@@ -155,14 +161,30 @@ export async function createPendingCardPackagePurchase(
 /** Marks a just-created (or abandoned) card purchase as failed/cancelled. */
 export async function failPendingCardPackagePurchase(
   db: PaymentPackageDb,
-  params: { paymentId: string; userPackageId: string | null },
+  params: {
+    paymentId: string;
+    userPackageId: string | null;
+    statusReason?: string;
+  },
 ): Promise<void> {
-  await db.payment.updateMany({
-    where: { id: params.paymentId, status: PaymentStatus.PENDING },
+  const existing = await db.payment.findUnique({
+    where: { id: params.paymentId },
+    select: { metadata: true, status: true },
+  });
+  if (!existing || existing.status !== PaymentStatus.PENDING) {
+    return;
+  }
+
+  await db.payment.update({
+    where: { id: params.paymentId },
     data: {
       status: PaymentStatus.FAILED,
       confirmedAt: new Date(),
       paymentMethod: ManualPaymentMethod.CARD,
+      metadata: mergeArcaMetadata(existing.metadata, {
+        statusReason:
+          params.statusReason ?? PAYMENT_STATUS_REASON.REGISTER_FAILED,
+      }),
     },
   });
   if (params.userPackageId === null) {

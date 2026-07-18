@@ -12,6 +12,8 @@ import {
   ARCA_ORPHAN_CLEANUP_BATCH_SIZE,
   ARCA_ORPHAN_PENDING_MAX_AGE_MS,
 } from './arca.constants';
+import { mergeArcaMetadata } from './arca-metadata.util';
+import { PAYMENT_STATUS_REASON } from '../payment-status-reason';
 
 export type ArcaOrphanCleanupSummary = {
   scanned: number;
@@ -39,7 +41,7 @@ export async function cleanupBanklessOrphanPendingPayments(
     },
     orderBy: { createdAt: 'asc' },
     take: ARCA_ORPHAN_CLEANUP_BATCH_SIZE,
-    select: { id: true, source: true, sourceId: true },
+    select: { id: true, source: true, sourceId: true, metadata: true },
   });
 
   let failedPayments = 0;
@@ -70,19 +72,28 @@ async function failBanklessOrphanPayment(
     id: string;
     source: PaymentSource;
     sourceId: string | null;
+    metadata: unknown;
   },
 ): Promise<{ failedPayment: boolean; cancelledPackage: boolean }> {
-  const updated = await prisma.payment.updateMany({
-    where: { id: payment.id, status: PaymentStatus.PENDING },
+  const existing = await prisma.payment.findUnique({
+    where: { id: payment.id },
+    select: { metadata: true, status: true },
+  });
+  if (!existing || existing.status !== PaymentStatus.PENDING) {
+    return { failedPayment: false, cancelledPackage: false };
+  }
+
+  await prisma.payment.update({
+    where: { id: payment.id },
     data: {
       status: PaymentStatus.FAILED,
       confirmedAt: new Date(),
       paymentMethod: ManualPaymentMethod.CARD,
+      metadata: mergeArcaMetadata(existing.metadata, {
+        statusReason: PAYMENT_STATUS_REASON.ABANDONED,
+      }),
     },
   });
-  if (updated.count === 0) {
-    return { failedPayment: false, cancelledPackage: false };
-  }
 
   if (payment.source !== PaymentSource.PACKAGE || payment.sourceId === null) {
     return { failedPayment: true, cancelledPackage: false };

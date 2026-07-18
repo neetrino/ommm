@@ -13,6 +13,22 @@
     "sessionDurationMinutes": "{minutes} мин",
     "sessionCoach": "Тренер"
   },
+  "paymentStatusReasons": {
+    "awaiting_bank": "Ожидание оплаты",
+    "bank_processing": "Обработка в банке",
+    "session_expired": "Сессия оплаты истекла",
+    "card_declined": "Карта отклонена",
+    "insufficient_funds": "Недостаточно средств",
+    "checkout_not_started": "Страница банка не открыта",
+    "register_failed": "Не удалось открыть банк",
+    "abandoned": "Оплата не завершена",
+    "duplicate_attempt": "Повторная попытка",
+    "reversed": "Отменено банком",
+    "refunded": "Возврат средств",
+    "awaiting_cash": "Ожидание наличных",
+    "admin_rejected": "Отклонено студией",
+    "unknown": "Причина неизвестна"
+  },
   "headerNotifications": {
     "title": "Уведомления",
     "triggerAria": "Уведомления{count, plural, =0 {} other {, {count} непрочитанных}}",

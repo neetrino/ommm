@@ -16,6 +16,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ArcaService } from '../payments/arca/arca.service';
 import { readArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
+import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import {
@@ -244,6 +245,13 @@ export class PackagesPublicService {
           paymentMethod: isCardPayment
             ? ManualPaymentMethod.CARD
             : ManualPaymentMethod.CASH,
+          ...(isCardPayment
+            ? {
+                metadata: {
+                  statusReason: PAYMENT_STATUS_REASON.CHECKOUT_NOT_STARTED,
+                },
+              }
+            : {}),
         },
       });
       if (!isCardPayment) {

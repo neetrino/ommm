@@ -10,6 +10,7 @@ import {
   statusBadgeClass,
   toPaymentIso,
 } from "@/components/account/user-payment-display";
+import { PaymentStatusReasonText } from "@/components/shared/payment-status-reason-text";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 
@@ -33,11 +34,18 @@ export function UserPaymentBoardCard({ locale, payment }: UserPaymentBoardCardPr
         eyebrow={t(`source.${source}`)}
         name={itemLabel}
         trailing={
-          <span
-            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusBadgeClass(payment.status)}`}
-          >
-            {t(`status.${payment.status}`)}
-          </span>
+          <div className="flex flex-col items-end">
+            <span
+              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusBadgeClass(payment.status)}`}
+            >
+              {t(`status.${payment.status}`)}
+            </span>
+            <PaymentStatusReasonText
+              status={payment.status}
+              reason={payment.statusReason}
+              className="mt-1 max-w-[9rem] text-right text-[10px] font-medium leading-snug text-sage-500"
+            />
+          </div>
         }
       />
 

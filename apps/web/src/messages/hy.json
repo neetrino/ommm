@@ -13,6 +13,22 @@
     "sessionDurationMinutes": "{minutes} ր",
     "sessionCoach": "Մարզիչ"
   },
+  "paymentStatusReasons": {
+    "awaiting_bank": "Սպասում վճարման",
+    "bank_processing": "Մշակվում է բանկում",
+    "session_expired": "Վճարման ժամանակը սպառվել է",
+    "card_declined": "Քարտը մերժվել է",
+    "insufficient_funds": "Անբավարար միջոցներ",
+    "checkout_not_started": "Բանկի էջը չի բացվել",
+    "register_failed": "Չհաջողվեց բացել բանկը",
+    "abandoned": "Վճարումը չի ավարտվել",
+    "duplicate_attempt": "Կրկնակի փորձ",
+    "reversed": "Չեղարկվել է բանկի կողմից",
+    "refunded": "Գումարը վերադարձվել է",
+    "awaiting_cash": "Սպասում կանխիկի",
+    "admin_rejected": "Մերժվել է ստուդիայի կողմից",
+    "unknown": "Պատճառն անհայտ է"
+  },
   "headerNotifications": {
     "title": "Ծանուցումներ",
     "triggerAria": "Ծանուցումներ{count, plural, =0 {} other {, {count} չկարդացված}}",
