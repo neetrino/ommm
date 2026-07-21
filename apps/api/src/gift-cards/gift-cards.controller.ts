@@ -13,7 +13,10 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
-import { Role } from '@prisma/client';
+import {
+  BACKOFFICE_DELETE_ROLES,
+  BACKOFFICE_WRITE_ROLES,
+} from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -57,28 +60,28 @@ export class GiftCardsController {
 
   @Get('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   adminList() {
     return this.giftCards.listAdmin();
   }
 
   @Get('admin/batches')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   adminBatchList(@Query() query: ListAdminGiftCardBatchesQueryDto) {
     return this.giftCards.listAdminBoard(query);
   }
 
   @Get('admin/users')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   adminUsers() {
     return this.giftCards.listAssignableUsers();
   }
 
   @Post('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   @UseInterceptors(
     FileInterceptor('image', {
       limits: { fileSize: GIFT_CARD_IMAGE_MAX_BYTES },
@@ -94,7 +97,7 @@ export class GiftCardsController {
 
   @Patch('admin/batches/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   updateBatch(
     @Param('id') id: string,
     @Body() dto: AdminUpdateGiftCardBatchDto,
@@ -104,28 +107,28 @@ export class GiftCardsController {
 
   @Patch('admin/:id/deactivate')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   deactivate(@Param('id') id: string) {
     return this.giftCards.deactivate(id);
   }
 
   @Patch('admin/batches/:id/deactivate')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   deactivateBatch(@Param('id') id: string) {
     return this.giftCards.deactivateBatch(id);
   }
 
   @Patch('admin/batches/:id/activate')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   activateBatch(@Param('id') id: string) {
     return this.giftCards.activateBatch(id);
   }
 
   @Delete('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   deleteAdminCard(
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
@@ -135,49 +138,49 @@ export class GiftCardsController {
 
   @Delete('admin/batches/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   deleteBatch(@CurrentUser() user: { id: string }, @Param('id') id: string) {
     return this.giftCards.deleteBatch(id, user.id);
   }
 
   @Patch('admin/:id/assign')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   assign(@Param('id') id: string, @Body() dto: AdminAssignGiftCardDto) {
     return this.giftCards.assignRecipient(id, dto.userId);
   }
 
   @Patch('admin/batches/:id/assign')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   assignBatch(@Param('id') id: string, @Body() dto: AdminAssignGiftCardDto) {
     return this.giftCards.assignBatchRecipient(id, dto.userId);
   }
 
   @Post('admin/:id/resend')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   resend(@Param('id') id: string) {
     return this.giftCards.resendEmail(id);
   }
 
   @Post('admin/batches/:id/resend')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   resendBatch(@Param('id') id: string) {
     return this.giftCards.resendBatchEmail(id);
   }
 
   @Get('admin/:id/redemptions')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   redemptionHistory(@Param('id') id: string) {
     return this.giftCards.getRedemptionHistory(id);
   }
 
   @Get('admin/batches/:id/history')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   batchHistory(@Param('id') id: string) {
     return this.giftCards.getBatchHistory(id);
   }

@@ -3,14 +3,16 @@ import type {
   AdminBookingsFilterState,
   AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
+import type { BookingCapabilities } from "@/lib/backoffice-capabilities";
 
 export type AdminBookingsManagementProps = {
   locale: string;
   initial: AdminBookingsManagementPayload;
   initialFilters: AdminBookingsFilterState;
-  /** Staff surfaces (manager): list-only canon rows, no calendar hero/metrics. */
+  /** Staff surfaces: list-only canon rows. Manager should not use this. */
   variant?: "full" | "staff";
   staffBanner?: string;
+  capabilities?: BookingCapabilities;
 };
 
 export type BookingConfirmKind = "cancel" | "delete" | "attended" | "activate";

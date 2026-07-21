@@ -3,8 +3,13 @@ import { getTranslations } from "next-intl/server";
 import { ContentPostsManagement } from "@/components/shared/content/content-posts-management";
 import type { ContentPostRow } from "@/components/shared/content/content-post-types";
 import { serverApiJson } from "@/lib/server-api";
+import type { ContentCapabilities } from "@/lib/backoffice-capabilities";
 
-export async function ContentPostsPanel() {
+export async function ContentPostsPanel({
+  capabilities,
+}: {
+  capabilities?: ContentCapabilities;
+} = {}) {
   const t = await getTranslations("contentAdminPages.content");
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<ContentPostRow[]>("/content/admin/posts", cookie);
@@ -17,5 +22,5 @@ export async function ContentPostsPanel() {
     return <div className="app-alert-warn max-w-xl">{message}</div>;
   }
 
-  return <ContentPostsManagement items={res.data} />;
+  return <ContentPostsManagement items={res.data} capabilities={capabilities} />;
 }

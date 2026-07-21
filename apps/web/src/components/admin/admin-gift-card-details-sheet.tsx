@@ -25,6 +25,8 @@ import type {
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import type { GiftCardCapabilities } from "@/lib/backoffice-capabilities";
+import { adminGiftCardCapabilities } from "@/lib/backoffice-capabilities";
 
 type AdminGiftCardDetailsSheetProps = {
   card: AdminGiftCardBatchRow | null;
@@ -32,7 +34,9 @@ type AdminGiftCardDetailsSheetProps = {
   assignableUsers: readonly AdminAssignableUser[];
   onClose: () => void;
   onChanged: () => void;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: GiftCardCapabilities;
 };
 
 function isGiftCardStatusToggleable(status: AdminGiftCardBatchRow["status"]): boolean {
@@ -46,17 +50,34 @@ export function AdminGiftCardDetailsSheet({
   onClose,
   onChanged,
   readOnly = false,
+  capabilities,
 }: AdminGiftCardDetailsSheetProps) {
   if (card === null) {
     return null;
   }
+
+  const caps =
+    capabilities ??
+    (readOnly
+      ? {
+          ...adminGiftCardCapabilities(),
+          canCreate: false,
+          canUpdate: false,
+          canDelete: false,
+          canAssign: false,
+          canActivate: false,
+          canDeactivate: false,
+          canResend: false,
+        }
+      : adminGiftCardCapabilities());
 
   return (
     <AdminGiftCardDetailsSheetInner
       card={card}
       locale={locale}
       assignableUsers={assignableUsers}
-      readOnly={readOnly}
+      readOnly={!caps.canUpdate}
+      capabilities={caps}
       onClose={onClose}
       onChanged={onChanged}
     />
@@ -70,6 +91,7 @@ function AdminGiftCardDetailsSheetInner({
   onClose,
   onChanged,
   readOnly = false,
+  capabilities,
 }: {
   card: AdminGiftCardBatchRow;
   locale: string;
@@ -77,6 +99,7 @@ function AdminGiftCardDetailsSheetInner({
   onClose: () => void;
   onChanged: () => void;
   readOnly?: boolean;
+  capabilities: GiftCardCapabilities;
 }) {
   const t = useTranslations("adminPages.giftCards");
   const tActions = useTranslations("adminPages.giftCards.actions");
@@ -129,7 +152,10 @@ function AdminGiftCardDetailsSheetInner({
 
   const amountLabel = formatAmdFromCents(card.amountAmd, locale);
   const isActive = card.status === "ACTIVE";
-  const canToggleStatus = !readOnly && isGiftCardStatusToggleable(card.status);
+  const canToggleStatus =
+    !readOnly &&
+    isGiftCardStatusToggleable(card.status) &&
+    ((isActive && capabilities.canDeactivate) || (!isActive && capabilities.canActivate));
 
   return (
     <OmmDrawerPortal
@@ -182,6 +208,8 @@ function AdminGiftCardDetailsSheetInner({
           locale={locale}
           assignableUsers={assignableUsers}
           readOnly={readOnly}
+          canDelete={capabilities.canDelete}
+          canAssign={capabilities.canAssign}
           onChanged={onChanged}
           onRemoved={handleRemoved}
         />

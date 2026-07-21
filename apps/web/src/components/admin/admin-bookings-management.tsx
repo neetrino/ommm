@@ -24,8 +24,18 @@ import { apiFetch } from "@/lib/api";
 import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
 import { useRouter } from "@/i18n/navigation";
 import type { PendingBookingConfirm } from "@/components/admin/admin-bookings-management.types";
+import {
+  adminBookingCapabilities,
+  type BookingCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 export type { AdminBookingsManagementProps } from "@/components/admin/admin-bookings-management.types";
+
+function resolveBookingCapabilities(
+  capabilities: BookingCapabilities | undefined,
+): BookingCapabilities {
+  return capabilities ?? adminBookingCapabilities();
+}
 
 export function AdminBookingsManagement({
   locale,
@@ -33,7 +43,9 @@ export function AdminBookingsManagement({
   initialFilters,
   variant = "full",
   staffBanner,
+  capabilities,
 }: AdminBookingsManagementProps) {
+  const caps = resolveBookingCapabilities(capabilities);
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.bookings");
   const tSchedule = useTranslations("adminPages.schedule");
@@ -249,7 +261,7 @@ export function AdminBookingsManagement({
           }}
           onMove={detailHandlers.onMove}
           onChangeStatus={detailHandlers.onChangeStatus}
-          onDelete={detailHandlers.onDelete}
+          onDelete={caps.canDelete ? detailHandlers.onDelete : undefined}
         />
       ) : null}
       {showMoveModal && selectedRow ? (

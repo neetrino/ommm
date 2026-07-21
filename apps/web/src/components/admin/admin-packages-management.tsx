@@ -27,12 +27,17 @@ import {
 } from "@/components/admin/admin-packages-types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
+import {
+  adminBackofficeCapabilities,
+  type BackofficeCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
   initialClassTypes: readonly AdminClassTypeRow[];
   locale: string;
   initialFilters: PackageFilterValues;
+  capabilities?: BackofficeCapabilities;
 };
 
 export function AdminPackagesManagement({
@@ -40,7 +45,9 @@ export function AdminPackagesManagement({
   initialClassTypes,
   locale,
   initialFilters,
+  capabilities,
 }: AdminPackagesManagementProps) {
+  const caps = capabilities ?? adminBackofficeCapabilities();
   const t = useTranslations("adminPages.packages");
   const [classTypes, setClassTypes] = useState<readonly AdminClassTypeRow[]>(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
@@ -157,25 +164,29 @@ export function AdminPackagesManagement({
         }
         trailing={
           <>
-            <OmmButton
-              type="button"
-              variant="ghost"
-              size="md"
-              onClick={openTypesModal}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full"
-            >
-              {t("manageTypesButton")}
-            </OmmButton>
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={openAddModal}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-            >
-              <PlusIcon className="h-5 w-5 shrink-0" />
-              {t("addGroupButton")}
-            </OmmButton>
+            {caps.canUpdate ? (
+              <OmmButton
+                type="button"
+                variant="ghost"
+                size="md"
+                onClick={openTypesModal}
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full"
+              >
+                {t("manageTypesButton")}
+              </OmmButton>
+            ) : null}
+            {caps.canCreate ? (
+              <OmmButton
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={openAddModal}
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+              >
+                <PlusIcon className="h-5 w-5 shrink-0" />
+                {t("addGroupButton")}
+              </OmmButton>
+            ) : null}
           </>
         }
       />
@@ -210,10 +221,10 @@ export function AdminPackagesManagement({
           emptyFilterLabel={t("empty")}
           noCategoriesSelectedLabel={t("noCategoriesSelected")}
           onEditCategory={openEditCategory}
-          onDeleteCategory={openDeleteCategory}
+          onDeleteCategory={caps.canDelete ? openDeleteCategory : undefined}
           onEditPackage={openEditTier}
-          onAddTier={openAddTier}
-          onDeletePackage={openDeletePackage}
+          onAddTier={caps.canCreate ? openAddTier : undefined}
+          onDeletePackage={caps.canDelete ? openDeletePackage : undefined}
           onPackageStatusUpdated={handlePackageUpdated}
           onCategoryPlansUpdated={handleCategoryPlansUpdated}
           onCategoryPageChange={syncCategoryListPage}

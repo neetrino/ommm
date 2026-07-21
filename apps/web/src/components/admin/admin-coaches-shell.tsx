@@ -18,6 +18,10 @@ import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
 import type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
 import { AdminCoachesViewProvider, useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
+import {
+  adminBackofficeCapabilities,
+  type BackofficeCapabilities,
+} from "@/lib/backoffice-capabilities";
 const COACH_MODAL_QUERY_KEY = "modal";
 const COACH_MODAL_QUERY_VALUE = "add-coach";
 const COACH_MODAL_BANNER_MS = 8000;
@@ -29,7 +33,9 @@ type AdminCoachesShellProps = {
   children: ReactNode;
   variant?: "full" | "staff";
   staffBanner?: string;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: BackofficeCapabilities;
 };
 
 export function AdminCoachesShell({
@@ -40,7 +46,13 @@ export function AdminCoachesShell({
   variant = "full",
   staffBanner,
   readOnly = false,
+  capabilities,
 }: AdminCoachesShellProps) {
+  const caps =
+    capabilities ??
+    (readOnly
+      ? { ...adminBackofficeCapabilities(), canCreate: false, canUpdate: false, canDelete: false }
+      : adminBackofficeCapabilities());
   return (
     <AdminCoachesViewProvider>
       <AdminCoachesShellInner
@@ -49,7 +61,7 @@ export function AdminCoachesShell({
         filterInitialValues={filterInitialValues}
         variant={variant}
         staffBanner={staffBanner}
-        readOnly={readOnly}
+        capabilities={caps}
       >
         {children}
       </AdminCoachesShellInner>
@@ -64,8 +76,9 @@ function AdminCoachesShellInner({
   children,
   variant = "full",
   staffBanner,
-  readOnly = false,
-}: AdminCoachesShellProps) {
+  capabilities,
+}: AdminCoachesShellProps & { capabilities: BackofficeCapabilities }) {
+  const caps = capabilities;
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.coaches");
   const { viewMode, setViewMode } = useAdminCoachesView();
@@ -157,7 +170,7 @@ function AdminCoachesShellInner({
       classTypeOptions={classTypeOptions}
       viewMode={viewMode}
       onViewChange={setViewMode}
-      onAddCoach={openModal}
+      onAddCoach={caps.canCreate ? openModal : undefined}
       variant={isStaff ? "embedded" : "full"}
     />
   );
@@ -191,7 +204,7 @@ function AdminCoachesShellInner({
 
       {children}
 
-      {isModalOpen && !readOnly ? (
+      {isModalOpen && caps.canCreate ? (
         <div
           className="ommm-modal-overlay z-50"
           role="presentation"

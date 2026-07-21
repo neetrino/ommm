@@ -35,6 +35,25 @@ export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> 
   "/admin/profile": "clients",
 };
 
+/**
+ * Manager operational routes use the same Figma olive icons as Admin.
+ * Kept separate from Finance / Analytics / Guest users (not on Manager nav).
+ */
+export const MANAGER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> = {
+  "/manager/dashboard": "dashboard",
+  "/manager/bookings": "bookings",
+  "/manager/waitlists": "waitlists",
+  "/manager/clients": "clients",
+  "/manager/coaches": "coaches",
+  "/manager/schedule": "schedule",
+  "/manager/packages": "packages",
+  "/manager/gift-cards": "giftCards",
+  "/manager/notifications": "notifications",
+  "/manager/content": "feedback",
+  "/manager/settings": "settings",
+  "/manager/profile": "clients",
+};
+
 export function adminNavIconSlugForHref(href: string): AdminNavIconSlug | null {
-  return ADMIN_NAV_ICON_BY_HREF[href] ?? null;
+  return ADMIN_NAV_ICON_BY_HREF[href] ?? MANAGER_NAV_ICON_BY_HREF[href] ?? null;
 }

@@ -29,6 +29,8 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
+import { adminScheduleCapabilities } from "@/lib/backoffice-capabilities";
 
 type AdminScheduleSessionDetailsSheetProps = {
   locale: string;
@@ -37,9 +39,10 @@ type AdminScheduleSessionDetailsSheetProps = {
   coaches: readonly AdminScheduleCoach[];
   actionBusy: boolean;
   onClose: () => void;
-  onSaved: (row: AdminScheduleSession) => void;
-  onDuplicate: (row: AdminScheduleSession) => void;
-  onDelete: (row: AdminScheduleSession) => void;
+  onSaved?: (row: AdminScheduleSession) => void;
+  onDuplicate?: (row: AdminScheduleSession) => void;
+  onDelete?: (row: AdminScheduleSession) => void;
+  capabilities?: ScheduleCapabilities;
 };
 
 export function AdminScheduleSessionDetailsSheet({
@@ -52,10 +55,13 @@ export function AdminScheduleSessionDetailsSheet({
   onSaved,
   onDuplicate,
   onDelete,
+  capabilities,
 }: AdminScheduleSessionDetailsSheetProps) {
   if (row === null) {
     return null;
   }
+
+  const caps = capabilities ?? adminScheduleCapabilities();
 
   return (
     <AdminScheduleSessionDetailsSheetInner
@@ -66,8 +72,9 @@ export function AdminScheduleSessionDetailsSheet({
       actionBusy={actionBusy}
       onClose={onClose}
       onSaved={onSaved}
-      onDuplicate={onDuplicate}
-      onDelete={onDelete}
+      onDuplicate={caps.canDuplicate ? onDuplicate : undefined}
+      onDelete={caps.canDelete ? onDelete : undefined}
+      canUpdate={caps.canUpdate}
     />
   );
 }
@@ -82,6 +89,7 @@ function AdminScheduleSessionDetailsSheetInner({
   onSaved,
   onDuplicate,
   onDelete,
+  canUpdate = true,
 }: {
   locale: string;
   row: AdminScheduleSession;
@@ -89,9 +97,10 @@ function AdminScheduleSessionDetailsSheetInner({
   coaches: readonly AdminScheduleCoach[];
   actionBusy: boolean;
   onClose: () => void;
-  onSaved: (row: AdminScheduleSession) => void;
-  onDuplicate: (row: AdminScheduleSession) => void;
-  onDelete: (row: AdminScheduleSession) => void;
+  onSaved?: (row: AdminScheduleSession) => void;
+  onDuplicate?: (row: AdminScheduleSession) => void;
+  onDelete?: (row: AdminScheduleSession) => void;
+  canUpdate?: boolean;
   onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 }) {
   const t = useTranslations("adminPages.classes");
@@ -124,7 +133,7 @@ function AdminScheduleSessionDetailsSheetInner({
     classTypeOptions,
     coaches,
     onSaved: (saved) => {
-      onSaved(saved);
+      onSaved?.(saved);
     },
   });
 
@@ -148,7 +157,7 @@ function AdminScheduleSessionDetailsSheetInner({
   }, [editForm.dirty, onClose, sheetBusy]);
 
   function handleStatusChanged(updated: AdminScheduleSession): void {
-    onSaved(updated);
+    onSaved?.(updated);
   }
 
   return (
@@ -172,7 +181,7 @@ function AdminScheduleSessionDetailsSheetInner({
           <AdminScheduleSessionStatusAction
             sessionId={row.id}
             status={row.status}
-            disabled={sheetBusy}
+            disabled={sheetBusy || !canUpdate}
             onChanged={handleStatusChanged}
             onBusyChange={setStatusBusy}
             onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
@@ -205,28 +214,28 @@ function AdminScheduleSessionDetailsSheetInner({
           coaches={coaches}
           controller={editForm}
           actionBusy={sheetBusy}
-          onDuplicate={(session) => {
-            onDuplicate(session);
-          }}
+          onDuplicate={onDuplicate}
           onDelete={onDelete}
         />
       </div>
 
-      <AdminDetailSheetFormFooter
-        saveLabel={t("saveButton")}
-        cancelLabel={t("cancelButton")}
-        savingLabel={t("savingButton")}
-        dirty={editForm.dirty}
-        busy={editForm.busy}
-        onCancel={editForm.cancelEdits}
-        onSave={() => {
-          void editForm.save(
-            t("messages.updateSuccess"),
-            t("messages.genericError"),
-            t("validation.coachNotAssigned"),
-          );
-        }}
-      />
+      {canUpdate ? (
+        <AdminDetailSheetFormFooter
+          saveLabel={t("saveButton")}
+          cancelLabel={t("cancelButton")}
+          savingLabel={t("savingButton")}
+          dirty={editForm.dirty}
+          busy={editForm.busy}
+          onCancel={editForm.cancelEdits}
+          onSave={() => {
+            void editForm.save(
+              t("messages.updateSuccess"),
+              t("messages.genericError"),
+              t("validation.coachNotAssigned"),
+            );
+          }}
+        />
+      ) : null}
     </OmmDrawerPortal>
   );
 }

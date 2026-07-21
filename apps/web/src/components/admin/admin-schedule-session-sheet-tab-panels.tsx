@@ -48,8 +48,8 @@ type SessionSheetTabPanelsProps = {
   coaches: readonly AdminScheduleCoach[];
   controller: SessionEditFormController;
   actionBusy: boolean;
-  onDuplicate: (row: AdminScheduleSession) => void;
-  onDelete: (row: AdminScheduleSession) => void;
+  onDuplicate?: (row: AdminScheduleSession) => void;
+  onDelete?: (row: AdminScheduleSession) => void;
 };
 
 export function SessionSheetTabPanels({
@@ -209,49 +209,58 @@ export function SessionSheetTabPanels({
   }
 
   if (activeTab === SESSION_SHEET_TAB_ACTIONS) {
+    if (!onDuplicate && !onDelete) {
+      return null;
+    }
     return (
       <>
         <section className={`${SECTION_CLASS} flex flex-wrap gap-2`}>
-          <OmmButton
-            type="button"
-            size="sm"
-            variant="secondary"
-            disabled={actionBusy}
-            onClick={() => onDuplicate(row)}
-          >
-            {t("duplicateButton")}
-          </OmmButton>
-          <OmmButton
-            type="button"
-            size="sm"
-            variant="danger"
-            disabled={actionBusy}
-            onClick={() => setPendingDelete(true)}
-          >
-            {t("actions.delete")}
-          </OmmButton>
+          {onDuplicate ? (
+            <OmmButton
+              type="button"
+              size="sm"
+              variant="secondary"
+              disabled={actionBusy}
+              onClick={() => onDuplicate(row)}
+            >
+              {t("duplicateButton")}
+            </OmmButton>
+          ) : null}
+          {onDelete ? (
+            <OmmButton
+              type="button"
+              size="sm"
+              variant="danger"
+              disabled={actionBusy}
+              onClick={() => setPendingDelete(true)}
+            >
+              {t("actions.delete")}
+            </OmmButton>
+          ) : null}
         </section>
 
-        <OmmConfirmDialog
-          isOpen={pendingDelete}
-          title={t("confirmDeleteTitle")}
-          description={t("deleteConfirm")}
-          confirmLabel={actionBusy ? t("savingButton") : t("confirmDialogDelete")}
-          cancelLabel={t("confirmDialogNo")}
-          backdropAriaLabel={t("confirmDialogBackdrop")}
-          tone="danger"
-          confirmClassName="ommm-btn-lifecycle-action--danger"
-          pending={actionBusy}
-          onConfirm={() => {
-            onDelete(row);
-            setPendingDelete(false);
-          }}
-          onCancel={() => {
-            if (!actionBusy) {
+        {onDelete ? (
+          <OmmConfirmDialog
+            isOpen={pendingDelete}
+            title={t("confirmDeleteTitle")}
+            description={t("deleteConfirm")}
+            confirmLabel={actionBusy ? t("savingButton") : t("confirmDialogDelete")}
+            cancelLabel={t("confirmDialogNo")}
+            backdropAriaLabel={t("confirmDialogBackdrop")}
+            tone="danger"
+            confirmClassName="ommm-btn-lifecycle-action--danger"
+            pending={actionBusy}
+            onConfirm={() => {
+              onDelete(row);
               setPendingDelete(false);
-            }
-          }}
-        />
+            }}
+            onCancel={() => {
+              if (!actionBusy) {
+                setPendingDelete(false);
+              }
+            }}
+          />
+        ) : null}
       </>
     );
   }

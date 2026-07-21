@@ -15,7 +15,7 @@ type MenuPosition = {
 
 type AdminPackageRowMenuProps = {
   onEdit: () => void;
-  onDeletePackage: () => void;
+  onDeletePackage?: () => void;
 };
 
 function MoreGlyph() {
@@ -99,7 +99,7 @@ export function AdminPackageRowMenu({ onEdit, onDeletePackage }: AdminPackageRow
 
   function openDeleteModal(): void {
     setOpen(false);
-    onDeletePackage();
+    onDeletePackage?.();
   }
 
   const menu =
@@ -127,14 +127,16 @@ export function AdminPackageRowMenu({ onEdit, onDeletePackage }: AdminPackageRow
             >
               {t("editButton")}
             </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="block w-full px-4 py-2 text-left text-sm text-red-800 transition-colors hover:bg-red-50/80"
-              onClick={openDeleteModal}
-            >
-              {t("deleteButton")}
-            </button>
+            {onDeletePackage ? (
+              <button
+                type="button"
+                role="menuitem"
+                className="block w-full px-4 py-2 text-left text-sm text-red-800 transition-colors hover:bg-red-50/80"
+                onClick={openDeleteModal}
+              >
+                {t("deleteButton")}
+              </button>
+            ) : null}
           </div>,
           document.body,
         )

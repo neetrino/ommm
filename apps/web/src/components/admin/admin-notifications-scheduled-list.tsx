@@ -22,7 +22,7 @@ type AdminNotificationsScheduledListProps = {
   totalItems: number;
   busyId: string | null;
   onEdit: (row: ScheduledBroadcast) => void;
-  onCancel: (id: string) => void;
+  onCancel?: (id: string) => void;
   t: ReturnType<typeof useTranslations<"adminPages.notifications">>;
 };
 
@@ -98,14 +98,16 @@ export function AdminNotificationsScheduledList({
                   >
                     {t("actions.edit")}
                   </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-50 disabled:opacity-50"
-                    disabled={busyId !== null}
-                    onClick={() => onCancel(row.id)}
-                  >
-                    {t("actions.cancel")}
-                  </button>
+                  {onCancel ? (
+                    <button
+                      type="button"
+                      className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-50 disabled:opacity-50"
+                      disabled={busyId !== null}
+                      onClick={() => onCancel(row.id)}
+                    >
+                      {t("actions.cancel")}
+                    </button>
+                  ) : null}
                 </div>
               ) : (
                 <span className={adminChrome.metaText}>—</span>

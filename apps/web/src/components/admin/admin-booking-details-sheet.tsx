@@ -84,7 +84,7 @@ export type AdminBookingDetailsSheetProps = {
   onOpenUser: (userId: string) => void;
   onMove: () => void;
   onChangeStatus: (status: ListRow["status"]) => void;
-  onDelete: () => void;
+  onDelete?: () => void;
   onNoteAdded?: () => void;
 };
 

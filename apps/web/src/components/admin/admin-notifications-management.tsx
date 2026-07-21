@@ -9,13 +9,19 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import type { AdminNotificationsPayload } from "@/components/admin/admin-notifications-types";
 import { useRouter } from "@/i18n/navigation";
 import { useSyncStateOnPropChange } from "@/hooks/sync-state-on-prop-change";
+import {
+  adminNotificationCapabilities,
+  type NotificationCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 type Props = {
   locale: string;
   initial: AdminNotificationsPayload;
+  capabilities?: NotificationCapabilities;
 };
 
-export function AdminNotificationsManagement({ locale, initial }: Props) {
+export function AdminNotificationsManagement({ locale, initial, capabilities }: Props) {
+  const caps = capabilities ?? adminNotificationCapabilities();
   const t = useTranslations("adminPages.notifications");
   const router = useRouter();
   const [stats, setStats] = useState(initial.stats);
@@ -69,13 +75,15 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
         </article>
       </section>
 
-      <section className={adminChrome.panel}>
-        <h2 className={adminChrome.panelHeading}>{t("composeHeading")}</h2>
-        <p className={`${adminChrome.metaText} mt-1`}>{t("composeHint")}</p>
-        <div className="mt-4 max-w-xl">
-          <AdminNotificationBroadcastForm onSuccess={handleBroadcastSuccess} />
-        </div>
-      </section>
+      {caps.canBroadcast ? (
+        <section className={adminChrome.panel}>
+          <h2 className={adminChrome.panelHeading}>{t("composeHeading")}</h2>
+          <p className={`${adminChrome.metaText} mt-1`}>{t("composeHint")}</p>
+          <div className="mt-4 max-w-xl">
+            <AdminNotificationBroadcastForm onSuccess={handleBroadcastSuccess} />
+          </div>
+        </section>
+      ) : null}
 
       <AdminNotificationsScheduledSection
         locale={locale}
@@ -83,42 +91,45 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
         loadFailed={loadErrors.scheduled}
         initialFilters={initial.scheduledFilters}
         onRefresh={refreshAll}
+        canCancelScheduled={caps.canCancelScheduled}
       />
 
-      <section className={adminChrome.panel}>
-        <h2 className={adminChrome.panelHeading}>{t("analyticsHeading")}</h2>
-        <div className="mt-3 grid gap-4 sm:grid-cols-3">
-          <article>
-            <p className={adminChrome.metricLabel}>{t("analytics.campaigns")}</p>
-            <p className={adminChrome.metricValue}>{analytics.summary.campaignsTotal}</p>
-          </article>
-          <article>
-            <p className={adminChrome.metricLabel}>{t("analytics.deliveries")}</p>
-            <p className={adminChrome.metricValue}>{analytics.summary.deliveriesTotal}</p>
-          </article>
-          <article>
-            <p className={adminChrome.metricLabel}>{t("analytics.deliveryRate")}</p>
-            <p className={adminChrome.metricValue}>{analytics.funnel.deliveryRatePct}%</p>
-          </article>
-        </div>
-        {loadErrors.analytics ? (
-          <p className="app-alert-warn mt-3 text-sm">{t("loadFailedAnalytics")}</p>
-        ) : null}
-        {analytics.channelBreakdown.length > 0 ? (
-          <ul className="mt-3 space-y-2">
-            {analytics.channelBreakdown.map((item) => (
-              <li key={item.channel} className="ommm-inset-row flex flex-wrap gap-3 text-xs">
-                <span className="font-medium text-sage-800">{item.channel}</span>
-                <span className="text-sage-500">
-                  {t("analytics.deliveries")}: {item.deliveries}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={`${adminChrome.metaText} mt-3`}>{t("analytics.emptyChannels")}</p>
-        )}
-      </section>
+      {caps.canViewAnalytics ? (
+        <section className={adminChrome.panel}>
+          <h2 className={adminChrome.panelHeading}>{t("analyticsHeading")}</h2>
+          <div className="mt-3 grid gap-4 sm:grid-cols-3">
+            <article>
+              <p className={adminChrome.metricLabel}>{t("analytics.campaigns")}</p>
+              <p className={adminChrome.metricValue}>{analytics.summary.campaignsTotal}</p>
+            </article>
+            <article>
+              <p className={adminChrome.metricLabel}>{t("analytics.deliveries")}</p>
+              <p className={adminChrome.metricValue}>{analytics.summary.deliveriesTotal}</p>
+            </article>
+            <article>
+              <p className={adminChrome.metricLabel}>{t("analytics.deliveryRate")}</p>
+              <p className={adminChrome.metricValue}>{analytics.funnel.deliveryRatePct}%</p>
+            </article>
+          </div>
+          {loadErrors.analytics ? (
+            <p className="app-alert-warn mt-3 text-sm">{t("loadFailedAnalytics")}</p>
+          ) : null}
+          {analytics.channelBreakdown.length > 0 ? (
+            <ul className="mt-3 space-y-2">
+              {analytics.channelBreakdown.map((item) => (
+                <li key={item.channel} className="ommm-inset-row flex flex-wrap gap-3 text-xs">
+                  <span className="font-medium text-sage-800">{item.channel}</span>
+                  <span className="text-sage-500">
+                    {t("analytics.deliveries")}: {item.deliveries}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={`${adminChrome.metaText} mt-3`}>{t("analytics.emptyChannels")}</p>
+          )}
+        </section>
+      ) : null}
 
       <AdminNotificationsDeliveriesSection
         locale={locale}

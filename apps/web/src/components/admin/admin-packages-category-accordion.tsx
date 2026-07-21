@@ -19,10 +19,10 @@ export type AdminPackagesCategoryAccordionProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEditCategory: () => void;
-  onDeleteCategory: () => void;
+  onDeleteCategory?: () => void;
   onEditPackage: (packageId: string) => void;
-  onAddTier: () => void;
-  onDeletePackage: (packageId: string) => void;
+  onAddTier?: () => void;
+  onDeletePackage?: (packageId: string) => void;
   onPackageStatusUpdated: (saved: AdminPackageRow) => void;
   onCategoryPlansUpdated: (plans: readonly AdminPackageRow[]) => void;
 };
@@ -82,7 +82,7 @@ export function AdminPackagesCategoryAccordion({
         />
       }
       editLabel={t("editCategory")}
-      deleteLabel={t("deleteCategoryButton")}
+      deleteLabel={onDeleteCategory ? t("deleteCategoryButton") : undefined}
       onEdit={onEditCategory}
       onDelete={onDeleteCategory}
       open={open}

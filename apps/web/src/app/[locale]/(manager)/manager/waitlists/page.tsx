@@ -21,7 +21,6 @@ export default async function ManagerWaitlistsPage({
   const { locale } = await params;
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.waitlists" });
-  const tManager = await getTranslations({ locale, namespace: "managerPages.waitlists" });
   const cookie = (await headers()).get("cookie") ?? "";
   const listPage = parseAdminWaitlistPageParams(search);
   const order = parseAdminWaitlistSortOrder(search.order);
@@ -43,7 +42,6 @@ export default async function ManagerWaitlistsPage({
           locale={locale}
           initial={initialPayload}
           initialLoadError={initialLoadError}
-          staffBanner={tManager("operationalHint")}
         />
       </Suspense>
     </AdminContentFrame>

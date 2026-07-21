@@ -13,6 +13,10 @@ import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-l
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
+import {
+  adminClientCapabilities,
+  type ClientCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 type AdminClientsManagementProps = {
   initial: AdminClientsPayload;
@@ -23,8 +27,30 @@ type AdminClientsManagementProps = {
   onRegisterSeedCreatedClient?: (seed: (client: ClientRow) => void) => void;
   variant?: "full" | "staff";
   staffBanner?: string;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: ClientCapabilities;
 };
+
+function resolveClientCapabilities(
+  capabilities: ClientCapabilities | undefined,
+  readOnly: boolean,
+): ClientCapabilities {
+  if (capabilities) {
+    return capabilities;
+  }
+  if (readOnly) {
+    return {
+      canView: true,
+      canCreate: false,
+      canUpdate: false,
+      canDelete: false,
+      canAddNotes: false,
+      canAssignPackage: false,
+    };
+  }
+  return adminClientCapabilities();
+}
 
 export function AdminClientsManagement({
   initial,
@@ -36,7 +62,9 @@ export function AdminClientsManagement({
   variant = "full",
   staffBanner,
   readOnly = false,
+  capabilities,
 }: AdminClientsManagementProps) {
+  const caps = resolveClientCapabilities(capabilities, readOnly);
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
@@ -85,7 +113,8 @@ export function AdminClientsManagement({
         rows={payload.rows}
         onSelect={selectClient}
         onChanged={refetchClients}
-        readOnly={readOnly || isStaff}
+        capabilities={caps}
+        readOnly={!caps.canUpdate || isStaff}
       />
       <OmmListPagination
         total={payload.pagination.total}
@@ -121,7 +150,7 @@ export function AdminClientsManagement({
             title={t("title")}
             search={searchFilters}
             trailing={
-              onAddUser && !readOnly ? (
+              onAddUser && caps.canCreate ? (
                 <OmmButton
                   type="button"
                   variant="secondary"
@@ -145,7 +174,8 @@ export function AdminClientsManagement({
         locale={locale}
         onClose={closeClientView}
         onChanged={handleClientChanged}
-        allowPackagePurchase={!readOnly && !isStaff}
+        capabilities={caps}
+        allowPackagePurchase={caps.canAssignPackage && !isStaff}
       />
     </div>
   );
