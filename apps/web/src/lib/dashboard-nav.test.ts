@@ -45,4 +45,20 @@ describe("dashboard-nav manager parity", () => {
     assert.equal(schedule.icon, "calendar");
     assert.equal(schedule.labelKey, "schedule");
   });
+
+  it("manager olive icons match admin counterparts for shared sections", () => {
+    const adminByLabel = new Map(
+      dashboardNavDefinitionsForRole("ADMIN").map((item) => [
+        item.labelKey,
+        item.oliveIconSlug,
+      ]),
+    );
+    for (const item of dashboardNavDefinitionsForRole("MANAGER")) {
+      assert.equal(
+        item.oliveIconSlug,
+        adminByLabel.get(item.labelKey),
+        `${item.labelKey} olive icon must match Admin`,
+      );
+    }
+  });
 });
