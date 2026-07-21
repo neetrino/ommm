@@ -410,8 +410,10 @@ export const HOME_HERO_PROMO_CTA_PHONE = {
   discWidthRatio: 0.19,
   /** Digit cap height — bumped above Figma SVG (~38px on 87px). */
   fontSizeHeightRatio: 0.54,
-  /** Nudge live number right on the pill (Figma artboard px). */
+  /** Nudge live number right on the pill (Figma artboard px) — mobile. */
   offsetRightPx: 10,
+  /** Extra right nudge on desktop only (tablet+). */
+  offsetRightPxDesktop: 38,
   /** Mobile ru/hy — keep digits vertically centered in the yellow pill. */
   offsetTopPxMobileRuHy: 0,
 } as const;
