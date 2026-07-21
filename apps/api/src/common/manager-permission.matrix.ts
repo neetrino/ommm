@@ -61,9 +61,6 @@ export const MANAGER_PERMISSION_MATRIX = {
   },
 } as const;
 
-export function roleAllows(
-  allowed: readonly Role[],
-  role: Role,
-): boolean {
+export function roleAllows(allowed: readonly Role[], role: Role): boolean {
   return allowed.includes(role);
 }
