@@ -24,10 +24,10 @@ type AdminPackagesCategoryListProps = {
   emptyFilterLabel: string;
   noCategoriesSelectedLabel: string;
   onEditCategory: (categoryId: string) => void;
-  onDeleteCategory: (categoryId: string) => void;
+  onDeleteCategory?: (categoryId: string) => void;
   onEditPackage: (packageId: string) => void;
-  onAddTier: (categoryId: string) => void;
-  onDeletePackage: (packageId: string) => void;
+  onAddTier?: (categoryId: string) => void;
+  onDeletePackage?: (packageId: string) => void;
   onPackageStatusUpdated: (saved: AdminPackageRow) => void;
   onCategoryPlansUpdated: (updated: readonly AdminPackageRow[]) => void;
   onCategoryPageChange: (page: number) => void;
@@ -104,9 +104,11 @@ export function AdminPackagesCategoryList({
                     });
                   }}
                   onEditCategory={() => onEditCategory(category.id)}
-                  onDeleteCategory={() => onDeleteCategory(category.id)}
+                  onDeleteCategory={
+                    onDeleteCategory ? () => onDeleteCategory(category.id) : undefined
+                  }
                   onEditPackage={onEditPackage}
-                  onAddTier={() => onAddTier(category.id)}
+                  onAddTier={onAddTier ? () => onAddTier(category.id) : undefined}
                   onDeletePackage={onDeletePackage}
                   onPackageStatusUpdated={onPackageStatusUpdated}
                   onCategoryPlansUpdated={onCategoryPlansUpdated}

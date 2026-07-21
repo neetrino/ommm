@@ -37,6 +37,7 @@ import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-t
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal, OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
+import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 type AdminClientDrawerProps = {
@@ -50,6 +51,7 @@ type AdminClientDrawerProps = {
   initialDetail?: ClientDetail | null;
   /** Admin-only package purchase in Packages tab. */
   allowPackagePurchase?: boolean;
+  capabilities?: ClientCapabilities;
 };
 
 function clientHeaderName(client: ClientRow): string {
@@ -75,6 +77,7 @@ export function AdminClientDrawer({
   useOverlayPortalRoot = false,
   initialDetail = null,
   allowPackagePurchase = false,
+  capabilities,
 }: AdminClientDrawerProps) {
   if (client === null) {
     return null;
@@ -89,7 +92,11 @@ export function AdminClientDrawer({
       onChanged={onChanged}
       useOverlayPortalRoot={useOverlayPortalRoot}
       initialDetail={initialDetail}
-      allowPackagePurchase={allowPackagePurchase}
+      allowPackagePurchase={
+        capabilities?.canAssignPackage ?? allowPackagePurchase
+      }
+      canAddNotes={capabilities?.canAddNotes ?? true}
+      canUpdate={capabilities?.canUpdate ?? true}
     />
   );
 }
@@ -102,6 +109,8 @@ function AdminClientDrawerInner({
   useOverlayPortalRoot = false,
   initialDetail = null,
   allowPackagePurchase = false,
+  canAddNotes = true,
+  canUpdate = true,
 }: {
   client: ClientRow;
   locale: string;
@@ -110,6 +119,8 @@ function AdminClientDrawerInner({
   useOverlayPortalRoot?: boolean;
   initialDetail?: ClientDetail | null;
   allowPackagePurchase?: boolean;
+  canAddNotes?: boolean;
+  canUpdate?: boolean;
 }) {
   const t = useTranslations("adminPages.clients");
   const tAuth = useTranslations("auth.register");
@@ -420,11 +431,14 @@ function AdminClientDrawerInner({
             onNoteChange={setNote}
             onRun={runAction}
             tabRefreshKey={tabRefreshKey}
-            personalInfoEditing={personalInfoEditing}
-            onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
+            personalInfoEditing={canUpdate && personalInfoEditing}
+            onStartPersonalInfoEdit={
+              canUpdate ? () => setPersonalInfoEditing(true) : () => undefined
+            }
             onPersonalInfoSubmit={handlePersonalInfoFormSubmit}
             onAvatarPreviewOpenChange={setAvatarPreviewOpen}
             allowPackagePurchase={allowPackagePurchase}
+            canAddNotes={canAddNotes}
             onPackagePurchaseSuccess={() => {
               setActionTone("ok");
               setActionMessage(t("packages.purchaseSuccess"));

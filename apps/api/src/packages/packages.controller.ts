@@ -8,7 +8,11 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { Role, type User } from '@prisma/client';
+import type { User } from '@prisma/client';
+import {
+  BACKOFFICE_DELETE_ROLES,
+  BACKOFFICE_WRITE_ROLES,
+} from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -31,70 +35,70 @@ export class PackagesController {
 
   @Get('admin/plans')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   listPlansAdmin() {
     return this.packages.listPlansAdmin();
   }
 
   @Get('admin/categories')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   listCategoryNamesAdmin() {
     return this.packages.listCategoryNamesAdmin();
   }
 
   @Patch('admin/categories/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   updateCategoryStatus(@Body() dto: UpdateCategoryStatusDto) {
     return this.packages.updateCategoryStatus(dto);
   }
 
   @Delete('admin/categories')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   deleteCategory(@Body() dto: DeleteCategoryDto) {
     return this.packages.deleteCategory(dto);
   }
 
   @Get('admin/plans/:id/deletion-blockers')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   getDeletionBlockers(@Param('id') id: string) {
     return this.packages.getDeletionBlockers(id);
   }
 
   @Post('admin/sync-expired')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   syncExpired(@Body() dto: ReconcilePackagesDto) {
     return this.packages.syncExpired(dto);
   }
 
   @Post('admin/reconcile-sessions')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   reconcileSessions(@Body() dto: ReconcilePackagesDto) {
     return this.packages.reconcileSessions(dto);
   }
 
   @Post('plans')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   createPlan(@Body() dto: UpsertPackagePlanDto) {
     return this.packages.createPlan(dto);
   }
 
   @Patch('plans/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   updatePlan(@Param('id') id: string, @Body() dto: UpsertPackagePlanDto) {
     return this.packages.updatePlan(id, dto);
   }
 
   @Delete('plans/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   deletePlan(@Param('id') id: string) {
     return this.packages.deletePlan(id);
   }

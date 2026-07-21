@@ -23,6 +23,10 @@ import type { AdminCoachesListPayload } from "@/components/admin/admin-coaches-q
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
+import {
+  adminBackofficeCapabilities,
+  type BackofficeCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 export type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 
@@ -31,7 +35,9 @@ type AdminCoachesDirectoryProps = {
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   locale?: string;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: BackofficeCapabilities;
 };
 
 type AdminCoachesViewProps = {
@@ -112,7 +118,14 @@ export function AdminCoachesDirectory({
   classOptions,
   locale = "en",
   readOnly = false,
+  capabilities,
 }: AdminCoachesDirectoryProps) {
+  const caps =
+    capabilities ??
+    (readOnly
+      ? { ...adminBackofficeCapabilities(), canCreate: false, canUpdate: false, canDelete: false }
+      : adminBackofficeCapabilities());
+  const hideActions = !caps.canUpdate;
   const t = useTranslations("adminPages.coaches");
   const { viewMode: preferredViewMode } = useAdminCoachesView();
   const viewMode = useEffectiveListBoardViewMode(preferredViewMode);
@@ -190,7 +203,7 @@ export function AdminCoachesDirectory({
     classTypeOptions,
     classOptions,
     locale,
-    readOnly,
+    readOnly: hideActions,
   };
 
   const content =

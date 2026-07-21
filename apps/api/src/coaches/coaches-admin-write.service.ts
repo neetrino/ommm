@@ -133,9 +133,6 @@ export class CoachesAdminWriteService {
     if (actor.role === Role.COACH) {
       assertCoachSelfUpdateFields(dto);
     }
-    if (actor.role === Role.MANAGER && dto.isActive === false) {
-      throw new ForbiddenException('Managers cannot deactivate coaches');
-    }
     const fields = normalizeCoachUpdateFields(dto);
     const {
       normalizedClassType,

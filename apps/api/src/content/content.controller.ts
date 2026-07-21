@@ -14,6 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
 import { ContentType, Role } from '@prisma/client';
+import { BACKOFFICE_WRITE_ROLES } from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -42,14 +43,14 @@ export class ContentController {
 
   @Get('admin/posts')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES, Role.CONTENT_ADMIN)
   listAdmin() {
     return this.content.listAdmin();
   }
 
   @Post('admin/posts')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES, Role.CONTENT_ADMIN)
   create(
     @CurrentUser() user: { id: string; role: Role },
     @Body() dto: UpsertPostDto,
@@ -59,7 +60,7 @@ export class ContentController {
 
   @Patch('admin/posts/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES, Role.CONTENT_ADMIN)
   update(
     @CurrentUser() user: { id: string; role: Role },
     @Param('id') id: string,
@@ -70,7 +71,7 @@ export class ContentController {
 
   @Post('admin/posts/:id/submit-review')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES, Role.CONTENT_ADMIN)
   submitForReview(
     @CurrentUser() user: { id: string; role: Role },
     @Param('id') id: string,
@@ -80,7 +81,7 @@ export class ContentController {
 
   @Post('admin/posts/:id/review')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES, Role.CONTENT_ADMIN)
   review(
     @CurrentUser() user: { id: string; role: Role },
     @Param('id') id: string,
@@ -91,7 +92,7 @@ export class ContentController {
 
   @Post('admin/cover-image')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES, Role.CONTENT_ADMIN)
   @UseInterceptors(
     FileInterceptor('image', {
       limits: { fileSize: CONTENT_COVER_IMAGE_MAX_BYTES },

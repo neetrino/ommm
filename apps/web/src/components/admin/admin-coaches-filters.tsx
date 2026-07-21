@@ -24,7 +24,7 @@ type AdminCoachesFiltersProps = {
   classTypeOptions: readonly string[];
   viewMode: AdminCoachesViewMode;
   onViewChange: (mode: AdminCoachesViewMode) => void;
-  onAddCoach: () => void;
+  onAddCoach?: () => void;
   /** Staff layout: search row only (hero lives in StaffListPageLayout). */
   variant?: "full" | "embedded";
 };
@@ -243,7 +243,7 @@ export function AdminCoachesFilters({
       title={t("title")}
       search={filterSearchRow}
       trailing={
-        <>
+        onAddCoach ? (
           <OmmButton
             type="button"
             variant="secondary"
@@ -254,7 +254,7 @@ export function AdminCoachesFilters({
             <AddCoachGlyph className="h-5 w-5 shrink-0" />
             {t("addCoachButton")}
           </OmmButton>
-        </>
+        ) : null
       }
     />
   );

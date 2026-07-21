@@ -40,6 +40,8 @@ type GiftCardSheetTabPanelsProps = {
   onChanged: () => void;
   onRemoved?: () => void;
   readOnly?: boolean;
+  canDelete?: boolean;
+  canAssign?: boolean;
 };
 
 export function GiftCardSheetTabPanels({
@@ -50,6 +52,8 @@ export function GiftCardSheetTabPanels({
   onChanged,
   onRemoved,
   readOnly = false,
+  canDelete = true,
+  canAssign = true,
 }: GiftCardSheetTabPanelsProps) {
   if (activeTab === GIFT_CARD_SHEET_TAB_OVERVIEW) {
     return <GiftCardOverviewPanel card={card} locale={locale} />;
@@ -64,6 +68,8 @@ export function GiftCardSheetTabPanels({
         card={card}
         locale={locale}
         assignableUsers={assignableUsers}
+        canDelete={canDelete}
+        canAssign={canAssign}
         onChanged={onChanged}
         onRemoved={onRemoved}
       />
@@ -153,12 +159,16 @@ function GiftCardActionsPanel({
   card,
   locale,
   assignableUsers,
+  canDelete = true,
+  canAssign = true,
   onChanged,
   onRemoved,
 }: {
   card: AdminGiftCardBatchRow;
   locale: string;
   assignableUsers: readonly AdminAssignableUser[];
+  canDelete?: boolean;
+  canAssign?: boolean;
   onChanged: () => void;
   onRemoved?: () => void;
 }) {
@@ -166,9 +176,10 @@ function GiftCardActionsPanel({
     <AdminGiftCardActions
       batchId={card.id}
       allowDeactivate={false}
-      allowDelete
+      allowDelete={canDelete}
       hideLifecycleActions
       showHistoryButton={false}
+      hideAssign={!canAssign}
       locale={locale}
       assignableUsers={assignableUsers}
       onChanged={onChanged}

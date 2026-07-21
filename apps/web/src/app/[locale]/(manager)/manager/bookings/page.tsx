@@ -3,10 +3,11 @@ import { getTranslations } from "next-intl/server";
 import { AdminBookingsManagement } from "@/components/admin/admin-bookings-management";
 import {
   buildAdminBookingsListEndpoint,
-  resolveManagerBookingsInitialFilters,
+  pickAdminBookingsInitialFilters,
   type AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { managerBookingCapabilities } from "@/lib/backoffice-capabilities";
 import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -20,9 +21,8 @@ export default async function ManagerBookingsPage({
   const { locale } = await params;
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.bookings" });
-  const tManager = await getTranslations({ locale, namespace: "managerPages.bookings" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const initialFilters = resolveManagerBookingsInitialFilters(search);
+  const initialFilters = pickAdminBookingsInitialFilters(search);
   const listPage = parseListPageParams(search);
   const endpoint = buildAdminBookingsListEndpoint(initialFilters, listPage);
   const res = await serverApiJson<AdminBookingsManagementPayload>(endpoint, cookie);
@@ -39,19 +39,13 @@ export default async function ManagerBookingsPage({
     );
   }
 
-  const bookingsOnly = res.data.rows.filter((row) => row.recordType === "BOOKING");
-
   return (
     <AdminContentFrame>
       <AdminBookingsManagement
         locale={locale}
-        initial={{
-          ...res.data,
-          rows: bookingsOnly,
-        }}
+        initial={res.data}
         initialFilters={initialFilters}
-        variant="staff"
-        staffBanner={tManager("rollingWindowHint")}
+        capabilities={managerBookingCapabilities()}
       />
     </AdminContentFrame>
   );

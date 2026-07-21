@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { Role } from '@prisma/client';
+import { BACKOFFICE_DELETE_ROLES } from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -97,14 +97,14 @@ export class PaymentsController {
   @Get('admin')
   @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   adminList(@Query() query: AdminListPaymentsQueryDto) {
     return this.payments.adminListPayments(query);
   }
 
   @Patch('admin/:paymentId/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   adminUpdateStatus(
     @CurrentUser() user: { id: string },
     @Param('paymentId') paymentId: string,
@@ -119,7 +119,7 @@ export class PaymentsController {
 
   @Post('admin/:paymentId/arca/sync')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   adminSyncArcaPayment(@Param('paymentId') paymentId: string) {
     return this.payments.adminSyncArcaPayment(paymentId);
   }

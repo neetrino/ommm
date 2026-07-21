@@ -19,20 +19,32 @@ import {
   CLIENT_MODAL_QUERY_VALUE,
 } from "@/components/admin/admin-clients-modal";
 import { VIEW_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
+import {
+  adminClientCapabilities,
+  type ClientCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 const CLIENT_MODAL_BANNER_MS = 8000;
 
 type AdminClientsShellProps = {
   children: (api: { openAddUserModal: () => void }) => ReactNode;
   onClientCreated?: (client: ClientRow) => void;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: ClientCapabilities;
 };
 
 export function AdminClientsShell({
   children,
   onClientCreated,
   readOnly = false,
+  capabilities,
 }: AdminClientsShellProps) {
+  const caps =
+    capabilities ??
+    (readOnly
+      ? { ...adminClientCapabilities(), canCreate: false, canUpdate: false, canDelete: false }
+      : adminClientCapabilities());
   const t = useTranslations("adminPages.clients");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -137,7 +149,7 @@ export function AdminClientsShell({
 
       {children({ openAddUserModal: openModal })}
 
-      {isModalOpen && !readOnly ? (
+      {isModalOpen && caps.canCreate ? (
         <div className="ommm-modal-overlay z-50" role="presentation">
           <button
             type="button"

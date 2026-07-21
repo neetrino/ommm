@@ -1,12 +1,14 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
+import { AdminClientsPageView } from "@/components/admin/admin-clients-page-view";
 import {
   buildAdminClientsApiSearchParams,
   pickAdminClientsInitialFilters,
 } from "@/components/admin/admin-clients-query";
 import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { managerClientCapabilities } from "@/lib/backoffice-capabilities";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function ManagerClientsPage({
@@ -19,7 +21,6 @@ export default async function ManagerClientsPage({
   const { locale } = await params;
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.clients" });
-  const tManager = await getTranslations({ locale, namespace: "managerPages.clients" });
   const cookie = (await headers()).get("cookie") ?? "";
   const apiSearch = buildAdminClientsApiSearchParams(search);
   const endpoint = `/clients?${apiSearch.toString()}`;
@@ -39,14 +40,14 @@ export default async function ManagerClientsPage({
 
   return (
     <AdminContentFrame>
-      <AdminClientsManagement
-        initial={clientsRes.data}
-        locale={locale}
-        initialFilters={pickAdminClientsInitialFilters(search)}
-        variant="staff"
-        staffBanner={tManager("readOnlyHint")}
-        readOnly
-      />
+      <Suspense fallback={null}>
+        <AdminClientsPageView
+          initial={clientsRes.data}
+          locale={locale}
+          initialFilters={pickAdminClientsInitialFilters(search)}
+          capabilities={managerClientCapabilities()}
+        />
+      </Suspense>
     </AdminContentFrame>
   );
 }

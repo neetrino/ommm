@@ -10,12 +10,15 @@ import {
   ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS,
 } from "@/components/admin/admin-clients-list-layout";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
+import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 
 type AdminClientsTableProps = {
   rows: ClientRow[];
   onSelect: (row: ClientRow) => void;
   onChanged: () => void;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: ClientCapabilities;
 };
 
 export function AdminClientsTable({
@@ -23,9 +26,11 @@ export function AdminClientsTable({
   onSelect,
   onChanged,
   readOnly = false,
+  capabilities,
 }: AdminClientsTableProps) {
   const t = useTranslations("adminPages.clients");
-  const tableClass = readOnly
+  const hideActions = capabilities ? !capabilities.canUpdate : readOnly;
+  const tableClass = hideActions
     ? ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS
     : ADMIN_CLIENTS_LIST_TABLE_CLASS;
 
@@ -35,7 +40,7 @@ export function AdminClientsTable({
         <span>{t("colName")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
-        {readOnly ? null : (
+        {hideActions ? null : (
           <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         )}
       </div>
@@ -45,7 +50,8 @@ export function AdminClientsTable({
           row={row}
           onSelect={onSelect}
           onChanged={onChanged}
-          readOnly={readOnly}
+          capabilities={capabilities}
+          readOnly={hideActions}
         />
       ))}
     </div>

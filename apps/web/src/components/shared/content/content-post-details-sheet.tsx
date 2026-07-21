@@ -31,6 +31,8 @@ import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
+import type { ContentCapabilities } from "@/lib/backoffice-capabilities";
+import { adminContentCapabilities } from "@/lib/backoffice-capabilities";
 
 export type ContentPostSheetMode = "create" | "edit";
 
@@ -39,6 +41,7 @@ type ContentPostDetailsSheetProps = {
   post: ContentPostRow | null;
   onClose: () => void;
   onChanged: () => void;
+  capabilities?: ContentCapabilities;
 };
 
 export function ContentPostDetailsSheet({
@@ -46,6 +49,7 @@ export function ContentPostDetailsSheet({
   post,
   onClose,
   onChanged,
+  capabilities,
 }: ContentPostDetailsSheetProps) {
   if (mode === null) {
     return null;
@@ -58,6 +62,7 @@ export function ContentPostDetailsSheet({
       post={post}
       onClose={onClose}
       onChanged={onChanged}
+      capabilities={capabilities ?? adminContentCapabilities()}
     />
   );
 }
@@ -67,11 +72,13 @@ function ContentPostDetailsSheetInner({
   post,
   onClose,
   onChanged,
+  capabilities,
 }: {
   mode: ContentPostSheetMode;
   post: ContentPostRow | null;
   onClose: () => void;
   onChanged: () => void;
+  capabilities: ContentCapabilities;
 }) {
   const t = useTranslations("contentAdminPages.content");
   const router = useRouter();
@@ -279,6 +286,7 @@ function ContentPostDetailsSheetInner({
           cancelLabel={t("cancelButton")}
           savingLabel={t("savingButton")}
           deleteLabel={t("labels.delete")}
+          canDelete={capabilities.canDelete}
           onSave={() => {
             void handleSave();
           }}

@@ -18,6 +18,10 @@ import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
 import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
+import {
+  adminScheduleCapabilities,
+  type ScheduleCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 export type { ScheduleView } from "@/components/admin/admin-schedule-view";
 export type {
@@ -26,8 +30,15 @@ export type {
   AdminScheduleSession,
 } from "@/components/admin/admin-schedule-session.types";
 
+function resolveScheduleCapabilities(
+  capabilities: ScheduleCapabilities | undefined,
+): ScheduleCapabilities {
+  return capabilities ?? adminScheduleCapabilities();
+}
+
 export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
   const { locale, staffBanner } = props;
+  const caps = resolveScheduleCapabilities(props.capabilities);
   const tPage = useTranslations("adminPages.schedule");
   const schedule = useAdminScheduleManagement(props);
 
@@ -102,16 +113,18 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
           </div>
         }
         trailing={
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={schedule.openAddClassModal}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-          >
-            <PlusIcon className="h-5 w-5 shrink-0" />
-            {schedule.t("addClassButton")}
-          </OmmButton>
+          caps.canCreate ? (
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={schedule.openAddClassModal}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+            >
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              {schedule.t("addClassButton")}
+            </OmmButton>
+          ) : null
         }
       />
       <SummaryGrid summary={schedule.summary} />
@@ -127,10 +140,10 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         onShowAllDays={schedule.handleShowAllDays}
         onDetails={schedule.setDetails}
         busyId={schedule.busyId}
-        onCancel={schedule.handleCancel}
-        onActivate={schedule.handleActivate}
-        onDelete={schedule.handleDelete}
-        onDuplicate={schedule.handleDuplicate}
+        onCancel={caps.canCancel ? schedule.handleCancel : undefined}
+        onActivate={caps.canChangeStatus ? schedule.handleActivate : undefined}
+        onDelete={caps.canDelete ? schedule.handleDelete : undefined}
+        onDuplicate={caps.canDuplicate ? schedule.handleDuplicate : undefined}
       />
       {schedule.view === "list" &&
       schedule.listPagination !== null &&
@@ -144,7 +157,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
           disabled={schedule.busyId !== null}
         />
       ) : null}
-      {schedule.sessionModalConfig ? (
+      {schedule.sessionModalConfig && (caps.canCreate || caps.canUpdate || caps.canDuplicate) ? (
         <SessionFormSheet
           key={
             schedule.addClassOpen
@@ -174,9 +187,10 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         coaches={schedule.coaches}
         actionBusy={schedule.busyId !== null && schedule.details !== null && schedule.busyId === schedule.details.id}
         onClose={() => schedule.setDetails(null)}
-        onSaved={schedule.handleDetailsSaved}
-        onDuplicate={schedule.handleDuplicateFromDetails}
-        onDelete={schedule.handleDeleteFromDetails}
+        onSaved={caps.canUpdate ? schedule.handleDetailsSaved : undefined}
+        onDuplicate={caps.canDuplicate ? schedule.handleDuplicateFromDetails : undefined}
+        onDelete={caps.canDelete ? schedule.handleDeleteFromDetails : undefined}
+        capabilities={caps}
       />
     </div>
   );

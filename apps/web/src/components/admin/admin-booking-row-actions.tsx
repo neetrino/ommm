@@ -125,9 +125,11 @@ export function AdminBookingRowActions({
       <OmmButton size="sm" variant="ghost" disabled={busy} onClick={onMove}>
         {t("actionMove")}
       </OmmButton>
-      <OmmButton size="sm" variant="danger" disabled={busy} onClick={onDelete}>
-        {t("actionDelete")}
-      </OmmButton>
+      {onDelete ? (
+        <OmmButton size="sm" variant="danger" disabled={busy} onClick={onDelete}>
+          {t("actionDelete")}
+        </OmmButton>
+      ) : null}
     </div>
   );
 }

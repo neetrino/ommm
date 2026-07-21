@@ -26,10 +26,10 @@ export type AdminScheduleSessionViewsProps = {
   onSelectDay: (day: string) => void;
   onShowAllDays: () => void;
   onDetails: (row: AdminScheduleSession) => void;
-  onCancel: (row: AdminScheduleSession) => void;
-  onActivate: (row: AdminScheduleSession) => void;
-  onDelete: (row: AdminScheduleSession) => void;
-  onDuplicate: (row: AdminScheduleSession) => void;
+  onCancel?: (row: AdminScheduleSession) => void;
+  onActivate?: (row: AdminScheduleSession) => void;
+  onDelete?: (row: AdminScheduleSession) => void;
+  onDuplicate?: (row: AdminScheduleSession) => void;
 };
 
 type SessionTableProps = Omit<AdminScheduleSessionViewsProps, "view">;
@@ -90,6 +90,7 @@ export function SessionTable(props: SessionTableProps) {
           onDuplicate={props.onDuplicate}
           onCancel={props.onCancel}
           onActivate={props.onActivate}
+          onDelete={props.onDelete}
         />
       ))}
     </div>

@@ -91,16 +91,19 @@ const COACH_NAV: readonly DashboardNavDefinition[] = [
   { href: "/coach/profile", icon: "user", labelKey: "profile" },
 ];
 
-/** Manager matrix: no Memberships, Notifications, Reports, or studio Settings. */
+/** Manager: operational parity with Admin; no Finance, Analytics, Guest users, or Profile in sidebar. */
 const MANAGER_NAV: readonly DashboardNavDefinition[] = [
-  { href: "/manager/home", icon: "home", labelKey: "home" },
-  { href: "/manager/classes", icon: "layoutGrid", labelKey: "schedule" },
+  { href: "/manager/dashboard", icon: "layoutDashboard", labelKey: "dashboard" },
   { href: "/manager/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/manager/waitlists", icon: "listOrdered", labelKey: "waitlists" },
   { href: "/manager/clients", icon: "users", labelKey: "clients" },
   { href: "/manager/coaches", icon: "userCheck", labelKey: "coaches" },
+  { href: "/manager/schedule", icon: "calendar", labelKey: "schedule" },
+  { href: "/manager/packages", icon: "tag", labelKey: "packages" },
   { href: "/manager/gift-cards", icon: "gift", labelKey: "giftCards" },
-  { href: "/manager/profile", icon: "user", labelKey: "profile" },
+  { href: "/manager/notifications", icon: "bell", labelKey: "notificationManagement" },
+  { href: "/manager/content", icon: "fileText", labelKey: "content" },
+  { href: "/manager/settings", icon: "settings", labelKey: "settings" },
 ];
 
 const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
@@ -158,6 +161,8 @@ export function dashboardNotificationRouteForRole(
       return { href: "/coach/notifications", labelKey: "notifications" };
     case "CONTENT_ADMIN":
       return { href: "/content-admin/notifications", labelKey: "notifications" };
+    case "MANAGER":
+      return { href: "/manager/notifications", labelKey: "notifications" };
     case "ADMIN":
       return { href: "/admin/notifications", labelKey: "notifications" };
     default:
