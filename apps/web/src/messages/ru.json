@@ -1505,6 +1505,7 @@
       },
       "spotsLeft": "{count, plural, =1 {Осталось 1 место} other {Осталось # мест}}",
       "spotsFull": "Мест нет",
+      "withInstructor": "с {name}",
       "bookedBadge": "Забронировано",
       "onWaitlistBadge": "В листе ожидания",
       "actionLoading": "…",

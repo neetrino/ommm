@@ -179,13 +179,13 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
                   <ScheduleSessionRow
                     key={row.id}
                     row={displayRow}
+                    locale={locale}
                     bookLabel={t("bookCta")}
                     audience={audience}
-                    subtitle={`${row.instructorName} • ${row.classType}`}
+                    withInstructorLabel={t("withInstructor", { name: row.instructorName })}
                     spotsFullLabel={t("spotsFull")}
                     spotsLeftLabel={t("spotsLeft", { count: displayRow.availableSpots })}
                     spotsLoadingLabel={t("actionLoading")}
-                    timeLabel={formatScheduleTimeHHmm(locale, row.startTime)}
                     durationLabel={
                       row.durationMinutes !== null
                         ? t("minutesShort", { count: row.durationMinutes })

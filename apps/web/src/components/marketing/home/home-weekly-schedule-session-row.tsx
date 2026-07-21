@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-aware/auth-aware-schedule-booking-action";
 import styles from "@/components/marketing/home/home-weekly-schedule-session-row.module.css";
 import { buildMarketingScheduleItemDateTimeRange } from "@/components/marketing/home/build-marketing-schedule-item-datetime-range";
@@ -30,13 +31,18 @@ type HomeWeeklyScheduleSessionRowProps = {
   spotsLeftLabel: string;
   audience: PublicPackageCategoryCardsAudience;
   bookingEnabled: boolean;
+  /** When false, hide the calendar date chip (schedule page already shows the day strip). */
+  showDate?: boolean;
   userBookingId?: string;
   bookingStateReady?: boolean;
   isOnWaitlist?: boolean;
+  loginReturnPath?: string;
   onBooked?: (sessionId: string, bookingId: string) => void;
   onCancelled?: (sessionId: string) => void;
   onWaitlisted?: (sessionId: string) => void;
   onWaitlistLeft?: (sessionId: string) => void;
+  className?: string;
+  style?: CSSProperties;
 };
 
 export function HomeWeeklyScheduleSessionRow({
@@ -48,13 +54,17 @@ export function HomeWeeklyScheduleSessionRow({
   spotsLeftLabel,
   audience,
   bookingEnabled,
+  showDate = true,
   userBookingId,
   bookingStateReady = true,
   isOnWaitlist = false,
+  loginReturnPath = HOME_BOOKING_LOGIN_RETURN_PATH,
   onBooked,
   onCancelled,
   onWaitlisted,
   onWaitlistLeft,
+  className,
+  style,
 }: HomeWeeklyScheduleSessionRowProps) {
   const dateTimeRange = buildMarketingScheduleItemDateTimeRange(item);
   const dateTimeDisplay =
@@ -73,8 +83,9 @@ export function HomeWeeklyScheduleSessionRow({
 
   return (
     <article
-      className={`${styles.row} group w-full min-w-0`}
+      className={`${styles.row} group w-full min-w-0 ${className ?? ""}`}
       style={{
+        ...style,
         background: rowGradientDesktop,
         ["--home-schedule-row-gradient" as string]: rowGradientMobile,
         ["--home-schedule-row-min-h" as string]: `${HOME_WEEKLY_SCHEDULE_FIGMA.sessionRowMinHeightPx}px`,
@@ -85,25 +96,27 @@ export function HomeWeeklyScheduleSessionRow({
       }}
     >
       <div className={styles.timeCluster}>
-        {dateTimeDisplay !== null ? (
+        {showDate && dateTimeDisplay !== null ? (
           <SessionDateTimeListDateChip display={dateTimeDisplay} />
         ) : null}
-        <Image
-          src={HOME_WEEKLY_SCHEDULE_ASSETS.clockIcon}
-          alt=""
-          width={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
-          height={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
-          unoptimized
-          className="shrink-0"
-          aria-hidden
-          {...belowFoldImageProps()}
-        />
-        <p
-          className={`${styles.time} text-lg font-bold leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-          style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
-        >
-          {timeLabel}
-        </p>
+        <div className={styles.timeIconGroup}>
+          <Image
+            src={HOME_WEEKLY_SCHEDULE_ASSETS.clockIcon}
+            alt=""
+            width={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
+            height={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
+            unoptimized
+            className={styles.timeIcon}
+            aria-hidden
+            {...belowFoldImageProps()}
+          />
+          <p
+            className={`${styles.time} text-lg font-bold tracking-[0.03125rem] sm:text-xl`}
+            style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
+          >
+            {timeLabel}
+          </p>
+        </div>
       </div>
 
       <div className={styles.classBlock}>
@@ -152,7 +165,7 @@ export function HomeWeeklyScheduleSessionRow({
             userBookingId={userBookingId}
             bookingStateReady={bookingStateReady}
             initialOnWaitlist={isOnWaitlist}
-            loginReturnPath={HOME_BOOKING_LOGIN_RETURN_PATH}
+            loginReturnPath={loginReturnPath}
             onBooked={(bookingId) => onBooked?.(item.id, bookingId)}
             onCancelled={() => onCancelled?.(item.id)}
             onWaitlisted={() => onWaitlisted?.(item.id)}

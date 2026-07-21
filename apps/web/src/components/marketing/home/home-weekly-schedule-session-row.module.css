@@ -21,9 +21,27 @@
   gap: clamp(0.75rem, 1.5vw, 1.5rem);
 }
 
+.timeIconGroup {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeIcon {
+  display: block;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+}
+
 .time {
+  margin: 0;
   min-width: 5.5rem;
+  translate: 0 -0.125rem;
   font-family: var(--font-display);
+  line-height: 1.5rem;
 }
 
 .classBlock {
@@ -154,11 +172,20 @@
     gap: 0.375rem;
   }
 
+  .timeIconGroup {
+    gap: 0.375rem;
+  }
+
+  .timeIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
   .time {
     min-width: 0;
     font-size: var(--home-schedule-row-time-size, 1rem);
     font-weight: 700;
-    line-height: 1.5rem;
+    line-height: 1.25rem;
     letter-spacing: 0.03125rem;
   }
 
