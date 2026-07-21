@@ -1,5 +1,6 @@
 /**
- * Presale hero ↔ schedule seam panel — section overlap only; panel shell from weekly schedule.
+ * Presale packages panel — standalone under hero, or attached below Weekly Schedule
+ * as the lower half of one continuous yellow card.
  */
 
 .section {
@@ -13,6 +14,12 @@
   padding-top: var(--home-spacer-panel-top-inset, 0px);
   padding-bottom: var(--home-spacer-section-bottom-gap, 0px);
   background-color: transparent;
+}
+
+/** Flush under schedule — no hero band; -1px kills subpixel hairline between panels. */
+.section.sectionAttached {
+  margin-top: -1px;
+  padding-top: 0;
 }
 
 .presaleInner {
@@ -55,6 +62,12 @@
   overflow: visible;
 }
 
+/** Continues schedule card — no top radius / top edge (kills white seam). */
+.presalePanel.presalePanelAttached {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 .presalePackagesShell {
   min-width: 0;
   box-sizing: border-box;
@@ -72,6 +85,11 @@
     padding-top: var(--home-spacer-panel-top-inset-lg, 12rem);
     padding-bottom: var(--home-spacer-section-bottom-gap-lg, 0px);
     padding-inline: 0;
+  }
+
+  .section.sectionAttached {
+    margin-top: -1px;
+    padding-top: 0;
   }
 
   .presaleInner {
@@ -99,5 +117,15 @@
       --home-spacer-title-line-height-lg,
       var(--home-spacer-title-line-height, var(--home-schedule-title-line-height))
     );
+  }
+
+  .presalePanel.presalePanelAttached {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: none;
+    box-shadow:
+      -1px 0 0 0 rgb(255 255 255 / 0.35),
+      1px 0 0 0 rgb(255 255 255 / 0.35),
+      0 1px 0 0 rgb(255 255 255 / 0.35);
   }
 }

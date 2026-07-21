@@ -14,6 +14,7 @@ type MarketingPublicHeroProps = {
 
 /**
  * Public marketing home hero — Figma photo `196:1404` + weekly schedule panel `196:1293`.
+ * When both schedule and Presale are on: Schedule first, then Presale on one continuous yellow card.
  */
 export async function MarketingPublicHero({
   locale,
@@ -22,6 +23,7 @@ export async function MarketingPublicHero({
   showScheduleBanner = true,
 }: MarketingPublicHeroProps) {
   const showHeroPanelOverlap = showPresalePackages || showScheduleBanner;
+  const mergeYellowCard = showScheduleBanner && showPresalePackages;
 
   if (!showHero && !showPresalePackages && !showScheduleBanner) {
     return null;
@@ -32,18 +34,23 @@ export async function MarketingPublicHero({
       {showHero ? (
         <HomeHeroPhotoBanner locale={locale} showScheduleSpacer={showHeroPanelOverlap} />
       ) : null}
-      {showPresalePackages ? <HomeHeroScheduleSpacerPanel locale={locale} /> : null}
       {showScheduleBanner ? (
         <Suspense
           fallback={
-            <HomeWeeklyScheduleBannerLoading stackBelowPresalePanel={showPresalePackages} />
+            <HomeWeeklyScheduleBannerLoading flushBottomWithPresale={mergeYellowCard} />
           }
         >
           <HomeWeeklyScheduleBanner
             locale={locale}
-            stackBelowPresalePanel={showPresalePackages}
+            flushBottomWithPresale={mergeYellowCard}
           />
         </Suspense>
+      ) : null}
+      {showPresalePackages ? (
+        <HomeHeroScheduleSpacerPanel
+          locale={locale}
+          attachBelowSchedule={mergeYellowCard}
+        />
       ) : null}
     </div>
   );

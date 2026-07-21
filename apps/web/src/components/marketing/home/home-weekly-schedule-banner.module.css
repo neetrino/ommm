@@ -15,9 +15,8 @@
   background-color: transparent;
 }
 
-.section.sectionStacked {
-  margin-top: var(--home-schedule-stack-gap, 0px);
-  padding-top: 0;
+.section.sectionFlushBottom {
+  padding-bottom: 0;
 }
 
 .shell {
@@ -39,6 +38,12 @@
   overflow: hidden;
   border-radius: var(--home-schedule-panel-radius, 2.5rem);
   background-color: var(--home-schedule-panel-fill, #faf3cb);
+}
+
+/** Continues into Presale — square bottom, no seam border. */
+.panel.panelFlushBottom {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .inner {
@@ -93,16 +98,15 @@
 }
 
 @media (min-width: 744px) {
-  .section.sectionStacked {
-    margin-top: var(--home-schedule-stack-gap-lg, 0px);
-    padding-top: 0;
-  }
-
   .section {
     margin-top: calc(-1 * var(--home-schedule-hero-overlap-lg, 12rem));
     padding-top: var(--home-schedule-panel-top-inset-lg, 12rem);
     padding-bottom: var(--home-schedule-section-padding-bottom-lg, 4rem);
     padding-inline: 0;
+  }
+
+  .section.sectionFlushBottom {
+    padding-bottom: 0;
   }
 
   .shell {
@@ -114,6 +118,16 @@
     border-radius: var(--home-schedule-panel-radius-lg, 3.125rem);
     border: 1px solid rgb(255 255 255 / 0.55);
     box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35);
+  }
+
+  .panel.panelFlushBottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+    box-shadow:
+      -1px 0 0 0 rgb(255 255 255 / 0.35),
+      1px 0 0 0 rgb(255 255 255 / 0.35),
+      0 -1px 0 0 rgb(255 255 255 / 0.35);
   }
 
   .inner {
@@ -143,5 +157,4 @@
   .gridWrap {
     max-width: none;
   }
-
 }
