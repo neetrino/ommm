@@ -179,6 +179,9 @@ function buildPromoCtaPhoneStyle(offsetTopPx: number): CSSProperties {
     ["--home-hero-promo-cta-phone-offset-right-px" as string]: String(
       HOME_HERO_PROMO_CTA_PHONE.offsetRightPx,
     ),
+    ["--home-hero-promo-cta-phone-offset-right-desktop-px" as string]: String(
+      HOME_HERO_PROMO_CTA_PHONE.offsetRightPxDesktop,
+    ),
     ["--home-hero-promo-cta-phone-offset-top-px" as string]: String(offsetTopPx),
     ["--home-hero-promo-cta-pill-aspect-ratio" as string]: String(
       HOME_HERO_PROMO_CTA_PILL.aspectRatio,

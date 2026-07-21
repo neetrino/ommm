@@ -12,7 +12,7 @@
   background: var(--home-gallery-mobile-bg);
   border-top-left-radius: var(--home-gallery-mobile-top-radius, 2.5rem);
   border-top-right-radius: var(--home-gallery-mobile-top-radius, 2.5rem);
-  padding-top: var(--home-gallery-mobile-pt, 4rem);
+  padding-top: calc(var(--home-gallery-mobile-pt, 4rem) - 0.75rem);
   padding-bottom: calc(
     var(--home-gallery-mobile-pb, 4rem) + var(--home-gallery-footer-underlap, 2.5rem)
   );
@@ -118,7 +118,7 @@
     background: var(--home-gallery-desktop-bg);
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    padding-top: var(--home-gallery-desktop-pt);
+    padding-top: calc(var(--home-gallery-desktop-pt) - 1rem);
     padding-bottom: var(--home-gallery-desktop-pb);
     padding-inline: initial;
   }
