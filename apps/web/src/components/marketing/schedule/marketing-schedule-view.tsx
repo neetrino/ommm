@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   resolveMemberOnWaitlistBadge,
@@ -24,6 +25,8 @@ import {
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import {
   buildMarketingScheduleInitialNav,
+  buildMarketingScheduleNavForDate,
+  PUBLIC_SCHEDULE_DATE_QUERY_KEY,
   shiftMarketingScheduleWeek,
   type MarketingScheduleNavState,
 } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
@@ -44,14 +47,25 @@ type MarketingScheduleViewProps = {
   initialItems: MarketingScheduleItem[];
 };
 
+function resolveInitialNav(baseline: Date, dateParam: string | null): MarketingScheduleNavState {
+  if (dateParam !== null && dateParam.trim() !== "") {
+    const fromQuery = buildMarketingScheduleNavForDate(dateParam, baseline);
+    if (fromQuery !== null) {
+      return fromQuery;
+    }
+  }
+  return buildMarketingScheduleInitialNav(baseline);
+}
+
 export function MarketingScheduleView({ initialItems }: MarketingScheduleViewProps) {
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
+  const searchParams = useSearchParams();
   const audience = useMarketingAudience();
   const isMember = audience === "member";
   const [baseline] = useState(() => startOfLocalDay(new Date()));
   const [nav, setNav] = useState<MarketingScheduleNavState>(() =>
-    buildMarketingScheduleInitialNav(baseline),
+    resolveInitialNav(baseline, searchParams.get(PUBLIC_SCHEDULE_DATE_QUERY_KEY)),
   );
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");

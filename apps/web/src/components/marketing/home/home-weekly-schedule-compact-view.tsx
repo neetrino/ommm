@@ -17,6 +17,8 @@ import {
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { Link } from "@/i18n/navigation";
+import { getHomeWeeklyScheduleTabCalendarDate } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
+import { buildPublicScheduleHrefForDate } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
 import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
@@ -24,7 +26,6 @@ import {
 
 const HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS =
   HOME_WEEKLY_SCHEDULE_FIGMA.maxVisibleSessionsPerDay;
-const HOME_WEEKLY_SCHEDULE_FULL_PATH = "/schedule";
 
 export type HomeWeeklyScheduleCompactDay = {
   day: MarketingScheduleDayOfWeek;
@@ -279,7 +280,7 @@ export function HomeWeeklyScheduleDayView({
                         </div>
                       );
                     })}
-                    {showSeeFullSchedule ? (
+                    {showSeeFullSchedule && renderedDay !== null ? (
                       <div
                         className={`${styles.seeFullWrap} ${
                           animationPhase === "enter" ? transitionStyles.scheduleItemEnter : ""
@@ -287,7 +288,9 @@ export function HomeWeeklyScheduleDayView({
                         style={getItemStyle(renderedSessions.length)}
                       >
                         <Link
-                          href={HOME_WEEKLY_SCHEDULE_FULL_PATH}
+                          href={buildPublicScheduleHrefForDate(
+                            getHomeWeeklyScheduleTabCalendarDate(renderedDay.day),
+                          )}
                           className={styles.seeFullLink}
                         >
                           {t("weeklyScheduleSeeFull")}
