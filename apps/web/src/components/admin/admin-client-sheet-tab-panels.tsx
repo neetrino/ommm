@@ -68,6 +68,7 @@ type ClientSheetTabPanelsProps = {
   onAvatarPreviewOpenChange?: (open: boolean) => void;
   allowPackagePurchase?: boolean;
   onPackagePurchaseSuccess?: () => void;
+  canAddNotes?: boolean;
 };
 
 export function ClientSheetTabPanels({
@@ -91,6 +92,7 @@ export function ClientSheetTabPanels({
   onAvatarPreviewOpenChange,
   allowPackagePurchase = false,
   onPackagePurchaseSuccess,
+  canAddNotes = true,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
@@ -352,6 +354,7 @@ export function ClientSheetTabPanels({
         notes={detail.notes}
         note={note}
         busy={actionBusy !== null}
+        canAddNotes={canAddNotes}
         onNoteChange={onNoteChange}
         onAdd={() =>
           void onRun(

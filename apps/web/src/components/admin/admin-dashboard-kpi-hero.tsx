@@ -30,9 +30,10 @@ function AdminDashboardKpiCell({ label, value, hint, valueTone = "default" }: Ad
 
 type AdminDashboardKpiHeroProps = {
   operationsTitle: string;
-  financeTitle: string;
   operations: readonly AdminDashboardKpiCellProps[];
-  finance: readonly AdminDashboardKpiCellProps[];
+  /** When omitted, finance column is hidden (Manager dashboard). */
+  financeTitle?: string;
+  finance?: readonly AdminDashboardKpiCellProps[];
 };
 
 export function AdminDashboardKpiHero({
@@ -41,6 +42,8 @@ export function AdminDashboardKpiHero({
   operations,
   finance,
 }: AdminDashboardKpiHeroProps) {
+  const showFinance = finance !== undefined && finance.length > 0 && financeTitle !== undefined;
+
   return (
     <section className="rounded-[24px] border border-white/50 bg-white/35 p-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:p-4">
       <div className="flex flex-col lg:flex-row lg:items-stretch">
@@ -55,21 +58,24 @@ export function AdminDashboardKpiHero({
           </div>
         </div>
 
-        <div
-          className="my-4 h-px shrink-0 bg-gradient-to-r from-transparent via-sage-300/45 to-transparent lg:mx-5 lg:my-0 lg:h-auto lg:w-px lg:bg-gradient-to-b"
-          aria-hidden
-        />
-
-        <div className="min-w-0 flex-1 lg:max-w-[22rem] xl:max-w-none">
-          <p className="mb-3 px-1 text-[11px] font-semibold uppercase tracking-wide text-sage-500">
-            {financeTitle}
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            {finance.map((item) => (
-              <AdminDashboardKpiCell key={item.label} {...item} />
-            ))}
-          </div>
-        </div>
+        {showFinance ? (
+          <>
+            <div
+              className="my-4 h-px shrink-0 bg-gradient-to-r from-transparent via-sage-300/45 to-transparent lg:mx-5 lg:my-0 lg:h-auto lg:w-px lg:bg-gradient-to-b"
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1 lg:max-w-[22rem] xl:max-w-none">
+              <p className="mb-3 px-1 text-[11px] font-semibold uppercase tracking-wide text-sage-500">
+                {financeTitle}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {finance.map((item) => (
+                  <AdminDashboardKpiCell key={item.label} {...item} />
+                ))}
+              </div>
+            </div>
+          </>
+        ) : null}
       </div>
     </section>
   );

@@ -91,16 +91,19 @@ const COACH_NAV: readonly DashboardNavDefinition[] = [
   { href: "/coach/profile", icon: "user", labelKey: "profile" },
 ];
 
-/** Manager matrix: no Memberships, Notifications, Reports, or studio Settings. */
+/** Manager: same olive icons/order as Admin ops sections; no Finance, Analytics, Guest users, or Profile. */
 const MANAGER_NAV: readonly DashboardNavDefinition[] = [
-  { href: "/manager/home", icon: "home", labelKey: "home" },
-  { href: "/manager/classes", icon: "layoutGrid", labelKey: "schedule" },
-  { href: "/manager/bookings", icon: "calendar", labelKey: "bookings" },
-  { href: "/manager/waitlists", icon: "listOrdered", labelKey: "waitlists" },
-  { href: "/manager/clients", icon: "users", labelKey: "clients" },
-  { href: "/manager/coaches", icon: "userCheck", labelKey: "coaches" },
-  { href: "/manager/gift-cards", icon: "gift", labelKey: "giftCards" },
-  { href: "/manager/profile", icon: "user", labelKey: "profile" },
+  { href: "/manager/dashboard", icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
+  { href: "/manager/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
+  { href: "/manager/waitlists", icon: "listOrdered", labelKey: "waitlists", oliveIconSlug: "waitlists" },
+  { href: "/manager/clients", icon: "users", labelKey: "clients", oliveIconSlug: "clients" },
+  { href: "/manager/coaches", icon: "userCheck", labelKey: "coaches", oliveIconSlug: "coaches" },
+  { href: "/manager/schedule", icon: "calendar", labelKey: "schedule", oliveIconSlug: "schedule" },
+  { href: "/manager/packages", icon: "tag", labelKey: "packages", oliveIconSlug: "packages" },
+  { href: "/manager/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
+  { href: "/manager/notifications", icon: "bell", labelKey: "notificationManagement", oliveIconSlug: "notifications" },
+  { href: "/manager/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
+  { href: "/manager/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
 ];
 
 const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
@@ -111,20 +114,20 @@ const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
 
 /** Admin panel section order per CRM (Settings is studio-level; profile remains account). */
 const ADMIN_NAV: readonly DashboardNavDefinition[] = [
-  { href: "/admin/dashboard", icon: "layoutDashboard", labelKey: "dashboard" },
-  { href: "/admin/bookings", icon: "calendar", labelKey: "bookings" },
-  { href: "/admin/waitlists", icon: "listOrdered", labelKey: "waitlists" },
-  { href: "/admin/clients", icon: "users", labelKey: "clients" },
-  { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches" },
-  { href: "/admin/schedule", icon: "calendar", labelKey: "schedule" },
-  { href: "/admin/packages", icon: "tag", labelKey: "packages" },
-  { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards" },
-  { href: "/admin/finance", icon: "wallet", labelKey: "finance" },
-  { href: "/admin/analytics", icon: "pieChart", labelKey: "analytics" },
-  { href: "/admin/notifications", icon: "bell", labelKey: "notificationManagement" },
-  { href: "/admin/content", icon: "fileText", labelKey: "content" },
-  { href: "/admin/settings", icon: "settings", labelKey: "settings" },
-  { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers" },
+  { href: "/admin/dashboard", icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
+  { href: "/admin/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
+  { href: "/admin/waitlists", icon: "listOrdered", labelKey: "waitlists", oliveIconSlug: "waitlists" },
+  { href: "/admin/clients", icon: "users", labelKey: "clients", oliveIconSlug: "clients" },
+  { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches", oliveIconSlug: "coaches" },
+  { href: "/admin/schedule", icon: "calendar", labelKey: "schedule", oliveIconSlug: "schedule" },
+  { href: "/admin/packages", icon: "tag", labelKey: "packages", oliveIconSlug: "packages" },
+  { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
+  { href: "/admin/finance", icon: "wallet", labelKey: "finance", oliveIconSlug: "finance" },
+  { href: "/admin/analytics", icon: "pieChart", labelKey: "analytics", oliveIconSlug: "analytics" },
+  { href: "/admin/notifications", icon: "bell", labelKey: "notificationManagement", oliveIconSlug: "notifications" },
+  { href: "/admin/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
+  { href: "/admin/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
+  { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers", oliveIconSlug: "guestUsers" },
 ];
 
 /** Sidebar item definitions for the authenticated dashboard role (Prisma `Role`). */
@@ -158,6 +161,8 @@ export function dashboardNotificationRouteForRole(
       return { href: "/coach/notifications", labelKey: "notifications" };
     case "CONTENT_ADMIN":
       return { href: "/content-admin/notifications", labelKey: "notifications" };
+    case "MANAGER":
+      return { href: "/manager/notifications", labelKey: "notifications" };
     case "ADMIN":
       return { href: "/admin/notifications", labelKey: "notifications" };
     default:

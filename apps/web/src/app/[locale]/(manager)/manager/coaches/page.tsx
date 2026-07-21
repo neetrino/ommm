@@ -11,6 +11,7 @@ import {
 } from "@/components/admin/admin-coaches-query";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { managerBackofficeCapabilities } from "@/lib/backoffice-capabilities";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClassTypeRow = {
@@ -28,7 +29,6 @@ export default async function ManagerCoachesPage({
   const { locale } = await params;
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.coaches" });
-  const tManager = await getTranslations({ locale, namespace: "managerPages.coaches" });
   const cookie = (await headers()).get("cookie") ?? "";
   const filters = pickAdminCoachesFilters(search);
   const listPage = parseAdminCoachesPageParams(search);
@@ -37,6 +37,7 @@ export default async function ManagerCoachesPage({
     listPage.take,
     listPage.offset,
   );
+  const caps = managerBackofficeCapabilities();
   const [res, scheduleData, classTypesRes] = await Promise.all([
     serverApiJson<AdminCoachesListPayload>(coachesEndpoint, cookie),
     fetchPublicScheduleItems(),
@@ -66,16 +67,14 @@ export default async function ManagerCoachesPage({
           classTypeOptions={classTypeOptions}
           classOptions={classOptions}
           filterInitialValues={filters}
-          variant="staff"
-          staffBanner={tManager("readOnlyHint")}
-          readOnly
+          capabilities={caps}
         >
           <AdminCoachesDirectory
             initial={res.data}
             classTypeOptions={classTypeOptions}
             classOptions={classOptions}
             locale={locale}
-            readOnly
+            capabilities={caps}
           />
         </AdminCoachesShell>
       </Suspense>

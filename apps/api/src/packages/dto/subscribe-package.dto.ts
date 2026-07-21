@@ -1,5 +1,11 @@
 import { ManualPaymentMethod } from '@prisma/client';
-import { IsEnum, IsString, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 /** Public / user package subscribe — online Card or Cash only (not terminal). */
 const PUBLIC_PACKAGE_PAYMENT_METHODS = [
@@ -17,4 +23,10 @@ export class SubscribePackageDto {
 
   @IsEnum(PUBLIC_PACKAGE_PAYMENT_METHODS)
   paymentMethod!: PublicPackagePaymentMethod;
+
+  /** UI locale for Arca payment page (hy | ru | en). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(8)
+  locale?: string;
 }

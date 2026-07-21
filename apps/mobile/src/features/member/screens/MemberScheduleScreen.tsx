@@ -2,7 +2,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import {
   bookSession,
@@ -24,8 +23,8 @@ import {
 } from "../../../lib/schedule/scheduleNav";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { AppHeader } from "../../../components/layout/AppHeader";
-import { appHeaderScrollPaddingTop } from "../../../components/layout/appHeaderLayout";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { ScheduleDateControls } from "../../schedule/components/ScheduleDateControls";
 import { ScheduleDayContent } from "../../schedule/components/ScheduleDayContent";
 import { ScheduleFiltersHeader } from "../../schedule/components/ScheduleFiltersHeader";
@@ -35,7 +34,7 @@ import { ScheduleViewShell } from "../../schedule/components/ScheduleViewShell";
 import { useScheduleCopy } from "../../schedule/useScheduleCopy";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
-import { colors, layout, space } from "../../../theme/tokens";
+import { colors } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
 const FILTER_ALL = "all";
@@ -63,10 +62,12 @@ function isSessionFull(session: ClassSessionRow): boolean {
 }
 
 export function MemberScheduleScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const scheduleCopy = useScheduleCopy();
   const bookingCopy = useMemberBookingCopy();
+  const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
+    useScreenChromeInsets({ includeScreenGutter: false });
+  const onHeaderBookPress = useAppHeaderBookPress();
   const [sessions, setSessions] = useState<ClassSessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -191,11 +192,6 @@ export function MemberScheduleScreen() {
     [bookingCopy, load, router],
   );
 
-  const bottomPad =
-    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.xl;
-  const onHeaderBookPress = useAppHeaderBookPress();
-  const headerOffset = appHeaderScrollPaddingTop(insets.top);
-
   return (
     <View style={styles.root}>
       <GradientBackdrop />
@@ -203,7 +199,14 @@ export function MemberScheduleScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: headerOffset, paddingBottom: bottomPad },
+          {
+            paddingTop,
+            paddingBottom,
+            paddingLeft:
+              SCHEDULE_PAGE_MOBILE.pageHorizontalPaddingPx + safePaddingLeft,
+            paddingRight:
+              SCHEDULE_PAGE_MOBILE.pageHorizontalPaddingPx + safePaddingRight,
+          },
         ]}
         keyboardShouldPersistTaps="handled"
       >
@@ -262,7 +265,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingHorizontal: SCHEDULE_PAGE_MOBILE.pageHorizontalPaddingPx,
     gap: SCHEDULE_PAGE_MOBILE.pageTitleToShellGapPx,
   },
   pageTitle: {

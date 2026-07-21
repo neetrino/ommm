@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
+import {
+  ManualPaymentMethod,
+  PaymentSource,
+  PaymentStatus,
+  UserPackageStatus,
+} from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -8,8 +13,10 @@ import { PaymentsCheckoutService } from '../payments-checkout.service';
 
 import { ArcaClient } from './arca.client';
 import { mergeArcaMetadata, readArcaMetadata } from './arca-metadata.util';
+import { resolveArcaStatusReason } from './arca-status-reason.util';
 import { evaluateArcaOrderStatus } from './arca-status.util';
 import type { ArcaOrderStatusResponse, ArcaSyncOutcome } from './arca.types';
+import { PAYMENT_STATUS_REASON } from '../payment-status-reason';
 
 /**
  * Re-checks a pending Arca payment against the bank and transitions it accordingly.
@@ -70,8 +77,19 @@ export class ArcaPaymentSyncService {
       return this.confirm(paymentId);
     }
     if (evaluation === 'failed') {
-      await this.markFailed(paymentId, metadata.arcaOrderId);
+      await this.markFailed(
+        paymentId,
+        metadata.arcaOrderId,
+        resolveArcaStatusReason(statusResponse),
+      );
       return 'failed';
+    }
+
+    if (evaluation === 'in_progress') {
+      await this.patchStatusReason(
+        paymentId,
+        resolveArcaStatusReason(statusResponse),
+      );
     }
 
     // `in_progress` / `unknown`: leave PENDING so a later callback or cron run can resolve it.
@@ -94,10 +112,16 @@ export class ArcaPaymentSyncService {
   private async markFailed(
     paymentId: string,
     arcaOrderId?: string,
+    statusReason: string = PAYMENT_STATUS_REASON.CARD_DECLINED,
   ): Promise<void> {
     const existing = await this.prisma.payment.findUnique({
       where: { id: paymentId },
-      select: { metadata: true, status: true },
+      select: {
+        metadata: true,
+        status: true,
+        source: true,
+        sourceId: true,
+      },
     });
 
     if (!existing || existing.status !== PaymentStatus.PENDING) {
@@ -110,14 +134,50 @@ export class ArcaPaymentSyncService {
         status: PaymentStatus.FAILED,
         confirmedAt: new Date(),
         paymentMethod: ManualPaymentMethod.CARD,
-        ...(arcaOrderId
-          ? {
-              metadata: mergeArcaMetadata(existing.metadata, {
-                provider: 'arca',
-                arcaOrderId,
-              }),
-            }
-          : {}),
+        metadata: mergeArcaMetadata(existing.metadata, {
+          provider: 'arca',
+          ...(arcaOrderId ? { arcaOrderId } : {}),
+          statusReason,
+        }),
+      },
+    });
+
+    if (
+      existing.source === PaymentSource.PACKAGE &&
+      existing.sourceId !== null
+    ) {
+      await this.prisma.userPackage.updateMany({
+        where: {
+          id: existing.sourceId,
+          status: UserPackageStatus.PENDING,
+        },
+        data: { status: UserPackageStatus.CANCELLED },
+      });
+    }
+  }
+
+  private async patchStatusReason(
+    paymentId: string,
+    statusReason: string,
+  ): Promise<void> {
+    const existing = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+      select: { metadata: true, status: true },
+    });
+    if (!existing || existing.status !== PaymentStatus.PENDING) {
+      return;
+    }
+    const current = readArcaMetadata(existing.metadata).statusReason;
+    if (current === statusReason) {
+      return;
+    }
+    await this.prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        metadata: mergeArcaMetadata(existing.metadata, {
+          provider: 'arca',
+          statusReason,
+        }),
       },
     });
   }

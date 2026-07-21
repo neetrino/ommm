@@ -22,6 +22,7 @@ import {
   formatSessionStartLabel,
 } from "../../../lib/member/formatSessionLabels";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
 import { colors, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
@@ -41,6 +42,10 @@ function isSessionFull(s: ClassSessionRow): boolean {
 export function MemberClassesScreen() {
   const router = useRouter();
   const bookingCopy = useMemberBookingCopy();
+  const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
+    useScreenChromeInsets({
+      header: "safe",
+    });
   const [sessions, setSessions] = useState<ClassSessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,16 +107,21 @@ export function MemberClassesScreen() {
     <View style={styles.root}>
       <GradientBackdrop />
       {loading ? (
-        <Text style={styles.meta}>{bookingCopy.loading}</Text>
+        <Text style={[styles.meta, { marginTop: paddingTop }]}>
+          {bookingCopy.loading}
+        </Text>
       ) : error !== null ? (
-        <Text style={styles.error}>{error}</Text>
+        <Text style={[styles.error, { marginTop: paddingTop }]}>{error}</Text>
       ) : (
         <FlatList
           data={sessions}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listPad}
+          contentContainerStyle={[
+            styles.listPad,
+            { paddingTop, paddingBottom, paddingLeft, paddingRight },
+          ]}
           ListEmptyComponent={
-            <Text style={styles.meta}>{bookingCopy.emptyClasses}</Text>
+            <Text style={styles.metaEmpty}>{bookingCopy.emptyClasses}</Text>
           }
           renderItem={({ item }) => {
             const full = isSessionFull(item);
@@ -162,20 +172,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   listPad: {
-    paddingHorizontal: space.screenHorizontal,
-    paddingTop: space.lg,
-    paddingBottom: space.xxl,
     gap: space.md,
   },
   meta: {
-    marginTop: space.lg,
     marginHorizontal: space.screenHorizontal,
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,
     color: colors.bodyMuted,
   },
+  metaEmpty: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.bodySmall,
+    color: colors.bodyMuted,
+  },
   error: {
-    marginTop: space.lg,
     marginHorizontal: space.screenHorizontal,
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,

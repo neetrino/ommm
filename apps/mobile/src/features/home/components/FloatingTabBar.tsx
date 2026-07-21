@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { usePathname, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import {
@@ -9,9 +9,14 @@ import {
   useRoleTabs,
 } from "../../../navigation/useRoleTabs";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, gradients, layout, radii, shadows, space } from "../../../theme/tokens";
+import { colors, gradients, shadows, space } from "../../../theme/tokens";
+import { FLOATING_TAB_BAR_OUTER_BOTTOM_EXTRA } from "../../../components/layout/screenChromeLayout";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 
 const TAB_ICON_INACTIVE_OPACITY = 0.85;
+const TAB_BAR_HORIZONTAL_INSET = space.sm;
+const TAB_LABEL_MIN_FONT_SCALE = 0.62;
+const TAB_BAR_MAX_WIDTH_PORTRAIT = 390;
 
 function isRouteActive(pathname: string, href: string): boolean {
   if (pathname === href) {
@@ -25,121 +30,176 @@ export function FloatingTabBar() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const pathname = usePathname();
+  const { width: windowWidth } = useWindowDimensions();
   const { role } = useSession();
   const tabItems: TranslatedRoleTabItem[] = useRoleTabs(role);
+  const { tabBarHeight, tabHighlightSize, compact, isLandscape } =
+    useScreenChromeInsets({
+      tabBar: false,
+    });
 
-  const bottom = Math.max(insets.bottom, space.sm) + space.xs;
+  const bottom =
+    Math.max(insets.bottom, space.sm) + FLOATING_TAB_BAR_OUTER_BOTTOM_EXTRA;
+  /** Half of bar height = true capsule ends (more reliable than 9999 on iOS). */
+  const barRadius = tabBarHeight / 2;
+  const chipRadius = tabHighlightSize / 2;
+  const iconSizeScale = compact ? 0.8 : 1;
+  const sidePad = isLandscape ? space.md : TAB_BAR_HORIZONTAL_INSET;
+  const left = insets.left + sidePad;
+  const right = insets.right + sidePad;
+  const availableWidth = Math.max(0, windowWidth - left - right);
+  const maxBarWidth = isLandscape
+    ? availableWidth
+    : Math.min(TAB_BAR_MAX_WIDTH_PORTRAIT, availableWidth);
 
   return (
     <View
-      style={[styles.outer, { bottom }]}
+      style={[styles.outer, { bottom, left, right }]}
       accessibilityRole="tablist"
     >
-      <LinearGradient
-        colors={gradients.navBar.colors}
-        start={gradients.navBar.start}
-        end={gradients.navBar.end}
-        style={[styles.bar, shadows.tabBar]}
+      {/* Shadow outside clip — iOS clips shadow if overflow:hidden is on the same node.
+          Same borderRadius on the shadow shell so web box-shadow is a capsule, not a rect. */}
+      <View
+        style={[
+          styles.shadowShell,
+          shadows.tabBar,
+          { maxWidth: maxBarWidth, borderRadius: barRadius },
+        ]}
       >
-        {tabItems.map((item) => {
-          const active = isRouteActive(pathname, item.href as string);
-          const iconColor = active ? colors.taupe : colors.creamHighlight;
-          return (
-            <Pressable
-              key={item.key}
-              onPress={() => {
-                router.push(item.href);
-              }}
-              style={({ pressed }) => [
-                styles.tabPressable,
-                pressed && styles.tabPressed,
-              ]}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: active }}
-              accessibilityLabel={item.label}
-            >
-              <View
-                style={[
-                  styles.tabHighlight,
-                  active && styles.tabHighlightActive,
-                ]}
-              >
-                <View style={!active && styles.iconInactive}>
-                  <MaterialCommunityIcons
-                    name={item.iconName}
-                    size={item.iconSize}
-                    color={iconColor}
-                  />
-                </View>
-                <Text
-                  style={[styles.tabLabel, active ? styles.tabLabelActive : undefined]}
-                  numberOfLines={2}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.8}
-                  ellipsizeMode="clip"
+        <View
+          style={[
+            styles.clipShell,
+            {
+              borderRadius: barRadius,
+              backgroundColor: gradients.navBar.colors[1],
+            },
+          ]}
+        >
+          <LinearGradient
+            colors={gradients.navBar.colors}
+            start={gradients.navBar.start}
+            end={gradients.navBar.end}
+            style={[
+              styles.bar,
+              {
+                height: tabBarHeight,
+                borderRadius: barRadius,
+                paddingHorizontal: compact ? space.xs : space.sm,
+              },
+            ]}
+          >
+            {tabItems.map((item) => {
+              const active = isRouteActive(pathname, item.href as string);
+              const iconColor = active ? colors.taupe : colors.creamHighlight;
+              return (
+                <Pressable
+                  key={item.key}
+                  onPress={() => {
+                    router.push(item.href);
+                  }}
+                  style={({ pressed }) => [
+                    styles.tabPressable,
+                    pressed && styles.tabPressed,
+                  ]}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={item.label}
                 >
-                  {item.label}
-                </Text>
-              </View>
-            </Pressable>
-          );
-        })}
-      </LinearGradient>
+                  <View
+                    style={[
+                      styles.tabInner,
+                      compact ? styles.tabInnerCompact : null,
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.iconWrap,
+                        {
+                          width: tabHighlightSize,
+                          height: tabHighlightSize,
+                          borderRadius: chipRadius,
+                        },
+                        active && styles.iconWrapActive,
+                      ]}
+                    >
+                      <MaterialCommunityIcons
+                        name={item.iconName}
+                        size={Math.round(item.iconSize * iconSizeScale)}
+                        color={iconColor}
+                        style={!active ? styles.iconInactive : undefined}
+                      />
+                    </View>
+                    <Text
+                      style={[
+                        styles.tabLabel,
+                        compact ? styles.tabLabelCompact : null,
+                        active ? styles.tabLabelActive : null,
+                      ]}
+                      numberOfLines={compact ? 1 : 2}
+                      adjustsFontSizeToFit
+                      minimumFontScale={TAB_LABEL_MIN_FONT_SCALE}
+                      ellipsizeMode="clip"
+                    >
+                      {item.label}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </LinearGradient>
+        </View>
+      </View>
     </View>
   );
 }
 
-/** Active chip diameter; column width is kept smaller so tabs stay packed and the chip can overhang. */
-const TAB_HIGHLIGHT_SIZE = 76;
-const TAB_HIGHLIGHT_RADIUS = TAB_HIGHLIGHT_SIZE / 2;
-const FLOATING_TAB_BAR_HEIGHT = 88;
-const TAB_BAR_HORIZONTAL_INSET = space.sm;
-
 const styles = StyleSheet.create({
   outer: {
     position: "absolute",
-    left: TAB_BAR_HORIZONTAL_INSET,
-    right: TAB_BAR_HORIZONTAL_INSET,
     alignItems: "center",
     zIndex: 30,
-    maxWidth: layout.designWidth,
-    alignSelf: "center",
     pointerEvents: "box-none",
+  },
+  shadowShell: {
+    width: "100%",
+    backgroundColor: "transparent",
+  },
+  clipShell: {
+    width: "100%",
+    overflow: "hidden",
   },
   bar: {
     width: "100%",
-    height: FLOATING_TAB_BAR_HEIGHT,
-    borderRadius: radii.pill,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: space.sm,
+    overflow: "hidden",
   },
   tabPressable: {
     flex: 1,
-    minWidth: 52,
+    minWidth: 0,
     alignSelf: "stretch",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 2,
+    backgroundColor: "transparent",
   },
-  tabHighlight: {
+  tabInner: {
     width: "100%",
-    minHeight: TAB_HIGHLIGHT_SIZE,
-    borderRadius: TAB_HIGHLIGHT_RADIUS,
-    alignSelf: "center",
-    overflow: "visible",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
-    paddingHorizontal: 2,
+    gap: 2,
   },
-  tabHighlightActive: {
-    backgroundColor: colors.creamHighlight,
-    width: TAB_HIGHLIGHT_SIZE,
-    height: TAB_HIGHLIGHT_SIZE,
-    minHeight: TAB_HIGHLIGHT_SIZE,
+  tabInnerCompact: {
+    gap: 1,
+  },
+  iconWrap: {
+    alignItems: "center",
+    justifyContent: "center",
     overflow: "hidden",
-    paddingHorizontal: 6,
+  },
+  iconWrapActive: {
+    backgroundColor: colors.creamHighlight,
   },
   iconInactive: {
     opacity: TAB_ICON_INACTIVE_OPACITY,
@@ -148,16 +208,19 @@ const styles = StyleSheet.create({
     opacity: 0.92,
   },
   tabLabel: {
+    width: "100%",
     fontFamily: fontFamilies.manrope.regular,
     fontSize: 10,
     lineHeight: 12,
     color: colors.creamHighlight,
     textAlign: "center",
   },
+  tabLabelCompact: {
+    fontSize: 9,
+    lineHeight: 11,
+  },
   tabLabelActive: {
     fontFamily: fontFamilies.manrope.semiBold,
-    lineHeight: 12,
-    color: colors.taupe,
-    maxWidth: TAB_HIGHLIGHT_SIZE - 12,
+    color: colors.creamHighlight,
   },
 });

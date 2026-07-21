@@ -30,8 +30,8 @@ type AdminScheduleSessionRowActionsProps<TRow extends SessionRowRef> = {
   busy: boolean;
   includeDelete?: boolean;
   onDuplicate?: (row: TRow) => void;
-  onCancel: (row: TRow) => void;
-  onActivate: (row: TRow) => void;
+  onCancel?: (row: TRow) => void;
+  onActivate?: (row: TRow) => void;
   onDelete?: (row: TRow) => void;
 };
 
@@ -68,9 +68,9 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
       return;
     }
     if (pendingConfirm === "cancel") {
-      onCancel(row);
+      onCancel?.(row);
     } else if (pendingConfirm === "activate") {
-      onActivate(row);
+      onActivate?.(row);
     } else if (onDelete) {
       onDelete(row);
     }
@@ -129,18 +129,20 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
           </AdminRowIconButton>
         ) : null}
         {isCancelled ? (
-          <AdminRowIconButton
-            ariaLabel={t("activateAction")}
-            title={t("activateAction")}
-            onClick={(event) => {
-              event.stopPropagation();
-              openConfirm("activate");
-            }}
-            disabled={busy}
-          >
-            <CheckCircleGlyph className={ADMIN_ACTION_ICON_CLASS} />
-          </AdminRowIconButton>
-        ) : (
+          onActivate ? (
+            <AdminRowIconButton
+              ariaLabel={t("activateAction")}
+              title={t("activateAction")}
+              onClick={(event) => {
+                event.stopPropagation();
+                openConfirm("activate");
+              }}
+              disabled={busy}
+            >
+              <CheckCircleGlyph className={ADMIN_ACTION_ICON_CLASS} />
+            </AdminRowIconButton>
+          ) : null
+        ) : onCancel ? (
           <AdminRowIconButton
             ariaLabel={t("cancelAction")}
             title={t("cancelAction")}
@@ -153,7 +155,7 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
           >
             <CancelGlyph className={ADMIN_ACTION_ICON_CLASS} />
           </AdminRowIconButton>
-        )}
+        ) : null}
         {includeDelete && onDelete ? (
           <AdminRowIconButton
             ariaLabel={t("actions.delete")}

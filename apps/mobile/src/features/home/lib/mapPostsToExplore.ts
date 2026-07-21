@@ -24,7 +24,8 @@ export function postsToExploreContent(
   const tiles: ExploreTileMock[] =
     slice.length > 0
       ? slice.map((p, i) => ({
-          id: p.id,
+          // Prefer API id; slug covers older cached payloads that omit id.
+          id: p.id || p.slug || `explore-tile-${i}`,
           tag: typeToTag(p.type),
           title: p.title,
           imageUriKey: i % 2 === 0 ? "exploreRetreat" : "explorePilates",

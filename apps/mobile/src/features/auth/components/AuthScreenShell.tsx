@@ -8,10 +8,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { useIsCompactChrome } from "../../../components/layout/useScreenChrome";
 import { colors, space } from "../../../theme/tokens";
 import { AUTH_BACK_TO_HOME_TOP_RESERVE, AUTH_BACK_TOP_NUDGE_DOWN } from "./AuthBackToHomeRow";
 
 const AUTH_TOP_INSET_EXTRA = space.xxl;
+const AUTH_TOP_INSET_EXTRA_COMPACT = space.md;
 const AUTH_BOTTOM_INSET_EXTRA = space.xl;
 const AUTH_MAX_CONTENT_WIDTH = 400;
 
@@ -32,10 +34,14 @@ export function AuthScreenShell({
   topLeading,
 }: AuthScreenShellProps) {
   const insets = useSafeAreaInsets();
+  const compact = useIsCompactChrome();
+  const topExtra = compact ? AUTH_TOP_INSET_EXTRA_COMPACT : AUTH_TOP_INSET_EXTRA;
   const paddingTop = topLeading
     ? insets.top + AUTH_BACK_TO_HOME_TOP_RESERVE
-    : insets.top + AUTH_TOP_INSET_EXTRA;
+    : insets.top + topExtra;
   const paddingBottom = insets.bottom + AUTH_BOTTOM_INSET_EXTRA;
+  const paddingLeft = insets.left + space.screenHorizontal;
+  const paddingRight = insets.right + space.screenHorizontal;
 
   const scroll = (
     <ScrollView
@@ -43,14 +49,16 @@ export function AuthScreenShell({
       showsVerticalScrollIndicator={false}
       contentContainerStyle={[
         styles.scrollContent,
+        compact ? styles.scrollContentCompact : null,
         {
           paddingTop,
           paddingBottom,
-          paddingHorizontal: space.screenHorizontal,
+          paddingLeft,
+          paddingRight,
         },
       ]}
     >
-      <View style={styles.inner}>{children}</View>
+      <View style={[styles.inner, compact ? styles.innerCompact : null]}>{children}</View>
     </ScrollView>
   );
 
@@ -62,7 +70,12 @@ export function AuthScreenShell({
           <View
             style={[
               styles.topLeadingColumn,
-              { paddingTop: insets.top + space.xs + AUTH_BACK_TOP_NUDGE_DOWN, maxWidth: AUTH_MAX_CONTENT_WIDTH },
+              {
+                paddingTop: insets.top + space.xs + AUTH_BACK_TOP_NUDGE_DOWN,
+                paddingLeft: insets.left,
+                paddingRight: insets.right,
+                maxWidth: AUTH_MAX_CONTENT_WIDTH,
+              },
             ]}
           >
             {topLeading}
@@ -111,10 +124,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
   },
+  scrollContentCompact: {
+    justifyContent: "flex-start",
+  },
   inner: {
     width: "100%",
     maxWidth: AUTH_MAX_CONTENT_WIDTH,
     alignSelf: "center",
     gap: space.xl,
+  },
+  innerCompact: {
+    gap: space.md,
   },
 });

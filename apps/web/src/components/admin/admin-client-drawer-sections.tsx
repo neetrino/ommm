@@ -88,27 +88,31 @@ export function ClientNotesPanel(props: {
   busy: boolean;
   onNoteChange: (value: string) => void;
   onAdd: () => void;
+  canAddNotes?: boolean;
 }) {
   const t = useTranslations("adminPages.clients");
+  const canAdd = props.canAddNotes ?? true;
 
   return (
     <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
       <p className="font-medium text-sage-900">{t("noteLabel")}</p>
-      <div className="mt-2 flex gap-2">
-        <input
-          className="ommm-input h-10 flex-1"
-          value={props.note}
-          onChange={(event) => props.onNoteChange(event.target.value)}
-          placeholder={t("notePlaceholder")}
-        />
-        <OmmButton
-          size="sm"
-          disabled={props.busy || props.note.trim() === ""}
-          onClick={props.onAdd}
-        >
-          {t("addNote")}
-        </OmmButton>
-      </div>
+      {canAdd ? (
+        <div className="mt-2 flex gap-2">
+          <input
+            className="ommm-input h-10 flex-1"
+            value={props.note}
+            onChange={(event) => props.onNoteChange(event.target.value)}
+            placeholder={t("notePlaceholder")}
+          />
+          <OmmButton
+            size="sm"
+            disabled={props.busy || props.note.trim() === ""}
+            onClick={props.onAdd}
+          >
+            {t("addNote")}
+          </OmmButton>
+        </div>
+      ) : null}
       <div className="mt-3 space-y-2">
         {props.notes.length === 0 ? (
           <p className="text-sm text-sage-500">{t("drawer.noNotes")}</p>

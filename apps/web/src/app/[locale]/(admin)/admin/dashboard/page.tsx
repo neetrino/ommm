@@ -1,10 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { Link } from "@/i18n/navigation";
+import { AdminDashboardMetrics } from "@/components/admin/admin-dashboard-metrics";
 import { isAdminDashboardRole } from "@/lib/role-home";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
 import { serverApiJson } from "@/lib/server-api";
-import { AdminDashboardMetrics } from "./admin-dashboard-metrics";
 
 type MeResponse = {
   user: { role: string; name: string | null; email: string };
@@ -40,5 +40,5 @@ export default async function AdminDashboardPage({
     redirectToRoleHome(locale, meRes.data.user.role);
   }
 
-  return <AdminDashboardMetrics locale={locale} />;
+  return <AdminDashboardMetrics locale={locale} includeFinance />;
 }

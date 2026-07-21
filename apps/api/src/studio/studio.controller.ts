@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { Role } from '@prisma/client';
+import { BACKOFFICE_WRITE_ROLES } from '../common/backoffice-roles';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -30,14 +30,14 @@ export class StudioController {
 
   @Patch()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   update(@Body() dto: UpdateStudioDto) {
     return this.studio.update(dto);
   }
 
   @Patch('home-sections')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   updateHomeSections(@Body() dto: UpdateHomeSectionsDto) {
     return this.studio.updateHomeSections(dto.sections);
   }

@@ -38,6 +38,7 @@ export function AdminNotificationsScheduledSection({
   loadFailed,
   initialFilters,
   onRefresh,
+  canCancelScheduled = true,
 }: AdminNotificationsScheduledSectionProps) {
   const t = useTranslations("adminPages.notifications");
   const router = useRouter();
@@ -144,7 +145,7 @@ export function AdminNotificationsScheduledSection({
     setBusyId(id);
     setMessage(null);
     try {
-      await apiFetch(`/notifications/admin/scheduled/${id}`, { method: "DELETE" });
+      await apiFetch(`/notifications/admin/scheduled/${id}/cancel`, { method: "POST" });
       setMessage(t("messages.scheduleCancelled"));
       onRefresh();
     } catch (error) {
@@ -208,7 +209,7 @@ export function AdminNotificationsScheduledSection({
         totalItems={items.length}
         busyId={busyId}
         onEdit={openEdit}
-        onCancel={(id) => void cancel(id)}
+        onCancel={canCancelScheduled ? (id) => void cancel(id) : undefined}
         t={t}
       />
       <OmmListPagination

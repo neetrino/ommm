@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
+import { useIsCompactChrome } from "../../../components/layout/useScreenChrome";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import {
   colors,
@@ -23,18 +24,39 @@ type GiftCardSectionProps = {
   onBuyPress?: () => void;
 };
 
+const GIFT_CARD_COMPACT_SCALE = 0.72;
+
 export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
+  const compact = useIsCompactChrome();
+  const scale = compact ? GIFT_CARD_COMPACT_SCALE : 1;
+  const badgeSize = giftCard.badgeSize * scale;
+  const cardMinHeight = giftCard.minHeight * scale;
+  const titleTopOffset = giftCard.titleTopOffset * scale;
+
   return (
     <View style={styles.wrap}>
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          compact ? { minHeight: cardMinHeight } : { height: giftCard.minHeight },
+        ]}
+      >
         <LinearGradient
           colors={[colors.giftGradientStart, colors.giftGradientEnd]}
           style={styles.gradient}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         />
-        <View style={styles.overlay}>
-          <Text style={styles.title} accessibilityRole="header">
+        <View
+          style={[
+            compact ? styles.overlayFlow : styles.overlayFill,
+            compact ? styles.overlayCompact : null,
+          ]}
+        >
+          <Text
+            style={[styles.title, { marginTop: titleTopOffset }]}
+            accessibilityRole="header"
+          >
             <Text style={styles.titlePlain}>{content.titleLead}</Text>
             <Text> </Text>
             <Text style={styles.titleAccent}>{content.titleAccent}</Text>
@@ -67,7 +89,18 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
         </View>
       </View>
 
-      <View style={styles.badge}>
+      <View
+        style={[
+          styles.badge,
+          {
+            top: giftCard.badgeTop * scale,
+            marginLeft: -badgeSize / 2,
+            width: badgeSize,
+            height: badgeSize,
+            borderRadius: badgeSize / 2,
+          },
+        ]}
+      >
         <Image
           source={figmaRemoteAssets.giftCardBadge}
           style={styles.badgeImage}
@@ -86,12 +119,11 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radii.banner,
     overflow: "hidden",
-    height: giftCard.minHeight,
   },
   gradient: {
     ...StyleSheet.absoluteFillObject,
   },
-  overlay: {
+  overlayFill: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "column",
     alignItems: "center",
@@ -99,14 +131,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: giftCard.overlayPaddingHorizontal,
     paddingBottom: giftCard.overlayPaddingBottom,
   },
+  overlayFlow: {
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: colors.overlayGreen20,
+    paddingHorizontal: giftCard.overlayPaddingHorizontal,
+    paddingBottom: giftCard.overlayPaddingBottom,
+  },
+  overlayCompact: {
+    paddingHorizontal: space.lg,
+    paddingBottom: space.md,
+  },
   badge: {
     position: "absolute",
-    top: giftCard.badgeTop,
     left: "50%",
-    marginLeft: -giftCard.badgeSize / 2,
-    width: giftCard.badgeSize,
-    height: giftCard.badgeSize,
-    borderRadius: giftCard.badgeSize / 2,
     overflow: "hidden",
     pointerEvents: "none",
   },
@@ -116,7 +154,6 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: "center",
-    marginTop: giftCard.titleTopOffset,
   },
   titlePlain: {
     fontFamily: fontFamilies.gtSuperDs.regular,
@@ -131,7 +168,7 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   subtitleBlock: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: "center",
     justifyContent: "center",
     marginTop: giftCard.subtitleMarginTop,

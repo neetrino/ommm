@@ -30,7 +30,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
-import { isApiError, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
+import { isApiError, isArcaCheckoutEnabled } from "@/lib/arca-checkout";
 import { apiFetch } from "@/lib/api";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import {
@@ -55,6 +55,7 @@ type SubscribePackageResponse = {
   id: string;
   paymentReference?: string | null;
   requiresArcaCheckout?: boolean;
+  redirectUrl?: string | null;
 };
 
 function resolveDefaultPlanId(
@@ -171,15 +172,18 @@ function PackageSubscribePaymentModalSession({
         body: JSON.stringify({
           planId: selectedPlan.id,
           paymentMethod,
+          locale,
         }),
       });
-      if (
-        paymentMethod === "CARD" &&
-        isArcaCheckoutEnabled() &&
-        result.requiresArcaCheckout === true &&
-        result.paymentReference
-      ) {
-        await startArcaCardCheckout(result.paymentReference, locale);
+      if (paymentMethod === "CARD" && isArcaCheckoutEnabled()) {
+        if (
+          typeof result.redirectUrl === "string" &&
+          result.redirectUrl.length > 0
+        ) {
+          window.location.href = result.redirectUrl;
+          return;
+        }
+        setError(t("submitFailed"));
         return;
       }
       setStep("success");

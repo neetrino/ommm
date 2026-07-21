@@ -13,7 +13,7 @@ const config: ExpoConfig = {
   slug: "mobile",
   scheme: "ommm-mobile",
   version: "1.0.0",
-  orientation: "portrait",
+  orientation: "default",
   icon: "./assets/icon.png",
   userInterfaceStyle: "light",
   newArchEnabled: true,
@@ -41,6 +41,7 @@ const config: ExpoConfig = {
   plugins: [
     "expo-router",
     "expo-notifications",
+    "expo-video",
     [
       "expo-image-picker",
       {

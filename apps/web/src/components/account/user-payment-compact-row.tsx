@@ -22,11 +22,27 @@ import {
 import { USER_LIST_TITLE_SERIF_CLASS } from "@/components/account/user-list-table-layout";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import type { UserPaymentRow } from "@/lib/user-package-types";
+import { PaymentStatusReasonText } from "@/components/shared/payment-status-reason-text";
 
 type UserPaymentCompactRowProps = {
   locale: string;
   payment: UserPaymentRow;
 };
+
+function resolveUserPaymentStatusReason(payment: UserPaymentRow): string | null {
+  if (typeof payment.statusReason === "string") {
+    return payment.statusReason;
+  }
+  if (
+    payment.metadata !== null &&
+    typeof payment.metadata === "object" &&
+    !Array.isArray(payment.metadata)
+  ) {
+    const reason = (payment.metadata as Record<string, unknown>).statusReason;
+    return typeof reason === "string" ? reason : null;
+  }
+  return null;
+}
 
 export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRowProps) {
   const t = useTranslations("userPages.payments");
@@ -73,11 +89,17 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
 
       <div className={USER_PAYMENTS_LIST_STATUS_CELL}>
         <MobileLabel label={t("table.status")} />
-        <span
-          className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusBadgeClass(payment.status)}`}
-        >
-          {t(`status.${payment.status}`)}
-        </span>
+        <div className="flex flex-col items-start">
+          <span
+            className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusBadgeClass(payment.status)}`}
+          >
+            {t(`status.${payment.status}`)}
+          </span>
+          <PaymentStatusReasonText
+            status={payment.status}
+            reason={resolveUserPaymentStatusReason(payment)}
+          />
+        </div>
       </div>
 
       <div className={USER_PAYMENTS_LIST_METHOD_CELL}>

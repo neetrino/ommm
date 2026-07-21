@@ -2,6 +2,7 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { ScheduleListFilterState } from "@/components/admin/admin-schedule-url";
 import type { SessionSortOrder } from "@/lib/list-sort";
+import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
 
 export type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 
@@ -56,9 +57,10 @@ export type AdminScheduleManagementProps = {
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
   initialFilterState: ScheduleListFilterState;
-  /** Staff surfaces (manager): list-only read-only rows with admin filters. */
+  /** Staff surfaces: list-only rows with admin filters. Manager should not use this. */
   variant?: "full" | "staff";
   staffBanner?: string;
+  capabilities?: ScheduleCapabilities;
 };
 
 export type AdminScheduleFilters = {

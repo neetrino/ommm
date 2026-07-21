@@ -6,6 +6,7 @@ import { fetchMemberMe, type MemberMePayload } from "../../../lib/api/memberClie
 import { useLocale, useTranslations } from "../../../i18n/I18nProvider";
 import { intlLocaleTag } from "../../../i18n/locales";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
+import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { colors, space, typography } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
@@ -14,6 +15,10 @@ export function MemberProgressScreen() {
   const intlLocale = intlLocaleTag(locale);
   const tProgress = useTranslations("userPages.progress");
   const tDashboard = useTranslations("account.dashboard");
+  const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
+    useScreenChromeInsets({
+      header: "safe",
+    });
   const [data, setData] = useState<MemberMePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,60 +49,61 @@ export function MemberProgressScreen() {
   return (
     <View style={styles.root}>
       <GradientBackdrop />
-      <Text style={styles.title}>{tProgress("title")}</Text>
-      {error !== null ? <Text style={styles.error}>{error}</Text> : null}
-      {data !== null && data.achievements.length === 0 ? (
-        <Text style={styles.meta}>{tProgress("achievementsEmpty")}</Text>
-      ) : null}
-      {data !== null && data.achievements.length > 0 ? (
-        <FlatList
-          data={data.achievements}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardDesc}>{item.description}</Text>
-              <Text style={styles.cardDate}>
-                {tProgress("unlocked", {
-                  date: new Date(item.unlockedAt).toLocaleDateString(intlLocale),
-                })}
-              </Text>
-            </View>
-          )}
-        />
-      ) : null}
+      <FlatList
+        data={data?.achievements ?? []}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={[
+          styles.list,
+          { paddingTop, paddingBottom, paddingLeft, paddingRight },
+        ]}
+        ListHeaderComponent={
+          <View style={styles.headerBlock}>
+            <Text style={styles.title}>{tProgress("title")}</Text>
+            {error !== null ? <Text style={styles.error}>{error}</Text> : null}
+            {data !== null && data.achievements.length === 0 ? (
+              <Text style={styles.meta}>{tProgress("achievementsEmpty")}</Text>
+            ) : null}
+          </View>
+        }
+        ListEmptyComponent={null}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Text style={styles.cardDesc}>{item.description}</Text>
+            <Text style={styles.cardDate}>
+              {tProgress("unlocked", {
+                date: new Date(item.unlockedAt).toLocaleDateString(intlLocale),
+              })}
+            </Text>
+          </View>
+        )}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvas },
+  headerBlock: {
+    gap: space.sm,
+    marginBottom: space.md,
+  },
   title: {
-    marginTop: space.lg,
-    marginHorizontal: space.screenHorizontal,
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle,
     color: colors.primaryGreen80,
   },
   meta: {
-    marginHorizontal: space.screenHorizontal,
-    marginTop: space.md,
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,
     color: colors.bodyMuted,
   },
   error: {
-    marginHorizontal: space.screenHorizontal,
-    marginTop: space.sm,
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,
     color: colors.warmBrown,
   },
   list: {
-    paddingHorizontal: space.screenHorizontal,
-    paddingTop: space.md,
-    paddingBottom: space.xxl,
     gap: space.md,
   },
   card: {

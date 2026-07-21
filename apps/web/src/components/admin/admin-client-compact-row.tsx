@@ -23,6 +23,7 @@ import {
 } from "@/components/admin/admin-clients-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
+import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateCompactForUi, formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
@@ -31,7 +32,9 @@ type AdminClientCompactRowProps = {
   row: ClientRow;
   onSelect: (row: ClientRow) => void;
   onChanged: () => void;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: ClientCapabilities;
 };
 
 export function AdminClientCompactRow({
@@ -39,9 +42,11 @@ export function AdminClientCompactRow({
   onSelect,
   onChanged,
   readOnly = false,
+  capabilities,
 }: AdminClientCompactRowProps) {
   const t = useTranslations("adminPages.clients");
   const name = fullName(row);
+  const hideActions = capabilities ? !capabilities.canUpdate : readOnly;
 
   return (
     <article
@@ -82,7 +87,7 @@ export function AdminClientCompactRow({
         <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
       </div>
 
-      {readOnly ? null : (
+      {hideActions ? null : (
         <div
           className={`${ADMIN_CLIENTS_LIST_ACTIONS_CELL} ${ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
           onClick={(event) => event.stopPropagation()}

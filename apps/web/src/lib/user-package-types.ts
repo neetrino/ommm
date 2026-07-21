@@ -38,6 +38,9 @@ export type UserPaymentRow = {
   paymentReference?: string | null;
   createdAt: string;
   updatedAt?: string;
+  /** Short code explaining PENDING/FAILED — see payment-status-reason.ts */
+  statusReason?: string | null;
+  metadata?: unknown;
 };
 
 export type UserPaymentsPayload = {

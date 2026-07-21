@@ -8,6 +8,7 @@ import type { ContentPostTranslationDto } from './dto/content-post-translation.d
 import type { UpsertPostDto } from './dto/upsert-post.dto';
 
 export type PublicContentPost = {
+  id: string;
   slug: string;
   title: string;
   excerpt: string | null;
@@ -31,6 +32,7 @@ export type NormalizedContentTranslation = {
 
 export function toPublicPost(
   post: {
+    id: string;
     type: ContentType;
     publishedAt: Date | null;
     authorName: string | null;
@@ -56,6 +58,7 @@ export function toPublicPost(
     return null;
   }
   return {
+    id: post.id,
     slug: translation?.slug ?? post.slug,
     title,
     excerpt: translation?.excerpt ?? post.excerpt,

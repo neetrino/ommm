@@ -13,6 +13,22 @@
     "sessionDurationMinutes": "{minutes} min",
     "sessionCoach": "Coach"
   },
+  "paymentStatusReasons": {
+    "awaiting_bank": "Waiting for payment",
+    "bank_processing": "Processing at bank",
+    "session_expired": "Payment session expired",
+    "card_declined": "Card declined",
+    "insufficient_funds": "Insufficient funds",
+    "checkout_not_started": "Bank page not opened",
+    "register_failed": "Could not open bank",
+    "abandoned": "Checkout abandoned",
+    "duplicate_attempt": "Duplicate attempt",
+    "reversed": "Cancelled by bank",
+    "refunded": "Refunded",
+    "awaiting_cash": "Awaiting cash",
+    "admin_rejected": "Rejected by studio",
+    "unknown": "Status unknown"
+  },
   "headerNotifications": {
     "title": "Notifications",
     "triggerAria": "Notifications{count, plural, =0 {} other {, {count} unread}}",
@@ -512,14 +528,20 @@
         "profile": "Profile"
       },
       "MANAGER": {
+        "dashboard": "Dashboard",
         "home": "Home",
-        "schedule": "Schedule",
-        "classes": "Classes",
         "bookings": "Bookings",
         "waitlists": "Waitlists",
         "clients": "Clients",
         "coaches": "Coaches",
-        "giftCards": "Gift cards",
+        "schedule": "Schedule",
+        "classes": "Classes",
+        "packages": "Packages",
+        "giftCards": "Gift Cards",
+        "notificationManagement": "Notification",
+        "notifications": "Notifications",
+        "content": "Content",
+        "settings": "Settings",
         "profile": "Profile"
       },
       "CONTENT_ADMIN": {
@@ -599,11 +621,16 @@
       "manager": {
         "home": "Operations snapshot for your studio.",
         "classes": "Schedule and capacity across rooms.",
+        "schedule": "Public schedule cards shown on Home and Schedule pages.",
         "bookings": "Bookings that need attention.",
         "waitlists": "Waitlist queues by session.",
         "coaches": "Coach assignments and availability.",
         "clients": "Member roster for the studio.",
+        "packages": "Membership plans, pricing, and packages.",
         "giftCards": "Issued cards and balances (view and resend where allowed).",
+        "notifications": "Broadcast messages to members and staff.",
+        "content": "Posts, publishing status, and slugs.",
+        "settings": "Studio policy, contacts, and operational defaults.",
         "profile": "Your manager account summary and operational guidance."
       },
       "contentAdmin": {
@@ -3782,10 +3809,9 @@
       "signInRequired": "Sign in to open the manager workspace.",
       "greeting": "Hi{name}",
       "nextStepsTitle": "Next steps",
-      "nextStepsBody": "Manage classes, bookings, waitlists, clients, coaches, and gift cards. Billing and studio-level settings remain admin-only."
+      "nextStepsBody": "Full operational access: bookings, waitlists, clients, coaches, schedule, packages, gift cards, notifications, content, and studio settings. Finance and analytics remain admin-only; permanent deletes are restricted."
     },
     "clients": {
-      "readOnlyHint": "Member directory — same compact rows as admin. Open a client to view details; edits stay in admin CRM.",
       "roleClient": "Client"
     },
     "bookings": {
@@ -3799,15 +3825,12 @@
       "colOfferExpires": "Offer expires"
     },
     "coaches": {
-      "readOnlyHint": "Directory view (read-only). Edit and lifecycle actions are in admin CRM.",
       "colPhone": "Phone",
       "colSpecialization": "Specialization"
     },
-    "giftCards": {
-      "readOnlyHint": "View issued cards and balances. Creating or deactivating cards stays with studio administrators."
-    },
+    "giftCards": {},
     "classes": {
-      "scheduleWindowHint": "Same schedule window as admin ({days} days). Create and edit sessions remain in the admin tools when needed.",
+      "scheduleWindowHint": "Same schedule window as admin ({days} days).",
       "loadSessionsFailed": "Could not load sessions ({status}).",
       "sessionsEmpty": "No sessions in this window."
     }

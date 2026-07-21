@@ -1,8 +1,8 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GradientBackdrop } from "../../components/layout/GradientBackdrop";
+import { useScreenChromeInsets } from "../../components/layout/useScreenChrome";
 import { fontFamilies } from "../../theme/fontFamilies";
-import { colors, layout, space, typography } from "../../theme/tokens";
+import { colors, space, typography } from "../../theme/tokens";
 
 type PlaceholderTabScreenProps = {
   title: string;
@@ -13,9 +13,11 @@ export function PlaceholderTabScreen({
   title,
   subtitle,
 }: PlaceholderTabScreenProps) {
-  const insets = useSafeAreaInsets();
-  const bottomPad =
-    layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.lg;
+  const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
+    useScreenChromeInsets({
+      header: "safe",
+      contentGap: space.lg,
+    });
 
   return (
     <View style={styles.root}>
@@ -23,7 +25,7 @@ export function PlaceholderTabScreen({
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: bottomPad },
+          { paddingTop, paddingBottom, paddingLeft, paddingRight },
         ]}
         keyboardShouldPersistTaps="handled"
       >
@@ -41,8 +43,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingHorizontal: space.screenHorizontal,
-    paddingTop: space.xxl,
     gap: space.md,
   },
   title: {

@@ -14,9 +14,14 @@ import {
 } from "@/components/shared/content/content-post-types";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmButton } from "@/components/ui/omm-button";
+import {
+  adminContentCapabilities,
+  type ContentCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 type ContentPostsManagementProps = {
   items: ContentPostRow[];
+  capabilities?: ContentCapabilities;
 };
 
 function AddPostGlyph({ className }: { className?: string }) {
@@ -37,7 +42,8 @@ function AddPostGlyph({ className }: { className?: string }) {
   );
 }
 
-export function ContentPostsManagement({ items }: ContentPostsManagementProps) {
+export function ContentPostsManagement({ items, capabilities }: ContentPostsManagementProps) {
+  const caps = capabilities ?? adminContentCapabilities();
   const t = useTranslations("contentAdminPages.content");
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -161,16 +167,18 @@ export function ContentPostsManagement({ items }: ContentPostsManagementProps) {
         }
         trailing={
           <>
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={openCreate}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-            >
-              <AddPostGlyph className="h-5 w-5 shrink-0" />
-              {t("createButton")}
-            </OmmButton>
+            {caps.canCreate ? (
+              <OmmButton
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={openCreate}
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+              >
+                <AddPostGlyph className="h-5 w-5 shrink-0" />
+                {t("createButton")}
+              </OmmButton>
+            ) : null}
             {activeFilterCount > 0 ? (
               <p className="whitespace-nowrap text-xs text-sage-500" role="status">
                 {t("activeFilterCount", { count: activeFilterCount })}
@@ -204,6 +212,7 @@ export function ContentPostsManagement({ items }: ContentPostsManagementProps) {
         post={selectedPost}
         onClose={closeSheet}
         onChanged={handleChanged}
+        capabilities={caps}
       />
     </div>
   );

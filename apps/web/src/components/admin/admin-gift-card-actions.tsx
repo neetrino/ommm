@@ -22,6 +22,7 @@ type AdminGiftCardActionsProps = {
   allowDelete: boolean;
   hideLifecycleActions?: boolean;
   showHistoryButton?: boolean;
+  hideAssign?: boolean;
   locale: string;
   assignableUsers: readonly AdminAssignableUser[];
   onChanged: () => void;
@@ -35,6 +36,7 @@ export function AdminGiftCardActions({
   allowDelete,
   hideLifecycleActions = false,
   showHistoryButton = true,
+  hideAssign = false,
   locale,
   assignableUsers,
   onChanged,
@@ -163,6 +165,7 @@ export function AdminGiftCardActions({
   return (
     <>
       <div className="flex min-w-[11rem] flex-col gap-3">
+        {hideAssign ? null : (
         <div className="flex flex-col gap-3 rounded-[20px] border border-white/60 bg-white/70 p-4">
           <label className="ommm-label text-xs uppercase tracking-wide">{t("assignLabel")}</label>
           <DropdownSelect
@@ -203,6 +206,7 @@ export function AdminGiftCardActions({
             {t("assign")}
           </OmmButton>
         </div>
+        )}
         <div className="flex flex-wrap gap-2">
           {showHistoryButton ? (
             <OmmButton

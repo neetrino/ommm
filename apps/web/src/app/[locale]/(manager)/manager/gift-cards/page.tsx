@@ -7,8 +7,10 @@ import {
   parseAdminGiftCardsPageParams,
   type AdminGiftCardsListPayload,
 } from "@/components/admin/admin-gift-cards-query";
+import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
 import { parseGiftCardFiltersFromSearch } from "@/components/admin/admin-gift-cards-url";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { managerGiftCardCapabilities } from "@/lib/backoffice-capabilities";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function ManagerGiftCardsPage({
@@ -21,7 +23,6 @@ export default async function ManagerGiftCardsPage({
   const { locale } = await params;
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
-  const tManager = await getTranslations({ locale, namespace: "managerPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
   const normalizedSearch = Object.fromEntries(
     Object.entries(search).map(([key, value]) => [
@@ -36,7 +37,10 @@ export default async function ManagerGiftCardsPage({
     listPage.offset,
     initialFilters,
   );
-  const res = await serverApiJson<AdminGiftCardsListPayload>(batchesEndpoint, cookie);
+  const [res, usersRes] = await Promise.all([
+    serverApiJson<AdminGiftCardsListPayload>(batchesEndpoint, cookie),
+    serverApiJson<AdminAssignableUser[]>("/gift-cards/admin/users", cookie),
+  ]);
 
   if (!res.ok) {
     return (
@@ -55,12 +59,10 @@ export default async function ManagerGiftCardsPage({
       <Suspense fallback={null}>
         <AdminGiftCardsManagement
           initial={res.data}
-          assignableUsers={[]}
+          assignableUsers={usersRes.ok ? usersRes.data : []}
           locale={locale}
           initialFilters={initialFilters}
-          variant="staff"
-          staffBanner={tManager("readOnlyHint")}
-          readOnly
+          capabilities={managerGiftCardCapabilities()}
         />
       </Suspense>
     </AdminContentFrame>

@@ -37,17 +37,25 @@ function buildBookingsTrendQuery(fromIso: string, toIso: string): string {
   return `/bookings/admin/management?${params.toString()}`;
 }
 
-/** Loads a lightweight 7-day trend for the admin dashboard charts. */
+type LoadDashboardTrendOptions = {
+  includeFinance?: boolean;
+};
+
+/** Loads a lightweight 7-day trend for the admin/manager dashboard charts. */
 export async function loadDashboardTrendData(
   locale: string,
   cookie: string,
+  options: LoadDashboardTrendOptions = {},
 ): Promise<AnalyticsDailyBucket[]> {
+  const includeFinance = options.includeFinance !== false;
   const { fromIso, toIso } = resolveTrendRange();
   const financeQuery = `/reports/finance/summary?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`;
   const bookingsQuery = buildBookingsTrendQuery(fromIso, toIso);
 
   const [financeRes, bookingsRes] = await Promise.all([
-    serverApiJson<FinanceSummaryResponse>(financeQuery, cookie),
+    includeFinance
+      ? serverApiJson<FinanceSummaryResponse>(financeQuery, cookie)
+      : Promise.resolve({ ok: true as const, data: { dailyRevenue: [] } }),
     serverApiJson<BookingsSampleResponse>(bookingsQuery, cookie),
   ]);
 
@@ -64,6 +72,6 @@ export async function loadDashboardTrendData(
     toIso,
     locale,
     bookingRows,
-    financeRes.data.dailyRevenue ?? [],
+    includeFinance ? (financeRes.data.dailyRevenue ?? []) : [],
   );
 }

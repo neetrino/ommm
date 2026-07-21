@@ -9,6 +9,10 @@ import {
 import { SkipThrottle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import type { Response } from 'express';
+import {
+  BACKOFFICE_DELETE_ROLES,
+  BACKOFFICE_READ_ROLES,
+} from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -25,24 +29,24 @@ export class ReportsController {
 
   @Get('dashboard')
   @SkipThrottle()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_READ_ROLES)
   dashboard(
     @CurrentUser() user: { role: Role },
     @Query('includeRevenue') includeRevenue?: string,
     @Query('includeOverview') includeOverview?: string,
   ) {
+    /** Finance KPIs stay Admin-only; operational overview is available to Manager. */
     const canSeeRevenue = user.role === Role.ADMIN;
     const requestedRevenue = includeRevenue === 'true';
-    const canSeeOverview = user.role === Role.ADMIN;
     const requestedOverview = includeOverview === 'true';
     return this.reports.dashboard({
       includeRevenue: canSeeRevenue && requestedRevenue,
-      includeOverview: canSeeOverview && requestedOverview,
+      includeOverview: requestedOverview,
     });
   }
 
   @Get('bookings.csv')
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   async bookingsCsv(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -63,13 +67,13 @@ export class ReportsController {
 
   @Get('finance/summary')
   @SkipThrottle()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   financeSummary(@Query() query: DateRangeQueryDto) {
     return this.reports.financeSummary(query);
   }
 
   @Get('payments.csv')
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   async paymentsCsv(@Query() query: DateRangeQueryDto, @Res() res: Response) {
     if (query.from && Number.isNaN(new Date(query.from).getTime())) {
       throw new BadRequestException('Invalid date range');
@@ -86,7 +90,7 @@ export class ReportsController {
   }
 
   @Get('gift-credits.csv')
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   async giftCreditsCsv(
     @Query() query: DateRangeQueryDto,
     @Res() res: Response,

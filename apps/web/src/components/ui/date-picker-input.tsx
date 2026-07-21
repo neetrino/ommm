@@ -269,8 +269,8 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
 
   const clearDateControl =
     selectedDate !== null ? (
-      <button
-        type="button"
+      <span
+        role="button"
         tabIndex={disabled ? -1 : 0}
         className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[15px] leading-none text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700"
         onClick={(event) => {
@@ -279,10 +279,20 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
             onChange("");
           }
         }}
+        onKeyDown={(event) => {
+          if (disabled) {
+            return;
+          }
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            event.stopPropagation();
+            onChange("");
+          }
+        }}
         aria-label="Clear date"
       >
         x
-      </button>
+      </span>
     ) : null;
 
   const calendarTrigger = showCalendarTrigger ? (

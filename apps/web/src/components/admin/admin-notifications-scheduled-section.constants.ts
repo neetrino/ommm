@@ -44,4 +44,5 @@ export type AdminNotificationsScheduledSectionProps = {
   loadFailed: boolean;
   initialFilters: ScheduledListFilters;
   onRefresh: () => void;
+  canCancelScheduled?: boolean;
 };

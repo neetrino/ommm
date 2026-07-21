@@ -1,4 +1,5 @@
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
 import {
@@ -29,6 +30,7 @@ export function PackageSubscribeSheet({
 }: PackageSubscribeSheetProps) {
   const packagesCopy = usePackagesCopy();
   const displayCopy = usePackageDisplayCopy();
+  const insets = useSafeAreaInsets();
 
   if (plan === null) {
     return null;
@@ -47,40 +49,53 @@ export function PackageSubscribeSheet({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={busy ? undefined : onClose}>
-        <Pressable style={styles.sheet} onPress={(event) => event.stopPropagation()}>
-          <Text style={styles.title}>{packagesCopy.subscribeTitle}</Text>
-          <Text style={styles.planName}>{packageName}</Text>
-          <View style={styles.metaList}>
-            <Text style={styles.metaLine}>{priceLabel}</Text>
-            {validityLabel !== null ? (
-              <Text style={styles.metaMuted}>{validityLabel}</Text>
-            ) : null}
-          </View>
-          {error !== null ? <Text style={styles.error}>{error}</Text> : null}
-          <View style={styles.actions}>
-            <Pressable
-              onPress={onClose}
-              disabled={busy}
-              style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-              accessibilityRole="button"
-            >
-              <Text style={styles.secondaryLabel}>{packagesCopy.detailsClose}</Text>
-            </Pressable>
-            <Pressable
-              onPress={onConfirm}
-              disabled={busy}
-              style={({ pressed }) => [
-                styles.primaryButton,
-                busy && styles.primaryDisabled,
-                pressed && !busy && styles.pressed,
-              ]}
-              accessibilityRole="button"
-            >
-              <Text style={styles.primaryLabel}>
-                {busy ? packagesCopy.loading : packagesCopy.subscribeConfirm}
-              </Text>
-            </Pressable>
-          </View>
+        <Pressable
+          style={[
+            styles.sheet,
+            { paddingBottom: Math.max(insets.bottom, space.sm) + space.lg },
+          ]}
+          onPress={(event) => event.stopPropagation()}
+        >
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            contentContainerStyle={styles.sheetContent}
+          >
+            <Text style={styles.title}>{packagesCopy.subscribeTitle}</Text>
+            <Text style={styles.planName}>{packageName}</Text>
+            <View style={styles.metaList}>
+              <Text style={styles.metaLine}>{priceLabel}</Text>
+              {validityLabel !== null ? (
+                <Text style={styles.metaMuted}>{validityLabel}</Text>
+              ) : null}
+            </View>
+            {error !== null ? <Text style={styles.error}>{error}</Text> : null}
+            <View style={styles.actions}>
+              <Pressable
+                onPress={onClose}
+                disabled={busy}
+                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.secondaryLabel}>{packagesCopy.detailsClose}</Text>
+              </Pressable>
+              <Pressable
+                onPress={onConfirm}
+                disabled={busy}
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  busy && styles.primaryDisabled,
+                  pressed && !busy && styles.pressed,
+                ]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.primaryLabel}>
+                  {busy ? packagesCopy.loading : packagesCopy.subscribeConfirm}
+                </Text>
+              </Pressable>
+            </View>
+          </ScrollView>
         </Pressable>
       </Pressable>
     </Modal>
@@ -99,8 +114,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
     paddingHorizontal: space.lg,
     paddingTop: space.lg,
-    paddingBottom: space.xl,
+    maxHeight: "85%",
+  },
+  sheetContent: {
     gap: space.md,
+    paddingBottom: space.sm,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,

@@ -43,6 +43,7 @@ export function CoachHomeScreen() {
           displayName={userGreetingName}
           avatarImageUri={homeImageUri}
           avatarInitials={profileInitials}
+          insetHorizontal={false}
         />
         <CoachStateCard message={t("noProfile")} />
       </CoachScreenShell>
@@ -56,6 +57,7 @@ export function CoachHomeScreen() {
           displayName={userGreetingName}
           avatarImageUri={homeImageUri}
           avatarInitials={profileInitials}
+          insetHorizontal={false}
         />
         <CoachStateCard
           message={state.message || t("loadFailed")}
@@ -84,6 +86,7 @@ export function CoachHomeScreen() {
         displayName={userGreetingName}
         avatarImageUri={homeImageUri}
         avatarInitials={profileInitials}
+        insetHorizontal={false}
       />
 
       <Text style={styles.sectionTitle}>{t("todayAtGlance")}</Text>

@@ -27,6 +27,7 @@ import {
 } from './arca-result-paths';
 import { mapArcaSyncOutcomeToRedirect } from './arca-callback.util';
 import type { ArcaSyncOutcome, ArcaRegisterResponse } from './arca.types';
+import { PAYMENT_STATUS_REASON } from '../payment-status-reason';
 
 const SUPPORTED_ARCA_LOCALES = new Set(['hy', 'ru', 'en']);
 
@@ -123,6 +124,8 @@ export class ArcaService {
           checkoutSource,
 
           arcaRegisterAttempt: attempt,
+
+          statusReason: PAYMENT_STATUS_REASON.AWAITING_BANK,
         }),
       },
     });

@@ -1,9 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ManualPaymentMethod,
   PaymentSource,
   PaymentStatus,
+  UserPackageStatus,
+  type PackagePlan,
 } from '@prisma/client';
 import {
   PUBLIC_CACHE_KEYS,
@@ -11,7 +19,10 @@ import {
 } from '../cache/public-cache-keys';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ArcaService } from '../payments/arca/arca.service';
+import { readArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
+import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import {
@@ -25,20 +36,27 @@ import {
   decrementPackagePlanStock,
   packageHasPublicStock,
 } from './packages-stock.helpers';
-import { USER_PACKAGE_STATUS } from './packages-plan.types';
-import { createBalancesForUserPackage } from './packages-user-package-balances.util';
 import {
-  buildUserPackagePlanSnapshot,
-  resolveUserPackagePlan,
-} from './user-package-plan-snapshot.util';
-import { resolveUserPackagePeriodBounds } from './user-package-period.util';
+  buildUserPackageCreateData,
+  createPendingCardPackagePurchase,
+  failDuplicatePendingCardPurchases,
+  failPendingCardPackagePurchase,
+  findPendingCardPackagePurchase,
+  type PendingCardPackagePurchase,
+} from './packages-subscribe-card.util';
+import { createBalancesForUserPackage } from './packages-user-package-balances.util';
+import { resolveUserPackagePlan } from './user-package-plan-snapshot.util';
 
 @Injectable()
 export class PackagesPublicService {
+  private readonly logger = new Logger(PackagesPublicService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly cache: RedisCacheService,
+    @Inject(forwardRef(() => ArcaService))
+    private readonly arca: ArcaService,
   ) {}
 
   async listPlans() {
@@ -96,38 +114,129 @@ export class PackagesPublicService {
       throw new NotFoundException('Package plan not found');
     }
     assertPackageHasAvailableStock(plan);
-    const now = new Date();
-    const { currentPeriodStart, currentPeriodEnd } =
-      resolveUserPackagePeriodBounds({
-        planStartDate: plan.startDate,
-        purchasedAt: now,
-        periodDays: plan.periodDays,
-      });
-    const paymentReference = createPaymentReference('PACKAGE');
-    const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
 
+    const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
+    if (isCardPayment && isArcaCheckoutEnabled(this.config)) {
+      return this.subscribeCardWithArca(userId, plan, dto.locale);
+    }
+
+    return this.subscribeWithoutArcaRedirect(userId, plan, isCardPayment);
+  }
+
+  private async subscribeCardWithArca(
+    userId: string,
+    plan: PackagePlan,
+    locale?: string,
+  ) {
+    const resolved = await this.resolveCardPurchase(userId, plan);
+    try {
+      const { redirectUrl } = await this.arca.initPayment({
+        userId,
+        paymentReference: resolved.purchase.paymentReference,
+        locale,
+      });
+      return {
+        id: resolved.purchase.userPackageId,
+        paymentReference: resolved.purchase.paymentReference,
+        requiresArcaCheckout: true,
+        redirectUrl,
+      };
+    } catch (error) {
+      await this.compensateFailedArcaInit(resolved);
+      throw error;
+    }
+  }
+
+  private async resolveCardPurchase(
+    userId: string,
+    plan: PackagePlan,
+  ): Promise<{ purchase: PendingCardPackagePurchase; created: boolean }> {
+    const resolved = await this.prisma.$transaction(async (tx) => {
+      const existing = await findPendingCardPackagePurchase(
+        tx,
+        userId,
+        plan.id,
+      );
+      if (existing !== null) {
+        return { purchase: existing, created: false };
+      }
+      const purchase = await createPendingCardPackagePurchase(tx, {
+        userId,
+        plan,
+      });
+      return { purchase, created: true };
+    });
+
+    // Always keep the oldest pending for this plan; fail newer concurrent creates.
+    let canonical = await findPendingCardPackagePurchase(
+      this.prisma,
+      userId,
+      plan.id,
+    );
+    if (canonical === null) {
+      canonical = await this.prisma.$transaction((tx) =>
+        createPendingCardPackagePurchase(tx, { userId, plan }),
+      );
+      return { purchase: canonical, created: true };
+    }
+    await failDuplicatePendingCardPurchases(this.prisma, {
+      userId,
+      planId: plan.id,
+      keepPaymentId: canonical.paymentId,
+    });
+    return {
+      purchase: canonical,
+      created:
+        resolved.created && canonical.paymentId === resolved.purchase.paymentId,
+    };
+  }
+
+  private async compensateFailedArcaInit(resolved: {
+    purchase: PendingCardPackagePurchase;
+    created: boolean;
+  }): Promise<void> {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: resolved.purchase.paymentId },
+      select: { metadata: true },
+    });
+    const alreadyRegistered =
+      readArcaMetadata(payment?.metadata ?? null).provider === 'arca';
+    if (alreadyRegistered && !resolved.created) {
+      this.logger.warn(
+        `Arca re-init failed for payment ${resolved.purchase.paymentId}; keeping existing bank order`,
+      );
+      return;
+    }
+    await failPendingCardPackagePurchase(this.prisma, {
+      paymentId: resolved.purchase.paymentId,
+      userPackageId: resolved.purchase.userPackageId,
+    });
+    this.logger.warn(
+      `Arca init failed for package payment ${resolved.purchase.paymentId}; marked FAILED/CANCELLED`,
+    );
+  }
+
+  private async subscribeWithoutArcaRedirect(
+    userId: string,
+    plan: PackagePlan,
+    isCardPayment: boolean,
+  ) {
+    const paymentReference = createPaymentReference('PACKAGE');
     const created = await this.prisma.$transaction(async (tx) => {
       const userPackage = await tx.userPackage.create({
-        data: {
+        data: buildUserPackageCreateData({
           userId,
-          planId: plan.id,
-          ...buildUserPackagePlanSnapshot(plan),
+          plan,
           status: isCardPayment
-            ? USER_PACKAGE_STATUS.PENDING
-            : USER_PACKAGE_STATUS.ACTIVE,
-          currentPeriodStart,
-          currentPeriodEnd,
-          sessionsTotal: plan.isUnlimited ? null : (plan.sessionsPerMonth ?? 0),
-          sessionsRemaining: plan.isUnlimited
-            ? null
-            : (plan.sessionsPerMonth ?? 0),
-        },
+            ? UserPackageStatus.PENDING
+            : UserPackageStatus.ACTIVE,
+        }),
       });
       await createBalancesForUserPackage(tx, {
         plan,
         userPackageId: userPackage.id,
       });
-      const payment = await tx.payment.create({
+      await tx.payment.create({
         data: {
           userId,
           amountCents: resolveFinalPriceCents(plan),
@@ -140,7 +249,16 @@ export class PackagesPublicService {
           sourceId: userPackage.id,
           description: buildPackagePaymentDescription(plan.name),
           confirmedAt: isCardPayment ? null : new Date(),
-          paymentMethod: dto.paymentMethod,
+          paymentMethod: isCardPayment
+            ? ManualPaymentMethod.CARD
+            : ManualPaymentMethod.CASH,
+          ...(isCardPayment
+            ? {
+                metadata: {
+                  statusReason: PAYMENT_STATUS_REASON.CHECKOUT_NOT_STARTED,
+                },
+              }
+            : {}),
         },
       });
       if (!isCardPayment) {
@@ -148,7 +266,7 @@ export class PackagesPublicService {
       }
       return {
         userPackageId: userPackage.id,
-        paymentReference: payment.paymentReference,
+        paymentReference,
         stockTracked: !isCardPayment && plan.availableQuantity !== null,
       };
     });
@@ -160,7 +278,7 @@ export class PackagesPublicService {
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
-      requiresArcaCheckout: isCardPayment && isArcaCheckoutEnabled(this.config),
+      requiresArcaCheckout: false,
     };
   }
 

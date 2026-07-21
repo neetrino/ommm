@@ -39,9 +39,9 @@ export default async function ManagerSectionLayout({
   return (
     <WorkspaceShellFromAuth
       authUser={authOutcome.auth.authUser}
-      brandHref="/manager/home"
-      brandLabel={tDash("brand.manager.title")}
-      brandSubline={tDash("brand.manager.subline")}
+      brandHref="/manager/dashboard"
+      brandLabel={tDash("brand.admin.title")}
+      brandSubline={tDash("brand.admin.subline")}
       variant="admin"
       contentMaxClass="w-full"
       navRole="MANAGER"

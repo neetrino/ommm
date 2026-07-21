@@ -28,7 +28,7 @@ export function ExploreSection({
       <View style={styles.tileGrid}>
         {tiles.map((tile, columnIndex) => (
           <ExploreTileColumn
-            key={tile.id}
+            key={tile.id || `explore-tile-${columnIndex}`}
             tile={tile}
             columnIndex={columnIndex}
             scale={exploreScale}

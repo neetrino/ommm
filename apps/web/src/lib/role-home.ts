@@ -20,7 +20,7 @@ export const ADMIN_HOME_PATH = "/admin/dashboard";
 export const CONTENT_ADMIN_HOME_PATH = "/content-admin/home";
 
 /** Operations / studio manager workspace. */
-export const MANAGER_HOME_PATH = "/manager/home";
+export const MANAGER_HOME_PATH = "/manager/dashboard";
 
 /** Coach schedule and roster home. */
 export const COACH_HOME_PATH = "/coach/home";

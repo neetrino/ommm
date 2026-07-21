@@ -11,7 +11,10 @@ import {
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { User } from '@prisma/client';
-import { Role } from '@prisma/client';
+import {
+  BACKOFFICE_DELETE_ROLES,
+  BACKOFFICE_WRITE_ROLES,
+} from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -28,7 +31,7 @@ import { ClientsTabListsService } from './clients-tab-lists.service';
 
 @Controller('clients')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.MANAGER)
+@Roles(...BACKOFFICE_WRITE_ROLES)
 export class ClientsController {
   constructor(
     private readonly clients: ClientsService,
@@ -44,7 +47,7 @@ export class ClientsController {
   }
 
   @Post()
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   create(@CurrentUser() user: User, @Body() dto: AdminCreateClientDto) {
     return this.clients.create(user, dto);
   }
@@ -80,7 +83,7 @@ export class ClientsController {
   }
 
   @Post(':id/packages/purchase')
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   purchasePackage(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -114,7 +117,7 @@ export class ClientsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
   remove(@CurrentUser() user: User, @Param('id') id: string) {
     return this.clients.remove(user, id);
   }

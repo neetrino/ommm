@@ -26,9 +26,9 @@ import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 type AdminPackagesCategoryTableProps = {
   packages: readonly AdminPackageRow[];
   locale: string;
-  onAddTier: () => void;
+  onAddTier?: () => void;
   onEditPackage: (packageId: string) => void;
-  onDeletePackage: (packageId: string) => void;
+  onDeletePackage?: (packageId: string) => void;
   onPackageStatusUpdated: (saved: AdminPackageRow) => void;
 };
 
@@ -185,7 +185,9 @@ export function AdminPackagesCategoryTable({
                       />
                       <AdminPackageRowMenu
                         onEdit={() => onEditPackage(pkg.id)}
-                        onDeletePackage={() => onDeletePackage(pkg.id)}
+                        onDeletePackage={
+                          onDeletePackage ? () => onDeletePackage(pkg.id) : undefined
+                        }
                       />
                     </div>
                   </div>
@@ -205,28 +207,30 @@ export function AdminPackagesCategoryTable({
           onPageChange={setPage}
         />
       ) : null}
-      <div className="flex justify-center border-t border-[rgba(212,196,183,0.15)] px-1 py-5">
-        <button
-          type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-sand-300/80 bg-white text-sage-700 shadow-[0_8px_20px_-14px_rgba(45,40,35,0.35)] transition-colors hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
-          aria-label={t("addPageAria")}
-          title={t("addPageButton")}
-          onClick={onAddTier}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.9}
-            strokeLinecap="round"
-            className="h-5 w-5"
-            aria-hidden
+      {onAddTier ? (
+        <div className="flex justify-center border-t border-[rgba(212,196,183,0.15)] px-1 py-5">
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-sand-300/80 bg-white text-sage-700 shadow-[0_8px_20px_-14px_rgba(45,40,35,0.35)] transition-colors hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+            aria-label={t("addPageAria")}
+            title={t("addPageButton")}
+            onClick={onAddTier}
           >
-            <path d="M12 4v16M4 12h16" />
-          </svg>
-        </button>
-      </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.9}
+              strokeLinecap="round"
+              className="h-5 w-5"
+              aria-hidden
+            >
+              <path d="M12 4v16M4 12h16" />
+            </svg>
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

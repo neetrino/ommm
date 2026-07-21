@@ -15,6 +15,7 @@ import {
   AdminFinancePaymentStatusPicker,
   type AdminUpdatablePaymentStatus,
 } from "@/components/admin/admin-finance-payment-status-picker";
+import { PaymentStatusReasonText } from "@/components/shared/payment-status-reason-text";
 import {
   ADMIN_FINANCE_PAYMENTS_LIST_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL,
@@ -139,12 +140,15 @@ export function AdminFinancePaymentCompactRow({
         onKeyDown={(event) => event.stopPropagation()}
       >
         <AdminListMobileLabel label={tTable("colStatus")} />
-        <AdminFinancePaymentStatusPicker
-          status={row.status}
-          paymentMethod={row.paymentMethod}
-          busy={busy}
-          onChangeStatus={onChangeStatus}
-        />
+        <div className="flex flex-col items-start">
+          <AdminFinancePaymentStatusPicker
+            status={row.status}
+            paymentMethod={row.paymentMethod}
+            busy={busy}
+            onChangeStatus={onChangeStatus}
+          />
+          <PaymentStatusReasonText status={row.status} reason={row.statusReason} />
+        </div>
       </div>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL}>

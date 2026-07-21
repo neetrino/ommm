@@ -28,6 +28,10 @@ import {
 import type { AdminGiftCardsListPayload } from "@/components/admin/admin-gift-cards-query";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import {
+  adminGiftCardCapabilities,
+  type GiftCardCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 type AdminGiftCardsManagementProps = {
   initial: AdminGiftCardsListPayload;
@@ -36,7 +40,9 @@ type AdminGiftCardsManagementProps = {
   initialFilters: GiftCardFilterValues;
   variant?: "full" | "staff";
   staffBanner?: string;
+  /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
+  capabilities?: GiftCardCapabilities;
 };
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -49,8 +55,24 @@ export function AdminGiftCardsManagement({
   variant = "full",
   staffBanner,
   readOnly = false,
+  capabilities,
 }: AdminGiftCardsManagementProps) {
+  const caps =
+    capabilities ??
+    (readOnly
+      ? {
+          ...adminGiftCardCapabilities(),
+          canCreate: false,
+          canUpdate: false,
+          canDelete: false,
+          canAssign: false,
+          canActivate: false,
+          canDeactivate: false,
+          canResend: false,
+        }
+      : adminGiftCardCapabilities());
   const isStaff = variant === "staff";
+  const effectiveReadOnly = !caps.canUpdate;
   const t = useTranslations("adminPages.giftCards");
   const router = useRouter();
   const pathname = usePathname();
@@ -213,7 +235,7 @@ export function AdminGiftCardsManagement({
       giftCards={giftCards}
       variant={variant}
       staffBanner={staffBanner}
-      readOnly={readOnly || isStaff}
+      readOnly={effectiveReadOnly || isStaff}
       filterProps={{
         values: filters,
         activeFilterCount,
@@ -228,7 +250,7 @@ export function AdminGiftCardsManagement({
           <AdminGiftCardsDirectory
             cards={giftCards}
             locale={locale}
-            readOnly={readOnly || isStaff}
+            readOnly={effectiveReadOnly || isStaff}
             onSelect={selectGiftCard}
             onEdit={openEditModal}
             onChanged={handleChanged}
@@ -248,7 +270,8 @@ export function AdminGiftCardsManagement({
         card={selectedGiftCard}
         locale={locale}
         assignableUsers={assignableUsers}
-        readOnly={readOnly || isStaff}
+        readOnly={effectiveReadOnly || isStaff}
+        capabilities={caps}
         onClose={closeGiftCardDetails}
         onChanged={handleChanged}
       />
