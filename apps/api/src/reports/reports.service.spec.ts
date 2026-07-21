@@ -149,6 +149,47 @@ describe('ReportsService', () => {
     ]);
   });
 
+  it('dashboard overview without revenue omits finance payload', async () => {
+    const prismaMock = {
+      classSession: {
+        count: jest
+          .fn()
+          .mockResolvedValueOnce(1)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      booking: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      waitlistEntry: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+      },
+      payment: {
+        aggregate: jest.fn(),
+      },
+      user: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const result = await service.dashboard({
+      includeRevenue: false,
+      includeOverview: true,
+    });
+    assertDashboardOverview(result);
+
+    expect(result).not.toHaveProperty('revenue');
+    expect(result).not.toHaveProperty('revenueCentsTotal');
+    expect(prismaMock.payment.aggregate).not.toHaveBeenCalled();
+  });
+
   it('financeSummary returns aggregated totals, status and source breakdown', async () => {
     const prismaMock = {
       payment: {

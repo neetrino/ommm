@@ -51,7 +51,12 @@ export class ReportsDashboardService {
       return baseDashboard;
     }
 
-    const details = await this.getOverviewDetails(todayStart, todayEnd, now);
+    const details = await this.getOverviewDetails(
+      todayStart,
+      todayEnd,
+      now,
+      includeRevenue,
+    );
 
     return {
       ...baseDashboard,
@@ -121,10 +126,15 @@ export class ReportsDashboardService {
     todayStart: Date,
     todayEnd: Date,
     now: Date,
+    includeRevenue: boolean,
   ) {
     const monthStart = getMonthStart(now);
     const nextMonthStart = getNextMonthStart(now);
     const previousMonthStart = getPreviousMonthStart(now);
+    const emptyPaymentAgg = {
+      _sum: { amountCents: 0 },
+      _count: { id: 0 },
+    };
 
     const [
       todayClasses,
@@ -170,32 +180,40 @@ export class ReportsDashboardService {
         where: { status: WaitlistStatus.ACTIVE },
         _count: { id: true },
       }),
-      this.prisma.payment.aggregate({
-        where: {
-          status: PaymentStatus.SUCCEEDED,
-          createdAt: { gte: todayStart, lt: todayEnd },
-        },
-        _sum: { amountCents: true },
-      }),
-      this.prisma.payment.aggregate({
-        where: {
-          status: PaymentStatus.SUCCEEDED,
-          createdAt: { gte: monthStart, lt: nextMonthStart },
-        },
-        _sum: { amountCents: true },
-      }),
-      this.prisma.payment.aggregate({
-        where: {
-          status: PaymentStatus.SUCCEEDED,
-          createdAt: { gte: previousMonthStart, lt: monthStart },
-        },
-        _sum: { amountCents: true },
-      }),
-      this.prisma.payment.aggregate({
-        where: { status: PaymentStatus.PENDING },
-        _count: { id: true },
-        _sum: { amountCents: true },
-      }),
+      includeRevenue
+        ? this.prisma.payment.aggregate({
+            where: {
+              status: PaymentStatus.SUCCEEDED,
+              createdAt: { gte: todayStart, lt: todayEnd },
+            },
+            _sum: { amountCents: true },
+          })
+        : Promise.resolve(emptyPaymentAgg),
+      includeRevenue
+        ? this.prisma.payment.aggregate({
+            where: {
+              status: PaymentStatus.SUCCEEDED,
+              createdAt: { gte: monthStart, lt: nextMonthStart },
+            },
+            _sum: { amountCents: true },
+          })
+        : Promise.resolve(emptyPaymentAgg),
+      includeRevenue
+        ? this.prisma.payment.aggregate({
+            where: {
+              status: PaymentStatus.SUCCEEDED,
+              createdAt: { gte: previousMonthStart, lt: monthStart },
+            },
+            _sum: { amountCents: true },
+          })
+        : Promise.resolve(emptyPaymentAgg),
+      includeRevenue
+        ? this.prisma.payment.aggregate({
+            where: { status: PaymentStatus.PENDING },
+            _count: { id: true },
+            _sum: { amountCents: true },
+          })
+        : Promise.resolve(emptyPaymentAgg),
       this.prisma.booking.findMany({
         where: {
           status: BookingStatus.CANCELLED,
@@ -255,14 +273,6 @@ export class ReportsDashboardService {
       UPCOMING_ITEMS_LIMIT,
     );
 
-    const revenue = resolveRevenueSummary(
-      todayRevenueAgg._sum.amountCents ?? 0,
-      monthRevenueAgg._sum.amountCents ?? 0,
-      previousMonthRevenueAgg._sum.amountCents ?? 0,
-      pendingPaymentsAgg._sum.amountCents ?? 0,
-      pendingPaymentsAgg._count.id ?? 0,
-    );
-
     const upcomingCancellations = mapUpcomingBookingCancellations(
       upcomingBookingCancellations,
       UPCOMING_ITEMS_LIMIT,
@@ -274,7 +284,9 @@ export class ReportsDashboardService {
         (entry) => entry._count.id >= WAITLIST_ALERT_THRESHOLD,
       ).length,
       cancelledClassesToday,
-      pendingPaymentsCount: pendingPaymentsAgg._count.id ?? 0,
+      pendingPaymentsCount: includeRevenue
+        ? (pendingPaymentsAgg._count.id ?? 0)
+        : 0,
       draftClassesUpcoming,
       upcomingCancellationsCount: upcomingCancellations.length,
     });
@@ -282,7 +294,15 @@ export class ReportsDashboardService {
     return {
       bookingsByStatus,
       upcomingClasses,
-      revenue,
+      ...(includeRevenue && {
+        revenue: resolveRevenueSummary(
+          todayRevenueAgg._sum.amountCents ?? 0,
+          monthRevenueAgg._sum.amountCents ?? 0,
+          previousMonthRevenueAgg._sum.amountCents ?? 0,
+          pendingPaymentsAgg._sum.amountCents ?? 0,
+          pendingPaymentsAgg._count.id ?? 0,
+        ),
+      }),
       upcomingCancellations,
       newUsers: {
         todayCount: newUsersToday,

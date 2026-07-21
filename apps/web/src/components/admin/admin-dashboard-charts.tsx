@@ -19,12 +19,15 @@ type AdminDashboardChartsProps = {
   locale: string;
   dailyTrend: AnalyticsDailyBucket[];
   todayBookingsItems: readonly AnalyticsBarItem[];
+  /** Revenue chart + analytics deep-link — Admin only. */
+  includeFinance?: boolean;
 };
 
 export function AdminDashboardCharts({
   locale,
   dailyTrend,
   todayBookingsItems,
+  includeFinance = true,
 }: AdminDashboardChartsProps) {
   const t = useTranslations("adminHome.overview.charts");
 
@@ -35,24 +38,26 @@ export function AdminDashboardCharts({
 
   return (
     <div className="flex flex-col gap-4">
-      <AdminAnalyticsChartPanel title={t("revenueTitle")} hint={t("revenueHint")}>
-        <AdminAnalyticsAreaChart
-          data={trendChartData}
-          xKey="label"
-          series={[
-            {
-              key: "revenue",
-              label: t("revenueSeries"),
-              color: ANALYTICS_CHART_BLUE,
-              totalLabel: formatAmdFromCents(revenueTrendTotal, locale),
-            },
-          ]}
-          emptyLabel={t("empty")}
-          ariaLabel={t("revenueChartAria")}
-          valueFormatter={(value) => formatAmdFromCents(value, locale)}
-          chartClassName="h-[220px] sm:h-[240px]"
-        />
-      </AdminAnalyticsChartPanel>
+      {includeFinance ? (
+        <AdminAnalyticsChartPanel title={t("revenueTitle")} hint={t("revenueHint")}>
+          <AdminAnalyticsAreaChart
+            data={trendChartData}
+            xKey="label"
+            series={[
+              {
+                key: "revenue",
+                label: t("revenueSeries"),
+                color: ANALYTICS_CHART_BLUE,
+                totalLabel: formatAmdFromCents(revenueTrendTotal, locale),
+              },
+            ]}
+            emptyLabel={t("empty")}
+            ariaLabel={t("revenueChartAria")}
+            valueFormatter={(value) => formatAmdFromCents(value, locale)}
+            chartClassName="h-[220px] sm:h-[240px]"
+          />
+        </AdminAnalyticsChartPanel>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <AdminAnalyticsChartPanel title={t("bookingsTitle")} hint={t("bookingsHint")}>
@@ -82,12 +87,14 @@ export function AdminDashboardCharts({
         <AdminAnalyticsChartPanel
           title={t("todayBookingsTitle")}
           titleAction={
-            <Link
-              href="/admin/analytics/overview"
-              className="text-xs font-medium text-sage-500 underline-offset-4 transition hover:text-sage-900 hover:underline"
-            >
-              {t("viewAnalytics")}
-            </Link>
+            includeFinance ? (
+              <Link
+                href="/admin/analytics/overview"
+                className="text-xs font-medium text-sage-500 underline-offset-4 transition hover:text-sage-900 hover:underline"
+              >
+                {t("viewAnalytics")}
+              </Link>
+            ) : undefined
           }
         >
           <AdminAnalyticsDonutChart

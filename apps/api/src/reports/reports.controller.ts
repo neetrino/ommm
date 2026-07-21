@@ -35,13 +35,13 @@ export class ReportsController {
     @Query('includeRevenue') includeRevenue?: string,
     @Query('includeOverview') includeOverview?: string,
   ) {
+    /** Finance KPIs stay Admin-only; operational overview is available to Manager. */
     const canSeeRevenue = user.role === Role.ADMIN;
     const requestedRevenue = includeRevenue === 'true';
-    const canSeeOverview = user.role === Role.ADMIN;
     const requestedOverview = includeOverview === 'true';
     return this.reports.dashboard({
       includeRevenue: canSeeRevenue && requestedRevenue,
-      includeOverview: canSeeOverview && requestedOverview,
+      includeOverview: requestedOverview,
     });
   }
 
