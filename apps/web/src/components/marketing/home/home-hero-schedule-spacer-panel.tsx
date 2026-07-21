@@ -20,30 +20,52 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type HomeHeroScheduleSpacerPanelProps = {
   locale: string;
+  /** When true, sits under Weekly Schedule as the lower half of one yellow card. */
+  attachBelowSchedule?: boolean;
 };
 
 /**
- * Presale packages panel between hero video and Weekly Schedule — same shell and title type as schedule.
+ * Presale packages panel — under hero alone, or attached below Weekly Schedule (shared yellow card).
  */
-export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSpacerPanelProps) {
+export async function HomeHeroScheduleSpacerPanel({
+  locale,
+  attachBelowSchedule = false,
+}: HomeHeroScheduleSpacerPanelProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
+
+  const sectionBottomGap = attachBelowSchedule
+    ? HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionOuterPaddingBottom
+    : HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionBottomGap;
+  const sectionBottomGapLg = attachBelowSchedule
+    ? HOME_WEEKLY_SCHEDULE_LAYOUT.sectionOuterPaddingBottom
+    : HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionBottomGap;
 
   return (
     <section
       aria-labelledby="home-presale-packages-heading"
-      className={`${marketingMontserrat.variable} ${spacerStyles.section}`}
+      className={`${marketingMontserrat.variable} ${spacerStyles.section} ${
+        attachBelowSchedule ? spacerStyles.sectionAttached : ""
+      }`}
       style={{
-        ["--home-spacer-hero-overlap" as string]: HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionHeroOverlap,
-        ["--home-spacer-hero-overlap-lg" as string]:
-          HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionHeroOverlapLg,
-        ["--home-spacer-panel-top-inset" as string]:
-          HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionPanelTopInset,
-        ["--home-spacer-panel-top-inset-lg" as string]:
-          HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionPanelTopInsetLg,
-        ["--home-spacer-section-bottom-gap" as string]:
-          HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionBottomGap,
-        ["--home-spacer-section-bottom-gap-lg" as string]:
-          HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionBottomGap,
+        ...(attachBelowSchedule
+          ? {
+              ["--home-spacer-hero-overlap" as string]: "0px",
+              ["--home-spacer-hero-overlap-lg" as string]: "0px",
+              ["--home-spacer-panel-top-inset" as string]: "0px",
+              ["--home-spacer-panel-top-inset-lg" as string]: "0px",
+            }
+          : {
+              ["--home-spacer-hero-overlap" as string]:
+                HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionHeroOverlap,
+              ["--home-spacer-hero-overlap-lg" as string]:
+                HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionHeroOverlapLg,
+              ["--home-spacer-panel-top-inset" as string]:
+                HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionPanelTopInset,
+              ["--home-spacer-panel-top-inset-lg" as string]:
+                HOME_HERO_SCHEDULE_SPACER_LAYOUT.sectionPanelTopInsetLg,
+            }),
+        ["--home-spacer-section-bottom-gap" as string]: sectionBottomGap,
+        ["--home-spacer-section-bottom-gap-lg" as string]: sectionBottomGapLg,
         ["--home-schedule-section-px" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPaddingX,
         ["--home-schedule-panel-inner-px" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelInnerPaddingX,
@@ -87,7 +109,12 @@ export async function HomeHeroScheduleSpacerPanel({ locale }: HomeHeroScheduleSp
       }}
     >
       <div className={scheduleStyles.shell}>
-        <HomePageReveal index={0} className={`${scheduleStyles.panel} ${spacerStyles.presalePanel}`}>
+        <HomePageReveal
+          index={0}
+          className={`${scheduleStyles.panel} ${spacerStyles.presalePanel} ${
+            attachBelowSchedule ? spacerStyles.presalePanelAttached : ""
+          }`}
+        >
           <div className={spacerStyles.presaleInner}>
             <header className={`${scheduleStyles.header} ${spacerStyles.presaleHeader}`}>
               <h2
