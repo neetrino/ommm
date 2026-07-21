@@ -10,7 +10,7 @@
   min-width: 0;
   overflow-x: clip;
   background: var(--story-gallery-bg, #fbf5d5);
-  padding-top: var(--story-gallery-mobile-pt, 4rem);
+  padding-top: calc(var(--story-gallery-mobile-pt, 4rem) + 2.25rem);
   padding-bottom: var(--story-gallery-mobile-pb, 4rem);
   padding-inline: var(--story-gallery-mobile-px, 1.5rem);
 }
@@ -101,7 +101,7 @@
 
 @media (min-width: 744px) {
   .section {
-    padding-top: var(--story-gallery-desktop-pt);
+    padding-top: calc(var(--story-gallery-desktop-pt) + 2.5rem);
     padding-bottom: var(--story-gallery-desktop-pb);
     padding-inline: initial;
   }
