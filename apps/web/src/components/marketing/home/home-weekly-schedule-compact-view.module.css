@@ -95,30 +95,85 @@
 .seeFullWrap {
   display: flex;
   width: 100%;
-  justify-content: center;
+  justify-content: flex-end;
   padding-top: 0.25rem;
+  padding-inline: var(--home-schedule-row-padding, 1rem);
 }
 
-.seeFullLink {
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
-  color: var(--home-schedule-title-ink, #1d1c15);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-  transition: opacity 200ms ease;
+.seeFullSlot {
+  display: flex;
+  width: 9.0625rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+a.seeFullLink {
+  width: auto;
+  min-width: 9.0625rem;
+  flex-shrink: 0;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 743px) {
+  .seeFullSlot {
+    width: auto;
+    min-width: 4.5rem;
+  }
+
+  a.seeFullLink {
+    min-width: 4.5rem;
+  }
 }
 
 .seeFullLink:hover {
-  opacity: 0.72;
+  border-color: rgb(255 255 255 / 0.68);
+  background: rgb(255 255 255 / 0.42);
+  transform: translateY(-2px);
+  opacity: 1;
 }
 
 .seeFullLink:focus-visible {
-  outline: 2px solid rgb(105 95 0 / 0.4);
-  outline-offset: 3px;
-  border-radius: 0.25rem;
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85),
+    0 0 0 2px rgb(255 255 255 / 0.9),
+    0 0 0 4px rgb(151 144 124 / 0.35);
+}
+
+@media (min-width: 744px) {
+  .seeFullWrap {
+    display: grid;
+    box-sizing: border-box;
+    grid-template-columns:
+      var(--home-schedule-session-row-time-col-width, 10.5rem)
+      minmax(0, 1fr)
+      var(--home-schedule-session-row-duration-col-width, 4.75rem)
+      var(--home-schedule-session-row-spots-col-width, 6.75rem)
+      auto;
+    column-gap: clamp(1rem, 2vw, 1.5rem);
+    align-items: center;
+    padding-inline: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .seeFullSlot {
+    grid-column: 5;
+    justify-self: end;
+    margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 1.5rem);
+  }
+}
+
+@media (min-width: 744px) and (max-width: 1366px) {
+  .seeFullSlot {
+    width: 7.25rem;
+  }
+
+  a.seeFullLink {
+    min-width: 7.25rem;
+  }
 }
 
 @media (min-width: 744px) {

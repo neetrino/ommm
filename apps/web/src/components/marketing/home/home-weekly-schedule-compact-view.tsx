@@ -19,6 +19,7 @@ import type { MarketingScheduleItem } from "@/components/marketing/schedule/mark
 import { Link } from "@/i18n/navigation";
 import { getHomeWeeklyScheduleTabCalendarDate } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
 import { buildPublicScheduleHrefForDate } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
+import { SCHEDULE_BOOK_BTN_HOME } from "@/components/marketing/schedule/schedule-public-design";
 import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
@@ -287,14 +288,16 @@ export function HomeWeeklyScheduleDayView({
                         }`}
                         style={getItemStyle(renderedSessions.length)}
                       >
-                        <Link
-                          href={buildPublicScheduleHrefForDate(
-                            getHomeWeeklyScheduleTabCalendarDate(renderedDay.day),
-                          )}
-                          className={styles.seeFullLink}
-                        >
-                          {t("weeklyScheduleSeeFull")}
-                        </Link>
+                        <div className={styles.seeFullSlot}>
+                          <Link
+                            href={buildPublicScheduleHrefForDate(
+                              getHomeWeeklyScheduleTabCalendarDate(renderedDay.day),
+                            )}
+                            className={`${SCHEDULE_BOOK_BTN_HOME} ${styles.seeFullLink}`}
+                          >
+                            {t("weeklyScheduleSeeFull")}
+                          </Link>
+                        </div>
                       </div>
                     ) : null}
                   </>
