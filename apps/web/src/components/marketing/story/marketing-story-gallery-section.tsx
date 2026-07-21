@@ -15,7 +15,7 @@ import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal"
 import styles from "@/components/marketing/story/marketing-story-gallery-section.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
-/** Story page — home gallery carousel with “A Sanctuary for Every Body” copy. */
+/** Story page — home gallery carousel with “A space designed to slow you down” copy. */
 export function MarketingStoryGallerySection() {
   const t = useTranslations("marketingPublic.home");
 
