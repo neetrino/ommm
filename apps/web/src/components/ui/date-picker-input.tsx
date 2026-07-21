@@ -165,7 +165,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
   }, [closePicker, isOpen]);
 
   const updatePopupPosition = useCallback(() => {
-    const anchor = showCalendarTrigger ? triggerRef.current : fieldShellRef.current;
+    const anchor = fieldShellRef.current ?? triggerRef.current;
     if (!isOpen || anchor === null || typeof window === "undefined") {
       return;
     }
@@ -200,7 +200,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       width,
       maxHeight: viewportHeight - DATE_PICKER_POPUP_EDGE_MARGIN * 2,
     });
-  }, [isOpen, showCalendarTrigger]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -355,37 +355,40 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
   return (
     <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
       <input type="hidden" name={name} value={value} required={required} />
-      <button
-        ref={triggerRef}
-        id={id}
-        type="button"
-        className={`ommm-input flex items-center justify-between gap-2 text-left ${containerClassName}`.trim()}
-        aria-label={ariaLabel}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        disabled={disabled}
-        onClick={() => {
-          setIsOpen((prev) => {
-            const nextOpen = !prev;
-            if (nextOpen) {
-              openPicker();
-            } else {
-              setPopupPosition(null);
-            }
-            return nextOpen;
-          });
-        }}
+      <div
+        className={`ommm-input flex items-center justify-between gap-2 ${containerClassName}`.trim()}
+        ref={fieldShellRef}
       >
-        <span
-          className={`truncate ${selectedDate === null ? "text-sage-500/70" : "text-sage-900"}`}
+        <button
+          ref={triggerRef}
+          id={id}
+          type="button"
+          className="min-w-0 flex-1 truncate border-0 bg-transparent p-0 text-left shadow-none focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50"
+          aria-label={ariaLabel}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          disabled={disabled}
+          onClick={togglePicker}
         >
-          {displayValue}
-        </span>
+          <span className={selectedDate === null ? "text-sage-500/70" : "text-sage-900"}>
+            {displayValue}
+          </span>
+        </button>
         <span className="inline-flex items-center gap-2 text-sage-500">
           {clearDateControl}
-          <DatePickerCalendarGlyph className="h-4 w-4" />
+          <button
+            type="button"
+            className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700 disabled:pointer-events-none disabled:opacity-50"
+            aria-label={ariaLabel}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            disabled={disabled}
+            onClick={togglePicker}
+          >
+            <DatePickerCalendarGlyph className="h-4 w-4" />
+          </button>
         </span>
-      </button>
+      </div>
       {calendarPopup}
     </div>
   );
