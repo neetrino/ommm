@@ -31,6 +31,8 @@ export const HOME_WEEKLY_SCHEDULE_FIGMA = {
   clockIconSizePx: 24,
   /** Spots at or below this count use `spotsUrgent`. */
   spotsUrgentThreshold: 3,
+  /** Home weekly schedule shows at most this many session cards per day. */
+  maxVisibleSessionsPerDay: 4,
 } as const;
 
 /** Figma mobile weekly schedule container `97:5732` — artboard **394** wide. */

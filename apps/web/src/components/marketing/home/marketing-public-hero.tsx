@@ -40,10 +40,7 @@ export async function MarketingPublicHero({
             <HomeWeeklyScheduleBannerLoading flushBottomWithPresale={mergeYellowCard} />
           }
         >
-          <HomeWeeklyScheduleBanner
-            locale={locale}
-            flushBottomWithPresale={mergeYellowCard}
-          />
+          <HomeWeeklyScheduleBanner flushBottomWithPresale={mergeYellowCard} />
         </Suspense>
       ) : null}
       {showPresalePackages ? (

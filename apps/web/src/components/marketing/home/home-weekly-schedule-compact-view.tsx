@@ -16,10 +16,17 @@ import {
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import { Link } from "@/i18n/navigation";
+import { getHomeWeeklyScheduleTabCalendarDate } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
+import { buildPublicScheduleHrefForDate } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
+import { SCHEDULE_BOOK_BTN_HOME } from "@/components/marketing/schedule/schedule-public-design";
 import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
 } from "@/lib/schedule-session-spots";
+
+const HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS =
+  HOME_WEEKLY_SCHEDULE_FIGMA.maxVisibleSessionsPerDay;
 
 export type HomeWeeklyScheduleCompactDay = {
   day: MarketingScheduleDayOfWeek;
@@ -74,7 +81,11 @@ export function HomeWeeklyScheduleDayView({
   const activeDay =
     days.find((entry) => entry.day === selectedDay) ?? days[0] ?? null;
 
-  const visibleSessions = activeDay?.sessions ?? [];
+  const visibleSessions = useMemo(
+    () => (activeDay?.sessions ?? []).slice(0, HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS),
+    [activeDay],
+  );
+
   const {
     contentRef,
     renderedDayKey,
@@ -91,6 +102,8 @@ export function HomeWeeklyScheduleDayView({
     () => days.find((entry) => entry.day === renderedDayKey) ?? days[0] ?? null,
     [days, renderedDayKey],
   );
+  const showSeeFullSchedule =
+    (renderedDay?.sessions.length ?? 0) > HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS;
 
   const selectDay = useCallback((day: MarketingScheduleDayOfWeek) => {
     setSelectedDay(day);
@@ -141,6 +154,7 @@ export function HomeWeeklyScheduleDayView({
         ["--home-schedule-day-chip-idle-border" as string]:
           HOME_WEEKLY_SCHEDULE_FIGMA.dayChipIdleBorder,
         ["--home-schedule-schedule-ink" as string]: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
+        ["--home-schedule-title-ink" as string]: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk,
       }}
     >
       <div className={styles.dayTabsSection}>
@@ -196,10 +210,7 @@ export function HomeWeeklyScheduleDayView({
         aria-label={t("weeklyScheduleSessionsPanelAria", { day: activeDay.label })}
         className={styles.sessionPanel}
       >
-        <div
-          className={styles.sessionPanelViewport}
-          style={containerStyle}
-        >
+        <div className={styles.sessionPanelViewport} style={containerStyle}>
           <div
             ref={contentRef}
             className={
@@ -221,54 +232,75 @@ export function HomeWeeklyScheduleDayView({
                     {renderedDay.emptyLabel}
                   </div>
                 ) : (
-                  renderedSessions.map((session, index) => {
-                    const userOnWaitlist =
-                      bookedBySessionId[session.item.id] === undefined &&
-                      waitlistedSessionIds.has(session.item.id);
-                    const displayRow = resolveMemberScheduleRowDisplay({
-                      row: session.item,
-                      onWaitlist: userOnWaitlist,
-                      capacityReady: memberWaitlistLoaded,
-                    });
-                    const showOnWaitlist = resolveMemberOnWaitlistBadge({
-                      userBookingId: bookedBySessionId[session.item.id],
-                      onWaitlist: userOnWaitlist,
-                      availableSpots: displayRow.availableSpots,
-                      sessionStatus: displayRow.status,
-                      capacityReady: memberWaitlistLoaded,
-                    });
-                    const spotsLeftLabel = t("weeklyScheduleSpotsLeft", {
-                      count: displayRow.availableSpots,
-                    });
+                  <>
+                    {renderedSessions.map((session, index) => {
+                      const userOnWaitlist =
+                        bookedBySessionId[session.item.id] === undefined &&
+                        waitlistedSessionIds.has(session.item.id);
+                      const displayRow = resolveMemberScheduleRowDisplay({
+                        row: session.item,
+                        onWaitlist: userOnWaitlist,
+                        capacityReady: memberWaitlistLoaded,
+                      });
+                      const showOnWaitlist = resolveMemberOnWaitlistBadge({
+                        userBookingId: bookedBySessionId[session.item.id],
+                        onWaitlist: userOnWaitlist,
+                        availableSpots: displayRow.availableSpots,
+                        sessionStatus: displayRow.status,
+                        capacityReady: memberWaitlistLoaded,
+                      });
+                      const spotsLeftLabel = t("weeklyScheduleSpotsLeft", {
+                        count: displayRow.availableSpots,
+                      });
 
-                    return (
+                      return (
+                        <div
+                          key={session.id}
+                          className={`${styles.sessionListItem} ${
+                            animationPhase === "enter" ? transitionStyles.scheduleItemEnter : ""
+                          }`.trim()}
+                          style={getItemStyle(index)}
+                        >
+                          <HomeWeeklyScheduleSessionRow
+                            item={displayRow}
+                            locale={locale}
+                            bookLabel={bookLabel}
+                            withInstructorLabel={session.withInstructorLabel}
+                            durationLabel={session.durationLabel}
+                            spotsLeftLabel={spotsLeftLabel}
+                            audience={audience}
+                            bookingEnabled={bookingEnabled}
+                            userBookingId={bookedBySessionId[session.item.id]}
+                            bookingStateReady={memberActionStateReady}
+                            isOnWaitlist={showOnWaitlist}
+                            onBooked={onBooked}
+                            onCancelled={onCancelled}
+                            onWaitlisted={onWaitlisted}
+                            onWaitlistLeft={onWaitlistLeft}
+                          />
+                        </div>
+                      );
+                    })}
+                    {showSeeFullSchedule && renderedDay !== null ? (
                       <div
-                        key={session.id}
-                        className={`${styles.sessionListItem} ${
+                        className={`${styles.seeFullWrap} ${
                           animationPhase === "enter" ? transitionStyles.scheduleItemEnter : ""
-                        }`.trim()}
-                        style={getItemStyle(index)}
+                        }`}
+                        style={getItemStyle(renderedSessions.length)}
                       >
-                        <HomeWeeklyScheduleSessionRow
-                          item={displayRow}
-                          locale={locale}
-                          bookLabel={bookLabel}
-                          withInstructorLabel={session.withInstructorLabel}
-                          durationLabel={session.durationLabel}
-                          spotsLeftLabel={spotsLeftLabel}
-                          audience={audience}
-                          bookingEnabled={bookingEnabled}
-                          userBookingId={bookedBySessionId[session.item.id]}
-                          bookingStateReady={memberActionStateReady}
-                          isOnWaitlist={showOnWaitlist}
-                          onBooked={onBooked}
-                          onCancelled={onCancelled}
-                          onWaitlisted={onWaitlisted}
-                          onWaitlistLeft={onWaitlistLeft}
-                        />
+                        <div className={styles.seeFullSlot}>
+                          <Link
+                            href={buildPublicScheduleHrefForDate(
+                              getHomeWeeklyScheduleTabCalendarDate(renderedDay.day),
+                            )}
+                            className={`${SCHEDULE_BOOK_BTN_HOME} ${styles.seeFullLink}`}
+                          >
+                            {t("weeklyScheduleSeeFull")}
+                          </Link>
+                        </div>
                       </div>
-                    );
-                  })
+                    ) : null}
+                  </>
                 )}
               </div>
             )}
