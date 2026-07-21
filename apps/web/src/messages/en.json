@@ -163,6 +163,7 @@
       "weeklyScheduleDuration": "{count} min",
       "weeklyScheduleDurationFallback": "—",
       "weeklyScheduleSpotsLeft": "{count, plural, =1 {1 spot left} other {# spots left}}",
+      "weeklyScheduleSeeFull": "See full schedule",
       "weeklyScheduleDays": {
         "MONDAY": "Monday",
         "TUESDAY": "Tuesday",

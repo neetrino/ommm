@@ -163,6 +163,7 @@
       "weeklyScheduleDuration": "{count} мин",
       "weeklyScheduleDurationFallback": "—",
       "weeklyScheduleSpotsLeft": "{count, plural, =1 {Осталось 1 место} few {Осталось # места} many {Осталось # мест} other {Осталось # места}}",
+      "weeklyScheduleSeeFull": "See full schedule",
       "weeklyScheduleDays": {
         "MONDAY": "Понедельник",
         "TUESDAY": "Вторник",

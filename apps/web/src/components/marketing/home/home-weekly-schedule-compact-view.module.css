@@ -92,6 +92,35 @@
   color: var(--home-schedule-schedule-ink, #4a4738);
 }
 
+.seeFullWrap {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding-top: 0.25rem;
+}
+
+.seeFullLink {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--home-schedule-title-ink, #1d1c15);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transition: opacity 200ms ease;
+}
+
+.seeFullLink:hover {
+  opacity: 0.72;
+}
+
+.seeFullLink:focus-visible {
+  outline: 2px solid rgb(105 95 0 / 0.4);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+
 @media (min-width: 744px) {
   .root {
     gap: 0;

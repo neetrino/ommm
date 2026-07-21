@@ -163,6 +163,7 @@
       "weeklyScheduleDuration": "{count} րոպե",
       "weeklyScheduleDurationFallback": "—",
       "weeklyScheduleSpotsLeft": "{count, plural, =1 {1 ազատ տեղ} other {# ազատ տեղ}}",
+      "weeklyScheduleSeeFull": "See full schedule",
       "weeklyScheduleDays": {
         "MONDAY": "Երկշաբթի",
         "TUESDAY": "Երեքշաբթի",
