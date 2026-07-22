@@ -1,3 +1,5 @@
+import { focusFormField } from "@/components/ui/form-validation";
+
 /** Form control / section to scroll into view on create-coach validation errors. */
 export type AdminCreateCoachFocusField =
   | "name"
@@ -13,44 +15,19 @@ export type AdminCreateCoachFocusField =
   | "assignedClasses"
   | "photo";
 
-const SECTION_FOCUS_FIELDS = new Set<AdminCreateCoachFocusField>([
-  "assignedClasses",
-  "photo",
-]);
-
-function resolveFocusTarget(
-  form: HTMLFormElement,
-  field: AdminCreateCoachFocusField,
-): HTMLElement | null {
-  if (SECTION_FOCUS_FIELDS.has(field)) {
-    return form.querySelector(`[data-create-coach-field="${field}"]`);
-  }
-  const named = form.elements.namedItem(field);
-  if (named instanceof HTMLElement) {
-    return named;
-  }
-  if (named instanceof RadioNodeList) {
-    const first = named.item(0);
-    return first instanceof HTMLElement ? first : null;
-  }
-  return null;
-}
-
 /** Scrolls the invalid field into view and focuses it when possible. */
 export function focusAdminCreateCoachField(
   form: HTMLFormElement,
   field: AdminCreateCoachFocusField,
 ): void {
-  const target = resolveFocusTarget(form, field);
-  if (target === null) {
-    return;
-  }
-  target.scrollIntoView({ behavior: "smooth", block: "center" });
-  window.requestAnimationFrame(() => {
-    if (typeof target.focus === "function") {
-      target.focus({ preventScroll: true });
+  const sectionFields: AdminCreateCoachFocusField[] = ["assignedClasses", "photo"];
+  if (sectionFields.includes(field)) {
+    const legacy = form.querySelector(`[data-create-coach-field="${field}"]`);
+    if (legacy instanceof HTMLElement && !legacy.hasAttribute("data-form-field")) {
+      legacy.setAttribute("data-form-field", field);
     }
-  });
+  }
+  focusFormField(form, field);
 }
 
 /** Maps API conflict / validation messages to the field the user should edit. */
@@ -80,4 +57,19 @@ export function resolveAdminCreateCoachApiFocusField(
     return "age";
   }
   return null;
+}
+
+/** Localizes known create-coach API conflict messages for the active UI locale. */
+export function localizeAdminCreateCoachApiError(
+  message: string,
+  t: (key: string) => string,
+): string {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("phone") && normalized.includes("already")) {
+    return t("phoneAlreadyExists");
+  }
+  if (normalized.includes("email") && normalized.includes("already")) {
+    return t("emailAlreadyExists");
+  }
+  return message;
 }

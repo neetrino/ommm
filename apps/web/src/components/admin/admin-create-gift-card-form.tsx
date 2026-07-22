@@ -10,6 +10,7 @@ import {
 } from "@/components/admin/admin-create-gift-card-form.helpers";
 import type { AdminCreateGiftCardFormProps } from "@/components/admin/admin-create-gift-card-form.types";
 import { OmmButton } from "@/components/ui/omm-button";
+import { FormErrorBanner } from "@/components/ui/form-validation";
 import type { DropdownOption } from "@/components/ui/dropdown-select";
 import { ApiError, apiFetch, apiFetchFormData } from "@/lib/api";
 import { parseAmdMoneyInput } from "@/lib/price-amd";
@@ -238,11 +239,11 @@ export function AdminCreateGiftCardForm({
         busy={busy}
         t={t}
       />
-      {result ? (
-        <p
-          className={`text-sm ${tone === "ok" ? "text-sage-700" : "text-red-800"}`}
-          role="status"
-        >
+      {result && tone === "err" ? (
+        <FormErrorBanner message={result} variant="inline" />
+      ) : null}
+      {result && tone === "ok" ? (
+        <p className="text-sm text-sage-700" role="status">
           {result}
         </p>
       ) : null}

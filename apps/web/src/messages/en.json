@@ -2283,6 +2283,8 @@
         "emailInvalid": "Enter a valid email address.",
         "phoneRequired": "Phone is required.",
         "phoneInvalid": "Enter a valid phone number (8–15 digits).",
+        "emailAlreadyExists": "An account with this email already exists. Use a different email.",
+        "phoneAlreadyExists": "An account with this phone number already exists. Use a different phone number.",
         "ageInvalid": "Enter age as a whole number between {min} and {max}.",
         "birthdayRequired": "Birthday is required.",
         "birthdayInvalid": "Enter a valid birthday.",

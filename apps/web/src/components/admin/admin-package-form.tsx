@@ -10,6 +10,7 @@ import type { AdminPackageFormProps } from "@/components/admin/admin-package-for
 import { MAX_NAME_LENGTH } from "@/components/admin/admin-package-form-utils";
 import { AdminPackageTierCompactFields } from "@/components/admin/admin-package-tier-compact-fields";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 
 export type { AdminPackageFormMode } from "@/components/admin/admin-package-form.types";
@@ -174,11 +175,7 @@ export function AdminPackageForm({
           />
         ) : null}
 
-        {error !== null ? (
-          <p className="app-alert-warn text-sm" role="alert">
-            {error}
-          </p>
-        ) : null}
+        {error !== null ? <FormErrorBanner message={error} variant="inline" className="mx-0" /> : null}
       </div>
 
       <div
