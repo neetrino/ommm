@@ -101,43 +101,46 @@ export function AdminCreateCoachForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col gap-5"
+      className="flex min-h-0 flex-1 flex-col"
     >
-      <AdminCreateCoachFormPersonalSection
-        formRef={formRef}
-        phone={phone}
-        onPhoneChange={setPhone}
-        birthdayValue={birthdayValue}
-        onBirthdayChange={setBirthdayValue}
-        t={t}
-      />
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+        <AdminCreateCoachFormPersonalSection
+          formRef={formRef}
+          phone={phone}
+          onPhoneChange={setPhone}
+          birthdayValue={birthdayValue}
+          onBirthdayChange={setBirthdayValue}
+          t={t}
+        />
 
-      <AdminCreateCoachFormDetailsSection
-        classTypeValue={classTypeValue}
-        classTypeDropdownOptions={classTypeDropdownOptions}
-        onClassTypeChange={setClassTypeValue}
-        classOptions={classOptions}
-        selectedClassIds={selectedClassIds}
-        onToggleClassSelection={toggleClassSelection}
-        photoPreview={photoPreview}
-        photoPreviewImgSrc={photoPreviewImgSrc}
-        onPhotoSelected={onPhotoSelected}
-        pending={pending}
-        t={t}
-        tPage={tPage}
-      />
+        <AdminCreateCoachFormDetailsSection
+          classTypeValue={classTypeValue}
+          classTypeDropdownOptions={classTypeDropdownOptions}
+          onClassTypeChange={setClassTypeValue}
+          classOptions={classOptions}
+          selectedClassIds={selectedClassIds}
+          onToggleClassSelection={toggleClassSelection}
+          photoPreview={photoPreview}
+          photoPreviewImgSrc={photoPreviewImgSrc}
+          onPhotoSelected={onPhotoSelected}
+          pending={pending}
+          t={t}
+          tPage={tPage}
+        />
 
-      {error !== null ? (
-        <p className="app-alert-warn text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
-      {onCreated === undefined && success ? (
-        <p className="rounded-xl border border-mint-200/80 bg-mint-50/90 px-3 py-2 text-sm text-sage-800 shadow-sm">
-          {t("success")}
-        </p>
-      ) : null}
-      <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-7 sm:px-7">
+        {error !== null ? (
+          <p className="app-alert-warn text-sm" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {onCreated === undefined && success ? (
+          <p className="rounded-xl border border-mint-200/80 bg-mint-50/90 px-3 py-2 text-sm text-sage-800 shadow-sm">
+            {t("success")}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/80 px-5 py-4 backdrop-blur-sm sm:px-7">
         {onCancel !== undefined ? (
           <OmmButton
             type="button"
