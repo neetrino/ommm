@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
+import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -110,9 +111,7 @@ export function LoginForm() {
         </p>
       </form>
       {error ? (
-        <p className="mt-4 text-sm text-red-600" role="alert">
-          {error}
-        </p>
+        <FormErrorBanner message={error} variant="inline" className="mt-4" />
       ) : null}
       <p className="ommm-body-muted mt-8 text-center text-sm">
         {tAuth("noAccountPrompt")}{" "}

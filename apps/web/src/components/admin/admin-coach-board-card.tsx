@@ -12,7 +12,6 @@ import {
 } from "@/components/coaches/coach-card-display";
 import { COACHES_PAGE_CARD } from "@/components/marketing/coaches/coaches-page-tokens";
 import coachCardStyles from "@/components/marketing/coaches/coaches-page-coach-card.module.css";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 import { OmmButton } from "@/components/ui/omm-button";
 import { firstRowGridImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -83,10 +82,9 @@ function AdminCoachPortrait({
   imageIndex: number;
 }) {
   const remoteSrc =
-    coach.user.avatarUrl !== null
+    coach.user.avatarUrl !== null && coach.user.avatarUrl.trim() !== ""
       ? resolveApiAssetUrl(coach.user.avatarUrl) ?? coach.user.avatarUrl
       : null;
-  const imageSrc = remoteSrc ?? HOME_SECTION_ASSETS.coachPortrait;
 
   return (
     <div className={coachCardStyles.photoWrap} aria-hidden>
@@ -94,25 +92,27 @@ function AdminCoachPortrait({
         <div className={coachCardStyles.photoFrame}>
           <div className={coachCardStyles.photoCrop}>
             <div className="relative h-full w-full">
-              <Image
-                src={imageSrc}
-                alt=""
-                fill
-                sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 32vw, (min-width: 768px) 44vw, 88vw"
-                className="object-cover"
-                style={{ objectPosition: "42% 18%" }}
-                unoptimized={remoteSrc !== null}
-                {...firstRowGridImageProps(imageIndex)}
-              />
+              {remoteSrc !== null ? (
+                <Image
+                  src={remoteSrc}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 32vw, (min-width: 768px) 44vw, 88vw"
+                  className="object-cover object-[42%_18%]"
+                  unoptimized
+                  {...firstRowGridImageProps(imageIndex)}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-sand-100">
+                  <span className="text-4xl font-semibold tracking-wide text-sage-500">
+                    {coachCardInitials(coach.user)}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-      {remoteSrc === null ? (
-        <span className="absolute right-5 top-5 z-10 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-xs font-semibold text-sage-700 shadow-sm backdrop-blur-md">
-          {coachCardInitials(coach.user)}
-        </span>
-      ) : null}
     </div>
   );
 }

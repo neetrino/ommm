@@ -8,9 +8,15 @@ import {
   MAX_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from "@/components/admin/admin-coach-form-helpers";
+import {
+  FormFieldErrorFor,
+  formFieldInputClassFor,
+} from "@/components/ui/form-validation";
+import type { AdminCreateCoachFocusField } from "@/components/admin/admin-create-coach-form-focus";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
+  PSEUDO_AGE,
   PSEUDO_BIRTHDAY,
   PSEUDO_EMAIL,
   PSEUDO_FIRST_NAME,
@@ -26,6 +32,8 @@ type AdminCreateCoachFormPersonalSectionProps = {
   onPhoneChange: (value: string) => void;
   birthdayValue: string;
   onBirthdayChange: (value: string) => void;
+  errorField: AdminCreateCoachFocusField | null;
+  errorMessage: string | null;
   t: (key: string) => string;
 };
 
@@ -35,6 +43,8 @@ export function AdminCreateCoachFormPersonalSection({
   onPhoneChange,
   birthdayValue,
   onBirthdayChange,
+  errorField,
+  errorMessage,
   t,
 }: AdminCreateCoachFormPersonalSectionProps) {
   return (
@@ -53,12 +63,14 @@ export function AdminCreateCoachFormPersonalSection({
           </span>
           <input
             name="name"
-            className="ommm-input"
+            className={formFieldInputClassFor("name", errorField)}
             autoComplete="given-name"
             maxLength={MAX_NAME_LENGTH}
             placeholder={PSEUDO_FIRST_NAME}
             required
+            aria-invalid={errorField === "name"}
           />
+          <FormFieldErrorFor field="name" errorField={errorField} message={errorMessage} />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">
@@ -67,12 +79,14 @@ export function AdminCreateCoachFormPersonalSection({
           </span>
           <input
             name="lastName"
-            className="ommm-input"
+            className={formFieldInputClassFor("lastName", errorField)}
             autoComplete="family-name"
             maxLength={MAX_NAME_LENGTH}
             placeholder={PSEUDO_LAST_NAME}
             required
+            aria-invalid={errorField === "lastName"}
           />
+          <FormFieldErrorFor field="lastName" errorField={errorField} message={errorMessage} />
         </label>
         <label className="flex flex-col gap-1 lg:col-span-2">
           <span className="ommm-label text-xs uppercase tracking-wide">
@@ -82,13 +96,17 @@ export function AdminCreateCoachFormPersonalSection({
           <input
             name="email"
             type="email"
-            className="ommm-input"
+            className={formFieldInputClassFor("email", errorField)}
             autoComplete="email"
             maxLength={MAX_EMAIL_LENGTH}
             placeholder={PSEUDO_EMAIL}
             required
+            aria-invalid={errorField === "email"}
           />
-          <span className="text-xs text-sage-500">{t("emailHint")}</span>
+          <FormFieldErrorFor field="email" errorField={errorField} message={errorMessage} />
+          {errorField !== "email" ? (
+            <span className="text-xs text-sage-500">{t("emailHint")}</span>
+          ) : null}
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">
@@ -97,12 +115,14 @@ export function AdminCreateCoachFormPersonalSection({
           </span>
           <PhoneInputField
             name="phone"
-            className="ommm-input"
+            className={formFieldInputClassFor("phone", errorField)}
             value={phone}
             onValueChange={onPhoneChange}
             placeholder={PSEUDO_PHONE}
             required
+            aria-invalid={errorField === "phone"}
           />
+          <FormFieldErrorFor field="phone" errorField={errorField} message={errorMessage} />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">
@@ -111,15 +131,17 @@ export function AdminCreateCoachFormPersonalSection({
           </span>
           <PasswordInput
             name="password"
-            className="ommm-input"
+            className={formFieldInputClassFor("password", errorField)}
             autoComplete="new-password"
             minLength={MIN_PASSWORD_LENGTH}
             maxLength={128}
             placeholder={PSEUDO_PASSWORD}
             required
+            aria-invalid={errorField === "password"}
             showPasswordLabel={t("showPassword")}
             hidePasswordLabel={t("hidePassword")}
           />
+          <FormFieldErrorFor field="password" errorField={errorField} message={errorMessage} />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("birthdayLabel")}</span>
@@ -129,9 +151,10 @@ export function AdminCreateCoachFormPersonalSection({
             inputMode="numeric"
             autoComplete="bday"
             maxLength={10}
-            className="ommm-input"
+            className={formFieldInputClassFor("birthday", errorField)}
             value={birthdayValue}
             placeholder={PSEUDO_BIRTHDAY}
+            aria-invalid={errorField === "birthday"}
             onChange={(event) => {
               const nextValue = formatBirthdayInput(event.target.value);
               onBirthdayChange(nextValue);
@@ -147,18 +170,21 @@ export function AdminCreateCoachFormPersonalSection({
               }
             }}
           />
-          <span className="text-xs text-sage-500">{t("birthdayOptionalHint")}</span>
+          <FormFieldErrorFor field="birthday" errorField={errorField} message={errorMessage} />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("ageLabel")}</span>
           <input
             name="age"
             type="number"
-            className="ommm-input"
+            className={formFieldInputClassFor("age", errorField)}
             min={COACH_MIN_AGE}
             max={COACH_MAX_AGE}
             inputMode="numeric"
+            placeholder={PSEUDO_AGE}
+            aria-invalid={errorField === "age"}
           />
+          <FormFieldErrorFor field="age" errorField={errorField} message={errorMessage} />
         </label>
       </div>
     </section>

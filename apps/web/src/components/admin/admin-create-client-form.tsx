@@ -11,6 +11,7 @@ import {
 } from "@/components/admin/admin-coach-form-helpers";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
@@ -139,6 +140,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
   return (
     <form
       ref={formRef}
+      noValidate
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
@@ -292,12 +294,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
         </div>
       </section>
 
-      {error !== null ? (
-        <p className="app-alert-warn text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
       </div>
+
+      {error !== null ? <FormErrorBanner message={error} /> : null}
 
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
         {onCancel !== undefined ? (

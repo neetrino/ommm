@@ -1,6 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
+import {
+  FormFieldError,
+  FORM_INVALID_FIELD_CLASS,
+  formFieldInputClass,
+} from "@/components/ui/form-validation";
 
 /** Shared form section wrapper for admin detail sheet tab panels. */
 export const ADMIN_SHEET_FORM_SECTION_CLASS =
@@ -44,12 +49,11 @@ export function AdminRequiredMark() {
 }
 
 /** Thin red outline for invalid admin form controls. */
-export const ADMIN_INVALID_FIELD_CLASS = "border-red-400 !shadow-none ring-2 ring-red-400/15";
+export const ADMIN_INVALID_FIELD_CLASS = FORM_INVALID_FIELD_CLASS;
 
 /** Input class helper — error border for validated sheet fields. */
 export function adminSheetFieldInputClass(invalid = false, extra = ""): string {
-  const classes = ["ommm-input", invalid ? "border-red-300" : "", extra].filter(Boolean);
-  return classes.join(" ");
+  return formFieldInputClass(invalid, extra);
 }
 
 /**
@@ -78,11 +82,7 @@ export function AdminSheetEditableField({
         ) : null}
       </span>
       {children}
-      {hasError ? (
-        <p className="text-xs text-red-700" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <FormFieldError message={error} show={hasError} />
       {!hasError && hint ? <p className="text-[11px] text-sage-500">{hint}</p> : null}
     </label>
   );

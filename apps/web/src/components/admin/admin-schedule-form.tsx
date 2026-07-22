@@ -21,6 +21,7 @@ import {
 import type { AdminScheduleItem } from "@/components/admin/admin-schedule-types";
 import { SCHEDULE_DAY_OPTIONS } from "@/components/admin/admin-schedule-helpers";
 import { ApiError, apiFetch } from "@/lib/api";
+import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 
 export type { AdminScheduleFormProps } from "@/components/admin/admin-schedule-form.types";
@@ -167,11 +168,7 @@ export function AdminScheduleForm({
         t={t}
       />
 
-      {error !== null ? (
-        <p className="app-alert-warn text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
+      {error !== null ? <FormErrorBanner message={error} variant="inline" /> : null}
 
       <div className="flex flex-wrap justify-end gap-3 pt-2">
         <OmmButton

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 
 export default function ForgotPasswordPage() {
@@ -61,9 +62,7 @@ export default function ForgotPasswordPage() {
         </p>
       ) : null}
       {error ? (
-        <p className="mt-4 text-sm text-red-600" role="alert">
-          {error}
-        </p>
+        <FormErrorBanner message={error} variant="inline" className="mt-4" />
       ) : null}
       <p className="ommm-body-muted mt-8 text-center text-sm">
         <Link href="/login" className="ommm-link-sage">

@@ -124,10 +124,10 @@ export function CoachSheetTabPanels({
               removeLabel={t("fieldPhotoRemove")}
               showRemove={hasPhoto}
               onSelect={(file) => {
-                void controller.uploadPhoto(file, t("fieldPhotoUploadSuccess"), t("genericError"));
+                controller.onPhotoSelected(file);
               }}
               onRemove={() => {
-                void controller.removePhoto(t("fieldPhotoRemoveSuccess"), t("genericError"));
+                controller.onPhotoDeleted();
               }}
             />
             {overview ? (

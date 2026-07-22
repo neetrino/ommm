@@ -5,18 +5,19 @@ import {
   MAX_SPECIALIZATION_LENGTH,
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
-import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import {
-  ScheduleFilterDropdown,
-  type ScheduleFilterOption,
-} from "@/components/marketing/schedule/schedule-filter-dropdown";
+  FormFieldErrorFor,
+  formFieldInputClassFor,
+} from "@/components/ui/form-validation";
+import type { AdminCreateCoachFocusField } from "@/components/admin/admin-create-coach-form-focus";
+import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { OmmButton } from "@/components/ui/omm-button";
-import { AdminRequiredMark } from "@/components/admin/admin-sheet-editable-field";
+import {
+  AdminRequiredMark,
+  ADMIN_INVALID_FIELD_CLASS,
+} from "@/components/admin/admin-sheet-editable-field";
 
 type AdminCreateCoachFormDetailsSectionProps = {
-  classTypeValue: string;
-  classTypeDropdownOptions: ScheduleFilterOption<string>[];
-  onClassTypeChange: (value: string) => void;
   classOptions: readonly CoachClassOption[];
   selectedClassIds: string[];
   onToggleClassSelection: (classTypeId: string) => void;
@@ -24,14 +25,13 @@ type AdminCreateCoachFormDetailsSectionProps = {
   photoPreviewImgSrc: string | null;
   onPhotoSelected: (file: File | null) => void;
   pending: boolean;
+  errorField: AdminCreateCoachFocusField | null;
+  errorMessage: string | null;
   t: (key: string) => string;
   tPage: (key: string, values?: Record<string, string | number>) => string;
 };
 
 export function AdminCreateCoachFormDetailsSection({
-  classTypeValue,
-  classTypeDropdownOptions,
-  onClassTypeChange,
   classOptions,
   selectedClassIds,
   onToggleClassSelection,
@@ -39,9 +39,14 @@ export function AdminCreateCoachFormDetailsSection({
   photoPreviewImgSrc,
   onPhotoSelected,
   pending,
+  errorField,
+  errorMessage,
   t,
   tPage,
 }: AdminCreateCoachFormDetailsSectionProps) {
+  const photoInvalid = errorField === "photo";
+  const assignedInvalid = errorField === "assignedClasses";
+
   return (
     <>
       <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
@@ -59,10 +64,16 @@ export function AdminCreateCoachFormDetailsSection({
             </span>
             <input
               name="specialization"
-              className="ommm-input"
+              className={formFieldInputClassFor("specialization", errorField)}
               maxLength={MAX_SPECIALIZATION_LENGTH}
               placeholder={t("specializationPlaceholder")}
               required
+              aria-invalid={errorField === "specialization"}
+            />
+            <FormFieldErrorFor
+              field="specialization"
+              errorField={errorField}
+              message={errorMessage}
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -72,31 +83,31 @@ export function AdminCreateCoachFormDetailsSection({
             <input
               name="experienceYears"
               type="number"
-              className="ommm-input"
+              className={formFieldInputClassFor("experienceYears", errorField)}
               min={0}
               max={MAX_EXPERIENCE_YEARS}
               inputMode="numeric"
+              aria-invalid={errorField === "experienceYears"}
+            />
+            <FormFieldErrorFor
+              field="experienceYears"
+              errorField={errorField}
+              message={errorMessage}
             />
           </label>
-          <label className="flex flex-col gap-1">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("classTypeLabel")}
-              <AdminRequiredMark />
-            </span>
-            <ScheduleFilterDropdown
-              name="classType"
-              label={t("classTypePlaceholder")}
-              ariaLabel={t("classTypeLabel")}
-              value={classTypeValue}
-              options={classTypeDropdownOptions}
-              onChange={onClassTypeChange}
-              disabled={pending}
-              required
-            />
-          </label>
-          <div className="flex flex-col gap-2">
+          <div
+            className="flex flex-col gap-2 lg:col-span-2"
+            data-create-coach-field="photo"
+            data-form-field="photo"
+          >
             <span className="ommm-label text-xs uppercase tracking-wide">{t("photoLabel")}</span>
-            <div className="rounded-2xl border border-sand-500/20 bg-white/80 p-3">
+            <div
+              className={`rounded-2xl border bg-white/80 p-3 ${
+                photoInvalid
+                  ? ADMIN_INVALID_FIELD_CLASS
+                  : "border-sand-500/20"
+              }`}
+            >
               <div className="flex flex-wrap items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center rounded-xl border border-sand-500/30 px-3 py-2 text-sm text-sage-700 transition-colors hover:bg-sand-50/70">
                   <input
@@ -136,23 +147,36 @@ export function AdminCreateCoachFormDetailsSection({
                 <p className="mt-2 text-xs text-sage-500">{t("photoHint")}</p>
               )}
             </div>
+            <FormFieldErrorFor
+              field="photo"
+              errorField={errorField}
+              message={errorMessage}
+            />
           </div>
           <label className="flex flex-col gap-1 lg:col-span-2">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("bioLabel")}
-              <AdminRequiredMark />
-            </span>
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("bioLabel")}</span>
             <textarea
               name="bio"
-              className="ommm-input min-h-[150px] resize-y"
+              className={formFieldInputClassFor("bio", errorField, "min-h-[150px] resize-y")}
               maxLength={MAX_BIO_LENGTH}
-              required
+              aria-invalid={errorField === "bio"}
+            />
+            <FormFieldErrorFor
+              field="bio"
+              errorField={errorField}
+              message={errorMessage}
             />
           </label>
         </div>
       </section>
 
-      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+      <section
+        className={`rounded-[24px] border bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5 ${
+          assignedInvalid ? ADMIN_INVALID_FIELD_CLASS : "border-white/60"
+        }`}
+        data-create-coach-field="assignedClasses"
+        data-form-field="assignedClasses"
+      >
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
             Assigned Classes
@@ -168,6 +192,7 @@ export function AdminCreateCoachFormDetailsSection({
           emptyLabel={t("assignedClassesEmpty")}
           noneSelectedLabel={tPage("assignedClassesNoneSelected")}
           selectedCountLabel={(count) => tPage("assignedClassesSelectedCount", { count })}
+          error={assignedInvalid ? (errorMessage ?? undefined) : undefined}
         />
       </section>
     </>
