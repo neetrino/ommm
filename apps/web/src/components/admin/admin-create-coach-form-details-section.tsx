@@ -11,6 +11,7 @@ import {
   type ScheduleFilterOption,
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
+import { AdminRequiredMark } from "@/components/admin/admin-sheet-editable-field";
 
 type AdminCreateCoachFormDetailsSectionProps = {
   classTypeValue: string;
@@ -54,6 +55,7 @@ export function AdminCreateCoachFormDetailsSection({
           <label className="flex flex-col gap-1">
             <span className="ommm-label text-xs uppercase tracking-wide">
               {t("specializationLabel")}
+              <AdminRequiredMark />
             </span>
             <input
               name="specialization"
@@ -74,12 +76,12 @@ export function AdminCreateCoachFormDetailsSection({
               min={0}
               max={MAX_EXPERIENCE_YEARS}
               inputMode="numeric"
-              required
             />
           </label>
           <label className="flex flex-col gap-1">
             <span className="ommm-label text-xs uppercase tracking-wide">
               {t("classTypeLabel")}
+              <AdminRequiredMark />
             </span>
             <ScheduleFilterDropdown
               name="classType"
@@ -136,7 +138,10 @@ export function AdminCreateCoachFormDetailsSection({
             </div>
           </div>
           <label className="flex flex-col gap-1 lg:col-span-2">
-            <span className="ommm-label text-xs uppercase tracking-wide">{t("bioLabel")}</span>
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("bioLabel")}
+              <AdminRequiredMark />
+            </span>
             <textarea
               name="bio"
               className="ommm-input min-h-[150px] resize-y"
@@ -151,6 +156,7 @@ export function AdminCreateCoachFormDetailsSection({
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
             Assigned Classes
+            <AdminRequiredMark />
           </h3>
           <p className="text-xs text-sage-500">Select class types coached by this person</p>
         </div>

@@ -2253,6 +2253,7 @@
         "phoneLabel": "Телефон",
         "ageLabel": "Возраст",
         "birthdayLabel": "Дата рождения",
+        "birthdayOptionalHint": "Необязательно — для акций ко дню рождения и профиля.",
         "experienceLabel": "Опыт (лет)",
         "bioLabel": "Биография",
         "specializationLabel": "Специализация",

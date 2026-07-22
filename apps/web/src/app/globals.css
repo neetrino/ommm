@@ -6,6 +6,20 @@ html {
   text-size-adjust: 100%;
 }
 
+/* Unlayered — must beat Tailwind @layer base/components for Chrome/Edge/Safari. */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+  margin: 0;
+}
+
 :root {
   --background: #faf9f7;
   --foreground: #1a1c1b;
@@ -143,6 +157,7 @@ html {
   .app-input {
     @apply w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-[border-color,box-shadow];
     @apply placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-900/[0.06];
+    @apply [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none;
   }
 
   .app-label {
@@ -631,6 +646,20 @@ html {
   .ommm-input {
     @apply w-full rounded-xl border border-white/70 bg-white/90 px-3 py-2.5 text-sm text-sage-900 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow];
     @apply placeholder:text-sage-500/60 focus:border-sand-500/50 focus:outline-none focus:ring-4 focus:ring-sand-500/15;
+    @apply [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none;
+  }
+
+  .ommm-input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .ommm-input[type="number"]::-webkit-inner-spin-button,
+  .ommm-input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+    margin: 0;
   }
 
   /* Hide native clear control when a custom clear button is shown beside the field. */

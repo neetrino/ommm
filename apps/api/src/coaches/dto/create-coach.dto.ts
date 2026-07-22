@@ -19,6 +19,8 @@ import { CoachScheduleSlotDto } from './coach-schedule-slot.dto';
 export const COACH_MIN_AGE = 16;
 /** Inclusive upper bound for a plausible coach age. */
 export const COACH_MAX_AGE = 100;
+/** Inclusive upper bound for coach experience years. */
+export const COACH_MAX_EXPERIENCE_YEARS = 80;
 
 export class CreateCoachDto {
   @IsEmail()
@@ -44,14 +46,16 @@ export class CreateCoachDto {
   @MaxLength(32)
   phone!: string;
 
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(COACH_MIN_AGE)
   @Max(COACH_MAX_AGE)
-  age!: number;
+  age?: number;
 
+  @IsOptional()
   @IsDateString()
-  birthday!: string;
+  birthday?: string;
 
   @IsOptional()
   @IsString()
@@ -76,6 +80,8 @@ export class CreateCoachDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(0)
+  @Max(COACH_MAX_EXPERIENCE_YEARS)
   experienceYears?: number;
 
   @IsOptional()
