@@ -18,6 +18,7 @@ import {
   PSEUDO_PASSWORD,
   PSEUDO_PHONE,
 } from "@/lib/pseudo-form-placeholders";
+import { AdminRequiredMark } from "@/components/admin/admin-sheet-editable-field";
 
 type AdminCreateCoachFormPersonalSectionProps = {
   formRef: RefObject<HTMLFormElement | null>;
@@ -46,7 +47,10 @@ export function AdminCreateCoachFormPersonalSection({
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("nameLabel")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">
+            {t("nameLabel")}
+            <AdminRequiredMark />
+          </span>
           <input
             name="name"
             className="ommm-input"
@@ -57,7 +61,10 @@ export function AdminCreateCoachFormPersonalSection({
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("lastNameLabel")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">
+            {t("lastNameLabel")}
+            <AdminRequiredMark />
+          </span>
           <input
             name="lastName"
             className="ommm-input"
@@ -68,7 +75,10 @@ export function AdminCreateCoachFormPersonalSection({
           />
         </label>
         <label className="flex flex-col gap-1 lg:col-span-2">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("emailLabel")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">
+            {t("emailLabel")}
+            <AdminRequiredMark />
+          </span>
           <input
             name="email"
             type="email"
@@ -81,7 +91,10 @@ export function AdminCreateCoachFormPersonalSection({
           <span className="text-xs text-sage-500">{t("emailHint")}</span>
         </label>
         <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("phoneLabel")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">
+            {t("phoneLabel")}
+            <AdminRequiredMark />
+          </span>
           <PhoneInputField
             name="phone"
             className="ommm-input"
@@ -92,7 +105,10 @@ export function AdminCreateCoachFormPersonalSection({
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("passwordLabel")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">
+            {t("passwordLabel")}
+            <AdminRequiredMark />
+          </span>
           <PasswordInput
             name="password"
             className="ommm-input"
@@ -115,7 +131,6 @@ export function AdminCreateCoachFormPersonalSection({
             maxLength={10}
             className="ommm-input"
             value={birthdayValue}
-            required
             placeholder={PSEUDO_BIRTHDAY}
             onChange={(event) => {
               const nextValue = formatBirthdayInput(event.target.value);
@@ -132,6 +147,7 @@ export function AdminCreateCoachFormPersonalSection({
               }
             }}
           />
+          <span className="text-xs text-sage-500">{t("birthdayOptionalHint")}</span>
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("ageLabel")}</span>
@@ -142,7 +158,6 @@ export function AdminCreateCoachFormPersonalSection({
             min={COACH_MIN_AGE}
             max={COACH_MAX_AGE}
             inputMode="numeric"
-            required
           />
         </label>
       </div>

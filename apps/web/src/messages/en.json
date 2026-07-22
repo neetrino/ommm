@@ -2253,6 +2253,7 @@
         "phoneLabel": "Phone",
         "ageLabel": "Age",
         "birthdayLabel": "Birthday",
+        "birthdayOptionalHint": "Optional — used for birthday campaigns and profile.",
         "experienceLabel": "Experience (years)",
         "bioLabel": "Bio",
         "specializationLabel": "Specialization",

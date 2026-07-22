@@ -5,13 +5,10 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { AdminCreateCoachFormDetailsSection } from "@/components/admin/admin-create-coach-form-details-section";
 import { AdminCreateCoachFormPersonalSection } from "@/components/admin/admin-create-coach-form-personal-section";
-import { AdminCreateCoachFormScheduleSection } from "@/components/admin/admin-create-coach-form-schedule-section";
 import { submitAdminCreateCoachForm } from "@/components/admin/admin-create-coach-form-submit";
 import {
-  createScheduleRow,
   sanitizeCoachPreviewSrc,
   type CoachClassOption,
-  type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
 import type { ScheduleFilterOption } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -42,7 +39,6 @@ export function AdminCreateCoachForm({
   const [birthdayValue, setBirthdayValue] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
-  const [scheduleRows, setScheduleRows] = useState<CoachScheduleInput[]>([createScheduleRow()]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -75,29 +71,6 @@ export function AdminCreateCoachForm({
     );
   }
 
-  function updateScheduleRow(
-    rowId: string,
-    key: keyof Omit<CoachScheduleInput, "id">,
-    value: string,
-  ): void {
-    setScheduleRows((prev) =>
-      prev.map((row) => (row.id === rowId ? { ...row, [key]: value } : row)),
-    );
-  }
-
-  function addScheduleRow(): void {
-    setScheduleRows((prev) => [...prev, createScheduleRow()]);
-  }
-
-  function removeScheduleRow(rowId: string): void {
-    setScheduleRows((prev) => {
-      if (prev.length <= 1) {
-        return prev;
-      }
-      return prev.filter((row) => row.id !== rowId);
-    });
-  }
-
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     await submitAdminCreateCoachForm({
@@ -106,7 +79,6 @@ export function AdminCreateCoachForm({
       classTypeOptions,
       selectedClassIds,
       classOptions,
-      scheduleRows,
       photoFile,
       pending,
       submitLockRef,
@@ -119,7 +91,6 @@ export function AdminCreateCoachForm({
       setClassTypeValue,
       setBirthdayValue,
       setSelectedClassIds,
-      setScheduleRows,
       refresh: () => router.refresh(),
     });
   }
@@ -154,15 +125,6 @@ export function AdminCreateCoachForm({
         pending={pending}
         t={t}
         tPage={tPage}
-      />
-
-      <AdminCreateCoachFormScheduleSection
-        scheduleRows={scheduleRows}
-        pending={pending}
-        onAddScheduleRow={addScheduleRow}
-        onUpdateScheduleRow={updateScheduleRow}
-        onRemoveScheduleRow={removeScheduleRow}
-        t={t}
       />
 
       {error !== null ? (

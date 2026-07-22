@@ -7,22 +7,16 @@ import {
   calculateAgeFromBirthday,
   COACH_MAX_AGE,
   COACH_MIN_AGE,
-  createScheduleRow,
-  hasDuplicateScheduleRows,
   isValidEmail,
   isValidPhone,
-  isValidTime,
   MAX_BIO_LENGTH,
   MAX_EXPERIENCE_YEARS,
   MAX_NAME_LENGTH,
   MAX_PHOTO_BYTES,
   MAX_SPECIALIZATION_LENGTH,
   MIN_PASSWORD_LENGTH,
-  MIN_SCHEDULE_SPOTS,
-  normalizeScheduleForApi,
   readFileAsBase64Payload,
   type CoachClassOption,
-  type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
 
 type CreateCoachApiResponse = {
@@ -43,7 +37,6 @@ export type AdminCreateCoachSubmitParams = {
   classTypeOptions: readonly string[];
   selectedClassIds: string[];
   classOptions: readonly CoachClassOption[];
-  scheduleRows: CoachScheduleInput[];
   photoFile: File | null;
   pending: boolean;
   submitLockRef: MutableRefObject<boolean>;
@@ -56,7 +49,6 @@ export type AdminCreateCoachSubmitParams = {
   setClassTypeValue: (value: string) => void;
   setBirthdayValue: (value: string) => void;
   setSelectedClassIds: (ids: string[]) => void;
-  setScheduleRows: (rows: CoachScheduleInput[]) => void;
   refresh: () => void;
 };
 
@@ -66,7 +58,6 @@ export async function submitAdminCreateCoachForm({
   classTypeOptions,
   selectedClassIds,
   classOptions,
-  scheduleRows,
   photoFile,
   pending,
   submitLockRef,
@@ -79,7 +70,6 @@ export async function submitAdminCreateCoachForm({
   setClassTypeValue,
   setBirthdayValue,
   setSelectedClassIds,
-  setScheduleRows,
   refresh,
 }: AdminCreateCoachSubmitParams): Promise<void> {
   if (pending || submitLockRef.current) {
@@ -122,34 +112,34 @@ export async function submitAdminCreateCoachForm({
     setError(t("phoneInvalid"));
     return;
   }
-  const ageNum = Number(ageRaw);
+  const ageNum = ageRaw.length > 0 ? Number(ageRaw) : undefined;
   if (
-    ageRaw.length === 0 ||
-    !Number.isInteger(ageNum) ||
-    ageNum < COACH_MIN_AGE ||
-    ageNum > COACH_MAX_AGE
+    ageNum !== undefined &&
+    (!Number.isInteger(ageNum) || ageNum < COACH_MIN_AGE || ageNum > COACH_MAX_AGE)
   ) {
     setError(t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }));
     return;
   }
-  if (birthdayRaw.length === 0) {
-    setError(t("birthdayRequired"));
-    return;
-  }
-  const birthdayIso = parseBirthdayDisplayToIso(birthdayRaw);
-  if (birthdayIso === null) {
-    setError(t("birthdayInvalid"));
-    return;
-  }
-  const birthdayDate = new Date(birthdayIso);
-  if (Number.isNaN(birthdayDate.getTime())) {
-    setError(t("birthdayInvalid"));
-    return;
-  }
-  const derivedAge = calculateAgeFromBirthday(birthdayIso);
-  if (derivedAge === null || Math.abs(derivedAge - ageNum) > 1) {
-    setError(t("ageBirthdayMismatch"));
-    return;
+  let birthdayIso: string | undefined;
+  if (birthdayRaw.length > 0) {
+    birthdayIso = parseBirthdayDisplayToIso(birthdayRaw) ?? undefined;
+    if (birthdayIso === undefined) {
+      setError(t("birthdayInvalid"));
+      return;
+    }
+    const birthdayDate = new Date(birthdayIso);
+    if (Number.isNaN(birthdayDate.getTime())) {
+      setError(t("birthdayInvalid"));
+      return;
+    }
+    const derivedAge = calculateAgeFromBirthday(birthdayIso);
+    if (
+      ageNum !== undefined &&
+      (derivedAge === null || Math.abs(derivedAge - ageNum) > 1)
+    ) {
+      setError(t("ageBirthdayMismatch"));
+      return;
+    }
   }
   if (bioRaw.length === 0) {
     setError(t("bioRequired"));
@@ -191,18 +181,17 @@ export async function submitAdminCreateCoachForm({
     setError(t("specializationTooLong"));
     return;
   }
-  if (experienceRaw.length === 0) {
-    setError(t("experienceRequired"));
-    return;
-  }
-  const experienceYears = Number(experienceRaw);
-  if (
-    !Number.isInteger(experienceYears) ||
-    experienceYears < 0 ||
-    experienceYears > MAX_EXPERIENCE_YEARS
-  ) {
-    setError(t("experienceInvalid"));
-    return;
+  let experienceYears: number | undefined;
+  if (experienceRaw.length > 0) {
+    experienceYears = Number(experienceRaw);
+    if (
+      !Number.isInteger(experienceYears) ||
+      experienceYears < 0 ||
+      experienceYears > MAX_EXPERIENCE_YEARS
+    ) {
+      setError(t("experienceInvalid"));
+      return;
+    }
   }
   if (selectedClassIds.length === 0) {
     setError(t("assignedClassesRequired"));
@@ -215,17 +204,6 @@ export async function submitAdminCreateCoachForm({
       setError(t("assignedClassesInvalid"));
       return;
     }
-  }
-  const scheduleValidationFailed = scheduleRows.some((row) => {
-    if (row.date.trim() === "" || row.time.trim() === "" || row.spots.trim() === "") {
-      return true;
-    }
-    const spots = Number(row.spots);
-    return !isValidTime(row.time.trim()) || !Number.isInteger(spots) || spots < MIN_SCHEDULE_SPOTS;
-  });
-  if (scheduleValidationFailed || hasDuplicateScheduleRows(scheduleRows)) {
-    setError(t("scheduleInvalid"));
-    return;
   }
   if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
     setError(t("photoTooLarge"));
@@ -243,14 +221,13 @@ export async function submitAdminCreateCoachForm({
         name: nameRaw,
         lastName: lastNameRaw,
         phone: normalizePhoneForApi(phoneRaw),
-        age: ageNum,
-        birthday: birthdayIso,
+        ...(ageNum !== undefined ? { age: ageNum } : {}),
+        ...(birthdayIso !== undefined ? { birthday: birthdayIso } : {}),
         bio: bioRaw,
         specialization: specializationRaw,
         classType: classTypeRaw,
-        experienceYears,
+        ...(experienceYears !== undefined ? { experienceYears } : {}),
         assignedClassTypeIds: selectedClassIds,
-        schedule: normalizeScheduleForApi(scheduleRows),
       }),
     });
     if (photoFile !== null) {
@@ -265,7 +242,6 @@ export async function submitAdminCreateCoachForm({
     setClassTypeValue("");
     setBirthdayValue("");
     setSelectedClassIds([]);
-    setScheduleRows([createScheduleRow()]);
     onPhotoSelected(null);
     setError(null);
     await revalidatePublicCoaches();

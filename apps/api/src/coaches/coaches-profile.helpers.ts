@@ -52,15 +52,24 @@ export function calculateAgeFromDateOfBirth(
 }
 
 export function resolveDateOfBirthFromInputs(
-  age: number,
-  birthday: string,
-): Date {
-  const fromBirthday = parseBirthdayToDateOnly(birthday);
-  const computedAge = calculateAgeFromDateOfBirth(fromBirthday);
-  if (computedAge !== null && Math.abs(computedAge - age) > 1) {
-    throw new BadRequestException('Age does not match birthday');
+  age: number | undefined,
+  birthday: string | undefined,
+): Date | null {
+  const hasBirthday = birthday !== undefined && birthday.trim().length > 0;
+  if (hasBirthday) {
+    const fromBirthday = parseBirthdayToDateOnly(birthday);
+    if (age !== undefined) {
+      const computedAge = calculateAgeFromDateOfBirth(fromBirthday);
+      if (computedAge !== null && Math.abs(computedAge - age) > 1) {
+        throw new BadRequestException('Age does not match birthday');
+      }
+    }
+    return fromBirthday;
   }
-  return fromBirthday;
+  if (age !== undefined) {
+    return approximateDateOfBirthFromAge(age);
+  }
+  return null;
 }
 
 export function resolveDateOfBirthForUpdate(
