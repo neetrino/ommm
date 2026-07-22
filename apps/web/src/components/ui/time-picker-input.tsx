@@ -1,7 +1,11 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
-import { combineTimeInputValue, splitTimeInputValue } from "@/lib/date-display";
+import {
+  combineTimeInputValue,
+  normalizeTimeInputValue,
+  splitTimeInputValue,
+} from "@/lib/date-display";
 
 export type TimePickerInputProps = {
   id?: string;
@@ -66,6 +70,13 @@ export function TimePickerInput({
     onChange(combineTimeInputValue(hours, digits));
   };
 
+  const commitNormalizedValue = () => {
+    const normalized = normalizeTimeInputValue(value);
+    if (normalized !== value) {
+      onChange(normalized);
+    }
+  };
+
   const handleSegmentDigitKeyDown = (
     event: KeyboardEvent<HTMLInputElement>,
     current: string,
@@ -85,7 +96,16 @@ export function TimePickerInput({
   };
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div
+      className="flex items-center gap-1.5"
+      onBlur={(event) => {
+        const nextTarget = event.relatedTarget;
+        if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+          return;
+        }
+        commitNormalizedValue();
+      }}
+    >
       <input type="hidden" name={name} value={value} required={required} />
       <input
         ref={hourRef}

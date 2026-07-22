@@ -154,6 +154,21 @@ export function combineTimeInputValue(hours: string, minutes: string): string {
   return `${hour}:${minute}`;
 }
 
+/**
+ * Pads a time value to strict `HH:mm` when both hour and complete minutes are present.
+ * Leaves incomplete values unchanged so mid-edit typing stays usable.
+ */
+export function normalizeTimeInputValue(value: string): string {
+  const { hours, minutes } = splitTimeInputValue(value);
+  if (hours === "" || minutes.length < 2) {
+    return value.trim();
+  }
+
+  const hour = String(Math.min(23, Number(hours))).padStart(2, "0");
+  const minute = String(Math.min(59, Number(minutes))).padStart(2, "0");
+  return `${hour}:${minute}`;
+}
+
 /** Parses a `DD/MM/YYYY` display value into an ISO date (`YYYY-MM-DD`). */
 export function parseBirthdayDisplayToIso(displayValue: string): string | null {
   const trimmed = displayValue.trim();

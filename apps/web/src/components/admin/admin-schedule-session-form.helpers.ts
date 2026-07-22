@@ -16,6 +16,7 @@ import type {
   CalendarScheduleSlot,
   ScheduleDayOfWeek,
 } from "@/components/admin/admin-schedule-session.types";
+import { normalizeTimeInputValue } from "@/lib/date-display";
 import { localIsoDateFromValue } from "@/lib/local-iso-date";
 
 function timeValue(value: Date | string): string {
@@ -123,13 +124,15 @@ export function initialForm(
 }
 
 export function formPayload(form: AdminScheduleFormState, classTypeId: string, title: string) {
+  const startTime = normalizeTimeInputValue(form.startTime);
+  const endTime = normalizeTimeInputValue(form.endTime);
   return {
     title: title.trim(),
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
-    startsAt: new Date(`${form.date}T${form.startTime}:00`).toISOString(),
-    endsAt: new Date(`${form.date}T${form.endTime}:00`).toISOString(),
+    startsAt: new Date(`${form.date}T${startTime}:00`).toISOString(),
+    endsAt: new Date(`${form.date}T${endTime}:00`).toISOString(),
     capacity: Number(form.capacity),
     level: joinSessionLevels(form.levels),
     status: form.status,
@@ -155,7 +158,11 @@ export function batchFormPayload(
     startDate,
     endDate,
     timezoneOffsetMinutes: new Date().getTimezoneOffset(),
-    slots: slots.map(({ weekday, startTime, endTime }) => ({ weekday, startTime, endTime })),
+    slots: slots.map(({ weekday, startTime, endTime }) => ({
+      weekday,
+      startTime: normalizeTimeInputValue(startTime),
+      endTime: normalizeTimeInputValue(endTime),
+    })),
   };
 }
 
