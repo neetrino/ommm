@@ -11,6 +11,7 @@ import {
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
+  PSEUDO_AGE,
   PSEUDO_BIRTHDAY,
   PSEUDO_EMAIL,
   PSEUDO_FIRST_NAME,
@@ -157,6 +158,7 @@ export function AdminCreateCoachFormPersonalSection({
             min={COACH_MIN_AGE}
             max={COACH_MAX_AGE}
             inputMode="numeric"
+            placeholder={PSEUDO_AGE}
           />
         </label>
       </div>

@@ -5,3 +5,4 @@ export const PSEUDO_EMAIL = "emma.johnson@email.com";
 export const PSEUDO_PASSWORD = "••••••••";
 export const PSEUDO_PHONE = "+374 99 123456";
 export const PSEUDO_BIRTHDAY = "15/03/1995";
+export const PSEUDO_AGE = "28";
