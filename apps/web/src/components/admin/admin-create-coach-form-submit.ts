@@ -4,6 +4,11 @@ import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
 import { parseBirthdayDisplayToIso } from "@/lib/date-display";
 import { normalizePhoneForApi } from "@/lib/phone";
 import {
+  focusAdminCreateCoachField,
+  resolveAdminCreateCoachApiFocusField,
+  type AdminCreateCoachFocusField,
+} from "@/components/admin/admin-create-coach-form-focus";
+import {
   calculateAgeFromBirthday,
   COACH_MAX_AGE,
   COACH_MIN_AGE,
@@ -50,6 +55,16 @@ export type AdminCreateCoachSubmitParams = {
   refresh: () => void;
 };
 
+function reportError(
+  form: HTMLFormElement,
+  setError: (error: string | null) => void,
+  message: string,
+  field: AdminCreateCoachFocusField,
+): void {
+  setError(message);
+  focusAdminCreateCoachField(form, field);
+}
+
 export async function submitAdminCreateCoachForm({
   form,
   phone,
@@ -88,23 +103,23 @@ export async function submitAdminCreateCoachForm({
   setSuccess(false);
 
   if (nameRaw.length === 0) {
-    setError(t("nameRequired"));
+    reportError(form, setError, t("nameRequired"), "name");
     return;
   }
   if (lastNameRaw.length === 0) {
-    setError(t("lastNameRequired"));
+    reportError(form, setError, t("lastNameRequired"), "lastName");
     return;
   }
   if (!isValidEmail(emailRaw)) {
-    setError(t("emailInvalid"));
+    reportError(form, setError, t("emailInvalid"), "email");
     return;
   }
   if (phoneRaw.length === 0) {
-    setError(t("phoneRequired"));
+    reportError(form, setError, t("phoneRequired"), "phone");
     return;
   }
   if (!isValidPhone(phoneRaw)) {
-    setError(t("phoneInvalid"));
+    reportError(form, setError, t("phoneInvalid"), "phone");
     return;
   }
   const ageNum = ageRaw.length > 0 ? Number(ageRaw) : undefined;
@@ -112,19 +127,24 @@ export async function submitAdminCreateCoachForm({
     ageNum !== undefined &&
     (!Number.isInteger(ageNum) || ageNum < COACH_MIN_AGE || ageNum > COACH_MAX_AGE)
   ) {
-    setError(t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }));
+    reportError(
+      form,
+      setError,
+      t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }),
+      "age",
+    );
     return;
   }
   let birthdayIso: string | undefined;
   if (birthdayRaw.length > 0) {
     birthdayIso = parseBirthdayDisplayToIso(birthdayRaw) ?? undefined;
     if (birthdayIso === undefined) {
-      setError(t("birthdayInvalid"));
+      reportError(form, setError, t("birthdayInvalid"), "birthday");
       return;
     }
     const birthdayDate = new Date(birthdayIso);
     if (Number.isNaN(birthdayDate.getTime())) {
-      setError(t("birthdayInvalid"));
+      reportError(form, setError, t("birthdayInvalid"), "birthday");
       return;
     }
     const derivedAge = calculateAgeFromBirthday(birthdayIso);
@@ -132,36 +152,41 @@ export async function submitAdminCreateCoachForm({
       ageNum !== undefined &&
       (derivedAge === null || Math.abs(derivedAge - ageNum) > 1)
     ) {
-      setError(t("ageBirthdayMismatch"));
+      reportError(form, setError, t("ageBirthdayMismatch"), "birthday");
       return;
     }
   }
   if (bioRaw.length > MAX_BIO_LENGTH) {
-    setError(t("bioTooLong"));
+    reportError(form, setError, t("bioTooLong"), "bio");
     return;
   }
   if (specializationRaw.length === 0) {
-    setError(t("specializationRequired"));
+    reportError(form, setError, t("specializationRequired"), "specialization");
     return;
   }
   if (password.length === 0) {
-    setError(t("passwordRequired"));
+    reportError(form, setError, t("passwordRequired"), "password");
     return;
   }
   if (password.length < MIN_PASSWORD_LENGTH) {
-    setError(t("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
+    reportError(
+      form,
+      setError,
+      t("passwordTooShort", { min: MIN_PASSWORD_LENGTH }),
+      "password",
+    );
     return;
   }
   if (nameRaw.length > MAX_NAME_LENGTH) {
-    setError(t("nameTooLong"));
+    reportError(form, setError, t("nameTooLong"), "name");
     return;
   }
   if (lastNameRaw.length > MAX_NAME_LENGTH) {
-    setError(t("lastNameTooLong"));
+    reportError(form, setError, t("lastNameTooLong"), "lastName");
     return;
   }
   if (specializationRaw.length > MAX_SPECIALIZATION_LENGTH) {
-    setError(t("specializationTooLong"));
+    reportError(form, setError, t("specializationTooLong"), "specialization");
     return;
   }
   let experienceYears: number | undefined;
@@ -172,19 +197,19 @@ export async function submitAdminCreateCoachForm({
       experienceYears < 0 ||
       experienceYears > MAX_EXPERIENCE_YEARS
     ) {
-      setError(t("experienceInvalid"));
+      reportError(form, setError, t("experienceInvalid"), "experienceYears");
       return;
     }
   }
   if (selectedClassIds.length === 0) {
-    setError(t("assignedClassesRequired"));
+    reportError(form, setError, t("assignedClassesRequired"), "assignedClasses");
     return;
   }
   if (classOptions.length > 0) {
     const allowedClassIds = new Set(classOptions.map((option) => option.id));
     const hasInvalidClass = selectedClassIds.some((id) => !allowedClassIds.has(id));
     if (hasInvalidClass) {
-      setError(t("assignedClassesInvalid"));
+      reportError(form, setError, t("assignedClassesInvalid"), "assignedClasses");
       return;
     }
   }
@@ -193,11 +218,11 @@ export async function submitAdminCreateCoachForm({
   );
   const classTypeRaw = primaryAssignedClass?.name.trim() ?? "";
   if (classTypeRaw.length === 0) {
-    setError(t("assignedClassesInvalid"));
+    reportError(form, setError, t("assignedClassesInvalid"), "assignedClasses");
     return;
   }
   if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
-    setError(t("photoTooLarge"));
+    reportError(form, setError, t("photoTooLarge"), "photo");
     return;
   }
 
@@ -242,12 +267,16 @@ export async function submitAdminCreateCoachForm({
       refresh();
     }
   } catch (err) {
+    let message = t("genericError");
     if (err instanceof ApiError) {
-      setError(err.message);
+      message = err.message;
     } else if (err instanceof Error && err.message.trim().length > 0) {
-      setError(err.message);
-    } else {
-      setError(t("genericError"));
+      message = err.message;
+    }
+    setError(message);
+    const apiField = resolveAdminCreateCoachApiFocusField(message);
+    if (apiField !== null) {
+      focusAdminCreateCoachField(form, apiField);
     }
   } finally {
     setPending(false);

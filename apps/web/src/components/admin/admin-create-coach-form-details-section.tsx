@@ -68,7 +68,7 @@ export function AdminCreateCoachFormDetailsSection({
               inputMode="numeric"
             />
           </label>
-          <div className="flex flex-col gap-2 lg:col-span-2">
+          <div className="flex flex-col gap-2 lg:col-span-2" data-create-coach-field="photo">
             <span className="ommm-label text-xs uppercase tracking-wide">{t("photoLabel")}</span>
             <div className="rounded-2xl border border-sand-500/20 bg-white/80 p-3">
               <div className="flex flex-wrap items-center gap-3">
@@ -122,7 +122,10 @@ export function AdminCreateCoachFormDetailsSection({
         </div>
       </section>
 
-      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+      <section
+        className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5"
+        data-create-coach-field="assignedClasses"
+      >
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
             Assigned Classes
