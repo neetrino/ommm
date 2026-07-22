@@ -1,5 +1,6 @@
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
 import { splitSessionLevels } from "@/components/admin/admin-schedule-session-display";
+import { normalizeTimeInputValue } from "@/lib/date-display";
 
 export type SessionEditFormState = {
   title: string;
@@ -66,13 +67,15 @@ export function isSessionEditFormDirty(
 }
 
 export function sessionEditFormPayload(form: SessionEditFormState, classTypeId: string) {
+  const startTime = normalizeTimeInputValue(form.startTime);
+  const endTime = normalizeTimeInputValue(form.endTime);
   return {
     title: form.title.trim(),
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
-    startsAt: new Date(`${form.date}T${form.startTime}:00`).toISOString(),
-    endsAt: new Date(`${form.date}T${form.endTime}:00`).toISOString(),
+    startsAt: new Date(`${form.date}T${startTime}:00`).toISOString(),
+    endsAt: new Date(`${form.date}T${endTime}:00`).toISOString(),
     capacity: Number(form.capacity),
     level: joinSessionLevels(form.levels),
   };

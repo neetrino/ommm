@@ -18,6 +18,7 @@ import {
   type AdminScheduleFormState,
   type AdminScheduleMutationPayload,
 } from "@/components/admin/admin-schedule-form.types";
+import { normalizeTimeInputValue } from "@/lib/date-display";
 
 export function toScheduleFilterOptions(
   values: readonly string[],
@@ -62,8 +63,8 @@ export function adminSchedulePayloadFromState(
   const instructorName = form.instructorName.trim();
   const classType = form.classType.trim();
   const description = form.description.trim();
-  const startTime = form.startTime.trim();
-  const endTime = form.endTime.trim();
+  const startTime = normalizeTimeInputValue(form.startTime.trim());
+  const endTime = normalizeTimeInputValue(form.endTime.trim());
   const durationText = form.durationMinutes.trim();
   const spotsText = form.availableSpots.trim();
 
