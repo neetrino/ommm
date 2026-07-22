@@ -6,17 +6,10 @@ import {
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
-import {
-  ScheduleFilterDropdown,
-  type ScheduleFilterOption,
-} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminRequiredMark } from "@/components/admin/admin-sheet-editable-field";
 
 type AdminCreateCoachFormDetailsSectionProps = {
-  classTypeValue: string;
-  classTypeDropdownOptions: ScheduleFilterOption<string>[];
-  onClassTypeChange: (value: string) => void;
   classOptions: readonly CoachClassOption[];
   selectedClassIds: string[];
   onToggleClassSelection: (classTypeId: string) => void;
@@ -29,9 +22,6 @@ type AdminCreateCoachFormDetailsSectionProps = {
 };
 
 export function AdminCreateCoachFormDetailsSection({
-  classTypeValue,
-  classTypeDropdownOptions,
-  onClassTypeChange,
   classOptions,
   selectedClassIds,
   onToggleClassSelection,
@@ -78,23 +68,7 @@ export function AdminCreateCoachFormDetailsSection({
               inputMode="numeric"
             />
           </label>
-          <label className="flex flex-col gap-1">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("classTypeLabel")}
-              <AdminRequiredMark />
-            </span>
-            <ScheduleFilterDropdown
-              name="classType"
-              label={t("classTypePlaceholder")}
-              ariaLabel={t("classTypeLabel")}
-              value={classTypeValue}
-              options={classTypeDropdownOptions}
-              onChange={onClassTypeChange}
-              disabled={pending}
-              required
-            />
-          </label>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 lg:col-span-2">
             <span className="ommm-label text-xs uppercase tracking-wide">{t("photoLabel")}</span>
             <div className="rounded-2xl border border-sand-500/20 bg-white/80 p-3">
               <div className="flex flex-wrap items-center gap-3">
@@ -138,15 +112,11 @@ export function AdminCreateCoachFormDetailsSection({
             </div>
           </div>
           <label className="flex flex-col gap-1 lg:col-span-2">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("bioLabel")}
-              <AdminRequiredMark />
-            </span>
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("bioLabel")}</span>
             <textarea
               name="bio"
               className="ommm-input min-h-[150px] resize-y"
               maxLength={MAX_BIO_LENGTH}
-              required
             />
           </label>
         </div>

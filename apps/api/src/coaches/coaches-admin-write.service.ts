@@ -248,8 +248,8 @@ export class CoachesAdminWriteService {
   }
 
   private async assertValidCoachClassType(classType: string): Promise<void> {
-    const exists = await this.prisma.scheduleItem.findFirst({
-      where: { classType, isActive: true },
+    const exists = await this.prisma.classType.findFirst({
+      where: { name: classType },
       select: { id: true },
     });
     if (!exists) {

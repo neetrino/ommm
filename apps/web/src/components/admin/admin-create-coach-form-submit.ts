@@ -34,7 +34,6 @@ type CreateCoachApiResponse = {
 export type AdminCreateCoachSubmitParams = {
   form: HTMLFormElement;
   phone: string;
-  classTypeOptions: readonly string[];
   selectedClassIds: string[];
   classOptions: readonly CoachClassOption[];
   photoFile: File | null;
@@ -46,7 +45,6 @@ export type AdminCreateCoachSubmitParams = {
   setError: (error: string | null) => void;
   setSuccess: (success: boolean) => void;
   setPending: (pending: boolean) => void;
-  setClassTypeValue: (value: string) => void;
   setBirthdayValue: (value: string) => void;
   setSelectedClassIds: (ids: string[]) => void;
   refresh: () => void;
@@ -55,7 +53,6 @@ export type AdminCreateCoachSubmitParams = {
 export async function submitAdminCreateCoachForm({
   form,
   phone,
-  classTypeOptions,
   selectedClassIds,
   classOptions,
   photoFile,
@@ -67,7 +64,6 @@ export async function submitAdminCreateCoachForm({
   setError,
   setSuccess,
   setPending,
-  setClassTypeValue,
   setBirthdayValue,
   setSelectedClassIds,
   refresh,
@@ -86,7 +82,6 @@ export async function submitAdminCreateCoachForm({
   const bioRaw = String(fd.get("bio") ?? "").trim();
   const experienceRaw = String(fd.get("experienceYears") ?? "").trim();
   const specializationRaw = String(fd.get("specialization") ?? "").trim();
-  const classTypeRaw = String(fd.get("classType") ?? "").trim();
   const password = String(fd.get("password") ?? "");
 
   setError(null);
@@ -141,24 +136,12 @@ export async function submitAdminCreateCoachForm({
       return;
     }
   }
-  if (bioRaw.length === 0) {
-    setError(t("bioRequired"));
-    return;
-  }
   if (bioRaw.length > MAX_BIO_LENGTH) {
     setError(t("bioTooLong"));
     return;
   }
   if (specializationRaw.length === 0) {
     setError(t("specializationRequired"));
-    return;
-  }
-  if (classTypeRaw.length === 0) {
-    setError(t("classTypeRequired"));
-    return;
-  }
-  if (!classTypeOptions.includes(classTypeRaw)) {
-    setError(t("classTypeInvalid"));
     return;
   }
   if (password.length === 0) {
@@ -205,6 +188,14 @@ export async function submitAdminCreateCoachForm({
       return;
     }
   }
+  const primaryAssignedClass = classOptions.find(
+    (option) => option.id === selectedClassIds[0],
+  );
+  const classTypeRaw = primaryAssignedClass?.name.trim() ?? "";
+  if (classTypeRaw.length === 0) {
+    setError(t("assignedClassesInvalid"));
+    return;
+  }
   if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
     setError(t("photoTooLarge"));
     return;
@@ -223,7 +214,7 @@ export async function submitAdminCreateCoachForm({
         phone: normalizePhoneForApi(phoneRaw),
         ...(ageNum !== undefined ? { age: ageNum } : {}),
         ...(birthdayIso !== undefined ? { birthday: birthdayIso } : {}),
-        bio: bioRaw,
+        ...(bioRaw.length > 0 ? { bio: bioRaw } : {}),
         specialization: specializationRaw,
         classType: classTypeRaw,
         ...(experienceYears !== undefined ? { experienceYears } : {}),
@@ -239,7 +230,6 @@ export async function submitAdminCreateCoachForm({
       onPhotoSelected(null);
     }
     form.reset();
-    setClassTypeValue("");
     setBirthdayValue("");
     setSelectedClassIds([]);
     onPhotoSelected(null);

@@ -10,11 +10,9 @@ import {
   sanitizeCoachPreviewSrc,
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
-import type { ScheduleFilterOption } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 
 export type AdminCreateCoachFormProps = {
-  classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   /** When set, successful create invokes this instead of inline success + refresh (parent handles refresh). */
   onCreated?: () => void;
@@ -23,7 +21,6 @@ export type AdminCreateCoachFormProps = {
 };
 
 export function AdminCreateCoachForm({
-  classTypeOptions,
   classOptions,
   onCreated,
   onCancel,
@@ -35,19 +32,12 @@ export function AdminCreateCoachForm({
   const [success, setSuccess] = useState(false);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
-  const [classTypeValue, setClassTypeValue] = useState("");
   const [birthdayValue, setBirthdayValue] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
-    (value) => ({
-      value,
-      label: value,
-    }),
-  );
   const photoPreview = useMemo(() => {
     return photoPreviewUrl !== null ? sanitizeCoachPreviewSrc(photoPreviewUrl) : null;
   }, [photoPreviewUrl]);
@@ -76,7 +66,6 @@ export function AdminCreateCoachForm({
     await submitAdminCreateCoachForm({
       form: e.currentTarget,
       phone,
-      classTypeOptions,
       selectedClassIds,
       classOptions,
       photoFile,
@@ -88,7 +77,6 @@ export function AdminCreateCoachForm({
       setError,
       setSuccess,
       setPending,
-      setClassTypeValue,
       setBirthdayValue,
       setSelectedClassIds,
       refresh: () => router.refresh(),
@@ -114,9 +102,6 @@ export function AdminCreateCoachForm({
         />
 
         <AdminCreateCoachFormDetailsSection
-          classTypeValue={classTypeValue}
-          classTypeDropdownOptions={classTypeDropdownOptions}
-          onClassTypeChange={setClassTypeValue}
           classOptions={classOptions}
           selectedClassIds={selectedClassIds}
           onToggleClassSelection={toggleClassSelection}

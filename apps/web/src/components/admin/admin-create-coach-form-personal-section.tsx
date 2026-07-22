@@ -147,7 +147,6 @@ export function AdminCreateCoachFormPersonalSection({
               }
             }}
           />
-          <span className="text-xs text-sage-500">{t("birthdayOptionalHint")}</span>
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("ageLabel")}</span>
