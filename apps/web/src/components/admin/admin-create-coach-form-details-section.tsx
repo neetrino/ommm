@@ -6,9 +6,9 @@ import {
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
 import {
-  AdminCreateCoachFieldError,
-  adminCreateCoachInputClass,
-} from "@/components/admin/admin-create-coach-field-error";
+  FormFieldErrorFor,
+  formFieldInputClassFor,
+} from "@/components/ui/form-validation";
 import type { AdminCreateCoachFocusField } from "@/components/admin/admin-create-coach-form-focus";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -64,13 +64,13 @@ export function AdminCreateCoachFormDetailsSection({
             </span>
             <input
               name="specialization"
-              className={adminCreateCoachInputClass("specialization", errorField)}
+              className={formFieldInputClassFor("specialization", errorField)}
               maxLength={MAX_SPECIALIZATION_LENGTH}
               placeholder={t("specializationPlaceholder")}
               required
               aria-invalid={errorField === "specialization"}
             />
-            <AdminCreateCoachFieldError
+            <FormFieldErrorFor
               field="specialization"
               errorField={errorField}
               message={errorMessage}
@@ -83,13 +83,13 @@ export function AdminCreateCoachFormDetailsSection({
             <input
               name="experienceYears"
               type="number"
-              className={adminCreateCoachInputClass("experienceYears", errorField)}
+              className={formFieldInputClassFor("experienceYears", errorField)}
               min={0}
               max={MAX_EXPERIENCE_YEARS}
               inputMode="numeric"
               aria-invalid={errorField === "experienceYears"}
             />
-            <AdminCreateCoachFieldError
+            <FormFieldErrorFor
               field="experienceYears"
               errorField={errorField}
               message={errorMessage}
@@ -147,7 +147,7 @@ export function AdminCreateCoachFormDetailsSection({
                 <p className="mt-2 text-xs text-sage-500">{t("photoHint")}</p>
               )}
             </div>
-            <AdminCreateCoachFieldError
+            <FormFieldErrorFor
               field="photo"
               errorField={errorField}
               message={errorMessage}
@@ -157,11 +157,11 @@ export function AdminCreateCoachFormDetailsSection({
             <span className="ommm-label text-xs uppercase tracking-wide">{t("bioLabel")}</span>
             <textarea
               name="bio"
-              className={adminCreateCoachInputClass("bio", errorField, "min-h-[150px] resize-y")}
+              className={formFieldInputClassFor("bio", errorField, "min-h-[150px] resize-y")}
               maxLength={MAX_BIO_LENGTH}
               aria-invalid={errorField === "bio"}
             />
-            <AdminCreateCoachFieldError
+            <FormFieldErrorFor
               field="bio"
               errorField={errorField}
               message={errorMessage}
@@ -175,6 +175,7 @@ export function AdminCreateCoachFormDetailsSection({
           assignedInvalid ? ADMIN_INVALID_FIELD_CLASS : "border-white/60"
         }`}
         data-create-coach-field="assignedClasses"
+        data-form-field="assignedClasses"
       >
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
