@@ -151,6 +151,10 @@ export function useCoachEditForm({
   }
 
   function onPhotoSelected(file: File | null): void {
+    if (file !== null && file.size > MAX_PHOTO_BYTES) {
+      setErrors((prev) => ({ ...prev, photo: labels.photoTooLarge }));
+      return;
+    }
     if (photoPreviewUrl !== null) {
       URL.revokeObjectURL(photoPreviewUrl);
     }
@@ -170,86 +174,6 @@ export function useCoachEditForm({
     setPhotoFile(null);
     setPhotoRemoved(true);
     updateField("photoUrl", "");
-  }
-
-  async function uploadPhoto(
-    file: File,
-    successMessage: string,
-    genericError: string,
-  ): Promise<void> {
-    if (busy || submitLockRef.current) {
-      return;
-    }
-    if (file.size > MAX_PHOTO_BYTES) {
-      setErrors((prev) => ({ ...prev, photo: labels.photoTooLarge }));
-      return;
-    }
-
-    submitLockRef.current = true;
-    setBusy(true);
-    setMessage(null);
-    setErrors((prev) => ({ ...prev, photo: undefined }));
-
-    try {
-      const filePayload = await readFileAsBase64Payload(file);
-      const uploaded = await apiFetch<{ avatarUrl: string }>(`/coaches/${coachId}/photo-json`, {
-        method: "POST",
-        body: JSON.stringify(filePayload),
-      });
-      const nextForm = { ...form, photoUrl: uploaded.avatarUrl };
-      setForm(nextForm);
-      setSnapshot(nextForm);
-      setPhotoPreviewUrl((prev) => {
-        if (prev !== null) {
-          URL.revokeObjectURL(prev);
-        }
-        return null;
-      });
-      setPhotoFile(null);
-      setPhotoRemoved(false);
-      setToneOk(successMessage);
-      await refreshCoachViews();
-    } catch (error) {
-      setToneErr(error instanceof ApiError ? error.message : genericError);
-    } finally {
-      submitLockRef.current = false;
-      setBusy(false);
-    }
-  }
-
-  async function removePhoto(successMessage: string, genericError: string): Promise<void> {
-    if (busy || submitLockRef.current) {
-      return;
-    }
-
-    submitLockRef.current = true;
-    setBusy(true);
-    setMessage(null);
-
-    try {
-      await apiFetch(`/coaches/${coachId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ photoUrl: "" }),
-      });
-      const nextForm = { ...form, photoUrl: "" };
-      setForm(nextForm);
-      setSnapshot(nextForm);
-      setPhotoPreviewUrl((prev) => {
-        if (prev !== null) {
-          URL.revokeObjectURL(prev);
-        }
-        return null;
-      });
-      setPhotoFile(null);
-      setPhotoRemoved(false);
-      setToneOk(successMessage);
-      await refreshCoachViews();
-    } catch (error) {
-      setToneErr(error instanceof ApiError ? error.message : genericError);
-    } finally {
-      submitLockRef.current = false;
-      setBusy(false);
-    }
   }
 
   function toggleClassSelection(classTypeId: string): void {
@@ -337,35 +261,41 @@ export function useCoachEditForm({
         body: JSON.stringify(payload),
       });
 
+      let nextAvatarUrl = updated.user.avatarUrl;
       if (photoFile !== null) {
         const filePayload = await readFileAsBase64Payload(photoFile);
         const uploaded = await apiFetch<{ avatarUrl: string }>(`/coaches/${coachId}/photo-json`, {
           method: "POST",
           body: JSON.stringify(filePayload),
         });
-        const nextForm = { ...form, photoUrl: uploaded.avatarUrl };
-        setForm(nextForm);
-        setSnapshot(nextForm);
-        setPhotoPreviewUrl((prev) => {
-          if (prev !== null) {
-            URL.revokeObjectURL(prev);
-          }
-          return null;
-        });
-        setPhotoFile(null);
-        setPhotoRemoved(false);
-      } else {
-        const nextForm = {
-          ...form,
-          assignedClassTypeIds: [...updated.assignedClassTypeIds],
-        };
-        setForm(nextForm);
-        setSnapshot(nextForm);
+        nextAvatarUrl = uploaded.avatarUrl;
       }
+
+      const nextForm = {
+        ...form,
+        assignedClassTypeIds: [...updated.assignedClassTypeIds],
+        photoUrl: nextAvatarUrl ?? "",
+      };
+      setForm(nextForm);
+      setSnapshot(nextForm);
+      setPhotoPreviewUrl((prev) => {
+        if (prev !== null) {
+          URL.revokeObjectURL(prev);
+        }
+        return null;
+      });
+      setPhotoFile(null);
+      setPhotoRemoved(false);
+
       if (!options?.silentSuccess) {
         setToneOk(okMessage);
       }
-      onSaved?.(coachSavedSnapshotFromUpdate(updated));
+      onSaved?.(
+        coachSavedSnapshotFromUpdate({
+          ...updated,
+          user: { ...updated.user, avatarUrl: nextAvatarUrl },
+        }),
+      );
       await refreshCoachViews();
       return true;
     } catch (error) {
@@ -400,8 +330,6 @@ export function useCoachEditForm({
     updateField,
     onPhotoSelected,
     onPhotoDeleted,
-    uploadPhoto,
-    removePhoto,
     toggleClassSelection,
     updateSchedule,
     addScheduleRow,
