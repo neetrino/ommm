@@ -77,6 +77,7 @@ export function AdminPackageForm({
       setPending,
       submitLockRef,
       pending,
+      form: event.currentTarget,
     });
   }
 

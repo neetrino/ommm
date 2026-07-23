@@ -5,6 +5,7 @@ import {
 } from "@/components/admin/admin-package-form-submit.payload";
 import type { AdminPackageFormSubmitParams } from "@/components/admin/admin-package-form-submit.types";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import { focusFormField } from "@/components/ui/form-validation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
 
@@ -14,6 +15,7 @@ export async function submitAdminPackageForm(
   params: AdminPackageFormSubmitParams,
 ): Promise<void> {
   const {
+    form,
     pending,
     submitLockRef,
     setError,
@@ -34,6 +36,9 @@ export async function submitAdminPackageForm(
   const preparedResult = prepareAdminPackageFormSubmit(params);
   if (!preparedResult.ok) {
     setError(preparedResult.error);
+    if (form !== undefined && preparedResult.focusField !== undefined) {
+      focusFormField(form, preparedResult.focusField);
+    }
     return;
   }
 

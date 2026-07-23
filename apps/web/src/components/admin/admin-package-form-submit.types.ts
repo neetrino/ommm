@@ -5,10 +5,8 @@ import type {
 } from "@/components/admin/admin-package-form.types";
 import type { AdminPackageFormValues } from "@/components/admin/admin-package-form-utils";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
-import type {
-  PackageTypeSessionFormEntry,
-  TierFieldErrors,
-} from "@/components/admin/admin-package-type-sessions.util";
+import type { PackageTypeSessionFormEntry } from "@/components/admin/admin-package-type-sessions.util";
+import type { TierFieldErrors } from "@/components/admin/admin-package-tier-field-errors";
 
 export type AdminPackageFormMergedCategoryOption = {
   id: string;
@@ -39,6 +37,8 @@ export type AdminPackageFormSubmitParams = {
   setPending: (pending: boolean) => void;
   submitLockRef: MutableRefObject<boolean>;
   pending: boolean;
+  /** Used to scroll/focus the first invalid tier field after client validation. */
+  form?: HTMLFormElement;
 };
 
 export type AdminPackageFormSubmitPrepared = {

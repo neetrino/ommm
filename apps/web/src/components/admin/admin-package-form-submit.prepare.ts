@@ -30,15 +30,18 @@ import {
   resolvePackageCategorySlug,
 } from "@/components/admin/package-category-utils";
 import {
-  collectTierFieldErrors,
   validateTypeSessionEntries,
   type TypeSessionValidationError,
 } from "@/components/admin/admin-package-type-sessions.util";
+import {
+  collectTierFieldErrors,
+  type TierFocusField,
+} from "@/components/admin/admin-package-tier-field-errors";
 import type { PackageTranslateFn } from "@/components/admin/admin-package-form-submit.types";
 
 type PrepareResult =
   | { ok: true; prepared: AdminPackageFormSubmitPrepared }
-  | { ok: false; error: string };
+  | { ok: false; error: string; focusField?: TierFocusField };
 
 function resolveTypeSessionErrorMessage(
   error: TypeSessionValidationError,
@@ -95,6 +98,7 @@ export function prepareAdminPackageFormSubmit(
           tierValidation.messageScope === "typeSessions"
             ? t(`typeSessionsForm.${tierValidation.messageKey}`)
             : t(tierValidation.messageKey),
+        focusField: tierValidation.focusField,
       };
     }
     setTierFieldErrors({});
@@ -246,6 +250,7 @@ export function prepareAdminPackageFormSubmit(
       return {
         ok: false,
         error: resolveTypeSessionErrorMessage(typeSessionValidation.error, t),
+        focusField: "typeSessions",
       };
     }
     typeSessionAllocations = typeSessionValidation.payload;
