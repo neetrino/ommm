@@ -21,11 +21,19 @@ export const WORKSPACE_MAIN_SAFE_TOP_CLASS = "pt-4 sm:pt-6 lg:pt-8";
 export const DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS =
   "ommm-admin-sticky-header sticky z-20 px-4 pt-4 sm:px-6 lg:px-8";
 
+/** Full-bleed horizontal inset shared by sticky and static page banners. */
+export const ADMIN_PAGE_SHELL_INSET_CLASS =
+  "-mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8";
+
 /** Sticky page banner (AdminPageHero) — full-bleed opaque backdrop on workspace scroll. */
-export const ADMIN_PAGE_STICKY_SHELL_CLASS =
-  "ommm-admin-sticky-header sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8";
+export const ADMIN_PAGE_STICKY_SHELL_CLASS = `ommm-admin-sticky-header sticky z-20 ${ADMIN_PAGE_SHELL_INSET_CLASS}`;
+
+/** Non-sticky page banner — same inset, scrolls away with content (e.g. admin schedule). */
+export const ADMIN_PAGE_STATIC_SHELL_CLASS = ADMIN_PAGE_SHELL_INSET_CLASS;
 
 export const ADMIN_PAGE_HERO_STICKY_SHELL_CLASS = `${ADMIN_PAGE_STICKY_SHELL_CLASS} mb-4`;
+
+export const ADMIN_PAGE_HERO_STATIC_SHELL_CLASS = `${ADMIN_PAGE_STATIC_SHELL_CLASS} mb-4`;
 
 export function brandInitial(label: string) {
   const t = label.trim();

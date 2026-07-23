@@ -18,6 +18,7 @@ import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-l
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
+import { useEffectiveScheduleView } from "@/hooks/use-effective-schedule-view";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { parseSessionSortOrder, sortBySessionStartsAt } from "@/lib/list-sort";
 import {
@@ -45,6 +46,7 @@ export function CoachScheduleSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [view, setView] = useScheduleViewUrl(initialView);
+  const effectiveView = useEffectiveScheduleView(view);
   const [filters, setFilters] = useState<CoachScheduleFilterValues>(() => ({
     ...DEFAULT_COACH_SCHEDULE_FILTER_VALUES,
     order: readUserListOrderFromSearch(
@@ -180,7 +182,7 @@ export function CoachScheduleSection({
 
       <StaffScheduleListWeekViews
         locale={locale}
-        view={view}
+        view={effectiveView}
         rows={filteredSessions}
         preset="staffReadOnly"
         emptyTitle={emptyTitle}

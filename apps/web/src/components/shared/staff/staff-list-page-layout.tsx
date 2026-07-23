@@ -13,6 +13,7 @@ type StaffListPageLayoutProps = {
   headerTrailing?: ReactNode;
   metrics?: ReactNode;
   status?: ReactNode;
+  sticky?: boolean;
   children: ReactNode;
 };
 
@@ -28,6 +29,7 @@ export function StaffListPageLayout({
   headerTrailing,
   metrics,
   status,
+  sticky = true,
   children,
 }: StaffListPageLayoutProps) {
   const hasSearchRow = search !== undefined || searchTrailing !== undefined;
@@ -37,6 +39,7 @@ export function StaffListPageLayout({
       <AdminPageHero
         title={title}
         description={description}
+        sticky={sticky}
         search={
           hasSearchRow ? (
             <div className="flex min-w-0 flex-1 items-center gap-2">

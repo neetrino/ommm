@@ -3,6 +3,8 @@
   width: 100%;
   min-width: 0;
   grid-auto-flow: column;
+  /* Mobile: two day cards in view; the rest scroll horizontally. */
+  grid-auto-columns: calc((100% - 0.5rem) / 2);
   gap: 0.5rem;
   overflow-x: auto;
   overflow-y: hidden;
@@ -13,6 +15,12 @@
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@media (min-width: 768px) {
+  .viewport {
+    grid-auto-columns: calc((100% - 4.5rem) / 10);
+  }
 }
 
 .viewport::-webkit-scrollbar {
@@ -43,7 +51,7 @@
 }
 
 .dayNumber {
-  font-size: clamp(2rem, 44cqi, 3.5rem);
+  font-size: clamp(1.75rem, 44cqi, 3.5rem);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }

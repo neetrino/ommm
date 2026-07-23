@@ -16,6 +16,7 @@ import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-l
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { PlusIcon } from "@/components/ui/plus-icon";
+import { useEffectiveScheduleView } from "@/hooks/use-effective-schedule-view";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
 import { scheduleSessionLocalIsoDay, scheduleTodayIsoDate } from "@/lib/local-iso-date";
 import {
@@ -41,6 +42,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
   const caps = resolveScheduleCapabilities(props.capabilities);
   const tPage = useTranslations("adminPages.schedule");
   const schedule = useAdminScheduleManagement(props);
+  const view = useEffectiveScheduleView(schedule.view);
 
   if (schedule.isStaff) {
     const staffRows = schedule.displayRows.map(mapAdminScheduleSessionToListRow);
@@ -49,6 +51,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         <StaffListPageLayout
           title={tPage("title")}
           banner={staffBanner}
+          sticky={false}
           search={
             <ListPageSearchFilters
               search={schedule.searchDraft}
@@ -68,14 +71,14 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         >
           <StaffScheduleListWeekViews
             locale={locale}
-            view={schedule.view}
+            view={view}
             rows={staffRows}
             preset="staffWithCoach"
             showCoachInWeek
             emptyTitle={schedule.t("empty.filteredTitle")}
             emptyBody={schedule.t("empty.filteredBody")}
           />
-          {schedule.view === "list" &&
+          {view === "list" &&
           schedule.listPagination !== null &&
           schedule.listPagination.total > 0 ? (
             <OmmListPagination
@@ -97,41 +100,42 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
     <div className="space-y-5">
       <AdminPageHero
         title={tPage("title")}
+        sticky={false}
         search={
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <ListPageSearchFilters
-              search={schedule.searchDraft}
-              onSearchChange={schedule.setSearchDraft}
-              searchPlaceholder={schedule.t("filters.searchPlaceholder")}
-              fields={schedule.filterFields}
-              filterValues={schedule.integratedFilterValues}
-              onFilterChange={schedule.handleIntegratedFilterChange}
-              onClearAll={schedule.resetFilters}
-              resetLabel={schedule.t("filters.reset")}
-            />
-            <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <ListPageSearchFilters
+                search={schedule.searchDraft}
+                onSearchChange={schedule.setSearchDraft}
+                searchPlaceholder={schedule.t("filters.searchPlaceholder")}
+                fields={schedule.filterFields}
+                filterValues={schedule.integratedFilterValues}
+                onFilterChange={schedule.handleIntegratedFilterChange}
+                onClearAll={schedule.resetFilters}
+                resetLabel={schedule.t("filters.reset")}
+              />
+              <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
+            </div>
+            {caps.canCreate ? (
+              <OmmButton
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={schedule.openAddClassModal}
+                className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full sm:w-auto"
+              >
+                <PlusIcon className="h-5 w-5 shrink-0" />
+                {schedule.t("addClassButton")}
+              </OmmButton>
+            ) : null}
           </div>
-        }
-        trailing={
-          caps.canCreate ? (
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={schedule.openAddClassModal}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-            >
-              <PlusIcon className="h-5 w-5 shrink-0" />
-              {schedule.t("addClassButton")}
-            </OmmButton>
-          ) : null
         }
       />
       <SummaryGrid summary={schedule.summary} />
       {schedule.toast ? <AdminScheduleManagementToast toast={schedule.toast} /> : null}
       <ScheduleViews
         locale={locale}
-        view={schedule.view}
+        view={view}
         rows={schedule.displayRows}
         dateStripRows={schedule.dateStripRows}
         dateStripTotalCount={schedule.dateStripTotalCount}
@@ -147,7 +151,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         onDelete={caps.canDelete ? schedule.handleDelete : undefined}
         onDuplicate={caps.canDuplicate ? schedule.handleDuplicate : undefined}
       />
-      {schedule.view === "list" &&
+      {view === "list" &&
       schedule.listPagination !== null &&
       schedule.listPagination.total > 0 ? (
         <OmmListPagination

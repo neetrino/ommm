@@ -9,16 +9,25 @@ type AdminPageHeroProps = {
   description?: ReactNode;
   search?: ReactNode;
   trailing?: ReactNode;
+  /** Defaults to sticky; set false so the hero scrolls away (e.g. mobile schedule). */
+  sticky?: boolean;
 };
 
 /**
- * Sticky admin page header — title plus compact search/filters row (NBOS PageHero pattern).
+ * Admin page header — title plus compact search/filters row (NBOS PageHero pattern).
+ * Sticky by default so content does not show through under the site navbar.
  */
-export function AdminPageHero({ title, description, search, trailing }: AdminPageHeroProps) {
-  const headerRef = useAdminStickyHeaderOffset(true);
+export function AdminPageHero({
+  title,
+  description,
+  search,
+  trailing,
+  sticky = true,
+}: AdminPageHeroProps) {
+  const headerRef = useAdminStickyHeaderOffset(sticky);
 
   return (
-    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero">
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={sticky}>
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="min-w-0 shrink-0">
           <h1 className="ommm-admin-header-title">{title}</h1>

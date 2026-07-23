@@ -3,10 +3,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
-  sessionStatusBadgeTone,
-} from "@/components/admin/admin-schedule-session-list-badges";
-import {
   ADMIN_ACTION_ICON_CLASS,
   CancelGlyph,
   CheckCircleGlyph,
@@ -47,7 +43,6 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
   const t = useTranslations("adminPages.classes");
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirmKind | null>(null);
   const isCancelled = row.status === "CANCELLED";
-  const statusLabel = t(`status.${row.status}`);
 
   function openConfirm(kind: PendingConfirmKind): void {
     if (busy) {
@@ -109,11 +104,6 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
         role="group"
         aria-label={t("colActions")}
       >
-        <span
-          className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(row.status)}`}
-        >
-          {statusLabel}
-        </span>
         {onDuplicate ? (
           <AdminRowIconButton
             ariaLabel={t("duplicateButton")}
