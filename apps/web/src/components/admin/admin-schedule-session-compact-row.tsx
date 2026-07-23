@@ -7,6 +7,10 @@ import {
   spotsLeft,
   splitSessionLevels,
 } from "@/components/admin/admin-schedule-session-display";
+import {
+  ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
+  sessionStatusBadgeTone,
+} from "@/components/admin/admin-schedule-session-list-badges";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
 import {
@@ -23,6 +27,11 @@ import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table
 import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedule/schedule-session-registrations-capacity";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
+
+const MOBILE_STATUS_BADGE_CLASS =
+  "pointer-events-none absolute right-3 top-3 z-10 md:hidden";
+
+const DESKTOP_STATUS_BADGE_CLASS = "hidden md:inline-flex";
 
 type AdminScheduleSessionCompactRowProps = {
   row: AdminScheduleSession;
@@ -51,6 +60,7 @@ export function AdminScheduleSessionCompactRow({
   const booked = row._count.bookings;
   const capacityLabel = t("fields.spotsBooked", { booked, capacity: row.capacity });
   const spotsLeftLabel = t("fields.spotsLeft", { count: spotsLeft(row) });
+  const statusLabel = t(`status.${row.status}`);
 
   return (
     <article
@@ -64,9 +74,15 @@ export function AdminScheduleSessionCompactRow({
           onDetails(row);
         }
       }}
-      className={ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS}
+      className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} relative`}
     >
-      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_CELL}>
+      <span
+        className={`${MOBILE_STATUS_BADGE_CLASS} ${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(row.status)}`}
+      >
+        {statusLabel}
+      </span>
+
+      <div className={`${ADMIN_SCHEDULE_SESSIONS_LIST_CELL} max-md:pr-20`}>
         <AdminListMobileLabel label={t("colClass")} />
         <button
           type="button"
@@ -133,16 +149,22 @@ export function AdminScheduleSessionCompactRow({
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
-        <AdminListMobileLabel label={t("colActions")} />
-        <AdminScheduleSessionRowActions
-          row={row}
-          busy={busy}
-          includeDelete={onDelete !== undefined}
-          onDuplicate={onDuplicate}
-          onCancel={onCancel}
-          onActivate={onActivate}
-          onDelete={onDelete}
-        />
+        <div className="flex items-center justify-end gap-2">
+          <span
+            className={`${DESKTOP_STATUS_BADGE_CLASS} shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide ${sessionStatusBadgeTone(row.status)}`}
+          >
+            {statusLabel}
+          </span>
+          <AdminScheduleSessionRowActions
+            row={row}
+            busy={busy}
+            includeDelete={onDelete !== undefined}
+            onDuplicate={onDuplicate}
+            onCancel={onCancel}
+            onActivate={onActivate}
+            onDelete={onDelete}
+          />
+        </div>
       </div>
     </article>
   );

@@ -11,7 +11,7 @@ type SummaryGridProps = {
 export function SummaryGrid({ summary }: SummaryGridProps) {
   const t = useTranslations("adminPages.classes.summary");
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">
       {(["total", "active", "upcoming", "full", "cancelled", "draft"] as const).map((key) => (
         <div key={key} className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t(key)}</p>

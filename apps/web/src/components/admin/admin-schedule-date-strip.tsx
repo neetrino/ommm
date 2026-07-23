@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { addDays, startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 import { AdminScheduleAllClassesCard } from "@/components/admin/admin-schedule-all-classes-button";
@@ -15,16 +15,6 @@ import {
 export { scheduleSessionLocalIsoDay, scheduleTodayIsoDate };
 
 const SCHEDULE_DATE_STRIP_HORIZON_DAYS = 90;
-const SCHEDULE_DATE_STRIP_VISIBLE_CARD_COUNT = 10;
-const SCHEDULE_DATE_STRIP_CARD_GAP_PX = 8;
-
-const SCHEDULE_DATE_STRIP_COLUMN_WIDTH = `calc((100% - ${
-  SCHEDULE_DATE_STRIP_CARD_GAP_PX * (SCHEDULE_DATE_STRIP_VISIBLE_CARD_COUNT - 1)
-}px) / ${SCHEDULE_DATE_STRIP_VISIBLE_CARD_COUNT})`;
-
-const SCHEDULE_DATE_STRIP_VIEWPORT_STYLE: CSSProperties = {
-  gridAutoColumns: SCHEDULE_DATE_STRIP_COLUMN_WIDTH,
-};
 
 export type ScheduleDateStripRow = {
   startsAt: string;
@@ -230,7 +220,6 @@ export function AdminScheduleDateStrip({
         <div
           ref={scrollRef}
           className={styles.viewport}
-          style={SCHEDULE_DATE_STRIP_VIEWPORT_STYLE}
           {...dragHandlers}
         >
           {days.map((day) => (
