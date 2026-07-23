@@ -17,7 +17,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
-import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
+import { scheduleSessionLocalIsoDay, scheduleTodayIsoDate } from "@/lib/local-iso-date";
 import {
   adminScheduleCapabilities,
   type ScheduleCapabilities,
@@ -133,11 +133,10 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         locale={locale}
         view={schedule.view}
         rows={schedule.displayRows}
+        dateStripRows={schedule.dateStripRows}
+        dateStripTotalCount={schedule.dateStripTotalCount}
         sortOrder={schedule.filters.order}
         onDateTimeSort={schedule.handleDateTimeSort}
-        selectedDay={schedule.selectedDay}
-        onSelectDay={schedule.handleSelectDay}
-        onShowAllDays={schedule.handleShowAllDays}
         onDetails={schedule.setDetails}
         busyId={schedule.busyId}
         onCancel={caps.canCancel ? schedule.handleCancel : undefined}
@@ -161,7 +160,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         <SessionFormSheet
           key={
             schedule.addClassOpen
-              ? `create-${schedule.selectedDay ?? "default"}`
+              ? `create-${scheduleTodayIsoDate()}`
               : `${schedule.sessionModalConfig.mode}-${schedule.sessionModalConfig.row?.id ?? "new"}`
           }
           isOpen
@@ -169,7 +168,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
           row={schedule.sessionModalConfig.row}
           anchorDay={
             schedule.addClassOpen
-              ? schedule.selectedDay
+              ? scheduleTodayIsoDate()
               : schedule.sessionModalConfig.mode === "duplicate" && schedule.sessionModalConfig.row
                 ? scheduleSessionLocalIsoDay(schedule.sessionModalConfig.row.startsAt)
                 : null

@@ -51,6 +51,11 @@ export type AdminScheduleCoach = {
 export type AdminScheduleManagementProps = {
   locale: string;
   sessions: AdminScheduleSession[];
+  /**
+   * Sessions used only for the date-strip day counts.
+   * Independent of the current list page when pagination is active.
+   */
+  dateStripSessions?: readonly Pick<AdminScheduleSession, "startsAt">[];
   listPagination: { total: number; take: number; offset: number } | null;
   classTypes: AdminScheduleClassType[];
   packages: AdminPackageRow[];

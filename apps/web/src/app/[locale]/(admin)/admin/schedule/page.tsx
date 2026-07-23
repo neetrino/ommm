@@ -75,16 +75,21 @@ export default async function AdminSchedulePage({
     );
   }
 
-  const sessions = listView
-    ? (sessionsRes.data as AdminScheduleListPayload).items
+  const listPayload = listView ? (sessionsRes.data as AdminScheduleListPayload) : null;
+  const sessions = listPayload
+    ? listPayload.items
     : (sessionsRes.data as AdminScheduleSession[]);
-  const listPagination = listView
+  const listPagination = listPayload
     ? {
-        total: (sessionsRes.data as AdminScheduleListPayload).total,
-        take: (sessionsRes.data as AdminScheduleListPayload).take,
-        offset: (sessionsRes.data as AdminScheduleListPayload).offset,
+        total: listPayload.total,
+        take: listPayload.take,
+        offset: listPayload.offset,
       }
     : null;
+  const dateStripSessions =
+    listPayload?.dateStripStartsAt !== undefined
+      ? listPayload.dateStripStartsAt.map((startsAt) => ({ startsAt }))
+      : undefined;
 
   return (
     <AdminContentFrame>
@@ -92,6 +97,7 @@ export default async function AdminSchedulePage({
         <AdminScheduleManagement
           locale={locale}
           sessions={sessions}
+          dateStripSessions={dateStripSessions}
           listPagination={listPagination}
           classTypes={classTypesRes.data}
           packages={packagesRes.data}
