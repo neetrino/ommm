@@ -2542,7 +2542,7 @@
       "fields": {
         "duration": "Длительность",
         "spotsBooked": "{booked}/{capacity} занято",
-        "spotsLeft": "Осталось мест: {count}"
+        "spotsLeft": "{count, plural, one {Осталось # место} few {Осталось # места} many {Осталось # мест} other {Осталось # мест}}"
       },
       "registrationsModal": {
         "title": "Записанные участники",
