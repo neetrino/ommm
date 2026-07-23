@@ -250,19 +250,19 @@ export const HOME_HERO_PROMO_BANNER_TEXT_IPAD_PILL_EDGE_OFFSET = {
 
 /** Shifts all promo copy blocks up — subtracted from Figma `topPx` before scaling. */
 export const HOME_HERO_PROMO_BANNER_TEXT_SHIFT_UP_PX = {
-  desktop: 40,
+  desktop: 48,
   mobile: 0,
 } as const;
 
 /** Inter-block vertical gaps — Figma desktop `887:805`–`887:807`. */
 const HOME_HERO_PROMO_BANNER_TEXT_DESKTOP_GAP_PX = {
-  /** Figma `887:805` top (755) − unified headline bottom (656). Full desktop only. */
-  headlineToLimited: 99,
+  /** Tighter than Figma — less air under headline before limited copy. */
+  headlineToLimited: 52,
   limitedToCta: 56,
 } as const;
 
-/** iPad desktop copy — tighter gap before limited block (744px–1366px). */
-const HOME_HERO_PROMO_BANNER_IPAD_HEADLINE_TO_LIMITED_GAP_PX = 58;
+/** iPad desktop copy — slightly tighter than full desktop (744px–1366px). */
+const HOME_HERO_PROMO_BANNER_IPAD_HEADLINE_TO_LIMITED_GAP_PX = 40;
 
 /** Mobile — tighter headline→limited gap on phone artboard (393×852). */
 const HOME_HERO_PROMO_BANNER_MOBILE_HEADLINE_TO_LIMITED_GAP_PX = 24;
@@ -280,14 +280,17 @@ function scalePromoBannerTextGapToMobileArtboard(gapPx: number): number {
 }
 
 const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX = 266;
-const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FONT_SIZE_PX = 120;
-const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX = 130;
-const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 130;
+/** Desktop promo type — slightly above Figma `887:803` for stronger read at 1440-class widths. */
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FONT_SIZE_PX = 136;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX = 146;
+const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX = 146;
 const HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX =
   HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_FOUNDING_LINE_HEIGHT_PX * 2 +
   HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_ARE_OPEN_LINE_HEIGHT_PX;
 
-const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX = 128;
+const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_FONT_SIZE_PX = 68;
+const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_LINE_HEIGHT_PX = 72;
+const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX = 144;
 const HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX =
   HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_TOP_PX +
   HOME_HERO_PROMO_BANNER_DESKTOP_HEADLINE_HEIGHT_PX +
@@ -352,8 +355,8 @@ export const HOME_HERO_PROMO_BANNER_TEXT_LAYOUT = {
     leftPx: 110,
     topPx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_TOP_PX,
     heightPx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_HEIGHT_PX,
-    fontSizePx: 60,
-    lineHeightPx: 64,
+    fontSizePx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_FONT_SIZE_PX,
+    lineHeightPx: HOME_HERO_PROMO_BANNER_DESKTOP_LIMITED_LINE_HEIGHT_PX,
   },
   desktopCtaBadge: {
     figmaNodeId: "887:807",

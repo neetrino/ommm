@@ -246,6 +246,38 @@
   .mobileOnly {
     display: none;
   }
+
+  /* Desktop/tablet — scale type with banner box so copy stays spaced on all widths. */
+  .overlay {
+    container-type: size;
+    container-name: home-hero-promo;
+  }
+
+  .desktopOnly .headlineBlock {
+    max-width: calc(100% - var(--home-hero-promo-text-inset-left) - 1rem);
+    font-size: min(
+      calc(var(--home-hero-promo-headline-size-px) * 1px),
+      calc(100cqw * var(--home-hero-promo-headline-size-px) / var(--home-hero-promo-artboard-width)),
+      calc(100cqh * var(--home-hero-promo-headline-size-px) / var(--home-hero-promo-artboard-height))
+    );
+  }
+
+  .desktopOnly .limitedBlock {
+    max-width: none;
+    font-size: min(
+      calc(var(--home-hero-promo-limited-size-px) * 1px),
+      calc(100cqw * var(--home-hero-promo-limited-size-px) / var(--home-hero-promo-artboard-width)),
+      calc(100cqh * var(--home-hero-promo-limited-size-px) / var(--home-hero-promo-artboard-height))
+    );
+  }
+
+  .desktopOnly .ctaPhoneNumber {
+    font-size: min(
+      calc(var(--home-hero-promo-cta-phone-size-px, 43) * 1px),
+      calc(100cqw * var(--home-hero-promo-cta-phone-size-px, 43) / var(--home-hero-promo-artboard-width)),
+      calc(100cqh * var(--home-hero-promo-cta-phone-size-px, 43) / var(--home-hero-promo-artboard-height))
+    );
+  }
 }
 
 /* iPad — smaller headline→limited gap (58px); full desktop (1367px+) keeps 99px. */
