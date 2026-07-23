@@ -31,6 +31,7 @@
   touch-action: pan-x;
   user-select: none;
   -webkit-user-drag: none;
+  cursor: pointer;
 }
 
 .cardTodayNumber {
@@ -52,4 +53,5 @@
   width: 6.25rem;
   aspect-ratio: 1 / 1;
   min-width: 6.25rem;
+  cursor: pointer;
 }

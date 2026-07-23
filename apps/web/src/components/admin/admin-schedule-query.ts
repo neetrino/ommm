@@ -8,12 +8,13 @@ import {
 import {
   defaultScheduleListFilters,
   parseScheduleListFilterStateFromSearch,
+  parseScheduleStripDayFromSearch,
   scheduleFiltersToApiParams,
   type ScheduleListFilterState,
 } from "@/components/admin/admin-schedule-url";
 import { parseListPageParams } from "@/lib/list-pagination";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
-import { localIsoDateFromValue } from "@/lib/local-iso-date";
+import { localIsoDateFromValue, scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 export const ADMIN_SCHEDULE_LIST_PAGE_KEYS = {
   pageKey: "schedulePage",
@@ -54,6 +55,7 @@ export function buildAdminScheduleListEndpoint(
       filterState.filters,
       filterState.quickFilters,
       classTypeIds,
+      filterState.stripDay,
     )) {
       params.set(key, value);
     }
@@ -72,6 +74,54 @@ export function isScheduleListView(view: string | undefined): boolean {
 }
 
 export { parseScheduleListFilterStateFromSearch, type ScheduleListFilterState };
+
+/** Date-strip counts ignore the selected strip day (keep filter-panel from/to). */
+export function buildScheduleDateStripFilterState(
+  filterState: ScheduleListFilterState,
+): ScheduleListFilterState {
+  return {
+    ...filterState,
+    stripDay: null,
+  };
+}
+
+/**
+ * Admin schedule defaults to today's strip day (not filter from/to chips).
+ * Legacy URLs that encoded the strip as matching schedFrom/schedTo are migrated.
+ */
+export function resolveAdminScheduleInitialFilterState(
+  search: Record<string, string | undefined>,
+): ScheduleListFilterState {
+  const parsed = parseScheduleListFilterStateFromSearch(search);
+  const { hasExplicitStripDay } = parseScheduleStripDayFromSearch(search);
+
+  if (hasExplicitStripDay) {
+    return parsed;
+  }
+
+  const today = scheduleTodayIsoDate();
+  const legacyStripDay =
+    parsed.filters.from.length > 0 && parsed.filters.from === parsed.filters.to
+      ? parsed.filters.from
+      : null;
+
+  if (legacyStripDay !== null) {
+    return {
+      ...parsed,
+      stripDay: legacyStripDay,
+      filters: {
+        ...parsed.filters,
+        from: "",
+        to: "",
+      },
+    };
+  }
+
+  return {
+    ...parsed,
+    stripDay: today,
+  };
+}
 
 /** Default list window for manager staff schedule when URL has no date range. */
 export function resolveManagerScheduleInitialFilterState(

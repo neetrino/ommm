@@ -10,14 +10,17 @@ import {
 import { resolveScheduleView, type ScheduleView } from "@/components/admin/admin-schedule-view";
 import {
   buildAdminScheduleListEndpoint,
+  buildScheduleDateStripFilterState,
   isScheduleListView,
   parseAdminScheduleListPageParams,
-  parseScheduleListFilterStateFromSearch,
+  resolveAdminScheduleInitialFilterState,
   type AdminScheduleListPayload,
 } from "@/components/admin/admin-schedule-query";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { serverApiJson } from "@/lib/server-api";
+
+const DATE_STRIP_LIST_TAKE = 1;
 
 export default async function AdminSchedulePage({
   params,
@@ -32,7 +35,7 @@ export default async function AdminSchedulePage({
   const initialView: ScheduleView = resolveScheduleView(requestedView);
   const listView = isScheduleListView(requestedView);
   const listPage = parseAdminScheduleListPageParams(search);
-  const scheduleFilterState = parseScheduleListFilterStateFromSearch(search);
+  const scheduleFilterState = resolveAdminScheduleInitialFilterState(search);
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const cookie = (await headers()).get("cookie") ?? "";
 
@@ -52,18 +55,34 @@ export default async function AdminSchedulePage({
     );
   }
 
-  const sessionsRes = listView
-    ? await serverApiJson<AdminScheduleListPayload>(
-        buildAdminScheduleListEndpoint(
-          listPage.take,
-          listPage.offset,
-          scheduleFilterState,
-          packagesRes.data,
-          classTypesRes.data,
-        ),
-        cookie,
-      )
-    : await serverApiJson<AdminScheduleSession[]>("/classes/admin/sessions", cookie);
+  const needsSeparateDateStrip = listView && scheduleFilterState.stripDay !== null;
+
+  const listEndpoint = buildAdminScheduleListEndpoint(
+    listPage.take,
+    listPage.offset,
+    scheduleFilterState,
+    packagesRes.data,
+    classTypesRes.data,
+  );
+  const dateStripEndpoint = buildAdminScheduleListEndpoint(
+    DATE_STRIP_LIST_TAKE,
+    0,
+    buildScheduleDateStripFilterState(scheduleFilterState),
+    packagesRes.data,
+    classTypesRes.data,
+  );
+
+  const [sessionsRes, dateStripRes] = listView
+    ? await Promise.all([
+        serverApiJson<AdminScheduleListPayload>(listEndpoint, cookie),
+        needsSeparateDateStrip
+          ? serverApiJson<AdminScheduleListPayload>(dateStripEndpoint, cookie)
+          : Promise.resolve(null),
+      ])
+    : [
+        await serverApiJson<AdminScheduleSession[]>("/classes/admin/sessions", cookie),
+        null,
+      ];
 
   if (!sessionsRes.ok) {
     return (
@@ -86,10 +105,14 @@ export default async function AdminSchedulePage({
         offset: listPayload.offset,
       }
     : null;
+
+  const stripPayload =
+    dateStripRes !== null && dateStripRes.ok ? dateStripRes.data : listPayload;
   const dateStripSessions =
-    listPayload?.dateStripStartsAt !== undefined
-      ? listPayload.dateStripStartsAt.map((startsAt) => ({ startsAt }))
+    stripPayload?.dateStripStartsAt !== undefined
+      ? stripPayload.dateStripStartsAt.map((startsAt) => ({ startsAt }))
       : undefined;
+  const dateStripTotalCount = stripPayload?.total;
 
   return (
     <AdminContentFrame>
@@ -98,6 +121,7 @@ export default async function AdminSchedulePage({
           locale={locale}
           sessions={sessions}
           dateStripSessions={dateStripSessions}
+          dateStripTotalCount={dateStripTotalCount}
           listPagination={listPagination}
           classTypes={classTypesRes.data}
           packages={packagesRes.data}

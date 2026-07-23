@@ -13,7 +13,7 @@ import {
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminScheduleListEmptyState } from "@/components/admin/admin-schedule-list-empty-state";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { sortAdminSessionRows, type SessionSortOrder } from "@/lib/list-sort";
 
@@ -24,6 +24,9 @@ export type AdminScheduleSessionViewsProps = {
   /** Day-count source independent of the current list page. */
   dateStripRows: readonly ScheduleDateStripRow[];
   dateStripTotalCount?: number;
+  selectedStripDay: string | null;
+  onSelectStripDay: (day: string) => void;
+  onSelectAllStripDays: () => void;
   sortOrder: SessionSortOrder;
   onDateTimeSort: () => void;
   busyId: string | null;
@@ -36,12 +39,23 @@ export type AdminScheduleSessionViewsProps = {
 
 type SessionTableProps = Omit<
   AdminScheduleSessionViewsProps,
-  "view" | "dateStripRows" | "dateStripTotalCount"
+  | "view"
+  | "dateStripRows"
+  | "dateStripTotalCount"
+  | "onSelectStripDay"
+  | "onSelectAllStripDays"
 >;
 
 type ScheduleWeekPanelProps = Omit<
   AdminScheduleSessionViewsProps,
-  "view" | "sortOrder" | "onDateTimeSort" | "dateStripRows" | "dateStripTotalCount"
+  | "view"
+  | "sortOrder"
+  | "onDateTimeSort"
+  | "dateStripRows"
+  | "dateStripTotalCount"
+  | "selectedStripDay"
+  | "onSelectStripDay"
+  | "onSelectAllStripDays"
 >;
 
 export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
@@ -54,6 +68,9 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
         locale={props.locale}
         rows={props.dateStripRows}
         totalSessionCount={props.dateStripTotalCount}
+        selectedDay={props.selectedStripDay}
+        onSelectDay={props.onSelectStripDay}
+        onSelectAllDays={props.onSelectAllStripDays}
       />
       <SessionTable {...props} />
     </div>
@@ -61,14 +78,12 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
 }
 
 export function SessionTable(props: SessionTableProps) {
-  const t = useTranslations("adminPages.classes");
   const rows = sortAdminSessionRows(props.rows, props.sortOrder);
   if (rows.length === 0) {
     return (
-      <div className={adminChrome.panel}>
-        <p className="font-medium text-sage-900">{t("empty.filteredTitle")}</p>
-        <p className="mt-1 text-sm text-sage-600">{t("empty.filteredBody")}</p>
-      </div>
+      <AdminScheduleListEmptyState
+        variant={props.selectedStripDay !== null ? "selectedDay" : "filtered"}
+      />
     );
   }
   return (

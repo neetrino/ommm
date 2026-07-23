@@ -11,6 +11,7 @@ import {
   type ScheduleListFilterState,
 } from "@/components/admin/admin-schedule-url";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 type UseAdminScheduleManagementFiltersStateParams = {
   initialFilterState: ScheduleListFilterState;
@@ -24,6 +25,8 @@ type UseAdminScheduleManagementFiltersStateParams = {
   setFilters: React.Dispatch<React.SetStateAction<AdminScheduleFilters>>;
   quickFilters: ScheduleQuickFilter[];
   setQuickFilters: React.Dispatch<React.SetStateAction<ScheduleQuickFilter[]>>;
+  stripDay: string | null;
+  setStripDay: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 export function useAdminScheduleManagementFiltersState({
@@ -38,13 +41,15 @@ export function useAdminScheduleManagementFiltersState({
   setFilters,
   quickFilters,
   setQuickFilters,
+  stripDay,
+  setStripDay,
 }: UseAdminScheduleManagementFiltersStateParams) {
   const hasMounted = useRef(false);
   const filterStateRef = useRef(initialFilterState);
 
   useEffect(() => {
-    filterStateRef.current = { filters, quickFilters };
-  }, [filters, quickFilters]);
+    filterStateRef.current = { filters, quickFilters, stripDay };
+  }, [filters, quickFilters, stripDay]);
 
   const syncFilterStateToUrl = useCallback(
     (state: ScheduleListFilterState, resetPage = false) => {
@@ -55,7 +60,11 @@ export function useAdminScheduleManagementFiltersState({
       if (resetPage && listPagination !== null) {
         resetListPageQuery(params, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
       }
-      const filterQuery = buildScheduleFiltersQuery(state.filters, state.quickFilters);
+      const filterQuery = buildScheduleFiltersQuery(
+        state.filters,
+        state.quickFilters,
+        state.stripDay,
+      );
       if (filterQuery.length > 0) {
         for (const [key, value] of new URLSearchParams(filterQuery)) {
           params.set(key, value);
@@ -72,19 +81,22 @@ export function useAdminScheduleManagementFiltersState({
       patch: {
         filters?: Partial<AdminScheduleFilters>;
         quickFilters?: ScheduleQuickFilter[];
+        stripDay?: string | null;
       },
       resetPage = true,
     ) => {
       const next: ScheduleListFilterState = {
         filters: { ...filterStateRef.current.filters, ...patch.filters },
         quickFilters: patch.quickFilters ?? filterStateRef.current.quickFilters,
+        stripDay: patch.stripDay !== undefined ? patch.stripDay : filterStateRef.current.stripDay,
       };
       setFilters(next.filters);
       setQuickFilters(next.quickFilters);
+      setStripDay(next.stripDay);
       filterStateRef.current = next;
       syncFilterStateToUrl(next, resetPage);
     },
-    [setFilters, setQuickFilters, syncFilterStateToUrl],
+    [setFilters, setQuickFilters, setStripDay, syncFilterStateToUrl],
   );
 
   useEffect(() => {
@@ -106,13 +118,15 @@ export function useAdminScheduleManagementFiltersState({
     const cleared: ScheduleListFilterState = {
       filters: defaultScheduleListFilters,
       quickFilters: [],
+      stripDay: scheduleTodayIsoDate(),
     };
     setSearchDraft("");
     setFilters(cleared.filters);
     setQuickFilters(cleared.quickFilters);
+    setStripDay(cleared.stripDay);
     filterStateRef.current = cleared;
     syncFilterStateToUrl(cleared, true);
-  }, [setFilters, setQuickFilters, setSearchDraft, syncFilterStateToUrl]);
+  }, [setFilters, setQuickFilters, setStripDay, setSearchDraft, syncFilterStateToUrl]);
 
   const setListPage = useCallback(
     (page: number, pageSize?: number) => {

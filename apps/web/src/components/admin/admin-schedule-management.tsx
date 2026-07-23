@@ -135,6 +135,9 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         rows={schedule.displayRows}
         dateStripRows={schedule.dateStripRows}
         dateStripTotalCount={schedule.dateStripTotalCount}
+        selectedStripDay={schedule.selectedStripDay}
+        onSelectStripDay={schedule.handleSelectStripDay}
+        onSelectAllStripDays={schedule.handleSelectAllStripDays}
         sortOrder={schedule.filters.order}
         onDateTimeSort={schedule.handleDateTimeSort}
         onDetails={schedule.setDetails}
