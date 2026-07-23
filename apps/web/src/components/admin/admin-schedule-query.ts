@@ -25,6 +25,8 @@ export type AdminScheduleListPayload = {
   total: number;
   take: number;
   offset: number;
+  /** All matching startsAt values for date-strip counts (independent of page). */
+  dateStripStartsAt?: string[];
 };
 
 export function buildAdminScheduleListEndpoint(

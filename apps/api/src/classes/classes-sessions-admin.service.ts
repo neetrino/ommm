@@ -31,6 +31,7 @@ import {
   paginateSessionRows,
   requiresSessionsPostProcessing,
   SESSIONS_FILTER_SCAN_LIMIT,
+  type AdminSessionsListPage,
 } from './classes-sessions-list-filters';
 import { ClassesTypesService } from './classes-types.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
@@ -47,15 +48,9 @@ export class ClassesSessionsAdminService {
     private readonly realtime: RealtimePublisherService,
   ) {}
 
-  async listSessionsAdmin(query: AdminListSessionsQueryDto): Promise<
-    | AdminSessionRow[]
-    | {
-        items: AdminSessionRow[];
-        total: number;
-        take: number;
-        offset: number;
-      }
-  > {
+  async listSessionsAdmin(
+    query: AdminListSessionsQueryDto,
+  ): Promise<AdminSessionRow[] | AdminSessionsListPage<AdminSessionRow>> {
     const normalizedQuery = normalizeSessionsListQuery(query);
     const hasPagination =
       normalizedQuery.take !== undefined ||
@@ -92,15 +87,20 @@ export class ClassesSessionsAdminService {
       return paginateSessionRows(sorted, take, offset);
     }
 
-    const [sessions, total] = await Promise.all([
+    const [sessions, total, dateStripRows] = await Promise.all([
       this.prisma.classSession.findMany({ ...findArgs, take, skip: offset }),
       this.prisma.classSession.count({ where }),
+      this.prisma.classSession.findMany({
+        where,
+        select: { startsAt: true },
+      }),
     ]);
     return {
       items: mapAdminSessionRows(sessions),
       total,
       take,
       offset,
+      dateStripStartsAt: dateStripRows.map((row) => row.startsAt.toISOString()),
     };
   }
 

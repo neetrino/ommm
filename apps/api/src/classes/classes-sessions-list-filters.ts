@@ -288,16 +288,30 @@ export function filterSessionRows<T extends SessionListFilterRow>(
   });
 }
 
-export function paginateSessionRows<T>(
+export type AdminSessionsListPage<T> = {
+  items: T[];
+  total: number;
+  take: number;
+  offset: number;
+  /** All matching session start times for date-strip day counts (not page-sliced). */
+  dateStripStartsAt: string[];
+};
+
+function toStartsAtIso(value: string | Date): string {
+  return typeof value === 'string' ? value : value.toISOString();
+}
+
+export function paginateSessionRows<T extends { startsAt: string | Date }>(
   rows: T[],
   take: number,
   offset: number,
-): { items: T[]; total: number; take: number; offset: number } {
+): AdminSessionsListPage<T> {
   return {
     items: rows.slice(offset, offset + take),
     total: rows.length,
     take,
     offset,
+    dateStripStartsAt: rows.map((row) => toStartsAtIso(row.startsAt)),
   };
 }
 

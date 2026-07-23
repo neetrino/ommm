@@ -7,7 +7,6 @@ import type {
 } from "@/components/admin/admin-schedule-session.types";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
-import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
 
 type SessionModalConfig = {
   mode: "create" | "duplicate";
@@ -24,7 +23,6 @@ type UseAdminScheduleManagementActionsParams = {
   setToast: Dispatch<SetStateAction<ScheduleToast | null>>;
   setDetails: Dispatch<SetStateAction<AdminScheduleSession | null>>;
   setEditing: Dispatch<SetStateAction<AdminScheduleSession | null>>;
-  setSelectedDay: Dispatch<SetStateAction<string | null>>;
   addClassOpen: boolean;
   closeAddClassModal: () => void;
   sessionModalConfig: SessionModalConfig;
@@ -40,7 +38,6 @@ export function useAdminScheduleManagementActions({
   setToast,
   setDetails,
   setEditing,
-  setSelectedDay,
   addClassOpen,
   closeAddClassModal,
   sessionModalConfig,
@@ -171,15 +168,6 @@ export function useAdminScheduleManagementActions({
         first.startsAt.localeCompare(second.startsAt),
       );
     });
-    const createdDays = savedRows.map((row) => scheduleSessionLocalIsoDay(row.startsAt));
-    if (createdDays.length > 0) {
-      setSelectedDay((current) => {
-        if (current !== null && createdDays.includes(current)) {
-          return current;
-        }
-        return createdDays[0] ?? null;
-      });
-    }
     setToast({
       tone: "ok",
       message:

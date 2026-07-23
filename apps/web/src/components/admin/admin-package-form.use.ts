@@ -10,11 +10,11 @@ import {
   resolveTierPricePerSessionField,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
+import type { TierFieldErrors } from "@/components/admin/admin-package-tier-field-errors";
 import {
-  type TierFieldErrors,
+  type PackageTypeSessionFormEntry,
   initialTypeSessionEntries,
   sumTypeSessionEntries,
-  type PackageTypeSessionFormEntry,
 } from "@/components/admin/admin-package-type-sessions.util";
 import { categoryPackagesToOptions } from "@/components/admin/package-category-utils";
 

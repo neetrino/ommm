@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRef, type ReactNode } from "react";
-import type { TierFieldErrors } from "@/components/admin/admin-package-type-sessions.util";
+import type { TierFieldErrors } from "@/components/admin/admin-package-tier-field-errors";
 import {
   MAX_NAME_LENGTH,
   MAX_PACKAGE_DURATION_DAYS,

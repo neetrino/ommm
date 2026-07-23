@@ -41,11 +41,12 @@ import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { toggleSessionDateSortOrder } from "@/lib/list-sort";
-import { scheduleSessionLocalIsoDay, scheduleTodayIsoDate } from "@/lib/local-iso-date";
+import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 
 export function useAdminScheduleManagement({
   sessions,
+  dateStripSessions,
   listPagination,
   classTypes: initialClassTypes,
   packages,
@@ -78,7 +79,6 @@ export function useAdminScheduleManagement({
   );
   const [searchDraft, setSearchDraft] = useState(() => initialFilterState.filters.q);
   const [prevInitialFilterState, setPrevInitialFilterState] = useState(initialFilterState);
-  const [selectedDay, setSelectedDay] = useState<string | null>(() => scheduleTodayIsoDate());
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -114,17 +114,22 @@ export function useAdminScheduleManagement({
 
   if (sessions !== prevSessions) {
     setPrevSessions(sessions);
-    setRows((current) => {
-      const byId = new Map(sessions.map((row) => [row.id, row]));
-      for (const row of current) {
-        if (!byId.has(row.id)) {
-          byId.set(row.id, row);
+    // Paginated list: server page is source of truth (do not merge prior pages).
+    if (listPagination !== null) {
+      setRows(sessions);
+    } else {
+      setRows((current) => {
+        const byId = new Map(sessions.map((row) => [row.id, row]));
+        for (const row of current) {
+          if (!byId.has(row.id)) {
+            byId.set(row.id, row);
+          }
         }
-      }
-      return Array.from(byId.values()).sort((first, second) =>
-        first.startsAt.localeCompare(second.startsAt),
-      );
-    });
+        return Array.from(byId.values()).sort((first, second) =>
+          first.startsAt.localeCompare(second.startsAt),
+        );
+      });
+    }
   }
 
   if (initialFilterState !== prevInitialFilterState) {
@@ -220,6 +225,14 @@ export function useAdminScheduleManagement({
 
   const displayRows = isListView ? rows : filteredRows;
 
+  const dateStripRows = useMemo(
+    () => dateStripSessions ?? displayRows,
+    [dateStripSessions, displayRows],
+  );
+
+  const dateStripTotalCount =
+    isListView && listPagination !== null ? listPagination.total : dateStripRows.length;
+
   const summary = useMemo(() => {
     const now = new Date();
     const source = displayRows;
@@ -263,7 +276,6 @@ export function useAdminScheduleManagement({
     setToast,
     setDetails,
     setEditing,
-    setSelectedDay,
     addClassOpen,
     closeAddClassModal,
     sessionModalConfig,
@@ -274,14 +286,6 @@ export function useAdminScheduleManagement({
       filters: { order: toggleSessionDateSortOrder(filters.order) },
     });
   }, [filters.order, patchFilterState]);
-
-  const handleSelectDay = useCallback((day: string) => {
-    setSelectedDay((current) => (current === day ? null : day));
-  }, []);
-
-  const handleShowAllDays = useCallback(() => {
-    setSelectedDay(null);
-  }, []);
 
   return {
     isStaff,
@@ -297,14 +301,13 @@ export function useAdminScheduleManagement({
     summary,
     toast,
     displayRows,
+    dateStripRows,
+    dateStripTotalCount,
     filters,
     listPage,
     listPagination,
     setListPage,
     busyId,
-    selectedDay,
-    handleSelectDay,
-    handleShowAllDays,
     handleDateTimeSort,
     setDetails,
     details,
