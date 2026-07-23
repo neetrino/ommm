@@ -36,6 +36,10 @@ type AdminScheduleDateStripProps = {
   rows: readonly ScheduleDateStripRow[];
   /** Optional total override (e.g. server `listPagination.total`). */
   totalSessionCount?: number;
+  /** ISO day (`YYYY-MM-DD`) when the list is filtered to a single day; null = all. */
+  selectedDay: string | null;
+  onSelectDay: (day: string) => void;
+  onSelectAllDays: () => void;
 };
 
 /** Default list order: today and future first (asc), past sessions last (asc). */
@@ -89,34 +93,48 @@ function scrollDayIntoView(container: HTMLDivElement, dayCard: HTMLElement): voi
   container.scrollLeft = Math.max(0, Math.min(targetLeft, maxScroll));
 }
 
-function scheduleDayCardSurfaceClass(isToday: boolean): string {
-  if (isToday) {
+function scheduleDayCardSurfaceClass(isToday: boolean, isSelected: boolean): string {
+  if (isSelected) {
     return [
       "border-2 border-sage-800/55 bg-sand-100 text-sage-900",
       "shadow-[0_16px_34px_-22px_rgba(45,40,35,0.38)] ring-2 ring-sage-800/20",
     ].join(" ");
   }
 
-  return "border border-white/70 bg-white/75 text-sage-800";
+  if (isToday) {
+    return "border border-sage-800/30 bg-sand-50/90 text-sage-800";
+  }
+
+  return "border border-white/70 bg-white/75 text-sage-800 hover:bg-sand-50/80";
 }
 
 type ScheduleDayCardProps = {
   locale: string;
   day: string;
   sessionCount: number;
-  setCardRef: (element: HTMLDivElement | null) => void;
+  isSelected: boolean;
+  setCardRef: (element: HTMLButtonElement | null) => void;
+  onSelect: () => void;
 };
 
-function ScheduleDayCard({ locale, day, sessionCount, setCardRef }: ScheduleDayCardProps) {
+function ScheduleDayCard({
+  locale,
+  day,
+  sessionCount,
+  isSelected,
+  setCardRef,
+  onSelect,
+}: ScheduleDayCardProps) {
   const t = useTranslations("adminPages.schedule");
   const date = new Date(`${day}T00:00:00`);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
   const month = new Intl.DateTimeFormat(locale, { month: "short" }).format(date);
   const isToday = day === scheduleTodayIsoDate();
+  const emphasize = isSelected || isToday;
 
   const weekdayClass = [
     "min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.12em]",
-    isToday ? "text-sage-700" : "font-serif text-sage-950",
+    emphasize ? "text-sage-700" : "font-serif text-sage-950",
   ].join(" ");
 
   const todayBadgeClass =
@@ -124,28 +142,38 @@ function ScheduleDayCard({ locale, day, sessionCount, setCardRef }: ScheduleDayC
 
   const monthClass = [
     "text-left text-sm font-semibold uppercase tracking-wide",
-    isToday ? "text-sage-700" : "font-serif text-sage-950",
+    emphasize ? "text-sage-700" : "font-serif text-sage-950",
   ].join(" ");
 
   const dayNumberClass = [
     styles.dayNumber,
     "font-serif leading-none font-semibold text-sage-950",
-    isToday ? styles.cardTodayNumber : "",
+    isSelected ? styles.cardTodayNumber : "",
   ].join(" ");
 
   const countBadgeClass = [
     "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold",
-    isToday
+    isSelected
       ? "border border-sage-800/15 bg-white text-sage-800"
       : "bg-sand-50 text-sage-700",
   ].join(" ");
 
   return (
-    <div
+    <button
+      type="button"
       ref={setCardRef}
+      aria-pressed={isSelected}
       aria-current={isToday ? "date" : undefined}
-      className={`${styles.card} flex flex-col rounded-2xl p-3 text-left ${scheduleDayCardSurfaceClass(
+      aria-label={t("selectDayAria", {
+        weekday,
+        day: date.getDate(),
+        month,
+        count: sessionCount,
+      })}
+      onClick={onSelect}
+      className={`${styles.card} flex flex-col rounded-2xl p-3 text-left transition-colors ${scheduleDayCardSurfaceClass(
         isToday,
+        isSelected,
       )}`}
     >
       <span className="flex items-start justify-between gap-1">
@@ -159,7 +187,7 @@ function ScheduleDayCard({ locale, day, sessionCount, setCardRef }: ScheduleDayC
         <span className={dayNumberClass}>{date.getDate()}</span>
       </span>
       <span className={monthClass}>{month}</span>
-    </div>
+    </button>
   );
 }
 
@@ -167,15 +195,19 @@ export function AdminScheduleDateStrip({
   locale,
   rows,
   totalSessionCount,
+  selectedDay,
+  onSelectDay,
+  onSelectAllDays,
 }: AdminScheduleDateStripProps) {
-  const { scrollRef, dragHandlers } = useHorizontalDragScroll();
-  const todayCardRef = useRef<HTMLDivElement>(null);
+  const { scrollRef, dragHandlers, shouldSuppressClick } = useHorizontalDragScroll();
+  const todayCardRef = useRef<HTMLButtonElement>(null);
   const hasScrolledToToday = useRef(false);
 
   const countsByDay = useMemo(() => groupRowsByDay(rows), [rows]);
   const days = useMemo(() => buildDateStripDays(rows), [rows]);
   const todayKey = scheduleTodayIsoDate();
   const allClassesCount = totalSessionCount ?? rows.length;
+  const isAllSelected = selectedDay === null;
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -190,7 +222,11 @@ export function AdminScheduleDateStrip({
   return (
     <div className="rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md">
       <div className="flex min-w-0 items-stretch gap-2">
-        <AdminScheduleAllClassesCard sessionCount={allClassesCount} />
+        <AdminScheduleAllClassesCard
+          sessionCount={allClassesCount}
+          isSelected={isAllSelected}
+          onSelect={onSelectAllDays}
+        />
         <div
           ref={scrollRef}
           className={styles.viewport}
@@ -203,10 +239,15 @@ export function AdminScheduleDateStrip({
               locale={locale}
               day={day}
               sessionCount={countsByDay.get(day) ?? 0}
+              isSelected={selectedDay === day}
               setCardRef={(element) => {
                 if (day === todayKey) {
                   todayCardRef.current = element;
                 }
+              }}
+              onSelect={() => {
+                if (shouldSuppressClick()) return;
+                onSelectDay(day);
               }}
             />
           ))}

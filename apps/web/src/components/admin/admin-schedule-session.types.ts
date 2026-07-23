@@ -56,6 +56,8 @@ export type AdminScheduleManagementProps = {
    * Independent of the current list page when pagination is active.
    */
   dateStripSessions?: readonly Pick<AdminScheduleSession, "startsAt">[];
+  /** Total for the All-classes strip card (independent of selected day / page). */
+  dateStripTotalCount?: number;
   listPagination: { total: number; take: number; offset: number } | null;
   classTypes: AdminScheduleClassType[];
   packages: AdminPackageRow[];

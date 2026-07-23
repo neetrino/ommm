@@ -10,6 +10,8 @@ export const ADMIN_SCHEDULE_LIST_FILTER_KEYS = [
   "schedQ",
   "schedFrom",
   "schedTo",
+  "schedDay",
+  "schedStrip",
   "schedCoachIds",
   "schedTypeIds",
   "schedLevels",
@@ -19,6 +21,11 @@ export const ADMIN_SCHEDULE_LIST_FILTER_KEYS = [
   "schedQuick",
   "schedOrder",
 ] as const;
+
+/** URL value for date-strip "All classes". */
+export const SCHEDULE_STRIP_ALL_VALUE = "all";
+
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 type SessionStatus = ScheduleFiltersState["statuses"][number];
 type AvailabilityOption = ScheduleFiltersState["availability"][number];
@@ -32,6 +39,11 @@ export type ScheduleListFilters = ScheduleFiltersState & {
 export type ScheduleListFilterState = {
   filters: ScheduleListFilters;
   quickFilters: ScheduleQuickFilter[];
+  /**
+   * Date-strip selection, independent of filter-panel from/to chips.
+   * `null` = All classes; ISO day = that calendar day.
+   */
+  stripDay: string | null;
 };
 
 export const defaultScheduleListFilters: ScheduleListFilters = {
@@ -84,9 +96,31 @@ function parseQuickFilters(values: string[]): ScheduleQuickFilter[] {
   );
 }
 
+function isIsoCalendarDay(value: string): boolean {
+  return ISO_DATE_PATTERN.test(value);
+}
+
+/**
+ * Parses strip-day URL state.
+ * Supports `schedDay` and legacy `schedStrip=all`.
+ */
+export function parseScheduleStripDayFromSearch(
+  search: Record<string, string | undefined>,
+): { stripDay: string | null; hasExplicitStripDay: boolean } {
+  const raw = search.schedDay?.trim();
+  if (raw === SCHEDULE_STRIP_ALL_VALUE || search.schedStrip === SCHEDULE_STRIP_ALL_VALUE) {
+    return { stripDay: null, hasExplicitStripDay: true };
+  }
+  if (raw !== undefined && raw.length > 0 && isIsoCalendarDay(raw)) {
+    return { stripDay: raw, hasExplicitStripDay: true };
+  }
+  return { stripDay: null, hasExplicitStripDay: false };
+}
+
 export function parseScheduleListFilterStateFromSearch(
   search: Record<string, string | undefined>,
 ): ScheduleListFilterState {
+  const { stripDay, hasExplicitStripDay } = parseScheduleStripDayFromSearch(search);
   const filters: ScheduleListFilters = {
     q: search.schedQ?.trim() ?? "",
     from: search.schedFrom ?? "",
@@ -104,17 +138,25 @@ export function parseScheduleListFilterStateFromSearch(
   return {
     filters,
     quickFilters: parseQuickFilters(parseAdminScheduleListFilter(search.schedQuick ?? "")),
+    // Unresolved default is applied in resolveAdminScheduleInitialFilterState.
+    stripDay: hasExplicitStripDay ? stripDay : null,
   };
 }
 
 export function buildScheduleFiltersQuery(
   filters: ScheduleListFilters,
   quickFilters: readonly ScheduleQuickFilter[],
+  stripDay: string | null,
 ): string {
   const params = new URLSearchParams();
   if (filters.q.trim()) params.set("schedQ", filters.q.trim());
   if (filters.from) params.set("schedFrom", filters.from);
   if (filters.to) params.set("schedTo", filters.to);
+  if (stripDay === null) {
+    params.set("schedDay", SCHEDULE_STRIP_ALL_VALUE);
+  } else {
+    params.set("schedDay", stripDay);
+  }
   const coachIds = serializeAdminScheduleListFilter(filters.coachIds);
   if (coachIds) params.set("schedCoachIds", coachIds);
   const typeIds = serializeAdminScheduleListFilter(filters.typeIds);
@@ -135,15 +177,28 @@ export function buildScheduleFiltersQuery(
   return params.toString();
 }
 
+/** Effective list date range: strip day wins over filter-panel from/to. */
+export function resolveScheduleListDateRange(
+  filters: Pick<ScheduleListFilters, "from" | "to">,
+  stripDay: string | null,
+): { from: string; to: string } {
+  if (stripDay !== null) {
+    return { from: stripDay, to: stripDay };
+  }
+  return { from: filters.from, to: filters.to };
+}
+
 export function scheduleFiltersToApiParams(
   filters: ScheduleListFilters,
   quickFilters: readonly ScheduleQuickFilter[],
   classTypeIds: readonly string[],
+  stripDay: string | null = null,
 ): URLSearchParams {
   const params = new URLSearchParams();
+  const { from, to } = resolveScheduleListDateRange(filters, stripDay);
   if (filters.q.trim()) params.set("q", filters.q.trim());
-  if (filters.from) params.set("from", filters.from);
-  if (filters.to) params.set("to", filters.to);
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
   const coachIds = serializeAdminScheduleListFilter(filters.coachIds);
   if (coachIds) params.set("coachIds", coachIds);
   if (classTypeIds.length > 0) {

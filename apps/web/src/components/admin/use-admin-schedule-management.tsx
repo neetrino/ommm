@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -38,6 +38,7 @@ import { useAdminScheduleManagementActions } from "@/components/admin/use-admin-
 import { useAdminScheduleManagementFiltersState } from "@/components/admin/use-admin-schedule-management-filters-state";
 import { useAdminScheduleListFilterFields } from "@/components/admin/use-admin-schedule-management-filter-fields";
 import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
+import { resolveScheduleListDateRange } from "@/components/admin/admin-schedule-url";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { toggleSessionDateSortOrder } from "@/lib/list-sort";
@@ -47,6 +48,7 @@ import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 export function useAdminScheduleManagement({
   sessions,
   dateStripSessions,
+  dateStripTotalCount: dateStripTotalCountProp,
   listPagination,
   classTypes: initialClassTypes,
   packages,
@@ -77,6 +79,7 @@ export function useAdminScheduleManagement({
   const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
     () => initialFilterState.quickFilters,
   );
+  const [stripDay, setStripDay] = useState<string | null>(() => initialFilterState.stripDay);
   const [searchDraft, setSearchDraft] = useState(() => initialFilterState.filters.q);
   const [prevInitialFilterState, setPrevInitialFilterState] = useState(initialFilterState);
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
@@ -136,6 +139,7 @@ export function useAdminScheduleManagement({
     setPrevInitialFilterState(initialFilterState);
     setFilters(initialFilterState.filters);
     setQuickFilters(initialFilterState.quickFilters);
+    setStripDay(initialFilterState.stripDay);
     setSearchDraft(initialFilterState.filters.q);
   }
 
@@ -174,7 +178,20 @@ export function useAdminScheduleManagement({
     setFilters,
     quickFilters,
     setQuickFilters,
+    stripDay,
+    setStripDay,
   });
+
+  const didSyncStripDayUrl = useRef(false);
+  useEffect(() => {
+    if (didSyncStripDayUrl.current) return;
+    if (searchParams.has("schedDay") || searchParams.has("schedStrip")) {
+      didSyncStripDayUrl.current = true;
+      return;
+    }
+    didSyncStripDayUrl.current = true;
+    patchFilterState({ stripDay }, false);
+  }, [patchFilterState, searchParams, stripDay]);
 
   const levels = useMemo(() => {
     return Array.from(
@@ -206,10 +223,11 @@ export function useAdminScheduleManagement({
 
   const filteredRows = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
+    const { from, to } = resolveScheduleListDateRange(filters, stripDay);
     return rows.filter((row) => {
       if (q && !`${row.title} ${row.classType.name} ${coachName(row.coach)}`.toLowerCase().includes(q)) return false;
-      if (filters.from && scheduleSessionLocalIsoDay(row.startsAt) < filters.from) return false;
-      if (filters.to && scheduleSessionLocalIsoDay(row.startsAt) > filters.to) return false;
+      if (from && scheduleSessionLocalIsoDay(row.startsAt) < from) return false;
+      if (to && scheduleSessionLocalIsoDay(row.startsAt) > to) return false;
       if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
       if (validSelectedPackageIds.length > 0 && !selectedClassTypeIds.includes(row.classType.id)) return false;
       if (
@@ -221,7 +239,7 @@ export function useAdminScheduleManagement({
       if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
       return matchesScheduleQuickFilters(row, quickFilters);
     });
-  }, [filters, quickFilters, rows, selectedClassTypeIds, validSelectedPackageIds]);
+  }, [filters, quickFilters, rows, selectedClassTypeIds, stripDay, validSelectedPackageIds]);
 
   const displayRows = isListView ? rows : filteredRows;
 
@@ -231,7 +249,23 @@ export function useAdminScheduleManagement({
   );
 
   const dateStripTotalCount =
-    isListView && listPagination !== null ? listPagination.total : dateStripRows.length;
+    dateStripTotalCountProp ??
+    (isListView && listPagination !== null ? listPagination.total : dateStripRows.length);
+
+  const selectedStripDay = stripDay;
+
+  const handleSelectStripDay = useCallback(
+    (day: string) => {
+      if (stripDay === day) return;
+      patchFilterState({ stripDay: day });
+    },
+    [patchFilterState, stripDay],
+  );
+
+  const handleSelectAllStripDays = useCallback(() => {
+    if (stripDay === null) return;
+    patchFilterState({ stripDay: null });
+  }, [patchFilterState, stripDay]);
 
   const summary = useMemo(() => {
     const now = new Date();
@@ -303,6 +337,9 @@ export function useAdminScheduleManagement({
     displayRows,
     dateStripRows,
     dateStripTotalCount,
+    selectedStripDay,
+    handleSelectStripDay,
+    handleSelectAllStripDays,
     filters,
     listPage,
     listPagination,
