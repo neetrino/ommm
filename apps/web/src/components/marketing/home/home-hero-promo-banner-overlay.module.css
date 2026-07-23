@@ -1,0 +1,305 @@
+/**
+ * Figma promo copy — desktop `887:803`–`887:805`, phone `882:810`–`882:813`.
+ * Positions use Figma bounding-box top-left (not center anchor).
+ */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.textBlock {
+  position: absolute;
+  margin: 0;
+  color: var(--home-hero-promo-text-color, #fbf5d5);
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.headlineBlock,
+.limitedBlock,
+.ctaBadge {
+  left: var(--home-hero-promo-text-inset-left);
+}
+
+/* iPad — match narrowed nav pill edge (desktop copy only; see layout tokens). */
+@media (min-width: 744px) and (max-width: 1023px) {
+  .desktopOnly .headlineBlock,
+  .desktopOnly .limitedBlock,
+  .desktopOnly .ctaBadge {
+    left: calc(
+      var(--home-hero-promo-text-inset-left) + var(--home-hero-promo-text-ipad-pill-offset-air, 2.5rem)
+    );
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .desktopOnly .headlineBlock,
+  .desktopOnly .limitedBlock,
+  .desktopOnly .ctaBadge {
+    left: calc(
+      var(--home-hero-promo-text-inset-left) + var(--home-hero-promo-text-ipad-pill-offset-pro, 2rem)
+    );
+  }
+}
+
+.headlineBlock {
+  top: calc(
+    100% *
+      (var(--home-hero-promo-headline-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
+      var(--home-hero-promo-artboard-height)
+  );
+  height: calc(100% * var(--home-hero-promo-headline-height-px) / var(--home-hero-promo-artboard-height));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  line-height: 0;
+  font-family: var(--font-gt-super-ds-trial), ui-serif, Georgia, serif;
+  font-size: clamp(
+    1.75rem,
+    calc(100svw * var(--home-hero-promo-headline-size-px) / var(--home-hero-promo-artboard-width)),
+    calc(var(--home-hero-promo-headline-size-px) * 1px)
+  );
+  font-weight: 400;
+}
+
+.headlineLine {
+  display: block;
+  margin: 0;
+  line-height: calc(
+    var(--home-hero-promo-headline-founding-line-height-px) / var(--home-hero-promo-headline-size-px)
+  );
+  white-space: nowrap;
+}
+
+/* hy desktop — space only between «Հիմնադիր» and «աբոնեմենտներ». */
+.desktopOnly[data-locale="hy"] .headlineLine + .headlineLine,
+.desktopOnly[data-locale^="hy-"] .headlineLine + .headlineLine {
+  margin-top: calc(var(--home-hero-promo-headline-founding-gap-extra-px, 0) * 1px);
+}
+
+.headlineLineAreOpen {
+  display: block;
+  margin: 0;
+  line-height: calc(
+    var(--home-hero-promo-headline-are-open-line-height-px) / var(--home-hero-promo-headline-size-px)
+  );
+  white-space: nowrap;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.limitedBlock {
+  top: calc(
+    100% *
+      (var(--home-hero-promo-limited-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
+      var(--home-hero-promo-artboard-height)
+  );
+  width: calc(
+    100% * var(--home-hero-promo-limited-width-px, 0) / var(--home-hero-promo-artboard-width)
+  );
+  max-width: calc(
+    100% * var(--home-hero-promo-limited-width-px, 0) / var(--home-hero-promo-artboard-width)
+  );
+  height: calc(100% * var(--home-hero-promo-limited-height-px) / var(--home-hero-promo-artboard-height));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  line-height: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(
+    1rem,
+    calc(100svw * var(--home-hero-promo-limited-size-px) / var(--home-hero-promo-artboard-width)),
+    calc(var(--home-hero-promo-limited-size-px) * 1px)
+  );
+  font-weight: 400;
+}
+
+.desktopOnly .limitedBlock {
+  width: auto;
+  max-width: none;
+}
+
+.mobileOnly .limitedLine {
+  white-space: normal;
+}
+
+/* ru/en — keep limited title on one row on phone. */
+.mobileOnly .limitedLineTitle {
+  white-space: nowrap;
+}
+
+/* hy — «Սահմանափակ / փաթեթներ» on two rows (newline in copy). */
+.mobileOnly[data-locale="hy"] .limitedLineTitle,
+.mobileOnly[data-locale^="hy-"] .limitedLineTitle {
+  white-space: pre-line;
+}
+
+.mobileOnly .limitedEmphasis {
+  display: block;
+}
+
+.limitedLine {
+  display: block;
+  margin: 0;
+  line-height: calc(var(--home-hero-promo-limited-line-height-px) / var(--home-hero-promo-limited-size-px));
+  white-space: nowrap;
+}
+
+.limitedEmphasis {
+  font-weight: 700;
+}
+
+.ctaBadge {
+  position: absolute;
+  top: calc(
+    100% *
+      (var(--home-hero-promo-cta-top-px) - var(--home-hero-promo-text-shift-up-px, 0)) /
+      var(--home-hero-promo-artboard-height)
+  );
+  height: calc(
+    100% * var(--home-hero-promo-cta-height-px) / var(--home-hero-promo-artboard-height) *
+      var(--home-hero-promo-cta-pill-scale, 1)
+  );
+  width: auto;
+  aspect-ratio: var(--home-hero-promo-cta-pill-aspect-ratio, 465 / 87);
+  pointer-events: auto;
+}
+
+@supports not (aspect-ratio: 1 / 1) {
+  .ctaBadge {
+    width: calc(
+      100% * var(--home-hero-promo-cta-height-px) / var(--home-hero-promo-artboard-height) *
+        var(--home-hero-promo-cta-pill-scale, 1) * var(--home-hero-promo-cta-pill-aspect-ratio, 5.34)
+    );
+  }
+}
+
+.ctaPillImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ctaPhoneNumber {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: calc(var(--home-hero-promo-cta-phone-offset-top-px, 0) * 1px);
+  padding-left: calc(var(--home-hero-promo-cta-phone-offset-right-px, 10) * 1px);
+  font-family: var(--font-gt-super-ds-trial), ui-serif, Georgia, serif;
+  font-size: clamp(
+    0.625rem,
+    calc(100svw * var(--home-hero-promo-cta-phone-size-px, 43) / var(--home-hero-promo-artboard-width)),
+    calc(var(--home-hero-promo-cta-phone-size-px, 43) * 1px)
+  );
+  font-weight: 400;
+  line-height: 1;
+  color: var(--home-hero-promo-cta-phone-color, #795a2b);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (min-width: 744px) {
+  .ctaPhoneNumber {
+    padding-left: calc(
+      var(--home-hero-promo-cta-phone-offset-right-desktop-px, var(--home-hero-promo-cta-phone-offset-right-px, 10)) *
+        1px
+    );
+  }
+}
+
+.desktopOnly {
+  display: none;
+}
+
+.mobileOnly {
+  display: block;
+}
+
+@media (min-width: 744px) {
+  .desktopOnly {
+    display: block;
+  }
+
+  .mobileOnly {
+    display: none;
+  }
+
+  /* Desktop/tablet — scale type with banner box so copy stays spaced on all widths. */
+  .overlay {
+    container-type: size;
+    container-name: home-hero-promo;
+  }
+
+  .desktopOnly .headlineBlock {
+    max-width: calc(100% - var(--home-hero-promo-text-inset-left) - 1rem);
+    font-size: min(
+      calc(var(--home-hero-promo-headline-size-px) * 1px),
+      calc(100cqw * var(--home-hero-promo-headline-size-px) / var(--home-hero-promo-artboard-width)),
+      calc(100cqh * var(--home-hero-promo-headline-size-px) / var(--home-hero-promo-artboard-height))
+    );
+  }
+
+  .desktopOnly .limitedBlock {
+    max-width: none;
+    font-size: min(
+      calc(var(--home-hero-promo-limited-size-px) * 1px),
+      calc(100cqw * var(--home-hero-promo-limited-size-px) / var(--home-hero-promo-artboard-width)),
+      calc(100cqh * var(--home-hero-promo-limited-size-px) / var(--home-hero-promo-artboard-height))
+    );
+  }
+
+  .desktopOnly .ctaPhoneNumber {
+    font-size: min(
+      calc(var(--home-hero-promo-cta-phone-size-px, 43) * 1px),
+      calc(100cqw * var(--home-hero-promo-cta-phone-size-px, 43) / var(--home-hero-promo-artboard-width)),
+      calc(100cqh * var(--home-hero-promo-cta-phone-size-px, 43) / var(--home-hero-promo-artboard-height))
+    );
+  }
+}
+
+/* iPad — smaller headline→limited gap (58px); full desktop (1367px+) keeps 99px. */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .desktopOnly .limitedBlock {
+    top: calc(
+      100% *
+        (
+          var(--home-hero-promo-limited-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
+            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
+        ) / var(--home-hero-promo-artboard-height)
+    );
+  }
+
+  .desktopOnly .ctaBadge {
+    top: calc(
+      100% *
+        (
+          var(--home-hero-promo-cta-top-px) - var(--home-hero-promo-text-shift-up-px, 0) -
+            var(--home-hero-promo-limited-cta-ipad-pull-up-px, 0)
+        ) / var(--home-hero-promo-artboard-height)
+    );
+  }
+}
+

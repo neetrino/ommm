@@ -1,0 +1,91 @@
+:root {
+  --background: #faf9f7;
+  --foreground: #1a1c1b;
+
+  --color-paper: #faf9f7;
+  --color-sage-900: #1a1c1b;
+  --color-sage-800: #2e2e2e;
+  --color-sage-700: #334537;
+  --color-sage-500: #434843;
+  --color-sand-700: #6b5c4c;
+  --color-sand-500: #a19685;
+  --color-sand-100: #f4dfcb;
+  --color-cream-50: #fffec9;
+  --color-cream-100: #faffa0;
+  --color-peach-100: #ffe4c3;
+  --color-mint-100: #eef0cd;
+  --color-mint-200: color-mix(in srgb, var(--color-mint-100) 78%, var(--color-sage-700) 22%);
+  --color-blue-100: #e4f5fd;
+  --color-gift-gold: #e8da74;
+
+  /** Policy / gallery cream — privacy, terms, refund pages. */
+  --ommm-policy-page-background: #fbf5d5;
+
+  /* Admin portal — Figma management shell (Packages, sidebar, header) */
+  --ommm-admin-olive: #97907c;
+  --ommm-admin-cream: #fbf5d5;
+  --ommm-admin-page: #ede9dd;
+  --ommm-admin-olive-muted: #c5bf9f;
+  --ommm-admin-olive-muted-hover: #d4ceb0;
+  --ommm-admin-shadow-soft: 0 12px 32px -24px rgba(45, 40, 35, 0.22);
+  --ommm-admin-shadow-nav-active: 0 10px 28px -18px rgba(45, 40, 35, 0.28);
+
+  /* Global header — warm charcoal ink on light surfaces (not pure black). */
+  --ommm-marketing-header-ink-light: var(--color-sage-700);
+  --ommm-marketing-header-ink-light-emphasis: var(--color-sand-700);
+  --ommm-marketing-nav-ink-light: var(--color-sage-700);
+  --ommm-marketing-nav-ink-light-active: var(--color-sand-700);
+  --ommm-marketing-nav-ink-light-hover: var(--color-sage-800);
+  --ommm-marketing-nav-active-bar-light: var(--ommm-admin-olive);
+
+  --gradient-wellness:
+    linear-gradient(
+      169deg,
+      var(--color-mint-100) 0%,
+      var(--color-cream-100) 23%,
+      var(--color-peach-100) 31%,
+      var(--color-blue-100) 67%,
+      var(--color-mint-100) 96%
+    );
+
+  --gradient-gift:
+    linear-gradient(
+      180deg,
+      var(--color-gift-gold) 0%,
+      rgba(246, 255, 208, 0) 100%
+    );
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-paper: var(--color-paper);
+  --color-sage-900: var(--color-sage-900);
+  --color-sage-800: var(--color-sage-800);
+  --color-sage-700: var(--color-sage-700);
+  --color-sage-500: var(--color-sage-500);
+  --color-sand-700: var(--color-sand-700);
+  --color-sand-500: var(--color-sand-500);
+  --color-sand-100: var(--color-sand-100);
+  --color-cream-50: var(--color-cream-50);
+  --color-cream-100: var(--color-cream-100);
+  --color-peach-100: var(--color-peach-100);
+  --color-mint-100: var(--color-mint-100);
+  --color-mint-200: var(--color-mint-200);
+  --color-blue-100: var(--color-blue-100);
+  --color-gift-gold: var(--color-gift-gold);
+
+  --font-sans:
+    var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    var(--font-gt-super-ds-trial), ui-serif, Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-display);
+  --font-montserrat-marketing: var(--font-display);
+
+  /* Full desktop marketing nav — above largest iPad Pro landscape (1366px). */
+  --breakpoint-nav-desktop: 85.4375rem;
+  /* iPad Air portrait — desktop home layout from this width (744px). */
+  --breakpoint-tablet: 46.5rem;
+}

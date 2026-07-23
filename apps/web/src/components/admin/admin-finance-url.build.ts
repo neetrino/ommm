@@ -1,0 +1,183 @@
+import type {
+  CoachFinanceFilters,
+  FinanceDateRangeDays,
+  FinanceFilterValues,
+  UserFinanceFilters,
+} from "@/components/admin/admin-finance-types";
+import {
+  FINANCE_COACHES_QUERY_KEYS,
+  FINANCE_MEMBERS_QUERY_KEYS,
+  FINANCE_OVERVIEW_QUERY_KEYS,
+  FINANCE_PAYMENTS_QUERY_KEYS,
+} from "@/components/admin/admin-finance-url.constants";
+import {
+  applyFinanceQueryKeys,
+  pickFinanceSectionParams,
+} from "@/components/admin/admin-finance-url.helpers";
+
+export function buildFinanceOverviewFiltersQuery(
+  rangeDays: FinanceDateRangeDays,
+  currentSearchParams: URLSearchParams,
+): string {
+  const params = pickFinanceSectionParams([...FINANCE_OVERVIEW_QUERY_KEYS], currentSearchParams);
+  applyFinanceQueryKeys(params, [...FINANCE_OVERVIEW_QUERY_KEYS], {
+    rangeDays: rangeDays === 30 ? undefined : String(rangeDays),
+  });
+  return params.toString();
+}
+
+export function buildFinancePaymentsFiltersQuery(
+  values: FinanceFilterValues,
+  currentSearchParams: URLSearchParams,
+): string {
+  const params = pickFinanceSectionParams([...FINANCE_PAYMENTS_QUERY_KEYS], currentSearchParams);
+  applyFinanceQueryKeys(params, [...FINANCE_PAYMENTS_QUERY_KEYS], {
+    q: values.q.trim() !== "" ? values.q.trim() : undefined,
+    rangeDays: values.rangeDays !== 30 ? String(values.rangeDays) : undefined,
+    source: values.source !== "all" ? values.source : undefined,
+    status: values.status !== "all" ? values.status : undefined,
+    planId: values.planId !== "all" ? values.planId : undefined,
+    packageClass: values.packageClass !== "all" ? values.packageClass : undefined,
+    sessions: values.sessions !== "all" ? values.sessions : undefined,
+    order: values.order !== "newest" ? values.order : undefined,
+  });
+  return params.toString();
+}
+
+/** Builds the admin payments list API query with finance tab filters applied server-side. */
+export function buildFinancePaymentsAdminApiQuery(
+  filters: FinanceFilterValues,
+  from: string,
+  listPage: { take: number; offset: number },
+): string {
+  const params = new URLSearchParams({
+    from,
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+  });
+  if (filters.status !== "all") {
+    params.set("status", filters.status);
+  }
+  if (filters.source !== "all") {
+    params.set("source", filters.source);
+  }
+  if (filters.q.trim()) {
+    params.set("q", filters.q.trim());
+  }
+  if (filters.planId !== "all") {
+    params.set("planId", filters.planId);
+  }
+  if (filters.packageClass !== "all") {
+    params.set("packageClass", filters.packageClass);
+  }
+  if (filters.sessions !== "all") {
+    params.set("sessions", filters.sessions);
+  }
+  if (filters.order !== "newest") {
+    params.set("order", filters.order);
+  }
+  return `/payments/admin?${params.toString()}`;
+}
+
+export function buildFinanceMembersFiltersQuery(
+  values: UserFinanceFilters & { q?: string },
+  currentSearchParams: URLSearchParams,
+): string {
+  const q = (values.q ?? values.search).trim();
+  const params = pickFinanceSectionParams([...FINANCE_MEMBERS_QUERY_KEYS], currentSearchParams);
+  applyFinanceQueryKeys(params, [...FINANCE_MEMBERS_QUERY_KEYS], {
+    q: q !== "" ? q : undefined,
+    paymentStatus: values.paymentStatus !== "" ? values.paymentStatus : undefined,
+    order: values.order !== "newest" ? values.order : undefined,
+    giftCardOnly: values.giftCardOnly ? "true" : undefined,
+    quick: values.quick !== "" ? values.quick : undefined,
+  });
+  return params.toString();
+}
+
+export function buildFinanceCoachesFiltersQuery(
+  values: CoachFinanceFilters & { q?: string },
+  currentSearchParams: URLSearchParams,
+): string {
+  const q = (values.q ?? values.search).trim();
+  const defaultMonth = new Date().toISOString().slice(0, 7);
+  const params = pickFinanceSectionParams([...FINANCE_COACHES_QUERY_KEYS], currentSearchParams);
+  applyFinanceQueryKeys(params, [...FINANCE_COACHES_QUERY_KEYS], {
+    q: q !== "" ? q : undefined,
+    month: values.month !== defaultMonth ? values.month : undefined,
+    payoutStatus: values.payoutStatus !== "" ? values.payoutStatus : undefined,
+    order: values.order !== "newest" ? values.order : undefined,
+    quick: values.quick !== "" ? values.quick : undefined,
+  });
+  return params.toString();
+}
+
+/** Builds paginated members list API query with finance tab filters applied server-side. */
+export function buildFinanceMembersClientsQuery(
+  filters: UserFinanceFilters & { q?: string },
+  listPage: { take: number; offset: number },
+): string {
+  const params = new URLSearchParams({
+    meta: "true",
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+  });
+  const search = (filters.q ?? filters.search).trim();
+  if (search) {
+    params.set("search", search);
+  }
+  if (filters.quick === "paid") {
+    params.set("paymentStatus", "paid");
+  } else if (filters.quick === "pending") {
+    params.set("paymentStatus", "unpaid");
+  } else if (filters.quick === "overdue") {
+    params.set("paymentStatus", "overdue");
+  } else if (filters.paymentStatus) {
+    params.set("paymentStatus", filters.paymentStatus);
+  }
+  if (filters.quick === "active") {
+    params.set("status", "active");
+  }
+  if (filters.quick === "gift-card" || filters.giftCardOnly) {
+    params.set("giftCardOnly", "true");
+  }
+  if (filters.order) {
+    params.set("order", filters.order);
+  }
+  return `/clients?${params.toString()}`;
+}
+
+export function buildFinanceCoachSalaryQuery(
+  filters: CoachFinanceFilters & { q?: string },
+  listPage: { take: number; offset: number },
+): string {
+  const params = new URLSearchParams({
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+  });
+  const search = (filters.q ?? filters.search).trim();
+  if (search) {
+    params.set("search", search);
+  }
+  if (filters.month) {
+    params.set("month", filters.month);
+  }
+  if (filters.payoutStatus) {
+    params.set("payoutStatus", filters.payoutStatus);
+  }
+  if (filters.order && filters.order !== "newest") {
+    params.set("order", filters.order);
+  }
+  if (filters.quick) {
+    params.set("quick", filters.quick);
+  }
+  return `/coaches/admin/salary-summaries?${params.toString()}`;
+}
+
+/** @deprecated Use buildFinancePaymentsFiltersQuery. */
+export function buildFinanceFiltersQuery(
+  values: FinanceFilterValues,
+  currentSearchParams: URLSearchParams,
+): string {
+  return buildFinancePaymentsFiltersQuery(values, currentSearchParams);
+}

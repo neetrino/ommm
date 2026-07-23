@@ -1,0 +1,108 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
+import { Role, type User } from '@prisma/client';
+import {
+  BACKOFFICE_DELETE_ROLES,
+  BACKOFFICE_WRITE_ROLES,
+} from '../common/backoffice-roles';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { CoachesService } from './coaches.service';
+import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
+import { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
+import { CreateCoachDto } from './dto/create-coach.dto';
+import { UpdateCoachDto } from './dto/update-coach.dto';
+import { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
+
+@Controller('coaches')
+export class CoachesController {
+  constructor(private readonly coaches: CoachesService) {}
+
+  @Get()
+  listPublic() {
+    return this.coaches.listPublic();
+  }
+
+  /** Same RSC / dashboard burst pattern as `GET /users/me` — avoid 429 false “auth failure”. */
+  @Get('admin/list')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  listAdmin(@Query() query: AdminListCoachesQueryDto) {
+    return this.coaches.listAdmin(query);
+  }
+
+  @Get('panel/summary')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COACH)
+  panelSummary(@CurrentUser() user: { id: string }) {
+    return this.coaches.coachPanelSummary(user.id);
+  }
+
+  @Get('panel/salary')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COACH)
+  panelSalary(@CurrentUser() user: { id: string }) {
+    return this.coaches.salarySummary(user.id);
+  }
+
+  @Get('admin/salary-summaries')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  adminSalarySummaries(@Query() query: AdminSalarySummariesQueryDto) {
+    return this.coaches.adminSalarySummaries(query);
+  }
+
+  @Get(':id')
+  getPublic(@Param('id') id: string) {
+    return this.coaches.getPublic(id);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  create(@Body() dto: CreateCoachDto) {
+    return this.coaches.create(dto);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
+  update(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: UpdateCoachDto,
+  ) {
+    return this.coaches.update(user, id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  remove(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.coaches.remove(user, id);
+  }
+
+  @Post(':id/photo-json')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  uploadCoachPhotoJson(
+    @Param('id') id: string,
+    @Body() dto: UploadCoachPhotoJsonDto,
+  ) {
+    return this.coaches.uploadCoachPhotoJson(id, dto);
+  }
+}

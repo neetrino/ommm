@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "PackagePlan" ADD COLUMN IF NOT EXISTS "pricePerSessionCents" INTEGER NOT NULL DEFAULT 0;

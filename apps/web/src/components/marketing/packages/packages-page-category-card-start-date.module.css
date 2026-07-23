@@ -1,0 +1,85 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.7rem 1rem 0.65rem;
+  max-width: 13.75rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(74, 71, 56, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  text-align: center;
+}
+
+.rootCollapsed {
+  max-width: 100%;
+  padding: 0.55rem 0.75rem 0.5rem;
+  gap: 0.35rem;
+  border-radius: 0.875rem;
+}
+
+.purchaseLine {
+  margin: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.6875rem, 1.25vw, 0.75rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+  color: rgba(74, 71, 56, 0.62);
+  text-wrap: balance;
+}
+
+.divider {
+  display: block;
+  width: 1.375rem;
+  height: 1px;
+  background: rgba(106, 100, 84, 0.24);
+}
+
+.attendLine {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.25rem 0.35rem;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.attendPrefix {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.75rem, 1.45vw, 0.875rem);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.2;
+  color: rgba(74, 71, 56, 0.72);
+}
+
+.attendDate {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.875rem, 1.85vw, 1.0625rem);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--packages-page-text-color);
+}
+
+.rootCollapsed .purchaseLine {
+  font-size: calc(var(--packages-page-collapsed-price-size) * 0.52);
+  letter-spacing: 0.015em;
+}
+
+.rootCollapsed .divider {
+  width: 1.125rem;
+}
+
+.rootCollapsed .attendPrefix {
+  font-size: calc(var(--packages-page-collapsed-price-size) * 0.58);
+}
+
+.rootCollapsed .attendDate {
+  font-size: calc(var(--packages-page-collapsed-price-size) * 0.72);
+}

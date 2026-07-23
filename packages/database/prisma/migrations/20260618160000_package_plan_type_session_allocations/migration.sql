@@ -1,0 +1,2 @@
+ALTER TABLE "PackagePlan"
+ADD COLUMN IF NOT EXISTS "typeSessionAllocations" JSONB NOT NULL DEFAULT '[]';

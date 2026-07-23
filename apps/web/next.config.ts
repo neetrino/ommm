@@ -1,5 +1,7 @@
 import path from "node:path";
+import os from "node:os";
 import { config as loadEnv } from "dotenv";
+import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
 const monorepoRoot = path.join(__dirname, "..", "..");
@@ -10,10 +12,168 @@ loadEnv({
   quiet: true,
 });
 
+if (process.env.NODE_ENV !== "production") {
+  // Root `.env` sets API_PORT/API PORT for Nest — do not let PORT hijack Next dev.
+  delete process.env.PORT;
+}
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+const apiInternal =
+  process.env.API_INTERNAL_URL ?? "http://127.0.0.1:4000";
+
+if (process.env.NODE_ENV !== "production") {
+  console.log(`[web] next.config API_INTERNAL_URL → ${apiInternal}/v1`);
+}
+
+function collectLanIpv4Hosts(): string[] {
+  const nets = os.networkInterfaces();
+  const hosts = new Set<string>();
+
+  for (const values of Object.values(nets)) {
+    if (!values) continue;
+    for (const value of values) {
+      if (
+        value.family === "IPv4" &&
+        !value.internal &&
+        value.address.trim().length > 0
+      ) {
+        hosts.add(value.address.trim());
+      }
+    }
+  }
+
+  return [...hosts];
+}
+
+function parseAllowedDevOrigins(raw: string | undefined): string[] {
+  if (!raw || raw.trim().length === 0) return [];
+  return raw
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+function resolveR2ImageHostname(raw: string | undefined): string | null {
+  if (!raw || raw.trim().length === 0) {
+    return null;
+  }
+  try {
+    return new URL(raw.trim()).hostname;
+  } catch {
+    return null;
+  }
+}
+
+const allowedDevOrigins = [
+  ...new Set([
+    ...collectLanIpv4Hosts(),
+    ...parseAllowedDevOrigins(process.env.NEXT_ALLOWED_DEV_ORIGINS),
+  ]),
+];
+
+const r2ImageHostname = resolveR2ImageHostname(process.env.R2_PUBLIC_URL);
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: monorepoRoot,
   },
+  allowedDevOrigins,
+  images: {
+    /** Serve assets as-is — no `/_next/image` re-encode or resize. */
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.r2.dev",
+      },
+      ...(r2ImageHostname === null
+        ? []
+        : [
+            {
+              protocol: "https" as const,
+              hostname: r2ImageHostname,
+            },
+          ]),
+    ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/:locale/dashboard",
+        destination: "/:locale/user",
+        permanent: false,
+      },
+      {
+        source: "/:locale/account/classes",
+        destination: "/:locale/schedule",
+        permanent: false,
+      },
+      {
+        source: "/:locale/user/classes",
+        destination: "/:locale/schedule",
+        permanent: false,
+      },
+      {
+        source: "/:locale/account/bookings",
+        destination: "/:locale/user/bookings",
+        permanent: false,
+      },
+      {
+        source: "/:locale/account/memberships",
+        destination: "/:locale/user/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/account/packages",
+        destination: "/:locale/user/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/user/memberships",
+        destination: "/:locale/user/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/admin/memberships",
+        destination: "/:locale/admin/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/memberships",
+        destination: "/:locale/package",
+        permanent: false,
+      },
+      {
+        source: "/:locale/membership",
+        destination: "/:locale/package",
+        permanent: false,
+      },
+      {
+        source: "/:locale/packages",
+        destination: "/:locale/package",
+        permanent: false,
+      },
+      {
+        source: "/:locale/account/gift-cards",
+        destination: "/:locale/user/gift-cards",
+        permanent: false,
+      },
+      {
+        source: "/:locale/account/settings",
+        destination: "/:locale/user/profile",
+        permanent: false,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${apiInternal}/v1/:path*`,
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

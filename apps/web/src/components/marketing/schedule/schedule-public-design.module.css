@@ -1,0 +1,476 @@
+/**
+ * Schedule page — luxury wellness surface aligned with home weekly schedule.
+ */
+
+.viewShell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  border-radius: clamp(1.75rem, 3.5vw, 2rem);
+  border: 1px solid rgb(255 255 255 / 0.72);
+  background: linear-gradient(
+    165deg,
+    rgb(255 255 255 / 0.78) 0%,
+    rgb(255 255 255 / 0.58) 48%,
+    rgb(255 255 255 / 0.66) 100%
+  );
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 3.5vw, 2.25rem);
+  box-shadow:
+    0 24px 48px -32px rgb(45 40 35 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.9);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.filterTrigger {
+  min-height: 2.875rem;
+  border-color: rgb(151 144 124 / 0.45);
+  background: rgb(255 255 255 / 0.82);
+  box-shadow: 0 8px 20px -16px rgb(45 40 35 / 0.2);
+}
+
+.filterTrigger:hover {
+  border-color: rgb(151 144 124 / 0.72);
+  background: rgb(255 255 255 / 0.95);
+}
+
+.filterLabel {
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #4a4738;
+}
+
+.monthLabel {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.375rem, 3vw, 1.625rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #3d3a32;
+  text-transform: capitalize;
+}
+
+.dateStripPanel {
+  width: 100%;
+  border-radius: clamp(1.25rem, 2.5vw, 1.5rem);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  background: rgb(255 255 255 / 0.42);
+  padding: clamp(0.875rem, 2vw, 1.25rem) clamp(0.5rem, 1.5vw, 1rem);
+  box-shadow:
+    0 16px 36px -28px rgb(45 40 35 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.85);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.weekdayLabel {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #97907c;
+}
+
+.weekdayLabelActive {
+  color: #695f00;
+}
+
+.dateChip {
+  display: flex;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 3.25rem;
+  margin-inline: auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1.5px solid transparent;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    background-color 280ms ease,
+    border-color 280ms ease,
+    color 280ms ease,
+    box-shadow 280ms ease,
+    transform 280ms ease;
+}
+
+@media (min-width: 640px) {
+  .dateChip {
+    max-width: 3.5rem;
+    font-size: 0.9375rem;
+  }
+}
+
+.dateChipIdle {
+  composes: dateChip;
+  border-color: rgb(151 144 124 / 0.35);
+  background: rgb(255 255 255 / 0.5);
+  color: #97907c;
+}
+
+.dateChipIdle:hover {
+  border-color: rgb(151 144 124 / 0.55);
+  background: rgb(255 255 255 / 0.78);
+  transform: translateY(-1px);
+}
+
+.dateChipActive {
+  composes: dateChip;
+  border-color: #97907c;
+  background: #97907c;
+  color: #fbf5d5;
+  box-shadow:
+    0 10px 22px -14px rgb(45 40 35 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
+.dateChipToday {
+  composes: dateChip;
+  border-color: #97907c;
+  background: #97907c;
+  color: #fbf5d5;
+  box-shadow:
+    0 10px 22px -14px rgb(45 40 35 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
+.dateChipSelected {
+  composes: dateChip;
+  border-color: #97907c;
+  background: rgb(255 255 255 / 0.82);
+  color: #695f00;
+  box-shadow: 0 0 0 2px rgb(151 144 124 / 0.22);
+}
+
+.dateChipPast {
+  composes: dateChip;
+  border-color: rgb(151 144 124 / 0.2);
+  background: rgb(255 255 255 / 0.35);
+  color: rgb(151 144 124 / 0.55);
+}
+
+.arrowBtn {
+  display: inline-flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  flex-shrink: 0;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(151 144 124 / 0.4);
+  background: rgb(255 255 255 / 0.88);
+  color: #695f00;
+  box-shadow: 0 8px 18px -14px rgb(45 40 35 / 0.28);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease;
+}
+
+.arrowBtn:hover:enabled {
+  border-color: rgb(151 144 124 / 0.65);
+  background: rgb(255 255 255 / 1);
+  transform: translateY(-1px);
+}
+
+.arrowBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.9),
+    0 0 0 4px rgb(151 144 124 / 0.35);
+}
+
+.arrowBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.selectedDayDivider {
+  margin-top: 2rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid rgb(151 144 124 / 0.22);
+}
+
+.selectedDayLabel {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: #3d3a32;
+  text-transform: capitalize;
+}
+
+.sessionRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-radius: clamp(1.25rem, 2.5vw, 2rem);
+  border: 1px solid rgb(255 255 255 / 0.72);
+  padding: clamp(1rem, 2.5vw, 1.375rem) clamp(1rem, 2.5vw, 1.5rem);
+  box-shadow:
+    0 18px 40px -28px rgb(45 40 35 / 0.26),
+    inset 0 1px 0 rgb(255 255 255 / 0.75);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+@media (min-width: 640px) {
+  .sessionRow {
+    display: grid;
+    grid-template-columns: minmax(0, 5.5rem) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+.timeLabel {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: #1d1c15;
+}
+
+.durationLabel {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7268;
+}
+
+.classTitle {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.0625rem, 2vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #1d1c15;
+}
+
+.classSubtitle {
+  margin: 0.375rem 0 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #4a4738;
+}
+
+.spotsLabel {
+  margin: 0.375rem 0 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: #6b7268;
+}
+
+.spotsLabelUrgent {
+  color: #af5008;
+}
+
+.bookBtn {
+  display: inline-flex;
+  min-height: 3rem;
+  min-width: 9.0625rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 255 255 / 0.55);
+  background: rgb(255 255 255 / 0.33);
+  padding: 0.75rem 1rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  letter-spacing: 0.0625rem;
+  text-transform: uppercase;
+  color: #1d1c15;
+  white-space: nowrap;
+  cursor: pointer;
+  isolation: isolate;
+  transition:
+    background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bookBtn:hover:enabled {
+  border-color: rgb(255 255 255 / 0.68);
+  background: rgb(255 255 255 / 0.42);
+  transform: translateY(-2px);
+}
+
+.bookBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85),
+    0 0 0 2px rgb(255 255 255 / 0.9),
+    0 0 0 4px rgb(151 144 124 / 0.35);
+}
+
+.bookBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+@media (min-width: 744px) and (max-width: 1366px) {
+  .bookBtn {
+    min-width: 7.25rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.05rem;
+  }
+}
+
+.bookBtnHomeLayout {
+  width: 9.0625rem;
+}
+
+@media (min-width: 744px) and (max-width: 1366px) {
+  .bookBtnHomeLayout {
+    width: 7.25rem;
+  }
+}
+
+@media (max-width: 743px) {
+  .bookBtnHomeLayout {
+    width: auto;
+    min-width: 4.5rem;
+    height: 2rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.03125rem;
+    color: #0e0e0d;
+  }
+}
+
+.cancelBtn {
+  composes: bookBtn;
+  min-width: 5.5rem;
+  width: auto;
+  background: rgb(255 255 255 / 0.55);
+  color: #4a4738;
+}
+
+.cancelBtn:hover:enabled {
+  background: rgb(255 255 255 / 0.72);
+}
+
+.bookedBtn {
+  display: inline-flex;
+  min-height: 3rem;
+  min-width: 5.5rem;
+  width: auto;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(95 122 104 / 0.55);
+  background: #5f7a68;
+  padding: 0.75rem 1rem;
+  box-shadow:
+    0 6px 18px -12px rgb(45 74 58 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  letter-spacing: 0.0625rem;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  cursor: default;
+  -webkit-font-smoothing: antialiased;
+  opacity: 1;
+}
+
+.bookedBtn:disabled {
+  opacity: 1;
+  cursor: default;
+  pointer-events: none;
+}
+
+.bookActionGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.875rem, 2vw, 1.125rem);
+  padding: 0;
+  list-style: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dateChipIdle:hover,
+  .arrowBtn:hover:enabled,
+  .bookBtn:hover:enabled,
+  .cancelBtn:hover:enabled {
+    transform: none;
+  }
+
+  .bookBtn,
+  .cancelBtn {
+    transition-duration: 150ms;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .viewShell,
+  .dateStripPanel,
+  .bookBtn,
+  .cancelBtn {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .bookBtn,
+  .cancelBtn {
+    background: rgb(255 255 255 / 0.72);
+  }
+}

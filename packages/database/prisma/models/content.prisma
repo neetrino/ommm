@@ -1,0 +1,46 @@
+model ContentPost {
+  id             String        @id @default(cuid())
+  type           ContentType
+  status         ContentStatus @default(DRAFT)
+  slug           String        @unique
+  title          String
+  excerpt        String?
+  body           String?
+  authorName     String?
+  tags           String[]      @default([])
+  seoTitle       String?
+  seoDescription String?
+  editorialNotes String?
+  reviewNotes    String?
+  reviewedById   String?
+  reviewedAt     DateTime?
+  submittedForReviewAt DateTime?
+  coverImageUrl String?
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  translations ContentPostTranslation[]
+
+  @@index([type, status])
+}
+
+model ContentPostTranslation {
+  id             String   @id @default(cuid())
+  postId         String
+  locale         String
+  slug           String
+  title          String   @default("")
+  excerpt        String?
+  body           String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  post ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, locale])
+  @@unique([locale, slug])
+  @@index([postId])
+}

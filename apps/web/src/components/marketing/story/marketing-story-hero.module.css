@@ -1,0 +1,185 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: var(--story-hero-min-height, clamp(36rem, 58.75vw, 52.9375rem));
+  color: #fff;
+  overflow: hidden;
+  background-color: #fbf5d5;
+}
+
+/* Figma `672:869` — fixed 1442×847 frame, not a growing cover layer. */
+.background {
+  position: absolute;
+  top: var(--story-hero-background-top-offset, -0.125rem);
+  left: 50%;
+  z-index: 0;
+  width: var(--story-hero-background-width-bleed, 100.14%);
+  height: var(--story-hero-background-height, clamp(36rem, 58.75vw, 52.9375rem));
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateX(-50%);
+  border-bottom-left-radius: var(--story-hero-background-bottom-radius, clamp(2.5rem, 4vw, 4rem));
+  border-bottom-right-radius: var(--story-hero-background-bottom-radius, clamp(2.5rem, 4vw, 4rem));
+}
+
+.backgroundImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Figma export uses fill + object-bottom, not object-cover. */
+  object-fit: fill !important;
+  object-position: bottom;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  min-height: inherit;
+  padding-top: var(
+    --story-hero-content-padding-top-mobile,
+    calc(var(--marketing-mobile-header-height, 4.25rem) + clamp(1rem, 3vw, 1.5rem))
+  );
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+@media (min-width: 744px) {
+  .content {
+    padding-top: var(--story-hero-content-padding-top, clamp(5.5rem, 10.5vw, 9.5rem));
+  }
+}
+
+.titleRow {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Figma `670:814` — centered copy block; lede under "Ommm." */
+.titleCluster {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.titleHeading {
+  display: contents;
+}
+
+.titlePrefix,
+.titleBrand {
+  font-family: var(--font-serif);
+  font-size: var(--story-hero-title-size, clamp(3.5rem, 8vw, 7.25rem));
+  font-weight: 600;
+  line-height: 0.76;
+  color: #fff;
+}
+
+.titlePrefix {
+  grid-column: 1;
+  grid-row: 1;
+  white-space: pre;
+}
+
+.titleBrand {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+
+.lede {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  margin: clamp(0.5rem, 1.25vw, 1rem) 0 0;
+  width: min(100%, var(--story-hero-lede-max-width, 18.9375rem));
+  max-width: var(--story-hero-lede-max-width, 18.9375rem);
+  min-width: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--story-hero-lede-size, clamp(1rem, 1.25vw, 1.125rem));
+  font-weight: 300;
+  line-height: 1.61;
+  color: #fff;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 743px) {
+  .titleCluster {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .titlePrefix,
+  .titleBrand {
+    font-size: var(
+      --story-hero-title-size-mobile,
+      min(3.5rem, max(1.75rem, calc((100vw - 3.5rem) / 6)))
+    );
+    line-height: 0.8;
+  }
+
+  .titleBrand {
+    justify-self: start;
+    white-space: nowrap;
+  }
+
+  .lede {
+    width: min(100%, var(--story-hero-lede-max-width, 18.9375rem));
+    max-width: min(
+      var(--story-hero-lede-max-width, 18.9375rem),
+      calc(100vw - 2 * var(--marketing-content-inline-inset, 1rem) - 1.5rem)
+    );
+    margin-bottom: var(--story-hero-lede-feature-gap-mobile, clamp(2.5rem, 6vw, 3.5rem));
+    font-size: clamp(0.8125rem, 3.5vw, 0.9375rem);
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .featureBlocks {
+    margin-top: var(--story-hero-feature-margin-top-mobile, clamp(10rem, 26vw, 14rem));
+  }
+}
+
+.featureBlocks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--story-hero-feature-gap, clamp(0.75rem, 1.8vw, 1.625rem));
+  width: min(100%, var(--story-hero-feature-max-width, 34.59375rem));
+  margin-top: var(--story-hero-feature-margin-top, clamp(1.5rem, 6vw, 4.5rem));
+  margin-inline: 0;
+  text-align: left;
+}
+
+.featureBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.75rem, 1.5vw, 1.125rem);
+  width: 100%;
+}
+
+.featureTitle {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--story-hero-feature-title-size, clamp(1.375rem, 1.9vw, 1.6875rem));
+  font-weight: 600;
+  line-height: 1.12;
+  color: #fff;
+}
+
+.featureBody {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--story-hero-feature-body-size, clamp(0.8125rem, 1vw, 0.875rem));
+  font-weight: 300;
+  line-height: 1.55;
+  color: #fff;
+}

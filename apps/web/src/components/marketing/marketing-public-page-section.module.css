@@ -1,0 +1,110 @@
+.heroShell {
+  width: 100%;
+  min-width: 0;
+  padding-top: calc(var(--coaches-page-hero-padding-top) + env(safe-area-inset-top, 0px));
+}
+
+@media (max-width: 743px) {
+  .heroShell {
+    /* Header var already includes safe-area — add only a small title gap. */
+    padding-top: calc(
+      var(--marketing-mobile-header-height, 4.25rem) + var(--coaches-page-hero-mobile-gap, 0.75rem)
+    );
+  }
+}
+
+.section {
+  composes: heroShell;
+  flex: 1;
+  padding-bottom: 0;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.heroRow {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .heroRow {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+}
+
+.heroAside {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.heroAside a {
+  color: var(--coaches-page-lead-color);
+  text-underline-offset: 4px;
+}
+
+.heroAside a:hover {
+  text-decoration: underline;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coaches-page-lead-color);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5.8vw, 3.875rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--coaches-page-heading-color);
+}
+
+.lead {
+  margin: var(--coaches-page-hero-lead-gap) 0 0;
+  max-width: 36rem;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
+  font-weight: 300;
+  line-height: 1.33;
+  color: var(--coaches-page-lead-color);
+}
+
+.content {
+  margin-top: var(--coaches-page-content-margin-top);
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+.status {
+  margin: 0;
+  text-align: left;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--coaches-page-lead-color);
+}
+
+.statusWarn {
+  composes: status;
+  color: #fef3c7;
+}

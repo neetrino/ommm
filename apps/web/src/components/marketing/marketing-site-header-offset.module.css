@@ -1,0 +1,130 @@
+/**
+ * Fixed marketing header offset — used when the public header sits above dashboard shells.
+ * On mobile, `--marketing-mobile-header-height` is set by the account shell
+ * ({@link MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT}). Tablet+ uses container min-heights.
+ */
+.shellWithMarketingHeader {
+  --ommm-marketing-site-header-offset: var(--marketing-mobile-header-height, 4.25rem);
+  scroll-padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+}
+
+@media (min-width: 744px) {
+  .shellWithMarketingHeader {
+    /* Matches marketingHeaderContainerClass: pt + min-h + pb-2 */
+    --ommm-marketing-site-header-offset: calc(
+      max(0.5rem, env(safe-area-inset-top, 0px)) + 40px + 0.5rem
+    );
+  }
+}
+
+@media (min-width: 1024px) {
+  .shellWithMarketingHeader {
+    /* Matches marketingHeaderContainerClass: pt + min-h + pb-3 */
+    --ommm-marketing-site-header-offset: calc(
+      max(0.5rem, env(safe-area-inset-top, 0px)) + 44px + 0.75rem
+    );
+  }
+}
+
+@media (min-width: 1280px) {
+  .shellWithMarketingHeader {
+    /* Matches marketingHeaderContainerClass nav-desktop: pt + min-h + pb-3 */
+    --ommm-marketing-site-header-offset: calc(
+      max(0.75rem, env(safe-area-inset-top, 0px)) + 53px + 0.75rem
+    );
+  }
+}
+
+.dashboardWithMarketingHeader {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+}
+
+.dashboardWithMarketingHeaderScroll {
+  --ommm-workspace-sticky-top: 0px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+/**
+ * Mobile workspace — fixed glass-pill nav overlays the scroll pane (no cream band behind the header).
+ * Content scrolls under the transparent header shell; stickies align below the site header offset.
+ */
+@media (max-width: 743px) {
+  .dashboardWithMarketingHeaderOverlay {
+    padding-top: 0;
+    background-color: transparent;
+  }
+
+  .dashboardWithMarketingHeaderScrollOverlay {
+    --ommm-workspace-sticky-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+    background-color: var(--ommm-admin-page, #ede9dd);
+    scroll-padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+  }
+
+  .workspaceScrollMain {
+    padding-top: calc(var(--ommm-marketing-site-header-offset, 4.25rem) + 1rem);
+  }
+}
+
+/**
+ * Member hub touch viewports — window scroll below desktop, same as DevTools mobile emulation.
+ * Nested 100dvh + overflow clips the menu footer on iOS Safari.
+ * Uses pointer media (not width-only) so real phones match DevTools device mode.
+ */
+@media not ((min-width: 1024px) and (hover: hover) and (pointer: fine)) {
+  .dashboardWithMarketingHeaderMemberMobile {
+    height: auto;
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+    overflow: visible;
+  }
+
+  .dashboardWithMarketingHeaderScrollMemberMobile {
+    flex: none;
+    overflow: visible;
+    /* Short pages (e.g. /user/notifications) — cream bg must fill the viewport, not only content height. */
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 744px) {
+  .workspaceScrollMain {
+    padding-top: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .workspaceScrollMain {
+    padding-top: 2rem;
+  }
+}
+
+.stickyBelowMarketingHeader {
+  top: var(--ommm-marketing-site-header-offset);
+}
+
+.sidebarBelowMarketingHeader {
+  top: var(--ommm-marketing-site-header-offset);
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 1024px) {
+  .sidebarFixedBelowMarketingHeader {
+    position: fixed;
+    top: var(--ommm-marketing-site-header-offset);
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    height: auto;
+    max-height: none;
+    overscroll-behavior: contain;
+  }
+}

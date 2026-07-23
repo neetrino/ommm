@@ -1,0 +1,112 @@
+/** Ensures guestCount is present when the API omits it (pre-migration rows). */
+export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow {
+  const categorySlug =
+    typeof row.categorySlug === "string" && row.categorySlug.trim().length > 0
+      ? row.categorySlug.trim()
+      : row.id;
+  return {
+    ...row,
+    categorySlug,
+    guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
+    discountedPriceCents:
+      typeof row.discountedPriceCents === "number" ? row.discountedPriceCents : null,
+    pricePerSessionCents:
+      typeof row.pricePerSessionCents === "number" ? row.pricePerSessionCents : 0,
+    showPricePerSession:
+      typeof row.showPricePerSession === "boolean" ? row.showPricePerSession : true,
+    availableQuantity:
+      typeof row.availableQuantity === "number" ? row.availableQuantity : null,
+    startDate: typeof row.startDate === "string" ? row.startDate : null,
+    typeSessionAllocations: Array.isArray(row.typeSessionAllocations)
+      ? row.typeSessionAllocations.filter(
+          (allocation): allocation is PackageTypeSessionAllocation =>
+            typeof allocation?.classTypeId === "string" &&
+            allocation.classTypeId.length > 0 &&
+            typeof allocation.sessionCount === "number" &&
+            Number.isInteger(allocation.sessionCount) &&
+            allocation.sessionCount > 0,
+        )
+      : [],
+    features: Array.isArray(row.features) ? row.features : [],
+  };
+}
+
+export type PackageTypeSessionAllocation = {
+  classTypeId: string;
+  sessionCount: number;
+};
+
+export type AdminPackageRow = {
+  id: string;
+  name: string;
+  categoryName: string;
+  categorySlug: string;
+  classTypeId?: string | null;
+  typeSessionAllocations?: PackageTypeSessionAllocation[];
+  description: string | null;
+  priceCents: number;
+  discountedPriceCents?: number | null;
+  pricePerSessionCents?: number;
+  showPricePerSession?: boolean;
+  currency: string;
+  billingPeriod: string;
+  periodDays: number;
+  startDate?: string | null;
+  features: string[];
+  buttonLabel: string;
+  isPopular: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  sessionsPerMonth: number | null;
+  isUnlimited: boolean;
+  guestCount?: number;
+  availableQuantity?: number | null;
+  createdAt: string;
+};
+
+export type PackageSortOrder =
+  | "displayOrder"
+  | "newest"
+  | "oldest"
+  | "priceHigh"
+  | "priceLow";
+
+export type PackageStatusFilter = "all" | "active" | "inactive";
+
+export type PackageFilterValues = {
+  search: string;
+  status: PackageStatusFilter;
+  order: PackageSortOrder;
+};
+
+export function sortAdminPackageRows(
+  rows: readonly AdminPackageRow[],
+): AdminPackageRow[] {
+  return [...rows].sort((left, right) => left.displayOrder - right.displayOrder);
+}
+
+export function upsertAdminPackageRow(
+  rows: readonly AdminPackageRow[],
+  saved: AdminPackageRow,
+): AdminPackageRow[] {
+  const index = rows.findIndex((row) => row.id === saved.id);
+  if (index === -1) {
+    return sortAdminPackageRows([...rows, saved]);
+  }
+  const next = [...rows];
+  next[index] = saved;
+  return sortAdminPackageRows(next);
+}
+
+/** Keep optimistic rows until the server list includes them. */
+export function mergeAdminPackageRowsFromServer(
+  local: readonly AdminPackageRow[],
+  server: readonly AdminPackageRow[],
+): AdminPackageRow[] {
+  const serverIds = new Set(server.map((row) => row.id));
+  const pendingLocal = local.filter((row) => !serverIds.has(row.id));
+  if (pendingLocal.length === 0) {
+    return sortAdminPackageRows(server);
+  }
+  return sortAdminPackageRows([...server, ...pendingLocal]);
+}

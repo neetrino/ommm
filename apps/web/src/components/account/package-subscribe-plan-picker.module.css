@@ -1,0 +1,122 @@
+.packageSubscribePlanOption {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.375rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.45);
+  padding: 0.875rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.packageSubscribePlanOption:hover:not(.packageSubscribePlanOptionSelected) {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 10px 24px -18px rgba(45, 40, 35, 0.35);
+}
+
+.packageSubscribePlanOption:focus-visible {
+  outline: 2px solid rgba(87, 127, 145, 0.55);
+  outline-offset: 2px;
+}
+
+.packageSubscribePlanOptionSelected,
+.packageSubscribePlanOptionSelected:hover,
+.packageSubscribePlanOptionSelected:focus-visible {
+  border-color: rgba(87, 127, 145, 0.55);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(251, 245, 213, 0.55) 100%
+  );
+  box-shadow: none;
+  outline: none;
+}
+
+.packageSubscribePlanOptionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.packageSubscribePlanOptionTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #3d4a42;
+}
+
+.packageSubscribePlanOptionPrice {
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #577f91;
+}
+
+.packageSubscribePlanOptionMeta {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: rgba(61, 74, 66, 0.72);
+}
+
+.packageSubscribePlanOptionBadge {
+  display: inline-flex;
+  width: fit-content;
+  align-self: flex-start;
+  align-items: center;
+  border-radius: 9999px;
+  background: rgba(87, 127, 145, 0.12);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #577f91;
+  white-space: nowrap;
+}
+
+.packageSubscribePlanPicker {
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.packageSubscribePlanPickerLegend {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+  margin-bottom: 0.75rem;
+  padding: 0;
+  float: none;
+}
+
+.packageSubscribePlanPickerCards {
+  display: flex;
+  min-height: 0;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 0.625rem;
+  overflow: visible;
+}
+
+.packageSubscribePlanSummary {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 1rem;
+}

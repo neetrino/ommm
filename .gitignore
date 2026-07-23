@@ -7,6 +7,9 @@ Thumbs.db
 .env.*
 !.env.example
 
+# Local cheatsheet with real credentials (never commit)
+docs/DEPLOY_ENV_URL_VS_SECRET.md
+
 # Dependencies (if scripts use Node/npm)
 node_modules/
 
@@ -16,12 +19,28 @@ dist/
 build/
 coverage/
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+apps/web/test-results/
+apps/web/playwright-report/
+
+# API local uploads (user home images)
+apps/api/uploads/
+
 # Logs and temp
 *.log
 npm-debug.log*
 tmp/
 temp/
 .cache/
+
+# k6 local load-test generated output (keep scripts/docs)
+tests/load/*summary*.json
+tests/load/*.tmp
+tests/load/*.log
+k6-summary.json
 
 # IDE (optional, uncomment if needed)
 # .idea/

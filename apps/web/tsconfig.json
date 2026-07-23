@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ommm/database/home-page-sections": [
+        "../../packages/database/src/home-page-sections.ts"
+      ]
     }
   },
   "include": [

@@ -1,0 +1,313 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import {
+  isValidEmail,
+  isValidPhone,
+  MAX_EMAIL_LENGTH,
+  MAX_NAME_LENGTH,
+  MIN_PASSWORD_LENGTH,
+} from "@/components/admin/admin-coach-form-helpers";
+import type { ClientRow } from "@/components/admin/admin-clients-types";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { FormErrorBanner } from "@/components/ui/form-validation";
+import { OmmButton } from "@/components/ui/omm-button";
+import { PasswordInput } from "@/components/ui/password-input";
+import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { ApiError, apiFetch } from "@/lib/api";
+import { normalizePhoneForApi } from "@/lib/phone";
+import {
+  PSEUDO_BIRTHDAY,
+  PSEUDO_EMAIL,
+  PSEUDO_FIRST_NAME,
+  PSEUDO_LAST_NAME,
+  PSEUDO_PASSWORD,
+  PSEUDO_PHONE,
+} from "@/lib/pseudo-form-placeholders";
+
+type CreateClientApiResponse = {
+  client: ClientRow;
+};
+
+export type AdminCreateClientFormProps = {
+  onCreated: (client: ClientRow) => void;
+  onCancel?: () => void;
+};
+
+export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClientFormProps) {
+  const t = useTranslations("adminPages.clients.create");
+  const tPage = useTranslations("adminPages.clients");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [birthdayValue, setBirthdayValue] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [forcePasswordReset, setForcePasswordReset] = useState(false);
+  const [sendWelcomeEmail, setSendWelcomeEmail] = useState(false);
+  const submitLockRef = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (pending || submitLockRef.current) {
+      return;
+    }
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const nameRaw = String(fd.get("name") ?? "").trim();
+    const lastNameRaw = String(fd.get("lastName") ?? "").trim();
+    const emailRaw = String(fd.get("email") ?? "").trim();
+    const phoneRaw = phone.trim();
+    const passwordRaw = password.trim();
+    const confirmPasswordRaw = confirmPassword.trim();
+
+    setError(null);
+
+    if (nameRaw.length === 0) {
+      setError(t("nameRequired"));
+      return;
+    }
+    if (lastNameRaw.length === 0) {
+      setError(t("lastNameRequired"));
+      return;
+    }
+    if (!isValidEmail(emailRaw)) {
+      setError(t("emailInvalid"));
+      return;
+    }
+    if (passwordRaw.length === 0) {
+      setError(t("passwordRequired"));
+      return;
+    }
+    if (passwordRaw.length < MIN_PASSWORD_LENGTH) {
+      setError(t("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
+      return;
+    }
+    if (confirmPasswordRaw.length === 0) {
+      setError(t("confirmPasswordRequired"));
+      return;
+    }
+    if (passwordRaw !== confirmPasswordRaw) {
+      setError(t("passwordMismatch"));
+      return;
+    }
+    if (phoneRaw.length === 0) {
+      setError(t("phoneRequired"));
+      return;
+    }
+    if (!isValidPhone(phoneRaw)) {
+      setError(t("phoneInvalid"));
+      return;
+    }
+    if (birthdayValue.trim().length > 0 && Number.isNaN(Date.parse(birthdayValue))) {
+      setError(t("birthdayInvalid"));
+      return;
+    }
+
+    submitLockRef.current = true;
+    setPending(true);
+    try {
+      const response = await apiFetch<CreateClientApiResponse>("/clients", {
+        method: "POST",
+        body: JSON.stringify({
+          email: emailRaw.toLowerCase(),
+          name: nameRaw,
+          lastName: lastNameRaw,
+          phone: normalizePhoneForApi(phoneRaw),
+          ...(birthdayValue.trim().length > 0 ? { dateOfBirth: birthdayValue.trim() } : {}),
+          password: passwordRaw,
+          forcePasswordResetOnFirstLogin: forcePasswordReset,
+          sendWelcomeEmail,
+        }),
+      });
+      onCreated(response.client);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else if (err instanceof Error && err.message.trim().length > 0) {
+        setError(err.message);
+      } else {
+        setError(t("genericError"));
+      }
+      setPending(false);
+      submitLockRef.current = false;
+    }
+  }
+
+  return (
+    <form
+      ref={formRef}
+      noValidate
+      onSubmit={(ev) => {
+        void onSubmit(ev);
+      }}
+      className="flex min-h-0 flex-1 flex-col"
+    >
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+            {t("sectionPersonal")}
+          </h3>
+          <p className="mt-1 text-xs text-sage-500">{t("sectionPersonalLead")}</p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("nameLabel")}</span>
+            <input
+              name="name"
+              className="ommm-input"
+              autoComplete="given-name"
+              maxLength={MAX_NAME_LENGTH}
+              placeholder={PSEUDO_FIRST_NAME}
+              required
+              disabled={pending}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("lastNameLabel")}</span>
+            <input
+              name="lastName"
+              className="ommm-input"
+              autoComplete="family-name"
+              maxLength={MAX_NAME_LENGTH}
+              placeholder={PSEUDO_LAST_NAME}
+              required
+              disabled={pending}
+            />
+          </label>
+          <label className="flex flex-col gap-1 lg:col-span-2">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("emailLabel")}</span>
+            <input
+              name="email"
+              type="email"
+              className="ommm-input"
+              autoComplete="email"
+              maxLength={MAX_EMAIL_LENGTH}
+              placeholder={PSEUDO_EMAIL}
+              required
+              disabled={pending}
+            />
+            <span className="text-xs text-sage-500">{t("emailHint")}</span>
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("passwordLabel")}</span>
+            <PasswordInput
+              name="password"
+              className="ommm-input"
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD_LENGTH}
+              maxLength={128}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={PSEUDO_PASSWORD}
+              required
+              disabled={pending}
+              showPasswordLabel={t("showPassword")}
+              hidePasswordLabel={t("hidePassword")}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("confirmPasswordLabel")}
+            </span>
+            <PasswordInput
+              name="confirmPassword"
+              className="ommm-input"
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD_LENGTH}
+              maxLength={128}
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder={PSEUDO_PASSWORD}
+              required
+              disabled={pending}
+              showPasswordLabel={t("showPassword")}
+              hidePasswordLabel={t("hidePassword")}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("phoneLabel")}</span>
+            <PhoneInputField
+              name="phone"
+              className="ommm-input"
+              value={phone}
+              onValueChange={setPhone}
+              placeholder={PSEUDO_PHONE}
+              required
+              disabled={pending}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("birthdayLabel")}</span>
+            <DatePickerInput
+              name="birthday"
+              value={birthdayValue}
+              onChange={setBirthdayValue}
+              ariaLabel={t("birthdayLabel")}
+              placeholder={PSEUDO_BIRTHDAY}
+              allowManualEntry
+              disabled={pending}
+            />
+            <span className="text-xs text-sage-500">{t("birthdayOptionalHint")}</span>
+          </label>
+        </div>
+      </section>
+
+      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+            {t("sectionAccess")}
+          </h3>
+          <p className="mt-1 text-xs text-sage-500">{t("sectionAccessLead")}</p>
+        </div>
+        <div className="grid gap-3">
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 accent-sand-500 focus:ring-sand-500/30"
+              checked={forcePasswordReset}
+              onChange={(event) => setForcePasswordReset(event.target.checked)}
+              disabled={pending}
+            />
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-medium text-sage-800">{t("forceResetLabel")}</span>
+              <span className="text-xs text-sage-500">{t("forceResetHint")}</span>
+            </span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 accent-sand-500 focus:ring-sand-500/30"
+              checked={sendWelcomeEmail}
+              onChange={(event) => setSendWelcomeEmail(event.target.checked)}
+              disabled={pending}
+            />
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-medium text-sage-800">{t("welcomeEmailLabel")}</span>
+              <span className="text-xs text-sage-500">{t("welcomeEmailHint")}</span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      </div>
+
+      {error !== null ? <FormErrorBanner message={error} /> : null}
+
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
+        {onCancel !== undefined ? (
+          <OmmButton type="button" variant="secondary" size="md" disabled={pending} onClick={onCancel}>
+            {tPage("cancelButton")}
+          </OmmButton>
+        ) : null}
+        <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
+          {pending ? t("submitting") : t("submit")}
+        </OmmButton>
+      </div>
+    </form>
+  );
+}

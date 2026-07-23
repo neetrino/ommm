@@ -1,0 +1,197 @@
+import { ContentStatus, ContentType, Role } from '@prisma/client';
+import { ContentAdminService } from './content-admin.service';
+import { ContentCoverImageService } from './content-cover-image.service';
+import { ContentPublicService } from './content-public.service';
+import { ContentService } from './content.service';
+import { ReviewDecision } from './dto/review-post.dto';
+
+describe('ContentService', () => {
+  function createService() {
+    const prisma = {
+      contentPost: {
+        findMany: jest.fn().mockResolvedValue([]),
+        findFirst: jest.fn().mockResolvedValue(null),
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
+      contentPostTranslation: {
+        findFirst: jest.fn().mockResolvedValue(null),
+      },
+    };
+    const audit = {
+      log: jest.fn().mockResolvedValue(undefined),
+    };
+    const cache = {
+      getOrSet: jest.fn(
+        (_key: string, _ttl: number, loader: () => Promise<unknown>) =>
+          loader(),
+      ),
+      invalidate: jest.fn().mockResolvedValue(undefined),
+      invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
+    };
+    const config = {
+      get: jest.fn().mockReturnValue(undefined),
+    };
+    const r2Storage = {
+      isConfigured: jest.fn().mockReturnValue(false),
+      putObject: jest.fn(),
+    };
+    const publicContent = new ContentPublicService(
+      prisma as never,
+      cache as never,
+    );
+    const adminContent = new ContentAdminService(
+      prisma as never,
+      audit as never,
+      publicContent,
+    );
+    const coverImage = new ContentCoverImageService(
+      config as never,
+      r2Storage as never,
+    );
+    return {
+      service: new ContentService(publicContent, adminContent, coverImage),
+      prisma,
+      audit,
+    };
+  }
+
+  it('submitForReview moves draft post into review state', async () => {
+    const { service, prisma } = createService();
+    prisma.contentPost.findUnique.mockResolvedValue({
+      id: 'post-1',
+      status: ContentStatus.DRAFT,
+      publishedAt: null,
+    });
+    prisma.contentPost.update.mockResolvedValue({
+      id: 'post-1',
+      status: ContentStatus.IN_REVIEW,
+    });
+
+    const updated = await service.submitForReview('post-1', {
+      id: 'editor-1',
+      role: Role.CONTENT_ADMIN,
+    });
+
+    const submitCalls = prisma.contentPost.update.mock.calls as Array<
+      [
+        {
+          where: { id: string };
+          data: { status: ContentStatus };
+        },
+      ]
+    >;
+    const submitArgs = submitCalls[0][0];
+    expect(submitArgs.where.id).toBe('post-1');
+    expect(submitArgs.data.status).toBe(ContentStatus.IN_REVIEW);
+    expect(updated.status).toBe(ContentStatus.IN_REVIEW);
+  });
+
+  it('review approves post and sets published status', async () => {
+    const { service, prisma } = createService();
+    prisma.contentPost.findUnique.mockResolvedValue({
+      id: 'post-1',
+      status: ContentStatus.IN_REVIEW,
+      publishedAt: null,
+    });
+    prisma.contentPost.update.mockResolvedValue({
+      id: 'post-1',
+      status: ContentStatus.PUBLISHED,
+    });
+
+    const updated = await service.review(
+      'post-1',
+      { decision: ReviewDecision.APPROVE },
+      { id: 'admin-1', role: Role.ADMIN },
+    );
+
+    expect(updated.status).toBe(ContentStatus.PUBLISHED);
+  });
+
+  it('review rejects post with note', async () => {
+    const { service, prisma } = createService();
+    prisma.contentPost.findUnique.mockResolvedValue({
+      id: 'post-1',
+      status: ContentStatus.IN_REVIEW,
+      publishedAt: null,
+    });
+    prisma.contentPost.update.mockResolvedValue({
+      id: 'post-1',
+      status: ContentStatus.REJECTED,
+      reviewNotes: 'Needs changes',
+    });
+
+    const updated = await service.review(
+      'post-1',
+      { decision: ReviewDecision.REJECT, note: 'Needs changes' },
+      { id: 'admin-1', role: Role.ADMIN },
+    );
+
+    expect(updated.status).toBe(ContentStatus.REJECTED);
+    const rejectCalls = prisma.contentPost.update.mock.calls as Array<
+      [
+        {
+          data: { status: ContentStatus; reviewNotes?: string | null };
+        },
+      ]
+    >;
+    const rejectArgs = rejectCalls[0][0];
+    expect(rejectArgs.data.status).toBe(ContentStatus.REJECTED);
+    expect(rejectArgs.data.reviewNotes).toBe('Needs changes');
+  });
+
+  it('create normalizes tags and sets default publishedAt for published', async () => {
+    const { service, prisma } = createService();
+    prisma.contentPost.create.mockResolvedValue({
+      id: 'post-1',
+      status: ContentStatus.PUBLISHED,
+      tags: ['yoga', 'flow'],
+    });
+
+    await service.create(
+      {
+        type: ContentType.BLOG,
+        status: ContentStatus.PUBLISHED,
+        translations: [
+          {
+            locale: 'en',
+            slug: 'Morning-Flow',
+            title: 'Morning flow',
+          },
+          {
+            locale: 'hy',
+            slug: 'morning-flow-hy',
+            title: '',
+          },
+          {
+            locale: 'ru',
+            slug: 'morning-flow-ru',
+            title: '',
+          },
+        ],
+        tags: [' yoga ', 'Flow', 'yoga'],
+      },
+      { id: 'admin-1', role: Role.ADMIN },
+    );
+
+    const createCalls = prisma.contentPost.create.mock.calls as Array<
+      [
+        {
+          data: {
+            slug: string;
+            tags: string[];
+            publishedAt: Date | null;
+            translations: { create: Array<{ locale: string; slug: string }> };
+          };
+        },
+      ]
+    >;
+    const createArgs = createCalls[0][0];
+    expect(createArgs.data.slug).toBe('morning-flow');
+    expect(createArgs.data.tags).toEqual(['yoga', 'flow']);
+    expect(createArgs.data.publishedAt).toBeInstanceOf(Date);
+    expect(createArgs.data.translations.create).toHaveLength(3);
+  });
+});

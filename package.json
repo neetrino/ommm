@@ -3,13 +3,29 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm --parallel --filter \"./apps/*\" run dev",
+    "postinstall": "pnpm run db:generate",
+    "dev": "node ./scripts/dev-guide.cjs",
     "dev:web": "pnpm --filter web dev",
-    "build:web": "pnpm --filter web build",
+    "build": "pnpm run build:web",
+    "build:web": "pnpm run build:database && pnpm --filter web build",
     "dev:api": "pnpm --filter api dev",
-    "build:api": "pnpm --filter api build"
+    "dev:mobile": "pnpm --filter mobile dev",
+    "build:database": "pnpm --filter @ommm/database run build",
+    "build:api": "pnpm run build:database && pnpm --filter api build",
+    "db:generate": "pnpm exec prisma generate --schema packages/database/prisma",
+    "db:migrate:deploy": "pnpm --filter @ommm/database run migrate:deploy",
+    "db:migrate:dev": "pnpm --filter @ommm/database run migrate:dev",
+    "setup": "pnpm install",
+    "test": "pnpm --filter api test",
+    "test:e2e:web": "pnpm --filter web test:e2e",
+    "load:local:smoke": "k6 run tests/load/local-smoke.js"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "prisma": "^6.19.3"
   }
 }

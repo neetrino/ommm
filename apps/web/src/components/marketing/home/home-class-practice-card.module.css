@@ -1,0 +1,286 @@
+.card {
+  position: relative;
+  min-height: var(--home-class-card-min-h, 20.4375rem);
+  overflow: hidden;
+  border-radius: var(--home-class-card-radius, 2.5rem);
+}
+
+.cardFullBleed {
+  isolation: isolate;
+}
+
+.cardFullBleed .copy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  max-width: 16.5rem;
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.card[data-card-id="stretching"] .copy {
+  max-width: 14rem;
+}
+
+.card[data-card-id="reformer-pilates"] .copy {
+  max-width: 15rem;
+}
+
+.card[data-card-id="power-pilates"] .copy {
+  max-width: 12.7rem;
+}
+
+.card[data-card-id="yoga"] .copy {
+  max-width: 20rem;
+}
+
+.copy {
+  position: relative;
+  z-index: 20;
+  max-width: 16.5rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 3vw, 2.125rem) 1.5rem;
+}
+
+.title {
+  font-size: var(--home-class-card-title-size, 1.5rem);
+  line-height: var(--home-class-card-title-line-height, 1.3);
+}
+
+.body {
+  margin-top: 0.625rem;
+  font-size: var(--home-class-card-body-size, 0.8125rem);
+  line-height: var(--home-class-card-body-line-height, 1.45);
+}
+
+.bodyLine {
+  display: inline;
+}
+
+.bodyLine + .bodyLine::before {
+  content: " ";
+}
+
+/* ru/hy desktop/tablet — stack Yoga rows (ending alone); mobile stays inline. en unchanged. */
+@media (min-width: 744px) {
+  :global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine,
+  :global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine,
+  :global([data-locale="hy"]) .card[data-card-id="yoga"] .bodyLine,
+  :global([data-locale^="hy-"]) .card[data-card-id="yoga"] .bodyLine {
+    display: block;
+  }
+
+  :global([data-locale="ru"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+  :global([data-locale^="ru-"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+  :global([data-locale="hy"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before,
+  :global([data-locale^="hy-"]) .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
+    content: none;
+  }
+}
+
+.imageZone {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  max-width: 15rem;
+}
+
+.imageZoneWide {
+  width: 62%;
+  max-width: 18rem;
+}
+
+.imageZoneFullBleed {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.imageFullBleed {
+  object-fit: cover;
+  object-position: center;
+}
+
+.imageFlipY {
+  transform: scaleY(-1) rotate(180deg);
+}
+
+.imageZoneWide .image {
+  object-position: center top;
+}
+
+@media (max-width: 743px) {
+  .card {
+    display: flex;
+    min-height: var(--home-class-card-min-h, 26.1875rem);
+    flex-direction: column;
+    border-radius: var(--home-class-card-radius, 1.5rem);
+  }
+
+  .copy {
+    max-width: none;
+    flex-shrink: 0;
+    padding: 1.5rem 1.5rem 0;
+  }
+
+  .title {
+    font-size: var(--home-class-card-title-size, 1.5rem);
+    line-height: var(--home-class-card-title-line-height, 2rem);
+  }
+
+  .body {
+    margin-top: 0;
+    font-size: var(--home-class-card-body-size, 0.75rem);
+    line-height: var(--home-class-card-body-line-height, 1.0625rem);
+  }
+
+  .cardFullBleed .copy {
+    max-width: 14.5rem;
+    padding: 1.5rem 1.25rem 0.75rem;
+  }
+
+  .card[data-card-id="reformer-pilates"] .copy,
+  .card[data-card-id="power-pilates"] .copy,
+  .card[data-card-id="stretching"] .copy {
+    max-width: none;
+  }
+
+  .card[data-card-id="reformer-pilates"] .title,
+  .card[data-card-id="power-pilates"] .title,
+  .card[data-card-id="stretching"] .title {
+    white-space: nowrap;
+  }
+
+  .card[data-card-id="reformer-pilates"] .body,
+  .card[data-card-id="power-pilates"] .body,
+  .card[data-card-id="stretching"] .body {
+    max-width: var(--home-class-practice-narrow-body-max-width, 9rem);
+  }
+
+  .card[data-card-id="yoga"] .copy {
+    max-width: 17rem;
+  }
+
+  .imageZone {
+    position: absolute;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    height: 55%;
+  }
+
+  .imageZoneWide {
+    width: 100%;
+    max-width: none;
+    height: 58%;
+  }
+
+  .image {
+    position: absolute;
+    right: -8%;
+    bottom: -6%;
+    height: 115%;
+    width: 108%;
+    object-fit: cover;
+    object-position: top center;
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg));
+  }
+
+  .imageFlipY {
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg)) scaleY(-1);
+  }
+
+  .imageZoneWide .image {
+    right: -12%;
+    bottom: -8%;
+    height: 120%;
+    width: 112%;
+    object-position: center top;
+  }
+}
+
+@media (min-width: 744px) {
+  .imageZone {
+    max-width: 15rem;
+  }
+
+  .imageZoneWide {
+    max-width: 24.75rem;
+    width: 58%;
+  }
+}
+
+@media (min-width: 744px) and (max-width: 1366px) {
+  .copy {
+    max-width: 17rem;
+    padding: clamp(1.75rem, 2.5vw, 2.125rem) clamp(1.5rem, 2.5vw, 2rem) 1.125rem;
+  }
+
+  .cardFullBleed .copy {
+    max-width: 17rem;
+    padding: clamp(1.5rem, 2.5vw, 2rem) clamp(1.5rem, 2.5vw, 2rem) 1rem;
+  }
+
+  .card[data-card-id="stretching"] .copy {
+    max-width: 14rem;
+  }
+
+  .card[data-card-id="reformer-pilates"] .copy {
+    max-width: 15rem;
+  }
+
+  .card[data-card-id="power-pilates"] .copy {
+    max-width: 14rem;
+  }
+
+  .card[data-card-id="yoga"] .copy {
+    max-width: 17rem;
+  }
+
+  .body {
+    margin-top: 0.5rem;
+  }
+
+  .cardFullBleed .body {
+    max-width: var(--home-class-practice-narrow-body-max-width-tablet, 9rem);
+  }
+
+  .card[data-card-id="power-pilates"] .body {
+    max-width: var(--home-class-practice-power-pilates-body-max-width-tablet, 7rem);
+  }
+
+  .card[data-card-id="yoga"] .body {
+    max-width: var(--home-class-practice-yoga-body-max-width-tablet, 18rem);
+  }
+
+  .card[data-card-id="yoga"] .bodyLine {
+    display: block;
+  }
+
+  .card[data-card-id="yoga"] .bodyLine + .bodyLine::before {
+    content: none;
+  }
+
+  .imageZone {
+    width: 56%;
+    max-width: 16rem;
+  }
+
+  .imageZoneWide {
+    width: 60%;
+    max-width: 24rem;
+  }
+}

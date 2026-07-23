@@ -1,0 +1,91 @@
+  .footerFloatIllustration {
+    will-change: auto;
+  }
+}
+
+/* Story page — Our Values cream seam; home footer gradient on the cap only. */
+:global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrap,
+:global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrapInner {
+  --home-footer-wrap-bg: #fbf5d5 !important;
+  background-color: #fbf5d5;
+}
+
+/* Schedule / Packages / Contact — cream footer seam + sphere above page content (home parity). */
+:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+
+:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .shell,
+:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .inner {
+  overflow: visible;
+}
+
+:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .illustrationSlot,
+:global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .mobileIllustration {
+  position: relative;
+  z-index: 5;
+}
+
+@media (min-width: 1367px) {
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) [data-marketing-footer] .illustrationSlot {
+    position: absolute;
+    z-index: 5;
+  }
+}
+
+:global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrap,
+:global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrapInner {
+  --home-footer-wrap-bg: #fbf5d5 !important;
+  background-color: #fbf5d5;
+}
+
+:global(.marketing-layout-shell:has([data-marketing-story])) .shell {
+  background: var(--home-footer-shell-bg, var(--home-footer-surface));
+}
+
+@media (max-width: 743px) {
+  :global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrap,
+  :global(.marketing-layout-shell:has([data-marketing-story])) .sectionWrapInner {
+    --home-footer-wrap-bg: #fbf5d5 !important;
+    background-color: #fbf5d5;
+  }
+
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrap,
+  :global(.marketing-layout-shell:has([data-marketing-practices-inner])) .sectionWrapInner {
+    --home-footer-wrap-bg: #fbf5d5 !important;
+    background-color: #fbf5d5;
+  }
+
+  :global(.marketing-layout-shell:has([data-marketing-story])) .shell {
+    background: var(--home-footer-shell-bg, var(--home-footer-surface));
+  }
+}
+
+/* Policy routes — gallery cream page + Figma 605:961 footer cap (gradient shell). */
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap,
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrapInner {
+  background-color: var(--ommm-policy-page-background);
+}
+
+:global(.marketing-layout-shell:has([data-marketing-policy])) .shell {
+  background: var(--home-footer-shell-bg, var(--home-footer-surface));
+  border-top-left-radius: var(--home-footer-radius, 64px);
+  border-top-right-radius: var(--home-footer-radius, 64px);
+}
+
+:global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 743px) {
+  :global(.marketing-layout-shell:has([data-marketing-policy])) .sectionWrap {
+    background-color: var(--ommm-policy-page-background);
+  }
+
+  :global(.marketing-layout-shell:has([data-marketing-policy])) .shell {
+    border-top-left-radius: var(--home-footer-mobile-radius, 2.5rem);
+    border-top-right-radius: var(--home-footer-mobile-radius, 2.5rem);
+  }
+}

@@ -1,0 +1,44 @@
+import { getTranslations } from "next-intl/server";
+import { headers } from "next/headers";
+import { Link } from "@/i18n/navigation";
+import { AdminDashboardMetrics } from "@/components/admin/admin-dashboard-metrics";
+import { isAdminDashboardRole } from "@/lib/role-home";
+import { redirectToRoleHome } from "@/server/redirect-to-role-home";
+import { serverApiJson } from "@/lib/server-api";
+
+type MeResponse = {
+  user: { role: string; name: string | null; email: string };
+};
+
+export default async function AdminDashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const tAdmin = await getTranslations({ locale, namespace: "adminPages.home" });
+  const cookie = (await headers()).get("cookie") ?? "";
+
+  const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
+  if (!meRes.ok) {
+    return (
+      <div>
+        <div className="rounded-[28px] border border-amber-200/80 bg-amber-50/90 p-8 text-amber-950 backdrop-blur-md">
+          <p className="font-serif text-lg font-semibold">
+            {tAdmin("signInPrompt")}
+          </p>
+          <Link href="/login" className="ommm-cta-primary mt-6 inline-flex text-sm">
+            {tCommon("login")}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdminDashboardRole(meRes.data.user.role)) {
+    redirectToRoleHome(locale, meRes.data.user.role);
+  }
+
+  return <AdminDashboardMetrics locale={locale} includeFinance />;
+}

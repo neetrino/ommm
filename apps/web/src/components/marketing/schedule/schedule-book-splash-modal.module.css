@@ -1,0 +1,130 @@
+.overlay {
+  z-index: 115;
+}
+
+.panel {
+  position: relative;
+  z-index: 10;
+  width: min(100%, 22.5rem);
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  background: rgb(255 255 255 / 0.55);
+  padding: clamp(1.75rem, 4vw, 2.25rem) clamp(1.5rem, 4vw, 2rem)
+    clamp(1.875rem, 4.5vw, 2.375rem);
+  text-align: center;
+  box-shadow: 0 12px 32px -24px rgb(45 40 35 / 0.22);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.panelEnter {
+  animation: scheduleBookSplashIn 320ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.panelExit {
+  animation: scheduleBookSplashOut 320ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.logoStage {
+  position: relative;
+  width: var(--schedule-splash-sphere-width);
+  height: calc(var(--schedule-splash-sphere-height) + var(--schedule-splash-sphere-bounce-drop));
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.logoFrame {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--schedule-splash-sphere-bounce-drop);
+  width: var(--schedule-splash-sphere-width);
+  height: var(--schedule-splash-sphere-height);
+  margin-inline: auto;
+  transform-origin: center bottom;
+  overflow: visible;
+  will-change: transform;
+}
+
+.logoImage {
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.brand {
+  margin: 0.375rem 0 0;
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--coaches-page-heading-color, rgb(45 55 48));
+}
+
+.eyebrow {
+  margin: 1.25rem 0 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coaches-page-lead-color, rgb(107 114 104));
+}
+
+.title {
+  margin: 0.625rem 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 4.8vw, 2.125rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--coaches-page-heading-color, rgb(45 55 48));
+}
+
+.body {
+  margin: 0.875rem auto 0;
+  max-width: 16rem;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--coaches-page-lead-color, rgb(107 114 104));
+}
+
+@keyframes scheduleBookSplashIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes scheduleBookSplashOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panelEnter,
+  .panelExit {
+    animation: none;
+  }
+
+  .logoFrame {
+    will-change: auto;
+  }
+}

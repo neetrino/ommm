@@ -1,0 +1,90 @@
+model PackagePlan {
+  id                   String          @id @default(cuid())
+  name                 String
+  slug                 String          @unique
+  categoryName         String
+  categorySlug         String
+  classTypeId          String?
+  classType            ClassType?      @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+  description          String?
+  priceCents           Int             @default(0)
+  discountedPriceCents Int?
+  pricePerSessionCents Int             @default(0)
+  showPricePerSession  Boolean         @default(true)
+  currency             String          @default("AMD")
+  billingPeriod        String          @default("monthly")
+  periodDays           Int             @default(30)
+  startDate            DateTime?
+  sessionsPerMonth     Int?
+  isUnlimited          Boolean         @default(false)
+  guestCount           Int             @default(0)
+  availableQuantity    Int?
+  buttonLabel          String          @default("Buy now")
+  features             String[]        @default([])
+  isPopular            Boolean         @default(false)
+  isActive             Boolean         @default(true)
+  displayOrder            Int             @default(1)
+  typeSessionAllocations  Json            @default("[]")
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  userPackages         UserPackage[]
+  sourceBalances       UserPackageBalance[]    @relation("BalanceSourcePlan")
+
+  @@index([categoryName, displayOrder])
+  @@index([categorySlug, displayOrder])
+  @@index([isActive, displayOrder])
+}
+
+model UserPackage {
+  id                           String            @id @default(cuid())
+  userId                       String
+  user                         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId                       String?
+  plan                         PackagePlan?      @relation(fields: [planId], references: [id], onDelete: SetNull)
+  sourcePlanIdSnapshot         String
+  planNameSnapshot             String
+  planCategoryNameSnapshot     String
+  planPriceCentsSnapshot       Int
+  planPeriodDaysSnapshot       Int               @default(30)
+  planIsUnlimitedSnapshot      Boolean           @default(false)
+  planSessionsPerMonthSnapshot Int?
+  status                       UserPackageStatus @default(PENDING)
+  currentPeriodStart           DateTime
+  currentPeriodEnd             DateTime
+  sessionsTotal                Int?
+  sessionsRemaining            Int?
+  createdAt                    DateTime          @default(now())
+  updatedAt                    DateTime          @updatedAt
+
+  balances      UserPackageBalance[]
+  consumptions  BookingConsumption[]
+
+  @@index([userId, status])
+  @@index([userId, currentPeriodEnd])
+  @@index([planId])
+  @@index([sourcePlanIdSnapshot])
+}
+
+model UserPackageBalance {
+  id                         String      @id @default(cuid())
+  userPackageId              String
+  userPackage                UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+  sourcePlanId               String?
+  sourcePlan                 PackagePlan? @relation("BalanceSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
+  coverageKey                String
+  sourcePackageNameSnapshot  String
+  sourceCategoryNameSnapshot String
+  sessionsTotal              Int?
+  sessionsUsed               Int         @default(0)
+  sessionsRemaining          Int?
+  isUnlimited                Boolean     @default(false)
+  createdAt                  DateTime    @default(now())
+  updatedAt                  DateTime    @updatedAt
+
+  consumptions BookingConsumption[]
+
+  @@unique([userPackageId, coverageKey])
+  @@index([userPackageId, sessionsRemaining])
+  @@index([sourcePlanId])
+}

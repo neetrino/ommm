@@ -1,0 +1,170 @@
+import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
+import { AccountSection } from "@/components/layout/account-section";
+import { formatDateForUi } from "@/lib/date-display";
+import { formatAmdFromCents } from "@/lib/price-amd";
+import { serverApiJson } from "@/lib/server-api";
+import { getCachedUsersMe } from "@/server/cached-users-me";
+
+type BookingMine = {
+  id: string;
+  status: string;
+  session: { startsAt: string; endsAt: string; classType: { name: string } };
+};
+
+type UserAnalyticsResponse = {
+  totals: {
+    completedClasses: number;
+    totalHours: number;
+    activeDays: number;
+    favoriteClassType: string | null;
+    spendCents: number;
+  };
+  trend: {
+    attendance: Array<{ date: string; count: number }>;
+    spend: Array<{ date: string; amountCents: number }>;
+  };
+};
+
+type MemberUserProgressRouteContentProps = {
+  locale: string;
+};
+
+export async function MemberUserProgressRouteContent({
+  locale,
+}: MemberUserProgressRouteContentProps) {
+  const t = await getTranslations({ locale, namespace: "userPages.progress" });
+  const cookie = (await headers()).get("cookie") ?? "";
+  const [meRes, bookRes, analyticsRes] = await Promise.all([
+    getCachedUsersMe().then((me) =>
+      me.ok
+        ? ({
+            ok: true as const,
+            data: {
+              user: { email: me.data.user.email ?? "" },
+              achievements: me.data.achievements ?? [],
+            },
+          })
+        : ({ ok: false as const, status: me.status }),
+    ),
+    serverApiJson<BookingMine[]>("/bookings/me", cookie),
+    serverApiJson<UserAnalyticsResponse>("/reports/user/analytics?days=90", cookie),
+  ]);
+
+  if (!meRes.ok || !bookRes.ok || !analyticsRes.ok) {
+    return <p className="text-sm text-amber-900">{t("signInPrompt")}</p>;
+  }
+
+  const analytics = analyticsRes.data;
+  const attendanceTrend = analytics.trend.attendance.slice(-7);
+  const spendTrend = analytics.trend.spend.slice(-7);
+
+  return (
+    <>
+      <p className="ommm-body-muted mb-6 text-sm">{t("descriptionSignedIn")}</p>
+      <div className="max-w-4xl space-y-10">
+        <AccountSection title={t("activitySummary")}>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("completedClasses")}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
+                {analytics.totals.completedClasses}
+              </p>
+              <p className="mt-1 text-xs text-sage-500">{t("allTime")}</p>
+            </li>
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("recentAttendance")}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
+                {attendanceTrend.reduce((sum, row) => sum + row.count, 0)}
+              </p>
+              <p className="mt-1 text-xs text-sage-500">{t("last7Days")}</p>
+            </li>
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("recentSpend")}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
+                {formatAmdFromCents(
+                  spendTrend.reduce((sum, row) => sum + row.amountCents, 0),
+                  locale,
+                )}
+              </p>
+              <p className="mt-1 text-xs text-sage-500">{t("last7Days")}</p>
+            </li>
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("totalSpend")}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
+                {formatAmdFromCents(analytics.totals.spendCents, locale)}
+              </p>
+              <p className="mt-1 text-xs text-sage-500">{t("last90Days")}</p>
+            </li>
+          </ul>
+        </AccountSection>
+        <AccountSection title={t("performanceMetrics")}>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("totalHours")}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
+                {analytics.totals.totalHours.toFixed(1)}
+              </p>
+            </li>
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("activeDays")}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
+                {analytics.totals.activeDays}
+              </p>
+            </li>
+            <li className="ommm-stack-card text-sm text-sage-700 sm:col-span-2">
+              <p className="font-semibold text-sage-800">{t("favoriteClassType")}</p>
+              <p className="mt-1 text-lg font-semibold text-sage-900">
+                {analytics.totals.favoriteClassType ?? t("favoriteFallback")}
+              </p>
+            </li>
+          </ul>
+        </AccountSection>
+        <AccountSection title={t("trendSection")}>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("attendanceTrend")}</p>
+              <ul className="mt-2 space-y-1 text-xs text-sage-500">
+                {attendanceTrend.map((point) => (
+                  <li key={point.date}>
+                    {formatDateForUi(point.date)}: {point.count}
+                  </li>
+                ))}
+              </ul>
+            </li>
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("spendTrend")}</p>
+              <ul className="mt-2 space-y-1 text-xs text-sage-500">
+                {spendTrend.map((point) => (
+                  <li key={point.date}>
+                    {formatDateForUi(point.date)}:{" "}
+                    {formatAmdFromCents(point.amountCents, locale)}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          </ul>
+        </AccountSection>
+
+        <AccountSection title={t("achievements")}>
+          {meRes.data.achievements.length === 0 ? (
+            <p className="ommm-body-muted text-sm">{t("achievementsEmpty")}</p>
+          ) : (
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {meRes.data.achievements.map((a, index) => (
+                <li key={`${a.title}-${index}`} className="ommm-stack-card text-sm text-sage-700">
+                  <p className="font-semibold text-sage-800">{a.title}</p>
+                  <p className="mt-2 text-xs text-sage-400">
+                    {t("unlocked", {
+                      date: formatDateForUi(a.unlockedAt),
+                    })}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </AccountSection>
+      </div>
+    </>
+  );
+}

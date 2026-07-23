@@ -1,0 +1,43 @@
+{
+  "name": "@ommm/database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./home-page-sections": {
+      "types": "./dist/home-page-sections.d.ts",
+      "import": "./dist/home-page-sections.js",
+      "default": "./dist/home-page-sections.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm -w exec tsc -p packages/database/tsconfig.json",
+    "generate": "pnpm -w exec prisma generate --schema packages/database/prisma",
+    "migrate:dev": "dotenv -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma",
+    "migrate:deploy": "dotenv -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma",
+    "apply:manual-payments": "node scripts/apply-manual-payments-schema.mjs",
+    "apply:package-rename": "node scripts/apply-package-rename-schema.mjs",
+    "apply:package-session-usage": "node scripts/apply-package-session-usage-schema.mjs",
+    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma",
+    "seed": "dotenv -e ../../.env -- pnpm exec tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0"
+  },
+  "devDependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv-cli": "^8.0.0",
+    "prisma": "^6.19.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.3"
+  },
+  "prisma": {
+    "seed": "pnpm exec tsx prisma/seed.ts"
+  }
+}

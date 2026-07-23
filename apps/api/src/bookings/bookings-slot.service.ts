@@ -1,0 +1,66 @@
+import { Injectable } from '@nestjs/common';
+import {
+  BookingStatus,
+  ClassSessionStatus,
+  PaymentStatus,
+  type ClassSession,
+} from '@prisma/client';
+import { PackageUsageService } from '../packages/package-usage.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { WaitlistService } from '../waitlist/waitlist.service';
+
+@Injectable()
+export class BookingsSlotService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly waitlist: WaitlistService,
+    private readonly packageUsage: PackageUsageService,
+  ) {}
+
+  async releaseSlot(
+    booking: {
+      id: string;
+      userId: string;
+      sessionId: string;
+      session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
+    },
+    options: { applyPenalty: boolean } = { applyPenalty: false },
+  ) {
+    await this.prisma.$transaction(async (tx) => {
+      const current = await tx.booking.findUnique({
+        where: { id: booking.id },
+        select: { status: true },
+      });
+      if (!current || current.status !== BookingStatus.BOOKED) {
+        return;
+      }
+      await tx.booking.update({
+        where: { id: booking.id },
+        data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
+      });
+      void options.applyPenalty;
+      const hasDropInPayment = await tx.payment.findFirst({
+        where: {
+          userId: booking.userId,
+          description: `Drop-in session ${booking.sessionId}`,
+          status: PaymentStatus.SUCCEEDED,
+        },
+        select: { id: true },
+      });
+      if (hasDropInPayment) {
+        return;
+      }
+      if (!options.applyPenalty) {
+        await this.packageUsage.restoreSession({
+          tx,
+          bookingId: booking.id,
+        });
+      }
+    });
+    await this.prisma.classSession.updateMany({
+      where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
+      data: { status: ClassSessionStatus.ACTIVE },
+    });
+    await this.waitlist.offerNextIfSlot(booking.sessionId);
+  }
+}

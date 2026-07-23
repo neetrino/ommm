@@ -1,0 +1,222 @@
+/**
+ * Mobile default (<744px). Desktop (tablet+) — commit `61f3206` (button hover).
+ */
+
+.cta {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  width: var(--hero-cta-width);
+  height: var(--hero-cta-height);
+  cursor: pointer;
+  transition: transform 220ms ease;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    transform: translateY(-3px) scale(1.03);
+  }
+}
+
+.cta:active {
+  transform: translateY(1px);
+}
+
+.cta:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(87, 127, 145, 0.45);
+}
+
+.shape {
+  pointer-events: none;
+  object-fit: fill;
+  transition: filter 220ms ease;
+}
+
+/* Light glass → solid dark fill on hover (text stays white). */
+@media (hover: hover) {
+  .booking:hover .shape,
+  .membership:hover .shape,
+  .coachesDetails:hover .shape {
+    filter: brightness(0) saturate(100%) invert(34%) sepia(16%) saturate(1050%) hue-rotate(358deg)
+      brightness(90%) contrast(90%);
+  }
+}
+
+.shapeDesktop {
+  display: none;
+}
+
+.shapeMobile {
+  display: block;
+}
+
+.arrowDesktop {
+  display: none;
+}
+
+.arrowMobile {
+  display: block;
+}
+
+.booking .label {
+  color: #97907c;
+}
+
+.membership .arrowZone {
+  z-index: 2;
+}
+
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  height: 100%;
+  width: var(--hero-cta-label-width);
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: var(--hero-cta-label-offset, 0);
+  padding-right: 0.25rem;
+  text-align: left;
+  font-size: var(--hero-cta-label-font-size, clamp(0.9375rem, calc(var(--ommm-layout-vw-px, 100svw) * 16 / 394), 1.0625rem));
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.arrowZone {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  height: 100%;
+  width: var(--hero-cta-arrow-zone-width);
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow {
+  width: clamp(1.125rem, calc(var(--ommm-layout-vw-px, 100svw) * 28 / 394), 1.625rem);
+  height: auto;
+  /* Arrow glyph reads left of its bbox — nudge into the circle cap. */
+  transform: translateX(6%);
+  transition: transform 220ms ease;
+}
+
+@media (hover: hover) {
+  .cta:hover .arrow {
+    transform: translateX(14%) scale(1.12);
+  }
+}
+
+@media (min-width: 744px) {
+  .cta {
+    width: var(--hero-cta-width-lg);
+    height: var(--hero-cta-height-lg);
+  }
+
+  .shapeDesktop {
+    display: block;
+  }
+
+  .shapeMobile {
+    display: none;
+  }
+
+  .arrowDesktop {
+    display: block;
+  }
+
+  .arrowMobile {
+    display: none;
+  }
+
+  .booking .label {
+    color: #fff;
+  }
+
+  .label {
+    width: var(--hero-cta-label-width-lg);
+    justify-content: center;
+    padding: 0 0.25rem;
+    text-align: center;
+    font-size: var(--hero-cta-label-font-size-lg, clamp(0.8125rem, calc(100svw * 14 / 1440), 0.9375rem));
+    transform: translateX(var(--hero-cta-label-offset-lg, 0));
+  }
+
+  .arrowZone {
+    width: var(--hero-cta-arrow-zone-width-lg);
+  }
+
+  .arrow {
+    width: clamp(1.125rem, calc(100svw * 28 / 1440), 1.625rem);
+  }
+}
+
+/* iPad Air + Pro — Book / More Details CTAs slightly larger (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .cta {
+    width: var(--hero-cta-width-tablet, var(--hero-cta-width-lg));
+    height: var(--hero-cta-height-tablet, var(--hero-cta-height-lg));
+  }
+
+  .label {
+    font-size: var(--hero-cta-label-font-size-tablet, clamp(0.875rem, calc(100svw * 15 / 1440), 1rem));
+  }
+
+  .arrow {
+    width: clamp(1.125rem, calc(100svw * 28 / 1440), 1.625rem);
+  }
+}
+.coachesDetails .label {
+  z-index: 2;
+  color: #97907c;
+}
+
+.coachesDetails .arrowZone {
+  z-index: 2;
+}
+
+.coachesDetails:focus-visible {
+  box-shadow:
+    0 0 0 2px #97907c,
+    0 0 0 4px rgba(255, 255, 255, 0.55);
+}
+
+/* Mobile hero pill CTAs — center label in pill (left of circle cap). */
+@media (max-width: 743px) {
+  .mobileLabelCentered .label {
+    justify-content: center;
+    padding-inline: 0.25rem;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta,
+  .cta:hover,
+  .cta:active,
+  .arrow,
+  .shape {
+    transition: none;
+  }
+
+  .cta:hover,
+  .cta:active {
+    transform: none;
+  }
+
+  .cta:hover .arrow {
+    transform: translateX(6%);
+  }
+}

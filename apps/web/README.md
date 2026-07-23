@@ -1,5 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+**Design & UI:** Before changing styles or components, read the repo guide [`docs/PROJECT_DESIGN_GUIDE.md`](../../docs/PROJECT_DESIGN_GUIDE.md). All UI work must stay responsive, use relative layout patterns, and follow the documented global design system.
+
 ## Getting Started
 
 First, run the development server:

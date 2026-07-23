@@ -1,0 +1,8 @@
+.section {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+  background-color: var(--story-page-background, #fbf5d5);
+}

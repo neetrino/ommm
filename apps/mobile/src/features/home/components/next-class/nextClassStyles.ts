@@ -1,0 +1,257 @@
+import { StyleSheet } from "react-native";
+import { fontFamilies } from "../../../../theme/fontFamilies";
+import { platformShadow } from "../../../../theme/platformShadow";
+import {
+  colors,
+  layout,
+  radii,
+  space,
+  typography,
+} from "../../../../theme/tokens";
+import {
+  NEXT_CLASS_DETAILS_EXTRA_VERTICAL_TOP,
+  NEXT_CLASS_DETAILS_OVER_IMAGE,
+  NEXT_CLASS_DETAILS_SIDE_INSET,
+  NEXT_CLASS_GLASS_BASE_TINT,
+  NEXT_CLASS_GLASS_RIM,
+} from "./nextClassGlassConstants";
+
+const CARD_HEIGHT = layout.bookingCardHeight;
+
+export const nextClassStyles = StyleSheet.create({
+  section: {
+    paddingHorizontal: space.screenHorizontal,
+    marginBottom: space.section,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: space.section,
+  },
+  sectionTitle: {
+    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
+    fontSize: typography.sectionTitle,
+    lineHeight: 24,
+    color: colors.primaryGreen80,
+  },
+  allEvents: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.warmBrown,
+    letterSpacing: 1.6,
+    textTransform: "uppercase",
+  },
+  cardStage: {
+    height: CARD_HEIGHT + 29,
+    marginBottom: -space.xl,
+  },
+  backCardTilt: {
+    position: "absolute",
+    left: "5%",
+    right: "5%",
+    top: space.sm,
+    height: CARD_HEIGHT - 22,
+    transform: [{ rotate: "2deg" }],
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "none",
+  },
+  backCard: {
+    width: "100%",
+    height: "100%",
+    borderRadius: radii.card,
+    backgroundColor: colors.cardTint,
+  },
+  mainCard: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 29,
+    borderRadius: radii.card,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    backgroundColor: colors.white,
+  },
+  cardScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.scrimDark,
+    opacity: 0.15,
+    pointerEvents: "none",
+  },
+  comingBadge: {
+    position: "absolute",
+    top: space.sm + 8,
+    left: space.lg + 3,
+    backgroundColor: colors.badgeCream,
+    paddingHorizontal: space.sm,
+    paddingVertical: 4.5,
+    borderRadius: radii.pill,
+  },
+  comingBadgeText: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.caption,
+    lineHeight: 16,
+    color: colors.warmBrown,
+    textTransform: "uppercase",
+  },
+  cardTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    paddingHorizontal: space.xl,
+    paddingTop: 62,
+  },
+  classTitle: {
+    flex: 1,
+    marginRight: space.sm,
+    fontFamily: fontFamilies.gtSuperDs.regular,
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.white,
+  },
+  iconButton: {
+    width: 48,
+    height: 48,
+    borderRadius: radii.pill,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconButtonPressed: {
+    opacity: 0.9,
+  },
+  arrowIcon: {
+    width: 14,
+    height: 14,
+  },
+  detailsOverlap: {
+    marginTop: -space.xl,
+    paddingHorizontal: NEXT_CLASS_DETAILS_SIDE_INSET,
+    zIndex: 2,
+    transform: [{ translateY: -NEXT_CLASS_DETAILS_OVER_IMAGE }],
+  },
+  detailsGlassFrame: {
+    borderRadius: radii.card - 3,
+    ...platformShadow({
+      color: "#e8f0fa",
+      offsetHeight: 4,
+      opacity: 0.42,
+      radius: 14,
+      elevation: 8,
+    }),
+  },
+  detailsBlur: {
+    borderRadius: radii.card - 3,
+    overflow: "hidden",
+    backgroundColor: NEXT_CLASS_GLASS_BASE_TINT,
+    borderWidth: 1,
+    borderColor: NEXT_CLASS_GLASS_RIM,
+  },
+  detailsGlassSheen: {
+    ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
+  },
+  detailsGlassTopBand: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: "24%",
+    pointerEvents: "none",
+  },
+  detailsGlassDiagonalGleam: {
+    ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
+  },
+  detailsGlassHotSpot: {
+    ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
+  },
+  detailsGlassCornerFlare: {
+    ...StyleSheet.absoluteFillObject,
+    pointerEvents: "none",
+  },
+  detailsGlassTopEdgeFlare: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 4,
+    pointerEvents: "none",
+  },
+  detailsInner: {
+    position: "relative",
+    zIndex: 1,
+    paddingHorizontal: space.lg - 1,
+    paddingTop: space.lg + 1 + NEXT_CLASS_DETAILS_EXTRA_VERTICAL_TOP,
+    paddingBottom: space.md,
+    gap: space.sm + 4,
+  },
+  detailsTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: space.md,
+  },
+  detailsTextCol: {
+    flex: 1,
+    minWidth: 0,
+    gap: space.xs + 4,
+  },
+  timeText: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.bodySmall,
+    lineHeight: 20,
+    color: colors.black,
+  },
+  instructorText: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.caption,
+    lineHeight: 16,
+    color: colors.black,
+  },
+  statusPill: {
+    borderRadius: radii.pill,
+    paddingHorizontal: space.sm + 4,
+    paddingVertical: space.xs - 1,
+    flexShrink: 0,
+  },
+  statusText: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.caption,
+    lineHeight: 16,
+    color: colors.black,
+  },
+  divider: {
+    height: 1,
+    width: "100%",
+    opacity: 0.9,
+  },
+  detailsFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  metaText: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.caption,
+    lineHeight: 16,
+    color: colors.black,
+  },
+  spotsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flexShrink: 0,
+  },
+  spotDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.black,
+  },
+});

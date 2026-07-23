@@ -1,0 +1,31 @@
+.section {
+  position: relative;
+  composes: heroShell from "../marketing-public-page-section.module.css";
+  flex: 1;
+  padding-bottom: 0;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2.75rem, 6.4vw, 3.875rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--coaches-page-heading-color);
+}
+
+.content {
+  position: relative;
+  margin-top: var(--coaches-page-content-margin-top);
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+}

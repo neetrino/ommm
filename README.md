@@ -4,6 +4,23 @@ Cursor-ում AI-զարգացման կանոններով repo-ի կաղապար�
 
 ---
 
+## Frontend UI
+
+- **Դիզայն-ուղեցույց.** `docs/PROJECT_DESIGN_GUIDE.md` — կայքի կառուցվածքը, ներկա վիզուալ ուղղությունը, responsive կանոնները, անհամապատասխանությունների գրառումը։ Բոլոր UI փոփոխություններից առաջ կարդա՛ այս ֆայլը։
+
+## Ommm monorepo — արագ մեկնարկ
+
+1. **Node** — `>=20` (տես `package.json` → `engines`).
+2. **`.env`** — պատճենել [`.env.example`](./.env.example) → `.env` արմատում, լրացնել `DATABASE_URL`, `JWT_SECRET` և մնացածը։
+3. **Տակտակություն** — `pnpm install`․ ավտոմատ կկանչվի `postinstall` → **Prisma Client** (`db:generate`)։
+4. **DB** — առաջին անգամ․ `pnpm --filter @ommm/database run migrate:dev` (կամ `db:push` dev-ի համար)։
+5. **Բիլդ ստուգում** — `pnpm run build:api` (նախ `@ommm/database` build, հետո Nest)։
+6. **Dev** — երկու առանձին terminal․ նախ `pnpm dev:api` (Nest, :4000), ապա `pnpm dev:web` (Next, :3000)։ Web-ը API-ին միանում է `.env`-ի `API_INTERNAL_URL` / `NEXT_PUBLIC_API_URL`-ով։ `pnpm dev` — հուշում է հրամանները (apps-ը չի start անում)։ Պորտերը stuck են — `npx kill-port 3000 4000`։ Մանրամասներ՝ [`MOBILE_SETUP.md`](./MOBILE_SETUP.md)։
+
+**Ձեռքով Prisma client** (եթե `postinstall` անջատված է CI-ում)․ `pnpm run db:generate`։
+
+---
+
 ## Ինչպես սկսել
 
 1. **Repo** — GitHub → Use this template → clone, բացի՛ր պրոյեկտի թղթապանակը Cursor-ում։
@@ -16,7 +33,7 @@ Cursor-ում AI-զարգացման կանոններով repo-ի կաղապար�
 ## Մշակողի դերը
 
 - **Կոդից առաջ:** BRIEF, TECH_CARD, ճարտարապետություն — AI-ն առաջարկում է, դու հաստատում ես։
-- **Տվյալներ (AI-ն կխնդրի ըստ need-ի):** Neon (DATABASE_URL), R2 (bucket + բանալիներ), Vercel (env), Auth (OAuth), Resend/Stripe/Դոմեն — անհրաժեշտության դեպքում։
+- **Տվյալներ (AI-ն կխնդրի ըստ need-ի):** Neon (DATABASE_URL), R2 (bucket + բանալիներ), Vercel (env), Auth (OAuth), Resend/Դոմեն — անհրաժեշտության դեպքում։
 - **Env:** Ստեղծել `.env` + `.env.example` (առանց գաղտնիքների), `.gitignore`-ում — `.env`, `.env.local`. 
 Հերթականություն. 
 Neon → `.env`

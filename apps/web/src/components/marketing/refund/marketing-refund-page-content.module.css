@@ -1,0 +1,49 @@
+.article {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 3.5vw, 2.5rem);
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.intro,
+.paragraph,
+.closing {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--coaches-page-lead-color);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: var(--coaches-page-heading-color);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.closing {
+  padding-top: 0.25rem;
+  font-style: italic;
+}

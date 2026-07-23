@@ -1,0 +1,98 @@
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String?
+  phone          String?   @unique
+  name           String?
+  lastName       String?
+  dateOfBirth    DateTime?
+  avatarUrl      String?
+  /** Full public HTTPS URL (e.g. Cloudflare R2) or legacy `/v1/uploads/...` path when storing locally. */
+  homeImageUrl   String?
+  role           Role      @default(USER)
+  /** When true, the member cannot sign in or book until unblocked by admin. */
+  isBlocked      Boolean   @default(false)
+  emailVerified  DateTime?
+  /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
+  locale           String    @default("hy")
+  giftCreditsCents Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  coachProfile      CoachProfile?
+  bookings          Booking[]
+  userPackages      UserPackage[]
+  waitlistEntries   WaitlistEntry[]
+  payments          Payment[]
+  giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
+  giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
+  giftCardBatchesCreated GiftCardBatch[] @relation("GiftCardBatchPurchaser")
+  giftCardBatchesReceived GiftCardBatch[] @relation("GiftCardBatchRecipient")
+  achievements      UserAchievement[]
+  notificationPrefs NotificationPreference?
+  bookingNotesAuthored BookingNote[] @relation("BookingNoteAuthor")
+  clientNotesAuthored  ClientNote[]  @relation("ClientNoteAuthor")
+  clientNotesReceived  ClientNote[]  @relation("ClientNoteSubject")
+  authTokens         AuthToken[]
+  oauthAccounts      OAuthAccount[]
+  pushDeviceTokens   PushDeviceToken[]
+}
+
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String        @unique
+  type      AuthTokenType
+  expiresAt DateTime
+  createdAt DateTime      @default(now())
+
+  @@index([userId, type])
+}
+
+model PendingOAuthSignup {
+  id                    String   @id @default(cuid())
+  tokenHash             String   @unique
+  provider              String
+  providerAccountId     String
+  providerEmail         String
+  providerEmailVerified Boolean  @default(true)
+  name                  String?
+  lastName              String?
+  avatarUrl             String?
+  expiresAt             DateTime
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([expiresAt])
+}
+
+model OAuthAccount {
+  id                    String   @id @default(cuid())
+  userId                String
+  provider              String
+  providerAccountId     String
+  providerEmail         String?
+  providerEmailVerified Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model PushDeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String
+  platform  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, token])
+  @@index([userId])
+}

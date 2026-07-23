@@ -1,0 +1,121 @@
+/**
+ * Mobile: Figma `97:5826`. Desktop (lg+): original section `155:188` — unchanged.
+ */
+
+.mobileSection {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  background: var(--home-coaches-section-bg);
+  border-bottom-left-radius: var(--home-coaches-section-bottom-radius, 3.125rem);
+  border-bottom-right-radius: var(--home-coaches-section-bottom-radius, 3.125rem);
+  padding-top: var(--home-coaches-section-pt, 4rem);
+  padding-bottom: var(--home-coaches-section-pb, 4rem);
+  padding-inline: var(--home-coaches-section-px, 1.5rem);
+}
+
+@media (max-width: 743px) {
+  .mobileSection {
+    /* Safari: subpixel gap above section — overlap classes band. */
+    margin-top: -1px;
+  }
+}
+
+.desktopSection {
+  display: none;
+}
+
+.mobileShell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--home-coaches-section-gap, 2.25rem);
+}
+
+.mobileHeader {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--home-coaches-header-subtitle-gap, 1rem);
+}
+
+.mobileTitle {
+  font-size: var(--home-coaches-title-size);
+  line-height: var(--home-coaches-title-line-height);
+  color: var(--home-coaches-heading-color, #fbf5d5);
+}
+
+.mobileSubtitle {
+  width: 100%;
+  max-width: var(--home-coaches-subtitle-max-width, 100%);
+  font-size: var(--home-coaches-subtitle-size);
+  line-height: var(--home-coaches-subtitle-line-height);
+  color: var(--home-coaches-subtitle-color, rgba(255, 255, 255, 0.84));
+}
+
+.mobileCarouselWrap {
+  width: 100%;
+  min-width: 0;
+}
+
+.mobileNav {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.mobileDots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--home-coaches-dot-gap, 0.375rem);
+}
+
+.mobileDot {
+  width: var(--home-coaches-dot-size, 0.375rem);
+  height: var(--home-coaches-dot-size, 0.375rem);
+  flex-shrink: 0;
+  border: none;
+  border-radius: 9999px;
+  background-color: rgb(255 255 255 / 0.35);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 220ms ease, transform 220ms ease;
+}
+
+.mobileDotActive {
+  background-color: #fbf5d5;
+  transform: scale(var(--home-coaches-dot-active-scale, 1.1));
+}
+
+.mobileDot:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgb(87 127 145 / 0.45);
+}
+
+.mobileCta {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 744px) {
+  .mobileSection {
+    display: none;
+  }
+
+  .desktopSection {
+    display: block;
+  }
+}

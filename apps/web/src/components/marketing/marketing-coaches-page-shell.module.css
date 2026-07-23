@@ -1,0 +1,117 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+/* Background tracks mounted page content — avoids wellness flash before home RSC arrives. */
+.shell:has([data-marketing-home]) {
+  background-image: var(--gradient-wellness);
+}
+
+.shell:has([data-marketing-inner]) {
+  background: linear-gradient(
+    to bottom,
+    var(--coaches-page-gradient-from),
+    var(--coaches-page-gradient-to)
+  );
+}
+
+.shell:has([data-marketing-explore-coming-soon]) {
+  background: #ece8d2;
+}
+
+.shell:has([data-marketing-explore-coming-soon]) .main {
+  background: transparent;
+  padding-bottom: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.main {
+  display: flex;
+  min-height: 0;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.shell:has([data-marketing-inner]) .main {
+  background: linear-gradient(
+    to bottom,
+    var(--coaches-page-gradient-from),
+    var(--coaches-page-gradient-to)
+  );
+}
+
+@media (max-width: 743px) {
+  .shell:has([data-marketing-inner]) {
+    background: linear-gradient(
+      to bottom,
+      var(--coaches-page-gradient-from),
+      var(--coaches-page-gradient-to)
+    );
+  }
+
+  .shell:has([data-marketing-inner]) .main {
+    background: transparent;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
+}
+
+/* Policy pages — gallery cream surface (overrides inner gradient). */
+.shell:has([data-marketing-policy]) {
+  --home-footer-wrap-bg: var(--ommm-policy-page-background);
+  background: var(--ommm-policy-page-background);
+  min-height: 100dvh;
+}
+
+/* Story page — cream surface + Our Values footer wrap (beats inline coaches wrap token). */
+.shell:has([data-marketing-story]) {
+  --home-footer-wrap-bg: #fbf5d5 !important;
+  background: #fbf5d5;
+}
+
+.shell:has([data-marketing-story]) .main {
+  background: #fbf5d5;
+}
+
+/* Schedule / Packages / Contact — cream page; mobile footer overlap matches home. */
+.shell:has([data-marketing-practices-inner]) {
+  background: #fbf5d5;
+}
+
+.shell:has([data-marketing-practices-inner]) .main {
+  position: relative;
+  z-index: 1;
+  background: #fbf5d5;
+}
+
+@media (max-width: 743px) {
+  .shell:has([data-marketing-practices-inner]) .main {
+    background: #fbf5d5;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
+}
+
+.shell:has([data-marketing-policy]) .main {
+  background: var(--ommm-policy-page-background);
+}
+
+@media (max-width: 743px) {
+  .shell:has([data-marketing-story]) .main {
+    background: #fbf5d5;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
+}
+
+@media (max-width: 743px) {
+  .shell:has([data-marketing-policy]) .main {
+    background: transparent;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
+}

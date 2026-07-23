@@ -1,0 +1,187 @@
+@layer components {
+  .ommm-btn-compact-primary {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-full bg-sand-500 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white shadow-sm transition-colors;
+    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-compact-secondary {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 backdrop-blur-sm transition-colors;
+    @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-compact-warm {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-full border border-sand-500/45 bg-sand-100/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sand-700 transition-colors;
+    @apply hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-lifecycle-action--warm:hover,
+  .ommm-btn-lifecycle-action--danger:hover,
+  .ommm-btn-lifecycle-action--success:hover {
+    @apply shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)]!;
+  }
+
+  .ommm-btn-lifecycle-action--warm:hover {
+    @apply border-sand-500/50! bg-sand-100! text-sand-700!;
+  }
+
+  .ommm-btn-lifecycle-action--warm:focus-visible {
+    @apply ring-sand-500!;
+  }
+
+  .ommm-btn-lifecycle-action--danger:hover {
+    @apply border-red-300! bg-red-100! text-red-800!;
+  }
+
+  .ommm-btn-lifecycle-action--danger:focus-visible {
+    @apply ring-red-500!;
+  }
+
+  .ommm-btn-lifecycle-action--success:hover {
+    @apply border-emerald-300! bg-emerald-100! text-emerald-800!;
+  }
+
+  .ommm-btn-lifecycle-action--success:focus-visible {
+    @apply ring-emerald-500!;
+  }
+
+  .ommm-confirm-dialog--warm {
+    @apply border-sand-500/35 bg-gradient-to-br from-sand-100/95 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(107,92,76,0.38)];
+  }
+
+  .ommm-confirm-dialog--danger {
+    @apply border-red-300/70 bg-gradient-to-br from-red-100/90 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(185,28,28,0.28)];
+  }
+
+  .ommm-confirm-dialog--warm .ommm-btn-lifecycle-action--warm {
+    @apply border-sand-500/50 bg-sand-100 text-sand-700 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-confirm-dialog--danger .ommm-btn-lifecycle-action--danger {
+    @apply border-red-300 bg-red-100 text-red-800 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-confirm-dialog--success {
+    @apply border-emerald-300/70 bg-gradient-to-br from-emerald-100/90 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(5,150,105,0.22)];
+  }
+
+  .ommm-confirm-dialog--success .ommm-btn-lifecycle-action--success {
+    @apply border-emerald-300 bg-emerald-100 text-emerald-800 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-session-booked-button {
+    @apply inline-flex cursor-default items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] shadow-[0_6px_18px_-12px_rgba(134,162,145,0.35)];
+    background-color: #86a291;
+    color: #fff8d9;
+  }
+
+  .ommm-session-booked-button--sm {
+    @apply px-3 py-1.5 text-[11px] font-semibold tracking-[0.1em];
+  }
+
+  .ommm-session-booked-button--schedule {
+    @apply font-semibold uppercase tracking-[0.1em];
+  }
+
+  .ommm-session-booked-card {
+    background-color: color-mix(in srgb, #e2f2e8 38%, var(--color-paper));
+    box-shadow: 0 22px 54px -34px rgba(61, 107, 82, 0.16);
+  }
+
+  .ommm-session-booked-row {
+    background-color: color-mix(in srgb, #e2f2e8 34%, white);
+  }
+
+  .ommm-marketing-card-hover {
+    @apply transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-28px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-package-card-hover {
+    @apply relative isolate overflow-hidden transition-[transform,box-shadow] duration-300 ease-out;
+    will-change: transform, box-shadow;
+  }
+
+  .ommm-package-card-hover::after {
+    content: "";
+    position: absolute;
+    inset: -70% -45%;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.28) 50%,
+      transparent 62%
+    );
+    opacity: 0;
+    transform: translateX(-32%) rotate(8deg);
+    transition: transform 460ms ease, opacity 320ms ease;
+    z-index: 0;
+  }
+
+  .ommm-package-card-hover:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 30px 60px -30px rgba(45, 40, 35, 0.36);
+  }
+
+  .ommm-package-card-hover:hover::after {
+    opacity: 1;
+    transform: translateX(24%) rotate(8deg);
+  }
+
+  .ommm-package-card-hover > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ommm-package-card-interactive {
+    @apply cursor-pointer;
+  }
+
+  .ommm-package-card-interactive:focus-within {
+    @apply outline-none ring-2 ring-sand-500/70 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-package-card-interactive.ommm-package-card-selected,
+  .ommm-package-card-interactive[data-selected="true"] {
+    @apply ring-2 ring-sand-500/80;
+  }
+
+  .ommm-package-card-interactive:active {
+    transform: translateY(-2px) scale(1.005);
+  }
+
+  .ommm-package-tier-row-interactive {
+    @apply transition-[background-color,border-color,box-shadow,transform] duration-200;
+  }
+
+  .ommm-package-tier-row-interactive:hover {
+    @apply border-white/80 bg-white/70;
+  }
+
+  .ommm-package-tier-row-interactive:focus-visible {
+    @apply outline-none ring-2 ring-sand-500 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-package-tier-row-interactive:active {
+    transform: scale(0.995);
+  }
+
+  .ommm-membership-row-interactive {
+    @apply cursor-pointer transition-[background-color,box-shadow,border-color] duration-200;
+  }
+
+  .ommm-membership-row-interactive:hover {
+    @apply border-sand-500/30 bg-white/80 shadow-[0_12px_30px_-22px_rgba(45,40,35,0.25)];
+  }
+
+  .ommm-membership-row-interactive:focus-visible {
+    @apply outline-none ring-2 ring-sand-500 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-membership-row-interactive[data-selected="true"] {
+    @apply border-sand-500/70 bg-sand-100/60 ring-1 ring-sand-500/50;
+  }
+
+  .ommm-membership-row-interactive:active {
+    transform: scale(0.998);
+  }
+}

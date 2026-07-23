@@ -6,6 +6,7 @@ alwaysApply: false
 
 # React and Next.js
 
+- **UI consistency** — Before UI changes, read `docs/PROJECT_DESIGN_GUIDE.md`. Keep layouts responsive and relative; align with the Home / account dashboard visual direction unless the target is an explicit zone (auth, admin, coach).
 - **Server Components by default** — add `'use client'` only when you need hooks, browser APIs, or event handlers.
 - **Named exports** for components; no default exports for route components if project forbids (see `00-core.mdc`).
 - **Colocate** feature code; avoid prop-drilling hell — use composition or context sparingly.
