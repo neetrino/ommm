@@ -4,6 +4,7 @@ import { BACKOFFICE_WRITE_ROLES } from '../common/backoffice-roles';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { UpdateEnabledLocalesDto } from './dto/update-enabled-locales.dto';
 import { UpdateHomeSectionsDto } from './dto/update-home-sections.dto';
 import { UpdateStudioDto } from './dto/update-studio.dto';
 import { StudioService } from './studio.service';
@@ -28,6 +29,12 @@ export class StudioController {
     return this.studio.getHomeSections();
   }
 
+  @Get('enabled-locales')
+  @SkipThrottle()
+  getEnabledLocales() {
+    return this.studio.getEnabledLocales();
+  }
+
   @Patch()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
@@ -40,5 +47,12 @@ export class StudioController {
   @Roles(...BACKOFFICE_WRITE_ROLES)
   updateHomeSections(@Body() dto: UpdateHomeSectionsDto) {
     return this.studio.updateHomeSections(dto.sections);
+  }
+
+  @Patch('enabled-locales')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  updateEnabledLocales(@Body() dto: UpdateEnabledLocalesDto) {
+    return this.studio.updateEnabledLocales(dto.locales);
   }
 }

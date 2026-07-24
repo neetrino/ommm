@@ -22,6 +22,7 @@ const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
   "/admin/reports": "admin.reports",
   "/admin/settings": "admin.settings",
   "/admin/settings/home-sections": "admin.settings",
+  "/admin/settings/languages": "admin.settings",
   "/admin/settings/identity": "admin.settings",
   "/admin/settings/location": "admin.settings",
   "/admin/settings/contact": "admin.settings",

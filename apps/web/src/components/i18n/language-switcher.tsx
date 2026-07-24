@@ -1,16 +1,22 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useTransition, type ReactNode } from "react";
+import { useMemo, useTransition, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useEnabledLocales } from "@/components/i18n/enabled-locales-context";
 import { apiFetch } from "@/lib/api";
+import {
+  countEnabledLocales,
+  listEnabledLocales,
+  resolveFallbackLocale,
+  type AppUiLocale,
+} from "@/lib/enabled-locales";
 import { captureLocaleSwitchScroll } from "@/lib/locale-switch-scroll";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
-  LANGUAGE_SWITCHER_ORDER,
   type LanguageSwitcherLocaleCode,
   isLanguageSwitcherLocale,
   languageSwitcherEndonym,
@@ -43,7 +49,13 @@ export function LanguageSwitcher({
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("language");
+  const enabledLocales = useEnabledLocales();
   const [pending, startTransition] = useTransition();
+
+  const availableLocales = useMemo(
+    () => listEnabledLocales(enabledLocales),
+    [enabledLocales],
+  );
 
   const current: LanguageSwitcherLocaleCode | null = isLanguageSwitcherLocale(
     locale,
@@ -51,17 +63,35 @@ export function LanguageSwitcher({
     ? locale
     : null;
 
-  const effectiveLocale: LanguageSwitcherLocaleCode =
-    current ??
-    (isLanguageSwitcherLocale(routing.defaultLocale)
+  const effectiveLocale: LanguageSwitcherLocaleCode = useMemo(() => {
+    if (current !== null && enabledLocales[current]) {
+      return current;
+    }
+
+    const fallback = resolveFallbackLocale(enabledLocales);
+    if (isLanguageSwitcherLocale(fallback)) {
+      return fallback;
+    }
+
+    return isLanguageSwitcherLocale(routing.defaultLocale)
       ? routing.defaultLocale
-      : "en");
+      : "en";
+  }, [current, enabledLocales]);
+
+  if (countEnabledLocales(enabledLocales) <= 1) {
+    return null;
+  }
 
   const isIconMarketing =
     context === "marketing" && appearance === "icon";
 
   function select(next: LanguageSwitcherLocaleCode) {
     if (next === locale) {
+      onAfterSelect?.();
+      return;
+    }
+
+    if (!enabledLocales[next as AppUiLocale]) {
       onAfterSelect?.();
       return;
     }
@@ -82,12 +112,11 @@ export function LanguageSwitcher({
   }
 
   const triggerLabel = `${t("switcherAria")}: ${languageSwitcherEndonym(effectiveLocale)}`;
-  const options: readonly DropdownOption<LanguageSwitcherLocaleCode>[] = LANGUAGE_SWITCHER_ORDER.map(
-    (code) => ({
+  const options: readonly DropdownOption<LanguageSwitcherLocaleCode>[] =
+    availableLocales.map((code) => ({
       value: code,
       label: languageSwitcherEndonym(code),
-    }),
-  );
+    }));
 
   const rootMinWidth = isIconMarketing ? "min-w-0" : "min-w-[5.5rem]";
 

@@ -1,6 +1,7 @@
 export type AdminSettingsTabId =
   | "studio"
   | "home-sections"
+  | "languages"
   | "identity"
   | "location"
   | "contact";
@@ -8,6 +9,7 @@ export type AdminSettingsTabId =
 export const ADMIN_SETTINGS_TAB_IDS: readonly AdminSettingsTabId[] = [
   "studio",
   "home-sections",
+  "languages",
   "identity",
   "location",
   "contact",
@@ -16,6 +18,7 @@ export const ADMIN_SETTINGS_TAB_IDS: readonly AdminSettingsTabId[] = [
 export const ADMIN_SETTINGS_TAB_HREF: Record<AdminSettingsTabId, string> = {
   studio: "/admin/settings",
   "home-sections": "/admin/settings/home-sections",
+  languages: "/admin/settings/languages",
   identity: "/admin/settings/identity",
   location: "/admin/settings/location",
   contact: "/admin/settings/contact",
@@ -24,7 +27,7 @@ export const ADMIN_SETTINGS_TAB_HREF: Record<AdminSettingsTabId, string> = {
 const STUDIO_SUBTAB_SUFFIXES = ["/identity", "/location", "/contact"] as const;
 
 /** @deprecated Use resolveAdminSettingsTabFromPathname */
-export type AdminSettingsSectionId = "studio" | "home-sections";
+export type AdminSettingsSectionId = "studio" | "home-sections" | "languages";
 
 export function resolveAdminSettingsTabFromPathname(
   pathname: string,
@@ -40,6 +43,10 @@ export function resolveAdminSettingsTabFromPathname(
     return "home-sections";
   }
 
+  if (pathname.endsWith("/languages")) {
+    return "languages";
+  }
+
   if (pathname === "/admin/settings" || pathname.endsWith("/admin/settings")) {
     return "studio";
   }
@@ -53,6 +60,9 @@ export function resolveAdminSettingsSectionFromPathname(
   const tab = resolveAdminSettingsTabFromPathname(pathname);
   if (tab === "home-sections") {
     return "home-sections";
+  }
+  if (tab === "languages") {
+    return "languages";
   }
   if (
     tab === "studio" ||

@@ -1731,6 +1731,7 @@
         "aria": "Settings sections",
         "studio": "Studio",
         "homeSections": "Home Page Sections",
+        "languages": "Languages",
         "identity": "Identity",
         "location": "Location",
         "contact": "Contact"
@@ -1792,6 +1793,40 @@
           },
           "contact": {
             "description": "Contact block in the footer, Contact page, and navigation link."
+          }
+        }
+      },
+      "languages": {
+        "loadFailed": "Could not load language settings ({status}).",
+        "panelTitle": "Languages",
+        "summaryLabel": "Availability overview",
+        "summary": "{count} of {total} languages enabled",
+        "statusNoticeTitle": "Be careful when changing language availability",
+        "statusNoticeDetail": "Disabled languages are removed from the language switcher. Visitors on a disabled language are redirected to an enabled one. At least one language must stay enabled.",
+        "saving": "Saving...",
+        "saved": "Language availability updated.",
+        "failed": "Could not update language availability.",
+        "mustKeepOne": "At least one language must stay enabled.",
+        "toggleAria": "Toggle {language} — currently {state}",
+        "stateEnabled": "enabled",
+        "stateDisabled": "disabled",
+        "cancelButton": "Cancel",
+        "modalBackdropClose": "Close dialog",
+        "disableLanguageButton": "Disable language",
+        "enableLanguageButton": "Enable language",
+        "confirmDisableTitle": "Disable {language}?",
+        "confirmDisableDescription": "{language} will be hidden from the language switcher. Visitors already on this language will be redirected to an enabled language. You can re-enable it at any time.",
+        "confirmEnableTitle": "Enable {language}?",
+        "confirmEnableDescription": "{language} will appear in the language switcher again and become available across the site.",
+        "locales": {
+          "hy": {
+            "description": "Armenian — shown in the language switcher as Հայերեն."
+          },
+          "en": {
+            "description": "English — shown in the language switcher as English."
+          },
+          "ru": {
+            "description": "Russian — shown in the language switcher as Русский."
           }
         }
       }

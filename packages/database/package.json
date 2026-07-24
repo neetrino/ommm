@@ -14,6 +14,11 @@
       "types": "./dist/home-page-sections.d.ts",
       "import": "./dist/home-page-sections.js",
       "default": "./dist/home-page-sections.js"
+    },
+    "./enabled-locales": {
+      "types": "./dist/enabled-locales.d.ts",
+      "import": "./dist/enabled-locales.js",
+      "default": "./dist/enabled-locales.js"
     }
   },
   "scripts": {

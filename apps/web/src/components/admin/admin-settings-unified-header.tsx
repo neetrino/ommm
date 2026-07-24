@@ -13,6 +13,7 @@ function resolveSettingsDescriptionKey(
 ): string | null {
   switch (tab) {
     case "home-sections":
+    case "languages":
       return null;
     case "identity":
     case "location":

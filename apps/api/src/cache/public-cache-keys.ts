@@ -7,6 +7,7 @@ export const PUBLIC_CACHE_TTL_SEC = {
   contentPost: 300,
   studio: 600,
   homeSections: 60,
+  enabledLocales: 60,
 } as const;
 
 function cacheEnvSegment(): string {
@@ -32,5 +33,6 @@ export const PUBLIC_CACHE_KEYS = {
     publicCacheKey(`content:post:${slug}:${locale ?? 'en'}`),
   studio: publicCacheKey('studio'),
   homeSections: publicCacheKey('home-sections'),
+  enabledLocales: publicCacheKey('enabled-locales'),
   contentPrefix: publicCacheKey('content'),
 } as const;

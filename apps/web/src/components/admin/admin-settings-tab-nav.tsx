@@ -12,6 +12,7 @@ import {
 const TAB_LABEL_KEY: Record<AdminSettingsTabId, string> = {
   studio: "studio",
   "home-sections": "homeSections",
+  languages: "languages",
   identity: "identity",
   location: "location",
   contact: "contact",
