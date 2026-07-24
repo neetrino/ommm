@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "@/components/marketing/home/home-weekly-schedule-compact-view.module.css";
 import { HomeWeeklyScheduleSessionRow } from "@/components/marketing/home/home-weekly-schedule-session-row";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
@@ -17,7 +17,6 @@ import {
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { Link } from "@/i18n/navigation";
-import { getHomeWeeklyScheduleTabCalendarDate } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
 import { buildPublicScheduleHrefForDate } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
 import { SCHEDULE_BOOK_BTN_HOME } from "@/components/marketing/schedule/schedule-public-design";
 import {
@@ -30,6 +29,8 @@ const HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS =
 
 export type HomeWeeklyScheduleCompactDay = {
   day: MarketingScheduleDayOfWeek;
+  /** Studio calendar date (`YYYY-MM-DD`) for this tab in the focused week. */
+  calendarDate: string;
   label: string;
   emptyLabel: string;
   sessions: readonly {
@@ -77,6 +78,14 @@ export function HomeWeeklyScheduleDayView({
 }: HomeWeeklyScheduleDayViewProps) {
   const t = useTranslations("marketingPublic.home");
   const [selectedDay, setSelectedDay] = useState<MarketingScheduleDayOfWeek>(initialDay);
+  const userPickedDayRef = useRef(false);
+
+  useEffect(() => {
+    if (userPickedDayRef.current) {
+      return;
+    }
+    setSelectedDay(initialDay);
+  }, [initialDay]);
 
   const activeDay =
     days.find((entry) => entry.day === selectedDay) ?? days[0] ?? null;
@@ -106,6 +115,7 @@ export function HomeWeeklyScheduleDayView({
     (renderedDay?.sessions.length ?? 0) > HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS;
 
   const selectDay = useCallback((day: MarketingScheduleDayOfWeek) => {
+    userPickedDayRef.current = true;
     setSelectedDay(day);
   }, []);
 
@@ -290,9 +300,7 @@ export function HomeWeeklyScheduleDayView({
                       >
                         <div className={styles.seeFullSlot}>
                           <Link
-                            href={buildPublicScheduleHrefForDate(
-                              getHomeWeeklyScheduleTabCalendarDate(renderedDay.day),
-                            )}
+                            href={buildPublicScheduleHrefForDate(renderedDay.calendarDate)}
                             className={`${SCHEDULE_BOOK_BTN_HOME} ${styles.seeFullLink}`}
                           >
                             {t("weeklyScheduleSeeFull")}

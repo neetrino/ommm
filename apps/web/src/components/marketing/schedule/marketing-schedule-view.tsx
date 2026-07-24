@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
@@ -24,9 +24,10 @@ import {
 } from "@/components/marketing/schedule/schedule-date-utils";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import {
-  buildMarketingScheduleInitialNav,
+  buildMarketingScheduleInitialNavFromItems,
   buildMarketingScheduleNavForDate,
   PUBLIC_SCHEDULE_DATE_QUERY_KEY,
+  resolveNearestUpcomingScheduleDate,
   shiftMarketingScheduleWeek,
   type MarketingScheduleNavState,
 } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
@@ -47,14 +48,18 @@ type MarketingScheduleViewProps = {
   initialItems: MarketingScheduleItem[];
 };
 
-function resolveInitialNav(baseline: Date, dateParam: string | null): MarketingScheduleNavState {
+function resolveInitialNav(
+  baseline: Date,
+  dateParam: string | null,
+  items: readonly MarketingScheduleItem[],
+): MarketingScheduleNavState {
   if (dateParam !== null && dateParam.trim() !== "") {
     const fromQuery = buildMarketingScheduleNavForDate(dateParam, baseline);
     if (fromQuery !== null) {
       return fromQuery;
     }
   }
-  return buildMarketingScheduleInitialNav(baseline);
+  return buildMarketingScheduleInitialNavFromItems(baseline, items);
 }
 
 export function MarketingScheduleView({ initialItems }: MarketingScheduleViewProps) {
@@ -64,9 +69,12 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
   const audience = useMarketingAudience();
   const isMember = audience === "member";
   const [baseline] = useState(() => startOfLocalDay(new Date()));
+  const dateParam = searchParams.get(PUBLIC_SCHEDULE_DATE_QUERY_KEY);
+  const hasExplicitDateParam = dateParam !== null && dateParam.trim() !== "";
   const [nav, setNav] = useState<MarketingScheduleNavState>(() =>
-    resolveInitialNav(baseline, searchParams.get(PUBLIC_SCHEDULE_DATE_QUERY_KEY)),
+    resolveInitialNav(baseline, dateParam, initialItems),
   );
+  const userPickedDateRef = useRef(hasExplicitDateParam);
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
 
@@ -83,6 +91,23 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
     handleWaitlisted,
     handleWaitlistLeft,
   } = useMarketingScheduleMemberState({ isMember, initialItems });
+
+  useEffect(() => {
+    if (userPickedDateRef.current || !sessionsReady) {
+      return;
+    }
+
+    const nearest = resolveNearestUpcomingScheduleDate(items, baseline, scheduleNow);
+    setNav((current) => {
+      if (isSameCalendarDay(current.selectedDate, nearest)) {
+        return current;
+      }
+      return {
+        windowStart: startOfWeekSunday(nearest),
+        selectedDate: nearest,
+      };
+    });
+  }, [baseline, items, scheduleNow, sessionsReady]);
 
   const classTypeOptions = useMemo<readonly ScheduleFilterOption<string>[]>(() => {
     const distinct = getScheduleClassTypeValues(items);
@@ -142,11 +167,13 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
         windowStart={nav.windowStart}
         onSelectDay={(d) => {
           if (isBeforeCalendarDay(d, baseline)) return;
+          userPickedDateRef.current = true;
           setNav((s) => ({ ...s, selectedDate: d }));
         }}
-        onShiftWindow={(delta) =>
-          setNav((s) => shiftMarketingScheduleWeek(s, delta, baseline))
-        }
+        onShiftWindow={(delta) => {
+          userPickedDateRef.current = true;
+          setNav((s) => shiftMarketingScheduleWeek(s, delta, baseline));
+        }}
       />
       <div
         className="mt-0 overflow-hidden transition-[height] duration-300 ease-out motion-reduce:transition-none"

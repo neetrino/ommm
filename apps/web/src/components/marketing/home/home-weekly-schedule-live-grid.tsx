@@ -80,7 +80,10 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
   );
 
   const days = useMemo(() => buildHomeWeeklyScheduleDays(activeItems, labels), [activeItems, labels]);
-  const initialDay = getDefaultWeeklyScheduleDay();
+  const initialDay = useMemo(
+    () => getDefaultWeeklyScheduleDay(activeItems),
+    [activeItems],
+  );
 
   return (
     <div

@@ -1,5 +1,6 @@
 import {
   getHomeWeeklyScheduleTabCalendarDate,
+  resolveHomeWeeklyScheduleFocusDate,
   resolveHomeWeeklyScheduleItemCalendarDate,
 } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
 import type {
@@ -27,24 +28,36 @@ function compareSessions(a: MarketingScheduleItem, b: MarketingScheduleItem): nu
   return a.startTime.localeCompare(b.startTime);
 }
 
-/** Groups active schedule rows by weekday tab for the current studio calendar week. */
+/**
+ * Groups active schedule rows by weekday tab for the Mon–Sun week that contains
+ * the nearest upcoming session (or today when none exist).
+ */
 export function groupScheduleByWeekday(
   items: readonly MarketingScheduleItem[],
   reference: Date = new Date(),
 ): ScheduleItemsByWeekday {
+  const focusDateIso = resolveHomeWeeklyScheduleFocusDate(items, reference);
   const buckets = Object.fromEntries(
     HOME_WEEKLY_SCHEDULE_DAY_ORDER.map((day) => [day, [] as MarketingScheduleItem[]]),
   ) as Record<MarketingScheduleDayOfWeek, MarketingScheduleItem[]>;
 
   for (const day of HOME_WEEKLY_SCHEDULE_DAY_ORDER) {
-    const tabCalendarDate = getHomeWeeklyScheduleTabCalendarDate(day, reference);
+    const tabCalendarDate = getHomeWeeklyScheduleTabCalendarDate(
+      day,
+      reference,
+      focusDateIso,
+    );
 
     for (const item of items) {
       if (!item.isActive) {
         continue;
       }
 
-      const itemCalendarDate = resolveHomeWeeklyScheduleItemCalendarDate(item, reference);
+      const itemCalendarDate = resolveHomeWeeklyScheduleItemCalendarDate(
+        item,
+        reference,
+        focusDateIso,
+      );
       if (itemCalendarDate === tabCalendarDate) {
         buckets[day].push(item);
       }
