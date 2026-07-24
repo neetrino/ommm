@@ -4,4 +4,5 @@ export const PUBLIC_CACHE_TAGS = {
   packages: "public-packages",
   studio: "public-studio",
   homeSections: "public-home-sections",
+  enabledLocales: "public-enabled-locales",
 } as const;

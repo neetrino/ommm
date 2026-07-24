@@ -1742,6 +1742,7 @@
         "aria": "Կարգավորումների բաժիններ",
         "studio": "Ստուդիա",
         "homeSections": "Գլխավոր էջի բաժիններ",
+        "languages": "Լեզուներ",
         "identity": "Ինքնություն",
         "location": "Տեղադրություն",
         "contact": "Կապ"
@@ -1803,6 +1804,40 @@
           },
           "contact": {
             "description": "Կոնտակտային բլոկը footer-ում, Contact էջը և նավիգացիայի հղումը։"
+          }
+        }
+      },
+      "languages": {
+        "loadFailed": "Չհաջողվեց բեռնել լեզուների կարգավորումները ({status})։",
+        "panelTitle": "Լեզուներ",
+        "summaryLabel": "Հասանելիության ակնարկ",
+        "summary": "Միացված է {count}/{total} լեզու",
+        "statusNoticeTitle": "Զգույշ եղեք լեզվի հասանելիությունը փոխելիս",
+        "statusNoticeDetail": "Անջատված լեզուները հանվում են language switcher-ից։ Անջատված լեզվով այցելուները վերահղվում են միացված լեզվի։ Առնվազն մեկ լեզու պետք է մնա միացված։",
+        "saving": "Պահպանում...",
+        "saved": "Լեզուների հասանելիությունը թարմացվեց։",
+        "failed": "Չհաջողվեց թարմացնել լեզուների հասանելիությունը։",
+        "mustKeepOne": "Առնվազն մեկ լեզու պետք է մնա միացված։",
+        "toggleAria": "Փոխել {language} — ներկայում {state}",
+        "stateEnabled": "միացված",
+        "stateDisabled": "անջատված",
+        "cancelButton": "Չեղարկել",
+        "modalBackdropClose": "Փակել պատուհանը",
+        "disableLanguageButton": "Անջատել լեզուն",
+        "enableLanguageButton": "Միացնել լեզուն",
+        "confirmDisableTitle": "Անջատե՞լ «{language}» լեզուն",
+        "confirmDisableDescription": "«{language}»-ը կթաքցվի language switcher-ից։ Այդ լեզվով այցելուները կվերահղվեն միացված լեզվի։ Կարող եք ցանկացած պահի նորից միացնել։",
+        "confirmEnableTitle": "Միացնե՞լ «{language}» լեզուն",
+        "confirmEnableDescription": "«{language}»-ը կրկին կհայտնվի language switcher-ում և կդառնա հասանելի կայքում։",
+        "locales": {
+          "hy": {
+            "description": "Հայերեն — language switcher-ում ցուցադրվում է որպես Հայերեն։"
+          },
+          "en": {
+            "description": "Անգլերեն — language switcher-ում ցուցադրվում է որպես English։"
+          },
+          "ru": {
+            "description": "Ռուսերեն — language switcher-ում ցուցադրվում է որպես Русский։"
           }
         }
       }

@@ -7,4 +7,5 @@ import { PUBLIC_CACHE_TAGS } from "@/lib/public-cache-tags";
 export async function revalidatePublicStudioAction(): Promise<void> {
   updateTag(PUBLIC_CACHE_TAGS.studio);
   updateTag(PUBLIC_CACHE_TAGS.homeSections);
+  updateTag(PUBLIC_CACHE_TAGS.enabledLocales);
 }

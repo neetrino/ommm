@@ -21,6 +21,7 @@ model StudioSettings {
   cancellationHoursNotice Int      @default(24)
   waitlistOfferMinutes    Int      @default(30)
   homeSectionsVisibilityJson String?
+  enabledLocalesJson         String?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 }

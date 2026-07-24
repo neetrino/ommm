@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import {
-  parseHomePageSectionVisibilityJson,
-  serializeHomePageSectionVisibility,
+  normalizeEnabledLocales,
   normalizeHomePageSectionVisibility,
+  parseEnabledLocalesJson,
+  parseHomePageSectionVisibilityJson,
+  serializeEnabledLocales,
+  serializeHomePageSectionVisibility,
+  type EnabledLocalesMap,
   type HomePageSectionVisibility,
 } from '@ommm/database';
 import {
@@ -39,6 +43,19 @@ export class StudioService {
           sections: parseHomePageSectionVisibilityJson(
             row.homeSectionsVisibilityJson,
           ),
+        };
+      },
+    );
+  }
+
+  async getEnabledLocales() {
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.enabledLocales,
+      PUBLIC_CACHE_TTL_SEC.enabledLocales,
+      async () => {
+        const row = await this.loadPublicFromDb();
+        return {
+          locales: parseEnabledLocalesJson(row.enabledLocalesJson),
         };
       },
     );
@@ -86,6 +103,22 @@ export class StudioService {
       sections: parseHomePageSectionVisibilityJson(
         updated.homeSectionsVisibilityJson,
       ),
+    };
+  }
+
+  async updateEnabledLocales(locales: EnabledLocalesMap) {
+    const normalized = normalizeEnabledLocales(locales);
+    const current = await this.loadPublicFromDb();
+    const updated = await this.prisma.studioSettings.update({
+      where: { id: current.id },
+      data: {
+        enabledLocalesJson: serializeEnabledLocales(normalized),
+      },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.enabledLocales);
+    return {
+      locales: parseEnabledLocalesJson(updated.enabledLocalesJson),
     };
   }
 
