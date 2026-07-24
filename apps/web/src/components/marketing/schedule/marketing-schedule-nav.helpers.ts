@@ -1,6 +1,4 @@
-import {
-  SCHEDULE_DATE_STRIP_VISIBLE_DAYS,
-} from "@/components/marketing/schedule/schedule-date-controls";
+import { SCHEDULE_DATE_STRIP_VISIBLE_DAYS } from "@/components/marketing/schedule/schedule-date-controls";
 import {
   addDays,
   compareCalendarDays,
@@ -9,6 +7,9 @@ import {
   startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
 import { calendarDateToMarketingLocalDay } from "@/components/marketing/schedule/marketing-schedule-item.helpers";
+import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
+import { resolveStudioCalendarDateFromSessionDate } from "@/lib/studio-timezone";
 
 /** Deep-link selected day on the public schedule page (`/schedule?date=YYYY-MM-DD`). */
 export const PUBLIC_SCHEDULE_DATE_QUERY_KEY = "date";
@@ -21,6 +22,57 @@ export type MarketingScheduleNavState = {
 export function buildMarketingScheduleInitialNav(baseline: Date): MarketingScheduleNavState {
   const windowStart = startOfWeekSunday(baseline);
   return { windowStart, selectedDate: baseline };
+}
+
+/**
+ * Picks the nearest upcoming session calendar day (studio date) at/after `baseline`.
+ * Falls back to `baseline` when no upcoming sessions exist.
+ */
+export function resolveNearestUpcomingScheduleDate(
+  items: readonly MarketingScheduleItem[],
+  baseline: Date,
+  now: Date = new Date(),
+): Date {
+  const baselineDay = startOfLocalDay(baseline);
+  let nearest: Date | null = null;
+
+  for (const item of items) {
+    if (!item.isActive || item.sessionDate === null) {
+      continue;
+    }
+    if (!isUpcomingPublicScheduleSession(item, now)) {
+      continue;
+    }
+
+    const sessionDayIso = resolveStudioCalendarDateFromSessionDate(item.sessionDate);
+    if (sessionDayIso === null) {
+      continue;
+    }
+
+    const sessionDay = calendarDateToMarketingLocalDay(sessionDayIso);
+    if (isBeforeCalendarDay(sessionDay, baselineDay)) {
+      continue;
+    }
+
+    if (nearest === null || compareCalendarDays(sessionDay, nearest) < 0) {
+      nearest = sessionDay;
+    }
+  }
+
+  return nearest ?? baselineDay;
+}
+
+/** Initial nav: today, or the nearest day that still has upcoming classes. */
+export function buildMarketingScheduleInitialNavFromItems(
+  baseline: Date,
+  items: readonly MarketingScheduleItem[],
+  now: Date = new Date(),
+): MarketingScheduleNavState {
+  const selectedDate = resolveNearestUpcomingScheduleDate(items, baseline, now);
+  return {
+    windowStart: startOfWeekSunday(selectedDate),
+    selectedDate,
+  };
 }
 
 /** Builds nav so `dateIso` (YYYY-MM-DD) is selected and visible in the week strip. */
