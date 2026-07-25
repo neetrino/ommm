@@ -73,7 +73,7 @@ export class PackageUsageService {
     tx: Prisma.TransactionClient;
     bookingId: string;
     membership: UserPackageWithPlanAndBalances;
-    sessionCategoryName: string;
+    sessionClassType: { id: string; name: string };
     requiredSessions: number;
   }): Promise<void> {
     return this.ledger.consumeSession(params);

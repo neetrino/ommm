@@ -75,6 +75,7 @@ function createMembership(params?: {
     balances: [
       {
         id: 'balance-1',
+        classTypeId: null,
         sourceCategoryNameSnapshot: categoryName,
         sessionsTotal: isUnlimited ? null : 8,
         sessionsUsed: isUnlimited ? 0 : 3,
@@ -96,6 +97,7 @@ describe('PackageUsageService', () => {
       userId: 'user-1',
       session: {
         id: 'session-1',
+        startsAt: new Date(),
         classType: { id: 'type-1', name: 'Reformer' },
       },
     });
@@ -124,6 +126,7 @@ describe('PackageUsageService', () => {
         userPackageId: 'user-package-1',
         session: {
           id: 'session-1',
+          startsAt: new Date(),
           classType: { id: 'type-1', name: 'Reformer' },
         },
       }),
@@ -146,7 +149,7 @@ describe('PackageUsageService', () => {
       tx: tx as never,
       bookingId: 'booking-1',
       membership: createMembership() as never,
-      sessionCategoryName: 'Reformer',
+      sessionClassType: { id: 'type-1', name: 'Reformer' },
       requiredSessions: 1,
     });
 

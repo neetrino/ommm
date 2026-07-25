@@ -27,12 +27,26 @@ export type EligibleBookingPackage = {
   includedCategories: string[];
 };
 
+export type SessionClassTypeShape = {
+  id: string;
+  name: string;
+};
+
 export type SessionShape = {
   id: string;
-  classType: {
-    id: string;
-    name: string;
-  };
+  /** Session start — package period is validated against this, not wall-clock now. */
+  startsAt: Date;
+  classType: SessionClassTypeShape;
+};
+
+export type UserPackageBalanceShape = {
+  id: string;
+  classTypeId: string | null;
+  sourceCategoryNameSnapshot: string;
+  sessionsTotal: number | null;
+  sessionsUsed: number;
+  sessionsRemaining: number | null;
+  isUnlimited: boolean;
 };
 
 export type UserPackageWithPlanAndBalances = UserPackage &
@@ -43,15 +57,19 @@ export type UserPackageWithPlanAndBalances = UserPackage &
       categoryName: string;
       isUnlimited: boolean;
     } | null;
-    balances: Array<{
-      id: string;
-      sourceCategoryNameSnapshot: string;
-      sessionsTotal: number | null;
-      sessionsUsed: number;
-      sessionsRemaining: number | null;
-      isUnlimited: boolean;
-    }>;
+    balances: UserPackageBalanceShape[];
   };
+
+/** Whether a membership covers a session that starts at the given instant. */
+export function isUserPackageActiveAt(
+  membership: Pick<UserPackage, 'currentPeriodStart' | 'currentPeriodEnd'>,
+  at: Date,
+): boolean {
+  return (
+    membership.currentPeriodStart.getTime() <= at.getTime() &&
+    membership.currentPeriodEnd.getTime() > at.getTime()
+  );
+}
 
 export function computeUsageStats(membership: {
   sessionsTotal: number | null;
@@ -87,7 +105,7 @@ export function resolveInitialSessions(plan: {
 
 export function toEligibleBookingPackage(
   membership: UserPackageWithPlanAndBalances,
-  classTypeName: string,
+  classType: SessionClassTypeShape,
 ): EligibleBookingPackage {
   const usage = computeUsageStats(membership);
   const includedCategories = Array.from(
@@ -105,22 +123,44 @@ export function toEligibleBookingPackage(
     totalSessions: usage.totalSessions,
     usedSessions: usage.usedSessions,
     isUnlimited: usage.isUnlimited,
-    canBook: hasAnyBookableCredit(membership, classTypeName),
+    canBook: hasAnyBookableCredit(membership, classType),
     currentPeriodStart: membership.currentPeriodStart.toISOString(),
     currentPeriodEnd: membership.currentPeriodEnd.toISOString(),
     includedCategories,
   };
 }
 
-export function membershipCoversSessionType(
-  membership: UserPackageWithPlanAndBalances,
-  classTypeName: string,
+function balanceMatchesClassType(
+  balance: UserPackageBalanceShape,
+  classType: SessionClassTypeShape,
 ): boolean {
-  const normalized = classTypeName.trim().toLowerCase();
+  if (balance.classTypeId !== null && balance.classTypeId.length > 0) {
+    return balance.classTypeId === classType.id;
+  }
+  const normalized = classType.name.trim().toLowerCase();
   if (normalized.length === 0) {
     return false;
   }
+  return balance.sourceCategoryNameSnapshot.trim().toLowerCase() === normalized;
+}
+
+export function membershipCoversSessionType(
+  membership: UserPackageWithPlanAndBalances,
+  classType: SessionClassTypeShape,
+): boolean {
+  if (membership.balances.length === 0) {
+    return false;
+  }
+  if (membership.balances.some((balance) => balance.classTypeId !== null)) {
+    return membership.balances.some((balance) =>
+      balanceMatchesClassType(balance, classType),
+    );
+  }
   if (membership.balances.length > 1) {
+    const normalized = classType.name.trim().toLowerCase();
+    if (normalized.length === 0) {
+      return false;
+    }
     return membership.balances.some(
       (balance) =>
         balance.sourceCategoryNameSnapshot.trim().toLowerCase() === normalized,
@@ -131,14 +171,16 @@ export function membershipCoversSessionType(
     planCategoryNameSnapshot: membership.planCategoryNameSnapshot,
     balances: membership.balances,
   });
-  return categoryName.trim().toLowerCase() === normalized;
+  return (
+    categoryName.trim().toLowerCase() === classType.name.trim().toLowerCase()
+  );
 }
 
 export function hasAnyBookableCredit(
   membership: UserPackageWithPlanAndBalances,
-  classTypeName: string,
+  classType: SessionClassTypeShape,
 ): boolean {
-  const balance = pickBalanceForCategory(membership, classTypeName);
+  const balance = pickBalanceForCategory(membership, classType);
   if (balance === null) {
     return false;
   }
@@ -150,15 +192,28 @@ export function hasAnyBookableCredit(
 
 export function pickBalanceForCategory(
   membership: UserPackageWithPlanAndBalances,
-  classTypeName: string,
-) {
-  const normalized = classTypeName.trim().toLowerCase();
-  const exact = membership.balances.find(
+  classType: SessionClassTypeShape,
+): UserPackageBalanceShape | null {
+  const byId = membership.balances.find(
+    (balance) =>
+      balance.classTypeId !== null && balance.classTypeId === classType.id,
+  );
+  if (byId !== undefined) {
+    return byId;
+  }
+  const hasTypedBalances = membership.balances.some(
+    (balance) => balance.classTypeId !== null && balance.classTypeId.length > 0,
+  );
+  if (hasTypedBalances) {
+    return null;
+  }
+  const normalized = classType.name.trim().toLowerCase();
+  const byName = membership.balances.find(
     (balance) =>
       balance.sourceCategoryNameSnapshot.trim().toLowerCase() === normalized,
   );
-  if (exact !== undefined) {
-    return exact;
+  if (byName !== undefined) {
+    return byName;
   }
   if (membership.balances.length > 1) {
     return null;

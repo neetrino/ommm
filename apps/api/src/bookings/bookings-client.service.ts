@@ -59,6 +59,7 @@ export class BookingsClientService {
       userId,
       session: {
         id: session.id,
+        startsAt: session.startsAt,
         classType: {
           id: session.classType.id,
           name: session.classType.name,
@@ -125,6 +126,7 @@ export class BookingsClientService {
               userId,
               session: {
                 id: session.id,
+                startsAt: session.startsAt,
                 classType: {
                   id: session.classType.id,
                   name: session.classType.name,
@@ -160,7 +162,10 @@ export class BookingsClientService {
             tx,
             bookingId: savedBooking.id,
             membership: packageMembership,
-            sessionCategoryName: session.classType.name,
+            sessionClassType: {
+              id: session.classType.id,
+              name: session.classType.name,
+            },
             requiredSessions,
           });
         }

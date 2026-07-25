@@ -51,6 +51,7 @@ function createMembership(remaining = 5) {
     balances: [
       {
         id: 'balance-1',
+        classTypeId: null,
         sourceCategoryNameSnapshot: 'Mat Pilates',
         sessionsTotal: 10,
         sessionsUsed: 10 - remaining,
@@ -222,7 +223,7 @@ describe('bookings package usage flow', () => {
       tx: tx as never,
       bookingId: 'booking-1',
       membership: createMembership(5) as never,
-      sessionCategoryName: 'Mat Pilates',
+      sessionClassType: { id: 'type-mat', name: 'Mat Pilates' },
       requiredSessions: 1,
     });
 
