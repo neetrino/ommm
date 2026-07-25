@@ -38,8 +38,9 @@ model ClassType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sessions     ClassSession[]
-  packagePlans PackagePlan[]
+  sessions             ClassSession[]
+  packagePlans         PackagePlan[]
+  userPackageBalances  UserPackageBalance[]
 }
 
 model ClassSession {

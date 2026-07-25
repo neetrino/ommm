@@ -72,6 +72,9 @@ model UserPackageBalance {
   userPackage                UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
   sourcePlanId               String?
   sourcePlan                 PackagePlan? @relation("BalanceSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
+  /** Stable class-type identity for booking eligibility (preferred over name snapshot). */
+  classTypeId                String?
+  classType                  ClassType?  @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
   coverageKey                String
   sourcePackageNameSnapshot  String
   sourceCategoryNameSnapshot String
@@ -87,4 +90,5 @@ model UserPackageBalance {
   @@unique([userPackageId, coverageKey])
   @@index([userPackageId, sessionsRemaining])
   @@index([sourcePlanId])
+  @@index([classTypeId])
 }

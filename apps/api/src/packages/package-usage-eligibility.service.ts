@@ -9,6 +9,23 @@ import {
   type UserPackageWithPlanAndBalances,
 } from './package-usage.helpers';
 
+const USER_PACKAGE_BALANCE_SELECT = {
+  id: true,
+  classTypeId: true,
+  sourceCategoryNameSnapshot: true,
+  sessionsTotal: true,
+  sessionsUsed: true,
+  sessionsRemaining: true,
+  isUnlimited: true,
+} as const;
+
+const USER_PACKAGE_PLAN_SELECT = {
+  id: true,
+  name: true,
+  categoryName: true,
+  isUnlimited: true,
+} as const;
+
 @Injectable()
 export class PackageUsageEligibilityService {
   constructor(private readonly prisma: PrismaService) {}
@@ -23,7 +40,7 @@ export class PackageUsageEligibilityService {
       includeDepleted: true,
     });
     return memberships.map((membership) =>
-      toEligibleBookingPackage(membership, params.session.classType.name),
+      toEligibleBookingPackage(membership, params.session.classType),
     );
   }
 
@@ -32,50 +49,19 @@ export class PackageUsageEligibilityService {
     session: SessionShape;
     includeDepleted?: boolean;
   }): Promise<UserPackageWithPlanAndBalances[]> {
-    const now = new Date();
-    const memberships = await (
-      this.prisma as unknown as {
-        userPackage: {
-          findMany(args: unknown): Promise<UserPackageWithPlanAndBalances[]>;
-        };
-      }
-    ).userPackage.findMany({
-      where: {
-        userId: params.userId,
-        status: 'ACTIVE',
-        currentPeriodStart: { lte: now },
-        currentPeriodEnd: { gt: now },
-      },
-      include: {
-        plan: {
-          select: {
-            id: true,
-            name: true,
-            categoryName: true,
-            isUnlimited: true,
-          },
-        },
-        balances: {
-          select: {
-            id: true,
-            sourceCategoryNameSnapshot: true,
-            sessionsTotal: true,
-            sessionsUsed: true,
-            sessionsRemaining: true,
-            isUnlimited: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
+    const memberships = await this.findActiveMembershipsForSession(
+      this.prisma,
+      params.userId,
+      params.session.startsAt,
+    );
     const matching = memberships.filter((membership) =>
-      membershipCoversSessionType(membership, params.session.classType.name),
+      membershipCoversSessionType(membership, params.session.classType),
     );
     if (params.includeDepleted === true) {
       return matching;
     }
     return matching.filter((membership) =>
-      hasAnyBookableCredit(membership, params.session.classType.name),
+      hasAnyBookableCredit(membership, params.session.classType),
     );
   }
 
@@ -92,7 +78,7 @@ export class PackageUsageEligibilityService {
       return;
     }
     const hasBookable = covering.some((membership) =>
-      hasAnyBookableCredit(membership, params.session.classType.name),
+      hasAnyBookableCredit(membership, params.session.classType),
     );
     if (!hasBookable) {
       throw new BadRequestException(
@@ -107,46 +93,16 @@ export class PackageUsageEligibilityService {
     session: SessionShape;
     userPackageId?: string;
   }): Promise<UserPackageWithPlanAndBalances> {
-    const memberships = await (
-      params.tx as unknown as {
-        userPackage: {
-          findMany(args: unknown): Promise<UserPackageWithPlanAndBalances[]>;
-        };
-      }
-    ).userPackage.findMany({
-      where: {
-        userId: params.userId,
-        status: 'ACTIVE',
-        currentPeriodStart: { lte: new Date() },
-        currentPeriodEnd: { gt: new Date() },
-      },
-      include: {
-        plan: {
-          select: {
-            id: true,
-            name: true,
-            categoryName: true,
-            isUnlimited: true,
-          },
-        },
-        balances: {
-          select: {
-            id: true,
-            sourceCategoryNameSnapshot: true,
-            sessionsTotal: true,
-            sessionsUsed: true,
-            sessionsRemaining: true,
-            isUnlimited: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
+    const memberships = await this.findActiveMembershipsForSession(
+      params.tx,
+      params.userId,
+      params.session.startsAt,
+    );
     const covering = memberships.filter((membership) =>
-      membershipCoversSessionType(membership, params.session.classType.name),
+      membershipCoversSessionType(membership, params.session.classType),
     );
     const bookable = covering.filter((membership) =>
-      hasAnyBookableCredit(membership, params.session.classType.name),
+      hasAnyBookableCredit(membership, params.session.classType),
     );
 
     if (params.userPackageId !== undefined) {
@@ -172,5 +128,31 @@ export class PackageUsageEligibilityService {
       );
     }
     return bookable[0];
+  }
+
+  private findActiveMembershipsForSession(
+    client: PrismaService | Prisma.TransactionClient,
+    userId: string,
+    sessionStartsAt: Date,
+  ): Promise<UserPackageWithPlanAndBalances[]> {
+    return (
+      client as unknown as {
+        userPackage: {
+          findMany(args: unknown): Promise<UserPackageWithPlanAndBalances[]>;
+        };
+      }
+    ).userPackage.findMany({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        currentPeriodStart: { lte: sessionStartsAt },
+        currentPeriodEnd: { gt: sessionStartsAt },
+      },
+      include: {
+        plan: { select: USER_PACKAGE_PLAN_SELECT },
+        balances: { select: USER_PACKAGE_BALANCE_SELECT },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
   }
 }

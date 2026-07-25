@@ -101,6 +101,20 @@ export class ClassesTypesService {
         `Cannot delete class type with ${sessionCount} linked class sessions.`,
       );
     }
+    const balanceCount = await (
+      this.prisma as unknown as {
+        userPackageBalance: {
+          count(args: { where: { classTypeId: string } }): Promise<number>;
+        };
+      }
+    ).userPackageBalance.count({
+      where: { classTypeId: id },
+    });
+    if (balanceCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete class type with ${balanceCount} linked package balances. Remap balances first.`,
+      );
+    }
     await this.prisma.classType.delete({ where: { id } });
   }
 

@@ -33,6 +33,7 @@ export async function createBalancesForUserPackage(
         data: {
           userPackageId: params.userPackageId,
           sourcePlanId: params.plan.id,
+          classTypeId: allocation.classTypeId,
           coverageKey: `${params.userPackageId}:${params.plan.id}:${allocation.classTypeId}`,
           sourcePackageNameSnapshot: params.plan.name,
           sourceCategoryNameSnapshot: classTypeName,
@@ -54,6 +55,7 @@ export async function createBalancesForUserPackage(
     data: {
       userPackageId: params.userPackageId,
       sourcePlanId: params.plan.id,
+      classTypeId: params.plan.classTypeId ?? null,
       coverageKey: `${params.userPackageId}:${params.plan.id}`,
       sourcePackageNameSnapshot: params.plan.name,
       sourceCategoryNameSnapshot: params.plan.categoryName,

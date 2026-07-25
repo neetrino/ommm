@@ -13,7 +13,7 @@ export class PackageUsageLedgerService {
     tx: Prisma.TransactionClient;
     bookingId: string;
     membership: UserPackageWithPlanAndBalances;
-    sessionCategoryName: string;
+    sessionClassType: { id: string; name: string };
     requiredSessions: number;
   }): Promise<void> {
     if (params.requiredSessions <= 0) {
@@ -24,7 +24,7 @@ export class PackageUsageLedgerService {
     );
     const balance = pickBalanceForCategory(
       params.membership,
-      params.sessionCategoryName,
+      params.sessionClassType,
     );
     if (balance === null) {
       throw new BadRequestException(
