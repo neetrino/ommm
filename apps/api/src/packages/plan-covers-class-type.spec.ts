@@ -22,9 +22,7 @@ describe('planCoversClassType', () => {
     expect(
       planCoversClassType(
         {
-          typeSessionAllocations: [
-            { classTypeId: matId, sessionCount: 8 },
-          ],
+          typeSessionAllocations: [{ classTypeId: matId, sessionCount: 8 }],
         },
         reformerGroupId,
       ),
@@ -36,9 +34,7 @@ describe('planCoversClassType', () => {
       planCoversClassType(
         {
           classTypeId: reformerGroupId,
-          typeSessionAllocations: [
-            { classTypeId: matId, sessionCount: 8 },
-          ],
+          typeSessionAllocations: [{ classTypeId: matId, sessionCount: 8 }],
         },
         reformerGroupId,
       ),

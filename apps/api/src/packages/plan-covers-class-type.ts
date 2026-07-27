@@ -23,9 +23,7 @@ export function planCoversClassType(
     plan.typeSessionAllocations,
   );
   if (allocations.length > 0) {
-    return allocations.some(
-      (allocation) => allocation.classTypeId === target,
-    );
+    return allocations.some((allocation) => allocation.classTypeId === target);
   }
 
   const legacyId = plan.classTypeId?.trim() ?? '';
