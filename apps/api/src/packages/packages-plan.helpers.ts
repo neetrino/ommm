@@ -37,6 +37,7 @@ export function toPublicPlan(
     guestCount: plan.guestCount,
     availableQuantity: plan.availableQuantity,
     displayOrder: plan.displayOrder,
+    classTypeId: plan.classTypeId ?? null,
     typeSessionAllocations: enrichStoredTypeSessionAllocations(
       plan.typeSessionAllocations,
       classTypeNameById,

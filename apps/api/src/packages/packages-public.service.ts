@@ -25,6 +25,7 @@ import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
 import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
+import { planCoversClassType } from './plan-covers-class-type';
 import {
   createPaymentReference,
   resolveClassTypeNameMapForAllocations,
@@ -65,6 +66,15 @@ export class PackagesPublicService {
       PUBLIC_CACHE_TTL_SEC.packages,
       () => this.loadPublicPlansFromDb(),
     );
+  }
+
+  /**
+   * Active purchase plans that cover the given class type
+   * (dedicated or multi-type packages that include it).
+   */
+  async listPlansCoveringClassType(classTypeId: string) {
+    const plans = await this.listPlans();
+    return plans.filter((plan) => planCoversClassType(plan, classTypeId));
   }
 
   async invalidatePublicPlansCache(): Promise<void> {

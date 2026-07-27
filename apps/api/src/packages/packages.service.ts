@@ -25,6 +25,10 @@ export class PackagesService {
     return this.publicService.listPlans();
   }
 
+  listPlansCoveringClassType(classTypeId: string) {
+    return this.publicService.listPlansCoveringClassType(classTypeId);
+  }
+
   listPlansAdmin() {
     return this.adminService.listPlansAdmin();
   }

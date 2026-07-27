@@ -71,6 +71,12 @@ export class BookingsClientService {
   async listPurchasePlansForSession(sessionId: string) {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
+      select: {
+        id: true,
+        status: true,
+        startsAt: true,
+        classTypeId: true,
+      },
     });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
       throw new NotFoundException('Session not found');
@@ -78,7 +84,7 @@ export class BookingsClientService {
     if (session.startsAt < new Date()) {
       throw new BadRequestException('Session already started');
     }
-    return this.packages.listPlans();
+    return this.packages.listPlansCoveringClassType(session.classTypeId);
   }
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {

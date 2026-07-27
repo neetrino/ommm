@@ -34,12 +34,10 @@ type UseSessionBookingUrlRestoreParams = {
   setPurchaseModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   fetchEligiblePackages: () => Promise<EligibleBookingPackage[]>;
   fetchPurchasePlans: () => Promise<PackageSubscribePlanOption[]>;
-  fetchFirstName: () => Promise<string>;
   openPurchaseModal: (packages: readonly EligibleBookingPackage[]) => Promise<void>;
   applyPurchaseData: (
     packages: readonly EligibleBookingPackage[],
     plans: readonly PackageSubscribePlanOption[],
-    rawFirstName: string,
   ) => void;
   replaceSearchParams: (mutate: (params: URLSearchParams) => void) => void;
 };
@@ -59,7 +57,6 @@ export function useSessionBookingUrlRestore({
   setPurchaseModalOpen,
   fetchEligiblePackages,
   fetchPurchasePlans,
-  fetchFirstName,
   openPurchaseModal,
   applyPurchaseData,
   replaceSearchParams,
@@ -134,10 +131,9 @@ export function useSessionBookingUrlRestore({
 
     async function restorePurchaseModal(): Promise<void> {
       try {
-        const [packages, plans, rawFirstName] = await Promise.all([
+        const [packages, plans] = await Promise.all([
           fetchEligiblePackages(),
           fetchPurchasePlans(),
-          fetchFirstName(),
         ]);
         if (cancelled) {
           return;
@@ -149,7 +145,7 @@ export function useSessionBookingUrlRestore({
           replaceSearchParams(clearBuyPackageSessionQuery);
           return;
         }
-        applyPurchaseData(packages, plans, rawFirstName);
+        applyPurchaseData(packages, plans);
       } catch (error) {
         if (cancelled || hasCachedData) {
           return;
@@ -171,7 +167,6 @@ export function useSessionBookingUrlRestore({
     applyPurchaseData,
     callbacksRef,
     fetchEligiblePackages,
-    fetchFirstName,
     fetchPurchasePlans,
     initialCachedPurchaseRef,
     replaceSearchParams,

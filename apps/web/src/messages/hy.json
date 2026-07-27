@@ -4183,9 +4183,6 @@
       "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Ներառում է՝ {categories}",
       "packageSelectedBadge": "Ընտրված",
-      "purchaseNoticeMissing": "Հարգելի {firstName}, դուք դեռ չունեք ակտիվ փաթեթ այս դասի համար։ Խնդրում ենք ընտրել ստորև ներկայացված փաթեթներից մեկը և կատարել վճարումը՝ ձեր տեղն ամրագրելու համար։ Մեծ ուրախությամբ կընդունենք ձեզ այս խումբ և անհամբեր սպասում ենք ձեզ դասին։",
-      "purchaseNoticeDepleted": "Հարգելի {firstName}, այս դասի համար ձեր փաթեթում այցեր չեն մնացել։ Խնդրում ենք ընտրել ստորև ներկայացված փաթեթներից մեկը և կատարել վճարումը՝ ձեր տեղը պահպանելու համար։ Մեծ ուրախությամբ կրկին կտեսնենք ձեզ դասին։",
-      "purchaseNoticeFallbackName": "բարեկամ",
       "packageNoPurchasePlans": "Այս դասի համար հասանելի փաթեթներ չկան։"
     },
     "joinWaitlist": {
@@ -4204,7 +4201,6 @@
     },
     "manualPackagePayment": {
       "title": "Հաստատել բաժանորդագրությունը",
-      "lead": "Ընտրեք վճարման եղանակը։ Այս էկրանին քարտի տվյալներ չեն հավաքվում։",
       "selectPlanLegend": "Session Name",
       "selectedPlanBadge": "Selected",
       "closeModal": "Փակել",
