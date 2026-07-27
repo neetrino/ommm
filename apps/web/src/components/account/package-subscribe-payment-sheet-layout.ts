@@ -23,9 +23,10 @@ export const PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS =
   "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]";
 
 export const PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS =
-  "min-h-0 flex flex-1 flex-col overflow-hidden px-5 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]";
+  "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]";
 
-export const PACKAGE_SUBSCRIBE_FORM_CLASS = "flex min-h-0 flex-1 flex-col gap-4";
+/** Fills sheet when short; grows with content so the sheet body can scroll. */
+export const PACKAGE_SUBSCRIBE_FORM_CLASS = "flex min-h-full flex-col gap-4";
 
 export const PACKAGE_SUBSCRIBE_FORM_GRID_CLASS =
   "grid min-h-0 flex-1 grid-cols-1 gap-4 tablet:grid-cols-2";

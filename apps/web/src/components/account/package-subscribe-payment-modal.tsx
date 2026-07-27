@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import {
-  MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS,
   MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
   memberAccountHubSheetPanelStyle,
 } from "@/components/account/member-account-hub-sheet-layout";
@@ -20,6 +19,7 @@ import {
   PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
+  PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
@@ -337,7 +337,7 @@ function PackageSubscribeMobileSheetLayout({
     <>
       <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
       {renderHeader(requestClose)}
-      <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{renderBody(requestClose)}</div>
+      <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{renderBody(requestClose)}</div>
     </>
   );
 }
