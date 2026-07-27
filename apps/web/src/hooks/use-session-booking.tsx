@@ -16,7 +16,6 @@ import {
   useSessionBookingInitiate,
 } from "@/hooks/use-session-booking-initiate";
 import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
-import type { MeApiResponse } from "@/lib/me-api-types";
 import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
 import {
   clearSessionBookingCachedPurchase,
@@ -33,6 +32,7 @@ import {
 import type {
   UseSessionBookingOptions,
 } from "@/hooks/use-session-booking.types";
+import { pickSuggestedPurchasePlanId } from "@/lib/pick-suggested-purchase-plan-id";
 
 export type { UseSessionBookingOptions } from "@/hooks/use-session-booking.types";
 
@@ -59,9 +59,6 @@ export function useSessionBooking({
   const [packageModalOpen, setPackageModalOpen] = useState(false);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(
     initialCachedPurchase !== null,
-  );
-  const [purchaseNotice, setPurchaseNotice] = useState<string>(
-    initialCachedPurchase?.notice ?? "",
   );
   const [purchasePlans, setPurchasePlans] = useState<
     readonly PackageSubscribePlanOption[]
@@ -143,50 +140,31 @@ export function useSessionBooking({
     [sessionId],
   );
 
-  const fetchFirstName = useCallback(async (): Promise<string> => {
-    try {
-      const me = await apiFetch<MeApiResponse>("/users/me");
-      return me.user?.name?.trim() ?? "";
-    } catch {
-      return "";
-    }
-  }, []);
-
   const applyPurchaseData = useCallback(
     (
       packages: readonly EligibleBookingPackage[],
       plans: readonly PackageSubscribePlanOption[],
-      rawFirstName: string,
     ): void => {
-      const firstName = rawFirstName || t("purchaseNoticeFallbackName");
-      const suggested =
-        packages.find((pkg) => !pkg.canBook)?.planId ?? plans[0]?.id;
-      const notice =
-        packages.length === 0
-          ? t("purchaseNoticeMissing", { firstName })
-          : t("purchaseNoticeDepleted", { firstName });
-      setPurchaseNotice(notice);
+      const suggested = pickSuggestedPurchasePlanId(packages, plans);
       setPurchasePlans(plans);
       setSuggestedPlanId(suggested);
       writeSessionBookingCachedPurchase(sessionId, {
         plans: [...plans],
-        notice,
         suggestedPlanId: suggested,
       });
     },
-    [sessionId, t],
+    [sessionId],
   );
 
   const showPurchaseModal = useCallback((
     packages: readonly EligibleBookingPackage[],
     plans: readonly PackageSubscribePlanOption[],
-    rawFirstName: string,
   ): boolean => {
     if (plans.length === 0) {
       callbacksRef.current.onError?.(t("packageNoPurchasePlans"));
       return false;
     }
-    applyPurchaseData(packages, plans, rawFirstName);
+    applyPurchaseData(packages, plans);
     setPurchaseModalOpen(true);
     skipNextBuyUrlRestoreRef.current = true;
     replaceSearchParams((params) => {
@@ -199,18 +177,15 @@ export function useSessionBooking({
   const openPurchaseModal = useCallback(async (
     packages: readonly EligibleBookingPackage[],
   ): Promise<void> => {
-    const [plans, rawFirstName] = await Promise.all([
-      fetchPurchasePlans(),
-      fetchFirstName(),
-    ]);
+    const plans = await fetchPurchasePlans();
     if (plans.length === 0) {
       callbacksRef.current.onError?.(t("packageNoPurchasePlans"));
       replaceSearchParams(clearBuyPackageSessionQuery);
       return;
     }
-    applyPurchaseData(packages, plans, rawFirstName);
+    applyPurchaseData(packages, plans);
     setPurchaseModalOpen(true);
-  }, [applyPurchaseData, fetchFirstName, fetchPurchasePlans, replaceSearchParams, t]);
+  }, [applyPurchaseData, fetchPurchasePlans, replaceSearchParams, t]);
 
   const bookWithOptionalPackage = useCallback(async (userPackageId?: string): Promise<void> => {
     const booking = await postSessionBooking(sessionId, userPackageId);
@@ -223,7 +198,6 @@ export function useSessionBooking({
     setBusy,
     fetchEligiblePackages,
     fetchPurchasePlans,
-    fetchFirstName,
     openPackageModal,
     showPurchaseModal,
     bookWithOptionalPackage,
@@ -245,7 +219,6 @@ export function useSessionBooking({
     setPurchaseModalOpen,
     fetchEligiblePackages,
     fetchPurchasePlans,
-    fetchFirstName,
     openPurchaseModal,
     applyPurchaseData,
     replaceSearchParams,
@@ -260,7 +233,6 @@ export function useSessionBooking({
       eligiblePackages={eligiblePackages}
       purchasePlans={purchasePlans}
       suggestedPlanId={suggestedPlanId}
-      purchaseNotice={purchaseNotice}
       onClosePackageModal={closePackageModal}
       onClosePurchaseModal={closePurchaseModal}
       onBooked={(bookingId) => {

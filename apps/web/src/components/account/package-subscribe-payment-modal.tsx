@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import {
-  MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS,
   MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
   memberAccountHubSheetPanelStyle,
 } from "@/components/account/member-account-hub-sheet-layout";
@@ -20,6 +19,7 @@ import {
   PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
+  PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
@@ -44,8 +44,6 @@ type PackageSubscribePaymentModalProps = {
   locale: string;
   plans: readonly PackageSubscribePlanOption[];
   initialPlanId?: string;
-  /** Optional highlighted note shown above the form (e.g. booking purchase prompt). */
-  notice?: string;
   onClose: () => void;
 };
 
@@ -83,28 +81,11 @@ function SheetCloseIcon() {
   );
 }
 
-function PurchaseNoticeIcon() {
-  return (
-    <svg
-      className="mt-0.5 h-4 w-4 shrink-0 text-sand-700"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8h.01M11 12h1v4h1" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 export function PackageSubscribePaymentModal({
   isOpen,
   locale,
   plans,
   initialPlanId,
-  notice,
   onClose,
 }: PackageSubscribePaymentModalProps) {
   if (!isOpen || plans.length === 0) {
@@ -120,7 +101,6 @@ export function PackageSubscribePaymentModal({
       locale={locale}
       plans={plans}
       initialPlanId={initialPlanId}
-      notice={notice}
       onClose={onClose}
     />
   );
@@ -131,7 +111,6 @@ function PackageSubscribePaymentModalSession({
   locale,
   plans,
   initialPlanId,
-  notice,
   onClose,
 }: PackageSubscribePaymentModalProps) {
   const t = useTranslations("forms.manualPackagePayment");
@@ -220,15 +199,6 @@ function PackageSubscribePaymentModalSession({
       <SuccessPanel onDone={onClose} />
     ) : (
       <form onSubmit={(event) => void onConfirm(event)} className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
-        {notice !== undefined && notice.length > 0 ? (
-          <div className="shrink-0 rounded-2xl border border-sand-200/70 bg-sand-50/80 px-4 py-3">
-            <p className="flex items-start gap-2 text-sm text-sand-900">
-              <PurchaseNoticeIcon />
-              <span>{notice}</span>
-            </p>
-          </div>
-        ) : null}
-        <p className="shrink-0 text-sm text-sage-600">{t("lead")}</p>
         <PackageSubscribePlanPicker
           plans={plans}
           selectedPlanId={selectedPlan.id}
@@ -337,7 +307,7 @@ function PackageSubscribeMobileSheetLayout({
     <>
       <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
       {renderHeader(requestClose)}
-      <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{renderBody(requestClose)}</div>
+      <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{renderBody(requestClose)}</div>
     </>
   );
 }

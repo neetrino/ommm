@@ -4171,9 +4171,6 @@
       "packageDuplicatePlanName": "{planName} ({index})",
       "packageIncludedCategories": "Включает: {categories}",
       "packageSelectedBadge": "Выбран",
-      "purchaseNoticeMissing": "Уважаемый(ая) {firstName}, у вас пока нет активного пакета для этого занятия. Пожалуйста, выберите один из пакетов ниже и завершите оплату, чтобы забронировать место. Мы будем рады видеть вас в этой группе и с нетерпением ждём встречи на занятии!",
-      "purchaseNoticeDepleted": "Уважаемый(ая) {firstName}, в вашем пакете не осталось посещений для этого занятия. Пожалуйста, выберите один из пакетов ниже и завершите оплату, чтобы сохранить место. Будем рады снова видеть вас на занятии!",
-      "purchaseNoticeFallbackName": "друг",
       "packageNoPurchasePlans": "Для этого занятия сейчас нет доступных пакетов."
     },
     "joinWaitlist": {
@@ -4192,7 +4189,6 @@
     },
     "manualPackagePayment": {
       "title": "Подтвердить подписку",
-      "lead": "Выберите способ оплаты. Данные карты на этом экране не запрашиваются.",
       "selectPlanLegend": "Session Name",
       "selectedPlanBadge": "Selected",
       "closeModal": "Закрыть",

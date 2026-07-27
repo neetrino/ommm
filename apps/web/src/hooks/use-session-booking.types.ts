@@ -13,7 +13,6 @@ export type UseSessionBookingOptions = {
 
 export type SessionBookingCachedPurchase = {
   plans: PackageSubscribePlanOption[];
-  notice: string;
   suggestedPlanId?: string;
 };
 

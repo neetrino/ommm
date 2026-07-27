@@ -17,12 +17,10 @@ type UseSessionBookingInitiateArgs = {
   setBusy: (busy: boolean) => void;
   fetchEligiblePackages: () => Promise<readonly EligibleBookingPackage[]>;
   fetchPurchasePlans: () => Promise<readonly PackageSubscribePlanOption[]>;
-  fetchFirstName: () => Promise<string>;
   openPackageModal: (packages: readonly EligibleBookingPackage[]) => void;
   showPurchaseModal: (
     packages: readonly EligibleBookingPackage[],
     plans: readonly PackageSubscribePlanOption[],
-    rawFirstName: string,
   ) => void;
   bookWithOptionalPackage: (userPackageId?: string) => Promise<void>;
   onError?: (message: string) => void;
@@ -33,7 +31,6 @@ export function useSessionBookingInitiate({
   setBusy,
   fetchEligiblePackages,
   fetchPurchasePlans,
-  fetchFirstName,
   openPackageModal,
   showPurchaseModal,
   bookWithOptionalPackage,
@@ -47,10 +44,9 @@ export function useSessionBookingInitiate({
     }
     setBusy(true);
     try {
-      const [packages, plans, rawFirstName] = await Promise.all([
+      const [packages, plans] = await Promise.all([
         fetchEligiblePackages(),
         fetchPurchasePlans().catch(() => [] as PackageSubscribePlanOption[]),
-        fetchFirstName(),
       ]);
       if (shouldPromptBookingPackageSelection(packages)) {
         openPackageModal(packages);
@@ -58,7 +54,7 @@ export function useSessionBookingInitiate({
       }
       const autoPackageId = resolveAutoBookPackageId(packages);
       if (!hasBookablePackage(packages) || autoPackageId === undefined) {
-        showPurchaseModal(packages, plans, rawFirstName);
+        showPurchaseModal(packages, plans);
         return;
       }
       await bookWithOptionalPackage(autoPackageId);
@@ -72,7 +68,6 @@ export function useSessionBookingInitiate({
     bookWithOptionalPackage,
     busy,
     fetchEligiblePackages,
-    fetchFirstName,
     fetchPurchasePlans,
     onError,
     openPackageModal,

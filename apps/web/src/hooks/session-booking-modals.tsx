@@ -21,7 +21,6 @@ type SessionBookingModalsProps = {
   eligiblePackages: readonly EligibleBookingPackage[];
   purchasePlans: readonly PackageSubscribePlanOption[];
   suggestedPlanId: string | undefined;
-  purchaseNotice: string;
   onClosePackageModal: () => void;
   onClosePurchaseModal: () => void;
   onBooked: (bookingId: string) => void;
@@ -37,7 +36,6 @@ export function SessionBookingModals({
   eligiblePackages,
   purchasePlans,
   suggestedPlanId,
-  purchaseNotice,
   onClosePackageModal,
   onClosePurchaseModal,
   onBooked,
@@ -67,7 +65,6 @@ export function SessionBookingModals({
         locale={locale}
         plans={purchasePlans}
         initialPlanId={suggestedPlanId}
-        notice={purchaseNotice}
         onClose={onClosePurchaseModal}
       />
     ) : null;

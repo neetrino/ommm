@@ -56,6 +56,7 @@ export type PublicPlanSource = {
   name: string;
   categoryName: string;
   categorySlug: string;
+  classTypeId?: string | null;
   description: string | null;
   priceCents: number;
   discountedPriceCents: number | null;
