@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { parseStoredTypeSessionAllocations } from './packages-plan.helpers';
 import type { AdminPlanRecord } from './packages-plan.types';
@@ -18,10 +19,20 @@ export async function createBalancesForUserPackage(
     const classTypeNameById = new Map(
       classTypes.map((classType) => [classType.id, classType.name]),
     );
+    const missingClassTypeIds = typeAllocations
+      .map((allocation) => allocation.classTypeId)
+      .filter((classTypeId) => !classTypeNameById.has(classTypeId));
+    if (missingClassTypeIds.length > 0) {
+      throw new BadRequestException(
+        `Package plan references missing class type(s): ${missingClassTypeIds.join(', ')}. Fix plan allocations before purchase.`,
+      );
+    }
     for (const allocation of typeAllocations) {
       const classTypeName = classTypeNameById.get(allocation.classTypeId);
       if (classTypeName === undefined) {
-        continue;
+        throw new BadRequestException(
+          `Package plan references missing class type: ${allocation.classTypeId}`,
+        );
       }
       await (
         tx as unknown as {
