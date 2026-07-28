@@ -5,9 +5,9 @@ describe('createBalancesForUserPackage', () => {
   it('fails when a type allocation class type is missing', async () => {
     const tx = {
       classType: {
-        findMany: jest.fn().mockResolvedValue([
-          { id: 'ct-live', name: 'Mat Pilates Group' },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([{ id: 'ct-live', name: 'Mat Pilates Group' }]),
       },
       userPackageBalance: {
         create: jest.fn(),

@@ -103,7 +103,9 @@ export class ClassesTypesService {
    * sessions, bookings, waitlist entries, package balances, or plan allocations.
    * Rename (update name/slug) remains unrestricted and keeps the same id.
    */
-  private async assertClassTypeSafeToDelete(classTypeId: string): Promise<void> {
+  private async assertClassTypeSafeToDelete(
+    classTypeId: string,
+  ): Promise<void> {
     const sessionCount = await this.prisma.classSession.count({
       where: { classTypeId },
     });
@@ -146,9 +148,8 @@ export class ClassesTypesService {
       );
     }
 
-    const planReferenceCount = await this.countPlansReferencingClassType(
-      classTypeId,
-    );
+    const planReferenceCount =
+      await this.countPlansReferencingClassType(classTypeId);
     if (planReferenceCount > 0) {
       throw new BadRequestException(
         `Cannot delete class type referenced by ${planReferenceCount} package plan(s). Update plan allocations first.`,
@@ -176,9 +177,7 @@ export class ClassesTypesService {
         plan.typeSessionAllocations,
       );
       if (
-        allocations.some(
-          (allocation) => allocation.classTypeId === classTypeId,
-        )
+        allocations.some((allocation) => allocation.classTypeId === classTypeId)
       ) {
         count += 1;
       }

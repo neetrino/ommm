@@ -53,9 +53,7 @@ describe('ClassesTypesService.deleteType', () => {
       {
         id: 'plan-1',
         classTypeId: null,
-        typeSessionAllocations: [
-          { classTypeId: 'ct-1', sessionCount: 8 },
-        ],
+        typeSessionAllocations: [{ classTypeId: 'ct-1', sessionCount: 8 }],
       },
     ]);
     await expect(service.deleteType('ct-1')).rejects.toBeInstanceOf(
