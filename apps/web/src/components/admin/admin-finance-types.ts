@@ -1,4 +1,4 @@
-export type FinanceSectionId = "overview" | "payments" | "members" | "coaches";
+export type FinanceSectionId = "overview" | "payments" | "coaches";
 
 export type FinanceDateRangeDays = 7 | 30 | 90;
 
@@ -97,14 +97,6 @@ export type CoachSessionsPayload = {
   total: number;
   take: number;
   offset: number;
-};
-
-export type UserFinanceFilters = {
-  search: string;
-  paymentStatus: string;
-  giftCardOnly: boolean;
-  order: string;
-  quick: string;
 };
 
 export type CoachFinanceFilters = {

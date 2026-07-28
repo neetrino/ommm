@@ -4,7 +4,6 @@ import type {
   FinanceFilterValues,
   FinanceSourceFilter,
   FinanceStatusFilter,
-  UserFinanceFilters,
 } from "@/components/admin/admin-finance-types";
 import { firstFinanceUrlParam } from "@/components/admin/admin-finance-url.helpers";
 
@@ -95,28 +94,6 @@ export function parseFinancePaymentsFiltersFromSearch(
     packageClass: parseFinancePackageClassFilter(search.packageClass),
     sessions: parseFinancePackageSessionsFilter(search.sessions),
     order: order === "oldest" ? "oldest" : "newest",
-  };
-}
-
-export function parseFinanceMembersFiltersFromSearch(
-  search: Record<string, string | string[] | undefined>,
-): UserFinanceFilters & { q: string } {
-  const order = firstFinanceUrlParam(search.order) ?? "newest";
-  const validOrder =
-    order === "oldest" ||
-    order === "newest" ||
-    order === "highest-lifetime-value" ||
-    order === "lowest-lifetime-value"
-      ? order
-      : "newest";
-
-  return {
-    q: firstFinanceUrlParam(search.q)?.trim() ?? "",
-    search: firstFinanceUrlParam(search.q)?.trim() ?? "",
-    paymentStatus: firstFinanceUrlParam(search.paymentStatus) ?? "",
-    giftCardOnly: firstFinanceUrlParam(search.giftCardOnly) === "true",
-    order: validOrder,
-    quick: firstFinanceUrlParam(search.quick) ?? "",
   };
 }
 

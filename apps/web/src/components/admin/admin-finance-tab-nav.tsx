@@ -14,7 +14,6 @@ import { buildFinanceTabHref } from "@/components/admin/admin-finance-url";
 const TAB_LABEL_KEY: Record<FinanceSectionId, string> = {
   overview: "overview",
   payments: "payments",
-  members: "members",
   coaches: "coaches",
 };
 

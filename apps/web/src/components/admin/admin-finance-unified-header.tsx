@@ -7,7 +7,6 @@ import { usePathname } from "@/i18n/navigation";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
-import { AdminFinanceMembersFilters } from "@/components/admin/admin-finance-members-filters";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
 import { AdminFinancePaymentsFilters } from "@/components/admin/admin-finance-payments-filters";
 import { AdminFinanceTabNav } from "@/components/admin/admin-finance-tab-nav";
@@ -17,7 +16,6 @@ import {
 } from "@/components/admin/admin-finance-module";
 import {
   parseFinanceCoachesFiltersFromSearch,
-  parseFinanceMembersFiltersFromSearch,
   parseFinanceOverviewFiltersFromSearch,
   parseFinancePaymentsFiltersFromSearch,
 } from "@/components/admin/admin-finance-url";
@@ -44,15 +42,6 @@ function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps
       return (
         <AdminFinancePaymentsFilters
           key={`${initialValues.q}|${initialValues.rangeDays}|${initialValues.source}|${initialValues.status}|${initialValues.planId}|${initialValues.packageClass}|${initialValues.sessions}`}
-          initialValues={initialValues}
-        />
-      );
-    }
-    case "members": {
-      const initialValues = parseFinanceMembersFiltersFromSearch(search);
-      return (
-        <AdminFinanceMembersFilters
-          key={`${initialValues.q}|${initialValues.paymentStatus}|${initialValues.order}|${initialValues.giftCardOnly}|${initialValues.quick}`}
           initialValues={initialValues}
         />
       );
