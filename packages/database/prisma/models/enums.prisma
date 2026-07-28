@@ -81,6 +81,8 @@ enum GiftCardStatus {
 enum AuthTokenType {
   EMAIL_VERIFY
   PASSWORD_RESET
+  /** Admin-created client invite: first-time password creation (passwordHash was null). */
+  PASSWORD_SETUP
 }
 
 enum ScheduleDayOfWeek {

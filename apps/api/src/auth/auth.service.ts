@@ -22,6 +22,9 @@ import type { RegisterDto } from './dto/register.dto';
 
 const DEFAULT_UI_LOCALE = 'en';
 
+/** Invite / first-time password token (added in migration `20260728140000`). */
+const AUTH_TOKEN_PASSWORD_SETUP = 'PASSWORD_SETUP' as AuthTokenType;
+
 export type SafeUser = Omit<User, 'passwordHash'> & { hasPassword: boolean };
 
 export function sanitizeUser(user: User): SafeUser {
@@ -175,18 +178,87 @@ export class AuthService {
     const webUrl =
       this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
     const locale = normalizeAppUiLocale(user.locale, DEFAULT_UI_LOCALE);
-    const resetUrl = `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(raw)}`;
+    const needsCreate = user.passwordHash === null;
+    const resetUrl = needsCreate
+      ? `${webUrl}/${locale}/create-password?token=${encodeURIComponent(raw)}`
+      : `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(raw)}`;
     await this.mail.sendEmail({
       to: user.email,
-      subject: 'Reset your Ommm password',
-      html: `<p><a href="${resetUrl}">Reset password</a></p>`,
+      subject: needsCreate
+        ? 'Create your Ommm password'
+        : 'Reset your Ommm password',
+      html: needsCreate
+        ? `<p><a href="${resetUrl}">Create password</a></p>`
+        : `<p><a href="${resetUrl}">Reset password</a></p>`,
     });
+  }
+
+  /**
+   * First-time password for admin-invited clients (`passwordHash` was null).
+   * Accepts `PASSWORD_SETUP` tokens, plus legacy invite tokens stored as `PASSWORD_RESET`.
+   * Issues a session so the member lands in their account immediately.
+   */
+  async createPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{
+    user: ReturnType<typeof sanitizeUser>;
+    accessToken: string;
+  }> {
+    const tokenHash = hashOpaqueToken(token);
+    const row = await this.prisma.authToken.findUnique({
+      where: { tokenHash },
+      include: {
+        user: true,
+      },
+    });
+    if (!row || row.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+
+    const isSetupType = row.type === AUTH_TOKEN_PASSWORD_SETUP;
+    const isLegacyInviteReset =
+      row.type === AuthTokenType.PASSWORD_RESET &&
+      row.user.passwordHash === null;
+    if (!isSetupType && !isLegacyInviteReset) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+    if (row.user.isBlocked) {
+      throw new UnauthorizedException();
+    }
+    if (row.user.passwordHash !== null) {
+      throw new BadRequestException(
+        'Password already set. Sign in or use forgot password.',
+      );
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+    const [, updatedUser] = await this.prisma.$transaction([
+      this.prisma.authToken.deleteMany({
+        where: {
+          userId: row.userId,
+          type: {
+            in: [AUTH_TOKEN_PASSWORD_SETUP, AuthTokenType.PASSWORD_RESET],
+          },
+        },
+      }),
+      this.prisma.user.update({
+        where: { id: row.userId },
+        data: { passwordHash },
+      }),
+    ]);
+
+    const accessToken = this.signAccessToken(updatedUser);
+    return { user: sanitizeUser(updatedUser), accessToken };
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
     const tokenHash = hashOpaqueToken(token);
     const row = await this.prisma.authToken.findUnique({
       where: { tokenHash },
+      include: {
+        user: { select: { id: true, isBlocked: true } },
+      },
     });
     if (
       !row ||
@@ -194,6 +266,9 @@ export class AuthService {
       row.expiresAt < new Date()
     ) {
       throw new BadRequestException('Invalid or expired token');
+    }
+    if (row.user.isBlocked) {
+      throw new UnauthorizedException();
     }
     const passwordHash = await hashPassword(newPassword);
     await this.prisma.$transaction([

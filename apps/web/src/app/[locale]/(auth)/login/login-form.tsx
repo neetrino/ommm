@@ -25,6 +25,7 @@ export function LoginForm() {
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
   const googleAuthUrl = buildGoogleAuthStartUrl();
+  const emailFromQuery = searchParams.get("email")?.trim() ?? "";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -76,6 +77,7 @@ export function LoginForm() {
             autoComplete="email"
             className="ommm-input"
             placeholder={PSEUDO_EMAIL}
+            defaultValue={emailFromQuery}
           />
         </label>
         <label className="flex flex-col gap-2">

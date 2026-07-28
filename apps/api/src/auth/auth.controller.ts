@@ -18,6 +18,7 @@ import { GoogleOAuthService } from './google-oauth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { CreatePasswordDto } from './dto/create-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -170,6 +171,23 @@ export class AuthController {
   async requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
     await this.auth.requestPasswordReset(dto.email);
     return { ok: true };
+  }
+
+  @Post('create-password')
+  @Throttle(AUTH_MUTATION_THROTTLE)
+  async createPassword(
+    @Body() dto: CreatePasswordDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { user, accessToken } = await this.auth.createPassword(
+      dto.token,
+      dto.newPassword,
+    );
+    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
+      ...accessTokenCookieBaseOptions(),
+      maxAge: COOKIE_MAX_AGE_MS,
+    });
+    return { ok: true, user, accessToken };
   }
 
   @Post('reset-password')

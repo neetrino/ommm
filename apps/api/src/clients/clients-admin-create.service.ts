@@ -19,6 +19,9 @@ import { clientInclude, toClientRow } from './clients-row.mapper';
 
 const DEFAULT_UI_LOCALE = 'en';
 
+/** Invite / first-time password token (added in migration `20260728140000`). */
+const AUTH_TOKEN_PASSWORD_SETUP = 'PASSWORD_SETUP' as AuthTokenType;
+
 @Injectable()
 export class ClientsAdminCreateService {
   private readonly logger = new Logger(ClientsAdminCreateService.name);
@@ -81,7 +84,7 @@ export class ClientsAdminCreateService {
         data: {
           userId: user.id,
           tokenHash: inviteTokenHash,
-          type: AuthTokenType.PASSWORD_RESET,
+          type: AUTH_TOKEN_PASSWORD_SETUP,
           expiresAt: inviteExpiresAt,
         },
       });
@@ -110,7 +113,7 @@ export class ClientsAdminCreateService {
       createdUser.locale,
       DEFAULT_UI_LOCALE,
     );
-    const passwordSetupUrl = `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(inviteRawToken)}`;
+    const passwordSetupUrl = `${webUrl}/${locale}/create-password?token=${encodeURIComponent(inviteRawToken)}`;
 
     const greet = [createdUser.name, createdUser.lastName]
       .filter(Boolean)
