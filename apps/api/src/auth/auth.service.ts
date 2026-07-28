@@ -19,6 +19,7 @@ import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { isValidPhoneNumber, normalizePhoneForStorage } from '../common/phone';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
+import { buildCreatePasswordUrl } from './build-create-password-url';
 
 const DEFAULT_UI_LOCALE = 'en';
 
@@ -180,7 +181,7 @@ export class AuthService {
     const locale = normalizeAppUiLocale(user.locale, DEFAULT_UI_LOCALE);
     const needsCreate = user.passwordHash === null;
     const resetUrl = needsCreate
-      ? `${webUrl}/${locale}/create-password?token=${encodeURIComponent(raw)}`
+      ? buildCreatePasswordUrl({ webAppUrl: webUrl, locale, token: raw })
       : `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(raw)}`;
     await this.mail.sendEmail({
       to: user.email,

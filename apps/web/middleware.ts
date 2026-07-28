@@ -42,6 +42,15 @@ export function middleware(request: NextRequest) {
   );
 
   if (intlResponse.status >= 300 && intlResponse.status < 400) {
+    const location = intlResponse.headers.get("location");
+    if (location && request.nextUrl.search.length > 1) {
+      const redirectUrl = new URL(location, request.url);
+      if (redirectUrl.search.length === 0) {
+        redirectUrl.search = request.nextUrl.search;
+        const redirected = NextResponse.redirect(redirectUrl, intlResponse.status);
+        return copyIntlResponseHeaders(intlResponse, redirected);
+      }
+    }
     return intlResponse;
   }
 
@@ -50,9 +59,14 @@ export function middleware(request: NextRequest) {
     intlResponse.headers.get("x-nextjs-rewrite");
 
   if (rewriteTarget) {
+    const rewriteUrl = new URL(rewriteTarget, request.url);
+    // next-intl rewrite targets are often pathname-only; keep invite/auth query params.
+    if (rewriteUrl.search.length === 0 && request.nextUrl.search.length > 1) {
+      rewriteUrl.search = request.nextUrl.search;
+    }
     return copyIntlResponseHeaders(
       intlResponse,
-      NextResponse.rewrite(new URL(rewriteTarget, request.url), {
+      NextResponse.rewrite(rewriteUrl, {
         request: { headers: requestHeaders },
       }),
     );
