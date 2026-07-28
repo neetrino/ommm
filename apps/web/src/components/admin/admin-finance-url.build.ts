@@ -2,12 +2,9 @@ import type {
   CoachFinanceFilters,
   FinanceDateRangeDays,
   FinanceFilterValues,
-  UserFinanceFilters,
 } from "@/components/admin/admin-finance-types";
 import {
   FINANCE_COACHES_QUERY_KEYS,
-  FINANCE_MEMBERS_QUERY_KEYS,
-  FINANCE_MEMBERS_UI_QUERY_KEYS,
   FINANCE_OVERVIEW_QUERY_KEYS,
   FINANCE_PAYMENTS_QUERY_KEYS,
 } from "@/components/admin/admin-finance-url.constants";
@@ -80,25 +77,6 @@ export function buildFinancePaymentsAdminApiQuery(
   return `/payments/admin?${params.toString()}`;
 }
 
-export function buildFinanceMembersFiltersQuery(
-  values: UserFinanceFilters & { q?: string },
-  currentSearchParams: URLSearchParams,
-): string {
-  const q = (values.q ?? values.search).trim();
-  const params = pickFinanceSectionParams(
-    [...FINANCE_MEMBERS_QUERY_KEYS, ...FINANCE_MEMBERS_UI_QUERY_KEYS],
-    currentSearchParams,
-  );
-  applyFinanceQueryKeys(params, [...FINANCE_MEMBERS_QUERY_KEYS], {
-    q: q !== "" ? q : undefined,
-    paymentStatus: values.paymentStatus !== "" ? values.paymentStatus : undefined,
-    order: values.order !== "newest" ? values.order : undefined,
-    giftCardOnly: values.giftCardOnly ? "true" : undefined,
-    quick: values.quick !== "" ? values.quick : undefined,
-  });
-  return params.toString();
-}
-
 export function buildFinanceCoachesFiltersQuery(
   values: CoachFinanceFilters & { q?: string },
   currentSearchParams: URLSearchParams,
@@ -114,41 +92,6 @@ export function buildFinanceCoachesFiltersQuery(
     quick: values.quick !== "" ? values.quick : undefined,
   });
   return params.toString();
-}
-
-/** Builds paginated members list API query with finance tab filters applied server-side. */
-export function buildFinanceMembersClientsQuery(
-  filters: UserFinanceFilters & { q?: string },
-  listPage: { take: number; offset: number },
-): string {
-  const params = new URLSearchParams({
-    meta: "true",
-    take: String(listPage.take),
-    offset: String(listPage.offset),
-  });
-  const search = (filters.q ?? filters.search).trim();
-  if (search) {
-    params.set("search", search);
-  }
-  if (filters.quick === "paid") {
-    params.set("paymentStatus", "paid");
-  } else if (filters.quick === "pending") {
-    params.set("paymentStatus", "unpaid");
-  } else if (filters.quick === "overdue") {
-    params.set("paymentStatus", "overdue");
-  } else if (filters.paymentStatus) {
-    params.set("paymentStatus", filters.paymentStatus);
-  }
-  if (filters.quick === "active") {
-    params.set("status", "active");
-  }
-  if (filters.quick === "gift-card" || filters.giftCardOnly) {
-    params.set("giftCardOnly", "true");
-  }
-  if (filters.order) {
-    params.set("order", filters.order);
-  }
-  return `/clients?${params.toString()}`;
 }
 
 export function buildFinanceCoachSalaryQuery(

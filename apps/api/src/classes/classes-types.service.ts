@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
 import type { UpdateClassTypeDto } from './dto/update-class-type.dto';
 import { normalizeOptional } from './classes-session.helpers';
+import { parseStoredTypeSessionAllocations } from '../packages/packages-plan.helpers';
 
 @Injectable()
 export class ClassesTypesService {
@@ -93,14 +94,45 @@ export class ClassesTypesService {
 
   async deleteType(id: string): Promise<void> {
     await this.findTypeOrThrow(id);
+    await this.assertClassTypeSafeToDelete(id);
+    await this.prisma.classType.delete({ where: { id } });
+  }
+
+  /**
+   * Hard delete is allowed only when nothing depends on the type:
+   * sessions, bookings, waitlist entries, package balances, or plan allocations.
+   * Rename (update name/slug) remains unrestricted and keeps the same id.
+   */
+  private async assertClassTypeSafeToDelete(
+    classTypeId: string,
+  ): Promise<void> {
     const sessionCount = await this.prisma.classSession.count({
-      where: { classTypeId: id },
+      where: { classTypeId },
     });
     if (sessionCount > 0) {
       throw new BadRequestException(
         `Cannot delete class type with ${sessionCount} linked class sessions.`,
       );
     }
+
+    const bookingCount = await this.prisma.booking.count({
+      where: { session: { classTypeId } },
+    });
+    if (bookingCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete class type with ${bookingCount} linked bookings.`,
+      );
+    }
+
+    const waitlistCount = await this.prisma.waitlistEntry.count({
+      where: { session: { classTypeId } },
+    });
+    if (waitlistCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete class type with ${waitlistCount} linked waitlist entries.`,
+      );
+    }
+
     const balanceCount = await (
       this.prisma as unknown as {
         userPackageBalance: {
@@ -108,14 +140,49 @@ export class ClassesTypesService {
         };
       }
     ).userPackageBalance.count({
-      where: { classTypeId: id },
+      where: { classTypeId },
     });
     if (balanceCount > 0) {
       throw new BadRequestException(
-        `Cannot delete class type with ${balanceCount} linked package balances. Remap balances first.`,
+        `Cannot delete class type with ${balanceCount} linked package balances.`,
       );
     }
-    await this.prisma.classType.delete({ where: { id } });
+
+    const planReferenceCount =
+      await this.countPlansReferencingClassType(classTypeId);
+    if (planReferenceCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete class type referenced by ${planReferenceCount} package plan(s). Update plan allocations first.`,
+      );
+    }
+  }
+
+  private async countPlansReferencingClassType(
+    classTypeId: string,
+  ): Promise<number> {
+    const plans = await this.prisma.packagePlan.findMany({
+      select: {
+        id: true,
+        classTypeId: true,
+        typeSessionAllocations: true,
+      },
+    });
+    let count = 0;
+    for (const plan of plans) {
+      if (plan.classTypeId === classTypeId) {
+        count += 1;
+        continue;
+      }
+      const allocations = parseStoredTypeSessionAllocations(
+        plan.typeSessionAllocations,
+      );
+      if (
+        allocations.some((allocation) => allocation.classTypeId === classTypeId)
+      ) {
+        count += 1;
+      }
+    }
+    return count;
   }
 
   private async findTypeOrThrow(id: string): Promise<ClassType> {

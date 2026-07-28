@@ -1,16 +1,14 @@
-export type FinanceSectionId = "overview" | "payments" | "members" | "coaches";
+export type FinanceSectionId = "overview" | "payments" | "coaches";
 
 export const FINANCE_SECTION_IDS: readonly FinanceSectionId[] = [
   "overview",
   "payments",
-  "members",
   "coaches",
 ] as const;
 
 export const FINANCE_SECTION_HREF: Record<FinanceSectionId, string> = {
   overview: "/admin/finance/overview",
   payments: "/admin/finance/payments",
-  members: "/admin/finance/members",
   coaches: "/admin/finance/coaches",
 };
 
@@ -32,8 +30,9 @@ export function resolveFinanceLegacyTabRedirect(
   if (section) {
     return section;
   }
-  if (tab === "user") {
-    return "members";
+  /** Removed Members tab — old bookmarks land on Overview. */
+  if (tab === "user" || tab === "members") {
+    return "overview";
   }
   if (tab === "coach") {
     return "coaches";
