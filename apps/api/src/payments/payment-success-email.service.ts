@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PaymentSource, PaymentStatus } from '@prisma/client';
-import { getEmailLogoAttachment } from '../mail/email-logo';
 import { MailService } from '../mail/mail.service';
 import { formatPhoneForDisplay } from '../common/phone';
 import { renderPaymentAdminNotificationEmail } from '../mail/templates/payment-admin-notification.template';
@@ -67,9 +66,8 @@ export class PaymentSuccessEmailService {
     }
 
     const context = this.buildEmailContext(payment);
-    const logoAttachment = getEmailLogoAttachment();
-    const customerSent = await this.sendCustomerEmail(context, logoAttachment);
-    const adminSent = await this.sendAdminEmail(context, logoAttachment);
+    const customerSent = await this.sendCustomerEmail(context);
+    const adminSent = await this.sendAdminEmail(context);
 
     if (!customerSent) {
       return;
@@ -88,7 +86,6 @@ export class PaymentSuccessEmailService {
 
   private async sendCustomerEmail(
     context: PaymentEmailContext,
-    logoAttachment: ReturnType<typeof getEmailLogoAttachment>,
   ): Promise<boolean> {
     try {
       await this.mail.sendEmail({
@@ -101,7 +98,6 @@ export class PaymentSuccessEmailService {
           paymentTypeLabel: context.paymentTypeLabel,
           confirmedAtLabel: context.confirmedAtLabel,
         }),
-        attachments: [logoAttachment],
       });
       return true;
     } catch (error) {
@@ -113,10 +109,7 @@ export class PaymentSuccessEmailService {
     }
   }
 
-  private async sendAdminEmail(
-    context: PaymentEmailContext,
-    logoAttachment: ReturnType<typeof getEmailLogoAttachment>,
-  ): Promise<boolean> {
+  private async sendAdminEmail(context: PaymentEmailContext): Promise<boolean> {
     const adminEmail = this.config
       .get<string>('CONTACT_RECEIVER_EMAIL')
       ?.trim();
@@ -142,7 +135,6 @@ export class PaymentSuccessEmailService {
           statusLabel: context.statusLabel,
           confirmedAtLabel: context.confirmedAtLabel,
         }),
-        attachments: [logoAttachment],
       });
       return true;
     } catch (error) {

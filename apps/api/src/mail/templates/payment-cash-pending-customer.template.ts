@@ -1,5 +1,5 @@
 import { escapeHtml, plainTextToHtml } from '../email-html.util';
-import { EMAIL_LOGO_CID_SRC } from '../email-logo';
+import { EMAIL_LOGO_PUBLIC_SRC } from '../email-logo';
 import { EMAIL_BRAND } from './email-brand.constants';
 import { renderBrandedEmailLayout } from './email-layout';
 
@@ -81,7 +81,7 @@ ${plainTextToHtml(CASH_PENDING_INTRO)}
 </p>`;
 
   return renderBrandedEmailLayout({
-    logoSrc: EMAIL_LOGO_CID_SRC,
+    logoSrc: EMAIL_LOGO_PUBLIC_SRC,
     title: 'Cash payment pending',
     preheader: 'Please visit Ommm studio to complete your cash payment',
     bodyHtml,

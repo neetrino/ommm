@@ -4,7 +4,6 @@ import {
   PaymentSource,
   PaymentStatus,
 } from '@prisma/client';
-import { getEmailLogoAttachment } from '../mail/email-logo';
 import { formatPhoneForDisplay } from '../common/phone';
 import { MailService } from '../mail/mail.service';
 import { renderPaymentCashPendingCustomerEmail } from '../mail/templates/payment-cash-pending-customer.template';
@@ -72,7 +71,6 @@ export class PaymentCashPendingEmailService {
       },
     });
 
-    const logoAttachment = getEmailLogoAttachment();
     const customerEmail = payment.user.email.trim();
     if (customerEmail.length === 0) {
       this.logger.warn(
@@ -99,7 +97,6 @@ export class PaymentCashPendingEmailService {
           studioPhone: formatPhoneForDisplay(studio?.contactPhone),
           studioHours: studio?.workingHours?.trim() ?? '',
         }),
-        attachments: [logoAttachment],
       });
     } catch (error) {
       this.logger.error(
