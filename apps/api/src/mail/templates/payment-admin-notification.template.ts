@@ -1,5 +1,5 @@
 import { escapeHtml, plainTextToHtml } from '../email-html.util';
-import { EMAIL_LOGO_CID_SRC } from '../email-logo';
+import { EMAIL_LOGO_PUBLIC_SRC } from '../email-logo';
 import { EMAIL_BRAND } from './email-brand.constants';
 import { renderBrandedEmailLayout, renderInfoRows } from './email-layout';
 
@@ -53,7 +53,7 @@ ${plainTextToHtml(ADMIN_INTRO)}
 </table>`;
 
   return renderBrandedEmailLayout({
-    logoSrc: EMAIL_LOGO_CID_SRC,
+    logoSrc: EMAIL_LOGO_PUBLIC_SRC,
     title: 'Payment Successfully Confirmed',
     preheader: `Payment confirmed for ${params.customerName || params.customerEmail}`,
     bodyHtml,

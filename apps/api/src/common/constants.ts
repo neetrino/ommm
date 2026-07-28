@@ -5,4 +5,7 @@ export const EMAIL_VERIFY_TTL_MS = 48 * 60 * 60 * 1000;
 
 export const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
 
+/** Admin-created client invite: time to open the set-password link (aligned with email verify). */
+export const CLIENT_INVITE_PASSWORD_SETUP_TTL_MS = 48 * 60 * 60 * 1000;
+
 export const API_GLOBAL_PREFIX = 'v1';

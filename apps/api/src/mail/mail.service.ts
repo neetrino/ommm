@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
-import { EMAIL_LOGO_CID_SRC, resolveEmailLogoPreviewSrc } from './email-logo';
+import {
+  EMAIL_LOGO_PUBLIC_SRC,
+  resolveEmailLogoPreviewSrc,
+} from './email-logo';
 
 /** Log only (no external API). Same as `MAIL_TRANSPORT=test`. */
 const TRANSPORT_LOG = 'log' as const;
@@ -113,7 +116,7 @@ export class MailService {
         throw new ServiceUnavailableException('Email delivery is unavailable');
       }
       this.logger.log(
-        `[mail:test] to=${params.to} subject=${params.subject} from=${from}${replyTo ? ` replyTo=${replyTo}` : ''}\n${params.html.replace(EMAIL_LOGO_CID_SRC, resolveEmailLogoPreviewSrc())}`,
+        `[mail:test] to=${params.to} subject=${params.subject} from=${from}${replyTo ? ` replyTo=${replyTo}` : ''}\n${params.html.replaceAll(EMAIL_LOGO_PUBLIC_SRC, resolveEmailLogoPreviewSrc())}`,
       );
       return;
     }

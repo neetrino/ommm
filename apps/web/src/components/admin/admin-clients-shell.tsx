@@ -12,7 +12,10 @@ import {
 } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminCreateClientForm } from "@/components/admin/admin-create-client-form";
+import {
+  AdminCreateClientForm,
+  type AdminCreateClientResult,
+} from "@/components/admin/admin-create-client-form";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import {
   CLIENT_MODAL_QUERY_KEY,
@@ -72,12 +75,17 @@ export function AdminClientsShell({
   }, [pathname, router, searchParams]);
 
   const handleClientCreated = useCallback(
-    (client: ClientRow) => {
+    ({ client, welcomeEmailSent }: AdminCreateClientResult) => {
       onClientCreated?.(client);
       if (bannerTimerRef.current !== null) {
         clearTimeout(bannerTimerRef.current);
       }
-      setBanner(t("create.listBannerSuccess", { name: client.name ?? client.email }));
+      const displayName = client.name ?? client.email;
+      setBanner(
+        welcomeEmailSent
+          ? t("create.listBannerSuccess", { name: displayName })
+          : t("create.listBannerEmailFailed", { name: displayName }),
+      );
       bannerTimerRef.current = setTimeout(() => {
         setBanner(null);
         bannerTimerRef.current = null;

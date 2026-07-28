@@ -4,10 +4,12 @@ import path from 'node:path';
 const LOGO_FILENAME = 'brand-mark-email.png';
 const LOGO_MIME = 'image/png';
 
-/** CID referenced in HTML as `cid:ommm-brand-logo`. */
-export const EMAIL_LOGO_CONTENT_ID = 'ommm-brand-logo';
-
-export const EMAIL_LOGO_CID_SRC = `cid:${EMAIL_LOGO_CONTENT_ID}`;
+/**
+ * Public HTTPS logo for transactional emails (hosted on R2).
+ * Hardcoded intentionally — public asset URL, not a secret; Mail.ru/webmail need HTTPS, not CID.
+ */
+export const EMAIL_LOGO_PUBLIC_SRC =
+  'https://pub-33c692c145554c4fb3324f94c43f2319.r2.dev/email/brand-mark-email.png';
 
 let cachedLogoBuffer: Buffer | null = null;
 
@@ -34,21 +36,6 @@ function loadEmailLogoBuffer(): Buffer {
 
   cachedLogoBuffer = fs.readFileSync(resolveLogoFilePath());
   return cachedLogoBuffer;
-}
-
-/** Resend inline attachment for the Ommm logo (Gmail-safe; avoids blocked data URIs). */
-export function getEmailLogoAttachment(): {
-  content: Buffer;
-  filename: string;
-  contentType: string;
-  contentId: string;
-} {
-  return {
-    content: loadEmailLogoBuffer(),
-    filename: LOGO_FILENAME,
-    contentType: LOGO_MIME,
-    contentId: EMAIL_LOGO_CONTENT_ID,
-  };
 }
 
 /** Used only for local log transport previews in the Nest console. */
