@@ -1,79 +1,73 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { postAuthPathForRole } from "@/lib/role-home";
+import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
+import { markClientSessionHint } from "@/lib/client-session-hint";
+import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
 const PASSWORD_MIN_LENGTH = 8;
-const POST_SUCCESS_REDIRECT_MS = 1200;
 
-function ResetPasswordForm() {
+function CreatePasswordForm() {
   const router = useRouter();
-  const t = useTranslations("auth.resetPassword");
+  const urlLocale = useLocale();
+  const t = useTranslations("auth.createPassword");
   const search = useSearchParams();
   const token = search.get("token")?.trim() ?? "";
-  const mode = search.get("mode");
-  const [newPassword, setNewPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (mode !== "create" || token.length === 0) {
-      return;
-    }
-    router.replace(`/create-password?token=${encodeURIComponent(token)}`);
-  }, [mode, router, token]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) {
       return;
     }
-    setMessage(null);
     setError(null);
+
     if (token.length === 0) {
       setError(t("missingToken"));
       return;
     }
-    const password = newPassword.trim();
+
+    const nextPassword = password.trim();
     const confirmation = confirmPassword.trim();
-    if (password.length < PASSWORD_MIN_LENGTH) {
+    if (nextPassword.length < PASSWORD_MIN_LENGTH) {
       setError(t("passwordTooShort", { min: PASSWORD_MIN_LENGTH }));
       return;
     }
-    if (password !== confirmation) {
+    if (nextPassword !== confirmation) {
       setError(t("mismatch"));
       return;
     }
+
     setBusy(true);
     try {
-      await apiFetch<{ ok: boolean }>("/auth/reset-password", {
+      const { user } = await apiFetch<{
+        ok: boolean;
+        user: { role: string; locale: string };
+        accessToken: string;
+      }>("/auth/create-password", {
         method: "POST",
-        body: JSON.stringify({ token, newPassword: password }),
+        body: JSON.stringify({ token, newPassword: nextPassword }),
       });
-      setMessage(t("success"));
-      setNewPassword("");
-      setConfirmPassword("");
-      window.setTimeout(() => {
-        router.push("/login");
-      }, POST_SUCCESS_REDIRECT_MS);
+      markClientSessionHint();
+      const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
+      setUiLocaleCookie(nextLocale);
+      await prefetchMarketingHeaderAccount();
+      router.push(postAuthPathForRole(user.role), { locale: nextLocale });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("failed"));
       setBusy(false);
     }
-  }
-
-  if (mode === "create") {
-    return (
-      <p className="text-sm text-sage-500">{t("submitting")}</p>
-    );
   }
 
   return (
@@ -83,19 +77,23 @@ function ResetPasswordForm() {
       </h1>
       <p className="ommm-body-muted mt-2">{t("lead")}</p>
 
+      {token.length === 0 ? (
+        <FormErrorBanner message={t("missingToken")} variant="inline" className="mt-6" />
+      ) : null}
+
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
         <label className="flex flex-col gap-2">
           <span className="ommm-label">{t("password")}</span>
           <PasswordInput
             required
-            name="newPassword"
+            name="password"
             autoComplete="new-password"
             className="ommm-input"
-            value={newPassword}
-            onChange={(ev) => setNewPassword(ev.target.value)}
+            value={password}
+            onChange={(ev) => setPassword(ev.target.value)}
             showPasswordLabel={t("showPassword")}
             hidePasswordLabel={t("hidePassword")}
-            disabled={busy && message !== null}
+            disabled={busy || token.length === 0}
           />
         </label>
         <label className="flex flex-col gap-2">
@@ -109,19 +107,14 @@ function ResetPasswordForm() {
             onChange={(ev) => setConfirmPassword(ev.target.value)}
             showPasswordLabel={t("showPassword")}
             hidePasswordLabel={t("hidePassword")}
-            disabled={busy && message !== null}
+            disabled={busy || token.length === 0}
           />
         </label>
-        <OmmButton type="submit" variant="primary" disabled={busy}>
-          {busy && message === null ? t("submitting") : t("submit")}
+        <OmmButton type="submit" variant="primary" disabled={busy || token.length === 0}>
+          {busy ? t("submitting") : t("submit")}
         </OmmButton>
       </form>
 
-      {message ? (
-        <p className="mt-4 text-sm text-sage-700" role="status">
-          {message}
-        </p>
-      ) : null}
       {error ? (
         <FormErrorBanner message={error} variant="inline" className="mt-4" />
       ) : null}
@@ -135,11 +128,11 @@ function ResetPasswordForm() {
   );
 }
 
-export default function ResetPasswordPage() {
+export function CreatePasswordPage() {
   const t = useTranslations("common");
   return (
     <Suspense fallback={<p className="text-sm text-sage-500">{t("loading")}</p>}>
-      <ResetPasswordForm />
+      <CreatePasswordForm />
     </Suspense>
   );
 }
