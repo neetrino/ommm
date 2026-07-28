@@ -1,4 +1,8 @@
 import type { FinanceSectionId } from "@/components/admin/admin-finance-module";
+import {
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+} from "@/components/admin/admin-client-sheet-tabs";
 
 export const FINANCE_OVERVIEW_QUERY_KEYS = ["rangeDays"] as const;
 
@@ -23,6 +27,12 @@ export const FINANCE_MEMBERS_QUERY_KEYS = [
   "quick",
   "userPage",
   "userPageSize",
+] as const;
+
+/** Client sheet UI keys — kept on members so tab switches do not trigger sanitize redirect. */
+export const FINANCE_MEMBERS_UI_QUERY_KEYS = [
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
 ] as const;
 
 export const FINANCE_COACHES_QUERY_KEYS = [
@@ -60,6 +70,7 @@ export const FINANCE_ALL_QUERY_KEYS = [
     ...FINANCE_OVERVIEW_QUERY_KEYS,
     ...FINANCE_PAYMENTS_QUERY_KEYS,
     ...FINANCE_MEMBERS_QUERY_KEYS,
+    ...FINANCE_MEMBERS_UI_QUERY_KEYS,
     ...FINANCE_COACHES_QUERY_KEYS,
     ...FINANCE_LEGACY_QUERY_KEYS,
   ]),
@@ -73,7 +84,7 @@ export function getFinanceSectionQueryKeys(section: FinanceSectionId): readonly 
     case "payments":
       return FINANCE_PAYMENTS_QUERY_KEYS;
     case "members":
-      return FINANCE_MEMBERS_QUERY_KEYS;
+      return [...FINANCE_MEMBERS_QUERY_KEYS, ...FINANCE_MEMBERS_UI_QUERY_KEYS];
     case "coaches":
       return FINANCE_COACHES_QUERY_KEYS;
   }

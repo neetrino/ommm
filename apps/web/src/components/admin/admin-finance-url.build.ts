@@ -7,6 +7,7 @@ import type {
 import {
   FINANCE_COACHES_QUERY_KEYS,
   FINANCE_MEMBERS_QUERY_KEYS,
+  FINANCE_MEMBERS_UI_QUERY_KEYS,
   FINANCE_OVERVIEW_QUERY_KEYS,
   FINANCE_PAYMENTS_QUERY_KEYS,
 } from "@/components/admin/admin-finance-url.constants";
@@ -84,7 +85,10 @@ export function buildFinanceMembersFiltersQuery(
   currentSearchParams: URLSearchParams,
 ): string {
   const q = (values.q ?? values.search).trim();
-  const params = pickFinanceSectionParams([...FINANCE_MEMBERS_QUERY_KEYS], currentSearchParams);
+  const params = pickFinanceSectionParams(
+    [...FINANCE_MEMBERS_QUERY_KEYS, ...FINANCE_MEMBERS_UI_QUERY_KEYS],
+    currentSearchParams,
+  );
   applyFinanceQueryKeys(params, [...FINANCE_MEMBERS_QUERY_KEYS], {
     q: q !== "" ? q : undefined,
     paymentStatus: values.paymentStatus !== "" ? values.paymentStatus : undefined,
