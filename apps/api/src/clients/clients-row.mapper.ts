@@ -3,6 +3,13 @@ import {
   INACTIVE_CLIENT_DAYS,
   NEW_CLIENT_DAYS,
 } from './clients-list.constants';
+import {
+  CLIENT_ACTIVE_PACKAGE_STATUSES,
+  clientActivePackagePlanSelect,
+  toClientActivePackageFields,
+} from './clients-row-active-package';
+
+const CLIENT_ACTIVE_PACKAGES_TAKE = 10;
 
 export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
   bookings: {
@@ -24,6 +31,12 @@ export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
   payments: { orderBy: { createdAt: 'desc' }, take: 50 },
   giftCardsPurchased: { orderBy: { createdAt: 'desc' }, take: 20 },
   giftCardsReceived: { orderBy: { createdAt: 'desc' }, take: 20 },
+  userPackages: {
+    where: { status: { in: [...CLIENT_ACTIVE_PACKAGE_STATUSES] } },
+    include: { plan: { select: clientActivePackagePlanSelect } },
+    orderBy: { currentPeriodEnd: 'desc' },
+    take: CLIENT_ACTIVE_PACKAGES_TAKE,
+  },
   clientNotesReceived: {
     orderBy: { createdAt: 'desc' },
     take: 1,
@@ -225,10 +238,6 @@ export function toClientRow(user: ClientRecord) {
     birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
     hasGiftCardActivity: hasGiftCardActivity(user),
     isBlocked: user.isBlocked,
-    activePlanName: null,
-    activePlanCostCents: null,
-    activePlanExpiresAt: null,
-    activePackageId: null,
-    activePackageStatus: null,
+    ...toClientActivePackageFields(user.userPackages),
   };
 }
