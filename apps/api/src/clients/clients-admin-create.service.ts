@@ -16,6 +16,7 @@ import { renderClientInviteEmail } from '../mail/templates/client-invite.templat
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import { clientInclude, toClientRow } from './clients-row.mapper';
+import { buildCreatePasswordUrl } from '../auth/build-create-password-url';
 
 const DEFAULT_UI_LOCALE = 'en';
 
@@ -113,7 +114,11 @@ export class ClientsAdminCreateService {
       createdUser.locale,
       DEFAULT_UI_LOCALE,
     );
-    const passwordSetupUrl = `${webUrl}/${locale}/create-password?token=${encodeURIComponent(inviteRawToken)}`;
+    const passwordSetupUrl = buildCreatePasswordUrl({
+      webAppUrl: webUrl,
+      locale,
+      token: inviteRawToken,
+    });
 
     const greet = [createdUser.name, createdUser.lastName]
       .filter(Boolean)

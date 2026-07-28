@@ -28,7 +28,7 @@ function ResetPasswordForm() {
     if (mode !== "create" || token.length === 0) {
       return;
     }
-    router.replace(`/create-password?token=${encodeURIComponent(token)}`);
+    router.replace(`/create-password/${encodeURIComponent(token)}`);
   }, [mode, router, token]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

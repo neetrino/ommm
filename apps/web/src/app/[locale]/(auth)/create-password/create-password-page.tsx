@@ -1,8 +1,8 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { postAuthPathForRole } from "@/lib/role-home";
@@ -15,12 +15,64 @@ import { PasswordInput } from "@/components/ui/password-input";
 
 const PASSWORD_MIN_LENGTH = 8;
 
-function CreatePasswordForm() {
+function readTokenFromPathParam(raw: string | string[] | undefined): string {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return "";
+  }
+  try {
+    return decodeURIComponent(value).trim();
+  } catch {
+    return value.trim();
+  }
+}
+
+function resolveInviteToken(params: {
+  initialToken: string;
+  pathToken: string;
+  queryToken: string;
+}): string {
+  if (params.initialToken.length > 0) {
+    return params.initialToken;
+  }
+  if (params.pathToken.length > 0) {
+    return params.pathToken;
+  }
+  if (params.queryToken.length > 0) {
+    return params.queryToken;
+  }
+  if (typeof window === "undefined") {
+    return "";
+  }
+  const fromQuery = new URLSearchParams(window.location.search).get("token")?.trim() ?? "";
+  if (fromQuery.length > 0) {
+    return fromQuery;
+  }
+  const segments = window.location.pathname.split("/").filter(Boolean);
+  const createIdx = segments.indexOf("create-password");
+  if (createIdx >= 0 && typeof segments[createIdx + 1] === "string") {
+    return readTokenFromPathParam(segments[createIdx + 1]);
+  }
+  return "";
+}
+
+function CreatePasswordForm({ initialToken }: { initialToken: string }) {
   const router = useRouter();
   const urlLocale = useLocale();
   const t = useTranslations("auth.createPassword");
+  const routeParams = useParams();
   const search = useSearchParams();
-  const token = search.get("token")?.trim() ?? "";
+  const token = useMemo(
+    () =>
+      resolveInviteToken({
+        initialToken: initialToken.trim(),
+        pathToken: readTokenFromPathParam(
+          routeParams.token as string | string[] | undefined,
+        ),
+        queryToken: search.get("token")?.trim() ?? "",
+      }),
+    [initialToken, routeParams.token, search],
+  );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -128,11 +180,15 @@ function CreatePasswordForm() {
   );
 }
 
-export function CreatePasswordPage() {
+export type CreatePasswordPageProps = {
+  initialToken?: string;
+};
+
+export function CreatePasswordPage({ initialToken = "" }: CreatePasswordPageProps) {
   const t = useTranslations("common");
   return (
     <Suspense fallback={<p className="text-sm text-sage-500">{t("loading")}</p>}>
-      <CreatePasswordForm />
+      <CreatePasswordForm initialToken={initialToken} />
     </Suspense>
   );
 }
