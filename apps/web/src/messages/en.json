@@ -2112,6 +2112,7 @@
         "selectLead": "Select an upcoming session, then optionally choose a package.",
         "sessionLabel": "Session",
         "selectSession": "Select a session",
+        "clearSession": "Clear selected session",
         "sessionsLoading": "Loading sessions…",
         "sessionsLoadError": "Could not load sessions.",
         "sessionsEmpty": "No upcoming sessions in the next 30 days.",
