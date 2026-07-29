@@ -23,6 +23,7 @@ import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto'
 import { AddClientNoteDto } from './dto/add-client-note.dto';
 import { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import { AdminCreateClientBookingDto } from './dto/admin-create-client-booking.dto';
+import { AdminClientBookableSessionsQueryDto } from './dto/admin-client-bookable-sessions-query.dto';
 import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
 import { AdminPurchaseClientPackageDto } from './dto/admin-purchase-client-package.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -72,6 +73,15 @@ export class ClientsController {
     @Body() dto: AdminCreateClientBookingDto,
   ) {
     return this.bookingsCreate.createForClient(id, dto);
+  }
+
+  @Get(':id/bookable-sessions')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  listBookableSessions(
+    @Param('id') id: string,
+    @Query() query: AdminClientBookableSessionsQueryDto,
+  ) {
+    return this.bookingsCreate.listBookableSessions(id, query.from, query.to);
   }
 
   @Get(':id/sessions/:sessionId/eligible-packages')

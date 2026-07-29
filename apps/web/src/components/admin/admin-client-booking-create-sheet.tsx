@@ -68,7 +68,7 @@ export function AdminClientBookingCreateSheet({
     const query = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
     setSessionsLoading(true);
     void apiFetch<AdminClientBookingUpcomingSession[]>(
-      `/classes/admin/sessions?${query}`,
+      `/clients/${client.id}/bookable-sessions?${query}`,
     )
       .then((payload) => {
         if (cancelled) {
@@ -93,7 +93,7 @@ export function AdminClientBookingCreateSheet({
     return () => {
       cancelled = true;
     };
-  }, [t]);
+  }, [client.id, t]);
 
   useEffect(() => {
     if (sessionId === "") {
