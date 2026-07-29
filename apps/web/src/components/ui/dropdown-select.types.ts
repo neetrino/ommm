@@ -20,6 +20,16 @@ export type DropdownSelectProps<T extends string> = {
   menuClassName?: string;
   /** When true, label text wraps instead of truncating with ellipsis. */
   wrapLabel?: boolean;
+  /**
+   * When true, menu option labels wrap (full text visible).
+   * Defaults to `wrapLabel` when omitted.
+   */
+  wrapMenuLabel?: boolean;
+  /**
+   * When set, clicking the already-selected option clears to this value
+   * (1st click selects, 2nd click deselects).
+   */
+  toggleDeselectValue?: T;
   /** Disable viewport-constrained max height for short static menus (e.g. language switcher). */
   disableMenuScroll?: boolean;
   /** Show a search field inside the menu to filter options by label. */

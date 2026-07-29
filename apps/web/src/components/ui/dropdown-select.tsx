@@ -25,6 +25,7 @@ export function DropdownSelect<T extends string>({
   triggerClassName,
   menuClassName,
   wrapLabel = false,
+  wrapMenuLabel,
   disableMenuScroll = false,
   searchable = false,
   searchPlaceholder = "",
@@ -37,6 +38,7 @@ export function DropdownSelect<T extends string>({
   menuAlign,
   openOnHover = false,
   animateMenuDismiss = false,
+  toggleDeselectValue,
 }: DropdownSelectProps<T>) {
   const portalReady = useIsClientMounted();
   const {
@@ -79,7 +81,10 @@ export function DropdownSelect<T extends string>({
     menuAlign,
     openOnHover,
     animateMenuDismiss,
+    toggleDeselectValue,
   });
+
+  const menuLabelWrap = wrapMenuLabel ?? wrapLabel;
 
   const triggerContent: ReactNode = renderValue ? (
     renderValue(selected)
@@ -165,7 +170,7 @@ export function DropdownSelect<T extends string>({
               value={value}
               renderOption={renderOption}
               resolveOptionSelected={resolveOptionSelected}
-              wrapLabel={wrapLabel}
+              wrapLabel={menuLabelWrap}
               safeFocusedIndex={safeFocusedIndex}
               optionRefs={optionRefs}
               onSelectValue={selectValue}

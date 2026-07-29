@@ -33,6 +33,30 @@ const FIELD_LABEL_CLASS =
 const BAR_TRIGGER_CLASS =
   "w-full min-w-0 justify-between rounded-2xl border-sand-200/80 bg-white px-3.5 shadow-none";
 
+const CLEAR_ICON_BUTTON_CLASS =
+  "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-sand-200/80 bg-white text-sage-500 transition-colors hover:border-sage-300 hover:bg-sand-50 hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 disabled:pointer-events-none disabled:opacity-40";
+
+const BOOKING_MENU_MIN_WIDTH_PX = 340;
+
+function ClearSelectionGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  );
+}
+
 export function AdminClientBookingCreateForm({
   formId,
   layout = "stack",
@@ -80,40 +104,43 @@ export function AdminClientBookingCreateForm({
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
             <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
               <div className="min-w-0 space-y-1.5">
-                <div className="flex h-5 items-center justify-between gap-2">
-                  <p className={FIELD_LABEL_CLASS}>{t("bookings.sessionLabel")}</p>
+                <p className={FIELD_LABEL_CLASS}>{t("bookings.sessionLabel")}</p>
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <OmmSelectDropdown
+                      ariaLabel={t("bookings.selectSession")}
+                      label={t("bookings.selectSession")}
+                      value={sessionId}
+                      options={sessionOptions}
+                      onChange={onSessionChange}
+                      disabled={disabled}
+                      searchable
+                      searchPlaceholder={t("bookings.searchSessions")}
+                      noResultsLabel={t("bookings.searchNoResults")}
+                      wrapMenuLabel
+                      menuMinWidth={BOOKING_MENU_MIN_WIDTH_PX}
+                      toggleDeselectValue=""
+                      triggerClassName={BAR_TRIGGER_CLASS}
+                      menuClassName="max-w-[min(28rem,calc(100vw-2rem))]"
+                    />
+                  </div>
                   {sessionId !== "" ? (
                     <button
                       type="button"
-                      className="text-[11px] font-semibold uppercase tracking-[0.08em] text-sage-500 transition-colors hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 disabled:opacity-50"
+                      className={CLEAR_ICON_BUTTON_CLASS}
+                      aria-label={t("bookings.clearSession")}
+                      title={t("bookings.clearSession")}
                       disabled={disabled}
                       onClick={() => onSessionChange("")}
                     >
-                      {t("bookings.clear")}
+                      <ClearSelectionGlyph className="h-4 w-4" />
                     </button>
                   ) : null}
                 </div>
-                <OmmSelectDropdown
-                  ariaLabel={t("bookings.selectSession")}
-                  value={sessionId}
-                  options={[
-                    { value: "", label: t("bookings.selectSession") },
-                    ...sessionOptions,
-                  ]}
-                  onChange={onSessionChange}
-                  disabled={disabled}
-                  searchable
-                  searchPlaceholder={t("bookings.searchSessions")}
-                  noResultsLabel={t("bookings.searchNoResults")}
-                  triggerClassName={BAR_TRIGGER_CLASS}
-                  menuClassName="min-w-[18rem]"
-                />
               </div>
 
               <div className="min-w-0 space-y-1.5">
-                <div className="flex h-5 items-center">
-                  <p className={FIELD_LABEL_CLASS}>{t("bookings.packageLabel")}</p>
-                </div>
+                <p className={FIELD_LABEL_CLASS}>{t("bookings.packageLabel")}</p>
                 {sessionId === "" ? (
                   <div className="flex min-h-11 items-center rounded-2xl border border-dashed border-sand-200/90 bg-sand-50/50 px-3.5 text-sm text-sage-400">
                     {t("bookings.packageAfterSession")}
@@ -138,26 +165,42 @@ export function AdminClientBookingCreateForm({
                   </div>
                 ) : null}
                 {sessionId !== "" && !packagesLoading && bookablePackageCount > 0 ? (
-                  <OmmSelectDropdown
-                    ariaLabel={t("bookings.selectPackage")}
-                    value={userPackageId}
-                    options={[
-                      {
-                        value: noPackageValue,
-                        label: packageRequired
-                          ? t("bookings.selectPackage")
-                          : t("bookings.selectPackageOptional"),
-                      },
-                      ...packageOptions,
-                    ]}
-                    onChange={onPackageChange}
-                    disabled={disabled}
-                    searchable={packageOptions.length > 5}
-                    searchPlaceholder={t("bookings.searchPackages")}
-                    noResultsLabel={t("bookings.searchNoResults")}
-                    triggerClassName={BAR_TRIGGER_CLASS}
-                    menuClassName="min-w-[16rem]"
-                  />
+                  <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      <OmmSelectDropdown
+                        ariaLabel={t("bookings.selectPackage")}
+                        label={
+                          packageRequired
+                            ? t("bookings.selectPackage")
+                            : t("bookings.selectPackageOptional")
+                        }
+                        value={userPackageId}
+                        options={packageOptions}
+                        onChange={onPackageChange}
+                        disabled={disabled}
+                        searchable={packageOptions.length > 5}
+                        searchPlaceholder={t("bookings.searchPackages")}
+                        noResultsLabel={t("bookings.searchNoResults")}
+                        wrapMenuLabel
+                        menuMinWidth={BOOKING_MENU_MIN_WIDTH_PX}
+                        toggleDeselectValue={noPackageValue}
+                        triggerClassName={BAR_TRIGGER_CLASS}
+                        menuClassName="max-w-[min(28rem,calc(100vw-2rem))]"
+                      />
+                    </div>
+                    {userPackageId !== noPackageValue ? (
+                      <button
+                        type="button"
+                        className={CLEAR_ICON_BUTTON_CLASS}
+                        aria-label={t("bookings.clearPackage")}
+                        title={t("bookings.clearPackage")}
+                        disabled={disabled}
+                        onClick={() => onPackageChange(noPackageValue)}
+                      >
+                        <ClearSelectionGlyph className="h-4 w-4" />
+                      </button>
+                    ) : null}
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -199,14 +242,14 @@ export function AdminClientBookingCreateForm({
           </p>
           <OmmSelectDropdown
             ariaLabel={t("bookings.selectSession")}
+            label={t("bookings.selectSession")}
             value={sessionId}
-            options={[
-              { value: "", label: t("bookings.selectSession") },
-              ...sessionOptions,
-            ]}
+            options={sessionOptions}
             onChange={onSessionChange}
             disabled={disabled}
             wrapLabel
+            wrapMenuLabel
+            toggleDeselectValue=""
           />
         </div>
       ) : null}
@@ -232,19 +275,18 @@ export function AdminClientBookingCreateForm({
           {!packagesLoading && bookablePackageCount > 0 ? (
             <OmmSelectDropdown
               ariaLabel={t("bookings.selectPackage")}
+              label={
+                packageRequired
+                  ? t("bookings.selectPackage")
+                  : t("bookings.selectPackageOptional")
+              }
               value={userPackageId}
-              options={[
-                {
-                  value: noPackageValue,
-                  label: packageRequired
-                    ? t("bookings.selectPackage")
-                    : t("bookings.selectPackageOptional"),
-                },
-                ...packageOptions,
-              ]}
+              options={packageOptions}
               onChange={onPackageChange}
               disabled={disabled}
               wrapLabel
+              wrapMenuLabel
+              toggleDeselectValue={noPackageValue}
             />
           ) : null}
         </div>

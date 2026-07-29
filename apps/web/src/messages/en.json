@@ -2118,6 +2118,7 @@
         "selectSession": "Select a session",
         "clear": "Clear",
         "clearSession": "Clear selected session",
+        "clearPackage": "Clear selected package",
         "sessionsLoading": "Loading sessions…",
         "sessionsLoadError": "Could not load sessions.",
         "sessionsEmpty": "No upcoming sessions match this client's active packages.",

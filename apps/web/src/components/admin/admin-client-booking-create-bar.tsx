@@ -228,8 +228,7 @@ export function AdminClientBookingCreateBar({
             type="submit"
             form={formId}
             variant="primary"
-            size="sm"
-            className="w-full whitespace-nowrap lg:w-auto"
+            className="h-11 min-h-11 w-full whitespace-nowrap px-5 lg:w-auto"
             disabled={!canSubmit || submitting}
           >
             {submitting ? t("bookings.submitting") : t("bookings.confirm")}
