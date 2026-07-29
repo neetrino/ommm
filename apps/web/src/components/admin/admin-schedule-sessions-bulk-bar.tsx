@@ -12,7 +12,6 @@ type AdminScheduleSessionsBulkBarProps = {
   cancellableCount: number;
   activatableCount: number;
   busy: boolean;
-  onClear: () => void;
   onBulkCancel?: () => void;
   onBulkActivate?: () => void;
 };
@@ -23,7 +22,6 @@ export function AdminScheduleSessionsBulkBar({
   cancellableCount,
   activatableCount,
   busy,
-  onClear,
   onBulkCancel,
   onBulkActivate,
 }: AdminScheduleSessionsBulkBarProps) {
@@ -81,9 +79,6 @@ export function AdminScheduleSessionsBulkBar({
           {t("bulk.selectedCount", { count: selectedCount })}
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <OmmButton type="button" size="sm" variant="ghost" disabled={busy} onClick={onClear}>
-            {t("bulk.clearSelection")}
-          </OmmButton>
           {onBulkCancel && cancellableCount > 0 ? (
             <OmmButton
               type="button"

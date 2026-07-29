@@ -35,6 +35,12 @@ const MOBILE_STATUS_BADGE_CLASS =
 
 const DESKTOP_STATUS_BADGE_CLASS = "hidden md:inline-flex";
 
+const SELECT_CHECKBOX_PASSIVE_VISIBILITY_CLASS = [
+  "opacity-0 invisible",
+  "group-hover:opacity-100 group-hover:visible",
+  "group-focus-within:opacity-100 group-focus-within:visible",
+].join(" ");
+
 type AdminScheduleSessionCompactRowProps = {
   row: AdminScheduleSession;
   locale: string;
@@ -82,11 +88,13 @@ export function AdminScheduleSessionCompactRow({
           onDetails(row);
         }
       }}
-      className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} relative`}
+      className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} group relative`}
     >
       {selectionEnabled && onToggleSelect ? (
         <div
-          className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL}
+          className={`${ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL} ${
+            selected ? "visible opacity-100" : SELECT_CHECKBOX_PASSIVE_VISIBILITY_CLASS
+          }`}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >

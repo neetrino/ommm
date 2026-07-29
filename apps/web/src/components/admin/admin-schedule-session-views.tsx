@@ -143,13 +143,12 @@ export function SessionTable(props: SessionTableProps) {
           />
         ))}
       </div>
-      {selectionEnabled && props.onClearSelection ? (
+      {selectionEnabled ? (
         <AdminScheduleSessionsBulkBar
           selectedCount={selectedVisible.length}
           cancellableCount={cancellableCount}
           activatableCount={activatableCount}
           busy={busy}
-          onClear={props.onClearSelection}
           onBulkCancel={props.onBulkCancel}
           onBulkActivate={props.onBulkActivate}
         />

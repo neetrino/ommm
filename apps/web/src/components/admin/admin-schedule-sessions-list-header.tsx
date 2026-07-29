@@ -140,7 +140,7 @@ export function AdminScheduleSessionsListHeader({
 
   return (
     <>
-      {selectionEnabled && onToggleSelectAll ? (
+      {selectionEnabled && onToggleSelectAll && someSelected ? (
         <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL}>
           <AdminScheduleSessionSelectCheckbox
             checked={allSelected}
