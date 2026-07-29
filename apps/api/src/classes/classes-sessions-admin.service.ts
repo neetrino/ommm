@@ -249,6 +249,23 @@ export class ClassesSessionsAdminService {
   }
 
   async deleteSession(id: string): Promise<void> {
+    const session = await this.prisma.classSession.findUnique({
+      where: { id },
+      select: {
+        _count: {
+          select: { bookings: true, waitlistEntries: true },
+        },
+      },
+    });
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+    const { bookings, waitlistEntries } = session._count;
+    if (bookings > 0 || waitlistEntries > 0) {
+      throw new BadRequestException(
+        'Cannot delete a session with bookings or waitlist entries. Cancel bookings first.',
+      );
+    }
     await this.prisma.classSession.delete({ where: { id } });
     await this.invalidatePublicScheduleAndEmit(id);
   }

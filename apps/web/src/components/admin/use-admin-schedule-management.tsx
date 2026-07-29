@@ -86,6 +86,23 @@ export function useAdminScheduleManagement({
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<ScheduleToast | null>(null);
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const toggleSelect = useCallback((rowId: string, selected: boolean) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (selected) {
+        next.add(rowId);
+      } else {
+        next.delete(rowId);
+      }
+      return next;
+    });
+  }, []);
 
   const scheduleModalParam = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
   const addClassOpen = scheduleModalParam === ADD_CLASS_MODAL_QUERY_VALUE;
@@ -243,6 +260,17 @@ export function useAdminScheduleManagement({
 
   const displayRows = isListView ? rows : filteredRows;
 
+  const toggleSelectAll = useCallback(
+    (checked: boolean) => {
+      if (!checked) {
+        setSelectedIds(new Set());
+        return;
+      }
+      setSelectedIds(new Set(displayRows.map((row) => row.id)));
+    },
+    [displayRows],
+  );
+
   const dateStripRows = useMemo(
     () => dateStripSessions ?? displayRows,
     [dateStripSessions, displayRows],
@@ -257,15 +285,22 @@ export function useAdminScheduleManagement({
   const handleSelectStripDay = useCallback(
     (day: string) => {
       if (stripDay === day) return;
+      clearSelection();
       patchFilterState({ stripDay: day });
     },
-    [patchFilterState, stripDay],
+    [clearSelection, patchFilterState, stripDay],
   );
 
   const handleSelectAllStripDays = useCallback(() => {
     if (stripDay === null) return;
+    clearSelection();
     patchFilterState({ stripDay: null });
-  }, [patchFilterState, stripDay]);
+  }, [clearSelection, patchFilterState, stripDay]);
+
+  const selectedRows = useMemo(
+    () => displayRows.filter((row) => selectedIds.has(row.id)),
+    [displayRows, selectedIds],
+  );
 
   const summary = useMemo(() => {
     const now = new Date();
@@ -293,6 +328,8 @@ export function useAdminScheduleManagement({
   const {
     handleCancel,
     handleActivate,
+    handleBulkCancel,
+    handleBulkActivate,
     handleDelete,
     handleDeleteFromDetails,
     handleDuplicate,
@@ -313,6 +350,7 @@ export function useAdminScheduleManagement({
     addClassOpen,
     closeAddClassModal,
     sessionModalConfig,
+    clearSelection,
   });
 
   const handleDateTimeSort = useCallback(() => {
@@ -357,6 +395,12 @@ export function useAdminScheduleManagement({
     handleFormSaved,
     handleCancel,
     handleActivate,
+    handleBulkCancel: () => handleBulkCancel(selectedRows),
+    handleBulkActivate: () => handleBulkActivate(selectedRows),
+    selectedIds,
+    toggleSelect,
+    toggleSelectAll,
+    clearSelection,
     handleDelete,
     handleDeleteFromDetails,
     handleDuplicate,

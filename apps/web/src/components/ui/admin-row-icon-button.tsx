@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
-type AdminRowIconButtonVariant = "default" | "danger" | "subtle";
+type AdminRowIconButtonVariant = "default" | "danger" | "subtle" | "warning";
 
 export type AdminRowIconButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -24,6 +24,7 @@ const VARIANT_CLASSES: Record<AdminRowIconButtonVariant, string> = {
   default: "",
   danger: "ommm-admin-row-icon-button-danger",
   subtle: "ommm-admin-row-icon-button-subtle",
+  warning: "ommm-admin-row-icon-button-warning",
 };
 
 const ICON_BUTTON_SIZE_PX = 28;

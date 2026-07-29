@@ -10,6 +10,8 @@ export const ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS = adminLayout.rowClass;
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_CELL = adminLayout.cellClass;
 
+export const ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL = adminLayout.selectCellClass;
+
 export const ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL = adminLayout.dateTimeCellClass;
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL =

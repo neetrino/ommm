@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   ADMIN_ACTION_ICON_CLASS,
-  CancelGlyph,
+  BanGlyph,
   CheckCircleGlyph,
   CopyGlyph,
   TrashGlyph,
@@ -93,8 +93,8 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
             title: t("confirm.cancelTitle"),
             description: t("confirm.cancelDescription"),
             confirmLabel: t("cancelAction"),
-            tone: "danger" as const,
-            confirmClassName: "ommm-btn-lifecycle-action--danger",
+            tone: "warm" as const,
+            confirmClassName: "ommm-btn-lifecycle-action--warm",
           };
 
   return (
@@ -136,14 +136,14 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
           <AdminRowIconButton
             ariaLabel={t("cancelAction")}
             title={t("cancelAction")}
-            variant="danger"
+            variant="warning"
             onClick={(event) => {
               event.stopPropagation();
               openConfirm("cancel");
             }}
             disabled={busy}
           >
-            <CancelGlyph className={ADMIN_ACTION_ICON_CLASS} />
+            <BanGlyph className={ADMIN_ACTION_ICON_CLASS} />
           </AdminRowIconButton>
         ) : null}
         {includeDelete && onDelete ? (

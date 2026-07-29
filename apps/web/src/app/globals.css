@@ -977,6 +977,10 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
   }
 
+  .ommm-admin-row-icon-button-warning {
+    @apply border-amber-200/80 bg-amber-50/70 text-amber-800 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-950 focus-visible:ring-amber-400;
+  }
+
   .ommm-admin-row-icon-button-subtle {
     @apply border-white/50 bg-white/60 text-sage-500 hover:border-white/70 hover:bg-white hover:text-sage-900;
   }

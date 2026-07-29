@@ -12,8 +12,10 @@ import { sessionEditFormFromRow } from "@/components/admin/admin-schedule-sessio
 import { useSessionEditForm } from "@/components/admin/admin-schedule-session-edit-form.use";
 import { buildCoachDropdownState } from "@/components/admin/admin-schedule-coach-filter";
 import { coachName } from "@/components/admin/admin-schedule-session-display";
+import { canDeleteAdminScheduleSession } from "@/components/admin/admin-schedule-session.helpers";
 import { SessionSheetTabPanels } from "@/components/admin/admin-schedule-session-sheet-tab-panels";
 import {
+  SESSION_SHEET_TAB_BOOKINGS,
   SESSION_SHEET_TAB_DETAILS,
   SESSION_SHEET_TAB_ORDER,
   type SessionSheetTabId,
@@ -30,7 +32,10 @@ import {
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
-import { adminScheduleCapabilities } from "@/lib/backoffice-capabilities";
+import {
+  adminBookingCapabilities,
+  adminScheduleCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 type AdminScheduleSessionDetailsSheetProps = {
   locale: string;
@@ -62,6 +67,7 @@ export function AdminScheduleSessionDetailsSheet({
   }
 
   const caps = capabilities ?? adminScheduleCapabilities();
+  const canCancelBooking = adminBookingCapabilities().canCancel;
 
   return (
     <AdminScheduleSessionDetailsSheetInner
@@ -75,6 +81,7 @@ export function AdminScheduleSessionDetailsSheet({
       onDuplicate={caps.canDuplicate ? onDuplicate : undefined}
       onDelete={caps.canDelete ? onDelete : undefined}
       canUpdate={caps.canUpdate}
+      canCancelBooking={canCancelBooking}
     />
   );
 }
@@ -90,6 +97,7 @@ function AdminScheduleSessionDetailsSheetInner({
   onDuplicate,
   onDelete,
   canUpdate = true,
+  canCancelBooking = true,
 }: {
   locale: string;
   row: AdminScheduleSession;
@@ -101,6 +109,7 @@ function AdminScheduleSessionDetailsSheetInner({
   onDuplicate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
   canUpdate?: boolean;
+  canCancelBooking?: boolean;
   onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 }) {
   const t = useTranslations("adminPages.classes");
@@ -145,6 +154,10 @@ function AdminScheduleSessionDetailsSheetInner({
     value,
     label: t(`sheetTabs.${value}`),
   }));
+  const isBookingsTab = activeTab === SESSION_SHEET_TAB_BOOKINGS;
+  const bodyClassName = isBookingsTab
+    ? "flex min-h-0 flex-1 flex-col overflow-hidden px-5 py-5 sm:px-6"
+    : `${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`;
 
   const handleClose = useCallback(() => {
     if (sheetBusy) {
@@ -158,6 +171,16 @@ function AdminScheduleSessionDetailsSheetInner({
 
   function handleStatusChanged(updated: AdminScheduleSession): void {
     onSaved?.(updated);
+  }
+
+  function handleBookingCancelled(): void {
+    onSaved?.({
+      ...row,
+      _count: {
+        ...row._count,
+        bookings: Math.max(0, row._count.bookings - 1),
+      },
+    });
   }
 
   return (
@@ -195,7 +218,7 @@ function AdminScheduleSessionDetailsSheetInner({
         onTabChange={(value) => setActiveTab(value as SessionSheetTabId)}
       />
 
-      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+      <div className={bodyClassName}>
         {toastMessage ? (
           <AdminCenterToast
             message={toastMessage}
@@ -214,8 +237,13 @@ function AdminScheduleSessionDetailsSheetInner({
           coaches={coaches}
           controller={editForm}
           actionBusy={sheetBusy}
+          canCancelBooking={canCancelBooking}
           onDuplicate={onDuplicate}
-          onDelete={onDelete}
+          onDelete={
+            onDelete && canDeleteAdminScheduleSession(row) ? onDelete : undefined
+          }
+          onBookingCancelled={handleBookingCancelled}
+          onNotice={(message, tone) => setStatusNotice({ message, tone })}
         />
       </div>
 

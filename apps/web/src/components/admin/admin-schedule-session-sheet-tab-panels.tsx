@@ -15,25 +15,21 @@ import {
   buildSessionLevelOptions,
   type SessionClassTypeOption,
 } from "@/components/admin/admin-schedule-session-class-type-resolve";
-import {
-  coachName,
-  durationMinutes,
-  spotsLeft,
-} from "@/components/admin/admin-schedule-session-display";
+import { coachName } from "@/components/admin/admin-schedule-session-display";
 import {
   SESSION_SHEET_TAB_ACTIONS,
   SESSION_SHEET_TAB_BOOKINGS,
   SESSION_SHEET_TAB_DETAILS,
   type SessionSheetTabId,
 } from "@/components/admin/admin-schedule-session-sheet-tabs";
+import { AdminSessionBookingsSummary } from "@/components/admin/admin-session-bookings-summary";
+import { AdminSessionRegistrationsList } from "@/components/admin/admin-session-registrations-list";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { formatDateTimeForUi } from "@/lib/date-display";
-
 import {
   ADMIN_SHEET_FORM_SECTION_CLASS,
 } from "@/components/admin/admin-sheet-editable-field";
@@ -48,8 +44,11 @@ type SessionSheetTabPanelsProps = {
   coaches: readonly AdminScheduleCoach[];
   controller: SessionEditFormController;
   actionBusy: boolean;
+  canCancelBooking?: boolean;
   onDuplicate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
+  onBookingCancelled?: () => void;
+  onNotice?: (message: string, tone: "ok" | "err") => void;
 };
 
 export function SessionSheetTabPanels({
@@ -60,8 +59,11 @@ export function SessionSheetTabPanels({
   coaches,
   controller,
   actionBusy,
+  canCancelBooking = true,
   onDuplicate,
   onDelete,
+  onBookingCancelled,
+  onNotice,
 }: SessionSheetTabPanelsProps) {
   const t = useTranslations("adminPages.classes");
   const [pendingDelete, setPendingDelete] = useState(false);
@@ -180,30 +182,21 @@ export function SessionSheetTabPanels({
 
   if (activeTab === SESSION_SHEET_TAB_BOOKINGS) {
     return (
-      <section className={SECTION_CLASS}>
-        <h3 className="text-base font-semibold text-sage-950">{t("sheetTabs.bookingsHeading")}</h3>
-        <dl className="mt-4 space-y-3 text-sm">
-          <MetricRow
-            label={t("colCapacity")}
-            value={`${row._count.bookings}/${row.capacity}`}
-          />
-          <MetricRow
-            label={t("fields.spotsLeft", { count: spotsLeft(row) })}
-            value={String(spotsLeft(row))}
-          />
-          <MetricRow
-            label={t("fields.duration")}
-            value={`${durationMinutes(row)}m`}
-          />
-          <MetricRow label={t("colStatus")} value={t(`status.${row.status}`)} />
-          <MetricRow
-            label={t("colDate")}
-            value={formatDateTimeForUi(row.startsAt, locale)}
-          />
-        </dl>
-        {row._count.bookings === 0 ? (
-          <p className="mt-4 text-sm text-sage-500">{t("sheetTabs.bookingsEmpty")}</p>
-        ) : null}
+      <section className={`${SECTION_CLASS} flex min-h-0 flex-1 flex-col`}>
+        <div className="flex shrink-0 flex-col gap-1">
+          <h3 className="text-base font-semibold text-sage-950">
+            {t("sheetTabs.bookingsHeading")}
+          </h3>
+          <AdminSessionBookingsSummary row={row} />
+        </div>
+        <AdminSessionRegistrationsList
+          sessionId={row.id}
+          locale={locale}
+          active={activeTab === SESSION_SHEET_TAB_BOOKINGS}
+          canCancel={canCancelBooking}
+          onBookingCancelled={onBookingCancelled}
+          onNotice={onNotice}
+        />
       </section>
     );
   }
@@ -266,13 +259,4 @@ export function SessionSheetTabPanels({
   }
 
   return null;
-}
-
-function MetricRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className="text-sage-500">{label}</dt>
-      <dd className="font-medium text-sage-900">{value}</dd>
-    </div>
-  );
 }
