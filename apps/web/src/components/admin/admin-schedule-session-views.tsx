@@ -41,7 +41,6 @@ export type AdminScheduleSessionViewsProps = {
   selectedIds?: ReadonlySet<string>;
   onToggleSelect?: (rowId: string, selected: boolean) => void;
   onToggleSelectAll?: (checked: boolean) => void;
-  onClearSelection?: () => void;
   onBulkCancel?: () => void;
   onBulkActivate?: () => void;
 };
@@ -69,7 +68,6 @@ type ScheduleWeekPanelProps = Omit<
   | "selectedIds"
   | "onToggleSelect"
   | "onToggleSelectAll"
-  | "onClearSelection"
   | "onBulkCancel"
   | "onBulkActivate"
 >;

@@ -154,7 +154,6 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         selectedIds={schedule.selectedIds}
         onToggleSelect={schedule.toggleSelect}
         onToggleSelectAll={schedule.toggleSelectAll}
-        onClearSelection={schedule.clearSelection}
         onBulkCancel={caps.canCancel ? schedule.handleBulkCancel : undefined}
         onBulkActivate={caps.canChangeStatus ? schedule.handleBulkActivate : undefined}
       />
