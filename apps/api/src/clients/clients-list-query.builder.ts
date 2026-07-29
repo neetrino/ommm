@@ -1,7 +1,8 @@
-import { BookingStatus, PaymentStatus, Prisma, Role } from '@prisma/client';
+import { BookingStatus, PaymentStatus, Prisma, Role, UserPackageStatus } from '@prisma/client';
 import {
   AdminClientAttendanceFilter,
   AdminClientOrder,
+  AdminClientPackageFilter,
   AdminClientPaymentStatusFilter,
   AdminClientQuickFilter,
   AdminClientStatusFilter,
@@ -87,6 +88,7 @@ export function buildClientsListWhere(
   }
 
   appendStatusFilter(and, query.status);
+  appendPackageFilter(and, query.package);
   appendPaymentStatusFilter(and, query.paymentStatus);
   appendTagFilter(and, query.tag);
   appendAttendanceFilter(and, query.attendance);
@@ -146,6 +148,24 @@ export function resolveClientsListOrderBy(
     return { bookings: { _count: 'desc' } };
   }
   return { createdAt: 'desc' };
+}
+
+function appendPackageFilter(
+  and: Prisma.UserWhereInput[],
+  packageFilter: AdminClientPackageFilter | undefined,
+): void {
+  if (!packageFilter || packageFilter === AdminClientPackageFilter.ALL) {
+    return;
+  }
+  if (packageFilter === AdminClientPackageFilter.ACTIVE) {
+    and.push({
+      userPackages: { some: { status: UserPackageStatus.ACTIVE } },
+    });
+    return;
+  }
+  and.push({
+    userPackages: { none: { status: UserPackageStatus.ACTIVE } },
+  });
 }
 
 function appendStatusFilter(

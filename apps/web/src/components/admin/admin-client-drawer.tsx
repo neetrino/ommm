@@ -13,12 +13,9 @@ import {
   replaceAdminClientsSearchParams,
 } from "@/components/admin/admin-clients-query";
 import {
-  CLIENT_ADD_BOOKING_QUERY_KEY,
-  CLIENT_ADD_BOOKING_QUERY_VALUE,
   CLIENT_ADD_PACKAGE_QUERY_KEY,
   CLIENT_ADD_PACKAGE_QUERY_VALUE,
   CLIENT_PROFILE_TAB_QUERY_KEY,
-  CLIENT_SHEET_TAB_BOOKINGS,
   CLIENT_SHEET_TAB_ORDER,
   CLIENT_SHEET_TAB_PACKAGES,
   CLIENT_SHEET_TAB_PROFILE,
@@ -141,13 +138,9 @@ function AdminClientDrawerInner({
   const searchParams = useSearchParams();
   const addPackageFromUrl =
     searchParams.get(CLIENT_ADD_PACKAGE_QUERY_KEY) === CLIENT_ADD_PACKAGE_QUERY_VALUE;
-  const addBookingFromUrl =
-    searchParams.get(CLIENT_ADD_BOOKING_QUERY_KEY) === CLIENT_ADD_BOOKING_QUERY_VALUE;
   const urlTab = addPackageFromUrl
     ? CLIENT_SHEET_TAB_PACKAGES
-    : addBookingFromUrl
-      ? CLIENT_SHEET_TAB_BOOKINGS
-      : parseClientSheetTabId(searchParams.get(CLIENT_PROFILE_TAB_QUERY_KEY));
+    : parseClientSheetTabId(searchParams.get(CLIENT_PROFILE_TAB_QUERY_KEY));
   const [activeTab, setActiveTab] = useState<ClientSheetTabId>(urlTab);
   const [prevUrlTab, setPrevUrlTab] = useState(urlTab);
   if (urlTab !== prevUrlTab) {
@@ -276,9 +269,6 @@ function AdminClientDrawerInner({
         if (tab !== CLIENT_SHEET_TAB_PACKAGES) {
           params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
         }
-        if (tab !== CLIENT_SHEET_TAB_BOOKINGS) {
-          params.delete(CLIENT_ADD_BOOKING_QUERY_KEY);
-        }
       });
     },
     [pathname, router],
@@ -301,7 +291,6 @@ function AdminClientDrawerInner({
     replaceAdminClientsSearchParams(pathname, router, (params) => {
       params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
       params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
-      params.delete(CLIENT_ADD_BOOKING_QUERY_KEY);
     });
     onClose();
   }

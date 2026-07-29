@@ -8,8 +8,6 @@ export const CLIENT_SHEET_TAB_NOTES = "notes";
 export const CLIENT_PROFILE_TAB_QUERY_KEY = "clientTab";
 export const CLIENT_ADD_PACKAGE_QUERY_KEY = "clientAddPackage";
 export const CLIENT_ADD_PACKAGE_QUERY_VALUE = "1";
-export const CLIENT_ADD_BOOKING_QUERY_KEY = "clientAddBooking";
-export const CLIENT_ADD_BOOKING_QUERY_VALUE = "1";
 
 export type ClientSheetTabId =
   | typeof CLIENT_SHEET_TAB_PROFILE

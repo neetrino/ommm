@@ -13,39 +13,26 @@ import {
   sessionRequiresPackage,
   type AdminClientBookingUpcomingSession,
 } from "@/components/admin/admin-client-booking-create.helpers";
-import {
-  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
-  ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS,
-  ADMIN_DETAILS_SHEET_TITLE_CLASS,
-  ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
 import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmDrawerPortal, OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
 import { pickDefaultBookingPackageId } from "@/lib/booking-package-selection";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
-type AdminClientBookingCreateSheetProps = {
+type AdminClientBookingCreateBarProps = {
   client: ClientDetail;
   locale: string;
-  onClose: () => void;
   onSuccess: () => void;
 };
 
-export function AdminClientBookingCreateSheet({
+export function AdminClientBookingCreateBar({
   client,
   locale,
-  onClose,
   onSuccess,
-}: AdminClientBookingCreateSheetProps) {
+}: AdminClientBookingCreateBarProps) {
   const t = useTranslations("adminPages.clients");
-  const titleId = useId();
   const formId = useId();
   const [sessions, setSessions] = useState<AdminClientBookingUpcomingSession[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
@@ -173,11 +160,11 @@ export function AdminClientBookingCreateSheet({
     ),
   }));
 
-  function handleClose(): void {
-    if (submitting) {
-      return;
-    }
-    onClose();
+  function resetForm(): void {
+    setSessionId("");
+    setPackages([]);
+    setUserPackageId(ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE);
+    setPackagesError(null);
   }
 
   async function handleSubmit(): Promise<void> {
@@ -195,95 +182,61 @@ export function AdminClientBookingCreateSheet({
         method: "POST",
         body: JSON.stringify(body),
       });
+      setToast({ message: t("bookings.createSuccess"), tone: "ok" });
+      resetForm();
       onSuccess();
     } catch (err) {
       setToast({
         message: err instanceof ApiError ? err.message : t("bookings.createError"),
         tone: "err",
       });
+    } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <OmmDrawerPortal
-      isOpen
-      onClose={handleClose}
-      closeDisabled={submitting}
-      backdropAriaLabel={t("modalBackdropClose")}
-      ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS}
-      panelClassName={ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS}
-      backdropClassName={OMM_DRAWER_NESTED_BACKDROP_CLASS}
-      lockBodyScroll={false}
-      useOverlayPortalRoot
-    >
-      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
-        <div className="flex items-start justify-between gap-3">
-          <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
-            {t("bookings.addBooking")}
-          </h2>
-          <button
-            type="button"
-            className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
-            aria-label={t("modalCloseAria")}
-            disabled={submitting}
-            onClick={handleClose}
-          >
-            ×
-          </button>
-        </div>
-      </header>
-
-      <div className={`${ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
-        {toast ? (
-          <AdminCenterToast
-            message={toast.message}
-            tone={toast.tone}
-            onDismiss={() => setToast(null)}
-          />
-        ) : null}
-
-        <AdminClientBookingCreateForm
-          formId={formId}
-          sessionsLoading={sessionsLoading}
-          sessionsError={sessionsError}
-          sessionOptions={sessionOptions}
-          sessionId={sessionId}
-          onSessionChange={setSessionId}
-          packagesLoading={packagesLoading}
-          packagesError={packagesError}
-          packageOptions={packageOptions}
-          userPackageId={userPackageId}
-          onPackageChange={setUserPackageId}
-          packageRequired={packageRequired}
-          noPackageValue={ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE}
-          bookablePackageCount={bookablePackages.length}
-          disabled={submitting}
-          onSubmit={() => void handleSubmit()}
+    <section className="rounded-2xl border border-sand-200/80 bg-white/90 p-4 shadow-sm sm:p-5">
+      {toast ? (
+        <AdminCenterToast
+          message={toast.message}
+          tone={toast.tone}
+          onDismiss={() => setToast(null)}
         />
-      </div>
+      ) : null}
 
-      <footer
-        className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} flex flex-wrap items-center justify-end gap-2`}
-      >
-        <OmmButton
-          type="button"
-          variant="secondary"
-          disabled={submitting}
-          onClick={handleClose}
-        >
-          {t("cancelButton")}
-        </OmmButton>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-3">
+        <div className="min-w-0 flex-1">
+          <AdminClientBookingCreateForm
+            formId={formId}
+            layout="bar"
+            sessionsLoading={sessionsLoading}
+            sessionsError={sessionsError}
+            sessionOptions={sessionOptions}
+            sessionId={sessionId}
+            onSessionChange={setSessionId}
+            packagesLoading={packagesLoading}
+            packagesError={packagesError}
+            packageOptions={packageOptions}
+            userPackageId={userPackageId}
+            onPackageChange={setUserPackageId}
+            packageRequired={packageRequired}
+            noPackageValue={ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE}
+            bookablePackageCount={bookablePackages.length}
+            disabled={submitting}
+            onSubmit={() => void handleSubmit()}
+          />
+        </div>
         <OmmButton
           type="submit"
           form={formId}
           variant="primary"
+          className="w-full shrink-0 lg:w-auto"
           disabled={!canSubmit || submitting}
         >
           {submitting ? t("bookings.submitting") : t("bookings.confirm")}
         </OmmButton>
-      </footer>
-    </OmmDrawerPortal>
+      </div>
+    </section>
   );
 }

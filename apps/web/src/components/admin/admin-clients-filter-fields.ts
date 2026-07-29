@@ -33,6 +33,12 @@ type BuildAdminClientsFilterFieldsArgs = {
   resolveOrderChipLabel: (value: string) => string;
   renderSegments: AdminIntegratedFilterField["render"];
   renderOrder: AdminIntegratedFilterField["render"];
+  packageLabels: {
+    label: string;
+    allLabel: string;
+    activeLabel: string;
+    inactiveLabel: string;
+  };
 };
 
 export function buildAdminClientsFilterFields({
@@ -40,6 +46,7 @@ export function buildAdminClientsFilterFields({
   resolveOrderChipLabel,
   renderSegments,
   renderOrder,
+  packageLabels,
 }: BuildAdminClientsFilterFieldsArgs): AdminIntegratedFilterField[] {
   return [
     {
@@ -61,6 +68,15 @@ export function buildAdminClientsFilterFields({
         { value: "inactive", label: "Inactive" },
         { value: "frozen", label: "Frozen" },
         { value: "blocked", label: "Blocked" },
+      ],
+    },
+    {
+      key: "package",
+      label: packageLabels.label,
+      allLabel: packageLabels.allLabel,
+      options: [
+        { value: "active", label: packageLabels.activeLabel },
+        { value: "inactive", label: packageLabels.inactiveLabel },
       ],
     },
     {
@@ -164,6 +180,7 @@ export function adminClientsFilterValuesFromState(
   return {
     tag: filters.tag ?? "",
     status: filters.status ?? "",
+    package: filters.package ?? "",
     paymentStatus: filters.paymentStatus ?? "",
     source: filters.source ?? "",
     attendance: filters.attendance ?? "",

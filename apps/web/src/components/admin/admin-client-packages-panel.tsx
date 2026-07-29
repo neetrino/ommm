@@ -10,7 +10,6 @@ import type {
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
 import { AdminClientPackagePurchaseSheet } from "@/components/admin/admin-client-package-purchase-sheet";
-import { AdminClientPackageValiditySheet } from "@/components/admin/admin-client-package-validity-sheet";
 import { replaceAdminClientsSearchParams } from "@/components/admin/admin-clients-query";
 import {
   CLIENT_ADD_PACKAGE_QUERY_KEY,
@@ -18,7 +17,6 @@ import {
   CLIENT_PROFILE_TAB_QUERY_KEY,
   CLIENT_SHEET_TAB_PACKAGES,
 } from "@/components/admin/admin-client-sheet-tabs";
-import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -70,10 +68,6 @@ export function ClientPackagesPanel({
   const [prevClientId, setPrevClientId] = useState(client.id);
   const [retryKey, setRetryKey] = useState(0);
   const [result, setResult] = useState<PackagesFetchResult | null>(null);
-  const [editingPackage, setEditingPackage] = useState<ClientSheetPackageItem | null>(
-    null,
-  );
-  const [validityToast, setValidityToast] = useState<string | null>(null);
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
 
   if (client.id !== prevClientId) {
@@ -144,14 +138,6 @@ export function ClientPackagesPanel({
 
   return (
     <div className="space-y-5">
-      {validityToast !== null ? (
-        <AdminCenterToast
-          message={validityToast}
-          tone="ok"
-          onDismiss={() => setValidityToast(null)}
-        />
-      ) : null}
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
           {t("packages.heading")}
@@ -189,8 +175,8 @@ export function ClientPackagesPanel({
                 locale={locale}
                 paymentMethodLabel={resolvePaymentMethodLabel(item.paymentMethod)}
                 allowEditValidity={allowEditValidity}
-                onEditValidity={
-                  allowEditValidity ? () => setEditingPackage(item) : undefined
+                onValidityUpdated={
+                  allowEditValidity ? handleValidityUpdated : undefined
                 }
               />
             </li>
@@ -217,18 +203,6 @@ export function ClientPackagesPanel({
           onSuccess={() => {
             closePurchase();
             onPurchaseSuccess();
-          }}
-        />
-      ) : null}
-
-      {editingPackage !== null ? (
-        <AdminClientPackageValiditySheet
-          item={editingPackage}
-          onClose={() => setEditingPackage(null)}
-          onSuccess={() => {
-            setEditingPackage(null);
-            setValidityToast(t("packages.validityUpdated"));
-            handleValidityUpdated();
           }}
         />
       ) : null}
