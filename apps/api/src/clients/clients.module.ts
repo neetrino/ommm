@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
+import { BookingsModule } from '../bookings/bookings.module';
 import { MailModule } from '../mail/mail.module';
 import { PackagesModule } from '../packages/packages.module';
 import { ClientsAdminCreateService } from './clients-admin-create.service';
 import { ClientsAdminService } from './clients-admin.service';
+import { ClientsBookingsCreateService } from './clients-bookings-create.service';
 import { ClientsController } from './clients.controller';
 import { ClientsPackagesPurchaseService } from './clients-packages-purchase.service';
 import { ClientsService } from './clients.service';
 import { ClientsTabListsService } from './clients-tab-lists.service';
 
 @Module({
-  imports: [MailModule, PackagesModule],
+  imports: [MailModule, PackagesModule, BookingsModule],
   controllers: [ClientsController],
   providers: [
     ClientsService,
@@ -17,6 +19,7 @@ import { ClientsTabListsService } from './clients-tab-lists.service';
     ClientsAdminService,
     ClientsTabListsService,
     ClientsPackagesPurchaseService,
+    ClientsBookingsCreateService,
   ],
 })
 export class ClientsModule {}

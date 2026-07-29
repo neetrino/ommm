@@ -13,9 +13,12 @@ import {
   replaceAdminClientsSearchParams,
 } from "@/components/admin/admin-clients-query";
 import {
+  CLIENT_ADD_BOOKING_QUERY_KEY,
+  CLIENT_ADD_BOOKING_QUERY_VALUE,
   CLIENT_ADD_PACKAGE_QUERY_KEY,
   CLIENT_ADD_PACKAGE_QUERY_VALUE,
   CLIENT_PROFILE_TAB_QUERY_KEY,
+  CLIENT_SHEET_TAB_BOOKINGS,
   CLIENT_SHEET_TAB_ORDER,
   CLIENT_SHEET_TAB_PACKAGES,
   CLIENT_SHEET_TAB_PROFILE,
@@ -51,6 +54,8 @@ type AdminClientDrawerProps = {
   initialDetail?: ClientDetail | null;
   /** Admin-only package purchase in Packages tab. */
   allowPackagePurchase?: boolean;
+  /** Admin/manager create booking in Bookings tab. */
+  allowCreateBooking?: boolean;
   capabilities?: ClientCapabilities;
 };
 
@@ -77,6 +82,7 @@ export function AdminClientDrawer({
   useOverlayPortalRoot = false,
   initialDetail = null,
   allowPackagePurchase = false,
+  allowCreateBooking = false,
   capabilities,
 }: AdminClientDrawerProps) {
   if (client === null) {
@@ -95,6 +101,9 @@ export function AdminClientDrawer({
       allowPackagePurchase={
         capabilities?.canAssignPackage ?? allowPackagePurchase
       }
+      allowCreateBooking={
+        capabilities?.canCreateBooking ?? allowCreateBooking
+      }
       canAddNotes={capabilities?.canAddNotes ?? true}
       canUpdate={capabilities?.canUpdate ?? true}
     />
@@ -109,6 +118,7 @@ function AdminClientDrawerInner({
   useOverlayPortalRoot = false,
   initialDetail = null,
   allowPackagePurchase = false,
+  allowCreateBooking = false,
   canAddNotes = true,
   canUpdate = true,
 }: {
@@ -119,6 +129,7 @@ function AdminClientDrawerInner({
   useOverlayPortalRoot?: boolean;
   initialDetail?: ClientDetail | null;
   allowPackagePurchase?: boolean;
+  allowCreateBooking?: boolean;
   canAddNotes?: boolean;
   canUpdate?: boolean;
 }) {
@@ -130,9 +141,13 @@ function AdminClientDrawerInner({
   const searchParams = useSearchParams();
   const addPackageFromUrl =
     searchParams.get(CLIENT_ADD_PACKAGE_QUERY_KEY) === CLIENT_ADD_PACKAGE_QUERY_VALUE;
+  const addBookingFromUrl =
+    searchParams.get(CLIENT_ADD_BOOKING_QUERY_KEY) === CLIENT_ADD_BOOKING_QUERY_VALUE;
   const urlTab = addPackageFromUrl
     ? CLIENT_SHEET_TAB_PACKAGES
-    : parseClientSheetTabId(searchParams.get(CLIENT_PROFILE_TAB_QUERY_KEY));
+    : addBookingFromUrl
+      ? CLIENT_SHEET_TAB_BOOKINGS
+      : parseClientSheetTabId(searchParams.get(CLIENT_PROFILE_TAB_QUERY_KEY));
   const [activeTab, setActiveTab] = useState<ClientSheetTabId>(urlTab);
   const [prevUrlTab, setPrevUrlTab] = useState(urlTab);
   if (urlTab !== prevUrlTab) {
@@ -261,6 +276,9 @@ function AdminClientDrawerInner({
         if (tab !== CLIENT_SHEET_TAB_PACKAGES) {
           params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
         }
+        if (tab !== CLIENT_SHEET_TAB_BOOKINGS) {
+          params.delete(CLIENT_ADD_BOOKING_QUERY_KEY);
+        }
       });
     },
     [pathname, router],
@@ -283,6 +301,7 @@ function AdminClientDrawerInner({
     replaceAdminClientsSearchParams(pathname, router, (params) => {
       params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
       params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
+      params.delete(CLIENT_ADD_BOOKING_QUERY_KEY);
     });
     onClose();
   }
@@ -438,10 +457,17 @@ function AdminClientDrawerInner({
             onPersonalInfoSubmit={handlePersonalInfoFormSubmit}
             onAvatarPreviewOpenChange={setAvatarPreviewOpen}
             allowPackagePurchase={allowPackagePurchase}
+            allowCreateBooking={allowCreateBooking}
             canAddNotes={canAddNotes}
             onPackagePurchaseSuccess={() => {
               setActionTone("ok");
               setActionMessage(t("packages.purchaseSuccess"));
+              onChanged();
+              void refreshDetail();
+            }}
+            onBookingCreateSuccess={() => {
+              setActionTone("ok");
+              setActionMessage(t("bookings.createSuccess"));
               onChanged();
               void refreshDetail();
             }}

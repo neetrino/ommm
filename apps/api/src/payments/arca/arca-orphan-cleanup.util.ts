@@ -99,12 +99,11 @@ async function failBanklessOrphanPayment(
     return { failedPayment: true, cancelledPackage: false };
   }
 
-  const cancelled = await prisma.userPackage.updateMany({
+  const cancelled = await prisma.userPackage.deleteMany({
     where: {
       id: payment.sourceId,
       status: UserPackageStatus.PENDING,
     },
-    data: { status: UserPackageStatus.CANCELLED },
   });
 
   return {

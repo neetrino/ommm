@@ -13,6 +13,7 @@ export type BackofficeCapabilities = {
 export type ClientCapabilities = BackofficeCapabilities & {
   canAddNotes: boolean;
   canAssignPackage: boolean;
+  canCreateBooking: boolean;
 };
 
 export type ScheduleCapabilities = BackofficeCapabilities & {
@@ -73,11 +74,21 @@ export function managerBackofficeCapabilities(): BackofficeCapabilities {
 }
 
 export function adminClientCapabilities(): ClientCapabilities {
-  return { ...ADMIN_BASE, canAddNotes: true, canAssignPackage: true };
+  return {
+    ...ADMIN_BASE,
+    canAddNotes: true,
+    canAssignPackage: true,
+    canCreateBooking: true,
+  };
 }
 
 export function managerClientCapabilities(): ClientCapabilities {
-  return { ...MANAGER_BASE, canAddNotes: true, canAssignPackage: true };
+  return {
+    ...MANAGER_BASE,
+    canAddNotes: true,
+    canAssignPackage: true,
+    canCreateBooking: true,
+  };
 }
 
 export function adminScheduleCapabilities(): ScheduleCapabilities {

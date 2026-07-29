@@ -146,12 +146,11 @@ export class ArcaPaymentSyncService {
       existing.source === PaymentSource.PACKAGE &&
       existing.sourceId !== null
     ) {
-      await this.prisma.userPackage.updateMany({
+      await this.prisma.userPackage.deleteMany({
         where: {
           id: existing.sourceId,
           status: UserPackageStatus.PENDING,
         },
-        data: { status: UserPackageStatus.CANCELLED },
       });
     }
   }

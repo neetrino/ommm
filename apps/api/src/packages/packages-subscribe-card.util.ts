@@ -10,6 +10,10 @@ import { mergeArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import {
+  readPackagePlanIdFromMetadata,
+  withPackagePlanIdMetadata,
+} from './package-payment-metadata.util';
+import {
   createPaymentReference,
   resolveFinalPriceCents,
 } from './packages-plan.helpers';
@@ -17,10 +21,16 @@ import { createBalancesForUserPackage } from './packages-user-package-balances.u
 import { buildUserPackagePlanSnapshot } from './user-package-plan-snapshot.util';
 import { resolveUserPackagePeriodBounds } from './user-package-period.util';
 
+/**
+ * Pending card checkout. `userPackageId` is null for the deferred-create flow
+ * (package is created only after payment succeeds). Legacy in-flight checkouts
+ * may still have a PENDING package id.
+ */
 export type PendingCardPackagePurchase = {
-  userPackageId: string;
+  userPackageId: string | null;
   paymentReference: string;
   paymentId: string;
+  planId: string;
 };
 
 type PaymentPackageDb = Pick<
@@ -28,7 +38,21 @@ type PaymentPackageDb = Pick<
   'userPackage' | 'payment'
 >;
 
-/** Finds the newest PENDING card purchase for this user+plan, if any. */
+function paymentMatchesPlan(
+  payment: { sourceId: string | null; metadata: Prisma.JsonValue | null },
+  planId: string,
+  pendingPackageIds: ReadonlySet<string>,
+): boolean {
+  const metadataPlanId = readPackagePlanIdFromMetadata(payment.metadata);
+  if (metadataPlanId === planId) {
+    return true;
+  }
+  return (
+    payment.sourceId !== null && pendingPackageIds.has(payment.sourceId)
+  );
+}
+
+/** Finds the oldest PENDING card purchase for this user+plan, if any. */
 export async function findPendingCardPackagePurchase(
   db: PaymentPackageDb,
   userId: string,
@@ -40,35 +64,40 @@ export async function findPendingCardPackagePurchase(
     select: { id: true },
     take: 20,
   });
-  if (pendingPackages.length === 0) {
-    return null;
-  }
+  const pendingPackageIds = new Set(pendingPackages.map((row) => row.id));
 
-  const payment = await db.payment.findFirst({
+  const payments = await db.payment.findMany({
     where: {
       userId,
       source: PaymentSource.PACKAGE,
-      sourceId: { in: pendingPackages.map((row) => row.id) },
       status: PaymentStatus.PENDING,
       paymentMethod: ManualPaymentMethod.CARD,
     },
     orderBy: { createdAt: 'asc' },
-    select: { id: true, paymentReference: true, sourceId: true },
+    take: 50,
+    select: {
+      id: true,
+      paymentReference: true,
+      sourceId: true,
+      metadata: true,
+    },
   });
 
-  if (
-    payment === null ||
-    payment.sourceId === null ||
-    payment.paymentReference === null
-  ) {
-    return null;
+  for (const payment of payments) {
+    if (!paymentMatchesPlan(payment, planId, pendingPackageIds)) {
+      continue;
+    }
+    if (payment.paymentReference === null) {
+      continue;
+    }
+    return {
+      userPackageId: payment.sourceId,
+      paymentReference: payment.paymentReference,
+      paymentId: payment.id,
+      planId,
+    };
   }
-
-  return {
-    userPackageId: payment.sourceId,
-    paymentReference: payment.paymentReference,
-    paymentId: payment.id,
-  };
+  return null;
 }
 
 /**
@@ -91,49 +120,43 @@ export async function failDuplicatePendingCardPurchases(
     },
     select: { id: true },
   });
-  if (pendingPackages.length === 0) {
-    return 0;
-  }
+  const pendingPackageIds = new Set(pendingPackages.map((row) => row.id));
 
-  const duplicates = await db.payment.findMany({
+  const payments = await db.payment.findMany({
     where: {
       userId: params.userId,
       source: PaymentSource.PACKAGE,
-      sourceId: { in: pendingPackages.map((row) => row.id) },
       status: PaymentStatus.PENDING,
       paymentMethod: ManualPaymentMethod.CARD,
       id: { not: params.keepPaymentId },
     },
-    select: { id: true, sourceId: true },
+    select: { id: true, sourceId: true, metadata: true },
   });
 
-  for (const payment of duplicates) {
+  let failed = 0;
+  for (const payment of payments) {
+    if (!paymentMatchesPlan(payment, params.planId, pendingPackageIds)) {
+      continue;
+    }
     await failPendingCardPackagePurchase(db, {
       paymentId: payment.id,
       userPackageId: payment.sourceId,
       statusReason: PAYMENT_STATUS_REASON.DUPLICATE_ATTEMPT,
     });
+    failed += 1;
   }
-  return duplicates.length;
+  return failed;
 }
 
-/** Creates a PENDING UserPackage + CARD Payment for Arca checkout. */
+/**
+ * Creates a PENDING CARD Payment for Arca checkout.
+ * UserPackage is created only after payment succeeds (see fulfillPackagePayment).
+ */
 export async function createPendingCardPackagePurchase(
   tx: Prisma.TransactionClient,
   params: { userId: string; plan: PackagePlan },
 ): Promise<PendingCardPackagePurchase> {
   const paymentReference = createPaymentReference('PACKAGE');
-  const userPackage = await tx.userPackage.create({
-    data: buildUserPackageCreateData({
-      userId: params.userId,
-      plan: params.plan,
-      status: UserPackageStatus.PENDING,
-    }),
-  });
-  await createBalancesForUserPackage(tx, {
-    plan: params.plan,
-    userPackageId: userPackage.id,
-  });
   const payment = await tx.payment.create({
     data: {
       userId: params.userId,
@@ -142,23 +165,27 @@ export async function createPendingCardPackagePurchase(
       status: PaymentStatus.PENDING,
       paymentReference,
       source: PaymentSource.PACKAGE,
-      sourceId: userPackage.id,
+      sourceId: null,
       description: buildPackagePaymentDescription(params.plan.name),
       confirmedAt: null,
       paymentMethod: ManualPaymentMethod.CARD,
-      metadata: {
+      metadata: withPackagePlanIdMetadata(null, params.plan.id, {
         statusReason: PAYMENT_STATUS_REASON.CHECKOUT_NOT_STARTED,
-      },
+      }),
     },
   });
   return {
-    userPackageId: userPackage.id,
+    userPackageId: null,
     paymentReference: payment.paymentReference ?? paymentReference,
     paymentId: payment.id,
+    planId: params.plan.id,
   };
 }
 
-/** Marks a just-created (or abandoned) card purchase as failed/cancelled. */
+/**
+ * Marks a pending card purchase as failed.
+ * Deletes a legacy PENDING UserPackage when present; deferred flow has none.
+ */
 export async function failPendingCardPackagePurchase(
   db: PaymentPackageDb,
   params: {
@@ -190,16 +217,17 @@ export async function failPendingCardPackagePurchase(
   if (params.userPackageId === null) {
     return;
   }
-  await db.userPackage.updateMany({
+  // Legacy in-flight PENDING rows: remove instead of CANCELLED so they never
+  // appear as "cancelled packages" in client history.
+  await db.userPackage.deleteMany({
     where: {
       id: params.userPackageId,
       status: UserPackageStatus.PENDING,
     },
-    data: { status: UserPackageStatus.CANCELLED },
   });
 }
 
-/** Shared UserPackage create payload for subscribe flows. */
+/** Shared UserPackage create payload for subscribe / fulfill flows. */
 export function buildUserPackageCreateData(params: {
   userId: string;
   plan: PackagePlan;

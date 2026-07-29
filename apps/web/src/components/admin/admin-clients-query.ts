@@ -4,6 +4,7 @@ import {
   parseListPageParams,
 } from "@/lib/list-pagination";
 import {
+  CLIENT_ADD_BOOKING_QUERY_KEY,
   CLIENT_ADD_PACKAGE_QUERY_KEY,
   CLIENT_PROFILE_TAB_QUERY_KEY,
 } from "@/components/admin/admin-client-sheet-tabs";
@@ -39,6 +40,7 @@ export const ADMIN_CLIENTS_UI_QUERY_KEYS = [
   "viewClient",
   CLIENT_PROFILE_TAB_QUERY_KEY,
   CLIENT_ADD_PACKAGE_QUERY_KEY,
+  CLIENT_ADD_BOOKING_QUERY_KEY,
   LIST_PAGE_QUERY_KEY,
   LIST_PAGE_SIZE_QUERY_KEY,
 ] as const;

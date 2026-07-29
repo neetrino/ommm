@@ -14,6 +14,7 @@ import {
   ARCA_RECONCILE_MIN_AGE_MS,
   ARCA_RECONCILIATION_ENABLED_ENV,
 } from './arca.constants';
+import { cleanupUnpaidCancelledUserPackages } from '../../packages/cleanup-unpaid-cancelled-packages.util';
 
 type ReconciliationSummary = {
   checked: number;
@@ -43,6 +44,15 @@ export class ArcaReconciliationService {
     }
 
     await cleanupBanklessOrphanPendingPayments(this.prisma, this.logger);
+
+    const removedFakeCancelled = await cleanupUnpaidCancelledUserPackages(
+      this.prisma,
+    );
+    if (removedFakeCancelled > 0) {
+      this.logger.log(
+        `Removed ${removedFakeCancelled} unpaid CANCELLED user package(s) from failed checkouts.`,
+      );
+    }
 
     const summary = await this.reconcilePendingPayments();
     if (summary.confirmed > 0 || summary.failed > 0) {

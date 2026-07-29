@@ -22,7 +22,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ArcaService } from '../payments/arca/arca.service';
 import { readArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
-import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { planCoversClassType } from './plan-covers-class-type';
@@ -47,6 +46,11 @@ import {
 } from './packages-subscribe-card.util';
 import { createBalancesForUserPackage } from './packages-user-package-balances.util';
 import { resolveUserPackagePlan } from './user-package-plan-snapshot.util';
+import {
+  buildVisibleUserPackagesWhere,
+  compareUserPackagesForClientList,
+  loadSucceededPackageSourceIds,
+} from './user-package-list.util';
 
 @Injectable()
 export class PackagesPublicService {
@@ -82,12 +86,16 @@ export class PackagesPublicService {
   }
 
   async listMine(userId: string) {
+    const succeededPackageIds = await loadSucceededPackageSourceIds(
+      this.prisma,
+      userId,
+    );
     const rows = await this.prisma.userPackage.findMany({
-      where: { userId },
+      where: buildVisibleUserPackagesWhere(userId, succeededPackageIds),
       include: { plan: true },
-      orderBy: { createdAt: 'desc' },
       take: 200,
     });
+    rows.sort(compareUserPackagesForClientList);
     return rows.map((row) => {
       const resolvedPlan = resolveUserPackagePlan({
         plan: row.plan,
@@ -146,7 +154,7 @@ export class PackagesPublicService {
         locale,
       });
       return {
-        id: resolved.purchase.userPackageId,
+        id: resolved.purchase.paymentId,
         paymentReference: resolved.purchase.paymentReference,
         requiresArcaCheckout: true,
         redirectUrl,
@@ -222,7 +230,7 @@ export class PackagesPublicService {
       userPackageId: resolved.purchase.userPackageId,
     });
     this.logger.warn(
-      `Arca init failed for package payment ${resolved.purchase.paymentId}; marked FAILED/CANCELLED`,
+      `Arca init failed for package payment ${resolved.purchase.paymentId}; marked FAILED`,
     );
   }
 
@@ -231,15 +239,32 @@ export class PackagesPublicService {
     plan: PackagePlan,
     isCardPayment: boolean,
   ) {
+    if (isCardPayment) {
+      return this.subscribeCardWithoutArca(userId, plan);
+    }
+    return this.subscribeCashImmediate(userId, plan);
+  }
+
+  /** CARD without Arca: payment only; package created on admin/manual confirm. */
+  private async subscribeCardWithoutArca(userId: string, plan: PackagePlan) {
+    const purchase = await this.prisma.$transaction((tx) =>
+      createPendingCardPackagePurchase(tx, { userId, plan }),
+    );
+    return {
+      id: purchase.paymentId,
+      paymentReference: purchase.paymentReference,
+      requiresArcaCheckout: false,
+    };
+  }
+
+  private async subscribeCashImmediate(userId: string, plan: PackagePlan) {
     const paymentReference = createPaymentReference('PACKAGE');
     const created = await this.prisma.$transaction(async (tx) => {
       const userPackage = await tx.userPackage.create({
         data: buildUserPackageCreateData({
           userId,
           plan,
-          status: isCardPayment
-            ? UserPackageStatus.PENDING
-            : UserPackageStatus.ACTIVE,
+          status: UserPackageStatus.ACTIVE,
         }),
       });
       await createBalancesForUserPackage(tx, {
@@ -251,33 +276,20 @@ export class PackagesPublicService {
           userId,
           amountCents: resolveFinalPriceCents(plan),
           currency: plan.currency.toLowerCase(),
-          status: isCardPayment
-            ? PaymentStatus.PENDING
-            : PaymentStatus.SUCCEEDED,
+          status: PaymentStatus.SUCCEEDED,
           paymentReference,
           source: PaymentSource.PACKAGE,
           sourceId: userPackage.id,
           description: buildPackagePaymentDescription(plan.name),
-          confirmedAt: isCardPayment ? null : new Date(),
-          paymentMethod: isCardPayment
-            ? ManualPaymentMethod.CARD
-            : ManualPaymentMethod.CASH,
-          ...(isCardPayment
-            ? {
-                metadata: {
-                  statusReason: PAYMENT_STATUS_REASON.CHECKOUT_NOT_STARTED,
-                },
-              }
-            : {}),
+          confirmedAt: new Date(),
+          paymentMethod: ManualPaymentMethod.CASH,
         },
       });
-      if (!isCardPayment) {
-        await decrementPackagePlanStock(tx, plan.id);
-      }
+      await decrementPackagePlanStock(tx, plan.id);
       return {
         userPackageId: userPackage.id,
         paymentReference,
-        stockTracked: !isCardPayment && plan.availableQuantity !== null,
+        stockTracked: plan.availableQuantity !== null,
       };
     });
 

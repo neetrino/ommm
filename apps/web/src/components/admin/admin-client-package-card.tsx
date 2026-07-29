@@ -10,6 +10,7 @@ import {
 } from "@/components/account/user-membership-display";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { USER_PACKAGE_VALIDITY_DAY_MS } from "@/lib/user-package-validity";
 
 const BOARD_CARD_CLASS = [
@@ -22,6 +23,8 @@ type AdminClientPackageCardProps = {
   item: ClientSheetPackageItem;
   locale: string;
   paymentMethodLabel: string;
+  allowEditValidity?: boolean;
+  onEditValidity?: () => void;
 };
 
 function resolveValidityLabel(
@@ -48,6 +51,8 @@ export function AdminClientPackageCard({
   item,
   locale,
   paymentMethodLabel,
+  allowEditValidity = false,
+  onEditValidity,
 }: AdminClientPackageCardProps) {
   const t = useTranslations("userPages.packages");
   const tMarketing = useTranslations("marketing");
@@ -86,7 +91,16 @@ export function AdminClientPackageCard({
             {sessionName}
           </h3>
         </div>
-        <span className={memberStatusClassName(status)}>{statusLabel}</span>
+        <div className="flex shrink-0 items-center gap-2">
+          {allowEditValidity && onEditValidity !== undefined ? (
+            <EditActionButton
+              ariaLabel={tAdmin("packages.editValidity")}
+              title={tAdmin("packages.editValidity")}
+              onClick={onEditValidity}
+            />
+          ) : null}
+          <span className={memberStatusClassName(status)}>{statusLabel}</span>
+        </div>
       </div>
 
       <div className="mt-5 space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">

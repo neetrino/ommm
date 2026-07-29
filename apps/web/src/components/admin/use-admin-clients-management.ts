@@ -23,7 +23,11 @@ import {
   replaceAdminClientsSearchParams,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
-import { CLIENT_PROFILE_TAB_QUERY_KEY, CLIENT_ADD_PACKAGE_QUERY_KEY } from "@/components/admin/admin-client-sheet-tabs";
+import {
+  CLIENT_ADD_BOOKING_QUERY_KEY,
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+} from "@/components/admin/admin-client-sheet-tabs";
 import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 import { apiFetch } from "@/lib/api";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
@@ -116,6 +120,7 @@ export function useAdminClientsManagement({
       params.delete(VIEW_CLIENT_QUERY_KEY);
       params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
       params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
+      params.delete(CLIENT_ADD_BOOKING_QUERY_KEY);
     });
   }, [replaceSearchParams]);
 
@@ -160,6 +165,7 @@ export function useAdminClientsManagement({
             params.delete(VIEW_CLIENT_QUERY_KEY);
             params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
             params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
+            params.delete(CLIENT_ADD_BOOKING_QUERY_KEY);
           });
         }
       });

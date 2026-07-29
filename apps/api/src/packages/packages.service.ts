@@ -7,7 +7,9 @@ import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
+import { PackagesAdminValidityService } from './packages-admin-validity.service';
 import { PackagesPublicService } from './packages-public.service';
+import type { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
 
 type AdminClientPackagePaymentMethod =
   | typeof ManualPaymentMethod.CASH
@@ -19,6 +21,7 @@ export class PackagesService {
     private readonly publicService: PackagesPublicService,
     private readonly adminService: PackagesAdminService,
     private readonly adminClientPurchase: PackagesAdminClientPurchaseService,
+    private readonly adminValidity: PackagesAdminValidityService,
   ) {}
 
   listPlans() {
@@ -84,5 +87,12 @@ export class PackagesService {
     paymentMethod: AdminClientPackagePaymentMethod;
   }) {
     return this.adminClientPurchase.purchase(params);
+  }
+
+  updateUserPackageValidity(
+    userPackageId: string,
+    dto: AdminUpdateUserPackageValidityDto,
+  ) {
+    return this.adminValidity.updateValidity(userPackageId, dto);
   }
 }
