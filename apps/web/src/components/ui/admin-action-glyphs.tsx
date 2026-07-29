@@ -48,6 +48,16 @@ export function CancelGlyph({ className }: GlyphProps) {
   );
 }
 
+/** Circle with slash — close / block booking (distinct from delete trash). */
+export function BanGlyph({ className }: GlyphProps) {
+  return (
+    <svg {...GLYPH_PROPS} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M7 7l10 10" />
+    </svg>
+  );
+}
+
 export function CheckCircleGlyph({ className }: GlyphProps) {
   return (
     <svg {...GLYPH_PROPS} className={className}>

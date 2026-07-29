@@ -12,6 +12,7 @@ import {
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
+import { AdminScheduleSessionSelectCheckbox } from "@/components/admin/admin-schedule-session-select-checkbox";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
 import {
   ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_CELL,
@@ -19,6 +20,7 @@ import {
   ADMIN_SCHEDULE_SESSIONS_LIST_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS,
+  ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL,
 } from "@/components/admin/admin-schedule-sessions-list-layout";
@@ -37,6 +39,9 @@ type AdminScheduleSessionCompactRowProps = {
   row: AdminScheduleSession;
   locale: string;
   busy: boolean;
+  selected?: boolean;
+  selectionEnabled?: boolean;
+  onToggleSelect?: (rowId: string, selected: boolean) => void;
   onDetails: (row: AdminScheduleSession) => void;
   onDuplicate?: (row: AdminScheduleSession) => void;
   onCancel?: (row: AdminScheduleSession) => void;
@@ -48,6 +53,9 @@ export function AdminScheduleSessionCompactRow({
   row,
   locale,
   busy,
+  selected = false,
+  selectionEnabled = false,
+  onToggleSelect,
   onDetails,
   onDuplicate,
   onCancel,
@@ -76,13 +84,30 @@ export function AdminScheduleSessionCompactRow({
       }}
       className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} relative`}
     >
+      {selectionEnabled && onToggleSelect ? (
+        <div
+          className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminScheduleSessionSelectCheckbox
+            checked={selected}
+            disabled={busy}
+            ariaLabel={t("bulk.selectRowAria", { title: row.title })}
+            onChange={(next) => onToggleSelect(row.id, next)}
+          />
+        </div>
+      ) : (
+        <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL} aria-hidden="true" />
+      )}
+
       <span
         className={`${MOBILE_STATUS_BADGE_CLASS} ${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(row.status)}`}
       >
         {statusLabel}
       </span>
 
-      <div className={`${ADMIN_SCHEDULE_SESSIONS_LIST_CELL} max-md:pr-20`}>
+      <div className={`${ADMIN_SCHEDULE_SESSIONS_LIST_CELL} max-md:pr-20 ${selectionEnabled ? "max-md:pl-8" : ""}`}>
         <AdminListMobileLabel label={t("colClass")} />
         <button
           type="button"

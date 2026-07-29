@@ -1,6 +1,7 @@
 @media (min-width: 768px) {
   .tableAdmin {
     grid-template-columns:
+      2.25rem
       minmax(0, 17rem)
       minmax(11rem, auto)
       minmax(8rem, auto)

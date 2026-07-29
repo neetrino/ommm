@@ -8,13 +8,15 @@ import type {
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 
+export const ADMIN_SCHEDULE_BULK_BUSY_ID = "__bulk__";
+
 type SessionModalConfig = {
   mode: "create" | "duplicate";
   row?: AdminScheduleSession;
 } | null;
 
 type UseAdminScheduleManagementActionsParams = {
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, string | number | Date>) => string;
   router: AppRouterInstance;
   setRows: Dispatch<SetStateAction<AdminScheduleSession[]>>;
   setClassTypes: Dispatch<SetStateAction<AdminScheduleClassType[]>>;
@@ -26,7 +28,18 @@ type UseAdminScheduleManagementActionsParams = {
   addClassOpen: boolean;
   closeAddClassModal: () => void;
   sessionModalConfig: SessionModalConfig;
+  clearSelection: () => void;
 };
+
+async function postSessionStatus(
+  sessionId: string,
+  status: "ACTIVE" | "CANCELLED",
+): Promise<AdminScheduleSession> {
+  return apiFetch<AdminScheduleSession>(`/classes/sessions/${sessionId}/status`, {
+    method: "POST",
+    body: JSON.stringify({ status }),
+  });
+}
 
 export function useAdminScheduleManagementActions({
   t,
@@ -41,6 +54,7 @@ export function useAdminScheduleManagementActions({
   addClassOpen,
   closeAddClassModal,
   sessionModalConfig,
+  clearSelection,
 }: UseAdminScheduleManagementActionsParams) {
   async function runRowAction(
     row: AdminScheduleSession,
@@ -66,14 +80,65 @@ export function useAdminScheduleManagementActions({
     }
   }
 
+  async function runBulkStatusAction(
+    targets: AdminScheduleSession[],
+    status: "ACTIVE" | "CANCELLED",
+    okKey: string,
+  ) {
+    if (targets.length === 0) {
+      return;
+    }
+    setBusyId(ADMIN_SCHEDULE_BULK_BUSY_ID);
+    setToast(null);
+    try {
+      const results = await Promise.allSettled(
+        targets.map((row) => postSessionStatus(row.id, status)),
+      );
+      const updatedRows: AdminScheduleSession[] = [];
+      let failureCount = 0;
+      for (const result of results) {
+        if (result.status === "fulfilled") {
+          updatedRows.push(result.value);
+        } else {
+          failureCount += 1;
+        }
+      }
+      if (updatedRows.length > 0) {
+        const byId = new Map(updatedRows.map((row) => [row.id, row]));
+        setRows((current) => current.map((item) => byId.get(item.id) ?? item));
+      }
+      clearSelection();
+      if (failureCount === 0) {
+        setToast({
+          tone: "ok",
+          message: t(okKey, { count: updatedRows.length }),
+        });
+      } else if (updatedRows.length === 0) {
+        setToast({ tone: "err", message: t("messages.genericError") });
+      } else {
+        setToast({
+          tone: "err",
+          message: t("bulk.partialFailure", {
+            ok: updatedRows.length,
+            failed: failureCount,
+          }),
+        });
+      }
+      router.refresh();
+    } catch (error) {
+      setToast({
+        tone: "err",
+        message: error instanceof ApiError ? error.message : t("messages.genericError"),
+      });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   function handleCancel(row: AdminScheduleSession) {
     void runRowAction(
       row,
-      () =>
-        apiFetch(`/classes/sessions/${row.id}/status`, {
-          method: "POST",
-          body: JSON.stringify({ status: "CANCELLED" }),
-        }),
+      () => postSessionStatus(row.id, "CANCELLED"),
       t("messages.cancelSuccess"),
     );
   }
@@ -81,13 +146,19 @@ export function useAdminScheduleManagementActions({
   function handleActivate(row: AdminScheduleSession) {
     void runRowAction(
       row,
-      () =>
-        apiFetch(`/classes/sessions/${row.id}/status`, {
-          method: "POST",
-          body: JSON.stringify({ status: "ACTIVE" }),
-        }),
+      () => postSessionStatus(row.id, "ACTIVE"),
       t("messages.activateSuccess"),
     );
+  }
+
+  function handleBulkCancel(rows: AdminScheduleSession[]) {
+    const targets = rows.filter((row) => row.status !== "CANCELLED");
+    void runBulkStatusAction(targets, "CANCELLED", "bulk.cancelSuccess");
+  }
+
+  function handleBulkActivate(rows: AdminScheduleSession[]) {
+    const targets = rows.filter((row) => row.status === "CANCELLED");
+    void runBulkStatusAction(targets, "ACTIVE", "bulk.activateSuccess");
   }
 
   function handleDelete(row: AdminScheduleSession) {
@@ -188,6 +259,8 @@ export function useAdminScheduleManagementActions({
   return {
     handleCancel,
     handleActivate,
+    handleBulkCancel,
+    handleBulkActivate,
     handleDelete,
     handleDeleteFromDetails,
     handleDuplicate,

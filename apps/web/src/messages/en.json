@@ -2579,10 +2579,26 @@
       "confirmDialogDelete": "Delete",
       "confirmDialogBackdrop": "Close confirmation dialog",
       "confirm": {
-        "cancelTitle": "Cancel class",
-        "cancelDescription": "This class will be marked as cancelled. You can activate it again later.",
+        "cancelTitle": "Close class",
+        "cancelDescription": "This class will be closed for new bookings. You can activate it again later.",
         "activateTitle": "Activate class",
         "activateDescription": "This class will become active and available again."
+      },
+      "bulk": {
+        "regionAria": "Selected classes actions",
+        "selectedCount": "{count, plural, =1 {1 class selected} other {# classes selected}}",
+        "selectAllAria": "Select all classes on this page",
+        "selectRowAria": "Select {title}",
+        "clearSelection": "Clear",
+        "cancelSelected": "Close selected",
+        "activateSelected": "Activate selected",
+        "confirmCancelTitle": "Close selected classes?",
+        "confirmCancelDescription": "{count, plural, =1 {Close 1 class for bookings? You can activate it again later.} other {Close # classes for bookings? You can activate them again later.}}",
+        "confirmActivateTitle": "Activate selected classes?",
+        "confirmActivateDescription": "{count, plural, =1 {Activate 1 closed class?} other {Activate # closed classes?}}",
+        "cancelSuccess": "{count, plural, =1 {1 class closed.} other {# classes closed.}}",
+        "activateSuccess": "{count, plural, =1 {1 class activated.} other {# classes activated.}}",
+        "partialFailure": "Updated {ok}, failed {failed}."
       },
       "filters": {
         "searchLabel": "Search",
@@ -2678,7 +2694,7 @@
       "colStatus": "Status",
       "colActions": "Actions",
       "editButton": "Edit",
-      "cancelAction": "Cancel",
+      "cancelAction": "Close",
       "activateAction": "Activate",
       "duplicateButton": "Duplicate",
       "priceAmount": "{amount} per session",
@@ -2762,7 +2778,7 @@
       "messages": {
         "createSuccess": "Class created.",
         "updateSuccess": "Class updated.",
-        "cancelSuccess": "Class cancelled.",
+        "cancelSuccess": "Class closed.",
         "activateSuccess": "Class activated.",
         "duplicateSuccess": "Class duplicated.",
         "deleteSuccess": "Class deleted.",

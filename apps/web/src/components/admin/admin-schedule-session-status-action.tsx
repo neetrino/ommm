@@ -90,8 +90,8 @@ export function AdminScheduleSessionStatusAction({
           title: t("confirm.cancelTitle"),
           description: t("confirm.cancelDescription"),
           confirmLabel: t("cancelAction"),
-          tone: "danger" as const,
-          confirmClassName: "ommm-btn-lifecycle-action--danger",
+          tone: "warm" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--warm",
         };
 
   return (

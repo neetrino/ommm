@@ -2590,10 +2590,26 @@
       "confirmDialogDelete": "Ջնջել",
       "confirmDialogBackdrop": "Փակել հաստատման պատուհանը",
       "confirm": {
-        "cancelTitle": "Չեղարկել դասը",
-        "cancelDescription": "Դասը կնշվի որպես չեղարկված։ Կարող եք հետո կրկին ակտիվացնել։",
+        "cancelTitle": "Փակել դասը",
+        "cancelDescription": "Դասը կփակվի նոր ամրագրումների համար։ Կարող եք հետո կրկին ակտիվացնել։",
         "activateTitle": "Ակտիվացնել դասը",
         "activateDescription": "Դասը կրկին կդառնա ակտիվ և հասանելի։"
+      },
+      "bulk": {
+        "regionAria": "Ընտրված դասերի գործողություններ",
+        "selectedCount": "{count, plural, one {Ընտրված է # դաս} other {Ընտրված է # դաս}}",
+        "selectAllAria": "Ընտրել բոլոր դասերը էջում",
+        "selectRowAria": "Ընտրել {title}",
+        "clearSelection": "Մաքրել",
+        "cancelSelected": "Փակել ընտրվածները",
+        "activateSelected": "Ակտիվացնել ընտրվածները",
+        "confirmCancelTitle": "Փակե՞լ ընտրված դասերը",
+        "confirmCancelDescription": "{count, plural, one {Փակե՞լ # դաս ամրագրումների համար։ Կարող եք հետո կրկին ակտիվացնել։} other {Փակե՞լ # դաս ամրագրումների համար։ Կարող եք հետո կրկին ակտիվացնել։}}",
+        "confirmActivateTitle": "Ակտիվացնե՞լ ընտրված դասերը",
+        "confirmActivateDescription": "{count, plural, one {Ակտիվացնե՞լ # փակ դաս} other {Ակտիվացնե՞լ # փակ դաս}}",
+        "cancelSuccess": "{count, plural, one {Փակվել է # դաս։} other {Փակվել է # դաս։}}",
+        "activateSuccess": "{count, plural, one {Ակտիվացվել է # դաս։} other {Ակտիվացվել է # դաս։}}",
+        "partialFailure": "Թարմացվել է {ok}, ձախողվել է {failed}։"
       },
       "filters": {
         "searchLabel": "Որոնում",
@@ -2689,7 +2705,7 @@
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",
       "editButton": "Խմբագրել",
-      "cancelAction": "Չեղարկել",
+      "cancelAction": "Փակել",
       "activateAction": "Ակտիվացնել",
       "duplicateButton": "Կրկնօրինակել",
       "priceAmount": "{amount} մեկ սեսիայի համար",
@@ -2773,7 +2789,7 @@
       "messages": {
         "createSuccess": "Դասը ստեղծվեց։",
         "updateSuccess": "Դասը թարմացվեց։",
-        "cancelSuccess": "Դասը չեղարկվեց։",
+        "cancelSuccess": "Դասը փակվեց։",
         "activateSuccess": "Դասը ակտիվացվեց։",
         "duplicateSuccess": "Դասը կրկնօրինակվեց։",
         "deleteSuccess": "Դասը ջնջվեց։",

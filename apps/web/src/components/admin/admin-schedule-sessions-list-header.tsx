@@ -3,10 +3,12 @@
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import type { DashboardNavIcon as DashboardNavIconName } from "@/lib/dashboard-nav";
+import { AdminScheduleSessionSelectCheckbox } from "@/components/admin/admin-schedule-session-select-checkbox";
 import {
   ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER,
+  ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_HEADER_CELL,
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import type { SessionSortOrder } from "@/lib/list-sort";
@@ -89,7 +91,8 @@ function AdminScheduleDateTimeSortHeader({
 }: AdminScheduleDateTimeSortHeaderProps) {
   const tSort = useTranslations("listSort");
   const isDateSort = sortOrder === "date-asc" || sortOrder === "date-desc";
-  const ariaSort = sortOrder === "date-asc" ? "ascending" : sortOrder === "date-desc" ? "descending" : "none";
+  const ariaSort =
+    sortOrder === "date-asc" ? "ascending" : sortOrder === "date-desc" ? "descending" : "none";
   const sortLabel =
     sortOrder === "date-asc"
       ? tSort("dateAsc")
@@ -108,9 +111,7 @@ function AdminScheduleDateTimeSortHeader({
     >
       <ScheduleDateTimeSortIcon order={sortOrder} />
       <span className="truncate">{label}</span>
-      {isDateSort ? (
-        <span className="sr-only">{sortLabel}</span>
-      ) : null}
+      {isDateSort ? <span className="sr-only">{sortLabel}</span> : null}
     </button>
   );
 }
@@ -118,17 +119,40 @@ function AdminScheduleDateTimeSortHeader({
 type AdminScheduleSessionsListHeaderProps = {
   sortOrder: SessionSortOrder;
   onDateTimeSort: () => void;
+  selectionEnabled?: boolean;
+  allSelected?: boolean;
+  someSelected?: boolean;
+  onToggleSelectAll?: (checked: boolean) => void;
+  selectAllDisabled?: boolean;
 };
 
 /** Desktop column headers for the admin schedule sessions list. */
 export function AdminScheduleSessionsListHeader({
   sortOrder,
   onDateTimeSort,
+  selectionEnabled = false,
+  allSelected = false,
+  someSelected = false,
+  onToggleSelectAll,
+  selectAllDisabled = false,
 }: AdminScheduleSessionsListHeaderProps) {
   const t = useTranslations("adminPages.classes");
 
   return (
     <>
+      {selectionEnabled && onToggleSelectAll ? (
+        <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL}>
+          <AdminScheduleSessionSelectCheckbox
+            checked={allSelected}
+            indeterminate={someSelected && !allSelected}
+            disabled={selectAllDisabled}
+            ariaLabel={t("bulk.selectAllAria")}
+            onChange={onToggleSelectAll}
+          />
+        </div>
+      ) : (
+        <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL} aria-hidden="true" />
+      )}
       <AdminScheduleHeaderLabel column="class" label={t("colClass")} />
       <AdminScheduleDateTimeSortHeader
         label={t("colDateTime")}

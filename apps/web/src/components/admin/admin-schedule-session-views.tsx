@@ -6,6 +6,7 @@ import {
   type ScheduleDateStripRow,
 } from "@/components/admin/admin-schedule-date-strip";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
+import { AdminScheduleSessionsBulkBar } from "@/components/admin/admin-schedule-sessions-bulk-bar";
 import { AdminScheduleSessionsListHeader } from "@/components/admin/admin-schedule-sessions-list-header";
 import {
   ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS,
@@ -14,6 +15,7 @@ import {
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
 import { AdminScheduleListEmptyState } from "@/components/admin/admin-schedule-list-empty-state";
+import { ADMIN_SCHEDULE_BULK_BUSY_ID } from "@/components/admin/use-admin-schedule-management-actions";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { sortAdminSessionRows, type SessionSortOrder } from "@/lib/list-sort";
 
@@ -35,6 +37,13 @@ export type AdminScheduleSessionViewsProps = {
   onActivate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
   onDuplicate?: (row: AdminScheduleSession) => void;
+  selectionEnabled?: boolean;
+  selectedIds?: ReadonlySet<string>;
+  onToggleSelect?: (rowId: string, selected: boolean) => void;
+  onToggleSelectAll?: (checked: boolean) => void;
+  onClearSelection?: () => void;
+  onBulkCancel?: () => void;
+  onBulkActivate?: () => void;
 };
 
 type SessionTableProps = Omit<
@@ -56,6 +65,13 @@ type ScheduleWeekPanelProps = Omit<
   | "selectedStripDay"
   | "onSelectStripDay"
   | "onSelectAllStripDays"
+  | "selectionEnabled"
+  | "selectedIds"
+  | "onToggleSelect"
+  | "onToggleSelectAll"
+  | "onClearSelection"
+  | "onBulkCancel"
+  | "onBulkActivate"
 >;
 
 export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
@@ -86,27 +102,58 @@ export function SessionTable(props: SessionTableProps) {
       />
     );
   }
+
+  const selectionEnabled = props.selectionEnabled === true;
+  const selectedIds = props.selectedIds ?? new Set<string>();
+  const selectedVisible = rows.filter((row) => selectedIds.has(row.id));
+  const allSelected = rows.length > 0 && selectedVisible.length === rows.length;
+  const someSelected = selectedVisible.length > 0;
+  const cancellableCount = selectedVisible.filter((row) => row.status !== "CANCELLED").length;
+  const activatableCount = selectedVisible.filter((row) => row.status === "CANCELLED").length;
+  const busy = props.busyId !== null;
+
   return (
-    <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
-      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
-        <AdminScheduleSessionsListHeader
-          sortOrder={props.sortOrder}
-          onDateTimeSort={props.onDateTimeSort}
-        />
+    <div className="space-y-3">
+      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
+        <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
+          <AdminScheduleSessionsListHeader
+            sortOrder={props.sortOrder}
+            onDateTimeSort={props.onDateTimeSort}
+            selectionEnabled={selectionEnabled}
+            allSelected={allSelected}
+            someSelected={someSelected}
+            onToggleSelectAll={props.onToggleSelectAll}
+            selectAllDisabled={busy}
+          />
+        </div>
+        {rows.map((row) => (
+          <AdminScheduleSessionCompactRow
+            key={row.id}
+            row={row}
+            locale={props.locale}
+            busy={props.busyId === row.id || props.busyId === ADMIN_SCHEDULE_BULK_BUSY_ID}
+            selected={selectedIds.has(row.id)}
+            selectionEnabled={selectionEnabled}
+            onToggleSelect={props.onToggleSelect}
+            onDetails={props.onDetails}
+            onDuplicate={props.onDuplicate}
+            onCancel={props.onCancel}
+            onActivate={props.onActivate}
+            onDelete={props.onDelete}
+          />
+        ))}
       </div>
-      {rows.map((row) => (
-        <AdminScheduleSessionCompactRow
-          key={row.id}
-          row={row}
-          locale={props.locale}
-          busy={props.busyId === row.id}
-          onDetails={props.onDetails}
-          onDuplicate={props.onDuplicate}
-          onCancel={props.onCancel}
-          onActivate={props.onActivate}
-          onDelete={props.onDelete}
+      {selectionEnabled && props.onClearSelection ? (
+        <AdminScheduleSessionsBulkBar
+          selectedCount={selectedVisible.length}
+          cancellableCount={cancellableCount}
+          activatableCount={activatableCount}
+          busy={busy}
+          onClear={props.onClearSelection}
+          onBulkCancel={props.onBulkCancel}
+          onBulkActivate={props.onBulkActivate}
         />
-      ))}
+      ) : null}
     </div>
   );
 }

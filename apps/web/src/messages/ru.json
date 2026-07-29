@@ -2587,10 +2587,26 @@
       "confirmDialogDelete": "Удалить",
       "confirmDialogBackdrop": "Закрыть диалог подтверждения",
       "confirm": {
-        "cancelTitle": "Отменить занятие",
-        "cancelDescription": "Занятие будет отмечено как отменённое. Позже вы сможете снова активировать его.",
+        "cancelTitle": "Закрыть занятие",
+        "cancelDescription": "Занятие будет закрыто для новых бронирований. Позже вы сможете снова активировать его.",
         "activateTitle": "Активировать занятие",
         "activateDescription": "Занятие снова станет активным и доступным."
+      },
+      "bulk": {
+        "regionAria": "Действия с выбранными занятиями",
+        "selectedCount": "{count, plural, one {Выбрано # занятие} few {Выбрано # занятия} many {Выбрано # занятий} other {Выбрано # занятия}}",
+        "selectAllAria": "Выбрать все занятия на странице",
+        "selectRowAria": "Выбрать {title}",
+        "clearSelection": "Снять выбор",
+        "cancelSelected": "Закрыть выбранные",
+        "activateSelected": "Активировать выбранные",
+        "confirmCancelTitle": "Закрыть выбранные занятия?",
+        "confirmCancelDescription": "{count, plural, one {Закрыть # занятие для бронирований? Позже можно снова активировать.} few {Закрыть # занятия для бронирований? Позже можно снова активировать.} many {Закрыть # занятий для бронирований? Позже можно снова активировать.} other {Закрыть # занятия для бронирований? Позже можно снова активировать.}}",
+        "confirmActivateTitle": "Активировать выбранные занятия?",
+        "confirmActivateDescription": "{count, plural, one {Активировать # закрытое занятие?} few {Активировать # закрытых занятия?} many {Активировать # закрытых занятий?} other {Активировать # закрытых занятия?}}",
+        "cancelSuccess": "{count, plural, one {Закрыто # занятие.} few {Закрыто # занятия.} many {Закрыто # занятий.} other {Закрыто # занятия.}}",
+        "activateSuccess": "{count, plural, one {Активировано # занятие.} few {Активировано # занятия.} many {Активировано # занятий.} other {Активировано # занятия.}}",
+        "partialFailure": "Обновлено {ok}, не удалось {failed}."
       },
       "filters": {
         "searchLabel": "Поиск",
@@ -2686,7 +2702,7 @@
       "colStatus": "Статус",
       "colActions": "Действия",
       "editButton": "Редактировать",
-      "cancelAction": "Отменить",
+      "cancelAction": "Закрыть",
       "activateAction": "Активировать",
       "duplicateButton": "Дублировать",
       "priceAmount": "{amount} за сессию",
@@ -2770,7 +2786,7 @@
       "messages": {
         "createSuccess": "Занятие создано.",
         "updateSuccess": "Занятие обновлено.",
-        "cancelSuccess": "Занятие отменено.",
+        "cancelSuccess": "Занятие закрыто.",
         "activateSuccess": "Занятие активировано.",
         "duplicateSuccess": "Занятие продублировано.",
         "deleteSuccess": "Занятие удалено.",

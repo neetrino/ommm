@@ -150,6 +150,13 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         onActivate={caps.canChangeStatus ? schedule.handleActivate : undefined}
         onDelete={caps.canDelete ? schedule.handleDelete : undefined}
         onDuplicate={caps.canDuplicate ? schedule.handleDuplicate : undefined}
+        selectionEnabled={caps.canCancel || caps.canChangeStatus}
+        selectedIds={schedule.selectedIds}
+        onToggleSelect={schedule.toggleSelect}
+        onToggleSelectAll={schedule.toggleSelectAll}
+        onClearSelection={schedule.clearSelection}
+        onBulkCancel={caps.canCancel ? schedule.handleBulkCancel : undefined}
+        onBulkActivate={caps.canChangeStatus ? schedule.handleBulkActivate : undefined}
       />
       {view === "list" &&
       schedule.listPagination !== null &&

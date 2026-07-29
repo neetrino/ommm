@@ -44,6 +44,7 @@ export type ScheduleSessionsListLayout = {
   headerClass: string;
   rowClass: string;
   cellClass: string;
+  selectCellClass: string;
   dateTimeCellClass: string;
   dateTimeHeaderCellClass: string;
   capacityCellClass: string;
@@ -64,12 +65,15 @@ export function getScheduleSessionsListLayout(
   preset: ScheduleSessionsListPreset,
 ): ScheduleSessionsListLayout {
   const isStaffReadOnly = preset === "staffReadOnly";
+  const selectCellClass =
+    "flex items-center max-md:absolute max-md:left-3 max-md:top-3 max-md:z-10 md:justify-center";
 
   return {
     tableClass: buildScheduleSessionsListTableClass(preset),
     headerClass: buildAdminListHeaderClass(),
     rowClass: preset === "admin" ? ADMIN_LIST_ROW_CLASS : READ_ONLY_ROW_CLASS,
     cellClass: USER_LIST_CELL_CLASS,
+    selectCellClass,
     dateTimeCellClass: isStaffReadOnly ? USER_LIST_DATE_CELL : `${USER_LIST_DATE_CELL} md:pl-6`,
     dateTimeHeaderCellClass: isStaffReadOnly
       ? ADMIN_LIST_EMPHASIZED_HEADER
