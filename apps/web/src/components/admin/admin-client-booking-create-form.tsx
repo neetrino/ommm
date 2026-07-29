@@ -70,28 +70,29 @@ export function AdminClientBookingCreateForm({
           <p className="text-xs font-medium uppercase tracking-wide text-sage-500">
             {t("bookings.sessionLabel")}
           </p>
-          <div className="relative">
-            <OmmFilterDropdown
-              allValue=""
-              value={sessionId}
-              ariaLabel={t("bookings.selectSession")}
-              allLabel={t("bookings.selectSession")}
-              onChange={onSessionChange}
-              options={sessionOptions}
-              disabled={disabled}
-              wrapLabel
-              triggerClassName={sessionId !== "" ? "pr-12" : undefined}
-            />
+          <div className="flex items-center gap-2.5">
+            <div className="min-w-0 flex-1">
+              <OmmFilterDropdown
+                allValue=""
+                value={sessionId}
+                ariaLabel={t("bookings.selectSession")}
+                allLabel={t("bookings.selectSession")}
+                onChange={onSessionChange}
+                options={sessionOptions}
+                disabled={disabled}
+                wrapLabel
+              />
+            </div>
             {sessionId !== "" ? (
               <button
                 type="button"
-                className="absolute right-9 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-lg leading-none text-sage-500 transition-colors hover:bg-sage-100 hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 disabled:pointer-events-none disabled:opacity-50"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-sage-200/80 bg-white text-sage-500 shadow-sm transition-colors hover:border-sage-300 hover:bg-sage-50 hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 disabled:pointer-events-none disabled:opacity-50"
                 aria-label={t("bookings.clearSession")}
                 title={t("bookings.clearSession")}
                 disabled={disabled}
                 onClick={() => onSessionChange("")}
               >
-                ×
+                <ClearSessionGlyph className="h-4 w-4" />
               </button>
             ) : null}
           </div>
