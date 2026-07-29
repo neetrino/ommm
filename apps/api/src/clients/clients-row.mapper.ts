@@ -4,7 +4,7 @@ import {
   NEW_CLIENT_DAYS,
 } from './clients-list.constants';
 import {
-  CLIENT_ACTIVE_PACKAGE_STATUSES,
+  CLIENT_LIST_PACKAGE_STATUSES,
   clientActivePackagePlanSelect,
   toClientActivePackageFields,
 } from './clients-row-active-package';
@@ -32,7 +32,7 @@ export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
   giftCardsPurchased: { orderBy: { createdAt: 'desc' }, take: 20 },
   giftCardsReceived: { orderBy: { createdAt: 'desc' }, take: 20 },
   userPackages: {
-    where: { status: { in: [...CLIENT_ACTIVE_PACKAGE_STATUSES] } },
+    where: { status: { in: [...CLIENT_LIST_PACKAGE_STATUSES] } },
     include: { plan: { select: clientActivePackagePlanSelect } },
     orderBy: { currentPeriodEnd: 'desc' },
     take: CLIENT_ACTIVE_PACKAGES_TAKE,
