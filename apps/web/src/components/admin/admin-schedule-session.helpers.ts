@@ -6,6 +6,7 @@ import type {
   AvailabilityOption,
   TimeOfDayOption,
 } from "@/components/admin/admin-schedule-session.types";
+import { utcToStudioWallClockTime } from "@/lib/studio-timezone";
 
 export function coachName(coach: AdminScheduleCoach | AdminScheduleSession["coach"]): string {
   if ("lastName" in coach.user) {
@@ -57,7 +58,7 @@ export function matchesTimeOfDaySelection(
   if (selected.length === 0) {
     return true;
   }
-  const hour = new Date(row.startsAt).getHours();
+  const hour = Number(utcToStudioWallClockTime(new Date(row.startsAt)).slice(0, 2));
   return (
     (selected.includes("morning") && hour < 12) ||
     (selected.includes("afternoon") && hour >= 12 && hour < 17) ||

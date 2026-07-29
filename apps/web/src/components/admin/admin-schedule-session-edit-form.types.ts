@@ -1,6 +1,11 @@
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
 import { splitSessionLevels } from "@/components/admin/admin-schedule-session-display";
 import { normalizeTimeInputValue } from "@/lib/date-display";
+import {
+  studioWallClockToUtc,
+  utcToStudioCalendarDate,
+  utcToStudioWallClockTime,
+} from "@/lib/studio-timezone";
 
 export type SessionEditFormState = {
   title: string;
@@ -15,11 +20,11 @@ export type SessionEditFormState = {
 };
 
 function isoDate(value: Date | string): string {
-  return new Date(value).toISOString().slice(0, 10);
+  return utcToStudioCalendarDate(new Date(value));
 }
 
 function timeValue(value: Date | string): string {
-  return new Date(value).toTimeString().slice(0, 5);
+  return utcToStudioWallClockTime(new Date(value));
 }
 
 const SESSION_LEVEL_SEPARATOR = ", ";
@@ -74,8 +79,8 @@ export function sessionEditFormPayload(form: SessionEditFormState, classTypeId: 
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
-    startsAt: new Date(`${form.date}T${startTime}:00`).toISOString(),
-    endsAt: new Date(`${form.date}T${endTime}:00`).toISOString(),
+    startsAt: studioWallClockToUtc(form.date, startTime).toISOString(),
+    endsAt: studioWallClockToUtc(form.date, endTime).toISOString(),
     capacity: Number(form.capacity),
     level: joinSessionLevels(form.levels),
   };

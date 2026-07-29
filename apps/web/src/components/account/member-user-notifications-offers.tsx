@@ -9,6 +9,7 @@ import { useSessionBooking } from "@/hooks/use-session-booking";
 import { ApiError } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import { formatTimeForUi } from "@/lib/format-time-display";
+import { STUDIO_TIMEZONE } from "@/lib/studio-timezone";
 
 function WaitlistOfferBookButton({
   sessionId,
@@ -53,6 +54,7 @@ function formatSessionWhen(locale: string, startsAt: string, endsAt: string): st
     weekday: "short",
     month: "short",
     day: "numeric",
+    timeZone: STUDIO_TIMEZONE,
   }).format(start);
   const time = formatTimeForUi(start, locale);
   const endTime = formatTimeForUi(end, locale);
