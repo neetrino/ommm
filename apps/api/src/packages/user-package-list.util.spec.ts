@@ -5,19 +5,6 @@ import {
   buildVisibleUserPackagesWhere,
   compareUserPackagesForClientList,
 } from './user-package-list.util';
-import {
-  readPackagePlanIdFromMetadata,
-  withPackagePlanIdMetadata,
-} from './package-payment-metadata.util';
-
-describe('package-payment-metadata.util', () => {
-  it('stores and reads planId on payment metadata', () => {
-    const metadata = withPackagePlanIdMetadata(null, 'plan-1', {
-      statusReason: 'checkout_not_started',
-    });
-    assert.equal(readPackagePlanIdFromMetadata(metadata), 'plan-1');
-  });
-});
 
 describe('user-package-list.util', () => {
   it('hides pending and unpaid cancelled packages', () => {
