@@ -35,6 +35,7 @@ function resolveClientCapabilities(
       canDelete: false,
       canAddNotes: false,
       canAssignPackage: false,
+      canCreateBooking: false,
     };
   }
   return adminClientCapabilities();

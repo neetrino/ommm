@@ -51,6 +51,8 @@ type AdminClientDrawerProps = {
   initialDetail?: ClientDetail | null;
   /** Admin-only package purchase in Packages tab. */
   allowPackagePurchase?: boolean;
+  /** Admin/manager create booking in Bookings tab. */
+  allowCreateBooking?: boolean;
   capabilities?: ClientCapabilities;
 };
 
@@ -77,6 +79,7 @@ export function AdminClientDrawer({
   useOverlayPortalRoot = false,
   initialDetail = null,
   allowPackagePurchase = false,
+  allowCreateBooking = false,
   capabilities,
 }: AdminClientDrawerProps) {
   if (client === null) {
@@ -95,6 +98,9 @@ export function AdminClientDrawer({
       allowPackagePurchase={
         capabilities?.canAssignPackage ?? allowPackagePurchase
       }
+      allowCreateBooking={
+        capabilities?.canCreateBooking ?? allowCreateBooking
+      }
       canAddNotes={capabilities?.canAddNotes ?? true}
       canUpdate={capabilities?.canUpdate ?? true}
     />
@@ -109,6 +115,7 @@ function AdminClientDrawerInner({
   useOverlayPortalRoot = false,
   initialDetail = null,
   allowPackagePurchase = false,
+  allowCreateBooking = false,
   canAddNotes = true,
   canUpdate = true,
 }: {
@@ -119,6 +126,7 @@ function AdminClientDrawerInner({
   useOverlayPortalRoot?: boolean;
   initialDetail?: ClientDetail | null;
   allowPackagePurchase?: boolean;
+  allowCreateBooking?: boolean;
   canAddNotes?: boolean;
   canUpdate?: boolean;
 }) {
@@ -438,10 +446,17 @@ function AdminClientDrawerInner({
             onPersonalInfoSubmit={handlePersonalInfoFormSubmit}
             onAvatarPreviewOpenChange={setAvatarPreviewOpen}
             allowPackagePurchase={allowPackagePurchase}
+            allowCreateBooking={allowCreateBooking}
             canAddNotes={canAddNotes}
             onPackagePurchaseSuccess={() => {
               setActionTone("ok");
               setActionMessage(t("packages.purchaseSuccess"));
+              onChanged();
+              void refreshDetail();
+            }}
+            onBookingCreateSuccess={() => {
+              setActionTone("ok");
+              setActionMessage(t("bookings.createSuccess"));
               onChanged();
               void refreshDetail();
             }}

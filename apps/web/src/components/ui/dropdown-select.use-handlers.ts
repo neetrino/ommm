@@ -36,6 +36,8 @@ type UseDropdownSelectHandlersParams<T extends string> = {
   clearHoverCloseTimer: () => void;
   dismissMenu: (options?: { focusTrigger?: boolean }) => void;
   onChange: (value: T) => void;
+  value: T;
+  toggleDeselectValue?: T;
 };
 
 export function useDropdownSelectHandlers<T extends string>({
@@ -64,6 +66,8 @@ export function useDropdownSelectHandlers<T extends string>({
   clearHoverCloseTimer,
   dismissMenu,
   onChange,
+  value,
+  toggleDeselectValue,
 }: UseDropdownSelectHandlersParams<T>) {
   const closeAndFocusTrigger = useCallback(() => {
     dismissMenu({ focusTrigger: true });
@@ -71,10 +75,18 @@ export function useDropdownSelectHandlers<T extends string>({
 
   const selectValue = useCallback(
     (next: T) => {
-      onChange(next);
+      if (
+        toggleDeselectValue !== undefined &&
+        next === value &&
+        value !== toggleDeselectValue
+      ) {
+        onChange(toggleDeselectValue);
+      } else {
+        onChange(next);
+      }
       dismissMenu({ focusTrigger: true });
     },
-    [dismissMenu, onChange],
+    [dismissMenu, onChange, toggleDeselectValue, value],
   );
 
   const openMenu = useCallback(

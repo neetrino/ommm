@@ -22,9 +22,12 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto';
 import { AddClientNoteDto } from './dto/add-client-note.dto';
 import { AdminCreateClientDto } from './dto/admin-create-client.dto';
+import { AdminCreateClientBookingDto } from './dto/admin-create-client-booking.dto';
+import { AdminClientBookableSessionsQueryDto } from './dto/admin-client-bookable-sessions-query.dto';
 import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
 import { AdminPurchaseClientPackageDto } from './dto/admin-purchase-client-package.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { ClientsBookingsCreateService } from './clients-bookings-create.service';
 import { ClientsPackagesPurchaseService } from './clients-packages-purchase.service';
 import { ClientsService } from './clients.service';
 import { ClientsTabListsService } from './clients-tab-lists.service';
@@ -37,6 +40,7 @@ export class ClientsController {
     private readonly clients: ClientsService,
     private readonly tabLists: ClientsTabListsService,
     private readonly packagesPurchase: ClientsPackagesPurchaseService,
+    private readonly bookingsCreate: ClientsBookingsCreateService,
   ) {}
 
   /** Admin lists (clients, finance members) — same RSC burst pattern as coaches admin list. */
@@ -60,6 +64,33 @@ export class ClientsController {
     const take = query.take ?? 25;
     const offset = query.offset ?? 0;
     return this.tabLists.listBookings(id, take, offset);
+  }
+
+  @Post(':id/bookings')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  createBooking(
+    @Param('id') id: string,
+    @Body() dto: AdminCreateClientBookingDto,
+  ) {
+    return this.bookingsCreate.createForClient(id, dto);
+  }
+
+  @Get(':id/bookable-sessions')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  listBookableSessions(
+    @Param('id') id: string,
+    @Query() query: AdminClientBookableSessionsQueryDto,
+  ) {
+    return this.bookingsCreate.listBookableSessions(id, query.from, query.to);
+  }
+
+  @Get(':id/sessions/:sessionId/eligible-packages')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  listEligiblePackagesForSession(
+    @Param('id') id: string,
+    @Param('sessionId') sessionId: string,
+  ) {
+    return this.bookingsCreate.listEligiblePackages(id, sessionId);
   }
 
   @Get(':id/payments')

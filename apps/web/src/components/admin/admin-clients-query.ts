@@ -22,6 +22,7 @@ export const ADMIN_CLIENTS_FILTER_KEYS = [
   "search",
   "tag",
   "status",
+  "package",
   "classLevel",
   "paymentStatus",
   "source",

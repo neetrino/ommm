@@ -1,4 +1,5 @@
 import {
+  AdminClientPackageFilter,
   AdminClientQuickFilter,
   AdminClientStatusFilter,
   AdminClientTagFilter,
@@ -11,6 +12,7 @@ import {
   type ClientStatus,
   type ClientTag,
 } from './clients-row.mapper';
+import { UserPackageStatus } from '@prisma/client';
 
 function dateValue(value: Date | null) {
   return value?.getTime() ?? 0;
@@ -63,6 +65,18 @@ export function matchesClientFilters(
 ) {
   if (query.tag && !matchesTag(row.tags, query.tag)) return false;
   if (query.status && !matchesStatus(row.status, query.status)) return false;
+  if (
+    query.package === AdminClientPackageFilter.ACTIVE &&
+    row.activePackageStatus !== UserPackageStatus.ACTIVE
+  ) {
+    return false;
+  }
+  if (
+    query.package === AdminClientPackageFilter.INACTIVE &&
+    row.activePackageStatus === UserPackageStatus.ACTIVE
+  ) {
+    return false;
+  }
   if (query.classLevel && !matchesClassLevel(row.classLevels, query.classLevel))
     return false;
   if (

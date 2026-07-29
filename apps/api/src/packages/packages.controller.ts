@@ -22,6 +22,7 @@ import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
+import { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
 import { PackagesService } from './packages.service';
 
 @Controller('packages')
@@ -80,6 +81,16 @@ export class PackagesController {
   @Roles(...BACKOFFICE_WRITE_ROLES)
   reconcileSessions(@Body() dto: ReconcilePackagesDto) {
     return this.packages.reconcileSessions(dto);
+  }
+
+  @Patch('admin/user-packages/:id/validity')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  updateUserPackageValidity(
+    @Param('id') id: string,
+    @Body() dto: AdminUpdateUserPackageValidityDto,
+  ) {
+    return this.packages.updateUserPackageValidity(id, dto);
   }
 
   @Post('plans')

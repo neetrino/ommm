@@ -15,7 +15,12 @@ import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
+import {
+  buildUserPackageCreateData,
+} from '../packages/packages-subscribe-card.util';
 import { decrementPackagePlanStock } from '../packages/packages-stock.helpers';
+import { createBalancesForUserPackage } from '../packages/packages-user-package-balances.util';
 import { parsePaymentMetadata } from './payments.helpers';
 import {
   INTERNAL_PAYMENT_SOURCE,
@@ -84,13 +89,29 @@ export class PaymentsFulfillmentService {
     }
   }
 
+  /**
+   * Activates a legacy PENDING UserPackage, or creates an ACTIVE UserPackage
+   * from `metadata.planId` when payment had no package yet (deferred create).
+   */
   async fulfillPackagePayment(
     tx: Prisma.TransactionClient,
-    userPackageId: string | null,
+    payment: {
+      id: string;
+      userId: string;
+      sourceId: string | null;
+      metadata: Prisma.JsonValue | null;
+    },
   ): Promise<boolean> {
-    if (!userPackageId) {
-      throw new BadRequestException('Package payment is missing package id');
+    if (payment.sourceId !== null) {
+      return this.activateLegacyPendingPackage(tx, payment.sourceId);
     }
+    return this.createPackageFromDeferredPayment(tx, payment);
+  }
+
+  private async activateLegacyPendingPackage(
+    tx: Prisma.TransactionClient,
+    userPackageId: string,
+  ): Promise<boolean> {
     const userPackage = await tx.userPackage.findUnique({
       where: { id: userPackageId },
       select: { id: true, status: true, planId: true },
@@ -109,6 +130,40 @@ export class PaymentsFulfillmentService {
       return false;
     }
     return decrementPackagePlanStock(tx, userPackage.planId);
+  }
+
+  private async createPackageFromDeferredPayment(
+    tx: Prisma.TransactionClient,
+    payment: {
+      id: string;
+      userId: string;
+      metadata: Prisma.JsonValue | null;
+    },
+  ): Promise<boolean> {
+    const planId = readPackagePlanIdFromMetadata(payment.metadata);
+    if (planId === null) {
+      throw new BadRequestException('Package payment is missing plan id');
+    }
+    const plan = await tx.packagePlan.findUnique({ where: { id: planId } });
+    if (plan === null) {
+      throw new NotFoundException('Package plan not found for payment');
+    }
+    const userPackage = await tx.userPackage.create({
+      data: buildUserPackageCreateData({
+        userId: payment.userId,
+        plan,
+        status: UserPackageStatus.ACTIVE,
+      }),
+    });
+    await createBalancesForUserPackage(tx, {
+      plan,
+      userPackageId: userPackage.id,
+    });
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: { sourceId: userPackage.id },
+    });
+    return decrementPackagePlanStock(tx, plan.id);
   }
 
   async fulfillGiftPayment(
@@ -190,10 +245,12 @@ export class PaymentsFulfillmentService {
       return { giftEmail: null, packageStockTracked: false };
     }
     if (existing.source === INTERNAL_PAYMENT_SOURCE.PACKAGE) {
-      const packageStockTracked = await this.fulfillPackagePayment(
-        tx,
-        existing.sourceId ?? null,
-      );
+      const packageStockTracked = await this.fulfillPackagePayment(tx, {
+        id: existing.id,
+        userId: existing.userId,
+        sourceId: existing.sourceId ?? null,
+        metadata: existing.metadata ?? null,
+      });
       return { giftEmail: null, packageStockTracked };
     }
     if (existing.source !== INTERNAL_PAYMENT_SOURCE.GIFT) {

@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import type { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
 import type {
   ClientDetail,
-  ClientSheetBookingItem,
   ClientSheetGiftCardItem,
   ClientSheetPaymentItem,
 } from "@/components/admin/admin-clients-types";
@@ -15,6 +14,7 @@ import {
   ClientGiftActionPanel,
   ClientNotesPanel,
 } from "@/components/admin/admin-client-drawer-sections";
+import { ClientBookingsPanel } from "@/components/admin/admin-client-bookings-panel";
 import { ClientPackagesPanel } from "@/components/admin/admin-client-packages-panel";
 import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
 import {
@@ -31,7 +31,7 @@ import {
 } from "@/components/admin/admin-sheet-editable-field";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { apiFetch } from "@/lib/api";
-import { formatBirthdayInput, formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { formatBirthdayInput, formatDateForUi } from "@/lib/date-display";
 import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
@@ -68,6 +68,8 @@ type ClientSheetTabPanelsProps = {
   onAvatarPreviewOpenChange?: (open: boolean) => void;
   allowPackagePurchase?: boolean;
   onPackagePurchaseSuccess?: () => void;
+  allowCreateBooking?: boolean;
+  onBookingCreateSuccess?: () => void;
   canAddNotes?: boolean;
 };
 
@@ -92,6 +94,8 @@ export function ClientSheetTabPanels({
   onAvatarPreviewOpenChange,
   allowPackagePurchase = false,
   onPackagePurchaseSuccess,
+  allowCreateBooking = false,
+  onBookingCreateSuccess,
   canAddNotes = true,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
@@ -268,23 +272,13 @@ export function ClientSheetTabPanels({
 
   if (activeTab === CLIENT_SHEET_TAB_BOOKINGS) {
     return (
-      <ClientSheetPaginatedTab<ClientSheetBookingItem>
-        clientId={detail.id}
+      <ClientBookingsPanel
+        client={detail}
+        locale={locale}
         active
         refreshKey={tabRefreshKey}
-        endpoint={`/clients/${detail.id}/bookings`}
-        title={t("drawer.bookingHistory")}
-        empty={t("drawer.noBookings")}
-        mapItem={(booking) => ({
-          id: booking.id,
-          main: booking.session.classType.name,
-          meta: `${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.status} · ${booking.session.level ?? "—"}`,
-          extra: booking.cancelledAt
-            ? `${t("drawer.cancelled")} ${formatDateForUi(booking.cancelledAt)}`
-            : booking.attendedAt
-              ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
-              : null,
-        })}
+        allowCreateBooking={allowCreateBooking}
+        onCreateSuccess={() => onBookingCreateSuccess?.()}
       />
     );
   }

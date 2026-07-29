@@ -30,7 +30,11 @@ type ClientPackagesPanelProps = {
   active: boolean;
   refreshKey: number;
   allowPurchase: boolean;
+  /** Defaults to `allowPurchase` (same backoffice write gate). */
+  allowEditValidity?: boolean;
   onPurchaseSuccess: () => void;
+  /** Defaults to `onPurchaseSuccess` (refreshes the packages list). */
+  onValidityUpdated?: () => void;
 };
 
 type PackagesFetchResult = {
@@ -46,13 +50,17 @@ export function ClientPackagesPanel({
   active,
   refreshKey,
   allowPurchase,
+  allowEditValidity: allowEditValidityProp,
   onPurchaseSuccess,
+  onValidityUpdated,
 }: ClientPackagesPanelProps) {
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const allowEditValidity = allowEditValidityProp ?? allowPurchase;
+  const handleValidityUpdated = onValidityUpdated ?? onPurchaseSuccess;
   const purchaseOpen =
     allowPurchase &&
     searchParams.get(CLIENT_ADD_PACKAGE_QUERY_KEY) === CLIENT_ADD_PACKAGE_QUERY_VALUE;
@@ -166,6 +174,10 @@ export function ClientPackagesPanel({
                 item={item}
                 locale={locale}
                 paymentMethodLabel={resolvePaymentMethodLabel(item.paymentMethod)}
+                allowEditValidity={allowEditValidity}
+                onValidityUpdated={
+                  allowEditValidity ? handleValidityUpdated : undefined
+                }
               />
             </li>
           ))}

@@ -40,6 +40,7 @@ export function AdminClientsTable({
         <span>{t("colName")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colMembership")}</span>
         {hideActions ? null : (
           <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         )}

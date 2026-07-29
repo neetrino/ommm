@@ -10,9 +10,11 @@ import {
   clientTagBadgeTone,
   clientTagLabelKey,
 } from "@/components/admin/admin-client-list-badges";
+import { AdminClientPackageBadge } from "@/components/admin/admin-client-package-badge";
 import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
 import {
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
+  ADMIN_CLIENTS_LIST_CELL,
   ADMIN_CLIENTS_LIST_DATE_CELL,
   ADMIN_CLIENTS_LIST_NAME_CELL,
   ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
@@ -85,6 +87,11 @@ export function AdminClientCompactRow({
       <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
         <AdminListMobileLabel label={t("colJoined")} />
         <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
+      </div>
+
+      <div className={`${ADMIN_CLIENTS_LIST_CELL} min-w-0`}>
+        <AdminListMobileLabel label={t("colMembership")} />
+        <AdminClientPackageBadge row={row} />
       </div>
 
       {hideActions ? null : (

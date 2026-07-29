@@ -2,6 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentSource, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { resolveUserPackagePlan } from '../packages/user-package-plan-snapshot.util';
+import {
+  buildVisibleUserPackagesWhere,
+  compareUserPackagesForClientList,
+  loadSucceededPackageSourceIds,
+} from '../packages/user-package-list.util';
 
 const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   session: {
@@ -143,17 +148,18 @@ export class ClientsTabListsService {
     offset: number,
   ): Promise<ClientPackagesPage> {
     await this.assertClientExists(userId);
-    const where = { userId };
-    const [total, rows] = await Promise.all([
-      this.prisma.userPackage.count({ where }),
-      this.prisma.userPackage.findMany({
-        where,
-        include: { plan: true },
-        orderBy: { createdAt: 'desc' },
-        skip: offset,
-        take,
-      }),
-    ]);
+    const succeededPackageIds = await loadSucceededPackageSourceIds(
+      this.prisma,
+      userId,
+    );
+    const where = buildVisibleUserPackagesWhere(userId, succeededPackageIds);
+    const allRows = await this.prisma.userPackage.findMany({
+      where,
+      include: { plan: true },
+    });
+    allRows.sort(compareUserPackagesForClientList);
+    const total = allRows.length;
+    const rows = allRows.slice(offset, offset + take);
 
     const packageIds = rows.map((row) => row.id);
     const payments =

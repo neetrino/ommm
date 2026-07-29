@@ -38,6 +38,7 @@ describe("backoffice-capabilities", () => {
 
   it("manager domain caps keep operational writes and block analytics/delete", () => {
     assert.equal(managerClientCapabilities().canAssignPackage, true);
+    assert.equal(managerClientCapabilities().canCreateBooking, true);
     assert.equal(managerClientCapabilities().canAddNotes, true);
     assert.equal(managerClientCapabilities().canDelete, false);
     assert.equal(managerScheduleCapabilities().canCancel, true);
@@ -54,6 +55,7 @@ describe("backoffice-capabilities", () => {
   });
 
   it("admin domain caps include analytics and delete", () => {
+    assert.equal(adminClientCapabilities().canCreateBooking, true);
     assert.equal(adminClientCapabilities().canDelete, true);
     assert.equal(adminScheduleCapabilities().canDelete, true);
     assert.equal(adminGiftCardCapabilities().canDelete, true);

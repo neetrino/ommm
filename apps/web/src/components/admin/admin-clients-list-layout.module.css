@@ -1,16 +1,18 @@
 @media (min-width: 768px) {
   .tableEditable {
     grid-template-columns:
-      minmax(0, 1.1fr)
-      minmax(0, 1fr)
+      minmax(0, 1.2fr)
+      minmax(0, 0.75fr)
+      minmax(0, 0.7fr)
       minmax(0, 1fr)
       auto;
   }
 
   .tableReadOnly {
     grid-template-columns:
-      minmax(0, 1.1fr)
-      minmax(0, 1fr)
+      minmax(0, 1.2fr)
+      minmax(0, 0.75fr)
+      minmax(0, 0.7fr)
       minmax(0, 1fr);
   }
 }

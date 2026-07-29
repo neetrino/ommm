@@ -46,7 +46,15 @@ export function AdminClientsShell({
   const caps =
     capabilities ??
     (readOnly
-      ? { ...adminClientCapabilities(), canCreate: false, canUpdate: false, canDelete: false }
+      ? {
+          ...adminClientCapabilities(),
+          canCreate: false,
+          canUpdate: false,
+          canDelete: false,
+          canAddNotes: false,
+          canAssignPackage: false,
+          canCreateBooking: false,
+        }
       : adminClientCapabilities());
   const t = useTranslations("adminPages.clients");
   const searchParams = useSearchParams();

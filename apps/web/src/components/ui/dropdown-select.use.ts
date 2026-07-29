@@ -26,6 +26,7 @@ type UseDropdownSelectParams<T extends string> = Pick<
   | "menuAlign"
   | "openOnHover"
   | "animateMenuDismiss"
+  | "toggleDeselectValue"
 > & {
   onChange: (value: T) => void;
 };
@@ -41,6 +42,7 @@ export function useDropdownSelect<T extends string>({
   menuAlign,
   openOnHover = false,
   animateMenuDismiss = false,
+  toggleDeselectValue,
 }: UseDropdownSelectParams<T>) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -180,6 +182,8 @@ export function useDropdownSelect<T extends string>({
     clearHoverCloseTimer,
     dismissMenu,
     onChange,
+    value,
+    toggleDeselectValue,
   });
 
   return {

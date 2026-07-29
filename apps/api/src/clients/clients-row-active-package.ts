@@ -7,6 +7,12 @@ export const CLIENT_ACTIVE_PACKAGE_STATUSES = [
   UserPackageStatus.PAUSED,
 ] as const;
 
+/** Packages shown on the clients list membership column (includes expired). */
+export const CLIENT_LIST_PACKAGE_STATUSES = [
+  ...CLIENT_ACTIVE_PACKAGE_STATUSES,
+  UserPackageStatus.EXPIRED,
+] as const;
+
 export const clientActivePackagePlanSelect = {
   id: true,
   name: true,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { MembershipPeriodHighlight } from "@/components/account/membership-period-highlight";
 import { PackageUsageBar } from "@/components/account/package-usage-bar";
@@ -9,7 +10,10 @@ import {
   normalizeUserPackageStatus,
 } from "@/components/account/user-membership-display";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
+import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { USER_PACKAGE_VALIDITY_DAY_MS } from "@/lib/user-package-validity";
 
 const BOARD_CARD_CLASS = [
@@ -22,6 +26,8 @@ type AdminClientPackageCardProps = {
   item: ClientSheetPackageItem;
   locale: string;
   paymentMethodLabel: string;
+  allowEditValidity?: boolean;
+  onValidityUpdated?: () => void;
 };
 
 function resolveValidityLabel(
@@ -48,6 +54,8 @@ export function AdminClientPackageCard({
   item,
   locale,
   paymentMethodLabel,
+  allowEditValidity = false,
+  onValidityUpdated,
 }: AdminClientPackageCardProps) {
   const t = useTranslations("userPages.packages");
   const tMarketing = useTranslations("marketing");
@@ -56,6 +64,8 @@ export function AdminClientPackageCard({
   const sessionName = formatPackagePlanName(item.packageName, item.totalSessions);
   const statusLabel = formatMembershipStatusLabel(status, t);
   const validityLabel = resolveValidityLabel(item.expirationDate, status, t);
+  const [editing, setEditing] = useState(false);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
 
   const remainingSessions = item.remainingSessions;
   const sessionsSummary = item.isUnlimited
@@ -77,6 +87,14 @@ export function AdminClientPackageCard({
 
   return (
     <article className={BOARD_CARD_CLASS}>
+      {successToast !== null ? (
+        <AdminCenterToast
+          message={successToast}
+          tone="ok"
+          onDismiss={() => setSuccessToast(null)}
+        />
+      ) : null}
+
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sand-600">
@@ -117,13 +135,37 @@ export function AdminClientPackageCard({
         <p className="text-sm text-sage-600">{validityLabel}</p>
       </div>
 
-      <div className="mt-5">
-        <MembershipPeriodHighlight
-          locale={locale}
-          periodStart={item.activationDate}
-          periodEnd={item.expirationDate}
-          variant="board"
-        />
+      <div className="mt-5 space-y-3">
+        {!editing ? (
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <MembershipPeriodHighlight
+                locale={locale}
+                periodStart={item.activationDate}
+                periodEnd={item.expirationDate}
+                variant="board"
+              />
+            </div>
+            {allowEditValidity ? (
+              <EditActionButton
+                className="mt-1 shrink-0"
+                ariaLabel={tAdmin("packages.editValidity")}
+                title={tAdmin("packages.editValidity")}
+                onClick={() => setEditing(true)}
+              />
+            ) : null}
+          </div>
+        ) : (
+          <AdminClientPackageValidityEditor
+            item={item}
+            onCancel={() => setEditing(false)}
+            onSuccess={() => {
+              setEditing(false);
+              setSuccessToast(tAdmin("packages.validityUpdated"));
+              onValidityUpdated?.();
+            }}
+          />
+        )}
       </div>
     </article>
   );

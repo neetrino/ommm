@@ -23,7 +23,10 @@ import {
   replaceAdminClientsSearchParams,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
-import { CLIENT_PROFILE_TAB_QUERY_KEY, CLIENT_ADD_PACKAGE_QUERY_KEY } from "@/components/admin/admin-client-sheet-tabs";
+import {
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+} from "@/components/admin/admin-client-sheet-tabs";
 import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 import { apiFetch } from "@/lib/api";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
@@ -53,6 +56,7 @@ export function useAdminClientsManagement({
     search: initialFilters.search ?? "",
     tag: initialFilters.tag ?? "",
     status: initialFilters.status ?? "",
+    package: initialFilters.package ?? "",
     classLevel: initialFilters.classLevel ?? "",
     paymentStatus: initialFilters.paymentStatus ?? "",
     source: initialFilters.source ?? "",
