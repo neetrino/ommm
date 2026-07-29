@@ -2658,7 +2658,12 @@
         "registeredAt": "Registered {date}",
         "viewBookedAria": "View {count} registered members",
         "closeButton": "Close",
-        "backdropClose": "Close dialog"
+        "backdropClose": "Close dialog",
+        "cancelButton": "Cancel",
+        "cancelConfirmTitle": "Cancel booking?",
+        "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
+        "cancelConfirmLabel": "Cancel booking",
+        "cancelSuccess": "Booking cancelled"
       },
       "actions": {
         "view": "View",

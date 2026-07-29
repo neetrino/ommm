@@ -2669,7 +2669,12 @@
         "registeredAt": "Գրանցվել է {date}",
         "viewBookedAria": "Դիտել {count} գրանցված մասնակից",
         "closeButton": "Փակել",
-        "backdropClose": "Փակել պատուհանը"
+        "backdropClose": "Փակել պատուհանը",
+        "cancelButton": "Չեղարկել",
+        "cancelConfirmTitle": "Չեղարկե՞լ գրանցումը",
+        "cancelConfirmDescription": "Չեղարկե՞լ այս գրանցումը։ Տեղը կրկին հասանելի կլինի։",
+        "cancelConfirmLabel": "Չեղարկել գրանցումը",
+        "cancelSuccess": "Գրանցումը չեղարկվեց"
       },
       "actions": {
         "view": "Դիտել",

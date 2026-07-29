@@ -26,6 +26,7 @@ import {
   SESSION_SHEET_TAB_DETAILS,
   type SessionSheetTabId,
 } from "@/components/admin/admin-schedule-session-sheet-tabs";
+import { AdminSessionRegistrationsList } from "@/components/admin/admin-session-registrations-list";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
@@ -48,8 +49,11 @@ type SessionSheetTabPanelsProps = {
   coaches: readonly AdminScheduleCoach[];
   controller: SessionEditFormController;
   actionBusy: boolean;
+  canCancelBooking?: boolean;
   onDuplicate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
+  onBookingCancelled?: () => void;
+  onNotice?: (message: string, tone: "ok" | "err") => void;
 };
 
 export function SessionSheetTabPanels({
@@ -60,8 +64,11 @@ export function SessionSheetTabPanels({
   coaches,
   controller,
   actionBusy,
+  canCancelBooking = true,
   onDuplicate,
   onDelete,
+  onBookingCancelled,
+  onNotice,
 }: SessionSheetTabPanelsProps) {
   const t = useTranslations("adminPages.classes");
   const [pendingDelete, setPendingDelete] = useState(false);
@@ -201,9 +208,14 @@ export function SessionSheetTabPanels({
             value={formatDateTimeForUi(row.startsAt, locale)}
           />
         </dl>
-        {row._count.bookings === 0 ? (
-          <p className="mt-4 text-sm text-sage-500">{t("sheetTabs.bookingsEmpty")}</p>
-        ) : null}
+        <AdminSessionRegistrationsList
+          sessionId={row.id}
+          locale={locale}
+          active={activeTab === SESSION_SHEET_TAB_BOOKINGS}
+          canCancel={canCancelBooking}
+          onBookingCancelled={onBookingCancelled}
+          onNotice={onNotice}
+        />
       </section>
     );
   }

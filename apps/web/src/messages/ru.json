@@ -2666,7 +2666,12 @@
         "registeredAt": "Записан {date}",
         "viewBookedAria": "Показать {count} записанных участников",
         "closeButton": "Закрыть",
-        "backdropClose": "Закрыть окно"
+        "backdropClose": "Закрыть окно",
+        "cancelButton": "Отменить",
+        "cancelConfirmTitle": "Отменить запись?",
+        "cancelConfirmDescription": "Отменить эту запись? Место снова станет доступным.",
+        "cancelConfirmLabel": "Отменить запись",
+        "cancelSuccess": "Запись отменена"
       },
       "actions": {
         "view": "Открыть",

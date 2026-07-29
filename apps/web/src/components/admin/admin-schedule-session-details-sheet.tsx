@@ -30,7 +30,10 @@ import {
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
-import { adminScheduleCapabilities } from "@/lib/backoffice-capabilities";
+import {
+  adminBookingCapabilities,
+  adminScheduleCapabilities,
+} from "@/lib/backoffice-capabilities";
 
 type AdminScheduleSessionDetailsSheetProps = {
   locale: string;
@@ -62,6 +65,7 @@ export function AdminScheduleSessionDetailsSheet({
   }
 
   const caps = capabilities ?? adminScheduleCapabilities();
+  const canCancelBooking = adminBookingCapabilities().canCancel;
 
   return (
     <AdminScheduleSessionDetailsSheetInner
@@ -75,6 +79,7 @@ export function AdminScheduleSessionDetailsSheet({
       onDuplicate={caps.canDuplicate ? onDuplicate : undefined}
       onDelete={caps.canDelete ? onDelete : undefined}
       canUpdate={caps.canUpdate}
+      canCancelBooking={canCancelBooking}
     />
   );
 }
@@ -90,6 +95,7 @@ function AdminScheduleSessionDetailsSheetInner({
   onDuplicate,
   onDelete,
   canUpdate = true,
+  canCancelBooking = true,
 }: {
   locale: string;
   row: AdminScheduleSession;
@@ -101,6 +107,7 @@ function AdminScheduleSessionDetailsSheetInner({
   onDuplicate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
   canUpdate?: boolean;
+  canCancelBooking?: boolean;
   onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 }) {
   const t = useTranslations("adminPages.classes");
@@ -160,6 +167,16 @@ function AdminScheduleSessionDetailsSheetInner({
     onSaved?.(updated);
   }
 
+  function handleBookingCancelled(): void {
+    onSaved?.({
+      ...row,
+      _count: {
+        ...row._count,
+        bookings: Math.max(0, row._count.bookings - 1),
+      },
+    });
+  }
+
   return (
     <OmmDrawerPortal
       isOpen
@@ -214,8 +231,11 @@ function AdminScheduleSessionDetailsSheetInner({
           coaches={coaches}
           controller={editForm}
           actionBusy={sheetBusy}
+          canCancelBooking={canCancelBooking}
           onDuplicate={onDuplicate}
           onDelete={onDelete}
+          onBookingCancelled={handleBookingCancelled}
+          onNotice={(message, tone) => setStatusNotice({ message, tone })}
         />
       </div>
 
