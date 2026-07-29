@@ -1,7 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
 type DropdownOption = { value: string; label: string };
 
@@ -23,7 +24,14 @@ type AdminClientBookingCreateFormProps = {
   bookablePackageCount: number;
   disabled: boolean;
   onSubmit: () => void;
+  submitSlot?: ReactNode;
 };
+
+const FIELD_LABEL_CLASS =
+  "text-[11px] font-semibold uppercase tracking-[0.12em] text-sage-500";
+
+const BAR_TRIGGER_CLASS =
+  "w-full min-w-0 justify-between rounded-2xl border-sand-200/80 bg-white px-3.5 shadow-none";
 
 export function AdminClientBookingCreateForm({
   formId,
@@ -43,20 +51,136 @@ export function AdminClientBookingCreateForm({
   bookablePackageCount,
   disabled,
   onSubmit,
+  submitSlot,
 }: AdminClientBookingCreateFormProps) {
   const t = useTranslations("adminPages.clients");
   const isBar = layout === "bar";
 
+  if (isBar) {
+    return (
+      <form
+        id={formId}
+        className="space-y-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+      >
+        {sessionsLoading ? (
+          <p className="text-sm text-sage-600">{t("bookings.sessionsLoading")}</p>
+        ) : null}
+        {!sessionsLoading && sessionsError !== null ? (
+          <p className="text-sm text-rose-700">{sessionsError}</p>
+        ) : null}
+        {!sessionsLoading && sessionsError === null && sessionOptions.length === 0 ? (
+          <p className="text-sm text-sage-600">{t("bookings.sessionsEmpty")}</p>
+        ) : null}
+
+        {!sessionsLoading && sessionOptions.length > 0 ? (
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+            <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0 space-y-1.5">
+                <div className="flex h-5 items-center justify-between gap-2">
+                  <p className={FIELD_LABEL_CLASS}>{t("bookings.sessionLabel")}</p>
+                  {sessionId !== "" ? (
+                    <button
+                      type="button"
+                      className="text-[11px] font-semibold uppercase tracking-[0.08em] text-sage-500 transition-colors hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 disabled:opacity-50"
+                      disabled={disabled}
+                      onClick={() => onSessionChange("")}
+                    >
+                      {t("bookings.clear")}
+                    </button>
+                  ) : null}
+                </div>
+                <OmmSelectDropdown
+                  ariaLabel={t("bookings.selectSession")}
+                  value={sessionId}
+                  options={[
+                    { value: "", label: t("bookings.selectSession") },
+                    ...sessionOptions,
+                  ]}
+                  onChange={onSessionChange}
+                  disabled={disabled}
+                  searchable
+                  searchPlaceholder={t("bookings.searchSessions")}
+                  noResultsLabel={t("bookings.searchNoResults")}
+                  triggerClassName={BAR_TRIGGER_CLASS}
+                  menuClassName="min-w-[18rem]"
+                />
+              </div>
+
+              <div className="min-w-0 space-y-1.5">
+                <div className="flex h-5 items-center">
+                  <p className={FIELD_LABEL_CLASS}>{t("bookings.packageLabel")}</p>
+                </div>
+                {sessionId === "" ? (
+                  <div className="flex min-h-11 items-center rounded-2xl border border-dashed border-sand-200/90 bg-sand-50/50 px-3.5 text-sm text-sage-400">
+                    {t("bookings.packageAfterSession")}
+                  </div>
+                ) : null}
+                {sessionId !== "" && packagesLoading ? (
+                  <div className="flex min-h-11 items-center rounded-2xl border border-sand-200/70 bg-white px-3.5 text-sm text-sage-500">
+                    {t("bookings.packagesLoading")}
+                  </div>
+                ) : null}
+                {sessionId !== "" && !packagesLoading && packagesError !== null ? (
+                  <p className="text-sm text-rose-700">{packagesError}</p>
+                ) : null}
+                {sessionId !== "" &&
+                !packagesLoading &&
+                packagesError === null &&
+                bookablePackageCount === 0 ? (
+                  <div className="flex min-h-11 items-center rounded-2xl border border-sand-200/70 bg-white px-3.5 text-sm text-sage-600">
+                    {packageRequired
+                      ? t("bookings.packagesEmptyRequired")
+                      : t("bookings.packagesEmptyOptional")}
+                  </div>
+                ) : null}
+                {sessionId !== "" && !packagesLoading && bookablePackageCount > 0 ? (
+                  <OmmSelectDropdown
+                    ariaLabel={t("bookings.selectPackage")}
+                    value={userPackageId}
+                    options={[
+                      {
+                        value: noPackageValue,
+                        label: packageRequired
+                          ? t("bookings.selectPackage")
+                          : t("bookings.selectPackageOptional"),
+                      },
+                      ...packageOptions,
+                    ]}
+                    onChange={onPackageChange}
+                    disabled={disabled}
+                    searchable={packageOptions.length > 5}
+                    searchPlaceholder={t("bookings.searchPackages")}
+                    noResultsLabel={t("bookings.searchNoResults")}
+                    triggerClassName={BAR_TRIGGER_CLASS}
+                    menuClassName="min-w-[16rem]"
+                  />
+                ) : null}
+              </div>
+            </div>
+
+            {submitSlot !== undefined ? (
+              <div className="shrink-0 lg:pb-0.5">{submitSlot}</div>
+            ) : null}
+          </div>
+        ) : null}
+      </form>
+    );
+  }
+
   return (
     <form
       id={formId}
-      className={isBar ? "space-y-3" : "space-y-5"}
+      className="space-y-5"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
       }}
     >
-      {!isBar ? <p className="text-sm text-sage-600">{t("bookings.selectLead")}</p> : null}
+      <p className="text-sm text-sage-600">{t("bookings.selectLead")}</p>
 
       {sessionsLoading ? (
         <p className="text-sm text-sage-600">{t("bookings.sessionsLoading")}</p>
@@ -69,102 +193,62 @@ export function AdminClientBookingCreateForm({
       ) : null}
 
       {!sessionsLoading && sessionOptions.length > 0 ? (
-        <div
-          className={
-            isBar
-              ? "flex flex-col gap-3 sm:flex-row sm:items-end"
-              : "space-y-2"
-          }
-        >
-          <div className={isBar ? "min-w-0 flex-1 space-y-2" : "space-y-2"}>
-            <p className="text-xs font-medium uppercase tracking-wide text-sage-500">
-              {t("bookings.sessionLabel")}
-            </p>
-            <div className="flex items-center gap-2.5">
-              <div className="min-w-0 flex-1">
-                <OmmFilterDropdown
-                  allValue=""
-                  value={sessionId}
-                  ariaLabel={t("bookings.selectSession")}
-                  allLabel={t("bookings.selectSession")}
-                  onChange={onSessionChange}
-                  options={sessionOptions}
-                  disabled={disabled}
-                  wrapLabel
-                />
-              </div>
-              {sessionId !== "" ? (
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-sage-200/80 bg-white text-sage-500 shadow-sm transition-colors hover:border-sage-300 hover:bg-sage-50 hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 disabled:pointer-events-none disabled:opacity-50"
-                  aria-label={t("bookings.clearSession")}
-                  title={t("bookings.clearSession")}
-                  disabled={disabled}
-                  onClick={() => onSessionChange("")}
-                >
-                  <ClearSessionGlyph className="h-4 w-4" />
-                </button>
-              ) : null}
-            </div>
-          </div>
+        <div className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-sage-500">
+            {t("bookings.sessionLabel")}
+          </p>
+          <OmmSelectDropdown
+            ariaLabel={t("bookings.selectSession")}
+            value={sessionId}
+            options={[
+              { value: "", label: t("bookings.selectSession") },
+              ...sessionOptions,
+            ]}
+            onChange={onSessionChange}
+            disabled={disabled}
+            wrapLabel
+          />
+        </div>
+      ) : null}
 
-          {sessionId !== "" ? (
-            <div className={isBar ? "min-w-0 flex-1 space-y-2" : "space-y-2"}>
-              <p className="text-xs font-medium uppercase tracking-wide text-sage-500">
-                {t("bookings.packageLabel")}
-              </p>
-              {packagesLoading ? (
-                <p className="text-sm text-sage-600">{t("bookings.packagesLoading")}</p>
-              ) : null}
-              {!packagesLoading && packagesError !== null ? (
-                <p className="text-sm text-rose-700">{packagesError}</p>
-              ) : null}
-              {!packagesLoading && packagesError === null && bookablePackageCount === 0 ? (
-                <p className="text-sm text-sage-600">
-                  {packageRequired
-                    ? t("bookings.packagesEmptyRequired")
-                    : t("bookings.packagesEmptyOptional")}
-                </p>
-              ) : null}
-              {!packagesLoading && bookablePackageCount > 0 ? (
-                <OmmFilterDropdown
-                  allValue={noPackageValue}
-                  value={userPackageId}
-                  ariaLabel={t("bookings.selectPackage")}
-                  allLabel={
-                    packageRequired
-                      ? t("bookings.selectPackage")
-                      : t("bookings.selectPackageOptional")
-                  }
-                  onChange={onPackageChange}
-                  options={packageOptions}
-                  disabled={disabled}
-                  wrapLabel
-                />
-              ) : null}
-            </div>
+      {sessionId !== "" ? (
+        <div className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-sage-500">
+            {t("bookings.packageLabel")}
+          </p>
+          {packagesLoading ? (
+            <p className="text-sm text-sage-600">{t("bookings.packagesLoading")}</p>
+          ) : null}
+          {!packagesLoading && packagesError !== null ? (
+            <p className="text-sm text-rose-700">{packagesError}</p>
+          ) : null}
+          {!packagesLoading && packagesError === null && bookablePackageCount === 0 ? (
+            <p className="text-sm text-sage-600">
+              {packageRequired
+                ? t("bookings.packagesEmptyRequired")
+                : t("bookings.packagesEmptyOptional")}
+            </p>
+          ) : null}
+          {!packagesLoading && bookablePackageCount > 0 ? (
+            <OmmSelectDropdown
+              ariaLabel={t("bookings.selectPackage")}
+              value={userPackageId}
+              options={[
+                {
+                  value: noPackageValue,
+                  label: packageRequired
+                    ? t("bookings.selectPackage")
+                    : t("bookings.selectPackageOptional"),
+                },
+                ...packageOptions,
+              ]}
+              onChange={onPackageChange}
+              disabled={disabled}
+              wrapLabel
+            />
           ) : null}
         </div>
       ) : null}
     </form>
-  );
-}
-
-function ClearSessionGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
   );
 }

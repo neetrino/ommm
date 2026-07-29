@@ -10,6 +10,7 @@ import {
   canSubmitAdminClientBooking,
   filterUpcomingBookableSessions,
   packageOptionLabel,
+  sessionOptionLabel,
   sessionRequiresPackage,
   type AdminClientBookingUpcomingSession,
 } from "@/components/admin/admin-client-booking-create.helpers";
@@ -19,7 +20,6 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
 import { pickDefaultBookingPackageId } from "@/lib/booking-package-selection";
-import { formatDateTimeForUi } from "@/lib/date-display";
 
 type AdminClientBookingCreateBarProps = {
   client: ClientDetail;
@@ -146,7 +146,7 @@ export function AdminClientBookingCreateBar({
 
   const sessionOptions = sessions.map((row) => ({
     value: row.id,
-    label: `${formatDateTimeForUi(row.startsAt, locale)} · ${row.classType.name} · ${row.coach.user.name ?? "—"}`,
+    label: sessionOptionLabel(row, locale),
   }));
 
   const packageOptions = bookablePackages.map((pkg) => ({
@@ -196,7 +196,7 @@ export function AdminClientBookingCreateBar({
   }
 
   return (
-    <section className="rounded-2xl border border-sand-200/80 bg-white/90 p-4 shadow-sm sm:p-5">
+    <section className="rounded-[22px] border border-sand-200/70 bg-gradient-to-br from-sand-50/90 via-white to-white p-3.5 shadow-[0_10px_28px_-22px_rgba(45,40,35,0.35)] sm:p-4">
       {toast ? (
         <AdminCenterToast
           message={toast.message}
@@ -205,38 +205,37 @@ export function AdminClientBookingCreateBar({
         />
       ) : null}
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-3">
-        <div className="min-w-0 flex-1">
-          <AdminClientBookingCreateForm
-            formId={formId}
-            layout="bar"
-            sessionsLoading={sessionsLoading}
-            sessionsError={sessionsError}
-            sessionOptions={sessionOptions}
-            sessionId={sessionId}
-            onSessionChange={setSessionId}
-            packagesLoading={packagesLoading}
-            packagesError={packagesError}
-            packageOptions={packageOptions}
-            userPackageId={userPackageId}
-            onPackageChange={setUserPackageId}
-            packageRequired={packageRequired}
-            noPackageValue={ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE}
-            bookablePackageCount={bookablePackages.length}
-            disabled={submitting}
-            onSubmit={() => void handleSubmit()}
-          />
-        </div>
-        <OmmButton
-          type="submit"
-          form={formId}
-          variant="primary"
-          className="w-full shrink-0 lg:w-auto"
-          disabled={!canSubmit || submitting}
-        >
-          {submitting ? t("bookings.submitting") : t("bookings.confirm")}
-        </OmmButton>
-      </div>
+      <AdminClientBookingCreateForm
+        formId={formId}
+        layout="bar"
+        sessionsLoading={sessionsLoading}
+        sessionsError={sessionsError}
+        sessionOptions={sessionOptions}
+        sessionId={sessionId}
+        onSessionChange={setSessionId}
+        packagesLoading={packagesLoading}
+        packagesError={packagesError}
+        packageOptions={packageOptions}
+        userPackageId={userPackageId}
+        onPackageChange={setUserPackageId}
+        packageRequired={packageRequired}
+        noPackageValue={ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE}
+        bookablePackageCount={bookablePackages.length}
+        disabled={submitting}
+        onSubmit={() => void handleSubmit()}
+        submitSlot={
+          <OmmButton
+            type="submit"
+            form={formId}
+            variant="primary"
+            size="sm"
+            className="w-full whitespace-nowrap lg:w-auto"
+            disabled={!canSubmit || submitting}
+          >
+            {submitting ? t("bookings.submitting") : t("bookings.confirm")}
+          </OmmButton>
+        }
+      />
     </section>
   );
 }
