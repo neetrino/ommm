@@ -1999,6 +1999,8 @@
       "colRole": "Դեր",
       "colJoined": "Գրանցում",
       "colMembership": "Աբոնեմենտ",
+      "colBooking": "Ամրագրում",
+      "nextBookingEmpty": "Մոտակա չկա",
       "colActions": "Գործողություններ",
       "packageActiveBadge": "Ակտիվ",
       "packagePausedBadge": "Դադար",

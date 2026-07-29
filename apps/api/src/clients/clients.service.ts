@@ -21,6 +21,10 @@ import {
 } from './clients-list-summary';
 import { matchesClientFilters, sortClientRows } from './clients-row-filters';
 import { clientInclude, toClientRow } from './clients-row.mapper';
+import {
+  attachNextBookingsToRows,
+  loadNextBookingsByUserId,
+} from './clients-row-next-booking';
 
 @Injectable()
 export class ClientsService {
@@ -69,7 +73,8 @@ export class ClientsService {
         orderBy: resolveClientsListOrderBy(query),
         take,
       });
-      return users.map((user) => toClientRow(user));
+      const rows = users.map((user) => toClientRow(user));
+      return this.withAccurateNextBookings(rows);
     }
 
     const [total, users, summary, filterOptions] = await Promise.all([
@@ -90,8 +95,12 @@ export class ClientsService {
       ),
     ]);
 
+    const rows = await this.withAccurateNextBookings(
+      users.map((user) => toClientRow(user)),
+    );
+
     return {
-      rows: users.map((user) => toClientRow(user)),
+      rows,
       summary,
       filterOptions,
       pagination: { total, take, offset },
@@ -119,15 +128,26 @@ export class ClientsService {
     );
 
     if (!query.meta) {
-      return filtered.slice(0, take);
+      return this.withAccurateNextBookings(filtered.slice(0, take));
     }
 
+    const pageRows = filtered.slice(offset, offset + take);
     return {
-      rows: filtered.slice(offset, offset + take),
+      rows: await this.withAccurateNextBookings(pageRows),
       summary: summaryFromRows(filtered),
       filterOptions: filterOptionsFromRows(filtered),
       pagination: { total: filtered.length, take, offset },
     };
+  }
+
+  private async withAccurateNextBookings<
+    T extends { id: string; nextBooking: ReturnType<typeof toClientRow>['nextBooking'] },
+  >(rows: T[]): Promise<T[]> {
+    const nextByUserId = await loadNextBookingsByUserId(
+      this.prisma,
+      rows.map((row) => row.id),
+    );
+    return attachNextBookingsToRows(rows, nextByUserId);
   }
 
   async get(id: string) {
@@ -139,6 +159,7 @@ export class ClientsService {
       throw new NotFoundException();
     }
     const notes = await this.admin.listNotes(id);
+    const [activity] = await this.withAccurateNextBookings([toClientRow(user)]);
     return {
       id: user.id,
       email: user.email,
@@ -148,7 +169,7 @@ export class ClientsService {
       dateOfBirth: user.dateOfBirth,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
-      activity: toClientRow(user),
+      activity,
       notes,
     };
   }

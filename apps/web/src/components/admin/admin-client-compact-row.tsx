@@ -11,6 +11,7 @@ import {
   clientTagLabelKey,
 } from "@/components/admin/admin-client-list-badges";
 import { AdminClientPackageBadge } from "@/components/admin/admin-client-package-badge";
+import { AdminClientNextBookingCell } from "@/components/admin/admin-client-next-booking-cell";
 import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
 import {
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
@@ -92,6 +93,11 @@ export function AdminClientCompactRow({
       <div className={`${ADMIN_CLIENTS_LIST_CELL} min-w-0`}>
         <AdminListMobileLabel label={t("colMembership")} />
         <AdminClientPackageBadge row={row} />
+      </div>
+
+      <div className={`${ADMIN_CLIENTS_LIST_CELL} min-w-0`}>
+        <AdminListMobileLabel label={t("colBooking")} />
+        <AdminClientNextBookingCell row={row} />
       </div>
 
       {hideActions ? null : (

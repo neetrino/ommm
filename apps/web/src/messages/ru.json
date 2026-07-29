@@ -1996,6 +1996,8 @@
       "colRole": "Роль",
       "colJoined": "Регистрация",
       "colMembership": "Абонемент",
+      "colBooking": "Бронирование",
+      "nextBookingEmpty": "Нет ближайших",
       "colActions": "Действия",
       "packageActiveBadge": "Активен",
       "packagePausedBadge": "Пауза",

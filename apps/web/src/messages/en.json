@@ -1988,6 +1988,8 @@
       "colRole": "Role",
       "colJoined": "Joined",
       "colMembership": "Membership",
+      "colBooking": "Booking",
+      "nextBookingEmpty": "No upcoming",
       "colActions": "Actions",
       "packageActiveBadge": "Active",
       "packagePausedBadge": "Paused",
