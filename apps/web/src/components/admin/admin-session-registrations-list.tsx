@@ -26,8 +26,8 @@ type AdminSessionRegistrationsListProps = {
   onNotice?: (message: string, tone: "ok" | "err") => void;
 };
 
-const LIST_SCROLL_CLASS =
-  "mt-3 max-h-[min(48vh,22rem)] overflow-y-auto rounded-xl border border-sand-200/80 bg-white/40";
+const LIST_ROOT_CLASS = "mt-3 flex min-h-0 flex-1 flex-col";
+const LIST_SCROLL_CLASS = "min-h-0 flex-1 overflow-y-auto overscroll-y-contain";
 
 export function AdminSessionRegistrationsList({
   sessionId,
@@ -135,7 +135,7 @@ export function AdminSessionRegistrationsList({
 
   if (rows.length === 0) {
     return (
-      <p className="mt-3 rounded-xl border border-dashed border-sand-200/90 px-4 py-10 text-center text-sm text-sage-500">
+      <p className="mt-3 py-10 text-center text-sm text-sage-500">
         {tClasses("sheetTabs.bookingsEmpty")}
       </p>
     );
@@ -143,8 +143,8 @@ export function AdminSessionRegistrationsList({
 
   return (
     <>
-      <div className={LIST_SCROLL_CLASS}>
-        <ul className="px-3">
+      <div className={LIST_ROOT_CLASS}>
+        <ul className={LIST_SCROLL_CLASS}>
           {rows.map((row) => (
             <AdminSessionRegistrationRow
               key={row.id}

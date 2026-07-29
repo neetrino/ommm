@@ -15,6 +15,7 @@ import { coachName } from "@/components/admin/admin-schedule-session-display";
 import { canDeleteAdminScheduleSession } from "@/components/admin/admin-schedule-session.helpers";
 import { SessionSheetTabPanels } from "@/components/admin/admin-schedule-session-sheet-tab-panels";
 import {
+  SESSION_SHEET_TAB_BOOKINGS,
   SESSION_SHEET_TAB_DETAILS,
   SESSION_SHEET_TAB_ORDER,
   type SessionSheetTabId,
@@ -153,6 +154,10 @@ function AdminScheduleSessionDetailsSheetInner({
     value,
     label: t(`sheetTabs.${value}`),
   }));
+  const isBookingsTab = activeTab === SESSION_SHEET_TAB_BOOKINGS;
+  const bodyClassName = isBookingsTab
+    ? "flex min-h-0 flex-1 flex-col overflow-hidden px-5 py-5 sm:px-6"
+    : `${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`;
 
   const handleClose = useCallback(() => {
     if (sheetBusy) {
@@ -213,7 +218,7 @@ function AdminScheduleSessionDetailsSheetInner({
         onTabChange={(value) => setActiveTab(value as SessionSheetTabId)}
       />
 
-      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+      <div className={bodyClassName}>
         {toastMessage ? (
           <AdminCenterToast
             message={toastMessage}
