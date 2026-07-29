@@ -8,6 +8,7 @@ import {
   clientActivePackagePlanSelect,
   toClientActivePackageFields,
 } from './clients-row-active-package';
+import { pickNextBookingFromBookings } from './clients-row-next-booking';
 
 const CLIENT_ACTIVE_PACKAGES_TAKE = 10;
 
@@ -238,6 +239,7 @@ export function toClientRow(user: ClientRecord) {
     birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
     hasGiftCardActivity: hasGiftCardActivity(user),
     isBlocked: user.isBlocked,
+    nextBooking: pickNextBookingFromBookings(user.bookings),
     ...toClientActivePackageFields(user.userPackages),
   };
 }

@@ -45,6 +45,11 @@ export type ClientRow = {
     | "EXPIRED"
     | "PENDING"
     | null;
+  nextBooking: {
+    id: string;
+    startsAt: string;
+    classTypeName: string;
+  } | null;
 };
 
 export type AdminClientsPayload = {
