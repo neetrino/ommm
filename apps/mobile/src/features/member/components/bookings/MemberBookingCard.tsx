@@ -3,6 +3,7 @@ import type { BookingMineRow } from "../../../../lib/api/memberClient";
 import {
   formatDurationMinutes,
 } from "../../../../lib/member/formatSessionLabels";
+import { STUDIO_TIMEZONE } from "../../../../lib/studioTimezone";
 import { fontFamilies } from "../../../../theme/fontFamilies";
 import { platformShadow } from "../../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../../theme/tokens";
@@ -19,6 +20,7 @@ function formatBookingDate(iso: string, locale: string): string {
     weekday: "short",
     month: "short",
     day: "numeric",
+    timeZone: STUDIO_TIMEZONE,
   });
 }
 
@@ -30,6 +32,7 @@ function formatBookingTime(iso: string, locale: string): string {
   return d.toLocaleString(locale, {
     hour: "numeric",
     minute: "2-digit",
+    timeZone: STUDIO_TIMEZONE,
   });
 }
 

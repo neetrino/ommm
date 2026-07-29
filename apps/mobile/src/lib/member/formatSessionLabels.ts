@@ -1,15 +1,20 @@
+import { STUDIO_TIMEZONE } from "../studioTimezone";
+
 const timeFmt: Intl.DateTimeFormatOptions = {
   hour: "numeric",
   minute: "2-digit",
+  timeZone: STUDIO_TIMEZONE,
 };
 
 const weekdayFmt: Intl.DateTimeFormatOptions = {
   weekday: "short",
+  timeZone: STUDIO_TIMEZONE,
 };
 
 const monthDayFmt: Intl.DateTimeFormatOptions = {
   month: "short",
   day: "numeric",
+  timeZone: STUDIO_TIMEZONE,
 };
 
 export function formatSessionStartLabel(iso: string, locale: string): string {

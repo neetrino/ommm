@@ -31,6 +31,7 @@ import {
   scheduleTodayIsoDate,
 } from "@/lib/local-iso-date";
 import { addDays } from "@/components/marketing/schedule/schedule-date-utils";
+import { utcToStudioWallClockTime } from "@/lib/studio-timezone";
 
 function spotsLeft(row: ScheduleQuickFilterRow): number {
   return Math.max(row.capacity - row._count.bookings, 0);
@@ -91,7 +92,7 @@ export function matchesScheduleQuickFilters(
   if (quickFilters.includes("beginner") && !splitSessionLevels(row.level).includes("Beginner")) {
     return false;
   }
-  if (quickFilters.includes("evening") && new Date(row.startsAt).getHours() < 17) {
+  if (quickFilters.includes("evening") && Number(utcToStudioWallClockTime(new Date(row.startsAt)).slice(0, 2)) < 17) {
     return false;
   }
 

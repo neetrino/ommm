@@ -1,4 +1,4 @@
-import { startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
+import { utcToStudioCalendarDate } from "@/lib/studio-timezone";
 
 /** Calendar day as `YYYY-MM-DD` in the user's local timezone. */
 export function toLocalIsoDate(date: Date): string {
@@ -13,10 +13,12 @@ export function localIsoDateFromValue(value: Date | string): string {
   return toLocalIsoDate(new Date(value));
 }
 
+/** Studio calendar day for “today” on schedule surfaces (Asia/Yerevan). */
 export function scheduleTodayIsoDate(): string {
-  return toLocalIsoDate(startOfLocalDay(new Date()));
+  return utcToStudioCalendarDate(new Date());
 }
 
+/** Studio calendar day for a session `startsAt` instant. */
 export function scheduleSessionLocalIsoDay(startsAt: string): string {
-  return toLocalIsoDate(new Date(startsAt));
+  return utcToStudioCalendarDate(new Date(startsAt));
 }

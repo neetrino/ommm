@@ -13,6 +13,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import { formatTimeForUi } from "@/lib/format-time-display";
 import { getOmmmOverlayPortalRoot, OMMM_FLOATING_MENU_Z_INDEX } from "@/lib/ommm-overlay-portal";
+import { STUDIO_TIMEZONE } from "@/lib/studio-timezone";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
@@ -54,6 +55,7 @@ function formatSessionWhen(locale: string, startsAt: string, endsAt: string): st
     weekday: "short",
     month: "short",
     day: "numeric",
+    timeZone: STUDIO_TIMEZONE,
   }).format(start);
   const time = formatTimeForUi(start, locale);
   const endTime = formatTimeForUi(end, locale);

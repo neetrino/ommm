@@ -1,16 +1,20 @@
-/** Site-wide wall-clock display — always 24-hour (e.g. 22:00, not 10:00 PM). */
+import { STUDIO_TIMEZONE } from "@/lib/studio-timezone";
+
+/** Site-wide wall-clock display — always 24-hour in studio timezone (Asia/Yerevan). */
 export const TIME_DISPLAY_24H_OPTIONS = {
   hour: "2-digit",
   minute: "2-digit",
   hour12: false,
+  timeZone: STUDIO_TIMEZONE,
 } as const satisfies Intl.DateTimeFormatOptions;
 
+/** Hour labels for synthetic local `Date` values (analytics buckets) — no fixed timezone. */
 export const HOUR_ONLY_24H_OPTIONS = {
   hour: "2-digit",
   hour12: false,
 } as const satisfies Intl.DateTimeFormatOptions;
 
-/** Formats a `Date` as `HH:mm` in 24-hour clock. */
+/** Formats a `Date` as `HH:mm` in 24-hour studio wall clock. */
 export function formatTimeForUi(value: Date, locale?: string): string {
   return new Intl.DateTimeFormat(locale, TIME_DISPLAY_24H_OPTIONS).format(value);
 }

@@ -18,9 +18,16 @@ import type {
 } from "@/components/admin/admin-schedule-session.types";
 import { normalizeTimeInputValue } from "@/lib/date-display";
 import { localIsoDateFromValue } from "@/lib/local-iso-date";
+import {
+  STUDIO_TIMEZONE_OFFSET_MINUTES,
+  studioWallClockToUtc,
+  utcToStudioCalendarDate,
+  utcToStudioDayOfWeek,
+  utcToStudioWallClockTime,
+} from "@/lib/studio-timezone";
 
 function timeValue(value: Date | string): string {
-  return new Date(value).toTimeString().slice(0, 5);
+  return utcToStudioWallClockTime(new Date(value));
 }
 
 function addDays(value: Date | string, days: number): Date {
@@ -34,10 +41,10 @@ export function createScheduleSlotId(): string {
 }
 
 export function weekdayFromDate(value: Date | string): ScheduleDayOfWeek {
-  const day = new Date(value).getDay();
-  return (["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const)[
-    day
-  ];
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) {
+    return utcToStudioDayOfWeek(studioWallClockToUtc(value.trim(), "12:00"));
+  }
+  return utcToStudioDayOfWeek(new Date(value));
 }
 
 /** Next calendar day in Mon→Sun order (Sunday wraps to Monday). */
@@ -114,7 +121,7 @@ export function initialForm(
     description: row?.description ?? "",
     classTypeId,
     coachId: coachDropdown.coachId,
-    date: localIsoDateFromValue(start),
+    date: row ? utcToStudioCalendarDate(start) : localIsoDateFromValue(start),
     startTime: timeValue(start),
     endTime: timeValue(end),
     capacity: row ? String(row.capacity) : DEFAULT_SESSION_CAPACITY,
@@ -131,8 +138,8 @@ export function formPayload(form: AdminScheduleFormState, classTypeId: string, t
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
-    startsAt: new Date(`${form.date}T${startTime}:00`).toISOString(),
-    endsAt: new Date(`${form.date}T${endTime}:00`).toISOString(),
+    startsAt: studioWallClockToUtc(form.date, startTime).toISOString(),
+    endsAt: studioWallClockToUtc(form.date, endTime).toISOString(),
     capacity: Number(form.capacity),
     level: joinSessionLevels(form.levels),
     status: form.status,
@@ -157,7 +164,7 @@ export function batchFormPayload(
     status: form.status,
     startDate,
     endDate,
-    timezoneOffsetMinutes: new Date().getTimezoneOffset(),
+    timezoneOffsetMinutes: STUDIO_TIMEZONE_OFFSET_MINUTES,
     slots: slots.map(({ weekday, startTime, endTime }) => ({
       weekday,
       startTime: normalizeTimeInputValue(startTime),

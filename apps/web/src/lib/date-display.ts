@@ -1,4 +1,5 @@
 import { formatTimeForUi } from "@/lib/format-time-display";
+import { utcToStudioCalendarDate } from "@/lib/studio-timezone";
 
 function asDate(value: Date | string): Date | null {
   if (value instanceof Date) {
@@ -6,6 +7,15 @@ function asDate(value: Date | string): Date | null {
   }
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function studioCalendarParts(date: Date): {
+  day: string;
+  month: string;
+  year: string;
+} {
+  const [year, month, day] = utcToStudioCalendarDate(date).split("-");
+  return { day: day ?? "", month: month ?? "", year: year ?? "" };
 }
 
 export function formatDateForUi(value: Date | string): string {
@@ -20,38 +30,29 @@ export function formatDateForUi(value: Date | string): string {
   if (date === null) {
     return "";
   }
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear()).padStart(4, "0");
+  const { day, month, year } = studioCalendarParts(date);
   return `${day}/${month}/${year}`;
 }
 
-/** Compact list date: `06/06/26`. */
+/** Compact list date: `06/06/26` (studio calendar for ISO instants). */
 export function formatDateCompactForUi(value: Date | string): string {
-  let date: Date | null = null;
-
   if (typeof value === "string") {
     const trimmed = value.trim();
     if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
       const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
       if (match !== null) {
-        date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+        return `${match[3]}/${match[2]}/${match[1].slice(-2)}`;
       }
     }
   }
 
-  if (date === null) {
-    date = asDate(value);
-  }
-
+  const date = asDate(value);
   if (date === null) {
     return "";
   }
 
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear()).slice(-2);
-  return `${day}/${month}/${year}`;
+  const { day, month, year } = studioCalendarParts(date);
+  return `${day}/${month}/${year.slice(-2)}`;
 }
 
 export function formatDateTimeForUi(value: Date | string, locale?: string): string {

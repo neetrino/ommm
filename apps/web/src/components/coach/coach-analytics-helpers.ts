@@ -1,8 +1,5 @@
 import type { CoachAnalyticsPayload } from "@/components/coach/coach-analytics-types";
-import {
-  formatTimeForUi,
-  HOUR_ONLY_24H_OPTIONS,
-} from "@/lib/format-time-display";
+import { HOUR_ONLY_24H_OPTIONS } from "@/lib/format-time-display";
 
 const STRONG_FILL_RATE = 70;
 const WEAK_FILL_RATE = 40;
@@ -116,8 +113,6 @@ export function mapHourlyBarItems(
     .slice(0, 8);
 }
 
-export function formatPeakTimeLabel(hour: number, locale: string): string {
-  const sample = new Date();
-  sample.setHours(hour, 0, 0, 0);
-  return formatTimeForUi(sample, locale);
+export function formatPeakTimeLabel(hour: number, _locale: string): string {
+  return `${String(Math.max(0, Math.min(23, hour))).padStart(2, "0")}:00`;
 }
