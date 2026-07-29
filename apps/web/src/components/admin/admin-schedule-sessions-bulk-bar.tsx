@@ -7,6 +7,9 @@ import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 type BulkConfirmKind = "cancel" | "activate";
 
+const BULK_ACTION_BUTTON_CLASS =
+  "inline-flex shrink-0 items-center justify-center rounded-full px-5";
+
 type AdminScheduleSessionsBulkBarProps = {
   selectedCount: number;
   cancellableCount: number;
@@ -78,13 +81,14 @@ export function AdminScheduleSessionsBulkBar({
         <p className="text-sm font-medium text-sage-800">
           {t("bulk.selectedCount", { count: selectedCount })}
         </p>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           {onBulkCancel && cancellableCount > 0 ? (
             <OmmButton
               type="button"
-              size="sm"
+              size="md"
               variant="secondary"
               disabled={busy}
+              className={`${BULK_ACTION_BUTTON_CLASS} ommm-btn-lifecycle-action--warm border-sand-500/50 bg-sand-100 text-sand-700 shadow-sm`}
               onClick={() => setPendingConfirm("cancel")}
             >
               {t("bulk.cancelSelected")}
@@ -93,9 +97,10 @@ export function AdminScheduleSessionsBulkBar({
           {onBulkActivate && activatableCount > 0 ? (
             <OmmButton
               type="button"
-              size="sm"
+              size="md"
               variant="secondary"
               disabled={busy}
+              className={BULK_ACTION_BUTTON_CLASS}
               onClick={() => setPendingConfirm("activate")}
             >
               {t("bulk.activateSelected")}
