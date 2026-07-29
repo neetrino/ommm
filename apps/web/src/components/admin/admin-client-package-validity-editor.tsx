@@ -125,8 +125,9 @@ export function AdminClientPackageValidityEditor({
         className={`${ADMIN_SHEET_FORM_SECTION_CLASS} space-y-4`}
         onSubmit={(event) => void handleSubmit(event)}
       >
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+        <div className="flex items-start gap-2 sm:gap-3">
           <AdminSheetEditableField
+            className="min-w-0 flex-1"
             label={t("packages.activationDate")}
             error={activationError}
             hint={t("packages.activationDateOptionalHint")}
@@ -144,12 +145,13 @@ export function AdminClientPackageValidityEditor({
             />
           </AdminSheetEditableField>
           <span
-            className="hidden pb-3 text-center font-serif text-lg text-sand-400 sm:block"
+            className="mt-7 shrink-0 select-none px-0.5 font-serif text-lg leading-none text-sand-400"
             aria-hidden="true"
           >
             –
           </span>
           <AdminSheetEditableField
+            className="min-w-0 flex-1"
             label={t("packages.expirationDate")}
             required
             error={expirationError}
