@@ -2568,7 +2568,7 @@
         "details": "Details",
         "bookings": "Bookings",
         "actions": "Actions",
-        "bookingsHeading": "Capacity & attendance",
+        "bookingsHeading": "Registered members",
         "bookingsEmpty": "No bookings for this class yet."
       },
       "emptyCoaches": "No coaches available. Add coaches before creating classes.",

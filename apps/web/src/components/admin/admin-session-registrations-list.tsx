@@ -6,12 +6,9 @@ import {
   isActiveSessionRegistration,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
-import { OmmButton } from "@/components/ui/omm-button";
+import { AdminSessionRegistrationRow } from "@/components/admin/admin-session-registration-row";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateTimeForUi } from "@/lib/date-display";
-import { formatPhoneDisplay } from "@/lib/phone";
-import { userDisplayName } from "@/lib/user-display-name";
 
 type FetchResult = {
   key: string;
@@ -29,23 +26,8 @@ type AdminSessionRegistrationsListProps = {
   onNotice?: (message: string, tone: "ok" | "err") => void;
 };
 
-function memberInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) {
-    return "?";
-  }
-  if (parts.length === 1) {
-    return parts[0]!.slice(0, 2).toUpperCase();
-  }
-  return `${parts[0]!.charAt(0)}${parts[1]!.charAt(0)}`.toUpperCase();
-}
-
-function memberContactLine(user: SessionRegistrationRow["user"]): string {
-  if (user.phone?.trim()) {
-    return formatPhoneDisplay(user.phone);
-  }
-  return user.email.trim();
-}
+const LIST_SCROLL_CLASS =
+  "mt-3 max-h-[min(48vh,22rem)] overflow-y-auto rounded-xl border border-sand-200/80 bg-white/40";
 
 export function AdminSessionRegistrationsList({
   sessionId,
@@ -134,7 +116,7 @@ export function AdminSessionRegistrationsList({
 
   if (loading) {
     return (
-      <p className="mt-4 rounded-2xl border border-sand-200/80 bg-sand-50/70 px-4 py-6 text-center text-sm text-sage-600">
+      <p className="mt-3 py-10 text-center text-sm text-sage-500" aria-live="polite">
         {t("loading")}
       </p>
     );
@@ -143,7 +125,7 @@ export function AdminSessionRegistrationsList({
   if (error !== null) {
     return (
       <p
-        className="mt-4 rounded-2xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-900"
+        className="mt-3 rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-900"
         role="alert"
       >
         {error}
@@ -152,49 +134,29 @@ export function AdminSessionRegistrationsList({
   }
 
   if (rows.length === 0) {
-    return <p className="mt-4 text-sm text-sage-500">{t("empty")}</p>;
+    return (
+      <p className="mt-3 rounded-xl border border-dashed border-sand-200/90 px-4 py-10 text-center text-sm text-sage-500">
+        {tClasses("sheetTabs.bookingsEmpty")}
+      </p>
+    );
   }
 
   return (
     <>
-      <ul className="mt-4 max-h-[min(40vh,20rem)] space-y-2 overflow-y-auto pr-1">
-        {rows.map((row) => {
-          const displayName = userDisplayName(row.user.name, null, row.user.email);
-          return (
-            <li
+      <div className={LIST_SCROLL_CLASS}>
+        <ul className="px-3">
+          {rows.map((row) => (
+            <AdminSessionRegistrationRow
               key={row.id}
-              className="flex items-center gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/60 px-4 py-3"
-            >
-              <div
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mint-100 font-serif text-sm text-sage-800"
-                aria-hidden
-              >
-                {memberInitials(displayName)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-sage-900">{displayName}</p>
-                <p className="truncate text-xs text-sage-500">{memberContactLine(row.user)}</p>
-                <p className="mt-0.5 text-[11px] text-sage-400">
-                  {t("registeredAt", {
-                    date: formatDateTimeForUi(row.createdAt, locale),
-                  })}
-                </p>
-              </div>
-              {canCancel ? (
-                <OmmButton
-                  type="button"
-                  size="sm"
-                  variant="danger"
-                  disabled={busyId !== null}
-                  onClick={() => setPendingCancel(row)}
-                >
-                  {t("cancelButton")}
-                </OmmButton>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>
+              row={row}
+              locale={locale}
+              canCancel={canCancel}
+              busy={busyId !== null}
+              onCancel={() => setPendingCancel(row)}
+            />
+          ))}
+        </ul>
+      </div>
 
       <OmmConfirmDialog
         isOpen={pendingCancel !== null}
