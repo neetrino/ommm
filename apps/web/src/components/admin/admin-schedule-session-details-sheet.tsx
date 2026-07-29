@@ -12,6 +12,7 @@ import { sessionEditFormFromRow } from "@/components/admin/admin-schedule-sessio
 import { useSessionEditForm } from "@/components/admin/admin-schedule-session-edit-form.use";
 import { buildCoachDropdownState } from "@/components/admin/admin-schedule-coach-filter";
 import { coachName } from "@/components/admin/admin-schedule-session-display";
+import { canDeleteAdminScheduleSession } from "@/components/admin/admin-schedule-session.helpers";
 import { SessionSheetTabPanels } from "@/components/admin/admin-schedule-session-sheet-tab-panels";
 import {
   SESSION_SHEET_TAB_DETAILS,
@@ -233,7 +234,9 @@ function AdminScheduleSessionDetailsSheetInner({
           actionBusy={sheetBusy}
           canCancelBooking={canCancelBooking}
           onDuplicate={onDuplicate}
-          onDelete={onDelete}
+          onDelete={
+            onDelete && canDeleteAdminScheduleSession(row) ? onDelete : undefined
+          }
           onBookingCancelled={handleBookingCancelled}
           onNotice={(message, tone) => setStatusNotice({ message, tone })}
         />

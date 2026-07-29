@@ -18,6 +18,13 @@ export function spotsLeft(row: AdminScheduleSession): number {
   return Math.max(row.capacity - row._count.bookings, 0);
 }
 
+/** Sessions with any bookings must not be hard-deleted (API enforces the same rule). */
+export function canDeleteAdminScheduleSession(
+  row: Pick<AdminScheduleSession, "_count">,
+): boolean {
+  return row._count.bookings === 0;
+}
+
 export function splitSessionLevels(level: string | null | undefined): string[] {
   if (!level) {
     return [];

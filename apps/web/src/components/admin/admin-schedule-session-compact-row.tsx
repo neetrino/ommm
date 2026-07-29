@@ -11,6 +11,7 @@ import {
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
+import { canDeleteAdminScheduleSession } from "@/components/admin/admin-schedule-session.helpers";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
 import { AdminScheduleSessionSelectCheckbox } from "@/components/admin/admin-schedule-session-select-checkbox";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
@@ -191,7 +192,7 @@ export function AdminScheduleSessionCompactRow({
           <AdminScheduleSessionRowActions
             row={row}
             busy={busy}
-            includeDelete={onDelete !== undefined}
+            includeDelete={onDelete !== undefined && canDeleteAdminScheduleSession(row)}
             onDuplicate={onDuplicate}
             onCancel={onCancel}
             onActivate={onActivate}
