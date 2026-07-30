@@ -15,5 +15,6 @@ import { NotificationsService } from './notifications.service';
     NotificationsCronService,
     ExpoPushService,
   ],
+  exports: [NotificationsCronService],
 })
 export class NotificationsModule {}

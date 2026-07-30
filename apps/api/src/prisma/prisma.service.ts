@@ -6,8 +6,10 @@ import {
 } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@ommm/database';
 
-const DB_IDLE_WINDOW_MS = 5 * 60 * 1000;
+const DEFAULT_IDLE_DISCONNECT_MS = 4 * 60 * 1000;
 const DB_IDLE_MONITOR_INTERVAL_MS = 60 * 1000;
+const PRISMA_IDLE_DISCONNECT_ENV = 'PRISMA_IDLE_DISCONNECT';
+const PRISMA_IDLE_DISCONNECT_MS_ENV = 'PRISMA_IDLE_DISCONNECT_MS';
 
 @Injectable()
 export class PrismaService
@@ -15,24 +17,36 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
-  private readonly idleWindowMinutes = DB_IDLE_WINDOW_MS / 60_000;
+  private readonly idleDisconnectEnabled: boolean;
+  private readonly idleDisconnectMs: number;
   private lastDbActivityAt = Date.now();
-  private idleWindowLogged = false;
+  private idleDisconnectLogged = false;
   private idleMonitor: NodeJS.Timeout | null = null;
+  private disconnectInFlight = false;
+  private engineConnected = false;
 
   constructor() {
     super({
       log: [{ emit: 'event', level: 'query' }],
     });
+    this.idleDisconnectEnabled = isIdleDisconnectEnabled(
+      process.env[PRISMA_IDLE_DISCONNECT_ENV],
+    );
+    this.idleDisconnectMs = resolveIdleDisconnectMs(
+      process.env[PRISMA_IDLE_DISCONNECT_MS_ENV],
+    );
     this.$on('query', () => {
       this.lastDbActivityAt = Date.now();
-      this.idleWindowLogged = false;
+      this.idleDisconnectLogged = false;
+      this.engineConnected = true;
     });
   }
 
   async onModuleInit(): Promise<void> {
-    await this.$connect();
-    this.startIdleMonitor();
+    // Lazy connect on first query — avoid holding Neon awake from boot.
+    if (this.idleDisconnectEnabled) {
+      this.startIdleMonitor();
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -41,6 +55,7 @@ export class PrismaService
       this.idleMonitor = null;
     }
     await this.$disconnect();
+    this.engineConnected = false;
   }
 
   private startIdleMonitor(): void {
@@ -48,15 +63,56 @@ export class PrismaService
       return;
     }
     this.idleMonitor = setInterval(() => {
-      const idleForMs = Date.now() - this.lastDbActivityAt;
-      if (idleForMs < DB_IDLE_WINDOW_MS || this.idleWindowLogged) {
-        return;
-      }
-      this.idleWindowLogged = true;
-      this.logger.log(
-        `No database activity detected for ${this.idleWindowMinutes} minutes.`,
-      );
+      void this.maybeDisconnectWhenIdle();
     }, DB_IDLE_MONITOR_INTERVAL_MS);
     this.idleMonitor.unref();
   }
+
+  private async maybeDisconnectWhenIdle(): Promise<void> {
+    if (!this.engineConnected || this.disconnectInFlight) {
+      return;
+    }
+    const idleForMs = Date.now() - this.lastDbActivityAt;
+    if (idleForMs < this.idleDisconnectMs) {
+      return;
+    }
+    this.disconnectInFlight = true;
+    try {
+      await this.$disconnect();
+      this.engineConnected = false;
+      if (!this.idleDisconnectLogged) {
+        this.idleDisconnectLogged = true;
+        this.logger.log(
+          `Prisma disconnected after ${Math.round(idleForMs / 1000)}s idle (Neon scale-to-zero).`,
+        );
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Prisma idle disconnect failed: ${
+          error instanceof Error ? error.message : 'unknown'
+        }`,
+      );
+    } finally {
+      this.disconnectInFlight = false;
+    }
+  }
+}
+
+function isIdleDisconnectEnabled(raw: string | undefined): boolean {
+  if (raw === undefined || raw.trim() === '') {
+    return true;
+  }
+  const normalized = raw.trim().toLowerCase();
+  return normalized !== 'false' && normalized !== '0';
+}
+
+function resolveIdleDisconnectMs(raw: string | undefined): number {
+  if (!raw?.trim()) {
+    return DEFAULT_IDLE_DISCONNECT_MS;
+  }
+  const parsed = Number.parseInt(raw.trim(), 10);
+  if (!Number.isFinite(parsed) || parsed < 60_000) {
+    return DEFAULT_IDLE_DISCONNECT_MS;
+  }
+  return parsed;
 }
