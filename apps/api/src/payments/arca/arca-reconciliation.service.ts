@@ -37,7 +37,7 @@ export class ArcaReconciliationService {
     private readonly paymentSync: ArcaPaymentSyncService,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async reconcilePendingPaymentsCron(): Promise<void> {
     if (!this.isEnabled()) {
       return;
