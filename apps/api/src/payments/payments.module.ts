@@ -33,6 +33,6 @@ import { PaymentsService } from './payments.service';
     ArcaPaymentSyncService,
     ArcaReconciliationService,
   ],
-  exports: [PaymentsService, ArcaService],
+  exports: [PaymentsService, ArcaService, ArcaReconciliationService],
 })
 export class PaymentsModule {}

@@ -16,6 +16,7 @@ import { ClientsModule } from './clients/clients.module';
 import { CoachesModule } from './coaches/coaches.module';
 import { ContentModule } from './content/content.module';
 import { GiftCardsModule } from './gift-cards/gift-cards.module';
+import { JobsModule } from './jobs/jobs.module';
 import { MailModule } from './mail/mail.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -100,6 +101,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     NotificationsModule,
     ClientsModule,
     ScheduleItemsModule,
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

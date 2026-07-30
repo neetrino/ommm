@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { BookingStatus } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
@@ -38,7 +37,7 @@ export class NotificationsCronService {
     );
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  /** Invoked by CronBatchService (every 30 min). */
   async sendClassReminders(): Promise<void> {
     if (!this.remindersCronEnabled) {
       return;
@@ -98,7 +97,7 @@ export class NotificationsCronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  /** Invoked by CronBatchService (every 30 min). */
   async dispatchScheduledBroadcasts(): Promise<void> {
     const scheduled = await this.prisma.auditLog.findMany({
       where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },

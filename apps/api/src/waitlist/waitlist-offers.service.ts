@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { ClassSessionStatus, WaitlistStatus } from '@prisma/client';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -84,7 +83,7 @@ export class WaitlistOffersService {
     this.realtime.emitWaitlistOffer(next.userId, sessionId);
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  /** Invoked by CronBatchService (every 30 min). */
   async expireOffersCron(): Promise<void> {
     if (!this.waitlistCronEnabled) {
       return;

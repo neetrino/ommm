@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 
@@ -37,7 +36,7 @@ export class ArcaReconciliationService {
     private readonly paymentSync: ArcaPaymentSyncService,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  /** Invoked by CronBatchService (every 30 min). */
   async reconcilePendingPaymentsCron(): Promise<void> {
     if (!this.isEnabled()) {
       return;
