@@ -202,7 +202,7 @@ Arca не отправляет server-to-server callback. Пользовател
 
 ### Cron-сверка pending платежей
 
-Реализована в `apps/api/src/payments/arca/arca-reconciliation.service.ts` (каждые 5 минут):
+Реализована в `apps/api/src/payments/arca/arca-reconciliation.service.ts` (каждые 30 минут):
 - Берёт `Payment` со `status=PENDING`, `paymentMethod=CARD`, `metadata.provider=arca`, старше 2 минут и младше 3 дней.
 - По каждому вызывает `getOrderStatusExtended.do` (по `arcaOrderId`, иначе по `orderNumber`).
 - `DEPOSITED` → подтверждает (тот же путь, что callback); финальный отказ → `FAILED`; промежуточный статус (`CREATED`/`ACS`) → оставляет `PENDING`.
