@@ -3453,6 +3453,8 @@
         "customer": "Հաճախորդ",
         "email": "Էլ. փոստ",
         "relatedLabel": "Գնված փաթեթ",
+        "groupName": "Խմբի անուն",
+        "packageName": "Փաթեթի անուն",
         "reference": "Հղում",
         "dateTime": "Ամսաթիվ և ժամ",
         "methodUnknown": "Դեռ չի ընտրվել",

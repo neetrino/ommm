@@ -3450,6 +3450,8 @@
         "customer": "Клиент",
         "email": "Email",
         "relatedLabel": "Купленный пакет",
+        "groupName": "Название группы",
+        "packageName": "Название пакета",
         "reference": "Референс",
         "dateTime": "Дата и время",
         "methodUnknown": "Ещё не выбран",
