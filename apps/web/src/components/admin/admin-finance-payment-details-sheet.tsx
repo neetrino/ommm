@@ -210,9 +210,6 @@ export function AdminFinancePaymentDetailsSheet({
               label={t("paymentDetails.relatedLabel")}
               value={resolveRelatedLabel(t, payment)}
             />
-            {payment.paymentReference ? (
-              <DetailRow label={t("paymentDetails.reference")} value={payment.paymentReference} />
-            ) : null}
             <DetailRow
               label={t("paymentDetails.dateTime")}
               value={
