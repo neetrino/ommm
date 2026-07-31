@@ -35,6 +35,7 @@ export type FinancePaymentItem = {
   status: string;
   description: string | null;
   relatedItemName: string | null;
+  relatedItemGroupName: string | null;
   paymentMethod: string | null;
   paymentReference: string | null;
   sourceId: string | null;

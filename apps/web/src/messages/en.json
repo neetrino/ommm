@@ -3633,6 +3633,8 @@
         "customer": "Customer",
         "email": "Email",
         "relatedLabel": "Purchased package",
+        "groupName": "Group name",
+        "packageName": "Package name",
         "reference": "Reference",
         "dateTime": "Date & time",
         "methodUnknown": "Not selected yet",

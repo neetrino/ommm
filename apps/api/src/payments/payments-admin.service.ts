@@ -17,7 +17,11 @@ import {
   readPaymentSource,
   withInternalPaymentUpdateFields,
 } from './payments.helpers';
-import { resolveAdminPaymentRelatedItemName } from './payments-related-item.util';
+import {
+  resolveAdminPaymentRelatedItemGroupName,
+  resolveAdminPaymentRelatedItemName,
+  type AdminPaymentPackageLabels,
+} from './payments-related-item.util';
 import { PaymentsCheckoutService } from './payments-checkout.service';
 import {
   PAYMENT_STATUS_REASON,
@@ -230,8 +234,8 @@ export class PaymentsAdminService {
       this.prisma.payment.count({ where }),
     ]);
 
-    const packageNameByUserPackageId =
-      await this.loadPackageNamesForPayments(items);
+    const packageLabelsByUserPackageId =
+      await this.loadPackageLabelsForPayments(items);
 
     return {
       items: items.map((payment) => {
@@ -239,15 +243,18 @@ export class PaymentsAdminService {
           payment.description,
           readPaymentSource(payment),
         );
+        const relatedArgs = {
+          source,
+          description: payment.description,
+          sourceId: payment.sourceId,
+          packageLabelsByUserPackageId,
+        };
         return {
           ...payment,
           source,
-          relatedItemName: resolveAdminPaymentRelatedItemName({
-            source,
-            description: payment.description,
-            sourceId: payment.sourceId,
-            packageNameByUserPackageId,
-          }),
+          relatedItemName: resolveAdminPaymentRelatedItemName(relatedArgs),
+          relatedItemGroupName:
+            resolveAdminPaymentRelatedItemGroupName(relatedArgs),
           statusReason: readPaymentStatusReason(payment.metadata),
         };
       }),
@@ -257,13 +264,13 @@ export class PaymentsAdminService {
     };
   }
 
-  private async loadPackageNamesForPayments(
+  private async loadPackageLabelsForPayments(
     items: readonly {
       sourceId: string | null;
       source: unknown;
       description: string | null;
     }[],
-  ): Promise<Map<string, string>> {
+  ): Promise<Map<string, AdminPaymentPackageLabels>> {
     const packageUserPackageIds = items
       .filter((payment) => {
         const source = detectPaymentSource(
@@ -283,15 +290,25 @@ export class PaymentsAdminService {
       select: {
         id: true,
         planNameSnapshot: true,
-        plan: { select: { name: true } },
+        planCategoryNameSnapshot: true,
+        plan: { select: { name: true, categoryName: true } },
       },
     });
 
     return new Map(
-      userPackages.map((userPackage) => [
-        userPackage.id,
-        userPackage.plan?.name ?? userPackage.planNameSnapshot,
-      ]),
+      userPackages.map((userPackage) => {
+        const groupName = (
+          userPackage.plan?.categoryName ??
+          userPackage.planCategoryNameSnapshot
+        ).trim();
+        return [
+          userPackage.id,
+          {
+            name: userPackage.plan?.name ?? userPackage.planNameSnapshot,
+            groupName: groupName.length > 0 ? groupName : null,
+          },
+        ];
+      }),
     );
   }
 

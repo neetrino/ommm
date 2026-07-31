@@ -2,6 +2,11 @@ import type { PaymentListSource } from './payments.types';
 
 const PACKAGE_DESCRIPTION_PREFIX = 'Package:';
 
+export type AdminPaymentPackageLabels = {
+  name: string;
+  groupName: string | null;
+};
+
 /** Human-readable description stored on new package payments. */
 export function buildPackagePaymentDescription(planName: string): string {
   const trimmed = planName.trim();
@@ -27,25 +32,25 @@ export function readPackageNameFromPaymentDescription(
   return name.length > 0 ? name : null;
 }
 
-type ResolveAdminPaymentRelatedItemNameArgs = {
+type ResolveAdminPaymentRelatedItemArgs = {
   source: PaymentListSource;
   description: string | null;
   sourceId: string | null;
-  packageNameByUserPackageId: ReadonlyMap<string, string>;
+  packageLabelsByUserPackageId: ReadonlyMap<string, AdminPaymentPackageLabels>;
 };
 
-/** Resolves the purchased item label shown in admin finance payment views. */
+/** Resolves the purchased package (tier) name for admin finance payment views. */
 export function resolveAdminPaymentRelatedItemName({
   source,
   description,
   sourceId,
-  packageNameByUserPackageId,
-}: ResolveAdminPaymentRelatedItemNameArgs): string | null {
+  packageLabelsByUserPackageId,
+}: ResolveAdminPaymentRelatedItemArgs): string | null {
   if (source === 'package') {
     if (sourceId !== null) {
-      const fromUserPackage = packageNameByUserPackageId.get(sourceId);
-      if (fromUserPackage !== undefined && fromUserPackage.length > 0) {
-        return fromUserPackage;
+      const fromUserPackage = packageLabelsByUserPackageId.get(sourceId);
+      if (fromUserPackage !== undefined && fromUserPackage.name.length > 0) {
+        return fromUserPackage.name;
       }
     }
     return readPackageNameFromPaymentDescription(description);
@@ -60,4 +65,18 @@ export function resolveAdminPaymentRelatedItemName({
   }
 
   return description?.trim() || null;
+}
+
+/** Resolves the package group (category) name for package payments. */
+export function resolveAdminPaymentRelatedItemGroupName({
+  source,
+  sourceId,
+  packageLabelsByUserPackageId,
+}: ResolveAdminPaymentRelatedItemArgs): string | null {
+  if (source !== 'package' || sourceId === null) {
+    return null;
+  }
+  const fromUserPackage = packageLabelsByUserPackageId.get(sourceId);
+  const groupName = fromUserPackage?.groupName?.trim() ?? '';
+  return groupName.length > 0 ? groupName : null;
 }

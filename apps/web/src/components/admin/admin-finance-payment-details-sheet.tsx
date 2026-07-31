@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
@@ -22,8 +22,6 @@ import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
@@ -31,6 +29,10 @@ import {
   ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import {
+  AdminFinancePaymentDetailRow,
+  AdminFinancePaymentPackageRows,
+} from "@/components/admin/admin-finance-payment-details-rows";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
@@ -75,22 +77,6 @@ function resolveMethodLabel(
     return t("paymentDetails.methodUnknown");
   }
   return t(`paymentMethods.${paymentMethod}`);
-}
-
-function resolveRelatedLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
-  payment: FinancePaymentItem,
-): string {
-  if (payment.relatedItemName?.trim()) {
-    return payment.relatedItemName;
-  }
-  if (payment.description?.trim()) {
-    return payment.description;
-  }
-  if (payment.sourceId) {
-    return t(`paymentDetails.related.${payment.source}`, { id: payment.sourceId });
-  }
-  return "—";
 }
 
 function resolvePaymentDateTime(payment: FinancePaymentItem): string {
@@ -169,15 +155,15 @@ export function AdminFinancePaymentDetailsSheet({
 
         <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
           <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-            <DetailRow label={t("paymentDetails.customer")} value={userLabel} />
-            <DetailRow label={t("paymentDetails.email")} value={payment.user.email} />
-            <DetailRow
+            <AdminFinancePaymentDetailRow label={t("paymentDetails.customer")} value={userLabel} />
+            <AdminFinancePaymentDetailRow label={t("paymentDetails.email")} value={payment.user.email} />
+            <AdminFinancePaymentDetailRow
               label={t("table.colAmount")}
               value={
                 <AmdMoneyText cents={payment.amountCents} locale={locale} className="font-serif text-lg" />
               }
             />
-            <DetailRow
+            <AdminFinancePaymentDetailRow
               label={t("table.colSource")}
               value={
                 <span className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financeSourceTone(payment.source)}`}>
@@ -185,11 +171,11 @@ export function AdminFinancePaymentDetailsSheet({
                 </span>
               }
             />
-            <DetailRow
+            <AdminFinancePaymentDetailRow
               label={t("table.colPaymentMethod")}
               value={resolveMethodLabel(t, payment.paymentMethod)}
             />
-            <DetailRow
+            <AdminFinancePaymentDetailRow
               label={t("table.colStatus")}
               value={
                 <div className="flex flex-col items-start gap-1">
@@ -206,11 +192,8 @@ export function AdminFinancePaymentDetailsSheet({
                 </div>
               }
             />
-            <DetailRow
-              label={t("paymentDetails.relatedLabel")}
-              value={resolveRelatedLabel(t, payment)}
-            />
-            <DetailRow
+            <AdminFinancePaymentPackageRows payment={payment} t={t} />
+            <AdminFinancePaymentDetailRow
               label={t("paymentDetails.dateTime")}
               value={
                 <span className="inline-flex flex-wrap items-center gap-2">
@@ -280,15 +263,6 @@ export function AdminFinancePaymentDetailsSheet({
         onDismiss={() => setToast(null)}
       />
     </>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="space-y-1">
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
-    </div>
   );
 }
 

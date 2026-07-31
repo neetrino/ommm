@@ -96,9 +96,20 @@ export function AdminFinancePaymentCompactRow({
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL}>
         <AdminListMobileLabel label={tTable("colPlan")} />
-        <p className={ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS}>
-          {row.source === "package" && row.relatedItemName ? row.relatedItemName : "—"}
-        </p>
+        {row.source === "package" && row.relatedItemName ? (
+          <>
+            <p className={ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS}>
+              {row.relatedItemName}
+            </p>
+            {row.relatedItemGroupName ? (
+              <p className={ADMIN_FINANCE_PAYMENTS_LIST_USER_META_CLASS}>
+                {row.relatedItemGroupName}
+              </p>
+            ) : null}
+          </>
+        ) : (
+          <p className={ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS}>—</p>
+        )}
       </div>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
