@@ -5,6 +5,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -82,10 +83,33 @@ export function MemberHubMobileSheet({
   const panelRef = useRef<HTMLDivElement>(null);
   const closingRef = useRef(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [backdropVisible, setBackdropVisible] = useState(true);
-  const [panelVisible, setPanelVisible] = useState(true);
+  const [backdropVisible, setBackdropVisible] = useState(false);
+  const [panelVisible, setPanelVisible] = useState(false);
 
   useLockBodyScroll(clientMounted);
+
+  useEffect(() => {
+    if (!clientMounted || closingRef.current) {
+      return undefined;
+    }
+
+    let openFrame: number | undefined;
+    const closedFrame = window.requestAnimationFrame(() => {
+      setBackdropVisible(false);
+      setPanelVisible(false);
+      openFrame = window.requestAnimationFrame(() => {
+        setBackdropVisible(true);
+        setPanelVisible(true);
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(closedFrame);
+      if (openFrame !== undefined) {
+        window.cancelAnimationFrame(openFrame);
+      }
+    };
+  }, [clientMounted]);
 
   const requestClose = useCallback(() => {
     if (closingRef.current || closeDisabled) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   CancelBookingButton,
   CANCEL_BOOKING_ERROR_MESSAGE_CLASS,
@@ -21,7 +21,10 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import { dispatchPackagesRefresh } from "@/lib/packages-refresh-event";
 import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
-import { ScheduleBookSplashModal } from "@/components/marketing/schedule/schedule-book-splash-modal";
+import {
+  SCHEDULE_BOOK_SPLASH_HANDOFF_MIN_VISIBLE_MS,
+  ScheduleBookSplashModal,
+} from "@/components/marketing/schedule/schedule-book-splash-modal";
 
 const DEFAULT_LOGIN_RETURN_PATH = "/schedule";
 
@@ -74,7 +77,10 @@ export function AuthAwareScheduleBookingAction({
   const [successToast, setSuccessToast] = useState<string | null>(null);
   const [bookSplashOpen, setBookSplashOpen] = useState(false);
   const [bookSplashVariant, setBookSplashVariant] = useState<"member" | "guest">("member");
+  const [overlayModalsReady, setOverlayModalsReady] = useState(true);
   const pendingBookActionRef = useRef<(() => void) | null>(null);
+  const splashOpenedAtRef = useRef<number | null>(null);
+  const handoffTimerRef = useRef<number | null>(null);
   const [busyWaitlist, setBusyWaitlist] = useState(false);
   const {
     busy: busyBooking,
@@ -94,6 +100,7 @@ export function AuthAwareScheduleBookingAction({
     },
     onError: (message) => {
       setErrorMsg(message);
+      setOverlayModalsReady(true);
       setBookSplashOpen(false);
     },
   });
@@ -117,14 +124,40 @@ export function AuthAwareScheduleBookingAction({
   const isBooked = resolvedBookingId !== undefined;
   const showOnWaitlist = !isBooked && (onWaitlist || initialOnWaitlist);
   const overlayModalOpen = packageModalOpen || purchaseModalOpen;
-  const [prevOverlayModalOpen, setPrevOverlayModalOpen] = useState(overlayModalOpen);
 
-  if (overlayModalOpen !== prevOverlayModalOpen) {
-    setPrevOverlayModalOpen(overlayModalOpen);
-    if (overlayModalOpen && bookSplashOpen) {
-      setBookSplashOpen(false);
+  useEffect(() => {
+    return () => {
+      if (handoffTimerRef.current !== null) {
+        window.clearTimeout(handoffTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!overlayModalOpen || !bookSplashOpen) {
+      return undefined;
     }
-  }
+
+    const openedAt = splashOpenedAtRef.current ?? Date.now();
+    const elapsedMs = Date.now() - openedAt;
+    const waitMs = Math.max(0, SCHEDULE_BOOK_SPLASH_HANDOFF_MIN_VISIBLE_MS - elapsedMs);
+
+    if (handoffTimerRef.current !== null) {
+      window.clearTimeout(handoffTimerRef.current);
+    }
+
+    handoffTimerRef.current = window.setTimeout(() => {
+      handoffTimerRef.current = null;
+      setBookSplashOpen(false);
+    }, waitMs);
+
+    return () => {
+      if (handoffTimerRef.current !== null) {
+        window.clearTimeout(handoffTimerRef.current);
+        handoffTimerRef.current = null;
+      }
+    };
+  }, [bookSplashOpen, overlayModalOpen]);
 
   function renderErrorHint(): ReactNode {
     if (!errorMsg) {
@@ -175,12 +208,16 @@ export function AuthAwareScheduleBookingAction({
     pendingBookActionRef.current = () => {
       router.push(buildLoginHrefWithReturnUrl(loginReturnPath));
     };
+    splashOpenedAtRef.current = Date.now();
+    setOverlayModalsReady(true);
     setBookSplashVariant("guest");
     setBookSplashOpen(true);
   }
 
   function openMemberBookSplash(): void {
     pendingBookActionRef.current = null;
+    splashOpenedAtRef.current = Date.now();
+    setOverlayModalsReady(false);
     setBookSplashVariant("member");
     setBookSplashOpen(true);
     void initiateBooking();
@@ -188,6 +225,8 @@ export function AuthAwareScheduleBookingAction({
 
   function handleBookSplashDismiss(): void {
     setBookSplashOpen(false);
+    setOverlayModalsReady(true);
+    splashOpenedAtRef.current = null;
     const action = pendingBookActionRef.current;
     pendingBookActionRef.current = null;
     action?.();
@@ -313,7 +352,7 @@ export function AuthAwareScheduleBookingAction({
         tone="success"
         onDismiss={() => setSuccessToast(null)}
       />
-      {packageModal}
+      {overlayModalsReady ? packageModal : null}
       <ScheduleBookSplashModal
         isOpen={bookSplashOpen}
         variant={bookSplashVariant}
