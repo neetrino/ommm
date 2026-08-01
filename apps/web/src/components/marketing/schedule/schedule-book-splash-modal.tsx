@@ -16,13 +16,18 @@ import { OmmModalPortal } from "@/components/ui/omm-modal";
 
 export const SCHEDULE_BOOK_SPLASH_VISIBLE_MS = 4_500;
 
-const SCHEDULE_BOOK_SPLASH_EXIT_MS = 320;
+/** Keep in sync with `.panelExit` animation duration. */
+export const SCHEDULE_BOOK_SPLASH_EXIT_MS = 480;
+
+/** Minimum time the splash stays up before handing off to subscribe / package modals. */
+export const SCHEDULE_BOOK_SPLASH_HANDOFF_MIN_VISIBLE_MS = 1_100;
 
 type ScheduleBookSplashVariant = "member" | "guest";
 
 type ScheduleBookSplashModalProps = {
   isOpen: boolean;
   variant: ScheduleBookSplashVariant;
+  /** Fires after the exit animation finishes (auto-dismiss or early close). */
   onDismiss: () => void;
 };
 
@@ -36,8 +41,11 @@ export function ScheduleBookSplashModal({
   const t = useTranslations("marketingPages.schedule.bookSplash");
   const tNav = useTranslations("nav");
   const titleId = useId();
+  const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<SplashPhase>("enter");
   const onDismissRef = useRef(onDismiss);
+  const mountedRef = useRef(false);
+  const exitingRef = useRef(false);
 
   const logoStageStyle = {
     "--schedule-splash-sphere-width": `${SCHEDULE_BOOK_SPLASH_SPHERE_SIZE.widthPx}px`,
@@ -50,28 +58,54 @@ export function ScheduleBookSplashModal({
   }, [onDismiss]);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      exitingRef.current = false;
+      mountedRef.current = true;
+      setMounted(true);
+      setPhase("enter");
+
+      const exitTimer = window.setTimeout(() => {
+        setPhase("exit");
+        exitingRef.current = true;
+      }, SCHEDULE_BOOK_SPLASH_VISIBLE_MS);
+
+      const hideTimer = window.setTimeout(() => {
+        mountedRef.current = false;
+        setMounted(false);
+        exitingRef.current = false;
+        onDismissRef.current();
+      }, SCHEDULE_BOOK_SPLASH_VISIBLE_MS + SCHEDULE_BOOK_SPLASH_EXIT_MS);
+
+      return () => {
+        window.clearTimeout(exitTimer);
+        window.clearTimeout(hideTimer);
+      };
+    }
+
+    if (!mountedRef.current) {
       return undefined;
     }
 
-    const resetPhaseTimer = window.setTimeout(() => {
-      setPhase("enter");
-    }, 0);
-
-    const exitTimer = window.setTimeout(() => {
+    if (!exitingRef.current) {
+      exitingRef.current = true;
       setPhase("exit");
-    }, SCHEDULE_BOOK_SPLASH_VISIBLE_MS);
+    }
 
     const hideTimer = window.setTimeout(() => {
+      mountedRef.current = false;
+      setMounted(false);
+      exitingRef.current = false;
       onDismissRef.current();
-    }, SCHEDULE_BOOK_SPLASH_VISIBLE_MS + SCHEDULE_BOOK_SPLASH_EXIT_MS);
+    }, SCHEDULE_BOOK_SPLASH_EXIT_MS);
 
     return () => {
-      window.clearTimeout(resetPhaseTimer);
-      window.clearTimeout(exitTimer);
       window.clearTimeout(hideTimer);
     };
   }, [isOpen]);
+
+  if (!mounted) {
+    return null;
+  }
 
   const panelMotionClass = phase === "exit" ? styles.panelExit : styles.panelEnter;
   const title = variant === "guest" ? t("guestTitle") : t("title");
@@ -79,10 +113,10 @@ export function ScheduleBookSplashModal({
 
   return (
     <OmmModalPortal
-      isOpen={isOpen}
-      onClose={onDismiss}
+      isOpen
+      onClose={() => undefined}
       backdropAriaLabel={t("closeAria")}
-      closeDisabled={phase === "exit"}
+      closeDisabled
       ariaLabelledBy={titleId}
       overlayClassName={styles.overlay}
       panelClassName="relative z-10 w-full max-w-md"
