@@ -73,6 +73,8 @@ type OmmModalPortalProps = {
   panelStyle?: CSSProperties;
   /** Keep panel anchored to the bottom on all breakpoints (mobile bottom sheets). */
   bottomAnchored?: boolean;
+  /** Center panel on all breakpoints (overrides default mobile bottom docking). */
+  centered?: boolean;
   /** Drives `data-state` on the overlay for enter/exit CSS transitions. */
   motionState?: "open" | "closed";
   /** When false, caller owns scroll lock (e.g. dual mobile/desktop portals). */
@@ -96,6 +98,7 @@ export function OmmModalPortal({
   panelClassName,
   panelStyle,
   bottomAnchored = false,
+  centered = false,
   motionState,
   lockBodyScroll = true,
   useOverlayPortalRoot = false,
@@ -109,7 +112,9 @@ export function OmmModalPortal({
 
   const panelPositionClass = bottomAnchored
     ? "relative z-10 mt-auto w-full"
-    : "relative z-10 mt-auto w-full sm:mt-0";
+    : centered
+      ? "relative z-10 w-full"
+      : "relative z-10 mt-auto w-full sm:mt-0";
 
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;
