@@ -12,7 +12,7 @@ import {
   SCHEDULE_BOOK_SPLASH_SPHERE_SIZE,
 } from "@/components/marketing/schedule/schedule-book-splash-sphere-tokens";
 import styles from "@/components/marketing/schedule/schedule-book-splash-modal.module.css";
-import { OMM_MODAL_OVERLAY_CLASS, OmmModalPortal } from "@/components/ui/omm-modal";
+import { OmmModalPortal } from "@/components/ui/omm-modal";
 
 export const SCHEDULE_BOOK_SPLASH_VISIBLE_MS = 4_500;
 
@@ -84,8 +84,9 @@ export function ScheduleBookSplashModal({
       backdropAriaLabel={t("closeAria")}
       closeDisabled={phase === "exit"}
       ariaLabelledBy={titleId}
-      overlayClassName={`${OMM_MODAL_OVERLAY_CLASS} ${styles.overlay}`}
-      panelClassName="relative z-10 w-full max-w-md px-4 sm:px-0"
+      overlayClassName={styles.overlay}
+      panelClassName="relative z-10 w-full max-w-md"
+      centered
       closeOnEscape={false}
     >
       <div className={`${styles.panel} ${panelMotionClass}`}>
