@@ -61,8 +61,11 @@ export function ScheduleBookSplashModal({
     if (isOpen) {
       exitingRef.current = false;
       mountedRef.current = true;
-      setMounted(true);
-      setPhase("enter");
+
+      const openFrame = window.requestAnimationFrame(() => {
+        setMounted(true);
+        setPhase("enter");
+      });
 
       const exitTimer = window.setTimeout(() => {
         setPhase("exit");
@@ -77,6 +80,7 @@ export function ScheduleBookSplashModal({
       }, SCHEDULE_BOOK_SPLASH_VISIBLE_MS + SCHEDULE_BOOK_SPLASH_EXIT_MS);
 
       return () => {
+        window.cancelAnimationFrame(openFrame);
         window.clearTimeout(exitTimer);
         window.clearTimeout(hideTimer);
       };
@@ -88,7 +92,20 @@ export function ScheduleBookSplashModal({
 
     if (!exitingRef.current) {
       exitingRef.current = true;
-      setPhase("exit");
+      const exitFrame = window.requestAnimationFrame(() => {
+        setPhase("exit");
+      });
+      const hideTimer = window.setTimeout(() => {
+        mountedRef.current = false;
+        setMounted(false);
+        exitingRef.current = false;
+        onDismissRef.current();
+      }, SCHEDULE_BOOK_SPLASH_EXIT_MS);
+
+      return () => {
+        window.cancelAnimationFrame(exitFrame);
+        window.clearTimeout(hideTimer);
+      };
     }
 
     const hideTimer = window.setTimeout(() => {

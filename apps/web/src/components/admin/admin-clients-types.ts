@@ -114,6 +114,15 @@ export type ClientSheetPaymentItem = {
   createdAt: string;
 };
 
+export type ClientSheetPackageTypeBalance = {
+  id: string;
+  classTypeName: string;
+  totalSessions: number | null;
+  usedSessions: number | null;
+  remainingSessions: number | null;
+  isUnlimited: boolean;
+};
+
 export type ClientSheetPackageItem = {
   id: string;
   status: string;
@@ -126,6 +135,7 @@ export type ClientSheetPackageItem = {
   remainingSessions: number | null;
   isUnlimited: boolean;
   paymentMethod: string | null;
+  typeBalances?: ClientSheetPackageTypeBalance[];
 };
 
 export type GiftCardRow = {

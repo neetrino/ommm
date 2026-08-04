@@ -51,7 +51,7 @@ export function CoachAnalyticsPanel({ data, locale, period }: CoachAnalyticsPane
 
   const peakTimeLabel =
     totals.peakTime !== null
-      ? formatPeakTimeLabel(totals.peakTime.hour, locale)
+      ? formatPeakTimeLabel(totals.peakTime.hour)
       : t("notAvailable");
 
   const activityKpis = [

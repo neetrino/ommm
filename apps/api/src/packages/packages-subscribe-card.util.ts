@@ -17,7 +17,6 @@ import {
   createPaymentReference,
   resolveFinalPriceCents,
 } from './packages-plan.helpers';
-import { createBalancesForUserPackage } from './packages-user-package-balances.util';
 import { buildUserPackagePlanSnapshot } from './user-package-plan-snapshot.util';
 import { resolveUserPackagePeriodBounds } from './user-package-period.util';
 
@@ -47,9 +46,7 @@ function paymentMatchesPlan(
   if (metadataPlanId === planId) {
     return true;
   }
-  return (
-    payment.sourceId !== null && pendingPackageIds.has(payment.sourceId)
-  );
+  return payment.sourceId !== null && pendingPackageIds.has(payment.sourceId);
 }
 
 /** Finds the oldest PENDING card purchase for this user+plan, if any. */

@@ -1956,7 +1956,7 @@
       "sessionNotTracked": "Не отслеживается",
       "userDetailsTitle": "Данные клиента",
       "bookingDetailsTitle": "Детали бронирования",
-      "bookingDetailsLead": "Просмотрите детали бронирования, заметки и управляйте записью.",
+      "bookingDetailsLead": "Просмотрите детали бронирования и управляйте записью.",
       "bookingDetailsCloseBackdrop": "Закрыть детали бронирования",
       "bookingDetailsClose": "Закрыть",
       "bookingDetailsLoading": "Загрузка деталей бронирования…",
@@ -2148,7 +2148,13 @@
         "submitting": "Добавление…",
         "confirm": "Добавить",
         "createSuccess": "Бронирование успешно добавлено.",
-        "createError": "Не удалось добавить бронирование."
+        "createError": "Не удалось добавить бронирование.",
+        "cancelButton": "Cancel",
+        "cancelConfirmTitle": "Отменить бронирование?",
+        "cancelConfirmDescription": "Отменить это бронирование? Место снова станет доступным.",
+        "cancelConfirmLabel": "Отменить бронирование",
+        "cancelSuccess": "Бронирование отменено.",
+        "cancelError": "Не удалось отменить бронирование."
       },
       "drawer": {
         "loading": "Загрузка данных клиента…",

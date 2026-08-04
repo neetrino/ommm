@@ -255,10 +255,6 @@ export function AdminBookingsManagement({
           busy={busyId === drawerRow.id}
           onClose={closeBookingDetails}
           onOpenUser={setActiveUserId}
-          onNoteAdded={() => {
-            setStatusMessage(t("successNote"));
-            router.refresh();
-          }}
           onMove={detailHandlers.onMove}
           onChangeStatus={detailHandlers.onChangeStatus}
           onDelete={caps.canDelete ? detailHandlers.onDelete : undefined}

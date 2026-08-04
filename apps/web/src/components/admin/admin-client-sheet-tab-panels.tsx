@@ -69,7 +69,10 @@ type ClientSheetTabPanelsProps = {
   allowPackagePurchase?: boolean;
   onPackagePurchaseSuccess?: () => void;
   allowCreateBooking?: boolean;
+  allowCancelBooking?: boolean;
   onBookingCreateSuccess?: () => void;
+  onBookingCancelSuccess?: () => void;
+  onBookingCancelError?: (message: string) => void;
   canAddNotes?: boolean;
 };
 
@@ -95,7 +98,10 @@ export function ClientSheetTabPanels({
   allowPackagePurchase = false,
   onPackagePurchaseSuccess,
   allowCreateBooking = false,
+  allowCancelBooking = false,
   onBookingCreateSuccess,
+  onBookingCancelSuccess,
+  onBookingCancelError,
   canAddNotes = true,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
@@ -278,7 +284,10 @@ export function ClientSheetTabPanels({
         active
         refreshKey={tabRefreshKey}
         allowCreateBooking={allowCreateBooking}
+        allowCancelBooking={allowCancelBooking}
         onCreateSuccess={() => onBookingCreateSuccess?.()}
+        onCancelSuccess={() => onBookingCancelSuccess?.()}
+        onCancelError={(message) => onBookingCancelError?.(message)}
       />
     );
   }

@@ -1948,7 +1948,7 @@
       "sessionNotTracked": "Not tracked",
       "userDetailsTitle": "Client details",
       "bookingDetailsTitle": "Booking details",
-      "bookingDetailsLead": "Review booking details, notes, and manage this reservation.",
+      "bookingDetailsLead": "Review booking details and manage this reservation.",
       "bookingDetailsCloseBackdrop": "Close booking details",
       "bookingDetailsClose": "Close",
       "bookingDetailsLoading": "Loading booking details…",
@@ -2140,7 +2140,13 @@
         "submitting": "Adding…",
         "confirm": "Add booking",
         "createSuccess": "Booking added successfully.",
-        "createError": "Could not add the booking."
+        "createError": "Could not add the booking.",
+        "cancelButton": "Cancel",
+        "cancelConfirmTitle": "Cancel booking?",
+        "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
+        "cancelConfirmLabel": "Cancel booking",
+        "cancelSuccess": "Booking cancelled.",
+        "cancelError": "Could not cancel the booking."
       },
       "drawer": {
         "loading": "Loading client data…",

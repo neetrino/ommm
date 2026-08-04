@@ -10,6 +10,7 @@ import {
   normalizeUserPackageStatus,
 } from "@/components/account/user-membership-display";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
+import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -84,6 +85,7 @@ export function AdminClientPackageCard({
     item.totalSessions !== null &&
     item.totalSessions > 0 &&
     item.usedSessions !== null;
+  const typeBalances = item.typeBalances ?? [];
 
   return (
     <article className={BOARD_CARD_CLASS}>
@@ -121,6 +123,7 @@ export function AdminClientPackageCard({
             ariaLabel={sessionsSummary}
           />
         ) : null}
+        <AdminClientPackageTypeBalances balances={typeBalances} />
       </div>
 
       <div className="mt-5 flex items-end justify-between gap-4 border-b border-white/70 pb-5">

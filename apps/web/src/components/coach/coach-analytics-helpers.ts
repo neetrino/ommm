@@ -113,6 +113,6 @@ export function mapHourlyBarItems(
     .slice(0, 8);
 }
 
-export function formatPeakTimeLabel(hour: number, _locale: string): string {
+export function formatPeakTimeLabel(hour: number): string {
   return `${String(Math.max(0, Math.min(23, hour))).padStart(2, "0")}:00`;
 }

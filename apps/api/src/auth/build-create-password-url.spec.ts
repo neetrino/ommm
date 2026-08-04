@@ -7,9 +7,7 @@ describe('buildCreatePasswordUrl', () => {
       locale: 'en',
       token: 'abc_TOKEN-123',
     });
-    expect(url).toBe(
-      'https://ommm.example/en/create-password/abc_TOKEN-123',
-    );
+    expect(url).toBe('https://ommm.example/en/create-password/abc_TOKEN-123');
     expect(url.includes('?')).toBe(false);
   });
 });

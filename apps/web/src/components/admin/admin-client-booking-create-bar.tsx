@@ -27,6 +27,19 @@ type AdminClientBookingCreateBarProps = {
   onSuccess: () => void;
 };
 
+type SessionsFetchResult = {
+  key: string;
+  sessions: AdminClientBookingUpcomingSession[];
+  error: string | null;
+};
+
+type PackagesFetchResult = {
+  key: string;
+  packages: EligibleBookingPackage[];
+  userPackageId: string;
+  error: string | null;
+};
+
 export function AdminClientBookingCreateBar({
   client,
   locale,
@@ -34,18 +47,43 @@ export function AdminClientBookingCreateBar({
 }: AdminClientBookingCreateBarProps) {
   const t = useTranslations("adminPages.clients");
   const formId = useId();
-  const [sessions, setSessions] = useState<AdminClientBookingUpcomingSession[]>([]);
-  const [sessionsLoading, setSessionsLoading] = useState(true);
-  const [sessionsError, setSessionsError] = useState<string | null>(null);
+  const [sessionsResult, setSessionsResult] = useState<SessionsFetchResult | null>(null);
   const [sessionId, setSessionId] = useState("");
-  const [packages, setPackages] = useState<EligibleBookingPackage[]>([]);
-  const [packagesLoading, setPackagesLoading] = useState(false);
-  const [packagesError, setPackagesError] = useState<string | null>(null);
-  const [userPackageId, setUserPackageId] = useState(ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE);
+  const [packagesResult, setPackagesResult] = useState<PackagesFetchResult | null>(null);
+  const [userPackageIdOverride, setUserPackageIdOverride] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
+
+  const sessionsFetchKey = client.id;
+  const sessionsLoading =
+    sessionsResult === null || sessionsResult.key !== sessionsFetchKey;
+  const sessions =
+    sessionsResult?.key === sessionsFetchKey ? sessionsResult.sessions : [];
+  const sessionsError =
+    sessionsResult?.key === sessionsFetchKey ? sessionsResult.error : null;
+
+  const packagesFetchKey = sessionId === "" ? null : `${client.id}:${sessionId}`;
+  const packagesLoading =
+    packagesFetchKey !== null &&
+    (packagesResult === null || packagesResult.key !== packagesFetchKey);
+  const packages = useMemo(
+    () =>
+      packagesFetchKey !== null && packagesResult?.key === packagesFetchKey
+        ? packagesResult.packages
+        : [],
+    [packagesFetchKey, packagesResult],
+  );
+  const packagesError =
+    packagesFetchKey !== null && packagesResult?.key === packagesFetchKey
+      ? packagesResult.error
+      : null;
+  const fetchedUserPackageId =
+    packagesFetchKey !== null && packagesResult?.key === packagesFetchKey
+      ? packagesResult.userPackageId
+      : ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE;
+  const userPackageId = userPackageIdOverride ?? fetchedUserPackageId;
 
   useEffect(() => {
     let cancelled = false;
@@ -53,7 +91,6 @@ export function AdminClientBookingCreateBar({
     const to = new Date();
     to.setDate(to.getDate() + ADMIN_CLIENT_BOOKING_SESSION_LOOKAHEAD_DAYS);
     const query = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
-    setSessionsLoading(true);
     void apiFetch<AdminClientBookingUpcomingSession[]>(
       `/clients/${client.id}/bookable-sessions?${query}`,
     )
@@ -61,39 +98,32 @@ export function AdminClientBookingCreateBar({
         if (cancelled) {
           return;
         }
-        setSessions(filterUpcomingBookableSessions(payload));
-        setSessionsError(null);
+        setSessionsResult({
+          key: sessionsFetchKey,
+          sessions: filterUpcomingBookableSessions(payload),
+          error: null,
+        });
       })
       .catch((err) => {
         if (!cancelled) {
-          setSessions([]);
-          setSessionsError(
-            err instanceof ApiError ? err.message : t("bookings.sessionsLoadError"),
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setSessionsLoading(false);
+          setSessionsResult({
+            key: sessionsFetchKey,
+            sessions: [],
+            error:
+              err instanceof ApiError ? err.message : t("bookings.sessionsLoadError"),
+          });
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [client.id, t]);
+  }, [client.id, sessionsFetchKey, t]);
 
   useEffect(() => {
-    if (sessionId === "") {
-      setPackages([]);
-      setPackagesError(null);
-      setPackagesLoading(false);
-      setUserPackageId(ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE);
+    if (packagesFetchKey === null) {
       return undefined;
     }
     let cancelled = false;
-    setPackagesLoading(true);
-    setPackagesError(null);
-    setUserPackageId(ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE);
     void apiFetch<EligibleBookingPackage[]>(
       `/clients/${client.id}/sessions/${sessionId}/eligible-packages`,
     )
@@ -101,27 +131,30 @@ export function AdminClientBookingCreateBar({
         if (cancelled) {
           return;
         }
-        setPackages(payload);
-        setUserPackageId(pickDefaultBookingPackageId(payload));
-        setPackagesError(null);
+        setPackagesResult({
+          key: packagesFetchKey,
+          packages: payload,
+          userPackageId: pickDefaultBookingPackageId(payload),
+          error: null,
+        });
+        setUserPackageIdOverride(null);
       })
       .catch((err) => {
         if (!cancelled) {
-          setPackages([]);
-          setPackagesError(
-            err instanceof ApiError ? err.message : t("bookings.packagesLoadError"),
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setPackagesLoading(false);
+          setPackagesResult({
+            key: packagesFetchKey,
+            packages: [],
+            userPackageId: ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE,
+            error:
+              err instanceof ApiError ? err.message : t("bookings.packagesLoadError"),
+          });
+          setUserPackageIdOverride(null);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [client.id, sessionId, t]);
+  }, [client.id, packagesFetchKey, sessionId, t]);
 
   const selectedSession = sessions.find((row) => row.id === sessionId) ?? null;
   const bookablePackages = useMemo(
@@ -160,11 +193,15 @@ export function AdminClientBookingCreateBar({
     ),
   }));
 
+  function handleSessionChange(nextSessionId: string): void {
+    setSessionId(nextSessionId);
+    setUserPackageIdOverride(null);
+  }
+
   function resetForm(): void {
     setSessionId("");
-    setPackages([]);
-    setUserPackageId(ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE);
-    setPackagesError(null);
+    setPackagesResult(null);
+    setUserPackageIdOverride(null);
   }
 
   async function handleSubmit(): Promise<void> {
@@ -212,12 +249,12 @@ export function AdminClientBookingCreateBar({
         sessionsError={sessionsError}
         sessionOptions={sessionOptions}
         sessionId={sessionId}
-        onSessionChange={setSessionId}
+        onSessionChange={handleSessionChange}
         packagesLoading={packagesLoading}
         packagesError={packagesError}
         packageOptions={packageOptions}
         userPackageId={userPackageId}
-        onPackageChange={setUserPackageId}
+        onPackageChange={setUserPackageIdOverride}
         packageRequired={packageRequired}
         noPackageValue={ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE}
         bookablePackageCount={bookablePackages.length}

@@ -141,7 +141,10 @@ export class ClientsService {
   }
 
   private async withAccurateNextBookings<
-    T extends { id: string; nextBooking: ReturnType<typeof toClientRow>['nextBooking'] },
+    T extends {
+      id: string;
+      nextBooking: ReturnType<typeof toClientRow>['nextBooking'];
+    },
   >(rows: T[]): Promise<T[]> {
     const nextByUserId = await loadNextBookingsByUserId(
       this.prisma,

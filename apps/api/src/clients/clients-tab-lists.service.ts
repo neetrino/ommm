@@ -7,6 +7,10 @@ import {
   compareUserPackagesForClientList,
   loadSucceededPackageSourceIds,
 } from '../packages/user-package-list.util';
+import {
+  mapClientPackageTypeBalances,
+  type ClientPackageTypeBalanceItem,
+} from './clients-package-type-balances.util';
 
 const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   session: {
@@ -84,6 +88,7 @@ type ClientPackagesPage = {
     remainingSessions: number | null;
     isUnlimited: boolean;
     paymentMethod: string | null;
+    typeBalances: ClientPackageTypeBalanceItem[];
   }>;
   total: number;
   take: number;
@@ -155,7 +160,20 @@ export class ClientsTabListsService {
     const where = buildVisibleUserPackagesWhere(userId, succeededPackageIds);
     const allRows = await this.prisma.userPackage.findMany({
       where,
-      include: { plan: true },
+      include: {
+        plan: true,
+        balances: {
+          select: {
+            id: true,
+            sourceCategoryNameSnapshot: true,
+            sessionsTotal: true,
+            sessionsUsed: true,
+            sessionsRemaining: true,
+            isUnlimited: true,
+            classType: { select: { name: true } },
+          },
+        },
+      },
     });
     allRows.sort(compareUserPackagesForClientList);
     const total = allRows.length;
@@ -210,6 +228,7 @@ export class ClientsTabListsService {
           remainingSessions: row.sessionsRemaining,
           isUnlimited: resolvedPlan.isUnlimited,
           paymentMethod: paymentMethodByPackageId.get(row.id) ?? null,
+          typeBalances: mapClientPackageTypeBalances(row.balances),
         };
       }),
       total,

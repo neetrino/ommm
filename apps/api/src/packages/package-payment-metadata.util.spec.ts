@@ -5,8 +5,8 @@ import {
   withPackagePlanIdMetadata,
 } from './package-payment-metadata.util';
 
-describe('package-payment-metadata.util', () => {
-  it('writes and reads planId without dropping extra fields', () => {
+void describe('package-payment-metadata.util', () => {
+  void it('writes and reads planId without dropping extra fields', () => {
     const metadata = withPackagePlanIdMetadata(
       { provider: 'arca' },
       'plan-42',
@@ -18,7 +18,7 @@ describe('package-payment-metadata.util', () => {
     assert.equal(record.statusReason, 'checkout_not_started');
   });
 
-  it('returns null for missing or invalid metadata', () => {
+  void it('returns null for missing or invalid metadata', () => {
     assert.equal(readPackagePlanIdFromMetadata(null), null);
     assert.equal(readPackagePlanIdFromMetadata({}), null);
     assert.equal(readPackagePlanIdFromMetadata({ planId: 1 }), null);

@@ -1959,7 +1959,7 @@
       "sessionNotTracked": "Չի հետևվում",
       "userDetailsTitle": "Հաճախորդի տվյալներ",
       "bookingDetailsTitle": "Ամրագրման տվյալներ",
-      "bookingDetailsLead": "Դիտեք ամրագրման մանրամասները, նշումները և կառավարեք գրանցումը։",
+      "bookingDetailsLead": "Դիտեք ամրագրման մանրամասները և կառավարեք գրանցումը։",
       "bookingDetailsCloseBackdrop": "Փակել ամրագրման մանրամասները",
       "bookingDetailsClose": "Փակել",
       "bookingDetailsLoading": "Ամրագրման մանրամասները բեռնվում են…",
@@ -2151,7 +2151,13 @@
         "submitting": "Ավելացվում է…",
         "confirm": "Ավելացնել",
         "createSuccess": "Ամրագրումը հաջողությամբ ավելացվեց։",
-        "createError": "Չհաջողվեց ավելացնել ամրագրումը։"
+        "createError": "Չհաջողվեց ավելացնել ամրագրումը։",
+        "cancelButton": "Cancel",
+        "cancelConfirmTitle": "Չեղարկե՞լ ամրագրումը",
+        "cancelConfirmDescription": "Չեղարկե՞լ այս ամրագրումը։ Տեղը կրկին հասանելի կդառնա։",
+        "cancelConfirmLabel": "Չեղարկել ամրագրումը",
+        "cancelSuccess": "Ամրագրումը չեղարկվեց։",
+        "cancelError": "Չհաջողվեց չեղարկել ամրագրումը։"
       },
       "drawer": {
         "loading": "Բեռնվում են հաճախորդի տվյալները…",

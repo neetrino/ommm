@@ -100,10 +100,9 @@ export async function loadNextBookingsByUserId(
   return result;
 }
 
-export function attachNextBookingsToRows<T extends { id: string; nextBooking: ClientNextBooking | null }>(
-  rows: T[],
-  nextByUserId: ReadonlyMap<string, ClientNextBooking>,
-): T[] {
+export function attachNextBookingsToRows<
+  T extends { id: string; nextBooking: ClientNextBooking | null },
+>(rows: T[], nextByUserId: ReadonlyMap<string, ClientNextBooking>): T[] {
   return rows.map((row) => ({
     ...row,
     nextBooking: nextByUserId.get(row.id) ?? null,

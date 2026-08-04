@@ -41,9 +41,7 @@ export class PackagesAdminValidityService {
       throw new BadRequestException('Invalid activation date');
     }
     if (currentPeriodEnd.getTime() <= currentPeriodStart.getTime()) {
-      throw new BadRequestException(
-        'Expiration must be after activation date',
-      );
+      throw new BadRequestException('Expiration must be after activation date');
     }
 
     const now = new Date();

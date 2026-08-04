@@ -2,10 +2,9 @@
 
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import { AdminBookingNotesSection } from "@/components/admin/admin-booking-notes-section";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
-import { adminBookingPaymentLabel, normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
+import { normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
@@ -51,19 +50,9 @@ type ListRow = {
   latestNote: { id: string; body: string; authorName: string | null; createdAt: string } | null;
 };
 
-type BookingNote = {
-  id: string;
-  body: string;
-  createdAt: string;
-  author: { name: string | null };
-};
-
 type BookingDetails = {
   status: string;
-  paymentStatus?: string;
   bookingPaymentMethod?: string | null;
-  attendanceStatus?: string;
-  channel: "WEBSITE" | "APP";
   createdAt: string;
   user: { name: string | null; email: string; phone: string | null };
   session: {
@@ -72,7 +61,6 @@ type BookingDetails = {
     classType: { name: string };
     coach: { user: { name: string | null } };
   };
-  notes?: BookingNote[];
 };
 
 export type AdminBookingDetailsSheetProps = {
@@ -85,22 +73,7 @@ export type AdminBookingDetailsSheetProps = {
   onMove: () => void;
   onChangeStatus: (status: ListRow["status"]) => void;
   onDelete?: () => void;
-  onNoteAdded?: () => void;
 };
-
-function fallbackNotes(row: ListRow): BookingNote[] {
-  if (row.latestNote === null) {
-    return [];
-  }
-  return [
-    {
-      id: row.latestNote.id,
-      body: row.latestNote.body,
-      createdAt: row.latestNote.createdAt,
-      author: { name: row.latestNote.authorName },
-    },
-  ];
-}
 
 export function AdminBookingDetailsSheet({
   row,
@@ -112,7 +85,6 @@ export function AdminBookingDetailsSheet({
   onMove,
   onChangeStatus,
   onDelete,
-  onNoteAdded,
 }: AdminBookingDetailsSheetProps) {
   const t = useTranslations("adminPages.bookings");
   const titleId = useId();
@@ -121,22 +93,13 @@ export function AdminBookingDetailsSheet({
   const [result, setResult] = useState<{
     key: string;
     details: BookingDetails | null;
-    notes: BookingNote[];
   } | null>(null);
   const loading = fetchKey !== null && (result === null || result.key !== fetchKey);
   const details =
     fetchKey !== null && result?.key === fetchKey ? result.details : null;
-  const notes =
-    fetchKey !== null && result?.key === fetchKey ? result.notes : [];
-
-  function handleNotesChange(nextNotes: BookingNote[]): void {
-    setResult((prev) =>
-      prev === null || prev.key !== fetchKey ? prev : { ...prev, notes: nextNotes },
-    );
-  }
 
   useEffect(() => {
-    if (fetchKey === null || row === null) {
+    if (fetchKey === null) {
       return undefined;
     }
 
@@ -146,11 +109,9 @@ export function AdminBookingDetailsSheet({
         if (cancelled) {
           return;
         }
-        const nextDetails = payload as BookingDetails;
         setResult({
           key: fetchKey,
-          details: nextDetails,
-          notes: nextDetails.notes ?? fallbackNotes(row),
+          details: payload as BookingDetails,
         });
       })
       .catch(() => {
@@ -158,7 +119,6 @@ export function AdminBookingDetailsSheet({
           setResult({
             key: fetchKey,
             details: null,
-            notes: fallbackNotes(row),
           });
         }
       });
@@ -166,7 +126,7 @@ export function AdminBookingDetailsSheet({
     return () => {
       cancelled = true;
     };
-  }, [fetchKey, row]);
+  }, [fetchKey]);
 
   if (row === null) {
     return null;
@@ -224,56 +184,33 @@ export function AdminBookingDetailsSheet({
         {loading ? (
           <p className="text-sm text-sage-500">{t("bookingDetailsLoading")}</p>
         ) : (
-          <>
-            <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-              <DetailRow label={t("bookingDetailsClient")} value={row.user.name ?? row.user.email} />
-              <DetailRow label={t("bookingDetailsEmail")} value={row.user.email} />
-              <DetailRow label={t("bookingDetailsPhone")} value={displayPhoneOrFallback(row.user.phone)} />
-              <DetailRow label={t("bookingDetailsClass")} value={row.session.classType.name} />
+          <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
+            <DetailRow label={t("bookingDetailsClient")} value={row.user.name ?? row.user.email} />
+            <DetailRow label={t("bookingDetailsEmail")} value={row.user.email} />
+            <DetailRow label={t("bookingDetailsPhone")} value={displayPhoneOrFallback(row.user.phone)} />
+            <DetailRow label={t("bookingDetailsClass")} value={row.session.classType.name} />
+            <DetailRow
+              label={t("bookingDetailsCoach")}
+              value={details?.session.coach.user.name ?? row.session.coach.name ?? "—"}
+            />
+            <DetailRow
+              label={t("bookingDetailsSessionTime")}
+              value={formatDateTimeForUi(row.session.startsAt, locale)}
+            />
+            <DetailRow
+              label={t("bookingDetailsBookedOn")}
+              value={formatDateForUi(details?.createdAt ?? row.registerDate)}
+            />
+            {row.package !== null ? (
               <DetailRow
-                label={t("bookingDetailsCoach")}
-                value={details?.session.coach.user.name ?? row.session.coach.name ?? "—"}
-              />
-              <DetailRow
-                label={t("bookingDetailsSessionTime")}
-                value={formatDateTimeForUi(row.session.startsAt, locale)}
-              />
-              <DetailRow
-                label={t("bookingDetailsBookedOn")}
-                value={formatDateForUi(details?.createdAt ?? row.registerDate)}
-              />
-              <DetailRow
-                label={t("colPaymentStatus")}
-                value={adminBookingPaymentLabel(t, row.paymentStatus)}
-              />
-              <DetailRow
-                label={t("colAttendanceStatus")}
-                value={attendanceLabel(t, row.attendanceStatus)}
-              />
-              <DetailRow
-                label={t("colChannel")}
-                value={row.channel === "APP" ? t("channelApp") : t("channelWebsite")}
-              />
-              {row.package !== null ? (
-                <DetailRow
-                  label={t("packageInfo")}
-                  value={formatPackagePlanName(
-                    row.package.planName,
-                    row.package.sessionsPerMonth,
-                  )}
-                />
-              ) : null}
-            </dl>
-
-            {row.recordType === "BOOKING" ? (
-              <AdminBookingNotesSection
-                bookingId={row.id}
-                notes={notes}
-                onNotesChange={handleNotesChange}
-                onNoteAdded={onNoteAdded}
+                label={t("packageInfo")}
+                value={formatPackagePlanName(
+                  row.package.planName,
+                  row.package.sessionsPerMonth,
+                )}
               />
             ) : null}
-          </>
+          </dl>
         )}
       </div>
 
@@ -317,14 +254,4 @@ function CloseGlyph() {
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
-}
-
-function attendanceLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: ListRow["attendanceStatus"],
-): string {
-  if (value === "ATTENDED") return t("attendanceAttended");
-  if (value === "NO_SHOW") return t("attendanceNoShow");
-  if (value === "LATE_CANCEL") return t("attendanceLateCancel");
-  return t("attendanceNotAttended");
 }

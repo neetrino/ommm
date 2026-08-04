@@ -6,10 +6,10 @@ import {
   pickNextBookingFromBookings,
 } from './clients-row-next-booking';
 
-describe('clients-row-next-booking', () => {
+void describe('clients-row-next-booking', () => {
   const nowMs = Date.parse('2026-07-29T12:00:00.000Z');
 
-  it('picks earliest upcoming BOOKED booking', () => {
+  void it('picks earliest upcoming BOOKED booking', () => {
     const picked = pickNextBookingFromBookings(
       [
         {
@@ -55,7 +55,7 @@ describe('clients-row-next-booking', () => {
     });
   });
 
-  it('returns null when no upcoming booked sessions', () => {
+  void it('returns null when no upcoming booked sessions', () => {
     assert.equal(
       pickNextBookingFromBookings(
         [
@@ -74,7 +74,7 @@ describe('clients-row-next-booking', () => {
     );
   });
 
-  it('attachNextBookingsToRows overwrites with batch map', () => {
+  void it('attachNextBookingsToRows overwrites with batch map', () => {
     const rows = attachNextBookingsToRows(
       [
         {
