@@ -11,9 +11,9 @@ import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
-import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
 
 const CANCELLABLE_BOOKING_STATUS = "BOOKED";
+const CLIENT_BOOKINGS_HISTORY_PAGE_SIZE = 5;
 const CANCEL_BUTTON_CLASS = [
   "inline-flex shrink-0 items-center gap-1.5 rounded-full",
   "border border-rose-200/80 bg-rose-50/80 px-2.5 py-1",
@@ -66,7 +66,7 @@ export function AdminClientBookingsHistory({
     setPage(1);
   }
 
-  const pageSize = DEFAULT_LIST_PAGE_SIZE;
+  const pageSize = CLIENT_BOOKINGS_HISTORY_PAGE_SIZE;
   const fetchKey = `${clientId}:${page}:${pageSize}:${refreshKey}`;
   const loading = active && (result === null || result.key !== fetchKey);
   const items = result?.key === fetchKey ? result.items : [];
