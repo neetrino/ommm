@@ -1948,7 +1948,7 @@
       "sessionNotTracked": "Not tracked",
       "userDetailsTitle": "Client details",
       "bookingDetailsTitle": "Booking details",
-      "bookingDetailsLead": "Review booking details, notes, and manage this reservation.",
+      "bookingDetailsLead": "Review booking details and manage this reservation.",
       "bookingDetailsCloseBackdrop": "Close booking details",
       "bookingDetailsClose": "Close",
       "bookingDetailsLoading": "Loading booking details…",
