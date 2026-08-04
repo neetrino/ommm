@@ -1,20 +1,33 @@
+type PackageUsageBarSize = "md" | "sm";
+
 type PackageUsageBarProps = {
   used: number;
   total: number;
   ariaLabel: string;
+  size?: PackageUsageBarSize;
 };
 
 const BAR_WIDTH = 100;
 const BAR_HEIGHT = 4;
 
-export function PackageUsageBar({ used, total, ariaLabel }: PackageUsageBarProps) {
+const SIZE_CLASS: Record<PackageUsageBarSize, string> = {
+  md: "h-2 w-full",
+  sm: "h-1 w-full",
+};
+
+export function PackageUsageBar({
+  used,
+  total,
+  ariaLabel,
+  size = "md",
+}: PackageUsageBarProps) {
   const clampedUsed = Math.max(0, Math.min(used, total));
   const fillWidth = total > 0 ? (clampedUsed / total) * BAR_WIDTH : 0;
 
   return (
     <svg
       viewBox={`0 0 ${BAR_WIDTH} ${BAR_HEIGHT}`}
-      className="h-2 w-full"
+      className={SIZE_CLASS[size]}
       role="progressbar"
       aria-valuenow={clampedUsed}
       aria-valuemin={0}
