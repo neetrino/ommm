@@ -298,8 +298,7 @@ export class PaymentsAdminService {
     return new Map(
       userPackages.map((userPackage) => {
         const groupName = (
-          userPackage.plan?.categoryName ??
-          userPackage.planCategoryNameSnapshot
+          userPackage.plan?.categoryName ?? userPackage.planCategoryNameSnapshot
         ).trim();
         return [
           userPackage.id,

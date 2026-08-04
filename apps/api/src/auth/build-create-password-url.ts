@@ -7,8 +7,8 @@ export function buildCreatePasswordUrl(params: {
   locale: string;
   token: string;
 }): string {
-  const base = params.webAppUrl.trim().replace(/\/+$/, "");
-  const locale = params.locale.trim() || "en";
+  const base = params.webAppUrl.trim().replace(/\/+$/, '');
+  const locale = params.locale.trim() || 'en';
   const token = params.token.trim();
   return `${base}/${locale}/create-password/${encodeURIComponent(token)}`;
 }

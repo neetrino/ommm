@@ -6,7 +6,12 @@ import { WaitlistModule } from '../waitlist/waitlist.module';
 import { CronBatchService } from './cron-batch.service';
 
 @Module({
-  imports: [WaitlistModule, BookingsModule, NotificationsModule, PaymentsModule],
+  imports: [
+    WaitlistModule,
+    BookingsModule,
+    NotificationsModule,
+    PaymentsModule,
+  ],
   providers: [CronBatchService],
 })
 export class JobsModule {}

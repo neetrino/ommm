@@ -14,8 +14,12 @@ export function readPackagePlanIdFromMetadata(
   ) {
     return null;
   }
-  const value = (metadata as Record<string, unknown>)[PACKAGE_PAYMENT_PLAN_ID_KEY];
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+  const value = (metadata as Record<string, unknown>)[
+    PACKAGE_PAYMENT_PLAN_ID_KEY
+  ];
+  return typeof value === 'string' && value.trim().length > 0
+    ? value.trim()
+    : null;
 }
 
 /** Merges `planId` onto payment metadata without dropping Arca fields. */

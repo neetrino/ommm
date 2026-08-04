@@ -6,8 +6,8 @@ import {
   compareUserPackagesForClientList,
 } from './user-package-list.util';
 
-describe('user-package-list.util', () => {
-  it('hides pending and unpaid cancelled packages', () => {
+void describe('user-package-list.util', () => {
+  void it('hides pending and unpaid cancelled packages', () => {
     const where = buildVisibleUserPackagesWhere('user-1', ['paid-pkg']);
     assert.deepEqual(where, {
       userId: 'user-1',
@@ -29,7 +29,7 @@ describe('user-package-list.util', () => {
     });
   });
 
-  it('sorts active before cancelled, then newer first', () => {
+  void it('sorts active before cancelled, then newer first', () => {
     const olderActive = {
       status: UserPackageStatus.ACTIVE,
       createdAt: new Date('2026-01-01'),

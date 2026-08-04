@@ -42,7 +42,7 @@ export class PrismaService
     });
   }
 
-  async onModuleInit(): Promise<void> {
+  onModuleInit(): void {
     // Lazy connect on first query — avoid holding Neon awake from boot.
     if (this.idleDisconnectEnabled) {
       this.startIdleMonitor();

@@ -29,7 +29,7 @@ export function renderClientInviteEmail(
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
   <tr>
     <td align="center" style="border-radius:999px;background:${EMAIL_BRAND.accentColor};">
-      <a href="${setupUrl.replace(/"/g, "&quot;")}" style="display:inline-block;padding:14px 28px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;font-weight:600;line-height:1.2;color:#ffffff;text-decoration:none;">
+      <a href="${setupUrl.replace(/"/g, '&quot;')}" style="display:inline-block;padding:14px 28px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;font-weight:600;line-height:1.2;color:#ffffff;text-decoration:none;">
         Create your password
       </a>
     </td>
@@ -39,7 +39,7 @@ export function renderClientInviteEmail(
   If the button does not work, copy and paste this link into your browser:
 </p>
 <p style="margin:0 0 24px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;line-height:1.55;word-break:break-all;">
-  <a href="${setupUrl.replace(/"/g, "&quot;")}" style="color:${EMAIL_BRAND.accentColor};text-decoration:none;">${escapeHtml(setupUrl)}</a>
+  <a href="${setupUrl.replace(/"/g, '&quot;')}" style="color:${EMAIL_BRAND.accentColor};text-decoration:none;">${escapeHtml(setupUrl)}</a>
 </p>
 <p style="margin:0 0 24px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:14px;line-height:1.55;color:${EMAIL_BRAND.mutedColor};">
   This link expires for your security. If it has expired, contact the studio and we will send a new one.

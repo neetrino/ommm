@@ -16,9 +16,7 @@ import { MailService } from '../mail/mail.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
-import {
-  buildUserPackageCreateData,
-} from '../packages/packages-subscribe-card.util';
+import { buildUserPackageCreateData } from '../packages/packages-subscribe-card.util';
 import { decrementPackagePlanStock } from '../packages/packages-stock.helpers';
 import { createBalancesForUserPackage } from '../packages/packages-user-package-balances.util';
 import { parsePaymentMetadata } from './payments.helpers';

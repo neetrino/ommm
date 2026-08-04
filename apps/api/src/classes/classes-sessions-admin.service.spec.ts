@@ -13,9 +13,9 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
 
   function buildService(counts: SessionCounts | null) {
     const deleteFn = jest.fn().mockResolvedValue(undefined);
-    const findUnique = jest.fn().mockResolvedValue(
-      counts === null ? null : { _count: counts },
-    );
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue(counts === null ? null : { _count: counts });
     const prisma = {
       classSession: { findUnique, delete: deleteFn },
     };
@@ -62,7 +62,9 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
 
     expect(deleteFn).toHaveBeenCalledWith({ where: { id: 'session-1' } });
     expect(schedule.invalidatePublicCache).toHaveBeenCalled();
-    expect(realtime.emitPublicScheduleSession).toHaveBeenCalledWith('session-1');
+    expect(realtime.emitPublicScheduleSession).toHaveBeenCalledWith(
+      'session-1',
+    );
   });
 
   it('throws NotFoundException when the session does not exist', async () => {

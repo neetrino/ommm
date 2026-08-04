@@ -110,10 +110,7 @@ export class ClientsAdminCreateService {
 
     const webUrl =
       this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const locale = normalizeAppUiLocale(
-      createdUser.locale,
-      DEFAULT_UI_LOCALE,
-    );
+    const locale = normalizeAppUiLocale(createdUser.locale, DEFAULT_UI_LOCALE);
     const passwordSetupUrl = buildCreatePasswordUrl({
       webAppUrl: webUrl,
       locale,
