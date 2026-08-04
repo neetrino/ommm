@@ -2152,7 +2152,7 @@
         "confirm": "Ավելացնել",
         "createSuccess": "Ամրագրումը հաջողությամբ ավելացվեց։",
         "createError": "Չհաջողվեց ավելացնել ամրագրումը։",
-        "cancelButton": "Չեղարկել ամրագրումը",
+        "cancelButton": "Cancel",
         "cancelConfirmTitle": "Չեղարկե՞լ ամրագրումը",
         "cancelConfirmDescription": "Չեղարկե՞լ այս ամրագրումը։ Տեղը կրկին հասանելի կդառնա։",
         "cancelConfirmLabel": "Չեղարկել ամրագրումը",

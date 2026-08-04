@@ -2149,7 +2149,7 @@
         "confirm": "Добавить",
         "createSuccess": "Бронирование успешно добавлено.",
         "createError": "Не удалось добавить бронирование.",
-        "cancelButton": "Отменить бронирование",
+        "cancelButton": "Cancel",
         "cancelConfirmTitle": "Отменить бронирование?",
         "cancelConfirmDescription": "Отменить это бронирование? Место снова станет доступным.",
         "cancelConfirmLabel": "Отменить бронирование",

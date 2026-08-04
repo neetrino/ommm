@@ -7,7 +7,6 @@ import type {
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
 import { BanGlyph } from "@/components/ui/admin-action-glyphs";
-import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -15,7 +14,13 @@ import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
 
 const CANCELLABLE_BOOKING_STATUS = "BOOKED";
-const CANCEL_BUTTON_CLASS = "h-9 w-9 shrink-0";
+const CANCEL_BUTTON_CLASS = [
+  "inline-flex shrink-0 items-center gap-1.5 rounded-full",
+  "border border-rose-200/80 bg-rose-50/80 px-2.5 py-1",
+  "text-xs font-medium text-rose-700",
+  "transition hover:bg-rose-100/90",
+  "disabled:cursor-not-allowed disabled:opacity-50",
+].join(" ");
 const CANCEL_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
 
 type FetchResult = {
@@ -153,16 +158,15 @@ export function AdminClientBookingsHistory({
                       ) : null}
                     </div>
                     {showCancel ? (
-                      <AdminRowIconButton
-                        ariaLabel={t("bookings.cancelButton")}
-                        title={t("bookings.cancelButton")}
-                        variant="danger"
+                      <button
+                        type="button"
                         className={CANCEL_BUTTON_CLASS}
                         disabled={busyId !== null}
                         onClick={() => setPendingCancel(booking)}
                       >
+                        <span>{t("bookings.cancelButton")}</span>
                         <BanGlyph className={CANCEL_ICON_CLASS} />
-                      </AdminRowIconButton>
+                      </button>
                     ) : null}
                   </div>
                 );

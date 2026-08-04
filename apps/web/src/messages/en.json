@@ -2141,7 +2141,7 @@
         "confirm": "Add booking",
         "createSuccess": "Booking added successfully.",
         "createError": "Could not add the booking.",
-        "cancelButton": "Cancel booking",
+        "cancelButton": "Cancel",
         "cancelConfirmTitle": "Cancel booking?",
         "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
         "cancelConfirmLabel": "Cancel booking",
