@@ -14,6 +14,7 @@ export type ClientCapabilities = BackofficeCapabilities & {
   canAddNotes: boolean;
   canAssignPackage: boolean;
   canCreateBooking: boolean;
+  canCancelBooking: boolean;
 };
 
 export type ScheduleCapabilities = BackofficeCapabilities & {
@@ -79,6 +80,7 @@ export function adminClientCapabilities(): ClientCapabilities {
     canAddNotes: true,
     canAssignPackage: true,
     canCreateBooking: true,
+    canCancelBooking: true,
   };
 }
 
@@ -88,6 +90,7 @@ export function managerClientCapabilities(): ClientCapabilities {
     canAddNotes: true,
     canAssignPackage: true,
     canCreateBooking: true,
+    canCancelBooking: true,
   };
 }
 

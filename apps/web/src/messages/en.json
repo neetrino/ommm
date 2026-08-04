@@ -2140,7 +2140,13 @@
         "submitting": "Adding…",
         "confirm": "Add booking",
         "createSuccess": "Booking added successfully.",
-        "createError": "Could not add the booking."
+        "createError": "Could not add the booking.",
+        "cancelButton": "Cancel booking",
+        "cancelConfirmTitle": "Cancel booking?",
+        "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
+        "cancelConfirmLabel": "Cancel booking",
+        "cancelSuccess": "Booking cancelled.",
+        "cancelError": "Could not cancel the booking."
       },
       "drawer": {
         "loading": "Loading client data…",

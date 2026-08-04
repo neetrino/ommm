@@ -48,6 +48,7 @@ function resolveClientCapabilities(
       canAddNotes: false,
       canAssignPackage: false,
       canCreateBooking: false,
+      canCancelBooking: false,
     };
   }
   return adminClientCapabilities();
@@ -178,6 +179,7 @@ export function AdminClientsManagement({
         capabilities={caps}
         allowPackagePurchase={caps.canAssignPackage && !isStaff}
         allowCreateBooking={caps.canCreateBooking && !isStaff}
+        allowCancelBooking={caps.canCancelBooking && !isStaff}
       />
     </div>
   );

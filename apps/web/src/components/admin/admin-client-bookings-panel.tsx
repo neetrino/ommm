@@ -2,12 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { AdminClientBookingCreateBar } from "@/components/admin/admin-client-booking-create-bar";
-import type {
-  ClientDetail,
-  ClientSheetBookingItem,
-} from "@/components/admin/admin-clients-types";
-import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
-import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { AdminClientBookingsHistory } from "@/components/admin/admin-client-bookings-history";
+import type { ClientDetail } from "@/components/admin/admin-clients-types";
 
 type ClientBookingsPanelProps = {
   client: ClientDetail;
@@ -15,7 +11,10 @@ type ClientBookingsPanelProps = {
   active: boolean;
   refreshKey: number;
   allowCreateBooking: boolean;
+  allowCancelBooking: boolean;
   onCreateSuccess: () => void;
+  onCancelSuccess: () => void;
+  onCancelError: (message: string) => void;
 };
 
 export function ClientBookingsPanel({
@@ -24,7 +23,10 @@ export function ClientBookingsPanel({
   active,
   refreshKey,
   allowCreateBooking,
+  allowCancelBooking,
   onCreateSuccess,
+  onCancelSuccess,
+  onCancelError,
 }: ClientBookingsPanelProps) {
   const t = useTranslations("adminPages.clients");
 
@@ -42,23 +44,14 @@ export function ClientBookingsPanel({
         />
       ) : null}
 
-      <ClientSheetPaginatedTab<ClientSheetBookingItem>
+      <AdminClientBookingsHistory
         clientId={client.id}
+        locale={locale}
         active={active}
         refreshKey={refreshKey}
-        endpoint={`/clients/${client.id}/bookings`}
-        title={t("drawer.bookingHistory")}
-        empty={t("drawer.noBookings")}
-        mapItem={(booking) => ({
-          id: booking.id,
-          main: booking.session.classType.name,
-          meta: `${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.status} · ${booking.session.level ?? "—"}`,
-          extra: booking.cancelledAt
-            ? `${t("drawer.cancelled")} ${formatDateForUi(booking.cancelledAt)}`
-            : booking.attendedAt
-              ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
-              : null,
-        })}
+        allowCancel={allowCancelBooking}
+        onCancelSuccess={onCancelSuccess}
+        onCancelError={onCancelError}
       />
     </div>
   );

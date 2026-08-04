@@ -54,6 +54,7 @@ export function AdminClientsShell({
           canAddNotes: false,
           canAssignPackage: false,
           canCreateBooking: false,
+          canCancelBooking: false,
         }
       : adminClientCapabilities());
   const t = useTranslations("adminPages.clients");

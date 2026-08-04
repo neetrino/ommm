@@ -53,6 +53,8 @@ type AdminClientDrawerProps = {
   allowPackagePurchase?: boolean;
   /** Admin/manager create booking in Bookings tab. */
   allowCreateBooking?: boolean;
+  /** Admin/manager cancel booking in Bookings tab history. */
+  allowCancelBooking?: boolean;
   capabilities?: ClientCapabilities;
 };
 
@@ -80,6 +82,7 @@ export function AdminClientDrawer({
   initialDetail = null,
   allowPackagePurchase = false,
   allowCreateBooking = false,
+  allowCancelBooking = false,
   capabilities,
 }: AdminClientDrawerProps) {
   if (client === null) {
@@ -101,6 +104,9 @@ export function AdminClientDrawer({
       allowCreateBooking={
         capabilities?.canCreateBooking ?? allowCreateBooking
       }
+      allowCancelBooking={
+        capabilities?.canCancelBooking ?? allowCancelBooking
+      }
       canAddNotes={capabilities?.canAddNotes ?? true}
       canUpdate={capabilities?.canUpdate ?? true}
     />
@@ -116,6 +122,7 @@ function AdminClientDrawerInner({
   initialDetail = null,
   allowPackagePurchase = false,
   allowCreateBooking = false,
+  allowCancelBooking = false,
   canAddNotes = true,
   canUpdate = true,
 }: {
@@ -127,6 +134,7 @@ function AdminClientDrawerInner({
   initialDetail?: ClientDetail | null;
   allowPackagePurchase?: boolean;
   allowCreateBooking?: boolean;
+  allowCancelBooking?: boolean;
   canAddNotes?: boolean;
   canUpdate?: boolean;
 }) {
@@ -447,6 +455,7 @@ function AdminClientDrawerInner({
             onAvatarPreviewOpenChange={setAvatarPreviewOpen}
             allowPackagePurchase={allowPackagePurchase}
             allowCreateBooking={allowCreateBooking}
+            allowCancelBooking={allowCancelBooking}
             canAddNotes={canAddNotes}
             onPackagePurchaseSuccess={() => {
               setActionTone("ok");
@@ -459,6 +468,16 @@ function AdminClientDrawerInner({
               setActionMessage(t("bookings.createSuccess"));
               onChanged();
               void refreshDetail();
+            }}
+            onBookingCancelSuccess={() => {
+              setActionTone("ok");
+              setActionMessage(t("bookings.cancelSuccess"));
+              onChanged();
+              void refreshDetail();
+            }}
+            onBookingCancelError={(message) => {
+              setActionTone("err");
+              setActionMessage(message);
             }}
           />
         )}
