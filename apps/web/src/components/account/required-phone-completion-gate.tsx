@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FormErrorBanner } from "@/components/ui/form-validation";
@@ -30,17 +30,14 @@ export function RequiredPhoneCompletionGate({
   const t = useTranslations("account.requiredPhone");
   const titleId = useId();
   const descId = useId();
-  const [open, setOpen] = useState(initialNeedsPhoneCompletion);
+  const [completedLocally, setCompletedLocally] = useState(false);
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const isOpen = initialNeedsPhoneCompletion && !completedLocally;
 
-  useEffect(() => {
-    setOpen(initialNeedsPhoneCompletion);
-  }, [initialNeedsPhoneCompletion]);
-
-  if (!open) {
+  if (!isOpen) {
     return null;
   }
 
@@ -69,7 +66,7 @@ export function RequiredPhoneCompletionGate({
           phone: normalizePhoneForApi(phoneRaw),
         }),
       });
-      setOpen(false);
+      setCompletedLocally(true);
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("saveFailed"));

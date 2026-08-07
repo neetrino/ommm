@@ -1,7 +1,4 @@
-import {
-  isValidPhoneNumber,
-  normalizePhoneForStorage,
-} from '../common/phone';
+import { isValidPhoneNumber, normalizePhoneForStorage } from '../common/phone';
 
 export const GOOGLE_PHONE_NUMBERS_SCOPE =
   'https://www.googleapis.com/auth/user.phonenumbers.read';
@@ -56,7 +53,9 @@ export function pickNormalizedGooglePhone(
   if (!phoneNumbers || phoneNumbers.length === 0) {
     return null;
   }
-  const primary = phoneNumbers.find((entry) => entry.metadata?.primary === true);
+  const primary = phoneNumbers.find(
+    (entry) => entry.metadata?.primary === true,
+  );
   const candidates = primary ? [primary, ...phoneNumbers] : phoneNumbers;
   for (const entry of candidates) {
     const raw = entry.value?.trim() ?? '';
