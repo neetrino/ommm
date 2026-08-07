@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -13,21 +12,12 @@ import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import {
-  fetchGoogleAccountPhone,
-  GOOGLE_PHONE_NUMBERS_SCOPE,
-} from './google-people-phone';
-import {
   GOOGLE_PROVIDER,
   type GoogleAuthCompletion,
   type GoogleOAuthProfile,
 } from './google-oauth.types';
 
-const GOOGLE_OAUTH_SCOPES = [
-  'openid',
-  'email',
-  'profile',
-  GOOGLE_PHONE_NUMBERS_SCOPE,
-];
+const GOOGLE_OAUTH_SCOPES = ['openid', 'email', 'profile'];
 const DEFAULT_UI_LOCALE = 'en';
 const WEB_DEFAULT_URL = 'http://localhost:3000';
 const WEB_AUTH_ENTRY_SEGMENT = 'account';
@@ -87,8 +77,6 @@ function isUniqueConstraintError(error: unknown): boolean {
 
 @Injectable()
 export class GoogleOAuthService {
-  private readonly logger = new Logger(GoogleOAuthService.name);
-
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
@@ -107,7 +95,6 @@ export class GoogleOAuthService {
       scope: GOOGLE_OAUTH_SCOPES,
       state,
       prompt: 'select_account',
-      include_granted_scopes: true,
     });
     return { authorizationUrl, state };
   }
@@ -197,9 +184,6 @@ export class GoogleOAuthService {
       family_name: payload.family_name,
       name: payload.name,
     });
-    const phone = tokens.access_token
-      ? await fetchGoogleAccountPhone(tokens.access_token)
-      : null;
     return {
       providerAccountId,
       providerEmail: normalizeEmail(providerEmail),
@@ -207,7 +191,6 @@ export class GoogleOAuthService {
       name: parsedName.name,
       lastName: parsedName.lastName,
       avatarUrl: payload.picture?.trim() ?? null,
-      phone,
     };
   }
 
@@ -224,8 +207,7 @@ export class GoogleOAuthService {
       include: { user: true },
     });
     if (linked) {
-      const user = await this.maybeBackfillMissingPhone(linked.user, profile);
-      return this.sessionCompletion(user);
+      return this.sessionCompletion(linked.user);
     }
 
     const existingUser = await this.prisma.user.findUnique({
@@ -247,51 +229,9 @@ export class GoogleOAuthService {
     };
   }
 
-  private async resolveAvailablePhone(
-    phone: string | null,
-  ): Promise<string | null> {
-    if (!phone) {
-      return null;
-    }
-    const taken = await this.prisma.user.findUnique({
-      where: { phone },
-      select: { id: true },
-    });
-    return taken ? null : phone;
-  }
-
-  private async maybeBackfillMissingPhone(
-    user: User,
-    profile: GoogleOAuthProfile,
-  ): Promise<User> {
-    const hasPhone = (user.phone?.trim() ?? '').length > 0;
-    if (hasPhone || !profile.phone) {
-      return user;
-    }
-    const phone = await this.resolveAvailablePhone(profile.phone);
-    if (!phone) {
-      return user;
-    }
-    try {
-      return await this.prisma.user.update({
-        where: { id: user.id },
-        data: { phone },
-      });
-    } catch (error: unknown) {
-      if (isUniqueConstraintError(error)) {
-        this.logger.warn(
-          `Skipped Google phone backfill for user ${user.id}: phone already taken`,
-        );
-        return user;
-      }
-      throw error;
-    }
-  }
-
   private async createUserFromGoogleProfile(
     profile: GoogleOAuthProfile,
   ): Promise<User> {
-    const phone = await this.resolveAvailablePhone(profile.phone);
     try {
       return await this.prisma.$transaction(async (tx) => {
         await tx.pendingOAuthSignup.deleteMany({
@@ -311,7 +251,6 @@ export class GoogleOAuthService {
             name: profile.name,
             lastName: profile.lastName,
             avatarUrl: profile.avatarUrl,
-            phone,
             oauthAccounts: {
               create: {
                 provider: GOOGLE_PROVIDER,
@@ -331,9 +270,6 @@ export class GoogleOAuthService {
         if (existingUser) {
           return this.linkOAuthToExistingUser(existingUser, profile);
         }
-        if (phone) {
-          return this.createUserFromGoogleProfile({ ...profile, phone: null });
-        }
       }
       throw error;
     }
@@ -343,10 +279,6 @@ export class GoogleOAuthService {
     user: User,
     profile: GoogleOAuthProfile,
   ): Promise<User> {
-    const phoneUpdate =
-      (user.phone?.trim() ?? '').length === 0
-        ? await this.resolveAvailablePhone(profile.phone)
-        : null;
     try {
       const [, updatedUser] = await this.prisma.$transaction([
         this.prisma.oAuthAccount.create({
@@ -362,7 +294,6 @@ export class GoogleOAuthService {
           where: { id: user.id },
           data: {
             emailVerified: user.emailVerified ?? new Date(),
-            ...(phoneUpdate ? { phone: phoneUpdate } : {}),
           },
         }),
       ]);

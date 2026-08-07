@@ -319,7 +319,6 @@ Notes:
 - Callback: `GET /v1/auth/google/callback`
   - Verifies state + code
   - Fetches/validates Google ID token and profile
-  - Optionally reads phone via Google People API; stores when valid and unique
   - Links existing user by email or creates new `USER`
   - Issues app JWT, sets `ommm_access`, redirects to web app
   - Google members without phone: `needsPhoneCompletion` on `GET /users/me` + blocking modal on `/user/*`
