@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+import { RequiredPhoneCompletionGate } from "@/components/account/required-phone-completion-gate";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {
@@ -7,6 +8,7 @@ import {
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
+import { getCachedUsersMe } from "@/server/cached-users-me";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -24,9 +26,10 @@ export async function UserMemberShellLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [authOutcome, tDash] = await Promise.all([
+  const [authOutcome, tDash, me] = await Promise.all([
     requireAuthForLayout(locale),
     getTranslations({ locale, namespace: "dashboard" }),
+    getCachedUsersMe(),
   ]);
   if (authOutcome.kind === "api_unavailable") {
     return <ApiUnavailablePanel />;
@@ -36,6 +39,9 @@ export async function UserMemberShellLayout({
   redirectIfRoleNotIn(locale, role, USER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
   const notificationRoute = dashboardNotificationRouteForRole(role);
+  const needsPhoneCompletion = me.ok
+    ? Boolean(me.data.needsPhoneCompletion)
+    : false;
 
   return (
     <WorkspaceShellFromAuth
@@ -49,6 +55,9 @@ export async function UserMemberShellLayout({
       navDefinitions={navDefinitions}
       notificationRoute={notificationRoute}
     >
+      <RequiredPhoneCompletionGate
+        initialNeedsPhoneCompletion={needsPhoneCompletion}
+      />
       {children}
     </WorkspaceShellFromAuth>
   );
