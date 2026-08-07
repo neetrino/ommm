@@ -277,6 +277,18 @@
     }
   },
   "account": {
+    "requiredPhone": {
+      "eyebrow": "One more step",
+      "title": "Add your phone number",
+      "body": "Google did not share a phone number with us. Please add yours to finish setting up your account and continue.",
+      "phoneLabel": "Phone",
+      "phoneRequired": "Please enter your phone number.",
+      "invalidPhone": "Enter a valid phone number (8–15 digits).",
+      "save": "Save and continue",
+      "saving": "Saving…",
+      "saveFailed": "Could not save your phone number. Please try again.",
+      "backdropAria": "Phone number required to continue"
+    },
     "dashboard": {
       "signIn": {
         "title": "Member area",

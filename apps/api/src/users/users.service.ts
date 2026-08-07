@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import type { Express } from 'express';
 import { Prisma, BookingStatus, Role } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth.service';
+import { GOOGLE_PROVIDER } from '../auth/google-oauth.types';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { isAppUiLocale } from '../common/app-ui-locales';
 import { normalizeOptionalPhone } from '../common/phone';
@@ -32,6 +33,11 @@ export class UsersService {
       include: {
         notificationPrefs: true,
         coachProfile: { select: { id: true, bio: true } },
+        oauthAccounts: {
+          where: { provider: GOOGLE_PROVIDER },
+          select: { id: true },
+          take: 1,
+        },
         achievements: {
           include: {
             achievement: {
@@ -41,11 +47,21 @@ export class UsersService {
         },
       },
     });
-    const { notificationPrefs, coachProfile, achievements, ...u } = user;
+    const {
+      notificationPrefs,
+      coachProfile,
+      achievements,
+      oauthAccounts,
+      ...u
+    } = user;
+    const hasGoogleAccount = oauthAccounts.length > 0;
+    const hasPhone = (u.phone?.trim() ?? '').length > 0;
     return {
       user: sanitizeUser(u),
       coachProfileId: coachProfile?.id ?? null,
       coachBio: coachProfile?.bio ?? null,
+      /** Google-linked members without a phone must complete it before using the account. */
+      needsPhoneCompletion: hasGoogleAccount && !hasPhone,
       achievements: achievements.map((row) => ({
         id: row.achievementId,
         title: row.achievement.title,

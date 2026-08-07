@@ -7,6 +7,8 @@ export type GoogleOAuthProfile = {
   name: string | null;
   lastName: string | null;
   avatarUrl: string | null;
+  /** Normalized E.164-like phone from Google People API, when available and valid. */
+  phone: string | null;
 };
 
 export type GoogleAuthCompletion = {

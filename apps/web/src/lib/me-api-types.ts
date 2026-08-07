@@ -15,4 +15,6 @@ export type MeApiResponse = {
   coachProfileId: string | null;
   /** Shared coach-profile bio — same field as admin Coaches CRM. */
   coachBio?: string | null;
+  /** True when a Google-linked member must provide a phone before using the account. */
+  needsPhoneCompletion?: boolean;
 };

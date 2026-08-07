@@ -1,0 +1,78 @@
+.overlay {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(196, 168, 124, 0.18), transparent 55%),
+    rgba(28, 24, 20, 0.52);
+}
+
+.panel {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 26rem;
+  border-radius: 28px;
+  border: 1px solid rgb(229 220 205 / 0.9);
+  background:
+    linear-gradient(165deg, rgb(255 252 247) 0%, rgb(250 245 236) 48%, rgb(255 255 255) 100%);
+  padding: 1.75rem 1.5rem 1.5rem;
+  box-shadow:
+    0 28px 56px -30px rgba(45, 40, 35, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+  animation: required-phone-panel-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(148 120 82);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: 1.625rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: rgb(58 70 58);
+}
+
+.body {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: rgb(90 102 90);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+@keyframes required-phone-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}

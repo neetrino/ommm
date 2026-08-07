@@ -28,6 +28,8 @@ export type CachedUsersMePayload = {
     giftCreditsCents?: number;
   };
   coachProfileId: string | null;
+  /** True when a Google-linked member must provide a phone before using the account. */
+  needsPhoneCompletion?: boolean;
   achievements?: CachedUsersMeAchievement[];
   notificationPrefs?: CachedUsersMeNotificationPrefs;
 };
