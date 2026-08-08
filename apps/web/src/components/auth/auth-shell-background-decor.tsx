@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "@/i18n/navigation";
+import { LandingRocketFlight } from "@/components/LandingRocketFlight";
 import { AuthLoginSphereField } from "@/components/auth/auth-login-sphere-field";
 import {
   AUTH_LOGIN_SPHERE_SIZE_PX,
@@ -24,6 +25,7 @@ export function AuthShellBackgroundDecor() {
   return (
     <div style={AUTH_LOGIN_SPHERE_LAYER_STYLE}>
       <AuthLoginSphereField />
+      <LandingRocketFlight />
     </div>
   );
 }

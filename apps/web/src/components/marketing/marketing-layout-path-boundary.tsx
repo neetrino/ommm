@@ -7,6 +7,7 @@ import { MarketingFooterGate } from "@/components/marketing/marketing-footer-gat
 import { MarketingLayoutHeaderSlot } from "@/components/marketing/marketing-layout-header-slot";
 import { MarketingLayoutShell } from "@/components/marketing/marketing-layout-shell";
 import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-main";
+import { MarketingRocketFlightGate } from "@/components/marketing/marketing-rocket-flight-gate";
 import { MarketingSiteHeaderWithClientAccount } from "@/components/marketing/marketing-site-header-with-client-account";
 import { MarketingRealtimeRoot } from "@/components/realtime/marketing-realtime-root";
 import {
@@ -61,26 +62,29 @@ export async function MarketingLayoutPathBoundary({
       serverAuthenticated={headerAccount !== null}
       enableGuestRealtime={enableGuestRealtime}
     >
-      <MarketingLayoutShell>
-        <Suspense
-          fallback={
-            <MarketingSiteHeaderWithClientAccount navLinks={navLinks} serverAccount={null} />
-          }
-        >
-          <MarketingLayoutHeaderSlot navLinks={navLinks} />
-        </Suspense>
-        <MarketingLayoutMain>{children}</MarketingLayoutMain>
-        <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
-          <Suspense fallback={<MarketingFooterLoading />}>
-            <MarketingPublicHomeFooter
-              locale={locale}
-              surfaceVariant="inner"
-              mobileHomeParity={practicesInnerMobileHomeFooter}
-              showContactSection={showFooterContact}
-            />
+      <>
+        <MarketingRocketFlightGate />
+        <MarketingLayoutShell>
+          <Suspense
+            fallback={
+              <MarketingSiteHeaderWithClientAccount navLinks={navLinks} serverAccount={null} />
+            }
+          >
+            <MarketingLayoutHeaderSlot navLinks={navLinks} />
           </Suspense>
-        </MarketingFooterGate>
-      </MarketingLayoutShell>
+          <MarketingLayoutMain>{children}</MarketingLayoutMain>
+          <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
+            <Suspense fallback={<MarketingFooterLoading />}>
+              <MarketingPublicHomeFooter
+                locale={locale}
+                surfaceVariant="inner"
+                mobileHomeParity={practicesInnerMobileHomeFooter}
+                showContactSection={showFooterContact}
+              />
+            </Suspense>
+          </MarketingFooterGate>
+        </MarketingLayoutShell>
+      </>
     </MarketingRealtimeRoot>
   );
 }

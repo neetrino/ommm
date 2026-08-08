@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
+import { LandingRocketFlight } from "@/components/LandingRocketFlight";
 import { HomeCoachesSectionDeferred } from "@/components/marketing/home/home-deferred-server-sections";
 import { HomeGallerySectionDeferred } from "@/components/marketing/home/home-deferred-sections";
 import { HOME_LAZY_SECTION } from "@/components/marketing/home/home-lazy-section-tokens";
@@ -33,65 +34,67 @@ export default async function MarketingHomePage({ params }: PageProps) {
   const hasHeroPanelAboveClasses = showPresalePackages || showSchedule;
 
   return (
-    <div
-      {...{ [MARKETING_HOME_PAGE_MARKER]: "" }}
-      className={`${marketingMontserrat.variable} ${homePageStyles.page} flex-1`}
-      style={
-        {
-          "--home-page-bg": HOME_PAGE_SURFACE.pageBackground,
-        } as CSSProperties
-      }
-    >
-      <div className={homePageStyles.pageUpper}>
-        <MarketingPublicHero
-          locale={locale}
-          showHero
-          showPresalePackages={showPresalePackages}
-          showScheduleBanner={showSchedule}
-        />
-
-        <MarketingPublicHomeClassesSection
-          locale={locale}
-          hasScheduleBannerAbove={hasHeroPanelAboveClasses}
-        />
-
-        {showCoaches ? (
-          <ProgressiveRevealSection
-            id="coaches"
-            preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
-            mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
-            placeholderClassName={HOME_LAZY_SECTION.placeholders.coaches}
-          >
-            <HomeCoachesSectionDeferred locale={locale} />
-          </ProgressiveRevealSection>
-        ) : null}
-
-      </div>
-
+    <>
+      <LandingRocketFlight />
       <div
-        className={homePageStyles.galleryFooterSeam}
+        {...{ [MARKETING_HOME_PAGE_MARKER]: "" }}
+        className={`${marketingMontserrat.variable} ${homePageStyles.page} flex-1`}
         style={
           {
-            "--home-gallery-seam-bg": HOME_PAGE_SURFACE.pageBackground,
-            "--home-footer-wrap-bg": HOME_PAGE_SURFACE.pageBackground,
+            "--home-page-bg": HOME_PAGE_SURFACE.pageBackground,
           } as CSSProperties
         }
       >
-        <ProgressiveRevealSection
-          id="gallery"
-          preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
-          mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
-          placeholderClassName={HOME_LAZY_SECTION.placeholders.gallery}
-        >
-          <HomeGallerySectionDeferred />
-        </ProgressiveRevealSection>
+        <div className={homePageStyles.pageUpper}>
+          <MarketingPublicHero
+            locale={locale}
+            showHero
+            showPresalePackages={showPresalePackages}
+            showScheduleBanner={showSchedule}
+          />
 
-        <MarketingPublicHomeFooter
-          locale={locale}
-          surfaceVariant="home"
-          showContactSection={showFooterContact}
-        />
+          <MarketingPublicHomeClassesSection
+            locale={locale}
+            hasScheduleBannerAbove={hasHeroPanelAboveClasses}
+          />
+
+          {showCoaches ? (
+            <ProgressiveRevealSection
+              id="coaches"
+              preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
+              mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
+              placeholderClassName={HOME_LAZY_SECTION.placeholders.coaches}
+            >
+              <HomeCoachesSectionDeferred locale={locale} />
+            </ProgressiveRevealSection>
+          ) : null}
+        </div>
+
+        <div
+          className={homePageStyles.galleryFooterSeam}
+          style={
+            {
+              "--home-gallery-seam-bg": HOME_PAGE_SURFACE.pageBackground,
+              "--home-footer-wrap-bg": HOME_PAGE_SURFACE.pageBackground,
+            } as CSSProperties
+          }
+        >
+          <ProgressiveRevealSection
+            id="gallery"
+            preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
+            mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
+            placeholderClassName={HOME_LAZY_SECTION.placeholders.gallery}
+          >
+            <HomeGallerySectionDeferred />
+          </ProgressiveRevealSection>
+
+          <MarketingPublicHomeFooter
+            locale={locale}
+            surfaceVariant="home"
+            showContactSection={showFooterContact}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
