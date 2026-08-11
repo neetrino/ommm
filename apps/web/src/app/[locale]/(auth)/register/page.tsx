@@ -16,15 +16,18 @@ import {
   RegisterNameFields,
   type RegisterNameField,
 } from "@/components/auth/register-name-fields";
+import {
+  latinNameFieldError,
+  MAX_NAME_LENGTH,
+  MIN_PASSWORD_LENGTH,
+  validateRegisterForm,
+  type RegisterNameFieldError,
+} from "@/components/auth/register-form-validation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
-import {
-  isValidPhone,
-  normalizePhoneForApi,
-} from "@/lib/phone";
-import { isLatinPersonName } from "@/lib/latin-person-name";
+import { isValidPhone, normalizePhoneForApi } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 import {
@@ -32,9 +35,6 @@ import {
   PSEUDO_PASSWORD,
   PSEUDO_PHONE,
 } from "@/lib/pseudo-form-placeholders";
-
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_NAME_LENGTH = 120;
 
 function RegisterForm() {
   const router = useRouter();
@@ -44,10 +44,7 @@ function RegisterForm() {
   const tAuth = useTranslations("auth.register");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [fieldError, setFieldError] = useState<{
-    field: RegisterNameField;
-    message: string;
-  } | null>(null);
+  const [fieldError, setFieldError] = useState<RegisterNameFieldError | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -69,66 +66,34 @@ function RegisterForm() {
     }
     const form = e.currentTarget;
     const fd = new FormData(form);
+    const firstNameRaw = String(fd.get("firstName") ?? "").trim();
+    const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
     const confirmPassword = String(fd.get("confirmPassword") ?? "");
-    const firstNameRaw = String(fd.get("firstName") ?? "").trim();
-    const lastNameRaw = String(fd.get("lastName") ?? "").trim();
-    const phoneRaw = phone.trim();
 
     setError(null);
     setFieldError(null);
 
-    if (firstNameRaw.length === 0) {
-      showNameFieldError("firstName", tAuth("firstNameRequired"));
-      return;
-    }
-    if (!isLatinPersonName(firstNameRaw)) {
-      showNameFieldError("firstName", tAuth("firstNameLatinOnly"));
-      return;
-    }
-    if (lastNameRaw.length === 0) {
-      showNameFieldError("lastName", tAuth("lastNameRequired"));
-      return;
-    }
-    if (!isLatinPersonName(lastNameRaw)) {
-      showNameFieldError("lastName", tAuth("lastNameLatinOnly"));
-      return;
-    }
-    if (firstNameRaw.length > MAX_NAME_LENGTH) {
-      showNameFieldError("firstName", tAuth("firstNameTooLong"));
-      return;
-    }
-    if (lastNameRaw.length > MAX_NAME_LENGTH) {
-      showNameFieldError("lastName", tAuth("lastNameTooLong"));
-      return;
-    }
-    if (phoneRaw.length === 0) {
-      setError(tAuth("phoneRequired"));
-      return;
-    }
-    if (!isValidEmail(emailRaw)) {
-      setError(tAuth("invalidEmail"));
-      return;
-    }
-    if (password.length === 0) {
-      setError(tAuth("passwordRequired"));
-      return;
-    }
-    if (confirmPassword.length === 0) {
-      setError(tAuth("confirmPasswordRequired"));
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError(tAuth("passwordMismatch"));
-      return;
-    }
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setError(tAuth("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
-      return;
-    }
-    if (!isValidPhone(phoneRaw)) {
-      setError(tAuth("invalidPhone"));
+    const check = validateRegisterForm(
+      {
+        firstName: firstNameRaw,
+        lastName: lastNameRaw,
+        phone,
+        email: emailRaw,
+        password,
+        confirmPassword,
+      },
+      tAuth,
+      isValidEmail,
+      isValidPhone,
+    );
+    if (!check.ok) {
+      if (check.kind === "name") {
+        showNameFieldError(check.field, check.message);
+      } else {
+        setError(check.message);
+      }
       return;
     }
 
@@ -144,7 +109,7 @@ function RegisterForm() {
             password,
             name: firstNameRaw,
             lastName: lastNameRaw,
-            phone: normalizePhoneForApi(phoneRaw),
+            phone: normalizePhoneForApi(phone.trim()),
             locale: urlLocale,
           }),
         },
@@ -156,14 +121,19 @@ function RegisterForm() {
         locale: nextLocale,
       });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : tAuth("registerFailed"));
+      const message =
+        err instanceof ApiError ? err.message : tAuth("registerFailed");
+      if (/latin letters/i.test(message)) {
+        showNameFieldError("firstName", tAuth("firstNameLatinOnly"));
+      } else {
+        setFieldError(null);
+        setError(message);
+      }
     } finally {
       setPending(false);
       submitLockRef.current = false;
     }
   }
-
-  const activeNameField = fieldError?.field ?? null;
 
   return (
     <div className="relative">
@@ -183,12 +153,23 @@ function RegisterForm() {
           firstNameLabel={tAuth("firstName")}
           lastNameLabel={tAuth("lastName")}
           maxNameLength={MAX_NAME_LENGTH}
-          errorField={activeNameField}
+          errorField={fieldError?.field ?? null}
           errorMessage={fieldError?.message ?? null}
           onClearFieldError={(field) => {
             if (fieldError?.field === field) {
               setFieldError(null);
             }
+          }}
+          onValidateField={(field, value) => {
+            const message = latinNameFieldError(field, value, tAuth);
+            if (message === null) {
+              if (fieldError?.field === field) {
+                setFieldError(null);
+              }
+              return;
+            }
+            setError(null);
+            setFieldError({ field, message });
           }}
         />
         <div className="grid gap-3 sm:grid-cols-2">
