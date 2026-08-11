@@ -5,9 +5,17 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
-import { FormErrorBanner } from "@/components/ui/form-validation";
+import { FormErrorBanner, focusFormField } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
+import {
+  isValidEmail,
+  MAX_EMAIL_LENGTH,
+} from "@/components/admin/admin-coach-form-helpers";
+import {
+  RegisterNameFields,
+  type RegisterNameField,
+} from "@/components/auth/register-name-fields";
 import { ApiError, apiFetch } from "@/lib/api";
 import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
@@ -21,23 +29,12 @@ import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 import {
   PSEUDO_EMAIL,
-  PSEUDO_FIRST_NAME,
-  PSEUDO_LAST_NAME,
   PSEUDO_PASSWORD,
   PSEUDO_PHONE,
 } from "@/lib/pseudo-form-placeholders";
 
 const MIN_PASSWORD_LENGTH = 8;
-const MAX_EMAIL_LENGTH = 254;
 const MAX_NAME_LENGTH = 120;
-
-function isValidEmail(value: string): boolean {
-  const trimmed = value.trim();
-  if (trimmed.length === 0 || trimmed.length > MAX_EMAIL_LENGTH) {
-    return false;
-  }
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
-}
 
 function RegisterForm() {
   const router = useRouter();
@@ -47,16 +44,31 @@ function RegisterForm() {
   const tAuth = useTranslations("auth.register");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<{
+    field: RegisterNameField;
+    message: string;
+  } | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const googleAuthUrl = buildGoogleAuthStartUrl();
+
+  function showNameFieldError(field: RegisterNameField, message: string) {
+    setError(null);
+    setFieldError({ field, message });
+    const form = formRef.current;
+    if (form) {
+      focusFormField(form, field);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (pending || submitLockRef.current) {
       return;
     }
-    const fd = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     const emailRaw = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
     const confirmPassword = String(fd.get("confirmPassword") ?? "");
@@ -65,21 +77,30 @@ function RegisterForm() {
     const phoneRaw = phone.trim();
 
     setError(null);
+    setFieldError(null);
 
     if (firstNameRaw.length === 0) {
-      setError(tAuth("firstNameRequired"));
+      showNameFieldError("firstName", tAuth("firstNameRequired"));
       return;
     }
     if (!isLatinPersonName(firstNameRaw)) {
-      setError(tAuth("firstNameLatinOnly"));
+      showNameFieldError("firstName", tAuth("firstNameLatinOnly"));
       return;
     }
     if (lastNameRaw.length === 0) {
-      setError(tAuth("lastNameRequired"));
+      showNameFieldError("lastName", tAuth("lastNameRequired"));
       return;
     }
     if (!isLatinPersonName(lastNameRaw)) {
-      setError(tAuth("lastNameLatinOnly"));
+      showNameFieldError("lastName", tAuth("lastNameLatinOnly"));
+      return;
+    }
+    if (firstNameRaw.length > MAX_NAME_LENGTH) {
+      showNameFieldError("firstName", tAuth("firstNameTooLong"));
+      return;
+    }
+    if (lastNameRaw.length > MAX_NAME_LENGTH) {
+      showNameFieldError("lastName", tAuth("lastNameTooLong"));
       return;
     }
     if (phoneRaw.length === 0) {
@@ -104,14 +125,6 @@ function RegisterForm() {
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
       setError(tAuth("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
-      return;
-    }
-    if (firstNameRaw.length > MAX_NAME_LENGTH) {
-      setError(tAuth("firstNameTooLong"));
-      return;
-    }
-    if (lastNameRaw.length > MAX_NAME_LENGTH) {
-      setError(tAuth("lastNameTooLong"));
       return;
     }
     if (!isValidPhone(phoneRaw)) {
@@ -150,6 +163,8 @@ function RegisterForm() {
     }
   }
 
+  const activeNameField = fieldError?.field ?? null;
+
   return (
     <div className="relative">
       <div className="relative z-10">
@@ -159,34 +174,23 @@ function RegisterForm() {
         <p className="ommm-body-muted mt-1.5 text-sm">{tAuth("lead")}</p>
       </div>
       <form
+        ref={formRef}
         onSubmit={onSubmit}
         noValidate
         className="relative z-10 mt-5 flex flex-col gap-3"
       >
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <span className="ommm-label">{tAuth("firstName")}</span>
-            <input
-              name="firstName"
-              required
-              autoComplete="given-name"
-              className="ommm-input"
-              maxLength={MAX_NAME_LENGTH}
-              placeholder={PSEUDO_FIRST_NAME}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="ommm-label">{tAuth("lastName")}</span>
-            <input
-              name="lastName"
-              required
-              autoComplete="family-name"
-              className="ommm-input"
-              maxLength={MAX_NAME_LENGTH}
-              placeholder={PSEUDO_LAST_NAME}
-            />
-          </label>
-        </div>
+        <RegisterNameFields
+          firstNameLabel={tAuth("firstName")}
+          lastNameLabel={tAuth("lastName")}
+          maxNameLength={MAX_NAME_LENGTH}
+          errorField={activeNameField}
+          errorMessage={fieldError?.message ?? null}
+          onClearFieldError={(field) => {
+            if (fieldError?.field === field) {
+              setFieldError(null);
+            }
+          }}
+        />
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">
             <span className="ommm-label">{tAuth("phone")}</span>
