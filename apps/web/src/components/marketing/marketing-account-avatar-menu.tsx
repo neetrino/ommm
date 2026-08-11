@@ -38,8 +38,15 @@ function useAvatarLogoutPopover(pathname: string, onAccountPage: boolean) {
   const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<MenuPosition | null>(null);
+  const [menuPathname, setMenuPathname] = useState(pathname);
   const hoverLogoutEnabled = useHoverLogoutEnabled();
   const dismissMenu = useCallback(() => setOpen(false), []);
+
+  if (menuPathname !== pathname) {
+    setMenuPathname(pathname);
+    setOpen(false);
+    setPosition(null);
+  }
 
   const measureAndOpen = useCallback(() => {
     clearTimeout(hideTimerRef.current);
@@ -63,9 +70,6 @@ function useAvatarLogoutPopover(pathname: string, onAccountPage: boolean) {
   }, [open, measureAndOpen]);
 
   useEffect(() => () => clearTimeout(hideTimerRef.current), []);
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
   useDismissLogoutMenu(open, onAccountPage, rootRef, popoverRef, dismissMenu);
 
   const hoverHandlers = hoverLogoutEnabled

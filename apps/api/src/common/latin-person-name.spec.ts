@@ -1,4 +1,7 @@
-import { isLatinPersonName, LATIN_PERSON_NAME_PATTERN } from './latin-person-name';
+import {
+  isLatinPersonName,
+  LATIN_PERSON_NAME_PATTERN,
+} from './latin-person-name';
 
 describe('latin person name', () => {
   it('accepts simple Latin names', () => {
