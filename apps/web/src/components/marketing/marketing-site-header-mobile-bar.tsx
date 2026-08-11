@@ -36,6 +36,7 @@ type MarketingSiteHeaderMobileBarProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   workspaceDrawerOpen: boolean;
   memberWorkspaceHeader: boolean;
+  memberAvatarProfileHref: string;
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
   account: MarketingHeaderAccount | null;
@@ -50,6 +51,7 @@ export function MarketingSiteHeaderMobileBar({
   workspaceDrawer,
   workspaceDrawerOpen,
   memberWorkspaceHeader,
+  memberAvatarProfileHref,
   showNotifications,
   notificationPreferencesHref,
   account,
@@ -113,15 +115,30 @@ export function MarketingSiteHeaderMobileBar({
           </button>
         ) : null}
         {memberWorkspaceHeader ? (
-          showNotifications ? (
-            <HeaderNotificationsMenu
-              enabled
-              preferencesHref={notificationPreferencesHref}
-              triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
-              iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
-              onNavigate={onCloseAllMenus}
-            />
-          ) : null
+          <>
+            {showNotifications ? (
+              <HeaderNotificationsMenu
+                enabled
+                preferencesHref={notificationPreferencesHref}
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                onNavigate={onCloseAllMenus}
+              />
+            ) : null}
+            {account ? (
+              <MarketingAccountAvatarMenu
+                initials={account.initials}
+                imageSrc={account.imageSrc}
+                displayName={account.displayName}
+                profileHref={memberAvatarProfileHref}
+                hardNavigate
+                triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                avatarClassName={navPillStyles.mobileHeaderAvatar}
+                guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
+                onAfterSelect={onCloseAllMenus}
+              />
+            ) : null}
+          </>
         ) : (
           <>
             {showNotifications ? (

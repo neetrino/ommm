@@ -131,6 +131,7 @@ export function MarketingSiteHeader({
             workspaceDrawer={workspaceDrawer}
             workspaceDrawerOpen={workspaceDrawerOpen}
             memberWorkspaceHeader={memberWorkspaceHeader}
+            memberAvatarProfileHref={memberAvatarProfileHref}
             showNotifications={showNotifications}
             notificationPreferencesHref={notificationPreferencesHref}
             account={account}

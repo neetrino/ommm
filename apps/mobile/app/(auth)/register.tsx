@@ -24,6 +24,7 @@ import {
   PSEUDO_LAST_NAME,
   PSEUDO_PHONE,
 } from "../../src/lib/pseudoFormPlaceholders";
+import { isLatinPersonName } from "../../src/lib/latinPersonName";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
@@ -64,6 +65,8 @@ export default function RegisterRoute() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [firstNameError, setFirstNameError] = useState<string | null>(null);
+  const [lastNameError, setLastNameError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const submitLockRef = useRef(false);
   const hasPlayedEntranceRef = useRef(false);
@@ -102,6 +105,8 @@ export default function RegisterRoute() {
 
   const onSubmit = useCallback(async () => {
     setFormError(null);
+    setFirstNameError(null);
+    setLastNameError(null);
     if (busy || submitLockRef.current) {
       return;
     }
@@ -109,11 +114,19 @@ export default function RegisterRoute() {
     const family = lastName.trim();
     const phoneTrim = phone.trim();
     if (given.length < 1) {
-      setFormError(tAuth("firstNameRequired"));
+      setFirstNameError(tAuth("firstNameRequired"));
+      return;
+    }
+    if (!isLatinPersonName(given)) {
+      setFirstNameError(tAuth("firstNameLatinOnly"));
       return;
     }
     if (family.length < 1) {
-      setFormError(tAuth("lastNameRequired"));
+      setLastNameError(tAuth("lastNameRequired"));
+      return;
+    }
+    if (!isLatinPersonName(family)) {
+      setLastNameError(tAuth("lastNameLatinOnly"));
       return;
     }
     if (phoneTrim.length < 1) {
@@ -191,28 +204,52 @@ export default function RegisterRoute() {
 
         <View style={styles.formSection}>
           <View style={styles.form}>
-            <TextInput
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder={PSEUDO_FIRST_NAME}
-              placeholderTextColor={colors.bodyMuted}
-              style={styles.input}
-              autoCapitalize="words"
-              autoCorrect={false}
-              textContentType="givenName"
-              accessibilityLabel={tAuth("firstName")}
-            />
-            <TextInput
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder={PSEUDO_LAST_NAME}
-              placeholderTextColor={colors.bodyMuted}
-              style={styles.input}
-              autoCapitalize="words"
-              autoCorrect={false}
-              textContentType="familyName"
-              accessibilityLabel={tAuth("lastName")}
-            />
+            <View style={styles.fieldBlock}>
+              <TextInput
+                value={firstName}
+                onChangeText={(value) => {
+                  setFirstName(value);
+                  if (firstNameError !== null) {
+                    setFirstNameError(null);
+                  }
+                }}
+                placeholder={PSEUDO_FIRST_NAME}
+                placeholderTextColor={colors.bodyMuted}
+                style={[styles.input, firstNameError ? styles.inputInvalid : null]}
+                autoCapitalize="words"
+                autoCorrect={false}
+                textContentType="givenName"
+                accessibilityLabel={tAuth("firstName")}
+              />
+              {firstNameError ? (
+                <Text style={styles.fieldError} accessibilityRole="alert">
+                  {firstNameError}
+                </Text>
+              ) : null}
+            </View>
+            <View style={styles.fieldBlock}>
+              <TextInput
+                value={lastName}
+                onChangeText={(value) => {
+                  setLastName(value);
+                  if (lastNameError !== null) {
+                    setLastNameError(null);
+                  }
+                }}
+                placeholder={PSEUDO_LAST_NAME}
+                placeholderTextColor={colors.bodyMuted}
+                style={[styles.input, lastNameError ? styles.inputInvalid : null]}
+                autoCapitalize="words"
+                autoCorrect={false}
+                textContentType="familyName"
+                accessibilityLabel={tAuth("lastName")}
+              />
+              {lastNameError ? (
+                <Text style={styles.fieldError} accessibilityRole="alert">
+                  {lastNameError}
+                </Text>
+              ) : null}
+            </View>
             <TextInput
               value={phone}
               onChangeText={(value) => setPhone(formatPhoneInput(value))}
@@ -327,6 +364,9 @@ const styles = StyleSheet.create({
     gap: space.md,
     marginTop: space.xs,
   },
+  fieldBlock: {
+    gap: space.xs,
+  },
   input: {
     borderRadius: radii.labelCard,
     borderWidth: StyleSheet.hairlineWidth * 2,
@@ -337,6 +377,16 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.body,
     color: colors.primaryGreen,
+  },
+  inputInvalid: {
+    borderColor: colors.danger,
+  },
+  fieldError: {
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: typography.caption,
+    lineHeight: 16,
+    color: colors.danger,
+    paddingHorizontal: space.xs,
   },
   formError: {
     fontFamily: fontFamilies.manrope.regular,

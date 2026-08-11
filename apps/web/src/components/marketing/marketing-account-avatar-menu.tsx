@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocale } from "next-intl";
 import { LogoutButton } from "@/components/logout-button";
-import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
-import { Link } from "@/i18n/navigation";
 import {
-  localizedWorkspaceHref,
-  WORKSPACE_ROUTE_PREFETCH,
-} from "@/lib/workspace-nav-link";
+  AvatarMenuTrigger,
+  isOnProfileRoute,
+  useDismissLogoutMenu,
+  useHoverLogoutEnabled,
+} from "@/components/marketing/marketing-account-avatar-menu-parts";
+import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
+import { usePathname } from "@/i18n/navigation";
 
 const HIDE_DELAY_MS = 300;
 const MENU_GAP_PX = 4;
 const MENU_Z_INDEX = 200;
-const HOVER_LOGOUT_MEDIA_QUERY = "(hover: hover) and (pointer: fine)";
 
 type MarketingAccountAvatarMenuProps = {
   initials: string;
@@ -31,21 +32,71 @@ type MarketingAccountAvatarMenuProps = {
 
 type MenuPosition = { top: number; left: number };
 
-function useHoverLogoutEnabled(): boolean {
-  const [enabled, setEnabled] = useState(false);
+function useAvatarLogoutPopover(pathname: string, onAccountPage: boolean) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState<MenuPosition | null>(null);
+  const [menuPathname, setMenuPathname] = useState(pathname);
+  const hoverLogoutEnabled = useHoverLogoutEnabled();
+  const dismissMenu = useCallback(() => setOpen(false), []);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(HOVER_LOGOUT_MEDIA_QUERY);
-    const update = (): void => setEnabled(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener("change", update);
-    return () => mediaQuery.removeEventListener("change", update);
+  if (menuPathname !== pathname) {
+    setMenuPathname(pathname);
+    setOpen(false);
+    setPosition(null);
+  }
+
+  const measureAndOpen = useCallback(() => {
+    clearTimeout(hideTimerRef.current);
+    const rect = rootRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
+    setPosition({
+      top: rect.bottom + MENU_GAP_PX,
+      left: rect.left + rect.width / 2,
+    });
+    setOpen(true);
   }, []);
 
-  return enabled;
+  const toggleMenuFromTap = useCallback(() => {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    measureAndOpen();
+  }, [open, measureAndOpen]);
+
+  useEffect(() => () => clearTimeout(hideTimerRef.current), []);
+  useDismissLogoutMenu(open, onAccountPage, rootRef, popoverRef, dismissMenu);
+
+  const hoverHandlers = hoverLogoutEnabled
+    ? {
+        onMouseEnter: () => measureAndOpen(),
+        onMouseLeave: () => {
+          hideTimerRef.current = setTimeout(() => setOpen(false), HIDE_DELAY_MS);
+        },
+      }
+    : {};
+
+  return {
+    open,
+    position,
+    rootRef,
+    popoverRef,
+    hoverHandlers,
+    toggleMenuFromTap,
+  };
 }
 
-/** Logged-in header avatar — tap navigates to account; desktop hover reveals logout. */
+/**
+ * Logged-in header avatar:
+ * - away from account → tap/click navigates to account;
+ * - on account → tap toggles logout under the avatar;
+ * - desktop hover also reveals logout anywhere.
+ */
 export function MarketingAccountAvatarMenu({
   initials,
   imageSrc,
@@ -58,43 +109,16 @@ export function MarketingAccountAvatarMenu({
   hardNavigate = false,
 }: MarketingAccountAvatarMenuProps) {
   const locale = useLocale();
-  const rootRef = useRef<HTMLDivElement>(null);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState<MenuPosition | null>(null);
-  const hoverLogoutEnabled = useHoverLogoutEnabled();
-
-  function openMenu() {
-    if (!hoverLogoutEnabled) {
-      return;
-    }
-    clearTimeout(hideTimerRef.current);
-    const rect = rootRef.current?.getBoundingClientRect();
-    if (!rect) {
-      return;
-    }
-    setPosition({
-      top: rect.bottom + MENU_GAP_PX,
-      left: rect.left + rect.width / 2,
-    });
-    setOpen(true);
-  }
-
-  function closeMenuSoon() {
-    if (!hoverLogoutEnabled) {
-      return;
-    }
-    hideTimerRef.current = setTimeout(() => setOpen(false), HIDE_DELAY_MS);
-  }
-
-  const hoverHandlers = hoverLogoutEnabled
-    ? {
-        onMouseEnter: openMenu,
-        onMouseLeave: closeMenuSoon,
-      }
-    : {};
-
-  useEffect(() => () => clearTimeout(hideTimerRef.current), []);
+  const pathname = usePathname() ?? "";
+  const onAccountPage = isOnProfileRoute(pathname, profileHref);
+  const {
+    open,
+    position,
+    rootRef,
+    popoverRef,
+    hoverHandlers,
+    toggleMenuFromTap,
+  } = useAvatarLogoutPopover(pathname, onAccountPage);
 
   const avatar = (
     <MemberProfileAvatar
@@ -108,32 +132,25 @@ export function MarketingAccountAvatarMenu({
   return (
     <>
       <div ref={rootRef} className="ommm-marketing-account-menu" {...hoverHandlers}>
-        {hardNavigate ? (
-          <a
-            href={localizedWorkspaceHref(locale, profileHref)}
-            className={triggerClassName}
-            aria-label={displayName}
-            onClick={() => onAfterSelect?.()}
-          >
-            {avatar}
-          </a>
-        ) : (
-          <Link
-            href={profileHref}
-            prefetch={WORKSPACE_ROUTE_PREFETCH}
-            scroll
-            className={triggerClassName}
-            aria-label={displayName}
-            onClick={() => onAfterSelect?.()}
-          >
-            {avatar}
-          </Link>
-        )}
+        <AvatarMenuTrigger
+          onAccountPage={onAccountPage}
+          hardNavigate={hardNavigate}
+          locale={locale}
+          profileHref={profileHref}
+          triggerClassName={triggerClassName}
+          displayName={displayName}
+          open={open}
+          avatar={avatar}
+          onToggleLogout={toggleMenuFromTap}
+          onAfterSelect={onAfterSelect}
+        />
       </div>
-      {hoverLogoutEnabled && open && position
+      {open && position
         ? createPortal(
             <div
+              ref={popoverRef}
               className="ommm-marketing-account-logout-popover"
+              role="menu"
               style={{
                 position: "fixed",
                 top: position.top,
