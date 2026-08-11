@@ -21,7 +21,7 @@ export type MarketingSiteHeaderProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
   workspaceHeaderChrome?: boolean;
-  /** Member workspace — mobile navbar shows bell only; tablet+ keeps bell, globe, and avatar. */
+  /** Member workspace — mobile navbar keeps bell + avatar (tap avatar for logout); tablet+ also keeps globe. */
   memberWorkspaceHeader?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
