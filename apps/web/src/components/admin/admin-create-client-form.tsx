@@ -14,6 +14,7 @@ import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { ApiError, apiFetch } from "@/lib/api";
+import { isLatinPersonName } from "@/lib/latin-person-name";
 import { normalizePhoneForApi } from "@/lib/phone";
 import {
   PSEUDO_BIRTHDAY,
@@ -71,8 +72,16 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
       setError(t("nameRequired"));
       return;
     }
+    if (!isLatinPersonName(nameRaw)) {
+      setError(t("nameLatinOnly"));
+      return;
+    }
     if (lastNameRaw.length === 0) {
       setError(t("lastNameRequired"));
+      return;
+    }
+    if (!isLatinPersonName(lastNameRaw)) {
+      setError(t("lastNameLatinOnly"));
       return;
     }
     if (!isValidEmail(emailRaw)) {

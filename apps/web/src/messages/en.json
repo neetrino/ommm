@@ -691,6 +691,8 @@
       "lastNameTooLong": "Last name is too long.",
       "firstNameRequired": "Please enter your first name.",
       "lastNameRequired": "Please enter your last name.",
+      "firstNameLatinOnly": "First name may only use Latin letters (A–Z).",
+      "lastNameLatinOnly": "Last name may only use Latin letters (A–Z).",
       "phoneRequired": "Please enter your phone number.",
       "invalidPhone": "Enter a valid phone number (8–15 digits).",
       "registerFailed": "Registration failed"
@@ -2029,6 +2031,8 @@
         "submitting": "Creating account…",
         "nameRequired": "First name is required.",
         "lastNameRequired": "Last name is required.",
+        "nameLatinOnly": "First name may only use Latin letters (A–Z).",
+        "lastNameLatinOnly": "Last name may only use Latin letters (A–Z).",
         "phoneRequired": "Phone number is required.",
         "phoneInvalid": "Enter a valid phone number.",
         "birthdayInvalid": "Enter a valid date of birth.",

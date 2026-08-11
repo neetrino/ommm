@@ -24,6 +24,7 @@ import {
   PSEUDO_LAST_NAME,
   PSEUDO_PHONE,
 } from "../../src/lib/pseudoFormPlaceholders";
+import { isLatinPersonName } from "../../src/lib/latinPersonName";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
@@ -112,8 +113,16 @@ export default function RegisterRoute() {
       setFormError(tAuth("firstNameRequired"));
       return;
     }
+    if (!isLatinPersonName(given)) {
+      setFormError(tAuth("firstNameLatinOnly"));
+      return;
+    }
     if (family.length < 1) {
       setFormError(tAuth("lastNameRequired"));
+      return;
+    }
+    if (!isLatinPersonName(family)) {
+      setFormError(tAuth("lastNameLatinOnly"));
       return;
     }
     if (phoneTrim.length < 1) {

@@ -16,6 +16,7 @@ import {
   isValidPhone,
   normalizePhoneForApi,
 } from "@/lib/phone";
+import { isLatinPersonName } from "@/lib/latin-person-name";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 import {
@@ -69,8 +70,16 @@ function RegisterForm() {
       setError(tAuth("firstNameRequired"));
       return;
     }
+    if (!isLatinPersonName(firstNameRaw)) {
+      setError(tAuth("firstNameLatinOnly"));
+      return;
+    }
     if (lastNameRaw.length === 0) {
       setError(tAuth("lastNameRequired"));
+      return;
+    }
+    if (!isLatinPersonName(lastNameRaw)) {
+      setError(tAuth("lastNameLatinOnly"));
       return;
     }
     if (phoneRaw.length === 0) {
