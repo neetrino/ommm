@@ -13,6 +13,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { ClassesSessionCancelCascadeService } from './classes-session-cancel-cascade.service';
 import {
   ADMIN_SESSION_INCLUDE,
   assertTimeRange,
@@ -46,6 +47,7 @@ export class ClassesSessionsAdminService {
     private readonly typesService: ClassesTypesService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
+    private readonly cancelCascade: ClassesSessionCancelCascadeService,
   ) {}
 
   async listSessionsAdmin(
@@ -197,6 +199,10 @@ export class ClassesSessionsAdminService {
     const recurrence = buildRecurrencePayloadForUpdate(dto, existing);
     assertTimeRange(startsAt, endsAt);
 
+    const becomingCancelled =
+      dto.status === ClassSessionStatus.CANCELLED &&
+      existing.status !== ClassSessionStatus.CANCELLED;
+
     await this.prisma.classSession.update({
       where: { id },
       data: {
@@ -229,6 +235,9 @@ export class ClassesSessionsAdminService {
         recurrenceCount: recurrence.recurrenceCount,
       },
     });
+    if (becomingCancelled) {
+      await this.cancelCascade.apply(id);
+    }
     await this.invalidatePublicScheduleAndEmit(id);
     return this.findSessionAdminOrThrow(id);
   }
@@ -240,6 +249,9 @@ export class ClassesSessionsAdminService {
       where: { id },
       data: { status },
     });
+    if (status === ClassSessionStatus.CANCELLED) {
+      await this.cancelCascade.apply(id);
+    }
     await this.invalidatePublicScheduleAndEmit(id);
     return this.findSessionAdminOrThrow(id);
   }

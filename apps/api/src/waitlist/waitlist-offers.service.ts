@@ -116,6 +116,30 @@ export class WaitlistOffersService {
     );
   }
 
+  /** Drops open waitlist rows when admin cancels the class. */
+  async expireForCancelledSession(sessionId: string): Promise<void> {
+    const open = await this.prisma.waitlistEntry.findMany({
+      where: {
+        sessionId,
+        status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
+      },
+      select: { userId: true },
+    });
+    if (open.length === 0) {
+      return;
+    }
+    await this.prisma.waitlistEntry.updateMany({
+      where: {
+        sessionId,
+        status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
+      },
+      data: { status: WaitlistStatus.EXPIRED },
+    });
+    for (const entry of open) {
+      this.realtime.emitWaitlistChanged(entry.userId, sessionId);
+    }
+  }
+
   private isEnabledEnv(raw: string | undefined): boolean {
     if (!raw) {
       return false;

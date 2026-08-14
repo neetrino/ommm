@@ -63,4 +63,38 @@ export class BookingsSlotService {
     });
     await this.waitlist.offerNextIfSlot(booking.sessionId);
   }
+
+  /**
+   * Admin cancelled the class: cancel remaining bookings and restore package
+   * sessions without the 24-hour member penalty.
+   */
+  async releaseRegistrationsForAdminCancelledSession(
+    sessionId: string,
+  ): Promise<string[]> {
+    const bookings = await this.prisma.booking.findMany({
+      where: { sessionId },
+      include: {
+        session: { select: { priceCents: true, sessionRequirement: true } },
+      },
+    });
+    const affectedUserIds: string[] = [];
+    for (const booking of bookings) {
+      if (booking.status === BookingStatus.BOOKED) {
+        await this.releaseSlot(booking, { applyPenalty: false });
+        affectedUserIds.push(booking.userId);
+        continue;
+      }
+      if (booking.status !== BookingStatus.CANCELLED) {
+        continue;
+      }
+      await this.prisma.$transaction(async (tx) => {
+        await this.packageUsage.restoreSession({
+          tx,
+          bookingId: booking.id,
+        });
+      });
+      affectedUserIds.push(booking.userId);
+    }
+    return affectedUserIds;
+  }
 }
