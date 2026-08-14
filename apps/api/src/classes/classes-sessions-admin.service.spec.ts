@@ -107,7 +107,7 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
       cancelCascade as never,
     );
 
-    await service.updateSessionStatus('session-1', 'CANCELLED' as never);
+    await service.updateSessionStatus('session-1', 'CANCELLED');
     expect(cancelCascade.apply).toHaveBeenCalledWith('session-1');
   });
 
@@ -139,7 +139,7 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
       cancelCascade as never,
     );
 
-    await service.updateSessionStatus('session-1', 'ACTIVE' as never);
+    await service.updateSessionStatus('session-1', 'ACTIVE');
     expect(cancelCascade.apply).not.toHaveBeenCalled();
   });
 
@@ -179,4 +179,3 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
     expect(cancelCascade.apply).toHaveBeenCalledWith('session-1');
   });
 });
-

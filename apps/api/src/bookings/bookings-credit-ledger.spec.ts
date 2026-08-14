@@ -103,7 +103,7 @@ describe('BookingsSlotService package credit release', () => {
 
 describe('BookingsSlotService.releaseRegistrationsForAdminCancelledSession', () => {
   it('cancels booked rows without penalty and restores already cancelled rows', async () => {
-    const { service, packageUsage, prisma } = createSlotServiceAndDeps();
+    const { service, packageUsage, prisma, tx } = createSlotServiceAndDeps();
     const booked = {
       id: 'booking-booked',
       userId: 'user-booked',
@@ -130,7 +130,7 @@ describe('BookingsSlotService.releaseRegistrationsForAdminCancelledSession', () 
 
     expect(releaseSlot).toHaveBeenCalledWith(booked, { applyPenalty: false });
     expect(packageUsage.restoreSession).toHaveBeenCalledWith({
-      tx: expect.anything(),
+      tx,
       bookingId: cancelled.id,
     });
     expect(userIds).toEqual(['user-booked', 'user-cancelled']);
