@@ -53,6 +53,10 @@ export class WaitlistService {
     return this.offers.offerNextIfSlot(sessionId);
   }
 
+  expireForCancelledSession(sessionId: string) {
+    return this.offers.expireForCancelledSession(sessionId);
+  }
+
   expireOffersCron() {
     return this.offers.expireOffersCron();
   }

@@ -100,3 +100,71 @@ describe('BookingsSlotService package credit release', () => {
     expect(packageUsage.restoreSession).not.toHaveBeenCalled();
   });
 });
+
+describe('BookingsSlotService.releaseRegistrationsForAdminCancelledSession', () => {
+  it('cancels booked rows without penalty and restores already cancelled rows', async () => {
+    const { service, packageUsage, prisma } = createSlotServiceAndDeps();
+    const booked = {
+      id: 'booking-booked',
+      userId: 'user-booked',
+      sessionId: 'session-1',
+      status: BookingStatus.BOOKED,
+      session: { priceCents: 0, sessionRequirement: null },
+    };
+    const cancelled = {
+      id: 'booking-cancelled',
+      userId: 'user-cancelled',
+      sessionId: 'session-1',
+      status: BookingStatus.CANCELLED,
+      session: { priceCents: 0, sessionRequirement: null },
+    };
+    prisma.booking = {
+      findMany: jest.fn().mockResolvedValue([booked, cancelled]),
+    };
+    const releaseSlot = jest
+      .spyOn(service, 'releaseSlot')
+      .mockResolvedValue(undefined);
+
+    const userIds =
+      await service.releaseRegistrationsForAdminCancelledSession('session-1');
+
+    expect(releaseSlot).toHaveBeenCalledWith(booked, { applyPenalty: false });
+    expect(packageUsage.restoreSession).toHaveBeenCalledWith({
+      tx: expect.anything(),
+      bookingId: cancelled.id,
+    });
+    expect(userIds).toEqual(['user-booked', 'user-cancelled']);
+  });
+
+  it('skips completed and missed bookings', async () => {
+    const { service, packageUsage, prisma } = createSlotServiceAndDeps();
+    prisma.booking = {
+      findMany: jest.fn().mockResolvedValue([
+        {
+          id: 'booking-done',
+          userId: 'user-done',
+          sessionId: 'session-1',
+          status: BookingStatus.COMPLETED,
+          session: { priceCents: 0, sessionRequirement: null },
+        },
+        {
+          id: 'booking-missed',
+          userId: 'user-missed',
+          sessionId: 'session-1',
+          status: BookingStatus.MISSED,
+          session: { priceCents: 0, sessionRequirement: null },
+        },
+      ]),
+    };
+    const releaseSlot = jest
+      .spyOn(service, 'releaseSlot')
+      .mockResolvedValue(undefined);
+
+    const userIds =
+      await service.releaseRegistrationsForAdminCancelledSession('session-1');
+
+    expect(releaseSlot).not.toHaveBeenCalled();
+    expect(packageUsage.restoreSession).not.toHaveBeenCalled();
+    expect(userIds).toEqual([]);
+  });
+});

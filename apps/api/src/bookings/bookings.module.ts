@@ -25,6 +25,10 @@ import { BookingsStatusTransitionService } from './bookings-status-transition.se
     BookingsSlotService,
     BookingsStatusTransitionService,
   ],
-  exports: [BookingsService, BookingsStatusTransitionService],
+  exports: [
+    BookingsService,
+    BookingsStatusTransitionService,
+    BookingsSlotService,
+  ],
 })
 export class BookingsModule {}

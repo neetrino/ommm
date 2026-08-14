@@ -24,6 +24,7 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
       {} as never,
       schedule as never,
       realtime as never,
+      {} as never,
     );
     return { service, deleteFn };
   }
@@ -76,3 +77,106 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
     expect(deleteFn).not.toHaveBeenCalled();
   });
 });
+
+describe('ClassesSessionsAdminService.updateSessionStatus', () => {
+  it('cascades member release when status becomes CANCELLED', async () => {
+    const cancelCascade = { apply: jest.fn().mockResolvedValue(undefined) };
+    const schedule = {
+      invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+    };
+    const realtime = { emitPublicScheduleSession: jest.fn() };
+    const prisma = {
+      classSession: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: 'session-1', status: 'ACTIVE' })
+          .mockResolvedValueOnce({
+            id: 'session-1',
+            status: 'CANCELLED',
+            capacity: 6,
+            _count: { bookings: 0 },
+          }),
+        update: jest.fn().mockResolvedValue(undefined),
+      },
+    };
+    const service = new ClassesSessionsAdminService(
+      prisma as never,
+      {} as never,
+      schedule as never,
+      realtime as never,
+      cancelCascade as never,
+    );
+
+    await service.updateSessionStatus('session-1', 'CANCELLED' as never);
+    expect(cancelCascade.apply).toHaveBeenCalledWith('session-1');
+  });
+
+  it('does not cascade when activating a session', async () => {
+    const cancelCascade = { apply: jest.fn().mockResolvedValue(undefined) };
+    const schedule = {
+      invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+    };
+    const realtime = { emitPublicScheduleSession: jest.fn() };
+    const prisma = {
+      classSession: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: 'session-1', status: 'CANCELLED' })
+          .mockResolvedValueOnce({
+            id: 'session-1',
+            status: 'ACTIVE',
+            capacity: 6,
+            _count: { bookings: 0 },
+          }),
+        update: jest.fn().mockResolvedValue(undefined),
+      },
+    };
+    const service = new ClassesSessionsAdminService(
+      prisma as never,
+      {} as never,
+      schedule as never,
+      realtime as never,
+      cancelCascade as never,
+    );
+
+    await service.updateSessionStatus('session-1', 'ACTIVE' as never);
+    expect(cancelCascade.apply).not.toHaveBeenCalled();
+  });
+
+  it('cancelSession uses the same cascade as status CANCELLED', async () => {
+    const cancelCascade = { apply: jest.fn().mockResolvedValue(undefined) };
+    const schedule = {
+      invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+    };
+    const realtime = { emitPublicScheduleSession: jest.fn() };
+    const prisma = {
+      classSession: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: 'session-1', status: 'ACTIVE' })
+          .mockResolvedValueOnce({
+            id: 'session-1',
+            status: 'CANCELLED',
+            capacity: 6,
+            _count: { bookings: 0 },
+          }),
+        update: jest.fn().mockResolvedValue(undefined),
+      },
+    };
+    const service = new ClassesSessionsAdminService(
+      prisma as never,
+      {} as never,
+      schedule as never,
+      realtime as never,
+      cancelCascade as never,
+    );
+
+    await service.cancelSession('session-1');
+    expect(prisma.classSession.update).toHaveBeenCalledWith({
+      where: { id: 'session-1' },
+      data: { status: 'CANCELLED' },
+    });
+    expect(cancelCascade.apply).toHaveBeenCalledWith('session-1');
+  });
+});
+

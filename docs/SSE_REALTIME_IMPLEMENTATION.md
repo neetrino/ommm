@@ -250,7 +250,7 @@ Inject `RealtimePublisherService` into services below. Call **only after** succe
 
 | File | Method | Events |
 |------|--------|--------|
-| `classes/classes.service.ts` | `createSession`, `updateSession`, `updateSessionStatus`, `cancelSession`, `deleteSession` | `session.changed`, `schedule.invalidate` |
+| `classes/classes.service.ts` | `createSession`, `updateSession`, `updateSessionStatus`, `cancelSession`, `deleteSession` | `session.changed`, `schedule.invalidate`; admin cancel also emits `booking.changed` per affected member and `waitlist.changed` for open waitlist rows | Admin class cancel restores package sessions (no 24h penalty) |
 | `schedule/schedule.service.ts` | `create`, `update`, `delete` (marketing items) | `schedule.invalidate` |
 | `waitlist/waitlist.service.ts` | `remove`, `manualNotify` | `waitlist.changed` |
 
