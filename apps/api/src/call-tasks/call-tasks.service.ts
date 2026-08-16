@@ -14,6 +14,7 @@ import { toCallTaskDto } from './call-tasks.mapper';
 import type { CreateCallTaskDto } from './dto/create-call-task.dto';
 import type {
   CallTaskListOrder,
+  CallTaskListStatus,
   ListCallTasksQueryDto,
 } from './dto/list-call-tasks-query.dto';
 import type { UpdateCallTaskDto } from './dto/update-call-task.dto';
@@ -117,9 +118,25 @@ export class CallTasksService {
         }
       : {};
     return {
-      ...(query.status ? { status: query.status } : {}),
+      ...this.statusWhere(query.status),
       ...search,
     };
+  }
+
+  private statusWhere(
+    status: CallTaskListStatus | undefined,
+  ): Prisma.CallTaskWhereInput {
+    const cutoff = dueOnFilterCutoff();
+    if (status === 'OVERDUE') {
+      return { status: CallTaskStatus.PENDING, dueOn: { lt: cutoff } };
+    }
+    if (status === 'PENDING') {
+      return { status: CallTaskStatus.PENDING, dueOn: { gte: cutoff } };
+    }
+    if (status === 'DONE' || status === 'CANCELLED') {
+      return { status };
+    }
+    return {};
   }
 
   private listOrderBy(

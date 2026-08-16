@@ -15,7 +15,8 @@ describe("parseCallTaskListStatus", () => {
     assert.equal(parseCallTaskListStatus("all"), "");
   });
 
-  it("keeps DONE and CANCELLED", () => {
+  it("keeps OVERDUE, DONE and CANCELLED", () => {
+    assert.equal(parseCallTaskListStatus("OVERDUE"), "OVERDUE");
     assert.equal(parseCallTaskListStatus("DONE"), "DONE");
     assert.equal(parseCallTaskListStatus("CANCELLED"), "CANCELLED");
     assert.equal(parseCallTaskListStatus(["DONE"]), "DONE");
@@ -28,8 +29,8 @@ describe("buildCallTasksListEndpoint", () => {
     assert.equal(url.includes("status="), false);
   });
 
-  it("sends DONE when filtering called tasks", () => {
-    const url = buildCallTasksListEndpoint({ take: 20, offset: 0, status: "DONE" });
-    assert.equal(url.includes("status=DONE"), true);
+  it("sends OVERDUE when filtering overdue tasks", () => {
+    const url = buildCallTasksListEndpoint({ take: 20, offset: 0, status: "OVERDUE" });
+    assert.equal(url.includes("status=OVERDUE"), true);
   });
 });

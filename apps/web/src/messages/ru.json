@@ -1814,6 +1814,7 @@
       "statusAll": "Все статусы",
       "status": {
         "PENDING": "Ожидает",
+        "OVERDUE": "Просрочено",
         "DONE": "Позвонили",
         "CANCELLED": "Отменён"
       }

@@ -1,4 +1,11 @@
 export type CallTaskStatus = "PENDING" | "DONE" | "CANCELLED";
+export type CallTaskListFilter = CallTaskStatus | "OVERDUE";
+export const CALL_TASK_LIST_FILTERS: readonly CallTaskListFilter[] = [
+  "PENDING",
+  "OVERDUE",
+  "DONE",
+  "CANCELLED",
+];
 
 export const CALL_TASK_STATUS_QUERY_KEY = "status";
 export const CALL_TASK_SEARCH_QUERY_KEY = "q";
@@ -13,10 +20,10 @@ export function firstQueryValue(
   return value;
 }
 
-/** Missing param → PENDING (default queue). `all` → no API status filter. */
+/** Missing param → PENDING (not overdue). `all` → no API status filter. */
 export function parseCallTaskListStatus(
   value: string | readonly string[] | undefined,
-): CallTaskStatus | "" {
+): CallTaskListFilter | "" {
   const raw = firstQueryValue(value)?.trim();
   if (raw === undefined || raw.length === 0) {
     return "PENDING";
@@ -24,13 +31,13 @@ export function parseCallTaskListStatus(
   if (raw === CALL_TASK_STATUS_ALL_QUERY_VALUE) {
     return "";
   }
-  if (raw === "PENDING" || raw === "DONE" || raw === "CANCELLED") {
-    return raw;
+  if (CALL_TASK_LIST_FILTERS.includes(raw as CallTaskListFilter)) {
+    return raw as CallTaskListFilter;
   }
   return "PENDING";
 }
 
-export function callTaskStatusToQueryValue(status: CallTaskStatus | ""): string {
+export function callTaskStatusToQueryValue(status: CallTaskListFilter | ""): string {
   return status.length > 0 ? status : CALL_TASK_STATUS_ALL_QUERY_VALUE;
 }
 
@@ -67,7 +74,7 @@ export function buildCallTasksListEndpoint(params: {
   take: number;
   offset: number;
   q?: string;
-  status?: CallTaskStatus | "";
+  status?: CallTaskListFilter | "";
 }): string {
   const search = new URLSearchParams({
     take: String(params.take),
