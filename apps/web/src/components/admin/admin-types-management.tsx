@@ -178,7 +178,14 @@ export function AdminTypesManagement({
 
   return (
     <div className={embedded ? "flex h-full min-h-0 flex-col gap-5" : "space-y-5"}>
-      {embedded ? searchField : (
+      {embedded ? (
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="min-w-0 flex-1">{searchField}</div>
+          <OmmButton type="button" variant="primary" size="sm" className="shrink-0" disabled={pending} onClick={startCreate}>
+            {t("addButton")}
+          </OmmButton>
+        </div>
+      ) : (
         <AdminPageHero title={t("modalTitle")} search={searchField} />
       )}
 
@@ -261,14 +268,7 @@ export function AdminTypesManagement({
               ) : null}
             </div>
             {selected ? (
-              <OmmButton
-                type="button"
-                variant="danger"
-                size="sm"
-                className="sm:ms-auto"
-                disabled={pending}
-                onClick={() => setDeleteConfirmOpen(true)}
-              >
+              <OmmButton type="button" variant="danger" size="sm" className="sm:ms-auto" disabled={pending} onClick={() => setDeleteConfirmOpen(true)}>
                 {t("deleteButton")}
               </OmmButton>
             ) : null}

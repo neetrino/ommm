@@ -2532,7 +2532,7 @@
       "classTypes": {
         "modalTitle": "Class types",
         "modalBackdropClose": "Close dialog",
-        "addButton": "Add type",
+        "addButton": "Add class type",
         "emptyTitle": "No class types yet",
         "formCreateTitle": "New class type",
         "formEditTitle": "Edit class type",
