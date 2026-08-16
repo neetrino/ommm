@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 
 export type AdminClassTypeRow = {
@@ -51,6 +52,7 @@ export function AdminTypesManagement({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyFormState);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   if (prevInitialTypes !== initialTypes) {
     setPrevInitialTypes(initialTypes);
@@ -85,6 +87,7 @@ export function AdminTypesManagement({
     setForm({ name: row.name });
     setError(null);
     setSuccess(null);
+    setDeleteConfirmOpen(false);
   }
 
   function startCreate(): void {
@@ -92,6 +95,7 @@ export function AdminTypesManagement({
     setForm(emptyFormState());
     setError(null);
     setSuccess(null);
+    setDeleteConfirmOpen(false);
   }
 
   async function submitForm(): Promise<void> {
@@ -152,6 +156,7 @@ export function AdminTypesManagement({
       commitRows(rows.filter((row) => row.id !== selectedId));
       setSelectedId(null);
       setForm(emptyFormState());
+      setDeleteConfirmOpen(false);
       setSuccess(t("messages.deleteSuccess"));
     } catch (requestError) {
       setError(
@@ -253,13 +258,39 @@ export function AdminTypesManagement({
               </OmmButton>
             ) : null}
             {selected ? (
-              <OmmButton type="button" variant="danger" disabled={pending} onClick={() => void deleteSelected()}>
+              <OmmButton
+                type="button"
+                variant="danger"
+                disabled={pending}
+                onClick={() => setDeleteConfirmOpen(true)}
+              >
                 {t("deleteButton")}
               </OmmButton>
             ) : null}
           </div>
         </form>
       </div>
+
+      <OmmConfirmDialog
+        isOpen={deleteConfirmOpen && selected !== null}
+        title={t("deleteDialog.title")}
+        description={t("deleteDialog.description", { name: selected?.name ?? "" })}
+        confirmLabel={pending ? t("deleteDialog.deletingButton") : t("deleteDialog.confirmButton")}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone="danger"
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        overlayClassName="ommm-modal-overlay z-[120] p-4"
+        pending={pending}
+        onConfirm={() => {
+          void deleteSelected();
+        }}
+        onCancel={() => setDeleteConfirmOpen(false)}
+      >
+        <p className="rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-900">
+          {t("deleteDialog.warning")}
+        </p>
+      </OmmConfirmDialog>
     </div>
   );
 }

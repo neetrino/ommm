@@ -2545,9 +2545,11 @@
         "linkedSessionsHint": "{count} scheduled classes use this type. Reassign or remove them before deleting.",
         "deleteButton": "Delete",
         "deleteDialog": {
-          "title": "Delete class type",
-          "description": "Delete \"{name}\" from the catalog? This cannot be undone.",
-          "warning": "Deleting a type only works when no class sessions use it. Existing sessions keep their type until you change or remove them."
+          "title": "Remove from catalog?",
+          "description": "“{name}” will leave this list. Existing classes and package credits keep working.",
+          "warning": "You will not be able to assign this type to new sessions or package plans.",
+          "confirmButton": "Remove from catalog",
+          "deletingButton": "Removing…"
         },
         "deleteBlocked": "Cannot delete — {count} classes are linked to this type.",
         "loadErrorTitle": "Could not load class types",
@@ -2575,7 +2577,7 @@
         "messages": {
           "createSuccess": "Class type created.",
           "updateSuccess": "Class type updated.",
-          "deleteSuccess": "Class type deleted.",
+          "deleteSuccess": "Class type removed from the catalog.",
           "genericError": "Action failed."
         }
       },
