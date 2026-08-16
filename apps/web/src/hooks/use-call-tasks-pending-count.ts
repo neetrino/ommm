@@ -25,7 +25,9 @@ export function useCallTasksPendingCount(enabled: boolean): number {
     if (!enabled) {
       return undefined;
     }
-    void refetch();
+    queueMicrotask(() => {
+      void refetch();
+    });
     function onRefresh() {
       void refetch();
     }

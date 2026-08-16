@@ -105,7 +105,9 @@ export function AdminCallTasksManagement({
   }, [listPage.offset, listPage.take, setPayload, statusFilter, t, urlQuery]);
 
   useEffect(() => {
-    void loadRows();
+    queueMicrotask(() => {
+      void loadRows();
+    });
   }, [loadRows]);
 
   async function runRowAction(

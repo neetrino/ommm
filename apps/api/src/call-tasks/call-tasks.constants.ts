@@ -6,4 +6,3 @@ export const CALL_TASK_DUE_ON_MESSAGE = 'dueOn must be YYYY-MM-DD';
 export const CallTaskDueOnMatches = Matches(CALL_TASK_DUE_ON_PATTERN, {
   message: CALL_TASK_DUE_ON_MESSAGE,
 });
-

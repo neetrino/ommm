@@ -36,7 +36,9 @@ export function useCallTasksDue(enabled: boolean): {
     if (!enabled) {
       return undefined;
     }
-    void refetch();
+    queueMicrotask(() => {
+      void refetch();
+    });
     function onRefresh() {
       void refetch();
     }

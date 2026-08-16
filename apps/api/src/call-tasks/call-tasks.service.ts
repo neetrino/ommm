@@ -5,9 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CallTaskStatus, Prisma } from '@prisma/client';
-import {
-  DEFAULT_LIST_PAGE_SIZE,
-} from '../common/dto/list-pagination-query.dto';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { dueOnFilterCutoff, parseCallTaskDueOn } from './call-tasks-due.util';
 import { callTaskListIdsQuery } from './call-tasks-list-ids.query';
@@ -43,7 +41,12 @@ export class CallTasksService {
       const row = byId.get(id);
       return row ? [row] : [];
     });
-    return { items: rows.map((row) => toCallTaskDto(row)), total, take, offset };
+    return {
+      items: rows.map((row) => toCallTaskDto(row)),
+      total,
+      take,
+      offset,
+    };
   }
 
   async listDue() {
@@ -111,12 +114,16 @@ export class CallTasksService {
     return toCallTaskDto(row);
   }
 
-  private buildListWhere(query: ListCallTasksQueryDto): Prisma.CallTaskWhereInput {
+  private buildListWhere(
+    query: ListCallTasksQueryDto,
+  ): Prisma.CallTaskWhereInput {
     const q = query.q?.trim();
     const search = q
       ? {
           OR: [
-            { contactName: { contains: q, mode: Prisma.QueryMode.insensitive } },
+            {
+              contactName: { contains: q, mode: Prisma.QueryMode.insensitive },
+            },
             { phone: { contains: q, mode: Prisma.QueryMode.insensitive } },
             { comment: { contains: q, mode: Prisma.QueryMode.insensitive } },
           ],
@@ -151,9 +158,14 @@ export class CallTasksService {
         : {}),
       ...(dto.phone !== undefined ? { phone: dto.phone.trim() } : {}),
       ...(dto.comment !== undefined ? { comment: dto.comment.trim() } : {}),
-      ...(dto.dueOn !== undefined ? { dueOn: parseCallTaskDueOn(dto.dueOn) } : {}),
+      ...(dto.dueOn !== undefined
+        ? { dueOn: parseCallTaskDueOn(dto.dueOn) }
+        : {}),
       ...(dto.userId !== undefined
-        ? { userId: dto.userId === '' || dto.userId === null ? null : dto.userId }
+        ? {
+            userId:
+              dto.userId === '' || dto.userId === null ? null : dto.userId,
+          }
         : {}),
     };
   }

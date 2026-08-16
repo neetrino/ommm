@@ -18,7 +18,10 @@ export type CallTaskDto = {
   isDueToday: boolean;
 };
 
-export function toCallTaskDto(row: CallTask, now: Date = new Date()): CallTaskDto {
+export function toCallTaskDto(
+  row: CallTask,
+  now: Date = new Date(),
+): CallTaskDto {
   const flags = callTaskDueFlags(row.dueOn, now);
   return {
     id: row.id,

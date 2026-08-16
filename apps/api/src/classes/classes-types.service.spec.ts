@@ -35,10 +35,12 @@ describe('ClassesTypesService archive catalog delete', () => {
     await expect(service.deleteType('ct-1')).resolves.toBeUndefined();
 
     expect(prisma.classType.delete).not.toHaveBeenCalled();
-    expect(prisma.classType.update).toHaveBeenCalledWith({
-      where: { id: 'ct-1' },
-      data: { archivedAt: expect.any(Date) },
-    });
+    expect(prisma.classType.update).toHaveBeenCalledTimes(1);
+    const updateArgs = prisma.classType.update.mock.calls[0] as
+      | [{ where: { id: string }; data: { archivedAt: Date } }]
+      | undefined;
+    expect(updateArgs?.[0].where).toEqual({ id: 'ct-1' });
+    expect(updateArgs?.[0].data.archivedAt).toBeInstanceOf(Date);
   });
 
   it('is idempotent when the type is already archived', async () => {
@@ -70,14 +72,16 @@ describe('ClassesTypesService archive catalog delete', () => {
 
   it('assertClassTypeExists still accepts archived types so bookings keep the id', async () => {
     prisma.classType.findUnique.mockResolvedValue({ id: 'ct-1' });
-    await expect(service.assertClassTypeExists('ct-1')).resolves.toBeUndefined();
+    await expect(
+      service.assertClassTypeExists('ct-1'),
+    ).resolves.toBeUndefined();
   });
 
   it('assertClassTypeAssignable rejects archived types for new sessions', async () => {
     prisma.classType.findFirst.mockResolvedValue(null);
-    await expect(service.assertClassTypeAssignable('ct-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.assertClassTypeAssignable('ct-1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(prisma.classType.findFirst).toHaveBeenCalledWith({
       where: { id: 'ct-1', archivedAt: null },
       select: { id: true },
