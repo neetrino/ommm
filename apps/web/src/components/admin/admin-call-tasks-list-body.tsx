@@ -44,7 +44,7 @@ export function AdminCallTasksListBody({
           <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colPhone")}</span>
           <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colDue")}</span>
           <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colComment")}</span>
-          <span aria-hidden="true" />
+          <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colStatus")}</span>
           <span className={ADMIN_CALL_TASKS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         </div>
         {rows.map((row) => (
