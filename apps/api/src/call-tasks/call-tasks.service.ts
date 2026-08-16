@@ -10,10 +10,10 @@ import {
 } from '../common/dto/list-pagination-query.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { dueOnFilterCutoff, parseCallTaskDueOn } from './call-tasks-due.util';
+import { callTaskListIdsQuery } from './call-tasks-list-ids.query';
 import { toCallTaskDto } from './call-tasks.mapper';
 import type { CreateCallTaskDto } from './dto/create-call-task.dto';
 import type {
-  CallTaskListOrder,
   CallTaskListStatus,
   ListCallTasksQueryDto,
 } from './dto/list-call-tasks-query.dto';
@@ -29,15 +29,20 @@ export class CallTasksService {
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
     const where = this.buildListWhere(query);
-    const [total, rows] = await this.prisma.$transaction([
+    const [total, idRows] = await this.prisma.$transaction([
       this.prisma.callTask.count({ where }),
-      this.prisma.callTask.findMany({
-        where,
-        orderBy: this.listOrderBy(query.order),
-        take,
-        skip: offset,
-      }),
+      this.prisma.$queryRaw<{ id: string }[]>(callTaskListIdsQuery(query)),
     ]);
+    const ids = idRows.map((row) => row.id);
+    const unordered =
+      ids.length === 0
+        ? []
+        : await this.prisma.callTask.findMany({ where: { id: { in: ids } } });
+    const byId = new Map(unordered.map((row) => [row.id, row]));
+    const rows = ids.flatMap((id) => {
+      const row = byId.get(id);
+      return row ? [row] : [];
+    });
     return { items: rows.map((row) => toCallTaskDto(row)), total, take, offset };
   }
 
@@ -137,18 +142,6 @@ export class CallTasksService {
       return { status };
     }
     return {};
-  }
-
-  private listOrderBy(
-    order: CallTaskListOrder | undefined,
-  ): Prisma.CallTaskOrderByWithRelationInput[] {
-    if (order === 'due-desc') {
-      return [{ dueOn: 'desc' }, { createdAt: 'desc' }];
-    }
-    if (order === 'newest') {
-      return [{ createdAt: 'desc' }];
-    }
-    return [{ dueOn: 'asc' }, { createdAt: 'asc' }];
   }
 
   private buildUpdateData(dto: UpdateCallTaskDto): Prisma.CallTaskUpdateInput {

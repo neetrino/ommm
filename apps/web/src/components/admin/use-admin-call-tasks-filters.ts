@@ -75,9 +75,9 @@ export function useAdminCallTasksFilters() {
       const nextStatus: CallTaskListFilter | "" =
         value === "" || value === CALL_TASK_STATUS_ALL_QUERY_VALUE
           ? ""
-          : CALL_TASK_LIST_FILTERS.includes(value as CallTaskListFilter)
+            : CALL_TASK_LIST_FILTERS.includes(value as CallTaskListFilter)
             ? (value as CallTaskListFilter)
-            : "PENDING";
+            : "";
       replaceSearchParams((params) => {
         resetListPageQuery(params);
         params.set(CALL_TASK_STATUS_QUERY_KEY, callTaskStatusToQueryValue(nextStatus));

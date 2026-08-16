@@ -6,9 +6,9 @@ import {
 } from "./admin-call-tasks-query";
 
 describe("parseCallTaskListStatus", () => {
-  it("defaults missing or empty to PENDING", () => {
-    assert.equal(parseCallTaskListStatus(undefined), "PENDING");
-    assert.equal(parseCallTaskListStatus(""), "PENDING");
+  it("defaults missing or empty to all statuses", () => {
+    assert.equal(parseCallTaskListStatus(undefined), "");
+    assert.equal(parseCallTaskListStatus(""), "");
   });
 
   it("maps all to an empty API status", () => {

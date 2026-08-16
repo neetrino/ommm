@@ -20,13 +20,13 @@ export function firstQueryValue(
   return value;
 }
 
-/** Missing param → PENDING (not overdue). `all` → no API status filter. */
+/** Missing param or `all` → no API status filter. */
 export function parseCallTaskListStatus(
   value: string | readonly string[] | undefined,
 ): CallTaskListFilter | "" {
   const raw = firstQueryValue(value)?.trim();
   if (raw === undefined || raw.length === 0) {
-    return "PENDING";
+    return "";
   }
   if (raw === CALL_TASK_STATUS_ALL_QUERY_VALUE) {
     return "";
@@ -34,7 +34,7 @@ export function parseCallTaskListStatus(
   if (CALL_TASK_LIST_FILTERS.includes(raw as CallTaskListFilter)) {
     return raw as CallTaskListFilter;
   }
-  return "PENDING";
+  return "";
 }
 
 export function callTaskStatusToQueryValue(status: CallTaskListFilter | ""): string {
