@@ -237,6 +237,7 @@ export function AdminTypesManagement({
                 onChange={(event) =>
                   setForm((current) => ({ ...current, name: event.target.value }))
                 }
+                placeholder={t("fieldNamePlaceholder")}
                 disabled={pending}
               />
             </label>

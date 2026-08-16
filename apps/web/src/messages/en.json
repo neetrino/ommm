@@ -2537,6 +2537,7 @@
         "formCreateTitle": "New class type",
         "formEditTitle": "Edit class type",
         "fieldName": "Name",
+        "fieldNamePlaceholder": "e.g. Reformer Group",
         "fieldSlug": "Slug",
         "fieldDescription": "Description",
         "sessionCount": "{count} classes",

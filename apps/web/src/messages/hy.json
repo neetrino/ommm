@@ -2548,6 +2548,7 @@
         "formCreateTitle": "Նոր տեսակ",
         "formEditTitle": "Խմբագրել տեսակը",
         "fieldName": "Անուն",
+        "fieldNamePlaceholder": "օր. Reformer Group",
         "fieldSlug": "Slug",
         "fieldDescription": "Նկարագրություն",
         "sessionCount": "{count} դաս",

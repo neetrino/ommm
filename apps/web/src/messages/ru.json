@@ -2545,6 +2545,7 @@
         "formCreateTitle": "Новый тип",
         "formEditTitle": "Редактировать тип",
         "fieldName": "Название",
+        "fieldNamePlaceholder": "напр. Reformer Group",
         "fieldSlug": "Slug",
         "fieldDescription": "Описание",
         "sessionCount": "{count} занятий",
