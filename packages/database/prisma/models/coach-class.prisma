@@ -31,12 +31,14 @@ model CoachAvailabilitySlot {
 
 /// Canonical catalog of schedulable class kinds. Admin schedule sessions must reference this table only.
 model ClassType {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String    @unique
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  /// Soft-delete: hidden from catalog UI; row and id remain for sessions, bookings, balances.
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   sessions             ClassSession[]
   packagePlans         PackagePlan[]

@@ -13,7 +13,7 @@
 | Գործողություն | Կանոն |
 |---|---|
 | **Rename** | Թույլատրել։ Միայն անունը փոխել, **նույն `classTypeId`**։ |
-| **Delete** | Թույլատրել միայն եթե չկան sessions, bookings, waitlist entries, package balances, կամ plan allocations այդ class type-ով։ |
+| **Delete (UI)** | Soft-archive (`archivedAt`)։ Տողը և `id`-ն մնում են։ Sessions, bookings և package balances շարունակում են աշխատել։ Catalog-ում և նոր session-ում archived type չի երևում։ |
 
 **Նշում.** «Ջնջել + նոր class type ստեղծել» rename չէ։ Դա replace է և առանց remap-ի կոտրում է հին գնումները։
 

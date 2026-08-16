@@ -57,12 +57,9 @@ export function AdminTypesManagement({
     setRows(initialTypes);
   }
 
-  function syncRows(updater: (current: readonly AdminClassTypeRow[]) => readonly AdminClassTypeRow[]): void {
-    setRows((current) => {
-      const next = updater(current);
-      onTypesChanged?.(next);
-      return next;
-    });
+  function commitRows(next: readonly AdminClassTypeRow[]): void {
+    setRows(next);
+    onTypesChanged?.(next);
   }
 
   const selected = useMemo(
@@ -116,8 +113,8 @@ export function AdminTypesManagement({
           method: "POST",
           body: JSON.stringify(payload),
         });
-        syncRows((current) =>
-          [...current, created].sort((left, right) => left.name.localeCompare(right.name)),
+        commitRows(
+          [...rows, created].sort((left, right) => left.name.localeCompare(right.name)),
         );
         setSelectedId(created.id);
         setForm({ name: created.name });
@@ -127,8 +124,8 @@ export function AdminTypesManagement({
           method: "PATCH",
           body: JSON.stringify(payload),
         });
-        syncRows((current) =>
-          current
+        commitRows(
+          rows
             .map((row) => (row.id === updated.id ? updated : row))
             .sort((left, right) => left.name.localeCompare(right.name)),
         );
@@ -152,7 +149,7 @@ export function AdminTypesManagement({
     setSuccess(null);
     try {
       await apiFetch(`/classes/types/${selectedId}`, { method: "DELETE" });
-      syncRows((current) => current.filter((row) => row.id !== selectedId));
+      commitRows(rows.filter((row) => row.id !== selectedId));
       setSelectedId(null);
       setForm(emptyFormState());
       setSuccess(t("messages.deleteSuccess"));

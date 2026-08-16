@@ -1,72 +1,104 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ClassesTypesService } from './classes-types.service';
 
-describe('ClassesTypesService.deleteType', () => {
+describe('ClassesTypesService archive catalog delete', () => {
   const prisma = {
     classType: {
       findUnique: jest.fn(),
-      delete: jest.fn(),
-      findMany: jest.fn(),
       findFirst: jest.fn(),
+      findMany: jest.fn(),
+      delete: jest.fn(),
+      update: jest.fn(),
     },
-    classSession: { count: jest.fn() },
-    booking: { count: jest.fn() },
-    waitlistEntry: { count: jest.fn() },
-    userPackageBalance: { count: jest.fn() },
-    packagePlan: { findMany: jest.fn() },
   };
 
   const service = new ClassesTypesService(prisma as never);
 
+  const activeType = {
+    id: 'ct-1',
+    name: 'Evening Yoga by Ommm',
+    slug: 'evening-yoga-by-ommm',
+    archivedAt: null,
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
-    prisma.classType.findUnique.mockResolvedValue({
-      id: 'ct-1',
-      name: 'Reformer Group',
-      slug: 'reformer-group',
+    prisma.classType.findUnique.mockResolvedValue(activeType);
+  });
+
+  it('archives the row instead of deleting when balances or sessions exist', async () => {
+    prisma.classType.update.mockResolvedValue({
+      ...activeType,
+      archivedAt: new Date('2026-08-16T09:00:00.000Z'),
     });
-    prisma.classSession.count.mockResolvedValue(0);
-    prisma.booking.count.mockResolvedValue(0);
-    prisma.waitlistEntry.count.mockResolvedValue(0);
-    prisma.userPackageBalance.count.mockResolvedValue(0);
-    prisma.packagePlan.findMany.mockResolvedValue([]);
-  });
 
-  it('blocks delete when bookings exist for the class type', async () => {
-    prisma.booking.count.mockResolvedValue(2);
-    await expect(service.deleteType('ct-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(prisma.classType.delete).not.toHaveBeenCalled();
-  });
-
-  it('blocks delete when package balances reference the class type', async () => {
-    prisma.userPackageBalance.count.mockResolvedValue(3);
-    await expect(service.deleteType('ct-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(prisma.classType.delete).not.toHaveBeenCalled();
-  });
-
-  it('blocks delete when a package plan allocation references the class type', async () => {
-    prisma.packagePlan.findMany.mockResolvedValue([
-      {
-        id: 'plan-1',
-        classTypeId: null,
-        typeSessionAllocations: [{ classTypeId: 'ct-1', sessionCount: 8 }],
-      },
-    ]);
-    await expect(service.deleteType('ct-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(prisma.classType.delete).not.toHaveBeenCalled();
-  });
-
-  it('deletes when no sessions, bookings, balances, or plan refs exist', async () => {
-    prisma.classType.delete.mockResolvedValue(undefined);
     await expect(service.deleteType('ct-1')).resolves.toBeUndefined();
-    expect(prisma.classType.delete).toHaveBeenCalledWith({
+
+    expect(prisma.classType.delete).not.toHaveBeenCalled();
+    expect(prisma.classType.update).toHaveBeenCalledWith({
       where: { id: 'ct-1' },
+      data: { archivedAt: expect.any(Date) },
     });
+  });
+
+  it('is idempotent when the type is already archived', async () => {
+    prisma.classType.findUnique.mockResolvedValue({
+      ...activeType,
+      archivedAt: new Date('2026-08-16T08:00:00.000Z'),
+    });
+
+    await expect(service.deleteType('ct-1')).resolves.toBeUndefined();
+    expect(prisma.classType.update).not.toHaveBeenCalled();
+    expect(prisma.classType.delete).not.toHaveBeenCalled();
+  });
+
+  it('throws NotFoundException when the type does not exist', async () => {
+    prisma.classType.findUnique.mockResolvedValue(null);
+    await expect(service.deleteType('missing')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('lists only non-archived types for the admin catalog', async () => {
+    prisma.classType.findMany.mockResolvedValue([activeType]);
+    await service.listTypes();
+    expect(prisma.classType.findMany).toHaveBeenCalledWith({
+      where: { archivedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  });
+
+  it('assertClassTypeExists still accepts archived types so bookings keep the id', async () => {
+    prisma.classType.findUnique.mockResolvedValue({ id: 'ct-1' });
+    await expect(service.assertClassTypeExists('ct-1')).resolves.toBeUndefined();
+  });
+
+  it('assertClassTypeAssignable rejects archived types for new sessions', async () => {
+    prisma.classType.findFirst.mockResolvedValue(null);
+    await expect(service.assertClassTypeAssignable('ct-1')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(prisma.classType.findFirst).toHaveBeenCalledWith({
+      where: { id: 'ct-1', archivedAt: null },
+      select: { id: true },
+    });
+  });
+
+  it('assertClassTypeAssignable allows active types', async () => {
+    prisma.classType.findFirst.mockResolvedValue({ id: 'ct-1' });
+    await expect(
+      service.assertClassTypeAssignable('ct-1'),
+    ).resolves.toBeUndefined();
+  });
+
+  it('rejects edits to an archived class type', async () => {
+    prisma.classType.findUnique.mockResolvedValue({
+      ...activeType,
+      archivedAt: new Date('2026-08-16T08:00:00.000Z'),
+    });
+    await expect(
+      service.updateType('ct-1', { name: 'Renamed' }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.classType.update).not.toHaveBeenCalled();
   });
 });
