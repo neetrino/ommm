@@ -11,6 +11,7 @@ import {
   emptyCallTaskDraft,
   type CallTaskFormDraft,
 } from "@/components/admin/admin-call-tasks-form-modal";
+import { AdminCallTasksDetailsSheet } from "@/components/admin/admin-call-tasks-details-sheet";
 import { AdminCallTasksListBody } from "@/components/admin/admin-call-tasks-list-body";
 import { AdminWaitlistLoadErrorShell } from "@/components/admin/admin-waitlist-load-error-shell";
 import { AdminWaitlistToast } from "@/components/admin/admin-waitlist-toast";
@@ -46,6 +47,7 @@ export function AdminCallTasksManagement({
     null,
   );
   const [formOpen, setFormOpen] = useState<"create" | CallTaskRow | null>(null);
+  const [detailsRow, setDetailsRow] = useState<CallTaskRow | null>(null);
   const [draft, setDraft] = useState<CallTaskFormDraft>(emptyCallTaskDraft);
   const [, startRefreshTransition] = useTransition();
   const refreshRequestId = useRef(0);
@@ -83,6 +85,12 @@ export function AdminCallTasksManagement({
         return;
       }
       setPayload(data);
+      setDetailsRow((current) => {
+        if (current === null) {
+          return null;
+        }
+        return data.items.find((item) => item.id === current.id) ?? current;
+      });
     } catch (error) {
       if (requestId !== refreshRequestId.current) {
         return;
@@ -112,6 +120,7 @@ export function AdminCallTasksManagement({
     try {
       await apiFetch(path, { method: "POST" });
       setToast({ tone: "ok", message: success });
+      setDetailsRow(null);
       await loadRows();
       dispatchCallTasksRefresh();
       startRefreshTransition(() => router.refresh());
@@ -208,17 +217,7 @@ export function AdminCallTasksManagement({
             total={payload.total}
             listPage={listPage}
             offset={listPage.offset}
-            busyAction={busyAction}
-            onEdit={(row) => {
-              setDraft(draftFromCallTask(row));
-              setFormOpen(row);
-            }}
-            onComplete={(row) =>
-              void runRowAction(row, "complete", `/call-tasks/${row.id}/complete`, t("completed"))
-            }
-            onCancel={(row) =>
-              void runRowAction(row, "cancel", `/call-tasks/${row.id}/cancel`, t("cancelled"))
-            }
+            onOpenDetails={setDetailsRow}
             onPageChange={(page) => {
               replaceSearchParams((params) => {
                 syncListPageQuery(params, page);
@@ -228,6 +227,33 @@ export function AdminCallTasksManagement({
           />
         )}
       </StaffListPageLayout>
+      {detailsRow !== null ? (
+        <AdminCallTasksDetailsSheet
+          row={detailsRow}
+          busy={busyAction !== null}
+          onClose={() => setDetailsRow(null)}
+          onComplete={() =>
+            void runRowAction(
+              detailsRow,
+              "complete",
+              `/call-tasks/${detailsRow.id}/complete`,
+              t("completed"),
+            )
+          }
+          onEdit={() => {
+            setDraft(draftFromCallTask(detailsRow));
+            setFormOpen(detailsRow);
+          }}
+          onCancel={() =>
+            void runRowAction(
+              detailsRow,
+              "cancel",
+              `/call-tasks/${detailsRow.id}/cancel`,
+              t("cancelled"),
+            )
+          }
+        />
+      ) : null}
       {formOpen !== null ? (
         <AdminCallTasksFormModal
           mode={formOpen === "create" ? "create" : "edit"}

@@ -1786,6 +1786,8 @@
       "save": "Save",
       "saving": "Saving…",
       "close": "Close",
+      "detailsCloseBackdrop": "Close call details",
+      "viewDetailsFor": "View call details for {name}",
       "created": "Call saved.",
       "updated": "Call updated.",
       "completed": "Marked as called.",
