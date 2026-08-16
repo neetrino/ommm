@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
@@ -103,6 +104,7 @@ function CallTaskFormFields({
           disabled={busy}
           required
           maxLength={120}
+          placeholder={t("contactPlaceholder")}
           onChange={(event) => onChange({ ...draft, contactName: event.target.value })}
         />
       </label>
@@ -118,13 +120,15 @@ function CallTaskFormFields({
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("colDue")}</span>
-        <input
-          className="ommm-input"
-          type="date"
+        <DatePickerInput
+          name="dueOn"
           value={draft.dueOn}
           disabled={busy}
           required
-          onChange={(event) => onChange({ ...draft, dueOn: event.target.value })}
+          allowManualEntry
+          ariaLabel={t("colDue")}
+          placeholder={t("datePlaceholder")}
+          onChange={(nextValue) => onChange({ ...draft, dueOn: nextValue })}
         />
       </label>
       <label className="flex flex-col gap-1">
