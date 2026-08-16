@@ -14,10 +14,13 @@ export const CALL_TASK_STATUS_ALL_QUERY_VALUE = "all";
 export function firstQueryValue(
   value: string | readonly string[] | undefined,
 ): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0];
+  if (typeof value === "string") {
+    return value;
   }
-  return value;
+  if (value === undefined) {
+    return undefined;
+  }
+  return value[0];
 }
 
 /** Missing param or `all` → no API status filter. */
