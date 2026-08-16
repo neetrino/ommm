@@ -32,10 +32,10 @@ export class CallTasksController {
     return this.callTasks.list(query);
   }
 
-  @Get('due')
+  @Get('pending-count')
   @SkipThrottle()
-  listDue() {
-    return this.callTasks.listDue();
+  countPending() {
+    return this.callTasks.countPending();
   }
 
   @Post()

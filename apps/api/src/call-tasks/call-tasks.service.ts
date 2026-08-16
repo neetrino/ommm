@@ -50,6 +50,13 @@ export class CallTasksService {
     return { items: rows.map((row) => toCallTaskDto(row)), total: rows.length };
   }
 
+  async countPending() {
+    const count = await this.prisma.callTask.count({
+      where: { status: CallTaskStatus.PENDING },
+    });
+    return { count };
+  }
+
   async create(createdById: string, dto: CreateCallTaskDto) {
     await this.assertOptionalUser(dto.userId);
     const row = await this.prisma.callTask.create({
