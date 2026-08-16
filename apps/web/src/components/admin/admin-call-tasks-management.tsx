@@ -16,16 +16,16 @@ import { AdminWaitlistLoadErrorShell } from "@/components/admin/admin-waitlist-l
 import { AdminWaitlistToast } from "@/components/admin/admin-waitlist-toast";
 import type { AdminWaitlistToastTone } from "@/components/admin/admin-waitlist-management.constants";
 import type { AdminCallTasksManagementProps } from "@/components/admin/admin-call-tasks-management.types";
+import { useAdminCallTasksFilters } from "@/components/admin/use-admin-call-tasks-filters";
 import {
   buildCallTasksListEndpoint,
+  CALL_TASK_SEARCH_QUERY_KEY,
   type CallTaskListPayload,
   type CallTaskRow,
-  type CallTaskStatus,
 } from "@/components/admin/admin-call-tasks-query";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmButton } from "@/components/ui/omm-button";
-import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
@@ -34,39 +34,37 @@ import { dispatchCallTasksRefresh } from "@/lib/call-tasks-refresh-event";
 export function AdminCallTasksManagement({
   initial,
   initialLoadError,
-  initialStatus,
-  initialQuery,
 }: AdminCallTasksManagementProps) {
   const t = useTranslations("adminPages.calls");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [payload, setPayload] = usePropSyncedState(initial);
+  const [payload, setPayload] = useState(initial);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
   const [busyAction, setBusyAction] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ tone: AdminWaitlistToastTone; message: string } | null>(null);
-  const [searchDraft, setSearchDraft] = useState(initialQuery);
-  const [statusFilter, setStatusFilter] = useState<CallTaskStatus | "">(initialStatus);
+  const [toast, setToast] = useState<{ tone: AdminWaitlistToastTone; message: string } | null>(
+    null,
+  );
   const [formOpen, setFormOpen] = useState<"create" | CallTaskRow | null>(null);
   const [draft, setDraft] = useState<CallTaskFormDraft>(emptyCallTaskDraft);
   const [, startRefreshTransition] = useTransition();
   const refreshRequestId = useRef(0);
   const filterFields = useAdminCallTasksFilterFields();
+  const {
+    searchDraft,
+    setSearchDraft,
+    statusFilter,
+    filterValues,
+    handleFilterChange,
+    resetFilters,
+    replaceSearchParams,
+  } = useAdminCallTasksFilters();
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
-
-  const replaceSearchParams = useCallback(
-    (mutate: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
-      mutate(params);
-      const qs = params.toString();
-      router.replace(qs.length > 0 ? `?${qs}` : "?", { scroll: false });
-    },
-    [router, searchParams],
-  );
+  const urlQuery = searchParams.get(CALL_TASK_SEARCH_QUERY_KEY)?.trim() ?? "";
 
   const loadRows = useCallback(async () => {
     const requestId = ++refreshRequestId.current;
@@ -77,7 +75,7 @@ export function AdminCallTasksManagement({
         buildCallTasksListEndpoint({
           take: listPage.take,
           offset: listPage.offset,
-          q: searchDraft,
+          q: urlQuery,
           status: statusFilter,
         }),
       );
@@ -95,14 +93,9 @@ export function AdminCallTasksManagement({
         setLoading(false);
       }
     }
-  }, [listPage.offset, listPage.take, searchDraft, setPayload, statusFilter, t]);
+  }, [listPage.offset, listPage.take, setPayload, statusFilter, t, urlQuery]);
 
-  const didMount = useRef(false);
   useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
-      return;
-    }
     void loadRows();
   }, [loadRows]);
 
@@ -173,10 +166,7 @@ export function AdminCallTasksManagement({
 
   if (loadError && payload.items.length === 0) {
     return (
-      <AdminWaitlistLoadErrorShell
-        loadError={loadError}
-        onRetry={() => void loadRows()}
-      />
+      <AdminWaitlistLoadErrorShell loadError={loadError} onRetry={() => void loadRows()} />
     );
   }
 
@@ -203,16 +193,9 @@ export function AdminCallTasksManagement({
             onSearchChange={setSearchDraft}
             searchPlaceholder={t("searchPlaceholder")}
             fields={filterFields}
-            filterValues={{ status: statusFilter }}
-            onFilterChange={(key, value) => {
-              if (key === "status") {
-                setStatusFilter(value as CallTaskStatus | "");
-              }
-            }}
-            onClearAll={() => {
-              setSearchDraft("");
-              setStatusFilter("");
-            }}
+            filterValues={filterValues}
+            onFilterChange={handleFilterChange}
+            onClearAll={resetFilters}
             resetLabel={t("resetFilters")}
           />
         }

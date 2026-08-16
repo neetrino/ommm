@@ -4,19 +4,13 @@ import { getTranslations } from "next-intl/server";
 import { AdminCallTasksManagement } from "@/components/admin/admin-call-tasks-management";
 import {
   buildCallTasksListEndpoint,
+  firstQueryValue,
+  parseCallTaskListStatus,
   type CallTaskListPayload,
-  type CallTaskStatus,
 } from "@/components/admin/admin-call-tasks-query";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
-
-function parseCallTaskStatus(value: string | undefined): CallTaskStatus | "" {
-  if (value === "PENDING" || value === "DONE" || value === "CANCELLED") {
-    return value;
-  }
-  return "PENDING";
-}
 
 export default async function ManagerCallsPage({
   params,
@@ -30,8 +24,8 @@ export default async function ManagerCallsPage({
   const t = await getTranslations({ locale, namespace: "adminPages.calls" });
   const cookie = (await headers()).get("cookie") ?? "";
   const listPage = parseListPageParams(search);
-  const status = parseCallTaskStatus(search.status);
-  const q = search.q ?? "";
+  const status = parseCallTaskListStatus(firstQueryValue(search.status));
+  const q = firstQueryValue(search.q) ?? "";
   const endpoint = buildCallTasksListEndpoint({
     take: listPage.take,
     offset: listPage.offset,
@@ -54,8 +48,6 @@ export default async function ManagerCallsPage({
         <AdminCallTasksManagement
           initial={initialPayload}
           initialLoadError={initialLoadError}
-          initialStatus={status}
-          initialQuery={q}
         />
       </Suspense>
     </AdminContentFrame>
