@@ -63,7 +63,7 @@
     "packages": "Пакеты",
     "explore": "Материалы",
     "schedule": "Расписание",
-    "presalePackages": "Presale Packages",
+    "presalePackages": "Пакеты предпродажи",
     "contact": "Контакты"
   },
   "footer": {
@@ -149,7 +149,7 @@
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",
-      "presalePackagesTitle": "Presale Packages",
+      "presalePackagesTitle": "Пакеты предпродажи",
       "weeklyScheduleSubtitle": "Присоединяйтесь к нам в течение недели — занятия, подобранные под ваш wellness-путь.",
       "weeklyScheduleGridAria": "Недельное расписание по дням",
       "weeklyScheduleDayTabsAria": "Выберите день недели",
@@ -163,7 +163,7 @@
       "weeklyScheduleDuration": "{count} мин",
       "weeklyScheduleDurationFallback": "—",
       "weeklyScheduleSpotsLeft": "{count, plural, =1 {Осталось 1 место} few {Осталось # места} many {Осталось # мест} other {Осталось # места}}",
-      "weeklyScheduleSeeFull": "See full schedule",
+      "weeklyScheduleSeeFull": "Смотреть полное расписание",
       "weeklyScheduleDays": {
         "MONDAY": "Понедельник",
         "TUESDAY": "Вторник",
@@ -251,10 +251,10 @@
           "imageAlt": "Портрет преподавателя"
         }
       ],
-      "galleryTitle": "A space designed to slow you down",
-      "galleryTitleLine1": "A space designed to",
-      "galleryTitleLine2": "slow you down",
-      "gallerySubtitle": "From the entrance to the last corner — every detail is part of the pause.",
+      "galleryTitle": "Пространство, созданное чтобы замедлиться",
+      "galleryTitleLine1": "Пространство, созданное чтобы",
+      "galleryTitleLine2": "замедлиться",
+      "gallerySubtitle": "От входа до последнего угла — каждая деталь часть паузы.",
       "galleryMoreDetails": "Подробнее",
       "galleryPrevAria": "Предыдущий слайд галереи",
       "galleryNextAria": "Следующий слайд галереи",
@@ -282,7 +282,7 @@
       "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
       "footerCopyrightCompanyPart1": "NEETRINO IT",
       "footerCopyrightCompanyPart2": "COMPANY",
-      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerCopyrightSuffix": ". ВСЕ ПРАВА ЗАЩИЩЕНЫ.",
       "footerIllustrationAlt": "Декоративная иллюстрация Om"
     }
   },
@@ -823,7 +823,7 @@
       },
       "membershipViewDetailsHint": "Нажмите для подробностей",
       "membershipDetailsCloseBackdrop": "Закрыть детали пакета",
-      "membershipDetailsSessionName": "Session Name",
+      "membershipDetailsSessionName": "Название занятия",
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
       "membershipDetailsValidity": "Срок действия",
@@ -1904,7 +1904,7 @@
       "filterPayment": "Оплата",
       "filterPaymentAll": "Все оплаты",
       "filterStatusAll": "Все статусы",
-      "resetFilters": "Reset Filters",
+      "resetFilters": "Сбросить фильтры",
       "activeCount": "{count} активных фильтров",
       "viewList": "Все бронирования",
       "viewMonthly": "Месячный вид",
@@ -2187,7 +2187,7 @@
         "cancellations": "Отмены",
         "noShows": "Неявки",
         "lastVisit": "Последний визит",
-        "lifetimeValue": "Lifetime value",
+        "lifetimeValue": "Пожизненная ценность",
         "bookingHistory": "История бронирований",
         "noBookings": "Бронирований нет.",
         "paymentHistory": "История платежей",
@@ -2221,7 +2221,7 @@
         "orderNewest": "Сначала новые",
         "orderOldest": "Сначала старые",
         "apply": "Применить фильтры",
-        "resetFilters": "Reset Filters"
+        "resetFilters": "Сбросить фильтры"
       }
     },
     "coaches": {
@@ -2257,7 +2257,7 @@
         "orderOldest": "Сначала старые",
         "apply": "Применить фильтры",
         "clear": "Сбросить фильтры",
-        "resetFilters": "Reset Filters",
+        "resetFilters": "Сбросить фильтры",
         "loading": "Загружаем подходящих тренеров...",
         "activeCount": "Активных фильтров: {count}",
         "quickActive": "Активные",
@@ -3112,7 +3112,7 @@
       "selectCategoryHint": "Выберите эту категорию выше, чтобы просмотреть и управлять её пакетами.",
       "tablePageName": "Название пакета",
       "tableSessionName": "Название пакета",
-      "tableTotalSessions": "Total sessions",
+      "tableTotalSessions": "Всего занятий",
       "tableSessions": "Сессии",
       "tablePrice": "Цена",
       "tablePricePerSession": "Цена / сессия",
@@ -3694,7 +3694,7 @@
           "active": "Активные клиенты",
           "vip": "VIP клиенты",
           "visits": "Всего визитов",
-          "ltv": "Lifetime value",
+          "ltv": "Пожизненная ценность",
           "chartAria": "График активности пользователей"
         },
         "classPopularity": {
@@ -4250,7 +4250,7 @@
     },
     "manualPackagePayment": {
       "title": "Подтвердить подписку",
-      "selectPlanLegend": "Session Name",
+      "selectPlanLegend": "Название занятия",
       "selectedPlanBadge": "Selected",
       "closeModal": "Закрыть",
       "methodLegend": "Способ оплаты",

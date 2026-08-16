@@ -63,7 +63,7 @@
     "packages": "Փաթեթներ",
     "explore": "Բացահայտել",
     "schedule": "Ժամանակացույց",
-    "presalePackages": "Presale Packages",
+    "presalePackages": "Նախավաճառքի փաթեթներ",
     "contact": "Կապ"
   },
   "footer": {
@@ -149,7 +149,7 @@
     },
     "home": {
       "weeklyScheduleTitle": "Շաբաթական դասացուցակ",
-      "presalePackagesTitle": "Presale Packages",
+      "presalePackagesTitle": "Նախավաճառքի փաթեթներ",
       "weeklyScheduleSubtitle": "Միացեք մեզ ամբողջ շաբաթ՝ ձեր wellness ճանապարհին հարմարեցված փոխակերպող սեսիաների համար։",
       "weeklyScheduleGridAria": "Շաբաթական դասացուցակ ըստ օրերի",
       "weeklyScheduleDayTabsAria": "Ընտրեք շաբաթվա օրը",
@@ -163,7 +163,7 @@
       "weeklyScheduleDuration": "{count} րոպե",
       "weeklyScheduleDurationFallback": "—",
       "weeklyScheduleSpotsLeft": "{count, plural, =1 {1 ազատ տեղ} other {# ազատ տեղ}}",
-      "weeklyScheduleSeeFull": "See full schedule",
+      "weeklyScheduleSeeFull": "Տեսնել ամբողջ գրաֆիկը",
       "weeklyScheduleDays": {
         "MONDAY": "Երկշաբթի",
         "TUESDAY": "Երեքշաբթի",
@@ -252,10 +252,10 @@
           "imageAlt": "Մարզիչի դիմանկար"
         }
       ],
-      "galleryTitle": "A space designed to slow you down",
-      "galleryTitleLine1": "A space designed to",
-      "galleryTitleLine2": "slow you down",
-      "gallerySubtitle": "From the entrance to the last corner — every detail is part of the pause.",
+      "galleryTitle": "Տարածք, որը ստեղծված է քեզ դանդաղեցնելու համար",
+      "galleryTitleLine1": "Տարածք, որը ստեղծված է",
+      "galleryTitleLine2": "քեզ դանդաղեցնելու համար",
+      "gallerySubtitle": "Մուտքից մինչև վերջին անկյունը — ամեն դետալ դադարի մաս է։",
       "galleryMoreDetails": "Մանրամասներ",
       "galleryPrevAria": "Նախորդ պատկերասրահի սлайդ",
       "galleryNextAria": "Հաջորդ պատկերասրահի սлайդ",
@@ -283,7 +283,7 @@
       "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
       "footerCopyrightCompanyPart1": "NEETRINO IT",
       "footerCopyrightCompanyPart2": "COMPANY",
-      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerCopyrightSuffix": ". ԲՈԼՈՐ ԻՐԱՎՈՒՆՔՆԵՐԸ ՊԱՀՊԱՆՎԱԾ ԵՆ.",
       "footerIllustrationAlt": "Օմ նշանի դեկորատիվ նկար"
     }
   },
@@ -824,7 +824,7 @@
       },
       "membershipViewDetailsHint": "Սեղմեք ամբողջական տվյալների համար",
       "membershipDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",
-      "membershipDetailsSessionName": "Session Name",
+      "membershipDetailsSessionName": "Դասի անուն",
       "membershipDetailsCategory": "Կատեգորիա",
       "membershipDetailsPrice": "Գին",
       "membershipDetailsValidity": "Վավերականություն",
@@ -1907,7 +1907,7 @@
       "filterPayment": "Վճարում",
       "filterPaymentAll": "Բոլոր վճարումները",
       "filterStatusAll": "Բոլոր կարգավիճակները",
-      "resetFilters": "Reset Filters",
+      "resetFilters": "Վերակայել ֆիլտրերը",
       "activeCount": "{count} ակտիվ ֆիլտր",
       "viewList": "Բոլոր ամրագրումները",
       "viewMonthly": "Ամսական տեսք",
@@ -2190,7 +2190,7 @@
         "cancellations": "Չեղարկումներ",
         "noShows": "Բացակայություններ",
         "lastVisit": "Վերջին այց",
-        "lifetimeValue": "Lifetime value",
+        "lifetimeValue": "Կուտակային արժեք",
         "bookingHistory": "Ամրագրումների պատմություն",
         "noBookings": "Ամրագրումներ չկան։",
         "paymentHistory": "Վճարումների պատմություն",
@@ -2224,7 +2224,7 @@
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
         "apply": "Կիրառել ֆիլտրերը",
-        "resetFilters": "Reset Filters"
+        "resetFilters": "Վերակայել ֆիլտրերը"
       }
     },
     "coaches": {
@@ -2259,8 +2259,8 @@
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
         "apply": "Կիրառել ֆիլտրերը",
-        "clear": "Reset Filters",
-        "resetFilters": "Reset Filters",
+        "clear": "Վերակայել ֆիլտրերը",
+        "resetFilters": "Վերակայել ֆիլտրերը",
         "loading": "Բեռնում ենք համապատասխան մարզիչներին...",
         "activeCount": "Ակտիվ ֆիլտրեր՝ {count}",
         "quickActive": "Ակտիվ",
@@ -2645,7 +2645,7 @@
         "levelLabel": "Մակարդակ",
         "fromDateLabel": "Սկսած ամսաթվից",
         "toDateLabel": "Մինչև ամսաթիվ",
-        "reset": "Reset Filters",
+        "reset": "Վերակայել ֆիլտրերը",
         "allStatuses": "Բոլոր կարգավիճակները",
         "allCoaches": "Բոլոր մարզիչները",
         "allTypes": "Բոլոր տեսակները",
@@ -2929,7 +2929,7 @@
         "quickActive": "Ակտիվ նվեր քարտեր",
         "quickExpired": "Ժամկետանց քարտեր",
         "quickUnredeemed": "Չփոխարժված քարտեր",
-        "reset": "Reset Filters",
+        "reset": "Վերակայել ֆիլտրերը",
         "loading": "Արդյունքները թարմացվում են…",
         "activeCount": "{count} ակտիվ ֆիլտր"
       },
@@ -3115,7 +3115,7 @@
       "selectCategoryHint": "Փաթեթները դիտելու և կառավարելու համար վերևից ընտրեք այս կատեգորիան։",
       "tablePageName": "Փաթեթի անուն",
       "tableSessionName": "Փաթեթի անուն",
-      "tableTotalSessions": "Total sessions",
+      "tableTotalSessions": "Ընդամենը դասեր",
       "tableSessions": "Սեսիաներ",
       "tablePrice": "Գին",
       "tablePricePerSession": "Գին / սեսիա",
@@ -3151,7 +3151,7 @@
         "sortOldest": "Հիներից",
         "sortPriceHigh": "Առավելագույն գին",
         "sortPriceLow": "Նվազագույն գին",
-        "reset": "Reset Filters",
+        "reset": "Վերակայել ֆիլտրերը",
         "activeCount": "{count} ակտիվ զտիչ"
       },
       "messages": {
@@ -3546,7 +3546,7 @@
         "sortLabel": "Դասավորել",
         "sortHighestSalary": "Ամենաբարձր աշխատավարձ",
         "sortOldest": "Ամենահին մարզիչներ",
-        "clearFilters": "Reset Filters",
+        "clearFilters": "Վերակայել ֆիլտրերը",
         "rowCount": "{count} մարզիչ",
         "empty": "Ընտրված ֆիլտրերով մարզիչներ չկան։",
         "colCoach": "Մարզիչ",
@@ -3611,8 +3611,8 @@
       },
       "filters": {
         "heading": "Ֆիլտրեր",
-        "reset": "Reset Filters",
-        "resetFilters": "Reset Filters",
+        "reset": "Վերակայել ֆիլտրերը",
+        "resetFilters": "Վերակայել ֆիլտրերը",
         "loading": "Տվյալների թարմացում…",
         "activeCount": "{count} ակտիվ ֆիլտր",
         "rangeLabel": "Միջակայք",
@@ -3697,7 +3697,7 @@
           "active": "Ակտիվ հաճախորդներ",
           "vip": "VIP հաճախորդներ",
           "visits": "Ընդամենը այցեր",
-          "ltv": "Lifetime value",
+          "ltv": "Կուտակային արժեք",
           "chartAria": "Օգտատերերի ակտիվության գրաֆիկ"
         },
         "classPopularity": {
@@ -3772,7 +3772,7 @@
       "scheduledHint": "Pending տարրերը կարելի է խմբագրել կամ չեղարկել dispatch-ից առաջ։",
       "scheduledEmpty": "Ժամանակացույցված ուղարկումներ չկան։",
       "editScheduledTitle": "Խմբագրել ժամանակացույցված ուղարկումը",
-      "editBodyLabel": "HTML body",
+      "editBodyLabel": "HTML բովանդակություն",
       "refreshing": "Ցանկերը թարմացվում են…",
       "analyticsHeading": "Քարոզարշավի ամփոփում (30 օր)",
       "loadFailedScheduled": "Չհաջողվեց բեռնել ժամանակացույցված ուղարկումները։",
@@ -3817,7 +3817,7 @@
         "timing": "Timing",
         "timingAll": "Բոլոր timing-ները",
         "sort": "Դասավորել",
-        "reset": "Reset Filters",
+        "reset": "Վերակայել ֆիլտրերը",
         "resultCount": "{count} արդյունք",
         "noMatches": "Filter-ներին համապատասխան տարրեր չկան։"
       },
@@ -4253,7 +4253,7 @@
     },
     "manualPackagePayment": {
       "title": "Հաստատել բաժանորդագրությունը",
-      "selectPlanLegend": "Session Name",
+      "selectPlanLegend": "Դասի անուն",
       "selectedPlanBadge": "Selected",
       "closeModal": "Փակել",
       "methodLegend": "Վճարման եղանակ",
@@ -4424,8 +4424,8 @@
       "address": "Հասցե",
       "mapEmbedUrl": "Քարտեզի embed URL",
       "workingHours": "Աշխատաժամեր",
-      "instagramUrl": "Instagram URL",
-      "facebookUrl": "Facebook URL",
+      "instagramUrl": "Instagram հղում",
+      "facebookUrl": "Facebook հղում",
       "socialLinksJson": "Սոցիալական հղումների JSON",
       "cancellationHoursNotice": "Չեղարկման ժամային շեմ",
       "waitlistOfferMinutes": "Սպասման առաջարկի րոպեներ",
