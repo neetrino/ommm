@@ -104,7 +104,7 @@ function CallTaskRowActions({
       <OmmButton type="button" size="sm" variant="ghost" disabled={rowBusy} onClick={onEdit}>
         {t("edit")}
       </OmmButton>
-      <OmmButton type="button" size="sm" variant="subtle" disabled={rowBusy} onClick={onCancel}>
+      <OmmButton type="button" size="sm" variant="danger" disabled={rowBusy} onClick={onCancel}>
         {t("cancelTask")}
       </OmmButton>
     </div>
