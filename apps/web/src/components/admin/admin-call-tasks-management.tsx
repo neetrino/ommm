@@ -7,6 +7,7 @@ import { AdminCallTasksEmptyState } from "@/components/admin/admin-call-tasks-em
 import { useAdminCallTasksFilterFields } from "@/components/admin/admin-call-tasks-filter-fields";
 import {
   AdminCallTasksFormModal,
+  contactNameFromDraft,
   draftFromCallTask,
   emptyCallTaskDraft,
   type CallTaskFormDraft,
@@ -141,7 +142,7 @@ export function AdminCallTasksManagement({
     setBusyAction("form");
     try {
       const body = {
-        contactName: draft.contactName.trim(),
+        contactName: contactNameFromDraft(draft),
         phone: draft.phone.trim(),
         comment: draft.comment.trim(),
         dueOn: draft.dueOn,

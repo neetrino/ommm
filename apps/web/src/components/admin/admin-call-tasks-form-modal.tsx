@@ -2,30 +2,43 @@
 
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import {
+  joinContactName,
+  splitContactName,
+} from "@/components/admin/admin-call-tasks-form-name";
 import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 
+const NAME_FIELD_MAX_LENGTH = 60;
+
 export type CallTaskFormDraft = {
-  contactName: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   comment: string;
   dueOn: string;
 };
 
 export function emptyCallTaskDraft(): CallTaskFormDraft {
-  return { contactName: "", phone: "", comment: "", dueOn: "" };
+  return { firstName: "", lastName: "", phone: "", comment: "", dueOn: "" };
 }
 
 export function draftFromCallTask(row: CallTaskRow): CallTaskFormDraft {
+  const names = splitContactName(row.contactName);
   return {
-    contactName: row.contactName,
+    firstName: names.firstName,
+    lastName: names.lastName,
     phone: row.phone,
     comment: row.comment,
     dueOn: row.dueOnDate,
   };
+}
+
+export function contactNameFromDraft(draft: CallTaskFormDraft): string {
+  return joinContactName(draft.firstName, draft.lastName);
 }
 
 type AdminCallTasksFormModalProps = {
@@ -83,6 +96,49 @@ export function AdminCallTasksFormModal({
   );
 }
 
+function CallTaskNameFields({
+  draft,
+  busy,
+  onChange,
+}: {
+  draft: CallTaskFormDraft;
+  busy: boolean;
+  onChange: (next: CallTaskFormDraft) => void;
+}) {
+  const t = useTranslations("adminPages.calls");
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">{t("firstName")}</span>
+        <input
+          className="ommm-input"
+          value={draft.firstName}
+          disabled={busy}
+          required
+          maxLength={NAME_FIELD_MAX_LENGTH}
+          placeholder={t("firstNamePlaceholder")}
+          autoComplete="given-name"
+          onChange={(event) => onChange({ ...draft, firstName: event.target.value })}
+        />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">{t("lastName")}</span>
+        <input
+          className="ommm-input"
+          value={draft.lastName}
+          disabled={busy}
+          required
+          maxLength={NAME_FIELD_MAX_LENGTH}
+          placeholder={t("lastNamePlaceholder")}
+          autoComplete="family-name"
+          onChange={(event) => onChange({ ...draft, lastName: event.target.value })}
+        />
+      </label>
+    </div>
+  );
+}
+
 function CallTaskFormFields({
   draft,
   busy,
@@ -96,18 +152,7 @@ function CallTaskFormFields({
 
   return (
     <>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("colContact")}</span>
-        <input
-          className="ommm-input"
-          value={draft.contactName}
-          disabled={busy}
-          required
-          maxLength={120}
-          placeholder={t("contactPlaceholder")}
-          onChange={(event) => onChange({ ...draft, contactName: event.target.value })}
-        />
-      </label>
+        <CallTaskNameFields draft={draft} busy={busy} onChange={onChange} />
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("colPhone")}</span>
         <PhoneInputField
