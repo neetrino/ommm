@@ -14,6 +14,7 @@ model CoachProfile {
   sessions            ClassSession[] @relation("SessionCoach")
   substituteSessions  ClassSession[] @relation("SessionSubstituteCoach")
   availabilitySlots   CoachAvailabilitySlot[]
+  sessionReviews      SessionReview[]
 }
 
 model CoachAvailabilitySlot {
@@ -73,6 +74,7 @@ model ClassSession {
 
   bookings        Booking[]
   waitlistEntries WaitlistEntry[]
+  sessionReviews  SessionReview[]
 
   @@index([status, startsAt])
 }

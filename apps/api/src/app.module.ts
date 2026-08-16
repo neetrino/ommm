@@ -24,6 +24,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { ReportsModule } from './reports/reports.module';
+import { SessionReviewsModule } from './session-reviews/session-reviews.module';
 import { ScheduleItemsModule } from './schedule/schedule.module';
 import { StudioModule } from './studio/studio.module';
 import { UsersModule } from './users/users.module';
@@ -102,6 +103,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     NotificationsModule,
     ClientsModule,
     CallTasksModule,
+    SessionReviewsModule,
     ScheduleItemsModule,
     JobsModule,
   ],

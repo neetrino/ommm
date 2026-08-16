@@ -56,6 +56,37 @@
     "overdue": "Overdue",
     "markDone": "Called"
   },
+  "headerSessionReviews": {
+    "memberTitle": "Rate your class",
+    "staffTitle": "Class reviews",
+    "coachTitle": "Class reviews",
+    "triggerAriaMember": "Rate your class{count, plural, =0 {} other {, {count} waiting}}",
+    "triggerAriaStaff": "Class reviews{count, plural, =0 {} other {, {count} unread}}",
+    "triggerAriaCoach": "Class reviews{count, plural, =0 {} other {, {count} new}}",
+    "panelAriaMember": "Classes waiting for your review",
+    "panelAriaStaff": "Submitted class reviews",
+    "panelAriaCoach": "Reviews for your classes",
+    "writeReview": "Write review",
+    "ratingLabel": "{rating}/5",
+    "hiddenFromCoach": "Hidden from coach",
+    "empty": "No class reviews yet",
+    "loading": "Loading reviews…",
+    "loadError": "Could not load reviews"
+  },
+  "sessionReviewPrompt": {
+    "eyebrow": "How was class?",
+    "ask": "Your rating helps the studio. You can skip this.",
+    "ratingAria": "Star rating",
+    "ratingRequired": "Please choose a rating, or close this window.",
+    "commentLabel": "Comment (optional)",
+    "anonymousHint": "Anonymous — the coach will not see this. Studio admin and manager still can.",
+    "submit": "Send review",
+    "saving": "Sending…",
+    "later": "Not now",
+    "dontAsk": "Don't ask again for this class",
+    "saveFailed": "Could not save your review",
+    "backdropAria": "Close class review"
+  },
   "listSort": {
     "sort": "Sort",
     "newest": "Newest first",

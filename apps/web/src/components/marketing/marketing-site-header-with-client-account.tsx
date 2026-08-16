@@ -17,6 +17,7 @@ import {
 } from "@/lib/marketing-header-account-cache";
 import { clearCachedMarketingSessionBookings } from "@/lib/marketing-session-bookings-cache";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
+import { SessionReviewPromptGate } from "@/components/account/session-review-prompt-gate";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import { useSyncMarketingRealtimeAuth } from "@/components/realtime/marketing-realtime-root";
 
@@ -113,10 +114,16 @@ export function MarketingSiteHeaderWithClientAccount({
   useSyncMarketingRealtimeAuth(serverAccount !== null || cachedAccountValidated);
 
   return (
-    <MarketingSiteHeader
-      navLinks={navLinks}
-      account={account}
-      showMemberNotifications={showMemberNotifications}
-    />
+    <>
+      <MarketingSiteHeader
+        navLinks={navLinks}
+        account={account}
+        showMemberNotifications={showMemberNotifications}
+        sessionReviewsAudience={showMemberNotifications ? "member" : null}
+      />
+      {showMemberNotifications ? (
+        <SessionReviewPromptGate deferAutoPrompt={false} />
+      ) : null}
+    </>
   );
 };

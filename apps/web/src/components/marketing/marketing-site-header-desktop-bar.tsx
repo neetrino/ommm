@@ -31,6 +31,8 @@ import type { MarketingHeaderAccount } from "@/components/marketing/marketing-si
 import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-active";
 import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
+import { HeaderSessionReviewsMenu } from "@/components/shell/header-session-reviews-menu";
+import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
 import { Link } from "@/i18n/navigation";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import type { MouseEvent } from "react";
@@ -44,6 +46,7 @@ type MarketingSiteHeaderDesktopBarProps = {
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
   callTasksListHref?: string | null;
+  sessionReviewsAudience?: SessionReviewsAudience | null;
   desktopGlassStyle: Record<string, string>;
   desktopNotificationsTriggerClass: string;
   onBrandClick: (event: MouseEvent<HTMLAnchorElement>) => void;
@@ -59,6 +62,7 @@ export function MarketingSiteHeaderDesktopBar({
   showNotifications,
   notificationPreferencesHref,
   callTasksListHref = null,
+  sessionReviewsAudience = null,
   desktopGlassStyle,
   desktopNotificationsTriggerClass,
   onBrandClick,
@@ -121,6 +125,14 @@ export function MarketingSiteHeaderDesktopBar({
               <MarketingHeaderGlobeIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
             )}
           />
+          {sessionReviewsAudience ? (
+            <HeaderSessionReviewsMenu
+              audience={sessionReviewsAudience}
+              triggerClassName={desktopNotificationsTriggerClass}
+              iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+              onNavigate={onCloseAllMenus}
+            />
+          ) : null}
           {callTasksListHref ? (
             <HeaderCallTasksMenu
               enabled

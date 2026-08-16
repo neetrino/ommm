@@ -56,6 +56,37 @@
     "overdue": "Ուշացած",
     "markDone": "Զանգված է"
   },
+  "headerSessionReviews": {
+    "memberTitle": "Գնահատել դասը",
+    "staffTitle": "Դասերի կարծիքներ",
+    "coachTitle": "Դասերի կարծիքներ",
+    "triggerAriaMember": "Գնահատել դասը{count, plural, =0 {} other {, {count} սպասում է}}",
+    "triggerAriaStaff": "Դասերի կարծիքներ{count, plural, =0 {} other {, {count} չկարդացված}}",
+    "triggerAriaCoach": "Դասերի կարծիքներ{count, plural, =0 {} other {, {count} նոր}}",
+    "panelAriaMember": "Դասեր, որոնք սպասում են կարծիքի",
+    "panelAriaStaff": "Ուղարկված կարծիքներ",
+    "panelAriaCoach": "Ձեր դասերի կարծիքները",
+    "writeReview": "Գրել կարծիք",
+    "ratingLabel": "{rating}/5",
+    "hiddenFromCoach": "Մարզիչը չի տեսնում",
+    "empty": "Կարծիքներ չկան",
+    "loading": "Կարծիքները բեռնվում են…",
+    "loadError": "Չհաջողվեց բեռնել կարծիքները"
+  },
+  "sessionReviewPrompt": {
+    "eyebrow": "Ինչպե՞ս էր դասը",
+    "ask": "Գնահատականը օգնում է ստուդիային։ Կարող եք բաց թողնել։",
+    "ratingAria": "Աստղերով գնահատում",
+    "ratingRequired": "Ընտրեք գնահատական կամ փակեք պատուհանը։",
+    "commentLabel": "Մեկնաբանություն (ոչ պարտադիր)",
+    "anonymousHint": "Անանուն — մարզիչը չի տեսնի։ Ադմինը և մենեջերը կտեսնեն։",
+    "submit": "Ուղարկել",
+    "saving": "Ուղարկվում է…",
+    "later": "Հիմա ոչ",
+    "dontAsk": "Այս դասի համար այլևս չհարցնել",
+    "saveFailed": "Չհաջողվեց պահել կարծիքը",
+    "backdropAria": "Փակել կարծիքի պատուհանը"
+  },
   "listSort": {
     "sort": "Տեսակավորել",
     "newest": "Նորից հին",

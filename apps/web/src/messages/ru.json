@@ -56,6 +56,37 @@
     "overdue": "Просрочено",
     "markDone": "Позвонили"
   },
+  "headerSessionReviews": {
+    "memberTitle": "Оценить занятие",
+    "staffTitle": "Отзывы о занятиях",
+    "coachTitle": "Отзывы о занятиях",
+    "triggerAriaMember": "Оценить занятие{count, plural, =0 {} other {, {count} ожидают}}",
+    "triggerAriaStaff": "Отзывы о занятиях{count, plural, =0 {} other {, {count} непрочитанных}}",
+    "triggerAriaCoach": "Отзывы о занятиях{count, plural, =0 {} other {, {count} новых}}",
+    "panelAriaMember": "Занятия, ожидающие отзыва",
+    "panelAriaStaff": "Отправленные отзывы",
+    "panelAriaCoach": "Отзывы о ваших занятиях",
+    "writeReview": "Написать отзыв",
+    "ratingLabel": "{rating}/5",
+    "hiddenFromCoach": "Скрыто от тренера",
+    "empty": "Отзывов пока нет",
+    "loading": "Загрузка отзывов…",
+    "loadError": "Не удалось загрузить отзывы"
+  },
+  "sessionReviewPrompt": {
+    "eyebrow": "Как прошло занятие?",
+    "ask": "Оценка помогает студии. Можно пропустить.",
+    "ratingAria": "Оценка звёздами",
+    "ratingRequired": "Выберите оценку или закройте окно.",
+    "commentLabel": "Комментарий (необязательно)",
+    "anonymousHint": "Анонимно — тренер не увидит. Админ и менеджер увидят.",
+    "submit": "Отправить",
+    "saving": "Отправка…",
+    "later": "Не сейчас",
+    "dontAsk": "Больше не спрашивать об этом занятии",
+    "saveFailed": "Не удалось сохранить отзыв",
+    "backdropAria": "Закрыть окно отзыва"
+  },
   "listSort": {
     "sort": "Сортировка",
     "newest": "Сначала новые",
