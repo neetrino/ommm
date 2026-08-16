@@ -44,6 +44,18 @@
     "markAllRead": "Отметить все как прочитанные",
     "preferencesLink": "Настройки уведомлений"
   },
+  "headerCallTasks": {
+    "title": "Звонки на сегодня",
+    "triggerAria": "Напоминания о звонках{count, plural, =0 {} other {, {count} в очереди}}",
+    "panelAria": "Звонки на сегодня",
+    "openList": "Открыть Звонки",
+    "empty": "На сегодня звонков нет",
+    "loading": "Загрузка звонков…",
+    "loadError": "Не удалось загрузить напоминания",
+    "dueToday": "Сегодня",
+    "overdue": "Просрочено",
+    "markDone": "Позвонили"
+  },
   "listSort": {
     "sort": "Сортировка",
     "newest": "Сначала новые",
@@ -63,7 +75,7 @@
     "packages": "Пакеты",
     "explore": "Материалы",
     "schedule": "Расписание",
-    "presalePackages": "Presale Packages",
+    "presalePackages": "Пакеты предпродажи",
     "contact": "Контакты"
   },
   "footer": {
@@ -149,7 +161,7 @@
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",
-      "presalePackagesTitle": "Presale Packages",
+      "presalePackagesTitle": "Пакеты предпродажи",
       "weeklyScheduleSubtitle": "Присоединяйтесь к нам в течение недели — занятия, подобранные под ваш wellness-путь.",
       "weeklyScheduleGridAria": "Недельное расписание по дням",
       "weeklyScheduleDayTabsAria": "Выберите день недели",
@@ -163,7 +175,7 @@
       "weeklyScheduleDuration": "{count} мин",
       "weeklyScheduleDurationFallback": "—",
       "weeklyScheduleSpotsLeft": "{count, plural, =1 {Осталось 1 место} few {Осталось # места} many {Осталось # мест} other {Осталось # места}}",
-      "weeklyScheduleSeeFull": "See full schedule",
+      "weeklyScheduleSeeFull": "Смотреть полное расписание",
       "weeklyScheduleDays": {
         "MONDAY": "Понедельник",
         "TUESDAY": "Вторник",
@@ -251,10 +263,10 @@
           "imageAlt": "Портрет преподавателя"
         }
       ],
-      "galleryTitle": "A space designed to slow you down",
-      "galleryTitleLine1": "A space designed to",
-      "galleryTitleLine2": "slow you down",
-      "gallerySubtitle": "From the entrance to the last corner — every detail is part of the pause.",
+      "galleryTitle": "Пространство, созданное чтобы замедлиться",
+      "galleryTitleLine1": "Пространство, созданное чтобы",
+      "galleryTitleLine2": "замедлиться",
+      "gallerySubtitle": "От входа до последнего угла — каждая деталь часть паузы.",
       "galleryMoreDetails": "Подробнее",
       "galleryPrevAria": "Предыдущий слайд галереи",
       "galleryNextAria": "Следующий слайд галереи",
@@ -282,7 +294,7 @@
       "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
       "footerCopyrightCompanyPart1": "NEETRINO IT",
       "footerCopyrightCompanyPart2": "COMPANY",
-      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerCopyrightSuffix": ". ВСЕ ПРАВА ЗАЩИЩЕНЫ.",
       "footerIllustrationAlt": "Декоративная иллюстрация Om"
     }
   },
@@ -556,6 +568,7 @@
         "bookings": "Бронирования",
         "waitlists": "Листы ожидания",
         "clients": "Клиенты",
+        "calls": "Звонки",
         "coaches": "Тренеры",
         "schedule": "Расписание",
         "classes": "Классы",
@@ -578,6 +591,7 @@
         "bookings": "Бронирования",
         "waitlists": "Листы ожидания",
         "clients": "Клиенты",
+        "calls": "Звонки",
         "coaches": "Тренеры",
         "schedule": "Расписание",
         "types": "Типы",
@@ -600,6 +614,7 @@
       "admin": {
         "home": "Обзор активности студии и ключевых метрик.",
         "clients": "Участники, роли и доступ к аккаунту.",
+        "calls": "Обратные звонки на сегодня и предстоящие напоминания.",
         "bookings": "Сессии, посещаемость и бронирования.",
         "classes": "Типы занятий, вместимость и расписания.",
         "waitlists": "Позиции в очереди и недавняя активность листа ожидания.",
@@ -649,6 +664,7 @@
         "waitlists": "Очереди ожидания по сессиям.",
         "coaches": "Назначения и доступность тренеров.",
         "clients": "Список участников студии.",
+        "calls": "Обратные звонки на сегодня и предстоящие напоминания.",
         "packages": "Планы членства, цены и пакеты.",
         "giftCards": "Выпущенные карты и балансы (просмотр и повторная отправка, где разрешено).",
         "notifications": "Рассылки участникам и сотрудникам.",
@@ -823,7 +839,7 @@
       },
       "membershipViewDetailsHint": "Нажмите для подробностей",
       "membershipDetailsCloseBackdrop": "Закрыть детали пакета",
-      "membershipDetailsSessionName": "Session Name",
+      "membershipDetailsSessionName": "Название занятия",
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
       "membershipDetailsValidity": "Срок действия",
@@ -1762,6 +1778,52 @@
     "home": {
       "signInPrompt": "Войдите, чтобы открыть админ-панель."
     },
+    "calls": {
+      "title": "Звонки",
+      "errorAuth": "Нужен вход администратора или менеджера.",
+      "errorLoad": "Не удалось загрузить звонки ({status}).",
+      "loadFailed": "Не удалось загрузить список звонков.",
+      "retry": "Повторить",
+      "emptyTitle": "Звонков нет",
+      "emptyDescription": "Добавьте имя, телефон, комментарий и дату звонка. В этот день команда увидит напоминание.",
+      "actionFailed": "Действие не удалось.",
+      "create": "Добавить звонок",
+      "createTitle": "Новый звонок",
+      "editTitle": "Редактировать звонок",
+      "edit": "Изменить",
+      "save": "Сохранить",
+      "saving": "Сохранение…",
+      "close": "Закрыть",
+      "detailsCloseBackdrop": "Закрыть детали звонка",
+      "viewDetailsFor": "Подробности звонка для {name}",
+      "created": "Звонок сохранён.",
+      "updated": "Звонок обновлён.",
+      "completed": "Отмечено как выполнено.",
+      "cancelled": "Звонок отменён.",
+      "markDone": "Позвонили",
+      "cancelTask": "Отменить",
+      "overdue": "Просрочено",
+      "searchPlaceholder": "Имя, телефон или комментарий…",
+      "resetFilters": "Сбросить фильтры",
+      "colContact": "Контакт",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "firstNamePlaceholder": "Ани",
+      "lastNamePlaceholder": "Акопян",
+      "colPhone": "Телефон",
+      "colDue": "Дата звонка",
+      "datePlaceholder": "ДД/ММ/ГГГГ",
+      "colComment": "Комментарий",
+      "colStatus": "Статус",
+      "colActions": "Действия",
+      "statusAll": "Все статусы",
+      "status": {
+        "PENDING": "Ожидает",
+        "OVERDUE": "Просрочено",
+        "DONE": "Позвонили",
+        "CANCELLED": "Отменён"
+      }
+    },
     "settings": {
       "title": "Настройки",
       "studioDescription": "Управляйте данными студии, контактами и операционными параметрами.",
@@ -1904,7 +1966,7 @@
       "filterPayment": "Оплата",
       "filterPaymentAll": "Все оплаты",
       "filterStatusAll": "Все статусы",
-      "resetFilters": "Reset Filters",
+      "resetFilters": "Сбросить фильтры",
       "activeCount": "{count} активных фильтров",
       "viewList": "Все бронирования",
       "viewMonthly": "Месячный вид",
@@ -2187,7 +2249,7 @@
         "cancellations": "Отмены",
         "noShows": "Неявки",
         "lastVisit": "Последний визит",
-        "lifetimeValue": "Lifetime value",
+        "lifetimeValue": "Пожизненная ценность",
         "bookingHistory": "История бронирований",
         "noBookings": "Бронирований нет.",
         "paymentHistory": "История платежей",
@@ -2221,7 +2283,7 @@
         "orderNewest": "Сначала новые",
         "orderOldest": "Сначала старые",
         "apply": "Применить фильтры",
-        "resetFilters": "Reset Filters"
+        "resetFilters": "Сбросить фильтры"
       }
     },
     "coaches": {
@@ -2257,7 +2319,7 @@
         "orderOldest": "Сначала старые",
         "apply": "Применить фильтры",
         "clear": "Сбросить фильтры",
-        "resetFilters": "Reset Filters",
+        "resetFilters": "Сбросить фильтры",
         "loading": "Загружаем подходящих тренеров...",
         "activeCount": "Активных фильтров: {count}",
         "quickActive": "Активные",
@@ -2545,6 +2607,7 @@
         "formCreateTitle": "Новый тип",
         "formEditTitle": "Редактировать тип",
         "fieldName": "Название",
+        "fieldNamePlaceholder": "напр. Reformer Group",
         "fieldSlug": "Slug",
         "fieldDescription": "Описание",
         "sessionCount": "{count} занятий",
@@ -2552,9 +2615,11 @@
         "linkedSessionsHint": "С этим типом связано {count} занятий. Переназначьте или удалите их перед удалением типа.",
         "deleteButton": "Удалить",
         "deleteDialog": {
-          "title": "Удалить тип",
-          "description": "Удалить «{name}» из каталога? Это действие нельзя отменить.",
-          "warning": "Тип можно удалить только если с ним не связаны сессии занятий."
+          "title": "Убрать из каталога?",
+          "description": "«{name}» исчезнет из этого списка. Существующие занятия и остатки пакетов продолжат работать.",
+          "warning": "Этот тип больше нельзя будет назначить новым занятиям или тарифам.",
+          "confirmButton": "Убрать из каталога",
+          "deletingButton": "Убираем…"
         },
         "deleteBlocked": "Нельзя удалить — с типом связано {count} занятий.",
         "loadErrorTitle": "Не удалось загрузить типы",
@@ -2582,7 +2647,7 @@
         "messages": {
           "createSuccess": "Тип занятия создан.",
           "updateSuccess": "Тип занятия обновлён.",
-          "deleteSuccess": "Тип занятия удалён.",
+          "deleteSuccess": "Тип занятия убран из каталога.",
           "genericError": "Не удалось выполнить действие."
         }
       },
@@ -3109,7 +3174,7 @@
       "selectCategoryHint": "Выберите эту категорию выше, чтобы просмотреть и управлять её пакетами.",
       "tablePageName": "Название пакета",
       "tableSessionName": "Название пакета",
-      "tableTotalSessions": "Total sessions",
+      "tableTotalSessions": "Всего занятий",
       "tableSessions": "Сессии",
       "tablePrice": "Цена",
       "tablePricePerSession": "Цена / сессия",
@@ -3691,7 +3756,7 @@
           "active": "Активные клиенты",
           "vip": "VIP клиенты",
           "visits": "Всего визитов",
-          "ltv": "Lifetime value",
+          "ltv": "Пожизненная ценность",
           "chartAria": "График активности пользователей"
         },
         "classPopularity": {
@@ -4247,7 +4312,7 @@
     },
     "manualPackagePayment": {
       "title": "Подтвердить подписку",
-      "selectPlanLegend": "Session Name",
+      "selectPlanLegend": "Название занятия",
       "selectedPlanBadge": "Selected",
       "closeModal": "Закрыть",
       "methodLegend": "Способ оплаты",

@@ -107,7 +107,7 @@ export class ClassesSessionsAdminService {
   }
 
   async createSession(dto: CreateSessionDto): Promise<AdminSessionRow> {
-    await this.typesService.assertClassTypeExists(dto.classTypeId);
+    await this.typesService.assertClassTypeAssignable(dto.classTypeId);
     await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
     if (dto.substituteCoachId) {
       await this.assertCoachAssignedToClassType(
@@ -151,7 +151,7 @@ export class ClassesSessionsAdminService {
   async createSessionBatch(
     dto: CreateSessionBatchDto,
   ): Promise<AdminSessionRow[]> {
-    await this.typesService.assertClassTypeExists(dto.classTypeId);
+    await this.typesService.assertClassTypeAssignable(dto.classTypeId);
     await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
     const title = await this.typesService.resolveSessionTitle(
       dto.title,
@@ -185,7 +185,11 @@ export class ClassesSessionsAdminService {
 
     const nextClassTypeId = dto.classTypeId ?? existing.classTypeId;
     const nextCoachId = dto.coachId ?? existing.coachId;
-    await this.typesService.assertClassTypeExists(nextClassTypeId);
+    if (dto.classTypeId !== undefined) {
+      await this.typesService.assertClassTypeAssignable(dto.classTypeId);
+    } else {
+      await this.typesService.assertClassTypeExists(nextClassTypeId);
+    }
     await this.assertCoachAssignedToClassType(nextCoachId, nextClassTypeId);
     if (dto.substituteCoachId) {
       await this.assertCoachAssignedToClassType(

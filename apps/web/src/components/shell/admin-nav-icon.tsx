@@ -13,6 +13,7 @@ const SLUG_SIZE_CLASS: Partial<Record<AdminNavIconSlug, string>> = {
   schedule: "h-[19px] w-[17px]",
   bookings: "h-[19px] w-[17px]",
   waitlists: "h-[19px] w-[17px]",
+  calls: "h-[19px] w-[17px]",
 };
 
 /**

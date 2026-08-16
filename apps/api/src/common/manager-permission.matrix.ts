@@ -59,6 +59,9 @@ export const MANAGER_PERMISSION_MATRIX = {
     write: BACKOFFICE_WRITE_ROLES,
     hardDelete: BACKOFFICE_DELETE_ROLES,
   },
+  callTasks: {
+    write: BACKOFFICE_WRITE_ROLES,
+  },
 } as const;
 
 export function roleAllows(allowed: readonly Role[], role: Role): boolean {

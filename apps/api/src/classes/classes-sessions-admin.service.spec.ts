@@ -78,6 +78,46 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
   });
 });
 
+describe('ClassesSessionsAdminService class type archive', () => {
+  const schedule = {
+    invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+  };
+  const realtime = { emitPublicScheduleSession: jest.fn() };
+  const cancelCascade = { apply: jest.fn() };
+
+  it('does not create a session when the class type is archived', async () => {
+    const create = jest.fn();
+    const prisma = { classSession: { create } };
+    const typesService = {
+      assertClassTypeAssignable: jest
+        .fn()
+        .mockRejectedValue(
+          new BadRequestException(
+            'Class type is not available for new sessions.',
+          ),
+        ),
+    };
+    const service = new ClassesSessionsAdminService(
+      prisma as never,
+      typesService as never,
+      schedule as never,
+      realtime as never,
+      cancelCascade as never,
+    );
+
+    await expect(
+      service.createSession({
+        classTypeId: 'ct-archived',
+        coachId: 'coach-1',
+        startsAt: '2026-08-20T10:00:00.000Z',
+        endsAt: '2026-08-20T11:00:00.000Z',
+        capacity: 8,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(create).not.toHaveBeenCalled();
+  });
+});
+
 describe('ClassesSessionsAdminService.updateSessionStatus', () => {
   it('cascades member release when status becomes CANCELLED', async () => {
     const cancelCascade = { apply: jest.fn().mockResolvedValue(undefined) };

@@ -44,6 +44,7 @@ export function MarketingSiteHeader({
   notificationHref = null,
   notificationsLabel = null,
   showMemberNotifications = false,
+  callTasksListHref = null,
 }: MarketingSiteHeaderProps) {
   const pathname = usePathname();
   const [publicMenuOpen, setPublicMenuOpen] = useState(false);
@@ -134,6 +135,7 @@ export function MarketingSiteHeader({
             memberAvatarProfileHref={memberAvatarProfileHref}
             showNotifications={showNotifications}
             notificationPreferencesHref={notificationPreferencesHref}
+            callTasksListHref={callTasksListHref}
             account={account}
             onBrandClick={handleBrandClick}
             onTogglePublicMenu={() => setPublicMenuOpen((open) => !open)}
@@ -150,6 +152,7 @@ export function MarketingSiteHeader({
           memberAvatarProfileHref={memberAvatarProfileHref}
           showNotifications={showNotifications}
           notificationPreferencesHref={notificationPreferencesHref}
+          callTasksListHref={callTasksListHref}
           desktopGlassStyle={desktopGlassStyle}
           desktopNotificationsTriggerClass={desktopNotificationsTriggerClass}
           onBrandClick={handleBrandClick}

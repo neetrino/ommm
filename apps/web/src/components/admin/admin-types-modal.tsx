@@ -6,7 +6,6 @@ import {
   AdminTypesManagement,
   type AdminClassTypeRow,
 } from "@/components/admin/admin-types-management";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 
 type AdminTypesModalProps = {
@@ -17,7 +16,7 @@ type AdminTypesModalProps = {
 };
 
 const TYPES_MODAL_PANEL_CLASS =
-  "mt-auto flex max-h-[92vh] w-full max-w-[min(960px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
+  "mt-auto flex h-[min(90vh,760px)] max-h-[92vh] w-full max-w-[min(920px,95vw)] flex-col overflow-hidden rounded-t-[32px] border border-sand-200/70 bg-paper/95 shadow-[0_32px_80px_-36px_rgba(45,40,35,0.5)] backdrop-blur-xl sm:mt-0 sm:h-[min(86vh,780px)] sm:rounded-[32px]";
 
 export function AdminTypesModal({
   isOpen,
@@ -38,12 +37,12 @@ export function AdminTypesModal({
       isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={tTypes("modalBackdropClose")}
-      overlayClassName="ommm-modal-overlay z-[110]"
+      overlayClassName="ommm-modal-overlay z-[110] p-3 sm:p-6"
       panelClassName={TYPES_MODAL_PANEL_CLASS}
     >
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
-          <h2 id={titleId} className={adminChrome.panelHeading}>
+        <div className="flex items-start justify-between gap-4 border-b border-sand-200/50 bg-white/40 px-5 py-4 sm:px-7 sm:py-5">
+          <h2 id={titleId} className="font-serif text-2xl font-normal tracking-tight text-sage-900">
             {tTypes("modalTitle")}
           </h2>
           <button
@@ -66,7 +65,7 @@ export function AdminTypesModal({
             </svg>
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-7 sm:py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-gradient-to-b from-white/30 to-transparent px-5 py-5 sm:px-7 sm:py-6">
           <AdminTypesManagement
             initialTypes={initialTypes}
             embedded

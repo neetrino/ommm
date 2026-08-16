@@ -7,6 +7,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CallTasksModule } from './call-tasks/call-tasks.module';
 import { CacheModule } from './cache/cache.module';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
@@ -100,6 +101,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     ReportsModule,
     NotificationsModule,
     ClientsModule,
+    CallTasksModule,
     ScheduleItemsModule,
     JobsModule,
   ],

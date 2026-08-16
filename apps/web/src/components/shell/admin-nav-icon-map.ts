@@ -13,7 +13,8 @@ export type AdminNavIconSlug =
   | "notifications"
   | "settings"
   | "feedback"
-  | "guestUsers";
+  | "guestUsers"
+  | "calls";
 
 /** Maps admin sidebar routes to Figma-exported icon assets. */
 export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> = {
@@ -21,6 +22,7 @@ export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> 
   "/admin/bookings": "bookings",
   "/admin/waitlists": "waitlists",
   "/admin/clients": "clients",
+  "/admin/calls": "calls",
   "/admin/coaches": "coaches",
   "/admin/schedule": "schedule",
   "/admin/packages": "packages",
@@ -44,6 +46,7 @@ export const MANAGER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>
   "/manager/bookings": "bookings",
   "/manager/waitlists": "waitlists",
   "/manager/clients": "clients",
+  "/manager/calls": "calls",
   "/manager/coaches": "coaches",
   "/manager/schedule": "schedule",
   "/manager/packages": "packages",

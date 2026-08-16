@@ -18,6 +18,7 @@ type OmmConfirmDialogProps = {
   confirmPending?: boolean;
   tone?: OmmConfirmDialogTone;
   confirmClassName?: string;
+  overlayClassName?: string;
   lockBodyScroll?: boolean;
   closeOnEscape?: boolean;
   onConfirm: () => void;
@@ -46,6 +47,7 @@ export function OmmConfirmDialog({
   confirmPending,
   tone = "default",
   confirmClassName = "",
+  overlayClassName = "ommm-modal-overlay z-[110] p-4",
   lockBodyScroll = true,
   closeOnEscape = true,
   onConfirm,
@@ -71,7 +73,7 @@ export function OmmConfirmDialog({
       ariaDescribedBy={descId}
       closeDisabled={pending}
       backdropAriaLabel={backdropAriaLabel}
-      overlayClassName="ommm-modal-overlay z-[110] p-4"
+      overlayClassName={overlayClassName}
       panelClassName={panelClassName}
       lockBodyScroll={lockBodyScroll}
       closeOnEscape={closeOnEscape}

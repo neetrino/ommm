@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
+import { AdminClassTypeDeleteConfirm } from "@/components/admin/admin-class-type-delete-confirm";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { OmmButton } from "@/components/ui/omm-button";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
@@ -51,18 +52,16 @@ export function AdminTypesManagement({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyFormState);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   if (prevInitialTypes !== initialTypes) {
     setPrevInitialTypes(initialTypes);
     setRows(initialTypes);
   }
 
-  function syncRows(updater: (current: readonly AdminClassTypeRow[]) => readonly AdminClassTypeRow[]): void {
-    setRows((current) => {
-      const next = updater(current);
-      onTypesChanged?.(next);
-      return next;
-    });
+  function commitRows(next: readonly AdminClassTypeRow[]): void {
+    setRows(next);
+    onTypesChanged?.(next);
   }
 
   const selected = useMemo(
@@ -88,6 +87,7 @@ export function AdminTypesManagement({
     setForm({ name: row.name });
     setError(null);
     setSuccess(null);
+    setDeleteConfirmOpen(false);
   }
 
   function startCreate(): void {
@@ -95,6 +95,7 @@ export function AdminTypesManagement({
     setForm(emptyFormState());
     setError(null);
     setSuccess(null);
+    setDeleteConfirmOpen(false);
   }
 
   async function submitForm(): Promise<void> {
@@ -116,8 +117,8 @@ export function AdminTypesManagement({
           method: "POST",
           body: JSON.stringify(payload),
         });
-        syncRows((current) =>
-          [...current, created].sort((left, right) => left.name.localeCompare(right.name)),
+        commitRows(
+          [...rows, created].sort((left, right) => left.name.localeCompare(right.name)),
         );
         setSelectedId(created.id);
         setForm({ name: created.name });
@@ -127,8 +128,8 @@ export function AdminTypesManagement({
           method: "PATCH",
           body: JSON.stringify(payload),
         });
-        syncRows((current) =>
-          current
+        commitRows(
+          rows
             .map((row) => (row.id === updated.id ? updated : row))
             .sort((left, right) => left.name.localeCompare(right.name)),
         );
@@ -152,9 +153,10 @@ export function AdminTypesManagement({
     setSuccess(null);
     try {
       await apiFetch(`/classes/types/${selectedId}`, { method: "DELETE" });
-      syncRows((current) => current.filter((row) => row.id !== selectedId));
+      commitRows(rows.filter((row) => row.id !== selectedId));
       setSelectedId(null);
       setForm(emptyFormState());
+      setDeleteConfirmOpen(false);
       setSuccess(t("messages.deleteSuccess"));
     } catch (requestError) {
       setError(
@@ -170,13 +172,20 @@ export function AdminTypesManagement({
       value={query}
       onChange={(event) => setQuery(event.target.value)}
       placeholder={t("listSearchPlaceholder")}
-      className="ommm-input w-full"
+      className="ommm-input w-full rounded-full"
     />
   );
 
   return (
-    <div className="space-y-5">
-      {embedded ? searchField : (
+    <div className={embedded ? "flex h-full min-h-0 flex-col gap-5" : "space-y-5"}>
+      {embedded ? (
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="min-w-0 flex-1">{searchField}</div>
+          <OmmButton type="button" variant="primary" size="sm" className="shrink-0" disabled={pending} onClick={startCreate}>
+            {t("addButton")}
+          </OmmButton>
+        </div>
+      ) : (
         <AdminPageHero title={t("modalTitle")} search={searchField} />
       )}
 
@@ -191,12 +200,12 @@ export function AdminTypesManagement({
         </p>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <div className="rounded-2xl border border-white/60 bg-white/80 p-3 sm:p-4">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-stretch">
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-[24px] border border-sand-200/60 bg-white/70 p-2 shadow-[0_12px_32px_-28px_rgba(45,40,35,0.28)] sm:p-3">
           {filteredRows.length === 0 ? (
-            <p className="text-sm text-sage-600">{t("listNoMatches")}</p>
+            <p className="px-3 py-8 text-center text-sm text-sage-600">{t("listNoMatches")}</p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto pe-1">
               {filteredRows.map((row) => {
                 const active = row.id === selectedId;
                 return (
@@ -204,13 +213,14 @@ export function AdminTypesManagement({
                     <button
                       type="button"
                       onClick={() => selectForEdit(row)}
-                      className={`w-full rounded-xl border px-3 py-3 text-left transition-colors ${
+                      aria-current={active ? "true" : undefined}
+                      className={`w-full rounded-2xl px-3.5 py-2.5 text-left text-sm transition-[background-color,box-shadow,border-color,color] ${
                         active
-                          ? "border-sand-300 bg-sand-50 text-sage-900"
-                          : "border-white/70 bg-white/70 text-sage-700 hover:bg-white"
+                          ? "border border-sand-300/90 bg-sand-50 font-medium text-sage-900 shadow-sm"
+                          : "border border-transparent text-sage-700 hover:bg-white/90 hover:text-sage-900"
                       }`}
                     >
-                      <p className="text-sm font-semibold">{row.name}</p>
+                      {row.name}
                     </button>
                   </li>
                 );
@@ -220,18 +230,18 @@ export function AdminTypesManagement({
         </div>
 
         <form
-          className="rounded-2xl border border-white/60 bg-white/80 p-4 sm:p-5"
+          className="flex min-h-0 flex-col rounded-[24px] border border-sand-200/60 bg-white/80 p-5 shadow-[0_12px_32px_-28px_rgba(45,40,35,0.28)] sm:p-6"
           onSubmit={(event) => {
             event.preventDefault();
             void submitForm();
           }}
         >
-          <h2 className="text-base font-semibold text-sage-900">
+          <h2 className="font-serif text-xl font-normal text-sage-900">
             {selected ? t("formEditTitle") : t("formCreateTitle")}
           </h2>
-          <div className="mt-4 space-y-3">
-            <label className="block space-y-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-sage-600">
+          <div className="mt-5 space-y-3">
+            <label className="block space-y-1.5">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sage-500">
                 {t("fieldName")}
               </span>
               <input
@@ -240,28 +250,48 @@ export function AdminTypesManagement({
                 onChange={(event) =>
                   setForm((current) => ({ ...current, name: event.target.value }))
                 }
+                placeholder={t("fieldNamePlaceholder")}
                 disabled={pending}
               />
             </label>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <OmmButton type="submit" variant="primary" disabled={pending}>
-              {pending ? t("savingButton") : selected ? t("saveButton") : t("createButton")}
-            </OmmButton>
-            {selected ? (
-              <OmmButton type="button" variant="ghost" disabled={pending} onClick={startCreate}>
-                {t("cancelButton")}
+          <div className="mt-auto flex flex-col gap-3 border-t border-sand-200/50 pt-5 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-2">
+              <OmmButton type="submit" variant="primary" size="sm" disabled={pending}>
+                {pending ? t("savingButton") : selected ? t("saveButton") : t("createButton")}
               </OmmButton>
-            ) : null}
+              {selected ? (
+                <OmmButton type="button" variant="secondary" size="sm" disabled={pending} onClick={startCreate}>
+                  {t("cancelButton")}
+                </OmmButton>
+              ) : null}
+            </div>
             {selected ? (
-              <OmmButton type="button" variant="danger" disabled={pending} onClick={() => void deleteSelected()}>
+              <OmmButton type="button" variant="danger" size="sm" className="sm:ms-auto" disabled={pending} onClick={() => setDeleteConfirmOpen(true)}>
                 {t("deleteButton")}
               </OmmButton>
             ) : null}
           </div>
         </form>
       </div>
+
+      <AdminClassTypeDeleteConfirm
+        isOpen={deleteConfirmOpen && selected !== null}
+        pending={pending}
+        title={t("deleteDialog.title")}
+        description={t("deleteDialog.description", { name: selected?.name ?? "" })}
+        warning={t("deleteDialog.warning")}
+        confirmLabel={
+          pending ? t("deleteDialog.deletingButton") : t("deleteDialog.confirmButton")
+        }
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        onConfirm={() => {
+          void deleteSelected();
+        }}
+        onCancel={() => setDeleteConfirmOpen(false)}
+      />
     </div>
   );
 }

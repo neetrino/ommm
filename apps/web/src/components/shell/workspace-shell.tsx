@@ -94,6 +94,13 @@ export function WorkspaceShell({
         notificationHref={notificationRoute?.href ?? null}
         notificationsLabel={notificationsLabel}
         notificationsActive={notificationsActive}
+        callTasksListHref={
+          navRole === "ADMIN"
+            ? "/admin/calls"
+            : navRole === "MANAGER"
+              ? "/manager/calls"
+              : null
+        }
       />
       <DashboardAppShell
         {...shellProps}

@@ -85,4 +85,13 @@ describe('manager-permission.matrix', () => {
       ),
     ).toBe(true);
   });
+
+  it('allows Manager write on call tasks', () => {
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.callTasks.write, Role.MANAGER),
+    ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.callTasks.write, Role.ADMIN),
+    ).toBe(true);
+  });
 });

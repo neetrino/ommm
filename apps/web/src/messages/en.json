@@ -44,6 +44,18 @@
     "markAllRead": "Mark all as read",
     "preferencesLink": "Notification preferences"
   },
+  "headerCallTasks": {
+    "title": "Calls due",
+    "triggerAria": "Call reminders{count, plural, =0 {} other {, {count} due}}",
+    "panelAria": "Calls due today",
+    "openList": "Open Calls",
+    "empty": "No calls due today",
+    "loading": "Loading calls…",
+    "loadError": "Could not load call reminders",
+    "dueToday": "Today",
+    "overdue": "Overdue",
+    "markDone": "Called"
+  },
   "listSort": {
     "sort": "Sort",
     "newest": "Newest first",
@@ -546,6 +558,7 @@
         "bookings": "Bookings",
         "waitlists": "Waitlists",
         "clients": "Clients",
+        "calls": "Calls",
         "coaches": "Coaches",
         "schedule": "Schedule",
         "classes": "Classes",
@@ -568,6 +581,7 @@
         "bookings": "Bookings",
         "waitlists": "Waitlists",
         "clients": "Clients",
+        "calls": "Calls",
         "coaches": "Coaches",
         "schedule": "Schedule",
         "types": "Types",
@@ -590,6 +604,7 @@
       "admin": {
         "home": "Overview of studio activity and key metrics.",
         "clients": "Members, roles, and account access.",
+        "calls": "Follow-up calls to make today and upcoming reminders.",
         "bookings": "Sessions, attendance, and reservations.",
         "classes": "Class types, capacity, and schedules.",
         "waitlists": "Queue positions and recent waitlist activity.",
@@ -639,6 +654,7 @@
         "waitlists": "Waitlist queues by session.",
         "coaches": "Coach assignments and availability.",
         "clients": "Member roster for the studio.",
+        "calls": "Follow-up calls to make today and upcoming reminders.",
         "packages": "Membership plans, pricing, and packages.",
         "giftCards": "Issued cards and balances (view and resend where allowed).",
         "notifications": "Broadcast messages to members and staff.",
@@ -1754,6 +1770,52 @@
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."
     },
+    "calls": {
+      "title": "Calls",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load calls ({status}).",
+      "loadFailed": "Could not load call tasks.",
+      "retry": "Retry",
+      "emptyTitle": "No call tasks",
+      "emptyDescription": "Add a name, phone, comment, and the date to call. That day the team will see a reminder.",
+      "actionFailed": "Action failed.",
+      "create": "Add call",
+      "createTitle": "New call",
+      "editTitle": "Edit call",
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving…",
+      "close": "Close",
+      "detailsCloseBackdrop": "Close call details",
+      "viewDetailsFor": "View call details for {name}",
+      "created": "Call saved.",
+      "updated": "Call updated.",
+      "completed": "Marked as called.",
+      "cancelled": "Call cancelled.",
+      "markDone": "Called",
+      "cancelTask": "Cancel",
+      "overdue": "Overdue",
+      "searchPlaceholder": "Search name, phone, or comment…",
+      "resetFilters": "Reset filters",
+      "colContact": "Contact",
+      "firstName": "Name",
+      "lastName": "Surname",
+      "firstNamePlaceholder": "Ani",
+      "lastNamePlaceholder": "Hakobyan",
+      "colPhone": "Phone",
+      "colDue": "Call date",
+      "datePlaceholder": "DD/MM/YYYY",
+      "colComment": "Comment",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "statusAll": "All statuses",
+      "status": {
+        "PENDING": "Pending",
+        "OVERDUE": "Overdue",
+        "DONE": "Called",
+        "CANCELLED": "Cancelled"
+      }
+    },
     "settings": {
       "title": "Settings",
       "studioDescription": "Manage studio identity, contact details, and operational defaults.",
@@ -2532,11 +2594,12 @@
       "classTypes": {
         "modalTitle": "Class types",
         "modalBackdropClose": "Close dialog",
-        "addButton": "Add type",
+        "addButton": "Add class type",
         "emptyTitle": "No class types yet",
         "formCreateTitle": "New class type",
         "formEditTitle": "Edit class type",
         "fieldName": "Name",
+        "fieldNamePlaceholder": "e.g. Reformer Group",
         "fieldSlug": "Slug",
         "fieldDescription": "Description",
         "sessionCount": "{count} classes",
@@ -2544,9 +2607,11 @@
         "linkedSessionsHint": "{count} scheduled classes use this type. Reassign or remove them before deleting.",
         "deleteButton": "Delete",
         "deleteDialog": {
-          "title": "Delete class type",
-          "description": "Delete \"{name}\" from the catalog? This cannot be undone.",
-          "warning": "Deleting a type only works when no class sessions use it. Existing sessions keep their type until you change or remove them."
+          "title": "Remove from catalog?",
+          "description": "“{name}” will leave this list. Existing classes and package credits keep working.",
+          "warning": "You will not be able to assign this type to new sessions or package plans.",
+          "confirmButton": "Remove from catalog",
+          "deletingButton": "Removing…"
         },
         "deleteBlocked": "Cannot delete — {count} classes are linked to this type.",
         "loadErrorTitle": "Could not load class types",
@@ -2574,7 +2639,7 @@
         "messages": {
           "createSuccess": "Class type created.",
           "updateSuccess": "Class type updated.",
-          "deleteSuccess": "Class type deleted.",
+          "deleteSuccess": "Class type removed from the catalog.",
           "genericError": "Action failed."
         }
       },

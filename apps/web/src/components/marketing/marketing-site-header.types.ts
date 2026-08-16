@@ -28,4 +28,6 @@ export type MarketingSiteHeaderProps = {
   notificationsActive?: boolean;
   /** Member users on public pages — show waitlist notification bell. */
   showMemberNotifications?: boolean;
+  /** Admin/manager workspace — due call-task reminder menu. */
+  callTasksListHref?: string | null;
 };

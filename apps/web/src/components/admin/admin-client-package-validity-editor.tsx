@@ -8,10 +8,9 @@ import {
   ADMIN_SHEET_FORM_SECTION_CLASS,
 } from "@/components/admin/admin-sheet-editable-field";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
-
-const DATE_INPUT_CLASS = "ommm-input";
 
 type AdminClientPackageValidityEditorProps = {
   item: ClientSheetPackageItem;
@@ -132,14 +131,14 @@ export function AdminClientPackageValidityEditor({
             error={activationError}
             hint={t("packages.activationDateOptionalHint")}
           >
-            <input
-              type="date"
+            <DatePickerInput
               name="activationDate"
-              className={DATE_INPUT_CLASS}
               value={activationDate}
               disabled={submitting}
-              onChange={(event) => {
-                setActivationDate(event.target.value);
+              allowManualEntry
+              placeholder="DD/MM/YYYY"
+              onChange={(nextValue) => {
+                setActivationDate(nextValue);
                 setActivationError(undefined);
               }}
             />
@@ -156,15 +155,15 @@ export function AdminClientPackageValidityEditor({
             required
             error={expirationError}
           >
-            <input
-              type="date"
+            <DatePickerInput
               name="expirationDate"
-              required
-              className={DATE_INPUT_CLASS}
               value={expirationDate}
+              required
               disabled={submitting}
-              onChange={(event) => {
-                setExpirationDate(event.target.value);
+              allowManualEntry
+              placeholder="DD/MM/YYYY"
+              onChange={(nextValue) => {
+                setExpirationDate(nextValue);
                 setExpirationError(undefined);
               }}
             />

@@ -41,6 +41,31 @@ function createMembership(params: {
 }
 
 describe('package-usage.helpers classType matching', () => {
+  it('still matches credits after catalog archive because eligibility uses classTypeId', () => {
+    const membership = createMembership({
+      balances: [
+        {
+          id: 'balance-1',
+          classTypeId: 'ct-evening-yoga',
+          sourceCategoryNameSnapshot: 'Evening Yoga by Ommm',
+          sessionsTotal: 1,
+          sessionsUsed: 0,
+          sessionsRemaining: 1,
+          isUnlimited: false,
+        },
+      ],
+    });
+    const sessionClassType = {
+      id: 'ct-evening-yoga',
+      name: 'Evening Yoga by Ommm',
+    };
+
+    expect(membershipCoversSessionType(membership, sessionClassType)).toBe(
+      true,
+    );
+    expect(hasAnyBookableCredit(membership, sessionClassType)).toBe(true);
+  });
+
   it('matches by classTypeId even when names diverge', () => {
     const membership = createMembership({
       balances: [
