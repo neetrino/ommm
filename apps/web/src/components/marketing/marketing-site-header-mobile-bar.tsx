@@ -25,6 +25,7 @@ import type {
   MarketingHeaderAccount,
   WorkspaceDrawerControl,
 } from "@/components/marketing/marketing-site-header.types";
+import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link } from "@/i18n/navigation";
@@ -39,6 +40,7 @@ type MarketingSiteHeaderMobileBarProps = {
   memberAvatarProfileHref: string;
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
+  callTasksListHref?: string | null;
   account: MarketingHeaderAccount | null;
   onBrandClick: (event: MouseEvent<HTMLAnchorElement>) => void;
   onTogglePublicMenu: () => void;
@@ -54,6 +56,7 @@ export function MarketingSiteHeaderMobileBar({
   memberAvatarProfileHref,
   showNotifications,
   notificationPreferencesHref,
+  callTasksListHref = null,
   account,
   onBrandClick,
   onTogglePublicMenu,
@@ -116,7 +119,15 @@ export function MarketingSiteHeaderMobileBar({
         ) : null}
         {memberWorkspaceHeader ? (
           <>
-            {showNotifications ? (
+            {callTasksListHref ? (
+              <HeaderCallTasksMenu
+                enabled
+                listHref={callTasksListHref}
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                onNavigate={onCloseAllMenus}
+              />
+            ) : showNotifications ? (
               <HeaderNotificationsMenu
                 enabled
                 preferencesHref={notificationPreferencesHref}
@@ -141,7 +152,15 @@ export function MarketingSiteHeaderMobileBar({
           </>
         ) : (
           <>
-            {showNotifications ? (
+            {callTasksListHref ? (
+              <HeaderCallTasksMenu
+                enabled
+                listHref={callTasksListHref}
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                onNavigate={onCloseAllMenus}
+              />
+            ) : showNotifications ? (
               <HeaderNotificationsMenu
                 enabled
                 preferencesHref={notificationPreferencesHref}

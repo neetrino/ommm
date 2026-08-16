@@ -29,6 +29,7 @@ import {
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
 import type { MarketingHeaderAccount } from "@/components/marketing/marketing-site-header.types";
 import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-active";
+import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
 import { Link } from "@/i18n/navigation";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
@@ -42,6 +43,7 @@ type MarketingSiteHeaderDesktopBarProps = {
   memberAvatarProfileHref: string;
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
+  callTasksListHref?: string | null;
   desktopGlassStyle: Record<string, string>;
   desktopNotificationsTriggerClass: string;
   onBrandClick: (event: MouseEvent<HTMLAnchorElement>) => void;
@@ -56,6 +58,7 @@ export function MarketingSiteHeaderDesktopBar({
   memberAvatarProfileHref,
   showNotifications,
   notificationPreferencesHref,
+  callTasksListHref = null,
   desktopGlassStyle,
   desktopNotificationsTriggerClass,
   onBrandClick,
@@ -118,7 +121,15 @@ export function MarketingSiteHeaderDesktopBar({
               <MarketingHeaderGlobeIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
             )}
           />
-          {showNotifications ? (
+          {callTasksListHref ? (
+            <HeaderCallTasksMenu
+              enabled
+              listHref={callTasksListHref}
+              triggerClassName={desktopNotificationsTriggerClass}
+              iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+              onNavigate={onCloseAllMenus}
+            />
+          ) : showNotifications ? (
             <HeaderNotificationsMenu
               enabled
               preferencesHref={notificationPreferencesHref}

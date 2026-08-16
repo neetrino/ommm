@@ -4,6 +4,7 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminDashboardCharts } from "@/components/admin/admin-dashboard-charts";
 import { AdminDashboardKpiHero } from "@/components/admin/admin-dashboard-kpi-hero";
 import { loadDashboardTrendData } from "@/components/admin/admin-dashboard-trend-data";
+import { AdminCallTasksDueBanner } from "@/components/admin/admin-call-tasks-due-banner";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import type { AnalyticsBarItem } from "@/components/admin/admin-analytics-types";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -172,6 +173,9 @@ export async function AdminDashboardMetrics({
 
   return (
     <AdminContentFrame>
+      <AdminCallTasksDueBanner
+        listHref={includeFinance ? "/admin/calls" : "/manager/calls"}
+      />
       <AdminDashboardKpiHero
         operationsTitle={tm("kpi.groupOperations")}
         financeTitle={includeFinance ? tm("kpi.groupFinance") : undefined}

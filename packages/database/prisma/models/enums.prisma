@@ -109,3 +109,9 @@ enum UserPackageStatus {
   EXPIRED
   PENDING
 }
+
+enum CallTaskStatus {
+  PENDING
+  DONE
+  CANCELLED
+}

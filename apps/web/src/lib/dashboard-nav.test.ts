@@ -15,6 +15,7 @@ describe("dashboard-nav manager parity", () => {
         "/manager/bookings",
         "/manager/waitlists",
         "/manager/clients",
+        "/manager/calls",
         "/manager/coaches",
         "/manager/schedule",
         "/manager/packages",
