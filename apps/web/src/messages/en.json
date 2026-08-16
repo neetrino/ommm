@@ -1772,7 +1772,6 @@
     },
     "calls": {
       "title": "Calls",
-      "description": "Schedule follow-up calls. Due and overdue tasks appear in the header reminder.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load calls ({status}).",
       "loadFailed": "Could not load call tasks.",

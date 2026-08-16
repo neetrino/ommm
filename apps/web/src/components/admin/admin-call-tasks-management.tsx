@@ -184,7 +184,6 @@ export function AdminCallTasksManagement({
     <>
       <StaffListPageLayout
         title={t("title")}
-        description={t("description")}
         headerTrailing={
           <OmmButton
             type="button"

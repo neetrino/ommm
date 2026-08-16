@@ -20,7 +20,6 @@ export function AdminCallTasksDueBanner({ listHref }: AdminCallTasksDueBannerPro
       className="mb-4 rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
       role="status"
     >
-      {t("description")}{" "}
       <Link href={listHref} className="font-semibold underline-offset-2 hover:underline">
         {t("title")} ({items.length})
       </Link>
