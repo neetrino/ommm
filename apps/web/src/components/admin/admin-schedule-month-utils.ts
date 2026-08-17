@@ -1,14 +1,8 @@
 import { toLocalIsoDate } from "@/lib/local-iso-date";
 
-const ISO_YEAR_MONTH_PATTERN = /^\d{4}-\d{2}$/;
-
 /** `YYYY-MM` from an ISO calendar day (`YYYY-MM-DD`). */
 export function yearMonthFromIsoDay(isoDay: string): string {
   return isoDay.slice(0, 7);
-}
-
-export function isYearMonth(value: string): boolean {
-  return ISO_YEAR_MONTH_PATTERN.test(value);
 }
 
 function parseYearMonth(yearMonth: string): { year: number; monthIndex: number } {
