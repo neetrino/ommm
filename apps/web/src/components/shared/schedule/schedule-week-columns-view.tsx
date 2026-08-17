@@ -119,7 +119,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
 
                 <div className="flex flex-col gap-3 pb-6">
                   {daySessions.length === 0 ? (
-                    <div className="rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-10 text-center text-xs text-sage-500">
+                    <div className="rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500">
                       {labels.emptyDay}
                     </div>
                   ) : (

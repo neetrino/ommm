@@ -2575,7 +2575,7 @@
       "weekView": {
         "gridAria": "Недельное расписание по дням",
         "todayBadge": "Сегодня",
-        "emptyDay": "—"
+        "emptyDay": "Нет занятий"
       },
       "monthView": {
         "gridAria": "Месячное расписание: {month}",

@@ -2578,7 +2578,7 @@
       "weekView": {
         "gridAria": "Շաբաթական դասացուցակ ըստ օրերի",
         "todayBadge": "Այսօր",
-        "emptyDay": "—"
+        "emptyDay": "Դասեր չկան"
       },
       "monthView": {
         "gridAria": "Ամսական դասացուցակ՝ {month}",

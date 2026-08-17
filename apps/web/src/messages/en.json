@@ -2567,7 +2567,7 @@
       "weekView": {
         "gridAria": "Weekly schedule by day",
         "todayBadge": "Today",
-        "emptyDay": "—"
+        "emptyDay": "No classes"
       },
       "monthView": {
         "gridAria": "Monthly schedule for {month}",
