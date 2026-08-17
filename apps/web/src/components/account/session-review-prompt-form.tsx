@@ -56,6 +56,7 @@ export function SessionReviewPromptForm({
             setPending,
             onClosed,
             ratingRequired: t("ratingRequired"),
+            commentRequired: t("commentRequired"),
             saveFailed: t("saveFailed"),
           })
         }
@@ -101,10 +102,16 @@ async function submitReview(params: {
   setPending: (value: boolean) => void;
   onClosed: () => void;
   ratingRequired: string;
+  commentRequired: string;
   saveFailed: string;
 }): Promise<void> {
   if (params.rating === null) {
     params.setError(params.ratingRequired);
+    return;
+  }
+  const trimmedComment = params.comment.trim();
+  if (trimmedComment.length === 0) {
+    params.setError(params.commentRequired);
     return;
   }
   params.setPending(true);
@@ -114,7 +121,7 @@ async function submitReview(params: {
       method: "POST",
       body: JSON.stringify({
         rating: params.rating,
-        comment: params.comment.trim() || undefined,
+        comment: trimmedComment,
         isAnonymous: params.isAnonymous,
       }),
     });
@@ -196,6 +203,7 @@ function SessionReviewPromptFields({
           className="ommm-input min-h-24"
           value={comment}
           maxLength={2000}
+          required
           disabled={pending}
           onChange={(event) => onComment(event.target.value)}
         />
