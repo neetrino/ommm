@@ -6,7 +6,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto';
+import { ListSessionReviewsInboxQueryDto } from './dto/list-session-reviews-inbox-query.dto';
 import { SubmitSessionReviewDto } from './dto/submit-session-review.dto';
 import { SessionReviewsService } from './session-reviews.service';
 
@@ -25,11 +25,8 @@ export class SessionReviewsController {
   @Get('inbox')
   @SkipThrottle()
   @Roles(...BACKOFFICE_READ_ROLES)
-  listInbox(@Query() query: ListPaginationQueryDto) {
-    return this.sessionReviews.listStaffInbox(
-      query.offset ?? 0,
-      query.take,
-    );
+  listInbox(@Query() query: ListSessionReviewsInboxQueryDto) {
+    return this.sessionReviews.listStaffInbox(query);
   }
 
   @Get('inbox/unread-count')
@@ -48,12 +45,11 @@ export class SessionReviewsController {
   @Get('coach')
   @SkipThrottle()
   @Roles(Role.COACH)
-  listCoach(@CurrentUser() user: User, @Query() query: ListPaginationQueryDto) {
-    return this.sessionReviews.listCoachInbox(
-      user.id,
-      query.offset ?? 0,
-      query.take,
-    );
+  listCoach(
+    @CurrentUser() user: User,
+    @Query() query: ListSessionReviewsInboxQueryDto,
+  ) {
+    return this.sessionReviews.listCoachInbox(user.id, query);
   }
 
   @Post(':id/submit')

@@ -5,11 +5,15 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { SessionReviewDetailsModal } from "@/components/session-reviews/session-review-details-modal";
 import { SessionReviewInboxCard } from "@/components/session-reviews/session-review-inbox-card";
+import { useSessionReviewsInboxFilterFields } from "@/components/session-reviews/use-session-reviews-inbox-filter-fields";
+import { useSessionReviewsInboxFilters } from "@/components/session-reviews/use-session-reviews-inbox-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
+import { SESSION_REVIEW_SEARCH_QUERY_KEY } from "@/lib/session-reviews-inbox-filters";
 import { sessionReviewsInboxQuery } from "@/lib/session-reviews-list";
 import type {
   CoachInboxReview,
@@ -33,6 +37,16 @@ export function SessionReviewsInboxSection({
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
+  const filterFields = useSessionReviewsInboxFilterFields(showAnonymousBadge);
+  const {
+    searchDraft,
+    setSearchDraft,
+    ratingFilter,
+    visibilityFilter,
+    filterValues,
+    handleFilterChange,
+    resetFilters,
+  } = useSessionReviewsInboxFilters(showAnonymousBadge);
   const [payload, setPayload] = useState<SessionReviewsListPayload<
     StaffInboxReview | CoachInboxReview
   > | null>(null);
@@ -44,7 +58,11 @@ export function SessionReviewsInboxSection({
     setLoading(true);
     setError(null);
     try {
-      const query = sessionReviewsInboxQuery(listPage.take, listPage.offset);
+      const query = sessionReviewsInboxQuery(listPage.take, listPage.offset, {
+        q: searchParams.get(SESSION_REVIEW_SEARCH_QUERY_KEY)?.trim() ?? "",
+        rating: ratingFilter,
+        visibility: showAnonymousBadge ? visibilityFilter : "",
+      });
       const data = await apiFetch<SessionReviewsListPayload<StaffInboxReview | CoachInboxReview>>(
         `${endpoint}?${query}`,
       );
@@ -55,7 +73,16 @@ export function SessionReviewsInboxSection({
     } finally {
       setLoading(false);
     }
-  }, [endpoint, listPage.offset, listPage.take, t]);
+  }, [
+    endpoint,
+    listPage.offset,
+    listPage.take,
+    ratingFilter,
+    searchParams,
+    showAnonymousBadge,
+    t,
+    visibilityFilter,
+  ]);
 
   useEffect(() => {
     void load();
@@ -65,7 +92,21 @@ export function SessionReviewsInboxSection({
   const total = payload?.total ?? 0;
 
   return (
-    <StaffListPageLayout title={t("title")}>
+    <StaffListPageLayout
+      title={t("title")}
+      search={
+        <ListPageSearchFilters
+          search={searchDraft}
+          onSearchChange={setSearchDraft}
+          searchPlaceholder={t("searchPlaceholder")}
+          fields={filterFields}
+          filterValues={filterValues}
+          onFilterChange={handleFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("resetFilters")}
+        />
+      }
+    >
       {loading ? <p className="text-sm text-sage-600">{t("loading")}</p> : null}
       {error ? <p className="text-sm text-amber-900">{error}</p> : null}
       {!loading && !error && items.length === 0 ? (

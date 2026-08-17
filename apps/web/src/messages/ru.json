@@ -106,7 +106,15 @@
     "loadFailed": "Не удалось загрузить отзывы",
     "detailsEyebrow": "Отзыв о занятии",
     "detailsClose": "Закрыть",
-    "detailsCloseBackdrop": "Закрыть детали отзыва"
+    "detailsCloseBackdrop": "Закрыть детали отзыва",
+    "searchPlaceholder": "Поиск по занятию, участнику, тренеру или комментарию…",
+    "resetFilters": "Сбросить фильтры",
+    "filterRating": "Оценка",
+    "filterRatingAll": "Все оценки",
+    "filterVisibility": "Видимость",
+    "filterVisibilityAll": "Все отзывы",
+    "filterVisibilityNamed": "Видно тренеру",
+    "filterVisibilityAnonymous": "Скрыто от тренера"
   },
   "listSort": {
     "sort": "Сортировка",

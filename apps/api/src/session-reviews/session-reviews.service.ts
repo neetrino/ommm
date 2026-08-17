@@ -11,7 +11,12 @@ import {
   SESSION_REVIEW_PENDING_TAKE,
   SESSION_REVIEW_PROMPT_TTL_DAYS,
 } from './session-reviews.constants';
+import type { ListSessionReviewsInboxQueryDto } from './dto/list-session-reviews-inbox-query.dto';
 import type { SubmitSessionReviewDto } from './dto/submit-session-review.dto';
+import {
+  buildCoachInboxWhere,
+  buildStaffInboxWhere,
+} from './session-reviews-inbox-where';
 import {
   toCoachInboxDto,
   toMemberPendingDto,
@@ -78,8 +83,10 @@ export class SessionReviewsService {
     return { ok: true as const };
   }
 
-  async listStaffInbox(offset = 0, take = SESSION_REVIEW_INBOX_TAKE) {
-    const where = { status: SessionReviewStatus.SUBMITTED };
+  async listStaffInbox(query: ListSessionReviewsInboxQueryDto) {
+    const offset = query.offset ?? 0;
+    const take = query.take ?? SESSION_REVIEW_INBOX_TAKE;
+    const where = buildStaffInboxWhere(query);
     const [total, rows] = await this.prisma.$transaction([
       this.prisma.sessionReview.count({ where }),
       this.prisma.sessionReview.findMany({
@@ -113,11 +120,7 @@ export class SessionReviewsService {
     return { ok: true as const };
   }
 
-  async listCoachInbox(
-    userId: string,
-    offset = 0,
-    take = SESSION_REVIEW_INBOX_TAKE,
-  ) {
+  async listCoachInbox(userId: string, query: ListSessionReviewsInboxQueryDto) {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { userId },
       select: { id: true },
@@ -125,11 +128,9 @@ export class SessionReviewsService {
     if (!profile) {
       throw new ForbiddenException();
     }
-    const where = {
-      status: SessionReviewStatus.SUBMITTED,
-      isAnonymous: false,
-      coachProfileId: profile.id,
-    };
+    const offset = query.offset ?? 0;
+    const take = query.take ?? SESSION_REVIEW_INBOX_TAKE;
+    const where = buildCoachInboxWhere(profile.id, query);
     const [total, rows] = await this.prisma.$transaction([
       this.prisma.sessionReview.count({ where }),
       this.prisma.sessionReview.findMany({

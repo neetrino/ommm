@@ -106,7 +106,15 @@
     "loadFailed": "Could not load reviews",
     "detailsEyebrow": "Class review",
     "detailsClose": "Close",
-    "detailsCloseBackdrop": "Close review details"
+    "detailsCloseBackdrop": "Close review details",
+    "searchPlaceholder": "Search class, member, coach, or comment…",
+    "resetFilters": "Reset filters",
+    "filterRating": "Rating",
+    "filterRatingAll": "All ratings",
+    "filterVisibility": "Visibility",
+    "filterVisibilityAll": "All reviews",
+    "filterVisibilityNamed": "Shown to coach",
+    "filterVisibilityAnonymous": "Hidden from coach"
   },
   "listSort": {
     "sort": "Sort",

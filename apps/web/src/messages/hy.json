@@ -106,7 +106,15 @@
     "loadFailed": "Չհաջողվեց բեռնել կարծիքները",
     "detailsEyebrow": "Դասի կարծիք",
     "detailsClose": "Փակել",
-    "detailsCloseBackdrop": "Փակել կարծիքի մանրամասները"
+    "detailsCloseBackdrop": "Փակել կարծիքի մանրամասները",
+    "searchPlaceholder": "Փնտրել դաս, անդամ, մարզիչ կամ մեկնաբանություն…",
+    "resetFilters": "Չեղարկել ֆիլտրերը",
+    "filterRating": "Գնահատական",
+    "filterRatingAll": "Բոլոր գնահատականները",
+    "filterVisibility": "Տեսանելիություն",
+    "filterVisibilityAll": "Բոլոր կարծիքները",
+    "filterVisibilityNamed": "Մարզիչը տեսնում է",
+    "filterVisibilityAnonymous": "Մարզիչը չի տեսնում"
   },
   "listSort": {
     "sort": "Տեսակավորել",
