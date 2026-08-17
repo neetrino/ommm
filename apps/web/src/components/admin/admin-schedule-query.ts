@@ -69,8 +69,9 @@ export function parseAdminScheduleListPageParams(
   return parseListPageParams(search, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
 }
 
+/** Paginated list API (includes monthly day-card view; excludes weekly board). */
 export function isScheduleListView(view: string | undefined): boolean {
-  return view === undefined || view === "list";
+  return view === undefined || view === "list" || view === "monthly";
 }
 
 export { parseScheduleListFilterStateFromSearch, type ScheduleListFilterState };

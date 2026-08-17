@@ -2556,7 +2556,7 @@
       "empty": "No schedule items yet. Add your first schedule item.",
       "emptyForSelectedDay": "No classes for this day.",
       "emptyForSelectedDayTitle": "No classes for this day",
-      "emptyForSelectedDayBody": "Pick another day from the strip above, or open All classes to browse the full timetable.",
+      "emptyForSelectedDayBody": "Pick another day from the calendar above, or open All classes to browse the full timetable.",
       "addScheduleButton": "Add Schedule",
       "previousDay": "Previous day",
       "nextDay": "Next day",
@@ -2568,6 +2568,11 @@
         "gridAria": "Weekly schedule by day",
         "todayBadge": "Today",
         "emptyDay": "—"
+      },
+      "monthView": {
+        "gridAria": "Monthly schedule for {month}",
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month"
       },
       "createTitle": "Add Schedule Item",
       "createDescription": "Create a public schedule card. It appears on Home and Schedule pages.",

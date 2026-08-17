@@ -5,6 +5,7 @@ import {
   AdminScheduleDateStrip,
   type ScheduleDateStripRow,
 } from "@/components/admin/admin-schedule-date-strip";
+import { AdminScheduleMonthCards } from "@/components/admin/admin-schedule-month-cards";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import { AdminScheduleSessionsBulkBar } from "@/components/admin/admin-schedule-sessions-bulk-bar";
 import { AdminScheduleSessionsListHeader } from "@/components/admin/admin-schedule-sessions-list-header";
@@ -76,8 +77,18 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
   if (props.view === "weekly") {
     return <ScheduleWeekPanel {...props} />;
   }
-  return (
-    <div className="space-y-3">
+
+  const dayPicker =
+    props.view === "monthly" ? (
+      <AdminScheduleMonthCards
+        locale={props.locale}
+        rows={props.dateStripRows}
+        totalSessionCount={props.dateStripTotalCount}
+        selectedDay={props.selectedStripDay}
+        onSelectDay={props.onSelectStripDay}
+        onSelectAllDays={props.onSelectAllStripDays}
+      />
+    ) : (
       <AdminScheduleDateStrip
         locale={props.locale}
         rows={props.dateStripRows}
@@ -86,6 +97,11 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
         onSelectDay={props.onSelectStripDay}
         onSelectAllDays={props.onSelectAllStripDays}
       />
+    );
+
+  return (
+    <div className="space-y-3">
+      {dayPicker}
       <SessionTable {...props} />
     </div>
   );

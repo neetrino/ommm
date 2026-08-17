@@ -37,7 +37,10 @@ import type {
 import { useAdminScheduleManagementActions } from "@/components/admin/use-admin-schedule-management-actions";
 import { useAdminScheduleManagementFiltersState } from "@/components/admin/use-admin-schedule-management-filters-state";
 import { useAdminScheduleListFilterFields } from "@/components/admin/use-admin-schedule-management-filter-fields";
-import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
+import {
+  isScheduleListLikeView,
+  resolveScheduleView,
+} from "@/components/admin/admin-schedule-view";
 import { resolveScheduleListDateRange } from "@/components/admin/admin-schedule-url";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
@@ -236,7 +239,7 @@ export function useAdminScheduleManagement({
     [classTypes],
   );
 
-  const isListView = isStaff || view === "list";
+  const isListView = isStaff || isScheduleListLikeView(view);
 
   const filteredRows = useMemo(() => {
     const q = filters.q.trim().toLowerCase();

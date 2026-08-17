@@ -1,10 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AdminScheduleMonthCards } from "@/components/admin/admin-schedule-month-cards";
+import type { ScheduleDateStripRow } from "@/components/admin/admin-schedule-date-strip";
+import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
-import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 
 type StaffSchedulePreset = "staffReadOnly" | "staffWithCoach";
 
@@ -16,6 +18,11 @@ type StaffScheduleListWeekViewsProps = {
   emptyTitle: string;
   emptyBody: string;
   showCoachInWeek?: boolean;
+  dateStripRows?: readonly ScheduleDateStripRow[];
+  dateStripTotalCount?: number;
+  selectedStripDay?: string | null;
+  onSelectStripDay?: (day: string) => void;
+  onSelectAllStripDays?: () => void;
 };
 
 export function StaffScheduleListWeekViews({
@@ -26,6 +33,11 @@ export function StaffScheduleListWeekViews({
   emptyTitle,
   emptyBody,
   showCoachInWeek = false,
+  dateStripRows,
+  dateStripTotalCount,
+  selectedStripDay = null,
+  onSelectStripDay,
+  onSelectAllStripDays,
 }: StaffScheduleListWeekViewsProps) {
   const tSchedule = useTranslations("adminPages.schedule");
 
@@ -44,7 +56,7 @@ export function StaffScheduleListWeekViews({
     );
   }
 
-  return (
+  const table = (
     <StaffScheduleSessionsTable
       locale={locale}
       rows={rows}
@@ -53,4 +65,27 @@ export function StaffScheduleListWeekViews({
       preset={preset}
     />
   );
+
+  if (
+    view === "monthly" &&
+    dateStripRows !== undefined &&
+    onSelectStripDay !== undefined &&
+    onSelectAllStripDays !== undefined
+  ) {
+    return (
+      <div className="space-y-3">
+        <AdminScheduleMonthCards
+          locale={locale}
+          rows={dateStripRows}
+          totalSessionCount={dateStripTotalCount}
+          selectedDay={selectedStripDay}
+          onSelectDay={onSelectStripDay}
+          onSelectAllDays={onSelectAllStripDays}
+        />
+        {table}
+      </div>
+    );
+  }
+
+  return table;
 }
