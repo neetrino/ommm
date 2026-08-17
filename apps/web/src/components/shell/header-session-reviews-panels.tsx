@@ -16,7 +16,6 @@ import type {
   StaffInboxReview,
 } from "@/lib/session-reviews-types";
 import type { ReactNode } from "react";
-import styles from "@/components/shell/header-notifications-menu.module.css";
 
 export function MemberReviewMenuPanel({
   items,
@@ -82,16 +81,17 @@ export function StaffReviewMenuPanel({
 }) {
   const locale = useLocale();
   const t = useTranslations("headerSessionReviews");
+  const preview = items.slice(0, SESSION_REVIEW_HEADER_PREVIEW);
   return (
     <ReviewMenuShell
       title={t("staffTitle")}
       viewAllHref={viewAllHref}
       loading={loading}
       error={error}
-      empty={items.length === 0}
+      empty={preview.length === 0}
       onNavigate={onNavigate}
     >
-      {items.map((row) => (
+      {preview.map((row) => (
         <StaffPreviewRow key={row.id} row={row} locale={locale} />
       ))}
     </ReviewMenuShell>
@@ -113,16 +113,17 @@ export function CoachReviewMenuPanel({
 }) {
   const locale = useLocale();
   const t = useTranslations("headerSessionReviews");
+  const preview = items.slice(0, SESSION_REVIEW_HEADER_PREVIEW);
   return (
     <ReviewMenuShell
       title={t("coachTitle")}
       viewAllHref={viewAllHref}
       loading={loading}
       error={error}
-      empty={items.length === 0}
+      empty={preview.length === 0}
       onNavigate={onNavigate}
     >
-      {items.map((row) => (
+      {preview.map((row) => (
         <li key={row.id} className="border-b border-white/50 px-4 py-3 last:border-b-0">
           <p className="text-sm font-semibold text-sage-900">{row.classTypeName}</p>
           <p className="mt-0.5 text-xs text-sage-600">
@@ -194,7 +195,7 @@ function ReviewMenuShell({
           {t("viewAll")}
         </Link>
       </div>
-      <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>
+      <ul className="list-none overflow-hidden p-0">
         {loading ? (
           <li className="px-4 py-6 text-center text-sm text-sage-500">{t("loading")}</li>
         ) : error ? (
