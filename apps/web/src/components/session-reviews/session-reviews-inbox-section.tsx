@@ -63,7 +63,7 @@ export function SessionReviewsInboxSection({
   const total = payload?.total ?? 0;
 
   return (
-    <StaffListPageLayout title={t("title")} description={t("description")}>
+    <StaffListPageLayout title={t("title")}>
       {loading ? <p className="text-sm text-sage-600">{t("loading")}</p> : null}
       {error ? <p className="text-sm text-amber-900">{error}</p> : null}
       {!loading && !error && items.length === 0 ? (

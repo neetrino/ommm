@@ -13,7 +13,7 @@ export function SessionReviewsMemberSection() {
   const { items, loading, error } = useSessionReviewsPending(true);
 
   return (
-    <StaffListPageLayout title={t("memberTitle")} description={t("memberDescription")}>
+    <StaffListPageLayout title={t("memberTitle")}>
       {loading ? <p className="text-sm text-sage-600">{t("loading")}</p> : null}
       {error ? <p className="text-sm text-amber-900">{t("loadFailed")}</p> : null}
       {!loading && !error && items.length === 0 ? (

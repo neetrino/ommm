@@ -90,9 +90,7 @@
   },
   "sessionReviewsPages": {
     "title": "Отзывы о занятиях",
-    "description": "Отзывы участников после занятия. Анонимные скрыты от тренера.",
     "memberTitle": "Оценить занятия",
-    "memberDescription": "Оставьте оценку за занятие, на котором вы были. Можно пропустить.",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Скрыто от тренера",
     "noComment": "Без комментария",

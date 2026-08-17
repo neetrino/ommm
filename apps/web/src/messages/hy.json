@@ -90,9 +90,7 @@
   },
   "sessionReviewsPages": {
     "title": "Դասերի կարծիքներ",
-    "description": "Անդամների կարծիքները դասից հետո։ Անանունները մարզիչը չի տեսնում։",
     "memberTitle": "Գնահատել դասերը",
-    "memberDescription": "Գնահատեք այն դասը, որին մասնակցել եք։ Կարող եք բաց թողնել։",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Մարզիչը չի տեսնում",
     "noComment": "Մեկնաբանություն չկա",

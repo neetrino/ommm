@@ -90,9 +90,7 @@
   },
   "sessionReviewsPages": {
     "title": "Class reviews",
-    "description": "Feedback members sent after class. Anonymous notes stay hidden from coaches.",
     "memberTitle": "Rate your classes",
-    "memberDescription": "Leave a rating for a class you attended. You can skip any of these.",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Hidden from coach",
     "noComment": "No written comment",
