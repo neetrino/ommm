@@ -82,6 +82,7 @@
     "commentLabel": "Please share your thoughts.",
     "commentRequired": "Please write a comment.",
     "visibilityLabel": "Choose as you prefer.",
+    "visibilityRequired": "Please choose Show my name or Anonymous.",
     "showNameOption": "Show my name",
     "anonymousOption": "Anonymous",
     "submit": "Send review",

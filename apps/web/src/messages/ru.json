@@ -82,6 +82,7 @@
     "commentLabel": "Пожалуйста, напишите ваш отзыв.",
     "commentRequired": "Напишите комментарий.",
     "visibilityLabel": "Выберите по желанию.",
+    "visibilityRequired": "Выберите: показать имя или анонимно.",
     "showNameOption": "Показать моё имя",
     "anonymousOption": "Анонимно",
     "submit": "Отправить",

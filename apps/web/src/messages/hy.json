@@ -82,6 +82,7 @@
     "commentLabel": "Խնդրում ենք գրեք ձեր կարծիքը։",
     "commentRequired": "Գրեք մեկնաբանություն։",
     "visibilityLabel": "Ընտրեք ձեր ցանկությամբ։",
+    "visibilityRequired": "Ընտրեք՝ ցույց տալ անունը կամ անանուն։",
     "showNameOption": "Ցույց տալ իմ անունը",
     "anonymousOption": "Անանուն",
     "submit": "Ուղարկել",

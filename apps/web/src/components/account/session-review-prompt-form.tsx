@@ -24,10 +24,11 @@ export function SessionReviewPromptForm({
   const t = useTranslations("sessionReviewPrompt");
   const [rating, setRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
-  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const canSubmit = rating !== null && comment.trim().length > 0;
+  const canSubmit =
+    rating !== null && comment.trim().length > 0 && isAnonymous !== null;
 
   return (
     <>
@@ -58,6 +59,7 @@ export function SessionReviewPromptForm({
             onClosed,
             ratingRequired: t("ratingRequired"),
             commentRequired: t("commentRequired"),
+            visibilityRequired: t("visibilityRequired"),
             saveFailed: t("saveFailed"),
           })
         }
@@ -98,12 +100,13 @@ async function submitReview(params: {
   reviewId: string;
   rating: number | null;
   comment: string;
-  isAnonymous: boolean;
+  isAnonymous: boolean | null;
   setError: (value: string | null) => void;
   setPending: (value: boolean) => void;
   onClosed: () => void;
   ratingRequired: string;
   commentRequired: string;
+  visibilityRequired: string;
   saveFailed: string;
 }): Promise<void> {
   if (params.rating === null) {
@@ -113,6 +116,10 @@ async function submitReview(params: {
   const trimmedComment = params.comment.trim();
   if (trimmedComment.length === 0) {
     params.setError(params.commentRequired);
+    return;
+  }
+  if (params.isAnonymous === null) {
+    params.setError(params.visibilityRequired);
     return;
   }
   params.setPending(true);
@@ -169,7 +176,7 @@ function SessionReviewPromptFields({
 }: {
   rating: number | null;
   comment: string;
-  isAnonymous: boolean;
+  isAnonymous: boolean | null;
   pending: boolean;
   error: string | null;
   onRating: (value: number) => void;
@@ -216,7 +223,7 @@ function SessionReviewPromptFields({
             type="radio"
             name="session-review-visibility"
             className="mt-1"
-            checked={!isAnonymous}
+            checked={isAnonymous === false}
             onChange={() => onAnonymous(false)}
           />
           <span className="font-medium text-sage-900">{t("showNameOption")}</span>
@@ -226,7 +233,7 @@ function SessionReviewPromptFields({
             type="radio"
             name="session-review-visibility"
             className="mt-1"
-            checked={isAnonymous}
+            checked={isAnonymous === true}
             onChange={() => onAnonymous(true)}
           />
           <span className="font-medium text-sage-900">{t("anonymousOption")}</span>
