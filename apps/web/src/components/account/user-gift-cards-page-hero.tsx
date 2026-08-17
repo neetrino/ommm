@@ -48,8 +48,8 @@ function UserGiftCardsPageHeroInner({
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero">
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-4">
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 w-full shrink-0 flex-wrap items-center justify-center gap-4 sm:w-auto sm:justify-start">
           <h1 className="ommm-admin-header-title">{title}</h1>
           {tabNav}
         </div>
@@ -96,8 +96,8 @@ function UserGiftCardsPageHeroFallback({
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero">
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-4">
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 w-full shrink-0 flex-wrap items-center justify-center gap-4 sm:w-auto sm:justify-start">
           <h1 className="ommm-admin-header-title">{title}</h1>
           {tabFallback}
         </div>

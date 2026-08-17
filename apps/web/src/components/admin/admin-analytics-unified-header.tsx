@@ -44,8 +44,8 @@ function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifi
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
-      <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
+      <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 max-sm:justify-center sm:justify-start">
+        <div className="flex min-w-0 w-full flex-wrap items-center justify-center gap-3 sm:justify-start">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminAnalyticsTabNav />
         </div>
@@ -71,8 +71,8 @@ function AdminAnalyticsUnifiedHeaderFallback() {
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:justify-start">
+        <div className="flex min-w-0 w-full flex-wrap items-center justify-center gap-3 sm:justify-start">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminAnalyticsTabNav />
         </div>
