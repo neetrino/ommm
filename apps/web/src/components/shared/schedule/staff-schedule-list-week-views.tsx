@@ -1,10 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { AdminScheduleMonthNav } from "@/components/admin/admin-schedule-month-nav";
-import type { ScheduleDateStripRow } from "@/components/admin/admin-schedule-date-strip";
+import { buildScheduleMonthDayKeys } from "@/components/admin/admin-schedule-month-utils";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
-import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
+import {
+  ScheduleWeekColumnsView,
+  SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX,
+} from "@/components/shared/schedule/schedule-week-columns-view";
 import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
 
@@ -18,11 +22,6 @@ type StaffScheduleListWeekViewsProps = {
   emptyTitle: string;
   emptyBody: string;
   showCoachInWeek?: boolean;
-  dateStripRows?: readonly ScheduleDateStripRow[];
-  dateStripTotalCount?: number;
-  selectedStripDay?: string | null;
-  onSelectStripDay?: (day: string) => void;
-  onSelectAllStripDays?: () => void;
   visibleYearMonth?: string;
   onPreviousMonth?: () => void;
   onNextMonth?: () => void;
@@ -41,6 +40,10 @@ export function StaffScheduleListWeekViews({
   onNextMonth,
 }: StaffScheduleListWeekViewsProps) {
   const tSchedule = useTranslations("adminPages.schedule");
+  const monthDayKeys = useMemo(
+    () => (visibleYearMonth ? buildScheduleMonthDayKeys(visibleYearMonth) : []),
+    [visibleYearMonth],
+  );
 
   if (view === "weekly") {
     return (
@@ -57,16 +60,6 @@ export function StaffScheduleListWeekViews({
     );
   }
 
-  const table = (
-    <StaffScheduleSessionsTable
-      locale={locale}
-      rows={rows}
-      emptyTitle={emptyTitle}
-      emptyBody={emptyBody}
-      preset={preset}
-    />
-  );
-
   if (
     view === "monthly" &&
     visibleYearMonth !== undefined &&
@@ -81,10 +74,30 @@ export function StaffScheduleListWeekViews({
           onPreviousMonth={onPreviousMonth}
           onNextMonth={onNextMonth}
         />
-        {table}
+        <ScheduleWeekColumnsView
+          locale={locale}
+          rows={rows}
+          dayKeys={monthDayKeys}
+          showCoach={showCoachInWeek}
+          expandColumns={false}
+          columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
+          labels={{
+            gridAria: tSchedule("monthView.gridAria", { month: visibleYearMonth }),
+            todayBadge: tSchedule("weekView.todayBadge"),
+            emptyDay: tSchedule("weekView.emptyDay"),
+          }}
+        />
       </div>
     );
   }
 
-  return table;
+  return (
+    <StaffScheduleSessionsTable
+      locale={locale}
+      rows={rows}
+      emptyTitle={emptyTitle}
+      emptyBody={emptyBody}
+      preset={preset}
+    />
+  );
 }

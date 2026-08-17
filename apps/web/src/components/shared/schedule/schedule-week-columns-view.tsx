@@ -8,6 +8,7 @@ import {
   type ScheduleWeekMiniCardSession,
 } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import {
+  SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX,
   SCHEDULE_WEEK_COLUMN_GAP_CLASS,
   SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX,
   SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS,
@@ -31,13 +32,20 @@ type ScheduleWeekColumnsViewProps<T extends ScheduleWeekMiniCardSession> = {
   labels: ScheduleWeekViewLabels;
   showCoach?: boolean;
   cardVariant?: ScheduleWeekCardVariant;
+  /** Override day columns (e.g. full month). Defaults to rolling week. */
+  dayKeys?: readonly string[];
   columnMinWidth?: number;
+  /**
+   * When true, columns flex to fill the track (week).
+   * When false, columns keep a fixed min width for horizontal month scrolling.
+   */
+  expandColumns?: boolean;
   onSessionClick?: (session: T) => void;
 };
 
 /**
- * Kanban-style week board — seven day columns fill the width when possible;
- * narrower viewports scroll horizontally (chevron edge zones).
+ * Kanban-style day columns — week fills width when possible;
+ * month passes fixed day keys and scrolls horizontally.
  */
 export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   locale,
@@ -45,10 +53,13 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   labels,
   showCoach = false,
   cardVariant = "staff",
+  dayKeys: dayKeysProp,
   columnMinWidth = SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX,
+  expandColumns = true,
   onSessionClick,
 }: ScheduleWeekColumnsViewProps<T>) {
-  const dayKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
+  const fallbackWeekKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
+  const dayKeys = dayKeysProp ?? fallbackWeekKeys;
   const grouped = useMemo(() => groupScheduleSessionsByDay(rows), [rows]);
   const trackMinWidthPx = scheduleWeekTrackMinWidthPx(dayKeys.length, columnMinWidth);
   const { scrollRef, renderEdgeZones } = useScheduleWeekBoardScroll(trackMinWidthPx);
@@ -62,7 +73,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
         aria-label={labels.gridAria}
       >
         <div
-          className={`flex w-full items-start ${SCHEDULE_WEEK_COLUMN_GAP_CLASS}`}
+          className={`flex items-start ${SCHEDULE_WEEK_COLUMN_GAP_CLASS} ${expandColumns ? "w-full" : ""}`}
           style={{ minWidth: `${trackMinWidthPx}px` }}
         >
           {dayKeys.map((dayKey) => {
@@ -73,8 +84,12 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
             return (
               <div
                 key={dayKey}
-                className="flex min-w-0 flex-1 flex-col"
-                style={{ minWidth: columnMinWidth }}
+                className={
+                  expandColumns
+                    ? "flex min-w-0 flex-1 flex-col"
+                    : "flex shrink-0 flex-col"
+                }
+                style={{ width: expandColumns ? undefined : columnMinWidth, minWidth: columnMinWidth }}
               >
                 <div className="mb-3 shrink-0">
                   <div
@@ -143,3 +158,5 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
     </div>
   );
 }
+
+export { SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX };

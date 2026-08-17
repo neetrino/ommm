@@ -29,6 +29,19 @@ export function monthBoundsIso(yearMonth: string): { from: string; to: string } 
   return { from, to };
 }
 
+/** Inclusive ISO day list for every calendar day in `YYYY-MM`. */
+export function buildScheduleMonthDayKeys(yearMonth: string): string[] {
+  const { from, to } = monthBoundsIso(yearMonth);
+  const days: string[] = [];
+  const cursor = new Date(`${from}T00:00:00`);
+  const end = new Date(`${to}T00:00:00`);
+  while (cursor <= end) {
+    days.push(toLocalIsoDate(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return days;
+}
+
 /** Display title for a `YYYY-MM` value in the given locale (e.g. "August 2026"). */
 export function formatMonthTitle(locale: string, yearMonth: string): string {
   const date = new Date(`${yearMonth}-01T00:00:00`);

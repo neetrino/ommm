@@ -18,3 +18,7 @@ export const SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS =
 export const SCHEDULE_WEEK_SCROLL_SPEED_PX = 6;
 
 export const SCHEDULE_WEEK_EDGE_ZONE_WIDTH_PX = 48;
+
+/** Minimum column width for month board (fixed; always scrolls horizontally). */
+export const SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX = 168;
+

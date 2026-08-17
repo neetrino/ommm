@@ -7,7 +7,7 @@ export const SCHEDULE_MOBILE_CARD_VIEW: ScheduleView = "list";
 
 /** Views that use the paginated list API + date-strip day counts. */
 export function isScheduleListLikeView(view: ScheduleView): boolean {
-  return view === "list" || view === "monthly";
+  return view === "list";
 }
 
 /** Normalizes URL view params (including legacy `daily`) to supported schedule views. */

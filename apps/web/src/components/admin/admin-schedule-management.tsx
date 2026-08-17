@@ -79,16 +79,11 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
             showCoachInWeek
             emptyTitle={schedule.t("empty.filteredTitle")}
             emptyBody={schedule.t("empty.filteredBody")}
-            dateStripRows={schedule.dateStripRows}
-            dateStripTotalCount={schedule.dateStripTotalCount}
-            selectedStripDay={schedule.selectedStripDay}
-            onSelectStripDay={schedule.handleSelectStripDay}
-            onSelectAllStripDays={schedule.handleSelectAllStripDays}
             visibleYearMonth={schedule.visibleYearMonth}
             onPreviousMonth={() => schedule.handleShiftVisibleMonth(-1)}
             onNextMonth={() => schedule.handleShiftVisibleMonth(1)}
           />
-          {(view === "list" || view === "monthly") &&
+          {view === "list" &&
           schedule.listPagination !== null &&
           schedule.listPagination.total > 0 ? (
             <OmmListPagination
@@ -172,7 +167,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         onBulkCancel={caps.canCancel ? schedule.handleBulkCancel : undefined}
         onBulkActivate={caps.canChangeStatus ? schedule.handleBulkActivate : undefined}
       />
-      {(view === "list" || view === "monthly") &&
+      {view === "list" &&
       schedule.listPagination !== null &&
       schedule.listPagination.total > 0 ? (
         <OmmListPagination
