@@ -239,6 +239,7 @@ function ScheduleMonthPanel({
         showCoach
         expandColumns={false}
         fillRemainingViewport
+        alignStartDayKey={scheduleTodayIsoDate()}
         columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
         onSessionClick={onDetails}
         labels={{

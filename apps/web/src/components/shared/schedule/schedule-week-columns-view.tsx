@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useScheduleWeekBoardScroll } from "@/components/shared/schedule/schedule-week-board-scroll";
 import {
   ScheduleWeekSessionMiniCard,
@@ -20,6 +20,7 @@ import {
   isScheduleWeekToday,
   scheduleWeekTrackMinWidthPx,
 } from "@/components/shared/schedule/schedule-week-view-utils";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 export type ScheduleWeekViewLabels = {
   gridAria: string;
@@ -43,6 +44,11 @@ type ScheduleWeekColumnsViewProps<T extends ScheduleWeekMiniCardSession> = {
   expandColumns?: boolean;
   /** Stretch columns to remaining viewport height (month board). */
   fillRemainingViewport?: boolean;
+  /**
+   * On mount / dayKeys change, align this day (or today if present) to the left edge.
+   * Pass empty string to enable today-or-first-day alignment; `null` disables.
+   */
+  alignStartDayKey?: string | null;
   onSessionClick?: (session: T) => void;
 };
 
@@ -60,13 +66,31 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   columnMinWidth = SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX,
   expandColumns = true,
   fillRemainingViewport = false,
+  alignStartDayKey = null,
   onSessionClick,
 }: ScheduleWeekColumnsViewProps<T>) {
   const fallbackWeekKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
   const dayKeys = dayKeysProp ?? fallbackWeekKeys;
+  const dayKeysSignature = dayKeys.join(",");
   const grouped = useMemo(() => groupScheduleSessionsByDay(rows), [rows]);
   const trackMinWidthPx = scheduleWeekTrackMinWidthPx(dayKeys.length, columnMinWidth);
-  const { scrollRef, renderEdgeZones } = useScheduleWeekBoardScroll(trackMinWidthPx);
+  const { scrollRef, renderEdgeZones, scrollDayToStart } = useScheduleWeekBoardScroll(
+    `${trackMinWidthPx}:${dayKeysSignature}`,
+  );
+
+  useEffect(() => {
+    if (alignStartDayKey === null) return;
+    const preferred =
+      alignStartDayKey.length > 0 && dayKeys.includes(alignStartDayKey)
+        ? alignStartDayKey
+        : dayKeys.find((dayKey) => isScheduleWeekToday(dayKey)) ??
+          (dayKeys.includes(scheduleTodayIsoDate()) ? scheduleTodayIsoDate() : dayKeys[0]);
+    if (!preferred) return;
+    const frame = window.requestAnimationFrame(() => {
+      scrollDayToStart(preferred);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [alignStartDayKey, dayKeys, dayKeysSignature, scrollDayToStart]);
 
   const boardHeightClass = fillRemainingViewport ? SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS : "";
   const columnStretchClass = fillRemainingViewport ? "h-full" : "";
@@ -97,6 +121,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
             return (
               <div
                 key={dayKey}
+                data-schedule-day={dayKey}
                 className={
                   expandColumns
                     ? `flex min-w-0 flex-1 flex-col ${columnStretchClass}`

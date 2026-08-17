@@ -29,6 +29,8 @@ type UseScheduleWeekBoardScrollResult = {
   canScrollLeft: boolean;
   canScrollRight: boolean;
   renderEdgeZones: () => ReactNode;
+  /** Align a day column's left edge to the scroll viewport start. */
+  scrollDayToStart: (dayKey: string) => void;
 };
 
 export function useScheduleWeekBoardScroll(
@@ -46,6 +48,24 @@ export function useScheduleWeekBoardScroll(
     setCanScrollLeft(element.scrollLeft > 2);
     setCanScrollRight(element.scrollLeft < element.scrollWidth - element.clientWidth - 2);
   }, []);
+
+  const scrollDayToStart = useCallback(
+    (dayKey: string) => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const target = container.querySelector(`[data-schedule-day="${dayKey}"]`);
+      if (!(target instanceof HTMLElement)) {
+        container.scrollLeft = 0;
+        updateScrollState();
+        return;
+      }
+      const containerLeft = container.getBoundingClientRect().left;
+      const targetLeft = target.getBoundingClientRect().left;
+      container.scrollLeft += targetLeft - containerLeft;
+      updateScrollState();
+    },
+    [updateScrollState],
+  );
 
   const startAutoScroll = useCallback((direction: "left" | "right") => {
     autoScrollDir.current = direction;
@@ -105,6 +125,7 @@ export function useScheduleWeekBoardScroll(
     scrollRef,
     canScrollLeft,
     canScrollRight,
+    scrollDayToStart,
     renderEdgeZones: () => (
       <>
         {renderEdgeZone("left", canScrollLeft)}

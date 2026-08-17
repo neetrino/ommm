@@ -11,6 +11,7 @@ import {
 } from "@/components/shared/schedule/schedule-week-columns-view";
 import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 type StaffSchedulePreset = "staffReadOnly" | "staffWithCoach";
 
@@ -81,6 +82,7 @@ export function StaffScheduleListWeekViews({
           showCoach={showCoachInWeek}
           expandColumns={false}
           fillRemainingViewport
+          alignStartDayKey={scheduleTodayIsoDate()}
           columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
           labels={{
             gridAria: tSchedule("monthView.gridAria", { month: visibleYearMonth }),
