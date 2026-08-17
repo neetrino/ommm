@@ -13,15 +13,23 @@ const SCHEDULE_MOBILE_VIEW_MODES: readonly ScheduleView[] = ["list", "monthly"];
 
 const VIEW_BUTTON_BASE = [
   "inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2",
-  "rounded-full border border-white/70 bg-white/80 px-3.5 text-sm font-semibold text-sage-700",
+  "rounded-full border px-3.5 text-sm font-semibold",
   "shadow-sm backdrop-blur-sm",
-  "transition-[background-color,color,box-shadow,transform]",
-  "hover:bg-white hover:text-sage-900 active:scale-[0.97]",
+  "transition-[background-color,color,border-color,box-shadow,transform]",
+  "active:scale-[0.97]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40",
   "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
 
-const VIEW_BUTTON_ACTIVE = "border-white/90 bg-white text-sage-900 shadow-md";
+const VIEW_BUTTON_IDLE = [
+  "border-white/70 bg-white/80 text-sage-700",
+  "hover:bg-white hover:text-sage-900",
+].join(" ");
+
+const VIEW_BUTTON_ACTIVE = [
+  "border-sage-800/30 bg-sage-800 text-white shadow-md",
+  "ring-2 ring-sage-900/15",
+].join(" ");
 
 type ScheduleViewSwitcherProps = {
   value: ScheduleView;
@@ -55,7 +63,7 @@ export function ScheduleViewSwitcher({ value, onChange }: ScheduleViewSwitcherPr
             aria-label={labels[nextView]}
             aria-pressed={active}
             title={labels[nextView]}
-            className={`${VIEW_BUTTON_BASE} ${active ? VIEW_BUTTON_ACTIVE : ""}`}
+            className={`${VIEW_BUTTON_BASE} ${active ? VIEW_BUTTON_ACTIVE : VIEW_BUTTON_IDLE}`}
             onClick={() => onChange(resolveScheduleView(nextView))}
           >
             <AdminScheduleViewModeIcon view={nextView} className="h-4 w-4 shrink-0" />
