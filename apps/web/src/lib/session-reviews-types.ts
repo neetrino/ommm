@@ -7,6 +7,19 @@ export type MemberPendingReview = {
   coachName: string;
 };
 
+export type MemberSubmittedReview = {
+  id: string;
+  classTypeName: string;
+  sessionTitle: string;
+  startsAt: string;
+  endsAt: string;
+  coachName: string;
+  rating: number;
+  comment: string | null;
+  isAnonymous: boolean;
+  submittedAt: string;
+};
+
 export type StaffInboxReview = {
   id: string;
   classTypeName: string;
