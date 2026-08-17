@@ -21,37 +21,16 @@ export function addCalendarMonths(yearMonth: string, deltaMonths: number): strin
   return formatYearMonth(date.getFullYear(), date.getMonth());
 }
 
-/**
- * Monday-first month grid cells: `null` for leading/trailing padding, ISO days for in-month dates.
- */
-export function buildMondayFirstMonthCells(yearMonth: string): Array<string | null> {
+/** Inclusive ISO day bounds for a `YYYY-MM` calendar month. */
+export function monthBoundsIso(yearMonth: string): { from: string; to: string } {
   const { year, monthIndex } = parseYearMonth(yearMonth);
-  const firstOfMonth = new Date(year, monthIndex, 1);
-  const mondayOffset = (firstOfMonth.getDay() + 6) % 7;
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-  const cells: Array<string | null> = [];
-
-  for (let index = 0; index < mondayOffset; index += 1) {
-    cells.push(null);
-  }
-
-  for (let day = 1; day <= daysInMonth; day += 1) {
-    cells.push(toLocalIsoDate(new Date(year, monthIndex, day)));
-  }
-
-  while (cells.length % 7 !== 0) {
-    cells.push(null);
-  }
-
-  return cells;
+  const from = toLocalIsoDate(new Date(year, monthIndex, 1));
+  const to = toLocalIsoDate(new Date(year, monthIndex + 1, 0));
+  return { from, to };
 }
 
-/** Short weekday labels Mon→Sun for the given locale. */
-export function mondayFirstWeekdayLabels(locale: string): string[] {
-  const monday = new Date(2024, 0, 1);
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + index);
-    return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
-  });
+/** Display title for a `YYYY-MM` value in the given locale (e.g. "August 2026"). */
+export function formatMonthTitle(locale: string, yearMonth: string): string {
+  const date = new Date(`${yearMonth}-01T00:00:00`);
+  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(date);
 }

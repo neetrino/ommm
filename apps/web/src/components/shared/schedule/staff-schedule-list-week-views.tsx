@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { AdminScheduleMonthCards } from "@/components/admin/admin-schedule-month-cards";
+import { AdminScheduleMonthNav } from "@/components/admin/admin-schedule-month-nav";
 import type { ScheduleDateStripRow } from "@/components/admin/admin-schedule-date-strip";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
@@ -23,6 +23,9 @@ type StaffScheduleListWeekViewsProps = {
   selectedStripDay?: string | null;
   onSelectStripDay?: (day: string) => void;
   onSelectAllStripDays?: () => void;
+  visibleYearMonth?: string;
+  onPreviousMonth?: () => void;
+  onNextMonth?: () => void;
 };
 
 export function StaffScheduleListWeekViews({
@@ -33,11 +36,9 @@ export function StaffScheduleListWeekViews({
   emptyTitle,
   emptyBody,
   showCoachInWeek = false,
-  dateStripRows,
-  dateStripTotalCount,
-  selectedStripDay = null,
-  onSelectStripDay,
-  onSelectAllStripDays,
+  visibleYearMonth,
+  onPreviousMonth,
+  onNextMonth,
 }: StaffScheduleListWeekViewsProps) {
   const tSchedule = useTranslations("adminPages.schedule");
 
@@ -56,25 +57,7 @@ export function StaffScheduleListWeekViews({
     );
   }
 
-  if (
-    view === "monthly" &&
-    dateStripRows !== undefined &&
-    onSelectStripDay !== undefined &&
-    onSelectAllStripDays !== undefined
-  ) {
-    return (
-      <AdminScheduleMonthCards
-        locale={locale}
-        rows={dateStripRows}
-        totalSessionCount={dateStripTotalCount}
-        selectedDay={selectedStripDay}
-        onSelectDay={onSelectStripDay}
-        onSelectAllDays={onSelectAllStripDays}
-      />
-    );
-  }
-
-  return (
+  const table = (
     <StaffScheduleSessionsTable
       locale={locale}
       rows={rows}
@@ -83,4 +66,25 @@ export function StaffScheduleListWeekViews({
       preset={preset}
     />
   );
+
+  if (
+    view === "monthly" &&
+    visibleYearMonth !== undefined &&
+    onPreviousMonth !== undefined &&
+    onNextMonth !== undefined
+  ) {
+    return (
+      <div className="space-y-3">
+        <AdminScheduleMonthNav
+          locale={locale}
+          yearMonth={visibleYearMonth}
+          onPreviousMonth={onPreviousMonth}
+          onNextMonth={onNextMonth}
+        />
+        {table}
+      </div>
+    );
+  }
+
+  return table;
 }

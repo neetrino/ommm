@@ -40,12 +40,18 @@ import { useAdminScheduleListFilterFields } from "@/components/admin/use-admin-s
 import {
   isScheduleListLikeView,
   resolveScheduleView,
+  type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
 import { resolveScheduleListDateRange } from "@/components/admin/admin-schedule-url";
+import {
+  addCalendarMonths,
+  monthBoundsIso,
+  yearMonthFromIsoDay,
+} from "@/components/admin/admin-schedule-month-utils";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { toggleSessionDateSortOrder } from "@/lib/list-sort";
-import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
+import { scheduleSessionLocalIsoDay, scheduleTodayIsoDate } from "@/lib/local-iso-date";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 
 export function useAdminScheduleManagement({
@@ -213,6 +219,24 @@ export function useAdminScheduleManagement({
     patchFilterState({ stripDay }, false);
   }, [patchFilterState, searchParams, stripDay]);
 
+  const didSyncMonthlyUrl = useRef(false);
+  useEffect(() => {
+    if (view !== "monthly" || didSyncMonthlyUrl.current) return;
+    didSyncMonthlyUrl.current = true;
+    const dayParam = searchParams.get("schedDay");
+    if (dayParam === null || dayParam === "all") return;
+    patchFilterState(
+      {
+        stripDay: null,
+        filters: {
+          from: filters.from,
+          to: filters.to,
+        },
+      },
+      false,
+    );
+  }, [filters.from, filters.to, patchFilterState, searchParams, view]);
+
   const levels = useMemo(() => {
     return Array.from(
       new Set(rows.flatMap((row) => splitSessionLevels(row.level))),
@@ -362,11 +386,51 @@ export function useAdminScheduleManagement({
     });
   }, [filters.order, patchFilterState]);
 
+  const visibleYearMonth = useMemo(() => {
+    if (filters.from.length > 0) {
+      return yearMonthFromIsoDay(filters.from);
+    }
+    if (stripDay !== null) {
+      return yearMonthFromIsoDay(stripDay);
+    }
+    return yearMonthFromIsoDay(scheduleTodayIsoDate());
+  }, [filters.from, stripDay]);
+
+  const handleSetView = useCallback(
+    (nextView: ScheduleView) => {
+      setView(nextView);
+      clearSelection();
+      if (nextView === "monthly") {
+        const { from, to } = monthBoundsIso(yearMonthFromIsoDay(scheduleTodayIsoDate()));
+        patchFilterState({ stripDay: null, filters: { from, to } });
+        return;
+      }
+      if (nextView === "list") {
+        patchFilterState({
+          stripDay: scheduleTodayIsoDate(),
+          filters: { from: "", to: "" },
+        });
+      }
+    },
+    [clearSelection, patchFilterState, setView],
+  );
+
+  const handleShiftVisibleMonth = useCallback(
+    (deltaMonths: number) => {
+      clearSelection();
+      const { from, to } = monthBoundsIso(addCalendarMonths(visibleYearMonth, deltaMonths));
+      patchFilterState({ stripDay: null, filters: { from, to } });
+    },
+    [clearSelection, patchFilterState, visibleYearMonth],
+  );
+
   return {
     isStaff,
     t,
     view,
-    setView,
+    setView: handleSetView,
+    visibleYearMonth,
+    handleShiftVisibleMonth,
     searchDraft,
     setSearchDraft,
     filterFields,

@@ -84,8 +84,11 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
             selectedStripDay={schedule.selectedStripDay}
             onSelectStripDay={schedule.handleSelectStripDay}
             onSelectAllStripDays={schedule.handleSelectAllStripDays}
+            visibleYearMonth={schedule.visibleYearMonth}
+            onPreviousMonth={() => schedule.handleShiftVisibleMonth(-1)}
+            onNextMonth={() => schedule.handleShiftVisibleMonth(1)}
           />
-          {view === "list" &&
+          {(view === "list" || view === "monthly") &&
           schedule.listPagination !== null &&
           schedule.listPagination.total > 0 ? (
             <OmmListPagination
@@ -151,6 +154,9 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         selectedStripDay={schedule.selectedStripDay}
         onSelectStripDay={schedule.handleSelectStripDay}
         onSelectAllStripDays={schedule.handleSelectAllStripDays}
+        visibleYearMonth={schedule.visibleYearMonth}
+        onPreviousMonth={() => schedule.handleShiftVisibleMonth(-1)}
+        onNextMonth={() => schedule.handleShiftVisibleMonth(1)}
         sortOrder={schedule.filters.order}
         onDateTimeSort={schedule.handleDateTimeSort}
         onDetails={schedule.setDetails}
@@ -166,7 +172,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         onBulkCancel={caps.canCancel ? schedule.handleBulkCancel : undefined}
         onBulkActivate={caps.canChangeStatus ? schedule.handleBulkActivate : undefined}
       />
-      {view === "list" &&
+      {(view === "list" || view === "monthly") &&
       schedule.listPagination !== null &&
       schedule.listPagination.total > 0 ? (
         <OmmListPagination

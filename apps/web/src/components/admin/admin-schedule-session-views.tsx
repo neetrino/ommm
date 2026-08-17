@@ -5,7 +5,7 @@ import {
   AdminScheduleDateStrip,
   type ScheduleDateStripRow,
 } from "@/components/admin/admin-schedule-date-strip";
-import { AdminScheduleMonthCards } from "@/components/admin/admin-schedule-month-cards";
+import { AdminScheduleMonthNav } from "@/components/admin/admin-schedule-month-nav";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import { AdminScheduleSessionsBulkBar } from "@/components/admin/admin-schedule-sessions-bulk-bar";
 import { AdminScheduleSessionsListHeader } from "@/components/admin/admin-schedule-sessions-list-header";
@@ -30,6 +30,10 @@ export type AdminScheduleSessionViewsProps = {
   selectedStripDay: string | null;
   onSelectStripDay: (day: string) => void;
   onSelectAllStripDays: () => void;
+  /** Visible month (`YYYY-MM`) for monthly list chrome. */
+  visibleYearMonth?: string;
+  onPreviousMonth?: () => void;
+  onNextMonth?: () => void;
   sortOrder: SessionSortOrder;
   onDateTimeSort: () => void;
   busyId: string | null;
@@ -53,6 +57,9 @@ type SessionTableProps = Omit<
   | "dateStripTotalCount"
   | "onSelectStripDay"
   | "onSelectAllStripDays"
+  | "visibleYearMonth"
+  | "onPreviousMonth"
+  | "onNextMonth"
 >;
 
 type ScheduleWeekPanelProps = Omit<
@@ -65,6 +72,9 @@ type ScheduleWeekPanelProps = Omit<
   | "selectedStripDay"
   | "onSelectStripDay"
   | "onSelectAllStripDays"
+  | "visibleYearMonth"
+  | "onPreviousMonth"
+  | "onNextMonth"
   | "selectionEnabled"
   | "selectedIds"
   | "onToggleSelect"
@@ -79,15 +89,23 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
   }
 
   if (props.view === "monthly") {
+    if (
+      props.visibleYearMonth === undefined ||
+      props.onPreviousMonth === undefined ||
+      props.onNextMonth === undefined
+    ) {
+      return <SessionTable {...props} />;
+    }
     return (
-      <AdminScheduleMonthCards
-        locale={props.locale}
-        rows={props.dateStripRows}
-        totalSessionCount={props.dateStripTotalCount}
-        selectedDay={props.selectedStripDay}
-        onSelectDay={props.onSelectStripDay}
-        onSelectAllDays={props.onSelectAllStripDays}
-      />
+      <div className="space-y-3">
+        <AdminScheduleMonthNav
+          locale={props.locale}
+          yearMonth={props.visibleYearMonth}
+          onPreviousMonth={props.onPreviousMonth}
+          onNextMonth={props.onNextMonth}
+        />
+        <SessionTable {...props} />
+      </div>
     );
   }
 
