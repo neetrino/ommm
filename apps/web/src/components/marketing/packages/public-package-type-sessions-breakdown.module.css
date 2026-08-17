@@ -3,8 +3,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-block: -0.15rem;
   border: 0;
   border-radius: 9999px;
   background: transparent;
