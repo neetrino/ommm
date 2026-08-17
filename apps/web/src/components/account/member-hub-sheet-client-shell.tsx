@@ -6,6 +6,8 @@ import { MemberAccountHubSectionSheet } from "@/components/account/member-accoun
 
 type MemberHubSheetClientShellProps = {
   titleNamespace: string;
+  /** Defaults to `title` — use `memberTitle` for session reviews, etc. */
+  titleKey?: string;
   desktopSidePanel?: boolean;
   children: ReactNode;
 };
@@ -13,6 +15,7 @@ type MemberHubSheetClientShellProps = {
 /** Client shell — sheet mounts immediately without waiting on server translations. */
 export function MemberHubSheetClientShell({
   titleNamespace,
+  titleKey = "title",
   desktopSidePanel = false,
   children,
 }: MemberHubSheetClientShellProps) {
@@ -21,7 +24,7 @@ export function MemberHubSheetClientShell({
 
   return (
     <MemberAccountHubSectionSheet
-      title={t("title")}
+      title={t(titleKey)}
       closeLabel={tShell("closeMenu")}
       backdropCloseLabel={tShell("closeMenuOverlay")}
       desktopSidePanel={desktopSidePanel}

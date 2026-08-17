@@ -11,6 +11,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { useSessionReviewsPending } from "@/hooks/use-session-reviews-pending";
 import { useSessionReviewsSubmitted } from "@/hooks/use-session-reviews-submitted";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import type {
   MemberPendingReview,
   MemberSubmittedReview,
@@ -18,7 +19,13 @@ import type {
 
 type MemberReviewsTab = "pending" | "submitted";
 
-export function SessionReviewsMemberSection() {
+type SessionReviewsMemberSectionProps = {
+  embeddedInSheet?: boolean;
+};
+
+export function SessionReviewsMemberSection({
+  embeddedInSheet = false,
+}: SessionReviewsMemberSectionProps) {
   const locale = useLocale();
   const t = useTranslations("sessionReviewsPages");
   const pending = useSessionReviewsPending(true);
@@ -45,7 +52,12 @@ export function SessionReviewsMemberSection() {
 
   return (
     <>
-      <StaffListPageLayout title={t("memberTitle")}>
+      <StaffListPageLayout
+        title={t("memberTitle")}
+        embeddedInSheet={embeddedInSheet}
+        mobileBackHref={embeddedInSheet ? undefined : USER_ACCOUNT_PATH}
+        mobileBackLabel={t("memberBack")}
+      >
         <AdminPillTabs
           items={[
             {

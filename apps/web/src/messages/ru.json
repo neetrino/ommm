@@ -100,6 +100,7 @@
     "memberTabsAria": "Списки отзывов",
     "memberTabPending": "Оценить ({count})",
     "memberTabSubmitted": "Оценено ({count})",
+    "memberBack": "Назад",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Скрыто от тренера",
     "anonymousAuthor": "Анонимно",

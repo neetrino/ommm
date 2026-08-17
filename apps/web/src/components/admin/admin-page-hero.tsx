@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Link } from "@/i18n/navigation";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 
@@ -9,9 +10,27 @@ type AdminPageHeroProps = {
   description?: ReactNode;
   search?: ReactNode;
   trailing?: ReactNode;
+  /** Mobile-only back control inside the banner (e.g. member reviews). */
+  mobileBackHref?: string;
+  mobileBackLabel?: string;
   /** Defaults to sticky; set false so the hero scrolls away (e.g. mobile schedule). */
   sticky?: boolean;
 };
+
+function MobileBackChevronIcon() {
+  return (
+    <svg
+      className="h-5 w-5 shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
+      <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 /**
  * Admin / manager page header — title, full-width search on mobile, trailing actions.
@@ -23,13 +42,24 @@ export function AdminPageHero({
   description,
   search,
   trailing,
+  mobileBackHref,
+  mobileBackLabel,
   sticky = true,
 }: AdminPageHeroProps) {
   const headerRef = useAdminStickyHeaderOffset(sticky);
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={sticky}>
-      <div className="ommm-admin-header-bar flex !flex-col !flex-nowrap !items-stretch gap-3 max-sm:!justify-center sm:!flex-row sm:!flex-nowrap sm:!items-center sm:!justify-start">
+      <div className="ommm-admin-header-bar relative flex !flex-col !flex-nowrap !items-stretch gap-3 max-sm:!justify-center sm:!flex-row sm:!flex-nowrap sm:!items-center sm:!justify-start">
+        {mobileBackHref && mobileBackLabel ? (
+          <Link
+            href={mobileBackHref}
+            className="absolute left-3 top-1/2 z-[1] inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900 sm:hidden"
+            aria-label={mobileBackLabel}
+          >
+            <MobileBackChevronIcon />
+          </Link>
+        ) : null}
         <div
           className={
             trailing
@@ -41,7 +71,12 @@ export function AdminPageHero({
             className={
               trailing
                 ? "min-w-0 max-sm:absolute max-sm:inset-x-0 max-sm:text-center sm:relative sm:shrink-0"
-                : "min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left"
+                : [
+                    "min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left",
+                    mobileBackHref ? "max-sm:px-10" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
             }
           >
             <h1 className="ommm-admin-header-title">{title}</h1>

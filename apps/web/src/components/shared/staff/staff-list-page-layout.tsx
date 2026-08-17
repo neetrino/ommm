@@ -11,9 +11,13 @@ type StaffListPageLayoutProps = {
   search?: ReactNode;
   searchTrailing?: ReactNode;
   headerTrailing?: ReactNode;
+  mobileBackHref?: string;
+  mobileBackLabel?: string;
   metrics?: ReactNode;
   status?: ReactNode;
   sticky?: boolean;
+  /** When true, skip the page hero (title lives in the mobile hub sheet chrome). */
+  embeddedInSheet?: boolean;
   children: ReactNode;
 };
 
@@ -27,29 +31,37 @@ export function StaffListPageLayout({
   search,
   searchTrailing,
   headerTrailing,
+  mobileBackHref,
+  mobileBackLabel,
   metrics,
   status,
   sticky = true,
+  embeddedInSheet = false,
   children,
 }: StaffListPageLayoutProps) {
   const hasSearchRow = search !== undefined || searchTrailing !== undefined;
+  const searchRow = hasSearchRow ? (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      {search}
+      {searchTrailing}
+    </div>
+  ) : undefined;
 
   return (
     <div className="space-y-4">
-      <AdminPageHero
-        title={title}
-        description={description}
-        sticky={sticky}
-        search={
-          hasSearchRow ? (
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              {search}
-              {searchTrailing}
-            </div>
-          ) : undefined
-        }
-        trailing={headerTrailing}
-      />
+      {embeddedInSheet ? (
+        searchRow
+      ) : (
+        <AdminPageHero
+          title={title}
+          description={description}
+          sticky={sticky}
+          search={searchRow}
+          trailing={headerTrailing}
+          mobileBackHref={mobileBackHref}
+          mobileBackLabel={mobileBackLabel}
+        />
+      )}
 
       {banner !== null && banner !== undefined && banner.length > 0 ? (
         <p

@@ -100,6 +100,7 @@
     "memberTabsAria": "Review lists",
     "memberTabPending": "To review ({count})",
     "memberTabSubmitted": "Reviewed ({count})",
+    "memberBack": "Back",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Hidden from coach",
     "anonymousAuthor": "Anonymous",
