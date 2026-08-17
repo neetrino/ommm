@@ -27,8 +27,6 @@ export function SessionReviewPromptForm({
   const [isAnonymous, setIsAnonymous] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const canSubmit =
-    rating !== null && comment.trim().length > 0 && isAnonymous !== null;
 
   return (
     <>
@@ -38,16 +36,25 @@ export function SessionReviewPromptForm({
         isAnonymous={isAnonymous}
         pending={pending}
         error={error}
-        onRating={setRating}
-        onComment={setComment}
-        onAnonymous={setIsAnonymous}
+        onRating={(value) => {
+          setError(null);
+          setRating(value);
+        }}
+        onComment={(value) => {
+          setError(null);
+          setComment(value);
+        }}
+        onAnonymous={(value) => {
+          setError(null);
+          setIsAnonymous(value);
+        }}
       />
       <OmmButton
         type="button"
         variant="primary"
         size="md"
         className="w-full"
-        disabled={pending || !canSubmit}
+        disabled={pending}
         onClick={() =>
           void submitReview({
             reviewId,
@@ -60,6 +67,7 @@ export function SessionReviewPromptForm({
             ratingRequired: t("ratingRequired"),
             commentRequired: t("commentRequired"),
             visibilityRequired: t("visibilityRequired"),
+            missingFieldsPrefix: t("missingFieldsPrefix"),
             saveFailed: t("saveFailed"),
           })
         }
@@ -107,19 +115,25 @@ async function submitReview(params: {
   ratingRequired: string;
   commentRequired: string;
   visibilityRequired: string;
+  missingFieldsPrefix: string;
   saveFailed: string;
 }): Promise<void> {
+  const missing: string[] = [];
   if (params.rating === null) {
-    params.setError(params.ratingRequired);
-    return;
+    missing.push(params.ratingRequired);
   }
   const trimmedComment = params.comment.trim();
   if (trimmedComment.length === 0) {
-    params.setError(params.commentRequired);
-    return;
+    missing.push(params.commentRequired);
   }
   if (params.isAnonymous === null) {
-    params.setError(params.visibilityRequired);
+    missing.push(params.visibilityRequired);
+  }
+  if (missing.length > 0) {
+    params.setError(`${params.missingFieldsPrefix} ${missing.join(" · ")}`);
+    return;
+  }
+  if (params.rating === null || params.isAnonymous === null) {
     return;
   }
   params.setPending(true);
