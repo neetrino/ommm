@@ -54,7 +54,7 @@ export function MemberReviewMenuPanel({
             variant="primary"
             className="mt-2"
             onClick={() => {
-              dispatchSessionReviewOpen(row.id);
+              dispatchSessionReviewOpen(row.id, row);
               onPick();
             }}
           >

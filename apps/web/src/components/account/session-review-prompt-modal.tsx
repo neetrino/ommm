@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { SessionReviewPromptForm } from "@/components/account/session-review-prompt-form";
 import { OmmModalPortal } from "@/components/ui/omm-modal";

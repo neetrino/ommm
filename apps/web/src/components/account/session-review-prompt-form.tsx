@@ -200,16 +200,35 @@ function SessionReviewPromptFields({
           onChange={(event) => onComment(event.target.value)}
         />
       </label>
-      <label className="flex items-start gap-2 text-sm text-sage-800">
-        <input
-          type="checkbox"
-          className="mt-1"
-          checked={isAnonymous}
-          disabled={pending}
-          onChange={(event) => onAnonymous(event.target.checked)}
-        />
-        <span>{t("anonymousHint")}</span>
-      </label>
+      <fieldset className="space-y-2" disabled={pending}>
+        <legend className="ommm-label">{t("visibilityLabel")}</legend>
+        <label className="flex cursor-pointer items-start gap-2 rounded-xl border border-sand-200/90 bg-white/70 px-3 py-2.5 text-sm text-sage-800">
+          <input
+            type="radio"
+            name="session-review-visibility"
+            className="mt-1"
+            checked={!isAnonymous}
+            onChange={() => onAnonymous(false)}
+          />
+          <span>
+            <span className="block font-medium text-sage-900">{t("showNameOption")}</span>
+            <span className="mt-0.5 block text-xs text-sage-600">{t("showNameHint")}</span>
+          </span>
+        </label>
+        <label className="flex cursor-pointer items-start gap-2 rounded-xl border border-sand-200/90 bg-white/70 px-3 py-2.5 text-sm text-sage-800">
+          <input
+            type="radio"
+            name="session-review-visibility"
+            className="mt-1"
+            checked={isAnonymous}
+            onChange={() => onAnonymous(true)}
+          />
+          <span>
+            <span className="block font-medium text-sage-900">{t("anonymousOption")}</span>
+            <span className="mt-0.5 block text-xs text-sage-600">{t("anonymousHint")}</span>
+          </span>
+        </label>
+      </fieldset>
       {error ? <FormErrorBanner message={error} variant="inline" /> : null}
     </>
   );
