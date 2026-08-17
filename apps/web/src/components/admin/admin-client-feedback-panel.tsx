@@ -11,7 +11,8 @@ import type {
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { apiFetch } from "@/lib/api";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
-import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
+
+const CLIENT_FEEDBACK_PAGE_SIZE = 3;
 
 type ClientFeedbackPanelProps = {
   clientId: string;
@@ -28,7 +29,7 @@ export function ClientFeedbackPanel({
   const t = useTranslations("adminPages.clients");
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(clientId);
-  const pageSize = DEFAULT_LIST_PAGE_SIZE;
+  const pageSize = CLIENT_FEEDBACK_PAGE_SIZE;
   const [result, setResult] = useState<{
     key: string;
     items: ClientSheetFeedbackItem[];
