@@ -188,6 +188,7 @@ function SessionReviewPromptFields({
           value={comment}
           maxLength={2000}
           required
+          placeholder={t("commentPlaceholder")}
           disabled={pending}
           onChange={(event) => onComment(event.target.value)}
         />
