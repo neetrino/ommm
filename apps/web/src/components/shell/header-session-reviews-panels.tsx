@@ -16,6 +16,7 @@ import type {
   StaffInboxReview,
 } from "@/lib/session-reviews-types";
 import type { ReactNode } from "react";
+import styles from "@/components/shell/header-notifications-menu.module.css";
 
 export function MemberReviewMenuPanel({
   items,
@@ -193,7 +194,7 @@ function ReviewMenuShell({
           {t("viewAll")}
         </Link>
       </div>
-      <ul className="max-h-72 list-none overflow-y-auto p-0">
+      <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>
         {loading ? (
           <li className="px-4 py-6 text-center text-sm text-sage-500">{t("loading")}</li>
         ) : error ? (
