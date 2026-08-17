@@ -39,7 +39,7 @@ export function PublicPackageTypeSessionsExpandButton({
         <path
           d="M7 10L12 15L17 10"
           stroke="currentColor"
-          strokeWidth="1.75"
+          strokeWidth="2.25"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

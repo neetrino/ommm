@@ -3,8 +3,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   border: 0;
   border-radius: 9999px;
   background: transparent;
@@ -24,8 +24,8 @@
 }
 
 .expandArrow {
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 1.5rem;
+  height: 1.5rem;
   transition: transform 150ms ease;
 }
 
