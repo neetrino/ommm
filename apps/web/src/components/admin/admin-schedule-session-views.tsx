@@ -78,8 +78,8 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
     return <ScheduleWeekPanel {...props} />;
   }
 
-  const dayPicker =
-    props.view === "monthly" ? (
+  if (props.view === "monthly") {
+    return (
       <AdminScheduleMonthCards
         locale={props.locale}
         rows={props.dateStripRows}
@@ -88,7 +88,11 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
         onSelectDay={props.onSelectStripDay}
         onSelectAllDays={props.onSelectAllStripDays}
       />
-    ) : (
+    );
+  }
+
+  return (
+    <div className="space-y-3">
       <AdminScheduleDateStrip
         locale={props.locale}
         rows={props.dateStripRows}
@@ -97,11 +101,6 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
         onSelectDay={props.onSelectStripDay}
         onSelectAllDays={props.onSelectAllStripDays}
       />
-    );
-
-  return (
-    <div className="space-y-3">
-      {dayPicker}
       <SessionTable {...props} />
     </div>
   );

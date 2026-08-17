@@ -56,7 +56,25 @@ export function StaffScheduleListWeekViews({
     );
   }
 
-  const table = (
+  if (
+    view === "monthly" &&
+    dateStripRows !== undefined &&
+    onSelectStripDay !== undefined &&
+    onSelectAllStripDays !== undefined
+  ) {
+    return (
+      <AdminScheduleMonthCards
+        locale={locale}
+        rows={dateStripRows}
+        totalSessionCount={dateStripTotalCount}
+        selectedDay={selectedStripDay}
+        onSelectDay={onSelectStripDay}
+        onSelectAllDays={onSelectAllStripDays}
+      />
+    );
+  }
+
+  return (
     <StaffScheduleSessionsTable
       locale={locale}
       rows={rows}
@@ -65,27 +83,4 @@ export function StaffScheduleListWeekViews({
       preset={preset}
     />
   );
-
-  if (
-    view === "monthly" &&
-    dateStripRows !== undefined &&
-    onSelectStripDay !== undefined &&
-    onSelectAllStripDays !== undefined
-  ) {
-    return (
-      <div className="space-y-3">
-        <AdminScheduleMonthCards
-          locale={locale}
-          rows={dateStripRows}
-          totalSessionCount={dateStripTotalCount}
-          selectedDay={selectedStripDay}
-          onSelectDay={onSelectStripDay}
-          onSelectAllDays={onSelectAllStripDays}
-        />
-        {table}
-      </div>
-    );
-  }
-
-  return table;
 }
