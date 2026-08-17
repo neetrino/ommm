@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { SessionReviewDetailsModal } from "@/components/session-reviews/session-review-details-modal";
 import { SessionReviewRatingStars } from "@/components/session-reviews/session-review-rating-stars";
 import type {
   ClientSheetFeedbackItem,
@@ -33,6 +34,7 @@ export function ClientFeedbackPanel({
     items: ClientSheetFeedbackItem[];
     total: number;
   } | null>(null);
+  const [selected, setSelected] = useState<ClientSheetFeedbackItem | null>(null);
 
   if (clientId !== prevClientId) {
     setPrevClientId(clientId);
@@ -76,9 +78,11 @@ export function ClientFeedbackPanel({
           <p className="text-sm text-sage-500">{t("drawer.noFeedback")}</p>
         ) : null}
         {items.map((row) => (
-          <article
+          <button
             key={row.id}
-            className="rounded-2xl border border-sand-200/90 bg-white/90 px-4 py-3.5 text-sm shadow-[0_10px_24px_-20px_rgba(45,40,35,0.28)]"
+            type="button"
+            onClick={() => setSelected(row)}
+            className="w-full rounded-2xl border border-sand-200/90 bg-white/90 px-4 py-3.5 text-left text-sm shadow-[0_10px_24px_-20px_rgba(45,40,35,0.28)] transition-[border-color,box-shadow,transform] hover:border-sand-300 hover:shadow-[0_14px_28px_-18px_rgba(45,40,35,0.32)] active:scale-[0.995]"
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
               {formatSessionReviewWhen(locale, row.startsAt, row.endsAt)}
@@ -93,13 +97,13 @@ export function ClientFeedbackPanel({
               {row.coachName ? <span>{row.coachName}</span> : null}
             </div>
             {row.comment ? (
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-sage-800">
+              <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-sm leading-relaxed text-sage-800">
                 {row.comment}
               </p>
             ) : (
               <p className="mt-2 text-sm italic text-sage-500">{t("drawer.noFeedbackComment")}</p>
             )}
-          </article>
+          </button>
         ))}
       </div>
       <OmmListPagination
@@ -110,6 +114,13 @@ export function ClientFeedbackPanel({
         disabled={loading}
         onPageChange={setPage}
       />
+      {selected ? (
+        <SessionReviewDetailsModal
+          row={selected}
+          onClose={() => setSelected(null)}
+          overlayZClassName="z-[120]"
+        />
+      ) : null}
     </section>
   );
 }

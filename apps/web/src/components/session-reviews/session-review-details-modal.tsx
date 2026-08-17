@@ -9,16 +9,32 @@ import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
 import type { CoachInboxReview, StaffInboxReview } from "@/lib/session-reviews-types";
 import styles from "@/components/account/required-phone-completion-gate.module.css";
 
+export type SessionReviewDetailsRow =
+  | StaffInboxReview
+  | CoachInboxReview
+  | {
+      id: string;
+      classTypeName: string;
+      startsAt: string;
+      endsAt: string;
+      coachName: string;
+      rating: number;
+      comment: string | null;
+    };
+
 type SessionReviewDetailsModalProps = {
-  row: StaffInboxReview | CoachInboxReview;
-  showAnonymousBadge: boolean;
+  row: SessionReviewDetailsRow;
+  showAnonymousBadge?: boolean;
   onClose: () => void;
+  /** Raise above client/coach drawers when opened as a nested overlay. */
+  overlayZClassName?: string;
 };
 
 export function SessionReviewDetailsModal({
   row,
-  showAnonymousBadge,
+  showAnonymousBadge = false,
   onClose,
+  overlayZClassName = "z-[115]",
 }: SessionReviewDetailsModalProps) {
   const locale = useLocale();
   const t = useTranslations("sessionReviewsPages");
@@ -27,6 +43,7 @@ export function SessionReviewDetailsModal({
   const anonymous = "isAnonymous" in row ? row.isAnonymous : false;
   const whenLabel = formatSessionReviewWhen(locale, row.startsAt, row.endsAt);
   const coachName = "coachName" in row ? row.coachName : "";
+  const personLabel = "author" in row ? row.author.displayName : "";
 
   return (
     <OmmModalPortal
@@ -37,7 +54,7 @@ export function SessionReviewDetailsModal({
       ariaDescribedBy={descId}
       backdropAriaLabel={t("detailsCloseBackdrop")}
       centered
-      overlayClassName={`${styles.overlay} ommm-modal-overlay z-[115] items-center p-4`}
+      overlayClassName={`${styles.overlay} ommm-modal-overlay ${overlayZClassName} items-center p-4`}
       panelClassName={`${styles.panel} max-h-[min(90vh,40rem)] overflow-y-auto`}
     >
       <div className={styles.form}>
@@ -55,7 +72,9 @@ export function SessionReviewDetailsModal({
             label={t("ratingLabel", { rating: row.rating })}
             sizeClassName="text-xl"
           />
-          <p className="text-sm font-medium text-sage-800">{row.author.displayName}</p>
+          {personLabel ? (
+            <p className="text-sm font-medium text-sage-800">{personLabel}</p>
+          ) : null}
         </div>
         {showAnonymousBadge && anonymous ? (
           <p className="rounded-full bg-sand-100/90 px-3 py-1 text-xs font-medium text-sage-700 w-fit">
