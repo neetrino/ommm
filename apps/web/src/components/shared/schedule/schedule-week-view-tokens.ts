@@ -22,3 +22,9 @@ export const SCHEDULE_WEEK_EDGE_ZONE_WIDTH_PX = 48;
 /** Minimum column width for month board (fixed; always scrolls horizontally). */
 export const SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX = 168;
 
+/**
+ * Month board stretches to remaining viewport height (below shell/hero/summary/nav)
+ * so empty day columns feel full-height before the page scrolls vertically.
+ */
+export const SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS = "min-h-[calc(100dvh-20rem)]";
+

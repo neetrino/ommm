@@ -238,6 +238,7 @@ function ScheduleMonthPanel({
         dayKeys={dayKeys}
         showCoach
         expandColumns={false}
+        fillRemainingViewport
         columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
         onSessionClick={onDetails}
         labels={{

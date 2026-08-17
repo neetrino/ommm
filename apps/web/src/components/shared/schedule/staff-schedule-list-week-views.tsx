@@ -80,6 +80,7 @@ export function StaffScheduleListWeekViews({
           dayKeys={monthDayKeys}
           showCoach={showCoachInWeek}
           expandColumns={false}
+          fillRemainingViewport
           columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
           labels={{
             gridAria: tSchedule("monthView.gridAria", { month: visibleYearMonth }),

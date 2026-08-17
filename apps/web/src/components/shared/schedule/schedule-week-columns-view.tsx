@@ -8,6 +8,7 @@ import {
   type ScheduleWeekMiniCardSession,
 } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import {
+  SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS,
   SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX,
   SCHEDULE_WEEK_COLUMN_GAP_CLASS,
   SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX,
@@ -40,6 +41,8 @@ type ScheduleWeekColumnsViewProps<T extends ScheduleWeekMiniCardSession> = {
    * When false, columns keep a fixed min width for horizontal month scrolling.
    */
   expandColumns?: boolean;
+  /** Stretch columns to remaining viewport height (month board). */
+  fillRemainingViewport?: boolean;
   onSessionClick?: (session: T) => void;
 };
 
@@ -56,6 +59,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   dayKeys: dayKeysProp,
   columnMinWidth = SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX,
   expandColumns = true,
+  fillRemainingViewport = false,
   onSessionClick,
 }: ScheduleWeekColumnsViewProps<T>) {
   const fallbackWeekKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
@@ -64,16 +68,25 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   const trackMinWidthPx = scheduleWeekTrackMinWidthPx(dayKeys.length, columnMinWidth);
   const { scrollRef, renderEdgeZones } = useScheduleWeekBoardScroll(trackMinWidthPx);
 
+  const boardHeightClass = fillRemainingViewport ? SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS : "";
+  const columnStretchClass = fillRemainingViewport ? "h-full" : "";
+  const sessionsAreaClass = fillRemainingViewport
+    ? "flex min-h-0 flex-1 flex-col gap-3 pb-6"
+    : "flex flex-col gap-3 pb-6";
+  const emptyDayClass = fillRemainingViewport
+    ? "flex flex-1 items-center justify-center rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500"
+    : "rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500";
+
   return (
-    <div className="relative">
+    <div className={`relative ${boardHeightClass}`.trim()}>
       {renderEdgeZones()}
       <div
         ref={scrollRef}
-        className={SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS}
+        className={`${SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS} ${fillRemainingViewport ? "h-full" : ""}`.trim()}
         aria-label={labels.gridAria}
       >
         <div
-          className={`flex items-start ${SCHEDULE_WEEK_COLUMN_GAP_CLASS} ${expandColumns ? "w-full" : ""}`}
+          className={`flex ${fillRemainingViewport ? "h-full items-stretch" : "items-start"} ${SCHEDULE_WEEK_COLUMN_GAP_CLASS} ${expandColumns ? "w-full" : ""}`}
           style={{ minWidth: `${trackMinWidthPx}px` }}
         >
           {dayKeys.map((dayKey) => {
@@ -86,10 +99,13 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                 key={dayKey}
                 className={
                   expandColumns
-                    ? "flex min-w-0 flex-1 flex-col"
-                    : "flex shrink-0 flex-col"
+                    ? `flex min-w-0 flex-1 flex-col ${columnStretchClass}`
+                    : `flex shrink-0 flex-col ${columnStretchClass}`
                 }
-                style={{ width: expandColumns ? undefined : columnMinWidth, minWidth: columnMinWidth }}
+                style={{
+                  width: expandColumns ? undefined : columnMinWidth,
+                  minWidth: columnMinWidth,
+                }}
               >
                 <div className="mb-3 shrink-0">
                   <div
@@ -132,11 +148,9 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 pb-6">
+                <div className={sessionsAreaClass}>
                   {daySessions.length === 0 ? (
-                    <div className="rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500">
-                      {labels.emptyDay}
-                    </div>
+                    <div className={emptyDayClass}>{labels.emptyDay}</div>
                   ) : (
                     daySessions.map((session) => (
                       <ScheduleWeekSessionMiniCard
