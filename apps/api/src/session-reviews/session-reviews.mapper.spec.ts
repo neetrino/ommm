@@ -47,10 +47,19 @@ describe('session-reviews.mapper', () => {
     expect(formatPersonName('Ada', null)).toBe('Ada');
   });
 
-  it('staff dto keeps author even when anonymous', () => {
+  it('staff dto redacts author when anonymous', () => {
     const dto = toStaffInboxDto(sampleRow(true));
     expect(dto.isAnonymous).toBe(true);
-    expect(dto.author.displayName).toBe('Hidden Member');
+    expect(dto.author).toBeNull();
+  });
+
+  it('staff dto includes author when named', () => {
+    const dto = toStaffInboxDto(sampleRow(false));
+    expect(dto.isAnonymous).toBe(false);
+    expect(dto.author).toEqual({
+      id: 'user-1',
+      displayName: 'Hidden Member',
+    });
   });
 
   it('coach dto never includes author id', () => {

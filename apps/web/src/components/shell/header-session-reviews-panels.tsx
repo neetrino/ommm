@@ -9,6 +9,7 @@ import {
   dispatchSessionReviewsRefresh,
 } from "@/lib/session-reviews-events";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
+import { sessionReviewAuthorLabel } from "@/lib/session-review-author-label";
 import { SESSION_REVIEW_HEADER_PREVIEW } from "@/lib/session-reviews-types";
 import type {
   CoachInboxReview,
@@ -151,6 +152,7 @@ function StaffPreviewRow({
   locale: string;
 }) {
   const t = useTranslations("headerSessionReviews");
+  const authorLabel = sessionReviewAuthorLabel(row, t("anonymousAuthor"));
   return (
     <li className="border-b border-white/50 px-4 py-3 last:border-b-0">
       <p className="text-sm font-semibold text-sage-900">{row.classTypeName}</p>
@@ -158,7 +160,7 @@ function StaffPreviewRow({
         {formatSessionReviewWhen(locale, row.startsAt, row.endsAt)}
       </p>
       <p className="mt-1 text-xs text-sage-700">
-        {t("ratingLabel", { rating: row.rating })} · {row.author.displayName}
+        {t("ratingLabel", { rating: row.rating })} · {authorLabel}
         {row.isAnonymous ? ` · ${t("hiddenFromCoach")}` : ""}
       </p>
     </li>

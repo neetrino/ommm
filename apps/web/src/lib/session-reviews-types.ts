@@ -17,7 +17,8 @@ export type StaffInboxReview = {
   rating: number;
   comment: string | null;
   isAnonymous: boolean;
-  author: { id: string; displayName: string };
+  /** Null when the member chose Anonymous. */
+  author: { id: string; displayName: string } | null;
   submittedAt: string;
   staffReadAt: string | null;
 };

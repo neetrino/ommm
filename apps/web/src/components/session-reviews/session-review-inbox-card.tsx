@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { SessionReviewRatingStars } from "@/components/session-reviews/session-review-rating-stars";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
+import { sessionReviewAuthorLabel } from "@/lib/session-review-author-label";
 import type { CoachInboxReview, StaffInboxReview } from "@/lib/session-reviews-types";
 
 export function SessionReviewInboxCard({
@@ -17,6 +18,7 @@ export function SessionReviewInboxCard({
   const locale = useLocale();
   const t = useTranslations("sessionReviewsPages");
   const anonymous = "isAnonymous" in row ? row.isAnonymous : false;
+  const authorLabel = sessionReviewAuthorLabel(row, t("anonymousAuthor"));
 
   return (
     <button
@@ -35,7 +37,7 @@ export function SessionReviewInboxCard({
           sizeClassName="text-sm"
         />
         <span>
-          {row.author.displayName}
+          {authorLabel}
           {showAnonymousBadge && anonymous ? ` · ${t("hiddenFromCoach")}` : ""}
         </span>
       </div>
