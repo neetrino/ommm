@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { SessionReviewRatingStars } from "@/components/session-reviews/session-review-rating-stars";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
@@ -48,9 +49,14 @@ export function SessionReviewDetailsModal({
           {whenLabel}
           {coachName ? ` · ${coachName}` : ""}
         </p>
-        <p className="text-sm font-medium text-sage-800">
-          {t("ratingLabel", { rating: row.rating })} · {row.author.displayName}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <SessionReviewRatingStars
+            rating={row.rating}
+            label={t("ratingLabel", { rating: row.rating })}
+            sizeClassName="text-xl"
+          />
+          <p className="text-sm font-medium text-sage-800">{row.author.displayName}</p>
+        </div>
         {showAnonymousBadge && anonymous ? (
           <p className="rounded-full bg-sand-100/90 px-3 py-1 text-xs font-medium text-sage-700 w-fit">
             {t("hiddenFromCoach")}

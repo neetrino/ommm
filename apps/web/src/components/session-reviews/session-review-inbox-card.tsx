@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { SessionReviewRatingStars } from "@/components/session-reviews/session-review-rating-stars";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
 import type { CoachInboxReview, StaffInboxReview } from "@/lib/session-reviews-types";
 
@@ -27,10 +28,17 @@ export function SessionReviewInboxCard({
         {formatSessionReviewWhen(locale, row.startsAt, row.endsAt)}
       </p>
       <h2 className="mt-1 font-serif text-xl text-sage-900">{row.classTypeName}</h2>
-      <p className="mt-2 text-sm text-sage-700">
-        {t("ratingLabel", { rating: row.rating })} · {row.author.displayName}
-        {showAnonymousBadge && anonymous ? ` · ${t("hiddenFromCoach")}` : ""}
-      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-sage-700">
+        <SessionReviewRatingStars
+          rating={row.rating}
+          label={t("ratingLabel", { rating: row.rating })}
+          sizeClassName="text-sm"
+        />
+        <span>
+          {row.author.displayName}
+          {showAnonymousBadge && anonymous ? ` · ${t("hiddenFromCoach")}` : ""}
+        </span>
+      </div>
       {row.comment ? (
         <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-sage-800">{row.comment}</p>
       ) : (
