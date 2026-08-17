@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Role, type User } from '@prisma/client';
 import { BACKOFFICE_READ_ROLES } from '../common/backoffice-roles';

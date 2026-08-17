@@ -100,7 +100,9 @@ export function SessionReviewsInboxSection({
   ]);
 
   useEffect(() => {
-    void load();
+    queueMicrotask(() => {
+      void load();
+    });
   }, [load]);
 
   const items = payload?.items ?? [];

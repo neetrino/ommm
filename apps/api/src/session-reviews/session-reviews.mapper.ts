@@ -74,7 +74,9 @@ export function toMemberPendingDto(
   };
 }
 
-export function toStaffInboxDto(row: SessionReviewWithSession): StaffInboxReviewDto {
+export function toStaffInboxDto(
+  row: SessionReviewWithSession,
+): StaffInboxReviewDto {
   return {
     id: row.id,
     classTypeName: row.session.classType.name,
@@ -90,14 +92,18 @@ export function toStaffInboxDto(row: SessionReviewWithSession): StaffInboxReview
     isAnonymous: row.isAnonymous,
     author: {
       id: row.author.id,
-      displayName: formatPersonName(row.author.name, row.author.lastName) || row.author.email,
+      displayName:
+        formatPersonName(row.author.name, row.author.lastName) ||
+        row.author.email,
     },
     submittedAt: row.submittedAt?.toISOString() ?? row.updatedAt.toISOString(),
     staffReadAt: row.staffReadAt?.toISOString() ?? null,
   };
 }
 
-export function toCoachInboxDto(row: SessionReviewWithSession): CoachInboxReviewDto {
+export function toCoachInboxDto(
+  row: SessionReviewWithSession,
+): CoachInboxReviewDto {
   return {
     id: row.id,
     classTypeName: row.session.classType.name,

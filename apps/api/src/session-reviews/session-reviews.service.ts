@@ -217,7 +217,11 @@ export class SessionReviewsService {
         sessionReview: null,
         session: { endsAt: { lte: now, gte: cutoff } },
       },
-      include: { session: { select: { id: true, coachId: true, substituteCoachId: true } } },
+      include: {
+        session: {
+          select: { id: true, coachId: true, substituteCoachId: true },
+        },
+      },
       take: SESSION_REVIEW_PENDING_TAKE,
     });
     if (bookings.length === 0) {
@@ -228,7 +232,8 @@ export class SessionReviewsService {
         bookingId: booking.id,
         authorUserId: userId,
         sessionId: booking.session.id,
-        coachProfileId: booking.session.substituteCoachId ?? booking.session.coachId,
+        coachProfileId:
+          booking.session.substituteCoachId ?? booking.session.coachId,
       })),
       skipDuplicates: true,
     });

@@ -51,7 +51,9 @@ function visibilityWhere(
   return {};
 }
 
-function coachWhere(coachId: string | undefined): Prisma.SessionReviewWhereInput {
+function coachWhere(
+  coachId: string | undefined,
+): Prisma.SessionReviewWhereInput {
   const id = coachId?.trim();
   if (!id) {
     return {};

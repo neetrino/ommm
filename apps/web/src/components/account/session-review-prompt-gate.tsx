@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SessionReviewPromptModal } from "@/components/account/session-review-prompt-modal";
 import { useSessionReviewsPending } from "@/hooks/use-session-reviews-pending";
 import { SESSION_REVIEW_OPEN_EVENT } from "@/lib/session-reviews-events";
@@ -15,7 +15,8 @@ export function SessionReviewPromptGate({
   deferAutoPrompt,
 }: SessionReviewPromptGateProps) {
   const { items, refetch } = useSessionReviewsPending(true);
-  const [active, setActive] = useState<MemberPendingReview | null>(null);
+  const [openedFromEvent, setOpenedFromEvent] = useState<MemberPendingReview | null>(null);
+  const [suppressedIds, setSuppressedIds] = useState<ReadonlySet<string>>(() => new Set());
 
   useEffect(() => {
     function onOpen(event: Event) {
@@ -27,13 +28,13 @@ export function SessionReviewPromptGate({
         review?: MemberPendingReview;
       };
       if (detail.review && typeof detail.review.id === "string") {
-        setActive(detail.review);
+        setOpenedFromEvent(detail.review);
         return;
       }
       if (typeof detail.reviewId === "string") {
         const found = items.find((row) => row.id === detail.reviewId);
         if (found) {
-          setActive(found);
+          setOpenedFromEvent(found);
         }
       }
     }
@@ -43,15 +44,18 @@ export function SessionReviewPromptGate({
     };
   }, [items]);
 
-  useEffect(() => {
-    if (deferAutoPrompt || active !== null) {
-      return;
+  const autoPrompt = useMemo(() => {
+    if (deferAutoPrompt || openedFromEvent !== null) {
+      return null;
     }
-    const next = items.find((row) => !isSessionReviewLater(row.id));
-    if (next) {
-      setActive(next);
-    }
-  }, [active, deferAutoPrompt, items]);
+    return (
+      items.find(
+        (row) => !suppressedIds.has(row.id) && !isSessionReviewLater(row.id),
+      ) ?? null
+    );
+  }, [deferAutoPrompt, items, openedFromEvent, suppressedIds]);
+
+  const active = openedFromEvent ?? autoPrompt;
 
   if (!active) {
     return null;
@@ -61,7 +65,9 @@ export function SessionReviewPromptGate({
     <SessionReviewPromptModal
       review={active}
       onClosed={() => {
-        setActive(null);
+        const closedId = active.id;
+        setOpenedFromEvent(null);
+        setSuppressedIds((previous) => new Set([...previous, closedId]));
         void refetch();
       }}
     />
