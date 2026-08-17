@@ -50,13 +50,16 @@ export class SessionReviewsService {
 
   async submit(userId: string, id: string, dto: SubmitSessionReviewDto) {
     const row = await this.requireOwnedPending(userId, id);
-    const comment = dto.comment?.trim() ?? '';
+    const comment = dto.comment.trim();
+    if (comment.length === 0) {
+      throw new BadRequestException('Comment is required');
+    }
     const updated = await this.prisma.sessionReview.update({
       where: { id: row.id },
       data: {
         status: SessionReviewStatus.SUBMITTED,
         rating: dto.rating,
-        comment: comment.length > 0 ? comment : null,
+        comment,
         isAnonymous: dto.isAnonymous,
         submittedAt: new Date(),
       },

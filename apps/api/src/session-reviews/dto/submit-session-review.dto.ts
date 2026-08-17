@@ -2,11 +2,11 @@ import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsInt,
-  IsOptional,
   IsString,
   Max,
   MaxLength,
   Min,
+  MinLength,
 } from 'class-validator';
 import {
   SESSION_REVIEW_COMMENT_MAX,
@@ -21,10 +21,10 @@ export class SubmitSessionReviewDto {
   @Max(SESSION_REVIEW_RATING_MAX)
   rating!: number;
 
-  @IsOptional()
   @IsString()
+  @MinLength(1)
   @MaxLength(SESSION_REVIEW_COMMENT_MAX)
-  comment?: string;
+  comment!: string;
 
   @IsBoolean()
   isAnonymous!: boolean;
