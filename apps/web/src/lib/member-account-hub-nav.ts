@@ -1,7 +1,7 @@
 import type { DashboardNavDefinition } from "@/lib/dashboard-nav";
 import { USER_DASHBOARD_PATH } from "@/lib/role-home";
 
-/** Member account hub rows — workspace shortcuts (excludes `/user` itself). */
+/** Member account hub rows — workspace shortcuts (sheet backdrop / account menu). */
 export const MEMBER_ACCOUNT_HUB_NAV: readonly DashboardNavDefinition[] = [
   { href: USER_DASHBOARD_PATH, icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
