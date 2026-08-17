@@ -7,15 +7,22 @@ import type { CoachInboxReview, StaffInboxReview } from "@/lib/session-reviews-t
 export function SessionReviewInboxCard({
   row,
   showAnonymousBadge,
+  onOpen,
 }: {
   row: StaffInboxReview | CoachInboxReview;
   showAnonymousBadge: boolean;
+  onOpen: () => void;
 }) {
   const locale = useLocale();
   const t = useTranslations("sessionReviewsPages");
   const anonymous = "isAnonymous" in row ? row.isAnonymous : false;
+
   return (
-    <article className="rounded-2xl border border-sand-200/80 bg-white/90 p-5 shadow-[0_12px_28px_-22px_rgba(45,40,35,0.2)]">
+    <button
+      type="button"
+      onClick={onOpen}
+      className="w-full rounded-2xl border border-sand-200/80 bg-white/90 p-5 text-left shadow-[0_12px_28px_-22px_rgba(45,40,35,0.2)] transition-[border-color,box-shadow,transform] hover:border-sand-300 hover:shadow-[0_16px_32px_-20px_rgba(45,40,35,0.28)] active:scale-[0.995]"
+    >
       <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
         {formatSessionReviewWhen(locale, row.startsAt, row.endsAt)}
       </p>
@@ -25,10 +32,10 @@ export function SessionReviewInboxCard({
         {showAnonymousBadge && anonymous ? ` · ${t("hiddenFromCoach")}` : ""}
       </p>
       {row.comment ? (
-        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-sage-800">{row.comment}</p>
+        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-sage-800">{row.comment}</p>
       ) : (
         <p className="mt-3 text-sm italic text-sage-500">{t("noComment")}</p>
       )}
-    </article>
+    </button>
   );
 }

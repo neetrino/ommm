@@ -103,7 +103,10 @@
     "memberEmpty": "Нет занятий, ожидающих оценки",
     "writeReview": "Написать отзыв",
     "loading": "Загрузка отзывов…",
-    "loadFailed": "Не удалось загрузить отзывы"
+    "loadFailed": "Не удалось загрузить отзывы",
+    "detailsEyebrow": "Отзыв о занятии",
+    "detailsClose": "Закрыть",
+    "detailsCloseBackdrop": "Закрыть детали отзыва"
   },
   "listSort": {
     "sort": "Сортировка",

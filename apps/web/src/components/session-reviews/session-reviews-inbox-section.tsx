@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { SessionReviewDetailsModal } from "@/components/session-reviews/session-review-details-modal";
 import { SessionReviewInboxCard } from "@/components/session-reviews/session-review-inbox-card";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -37,6 +38,7 @@ export function SessionReviewsInboxSection({
   > | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<StaffInboxReview | CoachInboxReview | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -77,6 +79,7 @@ export function SessionReviewsInboxSection({
             key={row.id}
             row={row}
             showAnonymousBadge={showAnonymousBadge}
+            onOpen={() => setSelected(row)}
           />
         ))}
       </div>
@@ -92,6 +95,13 @@ export function SessionReviewsInboxSection({
             const query = params.toString();
             router.replace(query.length > 0 ? `?${query}` : "?");
           }}
+        />
+      ) : null}
+      {selected ? (
+        <SessionReviewDetailsModal
+          row={selected}
+          showAnonymousBadge={showAnonymousBadge}
+          onClose={() => setSelected(null)}
         />
       ) : null}
     </StaffListPageLayout>

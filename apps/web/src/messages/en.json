@@ -103,7 +103,10 @@
     "memberEmpty": "No classes waiting for a review",
     "writeReview": "Write review",
     "loading": "Loading reviews…",
-    "loadFailed": "Could not load reviews"
+    "loadFailed": "Could not load reviews",
+    "detailsEyebrow": "Class review",
+    "detailsClose": "Close",
+    "detailsCloseBackdrop": "Close review details"
   },
   "listSort": {
     "sort": "Sort",

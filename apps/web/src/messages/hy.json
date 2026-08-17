@@ -103,7 +103,10 @@
     "memberEmpty": "Գնահատման սպասող դաս չկա",
     "writeReview": "Գրել կարծիք",
     "loading": "Կարծիքները բեռնվում են…",
-    "loadFailed": "Չհաջողվեց բեռնել կարծիքները"
+    "loadFailed": "Չհաջողվեց բեռնել կարծիքները",
+    "detailsEyebrow": "Դասի կարծիք",
+    "detailsClose": "Փակել",
+    "detailsCloseBackdrop": "Փակել կարծիքի մանրամասները"
   },
   "listSort": {
     "sort": "Տեսակավորել",
