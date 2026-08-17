@@ -1,5 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PaymentSource, Prisma, Role } from '@prisma/client';
+import {
+  PaymentSource,
+  Prisma,
+  Role,
+  SessionReviewStatus,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { resolveUserPackagePlan } from '../packages/user-package-plan-snapshot.util';
 import {
@@ -89,6 +94,22 @@ type ClientPackagesPage = {
     isUnlimited: boolean;
     paymentMethod: string | null;
     typeBalances: ClientPackageTypeBalanceItem[];
+  }>;
+  total: number;
+  take: number;
+  offset: number;
+};
+
+type ClientFeedbackPage = {
+  items: Array<{
+    id: string;
+    classTypeName: string;
+    startsAt: Date;
+    endsAt: Date;
+    coachName: string;
+    rating: number;
+    comment: string | null;
+    submittedAt: Date;
   }>;
   total: number;
   take: number;
@@ -265,6 +286,60 @@ export class ClientsTabListsService {
         recipientName: card.recipientName,
         createdAt: card.createdAt,
         relation: card.purchaserId === userId ? 'purchased' : 'received',
+      })),
+      total,
+      take,
+      offset,
+    };
+  }
+
+  async listFeedback(
+    userId: string,
+    take: number,
+    offset: number,
+  ): Promise<ClientFeedbackPage> {
+    await this.assertClientExists(userId);
+    const where: Prisma.SessionReviewWhereInput = {
+      authorUserId: userId,
+      status: SessionReviewStatus.SUBMITTED,
+      isAnonymous: false,
+    };
+    const [total, rows] = await Promise.all([
+      this.prisma.sessionReview.count({ where }),
+      this.prisma.sessionReview.findMany({
+        where,
+        include: {
+          session: {
+            select: {
+              startsAt: true,
+              endsAt: true,
+              classType: { select: { name: true } },
+            },
+          },
+          coachProfile: {
+            select: {
+              user: { select: { name: true, lastName: true } },
+            },
+          },
+        },
+        orderBy: { submittedAt: 'desc' },
+        skip: offset,
+        take,
+      }),
+    ]);
+    return {
+      items: rows.map((row) => ({
+        id: row.id,
+        classTypeName: row.session.classType.name,
+        startsAt: row.session.startsAt,
+        endsAt: row.session.endsAt,
+        coachName: [row.coachProfile.user.name, row.coachProfile.user.lastName]
+          .filter(Boolean)
+          .join(' ')
+          .trim(),
+        rating: row.rating ?? 0,
+        comment: row.comment,
+        submittedAt: row.submittedAt ?? row.updatedAt,
       })),
       total,
       take,

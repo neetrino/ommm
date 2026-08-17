@@ -2195,6 +2195,7 @@
         "bookings": "Bookings",
         "payments": "Payments",
         "gifts": "Gift cards",
+        "feedback": "Feedback",
         "notes": "Notes"
       },
       "packages": {
@@ -2312,6 +2313,10 @@
         "noPayments": "No payments.",
         "giftCards": "Gift cards",
         "noGiftCards": "No gift cards.",
+        "feedback": "Feedback",
+        "noFeedback": "No named feedback yet.",
+        "noFeedbackComment": "No written comment",
+        "feedbackRating": "{rating}/5",
         "giveGift": "Give gift card",
         "giveGiftButton": "Give gift",
         "giftAmountAria": "Gift card amount in cents",

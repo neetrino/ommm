@@ -122,14 +122,18 @@ export function SessionReviewsInboxSection({
         />
       }
     >
-      {loading ? <p className="text-sm text-sage-600">{t("loading")}</p> : null}
+      {loading ? (
+        <p className="sr-only" aria-live="polite">
+          {t("loading")}
+        </p>
+      ) : null}
       {error ? <p className="text-sm text-amber-900">{error}</p> : null}
       {!loading && !error && items.length === 0 ? (
         <p className="rounded-2xl border border-sand-200/80 bg-white/80 px-5 py-10 text-center text-sm text-sage-600">
           {t("empty")}
         </p>
       ) : null}
-      <div className="space-y-3">
+      <div className="space-y-3" aria-busy={loading}>
         {items.map((row) => (
           <SessionReviewInboxCard
             key={row.id}

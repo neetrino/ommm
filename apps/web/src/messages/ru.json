@@ -2203,6 +2203,7 @@
         "bookings": "Бронирования",
         "payments": "Платежи",
         "gifts": "Подарочные карты",
+        "feedback": "Feedback",
         "notes": "Заметки"
       },
       "packages": {
@@ -2320,6 +2321,10 @@
         "noPayments": "Платежей нет.",
         "giftCards": "Подарочные карты",
         "noGiftCards": "Подарочных карт нет.",
+        "feedback": "Feedback",
+        "noFeedback": "Именных отзывов пока нет.",
+        "noFeedbackComment": "Без комментария",
+        "feedbackRating": "{rating}/5",
         "giveGift": "Выдать подарочную карту",
         "giveGiftButton": "Выдать",
         "giftAmountAria": "Сумма подарочной карты в драмах (копейки)",

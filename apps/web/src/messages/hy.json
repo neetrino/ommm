@@ -2206,6 +2206,7 @@
         "bookings": "Ամրագրումներ",
         "payments": "Վճարումներ",
         "gifts": "Նվեր քարտեր",
+        "feedback": "Feedback",
         "notes": "Նշումներ"
       },
       "packages": {
@@ -2323,6 +2324,10 @@
         "noPayments": "Վճարումներ չկան։",
         "giftCards": "Նվեր քարտեր",
         "noGiftCards": "Նվեր քարտեր չկան։",
+        "feedback": "Feedback",
+        "noFeedback": "Անվանված կարծիքներ դեռ չկան։",
+        "noFeedbackComment": "Մեկնաբանություն չկա",
+        "feedbackRating": "{rating}/5",
         "giveGift": "Տալ նվեր քարտ",
         "giveGiftButton": "Տալ",
         "giftAmountAria": "Նվեր քարտի գումար (ցент)",
