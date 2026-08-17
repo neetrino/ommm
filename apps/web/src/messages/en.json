@@ -89,7 +89,6 @@
     "submit": "Send review",
     "saving": "Sending…",
     "later": "Not now",
-    "dontAsk": "Don't ask again for this class",
     "saveFailed": "Could not save your review",
     "backdropAria": "Close class review"
   },

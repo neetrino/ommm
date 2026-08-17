@@ -84,22 +84,6 @@ export function SessionReviewPromptForm({
       >
         {t("later")}
       </OmmButton>
-      <button
-        type="button"
-        className="text-center text-xs text-sage-500 underline-offset-2 hover:underline"
-        disabled={pending}
-        onClick={() =>
-          void dismissReview({
-            reviewId,
-            setError,
-            setPending,
-            onClosed,
-            saveFailed: t("saveFailed"),
-          })
-        }
-      >
-        {t("dontAsk")}
-      </button>
     </>
   );
 }
@@ -146,28 +130,6 @@ async function submitReview(params: {
         comment: trimmedComment,
         isAnonymous: params.isAnonymous,
       }),
-    });
-    dispatchSessionReviewsRefresh();
-    params.onClosed();
-  } catch (caught) {
-    params.setError(caught instanceof ApiError ? caught.message : params.saveFailed);
-  } finally {
-    params.setPending(false);
-  }
-}
-
-async function dismissReview(params: {
-  reviewId: string;
-  setError: (value: string | null) => void;
-  setPending: (value: boolean) => void;
-  onClosed: () => void;
-  saveFailed: string;
-}): Promise<void> {
-  params.setPending(true);
-  params.setError(null);
-  try {
-    await apiFetch(`/session-reviews/${encodeURIComponent(params.reviewId)}/dismiss`, {
-      method: "POST",
     });
     dispatchSessionReviewsRefresh();
     params.onClosed();
