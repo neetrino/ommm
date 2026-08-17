@@ -39,8 +39,8 @@ export function SessionReviewPromptModal({
       ariaDescribedBy={descId}
       backdropAriaLabel={t("backdropAria")}
       centered
-      overlayClassName={`${styles.overlay} ommm-modal-overlay z-[115] p-4`}
-      panelClassName={styles.panel}
+      overlayClassName={`${styles.overlay} ommm-modal-overlay z-[115] items-center p-4`}
+      panelClassName={`${styles.panel} max-h-[min(90vh,40rem)] overflow-y-auto`}
     >
       <div className={styles.form}>
         <p className={styles.eyebrow}>{t("eyebrow")}</p>
