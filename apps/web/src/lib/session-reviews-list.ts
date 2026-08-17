@@ -1,5 +1,7 @@
 import { SESSION_REVIEW_HEADER_PREVIEW } from "@/lib/session-reviews-types";
 import {
+  SESSION_REVIEW_COACH_QUERY_KEY,
+  SESSION_REVIEW_PACKAGE_QUERY_KEY,
   SESSION_REVIEW_RATING_QUERY_KEY,
   SESSION_REVIEW_SEARCH_QUERY_KEY,
   SESSION_REVIEW_VISIBILITY_QUERY_KEY,
@@ -7,14 +9,18 @@ import {
   type SessionReviewVisibilityFilter,
 } from "@/lib/session-reviews-inbox-filters";
 
+export type SessionReviewsInboxQueryFilters = {
+  q?: string;
+  rating?: SessionReviewRatingFilter | "";
+  visibility?: SessionReviewVisibilityFilter | "";
+  coachId?: string;
+  packagePlanId?: string;
+};
+
 export function sessionReviewsInboxQuery(
   take: number,
   offset = 0,
-  filters?: {
-    q?: string;
-    rating?: SessionReviewRatingFilter | "";
-    visibility?: SessionReviewVisibilityFilter | "";
-  },
+  filters?: SessionReviewsInboxQueryFilters,
 ): string {
   const params = new URLSearchParams({
     take: String(take),
@@ -29,6 +35,12 @@ export function sessionReviewsInboxQuery(
   }
   if (filters?.visibility) {
     params.set(SESSION_REVIEW_VISIBILITY_QUERY_KEY, filters.visibility);
+  }
+  if (filters?.coachId) {
+    params.set(SESSION_REVIEW_COACH_QUERY_KEY, filters.coachId);
+  }
+  if (filters?.packagePlanId) {
+    params.set(SESSION_REVIEW_PACKAGE_QUERY_KEY, filters.packagePlanId);
   }
   return params.toString();
 }

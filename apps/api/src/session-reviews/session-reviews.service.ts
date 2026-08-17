@@ -21,6 +21,7 @@ import {
   toCoachInboxDto,
   toMemberPendingDto,
   toStaffInboxDto,
+  formatPersonName,
 } from './session-reviews.mapper';
 
 const SESSION_INCLUDE = {
@@ -102,6 +103,35 @@ export class SessionReviewsService {
       total,
       take,
       offset,
+    };
+  }
+
+  async listFilterOptions() {
+    const [coaches, packages] = await Promise.all([
+      this.prisma.coachProfile.findMany({
+        select: {
+          id: true,
+          user: { select: { name: true, lastName: true } },
+        },
+        orderBy: [{ user: { name: 'asc' } }, { user: { lastName: 'asc' } }],
+      }),
+      this.prisma.packagePlan.findMany({
+        select: { id: true, name: true, categoryName: true },
+        orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+      }),
+    ]);
+    return {
+      coaches: coaches.map((row) => ({
+        id: row.id,
+        name: formatPersonName(row.user.name, row.user.lastName) || row.id,
+      })),
+      packages: packages.map((row) => ({
+        id: row.id,
+        name:
+          row.categoryName.length > 0
+            ? `${row.categoryName} · ${row.name}`
+            : row.name,
+      })),
     };
   }
 

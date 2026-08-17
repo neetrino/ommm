@@ -29,6 +29,13 @@ export class SessionReviewsController {
     return this.sessionReviews.listStaffInbox(query);
   }
 
+  @Get('filter-options')
+  @SkipThrottle()
+  @Roles(...BACKOFFICE_READ_ROLES, Role.COACH)
+  listFilterOptions() {
+    return this.sessionReviews.listFilterOptions();
+  }
+
   @Get('inbox/unread-count')
   @SkipThrottle()
   @Roles(...BACKOFFICE_READ_ROLES)

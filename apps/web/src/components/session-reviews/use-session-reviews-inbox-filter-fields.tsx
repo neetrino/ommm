@@ -4,14 +4,27 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import {
+  SESSION_REVIEW_COACH_FILTER_KEY,
+  SESSION_REVIEW_PACKAGE_FILTER_KEY,
   SESSION_REVIEW_RATING_FILTER_KEY,
   SESSION_REVIEW_RATING_FILTERS,
   SESSION_REVIEW_VISIBILITY_FILTER_KEY,
+  type SessionReviewFilterOption,
 } from "@/lib/session-reviews-inbox-filters";
 
-export function useSessionReviewsInboxFilterFields(
-  showVisibilityFilter: boolean,
-): IntegratedFilterField[] {
+type UseSessionReviewsInboxFilterFieldsArgs = {
+  showVisibilityFilter: boolean;
+  showCoachFilter: boolean;
+  coaches: readonly SessionReviewFilterOption[];
+  packages: readonly SessionReviewFilterOption[];
+};
+
+export function useSessionReviewsInboxFilterFields({
+  showVisibilityFilter,
+  showCoachFilter,
+  coaches,
+  packages,
+}: UseSessionReviewsInboxFilterFieldsArgs): IntegratedFilterField[] {
   const t = useTranslations("sessionReviewsPages");
 
   return useMemo(() => {
@@ -39,6 +52,22 @@ export function useSessionReviewsInboxFilterFields(
         ],
       });
     }
+    if (showCoachFilter) {
+      fields.push({
+        key: SESSION_REVIEW_COACH_FILTER_KEY,
+        label: t("filterCoach"),
+        allLabel: t("filterCoachAll"),
+        emptyValue: "",
+        options: coaches.map((row) => ({ value: row.id, label: row.name })),
+      });
+    }
+    fields.push({
+      key: SESSION_REVIEW_PACKAGE_FILTER_KEY,
+      label: t("filterPackage"),
+      allLabel: t("filterPackageAll"),
+      emptyValue: "",
+      options: packages.map((row) => ({ value: row.id, label: row.name })),
+    });
     return fields;
-  }, [showVisibilityFilter, t]);
+  }, [coaches, packages, showCoachFilter, showVisibilityFilter, t]);
 }
