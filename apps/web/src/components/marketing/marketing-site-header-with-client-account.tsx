@@ -120,6 +120,7 @@ export function MarketingSiteHeaderWithClientAccount({
         account={account}
         showMemberNotifications={showMemberNotifications}
         sessionReviewsAudience={showMemberNotifications ? "member" : null}
+        sessionReviewsListHref={showMemberNotifications ? "/user/reviews" : null}
       />
       {showMemberNotifications ? (
         <SessionReviewPromptGate deferAutoPrompt={false} />

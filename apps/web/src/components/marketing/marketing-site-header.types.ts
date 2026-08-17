@@ -33,4 +33,5 @@ export type MarketingSiteHeaderProps = {
   callTasksListHref?: string | null;
   /** Class reviews — member writes, staff/coach read. */
   sessionReviewsAudience?: SessionReviewsAudience | null;
+  sessionReviewsListHref?: string | null;
 };

@@ -3,15 +3,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { SESSION_REVIEWS_REFRESH_EVENT } from "@/lib/session-reviews-events";
-import type { CoachInboxReview } from "@/lib/session-reviews-types";
+import type { CoachInboxReview, SessionReviewsListPayload } from "@/lib/session-reviews-types";
+import { sessionReviewsHeaderInboxPath } from "@/lib/session-reviews-list";
 
 export function useSessionReviewsCoachInbox(enabled: boolean): {
   items: CoachInboxReview[];
+  total: number;
   loading: boolean;
   error: boolean;
   refetch: () => Promise<void>;
 } {
   const [items, setItems] = useState<CoachInboxReview[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState(false);
 
@@ -22,13 +25,15 @@ export function useSessionReviewsCoachInbox(enabled: boolean): {
     setLoading(true);
     setError(false);
     try {
-      const data = await apiFetch<{ items: CoachInboxReview[] }>(
-        "/session-reviews/coach",
+      const data = await apiFetch<SessionReviewsListPayload<CoachInboxReview>>(
+        sessionReviewsHeaderInboxPath("coach"),
       );
       setItems(data.items);
+      setTotal(data.total);
     } catch (caught) {
       setError(caught instanceof ApiError);
       setItems([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -50,5 +55,5 @@ export function useSessionReviewsCoachInbox(enabled: boolean): {
     };
   }, [enabled, refetch]);
 
-  return { items, loading, error, refetch };
+  return { items, total, loading, error, refetch };
 }

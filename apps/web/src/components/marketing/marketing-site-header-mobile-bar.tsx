@@ -44,6 +44,7 @@ type MarketingSiteHeaderMobileBarProps = {
   notificationPreferencesHref: string | null;
   callTasksListHref?: string | null;
   sessionReviewsAudience?: SessionReviewsAudience | null;
+  sessionReviewsListHref?: string | null;
   account: MarketingHeaderAccount | null;
   onBrandClick: (event: MouseEvent<HTMLAnchorElement>) => void;
   onTogglePublicMenu: () => void;
@@ -61,6 +62,7 @@ export function MarketingSiteHeaderMobileBar({
   notificationPreferencesHref,
   callTasksListHref = null,
   sessionReviewsAudience = null,
+  sessionReviewsListHref = null,
   account,
   onBrandClick,
   onTogglePublicMenu,
@@ -123,9 +125,10 @@ export function MarketingSiteHeaderMobileBar({
         ) : null}
         {memberWorkspaceHeader ? (
           <>
-            {sessionReviewsAudience ? (
+            {sessionReviewsAudience && sessionReviewsListHref ? (
               <HeaderSessionReviewsMenu
                 audience={sessionReviewsAudience}
+                viewAllHref={sessionReviewsListHref}
                 triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
                 iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                 onNavigate={onCloseAllMenus}
@@ -164,9 +167,10 @@ export function MarketingSiteHeaderMobileBar({
           </>
         ) : (
           <>
-            {sessionReviewsAudience ? (
+            {sessionReviewsAudience && sessionReviewsListHref ? (
               <HeaderSessionReviewsMenu
                 audience={sessionReviewsAudience}
+                viewAllHref={sessionReviewsListHref}
                 triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
                 iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                 onNavigate={onCloseAllMenus}

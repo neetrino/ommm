@@ -74,14 +74,24 @@ export class SessionReviewsService {
     return { ok: true as const };
   }
 
-  async listStaffInbox() {
-    const rows = await this.prisma.sessionReview.findMany({
-      where: { status: SessionReviewStatus.SUBMITTED },
-      include: SESSION_INCLUDE,
-      orderBy: [{ staffReadAt: 'asc' }, { submittedAt: 'desc' }],
-      take: SESSION_REVIEW_INBOX_TAKE,
-    });
-    return { items: rows.map((row) => toStaffInboxDto(row)) };
+  async listStaffInbox(offset = 0, take = SESSION_REVIEW_INBOX_TAKE) {
+    const where = { status: SessionReviewStatus.SUBMITTED };
+    const [total, rows] = await this.prisma.$transaction([
+      this.prisma.sessionReview.count({ where }),
+      this.prisma.sessionReview.findMany({
+        where,
+        include: SESSION_INCLUDE,
+        orderBy: [{ staffReadAt: 'asc' }, { submittedAt: 'desc' }],
+        skip: offset,
+        take,
+      }),
+    ]);
+    return {
+      items: rows.map((row) => toStaffInboxDto(row)),
+      total,
+      take,
+      offset,
+    };
   }
 
   async unreadStaffCount() {
@@ -99,7 +109,11 @@ export class SessionReviewsService {
     return { ok: true as const };
   }
 
-  async listCoachInbox(userId: string) {
+  async listCoachInbox(
+    userId: string,
+    offset = 0,
+    take = SESSION_REVIEW_INBOX_TAKE,
+  ) {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { userId },
       select: { id: true },
@@ -107,17 +121,27 @@ export class SessionReviewsService {
     if (!profile) {
       throw new ForbiddenException();
     }
-    const rows = await this.prisma.sessionReview.findMany({
-      where: {
-        status: SessionReviewStatus.SUBMITTED,
-        isAnonymous: false,
-        coachProfileId: profile.id,
-      },
-      include: SESSION_INCLUDE,
-      orderBy: { submittedAt: 'desc' },
-      take: SESSION_REVIEW_INBOX_TAKE,
-    });
-    return { items: rows.map((row) => toCoachInboxDto(row)) };
+    const where = {
+      status: SessionReviewStatus.SUBMITTED,
+      isAnonymous: false,
+      coachProfileId: profile.id,
+    };
+    const [total, rows] = await this.prisma.$transaction([
+      this.prisma.sessionReview.count({ where }),
+      this.prisma.sessionReview.findMany({
+        where,
+        include: SESSION_INCLUDE,
+        orderBy: { submittedAt: 'desc' },
+        skip: offset,
+        take,
+      }),
+    ]);
+    return {
+      items: rows.map((row) => toCoachInboxDto(row)),
+      total,
+      take,
+      offset,
+    };
   }
 
   private async requireOwnedPending(userId: string, id: string) {

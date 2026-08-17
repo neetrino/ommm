@@ -35,3 +35,12 @@ export type CoachInboxReview = {
 };
 
 export type SessionReviewsAudience = "member" | "staff" | "coach";
+
+export const SESSION_REVIEW_HEADER_PREVIEW = 4;
+
+export type SessionReviewsListPayload<T> = {
+  items: T[];
+  total: number;
+  take: number;
+  offset: number;
+};

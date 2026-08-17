@@ -31,6 +31,7 @@ const MENU_MOTION_MS = 320;
 
 type HeaderSessionReviewsMenuProps = {
   audience: SessionReviewsAudience;
+  viewAllHref: string;
   triggerClassName: string;
   iconClassName: string;
   onNavigate?: () => void;
@@ -38,6 +39,7 @@ type HeaderSessionReviewsMenuProps = {
 
 export function HeaderSessionReviewsMenu({
   audience,
+  viewAllHref,
   triggerClassName,
   iconClassName,
   onNavigate,
@@ -159,6 +161,7 @@ export function HeaderSessionReviewsMenu({
                   items={member.items}
                   loading={member.loading}
                   error={member.error}
+                  viewAllHref={viewAllHref}
                   onPick={() => {
                     onNavigate?.();
                     closeMenu();
@@ -170,6 +173,11 @@ export function HeaderSessionReviewsMenu({
                   items={staff.items}
                   loading={staff.loading}
                   error={staff.error}
+                  viewAllHref={viewAllHref}
+                  onNavigate={() => {
+                    onNavigate?.();
+                    closeMenu();
+                  }}
                 />
               ) : null}
               {audience === "coach" ? (
@@ -177,6 +185,11 @@ export function HeaderSessionReviewsMenu({
                   items={coach.items}
                   loading={coach.loading}
                   error={coach.error}
+                  viewAllHref={viewAllHref}
+                  onNavigate={() => {
+                    onNavigate?.();
+                    closeMenu();
+                  }}
                 />
               ) : null}
             </div>,

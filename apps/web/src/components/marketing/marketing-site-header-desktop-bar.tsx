@@ -47,6 +47,7 @@ type MarketingSiteHeaderDesktopBarProps = {
   notificationPreferencesHref: string | null;
   callTasksListHref?: string | null;
   sessionReviewsAudience?: SessionReviewsAudience | null;
+  sessionReviewsListHref?: string | null;
   desktopGlassStyle: Record<string, string>;
   desktopNotificationsTriggerClass: string;
   onBrandClick: (event: MouseEvent<HTMLAnchorElement>) => void;
@@ -63,6 +64,7 @@ export function MarketingSiteHeaderDesktopBar({
   notificationPreferencesHref,
   callTasksListHref = null,
   sessionReviewsAudience = null,
+  sessionReviewsListHref = null,
   desktopGlassStyle,
   desktopNotificationsTriggerClass,
   onBrandClick,
@@ -125,9 +127,10 @@ export function MarketingSiteHeaderDesktopBar({
               <MarketingHeaderGlobeIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
             )}
           />
-          {sessionReviewsAudience ? (
+          {sessionReviewsAudience && sessionReviewsListHref ? (
             <HeaderSessionReviewsMenu
               audience={sessionReviewsAudience}
+              viewAllHref={sessionReviewsListHref}
               triggerClassName={desktopNotificationsTriggerClass}
               iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
               onNavigate={onCloseAllMenus}

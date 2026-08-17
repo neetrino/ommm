@@ -71,7 +71,8 @@
     "hiddenFromCoach": "Hidden from coach",
     "empty": "No class reviews yet",
     "loading": "Loading reviews…",
-    "loadError": "Could not load reviews"
+    "loadError": "Could not load reviews",
+    "viewAll": "View all"
   },
   "sessionReviewPrompt": {
     "eyebrow": "How was class?",
@@ -86,6 +87,20 @@
     "dontAsk": "Don't ask again for this class",
     "saveFailed": "Could not save your review",
     "backdropAria": "Close class review"
+  },
+  "sessionReviewsPages": {
+    "title": "Class reviews",
+    "description": "Feedback members sent after class. Anonymous notes stay hidden from coaches.",
+    "memberTitle": "Rate your classes",
+    "memberDescription": "Leave a rating for a class you attended. You can skip any of these.",
+    "ratingLabel": "{rating}/5",
+    "hiddenFromCoach": "Hidden from coach",
+    "noComment": "No written comment",
+    "empty": "No class reviews yet",
+    "memberEmpty": "No classes waiting for a review",
+    "writeReview": "Write review",
+    "loading": "Loading reviews…",
+    "loadFailed": "Could not load reviews"
   },
   "listSort": {
     "sort": "Sort",
