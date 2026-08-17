@@ -138,6 +138,7 @@ export function HeaderNotificationsMenu({
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
+  const didAnimateOpenRef = useRef(false);
   const { offeredRows, loading, error, refetch } = useMemberWaitlistData(enabled);
   const { markAllSeen, countUnread } = useHeaderNotificationsSeen();
   const offerIds = offeredRows.map((row) => row.id);
@@ -168,7 +169,11 @@ export function HeaderNotificationsMenu({
   }, [open]);
 
   useLayoutEffect(() => {
-    if (!open || !menuPosition || !mounted) {
+    if (!open) {
+      didAnimateOpenRef.current = false;
+      return undefined;
+    }
+    if (!menuPosition || !mounted || didAnimateOpenRef.current) {
       return undefined;
     }
 
@@ -177,6 +182,7 @@ export function HeaderNotificationsMenu({
       return undefined;
     }
 
+    didAnimateOpenRef.current = true;
     panel.style.transition = "none";
     panel.style.opacity = "0";
     panel.style.transform = "translate3d(0, -0.5rem, 0) scale(0.96)";

@@ -234,14 +234,21 @@ function useCallTaskMenuMotion(
   panelRef: RefObject<HTMLDivElement | null>,
   setPanelVisible: (value: boolean) => void,
 ) {
+  const didAnimateOpenRef = useRef(false);
+
   useLayoutEffect(() => {
-    if (!open || !menuPosition || !mounted) {
+    if (!open) {
+      didAnimateOpenRef.current = false;
+      return undefined;
+    }
+    if (!menuPosition || !mounted || didAnimateOpenRef.current) {
       return undefined;
     }
     const panel = panelRef.current;
     if (!panel) {
       return undefined;
     }
+    didAnimateOpenRef.current = true;
     panel.style.transition = "none";
     panel.style.opacity = "0";
     void panel.offsetHeight;
