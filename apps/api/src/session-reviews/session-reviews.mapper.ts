@@ -24,6 +24,19 @@ export type MemberPendingReviewDto = {
   coachName: string;
 };
 
+export type MemberSubmittedReviewDto = {
+  id: string;
+  classTypeName: string;
+  sessionTitle: string;
+  startsAt: string;
+  endsAt: string;
+  coachName: string;
+  rating: number;
+  comment: string | null;
+  isAnonymous: boolean;
+  submittedAt: string;
+};
+
 export type StaffInboxReviewDto = {
   id: string;
   classTypeName: string;
@@ -72,6 +85,18 @@ export function toMemberPendingDto(
       row.session.coach.user.name,
       row.session.coach.user.lastName,
     ),
+  };
+}
+
+export function toMemberSubmittedDto(
+  row: SessionReviewWithSession,
+): MemberSubmittedReviewDto {
+  return {
+    ...toMemberPendingDto(row),
+    rating: row.rating ?? 0,
+    comment: row.comment,
+    isAnonymous: row.isAnonymous,
+    submittedAt: row.submittedAt?.toISOString() ?? row.updatedAt.toISOString(),
   };
 }
 

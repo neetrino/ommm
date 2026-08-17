@@ -29,6 +29,8 @@ type UseScheduleWeekBoardScrollResult = {
   canScrollLeft: boolean;
   canScrollRight: boolean;
   renderEdgeZones: () => ReactNode;
+  /** Align a day column's left edge to the scroll viewport start. */
+  scrollDayToStart: (dayKey: string) => void;
 };
 
 export function useScheduleWeekBoardScroll(
@@ -46,6 +48,24 @@ export function useScheduleWeekBoardScroll(
     setCanScrollLeft(element.scrollLeft > 2);
     setCanScrollRight(element.scrollLeft < element.scrollWidth - element.clientWidth - 2);
   }, []);
+
+  const scrollDayToStart = useCallback(
+    (dayKey: string) => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const target = container.querySelector(`[data-schedule-day="${dayKey}"]`);
+      if (!(target instanceof HTMLElement)) {
+        container.scrollLeft = 0;
+        updateScrollState();
+        return;
+      }
+      const containerLeft = container.getBoundingClientRect().left;
+      const targetLeft = target.getBoundingClientRect().left;
+      container.scrollLeft += targetLeft - containerLeft;
+      updateScrollState();
+    },
+    [updateScrollState],
+  );
 
   const startAutoScroll = useCallback((direction: "left" | "right") => {
     autoScrollDir.current = direction;
@@ -86,15 +106,17 @@ export function useScheduleWeekBoardScroll(
     <div
       onMouseEnter={() => canScroll && startAutoScroll(side)}
       onMouseLeave={stopAutoScroll}
-      className={`absolute top-0 z-20 flex h-full items-center transition-opacity duration-200 ${
-        side === "left"
-          ? "left-0 bg-gradient-to-r from-paper/90"
-          : "right-0 bg-gradient-to-l from-paper/90"
-      } to-transparent ${canScroll ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`pointer-events-none absolute top-0 z-20 flex h-full items-center ${
+        side === "left" ? "left-0" : "right-0"
+      }`}
       style={{ width: SCHEDULE_WEEK_EDGE_ZONE_WIDTH_PX }}
     >
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/70 bg-white/80 shadow-sm backdrop-blur-sm">
+      <div
+        className={`flex h-full w-full items-center justify-center transition-opacity duration-200 ${
+          canScroll ? "pointer-events-auto opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-sage-800/15 bg-sand-50/95 text-sage-700 shadow-sm">
           <ScheduleWeekScrollChevron direction={side} />
         </div>
       </div>
@@ -105,6 +127,7 @@ export function useScheduleWeekBoardScroll(
     scrollRef,
     canScrollLeft,
     canScrollRight,
+    scrollDayToStart,
     renderEdgeZones: () => (
       <>
         {renderEdgeZone("left", canScrollLeft)}

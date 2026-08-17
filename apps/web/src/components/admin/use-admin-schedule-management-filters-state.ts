@@ -11,7 +11,9 @@ import {
   type ScheduleListFilterState,
 } from "@/components/admin/admin-schedule-url";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
+import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 
 type UseAdminScheduleManagementFiltersStateParams = {
   initialFilterState: ScheduleListFilterState;
@@ -52,7 +54,7 @@ export function useAdminScheduleManagementFiltersState({
   }, [filters, quickFilters, stripDay]);
 
   const syncFilterStateToUrl = useCallback(
-    (state: ScheduleListFilterState, resetPage = false) => {
+    (state: ScheduleListFilterState, resetPage = false, viewOverride?: ScheduleView) => {
       const params = new URLSearchParams(searchParams.toString());
       for (const key of ADMIN_SCHEDULE_LIST_FILTER_KEYS) {
         params.delete(key);
@@ -70,6 +72,9 @@ export function useAdminScheduleManagementFiltersState({
           params.set(key, value);
         }
       }
+      if (viewOverride !== undefined) {
+        params.set(LIST_BOARD_VIEW_QUERY_KEY, viewOverride);
+      }
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
@@ -84,6 +89,7 @@ export function useAdminScheduleManagementFiltersState({
         stripDay?: string | null;
       },
       resetPage = true,
+      viewOverride?: ScheduleView,
     ) => {
       const next: ScheduleListFilterState = {
         filters: { ...filterStateRef.current.filters, ...patch.filters },
@@ -94,7 +100,7 @@ export function useAdminScheduleManagementFiltersState({
       setQuickFilters(next.quickFilters);
       setStripDay(next.stripDay);
       filterStateRef.current = next;
-      syncFilterStateToUrl(next, resetPage);
+      syncFilterStateToUrl(next, resetPage, viewOverride);
     },
     [setFilters, setQuickFilters, setStripDay, syncFilterStateToUrl],
   );

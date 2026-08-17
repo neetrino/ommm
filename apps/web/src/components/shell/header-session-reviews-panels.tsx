@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { apiFetch } from "@/lib/api";
 import {
@@ -10,6 +10,10 @@ import {
 } from "@/lib/session-reviews-events";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
 import { sessionReviewAuthorLabel } from "@/lib/session-review-author-label";
+import {
+  markMemberHubSheetNavigation,
+  shouldUseMemberHubSheetNavigation,
+} from "@/lib/member-hub-sheet-navigation";
 import { SESSION_REVIEW_HEADER_PREVIEW } from "@/lib/session-reviews-types";
 import type {
   CoachInboxReview,
@@ -17,6 +21,7 @@ import type {
   StaffInboxReview,
 } from "@/lib/session-reviews-types";
 import type { ReactNode } from "react";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 
 export function MemberReviewMenuPanel({
   items,
@@ -185,6 +190,11 @@ function ReviewMenuShell({
   children: ReactNode;
 }) {
   const t = useTranslations("headerSessionReviews");
+  const pathname = usePathname();
+  const isPhone = useMemberHubSheetPhone();
+  const useSheetNav =
+    isPhone && shouldUseMemberHubSheetNavigation(viewAllHref, pathname ?? "");
+
   return (
     <>
       <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
@@ -192,7 +202,12 @@ function ReviewMenuShell({
         <Link
           href={viewAllHref}
           className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
-          onClick={onNavigate}
+          onClick={() => {
+            if (useSheetNav) {
+              markMemberHubSheetNavigation();
+            }
+            onNavigate();
+          }}
         >
           {t("viewAll")}
         </Link>

@@ -80,6 +80,13 @@ export function MarketingSiteHeader({
   const notificationPreferencesHref =
     notificationHref ??
     (showMemberNotificationsOnUserPath ? "/user/notifications" : null);
+  /** Member review star — only on `/user` (profile hub), not marketing Home. */
+  const headerSessionReviewsAudience =
+    sessionReviewsAudience === "member" && !isUserAccountPath(marketingPath)
+      ? null
+      : sessionReviewsAudience;
+  const headerSessionReviewsListHref =
+    headerSessionReviewsAudience != null ? sessionReviewsListHref : null;
   const desktopGlassStyle = {
     ["--marketing-glass-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
@@ -138,8 +145,8 @@ export function MarketingSiteHeader({
             showNotifications={showNotifications}
             notificationPreferencesHref={notificationPreferencesHref}
             callTasksListHref={callTasksListHref}
-            sessionReviewsAudience={sessionReviewsAudience}
-            sessionReviewsListHref={sessionReviewsListHref}
+            sessionReviewsAudience={headerSessionReviewsAudience}
+            sessionReviewsListHref={headerSessionReviewsListHref}
             account={account}
             onBrandClick={handleBrandClick}
             onTogglePublicMenu={() => setPublicMenuOpen((open) => !open)}
@@ -157,8 +164,8 @@ export function MarketingSiteHeader({
           showNotifications={showNotifications}
           notificationPreferencesHref={notificationPreferencesHref}
           callTasksListHref={callTasksListHref}
-          sessionReviewsAudience={sessionReviewsAudience}
-          sessionReviewsListHref={sessionReviewsListHref}
+          sessionReviewsAudience={headerSessionReviewsAudience}
+          sessionReviewsListHref={headerSessionReviewsListHref}
           desktopGlassStyle={desktopGlassStyle}
           desktopNotificationsTriggerClass={desktopNotificationsTriggerClass}
           onBrandClick={handleBrandClick}

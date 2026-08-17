@@ -7,7 +7,7 @@ import {
 } from "@/components/admin/admin-schedule-view";
 import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 
-/** Keeps schedule list/week mode in the URL (`?view=list|weekly`). */
+/** Keeps schedule list/week/month mode in the URL (`?view=list|weekly|monthly`). */
 export function useScheduleViewUrl(
   fallbackView: ScheduleView,
 ): [ScheduleView, (view: ScheduleView) => void] {

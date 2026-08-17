@@ -1,3 +1,4 @@
+import { scheduleSessionLocalIsoDay } from "@/lib/local-iso-date";
 import {
   SCHEDULE_WEEK_COLUMN_GAP_PX,
   SCHEDULE_WEEK_COLUMN_WIDTH_PX,
@@ -23,7 +24,7 @@ export function startOfScheduleDay(date: Date = new Date()): Date {
   return next;
 }
 
-/** Fixed window: today plus the next three days. */
+/** Rolling week: today plus the next six days. */
 export function buildScheduleWeekDayKeys(anchorDate: Date = new Date()): string[] {
   const start = startOfScheduleDay(anchorDate);
   return Array.from({ length: SCHEDULE_WEEK_DAY_COUNT }, (_, index) =>
@@ -40,7 +41,7 @@ export function groupScheduleSessionsByDay<T extends { startsAt: string }>(
 ): Map<string, T[]> {
   const map = new Map<string, T[]>();
   for (const row of rows) {
-    const key = row.startsAt.slice(0, 10);
+    const key = scheduleSessionLocalIsoDay(row.startsAt);
     map.set(key, [...(map.get(key) ?? []), row]);
   }
   for (const [key, value] of map) {

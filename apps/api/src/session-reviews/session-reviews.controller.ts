@@ -30,6 +30,13 @@ export class SessionReviewsController {
     return this.sessionReviews.listPendingForUser(user.id);
   }
 
+  @Get('submitted')
+  @SkipThrottle()
+  @Roles(Role.USER)
+  listSubmitted(@CurrentUser() user: User) {
+    return this.sessionReviews.listSubmittedForUser(user.id);
+  }
+
   @Get('inbox')
   @SkipThrottle()
   @Roles(...BACKOFFICE_READ_ROLES)

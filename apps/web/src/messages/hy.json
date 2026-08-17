@@ -97,12 +97,17 @@
   "sessionReviewsPages": {
     "title": "Դասերի կարծիքներ",
     "memberTitle": "Գնահատել դասերը",
+    "memberTabsAria": "Կարծիքների ցուցակներ",
+    "memberTabPending": "Գնահատել ({count})",
+    "memberTabSubmitted": "Գնահատված ({count})",
+    "memberBack": "Հետ",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Մարզիչը չի տեսնում",
     "anonymousAuthor": "Անանուն",
     "noComment": "Մեկնաբանություն չկա",
     "empty": "Կարծիքներ չկան",
     "memberEmpty": "Գնահատման սպասող դաս չկա",
+    "memberSubmittedEmpty": "Դեռ կարծիք չեք թողել",
     "writeReview": "Գրել կարծիք",
     "loading": "Կարծիքները բեռնվում են…",
     "loadFailed": "Չհաջողվեց բեռնել կարծիքները",
@@ -2567,7 +2572,7 @@
       "empty": "Ժամանակացույցի տարրեր դեռ չկան։ Ավելացրեք առաջինը։",
       "emptyForSelectedDay": "Այս օրվա համար դասեր չկան։",
       "emptyForSelectedDayTitle": "Այս օրը դասեր չկան",
-      "emptyForSelectedDayBody": "Ընտրիր մեկ այլ օր վերևի ցուցակից, կամ բացիր «Բոլոր դասերը»՝ ամբողջ ժամանակացույցը տեսնելու համար։",
+      "emptyForSelectedDayBody": "Ընտրիր մեկ այլ օր վերևի օրացույցից, կամ բացիր «Բոլոր դասերը»՝ ամբողջ ժամանակացույցը տեսնելու համար։",
       "addScheduleButton": "Ավելացնել ժամանակացույց",
       "previousDay": "Նախորդ օրը",
       "nextDay": "Հաջորդ օրը",
@@ -2578,7 +2583,12 @@
       "weekView": {
         "gridAria": "Շաբաթական դասացուցակ ըստ օրերի",
         "todayBadge": "Այսօր",
-        "emptyDay": "—"
+        "emptyDay": "Դասեր չկան"
+      },
+      "monthView": {
+        "gridAria": "Ամսական դասացուցակ՝ {month}",
+        "previousMonth": "Նախորդ ամիս",
+        "nextMonth": "Հաջորդ ամիս"
       },
       "createTitle": "Ավելացնել ժամանակացույցի տարր",
       "createDescription": "Ստեղծեք հանրային քարտ, որը կերևա Home և Schedule էջերում։",
@@ -2809,9 +2819,9 @@
       "views": {
         "aria": "Ժամանակացույցի տեսք",
         "list": "Ցանկ",
-        "monthly": "Ամսական տեսք",
-        "weekly": "Շաբաթական տեսք",
-        "daily": "Օրական տեսք"
+        "monthly": "Ամիս",
+        "weekly": "Շաբաթ",
+        "daily": "Օր"
       },
       "fields": {
         "duration": "Տևողություն",

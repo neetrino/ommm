@@ -15,6 +15,11 @@ import {
 import { parseListPageParams } from "@/lib/list-pagination";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { localIsoDateFromValue, scheduleTodayIsoDate } from "@/lib/local-iso-date";
+import {
+  monthBoundsIso,
+  yearMonthFromIsoDay,
+} from "@/components/admin/admin-schedule-month-utils";
+import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 
 export const ADMIN_SCHEDULE_LIST_PAGE_KEYS = {
   pageKey: "schedulePage",
@@ -69,6 +74,7 @@ export function parseAdminScheduleListPageParams(
   return parseListPageParams(search, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
 }
 
+/** Paginated list API (list only; week/month boards load the full session set). */
 export function isScheduleListView(view: string | undefined): boolean {
   return view === undefined || view === "list";
 }
@@ -83,6 +89,50 @@ export function buildScheduleDateStripFilterState(
     ...filterState,
     stripDay: null,
   };
+}
+
+/** Whole-month list window: clears strip day and sets from/to to month bounds. */
+export function applyMonthlyScheduleFilterState(
+  state: ScheduleListFilterState,
+  yearMonth?: string,
+): ScheduleListFilterState {
+  const month =
+    yearMonth ??
+    (state.filters.from.length > 0
+      ? yearMonthFromIsoDay(state.filters.from)
+      : yearMonthFromIsoDay(scheduleTodayIsoDate()));
+  const { from, to } = monthBoundsIso(month);
+  return {
+    ...state,
+    stripDay: null,
+    filters: {
+      ...state.filters,
+      from,
+      to,
+    },
+  };
+}
+
+/**
+ * Resolves list filters for the schedule page, including monthly whole-month defaults.
+ */
+export function resolveAdminSchedulePageFilterState(
+  search: Record<string, string | undefined>,
+  view: ScheduleView,
+): ScheduleListFilterState {
+  const base = resolveAdminScheduleInitialFilterState(search);
+  if (view !== "monthly") {
+    return base;
+  }
+  const hasMonthRange =
+    base.stripDay === null &&
+    base.filters.from.length > 0 &&
+    base.filters.to.length > 0 &&
+    yearMonthFromIsoDay(base.filters.from) === yearMonthFromIsoDay(base.filters.to);
+  if (hasMonthRange) {
+    return base;
+  }
+  return applyMonthlyScheduleFilterState(base);
 }
 
 /**

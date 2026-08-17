@@ -97,12 +97,17 @@
   "sessionReviewsPages": {
     "title": "Отзывы о занятиях",
     "memberTitle": "Оценить занятия",
+    "memberTabsAria": "Списки отзывов",
+    "memberTabPending": "Оценить ({count})",
+    "memberTabSubmitted": "Оценено ({count})",
+    "memberBack": "Назад",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Скрыто от тренера",
     "anonymousAuthor": "Анонимно",
     "noComment": "Без комментария",
     "empty": "Отзывов пока нет",
     "memberEmpty": "Нет занятий, ожидающих оценки",
+    "memberSubmittedEmpty": "Вы ещё не оставляли отзывов",
     "writeReview": "Написать отзыв",
     "loading": "Загрузка отзывов…",
     "loadFailed": "Не удалось загрузить отзывы",
@@ -2564,7 +2569,7 @@
       "empty": "Элементов расписания пока нет. Добавьте первый.",
       "emptyForSelectedDay": "На этот день занятий нет.",
       "emptyForSelectedDayTitle": "На этот день занятий нет",
-      "emptyForSelectedDayBody": "Выберите другой день в ленте выше или откройте «Все занятия», чтобы посмотреть полное расписание.",
+      "emptyForSelectedDayBody": "Выберите другой день в календаре выше или откройте «Все занятия», чтобы посмотреть полное расписание.",
       "addScheduleButton": "Добавить расписание",
       "previousDay": "Предыдущий день",
       "nextDay": "Следующий день",
@@ -2575,7 +2580,12 @@
       "weekView": {
         "gridAria": "Недельное расписание по дням",
         "todayBadge": "Сегодня",
-        "emptyDay": "—"
+        "emptyDay": "Нет занятий"
+      },
+      "monthView": {
+        "gridAria": "Месячное расписание: {month}",
+        "previousMonth": "Предыдущий месяц",
+        "nextMonth": "Следующий месяц"
       },
       "createTitle": "Добавить элемент расписания",
       "createDescription": "Создайте публичную карточку. Она появится на Home и Schedule.",

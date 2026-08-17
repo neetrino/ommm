@@ -16,7 +16,8 @@ function useViewportResolved(): boolean {
 }
 
 /**
- * Applies the mobile card-only rule to schedule list/week preference.
+ * Applies the mobile card-only rule to schedule preference.
+ * Monthly stays available on phones; week board is tablet+ only.
  * Before viewport is resolved, keeps the URL value to avoid a list flash on desktop refresh.
  */
 export function useEffectiveScheduleView(preferred: ScheduleView): ScheduleView {

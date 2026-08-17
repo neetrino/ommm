@@ -97,12 +97,17 @@
   "sessionReviewsPages": {
     "title": "Class reviews",
     "memberTitle": "Rate your classes",
+    "memberTabsAria": "Review lists",
+    "memberTabPending": "To review ({count})",
+    "memberTabSubmitted": "Reviewed ({count})",
+    "memberBack": "Back",
     "ratingLabel": "{rating}/5",
     "hiddenFromCoach": "Hidden from coach",
     "anonymousAuthor": "Anonymous",
     "noComment": "No written comment",
     "empty": "No class reviews yet",
     "memberEmpty": "No classes waiting for a review",
+    "memberSubmittedEmpty": "You have not submitted any reviews yet",
     "writeReview": "Write review",
     "loading": "Loading reviews…",
     "loadFailed": "Could not load reviews",
@@ -2556,7 +2561,7 @@
       "empty": "No schedule items yet. Add your first schedule item.",
       "emptyForSelectedDay": "No classes for this day.",
       "emptyForSelectedDayTitle": "No classes for this day",
-      "emptyForSelectedDayBody": "Pick another day from the strip above, or open All classes to browse the full timetable.",
+      "emptyForSelectedDayBody": "Pick another day from the calendar above, or open All classes to browse the full timetable.",
       "addScheduleButton": "Add Schedule",
       "previousDay": "Previous day",
       "nextDay": "Next day",
@@ -2567,7 +2572,12 @@
       "weekView": {
         "gridAria": "Weekly schedule by day",
         "todayBadge": "Today",
-        "emptyDay": "—"
+        "emptyDay": "No classes"
+      },
+      "monthView": {
+        "gridAria": "Monthly schedule for {month}",
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month"
       },
       "createTitle": "Add Schedule Item",
       "createDescription": "Create a public schedule card. It appears on Home and Schedule pages.",
@@ -2797,10 +2807,10 @@
       },
       "views": {
         "aria": "Schedule view",
-        "list": "List view",
-        "monthly": "Monthly view",
-        "weekly": "Weekly view",
-        "daily": "Daily view"
+        "list": "List",
+        "monthly": "Month",
+        "weekly": "Week",
+        "daily": "Day"
       },
       "fields": {
         "duration": "Duration",

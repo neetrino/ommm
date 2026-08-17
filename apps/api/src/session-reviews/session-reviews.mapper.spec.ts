@@ -4,6 +4,7 @@ import {
   canRoleSeeAnonymousReviews,
   formatPersonName,
   toCoachInboxDto,
+  toMemberSubmittedDto,
   toStaffInboxDto,
 } from './session-reviews.mapper';
 import type { SessionReviewWithSession } from './session-reviews.mapper';
@@ -73,5 +74,13 @@ describe('session-reviews.mapper', () => {
     expect(canRoleSeeAnonymousReviews(Role.MANAGER)).toBe(true);
     expect(canRoleSeeAnonymousReviews(Role.COACH)).toBe(false);
     expect(canRoleSeeAnonymousReviews(Role.USER)).toBe(false);
+  });
+
+  it('member submitted dto includes rating and anonymity', () => {
+    const dto = toMemberSubmittedDto(sampleRow(true));
+    expect(dto.rating).toBe(5);
+    expect(dto.isAnonymous).toBe(true);
+    expect(dto.comment).toBe('Great class');
+    expect(dto.classTypeName).toBe('Yoga');
   });
 });

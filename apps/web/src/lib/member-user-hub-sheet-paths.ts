@@ -8,6 +8,7 @@ export const MEMBER_USER_HUB_SHEET_PATHS = [
   "/user/payments",
   "/user/gift-cards",
   "/user/profile",
+  "/user/reviews",
 ] as const;
 
 export function isMemberUserNotificationsPath(pathname: string): boolean {

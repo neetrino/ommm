@@ -30,8 +30,11 @@ type ScheduleWeekSessionMiniCardProps = {
   ariaLabel?: string;
 };
 
+const WEEK_CARD_HEIGHT_CLASS = "h-[15.5rem]";
+
 const WEEK_CARD_SHELL = [
-  "flex w-full flex-col text-left",
+  "flex w-full flex-col overflow-hidden text-left",
+  WEEK_CARD_HEIGHT_CLASS,
   USER_LIST_ROW_CARD,
   "rounded-[28px] p-4 sm:p-5",
 ].join(" ");
@@ -43,7 +46,7 @@ const WEEK_CARD_INTERACTIVE = [
 ].join(" ");
 
 const WEEK_TIME_SHELL =
-  "mt-3 rounded-2xl border border-sand-200/70 bg-gradient-to-br from-sand-50/95 via-white/90 to-white/75 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]";
+  "mt-3 shrink-0 rounded-2xl border border-sand-200/70 bg-gradient-to-br from-sand-50/95 via-white/90 to-white/75 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]";
 
 function resolveCoachLabel(
   session: ScheduleWeekMiniCardSession,
@@ -87,7 +90,9 @@ function ScheduleWeekSessionMiniCardContent({
 
   return (
     <>
-      <SessionClassTitle variant="week" name={session.title} eyebrow={eyebrow} />
+      <div className="min-h-0 shrink-0">
+        <SessionClassTitle variant="week" name={session.title} eyebrow={eyebrow} />
+      </div>
 
       <div className={WEEK_TIME_SHELL}>
         <SessionDateTimeHighlight
@@ -98,13 +103,18 @@ function ScheduleWeekSessionMiniCardContent({
         />
       </div>
 
-      {coachLabel ? (
-        <SessionCoachLine coachName={coachLabel} variant="board" className="mt-3" />
-      ) : null}
-
-      {spotsLine ? (
-        <p className="mt-3 text-left text-xs font-medium text-sage-700">{spotsLine}</p>
-      ) : null}
+      <div className="mt-auto flex min-h-[2.75rem] flex-col justify-end gap-1.5 pt-3">
+        {coachLabel ? (
+          <SessionCoachLine coachName={coachLabel} variant="board" />
+        ) : (
+          <span className="h-5" aria-hidden />
+        )}
+        {spotsLine ? (
+          <p className="text-left text-xs font-medium text-sage-700">{spotsLine}</p>
+        ) : (
+          <span className="h-4" aria-hidden />
+        )}
+      </div>
     </>
   );
 }

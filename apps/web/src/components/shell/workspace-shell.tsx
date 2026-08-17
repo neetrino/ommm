@@ -83,14 +83,10 @@ export function WorkspaceShell({
         workspaceHeaderChrome
         memberWorkspaceHeader={isMemberShell}
         showMemberNotifications={isMemberShell}
-        workspaceDrawer={
-          isMemberShell
-            ? undefined
-            : {
-                open: drawerOpen,
-                onToggle: () => setDrawerOpen((open) => !open),
-              }
-        }
+        workspaceDrawer={{
+          open: drawerOpen,
+          onToggle: () => setDrawerOpen((open) => !open),
+        }}
         notificationHref={notificationRoute?.href ?? null}
         notificationsLabel={notificationsLabel}
         notificationsActive={notificationsActive}
@@ -127,8 +123,8 @@ export function WorkspaceShell({
         navRole={navRole}
         notificationRoute={notificationRoute}
         withSiteHeader
-        drawerOpen={isMemberShell ? false : drawerOpen}
-        onDrawerOpenChange={isMemberShell ? undefined : setDrawerOpen}
+        drawerOpen={drawerOpen}
+        onDrawerOpenChange={setDrawerOpen}
       >
         {children}
       </DashboardAppShell>

@@ -170,8 +170,8 @@ export function CoachScheduleSection({
           resetLabel={t("filters.resetFilters")}
         />
       }
-      searchTrailing={<ScheduleViewSwitcher value={view} onChange={setView} />}
     >
+      <ScheduleViewSwitcher value={view} onChange={setView} />
       {sessions.length > 0 ? (
         <p className="text-sm text-sage-600">
           {t("sessionsCount", {

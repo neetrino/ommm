@@ -1,10 +1,17 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   AdminScheduleDateStrip,
   type ScheduleDateStripRow,
 } from "@/components/admin/admin-schedule-date-strip";
+import { AdminScheduleMonthNav } from "@/components/admin/admin-schedule-month-nav";
+import {
+  buildScheduleMonthDayKeys,
+  formatMonthTitle,
+  yearMonthFromIsoDay,
+} from "@/components/admin/admin-schedule-month-utils";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import { AdminScheduleSessionsBulkBar } from "@/components/admin/admin-schedule-sessions-bulk-bar";
 import { AdminScheduleSessionsListHeader } from "@/components/admin/admin-schedule-sessions-list-header";
@@ -16,8 +23,12 @@ import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
 import { AdminScheduleListEmptyState } from "@/components/admin/admin-schedule-list-empty-state";
 import { ADMIN_SCHEDULE_BULK_BUSY_ID } from "@/components/admin/use-admin-schedule-management-actions";
-import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
+import {
+  ScheduleWeekColumnsView,
+  SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX,
+} from "@/components/shared/schedule/schedule-week-columns-view";
 import { sortAdminSessionRows, type SessionSortOrder } from "@/lib/list-sort";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 export type AdminScheduleSessionViewsProps = {
   locale: string;
@@ -29,6 +40,10 @@ export type AdminScheduleSessionViewsProps = {
   selectedStripDay: string | null;
   onSelectStripDay: (day: string) => void;
   onSelectAllStripDays: () => void;
+  /** Visible month (`YYYY-MM`) for monthly list chrome. */
+  visibleYearMonth?: string;
+  onPreviousMonth?: () => void;
+  onNextMonth?: () => void;
   sortOrder: SessionSortOrder;
   onDateTimeSort: () => void;
   busyId: string | null;
@@ -52,6 +67,9 @@ type SessionTableProps = Omit<
   | "dateStripTotalCount"
   | "onSelectStripDay"
   | "onSelectAllStripDays"
+  | "visibleYearMonth"
+  | "onPreviousMonth"
+  | "onNextMonth"
 >;
 
 type ScheduleWeekPanelProps = Omit<
@@ -64,6 +82,9 @@ type ScheduleWeekPanelProps = Omit<
   | "selectedStripDay"
   | "onSelectStripDay"
   | "onSelectAllStripDays"
+  | "visibleYearMonth"
+  | "onPreviousMonth"
+  | "onNextMonth"
   | "selectionEnabled"
   | "selectedIds"
   | "onToggleSelect"
@@ -76,6 +97,11 @@ export function ScheduleViews(props: AdminScheduleSessionViewsProps) {
   if (props.view === "weekly") {
     return <ScheduleWeekPanel {...props} />;
   }
+
+  if (props.view === "monthly") {
+    return <ScheduleMonthPanel {...props} />;
+  }
+
   return (
     <div className="space-y-3">
       <AdminScheduleDateStrip
@@ -170,5 +196,58 @@ export function ScheduleWeekPanel(props: ScheduleWeekPanelProps) {
         emptyDay: tPage("weekView.emptyDay"),
       }}
     />
+  );
+}
+
+type ScheduleMonthPanelProps = Pick<
+  AdminScheduleSessionViewsProps,
+  | "locale"
+  | "rows"
+  | "visibleYearMonth"
+  | "onPreviousMonth"
+  | "onNextMonth"
+  | "onDetails"
+>;
+
+function ScheduleMonthPanel({
+  locale,
+  rows,
+  visibleYearMonth,
+  onPreviousMonth,
+  onNextMonth,
+  onDetails,
+}: ScheduleMonthPanelProps) {
+  const tPage = useTranslations("adminPages.schedule");
+  const yearMonth = visibleYearMonth ?? yearMonthFromIsoDay(scheduleTodayIsoDate());
+  const dayKeys = useMemo(() => buildScheduleMonthDayKeys(yearMonth), [yearMonth]);
+  const monthTitle = useMemo(() => formatMonthTitle(locale, yearMonth), [locale, yearMonth]);
+
+  return (
+    <div className="space-y-3">
+      {onPreviousMonth && onNextMonth ? (
+        <AdminScheduleMonthNav
+          locale={locale}
+          yearMonth={yearMonth}
+          onPreviousMonth={onPreviousMonth}
+          onNextMonth={onNextMonth}
+        />
+      ) : null}
+      <ScheduleWeekColumnsView
+        locale={locale}
+        rows={rows}
+        dayKeys={dayKeys}
+        showCoach
+        expandColumns={false}
+        fillRemainingViewport
+        alignStartDayKey={scheduleTodayIsoDate()}
+        columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
+        onSessionClick={onDetails}
+        labels={{
+          gridAria: tPage("monthView.gridAria", { month: monthTitle }),
+          todayBadge: tPage("weekView.todayBadge"),
+          emptyDay: tPage("weekView.emptyDay"),
+        }}
+      />
+    </div>
   );
 }

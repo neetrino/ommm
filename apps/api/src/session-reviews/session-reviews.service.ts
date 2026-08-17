@@ -20,6 +20,7 @@ import {
 import {
   toCoachInboxDto,
   toMemberPendingDto,
+  toMemberSubmittedDto,
   toStaffInboxDto,
   formatPersonName,
 } from './session-reviews.mapper';
@@ -53,6 +54,16 @@ export class SessionReviewsService {
       take: SESSION_REVIEW_PENDING_TAKE,
     });
     return { items: rows.map((row) => toMemberPendingDto(row)) };
+  }
+
+  async listSubmittedForUser(userId: string) {
+    const rows = await this.prisma.sessionReview.findMany({
+      where: { authorUserId: userId, status: SessionReviewStatus.SUBMITTED },
+      include: SESSION_INCLUDE,
+      orderBy: { submittedAt: 'desc' },
+      take: SESSION_REVIEW_PENDING_TAKE,
+    });
+    return { items: rows.map((row) => toMemberSubmittedDto(row)) };
   }
 
   async submit(userId: string, id: string, dto: SubmitSessionReviewDto) {

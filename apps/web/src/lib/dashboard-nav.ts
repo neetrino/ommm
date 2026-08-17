@@ -5,7 +5,11 @@
  * Source: CRM - Ommm - code.md (member app tabs, coach/manager/admin matrices).
  */
 import type { AdminNavIconSlug } from "@/components/shell/admin-nav-icon-map";
-import { USER_ACCOUNT_PATH, USER_PROFILE_PATH } from "@/lib/role-home";
+import {
+  USER_ACCOUNT_PATH,
+  USER_DASHBOARD_PATH,
+  USER_PROFILE_PATH,
+} from "@/lib/role-home";
 export type DashboardNavIcon =
   | "home"
   | "layoutDashboard"
@@ -176,6 +180,8 @@ export function dashboardNotificationRouteForRole(
 export function dashboardNavPathActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   if (pathname === href) return true;
-  if (href === USER_ACCOUNT_PATH) return false;
+  if (href === USER_ACCOUNT_PATH || href === USER_DASHBOARD_PATH) {
+    return pathname === USER_ACCOUNT_PATH || pathname === USER_DASHBOARD_PATH;
+  }
   return pathname.startsWith(`${href}/`);
 }

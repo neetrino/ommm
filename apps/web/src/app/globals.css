@@ -873,7 +873,7 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .ommm-admin-header-bar {
-    @apply mb-0 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
+    @apply mb-0 flex min-h-[5rem] flex-wrap items-center justify-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:justify-start sm:px-6;
   }
 
   .ommm-admin-sticky-header {
@@ -883,7 +883,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
   .ommm-admin-header-title {
     font-family: var(--font-serif);
-    @apply text-2xl font-semibold italic tracking-tight text-[#97907c] sm:text-[2rem];
+    @apply text-center text-2xl font-semibold italic tracking-tight text-[#97907c] sm:text-left sm:text-[2rem];
   }
 
   .ommm-admin-header-search {

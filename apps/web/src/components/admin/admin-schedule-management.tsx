@@ -64,10 +64,12 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
               resetLabel={schedule.t("filters.reset")}
             />
           }
-          searchTrailing={
-            <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
+          metrics={
+            <div className="space-y-3">
+              <SummaryGrid summary={schedule.summary} />
+              <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
+            </div>
           }
-          metrics={<SummaryGrid summary={schedule.summary} />}
         >
           <StaffScheduleListWeekViews
             locale={locale}
@@ -77,6 +79,9 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
             showCoachInWeek
             emptyTitle={schedule.t("empty.filteredTitle")}
             emptyBody={schedule.t("empty.filteredBody")}
+            visibleYearMonth={schedule.visibleYearMonth}
+            onPreviousMonth={() => schedule.handleShiftVisibleMonth(-1)}
+            onNextMonth={() => schedule.handleShiftVisibleMonth(1)}
           />
           {view === "list" &&
           schedule.listPagination !== null &&
@@ -103,7 +108,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         sticky={false}
         search={
           <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="flex min-w-0 flex-1 items-center gap-2">
+            <div className="min-w-0 flex-1">
               <ListPageSearchFilters
                 search={schedule.searchDraft}
                 onSearchChange={schedule.setSearchDraft}
@@ -114,7 +119,6 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
                 onClearAll={schedule.resetFilters}
                 resetLabel={schedule.t("filters.reset")}
               />
-              <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
             </div>
             {caps.canCreate ? (
               <OmmButton
@@ -131,7 +135,10 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
           </div>
         }
       />
-      <SummaryGrid summary={schedule.summary} />
+      <div className="space-y-3">
+        <SummaryGrid summary={schedule.summary} />
+        <ScheduleViewSwitcher value={schedule.view} onChange={schedule.setView} />
+      </div>
       {schedule.toast ? <AdminScheduleManagementToast toast={schedule.toast} /> : null}
       <ScheduleViews
         locale={locale}
@@ -142,6 +149,9 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         selectedStripDay={schedule.selectedStripDay}
         onSelectStripDay={schedule.handleSelectStripDay}
         onSelectAllStripDays={schedule.handleSelectAllStripDays}
+        visibleYearMonth={schedule.visibleYearMonth}
+        onPreviousMonth={() => schedule.handleShiftVisibleMonth(-1)}
+        onNextMonth={() => schedule.handleShiftVisibleMonth(1)}
         sortOrder={schedule.filters.order}
         onDateTimeSort={schedule.handleDateTimeSort}
         onDetails={schedule.setDetails}

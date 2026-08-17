@@ -13,7 +13,7 @@ import {
   buildScheduleDateStripFilterState,
   isScheduleListView,
   parseAdminScheduleListPageParams,
-  resolveAdminScheduleInitialFilterState,
+  resolveAdminSchedulePageFilterState,
   type AdminScheduleListPayload,
 } from "@/components/admin/admin-schedule-query";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
@@ -35,7 +35,7 @@ export default async function AdminSchedulePage({
   const initialView: ScheduleView = resolveScheduleView(requestedView);
   const listView = isScheduleListView(requestedView);
   const listPage = parseAdminScheduleListPageParams(search);
-  const scheduleFilterState = resolveAdminScheduleInitialFilterState(search);
+  const scheduleFilterState = resolveAdminSchedulePageFilterState(search, initialView);
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const cookie = (await headers()).get("cookie") ?? "";
 
