@@ -2802,10 +2802,10 @@
       },
       "views": {
         "aria": "Schedule view",
-        "list": "List view",
-        "monthly": "Monthly view",
-        "weekly": "Weekly view",
-        "daily": "Daily view"
+        "list": "List",
+        "monthly": "Month",
+        "weekly": "Week",
+        "daily": "Day"
       },
       "fields": {
         "duration": "Duration",
