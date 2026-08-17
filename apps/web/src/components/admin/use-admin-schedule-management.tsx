@@ -398,19 +398,24 @@ export function useAdminScheduleManagement({
 
   const handleSetView = useCallback(
     (nextView: ScheduleView) => {
-      setView(nextView);
       clearSelection();
       if (nextView === "monthly") {
         const { from, to } = monthBoundsIso(yearMonthFromIsoDay(scheduleTodayIsoDate()));
-        patchFilterState({ stripDay: null, filters: { from, to } });
+        patchFilterState({ stripDay: null, filters: { from, to } }, true, nextView);
         return;
       }
       if (nextView === "list") {
-        patchFilterState({
-          stripDay: scheduleTodayIsoDate(),
-          filters: { from: "", to: "" },
-        });
+        patchFilterState(
+          {
+            stripDay: scheduleTodayIsoDate(),
+            filters: { from: "", to: "" },
+          },
+          true,
+          nextView,
+        );
+        return;
       }
+      setView(nextView);
     },
     [clearSelection, patchFilterState, setView],
   );
