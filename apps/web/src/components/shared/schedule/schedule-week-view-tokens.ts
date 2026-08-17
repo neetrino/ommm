@@ -1,8 +1,11 @@
-/** Today + the next three days. */
-export const SCHEDULE_WEEK_DAY_COUNT = 4;
+/** Full week board: today through the next six days. */
+export const SCHEDULE_WEEK_DAY_COUNT = 7;
 
-/** Kanban-style fixed column width (deals board uses ~270px). */
-export const SCHEDULE_WEEK_COLUMN_WIDTH_PX = 320;
+/** Minimum column width before the week board scrolls horizontally. */
+export const SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX = 148;
+
+/** @deprecated Prefer {@link SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX}; kept for track width calc. */
+export const SCHEDULE_WEEK_COLUMN_WIDTH_PX = SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX;
 
 export const SCHEDULE_WEEK_COLUMN_GAP_PX = 12;
 

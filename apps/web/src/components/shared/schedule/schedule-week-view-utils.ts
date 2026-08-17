@@ -23,7 +23,7 @@ export function startOfScheduleDay(date: Date = new Date()): Date {
   return next;
 }
 
-/** Fixed window: today plus the next three days. */
+/** Rolling week: today plus the next six days. */
 export function buildScheduleWeekDayKeys(anchorDate: Date = new Date()): string[] {
   const start = startOfScheduleDay(anchorDate);
   return Array.from({ length: SCHEDULE_WEEK_DAY_COUNT }, (_, index) =>

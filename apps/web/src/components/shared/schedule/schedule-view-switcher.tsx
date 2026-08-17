@@ -42,7 +42,7 @@ export function ScheduleViewSwitcher({ value, onChange }: ScheduleViewSwitcherPr
 
   return (
     <div
-      className="flex flex-wrap items-center gap-2"
+      className="flex flex-wrap items-center justify-center gap-2"
       role="group"
       aria-label={t("views.aria")}
     >
