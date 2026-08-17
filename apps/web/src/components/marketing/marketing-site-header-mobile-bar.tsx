@@ -27,6 +27,8 @@ import type {
 } from "@/components/marketing/marketing-site-header.types";
 import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
+import { HeaderSessionReviewsMenu } from "@/components/shell/header-session-reviews-menu";
+import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link } from "@/i18n/navigation";
 import { MarketingSiteHeaderWorkspaceDrawerGlyph } from "@/components/marketing/marketing-site-header-workspace-glyph";
@@ -41,6 +43,8 @@ type MarketingSiteHeaderMobileBarProps = {
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
   callTasksListHref?: string | null;
+  sessionReviewsAudience?: SessionReviewsAudience | null;
+  sessionReviewsListHref?: string | null;
   account: MarketingHeaderAccount | null;
   onBrandClick: (event: MouseEvent<HTMLAnchorElement>) => void;
   onTogglePublicMenu: () => void;
@@ -57,6 +61,8 @@ export function MarketingSiteHeaderMobileBar({
   showNotifications,
   notificationPreferencesHref,
   callTasksListHref = null,
+  sessionReviewsAudience = null,
+  sessionReviewsListHref = null,
   account,
   onBrandClick,
   onTogglePublicMenu,
@@ -119,6 +125,15 @@ export function MarketingSiteHeaderMobileBar({
         ) : null}
         {memberWorkspaceHeader ? (
           <>
+            {sessionReviewsAudience && sessionReviewsListHref ? (
+              <HeaderSessionReviewsMenu
+                audience={sessionReviewsAudience}
+                viewAllHref={sessionReviewsListHref}
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                onNavigate={onCloseAllMenus}
+              />
+            ) : null}
             {callTasksListHref ? (
               <HeaderCallTasksMenu
                 enabled
@@ -152,6 +167,15 @@ export function MarketingSiteHeaderMobileBar({
           </>
         ) : (
           <>
+            {sessionReviewsAudience && sessionReviewsListHref ? (
+              <HeaderSessionReviewsMenu
+                audience={sessionReviewsAudience}
+                viewAllHref={sessionReviewsListHref}
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                onNavigate={onCloseAllMenus}
+              />
+            ) : null}
             {callTasksListHref ? (
               <HeaderCallTasksMenu
                 enabled

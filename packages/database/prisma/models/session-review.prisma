@@ -1,0 +1,25 @@
+model SessionReview {
+  id              String               @id @default(cuid())
+  bookingId       String               @unique
+  booking         Booking              @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorUserId    String
+  author          User                 @relation("SessionReviewAuthor", fields: [authorUserId], references: [id], onDelete: Cascade)
+  sessionId       String
+  session         ClassSession         @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  coachProfileId  String
+  coachProfile    CoachProfile         @relation(fields: [coachProfileId], references: [id], onDelete: Restrict)
+  isAnonymous     Boolean              @default(false)
+  rating          Int?
+  comment         String?
+  status          SessionReviewStatus  @default(PENDING)
+  promptedAt      DateTime             @default(now())
+  submittedAt     DateTime?
+  staffReadAt     DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([authorUserId, status])
+  @@index([status, submittedAt])
+  @@index([coachProfileId, status, isAnonymous])
+  @@index([staffReadAt])
+}

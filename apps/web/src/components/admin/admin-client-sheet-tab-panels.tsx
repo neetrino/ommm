@@ -15,10 +15,12 @@ import {
   ClientNotesPanel,
 } from "@/components/admin/admin-client-drawer-sections";
 import { ClientBookingsPanel } from "@/components/admin/admin-client-bookings-panel";
+import { ClientFeedbackPanel } from "@/components/admin/admin-client-feedback-panel";
 import { ClientPackagesPanel } from "@/components/admin/admin-client-packages-panel";
 import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
 import {
   CLIENT_SHEET_TAB_BOOKINGS,
+  CLIENT_SHEET_TAB_FEEDBACK,
   CLIENT_SHEET_TAB_GIFTS,
   CLIENT_SHEET_TAB_NOTES,
   CLIENT_SHEET_TAB_PACKAGES,
@@ -348,6 +350,16 @@ export function ClientSheetTabPanels({
           })}
         />
       </div>
+    );
+  }
+
+  if (activeTab === CLIENT_SHEET_TAB_FEEDBACK) {
+    return (
+      <ClientFeedbackPanel
+        clientId={detail.id}
+        active
+        refreshKey={tabRefreshKey}
+      />
     );
   }
 

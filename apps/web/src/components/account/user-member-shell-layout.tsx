@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { RequiredPhoneCompletionGate } from "@/components/account/required-phone-completion-gate";
+import { SessionReviewPromptGate } from "@/components/account/session-review-prompt-gate";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {
@@ -58,6 +59,7 @@ export async function UserMemberShellLayout({
       <RequiredPhoneCompletionGate
         initialNeedsPhoneCompletion={needsPhoneCompletion}
       />
+      <SessionReviewPromptGate deferAutoPrompt={needsPhoneCompletion} />
       {children}
     </WorkspaceShellFromAuth>
   );

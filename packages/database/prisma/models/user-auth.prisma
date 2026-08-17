@@ -35,6 +35,7 @@ model User {
   clientNotesReceived  ClientNote[]  @relation("ClientNoteSubject")
   callTasksCreated     CallTask[]    @relation("CallTaskAuthor")
   callTasksLinked      CallTask[]    @relation("CallTaskClient")
+  sessionReviewsAuthored SessionReview[] @relation("SessionReviewAuthor")
   authTokens         AuthToken[]
   oauthAccounts      OAuthAccount[]
   pushDeviceTokens   PushDeviceToken[]

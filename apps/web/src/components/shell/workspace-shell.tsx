@@ -101,6 +101,26 @@ export function WorkspaceShell({
               ? "/manager/calls"
               : null
         }
+        sessionReviewsAudience={
+          navRole === "USER"
+            ? "member"
+            : navRole === "ADMIN" || navRole === "MANAGER"
+              ? "staff"
+              : navRole === "COACH"
+                ? "coach"
+                : null
+        }
+        sessionReviewsListHref={
+          navRole === "USER"
+            ? "/user/reviews"
+            : navRole === "ADMIN"
+              ? "/admin/reviews"
+              : navRole === "MANAGER"
+                ? "/manager/reviews"
+                : navRole === "COACH"
+                  ? "/coach/reviews"
+                  : null
+        }
       />
       <DashboardAppShell
         {...shellProps}

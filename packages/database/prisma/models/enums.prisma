@@ -115,3 +115,10 @@ enum CallTaskStatus {
   DONE
   CANCELLED
 }
+
+enum SessionReviewStatus {
+  PENDING
+  SUBMITTED
+  DISMISSED
+  EXPIRED
+}

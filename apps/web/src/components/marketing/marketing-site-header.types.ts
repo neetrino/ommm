@@ -1,4 +1,5 @@
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
+import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
 
 /** Logged-in viewer summary used to swap the login icon for a profile avatar. */
 export type MarketingHeaderAccount = {
@@ -30,4 +31,7 @@ export type MarketingSiteHeaderProps = {
   showMemberNotifications?: boolean;
   /** Admin/manager workspace — due call-task reminder menu. */
   callTasksListHref?: string | null;
+  /** Class reviews — member writes, staff/coach read. */
+  sessionReviewsAudience?: SessionReviewsAudience | null;
+  sessionReviewsListHref?: string | null;
 };

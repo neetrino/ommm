@@ -133,6 +133,16 @@ export class ClientsController {
     return this.tabLists.listGiftCards(id, take, offset);
   }
 
+  @Get(':id/feedback')
+  listFeedback(
+    @Param('id') id: string,
+    @Query() query: ListPaginationQueryDto,
+  ) {
+    const take = query.take ?? 25;
+    const offset = query.offset ?? 0;
+    return this.tabLists.listFeedback(id, take, offset);
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.clients.get(id);

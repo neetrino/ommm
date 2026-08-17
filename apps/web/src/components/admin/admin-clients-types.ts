@@ -152,6 +152,17 @@ export type ClientSheetGiftCardItem = GiftCardRow & {
   relation: "purchased" | "received";
 };
 
+export type ClientSheetFeedbackItem = {
+  id: string;
+  classTypeName: string;
+  startsAt: string;
+  endsAt: string;
+  coachName: string;
+  rating: number;
+  comment: string | null;
+  submittedAt: string;
+};
+
 export type ClientSheetPaginatedResponse<T> = {
   items: T[];
   total: number;
