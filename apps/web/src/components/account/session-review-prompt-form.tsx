@@ -27,6 +27,7 @@ export function SessionReviewPromptForm({
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const canSubmit = rating !== null && comment.trim().length > 0;
 
   return (
     <>
@@ -45,7 +46,7 @@ export function SessionReviewPromptForm({
         variant="primary"
         size="md"
         className="w-full"
-        disabled={pending}
+        disabled={pending || !canSubmit}
         onClick={() =>
           void submitReview({
             reviewId,
