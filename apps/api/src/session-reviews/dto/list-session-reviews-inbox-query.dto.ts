@@ -25,4 +25,14 @@ export class ListSessionReviewsInboxQueryDto extends ListPaginationQueryDto {
   @IsOptional()
   @IsIn(SESSION_REVIEW_VISIBILITY_FILTERS)
   visibility?: SessionReviewVisibilityFilter;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  coachId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  packagePlanId?: string;
 }

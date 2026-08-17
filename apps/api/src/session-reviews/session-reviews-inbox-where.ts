@@ -10,6 +10,8 @@ export function buildStaffInboxWhere(
     status: SessionReviewStatus.SUBMITTED,
     ...ratingWhere(query.rating),
     ...visibilityWhere(query.visibility),
+    ...coachWhere(query.coachId),
+    ...packageWhere(query.packagePlanId),
     ...searchWhere(query.q),
   };
 }
@@ -23,6 +25,7 @@ export function buildCoachInboxWhere(
     isAnonymous: false,
     coachProfileId,
     ...ratingWhere(query.rating),
+    ...packageWhere(query.packagePlanId),
     ...searchWhere(query.q),
   };
 }
@@ -46,6 +49,34 @@ function visibilityWhere(
     return { isAnonymous: true };
   }
   return {};
+}
+
+function coachWhere(coachId: string | undefined): Prisma.SessionReviewWhereInput {
+  const id = coachId?.trim();
+  if (!id) {
+    return {};
+  }
+  return { coachProfileId: id };
+}
+
+function packageWhere(
+  packagePlanId: string | undefined,
+): Prisma.SessionReviewWhereInput {
+  const id = packagePlanId?.trim();
+  if (!id) {
+    return {};
+  }
+  return {
+    booking: {
+      consumptions: {
+        some: {
+          userPackage: {
+            OR: [{ planId: id }, { sourcePlanIdSnapshot: id }],
+          },
+        },
+      },
+    },
+  };
 }
 
 function searchWhere(raw: string | undefined): Prisma.SessionReviewWhereInput {
