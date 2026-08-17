@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { SessionReviewDetailsModal } from "@/components/session-reviews/session-review-details-modal";
 import { SessionReviewInboxCard } from "@/components/session-reviews/session-review-inbox-card";
+import { useSessionReviewsFilterOptions } from "@/components/session-reviews/use-session-reviews-filter-options";
 import { useSessionReviewsInboxFilterFields } from "@/components/session-reviews/use-session-reviews-inbox-filter-fields";
 import { useSessionReviewsInboxFilters } from "@/components/session-reviews/use-session-reviews-inbox-filters";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
@@ -33,16 +34,25 @@ export function SessionReviewsInboxSection({
   const t = useTranslations("sessionReviewsPages");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const showCoachFilter = endpoint === "/session-reviews/inbox";
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
-  const filterFields = useSessionReviewsInboxFilterFields(showAnonymousBadge);
+  const filterOptions = useSessionReviewsFilterOptions();
+  const filterFields = useSessionReviewsInboxFilterFields({
+    showVisibilityFilter: showAnonymousBadge,
+    showCoachFilter,
+    coaches: filterOptions.coaches,
+    packages: filterOptions.packages,
+  });
   const {
     searchDraft,
     setSearchDraft,
     ratingFilter,
     visibilityFilter,
+    coachFilter,
+    packageFilter,
     filterValues,
     handleFilterChange,
     resetFilters,
@@ -62,6 +72,8 @@ export function SessionReviewsInboxSection({
         q: searchParams.get(SESSION_REVIEW_SEARCH_QUERY_KEY)?.trim() ?? "",
         rating: ratingFilter,
         visibility: showAnonymousBadge ? visibilityFilter : "",
+        coachId: showCoachFilter ? coachFilter : "",
+        packagePlanId: packageFilter,
       });
       const data = await apiFetch<SessionReviewsListPayload<StaffInboxReview | CoachInboxReview>>(
         `${endpoint}?${query}`,
@@ -74,12 +86,15 @@ export function SessionReviewsInboxSection({
       setLoading(false);
     }
   }, [
+    coachFilter,
     endpoint,
     listPage.offset,
     listPage.take,
+    packageFilter,
     ratingFilter,
     searchParams,
     showAnonymousBadge,
+    showCoachFilter,
     t,
     visibilityFilter,
   ]);

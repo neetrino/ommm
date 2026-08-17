@@ -114,7 +114,11 @@
     "filterVisibility": "Visibility",
     "filterVisibilityAll": "All reviews",
     "filterVisibilityNamed": "Shown to coach",
-    "filterVisibilityAnonymous": "Hidden from coach"
+    "filterVisibilityAnonymous": "Hidden from coach",
+    "filterCoach": "Coach",
+    "filterCoachAll": "All coaches",
+    "filterPackage": "Package",
+    "filterPackageAll": "All packages"
   },
   "listSort": {
     "sort": "Sort",

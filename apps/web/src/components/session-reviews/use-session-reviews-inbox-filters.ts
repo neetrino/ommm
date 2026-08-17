@@ -5,8 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { resetListPageQuery } from "@/lib/list-pagination";
 import {
+  parseSessionReviewIdFilter,
   parseSessionReviewRatingFilter,
   parseSessionReviewVisibilityFilter,
+  SESSION_REVIEW_COACH_FILTER_KEY,
+  SESSION_REVIEW_COACH_QUERY_KEY,
+  SESSION_REVIEW_PACKAGE_FILTER_KEY,
+  SESSION_REVIEW_PACKAGE_QUERY_KEY,
   SESSION_REVIEW_RATING_FILTER_KEY,
   SESSION_REVIEW_RATING_QUERY_KEY,
   SESSION_REVIEW_SEARCH_QUERY_KEY,
@@ -36,6 +41,12 @@ export function useSessionReviewsInboxFilters(showVisibilityFilter: boolean) {
         searchParams.get(SESSION_REVIEW_VISIBILITY_QUERY_KEY),
       )
     : ("" as const);
+  const coachFilter = parseSessionReviewIdFilter(
+    searchParams.get(SESSION_REVIEW_COACH_QUERY_KEY),
+  );
+  const packageFilter = parseSessionReviewIdFilter(
+    searchParams.get(SESSION_REVIEW_PACKAGE_QUERY_KEY),
+  );
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
@@ -69,12 +80,20 @@ export function useSessionReviewsInboxFilters(showVisibilityFilter: boolean) {
   const filterValues = useMemo(() => {
     const values: Record<string, string> = {
       [SESSION_REVIEW_RATING_FILTER_KEY]: ratingFilter,
+      [SESSION_REVIEW_COACH_FILTER_KEY]: coachFilter,
+      [SESSION_REVIEW_PACKAGE_FILTER_KEY]: packageFilter,
     };
     if (showVisibilityFilter) {
       values[SESSION_REVIEW_VISIBILITY_FILTER_KEY] = visibilityFilter;
     }
     return values;
-  }, [ratingFilter, showVisibilityFilter, visibilityFilter]);
+  }, [
+    coachFilter,
+    packageFilter,
+    ratingFilter,
+    showVisibilityFilter,
+    visibilityFilter,
+  ]);
 
   const handleFilterChange = useCallback(
     (key: string, value: string) => {
@@ -96,6 +115,22 @@ export function useSessionReviewsInboxFilters(showVisibilityFilter: boolean) {
             params.delete(SESSION_REVIEW_VISIBILITY_QUERY_KEY);
           }
         }
+        if (key === SESSION_REVIEW_COACH_FILTER_KEY) {
+          const next = parseSessionReviewIdFilter(value);
+          if (next) {
+            params.set(SESSION_REVIEW_COACH_QUERY_KEY, next);
+          } else {
+            params.delete(SESSION_REVIEW_COACH_QUERY_KEY);
+          }
+        }
+        if (key === SESSION_REVIEW_PACKAGE_FILTER_KEY) {
+          const next = parseSessionReviewIdFilter(value);
+          if (next) {
+            params.set(SESSION_REVIEW_PACKAGE_QUERY_KEY, next);
+          } else {
+            params.delete(SESSION_REVIEW_PACKAGE_QUERY_KEY);
+          }
+        }
       });
     },
     [replaceSearchParams, showVisibilityFilter],
@@ -108,6 +143,8 @@ export function useSessionReviewsInboxFilters(showVisibilityFilter: boolean) {
       params.delete(SESSION_REVIEW_SEARCH_QUERY_KEY);
       params.delete(SESSION_REVIEW_RATING_QUERY_KEY);
       params.delete(SESSION_REVIEW_VISIBILITY_QUERY_KEY);
+      params.delete(SESSION_REVIEW_COACH_QUERY_KEY);
+      params.delete(SESSION_REVIEW_PACKAGE_QUERY_KEY);
     });
   }, [replaceSearchParams]);
 
@@ -116,6 +153,8 @@ export function useSessionReviewsInboxFilters(showVisibilityFilter: boolean) {
     setSearchDraft,
     ratingFilter,
     visibilityFilter,
+    coachFilter,
+    packageFilter,
     filterValues,
     handleFilterChange,
     resetFilters,

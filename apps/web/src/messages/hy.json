@@ -114,7 +114,11 @@
     "filterVisibility": "Տեսանելիություն",
     "filterVisibilityAll": "Բոլոր կարծիքները",
     "filterVisibilityNamed": "Մարզիչը տեսնում է",
-    "filterVisibilityAnonymous": "Մարզիչը չի տեսնում"
+    "filterVisibilityAnonymous": "Մարզիչը չի տեսնում",
+    "filterCoach": "Մարզիչ",
+    "filterCoachAll": "Բոլոր մարզիչները",
+    "filterPackage": "Փաթեթ",
+    "filterPackageAll": "Բոլոր փաթեթները"
   },
   "listSort": {
     "sort": "Տեսակավորել",

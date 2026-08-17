@@ -114,7 +114,11 @@
     "filterVisibility": "Видимость",
     "filterVisibilityAll": "Все отзывы",
     "filterVisibilityNamed": "Видно тренеру",
-    "filterVisibilityAnonymous": "Скрыто от тренера"
+    "filterVisibilityAnonymous": "Скрыто от тренера",
+    "filterCoach": "Тренер",
+    "filterCoachAll": "Все тренеры",
+    "filterPackage": "Пакет",
+    "filterPackageAll": "Все пакеты"
   },
   "listSort": {
     "sort": "Сортировка",
