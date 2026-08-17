@@ -179,7 +179,7 @@ function CallTaskMenuPanel({
           {t("openList")}
         </Link>
       </div>
-      <ul className="max-h-72 list-none overflow-y-auto p-0">
+      <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>
         {loading ? (
           <li className="px-4 py-6 text-center text-sm text-sage-500">{t("loading")}</li>
         ) : error ? (
@@ -234,14 +234,21 @@ function useCallTaskMenuMotion(
   panelRef: RefObject<HTMLDivElement | null>,
   setPanelVisible: (value: boolean) => void,
 ) {
+  const didAnimateOpenRef = useRef(false);
+
   useLayoutEffect(() => {
-    if (!open || !menuPosition || !mounted) {
+    if (!open) {
+      didAnimateOpenRef.current = false;
+      return undefined;
+    }
+    if (!menuPosition || !mounted || didAnimateOpenRef.current) {
       return undefined;
     }
     const panel = panelRef.current;
     if (!panel) {
       return undefined;
     }
+    didAnimateOpenRef.current = true;
     panel.style.transition = "none";
     panel.style.opacity = "0";
     void panel.offsetHeight;

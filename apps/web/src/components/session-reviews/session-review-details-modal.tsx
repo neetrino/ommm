@@ -43,7 +43,12 @@ export function SessionReviewDetailsModal({
   const anonymous = "isAnonymous" in row ? row.isAnonymous : false;
   const whenLabel = formatSessionReviewWhen(locale, row.startsAt, row.endsAt);
   const coachName = "coachName" in row ? row.coachName : "";
-  const personLabel = "author" in row ? row.author.displayName : "";
+  const personLabel =
+    "author" in row
+      ? row.author === null || ("isAnonymous" in row && row.isAnonymous)
+        ? t("anonymousAuthor")
+        : row.author.displayName
+      : "";
 
   return (
     <OmmModalPortal

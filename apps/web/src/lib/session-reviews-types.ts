@@ -17,7 +17,8 @@ export type StaffInboxReview = {
   rating: number;
   comment: string | null;
   isAnonymous: boolean;
-  author: { id: string; displayName: string };
+  /** Null when the member chose Anonymous. */
+  author: { id: string; displayName: string } | null;
   submittedAt: string;
   staffReadAt: string | null;
 };
@@ -36,7 +37,7 @@ export type CoachInboxReview = {
 
 export type SessionReviewsAudience = "member" | "staff" | "coach";
 
-export const SESSION_REVIEW_HEADER_PREVIEW = 4;
+export const SESSION_REVIEW_HEADER_PREVIEW = 5;
 
 export type SessionReviewsListPayload<T> = {
   items: T[];

@@ -34,6 +34,20 @@ function clampMenuLeft(preferredLeft: number, width: number): number {
   return Math.min(Math.max(minLeft, preferredLeft), maxLeft);
 }
 
+function isSameFloatingMenuPosition(
+  prev: FloatingMenuPosition | null,
+  next: FloatingMenuPosition,
+): boolean {
+  return (
+    prev !== null &&
+    prev.top === next.top &&
+    prev.left === next.left &&
+    prev.width === next.width &&
+    prev.maxHeight === next.maxHeight &&
+    prev.placement === next.placement
+  );
+}
+
 export function useFloatingMenuPosition(
   triggerRef: RefObject<HTMLButtonElement | null>,
   open: boolean,
@@ -74,13 +88,14 @@ export function useFloatingMenuPosition(
       const maxHeight = openAbove
         ? Math.max(120, menuTop - headerInset)
         : Math.max(120, window.innerHeight - menuTop - MENU_VIEWPORT_PADDING);
-      setMenuPosition({
+      const next: FloatingMenuPosition = {
         top: menuTop,
         left: clampMenuLeft(preferredLeft, width),
         width,
         maxHeight,
         placement: openAbove ? "top" : "bottom",
-      });
+      };
+      setMenuPosition((prev) => (isSameFloatingMenuPosition(prev, next) ? prev : next));
     };
     updatePosition();
     window.addEventListener("resize", updatePosition);

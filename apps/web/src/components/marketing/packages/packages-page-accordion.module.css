@@ -406,11 +406,19 @@
 .tierRow {
   margin: 0;
   min-height: var(--packages-page-tier-row-height);
+  align-items: center;
+}
+
+.tierRow:has(.tierMixBreakdown) {
   align-items: start;
 }
 
 .tierCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
+  min-height: var(--packages-page-subscribe-height);
   justify-self: center;
   text-align: center;
 }
@@ -418,6 +426,7 @@
 .tierActionCell {
   display: flex;
   width: 100%;
+  align-items: center;
   justify-content: center;
   justify-self: center;
 }
@@ -428,6 +437,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  min-height: var(--packages-page-subscribe-height);
   justify-self: stretch;
   text-align: center;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
@@ -454,6 +464,7 @@
   max-width: 100%;
   min-width: 0;
   align-self: center;
+  line-height: 1.2;
 }
 
 .tierMixBreakdown {

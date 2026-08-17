@@ -9,6 +9,7 @@ import {
   dispatchSessionReviewsRefresh,
 } from "@/lib/session-reviews-events";
 import { formatSessionReviewWhen } from "@/lib/format-session-review-when";
+import { sessionReviewAuthorLabel } from "@/lib/session-review-author-label";
 import { SESSION_REVIEW_HEADER_PREVIEW } from "@/lib/session-reviews-types";
 import type {
   CoachInboxReview,
@@ -81,16 +82,17 @@ export function StaffReviewMenuPanel({
 }) {
   const locale = useLocale();
   const t = useTranslations("headerSessionReviews");
+  const preview = items.slice(0, SESSION_REVIEW_HEADER_PREVIEW);
   return (
     <ReviewMenuShell
       title={t("staffTitle")}
       viewAllHref={viewAllHref}
       loading={loading}
       error={error}
-      empty={items.length === 0}
+      empty={preview.length === 0}
       onNavigate={onNavigate}
     >
-      {items.map((row) => (
+      {preview.map((row) => (
         <StaffPreviewRow key={row.id} row={row} locale={locale} />
       ))}
     </ReviewMenuShell>
@@ -112,16 +114,17 @@ export function CoachReviewMenuPanel({
 }) {
   const locale = useLocale();
   const t = useTranslations("headerSessionReviews");
+  const preview = items.slice(0, SESSION_REVIEW_HEADER_PREVIEW);
   return (
     <ReviewMenuShell
       title={t("coachTitle")}
       viewAllHref={viewAllHref}
       loading={loading}
       error={error}
-      empty={items.length === 0}
+      empty={preview.length === 0}
       onNavigate={onNavigate}
     >
-      {items.map((row) => (
+      {preview.map((row) => (
         <li key={row.id} className="border-b border-white/50 px-4 py-3 last:border-b-0">
           <p className="text-sm font-semibold text-sage-900">{row.classTypeName}</p>
           <p className="mt-0.5 text-xs text-sage-600">
@@ -149,6 +152,7 @@ function StaffPreviewRow({
   locale: string;
 }) {
   const t = useTranslations("headerSessionReviews");
+  const authorLabel = sessionReviewAuthorLabel(row, t("anonymousAuthor"));
   return (
     <li className="border-b border-white/50 px-4 py-3 last:border-b-0">
       <p className="text-sm font-semibold text-sage-900">{row.classTypeName}</p>
@@ -156,7 +160,7 @@ function StaffPreviewRow({
         {formatSessionReviewWhen(locale, row.startsAt, row.endsAt)}
       </p>
       <p className="mt-1 text-xs text-sage-700">
-        {t("ratingLabel", { rating: row.rating })} · {row.author.displayName}
+        {t("ratingLabel", { rating: row.rating })} · {authorLabel}
         {row.isAnonymous ? ` · ${t("hiddenFromCoach")}` : ""}
       </p>
     </li>
@@ -193,7 +197,7 @@ function ReviewMenuShell({
           {t("viewAll")}
         </Link>
       </div>
-      <ul className="max-h-72 list-none overflow-y-auto p-0">
+      <ul className="list-none overflow-hidden p-0">
         {loading ? (
           <li className="px-4 py-6 text-center text-sm text-sage-500">{t("loading")}</li>
         ) : error ? (

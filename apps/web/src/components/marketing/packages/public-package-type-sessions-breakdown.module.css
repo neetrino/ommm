@@ -5,6 +5,7 @@
   flex-shrink: 0;
   width: 1.5rem;
   height: 1.5rem;
+  margin-block: -0.15rem;
   border: 0;
   border-radius: 9999px;
   background: transparent;
@@ -24,8 +25,8 @@
 }
 
 .expandArrow {
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 1.5rem;
+  height: 1.5rem;
   transition: transform 150ms ease;
 }
 

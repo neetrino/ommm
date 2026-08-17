@@ -34,7 +34,8 @@ export type StaffInboxReviewDto = {
   rating: number;
   comment: string | null;
   isAnonymous: boolean;
-  author: { id: string; displayName: string };
+  /** Null when the member chose Anonymous — identity is never exposed to clients. */
+  author: { id: string; displayName: string } | null;
   submittedAt: string;
   staffReadAt: string | null;
 };
@@ -90,12 +91,14 @@ export function toStaffInboxDto(
     rating: row.rating ?? 0,
     comment: row.comment,
     isAnonymous: row.isAnonymous,
-    author: {
-      id: row.author.id,
-      displayName:
-        formatPersonName(row.author.name, row.author.lastName) ||
-        row.author.email,
-    },
+    author: row.isAnonymous
+      ? null
+      : {
+          id: row.author.id,
+          displayName:
+            formatPersonName(row.author.name, row.author.lastName) ||
+            row.author.email,
+        },
     submittedAt: row.submittedAt?.toISOString() ?? row.updatedAt.toISOString(),
     staffReadAt: row.staffReadAt?.toISOString() ?? null,
   };

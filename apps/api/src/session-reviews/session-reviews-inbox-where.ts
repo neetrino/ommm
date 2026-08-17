@@ -89,9 +89,6 @@ function searchWhere(raw: string | undefined): Prisma.SessionReviewWhereInput {
   return {
     OR: [
       { comment: { contains: q, mode: insensitive } },
-      { author: { name: { contains: q, mode: insensitive } } },
-      { author: { lastName: { contains: q, mode: insensitive } } },
-      { author: { email: { contains: q, mode: insensitive } } },
       {
         session: {
           classType: { name: { contains: q, mode: insensitive } },
@@ -106,6 +103,24 @@ function searchWhere(raw: string | undefined): Prisma.SessionReviewWhereInput {
         coachProfile: {
           user: { lastName: { contains: q, mode: insensitive } },
         },
+      },
+      {
+        AND: [
+          { isAnonymous: false },
+          { author: { name: { contains: q, mode: insensitive } } },
+        ],
+      },
+      {
+        AND: [
+          { isAnonymous: false },
+          { author: { lastName: { contains: q, mode: insensitive } } },
+        ],
+      },
+      {
+        AND: [
+          { isAnonymous: false },
+          { author: { email: { contains: q, mode: insensitive } } },
+        ],
       },
     ],
   };
