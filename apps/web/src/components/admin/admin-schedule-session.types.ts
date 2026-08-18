@@ -30,7 +30,7 @@ export type AdminScheduleSession = {
   classFormat: string | null;
   status: SessionStatus;
   classType: { id: string; name: string };
-  coach: { id: string; user: { name: string | null } };
+  coach: { id: string; user: { name: string | null; lastName: string | null } };
   _count: { bookings: number };
 };
 

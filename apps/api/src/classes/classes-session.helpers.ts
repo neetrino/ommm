@@ -50,7 +50,7 @@ export const ADMIN_SESSION_INCLUDE = {
   classType: true,
   coach: {
     include: {
-      user: { select: { name: true } },
+      user: { select: { name: true, lastName: true } },
     },
   },
   _count: {

@@ -30,7 +30,7 @@ type ScheduleWeekSessionMiniCardProps = {
   ariaLabel?: string;
 };
 
-const WEEK_CARD_HEIGHT_CLASS = "h-[15.5rem]";
+const WEEK_CARD_HEIGHT_CLASS = "min-h-[15.5rem]";
 
 const WEEK_CARD_SHELL = [
   "flex w-full flex-col overflow-hidden text-left",
