@@ -40,7 +40,7 @@ type AdminCoachBoardCardProps = {
 };
 
 type BoardMetaRowProps = {
-  icon: "userCheck" | "calendar";
+  icon: "user" | "calendar";
   children: string;
 };
 
@@ -135,7 +135,7 @@ export function AdminCoachBoardCard({
           locale={locale}
           readOnly={readOnly}
         />
-        <BoardMetaRow icon="userCheck">{specialization}</BoardMetaRow>
+        <BoardMetaRow icon="user">{specialization}</BoardMetaRow>
         <div className={`${BOARD_CARD_DIVIDER_SECTION_CLASS} flex-1`}>
           <div className="flex flex-wrap content-start items-center gap-2">
             <CoachClassBadges
