@@ -123,7 +123,7 @@ export function MarketingSiteHeaderWithClientAccount({
         sessionReviewsListHref={showMemberNotifications ? "/user/reviews" : null}
       />
       {showMemberNotifications ? (
-        <SessionReviewPromptGate deferAutoPrompt={false} />
+        <SessionReviewPromptGate deferAutoPrompt />
       ) : null}
     </>
   );
