@@ -20,6 +20,7 @@ import {
 } from "@/lib/public-package-categories";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
+import { formatPackageFreezeLabel } from "@/components/admin/admin-packages-display";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { PackagesGuestHint } from "@/components/marketing/packages/packages-guest-hint";
@@ -85,6 +86,10 @@ export function PublicPackageCategoryCard({
               ? t("packagesSessionsUnlimited")
               : t("packagesSessionsCount", { count: plan.sessionsPerMonth ?? 0 });
             const guestCount = plan.guestCount ?? 0;
+            const freezeLabel = formatPackageFreezeLabel(plan, {
+              timesDays: (times, days) =>
+                t("packagesFreezeTimesDays", { times, days }),
+            });
             const tierPriceLine = formatPublicPackageTierPriceLine(
               resolvePublicPackageFinalPriceCents(plan),
               locale,
@@ -129,6 +134,11 @@ export function PublicPackageCategoryCard({
                 {guestCount > 0 ? (
                   <p className="mt-1 text-sm text-sage-500">
                     {t("packagesGuestCount", { count: guestCount })}
+                  </p>
+                ) : null}
+                {freezeLabel !== null ? (
+                  <p className="mt-1 text-sm text-sage-500">
+                    {t("packagesDetailsFreezeLabel")}: {freezeLabel}
                   </p>
                 ) : null}
               </li>

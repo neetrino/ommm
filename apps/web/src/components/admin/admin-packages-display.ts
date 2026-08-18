@@ -16,6 +16,8 @@ export type PackageTableDisplayRow = Pick<
   | "sessionsPerMonth"
   | "isUnlimited"
   | "guestCount"
+  | "freezeAllowedCount"
+  | "freezeMaxDaysPerUse"
 >;
 
 type ValidityLabels = {
@@ -142,4 +144,17 @@ export function formatPackageGuestCount(pkg: PackageTableDisplayRow): number | n
     return null;
   }
   return count;
+}
+
+/** Freeze policy for tables; null when times or days are unset. */
+export function formatPackageFreezeLabel(
+  pkg: Pick<PackageTableDisplayRow, "freezeAllowedCount" | "freezeMaxDaysPerUse">,
+  labels: { timesDays: (times: number, days: number) => string },
+): string | null {
+  const times = pkg.freezeAllowedCount ?? 0;
+  const days = pkg.freezeMaxDaysPerUse ?? 0;
+  if (!Number.isInteger(times) || !Number.isInteger(days) || times <= 0 || days <= 0) {
+    return null;
+  }
+  return labels.timesDays(times, days);
 }
