@@ -170,7 +170,8 @@
   color: var(--packages-page-validity-color);
 }
 
-.tierGuests {
+.tierGuests,
+.tierFreeze {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: clamp(0.75rem, 1.2vw, var(--packages-page-tier-meta-size));
   font-weight: 600;

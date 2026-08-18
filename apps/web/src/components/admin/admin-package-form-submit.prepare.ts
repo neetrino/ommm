@@ -10,8 +10,12 @@ import {
   MAX_NAME_LENGTH,
   MAX_PACKAGE_DURATION_DAYS,
   MAX_PACKAGE_GUEST_COUNT,
+  MAX_PACKAGE_FREEZE_COUNT,
+  MAX_PACKAGE_FREEZE_DAYS,
   MIN_PACKAGE_DURATION_DAYS,
   MIN_PACKAGE_GUEST_COUNT,
+  MIN_PACKAGE_FREEZE_COUNT,
+  MIN_PACKAGE_FREEZE_DAYS,
   MIN_PACKAGE_STOCK_COUNT,
   MAX_PACKAGE_STOCK_COUNT,
   MIN_PACKAGE_SESSIONS,
@@ -139,6 +143,8 @@ export function prepareAdminPackageFormSubmit(
   const parsedSessionsPerMonth = parseSessionsCount(values.sessionsCount);
   const periodDays = parseDurationDays(values.durationDays);
   const guestCount = parseGuestCount(values.guestCount);
+  const freezeAllowedCount = parseGuestCount(values.freezeAllowedCount);
+  const freezeMaxDaysPerUse = parseGuestCount(values.freezeMaxDaysPerUse);
   const stockCount = parseStockCount(values.stockCount);
   const tierClassTypeId = (initialPackage?.classTypeId ?? values.classTypeId).trim();
   const sessionName = values.name.trim();
@@ -232,6 +238,30 @@ export function prepareAdminPackageFormSubmit(
       return { ok: false, error: t("guestCountInvalid") };
     }
     if (
+      values.freezeAllowedCount.trim().length > 0 &&
+      (freezeAllowedCount === null ||
+        freezeAllowedCount < MIN_PACKAGE_FREEZE_COUNT ||
+        freezeAllowedCount > MAX_PACKAGE_FREEZE_COUNT)
+    ) {
+      return { ok: false, error: t("freezeAllowedCountInvalid") };
+    }
+    if (
+      values.freezeMaxDaysPerUse.trim().length > 0 &&
+      (freezeMaxDaysPerUse === null ||
+        freezeMaxDaysPerUse < MIN_PACKAGE_FREEZE_DAYS ||
+        freezeMaxDaysPerUse > MAX_PACKAGE_FREEZE_DAYS)
+    ) {
+      return { ok: false, error: t("freezeMaxDaysInvalid") };
+    }
+    const resolvedFreezeCount = freezeAllowedCount ?? 0;
+    const resolvedFreezeDays = freezeMaxDaysPerUse ?? 0;
+    if (resolvedFreezeCount > 0 && resolvedFreezeDays < 1) {
+      return { ok: false, error: t("freezeDaysRequired") };
+    }
+    if (resolvedFreezeDays > 0 && resolvedFreezeCount < 1) {
+      return { ok: false, error: t("freezeCountRequired") };
+    }
+    if (
       (isAddTierMode || isEditTierMode) &&
       values.stockCount.trim().length > 0 &&
       (stockCount === null ||
@@ -304,6 +334,8 @@ export function prepareAdminPackageFormSubmit(
       discountedPriceCents,
       periodDays,
       guestCount,
+      freezeAllowedCount,
+      freezeMaxDaysPerUse,
       stockCount,
       tierClassTypeId,
       payloadName,

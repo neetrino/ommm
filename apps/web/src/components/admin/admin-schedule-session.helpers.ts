@@ -9,10 +9,11 @@ import type {
 import { utcToStudioWallClockTime } from "@/lib/studio-timezone";
 
 export function coachName(coach: AdminScheduleCoach | AdminScheduleSession["coach"]): string {
-  if ("lastName" in coach.user) {
-    return [coach.user.name, coach.user.lastName].filter(Boolean).join(" ") || coach.user.email;
+  const fullName = [coach.user.name, coach.user.lastName].filter(Boolean).join(" ");
+  if (fullName) {
+    return fullName;
   }
-  return coach.user.name ?? "—";
+  return "email" in coach.user ? coach.user.email : "—";
 }
 
 export function spotsLeft(row: AdminScheduleSession): number {

@@ -7,6 +7,10 @@ export const MIN_PACKAGE_DURATION_DAYS = 1;
 export const MAX_PACKAGE_DURATION_DAYS = 3600;
 export const MIN_PACKAGE_GUEST_COUNT = 0;
 export const MAX_PACKAGE_GUEST_COUNT = 99;
+export const MIN_PACKAGE_FREEZE_COUNT = 0;
+export const MAX_PACKAGE_FREEZE_COUNT = 10;
+export const MIN_PACKAGE_FREEZE_DAYS = 0;
+export const MAX_PACKAGE_FREEZE_DAYS = 90;
 export const MIN_PACKAGE_STOCK_COUNT = 0;
 export const MAX_PACKAGE_STOCK_COUNT = 99_999;
 export const MIN_PACKAGE_SESSIONS = 1;
@@ -137,6 +141,8 @@ export type AdminPackageFormValues = {
   startDate: string;
   sessionsCount: string;
   guestCount: string;
+  freezeAllowedCount: string;
+  freezeMaxDaysPerUse: string;
   stockCount: string;
   isPopular: boolean;
   isActive: boolean;
@@ -179,6 +185,8 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     startDate: "",
     sessionsCount: "1",
     guestCount: "",
+    freezeAllowedCount: "",
+    freezeMaxDaysPerUse: "",
     stockCount: "",
     isPopular: false,
     isActive: true,
@@ -196,6 +204,8 @@ export function createEmptyTierFormValues(initialCategoryName = ""): AdminPackag
     durationDays: "",
     startDate: "",
     guestCount: "",
+    freezeAllowedCount: "",
+    freezeMaxDaysPerUse: "",
     stockCount: "",
   };
 }
@@ -216,6 +226,8 @@ export function packageRowToFormValues(
   isActive: boolean;
   showPricePerSession?: boolean;
   guestCount?: number;
+  freezeAllowedCount?: number;
+  freezeMaxDaysPerUse?: number;
   availableQuantity?: number | null;
   sessionsPerMonth?: number | null;
 },
@@ -245,6 +257,14 @@ export function packageRowToFormValues(
     sessionsCount: String(sessions),
     guestCount:
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
+    freezeAllowedCount:
+      typeof pkg.freezeAllowedCount === "number" && pkg.freezeAllowedCount > 0
+        ? String(pkg.freezeAllowedCount)
+        : "",
+    freezeMaxDaysPerUse:
+      typeof pkg.freezeMaxDaysPerUse === "number" && pkg.freezeMaxDaysPerUse > 0
+        ? String(pkg.freezeMaxDaysPerUse)
+        : "",
     stockCount:
       typeof pkg.availableQuantity === "number" && pkg.availableQuantity >= 0
         ? String(pkg.availableQuantity)

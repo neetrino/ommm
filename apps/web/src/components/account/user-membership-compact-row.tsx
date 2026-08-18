@@ -108,6 +108,7 @@ export function UserMembershipCompactRow({
           <UserPackageLifecycleActions
             userPackageId={membership.id}
             status={status}
+            freeze={membership.freeze}
             layout="list"
           />
         </div>

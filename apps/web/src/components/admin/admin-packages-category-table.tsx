@@ -12,6 +12,7 @@ import {
   PACKAGE_CATEGORY_TABLE_PAGE_SIZE,
 } from "@/components/admin/admin-packages.constants";
 import {
+  formatPackageFreezeLabel,
   formatPackageGuestCount,
   formatPackagePlanName,
   formatPackagePriceLabel,
@@ -91,6 +92,7 @@ export function AdminPackagesCategoryTable({
           <div>{t("tablePrice")}</div>
           <div>{t("tableValidity")}</div>
           <div>{t("tableGuests")}</div>
+          <div>{t("tableFreeze")}</div>
           <div>{t("tableStockCount")}</div>
           <div>{t("tableStartDate")}</div>
           <div>{t("colStatus")}</div>
@@ -101,6 +103,9 @@ export function AdminPackagesCategoryTable({
           {visiblePackages.map((pkg, index) => {
             const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
             const guestCount = formatPackageGuestCount(pkg);
+            const freezeLabel = formatPackageFreezeLabel(pkg, {
+              timesDays: (times, days) => t("freezeTimesDays", { times, days }),
+            });
             const stockCount = formatPackageStockCount(pkg);
             const startDateLabel = formatPackageStartDateLabel(pkg);
             const hasDiscount =
@@ -167,6 +172,7 @@ export function AdminPackagesCategoryTable({
                   </TableCell>
                   <TableCell>{validityLabel}</TableCell>
                   <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                  <TableCell>{freezeLabel !== null ? freezeLabel : <EmptyCell />}</TableCell>
                   <TableCell>{stockCount !== null ? stockCount : <EmptyCell />}</TableCell>
                   <TableCell>{startDateLabel !== null ? startDateLabel : <EmptyCell />}</TableCell>
                   <TableCell>

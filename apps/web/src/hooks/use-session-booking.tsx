@@ -15,7 +15,11 @@ import {
   postSessionBooking,
   useSessionBookingInitiate,
 } from "@/hooks/use-session-booking-initiate";
-import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
+import {
+  toPackageSubscribePlanOptions,
+  type PackageSubscribePlanOption,
+} from "@/lib/package-subscribe-plan-option";
+import type { PublicPackagePlan } from "@/lib/public-package-plan";
 import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
 import {
   clearSessionBookingCachedPurchase,
@@ -133,10 +137,12 @@ export function useSessionBooking({
   );
 
   const fetchPurchasePlans = useCallback(
-    async (): Promise<PackageSubscribePlanOption[]> =>
-      apiFetch<PackageSubscribePlanOption[]>(
+    async (): Promise<PackageSubscribePlanOption[]> => {
+      const plans = await apiFetch<PublicPackagePlan[]>(
         `/bookings/sessions/${sessionId}/purchase-plans`,
-      ),
+      );
+      return toPackageSubscribePlanOptions(plans);
+    },
     [sessionId],
   );
 

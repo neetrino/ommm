@@ -26,6 +26,9 @@ function createSlotServiceAndDeps() {
     classSession: {
       updateMany: jest.fn(),
     },
+    booking: {
+      findMany: jest.fn(),
+    },
   };
 
   const waitlist = { offerNextIfSlot: jest.fn() };

@@ -4,7 +4,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
-import { formatPackagePlanName, formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
+import {
+  formatPackageFreezeLabel,
+  formatPackagePlanName,
+  formatPackagePriceLabel,
+} from "@/components/admin/admin-packages-display";
 import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import {
   formatPublicPackageValidityLabel,
@@ -82,6 +86,9 @@ export function PublicPackageMobileTierCard({
   });
   const guestCount = plan.guestCount ?? 0;
   const guestLabel = guestCount > 0 ? String(guestCount) : null;
+  const freezeLabel = formatPackageFreezeLabel(plan, {
+    timesDays: (times, days) => t("packagesFreezeTimesDays", { times, days }),
+  });
 
   const subscribeButton =
     audience === "member" ? (
@@ -148,6 +155,7 @@ export function PublicPackageMobileTierCard({
         ) : null}
         <MetaRow label={t("packagesTableValidity")} value={validityLabel} />
         <MetaRow label={t("packagesTableGuests")} value={guestLabel} />
+        <MetaRow label={t("packagesTableFreeze")} value={freezeLabel} />
       </div>
 
       {subscribeButton}

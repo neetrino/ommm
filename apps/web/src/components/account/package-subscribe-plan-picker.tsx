@@ -1,7 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import {
+  formatPackageFreezeLabel,
+  formatPackagePlanName,
+} from "@/components/admin/admin-packages-display";
 import styles from "@/components/account/package-subscribe-plan-picker.module.css";
 import {
   formatPublicPackageTierSessionsHeadline,
@@ -64,6 +67,10 @@ export function PackageSubscribePlanPicker({
           days: (count) => tMarketing("packagesValidityDays", { count }),
           months: (count) => tMarketing("packagesValidityMonths", { count }),
         });
+        const freezeLabel = formatPackageFreezeLabel(plan, {
+          timesDays: (times, days) =>
+            tMarketing("packagesFreezeTimesDays", { times, days }),
+        });
 
         return (
           <button
@@ -97,6 +104,7 @@ export function PackageSubscribePlanPicker({
             <span className={styles.packageSubscribePlanOptionMeta}>
               {sessionsLabel}
               {validityLabel !== null ? ` · ${validityLabel}` : null}
+              {freezeLabel !== null ? ` · ${freezeLabel}` : null}
             </span>
             {isSelected ? (
               <span className={styles.packageSubscribePlanOptionBadge}>{t("selectedPlanBadge")}</span>
@@ -116,10 +124,15 @@ type PackageSubscribePlanSummaryProps = {
 
 function PackageSubscribePlanSummary({ plan, locale }: PackageSubscribePlanSummaryProps) {
   const t = useTranslations("forms.manualPackagePayment");
+  const tMarketing = useTranslations("marketing");
   const sessionName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
   const sessionsLabel = plan.isUnlimited
     ? t("unlimitedClasses")
     : t("sessionsPerPeriod", { count: plan.sessionsPerMonth ?? 0 });
+  const freezeLabel = formatPackageFreezeLabel(plan, {
+    timesDays: (times, days) =>
+      tMarketing("packagesFreezeTimesDays", { times, days }),
+  });
 
   return (
     <div className={styles.packageSubscribePlanSummary}>
@@ -129,6 +142,7 @@ function PackageSubscribePlanSummary({ plan, locale }: PackageSubscribePlanSumma
       </p>
       <p className="mt-1 text-sm text-sage-500">
         {t("periodDays", { days: plan.periodDays })} · {sessionsLabel}
+        {freezeLabel !== null ? ` · ${freezeLabel}` : null}
       </p>
     </div>
   );

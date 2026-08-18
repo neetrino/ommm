@@ -1,5 +1,9 @@
 import { useTranslations } from "next-intl";
-import { formatPackagePlanName, formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
+import {
+  formatPackageFreezeLabel,
+  formatPackagePlanName,
+  formatPackagePriceLabel,
+} from "@/components/admin/admin-packages-display";
 import { resolvePublicPackageFinalPriceCents } from "@/components/marketing/packages/public-package-card-format";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
 import type { ExpandedTierRowProps } from "@/components/marketing/packages/packages-page-accordion.types";
@@ -40,6 +44,9 @@ export function PackagesPageAccordionTierRow({
     months: (count) => t("packagesValidityMonths", { count }),
   });
   const guestCount = plan.guestCount ?? 0;
+  const freezeLabel = formatPackageFreezeLabel(plan, {
+    timesDays: (times, days) => t("packagesFreezeTimesDays", { times, days }),
+  });
   const hasDiscount =
     typeof plan.discountedPriceCents === "number" &&
     plan.discountedPriceCents > 0 &&
@@ -109,6 +116,9 @@ export function PackagesPageAccordionTierRow({
       </div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierGuests}`}>
         {guestCount > 0 ? guestCount : <PackagesPageAccordionEmptyCell />}
+      </div>
+      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierFreeze}`}>
+        {freezeLabel !== null ? freezeLabel : <PackagesPageAccordionEmptyCell />}
       </div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierActionCell}`}>
         {audience === "member" ? (

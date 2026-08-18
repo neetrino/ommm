@@ -8,8 +8,10 @@ import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
 import { PackagesAdminValidityService } from './packages-admin-validity.service';
+import { PackagesFreezeService } from './packages-freeze.service';
 import { PackagesPublicService } from './packages-public.service';
 import type { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
+import type { FreezeUserPackageDto } from './dto/freeze-user-package.dto';
 
 type AdminClientPackagePaymentMethod =
   | typeof ManualPaymentMethod.CASH
@@ -22,6 +24,7 @@ export class PackagesService {
     private readonly adminService: PackagesAdminService,
     private readonly adminClientPurchase: PackagesAdminClientPurchaseService,
     private readonly adminValidity: PackagesAdminValidityService,
+    private readonly freezeService: PackagesFreezeService,
   ) {}
 
   listPlans() {
@@ -94,5 +97,29 @@ export class PackagesService {
     dto: AdminUpdateUserPackageValidityDto,
   ) {
     return this.adminValidity.updateValidity(userPackageId, dto);
+  }
+
+  freezeMine(userId: string, userPackageId: string, dto: FreezeUserPackageDto) {
+    return this.freezeService.freezeForUser(userId, userPackageId, dto.days);
+  }
+
+  unfreezeMine(userId: string, userPackageId: string) {
+    return this.freezeService.unfreezeForUser(userId, userPackageId);
+  }
+
+  freezeForAdmin(
+    adminId: string,
+    userPackageId: string,
+    dto: FreezeUserPackageDto,
+  ) {
+    return this.freezeService.freezeForAdmin(adminId, userPackageId, dto.days);
+  }
+
+  unfreezeForAdmin(userPackageId: string) {
+    return this.freezeService.unfreezeForAdmin(userPackageId);
+  }
+
+  resumeDueFreezes(userId?: string) {
+    return this.freezeService.resumeDueFreezes(userId);
   }
 }

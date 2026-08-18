@@ -9,6 +9,8 @@ export type PackageSubscribePlanOption = {
   periodDays: number;
   isUnlimited: boolean;
   sessionsPerMonth: number | null;
+  freezeAllowedCount: number;
+  freezeMaxDaysPerUse: number;
 };
 
 export function toPackageSubscribePlanOptions(
@@ -21,6 +23,8 @@ export function toPackageSubscribePlanOptions(
     | "periodDays"
     | "isUnlimited"
     | "sessionsPerMonth"
+    | "freezeAllowedCount"
+    | "freezeMaxDaysPerUse"
   >[],
 ): PackageSubscribePlanOption[] {
   return plans.map((plan) => ({
@@ -37,5 +41,9 @@ export function toPackageSubscribePlanOptions(
     periodDays: plan.periodDays,
     isUnlimited: plan.isUnlimited,
     sessionsPerMonth: plan.sessionsPerMonth,
+    freezeAllowedCount:
+      typeof plan.freezeAllowedCount === "number" ? plan.freezeAllowedCount : 0,
+    freezeMaxDaysPerUse:
+      typeof plan.freezeMaxDaysPerUse === "number" ? plan.freezeMaxDaysPerUse : 0,
   }));
 }

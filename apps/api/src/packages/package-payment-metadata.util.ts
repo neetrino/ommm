@@ -4,7 +4,7 @@ export const PACKAGE_PAYMENT_PLAN_ID_KEY = 'planId';
 
 /** Reads `planId` stored on a PACKAGE payment before UserPackage exists. */
 export function readPackagePlanIdFromMetadata(
-  metadata: Prisma.JsonValue | null | undefined,
+  metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
 ): string | null {
   if (
     metadata === null ||

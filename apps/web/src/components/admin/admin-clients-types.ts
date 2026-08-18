@@ -136,6 +136,16 @@ export type ClientSheetPackageItem = {
   isUnlimited: boolean;
   paymentMethod: string | null;
   typeBalances?: ClientSheetPackageTypeBalance[];
+  freeze?: {
+    allowedCount: number;
+    maxDaysPerUse: number;
+    usedCount: number;
+    remainingCount: number;
+    pausedAt: string | null;
+    pausedUntil: string | null;
+    canFreeze: boolean;
+    canUnfreeze: boolean;
+  };
 };
 
 export type GiftCardRow = {

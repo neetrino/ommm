@@ -1,104 +1,35 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
-import { useState } from "react";
+import { UserPackageFreezeDialog } from "@/components/account/user-package-freeze-dialog";
+import {
+  hasPackageLifecycleActions,
+  useUserPackageLifecycle,
+  type ConfirmableAction,
+  type LifecycleAction,
+  type PackageLifecycleController,
+} from "@/components/account/user-package-lifecycle";
+import { UserPackageListIconActions } from "@/components/account/user-package-list-icon-actions";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { UserPackageListIconActions } from "@/components/account/user-package-list-icon-actions";
-import { ApiError, apiFetch } from "@/lib/api";
+import type { UserPackageFreezeState } from "@/lib/user-package-freeze";
 import type { UserPackageStatus } from "@/lib/user-package-types";
 
-type LifecycleAction = "pause" | "cancel" | "renew";
-type ConfirmableAction = "pause" | "cancel";
-
-/** Whether pause, renew, or cancel controls apply for this package status. */
-export function hasPackageLifecycleActions(status: UserPackageStatus): boolean {
-  return (
-    status === "ACTIVE" ||
-    status === "PAUSED" ||
-    status === "CANCELLED" ||
-    status === "EXPIRED"
-  );
-}
+export {
+  hasPackageLifecycleActions,
+  useUserPackageLifecycle,
+  type PackageLifecycleController,
+};
 
 type LifecycleLayout = "inline" | "sheetFooter" | "sheetHeader" | "list" | "board";
 
 const PACKAGE_PAUSE_BUTTON_CLASS = "ommm-btn-lifecycle-action--warm";
 const PACKAGE_CANCEL_BUTTON_CLASS = "ommm-btn-lifecycle-action--danger";
 
-export type PackageLifecycleController = {
-  busy: boolean;
-  message: string | null;
-  pendingConfirm: ConfirmableAction | null;
-  showPause: boolean;
-  showRenew: boolean;
-  showCancel: boolean;
-  openConfirm: (action: ConfirmableAction) => void;
-  closeConfirm: () => void;
-  runRenew: () => void;
-  confirmPause: () => void;
-  confirmCancel: () => void;
-};
-
-export function useUserPackageLifecycle(
-  userPackageId: string,
-  status: UserPackageStatus,
-): PackageLifecycleController {
-  const router = useRouter();
-  const t = useTranslations("forms.packageLifecycle");
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [pendingConfirm, setPendingConfirm] = useState<ConfirmableAction | null>(null);
-
-  function openConfirm(action: ConfirmableAction) {
-    if (busy) {
-      return;
-    }
-    setPendingConfirm(action);
-  }
-
-  function closeConfirm() {
-    if (busy) {
-      return;
-    }
-    setPendingConfirm(null);
-  }
-
-  async function run(action: LifecycleAction, successKey: string, failKey: string) {
-    setBusy(true);
-    setMessage(null);
-    try {
-      await apiFetch(`/packages/me/${userPackageId}/${action}`, { method: "PATCH" });
-      setMessage(t(successKey));
-      setPendingConfirm(null);
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : t(failKey));
-      setPendingConfirm(null);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return {
-    busy,
-    message,
-    pendingConfirm,
-    showPause: status === "ACTIVE",
-    showRenew: status === "PAUSED" || status === "CANCELLED" || status === "EXPIRED",
-    showCancel: status === "ACTIVE" || status === "PAUSED",
-    openConfirm,
-    closeConfirm,
-    runRenew: () => void run("renew", "renewedSuccess", "renewFailed"),
-    confirmPause: () => void run("pause", "pausedSuccess", "pauseFailed"),
-    confirmCancel: () => void run("cancel", "cancelledSuccess", "cancelFailed"),
-  };
-}
-
 type UserPackageLifecycleActionsProps = {
   userPackageId: string;
   status: UserPackageStatus;
+  freeze?: UserPackageFreezeState;
   layout?: LifecycleLayout;
   hiddenActions?: readonly LifecycleAction[];
   lifecycle?: PackageLifecycleController;
@@ -119,7 +50,6 @@ function layoutConfig(layout: LifecycleLayout): {
       messageClass: "w-full text-center",
     };
   }
-
   if (layout === "sheetHeader") {
     return {
       buttonSize: "sm",
@@ -128,7 +58,6 @@ function layoutConfig(layout: LifecycleLayout): {
       messageClass: "w-full text-right",
     };
   }
-
   if (layout === "list") {
     return {
       buttonSize: "sm",
@@ -137,7 +66,6 @@ function layoutConfig(layout: LifecycleLayout): {
       messageClass: "w-full text-center md:text-center",
     };
   }
-
   if (layout === "board") {
     return {
       buttonSize: "md",
@@ -146,7 +74,6 @@ function layoutConfig(layout: LifecycleLayout): {
       messageClass: "w-full text-center",
     };
   }
-
   return {
     buttonSize: "sm",
     containerClass: "mt-4 flex flex-wrap gap-2",
@@ -165,17 +92,19 @@ function isActionHidden(
 export function UserPackageLifecycleActions({
   userPackageId,
   status,
+  freeze,
   layout = "inline",
   hiddenActions,
   lifecycle: externalLifecycle,
 }: UserPackageLifecycleActionsProps) {
   const t = useTranslations("forms.packageLifecycle");
-  const internalLifecycle = useUserPackageLifecycle(userPackageId, status);
+  const internalLifecycle = useUserPackageLifecycle(userPackageId, status, freeze);
   const lifecycle = externalLifecycle ?? internalLifecycle;
   const ownsDialog = externalLifecycle === undefined;
   const { buttonSize, containerClass, buttonClass, messageClass } = layoutConfig(layout);
-
-  const showPause = lifecycle.showPause && !isActionHidden("pause", hiddenActions);
+  const showFreeze = lifecycle.showFreeze && !isActionHidden("freeze", hiddenActions);
+  const showUnfreeze =
+    lifecycle.showUnfreeze && !isActionHidden("unfreeze", hiddenActions);
   const showRenew = lifecycle.showRenew && !isActionHidden("renew", hiddenActions);
   const showCancel = lifecycle.showCancel && !isActionHidden("cancel", hiddenActions);
 
@@ -183,110 +112,76 @@ export function UserPackageLifecycleActions({
     return null;
   }
 
-  if (layout === "sheetHeader") {
-    const hasHeaderActions = showPause || showCancel;
-    if (!hasHeaderActions) {
-      return null;
-    }
+  const dialog = ownsDialog ? <PackageLifecycleDialogs lifecycle={lifecycle} /> : null;
+  const freezeLabel = t("freeze");
+  const unfreezeLabel = t("unfreeze");
+  const renewLabel = t("renew");
+  const cancelLabel = t("cancelAction");
 
+  if (layout === "sheetHeader") {
+    if (!showFreeze && !showUnfreeze && !showCancel) {
+      return dialog;
+    }
     return (
       <>
         <div className={containerClass}>
-          {showPause ? (
-            <OmmButton
-              size={buttonSize}
-              variant="secondary"
-              disabled={lifecycle.busy}
-              className={[buttonClass, PACKAGE_PAUSE_BUTTON_CLASS].filter(Boolean).join(" ")}
-              onClick={() => lifecycle.openConfirm("pause")}
-            >
-              {t("pause")}
-            </OmmButton>
-          ) : null}
-          {showCancel ? (
-            <OmmButton
-              size={buttonSize}
-              variant="secondary"
-              disabled={lifecycle.busy}
-              className={[buttonClass, PACKAGE_CANCEL_BUTTON_CLASS].filter(Boolean).join(" ")}
-              onClick={() => lifecycle.openConfirm("cancel")}
-            >
-              {t("cancelAction")}
-            </OmmButton>
-          ) : null}
+          <LifecycleButtons
+            size={buttonSize}
+            className={buttonClass}
+            lifecycle={lifecycle}
+            showFreeze={showFreeze}
+            showUnfreeze={showUnfreeze}
+            showRenew={false}
+            showCancel={showCancel}
+            freezeLabel={freezeLabel}
+            unfreezeLabel={unfreezeLabel}
+            renewLabel={renewLabel}
+            cancelLabel={cancelLabel}
+          />
         </div>
-        {ownsDialog ? <PackageLifecycleConfirmDialog lifecycle={lifecycle} /> : null}
+        {dialog}
       </>
     );
   }
 
-  const buttonRowClass =
-    layout === "list"
-      ? "flex flex-wrap items-center justify-end gap-1.5"
-      : layout === "board"
-        ? "flex w-full flex-wrap items-center gap-2"
-        : "flex flex-wrap gap-2";
-
-  const hasVisibleActions = showPause || showRenew || showCancel;
+  const hasVisibleActions = showFreeze || showUnfreeze || showRenew || showCancel;
   if (!hasVisibleActions && lifecycle.message === null) {
-    return ownsDialog ? <PackageLifecycleConfirmDialog lifecycle={lifecycle} /> : null;
+    return dialog;
   }
-
-  const pauseLabel = t("pause");
-  const renewLabel = t("renew");
-  const cancelLabel = t("cancelAction");
-
-  const listIconActions =
-    layout === "list" && hasVisibleActions ? (
-      <UserPackageListIconActions
-        className="justify-end md:justify-center"
-        lifecycle={lifecycle}
-        showPause={showPause}
-        showRenew={showRenew}
-        showCancel={showCancel}
-      />
-    ) : null;
 
   return (
     <>
       <div className={containerClass}>
-        {layout === "list" ? (
-          listIconActions
+        {layout === "list" && hasVisibleActions ? (
+          <UserPackageListIconActions
+            className="justify-end md:justify-center"
+            lifecycle={lifecycle}
+            showFreeze={showFreeze}
+            showUnfreeze={showUnfreeze}
+            showRenew={showRenew}
+            showCancel={showCancel}
+          />
         ) : hasVisibleActions ? (
-          <div className={buttonRowClass}>
-            {showPause ? (
-              <OmmButton
-                size={buttonSize}
-                variant="secondary"
-                disabled={lifecycle.busy}
-                className={[buttonClass, PACKAGE_PAUSE_BUTTON_CLASS].filter(Boolean).join(" ")}
-                onClick={() => lifecycle.openConfirm("pause")}
-              >
-                {pauseLabel}
-              </OmmButton>
-            ) : null}
-            {showRenew ? (
-              <OmmButton
-                size={buttonSize}
-                variant="primary"
-                disabled={lifecycle.busy}
-                className={buttonClass}
-                onClick={lifecycle.runRenew}
-              >
-                {renewLabel}
-              </OmmButton>
-            ) : null}
-            {showCancel ? (
-              <OmmButton
-                size={buttonSize}
-                variant="secondary"
-                disabled={lifecycle.busy}
-                className={[buttonClass, PACKAGE_CANCEL_BUTTON_CLASS].filter(Boolean).join(" ")}
-                onClick={() => lifecycle.openConfirm("cancel")}
-              >
-                {cancelLabel}
-              </OmmButton>
-            ) : null}
+          <div
+            className={
+              layout === "board"
+                ? "flex w-full flex-wrap items-center gap-2"
+                : "flex flex-wrap gap-2"
+            }
+          >
+            <LifecycleButtons
+              size={buttonSize}
+              className={buttonClass}
+              lifecycle={lifecycle}
+              showFreeze={showFreeze}
+              showUnfreeze={showUnfreeze}
+              showRenew={showRenew}
+              showCancel={showCancel}
+              freezeLabel={freezeLabel}
+              unfreezeLabel={unfreezeLabel}
+              renewLabel={renewLabel}
+              cancelLabel={cancelLabel}
+            />
           </div>
         ) : null}
         {lifecycle.message !== null ? (
@@ -295,54 +190,155 @@ export function UserPackageLifecycleActions({
           </p>
         ) : null}
       </div>
-      {ownsDialog ? <PackageLifecycleConfirmDialog lifecycle={lifecycle} /> : null}
+      {dialog}
     </>
   );
 }
 
-type PackageLifecycleConfirmDialogProps = {
+type LifecycleButtonsProps = {
+  size: "sm" | "md";
+  className: string;
   lifecycle: PackageLifecycleController;
+  showFreeze: boolean;
+  showUnfreeze: boolean;
+  showRenew: boolean;
+  showCancel: boolean;
+  freezeLabel: string;
+  unfreezeLabel: string;
+  renewLabel: string;
+  cancelLabel: string;
 };
+
+function LifecycleButtons({
+  size,
+  className,
+  lifecycle,
+  showFreeze,
+  showUnfreeze,
+  showRenew,
+  showCancel,
+  freezeLabel,
+  unfreezeLabel,
+  renewLabel,
+  cancelLabel,
+}: LifecycleButtonsProps) {
+  return (
+    <>
+      {showFreeze ? (
+        <OmmButton
+          size={size}
+          variant="secondary"
+          disabled={lifecycle.busy}
+          className={[className, PACKAGE_PAUSE_BUTTON_CLASS].filter(Boolean).join(" ")}
+          onClick={() => lifecycle.openConfirm("freeze")}
+        >
+          {freezeLabel}
+        </OmmButton>
+      ) : null}
+      {showUnfreeze ? (
+        <OmmButton
+          size={size}
+          variant="secondary"
+          disabled={lifecycle.busy}
+          className={className}
+          onClick={() => lifecycle.openConfirm("unfreeze")}
+        >
+          {unfreezeLabel}
+        </OmmButton>
+      ) : null}
+      {showRenew ? (
+        <OmmButton
+          size={size}
+          variant="primary"
+          disabled={lifecycle.busy}
+          className={className}
+          onClick={lifecycle.runRenew}
+        >
+          {renewLabel}
+        </OmmButton>
+      ) : null}
+      {showCancel ? (
+        <OmmButton
+          size={size}
+          variant="secondary"
+          disabled={lifecycle.busy}
+          className={[className, PACKAGE_CANCEL_BUTTON_CLASS].filter(Boolean).join(" ")}
+          onClick={() => lifecycle.openConfirm("cancel")}
+        >
+          {cancelLabel}
+        </OmmButton>
+      ) : null}
+    </>
+  );
+}
 
 export function PackageLifecycleConfirmDialog({
   lifecycle,
-}: PackageLifecycleConfirmDialogProps) {
-  const t = useTranslations("forms.packageLifecycle");
+}: {
+  lifecycle: PackageLifecycleController;
+}) {
+  return <PackageLifecycleDialogs lifecycle={lifecycle} />;
+}
 
+function PackageLifecycleDialogs({
+  lifecycle,
+}: {
+  lifecycle: PackageLifecycleController;
+}) {
+  const t = useTranslations("forms.packageLifecycle");
+  if (lifecycle.pendingConfirm === "freeze") {
+    return (
+      <UserPackageFreezeDialog
+        days={lifecycle.freezeDays}
+        maxDays={Math.max(1, lifecycle.freeze.maxDaysPerUse)}
+        remainingCount={lifecycle.freeze.remainingCount}
+        pending={lifecycle.busy}
+        onDaysChange={lifecycle.setFreezeDays}
+        onConfirm={lifecycle.confirmFreeze}
+        onCancel={lifecycle.closeConfirm}
+      />
+    );
+  }
   if (lifecycle.pendingConfirm === null) {
     return null;
   }
-
-  const confirmConfig =
-    lifecycle.pendingConfirm === "pause"
-      ? {
-          title: t("pauseConfirmTitle"),
-          description: t("pauseConfirmDescription"),
-          tone: "warm" as const,
-          confirmClassName: PACKAGE_PAUSE_BUTTON_CLASS,
-          onConfirm: lifecycle.confirmPause,
-        }
-      : {
-          title: t("cancelConfirmTitle"),
-          description: t("cancelConfirmDescription"),
-          tone: "danger" as const,
-          confirmClassName: PACKAGE_CANCEL_BUTTON_CLASS,
-          onConfirm: lifecycle.confirmCancel,
-        };
-
+  const config = resolveConfirmConfig(lifecycle.pendingConfirm, t, lifecycle);
   return (
     <OmmConfirmDialog
       isOpen
-      title={confirmConfig.title}
-      description={confirmConfig.description}
+      title={config.title}
+      description={config.description}
       confirmLabel={t("confirmYes")}
       cancelLabel={t("confirmNo")}
       backdropAriaLabel={t("modalBackdropClose")}
-      tone={confirmConfig.tone}
-      confirmClassName={confirmConfig.confirmClassName}
+      tone={config.tone}
+      confirmClassName={config.confirmClassName}
       pending={lifecycle.busy}
-      onConfirm={confirmConfig.onConfirm}
+      onConfirm={config.onConfirm}
       onCancel={lifecycle.closeConfirm}
     />
   );
+}
+
+function resolveConfirmConfig(
+  action: Exclude<ConfirmableAction, "freeze">,
+  t: (key: string) => string,
+  lifecycle: PackageLifecycleController,
+) {
+  if (action === "unfreeze") {
+    return {
+      title: t("unfreezeConfirmTitle"),
+      description: t("unfreezeConfirmDescription"),
+      tone: "warm" as const,
+      confirmClassName: PACKAGE_PAUSE_BUTTON_CLASS,
+      onConfirm: lifecycle.confirmUnfreeze,
+    };
+  }
+  return {
+    title: t("cancelConfirmTitle"),
+    description: t("cancelConfirmDescription"),
+    tone: "danger" as const,
+    confirmClassName: PACKAGE_CANCEL_BUTTON_CLASS,
+    onConfirm: lifecycle.confirmCancel,
+  };
 }

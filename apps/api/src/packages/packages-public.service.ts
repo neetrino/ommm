@@ -45,6 +45,8 @@ import {
   type PendingCardPackagePurchase,
 } from './packages-subscribe-card.util';
 import { createBalancesForUserPackage } from './packages-user-package-balances.util';
+import { toUserPackageFreezeApi } from './packages-freeze.mapper';
+import { resumeDueFreezes } from './packages-freeze.resume';
 import { resolveUserPackagePlan } from './user-package-plan-snapshot.util';
 import {
   buildVisibleUserPackagesWhere,
@@ -86,6 +88,7 @@ export class PackagesPublicService {
   }
 
   async listMine(userId: string) {
+    await resumeDueFreezes(this.prisma, { userId });
     const succeededPackageIds = await loadSucceededPackageSourceIds(
       this.prisma,
       userId,
@@ -114,6 +117,7 @@ export class PackagesPublicService {
         isUnlimited: resolvedPlan.isUnlimited,
         currentPeriodStart: row.currentPeriodStart.toISOString(),
         currentPeriodEnd: row.currentPeriodEnd.toISOString(),
+        freeze: toUserPackageFreezeApi(row, row.plan),
         plan: resolvedPlan,
       };
     });

@@ -32,6 +32,7 @@ export function PackagesPageAccordionTierTable({
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePrice")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableValidity")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
+        <span className={accordionStyles.columnHeaderPill}>{t("packagesTableFreeze")}</span>
         <span
           className={`${accordionStyles.columnHeaderPill} ${accordionStyles.columnHeaderSubscribe}`}
         >

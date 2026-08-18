@@ -8,6 +8,7 @@ import {
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import {
+  formatPackageFreezeLabel,
   formatPackageGuestCount,
   formatPackagePlanName,
   formatPackagePriceLabel,
@@ -31,7 +32,7 @@ type AdminClientPackagePlanDetailsModalProps = {
 };
 
 const DETAILS_GRID_CLASS =
-  "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,0.85fr)_minmax(0,0.7fr)_minmax(0,0.5fr)_minmax(0,0.5fr)_minmax(0,0.85fr)] items-center gap-x-2";
+  "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.3fr)_minmax(0,0.65fr)_minmax(0,0.8fr)_minmax(0,0.65fr)_minmax(0,0.45fr)_minmax(0,0.7fr)_minmax(0,0.45fr)_minmax(0,0.8fr)] items-center gap-x-2";
 
 function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
@@ -94,6 +95,9 @@ export function AdminClientPackagePlanDetailsModal({
     months: (count) => tPackages("validityMonths", { count }),
   });
   const guestCount = formatPackageGuestCount(plan);
+  const freezeLabel = formatPackageFreezeLabel(plan, {
+    timesDays: (times, days) => tPackages("freezeTimesDays", { times, days }),
+  });
   const stockCount = formatPackageStockCount(plan);
   const startDateLabel = formatPackageStartDateLabel(plan);
   const features = plan.features.filter((feature) => feature.trim().length > 0);
@@ -144,6 +148,7 @@ export function AdminClientPackagePlanDetailsModal({
               <div className="min-w-0 text-center leading-snug">{tPackages("tablePrice")}</div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tableValidity")}</div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tableGuests")}</div>
+              <div className="min-w-0 text-center leading-snug">{tPackages("tableFreeze")}</div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tableStockCount")}</div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tableStartDate")}</div>
             </div>
@@ -169,6 +174,13 @@ export function AdminClientPackagePlanDetailsModal({
                 <span className="break-words">{validityLabel}</span>
               </Cell>
               <Cell>{guestCount !== null ? guestCount : <EmptyCell />}</Cell>
+              <Cell>
+                {freezeLabel !== null ? (
+                  <span className="break-words">{freezeLabel}</span>
+                ) : (
+                  <EmptyCell />
+                )}
+              </Cell>
               <Cell>{stockCount !== null ? stockCount : <EmptyCell />}</Cell>
               <Cell>
                 {startDateLabel !== null ? (

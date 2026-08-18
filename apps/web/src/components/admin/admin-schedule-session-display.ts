@@ -21,10 +21,11 @@ type SessionTimeRef = {
 };
 
 export function coachName(coach: ScheduleCoachRef): string {
-  if ("lastName" in coach.user) {
-    return [coach.user.name, coach.user.lastName].filter(Boolean).join(" ") || coach.user.email || "—";
-  }
-  return coach.user.name ?? coach.user.email ?? "—";
+  return (
+    [coach.user.name, coach.user.lastName].filter(Boolean).join(" ") ||
+    coach.user.email ||
+    "—"
+  );
 }
 
 export function durationMinutes(row: SessionTimeRef): number {

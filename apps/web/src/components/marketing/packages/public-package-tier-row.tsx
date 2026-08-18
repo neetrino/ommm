@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
+  formatPackageFreezeLabel,
   formatPackagePriceLabel,
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
@@ -105,6 +106,9 @@ function TierRowBody({
         months: (count) => t("packagesValidityMonths", { count }),
       })
     : null;
+  const freezeLabel = formatPackageFreezeLabel(plan, {
+    timesDays: (times, days) => t("packagesFreezeTimesDays", { times, days }),
+  });
 
   return (
     <>
@@ -138,6 +142,13 @@ function TierRowBody({
             value={daysLimitValue}
             withDivider={false}
             labelPrefix={<CalendarIcon />}
+          />
+        ) : null}
+        {freezeLabel !== null ? (
+          <TierMetaBlock
+            label={t("packagesTableFreeze")}
+            value={freezeLabel}
+            withDivider={daysLimitValue !== null}
           />
         ) : null}
       </div>

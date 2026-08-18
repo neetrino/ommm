@@ -26,6 +26,8 @@ function makePackage(
     planPeriodDaysSnapshot: 30,
     planIsUnlimitedSnapshot: false,
     planSessionsPerMonthSnapshot: 8,
+    freezeAllowedCountSnapshot: 0,
+    freezeMaxDaysPerUseSnapshot: 0,
     ...overrides,
   };
 }

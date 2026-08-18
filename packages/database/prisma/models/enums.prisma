@@ -110,6 +110,17 @@ enum UserPackageStatus {
   PENDING
 }
 
+enum UserPackageFreezeInitiator {
+  USER
+  ADMIN
+  SYSTEM
+}
+
+enum UserPackageFreezeStatus {
+  ACTIVE
+  COMPLETED
+}
+
 enum CallTaskStatus {
   PENDING
   DONE

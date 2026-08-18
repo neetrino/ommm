@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { resumeDueFreezes } from './packages-freeze.resume';
 
 @Injectable()
 export class PackageUsageMaintenanceService {
@@ -9,6 +10,7 @@ export class PackageUsageMaintenanceService {
 
   async syncExpiredMemberships(userId?: string): Promise<void> {
     const now = new Date();
+    await resumeDueFreezes(this.prisma, { userId, now });
     await this.prisma.userPackage.updateMany({
       where: {
         ...(userId ? { userId } : {}),

@@ -17,7 +17,7 @@ export function SessionClassTitle({
 }: SessionClassTitleProps) {
   if (variant === "week") {
     return (
-      <div className={`flex min-h-[3.5rem] min-w-0 flex-col justify-start ${className}`.trim()}>
+      <div className={`flex h-16 min-w-0 shrink-0 flex-col justify-start ${className}`.trim()}>
         <p className="h-4 truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-sand-600">
           {eyebrow ?? "\u00A0"}
         </p>

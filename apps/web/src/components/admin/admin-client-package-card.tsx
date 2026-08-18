@@ -11,6 +11,7 @@ import {
 } from "@/components/account/user-membership-display";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
+import { AdminClientPackageFreezeControls } from "@/components/admin/admin-client-package-freeze-controls";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -139,6 +140,13 @@ export function AdminClientPackageCard({
       </div>
 
       <div className="mt-5 space-y-3">
+        <AdminClientPackageFreezeControls
+          item={item}
+          onSuccess={(message) => {
+            setSuccessToast(message);
+            onValidityUpdated?.();
+          }}
+        />
         {!editing ? (
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">

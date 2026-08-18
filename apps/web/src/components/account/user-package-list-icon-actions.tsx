@@ -12,7 +12,8 @@ import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 
 type UserPackageListIconActionsProps = {
   lifecycle: PackageLifecycleController;
-  showPause: boolean;
+  showFreeze: boolean;
+  showUnfreeze: boolean;
   showRenew: boolean;
   showCancel: boolean;
   className?: string;
@@ -21,14 +22,16 @@ type UserPackageListIconActionsProps = {
 
 export function UserPackageListIconActions({
   lifecycle,
-  showPause,
+  showFreeze,
+  showUnfreeze,
   showRenew,
   showCancel,
   className = "",
   onAction,
 }: UserPackageListIconActionsProps) {
   const t = useTranslations("forms.packageLifecycle");
-  const pauseLabel = t("pause");
+  const freezeLabel = t("freeze");
+  const unfreezeLabel = t("unfreeze");
   const renewLabel = t("renew");
   const cancelLabel = t("cancelAction");
 
@@ -38,17 +41,30 @@ export function UserPackageListIconActions({
       role="group"
       aria-label={t("actionsGroupAria")}
     >
-      {showPause ? (
+      {showFreeze ? (
         <AdminRowIconButton
-          ariaLabel={pauseLabel}
-          title={pauseLabel}
+          ariaLabel={freezeLabel}
+          title={freezeLabel}
           disabled={lifecycle.busy}
           onClick={() => {
             onAction?.();
-            lifecycle.openConfirm("pause");
+            lifecycle.openConfirm("freeze");
           }}
         >
           <ToggleOffGlyph className={ADMIN_ACTION_ICON_CLASS} />
+        </AdminRowIconButton>
+      ) : null}
+      {showUnfreeze ? (
+        <AdminRowIconButton
+          ariaLabel={unfreezeLabel}
+          title={unfreezeLabel}
+          disabled={lifecycle.busy}
+          onClick={() => {
+            onAction?.();
+            lifecycle.openConfirm("unfreeze");
+          }}
+        >
+          <ToggleOnGlyph className={ADMIN_ACTION_ICON_CLASS} />
         </AdminRowIconButton>
       ) : null}
       {showRenew ? (

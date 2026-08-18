@@ -1,3 +1,7 @@
+import type { UserPackageFreezeState } from "@/lib/user-package-freeze";
+
+export type { UserPackageFreezeState };
+
 export type UserPackageStatus =
   | "ACTIVE"
   | "PAUSED"
@@ -25,6 +29,7 @@ export type UserMembershipRow = {
   isUnlimited: boolean;
   currentPeriodStart: string;
   currentPeriodEnd: string;
+  freeze?: UserPackageFreezeState;
   plan: UserPackagePlanSummary;
 };
 

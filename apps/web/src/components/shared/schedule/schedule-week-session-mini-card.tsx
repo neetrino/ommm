@@ -30,10 +30,11 @@ type ScheduleWeekSessionMiniCardProps = {
   ariaLabel?: string;
 };
 
-const WEEK_CARD_HEIGHT_CLASS = "h-[15.5rem]";
+const WEEK_CARD_HEIGHT_CLASS = "h-[16.5rem]";
+const WEEK_CARD_COACH_SLOT_CLASS = "min-h-[2.5rem]";
 
 const WEEK_CARD_SHELL = [
-  "flex w-full flex-col overflow-hidden text-left",
+  "flex w-full shrink-0 flex-col overflow-hidden text-left",
   WEEK_CARD_HEIGHT_CLASS,
   USER_LIST_ROW_CARD,
   "rounded-[28px] p-4 sm:p-5",
@@ -90,7 +91,7 @@ function ScheduleWeekSessionMiniCardContent({
 
   return (
     <>
-      <div className="min-h-0 shrink-0">
+      <div className="shrink-0">
         <SessionClassTitle variant="week" name={session.title} eyebrow={eyebrow} />
       </div>
 
@@ -103,12 +104,14 @@ function ScheduleWeekSessionMiniCardContent({
         />
       </div>
 
-      <div className="mt-auto flex min-h-[2.75rem] flex-col justify-end gap-1.5 pt-3">
-        {coachLabel ? (
-          <SessionCoachLine coachName={coachLabel} variant="board" />
-        ) : (
-          <span className="h-5" aria-hidden />
-        )}
+      <div className="mt-auto flex shrink-0 flex-col justify-end gap-1.5 pt-3">
+        <div className={WEEK_CARD_COACH_SLOT_CLASS}>
+          {coachLabel ? (
+            <SessionCoachLine coachName={coachLabel} variant="board" />
+          ) : (
+            <span className="h-5" aria-hidden />
+          )}
+        </div>
         {spotsLine ? (
           <p className="text-left text-xs font-medium text-sage-700">{spotsLine}</p>
         ) : (

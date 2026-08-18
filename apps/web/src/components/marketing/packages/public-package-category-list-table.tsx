@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
+  formatPackageFreezeLabel,
   formatPackagePlanName,
   formatPackagePriceLabel,
 } from "@/components/admin/admin-packages-display";
@@ -128,6 +129,7 @@ export function PublicPackageCategoryListTable({
           {showGuestsColumn ? (
             <div className={styles.headCell}>{t("packagesTableGuests")}</div>
           ) : null}
+          <div className={styles.headCell}>{t("packagesTableFreeze")}</div>
           <div className={styles.headCell}>{t("packagesTableAction")}</div>
         </div>
 
@@ -141,6 +143,9 @@ export function PublicPackageCategoryListTable({
           });
           const showTierName = shouldShowPublicPackageTierName(plan.name, categoryLabel);
           const guestValue = formatGuestCellValue(plan.guestCount);
+          const freezeLabel = formatPackageFreezeLabel(plan, {
+            timesDays: (times, days) => t("packagesFreezeTimesDays", { times, days }),
+          });
           const hasDiscount =
             typeof plan.discountedPriceCents === "number" &&
             plan.discountedPriceCents > 0 &&
@@ -223,6 +228,9 @@ export function PublicPackageCategoryListTable({
                   {guestValue !== null ? guestValue : <EmptyCell />}
                 </div>
               ) : null}
+              <div className={styles.cell}>
+                {freezeLabel !== null ? freezeLabel : <EmptyCell />}
+              </div>
               <div className={styles.cell}>
                 {audience === "member" ? (
                   <button

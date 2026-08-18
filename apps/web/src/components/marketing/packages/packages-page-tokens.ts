@@ -71,7 +71,7 @@ export const PACKAGES_PAGE_CARD_FIGMA = {
 export const PACKAGES_PAGE_ACCORDION_FIGMA = {
   collapsedWidthPx: 120,
   accordionGapPx: 28,
-  expandedMinTableWidthPx: 760,
+  expandedMinTableWidthPx: 860,
   expandedTitleSizePx: 32,
   collapsedTitleSizePx: 22,
   collapsedPriceSizePx: 20,
@@ -108,8 +108,8 @@ export const PACKAGES_PAGE_MOBILE_FIGMA = {
   tierMetaValueSizePx: 16,
   subscribeButtonHeightPx: 48,
   subscribeFontSizePx: 18,
-  /** Five meta rows + gaps — tier cards align when some plans have discounts. */
-  tierMetaBlockMinHeightPx: 140,
+  /** Six meta rows + gaps — tier cards align when some plans have discounts. */
+  tierMetaBlockMinHeightPx: 168,
 } as const;
 
 /** Desktop accordion row height — fits {@link PACKAGES_PAGE_VISIBLE_TIER_COUNT} tier rows before scroll. */
@@ -151,11 +151,11 @@ export function resolvePackagesPageExpandedScrollHeightPx(): number {
 
 /** Desktop expanded tier table — wider plan column for long mixed package names. */
 export const PACKAGES_PAGE_TIER_TABLE_COLUMNS =
-  "minmax(11rem, 2.5fr) minmax(3.25rem, 0.85fr) minmax(4.75rem, 1.05fr) minmax(4rem, 0.9fr) minmax(2.5rem, 0.5fr) minmax(5.75rem, 1.1fr)";
+  "minmax(10rem, 2.2fr) minmax(3.25rem, 0.8fr) minmax(4.5rem, 1fr) minmax(3.75rem, 0.85fr) minmax(2.5rem, 0.45fr) minmax(4.25rem, 0.85fr) minmax(5.5rem, 1.05fr)";
 
 /** Armenian — leaner plan col so longer hy labels fit in the other pills. */
 export const PACKAGES_PAGE_TIER_TABLE_COLUMNS_HY =
-  "minmax(7.5rem, 1.45fr) minmax(4rem, 1fr) minmax(4.75rem, 1.05fr) minmax(5rem, 1.1fr) minmax(2.5rem, 0.55fr) minmax(7rem, 1.35fr)";
+  "minmax(6.75rem, 1.3fr) minmax(3.5rem, 0.9fr) minmax(4.25rem, 1fr) minmax(4.5rem, 1fr) minmax(2.25rem, 0.5fr) minmax(4.5rem, 0.95fr) minmax(6.5rem, 1.25fr)";
 
 export function resolvePackagesPageTierTableColumns(locale: string): string {
   return locale === "hy"
