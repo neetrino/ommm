@@ -1,244 +1,156 @@
 "use client";
 
-import Image from "next/image";
-import type { CSSProperties } from "react";
+import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
-import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
-import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
-import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import {
-  coachCardDisplayName,
-  coachCardInitials,
-} from "@/components/coaches/coach-card-display";
-import { COACHES_PAGE_CARD } from "@/components/marketing/coaches/coaches-page-tokens";
-import coachCardStyles from "@/components/marketing/coaches/coaches-page-coach-card.module.css";
-import { OmmButton } from "@/components/ui/omm-button";
-import { firstRowGridImageProps } from "@/lib/image-loading-props";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+  ADMIN_COACH_CLASS_BADGE_BOARD_CLASS,
+  COACH_BOARD_AVATAR_CLASS,
+  CoachClassBadges,
+  CoachDirectoryAvatar,
+  classNamesForCoach,
+  coachDirectoryDisplayName,
+} from "@/components/admin/admin-coach-directory-display";
+import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
+import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
+import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
+import { ADMIN_LIST_ROW_SURFACE } from "@/components/admin/admin-list-table-layout";
+import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import { USER_LIST_ROW_INTERACTIVE } from "@/components/account/user-list-table-layout";
 import { displayPhoneOrFallback } from "@/lib/phone";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+
+const BOARD_CARD_CLASS = [
+  ADMIN_LIST_ROW_SURFACE,
+  USER_LIST_ROW_INTERACTIVE,
+  "flex h-full w-full min-w-0 flex-col p-5 text-left",
+].join(" ");
+
+const BOARD_CARD_STACK_CLASS = "flex min-h-0 flex-1 flex-col gap-4";
+const BOARD_CARD_DIVIDER_SECTION_CLASS = "flex flex-col gap-4 border-t border-sage-100 pt-4";
+const BOARD_ICON_WELL_CLASS =
+  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sand-100 text-sage-700";
+const BOARD_META_TEXT_CLASS = "min-w-0 text-sm font-medium text-sage-800";
 
 type AdminCoachBoardCardProps = {
   coach: AdminCoachDirectoryRow;
-  imageIndex: number;
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   locale?: string;
+  readOnly?: boolean;
   onSelect: (coach: AdminCoachDirectoryRow) => void;
 };
 
-function StatusBadge({ isActive }: { isActive: boolean }) {
-  const t = useTranslations("adminPages.coaches");
-  const className = isActive
-    ? "border-mint-200 bg-mint-50 text-sage-900"
-    : "border-zinc-200 bg-zinc-50 text-zinc-700";
+type BoardMetaRowProps = {
+  icon: "userCheck" | "calendar";
+  children: string;
+};
 
+function activateCard(
+  event: KeyboardEvent<HTMLElement>,
+  onActivate: () => void,
+): void {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    onActivate();
+  }
+}
+
+function BoardMetaRow({ icon, children }: BoardMetaRowProps) {
   return (
-    <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${className}`}>
-      {isActive ? t("filters.statusActive") : t("filters.statusInactive")}
-    </span>
-  );
-}
-
-function cardInsetPercent(valuePx: number, basePx: number): string {
-  return `${(valuePx / basePx) * 100}%`;
-}
-
-function buildCardStyle(): CSSProperties {
-  const card = COACHES_PAGE_CARD;
-  const nameFontSize = `clamp(${card.nameFontSizeMinRem}rem, ${card.nameFontSizePreferredVw}vw, ${card.nameFontSizeMaxRem}rem)`;
-  return {
-    "--coaches-page-card-surface": card.surface,
-    "--coaches-page-card-photo-expand-scale": String(card.photoExpandScale),
-    "--coaches-page-card-radius": `${card.radiusPx}px`,
-    "--coaches-page-card-name-color": card.nameColor,
-    "--coaches-page-card-role-color": card.roleColor,
-    "--coaches-page-card-bottom-bar-radius": `${card.bottomBarRadiusPx}px`,
-    "--coaches-page-card-bottom-bar-height": `${card.bottomBarHeightPx}px`,
-    "--coaches-page-card-expand-panel-height": `${card.expandPanelMinHeightPx}px`,
-    "--coaches-page-card-expand-panel-padding": `${card.expandPanelPaddingPx}px`,
-    "--coaches-page-card-expand-trigger-inset": `${card.expandTriggerInsetPx}px`,
-    "--coaches-page-card-expand-arrow-size": `${card.expandArrowSizePx}px`,
-    "--coaches-page-card-glass-blur": `${card.expandPanelGlassBlurPx}px`,
-    "--coaches-page-card-glass-blur-expanded": `${card.expandPanelGlassBlurExpandedPx}px`,
-    "--coaches-page-card-bottom-bar-fill": card.bottomBarFill,
-    "--coaches-page-card-expand-glass-fill-expanded": card.expandPanelGlassFillExpanded,
-    "--coaches-page-card-expand-glass-border": card.expandPanelGlassBorder,
-    "--coaches-page-card-expand-bio-color": card.expandBioColor,
-    "--coaches-page-card-name-top": cardInsetPercent(card.nameInsetTopPx, card.designHeightPx),
-    "--coaches-page-card-name-left": cardInsetPercent(card.nameInsetLeftPx, card.designWidthPx),
-    "--coaches-page-card-photo-top": cardInsetPercent(card.photoInsetTopPx, card.designHeightPx),
-    "--coaches-page-card-photo-left": cardInsetPercent(card.photoInsetLeftPx, card.designWidthPx),
-    "--coaches-page-card-name-font-size": nameFontSize,
-    "--coaches-page-card-name-max-lines": String(card.nameMaxLines),
-  } as CSSProperties;
-}
-
-function AdminCoachPortrait({
-  coach,
-  imageIndex,
-}: {
-  coach: AdminCoachDirectoryRow;
-  imageIndex: number;
-}) {
-  const remoteSrc =
-    coach.user.avatarUrl !== null && coach.user.avatarUrl.trim() !== ""
-      ? resolveApiAssetUrl(coach.user.avatarUrl) ?? coach.user.avatarUrl
-      : null;
-
-  return (
-    <div className={coachCardStyles.photoWrap} aria-hidden>
-      <div className={coachCardStyles.photoInner}>
-        <div className={coachCardStyles.photoFrame}>
-          <div className={coachCardStyles.photoCrop}>
-            <div className="relative h-full w-full">
-              {remoteSrc !== null ? (
-                <Image
-                  src={remoteSrc}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 32vw, (min-width: 768px) 44vw, 88vw"
-                  className="object-cover object-[42%_18%]"
-                  unoptimized
-                  {...firstRowGridImageProps(imageIndex)}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-sand-100">
-                  <span className="text-4xl font-semibold tracking-wide text-sage-500">
-                    {coachCardInitials(coach.user)}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="flex items-center gap-3">
+      <span className={BOARD_ICON_WELL_CLASS} aria-hidden>
+        <DashboardNavIcon name={icon} className="h-4 w-4" />
+      </span>
+      <p className={BOARD_META_TEXT_CLASS}>{children}</p>
     </div>
   );
 }
 
-function AdminCoachCardSummary({ coach }: { coach: AdminCoachDirectoryRow }) {
-  const t = useTranslations("adminPages.coaches");
-
-  return (
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0">
-        <p className={coachCardStyles.experience}>
-          {t("workloadSummary", {
-            classes: coach.totalClasses,
-            slots: coach.schedule.length,
-          })}
-        </p>
-        <p className="mt-1 truncate text-xs font-medium text-sage-600">
-          {displayPhoneOrFallback(coach.user.phone)}
-        </p>
-      </div>
-      <StatusBadge isActive={coach.isActive} />
-    </div>
-  );
-}
-
-function AdminCoachCardMetrics({ coach }: { coach: AdminCoachDirectoryRow }) {
-  const t = useTranslations("adminPages.coaches");
-
-  return (
-    <div className="grid grid-cols-2 gap-2 text-xs text-sage-700">
-      <MetricTile
-        label={t("drawer.assignedClasses")}
-        value={coach.assignedClassTypeIds.length}
-      />
-      <MetricTile label={t("drawer.availabilitySlots")} value={coach.schedule.length} />
-    </div>
-  );
-}
-
-function MetricTile({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/55 px-3 py-2 backdrop-blur-sm">
-      <span className="block uppercase tracking-[0.12em] text-sage-500">{label}</span>
-      <span className="font-semibold text-sage-900">{value}</span>
-    </div>
-  );
-}
-
-function AdminCoachCardFooter({
+function BoardCardHeader({
   coach,
   classTypeOptions,
   classOptions,
   locale,
-  onSelect,
-}: AdminCoachBoardCardProps) {
-  const t = useTranslations("adminPages.coaches");
+  readOnly,
+}: Omit<AdminCoachBoardCardProps, "onSelect">) {
+  const displayName = coachDirectoryDisplayName(coach);
 
   return (
-    <div className="mt-auto flex flex-col gap-3 border-t border-white/50 pt-3">
-      <OmmButton
-        type="button"
-        variant="secondary"
-        size="sm"
-        className="h-9 rounded-full"
-        onClick={() => onSelect(coach)}
-      >
-        {t("viewCoach")}
-      </OmmButton>
-      <div className="flex justify-center">
-        <AdminCoachRowActions
-          coach={coach}
-          classTypeOptions={classTypeOptions}
-          classOptions={classOptions}
-          locale={locale}
-        />
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <CoachDirectoryAvatar coach={coach} sizeClassName={COACH_BOARD_AVATAR_CLASS} />
+        <div className="min-w-0">
+          <p className="truncate text-base font-semibold text-sage-900" title={displayName}>
+            {displayName}
+          </p>
+          <p className="mt-0.5 truncate text-xs text-sage-500">
+            {displayPhoneOrFallback(coach.user.phone)}
+          </p>
+        </div>
       </div>
+      {readOnly ? null : (
+        <div
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminCoachRowActions
+            coach={coach}
+            classTypeOptions={classTypeOptions}
+            classOptions={classOptions}
+            locale={locale}
+            variant="board"
+          />
+        </div>
+      )}
     </div>
   );
 }
 
 export function AdminCoachBoardCard({
   coach,
-  imageIndex,
   classTypeOptions,
   classOptions,
   locale,
+  readOnly = false,
   onSelect,
 }: AdminCoachBoardCardProps) {
   const t = useTranslations("adminPages.coaches");
-  const displayName = coachCardDisplayName(coach.user);
-  const roleLine = coach.specialization?.trim() || t("fieldSpecialization");
-  const bioText = coach.bio?.trim() || "—";
+  const displayName = coachDirectoryDisplayName(coach);
+  const classLabels = classNamesForCoach(coach.assignedClassTypeIds, classOptions);
+  const specialization = coach.specialization?.trim() || "—";
 
   return (
     <article
-      className={`${marketingMontserrat.variable} ${coachCardStyles.card} ${coachCardStyles.cardExpanded} shadow-[0_22px_48px_-30px_rgba(45,55,60,0.35)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_28px_60px_-32px_rgba(45,55,60,0.42)]`}
-      style={buildCardStyle()}
+      role="button"
+      tabIndex={0}
+      aria-label={displayName}
+      onClick={() => onSelect(coach)}
+      onKeyDown={(event) => activateCard(event, () => onSelect(coach))}
+      className={BOARD_CARD_CLASS}
     >
-      <div className={coachCardStyles.cardAspect}>
-        <div className={coachCardStyles.cardStage}>
-          <div className={coachCardStyles.cardSurface} aria-hidden />
-          <AdminCoachPortrait coach={coach} imageIndex={imageIndex} />
-          <div className={coachCardStyles.header}>
-            <p className={coachCardStyles.name}>{displayName}</p>
-            <p className={coachCardStyles.role}>{roleLine}</p>
+      <div className={BOARD_CARD_STACK_CLASS}>
+        <BoardCardHeader
+          coach={coach}
+          classTypeOptions={classTypeOptions}
+          classOptions={classOptions}
+          locale={locale}
+          readOnly={readOnly}
+        />
+        <BoardMetaRow icon="userCheck">{specialization}</BoardMetaRow>
+        <div className={`${BOARD_CARD_DIVIDER_SECTION_CLASS} flex-1`}>
+          <div className="flex flex-wrap content-start items-center gap-2">
+            <CoachClassBadges
+              labels={classLabels}
+              badgeClassName={ADMIN_COACH_CLASS_BADGE_BOARD_CLASS}
+            />
           </div>
-
-          <div className={`${coachCardStyles.expandPanel} ${coachCardStyles.expandPanelExpanded}`}>
-            <span aria-hidden className={coachCardStyles.expandPanelBackdrop} />
-            <span aria-hidden className={coachCardStyles.expandPanelGlassRadial} />
-            <span aria-hidden className={coachCardStyles.expandPanelGlassLinear} />
-            <span aria-hidden className={coachCardStyles.expandPanelGlassBorder} />
-            <div className={`${coachCardStyles.expandPanelBody} min-h-0`}>
-              <AdminCoachCardSummary coach={coach} />
-              <p className={`${coachCardStyles.bio} line-clamp-2`}>{bioText}</p>
-              <AdminCoachCardMetrics coach={coach} />
-              <AdminCoachCardFooter
-                coach={coach}
-                imageIndex={imageIndex}
-                classTypeOptions={classTypeOptions}
-                classOptions={classOptions}
-                locale={locale}
-                onSelect={onSelect}
-              />
-            </div>
-          </div>
+        </div>
+        <div className={BOARD_CARD_DIVIDER_SECTION_CLASS}>
+          <BoardMetaRow icon="calendar">
+            {t("workloadSummary", {
+              classes: coach.totalClasses,
+              slots: coach.schedule.length,
+            })}
+          </BoardMetaRow>
         </div>
       </div>
     </article>

@@ -92,18 +92,19 @@ function AdminCoachesBoardView({
   classTypeOptions,
   classOptions,
   locale = "en",
+  readOnly = false,
   onSelect,
 }: AdminCoachesViewProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
   return (
-    <ul className="grid grid-cols-1 items-start gap-6 overflow-x-clip sm:grid-cols-2 2xl:grid-cols-3">
-      {coaches.map((coach, index) => (
+    <ul className="grid grid-cols-1 items-stretch gap-6 overflow-x-clip sm:grid-cols-2 lg:grid-cols-3">
+      {coaches.map((coach) => (
         <li key={coach.id} className="flex min-w-0 list-none">
           <AdminCoachBoardCard
             coach={coach}
             classTypeOptions={classTypeOptions}
             classOptions={classOptions}
             locale={locale}
-            imageIndex={index}
+            readOnly={readOnly}
             onSelect={onSelect}
           />
         </li>
