@@ -265,25 +265,6 @@ export function AdminPackageTierCompactFields({
           />
         </TierIconField>
 
-        <TierIconField tone="duration" label={t("fieldFreezeAllowedCount")}>
-          <input
-            name="freezeAllowedCount"
-            type="number"
-            className={INLINE_NUMBER_INPUT_CLASS}
-            min={MIN_PACKAGE_FREEZE_COUNT}
-            max={MAX_PACKAGE_FREEZE_COUNT}
-            step={1}
-            inputMode="numeric"
-            value={values.freezeAllowedCount}
-            onChange={(event) =>
-              onValuesChange({ freezeAllowedCount: event.target.value })
-            }
-            onKeyDown={preventNumberArrowStep}
-            placeholder={t("fieldFreezeAllowedCountPlaceholder")}
-            disabled={pending}
-          />
-        </TierIconField>
-
         <TierIconField tone="duration" label={t("fieldFreezeMaxDays")}>
           <input
             name="freezeMaxDaysPerUse"
@@ -299,6 +280,25 @@ export function AdminPackageTierCompactFields({
             }
             onKeyDown={preventNumberArrowStep}
             placeholder={t("fieldFreezeMaxDaysPlaceholder")}
+            disabled={pending}
+          />
+        </TierIconField>
+
+        <TierIconField tone="duration" label={t("fieldFreezeAllowedCount")}>
+          <input
+            name="freezeAllowedCount"
+            type="number"
+            className={INLINE_NUMBER_INPUT_CLASS}
+            min={MIN_PACKAGE_FREEZE_COUNT}
+            max={MAX_PACKAGE_FREEZE_COUNT}
+            step={1}
+            inputMode="numeric"
+            value={values.freezeAllowedCount}
+            onChange={(event) =>
+              onValuesChange({ freezeAllowedCount: event.target.value })
+            }
+            onKeyDown={preventNumberArrowStep}
+            placeholder={t("fieldFreezeAllowedCountPlaceholder")}
             disabled={pending}
           />
         </TierIconField>
