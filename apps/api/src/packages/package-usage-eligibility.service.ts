@@ -8,6 +8,7 @@ import {
   type SessionShape,
   type UserPackageWithPlanAndBalances,
 } from './package-usage.helpers';
+import { resumeDueFreezes } from './packages-freeze.resume';
 
 const USER_PACKAGE_BALANCE_SELECT = {
   id: true,
@@ -130,11 +131,12 @@ export class PackageUsageEligibilityService {
     return bookable[0];
   }
 
-  private findActiveMembershipsForSession(
+  private async findActiveMembershipsForSession(
     client: PrismaService | Prisma.TransactionClient,
     userId: string,
     sessionStartsAt: Date,
   ): Promise<UserPackageWithPlanAndBalances[]> {
+    await resumeDueFreezes(client, { userId });
     return (
       client as unknown as {
         userPackage: {

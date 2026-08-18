@@ -51,7 +51,7 @@ export function MembershipDetailsSheetContent({
   const t = useTranslations("userPages.packages");
   const m = useTranslations("marketing");
   const display = buildMembershipDisplayModel(membership, status, t, m);
-  const lifecycle = useUserPackageLifecycle(membership.id, status);
+  const lifecycle = useUserPackageLifecycle(membership.id, status, membership.freeze);
   const showLifecycleActions = hasPackageLifecycleActions(status);
 
   return (
@@ -66,6 +66,7 @@ export function MembershipDetailsSheetContent({
               <UserPackageLifecycleActions
                 userPackageId={membership.id}
                 status={status}
+                freeze={membership.freeze}
                 layout="sheetHeader"
                 lifecycle={lifecycle}
               />
@@ -100,6 +101,16 @@ export function MembershipDetailsSheetContent({
             label={t("membershipDetailsValidity")}
             value={display.validityLabel}
           />
+          {membership.freeze !== undefined && membership.freeze.allowedCount > 0 ? (
+            <DetailRow
+              label={t("membershipDetailsFreeze")}
+              value={t("membershipFreezeRemaining", {
+                remaining: membership.freeze.remainingCount,
+                allowed: membership.freeze.allowedCount,
+                days: membership.freeze.maxDaysPerUse,
+              })}
+            />
+          ) : null}
           <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsSummary} />
           {display.sessionsRemainingSummary !== null ? (
             <DetailRow
@@ -139,7 +150,8 @@ export function MembershipDetailsSheetContent({
             userPackageId={membership.id}
             status={status}
             layout="sheetFooter"
-            hiddenActions={["pause", "cancel"]}
+            freeze={membership.freeze}
+            hiddenActions={["freeze", "unfreeze", "cancel"]}
             lifecycle={lifecycle}
           />
           <PackageLifecycleConfirmDialog lifecycle={lifecycle} />

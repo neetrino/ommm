@@ -35,6 +35,8 @@ export function toPublicPlan(
     isActive: plan.isActive,
     features: plan.features,
     guestCount: plan.guestCount,
+    freezeAllowedCount: plan.freezeAllowedCount,
+    freezeMaxDaysPerUse: plan.freezeMaxDaysPerUse,
     availableQuantity: plan.availableQuantity,
     displayOrder: plan.displayOrder,
     classTypeId: plan.classTypeId ?? null,
@@ -70,6 +72,8 @@ export function toAdminPlanRow(plan: AdminPlanRecord) {
     sessionsPerMonth: plan.sessionsPerMonth,
     isUnlimited: plan.isUnlimited,
     guestCount: plan.guestCount,
+    freezeAllowedCount: plan.freezeAllowedCount,
+    freezeMaxDaysPerUse: plan.freezeMaxDaysPerUse,
     availableQuantity: plan.availableQuantity,
     typeSessionAllocations: parseStoredTypeSessionAllocations(
       plan.typeSessionAllocations,

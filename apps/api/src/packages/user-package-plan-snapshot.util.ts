@@ -6,6 +6,8 @@ export type UserPackagePlanSnapshotInput = {
   periodDays: number;
   isUnlimited: boolean;
   sessionsPerMonth: number | null;
+  freezeAllowedCount?: number;
+  freezeMaxDaysPerUse?: number;
 };
 
 export type UserPackagePlanSnapshotFields = {
@@ -16,6 +18,8 @@ export type UserPackagePlanSnapshotFields = {
   planPeriodDaysSnapshot: number;
   planIsUnlimitedSnapshot: boolean;
   planSessionsPerMonthSnapshot: number | null;
+  freezeAllowedCountSnapshot: number;
+  freezeMaxDaysPerUseSnapshot: number;
 };
 
 export type ResolvedUserPackagePlan = {
@@ -39,6 +43,8 @@ export function buildUserPackagePlanSnapshot(
     planPeriodDaysSnapshot: plan.periodDays,
     planIsUnlimitedSnapshot: plan.isUnlimited,
     planSessionsPerMonthSnapshot: plan.sessionsPerMonth,
+    freezeAllowedCountSnapshot: plan.freezeAllowedCount ?? 0,
+    freezeMaxDaysPerUseSnapshot: plan.freezeMaxDaysPerUse ?? 0,
   };
 }
 

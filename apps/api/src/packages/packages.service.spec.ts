@@ -74,6 +74,8 @@ function createPackagesService() {
     publicService,
     adminService,
     adminClientPurchase as never,
+    { updateValidity: jest.fn() } as never,
+    { resumeDueFreezes: jest.fn() } as never,
   );
 
   return {

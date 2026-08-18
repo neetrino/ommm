@@ -6,8 +6,12 @@ import {
   MAX_NAME_LENGTH,
   MAX_PACKAGE_DURATION_DAYS,
   MAX_PACKAGE_GUEST_COUNT,
+  MAX_PACKAGE_FREEZE_COUNT,
+  MAX_PACKAGE_FREEZE_DAYS,
   MIN_PACKAGE_DURATION_DAYS,
   MIN_PACKAGE_GUEST_COUNT,
+  MIN_PACKAGE_FREEZE_COUNT,
+  MIN_PACKAGE_FREEZE_DAYS,
   MIN_PACKAGE_SESSIONS,
   MAX_PACKAGE_SESSIONS,
   OMMM_INPUT_NUMBER_CLASS,
@@ -159,6 +163,50 @@ export function AdminPackageFormPricingSection({
               disabled={pending}
             />
             <span className="text-xs text-sage-500">{t("fieldGuestCountHint")}</span>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("fieldFreezeAllowedCount")}
+            </span>
+            <input
+              name="freezeAllowedCount"
+              type="number"
+              className={OMMM_INPUT_NUMBER_CLASS}
+              min={MIN_PACKAGE_FREEZE_COUNT}
+              max={MAX_PACKAGE_FREEZE_COUNT}
+              step={1}
+              inputMode="numeric"
+              value={values.freezeAllowedCount}
+              onChange={(event) =>
+                onValuesChange({ freezeAllowedCount: event.target.value })
+              }
+              onKeyDown={preventNumberArrowStep}
+              placeholder={t("fieldFreezeAllowedCountPlaceholder")}
+              disabled={pending}
+            />
+            <span className="text-xs text-sage-500">{t("fieldFreezeAllowedCountHint")}</span>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("fieldFreezeMaxDays")}
+            </span>
+            <input
+              name="freezeMaxDaysPerUse"
+              type="number"
+              className={OMMM_INPUT_NUMBER_CLASS}
+              min={MIN_PACKAGE_FREEZE_DAYS}
+              max={MAX_PACKAGE_FREEZE_DAYS}
+              step={1}
+              inputMode="numeric"
+              value={values.freezeMaxDaysPerUse}
+              onChange={(event) =>
+                onValuesChange({ freezeMaxDaysPerUse: event.target.value })
+              }
+              onKeyDown={preventNumberArrowStep}
+              placeholder={t("fieldFreezeMaxDaysPlaceholder")}
+              disabled={pending}
+            />
+            <span className="text-xs text-sage-500">{t("fieldFreezeMaxDaysHint")}</span>
           </label>
         </div>
       </AdminPackageFormSection>

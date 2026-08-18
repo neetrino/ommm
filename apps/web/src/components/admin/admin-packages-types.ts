@@ -8,6 +8,10 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
     ...row,
     categorySlug,
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
+    freezeAllowedCount:
+      typeof row.freezeAllowedCount === "number" ? row.freezeAllowedCount : 0,
+    freezeMaxDaysPerUse:
+      typeof row.freezeMaxDaysPerUse === "number" ? row.freezeMaxDaysPerUse : 0,
     discountedPriceCents:
       typeof row.discountedPriceCents === "number" ? row.discountedPriceCents : null,
     pricePerSessionCents:
@@ -60,6 +64,8 @@ export type AdminPackageRow = {
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
   guestCount?: number;
+  freezeAllowedCount?: number;
+  freezeMaxDaysPerUse?: number;
   availableQuantity?: number | null;
   createdAt: string;
 };

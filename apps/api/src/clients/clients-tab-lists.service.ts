@@ -6,6 +6,8 @@ import {
   SessionReviewStatus,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { toUserPackageFreezeApi } from '../packages/packages-freeze.mapper';
+import { resumeDueFreezes } from '../packages/packages-freeze.resume';
 import { resolveUserPackagePlan } from '../packages/user-package-plan-snapshot.util';
 import {
   buildVisibleUserPackagesWhere,
@@ -94,6 +96,16 @@ type ClientPackagesPage = {
     isUnlimited: boolean;
     paymentMethod: string | null;
     typeBalances: ClientPackageTypeBalanceItem[];
+    freeze: {
+      allowedCount: number;
+      maxDaysPerUse: number;
+      usedCount: number;
+      remainingCount: number;
+      pausedAt: string | null;
+      pausedUntil: string | null;
+      canFreeze: boolean;
+      canUnfreeze: boolean;
+    };
   }>;
   total: number;
   take: number;
@@ -174,6 +186,7 @@ export class ClientsTabListsService {
     offset: number,
   ): Promise<ClientPackagesPage> {
     await this.assertClientExists(userId);
+    await resumeDueFreezes(this.prisma, { userId });
     const succeededPackageIds = await loadSucceededPackageSourceIds(
       this.prisma,
       userId,
@@ -250,6 +263,7 @@ export class ClientsTabListsService {
           isUnlimited: resolvedPlan.isUnlimited,
           paymentMethod: paymentMethodByPackageId.get(row.id) ?? null,
           typeBalances: mapClientPackageTypeBalances(row.balances),
+          freeze: toUserPackageFreezeApi(row, row.plan),
         };
       }),
       total,

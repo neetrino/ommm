@@ -28,6 +28,8 @@ export function buildAdminPackageFormSubmitPayload(
     discountedPriceCents,
     periodDays,
     guestCount,
+    freezeAllowedCount,
+    freezeMaxDaysPerUse,
     stockCount,
     tierClassTypeId,
     payloadName,
@@ -62,6 +64,8 @@ export function buildAdminPackageFormSubmitPayload(
     isUnlimited: false,
     sessionsPerMonth: resolvedSessionsPerMonth,
     guestCount: guestCount ?? 0,
+    freezeAllowedCount: freezeAllowedCount ?? 0,
+    freezeMaxDaysPerUse: freezeMaxDaysPerUse ?? 0,
     availableQuantity:
       isAddTierMode || isEditTierMode
         ? values.stockCount.trim().length > 0

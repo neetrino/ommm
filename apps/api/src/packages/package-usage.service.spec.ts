@@ -56,6 +56,9 @@ function createMembership(params?: {
     planPeriodDaysSnapshot: 30,
     planIsUnlimitedSnapshot: isUnlimited,
     planSessionsPerMonthSnapshot: isUnlimited ? null : 8,
+    freezeAllowedCountSnapshot: 0,
+    freezeMaxDaysPerUseSnapshot: 0,
+    freezesUsedCount: 0,
     status: 'ACTIVE',
     currentPeriodStart: now,
     currentPeriodEnd: new Date(now.getTime() + 86_400_000),
@@ -113,9 +116,11 @@ describe('PackageUsageService', () => {
       userPackage: {
         findMany: jest
           .fn()
-          .mockResolvedValue([
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
             createMembership({ remaining: 0, balanceRemaining: 0 }),
           ]),
+        update: jest.fn(),
       },
     };
 

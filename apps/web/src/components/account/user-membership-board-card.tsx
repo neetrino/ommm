@@ -110,6 +110,7 @@ export function UserMembershipBoardCard({
           <UserPackageLifecycleActions
             userPackageId={membership.id}
             status={status}
+            freeze={membership.freeze}
             layout="board"
           />
         </div>

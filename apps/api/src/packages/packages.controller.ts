@@ -23,6 +23,7 @@ import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
+import { FreezeUserPackageDto } from './dto/freeze-user-package.dto';
 import { PackagesService } from './packages.service';
 
 @Controller('packages')
@@ -93,6 +94,24 @@ export class PackagesController {
     return this.packages.updateUserPackageValidity(id, dto);
   }
 
+  @Patch('admin/user-packages/:id/freeze')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  freezeUserPackageForAdmin(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: FreezeUserPackageDto,
+  ) {
+    return this.packages.freezeForAdmin(user.id, id, dto);
+  }
+
+  @Patch('admin/user-packages/:id/unfreeze')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  unfreezeUserPackageForAdmin(@Param('id') id: string) {
+    return this.packages.unfreezeForAdmin(id);
+  }
+
   @Post('plans')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
@@ -124,5 +143,21 @@ export class PackagesController {
   @UseGuards(JwtAuthGuard)
   subscribe(@CurrentUser() user: User, @Body() dto: SubscribePackageDto) {
     return this.packages.subscribe(user.id, dto);
+  }
+
+  @Patch('me/:id/freeze')
+  @UseGuards(JwtAuthGuard)
+  freezeMine(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: FreezeUserPackageDto,
+  ) {
+    return this.packages.freezeMine(user.id, id, dto);
+  }
+
+  @Patch('me/:id/unfreeze')
+  @UseGuards(JwtAuthGuard)
+  unfreezeMine(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.packages.unfreezeMine(user.id, id);
   }
 }

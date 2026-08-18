@@ -17,7 +17,11 @@ model PackagePlan {
   startDate            DateTime?
   sessionsPerMonth     Int?
   isUnlimited          Boolean         @default(false)
-  guestCount           Int             @default(0)
+  guestCount              Int             @default(0)
+  /// How many times a purchased package may be frozen.
+  freezeAllowedCount      Int             @default(0)
+  /// Max calendar days per single freeze.
+  freezeMaxDaysPerUse     Int             @default(0)
   availableQuantity    Int?
   buttonLabel          String          @default("Buy now")
   features             String[]        @default([])
@@ -54,16 +58,42 @@ model UserPackage {
   currentPeriodEnd             DateTime
   sessionsTotal                Int?
   sessionsRemaining            Int?
+  freezeAllowedCountSnapshot   Int               @default(0)
+  freezeMaxDaysPerUseSnapshot  Int               @default(0)
+  freezesUsedCount             Int               @default(0)
+  pausedAt                     DateTime?
+  pausedUntil                  DateTime?
   createdAt                    DateTime          @default(now())
   updatedAt                    DateTime          @updatedAt
 
   balances      UserPackageBalance[]
   consumptions  BookingConsumption[]
+  freezes       UserPackageFreeze[]
 
   @@index([userId, status])
   @@index([userId, currentPeriodEnd])
   @@index([planId])
   @@index([sourcePlanIdSnapshot])
+  @@index([status, pausedUntil])
+}
+
+model UserPackageFreeze {
+  id                String                     @id @default(cuid())
+  userPackageId     String
+  userPackage       UserPackage                @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+  daysRequested     Int
+  startedAt         DateTime
+  scheduledEndAt    DateTime
+  endedAt           DateTime?
+  initiatedBy       UserPackageFreezeInitiator
+  initiatedByUserId String?
+  initiatedByUser   User?                      @relation("UserPackageFreezeInitiator", fields: [initiatedByUserId], references: [id], onDelete: SetNull)
+  status            UserPackageFreezeStatus    @default(ACTIVE)
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+
+  @@index([userPackageId, status])
+  @@index([status, scheduledEndAt])
 }
 
 model UserPackageBalance {

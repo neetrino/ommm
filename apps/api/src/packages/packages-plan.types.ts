@@ -17,6 +17,8 @@ export type AdminPlanRecord = {
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
   guestCount: number;
+  freezeAllowedCount: number;
+  freezeMaxDaysPerUse: number;
   availableQuantity: number | null;
   buttonLabel: string;
   features: string[];
@@ -72,6 +74,8 @@ export type PublicPlanSource = {
   isActive: boolean;
   features: string[];
   guestCount: number;
+  freezeAllowedCount: number;
+  freezeMaxDaysPerUse: number;
   availableQuantity: number | null;
   displayOrder: number;
   typeSessionAllocations?: unknown;

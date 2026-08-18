@@ -7,8 +7,12 @@ import {
   MAX_NAME_LENGTH,
   MAX_PACKAGE_DURATION_DAYS,
   MAX_PACKAGE_GUEST_COUNT,
+  MAX_PACKAGE_FREEZE_COUNT,
+  MAX_PACKAGE_FREEZE_DAYS,
   MIN_PACKAGE_DURATION_DAYS,
   MIN_PACKAGE_GUEST_COUNT,
+  MIN_PACKAGE_FREEZE_COUNT,
+  MIN_PACKAGE_FREEZE_DAYS,
   MIN_PACKAGE_STOCK_COUNT,
   MAX_PACKAGE_STOCK_COUNT,
   preventNumberArrowStep,
@@ -257,6 +261,44 @@ export function AdminPackageTierCompactFields({
             onChange={(event) => onValuesChange({ guestCount: event.target.value })}
             onKeyDown={preventNumberArrowStep}
             placeholder={t("fieldGuestCountPlaceholder")}
+            disabled={pending}
+          />
+        </TierIconField>
+
+        <TierIconField tone="duration" label={t("fieldFreezeAllowedCount")}>
+          <input
+            name="freezeAllowedCount"
+            type="number"
+            className={INLINE_NUMBER_INPUT_CLASS}
+            min={MIN_PACKAGE_FREEZE_COUNT}
+            max={MAX_PACKAGE_FREEZE_COUNT}
+            step={1}
+            inputMode="numeric"
+            value={values.freezeAllowedCount}
+            onChange={(event) =>
+              onValuesChange({ freezeAllowedCount: event.target.value })
+            }
+            onKeyDown={preventNumberArrowStep}
+            placeholder={t("fieldFreezeAllowedCountPlaceholder")}
+            disabled={pending}
+          />
+        </TierIconField>
+
+        <TierIconField tone="duration" label={t("fieldFreezeMaxDays")}>
+          <input
+            name="freezeMaxDaysPerUse"
+            type="number"
+            className={INLINE_NUMBER_INPUT_CLASS}
+            min={MIN_PACKAGE_FREEZE_DAYS}
+            max={MAX_PACKAGE_FREEZE_DAYS}
+            step={1}
+            inputMode="numeric"
+            value={values.freezeMaxDaysPerUse}
+            onChange={(event) =>
+              onValuesChange({ freezeMaxDaysPerUse: event.target.value })
+            }
+            onKeyDown={preventNumberArrowStep}
+            placeholder={t("fieldFreezeMaxDaysPlaceholder")}
             disabled={pending}
           />
         </TierIconField>

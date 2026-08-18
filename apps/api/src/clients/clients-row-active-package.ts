@@ -1,5 +1,8 @@
 import { UserPackageStatus } from '@prisma/client';
-import { resolveUserPackagePlan } from '../packages/user-package-plan-snapshot.util';
+import {
+  resolveUserPackagePlan,
+  type UserPackagePlanSnapshotFields,
+} from '../packages/user-package-plan-snapshot.util';
 
 export const CLIENT_ACTIVE_PACKAGE_STATUSES = [
   UserPackageStatus.ACTIVE,
@@ -33,18 +36,11 @@ export type ClientActivePackagePlan = {
   sessionsPerMonth: number | null;
 };
 
-export type ClientActivePackageCandidate = {
+export type ClientActivePackageCandidate = UserPackagePlanSnapshotFields & {
   id: string;
   status: UserPackageStatus;
   currentPeriodEnd: Date;
   plan: ClientActivePackagePlan | null;
-  sourcePlanIdSnapshot: string;
-  planNameSnapshot: string;
-  planCategoryNameSnapshot: string;
-  planPriceCentsSnapshot: number;
-  planPeriodDaysSnapshot: number;
-  planIsUnlimitedSnapshot: boolean;
-  planSessionsPerMonthSnapshot: number | null;
 };
 
 export type ClientActivePackageFields = {

@@ -20,6 +20,8 @@ export type PublicPackagePlan = {
   isActive: boolean;
   features: string[];
   guestCount?: number;
+  freezeAllowedCount?: number;
+  freezeMaxDaysPerUse?: number;
   availableQuantity?: number | null;
   displayOrder: number;
   typeSessionAllocations?: Array<{
@@ -79,6 +81,10 @@ export function normalizePublicPackagePlan(plan: PublicPackagePlan): PublicPacka
     discountedPriceCents: normalizedDiscount,
     finalPriceCents,
     guestCount: typeof plan.guestCount === "number" ? plan.guestCount : 0,
+    freezeAllowedCount:
+      typeof plan.freezeAllowedCount === "number" ? plan.freezeAllowedCount : 0,
+    freezeMaxDaysPerUse:
+      typeof plan.freezeMaxDaysPerUse === "number" ? plan.freezeMaxDaysPerUse : 0,
     availableQuantity: coerceAvailableQuantity(plan.availableQuantity),
     startDate:
       typeof plan.startDate === "string" && plan.startDate.trim().length > 0
