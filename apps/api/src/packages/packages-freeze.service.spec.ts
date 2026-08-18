@@ -1,10 +1,11 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Role, UserPackageStatus } from '@prisma/client';
 import {
-  Role,
-  UserPackageFreezeInitiator,
-  UserPackageFreezeStatus,
-  UserPackageStatus,
-} from '@prisma/client';
+  USER_PACKAGE_FREEZE_INITIATOR,
+  USER_PACKAGE_FREEZE_STATUS,
+  type UserPackageFreezeInitiator,
+  type UserPackageFreezeStatus,
+} from './packages-freeze.types';
 import { FREEZE_ERROR } from './packages-freeze.constants';
 import { PackagesFreezeService } from './packages-freeze.service';
 
@@ -16,9 +17,7 @@ function createPlan() {
   };
 }
 
-function createLoadedPackage(
-  overrides: Record<string, unknown> = {},
-) {
+function createLoadedPackage(overrides: Record<string, unknown> = {}) {
   const now = new Date('2026-08-10T10:00:00.000Z');
   return {
     id: 'pkg-1',
@@ -49,7 +48,40 @@ function createLoadedPackage(
   };
 }
 
-function createPrisma() {
+type FreezeCreateArg = {
+  data: {
+    userPackageId: string;
+    daysRequested: number;
+    startedAt: Date;
+    scheduledEndAt: Date;
+    initiatedBy: UserPackageFreezeInitiator;
+    initiatedByUserId: string;
+    status: UserPackageFreezeStatus;
+  };
+};
+
+type MockPrisma = {
+  userPackage: {
+    findFirst: jest.Mock;
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    update: jest.Mock;
+  };
+  userPackageFreeze: {
+    create: jest.Mock<Promise<unknown>, [FreezeCreateArg]>;
+    findFirst: jest.Mock;
+    update: jest.Mock;
+  };
+  booking: { findFirst: jest.Mock };
+  $transaction: jest.Mock;
+};
+
+function createPrisma(): {
+  prisma: MockPrisma;
+  userPackage: MockPrisma['userPackage'];
+  userPackageFreeze: MockPrisma['userPackageFreeze'];
+  booking: MockPrisma['booking'];
+} {
   const userPackage = {
     findFirst: jest.fn(),
     findUnique: jest.fn(),
@@ -57,21 +89,36 @@ function createPrisma() {
     update: jest.fn(),
   };
   const userPackageFreeze = {
-    create: jest.fn(),
+    create: jest.fn<Promise<unknown>, [FreezeCreateArg]>(),
     findFirst: jest.fn(),
     update: jest.fn(),
   };
   const booking = { findFirst: jest.fn().mockResolvedValue(null) };
-  const prisma = {
+  const prisma: MockPrisma = {
     userPackage,
     userPackageFreeze,
     booking,
     $transaction: jest.fn(
-      async (callback: (tx: typeof prisma) => Promise<unknown>) =>
+      async (callback: (tx: MockPrisma) => Promise<unknown>) =>
         callback(prisma),
     ),
   };
   return { prisma, userPackage, userPackageFreeze, booking };
+}
+
+function expectFreezeCreateData(
+  create: MockPrisma['userPackageFreeze']['create'],
+  data: Pick<
+    FreezeCreateArg['data'],
+    'daysRequested' | 'initiatedBy' | 'initiatedByUserId'
+  >,
+): void {
+  expect(create).toHaveBeenCalledTimes(1);
+  expect(create.mock.calls[0]?.[0]?.data).toMatchObject({
+    userPackageId: 'pkg-1',
+    status: USER_PACKAGE_FREEZE_STATUS.ACTIVE,
+    ...data,
+  });
 }
 
 describe('PackagesFreezeService', () => {
@@ -92,13 +139,10 @@ describe('PackagesFreezeService', () => {
 
     const result = await service.freezeForUser('user-1', 'pkg-1', 7);
 
-    expect(userPackageFreeze.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        userPackageId: 'pkg-1',
-        daysRequested: 7,
-        initiatedBy: UserPackageFreezeInitiator.USER,
-        status: UserPackageFreezeStatus.ACTIVE,
-      }),
+    expectFreezeCreateData(userPackageFreeze.create, {
+      daysRequested: 7,
+      initiatedBy: USER_PACKAGE_FREEZE_INITIATOR.USER,
+      initiatedByUserId: 'user-1',
     });
     expect(result.status).toBe(UserPackageStatus.PAUSED);
     expect(result.freeze.usedCount).toBe(1);
@@ -113,10 +157,12 @@ describe('PackagesFreezeService', () => {
     userPackage.findUnique.mockResolvedValue(loaded);
     const service = new PackagesFreezeService(prisma as never);
 
-    await expect(service.freezeForUser('user-1', 'pkg-1', 7)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    await expect(service.freezeForUser('user-1', 'pkg-1', 7)).rejects.toMatchObject({
+    await expect(
+      service.freezeForUser('user-1', 'pkg-1', 7),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.freezeForUser('user-1', 'pkg-1', 7),
+    ).rejects.toMatchObject({
       message: FREEZE_ERROR.NO_REMAINING,
     });
   });
@@ -128,7 +174,9 @@ describe('PackagesFreezeService', () => {
     userPackage.findUnique.mockResolvedValue(loaded);
     const service = new PackagesFreezeService(prisma as never);
 
-    await expect(service.freezeForUser('user-1', 'pkg-1', 8)).rejects.toMatchObject({
+    await expect(
+      service.freezeForUser('user-1', 'pkg-1', 8),
+    ).rejects.toMatchObject({
       message: FREEZE_ERROR.INVALID_DAYS,
     });
   });
@@ -141,7 +189,9 @@ describe('PackagesFreezeService', () => {
     booking.findFirst.mockResolvedValue({ id: 'booking-1' });
     const service = new PackagesFreezeService(prisma as never);
 
-    await expect(service.freezeForUser('user-1', 'pkg-1', 3)).rejects.toMatchObject({
+    await expect(
+      service.freezeForUser('user-1', 'pkg-1', 3),
+    ).rejects.toMatchObject({
       message: FREEZE_ERROR.UPCOMING_BOOKINGS,
     });
   });
@@ -157,7 +207,9 @@ describe('PackagesFreezeService', () => {
     userPackage.findUnique.mockResolvedValue(loaded);
     const service = new PackagesFreezeService(prisma as never);
 
-    await expect(service.freezeForUser('user-1', 'pkg-1', 1)).rejects.toMatchObject({
+    await expect(
+      service.freezeForUser('user-1', 'pkg-1', 1),
+    ).rejects.toMatchObject({
       message: FREEZE_ERROR.NOT_ALLOWED,
     });
   });
@@ -167,9 +219,9 @@ describe('PackagesFreezeService', () => {
     userPackage.findFirst.mockResolvedValue(null);
     const service = new PackagesFreezeService(prisma as never);
 
-    await expect(service.freezeForUser('user-1', 'pkg-1', 3)).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      service.freezeForUser('user-1', 'pkg-1', 3),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('unfreezes a paused package and returns the active state', async () => {
@@ -197,7 +249,7 @@ describe('PackagesFreezeService', () => {
       userPackageId: 'pkg-1',
       startedAt: pausedAt,
       scheduledEndAt: new Date('2026-08-17T10:00:00.000Z'),
-      status: UserPackageFreezeStatus.ACTIVE,
+      status: USER_PACKAGE_FREEZE_STATUS.ACTIVE,
     });
     const service = new PackagesFreezeService(prisma as never);
 
@@ -220,12 +272,10 @@ describe('PackagesFreezeService', () => {
     const service = new PackagesFreezeService(prisma as never);
 
     const result = await service.freezeForAdmin('admin-1', 'pkg-1', 2);
-    expect(userPackageFreeze.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        initiatedBy: UserPackageFreezeInitiator.ADMIN,
-        initiatedByUserId: 'admin-1',
-        daysRequested: 2,
-      }),
+    expectFreezeCreateData(userPackageFreeze.create, {
+      daysRequested: 2,
+      initiatedBy: USER_PACKAGE_FREEZE_INITIATOR.ADMIN,
+      initiatedByUserId: 'admin-1',
     });
     expect(result.status).toBe(UserPackageStatus.PAUSED);
   });

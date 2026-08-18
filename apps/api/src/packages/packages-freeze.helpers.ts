@@ -1,9 +1,9 @@
+import { UserPackageStatus } from '@prisma/client';
 import {
-  UserPackageFreezeStatus,
-  UserPackageStatus,
-  type PackagePlan,
-  type UserPackage,
-} from '@prisma/client';
+  USER_PACKAGE_FREEZE_STATUS,
+  type PackagePlanFreezeFields,
+  type UserPackageFreezeFields,
+} from './packages-freeze.types';
 import { USER_PACKAGE_VALIDITY_DAY_MS } from './packages-freeze.time';
 
 export type FreezePolicy = {
@@ -16,16 +16,6 @@ export type FreezeCounters = {
   remainingCount: number;
 };
 
-export type UserPackageFreezeFields = Pick<
-  UserPackage,
-  | 'status'
-  | 'freezeAllowedCountSnapshot'
-  | 'freezeMaxDaysPerUseSnapshot'
-  | 'freezesUsedCount'
-  | 'pausedAt'
-  | 'pausedUntil'
->;
-
 export function isEnabledFreezePolicy(policy: FreezePolicy): boolean {
   return policy.allowedCount > 0 && policy.maxDaysPerUse > 0;
 }
@@ -35,7 +25,7 @@ export function resolveFreezePolicy(
     UserPackageFreezeFields,
     'freezeAllowedCountSnapshot' | 'freezeMaxDaysPerUseSnapshot'
   >,
-  plan: Pick<PackagePlan, 'freezeAllowedCount' | 'freezeMaxDaysPerUse'> | null,
+  plan: PackagePlanFreezeFields | null,
 ): FreezePolicy {
   const snapshot: FreezePolicy = {
     allowedCount: userPackage.freezeAllowedCountSnapshot,
@@ -104,17 +94,15 @@ export function buildFreezeResumeData(params: {
   pausedAt: null;
   pausedUntil: null;
   freezeEndedAt: Date;
-  freezeStatus: typeof UserPackageFreezeStatus.COMPLETED;
+  freezeStatus: typeof USER_PACKAGE_FREEZE_STATUS.COMPLETED;
 } {
   const extensionMs = resolveFreezeExtensionMs(params);
   return {
     status: UserPackageStatus.ACTIVE,
-    currentPeriodEnd: new Date(
-      params.currentPeriodEnd.getTime() + extensionMs,
-    ),
+    currentPeriodEnd: new Date(params.currentPeriodEnd.getTime() + extensionMs),
     pausedAt: null,
     pausedUntil: null,
     freezeEndedAt: params.endedAt,
-    freezeStatus: UserPackageFreezeStatus.COMPLETED,
+    freezeStatus: USER_PACKAGE_FREEZE_STATUS.COMPLETED,
   };
 }

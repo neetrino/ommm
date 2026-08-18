@@ -1,25 +1,14 @@
-import {
-  UserPackageFreezeStatus,
-  UserPackageStatus,
-  type Prisma,
-  type UserPackage,
-  type UserPackageFreeze,
-} from '@prisma/client';
+import { UserPackageStatus } from '@prisma/client';
 import { buildFreezeResumeData } from './packages-freeze.helpers';
+import {
+  USER_PACKAGE_FREEZE_STATUS,
+  type FreezeResumeClient,
+  type ResumableUserPackage,
+} from './packages-freeze.types';
+
+export type { FreezeResumeClient } from './packages-freeze.types';
 
 const DUE_FREEZE_BATCH_SIZE = 100;
-
-type FreezeResumeClient = {
-  userPackage: Prisma.TransactionClient['userPackage'];
-  userPackageFreeze: Prisma.TransactionClient['userPackageFreeze'];
-};
-
-type ResumableUserPackage = Pick<
-  UserPackage,
-  'id' | 'currentPeriodEnd'
-> & {
-  freezes?: UserPackageFreeze[];
-};
 
 /**
  * Completes due freezes and extends validity by the paused duration.
@@ -38,7 +27,7 @@ export async function resumeDueFreezes(
     },
     include: {
       freezes: {
-        where: { status: UserPackageFreezeStatus.ACTIVE },
+        where: { status: USER_PACKAGE_FREEZE_STATUS.ACTIVE },
         orderBy: { startedAt: 'desc' },
         take: 1,
       },

@@ -1,13 +1,27 @@
+import { UserPackageStatus } from '@prisma/client';
 import {
-  UserPackageFreezeInitiator,
-  UserPackageFreezeStatus,
-  UserPackageStatus,
-} from '@prisma/client';
+  USER_PACKAGE_FREEZE_INITIATOR,
+  USER_PACKAGE_FREEZE_STATUS,
+} from './packages-freeze.types';
 import { addDaysUtc } from './packages-freeze.helpers';
-import { applyFreezeResume, resumeDueFreezes } from './packages-freeze.resume';
+import {
+  applyFreezeResume,
+  resumeDueFreezes,
+  type FreezeResumeClient,
+} from './packages-freeze.resume';
 import { USER_PACKAGE_VALIDITY_DAY_MS } from './packages-freeze.time';
 
-function createDb() {
+type FreezeResumeDb = FreezeResumeClient & {
+  userPackage: {
+    findMany: jest.Mock;
+    update: jest.Mock;
+  };
+  userPackageFreeze: {
+    update: jest.Mock;
+  };
+};
+
+function createDb(): FreezeResumeDb {
   return {
     userPackage: {
       findMany: jest.fn(),
@@ -27,9 +41,9 @@ function createActiveFreeze(startedAt: Date, days: number) {
     startedAt,
     scheduledEndAt: addDaysUtc(startedAt, days),
     endedAt: null,
-    initiatedBy: UserPackageFreezeInitiator.USER,
+    initiatedBy: USER_PACKAGE_FREEZE_INITIATOR.USER,
     initiatedByUserId: 'user-1',
-    status: UserPackageFreezeStatus.ACTIVE,
+    status: USER_PACKAGE_FREEZE_STATUS.ACTIVE,
     createdAt: startedAt,
     updatedAt: startedAt,
   };
@@ -53,7 +67,7 @@ describe('resumeDueFreezes', () => {
     expect(db.userPackageFreeze.update).toHaveBeenCalledWith({
       where: { id: 'freeze-1' },
       data: {
-        status: UserPackageFreezeStatus.COMPLETED,
+        status: USER_PACKAGE_FREEZE_STATUS.COMPLETED,
         endedAt: now,
       },
     });
@@ -113,11 +127,14 @@ describe('applyFreezeResume', () => {
     );
     expect(db.userPackage.update).toHaveBeenCalledWith({
       where: { id: 'pkg-1' },
-      data: expect.objectContaining({
+      data: {
+        status: UserPackageStatus.ACTIVE,
         currentPeriodEnd: new Date(
           periodEnd.getTime() + 3 * USER_PACKAGE_VALIDITY_DAY_MS,
         ),
-      }),
+        pausedAt: null,
+        pausedUntil: null,
+      },
     });
   });
 });

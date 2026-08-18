@@ -3,15 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  BookingStatus,
-  Role,
-  UserPackageFreezeInitiator,
-  UserPackageFreezeStatus,
-  UserPackageStatus,
-  type PackagePlan,
-  type UserPackage,
-} from '@prisma/client';
+import { BookingStatus, Role, UserPackageStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   FREEZE_ERROR,
@@ -25,34 +17,38 @@ import {
   resolveFreezePolicy,
 } from './packages-freeze.helpers';
 import { toUserPackageFreezeApi } from './packages-freeze.mapper';
+import { applyFreezeResume, resumeDueFreezes } from './packages-freeze.resume';
 import {
-  applyFreezeResume,
-  resumeDueFreezes,
-} from './packages-freeze.resume';
+  USER_PACKAGE_FREEZE_INITIATOR,
+  USER_PACKAGE_FREEZE_STATUS,
+  asFreezeDb,
+  type FreezeDb,
+  type LoadedUserPackage,
+  type UserPackageFreezeInitiator,
+} from './packages-freeze.types';
 
 type FreezeActor = {
   userId: string;
   initiator: UserPackageFreezeInitiator;
 };
 
-type LoadedUserPackage = UserPackage & {
-  plan: PackagePlan | null;
-  user: { id: string; role: Role };
-};
-
 @Injectable()
 export class PackagesFreezeService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly db: FreezeDb;
+
+  constructor(prisma: PrismaService) {
+    this.db = asFreezeDb(prisma);
+  }
 
   resumeDueFreezes(userId?: string) {
-    return resumeDueFreezes(this.prisma, { userId });
+    return resumeDueFreezes(this.db, { userId });
   }
 
   async freezeForUser(userId: string, userPackageId: string, days: number) {
     const userPackage = await this.loadOwnedPackage(userId, userPackageId);
     return this.freezePackage(userPackage, days, {
       userId,
-      initiator: UserPackageFreezeInitiator.USER,
+      initiator: USER_PACKAGE_FREEZE_INITIATOR.USER,
     });
   }
 
@@ -60,7 +56,7 @@ export class PackagesFreezeService {
     const userPackage = await this.loadAdminPackage(userPackageId);
     return this.freezePackage(userPackage, days, {
       userId: adminId,
-      initiator: UserPackageFreezeInitiator.ADMIN,
+      initiator: USER_PACKAGE_FREEZE_INITIATOR.ADMIN,
     });
   }
 
@@ -79,7 +75,7 @@ export class PackagesFreezeService {
     days: number,
     actor: FreezeActor,
   ) {
-    await resumeDueFreezes(this.prisma, { userId: userPackage.userId });
+    await resumeDueFreezes(this.db, { userId: userPackage.userId });
     const fresh = await this.reloadPackage(userPackage.id);
     this.assertCanFreeze(fresh, days);
     await this.assertNoUpcomingBookings(fresh);
@@ -87,7 +83,7 @@ export class PackagesFreezeService {
     const pausedUntil = addDaysUtc(now, days);
     const policy = resolveFreezePolicy(fresh, fresh.plan);
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    const updated = await this.db.$transaction(async (tx) => {
       await tx.userPackageFreeze.create({
         data: {
           userPackageId: fresh.id,
@@ -96,7 +92,7 @@ export class PackagesFreezeService {
           scheduledEndAt: pausedUntil,
           initiatedBy: actor.initiator,
           initiatedByUserId: actor.userId,
-          status: UserPackageFreezeStatus.ACTIVE,
+          status: USER_PACKAGE_FREEZE_STATUS.ACTIVE,
         },
       });
       return tx.userPackage.update({
@@ -117,7 +113,7 @@ export class PackagesFreezeService {
   }
 
   private async unfreezePackage(userPackage: LoadedUserPackage) {
-    await resumeDueFreezes(this.prisma, { userId: userPackage.userId });
+    await resumeDueFreezes(this.db, { userId: userPackage.userId });
     const fresh = await this.reloadPackage(userPackage.id);
     if (fresh.status !== UserPackageStatus.PAUSED) {
       if (fresh.status === UserPackageStatus.ACTIVE) {
@@ -126,15 +122,15 @@ export class PackagesFreezeService {
       throw new BadRequestException(FREEZE_ERROR.NOT_FROZEN);
     }
 
-    const activeFreeze = await this.prisma.userPackageFreeze.findFirst({
+    const activeFreeze = await this.db.userPackageFreeze.findFirst({
       where: {
         userPackageId: fresh.id,
-        status: UserPackageFreezeStatus.ACTIVE,
+        status: USER_PACKAGE_FREEZE_STATUS.ACTIVE,
       },
       orderBy: { startedAt: 'desc' },
     });
     await applyFreezeResume(
-      this.prisma,
+      this.db,
       { ...fresh, freezes: activeFreeze === null ? [] : [activeFreeze] },
       new Date(),
     );
@@ -174,7 +170,7 @@ export class PackagesFreezeService {
   private async assertNoUpcomingBookings(
     userPackage: LoadedUserPackage,
   ): Promise<void> {
-    const upcoming = await this.prisma.booking.findFirst({
+    const upcoming = await this.db.booking.findFirst({
       where: {
         userId: userPackage.userId,
         status: BookingStatus.BOOKED,
@@ -194,7 +190,7 @@ export class PackagesFreezeService {
   }
 
   private async loadOwnedPackage(userId: string, userPackageId: string) {
-    const userPackage = await this.prisma.userPackage.findFirst({
+    const userPackage = await this.db.userPackage.findFirst({
       where: { id: userPackageId, userId },
       include: { plan: true, user: { select: { id: true, role: true } } },
     });
@@ -205,7 +201,7 @@ export class PackagesFreezeService {
   }
 
   private async loadAdminPackage(userPackageId: string) {
-    const userPackage = await this.prisma.userPackage.findUnique({
+    const userPackage = await this.db.userPackage.findUnique({
       where: { id: userPackageId },
       include: { plan: true, user: { select: { id: true, role: true } } },
     });
@@ -219,9 +215,7 @@ export class PackagesFreezeService {
     return this.loadAdminPackage(userPackageId);
   }
 
-  private toMutationResponse(
-    userPackage: UserPackage & { plan: PackagePlan | null },
-  ) {
+  private toMutationResponse(userPackage: LoadedUserPackage) {
     return {
       id: userPackage.id,
       status: userPackage.status,

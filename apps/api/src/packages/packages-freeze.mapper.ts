@@ -1,9 +1,13 @@
-import type { PackagePlan, UserPackage, UserPackageStatus } from '@prisma/client';
+import { UserPackageStatus } from '@prisma/client';
 import {
   canStartFreeze,
   resolveFreezeCounters,
   resolveFreezePolicy,
 } from './packages-freeze.helpers';
+import type {
+  PackagePlanFreezeFields,
+  UserPackageFreezeFields,
+} from './packages-freeze.types';
 
 export type UserPackageFreezeApi = {
   allowedCount: number;
@@ -17,16 +21,8 @@ export type UserPackageFreezeApi = {
 };
 
 export function toUserPackageFreezeApi(
-  userPackage: Pick<
-    UserPackage,
-    | 'status'
-    | 'freezeAllowedCountSnapshot'
-    | 'freezeMaxDaysPerUseSnapshot'
-    | 'freezesUsedCount'
-    | 'pausedAt'
-    | 'pausedUntil'
-  >,
-  plan: Pick<PackagePlan, 'freezeAllowedCount' | 'freezeMaxDaysPerUse'> | null,
+  userPackage: UserPackageFreezeFields,
+  plan: PackagePlanFreezeFields | null,
 ): UserPackageFreezeApi {
   const policy = resolveFreezePolicy(userPackage, plan);
   const counters = resolveFreezeCounters(userPackage.freezesUsedCount, policy);
@@ -42,6 +38,6 @@ export function toUserPackageFreezeApi(
       remainingCount: counters.remainingCount,
       policy,
     }),
-    canUnfreeze: userPackage.status === ('PAUSED' satisfies UserPackageStatus),
+    canUnfreeze: userPackage.status === UserPackageStatus.PAUSED,
   };
 }
