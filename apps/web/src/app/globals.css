@@ -794,7 +794,7 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .ommm-admin-nav-list {
-    @apply flex flex-col gap-0.5 py-2;
+    @apply relative flex flex-col gap-0.5 py-2;
   }
 
   .ommm-admin-nav-divider {
@@ -807,14 +807,22 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .ommm-admin-nav-link {
-    @apply flex w-full cursor-pointer items-center gap-3 rounded-r-full py-2.5 pl-6 pr-5 text-xs font-semibold uppercase tracking-[0.12em];
+    @apply relative isolate flex w-full cursor-pointer items-center gap-3 rounded-r-full py-2.5 pl-6 pr-5 text-xs font-semibold uppercase tracking-[0.12em];
     color: var(--ommm-admin-cream);
     transition:
-      background-color 180ms ease-out,
-      color 180ms ease-out,
-      box-shadow 180ms ease-out;
+      color 180ms ease-out;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2;
     --tw-ring-offset-color: var(--ommm-admin-olive);
+  }
+
+  .ommm-admin-nav-active-thumb {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 0 9999px 9999px 0;
+    background-color: #fff;
+    box-shadow: var(--ommm-admin-shadow-nav-active);
   }
 
   .ommm-admin-nav-link:hover:not(.ommm-admin-nav-link-active) {
@@ -822,13 +830,12 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .ommm-admin-nav-link-active {
-    background-color: #fff;
+    background-color: transparent;
     color: var(--ommm-admin-olive);
-    box-shadow: var(--ommm-admin-shadow-nav-active);
   }
 
   .ommm-admin-nav-link-active:hover {
-    background-color: #fff;
+    background-color: transparent;
     color: var(--ommm-admin-olive);
   }
 
