@@ -70,8 +70,7 @@ export type FreezeResumeClient = {
     update: (args: {
       where: { id: string };
       data: UserPackageFreezeUpdateData;
-      include?: { plan: true };
-    }) => Promise<LoadedUserPackage>;
+    }) => Promise<unknown>;
   };
   userPackageFreeze: {
     update: (args: {
@@ -82,7 +81,13 @@ export type FreezeResumeClient = {
 };
 
 export type FreezeDb = FreezeResumeClient & {
-  userPackage: FreezeResumeClient['userPackage'] & {
+  userPackage: {
+    findMany: FreezeResumeClient['userPackage']['findMany'];
+    update: (args: {
+      where: { id: string };
+      data: UserPackageFreezeUpdateData;
+      include?: { plan: true };
+    }) => Promise<LoadedUserPackage>;
     findFirst: (args: unknown) => Promise<LoadedUserPackage | null>;
     findUnique: (args: unknown) => Promise<LoadedUserPackage | null>;
   };
