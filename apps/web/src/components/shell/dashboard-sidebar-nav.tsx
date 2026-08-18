@@ -1,11 +1,14 @@
 "use client";
 
+import { useId } from "react";
+import { LayoutGroup } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { CallsNavPendingBadge } from "@/components/shell/calls-nav-pending-badge";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
+import { OliveNavActiveThumb } from "@/components/shell/olive-nav-active-thumb";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
@@ -118,6 +121,8 @@ export function DashboardSidebarNav({
 }: DashboardSidebarNavProps) {
   const locale = useLocale();
   const tShell = useTranslations("dashboard.shell");
+  const layoutGroupId = useId();
+  const olivePillLayoutId = `${layoutGroupId}-active-pill`;
   const isOliveShell = isOliveDashboardShell(variant);
   const isAdmin = variant === "admin";
   const pendingCallCount = useCallTasksPendingCount(
@@ -128,12 +133,13 @@ export function DashboardSidebarNav({
     : -1;
 
   return (
-    <nav
-      className={
-        isOliveShell ? "ommm-admin-nav-list" : "flex flex-col gap-0.5 p-2"
-      }
-      aria-label={tShell("dashboardNavAria")}
-    >
+    <LayoutGroup id={olivePillLayoutId}>
+      <nav
+        className={
+          isOliveShell ? "ommm-admin-nav-list" : "flex flex-col gap-0.5 p-2"
+        }
+        aria-label={tShell("dashboardNavAria")}
+      >
       {items.map((item, index) => {
         const active = navActive(pathname, item.href);
         const muted = isAdminMutedNavItem(variant, item.href);
@@ -147,6 +153,9 @@ export function DashboardSidebarNav({
           : rowBase(variant, collapsed, muted);
         const rowContent = (
           <>
+            {active && isOliveShell ? (
+              <OliveNavActiveThumb layoutId={olivePillLayoutId} />
+            ) : null}
             {oliveIconSlug ? (
               <span className="ommm-admin-nav-icon">
                 <AdminNavIcon slug={oliveIconSlug} />
@@ -200,6 +209,7 @@ export function DashboardSidebarNav({
           </div>
         );
       })}
-    </nav>
+      </nav>
+    </LayoutGroup>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -13,18 +13,64 @@ import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 const COACH_ROW_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
+const COACH_BOARD_TOGGLE_BUTTON_CLASS =
+  "inline-flex shrink-0 cursor-pointer items-center rounded-full p-1 transition-opacity hover:opacity-85 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
 
 type PendingConfirm = "activate" | "deactivate";
+type CoachRowActionsVariant = "list" | "board";
 
 type AdminCoachRowActionsProps = {
   coach: AdminCoachDirectoryRow;
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   locale?: string;
+  variant?: CoachRowActionsVariant;
 };
+
+function CoachStatusToggle({
+  variant,
+  checked,
+  label,
+  disabled,
+  onClick,
+}: {
+  variant: CoachRowActionsVariant;
+  checked: boolean;
+  label: string;
+  disabled: boolean;
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+}) {
+  if (variant === "board") {
+    return (
+      <button
+        type="button"
+        className={COACH_BOARD_TOGGLE_BUTTON_CLASS}
+        aria-label={label}
+        title={label}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        <AnimatedToggleSwitch checked={checked} className="ommm-toggle-switch-board" />
+      </button>
+    );
+  }
+
+  return (
+    <AdminRowIconButton
+      ariaLabel={label}
+      title={label}
+      className={COACH_ROW_TOGGLE_BUTTON_CLASS}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <AnimatedToggleSwitch checked={checked} />
+    </AdminRowIconButton>
+  );
+}
 
 export function AdminCoachRowActions({
   coach,
+  variant = "list",
 }: AdminCoachRowActionsProps) {
   const t = useTranslations("adminPages.coaches");
   const router = useRouter();
@@ -100,18 +146,16 @@ export function AdminCoachRowActions({
         role="group"
         aria-label={t("colActions")}
       >
-        <AdminRowIconButton
-          ariaLabel={toggleLabel}
-          title={toggleLabel}
-          className={COACH_ROW_TOGGLE_BUTTON_CLASS}
+        <CoachStatusToggle
+          variant={variant}
+          checked={isActive}
+          label={toggleLabel}
           disabled={busy}
           onClick={(event) => {
             event.stopPropagation();
             openConfirm();
           }}
-        >
-          <AnimatedToggleSwitch checked={isActive} />
-        </AdminRowIconButton>
+        />
       </div>
 
       {message ? (

@@ -1,5 +1,5 @@
-/** Data-heavy workspace routes — disable Next.js link prefetch (sidebar, header). */
-export const WORKSPACE_ROUTE_PREFETCH = false;
+/** Workspace sidebar / header links — prefetch RSC so the next page is ready on click. */
+export const WORKSPACE_ROUTE_PREFETCH = true;
 
 /** Locale-prefixed path for full document navigation (bypasses Next.js intercept routes). */
 export function localizedWorkspaceHref(locale: string, href: string): string {

@@ -1,11 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_COACH_CLASS_BADGE_CLASS,
-  coachClassBadgeTone,
-} from "@/components/admin/admin-coach-list-badges";
+  CoachClassBadges,
+  CoachDirectoryAvatar,
+  classNamesForCoach,
+  coachDirectoryDisplayName,
+} from "@/components/admin/admin-coach-directory-display";
 import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
 import {
   ADMIN_COACHES_LIST_ACTIONS_CELL,
@@ -21,8 +22,6 @@ import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-ty
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import { displayPhoneOrFallback } from "@/lib/phone";
-import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type AdminCoachCompactRowProps = {
   coach: AdminCoachDirectoryRow;
@@ -42,7 +41,7 @@ export function AdminCoachCompactRow({
   readOnly = false,
 }: AdminCoachCompactRowProps) {
   const t = useTranslations("adminPages.coaches");
-  const displayName = coachCardDisplayName(coach.user);
+  const displayName = coachDirectoryDisplayName(coach);
   const classLabels = classNamesForCoach(coach.assignedClassTypeIds, classOptions);
 
   return (
@@ -62,7 +61,7 @@ export function AdminCoachCompactRow({
       <div className={ADMIN_COACHES_LIST_CELL}>
         <AdminListMobileLabel label={t("colCoaches")} />
         <div className="flex min-w-0 items-center gap-3">
-          <CoachAvatar coach={coach} />
+          <CoachDirectoryAvatar coach={coach} />
           <div className="min-w-0 flex-1">
             <p className={ADMIN_LIST_TITLE_TEXT_CLASS} title={displayName}>
               {displayName}
@@ -79,7 +78,7 @@ export function AdminCoachCompactRow({
 
       <div className={ADMIN_COACHES_LIST_TAGS_CELL}>
         <AdminListMobileLabel label={t("colTags")} />
-        <CoachClassLabels labels={classLabels} />
+        <CoachClassBadges labels={classLabels} />
       </div>
 
       <div className={ADMIN_COACHES_LIST_WORKLOAD_CELL}>
@@ -108,56 +107,5 @@ export function AdminCoachCompactRow({
         </div>
       )}
     </article>
-  );
-}
-
-function CoachClassLabels({ labels }: { labels: readonly string[] }) {
-  if (labels.length === 0) {
-    return <span className="text-sm text-sage-400">—</span>;
-  }
-
-  return (
-    <>
-      {labels.map((label, index) => (
-        <span
-          key={`${label}-${index}`}
-          className={`${ADMIN_COACH_CLASS_BADGE_CLASS} ${coachClassBadgeTone(index)}`}
-        >
-          {label}
-        </span>
-      ))}
-    </>
-  );
-}
-
-function classNamesForCoach(
-  classIds: readonly string[],
-  classOptions: readonly CoachClassOption[],
-): string[] {
-  const namesById = new Map(classOptions.map((option) => [option.id, option.name]));
-  return classIds.map((id) => namesById.get(id) ?? id);
-}
-
-function CoachAvatar({ coach }: { coach: AdminCoachDirectoryRow }) {
-  const src =
-    coach.user.avatarUrl !== null
-      ? resolveApiAssetUrl(coach.user.avatarUrl) ?? coach.user.avatarUrl
-      : null;
-  if (src !== null) {
-    return (
-      <Image
-        src={src}
-        alt=""
-        width={40}
-        height={40}
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
-        unoptimized
-      />
-    );
-  }
-  return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
-      {coachCardDisplayName(coach.user).slice(0, 2).toUpperCase()}
-    </div>
   );
 }

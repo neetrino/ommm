@@ -10,6 +10,7 @@ import {
 } from "@/lib/dashboard-nav";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
+import { WorkspacePageAppear } from "@/components/shell/workspace-page-appear";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
@@ -302,7 +303,9 @@ export function DashboardAppShell({
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <main className={mainClassName}>{children}</main>
+          <main className={mainClassName}>
+            <WorkspacePageAppear pathname={pathname}>{children}</WorkspacePageAppear>
+          </main>
         </div>
       </div>
   );
