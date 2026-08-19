@@ -33,13 +33,13 @@ export function formatPaymentAmount(
 /** Human-readable payment source label for transactional emails. */
 export function formatPaymentSourceLabel(source: PaymentSource): string {
   if (source === PaymentSource.PACKAGE) {
-    return 'Package purchase';
+    return 'Class package';
   }
   if (source === PaymentSource.DROPIN) {
-    return 'Drop-in class';
+    return 'Single class';
   }
   if (source === PaymentSource.GIFT) {
-    return 'Gift card purchase';
+    return 'Gift card';
   }
   return 'Other';
 }
@@ -47,10 +47,10 @@ export function formatPaymentSourceLabel(source: PaymentSource): string {
 /** Human-readable payment status label for admin emails. */
 export function formatPaymentStatusLabel(status: PaymentStatus): string {
   if (status === PaymentStatus.SUCCEEDED) {
-    return 'Succeeded';
+    return 'Paid';
   }
   if (status === PaymentStatus.PENDING) {
-    return 'Pending';
+    return 'Waiting for payment';
   }
   if (status === PaymentStatus.FAILED) {
     return 'Failed';
@@ -59,18 +59,6 @@ export function formatPaymentStatusLabel(status: PaymentStatus): string {
     return 'Refunded';
   }
   return status;
-}
-
-/** Short offset label for the studio timezone (e.g. GMT+4). */
-export function formatPaymentTimezoneLabel(date: Date): string {
-  const part = new Intl.DateTimeFormat('en-GB', {
-    timeZone: PAYMENT_EMAIL_TIMEZONE,
-    timeZoneName: 'shortOffset',
-  })
-    .formatToParts(date)
-    .find((segment) => segment.type === 'timeZoneName');
-
-  return part?.value ?? 'GMT+4';
 }
 
 /** Formats a payment timestamp for email detail rows in studio local time (24h). */
@@ -82,7 +70,7 @@ export function formatPaymentDateTime(date: Date): string {
     hour12: false,
   }).format(date);
 
-  return `${formatted} (${formatPaymentTimezoneLabel(date)})`;
+  return formatted;
 }
 
 /** Builds a display name from user profile fields. */

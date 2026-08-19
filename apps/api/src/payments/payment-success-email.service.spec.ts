@@ -81,6 +81,7 @@ describe('PaymentSuccessEmailService', () => {
         name: 'Anna',
         lastName: 'Guest',
         phone: '+37400000000',
+        locale: 'en',
       },
       plan: { name: 'Monthly Flow', categoryName: 'Yoga' },
       userPackage: null,
@@ -96,11 +97,15 @@ describe('PaymentSuccessEmailService', () => {
     expect(customerHtml).toBeDefined();
     expect(customerHtml).not.toContain('Reference');
     expect(customerHtml).not.toContain('PKG-ABC123');
+    expect(customerHtml).not.toContain('Currency');
+    expect(customerHtml).toContain('Open my account');
     expect(adminHtml).toBeDefined();
     expect(adminHtml).not.toContain('Reference');
     expect(adminHtml).not.toContain('Payment ID');
     expect(adminHtml).not.toContain('Related details');
     expect(adminHtml).not.toContain('PKG-ABC123');
+    expect(adminHtml).not.toContain('Currency');
+    expect(adminHtml).toContain('Paid');
     expect(prisma.payment.updateMany).toHaveBeenCalledTimes(1);
     const updateManyMock = prisma.payment.updateMany as jest.Mock<
       Promise<{ count: number }>,
@@ -136,6 +141,7 @@ describe('PaymentSuccessEmailService', () => {
         name: 'Anna',
         lastName: null,
         phone: null,
+        locale: 'en',
       },
       plan: null,
       userPackage: null,

@@ -12,7 +12,10 @@ import { CLIENT_INVITE_PASSWORD_SETUP_TTL_MS } from '../common/constants';
 import { hashOpaqueToken, newOpaqueToken } from '../common/opaque-token';
 import { normalizeRequiredPhone } from '../common/phone';
 import { MailService } from '../mail/mail.service';
-import { renderClientInviteEmail } from '../mail/templates/client-invite.template';
+import {
+  CLIENT_INVITE_EMAIL_SUBJECT,
+  renderClientInviteEmail,
+} from '../mail/templates/client-invite.template';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import { clientInclude, toClientRow } from './clients-row.mapper';
@@ -125,7 +128,7 @@ export class ClientsAdminCreateService {
     try {
       await this.mail.sendEmail({
         to: createdUser.email,
-        subject: 'Welcome to Ommm — create your password',
+        subject: CLIENT_INVITE_EMAIL_SUBJECT,
         html: renderClientInviteEmail({
           recipientName: greet,
           passwordSetupUrl,

@@ -7,6 +7,7 @@ import { GiftCardStatus } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
+import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
 import { PrismaService } from '../prisma/prisma.service';
 import { GiftCardsImageService } from './gift-cards-image.service';
 import {
@@ -253,11 +254,12 @@ export class GiftCardsAdminBatchLifecycleService {
   }
 
   private async sendGiftCardEmail(email: string, code: string) {
-    const web = process.env.WEB_APP_URL ?? 'http://localhost:3000';
     await this.mail.sendEmail({
       to: email,
-      subject: 'Your Ommm gift card',
-      html: `<p>Code: <strong>${code}</strong></p><p>Redeem at ${web}</p>`,
+      ...buildGiftCardDeliveryEmail({
+        code,
+        webAppUrl: process.env.WEB_APP_URL,
+      }),
     });
   }
 }

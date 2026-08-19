@@ -12,7 +12,16 @@ import {
   WaitlistStatus,
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import {
+  buildMemberWaitlistsUrl,
+  resolveEmailLocale,
+  resolveWebAppUrl,
+} from '../mail/email-app-urls';
 import { MailService } from '../mail/mail.service';
+import {
+  renderWaitlistUpdateEmail,
+  resolveWaitlistUpdateSubject,
+} from '../mail/templates/waitlist-emails.template';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -139,7 +148,6 @@ export class WaitlistAdminService {
     payload: {
       subject?: string;
       message?: string;
-      actorName?: string | null;
       actorId?: string;
       actorRole?: Role;
     },
@@ -154,22 +162,19 @@ export class WaitlistAdminService {
     if (!entry) {
       throw new NotFoundException('Waitlist entry not found');
     }
-    const subject =
-      payload.subject?.trim() ||
-      `Waitlist update: ${entry.session.classType.name}`;
-    const actor = payload.actorName?.trim();
-    const note = payload.message?.trim();
-    const html = [
-      `<p>Your waitlist status for <strong>${entry.session.classType.name}</strong> was updated.</p>`,
-      note ? `<p>${note}</p>` : '',
-      actor ? `<p>Sent by: ${actor}</p>` : '',
-    ]
-      .filter(Boolean)
-      .join('');
+    const className = entry.session.classType.name;
+    const subject = resolveWaitlistUpdateSubject(payload.subject, className);
     await this.mail.sendEmail({
       to: entry.user.email,
       subject,
-      html,
+      html: renderWaitlistUpdateEmail({
+        className,
+        message: payload.message?.trim() ?? '',
+        waitlistsUrl: buildMemberWaitlistsUrl(
+          resolveWebAppUrl(process.env.WEB_APP_URL),
+          resolveEmailLocale(entry.user.locale ?? undefined),
+        ),
+      }),
     });
     await this.audit.log({
       actorId: payload.actorId ?? null,

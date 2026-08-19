@@ -1,6 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ClassSessionStatus, WaitlistStatus } from '@prisma/client';
+import {
+  buildMemberWaitlistsUrl,
+  resolveEmailLocale,
+  resolveWebAppUrl,
+} from '../mail/email-app-urls';
 import { MailService } from '../mail/mail.service';
+import {
+  buildWaitlistOfferSubject,
+  renderWaitlistOfferEmail,
+} from '../mail/templates/waitlist-emails.template';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { StudioService } from '../studio/studio.service';
@@ -26,6 +35,7 @@ export class WaitlistOffersService {
   async offerNextIfSlot(sessionId: string): Promise<void> {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
+      include: { classType: { select: { name: true } } },
     });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
       return;
@@ -73,12 +83,11 @@ export class WaitlistOffersService {
         offerExpiresAt,
       },
     });
-    const webUrl = process.env.WEB_APP_URL ?? 'http://localhost:3000';
-    const link = `${webUrl}/hy/account/classes/${sessionId}`;
-    await this.mail.sendEmail({
+    await this.sendOfferEmail({
       to: next.user.email,
-      subject: 'A spot opened — book now',
-      html: `<p>A place opened for your class.</p><p><a href="${link}">Book</a></p><p>Offer expires in ${minutes} minutes.</p>`,
+      locale: next.user.locale,
+      className: session.classType.name,
+      offerMinutes: minutes,
     });
     this.realtime.emitWaitlistOffer(next.userId, sessionId);
   }
@@ -138,6 +147,27 @@ export class WaitlistOffersService {
     for (const entry of open) {
       this.realtime.emitWaitlistChanged(entry.userId, sessionId);
     }
+  }
+
+  private async sendOfferEmail(params: {
+    to: string;
+    locale: string | null | undefined;
+    className: string;
+    offerMinutes: number;
+  }): Promise<void> {
+    const waitlistsUrl = buildMemberWaitlistsUrl(
+      resolveWebAppUrl(process.env.WEB_APP_URL),
+      resolveEmailLocale(params.locale ?? undefined),
+    );
+    await this.mail.sendEmail({
+      to: params.to,
+      subject: buildWaitlistOfferSubject(params.className),
+      html: renderWaitlistOfferEmail({
+        className: params.className,
+        offerMinutes: params.offerMinutes,
+        waitlistsUrl,
+      }),
+    });
   }
 
   private isEnabledEnv(raw: string | undefined): boolean {

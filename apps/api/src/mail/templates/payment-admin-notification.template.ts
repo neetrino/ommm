@@ -1,61 +1,52 @@
-import { escapeHtml, plainTextToHtml } from '../email-html.util';
-import { EMAIL_LOGO_PUBLIC_SRC } from '../email-logo';
+import { escapeHtml } from '../email-html.util';
 import { EMAIL_BRAND } from './email-brand.constants';
-import { renderBrandedEmailLayout, renderInfoRows } from './email-layout';
+import { renderBrandedEmail, renderInfoRows } from './email-layout';
+import { renderEmailHeading, renderEmailText } from './email-parts';
+
+export const PAYMENT_ADMIN_EMAIL_SUBJECT = 'New payment received — Ommm';
 
 export type PaymentAdminNotificationParams = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   amountLabel: string;
-  currency: string;
   paymentTypeLabel: string;
   statusLabel: string;
   confirmedAtLabel: string;
 };
 
-const ADMIN_INTRO = `A payment has been successfully confirmed in the Ommm system.
-
-Please review the payment details below for your records.`;
-
-/** Branded payment success notification sent to the studio admin inbox. */
+/** Payment notice sent to the studio inbox. */
 export function renderPaymentAdminNotificationEmail(
   params: PaymentAdminNotificationParams,
 ): string {
+  const customerName = params.customerName.trim();
   const phone =
     params.customerPhone.trim().length > 0 ? params.customerPhone : '—';
+  const safeEmail = escapeHtml(params.customerEmail);
 
-  const bodyHtml = `
-<h1 style="margin:0 0 16px;font-size:28px;line-height:1.25;font-weight:400;color:${EMAIL_BRAND.headingColor};">Payment Successfully Confirmed</h1>
-${plainTextToHtml(ADMIN_INTRO)}
-<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:24px 0 0;">
+  return renderBrandedEmail({
+    title: 'Payment received',
+    preheader: `Payment received from ${customerName || params.customerEmail}`,
+    bodyHtml: [
+      renderEmailHeading('Payment received'),
+      renderEmailText('A client payment was received. Details are below.'),
+      `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:8px 0 0;">
   ${renderInfoRows([
     {
-      label: 'Customer',
-      value: escapeHtml(
-        params.customerName.trim().length > 0 ? params.customerName : '—',
-      ),
+      label: 'Client',
+      value: escapeHtml(customerName.length > 0 ? customerName : '—'),
     },
     {
       label: 'Email',
-      value: `<a href="mailto:${escapeHtml(params.customerEmail)}" style="color:${EMAIL_BRAND.accentColor};text-decoration:none;">${escapeHtml(params.customerEmail)}</a>`,
+      value: `<a href="mailto:${safeEmail}" style="color:${EMAIL_BRAND.accentColor};text-decoration:none;">${safeEmail}</a>`,
     },
     { label: 'Phone', value: escapeHtml(phone) },
     { label: 'Amount', value: escapeHtml(params.amountLabel) },
-    { label: 'Currency', value: escapeHtml(params.currency.toUpperCase()) },
-    { label: 'Payment type', value: escapeHtml(params.paymentTypeLabel) },
+    { label: 'For', value: escapeHtml(params.paymentTypeLabel) },
     { label: 'Status', value: escapeHtml(params.statusLabel) },
-    {
-      label: 'Confirmed at',
-      value: escapeHtml(params.confirmedAtLabel),
-    },
+    { label: 'Paid on', value: escapeHtml(params.confirmedAtLabel) },
   ])}
-</table>`;
-
-  return renderBrandedEmailLayout({
-    logoSrc: EMAIL_LOGO_PUBLIC_SRC,
-    title: 'Payment Successfully Confirmed',
-    preheader: `Payment confirmed for ${params.customerName || params.customerEmail}`,
-    bodyHtml,
+</table>`,
+    ].join(''),
   });
 }

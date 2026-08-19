@@ -1,63 +1,44 @@
-import { escapeHtml, plainTextToHtml } from '../email-html.util';
-import { EMAIL_LOGO_PUBLIC_SRC } from '../email-logo';
-import { EMAIL_BRAND } from './email-brand.constants';
-import { renderBrandedEmailLayout } from './email-layout';
+import { renderBrandedEmail } from './email-layout';
+import {
+  renderEmailCtaButton,
+  renderEmailDetailCard,
+  renderEmailGreeting,
+  renderEmailHeading,
+  renderEmailSignoff,
+  renderEmailText,
+} from './email-parts';
+
+export const PAYMENT_CUSTOMER_EMAIL_SUBJECT =
+  'Your payment is confirmed — Ommm';
 
 export type PaymentCustomerConfirmationParams = {
   customerName: string;
   amountLabel: string;
-  currency: string;
   paymentTypeLabel: string;
   confirmedAtLabel: string;
+  accountUrl: string;
 };
 
-const CONFIRMATION_BODY = `Thank you for your payment.
-
-Your payment has been successfully confirmed. We are happy to have you as part of the Ommm community.
-
-Ommm is a wellness studio created for mindful movement, balance, and a calmer daily rhythm. Through yoga, pilates, reformer sessions, and carefully designed studio experiences, we help our community reconnect with their body, energy, and inner clarity.
-
-You can now continue using your selected service according to your booking, package, or gift card details.`;
-
-/** Branded payment confirmation email sent to the paying customer. */
+/** Payment confirmation sent to the paying customer. */
 export function renderPaymentCustomerConfirmationEmail(
   params: PaymentCustomerConfirmationParams,
 ): string {
-  const greetingName = params.customerName.trim();
-
-  const bodyHtml = `
-<h1 style="margin:0 0 16px;font-size:28px;line-height:1.25;font-weight:400;color:${EMAIL_BRAND.headingColor};">Payment Confirmed</h1>
-<p style="margin:0 0 20px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:16px;line-height:1.65;color:${EMAIL_BRAND.bodyColor};">
-  Hi${greetingName.length > 0 ? ` ${escapeHtml(greetingName)}` : ''},
-</p>
-${plainTextToHtml(CONFIRMATION_BODY)}
-<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:24px 0 0;padding:20px;border-radius:14px;background:${EMAIL_BRAND.accentBackground};">
-  <tr>
-    <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Amount</td>
-    <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(params.amountLabel)}</td>
-  </tr>
-  <tr>
-    <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Currency</td>
-    <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(params.currency.toUpperCase())}</td>
-  </tr>
-  <tr>
-    <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Payment type</td>
-    <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(params.paymentTypeLabel)}</td>
-  </tr>
-  <tr>
-    <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Confirmed at</td>
-    <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(params.confirmedAtLabel)}</td>
-  </tr>
-</table>
-<p style="margin:28px 0 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;line-height:1.65;color:${EMAIL_BRAND.bodyColor};">
-  With care,<br />
-  The Ommm Team
-</p>`;
-
-  return renderBrandedEmailLayout({
-    logoSrc: EMAIL_LOGO_PUBLIC_SRC,
-    title: 'Payment Confirmed',
-    preheader: 'Your payment has been confirmed',
-    bodyHtml,
+  return renderBrandedEmail({
+    title: 'Payment confirmed',
+    preheader: 'Your payment is confirmed',
+    bodyHtml: [
+      renderEmailHeading('Payment confirmed'),
+      renderEmailGreeting(params.customerName),
+      renderEmailText(
+        'Thank you. Your payment is confirmed, and you can keep using your class, package, or gift card as usual.',
+      ),
+      renderEmailDetailCard([
+        { label: 'Amount', value: params.amountLabel },
+        { label: 'For', value: params.paymentTypeLabel },
+        { label: 'Paid on', value: params.confirmedAtLabel },
+      ]),
+      renderEmailCtaButton('Open my account', params.accountUrl),
+      renderEmailSignoff(),
+    ].join(''),
   });
 }

@@ -13,6 +13,7 @@ import {
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
+import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
@@ -264,12 +265,12 @@ export class PaymentsFulfillmentService {
   }
 
   async sendGiftCardEmail(to: string, code: string): Promise<void> {
-    const web =
-      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
     await this.mail.sendEmail({
       to,
-      subject: 'Your Ommm gift card',
-      html: `<p>Your code: <strong>${code}</strong></p><p>Redeem at ${web}</p>`,
+      ...buildGiftCardDeliveryEmail({
+        code,
+        webAppUrl: this.config.get<string>('WEB_APP_URL'),
+      }),
     });
   }
 

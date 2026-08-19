@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { AuditService } from '../audit/audit.service';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { MailService } from '../mail/mail.service';
+import { renderBroadcastEmail } from '../mail/templates/broadcast.template';
 import { PrismaService } from '../prisma/prisma.service';
 import { BroadcastAudience } from './dto/broadcast.dto';
 import type { AdminListScheduledQueryDto } from './dto/admin-list-scheduled-query.dto';
@@ -52,8 +53,13 @@ export class NotificationsBroadcastService {
       scheduleEntityId?: string;
     },
   ) {
+    const brandedHtml = renderBroadcastEmail(subject, html);
     if (options.testTo) {
-      await this.mail.sendEmail({ to: options.testTo, subject, html });
+      await this.mail.sendEmail({
+        to: options.testTo,
+        subject,
+        html: brandedHtml,
+      });
       return { ok: true, mode: 'test' };
     }
     const roles = resolveAudienceRoles(options.audience);
@@ -68,7 +74,7 @@ export class NotificationsBroadcastService {
       take: 500,
     });
     for (const u of users) {
-      await this.mail.sendEmail({ to: u.email, subject, html });
+      await this.mail.sendEmail({ to: u.email, subject, html: brandedHtml });
       await this.audit.log({
         actorRole: 'ADMIN',
         action: ACTION_NOTIFICATION_DELIVERY,
