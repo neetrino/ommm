@@ -44,6 +44,147 @@ export type AnalyticsBarItem = {
   displayValue?: string;
 };
 
+export type AnalyticsMetricComparison = {
+  current: number;
+  previous: number;
+  /** null when previous is 0 */
+  trendPercent: number | null;
+};
+
+export type StudioAnalyticsPayload = {
+  range: {
+    from: string;
+    to: string;
+    previousFrom: string;
+    previousTo: string;
+  };
+  comparison: {
+    revenueCents: AnalyticsMetricComparison;
+    bookings: AnalyticsMetricComparison;
+    attendanceRate: AnalyticsMetricComparison;
+    occupancyRate: AnalyticsMetricComparison;
+    newMembers: AnalyticsMetricComparison;
+  };
+  kpis: {
+    revenueCents: number;
+    successfulPaymentsCount: number;
+    averageOrderValueCents: number;
+    bookingsTotal: number;
+    attendanceRate: number | null;
+    occupancyRate: number | null;
+    cancellationRate: number | null;
+    noShowRate: number | null;
+    activeMembers: number;
+    newMembers: number;
+    waitlistActive: number;
+    waitlistConversionRate: number | null;
+  };
+  daily: Array<{
+    dateKey: string;
+    bookings: number;
+    completed: number;
+    cancelled: number;
+    missed: number;
+    revenueCents: number;
+    occupiedSeats: number;
+    capacity: number;
+    occupancyRate: number | null;
+  }>;
+  revenue: {
+    bySource: Record<
+      "package" | "dropin" | "gift" | "other",
+      { count: number; amountCents: number }
+    >;
+    byStatus: Array<{ status: string; count: number; amountCents: number }>;
+    byPaymentMethod: Array<{
+      method: string;
+      count: number;
+      amountCents: number;
+    }>;
+    byClassType: Array<{
+      id: string;
+      label: string;
+      amountCents: number;
+      bookings: number;
+    }>;
+    byCoach: Array<{
+      id: string;
+      label: string;
+      amountCents: number;
+      bookings: number;
+      sessions: number;
+    }>;
+    giftCredits: {
+      issuedCents: number;
+      issuedCount: number;
+      redeemedCents: number;
+      redeemedCount: number;
+      spentCents: number;
+      spendTransactionsCount: number;
+      outstandingCreditsCents: number;
+    };
+  };
+  operations: {
+    bookingsByStatus: {
+      BOOKED: number;
+      COMPLETED: number;
+      CANCELLED: number;
+      MISSED: number;
+      waitlisted: number;
+    };
+    classPopularity: Array<{
+      id: string;
+      label: string;
+      bookings: number;
+      occupancyRate: number | null;
+    }>;
+    peakWeekdays: Array<{ weekday: number; bookings: number }>;
+    peakHours: Array<{ hour: number; bookings: number }>;
+    channels: { WEBSITE: number; APP: number };
+    waitlist: {
+      active: number;
+      offered: number;
+      converted: number;
+      expired: number;
+      removed: number;
+      conversionRate: number | null;
+    };
+  };
+  members: {
+    total: number;
+    active: number;
+    vip: number;
+    newInRange: number;
+    returningInRange: number;
+    inactive30d: number;
+    retentionRate: number | null;
+    firstVisitsInRange: number;
+    totalVisitsInRange: number;
+    lifetimeValueCents: number;
+    packages: {
+      active: number;
+      paused: number;
+      expiring7d: number;
+      expiredInRange: number;
+    };
+  };
+  coaches: {
+    rows: Array<{
+      id: string;
+      name: string;
+      isActive: boolean;
+      sessions: number;
+      bookings: number;
+      completed: number;
+      missed: number;
+      occupancyRate: number | null;
+      attendanceRate: number | null;
+      revenueCents: number;
+      waitlistActive: number;
+    }>;
+  };
+};
+
 export type AnalyticsDashboardOverview = {
   sessionsToday: number;
   bookingsToday: number;
@@ -137,6 +278,9 @@ export type AnalyticsDailyBucket = {
   total: number;
   completed: number;
   revenueCents: number;
+  occupancyRate: number | null;
+  cancelled?: number;
+  missed?: number;
 };
 
 export type AdminAnalyticsPayload = {
@@ -149,6 +293,7 @@ export type AdminAnalyticsPayload = {
   classTypeId: string;
   bookingStatus: AnalyticsBookingStatusFilter;
   quickFilters: AnalyticsQuickFilterOption[];
+  studio: StudioAnalyticsPayload;
   dashboard: AnalyticsDashboardOverview;
   finance: AnalyticsFinanceSummary;
   bookings: AnalyticsBookingsPayload;

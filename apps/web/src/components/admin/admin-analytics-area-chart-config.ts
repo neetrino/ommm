@@ -9,5 +9,6 @@ export function mapDailyTrendForChart(dailyTrend: AnalyticsDailyBucket[]) {
     revenue: point.revenueCents,
     bookings: point.total,
     completed: point.completed,
+    occupancy: point.occupancyRate ?? 0,
   }));
 }

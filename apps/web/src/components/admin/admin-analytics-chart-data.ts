@@ -1,7 +1,10 @@
+import { sortBarItems } from "@/components/admin/admin-analytics-helpers";
 import {
-  computeAttendanceRate,
-  sortBarItems,
-} from "@/components/admin/admin-analytics-helpers";
+  buildBookingStatusDonutItems,
+  buildMemberSegmentBarItems,
+  buildRevenueSourceBarItems,
+  buildPaymentStatusBarItems,
+} from "@/components/admin/admin-analytics-studio-map";
 import type {
   AdminAnalyticsPayload,
   AnalyticsBarItem,
@@ -23,10 +26,9 @@ type AnalyticsChartLabels = {
   users: {
     active: string;
     vip: string;
-  };
-  attendance: {
-    completed: string;
-    missed: string;
+    newMembers: string;
+    returning: string;
+    inactive30d: string;
   };
 };
 
@@ -35,26 +37,14 @@ export function buildRevenueSourceItems(
   sortKey: AnalyticsSortKey,
   sourceLabels: Record<RevenueSourceKey, string>,
 ): AnalyticsBarItem[] {
-  const items = (["package", "dropin", "gift", "other"] as const).map((key) => ({
-    key,
-    label: sourceLabels[key],
-    value: data.finance.bySource[key].amountCents,
-    displayValue: formatAmdFromCents(data.finance.bySource[key].amountCents, data.locale),
-  }));
-  return sortBarItems(items, sortKey);
+  return buildRevenueSourceBarItems(data.studio, sortKey, sourceLabels, data.locale);
 }
 
 export function buildPaymentStatusItems(
   data: AdminAnalyticsPayload,
   sortKey: AnalyticsSortKey,
 ): AnalyticsBarItem[] {
-  const items = data.finance.byStatus.map((entry) => ({
-    key: entry.status,
-    label: entry.status,
-    value: entry.amountCents,
-    displayValue: `${formatAmdFromCents(entry.amountCents, data.locale)} (${entry.count})`,
-  }));
-  return sortBarItems(items, sortKey);
+  return buildPaymentStatusBarItems(data.studio, sortKey, data.locale);
 }
 
 export function buildBookingStatusItems(
@@ -62,42 +52,24 @@ export function buildBookingStatusItems(
   sortKey: AnalyticsSortKey,
   bookingStatusLabels: AnalyticsChartLabels["bookingStatus"],
 ): AnalyticsBarItem[] {
-  const summary = data.bookings.summary;
-  const items = [
-    { key: "booked", label: bookingStatusLabels.booked, value: summary.booked },
-    { key: "completed", label: bookingStatusLabels.completed, value: summary.completed },
-    { key: "cancelled", label: bookingStatusLabels.cancelled, value: summary.cancelled },
-    { key: "missed", label: bookingStatusLabels.missed, value: summary.missed },
-    { key: "waitlisted", label: bookingStatusLabels.waitlisted, value: summary.waitlisted },
-  ];
-  return sortBarItems(items, sortKey);
+  return buildBookingStatusDonutItems(data.studio, sortKey, bookingStatusLabels);
 }
 
 export function buildMemberSegmentItems(
   data: AdminAnalyticsPayload,
   userLabels: AnalyticsChartLabels["users"],
 ): AnalyticsBarItem[] {
-  return [
-    { key: "active", label: userLabels.active, value: data.clients.active },
-    { key: "vip", label: userLabels.vip, value: data.clients.vip },
-  ];
+  return buildMemberSegmentBarItems(data.studio, userLabels);
 }
 
 export function buildAttendanceBarItems(
   data: AdminAnalyticsPayload,
-  attendanceLabels: AnalyticsChartLabels["attendance"],
+  attendanceLabels: { completed: string; missed: string },
 ): AnalyticsBarItem[] {
+  const status = data.studio.operations.bookingsByStatus;
   return [
-    {
-      key: "completed",
-      label: attendanceLabels.completed,
-      value: data.bookings.summary.completed,
-    },
-    {
-      key: "missed",
-      label: attendanceLabels.missed,
-      value: data.bookings.summary.missed,
-    },
+    { key: "completed", label: attendanceLabels.completed, value: status.COMPLETED },
+    { key: "missed", label: attendanceLabels.missed, value: status.MISSED },
   ];
 }
 
@@ -105,24 +77,20 @@ export function buildCoachSessionsItems(
   data: AdminAnalyticsPayload,
   sortKey: AnalyticsSortKey,
 ): AnalyticsBarItem[] {
-  const items = data.coaches.map((coach) => ({
+  const items = data.studio.coaches.rows.map((coach) => ({
     key: coach.id,
-    label: [coach.user.name, coach.user.lastName].filter(Boolean).join(" ") || coach.user.email,
-    value: coach.totalClasses,
+    label: coach.name,
+    value: coach.sessions,
   }));
   return sortBarItems(items, sortKey).slice(0, 10);
 }
 
 export function resolveRangeAttendanceRate(data: AdminAnalyticsPayload): number | null {
-  return computeAttendanceRate(data.bookings.summary.completed, data.bookings.summary.missed);
+  return data.studio.kpis.attendanceRate;
 }
 
 export function resolveTodayAttendanceRate(data: AdminAnalyticsPayload): number | null {
-  const todayStatus = data.dashboard.bookingsByStatus;
-  if (todayStatus === undefined) {
-    return null;
-  }
-  return computeAttendanceRate(todayStatus.COMPLETED, todayStatus.MISSED);
+  return data.studio.kpis.attendanceRate;
 }
 
 export function sliceSortedBarItems(
@@ -131,4 +99,8 @@ export function sliceSortedBarItems(
   limit = 10,
 ): AnalyticsBarItem[] {
   return sortBarItems([...items], sortKey).slice(0, limit);
+}
+
+export function formatAttributedRevenueLabel(amountCents: number, locale: string): string {
+  return formatAmdFromCents(amountCents, locale);
 }
