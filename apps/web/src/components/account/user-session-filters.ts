@@ -1,6 +1,8 @@
 import { resolveSessionCoachName } from "@/components/account/session-coach-line";
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { matchesStudioDateFilter } from "@/lib/filter-date-range";
+import { matchesSearchTokens } from "@/lib/search-tokens";
 import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 import type { UserSessionRow, UserWaitlistRow } from "@/lib/user-booking-types";
 
@@ -169,12 +171,7 @@ function matchesSessionBaseFilters(
   row: SessionFilterSource,
   filters: UserSessionFilterValues,
 ): boolean {
-  const startsAt = new Date(row.startsAt);
-
-  if (filters.from && startsAt < new Date(`${filters.from}T00:00:00`)) {
-    return false;
-  }
-  if (filters.to && startsAt > new Date(`${filters.to}T23:59:59`)) {
+  if (!matchesStudioDateFilter(row.startsAt, filters.from, filters.to)) {
     return false;
   }
   if (filters.classType !== "all" && row.classType.name !== filters.classType) {
@@ -187,13 +184,10 @@ function matchesSessionBaseFilters(
     }
   }
 
-  const search = filters.search.trim().toLowerCase();
-  if (search.length > 0) {
-    const coachName = resolveSessionCoachName(row.coach);
-    const haystack = `${row.classType.name} ${coachName ?? ""}`.toLowerCase();
-    if (!haystack.includes(search)) {
-      return false;
-    }
+  const coachName = resolveSessionCoachName(row.coach);
+  const haystack = `${row.classType.name} ${coachName ?? ""}`;
+  if (!matchesSearchTokens(haystack, filters.search)) {
+    return false;
   }
 
   return true;

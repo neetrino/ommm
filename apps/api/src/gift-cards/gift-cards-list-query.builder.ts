@@ -1,4 +1,8 @@
 import { GiftCardStatus, Prisma } from '@prisma/client';
+import {
+  buildTokenAndWhere,
+  containsInsensitive,
+} from '../common/token-text-search';
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 
 export function buildGiftCardBatchWhere(
@@ -7,49 +11,36 @@ export function buildGiftCardBatchWhere(
   const and: Prisma.GiftCardBatchWhereInput[] = [];
   const now = new Date();
 
-  const search = query.search?.trim();
-  if (search) {
-    and.push({
+  const searchWhere = buildTokenAndWhere(
+    query.search,
+    (token): Prisma.GiftCardBatchWhereInput => ({
       OR: [
         {
           purchaser: {
             OR: [
-              {
-                name: { contains: search, mode: Prisma.QueryMode.insensitive },
-              },
-              {
-                email: { contains: search, mode: Prisma.QueryMode.insensitive },
-              },
+              { name: containsInsensitive(token) },
+              { lastName: containsInsensitive(token) },
+              { email: containsInsensitive(token) },
             ],
           },
         },
         {
           recipient: {
             OR: [
-              {
-                name: { contains: search, mode: Prisma.QueryMode.insensitive },
-              },
-              {
-                email: { contains: search, mode: Prisma.QueryMode.insensitive },
-              },
+              { name: containsInsensitive(token) },
+              { lastName: containsInsensitive(token) },
+              { email: containsInsensitive(token) },
             ],
           },
         },
-        {
-          recipientEmail: {
-            contains: search,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-        {
-          recipientName: {
-            contains: search,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-        { message: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { recipientEmail: containsInsensitive(token) },
+        { recipientName: containsInsensitive(token) },
+        { message: containsInsensitive(token) },
       ],
-    });
+    }),
+  );
+  if (searchWhere) {
+    and.push(searchWhere);
   }
 
   if (query.status && query.status !== 'all') {

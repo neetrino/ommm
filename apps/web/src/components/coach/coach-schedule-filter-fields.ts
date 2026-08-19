@@ -4,6 +4,8 @@ import type {
   ScheduleSessionListStatus,
 } from "@/components/shared/schedule/schedule-session-list-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { matchesStudioDateFilter } from "@/lib/filter-date-range";
+import { matchesSearchTokens } from "@/lib/search-tokens";
 import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 
 export type CoachScheduleStatusFilter = "all" | ScheduleSessionListStatus;
@@ -121,12 +123,7 @@ export function matchesCoachScheduleFilters(
   row: ScheduleSessionListRow,
   filters: CoachScheduleFilterValues,
 ): boolean {
-  const startsAt = new Date(row.startsAt);
-
-  if (filters.from && startsAt < new Date(`${filters.from}T00:00:00`)) {
-    return false;
-  }
-  if (filters.to && startsAt > new Date(`${filters.to}T23:59:59`)) {
+  if (!matchesStudioDateFilter(row.startsAt, filters.from, filters.to)) {
     return false;
   }
   if (filters.classType !== "all" && row.classType.name !== filters.classType) {
@@ -136,13 +133,7 @@ export function matchesCoachScheduleFilters(
     return false;
   }
 
-  const search = filters.search.trim().toLowerCase();
-  if (search.length === 0) {
-    return true;
-  }
-
-  const haystack = `${row.title} ${row.classType.name}`.toLowerCase();
-  return haystack.includes(search);
+  return matchesSearchTokens(`${row.title} ${row.classType.name}`, filters.search);
 }
 
 export function hasActiveCoachScheduleFilters(filters: CoachScheduleFilterValues): boolean {

@@ -10,6 +10,10 @@ import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto'
 import { BookingManagementOrder } from '../common/enums/list-order.enum';
 import { sortBookingManagementRows } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildTokenAndWhere,
+  userContainsToken,
+} from '../common/token-text-search';
 import { buildScopedSessionFilter } from './bookings-management.helpers';
 import {
   mapManagementBookingRow,
@@ -44,17 +48,7 @@ export class BookingsAdminManagementService {
       classTypeId: params.query.classTypeId,
       coachId: params.query.coachId,
     });
-    const q = params.query.q?.trim();
-    const userSearch: Prisma.UserWhereInput | undefined =
-      q && q.length > 0
-        ? {
-            OR: [
-              { name: { contains: q, mode: Prisma.QueryMode.insensitive } },
-              { email: { contains: q, mode: Prisma.QueryMode.insensitive } },
-              { phone: { contains: q, mode: Prisma.QueryMode.insensitive } },
-            ],
-          }
-        : undefined;
+    const userSearch = buildTokenAndWhere(params.query.q, userContainsToken);
 
     const bookingWhere: Prisma.BookingWhereInput = {
       ...(params.query.status ? { status: params.query.status } : {}),

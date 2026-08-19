@@ -4,6 +4,7 @@ import {
   type AdminBookingPaymentStatus,
 } from "@/components/admin/admin-booking-list-badges";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { matchesStudioDateFilter } from "@/lib/filter-date-range";
 
 type BookingFilterOptions = {
   classTypes: Array<{ id: string; name: string }>;
@@ -94,4 +95,13 @@ export function adminBookingsFilterValuesFromState(values: {
     status: values.status,
     paymentStatus: values.paymentStatus,
   };
+}
+
+/** Inclusive studio-day match. A lone `from` is that single calendar day. */
+export function sessionMatchesAdminBookingDateFilter(
+  startsAtIso: string,
+  from: string,
+  to: string,
+): boolean {
+  return matchesStudioDateFilter(startsAtIso, from, to);
 }

@@ -17,6 +17,7 @@ import {
   TrashGlyph,
 } from "@/components/ui/admin-action-glyphs";
 import { AdminRowIconButton, AdminRowIconGroup } from "@/components/ui/admin-row-icon-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 const EDIT_SCHEDULE_QUERY_KEY = "editSchedule";
 
@@ -55,6 +56,7 @@ export function AdminScheduleRowActions({
   const descId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
   const isOpen = searchParams.get(EDIT_SCHEDULE_QUERY_KEY) === item.id;
@@ -155,9 +157,6 @@ export function AdminScheduleRowActions({
   }
 
   async function onDelete() {
-    if (!window.confirm(t("deleteConfirm"))) {
-      return;
-    }
     await run(
       () =>
         apiFetch(`/schedule/admin/${item.id}`, {
@@ -165,6 +164,7 @@ export function AdminScheduleRowActions({
         }),
       t("messages.deleteSuccess"),
     );
+    setPendingDelete(false);
   }
 
   const toggleLabel = item.isActive ? t("disableButton") : t("enableButton");
@@ -200,13 +200,35 @@ export function AdminScheduleRowActions({
           title={t("deleteButtonAria")}
           variant="danger"
           onClick={() => {
-            void onDelete();
+            if (!busy) {
+              setPendingDelete(true);
+            }
           }}
           disabled={busy}
         >
           <TrashGlyph className={ADMIN_ACTION_ICON_CLASS} />
         </AdminRowIconButton>
       </AdminRowIconGroup>
+
+      <OmmConfirmDialog
+        isOpen={pendingDelete}
+        title={t("confirmDeleteTitle")}
+        description={t("deleteConfirm")}
+        confirmLabel={busy ? t("savingEdit") : t("confirmDialogDelete")}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone="danger"
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        pending={busy}
+        onConfirm={() => {
+          void onDelete();
+        }}
+        onCancel={() => {
+          if (!busy) {
+            setPendingDelete(false);
+          }
+        }}
+      />
 
       {message ? (
         <div

@@ -2626,6 +2626,8 @@
       "deleteButtonAria": "Удалить элемент расписания",
       "editButtonAria": "Редактировать элемент расписания",
       "deleteConfirm": "Удалить этот элемент расписания?",
+      "confirmDeleteTitle": "Удалить элемент расписания",
+      "confirmDialogDelete": "Удалить",
       "days": {
         "SUNDAY": "Воскресенье",
         "MONDAY": "Понедельник",
@@ -2768,8 +2770,8 @@
       "confirmDialogDelete": "Удалить",
       "confirmDialogBackdrop": "Закрыть диалог подтверждения",
       "confirm": {
-        "cancelTitle": "Закрыть занятие",
-        "cancelDescription": "Занятие будет закрыто для новых бронирований. Позже вы сможете снова активировать его.",
+        "cancelTitle": "Отменить занятие",
+        "cancelDescription": "Занятие будет отменено для новых бронирований. Позже вы сможете снова активировать его.",
         "activateTitle": "Активировать занятие",
         "activateDescription": "Занятие снова станет активным и доступным."
       },
@@ -2888,7 +2890,7 @@
       "colStatus": "Статус",
       "colActions": "Действия",
       "editButton": "Редактировать",
-      "cancelAction": "Закрыть",
+      "cancelAction": "Отменить",
       "activateAction": "Активировать",
       "duplicateButton": "Дублировать",
       "priceAmount": "{amount} за сессию",
@@ -4411,7 +4413,12 @@
     "leaveWaitlist": {
       "action": "Покинуть лист ожидания",
       "failed": "Не удалось покинуть лист ожидания",
-      "success": "Удалено из листа ожидания"
+      "success": "Удалено из листа ожидания",
+      "confirmTitle": "Покинуть лист ожидания?",
+      "confirmDescription": "Вы потеряете своё место в очереди на это занятие.",
+      "confirmLeave": "Покинуть",
+      "confirmCancel": "Отмена",
+      "confirmBackdrop": "Закрыть диалог подтверждения"
     },
     "packageCheckout": {
       "subscribe": "Оформить"
@@ -4501,6 +4508,11 @@
       "deletePhoto": "Удалить фото",
       "deletePhotoSuccess": "Фото удалено.",
       "deletePhotoFailed": "Не удалось удалить фото.",
+      "deletePhotoConfirmTitle": "Удалить фото?",
+      "deletePhotoConfirmDescription": "Это фото будет удалено из профиля.",
+      "deletePhotoConfirm": "Удалить",
+      "deletePhotoCancel": "Отмена",
+      "deletePhotoBackdrop": "Закрыть диалог подтверждения",
       "removingPhoto": "Удаление…",
       "upload": "Загрузить",
       "uploading": "Загрузка…",

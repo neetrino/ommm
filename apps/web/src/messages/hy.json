@@ -2629,6 +2629,8 @@
       "deleteButtonAria": "Ջնջել ժամանակացույցի տարրը",
       "editButtonAria": "Խմբագրել ժամանակացույցի տարրը",
       "deleteConfirm": "Ջնջե՞լ այս ժամանակացույցի տարրը։",
+      "confirmDeleteTitle": "Ջնջել ժամանակացույցի տարրը",
+      "confirmDialogDelete": "Ջնջել",
       "days": {
         "SUNDAY": "Կիրակի",
         "MONDAY": "Երկուշաբթի",
@@ -2771,8 +2773,8 @@
       "confirmDialogDelete": "Ջնջել",
       "confirmDialogBackdrop": "Փակել հաստատման պատուհանը",
       "confirm": {
-        "cancelTitle": "Փակել դասը",
-        "cancelDescription": "Դասը կփակվի նոր ամրագրումների համար։ Կարող եք հետո կրկին ակտիվացնել։",
+        "cancelTitle": "Չեղարկել դասը",
+        "cancelDescription": "Դասը կչեղարկվի նոր ամրագրումների համար։ Կարող եք հետո կրկին ակտիվացնել։",
         "activateTitle": "Ակտիվացնել դասը",
         "activateDescription": "Դասը կրկին կդառնա ակտիվ և հասանելի։"
       },
@@ -2891,7 +2893,7 @@
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",
       "editButton": "Խմբագրել",
-      "cancelAction": "Փակել",
+      "cancelAction": "Չեղարկել",
       "activateAction": "Ակտիվացնել",
       "duplicateButton": "Կրկնօրինակել",
       "priceAmount": "{amount} մեկ սեսիայի համար",
@@ -4414,7 +4416,12 @@
     "leaveWaitlist": {
       "action": "Դուրս գալ սպասման ցուցակից",
       "failed": "Չհաջողվեց դուրս գալ սպասման ցուցակից",
-      "success": "Հեռացվել է սպասման ցուցակից"
+      "success": "Հեռացվել է սպասման ցուցակից",
+      "confirmTitle": "Դուրս գա՞լ սպասման ցուցակից։",
+      "confirmDescription": "Դուք կկորցնեք ձեր հերթը այս դասի համար։",
+      "confirmLeave": "Դուրս գալ",
+      "confirmCancel": "Չեղարկել",
+      "confirmBackdrop": "Փակել հաստատման երկխոսությունը"
     },
     "packageCheckout": {
       "subscribe": "Բաժանորդագրվել"
@@ -4505,6 +4512,11 @@
       "deletePhoto": "Հեռացնել լուսանկարը",
       "deletePhotoSuccess": "Լուսանկարը հեռացվեց։",
       "deletePhotoFailed": "Չհաջողվեց հեռացնել լուսանկարը։",
+      "deletePhotoConfirmTitle": "Հեռացնե՞լ լուսանկարը։",
+      "deletePhotoConfirmDescription": "Այս լուսանկարը կհեռացվի ձեր պրոֆիլից։",
+      "deletePhotoConfirm": "Հեռացնել",
+      "deletePhotoCancel": "Չեղարկել",
+      "deletePhotoBackdrop": "Փակել հաստատման երկխոսությունը",
       "removingPhoto": "Հեռացվում է…",
       "upload": "Վերբեռնել",
       "uploading": "Վերբեռնում…",

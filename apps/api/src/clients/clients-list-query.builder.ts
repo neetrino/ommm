@@ -19,6 +19,7 @@ import {
   INACTIVE_CLIENT_DAYS,
   NEW_CLIENT_DAYS,
 } from './clients-list.constants';
+import { buildClientsTextSearchWhere } from './clients-list-search';
 
 const inactiveThreshold = () =>
   new Date(Date.now() - INACTIVE_CLIENT_DAYS * 24 * 60 * 60 * 1000);
@@ -78,19 +79,10 @@ export function requiresClientsPostProcessing(
 export function buildClientsListWhere(
   query: AdminListClientsQueryDto,
 ): Prisma.UserWhereInput {
-  const q = (query.search ?? query.q)?.trim();
   const and: Prisma.UserWhereInput[] = [{ role: Role.USER }];
-
-  if (q) {
-    and.push({
-      OR: [
-        { id: { contains: q, mode: Prisma.QueryMode.insensitive } },
-        { email: { contains: q, mode: Prisma.QueryMode.insensitive } },
-        { name: { contains: q, mode: Prisma.QueryMode.insensitive } },
-        { lastName: { contains: q, mode: Prisma.QueryMode.insensitive } },
-        { phone: { contains: q, mode: Prisma.QueryMode.insensitive } },
-      ],
-    });
+  const searchWhere = buildClientsTextSearchWhere(query.search ?? query.q);
+  if (searchWhere) {
+    and.push(searchWhere);
   }
 
   appendStatusFilter(and, query.status);

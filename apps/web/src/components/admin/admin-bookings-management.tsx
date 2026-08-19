@@ -13,6 +13,7 @@ import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-dr
 import {
   adminBookingsFilterValuesFromState,
   buildAdminBookingsFilterFields,
+  sessionMatchesAdminBookingDateFilter,
 } from "@/components/admin/admin-bookings-filter-fields";
 import { useAdminBookingsListData } from "@/components/admin/admin-bookings-list-data";
 import { parseAdminBookingPaymentFilter } from "@/components/admin/admin-bookings-query";
@@ -90,10 +91,7 @@ export function AdminBookingsManagement({
 
   const filteredSessions = useMemo(() => {
     return calendarSessions.filter((session) => {
-      if (filters.from && new Date(session.startsAt) < new Date(`${filters.from}T00:00:00`)) {
-        return false;
-      }
-      if (filters.to && new Date(session.startsAt) > new Date(`${filters.to}T23:59:59`)) {
+      if (!sessionMatchesAdminBookingDateFilter(session.startsAt, filters.from, filters.to)) {
         return false;
       }
       if (filters.classTypeId && session.classType.id !== filters.classTypeId) {

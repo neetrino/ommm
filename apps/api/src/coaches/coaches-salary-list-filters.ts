@@ -1,3 +1,4 @@
+import { splitSearchTokens } from '../common/token-text-search';
 import type { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 
 export const COACH_SALARY_FILTER_SCAN_LIMIT = 500;
@@ -69,12 +70,12 @@ export function filterCoachSalaryRows(
   rows: CoachSalaryRow[],
   query: AdminSalarySummariesQueryDto,
 ): CoachSalaryRow[] {
-  const q = query.search?.trim().toLowerCase() ?? '';
+  const tokens = splitSearchTokens(query.search).map((token) => token.toLowerCase());
   return rows.filter((row) => {
-    if (q.length > 0) {
+    if (tokens.length > 0) {
       const haystack =
         `${displayName(row)} ${row.user.phone ?? ''} ${row.user.email}`.toLowerCase();
-      if (!haystack.includes(q)) {
+      if (!tokens.every((token) => haystack.includes(token))) {
         return false;
       }
     }

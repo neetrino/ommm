@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
@@ -56,6 +57,7 @@ export function AccountHomeImageForm({
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
 
@@ -155,6 +157,7 @@ export function AccountHomeImageForm({
       setMsg(e instanceof ApiError ? e.message : t("deletePhotoFailed"));
     } finally {
       setBusy(false);
+      setPendingDelete(false);
     }
   }, [busy, hasSaved, router, t]);
 
@@ -247,12 +250,31 @@ export function AccountHomeImageForm({
             size="sm"
             disabled={busy}
             className="mt-1 text-sage-600 hover:text-sage-900"
-            onClick={() => void deleteSavedPhoto()}
+            onClick={() => setPendingDelete(true)}
           >
             {busy ? t("removingPhoto") : t("deletePhoto")}
           </OmmButton>
         ) : null}
       </div>
+      <OmmConfirmDialog
+        isOpen={pendingDelete}
+        title={t("deletePhotoConfirmTitle")}
+        description={t("deletePhotoConfirmDescription")}
+        confirmLabel={busy ? t("removingPhoto") : t("deletePhotoConfirm")}
+        cancelLabel={t("deletePhotoCancel")}
+        backdropAriaLabel={t("deletePhotoBackdrop")}
+        tone="danger"
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        pending={busy}
+        onConfirm={() => {
+          void deleteSavedPhoto();
+        }}
+        onCancel={() => {
+          if (!busy) {
+            setPendingDelete(false);
+          }
+        }}
+      />
       {msg ? (
         <p
           className={`max-w-[240px] text-center text-sm sm:max-w-[260px] lg:max-w-[280px] lg:text-left ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}

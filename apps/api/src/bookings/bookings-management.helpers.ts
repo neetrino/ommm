@@ -6,6 +6,15 @@ import {
   Role,
   type User,
 } from '@prisma/client';
+import { buildStudioDateTimeFilter } from '../common/studio-date-range';
+
+/** Inclusive studio-day bounds. A lone `from` is that single calendar day. */
+export function buildSessionStartsAtFilter(
+  from?: string,
+  to?: string,
+): Prisma.DateTimeFilter | undefined {
+  return buildStudioDateTimeFilter(from, to);
+}
 
 export function buildScopedSessionFilter(params: {
   actor: User;
@@ -20,13 +29,7 @@ export function buildScopedSessionFilter(params: {
           coach: { userId: params.actor.id },
         } as Prisma.ClassSessionWhereInput)
       : undefined;
-  const startsAt =
-    params.from || params.to
-      ? {
-          ...(params.from ? { gte: new Date(params.from) } : {}),
-          ...(params.to ? { lte: new Date(params.to) } : {}),
-        }
-      : undefined;
+  const startsAt = buildSessionStartsAtFilter(params.from, params.to);
 
   const filter: Prisma.ClassSessionWhereInput = {
     ...(startsAt ? { startsAt } : {}),

@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { BookingStatus, WaitlistStatus } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import {
+  buildTokenAndWhere,
+  containsInsensitive,
+} from '../common/token-text-search';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   COACH_SALARY_FILTER_SCAN_LIMIT,
@@ -79,33 +83,16 @@ export class CoachesPanelService {
       },
     } as const;
     const orderBy = { createdAt: 'desc' as const };
-    const search = query.search?.trim();
-    const profileWhere = search
-      ? {
-          OR: [
-            {
-              user: {
-                name: { contains: search, mode: 'insensitive' as const },
-              },
-            },
-            {
-              user: {
-                lastName: { contains: search, mode: 'insensitive' as const },
-              },
-            },
-            {
-              user: {
-                email: { contains: search, mode: 'insensitive' as const },
-              },
-            },
-            {
-              user: {
-                phone: { contains: search, mode: 'insensitive' as const },
-              },
-            },
-          ],
-        }
-      : undefined;
+    const profileWhere = buildTokenAndWhere(query.search, (token) => ({
+      user: {
+        OR: [
+          { name: containsInsensitive(token) },
+          { lastName: containsInsensitive(token) },
+          { email: containsInsensitive(token) },
+          { phone: containsInsensitive(token) },
+        ],
+      },
+    }));
 
     const mapProfile = async (profile: {
       id: string;
