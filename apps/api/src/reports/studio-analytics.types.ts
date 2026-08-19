@@ -4,6 +4,7 @@ import type {
   ManualPaymentMethod,
   PaymentSource,
   PaymentStatus,
+  Role,
   WaitlistStatus,
 } from '@prisma/client';
 
@@ -76,6 +77,18 @@ export type StudioAnalyticsPayload = {
       amountCents: number;
       bookings: number;
       sessions: number;
+    }>;
+    byPackage: Array<{
+      id: string;
+      label: string;
+      count: number;
+      amountCents: number;
+    }>;
+    topClients: Array<{
+      id: string;
+      label: string;
+      amountCents: number;
+      paymentsCount: number;
     }>;
     giftCredits: {
       issuedCents: number;
@@ -185,6 +198,18 @@ export type StudioAnalyticsPaymentRow = {
   source: PaymentSource;
   sourceId: string | null;
   paymentMethod: ManualPaymentMethod | null;
+  userId: string;
+  userRole: Role;
+  userLabel: string;
+};
+
+export type StudioAnalyticsPackagePlanRow = {
+  userPackageId: string;
+  planId: string | null;
+  planName: string;
+  categoryName: string;
+  classTypeId: string | null;
+  typeSessionAllocations: unknown;
 };
 
 export type StudioAnalyticsConsumptionRow = {
@@ -226,9 +251,11 @@ export type StudioAnalyticsLoadedRange = {
   bookingGroups: StudioAnalyticsBookingGroup[];
   waitlistGroups: StudioAnalyticsWaitlistGroup[];
   payments: StudioAnalyticsPaymentRow[];
+  packagePlans: StudioAnalyticsPackagePlanRow[];
   consumptions: StudioAnalyticsConsumptionRow[];
   coaches: StudioAnalyticsLabelRow[];
   classTypes: StudioAnalyticsLabelRow[];
+  filters: StudioAnalyticsFilters;
   members: StudioAnalyticsMemberCounts;
   giftCredits: StudioAnalyticsPayload['revenue']['giftCredits'];
 };

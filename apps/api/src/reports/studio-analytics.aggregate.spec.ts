@@ -3,6 +3,7 @@ import {
   BookingStatus,
   PaymentSource,
   PaymentStatus,
+  Role,
   WaitlistStatus,
 } from '@prisma/client';
 import {
@@ -13,7 +14,10 @@ import {
   emptyGiftCredits,
   emptyMemberCounts,
 } from './studio-analytics.helpers';
-import type { StudioAnalyticsLoadedRange } from './studio-analytics.types';
+import type {
+  StudioAnalyticsLoadedRange,
+  StudioAnalyticsPaymentRow,
+} from './studio-analytics.types';
 
 const FROM = new Date(2026, 5, 1, 0, 0, 0);
 const TO = new Date(2026, 5, 3, 23, 59, 59);
@@ -38,11 +42,31 @@ function loaded(
     bookingGroups: defaultBookingGroups(),
     waitlistGroups: defaultWaitlistGroups(),
     payments: [],
+    packagePlans: [],
     consumptions: [],
     coaches: [{ id: 'coach-1', label: 'Anna Lee', isActive: true }],
     classTypes: [{ id: 'type-1', label: 'Vinyasa' }],
+    filters: {},
     members: defaultMembers(),
     giftCredits: emptyGiftCredits(),
+    ...overrides,
+  };
+}
+
+function payment(
+  overrides: Partial<StudioAnalyticsPaymentRow> = {},
+): StudioAnalyticsPaymentRow {
+  return {
+    amountCents: 8_000,
+    description: 'Membership',
+    status: PaymentStatus.SUCCEEDED,
+    createdAt: new Date(2026, 5, 1, 9, 0, 0),
+    source: PaymentSource.PACKAGE,
+    sourceId: 'pkg-1',
+    paymentMethod: 'CARD',
+    userId: 'user-1',
+    userRole: Role.USER,
+    userLabel: 'Client One',
     ...overrides,
   };
 }
@@ -97,24 +121,22 @@ describe('studio-analytics.aggregate', () => {
     const bySession = attributeSessionRevenue({
       sessions: loaded().sessions,
       payments: [
-        {
+        payment({
           amountCents: 7_000,
           description: 'Drop-in session s1',
-          status: PaymentStatus.SUCCEEDED,
-          createdAt: new Date('2026-06-02T10:00:00.000Z'),
           source: PaymentSource.DROPIN,
           sourceId: 's1',
           paymentMethod: 'CASH',
-        },
-        {
+          createdAt: new Date('2026-06-02T10:00:00.000Z'),
+        }),
+        payment({
           amountCents: 5_000,
           description: 'Drop-in missing session',
-          status: PaymentStatus.SUCCEEDED,
-          createdAt: new Date('2026-06-02T11:00:00.000Z'),
           source: PaymentSource.DROPIN,
           sourceId: 'missing',
           paymentMethod: 'CASH',
-        },
+          createdAt: new Date('2026-06-02T11:00:00.000Z'),
+        }),
       ],
       consumptions: [],
     });
@@ -157,17 +179,7 @@ describe('studio-analytics.aggregate', () => {
   it('fills daily buckets and keeps cash revenue on the payment day', () => {
     const result = aggregateStudioRange(
       loaded({
-        payments: [
-          {
-            amountCents: 8_000,
-            description: 'Membership',
-            status: PaymentStatus.SUCCEEDED,
-            createdAt: new Date(2026, 5, 1, 9, 0, 0),
-            source: PaymentSource.PACKAGE,
-            sourceId: 'pkg-1',
-            paymentMethod: 'CARD',
-          },
-        ],
+        payments: [payment()],
       }),
     );
 
@@ -201,15 +213,14 @@ describe('studio-analytics.aggregate', () => {
     const result = aggregateStudioRange(
       loaded({
         payments: [
-          {
+          payment({
             amountCents: 7_000,
             description: 'Drop-in session s1',
-            status: PaymentStatus.SUCCEEDED,
-            createdAt: new Date('2026-06-02T10:00:00.000Z'),
             source: PaymentSource.DROPIN,
             sourceId: 's1',
             paymentMethod: null,
-          },
+            createdAt: new Date('2026-06-02T10:00:00.000Z'),
+          }),
         ],
       }),
     );

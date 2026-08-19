@@ -5,7 +5,12 @@ import { joinName } from './reports.helpers';
 import { loadStudioAnalyticsGiftCredits } from './studio-analytics-gift-queries';
 import { loadStudioAnalyticsMembers } from './studio-analytics-member-queries';
 import {
+  loadStudioAnalyticsPackagePlans,
+  loadStudioAnalyticsPayments,
+} from './studio-analytics-payment-queries';
+import {
   emptyGiftCredits,
+  STUDIO_ANALYTICS_LABEL_CAP,
   STUDIO_ANALYTICS_ROW_CAP,
 } from './studio-analytics.helpers';
 import type {
@@ -72,7 +77,7 @@ export class StudioAnalyticsQueriesService {
     ] = await Promise.all([
       this.loadBookingGroups(sessionIds),
       isFull ? this.loadWaitlistGroups(sessionIds) : Promise.resolve([]),
-      this.loadPayments(params.from, params.to),
+      loadStudioAnalyticsPayments(this.prisma, params.from, params.to),
       isFull ? this.loadConsumptions(params) : Promise.resolve([]),
       isFull
         ? this.loadLabels(sessions)
@@ -82,13 +87,18 @@ export class StudioAnalyticsQueriesService {
         ? loadStudioAnalyticsGiftCredits(this.prisma, params.from, params.to)
         : Promise.resolve(emptyGiftCredits()),
     ]);
+    const packagePlans = isFull
+      ? await loadStudioAnalyticsPackagePlans(this.prisma, payments)
+      : [];
     return {
       bookingGroups,
       waitlistGroups,
       payments,
+      packagePlans,
       consumptions,
       coaches: labels.coaches,
       classTypes: labels.classTypes,
+      filters: params.filters,
       members,
       giftCredits,
     };
@@ -141,22 +151,6 @@ export class StudioAnalyticsQueriesService {
     }));
   }
 
-  private async loadPayments(from: Date, to: Date) {
-    return this.prisma.payment.findMany({
-      where: { createdAt: { gte: from, lte: to } },
-      select: {
-        amountCents: true,
-        description: true,
-        status: true,
-        createdAt: true,
-        source: true,
-        sourceId: true,
-        paymentMethod: true,
-      },
-      take: STUDIO_ANALYTICS_ROW_CAP,
-    });
-  }
-
   private async loadConsumptions(
     params: StudioAnalyticsLoadParams,
   ): Promise<StudioAnalyticsConsumptionRow[]> {
@@ -207,9 +201,6 @@ export class StudioAnalyticsQueriesService {
 
   private async loadLabels(sessions: StudioAnalyticsSessionRow[]) {
     const coachIds = [...new Set(sessions.map((session) => session.coachId))];
-    const classTypeIds = [
-      ...new Set(sessions.map((session) => session.classTypeId)),
-    ];
     const [coaches, classTypes] = await Promise.all([
       coachIds.length === 0
         ? Promise.resolve([])
@@ -221,12 +212,10 @@ export class StudioAnalyticsQueriesService {
               user: { select: { name: true, lastName: true, email: true } },
             },
           }),
-      classTypeIds.length === 0
-        ? Promise.resolve([])
-        : this.prisma.classType.findMany({
-            where: { id: { in: classTypeIds } },
-            select: { id: true, name: true },
-          }),
+      this.prisma.classType.findMany({
+        select: { id: true, name: true },
+        take: STUDIO_ANALYTICS_LABEL_CAP,
+      }),
     ]);
     return {
       coaches: coaches.map((coach) => ({

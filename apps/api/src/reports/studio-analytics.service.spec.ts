@@ -3,6 +3,7 @@ import {
   BookingStatus,
   PaymentSource,
   PaymentStatus,
+  Role,
 } from '@prisma/client';
 import {
   emptyGiftCredits,
@@ -32,11 +33,16 @@ function loadedRange(
         source: PaymentSource.PACKAGE,
         sourceId: 'pkg-1',
         paymentMethod: 'CARD',
+        userId: 'user-1',
+        userRole: Role.USER,
+        userLabel: 'Client One',
       },
     ],
+    packagePlans: [],
     consumptions: [],
     coaches: [],
     classTypes: [],
+    filters: {},
     members: { ...emptyMemberCounts(), newInRange: newMembers },
     giftCredits: emptyGiftCredits(),
   };
@@ -110,9 +116,11 @@ describe('StudioAnalyticsService', () => {
       ],
       waitlistGroups: [],
       payments: [],
+      packagePlans: [],
       consumptions: [],
       coaches: [],
       classTypes: [],
+      filters: {},
       members: emptyMemberCounts(),
       giftCredits: emptyGiftCredits(),
     });

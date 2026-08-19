@@ -7,6 +7,18 @@ export const STUDIO_ANALYTICS_ROW_CAP = 20_000;
 
 export const UNKNOWN_PAYMENT_METHOD = 'UNKNOWN';
 
+export const STUDIO_ANALYTICS_RANK_LIMIT = 10;
+
+export const STUDIO_ANALYTICS_LABEL_CAP = 500;
+
+export const UNKNOWN_PACKAGE_ID = 'unknown';
+
+export const UNKNOWN_PACKAGE_LABEL = 'Unknown package';
+
+export const UNASSIGNED_CLASS_TYPE_ID = 'unassigned';
+
+export const UNASSIGNED_CLASS_TYPE_LABEL = 'Unassigned';
+
 export const GIFT_CREDIT_SPEND_PREFIX = 'Gift credit spend';
 
 export const ACTIVE_MEMBERS_LOOKBACK_MS = 30 * 24 * 60 * 60 * 1000;

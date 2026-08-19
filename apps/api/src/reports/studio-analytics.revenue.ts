@@ -7,6 +7,7 @@ import {
   isAttributableConsumption,
   UNKNOWN_PAYMENT_METHOD,
 } from './studio-analytics.helpers';
+import { applyPackageSalesToClassTypes } from './studio-analytics.rankings';
 import type {
   StudioAnalyticsConsumptionRow,
   StudioAnalyticsLabelRow,
@@ -21,17 +22,7 @@ export function attributeSessionRevenue(params: {
   payments: StudioAnalyticsPaymentRow[];
   consumptions: StudioAnalyticsConsumptionRow[];
 }): Map<string, number> {
-  const sessionIds = new Set(params.sessions.map((session) => session.id));
-  const bySession = new Map<string, number>();
-  for (const payment of params.payments) {
-    if (!isAttributableDropin(payment, sessionIds) || !payment.sourceId) {
-      continue;
-    }
-    bySession.set(
-      payment.sourceId,
-      (bySession.get(payment.sourceId) ?? 0) + payment.amountCents,
-    );
-  }
+  const bySession = attributeDropinSessionRevenue(params);
   for (const row of params.consumptions) {
     addConsumptionRevenue(bySession, row);
   }
@@ -51,6 +42,9 @@ function addConsumptionRevenue(
     sessionPriceCents: row.sessionPriceCents,
     consumedSessions: row.consumedSessions,
   });
+  if (cents <= 0) {
+    return;
+  }
   bySession.set(row.sessionId, (bySession.get(row.sessionId) ?? 0) + cents);
 }
 
@@ -106,10 +100,29 @@ function addCashBucket(
   map.set(key, entry);
 }
 
+export function attributeDropinSessionRevenue(params: {
+  sessions: StudioAnalyticsSessionRow[];
+  payments: StudioAnalyticsPaymentRow[];
+}): Map<string, number> {
+  const sessionIds = new Set(params.sessions.map((session) => session.id));
+  const bySession = new Map<string, number>();
+  for (const payment of params.payments) {
+    if (!isAttributableDropin(payment, sessionIds) || !payment.sourceId) {
+      continue;
+    }
+    bySession.set(
+      payment.sourceId,
+      (bySession.get(payment.sourceId) ?? 0) + payment.amountCents,
+    );
+  }
+  return bySession;
+}
+
 export function buildAttributedBreakdown(
   input: StudioAnalyticsLoadedRange,
   bookings: BookingIndex,
-  revenueBySession: Map<string, number>,
+  visitRevenueBySession: Map<string, number>,
+  dropinRevenueBySession: Map<string, number>,
 ): Pick<StudioAnalyticsPayload['revenue'], 'byClassType' | 'byCoach'> {
   const classTypes = new Map<
     string,
@@ -127,16 +140,28 @@ export function buildAttributedBreakdown(
   >();
   for (const session of input.sessions) {
     const stats = bookings.bySession.get(session.id) ?? emptySessionStats();
-    const amount = revenueBySession.get(session.id) ?? 0;
     addClassTypeBucket(
       classTypes,
       input.classTypes,
       session,
       stats.total,
-      amount,
+      dropinRevenueBySession.get(session.id) ?? 0,
     );
-    addCoachBucket(coaches, input.coaches, session, stats.total, amount);
+    addCoachBucket(
+      coaches,
+      input.coaches,
+      session,
+      stats.total,
+      visitRevenueBySession.get(session.id) ?? 0,
+    );
   }
+  applyPackageSalesToClassTypes(
+    classTypes,
+    input.payments,
+    input.packagePlans,
+    input.classTypes,
+    input.filters.classTypeId,
+  );
   return {
     byClassType: [...classTypes.values()].sort(
       (left, right) => right.amountCents - left.amountCents,

@@ -10,6 +10,11 @@ import {
 } from './studio-analytics.bookings';
 import { emptyGiftCredits, ratePercent } from './studio-analytics.helpers';
 import {
+  rankPackageSales,
+  rankTopClients,
+} from './studio-analytics.rankings';
+import {
+  attributeDropinSessionRevenue,
   attributeSessionRevenue,
   buildAttributedBreakdown,
   summarizeCashRevenue,
@@ -51,11 +56,13 @@ export function aggregateStudioRange(
   const bookings = indexBookingGroups(input.bookingGroups);
   const waitlist = summarizeWaitlist(input.waitlistGroups);
   const revenueBySession = attributeSessionRevenue(input);
+  const dropinBySession = attributeDropinSessionRevenue(input);
   const cash = summarizeCashRevenue(input.payments);
   const attributed = buildAttributedBreakdown(
     input,
     bookings,
     revenueBySession,
+    dropinBySession,
   );
   const kpis = buildKpis(input, bookings.totals, waitlist);
   return {
@@ -65,6 +72,8 @@ export function aggregateStudioRange(
       ...cash,
       byClassType: attributed.byClassType,
       byCoach: attributed.byCoach,
+      byPackage: rankPackageSales(input.payments, input.packagePlans),
+      topClients: rankTopClients(input.payments),
       giftCredits: input.giftCredits ?? emptyGiftCredits(),
     },
     operations: buildOperations(input, bookings, waitlist),
