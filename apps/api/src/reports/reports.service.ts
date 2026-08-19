@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
+import { StudioAnalyticsQueryDto } from './dto/studio-analytics-query.dto';
 import { ReportsAnalyticsService } from './reports-analytics.service';
 import {
   DashboardOptions,
   ReportsDashboardService,
 } from './reports-dashboard.service';
 import { ReportsExportService } from './reports-export.service';
+import { StudioAnalyticsService } from './studio-analytics.service';
 
 export type { DashboardOptions };
 
@@ -15,6 +17,7 @@ export class ReportsService {
     private readonly dashboardService: ReportsDashboardService,
     private readonly exportService: ReportsExportService,
     private readonly analyticsService: ReportsAnalyticsService,
+    private readonly studioAnalyticsService: StudioAnalyticsService,
   ) {}
 
   dashboard(options?: DashboardOptions) {
@@ -43,5 +46,9 @@ export class ReportsService {
 
   userAnalytics(userId: string, days: number) {
     return this.analyticsService.userAnalytics(userId, days);
+  }
+
+  studioAnalytics(query: StudioAnalyticsQueryDto) {
+    return this.studioAnalyticsService.studioAnalytics(query);
   }
 }

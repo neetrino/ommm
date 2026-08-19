@@ -7,6 +7,8 @@ import { ReportsAnalyticsService } from './reports-analytics.service';
 import { ReportsDashboardService } from './reports-dashboard.service';
 import { ReportsExportService } from './reports-export.service';
 import { ReportsService } from './reports.service';
+import { StudioAnalyticsQueriesService } from './studio-analytics-queries.service';
+import { StudioAnalyticsService } from './studio-analytics.service';
 
 function createServiceWithPrisma(
   prismaMock: Record<string, unknown>,
@@ -16,6 +18,7 @@ function createServiceWithPrisma(
     new ReportsDashboardService(prisma),
     new ReportsExportService(prisma),
     new ReportsAnalyticsService(prisma),
+    new StudioAnalyticsService(new StudioAnalyticsQueriesService(prisma)),
   );
 }
 

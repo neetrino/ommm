@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CoachAnalyticsQueryDto } from './dto/coach-analytics-query.dto';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
+import { StudioAnalyticsQueryDto } from './dto/studio-analytics-query.dto';
 import { UserAnalyticsQueryDto } from './dto/user-analytics-query.dto';
 import { ReportsService } from './reports.service';
 
@@ -70,6 +71,14 @@ export class ReportsController {
   @Roles(...BACKOFFICE_DELETE_ROLES)
   financeSummary(@Query() query: DateRangeQueryDto) {
     return this.reports.financeSummary(query);
+  }
+
+  @Get('analytics')
+  @SkipThrottle()
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  studioAnalytics(@Query() query: StudioAnalyticsQueryDto) {
+    assertValidReportRange(query.from, query.to);
+    return this.reports.studioAnalytics(query);
   }
 
   @Get('payments.csv')
@@ -125,5 +134,17 @@ export class ReportsController {
     @Query() query: UserAnalyticsQueryDto,
   ) {
     return this.reports.userAnalytics(user.id, query.days ?? 90);
+  }
+}
+
+function assertValidReportRange(from?: string, to?: string): void {
+  if (from && Number.isNaN(new Date(from).getTime())) {
+    throw new BadRequestException('Invalid date range');
+  }
+  if (to && Number.isNaN(new Date(to).getTime())) {
+    throw new BadRequestException('Invalid date range');
+  }
+  if (from && to && new Date(to) < new Date(from)) {
+    throw new BadRequestException('Invalid date range');
   }
 }
