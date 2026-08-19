@@ -1,11 +1,12 @@
 import { getTranslations } from "next-intl/server";
+import type { FinanceBoundedDateRangeDays } from "@/components/admin/admin-finance-types";
 import type { FinanceSummaryPayload } from "@/components/admin/admin-finance-server-helpers";
 import { getFinanceStatusStats } from "@/components/admin/admin-finance-server-helpers";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminFinanceOverviewSectionsProps = {
   locale: string;
-  rangeDays: number;
+  rangeDays: FinanceBoundedDateRangeDays;
   totalRevenueCents: number;
   monthRevenueCents: number;
   financeSummary: FinanceSummaryPayload;

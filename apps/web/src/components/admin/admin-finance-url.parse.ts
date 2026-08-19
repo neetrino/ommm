@@ -92,7 +92,7 @@ export function parseFinancePackageSessionsFilter(
 
 export function parseFinanceOverviewFiltersFromSearch(
   search: Record<string, string | string[] | undefined>,
-): Pick<FinanceFilterValues, "rangeDays"> {
+): { rangeDays: FinanceBoundedDateRangeDays } {
   return {
     rangeDays: parseFinanceDateRangeDays(search.rangeDays),
   };
