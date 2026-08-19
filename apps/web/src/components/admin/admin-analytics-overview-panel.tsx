@@ -14,11 +14,17 @@ import { AdminAnalyticsColumnChart } from "@/components/admin/admin-analytics-co
 import { AdminAnalyticsKpiStrip } from "@/components/admin/admin-analytics-kpi-strip";
 import { AdminAnalyticsPanelSection } from "@/components/admin/admin-analytics-panel-motion";
 import {
+  formatNamedAmount,
+  pickTopNamedAmount,
+  resolveClassTypeLabel,
+} from "@/components/admin/admin-analytics-finance-map";
+import {
   buildClassPopularityBarItems,
   buildWaitlistSnapshotItems,
   formatRatePercent,
 } from "@/components/admin/admin-analytics-studio-map";
 import { sliceSortedBarItems } from "@/components/admin/admin-analytics-chart-data";
+import { AnalyticsRankTable } from "@/components/admin/admin-analytics-shared-ui";
 import { sumBucketValues } from "@/components/admin/admin-analytics-trend-data";
 import type { AdminAnalyticsPayload } from "@/components/admin/admin-analytics-types";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -56,6 +62,16 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
   const bookingsTrendTotal = sumBucketValues(data.dailyTrend, "total");
   const completedTrendTotal = sumBucketValues(data.dailyTrend, "completed");
   const occupancyTrendAvg = sumBucketValues(data.dailyTrend, "occupancyRate");
+  const unassigned = t("unassignedClassType");
+  const financeTeaser = useMemo(
+    () =>
+      buildFinanceTeaserRows(studio, locale, unassigned, t("notAvailable"), {
+        package: t("sections.financeRankings.package"),
+        classType: t("sections.financeRankings.classType"),
+        coach: t("sections.financeRankings.coach"),
+      }),
+    [locale, studio, t, unassigned],
+  );
 
   const kpis = [
     {
@@ -172,8 +188,23 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
           />
         </AdminAnalyticsChartPanel>
       </AdminAnalyticsPanelSection>
+      <AdminAnalyticsPanelSection index={4}>
+        <AdminAnalyticsChartPanel
+          title={t("sections.financeRankings.title")}
+          hint={t("sections.financeRankings.hint")}
+        >
+          <AnalyticsRankTable
+            rows={financeTeaser}
+            labels={{
+              rank: t("table.rank"),
+              name: t("table.name"),
+              count: t("table.amount"),
+            }}
+          />
+        </AdminAnalyticsChartPanel>
+      </AdminAnalyticsPanelSection>
       <div className="grid gap-4 lg:grid-cols-2">
-        <AdminAnalyticsPanelSection index={4}>
+        <AdminAnalyticsPanelSection index={5}>
           <AdminAnalyticsChartPanel
             title={t("sections.classPopularity.title")}
             hint={t("sections.classPopularity.hint")}
@@ -186,7 +217,7 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
             />
           </AdminAnalyticsChartPanel>
         </AdminAnalyticsPanelSection>
-        <AdminAnalyticsPanelSection index={5}>
+        <AdminAnalyticsPanelSection index={6}>
           <AdminAnalyticsChartPanel
             title={t("sections.waitlist.title")}
             hint={t("sections.waitlist.hint")}
@@ -202,4 +233,41 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
       </div>
     </div>
   );
+}
+
+function buildFinanceTeaserRows(
+  studio: AdminAnalyticsPayload["studio"],
+  locale: string,
+  unassigned: string,
+  emptyLabel: string,
+  labels: { package: string; classType: string; coach: string },
+) {
+  const topPackage = pickTopNamedAmount(studio.revenue.byPackage);
+  const topClass = pickTopNamedAmount(
+    studio.revenue.byClassType.map((entry) => ({
+      label: resolveClassTypeLabel(entry.id, entry.label, unassigned),
+      amountCents: entry.amountCents,
+    })),
+  );
+  const topCoach = pickTopNamedAmount(studio.revenue.byCoach);
+  return [
+    teaserRow("package", labels.package, topPackage, locale, emptyLabel),
+    teaserRow("class", labels.classType, topClass, locale, emptyLabel),
+    teaserRow("coach", labels.coach, topCoach, locale, emptyLabel),
+  ];
+}
+
+function teaserRow(
+  key: string,
+  category: string,
+  row: { label: string; amountCents: number } | null,
+  locale: string,
+  emptyLabel: string,
+) {
+  return {
+    key,
+    label: category,
+    value: row?.amountCents ?? 0,
+    displayValue: formatNamedAmount(row, locale, emptyLabel),
+  };
 }

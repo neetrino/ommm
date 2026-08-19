@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildPackageSalesBarItems,
+  buildTopClientRankRows,
+  pickTopNamedAmount,
+} from "./admin-analytics-finance-map";
+import {
   buildDailyTrendFromStudio,
   buildPeakHourColumnData,
   buildPeakWeekdayColumnData,
@@ -63,6 +68,8 @@ function createStudioFixture(): StudioAnalyticsPayload {
       byPaymentMethod: [{ method: "CASH", count: 2, amountCents: 400 }],
       byClassType: [{ id: "c1", label: "Yoga", amountCents: 700, bookings: 5 }],
       byCoach: [{ id: "coach1", label: "Ani", amountCents: 700, bookings: 5, sessions: 3 }],
+      byPackage: [{ id: "p1", label: "Yoga 8", count: 2, amountCents: 600 }],
+      topClients: [{ id: "u1", label: "Ada", amountCents: 400, paymentsCount: 2 }],
       giftCredits: {
         issuedCents: 1000,
         issuedCount: 1,
@@ -200,5 +207,18 @@ describe("peak column data", () => {
     const hours = buildPeakHourColumnData(studio);
     assert.equal(hours[1]?.label, "18:00");
     assert.equal(hours[1]?.bookings, 5);
+  });
+});
+
+describe("finance rankings", () => {
+  it("maps package sales and top clients for tables", () => {
+    const studio = createStudioFixture();
+    const packages = buildPackageSalesBarItems(studio, "revenue-desc", "en");
+    const clients = buildTopClientRankRows(studio, "en");
+    assert.equal(packages[0]?.key, "p1");
+    assert.equal(packages[0]?.value, 600);
+    assert.equal(clients[0]?.key, "u1");
+    assert.equal(clients[0]?.secondaryValue, "2");
+    assert.equal(pickTopNamedAmount(studio.revenue.byPackage)?.label, "Yoga 8");
   });
 });

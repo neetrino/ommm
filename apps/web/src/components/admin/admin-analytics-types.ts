@@ -114,6 +114,18 @@ export type StudioAnalyticsPayload = {
       bookings: number;
       sessions: number;
     }>;
+    byPackage: Array<{
+      id: string;
+      label: string;
+      count: number;
+      amountCents: number;
+    }>;
+    topClients: Array<{
+      id: string;
+      label: string;
+      amountCents: number;
+      paymentsCount: number;
+    }>;
     giftCredits: {
       issuedCents: number;
       issuedCount: number;

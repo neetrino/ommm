@@ -3569,6 +3569,17 @@
       "kpiNoShowRate": "No-show rate",
       "kpiWaitlistActive": "Active waitlist",
       "kpiGiftOutstanding": "Gift credits outstanding",
+      "kpiPackageRevenue": "Package revenue (cash)",
+      "kpiPackageUnits": "{count} packages sold",
+      "kpiDropinRevenue": "Drop-in revenue (cash)",
+      "kpiTopPackage": "Top package (cash)",
+      "kpiTopClassType": "Top class type (sales)",
+      "kpiTopCoach": "Top coach (attributed)",
+      "kpiTopClient": "Top client (cash)",
+      "unassignedClassType": "Unassigned",
+      "cashHintShort": "Cash collected in range",
+      "salesHintShort": "Package sales + drop-in cash",
+      "attributedHintShort": "Attributed visit revenue — not cash collected",
       "trendNotAvailable": "N/A",
       "comparison": {
         "previousPeriod": "vs previous period"
@@ -3781,13 +3792,34 @@
         },
         "coachRevenue": {
           "title": "Attributed revenue per coach",
-          "attributedHint": "Drop-in payments plus package session consumption attributed to each coach.",
+          "attributedHint": "Drop-in payments plus package session consumption attributed to each coach. Not package cash or payroll.",
+          "topCoach": "Top coach attributed",
           "chartAria": "Attributed coach revenue chart"
         },
         "classRevenue": {
-          "title": "Attributed revenue per class",
+          "title": "Revenue per class type",
           "attributedHint": "Drop-in payments plus package session consumption attributed to each class type.",
-          "chartAria": "Attributed class revenue chart"
+          "salesHint": "Package sales and drop-in cash mapped to each class type. Not coach payroll.",
+          "tableTitle": "Class type sales ranking",
+          "series": "Sales",
+          "chartAria": "Class type sales column chart"
+        },
+        "packageSales": {
+          "title": "Packages sold",
+          "tableTitle": "Top packages",
+          "hint": "Successful package purchases in the selected range (cash).",
+          "chartAria": "Package sales chart"
+        },
+        "topClients": {
+          "title": "Top clients",
+          "hint": "Members with the highest successful payments in the selected range (cash)."
+        },
+        "financeRankings": {
+          "title": "Top finance rankings",
+          "hint": "Highest package, class type, and coach in the selected range.",
+          "package": "Top package",
+          "classType": "Top class type",
+          "coach": "Top coach"
         },
         "coachSessions": {
           "title": "Coach session load",
@@ -3824,7 +3856,11 @@
         "value": "Value",
         "rank": "#",
         "name": "Name",
-        "count": "Count"
+        "count": "Count",
+        "amount": "Amount",
+        "payments": "Payments",
+        "units": "Units sold",
+        "bookings": "Bookings"
       }
     },
     "finance": {

@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/admin-analytics-studio-map";
 import { sliceSortedBarItems } from "@/components/admin/admin-analytics-chart-data";
 import type { AdminAnalyticsPayload } from "@/components/admin/admin-analytics-types";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminAnalyticsCoachesPanelProps = {
   data: AdminAnalyticsPayload;
@@ -86,6 +87,7 @@ export function AdminAnalyticsCoachesPanel({ data }: AdminAnalyticsCoachesPanelP
   const topAttendance = [...rows].sort(
     (a, b) => (b.attendanceRate ?? -1) - (a.attendanceRate ?? -1),
   )[0];
+  const topRevenueCoach = [...rows].sort((a, b) => b.revenueCents - a.revenueCents)[0];
 
   const kpis = [
     {
@@ -121,6 +123,14 @@ export function AdminAnalyticsCoachesPanel({ data }: AdminAnalyticsCoachesPanelP
       value: topAttendance
         ? formatRatePercent(topAttendance.attendanceRate, notAvailable)
         : notAvailable,
+    },
+    {
+      key: "topRevenue",
+      label: t("sections.coachRevenue.topCoach"),
+      value: topRevenueCoach
+        ? `${topRevenueCoach.name} · ${formatAmdFromCents(topRevenueCoach.revenueCents, locale)}`
+        : notAvailable,
+      hint: t("attributedHintShort"),
     },
   ];
 

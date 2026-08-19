@@ -37,12 +37,16 @@ export function AnalyticsMetricTable({
   );
 }
 
+export type AnalyticsRankRow = AnalyticsBarItem & {
+  secondaryValue?: string;
+};
+
 export function AnalyticsRankTable({
   rows,
   labels,
 }: {
-  rows: AnalyticsBarItem[];
-  labels: { rank: string; name: string; count: string };
+  rows: AnalyticsRankRow[];
+  labels: { rank: string; name: string; count: string; secondary?: string };
 }) {
   return (
     <div className={adminChrome.tableWrap}>
@@ -58,6 +62,11 @@ export function AnalyticsRankTable({
             <th className={adminChrome.th} scope="col">
               {labels.count}
             </th>
+            {labels.secondary ? (
+              <th className={adminChrome.th} scope="col">
+                {labels.secondary}
+              </th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
@@ -66,6 +75,9 @@ export function AnalyticsRankTable({
               <td className={adminChrome.tdMuted}>{index + 1}</td>
               <td className={adminChrome.tdStrong}>{row.label}</td>
               <td className={adminChrome.td}>{row.displayValue ?? row.value}</td>
+              {labels.secondary ? (
+                <td className={adminChrome.td}>{row.secondaryValue ?? ""}</td>
+              ) : null}
             </tr>
           ))}
         </tbody>
