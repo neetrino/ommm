@@ -6,10 +6,15 @@ import {
   OMMA_WANDER_GRAVITY_PX_S2,
   OMMA_WANDER_MAX_LIFE_MS,
   OMMA_WANDER_MAX_SPEED_PX_S,
-  OMMA_WANDER_MIN_DRIFT_PX_S,
   OMMA_WANDER_RESTITUTION,
   OMMA_WANDER_RESTITUTION_JITTER,
-  OMMA_WANDER_SPIN_GAIN,
+  OMMA_WANDER_HOP_VX_MAX,
+  OMMA_WANDER_HOP_VX_MIN,
+  OMMA_WANDER_HOP_VY_MAX,
+  OMMA_WANDER_HOP_VY_MIN,
+  OMMA_WANDER_ROLL_DEG_PER_PX,
+  OMMA_WANDER_ROLL_SPEED_PX_S,
+  OMMA_WANDER_SUPPORT_NORMAL_MAX,
   OMMA_WANDER_SQUASH_RECOVER,
   OMMA_WANDER_SQUASH_SIDE_GAIN,
   OMMA_WANDER_SQUASH_X_GAIN,
@@ -23,7 +28,8 @@ import {
   OMMA_WANDER_SUBSTEP_MAX_SEC,
   OMMA_WANDER_TANGENT_KEEP,
 } from "@/components/brand/omma-wander-sphere-tokens";
-import { clamp, randomSign } from "@/components/brand/omma-wander-sphere-math";
+import { computeAabbHit } from "@/components/brand/omma-wander-sphere-aabb";
+import { clamp, randomBetween, randomSign } from "@/components/brand/omma-wander-sphere-math";
 import type {
   RandomFn,
   WanderAabb,
@@ -43,6 +49,7 @@ export function isBallOffscreen(ball: WanderBall, viewport: WanderViewport): boo
 
 export function shouldForceExit(ball: WanderBall): boolean {
   return (
+    !ball.resting &&
     !ball.leaving &&
     (ball.bounceCount >= OMMA_WANDER_EXIT_AFTER_BOUNCES ||
       ball.ageMs >= OMMA_WANDER_EXIT_AFTER_MS ||
@@ -52,6 +59,7 @@ export function shouldForceExit(ball: WanderBall): boolean {
 
 export function markBallLeaving(ball: WanderBall, viewport: WanderViewport, random: RandomFn): void {
   ball.leaving = true;
+  ball.resting = false;
   const toLeft = ball.x;
   const toRight = viewport.width - ball.x;
   const goLeft = toLeft < toRight ? random() < 0.7 : random() < 0.3;
@@ -63,6 +71,14 @@ export function markBallLeaving(ball: WanderBall, viewport: WanderViewport, rand
 }
 
 export function integrateBall(ball: WanderBall, dtSec: number): void {
+  if (ball.resting) {
+    ball.vx = 0;
+    ball.vy = 0;
+    ball.restMs += dtSec * 1000;
+    recoverSquash(ball, dtSec);
+    return;
+  }
+  ball.restMs = 0;
   ball.vy += OMMA_WANDER_GRAVITY_PX_S2 * dtSec;
   const drag = Math.max(0, 1 - OMMA_WANDER_DRAG * dtSec);
   ball.vx *= drag;
@@ -75,6 +91,9 @@ export function integrateBall(ball: WanderBall, dtSec: number): void {
   }
   ball.x += ball.vx * dtSec;
   ball.y += ball.vy * dtSec;
+  if (Math.abs(ball.vx) > OMMA_WANDER_ROLL_SPEED_PX_S) {
+    ball.spin += ball.vx * dtSec * OMMA_WANDER_ROLL_DEG_PER_PX;
+  }
   ball.ageMs += dtSec * 1000;
   recoverSquash(ball, dtSec);
 }
@@ -90,8 +109,14 @@ export function resolveSurfaceHits(
   surfaces: readonly WanderAabb[],
   random: RandomFn,
 ): void {
+  let supported = false;
   for (const rect of surfaces) {
-    resolveCircleAabb(ball, rect, random, false);
+    if (resolveCircleAabb(ball, rect, random, false)) {
+      supported = true;
+    }
+  }
+  if (ball.resting && !supported) {
+    ball.resting = false;
   }
 }
 
@@ -106,8 +131,10 @@ export function resolveViewportBounds(
     right: viewport.width * 2,
     bottom: viewport.height + OMMA_WANDER_FLOOR_DEPTH_PX,
   };
-  resolveCircleAabb(ball, floor, random, true);
-
+  const onFloor = resolveCircleAabb(ball, floor, random, true);
+  if (ball.resting && onFloor) {
+    return;
+  }
   if (ball.leaving) {
     return;
   }
@@ -134,61 +161,27 @@ function resolveCircleAabb(
   rect: WanderAabb,
   random: RandomFn,
   isFloor: boolean,
-): void {
+): boolean {
   const hit = computeAabbHit(ball, rect);
   if (!hit) {
-    return;
+    return false;
   }
   ball.x += hit.nx * hit.overlap;
   ball.y += hit.ny * hit.overlap;
+  const supported = hit.ny < OMMA_WANDER_SUPPORT_NORMAL_MAX;
   const approaching = ball.vx * hit.nx + ball.vy * hit.ny;
   if (approaching >= 0) {
-    return;
+    return supported || ball.resting;
   }
   applyBounce(ball, hit.nx, hit.ny, random);
   if (isFloor && ball.leaving) {
     ball.vx += ball.exitNx * OMMA_WANDER_LEAVE_FLOOR_KICK_PX_S;
   }
-}
-
-type AabbHit = { nx: number; ny: number; overlap: number };
-
-function computeAabbHit(ball: WanderBall, rect: WanderAabb): AabbHit | null {
-  const inside =
-    ball.x > rect.left && ball.x < rect.right && ball.y > rect.top && ball.y < rect.bottom;
-  if (inside) {
-    return insideAabbHit(ball, rect);
-  }
-  const px = clamp(ball.x, rect.left, rect.right);
-  const py = clamp(ball.y, rect.top, rect.bottom);
-  const dx = ball.x - px;
-  const dy = ball.y - py;
-  const dist = Math.hypot(dx, dy);
-  if (dist === 0 || dist >= ball.radius) {
-    return dist === 0 ? insideAabbHit(ball, rect) : null;
-  }
-  return { nx: dx / dist, ny: dy / dist, overlap: ball.radius - dist };
-}
-
-function insideAabbHit(ball: WanderBall, rect: WanderAabb): AabbHit {
-  const left = ball.x - rect.left;
-  const right = rect.right - ball.x;
-  const top = ball.y - rect.top;
-  const bottom = rect.bottom - ball.y;
-  const min = Math.min(left, right, top, bottom);
-  if (min === top) {
-    return { nx: 0, ny: -1, overlap: ball.radius + top };
-  }
-  if (min === bottom) {
-    return { nx: 0, ny: 1, overlap: ball.radius + bottom };
-  }
-  if (min === left) {
-    return { nx: -1, ny: 0, overlap: ball.radius + left };
-  }
-  return { nx: 1, ny: 0, overlap: ball.radius + right };
+  return supported;
 }
 
 function applyBounce(ball: WanderBall, nx: number, ny: number, random: RandomFn): void {
+  ball.resting = false;
   const vn = ball.vx * nx + ball.vy * ny;
   const liveRestitution =
     OMMA_WANDER_RESTITUTION + (random() * 2 - 1) * OMMA_WANDER_RESTITUTION_JITTER;
@@ -202,12 +195,22 @@ function applyBounce(ball: WanderBall, nx: number, ny: number, random: RandomFn)
   const nextVt = vt * OMMA_WANDER_TANGENT_KEEP;
   ball.vx = nextVn * nx + nextVt * tx;
   ball.vy = nextVn * ny + nextVt * ty;
-  if (Math.abs(ball.vx) < OMMA_WANDER_MIN_DRIFT_PX_S) {
-    ball.vx += randomSign(random) * OMMA_WANDER_MIN_DRIFT_PX_S;
-  }
+  applyHop(ball, ny, random);
   applyImpactSquash(ball, nx, ny, vn);
-  ball.spin += nextVt * OMMA_WANDER_SPIN_GAIN;
   ball.bounceCount += 1;
+}
+
+function applyHop(ball: WanderBall, ny: number, random: RandomFn): void {
+  if (ball.leaving || ny >= OMMA_WANDER_SUPPORT_NORMAL_MAX) {
+    return;
+  }
+  const hop = randomBetween(OMMA_WANDER_HOP_VY_MIN, OMMA_WANDER_HOP_VY_MAX, random);
+  if (ball.vy > -hop) {
+    ball.vy = -hop;
+  }
+  if (Math.abs(ball.vx) < OMMA_WANDER_HOP_VX_MIN) {
+    ball.vx += randomSign(random) * randomBetween(OMMA_WANDER_HOP_VX_MIN, OMMA_WANDER_HOP_VX_MAX, random);
+  }
 }
 
 function applyImpactSquash(ball: WanderBall, nx: number, ny: number, vn: number): void {

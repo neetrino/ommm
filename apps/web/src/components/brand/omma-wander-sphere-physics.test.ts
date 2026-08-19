@@ -8,8 +8,14 @@ import {
   shouldForceExit,
   stepWanderWorld,
 } from "./omma-wander-sphere-physics";
-import { createWanderBall, poseFromEdge } from "./omma-wander-sphere-spawn";
-import { OMMA_WANDER_RADIUS_RATIO } from "./omma-wander-sphere-tokens";
+import { createWanderBall, pickSizeScale, poseFromEdge, wanderBurstSizes } from "./omma-wander-sphere-spawn";
+import {
+  OMMA_WANDER_RADIUS_RATIO,
+  OMMA_WANDER_SIZE_DESKTOP_PX,
+  OMMA_WANDER_SIZE_FOOTER_PX,
+  OMMA_WANDER_SIZE_LARGE_MIN,
+  OMMA_WANDER_SIZE_SMALL_MAX,
+} from "./omma-wander-sphere-tokens";
 import { isOmmaWanderPathEnabled } from "./omma-wander-sphere-path";
 import { isUsableSurfaceRect, sampleSurfaces } from "./omma-wander-sphere-surfaces";
 
@@ -55,7 +61,7 @@ describe("omma-wander-sphere-physics", () => {
 
   it("forces an exit after several bounces and steps off a floor", () => {
     const ball = createWanderBall("exit", { x: 200, y: 40, vx: 0, vy: 0, size: 80 });
-    ball.bounceCount = 6;
+    ball.bounceCount = 9;
     assert.equal(shouldForceExit(ball), true);
     stepWanderWorld(
       [ball],
@@ -66,19 +72,43 @@ describe("omma-wander-sphere-physics", () => {
     );
     assert.equal(ball.leaving, true);
   });
+
+  it("hops onward instead of stalling on a block", () => {
+    const size = 100;
+    const radius = size * OMMA_WANDER_RADIUS_RATIO;
+    const ball = createWanderBall("hop", {
+      x: 120,
+      y: 100,
+      vx: 8,
+      vy: 40,
+      size,
+    });
+    const platform = { left: 40, top: ball.y + radius - 4, right: 220, bottom: ball.y + radius + 30 };
+    resolveSurfaceHits(ball, [platform], midRandom);
+    assert.equal(ball.resting, false);
+    assert.ok(ball.vy < 0);
+    assert.ok(Math.abs(ball.vx) > 8);
+  });
 });
 
 describe("omma-wander-sphere-spawn-and-path", () => {
   it("spawns from outside the viewport edges", () => {
     const viewport = { width: 1000, height: 800 };
-    const top = poseFromEdge("top", viewport, 100, midRandom);
     const left = poseFromEdge("left", viewport, 100, midRandom);
     const right = poseFromEdge("right", viewport, 100, midRandom);
-    assert.ok(top.y < 0);
+    const upperLeft = poseFromEdge("top-left", viewport, 100, midRandom);
     assert.ok(left.x < 0);
     assert.ok(left.vx > 0);
     assert.ok(right.x > viewport.width);
     assert.ok(right.vx < 0);
+    assert.ok(upperLeft.x < 0);
+    assert.ok(upperLeft.y > 0);
+    assert.ok(pickSizeScale(() => 0) <= OMMA_WANDER_SIZE_SMALL_MAX);
+    assert.ok(pickSizeScale(() => 0.9) >= OMMA_WANDER_SIZE_LARGE_MIN);
+    const pair = wanderBurstSizes(3, 1200, midRandom);
+    assert.equal(pair.length, 3);
+    assert.ok(pair.every((size) => size === OMMA_WANDER_SIZE_DESKTOP_PX));
+    assert.ok(OMMA_WANDER_SIZE_DESKTOP_PX < OMMA_WANDER_SIZE_FOOTER_PX);
   });
 
   it("stays off auth and payment routes", () => {
@@ -99,8 +129,16 @@ describe("omma-wander-sphere-surfaces", () => {
       false,
     );
     assert.equal(
-      isUsableSurfaceRect({ left: 40, top: 80, right: 200, bottom: 140 }, viewport),
+      isUsableSurfaceRect({ left: 40, top: 160, right: 200, bottom: 220 }, viewport),
       true,
+    );
+    assert.equal(
+      isUsableSurfaceRect({ left: 0, top: 0, right: 900, bottom: 80 }, viewport),
+      false,
+    );
+    assert.equal(
+      isUsableSurfaceRect({ left: 24, top: 220, right: 976, bottom: 310 }, viewport),
+      false,
     );
     const many = Array.from({ length: 50 }, (_, index) => ({
       left: (index % 10) * 90,

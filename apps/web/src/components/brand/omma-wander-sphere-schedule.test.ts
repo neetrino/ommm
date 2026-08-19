@@ -44,11 +44,11 @@ describe("omma-wander-sphere-schedule", () => {
     assert.ok(OMMA_WANDER_GAP_MAX_MS === 30 * 60 * 1000);
   });
 
-  it("spawns one ball or a swarm of four", () => {
-    assert.equal(pickBurstCount(() => 0.99), 1);
-    assert.equal(pickBurstCount(() => 0), 4);
-    assert.equal(burstCountForMode("now"), 1);
-    assert.equal(burstCountForMode("burst"), 4);
+  it("spawns two or three balls", () => {
+    assert.equal(pickBurstCount(() => 0), 2);
+    assert.equal(pickBurstCount(() => 0.99), 3);
+    assert.equal(burstCountForMode("now", () => 0), 2);
+    assert.equal(burstCountForMode("burst", () => 0.99), 3);
   });
 
   it("uses short demo delays and due-soon when the stored time is past", () => {

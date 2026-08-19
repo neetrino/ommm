@@ -1,4 +1,8 @@
 import {
+  OMMA_WANDER_HEADER_CLEAR_PX,
+  OMMA_WANDER_HEADER_WIDE_RATIO,
+  OMMA_WANDER_SLAB_HEIGHT_RATIO,
+  OMMA_WANDER_SLAB_WIDTH_RATIO,
   OMMA_WANDER_MAX_SURFACES,
   OMMA_WANDER_MAX_SURFACE_VIEWPORT_AREA,
   OMMA_WANDER_MIN_SURFACE_HEIGHT_PX,
@@ -22,9 +26,6 @@ export const OMMA_WANDER_SURFACE_SELECTOR = [
   "textarea",
   "select",
   "[data-slot='card']",
-  "article",
-  "nav",
-  "header",
   ".ommm-card",
   ".ommm-cta-primary",
 ].join(",");
@@ -41,6 +42,15 @@ export function isUsableSurfaceRect(rect: WanderAabb, viewport: WanderViewport):
     return false;
   }
   if (width > viewport.width * 0.92 && height > viewport.height * 0.55) {
+    return false;
+  }
+  if (isWideShortSlab(width, height, viewport)) {
+    return false;
+  }
+  if (rect.bottom <= OMMA_WANDER_HEADER_CLEAR_PX) {
+    return false;
+  }
+  if (rect.top < OMMA_WANDER_HEADER_CLEAR_PX && width > viewport.width * OMMA_WANDER_HEADER_WIDE_RATIO) {
     return false;
   }
   const pad = OMMA_WANDER_SURFACE_VIEWPORT_PAD_PX;
@@ -83,6 +93,13 @@ export function sampleSurfaces(
     picked.push(rect);
   }
   return picked;
+}
+
+function isWideShortSlab(width: number, height: number, viewport: WanderViewport): boolean {
+  return (
+    width > viewport.width * OMMA_WANDER_SLAB_WIDTH_RATIO &&
+    height < viewport.height * OMMA_WANDER_SLAB_HEIGHT_RATIO
+  );
 }
 
 function aabbArea(rect: WanderAabb): number {
@@ -133,7 +150,11 @@ export function collectWanderSurfaces(
   const nodes = root.querySelectorAll(OMMA_WANDER_SURFACE_SELECTOR);
   const rects: WanderAabb[] = [];
   for (const node of nodes) {
-    if (!(node instanceof HTMLElement) || node.closest("[data-omma-wander]")) {
+    if (
+      !(node instanceof HTMLElement) ||
+      node.closest("[data-omma-wander]") ||
+      node.closest("header")
+    ) {
       continue;
     }
     if (!isPaintedElement(node)) {

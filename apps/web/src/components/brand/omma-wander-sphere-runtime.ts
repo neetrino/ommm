@@ -4,7 +4,7 @@ import {
   createWanderBall,
   pickSpawnEdges,
   poseFromEdge,
-  wanderBallSize,
+  wanderBurstSizes,
 } from "@/components/brand/omma-wander-sphere-spawn";
 import { collectWanderSurfaces } from "@/components/brand/omma-wander-sphere-surfaces";
 import {
@@ -50,20 +50,25 @@ export class OmmaWanderRuntime {
     return this.lives.length > 0 || this.spawnTimers.length > 0;
   }
 
-  spawnBurst(count: 1 | 4): void {
+  spawnBurst(count: number): void {
     if (this.isActive()) {
       return;
     }
     this.refreshSurfaces();
     const viewport = readViewport();
     const edges = pickSpawnEdges(count, Math.random);
+    const sizes = wanderBurstSizes(count, viewport.width, Math.random);
     edges.forEach((edge, index) => {
       const timerId = window.setTimeout(() => {
         const at = this.spawnTimers.indexOf(timerId);
         if (at >= 0) {
           this.spawnTimers.splice(at, 1);
         }
-        this.addBall(edge, viewport);
+        const size = sizes[index];
+        if (size === undefined) {
+          return;
+        }
+        this.addBall(edge, viewport, size);
       }, index * OMMA_WANDER_STAGGER_MS);
       this.spawnTimers.push(timerId);
     });
@@ -85,8 +90,7 @@ export class OmmaWanderRuntime {
     this.layer.removeAttribute("data-active");
   }
 
-  private addBall(edge: WanderEdge, viewport: WanderViewport): void {
-    const size = wanderBallSize(viewport.width, Math.random);
+  private addBall(edge: WanderEdge, viewport: WanderViewport, size: number): void {
     const pose = poseFromEdge(edge, viewport, size, Math.random);
     pose.vx = aimHorizontalVelocity(pose.x, pose.vx, this.surfaces, Math.random);
     const state = createWanderBall(`wander-${Date.now()}-${Math.random().toString(16).slice(2)}`, pose);

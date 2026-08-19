@@ -29,6 +29,8 @@ export type WanderBall = {
   squashY: number;
   bounceCount: number;
   ageMs: number;
+  restMs: number;
+  resting: boolean;
   leaving: boolean;
   exitNx: number;
   exitNy: number;

@@ -2,15 +2,21 @@ import {
   OMMA_WANDER_AIM_PULL,
   OMMA_WANDER_AIM_STEER_PX_S,
   OMMA_WANDER_CORNER_VX_SCALE,
-  OMMA_WANDER_CORNER_X_RATIO,
   OMMA_WANDER_MOBILE_MAX_WIDTH_PX,
   OMMA_WANDER_RADIUS_RATIO,
   OMMA_WANDER_SIDE_SPAWN_BOTTOM_RATIO,
   OMMA_WANDER_SIDE_SPAWN_TOP_RATIO,
+  OMMA_WANDER_HEADER_CLEAR_PX,
   OMMA_WANDER_SIZE_DESKTOP_PX,
-  OMMA_WANDER_SIZE_JITTER_MAX,
-  OMMA_WANDER_SIZE_JITTER_MIN,
+  OMMA_WANDER_SIZE_LARGE_MAX,
+  OMMA_WANDER_SIZE_LARGE_MIN,
+  OMMA_WANDER_SIZE_MEDIUM_CHANCE,
+  OMMA_WANDER_SIZE_MEDIUM_MAX,
+  OMMA_WANDER_SIZE_MEDIUM_MIN,
   OMMA_WANDER_SIZE_MOBILE_PX,
+  OMMA_WANDER_SIZE_SMALL_CHANCE,
+  OMMA_WANDER_SIZE_SMALL_MAX,
+  OMMA_WANDER_SIZE_SMALL_MIN,
   OMMA_WANDER_SPAWN_INSET_RATIO,
   OMMA_WANDER_SPAWN_VX_MAX,
   OMMA_WANDER_SPAWN_VX_MIN,
@@ -28,15 +34,36 @@ import type {
   WanderViewport,
 } from "@/components/brand/omma-wander-sphere-types";
 
-const SPAWN_EDGES: readonly WanderEdge[] = ["top", "left", "right", "top-left", "top-right"];
+const SPAWN_EDGES: readonly WanderEdge[] = ["left", "right", "top-left", "top-right"];
+
+export function pickSizeScale(random: RandomFn): number {
+  const roll = random();
+  if (roll < OMMA_WANDER_SIZE_SMALL_CHANCE) {
+    return randomBetween(OMMA_WANDER_SIZE_SMALL_MIN, OMMA_WANDER_SIZE_SMALL_MAX, random);
+  }
+  if (roll < OMMA_WANDER_SIZE_SMALL_CHANCE + OMMA_WANDER_SIZE_MEDIUM_CHANCE) {
+    return randomBetween(OMMA_WANDER_SIZE_MEDIUM_MIN, OMMA_WANDER_SIZE_MEDIUM_MAX, random);
+  }
+  return randomBetween(OMMA_WANDER_SIZE_LARGE_MIN, OMMA_WANDER_SIZE_LARGE_MAX, random);
+}
+
+export function wanderVisualSize(viewportWidth: number): number {
+  return viewportWidth <= OMMA_WANDER_MOBILE_MAX_WIDTH_PX
+    ? OMMA_WANDER_SIZE_MOBILE_PX
+    : OMMA_WANDER_SIZE_DESKTOP_PX;
+}
 
 export function wanderBallSize(viewportWidth: number, random: RandomFn): number {
-  const base =
-    viewportWidth <= OMMA_WANDER_MOBILE_MAX_WIDTH_PX
-      ? OMMA_WANDER_SIZE_MOBILE_PX
-      : OMMA_WANDER_SIZE_DESKTOP_PX;
-  const jitter = randomBetween(OMMA_WANDER_SIZE_JITTER_MIN, OMMA_WANDER_SIZE_JITTER_MAX, random);
-  return Math.round(base * jitter);
+  return Math.round(wanderVisualSize(viewportWidth) * pickSizeScale(random));
+}
+
+export function wanderBurstSizes(
+  count: number,
+  viewportWidth: number,
+  _random: RandomFn,
+): number[] {
+  const size = wanderVisualSize(viewportWidth);
+  return Array.from({ length: Math.max(1, count) }, () => size);
 }
 
 export function pickSpawnEdges(count: number, random: RandomFn): WanderEdge[] {
@@ -89,10 +116,11 @@ function spawnPoseForEdge(edge: WanderEdge, n: SpawnNumbers): WanderSpawnPose {
   if (edge === "right") {
     return { x: n.viewport.width + n.radius, y: n.sideY, vx: -n.inward, vy: n.down, size };
   }
+  const upperY = Math.max(OMMA_WANDER_HEADER_CLEAR_PX, n.sideY * 0.55);
   if (edge === "top-left") {
     return {
-      x: -n.radius * OMMA_WANDER_CORNER_X_RATIO,
-      y: -n.radius,
+      x: -n.radius,
+      y: upperY,
       vx: n.inward * OMMA_WANDER_CORNER_VX_SCALE,
       vy: n.down,
       size,
@@ -100,8 +128,8 @@ function spawnPoseForEdge(edge: WanderEdge, n: SpawnNumbers): WanderSpawnPose {
   }
   if (edge === "top-right") {
     return {
-      x: n.viewport.width + n.radius * OMMA_WANDER_CORNER_X_RATIO,
-      y: -n.radius,
+      x: n.viewport.width + n.radius,
+      y: upperY,
       vx: -n.inward * OMMA_WANDER_CORNER_VX_SCALE,
       vy: n.down,
       size,
@@ -141,6 +169,8 @@ export function createWanderBall(id: string, pose: WanderSpawnPose): WanderBall 
     squashY: 1,
     bounceCount: 0,
     ageMs: 0,
+    restMs: 0,
+    resting: false,
     leaving: false,
     exitNx: 0,
     exitNy: 1,

@@ -6,11 +6,10 @@ import {
   OMMA_WANDER_FIRST_JITTER_MS,
   OMMA_WANDER_GAP_MAX_MS,
   OMMA_WANDER_GAP_MIN_MS,
+  OMMA_WANDER_BURST_COUNT_MAX,
+  OMMA_WANDER_BURST_COUNT_MIN,
   OMMA_WANDER_QUERY_KEY,
   OMMA_WANDER_SESSION_NEXT_AT_KEY,
-  OMMA_WANDER_SINGLE_COUNT,
-  OMMA_WANDER_SWARM_CHANCE,
-  OMMA_WANDER_SWARM_COUNT,
 } from "@/components/brand/omma-wander-sphere-tokens";
 import { clamp, randomBetween } from "@/components/brand/omma-wander-sphere-math";
 import type { RandomFn, WanderMode } from "@/components/brand/omma-wander-sphere-types";
@@ -33,10 +32,8 @@ export function pickGapMs(random: RandomFn = Math.random): number {
   return Math.round(clamp(gap, OMMA_WANDER_GAP_MIN_MS, OMMA_WANDER_GAP_MAX_MS));
 }
 
-export function pickBurstCount(random: RandomFn = Math.random): 1 | 4 {
-  return random() < OMMA_WANDER_SWARM_CHANCE
-    ? OMMA_WANDER_SWARM_COUNT
-    : OMMA_WANDER_SINGLE_COUNT;
+export function pickBurstCount(random: RandomFn = Math.random): 2 | 3 {
+  return random() < 0.5 ? OMMA_WANDER_BURST_COUNT_MIN : OMMA_WANDER_BURST_COUNT_MAX;
 }
 
 export function delayForMode(
@@ -50,13 +47,7 @@ export function delayForMode(
   return kind === "first" ? pickFirstDelayMs(random) : pickGapMs(random);
 }
 
-export function burstCountForMode(mode: WanderMode, random: RandomFn = Math.random): 1 | 4 {
-  if (mode === "burst") {
-    return OMMA_WANDER_SWARM_COUNT;
-  }
-  if (mode === "now") {
-    return OMMA_WANDER_SINGLE_COUNT;
-  }
+export function burstCountForMode(_mode: WanderMode, random: RandomFn = Math.random): 2 | 3 {
   return pickBurstCount(random);
 }
 
