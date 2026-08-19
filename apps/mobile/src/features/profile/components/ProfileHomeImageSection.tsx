@@ -11,6 +11,7 @@ import { useSession } from "../../../auth/SessionProvider";
 import type { UploadPickResult } from "../../../lib/api/usersClient";
 import { deleteHomeImage, uploadHomeImage } from "../../../lib/api/usersClient";
 import { useTranslations } from "../../../i18n/I18nProvider";
+import { OmmConfirmDialog } from "../../../components/ui/OmmConfirmDialog";
 import { colors } from "../../../theme/tokens";
 import { ProfileGlassCard } from "./ProfileGlassCard";
 import { profileHomeImageSectionStyles as styles } from "./profileHomeImageSection.styles";
@@ -23,6 +24,7 @@ export function ProfileHomeImageSection() {
   const tProfile = useTranslations("userPages.profile");
   const [pendingPick, setPendingPick] = useState<UploadPickResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [feedback, setFeedback] = useState<{
     kind: "ok" | "err";
     text: string;
@@ -103,6 +105,7 @@ export function ProfileHomeImageSection() {
       setFeedback({ kind: "err", text: message });
     } finally {
       setBusy(false);
+      setPendingDelete(false);
     }
   }, [busy, hasSavedPhoto, refreshProfile, tHomeImage]);
 
@@ -128,7 +131,8 @@ export function ProfileHomeImageSection() {
   }, [busy, pendingPick, refreshProfile, tHomeImage]);
 
   return (
-    <ProfileGlassCard contentStyle={styles.card}>
+    <>
+      <ProfileGlassCard contentStyle={styles.card}>
       <Text style={styles.sectionTitle}>{tProfile("homeImage")}</Text>
       <Text style={styles.sectionLead}>{tProfile("homeImageLead")}</Text>
 
@@ -224,7 +228,11 @@ export function ProfileHomeImageSection() {
           </Pressable>
 
           <Pressable
-            onPress={() => void onDeleteSavedPress()}
+            onPress={() => {
+              if (!busy) {
+                setPendingDelete(true);
+              }
+            }}
             disabled={busy}
             style={({ pressed }) => [
               styles.secondaryBtn,
@@ -258,6 +266,25 @@ export function ProfileHomeImageSection() {
           )}
         </Pressable>
       )}
-    </ProfileGlassCard>
+      </ProfileGlassCard>
+      <OmmConfirmDialog
+        visible={pendingDelete}
+        title={tHomeImage("deletePhotoConfirmTitle")}
+        description={tHomeImage("deletePhotoConfirmDescription")}
+        confirmLabel={
+          busy ? tHomeImage("removingPhoto") : tHomeImage("deletePhotoConfirm")
+        }
+        cancelLabel={tHomeImage("deletePhotoCancel")}
+        backdropAriaLabel={tHomeImage("deletePhotoBackdrop")}
+        pending={busy}
+        tone="danger"
+        onConfirm={() => void onDeleteSavedPress()}
+        onCancel={() => {
+          if (!busy) {
+            setPendingDelete(false);
+          }
+        }}
+      />
+    </>
   );
 }

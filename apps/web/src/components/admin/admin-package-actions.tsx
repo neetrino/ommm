@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 type AdminPackageActionsProps = {
   packageId: string;
@@ -13,6 +14,7 @@ type AdminPackageActionsProps = {
 export function AdminPackageActions({ packageId, isActive }: AdminPackageActionsProps) {
   const t = useTranslations("adminPages.packages");
   const [pending, setPending] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
 
@@ -42,10 +44,6 @@ export function AdminPackageActions({ packageId, isActive }: AdminPackageActions
     if (pending) {
       return;
     }
-    const confirmed = window.confirm(t("deleteConfirm"));
-    if (!confirmed) {
-      return;
-    }
     setPending(true);
     setMessage(null);
     try {
@@ -58,6 +56,7 @@ export function AdminPackageActions({ packageId, isActive }: AdminPackageActions
       setMessage(error instanceof ApiError ? error.message : t("genericError"));
     } finally {
       setPending(false);
+      setPendingDelete(false);
     }
   }
 
@@ -80,7 +79,9 @@ export function AdminPackageActions({ packageId, isActive }: AdminPackageActions
           variant="danger"
           size="sm"
           onClick={() => {
-            void removePackage();
+            if (!pending) {
+              setPendingDelete(true);
+            }
           }}
           disabled={pending}
         >
@@ -90,6 +91,26 @@ export function AdminPackageActions({ packageId, isActive }: AdminPackageActions
       {message !== null ? (
         <p className={`text-xs ${tone === "ok" ? "text-sage-700" : "text-red-800"}`}>{message}</p>
       ) : null}
+
+      <OmmConfirmDialog
+        isOpen={pendingDelete}
+        title={t("deletePackageTitle")}
+        description={t("deleteConfirm")}
+        confirmLabel={pending ? t("savingButton") : t("deleteButton")}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone="danger"
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        pending={pending}
+        onConfirm={() => {
+          void removePackage();
+        }}
+        onCancel={() => {
+          if (!pending) {
+            setPendingDelete(false);
+          }
+        }}
+      />
     </div>
   );
 }

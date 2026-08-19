@@ -16,6 +16,7 @@ import {
 } from "@/components/marketing/schedule/schedule-public-design";
 import { useRouter } from "@/i18n/navigation";
 import { OmmmCenterToast } from "@/components/ui/ommm-center-toast";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { buildLoginHrefWithReturnUrl } from "@/lib/auth-redirect";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
@@ -82,6 +83,7 @@ export function AuthAwareScheduleBookingAction({
   const splashOpenedAtRef = useRef<number | null>(null);
   const handoffTimerRef = useRef<number | null>(null);
   const [busyWaitlist, setBusyWaitlist] = useState(false);
+  const [pendingLeaveWaitlist, setPendingLeaveWaitlist] = useState(false);
   const {
     busy: busyBooking,
     initiateBooking,
@@ -269,7 +271,7 @@ export function AuthAwareScheduleBookingAction({
           type="button"
           className={SCHEDULE_CANCEL_BTN}
           disabled={busy}
-          onClick={() => void leaveWaitlist()}
+          onClick={() => setPendingLeaveWaitlist(true)}
         >
           {tLeaveWaitlist("action")}
         </button>
@@ -314,6 +316,7 @@ export function AuthAwareScheduleBookingAction({
       setErrorMsg(error instanceof ApiError ? error.message : tLeaveWaitlist("failed"));
     } finally {
       setBusyWaitlist(false);
+      setPendingLeaveWaitlist(false);
     }
   }
 
@@ -357,6 +360,24 @@ export function AuthAwareScheduleBookingAction({
         isOpen={bookSplashOpen}
         variant={bookSplashVariant}
         onDismiss={handleBookSplashDismiss}
+      />
+      <OmmConfirmDialog
+        isOpen={pendingLeaveWaitlist}
+        title={tLeaveWaitlist("confirmTitle")}
+        description={tLeaveWaitlist("confirmDescription")}
+        confirmLabel={busyWaitlist ? tLeaveWaitlist("action") : tLeaveWaitlist("confirmLeave")}
+        cancelLabel={tLeaveWaitlist("confirmCancel")}
+        backdropAriaLabel={tLeaveWaitlist("confirmBackdrop")}
+        tone="warm"
+        pending={busyWaitlist}
+        onConfirm={() => {
+          void leaveWaitlist();
+        }}
+        onCancel={() => {
+          if (!busyWaitlist) {
+            setPendingLeaveWaitlist(false);
+          }
+        }}
       />
     </>
   );

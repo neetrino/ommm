@@ -2618,6 +2618,8 @@
       "deleteButtonAria": "Delete schedule item",
       "editButtonAria": "Edit schedule item",
       "deleteConfirm": "Delete this schedule item?",
+      "confirmDeleteTitle": "Delete schedule item",
+      "confirmDialogDelete": "Delete",
       "days": {
         "SUNDAY": "Sunday",
         "MONDAY": "Monday",
@@ -4403,7 +4405,12 @@
     "leaveWaitlist": {
       "action": "Leave waitlist",
       "failed": "Could not leave waitlist",
-      "success": "Removed from waitlist"
+      "success": "Removed from waitlist",
+      "confirmTitle": "Leave waitlist?",
+      "confirmDescription": "You will lose your place in line for this class.",
+      "confirmLeave": "Leave",
+      "confirmCancel": "Cancel",
+      "confirmBackdrop": "Close confirmation dialog"
     },
     "packageCheckout": {
       "subscribe": "Subscribe"
@@ -4493,6 +4500,11 @@
       "deletePhoto": "Remove photo",
       "deletePhotoSuccess": "Photo removed.",
       "deletePhotoFailed": "Could not remove photo.",
+      "deletePhotoConfirmTitle": "Remove photo?",
+      "deletePhotoConfirmDescription": "This photo will be removed from your profile.",
+      "deletePhotoConfirm": "Remove",
+      "deletePhotoCancel": "Cancel",
+      "deletePhotoBackdrop": "Close confirmation dialog",
       "removingPhoto": "Removing…",
       "upload": "Upload",
       "uploading": "Uploading…",
