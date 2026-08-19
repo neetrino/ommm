@@ -1,7 +1,10 @@
 import { Prisma, SessionReviewStatus } from '@prisma/client';
+import {
+  buildTokenAndWhere,
+  containsInsensitive,
+  personNameContainsToken,
+} from '../common/token-text-search';
 import type { ListSessionReviewsInboxQueryDto } from './dto/list-session-reviews-inbox-query.dto';
-
-const insensitive = Prisma.QueryMode.insensitive;
 
 export function buildStaffInboxWhere(
   query: ListSessionReviewsInboxQueryDto,
@@ -82,46 +85,34 @@ function packageWhere(
 }
 
 function searchWhere(raw: string | undefined): Prisma.SessionReviewWhereInput {
-  const q = raw?.trim();
-  if (!q) {
-    return {};
-  }
-  return {
-    OR: [
-      { comment: { contains: q, mode: insensitive } },
-      {
-        session: {
-          classType: { name: { contains: q, mode: insensitive } },
-        },
-      },
-      {
-        coachProfile: {
-          user: { name: { contains: q, mode: insensitive } },
-        },
-      },
-      {
-        coachProfile: {
-          user: { lastName: { contains: q, mode: insensitive } },
-        },
-      },
-      {
-        AND: [
-          { isAnonymous: false },
-          { author: { name: { contains: q, mode: insensitive } } },
+  return (
+    buildTokenAndWhere(
+      raw,
+      (token): Prisma.SessionReviewWhereInput => ({
+        OR: [
+          { comment: containsInsensitive(token) },
+          {
+            session: {
+              classType: { name: containsInsensitive(token) },
+            },
+          },
+          { coachProfile: { user: personNameContainsToken(token) } },
+          {
+            AND: [
+              { isAnonymous: false },
+              {
+                author: {
+                  OR: [
+                    { name: containsInsensitive(token) },
+                    { lastName: containsInsensitive(token) },
+                    { email: containsInsensitive(token) },
+                  ],
+                },
+              },
+            ],
+          },
         ],
-      },
-      {
-        AND: [
-          { isAnonymous: false },
-          { author: { lastName: { contains: q, mode: insensitive } } },
-        ],
-      },
-      {
-        AND: [
-          { isAnonymous: false },
-          { author: { email: { contains: q, mode: insensitive } } },
-        ],
-      },
-    ],
-  };
+      }),
+    ) ?? {}
+  );
 }

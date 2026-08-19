@@ -1,6 +1,8 @@
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import type { CoachPanelBookingRow } from "@/lib/coach-panel-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { matchesStudioDateFilter } from "@/lib/filter-date-range";
+import { matchesSearchTokens } from "@/lib/search-tokens";
 import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 
 export type CoachRosterFilterValues = {
@@ -93,26 +95,18 @@ export function matchesCoachRosterFilters(
   row: CoachPanelBookingRow,
   filters: CoachRosterFilterValues,
 ): boolean {
-  const startsAt = new Date(row.session.startsAt);
-
-  if (filters.from && startsAt < new Date(`${filters.from}T00:00:00`)) {
-    return false;
-  }
-  if (filters.to && startsAt > new Date(`${filters.to}T23:59:59`)) {
+  if (!matchesStudioDateFilter(row.session.startsAt, filters.from, filters.to)) {
     return false;
   }
   if (filters.classType !== "all" && row.session.classType.name !== filters.classType) {
     return false;
   }
 
-  const search = filters.search.trim().toLowerCase();
-  if (search.length === 0) {
-    return true;
-  }
-
   const userLabel = row.user.name ?? row.user.email;
-  const haystack = `${userLabel} ${row.user.email} ${row.session.classType.name}`.toLowerCase();
-  return haystack.includes(search);
+  return matchesSearchTokens(
+    `${userLabel} ${row.user.email} ${row.session.classType.name}`,
+    filters.search,
+  );
 }
 
 export function hasActiveCoachRosterFilters(filters: CoachRosterFilterValues): boolean {

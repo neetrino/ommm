@@ -1,4 +1,11 @@
 import { ClassSessionStatus, Prisma } from '@prisma/client';
+import { buildStudioDateTimeFilter } from '../common/studio-date-range';
+import { utcToStudioCalendarDate } from '../common/studio-timezone';
+import {
+  buildTokenAndWhere,
+  containsInsensitive,
+  splitSearchTokens,
+} from '../common/token-text-search';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 
 export const SESSIONS_FILTER_SCAN_LIMIT = 3000;
@@ -76,15 +83,9 @@ export function buildSessionsListWhere(
 ): Prisma.ClassSessionWhereInput {
   const and: Prisma.ClassSessionWhereInput[] = [];
 
-  if (query.from || query.to) {
-    and.push({
-      startsAt: {
-        ...(query.from ? { gte: new Date(query.from) } : {}),
-        ...(query.to
-          ? { lte: new Date(`${query.to.slice(0, 10)}T23:59:59.999Z`) }
-          : {}),
-      },
-    });
+  const startsAt = buildStudioDateTimeFilter(query.from, query.to);
+  if (startsAt) {
+    and.push({ startsAt });
   }
 
   const coachIds = parseCsv(query.coachIds);
@@ -97,34 +98,28 @@ export function buildSessionsListWhere(
     and.push({ classTypeId: { in: classTypeIds } });
   }
 
-  const q = query.q?.trim();
-  if (q) {
-    and.push({
+  const searchWhere = buildTokenAndWhere(
+    query.q,
+    (token): Prisma.ClassSessionWhereInput => ({
       OR: [
-        { title: { contains: q, mode: Prisma.QueryMode.insensitive } },
-        {
-          classType: {
-            name: { contains: q, mode: Prisma.QueryMode.insensitive },
-          },
-        },
+        { title: containsInsensitive(token) },
+        { classType: { name: containsInsensitive(token) } },
         {
           coach: {
             user: {
               OR: [
-                { name: { contains: q, mode: Prisma.QueryMode.insensitive } },
-                {
-                  lastName: {
-                    contains: q,
-                    mode: Prisma.QueryMode.insensitive,
-                  },
-                },
-                { email: { contains: q, mode: Prisma.QueryMode.insensitive } },
+                { name: containsInsensitive(token) },
+                { lastName: containsInsensitive(token) },
+                { email: containsInsensitive(token) },
               ],
             },
           },
         },
       ],
-    });
+    }),
+  );
+  if (searchWhere) {
+    and.push(searchWhere);
   }
 
   const statuses = parseCsv(query.statuses).filter(
@@ -242,23 +237,23 @@ export function filterSessionRows<T extends SessionListFilterRow>(
   const availability = parseCsv(query.availability);
   const timeOfDay = parseCsv(query.timeOfDay);
   const quick = parseCsv(query.quick);
-  const q = query.q?.trim().toLowerCase() ?? '';
+  const tokens = splitSearchTokens(query.q).map((token) => token.toLowerCase());
+  const fromDay = query.from?.slice(0, 10);
+  const toDay = query.to?.slice(0, 10) || fromDay;
 
   return rows.filter((row) => {
-    if (q.length > 0) {
+    if (tokens.length > 0) {
       const haystack =
         `${row.title} ${row.classType.name} ${coachDisplayName(row)}`.toLowerCase();
-      if (!haystack.includes(q)) {
+      if (!tokens.every((token) => haystack.includes(token))) {
         return false;
       }
     }
-    if (
-      query.from &&
-      startsAtDateOnly(row.startsAt) < query.from.slice(0, 10)
-    ) {
+    const sessionDay = utcToStudioCalendarDate(new Date(startsAtIso(row.startsAt)));
+    if (fromDay && sessionDay < fromDay) {
       return false;
     }
-    if (query.to && startsAtDateOnly(row.startsAt) > query.to.slice(0, 10)) {
+    if (toDay && sessionDay > toDay) {
       return false;
     }
     const coachIds = parseCsv(query.coachIds);

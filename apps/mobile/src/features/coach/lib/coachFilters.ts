@@ -101,7 +101,7 @@ export function matchesCoachScheduleFilters(
 ): boolean {
   const startsAt = new Date(row.startsAt);
   const fromIso = parseCoachFilterDateInput(filters.from);
-  const toIso = parseCoachFilterDateInput(filters.to);
+  const toIso = parseCoachFilterDateInput(filters.to) ?? fromIso;
   if (fromIso !== null && startsAt < new Date(`${fromIso}T00:00:00`)) {
     return false;
   }
@@ -114,12 +114,9 @@ export function matchesCoachScheduleFilters(
   if (filters.status !== "all" && row.status !== filters.status) {
     return false;
   }
-  const search = filters.search.trim().toLowerCase();
-  if (search.length === 0) {
-    return true;
-  }
+  const tokens = filters.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const haystack = `${row.title} ${row.classType.name}`.toLowerCase();
-  return haystack.includes(search);
+  return tokens.every((token) => haystack.includes(token));
 }
 
 export function hasActiveCoachScheduleFilters(
@@ -141,7 +138,7 @@ export function matchesCoachRosterFilters(
 ): boolean {
   const startsAt = new Date(row.session.startsAt);
   const fromIso = parseCoachFilterDateInput(filters.from);
-  const toIso = parseCoachFilterDateInput(filters.to);
+  const toIso = parseCoachFilterDateInput(filters.to) ?? fromIso;
   if (fromIso !== null && startsAt < new Date(`${fromIso}T00:00:00`)) {
     return false;
   }
@@ -154,13 +151,10 @@ export function matchesCoachRosterFilters(
   ) {
     return false;
   }
-  const search = filters.search.trim().toLowerCase();
-  if (search.length === 0) {
-    return true;
-  }
+  const tokens = filters.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const haystack =
     `${row.user.name ?? row.user.email} ${row.user.email} ${row.session.classType.name}`.toLowerCase();
-  return haystack.includes(search);
+  return tokens.every((token) => haystack.includes(token));
 }
 
 export function hasActiveCoachRosterFilters(

@@ -2768,8 +2768,8 @@
       "confirmDialogDelete": "Удалить",
       "confirmDialogBackdrop": "Закрыть диалог подтверждения",
       "confirm": {
-        "cancelTitle": "Закрыть занятие",
-        "cancelDescription": "Занятие будет закрыто для новых бронирований. Позже вы сможете снова активировать его.",
+        "cancelTitle": "Отменить занятие",
+        "cancelDescription": "Занятие будет отменено для новых бронирований. Позже вы сможете снова активировать его.",
         "activateTitle": "Активировать занятие",
         "activateDescription": "Занятие снова станет активным и доступным."
       },
@@ -2888,7 +2888,7 @@
       "colStatus": "Статус",
       "colActions": "Действия",
       "editButton": "Редактировать",
-      "cancelAction": "Закрыть",
+      "cancelAction": "Отменить",
       "activateAction": "Активировать",
       "duplicateButton": "Дублировать",
       "priceAmount": "{amount} за сессию",

@@ -2771,8 +2771,8 @@
       "confirmDialogDelete": "Ջնջել",
       "confirmDialogBackdrop": "Փակել հաստատման պատուհանը",
       "confirm": {
-        "cancelTitle": "Փակել դասը",
-        "cancelDescription": "Դասը կփակվի նոր ամրագրումների համար։ Կարող եք հետո կրկին ակտիվացնել։",
+        "cancelTitle": "Չեղարկել դասը",
+        "cancelDescription": "Դասը կչեղարկվի նոր ամրագրումների համար։ Կարող եք հետո կրկին ակտիվացնել։",
         "activateTitle": "Ակտիվացնել դասը",
         "activateDescription": "Դասը կրկին կդառնա ակտիվ և հասանելի։"
       },
@@ -2891,7 +2891,7 @@
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",
       "editButton": "Խմբագրել",
-      "cancelAction": "Փակել",
+      "cancelAction": "Չեղարկել",
       "activateAction": "Ակտիվացնել",
       "duplicateButton": "Կրկնօրինակել",
       "priceAmount": "{amount} մեկ սեսիայի համար",

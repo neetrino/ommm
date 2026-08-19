@@ -6,6 +6,12 @@ import {
 import { ManualPaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
+import { buildStudioDateTimeFilter } from '../common/studio-date-range';
+import {
+  buildTokenAndWhere,
+  containsInsensitive,
+  userContainsToken,
+} from '../common/token-text-search';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
@@ -167,49 +173,25 @@ export class PaymentsAdminService {
       throw new BadRequestException('Invalid date range');
     }
     const sourceFilter = buildSourceFilter(query.source);
-    const search = query.q?.trim();
+    const createdAt = buildStudioDateTimeFilter(query.from, query.to);
+    const searchWhere = buildTokenAndWhere(
+      query.q,
+      (token): Prisma.PaymentWhereInput => ({
+        OR: [
+          { id: containsInsensitive(token) },
+          { description: containsInsensitive(token) },
+          { paymentReference: containsInsensitive(token) },
+          { user: userContainsToken(token) },
+        ],
+      }),
+    );
     const order = resolveDateListPrismaOrder(query.order);
     const where: Prisma.PaymentWhereInput = {
       ...(query.userId ? { userId: query.userId } : {}),
       ...(query.status ? { status: query.status } : {}),
       ...(sourceFilter ?? {}),
-      ...(query.from || query.to
-        ? {
-            createdAt: {
-              ...(query.from ? { gte: new Date(query.from) } : {}),
-              ...(query.to ? { lte: new Date(query.to) } : {}),
-            },
-          }
-        : {}),
-      ...(search
-        ? {
-            OR: [
-              { id: { contains: search, mode: 'insensitive' } },
-              { description: { contains: search, mode: 'insensitive' } },
-              { paymentReference: { contains: search, mode: 'insensitive' } },
-              {
-                user: {
-                  email: { contains: search, mode: 'insensitive' },
-                },
-              },
-              {
-                user: {
-                  name: { contains: search, mode: 'insensitive' },
-                },
-              },
-              {
-                user: {
-                  lastName: { contains: search, mode: 'insensitive' },
-                },
-              },
-              {
-                user: {
-                  phone: { contains: search, mode: 'insensitive' },
-                },
-              },
-            ],
-          }
-        : {}),
+      ...(createdAt ? { createdAt } : {}),
+      ...(searchWhere ?? {}),
     };
 
     const [items, total] = await Promise.all([

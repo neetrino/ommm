@@ -2760,8 +2760,8 @@
       "confirmDialogDelete": "Delete",
       "confirmDialogBackdrop": "Close confirmation dialog",
       "confirm": {
-        "cancelTitle": "Close class",
-        "cancelDescription": "This class will be closed for new bookings. You can activate it again later.",
+        "cancelTitle": "Cancel class",
+        "cancelDescription": "This class will be cancelled for new bookings. You can activate it again later.",
         "activateTitle": "Activate class",
         "activateDescription": "This class will become active and available again."
       },
@@ -2880,7 +2880,7 @@
       "colStatus": "Status",
       "colActions": "Actions",
       "editButton": "Edit",
-      "cancelAction": "Close",
+      "cancelAction": "Cancel",
       "activateAction": "Activate",
       "duplicateButton": "Duplicate",
       "priceAmount": "{amount} per session",

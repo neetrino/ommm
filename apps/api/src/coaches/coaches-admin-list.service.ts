@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import {
+  buildTokenAndWhere,
+  containsInsensitive,
+  userContainsToken,
+} from '../common/token-text-search';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AdminCoachActiveFilter,
@@ -17,51 +22,22 @@ export class CoachesAdminListService {
   async listAdmin(query: AdminListCoachesQueryDto = {}) {
     const hasPagination =
       query.take !== undefined || query.offset !== undefined;
-    const q = query.q?.trim();
     const specialization = query.specialization?.trim();
     const classType = query.classType?.trim();
+    const searchWhere = buildTokenAndWhere(
+      query.q,
+      (token): Prisma.CoachProfileWhereInput => ({
+        OR: [
+          { user: userContainsToken(token) },
+          { id: containsInsensitive(token) },
+          { userId: containsInsensitive(token) },
+          { specialization: containsInsensitive(token) },
+          { classType: containsInsensitive(token) },
+        ],
+      }),
+    );
     const where: Prisma.CoachProfileWhereInput = {
-      ...(q
-        ? {
-            OR: [
-              {
-                user: {
-                  email: { contains: q, mode: Prisma.QueryMode.insensitive },
-                },
-              },
-              {
-                user: {
-                  name: { contains: q, mode: Prisma.QueryMode.insensitive },
-                },
-              },
-              {
-                user: {
-                  lastName: { contains: q, mode: Prisma.QueryMode.insensitive },
-                },
-              },
-              {
-                user: {
-                  phone: { contains: q, mode: Prisma.QueryMode.insensitive },
-                },
-              },
-              {
-                id: { contains: q, mode: Prisma.QueryMode.insensitive },
-              },
-              {
-                userId: { contains: q, mode: Prisma.QueryMode.insensitive },
-              },
-              {
-                specialization: {
-                  contains: q,
-                  mode: Prisma.QueryMode.insensitive,
-                },
-              },
-              {
-                classType: { contains: q, mode: Prisma.QueryMode.insensitive },
-              },
-            ],
-          }
-        : {}),
+      ...(searchWhere ?? {}),
       ...(specialization
         ? {
             specialization: {

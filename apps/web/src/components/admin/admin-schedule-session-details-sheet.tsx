@@ -24,6 +24,7 @@ import { AdminScheduleSessionStatusAction } from "@/components/admin/admin-sched
 import type { SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
@@ -195,20 +196,31 @@ function AdminScheduleSessionDetailsSheetInner({
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
-              {row.title}
-            </h2>
-            <p className="mt-1 truncate text-sm text-sage-600">{row.classType.name}</p>
+          <div className="flex min-w-0 flex-col items-start gap-3">
+            <div className="min-w-0">
+              <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
+                {row.title}
+              </h2>
+              <p className="mt-1 truncate text-sm text-sage-600">{row.classType.name}</p>
+            </div>
+            <AdminScheduleSessionStatusAction
+              sessionId={row.id}
+              status={row.status}
+              disabled={sheetBusy || !canUpdate}
+              onChanged={handleStatusChanged}
+              onBusyChange={setStatusBusy}
+              onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+            />
           </div>
-          <AdminScheduleSessionStatusAction
-            sessionId={row.id}
-            status={row.status}
-            disabled={sheetBusy || !canUpdate}
-            onChanged={handleStatusChanged}
-            onBusyChange={setStatusBusy}
-            onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
-          />
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("modalCloseAria")}
+            onClick={handleClose}
+            disabled={sheetBusy || editForm.dirty}
+          >
+            <CloseGlyph />
+          </button>
         </div>
       </header>
 
@@ -265,5 +277,22 @@ function AdminScheduleSessionDetailsSheetInner({
         />
       ) : null}
     </OmmDrawerPortal>
+  );
+}
+
+function CloseGlyph() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      className="h-5 w-5"
+      aria-hidden
+    >
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
   );
 }
