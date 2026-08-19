@@ -68,6 +68,7 @@ export function buildAnalyticsDailyBuckets(
       total: bookings.total,
       completed: bookings.completed,
       revenueCents: revenueByDay.get(dateKey) ?? 0,
+      occupancyRate: null,
     };
   });
 }
@@ -83,6 +84,18 @@ export function resolveTrendAxisInterval(pointCount: number): number {
   return Math.max(1, Math.ceil(pointCount / TARGET_AXIS_TICKS) - 1);
 }
 
-export function sumBucketValues(buckets: AnalyticsDailyBucket[], key: "total" | "completed" | "revenueCents"): number {
+export function sumBucketValues(
+  buckets: AnalyticsDailyBucket[],
+  key: "total" | "completed" | "revenueCents" | "occupancyRate",
+): number {
+  if (key === "occupancyRate") {
+    const rates = buckets
+      .map((bucket) => bucket.occupancyRate)
+      .filter((rate): rate is number => rate !== null);
+    if (rates.length === 0) {
+      return 0;
+    }
+    return Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length);
+  }
   return buckets.reduce((sum, bucket) => sum + bucket[key], 0);
 }

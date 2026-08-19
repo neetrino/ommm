@@ -1,0 +1,44 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.ball {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--omma-wander-ball-size, var(--omma-wander-size));
+  height: var(--omma-wander-ball-size, var(--omma-wander-size));
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+.layer[data-active] .ball {
+  will-change: transform;
+}
+
+.ballImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+}
+
+@media (max-width: 743px) {
+  .ball {
+    width: var(--omma-wander-ball-size, var(--omma-wander-size-mobile));
+    height: var(--omma-wander-ball-size, var(--omma-wander-size-mobile));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    display: none;
+  }
+}

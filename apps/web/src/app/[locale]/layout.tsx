@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
+import { OmmaWanderSphereDeferred } from "@/components/brand/omma-wander-sphere-deferred";
 import { EnabledLocalesProvider } from "@/components/i18n/enabled-locales-context";
 import { HtmlLangSync } from "@/components/i18n/html-lang-sync";
 import { LocaleScrollRestore } from "@/components/i18n/locale-scroll-restore";
@@ -57,6 +58,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <HtmlLangSync />
         <LocaleScrollRestore />
         {children}
+        <OmmaWanderSphereDeferred />
         <MetaPixel />
       </EnabledLocalesProvider>
     </NextIntlClientProvider>

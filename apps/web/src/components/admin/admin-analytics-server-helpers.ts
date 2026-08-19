@@ -4,10 +4,11 @@ import {
   type AnalyticsSectionId,
 } from "@/components/admin/admin-analytics-module";
 import {
-  ANALYTICS_BOOKINGS_SAMPLE_LIMIT,
-  buildClassPopularity,
-  buildCoachAttendance,
-  buildCoachBookings,
+  buildClassPopularityBarItems,
+  buildCoachMetricBarItems,
+  buildDailyTrendFromStudio,
+} from "@/components/admin/admin-analytics-studio-map";
+import {
   parseAnalyticsBookingStatus,
   parseAnalyticsQuickFilters,
   parseAnalyticsRangeDays,
@@ -15,15 +16,14 @@ import {
   resolveAnalyticsDateRange,
   resolveQuickFiltersSort,
 } from "@/components/admin/admin-analytics-helpers";
-import {
-  buildAnalyticsDailyBuckets,
-} from "@/components/admin/admin-analytics-trend-data";
 import type {
   AdminAnalyticsPayload,
+  AnalyticsBookingsPayload,
   AnalyticsClientsSummary,
   AnalyticsCoachRow,
   AnalyticsDashboardOverview,
   AnalyticsFinanceSummary,
+  StudioAnalyticsPayload,
 } from "@/components/admin/admin-analytics-types";
 import {
   analyticsSectionSearchNeedsSanitization,
@@ -32,38 +32,19 @@ import {
 import { serverApiJson } from "@/lib/server-api";
 
 type BookingsManagementResponse = {
-  rows: Array<{
-    recordType?: "BOOKING" | "WAITLIST";
-    status: string;
-    session: {
-      startsAt: string;
-      classType: { id: string; name: string };
-      coach: { id: string; name: string | null };
-    };
-  }>;
-  summary: {
-    total: number;
-    booked: number;
-    completed: number;
-    cancelled: number;
-    waitlisted: number;
-  };
   filterOptions: {
     classTypes: Array<{ id: string; name: string }>;
     coaches: Array<{ id: string; name: string }>;
   };
-  pagination?: { total: number; take: number; offset: number };
 };
 
 export type AnalyticsFilterOptions = BookingsManagementResponse["filterOptions"];
 
-function buildBookingsQuery(
+function buildAnalyticsQuery(
   fromIso: string,
   toIso: string,
   coachId: string,
   classTypeId: string,
-  bookingStatus: string,
-  options?: { countOnly?: boolean; sampleTake?: number },
 ): string {
   const params = new URLSearchParams();
   params.set("from", fromIso);
@@ -74,15 +55,14 @@ function buildBookingsQuery(
   if (classTypeId) {
     params.set("classTypeId", classTypeId);
   }
-  if (bookingStatus) {
-    params.set("status", bookingStatus);
-  }
-  if (options?.countOnly) {
-    params.set("countOnly", "true");
-    return `/bookings/admin/management?${params.toString()}`;
-  }
-  params.set("take", String(options?.sampleTake ?? ANALYTICS_BOOKINGS_SAMPLE_LIMIT));
-  params.set("offset", "0");
+  return `/reports/analytics?${params.toString()}`;
+}
+
+function buildFilterOptionsQuery(fromIso: string, toIso: string): string {
+  const params = new URLSearchParams();
+  params.set("from", fromIso);
+  params.set("to", toIso);
+  params.set("countOnly", "true");
   return `/bookings/admin/management?${params.toString()}`;
 }
 
@@ -95,13 +75,95 @@ export async function loadAnalyticsFilterOptions(
   from.setDate(from.getDate() - 29);
   from.setHours(0, 0, 0, 0);
   const res = await serverApiJson<BookingsManagementResponse>(
-    buildBookingsQuery(from.toISOString(), to, "", "", "", { countOnly: true }),
+    buildFilterOptionsQuery(from.toISOString(), to),
     cookie,
   );
   if (!res.ok) {
     return { classTypes: [], coaches: [] };
   }
   return res.data.filterOptions;
+}
+
+function mapDashboardFromStudio(studio: StudioAnalyticsPayload): AnalyticsDashboardOverview {
+  return {
+    sessionsToday: 0,
+    bookingsToday: 0,
+    activeWaitlists: studio.kpis.waitlistActive,
+    activeMembers: studio.kpis.activeMembers,
+    revenueCentsTotal: studio.kpis.revenueCents,
+  };
+}
+
+function mapFinanceFromStudio(studio: StudioAnalyticsPayload): AnalyticsFinanceSummary {
+  return {
+    totals: {
+      revenueCents: studio.kpis.revenueCents,
+      successfulPaymentsCount: studio.kpis.successfulPaymentsCount,
+      averageOrderValueCents: studio.kpis.averageOrderValueCents,
+    },
+    byStatus: studio.revenue.byStatus,
+    bySource: studio.revenue.bySource,
+    dailyRevenue: studio.daily.map((day) => ({
+      date: day.dateKey,
+      amountCents: day.revenueCents,
+    })),
+    giftCredits: studio.revenue.giftCredits,
+  };
+}
+
+function mapBookingsFromStudio(
+  studio: StudioAnalyticsPayload,
+  filterOptions: AnalyticsFilterOptions,
+  sortKey: AdminAnalyticsPayload["sortKey"],
+): AnalyticsBookingsPayload {
+  const status = studio.operations.bookingsByStatus;
+  return {
+    summary: {
+      total: studio.kpis.bookingsTotal,
+      booked: status.BOOKED,
+      completed: status.COMPLETED,
+      cancelled: status.CANCELLED,
+      waitlisted: status.waitlisted,
+      missed: status.MISSED,
+    },
+    classPopularity: buildClassPopularityBarItems(studio, sortKey),
+    coachBookings: buildCoachMetricBarItems(studio, sortKey, "bookings", "", "N/A"),
+    coachAttendance: buildCoachMetricBarItems(studio, sortKey, "attendance", "", "N/A"),
+    filterOptions,
+    sampledLimit: 0,
+    isSampled: false,
+    matchedTotal: studio.kpis.bookingsTotal,
+    sampledRowCount: studio.kpis.bookingsTotal,
+  };
+}
+
+function mapClientsFromStudio(studio: StudioAnalyticsPayload): AnalyticsClientsSummary {
+  return {
+    total: studio.members.total,
+    active: studio.members.active,
+    vip: studio.members.vip,
+    totalVisits: studio.members.totalVisitsInRange,
+    lifetimeValueCents: studio.members.lifetimeValueCents,
+  };
+}
+
+function mapCoachesFromStudio(studio: StudioAnalyticsPayload): AnalyticsCoachRow[] {
+  return studio.coaches.rows.map((row) => {
+    const nameParts = row.name.trim().split(/\s+/);
+    const firstName = nameParts[0] ?? null;
+    const lastName = nameParts.slice(1).join(" ") || null;
+    return {
+      id: row.id,
+      userId: row.id,
+      isActive: row.isActive,
+      totalClasses: row.sessions,
+      user: {
+        name: firstName,
+        lastName,
+        email: row.name,
+      },
+    };
+  });
 }
 
 export async function loadAdminAnalyticsPayload(
@@ -125,72 +187,18 @@ export async function loadAdminAnalyticsPayload(
   const sortRaw = Array.isArray(search.sort) ? search.sort[0] : search.sort;
   const sortKey = sortFromQuick ?? parseAnalyticsSortKey(sortRaw);
 
-  const bookingsCountQuery = buildBookingsQuery(
-    fromIso,
-    toIso,
-    coachId,
-    classTypeId,
-    bookingStatus,
-    { countOnly: true },
-  );
-  const bookingsSampleQuery = buildBookingsQuery(
-    fromIso,
-    toIso,
-    coachId,
-    classTypeId,
-    bookingStatus,
-    { sampleTake: ANALYTICS_BOOKINGS_SAMPLE_LIMIT },
-  );
+  const analyticsQuery = buildAnalyticsQuery(fromIso, toIso, coachId, classTypeId);
+  const [analyticsRes, filterOptions] = await Promise.all([
+    serverApiJson<StudioAnalyticsPayload>(analyticsQuery, cookie),
+    loadAnalyticsFilterOptions(cookie),
+  ]);
 
-  const [dashboardRes, financeRes, bookingsCountRes, bookingsRes, clientsRes, coachesRes] =
-    await Promise.all([
-      serverApiJson<AnalyticsDashboardOverview>(
-        "/reports/dashboard?includeRevenue=true&includeOverview=true",
-        cookie,
-      ),
-      serverApiJson<AnalyticsFinanceSummary>(
-        `/reports/finance/summary?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`,
-        cookie,
-      ),
-      serverApiJson<BookingsManagementResponse>(bookingsCountQuery, cookie),
-      serverApiJson<BookingsManagementResponse>(bookingsSampleQuery, cookie),
-      serverApiJson<{ summary: AnalyticsClientsSummary }>("/clients?meta=true", cookie),
-      serverApiJson<AnalyticsCoachRow[]>("/coaches/admin/list", cookie),
-    ]);
-
-  if (
-    !dashboardRes.ok ||
-    !financeRes.ok ||
-    !bookingsCountRes.ok ||
-    !bookingsRes.ok ||
-    !clientsRes.ok ||
-    !coachesRes.ok
-  ) {
-    const failed = [
-      dashboardRes,
-      financeRes,
-      bookingsCountRes,
-      bookingsRes,
-      clientsRes,
-      coachesRes,
-    ].find((res) => !res.ok);
-    return { ok: false, status: failed && !failed.ok ? failed.status : 500 };
+  if (!analyticsRes.ok) {
+    return { ok: false, status: analyticsRes.status };
   }
 
-  const bookingRows = bookingsRes.data.rows.filter(
-    (row) => row.recordType === undefined || row.recordType === "BOOKING",
-  );
-  const missed = bookingRows.filter((row) => row.status === "MISSED").length;
-  const matchedTotal =
-    bookingsCountRes.data.pagination?.total ?? bookingsCountRes.data.summary.total;
-  const isSampled = matchedTotal > bookingRows.length;
-  const dailyTrend = buildAnalyticsDailyBuckets(
-    fromIso,
-    toIso,
-    locale,
-    bookingRows,
-    financeRes.data.dailyRevenue ?? [],
-  );
+  const studio = analyticsRes.data;
+  const dailyTrend = buildDailyTrendFromStudio(studio, locale);
 
   return {
     ok: true,
@@ -204,24 +212,12 @@ export async function loadAdminAnalyticsPayload(
       classTypeId,
       bookingStatus,
       quickFilters,
-      dashboard: dashboardRes.data,
-      finance: financeRes.data,
-      bookings: {
-        summary: {
-          ...bookingsRes.data.summary,
-          missed,
-        },
-        classPopularity: buildClassPopularity(bookingRows),
-        coachBookings: buildCoachBookings(bookingRows),
-        coachAttendance: buildCoachAttendance(bookingRows),
-        filterOptions: bookingsRes.data.filterOptions,
-        sampledLimit: ANALYTICS_BOOKINGS_SAMPLE_LIMIT,
-        isSampled,
-        matchedTotal,
-        sampledRowCount: bookingRows.length,
-      },
-      clients: clientsRes.data.summary,
-      coaches: coachesRes.data,
+      studio,
+      dashboard: mapDashboardFromStudio(studio),
+      finance: mapFinanceFromStudio(studio),
+      bookings: mapBookingsFromStudio(studio, filterOptions, sortKey),
+      clients: mapClientsFromStudio(studio),
+      coaches: mapCoachesFromStudio(studio),
       dailyTrend,
     },
   };

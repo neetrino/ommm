@@ -2,6 +2,7 @@
 
 import type { RefObject } from "react";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 type HomeHeroVideoSlotProps = {
   desktopVideoUrl: string | null;
@@ -40,6 +41,7 @@ export function HomeHeroVideoSlot({
   onEnded,
   onError,
 }: HomeHeroVideoSlotProps) {
+  const canMountVideo = useIsClientMounted();
   const mobileOnly = desktopVideoUrl === null;
   const sharedVideoProps = {
     muted: true,
@@ -48,6 +50,10 @@ export function HomeHeroVideoSlot({
     onEnded,
     onError,
   };
+
+  if (!canMountVideo) {
+    return null;
+  }
 
   return (
     <>
