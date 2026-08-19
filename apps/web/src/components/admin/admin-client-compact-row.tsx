@@ -6,9 +6,8 @@ import {
   ADMIN_CLIENT_AVATAR_LAYER_CLASS,
   ADMIN_CLIENT_AVATAR_SIZE_CLASS,
   ADMIN_CLIENT_AVATAR_WRAPPER_CLASS,
-  ADMIN_CLIENT_TAG_OVERLAY_BADGE_CLASS,
-  clientTagBadgeTone,
   clientTagLabelKey,
+  clientTagOverlayBadgeClass,
 } from "@/components/admin/admin-client-list-badges";
 import { AdminClientPackageBadge } from "@/components/admin/admin-client-package-badge";
 import { AdminClientNextBookingCell } from "@/components/admin/admin-client-next-booking-cell";
@@ -129,7 +128,7 @@ function ClientAvatarWithTags({ row }: { row: ClientRow }) {
       </div>
       {primaryTag ? (
         <span
-          className={`${ADMIN_CLIENT_TAG_OVERLAY_BADGE_CLASS} ${clientTagBadgeTone(primaryTag)}`}
+          className={clientTagOverlayBadgeClass(primaryTag)}
         >
           {t(clientTagLabelKey(primaryTag))}
         </span>
