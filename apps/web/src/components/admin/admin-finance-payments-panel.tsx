@@ -19,6 +19,7 @@ import type {
   FinancePaymentItem,
   FinancePaymentsPayload,
 } from "@/components/admin/admin-finance-types";
+import type { FinanceStudioDateRange } from "@/components/admin/admin-finance-dates";
 import {
   buildFinancePaymentsAdminApiQuery,
   FINANCE_PAYMENTS_PAGE_KEYS,
@@ -32,7 +33,7 @@ import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 type Props = {
   locale: string;
   initialPayments: FinancePaymentsPayload;
-  paymentsFrom: string;
+  paymentsRange: FinanceStudioDateRange;
   financeFilters: FinanceFilterValues;
 };
 
@@ -41,7 +42,7 @@ type ToastState = { message: string; tone: AdminCenterToastTone } | null;
 export function AdminFinancePaymentsPanel({
   locale,
   initialPayments,
-  paymentsFrom,
+  paymentsRange,
   financeFilters,
 }: Props) {
   const t = useTranslations("adminPages.finance.paymentsTab");
@@ -94,7 +95,7 @@ export function AdminFinancePaymentsPanel({
     requestId.current = nextRequestId;
     startTransition(() => {
       void apiFetch<FinancePaymentsPayload>(
-        buildFinancePaymentsAdminApiQuery(financeFilters, paymentsFrom, payListPage),
+        buildFinancePaymentsAdminApiQuery(financeFilters, paymentsRange, payListPage),
       )
         .then((payload) => {
           if (requestId.current !== nextRequestId) return;
@@ -107,7 +108,7 @@ export function AdminFinancePaymentsPanel({
           }
         });
     });
-  }, [financeFilters, payListPage, paymentsFrom, setPaymentsPayload, t]);
+  }, [financeFilters, payListPage, paymentsRange, setPaymentsPayload, t]);
 
   function handlePaymentUpdated(updated: FinancePaymentItem): void {
     setPaymentsPayload((prev) => ({

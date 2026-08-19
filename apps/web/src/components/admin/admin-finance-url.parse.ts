@@ -1,20 +1,37 @@
-import type {
-  CoachFinanceFilters,
-  FinanceDateRangeDays,
-  FinanceFilterValues,
-  FinanceSourceFilter,
-  FinanceStatusFilter,
+import {
+  DEFAULT_FINANCE_OVERVIEW_RANGE,
+  DEFAULT_FINANCE_PAYMENTS_RANGE,
+  type CoachFinanceFilters,
+  type FinanceBoundedDateRangeDays,
+  type FinanceDateRangeDays,
+  type FinanceFilterValues,
+  type FinanceSourceFilter,
+  type FinanceStatusFilter,
 } from "@/components/admin/admin-finance-types";
 import { firstFinanceUrlParam } from "@/components/admin/admin-finance-url.helpers";
 
 export function parseFinanceDateRangeDays(
   value: string | string[] | undefined,
-): FinanceDateRangeDays {
+): FinanceBoundedDateRangeDays {
   const parsed = Number(firstFinanceUrlParam(value));
   if (parsed === 7 || parsed === 30 || parsed === 90) {
     return parsed;
   }
-  return 30;
+  return DEFAULT_FINANCE_OVERVIEW_RANGE;
+}
+
+export function parseFinancePaymentsDateRange(
+  value: string | string[] | undefined,
+): FinanceDateRangeDays {
+  const raw = firstFinanceUrlParam(value);
+  if (raw === "all") {
+    return "all";
+  }
+  const parsed = Number(raw);
+  if (parsed === 7 || parsed === 30 || parsed === 90) {
+    return parsed;
+  }
+  return DEFAULT_FINANCE_PAYMENTS_RANGE;
 }
 
 export function parseFinanceSourceFilter(
@@ -87,7 +104,7 @@ export function parseFinancePaymentsFiltersFromSearch(
   const order = firstFinanceUrlParam(search.order);
   return {
     q: firstFinanceUrlParam(search.q)?.trim() ?? "",
-    rangeDays: parseFinanceDateRangeDays(search.rangeDays),
+    rangeDays: parseFinancePaymentsDateRange(search.rangeDays),
     source: parseFinanceSourceFilter(search.source),
     status: parseFinanceStatusFilter(search.status),
     planId: parseFinancePackagePlanFilter(search.planId),

@@ -21,13 +21,10 @@ function studioDayEnd(calendarDate: string): Date {
   return endOfStudioDayInclusive(studioWallClockToUtc(calendarDate, '12:00'));
 }
 
-/** Inclusive studio-day bounds. A lone `from` is that single calendar day. */
-export function buildStudioDateTimeFilter(
-  from?: string,
-  to?: string,
+function buildStudioBounds(
+  fromDay: string | undefined,
+  toDay: string | undefined,
 ): Prisma.DateTimeFilter | undefined {
-  const fromDay = parseFilterCalendarDate(from);
-  const toDay = parseFilterCalendarDate(to) ?? fromDay;
   if (!fromDay && !toDay) {
     return undefined;
   }
@@ -35,4 +32,28 @@ export function buildStudioDateTimeFilter(
     ...(fromDay ? { gte: studioDayStart(fromDay) } : {}),
     ...(toDay ? { lte: studioDayEnd(toDay) } : {}),
   };
+}
+
+/** Inclusive studio-day bounds. A lone `from` is that single calendar day. */
+export function buildStudioDateTimeFilter(
+  from?: string,
+  to?: string,
+): Prisma.DateTimeFilter | undefined {
+  const fromDay = parseFilterCalendarDate(from);
+  const toDay = parseFilterCalendarDate(to) ?? fromDay;
+  return buildStudioBounds(fromDay, toDay);
+}
+
+/**
+ * Inclusive studio-day bounds with open ends.
+ * A lone `from` means that day through latest — never a single-day clamp.
+ */
+export function buildOpenEndedStudioDateTimeFilter(
+  from?: string,
+  to?: string,
+): Prisma.DateTimeFilter | undefined {
+  return buildStudioBounds(
+    parseFilterCalendarDate(from),
+    parseFilterCalendarDate(to),
+  );
 }

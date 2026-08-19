@@ -3919,6 +3919,7 @@
       },
       "filters": {
         "rangeLabel": "Range",
+        "rangeAll": "All time",
         "range7": "Last 7 days",
         "range30": "Last 30 days",
         "range90": "Last 90 days",

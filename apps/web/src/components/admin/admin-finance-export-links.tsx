@@ -1,16 +1,24 @@
 import { DownloadGlyph } from "@/components/ui/admin-action-glyphs";
+import { buildFinanceDateRangeQuery } from "@/components/admin/admin-finance-dates";
 
 const FINANCE_EXPORT_ICON_LINK_CLASS =
   "ommm-admin-row-icon-button inline-flex h-9 w-9 shrink-0 items-center justify-center";
 
 type AdminFinanceExportLinksProps = {
-  fromIso: string;
+  from?: string;
+  to?: string;
   paymentsLabel: string;
   giftCreditsLabel?: string;
 };
 
+function financeExportHref(path: string, from?: string, to?: string): string {
+  const query = buildFinanceDateRangeQuery({ from, to });
+  return query ? `${path}?${query}` : path;
+}
+
 export function AdminFinanceExportLinks({
-  fromIso,
+  from,
+  to,
   paymentsLabel,
   giftCreditsLabel,
 }: AdminFinanceExportLinksProps) {
@@ -18,7 +26,7 @@ export function AdminFinanceExportLinks({
     <div className="flex shrink-0 items-center gap-1">
       <a
         className={FINANCE_EXPORT_ICON_LINK_CLASS}
-        href={`/api/v1/reports/payments.csv?from=${encodeURIComponent(fromIso)}`}
+        href={financeExportHref("/api/v1/reports/payments.csv", from, to)}
         aria-label={paymentsLabel}
         title={paymentsLabel}
       >
@@ -27,7 +35,7 @@ export function AdminFinanceExportLinks({
       {giftCreditsLabel ? (
         <a
           className={FINANCE_EXPORT_ICON_LINK_CLASS}
-          href={`/api/v1/reports/gift-credits.csv?from=${encodeURIComponent(fromIso)}`}
+          href={financeExportHref("/api/v1/reports/gift-credits.csv", from, to)}
           aria-label={giftCreditsLabel}
           title={giftCreditsLabel}
         >

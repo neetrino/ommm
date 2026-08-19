@@ -1,7 +1,11 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminFinanceOverviewSections } from "@/components/admin/admin-finance-overview-sections";
-import { computeFinanceFromDate, computeFinanceMonthStart } from "@/components/admin/admin-finance-dates";
+import {
+  buildFinanceDateRangeQuery,
+  resolveFinanceCurrentMonthRange,
+  resolveFinanceStudioDateRange,
+} from "@/components/admin/admin-finance-dates";
 import {
   redirectIfUnscopedFinanceSearchParams,
   type FinanceSummaryPayload,
@@ -29,17 +33,17 @@ export default async function AdminFinanceOverviewPage({
   const cookie = (await headers()).get("cookie") ?? "";
   const overviewFilters = parseFinanceOverviewFiltersFromSearch(search);
   const rangeDays = overviewFilters.rangeDays;
-  const from = computeFinanceFromDate(rangeDays);
-  const monthFrom = computeFinanceMonthStart();
+  const rangeQuery = buildFinanceDateRangeQuery(resolveFinanceStudioDateRange(rangeDays));
+  const monthQuery = buildFinanceDateRangeQuery(resolveFinanceCurrentMonthRange());
 
   const [dashboardRes, financeRes, monthFinanceRes] = await Promise.all([
     serverApiJson<Dashboard>("/reports/dashboard?includeRevenue=true", cookie),
     serverApiJson<FinanceSummaryPayload>(
-      `/reports/finance/summary?from=${encodeURIComponent(from)}`,
+      `/reports/finance/summary?${rangeQuery}`,
       cookie,
     ),
     serverApiJson<FinanceSummaryPayload>(
-      `/reports/finance/summary?from=${encodeURIComponent(monthFrom)}`,
+      `/reports/finance/summary?${monthQuery}`,
       cookie,
     ),
   ]);

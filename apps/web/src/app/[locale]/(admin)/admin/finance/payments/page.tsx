@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminFinancePaymentsPanel } from "@/components/admin/admin-finance-payments-panel";
-import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
+import { resolveFinancePaymentsDateRange } from "@/components/admin/admin-finance-dates";
 import type { FinancePaymentsPayload } from "@/components/admin/admin-finance-types";
 import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
 import {
@@ -29,10 +29,10 @@ export default async function AdminFinancePaymentsPage({
   const cookie = (await headers()).get("cookie") ?? "";
   const financeFilters = parseFinancePaymentsFiltersFromSearch(search);
   const payListPage = parseListPageParams(normalizedSearch, FINANCE_PAYMENTS_PAGE_KEYS);
-  const from = computeFinanceFromDate(financeFilters.rangeDays);
+  const paymentsRange = resolveFinancePaymentsDateRange(financeFilters.rangeDays);
 
   const paymentsRes = await serverApiJson<FinancePaymentsPayload>(
-    buildFinancePaymentsAdminApiQuery(financeFilters, from, payListPage),
+    buildFinancePaymentsAdminApiQuery(financeFilters, paymentsRange, payListPage),
     cookie,
   );
 
@@ -50,7 +50,7 @@ export default async function AdminFinancePaymentsPage({
     <AdminFinancePaymentsPanel
       locale={locale}
       initialPayments={paymentsRes.data}
-      paymentsFrom={from}
+      paymentsRange={paymentsRange}
       financeFilters={financeFilters}
     />
   );

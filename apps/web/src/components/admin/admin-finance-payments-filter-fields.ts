@@ -7,6 +7,7 @@ import { buildDateSortFilterField } from "@/lib/list-sort";
 type BuildAdminFinancePaymentsFilterFieldsArgs = {
   labels: {
     rangeLabel: string;
+    rangeAll: string;
     range7: string;
     range30: string;
     range90: string;
@@ -85,6 +86,7 @@ export function buildAdminFinancePaymentsFilterFields({
   const baseFields = buildAdminFinanceFilterFields({
     labels: {
       rangeLabel: labels.rangeLabel,
+      rangeAll: labels.rangeAll,
       range7: labels.range7,
       range30: labels.range30,
       range90: labels.range90,

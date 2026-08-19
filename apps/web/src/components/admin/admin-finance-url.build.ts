@@ -1,7 +1,12 @@
-import type {
-  CoachFinanceFilters,
-  FinanceDateRangeDays,
-  FinanceFilterValues,
+import {
+  applyFinanceStudioDateRangeParams,
+  type FinanceStudioDateRange,
+} from "@/components/admin/admin-finance-dates";
+import {
+  DEFAULT_FINANCE_OVERVIEW_RANGE,
+  type CoachFinanceFilters,
+  type FinanceBoundedDateRangeDays,
+  type FinanceFilterValues,
 } from "@/components/admin/admin-finance-types";
 import {
   FINANCE_COACHES_QUERY_KEYS,
@@ -14,12 +19,12 @@ import {
 } from "@/components/admin/admin-finance-url.helpers";
 
 export function buildFinanceOverviewFiltersQuery(
-  rangeDays: FinanceDateRangeDays,
+  rangeDays: FinanceBoundedDateRangeDays,
   currentSearchParams: URLSearchParams,
 ): string {
   const params = pickFinanceSectionParams([...FINANCE_OVERVIEW_QUERY_KEYS], currentSearchParams);
   applyFinanceQueryKeys(params, [...FINANCE_OVERVIEW_QUERY_KEYS], {
-    rangeDays: rangeDays === 30 ? undefined : String(rangeDays),
+    rangeDays: rangeDays === DEFAULT_FINANCE_OVERVIEW_RANGE ? undefined : String(rangeDays),
   });
   return params.toString();
 }
@@ -31,7 +36,7 @@ export function buildFinancePaymentsFiltersQuery(
   const params = pickFinanceSectionParams([...FINANCE_PAYMENTS_QUERY_KEYS], currentSearchParams);
   applyFinanceQueryKeys(params, [...FINANCE_PAYMENTS_QUERY_KEYS], {
     q: values.q.trim() !== "" ? values.q.trim() : undefined,
-    rangeDays: values.rangeDays !== 30 ? String(values.rangeDays) : undefined,
+    rangeDays: values.rangeDays !== "all" ? String(values.rangeDays) : undefined,
     source: values.source !== "all" ? values.source : undefined,
     status: values.status !== "all" ? values.status : undefined,
     planId: values.planId !== "all" ? values.planId : undefined,
@@ -45,14 +50,14 @@ export function buildFinancePaymentsFiltersQuery(
 /** Builds the admin payments list API query with finance tab filters applied server-side. */
 export function buildFinancePaymentsAdminApiQuery(
   filters: FinanceFilterValues,
-  from: string,
+  range: FinanceStudioDateRange,
   listPage: { take: number; offset: number },
 ): string {
   const params = new URLSearchParams({
-    from,
     take: String(listPage.take),
     offset: String(listPage.offset),
   });
+  applyFinanceStudioDateRangeParams(params, range);
   if (filters.status !== "all") {
     params.set("status", filters.status);
   }

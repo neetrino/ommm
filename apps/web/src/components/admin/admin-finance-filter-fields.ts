@@ -1,9 +1,13 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
-import type { FinanceFilterValues } from "@/components/admin/admin-finance-types";
+import {
+  DEFAULT_FINANCE_OVERVIEW_RANGE,
+  type FinanceFilterValues,
+} from "@/components/admin/admin-finance-types";
 
 type BuildAdminFinanceFilterFieldsArgs = {
   labels: {
     rangeLabel: string;
+    rangeAll?: string;
     range7: string;
     range30: string;
     range90: string;
@@ -32,32 +36,43 @@ export function adminFinanceIntegratedFilterValues(
   };
 }
 
+function buildRangeFilterField(labels: BuildAdminFinanceFilterFieldsArgs["labels"]): AdminIntegratedFilterField {
+  const includeAll = Boolean(labels.rangeAll);
+  const emptyValue = includeAll ? "all" : String(DEFAULT_FINANCE_OVERVIEW_RANGE);
+  const rangeLabels: Record<string, string> = {
+    ...(labels.rangeAll ? { all: labels.rangeAll } : {}),
+    "7": labels.range7,
+    "30": labels.range30,
+    "90": labels.range90,
+  };
+  return {
+    key: "rangeDays",
+    label: labels.rangeLabel,
+    emptyValue,
+    allLabel: labels.rangeAll,
+    resolveChipLabel: (value) => {
+      if (value === emptyValue) {
+        return null;
+      }
+      const rangeLabel = rangeLabels[value];
+      return rangeLabel
+        ? `${labels.rangeLabel}: ${rangeLabel}`
+        : `${labels.rangeLabel}: ${value}`;
+    },
+    options: [
+      ...(labels.rangeAll ? [{ value: "all", label: labels.rangeAll }] : []),
+      { value: "7", label: labels.range7 },
+      { value: "30", label: labels.range30 },
+      { value: "90", label: labels.range90 },
+    ],
+  };
+}
+
 export function buildAdminFinanceFilterFields({
   labels,
 }: BuildAdminFinanceFilterFieldsArgs): AdminIntegratedFilterField[] {
   return [
-    {
-      key: "rangeDays",
-      label: labels.rangeLabel,
-      emptyValue: "30",
-      resolveChipLabel: (value) => {
-        if (value === "30") {
-          return null;
-        }
-        const rangeLabels: Record<string, string> = {
-          "7": labels.range7,
-          "90": labels.range90,
-        };
-        return rangeLabels[value]
-          ? `${labels.rangeLabel}: ${rangeLabels[value]}`
-          : `${labels.rangeLabel}: ${value}`;
-      },
-      options: [
-        { value: "7", label: labels.range7 },
-        { value: "30", label: labels.range30 },
-        { value: "90", label: labels.range90 },
-      ],
-    },
+    buildRangeFilterField(labels),
     {
       key: "source",
       label: labels.sourceLabel,

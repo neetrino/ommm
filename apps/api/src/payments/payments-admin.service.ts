@@ -6,7 +6,7 @@ import {
 import { ManualPaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
-import { buildStudioDateTimeFilter } from '../common/studio-date-range';
+import { buildOpenEndedStudioDateTimeFilter } from '../common/studio-date-range';
 import {
   buildTokenAndWhere,
   containsInsensitive,
@@ -173,7 +173,7 @@ export class PaymentsAdminService {
       throw new BadRequestException('Invalid date range');
     }
     const sourceFilter = buildSourceFilter(query.source);
-    const createdAt = buildStudioDateTimeFilter(query.from, query.to);
+    const createdAt = buildOpenEndedStudioDateTimeFilter(query.from, query.to);
     const searchWhere = buildTokenAndWhere(
       query.q,
       (token): Prisma.PaymentWhereInput => ({
