@@ -26,6 +26,7 @@ export const OMMA_WANDER_SURFACE_SELECTOR = [
   "textarea",
   "select",
   "[data-slot='card']",
+  "article",
   ".ommm-card",
   ".ommm-cta-primary",
 ].join(",");

@@ -42,7 +42,6 @@ export function isBallOffscreen(ball: WanderBall, viewport: WanderViewport): boo
   return (
     ball.x < -margin ||
     ball.x > viewport.width + margin ||
-    ball.y > viewport.height + margin ||
     ball.y < -viewport.height * OMMA_WANDER_OFFSCREEN_TOP_RATIO
   );
 }
@@ -63,11 +62,9 @@ export function markBallLeaving(ball: WanderBall, viewport: WanderViewport, rand
   const toLeft = ball.x;
   const toRight = viewport.width - ball.x;
   const goLeft = toLeft < toRight ? random() < 0.7 : random() < 0.3;
-  const goDown = random() < 0.45;
-  ball.exitNx = goDown ? (goLeft ? -0.45 : 0.45) : goLeft ? -1 : 1;
-  ball.exitNy = goDown ? 0.89 : 0.28;
+  ball.exitNx = goLeft ? -1 : 1;
+  ball.exitNy = 0;
   ball.vx += ball.exitNx * OMMA_WANDER_EXIT_SPEED_PX_S;
-  ball.vy += ball.exitNy * OMMA_WANDER_EXIT_SPEED_PX_S * 0.35;
 }
 
 export function integrateBall(ball: WanderBall, dtSec: number): void {

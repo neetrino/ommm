@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   integrateBall,
   isBallOffscreen,
+  markBallLeaving,
   resolveBallPair,
   resolveSurfaceHits,
   shouldForceExit,
@@ -59,18 +60,37 @@ describe("omma-wander-sphere-physics", () => {
     assert.equal(isBallOffscreen(gone, { width: 800, height: 600 }), true);
   });
 
-  it("forces an exit after several bounces and steps off a floor", () => {
+  it("forces an exit after several bounces", () => {
     const ball = createWanderBall("exit", { x: 200, y: 40, vx: 0, vy: 0, size: 80 });
     ball.bounceCount = 9;
     assert.equal(shouldForceExit(ball), true);
-    stepWanderWorld(
-      [ball],
-      [],
-      { width: 400, height: 300 },
-      0.2,
-      midRandom,
-    );
+    stepWanderWorld([ball], [], { width: 400, height: 300 }, 0.2, midRandom);
     assert.equal(ball.leaving, true);
+  });
+
+  it("stays on the viewport floor and leaves left or right", () => {
+    const size = 100;
+    const radius = size * OMMA_WANDER_RADIUS_RATIO;
+    const viewport = { width: 800, height: 400 };
+    const bounce = createWanderBall("floor", {
+      x: 400,
+      y: viewport.height - radius + 6,
+      vx: 40,
+      vy: 360,
+      size,
+    });
+    stepWanderWorld([bounce], [], viewport, 0.25, midRandom);
+    assert.ok(bounce.vy < 0);
+    assert.ok(bounce.y + radius <= viewport.height + 1);
+    const leave = createWanderBall("leave", { x: 120, y: 80, vx: 0, vy: 0, size: 80 });
+    markBallLeaving(leave, viewport, () => 0.2);
+    assert.equal(leave.exitNx, -1);
+    assert.equal(leave.exitNy, 0);
+    assert.ok(leave.vx < 0);
+    const right = createWanderBall("right", { x: 700, y: 80, vx: 0, vy: 0, size: 80 });
+    markBallLeaving(right, viewport, () => 0.8);
+    assert.equal(right.exitNx, 1);
+    assert.ok(right.vx > 0);
   });
 
   it("hops onward instead of stalling on a block", () => {
@@ -139,6 +159,10 @@ describe("omma-wander-sphere-surfaces", () => {
     assert.equal(
       isUsableSurfaceRect({ left: 24, top: 220, right: 976, bottom: 310 }, viewport),
       false,
+    );
+    assert.equal(
+      isUsableSurfaceRect({ left: 320, top: 180, right: 620, bottom: 720 }, viewport),
+      true,
     );
     const many = Array.from({ length: 50 }, (_, index) => ({
       left: (index % 10) * 90,
