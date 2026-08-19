@@ -257,6 +257,7 @@ describe('ReportsService', () => {
     expect(result.giftCredits.redeemedCount).toBe(1);
     expect(result.giftCredits.redeemedCents).toBe(2_000);
     expect(result.giftCredits.outstandingCreditsCents).toBe(1_500);
+    expect(result.influencer).toEqual({ count: 0, costCents: 0 });
     expect(result.dailyRevenue).toEqual([
       { date: '2026-06-01', amountCents: 5_000 },
       { date: '2026-06-02', amountCents: 10_000 },

@@ -37,9 +37,11 @@ export function AdminClientPackagePurchaseConfirm({
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
   const confirmHint =
-    paymentMethod === "CASH"
-      ? t("packages.confirmCashHint")
-      : t("packages.confirmTerminalHint");
+    paymentMethod === "INFLUENCER"
+      ? t("packages.confirmInfluencerHint")
+      : paymentMethod === "CASH"
+        ? t("packages.confirmCashHint")
+        : t("packages.confirmTerminalHint");
   const sessionsValue = plan.isUnlimited
     ? t("packages.unlimited")
     : String(plan.sessionsPerMonth ?? "—");
@@ -72,11 +74,18 @@ export function AdminClientPackagePurchaseConfirm({
 
           <div>
             <p className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>
-              {t("packages.finalPrice")}
+              {paymentMethod === "INFLUENCER"
+                ? t("packages.studioCost")
+                : t("packages.finalPrice")}
             </p>
             <p className="mt-1 font-serif text-3xl font-normal tracking-tight text-sage-900">
               {priceLabel}
             </p>
+            {paymentMethod === "INFLUENCER" ? (
+              <p className="mt-2 text-sm text-sage-600">
+                {t("packages.clientPays")}: {formatAmdFromCents(0, locale)}
+              </p>
+            ) : null}
           </div>
 
           <dl className="grid gap-4 sm:grid-cols-2">

@@ -1,5 +1,5 @@
 import { ClassSessionStatus, Prisma } from '@prisma/client';
-import { buildStudioDateTimeFilter } from '../common/studio-date-range';
+import { buildOpenEndedStudioDateTimeFilter } from '../common/studio-date-range';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
 
 /** Local calendar day bounds — shared by dashboard stats and today's class list. */
@@ -68,7 +68,7 @@ export function resolveRelativeDays(days: number): { from: Date; to: Date } {
 export function buildPaymentDateFilter(
   range: DateRangeQueryDto,
 ): Prisma.DateTimeFilter | undefined {
-  return buildStudioDateTimeFilter(range.from, range.to);
+  return buildOpenEndedStudioDateTimeFilter(range.from, range.to);
 }
 
 export function localDateKey(date: Date): string {

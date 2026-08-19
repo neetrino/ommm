@@ -4,6 +4,7 @@ import {
   ClassSessionStatus,
   PaymentStatus,
 } from '@prisma/client';
+import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   aggregateCoachAnalytics,
@@ -99,9 +100,17 @@ export class ReportsAnalyticsService {
           createdAt: { gte: range.from, lte: range.to },
           status: PaymentStatus.SUCCEEDED,
         },
-        select: { amountCents: true, createdAt: true, description: true },
+        select: {
+          amountCents: true,
+          createdAt: true,
+          description: true,
+          paymentMethod: true,
+        },
       }),
     ]);
+    const revenuePayments = payments.filter(
+      (payment) => !isInfluencerPaymentMethod(payment.paymentMethod),
+    );
 
     const completed = bookings.filter(
       (b) => b.status === BookingStatus.COMPLETED,
@@ -122,13 +131,13 @@ export class ReportsAnalyticsService {
     const favoriteClassType = [...classTypeCounter.entries()].sort(
       (a, b) => b[1] - a[1],
     )[0]?.[0];
-    const spendCents = payments.reduce(
+    const spendCents = revenuePayments.reduce(
       (sum, payment) => sum + payment.amountCents,
       0,
     );
 
     const spendTrendMap = new Map<string, number>();
-    for (const payment of payments) {
+    for (const payment of revenuePayments) {
       const key = payment.createdAt.toISOString().slice(0, 10);
       spendTrendMap.set(
         key,

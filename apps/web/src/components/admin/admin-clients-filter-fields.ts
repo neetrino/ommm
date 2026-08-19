@@ -55,6 +55,7 @@ export function buildAdminClientsFilterFields({
       allLabel: "All badges",
       options: [
         { value: "vip", label: "VIP" },
+        { value: "influencer", label: "Influencer" },
         { value: "new", label: "New" },
         { value: "beginner", label: "Beginner" },
       ],

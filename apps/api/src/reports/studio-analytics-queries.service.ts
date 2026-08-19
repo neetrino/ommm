@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ClassSessionStatus, Prisma } from '@prisma/client';
+import { ClassSessionStatus, PaymentSource, Prisma } from '@prisma/client';
+import { influencerSucceededWhere } from '../payments/payment-revenue.util';
 import { PrismaService } from '../prisma/prisma.service';
 import { joinName } from './reports.helpers';
 import { loadStudioAnalyticsGiftCredits } from './studio-analytics-gift-queries';
@@ -169,6 +170,7 @@ export class StudioAnalyticsQueriesService {
       select: {
         restoredAt: true,
         consumedSessions: true,
+        userPackageId: true,
         booking: {
           select: {
             session: {
@@ -187,6 +189,9 @@ export class StudioAnalyticsQueriesService {
       },
       take: STUDIO_ANALYTICS_ROW_CAP,
     });
+    const influencerPackageIds = await this.loadInfluencerPackageIds(
+      rows.map((row) => row.userPackageId),
+    );
     return rows.map((row) => ({
       restoredAt: row.restoredAt,
       consumedSessions: row.consumedSessions,
@@ -196,7 +201,30 @@ export class StudioAnalyticsQueriesService {
       sessionPriceCents: row.booking.session.priceCents,
       planPriceCentsSnapshot: row.userPackage.planPriceCentsSnapshot,
       sessionsTotal: row.userPackage.sessionsTotal,
+      isInfluencerComp: influencerPackageIds.has(row.userPackageId),
     }));
+  }
+
+  private async loadInfluencerPackageIds(
+    packageIds: string[],
+  ): Promise<Set<string>> {
+    const uniqueIds = [...new Set(packageIds)];
+    if (uniqueIds.length === 0) {
+      return new Set();
+    }
+    const payments = await this.prisma.payment.findMany({
+      where: {
+        source: PaymentSource.PACKAGE,
+        sourceId: { in: uniqueIds },
+        ...influencerSucceededWhere,
+      },
+      select: { sourceId: true },
+    });
+    return new Set(
+      payments.flatMap((payment) =>
+        payment.sourceId !== null ? [payment.sourceId] : [],
+      ),
+    );
   }
 
   private async loadLabels(sessions: StudioAnalyticsSessionRow[]) {

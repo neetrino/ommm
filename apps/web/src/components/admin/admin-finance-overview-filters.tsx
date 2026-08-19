@@ -11,7 +11,8 @@ import {
 import { AdminFinanceExportLinks } from "@/components/admin/admin-finance-export-links";
 import { AdminFinanceFiltersBar } from "@/components/admin/admin-finance-filters-bar";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
+import { resolveFinanceStudioDateRange } from "@/components/admin/admin-finance-dates";
+import { DEFAULT_FINANCE_OVERVIEW_RANGE } from "@/components/admin/admin-finance-types";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import {
   buildFinanceOverviewFiltersQuery,
@@ -65,7 +66,10 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
     [rangeDays],
   );
 
-  const fromIso = useMemo(() => computeFinanceFromDate(rangeDays), [rangeDays]);
+  const exportRange = useMemo(
+    () => resolveFinanceStudioDateRange(rangeDays),
+    [rangeDays],
+  );
 
   useEffect(() => {
     if (!hasMounted.current) {
@@ -96,7 +100,7 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
   }
 
   function resetFilters(): void {
-    setRangeDays(30);
+    setRangeDays(DEFAULT_FINANCE_OVERVIEW_RANGE);
   }
 
   return (
@@ -116,7 +120,8 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
       }
       trailing={
         <AdminFinanceExportLinks
-          fromIso={fromIso}
+          from={exportRange.from}
+          to={exportRange.to}
           paymentsLabel={t("exportPaymentsCsv")}
           giftCreditsLabel={t("exportGiftCreditsCsv")}
         />

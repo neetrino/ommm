@@ -70,7 +70,9 @@ export function filterCoachSalaryRows(
   rows: CoachSalaryRow[],
   query: AdminSalarySummariesQueryDto,
 ): CoachSalaryRow[] {
-  const tokens = splitSearchTokens(query.search).map((token) => token.toLowerCase());
+  const tokens = splitSearchTokens(query.search).map((token) =>
+    token.toLowerCase(),
+  );
   return rows.filter((row) => {
     if (tokens.length > 0) {
       const haystack =

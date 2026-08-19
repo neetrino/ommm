@@ -249,7 +249,9 @@ export function filterSessionRows<T extends SessionListFilterRow>(
         return false;
       }
     }
-    const sessionDay = utcToStudioCalendarDate(new Date(startsAtIso(row.startsAt)));
+    const sessionDay = utcToStudioCalendarDate(
+      new Date(startsAtIso(row.startsAt)),
+    );
     if (fromDay && sessionDay < fromDay) {
       return false;
     }

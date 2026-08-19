@@ -24,6 +24,7 @@ type AdminAnalyticsRevenuePanelProps = {
 export function AdminAnalyticsRevenuePanel({ data }: AdminAnalyticsRevenuePanelProps) {
   const t = useTranslations("adminPages.analytics");
   const gift = data.studio.revenue.giftCredits;
+  const influencer = data.studio.revenue.influencer;
   const trendChartData = useMemo(() => mapDailyTrendForChart(data.dailyTrend), [data.dailyTrend]);
   const revenueTrendTotal = sumBucketValues(data.dailyTrend, "revenueCents");
 
@@ -61,6 +62,11 @@ export function AdminAnalyticsRevenuePanel({ data }: AdminAnalyticsRevenuePanelP
           <AdminAnalyticsKpiStrip items={buildGiftKpis(gift, data.locale, t)} />
         </AdminAnalyticsChartPanel>
       </AdminAnalyticsPanelSection>
+      <AdminAnalyticsPanelSection index={10}>
+        <AdminAnalyticsChartPanel title={t("sections.influencer.title")} hint={t("sections.influencer.hint")}>
+          <AdminAnalyticsKpiStrip items={buildInfluencerKpis(influencer, data.locale, t)} />
+        </AdminAnalyticsChartPanel>
+      </AdminAnalyticsPanelSection>
     </div>
   );
 }
@@ -90,6 +96,25 @@ function buildGiftKpis(
       key: "outstanding",
       label: t("sections.giftCredits.outstanding"),
       value: formatAmdFromCents(gift.outstandingCreditsCents, locale),
+    },
+  ];
+}
+
+function buildInfluencerKpis(
+  influencer: AdminAnalyticsPayload["studio"]["revenue"]["influencer"],
+  locale: string,
+  t: ReturnType<typeof useTranslations>,
+) {
+  return [
+    {
+      key: "cost",
+      label: t("sections.influencer.cost"),
+      value: formatAmdFromCents(influencer.costCents, locale),
+    },
+    {
+      key: "packages",
+      label: t("sections.influencer.packages"),
+      value: String(influencer.count),
     },
   ];
 }

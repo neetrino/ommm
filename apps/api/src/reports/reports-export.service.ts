@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { GiftCardStatus, PaymentStatus, Prisma } from '@prisma/client';
+import {
+  revenueSucceededWhere,
+  summarizeInfluencerCost,
+} from '../payments/payment-revenue.util';
 import { PrismaService } from '../prisma/prisma.service';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
 import {
@@ -70,7 +74,7 @@ export class ReportsExportService {
       giftLiabilityAgg,
     ] = await Promise.all([
       this.prisma.payment.aggregate({
-        where: { ...where, status: PaymentStatus.SUCCEEDED },
+        where: { ...where, ...revenueSucceededWhere },
         _sum: { amountCents: true },
         _count: { id: true },
       }),
@@ -88,6 +92,7 @@ export class ReportsExportService {
           description: true,
           status: true,
           createdAt: true,
+          paymentMethod: true,
         },
       }),
       this.prisma.giftCard.findMany({
@@ -119,13 +124,26 @@ export class ReportsExportService {
       }),
     ]);
 
+    const influencer = summarizeInfluencerCost(payments);
     const bySource = aggregatePaymentsBySource(payments);
 
-    const byStatus = byStatusRaw.map((entry) => ({
-      status: entry.status,
-      count: entry._count.id,
-      amountCents: entry._sum.amountCents ?? 0,
-    }));
+    const byStatus = byStatusRaw.map((entry) => {
+      if (entry.status !== PaymentStatus.SUCCEEDED) {
+        return {
+          status: entry.status,
+          count: entry._count.id,
+          amountCents: entry._sum.amountCents ?? 0,
+        };
+      }
+      return {
+        status: entry.status,
+        count: Math.max(0, entry._count.id - influencer.count),
+        amountCents: Math.max(
+          0,
+          (entry._sum.amountCents ?? 0) - influencer.costCents,
+        ),
+      };
+    });
 
     const averageOrderValueCents =
       (totals._count.id ?? 0) > 0
@@ -163,6 +181,7 @@ export class ReportsExportService {
         spendTransactionsCount: giftSpentAgg._count.id ?? 0,
         outstandingCreditsCents: giftLiabilityAgg._sum.giftCreditsCents ?? 0,
       },
+      influencer,
     };
   }
 
@@ -180,7 +199,7 @@ export class ReportsExportService {
     });
 
     const header =
-      'paymentId,createdAt,userId,userEmail,userName,amountCents,currency,status,source,description\n';
+      'paymentId,createdAt,userId,userEmail,userName,amountCents,currency,status,paymentMethod,source,description\n';
     const body = rows
       .map((payment) =>
         [
@@ -192,6 +211,7 @@ export class ReportsExportService {
           payment.amountCents,
           payment.currency,
           payment.status,
+          payment.paymentMethod ?? '',
           detectPaymentSource(payment.description),
           payment.description ?? '',
         ]

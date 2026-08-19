@@ -1,9 +1,5 @@
-import {
-  BookingStatus,
-  PaymentStatus,
-  Prisma,
-  type PrismaClient,
-} from '@prisma/client';
+import { BookingStatus, Prisma, type PrismaClient } from '@prisma/client';
+import { revenueSucceededWhere } from '../payments/payment-revenue.util';
 import {
   CLIENTS_FILTER_OPTIONS_SCAN_LIMIT,
   INACTIVE_CLIENT_DAYS,
@@ -12,7 +8,7 @@ import {
 type ClientListRowSummaryFields = {
   classLevels: string[];
   preferredCoach: { id: string; name: string } | null;
-  tags: Array<'VIP' | 'New' | 'Beginner'>;
+  tags: Array<'VIP' | 'New' | 'Beginner' | 'Influencer'>;
   status: 'Active' | 'Inactive' | 'Blocked';
   totalVisits: number;
   lifetimeValueCents: number;
@@ -50,7 +46,7 @@ export async function computeClientsSummaryFromDb(
     }),
     prisma.payment.aggregate({
       where: {
-        status: PaymentStatus.SUCCEEDED,
+        ...revenueSucceededWhere,
         user: where,
       },
       _sum: { amountCents: true },

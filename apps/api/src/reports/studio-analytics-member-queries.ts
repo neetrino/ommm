@@ -1,10 +1,5 @@
-import {
-  BookingStatus,
-  PaymentStatus,
-  Prisma,
-  Role,
-  UserPackageStatus,
-} from '@prisma/client';
+import { BookingStatus, Prisma, Role, UserPackageStatus } from '@prisma/client';
+import { revenueSucceededWhere } from '../payments/payment-revenue.util';
 import type { PrismaService } from '../prisma/prisma.service';
 import {
   ACTIVE_MEMBERS_LOOKBACK_MS,
@@ -105,7 +100,7 @@ async function queryMemberTotals(
       where: { status: BookingStatus.COMPLETED, session: sessionInRange },
     }),
     prisma.payment.aggregate({
-      where: { status: PaymentStatus.SUCCEEDED, user: { role: Role.USER } },
+      where: { ...revenueSucceededWhere, user: { role: Role.USER } },
       _sum: { amountCents: true },
     }),
     loadRetention(prisma, params, sessionWhere, sessionInRange),

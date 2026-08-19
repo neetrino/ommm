@@ -869,7 +869,8 @@
         "CARD": "Card",
         "CARD_TERMINAL": "Card (Terminal)",
         "BANK_TRANSFER": "Bank transfer",
-        "OTHER": "Other"
+        "OTHER": "Other",
+        "INFLUENCER": "Influencer"
       },
       "yourPackages": "Your packages",
       "signInToView": "Sign in to view.",
@@ -1246,7 +1247,8 @@
         "CARD": "Card",
         "CARD_TERMINAL": "Card (Terminal)",
         "BANK_TRANSFER": "Bank transfer",
-        "OTHER": "Other"
+        "OTHER": "Other",
+        "INFLUENCER": "Influencer"
       },
       "checkout": {
         "lead": "Choose a payment method. Card payments are processed on the secure Arca page.",
@@ -2136,6 +2138,7 @@
       "tagVip": "VIP",
       "tagNew": "New",
       "tagBeginner": "Beginner",
+      "tagInfluencer": "Influencer",
       "colEmail": "Email",
       "colRole": "Role",
       "colJoined": "Joined",
@@ -2250,6 +2253,8 @@
         "duration": "Duration",
         "includedSessions": "Included sessions",
         "finalPrice": "Final price",
+        "studioCost": "Studio cost",
+        "clientPays": "Client pays",
         "sessionsCount": "{count} sessions",
         "periodDays": "{days}-day period",
         "confirmLead": "Choose the payment method, review the package details, then confirm.",
@@ -2257,6 +2262,8 @@
         "confirmCashHint": "Confirm only after the cash payment has been received.",
         "confirmTerminal": "Confirm terminal payment and add package",
         "confirmTerminalHint": "Confirm only after the payment has been approved on the physical card terminal.",
+        "confirmInfluencer": "Confirm influencer package",
+        "confirmInfluencerHint": "The package is granted immediately. The client is not charged; the catalog price is tracked as studio cost.",
         "submitting": "Adding package…",
         "purchaseSuccess": "Package added successfully.",
         "purchaseError": "Could not add the package.",
@@ -3600,7 +3607,8 @@
         "CARD": "Online card",
         "CARD_TERMINAL": "Card terminal",
         "BANK_TRANSFER": "Bank transfer",
-        "OTHER": "Other"
+        "OTHER": "Other",
+        "INFLUENCER": "Influencer"
       },
       "sources": {
         "package": "Memberships",
@@ -3753,6 +3761,12 @@
           "spent": "Spent",
           "outstanding": "Outstanding"
         },
+        "influencer": {
+          "title": "Influencer comps",
+          "hint": "Catalog value of packages granted at no charge. This is studio cost, not cash revenue.",
+          "cost": "Studio cost",
+          "packages": "Packages granted"
+        },
         "paymentMethod": {
           "title": "Payment methods",
           "hint": "Cash revenue by manual payment method.",
@@ -3888,6 +3902,9 @@
       "kpiGiftRedeemed": "Gift cards redeemed",
       "kpiGiftSpent": "Gift credits spent",
       "kpiGiftOutstandingCredits": "Outstanding gift credits",
+      "influencerHeading": "Influencer comps",
+      "kpiInfluencerCost": "Influencer studio cost",
+      "kpiInfluencerPackages": "Influencer packages",
       "revenueBySource": "Revenue by source",
       "transactionsCount": "{count} transactions",
       "recentTransactions": "Recent transactions",
@@ -3902,6 +3919,7 @@
       },
       "filters": {
         "rangeLabel": "Range",
+        "rangeAll": "All time",
         "range7": "Last 7 days",
         "range30": "Last 30 days",
         "range90": "Last 90 days",
@@ -3939,7 +3957,8 @@
         "CARD": "Online Card",
         "CARD_TERMINAL": "Card (Terminal)",
         "BANK_TRANSFER": "Bank Transfer",
-        "OTHER": "Other"
+        "OTHER": "Other",
+        "INFLUENCER": "Influencer"
       },
       "paymentActions": {
         "markPaid": "Mark paid",

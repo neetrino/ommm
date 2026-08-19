@@ -1,18 +1,62 @@
-import type { FinanceDateRangeDays } from "@/components/admin/admin-finance-types";
+import type {
+  FinanceBoundedDateRangeDays,
+  FinanceDateRangeDays,
+} from "@/components/admin/admin-finance-types";
+import {
+  addStudioCalendarDays,
+  utcToStudioCalendarDate,
+} from "@/lib/studio-timezone";
 
-export function computeFinanceFromDate(days: FinanceDateRangeDays): string {
-  const from = new Date();
-  from.setDate(from.getDate() - days + 1);
-  from.setHours(0, 0, 0, 0);
-  return from.toISOString();
+export type FinanceStudioDateRange = {
+  from?: string;
+  to?: string;
+};
+
+export type FinanceClosedStudioDateRange = {
+  from: string;
+  to: string;
+};
+
+export function resolveFinanceStudioDateRange(
+  days: FinanceBoundedDateRangeDays,
+  now: Date = new Date(),
+): FinanceClosedStudioDateRange {
+  const to = utcToStudioCalendarDate(now);
+  const from = addStudioCalendarDays(to, 1 - days);
+  return { from, to };
 }
 
-export function computeFinanceMonthStart(): string {
-  const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  return start.toISOString();
+export function resolveFinancePaymentsDateRange(
+  rangeDays: FinanceDateRangeDays,
+  now: Date = new Date(),
+): FinanceStudioDateRange {
+  if (rangeDays === "all") {
+    return {};
+  }
+  return resolveFinanceStudioDateRange(rangeDays, now);
 }
 
-export function currentFinanceMonthValue(): string {
-  return new Date().toISOString().slice(0, 7);
+export function resolveFinanceCurrentMonthRange(
+  now: Date = new Date(),
+): FinanceClosedStudioDateRange {
+  const to = utcToStudioCalendarDate(now);
+  return { from: `${to.slice(0, 7)}-01`, to };
+}
+
+export function applyFinanceStudioDateRangeParams(
+  params: URLSearchParams,
+  range: FinanceStudioDateRange,
+): void {
+  if (range.from) {
+    params.set("from", range.from);
+  }
+  if (range.to) {
+    params.set("to", range.to);
+  }
+}
+
+export function buildFinanceDateRangeQuery(range: FinanceStudioDateRange): string {
+  const params = new URLSearchParams();
+  applyFinanceStudioDateRangeParams(params, range);
+  return params.toString();
 }

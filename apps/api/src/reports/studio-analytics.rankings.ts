@@ -1,4 +1,5 @@
 import { PaymentSource, PaymentStatus, Role } from '@prisma/client';
+import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
 import { parseStoredTypeSessionAllocations } from '../packages/packages-plan.helpers';
 import {
   STUDIO_ANALYTICS_RANK_LIMIT,
@@ -25,9 +26,7 @@ export function rankPackageSales(
   payments: StudioAnalyticsPaymentRow[],
   packagePlans: StudioAnalyticsPackagePlanRow[],
 ): StudioAnalyticsPayload['revenue']['byPackage'] {
-  const plans = new Map(
-    packagePlans.map((plan) => [plan.userPackageId, plan]),
-  );
+  const plans = new Map(packagePlans.map((plan) => [plan.userPackageId, plan]));
   const buckets = new Map<
     string,
     { id: string; label: string; count: number; amountCents: number }
@@ -55,7 +54,8 @@ export function rankTopClients(
   for (const payment of payments) {
     if (
       payment.status !== PaymentStatus.SUCCEEDED ||
-      payment.userRole !== Role.USER
+      payment.userRole !== Role.USER ||
+      isInfluencerPaymentMethod(payment.paymentMethod)
     ) {
       continue;
     }
@@ -76,9 +76,7 @@ export function applyPackageSalesToClassTypes(
   labels: StudioAnalyticsLabelRow[],
   classTypeId?: string,
 ): void {
-  const plans = new Map(
-    packagePlans.map((plan) => [plan.userPackageId, plan]),
-  );
+  const plans = new Map(packagePlans.map((plan) => [plan.userPackageId, plan]));
   for (const payment of payments) {
     if (!isSucceededPackage(payment)) {
       continue;
@@ -135,7 +133,8 @@ export function matchClassTypeByName(
 function isSucceededPackage(payment: StudioAnalyticsPaymentRow): boolean {
   return (
     payment.status === PaymentStatus.SUCCEEDED &&
-    payment.source === PaymentSource.PACKAGE
+    payment.source === PaymentSource.PACKAGE &&
+    !isInfluencerPaymentMethod(payment.paymentMethod)
   );
 }
 
@@ -147,7 +146,8 @@ function addPackageSaleBucket(
   payment: StudioAnalyticsPaymentRow,
   plan: StudioAnalyticsPackagePlanRow | undefined,
 ): void {
-  const id = plan?.planId ?? plan?.planName ?? payment.sourceId ?? UNKNOWN_PACKAGE_ID;
+  const id =
+    plan?.planId ?? plan?.planName ?? payment.sourceId ?? UNKNOWN_PACKAGE_ID;
   const label =
     plan?.planName && plan.planName.trim().length > 0
       ? plan.planName

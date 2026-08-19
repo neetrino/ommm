@@ -1,12 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  ManualPaymentMethod,
-  PaymentSource,
-  PaymentStatus,
-  Role,
-} from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+import { PaymentSource, PaymentStatus, Role } from '@prisma/client';
+import type { AdminClientPackagePaymentMethod } from '../clients/dto/admin-purchase-client-package.dto';
+import { toManualPaymentMethod } from '../payments/payment-revenue.util';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   createPaymentReference,
   resolveFinalPriceCents,
@@ -22,13 +19,10 @@ import { createBalancesForUserPackage } from './packages-user-package-balances.u
 import { buildUserPackagePlanSnapshot } from './user-package-plan-snapshot.util';
 import { resolveUserPackagePeriodBounds } from './user-package-period.util';
 
-type AdminClientPackagePaymentMethod =
-  | typeof ManualPaymentMethod.CASH
-  | typeof ManualPaymentMethod.CARD_TERMINAL;
-
 /**
- * Admin Client Packages purchase — Cash / CARD_TERMINAL only.
+ * Admin Client Packages purchase — Cash / CARD_TERMINAL / INFLUENCER.
  * Immediate ACTIVE package + SUCCEEDED payment; no Arca.
+ * Influencer stores catalog price as cost and never counts as cash revenue.
  */
 @Injectable()
 export class PackagesAdminClientPurchaseService {
@@ -105,7 +99,7 @@ export class PackagesAdminClientPurchaseService {
           description: buildPackagePaymentDescription(plan.name),
           confirmedAt: now,
           confirmedByAdminId: params.adminId,
-          paymentMethod: params.paymentMethod,
+          paymentMethod: toManualPaymentMethod(params.paymentMethod),
         },
       });
       await decrementPackagePlanStock(tx, plan.id);

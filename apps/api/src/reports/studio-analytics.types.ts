@@ -99,6 +99,10 @@ export type StudioAnalyticsPayload = {
       spendTransactionsCount: number;
       outstandingCreditsCents: number;
     };
+    influencer: {
+      costCents: number;
+      count: number;
+    };
   };
   operations: {
     bookingsByStatus: {
@@ -221,6 +225,7 @@ export type StudioAnalyticsConsumptionRow = {
   sessionPriceCents: number;
   planPriceCentsSnapshot: number;
   sessionsTotal: number | null;
+  isInfluencerComp?: boolean;
 };
 
 export type StudioAnalyticsLabelRow = {

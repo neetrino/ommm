@@ -1,4 +1,5 @@
-import { PaymentStatus } from '@prisma/client';
+import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
+import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
 import {
   detectPaymentSource,
   localDateKey,
@@ -18,6 +19,7 @@ export function aggregatePaymentsBySource(
     amountCents: number;
     description: string | null;
     status: PaymentStatus;
+    paymentMethod?: ManualPaymentMethod | null;
   }>,
 ) {
   return payments.reduce<
@@ -27,6 +29,9 @@ export function aggregatePaymentsBySource(
     >
   >(
     (acc, payment) => {
+      if (isInfluencerPaymentMethod(payment.paymentMethod)) {
+        return acc;
+      }
       const source = detectPaymentSource(payment.description);
       acc[source].count += 1;
       if (payment.status === PaymentStatus.SUCCEEDED) {
@@ -48,11 +53,15 @@ export function buildDailyRevenueFromPayments(
     amountCents: number;
     status: PaymentStatus;
     createdAt: Date;
+    paymentMethod?: ManualPaymentMethod | null;
   }>,
 ) {
   const dailyRevenueMap = new Map<string, number>();
   for (const payment of payments) {
-    if (payment.status !== PaymentStatus.SUCCEEDED) {
+    if (
+      payment.status !== PaymentStatus.SUCCEEDED ||
+      isInfluencerPaymentMethod(payment.paymentMethod)
+    ) {
       continue;
     }
     const day = localDateKey(payment.createdAt);

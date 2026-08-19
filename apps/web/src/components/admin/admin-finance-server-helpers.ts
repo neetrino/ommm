@@ -29,6 +29,10 @@ export type FinanceSummaryPayload = {
     spendTransactionsCount: number;
     outstandingCreditsCents: number;
   };
+  influencer: {
+    costCents: number;
+    count: number;
+  };
 };
 
 export function normalizeFinanceSearch(

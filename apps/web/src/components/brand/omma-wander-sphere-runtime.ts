@@ -57,7 +57,7 @@ export class OmmaWanderRuntime {
     this.refreshSurfaces();
     const viewport = readViewport();
     const edges = pickSpawnEdges(count, Math.random);
-    const sizes = wanderBurstSizes(count, viewport.width, Math.random);
+    const sizes = wanderBurstSizes(count, viewport.width);
     edges.forEach((edge, index) => {
       const timerId = window.setTimeout(() => {
         const at = this.spawnTimers.indexOf(timerId);

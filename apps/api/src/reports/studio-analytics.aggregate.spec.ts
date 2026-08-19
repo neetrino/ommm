@@ -6,6 +6,7 @@ import {
   Role,
   WaitlistStatus,
 } from '@prisma/client';
+import { INFLUENCER_PAYMENT_METHOD } from '../payments/payment-revenue.util';
 import {
   aggregateStudioRange,
   attributeSessionRevenue,
@@ -260,5 +261,32 @@ describe('studio-analytics.aggregate', () => {
       attendanceRate: 67,
     });
     expect(result.coaches.rows[0]).not.toHaveProperty('occupiedSeats');
+  });
+
+  it('keeps influencer comps out of cash revenue and tracks them as studio cost', () => {
+    const result = aggregateStudioRange(
+      loaded({
+        payments: [
+          payment(),
+          payment({
+            amountCents: 12_000,
+            paymentMethod: INFLUENCER_PAYMENT_METHOD,
+            sourceId: 'pkg-inf',
+            userId: 'user-inf',
+            userLabel: 'Influencer One',
+          }),
+        ],
+      }),
+    );
+
+    expect(result.kpis.revenueCents).toBe(8_000);
+    expect(result.kpis.successfulPaymentsCount).toBe(1);
+    expect(result.daily[0]?.revenueCents).toBe(8_000);
+    expect(result.revenue.influencer).toEqual({ count: 1, costCents: 12_000 });
+    expect(result.revenue.byPaymentMethod).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ method: 'INFLUENCER' }),
+      ]),
+    );
   });
 });

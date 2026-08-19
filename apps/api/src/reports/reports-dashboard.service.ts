@@ -6,6 +6,7 @@ import {
   Role,
   WaitlistStatus,
 } from '@prisma/client';
+import { revenueSucceededWhere } from '../payments/payment-revenue.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   buildAlerts,
@@ -105,7 +106,7 @@ export class ReportsDashboardService {
       }),
       includeRevenue
         ? this.prisma.payment.aggregate({
-            where: { status: PaymentStatus.SUCCEEDED },
+            where: revenueSucceededWhere,
             _sum: { amountCents: true },
           })
         : Promise.resolve(null),
@@ -183,7 +184,7 @@ export class ReportsDashboardService {
       includeRevenue
         ? this.prisma.payment.aggregate({
             where: {
-              status: PaymentStatus.SUCCEEDED,
+              ...revenueSucceededWhere,
               createdAt: { gte: todayStart, lt: todayEnd },
             },
             _sum: { amountCents: true },
@@ -192,7 +193,7 @@ export class ReportsDashboardService {
       includeRevenue
         ? this.prisma.payment.aggregate({
             where: {
-              status: PaymentStatus.SUCCEEDED,
+              ...revenueSucceededWhere,
               createdAt: { gte: monthStart, lt: nextMonthStart },
             },
             _sum: { amountCents: true },
@@ -201,7 +202,7 @@ export class ReportsDashboardService {
       includeRevenue
         ? this.prisma.payment.aggregate({
             where: {
-              status: PaymentStatus.SUCCEEDED,
+              ...revenueSucceededWhere,
               createdAt: { gte: previousMonthStart, lt: monthStart },
             },
             _sum: { amountCents: true },

@@ -1,4 +1,5 @@
 import { PaymentSource, PaymentStatus } from '@prisma/client';
+import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
 import { aggregatePaymentsBySource } from './reports-export.helpers';
 import type { BookingIndex } from './studio-analytics.bookings';
 import { emptySessionStats } from './studio-analytics.bookings';
@@ -33,7 +34,7 @@ function addConsumptionRevenue(
   bySession: Map<string, number>,
   row: StudioAnalyticsConsumptionRow,
 ): void {
-  if (!isAttributableConsumption(row.restoredAt)) {
+  if (row.isInfluencerComp || !isAttributableConsumption(row.restoredAt)) {
     return;
   }
   const cents = consumptionAttributedCents({
@@ -69,6 +70,9 @@ export function summarizeCashRevenue(
   const byStatusMap = new Map<string, { count: number; amountCents: number }>();
   const byMethodMap = new Map<string, { count: number; amountCents: number }>();
   for (const payment of payments) {
+    if (isInfluencerPaymentMethod(payment.paymentMethod)) {
+      continue;
+    }
     addCashBucket(byStatusMap, payment.status, payment);
     addCashBucket(
       byMethodMap,
@@ -77,7 +81,11 @@ export function summarizeCashRevenue(
     );
   }
   return {
-    bySource: aggregatePaymentsBySource(payments),
+    bySource: aggregatePaymentsBySource(
+      payments.filter(
+        (payment) => !isInfluencerPaymentMethod(payment.paymentMethod),
+      ),
+    ),
     byStatus: [...byStatusMap.entries()].map(([status, value]) => ({
       status,
       ...value,
