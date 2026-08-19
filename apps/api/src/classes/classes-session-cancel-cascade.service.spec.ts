@@ -13,14 +13,27 @@ describe('ClassesSessionCancelCascadeService', () => {
     const realtime = {
       emitBookingSessionChange: jest.fn(),
     };
+    const cancelledEmail = {
+      notifySessionCancelled: jest.fn().mockResolvedValue(undefined),
+    };
     const service = new ClassesSessionCancelCascadeService(
       slots as never,
       waitlist as never,
       realtime as never,
+      cancelledEmail as never,
     );
 
     await service.apply('session-1');
 
+    expect(cancelledEmail.notifySessionCancelled).toHaveBeenCalledWith(
+      'session-1',
+    );
+    expect(
+      cancelledEmail.notifySessionCancelled.mock.invocationCallOrder[0],
+    ).toBeLessThan(
+      slots.releaseRegistrationsForAdminCancelledSession.mock
+        .invocationCallOrder[0],
+    );
     expect(
       slots.releaseRegistrationsForAdminCancelledSession,
     ).toHaveBeenCalledWith('session-1');
@@ -44,14 +57,21 @@ describe('ClassesSessionCancelCascadeService', () => {
       expireForCancelledSession: jest.fn().mockResolvedValue(undefined),
     };
     const realtime = { emitBookingSessionChange: jest.fn() };
+    const cancelledEmail = {
+      notifySessionCancelled: jest.fn().mockResolvedValue(undefined),
+    };
     const service = new ClassesSessionCancelCascadeService(
       slots as never,
       waitlist as never,
       realtime as never,
+      cancelledEmail as never,
     );
 
     await service.apply('session-empty');
 
+    expect(cancelledEmail.notifySessionCancelled).toHaveBeenCalledWith(
+      'session-empty',
+    );
     expect(waitlist.expireForCancelledSession).toHaveBeenCalledWith(
       'session-empty',
     );

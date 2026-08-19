@@ -116,8 +116,11 @@ describe('NotificationsService', () => {
     expect(mail.sendEmail).toHaveBeenCalledWith({
       to: 'test@example.com',
       subject: 'Test',
-      html: '<p>Body</p>',
+      html: expect.stringContaining('<p>Body</p>'),
     });
+    expect(mail.sendEmail.mock.calls[0]?.[0].html).toContain(
+      'Ommm Wellness Studio',
+    );
     expect(prisma.user.findMany).not.toHaveBeenCalled();
     expect(result.mode).toBe('test');
   });

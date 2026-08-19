@@ -8,7 +8,7 @@ describe('formatPaymentDateTime', () => {
     const label = formatPaymentDateTime(new Date('2026-06-11T12:30:00.000Z'));
 
     expect(PAYMENT_EMAIL_TIMEZONE).toBe('Asia/Yerevan');
-    expect(label).toContain('GMT+4');
     expect(label).toContain('16:30');
+    expect(label).not.toContain('GMT');
   });
 });

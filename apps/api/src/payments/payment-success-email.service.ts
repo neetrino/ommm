@@ -3,8 +3,19 @@ import { ConfigService } from '@nestjs/config';
 import { PaymentSource, PaymentStatus } from '@prisma/client';
 import { MailService } from '../mail/mail.service';
 import { formatPhoneForDisplay } from '../common/phone';
-import { renderPaymentAdminNotificationEmail } from '../mail/templates/payment-admin-notification.template';
-import { renderPaymentCustomerConfirmationEmail } from '../mail/templates/payment-customer-confirmation.template';
+import {
+  buildMemberAccountUrl,
+  resolveEmailLocale,
+  resolveWebAppUrl,
+} from '../mail/email-app-urls';
+import {
+  PAYMENT_ADMIN_EMAIL_SUBJECT,
+  renderPaymentAdminNotificationEmail,
+} from '../mail/templates/payment-admin-notification.template';
+import {
+  PAYMENT_CUSTOMER_EMAIL_SUBJECT,
+  renderPaymentCustomerConfirmationEmail,
+} from '../mail/templates/payment-customer-confirmation.template';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   formatCustomerDisplayName,
@@ -53,6 +64,7 @@ export class PaymentSuccessEmailService {
             name: true,
             lastName: true,
             phone: true,
+            locale: true,
           },
         },
       },
@@ -90,13 +102,13 @@ export class PaymentSuccessEmailService {
     try {
       await this.mail.sendEmail({
         to: context.customerEmail,
-        subject: 'Your payment has been confirmed — Ommm',
+        subject: PAYMENT_CUSTOMER_EMAIL_SUBJECT,
         html: renderPaymentCustomerConfirmationEmail({
           customerName: context.customerName,
           amountLabel: context.amountLabel,
-          currency: context.currency,
           paymentTypeLabel: context.paymentTypeLabel,
           confirmedAtLabel: context.confirmedAtLabel,
+          accountUrl: context.accountUrl,
         }),
       });
       return true;
@@ -124,13 +136,12 @@ export class PaymentSuccessEmailService {
       await this.mail.sendEmail({
         to: adminEmail,
         replyTo: context.customerEmail,
-        subject: 'Payment successfully confirmed — Ommm',
+        subject: PAYMENT_ADMIN_EMAIL_SUBJECT,
         html: renderPaymentAdminNotificationEmail({
           customerName: context.customerName,
           customerEmail: context.customerEmail,
           customerPhone: context.customerPhone,
           amountLabel: context.amountLabel,
-          currency: context.currency,
           paymentTypeLabel: context.paymentTypeLabel,
           statusLabel: context.statusLabel,
           confirmedAtLabel: context.confirmedAtLabel,
@@ -151,16 +162,19 @@ export class PaymentSuccessEmailService {
   ): PaymentEmailContext {
     const confirmedAt = payment.confirmedAt ?? payment.updatedAt;
 
+    const webUrl = resolveWebAppUrl(this.config.get<string>('WEB_APP_URL'));
+    const locale = resolveEmailLocale(payment.user.locale);
+
     return {
       paymentId: payment.id,
       customerName: formatCustomerDisplayName(payment.user),
       customerEmail: payment.user.email,
       customerPhone: formatPhoneForDisplay(payment.user.phone),
       amountLabel: formatPaymentAmount(payment.amountCents, payment.currency),
-      currency: payment.currency,
       paymentTypeLabel: formatPaymentSourceLabel(payment.source),
       statusLabel: formatPaymentStatusLabel(payment.status),
       confirmedAtLabel: formatPaymentDateTime(confirmedAt),
+      accountUrl: buildMemberAccountUrl(webUrl, locale),
     };
   }
 }
@@ -171,10 +185,10 @@ type PaymentEmailContext = {
   customerEmail: string;
   customerPhone: string;
   amountLabel: string;
-  currency: string;
   paymentTypeLabel: string;
   statusLabel: string;
   confirmedAtLabel: string;
+  accountUrl: string;
 };
 
 type PaymentWithRelations = {
@@ -191,5 +205,6 @@ type PaymentWithRelations = {
     name: string | null;
     lastName: string | null;
     phone: string | null;
+    locale: string;
   };
 };

@@ -3,6 +3,7 @@ import {
   PaymentSource,
   PaymentStatus,
 } from '@prisma/client';
+import { CASH_PENDING_EMAIL_SUBJECT } from '../mail/templates/payment-cash-pending-customer.template';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 
 describe('PaymentCashPendingEmailService', () => {
@@ -57,7 +58,7 @@ describe('PaymentCashPendingEmailService', () => {
     expect(mail.sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'customer@studio.test',
-        subject: 'Cash payment pending — please visit Ommm studio',
+        subject: CASH_PENDING_EMAIL_SUBJECT,
       }),
     );
   });

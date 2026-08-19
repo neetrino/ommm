@@ -5,8 +5,16 @@ import {
   PaymentStatus,
 } from '@prisma/client';
 import { formatPhoneForDisplay } from '../common/phone';
+import {
+  buildMemberAccountUrl,
+  resolveEmailLocale,
+  resolveWebAppUrl,
+} from '../mail/email-app-urls';
 import { MailService } from '../mail/mail.service';
-import { renderPaymentCashPendingCustomerEmail } from '../mail/templates/payment-cash-pending-customer.template';
+import {
+  CASH_PENDING_EMAIL_SUBJECT,
+  renderPaymentCashPendingCustomerEmail,
+} from '../mail/templates/payment-cash-pending-customer.template';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   formatCustomerDisplayName,
@@ -44,6 +52,7 @@ export class PaymentCashPendingEmailService {
             email: true,
             name: true,
             lastName: true,
+            locale: true,
           },
         },
       },
@@ -82,7 +91,7 @@ export class PaymentCashPendingEmailService {
     try {
       await this.mail.sendEmail({
         to: customerEmail,
-        subject: 'Cash payment pending — please visit Ommm studio',
+        subject: CASH_PENDING_EMAIL_SUBJECT,
         html: renderPaymentCashPendingCustomerEmail({
           customerName: formatCustomerDisplayName(payment.user),
           amountLabel: formatPaymentAmount(
@@ -96,6 +105,10 @@ export class PaymentCashPendingEmailService {
           studioAddress: studio?.address?.trim() ?? '',
           studioPhone: formatPhoneForDisplay(studio?.contactPhone),
           studioHours: studio?.workingHours?.trim() ?? '',
+          accountUrl: buildMemberAccountUrl(
+            resolveWebAppUrl(process.env.WEB_APP_URL),
+            resolveEmailLocale(payment.user.locale),
+          ),
         }),
       });
     } catch (error) {

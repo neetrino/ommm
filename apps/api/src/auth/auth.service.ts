@@ -13,15 +13,21 @@ import {
   PASSWORD_RESET_TTL_MS,
 } from '../common/constants';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
+import {
+  resolveEmailLocale,
+  resolveWebAppUrl,
+} from '../mail/email-app-urls';
 import { MailService } from '../mail/mail.service';
+import {
+  buildCreatePasswordEmailMessage,
+  buildResetPasswordEmailMessage,
+  buildVerifyEmailMessage,
+} from '../mail/templates/auth-emails.template';
 import { PrismaService } from '../prisma/prisma.service';
-import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { isValidPhoneNumber, normalizePhoneForStorage } from '../common/phone';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 import { buildCreatePasswordUrl } from './build-create-password-url';
-
-const DEFAULT_UI_LOCALE = 'en';
 
 /** Invite / first-time password token (added in migration `20260728140000`). */
 const AUTH_TOKEN_PASSWORD_SETUP = 'PASSWORD_SETUP' as AuthTokenType;
@@ -97,7 +103,7 @@ export class AuthService {
         name: displayFirst,
         lastName: dto.lastName,
         phone,
-        locale: normalizeAppUiLocale(dto.locale, DEFAULT_UI_LOCALE),
+        locale: resolveEmailLocale(dto.locale),
       },
     });
     const { raw } = await this.createOpaqueToken(
@@ -105,14 +111,16 @@ export class AuthService {
       AuthTokenType.EMAIL_VERIFY,
       EMAIL_VERIFY_TTL_MS,
     );
-    const webUrl =
-      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const verifyUrl = `${webUrl}/${DEFAULT_UI_LOCALE}/verify-email?token=${encodeURIComponent(raw)}`;
+    const webUrl = resolveWebAppUrl(this.config.get<string>('WEB_APP_URL'));
+    const locale = resolveEmailLocale(user.locale);
+    const verifyUrl = `${webUrl}/${locale}/verify-email?token=${encodeURIComponent(raw)}`;
     const greet = [displayFirst, dto.lastName].filter(Boolean).join(' ');
     await this.mail.sendEmail({
       to: user.email,
-      subject: 'Verify your Ommm account',
-      html: `<p>Hi${greet ? ` ${greet}` : ''},</p><p><a href="${verifyUrl}">Verify email</a></p>`,
+      ...buildVerifyEmailMessage({
+        recipientName: greet,
+        actionUrl: verifyUrl,
+      }),
     });
     const accessToken = this.signAccessToken(user);
     return { user: sanitizeUser(user), accessToken };
@@ -176,22 +184,18 @@ export class AuthService {
       AuthTokenType.PASSWORD_RESET,
       PASSWORD_RESET_TTL_MS,
     );
-    const webUrl =
-      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const locale = normalizeAppUiLocale(user.locale, DEFAULT_UI_LOCALE);
+    const webUrl = resolveWebAppUrl(this.config.get<string>('WEB_APP_URL'));
+    const locale = resolveEmailLocale(user.locale);
     const needsCreate = user.passwordHash === null;
     const resetUrl = needsCreate
       ? buildCreatePasswordUrl({ webAppUrl: webUrl, locale, token: raw })
       : `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(raw)}`;
-    await this.mail.sendEmail({
-      to: user.email,
-      subject: needsCreate
-        ? 'Create your Ommm password'
-        : 'Reset your Ommm password',
-      html: needsCreate
-        ? `<p><a href="${resetUrl}">Create password</a></p>`
-        : `<p><a href="${resetUrl}">Reset password</a></p>`,
-    });
+    const recipientName = [user.name, user.lastName].filter(Boolean).join(' ');
+    const authParams = { recipientName, actionUrl: resetUrl };
+    const message = needsCreate
+      ? buildCreatePasswordEmailMessage(authParams)
+      : buildResetPasswordEmailMessage(authParams);
+    await this.mail.sendEmail({ to: user.email, ...message });
   }
 
   /**

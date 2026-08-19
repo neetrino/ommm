@@ -78,7 +78,6 @@ export class WaitlistService {
     payload: {
       subject?: string;
       message?: string;
-      actorName?: string | null;
       actorId?: string;
       actorRole?: Role;
     },

@@ -1,3 +1,4 @@
+import { EMAIL_LOGO_PUBLIC_SRC } from '../email-logo';
 import { EMAIL_BRAND } from './email-brand.constants';
 
 type BrandedEmailLayoutParams = {
@@ -6,6 +7,20 @@ type BrandedEmailLayoutParams = {
   preheader?: string;
   bodyHtml: string;
 };
+
+/** Branded email shell with the studio logo already applied. */
+export function renderBrandedEmail(params: {
+  title: string;
+  preheader?: string;
+  bodyHtml: string;
+}): string {
+  return renderBrandedEmailLayout({
+    logoSrc: EMAIL_LOGO_PUBLIC_SRC,
+    title: params.title,
+    preheader: params.preheader,
+    bodyHtml: params.bodyHtml,
+  });
+}
 
 /** Shared table-based HTML shell for Ommm transactional emails. */
 export function renderBrandedEmailLayout(

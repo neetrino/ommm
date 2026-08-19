@@ -2,7 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { BookingStatus } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
+import {
+  buildMemberBookingsUrl,
+  resolveEmailLocale,
+  resolveWebAppUrl,
+} from '../mail/email-app-urls';
 import { MailService } from '../mail/mail.service';
+import {
+  buildClassReminderSubject,
+  renderClassReminderEmail,
+} from '../mail/templates/class-reminder.template';
+import { formatPaymentDateTime } from '../payments/payment-email-format.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   ACTION_BROADCAST_SCHEDULED,
@@ -62,39 +72,62 @@ export class NotificationsCronService {
       take: 200,
     });
 
-    for (const b of bookings) {
-      const sentAlready = await this.prisma.classReminderSendLog.findUnique({
-        where: { bookingId: b.id },
-      });
-      if (sentAlready) {
-        continue;
-      }
-      const prefs = b.user.notificationPrefs;
-      if (prefs && !prefs.bookingReminders) {
-        continue;
-      }
-      await this.mail.sendEmail({
-        to: b.user.email,
-        subject: `Reminder: ${b.session.classType.name}`,
-        html: `<p>Your class starts soon (${REMINDER_HOURS_BEFORE}h).</p>`,
-      });
-      const tokens = await loadPushTokensForUser(this.prisma, b.user.id);
-      if (tokens.length > 0) {
-        await this.expoPush.send(
-          tokens.map((to) => ({
-            to,
-            title: `Reminder: ${b.session.classType.name}`,
-            body: `Your class starts in about ${REMINDER_HOURS_BEFORE} hours.`,
-          })),
-        );
-      }
-      await this.prisma.classReminderSendLog.create({
-        data: { bookingId: b.id },
-      });
+    for (const booking of bookings) {
+      await this.deliverClassReminder(booking);
     }
     if (bookings.length > 0) {
       this.logger.log(`Sent up to ${bookings.length} class reminders`);
     }
+  }
+
+  private async deliverClassReminder(booking: {
+    id: string;
+    user: {
+      id: string;
+      email: string;
+      locale: string;
+      notificationPrefs: { bookingReminders: boolean } | null;
+    };
+    session: { startsAt: Date; classType: { name: string } };
+  }): Promise<void> {
+    const sentAlready = await this.prisma.classReminderSendLog.findUnique({
+      where: { bookingId: booking.id },
+    });
+    if (sentAlready) {
+      return;
+    }
+    const prefs = booking.user.notificationPrefs;
+    if (prefs && !prefs.bookingReminders) {
+      return;
+    }
+
+    const className = booking.session.classType.name;
+    await this.mail.sendEmail({
+      to: booking.user.email,
+      subject: buildClassReminderSubject(className),
+      html: renderClassReminderEmail({
+        className,
+        hoursBefore: REMINDER_HOURS_BEFORE,
+        startsAtLabel: formatPaymentDateTime(booking.session.startsAt),
+        bookingsUrl: buildMemberBookingsUrl(
+          resolveWebAppUrl(process.env.WEB_APP_URL),
+          resolveEmailLocale(booking.user.locale ?? undefined),
+        ),
+      }),
+    });
+    const tokens = await loadPushTokensForUser(this.prisma, booking.user.id);
+    if (tokens.length > 0) {
+      await this.expoPush.send(
+        tokens.map((to) => ({
+          to,
+          title: buildClassReminderSubject(className),
+          body: `${className} starts in about ${REMINDER_HOURS_BEFORE} hours.`,
+        })),
+      );
+    }
+    await this.prisma.classReminderSendLog.create({
+      data: { bookingId: booking.id },
+    });
   }
 
   /** Invoked by CronBatchService (every 30 min). */

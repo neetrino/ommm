@@ -89,14 +89,13 @@ export class WaitlistController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
   notify(
-    @CurrentUser() user: { id: string; name?: string | null; role: Role },
+    @CurrentUser() user: { id: string; role: Role },
     @Param('id') id: string,
     @Body() dto: ManualNotifyWaitlistEntryDto,
   ) {
     return this.waitlist.manualNotify(id, {
       subject: dto.subject,
       message: dto.message,
-      actorName: user.name ?? null,
       actorId: user.id,
       actorRole: user.role,
     });
