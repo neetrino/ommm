@@ -4,6 +4,10 @@ import {
   parseListPageParams,
 } from "@/lib/list-pagination";
 import {
+  ADMIN_CLIENTS_VIEW_QUERY_KEY,
+  parseAdminClientsViewMode,
+} from "@/lib/admin-clients-view-preference";
+import {
   CLIENT_ADD_PACKAGE_QUERY_KEY,
   CLIENT_PROFILE_TAB_QUERY_KEY,
 } from "@/components/admin/admin-client-sheet-tabs";
@@ -11,10 +15,16 @@ import {
 /** Admin / manager clients directory — one page of compact rows. */
 export const ADMIN_CLIENTS_LIST_PAGE_SIZE = 10;
 
+/** Sphere view needs a denser page so the globe is filled. */
+export const ADMIN_CLIENTS_SPHERE_PAGE_SIZE = 48;
+
 export function parseAdminClientsListPageParams(
   search: Record<string, string | undefined>,
 ) {
-  return parseListPageParams(search, { defaultPageSize: ADMIN_CLIENTS_LIST_PAGE_SIZE });
+  const view = parseAdminClientsViewMode(search[ADMIN_CLIENTS_VIEW_QUERY_KEY]);
+  const defaultPageSize =
+    view === "sphere" ? ADMIN_CLIENTS_SPHERE_PAGE_SIZE : ADMIN_CLIENTS_LIST_PAGE_SIZE;
+  return parseListPageParams(search, { defaultPageSize });
 }
 
 /** URL filter keys synced with `AdminListClientsQueryDto` (excluding `meta`). */
@@ -38,6 +48,7 @@ const ADMIN_CLIENTS_API_QUERY_KEYS = [...ADMIN_CLIENTS_FILTER_KEYS, "q"] as cons
 /** UI-only query keys kept in the URL but not sent to `GET /clients`. */
 export const ADMIN_CLIENTS_UI_QUERY_KEYS = [
   "viewClient",
+  ADMIN_CLIENTS_VIEW_QUERY_KEY,
   CLIENT_PROFILE_TAB_QUERY_KEY,
   CLIENT_ADD_PACKAGE_QUERY_KEY,
   LIST_PAGE_QUERY_KEY,

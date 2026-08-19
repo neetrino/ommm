@@ -2153,6 +2153,10 @@
       "editClient": "Edit client",
       "edit": "Edit",
       "addUserButton": "Add User",
+      "viewSwitcherAria": "Clients display mode",
+      "viewList": "List",
+      "viewSphere": "Sphere",
+      "sphereAria": "Client photos. Drag to rotate.",
       "create": {
         "panelTitle": "Add User",
         "panelLead": "Create a client account. We will email them a secure link to set their password.",
