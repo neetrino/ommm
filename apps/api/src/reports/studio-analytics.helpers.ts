@@ -139,6 +139,10 @@ export function classifyMemberActivity(params: {
   };
 }
 
+export function emptyInfluencerCost(): { costCents: number; count: number } {
+  return { costCents: 0, count: 0 };
+}
+
 export function emptyGiftCredits(): {
   issuedCents: number;
   issuedCount: number;

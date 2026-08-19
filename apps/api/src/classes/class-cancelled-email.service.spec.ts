@@ -1,6 +1,8 @@
 import { BookingStatus, WaitlistStatus } from '@prisma/client';
 import { ClassCancelledEmailService } from './class-cancelled-email.service';
 
+type SendEmailArg = { to: string; subject: string; html: string };
+
 describe('ClassCancelledEmailService', () => {
   function createService() {
     const prisma = {
@@ -9,7 +11,10 @@ describe('ClassCancelledEmailService', () => {
       waitlistEntry: { findMany: jest.fn() },
     };
     const mail = {
-      sendEmail: jest.fn().mockResolvedValue(undefined),
+      sendEmail: jest.fn((payload: SendEmailArg) => {
+        void payload;
+        return Promise.resolve();
+      }),
     };
     return {
       service: new ClassCancelledEmailService(prisma as never, mail as never),
@@ -59,7 +64,7 @@ describe('ClassCancelledEmailService', () => {
         subject: 'Your class was cancelled — Yoga Flow',
       }),
     );
-    const html = mail.sendEmail.mock.calls[0][0].html as string;
+    const html = mail.sendEmail.mock.calls[0]?.[0].html;
     expect(html).toContain('Open schedule');
     expect(html).toContain('Yoga Flow');
   });

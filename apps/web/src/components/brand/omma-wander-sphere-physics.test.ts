@@ -129,7 +129,7 @@ describe("omma-wander-sphere-spawn-and-path", () => {
     assert.ok(upperLeft.y > 0);
     assert.ok(pickSizeScale(() => 0) <= OMMA_WANDER_SIZE_SMALL_MAX);
     assert.ok(pickSizeScale(() => 0.9) >= OMMA_WANDER_SIZE_LARGE_MIN);
-    const pair = wanderBurstSizes(3, 1200, midRandom);
+    const pair = wanderBurstSizes(3, 1200);
     assert.equal(pair.length, 3);
     assert.ok(pair.every((size) => size === OMMA_WANDER_SIZE_DESKTOP_PX));
     assert.ok(OMMA_WANDER_SIZE_DESKTOP_PX < OMMA_WANDER_SIZE_FOOTER_PX);

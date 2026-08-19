@@ -69,6 +69,7 @@ enum ManualPaymentMethod {
   CARD_TERMINAL
   BANK_TRANSFER
   OTHER
+  INFLUENCER
 }
 
 enum GiftCardStatus {

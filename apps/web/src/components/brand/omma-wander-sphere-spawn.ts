@@ -57,11 +57,7 @@ export function wanderBallSize(viewportWidth: number, random: RandomFn): number 
   return Math.round(wanderVisualSize(viewportWidth) * pickSizeScale(random));
 }
 
-export function wanderBurstSizes(
-  count: number,
-  viewportWidth: number,
-  _random: RandomFn,
-): number[] {
+export function wanderBurstSizes(count: number, viewportWidth: number): number[] {
   const size = wanderVisualSize(viewportWidth);
   return Array.from({ length: Math.max(1, count) }, () => size);
 }

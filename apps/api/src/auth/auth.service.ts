@@ -13,10 +13,7 @@ import {
   PASSWORD_RESET_TTL_MS,
 } from '../common/constants';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
-import {
-  resolveEmailLocale,
-  resolveWebAppUrl,
-} from '../mail/email-app-urls';
+import { resolveEmailLocale, resolveWebAppUrl } from '../mail/email-app-urls';
 import { MailService } from '../mail/mail.service';
 import {
   buildCreatePasswordEmailMessage,

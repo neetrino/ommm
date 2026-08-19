@@ -1,4 +1,4 @@
-export type ClientTag = "VIP" | "New" | "Beginner";
+export type ClientTag = "VIP" | "New" | "Beginner" | "Influencer";
 export type ClientStatus = "Active" | "Inactive" | "Frozen" | "Blocked";
 export type PaymentBehavior = "paid" | "unpaid" | "overdue" | "partial";
 export type AttendanceBehavior =

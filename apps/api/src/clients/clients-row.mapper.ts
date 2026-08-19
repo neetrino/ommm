@@ -1,4 +1,5 @@
 import { Prisma, BookingStatus, PaymentStatus } from '@prisma/client';
+import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
 import {
   INACTIVE_CLIENT_DAYS,
   NEW_CLIENT_DAYS,
@@ -49,7 +50,7 @@ export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
 export type ClientRecord = Prisma.UserGetPayload<{
   include: typeof clientInclude;
 }>;
-export type ClientTag = 'VIP' | 'New' | 'Beginner';
+export type ClientTag = 'VIP' | 'New' | 'Beginner' | 'Influencer';
 export type ClientStatus = 'Active' | 'Inactive' | 'Blocked';
 export type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
 export type AttendanceBehavior =
@@ -132,7 +133,9 @@ function getPaymentBehavior(user: ClientRecord): PaymentBehavior {
     return 'unpaid';
   }
   return user.payments.some(
-    (payment) => payment.status === PaymentStatus.SUCCEEDED,
+    (payment) =>
+      payment.status === PaymentStatus.SUCCEEDED &&
+      !isInfluencerPaymentMethod(payment.paymentMethod),
   )
     ? 'paid'
     : 'unpaid';
@@ -173,6 +176,12 @@ function getTags(params: {
   classLevels: string[];
 }): ClientTag[] {
   const tags: ClientTag[] = [];
+  const hasInfluencer = params.user.payments.some(
+    (payment) =>
+      payment.status === PaymentStatus.SUCCEEDED &&
+      isInfluencerPaymentMethod(payment.paymentMethod),
+  );
+  if (hasInfluencer) tags.push('Influencer');
   const createdMs = params.user.createdAt.getTime();
   const isNew = Date.now() - createdMs <= NEW_CLIENT_DAYS * 24 * 60 * 60 * 1000;
   if (isNew) tags.push('New');
@@ -205,7 +214,11 @@ export function toClientRow(user: ClientRecord) {
   const latestBooking = getLatestVisit(user);
   const totals = getBookingTotals(user);
   const lifetimeValueCents = user.payments
-    .filter((payment) => payment.status === PaymentStatus.SUCCEEDED)
+    .filter(
+      (payment) =>
+        payment.status === PaymentStatus.SUCCEEDED &&
+        !isInfluencerPaymentMethod(payment.paymentMethod),
+    )
     .reduce((sum, payment) => sum + payment.amountCents, 0);
   const paymentBehavior = getPaymentBehavior(user);
   const attendanceBehavior = getAttendanceBehavior(totals);

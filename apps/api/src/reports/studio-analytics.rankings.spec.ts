@@ -5,6 +5,7 @@ import {
   rankPackageSales,
   rankTopClients,
   splitAmountByWeights,
+  type ClassTypeRevenueBucket,
 } from './studio-analytics.rankings';
 import type {
   StudioAnalyticsPackagePlanRow,
@@ -98,7 +99,7 @@ describe('studio-analytics.rankings', () => {
   });
 
   it('splits package cash across typeSessionAllocations', () => {
-    const buckets = new Map();
+    const buckets = new Map<string, ClassTypeRevenueBucket>();
     applyPackageSalesToClassTypes(
       buckets,
       [payment({ amountCents: 10_000 })],
@@ -131,7 +132,7 @@ describe('studio-analytics.rankings', () => {
   });
 
   it('puts leftover package cash in Unassigned when no class type maps', () => {
-    const buckets = new Map();
+    const buckets = new Map<string, ClassTypeRevenueBucket>();
     applyPackageSalesToClassTypes(
       buckets,
       [payment({ sourceId: 'missing-pkg', amountCents: 3_000 })],
@@ -146,7 +147,7 @@ describe('studio-analytics.rankings', () => {
   });
 
   it('filters package cash to the selected class type', () => {
-    const buckets = new Map();
+    const buckets = new Map<string, ClassTypeRevenueBucket>();
     applyPackageSalesToClassTypes(
       buckets,
       [payment({ amountCents: 10_000 })],

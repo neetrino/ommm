@@ -16,11 +16,13 @@ export const ADMIN_CLIENT_TAG_OVERLAY_BADGE_CLASS =
 export function clientTagBadgeTone(tag: ClientTag): string {
   if (tag === "VIP") return "bg-amber-100 text-amber-900";
   if (tag === "New") return "bg-sky-100 text-sky-900";
+  if (tag === "Influencer") return "bg-rose-100 text-rose-900";
   return "bg-violet-100 text-violet-900";
 }
 
 export function clientTagLabelKey(tag: ClientTag): string {
   if (tag === "VIP") return "tagVip";
   if (tag === "New") return "tagNew";
+  if (tag === "Influencer") return "tagInfluencer";
   return "tagBeginner";
 }

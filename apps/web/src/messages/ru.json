@@ -879,7 +879,8 @@
         "CARD": "Карта",
         "CARD_TERMINAL": "Карта (терминал)",
         "BANK_TRANSFER": "Банковский перевод",
-        "OTHER": "Другое"
+        "OTHER": "Другое",
+        "INFLUENCER": "Инфлюенсер"
       },
       "yourPackages": "Ваши пакеты",
       "signInToView": "Войдите, чтобы просмотреть.",
@@ -1256,7 +1257,8 @@
         "CARD": "Карта",
         "CARD_TERMINAL": "Карта (терминал)",
         "BANK_TRANSFER": "Банковский перевод",
-        "OTHER": "Другое"
+        "OTHER": "Другое",
+        "INFLUENCER": "Инфлюенсер"
       },
       "checkout": {
         "lead": "Выберите способ оплаты. Оплата картой проходит на защищённой странице Arca.",
@@ -2144,6 +2146,7 @@
       "tagVip": "VIP",
       "tagNew": "Новый",
       "tagBeginner": "Новичок",
+      "tagInfluencer": "Инфлюенсер",
       "colEmail": "Email",
       "colRole": "Роль",
       "colJoined": "Регистрация",
@@ -2258,6 +2261,8 @@
         "duration": "Длительность",
         "includedSessions": "Включённые занятия",
         "finalPrice": "Итоговая цена",
+        "studioCost": "Расход студии",
+        "clientPays": "Клиент платит",
         "sessionsCount": "{count} занятий",
         "periodDays": "Период {days} дн.",
         "confirmLead": "Выберите способ оплаты, проверьте детали пакета, затем подтвердите.",
@@ -2265,6 +2270,8 @@
         "confirmCashHint": "Подтверждайте только после получения наличной оплаты.",
         "confirmTerminal": "Подтвердить оплату через терминал и добавить пакет",
         "confirmTerminalHint": "Подтверждайте только после одобрения оплаты на физическом карточном терминале.",
+        "confirmInfluencer": "Подтвердить пакет инфлюенсера",
+        "confirmInfluencerHint": "Пакет выдаётся сразу. Клиент не платит; каталожная цена учитывается как расход студии.",
         "submitting": "Добавление пакета…",
         "purchaseSuccess": "Пакет успешно добавлен.",
         "purchaseError": "Не удалось добавить пакет.",
@@ -3572,6 +3579,9 @@
       "kpiGiftRedeemed": "Погашено подарочных карт",
       "kpiGiftSpent": "Потрачено подарочных кредитов",
       "kpiGiftOutstandingCredits": "Остаток подарочных кредитов",
+      "influencerHeading": "Пакеты инфлюенсеров",
+      "kpiInfluencerCost": "Расход на инфлюенсеров",
+      "kpiInfluencerPackages": "Пакеты инфлюенсеров",
       "revenueBySource": "Выручка по источникам",
       "transactionsCount": "{count} транзакций",
       "recentTransactions": "Последние транзакции",
@@ -3623,7 +3633,8 @@
         "CARD": "Онлайн-карта",
         "CARD_TERMINAL": "Карта (терминал)",
         "BANK_TRANSFER": "Банковский перевод",
-        "OTHER": "Другое"
+        "OTHER": "Другое",
+        "INFLUENCER": "Инфлюенсер"
       },
       "paymentActions": {
         "markPaid": "Отметить оплаченным",
@@ -3800,7 +3811,8 @@
         "CARD": "Онлайн-карта",
         "CARD_TERMINAL": "Терминал",
         "BANK_TRANSFER": "Банковский перевод",
-        "OTHER": "Другое"
+        "OTHER": "Другое",
+        "INFLUENCER": "Инфлюенсер"
       },
       "sources": {
         "package": "Абонементы",
@@ -3952,6 +3964,12 @@
           "redeemed": "Погашено",
           "spent": "Потрачено",
           "outstanding": "Остаток"
+        },
+        "influencer": {
+          "title": "Пакеты инфлюенсеров",
+          "hint": "Каталожная стоимость пакетов, выданных бесплатно. Это расход студии, а не выручка.",
+          "cost": "Расход студии",
+          "packages": "Выданные пакеты"
         },
         "paymentMethod": {
           "title": "Способы оплаты",

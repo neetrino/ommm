@@ -135,6 +135,10 @@ export type StudioAnalyticsPayload = {
       spendTransactionsCount: number;
       outstandingCreditsCents: number;
     };
+    influencer: {
+      costCents: number;
+      count: number;
+    };
   };
   operations: {
     bookingsByStatus: {

@@ -127,6 +127,28 @@ export async function AdminFinanceOverviewSections({
           </article>
         </div>
       </section>
+
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-sage-900">{t("influencerHeading")}</h2>
+        <p className="mt-1 text-xs text-sage-500">{t("kpiPeriodRangeDays", { days: rangeDays })}</p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiInfluencerCost")}</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {formatAmdFromCents(financeSummary.influencer?.costCents ?? 0, locale)}
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiInfluencerPackages")}</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {financeSummary.influencer?.count ?? 0}
+            </p>
+            <p className="mt-1 text-xs text-sage-500">
+              {t("transactionsCount", { count: financeSummary.influencer?.count ?? 0 })}
+            </p>
+          </article>
+        </div>
+      </section>
     </>
   );
 }

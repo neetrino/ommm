@@ -61,7 +61,9 @@ function loaded(
         count: 2,
       },
     ],
-    waitlistGroups: [{ sessionId: 's1', status: WaitlistStatus.ACTIVE, count: 0 }],
+    waitlistGroups: [
+      { sessionId: 's1', status: WaitlistStatus.ACTIVE, count: 0 },
+    ],
     payments: [payment()],
     packagePlans: [
       {

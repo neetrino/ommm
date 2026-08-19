@@ -1,4 +1,7 @@
-import { endOfStudioDayInclusive, studioWallClockToUtc } from './studio-timezone';
+import {
+  endOfStudioDayInclusive,
+  studioWallClockToUtc,
+} from './studio-timezone';
 import { buildStudioDateTimeFilter } from './studio-date-range';
 
 describe('buildStudioDateTimeFilter', () => {

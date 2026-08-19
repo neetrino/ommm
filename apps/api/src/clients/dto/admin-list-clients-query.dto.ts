@@ -31,6 +31,7 @@ export enum AdminClientTagFilter {
   VIP = 'vip',
   NEW = 'new',
   BEGINNER = 'beginner',
+  INFLUENCER = 'influencer',
 }
 
 export enum AdminClientStatusFilter {

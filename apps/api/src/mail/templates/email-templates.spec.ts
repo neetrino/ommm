@@ -77,7 +77,10 @@ describe('branded email templates', () => {
       startsAtLabel: 'Thursday, 20 August 2026 at 10:00',
       scheduleUrl: SAMPLE_URL,
     }),
-    renderBroadcastEmail('Studio news', '<p>New morning classes this week.</p>'),
+    renderBroadcastEmail(
+      'Studio news',
+      '<p>New morning classes this week.</p>',
+    ),
   ];
 
   it('uses the branded studio shell', () => {

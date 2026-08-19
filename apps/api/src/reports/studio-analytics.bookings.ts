@@ -1,4 +1,5 @@
 import { BookingStatus, PaymentStatus, WaitlistStatus } from '@prisma/client';
+import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
 import { localDateKey } from './reports.helpers';
 import {
   eachLocalDateKey,
@@ -175,7 +176,12 @@ function addPaymentDailyRevenue(
   input: StudioAnalyticsLoadedRange,
 ): void {
   for (const payment of input.payments) {
-    if (payment.status !== PaymentStatus.SUCCEEDED) continue;
+    if (
+      payment.status !== PaymentStatus.SUCCEEDED ||
+      isInfluencerPaymentMethod(payment.paymentMethod)
+    ) {
+      continue;
+    }
     const bucket = map.get(localDateKey(payment.createdAt));
     if (bucket) bucket.revenueCents += payment.amountCents;
   }

@@ -79,6 +79,7 @@ function createStudioFixture(): StudioAnalyticsPayload {
         spendTransactionsCount: 1,
         outstandingCreditsCents: 300,
       },
+      influencer: { costCents: 0, count: 0 },
     },
     operations: {
       bookingsByStatus: {

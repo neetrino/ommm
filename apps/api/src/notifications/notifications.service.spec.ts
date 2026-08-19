@@ -30,7 +30,14 @@ describe('NotificationsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
+    const mail = {
+      sendEmail: jest.fn(
+        (payload: { to: string; subject: string; html: string }) => {
+          void payload;
+          return Promise.resolve();
+        },
+      ),
+    };
     const expoPush = { send: jest.fn().mockResolvedValue(undefined) };
     const audit = { log: jest.fn().mockResolvedValue(undefined) };
     const broadcast = new NotificationsBroadcastService(
@@ -113,14 +120,15 @@ describe('NotificationsService', () => {
       onlyPromotionsOptIn: false,
     });
 
-    expect(mail.sendEmail).toHaveBeenCalledWith({
-      to: 'test@example.com',
-      subject: 'Test',
-      html: expect.stringContaining('<p>Body</p>'),
-    });
-    expect(mail.sendEmail.mock.calls[0]?.[0].html).toContain(
-      'Ommm Wellness Studio',
+    expect(mail.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'test@example.com',
+        subject: 'Test',
+      }),
     );
+    const sentHtml = mail.sendEmail.mock.calls[0]?.[0].html;
+    expect(sentHtml).toContain('<p>Body</p>');
+    expect(sentHtml).toContain('Ommm Wellness Studio');
     expect(prisma.user.findMany).not.toHaveBeenCalled();
     expect(result.mode).toBe('test');
   });

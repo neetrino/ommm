@@ -1,7 +1,10 @@
 import { renderBrandedEmail } from './email-layout';
 
 /** Wraps studio broadcast HTML in the branded shell when it is not already a full page. */
-export function renderBroadcastEmail(subject: string, bodyHtml: string): string {
+export function renderBroadcastEmail(
+  subject: string,
+  bodyHtml: string,
+): string {
   const trimmed = bodyHtml.trim();
   if (isFullHtmlDocument(trimmed)) {
     return bodyHtml;

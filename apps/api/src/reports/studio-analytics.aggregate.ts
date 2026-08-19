@@ -1,4 +1,7 @@
-import { PaymentStatus } from '@prisma/client';
+import {
+  isRevenueSucceededPayment,
+  summarizeInfluencerCost,
+} from '../payments/payment-revenue.util';
 import {
   buildDailySeries,
   buildOperations,
@@ -9,10 +12,7 @@ import {
   type WaitlistSummary,
 } from './studio-analytics.bookings';
 import { emptyGiftCredits, ratePercent } from './studio-analytics.helpers';
-import {
-  rankPackageSales,
-  rankTopClients,
-} from './studio-analytics.rankings';
+import { rankPackageSales, rankTopClients } from './studio-analytics.rankings';
 import {
   attributeDropinSessionRevenue,
   attributeSessionRevenue,
@@ -75,6 +75,7 @@ export function aggregateStudioRange(
       byPackage: rankPackageSales(input.payments, input.packagePlans),
       topClients: rankTopClients(input.payments),
       giftCredits: input.giftCredits ?? emptyGiftCredits(),
+      influencer: summarizeInfluencerCost(input.payments),
     },
     operations: buildOperations(input, bookings, waitlist),
     members: buildMembers(input),
@@ -94,8 +95,8 @@ function buildKpis(
   totals: BookingIndex['totals'],
   waitlist: WaitlistSummary,
 ): StudioAnalyticsPayload['kpis'] {
-  const succeeded = input.payments.filter(
-    (payment) => payment.status === PaymentStatus.SUCCEEDED,
+  const succeeded = input.payments.filter((payment) =>
+    isRevenueSucceededPayment(payment),
   );
   const revenueCents = succeeded.reduce(
     (sum, payment) => sum + payment.amountCents,

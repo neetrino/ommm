@@ -38,6 +38,12 @@ export class CallTasksController {
     return this.callTasks.countPending();
   }
 
+  @Get('due')
+  @SkipThrottle()
+  listDue() {
+    return this.callTasks.listDue();
+  }
+
   @Post()
   create(@CurrentUser() user: User, @Body() dto: CreateCallTaskDto) {
     return this.callTasks.create(user.id, dto);

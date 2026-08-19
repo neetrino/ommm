@@ -1,10 +1,10 @@
-import { ManualPaymentMethod } from '@prisma/client';
 import { IsEnum, IsString, MinLength } from 'class-validator';
 
-/** Admin Client Packages purchase — Cash or physical card terminal only. */
+/** Admin Client Packages purchase — Cash, physical terminal, or influencer comp. */
 export const ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS = [
-  ManualPaymentMethod.CASH,
-  ManualPaymentMethod.CARD_TERMINAL,
+  'CASH',
+  'CARD_TERMINAL',
+  'INFLUENCER',
 ] as const;
 
 export type AdminClientPackagePaymentMethod =

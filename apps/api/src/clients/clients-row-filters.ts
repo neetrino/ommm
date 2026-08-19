@@ -19,6 +19,9 @@ function dateValue(value: Date | null) {
 }
 
 function matchesTag(tags: ClientTag[], tag: AdminClientTagFilter) {
+  if (tag === AdminClientTagFilter.INFLUENCER) {
+    return tags.includes('Influencer');
+  }
   const label =
     tag === AdminClientTagFilter.NEW
       ? 'New'

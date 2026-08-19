@@ -6,6 +6,10 @@ import {
   UserPackageStatus,
 } from '@prisma/client';
 import {
+  influencerSucceededWhere,
+  revenueSucceededWhere,
+} from '../payments/payment-revenue.util';
+import {
   AdminClientAttendanceFilter,
   AdminClientOrder,
   AdminClientPackageFilter,
@@ -210,7 +214,11 @@ function appendPaymentStatusFilter(
     return;
   }
   if (paymentStatus === AdminClientPaymentStatusFilter.PAID) {
-    and.push({ payments: { some: { status: PaymentStatus.SUCCEEDED } } });
+    and.push({
+      payments: {
+        some: revenueSucceededWhere,
+      },
+    });
   }
 }
 
@@ -248,6 +256,14 @@ function appendTagFilter(
             ],
           },
         },
+      },
+    });
+    return;
+  }
+  if (tag === AdminClientTagFilter.INFLUENCER) {
+    and.push({
+      payments: {
+        some: influencerSucceededWhere,
       },
     });
   }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ManualPaymentMethod } from '@prisma/client';
+import type { AdminClientPackagePaymentMethod } from '../clients/dto/admin-purchase-client-package.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
@@ -12,10 +12,6 @@ import { PackagesFreezeService } from './packages-freeze.service';
 import { PackagesPublicService } from './packages-public.service';
 import type { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
 import type { FreezeUserPackageDto } from './dto/freeze-user-package.dto';
-
-type AdminClientPackagePaymentMethod =
-  | typeof ManualPaymentMethod.CASH
-  | typeof ManualPaymentMethod.CARD_TERMINAL;
 
 @Injectable()
 export class PackagesService {

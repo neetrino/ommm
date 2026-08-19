@@ -263,9 +263,11 @@ export function AdminClientPackagePurchaseSheet({
             >
               {submitting
                 ? t("packages.submitting")
-                : paymentMethod === "CASH"
-                  ? t("packages.confirmCash")
-                  : t("packages.confirmTerminal")}
+                : paymentMethod === "INFLUENCER"
+                  ? t("packages.confirmInfluencer")
+                  : paymentMethod === "CASH"
+                    ? t("packages.confirmCash")
+                    : t("packages.confirmTerminal")}
             </OmmButton>
           </>
         )}
