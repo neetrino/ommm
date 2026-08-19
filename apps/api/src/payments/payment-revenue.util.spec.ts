@@ -9,9 +9,7 @@ import {
 
 describe('payment-revenue.util', () => {
   it('maps admin grant methods onto the Prisma enum', () => {
-    expect(toManualPaymentMethod('INFLUENCER')).toBe(
-      INFLUENCER_PAYMENT_METHOD,
-    );
+    expect(toManualPaymentMethod('INFLUENCER')).toBe(INFLUENCER_PAYMENT_METHOD);
     expect(toManualPaymentMethod('CASH')).toBe(ManualPaymentMethod.CASH);
   });
 

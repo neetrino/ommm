@@ -37,13 +37,19 @@ describe('buildOpenEndedStudioDateTimeFilter', () => {
   });
 
   it('keeps an open start when only to is set', () => {
-    expect(buildOpenEndedStudioDateTimeFilter(undefined, '2026-08-21')).toEqual({
-      lte: endOfStudioDayInclusive(studioWallClockToUtc('2026-08-21', '12:00')),
-    });
+    expect(buildOpenEndedStudioDateTimeFilter(undefined, '2026-08-21')).toEqual(
+      {
+        lte: endOfStudioDayInclusive(
+          studioWallClockToUtc('2026-08-21', '12:00'),
+        ),
+      },
+    );
   });
 
   it('uses inclusive studio-day bounds for a from/to range', () => {
-    expect(buildOpenEndedStudioDateTimeFilter('2026-08-19', '2026-08-21')).toEqual({
+    expect(
+      buildOpenEndedStudioDateTimeFilter('2026-08-19', '2026-08-21'),
+    ).toEqual({
       gte: studioWallClockToUtc('2026-08-19', '00:00'),
       lte: endOfStudioDayInclusive(studioWallClockToUtc('2026-08-21', '12:00')),
     });
