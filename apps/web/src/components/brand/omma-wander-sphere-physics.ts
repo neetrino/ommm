@@ -14,6 +14,7 @@ import {
   OMMA_WANDER_HOP_VY_MIN,
   OMMA_WANDER_ROLL_DEG_PER_PX,
   OMMA_WANDER_ROLL_SPEED_PX_S,
+  OMMA_WANDER_SIDE_HIT_NX,
   OMMA_WANDER_SUPPORT_NORMAL_MAX,
   OMMA_WANDER_SQUASH_RECOVER,
   OMMA_WANDER_SQUASH_SIDE_GAIN,
@@ -192,12 +193,28 @@ function applyBounce(ball: WanderBall, nx: number, ny: number, random: RandomFn)
   const nextVt = vt * OMMA_WANDER_TANGENT_KEEP;
   ball.vx = nextVn * nx + nextVt * tx;
   ball.vy = nextVn * ny + nextVt * ty;
-  applyHop(ball, ny, random);
+  applyHop(ball, nx, ny, random);
   applyImpactSquash(ball, nx, ny, vn);
   ball.bounceCount += 1;
 }
 
-function applyHop(ball: WanderBall, ny: number, random: RandomFn): void {
+function kickAway(ball: WanderBall, awayNx: number, random: RandomFn): void {
+  const dir = awayNx < 0 ? -1 : 1;
+  const kick = randomBetween(OMMA_WANDER_HOP_VX_MIN, OMMA_WANDER_HOP_VX_MAX, random);
+  ball.vx = dir * Math.max(Math.abs(ball.vx), kick);
+  ball.exitNx = dir;
+  ball.resting = false;
+  const hop = randomBetween(OMMA_WANDER_HOP_VY_MIN, OMMA_WANDER_HOP_VY_MAX, random);
+  if (ball.vy > -hop) {
+    ball.vy = -hop;
+  }
+}
+
+function applyHop(ball: WanderBall, nx: number, ny: number, random: RandomFn): void {
+  if (Math.abs(nx) >= OMMA_WANDER_SIDE_HIT_NX) {
+    kickAway(ball, nx, random);
+    return;
+  }
   if (ball.leaving || ny >= OMMA_WANDER_SUPPORT_NORMAL_MAX) {
     return;
   }
@@ -219,7 +236,7 @@ function applyImpactSquash(ball: WanderBall, nx: number, ny: number, vn: number)
   ball.squashY = 1 + Math.abs(nx) * wide - Math.abs(ny) * flat;
 }
 
-export function resolveBallPair(a: WanderBall, b: WanderBall): void {
+export function resolveBallPair(a: WanderBall, b: WanderBall, random: RandomFn): void {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const dist = Math.hypot(dx, dy);
@@ -234,15 +251,11 @@ export function resolveBallPair(a: WanderBall, b: WanderBall): void {
   a.y -= ny * overlap;
   b.x += nx * overlap;
   b.y += ny * overlap;
-  const rvn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
-  if (rvn >= 0) {
-    return;
-  }
-  const impulse = -(1 + OMMA_WANDER_RESTITUTION) * rvn * 0.5;
-  a.vx -= impulse * nx;
-  a.vy -= impulse * ny;
-  b.vx += impulse * nx;
-  b.vy += impulse * ny;
+  const awayA = a.x <= b.x ? -1 : 1;
+  kickAway(a, awayA, random);
+  kickAway(b, -awayA, random);
+  a.bounceCount += 1;
+  b.bounceCount += 1;
 }
 
 export function stepWanderWorld(
@@ -268,7 +281,7 @@ export function stepWanderWorld(
         const left = balls[i];
         const right = balls[j];
         if (left && right) {
-          resolveBallPair(left, right);
+          resolveBallPair(left, right, random);
         }
       }
     }

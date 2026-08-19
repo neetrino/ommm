@@ -51,11 +51,15 @@ describe("omma-wander-sphere-physics", () => {
     assert.ok(ball.squashY < 1);
   });
 
-  it("separates overlapping balls and leaves the viewport", () => {
-    const left = createWanderBall("a", { x: 100, y: 80, vx: 40, vy: 0, size: 100 });
-    const right = createWanderBall("b", { x: 108, y: 80, vx: -40, vy: 0, size: 100 });
-    resolveBallPair(left, right);
+  it("separates overlapping balls and hops them apart the other way", () => {
+    const left = createWanderBall("a", { x: 100, y: 80, vx: 180, vy: 10, size: 100 });
+    const right = createWanderBall("b", { x: 108, y: 80, vx: -180, vy: 10, size: 100 });
+    resolveBallPair(left, right, midRandom);
     assert.ok(right.x - left.x >= left.radius + right.radius - 0.5);
+    assert.ok(left.vx < 0);
+    assert.ok(right.vx > 0);
+    assert.ok(left.vy < 0);
+    assert.ok(right.vy < 0);
     const gone = createWanderBall("gone", { x: -400, y: 40, vx: 0, vy: 0, size: 100 });
     assert.equal(isBallOffscreen(gone, { width: 800, height: 600 }), true);
   });

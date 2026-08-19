@@ -63,6 +63,7 @@ export const OMMA_WANDER_OFFSCREEN_TOP_RATIO = 0.45;
 export const OMMA_WANDER_ROLL_DEG_PER_PX = 0.1;
 export const OMMA_WANDER_ROLL_SPEED_PX_S = 80;
 export const OMMA_WANDER_SUPPORT_NORMAL_MAX = -0.55;
+export const OMMA_WANDER_SIDE_HIT_NX = 0.55;
 export const OMMA_WANDER_HOP_VY_MIN = 300;
 export const OMMA_WANDER_HOP_VY_MAX = 500;
 export const OMMA_WANDER_HOP_VX_MIN = 140;
