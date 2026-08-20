@@ -2950,7 +2950,11 @@
         "cancelConfirmTitle": "Չեղարկե՞լ գրանցումը",
         "cancelConfirmDescription": "Չեղարկե՞լ այս գրանցումը։ Տեղը կրկին հասանելի կլինի։",
         "cancelConfirmLabel": "Չեղարկել գրանցումը",
-        "cancelSuccess": "Գրանցումը չեղարկվեց"
+        "cancelSuccess": "Գրանցումը չեղարկվեց",
+        "status": {
+          "COMPLETED": "Մասնակցել է",
+          "MISSED": "Բաց է թողել"
+        }
       },
       "actions": {
         "view": "Դիտել",

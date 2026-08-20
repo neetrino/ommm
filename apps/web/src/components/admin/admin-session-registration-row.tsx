@@ -1,7 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { SessionRegistrationRow } from "@/components/admin/admin-session-registrations-types";
+import {
+  sessionRegistrationOutcome,
+  type SessionRegistrationRow,
+} from "@/components/admin/admin-session-registrations-types";
 import { BanGlyph } from "@/components/ui/admin-action-glyphs";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -53,6 +56,7 @@ export function AdminSessionRegistrationRow({
   const registeredLabel = t("registeredAt", {
     date: formatDateTimeForUi(row.createdAt, locale),
   });
+  const outcome = sessionRegistrationOutcome(row.status);
 
   return (
     <li className={ROW_CLASS}>
@@ -63,6 +67,9 @@ export function AdminSessionRegistrationRow({
         <p className="truncate text-sm font-medium text-sage-900">{displayName}</p>
         <p className="truncate text-xs text-sage-500">{memberContactLine(row.user)}</p>
         <p className="truncate text-[11px] text-sage-400">{registeredLabel}</p>
+        {outcome !== null ? (
+          <p className="truncate text-[11px] font-medium text-sage-600">{t(`status.${outcome}`)}</p>
+        ) : null}
       </div>
       {canCancel ? (
         <AdminRowIconButton

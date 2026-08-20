@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   isActiveSessionRegistration,
+  isOccupiedSessionRegistration,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
 import { AdminSessionRegistrationRow } from "@/components/admin/admin-session-registration-row";
@@ -62,7 +63,7 @@ export function AdminSessionRegistrationsList({
         }
         setFetchResult({
           key: fetchKey,
-          rows: payload.filter(isActiveSessionRegistration),
+          rows: payload.filter(isOccupiedSessionRegistration),
           error: null,
         });
       })
@@ -150,7 +151,7 @@ export function AdminSessionRegistrationsList({
               key={row.id}
               row={row}
               locale={locale}
-              canCancel={canCancel}
+              canCancel={canCancel && isActiveSessionRegistration(row)}
               busy={busyId !== null}
               onCancel={() => setPendingCancel(row)}
             />

@@ -2947,7 +2947,11 @@
         "cancelConfirmTitle": "Отменить запись?",
         "cancelConfirmDescription": "Отменить эту запись? Место снова станет доступным.",
         "cancelConfirmLabel": "Отменить запись",
-        "cancelSuccess": "Запись отменена"
+        "cancelSuccess": "Запись отменена",
+        "status": {
+          "COMPLETED": "Присутствовал",
+          "MISSED": "Пропущено"
+        }
       },
       "actions": {
         "view": "Открыть",

@@ -2939,7 +2939,11 @@
         "cancelConfirmTitle": "Cancel booking?",
         "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
         "cancelConfirmLabel": "Cancel booking",
-        "cancelSuccess": "Booking cancelled"
+        "cancelSuccess": "Booking cancelled",
+        "status": {
+          "COMPLETED": "Attended",
+          "MISSED": "Missed"
+        }
       },
       "actions": {
         "view": "View",

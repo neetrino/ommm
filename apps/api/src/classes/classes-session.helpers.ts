@@ -55,7 +55,17 @@ export const ADMIN_SESSION_INCLUDE = {
   },
   _count: {
     select: {
-      bookings: { where: { status: BookingStatus.BOOKED } },
+      bookings: {
+        where: {
+          status: {
+            in: [
+              BookingStatus.BOOKED,
+              BookingStatus.COMPLETED,
+              BookingStatus.MISSED,
+            ],
+          },
+        },
+      },
     },
   },
 } as const;

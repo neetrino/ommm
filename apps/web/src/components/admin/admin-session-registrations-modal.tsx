@@ -3,7 +3,8 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  isActiveSessionRegistration,
+  isOccupiedSessionRegistration,
+  sessionRegistrationOutcome,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -84,7 +85,7 @@ export function AdminSessionRegistrationsModal({
         }
         setFetchResult({
           key: fetchKey,
-          rows: payload.filter(isActiveSessionRegistration),
+          rows: payload.filter(isOccupiedSessionRegistration),
           error: null,
         });
       })
@@ -157,6 +158,7 @@ export function AdminSessionRegistrationsModal({
           <ul className="max-h-[min(50vh,24rem)] space-y-2 overflow-y-auto pr-1">
             {rows.map((row) => {
               const displayName = userDisplayName(row.user.name, null, row.user.email);
+              const outcome = sessionRegistrationOutcome(row.status);
               return (
                 <li
                   key={row.id}
@@ -176,6 +178,11 @@ export function AdminSessionRegistrationsModal({
                         date: formatDateTimeForUi(row.createdAt, locale),
                       })}
                     </p>
+                    {outcome !== null ? (
+                      <p className="mt-0.5 text-[11px] font-medium text-sage-600">
+                        {t(`status.${outcome}`)}
+                      </p>
+                    ) : null}
                   </div>
                 </li>
               );
