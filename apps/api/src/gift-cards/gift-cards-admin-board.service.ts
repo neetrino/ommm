@@ -113,8 +113,8 @@ export class GiftCardsAdminBoardService {
     if (search.length > 0) {
       rows = rows.filter((batch) => {
         const haystack = [
-          batch.purchaser.name,
-          batch.purchaser.email,
+          batch.purchaser?.name,
+          batch.purchaser?.email,
           batch.recipient?.name,
           batch.recipient?.email,
           batch.recipientEmail,
@@ -215,7 +215,7 @@ export class GiftCardsAdminBoardService {
         readGiftCardAmount(card),
         readGiftCardImage(card),
         card.status,
-        card.purchaserId,
+        card.purchaserId ?? '',
         card.recipientId ?? '',
         card.recipientEmail ?? '',
         card.recipientName ?? '',

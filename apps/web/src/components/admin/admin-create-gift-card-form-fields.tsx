@@ -75,6 +75,7 @@ export function AdminCreateGiftCardFormFields({
           placeholder={t("fieldAmountPlaceholder")}
           value={amountAmd}
           onValueChange={setAmountAmd}
+          align="start"
           disabled={busy}
           required
         />

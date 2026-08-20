@@ -17,7 +17,12 @@ export function isGiftCardExpired(card: AdminGiftCardBatchRow, now = Date.now())
 }
 
 export function purchaserLabel(card: AdminGiftCardBatchRow): string {
-  return card.purchaser.name?.trim() || card.purchaser.email;
+  const name = card.purchaser?.name?.trim();
+  if (name) {
+    return name;
+  }
+  const email = card.purchaser?.email?.trim();
+  return email && email.length > 0 ? email : "—";
 }
 
 export function recipientLabel(card: AdminGiftCardBatchRow): string {
@@ -40,7 +45,7 @@ function matchesSearch(card: AdminGiftCardBatchRow, search: string): boolean {
   }
   const haystack = [
     purchaserLabel(card),
-    card.purchaser.email,
+    card.purchaser?.email ?? "",
     recipientLabel(card),
     card.recipientEmail ?? "",
     card.status,

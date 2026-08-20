@@ -40,7 +40,7 @@ export type AdminBoardBatchRow = {
   message: string | null;
   expiresAt: Date | null;
   createdAt: Date;
-  purchaser: { email: string; name: string | null };
+  purchaser: { email: string; name: string | null } | null;
   recipient: { email: string; name: string | null } | null;
 };
 
@@ -52,7 +52,7 @@ export type GiftCardBatchSnapshot = {
   status: GiftCardStatus;
   totalQuantity: number;
   availableQuantity: number;
-  purchaserId: string;
+  purchaserId: string | null;
   recipientId: string | null;
   recipientEmail: string | null;
   recipientName: string | null;

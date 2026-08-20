@@ -72,7 +72,6 @@ export class GiftCardsAdminBatchWriteService {
           status: GiftCardStatus.ACTIVE,
           totalQuantity: dto.quantity,
           availableQuantity: dto.quantity,
-          purchaserId: adminId,
           recipientId: recipient?.id,
           recipientEmail,
           recipientName,

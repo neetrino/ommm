@@ -19,7 +19,7 @@ export type AdminGiftCardBatchRow = {
   message: string | null;
   expiresAt: string | null;
   createdAt: string;
-  purchaser: { email: string; name: string | null };
+  purchaser: { email: string; name: string | null } | null;
   recipient: { email: string; name: string | null } | null;
 };
 
@@ -35,7 +35,7 @@ export type AdminGiftCardRow = {
   message: string | null;
   expiresAt: string | null;
   createdAt: string;
-  purchaser: { email: string; name: string | null };
+  purchaser: { email: string; name: string | null } | null;
   recipient: { email: string; name: string | null } | null;
 };
 
