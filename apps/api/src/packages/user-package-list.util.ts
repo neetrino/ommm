@@ -15,9 +15,9 @@ const LIST_STATUS_PRIORITY: Record<UserPackageStatus, number> = {
 
 /**
  * Packages shown in client/admin history:
- * - ACTIVE / PAUSED / EXPIRED always
- * - CANCELLED only when a SUCCEEDED package payment exists (real purchase then cancel)
+ * - only packages with a SUCCEEDED package payment (still valid purchase)
  * - PENDING never (checkout in flight / not paid)
+ * - refunded payments drop out of SUCCEEDED → package leaves this list
  */
 export function buildVisibleUserPackagesWhere(
   userId: string,
@@ -25,21 +25,15 @@ export function buildVisibleUserPackagesWhere(
 ): Prisma.UserPackageWhereInput {
   return {
     userId,
-    OR: [
-      {
-        status: {
-          in: [
-            UserPackageStatus.ACTIVE,
-            UserPackageStatus.PAUSED,
-            UserPackageStatus.EXPIRED,
-          ],
-        },
-      },
-      {
-        status: UserPackageStatus.CANCELLED,
-        id: { in: [...succeededPackageIds] },
-      },
-    ],
+    id: { in: [...succeededPackageIds] },
+    status: {
+      in: [
+        UserPackageStatus.ACTIVE,
+        UserPackageStatus.PAUSED,
+        UserPackageStatus.EXPIRED,
+        UserPackageStatus.CANCELLED,
+      ],
+    },
   };
 }
 

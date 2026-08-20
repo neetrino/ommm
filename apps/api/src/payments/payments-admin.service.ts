@@ -3,7 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ManualPaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
+import {
+  ManualPaymentMethod,
+  PaymentSource,
+  PaymentStatus,
+  Prisma,
+  UserPackageStatus,
+} from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
 import { buildOpenEndedStudioDateTimeFilter } from '../common/studio-date-range';
@@ -110,6 +116,10 @@ export class PaymentsAdminService {
           : {}),
       }),
     });
+
+    if (status === PaymentStatus.REFUNDED) {
+      await this.cancelPackageLinkedToRefundedPayment(payment);
+    }
 
     if (
       status === PaymentStatus.SUCCEEDED &&
@@ -291,6 +301,32 @@ export class PaymentsAdminService {
         ];
       }),
     );
+  }
+
+  private async cancelPackageLinkedToRefundedPayment(payment: {
+    source: PaymentSource;
+    sourceId: string | null;
+  }): Promise<void> {
+    if (
+      payment.source !== PaymentSource.PACKAGE ||
+      payment.sourceId === null
+    ) {
+      return;
+    }
+
+    await this.prisma.userPackage.updateMany({
+      where: {
+        id: payment.sourceId,
+        status: {
+          in: [
+            UserPackageStatus.ACTIVE,
+            UserPackageStatus.PAUSED,
+            UserPackageStatus.PENDING,
+          ],
+        },
+      },
+      data: { status: UserPackageStatus.CANCELLED },
+    });
   }
 
   private resolveAdminStatusConfirmedAt(

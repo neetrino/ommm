@@ -1,35 +1,43 @@
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
 import { UserPackageStatus } from '@prisma/client';
 import {
   buildVisibleUserPackagesWhere,
   compareUserPackagesForClientList,
 } from './user-package-list.util';
 
-void describe('user-package-list.util', () => {
-  void it('hides pending and unpaid cancelled packages', () => {
+describe('user-package-list.util', () => {
+  it('shows only packages with a succeeded payment', () => {
     const where = buildVisibleUserPackagesWhere('user-1', ['paid-pkg']);
-    assert.deepEqual(where, {
+    expect(where).toEqual({
       userId: 'user-1',
-      OR: [
-        {
-          status: {
-            in: [
-              UserPackageStatus.ACTIVE,
-              UserPackageStatus.PAUSED,
-              UserPackageStatus.EXPIRED,
-            ],
-          },
-        },
-        {
-          status: UserPackageStatus.CANCELLED,
-          id: { in: ['paid-pkg'] },
-        },
-      ],
+      id: { in: ['paid-pkg'] },
+      status: {
+        in: [
+          UserPackageStatus.ACTIVE,
+          UserPackageStatus.PAUSED,
+          UserPackageStatus.EXPIRED,
+          UserPackageStatus.CANCELLED,
+        ],
+      },
     });
   });
 
-  void it('sorts active before cancelled, then newer first', () => {
+  it('hides everything when there are no succeeded package payments', () => {
+    const where = buildVisibleUserPackagesWhere('user-1', []);
+    expect(where).toEqual({
+      userId: 'user-1',
+      id: { in: [] },
+      status: {
+        in: [
+          UserPackageStatus.ACTIVE,
+          UserPackageStatus.PAUSED,
+          UserPackageStatus.EXPIRED,
+          UserPackageStatus.CANCELLED,
+        ],
+      },
+    });
+  });
+
+  it('sorts active before cancelled, then newer first', () => {
     const olderActive = {
       status: UserPackageStatus.ACTIVE,
       createdAt: new Date('2026-01-01'),
@@ -44,8 +52,8 @@ void describe('user-package-list.util', () => {
     };
     const rows = [newerCancelled, olderActive, newerActive];
     rows.sort(compareUserPackagesForClientList);
-    assert.equal(rows[0], newerActive);
-    assert.equal(rows[1], olderActive);
-    assert.equal(rows[2], newerCancelled);
+    expect(rows[0]).toBe(newerActive);
+    expect(rows[1]).toBe(olderActive);
+    expect(rows[2]).toBe(newerCancelled);
   });
 });
