@@ -184,12 +184,13 @@
 }
 
 .panelExpanded {
+  --packages-page-expanded-inline-pad: clamp(1rem, 2vw, 2.6875rem);
   min-width: 0;
   overflow: hidden;
-  padding:
-    clamp(1.25rem, 2.5vw, 2.6875rem)
-    clamp(1rem, 2vw, 2.6875rem)
-    0;
+  padding-block: clamp(1.25rem, 2.5vw, 2.6875rem) 0;
+  /* Half on the right so the tier scrollbar can sit centered in the gutter. */
+  padding-inline: var(--packages-page-expanded-inline-pad)
+    calc(var(--packages-page-expanded-inline-pad) / 2);
 }
 
 .expandedBody {
@@ -228,24 +229,30 @@
 }
 
 .expandedTierScroll[data-tier-scroll="enabled"] {
+  /* Matches reduced panel right pad → equal space left/right of the scrollbar. */
+  padding-inline-end: calc(var(--packages-page-expanded-inline-pad) / 2);
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: rgba(151, 144, 124, 0.55) transparent;
+  scrollbar-color: rgba(121, 114, 98, 0.7) transparent;
 }
 
 .expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar {
-  width: 0.35rem;
+  width: 5px;
 }
 
 .expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar-track {
   background: transparent;
+  margin-block: 4px;
 }
 
 .expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(151, 144, 124, 0.45);
+  background: rgba(121, 114, 98, 0.55);
+}
+
+.expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 114, 98, 0.75);
 }
 
 .expandedBodyInner {
