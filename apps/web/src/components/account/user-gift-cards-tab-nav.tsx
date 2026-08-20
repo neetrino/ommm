@@ -1,13 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { useCallback } from "react";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import {
-  DEFAULT_USER_GIFT_CARDS_TAB,
-  parseUserGiftCardsTab,
-  USER_GIFT_CARDS_TAB_PARAM,
   USER_GIFT_CARDS_TABS,
   type UserGiftCardsTab,
 } from "@/lib/user-gift-cards-tab";
@@ -23,31 +17,17 @@ export const USER_GIFT_CARDS_TAB_CLASS =
 export const USER_GIFT_CARDS_TAB_ACTIVE_CLASS = `${USER_GIFT_CARDS_TAB_CLASS} ommm-admin-pill-tab-active`;
 
 export function UserGiftCardsTabNav({
+  activeTab,
+  onTabChange,
   className = "",
   embeddedInSheet = false,
 }: {
+  activeTab: UserGiftCardsTab;
+  onTabChange: (tab: UserGiftCardsTab) => void;
   className?: string;
   embeddedInSheet?: boolean;
 }) {
   const t = useTranslations("userPages.giftCards.tabs");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const activeTab = parseUserGiftCardsTab(Object.fromEntries(searchParams.entries()));
-
-  const setTab = useCallback(
-    (tab: UserGiftCardsTab) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (tab === DEFAULT_USER_GIFT_CARDS_TAB) {
-        params.delete(USER_GIFT_CARDS_TAB_PARAM);
-      } else {
-        params.set(USER_GIFT_CARDS_TAB_PARAM, tab);
-      }
-      const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-    },
-    [pathname, router, searchParams],
-  );
 
   const navLayoutClass = embeddedInSheet
     ? "grid w-full grid-cols-2 gap-3 overflow-visible pb-0"
@@ -69,7 +49,7 @@ export function UserGiftCardsTabNav({
             type="button"
             role="tab"
             aria-selected={active}
-            onClick={() => setTab(tab)}
+            onClick={() => onTabChange(tab)}
             className={`${active ? USER_GIFT_CARDS_TAB_ACTIVE_CLASS : USER_GIFT_CARDS_TAB_CLASS}${tabButtonClass}`}
           >
             {t(TAB_LABEL_KEY[tab])}
