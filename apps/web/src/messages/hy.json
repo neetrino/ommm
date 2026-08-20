@@ -1199,6 +1199,7 @@
         "recipientSearchFailed": "Չհաջողվեց որոնել անդամներին։",
         "recipientEmpty": "Որոնմանը համապատասխան անդամ չգտնվեց։",
         "recipientClear": "Փոխել",
+        "recipientSelectedLabel": "Ընտրված անդամ",
         "recipientRequired": "Նվեր ուղարկելուց առաջ ընտրեք անդամին։",
         "recipientSelectedSummary": "Նվերը կուղարկվի՝ {name}։",
         "checkoutUnavailable": "Վճարման հայտը հասանելի չէ",

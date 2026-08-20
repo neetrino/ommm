@@ -1198,6 +1198,7 @@
         "recipientSearchFailed": "Не удалось найти участников.",
         "recipientEmpty": "По запросу участники не найдены.",
         "recipientClear": "Изменить",
+        "recipientSelectedLabel": "Выбранный участник",
         "recipientRequired": "Выберите участника, прежде чем дарить карту.",
         "recipientSelectedSummary": "Подарок будет отправлен: {name}.",
         "checkoutUnavailable": "Заявка на оплату недоступна",

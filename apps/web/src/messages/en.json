@@ -1188,6 +1188,7 @@
         "recipientSearchFailed": "Could not search members.",
         "recipientEmpty": "No members matched your search.",
         "recipientClear": "Change",
+        "recipientSelectedLabel": "Selected member",
         "recipientRequired": "Select a member before buying this as a gift.",
         "recipientSelectedSummary": "Gift will be sent to {name}.",
         "checkoutUnavailable": "Payment request unavailable",

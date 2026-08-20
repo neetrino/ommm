@@ -1,10 +1,9 @@
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 
-/** Member gift-recipient search — min length avoids dumping the full user list. */
+/** Member gift-recipient search query (`q` length is enforced in the service). */
 export class ListGiftRecipientsQueryDto {
   @IsOptional()
   @IsString()
-  @MinLength(2)
   @MaxLength(80)
   q?: string;
 }
