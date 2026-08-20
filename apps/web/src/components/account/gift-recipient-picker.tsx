@@ -153,27 +153,34 @@ export function GiftRecipientPicker({
       {destination === "gift" ? (
         <div className="mt-4 space-y-3">
           {selected !== null ? (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-sage-700/30 bg-sage-50 px-3 py-3">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-                  {t("recipientSelectedLabel")}
-                </p>
-                <p className="mt-1 truncate text-sm font-semibold text-sage-950">
-                  {formatRecipientLabel(selected)}
-                </p>
-                <p className="truncate text-xs text-sage-600">{selected.email}</p>
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-3 rounded-2xl border border-sage-700/30 bg-sage-50 px-3 py-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+                    {t("recipientSelectedLabel")}
+                  </p>
+                  <p className="mt-1 truncate text-sm font-semibold text-sage-950">
+                    {formatRecipientLabel(selected)}
+                  </p>
+                  <p className="truncate text-xs text-sage-600">{selected.email}</p>
+                </div>
+                <button
+                  type="button"
+                  className="shrink-0 rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-red-800 transition-colors hover:border-red-300 hover:bg-red-50"
+                  disabled={disabled}
+                  onClick={() => {
+                    onSelect(null);
+                    setQuery("");
+                    setDebouncedQuery("");
+                    setResults([]);
+                    setError(null);
+                    setListOpen(false);
+                  }}
+                >
+                  {t("recipientRemove")}
+                </button>
               </div>
-              <button
-                type="button"
-                className="shrink-0 rounded-full border border-sage-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-sage-700 transition-colors hover:border-sage-300 hover:text-sage-950"
-                disabled={disabled}
-                onClick={() => {
-                  onSelect(null);
-                  setListOpen(false);
-                }}
-              >
-                {t("recipientClear")}
-              </button>
+              <p className="text-xs text-sage-500">{t("recipientRemoveHint")}</p>
             </div>
           ) : (
             <div className="space-y-2">
