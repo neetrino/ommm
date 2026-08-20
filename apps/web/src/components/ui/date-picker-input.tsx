@@ -19,6 +19,7 @@ import {
   formatIsoDate,
   parseIsoDate,
   startOfMonth,
+  isBeforeCalendarDate,
   type DatePickerPopupPosition,
 } from "@/components/ui/date-picker-utils";
 
@@ -39,6 +40,8 @@ export type DatePickerInputProps = {
   containerClassName?: string;
   /** Hides the inline calendar button (e.g. when an external icon opens the picker). */
   showCalendarTrigger?: boolean;
+  /** Dates before this calendar day cannot be selected. */
+  minDate?: Date;
 };
 
 export type DatePickerInputHandle = {
@@ -65,6 +68,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       inputClassName = DEFAULT_MANUAL_INPUT_CLASS,
       containerClassName = "",
       showCalendarTrigger = true,
+      minDate,
     },
     ref,
   ) {

@@ -64,6 +64,14 @@ export function isSameCalendarDate(a: Date, b: Date): boolean {
   );
 }
 
+export function startOfCalendarDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+export function isBeforeCalendarDate(date: Date, boundary: Date): boolean {
+  return startOfCalendarDay(date).getTime() < startOfCalendarDay(boundary).getTime();
+}
+
 export function getGridStartDate(visibleMonth: Date): Date {
   const monthStart = startOfMonth(visibleMonth);
   const weekdayFromMonday = (monthStart.getDay() + 6) % 7;
