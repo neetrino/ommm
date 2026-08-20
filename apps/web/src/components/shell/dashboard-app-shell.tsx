@@ -196,7 +196,7 @@ export function DashboardAppShell({
       <aside
         className={`${workspaceMobileDrawerLayout.desktopSidebar} shadow-sm ${withSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
           isOliveShell
-            ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
+            ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-6"
             : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
         } transition-[width] duration-200 ease-out`}
         aria-label={tShell("workspaceAria")}
@@ -204,7 +204,7 @@ export function DashboardAppShell({
           <div
             className={
               isOliveShell
-                ? "px-8 pb-8"
+                ? "px-8 pb-6"
                 : sidebarCollapsed
                   ? `flex flex-col-reverse items-center gap-2 px-1 py-3 ${borderB} ${sidebarBrandStripClass(variant)}`
                   : `flex items-center gap-2 px-2 py-4 ${DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS} ${borderB} ${sidebarBrandStripClass(variant)}`
