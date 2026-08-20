@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import {
+  GiftMarketCardDetailsSheet,
+  type GiftMarketCardPreview,
+} from "@/components/account/gift-market-card-details-sheet";
 import { GIFT_CARD_BOARD_GRID_CLASS } from "@/components/account/user-gift-card-tile-layout";
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
@@ -10,16 +14,6 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
 import { formatAmdFromCents } from "@/lib/price-amd";
-
-type GiftBatchMarketItem = {
-  id: string;
-  amountCents: number;
-  imageUrl: string | null;
-  availableQuantity: number;
-  totalQuantity: number;
-  expiresAt: string | null;
-  status: string;
-};
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
@@ -32,11 +26,15 @@ type GiftPurchaseFormProps = {
 export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
   const router = useRouter();
   const t = useTranslations("userPages.giftCards.purchaseForm");
-  const [items, setItems] = useState<GiftBatchMarketItem[]>([]);
+  const [items, setItems] = useState<GiftMarketCardPreview[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selectedCard =
+    selectedId === null ? null : (items.find((item) => item.id === selectedId) ?? null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,7 +42,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
       setLoading(true);
       setError(null);
       try {
-        const rows = await apiFetch<GiftBatchMarketItem[]>("/gift-cards/market");
+        const rows = await apiFetch<GiftMarketCardPreview[]>("/gift-cards/market");
         if (cancelled) {
           return;
         }
@@ -66,7 +64,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
     };
   }, [t]);
 
-  async function onBuy(item: GiftBatchMarketItem) {
+  async function onBuy(item: GiftMarketCardPreview) {
     setBusyBatchId(item.id);
     setStatus(null);
     try {
@@ -86,6 +84,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
       if (payment.paymentReference !== null) {
         params.set("reference", payment.paymentReference);
       }
+      setSelectedId(null);
       router.push(`${GIFT_CARD_CHECKOUT_PATH}?${params.toString()}`);
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
@@ -115,11 +114,21 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
             item={item}
             locale={locale}
             busy={busyBatchId !== null}
+            onOpen={() => setSelectedId(item.id)}
             onBuy={onBuy}
           />
         ))}
       </div>
       {status ? <p className="text-sm text-sage-500">{status}</p> : null}
+      <GiftMarketCardDetailsSheet
+        card={selectedCard}
+        locale={locale}
+        busy={busyBatchId !== null}
+        onClose={() => setSelectedId(null)}
+        onBuy={(card) => {
+          void onBuy(card);
+        }}
+      />
     </div>
   );
 }
@@ -128,24 +137,29 @@ function PurchaseGiftCardPreview({
   item,
   locale,
   busy,
+  onOpen,
   onBuy,
 }: {
-  item: GiftBatchMarketItem;
+  item: GiftMarketCardPreview;
   locale: string;
   busy: boolean;
-  onBuy: (item: GiftBatchMarketItem) => Promise<void>;
+  onOpen: () => void;
+  onBuy: (item: GiftMarketCardPreview) => Promise<void>;
 }) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const giftCardsT = useTranslations("userPages.giftCards");
+  const amountLabel = formatAmdFromCents(item.amountCents, locale);
 
   return (
     <GiftCardBoardTile
-      amountLabel={formatAmdFromCents(item.amountCents, locale)}
+      amountLabel={amountLabel}
       status={item.status}
       statusLabel={giftCardsT(`statusValues.${item.status}`)}
       imageUrl={item.imageUrl}
       imageAlt={t("selectedImageAlt")}
       imageFallbackLabel={t("noImage")}
+      openAriaLabel={t("openDetailsAria", { amount: amountLabel })}
+      onOpen={onOpen}
       details={[
         {
           label: giftCardsT("cardExpiration"),
