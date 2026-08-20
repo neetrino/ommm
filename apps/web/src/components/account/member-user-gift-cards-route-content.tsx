@@ -3,9 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
-import { UserGiftCardsPageHero } from "@/components/account/user-gift-cards-page-hero";
 import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-layout";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
+import { UserGiftCardsView } from "@/components/account/user-gift-cards-view";
 import { mergeUserGiftCards } from "@/lib/merge-user-gift-cards";
 import { parseUserGiftCardsTab } from "@/lib/user-gift-cards-tab";
 import { serverApiJson } from "@/lib/server-api";
@@ -38,36 +38,26 @@ export async function MemberUserGiftCardsRouteContent({
   const mergedCards = mergeUserGiftCards(purchased, received);
   const loadError = !purchasedRes.ok && !receivedRes.ok ? purchasedRes.status : null;
 
-  const pageHero = (
-    <UserGiftCardsPageHero
+  return (
+    <UserGiftCardsView
       title={t("title")}
       locale={locale}
       giftBalanceCents={credits}
       embeddedInSheet={embeddedInSheet}
-    />
-  );
-
-  const tabBody =
-    tab === "my" ? (
-      <div className="space-y-0">
-        <UserGiftCardsSection title={t("redeem")}>
-          <div className="max-w-sm">
+      initialTab={tab}
+      myPanel={
+        <div className="space-y-0">
+          <UserGiftCardsSection title={t("redeem")}>
             <GiftRedeemForm />
-          </div>
+          </UserGiftCardsSection>
+          <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
+        </div>
+      }
+      shopPanel={
+        <UserGiftCardsSection title={t("purchase")}>
+          <GiftPurchaseForm locale={locale} />
         </UserGiftCardsSection>
-
-        <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
-      </div>
-    ) : (
-      <UserGiftCardsSection title={t("purchase")}>
-        <GiftPurchaseForm locale={locale} />
-      </UserGiftCardsSection>
-    );
-
-  return (
-    <div className="space-y-4">
-      {pageHero}
-      {tabBody}
-    </div>
+      }
+    />
   );
 }

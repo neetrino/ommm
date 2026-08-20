@@ -65,6 +65,7 @@ export function parsePaymentMetadata(
     return {};
   }
   return {
+    recipientId: readString(value, 'recipientId'),
     recipientName: readString(value, 'recipientName'),
     recipientEmail: readString(value, 'recipientEmail'),
     message: readString(value, 'message'),

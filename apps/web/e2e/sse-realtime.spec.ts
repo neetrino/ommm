@@ -69,7 +69,7 @@ test.describe("SSE realtime (requires API on :4000)", () => {
       await loginApiUser(memberApi, "member2@ommm.local");
     } catch {
       await memberApi.dispose();
-      test.skip(true, "member2@ommm.local unavailable — run db seed for demo users");
+      test.skip(true, "member2@ommm.local unavailable");
       return;
     }
 
@@ -111,7 +111,7 @@ test.describe("SSE realtime (requires API on :4000)", () => {
       await loginApiUser(memberApi, "member2@ommm.local");
     } catch {
       await memberApi.dispose();
-      test.skip(true, "member2@ommm.local unavailable — run db seed for demo users");
+      test.skip(true, "member2@ommm.local unavailable");
       return;
     }
 

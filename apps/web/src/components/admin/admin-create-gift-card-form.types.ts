@@ -7,8 +7,6 @@ export type AdminCreateGiftCardFormInitialValues = {
   quantity: number;
   availableQuantity?: number;
   minQuantity?: number;
-  recipientEmail: string;
-  recipientName: string;
   message: string;
   expiresAt: string;
 };

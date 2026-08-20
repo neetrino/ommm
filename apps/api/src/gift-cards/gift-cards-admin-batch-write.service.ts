@@ -6,6 +6,7 @@ import {
 import { GiftCardStatus } from '@prisma/client';
 import type { Express } from 'express';
 import { AuditService } from '../audit/audit.service';
+import { utcToStudioCalendarDate } from '../common/studio-timezone';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
@@ -38,6 +39,12 @@ export class GiftCardsAdminBatchWriteService {
       dto.expiresAt !== undefined ? new Date(dto.expiresAt) : undefined;
     if (expiresAt && Number.isNaN(expiresAt.getTime())) {
       throw new BadRequestException('Invalid expiresAt date');
+    }
+    if (
+      expiresAt &&
+      utcToStudioCalendarDate(expiresAt) < utcToStudioCalendarDate(new Date())
+    ) {
+      throw new BadRequestException('expiresAt cannot be in the past');
     }
     if (!Number.isInteger(dto.quantity) || dto.quantity < 1) {
       throw new BadRequestException('quantity must be a positive integer');
@@ -72,7 +79,6 @@ export class GiftCardsAdminBatchWriteService {
           status: GiftCardStatus.ACTIVE,
           totalQuantity: dto.quantity,
           availableQuantity: dto.quantity,
-          purchaserId: adminId,
           recipientId: recipient?.id,
           recipientEmail,
           recipientName,

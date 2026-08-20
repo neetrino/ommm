@@ -22,7 +22,7 @@ export const PACKAGES_PAGE_TABLET_GRID_MIN_WIDTH_PX = CANVAS_TABLET_MIN_WIDTH_PX
  * Per-card gradients from instances `395:1299` … `395:1331`.
  */
 
-/** Session rows shown without scroll in desktop accordion (expanded + collapsed row height). */
+/** Session rows shown without scroll intent in desktop accordion height math. */
 export const PACKAGES_PAGE_VISIBLE_TIER_COUNT = 5;
 
 /**
@@ -33,7 +33,7 @@ export const PACKAGES_PAGE_ACCORDION_LAYOUT = {
   expandedHeaderBlockPx: 52,
   tierTableSectionGapPx: 18,
   columnHeaderHeightPx: 23,
-  /** Extra row height so ≤5 tiers never clip or scroll from subpixel layout. */
+  /** Extra row height so ≤5 tiers never clip from subpixel layout. */
   rowHeightBufferPx: 8,
 } as const;
 

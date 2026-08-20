@@ -6,6 +6,7 @@ import {
   DATE_PICKER_CALENDAR_FOOTER_ACTION_CLASS,
   DATE_PICKER_MONDAY_ANCHOR_DATE,
   formatIsoDate,
+  isBeforeCalendarDate,
   isSameCalendarDate,
   startOfMonth,
   type DatePickerPopupPosition,
@@ -21,6 +22,7 @@ type DatePickerCalendarPopupProps = {
   visibleMonth: Date;
   selectedDate: Date | null;
   today: Date;
+  minDate?: Date;
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onSelectDate: (isoDate: string) => void;
@@ -34,6 +36,7 @@ export function DatePickerCalendarPopup({
   visibleMonth,
   selectedDate,
   today,
+  minDate,
   onPrevMonth,
   onNextMonth,
   onSelectDate,
@@ -73,6 +76,10 @@ export function DatePickerCalendarPopup({
     return Array.from({ length: totalDays }, (_, index) => addDays(start, index));
   }, [visibleMonth]);
 
+  const canGoToPreviousMonth =
+    minDate === undefined ||
+    startOfMonth(visibleMonth).getTime() > startOfMonth(minDate).getTime();
+
   return (
     <div
       ref={popupRef}
@@ -90,8 +97,9 @@ export function DatePickerCalendarPopup({
       <div className="flex items-center justify-between px-1">
         <button
           type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50 disabled:pointer-events-none disabled:opacity-40"
           aria-label="Previous month"
+          disabled={!canGoToPreviousMonth}
           onClick={onPrevMonth}
         >
           <DatePickerChevronLeft className="h-4 w-4" />
@@ -118,27 +126,35 @@ export function DatePickerCalendarPopup({
           const isInCurrentMonth = day.getMonth() === visibleMonth.getMonth();
           const isSelected = selectedDate !== null && isSameCalendarDate(day, selectedDate);
           const isToday = isSameCalendarDate(day, today);
+          const isDisabled = minDate !== undefined && isBeforeCalendarDate(day, minDate);
           const isWeekend = day.getDay() === 0 || day.getDay() === 6;
 
-          const textTone = !isInCurrentMonth
-            ? "text-sage-400"
-            : isSelected
-              ? "text-white"
-              : isWeekend
-                ? "text-rose-500"
-                : "text-sage-900";
+          const textTone = isSelected
+            ? "text-white"
+            : isDisabled
+              ? "text-sage-300"
+              : !isInCurrentMonth
+                ? "text-sage-400"
+                : isWeekend
+                  ? "text-rose-500"
+                  : "text-sage-900";
 
           const backgroundTone = isSelected ? "bg-[#2f39a6]" : "bg-transparent";
           const todayRing =
             isToday && !isSelected ? "ring-1 ring-sand-500/35 ring-inset" : "";
-          const mutedOldMonthTone = !isInCurrentMonth ? "opacity-65" : "";
+          const mutedOldMonthTone = !isInCurrentMonth || isDisabled ? "opacity-65" : "";
 
           return (
             <button
               key={formatIsoDate(day)}
               type="button"
-              className={`mx-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors hover:bg-sand-50 ${textTone} ${backgroundTone} ${todayRing} ${mutedOldMonthTone}`}
-              onClick={() => onSelectDate(formatIsoDate(day))}
+              disabled={isDisabled}
+              className={`mx-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors ${isDisabled ? "cursor-not-allowed" : "hover:bg-sand-50"} ${textTone} ${backgroundTone} ${todayRing} ${mutedOldMonthTone}`}
+              onClick={() => {
+                if (!isDisabled) {
+                  onSelectDate(formatIsoDate(day));
+                }
+              }}
             >
               {day.getDate()}
             </button>

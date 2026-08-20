@@ -46,14 +46,24 @@ export class PaymentsCheckoutService {
     purchaserId: string;
     batchId?: string;
     amountCents: number;
+    recipientId: string;
     recipientName?: string;
     recipientEmail?: string;
     message?: string;
   }) {
+    const resolvedRecipient = await this.resolveGiftRecipient({
+      purchaserId: params.purchaserId,
+      recipientId: params.recipientId,
+      recipientName: params.recipientName,
+      recipientEmail: params.recipientEmail,
+    });
     const metadata: PaymentMetadata = {
-      ...(params.recipientName ? { recipientName: params.recipientName } : {}),
-      ...(params.recipientEmail
-        ? { recipientEmail: params.recipientEmail }
+      recipientId: resolvedRecipient.recipientId,
+      ...(resolvedRecipient.recipientName
+        ? { recipientName: resolvedRecipient.recipientName }
+        : {}),
+      ...(resolvedRecipient.recipientEmail
+        ? { recipientEmail: resolvedRecipient.recipientEmail }
         : {}),
       ...(params.message ? { message: params.message } : {}),
     };
@@ -78,10 +88,49 @@ export class PaymentsCheckoutService {
         paymentReference: createPaymentReference('GIFT'),
         source: INTERNAL_PAYMENT_SOURCE.GIFT,
         sourceId: params.batchId,
-        description: 'Gift card purchase',
+        description: 'Gift card purchase (gift)',
         metadata: metadata,
       }),
     });
+  }
+
+  private async resolveGiftRecipient(params: {
+    purchaserId: string;
+    recipientId: string;
+    recipientName?: string;
+    recipientEmail?: string;
+  }): Promise<{
+    recipientId: string;
+    recipientName?: string;
+    recipientEmail?: string;
+  }> {
+    if (params.recipientId.trim() === '') {
+      throw new BadRequestException('Gift recipient is required');
+    }
+    if (params.recipientId === params.purchaserId) {
+      throw new BadRequestException('Cannot gift a card to yourself');
+    }
+    const recipient = await this.prisma.user.findFirst({
+      where: {
+        id: params.recipientId,
+        role: 'USER',
+        isBlocked: false,
+      },
+      select: { id: true, email: true, name: true, lastName: true },
+    });
+    if (!recipient) {
+      throw new BadRequestException('Gift recipient not found');
+    }
+    const displayName = [recipient.name, recipient.lastName]
+      .filter((part): part is string => Boolean(part && part.trim()))
+      .join(' ')
+      .trim();
+    return {
+      recipientId: recipient.id,
+      recipientEmail: recipient.email,
+      recipientName:
+        displayName.length > 0 ? displayName : params.recipientName,
+    };
   }
 
   async createDropInCheckout(userId: string, sessionId: string) {

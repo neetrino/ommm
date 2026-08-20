@@ -1,11 +1,13 @@
 import { ManualPaymentMethod } from '@prisma/client';
 import {
+  IsBoolean,
   IsEnum,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 /** Public / user package subscribe — online Card or Cash only (not terminal). */
 const PUBLIC_PACKAGE_PAYMENT_METHODS = [
@@ -29,4 +31,12 @@ export class SubscribePackageDto {
   @IsString()
   @MaxLength(8)
   locale?: string;
+
+  /** Apply available gift-card wallet credit toward this package price. */
+  @IsOptional()
+  @Transform(
+    ({ value }: { value: unknown }) => value === true || value === 'true',
+  )
+  @IsBoolean()
+  useGiftCredits?: boolean;
 }

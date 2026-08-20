@@ -21,7 +21,7 @@
 - **Frontend web (`apps/web`)** — Next.js App Router, locale-aware routing, public pages + dashboards
 - **Backend API (`apps/api`)** — NestJS REST API, RBAC, business rules, integrations
 - **Mobile app (`apps/mobile`)** — Expo app նույն API contract-ով
-- **Data layer (`packages/database`)** — Prisma schema/migrations/seed/client
+- **Data layer (`packages/database`)** — Prisma schema/migrations/client
 - **Docs layer (`docs`)** — architecture, implementation, design, deploy, context
 
 ## 3) Tech stack

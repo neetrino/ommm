@@ -184,12 +184,13 @@
 }
 
 .panelExpanded {
+  --packages-page-expanded-inline-pad: clamp(1rem, 2vw, 2.6875rem);
   min-width: 0;
   overflow: hidden;
-  padding:
-    clamp(1.25rem, 2.5vw, 2.6875rem)
-    clamp(1rem, 2vw, 2.6875rem)
-    0;
+  padding-block: clamp(1.25rem, 2.5vw, 2.6875rem) 0;
+  /* Half on the right so the tier scrollbar can sit centered in the gutter. */
+  padding-inline: var(--packages-page-expanded-inline-pad)
+    calc(var(--packages-page-expanded-inline-pad) / 2);
 }
 
 .expandedBody {
@@ -198,22 +199,60 @@
   min-width: 0;
   min-height: 0;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 .expandedBody[data-tier-scroll="enabled"] {
   flex: 1 1 var(--packages-page-expanded-scroll-height);
   max-height: var(--packages-page-expanded-scroll-height);
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
-.expandedBody[data-tier-scroll="enabled"]::-webkit-scrollbar {
-  display: none;
+.expandedHeader {
+  margin: 0 0 1.125rem;
+  flex-shrink: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--packages-page-expanded-title-size);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: var(--packages-page-text-color);
+}
+
+.expandedTierScroll {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  min-inline-size: min(100%, var(--packages-page-expanded-table-min-width));
+}
+
+.expandedTierScroll[data-tier-scroll="enabled"] {
+  /* Matches reduced panel right pad → equal space left/right of the scrollbar. */
+  padding-inline-end: calc(var(--packages-page-expanded-inline-pad) / 2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(121, 114, 98, 0.7) transparent;
+}
+
+.expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar {
+  width: 5px;
+}
+
+.expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 4px;
+}
+
+.expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(121, 114, 98, 0.55);
+}
+
+.expandedTierScroll[data-tier-scroll="enabled"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 114, 98, 0.75);
 }
 
 .expandedBodyInner {
@@ -328,17 +367,6 @@
   position: relative;
   z-index: 1;
   justify-content: center;
-}
-
-.expandedHeader {
-  margin: 0 0 1.125rem;
-  font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-expanded-title-size);
-  font-weight: 700;
-  font-style: italic;
-  line-height: 1.06;
-  letter-spacing: -0.02em;
-  color: var(--packages-page-text-color);
 }
 
 .tierTableLayout {

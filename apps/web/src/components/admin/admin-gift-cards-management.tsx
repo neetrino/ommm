@@ -8,11 +8,11 @@ import {
   useState,
   useTransition,
 } from "react";
-import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminGiftCardDetailsSheet } from "@/components/admin/admin-gift-card-details-sheet";
 import { AdminGiftCardsDirectory } from "@/components/admin/admin-gift-cards-directory";
+import { AdminGiftCardsEmptyState } from "@/components/admin/admin-gift-cards-empty-state";
 import { countActiveGiftCardFilters } from "@/components/admin/admin-gift-cards-filter-logic";
 import { AdminGiftCardsShell } from "@/components/admin/admin-gift-cards-shell";
 import type {
@@ -73,7 +73,6 @@ export function AdminGiftCardsManagement({
       : adminGiftCardCapabilities());
   const isStaff = variant === "staff";
   const effectiveReadOnly = !caps.canUpdate;
-  const t = useTranslations("adminPages.giftCards");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -244,7 +243,9 @@ export function AdminGiftCardsManagement({
         onReset: resetFilters,
       }}
     >
-      {giftCards.length === 0 ? <p className="text-sm text-sage-500">{t("empty")}</p> : null}
+      {giftCards.length === 0 ? (
+        <AdminGiftCardsEmptyState filtersActive={activeFilterCount > 0} />
+      ) : null}
       {giftCards.length > 0 ? (
         <>
           <AdminGiftCardsDirectory

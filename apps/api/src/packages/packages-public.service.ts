@@ -6,13 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  ManualPaymentMethod,
-  PaymentSource,
-  PaymentStatus,
-  UserPackageStatus,
-  type PackagePlan,
-} from '@prisma/client';
+import { ManualPaymentMethod, type PackagePlan } from '@prisma/client';
 import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
@@ -22,29 +16,31 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ArcaService } from '../payments/arca/arca.service';
 import { readArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
-import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { planCoversClassType } from './plan-covers-class-type';
 import {
-  createPaymentReference,
   resolveClassTypeNameMapForAllocations,
   resolveFinalPriceCents,
   toPublicPlan,
 } from './packages-plan.helpers';
 import {
   assertPackageHasAvailableStock,
-  decrementPackagePlanStock,
   packageHasPublicStock,
 } from './packages-stock.helpers';
 import {
-  buildUserPackageCreateData,
-  createPendingCardPackagePurchase,
-  failDuplicatePendingCardPurchases,
+  peekSpendableGiftCreditsCents,
+  resolveGiftCreditsApplication,
+} from './package-gift-credits.util';
+import {
+  createCashPackageSubscriptionWithGiftCredits,
+  createFullyGiftCoveredPackageSubscription,
+  createPendingCardPurchaseWithGiftCredits,
+  resolvePendingCardPackagePurchase,
+} from './packages-subscribe-gift.util';
+import {
   failPendingCardPackagePurchase,
-  findPendingCardPackagePurchase,
   type PendingCardPackagePurchase,
 } from './packages-subscribe-card.util';
-import { createBalancesForUserPackage } from './packages-user-package-balances.util';
 import { toUserPackageFreezeApi } from './packages-freeze.mapper';
 import { resumeDueFreezes } from './packages-freeze.resume';
 import { resolveUserPackagePlan } from './user-package-plan-snapshot.util';
@@ -137,20 +133,49 @@ export class PackagesPublicService {
     }
     assertPackageHasAvailableStock(plan);
 
+    const useGiftCredits = dto.useGiftCredits === true;
     const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
     if (isCardPayment && isArcaCheckoutEnabled(this.config)) {
-      return this.subscribeCardWithArca(userId, plan, dto.locale);
+      return this.subscribeCardWithArca(
+        userId,
+        plan,
+        dto.locale,
+        useGiftCredits,
+      );
     }
-
-    return this.subscribeWithoutArcaRedirect(userId, plan, isCardPayment);
+    return this.subscribeWithoutArcaRedirect(
+      userId,
+      plan,
+      isCardPayment,
+      useGiftCredits,
+    );
   }
 
   private async subscribeCardWithArca(
     userId: string,
     plan: PackagePlan,
-    locale?: string,
+    locale: string | undefined,
+    useGiftCredits: boolean,
   ) {
-    const resolved = await this.resolveCardPurchase(userId, plan);
+    const pricing = await this.resolveSubscribePricing(
+      userId,
+      plan,
+      useGiftCredits,
+    );
+    if (pricing.chargeCents === 0) {
+      return this.subscribeFullyCoveredByGiftCredits(
+        userId,
+        plan,
+        pricing.appliedCents,
+      );
+    }
+
+    const resolved = await resolvePendingCardPackagePurchase(this.prisma, {
+      userId,
+      plan,
+      chargeCents: pricing.chargeCents,
+      giftCreditsAppliedCents: pricing.appliedCents,
+    });
     try {
       const { redirectUrl } = await this.arca.initPayment({
         userId,
@@ -162,6 +187,8 @@ export class PackagesPublicService {
         paymentReference: resolved.purchase.paymentReference,
         requiresArcaCheckout: true,
         redirectUrl,
+        giftCreditsAppliedCents: pricing.appliedCents,
+        amountDueCents: pricing.chargeCents,
       };
     } catch (error) {
       await this.compensateFailedArcaInit(resolved);
@@ -169,47 +196,30 @@ export class PackagesPublicService {
     }
   }
 
-  private async resolveCardPurchase(
+  private async resolveSubscribePricing(
     userId: string,
     plan: PackagePlan,
-  ): Promise<{ purchase: PendingCardPackagePurchase; created: boolean }> {
-    const resolved = await this.prisma.$transaction(async (tx) => {
-      const existing = await findPendingCardPackagePurchase(
-        tx,
-        userId,
-        plan.id,
-      );
-      if (existing !== null) {
-        return { purchase: existing, created: false };
-      }
-      const purchase = await createPendingCardPackagePurchase(tx, {
-        userId,
-        plan,
-      });
-      return { purchase, created: true };
-    });
-
-    // Always keep the oldest pending for this plan; fail newer concurrent creates.
-    let canonical = await findPendingCardPackagePurchase(
+    useGiftCredits: boolean,
+  ): Promise<{
+    appliedCents: number;
+    chargeCents: number;
+    finalPriceCents: number;
+  }> {
+    const finalPriceCents = resolveFinalPriceCents(plan);
+    if (!useGiftCredits) {
+      return { appliedCents: 0, chargeCents: finalPriceCents, finalPriceCents };
+    }
+    const spendableCents = await peekSpendableGiftCreditsCents(
       this.prisma,
       userId,
-      plan.id,
     );
-    if (canonical === null) {
-      canonical = await this.prisma.$transaction((tx) =>
-        createPendingCardPackagePurchase(tx, { userId, plan }),
-      );
-      return { purchase: canonical, created: true };
-    }
-    await failDuplicatePendingCardPurchases(this.prisma, {
-      userId,
-      planId: plan.id,
-      keepPaymentId: canonical.paymentId,
-    });
     return {
-      purchase: canonical,
-      created:
-        resolved.created && canonical.paymentId === resolved.purchase.paymentId,
+      ...resolveGiftCreditsApplication({
+        useGiftCredits: true,
+        spendableCents,
+        finalPriceCents,
+      }),
+      finalPriceCents,
     };
   }
 
@@ -242,69 +252,78 @@ export class PackagesPublicService {
     userId: string,
     plan: PackagePlan,
     isCardPayment: boolean,
+    useGiftCredits: boolean,
   ) {
-    if (isCardPayment) {
-      return this.subscribeCardWithoutArca(userId, plan);
-    }
-    return this.subscribeCashImmediate(userId, plan);
-  }
-
-  /** CARD without Arca: payment only; package created on admin/manual confirm. */
-  private async subscribeCardWithoutArca(userId: string, plan: PackagePlan) {
-    const purchase = await this.prisma.$transaction((tx) =>
-      createPendingCardPackagePurchase(tx, { userId, plan }),
+    const pricing = await this.resolveSubscribePricing(
+      userId,
+      plan,
+      useGiftCredits,
     );
-    return {
-      id: purchase.paymentId,
-      paymentReference: purchase.paymentReference,
-      requiresArcaCheckout: false,
-    };
-  }
-
-  private async subscribeCashImmediate(userId: string, plan: PackagePlan) {
-    const paymentReference = createPaymentReference('PACKAGE');
-    const created = await this.prisma.$transaction(async (tx) => {
-      const userPackage = await tx.userPackage.create({
-        data: buildUserPackageCreateData({
+    if (pricing.chargeCents === 0) {
+      return this.subscribeFullyCoveredByGiftCredits(
+        userId,
+        plan,
+        pricing.appliedCents,
+      );
+    }
+    if (isCardPayment) {
+      const purchase = await this.prisma.$transaction((tx) =>
+        createPendingCardPurchaseWithGiftCredits(tx, {
           userId,
           plan,
-          status: UserPackageStatus.ACTIVE,
+          chargeCents: pricing.chargeCents,
+          giftCreditsAppliedCents: pricing.appliedCents,
         }),
-      });
-      await createBalancesForUserPackage(tx, {
-        plan,
-        userPackageId: userPackage.id,
-      });
-      await tx.payment.create({
-        data: {
-          userId,
-          amountCents: resolveFinalPriceCents(plan),
-          currency: plan.currency.toLowerCase(),
-          status: PaymentStatus.SUCCEEDED,
-          paymentReference,
-          source: PaymentSource.PACKAGE,
-          sourceId: userPackage.id,
-          description: buildPackagePaymentDescription(plan.name),
-          confirmedAt: new Date(),
-          paymentMethod: ManualPaymentMethod.CASH,
-        },
-      });
-      await decrementPackagePlanStock(tx, plan.id);
+      );
       return {
-        userPackageId: userPackage.id,
-        paymentReference,
-        stockTracked: plan.availableQuantity !== null,
+        id: purchase.paymentId,
+        paymentReference: purchase.paymentReference,
+        requiresArcaCheckout: false,
+        giftCreditsAppliedCents: pricing.appliedCents,
+        amountDueCents: pricing.chargeCents,
       };
-    });
+    }
 
+    const created = await this.prisma.$transaction((tx) =>
+      createCashPackageSubscriptionWithGiftCredits(tx, {
+        userId,
+        plan,
+        giftCreditsAppliedCents: pricing.appliedCents,
+      }),
+    );
     if (created.stockTracked) {
       await this.invalidatePublicPlansCache();
     }
-
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
       requiresArcaCheckout: false,
+      giftCreditsAppliedCents: pricing.appliedCents,
+      amountDueCents: created.chargeCents,
+    };
+  }
+
+  private async subscribeFullyCoveredByGiftCredits(
+    userId: string,
+    plan: PackagePlan,
+    appliedCents: number,
+  ) {
+    const created = await this.prisma.$transaction((tx) =>
+      createFullyGiftCoveredPackageSubscription(tx, {
+        userId,
+        plan,
+        appliedCents,
+      }),
+    );
+    if (created.stockTracked) {
+      await this.invalidatePublicPlansCache();
+    }
+    return {
+      id: created.userPackageId,
+      paymentReference: created.paymentReference,
+      requiresArcaCheckout: false,
+      giftCreditsAppliedCents: appliedCents,
+      amountDueCents: 0,
     };
   }
 

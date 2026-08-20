@@ -3,22 +3,18 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import {
+  GiftMarketCardDetailsSheet,
+  type GiftMarketCardPreview,
+  type GiftPurchaseIntent,
+} from "@/components/account/gift-market-card-details-sheet";
 import { GIFT_CARD_BOARD_GRID_CLASS } from "@/components/account/user-gift-card-tile-layout";
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
 import { formatAmdFromCents } from "@/lib/price-amd";
-
-type GiftBatchMarketItem = {
-  id: string;
-  amountCents: number;
-  imageUrl: string | null;
-  availableQuantity: number;
-  totalQuantity: number;
-  expiresAt: string | null;
-  status: string;
-};
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
@@ -31,11 +27,15 @@ type GiftPurchaseFormProps = {
 export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
   const router = useRouter();
   const t = useTranslations("userPages.giftCards.purchaseForm");
-  const [items, setItems] = useState<GiftBatchMarketItem[]>([]);
+  const [items, setItems] = useState<GiftMarketCardPreview[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selectedCard =
+    selectedId === null ? null : (items.find((item) => item.id === selectedId) ?? null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,7 +43,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
       setLoading(true);
       setError(null);
       try {
-        const rows = await apiFetch<GiftBatchMarketItem[]>("/gift-cards/market");
+        const rows = await apiFetch<GiftMarketCardPreview[]>("/gift-cards/market");
         if (cancelled) {
           return;
         }
@@ -65,28 +65,27 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
     };
   }, [t]);
 
-  async function onBuy(item: GiftBatchMarketItem) {
-    setBusyBatchId(item.id);
+  async function onBuy(intent: GiftPurchaseIntent) {
+    const { card, recipient } = intent;
+    setBusyBatchId(card.id);
     setStatus(null);
     try {
-      const payment = await apiFetch<PendingPaymentResponse>(
-        "/payments/checkout/gift",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            batchId: item.id,
-            amountCents: item.amountCents,
-          }),
-        },
-      );
+      const payment = await apiFetch<PendingPaymentResponse>("/payments/checkout/gift", {
+        method: "POST",
+        body: JSON.stringify({
+          batchId: card.id,
+          amountCents: card.amountCents,
+          recipientId: recipient.id,
+        }),
+      });
       const params = new URLSearchParams({
-        source: "gift",
-        amountCents: item.amountCents.toString(),
+        amountCents: card.amountCents.toString(),
       });
       if (payment.paymentReference !== null) {
         params.set("reference", payment.paymentReference);
       }
-      router.push(`/user/payments/checkout?${params.toString()}`);
+      setSelectedId(null);
+      router.push(`${GIFT_CARD_CHECKOUT_PATH}?${params.toString()}`);
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
     } finally {
@@ -115,11 +114,20 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
             item={item}
             locale={locale}
             busy={busyBatchId !== null}
-            onBuy={onBuy}
+            onOpen={() => setSelectedId(item.id)}
           />
         ))}
       </div>
       {status ? <p className="text-sm text-sage-500">{status}</p> : null}
+      <GiftMarketCardDetailsSheet
+        card={selectedCard}
+        locale={locale}
+        busy={busyBatchId !== null}
+        onClose={() => setSelectedId(null)}
+        onBuy={(intent) => {
+          void onBuy(intent);
+        }}
+      />
     </div>
   );
 }
@@ -128,24 +136,27 @@ function PurchaseGiftCardPreview({
   item,
   locale,
   busy,
-  onBuy,
+  onOpen,
 }: {
-  item: GiftBatchMarketItem;
+  item: GiftMarketCardPreview;
   locale: string;
   busy: boolean;
-  onBuy: (item: GiftBatchMarketItem) => Promise<void>;
+  onOpen: () => void;
 }) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const giftCardsT = useTranslations("userPages.giftCards");
+  const amountLabel = formatAmdFromCents(item.amountCents, locale);
 
   return (
     <GiftCardBoardTile
-      amountLabel={formatAmdFromCents(item.amountCents, locale)}
+      amountLabel={amountLabel}
       status={item.status}
       statusLabel={giftCardsT(`statusValues.${item.status}`)}
       imageUrl={item.imageUrl}
       imageAlt={t("selectedImageAlt")}
       imageFallbackLabel={t("noImage")}
+      openAriaLabel={t("openDetailsAria", { amount: amountLabel })}
+      onOpen={onOpen}
       details={[
         {
           label: giftCardsT("cardExpiration"),
@@ -166,7 +177,7 @@ function PurchaseGiftCardPreview({
           variant="primary"
           size="sm"
           disabled={busy || item.availableQuantity <= 0}
-          onClick={() => void onBuy(item)}
+          onClick={onOpen}
         >
           {t("buyGiftCard")}
         </OmmButton>

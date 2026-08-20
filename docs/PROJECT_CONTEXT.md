@@ -25,7 +25,7 @@
   - `MANAGER`
   - `CONTENT_ADMIN`
   - `ADMIN`
-- Demo role users are seeded in `packages/database/prisma/seed.ts`.
+- Users live in the database; there is no demo-user seed in the repo.
 
 ### Main business logic
 - Authentication + role-based access on both web and API:
@@ -77,7 +77,7 @@ Notes:
 - `apps/web` - Next.js application (routes, UI components, middleware, i18n messages).
 - `apps/api` - NestJS API (modules/controllers/services).
 - `apps/mobile` - Expo app (app screens + mobile auth/api client helpers).
-- `packages/database` - Prisma schema, migrations, seed, generated client build target.
+- `packages/database` - Prisma schema, migrations, generated client build target.
 - `docs` - technical and deployment documentation.
 - `.env.example` - shared environment variable contract.
 
@@ -125,7 +125,6 @@ Notes:
 ### Database package
 - `packages/database/prisma/schema.prisma` - models/enums/relations.
 - `packages/database/prisma/migrations/*` - migration history.
-- `packages/database/prisma/seed.ts` - seed data + role demo users.
 
 ### Mobile app
 - Routes/screens:
@@ -395,20 +394,16 @@ Notes:
 - `WaitlistEntry.status/position/offerExpiresAt` for waitlist mechanics.
 - `AuditLog` stores notification scheduling lifecycle and audit events.
 
-### Seed/admin creation logic
-- Seed file: `packages/database/prisma/seed.ts`
-  - Creates one demo user per role.
-  - Creates baseline coach profile, studio settings, membership plan, class type/session, and sample content.
-- Admin demo user: `admin@ommm.local`.
-- Production admin bootstrap process outside seed -> **Needs verification**.
+### Admin creation logic
+- Admin users are created in the database (admin UI or direct DB), not from repo seed data.
+- Gift cards created from Admin inventory do not record a purchaser. Purchaser is set only when a member actually buys a card.
 
 ### Migration logic
 - Prisma migrations in `packages/database/prisma/migrations`.
 - Migration commands in `packages/database/package.json`:
   - `migrate:dev`
   - `migrate:deploy`
-  - `db:push`
-  - `seed`.
+  - `db:push`.
 
 ---
 
@@ -614,7 +609,6 @@ Never store real secret values in docs or code.
 - For DB-related tasks:
   - `packages/database/prisma/schema.prisma`
   - relevant migration files
-  - `packages/database/prisma/seed.ts` if role/demo data is involved.
 - For payment/email:
   - `apps/api/src/payments/*`
   - `apps/api/src/mail/*`
@@ -677,7 +671,6 @@ Never store real secret values in docs or code.
 - `pnpm --filter @ommm/database run migrate:dev`
 - `pnpm --filter @ommm/database run migrate:deploy`
 - `pnpm --filter @ommm/database run db:push`
-- `pnpm --filter @ommm/database run seed`
 
 #### Mobile (`apps/mobile/package.json`)
 - `pnpm --filter mobile dev`
@@ -693,5 +686,5 @@ Never store real secret values in docs or code.
 - Runtime usage of `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` not found in scanned code -> **Needs verification**.
 - Runtime usage of `DATABASE_CONNECTION_LIMIT` and `DATABASE_POOL_TIMEOUT` not found in scanned code -> **Needs verification**.
 - `APP_URL` appears in env contract but not in scanned runtime code -> **Needs verification**.
-- Production admin provisioning process beyond seed script -> **Needs verification**.
+- Production admin provisioning is done in the database, not from repo seed data.
 

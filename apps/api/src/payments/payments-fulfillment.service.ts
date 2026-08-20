@@ -17,6 +17,10 @@ import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
+import {
+  readGiftCreditsAppliedCents,
+  recordGiftCreditSpendPayment,
+} from '../packages/package-gift-credits.util';
 import { buildUserPackageCreateData } from '../packages/packages-subscribe-card.util';
 import { decrementPackagePlanStock } from '../packages/packages-stock.helpers';
 import { createBalancesForUserPackage } from '../packages/packages-user-package-balances.util';
@@ -162,6 +166,16 @@ export class PaymentsFulfillmentService {
       where: { id: payment.id },
       data: { sourceId: userPackage.id },
     });
+    const giftCreditsAppliedCents = readGiftCreditsAppliedCents(
+      payment.metadata,
+    );
+    await recordGiftCreditSpendPayment(tx, {
+      userId: payment.userId,
+      appliedCents: giftCreditsAppliedCents,
+      planName: plan.name,
+      userPackageId: userPackage.id,
+      currency: plan.currency,
+    });
     return decrementPackagePlanStock(tx, plan.id);
   }
 
@@ -209,6 +223,7 @@ export class PaymentsFulfillmentService {
     const code = randomBytes(8).toString('hex').toUpperCase();
     const recipientEmail =
       metadata.recipientEmail || selectedBatch?.recipientEmail || undefined;
+    const recipientId = metadata.recipientId || undefined;
     await tx.giftCard.create({
       data: {
         batchId: selectedBatch?.id,
@@ -218,6 +233,7 @@ export class PaymentsFulfillmentService {
         imageUrl: selectedBatch?.imageUrl ?? undefined,
         status: GiftCardStatus.ACTIVE,
         purchaserId: payment.userId,
+        recipientId,
         recipientName:
           metadata.recipientName || selectedBatch?.recipientName || undefined,
         recipientEmail,

@@ -14,6 +14,10 @@ import {
   readGiftCardBalance,
   serializeUserGiftCard,
 } from './gift-cards.mapper';
+import { peekSpendableGiftCreditsCents } from '../packages/package-gift-credits.util';
+
+const GIFT_RECIPIENT_SEARCH_MIN_CHARS = 2;
+const GIFT_RECIPIENT_SEARCH_LIMIT = 20;
 
 @Injectable()
 export class GiftCardsClientService {
@@ -101,6 +105,41 @@ export class GiftCardsClientService {
           amountCents: readBatchAmount(batch),
         })),
       );
+  }
+
+  /**
+   * Search active members to gift a card to (excludes the purchaser).
+   * Requires a non-empty query so we never return the full directory.
+   */
+  searchGiftRecipients(actorId: string, query: string) {
+    const token = query.trim();
+    if (token.length < GIFT_RECIPIENT_SEARCH_MIN_CHARS) {
+      return Promise.resolve([]);
+    }
+    return this.prisma.user.findMany({
+      where: {
+        role: 'USER',
+        isBlocked: false,
+        id: { not: actorId },
+        OR: [
+          { email: { contains: token, mode: 'insensitive' } },
+          { name: { contains: token, mode: 'insensitive' } },
+          { lastName: { contains: token, mode: 'insensitive' } },
+          { phone: { contains: token, mode: 'insensitive' } },
+        ],
+      },
+      select: { id: true, email: true, name: true, lastName: true },
+      orderBy: [{ name: 'asc' }, { email: 'asc' }],
+      take: GIFT_RECIPIENT_SEARCH_LIMIT,
+    });
+  }
+
+  async getSpendableBalance(userId: string) {
+    const spendableCents = await peekSpendableGiftCreditsCents(
+      this.prisma,
+      userId,
+    );
+    return { spendableCents };
   }
 
   async redeem(userId: string, code: string) {

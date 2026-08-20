@@ -33,8 +33,8 @@ model GiftCard {
   balanceAmd      Int            @map("balanceCents")
   imageUrl        String?
   status          GiftCardStatus @default(ACTIVE)
-  purchaserId     String
-  purchaser       User           @relation("GiftCardPurchaser", fields: [purchaserId], references: [id])
+  purchaserId     String?
+  purchaser       User?          @relation("GiftCardPurchaser", fields: [purchaserId], references: [id], onDelete: SetNull)
   recipientId     String?
   recipient       User?          @relation("GiftCardRecipient", fields: [recipientId], references: [id])
   recipientEmail  String?
@@ -54,8 +54,8 @@ model GiftCardBatch {
   status            GiftCardStatus @default(ACTIVE)
   totalQuantity     Int
   availableQuantity Int
-  purchaserId       String
-  purchaser         User           @relation("GiftCardBatchPurchaser", fields: [purchaserId], references: [id], onDelete: Restrict)
+  purchaserId       String?
+  purchaser         User?          @relation("GiftCardBatchPurchaser", fields: [purchaserId], references: [id], onDelete: SetNull)
   recipientId       String?
   recipient         User?          @relation("GiftCardBatchRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
   recipientEmail    String?

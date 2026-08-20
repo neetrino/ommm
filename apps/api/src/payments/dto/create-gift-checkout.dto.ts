@@ -1,5 +1,7 @@
 import {
+  IsEmail,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -29,13 +31,19 @@ export class CreateGiftCheckoutDto {
   @Min(1)
   amountCents?: number;
 
+  /** Studio member who receives the gift card (required for member checkout). */
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(191)
+  recipientId!: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(120)
   recipientName?: string;
 
   @IsOptional()
-  @IsString()
+  @IsEmail()
   @MaxLength(200)
   recipientEmail?: string;
 

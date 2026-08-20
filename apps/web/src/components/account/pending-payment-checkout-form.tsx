@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { isApiError, confirmSimulatedCardCheckout, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -10,6 +10,8 @@ import type { ManualPaymentMethod } from "@/lib/manual-payment-method";
 import type { PaymentCheckoutSource } from "@/lib/payment-checkout-source";
 import { PAYMENT_SUCCESS_PATH } from "@/lib/payment-result-paths";
 import { MARKETING_SCHEDULE_PATH } from "@/lib/auth-redirect";
+import { USER_GIFT_CARDS_SHOP_PATH } from "@/lib/user-gift-cards-tab";
+import { localizedWorkspaceHref } from "@/lib/workspace-nav-link";
 
 type CheckoutPaymentMethod = Extract<ManualPaymentMethod, "CARD" | "CASH">;
 
@@ -35,6 +37,7 @@ export function PendingPaymentCheckoutForm({
   const [paymentMethod, setPaymentMethod] = useState<CheckoutPaymentMethod>("CARD");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isCardOnlyCheckout = source === "gift";
 
   async function confirmPayment() {
     if (paymentReference === null) {
@@ -42,7 +45,7 @@ export function PendingPaymentCheckoutForm({
       return;
     }
 
-    if (paymentMethod === "CASH") {
+    if (!isCardOnlyCheckout && paymentMethod === "CASH") {
       await confirmCashPayment(paymentReference);
       return;
     }
@@ -63,6 +66,14 @@ export function PendingPaymentCheckoutForm({
     } finally {
       setBusy(false);
     }
+  }
+
+  function handlePayClick() {
+    if (isCardOnlyCheckout || step === "method") {
+      void confirmPayment();
+      return;
+    }
+    setStep("method");
   }
 
   async function confirmCashPayment(reference: string) {
@@ -92,7 +103,11 @@ export function PendingPaymentCheckoutForm({
         {step === "cashPending" ? t("cashPendingTitle") : t(`sources.${source}.title`)}
       </h1>
       <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-sage-600">
-        {step === "cashPending" ? t("cashPendingLead") : t("lead")}
+        {step === "cashPending"
+          ? t("cashPendingLead")
+          : isCardOnlyCheckout
+            ? t("cardLead")
+            : t("lead")}
       </p>
 
       <div className="mt-8 rounded-[24px] border border-sage-100 bg-paper/70 p-5 text-left">
@@ -100,15 +115,9 @@ export function PendingPaymentCheckoutForm({
           <span className="text-sm text-sage-500">{t("amountLabel")}</span>
           <strong className="text-2xl text-sage-950">{amountLabel}</strong>
         </div>
-        <div className="mt-4 flex items-center justify-between gap-4 border-t border-sage-100 pt-4">
-          <span className="text-sm text-sage-500">{t("referenceLabel")}</span>
-          <span className="font-mono text-sm text-sage-800">
-            {paymentReference ?? t("missingReference")}
-          </span>
-        </div>
       </div>
 
-      {step === "method" ? (
+      {step === "method" && !isCardOnlyCheckout ? (
         <PaymentMethodPicker
           value={paymentMethod}
           onChange={setPaymentMethod}
@@ -123,19 +132,27 @@ export function PendingPaymentCheckoutForm({
       ) : null}
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-        {step === "summary" ? (
-          <OmmButton type="button" onClick={() => setStep("method")}>
-            {t("payButton")}
-          </OmmButton>
-        ) : null}
-        {step === "method" ? (
-          <OmmButton type="button" onClick={() => void confirmPayment()} disabled={busy}>
+        {step !== "cashPending" ? (
+          <OmmButton type="button" onClick={handlePayClick} disabled={busy}>
             {busy ? t("payingButton") : t("payButton")}
           </OmmButton>
         ) : null}
-        <Link href={resolveBackPath(source)} className="ommm-cta-ghost inline-flex justify-center">
+        <OmmButton
+          type="button"
+          variant="secondary"
+          disabled={busy}
+          onClick={() => {
+            const backPath = resolveBackPath(source);
+            if (source === "gift") {
+              // Soft nav from checkout keeps stale RSC children under member hub routes.
+              window.location.assign(localizedWorkspaceHref(locale, backPath));
+              return;
+            }
+            router.push(backPath);
+          }}
+        >
           {step === "cashPending" ? t("doneButton") : t("backButton")}
-        </Link>
+        </OmmButton>
       </div>
     </section>
   );
@@ -153,7 +170,7 @@ function resolveCashConfirmPath(source: PaymentCheckoutSource, reference: string
 
 function resolveBackPath(source: PaymentCheckoutSource): string {
   if (source === "gift") {
-    return "/user/gift-cards";
+    return USER_GIFT_CARDS_SHOP_PATH;
   }
   if (source === "dropin") {
     return MARKETING_SCHEDULE_PATH;

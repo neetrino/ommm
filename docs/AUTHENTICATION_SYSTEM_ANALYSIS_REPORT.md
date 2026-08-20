@@ -229,7 +229,7 @@ Form validation:
 - **Role assignment points:**
   - Registration: no explicit role -> default `USER` (`AuthService.register`).
   - Coach creation: explicit `Role.COACH` (`CoachesService.create`).
-  - Seed: demo users for each role (`packages/database/prisma/seed.ts`).
+  - Roles are assigned in the database (admin UI or direct DB), not from a repo seed.
 - **Role checks:**
   - API: `@Roles(...)` + `RolesGuard`.
   - Web: role-gated layouts under `(admin)`, `(manager)`, `(coach)`, `(content-admin)`, `(account)/user`.

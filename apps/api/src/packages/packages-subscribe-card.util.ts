@@ -17,6 +17,11 @@ import {
   createPaymentReference,
   resolveFinalPriceCents,
 } from './packages-plan.helpers';
+import {
+  PACKAGE_GIFT_CREDITS_APPLIED_KEY,
+  readGiftCreditsAppliedCents,
+  refundReservedGiftCredits,
+} from './package-gift-credits.util';
 import { buildUserPackagePlanSnapshot } from './user-package-plan-snapshot.util';
 import { resolveUserPackagePeriodBounds } from './user-package-period.util';
 
@@ -30,11 +35,13 @@ export type PendingCardPackagePurchase = {
   paymentReference: string;
   paymentId: string;
   planId: string;
+  amountCents: number;
+  giftCreditsAppliedCents: number;
 };
 
 type PaymentPackageDb = Pick<
   Prisma.TransactionClient,
-  'userPackage' | 'payment'
+  'userPackage' | 'payment' | 'user'
 >;
 
 function paymentMatchesPlan(
@@ -77,6 +84,7 @@ export async function findPendingCardPackagePurchase(
       paymentReference: true,
       sourceId: true,
       metadata: true,
+      amountCents: true,
     },
   });
 
@@ -92,6 +100,8 @@ export async function findPendingCardPackagePurchase(
       paymentReference: payment.paymentReference,
       paymentId: payment.id,
       planId,
+      amountCents: payment.amountCents,
+      giftCreditsAppliedCents: readGiftCreditsAppliedCents(payment.metadata),
     };
   }
   return null;
@@ -151,13 +161,23 @@ export async function failDuplicatePendingCardPurchases(
  */
 export async function createPendingCardPackagePurchase(
   tx: Prisma.TransactionClient,
-  params: { userId: string; plan: PackagePlan },
+  params: {
+    userId: string;
+    plan: PackagePlan;
+    chargeCents?: number;
+    giftCreditsAppliedCents?: number;
+  },
 ): Promise<PendingCardPackagePurchase> {
   const paymentReference = createPaymentReference('PACKAGE');
+  const giftCreditsAppliedCents = Math.max(
+    0,
+    params.giftCreditsAppliedCents ?? 0,
+  );
+  const amountCents = params.chargeCents ?? resolveFinalPriceCents(params.plan);
   const payment = await tx.payment.create({
     data: {
       userId: params.userId,
-      amountCents: resolveFinalPriceCents(params.plan),
+      amountCents,
       currency: params.plan.currency.toLowerCase(),
       status: PaymentStatus.PENDING,
       paymentReference,
@@ -168,6 +188,9 @@ export async function createPendingCardPackagePurchase(
       paymentMethod: ManualPaymentMethod.CARD,
       metadata: withPackagePlanIdMetadata(null, params.plan.id, {
         statusReason: PAYMENT_STATUS_REASON.CHECKOUT_NOT_STARTED,
+        ...(giftCreditsAppliedCents > 0
+          ? { [PACKAGE_GIFT_CREDITS_APPLIED_KEY]: giftCreditsAppliedCents }
+          : {}),
       }),
     },
   });
@@ -176,6 +199,8 @@ export async function createPendingCardPackagePurchase(
     paymentReference: payment.paymentReference ?? paymentReference,
     paymentId: payment.id,
     planId: params.plan.id,
+    amountCents,
+    giftCreditsAppliedCents,
   };
 }
 
@@ -193,12 +218,13 @@ export async function failPendingCardPackagePurchase(
 ): Promise<void> {
   const existing = await db.payment.findUnique({
     where: { id: params.paymentId },
-    select: { metadata: true, status: true },
+    select: { metadata: true, status: true, userId: true },
   });
   if (!existing || existing.status !== PaymentStatus.PENDING) {
     return;
   }
 
+  const reservedGiftCredits = readGiftCreditsAppliedCents(existing.metadata);
   await db.payment.update({
     where: { id: params.paymentId },
     data: {
@@ -211,6 +237,12 @@ export async function failPendingCardPackagePurchase(
       }),
     },
   });
+  if (reservedGiftCredits > 0) {
+    await refundReservedGiftCredits(db, {
+      userId: existing.userId,
+      appliedCents: reservedGiftCredits,
+    });
+  }
   if (params.userPackageId === null) {
     return;
   }

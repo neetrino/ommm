@@ -89,7 +89,7 @@ export function buildGiftCreditCsvRows(input: {
       email: string;
       name: string | null;
       lastName: string | null;
-    };
+    } | null;
   }>;
   redeemedCards: Array<{
     code: string;
@@ -124,9 +124,9 @@ export function buildGiftCreditCsvRows(input: {
       toCsvRow([
         'ISSUED',
         card.createdAt.toISOString(),
-        card.purchaser.id,
-        card.purchaser.email,
-        formatPersonName(card.purchaser.name, card.purchaser.lastName),
+        card.purchaser?.id ?? '',
+        card.purchaser?.email ?? '',
+        formatPersonName(card.purchaser?.name, card.purchaser?.lastName),
         readGiftAmount(card),
         input.currency,
         card.code,

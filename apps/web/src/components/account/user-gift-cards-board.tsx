@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { memberChrome } from "@/components/account/member-chrome";
 import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
 import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
 import {
@@ -12,6 +13,7 @@ import {
 import type { UserGiftCardSource } from "@/components/account/user-gift-cards-types";
 import { GiftCardBoardTile, type GiftCardBoardDetail } from "@/components/gift-cards/gift-card-board-tile";
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
+import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -31,6 +33,7 @@ import {
   USER_GIFT_CARDS_MY_PAGE_KEYS,
 } from "@/lib/user-gift-cards-query";
 import { syncListPageQuery } from "@/lib/list-pagination";
+
 type UserGiftCardsBoardProps = {
   locale: string;
   cards: readonly UserGiftCardWithSource[];
@@ -161,10 +164,10 @@ function MyGiftCardsSection({
             : t("loadError", { status: loadError })}
         </div>
       ) : cards.length === 0 ? (
-        <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <p className="font-medium text-sage-900">{t("emptyMyTitle")}</p>
-          <p className="ommm-body-muted mt-2 text-sm">{t("emptyMyDescription")}</p>
-        </div>
+        <MyGiftCardsEmptyPanel
+          title={t("emptyMyTitle")}
+          description={t("emptyMyDescription")}
+        />
       ) : (
         <>
           <div className={GIFT_CARD_BOARD_GRID_CLASS}>
@@ -188,6 +191,27 @@ function MyGiftCardsSection({
         </>
       )}
     </UserGiftCardsSection>
+  );
+}
+
+function MyGiftCardsEmptyPanel({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div
+      className={`${memberChrome.surface} flex flex-col items-center px-6 py-10 text-center sm:px-10 sm:py-12`}
+      role="status"
+    >
+      <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/70 bg-sand-100/90 text-sage-700 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.9)]">
+        <AdminNavIcon slug="giftCards" className="h-6 w-6" />
+      </span>
+      <p className="ommm-h3 mt-5 text-sage-800">{title}</p>
+      <p className="ommm-body-muted mt-2 max-w-md text-sm">{description}</p>
+    </div>
   );
 }
 

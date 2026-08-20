@@ -1,9 +1,10 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
+import { PackageSubscribeGiftCreditsToggle } from "@/components/account/package-subscribe-gift-credits-toggle";
 import {
   MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
   memberAccountHubSheetPanelStyle,
@@ -18,7 +19,9 @@ import {
   PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS,
   PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS,
+  PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
+  PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS,
   PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
@@ -54,6 +57,12 @@ type SubscribePackageResponse = {
   paymentReference?: string | null;
   requiresArcaCheckout?: boolean;
   redirectUrl?: string | null;
+  giftCreditsAppliedCents?: number;
+  amountDueCents?: number;
+};
+
+type SpendableGiftBalanceResponse = {
+  spendableCents: number;
 };
 
 function resolveDefaultPlanId(
@@ -116,6 +125,7 @@ function PackageSubscribePaymentModalSession({
   const t = useTranslations("forms.manualPackagePayment");
   const router = useRouter();
   const titleId = useId();
+  const giftCreditsFieldId = useId();
   const [shouldRefreshAfterClose, setShouldRefreshAfterClose] = useState(false);
   const [step, setStep] = useState<ModalStep>("form");
   const isPhone = useMemberHubSheetPhone();
@@ -130,9 +140,46 @@ function PackageSubscribePaymentModalSession({
   const [busy, setBusy] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [spendableGiftCents, setSpendableGiftCents] = useState(0);
+  const [useGiftCredits, setUseGiftCredits] = useState(false);
 
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
   const sheetTitle = step === "success" ? t("successTitle") : t("title");
+  const appliedGiftCents =
+    useGiftCredits && selectedPlan
+      ? Math.min(spendableGiftCents, selectedPlan.finalPriceCents)
+      : 0;
+  const amountDueCents = selectedPlan
+    ? selectedPlan.finalPriceCents - appliedGiftCents
+    : 0;
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSpendable() {
+      try {
+        const result = await apiFetch<SpendableGiftBalanceResponse>(
+          "/gift-cards/me/spendable-balance",
+        );
+        if (cancelled) {
+          return;
+        }
+        const cents = Math.max(0, result.spendableCents);
+        setSpendableGiftCents(cents);
+        if (cents <= 0) {
+          setUseGiftCredits(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setSpendableGiftCents(0);
+          setUseGiftCredits(false);
+        }
+      }
+    }
+    void loadSpendable();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function handlePlanSelect(planId: string) {
     setSelectedPlanId(planId);
@@ -152,9 +199,14 @@ function PackageSubscribePaymentModalSession({
           planId: selectedPlan.id,
           paymentMethod,
           locale,
+          useGiftCredits: useGiftCredits && spendableGiftCents > 0,
         }),
       });
-      if (paymentMethod === "CARD" && isArcaCheckoutEnabled()) {
+      const dueCents =
+        typeof result.amountDueCents === "number"
+          ? result.amountDueCents
+          : amountDueCents;
+      if (paymentMethod === "CARD" && dueCents > 0 && isArcaCheckoutEnabled()) {
         if (
           typeof result.redirectUrl === "string" &&
           result.redirectUrl.length > 0
@@ -194,40 +246,62 @@ function PackageSubscribePaymentModalSession({
     window.setTimeout(finishClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
   }
 
-  function renderSheetBody(onClose: () => void) {
+  function renderSheetBody(onCloseSheet: () => void) {
     return step === "success" ? (
-      <SuccessPanel onDone={onClose} />
+      <SuccessPanel onDone={onCloseSheet} />
     ) : (
       <form onSubmit={(event) => void onConfirm(event)} className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
-        <PackageSubscribePlanPicker
-          plans={plans}
-          selectedPlanId={selectedPlan.id}
-          locale={locale}
-          onSelect={handlePlanSelect}
-        />
-        {error !== null ? (
-          <p className="shrink-0 text-sm text-red-800" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <div className={formStyles.formFooter}>
-          <PaymentMethodPicker
-            value={paymentMethod}
-            onChange={setPaymentMethod}
-            disabled={busy}
+        <div className={`${PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS} ${formStyles.formScroll}`}>
+          <PackageSubscribePlanPicker
+            plans={plans}
+            selectedPlanId={selectedPlan.id}
+            locale={locale}
+            onSelect={handlePlanSelect}
           />
+          <PackageSubscribeGiftCreditsToggle
+            fieldId={giftCreditsFieldId}
+            checked={useGiftCredits}
+            disabled={busy || spendableGiftCents <= 0}
+            spendableCents={spendableGiftCents}
+            appliedCents={appliedGiftCents}
+            amountDueCents={amountDueCents}
+            locale={locale}
+            onChange={setUseGiftCredits}
+          />
+          {error !== null ? (
+            <p className="shrink-0 text-sm text-red-800" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <div className={formStyles.formFooter}>
+            {amountDueCents > 0 ? (
+              <PaymentMethodPicker
+                value={paymentMethod}
+                onChange={setPaymentMethod}
+                disabled={busy}
+              />
+            ) : (
+              <p className="text-sm text-sage-600">{t("giftCreditsCoversAll")}</p>
+            )}
+          </div>
+        </div>
+        <div className={PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS}>
           <div className="flex shrink-0 flex-wrap justify-end gap-3">
             <OmmButton
               type="button"
               variant="secondary"
               size="md"
-              onClick={onClose}
+              onClick={onCloseSheet}
               disabled={busy}
             >
               {t("cancel")}
             </OmmButton>
             <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
-              {busy ? t("submitting") : t("confirm")}
+              {busy
+                ? t("submitting")
+                : amountDueCents === 0
+                  ? t("confirmWithGiftOnly")
+                  : t("confirm")}
             </OmmButton>
           </div>
         </div>
@@ -235,7 +309,7 @@ function PackageSubscribePaymentModalSession({
     );
   }
 
-  function renderSheetHeader(onClose: () => void) {
+  function renderSheetHeader(onCloseSheet: () => void) {
     return (
       <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
         <h2
@@ -248,7 +322,7 @@ function PackageSubscribePaymentModalSession({
           type="button"
           className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
           aria-label={t("closeModal")}
-          onClick={onClose}
+          onClick={onCloseSheet}
           disabled={busy}
         >
           <SheetCloseIcon />
@@ -289,7 +363,9 @@ function PackageSubscribePaymentModalSession({
       motionState={desktopMotionState}
     >
       {renderSheetHeader(handleDesktopClose)}
-      <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>{renderSheetBody(handleDesktopClose)}</div>
+      <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>
+        {renderSheetBody(handleDesktopClose)}
+      </div>
     </OmmDrawerPortal>
   );
 }
@@ -329,20 +405,20 @@ function PaymentMethodPicker({ value, onChange, disabled }: PaymentMethodPickerP
         {t("methodLegend")}
       </legend>
       <div className={formStyles.sectionCards}>
-      {PACKAGE_SUBSCRIBE_PAYMENT_METHODS.map((method) => (
-        <label key={method} className={formStyles.paymentMethodOption}>
-          <input
-            type="radio"
-            name="payment-method"
-            value={method}
-            checked={value === method}
-            onChange={() => onChange(method)}
-            disabled={disabled}
-            className={formStyles.paymentMethodRadio}
-          />
-          <span className="text-sm text-sage-700">{t(`methods.${method}`)}</span>
-        </label>
-      ))}
+        {PACKAGE_SUBSCRIBE_PAYMENT_METHODS.map((method) => (
+          <label key={method} className={formStyles.paymentMethodOption}>
+            <input
+              type="radio"
+              name="payment-method"
+              value={method}
+              checked={value === method}
+              onChange={() => onChange(method)}
+              disabled={disabled}
+              className={formStyles.paymentMethodRadio}
+            />
+            <span className="text-sm text-sage-700">{t(`methods.${method}`)}</span>
+          </label>
+        ))}
       </div>
     </fieldset>
   );

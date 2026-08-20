@@ -810,7 +810,6 @@ Mobile scope-ը **փոքր է** web-ի համեմատ — հիմնական membe
 |-------|------|---------|
 | API unit/integration | Jest | `pnpm run test` |
 | Web e2e | Playwright | `pnpm run test:e2e:web` |
-| Seed data | Prisma seed | `packages/database/prisma/seed.ts` — demo users per role |
 
 ---
 

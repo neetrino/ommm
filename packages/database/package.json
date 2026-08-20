@@ -32,20 +32,15 @@
     "backfill:balance-class-type": "dotenv -e ../../.env -- pnpm exec tsx scripts/backfill-user-package-balance-class-type.mjs",
     "e2e:package-booking": "dotenv -e ../../.env -- pnpm exec tsx scripts/e2e-package-booking-smoke.mjs",
     "activate:future-packages": "dotenv -e ../../.env -- pnpm exec tsx scripts/activate-future-user-packages.mjs",
-    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma",
-    "seed": "dotenv -e ../../.env -- pnpm exec tsx prisma/seed.ts"
+    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0"
   },
   "devDependencies": {
-    "bcryptjs": "^3.0.2",
     "dotenv-cli": "^8.0.0",
     "prisma": "^6.19.0",
     "tsx": "^4.19.4",
     "typescript": "^5.7.3"
-  },
-  "prisma": {
-    "seed": "pnpm exec tsx prisma/seed.ts"
   }
 }

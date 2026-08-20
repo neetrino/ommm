@@ -1619,22 +1619,7 @@ erDiagram
 
 ### 20.11 Seed Data
 
-**File:** `packages/database/prisma/seed.ts`
-
-| Seed module | What it creates |
-|-------------|-----------------|
-| `seed-users.ts` | Demo user **per role** (admin@ommm.local, coach, manager, etc.) |
-| `seed-studio-settings.ts` | Default `StudioSettings` singleton |
-| `seed-extras.ts` → achievements | Achievement definitions |
-| `seed-packages.ts` | Package plans + sample member subscriptions |
-| `seed-classes.ts` | Class types, sessions, sample bookings |
-| `seed-analytics-dashboard.ts` | Data for dashboard/report demos |
-| `seed-content.ts` | Sample content posts |
-| `seed-extras.ts` → schedule | `ScheduleItem` marketing rows |
-| `seed-extras.ts` → gift cards | Sample gift cards/batches |
-| `seed-extras.ts` → contact | Sample contact messages |
-
-Run: `pnpm --filter @ommm/database run seed`
+There is no Prisma seed in the repo. Users, classes, packages, and gift cards live only in the database.
 
 ---
 
@@ -1922,7 +1907,6 @@ Full list: `.env.example`, `docs/DEPLOY_ENV_PLACEMENT.md`, `docs/VERCEL_ENV.md`
 | `pnpm build:api` | Build database package + NestJS |
 | `pnpm db:generate` | Generate Prisma client |
 | `pnpm --filter @ommm/database run migrate:dev` | Run dev migrations |
-| `pnpm --filter @ommm/database run seed` | Seed demo data |
 | `pnpm test` | Run API Jest tests |
 | `pnpm test:e2e:web` | Run Playwright e2e tests |
 
@@ -1934,7 +1918,6 @@ Full list: `.env.example`, `docs/DEPLOY_ENV_PLACEMENT.md`, `docs/VERCEL_ENV.md`
 |------|----------|----------------|
 | API unit/e2e | `apps/api/test/` | Jest — app health, auth flows |
 | Web e2e | `apps/web/e2e/` | Playwright — marketing home, SSE realtime |
-| Seed data | `packages/database/prisma/seed.ts` | Demo user per role, sample sessions, plans, content |
 
 ---
 

@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { CancelGlyph, CheckCircleGlyph } from "@/components/ui/admin-action-glyphs";
 import {
+  paymentCheckoutPath,
   paymentCheckoutReturnPath,
   type PaymentCheckoutSource,
 } from "@/lib/payment-checkout-source";
@@ -32,7 +33,11 @@ export function PaymentOutcomeScreen({
   const returnPath = paymentCheckoutReturnPath(source);
   const retryHref =
     reference !== null
-      ? `/user/payments/checkout?${new URLSearchParams({ source, reference }).toString()}`
+      ? `${paymentCheckoutPath(source)}?${new URLSearchParams(
+          source === "gift"
+            ? { reference }
+            : { source, reference },
+        ).toString()}`
       : PAYMENT_FAIL_PATH;
 
   const iconRingClass = isSuccess
