@@ -68,7 +68,11 @@ export class BookingsAdminService {
     const target = await this.prisma.classSession.findUnique({
       where: { id: targetSessionId },
     });
-    if (!target || target.status === ClassSessionStatus.CANCELLED) {
+    if (
+      !target ||
+      target.status === ClassSessionStatus.CANCELLED ||
+      target.status === ClassSessionStatus.FINISHED
+    ) {
       throw new NotFoundException('Target session not found');
     }
     const n = await this.waitlist.bookedCount(targetSessionId);

@@ -169,6 +169,7 @@ Layout-level access control կա համապատասխան group layout-ներո�
 - `/{locale}/admin/waitlists`
 - `/{locale}/admin/clients`
 - `/{locale}/admin/coaches`
+- `/{locale}/admin/managers`
 - `/{locale}/admin/memberships`
 - `/{locale}/admin/packages`
 - `/{locale}/admin/gift-cards`

@@ -820,14 +820,15 @@ Admin Panel-ը հանդիսանում է հարթակի կառավարման հ�
 2. Bookings  
 3. Waitlists  
 4. Clients  
-5. Coaches  
-6. Schedule  
-7. Packages  
-8. Gift Cards  
-9. Finance  
-10. Analytics  
-11. Notification  
-12. Settings  
+5. Coaches
+6. Manager
+7. Schedule
+8. Packages
+9. Gift Cards
+10. Finance
+11. Analytics
+12. Notification
+13. Settings  
     Feedback  
     Guest users
 

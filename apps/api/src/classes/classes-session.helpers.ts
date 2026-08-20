@@ -2,8 +2,8 @@ import { BadRequestException } from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
+  Prisma,
   type ClassSession,
-  type Prisma,
   type ScheduleDayOfWeek,
 } from '@prisma/client';
 import type { CreateSessionBatchDto } from './dto/create-session-batch.dto';
@@ -46,19 +46,30 @@ export type ClassSessionWithRecurrence = ClassSession & {
   recurrenceCount: number | null;
 };
 
-export const ADMIN_SESSION_INCLUDE = {
-  classType: true,
-  coach: {
-    include: {
-      user: { select: { name: true, lastName: true } },
+export const ADMIN_SESSION_INCLUDE =
+  Prisma.validator<Prisma.ClassSessionInclude>()({
+    classType: true,
+    coach: {
+      include: {
+        user: { select: { name: true, lastName: true } },
+      },
     },
-  },
-  _count: {
-    select: {
-      bookings: { where: { status: BookingStatus.BOOKED } },
+    _count: {
+      select: {
+        bookings: {
+          where: {
+            status: {
+              in: [
+                BookingStatus.BOOKED,
+                BookingStatus.COMPLETED,
+                BookingStatus.MISSED,
+              ],
+            },
+          },
+        },
+      },
     },
-  },
-} as const;
+  });
 
 export type AdminSessionRow = Prisma.ClassSessionGetPayload<{
   include: typeof ADMIN_SESSION_INCLUDE;
@@ -267,21 +278,57 @@ function emptyRecurrencePayload(): SessionRecurrencePayload {
   };
 }
 
+export function resolveAdminSessionStatus(params: {
+  status: ClassSessionStatus;
+  endsAt: Date;
+  bookedCount: number;
+  capacity: number;
+  now?: Date;
+}): ClassSessionStatus {
+  const { status, endsAt, bookedCount, capacity } = params;
+  if (
+    status === ClassSessionStatus.CANCELLED ||
+    status === ClassSessionStatus.DRAFT ||
+    status === ClassSessionStatus.FINISHED
+  ) {
+    return status;
+  }
+
+  const now = params.now ?? new Date();
+  if (endsAt.getTime() <= now.getTime()) {
+    return ClassSessionStatus.FINISHED;
+  }
+
+  if (
+    (status === ClassSessionStatus.ACTIVE ||
+      status === ClassSessionStatus.FULL) &&
+    bookedCount >= capacity
+  ) {
+    return ClassSessionStatus.FULL;
+  }
+
+  return status;
+}
+
 export function mapAdminSessionRows(
   sessions: Array<
     AdminSessionRow & {
       status: ClassSessionStatus;
+      endsAt: Date;
       _count: { bookings: number };
       capacity: number;
     }
   >,
+  now: Date = new Date(),
 ): AdminSessionRow[] {
   return sessions.map((session) => ({
     ...session,
-    status:
-      session.status === ClassSessionStatus.ACTIVE &&
-      session._count.bookings >= session.capacity
-        ? ClassSessionStatus.FULL
-        : session.status,
+    status: resolveAdminSessionStatus({
+      status: session.status,
+      endsAt: session.endsAt,
+      bookedCount: session._count.bookings,
+      capacity: session.capacity,
+      now,
+    }),
   }));
 }

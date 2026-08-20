@@ -187,6 +187,7 @@ Manager panel-ը **partial/read-only** է admin-ի համեմատ (inline commen
 | `/admin/waitlists` | waitlists |
 | `/admin/clients` | clients |
 | `/admin/coaches` | coaches |
+| `/admin/managers` | managers |
 | `/admin/schedule` | schedule |
 | `/admin/packages` | packages |
 | `/admin/gift-cards` | giftCards |
@@ -284,6 +285,7 @@ Manager panel-ը **partial/read-only** է admin-ի համեմատ (inline commen
 | `/admin/waitlists` | Waitlist management | Complete |
 | `/admin/clients` | Client CRM, notes, filters | Complete |
 | `/admin/coaches` | Coach directory, schedule | Complete |
+| `/admin/managers` | Manager staff directory, invite, block | Complete |
 | `/admin/schedule` | Session CRUD, calendar views | Complete |
 | `/admin/packages` | Package plan management | Complete |
 | `/admin/gift-cards` | Gift card batches, assign | Complete |

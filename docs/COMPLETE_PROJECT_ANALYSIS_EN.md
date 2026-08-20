@@ -270,6 +270,7 @@ All routes below are under `/{locale}/` unless noted. **96 `page.tsx` files** ex
 | `/{locale}/admin/waitlists` | Full waitlist management |
 | `/{locale}/admin/clients` | CRM — block, delete, notes, tabbed history |
 | `/{locale}/admin/coaches` | Coach CRUD, photo, class type assignment |
+| `/{locale}/admin/managers` | Manager staff directory: invite, edit, block, delete |
 | `/{locale}/admin/schedule` | Session CRUD, batch recurrence, class types |
 | `/{locale}/admin/packages` | Package plan CRUD, categories, assign to users |
 | `/{locale}/admin/memberships` | Alias → packages |

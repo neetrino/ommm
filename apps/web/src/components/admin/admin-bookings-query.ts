@@ -48,7 +48,7 @@ export function parseAdminBookingPaymentFilter(
 export type AdminBookingSessionSlot = {
   id: string;
   title: string;
-  status: "DRAFT" | "ACTIVE" | "FULL" | "CANCELLED";
+  status: "DRAFT" | "ACTIVE" | "FULL" | "FINISHED" | "CANCELLED";
   startsAt: string;
   endsAt: string;
   capacity: number;

@@ -4,7 +4,7 @@ import type { ScheduleListFilterState } from "@/components/admin/admin-schedule-
 import type { SessionSortOrder } from "@/lib/list-sort";
 import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
 
-export type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+export type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT" | "FINISHED";
 
 export type ScheduleDayOfWeek =
   | "SUNDAY"

@@ -38,6 +38,16 @@ describe("dashboard-nav manager parity", () => {
     });
   });
 
+  it("ADMIN_NAV places Manager after Coaches and before Schedule", () => {
+    const hrefs = dashboardNavDefinitionsForRole("ADMIN").map((item) => item.href);
+    const coachesIndex = hrefs.indexOf("/admin/coaches");
+    const managersIndex = hrefs.indexOf("/admin/managers");
+    const scheduleIndex = hrefs.indexOf("/admin/schedule");
+    assert.ok(coachesIndex >= 0);
+    assert.ok(managersIndex === coachesIndex + 1);
+    assert.ok(scheduleIndex === managersIndex + 1);
+  });
+
   it("manager schedule uses calendar icon like admin", () => {
     const schedule = dashboardNavDefinitionsForRole("MANAGER").find(
       (item) => item.href === "/manager/schedule",

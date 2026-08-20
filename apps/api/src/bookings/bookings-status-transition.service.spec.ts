@@ -1,4 +1,4 @@
-import { BookingStatus } from '@prisma/client';
+import { BookingStatus, ClassSessionStatus } from '@prisma/client';
 import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 
 describe('BookingsStatusTransitionService', () => {
@@ -8,6 +8,9 @@ describe('BookingsStatusTransitionService', () => {
     const prisma = {
       booking: {
         updateMany: jest.fn().mockResolvedValue({ count: 3 }),
+      },
+      classSession: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
     };
     const service = new BookingsStatusTransitionService(prisma as never);
@@ -32,9 +35,35 @@ describe('BookingsStatusTransitionService', () => {
       booking: {
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
+      classSession: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
     };
     const service = new BookingsStatusTransitionService(prisma as never);
 
     await expect(service.completePastBookedSessions(now)).resolves.toBe(0);
+  });
+
+  it('marks ended ACTIVE and FULL class sessions as FINISHED', async () => {
+    const prisma = {
+      booking: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
+      classSession: {
+        updateMany: jest.fn().mockResolvedValue({ count: 2 }),
+      },
+    };
+    const service = new BookingsStatusTransitionService(prisma as never);
+
+    await expect(service.finishPastClassSessions(now)).resolves.toBe(2);
+    expect(prisma.classSession.updateMany).toHaveBeenCalledWith({
+      where: {
+        endsAt: { lte: now },
+        status: {
+          in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL],
+        },
+      },
+      data: { status: ClassSessionStatus.FINISHED },
+    });
   });
 });

@@ -5,6 +5,10 @@ import {
   Role,
   SessionReviewStatus,
 } from '@prisma/client';
+import {
+  SessionListOrder,
+  sortRowsBySessionStartsAt,
+} from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import { toUserPackageFreezeApi } from '../packages/packages-freeze.mapper';
 import { resumeDueFreezes } from '../packages/packages-freeze.resume';
@@ -138,18 +142,17 @@ export class ClientsTabListsService {
     offset: number,
   ): Promise<ClientBookingsPage> {
     await this.assertClientExists(userId);
-    const where = { userId };
-    const [total, items] = await Promise.all([
-      this.prisma.booking.count({ where }),
-      this.prisma.booking.findMany({
-        where,
-        include: bookingInclude,
-        orderBy: { createdAt: 'desc' },
-        skip: offset,
-        take,
-      }),
-    ]);
-    return { items, total, take, offset };
+    const rows = await this.prisma.booking.findMany({
+      where: { userId },
+      include: bookingInclude,
+    });
+    const sorted = sortRowsBySessionStartsAt(rows, SessionListOrder.UPCOMING);
+    return {
+      items: sorted.slice(offset, offset + take),
+      total: sorted.length,
+      take,
+      offset,
+    };
   }
 
   async listPayments(

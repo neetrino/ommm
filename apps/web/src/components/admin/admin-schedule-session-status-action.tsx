@@ -30,7 +30,8 @@ export function AdminScheduleSessionStatusAction({
   const [busy, setBusy] = useState(false);
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
   const isCancelled = status === "CANCELLED";
-  const isDisabled = disabled || busy;
+  const isFinished = status === "FINISHED";
+  const isDisabled = disabled || busy || isFinished;
 
   useEffect(() => {
     onBusyChange?.(busy);
@@ -96,6 +97,7 @@ export function AdminScheduleSessionStatusAction({
 
   return (
     <>
+      {isFinished ? null : (
       <OmmButton
         type="button"
         size="sm"
@@ -105,6 +107,7 @@ export function AdminScheduleSessionStatusAction({
       >
         {busy ? t("savingButton") : isCancelled ? t("activateAction") : t("cancelAction")}
       </OmmButton>
+      )}
 
       <OmmConfirmDialog
         isOpen={pendingConfirm !== null}

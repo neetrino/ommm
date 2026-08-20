@@ -1,4 +1,4 @@
-type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT" | "FINISHED";
 
 export const ADMIN_SCHEDULE_LEVEL_BADGE_CLASS =
   "inline-flex max-w-full shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]";
@@ -34,6 +34,9 @@ export function sessionStatusBadgeTone(status: SessionStatus): string {
   }
   if (status === "FULL") {
     return "bg-rose-100 text-rose-800";
+  }
+  if (status === "FINISHED") {
+    return "bg-sky-100 text-sky-900";
   }
   return "bg-zinc-100 text-zinc-700";
 }

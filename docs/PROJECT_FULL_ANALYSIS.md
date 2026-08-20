@@ -297,6 +297,7 @@ Member shell-ում `@sheet` parallel route-ներ intercept են անում nav
 | `/admin/waitlists` | Waitlist management (promote, notify, remove) | Էջ |
 | `/admin/clients` | Client CRM, notes, filters, block | Էջ |
 | `/admin/coaches` | Coach directory, schedule, CRUD | Էջ |
+| `/admin/managers` | Manager staff directory, invite, block, delete | Էջ |
 | `/admin/schedule` | Session CRUD, calendar views, recurrence | Էջ |
 | `/admin/packages` | Package plan management | Էջ |
 | `/admin/gift-cards` | Gift card batches, assign, deactivate | Էջ |
@@ -320,7 +321,7 @@ Member shell-ում `@sheet` parallel route-ներ intercept են անում nav
 | `/admin/reports` | Redirect → `/admin/analytics` | Redirect |
 | `/admin/memberships` | Redirect → `/admin/packages` | Redirect |
 
-**Admin sidebar:** Dashboard, Bookings, Waitlists, Clients, Coaches, Schedule, Packages, Gift Cards, Finance, Analytics, Notifications, Content, Settings, Guest Users
+**Admin sidebar:** Dashboard, Bookings, Waitlists, Calls, Clients, Coaches, Manager, Schedule, Packages, Gift Cards, Finance, Analytics, Notifications, Content, Settings, Guest Users
 
 ### 6.7. Coach (COACH)
 

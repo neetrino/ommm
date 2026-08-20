@@ -794,11 +794,11 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .ommm-admin-nav-list {
-    @apply relative flex flex-col gap-0.5 py-2;
+    @apply relative flex flex-col gap-0 py-0;
   }
 
   .ommm-admin-nav-divider {
-    @apply mx-6 my-3 border-t;
+    @apply mx-6 my-2 border-t;
     border-color: rgba(251, 245, 213, 0.16);
   }
 

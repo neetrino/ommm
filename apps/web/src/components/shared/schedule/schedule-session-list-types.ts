@@ -1,6 +1,6 @@
 /** Shared row shape for staff schedule session lists (admin, coach, manager). */
 
-export type ScheduleSessionListStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+export type ScheduleSessionListStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT" | "FINISHED";
 
 export type ScheduleSessionListRow = {
   id: string;

@@ -80,7 +80,11 @@ export class WaitlistAdminService {
       );
     }
     const session = entry.session;
-    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+    if (
+      !session ||
+      session.status === ClassSessionStatus.CANCELLED ||
+      session.status === ClassSessionStatus.FINISHED
+    ) {
       throw new NotFoundException('Session not found');
     }
     const booked = await this.capacity.bookedCount(session.id);

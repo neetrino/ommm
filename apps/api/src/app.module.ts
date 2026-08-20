@@ -19,6 +19,7 @@ import { ContentModule } from './content/content.module';
 import { GiftCardsModule } from './gift-cards/gift-cards.module';
 import { JobsModule } from './jobs/jobs.module';
 import { MailModule } from './mail/mail.module';
+import { ManagersModule } from './managers/managers.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -102,6 +103,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     ReportsModule,
     NotificationsModule,
     ClientsModule,
+    ManagersModule,
     CallTasksModule,
     SessionReviewsModule,
     ScheduleItemsModule,
