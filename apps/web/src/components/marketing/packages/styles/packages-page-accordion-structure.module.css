@@ -125,12 +125,22 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(151, 144, 124, 0.55) transparent;
 }
 
 .expandedBody[data-tier-scroll="enabled"]::-webkit-scrollbar {
-  display: none;
+  width: 0.4rem;
+}
+
+.expandedBody[data-tier-scroll="enabled"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.expandedBody[data-tier-scroll="enabled"]::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(151, 144, 124, 0.45);
 }
 
 .expandedBodyInner {

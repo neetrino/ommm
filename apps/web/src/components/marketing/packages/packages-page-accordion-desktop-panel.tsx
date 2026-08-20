@@ -27,7 +27,9 @@ export function PackagesPageAccordionDesktopPanel({
 }: DesktopAccordionPanelProps) {
   const isExpanded = mode === "expanded";
   const isIdle = mode === "idle";
-  const tierScrollEnabled = category.plans.length > PACKAGES_PAGE_VISIBLE_TIER_COUNT;
+  /** Scroll when 5+ tiers — 5th row often clips without a scroll viewport. */
+  const tierScrollEnabled =
+    category.plans.length >= PACKAGES_PAGE_VISIBLE_TIER_COUNT;
 
   const panelClassName = isIdle
     ? `${cardStyles.card} ${accordionStyles.desktopAccordionPanel}`

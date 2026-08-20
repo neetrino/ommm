@@ -32,8 +32,7 @@ export const PACKAGE_SUBSCRIBE_FORM_CLASS =
 export const PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS =
   "min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-y-contain pe-1";
 
-export const PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS =
-  "shrink-0 border-t border-white/50 bg-white/40 pt-4 backdrop-blur-[2px]";
+export const PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS = "shrink-0 pt-4";
 
 export const PACKAGE_SUBSCRIBE_FORM_GRID_CLASS =
   "grid min-h-0 flex-1 grid-cols-1 gap-4 tablet:grid-cols-2";
