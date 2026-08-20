@@ -32,6 +32,10 @@ export class GiftCardsService {
     return this.client.listMarketBatches();
   }
 
+  searchGiftRecipients(actorId: string, query: string) {
+    return this.client.searchGiftRecipients(actorId, query);
+  }
+
   redeem(userId: string, code: string) {
     return this.client.redeem(userId, code);
   }

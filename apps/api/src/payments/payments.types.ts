@@ -13,6 +13,7 @@ export type InternalPaymentSource =
   (typeof INTERNAL_PAYMENT_SOURCE)[keyof typeof INTERNAL_PAYMENT_SOURCE];
 
 export type PaymentMetadata = {
+  recipientId?: string;
   recipientName?: string;
   recipientEmail?: string;
   message?: string;

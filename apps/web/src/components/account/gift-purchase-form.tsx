@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import {
   GiftMarketCardDetailsSheet,
   type GiftMarketCardPreview,
+  type GiftPurchaseIntent,
 } from "@/components/account/gift-market-card-details-sheet";
 import { GIFT_CARD_BOARD_GRID_CLASS } from "@/components/account/user-gift-card-tile-layout";
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
@@ -64,22 +65,24 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
     };
   }, [t]);
 
-  async function onBuy(item: GiftMarketCardPreview) {
-    setBusyBatchId(item.id);
+  async function onBuy(intent: GiftPurchaseIntent) {
+    const { card, recipient } = intent;
+    setBusyBatchId(card.id);
     setStatus(null);
     try {
-      const payment = await apiFetch<PendingPaymentResponse>(
-        "/payments/checkout/gift",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            batchId: item.id,
-            amountCents: item.amountCents,
-          }),
-        },
-      );
+      const body: Record<string, string | number> = {
+        batchId: card.id,
+        amountCents: card.amountCents,
+      };
+      if (recipient !== null) {
+        body.recipientId = recipient.id;
+      }
+      const payment = await apiFetch<PendingPaymentResponse>("/payments/checkout/gift", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
       const params = new URLSearchParams({
-        amountCents: item.amountCents.toString(),
+        amountCents: card.amountCents.toString(),
       });
       if (payment.paymentReference !== null) {
         params.set("reference", payment.paymentReference);
@@ -115,7 +118,6 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
             locale={locale}
             busy={busyBatchId !== null}
             onOpen={() => setSelectedId(item.id)}
-            onBuy={onBuy}
           />
         ))}
       </div>
@@ -125,8 +127,8 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
         locale={locale}
         busy={busyBatchId !== null}
         onClose={() => setSelectedId(null)}
-        onBuy={(card) => {
-          void onBuy(card);
+        onBuy={(intent) => {
+          void onBuy(intent);
         }}
       />
     </div>
@@ -138,13 +140,11 @@ function PurchaseGiftCardPreview({
   locale,
   busy,
   onOpen,
-  onBuy,
 }: {
   item: GiftMarketCardPreview;
   locale: string;
   busy: boolean;
   onOpen: () => void;
-  onBuy: (item: GiftMarketCardPreview) => Promise<void>;
 }) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const giftCardsT = useTranslations("userPages.giftCards");
@@ -180,7 +180,7 @@ function PurchaseGiftCardPreview({
           variant="primary"
           size="sm"
           disabled={busy || item.availableQuantity <= 0}
-          onClick={() => void onBuy(item)}
+          onClick={onOpen}
         >
           {t("buyGiftCard")}
         </OmmButton>

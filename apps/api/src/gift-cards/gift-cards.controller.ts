@@ -27,6 +27,7 @@ import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
 import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
+import { ListGiftRecipientsQueryDto } from './dto/list-gift-recipients-query.dto';
 import { GIFT_CARD_IMAGE_MAX_BYTES } from './gift-card-image.constants';
 import { GiftCardsService } from './gift-cards.service';
 
@@ -50,6 +51,15 @@ export class GiftCardsController {
     @Query() query: ListMyGiftCardsQueryDto,
   ) {
     return this.giftCards.listReceived(user.id, query);
+  }
+
+  @Get('recipients')
+  @UseGuards(JwtAuthGuard)
+  recipients(
+    @CurrentUser() user: { id: string },
+    @Query() query: ListGiftRecipientsQueryDto,
+  ) {
+    return this.giftCards.searchGiftRecipients(user.id, query.q ?? '');
   }
 
   @Post('redeem')

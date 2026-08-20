@@ -41,6 +41,7 @@ export class PaymentsController {
       purchaserId: user.id,
       batchId: body.batchId,
       amountCents: amountAmd,
+      recipientId: body.recipientId,
       recipientName: body.recipientName,
       recipientEmail: body.recipientEmail,
       message: body.message,

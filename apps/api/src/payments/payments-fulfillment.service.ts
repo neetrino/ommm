@@ -209,6 +209,7 @@ export class PaymentsFulfillmentService {
     const code = randomBytes(8).toString('hex').toUpperCase();
     const recipientEmail =
       metadata.recipientEmail || selectedBatch?.recipientEmail || undefined;
+    const recipientId = metadata.recipientId || undefined;
     await tx.giftCard.create({
       data: {
         batchId: selectedBatch?.id,
@@ -218,6 +219,7 @@ export class PaymentsFulfillmentService {
         imageUrl: selectedBatch?.imageUrl ?? undefined,
         status: GiftCardStatus.ACTIVE,
         purchaserId: payment.userId,
+        recipientId,
         recipientName:
           metadata.recipientName || selectedBatch?.recipientName || undefined,
         recipientEmail,
