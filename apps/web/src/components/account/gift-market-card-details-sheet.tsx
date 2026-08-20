@@ -10,6 +10,7 @@ import {
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
+  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
@@ -185,16 +186,18 @@ function GiftMarketCardDetailsSheetInner({
             {recipientError}
           </p>
         ) : null}
-
-        <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:justify-end">
-          <OmmButton type="button" variant="secondary" disabled={busy} onClick={handleClose}>
-            {tPurchase("closeDetails")}
-          </OmmButton>
-          <OmmButton type="button" variant="primary" disabled={!canBuy} onClick={handleBuy}>
-            {tPurchase("buyAsGift")}
-          </OmmButton>
-        </div>
       </div>
+
+      <footer
+        className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} flex flex-col gap-3 sm:flex-row sm:justify-end`}
+      >
+        <OmmButton type="button" variant="secondary" disabled={busy} onClick={handleClose}>
+          {tPurchase("closeDetails")}
+        </OmmButton>
+        <OmmButton type="button" variant="primary" disabled={!canBuy} onClick={handleBuy}>
+          {tPurchase("buyAsGift")}
+        </OmmButton>
+      </footer>
     </OmmDrawerPortal>
   );
 }
