@@ -169,9 +169,11 @@ export async function createPendingCardPackagePurchase(
   },
 ): Promise<PendingCardPackagePurchase> {
   const paymentReference = createPaymentReference('PACKAGE');
-  const giftCreditsAppliedCents = Math.max(0, params.giftCreditsAppliedCents ?? 0);
-  const amountCents =
-    params.chargeCents ?? resolveFinalPriceCents(params.plan);
+  const giftCreditsAppliedCents = Math.max(
+    0,
+    params.giftCreditsAppliedCents ?? 0,
+  );
+  const amountCents = params.chargeCents ?? resolveFinalPriceCents(params.plan);
   const payment = await tx.payment.create({
     data: {
       userId: params.userId,

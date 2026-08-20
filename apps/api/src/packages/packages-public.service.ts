@@ -6,10 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  ManualPaymentMethod,
-  type PackagePlan,
-} from '@prisma/client';
+import { ManualPaymentMethod, type PackagePlan } from '@prisma/client';
 import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
@@ -139,7 +136,12 @@ export class PackagesPublicService {
     const useGiftCredits = dto.useGiftCredits === true;
     const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
     if (isCardPayment && isArcaCheckoutEnabled(this.config)) {
-      return this.subscribeCardWithArca(userId, plan, dto.locale, useGiftCredits);
+      return this.subscribeCardWithArca(
+        userId,
+        plan,
+        dto.locale,
+        useGiftCredits,
+      );
     }
     return this.subscribeWithoutArcaRedirect(
       userId,

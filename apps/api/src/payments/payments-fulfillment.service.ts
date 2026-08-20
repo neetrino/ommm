@@ -166,7 +166,9 @@ export class PaymentsFulfillmentService {
       where: { id: payment.id },
       data: { sourceId: userPackage.id },
     });
-    const giftCreditsAppliedCents = readGiftCreditsAppliedCents(payment.metadata);
+    const giftCreditsAppliedCents = readGiftCreditsAppliedCents(
+      payment.metadata,
+    );
     await recordGiftCreditSpendPayment(tx, {
       userId: payment.userId,
       appliedCents: giftCreditsAppliedCents,

@@ -38,18 +38,21 @@ export function GiftRecipientPicker({
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setDebouncedQuery(query.trim());
+      const nextQuery = query.trim();
+      setDebouncedQuery(nextQuery);
+      if (nextQuery.length < RECIPIENT_SEARCH_MIN_CHARS) {
+        requestIdRef.current += 1;
+        setResults([]);
+        setError(null);
+        setLoading(false);
+        setListOpen(false);
+      }
     }, RECIPIENT_SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
   }, [query]);
 
   useEffect(() => {
     if (debouncedQuery.length < RECIPIENT_SEARCH_MIN_CHARS) {
-      requestIdRef.current += 1;
-      setResults([]);
-      setError(null);
-      setLoading(false);
-      setListOpen(false);
       return;
     }
 
@@ -108,10 +111,11 @@ export function GiftRecipientPicker({
     setListOpen(false);
   }
 
+  const searchActive = debouncedQuery.length >= RECIPIENT_SEARCH_MIN_CHARS;
   const showResultsPanel =
     selected === null &&
     listOpen &&
-    (loading || error !== null || debouncedQuery.length >= RECIPIENT_SEARCH_MIN_CHARS);
+    (loading || error !== null || searchActive);
 
   return (
     <section className="rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5">
@@ -159,7 +163,7 @@ export function GiftRecipientPicker({
                   setListOpen(true);
                 }}
                 onFocus={() => {
-                  if (debouncedQuery.length >= RECIPIENT_SEARCH_MIN_CHARS) {
+                  if (searchActive) {
                     setListOpen(true);
                   }
                 }}

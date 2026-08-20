@@ -128,7 +128,8 @@ export class PaymentsCheckoutService {
     return {
       recipientId: recipient.id,
       recipientEmail: recipient.email,
-      recipientName: displayName.length > 0 ? displayName : params.recipientName,
+      recipientName:
+        displayName.length > 0 ? displayName : params.recipientName,
     };
   }
 

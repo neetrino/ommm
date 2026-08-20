@@ -242,4 +242,3 @@ export async function resolvePendingCardPackagePurchase(
       resolved.created && canonical.paymentId === resolved.purchase.paymentId,
   };
 }
-

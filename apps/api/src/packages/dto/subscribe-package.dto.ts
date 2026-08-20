@@ -34,7 +34,9 @@ export class SubscribePackageDto {
 
   /** Apply available gift-card wallet credit toward this package price. */
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) => value === true || value === 'true')
+  @Transform(
+    ({ value }: { value: unknown }) => value === true || value === 'true',
+  )
   @IsBoolean()
   useGiftCredits?: boolean;
 }
