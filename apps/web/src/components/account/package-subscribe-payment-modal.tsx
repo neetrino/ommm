@@ -251,7 +251,7 @@ function PackageSubscribePaymentModalSession({
       <SuccessPanel onDone={onCloseSheet} />
     ) : (
       <form onSubmit={(event) => void onConfirm(event)} className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
-        <div className={PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS}>
+        <div className={`${PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS} ${formStyles.formScroll}`}>
           <PackageSubscribePlanPicker
             plans={plans}
             selectedPlanId={selectedPlan.id}
