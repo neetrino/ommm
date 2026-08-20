@@ -94,4 +94,13 @@ describe('manager-permission.matrix', () => {
       roleAllows(MANAGER_PERMISSION_MATRIX.callTasks.write, Role.ADMIN),
     ).toBe(true);
   });
+
+  it('keeps manager staff directory Admin-only', () => {
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.managers.manage, Role.MANAGER),
+    ).toBe(false);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.managers.manage, Role.ADMIN),
+    ).toBe(true);
+  });
 });

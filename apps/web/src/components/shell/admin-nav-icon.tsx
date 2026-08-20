@@ -8,6 +8,7 @@ type AdminNavIconProps = {
 const SLUG_SIZE_CLASS: Partial<Record<AdminNavIconSlug, string>> = {
   guestUsers: "h-5 w-5",
   coaches: "h-[18px] w-[23px]",
+  managers: "h-[18px] w-[20px]",
   clients: "h-[15px] w-5",
   giftCards: "h-5 w-5",
   schedule: "h-[19px] w-[17px]",
