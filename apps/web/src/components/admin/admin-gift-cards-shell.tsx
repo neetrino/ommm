@@ -281,8 +281,6 @@ function AdminGiftCardsShellInner({
                           1,
                           editingBatch.totalQuantity - editingBatch.availableQuantity,
                         ),
-                        recipientEmail: editingBatch.recipientEmail ?? "",
-                        recipientName: editingBatch.recipientName ?? "",
                         message: editingBatch.message ?? "",
                         expiresAt: editingBatch.expiresAt ?? "",
                       }

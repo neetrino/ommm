@@ -20,10 +20,6 @@ type AdminCreateGiftCardFormFieldsProps = {
   setShowAssignedUser: React.Dispatch<React.SetStateAction<boolean>>;
   recipientId: string;
   setRecipientId: (value: string) => void;
-  recipientEmail: string;
-  setRecipientEmail: (value: string) => void;
-  recipientName: string;
-  setRecipientName: (value: string) => void;
   message: string;
   setMessage: (value: string) => void;
   expiresAt: string;
@@ -50,10 +46,6 @@ export function AdminCreateGiftCardFormFields({
   setShowAssignedUser,
   recipientId,
   setRecipientId,
-  recipientEmail,
-  setRecipientEmail,
-  recipientName,
-  setRecipientName,
   message,
   setMessage,
   expiresAt,
@@ -92,14 +84,12 @@ export function AdminCreateGiftCardFormFields({
                 const next = !current;
                 if (!next) {
                   setRecipientId("");
-                  setRecipientEmail("");
-                  setRecipientName("");
                 }
                 return next;
               });
             }}
           >
-            Assigne user
+            {t("showAssignedUserButton")}
           </OmmButton>
         </div>
         {showAssignedUser ? (
@@ -116,28 +106,6 @@ export function AdminCreateGiftCardFormFields({
               searchPlaceholder={t("actions.assignSearchPlaceholder")}
               noResultsLabel={t("actions.assignSearchEmpty")}
             />
-            <label className="flex flex-col gap-1">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientEmail")}</span>
-              <input
-                type="email"
-                className="ommm-input"
-                placeholder={t("fieldRecipientEmailPlaceholder")}
-                value={recipientEmail}
-                onChange={(event) => setRecipientEmail(event.target.value)}
-                disabled={busy}
-              />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientName")}</span>
-              <input
-                type="text"
-                className="ommm-input"
-                placeholder={t("fieldRecipientNamePlaceholder")}
-                value={recipientName}
-                onChange={(event) => setRecipientName(event.target.value)}
-                disabled={busy}
-              />
-            </label>
             <label className="flex flex-col gap-1">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldMessage")}</span>
               <textarea

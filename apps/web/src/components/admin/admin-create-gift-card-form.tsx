@@ -44,8 +44,6 @@ export function AdminCreateGiftCardForm({
       : 0;
   const [showAssignedUser, setShowAssignedUser] = useState(false);
   const [recipientId, setRecipientId] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState(initialValues?.recipientEmail ?? "");
-  const [recipientName, setRecipientName] = useState(initialValues?.recipientName ?? "");
   const [message, setMessage] = useState(initialValues?.message ?? "");
   const [expiresAt, setExpiresAt] = useState(initialValues?.expiresAt ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -163,8 +161,6 @@ export function AdminCreateGiftCardForm({
             amountAmd: parsedAmountAmd,
             quantity: parsedQuantity,
             recipientId: recipientId.trim().length > 0 ? recipientId.trim() : undefined,
-            recipientEmail: recipientEmail.trim().length > 0 ? recipientEmail.trim() : undefined,
-            recipientName: recipientName.trim().length > 0 ? recipientName.trim() : undefined,
             message: message.trim().length > 0 ? message.trim() : undefined,
             expiresAt: expiresAt.trim().length > 0 ? expiresAt.trim() : undefined,
           }),
@@ -178,12 +174,6 @@ export function AdminCreateGiftCardForm({
       formData.append("quantity", String(parsedQuantity));
       if (recipientId.trim().length > 0) {
         formData.append("recipientId", recipientId.trim());
-      }
-      if (recipientEmail.trim().length > 0) {
-        formData.append("recipientEmail", recipientEmail.trim());
-      }
-      if (recipientName.trim().length > 0) {
-        formData.append("recipientName", recipientName.trim());
       }
       if (message.trim().length > 0) {
         formData.append("message", message.trim());
@@ -223,10 +213,6 @@ export function AdminCreateGiftCardForm({
         setShowAssignedUser={setShowAssignedUser}
         recipientId={recipientId}
         setRecipientId={setRecipientId}
-        recipientEmail={recipientEmail}
-        setRecipientEmail={setRecipientEmail}
-        recipientName={recipientName}
-        setRecipientName={setRecipientName}
         message={message}
         setMessage={setMessage}
         expiresAt={expiresAt}
