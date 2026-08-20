@@ -157,7 +157,11 @@ export function AdminSessionRegistrationsModal({
         ) : (
           <ul className="max-h-[min(50vh,24rem)] space-y-2 overflow-y-auto pr-1">
             {rows.map((row) => {
-              const displayName = userDisplayName(row.user.name, null, row.user.email);
+              const displayName = userDisplayName(
+                row.user.name,
+                row.user.lastName,
+                row.user.email,
+              );
               const outcome = sessionRegistrationOutcome(row.status);
               return (
                 <li

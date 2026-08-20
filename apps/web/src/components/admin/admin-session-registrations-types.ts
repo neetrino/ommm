@@ -5,6 +5,7 @@ export type SessionRegistrationRow = {
   user: {
     id: string;
     name: string | null;
+    lastName: string | null;
     email: string;
     phone: string | null;
   };

@@ -39,7 +39,9 @@ export class BookingsAdminListService {
         ...(sessionFilter && { session: sessionFilter }),
       },
       include: {
-        user: { select: { id: true, name: true, email: true, phone: true } },
+        user: {
+          select: { id: true, name: true, lastName: true, email: true, phone: true },
+        },
         session: {
           include: {
             classType: true,

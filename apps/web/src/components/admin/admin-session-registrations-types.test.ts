@@ -12,7 +12,13 @@ function row(status: string): SessionRegistrationRow {
     id: "b1",
     status,
     createdAt: "2026-08-20T08:00:00.000Z",
-    user: { id: "u1", name: "Anna", email: "anna@example.com", phone: null },
+    user: {
+      id: "u1",
+      name: "Anna",
+      lastName: "Hakobyan",
+      email: "anna@example.com",
+      phone: null,
+    },
   };
 }
 

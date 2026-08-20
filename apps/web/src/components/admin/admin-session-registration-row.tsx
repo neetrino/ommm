@@ -52,7 +52,11 @@ export function AdminSessionRegistrationRow({
   onCancel,
 }: AdminSessionRegistrationRowProps) {
   const t = useTranslations("adminPages.classes.registrationsModal");
-  const displayName = userDisplayName(row.user.name, null, row.user.email);
+  const displayName = userDisplayName(
+    row.user.name,
+    row.user.lastName,
+    row.user.email,
+  );
   const registeredLabel = t("registeredAt", {
     date: formatDateTimeForUi(row.createdAt, locale),
   });
