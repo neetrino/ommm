@@ -113,8 +113,8 @@ export function AdminCreateGiftCardFormFields({
               disabled={busy}
               wrapLabel
               searchable
-              searchPlaceholder={t("assignSearchPlaceholder")}
-              noResultsLabel={t("assignSearchEmpty")}
+              searchPlaceholder={t("actions.assignSearchPlaceholder")}
+              noResultsLabel={t("actions.assignSearchEmpty")}
             />
             <label className="flex flex-col gap-1">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientEmail")}</span>
