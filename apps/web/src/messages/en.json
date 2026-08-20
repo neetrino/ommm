@@ -1254,6 +1254,7 @@
       },
       "checkout": {
         "lead": "Choose a payment method. Card payments are processed on the secure Arca page.",
+        "cardLead": "Card payments are processed on the secure Arca page.",
         "amountLabel": "Amount",
         "referenceLabel": "Payment reference",
         "missingAmount": "Unavailable",
