@@ -129,17 +129,17 @@ export function DatePickerCalendarPopup({
           const isDisabled = minDate !== undefined && isBeforeCalendarDate(day, minDate);
           const isWeekend = day.getDay() === 0 || day.getDay() === 6;
 
-          const textTone = isDisabled
-            ? "text-sage-300"
-            : !isInCurrentMonth
-              ? "text-sage-400"
-              : isSelected
-                ? "text-white"
+          const textTone = isSelected
+            ? "text-white"
+            : isDisabled
+              ? "text-sage-300"
+              : !isInCurrentMonth
+                ? "text-sage-400"
                 : isWeekend
                   ? "text-rose-500"
                   : "text-sage-900";
 
-          const backgroundTone = isSelected && !isDisabled ? "bg-[#2f39a6]" : "bg-transparent";
+          const backgroundTone = isSelected ? "bg-[#2f39a6]" : "bg-transparent";
           const todayRing =
             isToday && !isSelected ? "ring-1 ring-sand-500/35 ring-inset" : "";
           const mutedOldMonthTone = !isInCurrentMonth || isDisabled ? "opacity-65" : "";

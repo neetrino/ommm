@@ -228,6 +228,7 @@ export function AdminCreateGiftCardFormFields({
           ariaLabel={t("fieldExpiration")}
           value={expiresAt}
           onChange={setExpiresAt}
+          disablePastDates
           disabled={busy}
         />
       </label>

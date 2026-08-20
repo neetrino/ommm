@@ -42,6 +42,8 @@ export type DatePickerInputProps = {
   showCalendarTrigger?: boolean;
   /** Dates before this calendar day cannot be selected. */
   minDate?: Date;
+  /** Shortcut for `minDate` = today (local calendar day). */
+  disablePastDates?: boolean;
 };
 
 export type DatePickerInputHandle = {
@@ -69,6 +71,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       containerClassName = "",
       showCalendarTrigger = true,
       minDate,
+      disablePastDates = false,
     },
     ref,
   ) {
@@ -127,6 +130,16 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }, []);
+
+  const resolvedMinDate = useMemo(() => {
+    if (disablePastDates) {
+      return today;
+    }
+    if (minDate === undefined) {
+      return undefined;
+    }
+    return new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+  }, [disablePastDates, minDate, today]);
 
   const resolvedManualDisplay = useMemo(() => {
     if (value.trim().length === 0) {
@@ -233,9 +246,21 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
         return;
       }
       const iso = parseBirthdayDisplayToIso(trimmed);
-      onChange(iso ?? "");
+      if (iso === null) {
+        onChange("");
+        return;
+      }
+      const parsed = parseIsoDate(iso);
+      if (
+        parsed !== null &&
+        resolvedMinDate !== undefined &&
+        isBeforeCalendarDate(parsed, resolvedMinDate)
+      ) {
+        return;
+      }
+      onChange(iso);
     },
-    [onChange],
+    [onChange, resolvedMinDate],
   );
 
   const calendarPopup =
@@ -247,6 +272,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
             visibleMonth={visibleMonth}
             selectedDate={selectedDate}
             today={today}
+            minDate={resolvedMinDate}
             onPrevMonth={() => {
               setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
             }}
@@ -254,6 +280,14 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
               setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
             }}
             onSelectDate={(isoDate) => {
+              const parsed = parseIsoDate(isoDate);
+              if (
+                parsed !== null &&
+                resolvedMinDate !== undefined &&
+                isBeforeCalendarDate(parsed, resolvedMinDate)
+              ) {
+                return;
+              }
               onChange(isoDate);
               closePicker();
             }}
@@ -262,6 +296,12 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
               closePicker();
             }}
             onSelectToday={() => {
+              if (
+                resolvedMinDate !== undefined &&
+                isBeforeCalendarDate(today, resolvedMinDate)
+              ) {
+                return;
+              }
               onChange(formatIsoDate(today));
               setVisibleMonth(startOfMonth(today));
               closePicker();
