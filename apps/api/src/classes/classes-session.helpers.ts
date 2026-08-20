@@ -2,8 +2,8 @@ import { BadRequestException } from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
+  Prisma,
   type ClassSession,
-  type Prisma,
   type ScheduleDayOfWeek,
 } from '@prisma/client';
 import type { CreateSessionBatchDto } from './dto/create-session-batch.dto';
@@ -46,29 +46,31 @@ export type ClassSessionWithRecurrence = ClassSession & {
   recurrenceCount: number | null;
 };
 
-export const ADMIN_SESSION_INCLUDE = {
-  classType: true,
-  coach: {
-    include: {
-      user: { select: { name: true, lastName: true } },
+export const ADMIN_SESSION_INCLUDE = Prisma.validator<Prisma.ClassSessionInclude>()(
+  {
+    classType: true,
+    coach: {
+      include: {
+        user: { select: { name: true, lastName: true } },
+      },
     },
-  },
-  _count: {
-    select: {
-      bookings: {
-        where: {
-          status: {
-            in: [
-              BookingStatus.BOOKED,
-              BookingStatus.COMPLETED,
-              BookingStatus.MISSED,
-            ],
+    _count: {
+      select: {
+        bookings: {
+          where: {
+            status: {
+              in: [
+                BookingStatus.BOOKED,
+                BookingStatus.COMPLETED,
+                BookingStatus.MISSED,
+              ],
+            },
           },
         },
       },
     },
   },
-} as const;
+);
 
 export type AdminSessionRow = Prisma.ClassSessionGetPayload<{
   include: typeof ADMIN_SESSION_INCLUDE;
