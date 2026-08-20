@@ -36,6 +36,10 @@ export class GiftCardsService {
     return this.client.searchGiftRecipients(actorId, query);
   }
 
+  getSpendableBalance(userId: string) {
+    return this.client.getSpendableBalance(userId);
+  }
+
   redeem(userId: string, code: string) {
     return this.client.redeem(userId, code);
   }

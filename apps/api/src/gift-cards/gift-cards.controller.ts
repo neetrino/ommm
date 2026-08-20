@@ -53,6 +53,12 @@ export class GiftCardsController {
     return this.giftCards.listReceived(user.id, query);
   }
 
+  @Get('me/spendable-balance')
+  @UseGuards(JwtAuthGuard)
+  spendableBalance(@CurrentUser() user: { id: string }) {
+    return this.giftCards.getSpendableBalance(user.id);
+  }
+
   @Get('recipients')
   @UseGuards(JwtAuthGuard)
   recipients(

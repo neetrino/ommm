@@ -17,6 +17,10 @@ import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
+import {
+  readGiftCreditsAppliedCents,
+  recordGiftCreditSpendPayment,
+} from '../packages/package-gift-credits.util';
 import { buildUserPackageCreateData } from '../packages/packages-subscribe-card.util';
 import { decrementPackagePlanStock } from '../packages/packages-stock.helpers';
 import { createBalancesForUserPackage } from '../packages/packages-user-package-balances.util';
@@ -161,6 +165,14 @@ export class PaymentsFulfillmentService {
     await tx.payment.update({
       where: { id: payment.id },
       data: { sourceId: userPackage.id },
+    });
+    const giftCreditsAppliedCents = readGiftCreditsAppliedCents(payment.metadata);
+    await recordGiftCreditSpendPayment(tx, {
+      userId: payment.userId,
+      appliedCents: giftCreditsAppliedCents,
+      planName: plan.name,
+      userPackageId: userPackage.id,
+      currency: plan.currency,
     });
     return decrementPackagePlanStock(tx, plan.id);
   }
