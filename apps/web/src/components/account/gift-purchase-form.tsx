@@ -8,6 +8,7 @@ import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile"
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type GiftBatchMarketItem = {
@@ -80,13 +81,12 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
         },
       );
       const params = new URLSearchParams({
-        source: "gift",
         amountCents: item.amountCents.toString(),
       });
       if (payment.paymentReference !== null) {
         params.set("reference", payment.paymentReference);
       }
-      router.push(`/user/payments/checkout?${params.toString()}`);
+      router.push(`${GIFT_CARD_CHECKOUT_PATH}?${params.toString()}`);
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
     } finally {

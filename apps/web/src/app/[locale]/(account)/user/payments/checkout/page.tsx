@@ -1,8 +1,12 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PendingPaymentCheckoutForm } from "@/components/account/pending-payment-checkout-form";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { parsePaymentCheckoutSource } from "@/lib/payment-checkout-source";
+import {
+  GIFT_CARD_CHECKOUT_PATH,
+  parsePaymentCheckoutSource,
+} from "@/lib/payment-checkout-source";
 
 type PaymentCheckoutPageProps = {
   params: Promise<{ locale: string }>;
@@ -27,8 +31,23 @@ export default async function PaymentCheckoutPage({
 }: PaymentCheckoutPageProps) {
   const { locale } = await params;
   const { reference, source, amountCents } = await searchParams;
-  const t = await getTranslations({ locale, namespace: "userPages.payments.checkout" });
   const checkoutSource = parsePaymentCheckoutSource(source);
+
+  if (checkoutSource === "gift") {
+    const query = new URLSearchParams();
+    if (reference) {
+      query.set("reference", reference);
+    }
+    if (amountCents) {
+      query.set("amountCents", amountCents);
+    }
+    const suffix = query.toString();
+    redirect(
+      `/${locale}${GIFT_CARD_CHECKOUT_PATH}${suffix.length > 0 ? `?${suffix}` : ""}`,
+    );
+  }
+
+  const t = await getTranslations({ locale, namespace: "userPages.payments.checkout" });
   const parsedAmount = parseAmountCents(amountCents);
 
   return (
