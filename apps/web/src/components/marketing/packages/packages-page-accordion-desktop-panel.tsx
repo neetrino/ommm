@@ -114,8 +114,11 @@ export function PackagesPageAccordionDesktopPanel({
           className={accordionStyles.expandedBody}
           data-tier-scroll={tierScrollEnabled ? "enabled" : "disabled"}
         >
-          <div className={accordionStyles.expandedBodyInner}>
-            <h2 className={accordionStyles.expandedHeader}>{category.label}</h2>
+          <h2 className={accordionStyles.expandedHeader}>{category.label}</h2>
+          <div
+            className={accordionStyles.expandedTierScroll}
+            data-tier-scroll={tierScrollEnabled ? "enabled" : "disabled"}
+          >
             {category.plans.length > 0 ? (
               <PackagesPageAccordionTierTable
                 locale={locale}
