@@ -70,16 +70,13 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
     setBusyBatchId(card.id);
     setStatus(null);
     try {
-      const body: Record<string, string | number> = {
-        batchId: card.id,
-        amountCents: card.amountCents,
-      };
-      if (recipient !== null) {
-        body.recipientId = recipient.id;
-      }
       const payment = await apiFetch<PendingPaymentResponse>("/payments/checkout/gift", {
         method: "POST",
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          batchId: card.id,
+          amountCents: card.amountCents,
+          recipientId: recipient.id,
+        }),
       });
       const params = new URLSearchParams({
         amountCents: card.amountCents.toString(),

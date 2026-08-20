@@ -46,7 +46,7 @@ export class PaymentsCheckoutService {
     purchaserId: string;
     batchId?: string;
     amountCents: number;
-    recipientId?: string;
+    recipientId: string;
     recipientName?: string;
     recipientEmail?: string;
     message?: string;
@@ -58,9 +58,7 @@ export class PaymentsCheckoutService {
       recipientEmail: params.recipientEmail,
     });
     const metadata: PaymentMetadata = {
-      ...(resolvedRecipient.recipientId
-        ? { recipientId: resolvedRecipient.recipientId }
-        : {}),
+      recipientId: resolvedRecipient.recipientId,
       ...(resolvedRecipient.recipientName
         ? { recipientName: resolvedRecipient.recipientName }
         : {}),
@@ -90,9 +88,7 @@ export class PaymentsCheckoutService {
         paymentReference: createPaymentReference('GIFT'),
         source: INTERNAL_PAYMENT_SOURCE.GIFT,
         sourceId: params.batchId,
-        description: resolvedRecipient.recipientEmail
-          ? 'Gift card purchase (gift)'
-          : 'Gift card purchase',
+        description: 'Gift card purchase (gift)',
         metadata: metadata,
       }),
     });
@@ -100,19 +96,16 @@ export class PaymentsCheckoutService {
 
   private async resolveGiftRecipient(params: {
     purchaserId: string;
-    recipientId?: string;
+    recipientId: string;
     recipientName?: string;
     recipientEmail?: string;
   }): Promise<{
-    recipientId?: string;
+    recipientId: string;
     recipientName?: string;
     recipientEmail?: string;
   }> {
-    if (params.recipientId === undefined || params.recipientId.trim() === '') {
-      return {
-        recipientName: params.recipientName,
-        recipientEmail: params.recipientEmail,
-      };
+    if (params.recipientId.trim() === '') {
+      throw new BadRequestException('Gift recipient is required');
     }
     if (params.recipientId === params.purchaserId) {
       throw new BadRequestException('Cannot gift a card to yourself');
@@ -135,7 +128,7 @@ export class PaymentsCheckoutService {
     return {
       recipientId: recipient.id,
       recipientEmail: recipient.email,
-      recipientName: displayName.length > 0 ? displayName : undefined,
+      recipientName: displayName.length > 0 ? displayName : params.recipientName,
     };
   }
 

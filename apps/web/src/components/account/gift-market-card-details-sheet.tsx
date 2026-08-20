@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import {
   GiftRecipientPicker,
   formatRecipientLabel,
-  type GiftPurchaseDestination,
   type GiftRecipientOption,
 } from "@/components/account/gift-recipient-picker";
 import {
@@ -34,7 +33,7 @@ export type GiftMarketCardPreview = {
 
 export type GiftPurchaseIntent = {
   card: GiftMarketCardPreview;
-  recipient: GiftRecipientOption | null;
+  recipient: GiftRecipientOption;
 };
 
 type GiftMarketCardDetailsSheetProps = {
@@ -45,7 +44,7 @@ type GiftMarketCardDetailsSheetProps = {
   onBuy: (intent: GiftPurchaseIntent) => void;
 };
 
-/** Details drawer for a shop gift card before purchase (self or gift-to-member). */
+/** Details drawer for a shop gift card before gifting to another member. */
 export function GiftMarketCardDetailsSheet({
   card,
   locale,
@@ -87,29 +86,22 @@ function GiftMarketCardDetailsSheetInner({
   const titleId = useId();
   const amountLabel = formatAmdFromCents(card.amountCents, locale);
   const resolvedImage = resolveApiAssetUrl(card.imageUrl);
-  const [destination, setDestination] = useState<GiftPurchaseDestination>("self");
   const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
 
-  const canBuy =
-    !busy &&
-    card.availableQuantity > 0 &&
-    (destination === "self" || recipient !== null);
+  const canBuy = !busy && card.availableQuantity > 0 && recipient !== null;
 
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
 
   function handleBuy() {
-    if (destination === "gift" && recipient === null) {
+    if (recipient === null) {
       setRecipientError(tPurchase("recipientRequired"));
       return;
     }
     setRecipientError(null);
-    onBuy({
-      card,
-      recipient: destination === "gift" ? recipient : null,
-    });
+    onBuy({ card, recipient });
   }
 
   return (
@@ -172,11 +164,6 @@ function GiftMarketCardDetailsSheetInner({
         </section>
 
         <GiftRecipientPicker
-          destination={destination}
-          onDestinationChange={(value) => {
-            setDestination(value);
-            setRecipientError(null);
-          }}
           selected={recipient}
           onSelect={(value) => {
             setRecipient(value);
@@ -185,7 +172,7 @@ function GiftMarketCardDetailsSheetInner({
           disabled={busy}
         />
 
-        {recipient !== null && destination === "gift" ? (
+        {recipient !== null ? (
           <p className="text-sm text-sage-700">
             {tPurchase("recipientSelectedSummary", {
               name: formatRecipientLabel(recipient),
@@ -204,7 +191,7 @@ function GiftMarketCardDetailsSheetInner({
             {tPurchase("closeDetails")}
           </OmmButton>
           <OmmButton type="button" variant="primary" disabled={!canBuy} onClick={handleBuy}>
-            {destination === "gift" ? tPurchase("buyAsGift") : tPurchase("buyGiftCard")}
+            {tPurchase("buyAsGift")}
           </OmmButton>
         </div>
       </div>
