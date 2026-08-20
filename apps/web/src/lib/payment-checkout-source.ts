@@ -1,4 +1,5 @@
 import { MARKETING_SCHEDULE_PATH } from "@/lib/auth-redirect";
+import { USER_GIFT_CARDS_PATH } from "@/lib/user-gift-cards-tab";
 
 export const PAYMENT_CHECKOUT_SOURCES = ["gift", "dropin", "package", "other"] as const;
 
@@ -29,7 +30,7 @@ export function paymentCheckoutPath(source: PaymentCheckoutSource): string {
 export function paymentCheckoutReturnPath(source: PaymentCheckoutSource): string {
   switch (source) {
     case "gift":
-      return "/user/gift-cards";
+      return USER_GIFT_CARDS_PATH;
     case "dropin":
       return MARKETING_SCHEDULE_PATH;
     case "package":

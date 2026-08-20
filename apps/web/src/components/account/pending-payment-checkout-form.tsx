@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { isApiError, confirmSimulatedCardCheckout, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -10,6 +10,8 @@ import type { ManualPaymentMethod } from "@/lib/manual-payment-method";
 import type { PaymentCheckoutSource } from "@/lib/payment-checkout-source";
 import { PAYMENT_SUCCESS_PATH } from "@/lib/payment-result-paths";
 import { MARKETING_SCHEDULE_PATH } from "@/lib/auth-redirect";
+import { USER_GIFT_CARDS_SHOP_PATH } from "@/lib/user-gift-cards-tab";
+import { localizedWorkspaceHref } from "@/lib/workspace-nav-link";
 
 type CheckoutPaymentMethod = Extract<ManualPaymentMethod, "CARD" | "CASH">;
 
@@ -135,9 +137,22 @@ export function PendingPaymentCheckoutForm({
             {busy ? t("payingButton") : t("payButton")}
           </OmmButton>
         ) : null}
-        <Link href={resolveBackPath(source)} className="ommm-cta-ghost inline-flex justify-center">
+        <OmmButton
+          type="button"
+          variant="secondary"
+          disabled={busy}
+          onClick={() => {
+            const backPath = resolveBackPath(source);
+            if (source === "gift") {
+              // Soft nav from checkout keeps stale RSC children under member hub routes.
+              window.location.assign(localizedWorkspaceHref(locale, backPath));
+              return;
+            }
+            router.push(backPath);
+          }}
+        >
           {step === "cashPending" ? t("doneButton") : t("backButton")}
-        </Link>
+        </OmmButton>
       </div>
     </section>
   );
@@ -155,7 +170,7 @@ function resolveCashConfirmPath(source: PaymentCheckoutSource, reference: string
 
 function resolveBackPath(source: PaymentCheckoutSource): string {
   if (source === "gift") {
-    return "/user/gift-cards";
+    return USER_GIFT_CARDS_SHOP_PATH;
   }
   if (source === "dropin") {
     return MARKETING_SCHEDULE_PATH;
