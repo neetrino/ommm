@@ -19,7 +19,9 @@ import {
   PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS,
   PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS,
+  PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
+  PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS,
   PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
@@ -249,37 +251,41 @@ function PackageSubscribePaymentModalSession({
       <SuccessPanel onDone={onCloseSheet} />
     ) : (
       <form onSubmit={(event) => void onConfirm(event)} className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
-        <PackageSubscribePlanPicker
-          plans={plans}
-          selectedPlanId={selectedPlan.id}
-          locale={locale}
-          onSelect={handlePlanSelect}
-        />
-        <PackageSubscribeGiftCreditsToggle
-          fieldId={giftCreditsFieldId}
-          checked={useGiftCredits}
-          disabled={busy || spendableGiftCents <= 0}
-          spendableCents={spendableGiftCents}
-          appliedCents={appliedGiftCents}
-          amountDueCents={amountDueCents}
-          locale={locale}
-          onChange={setUseGiftCredits}
-        />
-        {error !== null ? (
-          <p className="shrink-0 text-sm text-red-800" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <div className={formStyles.formFooter}>
-          {amountDueCents > 0 ? (
-            <PaymentMethodPicker
-              value={paymentMethod}
-              onChange={setPaymentMethod}
-              disabled={busy}
-            />
-          ) : (
-            <p className="text-sm text-sage-600">{t("giftCreditsCoversAll")}</p>
-          )}
+        <div className={PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS}>
+          <PackageSubscribePlanPicker
+            plans={plans}
+            selectedPlanId={selectedPlan.id}
+            locale={locale}
+            onSelect={handlePlanSelect}
+          />
+          <PackageSubscribeGiftCreditsToggle
+            fieldId={giftCreditsFieldId}
+            checked={useGiftCredits}
+            disabled={busy || spendableGiftCents <= 0}
+            spendableCents={spendableGiftCents}
+            appliedCents={appliedGiftCents}
+            amountDueCents={amountDueCents}
+            locale={locale}
+            onChange={setUseGiftCredits}
+          />
+          {error !== null ? (
+            <p className="shrink-0 text-sm text-red-800" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <div className={formStyles.formFooter}>
+            {amountDueCents > 0 ? (
+              <PaymentMethodPicker
+                value={paymentMethod}
+                onChange={setPaymentMethod}
+                disabled={busy}
+              />
+            ) : (
+              <p className="text-sm text-sage-600">{t("giftCreditsCoversAll")}</p>
+            )}
+          </div>
+        </div>
+        <div className={PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS}>
           <div className="flex shrink-0 flex-wrap justify-end gap-3">
             <OmmButton
               type="button"

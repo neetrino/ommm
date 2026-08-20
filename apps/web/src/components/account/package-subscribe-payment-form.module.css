@@ -1,6 +1,5 @@
 .formFooter {
   display: flex;
-  margin-top: auto;
   flex-direction: column;
   gap: 1rem;
   padding-top: 0.25rem;
