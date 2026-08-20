@@ -48,9 +48,7 @@ export async function MemberUserGiftCardsRouteContent({
       myPanel={
         <div className="space-y-0">
           <UserGiftCardsSection title={t("redeem")}>
-            <div className="max-w-sm">
-              <GiftRedeemForm />
-            </div>
+            <GiftRedeemForm />
           </UserGiftCardsSection>
           <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
         </div>

@@ -1093,6 +1093,15 @@
       "giftBalanceLabel": "Gift balance",
       "giftBalance": "Gift balance (credits): {amount}",
       "redeem": "Redeem",
+      "redeemForm": {
+        "lead": "Have a code? Enter it here to add the balance to your gift credits.",
+        "codeLabel": "Gift code",
+        "codePlaceholder": "Enter your gift code",
+        "submit": "Redeem",
+        "submitting": "Redeeming…",
+        "success": "Gift card redeemed. The balance is now in your account.",
+        "failed": "Could not redeem this code."
+      },
       "purchase": "Purchase",
       "myCardsHeading": "My gift cards",
       "emptyMyTitle": "No gift cards yet",

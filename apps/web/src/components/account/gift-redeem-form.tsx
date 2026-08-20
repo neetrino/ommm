@@ -1,20 +1,25 @@
 "use client";
 
-import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { memberChrome } from "@/components/account/member-chrome";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
+const GIFT_CODE_MAX_LENGTH = 64;
+
 export function GiftRedeemForm() {
   const router = useRouter();
+  const t = useTranslations("userPages.giftCards.redeemForm");
   const [code, setCode] = useState("");
-  const [msg, setMsg] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setBusy(true);
-    setMsg(null);
+    setFeedback(null);
     try {
       await apiFetch("/gift-cards/redeem", {
         method: "POST",
@@ -22,29 +27,50 @@ export function GiftRedeemForm() {
       });
       setCode("");
       router.refresh();
-      setMsg("Redeemed");
+      setFeedback({ ok: true, text: t("success") });
     } catch (err) {
-      setMsg(err instanceof ApiError ? err.message : "Redeem failed");
+      setFeedback({
+        ok: false,
+        text: err instanceof ApiError ? err.message : t("failed"),
+      });
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-2">
-      <label className="ommm-label flex flex-col gap-2">
-        Gift code
-        <input
-          value={code}
-          onChange={(ev) => setCode(ev.target.value)}
-          className="ommm-input"
-          required
-        />
-      </label>
-      <OmmButton type="submit" variant="primary" disabled={busy}>
-        Redeem
-      </OmmButton>
-      {msg ? <p className="text-sm text-sage-500">{msg}</p> : null}
-    </form>
+    <div className={`${memberChrome.surface} ${memberChrome.surfacePad}`}>
+      <p className="ommm-body-muted max-w-xl text-sm">{t("lead")}</p>
+      <form
+        onSubmit={(event) => void onSubmit(event)}
+        className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end"
+      >
+        <label className="ommm-label flex min-w-0 flex-1 flex-col gap-2">
+          {t("codeLabel")}
+          <input
+            value={code}
+            onChange={(event) => setCode(event.target.value.toUpperCase())}
+            className="ommm-input font-mono tracking-wide"
+            placeholder={t("codePlaceholder")}
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            maxLength={GIFT_CODE_MAX_LENGTH}
+            required
+          />
+        </label>
+        <OmmButton type="submit" variant="primary" disabled={busy} className="sm:mb-px">
+          {busy ? t("submitting") : t("submit")}
+        </OmmButton>
+      </form>
+      {feedback !== null ? (
+        <p
+          className={`mt-3 text-sm ${feedback.ok ? "text-sage-700" : "text-red-800"}`}
+          role={feedback.ok ? "status" : "alert"}
+        >
+          {feedback.text}
+        </p>
+      ) : null}
+    </div>
   );
 }
