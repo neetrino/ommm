@@ -59,7 +59,9 @@ export class BookingsStatusTransitionService {
       this.logger.log(`Auto-completed ${bookingCount} past booking(s).`);
     }
     if (sessionCount > 0) {
-      this.logger.log(`Marked ${sessionCount} past class session(s) as finished.`);
+      this.logger.log(
+        `Marked ${sessionCount} past class session(s) as finished.`,
+      );
     }
   }
 }

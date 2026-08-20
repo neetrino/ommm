@@ -40,7 +40,13 @@ export class BookingsAdminListService {
       },
       include: {
         user: {
-          select: { id: true, name: true, lastName: true, email: true, phone: true },
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
         },
         session: {
           include: {

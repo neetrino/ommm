@@ -307,10 +307,7 @@ export class PaymentsAdminService {
     source: PaymentSource;
     sourceId: string | null;
   }): Promise<void> {
-    if (
-      payment.source !== PaymentSource.PACKAGE ||
-      payment.sourceId === null
-    ) {
+    if (payment.source !== PaymentSource.PACKAGE || payment.sourceId === null) {
       return;
     }
 

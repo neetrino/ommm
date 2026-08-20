@@ -46,8 +46,8 @@ export type ClassSessionWithRecurrence = ClassSession & {
   recurrenceCount: number | null;
 };
 
-export const ADMIN_SESSION_INCLUDE = Prisma.validator<Prisma.ClassSessionInclude>()(
-  {
+export const ADMIN_SESSION_INCLUDE =
+  Prisma.validator<Prisma.ClassSessionInclude>()({
     classType: true,
     coach: {
       include: {
@@ -69,8 +69,7 @@ export const ADMIN_SESSION_INCLUDE = Prisma.validator<Prisma.ClassSessionInclude
         },
       },
     },
-  },
-);
+  });
 
 export type AdminSessionRow = Prisma.ClassSessionGetPayload<{
   include: typeof ADMIN_SESSION_INCLUDE;
@@ -301,7 +300,8 @@ export function resolveAdminSessionStatus(params: {
   }
 
   if (
-    (status === ClassSessionStatus.ACTIVE || status === ClassSessionStatus.FULL) &&
+    (status === ClassSessionStatus.ACTIVE ||
+      status === ClassSessionStatus.FULL) &&
     bookedCount >= capacity
   ) {
     return ClassSessionStatus.FULL;
