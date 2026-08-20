@@ -3,7 +3,7 @@ import type { ScheduleQuickFilter } from "@/components/admin/admin-schedule-quic
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 import { buildSessionSortFilterField } from "@/lib/list-sort";
 
-type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT" | "FINISHED";
 type AvailabilityOption = "available" | "full";
 type TimeOfDayOption = "morning" | "afternoon" | "evening";
 

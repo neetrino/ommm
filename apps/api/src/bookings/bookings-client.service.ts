@@ -49,7 +49,11 @@ export class BookingsClientService {
       where: { id: sessionId },
       include: { classType: { select: { id: true, name: true } } },
     });
-    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+    if (
+      !session ||
+      session.status === ClassSessionStatus.CANCELLED ||
+      session.status === ClassSessionStatus.FINISHED
+    ) {
       throw new NotFoundException('Session not found');
     }
     if (session.startsAt < new Date()) {
@@ -78,7 +82,11 @@ export class BookingsClientService {
         classTypeId: true,
       },
     });
-    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+    if (
+      !session ||
+      session.status === ClassSessionStatus.CANCELLED ||
+      session.status === ClassSessionStatus.FINISHED
+    ) {
       throw new NotFoundException('Session not found');
     }
     if (session.startsAt < new Date()) {
@@ -92,7 +100,11 @@ export class BookingsClientService {
       where: { id: sessionId },
       include: { classType: { select: { id: true, name: true, slug: true } } },
     });
-    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+    if (
+      !session ||
+      session.status === ClassSessionStatus.CANCELLED ||
+      session.status === ClassSessionStatus.FINISHED
+    ) {
       throw new NotFoundException('Session not found');
     }
     if (session.startsAt < new Date()) {

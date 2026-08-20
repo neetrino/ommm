@@ -11,6 +11,7 @@ enum ClassSessionStatus {
   ACTIVE
   FULL
   CANCELLED
+  FINISHED
 }
 
 enum BookingStatus {

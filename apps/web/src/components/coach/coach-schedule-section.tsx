@@ -81,6 +81,7 @@ export function CoachScheduleSection({
           statusValues: {
             ACTIVE: tStatus("ACTIVE"),
             FULL: tStatus("FULL"),
+            FINISHED: tStatus("FINISHED"),
             CANCELLED: tStatus("CANCELLED"),
             DRAFT: tStatus("DRAFT"),
           },

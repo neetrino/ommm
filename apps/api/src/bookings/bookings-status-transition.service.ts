@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BookingStatus } from '@prisma/client';
+import { BookingStatus, ClassSessionStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ENABLE_BOOKING_BACKGROUND_JOBS_ENV } from './bookings.constants';
 
@@ -29,14 +29,37 @@ export class BookingsStatusTransitionService {
     return result.count;
   }
 
+  /**
+   * Marks past ACTIVE/FULL class sessions as FINISHED once endsAt has passed.
+   * CANCELLED sessions stay CANCELLED.
+   */
+  async finishPastClassSessions(now: Date = new Date()): Promise<number> {
+    const result = await this.prisma.classSession.updateMany({
+      where: {
+        endsAt: { lte: now },
+        status: {
+          in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL],
+        },
+      },
+      data: { status: ClassSessionStatus.FINISHED },
+    });
+    return result.count;
+  }
+
   /** Invoked by CronBatchService (every 30 min). */
   async completePastBookedSessionsCron(): Promise<void> {
     if (!this.cronEnabled) {
       return;
     }
-    const count = await this.completePastBookedSessions();
-    if (count > 0) {
-      this.logger.log(`Auto-completed ${count} past booking(s).`);
+    const [bookingCount, sessionCount] = await Promise.all([
+      this.completePastBookedSessions(),
+      this.finishPastClassSessions(),
+    ]);
+    if (bookingCount > 0) {
+      this.logger.log(`Auto-completed ${bookingCount} past booking(s).`);
+    }
+    if (sessionCount > 0) {
+      this.logger.log(`Marked ${sessionCount} past class session(s) as finished.`);
     }
   }
 }

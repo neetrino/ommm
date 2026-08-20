@@ -12,7 +12,7 @@ import {
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
-type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT" | "FINISHED";
 
 type SessionRowRef = {
   id: string;
@@ -43,6 +43,8 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
   const t = useTranslations("adminPages.classes");
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirmKind | null>(null);
   const isCancelled = row.status === "CANCELLED";
+  const isFinished = row.status === "FINISHED";
+  const canToggleLifecycle = !isFinished;
 
   function openConfirm(kind: PendingConfirmKind): void {
     if (busy) {
@@ -118,7 +120,7 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
             <CopyGlyph className={ADMIN_ACTION_ICON_CLASS} />
           </AdminRowIconButton>
         ) : null}
-        {isCancelled ? (
+        {canToggleLifecycle && isCancelled ? (
           onActivate ? (
             <AdminRowIconButton
               ariaLabel={t("activateAction")}
@@ -132,7 +134,8 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
               <CheckCircleGlyph className={ADMIN_ACTION_ICON_CLASS} />
             </AdminRowIconButton>
           ) : null
-        ) : onCancel ? (
+        ) : null}
+        {canToggleLifecycle && !isCancelled && onCancel ? (
           <AdminRowIconButton
             ariaLabel={t("cancelAction")}
             title={t("cancelAction")}

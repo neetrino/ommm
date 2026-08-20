@@ -1,4 +1,5 @@
 import { BookingStatus, ClassSessionStatus } from '@prisma/client';
+import { resolveAdminSessionStatus } from '../classes/classes-session.helpers';
 import {
   resolveAttendanceStatus,
   resolveBookingPaymentMethod,
@@ -123,11 +124,12 @@ export function mapManagementSessionSlots(
   return sessions.map((session) => {
     const bookedCount = session._count.bookings;
     const spotsLeft = Math.max(session.capacity - bookedCount, 0);
-    const status =
-      session.status === ClassSessionStatus.ACTIVE &&
-      bookedCount >= session.capacity
-        ? ClassSessionStatus.FULL
-        : session.status;
+    const status = resolveAdminSessionStatus({
+      status: session.status,
+      endsAt: session.endsAt,
+      bookedCount,
+      capacity: session.capacity,
+    });
     return {
       id: session.id,
       title: session.title,

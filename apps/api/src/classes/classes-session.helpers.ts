@@ -279,21 +279,56 @@ function emptyRecurrencePayload(): SessionRecurrencePayload {
   };
 }
 
+export function resolveAdminSessionStatus(params: {
+  status: ClassSessionStatus;
+  endsAt: Date;
+  bookedCount: number;
+  capacity: number;
+  now?: Date;
+}): ClassSessionStatus {
+  const { status, endsAt, bookedCount, capacity } = params;
+  if (
+    status === ClassSessionStatus.CANCELLED ||
+    status === ClassSessionStatus.DRAFT ||
+    status === ClassSessionStatus.FINISHED
+  ) {
+    return status;
+  }
+
+  const now = params.now ?? new Date();
+  if (endsAt.getTime() <= now.getTime()) {
+    return ClassSessionStatus.FINISHED;
+  }
+
+  if (
+    (status === ClassSessionStatus.ACTIVE || status === ClassSessionStatus.FULL) &&
+    bookedCount >= capacity
+  ) {
+    return ClassSessionStatus.FULL;
+  }
+
+  return status;
+}
+
 export function mapAdminSessionRows(
   sessions: Array<
     AdminSessionRow & {
       status: ClassSessionStatus;
+      endsAt: Date;
       _count: { bookings: number };
       capacity: number;
     }
   >,
+  now: Date = new Date(),
 ): AdminSessionRow[] {
   return sessions.map((session) => ({
     ...session,
-    status:
-      session.status === ClassSessionStatus.ACTIVE &&
-      session._count.bookings >= session.capacity
-        ? ClassSessionStatus.FULL
-        : session.status,
+    status: resolveAdminSessionStatus({
+      status: session.status,
+      endsAt: session.endsAt,
+      bookedCount: session._count.bookings,
+      capacity: session.capacity,
+      now,
+    }),
   }));
 }

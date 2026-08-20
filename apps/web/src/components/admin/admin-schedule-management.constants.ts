@@ -1,6 +1,12 @@
 import type { ScheduleDayOfWeek, SessionStatus } from "@/components/admin/admin-schedule-session.types";
 
-export const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
+export const STATUS_OPTIONS: readonly SessionStatus[] = [
+  "DRAFT",
+  "ACTIVE",
+  "FULL",
+  "FINISHED",
+  "CANCELLED",
+];
 
 export const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
   "MONDAY",

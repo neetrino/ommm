@@ -23,7 +23,11 @@ export class WaitlistClientService {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
     });
-    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+    if (
+      !session ||
+      session.status === ClassSessionStatus.CANCELLED ||
+      session.status === ClassSessionStatus.FINISHED
+    ) {
       throw new NotFoundException('Session not found');
     }
     const full = await this.capacity.isFull(sessionId, session.capacity);

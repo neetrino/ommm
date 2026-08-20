@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClassSessionStatus } from '@prisma/client';
+import { BookingsStatusTransitionService } from '../bookings/bookings-status-transition.service';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import {
   resolveSessionListOrderBy,
@@ -48,11 +49,13 @@ export class ClassesSessionsAdminService {
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
     private readonly cancelCascade: ClassesSessionCancelCascadeService,
+    private readonly statusTransition: BookingsStatusTransitionService,
   ) {}
 
   async listSessionsAdmin(
     query: AdminListSessionsQueryDto,
   ): Promise<AdminSessionRow[] | AdminSessionsListPage<AdminSessionRow>> {
+    await this.statusTransition.finishPastClassSessions();
     const normalizedQuery = normalizeSessionsListQuery(query);
     const hasPagination =
       normalizedQuery.take !== undefined ||

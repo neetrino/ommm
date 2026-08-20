@@ -89,7 +89,11 @@ export class ClientsBookingsCreateService {
         where: {
           startsAt: { gte: from, lte: to },
           status: {
-            notIn: [ClassSessionStatus.CANCELLED, ClassSessionStatus.DRAFT],
+            notIn: [
+              ClassSessionStatus.CANCELLED,
+              ClassSessionStatus.DRAFT,
+              ClassSessionStatus.FINISHED,
+            ],
           },
         },
         include: ADMIN_SESSION_INCLUDE,

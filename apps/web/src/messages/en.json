@@ -2988,7 +2988,8 @@
         "ACTIVE": "Active",
         "CANCELLED": "Cancelled",
         "FULL": "Full",
-        "DRAFT": "Draft"
+        "DRAFT": "Draft",
+        "FINISHED": "Finished"
       },
       "recurrence": {
         "NONE": "No repeat",

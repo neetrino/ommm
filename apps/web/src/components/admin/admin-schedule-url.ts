@@ -59,7 +59,13 @@ export const defaultScheduleListFilters: ScheduleListFilters = {
   order: "upcoming",
 };
 
-const SESSION_STATUSES: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
+const SESSION_STATUSES: readonly SessionStatus[] = [
+  "DRAFT",
+  "ACTIVE",
+  "FULL",
+  "FINISHED",
+  "CANCELLED",
+];
 const AVAILABILITY_OPTIONS: readonly AvailabilityOption[] = ["available", "full"];
 const TIME_OF_DAY_OPTIONS: readonly TimeOfDayOption[] = ["morning", "afternoon", "evening"];
 

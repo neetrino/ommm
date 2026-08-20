@@ -2999,7 +2999,8 @@
         "ACTIVE": "Ակտիվ",
         "CANCELLED": "Չեղարկված",
         "FULL": "Լրիվ",
-        "DRAFT": "Սևագիր"
+        "DRAFT": "Սևագիր",
+        "FINISHED": "Ավարտված"
       },
       "recurrence": {
         "NONE": "Չկրկնել",

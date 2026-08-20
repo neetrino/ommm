@@ -31,6 +31,7 @@ export const DEFAULT_COACH_SCHEDULE_FILTER_VALUES: CoachScheduleFilterValues = {
 const STATUS_OPTIONS: readonly Exclude<CoachScheduleStatusFilter, "all">[] = [
   "ACTIVE",
   "FULL",
+  "FINISHED",
   "CANCELLED",
   "DRAFT",
 ];
