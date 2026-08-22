@@ -13,6 +13,14 @@ export function coachClassBadgeTone(index: number): string {
   return COACH_CLASS_BADGE_TONES[index % COACH_CLASS_BADGE_TONES.length];
 }
 
+export function coachClassBadgeToneById(
+  classTypeId: string,
+  classOptions: readonly { readonly id: string }[],
+): string {
+  const catalogIndex = classOptions.findIndex((option) => option.id === classTypeId);
+  return coachClassBadgeTone(catalogIndex >= 0 ? catalogIndex : 0);
+}
+
 export const ADMIN_COACH_STATUS_BADGE_CLASS =
   "inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide";
 

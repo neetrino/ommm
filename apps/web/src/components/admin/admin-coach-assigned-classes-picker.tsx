@@ -1,7 +1,19 @@
 "use client";
 
+import { coachClassBadgeTone } from "@/components/admin/admin-coach-list-badges";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
+
+const CHIP_BASE_CLASS =
+  "inline-flex min-h-10 items-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-semibold uppercase tracking-[0.06em] transition-[box-shadow,transform,filter] duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-700 disabled:cursor-not-allowed disabled:opacity-50";
+
+function assignedClassChipClass(selected: boolean, index: number): string {
+  const tone = coachClassBadgeTone(index);
+  if (selected) {
+    return `${CHIP_BASE_CLASS} ${tone} shadow-[0_4px_12px_-10px_rgba(45,40,35,0.35)]`;
+  }
+  return `${CHIP_BASE_CLASS} ${tone} hover:brightness-[0.97] active:scale-[0.98]`;
+}
 
 type AdminCoachAssignedClassesPickerProps = {
   classOptions: readonly CoachClassOption[];
@@ -53,7 +65,7 @@ export function AdminCoachAssignedClassesPicker({
         className="flex flex-wrap gap-2.5 rounded-2xl border border-sand-500/15 bg-gradient-to-b from-white/95 to-sand-50/40 p-4 sm:p-5"
         role="group"
       >
-        {classOptions.map((option) => {
+        {classOptions.map((option, index) => {
           const selected = selectedIds.includes(option.id);
           return (
             <button
@@ -62,22 +74,16 @@ export function AdminCoachAssignedClassesPicker({
               aria-pressed={selected}
               disabled={disabled}
               onClick={() => onToggle(option.id)}
-              className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-[background-color,border-color,color,box-shadow,transform] duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-700 disabled:cursor-not-allowed disabled:opacity-50 ${
-                selected
-                  ? "border-sage-900 bg-sage-900 text-cream-50 shadow-[0_6px_16px_-10px_rgba(45,40,35,0.55)]"
-                  : "border-sand-500/25 bg-white/90 text-sage-700 hover:border-sand-500/45 hover:bg-white hover:shadow-[0_4px_14px_-12px_rgba(45,40,35,0.35)] active:scale-[0.98]"
-              }`}
+              className={assignedClassChipClass(selected, index)}
             >
-              <span
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                  selected
-                    ? "border-cream-50/40 bg-cream-50/15"
-                    : "border-sand-500/35 bg-white"
-                }`}
-                aria-hidden
-              >
-                {selected ? <DropdownCheckGlyph className="h-2.5 w-2.5 stroke-[2.5]" /> : null}
-              </span>
+              {selected ? (
+                <DropdownCheckGlyph className="h-3 w-3 shrink-0 stroke-[2.5]" />
+              ) : (
+                <span
+                  className="inline-block h-3 w-3 shrink-0 rounded-full border border-current"
+                  aria-hidden
+                />
+              )}
               <span className="whitespace-nowrap">{option.name}</span>
             </button>
           );

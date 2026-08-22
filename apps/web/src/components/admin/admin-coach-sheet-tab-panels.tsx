@@ -36,6 +36,7 @@ import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
+import { CoachClassBadges } from "@/components/admin/admin-coach-directory-display";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
 
 type CoachFormController = ReturnType<typeof useCoachEditForm>;
@@ -156,6 +157,15 @@ export function CoachSheetTabPanels({
             <Metric label={t("drawer.substitutions")} value={overview.substituteClasses} />
             <Metric label={t("drawer.assignedClasses")} value={overview.assignedClassesCount} />
             <Metric label={t("drawer.availabilitySlots")} value={overview.availabilitySlotsCount} />
+          </div>
+        ) : null}
+
+        {form.assignedClassTypeIds.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            <CoachClassBadges
+              assignedClassTypeIds={form.assignedClassTypeIds}
+              classOptions={classOptions}
+            />
           </div>
         ) : null}
 

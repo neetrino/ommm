@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import {
   CoachClassBadges,
   CoachDirectoryAvatar,
-  classNamesForCoach,
   coachDirectoryDisplayName,
 } from "@/components/admin/admin-coach-directory-display";
 import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
@@ -42,7 +41,6 @@ export function AdminCoachCompactRow({
 }: AdminCoachCompactRowProps) {
   const t = useTranslations("adminPages.coaches");
   const displayName = coachDirectoryDisplayName(coach);
-  const classLabels = classNamesForCoach(coach.assignedClassTypeIds, classOptions);
 
   return (
     <article
@@ -78,7 +76,10 @@ export function AdminCoachCompactRow({
 
       <div className={ADMIN_COACHES_LIST_TAGS_CELL}>
         <AdminListMobileLabel label={t("colTags")} />
-        <CoachClassBadges labels={classLabels} />
+        <CoachClassBadges
+          assignedClassTypeIds={coach.assignedClassTypeIds}
+          classOptions={classOptions}
+        />
       </div>
 
       <div className={ADMIN_COACHES_LIST_WORKLOAD_CELL}>
