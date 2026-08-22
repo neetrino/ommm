@@ -277,7 +277,8 @@ export function useCoachEditForm({
       const nextForm = {
         ...form,
         assignedClassTypeIds: [...updated.assignedClassTypeIds],
-        salaryPerClassAmd: String(updated.salaryPerClassAmd ?? 0),
+        salaryPerClassAmd:
+          (updated.salaryPerClassAmd ?? 0) > 0 ? String(updated.salaryPerClassAmd) : "",
         photoUrl: nextAvatarUrl ?? "",
       };
       setForm(nextForm);

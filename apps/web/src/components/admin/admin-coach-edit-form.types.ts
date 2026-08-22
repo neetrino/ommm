@@ -85,7 +85,7 @@ export function coachFormFromInitial(
     photoUrl: initial.photoUrl ?? "",
     bio: initial.bio,
     experienceYears: initial.experienceYears === null ? "" : String(initial.experienceYears),
-    salaryPerClassAmd: String(initial.salaryPerClassAmd),
+    salaryPerClassAmd: initial.salaryPerClassAmd > 0 ? String(initial.salaryPerClassAmd) : "",
     assignedClassTypeIds: filterKnownAssignedClassTypeIds(
       initial.assignedClassTypeIds,
       classOptions,
