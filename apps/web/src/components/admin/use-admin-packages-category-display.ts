@@ -8,7 +8,10 @@ import {
   syncPackageCategorySelection,
   type AdminPackagesCategoryOption,
 } from "@/components/admin/admin-packages-category-multi-select";
-import { categoryHasConfiguredPackages } from "@/components/admin/admin-packages-categories";
+import {
+  categoryHasConfiguredPackages,
+  sortPackageCategoriesActiveFirst,
+} from "@/components/admin/admin-packages-categories";
 import { hasActivePackageFilters } from "@/components/admin/admin-packages-filter-logic";
 import type { AdminPackageRow, PackageFilterValues } from "@/components/admin/admin-packages-types";
 import {
@@ -148,13 +151,13 @@ export function useAdminPackagesCategoryDisplay({
   const filtersActive = hasActivePackageFilters(filterValues);
 
   const displayCategories = useMemo(() => {
-    if (!filtersActive) {
-      return visibleCategories;
-    }
-    return visibleCategories.filter((option) =>
-      categoryHasConfiguredPackages(filteredPackages, option.id),
-    );
-  }, [filteredPackages, filtersActive, visibleCategories]);
+    const matching = filtersActive
+      ? visibleCategories.filter((option) =>
+          categoryHasConfiguredPackages(filteredPackages, option.id),
+        )
+      : visibleCategories;
+    return sortPackageCategoriesActiveFirst(matching, sortedPackages);
+  }, [filteredPackages, filtersActive, sortedPackages, visibleCategories]);
 
   const categoryPage = (() => {
     const raw = searchParams.get(PACKAGE_CATEGORIES_PAGE_QUERY_KEY);
