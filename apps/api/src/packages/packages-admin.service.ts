@@ -22,6 +22,7 @@ import {
 import { USER_PACKAGE_STATUS } from './packages-plan.types';
 import { PackageUsageService } from './package-usage.service';
 import { PackagesPublicService } from './packages-public.service';
+import { countTotalPackagesSold } from './packages-admin-stats';
 
 @Injectable()
 export class PackagesAdminService {
@@ -47,6 +48,11 @@ export class PackagesAdminService {
     return rows
       .map((row) => row.categoryName)
       .filter((name) => name.length > 0);
+  }
+
+  async getAdminStats() {
+    const totalSold = await countTotalPackagesSold(this.prisma);
+    return { totalSold };
   }
 
   async createPlan(dto: UpsertPackagePlanDto) {

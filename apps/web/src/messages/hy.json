@@ -3275,6 +3275,7 @@
       "emptyState": "Դեռ փաթեթների կարգավորում չկա։",
       "errorAuth": "Պահանջվում է ստուդիայի ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել փաթեթները ({status})։",
+      "summaryTotalSold": "Վաճառված փաթեթներ",
       "addGroupNameFieldLabel": "Խմբի անուն",
       "addGroupButton": "Ավելացնել խումբ",
       "addPackageButton": "Ավելացնել խումբ",

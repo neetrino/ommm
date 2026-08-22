@@ -1,13 +1,7 @@
-"use client";
-
-import { useCallback, useRef } from "react";
-import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
-import { AdminClientsShell } from "@/components/admin/admin-clients-shell";
-import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
-import {
-  adminClientCapabilities,
-  type ClientCapabilities,
-} from "@/lib/backoffice-capabilities";
+import { Suspense } from "react";
+import { AdminClientsPageClient } from "@/components/admin/admin-clients-page-client";
+import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
+import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 
 type AdminClientsPageViewProps = {
   initial: AdminClientsPayload;
@@ -20,65 +14,10 @@ type AdminClientsPageViewProps = {
   staffBanner?: string;
 };
 
-function resolveClientCapabilities(
-  capabilities: ClientCapabilities | undefined,
-  readOnly: boolean,
-): ClientCapabilities {
-  if (capabilities) {
-    return capabilities;
-  }
-  if (readOnly) {
-    return {
-      canView: true,
-      canCreate: false,
-      canUpdate: false,
-      canDelete: false,
-      canAddNotes: false,
-      canAssignPackage: false,
-      canCreateBooking: false,
-      canCancelBooking: false,
-    };
-  }
-  return adminClientCapabilities();
-}
-
-export function AdminClientsPageView({
-  initial,
-  locale,
-  initialFilters,
-  readOnly = false,
-  capabilities,
-  variant = "full",
-  staffBanner,
-}: AdminClientsPageViewProps) {
-  const caps = resolveClientCapabilities(capabilities, readOnly);
-  const refetchRef = useRef<(() => void) | null>(null);
-  const seedCreatedClientRef = useRef<((client: ClientRow) => void) | null>(null);
-
-  const handleClientCreated = useCallback((client: ClientRow) => {
-    seedCreatedClientRef.current?.(client);
-    refetchRef.current?.();
-  }, []);
-
+export function AdminClientsPageView(props: AdminClientsPageViewProps) {
   return (
-    <AdminClientsShell onClientCreated={handleClientCreated} capabilities={caps}>
-      {({ openAddUserModal }) => (
-        <AdminClientsManagement
-          initial={initial}
-          locale={locale}
-          initialFilters={initialFilters}
-          variant={variant}
-          staffBanner={staffBanner}
-          capabilities={caps}
-          onAddUser={caps.canCreate ? openAddUserModal : undefined}
-          onRegisterRefetch={(refetch) => {
-            refetchRef.current = refetch;
-          }}
-          onRegisterSeedCreatedClient={(seed) => {
-            seedCreatedClientRef.current = seed;
-          }}
-        />
-      )}
-    </AdminClientsShell>
+    <Suspense fallback={null}>
+      <AdminClientsPageClient {...props} />
+    </Suspense>
   );
 }

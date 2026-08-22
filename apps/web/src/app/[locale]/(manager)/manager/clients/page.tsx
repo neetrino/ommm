@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminClientsPageView } from "@/components/admin/admin-clients-page-view";
@@ -40,14 +39,12 @@ export default async function ManagerClientsPage({
 
   return (
     <AdminContentFrame>
-      <Suspense fallback={null}>
-        <AdminClientsPageView
-          initial={clientsRes.data}
-          locale={locale}
-          initialFilters={pickAdminClientsInitialFilters(search)}
-          capabilities={managerClientCapabilities()}
-        />
-      </Suspense>
+      <AdminClientsPageView
+        initial={clientsRes.data}
+        locale={locale}
+        initialFilters={pickAdminClientsInitialFilters(search)}
+        capabilities={managerClientCapabilities()}
+      />
     </AdminContentFrame>
   );
 }

@@ -116,3 +116,7 @@ export function mergeAdminPackageRowsFromServer(
   }
   return sortAdminPackageRows([...server, ...pendingLocal]);
 }
+
+export type AdminPackagesStats = {
+  totalSold: number;
+};

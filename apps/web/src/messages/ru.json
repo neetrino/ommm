@@ -3272,6 +3272,7 @@
       "emptyState": "Конфигурация пакетов пока недоступна.",
       "errorAuth": "Нужен вход администратора студии.",
       "errorLoad": "Не удалось загрузить пакеты ({status}).",
+      "summaryTotalSold": "Продано пакетов",
       "addGroupNameFieldLabel": "Название группы",
       "addGroupButton": "Добавить группу",
       "addPackageButton": "Добавить группу",

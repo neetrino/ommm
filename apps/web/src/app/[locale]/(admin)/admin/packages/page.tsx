@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminPackagesManagement } from "@/components/admin/admin-packages-management";
 import { parsePackageFiltersFromSearch } from "@/components/admin/admin-packages-url";
-import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import type { AdminPackageRow, AdminPackagesStats } from "@/components/admin/admin-packages-types";
 import type { AdminClassTypeRow } from "@/components/admin/admin-types-management";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -20,13 +20,14 @@ export default async function AdminPackagesPage({
   const t = await getTranslations({ locale, namespace: "adminPages.packages" });
   const cookie = (await headers()).get("cookie") ?? "";
   const initialFilters = parsePackageFiltersFromSearch(search);
-  const [packagesRes, classTypesRes] = await Promise.all([
+  const [packagesRes, classTypesRes, statsRes] = await Promise.all([
     serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
     serverApiJson<AdminClassTypeRow[]>("/classes/types", cookie),
+    serverApiJson<AdminPackagesStats>("/packages/admin/stats", cookie),
   ]);
 
-  if (!packagesRes.ok || !classTypesRes.ok) {
-    const failed = [packagesRes, classTypesRes].find((row) => !row.ok);
+  if (!packagesRes.ok || !classTypesRes.ok || !statsRes.ok) {
+    const failed = [packagesRes, classTypesRes, statsRes].find((row) => !row.ok);
     const status = failed && !failed.ok ? failed.status : 500;
     return (
       <AdminContentFrame>
@@ -47,6 +48,7 @@ export default async function AdminPackagesPage({
           initialClassTypes={classTypesRes.data}
           locale={locale}
           initialFilters={initialFilters}
+          totalSold={statsRes.data.totalSold}
         />
       </Suspense>
     </AdminContentFrame>
