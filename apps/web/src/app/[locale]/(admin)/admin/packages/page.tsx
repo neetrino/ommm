@@ -48,7 +48,7 @@ export default async function AdminPackagesPage({
           initialClassTypes={classTypesRes.data}
           locale={locale}
           initialFilters={initialFilters}
-          totalSold={statsRes.data.totalSold}
+          packagesSoldSummary={{ totalSold: statsRes.data.totalSold }}
         />
       </Suspense>
     </AdminContentFrame>

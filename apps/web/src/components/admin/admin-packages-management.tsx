@@ -40,7 +40,8 @@ type AdminPackagesManagementProps = {
   locale: string;
   initialFilters: PackageFilterValues;
   capabilities?: BackofficeCapabilities;
-  totalSold?: number;
+  /** Admin-only sold packages summary; omit on manager packages page. */
+  packagesSoldSummary?: { totalSold: number };
 };
 
 export function AdminPackagesManagement({
@@ -49,7 +50,7 @@ export function AdminPackagesManagement({
   locale,
   initialFilters,
   capabilities,
-  totalSold,
+  packagesSoldSummary,
 }: AdminPackagesManagementProps) {
   const caps = capabilities ?? adminBackofficeCapabilities();
   const t = useTranslations("adminPages.packages");
@@ -196,8 +197,8 @@ export function AdminPackagesManagement({
         }
       />
 
-      {typeof totalSold === "number" ? (
-        <AdminPackagesSummary totalSold={totalSold} />
+      {packagesSoldSummary ? (
+        <AdminPackagesSummary totalSold={packagesSoldSummary.totalSold} />
       ) : null}
 
       {categoryOptions.length > 0 ? (
