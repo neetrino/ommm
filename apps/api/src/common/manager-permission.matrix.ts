@@ -30,6 +30,7 @@ export const MANAGER_PERMISSION_MATRIX = {
     update: [Role.ADMIN, Role.MANAGER, Role.COACH] as const,
     photoUpload: BACKOFFICE_WRITE_ROLES,
     salarySummaries: BACKOFFICE_DELETE_ROLES,
+    salaryPayout: BACKOFFICE_DELETE_ROLES,
     hardDelete: BACKOFFICE_DELETE_ROLES,
   },
   giftCards: {

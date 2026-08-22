@@ -209,6 +209,9 @@ export class ClassesSessionsAdminService {
     const becomingCancelled =
       dto.status === ClassSessionStatus.CANCELLED &&
       existing.status !== ClassSessionStatus.CANCELLED;
+    const becomingFinished =
+      dto.status === ClassSessionStatus.FINISHED &&
+      existing.status !== ClassSessionStatus.FINISHED;
 
     await this.prisma.classSession.update({
       where: { id },
@@ -245,6 +248,9 @@ export class ClassesSessionsAdminService {
     if (becomingCancelled) {
       await this.cancelCascade.apply(id);
     }
+    if (becomingFinished) {
+      await this.statusTransition.onSessionFinished(id);
+    }
     await this.invalidatePublicScheduleAndEmit(id);
     return this.findSessionAdminOrThrow(id);
   }
@@ -258,6 +264,9 @@ export class ClassesSessionsAdminService {
     });
     if (status === ClassSessionStatus.CANCELLED) {
       await this.cancelCascade.apply(id);
+    }
+    if (status === ClassSessionStatus.FINISHED) {
+      await this.statusTransition.onSessionFinished(id);
     }
     await this.invalidatePublicScheduleAndEmit(id);
     return this.findSessionAdminOrThrow(id);

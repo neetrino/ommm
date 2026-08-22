@@ -17,6 +17,7 @@ export type CoachEditFormState = {
   photoUrl: string;
   bio: string;
   experienceYears: string;
+  salaryPerClassAmd: string;
   assignedClassTypeIds: string[];
   schedule: CoachScheduleInput[];
   specialization: string;
@@ -32,6 +33,7 @@ export type CoachEditFormErrors = {
   photo?: string;
   bio?: string;
   experienceYears?: string;
+  salaryPerClassAmd?: string;
   assignedClassTypeIds?: string;
   schedule?: string;
   specialization?: string;
@@ -47,6 +49,7 @@ export type CoachEditInitialValues = {
   photoUrl: string | null;
   bio: string;
   experienceYears: number | null;
+  salaryPerClassAmd: number;
   assignedClassTypeIds: readonly string[];
   schedule: readonly { id: string; date: string; time: string; spots: number }[];
   specialization: string;
@@ -62,6 +65,7 @@ export type CoachUpdatePayload = {
   bio: string | null;
   specialization: string | null;
   experienceYears: number | null;
+  salaryPerClassAmd: number;
   assignedClassTypeIds: string[];
   schedule: { date: string; time: string; spots: number }[];
   photoUrl?: string;
@@ -81,6 +85,7 @@ export function coachFormFromInitial(
     photoUrl: initial.photoUrl ?? "",
     bio: initial.bio,
     experienceYears: initial.experienceYears === null ? "" : String(initial.experienceYears),
+    salaryPerClassAmd: String(initial.salaryPerClassAmd),
     assignedClassTypeIds: filterKnownAssignedClassTypeIds(
       initial.assignedClassTypeIds,
       classOptions,

@@ -50,7 +50,7 @@ function sessionEarningsCents(
   if (attendees === 0) {
     return null;
   }
-  return salary.basePerSessionCents + attendees * salary.perAttendeeShareCents;
+  return salary.salaryPerClassAmd ?? salary.basePerSessionCents;
 }
 
 function buildSessionsEndpoint(

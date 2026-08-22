@@ -9,6 +9,7 @@ import {
   MAX_PHOTO_BYTES,
   MAX_SPECIALIZATION_LENGTH,
   MIN_SCHEDULE_SPOTS,
+  parseCoachSalaryPerClassAmd,
   normalizeScheduleForApi,
   filterKnownAssignedClassTypeIds,
   type CoachClassOption,
@@ -36,6 +37,7 @@ type ValidateCoachFormArgs = {
     ageBirthdayMismatch: string;
     bioTooLong: string;
     experienceInvalid: string;
+    salaryPerClassInvalid: string;
     specializationTooLong: string;
     photoTooLarge: string;
     scheduleInvalid: string;
@@ -98,6 +100,10 @@ export function validateCoachEditForm({
   ) {
     errors.experienceYears = labels.experienceInvalid;
   }
+  const salaryPerClassAmd = parseCoachSalaryPerClassAmd(form.salaryPerClassAmd);
+  if (salaryPerClassAmd === null) {
+    errors.salaryPerClassAmd = labels.salaryPerClassInvalid;
+  }
   if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
     errors.specialization = labels.specializationTooLong;
   }
@@ -126,6 +132,7 @@ export function validateCoachEditForm({
     bio: bio.length > 0 ? bio : null,
     specialization: specialization.length > 0 ? specialization : null,
     experienceYears,
+    salaryPerClassAmd: salaryPerClassAmd ?? 0,
     assignedClassTypeIds,
     schedule: normalizeScheduleForApi(scheduleRows),
     ...(photoRemoved ? { photoUrl: "" } : {}),

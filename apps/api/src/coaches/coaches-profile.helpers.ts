@@ -293,6 +293,9 @@ export function buildCoachUpdateProfileData(
     ...(dto.experienceYears !== undefined && {
       experienceYears: dto.experienceYears,
     }),
+    ...(dto.salaryPerClassAmd !== undefined && {
+      salaryPerClassAmd: dto.salaryPerClassAmd,
+    }),
     ...(fields.normalizedAssignedClassTypeIds !== undefined && {
       assignedClassTypeIds: fields.normalizedAssignedClassTypeIds,
     }),

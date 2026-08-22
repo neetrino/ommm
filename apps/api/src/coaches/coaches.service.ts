@@ -10,6 +10,7 @@ import { CoachesAdminWriteService } from './coaches-admin-write.service';
 import { CoachesPanelService } from './coaches-panel.service';
 import { CoachesPhotoService } from './coaches-photo.service';
 import { CoachesPublicService } from './coaches-public.service';
+import { CoachSalaryPayoutService } from './coaches-salary-payout.service';
 
 @Injectable()
 export class CoachesService {
@@ -19,6 +20,7 @@ export class CoachesService {
     private readonly adminWrite: CoachesAdminWriteService,
     private readonly adminList: CoachesAdminListService,
     private readonly panel: CoachesPanelService,
+    private readonly salaryPayout: CoachSalaryPayoutService,
   ) {}
 
   listPublic() {
@@ -59,5 +61,9 @@ export class CoachesService {
 
   salarySummary(userId: string, month?: string) {
     return this.panel.salarySummary(userId, month);
+  }
+
+  markSalaryPaid(actor: User, coachProfileId: string, month: string) {
+    return this.salaryPayout.markMonthPaid(actor, coachProfileId, month);
   }
 }

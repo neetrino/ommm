@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
@@ -22,6 +23,9 @@ import type { CoachFinanceRow } from "@/components/admin/admin-finance-types";
 import { displayPhoneOrEmail } from "@/lib/phone";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
+import { OmmButton } from "@/components/ui/omm-button";
+import { ApiError, apiFetch } from "@/lib/api";
+import { useRouter } from "@/i18n/navigation";
 
 type AdminFinanceCoachCompactRowProps = {
   locale: string;
@@ -60,8 +64,31 @@ export function AdminFinanceCoachCompactRow({
   onOpenSessions,
 }: AdminFinanceCoachCompactRowProps) {
   const t = useTranslations("adminPages.finance.coachTab");
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const payoutStatus = resolvePayoutStatus(row);
   const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
+  const unpaidCents = row.salary?.pendingPayoutCents ?? 0;
+
+  async function markPaid(): Promise<void> {
+    if (busy || unpaidCents <= 0) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await apiFetch(`/coaches/admin/${row.coachProfileId}/salary-payouts`, {
+        method: "POST",
+        body: JSON.stringify({ month }),
+      });
+      router.refresh();
+    } catch (caught) {
+      setError(caught instanceof ApiError ? caught.message : t("markPaidFailed"));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <article className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}>
@@ -75,7 +102,7 @@ export function AdminFinanceCoachCompactRow({
         <AdminListMobileLabel label={t("colSalary")} />
         {row.salary ? (
           <AmdMoneyText
-            cents={row.salary.totalEarningsCents}
+            cents={unpaidCents}
             locale={locale}
             className={ADMIN_FINANCE_MONEY_CLASS}
           />
@@ -116,6 +143,20 @@ export function AdminFinanceCoachCompactRow({
               ? t("statusPaid")
               : t("statusPending")}
         </span>
+        {unpaidCents > 0 ? (
+          <OmmButton
+            type="button"
+            size="sm"
+            className="mt-2"
+            disabled={busy}
+            onClick={() => {
+              void markPaid();
+            }}
+          >
+            {busy ? t("markPaidBusy") : t("markPaid")}
+          </OmmButton>
+        ) : null}
+        {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
       </div>
     </article>
   );

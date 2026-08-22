@@ -23,6 +23,7 @@ import { CoachesService } from './coaches.service';
 import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
+import { CreateCoachSalaryPayoutDto } from './dto/create-coach-salary-payout.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
 import { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
 
@@ -64,6 +65,18 @@ export class CoachesController {
   @Roles(...BACKOFFICE_DELETE_ROLES)
   adminSalarySummaries(@Query() query: AdminSalarySummariesQueryDto) {
     return this.coaches.adminSalarySummaries(query);
+  }
+
+  @Post('admin/:id/salary-payouts')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  markSalaryPaid(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: CreateCoachSalaryPayoutDto,
+  ) {
+    return this.coaches.markSalaryPaid(user, id, dto.month);
   }
 
   @Get(':id')

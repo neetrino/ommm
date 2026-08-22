@@ -316,6 +316,17 @@ export function CoachSheetTabPanels({
               disabled={busy}
             />
           </AdminSheetEditableField>
+          <AdminSheetEditableField label={t("fieldSalaryPerClass")} error={errors.salaryPerClassAmd}>
+            <input
+              type="text"
+              inputMode="numeric"
+              className="ommm-input"
+              value={form.salaryPerClassAmd}
+              onChange={(event) => controller.updateField("salaryPerClassAmd", event.target.value)}
+              placeholder={t("fieldSalaryPerClassPlaceholder")}
+              disabled={busy}
+            />
+          </AdminSheetEditableField>
           <AdminSheetEditableField label={t("fieldBio")} error={errors.bio} className="lg:col-span-2">
             <textarea
               className="ommm-input min-h-[150px] resize-y"

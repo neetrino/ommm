@@ -95,6 +95,9 @@ export class CoachesAdminWriteService {
         specialization,
         classType,
         experienceYears: dto.experienceYears,
+        ...(dto.salaryPerClassAmd !== undefined && {
+          salaryPerClassAmd: dto.salaryPerClassAmd,
+        }),
         ...(availabilitySlots.length > 0 && {
           availabilitySlots: {
             createMany: {

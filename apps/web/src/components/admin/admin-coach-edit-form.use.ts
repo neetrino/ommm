@@ -28,6 +28,7 @@ type CoachUpdateResponse = {
   bio: string | null;
   specialization: string | null;
   experienceYears: number | null;
+  salaryPerClassAmd: number;
   availabilitySlots: {
     id: string;
     slotDate: string;
@@ -50,6 +51,7 @@ export type CoachSavedSnapshot = Pick<
   | "bio"
   | "specialization"
   | "experienceYears"
+  | "salaryPerClassAmd"
   | "assignedClassTypeIds"
   | "schedule"
   | "updatedAt"
@@ -65,6 +67,7 @@ function coachSavedSnapshotFromUpdate(updated: CoachUpdateResponse): CoachSavedS
     bio: updated.bio,
     specialization: updated.specialization,
     experienceYears: updated.experienceYears,
+    salaryPerClassAmd: updated.salaryPerClassAmd ?? 0,
     assignedClassTypeIds: updated.assignedClassTypeIds,
     updatedAt: updated.updatedAt,
     schedule: updated.availabilitySlots.map((slot) => ({
@@ -274,6 +277,7 @@ export function useCoachEditForm({
       const nextForm = {
         ...form,
         assignedClassTypeIds: [...updated.assignedClassTypeIds],
+        salaryPerClassAmd: String(updated.salaryPerClassAmd ?? 0),
         photoUrl: nextAvatarUrl ?? "",
       };
       setForm(nextForm);

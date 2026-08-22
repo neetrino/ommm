@@ -100,6 +100,7 @@ export class CoachesAdminListService {
         classType: row.classType,
         assignedClassTypeIds: row.assignedClassTypeIds,
         experienceYears: row.experienceYears,
+        salaryPerClassAmd: row.salaryPerClassAmd ?? 0,
         isActive: row.isActive,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,

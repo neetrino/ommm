@@ -15,7 +15,14 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { COACH_MAX_AGE, COACH_MIN_AGE } from './create-coach.dto';
+import {
+  COACH_MAX_AGE,
+  COACH_MIN_AGE,
+} from './create-coach.dto';
+import {
+  COACH_SALARY_PER_CLASS_MAX_AMD,
+  COACH_SALARY_PER_CLASS_MIN_AMD,
+} from '../coaches-salary.constants';
 import { CoachScheduleSlotDto } from './coach-schedule-slot.dto';
 
 export class UpdateCoachDto {
@@ -84,6 +91,13 @@ export class UpdateCoachDto {
   @IsOptional()
   @IsInt()
   experienceYears?: number | null;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(COACH_SALARY_PER_CLASS_MIN_AMD)
+  @Max(COACH_SALARY_PER_CLASS_MAX_AMD)
+  salaryPerClassAmd?: number;
 
   @IsOptional()
   @IsArray()
