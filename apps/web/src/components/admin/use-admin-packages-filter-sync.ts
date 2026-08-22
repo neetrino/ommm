@@ -15,10 +15,12 @@ import {
 import {
   buildPackageUrlFiltersQuery,
   buildPackagesPathname,
+  PACKAGE_CATEGORIES_PAGE_QUERY_KEY,
   PACKAGE_FILTER_QUERY_KEYS,
   parsePackageFiltersFromSearch,
 } from "@/components/admin/admin-packages-url";
 import type { PackageFilterValues } from "@/components/admin/admin-packages-types";
+import { resetListPageQuery } from "@/lib/list-pagination";
 
 type UseAdminPackagesFilterSyncParams = {
   initialFilters: PackageFilterValues;
@@ -87,6 +89,8 @@ export function useAdminPackagesFilterSync({ initialFilters }: UseAdminPackagesF
       for (const key of PACKAGE_FILTER_QUERY_KEYS) {
         params.delete(key);
       }
+      resetListPageQuery(params);
+      params.delete(PACKAGE_CATEGORIES_PAGE_QUERY_KEY);
       const filterQuery = buildPackageUrlFiltersQuery(values);
       if (filterQuery.length > 0) {
         for (const [key, entryValue] of new URLSearchParams(filterQuery)) {

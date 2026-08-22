@@ -32,9 +32,14 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const [, startTransition] = useTransition();
   const [values, setValues] = usePropSyncedState(initialValues);
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
 
   const filterFields = useMemo(
     () =>
@@ -71,10 +76,11 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
     }
 
     const handle = window.setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const currentSearchParams = searchParamsRef.current;
+      const params = new URLSearchParams(currentSearchParams);
       resetListPageQuery(params, FINANCE_COACH_PAGE_KEYS);
       const query = buildFinanceCoachesFiltersQuery(values, params);
-      if (query === searchParams.toString()) {
+      if (query === currentSearchParams) {
         return;
       }
       startTransition(() => {
@@ -83,7 +89,7 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [pathname, router, values]);
 
   function updateValues(next: CoachesFilterState): void {
     setValues(next);

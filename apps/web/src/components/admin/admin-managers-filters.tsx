@@ -76,6 +76,11 @@ export function AdminManagersFilters({
   const hasMounted = useRef(false);
   const [, startTransition] = useTransition();
   const [values, setValues] = useState(initialValues);
+  const searchParamsRef = useRef(searchParams.toString());
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
 
   const filterFields = useMemo(
     () =>
@@ -120,8 +125,8 @@ export function AdminManagersFilters({
       return undefined;
     }
     const handle = window.setTimeout(() => {
-      const query = buildQuery(values, new URLSearchParams(searchParams.toString()));
-      if (query === searchParams.toString()) {
+      const query = buildQuery(values, new URLSearchParams(searchParamsRef.current));
+      if (query === searchParamsRef.current) {
         return;
       }
       startTransition(() => {
@@ -129,7 +134,7 @@ export function AdminManagersFilters({
       });
     }, FILTER_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [pathname, router, values]);
 
   function updateField<K extends keyof AdminManagersFilterValues>(
     key: K,

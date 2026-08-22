@@ -15,8 +15,8 @@ import {
   adminClientsFilterValuesFromState,
 } from "@/components/admin/admin-clients-filter-fields";
 import {
-  ADMIN_CLIENTS_FILTER_KEYS,
   areUrlSearchQueriesEqual,
+  buildAdminClientsFilterQuery,
   mergeAdminClientsUrlQuery,
   parseAdminClientsListPageParams,
   readBrowserSearchQuery,
@@ -29,9 +29,12 @@ import {
 } from "@/components/admin/admin-client-sheet-tabs";
 import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 import { apiFetch } from "@/lib/api";
-import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
-
-const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
+import {
+  isOutOfRangeEmptyPage,
+  listPageParamsForFetch,
+  resetListPageQuery,
+  syncListPageQuery,
+} from "@/lib/list-pagination";
 
 type UseAdminClientsManagementArgs = {
   initial: AdminClientsPayload;
@@ -69,6 +72,7 @@ export function useAdminClientsManagement({
   const [fetchedClient, setFetchedClient] = useState<ClientRow | null>(null);
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [isListFetching, setIsListFetching] = useState(false);
   const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
   const [visibleClientId, setVisibleClientId] = useState<string | null>(viewClientId);
   const [prevViewClientId, setPrevViewClientId] = useState(viewClientId);
@@ -173,24 +177,28 @@ export function useAdminClientsManagement({
     };
   }, [payload.rows, replaceSearchParams, viewClientId]);
 
-  const urlQueryString = useMemo(() => {
-    const params = new URLSearchParams();
-    for (const key of filterKeys) {
-      const value = filters[key].trim();
-      if (value !== "" && !(key === "order" && value === "newest")) {
-        params.set(key, value);
-      }
-    }
-    return params.toString();
-  }, [filters]);
+  const urlQueryString = useMemo(
+    () => buildAdminClientsFilterQuery(filters),
+    [filters],
+  );
+
+  const urlFilterQuery = useMemo(
+    () => buildAdminClientsFilterQuery(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
+  const listPageForFetch = useMemo(
+    () => listPageParamsForFetch(listPage, urlQueryString !== urlFilterQuery),
+    [listPage, urlFilterQuery, urlQueryString],
+  );
 
   const apiQueryString = useMemo(() => {
     const params = new URLSearchParams(urlQueryString);
     params.set("meta", "true");
-    params.set("take", String(listPage.take));
-    params.set("offset", String(listPage.offset));
+    params.set("take", String(listPageForFetch.take));
+    params.set("offset", String(listPageForFetch.offset));
     return params.toString();
-  }, [listPage.offset, listPage.take, urlQueryString]);
+  }, [listPageForFetch.offset, listPageForFetch.take, urlQueryString]);
 
   const setListPage = useCallback(
     (page: number, pageSize?: number) => {
@@ -201,6 +209,8 @@ export function useAdminClientsManagement({
     [replaceSearchParams],
   );
 
+  const hasFetched = useRef(false);
+
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
@@ -208,21 +218,6 @@ export function useAdminClientsManagement({
     }
 
     const handle = window.setTimeout(() => {
-      const nextRequestId = requestId.current + 1;
-      requestId.current = nextRequestId;
-      startTransition(() => {
-        void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
-          .then((next) => {
-            if (requestId.current !== nextRequestId) return;
-            setPayload(next);
-            setError(null);
-          })
-          .catch(() => {
-            if (requestId.current === nextRequestId) {
-              setError("Could not load matching clients.");
-            }
-          });
-      });
       const currentQuery = readBrowserSearchQuery();
       const nextQuery = mergeAdminClientsUrlQuery(urlQueryString, currentQuery);
       if (!areUrlSearchQueriesEqual(currentQuery, nextQuery)) {
@@ -231,7 +226,47 @@ export function useAdminClientsManagement({
       }
     }, 300);
     return () => window.clearTimeout(handle);
-  }, [apiQueryString, listPage.offset, listPage.page, pathname, router, urlQueryString]);
+  }, [pathname, router, urlQueryString]);
+
+  useEffect(() => {
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      return undefined;
+    }
+
+    const handle = window.setTimeout(() => {
+      const nextRequestId = requestId.current + 1;
+      requestId.current = nextRequestId;
+      setIsListFetching(true);
+      void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
+        .then((next) => {
+          if (requestId.current !== nextRequestId) return;
+          if (
+            isOutOfRangeEmptyPage({
+              rowCount: next.rows.length,
+              total: next.pagination.total,
+              offset: next.pagination.offset,
+            })
+          ) {
+            setListPage(1);
+            return;
+          }
+          setPayload(next);
+          setError(null);
+        })
+        .catch(() => {
+          if (requestId.current === nextRequestId) {
+            setError("Could not load matching clients.");
+          }
+        })
+        .finally(() => {
+          if (requestId.current === nextRequestId) {
+            setIsListFetching(false);
+          }
+        });
+    }, 300);
+    return () => window.clearTimeout(handle);
+  }, [apiQueryString, setListPage]);
 
   const refetchClients = useCallback((): void => {
     startTransition(() => {
@@ -285,7 +320,7 @@ export function useAdminClientsManagement({
   return {
     payload,
     filters,
-    loading,
+    loading: loading || isListFetching,
     error,
     selected,
     listPage,

@@ -172,10 +172,6 @@ export function useAdminPackagesCategoryDisplay({
     displayCategories.length,
     ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE,
   );
-  const pagedDisplayCategories = useMemo(() => {
-    const offset = (categoryListPageClamped - 1) * ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE;
-    return displayCategories.slice(offset, offset + ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE);
-  }, [categoryListPageClamped, displayCategories]);
 
   const syncCategoryListPage = useCallback(
     (page: number) => {
@@ -189,6 +185,18 @@ export function useAdminPackagesCategoryDisplay({
     },
     [pathname, router, searchParams],
   );
+
+  useEffect(() => {
+    if (categoryPage === categoryListPageClamped) {
+      return;
+    }
+    syncCategoryListPage(categoryListPageClamped);
+  }, [categoryListPageClamped, categoryPage, syncCategoryListPage]);
+
+  const pagedDisplayCategories = useMemo(() => {
+    const offset = (categoryListPageClamped - 1) * ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE;
+    return displayCategories.slice(offset, offset + ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE);
+  }, [categoryListPageClamped, displayCategories]);
 
   const defaultCategoryId = useMemo(() => {
     const firstSelected = categoryOptions.find((option) => selectedCategoryIds.has(option.id));
