@@ -313,6 +313,7 @@ export function CoachSheetTabPanels({
               className="ommm-input"
               value={form.experienceYears}
               onChange={(event) => controller.updateField("experienceYears", event.target.value)}
+              placeholder={t("fieldExperiencePlaceholder")}
               disabled={busy}
             />
           </AdminSheetEditableField>

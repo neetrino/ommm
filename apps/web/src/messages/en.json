@@ -2457,6 +2457,7 @@
       "fieldAge": "Age",
       "fieldBirthday": "Birthday",
       "fieldExperience": "Experience (years)",
+      "fieldExperiencePlaceholder": "e.g. 5",
       "fieldSalaryPerClass": "Salary per class (֏)",
       "fieldSalaryPerClassPlaceholder": "8000",
       "fieldBio": "Bio",

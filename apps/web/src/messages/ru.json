@@ -2465,6 +2465,7 @@
       "fieldAge": "Возраст",
       "fieldBirthday": "Дата рождения",
       "fieldExperience": "Опыт (лет)",
+      "fieldExperiencePlaceholder": "напр. 5",
       "fieldSalaryPerClass": "Зарплата за занятие (֏)",
       "fieldSalaryPerClassPlaceholder": "8000",
       "fieldBio": "Биография",

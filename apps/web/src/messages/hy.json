@@ -2468,6 +2468,7 @@
       "fieldAge": "Տարիք",
       "fieldBirthday": "Ծննդյան օր",
       "fieldExperience": "Փորձ (տարիներ)",
+      "fieldExperiencePlaceholder": "օր. 5",
       "fieldSalaryPerClass": "Աշխատավարձ մեկ դասի համար (֏)",
       "fieldSalaryPerClassPlaceholder": "8000",
       "fieldBio": "Կենսագրություն",
