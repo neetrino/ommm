@@ -1,4 +1,4 @@
-import { BookingStatus, Prisma, type PrismaClient } from '@prisma/client';
+import { BookingStatus, Prisma, UserPackageStatus, type PrismaClient } from '@prisma/client';
 import { revenueSucceededWhere } from '../payments/payment-revenue.util';
 import {
   CLIENTS_FILTER_OPTIONS_SCAN_LIMIT,
@@ -10,9 +10,18 @@ type ClientListRowSummaryFields = {
   preferredCoach: { id: string; name: string } | null;
   tags: Array<'VIP' | 'New' | 'Beginner' | 'Influencer'>;
   status: 'Active' | 'Inactive' | 'Blocked';
+  activePackageStatus: UserPackageStatus | null;
   totalVisits: number;
   lifetimeValueCents: number;
 };
+
+function withActivePackageWhere(
+  where: Prisma.UserWhereInput,
+): Prisma.UserWhereInput {
+  return {
+    AND: [where, { userPackages: { some: { status: UserPackageStatus.ACTIVE } } }],
+  };
+}
 
 export async function computeClientsSummaryFromDb(
   prisma: PrismaClient,
@@ -35,27 +44,30 @@ export async function computeClientsSummaryFromDb(
       },
     ],
   };
-  const [total, active, totalVisits, paymentAggregate] = await Promise.all([
-    prisma.user.count({ where }),
-    prisma.user.count({ where: activeWhere }),
-    prisma.booking.count({
-      where: {
-        status: BookingStatus.COMPLETED,
-        user: where,
-      },
-    }),
-    prisma.payment.aggregate({
-      where: {
-        ...revenueSucceededWhere,
-        user: where,
-      },
-      _sum: { amountCents: true },
-    }),
-  ]);
+  const [total, active, withPackage, totalVisits, paymentAggregate] =
+    await Promise.all([
+      prisma.user.count({ where }),
+      prisma.user.count({ where: activeWhere }),
+      prisma.user.count({ where: withActivePackageWhere(where) }),
+      prisma.booking.count({
+        where: {
+          status: BookingStatus.COMPLETED,
+          user: where,
+        },
+      }),
+      prisma.payment.aggregate({
+        where: {
+          ...revenueSucceededWhere,
+          user: where,
+        },
+        _sum: { amountCents: true },
+      }),
+    ]);
 
   return {
     total,
     active,
+    withPackage,
     vip: 0,
     totalVisits,
     lifetimeValueCents: paymentAggregate._sum.amountCents ?? 0,
@@ -66,6 +78,9 @@ export function summaryFromRows(rows: ClientListRowSummaryFields[]) {
   return {
     total: rows.length,
     active: rows.filter((row) => row.status === 'Active').length,
+    withPackage: rows.filter(
+      (row) => row.activePackageStatus === UserPackageStatus.ACTIVE,
+    ).length,
     vip: rows.filter((row) => row.tags.includes('VIP')).length,
     totalVisits: rows.reduce((sum, row) => sum + row.totalVisits, 0),
     lifetimeValueCents: rows.reduce(

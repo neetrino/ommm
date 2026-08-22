@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { adminChrome } from "@/components/admin/admin-chrome";
 
@@ -6,14 +9,17 @@ type AdminClientsSummaryProps = {
 };
 
 export function AdminClientsSummary({ payload }: AdminClientsSummaryProps) {
+  const t = useTranslations("adminPages.clients");
   const cards = [
-    ["Total", payload.summary.total],
-    ["Active", payload.summary.active],
-    ["VIP", payload.summary.vip],
-    ["Visits", payload.summary.totalVisits],
-  ];
+    [t("summaryTotal"), payload.summary.total],
+    [t("summaryWithPackage"), payload.summary.withPackage],
+    [t("summaryActive"), payload.summary.active],
+    [t("summaryVip"), payload.summary.vip],
+    [t("summaryVisits"), payload.summary.totalVisits],
+  ] as const;
+
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
       {cards.map(([label, value]) => (
         <article key={label} className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{label}</p>
