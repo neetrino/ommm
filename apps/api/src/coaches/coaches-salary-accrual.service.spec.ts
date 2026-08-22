@@ -66,6 +66,41 @@ describe('CoachSalaryAccrualService', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
+  it('skips cancelled classes even when they have participants', async () => {
+    const { service, create } = buildService({
+      id: sessionId,
+      status: ClassSessionStatus.CANCELLED,
+      startsAt: new Date('2026-08-10T10:00:00.000Z'),
+      coachId: 'coach-1',
+      coach: { salaryPerClassAmd: 8000 },
+      salaryAccrual: null,
+      _count: { bookings: 5 },
+    });
+
+    await expect(service.accrueFinishedSession(sessionId)).resolves.toBe(false);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('uses the coach salaryPerClassAmd snapshot, not a shared default rate', async () => {
+    const { service, create } = buildService({
+      id: sessionId,
+      status: ClassSessionStatus.FINISHED,
+      startsAt: new Date('2026-08-10T10:00:00.000Z'),
+      coachId: 'coach-b',
+      coach: { salaryPerClassAmd: 10_000 },
+      salaryAccrual: null,
+      _count: { bookings: 1 },
+    });
+
+    await expect(service.accrueFinishedSession(sessionId)).resolves.toBe(true);
+    expect(create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        coachProfileId: 'coach-b',
+        amountAmd: 10_000,
+      }),
+    });
+  });
+
   it('counts non-cancelled bookings in the lookup filter', async () => {
     const findUnique = jest.fn().mockResolvedValue(null);
     const service = new CoachSalaryAccrualService({

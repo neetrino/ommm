@@ -61,6 +61,33 @@ describe('coaches-salary.helpers', () => {
     expect(unpaidSalaryAmd(150_000, 0)).toBe(150_000);
   });
 
+  it('does not accrue ACTIVE or FULL classes even with participants', () => {
+    expect(
+      shouldAccrueCoachSalary({
+        status: ClassSessionStatus.ACTIVE,
+        bookedParticipantCount: 4,
+        salaryPerClassAmd: 8000,
+      }),
+    ).toBe(false);
+    expect(
+      shouldAccrueCoachSalary({
+        status: ClassSessionStatus.FULL,
+        bookedParticipantCount: 4,
+        salaryPerClassAmd: 8000,
+      }),
+    ).toBe(false);
+  });
+
+  it('FINISHED is not enough by itself — participants and rate are also required', () => {
+    expect(
+      shouldAccrueCoachSalary({
+        status: ClassSessionStatus.FINISHED,
+        bookedParticipantCount: 0,
+        salaryPerClassAmd: 12_000,
+      }),
+    ).toBe(false);
+  });
+
   it('maps a studio instant onto its salary period', () => {
     expect(salaryPeriodFromInstant(new Date('2026-08-22T12:00:00.000Z'))).toEqual(
       { year: 2026, month: 8 },
