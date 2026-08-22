@@ -1,6 +1,9 @@
 import { BookingStatus, Role, UserPackageStatus } from '@prisma/client';
 import { revenueSucceededWhere } from '../payments/payment-revenue.util';
-import { computeClientsSummaryFromDb, summaryFromRows } from './clients-list-summary';
+import {
+  computeClientsSummaryFromDb,
+  summaryFromRows,
+} from './clients-list-summary';
 
 describe('computeClientsSummaryFromDb', () => {
   it('aggregates lifetime value with cash-revenue where so influencer comps are excluded', async () => {

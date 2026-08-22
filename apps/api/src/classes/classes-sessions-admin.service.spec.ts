@@ -25,7 +25,10 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
       schedule as never,
       realtime as never,
       {} as never,
-      { finishPastClassSessions: jest.fn().mockResolvedValue(0), onSessionFinished: jest.fn() } as never,
+      {
+        finishPastClassSessions: jest.fn().mockResolvedValue(0),
+        onSessionFinished: jest.fn(),
+      } as never,
     );
     return { service, deleteFn };
   }
@@ -104,7 +107,10 @@ describe('ClassesSessionsAdminService class type archive', () => {
       schedule as never,
       realtime as never,
       cancelCascade as never,
-      { finishPastClassSessions: jest.fn().mockResolvedValue(0), onSessionFinished: jest.fn() } as never,
+      {
+        finishPastClassSessions: jest.fn().mockResolvedValue(0),
+        onSessionFinished: jest.fn(),
+      } as never,
     );
 
     await expect(
@@ -147,7 +153,10 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
       schedule as never,
       realtime as never,
       cancelCascade as never,
-      { finishPastClassSessions: jest.fn().mockResolvedValue(0), onSessionFinished: jest.fn() } as never,
+      {
+        finishPastClassSessions: jest.fn().mockResolvedValue(0),
+        onSessionFinished: jest.fn(),
+      } as never,
     );
 
     await service.updateSessionStatus('session-1', 'CANCELLED');
@@ -180,7 +189,10 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
       schedule as never,
       realtime as never,
       cancelCascade as never,
-      { finishPastClassSessions: jest.fn().mockResolvedValue(0), onSessionFinished: jest.fn() } as never,
+      {
+        finishPastClassSessions: jest.fn().mockResolvedValue(0),
+        onSessionFinished: jest.fn(),
+      } as never,
     );
 
     await service.updateSessionStatus('session-1', 'ACTIVE');
@@ -213,7 +225,10 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
       schedule as never,
       realtime as never,
       cancelCascade as never,
-      { finishPastClassSessions: jest.fn().mockResolvedValue(0), onSessionFinished: jest.fn() } as never,
+      {
+        finishPastClassSessions: jest.fn().mockResolvedValue(0),
+        onSessionFinished: jest.fn(),
+      } as never,
     );
 
     await service.cancelSession('session-1');

@@ -89,8 +89,8 @@ describe('coaches-salary.helpers', () => {
   });
 
   it('maps a studio instant onto its salary period', () => {
-    expect(salaryPeriodFromInstant(new Date('2026-08-22T12:00:00.000Z'))).toEqual(
-      { year: 2026, month: 8 },
-    );
+    expect(
+      salaryPeriodFromInstant(new Date('2026-08-22T12:00:00.000Z')),
+    ).toEqual({ year: 2026, month: 8 });
   });
 });

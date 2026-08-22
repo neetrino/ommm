@@ -54,14 +54,17 @@ describe('coach salary product scenario', () => {
   });
 
   it('Admin PAID zeros August unpaid and keeps the 16_000 payment in history', async () => {
-    const months: Record<string, { accrued: number; paid: number; count: number }> = {
+    const months: Record<
+      string,
+      { accrued: number; paid: number; count: number }
+    > = {
       '2026-08': { accrued: 16_000, paid: 0, count: 2 },
       '2026-09': { accrued: 0, paid: 0, count: 0 },
     };
 
     const summary = new CoachSalarySummaryService({
       coachSalaryAccrual: {
-        aggregate: jest.fn(async ({ where }: { where: { periodMonth: number } }) => {
+        aggregate: jest.fn(({ where }: { where: { periodMonth: number } }) => {
           const key = where.periodMonth === 8 ? '2026-08' : '2026-09';
           return {
             _sum: { amountAmd: months[key]?.accrued ?? 0 },
@@ -70,24 +73,36 @@ describe('coach salary product scenario', () => {
         }),
       },
       coachSalaryPayout: {
-        aggregate: jest.fn(async ({ where }: { where: { periodMonth: number } }) => {
+        aggregate: jest.fn(({ where }: { where: { periodMonth: number } }) => {
           const key = where.periodMonth === 8 ? '2026-08' : '2026-09';
           return { _sum: { amountAmd: months[key]?.paid ?? 0 } };
         }),
       },
     } as never);
 
-    const beforePay = await summary.forProfile('coach-1', salaryPerClassAmd, '2026-08');
+    const beforePay = await summary.forProfile(
+      'coach-1',
+      salaryPerClassAmd,
+      '2026-08',
+    );
     expect(beforePay.pendingPayoutCents).toBe(16_000);
 
     months['2026-08'].paid = 16_000;
-    const afterPay = await summary.forProfile('coach-1', salaryPerClassAmd, '2026-08');
+    const afterPay = await summary.forProfile(
+      'coach-1',
+      salaryPerClassAmd,
+      '2026-08',
+    );
     expect(afterPay.pendingPayoutCents).toBe(0);
     expect(afterPay.paidOutCents).toBe(16_000);
 
     months['2026-09'].accrued = 8000;
     months['2026-09'].count = 1;
-    const september = await summary.forProfile('coach-1', salaryPerClassAmd, '2026-09');
+    const september = await summary.forProfile(
+      'coach-1',
+      salaryPerClassAmd,
+      '2026-09',
+    );
     expect(september.pendingPayoutCents).toBe(8000);
     expect(afterPay.paidOutCents).toBe(16_000);
   });
@@ -108,7 +123,10 @@ describe('coach salary product scenario', () => {
       {
         forProfile: jest
           .fn()
-          .mockResolvedValueOnce({ pendingPayoutCents: 16_000, salaryPerClassAmd })
+          .mockResolvedValueOnce({
+            pendingPayoutCents: 16_000,
+            salaryPerClassAmd,
+          })
           .mockResolvedValueOnce({
             pendingPayoutCents: 0,
             paidOutCents: 16_000,
@@ -123,12 +141,22 @@ describe('coach salary product scenario', () => {
       '2026-08',
     );
 
-    expect(create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        amountAmd: 16_000,
-        periodYear: 2026,
-        periodMonth: 8,
-      }),
+    expect(create).toHaveBeenCalledTimes(1);
+    const [[createCall]] = create.mock.calls as [
+      [
+        {
+          data: {
+            amountAmd: number;
+            periodYear: number;
+            periodMonth: number;
+          };
+        },
+      ],
+    ];
+    expect(createCall.data).toMatchObject({
+      amountAmd: 16_000,
+      periodYear: 2026,
+      periodMonth: 8,
     });
     expect(result.pendingPayoutCents).toBe(0);
     expect(unpaidSalaryAmd(16_000, 16_000)).toBe(0);

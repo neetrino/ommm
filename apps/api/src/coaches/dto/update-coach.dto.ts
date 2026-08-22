@@ -15,10 +15,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  COACH_MAX_AGE,
-  COACH_MIN_AGE,
-} from './create-coach.dto';
+import { COACH_MAX_AGE, COACH_MIN_AGE } from './create-coach.dto';
 import {
   COACH_SALARY_PER_CLASS_MAX_AMD,
   COACH_SALARY_PER_CLASS_MIN_AMD,

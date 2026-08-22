@@ -221,5 +221,3 @@ function buildVisiblePages(current: number, total: number): Array<number | "elli
   }
   return result;
 }
-
-export type { ListPageQueryKeys };

@@ -93,11 +93,13 @@ describe('CoachSalaryAccrualService', () => {
     });
 
     await expect(service.accrueFinishedSession(sessionId)).resolves.toBe(true);
-    expect(create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        coachProfileId: 'coach-b',
-        amountAmd: 10_000,
-      }),
+    expect(create).toHaveBeenCalledTimes(1);
+    const [[createCall]] = create.mock.calls as [
+      [{ data: { coachProfileId: string; amountAmd: number } }],
+    ];
+    expect(createCall.data).toMatchObject({
+      coachProfileId: 'coach-b',
+      amountAmd: 10_000,
     });
   });
 
@@ -109,18 +111,22 @@ describe('CoachSalaryAccrualService', () => {
 
     await service.accrueFinishedSession(sessionId);
 
-    expect(findUnique).toHaveBeenCalledWith(
-      expect.objectContaining({
-        select: expect.objectContaining({
-          _count: {
-            select: {
-              bookings: {
-                where: { status: { not: BookingStatus.CANCELLED } },
-              },
-            },
-          },
-        }),
-      }),
-    );
+    expect(findUnique).toHaveBeenCalledTimes(1);
+    const [[findUniqueCall]] = findUnique.mock.calls as [
+      [
+        {
+          select: {
+            _count: {
+              select: {
+                bookings: { where: { status: { not: BookingStatus } } };
+              };
+            };
+          };
+        },
+      ],
+    ];
+    expect(findUniqueCall.select._count.select.bookings.where).toEqual({
+      status: { not: BookingStatus.CANCELLED },
+    });
   });
 });

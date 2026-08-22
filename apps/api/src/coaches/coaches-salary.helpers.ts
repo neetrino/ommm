@@ -39,10 +39,7 @@ export function parseSalaryMonthParam(month?: string): SalaryPeriod {
   return salaryPeriodFromInstant(new Date());
 }
 
-export function unpaidSalaryAmd(
-  accruedAmd: number,
-  paidAmd: number,
-): number {
+export function unpaidSalaryAmd(accruedAmd: number, paidAmd: number): number {
   return Math.max(0, accruedAmd - paidAmd);
 }
 

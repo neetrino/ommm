@@ -1,4 +1,9 @@
-import { BookingStatus, Prisma, UserPackageStatus, type PrismaClient } from '@prisma/client';
+import {
+  BookingStatus,
+  Prisma,
+  UserPackageStatus,
+  type PrismaClient,
+} from '@prisma/client';
 import { revenueSucceededWhere } from '../payments/payment-revenue.util';
 import {
   CLIENTS_FILTER_OPTIONS_SCAN_LIMIT,
@@ -19,7 +24,10 @@ function withActivePackageWhere(
   where: Prisma.UserWhereInput,
 ): Prisma.UserWhereInput {
   return {
-    AND: [where, { userPackages: { some: { status: UserPackageStatus.ACTIVE } } }],
+    AND: [
+      where,
+      { userPackages: { some: { status: UserPackageStatus.ACTIVE } } },
+    ],
   };
 }
 
