@@ -125,26 +125,28 @@ export function AdminClientsManagement({
 
   const clientsList = (
     <>
-      {viewMode === "sphere" ? (
-        <AdminClientsSphereView rows={payload.rows} onSelect={selectClient} />
-      ) : (
-        <AdminClientsTable
-          rows={payload.rows}
-          onSelect={selectClient}
-          onChanged={refetchClients}
-          capabilities={caps}
-          readOnly={!caps.canUpdate || isStaff}
-        />
-      )}
+      <div className={loading ? "opacity-60 transition-opacity duration-150" : "transition-opacity duration-150"}>
+        {viewMode === "sphere" ? (
+          <AdminClientsSphereView rows={payload.rows} onSelect={selectClient} />
+        ) : (
+          <AdminClientsTable
+            rows={payload.rows}
+            onSelect={selectClient}
+            onChanged={refetchClients}
+            capabilities={caps}
+            readOnly={!caps.canUpdate || isStaff}
+          />
+        )}
+      </div>
       <OmmListPagination
         total={payload.pagination.total}
         page={listPage.page}
         pageSize={listPage.pageSize}
         offset={payload.pagination.offset}
-        onPageChange={(nextPage) => setListPage(nextPage)}
+        onPageChange={setListPage}
         disabled={loading}
       />
-      {payload.rows.length === 0 ? (
+      {!loading && payload.rows.length === 0 ? (
         <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">
           {t("emptyList")}
         </div>

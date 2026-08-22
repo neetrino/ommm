@@ -7,6 +7,8 @@ model CoachProfile {
   classType      String?
   assignedClassTypeIds String[] @default([])
   experienceYears Int?
+  /// Whole AMD paid to the coach for one completed class with participants.
+  salaryPerClassAmd Int @default(0)
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -15,6 +17,8 @@ model CoachProfile {
   substituteSessions  ClassSession[] @relation("SessionSubstituteCoach")
   availabilitySlots   CoachAvailabilitySlot[]
   sessionReviews      SessionReview[]
+  salaryAccruals      CoachSalaryAccrual[]
+  salaryPayouts       CoachSalaryPayout[]
 }
 
 model CoachAvailabilitySlot {
@@ -75,6 +79,39 @@ model ClassSession {
   bookings        Booking[]
   waitlistEntries WaitlistEntry[]
   sessionReviews  SessionReview[]
+  salaryAccrual   CoachSalaryAccrual?
 
   @@index([status, startsAt])
+}
+
+/// One salary line per completed class with at least one real participant.
+model CoachSalaryAccrual {
+  id             String       @id @default(cuid())
+  coachProfileId String
+  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  classSessionId String       @unique
+  classSession   ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  /// Snapshot of salaryPerClassAmd at generation time (whole AMD).
+  amountAmd      Int
+  periodYear     Int
+  periodMonth    Int
+  createdAt      DateTime     @default(now())
+
+  @@index([coachProfileId, periodYear, periodMonth])
+}
+
+/// Admin payment of a coach's unpaid salary for a calendar month.
+model CoachSalaryPayout {
+  id             String       @id @default(cuid())
+  coachProfileId String
+  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  amountAmd      Int
+  periodYear     Int
+  periodMonth    Int
+  paidAt         DateTime     @default(now())
+  paidByAdminId  String
+  paidByAdmin    User         @relation("CoachSalaryPayoutAdmin", fields: [paidByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([coachProfileId, periodYear, periodMonth])
+  @@index([paidByAdminId])
 }

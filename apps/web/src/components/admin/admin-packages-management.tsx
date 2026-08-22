@@ -25,6 +25,8 @@ import {
   normalizeAdminPackageRow,
   type PackageFilterValues,
 } from "@/components/admin/admin-packages-types";
+import { AdminPackagesSummary } from "@/components/admin/admin-packages-summary";
+import { ManageTypesIcon } from "@/components/ui/manage-types-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import {
@@ -38,6 +40,8 @@ type AdminPackagesManagementProps = {
   locale: string;
   initialFilters: PackageFilterValues;
   capabilities?: BackofficeCapabilities;
+  /** Admin-only sold packages summary; omit on manager packages page. */
+  packagesSoldSummary?: { totalSold: number };
 };
 
 export function AdminPackagesManagement({
@@ -46,6 +50,7 @@ export function AdminPackagesManagement({
   locale,
   initialFilters,
   capabilities,
+  packagesSoldSummary,
 }: AdminPackagesManagementProps) {
   const caps = capabilities ?? adminBackofficeCapabilities();
   const t = useTranslations("adminPages.packages");
@@ -170,8 +175,9 @@ export function AdminPackagesManagement({
                 variant="ghost"
                 size="md"
                 onClick={openTypesModal}
-                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
               >
+                <ManageTypesIcon className="h-5 w-5 shrink-0" />
                 {t("manageTypesButton")}
               </OmmButton>
             ) : null}
@@ -190,6 +196,10 @@ export function AdminPackagesManagement({
           </>
         }
       />
+
+      {packagesSoldSummary ? (
+        <AdminPackagesSummary totalSold={packagesSoldSummary.totalSold} />
+      ) : null}
 
       {categoryOptions.length > 0 ? (
         <AdminPackagesCategoryDropdown

@@ -77,6 +77,15 @@ export function listPageRange(offset: number, take: number, total: number): List
   if (total <= 0) {
     return { from: 0, to: 0, total: 0 };
   }
+  if (offset >= total) {
+    const pageSize = Math.max(1, take);
+    const lastOffset = (totalListPages(total, pageSize) - 1) * pageSize;
+    return {
+      from: lastOffset + 1,
+      to: total,
+      total,
+    };
+  }
   const from = offset + 1;
   const to = Math.min(offset + take, total);
   return { from, to, total };
@@ -109,4 +118,24 @@ export function resetListPageQuery(
 ): void {
   params.delete(keys.pageKey);
   params.delete(keys.pageSizeKey);
+}
+
+/** Page 1 of the current page size — used when filters change before the URL page resets. */
+export function firstListPageParams(pageSize: number): ListPageParams {
+  return { page: 1, pageSize, offset: 0, take: pageSize };
+}
+
+export function listPageParamsForFetch(
+  listPage: ListPageParams,
+  resetToFirstPage: boolean,
+): ListPageParams {
+  return resetToFirstPage ? firstListPageParams(listPage.pageSize) : listPage;
+}
+
+export function isOutOfRangeEmptyPage(input: {
+  rowCount: number;
+  total: number;
+  offset: number;
+}): boolean {
+  return input.total > 0 && input.rowCount === 0 && input.offset >= input.total;
 }

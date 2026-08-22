@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PackagesModule } from '../packages/packages.module';
 import { ScheduleItemsModule } from '../schedule/schedule.module';
 import { WaitlistModule } from '../waitlist/waitlist.module';
+import { CoachesModule } from '../coaches/coaches.module';
 import { BookingsAdminListService } from './bookings-admin-list.service';
 import { BookingsAdminManagementService } from './bookings-admin-management.service';
 import { BookingsAdminService } from './bookings-admin.service';
@@ -13,7 +14,7 @@ import { BookingsSlotService } from './bookings-slot.service';
 import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 
 @Module({
-  imports: [WaitlistModule, ScheduleItemsModule, PackagesModule],
+  imports: [WaitlistModule, ScheduleItemsModule, PackagesModule, CoachesModule],
   controllers: [BookingsController],
   providers: [
     BookingsService,

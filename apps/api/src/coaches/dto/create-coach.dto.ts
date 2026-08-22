@@ -14,6 +14,10 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CoachScheduleSlotDto } from './coach-schedule-slot.dto';
+import {
+  COACH_SALARY_PER_CLASS_MAX_AMD,
+  COACH_SALARY_PER_CLASS_MIN_AMD,
+} from '../coaches-salary.constants';
 
 /** Inclusive; aligns with typical employment age for coaches. */
 export const COACH_MIN_AGE = 16;
@@ -83,6 +87,13 @@ export class CreateCoachDto {
   @Min(0)
   @Max(COACH_MAX_EXPERIENCE_YEARS)
   experienceYears?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(COACH_SALARY_PER_CLASS_MIN_AMD)
+  @Max(COACH_SALARY_PER_CLASS_MAX_AMD)
+  salaryPerClassAmd?: number;
 
   @IsOptional()
   @IsArray()

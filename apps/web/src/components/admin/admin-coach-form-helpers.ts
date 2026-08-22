@@ -1,6 +1,7 @@
 "use client";
 
 import { isValidPhone as isValidPhoneNumber } from "@/lib/phone";
+import { parseAmdMoneyInput } from "@/lib/price-amd";
 
 export const COACH_MIN_AGE = 16;
 export const COACH_MAX_AGE = 100;
@@ -16,6 +17,8 @@ export const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 export const ACCEPT_PHOTO =
   "image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
 export const MAX_EXPERIENCE_YEARS = 80;
+export const COACH_SALARY_PER_CLASS_MIN_AMD = 0;
+export const COACH_SALARY_PER_CLASS_MAX_AMD = 1_000_000;
 export const MIN_SCHEDULE_SPOTS = 1;
 export const MAX_SCHEDULE_SPOTS = 200;
 
@@ -91,6 +94,23 @@ export function isValidPhone(trimmed: string): boolean {
 
 export function isValidTime(value: string): boolean {
   return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+}
+
+/** Parses whole AMD for salary-per-class. Empty is 0; invalid is null. */
+export function parseCoachSalaryPerClassAmd(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === "") {
+    return 0;
+  }
+  const parsed = parseAmdMoneyInput(trimmed);
+  if (
+    parsed === null ||
+    parsed < COACH_SALARY_PER_CLASS_MIN_AMD ||
+    parsed > COACH_SALARY_PER_CLASS_MAX_AMD
+  ) {
+    return null;
+  }
+  return parsed;
 }
 
 export function sanitizeCoachPreviewSrc(

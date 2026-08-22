@@ -95,6 +95,25 @@ export function AdminCreateCoachFormDetailsSection({
               message={errorMessage}
             />
           </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("salaryPerClassLabel")}
+            </span>
+            <input
+              name="salaryPerClassAmd"
+              type="text"
+              inputMode="numeric"
+              className={formFieldInputClassFor("salaryPerClassAmd", errorField)}
+              placeholder={t("salaryPerClassPlaceholder")}
+              aria-invalid={errorField === "salaryPerClassAmd"}
+            />
+            <FormFieldErrorFor
+              field="salaryPerClassAmd"
+              errorField={errorField}
+              message={errorMessage}
+            />
+            <span className="text-xs text-sage-500">{t("salaryPerClassHint")}</span>
+          </label>
           <div
             className="flex flex-col gap-2 lg:col-span-2"
             data-create-coach-field="photo"

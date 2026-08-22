@@ -5,7 +5,6 @@ import {
   clampListPage,
   listPageRange,
   totalListPages,
-  type ListPageQueryKeys,
 } from "@/lib/list-pagination";
 
 export const OMMM_LIST_PAGINATION_FOOTER_CLASS =
@@ -222,5 +221,3 @@ function buildVisiblePages(current: number, total: number): Array<number | "elli
   }
   return result;
 }
-
-export type { ListPageQueryKeys };

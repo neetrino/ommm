@@ -105,6 +105,11 @@ export function AdminCoachesFilters({
   const hasMounted = useRef(false);
   const [, startTransition] = useTransition();
   const [values, setValues] = useState(initialValues);
+  const searchParamsRef = useRef(searchParams.toString());
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
 
   const filterFields = useMemo(
     () =>
@@ -166,9 +171,8 @@ export function AdminCoachesFilters({
     }
 
     const handle = window.setTimeout(() => {
-      const query = buildQuery(values, new URLSearchParams(searchParams.toString()));
-      const currentQuery = searchParams.toString();
-      if (query === currentQuery) {
+      const query = buildQuery(values, new URLSearchParams(searchParamsRef.current));
+      if (query === searchParamsRef.current) {
         return;
       }
       startTransition(() => {
@@ -177,7 +181,7 @@ export function AdminCoachesFilters({
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [pathname, router, values]);
 
   function updateField<K extends keyof AdminCoachesFilterValues>(
     key: K,

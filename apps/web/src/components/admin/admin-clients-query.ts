@@ -55,6 +55,15 @@ export const ADMIN_CLIENTS_UI_QUERY_KEYS = [
   LIST_PAGE_SIZE_QUERY_KEY,
 ] as const;
 
+/** Keys preserved when filters rewrite the URL. `page` is omitted so filters always open page 1. */
+const ADMIN_CLIENTS_FILTER_PRESERVED_UI_KEYS = [
+  "viewClient",
+  ADMIN_CLIENTS_VIEW_QUERY_KEY,
+  CLIENT_PROFILE_TAB_QUERY_KEY,
+  CLIENT_ADD_PACKAGE_QUERY_KEY,
+  LIST_PAGE_SIZE_QUERY_KEY,
+] as const;
+
 export { LIST_PAGE_QUERY_KEY, LIST_PAGE_SIZE_QUERY_KEY };
 
 export const VIEW_CLIENT_QUERY_KEY = "viewClient";
@@ -90,13 +99,26 @@ export function pickAdminClientsInitialFilters(
   return filters;
 }
 
+export function buildAdminClientsFilterQuery(
+  values: Record<string, string | undefined>,
+): string {
+  const params = new URLSearchParams();
+  for (const key of ADMIN_CLIENTS_FILTER_KEYS) {
+    const value = values[key]?.trim() ?? "";
+    if (value !== "" && !(key === "order" && value === "newest")) {
+      params.set(key, value);
+    }
+  }
+  return params.toString();
+}
+
 export function mergeAdminClientsUrlQuery(
   filterQuery: string,
   currentQuery: string,
 ): string {
   const params = new URLSearchParams(filterQuery);
   const current = new URLSearchParams(currentQuery);
-  for (const key of ADMIN_CLIENTS_UI_QUERY_KEYS) {
+  for (const key of ADMIN_CLIENTS_FILTER_PRESERVED_UI_KEYS) {
     const value = current.get(key);
     if (value) {
       params.set(key, value);

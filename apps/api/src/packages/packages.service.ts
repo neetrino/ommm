@@ -39,6 +39,10 @@ export class PackagesService {
     return this.adminService.listCategoryNamesAdmin();
   }
 
+  getAdminStats() {
+    return this.adminService.getAdminStats();
+  }
+
   createPlan(dto: UpsertPackagePlanDto) {
     return this.adminService.createPlan(dto);
   }

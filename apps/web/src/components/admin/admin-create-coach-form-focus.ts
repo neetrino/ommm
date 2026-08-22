@@ -12,6 +12,7 @@ export type AdminCreateCoachFocusField =
   | "bio"
   | "specialization"
   | "experienceYears"
+  | "salaryPerClassAmd"
   | "assignedClasses"
   | "photo";
 
@@ -30,6 +31,18 @@ export function focusAdminCreateCoachField(
   focusFormField(form, field);
 }
 
+export function reportAdminCreateCoachFieldError(
+  form: HTMLFormElement,
+  setError: (error: string | null) => void,
+  setErrorField: (field: AdminCreateCoachFocusField | null) => void,
+  message: string,
+  field: AdminCreateCoachFocusField,
+): void {
+  setError(message);
+  setErrorField(field);
+  focusAdminCreateCoachField(form, field);
+}
+
 /** Maps API conflict / validation messages to the field the user should edit. */
 export function resolveAdminCreateCoachApiFocusField(
   message: string,
@@ -46,6 +59,9 @@ export function resolveAdminCreateCoachApiFocusField(
   }
   if (normalized.includes("assigned class") || normalized.includes("class type")) {
     return "assignedClasses";
+  }
+  if (normalized.includes("salary")) {
+    return "salaryPerClassAmd";
   }
   if (normalized.includes("photo")) {
     return "photo";

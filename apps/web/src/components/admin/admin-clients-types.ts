@@ -57,6 +57,7 @@ export type AdminClientsPayload = {
   summary: {
     total: number;
     active: number;
+    withPackage: number;
     vip: number;
     totalVisits: number;
     lifetimeValueCents: number;

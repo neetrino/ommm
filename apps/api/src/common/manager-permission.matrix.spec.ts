@@ -48,6 +48,9 @@ describe('manager-permission.matrix', () => {
         Role.MANAGER,
       ),
     ).toBe(false);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.coaches.salaryPayout, Role.MANAGER),
+    ).toBe(false);
   });
 
   it('preserves CONTENT_ADMIN on content write and delete', () => {

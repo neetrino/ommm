@@ -40,3 +40,23 @@ export function isPackageCategoryActive(
   const inCategory = packagesInCategory(packages, categorySlug);
   return inCategory.length > 0 && inCategory.every((pkg) => pkg.isActive);
 }
+
+/**
+ * Admin list order: currently active groups first (relative order kept),
+ * then inactive groups after the last active one.
+ */
+export function sortPackageCategoriesActiveFirst(
+  categories: readonly AdminPackagesCategoryOption[],
+  packages: readonly AdminPackageRow[],
+): AdminPackagesCategoryOption[] {
+  const active: AdminPackagesCategoryOption[] = [];
+  const inactive: AdminPackagesCategoryOption[] = [];
+  for (const category of categories) {
+    if (isPackageCategoryActive(packages, category.id)) {
+      active.push(category);
+    } else {
+      inactive.push(category);
+    }
+  }
+  return [...active, ...inactive];
+}

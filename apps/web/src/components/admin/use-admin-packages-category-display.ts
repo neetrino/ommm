@@ -8,7 +8,10 @@ import {
   syncPackageCategorySelection,
   type AdminPackagesCategoryOption,
 } from "@/components/admin/admin-packages-category-multi-select";
-import { categoryHasConfiguredPackages } from "@/components/admin/admin-packages-categories";
+import {
+  categoryHasConfiguredPackages,
+  sortPackageCategoriesActiveFirst,
+} from "@/components/admin/admin-packages-categories";
 import { hasActivePackageFilters } from "@/components/admin/admin-packages-filter-logic";
 import type { AdminPackageRow, PackageFilterValues } from "@/components/admin/admin-packages-types";
 import {
@@ -148,13 +151,13 @@ export function useAdminPackagesCategoryDisplay({
   const filtersActive = hasActivePackageFilters(filterValues);
 
   const displayCategories = useMemo(() => {
-    if (!filtersActive) {
-      return visibleCategories;
-    }
-    return visibleCategories.filter((option) =>
-      categoryHasConfiguredPackages(filteredPackages, option.id),
-    );
-  }, [filteredPackages, filtersActive, visibleCategories]);
+    const matching = filtersActive
+      ? visibleCategories.filter((option) =>
+          categoryHasConfiguredPackages(filteredPackages, option.id),
+        )
+      : visibleCategories;
+    return sortPackageCategoriesActiveFirst(matching, sortedPackages);
+  }, [filteredPackages, filtersActive, sortedPackages, visibleCategories]);
 
   const categoryPage = (() => {
     const raw = searchParams.get(PACKAGE_CATEGORIES_PAGE_QUERY_KEY);
@@ -169,10 +172,6 @@ export function useAdminPackagesCategoryDisplay({
     displayCategories.length,
     ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE,
   );
-  const pagedDisplayCategories = useMemo(() => {
-    const offset = (categoryListPageClamped - 1) * ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE;
-    return displayCategories.slice(offset, offset + ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE);
-  }, [categoryListPageClamped, displayCategories]);
 
   const syncCategoryListPage = useCallback(
     (page: number) => {
@@ -186,6 +185,18 @@ export function useAdminPackagesCategoryDisplay({
     },
     [pathname, router, searchParams],
   );
+
+  useEffect(() => {
+    if (categoryPage === categoryListPageClamped) {
+      return;
+    }
+    syncCategoryListPage(categoryListPageClamped);
+  }, [categoryListPageClamped, categoryPage, syncCategoryListPage]);
+
+  const pagedDisplayCategories = useMemo(() => {
+    const offset = (categoryListPageClamped - 1) * ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE;
+    return displayCategories.slice(offset, offset + ADMIN_PACKAGES_CATEGORIES_PAGE_SIZE);
+  }, [categoryListPageClamped, displayCategories]);
 
   const defaultCategoryId = useMemo(() => {
     const firstSelected = categoryOptions.find((option) => selectedCategoryIds.has(option.id));

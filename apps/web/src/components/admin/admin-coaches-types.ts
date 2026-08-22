@@ -11,6 +11,7 @@ export type AdminCoachDirectoryRow = {
     spots: number;
   }[];
   experienceYears: number | null;
+  salaryPerClassAmd: number;
   age: number | null;
   isActive: boolean;
   createdAt: string;

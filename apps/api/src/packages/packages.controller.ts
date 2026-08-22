@@ -49,6 +49,13 @@ export class PackagesController {
     return this.packages.listCategoryNamesAdmin();
   }
 
+  @Get('admin/stats')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  getAdminStats() {
+    return this.packages.getAdminStats();
+  }
+
   @Patch('admin/categories/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)

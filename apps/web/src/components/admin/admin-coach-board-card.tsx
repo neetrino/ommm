@@ -7,7 +7,6 @@ import {
   COACH_BOARD_AVATAR_CLASS,
   CoachClassBadges,
   CoachDirectoryAvatar,
-  classNamesForCoach,
   coachDirectoryDisplayName,
 } from "@/components/admin/admin-coach-directory-display";
 import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
@@ -115,7 +114,6 @@ export function AdminCoachBoardCard({
 }: AdminCoachBoardCardProps) {
   const t = useTranslations("adminPages.coaches");
   const displayName = coachDirectoryDisplayName(coach);
-  const classLabels = classNamesForCoach(coach.assignedClassTypeIds, classOptions);
   const specialization = coach.specialization?.trim() || "—";
 
   return (
@@ -139,7 +137,8 @@ export function AdminCoachBoardCard({
         <div className={`${BOARD_CARD_DIVIDER_SECTION_CLASS} flex-1`}>
           <div className="flex flex-wrap content-start items-center gap-2">
             <CoachClassBadges
-              labels={classLabels}
+              assignedClassTypeIds={coach.assignedClassTypeIds}
+              classOptions={classOptions}
               badgeClassName={ADMIN_COACH_CLASS_BADGE_BOARD_CLASS}
             />
           </div>

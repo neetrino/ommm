@@ -10,14 +10,17 @@ import {
   COACH_SALARY_FILTER_SCAN_LIMIT,
   filterCoachSalaryRows,
   requiresCoachSalaryPostProcessing,
-  resolveSalaryMonthRange,
   sortCoachSalaryRows,
 } from './coaches-salary-list-filters';
+import { CoachSalarySummaryService } from './coaches-salary-summary.service';
 import type { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 
 @Injectable()
 export class CoachesPanelService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly salary: CoachSalarySummaryService,
+  ) {}
 
   async coachPanelSummary(userId: string) {
     const profile = await this.prisma.coachProfile.findUnique({
@@ -98,6 +101,7 @@ export class CoachesPanelService {
       id: string;
       userId: string;
       isActive: boolean;
+      salaryPerClassAmd: number;
       user: {
         id: string;
         name: string | null;
@@ -112,7 +116,11 @@ export class CoachesPanelService {
       isActive: profile.isActive,
       user: profile.user,
       totalClasses: profile._count.sessions,
-      salary: await this.salarySummary(profile.userId, query.month),
+      salary: await this.salary.forProfile(
+        profile.id,
+        profile.salaryPerClassAmd,
+        query.month,
+      ),
     });
 
     if (!hasPagination) {
@@ -166,44 +174,6 @@ export class CoachesPanelService {
   }
 
   async salarySummary(userId: string, month?: string) {
-    const profile = await this.prisma.coachProfile.findUnique({
-      where: { userId },
-    });
-    if (!profile) {
-      return null;
-    }
-    const { from, to } = resolveSalaryMonthRange(month);
-    const sessions = await this.prisma.classSession.findMany({
-      where: {
-        coachId: profile.id,
-        startsAt: { gte: from, lt: to },
-      },
-      include: {
-        bookings: {
-          where: {
-            status: BookingStatus.COMPLETED,
-          },
-        },
-      },
-      orderBy: { startsAt: 'desc' },
-      take: 300,
-    });
-    const perAttendeeShareCents = 1000;
-    const basePerSessionCents = 3000;
-    const completedSessions = sessions.filter((s) => s.bookings.length > 0);
-    const totalEarningsCents = completedSessions.reduce((sum, s) => {
-      return (
-        sum + basePerSessionCents + s.bookings.length * perAttendeeShareCents
-      );
-    }, 0);
-    return {
-      coachProfileId: profile.id,
-      completedSessions: completedSessions.length,
-      totalEarningsCents,
-      basePerSessionCents,
-      perAttendeeShareCents,
-      pendingPayoutCents: Math.round(totalEarningsCents * 0.4),
-      paidOutCents: Math.round(totalEarningsCents * 0.6),
-    };
+    return this.salary.forUserId(userId, month);
   }
 }

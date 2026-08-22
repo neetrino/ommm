@@ -1,6 +1,9 @@
-import { BookingStatus, Role } from '@prisma/client';
+import { BookingStatus, Role, UserPackageStatus } from '@prisma/client';
 import { revenueSucceededWhere } from '../payments/payment-revenue.util';
-import { computeClientsSummaryFromDb } from './clients-list-summary';
+import {
+  computeClientsSummaryFromDb,
+  summaryFromRows,
+} from './clients-list-summary';
 
 describe('computeClientsSummaryFromDb', () => {
   it('aggregates lifetime value with cash-revenue where so influencer comps are excluded', async () => {
@@ -20,11 +23,20 @@ describe('computeClientsSummaryFromDb', () => {
     expect(result).toEqual({
       total: 4,
       active: 4,
+      withPackage: 4,
       vip: 0,
       totalVisits: 9,
       lifetimeValueCents: 25_000,
     });
     expect(prisma.user.count).toHaveBeenNthCalledWith(1, { where });
+    expect(prisma.user.count).toHaveBeenNthCalledWith(3, {
+      where: {
+        AND: [
+          where,
+          { userPackages: { some: { status: UserPackageStatus.ACTIVE } } },
+        ],
+      },
+    });
     expect(prisma.booking.count).toHaveBeenCalledWith({
       where: {
         status: BookingStatus.COMPLETED,
@@ -38,5 +50,36 @@ describe('computeClientsSummaryFromDb', () => {
       },
       _sum: { amountCents: true },
     });
+  });
+});
+
+describe('summaryFromRows', () => {
+  it('counts clients with an ACTIVE membership separately from visit-active clients', () => {
+    const result = summaryFromRows([
+      {
+        classLevels: [],
+        preferredCoach: null,
+        tags: [],
+        status: 'Inactive',
+        activePackageStatus: UserPackageStatus.ACTIVE,
+        totalVisits: 0,
+        lifetimeValueCents: 0,
+      },
+      {
+        classLevels: [],
+        preferredCoach: null,
+        tags: ['VIP'],
+        status: 'Active',
+        activePackageStatus: null,
+        totalVisits: 3,
+        lifetimeValueCents: 1000,
+      },
+    ]);
+
+    expect(result.total).toBe(2);
+    expect(result.active).toBe(1);
+    expect(result.withPackage).toBe(1);
+    expect(result.vip).toBe(1);
+    expect(result.totalVisits).toBe(3);
   });
 });

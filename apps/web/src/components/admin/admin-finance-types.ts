@@ -69,6 +69,7 @@ export type CoachSalarySummary = {
   coachProfileId: string;
   completedSessions: number;
   totalEarningsCents: number;
+  salaryPerClassAmd: number;
   basePerSessionCents: number;
   perAttendeeShareCents: number;
   pendingPayoutCents: number;
