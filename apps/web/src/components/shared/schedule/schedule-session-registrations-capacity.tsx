@@ -18,8 +18,13 @@ type ScheduleSessionRegistrationsCapacityProps = {
   layout?: "indicator" | "compactText";
 };
 
-const COMPACT_SPOTS_BUTTON_CLASS =
-  "truncate text-left text-xs font-medium text-sage-700 underline decoration-sand-300/80 decoration-dotted underline-offset-[3px] hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+/** Matches list capacity hit-area hover — soft sand pill so week/month spots feel clickable. */
+const COMPACT_SPOTS_BUTTON_CLASS = [
+  "inline-flex max-w-full truncate rounded-xl px-2 py-1.5 text-left text-xs font-medium text-sage-800",
+  "underline decoration-sand-300/80 decoration-dotted underline-offset-[3px]",
+  "transition-colors hover:bg-sand-100/70 hover:text-sage-950",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+].join(" ");
 
 export function ScheduleSessionRegistrationsCapacity({
   sessionId,
