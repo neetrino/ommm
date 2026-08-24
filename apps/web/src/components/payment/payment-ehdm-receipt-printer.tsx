@@ -146,15 +146,6 @@ export function PaymentEhdmReceiptPrinter({
           </OmmButton>
         ) : null}
 
-        {phase === "printing" ? (
-          <div className={`${styles.statusCard} ${styles.statusTextPrinting}`}>
-            <p className={styles.statusText}>
-              <span className={styles.statusTitle}>{t("printingTitle")}</span>
-              {t("printingLead")}
-            </p>
-          </div>
-        ) : null}
-
         {phase === "done" ? (
           <div className={styles.controlRow}>
             <OmmButton type="button" variant="secondary" onClick={handleReprint}>
