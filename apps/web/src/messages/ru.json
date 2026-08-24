@@ -1341,6 +1341,20 @@
         "referenceLabel": "Номер",
         "doneButton": "Продолжить",
         "retryButton": "Попробовать снова",
+        "ehdm": {
+          "title": "Фискальный чек (EHDM)",
+          "pageEyebrow": "Фискальный чек",
+          "pageTitle": "Ваш чек",
+          "viewReceiptButton": "Посмотреть фискальный чек",
+          "backButton": "Назад к оплате",
+          "loading": "Формируем чек…",
+          "missing": "Чек пока недоступен.",
+          "receiptId": "ID чека",
+          "fiscal": "Фискальный номер",
+          "qr": "Проверка",
+          "openQr": "Открыть ссылку на чек",
+          "mockBadge": "Тестовый чек"
+        },
         "sources": {
           "gift": {
             "successTitle": "Оплата подарочной карты прошла успешно",
@@ -3797,6 +3811,12 @@
         "methodUnknown": "Ещё не выбран",
         "close": "Закрыть детали платежа",
         "closeBackdrop": "Закрыть детали платежа",
+        "ehdmReceipt": "Фискальный чек (EHDM)",
+        "ehdmReceiptMissing": "Ещё не выдан",
+        "ehdmReceiptMock": "Тестовый чек",
+        "ehdmFiscal": "Фискальный номер",
+        "ehdmReceiptId": "ID чека",
+        "ehdmQr": "QR-проверка",
         "viewFor": "Открыть детали платежа для {name}",
         "related": {
           "package": "Подписка на пакет ({id})",

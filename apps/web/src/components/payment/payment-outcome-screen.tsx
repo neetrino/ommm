@@ -9,7 +9,7 @@ import {
   paymentCheckoutReturnPath,
   type PaymentCheckoutSource,
 } from "@/lib/payment-checkout-source";
-import { PAYMENT_FAIL_PATH } from "@/lib/payment-result-paths";
+import { PAYMENT_FAIL_PATH, buildPaymentReceiptPath } from "@/lib/payment-result-paths";
 import { PaymentOutcomeSphereLogo } from "@/components/payment/payment-outcome-sphere-logo";
 import styles from "./payment-outcome-screen.module.css";
 
@@ -74,6 +74,17 @@ export function PaymentOutcomeScreen({
         {t(`sources.${source}.${titleKey}`)}
       </h1>
       <p className={`${styles.lead} text-sage-600`}>{t(`sources.${source}.${leadKey}`)}</p>
+
+      {isSuccess && reference !== null ? (
+        <div className={styles.receiptAction}>
+          <Link
+            href={buildPaymentReceiptPath(reference, source)}
+            className="ommm-cta-ghost inline-flex justify-center"
+          >
+            {t("ehdm.viewReceiptButton")}
+          </Link>
+        </div>
+      ) : null}
 
       <div className={styles.actions}>
         <Link href={returnPath}>

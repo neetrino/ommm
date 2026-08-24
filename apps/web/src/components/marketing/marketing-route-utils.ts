@@ -30,6 +30,7 @@ const AUTH_HEADER_PATHS = [
   "/payment/success",
   "/payment/fail",
   "/payment/pending",
+  "/payment/receipt",
 ] as const;
 
 /** Auth sign-in / registration — light surfaces, elevated global header ink. */

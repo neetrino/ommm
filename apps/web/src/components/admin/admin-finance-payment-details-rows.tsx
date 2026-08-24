@@ -67,3 +67,66 @@ export function AdminFinancePaymentPackageRows({
     />
   );
 }
+
+export function AdminFinancePaymentEhdmRows({
+  payment,
+  t,
+}: {
+  payment: FinancePaymentItem;
+  t: FinanceT;
+}) {
+  if (payment.status !== "SUCCEEDED") {
+    return null;
+  }
+
+  const receipt = payment.ehdmReceipt;
+  if (!receipt) {
+    return (
+      <AdminFinancePaymentDetailRow
+        label={t("paymentDetails.ehdmReceipt")}
+        value={
+          <span className="text-sm text-sage-500">{t("paymentDetails.ehdmReceiptMissing")}</span>
+        }
+      />
+    );
+  }
+
+  return (
+    <>
+      <AdminFinancePaymentDetailRow
+        label={t("paymentDetails.ehdmReceipt")}
+        value={
+          <span className="inline-flex flex-wrap items-center gap-2">
+            <span className="font-medium text-sage-800">{receipt.receiptId}</span>
+            {receipt.isMock ? (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                {t("paymentDetails.ehdmReceiptMock")}
+              </span>
+            ) : null}
+          </span>
+        }
+      />
+      {receipt.fiscal ? (
+        <AdminFinancePaymentDetailRow
+          label={t("paymentDetails.ehdmFiscal")}
+          value={receipt.fiscal}
+        />
+      ) : null}
+      {receipt.qr ? (
+        <AdminFinancePaymentDetailRow
+          label={t("paymentDetails.ehdmQr")}
+          value={
+            <a
+              href={receipt.qr}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="break-all text-sm text-sage-700 underline decoration-sage-300 underline-offset-2 hover:text-sage-900"
+            >
+              {receipt.qr}
+            </a>
+          }
+        />
+      ) : null}
+    </>
+  );
+}

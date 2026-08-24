@@ -1342,6 +1342,20 @@
         "referenceLabel": "Համար",
         "doneButton": "Շարունակել",
         "retryButton": "Կրկին փորդել",
+        "ehdm": {
+          "title": "Ֆիսկալ կտրոն (ԷՀԴՄ)",
+          "pageEyebrow": "Ֆիսկալ կտրոն",
+          "pageTitle": "Ձեր կտրոնը",
+          "viewReceiptButton": "Դիտել ֆիսկալ կտրոնը",
+          "backButton": "Վերադառնալ վճարման",
+          "loading": "Կտրոնը պատրաստվում է…",
+          "missing": "Կտրոնը դեռ հասանելի չէ։",
+          "receiptId": "Կտրոնի ID",
+          "fiscal": "Ֆիսկալ համար",
+          "qr": "Ստուգում",
+          "openQr": "Բացել կտրոնի հղումը",
+          "mockBadge": "Թեստային կտրոն"
+        },
         "sources": {
           "gift": {
             "successTitle": "Նովեր օարտի ոռարմանը հաջոբ է։",
@@ -3800,6 +3814,12 @@
         "methodUnknown": "Դեռ չի ընտրվել",
         "close": "Փակել վճարման մանրամասները",
         "closeBackdrop": "Փակել վճարման մանրամասները",
+        "ehdmReceipt": "Ֆիսկալ կտրոն (ԷՀԴՄ)",
+        "ehdmReceiptMissing": "Դեռ չի տպվել",
+        "ehdmReceiptMock": "Թեստային կտրոն",
+        "ehdmFiscal": "Ֆիսկալ համար",
+        "ehdmReceiptId": "Կտրոնի ID",
+        "ehdmQr": "QR ստուգում",
         "viewFor": "Բացել {name} վճարման մանրամասները",
         "related": {
           "package": "Փաթեթի բաժանորդագրություն ({id})",

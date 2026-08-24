@@ -31,6 +31,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import {
   AdminFinancePaymentDetailRow,
+  AdminFinancePaymentEhdmRows,
   AdminFinancePaymentPackageRows,
 } from "@/components/admin/admin-finance-payment-details-rows";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
@@ -209,6 +210,7 @@ export function AdminFinancePaymentDetailsSheet({
                 </span>
               }
             />
+            <AdminFinancePaymentEhdmRows payment={payment} t={t} />
           </dl>
         </div>
 

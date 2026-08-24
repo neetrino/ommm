@@ -1,0 +1,19 @@
+model EhdmState {
+  id      String @id @default("default")
+  nextSeq Int
+}
+
+model EhdmReceipt {
+  id        String   @id @default(cuid())
+  paymentId String   @unique
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  receiptId String
+  seq       Int
+  fiscal    String?
+  qr        String?
+  isMock    Boolean  @default(false)
+  response  Json?
+  createdAt DateTime @default(now())
+
+  @@index([receiptId])
+}

@@ -17,6 +17,7 @@ model Payment {
   paymentMethod   ManualPaymentMethod?
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
+  ehdmReceipt     EhdmReceipt?
 
   @@index([userId])
   @@index([status, createdAt])

@@ -50,6 +50,14 @@ export type FinancePaymentItem = {
   confirmedAt: string | null;
   /** Short code explaining PENDING/FAILED — see payment-status-reason.ts */
   statusReason?: string | null;
+  ehdmReceipt?: {
+    receiptId: string;
+    seq: number;
+    fiscal: string | null;
+    qr: string | null;
+    isMock: boolean;
+    createdAt: string;
+  } | null;
   user: {
     email: string;
     name: string | null;

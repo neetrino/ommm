@@ -8,6 +8,7 @@ import { isArcaCheckoutEnabled } from './payment-arca.util';
 import { PAYMENT_STATUS_REASON } from './payment-status-reason';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
+import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import {
   assertDropInSessionForCheckout,
   assertGiftBatchForCheckout,
@@ -36,6 +37,7 @@ export class PaymentsCheckoutService {
     private readonly confirm: PaymentsConfirmService,
     private readonly paymentSuccessEmail: PaymentSuccessEmailService,
     private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
+    private readonly ehdmReceipt: EhdmReceiptService,
   ) {}
 
   isArcaCheckoutEnabled(): boolean {
@@ -305,6 +307,7 @@ export class PaymentsCheckoutService {
       payment.id,
       PaymentStatus.PENDING,
     );
+    this.ehdmReceipt.tryPrintReceipt(payment.id, PaymentStatus.PENDING);
     return payment;
   }
 

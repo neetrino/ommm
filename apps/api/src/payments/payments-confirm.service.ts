@@ -9,6 +9,7 @@ import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { PackagesPublicService } from '../packages/packages-public.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
+import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
 import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import type { GiftEmailPayload, InternalPaymentRecord } from './payments.types';
@@ -19,6 +20,7 @@ export class PaymentsConfirmService {
     private readonly prisma: PrismaService,
     private readonly fulfillment: PaymentsFulfillmentService,
     private readonly paymentSuccessEmail: PaymentSuccessEmailService,
+    private readonly ehdmReceipt: EhdmReceiptService,
     @Inject(forwardRef(() => PackagesPublicService))
     private readonly packagesPublic: PackagesPublicService,
   ) {}
@@ -72,6 +74,7 @@ export class PaymentsConfirmService {
       payment.id,
       PaymentStatus.PENDING,
     );
+    this.ehdmReceipt.tryPrintReceipt(payment.id, PaymentStatus.PENDING);
     return payment;
   }
 

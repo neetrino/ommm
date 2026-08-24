@@ -1331,6 +1331,20 @@
         "referenceLabel": "Reference",
         "doneButton": "Continue",
         "retryButton": "Try again",
+        "ehdm": {
+          "title": "Fiscal receipt (EHDM)",
+          "pageEyebrow": "Fiscal receipt",
+          "pageTitle": "Your receipt",
+          "viewReceiptButton": "View fiscal receipt",
+          "backButton": "Back to payment",
+          "loading": "Preparing your receipt…",
+          "missing": "Receipt is not available yet.",
+          "receiptId": "Receipt ID",
+          "fiscal": "Fiscal number",
+          "qr": "Verification",
+          "openQr": "Open receipt link",
+          "mockBadge": "Test receipt"
+        },
         "sources": {
           "gift": {
             "successTitle": "Gift card payment successful",
@@ -4120,6 +4134,12 @@
         "methodUnknown": "Not selected yet",
         "close": "Close payment details",
         "closeBackdrop": "Close payment details",
+        "ehdmReceipt": "Fiscal receipt (EHDM)",
+        "ehdmReceiptMissing": "Not issued yet",
+        "ehdmReceiptMock": "Test mode receipt",
+        "ehdmFiscal": "Fiscal number",
+        "ehdmReceiptId": "Receipt ID",
+        "ehdmQr": "QR verification",
         "viewFor": "View payment details for {name}",
         "related": {
           "package": "Package subscription ({id})",
