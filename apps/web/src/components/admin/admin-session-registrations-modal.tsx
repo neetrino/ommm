@@ -48,6 +48,7 @@ export function AdminSessionRegistrationsModal({
 
   const [fetchResult, setFetchResult] = useState<RegistrationsFetchResult | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const clientDrawerOpen = selectedClientId !== null;
   const fetchKey = isOpen ? sessionId : null;
   const loading = fetchKey !== null && (fetchResult === null || fetchResult.key !== fetchKey);
   const rows = fetchResult?.key === fetchKey ? fetchResult.rows : [];
@@ -116,6 +117,8 @@ export function AdminSessionRegistrationsModal({
         backdropAriaLabel={t("backdropClose")}
         overlayClassName="ommm-modal-overlay z-[110] p-4"
         panelClassName={MODAL_PANEL_CLASS}
+        closeOnEscape={!clientDrawerOpen}
+        lockBodyScroll={!clientDrawerOpen}
       >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">

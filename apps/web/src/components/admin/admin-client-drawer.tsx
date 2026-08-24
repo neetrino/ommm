@@ -28,6 +28,7 @@ import {
   ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS,
   ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS,
@@ -35,7 +36,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmDrawerPortal, OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -368,11 +369,14 @@ function AdminClientDrawerInner({
       closeOnEscape={!avatarPreviewOpen}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      overlayClassName={
+        isNestedOverlay
+          ? ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS
+          : ADMIN_DETAILS_SHEET_OVERLAY_CLASS
+      }
       panelClassName={
         isNestedOverlay ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS
       }
-      backdropClassName={isNestedOverlay ? OMM_DRAWER_NESTED_BACKDROP_CLASS : undefined}
       lockBodyScroll={!isNestedOverlay}
       useOverlayPortalRoot={useOverlayPortalRoot}
     >
