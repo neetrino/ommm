@@ -46,7 +46,7 @@ export class EhdmApiClient {
             const raw = Buffer.concat(chunks).toString('utf8');
             try {
               resolve(JSON.parse(raw) as EhdmApiResponse);
-            } catch (error) {
+            } catch {
               reject(
                 new Error(
                   `EHDM invalid JSON (${response.statusCode ?? 'unknown'}): ${raw.slice(0, 200)}`,

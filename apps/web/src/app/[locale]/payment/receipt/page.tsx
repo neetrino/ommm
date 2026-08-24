@@ -18,7 +18,9 @@ export default async function PaymentReceiptPage({
   const { locale } = await params;
   const { reference, source } = await searchParams;
 
-  if (!reference?.trim()) {
+  const trimmedReference = reference?.trim() ?? "";
+
+  if (!trimmedReference) {
     redirect({ href: PAYMENT_SUCCESS_PATH, locale });
   }
 
@@ -26,7 +28,7 @@ export default async function PaymentReceiptPage({
 
   return (
     <PaymentEhdmReceiptScreen
-      reference={reference.trim()}
+      reference={trimmedReference}
       source={checkoutSource}
       locale={locale}
     />

@@ -45,7 +45,9 @@ export function MarketingSiteHeaderWithClientAccount({
   navLinks,
   serverAccount,
 }: MarketingSiteHeaderWithClientAccountProps) {
-  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(null);
+  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(
+    () => (serverAccount === null ? readCachedMarketingHeaderAccount() : null),
+  );
   const [cachedAccountValidated, setCachedAccountValidated] = useState(
     () => serverAccount !== null,
   );
@@ -57,10 +59,7 @@ export function MarketingSiteHeaderWithClientAccount({
       return;
     }
 
-    const cached = readCachedMarketingHeaderAccount();
-    if (cached !== null) {
-      setCachedAccount(cached);
-    } else {
+    if (readCachedMarketingHeaderAccount() === null) {
       return;
     }
 

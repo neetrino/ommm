@@ -10,9 +10,12 @@ import type {
 export class EhdmMockClient {
   constructor(private readonly config: EhdmConfig) {}
 
-  async print(body: EhdmPrintRequestBody): Promise<EhdmApiResponse> {
+  print(body: EhdmPrintRequestBody): EhdmApiResponse {
     const total =
-      body.cardAmount + body.cashAmount + body.partialAmount + body.prePaymentAmount;
+      body.cardAmount +
+      body.cashAmount +
+      body.partialAmount +
+      body.prePaymentAmount;
     const result: EhdmPrintResult = {
       receiptId: `MOCK-${body.seq}`,
       fiscal: `MOCK-FISCAL-${body.seq}`,
