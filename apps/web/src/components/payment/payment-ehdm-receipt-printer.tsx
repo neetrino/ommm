@@ -156,29 +156,21 @@ export function PaymentEhdmReceiptPrinter({
         ) : null}
 
         {phase === "done" ? (
-          <>
-            <div className={styles.statusCard}>
-              <p className={styles.statusText}>
-                <span className={styles.statusTitle}>{t("printedTitle")}</span>
-                {t("printedLead")}
-              </p>
-            </div>
-            <div className={styles.controlRow}>
-              <OmmButton type="button" variant="secondary" onClick={handleReprint}>
-                {t("reprintButton")}
-              </OmmButton>
-              {receipt.qr ? (
-                <a
-                  href={receipt.qr}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.verifyLink}
-                >
-                  {t("openQr")}
-                </a>
-              ) : null}
-            </div>
-          </>
+          <div className={styles.controlRow}>
+            <OmmButton type="button" variant="secondary" onClick={handleReprint}>
+              {t("reprintButton")}
+            </OmmButton>
+            {receipt.qr ? (
+              <a
+                href={receipt.qr}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.verifyLink}
+              >
+                {t("openQr")}
+              </a>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </div>
