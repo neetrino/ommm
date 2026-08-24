@@ -7,7 +7,9 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 import { OmmButton } from "@/components/ui/omm-button";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -15,6 +17,7 @@ import type { PaymentOutcomePayload } from "@/lib/payment-outcome-types";
 import styles from "./payment-ehdm-receipt-printer.module.css";
 
 const PRINT_DURATION_MS = 2800;
+const RECEIPT_LOGO_SIZE_PX = 34;
 
 type PrintPhase = "idle" | "printing" | "done";
 
@@ -89,13 +92,12 @@ export function PaymentEhdmReceiptPrinter({
     <div className={styles.printerRoot}>
       <div className={styles.printerAssembly}>
         <div className={styles.printerChassis} aria-hidden>
-          <div className={styles.printerBezel} />
-          <div className={styles.printerHead}>
-            <div className={styles.printerHeadInner}>
-              <div className={styles.printerHeadShine} />
+          <div className={styles.printerFace}>
+            <div className={styles.printerSlotTrack}>
+              <div className={styles.printerSlot} />
             </div>
-            <div className={styles.printerSlotLip} />
           </div>
+          <div className={styles.printerPaperGuide} />
         </div>
 
         <div
@@ -109,27 +111,29 @@ export function PaymentEhdmReceiptPrinter({
           style={viewportStyle}
           aria-live="polite"
         >
-          <div ref={paperRef} className={styles.paper}>
-            <ReceiptPaperContent
-              brandName={t("brandName")}
-              brandSubtitle={t("brandSubtitle")}
-              amountLabel={formatAmdFromCents(payload.amountCents, locale)}
-              metaLine={`${paidLabel} | ${t("paidBadge")}`}
-              isMock={receipt.isMock}
-              mockBadge={t("mockBadge")}
-              itemLabel={itemLabel}
-              itemPrice={formatAmdFromCents(payload.amountCents, locale)}
-              totalLabel={t("totalLabel")}
-              totalValue={formatAmdFromCents(payload.amountCents, locale)}
-              fiscalLabel={t("fiscal")}
-              fiscalValue={receipt.fiscal}
-              receiptIdLabel={t("receiptId")}
-              receiptId={receipt.receiptId}
-              referenceLabel={t("referenceLabel")}
-              reference={payload.paymentReference ?? "—"}
-              footerNote={t("footerNote")}
-              txnId={receipt.receiptId}
-            />
+          <div ref={paperRef} className={styles.paperStack}>
+            <div className={styles.paper}>
+              <ReceiptPaperContent
+                brandName={t("brandName")}
+                brandSubtitle={t("brandSubtitle")}
+                amountLabel={formatAmdFromCents(payload.amountCents, locale)}
+                metaLine={`${paidLabel} | ${t("paidBadge")}`}
+                isMock={receipt.isMock}
+                mockBadge={t("mockBadge")}
+                itemLabel={itemLabel}
+                itemPrice={formatAmdFromCents(payload.amountCents, locale)}
+                totalLabel={t("totalLabel")}
+                totalValue={formatAmdFromCents(payload.amountCents, locale)}
+                fiscalLabel={t("fiscal")}
+                fiscalValue={receipt.fiscal}
+                receiptIdLabel={t("receiptId")}
+                receiptId={receipt.receiptId}
+                referenceLabel={t("referenceLabel")}
+                reference={payload.paymentReference ?? "—"}
+                footerNote={t("footerNote")}
+                txnId={receipt.receiptId}
+              />
+            </div>
             <div className={styles.tearEdge} aria-hidden />
           </div>
         </div>
@@ -233,7 +237,13 @@ function ReceiptPaperContent({
           </div>
         </div>
         <div className={styles.brandMark} aria-hidden>
-          O
+          <Image
+            src={HOME_SECTION_ASSETS.footerIllustration}
+            alt=""
+            width={RECEIPT_LOGO_SIZE_PX}
+            height={RECEIPT_LOGO_SIZE_PX}
+            className={styles.brandMarkImage}
+          />
         </div>
       </div>
 
