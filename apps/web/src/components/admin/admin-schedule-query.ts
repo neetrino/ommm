@@ -114,25 +114,48 @@ export function applyMonthlyScheduleFilterState(
 }
 
 /**
- * Resolves list filters for the schedule page, including monthly whole-month defaults.
+ * Week board ignores list date-strip / from-to window — full session set, client groups by day.
+ */
+export function applyWeeklyScheduleFilterState(
+  state: ScheduleListFilterState,
+): ScheduleListFilterState {
+  return {
+    ...state,
+    stripDay: null,
+    filters: {
+      ...state.filters,
+      from: "",
+      to: "",
+    },
+  };
+}
+
+/**
+ * Resolves schedule page filters per view:
+ * - list: date-strip day (defaults to today)
+ * - weekly: no date window (full week board from loaded sessions)
+ * - monthly: whole-month from/to, strip day cleared
  */
 export function resolveAdminSchedulePageFilterState(
   search: Record<string, string | undefined>,
   view: ScheduleView,
 ): ScheduleListFilterState {
   const base = resolveAdminScheduleInitialFilterState(search);
-  if (view !== "monthly") {
-    return base;
+  if (view === "weekly") {
+    return applyWeeklyScheduleFilterState(base);
   }
-  const hasMonthRange =
-    base.stripDay === null &&
-    base.filters.from.length > 0 &&
-    base.filters.to.length > 0 &&
-    yearMonthFromIsoDay(base.filters.from) === yearMonthFromIsoDay(base.filters.to);
-  if (hasMonthRange) {
-    return base;
+  if (view === "monthly") {
+    const hasMonthRange =
+      base.stripDay === null &&
+      base.filters.from.length > 0 &&
+      base.filters.to.length > 0 &&
+      yearMonthFromIsoDay(base.filters.from) === yearMonthFromIsoDay(base.filters.to);
+    if (hasMonthRange) {
+      return base;
+    }
+    return applyMonthlyScheduleFilterState(base);
   }
-  return applyMonthlyScheduleFilterState(base);
+  return base;
 }
 
 /**
