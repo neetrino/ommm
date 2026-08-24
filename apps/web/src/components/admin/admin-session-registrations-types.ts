@@ -8,6 +8,7 @@ export type SessionRegistrationRow = {
     lastName: string | null;
     email: string;
     phone: string | null;
+    avatarUrl: string | null;
   };
 };
 

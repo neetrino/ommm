@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   sessionRegistrationOutcome,
@@ -9,6 +10,7 @@ import { BanGlyph } from "@/components/ui/admin-action-glyphs";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatPhoneDisplay } from "@/lib/phone";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { userDisplayName } from "@/lib/user-display-name";
 
 const MEMBER_NAME_BUTTON_CLASS =
@@ -21,9 +23,19 @@ const ROW_VARIANT_CLASS = {
   card: "flex items-center gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/60 px-4 py-3",
 } as const;
 
-const AVATAR_VARIANT_CLASS = {
-  list: "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-mint-100 font-serif text-xs text-sage-800",
-  card: "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mint-100 font-serif text-sm text-sage-800",
+const AVATAR_SHELL_CLASS = {
+  list: "relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-mint-100",
+  card: "relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-mint-100",
+} as const;
+
+const AVATAR_FALLBACK_CLASS = {
+  list: "flex h-full w-full items-center justify-center font-serif text-xs text-sage-800",
+  card: "flex h-full w-full items-center justify-center font-serif text-sm text-sage-800",
+} as const;
+
+const AVATAR_SIZE_PX = {
+  list: 36,
+  card: 40,
 } as const;
 
 function memberInitials(name: string): string {
@@ -42,6 +54,36 @@ function memberContactLine(user: SessionRegistrationRow["user"]): string {
     return formatPhoneDisplay(user.phone);
   }
   return user.email.trim();
+}
+
+function MemberAvatar({
+  user,
+  displayName,
+  variant,
+}: {
+  user: SessionRegistrationRow["user"];
+  displayName: string;
+  variant: keyof typeof AVATAR_SHELL_CLASS;
+}) {
+  const src = resolveApiAssetUrl(user.avatarUrl);
+  const size = AVATAR_SIZE_PX[variant];
+
+  return (
+    <div className={AVATAR_SHELL_CLASS[variant]} aria-hidden>
+      {src ? (
+        <Image
+          src={src}
+          alt=""
+          width={size}
+          height={size}
+          className="h-full w-full object-cover"
+          unoptimized
+        />
+      ) : (
+        <div className={AVATAR_FALLBACK_CLASS[variant]}>{memberInitials(displayName)}</div>
+      )}
+    </div>
+  );
 }
 
 export type AdminSessionRegistrationRowProps = {
@@ -77,9 +119,7 @@ export function AdminSessionRegistrationRow({
 
   return (
     <li className={ROW_VARIANT_CLASS[variant]}>
-      <div className={AVATAR_VARIANT_CLASS[variant]} aria-hidden>
-        {memberInitials(displayName)}
-      </div>
+      <MemberAvatar user={row.user} displayName={displayName} variant={variant} />
       <div className="min-w-0 flex-1">
         {onMemberClick ? (
           <button

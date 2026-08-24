@@ -46,6 +46,7 @@ export class BookingsAdminListService {
             lastName: true,
             email: true,
             phone: true,
+            avatarUrl: true,
           },
         },
         session: {
