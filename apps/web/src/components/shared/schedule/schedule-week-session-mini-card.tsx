@@ -31,8 +31,11 @@ type ScheduleWeekSessionMiniCardProps = {
   ariaLabel?: string;
 };
 
-const WEEK_CARD_HEIGHT_CLASS = "h-[16.5rem]";
-const WEEK_CARD_COACH_SLOT_CLASS = "min-h-[2.5rem]";
+const WEEK_CARD_HEIGHT_CLASS = "h-[18.75rem]";
+/** Reserved two-line coach block so long names never collide with spots. */
+const WEEK_CARD_COACH_SLOT_CLASS = "h-[3rem] overflow-hidden";
+/** Fixed spots row so booked labels align across every card. */
+const WEEK_CARD_SPOTS_SLOT_CLASS = "flex h-8 shrink-0 items-center";
 
 const WEEK_CARD_SHELL = [
   "flex w-full shrink-0 flex-col overflow-hidden text-left",
@@ -111,41 +114,44 @@ function ScheduleWeekSessionMiniCardContent({
         />
       </div>
 
-      <div className="mt-auto flex shrink-0 flex-col justify-end gap-1.5 pt-3">
+      <div className="mt-auto flex shrink-0 flex-col justify-end gap-2 pt-3">
         <div className={WEEK_CARD_COACH_SLOT_CLASS}>
           {coachLabel ? (
             <SessionCoachLine coachName={coachLabel} variant="board" />
           ) : (
-            <span className="h-5" aria-hidden />
+            <span className="block h-5" aria-hidden />
           )}
         </div>
-        {spotsLabel ? (
-          variant === "staff" && hasCapacity && spotsLeftLabel ? (
-            <div
-              onClick={(event) => event.stopPropagation()}
-              onKeyDown={(event) => event.stopPropagation()}
-            >
-              <ScheduleSessionRegistrationsCapacity
-                sessionId={session.id}
-                sessionTitle={session.title}
-                startsAt={session.startsAt}
-                locale={locale}
-                booked={booked}
-                capacity={capacity}
-                spotsLabel={spotsLabel}
-                secondaryLabel={spotsLeftLabel}
-                bookedCountAriaLabel={tStaff("registrationsModal.viewBookedAria", {
-                  count: booked,
-                })}
-                layout="compactText"
-              />
-            </div>
+        <div className={WEEK_CARD_SPOTS_SLOT_CLASS}>
+          {spotsLabel ? (
+            variant === "staff" && hasCapacity && spotsLeftLabel ? (
+              <div
+                className="min-w-0 max-w-full"
+                onClick={(event) => event.stopPropagation()}
+                onKeyDown={(event) => event.stopPropagation()}
+              >
+                <ScheduleSessionRegistrationsCapacity
+                  sessionId={session.id}
+                  sessionTitle={session.title}
+                  startsAt={session.startsAt}
+                  locale={locale}
+                  booked={booked}
+                  capacity={capacity}
+                  spotsLabel={spotsLabel}
+                  secondaryLabel={spotsLeftLabel}
+                  bookedCountAriaLabel={tStaff("registrationsModal.viewBookedAria", {
+                    count: booked,
+                  })}
+                  layout="compactText"
+                />
+              </div>
+            ) : (
+              <p className="truncate text-left text-xs font-medium text-sage-700">{spotsLabel}</p>
+            )
           ) : (
-            <p className="text-left text-xs font-medium text-sage-700">{spotsLabel}</p>
-          )
-        ) : (
-          <span className="h-4" aria-hidden />
-        )}
+            <span className="h-4 w-full" aria-hidden />
+          )}
+        </div>
       </div>
     </>
   );

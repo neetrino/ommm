@@ -33,7 +33,7 @@ export function SessionCoachLine({
         className={`${iconClass} ${isBoard ? "mt-0.5" : ""} shrink-0 text-sand-600`}
       />
       {isBoard ? (
-        <span className={`${typeClass} min-w-0 leading-snug break-words`}>
+        <span className={`${typeClass} line-clamp-2 min-w-0 leading-snug break-words`}>
           <span className={labelClass}>{t("sessionCoach")}</span>
           {coachName ? (
             <>

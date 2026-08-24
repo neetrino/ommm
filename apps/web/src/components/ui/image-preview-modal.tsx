@@ -3,8 +3,9 @@
 import { useId } from "react";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 
+/** Above nested admin sheets (`z-[110]`) and confirm dialogs (`z-[120]`) in `#ommm-overlay-portal`. */
 const IMAGE_PREVIEW_OVERLAY_CLASS =
-  "fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8";
+  "fixed inset-0 z-[140] flex items-center justify-center p-4 sm:p-8";
 
 const IMAGE_PREVIEW_PANEL_CLASS =
   "relative flex h-[min(85vh,720px)] w-[min(92vw,720px)] min-h-[min(60vh,420px)] min-w-[min(88vw,420px)] items-center justify-center overflow-hidden rounded-[24px] border border-white/70 bg-sage-950/90 p-3 shadow-[0_24px_64px_-24px_rgba(15,23,42,0.55)] sm:p-4";
