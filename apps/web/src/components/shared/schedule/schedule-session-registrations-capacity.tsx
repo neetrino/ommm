@@ -14,7 +14,17 @@ type ScheduleSessionRegistrationsCapacityProps = {
   spotsLabel: string;
   secondaryLabel: string;
   bookedCountAriaLabel?: string;
+  /** Compact text for week/month cards; default indicator for list rows. */
+  layout?: "indicator" | "compactText";
 };
+
+/** Matches list capacity hit-area hover — soft sand pill so week/month spots feel clickable. */
+const COMPACT_SPOTS_BUTTON_CLASS = [
+  "inline-flex max-w-full truncate rounded-xl px-2 py-1.5 text-left text-xs font-medium text-sage-800",
+  "underline decoration-sand-300/80 decoration-dotted underline-offset-[3px]",
+  "transition-colors hover:bg-sand-100/70 hover:text-sage-950",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+].join(" ");
 
 export function ScheduleSessionRegistrationsCapacity({
   sessionId,
@@ -26,6 +36,7 @@ export function ScheduleSessionRegistrationsCapacity({
   spotsLabel,
   secondaryLabel,
   bookedCountAriaLabel,
+  layout = "indicator",
 }: ScheduleSessionRegistrationsCapacityProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -39,14 +50,29 @@ export function ScheduleSessionRegistrationsCapacity({
 
   return (
     <>
-      <ScheduleSessionCapacityIndicator
-        booked={booked}
-        capacity={capacity}
-        spotsLabel={spotsLabel}
-        secondaryLabel={secondaryLabel}
-        onBookedCountClick={booked > 0 ? openModal : undefined}
-        bookedCountAriaLabel={bookedCountAriaLabel}
-      />
+      {layout === "compactText" ? (
+        booked > 0 ? (
+          <button
+            type="button"
+            className={COMPACT_SPOTS_BUTTON_CLASS}
+            aria-label={bookedCountAriaLabel ?? spotsLabel}
+            onClick={openModal}
+          >
+            {spotsLabel}
+          </button>
+        ) : (
+          <p className="truncate text-left text-xs font-medium text-sage-700">{spotsLabel}</p>
+        )
+      ) : (
+        <ScheduleSessionCapacityIndicator
+          booked={booked}
+          capacity={capacity}
+          spotsLabel={spotsLabel}
+          secondaryLabel={secondaryLabel}
+          onBookedCountClick={booked > 0 ? openModal : undefined}
+          bookedCountAriaLabel={bookedCountAriaLabel}
+        />
+      )}
       <AdminSessionRegistrationsModal
         isOpen={modalOpen}
         sessionId={sessionId}

@@ -11,12 +11,20 @@ import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatPhoneDisplay } from "@/lib/phone";
 import { userDisplayName } from "@/lib/user-display-name";
 
-const ROW_CLASS =
-  "flex items-center gap-3 border-b border-sand-200/80 py-2.5 last:border-b-0";
-const AVATAR_CLASS =
-  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-mint-100 font-serif text-xs text-sage-800";
+const MEMBER_NAME_BUTTON_CLASS =
+  "truncate text-left text-sm font-medium text-sage-900 underline decoration-sand-300/80 decoration-dotted underline-offset-[4px] hover:text-sage-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2";
 const CANCEL_BUTTON_CLASS = "h-10 w-10 shrink-0";
 const CANCEL_ICON_CLASS = "h-4 w-4 shrink-0";
+
+const ROW_VARIANT_CLASS = {
+  list: "flex items-center gap-3 border-b border-sand-200/80 py-2.5 last:border-b-0",
+  card: "flex items-center gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/60 px-4 py-3",
+} as const;
+
+const AVATAR_VARIANT_CLASS = {
+  list: "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-mint-100 font-serif text-xs text-sage-800",
+  card: "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mint-100 font-serif text-sm text-sage-800",
+} as const;
 
 function memberInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -39,17 +47,21 @@ function memberContactLine(user: SessionRegistrationRow["user"]): string {
 export type AdminSessionRegistrationRowProps = {
   row: SessionRegistrationRow;
   locale: string;
-  canCancel: boolean;
-  busy: boolean;
-  onCancel: () => void;
+  variant?: keyof typeof ROW_VARIANT_CLASS;
+  canCancel?: boolean;
+  busy?: boolean;
+  onCancel?: () => void;
+  onMemberClick?: (userId: string) => void;
 };
 
 export function AdminSessionRegistrationRow({
   row,
   locale,
-  canCancel,
-  busy,
+  variant = "list",
+  canCancel = false,
+  busy = false,
   onCancel,
+  onMemberClick,
 }: AdminSessionRegistrationRowProps) {
   const t = useTranslations("adminPages.classes.registrationsModal");
   const displayName = userDisplayName(
@@ -61,21 +73,35 @@ export function AdminSessionRegistrationRow({
     date: formatDateTimeForUi(row.createdAt, locale),
   });
   const outcome = sessionRegistrationOutcome(row.status);
+  const metaSpacing = variant === "card" ? "mt-0.5" : "";
 
   return (
-    <li className={ROW_CLASS}>
-      <div className={AVATAR_CLASS} aria-hidden>
+    <li className={ROW_VARIANT_CLASS[variant]}>
+      <div className={AVATAR_VARIANT_CLASS[variant]} aria-hidden>
         {memberInitials(displayName)}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-sage-900">{displayName}</p>
+        {onMemberClick ? (
+          <button
+            type="button"
+            className={MEMBER_NAME_BUTTON_CLASS}
+            aria-label={t("viewMemberProfileAria", { name: displayName })}
+            onClick={() => onMemberClick(row.user.id)}
+          >
+            {displayName}
+          </button>
+        ) : (
+          <p className="truncate text-sm font-medium text-sage-900">{displayName}</p>
+        )}
         <p className="truncate text-xs text-sage-500">{memberContactLine(row.user)}</p>
-        <p className="truncate text-[11px] text-sage-400">{registeredLabel}</p>
+        <p className={`truncate text-[11px] text-sage-400 ${metaSpacing}`}>{registeredLabel}</p>
         {outcome !== null ? (
-          <p className="truncate text-[11px] font-medium text-sage-600">{t(`status.${outcome}`)}</p>
+          <p className={`truncate text-[11px] font-medium text-sage-600 ${metaSpacing}`}>
+            {t(`status.${outcome}`)}
+          </p>
         ) : null}
       </div>
-      {canCancel ? (
+      {canCancel && onCancel ? (
         <AdminRowIconButton
           ariaLabel={t("cancelButton")}
           title={t("cancelButton")}

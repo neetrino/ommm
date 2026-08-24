@@ -2974,6 +2974,7 @@
         "error": "Could not load registrations.",
         "registeredAt": "Registered {date}",
         "viewBookedAria": "View {count} registered members",
+        "viewMemberProfileAria": "View profile for {name}",
         "closeButton": "Close",
         "backdropClose": "Close dialog",
         "cancelButton": "Cancel",

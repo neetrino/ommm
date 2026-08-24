@@ -42,7 +42,7 @@ import {
   resolveScheduleView,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
-import { resolveScheduleListDateRange } from "@/components/admin/admin-schedule-url";
+import { resolveScheduleListDateRange, SCHEDULE_STRIP_ALL_VALUE } from "@/components/admin/admin-schedule-url";
 import {
   addCalendarMonths,
   monthBoundsIso,
@@ -211,20 +211,44 @@ export function useAdminScheduleManagement({
   const didSyncStripDayUrl = useRef(false);
   useEffect(() => {
     if (didSyncStripDayUrl.current) return;
+    // Date-strip URL defaults belong to list only — week/month must not inherit them.
+    if (!isScheduleListLikeView(view)) {
+      didSyncStripDayUrl.current = true;
+      return;
+    }
     if (searchParams.has("schedDay") || searchParams.has("schedStrip")) {
       didSyncStripDayUrl.current = true;
       return;
     }
     didSyncStripDayUrl.current = true;
     patchFilterState({ stripDay }, false);
-  }, [patchFilterState, searchParams, stripDay]);
+  }, [patchFilterState, searchParams, stripDay, view]);
+
+  const didSyncWeeklyUrl = useRef(false);
+  useEffect(() => {
+    if (view !== "weekly" || didSyncWeeklyUrl.current) return;
+    didSyncWeeklyUrl.current = true;
+    const dayParam = searchParams.get("schedDay");
+    const hasListDateWindow =
+      (dayParam !== null && dayParam !== SCHEDULE_STRIP_ALL_VALUE) ||
+      Boolean(searchParams.get("schedFrom")) ||
+      Boolean(searchParams.get("schedTo"));
+    if (!hasListDateWindow) return;
+    patchFilterState(
+      {
+        stripDay: null,
+        filters: { from: "", to: "" },
+      },
+      false,
+    );
+  }, [patchFilterState, searchParams, view]);
 
   const didSyncMonthlyUrl = useRef(false);
   useEffect(() => {
     if (view !== "monthly" || didSyncMonthlyUrl.current) return;
     didSyncMonthlyUrl.current = true;
     const dayParam = searchParams.get("schedDay");
-    if (dayParam === null || dayParam === "all") return;
+    if (dayParam === null || dayParam === SCHEDULE_STRIP_ALL_VALUE) return;
     patchFilterState(
       {
         stripDay: null,
@@ -267,7 +291,13 @@ export function useAdminScheduleManagement({
 
   const filteredRows = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
-    const { from, to } = resolveScheduleListDateRange(filters, stripDay);
+    // List uses date-strip; month uses from/to; week must not inherit either.
+    const { from, to } =
+      view === "weekly"
+        ? { from: "", to: "" }
+        : view === "monthly"
+          ? { from: filters.from, to: filters.to }
+          : resolveScheduleListDateRange(filters, stripDay);
     return rows.filter((row) => {
       if (q && !`${row.title} ${row.classType.name} ${coachName(row.coach)}`.toLowerCase().includes(q)) return false;
       if (from && scheduleSessionLocalIsoDay(row.startsAt) < from) return false;
@@ -283,7 +313,15 @@ export function useAdminScheduleManagement({
       if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
       return matchesScheduleQuickFilters(row, quickFilters);
     });
-  }, [filters, quickFilters, rows, selectedClassTypeIds, stripDay, validSelectedPackageIds]);
+  }, [
+    filters,
+    quickFilters,
+    rows,
+    selectedClassTypeIds,
+    stripDay,
+    validSelectedPackageIds,
+    view,
+  ]);
 
   const displayRows = isListView ? rows : filteredRows;
 
@@ -402,6 +440,17 @@ export function useAdminScheduleManagement({
       if (nextView === "monthly") {
         const { from, to } = monthBoundsIso(yearMonthFromIsoDay(scheduleTodayIsoDate()));
         patchFilterState({ stripDay: null, filters: { from, to } }, true, nextView);
+        return;
+      }
+      if (nextView === "weekly") {
+        patchFilterState(
+          {
+            stripDay: null,
+            filters: { from: "", to: "" },
+          },
+          true,
+          nextView,
+        );
         return;
       }
       if (nextView === "list") {

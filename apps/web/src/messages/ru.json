@@ -2982,6 +2982,7 @@
         "error": "Не удалось загрузить записи.",
         "registeredAt": "Записан {date}",
         "viewBookedAria": "Показать {count} записанных участников",
+        "viewMemberProfileAria": "Открыть профиль {name}",
         "closeButton": "Закрыть",
         "backdropClose": "Закрыть окно",
         "cancelButton": "Отменить",

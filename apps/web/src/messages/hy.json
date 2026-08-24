@@ -2985,6 +2985,7 @@
         "error": "Չհաջողվեց բեռնել գրանցումները։",
         "registeredAt": "Գրանցվել է {date}",
         "viewBookedAria": "Դիտել {count} գրանցված մասնակից",
+        "viewMemberProfileAria": "Դիտել {name}-ի պրոֆիլը",
         "closeButton": "Փակել",
         "backdropClose": "Փակել պատուհանը",
         "cancelButton": "Չեղարկել",
