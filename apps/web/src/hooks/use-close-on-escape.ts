@@ -20,10 +20,14 @@ export function useCloseOnEscape(
   onClose: () => void,
   options?: UseCloseOnEscapeOptions,
 ): void {
-  const disabledRef = useRef(options?.disabled ?? false);
-  disabledRef.current = options?.disabled ?? false;
+  const disabled = options?.disabled ?? false;
+  const disabledRef = useRef(disabled);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    disabledRef.current = disabled;
+    onCloseRef.current = onClose;
+  }, [disabled, onClose]);
 
   useEffect(() => {
     if (!isOpen) {

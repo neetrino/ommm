@@ -48,17 +48,18 @@ export function AdminSessionRegistrationsModal({
 
   const [fetchResult, setFetchResult] = useState<RegistrationsFetchResult | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+    if (!isOpen && selectedClientId !== null) {
+      setSelectedClientId(null);
+    }
+  }
   const clientDrawerOpen = selectedClientId !== null;
   const fetchKey = isOpen ? sessionId : null;
   const loading = fetchKey !== null && (fetchResult === null || fetchResult.key !== fetchKey);
   const rows = fetchResult?.key === fetchKey ? fetchResult.rows : [];
   const error = fetchResult?.key === fetchKey ? fetchResult.error : null;
-
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedClientId(null);
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     if (fetchKey === null) {

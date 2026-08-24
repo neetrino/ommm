@@ -45,17 +45,18 @@ export function AdminSessionRegistrationsList({
   const [pendingCancel, setPendingCancel] = useState<SessionRegistrationRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [wasActive, setWasActive] = useState(active);
+  if (wasActive !== active) {
+    setWasActive(active);
+    if (!active && selectedClientId !== null) {
+      setSelectedClientId(null);
+    }
+  }
 
   const fetchKey = active ? sessionId : null;
   const loading = fetchKey !== null && (fetchResult === null || fetchResult.key !== fetchKey);
   const rows = fetchResult?.key === fetchKey ? fetchResult.rows : [];
   const error = fetchResult?.key === fetchKey ? fetchResult.error : null;
-
-  useEffect(() => {
-    if (!active) {
-      setSelectedClientId(null);
-    }
-  }, [active]);
 
   useEffect(() => {
     if (fetchKey === null) {
