@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by-id";
 import {
   isActiveSessionRegistration,
   isOccupiedSessionRegistration,
@@ -43,11 +44,18 @@ export function AdminSessionRegistrationsList({
   const [fetchResult, setFetchResult] = useState<FetchResult | null>(null);
   const [pendingCancel, setPendingCancel] = useState<SessionRegistrationRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
   const fetchKey = active ? sessionId : null;
   const loading = fetchKey !== null && (fetchResult === null || fetchResult.key !== fetchKey);
   const rows = fetchResult?.key === fetchKey ? fetchResult.rows : [];
   const error = fetchResult?.key === fetchKey ? fetchResult.error : null;
+
+  useEffect(() => {
+    if (!active) {
+      setSelectedClientId(null);
+    }
+  }, [active]);
 
   useEffect(() => {
     if (fetchKey === null) {
@@ -154,6 +162,7 @@ export function AdminSessionRegistrationsList({
               canCancel={canCancel && isActiveSessionRegistration(row)}
               busy={busyId !== null}
               onCancel={() => setPendingCancel(row)}
+              onMemberClick={setSelectedClientId}
             />
           ))}
         </ul>
@@ -179,6 +188,12 @@ export function AdminSessionRegistrationsList({
             setPendingCancel(null);
           }
         }}
+      />
+      <AdminClientDrawerById
+        clientId={selectedClientId}
+        locale={locale}
+        onClose={() => setSelectedClientId(null)}
+        useOverlayPortalRoot
       />
     </>
   );
