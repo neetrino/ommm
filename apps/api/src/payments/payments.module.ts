@@ -7,6 +7,11 @@ import { ArcaPaymentsController } from './arca/arca-payments.controller';
 import { ArcaPaymentSyncService } from './arca/arca-payment-sync.service';
 import { ArcaReconciliationService } from './arca/arca-reconciliation.service';
 import { ArcaService } from './arca/arca.service';
+import { EhdmApiClient } from './ehdm/ehdm-api.client';
+import { EhdmConfig } from './ehdm/ehdm.config';
+import { EhdmMockClient } from './ehdm/ehdm-mock.client';
+import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
+import { EhdmSeqService } from './ehdm/ehdm-seq.service';
 import { PaymentsController } from './payments.controller';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
@@ -32,7 +37,12 @@ import { PaymentsService } from './payments.service';
     ArcaService,
     ArcaPaymentSyncService,
     ArcaReconciliationService,
+    EhdmConfig,
+    EhdmApiClient,
+    EhdmMockClient,
+    EhdmSeqService,
+    EhdmReceiptService,
   ],
-  exports: [PaymentsService, ArcaService, ArcaReconciliationService],
+  exports: [PaymentsService, ArcaService, ArcaReconciliationService, EhdmReceiptService],
 })
 export class PaymentsModule {}

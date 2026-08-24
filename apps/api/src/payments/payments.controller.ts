@@ -21,6 +21,7 @@ import { ConfirmDropInPaymentDto } from './dto/confirm-dropin-payment.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
+import { PaymentOutcomeQueryDto } from './dto/payment-outcome-query.dto';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -83,6 +84,15 @@ export class PaymentsController {
       reference,
       body.paymentMethod,
     );
+  }
+
+  @Get('me/outcome')
+  @UseGuards(JwtAuthGuard)
+  paymentOutcome(
+    @CurrentUser() user: { id: string },
+    @Query() query: PaymentOutcomeQueryDto,
+  ) {
+    return this.payments.getPaymentOutcomeByReference(user.id, query.reference);
   }
 
   @Get('me')

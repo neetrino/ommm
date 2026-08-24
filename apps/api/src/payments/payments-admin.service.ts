@@ -23,6 +23,7 @@ import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
+import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import {
   buildSourceFilter,
   detectPaymentSource,
@@ -47,6 +48,7 @@ export class PaymentsAdminService {
     private readonly prisma: PrismaService,
     private readonly checkout: PaymentsCheckoutService,
     private readonly paymentSuccessEmail: PaymentSuccessEmailService,
+    private readonly ehdmReceipt: EhdmReceiptService,
   ) {}
 
   async adminUpdatePaymentStatus(
@@ -129,6 +131,7 @@ export class PaymentsAdminService {
         updated.id,
         previousStatus,
       );
+      this.ehdmReceipt.tryPrintReceipt(updated.id, previousStatus);
     }
 
     return updated;
@@ -142,10 +145,14 @@ export class PaymentsAdminService {
         where: { userId },
         orderBy: { createdAt: 'desc' },
         take: 100,
+        include: { ehdmReceipt: true },
       });
       return items.map((payment) => ({
         ...payment,
         statusReason: readPaymentStatusReason(payment.metadata),
+        ehdmReceipt: payment.ehdmReceipt
+          ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
+          : null,
       }));
     }
 
@@ -162,6 +169,7 @@ export class PaymentsAdminService {
         orderBy: { createdAt: order },
         take,
         skip: offset,
+        include: { ehdmReceipt: true },
       }),
       this.prisma.payment.count({ where }),
     ]);
@@ -169,10 +177,36 @@ export class PaymentsAdminService {
       items: items.map((payment) => ({
         ...payment,
         statusReason: readPaymentStatusReason(payment.metadata),
+        ehdmReceipt: payment.ehdmReceipt
+          ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
+          : null,
       })),
       total,
       take,
       offset,
+    };
+  }
+
+  /** Payment outcome for the success/fail screen — scoped to the owning user. */
+  async getPaymentOutcomeByReference(userId: string, reference: string) {
+    const payment = await this.prisma.payment.findFirst({
+      where: { userId, paymentReference: reference },
+      include: { ehdmReceipt: true },
+    });
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+    return {
+      paymentReference: payment.paymentReference,
+      status: payment.status,
+      amountCents: payment.amountCents,
+      currency: payment.currency,
+      description: payment.description,
+      paymentMethod: payment.paymentMethod,
+      paidAt: payment.confirmedAt ?? payment.createdAt,
+      ehdmReceipt: payment.ehdmReceipt
+        ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
+        : null,
     };
   }
 
@@ -218,6 +252,7 @@ export class PaymentsAdminService {
               role: true,
             },
           },
+          ehdmReceipt: true,
         },
         orderBy: [{ createdAt: order }, { id: order }],
         take,
@@ -248,6 +283,9 @@ export class PaymentsAdminService {
           relatedItemGroupName:
             resolveAdminPaymentRelatedItemGroupName(relatedArgs),
           statusReason: readPaymentStatusReason(payment.metadata),
+          ehdmReceipt: payment.ehdmReceipt
+            ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
+            : null,
         };
       }),
       total,

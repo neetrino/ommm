@@ -1,0 +1,135 @@
+.receiptBlock {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1rem 1.1rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(229 223 214 / 0.95);
+  background: rgb(255 255 255 / 0.72);
+  text-align: left;
+}
+
+.receiptTitle {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.receiptHint {
+  margin-top: 0.45rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.receiptList {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.receiptRow {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.receiptRow dt {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.receiptRow dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.receiptIdValue {
+  font-weight: 600;
+}
+
+.receiptMockBadge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  border-radius: 9999px;
+  background: rgb(254 243 199);
+  padding: 0.12rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgb(146 64 14);
+  vertical-align: middle;
+}
+
+.receiptLink {
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.receiptLink:hover {
+  color: rgb(45 40 35);
+}
+
+.panel {
+  border-radius: 2rem;
+  border: 1px solid rgb(255 255 255 / 0.82);
+  background: linear-gradient(
+    165deg,
+    rgb(255 255 255 / 0.98) 0%,
+    rgb(250 248 244 / 0.96) 55%,
+    rgb(245 242 236 / 0.94) 100%
+  );
+  padding: 1.75rem 1.5rem 2rem;
+  text-align: center;
+  box-shadow:
+    0 28px 80px -42px rgb(45 40 35 / 0.45),
+    0 0 0 1px rgb(255 255 255 / 0.35) inset;
+}
+
+@media (min-width: 640px) {
+  .panel {
+    padding: 2.25rem 2rem 2.5rem;
+  }
+}
+
+.pageTitle {
+  margin-top: 0.75rem;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: clamp(1.5rem, 3.5vw, 1.875rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.panelWithPrinter {
+  padding-top: 1rem;
+  padding-inline: 1.15rem;
+}
+
+@media (min-width: 640px) {
+  .panelWithPrinter {
+    padding-top: 1.25rem;
+    padding-inline: 1.75rem;
+  }
+}
+
+.receiptSectionTop {
+  margin-top: 0;
+}
+
+.receiptSection {
+  margin-top: 1.5rem;
+}

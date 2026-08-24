@@ -1,0 +1,79 @@
+import { Injectable, Logger } from '@nestjs/common';
+import * as fs from 'node:fs';
+import * as https from 'node:https';
+import { EHDM_API_PATH } from './ehdm.constants';
+import { EhdmConfig } from './ehdm.config';
+import type { EhdmApiResponse, EhdmPrintRequestBody } from './ehdm.types';
+
+@Injectable()
+export class EhdmApiClient {
+  private readonly logger = new Logger(EhdmApiClient.name);
+
+  constructor(private readonly config: EhdmConfig) {}
+
+  async print(body: EhdmPrintRequestBody): Promise<EhdmApiResponse> {
+    return this.post(EHDM_API_PATH.PRINT, body);
+  }
+
+  async checkConnection(crn: string): Promise<EhdmApiResponse> {
+    return this.post(EHDM_API_PATH.CHECK_CONNECTION, { crn });
+  }
+
+  private async post(
+    path: string,
+    body: Record<string, unknown>,
+  ): Promise<EhdmApiResponse> {
+    const url = new URL(`${this.config.getApiUrl()}${path}`);
+    const payload = JSON.stringify(body);
+    const agent = this.createAgent();
+
+    return new Promise((resolve, reject) => {
+      const request = https.request(
+        url,
+        {
+          method: 'POST',
+          agent,
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload),
+            language: 'hy',
+          },
+        },
+        (response) => {
+          const chunks: Buffer[] = [];
+          response.on('data', (chunk: Buffer) => chunks.push(chunk));
+          response.on('end', () => {
+            const raw = Buffer.concat(chunks).toString('utf8');
+            try {
+              resolve(JSON.parse(raw) as EhdmApiResponse);
+            } catch {
+              reject(
+                new Error(
+                  `EHDM invalid JSON (${response.statusCode ?? 'unknown'}): ${raw.slice(0, 200)}`,
+                ),
+              );
+            }
+          });
+        },
+      );
+
+      request.on('error', (error) => {
+        this.logger.error(`EHDM request failed for ${path}`, error.stack);
+        reject(error);
+      });
+      request.write(payload);
+      request.end();
+    });
+  }
+
+  private createAgent(): https.Agent {
+    const certPath = this.config.getCertPath();
+    const keyPath = this.config.getKeyPath();
+    return new https.Agent({
+      cert: fs.readFileSync(certPath),
+      key: fs.readFileSync(keyPath),
+      passphrase: this.config.getKeyPassphrase(),
+      rejectUnauthorized: true,
+    });
+  }
+}

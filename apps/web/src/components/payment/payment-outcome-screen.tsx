@@ -9,8 +9,9 @@ import {
   paymentCheckoutReturnPath,
   type PaymentCheckoutSource,
 } from "@/lib/payment-checkout-source";
-import { PAYMENT_FAIL_PATH } from "@/lib/payment-result-paths";
+import { PAYMENT_FAIL_PATH, buildPaymentReceiptPath } from "@/lib/payment-result-paths";
 import { PaymentOutcomeSphereLogo } from "@/components/payment/payment-outcome-sphere-logo";
+import { usePaymentEhdmOutcome } from "@/hooks/use-payment-ehdm-outcome";
 import styles from "./payment-outcome-screen.module.css";
 
 type PaymentOutcomeScreenProps = {
@@ -75,6 +76,10 @@ export function PaymentOutcomeScreen({
       </h1>
       <p className={`${styles.lead} text-sage-600`}>{t(`sources.${source}.${leadKey}`)}</p>
 
+      {isSuccess && reference !== null ? (
+        <PaymentOutcomeReceiptLink reference={reference} source={source} />
+      ) : null}
+
       <div className={styles.actions}>
         <Link href={returnPath}>
           <OmmButton type="button">{t("doneButton")}</OmmButton>
@@ -86,6 +91,34 @@ export function PaymentOutcomeScreen({
         ) : null}
       </div>
     </section>
+  );
+}
+
+function PaymentOutcomeReceiptLink({
+  reference,
+  source,
+}: {
+  reference: string;
+  source: PaymentCheckoutSource;
+}) {
+  const t = useTranslations("userPages.payments.result");
+  const outcome = usePaymentEhdmOutcome(reference);
+  const receipt = outcome.kind === "ready" ? outcome.payload.ehdmReceipt : null;
+  const showButton = receipt !== null && !receipt.isMock;
+
+  if (!showButton) {
+    return null;
+  }
+
+  return (
+    <div className={styles.receiptAction}>
+      <Link
+        href={buildPaymentReceiptPath(reference, source)}
+        className="ommm-cta-ghost inline-flex justify-center"
+      >
+        {t("ehdm.viewReceiptButton")}
+      </Link>
+    </div>
   );
 }
 

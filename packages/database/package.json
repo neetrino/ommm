@@ -24,15 +24,15 @@
   "scripts": {
     "build": "pnpm -w exec tsc -p packages/database/tsconfig.json",
     "generate": "pnpm -w exec prisma generate --schema packages/database/prisma",
-    "migrate:dev": "dotenv -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma",
-    "migrate:deploy": "dotenv -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma",
+    "migrate:dev": "dotenv -o -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma",
+    "migrate:deploy": "dotenv -o -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma",
     "apply:manual-payments": "node scripts/apply-manual-payments-schema.mjs",
     "apply:package-rename": "node scripts/apply-package-rename-schema.mjs",
     "apply:package-session-usage": "node scripts/apply-package-session-usage-schema.mjs",
-    "backfill:balance-class-type": "dotenv -e ../../.env -- pnpm exec tsx scripts/backfill-user-package-balance-class-type.mjs",
-    "e2e:package-booking": "dotenv -e ../../.env -- pnpm exec tsx scripts/e2e-package-booking-smoke.mjs",
-    "activate:future-packages": "dotenv -e ../../.env -- pnpm exec tsx scripts/activate-future-user-packages.mjs",
-    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma"
+    "backfill:balance-class-type": "dotenv -o -e ../../.env -- pnpm exec tsx scripts/backfill-user-package-balance-class-type.mjs",
+    "e2e:package-booking": "dotenv -o -e ../../.env -- pnpm exec tsx scripts/e2e-package-booking-smoke.mjs",
+    "activate:future-packages": "dotenv -o -e ../../.env -- pnpm exec tsx scripts/activate-future-user-packages.mjs",
+    "db:push": "dotenv -o -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0"

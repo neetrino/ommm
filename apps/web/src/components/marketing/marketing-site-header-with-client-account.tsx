@@ -26,15 +26,6 @@ type MarketingSiteHeaderWithClientAccountProps = {
   serverAccount: MarketingHeaderAccount | null;
 };
 
-function readInitialCachedAccount(
-  serverAccount: MarketingHeaderAccount | null,
-): MarketingHeaderAccount | null {
-  if (serverAccount !== null) {
-    return null;
-  }
-  return readCachedMarketingHeaderAccount();
-}
-
 function persistAccount(account: MarketingHeaderAccount): void {
   writeCachedMarketingHeaderAccount(account);
   markClientSessionHint();
@@ -54,8 +45,8 @@ export function MarketingSiteHeaderWithClientAccount({
   navLinks,
   serverAccount,
 }: MarketingSiteHeaderWithClientAccountProps) {
-  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(() =>
-    readInitialCachedAccount(serverAccount),
+  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(
+    () => (serverAccount === null ? readCachedMarketingHeaderAccount() : null),
   );
   const [cachedAccountValidated, setCachedAccountValidated] = useState(
     () => serverAccount !== null,
@@ -65,15 +56,10 @@ export function MarketingSiteHeaderWithClientAccount({
   useEffect(() => {
     if (serverAccount !== null) {
       persistAccount(serverAccount);
-    }
-  }, [serverAccount]);
-
-  useEffect(() => {
-    if (serverAccount !== null) {
       return;
     }
-    const cached = readCachedMarketingHeaderAccount();
-    if (cached === null) {
+
+    if (readCachedMarketingHeaderAccount() === null) {
       return;
     }
 

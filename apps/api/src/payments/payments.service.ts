@@ -89,6 +89,10 @@ export class PaymentsService {
     return this.admin.listPayments(userId, query);
   }
 
+  getPaymentOutcomeByReference(userId: string, reference: string) {
+    return this.admin.getPaymentOutcomeByReference(userId, reference);
+  }
+
   adminListPayments(query: AdminListPaymentsQueryDto) {
     return this.admin.adminListPayments(query);
   }
