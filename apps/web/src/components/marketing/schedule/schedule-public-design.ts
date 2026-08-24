@@ -17,6 +17,7 @@ export const SCHEDULE_BOOK_ACTION_GROUP = styles.bookActionGroup;
 export const SCHEDULE_FILTER_TRIGGER = `${styles.filterTrigger} ommm-dropdown-trigger`;
 export const SCHEDULE_FILTER_LABEL = styles.filterLabel;
 
+export const SCHEDULE_MONTH_FILTERS_ROW = styles.monthFiltersRow;
 export const SCHEDULE_MONTH_LABEL = styles.monthLabel;
 export const SCHEDULE_DATE_STRIP_PANEL = styles.dateStripPanel;
 export const SCHEDULE_WEEKDAY_LABEL = styles.weekdayLabel;

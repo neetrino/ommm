@@ -9,7 +9,6 @@ import {
   SCHEDULE_DATE_CHIP_TODAY,
   SCHEDULE_DATE_STRIP_PANEL,
   SCHEDULE_INTERACTIVE_LIFT,
-  SCHEDULE_MONTH_LABEL,
   SCHEDULE_SELECTED_DAY_DIVIDER,
   SCHEDULE_SELECTED_DAY_LABEL,
   SCHEDULE_WEEKDAY_LABEL,
@@ -37,10 +36,6 @@ const WINDOW_SHIFT = SCHEDULE_DATE_STRIP_WINDOW_SHIFT;
 
 function formatWeekdayShort(locale: string, date: Date): string {
   return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
-}
-
-function formatMonthTitle(locale: string, date: Date): string {
-  return new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
 }
 
 function formatSelectedLong(locale: string, date: Date): string {
@@ -71,16 +66,11 @@ export function ScheduleDateControls({
   const canShiftNext =
     maxDate === undefined ||
     !isAfterCalendarDay(addDays(windowStart, WINDOW_SHIFT), maxDate);
-  const monthLabel = formatMonthTitle(locale, selectedDate);
   const selectedLong = formatSelectedLong(locale, selectedDate);
 
   return (
     <>
-      <div className="mt-1.5 sm:mt-2">
-        <p className={SCHEDULE_MONTH_LABEL}>{monthLabel}</p>
-      </div>
-
-      <div className={`mt-0.5 ${SCHEDULE_DATE_STRIP_PANEL}`}>
+      <div className={SCHEDULE_DATE_STRIP_PANEL}>
         <div className="flex w-full min-w-0 items-stretch gap-2 sm:gap-3">
           <button
             type="button"

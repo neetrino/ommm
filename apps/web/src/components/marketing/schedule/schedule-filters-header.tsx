@@ -5,8 +5,13 @@ import {
   ScheduleFilterDropdown,
   type ScheduleFilterOption,
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
+import {
+  SCHEDULE_MONTH_FILTERS_ROW,
+  SCHEDULE_MONTH_LABEL,
+} from "@/components/marketing/schedule/schedule-public-design";
 
 type ScheduleFiltersHeaderProps = {
+  monthLabel: string;
   filterClassType: string;
   filterInstructor: string;
   classTypeOptions: readonly ScheduleFilterOption<string>[];
@@ -16,6 +21,7 @@ type ScheduleFiltersHeaderProps = {
 };
 
 export function ScheduleFiltersHeader({
+  monthLabel,
   filterClassType,
   filterInstructor,
   classTypeOptions,
@@ -26,21 +32,26 @@ export function ScheduleFiltersHeader({
   const t = useTranslations("marketingPages.schedule");
 
   return (
-    <div className="grid w-full grid-cols-1 gap-4 gap-x-5 self-stretch sm:grid-cols-2">
-      <ScheduleFilterDropdown
-        label={t("filterClassType")}
-        ariaLabel={t("filterClassTypeAria")}
-        value={filterClassType}
-        options={classTypeOptions}
-        onChange={onClassTypeChange}
-      />
-      <ScheduleFilterDropdown
-        label={t("filterInstructor")}
-        ariaLabel={t("filterInstructorAria")}
-        value={filterInstructor}
-        options={instructorOptions}
-        onChange={onInstructorChange}
-      />
+    <div className={SCHEDULE_MONTH_FILTERS_ROW}>
+      <p className={`${SCHEDULE_MONTH_LABEL} shrink-0`}>{monthLabel}</p>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 sm:flex-nowrap sm:gap-3">
+        <ScheduleFilterDropdown
+          className="w-auto shrink-0"
+          label={t("filterClassType")}
+          ariaLabel={t("filterClassTypeAria")}
+          value={filterClassType}
+          options={classTypeOptions}
+          onChange={onClassTypeChange}
+        />
+        <ScheduleFilterDropdown
+          className="w-auto shrink-0"
+          label={t("filterInstructor")}
+          ariaLabel={t("filterInstructorAria")}
+          value={filterInstructor}
+          options={instructorOptions}
+          onChange={onInstructorChange}
+        />
+      </div>
     </div>
   );
 }

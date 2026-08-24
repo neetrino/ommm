@@ -56,6 +56,16 @@
   text-transform: capitalize;
 }
 
+.monthFiltersRow {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+}
+
 .dateStripPanel {
   width: 100%;
   border-radius: clamp(1.25rem, 2.5vw, 1.5rem);

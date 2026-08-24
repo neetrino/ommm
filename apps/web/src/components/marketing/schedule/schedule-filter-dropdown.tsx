@@ -26,6 +26,7 @@ type ScheduleFilterDropdownProps<T extends string> = {
   value: T;
   options: readonly ScheduleFilterOption<T>[];
   onChange: (value: T) => void;
+  className?: string;
   name?: string;
   disabled?: boolean;
   required?: boolean;
@@ -38,6 +39,7 @@ export function ScheduleFilterDropdown<T extends string>({
   value,
   options,
   onChange,
+  className,
   name,
   disabled = false,
   required = false,
@@ -47,6 +49,7 @@ export function ScheduleFilterDropdown<T extends string>({
 
   return (
     <DropdownSelect
+      className={className}
       label={selected?.label ?? label}
       ariaLabel={ariaLabel}
       value={value}
