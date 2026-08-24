@@ -18,6 +18,7 @@ function row(status: string): SessionRegistrationRow {
       lastName: "Hakobyan",
       email: "anna@example.com",
       phone: null,
+      avatarUrl: null,
     },
   };
 }
