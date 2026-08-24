@@ -66,6 +66,7 @@ export function ScheduleFilterDropdown<T extends string>({
       disabled={disabled}
       required={required}
       openOnHover={openOnHover}
+      animateMenuDismiss
       menuMinWidth={SCHEDULE_FILTER_MENU_MIN_WIDTH_PX}
       menuMaxHeight={SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX}
       menuAlign={menuAlign}
