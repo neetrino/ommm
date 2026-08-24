@@ -8,8 +8,9 @@ import {
 } from "@/components/account/session-coach-line";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { USER_LIST_ROW_CARD } from "@/components/account/user-list-table-layout";
-import { coachName } from "@/components/admin/admin-schedule-session-display";
+import { coachName, spotsLeft } from "@/components/admin/admin-schedule-session-display";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
+import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedule/schedule-session-registrations-capacity";
 
 export type ScheduleWeekMiniCardSession = Pick<
   ScheduleSessionListRow,
@@ -82,11 +83,17 @@ function ScheduleWeekSessionMiniCardContent({
   const coachLabel = resolveCoachLabel(session, showCoach);
   const booked = session._count?.bookings;
   const capacity = session.capacity;
-  const spotsLine =
-    booked !== undefined && capacity !== undefined
-      ? variant === "member"
-        ? tUser("spotsBooked", { booked, capacity })
-        : tStaff("fields.spotsBooked", { booked, capacity })
+  const hasCapacity = booked !== undefined && capacity !== undefined;
+  const spotsLabel = hasCapacity
+    ? variant === "member"
+      ? tUser("spotsBooked", { booked, capacity })
+      : tStaff("fields.spotsBooked", { booked, capacity })
+    : null;
+  const spotsLeftLabel =
+    hasCapacity && variant === "staff"
+      ? tStaff("fields.spotsLeft", {
+          count: spotsLeft({ capacity, _count: { bookings: booked } }),
+        })
       : null;
 
   return (
@@ -112,8 +119,30 @@ function ScheduleWeekSessionMiniCardContent({
             <span className="h-5" aria-hidden />
           )}
         </div>
-        {spotsLine ? (
-          <p className="text-left text-xs font-medium text-sage-700">{spotsLine}</p>
+        {spotsLabel ? (
+          variant === "staff" && hasCapacity && spotsLeftLabel ? (
+            <div
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              <ScheduleSessionRegistrationsCapacity
+                sessionId={session.id}
+                sessionTitle={session.title}
+                startsAt={session.startsAt}
+                locale={locale}
+                booked={booked}
+                capacity={capacity}
+                spotsLabel={spotsLabel}
+                secondaryLabel={spotsLeftLabel}
+                bookedCountAriaLabel={tStaff("registrationsModal.viewBookedAria", {
+                  count: booked,
+                })}
+                layout="compactText"
+              />
+            </div>
+          ) : (
+            <p className="text-left text-xs font-medium text-sage-700">{spotsLabel}</p>
+          )
         ) : (
           <span className="h-4" aria-hidden />
         )}
@@ -144,13 +173,20 @@ export function ScheduleWeekSessionMiniCard({
   }
 
   return (
-    <button
-      type="button"
+    <article
+      role="button"
+      tabIndex={0}
       className={WEEK_CARD_INTERACTIVE}
-      onClick={onClick}
       aria-label={ariaLabel ?? session.title}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
     >
       {content}
-    </button>
+    </article>
   );
 }

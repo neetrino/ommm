@@ -14,7 +14,12 @@ type ScheduleSessionRegistrationsCapacityProps = {
   spotsLabel: string;
   secondaryLabel: string;
   bookedCountAriaLabel?: string;
+  /** Compact text for week/month cards; default indicator for list rows. */
+  layout?: "indicator" | "compactText";
 };
+
+const COMPACT_SPOTS_BUTTON_CLASS =
+  "truncate text-left text-xs font-medium text-sage-700 underline decoration-sand-300/80 decoration-dotted underline-offset-[3px] hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 export function ScheduleSessionRegistrationsCapacity({
   sessionId,
@@ -26,6 +31,7 @@ export function ScheduleSessionRegistrationsCapacity({
   spotsLabel,
   secondaryLabel,
   bookedCountAriaLabel,
+  layout = "indicator",
 }: ScheduleSessionRegistrationsCapacityProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -39,14 +45,29 @@ export function ScheduleSessionRegistrationsCapacity({
 
   return (
     <>
-      <ScheduleSessionCapacityIndicator
-        booked={booked}
-        capacity={capacity}
-        spotsLabel={spotsLabel}
-        secondaryLabel={secondaryLabel}
-        onBookedCountClick={booked > 0 ? openModal : undefined}
-        bookedCountAriaLabel={bookedCountAriaLabel}
-      />
+      {layout === "compactText" ? (
+        booked > 0 ? (
+          <button
+            type="button"
+            className={COMPACT_SPOTS_BUTTON_CLASS}
+            aria-label={bookedCountAriaLabel ?? spotsLabel}
+            onClick={openModal}
+          >
+            {spotsLabel}
+          </button>
+        ) : (
+          <p className="truncate text-left text-xs font-medium text-sage-700">{spotsLabel}</p>
+        )
+      ) : (
+        <ScheduleSessionCapacityIndicator
+          booked={booked}
+          capacity={capacity}
+          spotsLabel={spotsLabel}
+          secondaryLabel={secondaryLabel}
+          onBookedCountClick={booked > 0 ? openModal : undefined}
+          bookedCountAriaLabel={bookedCountAriaLabel}
+        />
+      )}
       <AdminSessionRegistrationsModal
         isOpen={modalOpen}
         sessionId={sessionId}
