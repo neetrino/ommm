@@ -23,6 +23,7 @@ type UseDropdownSelectParams<T extends string> = Pick<
   | "searchable"
   | "disableMenuScroll"
   | "menuMinWidth"
+  | "menuMaxHeight"
   | "menuAlign"
   | "openOnHover"
   | "animateMenuDismiss"
@@ -39,6 +40,7 @@ export function useDropdownSelect<T extends string>({
   searchable = false,
   disableMenuScroll = false,
   menuMinWidth,
+  menuMaxHeight,
   menuAlign,
   openOnHover = false,
   animateMenuDismiss = false,
@@ -128,10 +130,16 @@ export function useDropdownSelect<T extends string>({
     menuDismissMotion,
   );
   const searchHeaderHeight = searchable ? 56 : 0;
+  const viewportListMaxHeight =
+    menuPosition === null ? 0 : menuPosition.maxHeight - 16 - searchHeaderHeight;
+  const cappedListMaxHeight =
+    menuMaxHeight !== undefined
+      ? Math.min(menuMaxHeight, viewportListMaxHeight)
+      : viewportListMaxHeight;
   const listMaxHeight =
     menuPosition === null || disableMenuScroll
       ? undefined
-      : Math.max(96, menuPosition.maxHeight - 16 - searchHeaderHeight);
+      : Math.max(96, cappedListMaxHeight);
 
   useDropdownSelectEffects({
     open,

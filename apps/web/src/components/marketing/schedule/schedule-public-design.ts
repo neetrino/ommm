@@ -16,6 +16,13 @@ export const SCHEDULE_BOOK_ACTION_GROUP = styles.bookActionGroup;
 
 export const SCHEDULE_FILTER_TRIGGER = `${styles.filterTrigger} ommm-dropdown-trigger`;
 export const SCHEDULE_FILTER_LABEL = styles.filterLabel;
+export const SCHEDULE_FILTER_ROOT = styles.filterRoot;
+export const SCHEDULE_FILTER_MENU = styles.filterMenu;
+
+/** Minimum width for schedule filter floating menus (px). */
+export const SCHEDULE_FILTER_MENU_MIN_WIDTH_PX = 320;
+/** Maximum scrollable list height for schedule filter menus (px). */
+export const SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX = 280;
 
 export const SCHEDULE_MONTH_FILTERS_ROW = styles.monthFiltersRow;
 export const SCHEDULE_MONTH_LABEL = styles.monthLabel;

@@ -2,6 +2,10 @@
 
 import {
   SCHEDULE_FILTER_LABEL,
+  SCHEDULE_FILTER_MENU,
+  SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX,
+  SCHEDULE_FILTER_MENU_MIN_WIDTH_PX,
+  SCHEDULE_FILTER_ROOT,
   SCHEDULE_FILTER_TRIGGER,
 } from "@/components/marketing/schedule/schedule-public-design";
 import {
@@ -49,7 +53,7 @@ export function ScheduleFilterDropdown<T extends string>({
 
   return (
     <DropdownSelect
-      className={className}
+      className={className ?? SCHEDULE_FILTER_ROOT}
       label={selected?.label ?? label}
       ariaLabel={ariaLabel}
       value={value}
@@ -59,6 +63,10 @@ export function ScheduleFilterDropdown<T extends string>({
       disabled={disabled}
       required={required}
       openOnHover={openOnHover}
+      menuMinWidth={SCHEDULE_FILTER_MENU_MIN_WIDTH_PX}
+      menuMaxHeight={SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX}
+      menuAlign="end"
+      menuClassName={SCHEDULE_FILTER_MENU}
       triggerClassName={SCHEDULE_FILTER_TRIGGER}
       renderValue={(option) => (
         <span className={SCHEDULE_FILTER_LABEL}>{option?.label ?? label}</span>

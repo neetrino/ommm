@@ -36,7 +36,6 @@ export function ScheduleFiltersHeader({
       <p className={`${SCHEDULE_MONTH_LABEL} shrink-0`}>{monthLabel}</p>
       <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 sm:flex-nowrap sm:gap-3">
         <ScheduleFilterDropdown
-          className="w-auto shrink-0"
           label={t("filterClassType")}
           ariaLabel={t("filterClassTypeAria")}
           value={filterClassType}
@@ -44,7 +43,6 @@ export function ScheduleFiltersHeader({
           onChange={onClassTypeChange}
         />
         <ScheduleFilterDropdown
-          className="w-auto shrink-0"
           label={t("filterInstructor")}
           ariaLabel={t("filterInstructorAria")}
           value={filterInstructor}
