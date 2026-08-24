@@ -6,6 +6,7 @@ import {
   type ScheduleFilterOption,
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import {
+  SCHEDULE_MONTH_FILTERS_CONTROLS,
   SCHEDULE_MONTH_FILTERS_ROW,
   SCHEDULE_MONTH_LABEL,
 } from "@/components/marketing/schedule/schedule-public-design";
@@ -33,8 +34,8 @@ export function ScheduleFiltersHeader({
 
   return (
     <div className={SCHEDULE_MONTH_FILTERS_ROW}>
-      <p className={`${SCHEDULE_MONTH_LABEL} shrink-0`}>{monthLabel}</p>
-      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 sm:flex-nowrap sm:gap-3">
+      <p className={SCHEDULE_MONTH_LABEL}>{monthLabel}</p>
+      <div className={SCHEDULE_MONTH_FILTERS_CONTROLS}>
         <ScheduleFilterDropdown
           label={t("filterClassType")}
           ariaLabel={t("filterClassTypeAria")}

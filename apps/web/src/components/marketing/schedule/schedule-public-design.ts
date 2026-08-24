@@ -25,6 +25,7 @@ export const SCHEDULE_FILTER_MENU_MIN_WIDTH_PX = 320;
 export const SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX = 280;
 
 export const SCHEDULE_MONTH_FILTERS_ROW = styles.monthFiltersRow;
+export const SCHEDULE_MONTH_FILTERS_CONTROLS = styles.monthFiltersControls;
 export const SCHEDULE_MONTH_LABEL = styles.monthLabel;
 export const SCHEDULE_DATE_STRIP_PANEL = styles.dateStripPanel;
 export const SCHEDULE_WEEKDAY_LABEL = styles.weekdayLabel;
