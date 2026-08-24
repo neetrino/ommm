@@ -10,5 +10,10 @@ export type PaymentOutcomeEhdmReceipt = {
 export type PaymentOutcomePayload = {
   paymentReference: string | null;
   status: string;
+  amountCents: number;
+  currency: string;
+  description: string | null;
+  paymentMethod: string | null;
+  paidAt: string;
   ehdmReceipt: PaymentOutcomeEhdmReceipt | null;
 };

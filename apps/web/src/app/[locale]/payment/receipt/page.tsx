@@ -25,6 +25,10 @@ export default async function PaymentReceiptPage({
   const checkoutSource = parsePaymentCheckoutSource(source);
 
   return (
-    <PaymentEhdmReceiptScreen reference={reference.trim()} source={checkoutSource} />
+    <PaymentEhdmReceiptScreen
+      reference={reference.trim()}
+      source={checkoutSource}
+      locale={locale}
+    />
   );
 }

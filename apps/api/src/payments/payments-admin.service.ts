@@ -199,6 +199,11 @@ export class PaymentsAdminService {
     return {
       paymentReference: payment.paymentReference,
       status: payment.status,
+      amountCents: payment.amountCents,
+      currency: payment.currency,
+      description: payment.description,
+      paymentMethod: payment.paymentMethod,
+      paidAt: payment.confirmedAt ?? payment.createdAt,
       ehdmReceipt: payment.ehdmReceipt
         ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
         : null,

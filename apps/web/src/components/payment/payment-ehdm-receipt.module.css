@@ -114,6 +114,22 @@
   }
 }
 
+.panelWithPrinter {
+  padding-top: 1rem;
+  padding-inline: 1.15rem;
+}
+
+@media (min-width: 640px) {
+  .panelWithPrinter {
+    padding-top: 1.25rem;
+    padding-inline: 1.75rem;
+  }
+}
+
+.receiptSectionTop {
+  margin-top: 0;
+}
+
 .receiptSection {
   margin-top: 1.5rem;
 }
