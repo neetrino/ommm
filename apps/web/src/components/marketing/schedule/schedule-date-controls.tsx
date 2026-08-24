@@ -76,11 +76,11 @@ export function ScheduleDateControls({
 
   return (
     <>
-      <div className="mt-6 sm:mt-8">
+      <div className="mt-1.5 sm:mt-2">
         <p className={SCHEDULE_MONTH_LABEL}>{monthLabel}</p>
       </div>
 
-      <div className={`mt-4 ${SCHEDULE_DATE_STRIP_PANEL}`}>
+      <div className={`mt-0.5 ${SCHEDULE_DATE_STRIP_PANEL}`}>
         <div className="flex w-full min-w-0 items-stretch gap-2 sm:gap-3">
           <button
             type="button"
