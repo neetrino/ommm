@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import {
   ScheduleFilterDropdown,
@@ -10,6 +11,27 @@ import {
   SCHEDULE_MONTH_FILTERS_ROW,
   SCHEDULE_MONTH_LABEL,
 } from "@/components/marketing/schedule/schedule-public-design";
+
+const SCHEDULE_FILTERS_DESKTOP_MEDIA_QUERY = "(min-width: 640px)";
+
+function subscribeScheduleFiltersDesktopLayout(onStoreChange: () => void): () => void {
+  const mediaQuery = window.matchMedia(SCHEDULE_FILTERS_DESKTOP_MEDIA_QUERY);
+  mediaQuery.addEventListener("change", onStoreChange);
+  return () => mediaQuery.removeEventListener("change", onStoreChange);
+}
+
+function getScheduleFiltersDesktopLayoutSnapshot(): boolean {
+  return window.matchMedia(SCHEDULE_FILTERS_DESKTOP_MEDIA_QUERY).matches;
+}
+
+/** Desktop row layout for schedule filters — matches `monthFiltersRow` breakpoint. */
+function useScheduleFiltersDesktopLayout(): boolean {
+  return useSyncExternalStore(
+    subscribeScheduleFiltersDesktopLayout,
+    getScheduleFiltersDesktopLayoutSnapshot,
+    () => true,
+  );
+}
 
 type ScheduleFiltersHeaderProps = {
   monthLabel: string;
@@ -31,6 +53,7 @@ export function ScheduleFiltersHeader({
   onInstructorChange,
 }: ScheduleFiltersHeaderProps) {
   const t = useTranslations("marketingPages.schedule");
+  const isDesktopFiltersLayout = useScheduleFiltersDesktopLayout();
 
   return (
     <div className={SCHEDULE_MONTH_FILTERS_ROW}>
@@ -42,6 +65,7 @@ export function ScheduleFiltersHeader({
           value={filterClassType}
           options={classTypeOptions}
           onChange={onClassTypeChange}
+          menuAlign={isDesktopFiltersLayout ? "end" : "start"}
         />
         <ScheduleFilterDropdown
           label={t("filterInstructor")}
@@ -49,6 +73,7 @@ export function ScheduleFiltersHeader({
           value={filterInstructor}
           options={instructorOptions}
           onChange={onInstructorChange}
+          menuAlign="end"
         />
       </div>
     </div>

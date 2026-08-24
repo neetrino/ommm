@@ -12,6 +12,7 @@ import {
   DropdownSelect,
   type DropdownOption,
 } from "@/components/ui/dropdown-select";
+import type { FloatingMenuAlign } from "@/components/ui/use-floating-menu-position";
 
 export type ScheduleFilterOption<T extends string> = DropdownOption<T>;
 
@@ -31,6 +32,7 @@ type ScheduleFilterDropdownProps<T extends string> = {
   options: readonly ScheduleFilterOption<T>[];
   onChange: (value: T) => void;
   className?: string;
+  menuAlign?: FloatingMenuAlign;
   name?: string;
   disabled?: boolean;
   required?: boolean;
@@ -44,6 +46,7 @@ export function ScheduleFilterDropdown<T extends string>({
   options,
   onChange,
   className,
+  menuAlign = "end",
   name,
   disabled = false,
   required = false,
@@ -65,7 +68,7 @@ export function ScheduleFilterDropdown<T extends string>({
       openOnHover={openOnHover}
       menuMinWidth={SCHEDULE_FILTER_MENU_MIN_WIDTH_PX}
       menuMaxHeight={SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX}
-      menuAlign="end"
+      menuAlign={menuAlign}
       menuClassName={SCHEDULE_FILTER_MENU}
       triggerClassName={SCHEDULE_FILTER_TRIGGER}
       renderValue={(option) => (
