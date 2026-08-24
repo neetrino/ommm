@@ -7,9 +7,13 @@ import {
   SCHEDULE_DATE_CHIP_PAST,
   SCHEDULE_DATE_CHIP_SELECTED,
   SCHEDULE_DATE_CHIP_TODAY,
+  SCHEDULE_DATE_STRIP_ARROW_NEXT,
+  SCHEDULE_DATE_STRIP_ARROW_PREV,
+  SCHEDULE_DATE_STRIP_ARROWS,
+  SCHEDULE_DATE_STRIP_DAYS,
+  SCHEDULE_DATE_STRIP_LAYOUT,
   SCHEDULE_DATE_STRIP_PANEL,
   SCHEDULE_INTERACTIVE_LIFT,
-  SCHEDULE_MONTH_LABEL,
   SCHEDULE_SELECTED_DAY_DIVIDER,
   SCHEDULE_SELECTED_DAY_LABEL,
   SCHEDULE_WEEKDAY_LABEL,
@@ -37,10 +41,6 @@ const WINDOW_SHIFT = SCHEDULE_DATE_STRIP_WINDOW_SHIFT;
 
 function formatWeekdayShort(locale: string, date: Date): string {
   return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
-}
-
-function formatMonthTitle(locale: string, date: Date): string {
-  return new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
 }
 
 function formatSelectedLong(locale: string, date: Date): string {
@@ -71,28 +71,13 @@ export function ScheduleDateControls({
   const canShiftNext =
     maxDate === undefined ||
     !isAfterCalendarDay(addDays(windowStart, WINDOW_SHIFT), maxDate);
-  const monthLabel = formatMonthTitle(locale, selectedDate);
   const selectedLong = formatSelectedLong(locale, selectedDate);
 
   return (
     <>
-      <div className="mt-6 sm:mt-8">
-        <p className={SCHEDULE_MONTH_LABEL}>{monthLabel}</p>
-      </div>
-
-      <div className={`mt-4 ${SCHEDULE_DATE_STRIP_PANEL}`}>
-        <div className="flex w-full min-w-0 items-stretch gap-2 sm:gap-3">
-          <button
-            type="button"
-            className={SCHEDULE_ARROW_BTN}
-            aria-label={t("prevDatesAria")}
-            disabled={!canShiftPrev}
-            aria-disabled={!canShiftPrev}
-            onClick={() => onShiftWindow(-WINDOW_SHIFT)}
-          >
-            <ArrowLeftIcon />
-          </button>
-          <div className="grid min-w-0 flex-1 grid-cols-7 gap-1 sm:gap-2">
+      <div className={SCHEDULE_DATE_STRIP_PANEL}>
+        <div className={SCHEDULE_DATE_STRIP_LAYOUT}>
+          <div className={SCHEDULE_DATE_STRIP_DAYS}>
             {stripDays.map((day) => {
               const isSelected = isSameCalendarDay(day, selectedDate);
               const isToday = isSameCalendarDay(day, today);
@@ -136,16 +121,28 @@ export function ScheduleDateControls({
               );
             })}
           </div>
-          <button
-            type="button"
-            className={SCHEDULE_ARROW_BTN}
-            aria-label={t("nextDatesAria")}
-            disabled={!canShiftNext}
-            aria-disabled={!canShiftNext}
-            onClick={() => onShiftWindow(WINDOW_SHIFT)}
-          >
-            <ArrowRightIcon />
-          </button>
+          <div className={SCHEDULE_DATE_STRIP_ARROWS}>
+            <button
+              type="button"
+              className={`${SCHEDULE_ARROW_BTN} ${SCHEDULE_DATE_STRIP_ARROW_PREV}`}
+              aria-label={t("prevDatesAria")}
+              disabled={!canShiftPrev}
+              aria-disabled={!canShiftPrev}
+              onClick={() => onShiftWindow(-WINDOW_SHIFT)}
+            >
+              <ArrowLeftIcon />
+            </button>
+            <button
+              type="button"
+              className={`${SCHEDULE_ARROW_BTN} ${SCHEDULE_DATE_STRIP_ARROW_NEXT}`}
+              aria-label={t("nextDatesAria")}
+              disabled={!canShiftNext}
+              aria-disabled={!canShiftNext}
+              onClick={() => onShiftWindow(WINDOW_SHIFT)}
+            >
+              <ArrowRightIcon />
+            </button>
+          </div>
         </div>
       </div>
 

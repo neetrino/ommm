@@ -17,6 +17,7 @@ import { type ScheduleFilterOption } from "@/components/marketing/schedule/sched
 import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-filters-header";
 import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-session-row";
 import {
+  formatScheduleMonthTitle,
   isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
@@ -144,6 +145,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [baseline, classType, dayToOffset, instructor, items, nav.selectedDate, scheduleNow]);
 
+  const monthLabel = formatScheduleMonthTitle(locale, nav.selectedDate);
   const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
   const { contentRef, renderedDayKey, renderedSessions, animationPhase, containerStyle, getItemStyle } =
     useScheduleDayTransition({
@@ -154,6 +156,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
   return (
     <div className={SCHEDULE_VIEW_SHELL}>
       <ScheduleFiltersHeader
+        monthLabel={monthLabel}
         filterClassType={classType}
         filterInstructor={instructor}
         classTypeOptions={classTypeOptions}

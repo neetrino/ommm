@@ -43,6 +43,8 @@ export type DropdownSelectProps<T extends string> = {
   showChevron?: boolean;
   /** Minimum floating menu width in px when wider than the trigger. */
   menuMinWidth?: number;
+  /** Maximum list height in px; also capped by available viewport space. */
+  menuMaxHeight?: number;
   /** Horizontal alignment of the menu relative to the trigger. */
   menuAlign?: FloatingMenuAlign;
   /** Open on pointer hover (fine pointers only); keeps menu open while cursor is over trigger or menu. */
