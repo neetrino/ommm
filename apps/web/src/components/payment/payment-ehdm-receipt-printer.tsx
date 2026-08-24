@@ -91,14 +91,7 @@ export function PaymentEhdmReceiptPrinter({
   return (
     <div className={styles.printerRoot}>
       <div className={styles.printerAssembly}>
-        <div className={styles.printerChassis} aria-hidden>
-          <div className={styles.printerFace}>
-            <div className={styles.printerSlotTrack}>
-              <div className={styles.printerSlot} />
-            </div>
-          </div>
-          <div className={styles.printerPaperGuide} />
-        </div>
+        <PrinterAssemblyHead />
 
         <div
           className={[
@@ -164,6 +157,37 @@ export function PaymentEhdmReceiptPrinter({
           </div>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+/** Printer slot only — shown while receipt data is loading (no flash text). */
+export function PaymentEhdmReceiptPrinterShell() {
+  const t = useTranslations("userPages.payments.result.ehdm");
+
+  return (
+    <div className={styles.printerRoot}>
+      <div className={styles.printerAssembly}>
+        <PrinterAssemblyHead />
+      </div>
+      <div className={styles.controls}>
+        <OmmButton type="button" disabled className="w-full sm:w-auto">
+          {t("printButton")}
+        </OmmButton>
+      </div>
+    </div>
+  );
+}
+
+function PrinterAssemblyHead() {
+  return (
+    <div className={styles.printerChassis} aria-hidden>
+      <div className={styles.printerFace}>
+        <div className={styles.printerSlotTrack}>
+          <div className={styles.printerSlot} />
+        </div>
+      </div>
+      <div className={styles.printerPaperGuide} />
     </div>
   );
 }
