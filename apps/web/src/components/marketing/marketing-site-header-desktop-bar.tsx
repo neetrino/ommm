@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   MarketingHeaderGlobeIcon,
+  MarketingHeaderNotificationsPlaceholder,
   MarketingHeaderUserIcon,
 } from "@/components/marketing/marketing-header-icons";
 import { MarketingHeaderLoginLink } from "@/components/marketing/marketing-header-login-link";
@@ -137,13 +138,19 @@ export function MarketingSiteHeaderDesktopBar({
             />
           ) : null}
           {callTasksListHref ? (
-            <HeaderCallTasksMenu
-              enabled
-              listHref={callTasksListHref}
-              triggerClassName={desktopNotificationsTriggerClass}
-              iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
-              onNavigate={onCloseAllMenus}
-            />
+            <>
+              <MarketingHeaderNotificationsPlaceholder
+                className={desktopNotificationsTriggerClass}
+                iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+              />
+              <HeaderCallTasksMenu
+                enabled
+                listHref={callTasksListHref}
+                triggerClassName={desktopNotificationsTriggerClass}
+                iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+                onNavigate={onCloseAllMenus}
+              />
+            </>
           ) : showNotifications ? (
             <HeaderNotificationsMenu
               enabled
