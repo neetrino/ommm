@@ -11,6 +11,7 @@ import {
   type RefObject,
 } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { staffActivityActionToneClass } from "@/components/admin/admin-staff-activity-type-copy";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import {
@@ -235,7 +236,9 @@ function StaffActivityMenuRow({ row }: { row: StaffActivityRow }) {
   const whenLabel = formatSessionWhen(locale, row.sessionStartsAt);
   return (
     <li className="border-b border-white/50 px-4 py-3 last:border-b-0">
-      <p className="text-xs font-semibold uppercase tracking-wide text-sage-600">
+      <p
+        className={`text-xs font-semibold uppercase tracking-wide ${staffActivityActionToneClass(row.type)}`}
+      >
         {row.type === "BOOKING_CREATED" ? t("typeBooked") : t("typeCancelled")}
       </p>
       <p className="mt-1 text-sm font-semibold text-sage-900">{row.memberName}</p>

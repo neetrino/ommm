@@ -1,6 +1,10 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import {
+  StaffActivityCardBody,
+  StaffActivityTypeLabel,
+} from "@/components/admin/admin-staff-activity-type-copy";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatTimeForUi } from "@/lib/format-time-display";
 import type { StaffActivityRow } from "@/lib/staff-activity-types";
@@ -14,12 +18,7 @@ export function AdminStaffActivityCard({
   onOpen: () => void;
 }) {
   const locale = useLocale();
-  const t = useTranslations("staffActivityPages");
   const sessionWhen = formatSessionWhen(locale, row.sessionStartsAt);
-  const typeLabel =
-    row.type === "BOOKING_CREATED" ? t("typeBooked") : t("typeCancelled");
-  const body =
-    row.type === "BOOKING_CREATED" ? t("cardBodyBooked") : t("cardBodyCancelled");
 
   return (
     <button
@@ -32,11 +31,13 @@ export function AdminStaffActivityCard({
       </p>
       <h2 className="mt-1 font-serif text-xl text-sage-900">{row.className}</h2>
       <p className="mt-2 text-sm text-sage-700">
-        <span className="font-medium text-sage-800">{typeLabel}</span>
+        <StaffActivityTypeLabel type={row.type} />
         <span className="text-sage-500"> · </span>
         <span>{row.memberName}</span>
       </p>
-      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-sage-800">{body}</p>
+      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-sage-800">
+        <StaffActivityCardBody type={row.type} />
+      </p>
       <p className="mt-2 text-xs text-sage-500">
         {formatDateTimeForUi(row.createdAt, locale)}
       </p>

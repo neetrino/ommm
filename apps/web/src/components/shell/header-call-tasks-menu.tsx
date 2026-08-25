@@ -55,7 +55,9 @@ export function HeaderCallTasksMenu({
   const [panelVisible, setPanelVisible] = useState(false);
   const live = useCallTasksDue(enabled && !HEADER_ICONS_UI_PREVIEW);
   const [previewItems] = useState(() =>
-    HEADER_ICONS_UI_PREVIEW ? HEADER_PREVIEW_CALL_TASKS : [],
+    HEADER_ICONS_UI_PREVIEW
+      ? HEADER_PREVIEW_CALL_TASKS.filter((row) => row.status === "PENDING")
+      : [],
   );
   const items = HEADER_ICONS_UI_PREVIEW ? previewItems : live.items;
   const loading = false;

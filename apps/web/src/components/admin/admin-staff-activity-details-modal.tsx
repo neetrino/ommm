@@ -2,6 +2,10 @@
 
 import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import {
+  StaffActivityCardBody,
+  StaffActivityTypeLabel,
+} from "@/components/admin/admin-staff-activity-type-copy";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -23,10 +27,6 @@ export function AdminStaffActivityDetailsModal({
   const t = useTranslations("staffActivityPages");
   const titleId = useId();
   const descId = useId();
-  const typeLabel =
-    row.type === "BOOKING_CREATED" ? t("typeBooked") : t("typeCancelled");
-  const body =
-    row.type === "BOOKING_CREATED" ? t("cardBodyBooked") : t("cardBodyCancelled");
   const sessionWhen = formatSessionWhen(locale, row.sessionStartsAt);
 
   return (
@@ -49,11 +49,15 @@ export function AdminStaffActivityDetailsModal({
         <p id={descId} className={styles.body}>
           {sessionWhen}
         </p>
-        <p className="text-sm font-medium text-sage-800">
-          {typeLabel} · {row.memberName}
+        <p className="text-sm text-sage-800">
+          <StaffActivityTypeLabel type={row.type} />
+          <span className="text-sage-500"> · </span>
+          <span className="font-medium">{row.memberName}</span>
         </p>
         <div className="rounded-2xl border border-sand-200/80 bg-white/75 px-4 py-3">
-          <p className="text-sm leading-relaxed text-sage-800">{body}</p>
+          <p className="text-sm leading-relaxed text-sage-800">
+            <StaffActivityCardBody type={row.type} />
+          </p>
           <p className="mt-2 text-xs text-sage-500">
             {formatDateTimeForUi(row.createdAt, locale)}
           </p>
