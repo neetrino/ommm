@@ -76,9 +76,8 @@ function HeaderSpinningSphereVideo({ size }: HeaderSpinningSphereProps) {
 
   useEffect(() => {
     playerPlaySafe(player);
-    return () => {
-      player.pause();
-    };
+    // Do not pause in cleanup: on unmount the native player is often already
+    // released, and pause() throws NativeSharedObjectNotFoundException.
   }, [player]);
 
   const mediaSize = size * VIDEO_EDGE_CROP_SCALE;
