@@ -11,6 +11,9 @@ export const CALL_TASK_STATUS_QUERY_KEY = "status";
 export const CALL_TASK_SEARCH_QUERY_KEY = "q";
 export const CALL_TASK_STATUS_ALL_QUERY_VALUE = "all";
 
+/** Calls list page size (admin + manager). */
+export const CALL_TASKS_PAGE_TAKE = 15;
+
 export function firstQueryValue(
   value: string | readonly string[] | undefined,
 ): string | undefined {

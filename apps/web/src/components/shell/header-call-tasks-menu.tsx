@@ -15,6 +15,7 @@ import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
 import { OmmButton } from "@/components/ui/omm-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useCallTasksDue } from "@/hooks/use-call-tasks-due";
+import { useCallTasksPendingCount } from "@/hooks/use-call-tasks-pending-count";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { Link } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -49,8 +50,12 @@ export function HeaderCallTasksMenu({
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
-  const { items, loading, error, refetch } = useCallTasksDue(enabled);
-  const count = items.length;
+  const live = useCallTasksDue(enabled);
+  const pendingCount = useCallTasksPendingCount(enabled);
+  const items = live.items;
+  const loading = live.loading;
+  const error = live.error;
+  const refetch = live.refetch;
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
     open,
@@ -88,7 +93,7 @@ export function HeaderCallTasksMenu({
         ref={triggerRef}
         type="button"
         className={`relative ${triggerClassName}`}
-        aria-label={t("triggerAria", { count })}
+        aria-label={t("triggerAria", { count: pendingCount })}
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         onClick={() => {
@@ -100,10 +105,13 @@ export function HeaderCallTasksMenu({
           void refetch();
         }}
       >
-        <CallTaskBellIcon className={iconClassName} />
-        {count > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-bold leading-none text-white">
-            {count > 9 ? "9+" : count}
+        <CallTaskPhoneIcon className={iconClassName} />
+        {pendingCount > 0 ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-bold leading-none text-white"
+            aria-hidden
+          >
+            {pendingCount > 9 ? "9+" : pendingCount}
           </span>
         ) : null}
       </button>
@@ -148,11 +156,23 @@ export function HeaderCallTasksMenu({
   );
 }
 
-function CallTaskBellIcon({ className }: { className: string }) {
+const CALL_TASK_PHONE_ICON_SCALE = 0.82;
+
+function CallTaskPhoneIcon({ className }: { className: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
-      <path d="M6 10a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
-      <path d="M10 21h4" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <g transform={`translate(12 12) scale(${CALL_TASK_PHONE_ICON_SCALE}) translate(-12 -12)`}>
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.6.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c1.2.34 1.99.57 2.81.7A2 2 0 0 1 22 16.92z" />
+      </g>
     </svg>
   );
 }
@@ -175,7 +195,11 @@ function CallTaskMenuPanel({
     <>
       <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
         <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
-        <Link href={listHref} className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline" onClick={onNavigate}>
+        <Link
+          href={listHref}
+          className="shrink-0 text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
+          onClick={onNavigate}
+        >
           {t("openList")}
         </Link>
       </div>

@@ -23,7 +23,6 @@ import {
   CoachReviewMenuPanel,
   MemberReviewMenuPanel,
   StaffReviewMenuPanel,
-  markStaffReviewsRead,
 } from "@/components/shell/header-session-reviews-panels";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
@@ -55,6 +54,7 @@ export function HeaderSessionReviewsMenu({
   const member = useSessionReviewsPending(audience === "member");
   const staff = useSessionReviewsStaffInbox(audience === "staff");
   const coach = useSessionReviewsCoachInbox(audience === "coach");
+  const staffItems = staff.items;
   const count =
     audience === "member"
       ? member.items.length
@@ -112,9 +112,7 @@ export function HeaderSessionReviewsMenu({
           if (audience === "member") {
             void member.refetch();
           } else if (audience === "staff") {
-            void staff.refetch().then(() => {
-              void markStaffReviewsRead();
-            });
+            void staff.refetch();
           } else {
             void coach.refetch();
           }
@@ -170,7 +168,7 @@ export function HeaderSessionReviewsMenu({
               ) : null}
               {audience === "staff" ? (
                 <StaffReviewMenuPanel
-                  items={staff.items}
+                  items={staffItems}
                   loading={staff.loading}
                   error={staff.error}
                   viewAllHref={viewAllHref}

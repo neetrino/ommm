@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PackagesModule } from '../packages/packages.module';
 import { ScheduleItemsModule } from '../schedule/schedule.module';
+import { StaffActivityModule } from '../staff-activity/staff-activity.module';
 import { ArcaClient } from './arca/arca.client';
 import { ArcaConfig } from './arca/arca.config';
 import { ArcaPaymentsController } from './arca/arca-payments.controller';
@@ -22,7 +23,11 @@ import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import { PaymentsService } from './payments.service';
 
 @Module({
-  imports: [ScheduleItemsModule, forwardRef(() => PackagesModule)],
+  imports: [
+    ScheduleItemsModule,
+    forwardRef(() => PackagesModule),
+    StaffActivityModule,
+  ],
   controllers: [PaymentsController, ArcaPaymentsController],
   providers: [
     PaymentsService,

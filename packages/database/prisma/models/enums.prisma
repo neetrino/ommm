@@ -135,3 +135,9 @@ enum SessionReviewStatus {
   DISMISSED
   EXPIRED
 }
+
+/** Staff header inbox — booking lifecycle events for Admin / Manager. */
+enum StaffActivityType {
+  BOOKING_CREATED
+  BOOKING_CANCELLED
+}

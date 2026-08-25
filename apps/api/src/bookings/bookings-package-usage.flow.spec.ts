@@ -95,6 +95,9 @@ function createSlotHarness() {
     prisma as never,
     { offerNextIfSlot: jest.fn() } as never,
     packageUsage as never,
+    {
+      recordBookingCancelled: jest.fn().mockResolvedValue(undefined),
+    } as never,
   );
   return { service, tx, packageUsage, ledger };
 }

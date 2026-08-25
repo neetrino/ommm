@@ -20,7 +20,6 @@ describe("dashboard-nav manager parity", () => {
         "/manager/schedule",
         "/manager/packages",
         "/manager/gift-cards",
-        "/manager/notifications",
         "/manager/content",
         "/manager/settings",
       ],
@@ -29,13 +28,12 @@ describe("dashboard-nav manager parity", () => {
     assert.equal(nav.some((item) => item.href.includes("analytics")), false);
     assert.equal(nav.some((item) => item.href.includes("guest-users")), false);
     assert.equal(nav.some((item) => item.href.includes("profile")), false);
+    assert.equal(nav.some((item) => item.href.includes("notifications")), false);
   });
 
-  it("manager notification route points at manager notifications", () => {
-    assert.deepEqual(dashboardNotificationRouteForRole("MANAGER"), {
-      href: "/manager/notifications",
-      labelKey: "notifications",
-    });
+  it("manager and admin have no header notification route", () => {
+    assert.equal(dashboardNotificationRouteForRole("MANAGER"), null);
+    assert.equal(dashboardNotificationRouteForRole("ADMIN"), null);
   });
 
   it("ADMIN_NAV places Manager after Coaches and before Schedule", () => {

@@ -26,6 +26,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { ReportsModule } from './reports/reports.module';
 import { SessionReviewsModule } from './session-reviews/session-reviews.module';
+import { StaffActivityModule } from './staff-activity/staff-activity.module';
 import { ScheduleItemsModule } from './schedule/schedule.module';
 import { StudioModule } from './studio/studio.module';
 import { UsersModule } from './users/users.module';
@@ -106,6 +107,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     ManagersModule,
     CallTasksModule,
     SessionReviewsModule,
+    StaffActivityModule,
     ScheduleItemsModule,
     JobsModule,
   ],

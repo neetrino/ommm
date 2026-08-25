@@ -38,6 +38,12 @@ export class CallTasksController {
     return this.callTasks.countPending();
   }
 
+  @Post('mark-badge-read')
+  @SkipThrottle()
+  acknowledgeBadge() {
+    return this.callTasks.acknowledgeBadge();
+  }
+
   @Get('due')
   @SkipThrottle()
   listDue() {

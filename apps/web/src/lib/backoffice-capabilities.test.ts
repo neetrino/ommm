@@ -6,7 +6,6 @@ import {
   adminClientCapabilities,
   adminContentCapabilities,
   adminGiftCardCapabilities,
-  adminNotificationCapabilities,
   adminScheduleCapabilities,
   capabilitiesForRole,
   managerBackofficeCapabilities,
@@ -14,7 +13,6 @@ import {
   managerClientCapabilities,
   managerContentCapabilities,
   managerGiftCardCapabilities,
-  managerNotificationCapabilities,
   managerScheduleCapabilities,
   resolveBackofficeCapabilities,
 } from "./backoffice-capabilities";
@@ -48,8 +46,6 @@ describe("backoffice-capabilities", () => {
     assert.equal(managerGiftCardCapabilities().canAssign, true);
     assert.equal(managerGiftCardCapabilities().canDeactivate, true);
     assert.equal(managerGiftCardCapabilities().canDelete, false);
-    assert.equal(managerNotificationCapabilities().canBroadcast, true);
-    assert.equal(managerNotificationCapabilities().canViewAnalytics, false);
     assert.equal(managerContentCapabilities().canDelete, false);
     assert.equal(managerBookingCapabilities().canCancel, true);
     assert.equal(managerBookingCapabilities().canDelete, false);
@@ -61,7 +57,6 @@ describe("backoffice-capabilities", () => {
     assert.equal(adminClientCapabilities().canDelete, true);
     assert.equal(adminScheduleCapabilities().canDelete, true);
     assert.equal(adminGiftCardCapabilities().canDelete, true);
-    assert.equal(adminNotificationCapabilities().canViewAnalytics, true);
     assert.equal(adminContentCapabilities().canDelete, true);
     assert.equal(adminBookingCapabilities().canDelete, true);
   });

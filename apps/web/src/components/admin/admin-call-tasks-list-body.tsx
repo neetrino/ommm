@@ -1,13 +1,10 @@
 "use client";
 
-import type { useTranslations } from "next-intl";
-import {
-  ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER,
-  ADMIN_CALL_TASKS_LIST_HEADER_CLASS,
-  ADMIN_CALL_TASKS_LIST_TABLE_CLASS,
-} from "@/components/admin/admin-call-tasks-list-layout";
-import { AdminCallTasksRow } from "@/components/admin/admin-call-tasks-row";
+import { useTranslations } from "next-intl";
+import { AdminCallTasksCard } from "@/components/admin/admin-call-tasks-card";
 import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
+import { MarkAllAsReadIcon } from "@/components/shell/mark-all-as-read-button";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 
 type AdminCallTasksListBodyProps = {
@@ -15,9 +12,11 @@ type AdminCallTasksListBodyProps = {
   total: number;
   listPage: { page: number; pageSize: number };
   offset: number;
+  badgeCount: number;
+  markingBadge: boolean;
+  onMarkBadgeRead: () => void;
   onOpenDetails: (row: CallTaskRow) => void;
   onPageChange: (page: number) => void;
-  t: ReturnType<typeof useTranslations<"adminPages.calls">>;
 };
 
 export function AdminCallTasksListBody({
@@ -25,37 +24,44 @@ export function AdminCallTasksListBody({
   total,
   listPage,
   offset,
+  badgeCount,
+  markingBadge,
+  onMarkBadgeRead,
   onOpenDetails,
   onPageChange,
-  t,
 }: AdminCallTasksListBodyProps) {
+  const t = useTranslations("adminPages.calls");
   return (
     <>
-      <div className={ADMIN_CALL_TASKS_LIST_TABLE_CLASS}>
-        <div className={ADMIN_CALL_TASKS_LIST_HEADER_CLASS}>
-          <span>{t("colContact")}</span>
-          <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colPhone")}</span>
-          <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colDue")}</span>
-          <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colComment")}</span>
-          <span className={ADMIN_CALL_TASKS_LIST_EMPHASIZED_HEADER}>{t("colStatus")}</span>
+      <div className="space-y-3">
+        <div className="flex justify-start">
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="inline-flex items-center gap-1.5"
+            disabled={markingBadge || badgeCount === 0}
+            onClick={onMarkBadgeRead}
+          >
+            <MarkAllAsReadIcon className="h-3.5 w-3.5" />
+            {t("markAllRead")}
+          </OmmButton>
         </div>
         {rows.map((row) => (
-          <AdminCallTasksRow
+          <AdminCallTasksCard
             key={row.id}
             row={row}
             onOpenDetails={() => onOpenDetails(row)}
           />
         ))}
       </div>
-      {total > 0 ? (
-        <OmmListPagination
-          total={total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={offset}
-          onPageChange={onPageChange}
-        />
-      ) : null}
+      <OmmListPagination
+        total={total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={offset}
+        onPageChange={onPageChange}
+      />
     </>
   );
 }

@@ -201,7 +201,7 @@ function ReviewMenuShell({
         <p className="text-sm font-semibold text-sage-900">{title}</p>
         <Link
           href={viewAllHref}
-          className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
+          className="shrink-0 text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
           onClick={() => {
             if (useSheetNav) {
               markMemberHubSheetNavigation();

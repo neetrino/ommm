@@ -89,13 +89,6 @@ export function DashboardNavIcon({
           <path d="M5 21v-1a7 7 0 0 1 14 0v1" />
         </svg>
       );
-    case "bell":
-      return (
-        <svg {...common}>
-          <path d="M6 10a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
-          <path d="M10 21h4" />
-        </svg>
-      );
     case "barChart":
       return (
         <svg {...common}>

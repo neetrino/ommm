@@ -28,6 +28,7 @@ import type {
 import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
 import { HeaderSessionReviewsMenu } from "@/components/shell/header-session-reviews-menu";
+import { HeaderStaffActivityMenu } from "@/components/shell/header-staff-activity-menu";
 import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link } from "@/i18n/navigation";
@@ -43,6 +44,7 @@ type MarketingSiteHeaderMobileBarProps = {
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
   callTasksListHref?: string | null;
+  staffActivityListHref?: string | null;
   sessionReviewsAudience?: SessionReviewsAudience | null;
   sessionReviewsListHref?: string | null;
   account: MarketingHeaderAccount | null;
@@ -61,6 +63,7 @@ export function MarketingSiteHeaderMobileBar({
   showNotifications,
   notificationPreferencesHref,
   callTasksListHref = null,
+  staffActivityListHref = null,
   sessionReviewsAudience = null,
   sessionReviewsListHref = null,
   account,
@@ -134,10 +137,10 @@ export function MarketingSiteHeaderMobileBar({
                 onNavigate={onCloseAllMenus}
               />
             ) : null}
-            {callTasksListHref ? (
-              <HeaderCallTasksMenu
+            {staffActivityListHref ? (
+              <HeaderStaffActivityMenu
                 enabled
-                listHref={callTasksListHref}
+                viewAllHref={staffActivityListHref}
                 triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
                 iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                 onNavigate={onCloseAllMenus}
@@ -146,6 +149,15 @@ export function MarketingSiteHeaderMobileBar({
               <HeaderNotificationsMenu
                 enabled
                 preferencesHref={notificationPreferencesHref}
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                onNavigate={onCloseAllMenus}
+              />
+            ) : null}
+            {callTasksListHref ? (
+              <HeaderCallTasksMenu
+                enabled
+                listHref={callTasksListHref}
                 triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
                 iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                 onNavigate={onCloseAllMenus}
@@ -176,10 +188,10 @@ export function MarketingSiteHeaderMobileBar({
                 onNavigate={onCloseAllMenus}
               />
             ) : null}
-            {callTasksListHref ? (
-              <HeaderCallTasksMenu
+            {staffActivityListHref ? (
+              <HeaderStaffActivityMenu
                 enabled
-                listHref={callTasksListHref}
+                viewAllHref={staffActivityListHref}
                 triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
                 iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                 onNavigate={onCloseAllMenus}
@@ -188,6 +200,15 @@ export function MarketingSiteHeaderMobileBar({
               <HeaderNotificationsMenu
                 enabled
                 preferencesHref={notificationPreferencesHref}
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                onNavigate={onCloseAllMenus}
+              />
+            ) : null}
+            {callTasksListHref ? (
+              <HeaderCallTasksMenu
+                enabled
+                listHref={callTasksListHref}
                 triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
                 iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                 onNavigate={onCloseAllMenus}

@@ -1,0 +1,23 @@
+/**
+ * Shared Admin/Manager activity inbox (header bell).
+ * Denormalized display fields survive booking deletion; staffReadAt is studio-wide.
+ */
+model StaffActivityNotification {
+  id              String            @id @default(cuid())
+  type            StaffActivityType
+  bookingId       String?
+  booking         Booking?          @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  memberUserId    String?
+  member          User?             @relation("StaffActivityMember", fields: [memberUserId], references: [id], onDelete: SetNull)
+  memberName      String
+  className       String
+  sessionStartsAt DateTime
+  createdAt       DateTime          @default(now())
+  staffReadAt     DateTime?
+
+  @@index([createdAt])
+  @@index([staffReadAt, createdAt])
+  @@index([type, createdAt])
+  @@index([bookingId])
+  @@index([memberUserId])
+}

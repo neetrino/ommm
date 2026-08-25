@@ -14,8 +14,10 @@ import {
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
+import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
 import {
   readGiftCreditsAppliedCents,
@@ -39,6 +41,8 @@ export class PaymentsFulfillmentService {
     private readonly mail: MailService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
+    private readonly prisma: PrismaService,
+    private readonly staffActivity: StaffActivityService,
   ) {}
 
   async fulfillDropInPayment(
@@ -305,5 +309,14 @@ export class PaymentsFulfillmentService {
       userId: payment.userId,
       sessionId,
     });
+    const booking = await this.prisma.booking.findUnique({
+      where: {
+        userId_sessionId: { userId: payment.userId, sessionId },
+      },
+      select: { id: true, status: true },
+    });
+    if (booking?.status === BookingStatus.BOOKED) {
+      await this.staffActivity.recordBookingCreated(booking.id);
+    }
   }
 }

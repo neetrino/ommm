@@ -97,6 +97,13 @@ export function WorkspaceShell({
               ? "/manager/calls"
               : null
         }
+        staffActivityListHref={
+          navRole === "ADMIN"
+            ? "/admin/notifications"
+            : navRole === "MANAGER"
+              ? "/manager/notifications"
+              : null
+        }
         sessionReviewsAudience={
           navRole === "USER"
             ? "member"

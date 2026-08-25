@@ -269,23 +269,12 @@ export function HeaderNotificationsMenu({
               zIndex: OMMM_FLOATING_MENU_Z_INDEX,
             }}
           >
-            <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
-                {unreadCount > 0 ? (
-                  <p className="mt-0.5 text-xs text-sage-600">
-                    {t("unreadCount", { count: unreadCount })}
-                  </p>
-                ) : null}
-              </div>
+            <div className="border-b border-white/60 px-4 py-3">
+              <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
               {unreadCount > 0 ? (
-                <button
-                  type="button"
-                  className="shrink-0 text-xs font-medium text-sage-700 underline-offset-2 hover:text-sage-900 hover:underline"
-                  onClick={() => markAllSeen(offerIds)}
-                >
-                  {t("markAllRead")}
-                </button>
+                <p className="mt-0.5 text-xs text-sage-600">
+                  {t("unreadCount", { count: unreadCount })}
+                </p>
               ) : null}
             </div>
             <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>

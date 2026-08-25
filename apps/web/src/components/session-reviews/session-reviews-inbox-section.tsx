@@ -10,7 +10,10 @@ import { useSessionReviewsInboxFilterFields } from "@/components/session-reviews
 import { useSessionReviewsInboxFilters } from "@/components/session-reviews/use-session-reviews-inbox-filters";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { MarkAllAsReadIcon } from "@/components/shell/mark-all-as-read-button";
+import { markStaffReviewsRead } from "@/components/shell/header-session-reviews-panels";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
@@ -21,6 +24,7 @@ import type {
   SessionReviewsListPayload,
   StaffInboxReview,
 } from "@/lib/session-reviews-types";
+import { SESSION_REVIEW_INBOX_PAGE_TAKE } from "@/lib/session-reviews-types";
 
 type SessionReviewsInboxSectionProps = {
   endpoint: "/session-reviews/inbox" | "/session-reviews/coach";
@@ -35,8 +39,12 @@ export function SessionReviewsInboxSection({
   const router = useRouter();
   const searchParams = useSearchParams();
   const showCoachFilter = endpoint === "/session-reviews/inbox";
+  const isStaffInbox = endpoint === "/session-reviews/inbox";
   const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    () =>
+      parseListPageParams(Object.fromEntries(searchParams.entries()), {
+        defaultPageSize: SESSION_REVIEW_INBOX_PAGE_TAKE,
+      }),
     [searchParams],
   );
   const filterOptions = useSessionReviewsFilterOptions();
@@ -63,6 +71,8 @@ export function SessionReviewsInboxSection({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<StaffInboxReview | CoachInboxReview | null>(null);
+  const [markingRead, setMarkingRead] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -75,10 +85,20 @@ export function SessionReviewsInboxSection({
         coachId: showCoachFilter ? coachFilter : "",
         packagePlanId: packageFilter,
       });
-      const data = await apiFetch<SessionReviewsListPayload<StaffInboxReview | CoachInboxReview>>(
+      const listPromise = apiFetch<SessionReviewsListPayload<StaffInboxReview | CoachInboxReview>>(
         `${endpoint}?${query}`,
       );
-      setPayload(data);
+      if (isStaffInbox) {
+        const [data, unread] = await Promise.all([
+          listPromise,
+          apiFetch<{ count: number }>("/session-reviews/inbox/unread-count"),
+        ]);
+        setPayload(data);
+        setHasUnread(unread.count > 0);
+      } else {
+        setPayload(await listPromise);
+        setHasUnread(false);
+      }
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : t("loadFailed"));
       setPayload(null);
@@ -88,6 +108,7 @@ export function SessionReviewsInboxSection({
   }, [
     coachFilter,
     endpoint,
+    isStaffInbox,
     listPage.offset,
     listPage.take,
     packageFilter,
@@ -104,6 +125,21 @@ export function SessionReviewsInboxSection({
       void load();
     });
   }, [load]);
+
+  const clearUnreadBadge = useCallback(async () => {
+    if (!isStaffInbox || markingRead || !hasUnread) {
+      return;
+    }
+    setMarkingRead(true);
+    try {
+      await markStaffReviewsRead();
+      setHasUnread(false);
+    } catch {
+      setError(t("loadFailed"));
+    } finally {
+      setMarkingRead(false);
+    }
+  }, [hasUnread, isStaffInbox, markingRead, t]);
 
   const items = payload?.items ?? [];
   const total = payload?.total ?? 0;
@@ -136,6 +172,21 @@ export function SessionReviewsInboxSection({
         </p>
       ) : null}
       <div className="space-y-3" aria-busy={loading}>
+        {isStaffInbox && items.length > 0 ? (
+          <div className="flex justify-start">
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="inline-flex items-center gap-1.5"
+              disabled={markingRead || !hasUnread}
+              onClick={() => void clearUnreadBadge()}
+            >
+              <MarkAllAsReadIcon className="h-3.5 w-3.5" />
+              {t("markAllRead")}
+            </OmmButton>
+          </div>
+        ) : null}
         {items.map((row) => (
           <SessionReviewInboxCard
             key={row.id}
@@ -145,20 +196,18 @@ export function SessionReviewsInboxSection({
           />
         ))}
       </div>
-      {total > listPage.pageSize ? (
-        <OmmListPagination
-          total={total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={listPage.offset}
-          onPageChange={(page) => {
-            const params = new URLSearchParams(searchParams.toString());
-            syncListPageQuery(params, page, listPage.pageSize);
-            const query = params.toString();
-            router.replace(query.length > 0 ? `?${query}` : "?");
-          }}
-        />
-      ) : null}
+      <OmmListPagination
+        total={total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={listPage.offset}
+        onPageChange={(page) => {
+          const params = new URLSearchParams(searchParams.toString());
+          syncListPageQuery(params, page, listPage.pageSize);
+          const query = params.toString();
+          router.replace(query.length > 0 ? `?${query}` : "?");
+        }}
+      />
       {selected ? (
         <SessionReviewDetailsModal
           row={selected}

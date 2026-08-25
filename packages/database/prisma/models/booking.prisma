@@ -15,6 +15,7 @@ model Booking {
   reminderLog ClassReminderSendLog?
   consumptions BookingConsumption[]
   sessionReview SessionReview?
+  staffActivityNotifications StaffActivityNotification[]
 
   @@unique([userId, sessionId])
   @@index([sessionId])

@@ -15,6 +15,7 @@ import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { BOOKING_INTERACTIVE_TX_TIMEOUT_MS } from './bookings.constants';
 import { BookingsSlotService } from './bookings-slot.service';
@@ -42,6 +43,7 @@ export class BookingsClientService {
     private readonly packages: PackagesService,
     private readonly slots: BookingsSlotService,
     private readonly clientList: BookingsClientListService,
+    private readonly staffActivity: StaffActivityService,
   ) {}
 
   async listEligiblePackagesForSession(userId: string, sessionId: string) {
@@ -204,6 +206,7 @@ export class BookingsClientService {
       userId,
       sessionId,
     });
+    await this.staffActivity.recordBookingCreated(booking.id);
     return booking;
   }
 

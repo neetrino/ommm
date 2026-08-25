@@ -22,16 +22,18 @@ import { useAdminCallTasksFilters } from "@/components/admin/use-admin-call-task
 import {
   buildCallTasksListEndpoint,
   CALL_TASK_SEARCH_QUERY_KEY,
+  CALL_TASKS_PAGE_TAKE,
   type CallTaskListPayload,
   type CallTaskRow,
 } from "@/components/admin/admin-call-tasks-query";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmButton } from "@/components/ui/omm-button";
+import { useCallTasksPendingCount } from "@/hooks/use-call-tasks-pending-count";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 import { dispatchCallTasksRefresh } from "@/lib/call-tasks-refresh-event";
+import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 export function AdminCallTasksManagement({
   initial,
@@ -50,8 +52,10 @@ export function AdminCallTasksManagement({
   const [formOpen, setFormOpen] = useState<"create" | CallTaskRow | null>(null);
   const [detailsRow, setDetailsRow] = useState<CallTaskRow | null>(null);
   const [draft, setDraft] = useState<CallTaskFormDraft>(emptyCallTaskDraft);
+  const [markingBadge, setMarkingBadge] = useState(false);
   const [, startRefreshTransition] = useTransition();
   const refreshRequestId = useRef(0);
+  const badgeCount = useCallTasksPendingCount(true);
   const filterFields = useAdminCallTasksFilterFields();
   const {
     searchDraft,
@@ -64,7 +68,10 @@ export function AdminCallTasksManagement({
   } = useAdminCallTasksFilters();
 
   const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    () =>
+      parseListPageParams(Object.fromEntries(searchParams.entries()), {
+        defaultPageSize: CALL_TASKS_PAGE_TAKE,
+      }),
     [searchParams],
   );
   const urlQuery = searchParams.get(CALL_TASK_SEARCH_QUERY_KEY)?.trim() ?? "";
@@ -109,6 +116,24 @@ export function AdminCallTasksManagement({
       void loadRows();
     });
   }, [loadRows]);
+
+  async function markBadgeRead() {
+    if (markingBadge || badgeCount === 0) {
+      return;
+    }
+    setMarkingBadge(true);
+    try {
+      await apiFetch("/call-tasks/mark-badge-read", { method: "POST" });
+      dispatchCallTasksRefresh();
+    } catch (error) {
+      setToast({
+        tone: "err",
+        message: error instanceof ApiError ? error.message : t("actionFailed"),
+      });
+    } finally {
+      setMarkingBadge(false);
+    }
+  }
 
   async function runRowAction(
     row: CallTaskRow,
@@ -220,13 +245,15 @@ export function AdminCallTasksManagement({
             total={payload.total}
             listPage={listPage}
             offset={listPage.offset}
+            badgeCount={badgeCount}
+            markingBadge={markingBadge}
+            onMarkBadgeRead={() => void markBadgeRead()}
             onOpenDetails={setDetailsRow}
             onPageChange={(page) => {
               replaceSearchParams((params) => {
                 syncListPageQuery(params, page);
               });
             }}
-            t={t}
           />
         )}
       </StaffListPageLayout>

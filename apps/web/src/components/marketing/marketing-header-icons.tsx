@@ -42,6 +42,40 @@ export function MarketingHeaderMenuIcon({ className }: MarketingHeaderIconProps)
   );
 }
 
+/** Header notification bell — outline, matches shell action icons. */
+export function MarketingHeaderBellIcon({ className }: MarketingHeaderIconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M6 10a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
+      <path d="M10 21h4" />
+    </svg>
+  );
+}
+
+/** Decorative header bell — no menu until notifications are wired. */
+export function MarketingHeaderNotificationsPlaceholder({
+  className,
+  iconClassName,
+}: {
+  className: string;
+  iconClassName: string;
+}) {
+  return (
+    <span className={`relative inline-flex items-center ${className}`} aria-hidden>
+      <MarketingHeaderBellIcon className={iconClassName} />
+    </span>
+  );
+}
+
 /** Figma `196:1453` — language switcher affordance. */
 export function MarketingHeaderGlobeIcon({ className }: MarketingHeaderIconProps) {
   return (

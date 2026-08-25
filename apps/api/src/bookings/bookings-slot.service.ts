@@ -7,6 +7,7 @@ import {
 } from '@prisma/client';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class BookingsSlotService {
     private readonly prisma: PrismaService,
     private readonly waitlist: WaitlistService,
     private readonly packageUsage: PackageUsageService,
+    private readonly staffActivity: StaffActivityService,
   ) {}
 
   async releaseSlot(
@@ -26,6 +28,7 @@ export class BookingsSlotService {
     },
     options: { applyPenalty: boolean } = { applyPenalty: false },
   ) {
+    let didCancel = false;
     await this.prisma.$transaction(async (tx) => {
       const current = await tx.booking.findUnique({
         where: { id: booking.id },
@@ -38,6 +41,7 @@ export class BookingsSlotService {
         where: { id: booking.id },
         data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
       });
+      didCancel = true;
       void options.applyPenalty;
       const hasDropInPayment = await tx.payment.findFirst({
         where: {
@@ -57,6 +61,9 @@ export class BookingsSlotService {
         });
       }
     });
+    if (didCancel) {
+      await this.staffActivity.recordBookingCancelled(booking.id);
+    }
     await this.prisma.classSession.updateMany({
       where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
       data: { status: ClassSessionStatus.ACTIVE },

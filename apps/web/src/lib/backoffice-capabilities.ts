@@ -30,12 +30,6 @@ export type GiftCardCapabilities = BackofficeCapabilities & {
   canResend: boolean;
 };
 
-export type NotificationCapabilities = BackofficeCapabilities & {
-  canBroadcast: boolean;
-  canCancelScheduled: boolean;
-  canViewAnalytics: boolean;
-};
-
 export type ContentCapabilities = BackofficeCapabilities & {
   canSubmitReview: boolean;
   canReview: boolean;
@@ -129,24 +123,6 @@ export function managerGiftCardCapabilities(): GiftCardCapabilities {
     canActivate: true,
     canDeactivate: true,
     canResend: true,
-  };
-}
-
-export function adminNotificationCapabilities(): NotificationCapabilities {
-  return {
-    ...ADMIN_BASE,
-    canBroadcast: true,
-    canCancelScheduled: true,
-    canViewAnalytics: true,
-  };
-}
-
-export function managerNotificationCapabilities(): NotificationCapabilities {
-  return {
-    ...MANAGER_BASE,
-    canBroadcast: true,
-    canCancelScheduled: true,
-    canViewAnalytics: false,
   };
 }
 

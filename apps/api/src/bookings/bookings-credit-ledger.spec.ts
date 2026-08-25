@@ -33,14 +33,18 @@ function createSlotServiceAndDeps() {
 
   const waitlist = { offerNextIfSlot: jest.fn() };
   const packageUsage = { restoreSession: jest.fn() };
+  const staffActivity = {
+    recordBookingCancelled: jest.fn().mockResolvedValue(undefined),
+  };
 
   const service = new BookingsSlotService(
     prisma as never,
     waitlist as never,
     packageUsage as never,
+    staffActivity as never,
   );
 
-  return { service, tx, prisma, waitlist, packageUsage };
+  return { service, tx, prisma, waitlist, packageUsage, staffActivity };
 }
 
 describe('BookingsSlotService package credit release', () => {
