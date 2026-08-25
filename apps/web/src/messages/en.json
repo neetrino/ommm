@@ -1965,6 +1965,7 @@
       "completed": "Marked as called.",
       "cancelled": "Call cancelled.",
       "markDone": "Called",
+      "markAllRead": "Mark all as read",
       "cancelTask": "Cancel",
       "overdue": "Overdue",
       "searchPlaceholder": "Search name, phone, or comment…",
