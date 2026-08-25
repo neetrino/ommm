@@ -75,8 +75,6 @@
     "loadFailed": "Could not load notifications",
     "typeBooked": "Booked",
     "typeCancelled": "Cancelled",
-    "cardBodyBooked": "A member <hl>booked</hl> this class.",
-    "cardBodyCancelled": "A member <hl>cancelled</hl> this class.",
     "searchPlaceholder": "Search class, member, or type…",
     "resetFilters": "Reset filters",
     "detailsEyebrow": "Notification",

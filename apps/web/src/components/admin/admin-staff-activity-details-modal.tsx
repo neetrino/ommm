@@ -3,7 +3,6 @@
 import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
-  StaffActivityCardBody,
   StaffActivityTypeLabel,
 } from "@/components/admin/admin-staff-activity-type-copy";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -55,10 +54,7 @@ export function AdminStaffActivityDetailsModal({
           <span className="font-medium">{row.memberName}</span>
         </p>
         <div className="rounded-2xl border border-sand-200/80 bg-white/75 px-4 py-3">
-          <p className="text-sm leading-relaxed text-sage-800">
-            <StaffActivityCardBody type={row.type} />
-          </p>
-          <p className="mt-2 text-xs text-sage-500">
+          <p className="text-xs text-sage-500">
             {formatDateTimeForUi(row.createdAt, locale)}
           </p>
         </div>

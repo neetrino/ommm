@@ -75,8 +75,6 @@
     "loadFailed": "Не удалось загрузить уведомления",
     "typeBooked": "Забронировано",
     "typeCancelled": "Отменено",
-    "cardBodyBooked": "Участник <hl>забронировал</hl> это занятие.",
-    "cardBodyCancelled": "Участник <hl>отменил</hl> это занятие.",
     "searchPlaceholder": "Поиск по занятию, участнику или типу…",
     "resetFilters": "Сбросить",
     "detailsEyebrow": "Уведомление",

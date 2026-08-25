@@ -14,17 +14,3 @@ export function StaffActivityTypeLabel({ type }: { type: StaffActivityType }) {
   const label = type === "BOOKING_CREATED" ? t("typeBooked") : t("typeCancelled");
   return <span className={staffActivityActionToneClass(type)}>{label}</span>;
 }
-
-export function StaffActivityCardBody({ type }: { type: StaffActivityType }) {
-  const t = useTranslations("staffActivityPages");
-  const key = type === "BOOKING_CREATED" ? "cardBodyBooked" : "cardBodyCancelled";
-  return (
-    <>
-      {t.rich(key, {
-        hl: (chunks) => (
-          <span className={staffActivityActionToneClass(type)}>{chunks}</span>
-        ),
-      })}
-    </>
-  );
-}
