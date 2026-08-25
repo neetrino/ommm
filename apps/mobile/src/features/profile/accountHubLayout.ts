@@ -19,7 +19,6 @@ const HUB_ROW_BORDER = "rgba(255,255,255,0.7)";
 const HUB_DANGER_BORDER = "rgba(245,245,244,0.8)";
 const HUB_DANGER_TEXT = "#7f1d1d";
 const HUB_DANGER_CHEVRON = "rgba(185, 28, 28, 0.75)";
-const HUB_EMAIL = "rgba(107,114,110,0.8)";
 
 export const accountHubIconColor = HUB_OLIVE_ICON;
 export const accountHubChevronColor = HUB_ROW_CHEVRON;
@@ -86,13 +85,6 @@ export const accountHubLayout = StyleSheet.create({
     fontSize: typography.sectionTitle + 4,
     lineHeight: 30,
     color: colors.ink,
-  },
-  email: {
-    marginTop: space.xxs,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 22,
-    color: HUB_EMAIL,
   },
   menuCard: {
     overflow: "hidden",

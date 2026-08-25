@@ -21,13 +21,12 @@ type ProfileScreenProps = {
 export function ProfileScreen({ hubRole = "USER" }: ProfileScreenProps) {
   const router = useRouter();
   const menuItems = useAccountHubMenuItems(hubRole);
-  const { userGreetingName, userEmail, homeImageUri, profileInitials } = useSession();
+  const { userGreetingName, homeImageUri, profileInitials } = useSession();
 
   return (
     <ProfileScreenShell variant="hub">
       <AccountHubHeader
         displayName={userGreetingName}
-        email={userEmail}
         avatarImageUri={homeImageUri}
         initials={profileInitials}
       />
