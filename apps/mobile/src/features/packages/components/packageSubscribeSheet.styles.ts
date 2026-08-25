@@ -12,10 +12,10 @@ const GIFT_ICON = "#5f5848";
 const GIFT_HINT = "#7a7264";
 const METHOD_BORDER = "rgba(151, 144, 124, 0.55)";
 /**
- * Web `.ommm-modal-backdrop` — `bg-sage-900/45`
- * (`--color-sage-900: #1a1c1b`).
+ * Web `.ommm-modal-backdrop` is `bg-sage-900/45`; slightly lighter so
+ * packages behind the sheet stay readable with BlurView + dark tint.
  */
-const MODAL_BACKDROP_SCRIM = "rgba(26, 28, 27, 0.45)";
+const MODAL_BACKDROP_SCRIM = "rgba(26, 28, 27, 0.28)";
 /**
  * Matches web member-hub / packages glass backdrops (`backdrop-blur` ~12px).
  * Expo BlurView intensity ≈ CSS blur strength for modal dimming.
