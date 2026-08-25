@@ -1,18 +1,24 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { useTranslations } from "../../../i18n/I18nProvider";
-import { PackagesPrimaryCta } from "../../packages/components/PackagesScreenActions";
-import { fontFamilies } from "../../../theme/fontFamilies";
 import { platformShadow } from "../../../theme/platformShadow";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import { space } from "../../../theme/tokens";
+import { PackagesPrimaryCta } from "../../packages/components/PackagesScreenActions";
 import {
   paymentCheckoutReturnPath,
   type PaymentCheckoutSource,
   type PaymentOutcomeKind,
 } from "../../../lib/payments/paymentCheckoutSource";
+import {
+  PAYMENT_OUTCOME_ICON_RING,
+  PAYMENT_OUTCOME_PANEL_GRADIENT,
+} from "../paymentOutcomeTokens";
+import { PaymentOutcomeSphereLogo } from "../components/PaymentOutcomeSphereLogo";
+import { paymentOutcomeScreenStyles as styles } from "../components/paymentOutcomeScreen.styles";
 
 type PaymentOutcomeScreenProps = {
   outcome: PaymentOutcomeKind;
@@ -20,37 +26,28 @@ type PaymentOutcomeScreenProps = {
   reference: string | null;
 };
 
-const ICON_RING = {
-  success: {
-    bg: "rgba(209, 250, 229, 0.92)",
-    border: "rgba(167, 243, 208, 0.85)",
-    icon: "#065f46" as const,
-    name: "check-circle-outline" as const,
-  },
-  failed: {
-    bg: "rgba(254, 226, 226, 0.92)",
-    border: "rgba(254, 202, 202, 0.9)",
-    icon: "#991b1b" as const,
-    name: "close-circle-outline" as const,
-  },
-  pending: {
-    bg: "rgba(254, 243, 199, 0.92)",
-    border: "rgba(253, 230, 138, 0.9)",
-    icon: "#92400e" as const,
-    name: "clock-outline" as const,
-  },
+const ICON_NAME = {
+  success: "check-circle-outline",
+  failed: "close-circle-outline",
+  pending: "clock-outline",
 } as const;
 
 export function PaymentOutcomeScreen({
   outcome,
   source,
-  reference,
+  reference: _reference,
 }: PaymentOutcomeScreenProps) {
   const router = useRouter();
   const t = useTranslations("userPages.payments.result");
+  const tCommon = useTranslations("common");
+  const tNav = useTranslations("nav");
   const tCheckout = useTranslations("userPages.payments.checkout");
   const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
-    useScreenChromeInsets({ header: "safe", contentGap: space.lg });
+    useScreenChromeInsets({
+      header: "safe",
+      tabBar: false,
+      contentGap: space.lg,
+    });
 
   const isSuccess = outcome === "success";
   const isPending = outcome === "pending";
@@ -64,7 +61,7 @@ export function PaymentOutcomeScreen({
     : isPending
       ? "pendingLead"
       : "failedLead";
-  const ring = ICON_RING[outcome];
+  const ring = PAYMENT_OUTCOME_ICON_RING[outcome];
   const returnPath = paymentCheckoutReturnPath(source);
 
   return (
@@ -77,142 +74,77 @@ export function PaymentOutcomeScreen({
         ]}
       >
         <View style={styles.panel}>
-          <View
-            style={[
-              styles.iconRing,
-              { backgroundColor: ring.bg, borderColor: ring.border },
-            ]}
-          >
-            <MaterialCommunityIcons
-              name={ring.name}
-              size={36}
-              color={ring.icon}
+          <LinearGradient
+            colors={[...PAYMENT_OUTCOME_PANEL_GRADIENT]}
+            start={{ x: 0.15, y: 0 }}
+            end={{ x: 0.9, y: 1 }}
+            style={styles.panelInner}
+          />
+          <View style={styles.panelBody}>
+            <PaymentOutcomeSphereLogo
+              alt={tCommon("brand")}
+              homeAriaLabel={tNav("home")}
             />
-          </View>
 
-          <Text style={styles.eyebrow}>
-            {tCheckout(`sources.${source}.eyebrow`)}
-          </Text>
-          <Text style={styles.title}>
-            {t(`sources.${source}.${titleKey}`)}
-          </Text>
-          <Text style={styles.lead}>{t(`sources.${source}.${leadKey}`)}</Text>
+            <View
+              style={[
+                styles.iconRing,
+                { borderColor: ring.border },
+                platformShadow({
+                  color: ring.shadow,
+                  offsetHeight: 18,
+                  opacity: 0.35,
+                  radius: 20,
+                  elevation: 4,
+                }),
+              ]}
+            >
+              <LinearGradient
+                colors={[...ring.gradient]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.iconRingFill}
+              />
+              <MaterialCommunityIcons
+                name={ICON_NAME[outcome]}
+                size={PAYMENT_OUTCOME_ICON_RING.glyphSizePx}
+                color={ring.icon}
+              />
+            </View>
 
-          {reference !== null ? (
-            <Text style={styles.reference}>
-              {t("referenceLabel")}: {reference}
+            <Text style={styles.eyebrow}>
+              {tCheckout(`sources.${source}.eyebrow`)}
             </Text>
-          ) : null}
+            <Text style={styles.title}>
+              {t(`sources.${source}.${titleKey}`)}
+            </Text>
+            <Text style={styles.lead}>
+              {t(`sources.${source}.${leadKey}`)}
+            </Text>
 
-          <View style={styles.actions}>
-            <PackagesPrimaryCta
-              label={t("doneButton")}
-              onPress={() => router.replace(returnPath)}
-            />
-            {!isSuccess && !isPending ? (
-              <Pressable
+            <View style={styles.actions}>
+              <PackagesPrimaryCta
+                label={t("doneButton")}
                 onPress={() => router.replace(returnPath)}
-                style={({ pressed }) => [
-                  styles.retryGhost,
-                  pressed && styles.retryGhostPressed,
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={t("retryButton")}
-              >
-                <Text style={styles.retryLabel}>{t("retryButton")}</Text>
-              </Pressable>
-            ) : null}
+                style={styles.doneCta}
+              />
+              {!isSuccess && !isPending ? (
+                <Pressable
+                  onPress={() => router.replace(returnPath)}
+                  style={({ pressed }) => [
+                    styles.retryGhost,
+                    pressed && styles.retryGhostPressed,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("retryButton")}
+                >
+                  <Text style={styles.retryLabel}>{t("retryButton")}</Text>
+                </Pressable>
+              ) : null}
+            </View>
           </View>
         </View>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.canvas,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  panel: {
-    borderRadius: radii.cardInner,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.82)",
-    backgroundColor: "rgba(255,255,255,0.94)",
-    paddingHorizontal: space.lg,
-    paddingVertical: space.xl,
-    alignItems: "center",
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: 18,
-      opacity: 0.18,
-      radius: 28,
-      elevation: 5,
-    }),
-  },
-  iconRing: {
-    width: 76,
-    height: 76,
-    borderRadius: 9999,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  eyebrow: {
-    marginTop: space.lg,
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 11,
-    letterSpacing: 2.2,
-    textTransform: "uppercase",
-    color: colors.bodyMuted,
-    textAlign: "center",
-  },
-  title: {
-    marginTop: space.sm,
-    fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: 28,
-    lineHeight: 32,
-    letterSpacing: -0.4,
-    color: colors.ink,
-    textAlign: "center",
-  },
-  lead: {
-    marginTop: space.sm,
-    maxWidth: 320,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.body,
-    lineHeight: 22,
-    color: colors.bodyMuted,
-    textAlign: "center",
-  },
-  reference: {
-    marginTop: space.md,
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.caption,
-    color: colors.warmBrown,
-    textAlign: "center",
-  },
-  actions: {
-    marginTop: space.xl,
-    width: "100%",
-    gap: space.sm,
-  },
-  retryGhost: {
-    minHeight: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: space.md,
-  },
-  retryGhostPressed: {
-    opacity: 0.75,
-  },
-  retryLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 14,
-    color: colors.primaryGreen,
-  },
-});

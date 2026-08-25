@@ -4,12 +4,21 @@ import { FloatingTabBar } from "../../src/features/home/components/FloatingTabBa
 import { useSession } from "../../src/auth/SessionProvider";
 import { colors } from "../../src/theme/tokens";
 
+function isPaymentOutcomeRoute(pathname: string): boolean {
+  return (
+    pathname.startsWith("/user/payment/success") ||
+    pathname.startsWith("/user/payment/fail") ||
+    pathname.startsWith("/user/payment/pending")
+  );
+}
+
 export default function MainLayout() {
   const { isReady, isSignedIn } = useSession();
   const pathname = usePathname();
   const isStartupSplashRoute = pathname === "/home";
-  /** Authenticated app shell only — never on startup splash route. */
-  const showFloatingTabBar = isSignedIn && !isStartupSplashRoute;
+  /** Authenticated app shell only — never on splash or payment result pages. */
+  const showFloatingTabBar =
+    isSignedIn && !isStartupSplashRoute && !isPaymentOutcomeRoute(pathname);
 
   if (!isReady) {
     return <View style={styles.boot} />;
