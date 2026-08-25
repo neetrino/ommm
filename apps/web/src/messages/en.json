@@ -1975,6 +1975,7 @@
       "colDue": "Call date",
       "datePlaceholder": "DD/MM/YYYY",
       "colComment": "Comment",
+      "noComment": "No comment",
       "colStatus": "Status",
       "colActions": "Actions",
       "statusAll": "All statuses",

@@ -1,10 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import {
-  StaffActivityCardBody,
-  StaffActivityTypeLabel,
-} from "@/components/admin/admin-staff-activity-type-copy";
+import { StaffActivityTypeLabel } from "@/components/admin/admin-staff-activity-type-copy";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatTimeForUi } from "@/lib/format-time-display";
 import type { StaffActivityRow } from "@/lib/staff-activity-types";
@@ -34,9 +31,6 @@ export function AdminStaffActivityCard({
         <StaffActivityTypeLabel type={row.type} />
         <span className="text-sage-500"> · </span>
         <span>{row.memberName}</span>
-      </p>
-      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-sage-800">
-        <StaffActivityCardBody type={row.type} />
       </p>
       <p className="mt-2 text-xs text-sage-500">
         {formatDateTimeForUi(row.createdAt, locale)}

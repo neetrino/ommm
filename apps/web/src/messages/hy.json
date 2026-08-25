@@ -1976,6 +1976,7 @@
       "colDue": "Զանգի օր",
       "datePlaceholder": "DD/MM/YYYY",
       "colComment": "Մեկնաբանություն",
+      "noComment": "Մեկնաբանություն չկա",
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",
       "statusAll": "Բոլոր կարգավիճակները",

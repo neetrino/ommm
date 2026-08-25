@@ -300,7 +300,6 @@ export function AdminCallTasksManagement({
                 syncListPageQuery(params, page);
               });
             }}
-            t={t}
           />
         )}
       </StaffListPageLayout>
