@@ -8,6 +8,15 @@ const monorepoRoot = path.resolve(mobileRoot, "..", "..");
 loadEnv({ path: path.join(monorepoRoot, ".env") });
 loadEnv({ path: path.join(monorepoRoot, ".env.local"), override: true });
 
+/** Keep Expo public flag in sync with Next.js when only one is set in root `.env`. */
+if (
+  process.env.EXPO_PUBLIC_ARCA_CHECKOUT_ENABLED === undefined &&
+  process.env.NEXT_PUBLIC_ARCA_CHECKOUT_ENABLED !== undefined
+) {
+  process.env.EXPO_PUBLIC_ARCA_CHECKOUT_ENABLED =
+    process.env.NEXT_PUBLIC_ARCA_CHECKOUT_ENABLED;
+}
+
 const config: ExpoConfig = {
   name: "mobile",
   slug: "mobile",

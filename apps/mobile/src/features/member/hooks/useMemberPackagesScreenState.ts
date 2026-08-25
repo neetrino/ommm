@@ -15,7 +15,7 @@ import {
   normalizeUserPackageStatus,
   type UserMembershipRow,
 } from "../../../lib/packages/userMembership";
-import { isArcaCheckoutEnabled, openArcaRedirectUrl } from "../../../lib/payments/arcaCheckout";
+import { isArcaCheckoutEnabled, openArcaRedirectUrl, startArcaCardCheckout } from "../../../lib/payments/arcaCheckout";
 import { buildPaymentOutcomeHref } from "../../../lib/payments/paymentResultPaths";
 
 export type PackagesScreenMode = "mine" | "catalog";
@@ -134,20 +134,43 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
         paymentMethod: "CARD",
         locale: checkoutLocale,
       });
+
+      const redirectUrl =
+        typeof result.redirectUrl === "string" && result.redirectUrl.length > 0
+          ? result.redirectUrl
+          : null;
+      const paymentReference =
+        typeof result.paymentReference === "string" &&
+        result.paymentReference.length > 0
+          ? result.paymentReference
+          : null;
+      const needsBankCheckout =
+        result.requiresArcaCheckout === true ||
+        redirectUrl !== null ||
+        (isArcaCheckoutEnabled() && paymentReference !== null);
+
+      if (needsBankCheckout) {
+        if (redirectUrl !== null) {
+          setSubscribePlanId(null);
+          await openArcaRedirectUrl(redirectUrl);
+          return true;
+        }
+        if (paymentReference !== null) {
+          setSubscribePlanId(null);
+          await startArcaCardCheckout(token, paymentReference, checkoutLocale);
+          return true;
+        }
+        setSubscribeError(packagesCopy.subscribeFailed);
+        return false;
+      }
+
+      // Gift-covered / Arca disabled — no bank redirect.
       setSubscribePlanId(null);
       setMode("mine");
       await loadForMode("mine");
-      if (
-        isArcaCheckoutEnabled() &&
-        typeof result.redirectUrl === "string" &&
-        result.redirectUrl.length > 0
-      ) {
-        await openArcaRedirectUrl(result.redirectUrl);
-        return true;
-      }
       router.push(
         buildPaymentOutcomeHref("success", {
-          reference: result.paymentReference ?? null,
+          reference: paymentReference,
           source: "package",
         }),
       );
