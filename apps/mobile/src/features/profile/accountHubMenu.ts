@@ -36,6 +36,12 @@ export function useAccountHubMenuItems(
       ...(role === "USER"
         ? [
             {
+              key: "payments",
+              label: tNav("USER.payments"),
+              href: userMemberPath("payments"),
+              icon: "wallet-outline" as const,
+            },
+            {
               key: "giftCards",
               label: tNav("USER.giftCards"),
               href: userMemberPath("gift-cards"),
