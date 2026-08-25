@@ -126,15 +126,15 @@ export function PackageMobileTierCard({
               styles.mixToggle,
               pressed && styles.mixTogglePressed,
             ]}
-            hitSlop={8}
+            hitSlop={6}
             accessibilityRole="button"
             accessibilityLabel={mixToggleAria}
             accessibilityState={{ expanded: isMixExpanded }}
           >
             <MaterialCommunityIcons
               name={isMixExpanded ? "chevron-up" : "chevron-down"}
-              size={22}
-              color="#ffffff"
+              size={20}
+              color="#5c5648"
             />
           </Pressable>
         ) : null}
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   planNameRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 10,
     minWidth: 0,
   },
   planName: {
@@ -199,14 +199,19 @@ const styles = StyleSheet.create({
     color: "#ffffff",
   },
   mixToggle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255, 255, 255, 0.98)",
   },
   mixTogglePressed: {
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
+    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    transform: [{ scale: 0.96 }],
   },
   mixBreakdown: {
     width: "100%",
