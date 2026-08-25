@@ -8,6 +8,7 @@ import {
 } from "@/components/admin/admin-call-tasks-form-name";
 import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
@@ -72,9 +73,20 @@ export function AdminCallTasksFormModal({
       centered
       panelClassName={`${adminChrome.panel} max-h-[90vh] w-full max-w-lg overflow-y-auto`}
     >
-      <h2 id={titleId} className={adminChrome.panelHeading}>
-        {mode === "create" ? t("createTitle") : t("editTitle")}
-      </h2>
+      <div className="flex items-start justify-between gap-4">
+        <h2 id={titleId} className={adminChrome.panelHeading}>
+          {mode === "create" ? t("createTitle") : t("editTitle")}
+        </h2>
+        <button
+          type="button"
+          className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45"
+          aria-label={t("close")}
+          disabled={busy}
+          onClick={onClose}
+        >
+          <CancelGlyph className="h-5 w-5" />
+        </button>
+      </div>
       <form
         className="mt-4 flex flex-col gap-3"
         onSubmit={(event) => {
