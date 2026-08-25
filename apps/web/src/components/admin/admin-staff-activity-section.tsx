@@ -73,11 +73,13 @@ export function AdminStaffActivitySection() {
           {t("empty")}
         </p>
       ) : null}
-      <ul className="divide-y divide-sage-100/80 rounded-2xl border border-sand-200/70 bg-white/80 px-4">
-        {items.map((row) => (
-          <StaffActivityPageRow key={row.id} row={row} locale={locale} />
-        ))}
-      </ul>
+      {items.length > 0 ? (
+        <ul className="divide-y divide-sage-100/80 rounded-2xl border border-sand-200/70 bg-white/80 px-4">
+          {items.map((row) => (
+            <StaffActivityPageRow key={row.id} row={row} locale={locale} />
+          ))}
+        </ul>
+      ) : null}
       {total > listPage.pageSize ? (
         <OmmListPagination
           total={total}
