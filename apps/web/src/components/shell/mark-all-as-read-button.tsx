@@ -28,6 +28,7 @@ export function MarkAllAsReadButton({
   );
 }
 
+/** Double-check — “all read” (Lucide CheckCheck geometry). */
 export function MarkAllAsReadIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -40,8 +41,8 @@ export function MarkAllAsReadIcon({ className }: { className?: string }) {
       strokeLinejoin="round"
       aria-hidden
     >
-      <path d="M2.5 12.5 7 17l4.5-6" />
-      <path d="m8.5 17 4.5-6L21 6" />
+      <path d="M18 6 7 17l-5-5" />
+      <path d="m22 10-7.5 7.5L13 16" />
     </svg>
   );
 }
