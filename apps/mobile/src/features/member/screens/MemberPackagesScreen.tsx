@@ -13,7 +13,6 @@ import { PackageSubscribeSheet } from "../../packages/components/PackageSubscrib
 import {
   PackagesBrowseCatalogCta,
   PackagesEmptyState,
-  PackagesPrimaryCta,
 } from "../../packages/components/PackagesScreenActions";
 import { PackagesPageAccordion } from "../../packages/components/PackagesPageAccordion";
 import { UserMembershipCard } from "../../packages/components/UserMembershipCard";
@@ -140,22 +139,18 @@ export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenPro
         <Text style={styles.heading}>{heading}</Text>
         <Text style={styles.lead}>{lead}</Text>
 
-        {isSignedIn && showMyPackages ? (
-          <View style={styles.actionsRow}>
-            <PackagesPrimaryCta
-              label={packagesCopy.browsePackagesCta}
-              onPress={openCatalog}
-            />
-          </View>
-        ) : null}
-
         {loading ? (
           <Text style={styles.statusText}>{packagesCopy.loading}</Text>
         ) : error !== null ? (
           <Text style={styles.error}>{error}</Text>
         ) : showMyPackages ? (
           memberships.length === 0 ? (
-            <PackagesEmptyState title={packagesCopy.noPackagesYet} />
+            <PackagesEmptyState
+              title={packagesCopy.noPackagesYet}
+              hint={packagesCopy.emptyPackagesHint}
+              actionLabel={packagesCopy.browsePackagesCta}
+              onActionPress={openCatalog}
+            />
           ) : (
             <View style={styles.membershipList}>
               {memberships.map((membership) => (
@@ -165,6 +160,11 @@ export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenPro
                   status={normalizeMembershipStatus(membership)}
                 />
               ))}
+              <PackagesBrowseCatalogCta
+                label={packagesCopy.browsePackagesCta}
+                onPress={openCatalog}
+                style={styles.browseAfterList}
+              />
             </View>
           )
         ) : showCatalog ? (
@@ -224,12 +224,12 @@ const styles = StyleSheet.create({
     color: colors.bodyMuted,
     maxWidth: 576,
   },
-  actionsRow: {
-    marginTop: -space.xs,
-  },
   membershipList: {
     width: "100%",
     gap: space.md,
+  },
+  browseAfterList: {
+    marginTop: space.sm,
   },
   statusText: {
     fontFamily: fontFamilies.manrope.regular,
