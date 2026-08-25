@@ -25,6 +25,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistCapacityService } from './waitlist-capacity.service';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class WaitlistAdminService {
     private readonly realtime: RealtimePublisherService,
     private readonly schedule: ScheduleService,
     private readonly capacity: WaitlistCapacityService,
+    private readonly staffActivity: StaffActivityService,
   ) {}
 
   listAdminRecent(take: number) {
@@ -144,6 +146,7 @@ export class WaitlistAdminService {
       sessionId: session.id,
     });
     this.realtime.emitWaitlistChanged(entry.userId, session.id);
+    await this.staffActivity.recordBookingCreated(result.id);
     return result;
   }
 

@@ -37,6 +37,7 @@ model User {
   callTasksCreated     CallTask[]    @relation("CallTaskAuthor")
   callTasksLinked      CallTask[]    @relation("CallTaskClient")
   sessionReviewsAuthored SessionReview[] @relation("SessionReviewAuthor")
+  staffActivityAsMember  StaffActivityNotification[] @relation("StaffActivityMember")
   coachSalaryPayoutsPaid CoachSalaryPayout[] @relation("CoachSalaryPayoutAdmin")
   authTokens         AuthToken[]
   oauthAccounts      OAuthAccount[]
