@@ -25,11 +25,6 @@ import {
   StaffReviewMenuPanel,
   markStaffReviewsRead,
 } from "@/components/shell/header-session-reviews-panels";
-import {
-  HEADER_ICONS_UI_PREVIEW,
-  HEADER_PREVIEW_STAFF_REVIEWS,
-  HEADER_PREVIEW_STAFF_REVIEWS_UNREAD,
-} from "@/lib/header-icons-ui-preview";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
 const MENU_MOTION_MS = 320;
@@ -57,24 +52,15 @@ export function HeaderSessionReviewsMenu({
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
-  const useLive = !HEADER_ICONS_UI_PREVIEW;
-  const member = useSessionReviewsPending(audience === "member" && useLive);
-  const staff = useSessionReviewsStaffInbox(audience === "staff" && useLive);
-  const coach = useSessionReviewsCoachInbox(audience === "coach" && useLive);
-  const [previewStaffItems] = useState(() =>
-    HEADER_ICONS_UI_PREVIEW ? HEADER_PREVIEW_STAFF_REVIEWS : [],
-  );
-  const staffItems =
-    HEADER_ICONS_UI_PREVIEW && audience === "staff"
-      ? previewStaffItems
-      : staff.items;
+  const member = useSessionReviewsPending(audience === "member");
+  const staff = useSessionReviewsStaffInbox(audience === "staff");
+  const coach = useSessionReviewsCoachInbox(audience === "coach");
+  const staffItems = staff.items;
   const count =
     audience === "member"
       ? member.items.length
       : audience === "staff"
-        ? HEADER_ICONS_UI_PREVIEW
-          ? HEADER_PREVIEW_STAFF_REVIEWS_UNREAD
-          : staff.unreadCount
+        ? staff.unreadCount
         : coach.items.length;
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
@@ -124,10 +110,6 @@ export function HeaderSessionReviewsMenu({
             return;
           }
           setOpen(true);
-          if (HEADER_ICONS_UI_PREVIEW) {
-            setPanelVisible(true);
-            return;
-          }
           if (audience === "member") {
             void member.refetch();
           } else if (audience === "staff") {
@@ -190,8 +172,8 @@ export function HeaderSessionReviewsMenu({
               {audience === "staff" ? (
                 <StaffReviewMenuPanel
                   items={staffItems}
-                  loading={false}
-                  error={HEADER_ICONS_UI_PREVIEW ? false : staff.error}
+                  loading={staff.loading}
+                  error={staff.error}
                   viewAllHref={viewAllHref}
                   onNavigate={() => {
                     onNavigate?.();

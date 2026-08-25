@@ -31,39 +31,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchCallTasksRefresh } from "@/lib/call-tasks-refresh-event";
-import {
-  HEADER_ICONS_UI_PREVIEW,
-  HEADER_PREVIEW_CALL_TASKS,
-} from "@/lib/header-icons-ui-preview";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
-
-function buildPreviewCallTasksPayload(params: {
-  take: number;
-  offset: number;
-  q: string;
-  status: string;
-}): CallTaskListPayload {
-  const query = params.q.trim().toLowerCase();
-  const filtered = HEADER_PREVIEW_CALL_TASKS.filter((row) => {
-    if (params.status.length > 0 && row.status !== params.status) {
-      return false;
-    }
-    if (query.length === 0) {
-      return true;
-    }
-    return (
-      row.contactName.toLowerCase().includes(query) ||
-      row.phone.toLowerCase().includes(query) ||
-      row.comment.toLowerCase().includes(query)
-    );
-  });
-  return {
-    items: filtered.slice(params.offset, params.offset + params.take),
-    total: filtered.length,
-    take: params.take,
-    offset: params.offset,
-  };
-}
 
 export function AdminCallTasksManagement({
   initial,
@@ -72,20 +40,9 @@ export function AdminCallTasksManagement({
   const t = useTranslations("adminPages.calls");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [payload, setPayload] = useState(() =>
-    HEADER_ICONS_UI_PREVIEW
-      ? {
-          items: HEADER_PREVIEW_CALL_TASKS,
-          total: HEADER_PREVIEW_CALL_TASKS.length,
-          take: initial.take,
-          offset: 0,
-        }
-      : initial,
-  );
+  const [payload, setPayload] = useState(initial);
   const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(
-    HEADER_ICONS_UI_PREVIEW ? null : initialLoadError,
-  );
+  const [loadError, setLoadError] = useState<string | null>(initialLoadError);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [toast, setToast] = useState<{ tone: AdminWaitlistToastTone; message: string } | null>(
     null,
@@ -114,24 +71,6 @@ export function AdminCallTasksManagement({
 
   const loadRows = useCallback(async () => {
     const requestId = ++refreshRequestId.current;
-    if (HEADER_ICONS_UI_PREVIEW) {
-      const data = buildPreviewCallTasksPayload({
-        take: listPage.take,
-        offset: listPage.offset,
-        q: urlQuery,
-        status: statusFilter,
-      });
-      setPayload(data);
-      setLoadError(null);
-      setLoading(false);
-      setDetailsRow((current) => {
-        if (current === null) {
-          return null;
-        }
-        return data.items.find((item) => item.id === current.id) ?? current;
-      });
-      return;
-    }
     setLoading(true);
     setLoadError(null);
     try {
@@ -180,11 +119,6 @@ export function AdminCallTasksManagement({
     if (busyAction !== null) {
       return;
     }
-    if (HEADER_ICONS_UI_PREVIEW) {
-      setToast({ tone: "ok", message: success });
-      setDetailsRow(null);
-      return;
-    }
     setBusyAction(`${row.id}:${action}`);
     try {
       await apiFetch(path, { method: "POST" });
@@ -205,14 +139,6 @@ export function AdminCallTasksManagement({
 
   async function submitForm() {
     if (busyAction !== null || formOpen === null) {
-      return;
-    }
-    if (HEADER_ICONS_UI_PREVIEW) {
-      setToast({
-        tone: "ok",
-        message: formOpen === "create" ? t("created") : t("updated"),
-      });
-      setFormOpen(null);
       return;
     }
     setBusyAction("form");

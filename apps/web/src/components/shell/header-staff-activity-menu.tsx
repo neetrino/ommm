@@ -23,11 +23,6 @@ import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatTimeForUi } from "@/lib/format-time-display";
 import { getOmmmOverlayPortalRoot, OMMM_FLOATING_MENU_Z_INDEX } from "@/lib/ommm-overlay-portal";
 import type { StaffActivityRow } from "@/lib/staff-activity-types";
-import {
-  HEADER_ICONS_UI_PREVIEW,
-  HEADER_PREVIEW_STAFF_ACTIVITY,
-  HEADER_PREVIEW_STAFF_ACTIVITY_UNREAD,
-} from "@/lib/header-icons-ui-preview";
 import { STUDIO_TIMEZONE } from "@/lib/studio-timezone";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
@@ -56,16 +51,11 @@ export function HeaderStaffActivityMenu({
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
-  const live = useStaffActivityHeaderInbox(enabled && !HEADER_ICONS_UI_PREVIEW);
-  const [previewItems] = useState(() =>
-    HEADER_ICONS_UI_PREVIEW ? HEADER_PREVIEW_STAFF_ACTIVITY : [],
-  );
-  const items = HEADER_ICONS_UI_PREVIEW ? previewItems : live.items;
-  const unreadCount = HEADER_ICONS_UI_PREVIEW
-    ? HEADER_PREVIEW_STAFF_ACTIVITY_UNREAD
-    : live.unreadCount;
-  const loading = false;
-  const error = HEADER_ICONS_UI_PREVIEW ? false : live.error;
+  const live = useStaffActivityHeaderInbox(enabled);
+  const items = live.items;
+  const unreadCount = live.unreadCount;
+  const loading = live.loading;
+  const error = live.error;
   const refetch = live.refetch;
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
@@ -113,10 +103,6 @@ export function HeaderStaffActivityMenu({
             return;
           }
           setOpen(true);
-          if (HEADER_ICONS_UI_PREVIEW) {
-            setPanelVisible(true);
-            return;
-          }
           void refetch().then(() => {
             void markStaffActivityRead().then(() => refetch());
           });

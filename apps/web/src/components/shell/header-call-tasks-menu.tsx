@@ -23,17 +23,9 @@ import { dispatchCallTasksRefresh } from "@/lib/call-tasks-refresh-event";
 import { formatDateForUi } from "@/lib/date-display";
 import { getOmmmOverlayPortalRoot, OMMM_FLOATING_MENU_Z_INDEX } from "@/lib/ommm-overlay-portal";
 import { displayPhoneOrFallback } from "@/lib/phone";
-import {
-  HEADER_ICONS_UI_PREVIEW,
-  HEADER_PREVIEW_CALL_TASKS,
-} from "@/lib/header-icons-ui-preview";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
 const MENU_MOTION_MS = 320;
-
-const HEADER_PREVIEW_PENDING_COUNT = HEADER_PREVIEW_CALL_TASKS.filter(
-  (row) => row.status === "PENDING",
-).length;
 
 type HeaderCallTasksMenuProps = {
   enabled: boolean;
@@ -58,22 +50,12 @@ export function HeaderCallTasksMenu({
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
-  const live = useCallTasksDue(enabled && !HEADER_ICONS_UI_PREVIEW);
-  const livePendingCount = useCallTasksPendingCount(
-    enabled && !HEADER_ICONS_UI_PREVIEW,
-  );
-  const [previewItems] = useState(() =>
-    HEADER_ICONS_UI_PREVIEW
-      ? HEADER_PREVIEW_CALL_TASKS.filter((row) => row.status === "PENDING")
-      : [],
-  );
-  const items = HEADER_ICONS_UI_PREVIEW ? previewItems : live.items;
-  const loading = HEADER_ICONS_UI_PREVIEW ? false : live.loading;
-  const error = HEADER_ICONS_UI_PREVIEW ? false : live.error;
+  const live = useCallTasksDue(enabled);
+  const pendingCount = useCallTasksPendingCount(enabled);
+  const items = live.items;
+  const loading = live.loading;
+  const error = live.error;
   const refetch = live.refetch;
-  const pendingCount = HEADER_ICONS_UI_PREVIEW
-    ? HEADER_PREVIEW_PENDING_COUNT
-    : livePendingCount;
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
     open,
@@ -120,10 +102,6 @@ export function HeaderCallTasksMenu({
             return;
           }
           setOpen(true);
-          if (HEADER_ICONS_UI_PREVIEW) {
-            setPanelVisible(true);
-            return;
-          }
           void refetch();
         }}
       >
@@ -241,9 +219,6 @@ function CallTaskDueRow({ row }: { row: CallTaskRow }) {
   const [busy, setBusy] = useState(false);
 
   async function complete() {
-    if (HEADER_ICONS_UI_PREVIEW) {
-      return;
-    }
     setBusy(true);
     try {
       await apiFetch(`/call-tasks/${row.id}/complete`, { method: "POST" });

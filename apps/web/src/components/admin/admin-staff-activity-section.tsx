@@ -8,14 +8,11 @@ import { AdminStaffActivityDetailsModal } from "@/components/admin/admin-staff-a
 import { AdminStaffActivityEmptyState } from "@/components/admin/admin-staff-activity-empty-state";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { markStaffActivityRead } from "@/hooks/use-staff-activity-inbox";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import {
-  HEADER_ICONS_UI_PREVIEW,
-  HEADER_PREVIEW_STAFF_ACTIVITY,
-} from "@/lib/header-icons-ui-preview";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 import type {
   StaffActivityListPayload,
@@ -38,19 +35,12 @@ export function AdminStaffActivitySection() {
   );
   const urlQuery = searchParams.get("q")?.trim() ?? "";
   const [searchDraft, setSearchDraft] = useState(urlQuery);
-  const [payload, setPayload] = useState<StaffActivityListPayload | null>(() =>
-    HEADER_ICONS_UI_PREVIEW
-      ? {
-          items: HEADER_PREVIEW_STAFF_ACTIVITY,
-          total: HEADER_PREVIEW_STAFF_ACTIVITY.length,
-          take: STAFF_ACTIVITY_PAGE_TAKE,
-          offset: 0,
-        }
-      : null,
-  );
-  const [loading, setLoading] = useState(!HEADER_ICONS_UI_PREVIEW);
+  const [payload, setPayload] = useState<StaffActivityListPayload | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<StaffActivityRow | null>(null);
+  const [markingRead, setMarkingRead] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
 
   useEffect(() => {
     setSearchDraft(urlQuery);
@@ -76,25 +66,17 @@ export function AdminStaffActivitySection() {
   }, [listPage.pageSize, router, searchDraft, searchParams, urlQuery]);
 
   const load = useCallback(async () => {
-    if (HEADER_ICONS_UI_PREVIEW) {
-      setPayload({
-        items: HEADER_PREVIEW_STAFF_ACTIVITY,
-        total: HEADER_PREVIEW_STAFF_ACTIVITY.length,
-        take: listPage.take,
-        offset: listPage.offset,
-      });
-      setLoading(false);
-      setError(null);
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<StaffActivityListPayload>(
-        `/staff-activity?take=${listPage.take}&offset=${listPage.offset}`,
-      );
+      const [data, unread] = await Promise.all([
+        apiFetch<StaffActivityListPayload>(
+          `/staff-activity?take=${listPage.take}&offset=${listPage.offset}`,
+        ),
+        apiFetch<{ count: number }>("/staff-activity/unread-count"),
+      ]);
       setPayload(data);
-      void markStaffActivityRead();
+      setHasUnread(unread.count > 0);
     } catch (caught) {
       setPayload(null);
       setError(caught instanceof ApiError ? caught.message : t("loadFailed"));
@@ -108,6 +90,21 @@ export function AdminStaffActivitySection() {
       void load();
     });
   }, [load]);
+
+  const clearUnreadBadge = useCallback(async () => {
+    if (markingRead || !hasUnread) {
+      return;
+    }
+    setMarkingRead(true);
+    try {
+      await markStaffActivityRead();
+      setHasUnread(false);
+    } catch {
+      setError(t("loadFailed"));
+    } finally {
+      setMarkingRead(false);
+    }
+  }, [hasUnread, markingRead, t]);
 
   const filteredItems = useMemo(() => {
     const items = payload?.items ?? [];
@@ -125,9 +122,7 @@ export function AdminStaffActivitySection() {
     });
   }, [payload?.items, urlQuery]);
 
-  const total = HEADER_ICONS_UI_PREVIEW
-    ? filteredItems.length
-    : (payload?.total ?? 0);
+  const total = payload?.total ?? 0;
   const showEmpty = !loading && !error && filteredItems.length === 0;
 
   return (
@@ -155,6 +150,17 @@ export function AdminStaffActivitySection() {
       {showEmpty ? <AdminStaffActivityEmptyState /> : null}
       {filteredItems.length > 0 ? (
         <div className="space-y-3" aria-busy={loading}>
+          <div className="flex justify-start">
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={markingRead || !hasUnread}
+              onClick={() => void clearUnreadBadge()}
+            >
+              {t("markAllRead")}
+            </OmmButton>
+          </div>
           {filteredItems.map((row) => (
             <AdminStaffActivityCard
               key={row.id}
@@ -164,7 +170,7 @@ export function AdminStaffActivitySection() {
           ))}
         </div>
       ) : null}
-      {!HEADER_ICONS_UI_PREVIEW && total > listPage.pageSize ? (
+      {total > listPage.pageSize ? (
         <OmmListPagination
           total={total}
           page={listPage.page}
