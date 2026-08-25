@@ -100,7 +100,9 @@ export class StaffActivityService {
         );
         return;
       }
-      const dedupeSince = new Date(Date.now() - STAFF_ACTIVITY_DEDUPE_WINDOW_MS);
+      const dedupeSince = new Date(
+        Date.now() - STAFF_ACTIVITY_DEDUPE_WINDOW_MS,
+      );
       const recent = await this.prisma.staffActivityNotification.findFirst({
         where: {
           bookingId: booking.id,

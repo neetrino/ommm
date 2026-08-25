@@ -1,4 +1,7 @@
-import type { StaffActivityNotification, StaffActivityType } from '@prisma/client';
+import type {
+  StaffActivityNotification,
+  StaffActivityType,
+} from '@prisma/client';
 
 export type StaffActivityDto = {
   id: string;
