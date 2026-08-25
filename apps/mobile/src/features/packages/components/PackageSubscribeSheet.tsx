@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.pill,
-    backgroundColor: colors.primaryGreen,
+    backgroundColor: colors.taupe,
   },
   primaryDisabled: {
     opacity: 0.6,
