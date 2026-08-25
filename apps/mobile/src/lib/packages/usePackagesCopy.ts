@@ -37,8 +37,15 @@ export function usePackagesCopy() {
       originalPrice: tMarketing("packagesTablePrice"),
       tableValidity: tMarketing("packagesTableValidity"),
       tableGuests: tMarketing("packagesTableGuests"),
+      tableFreeze: tMarketing("packagesTableFreeze"),
+      formatPackageFreeze: (times: number, days: number) =>
+        tMarketing("packagesFreezeTimesDays", { times, days }),
       typeSessionsType: tMarketing("packagesTypeSessionsType"),
       typeSessionsSession: tMarketing("packagesTypeSessionsSession"),
+      typeSessionsExpandAria: (name: string) =>
+        tMarketing("packagesTypeSessionsExpandAria", { name }),
+      typeSessionsCollapseAria: (name: string) =>
+        tMarketing("packagesTypeSessionsCollapseAria", { name }),
       empty: tUserPackages("emptyPlans"),
       loadError: tUserPackages("couldNotLoadPlans"),
       loadMembershipsError: tUserPackages("couldNotLoadPlans"),

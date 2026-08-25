@@ -1,9 +1,9 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
 import {
+  formatPackageFreezeLabel,
   formatPackagePriceLabel,
   formatPackageValidityLabel,
   resolvePublicPackageTotalSessions,
@@ -20,6 +20,8 @@ import { fontFamilies } from "../../../theme/fontFamilies";
 type PackageMobileTierCardProps = {
   categoryLabel: string;
   plan: PublicPackagePlan;
+  isMixExpanded: boolean;
+  onToggleMixExpand: () => void;
   onSubscribePress: (planId: string) => void;
 };
 
@@ -67,11 +69,12 @@ function TypeSessionsBreakdown({
 export function PackageMobileTierCard({
   categoryLabel,
   plan,
+  isMixExpanded,
+  onToggleMixExpand,
   onSubscribePress,
 }: PackageMobileTierCardProps) {
   const packagesCopy = usePackagesCopy();
   const displayCopy = usePackageDisplayCopy();
-  const [isMixExpanded, setIsMixExpanded] = useState(false);
   const packageName = displayCopy.formatPlanName(plan.name, plan.sessionsPerMonth);
   const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
   const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
@@ -98,10 +101,16 @@ export function PackageMobileTierCard({
   );
   const guestCount = plan.guestCount ?? 0;
   const guestLabel = guestCount > 0 ? String(guestCount) : null;
+  const freezeLabel = formatPackageFreezeLabel(plan, {
+    timesDays: packagesCopy.formatPackageFreeze,
+  });
   const priceRowValue =
     hasDiscount && originalPrice !== null
       ? `${priceLabel} (${packagesCopy.discountBadge})`
       : priceLabel;
+  const mixToggleAria = isMixExpanded
+    ? packagesCopy.typeSessionsCollapseAria(packageName)
+    : packagesCopy.typeSessionsExpandAria(packageName);
 
   return (
     <View
@@ -112,14 +121,19 @@ export function PackageMobileTierCard({
         <Text style={styles.planName}>{packageName}</Text>
         {hasMixSessions ? (
           <Pressable
-            onPress={() => setIsMixExpanded((current) => !current)}
-            style={styles.mixToggle}
+            onPress={onToggleMixExpand}
+            style={({ pressed }) => [
+              styles.mixToggle,
+              pressed && styles.mixTogglePressed,
+            ]}
+            hitSlop={8}
             accessibilityRole="button"
+            accessibilityLabel={mixToggleAria}
             accessibilityState={{ expanded: isMixExpanded }}
           >
             <MaterialCommunityIcons
               name={isMixExpanded ? "chevron-up" : "chevron-down"}
-              size={20}
+              size={22}
               color="#ffffff"
             />
           </Pressable>
@@ -142,6 +156,7 @@ export function PackageMobileTierCard({
         ) : null}
         <MetaRow label={packagesCopy.tableValidity} value={validityLabel} />
         <MetaRow label={packagesCopy.tableGuests} value={guestLabel} />
+        <MetaRow label={packagesCopy.tableFreeze} value={freezeLabel} />
       </View>
 
       <Pressable
@@ -184,40 +199,62 @@ const styles = StyleSheet.create({
     color: "#ffffff",
   },
   mixToggle: {
-    padding: 2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mixTogglePressed: {
+    backgroundColor: "rgba(255, 255, 255, 0.16)",
   },
   mixBreakdown: {
-    gap: 8,
+    width: "100%",
+    borderRadius: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.42)",
+    overflow: "hidden",
   },
   mixHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(151, 144, 124, 0.22)",
   },
   mixHeaderCell: {
-    fontFamily: fontFamilies.gtSuperDs.regular,
-    fontSize: 12,
-    color: "rgba(255, 255, 255, 0.78)",
+    fontFamily: fontFamilies.manrope.bold,
+    fontSize: 11,
+    letterSpacing: 0.88,
+    textTransform: "uppercase",
+    color: "rgba(80, 69, 59, 0.72)",
   },
   mixHeaderSession: {
-    textAlign: "right",
+    minWidth: 56,
+    textAlign: "center",
   },
   mixRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "rgba(151, 144, 124, 0.16)",
   },
   mixType: {
     flex: 1,
-    fontFamily: fontFamilies.gtSuperDs.regular,
-    fontSize: 14,
-    color: "#ffffff",
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 13,
+    color: "#1b1c1a",
   },
   mixSession: {
-    fontFamily: fontFamilies.gtSuperDs.regular,
-    fontSize: 14,
-    color: "#ffffff",
-    textAlign: "right",
+    minWidth: 56,
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 13,
+    color: "#1b1c1a",
+    textAlign: "center",
   },
   metaList: {
     width: "100%",
