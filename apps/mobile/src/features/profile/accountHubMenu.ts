@@ -24,6 +24,7 @@ export function useAccountHubMenuItems(
 ): AccountHubMenuItem[] {
   const tHub = useTranslations("userPages.accountHub");
   const tProfile = useTranslations("userPages.profile");
+  const tNav = useTranslations("dashboard.nav");
 
   return useMemo(
     () => [
@@ -43,13 +44,13 @@ export function useAccountHubMenuItems(
         ? [
             {
               key: "giftCards",
-              label: tHub("giftCards"),
+              label: tNav("USER.giftCards"),
               href: userMemberPath("gift-cards"),
               icon: "gift-outline" as const,
             },
           ]
         : []),
     ],
-    [role, tHub, tProfile],
+    [role, tHub, tNav, tProfile],
   );
 }

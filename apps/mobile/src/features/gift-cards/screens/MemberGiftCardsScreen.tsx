@@ -39,7 +39,7 @@ export function MemberGiftCardsScreen() {
   const params = useLocalSearchParams<{ tab?: string }>();
   const t = useTranslations("userPages.giftCards");
   const tPurchase = useTranslations("userPages.giftCards.purchaseForm");
-  const tCommon = useTranslations("common");
+  const tRetry = useTranslations("adminPages.classes.classTypes");
   const state = useMemberGiftCardsScreenState({
     initialTab: parseInitialTab(params.tab),
   });
@@ -102,7 +102,7 @@ export function MemberGiftCardsScreen() {
           <View style={styles.errorBlock}>
             <Text style={styles.error}>{state.error}</Text>
             <PackagesPrimaryCta
-              label={tCommon("retry") ?? "Retry"}
+              label={tRetry("retryButton")}
               onPress={() => void state.reload()}
               variant="ghost"
             />
