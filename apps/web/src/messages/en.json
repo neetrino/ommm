@@ -46,7 +46,7 @@
   },
   "headerCallTasks": {
     "title": "Calls due",
-    "triggerAria": "Call reminders{count, plural, =0 {} other {, {count} due}}",
+    "triggerAria": "Call reminders{count, plural, =0 {} other {, {count} pending}}",
     "panelAria": "Calls due today",
     "openList": "View all",
     "empty": "No calls due today",

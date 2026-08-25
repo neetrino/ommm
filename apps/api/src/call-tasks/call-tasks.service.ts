@@ -61,10 +61,7 @@ export class CallTasksService {
 
   async countPending() {
     const count = await this.prisma.callTask.count({
-      where: {
-        status: CallTaskStatus.PENDING,
-        dueOn: { gte: dueOnFilterCutoff() },
-      },
+      where: { status: CallTaskStatus.PENDING },
     });
     return { count };
   }

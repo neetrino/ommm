@@ -46,7 +46,7 @@
   },
   "headerCallTasks": {
     "title": "Звонки на сегодня",
-    "triggerAria": "Напоминания о звонках{count, plural, =0 {} other {, {count} в очереди}}",
+    "triggerAria": "Напоминания о звонках{count, plural, =0 {} other {, {count} ожидают}}",
     "panelAria": "Звонки на сегодня",
     "openList": "Смотреть все",
     "empty": "На сегодня звонков нет",

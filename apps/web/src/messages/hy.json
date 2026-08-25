@@ -46,7 +46,7 @@
   },
   "headerCallTasks": {
     "title": "Զանգեր այսօր",
-    "triggerAria": "Զանգերի հիշեցումներ{count, plural, =0 {} other {, {count} հերթում}}",
+    "triggerAria": "Զանգերի հիշեցումներ{count, plural, =0 {} other {, {count} սպասվող}}",
     "panelAria": "Այսօրվա զանգեր",
     "openList": "Տեսնել բոլորը",
     "empty": "Այսօր զանգ չկա",

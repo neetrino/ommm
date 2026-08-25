@@ -15,6 +15,7 @@ import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
 import { OmmButton } from "@/components/ui/omm-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useCallTasksDue } from "@/hooks/use-call-tasks-due";
+import { useCallTasksPendingCount } from "@/hooks/use-call-tasks-pending-count";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { Link } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -29,6 +30,10 @@ import {
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
 const MENU_MOTION_MS = 320;
+
+const HEADER_PREVIEW_PENDING_COUNT = HEADER_PREVIEW_CALL_TASKS.filter(
+  (row) => row.status === "PENDING",
+).length;
 
 type HeaderCallTasksMenuProps = {
   enabled: boolean;
@@ -54,16 +59,21 @@ export function HeaderCallTasksMenu({
   const [open, setOpen] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
   const live = useCallTasksDue(enabled && !HEADER_ICONS_UI_PREVIEW);
+  const livePendingCount = useCallTasksPendingCount(
+    enabled && !HEADER_ICONS_UI_PREVIEW,
+  );
   const [previewItems] = useState(() =>
     HEADER_ICONS_UI_PREVIEW
       ? HEADER_PREVIEW_CALL_TASKS.filter((row) => row.status === "PENDING")
       : [],
   );
   const items = HEADER_ICONS_UI_PREVIEW ? previewItems : live.items;
-  const loading = false;
+  const loading = HEADER_ICONS_UI_PREVIEW ? false : live.loading;
   const error = HEADER_ICONS_UI_PREVIEW ? false : live.error;
   const refetch = live.refetch;
-  const count = items.length;
+  const pendingCount = HEADER_ICONS_UI_PREVIEW
+    ? HEADER_PREVIEW_PENDING_COUNT
+    : livePendingCount;
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
     open,
@@ -101,7 +111,7 @@ export function HeaderCallTasksMenu({
         ref={triggerRef}
         type="button"
         className={`relative ${triggerClassName}`}
-        aria-label={t("triggerAria", { count })}
+        aria-label={t("triggerAria", { count: pendingCount })}
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         onClick={() => {
@@ -118,9 +128,12 @@ export function HeaderCallTasksMenu({
         }}
       >
         <CallTaskPhoneIcon className={iconClassName} />
-        {count > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-bold leading-none text-white">
-            {count > 9 ? "9+" : count}
+        {pendingCount > 0 ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-bold leading-none text-white"
+            aria-hidden
+          >
+            {pendingCount > 9 ? "9+" : pendingCount}
           </span>
         ) : null}
       </button>
