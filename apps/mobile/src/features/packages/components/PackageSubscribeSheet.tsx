@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
+  Animated,
   Modal,
   Pressable,
   ScrollView,
@@ -14,14 +15,13 @@ import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fetchGiftSpendableBalance } from "../../../lib/api/giftCardsClient";
 import { formatAmdFromCents } from "../../../lib/formatAmd";
-import {
-  formatPackagePriceLabel,
-} from "../../../lib/packages/formatPackageDisplay";
+import { formatPackagePriceLabel } from "../../../lib/packages/formatPackageDisplay";
 import type { PublicPackagePlan } from "../../../lib/packages/publicPackagePlan";
 import { resolvePublicPackageFinalPriceCents } from "../../../lib/packages/publicPackagePlan";
 import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { colors, space } from "../../../theme/tokens";
+import { usePackageSubscribeSheetMotion } from "../hooks/usePackageSubscribeSheetMotion";
 import { packageSubscribeSheetStyles as styles } from "./packageSubscribeSheet.styles";
 
 type PackageSubscribeSheetProps = {
@@ -47,6 +47,12 @@ export function PackageSubscribeSheet({
   const insets = useSafeAreaInsets();
   const [useGiftCredits, setUseGiftCredits] = useState(false);
   const [spendableCents, setSpendableCents] = useState(0);
+  const [planSnapshot, setPlanSnapshot] = useState<PublicPackagePlan | null>(
+    plan,
+  );
+  const sheetVisible = visible && plan !== null;
+  const { rendered, backdropOpacity, sheetTranslateY } =
+    usePackageSubscribeSheetMotion({ visible: sheetVisible });
 
   const loadGiftBalance = useCallback(async () => {
     const token = await readStoredAccessToken();
@@ -63,51 +69,65 @@ export function PackageSubscribeSheet({
   }, []);
 
   useEffect(() => {
-    if (!visible) {
+    if (plan !== null) {
+      setPlanSnapshot(plan);
+    }
+  }, [plan]);
+
+  useEffect(() => {
+    if (!sheetVisible) {
       setUseGiftCredits(false);
       return;
     }
     void loadGiftBalance();
-  }, [loadGiftBalance, visible]);
+  }, [loadGiftBalance, sheetVisible]);
 
-  if (plan === null) {
+  const activePlan = plan ?? planSnapshot;
+  if (!rendered || activePlan === null) {
     return null;
   }
 
   const packageName = displayCopy.formatPlanName(
-    plan.name,
-    plan.sessionsPerMonth,
+    activePlan.name,
+    activePlan.sessionsPerMonth,
   );
   const priceLabel = formatPackagePriceLabel({
-    ...plan,
-    priceCents: resolvePublicPackageFinalPriceCents(plan),
+    ...activePlan,
+    priceCents: resolvePublicPackageFinalPriceCents(activePlan),
   });
-  const periodLabel = tPay("periodDays", { days: plan.periodDays });
+  const periodLabel = tPay("periodDays", { days: activePlan.periodDays });
   const sessionsLabel =
-    plan.sessionsPerMonth === null || plan.sessionsPerMonth <= 0
+    activePlan.sessionsPerMonth === null || activePlan.sessionsPerMonth <= 0
       ? tPay("unlimitedClasses")
-      : tPay("sessionsPerPeriod", { count: plan.sessionsPerMonth });
+      : tPay("sessionsPerPeriod", { count: activePlan.sessionsPerMonth });
   const hasGiftCredit = spendableCents > 0;
   const giftEnabled = useGiftCredits && hasGiftCredit;
 
   return (
     <Modal
-      visible={visible}
+      visible={rendered}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
     >
-      <View style={styles.backdrop}>
+      <View style={styles.root}>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.scrim, { opacity: backdropOpacity }]}
+        />
         <Pressable
           style={StyleSheet.absoluteFill}
           onPress={busy ? undefined : onClose}
           accessibilityRole="button"
           accessibilityLabel={tPay("closeModal")}
         />
-        <View
+        <Animated.View
           style={[
             styles.sheet,
-            { paddingBottom: Math.max(insets.bottom, space.sm) + space.lg },
+            {
+              paddingBottom: Math.max(insets.bottom, space.sm) + space.lg,
+              transform: [{ translateY: sheetTranslateY }],
+            },
           ]}
         >
           <View style={styles.grabber} />
@@ -239,9 +259,7 @@ export function PackageSubscribeSheet({
               <Text style={styles.cancelLabel}>{tPay("cancel")}</Text>
             </Pressable>
             <Pressable
-              onPress={() =>
-                onConfirm({ useGiftCredits: giftEnabled })
-              }
+              onPress={() => onConfirm({ useGiftCredits: giftEnabled })}
               disabled={busy}
               style={({ pressed }) => [
                 styles.confirmBtn,
@@ -255,7 +273,7 @@ export function PackageSubscribeSheet({
               </Text>
             </Pressable>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );

@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { PACKAGES_PRIMARY_CTA } from "../../../lib/packages/packagesPageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { platformShadow } from "../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../theme/tokens";
@@ -10,12 +11,27 @@ const PLAN_META = "rgba(61, 74, 66, 0.72)";
 const GIFT_ICON = "#5f5848";
 const GIFT_HINT = "#7a7264";
 const METHOD_BORDER = "rgba(151, 144, 124, 0.55)";
+/** Web `.ommm-cta-secondary` — `border-sand-500/25`. */
+const CANCEL_BORDER = "rgba(161, 150, 133, 0.25)";
+/** Web `text-sage-700`. */
+const CANCEL_LABEL = colors.primaryGreen;
+
+const ctaShadow = platformShadow({
+  color: PACKAGES_PRIMARY_CTA.shadowColor,
+  offsetHeight: PACKAGES_PRIMARY_CTA.shadowOffsetHeightPx,
+  opacity: PACKAGES_PRIMARY_CTA.shadowOpacity,
+  radius: PACKAGES_PRIMARY_CTA.shadowRadiusPx,
+  elevation: PACKAGES_PRIMARY_CTA.androidElevation,
+});
 
 export const packageSubscribeSheetStyles = StyleSheet.create({
-  backdrop: {
+  root: {
     flex: 1,
-    backgroundColor: colors.scrimDark,
     justifyContent: "flex-end",
+  },
+  scrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.scrimDark,
   },
   sheet: {
     zIndex: 1,
@@ -197,55 +213,61 @@ export const packageSubscribeSheetStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
-    gap: 12,
+    flexWrap: "wrap",
+    gap: space.sm,
     paddingTop: space.md,
   },
+  /** Web `OmmButton` secondary → `.ommm-cta-secondary`. */
   cancelBtn: {
-    minHeight: 48,
-    paddingHorizontal: 22,
+    flexShrink: 0,
+    minHeight: PACKAGES_PRIMARY_CTA.minHeightPx,
+    paddingHorizontal: PACKAGES_PRIMARY_CTA.paddingHorizontalPx,
+    paddingVertical: PACKAGES_PRIMARY_CTA.paddingVerticalPx,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: "rgba(151, 144, 124, 0.28)",
-    backgroundColor: colors.white,
+    borderColor: CANCEL_BORDER,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 1,
+      opacity: 0.08,
+      radius: 2,
+      elevation: 1,
+    }),
   },
   cancelLabel: {
     fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 13,
-    letterSpacing: 0.8,
+    fontSize: PACKAGES_PRIMARY_CTA.fontSizePx,
+    letterSpacing: PACKAGES_PRIMARY_CTA.letterSpacingPx,
     textTransform: "uppercase",
-    color: colors.ink,
+    color: CANCEL_LABEL,
   },
+  /** Web `OmmButton` primary → `.ommm-cta-primary`. */
   confirmBtn: {
-    flexGrow: 1,
-    maxWidth: 220,
-    minHeight: 48,
-    paddingHorizontal: 20,
+    flexShrink: 0,
+    minHeight: PACKAGES_PRIMARY_CTA.minHeightPx,
+    paddingHorizontal: PACKAGES_PRIMARY_CTA.paddingHorizontalPx,
+    paddingVertical: PACKAGES_PRIMARY_CTA.paddingVerticalPx,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.pill,
     backgroundColor: colors.taupe,
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: 8,
-      opacity: 0.16,
-      radius: 14,
-      elevation: 3,
-    }),
+    ...ctaShadow,
   },
   confirmDisabled: {
-    opacity: 0.6,
+    opacity: 0.45,
   },
   confirmLabel: {
     fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 13,
-    letterSpacing: 0.8,
+    fontSize: PACKAGES_PRIMARY_CTA.fontSizePx,
+    letterSpacing: PACKAGES_PRIMARY_CTA.letterSpacingPx,
     textTransform: "uppercase",
     color: colors.white,
   },
   pressed: {
-    opacity: 0.9,
+    opacity: 0.92,
   },
   giftIconColor: {
     color: GIFT_ICON,
