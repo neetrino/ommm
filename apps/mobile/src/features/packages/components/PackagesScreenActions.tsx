@@ -1,4 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 import { PACKAGES_PRIMARY_CTA } from "../../../lib/packages/packagesPageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { platformShadow } from "../../../theme/platformShadow";
@@ -9,12 +16,14 @@ type PackagesPrimaryCtaProps = {
   label: string;
   onPress: () => void;
   variant?: "primary" | "ghost";
+  style?: StyleProp<ViewStyle>;
 };
 
 export function PackagesPrimaryCta({
   label,
   onPress,
   variant = "primary",
+  style,
 }: PackagesPrimaryCtaProps) {
   const isPrimary = variant === "primary";
   return (
@@ -24,6 +33,7 @@ export function PackagesPrimaryCta({
         isPrimary ? styles.primary : styles.ghost,
         isPrimary && pressed && styles.primaryPressed,
         !isPrimary && pressed && styles.pressed,
+        style,
       ]}
       accessibilityRole="button"
       accessibilityLabel={label}

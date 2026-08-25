@@ -179,11 +179,13 @@ export function ProfileAccountInfoSection() {
               onPress={() => {
                 void save();
               }}
+              style={styles.actionButton}
             />
             <PackagesPrimaryCta
               label={tForm("cancel")}
               onPress={cancelEdit}
               variant="ghost"
+              style={styles.actionButton}
             />
           </View>
         ) : null}
@@ -213,7 +215,13 @@ const styles = StyleSheet.create({
     gap: space.md,
   },
   actions: {
+    flexDirection: "row",
+    alignItems: "stretch",
     gap: space.sm,
+  },
+  actionButton: {
+    flex: 1,
+    alignSelf: "stretch",
   },
   error: {
     fontFamily: fontFamilies.manrope.regular,
