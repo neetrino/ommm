@@ -60,10 +60,43 @@ export class CallTasksService {
   }
 
   async countPending() {
+    const ackAt = await this.badgeAcknowledgedAt();
     const count = await this.prisma.callTask.count({
-      where: { status: CallTaskStatus.PENDING },
+      where: {
+        status: CallTaskStatus.PENDING,
+        ...(ackAt ? { createdAt: { gt: ackAt } } : {}),
+      },
     });
     return { count };
+  }
+
+  async acknowledgeBadge() {
+    const settings = await this.ensureStudioSettings();
+    await this.prisma.studioSettings.update({
+      where: { id: settings.id },
+      data: { callTasksBadgeAcknowledgedAt: new Date() },
+    });
+    return { ok: true as const };
+  }
+
+  private async badgeAcknowledgedAt(): Promise<Date | null> {
+    const settings = await this.prisma.studioSettings.findFirst({
+      select: { callTasksBadgeAcknowledgedAt: true },
+    });
+    return settings?.callTasksBadgeAcknowledgedAt ?? null;
+  }
+
+  private async ensureStudioSettings() {
+    const existing = await this.prisma.studioSettings.findFirst({
+      select: { id: true },
+    });
+    if (existing) {
+      return existing;
+    }
+    return this.prisma.studioSettings.create({
+      data: { studioName: 'Ommm' },
+      select: { id: true },
+    });
   }
 
   async create(createdById: string, dto: CreateCallTaskDto) {

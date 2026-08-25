@@ -22,6 +22,8 @@ model StudioSettings {
   waitlistOfferMinutes    Int      @default(30)
   homeSectionsVisibilityJson String?
   enabledLocalesJson         String?
+  /// When set, header call-task badge counts only PENDING tasks created after this time.
+  callTasksBadgeAcknowledgedAt DateTime?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 }

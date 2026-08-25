@@ -148,13 +148,9 @@ export function HeaderCallTasksMenu({
                 onMarkAllRead={() => {
                   void (async () => {
                     try {
-                      await Promise.all(
-                        items.map((row) =>
-                          apiFetch(`/call-tasks/${row.id}/complete`, {
-                            method: "POST",
-                          }),
-                        ),
-                      );
+                      await apiFetch("/call-tasks/mark-badge-read", {
+                        method: "POST",
+                      });
                     } catch (error) {
                       if (!(error instanceof ApiError)) {
                         return;
@@ -222,7 +218,7 @@ function CallTaskMenuPanel({
       <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
         <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          {pendingCount > 0 && items.length > 0 ? (
+          {pendingCount > 0 ? (
             <MarkAllAsReadButton label={t("markAllRead")} onClick={onMarkAllRead} />
           ) : null}
           <Link
