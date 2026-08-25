@@ -91,7 +91,7 @@ export const profileHomeImageSectionStyles = StyleSheet.create({
     minHeight: 48,
     paddingHorizontal: space.md,
     borderRadius: radii.pill,
-    backgroundColor: colors.primaryGreen,
+    backgroundColor: colors.taupe,
   },
   primaryPressed: {
     opacity: 0.92,
