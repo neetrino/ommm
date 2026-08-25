@@ -145,12 +145,16 @@ export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenPro
           <Text style={styles.error}>{error}</Text>
         ) : showMyPackages ? (
           memberships.length === 0 ? (
-            <PackagesEmptyState
-              title={packagesCopy.noPackagesYet}
-              hint={packagesCopy.emptyPackagesHint}
-              actionLabel={packagesCopy.browsePackagesCta}
-              onActionPress={openCatalog}
-            />
+            <View style={styles.emptyStack}>
+              <PackagesBrowseCatalogCta
+                label={packagesCopy.browsePackagesCta}
+                onPress={openCatalog}
+              />
+              <PackagesEmptyState
+                title={packagesCopy.noPackagesYet}
+                hint={packagesCopy.emptyPackagesHint}
+              />
+            </View>
           ) : (
             <View style={styles.membershipList}>
               {memberships.map((membership) => (
@@ -226,6 +230,11 @@ const styles = StyleSheet.create({
   },
   membershipList: {
     width: "100%",
+    gap: space.md,
+  },
+  emptyStack: {
+    width: "100%",
+    alignItems: "center",
     gap: space.md,
   },
   browseAfterList: {

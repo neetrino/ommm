@@ -1,14 +1,17 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { useCallback, useEffect, useState } from "react";
 import {
   Animated,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   View,
+  type ViewStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
@@ -22,7 +25,20 @@ import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCo
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { colors, space } from "../../../theme/tokens";
 import { usePackageSubscribeSheetMotion } from "../hooks/usePackageSubscribeSheetMotion";
-import { packageSubscribeSheetStyles as styles } from "./packageSubscribeSheet.styles";
+import {
+  PACKAGE_SUBSCRIBE_BACKDROP_BLUR_CSS,
+  PACKAGE_SUBSCRIBE_BACKDROP_BLUR_INTENSITY,
+  packageSubscribeSheetStyles as styles,
+} from "./packageSubscribeSheet.styles";
+
+/** RN Web CSS — StyleSheet omits these; apply inline for real backdrop blur. */
+const webBackdropBlurStyle: ViewStyle | null =
+  Platform.OS === "web"
+    ? ({
+        backdropFilter: PACKAGE_SUBSCRIBE_BACKDROP_BLUR_CSS,
+        WebkitBackdropFilter: PACKAGE_SUBSCRIBE_BACKDROP_BLUR_CSS,
+      } as ViewStyle)
+    : null;
 
 type PackageSubscribeSheetProps = {
   visible: boolean;
@@ -113,8 +129,18 @@ export function PackageSubscribeSheet({
       <View style={styles.root}>
         <Animated.View
           pointerEvents="none"
-          style={[styles.scrim, { opacity: backdropOpacity }]}
-        />
+          style={[styles.scrim, webBackdropBlurStyle, { opacity: backdropOpacity }]}
+        >
+          <BlurView
+            intensity={PACKAGE_SUBSCRIBE_BACKDROP_BLUR_INTENSITY}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+            {...(Platform.OS === "android"
+              ? { experimentalBlurMethod: "dimezisBlurView" as const }
+              : {})}
+          />
+          <View style={styles.scrimTint} />
+        </Animated.View>
         <Pressable
           style={StyleSheet.absoluteFill}
           onPress={busy ? undefined : onClose}

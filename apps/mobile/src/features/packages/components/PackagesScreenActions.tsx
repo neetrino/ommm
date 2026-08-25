@@ -134,11 +134,11 @@ const primaryShadow = platformShadow({
 });
 
 const browseCtaShadow = platformShadow({
-  color: "#1a1c1b",
-  offsetHeight: 10,
-  opacity: 0.28,
-  radius: 18,
-  elevation: 5,
+  color: PACKAGES_PRIMARY_CTA.shadowColor,
+  offsetHeight: PACKAGES_PRIMARY_CTA.shadowOffsetHeightPx,
+  opacity: PACKAGES_PRIMARY_CTA.shadowOpacity,
+  radius: PACKAGES_PRIMARY_CTA.shadowRadiusPx,
+  elevation: PACKAGES_PRIMARY_CTA.androidElevation,
 });
 
 const styles = StyleSheet.create({
@@ -195,12 +195,11 @@ const styles = StyleSheet.create({
     paddingLeft: space.sm,
     paddingRight: space.md,
     borderRadius: radii.pill,
-    backgroundColor: colors.primaryGreen,
+    backgroundColor: colors.taupe,
     ...browseCtaShadow,
   },
   browseCtaPressed: {
-    backgroundColor: colors.warmBrown,
-    opacity: 0.96,
+    opacity: 0.92,
   },
   browseCtaIconWrap: {
     width: 40,

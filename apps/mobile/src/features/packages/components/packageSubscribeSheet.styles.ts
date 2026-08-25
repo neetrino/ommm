@@ -16,6 +16,13 @@ const METHOD_BORDER = "rgba(151, 144, 124, 0.55)";
  * (`--color-sage-900: #1a1c1b`).
  */
 const MODAL_BACKDROP_SCRIM = "rgba(26, 28, 27, 0.45)";
+/**
+ * Matches web member-hub / packages glass backdrops (`backdrop-blur` ~12px).
+ * Expo BlurView intensity ≈ CSS blur strength for modal dimming.
+ */
+export const PACKAGE_SUBSCRIBE_BACKDROP_BLUR_INTENSITY = 48;
+/** Web CSS blur when `BlurView` is unreliable inside RN Modal. */
+export const PACKAGE_SUBSCRIBE_BACKDROP_BLUR_CSS = "blur(12px)";
 /** Web `.ommm-cta-secondary` — `border-sand-500/25`. */
 const CANCEL_BORDER = "rgba(161, 150, 133, 0.25)";
 /** Web `text-sage-700`. */
@@ -35,6 +42,10 @@ export const packageSubscribeSheetStyles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   scrim: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: "hidden",
+  },
+  scrimTint: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: MODAL_BACKDROP_SCRIM,
   },
