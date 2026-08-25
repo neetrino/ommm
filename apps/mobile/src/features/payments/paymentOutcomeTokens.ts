@@ -2,8 +2,29 @@
 export const PAYMENT_OUTCOME_SPHERE = {
   widthPx: 200,
   heightPx: 198,
-  bouncePeakPx: 28,
-  bounceDropPadPx: 36,
+} as const;
+
+/**
+ * Mirrors web `PAYMENT_OUTCOME_SPHERE_BOUNCE`
+ * (footer desktop bounce × 0.5, stage-clamped drop).
+ */
+export const PAYMENT_OUTCOME_SPHERE_BOUNCE = {
+  /** Scaled desktop peak ≈ 129 → 65. */
+  peakBasePx: 65,
+  peakBoostMinPx: 50,
+  peakBoostMaxPx: 150,
+  fallMs: 900,
+  squashMs: 120,
+  impactHoldMs: 70,
+  riseMs: 780,
+  driftPx: 29,
+  driftMaxPx: 84,
+  maxDropPx: 52,
+  groundReachPx: 14,
+  squashScaleX: 1.065,
+  squashScaleY: 0.885,
+  riseStretchScaleX: 0.985,
+  riseStretchScaleY: 1.042,
 } as const;
 
 export const PAYMENT_OUTCOME_ICON_RING = {

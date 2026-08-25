@@ -1,15 +1,11 @@
-import { useEffect, useRef } from "react";
-import {
-  AccessibilityInfo,
-  Animated,
-  Easing,
-  Image,
-  Pressable,
-  StyleSheet,
-} from "react-native";
+import { Animated, Image, Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { splashSphereAsset } from "../../splash/splashAssets";
-import { PAYMENT_OUTCOME_SPHERE } from "../paymentOutcomeTokens";
+import { usePaymentOutcomeSphereBounce } from "../hooks/usePaymentOutcomeSphereBounce";
+import {
+  PAYMENT_OUTCOME_SPHERE,
+  PAYMENT_OUTCOME_SPHERE_BOUNCE,
+} from "../paymentOutcomeTokens";
 
 type PaymentOutcomeSphereLogoProps = {
   alt: string;
@@ -18,59 +14,14 @@ type PaymentOutcomeSphereLogoProps = {
 
 /**
  * Brand sphere on payment outcome — mirrors web `PaymentOutcomeSphereLogo`
- * (footer illustration + soft bounce, links home).
+ * (footer illustration + WAAPI-equivalent bounce, links home).
  */
 export function PaymentOutcomeSphereLogo({
   alt,
   homeAriaLabel,
 }: PaymentOutcomeSphereLogoProps) {
   const router = useRouter();
-  const translateY = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    let cancelled = false;
-    let loop: Animated.CompositeAnimation | null = null;
-
-    void AccessibilityInfo.isReduceMotionEnabled().then((reduceMotion) => {
-      if (cancelled) {
-        return;
-      }
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 280,
-        useNativeDriver: true,
-      }).start();
-      if (reduceMotion) {
-        return;
-      }
-      const peak = PAYMENT_OUTCOME_SPHERE.bouncePeakPx;
-      loop = Animated.loop(
-        Animated.sequence([
-          Animated.timing(translateY, {
-            toValue: -peak,
-            duration: 620,
-            easing: Easing.bezier(0.12, 0.84, 0.22, 1),
-            useNativeDriver: true,
-          }),
-          Animated.timing(translateY, {
-            toValue: 0,
-            duration: 640,
-            easing: Easing.in(Easing.quad),
-            useNativeDriver: true,
-          }),
-        ]),
-      );
-      loop.start();
-    });
-
-    return () => {
-      cancelled = true;
-      loop?.stop();
-      opacity.stopAnimation();
-      translateY.stopAnimation();
-    };
-  }, [opacity, translateY]);
+  const motion = usePaymentOutcomeSphereBounce();
 
   return (
     <Pressable
@@ -82,7 +33,15 @@ export function PaymentOutcomeSphereLogo({
       <Animated.View
         style={[
           styles.frame,
-          { opacity, transform: [{ translateY }] },
+          {
+            opacity: motion.opacity,
+            transform: [
+              { translateX: motion.translateX },
+              { translateY: motion.translateY },
+              { scaleX: motion.scaleX },
+              { scaleY: motion.scaleY },
+            ],
+          },
         ]}
       >
         <Image
@@ -101,14 +60,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: PAYMENT_OUTCOME_SPHERE.widthPx,
     height:
-      PAYMENT_OUTCOME_SPHERE.heightPx + PAYMENT_OUTCOME_SPHERE.bounceDropPadPx,
+      PAYMENT_OUTCOME_SPHERE.heightPx + PAYMENT_OUTCOME_SPHERE_BOUNCE.maxDropPx,
     marginBottom: 4,
+    overflow: "visible",
   },
   frame: {
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: PAYMENT_OUTCOME_SPHERE.bounceDropPadPx,
+    bottom: PAYMENT_OUTCOME_SPHERE_BOUNCE.maxDropPx,
     height: PAYMENT_OUTCOME_SPHERE.heightPx,
   },
   image: {
