@@ -69,8 +69,8 @@
   },
   "staffActivityPages": {
     "title": "Activity",
-    "description": "Booking and cancellation events across the studio.",
-    "empty": "No booking activity yet",
+    "emptyTitle": "No booking activity",
+    "emptyDescription": "When members book or cancel a class, those events will appear here for the team.",
     "loading": "Loading activity…",
     "loadFailed": "Could not load activity",
     "typeBooked": "Booked",

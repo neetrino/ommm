@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { AdminStaffActivityEmptyState } from "@/components/admin/admin-staff-activity-empty-state";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { markStaffActivityRead } from "@/hooks/use-staff-activity-inbox";
@@ -59,20 +60,17 @@ export function AdminStaffActivitySection() {
 
   const items = payload?.items ?? [];
   const total = payload?.total ?? 0;
+  const showEmpty = !loading && !error && items.length === 0;
 
   return (
-    <StaffListPageLayout title={t("title")} description={t("description")}>
+    <StaffListPageLayout title={t("title")}>
       {loading ? (
         <p className="sr-only" aria-live="polite">
           {t("loading")}
         </p>
       ) : null}
       {error ? <p className="text-sm text-amber-900">{error}</p> : null}
-      {!loading && !error && items.length === 0 ? (
-        <p className="rounded-2xl border border-sand-200/80 bg-white/80 px-5 py-10 text-center text-sm text-sage-600">
-          {t("empty")}
-        </p>
-      ) : null}
+      {showEmpty ? <AdminStaffActivityEmptyState /> : null}
       {items.length > 0 ? (
         <ul className="divide-y divide-sage-100/80 rounded-2xl border border-sand-200/70 bg-white/80 px-4">
           {items.map((row) => (
