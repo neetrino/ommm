@@ -10,7 +10,9 @@ import { useSessionReviewsInboxFilterFields } from "@/components/session-reviews
 import { useSessionReviewsInboxFilters } from "@/components/session-reviews/use-session-reviews-inbox-filters";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { markStaffReviewsRead } from "@/components/shell/header-session-reviews-panels";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
@@ -35,6 +37,7 @@ export function SessionReviewsInboxSection({
   const router = useRouter();
   const searchParams = useSearchParams();
   const showCoachFilter = endpoint === "/session-reviews/inbox";
+  const isStaffInbox = endpoint === "/session-reviews/inbox";
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
@@ -63,6 +66,8 @@ export function SessionReviewsInboxSection({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<StaffInboxReview | CoachInboxReview | null>(null);
+  const [markingRead, setMarkingRead] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);

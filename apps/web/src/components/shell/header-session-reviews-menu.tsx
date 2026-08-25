@@ -23,7 +23,6 @@ import {
   CoachReviewMenuPanel,
   MemberReviewMenuPanel,
   StaffReviewMenuPanel,
-  markStaffReviewsRead,
 } from "@/components/shell/header-session-reviews-panels";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
@@ -113,9 +112,7 @@ export function HeaderSessionReviewsMenu({
           if (audience === "member") {
             void member.refetch();
           } else if (audience === "staff") {
-            void staff.refetch().then(() => {
-              void markStaffReviewsRead();
-            });
+            void staff.refetch();
           } else {
             void coach.refetch();
           }

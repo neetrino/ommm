@@ -15,7 +15,6 @@ import { staffActivityActionToneClass } from "@/components/admin/admin-staff-act
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import {
-  markStaffActivityRead,
   useStaffActivityHeaderInbox,
 } from "@/hooks/use-staff-activity-inbox";
 import { Link } from "@/i18n/navigation";
@@ -103,9 +102,7 @@ export function HeaderStaffActivityMenu({
             return;
           }
           setOpen(true);
-          void refetch().then(() => {
-            void markStaffActivityRead().then(() => refetch());
-          });
+          void refetch();
         }}
       >
         <StaffActivityBellIcon className={iconClassName} />
