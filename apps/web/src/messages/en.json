@@ -48,7 +48,7 @@
     "title": "Calls due",
     "triggerAria": "Call reminders{count, plural, =0 {} other {, {count} due}}",
     "panelAria": "Calls due today",
-    "openList": "Open Calls",
+    "openList": "View all",
     "empty": "No calls due today",
     "loading": "Loading calls…",
     "loadError": "Could not load call reminders",
