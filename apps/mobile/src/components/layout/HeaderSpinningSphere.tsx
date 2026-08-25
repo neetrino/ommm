@@ -94,7 +94,7 @@ function HeaderSpinningSphereVideo({ size }: HeaderSpinningSphereProps) {
         style={[styles.mediaCropped, { width: mediaSize, height: mediaSize }]}
         contentFit="cover"
         nativeControls={false}
-        allowsFullscreen={false}
+        fullscreenOptions={{ enable: false }}
         allowsPictureInPicture={false}
       />
     </View>
