@@ -15,6 +15,7 @@ export function usePackagesCopy() {
       pageTitle: tNav("packages"),
       myPackagesTitle: tUserPackages("title"),
       myPackagesLead: tUserPackages("description"),
+      catalogTitle: tMarketing("packagesPageTitle"),
       catalogLead: tUserPackages("emptyPackagesHint"),
       detailsCta: tMarketing("packagesDetailsCta"),
       subscribeCta: tForms("packageCheckout.subscribe"),

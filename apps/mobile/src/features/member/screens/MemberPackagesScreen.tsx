@@ -85,7 +85,9 @@ export function MemberPackagesScreen() {
 
   const showMyPackages = isSignedIn && mode === "mine";
   const showCatalog = !isSignedIn || mode === "catalog";
-  const heading = packagesCopy.myPackagesTitle;
+  const heading = showMyPackages
+    ? packagesCopy.myPackagesTitle
+    : packagesCopy.catalogTitle;
   const lead = showMyPackages ? packagesCopy.myPackagesLead : packagesCopy.catalogLead;
 
   return (
