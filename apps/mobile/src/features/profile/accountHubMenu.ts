@@ -22,7 +22,6 @@ function pathForRole(role: AccountHubRole, segment: string): string {
 export function useAccountHubMenuItems(
   role: AccountHubRole = "USER",
 ): AccountHubMenuItem[] {
-  const tHub = useTranslations("userPages.accountHub");
   const tProfile = useTranslations("userPages.profile");
   const tNav = useTranslations("dashboard.nav");
 
@@ -44,13 +43,7 @@ export function useAccountHubMenuItems(
             },
           ]
         : []),
-      {
-        key: "password",
-        label: tHub("changePassword"),
-        href: pathForRole(role, "profile/change-password"),
-        icon: "lock-outline",
-      },
     ],
-    [role, tHub, tNav, tProfile],
+    [role, tNav, tProfile],
   );
 }

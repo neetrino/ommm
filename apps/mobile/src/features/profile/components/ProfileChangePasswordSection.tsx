@@ -13,8 +13,16 @@ import { profileSectionLayout } from "../profileSectionLayout";
 import { ProfileGlassCard } from "./ProfileGlassCard";
 import { space } from "../../../theme/tokens";
 
-export function ProfileChangePasswordSection() {
+type ProfileChangePasswordSectionProps = {
+  /** Show “Security” heading when embedded under Account information. */
+  showSectionTitle?: boolean;
+};
+
+export function ProfileChangePasswordSection({
+  showSectionTitle = false,
+}: ProfileChangePasswordSectionProps) {
   const tChange = useTranslations("forms.changePassword");
+  const tProfile = useTranslations("userPages.profile");
   const tProfileEdit = useTranslations("forms.profileEdit");
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -70,6 +78,12 @@ export function ProfileChangePasswordSection() {
 
   return (
     <ProfileGlassCard contentStyle={profileSectionLayout.sectionCard}>
+      {showSectionTitle ? (
+        <Text style={profileSectionLayout.sectionTitle}>
+          {tProfile("security")}
+        </Text>
+      ) : null}
+
       <View style={styles.fieldGap}>
         <Text style={profileSectionLayout.fieldLabel}>
           {tChange("currentPasswordLabel")}

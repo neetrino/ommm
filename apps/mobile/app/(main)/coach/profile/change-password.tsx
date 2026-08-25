@@ -1,9 +1,9 @@
 import { Redirect } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useSession } from "../../../../src/auth/SessionProvider";
-import { ProfileChangePasswordScreen } from "../../../../src/features/profile/ProfileChangePasswordScreen";
 import { colors } from "../../../../src/theme/tokens";
 
+/** Legacy route — password lives under Account information. */
 export default function CoachProfileChangePasswordRoute() {
   const { isReady, isSignedIn } = useSession();
 
@@ -19,7 +19,7 @@ export default function CoachProfileChangePasswordRoute() {
     return <Redirect href="/login" />;
   }
 
-  return <ProfileChangePasswordScreen />;
+  return <Redirect href="/coach/profile/personal" />;
 }
 
 const styles = StyleSheet.create({
