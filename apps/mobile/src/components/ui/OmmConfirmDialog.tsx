@@ -46,13 +46,18 @@ export function OmmConfirmDialog({
       animationType="fade"
       onRequestClose={pending ? undefined : onCancel}
     >
-      <Pressable
-        style={styles.backdrop}
-        onPress={pending ? undefined : onCancel}
-        accessibilityRole="button"
-        accessibilityLabel={backdropAriaLabel}
-      >
-        <Pressable style={styles.panelWrap} onPress={(event) => event.stopPropagation()}>
+      {/*
+        Backdrop and panel are siblings — nesting Pressable(button) around Cancel/Confirm
+        renders invalid nested <button> on React Native Web.
+      */}
+      <View style={styles.backdrop} accessibilityViewIsModal>
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={pending ? undefined : onCancel}
+          accessibilityRole="button"
+          accessibilityLabel={backdropAriaLabel}
+        />
+        <View style={styles.panelWrap} pointerEvents="box-none">
           <View
             style={[
               styles.panel,
@@ -139,8 +144,8 @@ export function OmmConfirmDialog({
               </View>
             </View>
           </View>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -158,6 +163,7 @@ const styles = StyleSheet.create({
     maxWidth: tokens.panelMaxWidth,
     maxHeight: "90%",
     alignSelf: "center",
+    zIndex: 1,
   },
   panel: {
     borderRadius: tokens.panelRadius,
