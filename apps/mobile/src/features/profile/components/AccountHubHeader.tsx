@@ -15,30 +15,11 @@ type AccountHubHeaderProps = {
   initials?: string;
 };
 
-function splitDisplayName(displayName: string): {
-  givenName: string;
-  surname: string | null;
-} {
-  const trimmed = displayName.trim();
-  const spaceIndex = trimmed.indexOf(" ");
-  if (spaceIndex <= 0) {
-    return { givenName: trimmed, surname: null };
-  }
-  const givenName = trimmed.slice(0, spaceIndex).trim();
-  const surname = trimmed.slice(spaceIndex + 1).trim();
-  return {
-    givenName: givenName.length > 0 ? givenName : trimmed,
-    surname: surname.length > 0 ? surname : null,
-  };
-}
-
 export function AccountHubHeader({
   displayName,
   avatarImageUri,
   initials,
 }: AccountHubHeaderProps) {
-  const { givenName, surname } = splitDisplayName(displayName);
-
   return (
     <View style={accountHubLayout.header}>
       <LinearGradient
@@ -68,15 +49,8 @@ export function AccountHubHeader({
         </View>
       </LinearGradient>
       <View style={accountHubLayout.textBlock}>
-        <Text
-          style={accountHubLayout.name}
-          numberOfLines={2}
-          accessibilityLabel={displayName}
-        >
-          {givenName}
-          {surname !== null ? (
-            <Text style={accountHubLayout.nameSurname}>{` ${surname}`}</Text>
-          ) : null}
+        <Text style={accountHubLayout.name} numberOfLines={2}>
+          {displayName}
         </Text>
       </View>
     </View>

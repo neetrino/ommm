@@ -1676,6 +1676,7 @@
       "filterInstructorAria": "Filter by instructor",
       "filterClassTypeAll": "All class types",
       "filterInstructorAll": "All instructors",
+      "filterSelectedCount": "{count} selected",
       "fullCalendar": "Full Calendar",
       "studioBrand": "Ommm",
       "bookCta": "Book",

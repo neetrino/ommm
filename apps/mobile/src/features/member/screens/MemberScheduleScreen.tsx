@@ -37,8 +37,6 @@ import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
 import { colors } from "../../../theme/tokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 
-const FILTER_ALL = "all";
-
 function sessionRange(): { from: Date; to: Date } {
   const from = new Date();
   from.setHours(0, 0, 0, 0);
@@ -47,14 +45,15 @@ function sessionRange(): { from: Date; to: Date } {
   return { from, to };
 }
 
-function buildFilterOptions(
-  values: readonly string[],
-  allLabel: string,
-): ScheduleFilterOption[] {
-  return [
-    { value: FILTER_ALL, label: allLabel },
-    ...values.map((value) => ({ value, label: value })),
-  ];
+function buildFilterOptions(values: readonly string[]): ScheduleFilterOption[] {
+  return values.map((value) => ({ value, label: value }));
+}
+
+function matchesSelectedFilter(
+  selected: readonly string[],
+  value: string,
+): boolean {
+  return selected.length === 0 || selected.includes(value);
 }
 
 function isSessionFull(session: ClassSessionRow): boolean {
@@ -72,8 +71,8 @@ export function MemberScheduleScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookingSessionId, setBookingSessionId] = useState<string | null>(null);
-  const [classType, setClassType] = useState(FILTER_ALL);
-  const [instructor, setInstructor] = useState(FILTER_ALL);
+  const [classTypes, setClassTypes] = useState<string[]>([]);
+  const [instructors, setInstructors] = useState<string[]>([]);
   const [nav, setNav] = useState<ScheduleNavState>(() =>
     buildScheduleInitialNav(startOfLocalDay(new Date())),
   );
@@ -109,9 +108,8 @@ export function MemberScheduleScreen() {
         Array.from(new Set(sessions.map((s) => s.classType.name.trim()))).filter(
           (name) => name.length > 0,
         ),
-        scheduleCopy.filterClassTypeAll,
       ),
-    [scheduleCopy.filterClassTypeAll, sessions],
+    [sessions],
   );
 
   const instructorOptions = useMemo(
@@ -124,26 +122,27 @@ export function MemberScheduleScreen() {
               .filter((name) => name.length > 0),
           ),
         ),
-        scheduleCopy.filterInstructorAll,
       ),
-    [scheduleCopy.filterInstructorAll, sessions],
+    [sessions],
   );
 
   const visibleSessions = useMemo(() => {
     return sessions
       .filter((session) => isSameCalendarDay(new Date(session.startsAt), nav.selectedDate))
-      .filter((session) => classType === FILTER_ALL || session.classType.name === classType)
-      .filter((session) => {
-        if (instructor === FILTER_ALL) {
-          return true;
-        }
-        return (session.coach.user.name?.trim() ?? "") === instructor;
-      })
+      .filter((session) =>
+        matchesSelectedFilter(classTypes, session.classType.name.trim()),
+      )
+      .filter((session) =>
+        matchesSelectedFilter(
+          instructors,
+          session.coach.user.name?.trim() ?? "",
+        ),
+      )
       .sort(
         (a, b) =>
           new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
       );
-  }, [sessions, nav.selectedDate, classType, instructor]);
+  }, [sessions, nav.selectedDate, classTypes, instructors]);
 
   const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
   const {
@@ -214,12 +213,12 @@ export function MemberScheduleScreen() {
 
         <ScheduleViewShell>
           <ScheduleFiltersHeader
-            classType={classType}
-            instructor={instructor}
+            classTypes={classTypes}
+            instructors={instructors}
             classTypeOptions={classTypeOptions}
             instructorOptions={instructorOptions}
-            onClassTypeChange={setClassType}
-            onInstructorChange={setInstructor}
+            onClassTypesChange={setClassTypes}
+            onInstructorsChange={setInstructors}
           />
 
           <ScheduleDateControls

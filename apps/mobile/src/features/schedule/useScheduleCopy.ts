@@ -13,6 +13,8 @@ export function useScheduleCopy() {
       pageTitle: t("pageTitle"),
       filterClassTypeAll: t("filterClassTypeAll"),
       filterInstructorAll: t("filterInstructorAll"),
+      filterSelectedCount: (count: number) =>
+        t("filterSelectedCount", { count }),
       prevDatesAria: t("prevDatesAria"),
       nextDatesAria: t("nextDatesAria"),
       emptyTitle: t("emptyTitle"),

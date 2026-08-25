@@ -1684,6 +1684,7 @@
       "filterInstructorAria": "Фильтр по инструктору",
       "filterClassTypeAll": "Все типы",
       "filterInstructorAll": "Все инструкторы",
+      "filterSelectedCount": "Выбрано: {count}",
       "fullCalendar": "Полный календарь",
       "studioBrand": "Ommm",
       "bookCta": "Записаться",

@@ -90,13 +90,6 @@ export const accountHubLayout = StyleSheet.create({
     letterSpacing: HUB_NAME_LETTER_SPACING,
     color: colors.primaryGreen,
   },
-  nameSurname: {
-    fontFamily: fontFamilies.gtSuperDs.lightItalic,
-    fontSize: HUB_NAME_SIZE,
-    lineHeight: HUB_NAME_LINE_HEIGHT,
-    letterSpacing: HUB_NAME_LETTER_SPACING,
-    color: colors.primaryGreen,
-  },
   menuCard: {
     overflow: "hidden",
   },

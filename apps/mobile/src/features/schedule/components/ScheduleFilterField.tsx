@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -18,20 +18,62 @@ export type ScheduleFilterOption = {
 };
 
 type ScheduleFilterFieldProps = {
-  value: string;
+  values: readonly string[];
   options: readonly ScheduleFilterOption[];
-  onChange: (value: string) => void;
+  allLabel: string;
+  selectedCountLabel: (count: number) => string;
+  onChange: (values: string[]) => void;
   accessibilityLabel: string;
 };
 
+const CHECKBOX_SIZE = 20;
+
+function buildValidSelection(
+  options: readonly ScheduleFilterOption[],
+  values: readonly string[],
+): string[] {
+  const valid = new Set(options.map((option) => option.value));
+  return values.filter((value) => valid.has(value));
+}
+
 export function ScheduleFilterField({
-  value,
+  values,
   options,
+  allLabel,
+  selectedCountLabel,
   onChange,
   accessibilityLabel,
 }: ScheduleFilterFieldProps) {
   const [open, setOpen] = useState(false);
-  const selected = options.find((option) => option.value === value);
+  const selected = useMemo(
+    () => buildValidSelection(options, values),
+    [options, values],
+  );
+  const isAllSelected = selected.length === 0;
+  const selectedOptions = useMemo(
+    () => options.filter((option) => selected.includes(option.value)),
+    [options, selected],
+  );
+
+  const triggerLabel = isAllSelected
+    ? allLabel
+    : selectedOptions.length === 1
+      ? (selectedOptions[0]?.label ?? allLabel)
+      : selectedCountLabel(selectedOptions.length);
+
+  function selectAll() {
+    onChange([]);
+  }
+
+  function toggleOption(value: string) {
+    const next = new Set(selected);
+    if (next.has(value)) {
+      next.delete(value);
+    } else {
+      next.add(value);
+    }
+    onChange([...next]);
+  }
 
   return (
     <>
@@ -40,14 +82,24 @@ export function ScheduleFilterField({
         style={({ pressed }) => [styles.trigger, pressed && styles.triggerPressed]}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
+        accessibilityState={{ expanded: open }}
       >
         <Text style={styles.label} numberOfLines={1}>
-          {selected?.label ?? value}
+          {triggerLabel}
         </Text>
-        <MaterialCommunityIcons name="chevron-down" size={20} color={scheduleColors.oliveActive} />
+        <MaterialCommunityIcons
+          name="chevron-down"
+          size={20}
+          color={scheduleColors.oliveActive}
+        />
       </Pressable>
 
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+      >
         <View style={styles.backdrop}>
           <Pressable
             style={StyleSheet.absoluteFill}
@@ -56,20 +108,40 @@ export function ScheduleFilterField({
           />
           <View style={styles.sheet}>
             <ScrollView keyboardShouldPersistTaps="handled">
+              <Pressable
+                onPress={selectAll}
+                style={[styles.option, isAllSelected && styles.optionActive]}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: isAllSelected }}
+              >
+                <FilterCheckbox checked={isAllSelected} />
+                <Text
+                  style={[
+                    styles.optionLabel,
+                    isAllSelected && styles.optionLabelActive,
+                  ]}
+                >
+                  {allLabel}
+                </Text>
+              </Pressable>
+
               {options.map((option) => {
-                const active = option.value === value;
+                const active = selected.includes(option.value);
                 return (
                   <Pressable
                     key={option.value}
-                    onPress={() => {
-                      onChange(option.value);
-                      setOpen(false);
-                    }}
+                    onPress={() => toggleOption(option.value)}
                     style={[styles.option, active && styles.optionActive]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: active }}
                   >
-                    <Text style={[styles.optionLabel, active && styles.optionLabelActive]}>
+                    <FilterCheckbox checked={active} />
+                    <Text
+                      style={[
+                        styles.optionLabel,
+                        active && styles.optionLabelActive,
+                      ]}
+                    >
                       {option.label}
                     </Text>
                   </Pressable>
@@ -80,6 +152,20 @@ export function ScheduleFilterField({
         </View>
       </Modal>
     </>
+  );
+}
+
+function FilterCheckbox({ checked }: { checked: boolean }) {
+  return (
+    <MaterialCommunityIcons
+      name={checked ? "checkbox-marked" : "checkbox-blank-outline"}
+      size={CHECKBOX_SIZE}
+      color={
+        checked ? scheduleColors.oliveActive : scheduleColors.filterBorder
+      }
+      accessibilityElementsHidden
+      importantForAccessibility="no"
+    />
   );
 }
 
@@ -128,6 +214,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   option: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
@@ -135,6 +224,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(151, 144, 124, 0.12)",
   },
   optionLabel: {
+    flex: 1,
     fontFamily: fontFamilies.manrope.regular,
     fontSize: 15,
     color: scheduleColors.body,
