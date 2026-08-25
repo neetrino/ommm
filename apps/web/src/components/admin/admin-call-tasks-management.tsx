@@ -22,6 +22,7 @@ import { useAdminCallTasksFilters } from "@/components/admin/use-admin-call-task
 import {
   buildCallTasksListEndpoint,
   CALL_TASK_SEARCH_QUERY_KEY,
+  CALL_TASKS_PAGE_TAKE,
   type CallTaskListPayload,
   type CallTaskRow,
 } from "@/components/admin/admin-call-tasks-query";
@@ -67,7 +68,10 @@ export function AdminCallTasksManagement({
   } = useAdminCallTasksFilters();
 
   const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    () =>
+      parseListPageParams(Object.fromEntries(searchParams.entries()), {
+        defaultPageSize: CALL_TASKS_PAGE_TAKE,
+      }),
     [searchParams],
   );
   const urlQuery = searchParams.get(CALL_TASK_SEARCH_QUERY_KEY)?.trim() ?? "";

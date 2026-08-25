@@ -52,6 +52,9 @@ export type SessionReviewsAudience = "member" | "staff" | "coach";
 
 export const SESSION_REVIEW_HEADER_PREVIEW = 5;
 
+/** Staff/coach reviews inbox page size (admin + manager). */
+export const SESSION_REVIEW_INBOX_PAGE_TAKE = 15;
+
 export type SessionReviewsListPayload<T> = {
   items: T[];
   total: number;

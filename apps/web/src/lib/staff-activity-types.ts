@@ -19,4 +19,4 @@ export type StaffActivityListPayload = {
 };
 
 export const STAFF_ACTIVITY_HEADER_TAKE = 5;
-export const STAFF_ACTIVITY_PAGE_TAKE = 25;
+export const STAFF_ACTIVITY_PAGE_TAKE = 15;

@@ -55,15 +55,13 @@ export function AdminCallTasksListBody({
           />
         ))}
       </div>
-      {total > listPage.pageSize ? (
-        <OmmListPagination
-          total={total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={offset}
-          onPageChange={onPageChange}
-        />
-      ) : null}
+      <OmmListPagination
+        total={total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={offset}
+        onPageChange={onPageChange}
+      />
     </>
   );
 }

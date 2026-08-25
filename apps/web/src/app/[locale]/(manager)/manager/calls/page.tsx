@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminCallTasksManagement } from "@/components/admin/admin-call-tasks-management";
 import {
   buildCallTasksListEndpoint,
+  CALL_TASKS_PAGE_TAKE,
   firstQueryValue,
   parseCallTaskListStatus,
   type CallTaskListPayload,
@@ -23,7 +24,9 @@ export default async function ManagerCallsPage({
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.calls" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const listPage = parseListPageParams(search);
+  const listPage = parseListPageParams(search, {
+    defaultPageSize: CALL_TASKS_PAGE_TAKE,
+  });
   const status = parseCallTaskListStatus(firstQueryValue(search.status));
   const q = firstQueryValue(search.q) ?? "";
   const endpoint = buildCallTasksListEndpoint({

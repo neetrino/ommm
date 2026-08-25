@@ -24,6 +24,7 @@ import type {
   SessionReviewsListPayload,
   StaffInboxReview,
 } from "@/lib/session-reviews-types";
+import { SESSION_REVIEW_INBOX_PAGE_TAKE } from "@/lib/session-reviews-types";
 
 type SessionReviewsInboxSectionProps = {
   endpoint: "/session-reviews/inbox" | "/session-reviews/coach";
@@ -40,7 +41,10 @@ export function SessionReviewsInboxSection({
   const showCoachFilter = endpoint === "/session-reviews/inbox";
   const isStaffInbox = endpoint === "/session-reviews/inbox";
   const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    () =>
+      parseListPageParams(Object.fromEntries(searchParams.entries()), {
+        defaultPageSize: SESSION_REVIEW_INBOX_PAGE_TAKE,
+      }),
     [searchParams],
   );
   const filterOptions = useSessionReviewsFilterOptions();
@@ -192,20 +196,18 @@ export function SessionReviewsInboxSection({
           />
         ))}
       </div>
-      {total > listPage.pageSize ? (
-        <OmmListPagination
-          total={total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={listPage.offset}
-          onPageChange={(page) => {
-            const params = new URLSearchParams(searchParams.toString());
-            syncListPageQuery(params, page, listPage.pageSize);
-            const query = params.toString();
-            router.replace(query.length > 0 ? `?${query}` : "?");
-          }}
-        />
-      ) : null}
+      <OmmListPagination
+        total={total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={listPage.offset}
+        onPageChange={(page) => {
+          const params = new URLSearchParams(searchParams.toString());
+          syncListPageQuery(params, page, listPage.pageSize);
+          const query = params.toString();
+          router.replace(query.length > 0 ? `?${query}` : "?");
+        }}
+      />
       {selected ? (
         <SessionReviewDetailsModal
           row={selected}

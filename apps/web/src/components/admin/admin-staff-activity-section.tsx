@@ -173,20 +173,18 @@ export function AdminStaffActivitySection() {
           ))}
         </div>
       ) : null}
-      {total > listPage.pageSize ? (
-        <OmmListPagination
-          total={total}
-          page={listPage.page}
-          pageSize={listPage.pageSize}
-          offset={listPage.offset}
-          onPageChange={(page) => {
-            const params = new URLSearchParams(searchParams.toString());
-            syncListPageQuery(params, page, listPage.pageSize);
-            const query = params.toString();
-            router.replace(query.length > 0 ? `?${query}` : "?");
-          }}
-        />
-      ) : null}
+      <OmmListPagination
+        total={total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={listPage.offset}
+        onPageChange={(page) => {
+          const params = new URLSearchParams(searchParams.toString());
+          syncListPageQuery(params, page, listPage.pageSize);
+          const query = params.toString();
+          router.replace(query.length > 0 ? `?${query}` : "?");
+        }}
+      />
       {selected ? (
         <AdminStaffActivityDetailsModal
           row={selected}
