@@ -12,13 +12,9 @@ import {
 } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { staffActivityActionToneClass } from "@/components/admin/admin-staff-activity-type-copy";
-import { MarkAllAsReadButton } from "@/components/shell/mark-all-as-read-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
-import {
-  markStaffActivityRead,
-  useStaffActivityHeaderInbox,
-} from "@/hooks/use-staff-activity-inbox";
+import { useStaffActivityHeaderInbox } from "@/hooks/use-staff-activity-inbox";
 import { Link } from "@/i18n/navigation";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatTimeForUi } from "@/lib/format-time-display";
@@ -145,10 +141,6 @@ export function HeaderStaffActivityMenu({
                 items={items}
                 loading={loading}
                 error={error}
-                unreadCount={unreadCount}
-                onMarkAllRead={() => {
-                  void markStaffActivityRead().then(() => refetch());
-                }}
                 onNavigate={() => {
                   onNavigate?.();
                   closeMenu();
@@ -183,16 +175,12 @@ function StaffActivityMenuPanel({
   items,
   loading,
   error,
-  unreadCount,
-  onMarkAllRead,
   onNavigate,
 }: {
   viewAllHref: string;
   items: readonly StaffActivityRow[];
   loading: boolean;
   error: boolean;
-  unreadCount: number;
-  onMarkAllRead: () => void;
   onNavigate: () => void;
 }) {
   const t = useTranslations("headerStaffActivity");
@@ -200,18 +188,13 @@ function StaffActivityMenuPanel({
     <>
       <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
         <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          {unreadCount > 0 ? (
-            <MarkAllAsReadButton label={t("markAllRead")} onClick={onMarkAllRead} />
-          ) : null}
-          <Link
-            href={viewAllHref}
-            className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
-            onClick={onNavigate}
-          >
-            {t("viewAll")}
-          </Link>
-        </div>
+        <Link
+          href={viewAllHref}
+          className="shrink-0 text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
+          onClick={onNavigate}
+        >
+          {t("viewAll")}
+        </Link>
       </div>
       <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>
         {loading ? (

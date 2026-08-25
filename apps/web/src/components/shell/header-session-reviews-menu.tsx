@@ -23,7 +23,6 @@ import {
   CoachReviewMenuPanel,
   MemberReviewMenuPanel,
   StaffReviewMenuPanel,
-  markStaffReviewsRead,
 } from "@/components/shell/header-session-reviews-panels";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
@@ -173,10 +172,6 @@ export function HeaderSessionReviewsMenu({
                   loading={staff.loading}
                   error={staff.error}
                   viewAllHref={viewAllHref}
-                  unreadCount={staff.unreadCount}
-                  onMarkAllRead={() => {
-                    void markStaffReviewsRead().then(() => staff.refetch());
-                  }}
                   onNavigate={() => {
                     onNavigate?.();
                     closeMenu();

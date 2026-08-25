@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
-import { MarkAllAsReadButton } from "@/components/shell/mark-all-as-read-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useHeaderNotificationsSeen } from "@/hooks/use-header-notifications-seen";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
@@ -270,20 +269,12 @@ export function HeaderNotificationsMenu({
               zIndex: OMMM_FLOATING_MENU_Z_INDEX,
             }}
           >
-            <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
-                {unreadCount > 0 ? (
-                  <p className="mt-0.5 text-xs text-sage-600">
-                    {t("unreadCount", { count: unreadCount })}
-                  </p>
-                ) : null}
-              </div>
+            <div className="border-b border-white/60 px-4 py-3">
+              <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
               {unreadCount > 0 ? (
-                <MarkAllAsReadButton
-                  label={t("markAllRead")}
-                  onClick={() => markAllSeen(offerIds)}
-                />
+                <p className="mt-0.5 text-xs text-sage-600">
+                  {t("unreadCount", { count: unreadCount })}
+                </p>
               ) : null}
             </div>
             <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>

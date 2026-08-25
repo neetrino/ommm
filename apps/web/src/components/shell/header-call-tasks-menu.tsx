@@ -12,7 +12,6 @@ import {
   type RefObject,
 } from "react";
 import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
-import { MarkAllAsReadButton } from "@/components/shell/mark-all-as-read-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useCallTasksDue } from "@/hooks/use-call-tasks-due";
@@ -144,23 +143,6 @@ export function HeaderCallTasksMenu({
                 items={items}
                 loading={loading}
                 error={error}
-                pendingCount={pendingCount}
-                onMarkAllRead={() => {
-                  void (async () => {
-                    try {
-                      await apiFetch("/call-tasks/mark-badge-read", {
-                        method: "POST",
-                      });
-                    } catch (error) {
-                      if (!(error instanceof ApiError)) {
-                        return;
-                      }
-                    } finally {
-                      dispatchCallTasksRefresh();
-                      await refetch();
-                    }
-                  })();
-                }}
                 onNavigate={() => {
                   onNavigate?.();
                   closeMenu();
@@ -200,16 +182,12 @@ function CallTaskMenuPanel({
   items,
   loading,
   error,
-  pendingCount,
-  onMarkAllRead,
   onNavigate,
 }: {
   listHref: string;
   items: readonly CallTaskRow[];
   loading: boolean;
   error: boolean;
-  pendingCount: number;
-  onMarkAllRead: () => void;
   onNavigate: () => void;
 }) {
   const t = useTranslations("headerCallTasks");
@@ -217,18 +195,13 @@ function CallTaskMenuPanel({
     <>
       <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
         <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          {pendingCount > 0 ? (
-            <MarkAllAsReadButton label={t("markAllRead")} onClick={onMarkAllRead} />
-          ) : null}
-          <Link
-            href={listHref}
-            className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
-            onClick={onNavigate}
-          >
-            {t("openList")}
-          </Link>
-        </div>
+        <Link
+          href={listHref}
+          className="shrink-0 text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
+          onClick={onNavigate}
+        >
+          {t("openList")}
+        </Link>
       </div>
       <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>
         {loading ? (
