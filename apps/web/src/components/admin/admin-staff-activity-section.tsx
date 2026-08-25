@@ -36,16 +36,17 @@ export function AdminStaffActivitySection() {
   );
   const urlQuery = searchParams.get("q")?.trim() ?? "";
   const [searchDraft, setSearchDraft] = useState(urlQuery);
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery);
+  if (urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery);
+    setSearchDraft(urlQuery);
+  }
   const [payload, setPayload] = useState<StaffActivityListPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<StaffActivityRow | null>(null);
   const [markingRead, setMarkingRead] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
-
-  useEffect(() => {
-    setSearchDraft(urlQuery);
-  }, [urlQuery]);
 
   useEffect(() => {
     if (searchDraft === urlQuery) {
