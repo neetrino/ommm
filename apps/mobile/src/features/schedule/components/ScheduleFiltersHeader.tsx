@@ -30,6 +30,7 @@ export function ScheduleFiltersHeader({
         values={classTypes}
         options={classTypeOptions}
         allLabel={scheduleCopy.filterClassTypeAll}
+        applyLabel={scheduleCopy.filterApply}
         selectedCountLabel={scheduleCopy.filterSelectedCount}
         onChange={onClassTypesChange}
         accessibilityLabel={scheduleCopy.filterClassTypeAll}
@@ -38,6 +39,7 @@ export function ScheduleFiltersHeader({
         values={instructors}
         options={instructorOptions}
         allLabel={scheduleCopy.filterInstructorAll}
+        applyLabel={scheduleCopy.filterApply}
         selectedCountLabel={scheduleCopy.filterSelectedCount}
         onChange={onInstructorsChange}
         accessibilityLabel={scheduleCopy.filterInstructorAll}

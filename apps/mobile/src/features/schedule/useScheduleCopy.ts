@@ -15,6 +15,7 @@ export function useScheduleCopy() {
       filterInstructorAll: t("filterInstructorAll"),
       filterSelectedCount: (count: number) =>
         t("filterSelectedCount", { count }),
+      filterApply: t("filterApply"),
       prevDatesAria: t("prevDatesAria"),
       nextDatesAria: t("nextDatesAria"),
       emptyTitle: t("emptyTitle"),

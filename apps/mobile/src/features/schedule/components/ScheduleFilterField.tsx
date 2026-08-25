@@ -21,6 +21,7 @@ type ScheduleFilterFieldProps = {
   values: readonly string[];
   options: readonly ScheduleFilterOption[];
   allLabel: string;
+  applyLabel: string;
   selectedCountLabel: (count: number) => string;
   onChange: (values: string[]) => void;
   accessibilityLabel: string;
@@ -40,45 +41,69 @@ export function ScheduleFilterField({
   values,
   options,
   allLabel,
+  applyLabel,
   selectedCountLabel,
   onChange,
   accessibilityLabel,
 }: ScheduleFilterFieldProps) {
   const [open, setOpen] = useState(false);
-  const selected = useMemo(
+  const [draft, setDraft] = useState<string[]>([]);
+
+  const committed = useMemo(
     () => buildValidSelection(options, values),
     [options, values],
   );
-  const isAllSelected = selected.length === 0;
-  const selectedOptions = useMemo(
-    () => options.filter((option) => selected.includes(option.value)),
-    [options, selected],
+  const draftSelected = useMemo(
+    () => buildValidSelection(options, draft),
+    [draft, options],
+  );
+  const isAllSelected = draftSelected.length === 0;
+  const committedOptions = useMemo(
+    () => options.filter((option) => committed.includes(option.value)),
+    [committed, options],
   );
 
-  const triggerLabel = isAllSelected
-    ? allLabel
-    : selectedOptions.length === 1
-      ? (selectedOptions[0]?.label ?? allLabel)
-      : selectedCountLabel(selectedOptions.length);
+  const triggerLabel =
+    committed.length === 0
+      ? allLabel
+      : committedOptions.length === 1
+        ? (committedOptions[0]?.label ?? allLabel)
+        : selectedCountLabel(committedOptions.length);
+
+  function openSheet() {
+    setDraft(buildValidSelection(options, values));
+    setOpen(true);
+  }
+
+  function closeSheet() {
+    setOpen(false);
+  }
+
+  function applyAndClose() {
+    onChange(buildValidSelection(options, draft));
+    setOpen(false);
+  }
 
   function selectAll() {
-    onChange([]);
+    setDraft([]);
   }
 
   function toggleOption(value: string) {
-    const next = new Set(selected);
-    if (next.has(value)) {
-      next.delete(value);
-    } else {
-      next.add(value);
-    }
-    onChange([...next]);
+    setDraft((prev) => {
+      const next = new Set(buildValidSelection(options, prev));
+      if (next.has(value)) {
+        next.delete(value);
+      } else {
+        next.add(value);
+      }
+      return [...next];
+    });
   }
 
   return (
     <>
       <Pressable
-        onPress={() => setOpen(true)}
+        onPress={openSheet}
         style={({ pressed }) => [styles.trigger, pressed && styles.triggerPressed]}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
@@ -98,16 +123,19 @@ export function ScheduleFilterField({
         visible={open}
         transparent
         animationType="fade"
-        onRequestClose={() => setOpen(false)}
+        onRequestClose={closeSheet}
       >
         <View style={styles.backdrop}>
           <Pressable
             style={StyleSheet.absoluteFill}
-            onPress={() => setOpen(false)}
+            onPress={closeSheet}
             accessibilityRole="button"
           />
           <View style={styles.sheet}>
-            <ScrollView keyboardShouldPersistTaps="handled">
+            <ScrollView
+              style={styles.optionsScroll}
+              keyboardShouldPersistTaps="handled"
+            >
               <Pressable
                 onPress={selectAll}
                 style={[styles.option, isAllSelected && styles.optionActive]}
@@ -126,7 +154,7 @@ export function ScheduleFilterField({
               </Pressable>
 
               {options.map((option) => {
-                const active = selected.includes(option.value);
+                const active = draftSelected.includes(option.value);
                 return (
                   <Pressable
                     key={option.value}
@@ -148,6 +176,20 @@ export function ScheduleFilterField({
                 );
               })}
             </ScrollView>
+
+            <View style={styles.footer}>
+              <Pressable
+                onPress={applyAndClose}
+                style={({ pressed }) => [
+                  styles.applyButton,
+                  pressed && styles.applyButtonPressed,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={applyLabel}
+              >
+                <Text style={styles.applyLabel}>{applyLabel}</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       </Modal>
@@ -211,7 +253,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     backgroundColor: "#ffffff",
-    paddingVertical: 8,
+    paddingTop: 8,
+    overflow: "hidden",
+  },
+  optionsScroll: {
+    flexGrow: 0,
   },
   option: {
     flexDirection: "row",
@@ -232,5 +278,36 @@ const styles = StyleSheet.create({
   optionLabelActive: {
     fontFamily: fontFamilies.manrope.semiBold,
     color: scheduleColors.oliveActive,
+  },
+  footer: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "rgba(151, 144, 124, 0.28)",
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 20,
+  },
+  applyButton: {
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 9999,
+    backgroundColor: scheduleColors.olive,
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 8,
+      opacity: 0.16,
+      radius: 14,
+      elevation: 3,
+    }),
+  },
+  applyButtonPressed: {
+    opacity: 0.9,
+  },
+  applyLabel: {
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 14,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    color: scheduleColors.canvasText,
   },
 });
