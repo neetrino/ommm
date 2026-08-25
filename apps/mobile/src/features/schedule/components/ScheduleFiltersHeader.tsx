@@ -6,36 +6,42 @@ import {
 } from "./ScheduleFilterField";
 
 type ScheduleFiltersHeaderProps = {
-  classType: string;
-  instructor: string;
+  classTypes: readonly string[];
+  instructors: readonly string[];
   classTypeOptions: readonly ScheduleFilterOption[];
   instructorOptions: readonly ScheduleFilterOption[];
-  onClassTypeChange: (value: string) => void;
-  onInstructorChange: (value: string) => void;
+  onClassTypesChange: (values: string[]) => void;
+  onInstructorsChange: (values: string[]) => void;
 };
 
 export function ScheduleFiltersHeader({
-  classType,
-  instructor,
+  classTypes,
+  instructors,
   classTypeOptions,
   instructorOptions,
-  onClassTypeChange,
-  onInstructorChange,
+  onClassTypesChange,
+  onInstructorsChange,
 }: ScheduleFiltersHeaderProps) {
   const scheduleCopy = useScheduleCopy();
 
   return (
     <View style={styles.grid}>
       <ScheduleFilterField
-        value={classType}
+        values={classTypes}
         options={classTypeOptions}
-        onChange={onClassTypeChange}
+        allLabel={scheduleCopy.filterClassTypeAll}
+        applyLabel={scheduleCopy.filterApply}
+        selectedCountLabel={scheduleCopy.filterSelectedCount}
+        onChange={onClassTypesChange}
         accessibilityLabel={scheduleCopy.filterClassTypeAll}
       />
       <ScheduleFilterField
-        value={instructor}
+        values={instructors}
         options={instructorOptions}
-        onChange={onInstructorChange}
+        allLabel={scheduleCopy.filterInstructorAll}
+        applyLabel={scheduleCopy.filterApply}
+        selectedCountLabel={scheduleCopy.filterSelectedCount}
+        onChange={onInstructorsChange}
         accessibilityLabel={scheduleCopy.filterInstructorAll}
       />
     </View>

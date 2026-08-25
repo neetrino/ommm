@@ -22,8 +22,8 @@ function pathForRole(role: AccountHubRole, segment: string): string {
 export function useAccountHubMenuItems(
   role: AccountHubRole = "USER",
 ): AccountHubMenuItem[] {
-  const tHub = useTranslations("userPages.accountHub");
   const tProfile = useTranslations("userPages.profile");
+  const tNav = useTranslations("dashboard.nav");
 
   return useMemo(
     () => [
@@ -33,13 +33,23 @@ export function useAccountHubMenuItems(
         href: pathForRole(role, "profile/personal"),
         icon: "account-outline",
       },
-      {
-        key: "password",
-        label: tHub("changePassword"),
-        href: pathForRole(role, "profile/change-password"),
-        icon: "lock-outline",
-      },
+      ...(role === "USER"
+        ? [
+            {
+              key: "payments",
+              label: tNav("USER.payments"),
+              href: userMemberPath("payments"),
+              icon: "wallet-outline" as const,
+            },
+            {
+              key: "giftCards",
+              label: tNav("USER.giftCards"),
+              href: userMemberPath("gift-cards"),
+              icon: "gift-outline" as const,
+            },
+          ]
+        : []),
     ],
-    [role, tHub, tProfile],
+    [role, tNav, tProfile],
   );
 }

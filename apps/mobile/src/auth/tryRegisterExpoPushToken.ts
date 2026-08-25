@@ -1,4 +1,4 @@
-import Constants from "expo-constants";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import { Platform } from "react-native";
 import { registerPushDevice } from "../lib/api/memberClient";
 
@@ -14,12 +14,16 @@ function resolvePlatform(): "ios" | "android" | "web" {
 
 /**
  * Requests notification permission, reads the Expo push token, and registers it with the API.
- * No-ops on web (avoids loading `expo-notifications` listeners in the browser).
+ * No-ops on web and in Expo Go (SDK 53+ removed remote push from Expo Go; needs a dev build).
  */
 export async function tryRegisterExpoPushToken(
   accessToken: string,
 ): Promise<boolean> {
   if (Platform.OS === "web") {
+    return false;
+  }
+  // Avoid loading `expo-notifications` in Expo Go — it only warns and cannot deliver remotes.
+  if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) {
     return false;
   }
 

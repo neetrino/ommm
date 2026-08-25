@@ -161,7 +161,10 @@
   border-radius: clamp(1.25rem, 2.5vw, 1.5rem);
   border: 1px solid rgb(255 255 255 / 0.7);
   background: rgb(255 255 255 / 0.42);
-  padding: clamp(0.875rem, 2vw, 1.25rem) clamp(0.5rem, 1.5vw, 1rem);
+  /* Extra top padding so today’s lifted chip is not clipped. */
+  padding: calc(clamp(0.875rem, 2vw, 1.25rem) + 0.5rem) clamp(0.5rem, 1.5vw, 1rem)
+    clamp(0.875rem, 2vw, 1.25rem);
+  overflow: visible;
   box-shadow:
     0 16px 36px -28px rgb(45 40 35 / 0.22),
     inset 0 1px 0 rgb(255 255 255 / 0.85);
@@ -300,6 +303,7 @@
   border-color: #97907c;
   background: #97907c;
   color: #fbf5d5;
+  transform: translateY(-0.5rem);
   box-shadow:
     0 10px 22px -14px rgb(45 40 35 / 0.35),
     inset 0 1px 0 rgb(255 255 255 / 0.18);

@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useRouter } from "expo-router";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import {
   fetchPublicPackages,
@@ -14,19 +15,24 @@ import {
   normalizeUserPackageStatus,
   type UserMembershipRow,
 } from "../../../lib/packages/userMembership";
-import { isArcaCheckoutEnabled, openArcaRedirectUrl } from "../../../lib/payments/arcaCheckout";
+import { isArcaCheckoutEnabled, openArcaRedirectUrl, startArcaCardCheckout } from "../../../lib/payments/arcaCheckout";
+import { buildPaymentOutcomeHref } from "../../../lib/payments/paymentResultPaths";
 
 export type PackagesScreenMode = "mine" | "catalog";
 
 type UseMemberPackagesScreenStateParams = {
   isSignedIn: boolean;
+  mode: PackagesScreenMode;
 };
 
-export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesScreenStateParams) {
+export function useMemberPackagesScreenState({
+  isSignedIn,
+  mode,
+}: UseMemberPackagesScreenStateParams) {
+  const router = useRouter();
   const packagesCopy = usePackagesCopy();
   const checkoutLocale = useLocale();
   const tMarketing = useTranslations("marketing");
-  const [mode, setMode] = useState<PackagesScreenMode>(isSignedIn ? "mine" : "catalog");
   const [memberships, setMemberships] = useState<UserMembershipRow[]>([]);
   const [categories, setCategories] = useState<PackagesPageAccordionCategory[]>([]);
   const [catalogPlans, setCatalogPlans] = useState<PublicPackagePlan[]>([]);
@@ -91,16 +97,6 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     await loadForMode(mode);
   }, [loadForMode, mode]);
 
-  const openCatalog = useCallback(() => {
-    setMode("catalog");
-    void loadForMode("catalog");
-  }, [loadForMode]);
-
-  const openMine = useCallback(() => {
-    setMode("mine");
-    void loadForMode("mine");
-  }, [loadForMode]);
-
   const openSubscribe = useCallback((planId: string) => {
     setSubscribePlanId(planId);
     setSubscribeError(null);
@@ -114,44 +110,87 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     setSubscribeError(null);
   }, [subscribeBusy]);
 
-  const confirmSubscribe = useCallback(async (): Promise<boolean> => {
-    if (subscribePlanId === null) {
-      return false;
-    }
-    const token = await readStoredAccessToken();
-    if (token === null) {
-      setSubscribeError(packagesCopy.subscribeFailed);
-      return false;
-    }
-    setSubscribeBusy(true);
-    setSubscribeError(null);
-    try {
-      const result = await subscribeToPackage(token, {
-        planId: subscribePlanId,
-        paymentMethod: "CARD",
-        locale: checkoutLocale,
-      });
-      setSubscribePlanId(null);
-      setMode("mine");
-      await loadForMode("mine");
-      if (
-        isArcaCheckoutEnabled() &&
-        typeof result.redirectUrl === "string" &&
-        result.redirectUrl.length > 0
-      ) {
-        await openArcaRedirectUrl(result.redirectUrl);
-        return true;
+  const confirmSubscribe = useCallback(
+    async (options?: {
+      useGiftCredits?: boolean;
+    }): Promise<"redirected" | "completed" | "failed"> => {
+      if (subscribePlanId === null) {
+        return "failed";
       }
-      return true;
-    } catch (e) {
-      setSubscribeError(
-        e instanceof Error ? e.message : packagesCopy.subscribeFailed,
-      );
-      return false;
-    } finally {
-      setSubscribeBusy(false);
-    }
-  }, [checkoutLocale, loadForMode, packagesCopy.subscribeFailed, subscribePlanId]);
+      const token = await readStoredAccessToken();
+      if (token === null) {
+        setSubscribeError(packagesCopy.subscribeFailed);
+        return "failed";
+      }
+      setSubscribeBusy(true);
+      setSubscribeError(null);
+      try {
+        const result = await subscribeToPackage(token, {
+          planId: subscribePlanId,
+          paymentMethod: "CARD",
+          locale: checkoutLocale,
+          useGiftCredits: options?.useGiftCredits === true,
+        });
+
+        const redirectUrl =
+          typeof result.redirectUrl === "string" && result.redirectUrl.length > 0
+            ? result.redirectUrl
+            : null;
+        const paymentReference =
+          typeof result.paymentReference === "string" &&
+          result.paymentReference.length > 0
+            ? result.paymentReference
+            : null;
+        const needsBankCheckout =
+          result.requiresArcaCheckout === true ||
+          redirectUrl !== null ||
+          (isArcaCheckoutEnabled() && paymentReference !== null);
+
+        if (needsBankCheckout) {
+          if (redirectUrl !== null) {
+            setSubscribePlanId(null);
+            await openArcaRedirectUrl(redirectUrl);
+            return "redirected";
+          }
+          if (paymentReference !== null) {
+            setSubscribePlanId(null);
+            await startArcaCardCheckout(
+              token,
+              paymentReference,
+              checkoutLocale,
+            );
+            return "redirected";
+          }
+          setSubscribeError(packagesCopy.subscribeFailed);
+          return "failed";
+        }
+
+        setSubscribePlanId(null);
+        await loadForMode("mine");
+        router.push(
+          buildPaymentOutcomeHref("success", {
+            reference: paymentReference,
+            source: "package",
+          }),
+        );
+        return "completed";
+      } catch (e) {
+        setSubscribeError(
+          e instanceof Error ? e.message : packagesCopy.subscribeFailed,
+        );
+        return "failed";
+      } finally {
+        setSubscribeBusy(false);
+      }
+    },
+    [
+      checkoutLocale,
+      loadForMode,
+      packagesCopy.subscribeFailed,
+      router,
+      subscribePlanId,
+    ],
+  );
 
   const selectedSubscribePlan =
     subscribePlanId === null
@@ -169,8 +208,6 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     subscribeError,
     selectedSubscribePlan,
     load,
-    openCatalog,
-    openMine,
     openSubscribe,
     closeSubscribe,
     confirmSubscribe,

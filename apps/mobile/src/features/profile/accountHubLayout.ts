@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { platformShadow } from "../../theme/platformShadow";
-import { colors, space, typography } from "../../theme/tokens";
+import { colors, space } from "../../theme/tokens";
 import {
   MEMBER_PROFILE_AVATAR_FILL,
   MEMBER_PROFILE_AVATAR_INITIALS_COLOR,
@@ -19,7 +19,9 @@ const HUB_ROW_BORDER = "rgba(255,255,255,0.7)";
 const HUB_DANGER_BORDER = "rgba(245,245,244,0.8)";
 const HUB_DANGER_TEXT = "#7f1d1d";
 const HUB_DANGER_CHEVRON = "rgba(185, 28, 28, 0.75)";
-const HUB_EMAIL = "rgba(107,114,110,0.8)";
+const HUB_NAME_SIZE = 26;
+const HUB_NAME_LINE_HEIGHT = 32;
+const HUB_NAME_LETTER_SPACING = -0.45;
 
 export const accountHubIconColor = HUB_OLIVE_ICON;
 export const accountHubChevronColor = HUB_ROW_CHEVRON;
@@ -83,16 +85,10 @@ export const accountHubLayout = StyleSheet.create({
   },
   name: {
     fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle + 4,
-    lineHeight: 30,
-    color: colors.ink,
-  },
-  email: {
-    marginTop: space.xxs,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 22,
-    color: HUB_EMAIL,
+    fontSize: HUB_NAME_SIZE,
+    lineHeight: HUB_NAME_LINE_HEIGHT,
+    letterSpacing: HUB_NAME_LETTER_SPACING,
+    color: colors.primaryGreen,
   },
   menuCard: {
     overflow: "hidden",

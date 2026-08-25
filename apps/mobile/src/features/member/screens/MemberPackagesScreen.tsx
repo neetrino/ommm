@@ -11,14 +11,15 @@ import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBo
 import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { PackageSubscribeSheet } from "../../packages/components/PackageSubscribeSheet";
 import {
+  PackagesBrowseCatalogCta,
   PackagesEmptyState,
-  PackagesPrimaryCta,
 } from "../../packages/components/PackagesScreenActions";
 import { PackagesPageAccordion } from "../../packages/components/PackagesPageAccordion";
 import { UserMembershipCard } from "../../packages/components/UserMembershipCard";
 import {
   normalizeMembershipStatus,
   useMemberPackagesScreenState,
+  type PackagesScreenMode,
 } from "../hooks/useMemberPackagesScreenState";
 import { colors, space, typography } from "../../../theme/tokens";
 import { PACKAGES_PAGE_MOBILE } from "../../../lib/packages/packagesPageTokens";
@@ -26,15 +27,24 @@ import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 
-export function MemberPackagesScreen() {
+const USER_PACKAGES_HREF = "/user/packages";
+const USER_PACKAGES_BROWSE_HREF = "/user/packages/browse";
+
+type MemberPackagesScreenProps = {
+  /** Route-driven mode so catalog survives refresh. Defaults to catalog for public `/packages`. */
+  mode?: PackagesScreenMode;
+};
+
+export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenProps) {
   const router = useRouter();
   const packagesCopy = usePackagesCopy();
   const { isSignedIn } = useSession();
+  const mode: PackagesScreenMode =
+    modeProp ?? (isSignedIn ? "mine" : "catalog");
   const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
     useScreenChromeInsets({ includeScreenGutter: false });
   const onHeaderBookPress = useAppHeaderBookPress();
   const {
-    mode,
     memberships,
     categories,
     loading,
@@ -44,18 +54,24 @@ export function MemberPackagesScreen() {
     subscribeError,
     selectedSubscribePlan,
     load,
-    openCatalog,
-    openMine,
     openSubscribe,
     closeSubscribe,
     confirmSubscribe,
-  } = useMemberPackagesScreenState({ isSignedIn });
+  } = useMemberPackagesScreenState({ isSignedIn, mode });
 
   useFocusEffect(
     useCallback(() => {
       void load();
     }, [load]),
   );
+
+  const openCatalog = useCallback(() => {
+    router.push(USER_PACKAGES_BROWSE_HREF);
+  }, [router]);
+
+  const openMine = useCallback(() => {
+    router.push(USER_PACKAGES_HREF);
+  }, [router]);
 
   const onSubscribePress = useCallback(
     (planId: string) => {
@@ -68,24 +84,29 @@ export function MemberPackagesScreen() {
     [isSignedIn, openSubscribe, router],
   );
 
-  const onSubscribeConfirmed = useCallback(async () => {
-    const succeeded = await confirmSubscribe();
-    if (!succeeded) {
-      return;
-    }
-    Alert.alert(
-      packagesCopy.subscribeSuccessTitle,
+  const onSubscribeConfirmed = useCallback(
+    async (options: { useGiftCredits: boolean }) => {
+      const outcome = await confirmSubscribe(options);
+      if (outcome !== "completed") {
+        return;
+      }
+      Alert.alert(
+        packagesCopy.subscribeSuccessTitle,
+        packagesCopy.subscribeSuccessBody,
+      );
+    },
+    [
+      confirmSubscribe,
       packagesCopy.subscribeSuccessBody,
-    );
-  }, [
-    confirmSubscribe,
-    packagesCopy.subscribeSuccessBody,
-    packagesCopy.subscribeSuccessTitle,
-  ]);
+      packagesCopy.subscribeSuccessTitle,
+    ],
+  );
 
   const showMyPackages = isSignedIn && mode === "mine";
   const showCatalog = !isSignedIn || mode === "catalog";
-  const heading = packagesCopy.myPackagesTitle;
+  const heading = showMyPackages
+    ? packagesCopy.myPackagesTitle
+    : packagesCopy.catalogTitle;
   const lead = showMyPackages ? packagesCopy.myPackagesLead : packagesCopy.catalogLead;
 
   return (
@@ -118,22 +139,22 @@ export function MemberPackagesScreen() {
         <Text style={styles.heading}>{heading}</Text>
         <Text style={styles.lead}>{lead}</Text>
 
-        {isSignedIn && showMyPackages ? (
-          <View style={styles.actionsRow}>
-            <PackagesPrimaryCta
-              label={packagesCopy.browsePackagesCta}
-              onPress={openCatalog}
-            />
-          </View>
-        ) : null}
-
         {loading ? (
           <Text style={styles.statusText}>{packagesCopy.loading}</Text>
         ) : error !== null ? (
           <Text style={styles.error}>{error}</Text>
         ) : showMyPackages ? (
           memberships.length === 0 ? (
-            <PackagesEmptyState title={packagesCopy.noPackagesYet} />
+            <View style={styles.emptyStack}>
+              <PackagesBrowseCatalogCta
+                label={packagesCopy.browsePackagesCta}
+                onPress={openCatalog}
+              />
+              <PackagesEmptyState
+                title={packagesCopy.noPackagesYet}
+                hint={packagesCopy.emptyPackagesHint}
+              />
+            </View>
           ) : (
             <View style={styles.membershipList}>
               {memberships.map((membership) => (
@@ -143,6 +164,11 @@ export function MemberPackagesScreen() {
                   status={normalizeMembershipStatus(membership)}
                 />
               ))}
+              <PackagesBrowseCatalogCta
+                label={packagesCopy.browsePackagesCta}
+                onPress={openCatalog}
+                style={styles.browseAfterList}
+              />
             </View>
           )
         ) : showCatalog ? (
@@ -165,7 +191,9 @@ export function MemberPackagesScreen() {
         busy={subscribeBusy}
         error={subscribeError}
         onClose={closeSubscribe}
-        onConfirm={() => void onSubscribeConfirmed()}
+        onConfirm={(options) => {
+          void onSubscribeConfirmed(options);
+        }}
       />
     </View>
   );
@@ -200,12 +228,17 @@ const styles = StyleSheet.create({
     color: colors.bodyMuted,
     maxWidth: 576,
   },
-  actionsRow: {
-    marginTop: -space.xs,
-  },
   membershipList: {
     width: "100%",
     gap: space.md,
+  },
+  emptyStack: {
+    width: "100%",
+    alignItems: "center",
+    gap: space.md,
+  },
+  browseAfterList: {
+    marginTop: space.sm,
   },
   statusText: {
     fontFamily: fontFamilies.manrope.regular,

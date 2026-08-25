@@ -11,14 +11,12 @@ const AVATAR_WRAP_GRADIENT = {
 
 type AccountHubHeaderProps = {
   displayName: string;
-  email: string;
   avatarImageUri?: string | null;
   initials?: string;
 };
 
 export function AccountHubHeader({
   displayName,
-  email,
   avatarImageUri,
   initials,
 }: AccountHubHeaderProps) {
@@ -53,9 +51,6 @@ export function AccountHubHeader({
       <View style={accountHubLayout.textBlock}>
         <Text style={accountHubLayout.name} numberOfLines={2}>
           {displayName}
-        </Text>
-        <Text style={accountHubLayout.email} numberOfLines={1}>
-          {email}
         </Text>
       </View>
     </View>

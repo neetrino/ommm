@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  DEFAULT_UI_LOCALE,
   UI_LOCALE_STORAGE_KEY,
   isAppUiLocale,
   type AppUiLocale,
@@ -38,11 +37,8 @@ export function pickUiLocaleForUser(
   userLocale: string | undefined,
   fallback: AppUiLocale,
 ): AppUiLocale {
-  if (isAppUiLocale(fallback)) {
-    return fallback;
-  }
   if (userLocale !== undefined && isAppUiLocale(userLocale)) {
     return userLocale;
   }
-  return DEFAULT_UI_LOCALE;
+  return fallback;
 }

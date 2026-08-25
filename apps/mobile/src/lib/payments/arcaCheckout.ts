@@ -13,7 +13,10 @@ type ArcaInitResponse = {
 
 /** True when the app should redirect to the Arca bank payment page. */
 export function isArcaCheckoutEnabled(): boolean {
-  return process.env.EXPO_PUBLIC_ARCA_CHECKOUT_ENABLED === "true";
+  return (
+    process.env.EXPO_PUBLIC_ARCA_CHECKOUT_ENABLED === "true" ||
+    process.env.NEXT_PUBLIC_ARCA_CHECKOUT_ENABLED === "true"
+  );
 }
 
 async function parseJson(res: Response): Promise<unknown> {

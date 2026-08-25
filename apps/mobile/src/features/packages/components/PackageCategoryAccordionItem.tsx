@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useCallback, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
@@ -25,10 +26,14 @@ type PackageCategoryAccordionItemProps = {
 function PackageTierList({
   categoryLabel,
   plans,
+  expandedMixPlanIds,
+  onToggleMixExpand,
   onSubscribePress,
 }: {
   categoryLabel: string;
   plans: readonly PublicPackagePlan[];
+  expandedMixPlanIds: ReadonlySet<string>;
+  onToggleMixExpand: (planId: string) => void;
   onSubscribePress: (planId: string) => void;
 }) {
   return (
@@ -38,6 +43,8 @@ function PackageTierList({
           key={plan.id}
           categoryLabel={categoryLabel}
           plan={plan}
+          isMixExpanded={expandedMixPlanIds.has(plan.id)}
+          onToggleMixExpand={() => onToggleMixExpand(plan.id)}
           onSubscribePress={onSubscribePress}
         />
       ))}
@@ -84,6 +91,29 @@ export function PackageCategoryAccordionItem({
   const gradientColors = buildPackagesPageCardGradientColors(category.gradientStartColor);
   const animation = usePackageCategoryAccordionAnimation(isExpanded);
   const hasPlans = category.plans.length > 0;
+  const [expandedMixPlanIds, setExpandedMixPlanIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+
+  const onToggleMixExpand = useCallback((planId: string) => {
+    setExpandedMixPlanIds((current) => {
+      const next = new Set(current);
+      if (next.has(planId)) {
+        next.delete(planId);
+      } else {
+        next.add(planId);
+      }
+      return next;
+    });
+  }, []);
+
+  const tierListProps = {
+    categoryLabel: category.label,
+    plans: category.plans,
+    expandedMixPlanIds,
+    onToggleMixExpand,
+    onSubscribePress,
+  };
 
   return (
     <AnimatedLinearGradient
@@ -141,11 +171,7 @@ export function PackageCategoryAccordionItem({
                 paddingTop: animation.animatedContentPaddingTop,
               }}
             >
-              <PackageTierList
-                categoryLabel={category.label}
-                plans={category.plans}
-                onSubscribePress={onSubscribePress}
-              />
+              <PackageTierList {...tierListProps} />
             </Animated.View>
           </Animated.View>
 
@@ -153,11 +179,7 @@ export function PackageCategoryAccordionItem({
             style={styles.measurementHost}
             onLayout={animation.onContentLayout}
           >
-            <PackageTierList
-              categoryLabel={category.label}
-              plans={category.plans}
-              onSubscribePress={onSubscribePress}
-            />
+            <PackageTierList {...tierListProps} />
           </View>
         </>
       ) : null}

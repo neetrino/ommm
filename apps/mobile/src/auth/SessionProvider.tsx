@@ -24,7 +24,10 @@ import {
 } from "./accessTokenStorage";
 import { SESSION_STORAGE_KEY } from "./persistedSession";
 import { homeHrefForRole } from "./roleHome";
-import { sessionGreetingDisplayName } from "./sessionGreetingDisplayName";
+import {
+  sessionFullDisplayName,
+  sessionGreetingDisplayName,
+} from "./sessionGreetingDisplayName";
 import { buildProfileInitials } from "../features/profile/profileInitials";
 import { useI18n } from "../i18n/I18nProvider";
 import { pickUiLocaleForUser, writeStoredUiLocale } from "../i18n/localeStorage";
@@ -37,8 +40,10 @@ type SessionContextValue = {
   role: string | null;
   /** Default home for the current role; meaningful when `isSignedIn`. */
   homeHref: string;
-  /** Greeting line (name or email local-part); empty when signed out. */
+  /** Greeting line (first name or email local-part); empty when signed out. */
   userGreetingName: string;
+  /** Account hub line (name + surname, or email local-part); empty when signed out. */
+  userFullDisplayName: string;
   /** Account email when signed in. */
   userEmail: string;
   /** Resolved absolute URI for custom Home image, or null. */
@@ -201,6 +206,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [sessionProfile],
   );
 
+  const userFullDisplayName = useMemo(
+    () => (sessionProfile === null ? "" : sessionFullDisplayName(sessionProfile)),
+    [sessionProfile],
+  );
+
   const homeImageUri = useMemo(() => {
     if (sessionProfile === null) {
       return null;
@@ -237,6 +247,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       role,
       homeHref,
       userGreetingName,
+      userFullDisplayName,
       userEmail,
       homeImageUri,
       profileInitials,
@@ -259,6 +270,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       signInWithPassword,
       signOut,
       userEmail,
+      userFullDisplayName,
       userGreetingName,
     ],
   );

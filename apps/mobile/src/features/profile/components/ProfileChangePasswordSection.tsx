@@ -1,25 +1,28 @@
 import { useCallback, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   isPasswordPolicyMet,
 } from "../../../auth/passwordPolicy";
 import { AuthPasswordInput } from "../../auth/components/AuthPasswordInput";
+import { PackagesPrimaryCta } from "../../packages/components/PackagesScreenActions";
 import { patchPassword } from "../../../lib/api/usersClient";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { profileSectionLayout } from "../profileSectionLayout";
 import { ProfileGlassCard } from "./ProfileGlassCard";
-import { colors, space } from "../../../theme/tokens";
+import { space } from "../../../theme/tokens";
 
-export function ProfileChangePasswordSection() {
+type ProfileChangePasswordSectionProps = {
+  /** Show “Security” heading when embedded under Account information. */
+  showSectionTitle?: boolean;
+};
+
+export function ProfileChangePasswordSection({
+  showSectionTitle = false,
+}: ProfileChangePasswordSectionProps) {
   const tChange = useTranslations("forms.changePassword");
+  const tProfile = useTranslations("userPages.profile");
   const tProfileEdit = useTranslations("forms.profileEdit");
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -75,9 +78,11 @@ export function ProfileChangePasswordSection() {
 
   return (
     <ProfileGlassCard contentStyle={profileSectionLayout.sectionCard}>
-      <Text style={profileSectionLayout.sectionLead}>
-        {tChange("changeTitle")}
-      </Text>
+      {showSectionTitle ? (
+        <Text style={profileSectionLayout.sectionTitle}>
+          {tProfile("security")}
+        </Text>
+      ) : null}
 
       <View style={styles.fieldGap}>
         <Text style={profileSectionLayout.fieldLabel}>
@@ -134,26 +139,14 @@ export function ProfileChangePasswordSection() {
         </Text>
       ) : null}
 
-      <Pressable
-        onPress={() => void onSubmit()}
-        disabled={busy}
-        style={({ pressed }) => [
-          profileSectionLayout.primaryBtn,
-          pressed && !busy && profileSectionLayout.primaryBtnPressed,
-          busy && profileSectionLayout.primaryBtnDisabled,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel={tChange("updateButton")}
-        accessibilityState={{ disabled: busy }}
-      >
-        {busy ? (
-          <ActivityIndicator color={colors.white} />
-        ) : (
-          <Text style={profileSectionLayout.primaryBtnLabel}>
-            {tChange("updateButton")}
-          </Text>
-        )}
-      </Pressable>
+      <PackagesPrimaryCta
+        label={busy ? tProfileEdit("saving") : tChange("updateButton")}
+        onPress={() => {
+          if (!busy) {
+            void onSubmit();
+          }
+        }}
+      />
     </ProfileGlassCard>
   );
 }

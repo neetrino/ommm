@@ -24,6 +24,9 @@ import {
 import { useScheduleCopy } from "../useScheduleCopy";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
 
+/** Lift today’s date chip above the rest of the strip. */
+const TODAY_CHIP_LIFT_PX = 8;
+
 type ScheduleDateControlsProps = {
   locale: string;
   selectedDate: Date;
@@ -103,6 +106,7 @@ export function ScheduleDateControls({
                   chipState === "idle" && styles.chipIdle,
                   chipState === "today" && styles.chipToday,
                   chipState === "selected" && styles.chipSelected,
+                  chipState === "today" && styles.chipTodayLift,
                 ];
 
                 if (chipState === "past") {
@@ -184,12 +188,15 @@ const styles = StyleSheet.create({
     borderColor: scheduleColors.stripBorder,
     backgroundColor: scheduleColors.stripBg,
     paddingHorizontal: 8,
-    paddingVertical: 14,
+    paddingTop: 14 + TODAY_CHIP_LIFT_PX,
+    paddingBottom: 14,
+    overflow: "visible",
   },
   stripRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
+    overflow: "visible",
   },
   arrowBtn: {
     width: scheduleLayout.arrowSize,
@@ -216,6 +223,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     minWidth: 0,
     gap: 2,
+    overflow: "visible",
   },
   dayCell: {
     flex: 1,
@@ -223,6 +231,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     paddingVertical: 4,
+    overflow: "visible",
   },
   weekday: {
     width: "100%",
@@ -251,6 +260,9 @@ const styles = StyleSheet.create({
   chipToday: {
     borderColor: scheduleColors.olive,
     backgroundColor: scheduleColors.olive,
+  },
+  chipTodayLift: {
+    transform: [{ translateY: -TODAY_CHIP_LIFT_PX }],
   },
   chipSelected: {
     borderColor: scheduleColors.olive,
