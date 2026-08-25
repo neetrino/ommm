@@ -56,6 +56,26 @@
     "overdue": "Overdue",
     "markDone": "Called"
   },
+  "headerStaffActivity": {
+    "title": "Activity",
+    "triggerAria": "Booking activity{count, plural, =0 {} other {, {count} unread}}",
+    "panelAria": "Recent booking activity",
+    "viewAll": "View all",
+    "empty": "No booking activity yet",
+    "loading": "Loading activity…",
+    "loadError": "Could not load activity",
+    "typeBooked": "Booked",
+    "typeCancelled": "Cancelled"
+  },
+  "staffActivityPages": {
+    "title": "Activity",
+    "description": "Booking and cancellation events across the studio.",
+    "empty": "No booking activity yet",
+    "loading": "Loading activity…",
+    "loadFailed": "Could not load activity",
+    "typeBooked": "Booked",
+    "typeCancelled": "Cancelled"
+  },
   "headerSessionReviews": {
     "memberTitle": "Rate your class",
     "staffTitle": "Class reviews",

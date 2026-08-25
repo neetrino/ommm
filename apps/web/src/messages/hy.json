@@ -56,6 +56,26 @@
     "overdue": "Ուշացած",
     "markDone": "Զանգված է"
   },
+  "headerStaffActivity": {
+    "title": "Գործունեություն",
+    "triggerAria": "Ամրագրումների ծանուցումներ{count, plural, =0 {} other {, {count} չընթերցված}}",
+    "panelAria": "Վերջին ամրագրումները",
+    "viewAll": "Տեսնել բոլորը",
+    "empty": "Դեռ գործունեություն չկա",
+    "loading": "Բեռնվում է…",
+    "loadError": "Չհաջողվեց բեռնել",
+    "typeBooked": "Ամրագրված",
+    "typeCancelled": "Չեղարկված"
+  },
+  "staffActivityPages": {
+    "title": "Գործունեություն",
+    "description": "Ստուդիայի ամրագրումների և չեղարկումների պատմություն։",
+    "empty": "Դեռ գործունեություն չկա",
+    "loading": "Բեռնվում է…",
+    "loadFailed": "Չհաջողվեց բեռնել",
+    "typeBooked": "Ամրագրված",
+    "typeCancelled": "Չեղարկված"
+  },
   "headerSessionReviews": {
     "memberTitle": "Գնահատել դասը",
     "staffTitle": "Դասերի կարծիքներ",
