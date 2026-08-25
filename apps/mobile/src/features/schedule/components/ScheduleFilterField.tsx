@@ -48,7 +48,12 @@ export function ScheduleFilterField({
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
+        <View style={styles.backdrop}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setOpen(false)}
+            accessibilityRole="button"
+          />
           <View style={styles.sheet}>
             <ScrollView keyboardShouldPersistTaps="handled">
               {options.map((option) => {
@@ -61,6 +66,8 @@ export function ScheduleFilterField({
                       setOpen(false);
                     }}
                     style={[styles.option, active && styles.optionActive]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
                   >
                     <Text style={[styles.optionLabel, active && styles.optionLabelActive]}>
                       {option.label}
@@ -70,7 +77,7 @@ export function ScheduleFilterField({
               })}
             </ScrollView>
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </>
   );
@@ -113,6 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.25)",
   },
   sheet: {
+    zIndex: 1,
     maxHeight: "70%",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

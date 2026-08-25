@@ -54,7 +54,12 @@ export function LanguageSwitcher() {
         animationType="fade"
         onRequestClose={() => setOpen(false)}
       >
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
+        <View style={styles.backdrop}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setOpen(false)}
+            accessibilityRole="button"
+          />
           <View style={styles.menu} accessibilityRole="menu">
             <Text style={styles.menuTitle}>{t("switcherAria")}</Text>
             {LANGUAGE_SWITCHER_ORDER.map((code) => {
@@ -90,7 +95,7 @@ export function LanguageSwitcher() {
               );
             })}
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </>
   );
@@ -124,6 +129,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.xl,
   },
   menu: {
+    zIndex: 1,
     borderRadius: radii.labelCard,
     backgroundColor: colors.white,
     padding: space.md,

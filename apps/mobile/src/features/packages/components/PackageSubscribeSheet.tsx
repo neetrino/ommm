@@ -48,13 +48,22 @@ export function PackageSubscribeSheet({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={busy ? undefined : onClose}>
+      {/*
+        Backdrop and sheet are siblings — nesting Pressables renders invalid
+        nested <button> elements on React Native Web.
+      */}
+      <View style={styles.backdrop}>
         <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={busy ? undefined : onClose}
+          accessibilityRole="button"
+          accessibilityLabel={packagesCopy.detailsClose}
+        />
+        <View
           style={[
             styles.sheet,
             { paddingBottom: Math.max(insets.bottom, space.sm) + space.lg },
           ]}
-          onPress={(event) => event.stopPropagation()}
         >
           <ScrollView
             keyboardShouldPersistTaps="handled"
@@ -96,8 +105,8 @@ export function PackageSubscribeSheet({
               </Pressable>
             </View>
           </ScrollView>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -109,6 +118,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sheet: {
+    zIndex: 1,
     borderTopLeftRadius: radii.labelCard,
     borderTopRightRadius: radii.labelCard,
     backgroundColor: colors.canvas,
