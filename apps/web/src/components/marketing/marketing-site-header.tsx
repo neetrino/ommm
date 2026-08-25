@@ -45,6 +45,7 @@ export function MarketingSiteHeader({
   notificationsLabel = null,
   showMemberNotifications = false,
   callTasksListHref = null,
+  staffActivityListHref = null,
   sessionReviewsAudience = null,
   sessionReviewsListHref = null,
 }: MarketingSiteHeaderProps) {
@@ -145,6 +146,7 @@ export function MarketingSiteHeader({
             showNotifications={showNotifications}
             notificationPreferencesHref={notificationPreferencesHref}
             callTasksListHref={callTasksListHref}
+            staffActivityListHref={staffActivityListHref}
             sessionReviewsAudience={headerSessionReviewsAudience}
             sessionReviewsListHref={headerSessionReviewsListHref}
             account={account}
@@ -164,6 +166,7 @@ export function MarketingSiteHeader({
           showNotifications={showNotifications}
           notificationPreferencesHref={notificationPreferencesHref}
           callTasksListHref={callTasksListHref}
+          staffActivityListHref={staffActivityListHref}
           sessionReviewsAudience={headerSessionReviewsAudience}
           sessionReviewsListHref={headerSessionReviewsListHref}
           desktopGlassStyle={desktopGlassStyle}

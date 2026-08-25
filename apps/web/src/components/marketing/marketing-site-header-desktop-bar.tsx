@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   MarketingHeaderGlobeIcon,
-  MarketingHeaderNotificationsPlaceholder,
   MarketingHeaderUserIcon,
 } from "@/components/marketing/marketing-header-icons";
 import { MarketingHeaderLoginLink } from "@/components/marketing/marketing-header-login-link";
@@ -33,6 +32,7 @@ import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-a
 import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
 import { HeaderSessionReviewsMenu } from "@/components/shell/header-session-reviews-menu";
+import { HeaderStaffActivityMenu } from "@/components/shell/header-staff-activity-menu";
 import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
 import { Link } from "@/i18n/navigation";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
@@ -47,6 +47,7 @@ type MarketingSiteHeaderDesktopBarProps = {
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
   callTasksListHref?: string | null;
+  staffActivityListHref?: string | null;
   sessionReviewsAudience?: SessionReviewsAudience | null;
   sessionReviewsListHref?: string | null;
   desktopGlassStyle: Record<string, string>;
@@ -64,6 +65,7 @@ export function MarketingSiteHeaderDesktopBar({
   showNotifications,
   notificationPreferencesHref,
   callTasksListHref = null,
+  staffActivityListHref = null,
   sessionReviewsAudience = null,
   sessionReviewsListHref = null,
   desktopGlassStyle,
@@ -137,24 +139,27 @@ export function MarketingSiteHeaderDesktopBar({
               onNavigate={onCloseAllMenus}
             />
           ) : null}
-          {callTasksListHref ? (
-            <>
-              <MarketingHeaderNotificationsPlaceholder
-                className={desktopNotificationsTriggerClass}
-                iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
-              />
-              <HeaderCallTasksMenu
-                enabled
-                listHref={callTasksListHref}
-                triggerClassName={desktopNotificationsTriggerClass}
-                iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
-                onNavigate={onCloseAllMenus}
-              />
-            </>
+          {staffActivityListHref ? (
+            <HeaderStaffActivityMenu
+              enabled
+              viewAllHref={staffActivityListHref}
+              triggerClassName={desktopNotificationsTriggerClass}
+              iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+              onNavigate={onCloseAllMenus}
+            />
           ) : showNotifications ? (
             <HeaderNotificationsMenu
               enabled
               preferencesHref={notificationPreferencesHref}
+              triggerClassName={desktopNotificationsTriggerClass}
+              iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+              onNavigate={onCloseAllMenus}
+            />
+          ) : null}
+          {callTasksListHref ? (
+            <HeaderCallTasksMenu
+              enabled
+              listHref={callTasksListHref}
               triggerClassName={desktopNotificationsTriggerClass}
               iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
               onNavigate={onCloseAllMenus}

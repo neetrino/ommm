@@ -31,6 +31,8 @@ export type MarketingSiteHeaderProps = {
   showMemberNotifications?: boolean;
   /** Admin/manager workspace — due call-task reminder menu. */
   callTasksListHref?: string | null;
+  /** Admin/manager workspace — booking/cancel activity inbox (header bell). */
+  staffActivityListHref?: string | null;
   /** Class reviews — member writes, staff/coach read. */
   sessionReviewsAudience?: SessionReviewsAudience | null;
   sessionReviewsListHref?: string | null;

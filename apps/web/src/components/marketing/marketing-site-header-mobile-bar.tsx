@@ -6,7 +6,6 @@ import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   MarketingHeaderGlobeIcon,
   MarketingHeaderMenuIcon,
-  MarketingHeaderNotificationsPlaceholder,
   MarketingHeaderUserIcon,
 } from "@/components/marketing/marketing-header-icons";
 import { MarketingHeaderLoginLink } from "@/components/marketing/marketing-header-login-link";
@@ -29,6 +28,7 @@ import type {
 import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
 import { HeaderSessionReviewsMenu } from "@/components/shell/header-session-reviews-menu";
+import { HeaderStaffActivityMenu } from "@/components/shell/header-staff-activity-menu";
 import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link } from "@/i18n/navigation";
@@ -44,6 +44,7 @@ type MarketingSiteHeaderMobileBarProps = {
   showNotifications: boolean;
   notificationPreferencesHref: string | null;
   callTasksListHref?: string | null;
+  staffActivityListHref?: string | null;
   sessionReviewsAudience?: SessionReviewsAudience | null;
   sessionReviewsListHref?: string | null;
   account: MarketingHeaderAccount | null;
@@ -62,6 +63,7 @@ export function MarketingSiteHeaderMobileBar({
   showNotifications,
   notificationPreferencesHref,
   callTasksListHref = null,
+  staffActivityListHref = null,
   sessionReviewsAudience = null,
   sessionReviewsListHref = null,
   account,

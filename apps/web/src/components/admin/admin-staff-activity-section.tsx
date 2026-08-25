@@ -5,12 +5,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { markStaffActivityRead } from "@/hooks/use-staff-activity-inbox";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatTimeForUi } from "@/lib/format-time-display";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
-import { markStaffActivityRead } from "@/hooks/use-staff-activity-inbox";
 import type {
   StaffActivityListPayload,
   StaffActivityRow,
@@ -26,7 +26,7 @@ export function AdminStaffActivitySection() {
   const listPage = useMemo(
     () =>
       parseListPageParams(Object.fromEntries(searchParams.entries()), {
-        defaultTake: STAFF_ACTIVITY_PAGE_TAKE,
+        defaultPageSize: STAFF_ACTIVITY_PAGE_TAKE,
       }),
     [searchParams],
   );
@@ -52,33 +52,43 @@ export function AdminStaffActivitySection() {
   }, [listPage.offset, listPage.take, t]);
 
   useEffect(() => {
-    void load();
+    queueMicrotask(() => {
+      void load();
+    });
   }, [load]);
 
+  const items = payload?.items ?? [];
+  const total = payload?.total ?? 0;
+
   return (
-    <StaffListPageLayout
-      title={t("title")}
-      description={t("description")}
-      loading={loading}
-      error={error}
-      empty={!loading && !error && (payload?.items.length ?? 0) === 0}
-      emptyMessage={t("empty")}
-    >
-      <ul className="divide-y divide-sage-100">
-        {(payload?.items ?? []).map((row) => (
+    <StaffListPageLayout title={t("title")} description={t("description")}>
+      {loading ? (
+        <p className="sr-only" aria-live="polite">
+          {t("loading")}
+        </p>
+      ) : null}
+      {error ? <p className="text-sm text-amber-900">{error}</p> : null}
+      {!loading && !error && items.length === 0 ? (
+        <p className="rounded-2xl border border-sand-200/80 bg-white/80 px-5 py-10 text-center text-sm text-sage-600">
+          {t("empty")}
+        </p>
+      ) : null}
+      <ul className="divide-y divide-sage-100/80 rounded-2xl border border-sand-200/70 bg-white/80 px-4">
+        {items.map((row) => (
           <StaffActivityPageRow key={row.id} row={row} locale={locale} />
         ))}
       </ul>
-      {payload && payload.total > payload.take ? (
+      {total > listPage.pageSize ? (
         <OmmListPagination
-          total={payload.total}
-          take={payload.take}
-          offset={payload.offset}
-          onPageChange={(nextOffset) => {
-            syncListPageQuery(router, searchParams, {
-              take: listPage.take,
-              offset: nextOffset,
-            });
+          total={total}
+          page={listPage.page}
+          pageSize={listPage.pageSize}
+          offset={listPage.offset}
+          onPageChange={(page) => {
+            const params = new URLSearchParams(searchParams.toString());
+            syncListPageQuery(params, page, listPage.pageSize);
+            const query = params.toString();
+            router.replace(query.length > 0 ? `?${query}` : "?");
           }}
         />
       ) : null}
@@ -105,7 +115,9 @@ function StaffActivityPageRow({
         <p className="mt-0.5 text-sm text-sage-700">{row.className}</p>
         <p className="mt-0.5 text-xs text-sage-500">{sessionWhen}</p>
       </div>
-      <p className="shrink-0 text-xs text-sage-400">{formatDateTimeForUi(row.createdAt, locale)}</p>
+      <p className="shrink-0 text-xs text-sage-400">
+        {formatDateTimeForUi(row.createdAt, locale)}
+      </p>
     </li>
   );
 }
