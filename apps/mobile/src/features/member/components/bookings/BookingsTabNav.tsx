@@ -1,6 +1,10 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { fontFamilies } from "../../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../../theme/tokens";
+
+type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
 
 type BookingsTabNavProps = {
   upcomingLabel: string;
@@ -9,6 +13,10 @@ type BookingsTabNavProps = {
   activeTab: "upcoming" | "past";
   onTabChange: (tab: "upcoming" | "past") => void;
 };
+
+const PAST_TAB_ICON: IconName = "history";
+const CURRENT_TAB_ICON: IconName = "calendar-clock";
+const TAB_ICON_SIZE = 16;
 
 export function BookingsTabNav({
   upcomingLabel,
@@ -25,11 +33,13 @@ export function BookingsTabNav({
     >
       <TabButton
         label={pastLabel}
+        icon={PAST_TAB_ICON}
         selected={activeTab === "past"}
         onPress={() => onTabChange("past")}
       />
       <TabButton
         label={upcomingLabel}
+        icon={CURRENT_TAB_ICON}
         selected={activeTab === "upcoming"}
         onPress={() => onTabChange("upcoming")}
       />
@@ -39,11 +49,13 @@ export function BookingsTabNav({
 
 type TabButtonProps = {
   label: string;
+  icon: IconName;
   selected: boolean;
   onPress: () => void;
 };
 
-function TabButton({ label, selected, onPress }: TabButtonProps) {
+function TabButton({ label, icon, selected, onPress }: TabButtonProps) {
+  const iconColor = selected ? colors.primaryGreen : colors.bodyMuted;
   return (
     <Pressable
       onPress={onPress}
@@ -55,9 +67,16 @@ function TabButton({ label, selected, onPress }: TabButtonProps) {
       accessibilityRole="tab"
       accessibilityState={{ selected }}
     >
-      <Text style={[styles.tabLabel, selected && styles.tabLabelSelected]}>
-        {label}
-      </Text>
+      <View style={styles.tabInner}>
+        <MaterialCommunityIcons
+          name={icon}
+          size={TAB_ICON_SIZE}
+          color={iconColor}
+        />
+        <Text style={[styles.tabLabel, selected && styles.tabLabelSelected]}>
+          {label}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -88,6 +107,11 @@ const styles = StyleSheet.create({
   },
   tabPressed: {
     opacity: 0.92,
+  },
+  tabInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   tabLabel: {
     fontFamily: fontFamilies.manrope.semiBold,
