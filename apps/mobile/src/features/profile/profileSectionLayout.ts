@@ -1,7 +1,9 @@
 import { StyleSheet, type ViewStyle } from "react-native";
+import { SCHEDULE_PAGE_MOBILE } from "../../lib/schedule/schedulePageTokens";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { platformShadow } from "../../theme/platformShadow";
 import { colors, space, typography } from "../../theme/tokens";
+import { scheduleColors } from "../schedule/scheduleTokens";
 
 /** Web: `ommm-account-section`. */
 export const PROFILE_SECTION_CARD_SHADOW = platformShadow({
@@ -54,11 +56,13 @@ export const profileSectionLayout = StyleSheet.create({
     alignSelf: "center",
     gap: space.xl,
   },
+  /** Same hero title treatment as Packages / Schedule mobile pages. */
   pageTitle: {
-    fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle + 4,
-    lineHeight: 30,
-    color: colors.ink,
+    fontFamily: fontFamilies.gtSuperDs.boldItalic,
+    fontSize: SCHEDULE_PAGE_MOBILE.pageTitleSizePx,
+    lineHeight: SCHEDULE_PAGE_MOBILE.pageTitleLineHeightPx,
+    letterSpacing: -0.88,
+    color: scheduleColors.pageTitle,
   },
   sectionCard: profileSectionCardBase,
   sectionTitle: {
@@ -97,7 +101,7 @@ export const profileSectionLayout = StyleSheet.create({
     paddingVertical: space.sm + 2,
     paddingHorizontal: space.lg,
     borderRadius: 9999,
-    backgroundColor: colors.primaryGreen,
+    backgroundColor: colors.taupe,
   },
   primaryBtnPressed: {
     opacity: 0.9,
