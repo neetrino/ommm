@@ -39,6 +39,16 @@ export function useAccountHubMenuItems(
         href: pathForRole(role, "profile/change-password"),
         icon: "lock-outline",
       },
+      ...(role === "USER"
+        ? [
+            {
+              key: "giftCards",
+              label: tHub("giftCards"),
+              href: userMemberPath("gift-cards"),
+              icon: "gift-outline" as const,
+            },
+          ]
+        : []),
     ],
     [role, tHub, tProfile],
   );

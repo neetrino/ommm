@@ -85,7 +85,7 @@ export function HomeScreen() {
         />
         <GiftCardSection
           content={giftContent}
-          onBuyPress={() => router.push(userMemberPath("packages"))}
+          onBuyPress={() => router.push("/user/gift-cards?tab=shop")}
         />
       </ScrollView>
 
