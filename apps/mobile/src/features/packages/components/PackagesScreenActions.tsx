@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Pressable,
   StyleSheet,
@@ -11,6 +12,10 @@ import { fontFamilies } from "../../../theme/fontFamilies";
 import { platformShadow } from "../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../theme/tokens";
 import { scheduleColors } from "../../schedule/scheduleTokens";
+
+const BROWSE_CTA_ICON_SIZE_PX = 22;
+const BROWSE_CTA_MAX_WIDTH_PX = 340;
+const BROWSE_CTA_MIN_HEIGHT_PX = 56;
 
 type PackagesPrimaryCtaProps = {
   label: string;
@@ -43,6 +48,49 @@ export function PackagesPrimaryCta({
   );
 }
 
+type PackagesBrowseCatalogCtaProps = {
+  label: string;
+  onPress: () => void;
+  style?: StyleProp<ViewStyle>;
+};
+
+/** Purchase-intent CTA — centered, icon + label, distinct from header taupe pills. */
+export function PackagesBrowseCatalogCta({
+  label,
+  onPress,
+  style,
+}: PackagesBrowseCatalogCtaProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.browseCta,
+        pressed && styles.browseCtaPressed,
+        style,
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint={label}
+    >
+      <View style={styles.browseCtaIconWrap}>
+        <MaterialCommunityIcons
+          name="package-variant-closed"
+          size={BROWSE_CTA_ICON_SIZE_PX}
+          color={colors.white}
+        />
+      </View>
+      <Text style={styles.browseCtaLabel} numberOfLines={2}>
+        {label}
+      </Text>
+      <MaterialCommunityIcons
+        name="chevron-right"
+        size={22}
+        color={colors.white}
+      />
+    </Pressable>
+  );
+}
+
 type PackagesEmptyStateProps = {
   title: string;
   hint?: string;
@@ -67,7 +115,11 @@ export function PackagesEmptyState({
       <Text style={styles.emptyTitle}>{title}</Text>
       {showHint ? <Text style={styles.emptyHint}>{hint}</Text> : null}
       {showAction ? (
-        <PackagesPrimaryCta label={actionLabel} onPress={onActionPress} />
+        <PackagesBrowseCatalogCta
+          label={actionLabel}
+          onPress={onActionPress}
+          style={styles.emptyAction}
+        />
       ) : null}
     </View>
   );
@@ -79,6 +131,14 @@ const primaryShadow = platformShadow({
   opacity: PACKAGES_PRIMARY_CTA.shadowOpacity,
   radius: PACKAGES_PRIMARY_CTA.shadowRadiusPx,
   elevation: PACKAGES_PRIMARY_CTA.androidElevation,
+});
+
+const browseCtaShadow = platformShadow({
+  color: "#1a1c1b",
+  offsetHeight: 10,
+  opacity: 0.28,
+  radius: 18,
+  elevation: 5,
 });
 
 const styles = StyleSheet.create({
@@ -123,6 +183,43 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall,
     color: colors.primaryGreen,
   },
+  browseCta: {
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: BROWSE_CTA_MAX_WIDTH_PX,
+    minHeight: BROWSE_CTA_MIN_HEIGHT_PX,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.sm,
+    paddingVertical: space.sm,
+    paddingLeft: space.sm,
+    paddingRight: space.md,
+    borderRadius: radii.pill,
+    backgroundColor: colors.primaryGreen,
+    ...browseCtaShadow,
+  },
+  browseCtaPressed: {
+    backgroundColor: colors.warmBrown,
+    opacity: 0.96,
+  },
+  browseCtaIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.overlayWhite20,
+  },
+  browseCtaLabel: {
+    flex: 1,
+    minWidth: 0,
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 15,
+    lineHeight: 20,
+    letterSpacing: 0.2,
+    color: colors.white,
+    textAlign: "left",
+  },
   emptyCard: {
     width: "100%",
     borderRadius: radii.labelCard,
@@ -130,7 +227,8 @@ const styles = StyleSheet.create({
     borderColor: colors.glassBorder,
     backgroundColor: colors.white,
     padding: space.lg,
-    gap: space.sm,
+    gap: space.md,
+    alignItems: "center",
   },
   emptyTitle: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
@@ -138,12 +236,17 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     letterSpacing: -0.4,
     color: scheduleColors.pageTitle,
+    textAlign: "center",
   },
   emptyHint: {
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,
     lineHeight: 22,
     color: colors.bodyMuted,
-    marginBottom: space.xs,
+    textAlign: "center",
+    maxWidth: 320,
+  },
+  emptyAction: {
+    marginTop: space.xs,
   },
 });

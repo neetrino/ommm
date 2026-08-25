@@ -20,6 +20,7 @@ export function usePackagesCopy() {
       detailsCta: tMarketing("packagesDetailsCta"),
       subscribeCta: tForms("packageCheckout.subscribe"),
       browsePackagesCta: tUserPackages("browsePackagesCta"),
+      emptyPackagesHint: tUserPackages("emptyPackagesHint"),
       backToMyPackagesCta: tMarketing("packagesBackToList"),
       noPackagesYet: tUserPackages("noPackagesYet"),
       membershipDetailsPrice: tUserPackages("membershipDetailsPrice"),
