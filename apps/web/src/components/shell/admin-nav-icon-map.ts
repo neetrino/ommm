@@ -10,7 +10,6 @@ export type AdminNavIconSlug =
   | "giftCards"
   | "finance"
   | "analytics"
-  | "notifications"
   | "settings"
   | "feedback"
   | "guestUsers"
@@ -31,7 +30,6 @@ export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> 
   "/admin/gift-cards": "giftCards",
   "/admin/finance": "finance",
   "/admin/analytics": "analytics",
-  "/admin/notifications": "notifications",
   "/admin/content": "feedback",
   "/admin/settings": "settings",
   "/admin/feedback": "feedback",
@@ -53,7 +51,6 @@ export const MANAGER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>
   "/manager/schedule": "schedule",
   "/manager/packages": "packages",
   "/manager/gift-cards": "giftCards",
-  "/manager/notifications": "notifications",
   "/manager/content": "feedback",
   "/manager/settings": "settings",
   "/manager/profile": "clients",

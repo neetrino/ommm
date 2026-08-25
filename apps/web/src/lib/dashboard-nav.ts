@@ -20,7 +20,6 @@ export type DashboardNavIcon =
   | "tag"
   | "gift"
   | "user"
-  | "bell"
   | "barChart"
   | "users"
   | "userCheck"
@@ -106,7 +105,6 @@ const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/schedule", icon: "calendar", labelKey: "schedule", oliveIconSlug: "schedule" },
   { href: "/manager/packages", icon: "tag", labelKey: "packages", oliveIconSlug: "packages" },
   { href: "/manager/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
-  { href: "/manager/notifications", icon: "bell", labelKey: "notificationManagement", oliveIconSlug: "notifications" },
   { href: "/manager/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
   { href: "/manager/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
 ];
@@ -131,7 +129,6 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
   { href: "/admin/finance", icon: "wallet", labelKey: "finance", oliveIconSlug: "finance" },
   { href: "/admin/analytics", icon: "pieChart", labelKey: "analytics", oliveIconSlug: "analytics" },
-  { href: "/admin/notifications", icon: "bell", labelKey: "notificationManagement", oliveIconSlug: "notifications" },
   { href: "/admin/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
   { href: "/admin/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
   { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers", oliveIconSlug: "guestUsers" },
@@ -169,9 +166,8 @@ export function dashboardNotificationRouteForRole(
     case "CONTENT_ADMIN":
       return { href: "/content-admin/notifications", labelKey: "notifications" };
     case "MANAGER":
-      return { href: "/manager/notifications", labelKey: "notifications" };
     case "ADMIN":
-      return { href: "/admin/notifications", labelKey: "notifications" };
+      return null;
     default:
       return null;
   }

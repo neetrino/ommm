@@ -56,6 +56,26 @@
     "overdue": "Просрочено",
     "markDone": "Позвонили"
   },
+  "headerStaffActivity": {
+    "title": "Активность",
+    "triggerAria": "Активность бронирований{count, plural, =0 {} other {, {count} непрочитанных}}",
+    "panelAria": "Недавние бронирования",
+    "viewAll": "Смотреть все",
+    "empty": "Пока нет активности",
+    "loading": "Загрузка…",
+    "loadError": "Не удалось загрузить активность",
+    "typeBooked": "Забронировано",
+    "typeCancelled": "Отменено"
+  },
+  "staffActivityPages": {
+    "title": "Активность",
+    "description": "История бронирований и отмен в студии.",
+    "empty": "Пока нет активности",
+    "loading": "Загрузка…",
+    "loadFailed": "Не удалось загрузить активность",
+    "typeBooked": "Забронировано",
+    "typeCancelled": "Отменено"
+  },
   "headerSessionReviews": {
     "memberTitle": "Оценить занятие",
     "staffTitle": "Отзывы о занятиях",
