@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PaymentStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  detectPaymentSource,
-  readPaymentSource,
-} from '../payments.helpers';
+import { detectPaymentSource, readPaymentSource } from '../payments.helpers';
 import {
   resolveAdminPaymentRelatedItemName,
   type AdminPaymentPackageLabels,
@@ -18,7 +15,11 @@ import {
   resolveEhdmItemName,
 } from './ehdm-print-body.builder';
 import { EhdmSeqService } from './ehdm-seq.service';
-import type { EhdmApiResponse, EhdmPrintResult, EhdmReceiptSummary } from './ehdm.types';
+import type {
+  EhdmApiResponse,
+  EhdmPrintResult,
+  EhdmReceiptSummary,
+} from './ehdm.types';
 
 @Injectable()
 export class EhdmReceiptService {
@@ -33,10 +34,7 @@ export class EhdmReceiptService {
   ) {}
 
   /** Fire-and-forget fiscal print when a payment newly reaches SUCCEEDED. */
-  tryPrintReceipt(
-    paymentId: string,
-    previousStatus: PaymentStatus,
-  ): void {
+  tryPrintReceipt(paymentId: string, previousStatus: PaymentStatus): void {
     if (!this.config.isEnabled()) {
       return;
     }
@@ -112,7 +110,7 @@ export class EhdmReceiptService {
           fiscal: result.fiscal ?? null,
           qr: result.qr ?? null,
           isMock: this.config.isTestMode(),
-          response: response as object,
+          response: response,
         },
       });
     } catch (error) {

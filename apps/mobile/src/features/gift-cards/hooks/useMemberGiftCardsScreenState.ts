@@ -156,7 +156,7 @@ export function useMemberGiftCardsScreenState({
         setBuyBusy(false);
       }
     },
-    [load, locale, router, selectedCard, tPurchase],
+    [locale, router, selectedCard, tPurchase],
   );
 
   const onRedeem = useCallback(async () => {

@@ -43,6 +43,11 @@ import { PaymentsService } from './payments.service';
     EhdmSeqService,
     EhdmReceiptService,
   ],
-  exports: [PaymentsService, ArcaService, ArcaReconciliationService, EhdmReceiptService],
+  exports: [
+    PaymentsService,
+    ArcaService,
+    ArcaReconciliationService,
+    EhdmReceiptService,
+  ],
 })
 export class PaymentsModule {}
