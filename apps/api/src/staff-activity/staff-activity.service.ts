@@ -27,9 +27,11 @@ export class StaffActivityService {
   async list(query: ListStaffActivityQueryDto) {
     const take = query.take ?? STAFF_ACTIVITY_PAGE_TAKE;
     const offset = query.offset ?? 0;
+    const where = this.buildListWhere(query);
     const [total, rows] = await this.prisma.$transaction([
-      this.prisma.staffActivityNotification.count(),
+      this.prisma.staffActivityNotification.count({ where }),
       this.prisma.staffActivityNotification.findMany({
+        where,
         orderBy: { createdAt: 'desc' },
         skip: offset,
         take,
@@ -40,6 +42,21 @@ export class StaffActivityService {
       total,
       take,
       offset,
+    };
+  }
+
+  private buildListWhere(query: ListStaffActivityQueryDto) {
+    const q = query.q?.trim();
+    return {
+      ...(query.type ? { type: query.type } : {}),
+      ...(q
+        ? {
+            OR: [
+              { memberName: { contains: q, mode: 'insensitive' as const } },
+              { className: { contains: q, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
     };
   }
 

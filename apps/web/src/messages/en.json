@@ -77,6 +77,8 @@
     "loadFailed": "Could not load notifications",
     "typeBooked": "Booked",
     "typeCancelled": "Cancelled",
+    "filterType": "Type",
+    "typeAll": "All types",
     "searchPlaceholder": "Search class, member, or type…",
     "resetFilters": "Reset filters",
     "markAllRead": "Mark all as read",

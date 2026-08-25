@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { AdminStaffActivityCard } from "@/components/admin/admin-staff-activity-card";
 import { AdminStaffActivityDetailsModal } from "@/components/admin/admin-staff-activity-details-modal";
 import { AdminStaffActivityEmptyState } from "@/components/admin/admin-staff-activity-empty-state";
+import { useAdminStaffActivityFilterFields } from "@/components/admin/admin-staff-activity-filter-fields";
+import { useAdminStaffActivityFilters } from "@/components/admin/use-admin-staff-activity-filters";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -15,18 +17,27 @@ import { markStaffActivityRead } from "@/hooks/use-staff-activity-inbox";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
+import { buildStaffActivityListEndpoint } from "@/lib/staff-activity-filters";
 import type {
   StaffActivityListPayload,
   StaffActivityRow,
 } from "@/lib/staff-activity-types";
 import { STAFF_ACTIVITY_PAGE_TAKE } from "@/lib/staff-activity-types";
 
-const SEARCH_DEBOUNCE_MS = 280;
-
 export function AdminStaffActivitySection() {
   const t = useTranslations("staffActivityPages");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const filterFields = useAdminStaffActivityFilterFields();
+  const {
+    searchDraft,
+    setSearchDraft,
+    urlQuery,
+    typeFilter,
+    filterValues,
+    handleFilterChange,
+    resetFilters,
+  } = useAdminStaffActivityFilters();
   const listPage = useMemo(
     () =>
       parseListPageParams(Object.fromEntries(searchParams.entries()), {
@@ -34,13 +45,6 @@ export function AdminStaffActivitySection() {
       }),
     [searchParams],
   );
-  const urlQuery = searchParams.get("q")?.trim() ?? "";
-  const [searchDraft, setSearchDraft] = useState(urlQuery);
-  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery);
-  if (urlQuery !== prevUrlQuery) {
-    setPrevUrlQuery(urlQuery);
-    setSearchDraft(urlQuery);
-  }
   const [payload, setPayload] = useState<StaffActivityListPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,32 +52,18 @@ export function AdminStaffActivitySection() {
   const [markingRead, setMarkingRead] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
 
-  useEffect(() => {
-    if (searchDraft === urlQuery) {
-      return undefined;
-    }
-    const timer = window.setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      const next = searchDraft.trim();
-      if (next.length === 0) {
-        params.delete("q");
-      } else {
-        params.set("q", next);
-      }
-      syncListPageQuery(params, 1, listPage.pageSize);
-      const query = params.toString();
-      router.replace(query.length > 0 ? `?${query}` : "?");
-    }, SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(timer);
-  }, [listPage.pageSize, router, searchDraft, searchParams, urlQuery]);
-
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const [data, unread] = await Promise.all([
         apiFetch<StaffActivityListPayload>(
-          `/staff-activity?take=${listPage.take}&offset=${listPage.offset}`,
+          buildStaffActivityListEndpoint({
+            take: listPage.take,
+            offset: listPage.offset,
+            q: urlQuery,
+            type: typeFilter,
+          }),
         ),
         apiFetch<{ count: number }>("/staff-activity/unread-count"),
       ]);
@@ -85,7 +75,7 @@ export function AdminStaffActivitySection() {
     } finally {
       setLoading(false);
     }
-  }, [listPage.offset, listPage.take, t]);
+  }, [listPage.offset, listPage.take, t, typeFilter, urlQuery]);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -108,24 +98,9 @@ export function AdminStaffActivitySection() {
     }
   }, [hasUnread, markingRead, t]);
 
-  const filteredItems = useMemo(() => {
-    const items = payload?.items ?? [];
-    const q = urlQuery.toLowerCase();
-    if (q.length === 0) {
-      return items;
-    }
-    return items.filter((row) => {
-      const typeKey = row.type === "BOOKING_CREATED" ? "booked" : "cancelled";
-      return (
-        row.memberName.toLowerCase().includes(q) ||
-        row.className.toLowerCase().includes(q) ||
-        typeKey.includes(q)
-      );
-    });
-  }, [payload?.items, urlQuery]);
-
+  const items = payload?.items ?? [];
   const total = payload?.total ?? 0;
-  const showEmpty = !loading && !error && filteredItems.length === 0;
+  const showEmpty = !loading && !error && items.length === 0;
 
   return (
     <StaffListPageLayout
@@ -135,10 +110,10 @@ export function AdminStaffActivitySection() {
           search={searchDraft}
           onSearchChange={setSearchDraft}
           searchPlaceholder={t("searchPlaceholder")}
-          fields={[]}
-          filterValues={{}}
-          onFilterChange={() => undefined}
-          onClearAll={() => setSearchDraft("")}
+          fields={filterFields}
+          filterValues={filterValues}
+          onFilterChange={handleFilterChange}
+          onClearAll={resetFilters}
           resetLabel={t("resetFilters")}
         />
       }
@@ -150,7 +125,7 @@ export function AdminStaffActivitySection() {
       ) : null}
       {error ? <p className="text-sm text-amber-900">{error}</p> : null}
       {showEmpty ? <AdminStaffActivityEmptyState /> : null}
-      {filteredItems.length > 0 ? (
+      {items.length > 0 ? (
         <div className="space-y-3" aria-busy={loading}>
           <div className="flex justify-start">
             <OmmButton
@@ -165,7 +140,7 @@ export function AdminStaffActivitySection() {
               {t("markAllRead")}
             </OmmButton>
           </div>
-          {filteredItems.map((row) => (
+          {items.map((row) => (
             <AdminStaffActivityCard
               key={row.id}
               row={row}

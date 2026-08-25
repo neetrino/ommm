@@ -77,6 +77,8 @@
     "loadFailed": "Не удалось загрузить уведомления",
     "typeBooked": "Забронировано",
     "typeCancelled": "Отменено",
+    "filterType": "Тип",
+    "typeAll": "Все типы",
     "searchPlaceholder": "Поиск по занятию, участнику или типу…",
     "resetFilters": "Сбросить",
     "markAllRead": "Отметить все как прочитанные",

@@ -77,6 +77,8 @@
     "loadFailed": "Չհաջողվեց բեռնել",
     "typeBooked": "Ամրագրված",
     "typeCancelled": "Չեղարկված",
+    "filterType": "Տեսակ",
+    "typeAll": "Բոլոր տեսակները",
     "searchPlaceholder": "Փնտրել դաս, անդամ կամ տեսակ…",
     "resetFilters": "Զրոյացնել",
     "markAllRead": "Նշել բոլորը կարդացված",
