@@ -34,12 +34,6 @@ export function useAccountHubMenuItems(
         href: pathForRole(role, "profile/personal"),
         icon: "account-outline",
       },
-      {
-        key: "password",
-        label: tHub("changePassword"),
-        href: pathForRole(role, "profile/change-password"),
-        icon: "lock-outline",
-      },
       ...(role === "USER"
         ? [
             {
@@ -50,6 +44,12 @@ export function useAccountHubMenuItems(
             },
           ]
         : []),
+      {
+        key: "password",
+        label: tHub("changePassword"),
+        href: pathForRole(role, "profile/change-password"),
+        icon: "lock-outline",
+      },
     ],
     [role, tHub, tNav, tProfile],
   );
