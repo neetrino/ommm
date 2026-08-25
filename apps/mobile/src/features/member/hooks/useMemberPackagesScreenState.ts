@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useRouter } from "expo-router";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import {
   fetchPublicPackages,
@@ -15,6 +16,7 @@ import {
   type UserMembershipRow,
 } from "../../../lib/packages/userMembership";
 import { isArcaCheckoutEnabled, openArcaRedirectUrl } from "../../../lib/payments/arcaCheckout";
+import { buildPaymentOutcomeHref } from "../../../lib/payments/paymentResultPaths";
 
 export type PackagesScreenMode = "mine" | "catalog";
 
@@ -23,6 +25,7 @@ type UseMemberPackagesScreenStateParams = {
 };
 
 export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesScreenStateParams) {
+  const router = useRouter();
   const packagesCopy = usePackagesCopy();
   const checkoutLocale = useLocale();
   const tMarketing = useTranslations("marketing");
@@ -142,6 +145,12 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
         await openArcaRedirectUrl(result.redirectUrl);
         return true;
       }
+      router.push(
+        buildPaymentOutcomeHref("success", {
+          reference: result.paymentReference ?? null,
+          source: "package",
+        }),
+      );
       return true;
     } catch (e) {
       setSubscribeError(
@@ -151,7 +160,13 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     } finally {
       setSubscribeBusy(false);
     }
-  }, [checkoutLocale, loadForMode, packagesCopy.subscribeFailed, subscribePlanId]);
+  }, [
+    checkoutLocale,
+    loadForMode,
+    packagesCopy.subscribeFailed,
+    router,
+    subscribePlanId,
+  ]);
 
   const selectedSubscribePlan =
     subscribePlanId === null

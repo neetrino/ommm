@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "expo-router";
 import { useLocale, useTranslations } from "../../../i18n/I18nProvider";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import {
@@ -17,6 +18,7 @@ import {
   isArcaCheckoutEnabled,
   startArcaCardCheckout,
 } from "../../../lib/payments/arcaCheckout";
+import { buildPaymentOutcomeHref } from "../../../lib/payments/paymentResultPaths";
 
 export type GiftCardsTab = "my" | "shop";
 
@@ -27,6 +29,7 @@ type UseMemberGiftCardsScreenStateParams = {
 export function useMemberGiftCardsScreenState({
   initialTab,
 }: UseMemberGiftCardsScreenStateParams) {
+  const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("userPages.giftCards");
   const tPurchase = useTranslations("userPages.giftCards.purchaseForm");
@@ -136,8 +139,12 @@ export function useMemberGiftCardsScreenState({
           await startArcaCardCheckout(token, reference, locale);
         } else {
           await confirmGiftCardPayment(token, reference);
-          await load();
-          setTab("my");
+          router.push(
+            buildPaymentOutcomeHref("success", {
+              reference,
+              source: "gift",
+            }),
+          );
         }
         return true;
       } catch (e) {
@@ -149,7 +156,7 @@ export function useMemberGiftCardsScreenState({
         setBuyBusy(false);
       }
     },
-    [load, locale, selectedCard, tPurchase],
+    [load, locale, router, selectedCard, tPurchase],
   );
 
   const onRedeem = useCallback(async () => {

@@ -20,6 +20,7 @@ import { scheduleColors } from "../../schedule/scheduleTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, space, typography } from "../../../theme/tokens";
 import { PaymentHistoryCard } from "../components/PaymentHistoryCard";
+import { PaymentOutcomeLocalPreview } from "../components/PaymentOutcomeLocalPreview";
 import { useMemberPaymentsScreenState } from "../hooks/useMemberPaymentsScreenState";
 
 export function MemberPaymentsScreen() {
@@ -64,6 +65,8 @@ export function MemberPaymentsScreen() {
         </View>
 
         <Text style={styles.title}>{t("title")}</Text>
+
+        <PaymentOutcomeLocalPreview />
 
         {state.loading ? (
           <ActivityIndicator size="large" color={colors.taupe} />
