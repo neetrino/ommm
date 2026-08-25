@@ -22,14 +22,17 @@ export type PackagesScreenMode = "mine" | "catalog";
 
 type UseMemberPackagesScreenStateParams = {
   isSignedIn: boolean;
+  mode: PackagesScreenMode;
 };
 
-export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesScreenStateParams) {
+export function useMemberPackagesScreenState({
+  isSignedIn,
+  mode,
+}: UseMemberPackagesScreenStateParams) {
   const router = useRouter();
   const packagesCopy = usePackagesCopy();
   const checkoutLocale = useLocale();
   const tMarketing = useTranslations("marketing");
-  const [mode, setMode] = useState<PackagesScreenMode>(isSignedIn ? "mine" : "catalog");
   const [memberships, setMemberships] = useState<UserMembershipRow[]>([]);
   const [categories, setCategories] = useState<PackagesPageAccordionCategory[]>([]);
   const [catalogPlans, setCatalogPlans] = useState<PublicPackagePlan[]>([]);
@@ -93,16 +96,6 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
   const load = useCallback(async () => {
     await loadForMode(mode);
   }, [loadForMode, mode]);
-
-  const openCatalog = useCallback(() => {
-    setMode("catalog");
-    void loadForMode("catalog");
-  }, [loadForMode]);
-
-  const openMine = useCallback(() => {
-    setMode("mine");
-    void loadForMode("mine");
-  }, [loadForMode]);
 
   const openSubscribe = useCallback((planId: string) => {
     setSubscribePlanId(planId);
@@ -173,7 +166,6 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
         }
 
         setSubscribePlanId(null);
-        setMode("mine");
         await loadForMode("mine");
         router.push(
           buildPaymentOutcomeHref("success", {
@@ -216,8 +208,6 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     subscribeError,
     selectedSubscribePlan,
     load,
-    openCatalog,
-    openMine,
     openSubscribe,
     closeSubscribe,
     confirmSubscribe,

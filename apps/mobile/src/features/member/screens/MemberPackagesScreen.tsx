@@ -19,6 +19,7 @@ import { UserMembershipCard } from "../../packages/components/UserMembershipCard
 import {
   normalizeMembershipStatus,
   useMemberPackagesScreenState,
+  type PackagesScreenMode,
 } from "../hooks/useMemberPackagesScreenState";
 import { colors, space, typography } from "../../../theme/tokens";
 import { PACKAGES_PAGE_MOBILE } from "../../../lib/packages/packagesPageTokens";
@@ -26,15 +27,24 @@ import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 
-export function MemberPackagesScreen() {
+const USER_PACKAGES_HREF = "/user/packages";
+const USER_PACKAGES_BROWSE_HREF = "/user/packages/browse";
+
+type MemberPackagesScreenProps = {
+  /** Route-driven mode so catalog survives refresh. Defaults to catalog for public `/packages`. */
+  mode?: PackagesScreenMode;
+};
+
+export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenProps) {
   const router = useRouter();
   const packagesCopy = usePackagesCopy();
   const { isSignedIn } = useSession();
+  const mode: PackagesScreenMode =
+    modeProp ?? (isSignedIn ? "mine" : "catalog");
   const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
     useScreenChromeInsets({ includeScreenGutter: false });
   const onHeaderBookPress = useAppHeaderBookPress();
   const {
-    mode,
     memberships,
     categories,
     loading,
@@ -44,18 +54,24 @@ export function MemberPackagesScreen() {
     subscribeError,
     selectedSubscribePlan,
     load,
-    openCatalog,
-    openMine,
     openSubscribe,
     closeSubscribe,
     confirmSubscribe,
-  } = useMemberPackagesScreenState({ isSignedIn });
+  } = useMemberPackagesScreenState({ isSignedIn, mode });
 
   useFocusEffect(
     useCallback(() => {
       void load();
     }, [load]),
   );
+
+  const openCatalog = useCallback(() => {
+    router.push(USER_PACKAGES_BROWSE_HREF);
+  }, [router]);
+
+  const openMine = useCallback(() => {
+    router.push(USER_PACKAGES_HREF);
+  }, [router]);
 
   const onSubscribePress = useCallback(
     (planId: string) => {

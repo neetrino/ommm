@@ -9,5 +9,5 @@ export default function PackagesRoute() {
     return <Redirect href="/user/packages" />;
   }
 
-  return <MemberPackagesScreen />;
+  return <MemberPackagesScreen mode="catalog" />;
 }
