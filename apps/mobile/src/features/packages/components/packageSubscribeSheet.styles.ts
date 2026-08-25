@@ -11,6 +11,11 @@ const PLAN_META = "rgba(61, 74, 66, 0.72)";
 const GIFT_ICON = "#5f5848";
 const GIFT_HINT = "#7a7264";
 const METHOD_BORDER = "rgba(151, 144, 124, 0.55)";
+/**
+ * Web `.ommm-modal-backdrop` — `bg-sage-900/45`
+ * (`--color-sage-900: #1a1c1b`).
+ */
+const MODAL_BACKDROP_SCRIM = "rgba(26, 28, 27, 0.45)";
 /** Web `.ommm-cta-secondary` — `border-sand-500/25`. */
 const CANCEL_BORDER = "rgba(161, 150, 133, 0.25)";
 /** Web `text-sage-700`. */
@@ -31,7 +36,7 @@ export const packageSubscribeSheetStyles = StyleSheet.create({
   },
   scrim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.scrimDark,
+    backgroundColor: MODAL_BACKDROP_SCRIM,
   },
   sheet: {
     zIndex: 1,
