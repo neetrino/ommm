@@ -143,6 +143,27 @@ export function HeaderCallTasksMenu({
                 items={items}
                 loading={loading}
                 error={error}
+                pendingCount={pendingCount}
+                onMarkAllRead={() => {
+                  void (async () => {
+                    try {
+                      await Promise.all(
+                        items.map((row) =>
+                          apiFetch(`/call-tasks/${row.id}/complete`, {
+                            method: "POST",
+                          }),
+                        ),
+                      );
+                    } catch (error) {
+                      if (!(error instanceof ApiError)) {
+                        return;
+                      }
+                    } finally {
+                      dispatchCallTasksRefresh();
+                      await refetch();
+                    }
+                  })();
+                }}
                 onNavigate={() => {
                   onNavigate?.();
                   closeMenu();
@@ -182,12 +203,16 @@ function CallTaskMenuPanel({
   items,
   loading,
   error,
+  pendingCount,
+  onMarkAllRead,
   onNavigate,
 }: {
   listHref: string;
   items: readonly CallTaskRow[];
   loading: boolean;
   error: boolean;
+  pendingCount: number;
+  onMarkAllRead: () => void;
   onNavigate: () => void;
 }) {
   const t = useTranslations("headerCallTasks");
@@ -195,9 +220,24 @@ function CallTaskMenuPanel({
     <>
       <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
         <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
-        <Link href={listHref} className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline" onClick={onNavigate}>
-          {t("openList")}
-        </Link>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {pendingCount > 0 && items.length > 0 ? (
+            <button
+              type="button"
+              className="text-xs font-medium text-sage-700 underline-offset-2 hover:text-sage-900 hover:underline"
+              onClick={onMarkAllRead}
+            >
+              {t("markAllRead")}
+            </button>
+          ) : null}
+          <Link
+            href={listHref}
+            className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
+            onClick={onNavigate}
+          >
+            {t("openList")}
+          </Link>
+        </div>
       </div>
       <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>
         {loading ? (

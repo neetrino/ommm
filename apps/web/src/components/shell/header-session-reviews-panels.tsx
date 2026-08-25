@@ -77,12 +77,16 @@ export function StaffReviewMenuPanel({
   loading,
   error,
   viewAllHref,
+  unreadCount,
+  onMarkAllRead,
   onNavigate,
 }: {
   items: readonly StaffInboxReview[];
   loading: boolean;
   error: boolean;
   viewAllHref: string;
+  unreadCount: number;
+  onMarkAllRead: () => void;
   onNavigate: () => void;
 }) {
   const locale = useLocale();
@@ -95,6 +99,8 @@ export function StaffReviewMenuPanel({
       loading={loading}
       error={error}
       empty={preview.length === 0}
+      unreadCount={unreadCount}
+      onMarkAllRead={onMarkAllRead}
       onNavigate={onNavigate}
     >
       {preview.map((row) => (
@@ -178,6 +184,8 @@ function ReviewMenuShell({
   loading,
   error,
   empty,
+  unreadCount = 0,
+  onMarkAllRead,
   onNavigate,
   children,
 }: {
@@ -186,6 +194,8 @@ function ReviewMenuShell({
   loading: boolean;
   error: boolean;
   empty: boolean;
+  unreadCount?: number;
+  onMarkAllRead?: () => void;
   onNavigate: () => void;
   children: ReactNode;
 }) {
@@ -199,18 +209,29 @@ function ReviewMenuShell({
     <>
       <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
         <p className="text-sm font-semibold text-sage-900">{title}</p>
-        <Link
-          href={viewAllHref}
-          className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
-          onClick={() => {
-            if (useSheetNav) {
-              markMemberHubSheetNavigation();
-            }
-            onNavigate();
-          }}
-        >
-          {t("viewAll")}
-        </Link>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {unreadCount > 0 && onMarkAllRead ? (
+            <button
+              type="button"
+              className="text-xs font-medium text-sage-700 underline-offset-2 hover:text-sage-900 hover:underline"
+              onClick={onMarkAllRead}
+            >
+              {t("markAllRead")}
+            </button>
+          ) : null}
+          <Link
+            href={viewAllHref}
+            className="text-xs font-medium text-sage-700 underline-offset-2 hover:underline"
+            onClick={() => {
+              if (useSheetNav) {
+                markMemberHubSheetNavigation();
+              }
+              onNavigate();
+            }}
+          >
+            {t("viewAll")}
+          </Link>
+        </div>
       </div>
       <ul className="list-none overflow-hidden p-0">
         {loading ? (
