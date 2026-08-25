@@ -4,7 +4,6 @@ import { useId } from "react";
 import { LayoutGroup } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { CallsNavPendingBadge } from "@/components/shell/calls-nav-pending-badge";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
@@ -21,13 +20,8 @@ import {
   WORKSPACE_ROUTE_PREFETCH,
 } from "@/lib/workspace-nav-link";
 import { shouldMemberHardNavigate } from "@/lib/member-user-nav-hard-navigate";
-import { useCallTasksPendingCount } from "@/hooks/use-call-tasks-pending-count";
 
 const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users", "/admin/profile"]);
-
-function isCallTasksNavHref(href: string): boolean {
-  return href === "/admin/calls" || href === "/manager/calls";
-}
 
 function navActive(pathname: string, href: string) {
   return dashboardNavPathActive(pathname, href);

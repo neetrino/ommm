@@ -140,7 +140,7 @@ export class CallTasksService {
       return { status: CallTaskStatus.PENDING, dueOn: { lt: cutoff } };
     }
     if (status === 'PENDING') {
-      return { status: CallTaskStatus.PENDING, dueOn: { gte: cutoff } };
+      return { status: CallTaskStatus.PENDING };
     }
     if (status === 'DONE' || status === 'CANCELLED') {
       return { status };

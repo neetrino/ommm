@@ -15,7 +15,7 @@ function listStatusSql(
     return Prisma.sql`status::text = ${CallTaskStatus.PENDING} AND "dueOn" < ${cutoff}`;
   }
   if (status === 'PENDING') {
-    return Prisma.sql`status::text = ${CallTaskStatus.PENDING} AND "dueOn" >= ${cutoff}`;
+    return Prisma.sql`status::text = ${CallTaskStatus.PENDING}`;
   }
   if (status === 'DONE' || status === 'CANCELLED') {
     return Prisma.sql`status::text = ${status}`;
