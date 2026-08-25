@@ -10,6 +10,7 @@ export type AdminNavIconSlug =
   | "giftCards"
   | "finance"
   | "analytics"
+  | "notifications"
   | "settings"
   | "feedback"
   | "guestUsers"

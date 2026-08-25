@@ -99,9 +99,9 @@ export function WorkspaceShell({
         }
         staffActivityListHref={
           navRole === "ADMIN"
-            ? "/admin/activity"
+            ? "/admin/notifications"
             : navRole === "MANAGER"
-              ? "/manager/activity"
+              ? "/manager/notifications"
               : null
         }
         sessionReviewsAudience={

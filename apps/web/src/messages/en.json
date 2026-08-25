@@ -57,22 +57,22 @@
     "markDone": "Called"
   },
   "headerStaffActivity": {
-    "title": "Activity",
-    "triggerAria": "Booking activity{count, plural, =0 {} other {, {count} unread}}",
-    "panelAria": "Recent booking activity",
+    "title": "Notifications",
+    "triggerAria": "Booking notifications{count, plural, =0 {} other {, {count} unread}}",
+    "panelAria": "Recent booking notifications",
     "viewAll": "View all",
-    "empty": "No booking activity yet",
-    "loading": "Loading activity…",
-    "loadError": "Could not load activity",
+    "empty": "No booking notifications yet",
+    "loading": "Loading notifications…",
+    "loadError": "Could not load notifications",
     "typeBooked": "Booked",
     "typeCancelled": "Cancelled"
   },
   "staffActivityPages": {
-    "title": "Activity",
-    "emptyTitle": "No booking activity",
+    "title": "Notifications",
+    "emptyTitle": "No booking notifications",
     "emptyDescription": "When members book or cancel a class, those events will appear here for the team.",
-    "loading": "Loading activity…",
-    "loadFailed": "Could not load activity",
+    "loading": "Loading notifications…",
+    "loadFailed": "Could not load notifications",
     "typeBooked": "Booked",
     "typeCancelled": "Cancelled"
   },
