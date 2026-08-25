@@ -80,10 +80,20 @@ export function SessionReviewsInboxSection({
         coachId: showCoachFilter ? coachFilter : "",
         packagePlanId: packageFilter,
       });
-      const data = await apiFetch<SessionReviewsListPayload<StaffInboxReview | CoachInboxReview>>(
+      const listPromise = apiFetch<SessionReviewsListPayload<StaffInboxReview | CoachInboxReview>>(
         `${endpoint}?${query}`,
       );
-      setPayload(data);
+      if (isStaffInbox) {
+        const [data, unread] = await Promise.all([
+          listPromise,
+          apiFetch<{ count: number }>("/session-reviews/inbox/unread-count"),
+        ]);
+        setPayload(data);
+        setHasUnread(unread.count > 0);
+      } else {
+        setPayload(await listPromise);
+        setHasUnread(false);
+      }
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : t("loadFailed"));
       setPayload(null);
@@ -93,6 +103,7 @@ export function SessionReviewsInboxSection({
   }, [
     coachFilter,
     endpoint,
+    isStaffInbox,
     listPage.offset,
     listPage.take,
     packageFilter,
@@ -109,6 +120,21 @@ export function SessionReviewsInboxSection({
       void load();
     });
   }, [load]);
+
+  const clearUnreadBadge = useCallback(async () => {
+    if (!isStaffInbox || markingRead || !hasUnread) {
+      return;
+    }
+    setMarkingRead(true);
+    try {
+      await markStaffReviewsRead();
+      setHasUnread(false);
+    } catch {
+      setError(t("loadFailed"));
+    } finally {
+      setMarkingRead(false);
+    }
+  }, [hasUnread, isStaffInbox, markingRead, t]);
 
   const items = payload?.items ?? [];
   const total = payload?.total ?? 0;
@@ -141,6 +167,19 @@ export function SessionReviewsInboxSection({
         </p>
       ) : null}
       <div className="space-y-3" aria-busy={loading}>
+        {isStaffInbox && items.length > 0 ? (
+          <div className="flex justify-start">
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={markingRead || !hasUnread}
+              onClick={() => void clearUnreadBadge()}
+            >
+              {t("markAllRead")}
+            </OmmButton>
+          </div>
+        ) : null}
         {items.map((row) => (
           <SessionReviewInboxCard
             key={row.id}
