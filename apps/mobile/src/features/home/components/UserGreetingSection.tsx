@@ -72,10 +72,10 @@ export function UserGreetingSection({
       </View>
       <View style={[styles.headlineBlock, compact ? styles.headlineBlockCompact : null]}>
         <Text style={styles.headlinePlain} numberOfLines={1}>
-          Find your bookings
+          {tDashboard("titleStart")}
         </Text>
         <Text style={styles.headlineAccent} numberOfLines={1}>
-          for today.
+          {tDashboard("titleAccent")}
         </Text>
       </View>
     </View>

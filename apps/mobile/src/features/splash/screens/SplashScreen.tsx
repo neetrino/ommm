@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
 import { useIsCompactChrome } from "../../../components/layout/useScreenChrome";
+import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { platformTextShadow } from "../../../theme/platformShadow";
 import { colors, space } from "../../../theme/tokens";
@@ -34,6 +35,7 @@ export function SplashScreen() {
   const insets = useSafeAreaInsets();
   const compact = useIsCompactChrome();
   const { isReady, isSignedIn, homeHref } = useSession();
+  const tHero = useTranslations("marketingPublic.hero");
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const motion = useSplashSphereBounce();
   const hasNavigatedRef = useRef(false);
@@ -114,13 +116,13 @@ export function SplashScreen() {
               allowFontScaling={false}
               accessibilityRole="header"
             >
-              Find Your Ommm
+              {`${tHero("titleLine1")} ${tHero("brandName")}`}
             </Text>
             <Text
               style={[styles.taglineLine, styles.subtitleLine, titleTextStyle]}
               allowFontScaling={false}
             >
-              Moment
+              {tHero("titleLine2")}
             </Text>
           </Animated.View>
 

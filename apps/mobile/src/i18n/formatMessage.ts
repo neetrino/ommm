@@ -111,7 +111,7 @@ export function formatMembershipValidityRemaining(
   t: (key: string, values?: TranslationValues) => string,
 ): string {
   if (count <= 0) {
-    return t("userPages.packages.validityExpired");
+    return t("validityExpired");
   }
-  return t("userPages.packages.validityDaysRemaining", { count });
+  return t("validityDaysRemaining", { count });
 }
