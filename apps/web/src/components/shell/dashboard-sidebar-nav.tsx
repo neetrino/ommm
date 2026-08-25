@@ -125,9 +125,6 @@ export function DashboardSidebarNav({
   const olivePillLayoutId = `${layoutGroupId}-active-pill`;
   const isOliveShell = isOliveDashboardShell(variant);
   const isAdmin = variant === "admin";
-  const pendingCallCount = useCallTasksPendingCount(
-    items.some((item) => isCallTasksNavHref(item.href)),
-  );
   const firstMutedIndex = isAdmin
     ? items.findIndex((item) => isAdminMutedNavItem(variant, item.href))
     : -1;
@@ -172,9 +169,6 @@ export function DashboardSidebarNav({
             >
               {item.label}
             </span>
-            {!collapsed && isCallTasksNavHref(item.href) ? (
-              <CallsNavPendingBadge count={pendingCallCount} active={active} />
-            ) : null}
           </>
         );
 
