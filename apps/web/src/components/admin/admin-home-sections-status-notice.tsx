@@ -13,7 +13,7 @@ export function AdminHomeSectionsStatusNotice() {
     >
       <div className="mx-auto flex max-w-md flex-col items-center gap-2.5">
         <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-600 shadow-[0_6px_16px_-12px_rgba(45,40,35,0.25)]">
-          <DashboardNavIcon name="bell" className="h-3.5 w-3.5" />
+          <DashboardNavIcon name="layoutGrid" className="h-3.5 w-3.5" />
         </div>
         <div className="space-y-1.5">
           <p className="text-pretty text-sm font-medium leading-snug tracking-[0.01em] text-sage-800">
