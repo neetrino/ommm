@@ -79,7 +79,12 @@ export async function fetchUserMemberships(
 /** Subscribe to a plan — same endpoint as web package purchase flow. */
 export async function subscribeToPackage(
   accessToken: string,
-  params: { planId: string; paymentMethod: "CARD"; locale?: string },
+  params: {
+    planId: string;
+    paymentMethod: "CARD";
+    locale?: string;
+    useGiftCredits?: boolean;
+  },
 ): Promise<SubscribePackageResponse> {
   const base = getApiBaseUrl();
   const res = await fetchWithReachabilityHint(
@@ -87,7 +92,12 @@ export async function subscribeToPackage(
     {
       method: "POST",
       headers: { ...AUTH_JSON_HEADERS, Authorization: `Bearer ${accessToken}` },
-      body: JSON.stringify(params),
+      body: JSON.stringify({
+        planId: params.planId,
+        paymentMethod: params.paymentMethod,
+        locale: params.locale,
+        useGiftCredits: params.useGiftCredits === true,
+      }),
     },
     base,
   );

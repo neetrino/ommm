@@ -68,20 +68,23 @@ export function MemberPackagesScreen() {
     [isSignedIn, openSubscribe, router],
   );
 
-  const onSubscribeConfirmed = useCallback(async () => {
-    const succeeded = await confirmSubscribe();
-    if (!succeeded) {
-      return;
-    }
-    Alert.alert(
-      packagesCopy.subscribeSuccessTitle,
+  const onSubscribeConfirmed = useCallback(
+    async (options: { useGiftCredits: boolean }) => {
+      const outcome = await confirmSubscribe(options);
+      if (outcome !== "completed") {
+        return;
+      }
+      Alert.alert(
+        packagesCopy.subscribeSuccessTitle,
+        packagesCopy.subscribeSuccessBody,
+      );
+    },
+    [
+      confirmSubscribe,
       packagesCopy.subscribeSuccessBody,
-    );
-  }, [
-    confirmSubscribe,
-    packagesCopy.subscribeSuccessBody,
-    packagesCopy.subscribeSuccessTitle,
-  ]);
+      packagesCopy.subscribeSuccessTitle,
+    ],
+  );
 
   const showMyPackages = isSignedIn && mode === "mine";
   const showCatalog = !isSignedIn || mode === "catalog";
@@ -167,7 +170,9 @@ export function MemberPackagesScreen() {
         busy={subscribeBusy}
         error={subscribeError}
         onClose={closeSubscribe}
-        onConfirm={() => void onSubscribeConfirmed()}
+        onConfirm={(options) => {
+          void onSubscribeConfirmed(options);
+        }}
       />
     </View>
   );

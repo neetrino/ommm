@@ -1,15 +1,28 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
-import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
+import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
+import { useTranslations } from "../../../i18n/I18nProvider";
+import { fetchGiftSpendableBalance } from "../../../lib/api/giftCardsClient";
+import { formatAmdFromCents } from "../../../lib/formatAmd";
 import {
   formatPackagePriceLabel,
-  formatPackageValidityLabel,
 } from "../../../lib/packages/formatPackageDisplay";
 import type { PublicPackagePlan } from "../../../lib/packages/publicPackagePlan";
 import { resolvePublicPackageFinalPriceCents } from "../../../lib/packages/publicPackagePlan";
-import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import { usePackageDisplayCopy } from "../../../lib/packages/usePackageDisplayCopy";
+import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
+import { colors, space } from "../../../theme/tokens";
+import { packageSubscribeSheetStyles as styles } from "./packageSubscribeSheet.styles";
 
 type PackageSubscribeSheetProps = {
   visible: boolean;
@@ -17,7 +30,7 @@ type PackageSubscribeSheetProps = {
   busy: boolean;
   error: string | null;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (options: { useGiftCredits: boolean }) => void;
 };
 
 export function PackageSubscribeSheet({
@@ -30,34 +43,66 @@ export function PackageSubscribeSheet({
 }: PackageSubscribeSheetProps) {
   const packagesCopy = usePackagesCopy();
   const displayCopy = usePackageDisplayCopy();
+  const tPay = useTranslations("forms.manualPackagePayment");
   const insets = useSafeAreaInsets();
+  const [useGiftCredits, setUseGiftCredits] = useState(false);
+  const [spendableCents, setSpendableCents] = useState(0);
+
+  const loadGiftBalance = useCallback(async () => {
+    const token = await readStoredAccessToken();
+    if (token === null) {
+      setSpendableCents(0);
+      return;
+    }
+    try {
+      const cents = await fetchGiftSpendableBalance(token);
+      setSpendableCents(cents);
+    } catch {
+      setSpendableCents(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!visible) {
+      setUseGiftCredits(false);
+      return;
+    }
+    void loadGiftBalance();
+  }, [loadGiftBalance, visible]);
 
   if (plan === null) {
     return null;
   }
 
-  const packageName = displayCopy.formatPlanName(plan.name, plan.sessionsPerMonth);
+  const packageName = displayCopy.formatPlanName(
+    plan.name,
+    plan.sessionsPerMonth,
+  );
   const priceLabel = formatPackagePriceLabel({
     ...plan,
     priceCents: resolvePublicPackageFinalPriceCents(plan),
   });
-  const validityLabel = formatPackageValidityLabel(
-    plan,
-    packagesCopy.formatPackageValidityDays,
-  );
+  const periodLabel = tPay("periodDays", { days: plan.periodDays });
+  const sessionsLabel =
+    plan.sessionsPerMonth === null || plan.sessionsPerMonth <= 0
+      ? tPay("unlimitedClasses")
+      : tPay("sessionsPerPeriod", { count: plan.sessionsPerMonth });
+  const hasGiftCredit = spendableCents > 0;
+  const giftEnabled = useGiftCredits && hasGiftCredit;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      {/*
-        Backdrop and sheet are siblings — nesting Pressables renders invalid
-        nested <button> elements on React Native Web.
-      */}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <View style={styles.backdrop}>
         <Pressable
           style={StyleSheet.absoluteFill}
           onPress={busy ? undefined : onClose}
           accessibilityRole="button"
-          accessibilityLabel={packagesCopy.detailsClose}
+          accessibilityLabel={tPay("closeModal")}
         />
         <View
           style={[
@@ -65,136 +110,153 @@ export function PackageSubscribeSheet({
             { paddingBottom: Math.max(insets.bottom, space.sm) + space.lg },
           ]}
         >
+          <View style={styles.grabber} />
+
+          <View style={styles.header}>
+            <Text style={styles.title} numberOfLines={2}>
+              {packagesCopy.subscribeTitle}
+            </Text>
+            <Pressable
+              onPress={busy ? undefined : onClose}
+              disabled={busy}
+              style={({ pressed }) => [
+                styles.closeBtn,
+                pressed && styles.pressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={tPay("closeModal")}
+            >
+              <MaterialCommunityIcons
+                name="close"
+                size={20}
+                color={colors.warmBrown}
+              />
+            </Pressable>
+          </View>
+
           <ScrollView
+            style={styles.scroll}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             bounces={false}
-            contentContainerStyle={styles.sheetContent}
+            contentContainerStyle={styles.scrollContent}
           >
-            <Text style={styles.title}>{packagesCopy.subscribeTitle}</Text>
-            <Text style={styles.planName}>{packageName}</Text>
-            <View style={styles.metaList}>
-              <Text style={styles.metaLine}>{priceLabel}</Text>
-              {validityLabel !== null ? (
-                <Text style={styles.metaMuted}>{validityLabel}</Text>
-              ) : null}
-            </View>
-            {error !== null ? <Text style={styles.error}>{error}</Text> : null}
-            <View style={styles.actions}>
-              <Pressable
-                onPress={onClose}
-                disabled={busy}
-                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-                accessibilityRole="button"
-              >
-                <Text style={styles.secondaryLabel}>{packagesCopy.detailsClose}</Text>
-              </Pressable>
-              <Pressable
-                onPress={onConfirm}
-                disabled={busy}
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  busy && styles.primaryDisabled,
-                  pressed && !busy && styles.pressed,
-                ]}
-                accessibilityRole="button"
-              >
-                <Text style={styles.primaryLabel}>
-                  {busy ? packagesCopy.loading : packagesCopy.subscribeConfirm}
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>{tPay("selectPlanLegend")}</Text>
+              <View style={styles.planCard}>
+                <Text style={styles.planName}>{packageName}</Text>
+                <Text style={styles.planPrice}>{priceLabel}</Text>
+                <Text style={styles.planMeta}>
+                  {periodLabel} · {sessionsLabel}
                 </Text>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>{tPay("giftCreditsLegend")}</Text>
+              <Pressable
+                disabled={busy || !hasGiftCredit}
+                onPress={() => {
+                  if (hasGiftCredit) {
+                    setUseGiftCredits((prev) => !prev);
+                  }
+                }}
+                style={[
+                  styles.giftBlock,
+                  giftEnabled && styles.giftBlockActive,
+                  !hasGiftCredit && styles.giftBlockEmpty,
+                ]}
+                accessibilityRole="checkbox"
+                accessibilityState={{
+                  checked: giftEnabled,
+                  disabled: busy || !hasGiftCredit,
+                }}
+              >
+                <View style={styles.giftIconWrap}>
+                  <MaterialCommunityIcons
+                    name="gift-outline"
+                    size={20}
+                    color={colors.warmBrown}
+                  />
+                </View>
+                <View style={styles.giftCopy}>
+                  <Text style={styles.giftTitle}>{tPay("useGiftCredits")}</Text>
+                  <Text style={styles.giftHint}>
+                    {hasGiftCredit
+                      ? tPay("giftCreditsAvailableHint")
+                      : tPay("giftCreditsUnavailable")}
+                  </Text>
+                  {hasGiftCredit ? (
+                    <View style={styles.giftBadge}>
+                      <Text style={styles.giftBadgeText}>
+                        {formatAmdFromCents(spendableCents)}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+                <Switch
+                  value={giftEnabled}
+                  disabled={busy || !hasGiftCredit}
+                  onValueChange={setUseGiftCredits}
+                  trackColor={{
+                    false: "rgba(151, 144, 124, 0.28)",
+                    true: colors.taupe,
+                  }}
+                  thumbColor={colors.white}
+                />
               </Pressable>
             </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>{tPay("methodLegend")}</Text>
+              <View style={styles.methodOption}>
+                <MaterialCommunityIcons
+                  name="radiobox-marked"
+                  size={20}
+                  color={colors.taupe}
+                />
+                <Text style={styles.methodLabel}>{tPay("methods.CARD")}</Text>
+              </View>
+            </View>
+
+            {error !== null ? (
+              <Text style={styles.error} accessibilityLiveRegion="polite">
+                {error}
+              </Text>
+            ) : null}
           </ScrollView>
+
+          <View style={styles.actions}>
+            <Pressable
+              onPress={onClose}
+              disabled={busy}
+              style={({ pressed }) => [
+                styles.cancelBtn,
+                pressed && styles.pressed,
+              ]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.cancelLabel}>{tPay("cancel")}</Text>
+            </Pressable>
+            <Pressable
+              onPress={() =>
+                onConfirm({ useGiftCredits: giftEnabled })
+              }
+              disabled={busy}
+              style={({ pressed }) => [
+                styles.confirmBtn,
+                busy && styles.confirmDisabled,
+                pressed && !busy && styles.pressed,
+              ]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.confirmLabel}>
+                {busy ? tPay("submitting") : tPay("confirm")}
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: colors.scrimDark,
-    justifyContent: "flex-end",
-  },
-  sheet: {
-    zIndex: 1,
-    borderTopLeftRadius: radii.labelCard,
-    borderTopRightRadius: radii.labelCard,
-    backgroundColor: colors.canvas,
-    paddingHorizontal: space.lg,
-    paddingTop: space.lg,
-    maxHeight: "85%",
-  },
-  sheetContent: {
-    gap: space.md,
-    paddingBottom: space.sm,
-  },
-  title: {
-    fontFamily: fontFamilies.gtSuperDs.mediumItalic,
-    fontSize: typography.sectionTitle,
-    color: colors.primaryGreen80,
-  },
-  planName: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.body,
-    color: colors.primaryGreen,
-  },
-  metaList: {
-    gap: 4,
-  },
-  metaLine: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.sectionTitle - 4,
-    color: colors.ink,
-  },
-  metaMuted: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    color: colors.bodyMuted,
-  },
-  error: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    color: colors.danger,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: space.sm,
-    marginTop: space.sm,
-  },
-  primaryButton: {
-    flex: 1,
-    minHeight: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: radii.pill,
-    backgroundColor: colors.taupe,
-  },
-  primaryDisabled: {
-    opacity: 0.6,
-  },
-  secondaryButton: {
-    minHeight: 48,
-    paddingHorizontal: space.lg,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.white,
-  },
-  pressed: {
-    opacity: 0.9,
-  },
-  primaryLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.body,
-    color: colors.white,
-  },
-  secondaryLabel: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
-  },
-});

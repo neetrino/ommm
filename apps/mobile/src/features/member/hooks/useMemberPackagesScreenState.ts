@@ -117,79 +117,88 @@ export function useMemberPackagesScreenState({ isSignedIn }: UseMemberPackagesSc
     setSubscribeError(null);
   }, [subscribeBusy]);
 
-  const confirmSubscribe = useCallback(async (): Promise<boolean> => {
-    if (subscribePlanId === null) {
-      return false;
-    }
-    const token = await readStoredAccessToken();
-    if (token === null) {
-      setSubscribeError(packagesCopy.subscribeFailed);
-      return false;
-    }
-    setSubscribeBusy(true);
-    setSubscribeError(null);
-    try {
-      const result = await subscribeToPackage(token, {
-        planId: subscribePlanId,
-        paymentMethod: "CARD",
-        locale: checkoutLocale,
-      });
-
-      const redirectUrl =
-        typeof result.redirectUrl === "string" && result.redirectUrl.length > 0
-          ? result.redirectUrl
-          : null;
-      const paymentReference =
-        typeof result.paymentReference === "string" &&
-        result.paymentReference.length > 0
-          ? result.paymentReference
-          : null;
-      const needsBankCheckout =
-        result.requiresArcaCheckout === true ||
-        redirectUrl !== null ||
-        (isArcaCheckoutEnabled() && paymentReference !== null);
-
-      if (needsBankCheckout) {
-        if (redirectUrl !== null) {
-          setSubscribePlanId(null);
-          await openArcaRedirectUrl(redirectUrl);
-          return true;
-        }
-        if (paymentReference !== null) {
-          setSubscribePlanId(null);
-          await startArcaCardCheckout(token, paymentReference, checkoutLocale);
-          return true;
-        }
-        setSubscribeError(packagesCopy.subscribeFailed);
-        return false;
+  const confirmSubscribe = useCallback(
+    async (options?: {
+      useGiftCredits?: boolean;
+    }): Promise<"redirected" | "completed" | "failed"> => {
+      if (subscribePlanId === null) {
+        return "failed";
       }
+      const token = await readStoredAccessToken();
+      if (token === null) {
+        setSubscribeError(packagesCopy.subscribeFailed);
+        return "failed";
+      }
+      setSubscribeBusy(true);
+      setSubscribeError(null);
+      try {
+        const result = await subscribeToPackage(token, {
+          planId: subscribePlanId,
+          paymentMethod: "CARD",
+          locale: checkoutLocale,
+          useGiftCredits: options?.useGiftCredits === true,
+        });
 
-      // Gift-covered / Arca disabled — no bank redirect.
-      setSubscribePlanId(null);
-      setMode("mine");
-      await loadForMode("mine");
-      router.push(
-        buildPaymentOutcomeHref("success", {
-          reference: paymentReference,
-          source: "package",
-        }),
-      );
-      return true;
-    } catch (e) {
-      setSubscribeError(
-        e instanceof Error ? e.message : packagesCopy.subscribeFailed,
-      );
-      return false;
-    } finally {
-      setSubscribeBusy(false);
-    }
-  }, [
-    checkoutLocale,
-    loadForMode,
-    packagesCopy.subscribeFailed,
-    router,
-    subscribePlanId,
-  ]);
+        const redirectUrl =
+          typeof result.redirectUrl === "string" && result.redirectUrl.length > 0
+            ? result.redirectUrl
+            : null;
+        const paymentReference =
+          typeof result.paymentReference === "string" &&
+          result.paymentReference.length > 0
+            ? result.paymentReference
+            : null;
+        const needsBankCheckout =
+          result.requiresArcaCheckout === true ||
+          redirectUrl !== null ||
+          (isArcaCheckoutEnabled() && paymentReference !== null);
+
+        if (needsBankCheckout) {
+          if (redirectUrl !== null) {
+            setSubscribePlanId(null);
+            await openArcaRedirectUrl(redirectUrl);
+            return "redirected";
+          }
+          if (paymentReference !== null) {
+            setSubscribePlanId(null);
+            await startArcaCardCheckout(
+              token,
+              paymentReference,
+              checkoutLocale,
+            );
+            return "redirected";
+          }
+          setSubscribeError(packagesCopy.subscribeFailed);
+          return "failed";
+        }
+
+        setSubscribePlanId(null);
+        setMode("mine");
+        await loadForMode("mine");
+        router.push(
+          buildPaymentOutcomeHref("success", {
+            reference: paymentReference,
+            source: "package",
+          }),
+        );
+        return "completed";
+      } catch (e) {
+        setSubscribeError(
+          e instanceof Error ? e.message : packagesCopy.subscribeFailed,
+        );
+        return "failed";
+      } finally {
+        setSubscribeBusy(false);
+      }
+    },
+    [
+      checkoutLocale,
+      loadForMode,
+      packagesCopy.subscribeFailed,
+      router,
+      subscribePlanId,
+    ],
+  );
 
   const selectedSubscribePlan =
     subscribePlanId === null
