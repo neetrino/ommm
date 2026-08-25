@@ -1976,6 +1976,7 @@
       "colDue": "Զանգի օր",
       "datePlaceholder": "DD/MM/YYYY",
       "colComment": "Մեկնաբանություն",
+      "commentPlaceholder": "Ինչ ասել զանգի ժամանակ…",
       "noComment": "Մեկնաբանություն չկա",
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",

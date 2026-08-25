@@ -181,6 +181,7 @@ function CallTaskFormFields({
         <textarea
           className="ommm-input min-h-[120px] resize-y"
           value={draft.comment}
+          placeholder={t("commentPlaceholder")}
           disabled={busy}
           required
           maxLength={4000}

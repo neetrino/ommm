@@ -1973,6 +1973,7 @@
       "colDue": "Дата звонка",
       "datePlaceholder": "ДД/ММ/ГГГГ",
       "colComment": "Комментарий",
+      "commentPlaceholder": "Что сказать во время звонка…",
       "noComment": "Без комментария",
       "colStatus": "Статус",
       "colActions": "Действия",
