@@ -22,6 +22,10 @@ import { dispatchCallTasksRefresh } from "@/lib/call-tasks-refresh-event";
 import { formatDateForUi } from "@/lib/date-display";
 import { getOmmmOverlayPortalRoot, OMMM_FLOATING_MENU_Z_INDEX } from "@/lib/ommm-overlay-portal";
 import { displayPhoneOrFallback } from "@/lib/phone";
+import {
+  HEADER_ICONS_UI_PREVIEW,
+  HEADER_PREVIEW_CALL_TASKS,
+} from "@/lib/header-icons-ui-preview";
 import styles from "@/components/shell/header-notifications-menu.module.css";
 
 const MENU_MOTION_MS = 320;
@@ -49,7 +53,14 @@ export function HeaderCallTasksMenu({
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
-  const { items, loading, error, refetch } = useCallTasksDue(enabled);
+  const live = useCallTasksDue(enabled && !HEADER_ICONS_UI_PREVIEW);
+  const [previewItems] = useState(() =>
+    HEADER_ICONS_UI_PREVIEW ? HEADER_PREVIEW_CALL_TASKS : [],
+  );
+  const items = HEADER_ICONS_UI_PREVIEW ? previewItems : live.items;
+  const loading = false;
+  const error = HEADER_ICONS_UI_PREVIEW ? false : live.error;
+  const refetch = live.refetch;
   const count = items.length;
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
@@ -97,6 +108,10 @@ export function HeaderCallTasksMenu({
             return;
           }
           setOpen(true);
+          if (HEADER_ICONS_UI_PREVIEW) {
+            setPanelVisible(true);
+            return;
+          }
           void refetch();
         }}
       >
@@ -211,6 +226,9 @@ function CallTaskDueRow({ row }: { row: CallTaskRow }) {
   const [busy, setBusy] = useState(false);
 
   async function complete() {
+    if (HEADER_ICONS_UI_PREVIEW) {
+      return;
+    }
     setBusy(true);
     try {
       await apiFetch(`/call-tasks/${row.id}/complete`, { method: "POST" });

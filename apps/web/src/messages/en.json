@@ -74,7 +74,14 @@
     "loading": "Loading notifications…",
     "loadFailed": "Could not load notifications",
     "typeBooked": "Booked",
-    "typeCancelled": "Cancelled"
+    "typeCancelled": "Cancelled",
+    "cardBodyBooked": "A member booked this class.",
+    "cardBodyCancelled": "A member cancelled this class.",
+    "searchPlaceholder": "Search class, member, or type…",
+    "resetFilters": "Reset filters",
+    "detailsEyebrow": "Notification",
+    "detailsClose": "Close",
+    "detailsCloseBackdrop": "Close notification details"
   },
   "headerSessionReviews": {
     "memberTitle": "Rate your class",

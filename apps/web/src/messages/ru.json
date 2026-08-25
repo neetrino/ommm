@@ -74,7 +74,14 @@
     "loading": "Загрузка…",
     "loadFailed": "Не удалось загрузить уведомления",
     "typeBooked": "Забронировано",
-    "typeCancelled": "Отменено"
+    "typeCancelled": "Отменено",
+    "cardBodyBooked": "Участник забронировал это занятие.",
+    "cardBodyCancelled": "Участник отменил это занятие.",
+    "searchPlaceholder": "Поиск по занятию, участнику или типу…",
+    "resetFilters": "Сбросить",
+    "detailsEyebrow": "Уведомление",
+    "detailsClose": "Закрыть",
+    "detailsCloseBackdrop": "Закрыть детали уведомления"
   },
   "headerSessionReviews": {
     "memberTitle": "Оценить занятие",

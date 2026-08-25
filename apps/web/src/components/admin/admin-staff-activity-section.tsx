@@ -1,27 +1,32 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { AdminStaffActivityCard } from "@/components/admin/admin-staff-activity-card";
+import { AdminStaffActivityDetailsModal } from "@/components/admin/admin-staff-activity-details-modal";
 import { AdminStaffActivityEmptyState } from "@/components/admin/admin-staff-activity-empty-state";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { markStaffActivityRead } from "@/hooks/use-staff-activity-inbox";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateTimeForUi } from "@/lib/date-display";
-import { formatTimeForUi } from "@/lib/format-time-display";
+import {
+  HEADER_ICONS_UI_PREVIEW,
+  HEADER_PREVIEW_STAFF_ACTIVITY,
+} from "@/lib/header-icons-ui-preview";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 import type {
   StaffActivityListPayload,
   StaffActivityRow,
 } from "@/lib/staff-activity-types";
 import { STAFF_ACTIVITY_PAGE_TAKE } from "@/lib/staff-activity-types";
-import { STUDIO_TIMEZONE } from "@/lib/studio-timezone";
+
+const SEARCH_DEBOUNCE_MS = 280;
 
 export function AdminStaffActivitySection() {
   const t = useTranslations("staffActivityPages");
-  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const listPage = useMemo(
@@ -31,11 +36,57 @@ export function AdminStaffActivitySection() {
       }),
     [searchParams],
   );
-  const [payload, setPayload] = useState<StaffActivityListPayload | null>(null);
-  const [loading, setLoading] = useState(true);
+  const urlQuery = searchParams.get("q")?.trim() ?? "";
+  const [searchDraft, setSearchDraft] = useState(urlQuery);
+  const [payload, setPayload] = useState<StaffActivityListPayload | null>(() =>
+    HEADER_ICONS_UI_PREVIEW
+      ? {
+          items: HEADER_PREVIEW_STAFF_ACTIVITY,
+          total: HEADER_PREVIEW_STAFF_ACTIVITY.length,
+          take: STAFF_ACTIVITY_PAGE_TAKE,
+          offset: 0,
+        }
+      : null,
+  );
+  const [loading, setLoading] = useState(!HEADER_ICONS_UI_PREVIEW);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<StaffActivityRow | null>(null);
+
+  useEffect(() => {
+    setSearchDraft(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
+    if (searchDraft === urlQuery) {
+      return undefined;
+    }
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      const next = searchDraft.trim();
+      if (next.length === 0) {
+        params.delete("q");
+      } else {
+        params.set("q", next);
+      }
+      syncListPageQuery(params, 1, listPage.pageSize);
+      const query = params.toString();
+      router.replace(query.length > 0 ? `?${query}` : "?");
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [listPage.pageSize, router, searchDraft, searchParams, urlQuery]);
 
   const load = useCallback(async () => {
+    if (HEADER_ICONS_UI_PREVIEW) {
+      setPayload({
+        items: HEADER_PREVIEW_STAFF_ACTIVITY,
+        total: HEADER_PREVIEW_STAFF_ACTIVITY.length,
+        take: listPage.take,
+        offset: listPage.offset,
+      });
+      setLoading(false);
+      setError(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -58,12 +109,43 @@ export function AdminStaffActivitySection() {
     });
   }, [load]);
 
-  const items = payload?.items ?? [];
-  const total = payload?.total ?? 0;
-  const showEmpty = !loading && !error && items.length === 0;
+  const filteredItems = useMemo(() => {
+    const items = payload?.items ?? [];
+    const q = urlQuery.toLowerCase();
+    if (q.length === 0) {
+      return items;
+    }
+    return items.filter((row) => {
+      const typeKey = row.type === "BOOKING_CREATED" ? "booked" : "cancelled";
+      return (
+        row.memberName.toLowerCase().includes(q) ||
+        row.className.toLowerCase().includes(q) ||
+        typeKey.includes(q)
+      );
+    });
+  }, [payload?.items, urlQuery]);
+
+  const total = HEADER_ICONS_UI_PREVIEW
+    ? filteredItems.length
+    : (payload?.total ?? 0);
+  const showEmpty = !loading && !error && filteredItems.length === 0;
 
   return (
-    <StaffListPageLayout title={t("title")}>
+    <StaffListPageLayout
+      title={t("title")}
+      search={
+        <ListPageSearchFilters
+          search={searchDraft}
+          onSearchChange={setSearchDraft}
+          searchPlaceholder={t("searchPlaceholder")}
+          fields={[]}
+          filterValues={{}}
+          onFilterChange={() => undefined}
+          onClearAll={() => setSearchDraft("")}
+          resetLabel={t("resetFilters")}
+        />
+      }
+    >
       {loading ? (
         <p className="sr-only" aria-live="polite">
           {t("loading")}
@@ -71,14 +153,18 @@ export function AdminStaffActivitySection() {
       ) : null}
       {error ? <p className="text-sm text-amber-900">{error}</p> : null}
       {showEmpty ? <AdminStaffActivityEmptyState /> : null}
-      {items.length > 0 ? (
-        <ul className="divide-y divide-sage-100/80 rounded-2xl border border-sand-200/70 bg-white/80 px-4">
-          {items.map((row) => (
-            <StaffActivityPageRow key={row.id} row={row} locale={locale} />
+      {filteredItems.length > 0 ? (
+        <div className="space-y-3" aria-busy={loading}>
+          {filteredItems.map((row) => (
+            <AdminStaffActivityCard
+              key={row.id}
+              row={row}
+              onOpen={() => setSelected(row)}
+            />
           ))}
-        </ul>
+        </div>
       ) : null}
-      {total > listPage.pageSize ? (
+      {!HEADER_ICONS_UI_PREVIEW && total > listPage.pageSize ? (
         <OmmListPagination
           total={total}
           page={listPage.page}
@@ -92,43 +178,12 @@ export function AdminStaffActivitySection() {
           }}
         />
       ) : null}
+      {selected ? (
+        <AdminStaffActivityDetailsModal
+          row={selected}
+          onClose={() => setSelected(null)}
+        />
+      ) : null}
     </StaffListPageLayout>
   );
-}
-
-function StaffActivityPageRow({
-  row,
-  locale,
-}: {
-  row: StaffActivityRow;
-  locale: string;
-}) {
-  const t = useTranslations("staffActivityPages");
-  const sessionWhen = formatSessionLabel(locale, row.sessionStartsAt);
-  return (
-    <li className="flex flex-col gap-1 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-      <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-wide text-sage-600">
-          {row.type === "BOOKING_CREATED" ? t("typeBooked") : t("typeCancelled")}
-        </p>
-        <p className="mt-1 text-sm font-semibold text-sage-900">{row.memberName}</p>
-        <p className="mt-0.5 text-sm text-sage-700">{row.className}</p>
-        <p className="mt-0.5 text-xs text-sage-500">{sessionWhen}</p>
-      </div>
-      <p className="shrink-0 text-xs text-sage-400">
-        {formatDateTimeForUi(row.createdAt, locale)}
-      </p>
-    </li>
-  );
-}
-
-function formatSessionLabel(locale: string, startsAt: string): string {
-  const start = new Date(startsAt);
-  const date = new Intl.DateTimeFormat(locale, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    timeZone: STUDIO_TIMEZONE,
-  }).format(start);
-  return `${date} · ${formatTimeForUi(start, locale)}`;
 }

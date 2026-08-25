@@ -74,7 +74,14 @@
     "loading": "Բեռնվում է…",
     "loadFailed": "Չհաջողվեց բեռնել",
     "typeBooked": "Ամրագրված",
-    "typeCancelled": "Չեղարկված"
+    "typeCancelled": "Չեղարկված",
+    "cardBodyBooked": "Անդամը ամրագրել է այս դասը։",
+    "cardBodyCancelled": "Անդամը չեղարկել է այս դասը։",
+    "searchPlaceholder": "Փնտրել դաս, անդամ կամ տեսակ…",
+    "resetFilters": "Զրոյացնել",
+    "detailsEyebrow": "Ծանուցում",
+    "detailsClose": "Փակել",
+    "detailsCloseBackdrop": "Փակել ծանուցման մանրամասները"
   },
   "headerSessionReviews": {
     "memberTitle": "Գնահատել դասը",
