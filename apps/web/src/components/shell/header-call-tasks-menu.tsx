@@ -12,6 +12,7 @@ import {
   type RefObject,
 } from "react";
 import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
+import { MarkAllAsReadButton } from "@/components/shell/mark-all-as-read-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useCallTasksDue } from "@/hooks/use-call-tasks-due";
@@ -222,13 +223,7 @@ function CallTaskMenuPanel({
         <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {pendingCount > 0 && items.length > 0 ? (
-            <button
-              type="button"
-              className="text-xs font-medium text-sage-700 underline-offset-2 hover:text-sage-900 hover:underline"
-              onClick={onMarkAllRead}
-            >
-              {t("markAllRead")}
-            </button>
+            <MarkAllAsReadButton label={t("markAllRead")} onClick={onMarkAllRead} />
           ) : null}
           <Link
             href={listHref}

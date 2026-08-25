@@ -12,6 +12,7 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { MarkAllAsReadIcon } from "@/components/shell/mark-all-as-read-button";
 import { markStaffReviewsRead } from "@/components/shell/header-session-reviews-panels";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -173,9 +174,11 @@ export function SessionReviewsInboxSection({
               type="button"
               variant="secondary"
               size="sm"
+              className="inline-flex items-center gap-1.5"
               disabled={markingRead || !hasUnread}
               onClick={() => void clearUnreadBadge()}
             >
+              <MarkAllAsReadIcon className="h-3.5 w-3.5" />
               {t("markAllRead")}
             </OmmButton>
           </div>

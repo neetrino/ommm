@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { MarkAllAsReadButton } from "@/components/shell/mark-all-as-read-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { apiFetch } from "@/lib/api";
 import {
@@ -211,13 +212,7 @@ function ReviewMenuShell({
         <p className="text-sm font-semibold text-sage-900">{title}</p>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {unreadCount > 0 && onMarkAllRead ? (
-            <button
-              type="button"
-              className="text-xs font-medium text-sage-700 underline-offset-2 hover:text-sage-900 hover:underline"
-              onClick={onMarkAllRead}
-            >
-              {t("markAllRead")}
-            </button>
+            <MarkAllAsReadButton label={t("markAllRead")} onClick={onMarkAllRead} />
           ) : null}
           <Link
             href={viewAllHref}

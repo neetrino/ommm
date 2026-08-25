@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
+import { MarkAllAsReadButton } from "@/components/shell/mark-all-as-read-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useHeaderNotificationsSeen } from "@/hooks/use-header-notifications-seen";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
@@ -279,13 +280,10 @@ export function HeaderNotificationsMenu({
                 ) : null}
               </div>
               {unreadCount > 0 ? (
-                <button
-                  type="button"
-                  className="shrink-0 text-xs font-medium text-sage-700 underline-offset-2 hover:text-sage-900 hover:underline"
+                <MarkAllAsReadButton
+                  label={t("markAllRead")}
                   onClick={() => markAllSeen(offerIds)}
-                >
-                  {t("markAllRead")}
-                </button>
+                />
               ) : null}
             </div>
             <ul className={`max-h-72 list-none overflow-y-auto p-0 ${styles.scrollList}`}>
