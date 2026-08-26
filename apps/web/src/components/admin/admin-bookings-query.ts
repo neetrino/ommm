@@ -68,6 +68,8 @@ export type AdminBookingRow = {
   paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
   bookingPaymentMethod: string | null;
   channel: "WEBSITE" | "APP";
+  guestName?: string | null;
+  guestPassSlot?: number;
   registerDate: string;
   user: { id: string; name: string | null; email: string; phone: string | null };
   session: {

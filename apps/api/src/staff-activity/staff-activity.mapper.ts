@@ -16,6 +16,7 @@ export type StaffActivityDto = {
 
 export function toStaffActivityDto(
   row: StaffActivityNotification,
+  isUnread: boolean,
 ): StaffActivityDto {
   return {
     id: row.id,
@@ -25,6 +26,6 @@ export function toStaffActivityDto(
     className: row.className,
     sessionStartsAt: row.sessionStartsAt.toISOString(),
     createdAt: row.createdAt.toISOString(),
-    isUnread: row.staffReadAt === null,
+    isUnread,
   };
 }

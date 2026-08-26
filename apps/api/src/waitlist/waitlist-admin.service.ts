@@ -22,6 +22,7 @@ import {
   renderWaitlistUpdateEmail,
   resolveWaitlistUpdateSubject,
 } from '../mail/templates/waitlist-emails.template';
+import { ownerBookingUniqueWhere } from '../bookings/bookings-guest-pass.constants';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -94,9 +95,7 @@ export class WaitlistAdminService {
       throw new ForbiddenException('Session is full');
     }
     const existingBooking = await this.prisma.booking.findUnique({
-      where: {
-        userId_sessionId: { userId: entry.userId, sessionId: session.id },
-      },
+      where: ownerBookingUniqueWhere(entry.userId, session.id),
     });
     if (existingBooking && existingBooking.status === BookingStatus.BOOKED) {
       throw new ConflictException(

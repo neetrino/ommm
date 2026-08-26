@@ -18,6 +18,7 @@ import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { BOOKING_INTERACTIVE_TX_TIMEOUT_MS } from './bookings.constants';
+import { ownerBookingUniqueWhere } from './bookings-guest-pass.constants';
 import { BookingsSlotService } from './bookings-slot.service';
 import {
   isPenalizedCancellation,
@@ -113,7 +114,7 @@ export class BookingsClientService {
       throw new BadRequestException('Session already started');
     }
     const existing = await this.prisma.booking.findUnique({
-      where: { userId_sessionId: { userId, sessionId } },
+      where: ownerBookingUniqueWhere(userId, sessionId),
     });
     if (existing?.status === BookingStatus.BOOKED) {
       throw new BadRequestException('Already booked');
@@ -134,7 +135,7 @@ export class BookingsClientService {
     const booking = await this.prisma.$transaction(
       async (tx) => {
         const existingBooking = await tx.booking.findUnique({
-          where: { userId_sessionId: { userId, sessionId } },
+          where: ownerBookingUniqueWhere(userId, sessionId),
         });
         if (existingBooking?.status === BookingStatus.BOOKED) {
           throw new BadRequestException('Already booked');

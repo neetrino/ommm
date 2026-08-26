@@ -2,11 +2,14 @@ import { UserPackageStatus } from '@prisma/client';
 import {
   addDaysUtc,
   buildFreezeResumeData,
+  canAdminStartFreeze,
   canStartFreeze,
+  resolveAdminFreezeMaxDays,
   resolveFreezeCounters,
   resolveFreezeExtensionMs,
   resolveFreezePolicy,
 } from './packages-freeze.helpers';
+import { MAX_FREEZE_DAYS_PER_USE } from './packages-freeze.constants';
 import { USER_PACKAGE_VALIDITY_DAY_MS } from './packages-freeze.time';
 
 describe('packages-freeze.helpers', () => {
@@ -47,6 +50,17 @@ describe('packages-freeze.helpers', () => {
         policy,
       }),
     ).toBe(false);
+  });
+
+  it('lets an admin freeze an active package even without a plan policy', () => {
+    expect(canAdminStartFreeze(UserPackageStatus.ACTIVE)).toBe(true);
+    expect(canAdminStartFreeze(UserPackageStatus.PAUSED)).toBe(false);
+    expect(
+      resolveAdminFreezeMaxDays({ allowedCount: 0, maxDaysPerUse: 0 }),
+    ).toBe(MAX_FREEZE_DAYS_PER_USE);
+    expect(
+      resolveAdminFreezeMaxDays({ allowedCount: 1, maxDaysPerUse: 7 }),
+    ).toBe(7);
   });
 
   it('extends validity by the elapsed pause, never past the scheduled end', () => {

@@ -64,12 +64,16 @@ export function UserMembershipCompactRow({
 
       <div className={USER_PACKAGES_LIST_PERIOD_CELL}>
         <MobileLabel label={t("listHeaderPeriod")} />
-        <MembershipPeriodHighlight
-          locale={locale}
-          periodStart={membership.currentPeriodStart}
-          periodEnd={membership.currentPeriodEnd}
-          variant="list"
-        />
+        {membership.awaitingFirstVisit === true ? (
+          <p className="text-sm font-medium text-sage-800">{display.validityLabel}</p>
+        ) : (
+          <MembershipPeriodHighlight
+            locale={locale}
+            periodStart={membership.currentPeriodStart}
+            periodEnd={membership.currentPeriodEnd}
+            variant="list"
+          />
+        )}
       </div>
 
       <div className={USER_PACKAGES_LIST_PRICE_CELL}>

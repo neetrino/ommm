@@ -16,8 +16,7 @@ import {
 import { USER_PACKAGE_STATUS } from './packages-plan.types';
 import { PackagesPublicService } from './packages-public.service';
 import { createBalancesForUserPackage } from './packages-user-package-balances.util';
-import { buildUserPackagePlanSnapshot } from './user-package-plan-snapshot.util';
-import { resolveUserPackagePeriodBounds } from './user-package-period.util';
+import { buildUserPackageCreateData } from './packages-subscribe-card.util';
 
 /**
  * Admin Client Packages purchase — Cash / CARD_TERMINAL / INFLUENCER.
@@ -59,29 +58,16 @@ export class PackagesAdminClientPurchaseService {
     assertPackageHasAvailableStock(plan);
 
     const now = new Date();
-    const { currentPeriodStart, currentPeriodEnd } =
-      resolveUserPackagePeriodBounds({
-        planStartDate: plan.startDate,
-        purchasedAt: now,
-        periodDays: plan.periodDays,
-      });
     const paymentReference = createPaymentReference('PACKAGE');
     const amountCents = resolveFinalPriceCents(plan);
 
     const created = await this.prisma.$transaction(async (tx) => {
       const userPackage = await tx.userPackage.create({
-        data: {
+        data: buildUserPackageCreateData({
           userId: params.clientId,
-          planId: plan.id,
-          ...buildUserPackagePlanSnapshot(plan),
+          plan,
           status: USER_PACKAGE_STATUS.ACTIVE,
-          currentPeriodStart,
-          currentPeriodEnd,
-          sessionsTotal: plan.isUnlimited ? null : (plan.sessionsPerMonth ?? 0),
-          sessionsRemaining: plan.isUnlimited
-            ? null
-            : (plan.sessionsPerMonth ?? 0),
-        },
+        }),
       });
       await createBalancesForUserPackage(tx, {
         plan,

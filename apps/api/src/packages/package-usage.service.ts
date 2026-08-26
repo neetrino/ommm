@@ -69,6 +69,15 @@ export class PackageUsageService {
     return this.eligibility.getValidatedUserPackageForBooking(params);
   }
 
+  getValidatedUserPackageForGuestPass(params: {
+    tx: Prisma.TransactionClient;
+    userId: string;
+    session: SessionShape;
+    userPackageId: string;
+  }): Promise<UserPackageWithPlanAndBalances> {
+    return this.eligibility.getValidatedUserPackageForGuestPass(params);
+  }
+
   consumeSession(params: {
     tx: Prisma.TransactionClient;
     bookingId: string;
@@ -77,6 +86,14 @@ export class PackageUsageService {
     requiredSessions: number;
   }): Promise<void> {
     return this.ledger.consumeSession(params);
+  }
+
+  consumeGuestSlot(params: {
+    tx: Prisma.TransactionClient;
+    bookingId: string;
+    membership: UserPackageWithPlanAndBalances;
+  }): Promise<void> {
+    return this.ledger.consumeGuestSlot(params);
   }
 
   restoreSession(params: {

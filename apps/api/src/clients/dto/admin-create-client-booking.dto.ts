@@ -10,4 +10,9 @@ export class AdminCreateClientBookingDto {
   @IsString()
   @MinLength(1)
   userPackageId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  guestName?: string;
 }

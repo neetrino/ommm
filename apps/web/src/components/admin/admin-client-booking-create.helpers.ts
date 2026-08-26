@@ -1,4 +1,4 @@
-import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
+import type { EligibleBookingPackage } from "@/lib/eligible-booking-package";
 import { formatDateCompactForUi } from "@/lib/date-display";
 import { formatTimeForUiFromIso } from "@/lib/format-time-display";
 
@@ -73,6 +73,23 @@ export function packageOptionLabel(
   return `${name} · ${remaining} · ${expiry}`;
 }
 
+export function buildAdminClientBookingRequestBody(params: {
+  sessionId: string;
+  userPackageId: string;
+  guestName: string;
+}): { sessionId: string; userPackageId?: string; guestName?: string } {
+  const body: { sessionId: string; userPackageId?: string; guestName?: string } = {
+    sessionId: params.sessionId,
+  };
+  if (params.userPackageId !== ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE) {
+    body.userPackageId = params.userPackageId;
+  }
+  if (params.guestName.trim().length > 0) {
+    body.guestName = params.guestName.trim();
+  }
+  return body;
+}
+
 export function canSubmitAdminClientBooking(params: {
   sessionId: string;
   sessionsLoading: boolean;
@@ -80,7 +97,9 @@ export function canSubmitAdminClientBooking(params: {
   packagesError: string | null;
   packageRequired: boolean;
   userPackageId: string;
-  bookablePackageCount: number;
+  selectedCanBook: boolean;
+  selectedCanBookGuest: boolean;
+  guestName: string;
 }): boolean {
   if (
     params.sessionId === "" ||
@@ -90,11 +109,14 @@ export function canSubmitAdminClientBooking(params: {
   ) {
     return false;
   }
-  if (params.packageRequired) {
+  if (params.guestName.trim().length > 0) {
     return (
       params.userPackageId !== ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE &&
-      params.bookablePackageCount > 0
+      params.selectedCanBookGuest
     );
   }
-  return true;
+  if (params.userPackageId !== ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE) {
+    return params.selectedCanBook;
+  }
+  return !params.packageRequired;
 }

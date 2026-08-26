@@ -98,6 +98,28 @@ export class PackageUsageLedgerService {
     );
   }
 
+  async consumeGuestSlot(params: {
+    tx: Prisma.TransactionClient;
+    bookingId: string;
+    membership: UserPackageWithPlanAndBalances;
+  }): Promise<void> {
+    if (params.membership.guestSlotsRemaining <= 0) {
+      throw new BadRequestException('No guest passes remaining on this package');
+    }
+    await params.tx.userPackage.update({
+      where: { id: params.membership.id },
+      data: { guestSlotsRemaining: { decrement: 1 } },
+    });
+    await params.tx.bookingConsumption.create({
+      data: {
+        bookingId: params.bookingId,
+        userPackageId: params.membership.id,
+        consumedSessions: 0,
+        consumedGuestSlots: 1,
+      },
+    });
+  }
+
   async restoreSession(params: {
     tx: Prisma.TransactionClient;
     bookingId: string;
@@ -111,6 +133,7 @@ export class PackageUsageLedgerService {
               userPackageId: string;
               userPackageBalanceId: string | null;
               consumedSessions: number;
+              consumedGuestSlots: number;
             }>
           >;
           update(args: unknown): Promise<unknown>;
@@ -151,6 +174,14 @@ export class PackageUsageLedgerService {
           where: { id: consumption.userPackageId },
           data: {
             sessionsRemaining: { increment: consumption.consumedSessions },
+          },
+        });
+      }
+      if (consumption.consumedGuestSlots > 0) {
+        await params.tx.userPackage.update({
+          where: { id: consumption.userPackageId },
+          data: {
+            guestSlotsRemaining: { increment: consumption.consumedGuestSlots },
           },
         });
       }

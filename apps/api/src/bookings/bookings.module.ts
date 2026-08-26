@@ -12,6 +12,7 @@ import { BookingsClientService } from './bookings-client.service';
 import { BookingsController } from './bookings.controller';
 import { BookingsService } from './bookings.service';
 import { BookingsSlotService } from './bookings-slot.service';
+import { BookingsGuestPassService } from './bookings-guest-pass.service';
 import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 
 @Module({
@@ -26,6 +27,7 @@ import { BookingsStatusTransitionService } from './bookings-status-transition.se
   providers: [
     BookingsService,
     BookingsClientService,
+    BookingsGuestPassService,
     BookingsClientListService,
     BookingsAdminService,
     BookingsAdminListService,

@@ -25,6 +25,8 @@ export type UserMembershipRow = {
   isUnlimited: boolean;
   currentPeriodStart: string;
   currentPeriodEnd: string;
+  awaitingFirstVisit?: boolean;
+  activationDeadline?: string | null;
   plan: UserPackagePlanSummary;
 };
 
@@ -101,6 +103,8 @@ export function normalizeUserMembershipRow(raw: unknown): UserMembershipRow | nu
     isUnlimited: readBoolean(row.isUnlimited),
     currentPeriodStart,
     currentPeriodEnd,
+    awaitingFirstVisit: readBoolean(row.awaitingFirstVisit),
+    activationDeadline: readString(row.activationDeadline),
     plan,
   };
 }

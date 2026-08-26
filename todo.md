@@ -1,72 +1,45 @@
 # TODO
 
-Полный план Finance reorg (~90%): [`docs/archive/todo.finance.md`](docs/archive/todo.finance.md) · spec §9
-
-Полный план Analytics reorg (в работе): [`docs/archive/todo.analytics.md`](docs/archive/todo.analytics.md) · spec §10
+Живые планы (не удалять): [`todo.accounts.md`](todo.accounts.md) · [`docs/archive/todo.finance.md`](docs/archive/todo.finance.md) · [`docs/archive/todo.analytics.md`](docs/archive/todo.analytics.md)
 
 ---
 
-## Admin Analytics — остаток
+## Фаза 1 — обещанное клиенту: активация + время записи
 
-### Faza 1
+Правило Helen: после покупки активировать в течение 1 месяца; старт = первое посещение (Attended / COMPLETED), не позже чем покупка + 30 дней. Старые пакеты не мигрировать.
 
-- [x] Завершена (tabs, header, query preservation, layout без description)
-
-- [x] План `docs/archive/todo.analytics.md`
-- [x] 5 route-tabs + redirect `/admin/analytics` → overview
-- [x] `layout.tsx` + unified header (tabs, filters, view, CSV icons)
-- [x] `admin-analytics-server-helpers`, `admin-analytics-url`, tab pages
-- [x] Shell split по `section` (overview / revenue / bookings / members / coaches)
-- [x] Tab nav сохраняет global query при смене таба
-- [x] Убрать `description` из `AdminContentFrame` (dubl nav subtitle) — analytics layout без description
-
-### Backend / product (P1–P2)
-
-- [ ] Coach revenue per coach, class revenue — API (spec §10)
-- [ ] Retention metrics — API
-- [ ] Bookings aggregates без sample cap
-- [ ] Excel export
-- [ ] `@SkipThrottle()` на analytics reads при 429
-
-### i18n / QA
-
-- [x] Auth error QA на всех 5 табах (account + analytics smoke)
-- [ ] `docs/SITE_FULL_ANALYSIS.md`
+- [x] Показать дату+время записи (`Booking.createdAt`) в карточке брони и в истории клиента
+- [x] Схема: `UserPackage.awaitingFirstVisit` (default false). Не использовать `PENDING` (это неоплаченный checkout)
+- [x] Новые покупки: пакет можно бронировать, срок не тикает, UI «активируется с первого визита, до {date}»
+- [x] Если у тарифа будущий `plan.startDate` — оставить текущий отложенный старт (`awaitingFirstVisit = false`)
+- [x] Первое COMPLETED в окне 30 дней → период с дня занятия, длительность `periodDays`
+- [x] Нет визита за 30 дней → cron ставит старт = покупка + 30 дней
+- [x] Карандаш админа (Save validity) снимает ожидание
+- [x] `syncExpiredMemberships` не истекает пакеты в ожидании первого визита
 
 ---
 
-## Admin Finance — остаток
+## Фаза 2 — уведомления тренера (запись / отмена)
 
-### Backend / product (отдельные epic'и)
+Сейчас у тренера в шапке колокол участника (waitlist empty), а booking-inbox только у admin/manager. Нужен inbox по своим классам; прочитанное тренера не сбрасывает бейдж студии.
 
-- [ ] **Refund request** — API + UI на Members (сейчас toast «не поддерживается»); связать с payment provider (Ameriabank/ARCA refund flow)
-- [ ] **DB pagination `/clients`** — убрать in-memory slice 500; `take`/`offset` на уровне Prisma (Members tab + `/admin/clients`)
-- [ ] **Coaches payroll** — real payout records, edit/pause salary (spec §9.4; сейчас estimated salary + info banner)
-- [ ] **Pagination `/coaches/admin/list`** — `take`/`offset` (связь с coaches roster epic)
-
-### UI / spec gaps (P2)
-
-- [ ] **Members payment status** — dropdown paid / pending / canceled / cash (spec §9.3); сейчас badge `paymentBehavior`
-- [ ] **Overview KPI** — (опционально) убрать или переименовать Total revenue, если дублирует Monthly + range — согласовать с product
-
-### i18n / docs / QA
-
-- [ ] **i18n ru/hy** — дописать `adminPages.finance.coachTab`, `coachDrawer` (en есть; ru/hy могут fallback на en)
-- [ ] **Auth error QA** — ручной прогон 401/403 на всех 4 табах finance
-- [ ] **docs** — кратко обновить `docs/SITE_FULL_ANALYSIS.md` (новая структура Finance)
+- [x] Колокол в шапке тренера = booking inbox (свои классы), не member waitlist
+- [x] `/coach/notifications` показывает записи/отмены + prefs
+- [x] API: COACH видит только события своих занятий; `coachReadAt` отдельно от `staffReadAt`
 
 ---
 
-## Сделано (Finance reorg)
+## Фаза 3 — гостевой пропуск
 
-- [x] 4 route-tabs: Overview / Payments / Members / Coaches + legacy `?tab=` redirect
-- [x] Один hero: tab-specific search, filters, CSV trailing
-- [x] Payments search `q`, Members columns, Coaches server filters
-- [x] 429 fix, URL hygiene, list UI unified with Bookings/Clients
+Отдельный продукт, не «гость в каталоге».
 
-## Сделано (Analytics Faza 1)
+- [x] Слот гостевого пропуска на купленном пакете
+- [x] Владелец бронирует гостя без списания своего занятия
+- [x] Персонал видит, что пропуск уже использован
 
-- [x] 5 tabs по spec §10, unified header как Finance
-- [x] Export icons в hero, без блока export/limitations внизу
-- [x] Query sanitization per tab (`redirectIfUnscopedAnalyticsSearchParams`)
-- [x] Tab nav сохраняет `rangeDays` / `quick` / `sort` (+ tab-specific keys) при смене таба
+---
+
+## Фаза 4 — заморозка
+
+- [x] Включить freeze на тарифах (Packages → Edit: `freezeAllowedCount` / `freezeMaxDaysPerUse`)
+- [x] Админ может заморозить пакет даже если на тарифе freeze = 0

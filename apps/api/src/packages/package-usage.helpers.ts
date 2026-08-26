@@ -25,6 +25,9 @@ export type EligibleBookingPackage = {
   currentPeriodStart: string;
   currentPeriodEnd: string;
   includedCategories: string[];
+  guestSlotsTotal: number;
+  guestSlotsRemaining: number;
+  canBookGuest: boolean;
 };
 
 export type SessionClassTypeShape = {
@@ -69,6 +72,20 @@ export function isUserPackageActiveAt(
     membership.currentPeriodStart.getTime() <= at.getTime() &&
     membership.currentPeriodEnd.getTime() > at.getTime()
   );
+}
+
+/** Bookable while awaiting first visit, or inside the active period window. */
+export function isUserPackageBookableAt(
+  membership: Pick<
+    UserPackage,
+    'currentPeriodStart' | 'currentPeriodEnd' | 'awaitingFirstVisit'
+  >,
+  at: Date,
+): boolean {
+  if (membership.awaitingFirstVisit) {
+    return true;
+  }
+  return isUserPackageActiveAt(membership, at);
 }
 
 export function computeUsageStats(membership: {
@@ -127,6 +144,9 @@ export function toEligibleBookingPackage(
     currentPeriodStart: membership.currentPeriodStart.toISOString(),
     currentPeriodEnd: membership.currentPeriodEnd.toISOString(),
     includedCategories,
+    guestSlotsTotal: membership.guestSlotsTotal,
+    guestSlotsRemaining: membership.guestSlotsRemaining,
+    canBookGuest: membership.guestSlotsRemaining > 0,
   };
 }
 

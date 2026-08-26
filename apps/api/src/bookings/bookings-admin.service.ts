@@ -21,6 +21,7 @@ import {
 } from './bookings-management.helpers';
 import { BookingsAdminListService } from './bookings-admin-list.service';
 import { BookingsSlotService } from './bookings-slot.service';
+import { PackagesActivationService } from '../packages/packages-activation.service';
 import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
@@ -35,6 +36,7 @@ export class BookingsAdminService {
     private readonly realtime: RealtimePublisherService,
     private readonly slots: BookingsSlotService,
     private readonly statusTransition: BookingsStatusTransitionService,
+    private readonly packagesActivation: PackagesActivationService,
   ) {}
 
   listAdmin(filters: Parameters<BookingsAdminListService['listAdmin']>[0]) {
@@ -137,13 +139,17 @@ export class BookingsAdminService {
         throw new ForbiddenException();
       }
     }
-    return this.prisma.booking.update({
+    const updated = await this.prisma.booking.update({
       where: { id: bookingId },
       data: {
         status: attended ? BookingStatus.COMPLETED : BookingStatus.MISSED,
         attendedAt: attended ? new Date() : null,
       },
     });
+    if (attended) {
+      await this.packagesActivation.activateFromCompletedBooking(bookingId);
+    }
+    return updated;
   }
 
   async addNote(author: User, bookingId: string, dto: CreateBookingNoteDto) {
@@ -246,18 +252,22 @@ export class BookingsAdminService {
       });
     }
     if (dto.attended !== undefined && dto.status === undefined) {
-      return this.prisma.booking.update({
+      const updated = await this.prisma.booking.update({
         where: { id: bookingId },
         data: {
           status: dto.attended ? BookingStatus.COMPLETED : BookingStatus.MISSED,
           attendedAt: dto.attended ? new Date() : null,
         },
       });
+      if (dto.attended) {
+        await this.packagesActivation.activateFromCompletedBooking(bookingId);
+      }
+      return updated;
     }
     if (dto.status === undefined) {
       throw new BadRequestException('No updatable fields were provided');
     }
-    return this.prisma.booking.update({
+    const updated = await this.prisma.booking.update({
       where: { id: bookingId },
       data: {
         status: dto.status,
@@ -265,6 +275,10 @@ export class BookingsAdminService {
         attendedAt: dto.status === BookingStatus.COMPLETED ? new Date() : null,
       },
     });
+    if (dto.status === BookingStatus.COMPLETED) {
+      await this.packagesActivation.activateFromCompletedBooking(bookingId);
+    }
+    return updated;
   }
 
   async adminDeletePermanent(bookingId: string) {

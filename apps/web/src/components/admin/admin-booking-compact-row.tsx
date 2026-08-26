@@ -45,6 +45,7 @@ type BookingRow = {
     sessionsPerMonth: number | null;
     isUnlimited: boolean;
   } | null;
+  guestName?: string | null;
 };
 
 type AdminBookingCompactRowProps = {
@@ -104,6 +105,11 @@ export function AdminBookingCompactRow({
         >
           {userLabel}
         </button>
+        {row.guestName ? (
+          <p className="mt-0.5 truncate text-xs text-sand-800">
+            {t("guestPass")}: {row.guestName}
+          </p>
+        ) : null}
         <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(row.user.phone)}</p>
       </div>
 

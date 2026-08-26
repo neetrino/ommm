@@ -112,6 +112,12 @@ export function MembershipDetailsSheetContent({
             />
           ) : null}
           <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsSummary} />
+          {display.guestPassesSummary !== null ? (
+            <DetailRow
+              label={t("membershipDetailsGuestPasses")}
+              value={display.guestPassesSummary}
+            />
+          ) : null}
           {display.sessionsRemainingSummary !== null ? (
             <DetailRow
               label={t("membershipDetailsSessionsRemaining")}
@@ -135,12 +141,14 @@ export function MembershipDetailsSheetContent({
         </dl>
 
         <div className="mt-5">
-          <MembershipPeriodHighlight
-            locale={locale}
-            periodStart={membership.currentPeriodStart}
-            periodEnd={membership.currentPeriodEnd}
-            variant="board"
-          />
+          {membership.awaitingFirstVisit === true ? null : (
+            <MembershipPeriodHighlight
+              locale={locale}
+              periodStart={membership.currentPeriodStart}
+              periodEnd={membership.currentPeriodEnd}
+              variant="board"
+            />
+          )}
         </div>
       </div>
 

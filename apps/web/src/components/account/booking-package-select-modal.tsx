@@ -2,25 +2,14 @@
 
 import { useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { BookingPackageSelectGuestActions } from "@/components/account/booking-package-select-guest-actions";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
-import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
 import { pickDefaultBookingPackageId } from "@/lib/booking-package-selection";
+import type { EligibleBookingPackage } from "@/lib/eligible-booking-package";
 
-export type EligibleBookingPackage = {
-  userPackageId: string;
-  planId: string;
-  planName: string;
-  remainingSessions: number | null;
-  totalSessions: number | null;
-  usedSessions: number | null;
-  isUnlimited: boolean;
-  canBook: boolean;
-  currentPeriodStart: string;
-  currentPeriodEnd: string;
-  includedCategories: string[];
-};
+export type { EligibleBookingPackage };
 
 type BookingPackageSelectModalProps = {
   isOpen: boolean;
@@ -67,32 +56,36 @@ export function BookingPackageSelectModal({
     pickDefaultBookingPackageId(eligiblePackages),
   );
   const [busy, setBusy] = useState(false);
+  const [guestName, setGuestName] = useState("");
   const duplicatePlanSuffixes = useMemo(
     () => buildDuplicatePlanNameSuffixes(eligiblePackages),
     [eligiblePackages],
   );
   const activeSelectedId = useMemo(() => {
     const selected = eligiblePackages.find((pkg) => pkg.userPackageId === selectedId);
-    if (selected?.canBook) {
+    if (selected?.canBook || selected?.canBookGuest === true) {
       return selectedId;
     }
     return pickDefaultBookingPackageId(eligiblePackages);
   }, [eligiblePackages, selectedId]);
+  const selectedPackage = eligiblePackages.find(
+    (pkg) => pkg.userPackageId === activeSelectedId,
+  );
 
-  async function confirmSelection() {
-    const selected = eligiblePackages.find(
-      (pkg) => pkg.userPackageId === activeSelectedId,
-    );
-    if (!activeSelectedId || !selected?.canBook || busy) {
-      return;
-    }
+  async function submitBooking(guestPassName?: string) {
     setBusy(true);
     try {
+      const body: { userPackageId: string; guestName?: string } = {
+        userPackageId: activeSelectedId,
+      };
+      if (guestPassName !== undefined) {
+        body.guestName = guestPassName;
+      }
       const booking = await apiFetch<BookSessionResponse>(
         `/bookings/sessions/${sessionId}`,
         {
           method: "POST",
-          body: JSON.stringify({ userPackageId: activeSelectedId }),
+          body: JSON.stringify(body),
         },
       );
       onBooked(booking.id);
@@ -124,7 +117,7 @@ export function BookingPackageSelectModal({
           <ul className="flex flex-col gap-3">
             {eligiblePackages.map((pkg) => {
               const isSelected = pkg.userPackageId === activeSelectedId;
-              const isDisabled = busy || !pkg.canBook;
+              const isDisabled = busy || (!pkg.canBook && pkg.canBookGuest !== true);
               const duplicateSuffix = duplicatePlanSuffixes.get(pkg.userPackageId);
               const displayPlanName =
                 duplicateSuffix !== undefined
@@ -163,13 +156,13 @@ export function BookingPackageSelectModal({
                           : "border-white/70 bg-white/80 hover:border-sand-200 hover:bg-white"
                     }`}
                     onClick={() => {
-                      if (!pkg.canBook) {
+                      if (!pkg.canBook && pkg.canBookGuest !== true) {
                         return;
                       }
                       setSelectedId(pkg.userPackageId);
                     }}
                     disabled={isDisabled}
-                    aria-disabled={!pkg.canBook}
+                    aria-disabled={!pkg.canBook && pkg.canBookGuest !== true}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -183,6 +176,14 @@ export function BookingPackageSelectModal({
                     </div>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-sage-600">
                       <span>{visitsLabel}</span>
+                      {(pkg.guestSlotsTotal ?? 0) > 0 ? (
+                        <span>
+                          {t("packageGuestPassesRemaining", {
+                            remaining: pkg.guestSlotsRemaining ?? 0,
+                            total: pkg.guestSlotsTotal ?? 0,
+                          })}
+                        </span>
+                      ) : null}
                       <span>
                         {t("packageValidPeriod", {
                           start: periodStartLabel,
@@ -204,26 +205,31 @@ export function BookingPackageSelectModal({
           </ul>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/70 px-5 py-4 sm:px-6">
-          <OmmButton type="button" variant="secondary" size="md" onClick={onClose} disabled={busy}>
-            {t("packageModalCancel")}
-          </OmmButton>
-          <OmmButton
-            type="button"
-            variant="primary"
-            size="md"
-            disabled={
-              busy ||
-              activeSelectedId.length === 0 ||
-              !eligiblePackages.some(
-                (pkg) => pkg.userPackageId === activeSelectedId && pkg.canBook,
-              )
+        <BookingPackageSelectGuestActions
+          busy={busy}
+          guestName={guestName}
+          showGuestField={selectedPackage?.canBookGuest === true}
+          canConfirmOwner={selectedPackage?.canBook === true}
+          canConfirmGuest={
+            selectedPackage?.canBookGuest === true && guestName.trim().length > 0
+          }
+          onGuestNameChange={setGuestName}
+          onClose={onClose}
+          onConfirmOwner={() => {
+            if (selectedPackage?.canBook === true && !busy) {
+              void submitBooking();
             }
-            onClick={() => void confirmSelection()}
-          >
-            {busy ? t("packageModalConfirming") : t("packageModalConfirm")}
-          </OmmButton>
-        </div>
+          }}
+          onConfirmGuest={() => {
+            if (
+              selectedPackage?.canBookGuest === true &&
+              guestName.trim().length > 0 &&
+              !busy
+            ) {
+              void submitBooking(guestName.trim());
+            }
+          }}
+        />
       </div>
     </OmmModalPortal>
   );

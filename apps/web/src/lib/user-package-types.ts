@@ -29,6 +29,10 @@ export type UserMembershipRow = {
   isUnlimited: boolean;
   currentPeriodStart: string;
   currentPeriodEnd: string;
+  awaitingFirstVisit?: boolean;
+  activationDeadline?: string | null;
+  guestSlotsTotal?: number;
+  guestSlotsRemaining?: number;
   freeze?: UserPackageFreezeState;
   plan: UserPackagePlanSummary;
 };

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { BookingStatus, ClassSessionStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CoachSalaryAccrualService } from '../coaches/coaches-salary-accrual.service';
+import { PackagesActivationService } from '../packages/packages-activation.service';
 import { ENABLE_BOOKING_BACKGROUND_JOBS_ENV } from './bookings.constants';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class BookingsStatusTransitionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly salaryAccrual: CoachSalaryAccrualService,
+    private readonly packagesActivation: PackagesActivationService,
   ) {
     this.cronEnabled = isEnabledEnv(
       process.env[ENABLE_BOOKING_BACKGROUND_JOBS_ENV],
@@ -30,6 +32,9 @@ export class BookingsStatusTransitionService {
         attendedAt: now,
       },
     });
+    if (result.count > 0) {
+      await this.packagesActivation.reconcileAwaitingPackages(now);
+    }
     return result.count;
   }
 

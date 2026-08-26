@@ -6,7 +6,11 @@ export const USER_PACKAGE_VALIDITY_DAY_MS = 24 * 60 * 60 * 1000;
 
 type ValidityTimestampInput = Pick<
   UserMembershipRow,
-  "currentPeriodStart" | "currentPeriodEnd" | "plan"
+  | "currentPeriodStart"
+  | "currentPeriodEnd"
+  | "plan"
+  | "awaitingFirstVisit"
+  | "activationDeadline"
 >;
 
 function parseTimestamp(value: string | null | undefined): Date | null {
@@ -54,6 +58,14 @@ export function formatMembershipValidityLabel(
   t: (key: string, values?: Record<string, string | number | Date>) => string,
   now: Date = new Date(),
 ): string {
+  if (membership.awaitingFirstVisit === true) {
+    return t("validityActivatesOnFirstVisit", {
+      date: formatDateForUi(
+        membership.activationDeadline ?? membership.currentPeriodStart,
+      ),
+    });
+  }
+
   const periodStart = parseTimestamp(membership.currentPeriodStart);
   if (periodStart !== null && periodStart.getTime() > now.getTime()) {
     return t("validityStartsOn", {

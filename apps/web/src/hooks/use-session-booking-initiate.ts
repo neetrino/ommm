@@ -82,9 +82,17 @@ export function useSessionBookingInitiate({
 export async function postSessionBooking(
   sessionId: string,
   userPackageId?: string,
+  guestName?: string,
 ): Promise<BookSessionResponse> {
+  const body: { userPackageId?: string; guestName?: string } = {};
+  if (userPackageId !== undefined) {
+    body.userPackageId = userPackageId;
+  }
+  if (guestName !== undefined && guestName.trim().length > 0) {
+    body.guestName = guestName.trim();
+  }
   return apiFetch<BookSessionResponse>(`/bookings/sessions/${sessionId}`, {
     method: "POST",
-    body: JSON.stringify(userPackageId !== undefined ? { userPackageId } : {}),
+    body: JSON.stringify(body),
   });
 }

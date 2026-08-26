@@ -41,6 +41,8 @@ import {
   failPendingCardPackagePurchase,
   type PendingCardPackagePurchase,
 } from './packages-subscribe-card.util';
+import { toUserPackageActivationApi } from './packages-activation.helpers';
+import { toUserPackageGuestPassApi } from './packages-guest-pass.helpers';
 import { toUserPackageFreezeApi } from './packages-freeze.mapper';
 import { resumeDueFreezes } from './packages-freeze.resume';
 import { resolveUserPackagePlan } from './user-package-plan-snapshot.util';
@@ -113,6 +115,8 @@ export class PackagesPublicService {
         isUnlimited: resolvedPlan.isUnlimited,
         currentPeriodStart: row.currentPeriodStart.toISOString(),
         currentPeriodEnd: row.currentPeriodEnd.toISOString(),
+        ...toUserPackageActivationApi(row),
+        ...toUserPackageGuestPassApi(row),
         freeze: toUserPackageFreezeApi(row, row.plan),
         plan: resolvedPlan,
       };

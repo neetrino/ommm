@@ -31,10 +31,13 @@ function createLoadedPackage(overrides: Record<string, unknown> = {}) {
     planIsUnlimitedSnapshot: false,
     planSessionsPerMonthSnapshot: 8,
     status: UserPackageStatus.ACTIVE,
+    awaitingFirstVisit: false,
     currentPeriodStart: now,
     currentPeriodEnd: new Date('2026-09-10T10:00:00.000Z'),
     sessionsTotal: 8,
     sessionsRemaining: 8,
+    guestSlotsTotal: 0,
+    guestSlotsRemaining: 0,
     freezeAllowedCountSnapshot: 1,
     freezeMaxDaysPerUseSnapshot: 7,
     freezesUsedCount: 0,
@@ -212,6 +215,34 @@ describe('PackagesFreezeService', () => {
     ).rejects.toMatchObject({
       message: FREEZE_ERROR.NOT_ALLOWED,
     });
+  });
+
+  it('lets an admin freeze when the plan has no freeze', async () => {
+    const { prisma, userPackage, userPackageFreeze } = createPrisma();
+    const loaded = createLoadedPackage({
+      freezeAllowedCountSnapshot: 0,
+      freezeMaxDaysPerUseSnapshot: 0,
+      plan: { id: 'plan-1', freezeAllowedCount: 0, freezeMaxDaysPerUse: 0 },
+    });
+    const paused = {
+      ...loaded,
+      status: UserPackageStatus.PAUSED,
+      freezesUsedCount: 1,
+      pausedAt: new Date('2026-08-10T10:00:00.000Z'),
+      pausedUntil: new Date('2026-08-15T10:00:00.000Z'),
+    };
+    userPackage.findUnique.mockResolvedValue(loaded);
+    userPackage.update.mockResolvedValue(paused);
+    const service = new PackagesFreezeService(prisma as never);
+
+    const result = await service.freezeForAdmin('admin-1', 'pkg-1', 5);
+
+    expectFreezeCreateData(userPackageFreeze.create, {
+      daysRequested: 5,
+      initiatedBy: USER_PACKAGE_FREEZE_INITIATOR.ADMIN,
+      initiatedByUserId: 'admin-1',
+    });
+    expect(result.status).toBe(UserPackageStatus.PAUSED);
   });
 
   it('returns not found when the client does not own the package', async () => {

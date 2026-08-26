@@ -22,7 +22,7 @@ import {
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
 import { displayPhoneOrFallback } from "@/lib/phone";
-import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { formatDateTimeForUi } from "@/lib/date-display";
 
 type ListRow = {
   id: string;
@@ -48,6 +48,7 @@ type ListRow = {
     isUnlimited: boolean;
   } | null;
   latestNote: { id: string; body: string; authorName: string | null; createdAt: string } | null;
+  guestName?: string | null;
 };
 
 type BookingDetails = {
@@ -199,8 +200,14 @@ export function AdminBookingDetailsSheet({
             />
             <DetailRow
               label={t("bookingDetailsBookedOn")}
-              value={formatDateForUi(details?.createdAt ?? row.registerDate)}
+              value={formatDateTimeForUi(
+                details?.createdAt ?? row.registerDate,
+                locale,
+              )}
             />
+            {row.guestName ? (
+              <DetailRow label={t("bookingDetailsGuest")} value={row.guestName} />
+            ) : null}
             {row.package !== null ? (
               <DetailRow
                 label={t("packageInfo")}
