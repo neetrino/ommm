@@ -21,6 +21,7 @@ import {
   withInternalPaymentUpdateFields,
   withInternalPaymentWhereFields,
 } from './payments.helpers';
+import { ownerBookingUniqueWhere } from '../bookings/bookings-guest-pass.constants';
 import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import {
   INTERNAL_PAYMENT_SOURCE,
@@ -140,7 +141,7 @@ export class PaymentsCheckoutService {
       where: { id: sessionId },
     });
     const existingBooking = await this.prisma.booking.findUnique({
-      where: { userId_sessionId: { userId, sessionId } },
+      where: ownerBookingUniqueWhere(userId, sessionId),
     });
     const booked = await this.prisma.booking.count({
       where: { sessionId, status: 'BOOKED' },

@@ -31,6 +31,8 @@ export type UserMembershipRow = {
   currentPeriodEnd: string;
   awaitingFirstVisit?: boolean;
   activationDeadline?: string | null;
+  guestSlotsTotal?: number;
+  guestSlotsRemaining?: number;
   freeze?: UserPackageFreezeState;
   plan: UserPackagePlanSummary;
 };

@@ -48,6 +48,7 @@ type ListRow = {
     isUnlimited: boolean;
   } | null;
   latestNote: { id: string; body: string; authorName: string | null; createdAt: string } | null;
+  guestName?: string | null;
 };
 
 type BookingDetails = {
@@ -204,6 +205,9 @@ export function AdminBookingDetailsSheet({
                 locale,
               )}
             />
+            {row.guestName ? (
+              <DetailRow label={t("bookingDetailsGuest")} value={row.guestName} />
+            ) : null}
             {row.package !== null ? (
               <DetailRow
                 label={t("packageInfo")}

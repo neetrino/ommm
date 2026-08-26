@@ -112,6 +112,12 @@ export function MembershipDetailsSheetContent({
             />
           ) : null}
           <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsSummary} />
+          {display.guestPassesSummary !== null ? (
+            <DetailRow
+              label={t("membershipDetailsGuestPasses")}
+              value={display.guestPassesSummary}
+            />
+          ) : null}
           {display.sessionsRemainingSummary !== null ? (
             <DetailRow
               label={t("membershipDetailsSessionsRemaining")}

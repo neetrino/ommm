@@ -58,6 +58,9 @@ model UserPackage {
   currentPeriodEnd             DateTime
   sessionsTotal                Int?
   sessionsRemaining            Int?
+  /// Guest-pass slots snapshotted from plan.guestCount on new purchases only.
+  guestSlotsTotal              Int               @default(0)
+  guestSlotsRemaining          Int               @default(0)
   freezeAllowedCountSnapshot   Int               @default(0)
   freezeMaxDaysPerUseSnapshot  Int               @default(0)
   freezesUsedCount             Int               @default(0)

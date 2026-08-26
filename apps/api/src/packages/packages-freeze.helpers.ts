@@ -4,6 +4,7 @@ import {
   type PackagePlanFreezeFields,
   type UserPackageFreezeFields,
 } from './packages-freeze.types';
+import { MAX_FREEZE_DAYS_PER_USE } from './packages-freeze.constants';
 import { USER_PACKAGE_VALIDITY_DAY_MS } from './packages-freeze.time';
 
 export type FreezePolicy = {
@@ -65,6 +66,17 @@ export function canStartFreeze(params: {
     isEnabledFreezePolicy(params.policy) &&
     params.remainingCount > 0
   );
+}
+
+export function canAdminStartFreeze(status: UserPackageStatus): boolean {
+  return status === UserPackageStatus.ACTIVE;
+}
+
+export function resolveAdminFreezeMaxDays(policy: FreezePolicy): number {
+  if (isEnabledFreezePolicy(policy)) {
+    return policy.maxDaysPerUse;
+  }
+  return MAX_FREEZE_DAYS_PER_USE;
 }
 
 export function addDaysUtc(start: Date, days: number): Date {

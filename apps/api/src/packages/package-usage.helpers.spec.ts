@@ -35,6 +35,8 @@ function createMembership(params: {
     currentPeriodEnd: params.periodEnd ?? new Date('2026-09-10T00:00:00.000Z'),
     sessionsTotal: 8,
     sessionsRemaining: 8,
+    guestSlotsTotal: 0,
+    guestSlotsRemaining: 0,
     createdAt: now,
     updatedAt: now,
     plan: {

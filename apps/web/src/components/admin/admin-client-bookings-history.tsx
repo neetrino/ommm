@@ -151,6 +151,11 @@ export function AdminClientBookingsHistory({
                       <p className="font-medium text-sage-900">
                         {booking.session.classType.name}
                       </p>
+                      {booking.guestName ? (
+                        <p className="text-xs text-sand-800">
+                          {t("drawer.guestPass")}: {booking.guestName}
+                        </p>
+                      ) : null}
                       <p className="text-xs text-sage-600">
                         {`${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.status} · ${booking.session.level ?? "—"}`}
                       </p>

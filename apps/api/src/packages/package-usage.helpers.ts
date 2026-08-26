@@ -25,6 +25,9 @@ export type EligibleBookingPackage = {
   currentPeriodStart: string;
   currentPeriodEnd: string;
   includedCategories: string[];
+  guestSlotsTotal: number;
+  guestSlotsRemaining: number;
+  canBookGuest: boolean;
 };
 
 export type SessionClassTypeShape = {
@@ -141,6 +144,9 @@ export function toEligibleBookingPackage(
     currentPeriodStart: membership.currentPeriodStart.toISOString(),
     currentPeriodEnd: membership.currentPeriodEnd.toISOString(),
     includedCategories,
+    guestSlotsTotal: membership.guestSlotsTotal,
+    guestSlotsRemaining: membership.guestSlotsRemaining,
+    canBookGuest: membership.guestSlotsRemaining > 0,
   };
 }
 

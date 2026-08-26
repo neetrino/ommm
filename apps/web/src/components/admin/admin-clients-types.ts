@@ -97,6 +97,8 @@ export type ClientSheetBookingItem = {
   attendedAt: string | null;
   cancelledAt: string | null;
   createdAt: string;
+  guestName?: string | null;
+  guestPassSlot?: number;
   session: {
     startsAt: string;
     level: string | null;
@@ -133,6 +135,8 @@ export type ClientSheetPackageItem = {
   expirationDate: string;
   awaitingFirstVisit?: boolean;
   activationDeadline?: string | null;
+  guestSlotsTotal?: number;
+  guestSlotsRemaining?: number;
   totalSessions: number | null;
   usedSessions: number | null;
   remainingSessions: number | null;

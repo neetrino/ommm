@@ -3,6 +3,8 @@ import type { User } from '@prisma/client';
 import { BookingsAdminManagementService } from './bookings-admin-management.service';
 import { BookingsAdminService } from './bookings-admin.service';
 import { BookingsClientService } from './bookings-client.service';
+import { BookingsGuestPassService } from './bookings-guest-pass.service';
+import { readGuestPassName } from './bookings-guest-pass.constants';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
@@ -15,6 +17,7 @@ export class BookingsService {
     private readonly client: BookingsClientService,
     private readonly admin: BookingsAdminService,
     private readonly adminManagement: BookingsAdminManagementService,
+    private readonly guestPass: BookingsGuestPassService,
   ) {}
 
   listEligiblePackagesForSession(userId: string, sessionId: string) {
@@ -26,6 +29,9 @@ export class BookingsService {
   }
 
   book(userId: string, sessionId: string, dto?: CreateBookingDto) {
+    if (readGuestPassName(dto?.guestName) !== null) {
+      return this.guestPass.bookGuest(userId, sessionId, dto ?? {});
+    }
     return this.client.book(userId, sessionId, dto);
   }
 

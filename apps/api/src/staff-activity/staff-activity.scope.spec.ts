@@ -2,6 +2,7 @@ import { Role } from '@prisma/client';
 import {
   isCoachStaffActivityActor,
   isStaffActivityUnread,
+  resolveSessionInboxCoachId,
   unreadWhereForScope,
   visibilityWhereForScope,
 } from './staff-activity.scope';
@@ -30,6 +31,21 @@ describe('staff-activity.scope', () => {
     expect(unreadWhereForScope({ kind: 'studio' })).toEqual({
       staffReadAt: null,
     });
+  });
+
+  it('routes inbox rows to the substitute when one is assigned', () => {
+    expect(
+      resolveSessionInboxCoachId({
+        coachId: 'primary-1',
+        substituteCoachId: 'sub-1',
+      }),
+    ).toBe('sub-1');
+    expect(
+      resolveSessionInboxCoachId({
+        coachId: 'primary-1',
+        substituteCoachId: null,
+      }),
+    ).toBe('primary-1');
   });
 
   it('computes unread independently for coach and studio', () => {

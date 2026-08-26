@@ -15,6 +15,14 @@ export function isCoachStaffActivityActor(role: Role): boolean {
   return role === Role.COACH;
 }
 
+/** Inbox owner is the coach teaching that session (substitute if assigned). */
+export function resolveSessionInboxCoachId(session: {
+  coachId: string;
+  substituteCoachId: string | null;
+}): string {
+  return session.substituteCoachId ?? session.coachId;
+}
+
 export function visibilityWhereForScope(
   scope: StaffActivityScope,
 ): Prisma.StaffActivityNotificationWhereInput {

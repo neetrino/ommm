@@ -7,6 +7,7 @@ import type { ClientDetail } from "@/components/admin/admin-clients-types";
 import {
   ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE,
   ADMIN_CLIENT_BOOKING_SESSION_LOOKAHEAD_DAYS,
+  buildAdminClientBookingRequestBody,
   canSubmitAdminClientBooking,
   filterUpcomingBookableSessions,
   packageOptionLabel,
@@ -14,12 +15,16 @@ import {
   sessionRequiresPackage,
   type AdminClientBookingUpcomingSession,
 } from "@/components/admin/admin-client-booking-create.helpers";
+import { AdminClientBookingGuestField } from "@/components/admin/admin-client-booking-guest-field";
 import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
-import { pickDefaultBookingPackageId } from "@/lib/booking-package-selection";
+import {
+  isSelectableBookingPackage,
+  pickDefaultBookingPackageId,
+} from "@/lib/booking-package-selection";
 
 type AdminClientBookingCreateBarProps = {
   client: ClientDetail;
@@ -52,6 +57,7 @@ export function AdminClientBookingCreateBar({
   const [packagesResult, setPackagesResult] = useState<PackagesFetchResult | null>(null);
   const [userPackageIdOverride, setUserPackageIdOverride] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [guestName, setGuestName] = useState("");
   const [toast, setToast] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
@@ -157,10 +163,12 @@ export function AdminClientBookingCreateBar({
   }, [client.id, packagesFetchKey, sessionId, t]);
 
   const selectedSession = sessions.find((row) => row.id === sessionId) ?? null;
-  const bookablePackages = useMemo(
-    () => packages.filter((pkg) => pkg.canBook),
+  const selectablePackages = useMemo(
+    () => packages.filter(isSelectableBookingPackage),
     [packages],
   );
+  const selectedPackage =
+    selectablePackages.find((pkg) => pkg.userPackageId === userPackageId) ?? null;
   const duplicateSuffixes = useMemo(
     () => buildDuplicatePlanNameSuffixes(packages),
     [packages],
@@ -174,7 +182,9 @@ export function AdminClientBookingCreateBar({
     packagesError,
     packageRequired,
     userPackageId,
-    bookablePackageCount: bookablePackages.length,
+    selectedCanBook: selectedPackage?.canBook === true,
+    selectedCanBookGuest: selectedPackage?.canBookGuest === true,
+    guestName,
   });
 
   const sessionOptions = sessions.map((row) => ({
@@ -182,7 +192,7 @@ export function AdminClientBookingCreateBar({
     label: sessionOptionLabel(row, locale),
   }));
 
-  const packageOptions = bookablePackages.map((pkg) => ({
+  const packageOptions = selectablePackages.map((pkg) => ({
     value: pkg.userPackageId,
     label: packageOptionLabel(
       pkg,
@@ -196,12 +206,14 @@ export function AdminClientBookingCreateBar({
   function handleSessionChange(nextSessionId: string): void {
     setSessionId(nextSessionId);
     setUserPackageIdOverride(null);
+    setGuestName("");
   }
 
   function resetForm(): void {
     setSessionId("");
     setPackagesResult(null);
     setUserPackageIdOverride(null);
+    setGuestName("");
   }
 
   async function handleSubmit(): Promise<void> {
@@ -211,10 +223,11 @@ export function AdminClientBookingCreateBar({
     setSubmitting(true);
     setToast(null);
     try {
-      const body: { sessionId: string; userPackageId?: string } = { sessionId };
-      if (userPackageId !== ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE) {
-        body.userPackageId = userPackageId;
-      }
+      const body = buildAdminClientBookingRequestBody({
+        sessionId,
+        userPackageId,
+        guestName,
+      });
       await apiFetch(`/clients/${client.id}/bookings`, {
         method: "POST",
         body: JSON.stringify(body),
@@ -257,7 +270,7 @@ export function AdminClientBookingCreateBar({
         onPackageChange={setUserPackageIdOverride}
         packageRequired={packageRequired}
         noPackageValue={ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE}
-        bookablePackageCount={bookablePackages.length}
+        bookablePackageCount={selectablePackages.length}
         disabled={submitting}
         onSubmit={() => void handleSubmit()}
         submitSlot={
@@ -272,6 +285,16 @@ export function AdminClientBookingCreateBar({
           </OmmButton>
         }
       />
+      {selectedPackage?.canBookGuest === true ? (
+        <AdminClientBookingGuestField
+          label={t("bookings.guestNameLabel")}
+          hint={t("bookings.guestPassHint")}
+          placeholder={t("bookings.guestNamePlaceholder")}
+          value={guestName}
+          disabled={submitting}
+          onChange={setGuestName}
+        />
+      ) : null}
     </section>
   );
 }

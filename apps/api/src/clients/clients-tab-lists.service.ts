@@ -11,6 +11,7 @@ import {
 } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import { toUserPackageActivationApi } from '../packages/packages-activation.helpers';
+import { toUserPackageGuestPassApi } from '../packages/packages-guest-pass.helpers';
 import { toUserPackageFreezeApi } from '../packages/packages-freeze.mapper';
 import { resumeDueFreezes } from '../packages/packages-freeze.resume';
 import { resolveUserPackagePlan } from '../packages/user-package-plan-snapshot.util';
@@ -49,6 +50,8 @@ type ClientBookingsPage = {
     attendedAt: Date | null;
     cancelledAt: Date | null;
     createdAt: Date;
+    guestName: string | null;
+    guestPassSlot: number;
     session: BookingRecord['session'];
   }>;
   total: number;
@@ -99,6 +102,8 @@ type ClientPackagesPage = {
     usedSessions: number | null;
     remainingSessions: number | null;
     isUnlimited: boolean;
+    guestSlotsTotal: number;
+    guestSlotsRemaining: number;
     paymentMethod: string | null;
     typeBalances: ClientPackageTypeBalanceItem[];
     freeze: {
@@ -262,13 +267,16 @@ export class ClientsTabListsService {
           activationDate: row.currentPeriodStart.toISOString(),
           expirationDate: row.currentPeriodEnd.toISOString(),
           ...toUserPackageActivationApi(row),
+          ...toUserPackageGuestPassApi(row),
           totalSessions: row.sessionsTotal,
           usedSessions,
           remainingSessions: row.sessionsRemaining,
           isUnlimited: resolvedPlan.isUnlimited,
           paymentMethod: paymentMethodByPackageId.get(row.id) ?? null,
           typeBalances: mapClientPackageTypeBalances(row.balances),
-          freeze: toUserPackageFreezeApi(row, row.plan),
+          freeze: toUserPackageFreezeApi(row, row.plan, {
+            allowAdminOverride: true,
+          }),
         };
       }),
       total,

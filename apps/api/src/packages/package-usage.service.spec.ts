@@ -65,6 +65,8 @@ function createMembership(params?: {
     currentPeriodEnd: new Date(now.getTime() + 86_400_000),
     sessionsTotal: isUnlimited ? null : 8,
     sessionsRemaining: isUnlimited ? null : remaining,
+    guestSlotsTotal: 0,
+    guestSlotsRemaining: 0,
     createdAt: now,
     updatedAt: now,
     cancelledAt: null,

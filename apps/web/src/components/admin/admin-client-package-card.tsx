@@ -122,6 +122,17 @@ export function AdminClientPackageCard({
           {remainingSummary !== null ? (
             <p className="text-sm text-sage-600">{remainingSummary}</p>
           ) : null}
+          {(item.guestSlotsTotal ?? 0) > 0 ? (
+            <p className="text-sm text-sage-600">
+              {t("guestPassesUsedOfTotal", {
+                used: Math.max(
+                  0,
+                  (item.guestSlotsTotal ?? 0) - (item.guestSlotsRemaining ?? 0),
+                ),
+                total: item.guestSlotsTotal ?? 0,
+              })}
+            </p>
+          ) : null}
         </div>
         {showUsageBar ? (
           <PackageUsageBar

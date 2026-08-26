@@ -41,6 +41,8 @@ function createMembership(remaining = 5) {
     currentPeriodEnd: new Date(now.getTime() + 86_400_000 * 30),
     sessionsTotal: 10,
     sessionsRemaining: remaining,
+    guestSlotsTotal: 0,
+    guestSlotsRemaining: 0,
     createdAt: now,
     updatedAt: now,
     cancelledAt: null,

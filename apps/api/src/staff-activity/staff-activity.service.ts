@@ -11,6 +11,7 @@ import {
   isCoachStaffActivityActor,
   isStaffActivityUnread,
   markReadDataForScope,
+  resolveSessionInboxCoachId,
   unreadWhereForScope,
   visibilityWhereForScope,
   type StaffActivityActor,
@@ -143,6 +144,7 @@ export class StaffActivityService {
             select: {
               startsAt: true,
               coachId: true,
+              substituteCoachId: true,
               classType: { select: { name: true } },
             },
           },
@@ -179,7 +181,7 @@ export class StaffActivityService {
           memberName,
           className: booking.session.classType.name,
           sessionStartsAt: booking.session.startsAt,
-          coachProfileId: booking.session.coachId,
+          coachProfileId: resolveSessionInboxCoachId(booking.session),
         },
       });
     } catch (error) {

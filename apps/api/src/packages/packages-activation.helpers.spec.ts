@@ -80,4 +80,14 @@ describe('packages-activation.helpers', () => {
       }),
     ).toBeNull();
   });
+
+  it('ignores a completed visit that happened before the purchase', () => {
+    expect(
+      resolveActivationInstant({
+        purchasedAt,
+        firstVisitAt: new Date('2026-07-01T09:00:00.000Z'),
+        now: new Date('2026-08-27T10:00:00.000Z'),
+      }),
+    ).toBeNull();
+  });
 });

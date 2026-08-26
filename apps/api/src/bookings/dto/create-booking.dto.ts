@@ -10,4 +10,10 @@ export class CreateBookingDto {
   @IsString()
   @MinLength(1)
   userPackageId?: string;
+
+  /** When set, this booking is a guest-pass companion (no owner session debit). */
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  guestName?: string;
 }

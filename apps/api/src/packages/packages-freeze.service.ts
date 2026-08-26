@@ -13,8 +13,10 @@ import {
   addDaysUtc,
   canStartFreeze,
   isEnabledFreezePolicy,
+  resolveAdminFreezeMaxDays,
   resolveFreezeCounters,
   resolveFreezePolicy,
+  type FreezePolicy,
 } from './packages-freeze.helpers';
 import { toUserPackageFreezeApi } from './packages-freeze.mapper';
 import { applyFreezeResume, resumeDueFreezes } from './packages-freeze.resume';
@@ -77,7 +79,7 @@ export class PackagesFreezeService {
   ) {
     await resumeDueFreezes(this.db, { userId: userPackage.userId });
     const fresh = await this.reloadPackage(userPackage.id);
-    this.assertCanFreeze(fresh, days);
+    this.assertCanFreeze(fresh, days, actor);
     await this.assertNoUpcomingBookings(fresh);
     const now = new Date();
     const pausedUntil = addDaysUtc(now, days);
@@ -138,7 +140,11 @@ export class PackagesFreezeService {
     return this.toMutationResponse(updated);
   }
 
-  private assertCanFreeze(userPackage: LoadedUserPackage, days: number): void {
+  private assertCanFreeze(
+    userPackage: LoadedUserPackage,
+    days: number,
+    actor: FreezeActor,
+  ): void {
     if (userPackage.status === UserPackageStatus.PAUSED) {
       throw new BadRequestException(FREEZE_ERROR.ALREADY_FROZEN);
     }
@@ -146,6 +152,25 @@ export class PackagesFreezeService {
       throw new BadRequestException(FREEZE_ERROR.NOT_ACTIVE);
     }
     const policy = resolveFreezePolicy(userPackage, userPackage.plan);
+    if (actor.initiator === USER_PACKAGE_FREEZE_INITIATOR.ADMIN) {
+      this.assertAdminFreezeDays(days, policy);
+      return;
+    }
+    this.assertMemberFreeze(userPackage, days, policy);
+  }
+
+  private assertAdminFreezeDays(days: number, policy: FreezePolicy): void {
+    const maxDays = resolveAdminFreezeMaxDays(policy);
+    if (days < MIN_FREEZE_DAYS_PER_REQUEST || days > maxDays) {
+      throw new BadRequestException(FREEZE_ERROR.INVALID_DAYS);
+    }
+  }
+
+  private assertMemberFreeze(
+    userPackage: LoadedUserPackage,
+    days: number,
+    policy: FreezePolicy,
+  ): void {
     if (!isEnabledFreezePolicy(policy)) {
       throw new BadRequestException(FREEZE_ERROR.NOT_ALLOWED);
     }

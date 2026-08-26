@@ -24,7 +24,7 @@ export function AdminClientPackageFreezeControls({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (freeze.allowedCount <= 0 && !freeze.canUnfreeze) {
+  if (!freeze.canFreeze && !freeze.canUnfreeze) {
     return null;
   }
 
@@ -51,11 +51,13 @@ export function AdminClientPackageFreezeControls({
         {t("freezeHeading")}
       </p>
       <p className="text-sm text-sage-700">
-        {t("freezeRemaining", {
-          remaining: freeze.remainingCount,
-          allowed: freeze.allowedCount,
-          days: freeze.maxDaysPerUse,
-        })}
+        {freeze.allowedCount > 0
+          ? t("freezeRemaining", {
+              remaining: freeze.remainingCount,
+              allowed: freeze.allowedCount,
+              days: freeze.maxDaysPerUse,
+            })
+          : t("freezeAdminOverrideHint")}
       </p>
       {freeze.canFreeze ? (
         <div className="flex flex-wrap items-end gap-2">

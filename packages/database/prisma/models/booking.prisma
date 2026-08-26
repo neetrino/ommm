@@ -8,6 +8,9 @@ model Booking {
   channel       BookingChannel @default(WEBSITE)
   attendedAt    DateTime?
   cancelledAt   DateTime?
+  /// 0 = owner booking; 1+ = guest-pass companion on the same session.
+  guestPassSlot Int           @default(0)
+  guestName     String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -17,7 +20,7 @@ model Booking {
   sessionReview SessionReview?
   staffActivityNotifications StaffActivityNotification[]
 
-  @@unique([userId, sessionId])
+  @@unique([userId, sessionId, guestPassSlot])
   @@index([sessionId])
   @@index([userId])
   @@index([status, createdAt])
@@ -42,6 +45,7 @@ model BookingConsumption {
   userPackageBalanceId String?
   userPackageBalance   UserPackageBalance? @relation(fields: [userPackageBalanceId], references: [id], onDelete: SetNull)
   consumedSessions     Int                 @default(1)
+  consumedGuestSlots   Int                 @default(0)
   consumedAt           DateTime            @default(now())
   restoredAt           DateTime?
   createdAt            DateTime            @default(now())

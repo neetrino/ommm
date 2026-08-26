@@ -45,6 +45,7 @@ export type MembershipDisplayModel = {
   sessionsSummary: string;
   sessionsUsedSummary: string | null;
   sessionsRemainingSummary: string | null;
+  guestPassesSummary: string | null;
   usagePercent: number | null;
   totalSessions: number | null;
   usedSessions: number | null;
@@ -52,6 +53,21 @@ export type MembershipDisplayModel = {
   statusLabel: string;
   validityLabel: string;
 };
+
+function resolveGuestPassesSummary(
+  membership: UserMembershipRow,
+  t: (key: string, values?: Record<string, string | number | Date>) => string,
+): string | null {
+  const total = membership.guestSlotsTotal ?? 0;
+  if (total <= 0) {
+    return null;
+  }
+  const remaining = membership.guestSlotsRemaining ?? 0;
+  return t("guestPassesUsedOfTotal", {
+    used: Math.max(0, total - remaining),
+    total,
+  });
+}
 
 export function buildMembershipDisplayModel(
   membership: UserMembershipRow,
@@ -65,6 +81,7 @@ export function buildMembershipDisplayModel(
   );
 
   const validityLabel = formatMembershipValidityLabel(membership, t);
+  const guestPassesSummary = resolveGuestPassesSummary(membership, t);
 
   if (membership.isUnlimited) {
     return {
@@ -72,6 +89,7 @@ export function buildMembershipDisplayModel(
       sessionsSummary: m("packagesSessionsUnlimited"),
       sessionsUsedSummary: null,
       sessionsRemainingSummary: null,
+      guestPassesSummary,
       usagePercent: null,
       totalSessions: null,
       usedSessions: null,
@@ -81,26 +99,41 @@ export function buildMembershipDisplayModel(
     };
   }
 
+  const usage = resolveLimitedSessionUsage(membership);
+  return {
+    sessionName,
+    sessionsSummary: t("sessionsUsedOfTotal", {
+      used: usage.used,
+      total: usage.total,
+    }),
+    sessionsUsedSummary: t("sessionsUsed", { count: usage.used }),
+    sessionsRemainingSummary: t("sessionsRemaining", { count: usage.remaining }),
+    guestPassesSummary,
+    usagePercent: usage.usagePercent,
+    totalSessions: usage.total,
+    usedSessions: usage.used,
+    remainingSessions: usage.remaining,
+    statusLabel: formatMembershipStatusLabel(status, t),
+    validityLabel,
+  };
+}
+
+function resolveLimitedSessionUsage(membership: UserMembershipRow): {
+  total: number;
+  remaining: number;
+  used: number;
+  usagePercent: number;
+} {
   const total =
-    membership.totalSessions ??
-    membership.plan.sessionsPerMonth ??
-    0;
+    membership.totalSessions ?? membership.plan.sessionsPerMonth ?? 0;
   const remaining =
     membership.remainingSessions ?? membership.sessionsRemaining ?? 0;
   const used =
     membership.usedSessions ?? Math.max(0, Math.min(total, total - remaining));
-  const usagePercent = total > 0 ? Math.round((used / total) * 100) : 0;
-
   return {
-    sessionName,
-    sessionsSummary: t("sessionsUsedOfTotal", { used, total }),
-    sessionsUsedSummary: t("sessionsUsed", { count: used }),
-    sessionsRemainingSummary: t("sessionsRemaining", { count: remaining }),
-    usagePercent,
-    totalSessions: total,
-    usedSessions: used,
-    remainingSessions: remaining,
-    statusLabel: formatMembershipStatusLabel(status, t),
-    validityLabel,
+    total,
+    remaining,
+    used,
+    usagePercent: total > 0 ? Math.round((used / total) * 100) : 0,
   };
 }

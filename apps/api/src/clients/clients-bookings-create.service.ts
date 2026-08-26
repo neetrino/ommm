@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  BookingStatus,
   ClassSessionStatus,
   Role,
   UserPackageStatus,
@@ -17,6 +16,7 @@ import {
   membershipCoversSessionType,
   type UserPackageWithPlanAndBalances,
 } from '../packages/package-usage.helpers';
+import { hasGuestPassSlot } from '../packages/packages-guest-pass.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateClientBookingDto } from './dto/admin-create-client-booking.dto';
 
@@ -50,6 +50,7 @@ export class ClientsBookingsCreateService {
     await this.assertClientExists(clientId);
     return this.bookings.book(clientId, dto.sessionId, {
       userPackageId: dto.userPackageId,
+      guestName: dto.guestName,
     });
   }
 
@@ -120,31 +121,12 @@ export class ClientsBookingsCreateService {
       }),
     ]);
 
-    const sessionIds = sessions.map((session) => session.id);
-    const existingBookings =
-      sessionIds.length === 0
-        ? []
-        : await this.prisma.booking.findMany({
-            where: {
-              userId: clientId,
-              sessionId: { in: sessionIds },
-              status: BookingStatus.BOOKED,
-            },
-            select: { sessionId: true },
-          });
-    const bookedSessionIds = new Set(
-      existingBookings.map((booking) => booking.sessionId),
-    );
-
     const typedMemberships =
       memberships as unknown as UserPackageWithPlanAndBalances[];
 
     return sessions
       .filter((session) => {
         if (session.startsAt.getTime() <= now.getTime()) {
-          return false;
-        }
-        if (bookedSessionIds.has(session.id)) {
           return false;
         }
         if (session._count.bookings >= session.capacity) {
@@ -174,7 +156,8 @@ export class ClientsBookingsCreateService {
       (membership) =>
         isUserPackageBookableAt(membership, session.startsAt) &&
         membershipCoversSessionType(membership, session.classType) &&
-        hasAnyBookableCredit(membership, session.classType),
+        (hasAnyBookableCredit(membership, session.classType) ||
+          hasGuestPassSlot(membership)),
     );
   }
 

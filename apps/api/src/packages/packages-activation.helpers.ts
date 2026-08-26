@@ -27,6 +27,13 @@ export function resolveActivatedPeriodBounds(params: {
   return { currentPeriodStart, currentPeriodEnd };
 }
 
+export function isVisitEligibleForActivation(params: {
+  purchasedAt: Date;
+  visitAt: Date;
+}): boolean {
+  return params.visitAt.getTime() >= params.purchasedAt.getTime();
+}
+
 /**
  * First visit day if it is on or before the grace deadline; otherwise the deadline.
  * Returns null while still waiting (no visit yet and grace has not elapsed).
@@ -37,10 +44,18 @@ export function resolveActivationInstant(params: {
   now: Date;
 }): Date | null {
   const deadline = resolveActivationGraceDeadline(params.purchasedAt);
-  if (params.firstVisitAt !== null) {
-    const visitDay = startOfUtcDay(params.firstVisitAt);
+  const eligibleVisitAt =
+    params.firstVisitAt !== null &&
+    isVisitEligibleForActivation({
+      purchasedAt: params.purchasedAt,
+      visitAt: params.firstVisitAt,
+    })
+      ? params.firstVisitAt
+      : null;
+  if (eligibleVisitAt !== null) {
+    const visitDay = startOfUtcDay(eligibleVisitAt);
     if (visitDay.getTime() <= deadline.getTime()) {
-      return params.firstVisitAt;
+      return eligibleVisitAt;
     }
   }
   if (isActivationGraceElapsed(params.purchasedAt, params.now)) {

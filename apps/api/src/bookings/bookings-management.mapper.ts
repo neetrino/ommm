@@ -38,6 +38,8 @@ export function mapManagementBookingRow(
     paymentStatus,
     bookingPaymentMethod,
     channel: booking.channel,
+    guestName: booking.guestName,
+    guestPassSlot: booking.guestPassSlot,
     registerDate: booking.createdAt.toISOString(),
     user: {
       id: booking.user.id,

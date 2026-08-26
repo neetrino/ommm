@@ -6,6 +6,8 @@ export type ManagementBooking = {
   sessionId: string;
   status: BookingStatus;
   channel: BookingChannel;
+  guestName: string | null;
+  guestPassSlot: number;
   createdAt: Date;
   user: {
     id: string;

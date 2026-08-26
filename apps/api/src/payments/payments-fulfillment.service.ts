@@ -23,6 +23,7 @@ import {
   readGiftCreditsAppliedCents,
   recordGiftCreditSpendPayment,
 } from '../packages/package-gift-credits.util';
+import { ownerBookingUniqueWhere } from '../bookings/bookings-guest-pass.constants';
 import { shouldAwaitFirstVisit } from '../packages/packages-activation.helpers';
 import { buildUserPackageCreateData } from '../packages/packages-subscribe-card.util';
 import { decrementPackagePlanStock } from '../packages/packages-stock.helpers';
@@ -64,7 +65,7 @@ export class PaymentsFulfillmentService {
       throw new BadRequestException('Session already started');
     }
     const existing = await tx.booking.findUnique({
-      where: { userId_sessionId: { userId, sessionId } },
+      where: ownerBookingUniqueWhere(userId, sessionId),
     });
     if (existing?.status === BookingStatus.BOOKED) {
       return;
@@ -323,9 +324,7 @@ export class PaymentsFulfillmentService {
       sessionId,
     });
     const booking = await this.prisma.booking.findUnique({
-      where: {
-        userId_sessionId: { userId: payment.userId, sessionId },
-      },
+      where: ownerBookingUniqueWhere(payment.userId, sessionId),
       select: { id: true, status: true },
     });
     if (booking?.status === BookingStatus.BOOKED) {

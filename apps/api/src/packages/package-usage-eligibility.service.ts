@@ -131,6 +131,32 @@ export class PackageUsageEligibilityService {
     return bookable[0];
   }
 
+  async getValidatedUserPackageForGuestPass(params: {
+    tx: Prisma.TransactionClient;
+    userId: string;
+    session: SessionShape;
+    userPackageId: string;
+  }): Promise<UserPackageWithPlanAndBalances> {
+    const memberships = await this.findActiveMembershipsForSession(
+      params.tx,
+      params.userId,
+      params.session.startsAt,
+    );
+    const selected = memberships.find(
+      (membership) => membership.id === params.userPackageId,
+    );
+    if (
+      selected === undefined ||
+      !membershipCoversSessionType(selected, params.session.classType) ||
+      selected.guestSlotsRemaining <= 0
+    ) {
+      throw new BadRequestException(
+        'Selected package is not eligible for a guest pass',
+      );
+    }
+    return selected;
+  }
+
   private async findActiveMembershipsForSession(
     client: PrismaService | Prisma.TransactionClient,
     userId: string,

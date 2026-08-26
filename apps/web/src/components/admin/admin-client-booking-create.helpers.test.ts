@@ -60,7 +60,9 @@ describe("admin-client-booking-create.helpers", () => {
         packagesError: null,
         packageRequired: true,
         userPackageId: ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE,
-        bookablePackageCount: 1,
+        selectedCanBook: false,
+        selectedCanBookGuest: false,
+        guestName: "",
       }),
       false,
     );
@@ -72,7 +74,9 @@ describe("admin-client-booking-create.helpers", () => {
         packagesError: null,
         packageRequired: true,
         userPackageId: "pkg-1",
-        bookablePackageCount: 1,
+        selectedCanBook: true,
+        selectedCanBookGuest: false,
+        guestName: "",
       }),
       true,
     );
@@ -84,9 +88,39 @@ describe("admin-client-booking-create.helpers", () => {
         packagesError: null,
         packageRequired: false,
         userPackageId: ADMIN_CLIENT_BOOKING_NO_PACKAGE_VALUE,
-        bookablePackageCount: 0,
+        selectedCanBook: false,
+        selectedCanBookGuest: false,
+        guestName: "",
       }),
       true,
+    );
+    assert.equal(
+      canSubmitAdminClientBooking({
+        sessionId: "s1",
+        sessionsLoading: false,
+        packagesLoading: false,
+        packagesError: null,
+        packageRequired: true,
+        userPackageId: "pkg-1",
+        selectedCanBook: false,
+        selectedCanBookGuest: true,
+        guestName: "Anna",
+      }),
+      true,
+    );
+    assert.equal(
+      canSubmitAdminClientBooking({
+        sessionId: "s1",
+        sessionsLoading: false,
+        packagesLoading: false,
+        packagesError: null,
+        packageRequired: true,
+        userPackageId: "pkg-1",
+        selectedCanBook: false,
+        selectedCanBookGuest: true,
+        guestName: "",
+      }),
+      false,
     );
   });
 });

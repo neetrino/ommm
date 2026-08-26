@@ -70,6 +70,9 @@ export function UserMembershipBoardCard({
       <div className="mt-5 space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
         <div>
           <p className="text-sm font-medium text-sage-900">{display.sessionsSummary}</p>
+          {display.guestPassesSummary !== null ? (
+            <p className="mt-1 text-sm text-sage-600">{display.guestPassesSummary}</p>
+          ) : null}
         </div>
         {display.totalSessions !== null &&
         display.usedSessions !== null &&
