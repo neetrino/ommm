@@ -102,7 +102,9 @@ export function WorkspaceShell({
             ? "/admin/notifications"
             : navRole === "MANAGER"
               ? "/manager/notifications"
-              : null
+              : navRole === "COACH"
+                ? "/coach/notifications"
+                : null
         }
         sessionReviewsAudience={
           navRole === "USER"

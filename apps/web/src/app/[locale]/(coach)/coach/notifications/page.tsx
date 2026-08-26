@@ -1,9 +1,10 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
 import { AccountSection } from "@/components/layout/account-section";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
+import { AdminStaffActivitySection } from "@/components/admin/admin-staff-activity-section";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -21,27 +22,27 @@ export default async function CoachNotificationsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "userPages.notifications" });
+  const t = await getTranslations({
+    locale,
+    namespace: "userPages.notifications",
+  });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MeResponse>("/users/me", cookie);
 
-  if (!res.ok) {
-    return (
-      <AdminContentFrame>
-        <div className="app-alert-warn max-w-xl">{t("signIn")}</div>
-      </AdminContentFrame>
-    );
-  }
-
   return (
     <AdminContentFrame>
-      <StaffListPageLayout title={t("title")} description={t("description")}>
-        <AccountSection title={t("preferences")}>
-          <div className="max-w-md">
-            <NotificationPrefsForm initial={res.data.notificationPrefs} />
-          </div>
-        </AccountSection>
-      </StaffListPageLayout>
+      <Suspense fallback={null}>
+        <AdminStaffActivitySection />
+      </Suspense>
+      {res.ok ? (
+        <div className="mt-8">
+          <AccountSection title={t("preferences")}>
+            <div className="max-w-md">
+              <NotificationPrefsForm initial={res.data.notificationPrefs} />
+            </div>
+          </AccountSection>
+        </div>
+      ) : null}
     </AdminContentFrame>
   );
 }

@@ -7,6 +7,15 @@ import {
 } from './staff-activity.constants';
 import type { ListStaffActivityQueryDto } from './dto/list-staff-activity-query.dto';
 import { toStaffActivityDto } from './staff-activity.mapper';
+import {
+  isCoachStaffActivityActor,
+  isStaffActivityUnread,
+  markReadDataForScope,
+  unreadWhereForScope,
+  visibilityWhereForScope,
+  type StaffActivityActor,
+  type StaffActivityScope,
+} from './staff-activity.scope';
 
 /** Suppress duplicate rows from payment/confirm retries. */
 const STAFF_ACTIVITY_DEDUPE_WINDOW_MS = 30_000;
@@ -24,10 +33,14 @@ export class StaffActivityService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(query: ListStaffActivityQueryDto) {
+  async list(actor: StaffActivityActor, query: ListStaffActivityQueryDto) {
     const take = query.take ?? STAFF_ACTIVITY_PAGE_TAKE;
     const offset = query.offset ?? 0;
-    const where = this.buildListWhere(query);
+    const scope = await this.resolveScope(actor);
+    const where = {
+      ...visibilityWhereForScope(scope),
+      ...this.buildListWhere(query),
+    };
     const [total, rows] = await this.prisma.$transaction([
       this.prisma.staffActivityNotification.count({ where }),
       this.prisma.staffActivityNotification.findMany({
@@ -38,7 +51,9 @@ export class StaffActivityService {
       }),
     ]);
     return {
-      items: rows.map((row) => toStaffActivityDto(row)),
+      items: rows.map((row) =>
+        toStaffActivityDto(row, isStaffActivityUnread(row, scope)),
+      ),
       total,
       take,
       offset,
@@ -60,23 +75,44 @@ export class StaffActivityService {
     };
   }
 
-  async listHeader() {
-    return this.list({ take: STAFF_ACTIVITY_HEADER_TAKE, offset: 0 });
+  async listHeader(actor: StaffActivityActor) {
+    return this.list(actor, { take: STAFF_ACTIVITY_HEADER_TAKE, offset: 0 });
   }
 
-  async unreadCount() {
+  async unreadCount(actor: StaffActivityActor) {
+    const scope = await this.resolveScope(actor);
     const count = await this.prisma.staffActivityNotification.count({
-      where: { staffReadAt: null },
+      where: unreadWhereForScope(scope),
     });
     return { count };
   }
 
-  async markAllRead() {
+  async markAllRead(actor: StaffActivityActor) {
+    const scope = await this.resolveScope(actor);
+    if (scope.kind === 'empty') {
+      return { ok: true as const };
+    }
     await this.prisma.staffActivityNotification.updateMany({
-      where: { staffReadAt: null },
-      data: { staffReadAt: new Date() },
+      where: unreadWhereForScope(scope),
+      data: markReadDataForScope(scope),
     });
     return { ok: true as const };
+  }
+
+  private async resolveScope(
+    actor: StaffActivityActor,
+  ): Promise<StaffActivityScope> {
+    if (!isCoachStaffActivityActor(actor.role)) {
+      return { kind: 'studio' };
+    }
+    const profile = await this.prisma.coachProfile.findUnique({
+      where: { userId: actor.id },
+      select: { id: true },
+    });
+    if (profile === null) {
+      return { kind: 'empty' };
+    }
+    return { kind: 'coach', coachProfileId: profile.id };
   }
 
   /** Best-effort write — never fails the booking/cancel path. */
@@ -106,6 +142,7 @@ export class StaffActivityService {
           session: {
             select: {
               startsAt: true,
+              coachId: true,
               classType: { select: { name: true } },
             },
           },
@@ -142,6 +179,7 @@ export class StaffActivityService {
           memberName,
           className: booking.session.classType.name,
           sessionStartsAt: booking.session.startsAt,
+          coachProfileId: booking.session.coachId,
         },
       });
     } catch (error) {

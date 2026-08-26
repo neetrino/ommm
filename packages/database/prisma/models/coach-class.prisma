@@ -19,6 +19,7 @@ model CoachProfile {
   sessionReviews      SessionReview[]
   salaryAccruals      CoachSalaryAccrual[]
   salaryPayouts       CoachSalaryPayout[]
+  staffActivityNotifications StaffActivityNotification[]
 }
 
 model CoachAvailabilitySlot {

@@ -1,6 +1,8 @@
 /**
- * Shared Admin/Manager activity inbox (header bell).
- * Denormalized display fields survive booking deletion; staffReadAt is studio-wide.
+ * Shared booking-activity inbox (header bell).
+ * Admin/Manager see the studio feed (`staffReadAt`).
+ * Coaches see only their class rows (`coachProfileId` + `coachReadAt`).
+ * Denormalized display fields survive booking deletion.
  */
 model StaffActivityNotification {
   id              String            @id @default(cuid())
@@ -14,10 +16,15 @@ model StaffActivityNotification {
   sessionStartsAt DateTime
   createdAt       DateTime          @default(now())
   staffReadAt     DateTime?
+  /// Class coach — coaches see only their rows; independent of studio staffReadAt.
+  coachProfileId  String?
+  coachProfile    CoachProfile?     @relation(fields: [coachProfileId], references: [id], onDelete: SetNull)
+  coachReadAt     DateTime?
 
   @@index([createdAt])
   @@index([staffReadAt, createdAt])
   @@index([type, createdAt])
   @@index([bookingId])
   @@index([memberUserId])
+  @@index([coachProfileId, coachReadAt, createdAt])
 }
