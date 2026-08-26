@@ -13,6 +13,7 @@ import { BookingsService } from '../bookings/bookings.service';
 import { ADMIN_SESSION_INCLUDE } from '../classes/classes-session.helpers';
 import {
   hasAnyBookableCredit,
+  isUserPackageBookableAt,
   membershipCoversSessionType,
   type UserPackageWithPlanAndBalances,
 } from '../packages/package-usage.helpers';
@@ -103,8 +104,13 @@ export class ClientsBookingsCreateService {
         where: {
           userId: clientId,
           status: UserPackageStatus.ACTIVE,
-          currentPeriodEnd: { gt: from },
-          currentPeriodStart: { lte: to },
+          OR: [
+            { awaitingFirstVisit: true },
+            {
+              currentPeriodEnd: { gt: from },
+              currentPeriodStart: { lte: to },
+            },
+          ],
         },
         include: {
           plan: { select: USER_PACKAGE_PLAN_SELECT },
@@ -166,8 +172,7 @@ export class ClientsBookingsCreateService {
   ): boolean {
     return memberships.some(
       (membership) =>
-        membership.currentPeriodStart.getTime() <= session.startsAt.getTime() &&
-        membership.currentPeriodEnd.getTime() > session.startsAt.getTime() &&
+        isUserPackageBookableAt(membership, session.startsAt) &&
         membershipCoversSessionType(membership, session.classType) &&
         hasAnyBookableCredit(membership, session.classType),
     );

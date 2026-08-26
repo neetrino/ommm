@@ -951,6 +951,7 @@
       "membershipFreezeRemaining": "{remaining} of {allowed} freezes left, up to {days} days each",
       "validityExpired": "Expired",
       "validityStartsOn": "Starts on {date}",
+      "validityActivatesOnFirstVisit": "Activates on first visit, by {date}",
       "validityDaysRemaining": "{count, plural, one {# day remaining} other {# days remaining}}",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
@@ -2453,7 +2454,8 @@
         "giftCreated": "Gift card created",
         "noNotes": "No notes yet.",
         "cancelled": "Cancelled",
-        "attended": "Attended"
+        "attended": "Attended",
+        "signedUp": "Signed up"
       },
       "deleteClient": "Delete client",
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",

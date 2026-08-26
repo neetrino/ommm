@@ -93,12 +93,14 @@ export function UserMembershipBoardCard({
       </div>
 
       <div className="mt-5 flex-1">
-        <MembershipPeriodHighlight
-          locale={locale}
-          periodStart={membership.currentPeriodStart}
-          periodEnd={membership.currentPeriodEnd}
-          variant="board"
-        />
+        {membership.awaitingFirstVisit === true ? null : (
+          <MembershipPeriodHighlight
+            locale={locale}
+            periodStart={membership.currentPeriodStart}
+            periodEnd={membership.currentPeriodEnd}
+            variant="board"
+          />
+        )}
       </div>
 
       {hasPackageLifecycleActions(status) ? (

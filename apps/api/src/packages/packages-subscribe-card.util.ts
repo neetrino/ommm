@@ -23,6 +23,7 @@ import {
   refundReservedGiftCredits,
 } from './package-gift-credits.util';
 import { buildUserPackagePlanSnapshot } from './user-package-plan-snapshot.util';
+import { shouldAwaitFirstVisit } from './packages-activation.helpers';
 import { resolveUserPackagePeriodBounds } from './user-package-period.util';
 
 /**
@@ -277,6 +278,9 @@ export function buildUserPackageCreateData(params: {
     planId: params.plan.id,
     ...buildUserPackagePlanSnapshot(params.plan),
     status: params.status,
+    awaitingFirstVisit:
+      params.status === UserPackageStatus.ACTIVE &&
+      shouldAwaitFirstVisit(params.plan.startDate, now),
     currentPeriodStart,
     currentPeriodEnd,
     sessionsTotal: sessions,

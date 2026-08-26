@@ -22,7 +22,7 @@ import {
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
 import { displayPhoneOrFallback } from "@/lib/phone";
-import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { formatDateTimeForUi } from "@/lib/date-display";
 
 type ListRow = {
   id: string;
@@ -199,7 +199,10 @@ export function AdminBookingDetailsSheet({
             />
             <DetailRow
               label={t("bookingDetailsBookedOn")}
-              value={formatDateForUi(details?.createdAt ?? row.registerDate)}
+              value={formatDateTimeForUi(
+                details?.createdAt ?? row.registerDate,
+                locale,
+              )}
             />
             {row.package !== null ? (
               <DetailRow

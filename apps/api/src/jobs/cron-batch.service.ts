@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { BookingsStatusTransitionService } from '../bookings/bookings-status-transition.service';
 import { NotificationsCronService } from '../notifications/notifications-cron.service';
+import { PackagesActivationService } from '../packages/packages-activation.service';
 import { PackagesFreezeService } from '../packages/packages-freeze.service';
 import { ArcaReconciliationService } from '../payments/arca/arca-reconciliation.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
@@ -21,6 +22,7 @@ export class CronBatchService {
     private readonly notificationsCron: NotificationsCronService,
     private readonly arcaReconciliation: ArcaReconciliationService,
     private readonly packagesFreeze: PackagesFreezeService,
+    private readonly packagesActivation: PackagesActivationService,
   ) {}
 
   @Cron(resolveCronBatchSchedule())
@@ -33,6 +35,7 @@ export class CronBatchService {
       await this.notificationsCron.sendClassReminders();
       await this.arcaReconciliation.reconcilePendingPaymentsCron();
       await this.packagesFreeze.resumeDueFreezes();
+      await this.packagesActivation.reconcileAwaitingPackages();
       this.logger.log('Cron batch finished');
     } catch (error) {
       this.logger.error(

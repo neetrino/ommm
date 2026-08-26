@@ -31,6 +31,7 @@ function createLoadedPackage(overrides: Record<string, unknown> = {}) {
     planIsUnlimitedSnapshot: false,
     planSessionsPerMonthSnapshot: 8,
     status: UserPackageStatus.ACTIVE,
+    awaitingFirstVisit: false,
     currentPeriodStart: now,
     currentPeriodEnd: new Date('2026-09-10T10:00:00.000Z'),
     sessionsTotal: 8,

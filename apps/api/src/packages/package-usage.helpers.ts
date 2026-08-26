@@ -71,6 +71,20 @@ export function isUserPackageActiveAt(
   );
 }
 
+/** Bookable while awaiting first visit, or inside the active period window. */
+export function isUserPackageBookableAt(
+  membership: Pick<
+    UserPackage,
+    'currentPeriodStart' | 'currentPeriodEnd' | 'awaitingFirstVisit'
+  >,
+  at: Date,
+): boolean {
+  if (membership.awaitingFirstVisit) {
+    return true;
+  }
+  return isUserPackageActiveAt(membership, at);
+}
+
 export function computeUsageStats(membership: {
   sessionsTotal: number | null;
   sessionsRemaining: number | null;

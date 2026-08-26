@@ -9,15 +9,21 @@ describe('BookingsStatusTransitionService', () => {
     accrueFinishedSession: jest.fn().mockResolvedValue(false),
   };
 
+  const packagesActivation = {
+    reconcileAwaitingPackages: jest.fn().mockResolvedValue(0),
+  };
+
   function buildService(prisma: object) {
     return new BookingsStatusTransitionService(
       prisma as never,
       salaryAccrual as never,
+      packagesActivation as never,
     );
   }
 
   beforeEach(() => {
     salaryAccrual.accrueFinishedSessions.mockClear();
+    packagesActivation.reconcileAwaitingPackages.mockClear();
   });
 
   it('updates only BOOKED rows whose session has ended', async () => {
@@ -35,6 +41,9 @@ describe('BookingsStatusTransitionService', () => {
     const count = await service.completePastBookedSessions(now);
 
     expect(count).toBe(3);
+    expect(packagesActivation.reconcileAwaitingPackages).toHaveBeenCalledWith(
+      now,
+    );
     expect(prisma.booking.updateMany).toHaveBeenCalledWith({
       where: {
         status: BookingStatus.BOOKED,

@@ -16,6 +16,7 @@ import { AdminClientPackageValidityEditor } from "@/components/admin/admin-clien
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { EditActionButton } from "@/components/ui/edit-action-button";
+import { formatDateForUi } from "@/lib/date-display";
 import { USER_PACKAGE_VALIDITY_DAY_MS } from "@/lib/user-package-validity";
 
 const BOARD_CARD_CLASS = [
@@ -33,14 +34,19 @@ type AdminClientPackageCardProps = {
 };
 
 function resolveValidityLabel(
-  expirationDate: string,
+  item: ClientSheetPackageItem,
   status: ReturnType<typeof normalizeUserPackageStatus>,
   t: (key: string, values?: Record<string, string | number | Date>) => string,
 ): string {
+  if (item.awaitingFirstVisit === true) {
+    return t("validityActivatesOnFirstVisit", {
+      date: formatDateForUi(item.activationDeadline ?? item.activationDate),
+    });
+  }
   if (status === "EXPIRED") {
     return t("validityExpired");
   }
-  const endMs = Date.parse(expirationDate);
+  const endMs = Date.parse(item.expirationDate);
   if (Number.isNaN(endMs)) {
     return "—";
   }
@@ -65,7 +71,7 @@ export function AdminClientPackageCard({
   const status = normalizeUserPackageStatus(item.status);
   const sessionName = formatPackagePlanName(item.packageName, item.totalSessions);
   const statusLabel = formatMembershipStatusLabel(status, t);
-  const validityLabel = resolveValidityLabel(item.expirationDate, status, t);
+  const validityLabel = resolveValidityLabel(item, status, t);
   const [editing, setEditing] = useState(false);
   const [successToast, setSuccessToast] = useState<string | null>(null);
 
@@ -150,12 +156,14 @@ export function AdminClientPackageCard({
         {!editing ? (
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
-              <MembershipPeriodHighlight
-                locale={locale}
-                periodStart={item.activationDate}
-                periodEnd={item.expirationDate}
-                variant="board"
-              />
+              {item.awaitingFirstVisit === true ? null : (
+                <MembershipPeriodHighlight
+                  locale={locale}
+                  periodStart={item.activationDate}
+                  periodEnd={item.expirationDate}
+                  variant="board"
+                />
+              )}
             </div>
             {allowEditValidity ? (
               <EditActionButton

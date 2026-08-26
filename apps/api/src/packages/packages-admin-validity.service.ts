@@ -64,6 +64,7 @@ export class PackagesAdminValidityService {
         currentPeriodStart,
         currentPeriodEnd,
         status: nextStatus,
+        awaitingFirstVisit: false,
       },
     });
 

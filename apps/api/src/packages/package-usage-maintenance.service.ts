@@ -15,6 +15,7 @@ export class PackageUsageMaintenanceService {
       where: {
         ...(userId ? { userId } : {}),
         status: 'ACTIVE',
+        awaitingFirstVisit: false,
         currentPeriodEnd: { lte: now },
       },
       data: { status: 'EXPIRED' },

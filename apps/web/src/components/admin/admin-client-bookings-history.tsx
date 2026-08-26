@@ -140,6 +140,7 @@ export function AdminClientBookingsHistory({
                   : booking.attendedAt
                     ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
                     : null;
+                const signedUp = `${t("drawer.signedUp")} ${formatDateTimeForUi(booking.createdAt, locale)}`;
 
                 return (
                   <div
@@ -153,8 +154,9 @@ export function AdminClientBookingsHistory({
                       <p className="text-xs text-sage-600">
                         {`${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.status} · ${booking.session.level ?? "—"}`}
                       </p>
+                      <p className="mt-1 text-xs text-sage-500">{signedUp}</p>
                       {extra !== null ? (
-                        <p className="mt-1 text-xs text-sage-500">{extra}</p>
+                        <p className="text-xs text-sage-500">{extra}</p>
                       ) : null}
                     </div>
                     {showCancel ? (

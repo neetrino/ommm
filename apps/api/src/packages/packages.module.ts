@@ -8,6 +8,7 @@ import { PackageUsageService } from './package-usage.service';
 import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
 import { PackagesAdminValidityService } from './packages-admin-validity.service';
+import { PackagesActivationService } from './packages-activation.service';
 import { PackagesFreezeService } from './packages-freeze.service';
 import { PackagesController } from './packages.controller';
 import { PackagesPublicService } from './packages-public.service';
@@ -22,6 +23,7 @@ import { PackagesService } from './packages.service';
     PackagesAdminClientPurchaseService,
     PackagesAdminValidityService,
     PackagesFreezeService,
+    PackagesActivationService,
     PackagesService,
     PackageUsageService,
     PackageUsageEligibilityService,
@@ -33,6 +35,7 @@ import { PackagesService } from './packages.service';
     PackageUsageService,
     PackagesPublicService,
     PackagesFreezeService,
+    PackagesActivationService,
   ],
 })
 export class PackagesModule {}

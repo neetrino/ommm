@@ -147,8 +147,13 @@ export class PackageUsageEligibilityService {
       where: {
         userId,
         status: 'ACTIVE',
-        currentPeriodStart: { lte: sessionStartsAt },
-        currentPeriodEnd: { gt: sessionStartsAt },
+        OR: [
+          { awaitingFirstVisit: true },
+          {
+            currentPeriodStart: { lte: sessionStartsAt },
+            currentPeriodEnd: { gt: sessionStartsAt },
+          },
+        ],
       },
       include: {
         plan: { select: USER_PACKAGE_PLAN_SELECT },

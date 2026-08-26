@@ -10,6 +10,7 @@ import {
   sortRowsBySessionStartsAt,
 } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
+import { toUserPackageActivationApi } from '../packages/packages-activation.helpers';
 import { toUserPackageFreezeApi } from '../packages/packages-freeze.mapper';
 import { resumeDueFreezes } from '../packages/packages-freeze.resume';
 import { resolveUserPackagePlan } from '../packages/user-package-plan-snapshot.util';
@@ -260,6 +261,7 @@ export class ClientsTabListsService {
           categoryName: resolvedPlan.categoryName,
           activationDate: row.currentPeriodStart.toISOString(),
           expirationDate: row.currentPeriodEnd.toISOString(),
+          ...toUserPackageActivationApi(row),
           totalSessions: row.sessionsTotal,
           usedSessions,
           remainingSessions: row.sessionsRemaining,

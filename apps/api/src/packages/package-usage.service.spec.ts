@@ -60,6 +60,7 @@ function createMembership(params?: {
     freezeMaxDaysPerUseSnapshot: 0,
     freezesUsedCount: 0,
     status: 'ACTIVE',
+    awaitingFirstVisit: false,
     currentPeriodStart: now,
     currentPeriodEnd: new Date(now.getTime() + 86_400_000),
     sessionsTotal: isUnlimited ? null : 8,

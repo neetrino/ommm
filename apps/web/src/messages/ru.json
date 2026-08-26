@@ -951,6 +951,7 @@
       "membershipFreezeRemaining": "Осталось {remaining} из {allowed} заморозок, до {days} дней",
       "validityExpired": "Истёк",
       "validityStartsOn": "Начинается {date}",
+      "validityActivatesOnFirstVisit": "Активируется с первого визита, до {date}",
       "validityDaysRemaining": "{count, plural, one {Остался # день} few {Осталось # дня} many {Осталось # дней} other {Осталось # дня}}",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
@@ -2451,7 +2452,8 @@
         "giftCreated": "Подарочная карта создана",
         "noNotes": "Заметок пока нет.",
         "cancelled": "Отменено",
-        "attended": "Посещено"
+        "attended": "Посещено",
+        "signedUp": "Запись"
       },
       "deleteClient": "Удалить клиента",
       "deleteConfirm": "Удалить этого клиента навсегда? Это действие нельзя отменить.",

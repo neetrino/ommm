@@ -1,6 +1,7 @@
 import {
   hasAnyBookableCredit,
   isUserPackageActiveAt,
+  isUserPackageBookableAt,
   membershipCoversSessionType,
   pickBalanceForCategory,
   type UserPackageWithPlanAndBalances,
@@ -29,6 +30,7 @@ function createMembership(params: {
     pausedAt: null,
     pausedUntil: null,
     status: 'ACTIVE',
+    awaitingFirstVisit: false,
     currentPeriodStart: params.periodStart ?? now,
     currentPeriodEnd: params.periodEnd ?? new Date('2026-09-10T00:00:00.000Z'),
     sessionsTotal: 8,
@@ -146,5 +148,19 @@ describe('package-usage.helpers period vs session date', () => {
     expect(
       isUserPackageActiveAt(membership, new Date('2026-07-25T12:00:00.000Z')),
     ).toBe(false);
+  });
+
+  it('is bookable while awaiting first visit even outside the placeholder window', () => {
+    const membership = {
+      ...createMembership({
+        balances: [],
+        periodStart: new Date('2026-08-01T00:00:00.000Z'),
+        periodEnd: new Date('2026-08-31T00:00:00.000Z'),
+      }),
+      awaitingFirstVisit: true,
+    };
+    expect(
+      isUserPackageBookableAt(membership, new Date('2026-10-05T09:00:00.000Z')),
+    ).toBe(true);
   });
 });

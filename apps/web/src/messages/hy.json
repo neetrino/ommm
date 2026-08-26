@@ -952,6 +952,7 @@
       "membershipFreezeRemaining": "Մնացել է {remaining} / {allowed} սառեցում, մինչև {days} օր",
       "validityExpired": "Սպառված",
       "validityStartsOn": "Սկսվում է {date}-ից",
+      "validityActivatesOnFirstVisit": "Ակտիվանում է առաջին այցից, մինչև {date}",
       "validityDaysRemaining": "{count, plural, one {Մնաց # օր} other {Մնաց # օր}}",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
@@ -2454,7 +2455,8 @@
         "giftCreated": "Նվեր քարտը ստեղծվեց",
         "noNotes": "Նշումներ դեռ չկան։",
         "cancelled": "Չեղարկված",
-        "attended": "Մասնակցել է"
+        "attended": "Մասնակցել է",
+        "signedUp": "Գրանցվել է"
       },
       "deleteClient": "Ջնջել հաճախորդին",
       "deleteConfirm": "Ջնջե՞լ այս հաճախորդին մշտապես։ Գործողությունը հետարկելի չէ։",

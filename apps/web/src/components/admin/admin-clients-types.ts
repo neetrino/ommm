@@ -131,6 +131,8 @@ export type ClientSheetPackageItem = {
   categoryName: string;
   activationDate: string;
   expirationDate: string;
+  awaitingFirstVisit?: boolean;
+  activationDeadline?: string | null;
   totalSessions: number | null;
   usedSessions: number | null;
   remainingSessions: number | null;

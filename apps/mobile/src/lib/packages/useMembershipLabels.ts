@@ -7,6 +7,14 @@ import {
   type UserPackageStatus,
 } from "./userMembership";
 
+function formatActivationDeadline(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (match === null) {
+    return value;
+  }
+  return `${match[3]}/${match[2]}/${match[1].slice(-2)}`;
+}
+
 export function useMembershipLabels() {
   const locale = useLocale();
   const tPackages = useTranslations("userPages.packages");
@@ -18,13 +26,23 @@ export function useMembershipLabels() {
         tPackages(`membershipStatus.${status}`),
       formatValidityLabel: (membership: Pick<
         UserMembershipRow,
-        "currentPeriodStart" | "currentPeriodEnd" | "plan"
+        | "currentPeriodStart"
+        | "currentPeriodEnd"
+        | "plan"
+        | "awaitingFirstVisit"
+        | "activationDeadline"
       >) =>
-        formatMembershipValidityRemaining(
-          locale,
-          computeRemainingValidityDays(membership),
-          (key, values) => tPackages(key, values),
-        ),
+        membership.awaitingFirstVisit === true
+          ? tPackages("validityActivatesOnFirstVisit", {
+              date: formatActivationDeadline(
+                membership.activationDeadline ?? membership.currentPeriodStart,
+              ),
+            })
+          : formatMembershipValidityRemaining(
+              locale,
+              computeRemainingValidityDays(membership),
+              (key, values) => tPackages(key, values),
+            ),
       formatSessionsSummary: (membership: UserMembershipRow) => {
         if (membership.isUnlimited) {
           return tMarketing("packagesSessionsUnlimited");

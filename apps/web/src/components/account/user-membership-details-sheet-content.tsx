@@ -135,12 +135,14 @@ export function MembershipDetailsSheetContent({
         </dl>
 
         <div className="mt-5">
-          <MembershipPeriodHighlight
-            locale={locale}
-            periodStart={membership.currentPeriodStart}
-            periodEnd={membership.currentPeriodEnd}
-            variant="board"
-          />
+          {membership.awaitingFirstVisit === true ? null : (
+            <MembershipPeriodHighlight
+              locale={locale}
+              periodStart={membership.currentPeriodStart}
+              periodEnd={membership.currentPeriodEnd}
+              variant="board"
+            />
+          )}
         </div>
       </div>
 
