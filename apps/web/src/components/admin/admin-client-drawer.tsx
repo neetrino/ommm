@@ -37,6 +37,7 @@ import {
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -142,6 +143,7 @@ function AdminClientDrawerInner({
   const t = useTranslations("adminPages.clients");
   const tAuth = useTranslations("auth.register");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -301,7 +303,7 @@ function AdminClientDrawerInner({
       params.delete(CLIENT_PROFILE_TAB_QUERY_KEY);
       params.delete(CLIENT_ADD_PACKAGE_QUERY_KEY);
     });
-    onClose();
+    requestClose();
   }
 
   function handleCancelPersonalInfoEdit(): void {
@@ -313,7 +315,7 @@ function AdminClientDrawerInner({
     const saved = await editForm.save(t("updateSuccess"), t("genericError"));
     if (saved) {
       setPersonalInfoEditing(false);
-      onClose();
+      requestClose();
     }
   }
 
@@ -363,8 +365,9 @@ function AdminClientDrawerInner({
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen
+      isOpen={sheetOpen}
       onClose={handleClose}
+      onAfterClose={onAfterClose}
       closeDisabled={sheetBusy}
       closeOnEscape={!avatarPreviewOpen}
       backdropAriaLabel={t("modalBackdropClose")}

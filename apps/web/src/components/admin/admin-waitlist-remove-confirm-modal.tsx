@@ -2,6 +2,7 @@
 
 import type { useTranslations } from "next-intl";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import type { AdminWaitlistRow } from "@/components/admin/admin-waitlist-query";
 
@@ -21,11 +22,14 @@ export function AdminWaitlistRemoveConfirmModal({
   onConfirm,
   t,
 }: AdminWaitlistRemoveConfirmModalProps) {
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onCancel);
+
   return (
     <AdminSheetPortal
       presentation="modal"
-      isOpen
-      onClose={onCancel}
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("removeConfirm.cancel")}
       closeDisabled={busyAction !== null}
       modalOverlayClassName="ommm-modal-overlay z-[95] items-center p-4"
@@ -41,7 +45,7 @@ export function AdminWaitlistRemoveConfirmModal({
           <button
             type="button"
             className="ommm-cta-secondary h-9 px-4"
-            onClick={onCancel}
+            onClick={requestClose}
             disabled={busyAction !== null}
           >
             {t("removeConfirm.cancel")}

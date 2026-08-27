@@ -17,6 +17,7 @@ import {
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { AdminClientPackagePaymentMethod } from "@/lib/manual-payment-method";
@@ -48,6 +49,7 @@ export function AdminClientPackagePurchaseSheet({
   const t = useTranslations("adminPages.clients");
   const titleId = useId();
   const confirmFormId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const [step, setStep] = useState<PurchaseStep>("select");
   const [plans, setPlans] = useState<PublicPackagePlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
@@ -94,7 +96,7 @@ export function AdminClientPackagePurchaseSheet({
     if (submitting) {
       return;
     }
-    onClose();
+    requestClose();
   }
 
   function handleSelectPlan(planId: string | null): void {
@@ -145,8 +147,9 @@ export function AdminClientPackagePurchaseSheet({
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen
+      isOpen={sheetOpen}
       onClose={handleClose}
+      onAfterClose={onAfterClose}
       closeDisabled={submitting}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}

@@ -16,6 +16,7 @@ import type {
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -47,11 +48,20 @@ export function AdminUserDetailsDrawer({
 }: AdminUserDetailsDrawerProps) {
   const t = useTranslations("adminPages.waitlists");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
+    openKey: userId,
+  });
+  const portalOpen = userId !== null && sheetOpen;
+
+  if (userId === null) {
+    return null;
+  }
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen={userId !== null}
-      onClose={onClose}
+      isOpen={portalOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("drawer.close")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -67,7 +77,7 @@ export function AdminUserDetailsDrawer({
             type="button"
             className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
             aria-label={t("drawer.close")}
-            onClick={onClose}
+            onClick={requestClose}
           >
             ×
           </button>

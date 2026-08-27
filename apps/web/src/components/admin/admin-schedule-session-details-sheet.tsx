@@ -32,6 +32,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
 import {
   adminBookingCapabilities,
@@ -120,6 +121,7 @@ function AdminScheduleSessionDetailsSheetInner({
 }) {
   const t = useTranslations("adminPages.classes");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const [activeTab, setActiveTab] = useState<SessionSheetTabId>(initialTab);
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
@@ -176,8 +178,8 @@ function AdminScheduleSessionDetailsSheetInner({
     if (editForm.dirty) {
       return;
     }
-    onClose();
-  }, [editForm.dirty, onClose, sheetBusy]);
+    requestClose();
+  }, [editForm.dirty, requestClose, sheetBusy]);
 
   function handleStatusChanged(updated: AdminScheduleSession): void {
     onSaved?.(updated);
@@ -195,8 +197,9 @@ function AdminScheduleSessionDetailsSheetInner({
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen
+      isOpen={sheetOpen}
       onClose={handleClose}
+      onAfterClose={onAfterClose}
       closeDisabled={sheetBusy || editForm.dirty}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}

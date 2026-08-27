@@ -7,6 +7,7 @@ import {
 } from "@/components/admin/admin-staff-activity-type-copy";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatTimeForUi } from "@/lib/format-time-display";
 import type { StaffActivityRow } from "@/lib/staff-activity-types";
@@ -27,11 +28,13 @@ export function AdminStaffActivityDetailsModal({
   const titleId = useId();
   const descId = useId();
   const sessionWhen = formatSessionWhen(locale, row.sessionStartsAt);
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
 
   return (
     <AdminSheetPortal presentation="modal"
-      isOpen
-      onClose={onClose}
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       dialogRole="dialog"
       ariaLabelledBy={titleId}
       ariaDescribedBy={descId}
@@ -58,7 +61,7 @@ export function AdminStaffActivityDetailsModal({
             {formatDateTimeForUi(row.createdAt, locale)}
           </p>
         </div>
-        <OmmButton type="button" variant="secondary" size="md" className="w-full" onClick={onClose}>
+        <OmmButton type="button" variant="secondary" size="md" className="w-full" onClick={requestClose}>
           {t("detailsClose")}
         </OmmButton>
       </div>

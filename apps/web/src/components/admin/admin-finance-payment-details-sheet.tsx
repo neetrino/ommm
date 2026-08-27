@@ -38,6 +38,7 @@ import type { FinancePaymentItem } from "@/components/admin/admin-finance-types"
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import {
   isCardPaymentMethod,
@@ -108,6 +109,9 @@ export function AdminFinancePaymentDetailsSheet({
 }: AdminFinancePaymentDetailsSheetProps) {
   const t = useTranslations("adminPages.finance");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
+    openKey: payment?.id ?? null,
+  });
   const [toast, setToast] = useState<ToastState>(null);
 
   if (payment === null) {
@@ -127,8 +131,9 @@ export function AdminFinancePaymentDetailsSheet({
   return (
     <>
       <AdminSheetPortal presentation="drawer"
-        isOpen
-        onClose={onClose}
+        isOpen={sheetOpen}
+        onClose={requestClose}
+        onAfterClose={onAfterClose}
         backdropAriaLabel={t("paymentDetails.closeBackdrop")}
         ariaLabelledBy={titleId}
         drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -147,7 +152,7 @@ export function AdminFinancePaymentDetailsSheet({
               type="button"
               className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
               aria-label={t("paymentDetails.close")}
-              onClick={onClose}
+              onClick={requestClose}
             >
               <CloseGlyph />
             </button>

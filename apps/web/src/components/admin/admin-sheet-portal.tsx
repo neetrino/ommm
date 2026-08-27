@@ -33,6 +33,8 @@ export type AdminSheetPortalProps = {
   closeOnEscape?: boolean;
   motionState?: "open" | "closed";
   zIndexClass?: string;
+  /** Called after the phone bottom-sheet exit animation completes. */
+  onAfterClose?: () => void;
   children: ReactNode;
 };
 
@@ -58,6 +60,7 @@ export function AdminSheetPortal({
   closeOnEscape = true,
   motionState,
   zIndexClass = "z-[105]",
+  onAfterClose,
   children,
 }: AdminSheetPortalProps) {
   const fallbackTitleId = useId();
@@ -73,7 +76,8 @@ export function AdminSheetPortal({
 
   const handlePhoneExitComplete = useCallback(() => {
     setPhoneMounted(false);
-  }, []);
+    onAfterClose?.();
+  }, [onAfterClose]);
 
   if (isPhone) {
     if (!phoneMounted) {

@@ -14,6 +14,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { apiFetch } from "@/lib/api";
 
 type AdminClientDrawerByIdProps = {
@@ -122,12 +123,14 @@ function AdminClientDrawerLoadingShell({
 }) {
   const t = useTranslations("adminPages.clients");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const isNestedOverlay = useOverlayPortalRoot;
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen
-      onClose={onClose}
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={
@@ -150,7 +153,7 @@ function AdminClientDrawerLoadingShell({
             type="button"
             className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
             aria-label={t("modalCloseAria")}
-            onClick={onClose}
+            onClick={requestClose}
           >
             ×
           </button>

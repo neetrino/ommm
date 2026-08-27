@@ -21,6 +21,7 @@ import {
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { formatDateForUi } from "@/lib/date-display";
 import { displayPhoneOrFallback } from "@/lib/phone";
 
@@ -43,13 +44,16 @@ export function AdminCallTasksDetailsSheet({
 }: AdminCallTasksDetailsSheetProps) {
   const t = useTranslations("adminPages.calls");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const pending = row.status === "PENDING";
   const statusLabel = row.isOverdue && pending ? t("overdue") : t(`status.${row.status}`);
 
   return (
-    <AdminSheetPortal presentation="drawer"
-      isOpen
-      onClose={onClose}
+    <AdminSheetPortal
+      presentation="drawer"
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("detailsCloseBackdrop")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -73,7 +77,7 @@ export function AdminCallTasksDetailsSheet({
             className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
             aria-label={t("close")}
             disabled={busy}
-            onClick={onClose}
+            onClick={requestClose}
           >
             <CloseGlyph />
           </button>

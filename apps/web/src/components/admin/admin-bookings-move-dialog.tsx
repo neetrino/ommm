@@ -8,6 +8,7 @@ import type {
 } from "@/components/admin/admin-bookings-query";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
@@ -32,6 +33,7 @@ export function AdminBookingsMoveDialog({
   onSubmit,
 }: AdminBookingsMoveDialogProps) {
   const t = useTranslations("adminPages.bookings");
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const [targetSessionId, setTargetSessionId] = useState("");
   const [options, setOptions] = useState<MoveSessionOption[]>([]);
 
@@ -76,8 +78,9 @@ export function AdminBookingsMoveDialog({
 
   return (
     <AdminSheetPortal presentation="modal"
-      isOpen
-      onClose={onClose}
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("close")}
       modalOverlayClassName="ommm-modal-overlay z-[110] items-center p-4"
       modalPanelClassName={`${ADMIN_MODAL_PANEL_SHELL_CLASS} max-w-lg p-5 sm:p-6`}
@@ -103,7 +106,7 @@ export function AdminBookingsMoveDialog({
         <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p>
       ) : null}
       <div className="mt-4 flex justify-end gap-2">
-        <OmmButton size="sm" variant="ghost" onClick={onClose}>
+        <OmmButton size="sm" variant="ghost" onClick={requestClose}>
           {t("close")}
         </OmmButton>
         <OmmButton

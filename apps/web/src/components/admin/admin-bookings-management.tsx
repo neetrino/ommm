@@ -241,18 +241,15 @@ export function AdminBookingsManagement({
         onWeekSessionClick={handleWeekSessionClick}
       />
 
-      {activeUserId ? (
-        <AdminUserDetailsDrawer
-          locale={locale}
-          userId={activeUserId}
-          onClose={() => setActiveUserId(null)}
-        />
-      ) : null}
+      <AdminUserDetailsDrawer
+        locale={locale}
+        userId={activeUserId}
+        onClose={() => setActiveUserId(null)}
+      />
       {drawerRow && detailHandlers ? (
         <AdminBookingDetailsSheet
           row={drawerRow}
           locale={locale}
-          isOpen
           busy={busyId === drawerRow.id}
           onClose={closeBookingDetails}
           onOpenUser={setActiveUserId}

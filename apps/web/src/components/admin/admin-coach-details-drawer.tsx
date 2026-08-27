@@ -32,6 +32,7 @@ import {
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { coachCardInitials } from "@/components/coaches/coach-card-display";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
@@ -103,6 +104,7 @@ function AdminCoachDetailsDrawerInner({
 }) {
   const t = useTranslations("adminPages.coaches");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -186,7 +188,7 @@ function AdminCoachDetailsDrawerInner({
       return;
     }
     setPersonalInfoEditing(false);
-    onClose();
+    requestClose();
   }
 
   function handleCancelPersonalInfoEdit(): void {
@@ -227,8 +229,9 @@ function AdminCoachDetailsDrawerInner({
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen
+      isOpen={sheetOpen}
       onClose={handleClose}
+      onAfterClose={onAfterClose}
       closeDisabled={sheetBusy}
       backdropAriaLabel={t("drawer.close")}
       ariaLabelledBy={titleId}

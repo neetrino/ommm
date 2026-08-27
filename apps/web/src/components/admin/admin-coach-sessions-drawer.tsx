@@ -17,6 +17,7 @@ import type {
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { apiFetch } from "@/lib/api";
 import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
@@ -73,6 +74,9 @@ function buildSessionsEndpoint(
 export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Props) {
   const t = useTranslations("adminPages.finance.coachDrawer");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
+    openKey: coach?.coachProfileId ?? null,
+  });
   const [page, setPage] = useState(1);
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
   const [sessions, setSessions] = useState<CoachSessionRow[]>([]);
@@ -141,8 +145,9 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen={coach !== null}
-      onClose={onClose}
+      isOpen={coach !== null && sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("close")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -156,7 +161,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
             </h2>
             <p className="mt-1 text-sm text-sage-600">{t("monthLabel", { month })}</p>
           </div>
-          <OmmButton type="button" variant="ghost" size="sm" onClick={onClose}>
+          <OmmButton type="button" variant="ghost" size="sm" onClick={requestClose}>
             {t("close")}
           </OmmButton>
         </div>

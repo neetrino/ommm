@@ -29,6 +29,7 @@ import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 
@@ -73,6 +74,7 @@ function AdminManagerDetailsDrawerInner({
   const tDrawer = useTranslations("adminPages.managers.drawer");
   const titleId = useId();
   const router = useRouter();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const editFormRef = useRef<AdminManagerEditFormHandle>(null);
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -122,7 +124,7 @@ function AdminManagerDetailsDrawerInner({
       await apiFetch(`/managers/${manager.id}`, { method: "DELETE" });
       setPendingDelete(false);
       onSaveSuccess?.(t("deleteSuccess"));
-      onClose();
+      requestClose();
       router.refresh();
     } catch (error) {
       setNotice({
@@ -136,8 +138,9 @@ function AdminManagerDetailsDrawerInner({
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen
-      onClose={onClose}
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -156,7 +159,7 @@ function AdminManagerDetailsDrawerInner({
             type="button"
             className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
             aria-label={tDrawer("close")}
-            onClick={onClose}
+            onClick={requestClose}
           >
             ×
           </button>

@@ -20,6 +20,7 @@ import {
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { apiFetch } from "@/lib/api";
 import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -67,7 +68,6 @@ type BookingDetails = {
 export type AdminBookingDetailsSheetProps = {
   row: ListRow | null;
   locale: string;
-  isOpen: boolean;
   busy: boolean;
   onClose: () => void;
   onOpenUser: (userId: string) => void;
@@ -79,7 +79,6 @@ export type AdminBookingDetailsSheetProps = {
 export function AdminBookingDetailsSheet({
   row,
   locale,
-  isOpen,
   busy,
   onClose,
   onOpenUser,
@@ -89,8 +88,9 @@ export function AdminBookingDetailsSheet({
 }: AdminBookingDetailsSheetProps) {
   const t = useTranslations("adminPages.bookings");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const fetchKey =
-    isOpen && row !== null && row.recordType === "BOOKING" ? row.id : null;
+    sheetOpen && row !== null && row.recordType === "BOOKING" ? row.id : null;
   const [result, setResult] = useState<{
     key: string;
     details: BookingDetails | null;
@@ -139,8 +139,9 @@ export function AdminBookingDetailsSheet({
 
   return (
     <AdminSheetPortal presentation="drawer"
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("bookingDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
