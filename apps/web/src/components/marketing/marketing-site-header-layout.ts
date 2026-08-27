@@ -47,6 +47,9 @@ export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
+/** Admin/member workspace mobile bar — more header actions, slightly larger tap targets. */
+export const MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE = "1.65rem";
+
 /**
  * Mobile shell height for USER account pages — header always uses the elevated glass pill
  * (`marketingHeaderContainerClass` pt + pb-3 + pill padding + pill row min-height).
@@ -205,8 +208,9 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
   ].join(" ");
 }
 
-export function marketingHeaderMobileActionsClass(): string {
-  return "flex shrink-0 items-center gap-[6px] overflow-visible";
+export function marketingHeaderMobileActionsClass(options?: { workspace?: boolean }): string {
+  const gapClass = options?.workspace ? "gap-[7px]" : "gap-[6px]";
+  return `flex shrink-0 items-center ${gapClass} overflow-visible`;
 }
 
 export function marketingHeaderMobileLeadingClass(): string {

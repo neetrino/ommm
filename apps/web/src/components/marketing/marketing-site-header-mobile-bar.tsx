@@ -134,7 +134,7 @@ export function MarketingSiteHeaderMobileBar({
         </>
       )}
 
-      <div className={marketingHeaderMobileActionsClass()}>
+      <div className={marketingHeaderMobileActionsClass({ workspace: isWorkspaceMobile })}>
         {workspaceDrawer ? (
           <button
             type="button"
@@ -144,7 +144,9 @@ export function MarketingSiteHeaderMobileBar({
             aria-label={workspaceDrawerOpen ? tShell("closeMenu") : tShell("openMenu")}
             onClick={onToggleWorkspaceDrawer}
           >
-            <MarketingSiteHeaderWorkspaceDrawerGlyph />
+            <MarketingSiteHeaderWorkspaceDrawerGlyph
+              className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+            />
             <span className="sr-only">{tShell("workspaceAria")}</span>
           </button>
         ) : null}

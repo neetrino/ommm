@@ -1,7 +1,13 @@
-export function MarketingSiteHeaderWorkspaceDrawerGlyph() {
+type MarketingSiteHeaderWorkspaceDrawerGlyphProps = {
+  className?: string;
+};
+
+export function MarketingSiteHeaderWorkspaceDrawerGlyph({
+  className = "h-5 w-5 shrink-0",
+}: MarketingSiteHeaderWorkspaceDrawerGlyphProps) {
   return (
     <svg
-      className="h-5 w-5 shrink-0"
+      className={className}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
