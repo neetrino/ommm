@@ -37,7 +37,7 @@ import {
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import {
   isCardPaymentMethod,
@@ -126,13 +126,13 @@ export function AdminFinancePaymentDetailsSheet({
 
   return (
     <>
-      <OmmDrawerPortal
+      <AdminSheetPortal presentation="drawer"
         isOpen
         onClose={onClose}
         backdropAriaLabel={t("paymentDetails.closeBackdrop")}
         ariaLabelledBy={titleId}
-        overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-        panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
+        drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+        drawerPanelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
       >
         <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
           <div className="flex items-start justify-between gap-3">
@@ -257,7 +257,7 @@ export function AdminFinancePaymentDetailsSheet({
             />
           </footer>
         ) : null}
-      </OmmDrawerPortal>
+      </AdminSheetPortal>
 
       <AdminCenterToast
         message={toast?.message ?? null}

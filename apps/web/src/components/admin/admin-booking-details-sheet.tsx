@@ -19,7 +19,7 @@ import {
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { apiFetch } from "@/lib/api";
 import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -138,13 +138,13 @@ export function AdminBookingDetailsSheet({
   );
 
   return (
-    <OmmDrawerPortal
+    <AdminSheetPortal presentation="drawer"
       isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={t("bookingDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -233,7 +233,7 @@ export function AdminBookingDetailsSheet({
           />
         </footer>
       ) : null}
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }
 

@@ -15,7 +15,7 @@ import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -49,13 +49,13 @@ export function AdminUserDetailsDrawer({
   const titleId = useId();
 
   return (
-    <OmmDrawerPortal
+    <AdminSheetPortal presentation="drawer"
       isOpen={userId !== null}
       onClose={onClose}
       backdropAriaLabel={t("drawer.close")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
       useOverlayPortalRoot={useOverlayPortalRoot}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
@@ -78,7 +78,7 @@ export function AdminUserDetailsDrawer({
           <AdminUserDetailsContent key={userId} locale={locale} userId={userId} />
         ) : null}
       </div>
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }
 

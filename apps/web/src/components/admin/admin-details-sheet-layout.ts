@@ -1,19 +1,25 @@
-/** Default admin side sheet height — inset from top/bottom via overlay `items-end`. */
-export const ADMIN_DETAILS_SHEET_HEIGHT_CLASS = "h-[95dvh]";
+/** Default admin sheet height — bottom sheet on phone, side sheet on tablet+. */
+export const ADMIN_DETAILS_SHEET_HEIGHT_CLASS = "h-[94dvh] sm:h-[95dvh]";
 
 const ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS = [
   "relative z-10 flex flex-col overflow-hidden",
-  ADMIN_DETAILS_SHEET_HEIGHT_CLASS,
-  "rounded-tl-[28px] border border-white/70 border-b-0 border-r-0",
-  "bg-white/95 shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)] backdrop-blur-md",
+  "h-[94dvh] sm:h-[95dvh]",
+  "rounded-t-[28px] border border-white/70 border-b-0",
+  "shadow-[0_-16px_48px_-20px_rgba(45,40,35,0.38)]",
+  "sm:rounded-tl-[28px] sm:rounded-tr-none sm:border-r-0",
+  "sm:shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)]",
+  "bg-white/95 backdrop-blur-md",
 ].join(" ");
 
 /** Solid panel shell for nested drawers — avoids expensive backdrop-blur while scrolling. */
 const ADMIN_NESTED_DETAILS_SHEET_PANEL_SHELL_CLASS = [
   "relative z-10 flex flex-col overflow-hidden",
-  ADMIN_DETAILS_SHEET_HEIGHT_CLASS,
-  "rounded-tl-[28px] border border-white/70 border-b-0 border-r-0",
-  "bg-white shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)]",
+  "h-[94dvh] sm:h-[95dvh]",
+  "rounded-t-[28px] border border-white/70 border-b-0",
+  "shadow-[0_-16px_48px_-20px_rgba(45,40,35,0.38)]",
+  "sm:rounded-tl-[28px] sm:rounded-tr-none sm:border-r-0",
+  "sm:shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)]",
+  "bg-white",
 ].join(" ");
 
 /** Narrow detail sheets (schedule rows). */
@@ -70,13 +76,40 @@ export const ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS =
   "flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-5 py-5 sm:px-6";
 
 export const ADMIN_DETAILS_SHEET_OVERLAY_CLASS =
-  "ommm-drawer-overlay z-[105] items-end";
+  "ommm-drawer-overlay z-[105] max-sm:items-end max-sm:justify-center sm:items-end sm:justify-end";
 
 export const ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS =
-  "ommm-drawer-overlay z-[110] items-end";
+  "ommm-drawer-overlay z-[110] max-sm:items-end max-sm:justify-center sm:items-end sm:justify-end";
 
 export const ADMIN_DETAILS_SHEET_HEADER_CLASS =
   "shrink-0 border-b border-white/60 px-5 py-4 sm:px-6 sm:py-5";
+
+/** Hide horizontal/vertical scrollbar while keeping scroll (tab strips, tables). */
+export const ADMIN_HIDE_SCROLLBAR_CLASS =
+  "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+
+export const ADMIN_HORIZONTAL_TAB_SCROLL_CLASS = [
+  "flex touch-pan-x flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-0.5",
+  ADMIN_HIDE_SCROLLBAR_CLASS,
+].join(" ");
+
+/** Create/add forms — single scroll; actions at content end (not pinned to sheet bottom). */
+export const ADMIN_CREATE_FORM_CLASS =
+  "flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain";
+
+export const ADMIN_CREATE_FORM_BODY_CLASS =
+  "flex flex-col gap-5 px-5 py-5 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] sm:px-7 sm:py-6";
+
+export const ADMIN_CREATE_FORM_ACTIONS_CLASS =
+  "flex flex-wrap items-center justify-end gap-3 border-t border-white/60 pt-4";
+
+/** Solid white title row on create/add sheets. */
+export const ADMIN_CREATE_SHEET_HEADER_CLASS =
+  "flex shrink-0 items-start justify-between gap-4 border-b border-sage-200/50 bg-white px-5 py-4 sm:px-7 sm:py-5";
+
+/** Form area below the white header — warm paper tone. */
+export const ADMIN_CREATE_SHEET_BODY_SHELL_CLASS =
+  "flex min-h-0 flex-1 flex-col overflow-hidden bg-paper";
 
 export const ADMIN_DETAILS_SHEET_BODY_CLASS =
   "flex-1 overflow-y-auto px-5 py-5 sm:px-6";

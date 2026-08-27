@@ -1,8 +1,11 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import {
+  ADMIN_CONFIRM_MODAL_PANEL_CLASS,
+} from "@/components/admin/admin-mobile-sheet-layout";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
 
 export type OmmConfirmDialogTone = "default" | "warm" | "danger" | "success";
 
@@ -26,8 +29,7 @@ type OmmConfirmDialogProps = {
   children?: ReactNode;
 };
 
-const CONFIRM_DIALOG_PANEL_CLASS =
-  "w-full max-w-md rounded-[28px] border border-sand-200/80 bg-white p-6 shadow-[0_24px_48px_-28px_rgba(45,40,35,0.35)]";
+const CONFIRM_DIALOG_PANEL_CLASS = ADMIN_CONFIRM_MODAL_PANEL_CLASS;
 
 const CONFIRM_DIALOG_TONE_PANEL_CLASS: Record<OmmConfirmDialogTone, string> = {
   default: "",
@@ -65,18 +67,20 @@ export function OmmConfirmDialog({
     .join(" ");
 
   return (
-    <OmmModalPortal
+    <AdminSheetPortal
       isOpen={isOpen}
       onClose={onCancel}
+      presentation="modal"
       dialogRole="alertdialog"
       ariaLabelledBy={titleId}
       ariaDescribedBy={descId}
       closeDisabled={pending}
       backdropAriaLabel={backdropAriaLabel}
-      overlayClassName={overlayClassName}
-      panelClassName={panelClassName}
+      modalOverlayClassName={overlayClassName}
+      modalPanelClassName={panelClassName}
       lockBodyScroll={lockBodyScroll}
       closeOnEscape={closeOnEscape}
+      zIndexClass="z-[110]"
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -104,6 +108,6 @@ export function OmmConfirmDialog({
           </OmmButton>
         </div>
       </div>
-    </OmmModalPortal>
+    </AdminSheetPortal>
   );
 }

@@ -36,7 +36,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -362,19 +362,19 @@ function AdminClientDrawerInner({
     : `${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`;
 
   return (
-    <OmmDrawerPortal
+    <AdminSheetPortal presentation="drawer"
       isOpen
       onClose={handleClose}
       closeDisabled={sheetBusy}
       closeOnEscape={!avatarPreviewOpen}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
-      overlayClassName={
+      drawerOverlayClassName={
         isNestedOverlay
           ? ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS
           : ADMIN_DETAILS_SHEET_OVERLAY_CLASS
       }
-      panelClassName={
+      drawerPanelClassName={
         isNestedOverlay ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS
       }
       lockBodyScroll={!isNestedOverlay}
@@ -498,6 +498,6 @@ function AdminClientDrawerInner({
           void handleSavePersonalInfo();
         }}
       />
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

@@ -9,7 +9,7 @@ import {
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -109,15 +109,15 @@ export function AdminSessionRegistrationsModal({
 
   return (
     <>
-      <OmmModalPortal
+      <AdminSheetPortal presentation="modal"
         isOpen={isOpen}
         onClose={onClose}
         dialogRole="dialog"
         ariaLabelledBy={titleId}
         ariaDescribedBy={descId}
         backdropAriaLabel={t("backdropClose")}
-        overlayClassName="ommm-modal-overlay z-[110] p-4"
-        panelClassName={MODAL_PANEL_CLASS}
+        modalOverlayClassName="ommm-modal-overlay z-[110] p-4"
+        modalPanelClassName={MODAL_PANEL_CLASS}
         closeOnEscape={!clientDrawerOpen}
         lockBodyScroll={!clientDrawerOpen}
       >
@@ -170,7 +170,7 @@ export function AdminSessionRegistrationsModal({
             </OmmButton>
           </div>
         </div>
-      </OmmModalPortal>
+      </AdminSheetPortal>
       <AdminClientDrawerById
         clientId={selectedClientId}
         locale={locale}

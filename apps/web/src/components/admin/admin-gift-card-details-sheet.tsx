@@ -23,7 +23,7 @@ import type {
   AdminGiftCardBatchRow,
 } from "@/components/admin/admin-gift-cards-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { GiftCardCapabilities } from "@/lib/backoffice-capabilities";
 import { adminGiftCardCapabilities } from "@/lib/backoffice-capabilities";
@@ -158,14 +158,14 @@ function AdminGiftCardDetailsSheetInner({
     ((isActive && capabilities.canDeactivate) || (!isActive && capabilities.canActivate));
 
   return (
-    <OmmDrawerPortal
+    <AdminSheetPortal presentation="drawer"
       isOpen
       onClose={handleClose}
       closeDisabled={statusBusy}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -214,6 +214,6 @@ function AdminGiftCardDetailsSheetInner({
           onRemoved={handleRemoved}
         />
       </div>
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

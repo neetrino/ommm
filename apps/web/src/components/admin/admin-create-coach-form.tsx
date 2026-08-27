@@ -13,6 +13,11 @@ import {
 } from "@/components/admin/admin-coach-form-helpers";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
+import {
+  ADMIN_CREATE_FORM_ACTIONS_CLASS,
+  ADMIN_CREATE_FORM_BODY_CLASS,
+  ADMIN_CREATE_FORM_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 
 export type AdminCreateCoachFormProps = {
   classOptions: readonly CoachClassOption[];
@@ -102,9 +107,9 @@ export function AdminCreateCoachForm({
         void onSubmit(ev);
       }}
       onInput={clearFieldError}
-      className="flex min-h-0 flex-1 flex-col"
+      className={ADMIN_CREATE_FORM_CLASS}
     >
-      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+      <div className={ADMIN_CREATE_FORM_BODY_CLASS}>
         <AdminCreateCoachFormPersonalSection
           formRef={formRef}
           phone={phone}
@@ -147,25 +152,25 @@ export function AdminCreateCoachForm({
             {t("success")}
           </p>
         ) : null}
-      </div>
 
-      {error !== null ? <FormErrorBanner message={error} /> : null}
+        {error !== null ? <FormErrorBanner message={error} /> : null}
 
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/80 px-5 py-4 backdrop-blur-sm sm:px-7">
-        {onCancel !== undefined ? (
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            disabled={pending}
-            onClick={onCancel}
-          >
-            {tPage("cancelButton")}
+        <div className={ADMIN_CREATE_FORM_ACTIONS_CLASS}>
+          {onCancel !== undefined ? (
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              disabled={pending}
+              onClick={onCancel}
+            >
+              {tPage("cancelButton")}
+            </OmmButton>
+          ) : null}
+          <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
+            {pending ? t("submitting") : t("submit")}
           </OmmButton>
-        ) : null}
-        <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
-          {pending ? t("submitting") : t("submit")}
-        </OmmButton>
+        </div>
       </div>
     </form>
   );

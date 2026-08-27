@@ -11,6 +11,12 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { adminFormModalPanelClass } from "@/components/admin/admin-mobile-sheet-layout";
+import {
+  ADMIN_CREATE_SHEET_BODY_SHELL_CLASS,
+  ADMIN_CREATE_SHEET_HEADER_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateManagerForm } from "@/components/admin/admin-create-manager-form";
 import { AdminManagersFilters } from "@/components/admin/admin-managers-filters";
@@ -36,7 +42,6 @@ export function AdminManagersShell({
   const pathname = usePathname();
   const titleId = useId();
   const descId = useId();
-  const panelRef = useRef<HTMLDivElement>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isModalOpen =
@@ -81,30 +86,6 @@ export function AdminManagersShell({
     };
   }, []);
 
-  useEffect(() => {
-    if (!isModalOpen) {
-      return undefined;
-    }
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isModalOpen]);
-
-  useEffect(() => {
-    if (!isModalOpen) {
-      return undefined;
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        closeModal();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [closeModal, isModalOpen]);
-
   return (
     <div className="flex flex-col">
       {banner !== null ? (
@@ -121,22 +102,19 @@ export function AdminManagersShell({
       />
       {children}
       {isModalOpen ? (
-        <div className="ommm-modal-overlay z-50" role="presentation">
-          <button
-            type="button"
-            className="ommm-modal-backdrop"
-            aria-label={t("modalBackdropClose")}
-            onClick={closeModal}
-          />
-          <div
-            ref={panelRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            aria-describedby={descId}
-            className="relative z-10 mt-auto flex max-h-[min(92vh,840px)] w-full max-w-[min(640px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]"
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
+        <AdminSheetPortal
+          presentation="modal"
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          backdropAriaLabel={t("modalBackdropClose")}
+          ariaLabelledBy={titleId}
+          ariaDescribedBy={descId}
+          modalOverlayClassName="ommm-modal-overlay z-50 items-center p-3 sm:p-4"
+          modalPanelClassName={adminFormModalPanelClass("max-w-[min(640px,95vw)]")}
+          zIndexClass="z-50"
+        >
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className={ADMIN_CREATE_SHEET_HEADER_CLASS}>
               <div>
                 <h2 id={titleId} className={adminChrome.panelHeading}>
                   {tCreate("panelTitle")}
@@ -165,14 +143,14 @@ export function AdminManagersShell({
                 </svg>
               </button>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className={ADMIN_CREATE_SHEET_BODY_SHELL_CLASS}>
               <AdminCreateManagerForm
                 onCreated={onManagerCreated}
                 onCancel={closeModal}
               />
             </div>
           </div>
-        </div>
+        </AdminSheetPortal>
       ) : null}
     </div>
   );

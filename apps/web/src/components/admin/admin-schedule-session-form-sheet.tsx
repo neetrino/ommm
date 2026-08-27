@@ -22,7 +22,7 @@ import type {
 import { useAdminScheduleSessionFormSheet } from "@/components/admin/use-admin-schedule-session-form-sheet";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
@@ -58,14 +58,14 @@ export function SessionFormSheet({
   });
 
   return (
-    <OmmDrawerPortal
+    <AdminSheetPortal presentation="drawer"
       isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={sheet.t("modalBackdropClose")}
       ariaLabelledBy={sheet.titleId}
       closeDisabled={sheet.pending}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -221,6 +221,6 @@ export function SessionFormSheet({
               : sheet.t("saveButton")}
         </OmmButton>
       </footer>
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

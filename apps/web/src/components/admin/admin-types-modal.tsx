@@ -6,7 +6,7 @@ import {
   AdminTypesManagement,
   type AdminClassTypeRow,
 } from "@/components/admin/admin-types-management";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 
 type AdminTypesModalProps = {
   isOpen: boolean;
@@ -33,12 +33,12 @@ export function AdminTypesModal({
   }
 
   return (
-    <OmmModalPortal
+    <AdminSheetPortal presentation="modal"
       isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={tTypes("modalBackdropClose")}
-      overlayClassName="ommm-modal-overlay z-[110] p-3 sm:p-6"
-      panelClassName={TYPES_MODAL_PANEL_CLASS}
+      modalOverlayClassName="ommm-modal-overlay z-[110] p-3 sm:p-6"
+      modalPanelClassName={TYPES_MODAL_PANEL_CLASS}
     >
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-4 border-b border-sand-200/50 bg-white/40 px-5 py-4 sm:px-7 sm:py-5">
@@ -73,6 +73,6 @@ export function AdminTypesModal({
           />
         </div>
       </div>
-    </OmmModalPortal>
+    </AdminSheetPortal>
   );
 }

@@ -16,7 +16,7 @@ import type {
 } from "@/components/admin/admin-finance-types";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { apiFetch } from "@/lib/api";
 import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
@@ -140,13 +140,13 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
   const listOffset = (page - 1) * pageSize;
 
   return (
-    <OmmDrawerPortal
+    <AdminSheetPortal presentation="drawer"
       isOpen={coach !== null}
       onClose={onClose}
       backdropAriaLabel={t("close")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -201,6 +201,6 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
           scrollOnPageChange={false}
         />
       </div>
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

@@ -13,7 +13,7 @@ import {
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { apiFetch } from "@/lib/api";
 
 type AdminClientDrawerByIdProps = {
@@ -125,17 +125,17 @@ function AdminClientDrawerLoadingShell({
   const isNestedOverlay = useOverlayPortalRoot;
 
   return (
-    <OmmDrawerPortal
+    <AdminSheetPortal presentation="drawer"
       isOpen
       onClose={onClose}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
-      overlayClassName={
+      drawerOverlayClassName={
         isNestedOverlay
           ? ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS
           : ADMIN_DETAILS_SHEET_OVERLAY_CLASS
       }
-      panelClassName={
+      drawerPanelClassName={
         isNestedOverlay ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS
       }
       lockBodyScroll={!isNestedOverlay}
@@ -159,6 +159,6 @@ function AdminClientDrawerLoadingShell({
       <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
         <p className="text-sm text-sage-600">{t("drawer.loading")}</p>
       </div>
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

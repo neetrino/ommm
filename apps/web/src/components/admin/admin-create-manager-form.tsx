@@ -9,6 +9,11 @@ import {
 } from "@/components/admin/admin-coach-form-helpers";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
+import {
+  ADMIN_CREATE_FORM_ACTIONS_CLASS,
+  ADMIN_CREATE_FORM_BODY_CLASS,
+  ADMIN_CREATE_FORM_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { ApiError, apiFetch } from "@/lib/api";
 import { isLatinPersonName } from "@/lib/latin-person-name";
@@ -89,9 +94,9 @@ export function AdminCreateManagerForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex min-h-0 flex-1 flex-col"
+      className={ADMIN_CREATE_FORM_CLASS}
     >
-      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+      <div className={ADMIN_CREATE_FORM_BODY_CLASS}>
         <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
           <div className="mb-4">
             <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
@@ -152,17 +157,19 @@ export function AdminCreateManagerForm({
             </label>
           </div>
         </section>
-      </div>
-      {error !== null ? <FormErrorBanner message={error} /> : null}
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/85 px-5 py-4 backdrop-blur-sm sm:rounded-b-[28px] sm:px-7">
-        {onCancel !== undefined ? (
-          <OmmButton type="button" variant="secondary" size="md" disabled={pending} onClick={onCancel}>
-            {tPage("cancelButton")}
+
+        {error !== null ? <FormErrorBanner message={error} /> : null}
+
+        <div className={ADMIN_CREATE_FORM_ACTIONS_CLASS}>
+          {onCancel !== undefined ? (
+            <OmmButton type="button" variant="secondary" size="md" disabled={pending} onClick={onCancel}>
+              {tPage("cancelButton")}
+            </OmmButton>
+          ) : null}
+          <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
+            {pending ? t("submitting") : t("submit")}
           </OmmButton>
-        ) : null}
-        <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
-          {pending ? t("submitting") : t("submit")}
-        </OmmButton>
+        </div>
       </div>
     </form>
   );
