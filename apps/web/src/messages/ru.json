@@ -2245,6 +2245,7 @@
       "colEmail": "Email",
       "colRole": "Роль",
       "colJoined": "Регистрация",
+      "metaBirthday": "День рождения",
       "colMembership": "Абонемент",
       "colBooking": "Бронирование",
       "nextBookingEmpty": "Нет ближайших",

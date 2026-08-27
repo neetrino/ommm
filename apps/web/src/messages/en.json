@@ -2247,6 +2247,7 @@
       "colEmail": "Email",
       "colRole": "Role",
       "colJoined": "Joined",
+      "metaBirthday": "Birthday",
       "colMembership": "Membership",
       "colBooking": "Booking",
       "nextBookingEmpty": "No upcoming",
