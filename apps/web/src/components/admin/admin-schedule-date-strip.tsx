@@ -129,8 +129,10 @@ function ScheduleDayCard({
     emphasize ? "text-sage-700" : "font-serif text-sage-950",
   ].join(" ");
 
-  const todayBadgeClass =
-    "truncate text-[9px] font-bold uppercase tracking-[0.14em] text-sage-800";
+  const todayBadgeClass = [
+    styles.todayLabel,
+    "truncate text-[9px] font-bold uppercase tracking-[0.14em] text-sage-800",
+  ].join(" ");
 
   const monthClass = [
     "text-left text-sm font-semibold uppercase tracking-wide",
@@ -227,7 +229,9 @@ export function AdminScheduleDateStrip({
   if (days.length === 0) return null;
 
   return (
-    <div className="rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md">
+    <div
+      className={`${styles.strip} rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md`}
+    >
       <div className="flex min-w-0 items-stretch gap-2">
         <AdminScheduleAllClassesCard
           sessionCount={allClassesCount}

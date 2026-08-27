@@ -1,11 +1,31 @@
+/* Strip panel is the size container so column count follows content width (beside sidebar). */
+.strip {
+  container-type: inline-size;
+  container-name: schedule-date-strip;
+}
+
 .viewport {
+  --date-card-min: 5.75rem;
+  --date-card-gap: 0.5rem;
+  --date-cards-visible: 2;
+
   display: grid;
   width: 100%;
   min-width: 0;
   grid-auto-flow: column;
-  /* Mobile: two day cards in view; the rest scroll horizontally. */
-  grid-auto-columns: calc((100% - 0.5rem) / 2);
-  gap: 0.5rem;
+  /*
+   * Fixed track size: fill N cards across the strip when there is room;
+   * never go below --date-card-min (extra days scroll via drag-scroll).
+   * Use max() — not minmax() — so tracks cannot shrink under grid overflow.
+   */
+  grid-auto-columns: max(
+    var(--date-card-min),
+    calc(
+      (100% - (var(--date-cards-visible) - 1) * var(--date-card-gap)) /
+        var(--date-cards-visible)
+    )
+  );
+  gap: var(--date-card-gap);
   overflow-x: auto;
   overflow-y: hidden;
   cursor: grab;
@@ -17,9 +37,21 @@
   scrollbar-width: none;
 }
 
-@media (min-width: 768px) {
+@container schedule-date-strip (min-width: 28rem) {
   .viewport {
-    grid-auto-columns: calc((100% - 4.5rem) / 10);
+    --date-cards-visible: 5;
+  }
+}
+
+@container schedule-date-strip (min-width: 40rem) {
+  .viewport {
+    --date-cards-visible: 7;
+  }
+}
+
+@container schedule-date-strip (min-width: 56rem) {
+  .viewport {
+    --date-cards-visible: 10;
   }
 }
 
@@ -36,6 +68,7 @@
   aspect-ratio: 1 / 1;
   min-width: 0;
   container-type: inline-size;
+  container-name: schedule-day-card;
   touch-action: pan-x;
   user-select: none;
   -webkit-user-drag: none;
@@ -51,9 +84,20 @@
 }
 
 .dayNumber {
-  font-size: clamp(1.75rem, 44cqi, 3.5rem);
+  font-size: clamp(1.5rem, 32cqi, 3rem);
   line-height: 1;
   font-variant-numeric: tabular-nums;
+}
+
+/* Narrow cards: hide TODAY label — day is already emphasized via surface / aria-current. */
+.todayLabel {
+  display: block;
+}
+
+@container schedule-day-card (max-width: 5.5rem) {
+  .todayLabel {
+    display: none;
+  }
 }
 
 .allClassesCard {
