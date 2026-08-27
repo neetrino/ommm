@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 
 type AdminPageHeroProps = {
@@ -46,10 +46,11 @@ export function AdminPageHero({
   mobileBackLabel,
   sticky = true,
 }: AdminPageHeroProps) {
-  const headerRef = useAdminStickyHeaderOffset(sticky);
+  const stickyEnabled = useAdminPageHeaderSticky(sticky);
+  const headerRef = useAdminStickyHeaderOffset(stickyEnabled);
 
   return (
-    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={sticky}>
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar relative flex !flex-col !flex-nowrap !items-stretch gap-3 max-sm:!justify-center sm:!flex-row sm:!flex-nowrap sm:!items-center sm:!justify-start">
         {mobileBackHref && mobileBackLabel ? (
           <Link

@@ -680,6 +680,7 @@
         "classes": "Classes",
         "packages": "Packages",
         "giftCards": "Gift Cards",
+        "analytics": "Analytics",
         "notifications": "Notifications",
         "content": "Content",
         "settings": "Settings",
@@ -3044,7 +3045,8 @@
       "fields": {
         "duration": "Duration",
         "spotsBooked": "{booked}/{capacity} booked",
-        "spotsLeft": "{count, plural, =1 {1 spot left} other {# spots left}}"
+        "spotsLeft": "{count, plural, =1 {1 spot left} other {# spots left}}",
+        "viewRegisteredRoster": "Who is registered"
       },
       "registrationsModal": {
         "title": "Registered members",

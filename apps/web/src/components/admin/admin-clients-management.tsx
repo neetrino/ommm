@@ -123,6 +123,22 @@ export function AdminClientsManagement({
     />
   );
 
+  const mobileAddClientButton =
+    onAddUser && caps.canCreate ? (
+      <div className="sm:hidden">
+        <OmmButton
+          type="button"
+          variant="secondary"
+          size="md"
+          onClick={onAddUser}
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full"
+        >
+          <AdminClientsAddUserGlyph className="h-5 w-5 shrink-0" />
+          {t("addUserButton")}
+        </OmmButton>
+      </div>
+    ) : null;
+
   const clientsList = (
     <>
       <div className={loading ? "opacity-60 transition-opacity duration-150" : "transition-opacity duration-150"}>
@@ -162,11 +178,26 @@ export function AdminClientsManagement({
           banner={staffBanner}
           search={searchFilters}
           headerTrailing={
-            <AdminClientsViewSwitcher value={viewMode} onChange={setViewMode} />
+            <>
+              {onAddUser && caps.canCreate ? (
+                <OmmButton
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={onAddUser}
+                  className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-3 sm:hidden"
+                >
+                  <AdminClientsAddUserGlyph className="h-4 w-4 shrink-0" />
+                  {t("addUserButton")}
+                </OmmButton>
+              ) : null}
+              <AdminClientsViewSwitcher value={viewMode} onChange={setViewMode} />
+            </>
           }
           metrics={<AdminClientsSummary payload={payload} />}
           status={error ? <div className="app-alert-warn">{error}</div> : null}
         >
+          {mobileAddClientButton}
           {clientsList}
         </StaffListPageLayout>
       ) : (
@@ -176,6 +207,7 @@ export function AdminClientsManagement({
             search={searchFilters}
             trailing={heroActions}
           />
+          {mobileAddClientButton}
           <AdminClientsSummary payload={payload} />
           {error ? <div className="app-alert-warn">{error}</div> : null}
           {clientsList}

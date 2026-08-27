@@ -106,6 +106,7 @@ export function MarketingSiteHeader({
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setPublicMenuOpen(false);
+    closeWorkspaceDrawer();
     if (!isMarketingHome) {
       return;
     }
@@ -183,7 +184,7 @@ export function MarketingSiteHeader({
         />
       </div>
 
-      {publicMenuOpen ? (
+      {publicMenuOpen && !isWorkspaceChrome ? (
         <MarketingMobileMenuModal
           isOpen={publicMenuOpen}
           onClose={() => setPublicMenuOpen(false)}

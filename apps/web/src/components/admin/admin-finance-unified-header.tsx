@@ -4,7 +4,7 @@ import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
-import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
@@ -60,7 +60,8 @@ function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps
 
 function AdminFinanceUnifiedHeaderInner() {
   const t = useTranslations("adminPages.finance");
-  const headerRef = useAdminStickyHeaderOffset(true);
+  const stickyEnabled = useAdminPageHeaderSticky(true);
+  const headerRef = useAdminStickyHeaderOffset(stickyEnabled);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const section = resolveFinanceSectionFromPathname(pathname);
@@ -70,7 +71,7 @@ function AdminFinanceUnifiedHeaderInner() {
   );
 
   return (
-    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-start">
         <div className="flex min-w-0 w-full shrink-0 flex-wrap items-center justify-center gap-3 sm:w-auto sm:justify-start">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
@@ -88,10 +89,11 @@ function AdminFinanceUnifiedHeaderInner() {
 
 function AdminFinanceUnifiedHeaderFallback() {
   const t = useTranslations("adminPages.finance");
-  const headerRef = useAdminStickyHeaderOffset(true);
+  const stickyEnabled = useAdminPageHeaderSticky(true);
+  const headerRef = useAdminStickyHeaderOffset(stickyEnabled);
 
   return (
-    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-start">
         <div className="flex min-w-0 w-full shrink-0 flex-wrap items-center justify-center gap-3 sm:w-auto sm:justify-start">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>

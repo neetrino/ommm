@@ -5,9 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
-  ANALYTICS_SECTION_HREF,
-  ANALYTICS_SECTION_IDS,
+  analyticsSectionHref,
+  analyticsSectionIdsFor,
   type AnalyticsSectionId,
+  type AnalyticsWorkspace,
 } from "@/components/admin/admin-analytics-module";
 import { buildAnalyticsTabHref } from "@/components/admin/admin-analytics-url";
 
@@ -19,7 +20,13 @@ const TAB_LABEL_KEY: Record<AnalyticsSectionId, string> = {
   coaches: "coaches",
 };
 
-export function AdminAnalyticsTabNav({ className = "" }: { className?: string }) {
+export function AdminAnalyticsTabNav({
+  className = "",
+  workspace = "admin",
+}: {
+  className?: string;
+  workspace?: AnalyticsWorkspace;
+}) {
   const t = useTranslations("adminPages.analytics.tabs");
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,11 +39,11 @@ export function AdminAnalyticsTabNav({ className = "" }: { className?: string })
     <nav
       role="tablist"
       aria-label={t("aria")}
-      className={`flex min-w-0 shrink-0 items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      className={`flex w-full min-w-0 max-w-full touch-pan-x flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
     >
-      {ANALYTICS_SECTION_IDS.map((section) => {
-        const basePath = ANALYTICS_SECTION_HREF[section];
-        const href = buildAnalyticsTabHref(section, search);
+      {analyticsSectionIdsFor(workspace).map((section) => {
+        const basePath = analyticsSectionHref(section, workspace);
+        const href = buildAnalyticsTabHref(section, search, workspace);
         const active = pathname === basePath || pathname.endsWith(basePath);
         return (
           <Link

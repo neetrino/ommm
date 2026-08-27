@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
@@ -44,6 +44,7 @@ type AdminScheduleSessionDetailsSheetProps = {
   classTypeOptions: readonly SessionClassTypeOption[];
   coaches: readonly AdminScheduleCoach[];
   actionBusy: boolean;
+  initialTab?: SessionSheetTabId;
   onClose: () => void;
   onSaved?: (row: AdminScheduleSession) => void;
   onDuplicate?: (row: AdminScheduleSession) => void;
@@ -62,6 +63,7 @@ export function AdminScheduleSessionDetailsSheet({
   onDuplicate,
   onDelete,
   capabilities,
+  initialTab = SESSION_SHEET_TAB_BOOKINGS,
 }: AdminScheduleSessionDetailsSheetProps) {
   if (row === null) {
     return null;
@@ -83,6 +85,7 @@ export function AdminScheduleSessionDetailsSheet({
       onDelete={caps.canDelete ? onDelete : undefined}
       canUpdate={caps.canUpdate}
       canCancelBooking={canCancelBooking}
+      initialTab={initialTab}
     />
   );
 }
@@ -99,6 +102,7 @@ function AdminScheduleSessionDetailsSheetInner({
   onDelete,
   canUpdate = true,
   canCancelBooking = true,
+  initialTab = SESSION_SHEET_TAB_BOOKINGS,
 }: {
   locale: string;
   row: AdminScheduleSession;
@@ -111,15 +115,20 @@ function AdminScheduleSessionDetailsSheetInner({
   onDelete?: (row: AdminScheduleSession) => void;
   canUpdate?: boolean;
   canCancelBooking?: boolean;
+  initialTab?: SessionSheetTabId;
   onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 }) {
   const t = useTranslations("adminPages.classes");
   const titleId = useId();
-  const [activeTab, setActiveTab] = useState<SessionSheetTabId>(SESSION_SHEET_TAB_DETAILS);
+  const [activeTab, setActiveTab] = useState<SessionSheetTabId>(initialTab);
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab, row.id]);
 
   const fallbackClassTypeId = classTypeOptions[0]?.value ?? "";
   const fallbackCoachId = coaches[0]?.id ?? "";

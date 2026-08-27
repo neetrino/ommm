@@ -680,6 +680,7 @@
         "classes": "Классы",
         "packages": "Пакеты",
         "giftCards": "Подарочные карты",
+        "analytics": "Аналитика",
         "notifications": "Уведомления",
         "content": "Контент",
         "settings": "Настройки",
@@ -3042,7 +3043,8 @@
       "fields": {
         "duration": "Длительность",
         "spotsBooked": "{booked}/{capacity} занято",
-        "spotsLeft": "{count, plural, one {Осталось # место} few {Осталось # места} many {Осталось # мест} other {Осталось # мест}}"
+        "spotsLeft": "{count, plural, one {Осталось # место} few {Осталось # места} many {Осталось # мест} other {Осталось # мест}}",
+        "viewRegisteredRoster": "Кто записан"
       },
       "registrationsModal": {
         "title": "Записанные участники",

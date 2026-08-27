@@ -221,7 +221,7 @@ export function marketingHeaderMobileBrandLinkClass(options?: {
   workspace?: boolean;
 }): string {
   if (options?.workspace) {
-    return "flex shrink-0 items-center";
+    return "flex min-w-0 shrink items-center";
   }
 
   return [

@@ -1,6 +1,8 @@
 import {
-  ANALYTICS_SECTION_HREF,
+  analyticsSectionHref,
+  analyticsSectionIdsFor,
   type AnalyticsSectionId,
+  type AnalyticsWorkspace,
 } from "@/components/admin/admin-analytics-module";
 import {
   parseAnalyticsBookingStatus,
@@ -69,8 +71,9 @@ export function buildSanitizedAnalyticsSectionQueryString(
 export function buildAnalyticsTabHref(
   section: AnalyticsSectionId,
   search: Record<string, string | string[] | undefined>,
+  workspace: AnalyticsWorkspace = "admin",
 ): string {
-  const base = ANALYTICS_SECTION_HREF[section];
+  const base = analyticsSectionHref(section, workspace);
   const query = buildSanitizedAnalyticsSectionQueryString(section, search);
   return query.length > 0 ? `${base}?${query}` : base;
 }

@@ -105,6 +105,7 @@ const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/schedule", icon: "calendar", labelKey: "schedule", oliveIconSlug: "schedule" },
   { href: "/manager/packages", icon: "tag", labelKey: "packages", oliveIconSlug: "packages" },
   { href: "/manager/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
+  { href: "/manager/analytics", icon: "pieChart", labelKey: "analytics", oliveIconSlug: "analytics" },
   { href: "/manager/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
   { href: "/manager/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
 ];

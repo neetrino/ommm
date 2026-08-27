@@ -6,7 +6,7 @@ import {
 } from "./dashboard-nav";
 
 describe("dashboard-nav manager parity", () => {
-  it("MANAGER_NAV matches admin operational order without finance/analytics/profile", () => {
+  it("MANAGER_NAV matches admin operational order without finance/profile", () => {
     const nav = dashboardNavDefinitionsForRole("MANAGER");
     assert.deepEqual(
       nav.map((item) => item.href),
@@ -20,12 +20,12 @@ describe("dashboard-nav manager parity", () => {
         "/manager/schedule",
         "/manager/packages",
         "/manager/gift-cards",
+        "/manager/analytics",
         "/manager/content",
         "/manager/settings",
       ],
     );
     assert.equal(nav.some((item) => item.href.includes("finance")), false);
-    assert.equal(nav.some((item) => item.href.includes("analytics")), false);
     assert.equal(nav.some((item) => item.href.includes("guest-users")), false);
     assert.equal(nav.some((item) => item.href.includes("profile")), false);
     assert.equal(nav.some((item) => item.href.includes("notifications")), false);

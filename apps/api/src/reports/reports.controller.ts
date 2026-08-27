@@ -75,10 +75,15 @@ export class ReportsController {
 
   @Get('analytics')
   @SkipThrottle()
-  @Roles(...BACKOFFICE_DELETE_ROLES)
-  studioAnalytics(@Query() query: StudioAnalyticsQueryDto) {
+  @Roles(...BACKOFFICE_READ_ROLES)
+  studioAnalytics(
+    @CurrentUser() user: { role: Role },
+    @Query() query: StudioAnalyticsQueryDto,
+  ) {
     assertValidReportRange(query.from, query.to);
-    return this.reports.studioAnalytics(query);
+    return this.reports.studioAnalytics(query, {
+      includeFinance: user.role === Role.ADMIN,
+    });
   }
 
   @Get('payments.csv')

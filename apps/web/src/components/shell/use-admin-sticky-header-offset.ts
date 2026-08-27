@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 
 export const OMMM_ADMIN_HEADER_STICKY_OFFSET_VAR = "--ommm-admin-header-sticky-offset";
+
+/** Admin module headers stick below the site navbar on tablet+ only. */
+export function useAdminPageHeaderSticky(preferred: boolean): boolean {
+  const isPhone = useIsMarketingPhoneViewport();
+  return preferred && !isPhone;
+}
 
 /**
  * Tracks the admin dashboard sticky header height for nested sticky regions (e.g. packages toolbar).

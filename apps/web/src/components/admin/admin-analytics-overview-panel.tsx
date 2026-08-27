@@ -31,9 +31,13 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminAnalyticsOverviewPanelProps = {
   data: AdminAnalyticsPayload;
+  includeFinance?: boolean;
 };
 
-export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPanelProps) {
+export function AdminAnalyticsOverviewPanel({
+  data,
+  includeFinance = true,
+}: AdminAnalyticsOverviewPanelProps) {
   const t = useTranslations("adminPages.analytics");
   const studio = data.studio;
   const sortKey = data.sortKey;
@@ -74,13 +78,17 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
   );
 
   const kpis = [
-    {
-      key: "revenue",
-      label: t("kpiCashRevenue"),
-      value: formatAmdFromCents(studio.kpis.revenueCents, locale),
-      deltaPercent: studio.comparison.revenueCents.trendPercent,
-      hint: t("comparison.previousPeriod"),
-    },
+    ...(includeFinance
+      ? [
+          {
+            key: "revenue",
+            label: t("kpiCashRevenue"),
+            value: formatAmdFromCents(studio.kpis.revenueCents, locale),
+            deltaPercent: studio.comparison.revenueCents.trendPercent,
+            hint: t("comparison.previousPeriod"),
+          },
+        ]
+      : []),
     {
       key: "bookings",
       label: t("kpiBookingsInRange"),
@@ -116,29 +124,31 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
       <AdminAnalyticsPanelSection index={0}>
         <AdminAnalyticsKpiStrip items={kpis} trendNotAvailableLabel={t("trendNotAvailable")} />
       </AdminAnalyticsPanelSection>
-      <AdminAnalyticsPanelSection index={1}>
-        <AdminAnalyticsChartPanel
-          title={t("sections.trends.revenueTitle")}
-          hint={t("sections.trends.cashRevenueHint")}
-        >
-          <AdminAnalyticsAreaChart
-            data={trendChartData}
-            xKey="label"
-            series={[
-              {
-                key: "revenue",
-                label: t("sections.trends.cashRevenueSeries"),
-                color: ANALYTICS_CHART_BLUE,
-                totalLabel: formatAmdFromCents(revenueTrendTotal, locale),
-              },
-            ]}
-            emptyLabel={t("empty")}
-            ariaLabel={t("sections.trends.revenueChartAria")}
-            valueFormatter={(value) => formatAmdFromCents(value, locale)}
-          />
-        </AdminAnalyticsChartPanel>
-      </AdminAnalyticsPanelSection>
-      <AdminAnalyticsPanelSection index={2}>
+      {includeFinance ? (
+        <AdminAnalyticsPanelSection index={1}>
+          <AdminAnalyticsChartPanel
+            title={t("sections.trends.revenueTitle")}
+            hint={t("sections.trends.cashRevenueHint")}
+          >
+            <AdminAnalyticsAreaChart
+              data={trendChartData}
+              xKey="label"
+              series={[
+                {
+                  key: "revenue",
+                  label: t("sections.trends.cashRevenueSeries"),
+                  color: ANALYTICS_CHART_BLUE,
+                  totalLabel: formatAmdFromCents(revenueTrendTotal, locale),
+                },
+              ]}
+              emptyLabel={t("empty")}
+              ariaLabel={t("sections.trends.revenueChartAria")}
+              valueFormatter={(value) => formatAmdFromCents(value, locale)}
+            />
+          </AdminAnalyticsChartPanel>
+        </AdminAnalyticsPanelSection>
+      ) : null}
+      <AdminAnalyticsPanelSection index={includeFinance ? 2 : 1}>
         <AdminAnalyticsChartPanel
           title={t("sections.trends.bookingsTitle")}
           hint={t("sections.trends.bookingsHint")}
@@ -165,7 +175,7 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
           />
         </AdminAnalyticsChartPanel>
       </AdminAnalyticsPanelSection>
-      <AdminAnalyticsPanelSection index={3}>
+      <AdminAnalyticsPanelSection index={includeFinance ? 3 : 2}>
         <AdminAnalyticsChartPanel
           title={t("sections.occupancy.dailyTitle")}
           hint={t("sections.occupancy.dailyHint")}
@@ -188,23 +198,25 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
           />
         </AdminAnalyticsChartPanel>
       </AdminAnalyticsPanelSection>
-      <AdminAnalyticsPanelSection index={4}>
-        <AdminAnalyticsChartPanel
-          title={t("sections.financeRankings.title")}
-          hint={t("sections.financeRankings.hint")}
-        >
-          <AnalyticsRankTable
-            rows={financeTeaser}
-            labels={{
-              rank: t("table.rank"),
-              name: t("table.name"),
-              count: t("table.amount"),
-            }}
-          />
-        </AdminAnalyticsChartPanel>
-      </AdminAnalyticsPanelSection>
+      {includeFinance ? (
+        <AdminAnalyticsPanelSection index={4}>
+          <AdminAnalyticsChartPanel
+            title={t("sections.financeRankings.title")}
+            hint={t("sections.financeRankings.hint")}
+          >
+            <AnalyticsRankTable
+              rows={financeTeaser}
+              labels={{
+                rank: t("table.rank"),
+                name: t("table.name"),
+                count: t("table.amount"),
+              }}
+            />
+          </AdminAnalyticsChartPanel>
+        </AdminAnalyticsPanelSection>
+      ) : null}
       <div className="grid gap-4 lg:grid-cols-2">
-        <AdminAnalyticsPanelSection index={5}>
+        <AdminAnalyticsPanelSection index={includeFinance ? 5 : 3}>
           <AdminAnalyticsChartPanel
             title={t("sections.classPopularity.title")}
             hint={t("sections.classPopularity.hint")}
@@ -217,7 +229,7 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
             />
           </AdminAnalyticsChartPanel>
         </AdminAnalyticsPanelSection>
-        <AdminAnalyticsPanelSection index={6}>
+        <AdminAnalyticsPanelSection index={includeFinance ? 6 : 4}>
           <AdminAnalyticsChartPanel
             title={t("sections.waitlist.title")}
             hint={t("sections.waitlist.hint")}
