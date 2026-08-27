@@ -1,6 +1,6 @@
 @layer components {
   .ommm-admin-content {
-    @apply mx-auto w-full max-w-[1280px];
+    @apply mx-auto w-full min-w-0 max-w-[1280px] overflow-x-clip;
   }
 
   .ommm-admin-add-button {

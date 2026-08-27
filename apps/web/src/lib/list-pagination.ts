@@ -1,5 +1,8 @@
 export const DEFAULT_LIST_PAGE_SIZE = 25;
 
+/** Shorter admin list pages on phone so cards + pagination fit without long scroll. */
+export const ADMIN_MOBILE_LIST_PAGE_SIZE = 8;
+
 export const MAX_LIST_PAGE_SIZE = 100;
 
 export const LIST_PAGE_QUERY_KEY = "page";

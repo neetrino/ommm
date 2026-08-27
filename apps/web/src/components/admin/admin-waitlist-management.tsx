@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
@@ -26,8 +25,8 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
+import { useAdminListPageParams } from "@/hooks/use-admin-list-page-params";
 import { useRouter } from "@/i18n/navigation";
-import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 export function AdminWaitlistManagement({
   locale,
@@ -37,7 +36,6 @@ export function AdminWaitlistManagement({
 }: AdminWaitlistManagementProps) {
   const t = useTranslations("adminPages.waitlists");
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [payload, setPayload] = usePropSyncedState(initial);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
@@ -62,19 +60,7 @@ export function AdminWaitlistManagement({
   } = useAdminWaitlistFilters();
   const waitlistFilterFields = useAdminWaitlistFilterFields({ items: payload.items });
 
-  const listPage = useMemo(
-    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
-    [searchParams],
-  );
-
-  const setListPage = useCallback(
-    (page: number, pageSize?: number) => {
-      replaceSearchParams((params) => {
-        syncListPageQuery(params, page, pageSize);
-      });
-    },
-    [replaceSearchParams],
-  );
+  const { listPage, setListPage } = useAdminListPageParams();
 
   const filteredRows = useMemo(() => {
     const q = searchDraft.trim().toLowerCase();
@@ -123,6 +109,13 @@ export function AdminWaitlistManagement({
       }
     }
   }, [listPage.offset, listPage.take, orderFilter, setPayload, t]);
+
+  useEffect(() => {
+    if (payload.take === listPage.take && payload.offset === listPage.offset) {
+      return;
+    }
+    void loadRows();
+  }, [loadRows, listPage.offset, listPage.take, payload.offset, payload.take]);
 
   useRealtimeRefetch(REALTIME_REFETCH_KEYS.WAITLIST_ADMIN, () => {
     void loadRows();

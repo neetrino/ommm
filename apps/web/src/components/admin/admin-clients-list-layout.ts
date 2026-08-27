@@ -1,4 +1,5 @@
 import {
+  ADMIN_CARD_CONTAIN_CLASS,
   ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_LIST_ROW_SURFACE,
   USER_LIST_ACTIONS_CELL,
@@ -19,6 +20,7 @@ const ADMIN_CLIENTS_LIST_MOBILE_STACK_GAP = "max-md:space-y-4";
 
 function buildClientsListTableClass(gridClass: string): string {
   return [
+    ADMIN_CARD_CONTAIN_CLASS,
     ADMIN_CLIENTS_LIST_MOBILE_STACK_GAP,
     "md:grid",
     gridClass,
@@ -62,9 +64,9 @@ export const ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL = ADMIN_LIST_ROW_ACTION
 
 export const ADMIN_CLIENTS_LIST_CELL = USER_LIST_CELL_CLASS;
 
-/** Name column — allow avatar tag ribbon to render above the icon without clipping. */
+/** Name column — avatar tag ribbon stays inside the card on mobile. */
 export const ADMIN_CLIENTS_LIST_NAME_CELL =
-  "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left";
+  "min-w-0 w-full max-w-full overflow-hidden justify-self-stretch text-left";
 
 export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
 

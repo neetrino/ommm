@@ -81,7 +81,9 @@ export function AdminWaitlistCompactRow({
 
       <div className={`${ADMIN_WAITLIST_LIST_CELL} md:text-center`}>
         <AdminListMobileLabel label={t("colWaitlistDate")} />
-        <p className="text-sm text-sage-800">{formatDateTimeForUi(row.waitlistDate, locale)}</p>
+        <p className="truncate text-sm tabular-nums text-sage-800">
+          {formatDateTimeForUi(row.waitlistDate, locale)}
+        </p>
       </div>
 
       <div className={ADMIN_WAITLIST_LIST_SPACER_CELL} aria-hidden="true" />

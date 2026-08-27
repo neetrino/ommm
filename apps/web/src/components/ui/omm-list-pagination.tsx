@@ -7,8 +7,11 @@ import {
   totalListPages,
 } from "@/lib/list-pagination";
 
-export const OMMM_LIST_PAGINATION_FOOTER_CLASS =
-  "flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between";
+export const OMMM_LIST_PAGINATION_FOOTER_CLASS = [
+  "flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between",
+  "max-md:sticky max-md:bottom-0 max-md:z-10 max-md:-mx-1 max-md:border-t max-md:border-sand-200/80",
+  "max-md:bg-paper/95 max-md:px-1 max-md:py-3 max-md:backdrop-blur-sm",
+].join(" ");
 
 const PAGINATION_RANGE_WRAP_CLASS = "min-w-0 space-y-1";
 const PAGINATION_RANGE_EYEBROW_CLASS =

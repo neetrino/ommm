@@ -18,7 +18,7 @@ export function AdminAnalyticsChartPanel({
   children,
 }: AdminAnalyticsChartPanelProps) {
   return (
-    <section className="rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+    <section className="min-w-0 max-w-full overflow-x-clip rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-sage-900">{title}</h2>
