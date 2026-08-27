@@ -14,9 +14,9 @@ export const SCHEDULE_WEEK_COLUMN_GAP_PX = 12;
 
 export const SCHEDULE_WEEK_COLUMN_GAP_CLASS = "gap-3";
 
-/** Horizontal board scroll — native bar hidden; chevron edge zones navigate. */
+/** Horizontal board scroll — native bar hidden; drag or chevron edge zones navigate. */
 export const SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS =
-  "overflow-x-auto overflow-y-visible scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+  "cursor-grab touch-pan-x overflow-x-auto overflow-y-visible overscroll-x-contain select-none active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
 export const SCHEDULE_WEEK_SCROLL_SPEED_PX = 6;
 

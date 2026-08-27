@@ -86,9 +86,8 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   const todayInKeys = dayKeys.includes(todayIso);
   const grouped = useMemo(() => groupScheduleSessionsByDay(rows), [rows]);
   const trackMinWidthPx = scheduleWeekTrackMinWidthPx(dayKeys.length, columnMinWidth);
-  const { scrollRef, renderEdgeZones, scrollDayToStart } = useScheduleWeekBoardScroll(
-    `${trackMinWidthPx}:${dayKeysSignature}`,
-  );
+  const { scrollRef, renderEdgeZones, scrollDayToStart, dragHandlers, shouldSuppressClick } =
+    useScheduleWeekBoardScroll(`${trackMinWidthPx}:${dayKeysSignature}`);
 
   const resolveTodayColumn = useCallback(() => {
     const container = scrollRef.current;
@@ -154,6 +153,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
         ref={scrollRef}
         className={`${SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS} ${fillRemainingViewport ? "h-full" : ""}`.trim()}
         aria-label={labels.gridAria}
+        {...dragHandlers}
       >
         <div
           className={`flex ${fillRemainingViewport ? "h-full items-stretch" : "items-start"} ${SCHEDULE_WEEK_COLUMN_GAP_CLASS} ${expandColumns ? "w-full" : ""}`}
@@ -230,7 +230,14 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                         session={session}
                         showCoach={showCoach}
                         variant={cardVariant}
-                        onClick={onSessionClick ? () => onSessionClick(session) : undefined}
+                        onClick={
+                          onSessionClick
+                            ? () => {
+                                if (shouldSuppressClick()) return;
+                                onSessionClick(session);
+                              }
+                            : undefined
+                        }
                       />
                     ))
                   )}
