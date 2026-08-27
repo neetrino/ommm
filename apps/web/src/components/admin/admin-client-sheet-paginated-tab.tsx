@@ -89,6 +89,7 @@ export function ClientSheetPaginatedTab<T>({
         offset={offset}
         disabled={loading}
         onPageChange={setPage}
+        scrollOnPageChange={false}
       />
     </div>
   );

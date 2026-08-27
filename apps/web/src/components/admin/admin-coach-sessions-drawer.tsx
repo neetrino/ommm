@@ -198,6 +198,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
           offset={listOffset}
           disabled={loading}
           onPageChange={setPage}
+          scrollOnPageChange={false}
         />
       </div>
     </OmmDrawerPortal>

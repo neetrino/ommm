@@ -9,6 +9,8 @@ type AdminPageHeroProps = {
   title: string;
   description?: ReactNode;
   search?: ReactNode;
+  /** Primary CTA (Add …) — full-width below search on phone, beside search on tablet+. */
+  primaryAction?: ReactNode;
   trailing?: ReactNode;
   /** Mobile-only back control inside the banner (e.g. member reviews). */
   mobileBackHref?: string;
@@ -41,6 +43,7 @@ export function AdminPageHero({
   title,
   description,
   search,
+  primaryAction,
   trailing,
   mobileBackHref,
   mobileBackLabel,
@@ -93,8 +96,15 @@ export function AdminPageHero({
             </div>
           ) : null}
         </div>
-        {search ? (
-          <div className="flex w-full min-w-0 flex-1 items-center">{search}</div>
+        {search || primaryAction ? (
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            {search ? (
+              <div className="flex w-full min-w-0 flex-1 items-center">{search}</div>
+            ) : null}
+            {primaryAction ? (
+              <div className="w-full shrink-0 sm:w-auto">{primaryAction}</div>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </WorkspaceStickyPageHeader>

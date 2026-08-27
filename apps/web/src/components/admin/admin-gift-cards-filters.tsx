@@ -8,6 +8,7 @@ import {
 } from "@/components/admin/admin-gift-cards-filter-fields";
 import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import type {
   GiftCardExpirationFilter,
@@ -215,18 +216,12 @@ export function AdminGiftCardsFilters({
     <AdminPageHero
       title={t("title")}
       search={filterSearchRow}
-      trailing={
+      primaryAction={
         hideCreate ? null : (
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={onCreate}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-          >
+          <AdminPageHeroActionButton type="button" onClick={onCreate}>
             <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
             {t("createButton")}
-          </OmmButton>
+          </AdminPageHeroActionButton>
         )
       }
     />

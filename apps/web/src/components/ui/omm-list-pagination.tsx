@@ -1,11 +1,13 @@
 "use client";
 
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   clampListPage,
   listPageRange,
   totalListPages,
 } from "@/lib/list-pagination";
+import { resetWorkspaceScrollPosition } from "@/lib/reset-workspace-scroll";
 
 export const OMMM_LIST_PAGINATION_FOOTER_BASE_CLASS =
   "flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between";
@@ -59,10 +61,12 @@ type OmmListPaginationProps = {
   offset: number;
   onPageChange: (page: number) => void;
   disabled?: boolean;
-  /** When false, pagination scrolls with the list (no mobile sticky footer). */
+  /** Opt-in mobile sticky footer bar (legacy). */
   mobileSticky?: boolean;
   /** Center range label and page controls on phone viewports. */
   mobileCentered?: boolean;
+  /** Scroll workspace to top after page change (disable inside sheets/drawers). */
+  scrollOnPageChange?: boolean;
   namespace?: "adminPages.pagination" | "userPages.pagination";
 };
 
@@ -73,8 +77,9 @@ export function OmmListPagination({
   offset,
   onPageChange,
   disabled = false,
-  mobileSticky = true,
-  mobileCentered = false,
+  mobileSticky = false,
+  mobileCentered = true,
+  scrollOnPageChange = true,
   namespace = "adminPages.pagination",
 }: OmmListPaginationProps) {
   const t = useTranslations(namespace);
@@ -90,6 +95,15 @@ export function OmmListPagination({
   const trackWrapClass = mobileCentered
     ? "flex justify-center sm:justify-end"
     : "flex justify-start sm:justify-end";
+  const handlePageChange = useCallback(
+    (nextPage: number) => {
+      onPageChange(nextPage);
+      if (scrollOnPageChange) {
+        resetWorkspaceScrollPosition();
+      }
+    },
+    [onPageChange, scrollOnPageChange],
+  );
 
   if (total <= 0) {
     return null;
@@ -118,7 +132,7 @@ export function OmmListPagination({
             type="button"
             className={PAGINATION_EDGE_BUTTON_CLASS}
             disabled={disabled || safePage <= 1}
-            onClick={() => onPageChange(safePage - 1)}
+            onClick={() => handlePageChange(safePage - 1)}
             aria-label={t("prevAria")}
           >
             <PaginationChevronLeft />
@@ -143,7 +157,7 @@ export function OmmListPagination({
                 disabled={disabled}
                 aria-current={entry === safePage ? "page" : undefined}
                 aria-label={t("pageAria", { page: entry })}
-                onClick={() => onPageChange(entry)}
+                onClick={() => handlePageChange(entry)}
               >
                 {entry}
               </button>
@@ -154,7 +168,7 @@ export function OmmListPagination({
             type="button"
             className={PAGINATION_EDGE_BUTTON_CLASS}
             disabled={disabled || safePage >= pageCount}
-            onClick={() => onPageChange(safePage + 1)}
+            onClick={() => handlePageChange(safePage + 1)}
             aria-label={t("nextAria")}
           >
             <PaginationChevronRight />

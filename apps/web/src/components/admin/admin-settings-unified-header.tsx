@@ -35,11 +35,9 @@ function AdminSettingsUnifiedHeaderInner() {
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-start">
-        <div className="flex min-w-0 w-full shrink-0 flex-wrap items-center justify-center gap-3 sm:w-auto sm:justify-start">
-          <h1 className="ommm-admin-header-title">{t("title")}</h1>
-          <AdminSettingsTabNav />
-        </div>
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 overflow-visible max-sm:justify-center sm:justify-start">
+        <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
+        <AdminSettingsTabNav className="w-full min-w-0 max-w-full" />
       </div>
       {descriptionKey ? (
         <p className="ommm-body-muted mt-1 max-w-3xl text-sm max-sm:mx-auto max-sm:text-center sm:mx-0 sm:text-left">
@@ -57,11 +55,9 @@ function AdminSettingsUnifiedHeaderFallback() {
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-start">
-        <div className="flex min-w-0 w-full shrink-0 flex-wrap items-center justify-center gap-3 sm:w-auto sm:justify-start">
-          <h1 className="ommm-admin-header-title">{t("title")}</h1>
-          <AdminSettingsTabNav />
-        </div>
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 overflow-visible max-sm:justify-center sm:justify-start">
+        <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
+        <AdminSettingsTabNav className="w-full min-w-0 max-w-full" />
       </div>
     </WorkspaceStickyPageHeader>
   );

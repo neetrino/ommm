@@ -27,7 +27,7 @@ export function AdminSettingsTabNav({ className = "" }: { className?: string }) 
     <nav
       role="tablist"
       aria-label={t("aria")}
-      className={`flex min-w-0 shrink-0 items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      className={`flex w-full min-w-0 max-w-full touch-pan-x flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
     >
       {ADMIN_SETTINGS_TAB_IDS.map((tab) => {
         const href = ADMIN_SETTINGS_TAB_HREF[tab];

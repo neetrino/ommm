@@ -192,6 +192,7 @@ export function ClientPackagesPanel({
           offset={(page - 1) * pageSize}
           onPageChange={setPage}
           disabled={loading}
+          scrollOnPageChange={false}
         />
       ) : null}
 

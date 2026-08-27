@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { ContentPostDetailsSheet } from "@/components/shared/content/content-post-details-sheet";
@@ -13,7 +14,6 @@ import {
   type ContentPostRow,
 } from "@/components/shared/content/content-post-types";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { OmmButton } from "@/components/ui/omm-button";
 import {
   adminContentCapabilities,
   type ContentCapabilities,
@@ -165,26 +165,20 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
             resetLabel={t("labels.resetFilters")}
           />
         }
+        primaryAction={
+          caps.canCreate ? (
+            <AdminPageHeroActionButton type="button" onClick={openCreate}>
+              <AddPostGlyph className="h-5 w-5 shrink-0" />
+              {t("createButton")}
+            </AdminPageHeroActionButton>
+          ) : null
+        }
         trailing={
-          <>
-            {caps.canCreate ? (
-              <OmmButton
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={openCreate}
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-              >
-                <AddPostGlyph className="h-5 w-5 shrink-0" />
-                {t("createButton")}
-              </OmmButton>
-            ) : null}
-            {activeFilterCount > 0 ? (
-              <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-                {t("activeFilterCount", { count: activeFilterCount })}
-              </p>
-            ) : null}
-          </>
+          activeFilterCount > 0 ? (
+            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+              {t("activeFilterCount", { count: activeFilterCount })}
+            </p>
+          ) : null
         }
       />
 

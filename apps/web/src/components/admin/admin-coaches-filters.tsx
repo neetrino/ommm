@@ -11,8 +11,8 @@ import {
 } from "@/components/admin/admin-coaches-filter-fields";
 import { AdminCoachesViewSwitcher } from "@/components/admin/admin-coaches-view-switcher";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
 import { resetListPageQuery } from "@/lib/list-pagination";
@@ -246,18 +246,12 @@ export function AdminCoachesFilters({
     <AdminPageHero
       title={t("title")}
       search={filterSearchRow}
-      trailing={
+      primaryAction={
         onAddCoach ? (
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={onAddCoach}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-          >
+          <AdminPageHeroActionButton type="button" onClick={onAddCoach}>
             <AddCoachGlyph className="h-5 w-5 shrink-0" />
             {t("addCoachButton")}
-          </OmmButton>
+          </AdminPageHeroActionButton>
         ) : null
       }
     />
