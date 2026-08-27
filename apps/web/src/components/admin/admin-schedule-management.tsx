@@ -82,6 +82,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
             visibleYearMonth={schedule.visibleYearMonth}
             onPreviousMonth={() => schedule.handleShiftVisibleMonth(-1)}
             onNextMonth={() => schedule.handleShiftVisibleMonth(1)}
+            onJumpToTodayMonth={schedule.handleGoToCurrentMonth}
           />
           {view === "list" &&
           schedule.listPagination !== null &&
@@ -144,6 +145,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         visibleYearMonth={schedule.visibleYearMonth}
         onPreviousMonth={() => schedule.handleShiftVisibleMonth(-1)}
         onNextMonth={() => schedule.handleShiftVisibleMonth(1)}
+        onJumpToTodayMonth={schedule.handleGoToCurrentMonth}
         sortOrder={schedule.filters.order}
         onDateTimeSort={schedule.handleDateTimeSort}
         onDetails={schedule.setDetails}

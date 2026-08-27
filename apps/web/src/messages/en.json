@@ -11,7 +11,8 @@
     "sessionTomorrow": "Tomorrow",
     "sessionUntil": "until",
     "sessionDurationMinutes": "{minutes} min",
-    "sessionCoach": "Coach"
+    "sessionCoach": "Coach",
+    "registeredCount": "Registered {booked}/{capacity}"
   },
   "paymentStatusReasons": {
     "awaiting_bank": "Waiting for payment",
@@ -2812,6 +2813,8 @@
       "previousDay": "Previous day",
       "nextDay": "Next day",
       "today": "Today",
+      "jumpToToday": "Today",
+      "jumpToTodayAria": "Jump back to today",
       "showAllClasses": "All classes",
       "showAllClassesAria": "Show all classes ({count} total)",
       "selectDayAria": "Show classes for {weekday} {day} {month} ({count})",

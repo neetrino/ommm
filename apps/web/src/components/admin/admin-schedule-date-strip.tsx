@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { addDays, startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 import { AdminScheduleAllClassesCard } from "@/components/admin/admin-schedule-all-classes-button";
 import styles from "@/components/admin/admin-schedule-date-strip.module.css";
+import { ScheduleJumpToTodayButton } from "@/components/shared/schedule/schedule-jump-to-today-button";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
+import { useScrollAnchorInView } from "@/hooks/use-scroll-anchor-in-view";
 import {
   scheduleSessionLocalIsoDay,
   scheduleTodayIsoDate,
@@ -60,18 +62,18 @@ function groupRowsByDay(rows: readonly ScheduleDateStripRow[]): Map<string, numb
 
 function buildDateStripDays(rows: readonly ScheduleDateStripRow[]): string[] {
   const today = startOfLocalDay(new Date());
-  const todayKey = toLocalIsoDate(today);
   const daySet = new Set<string>();
 
-  for (let index = 0; index < SCHEDULE_DATE_STRIP_HORIZON_DAYS; index += 1) {
+  for (
+    let index = -SCHEDULE_DATE_STRIP_HORIZON_DAYS;
+    index < SCHEDULE_DATE_STRIP_HORIZON_DAYS;
+    index += 1
+  ) {
     daySet.add(toLocalIsoDate(addDays(today, index)));
   }
 
   for (const row of rows) {
-    const key = scheduleSessionLocalIsoDay(row.startsAt);
-    if (key >= todayKey) {
-      daySet.add(key);
-    }
+    daySet.add(scheduleSessionLocalIsoDay(row.startsAt));
   }
 
   return Array.from(daySet).sort();
@@ -127,8 +129,10 @@ function ScheduleDayCard({
     emphasize ? "text-sage-700" : "font-serif text-sage-950",
   ].join(" ");
 
-  const todayBadgeClass =
-    "truncate text-[9px] font-bold uppercase tracking-[0.14em] text-sage-800";
+  const todayBadgeClass = [
+    styles.todayLabel,
+    "truncate text-[9px] font-bold uppercase tracking-[0.14em] text-sage-800",
+  ].join(" ");
 
   const monthClass = [
     "text-left text-sm font-semibold uppercase tracking-wide",
@@ -152,6 +156,7 @@ function ScheduleDayCard({
     <button
       type="button"
       ref={setCardRef}
+      data-schedule-day={day}
       aria-pressed={isSelected}
       aria-current={isToday ? "date" : undefined}
       aria-label={t("selectDayAria", {
@@ -189,6 +194,7 @@ export function AdminScheduleDateStrip({
   onSelectDay,
   onSelectAllDays,
 }: AdminScheduleDateStripProps) {
+  const t = useTranslations("adminPages.schedule");
   const { scrollRef, dragHandlers, shouldSuppressClick } = useHorizontalDragScroll();
   const todayCardRef = useRef<HTMLButtonElement>(null);
   const hasScrolledToToday = useRef(false);
@@ -196,8 +202,16 @@ export function AdminScheduleDateStrip({
   const countsByDay = useMemo(() => groupRowsByDay(rows), [rows]);
   const days = useMemo(() => buildDateStripDays(rows), [rows]);
   const todayKey = scheduleTodayIsoDate();
+  const daysSignature = days.join(",");
   const allClassesCount = totalSessionCount ?? rows.length;
   const isAllSelected = selectedDay === null;
+
+  const resolveTodayCard = useCallback(() => todayCardRef.current, []);
+  const { isAnchorInView, anchorSide, scrollAnchorIntoView } = useScrollAnchorInView({
+    containerRef: scrollRef,
+    resolveTarget: resolveTodayCard,
+    dependencyKey: daysSignature,
+  });
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -207,39 +221,60 @@ export function AdminScheduleDateStrip({
     hasScrolledToToday.current = true;
   }, [days, scrollRef]);
 
+  const handleJumpToToday = useCallback(() => {
+    scrollAnchorIntoView();
+    onSelectDay(todayKey);
+  }, [onSelectDay, scrollAnchorIntoView, todayKey]);
+
   if (days.length === 0) return null;
 
   return (
-    <div className="rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md">
+    <div
+      className={`${styles.strip} rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md`}
+    >
       <div className="flex min-w-0 items-stretch gap-2">
         <AdminScheduleAllClassesCard
           sessionCount={allClassesCount}
           isSelected={isAllSelected}
           onSelect={onSelectAllDays}
         />
-        <div
-          ref={scrollRef}
-          className={styles.viewport}
-          {...dragHandlers}
-        >
-          {days.map((day) => (
-            <ScheduleDayCard
-              key={day}
-              locale={locale}
-              day={day}
-              sessionCount={countsByDay.get(day) ?? 0}
-              isSelected={selectedDay === day}
-              setCardRef={(element) => {
-                if (day === todayKey) {
-                  todayCardRef.current = element;
-                }
-              }}
-              onSelect={() => {
-                if (shouldSuppressClick()) return;
-                onSelectDay(day);
-              }}
-            />
-          ))}
+        <div className="relative min-w-0 flex-1">
+          <div ref={scrollRef} className={styles.viewport} {...dragHandlers}>
+            {days.map((day) => (
+              <ScheduleDayCard
+                key={day}
+                locale={locale}
+                day={day}
+                sessionCount={countsByDay.get(day) ?? 0}
+                isSelected={selectedDay === day}
+                setCardRef={(element) => {
+                  if (day === todayKey) {
+                    todayCardRef.current = element;
+                  }
+                }}
+                onSelect={() => {
+                  if (shouldSuppressClick()) return;
+                  onSelectDay(day);
+                }}
+              />
+            ))}
+          </div>
+          {!isAnchorInView && anchorSide !== null ? (
+            <div
+              className={`pointer-events-none absolute inset-y-0 z-10 flex items-center ${
+                anchorSide === "left" ? "left-0 pl-1" : "right-0 pr-1"
+              }`}
+            >
+              <div className="pointer-events-auto">
+                <ScheduleJumpToTodayButton
+                  label={t("jumpToToday")}
+                  ariaLabel={t("jumpToTodayAria")}
+                  side={anchorSide}
+                  onClick={handleJumpToToday}
+                />
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

@@ -121,7 +121,9 @@ function AdminScheduleSessionDetailsSheetInner({
 }) {
   const t = useTranslations("adminPages.classes");
   const titleId = useId();
-  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
+    openKey: row.id,
+  });
   const [activeTab, setActiveTab] = useState<SessionSheetTabId>(initialTab);
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(

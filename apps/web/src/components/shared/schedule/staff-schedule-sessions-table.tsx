@@ -13,6 +13,9 @@ import { StaffScheduleHeaderCell } from "@/components/shared/schedule/staff-sche
 import { StaffScheduleSessionCardFields } from "@/components/shared/schedule/staff-schedule-session-card-fields";
 import { getScheduleSessionsListLayout } from "@/components/shared/schedule/schedule-sessions-list-layout";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
+import { SCHEDULE_PAST_LIST_ROW_CLASS } from "@/components/shared/schedule/schedule-week-view-tokens";
+import { isScheduleSessionOnPastDay } from "@/components/shared/schedule/schedule-week-view-utils";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 type StaffScheduleSessionsTableProps = {
   locale: string;
@@ -107,7 +110,13 @@ function StaffScheduleSessionRowClient({
   const coachLabel = row.coach ? coachName(row.coach) : t("fallback.notSpecified");
 
   return (
-    <article className={layout.rowClass}>
+    <article
+      className={`${layout.rowClass} ${
+        isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
+          ? SCHEDULE_PAST_LIST_ROW_CLASS
+          : ""
+      }`.trim()}
+    >
       <StaffScheduleSessionCardFields
         row={row}
         layout={layout}

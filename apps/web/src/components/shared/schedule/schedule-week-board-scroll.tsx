@@ -5,6 +5,7 @@ import {
   SCHEDULE_WEEK_EDGE_ZONE_WIDTH_PX,
   SCHEDULE_WEEK_SCROLL_SPEED_PX,
 } from "@/components/shared/schedule/schedule-week-view-tokens";
+import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
 
 function ScheduleWeekScrollChevron({ direction }: { direction: "left" | "right" }) {
   return (
@@ -31,22 +32,29 @@ type UseScheduleWeekBoardScrollResult = {
   renderEdgeZones: () => ReactNode;
   /** Align a day column's left edge to the scroll viewport start. */
   scrollDayToStart: (dayKey: string) => void;
+  dragHandlers: ReturnType<typeof useHorizontalDragScroll>["dragHandlers"];
+  shouldSuppressClick: () => boolean;
 };
 
 export function useScheduleWeekBoardScroll(
   dependencyKey: string | number,
+  onScroll?: () => void,
 ): UseScheduleWeekBoardScrollResult {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { dragHandlers, shouldSuppressClick } = useHorizontalDragScroll(scrollRef);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const autoScrollDir = useRef<"left" | "right" | null>(null);
   const rafId = useRef<number>(0);
+  const onScrollRef = useRef(onScroll);
+  onScrollRef.current = onScroll;
 
   const updateScrollState = useCallback(() => {
     const element = scrollRef.current;
     if (!element) return;
     setCanScrollLeft(element.scrollLeft > 2);
     setCanScrollRight(element.scrollLeft < element.scrollWidth - element.clientWidth - 2);
+    onScrollRef.current?.();
   }, []);
 
   const scrollDayToStart = useCallback(
@@ -67,20 +75,24 @@ export function useScheduleWeekBoardScroll(
     [updateScrollState],
   );
 
-  const startAutoScroll = useCallback((direction: "left" | "right") => {
-    autoScrollDir.current = direction;
-    const tick = () => {
-      const element = scrollRef.current;
-      if (!element || !autoScrollDir.current) return;
-      element.scrollLeft +=
-        autoScrollDir.current === "left"
-          ? -SCHEDULE_WEEK_SCROLL_SPEED_PX
-          : SCHEDULE_WEEK_SCROLL_SPEED_PX;
+  const startAutoScroll = useCallback(
+    (direction: "left" | "right") => {
+      autoScrollDir.current = direction;
+      const tick = () => {
+        const element = scrollRef.current;
+        if (!element || !autoScrollDir.current) return;
+        element.scrollLeft +=
+          autoScrollDir.current === "left"
+            ? -SCHEDULE_WEEK_SCROLL_SPEED_PX
+            : SCHEDULE_WEEK_SCROLL_SPEED_PX;
+        updateScrollState();
+        rafId.current = requestAnimationFrame(tick);
+      };
+      cancelAnimationFrame(rafId.current);
       rafId.current = requestAnimationFrame(tick);
-    };
-    cancelAnimationFrame(rafId.current);
-    rafId.current = requestAnimationFrame(tick);
-  }, []);
+    },
+    [updateScrollState],
+  );
 
   const stopAutoScroll = useCallback(() => {
     autoScrollDir.current = null;
@@ -128,6 +140,8 @@ export function useScheduleWeekBoardScroll(
     canScrollLeft,
     canScrollRight,
     scrollDayToStart,
+    dragHandlers,
+    shouldSuppressClick,
     renderEdgeZones: () => (
       <>
         {renderEdgeZone("left", canScrollLeft)}

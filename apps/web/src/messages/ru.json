@@ -11,7 +11,8 @@
     "sessionTomorrow": "Завтра",
     "sessionUntil": "до",
     "sessionDurationMinutes": "{minutes} мин",
-    "sessionCoach": "Тренер"
+    "sessionCoach": "Тренер",
+    "registeredCount": "Записано {booked}/{capacity}"
   },
   "paymentStatusReasons": {
     "awaiting_bank": "Ожидание оплаты",
@@ -2810,6 +2811,8 @@
       "previousDay": "Предыдущий день",
       "nextDay": "Следующий день",
       "today": "Сегодня",
+      "jumpToToday": "Сегодня",
+      "jumpToTodayAria": "Вернуться к сегодняшней дате",
       "showAllClasses": "Все занятия",
       "showAllClassesAria": "Показать все занятия ({count} всего)",
       "selectDayAria": "Показать занятия на {weekday} {day} {month} ({count})",

@@ -133,7 +133,7 @@ function isoDateLocal(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-/** Same rolling window as schedule week board: today plus the next three days. */
+/** Same scrollable window as schedule week board (past days through today + next six). */
 export function resolveAdminBookingsCalendarRange(): { from: string; to: string } {
   const dayKeys = buildScheduleWeekDayKeys();
   const from = dayKeys[0];

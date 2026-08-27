@@ -35,23 +35,49 @@ type SessionDateTimeListTimeBlockProps = {
   untilLabel: string;
   durationMinutesLabel: string | null;
   className?: string;
+  /** Large start time + duration chip for week/month cards. */
+  size?: "default" | "emphasis";
 };
+
+const WEEK_TIME_START_CLASS =
+  "font-serif text-3xl leading-none tracking-tight tabular-nums text-sage-950";
+const WEEK_TIME_DURATION_CHIP_CLASS =
+  "shrink-0 rounded-full bg-sand-100/90 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-sage-700";
 
 export function SessionDateTimeListTimeBlock({
   display,
   untilLabel,
   durationMinutesLabel,
   className = "",
+  size = "default",
 }: SessionDateTimeListTimeBlockProps) {
+  const untilLine = (
+    <p className="mt-1 text-[11px] font-medium leading-snug text-sage-600">
+      {untilLabel} {display.endTime}
+      {size === "default" && durationMinutesLabel !== null ? ` · ${durationMinutesLabel}` : null}
+    </p>
+  );
+
+  if (size === "emphasis") {
+    return (
+      <div className={`min-w-0 ${className}`.trim()}>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+          <p className={WEEK_TIME_START_CLASS}>{display.startTime}</p>
+          {durationMinutesLabel !== null ? (
+            <span className={WEEK_TIME_DURATION_CHIP_CLASS}>{durationMinutesLabel}</span>
+          ) : null}
+        </div>
+        {untilLine}
+      </div>
+    );
+  }
+
   return (
     <div className={`min-w-0 ${className}`.trim()}>
       <p className="font-serif text-xl leading-none tracking-tight text-sage-950">
         {display.startTime}
       </p>
-      <p className="mt-1 text-[11px] font-medium leading-snug text-sage-600">
-        {untilLabel} {display.endTime}
-        {durationMinutesLabel !== null ? ` · ${durationMinutesLabel}` : null}
-      </p>
+      {untilLine}
     </div>
   );
 }
