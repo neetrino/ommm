@@ -47,8 +47,8 @@ export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
-/** Admin/member workspace mobile bar — more header actions, slightly larger tap targets. */
-export const MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE = "1.65rem";
+/** Admin/member workspace mobile bar — reviews, bell, calls, globe, avatar tap targets. */
+export const MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE = "1.875rem";
 
 /**
  * Mobile shell height for USER account pages — header always uses the elevated glass pill
@@ -209,7 +209,7 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 }
 
 export function marketingHeaderMobileActionsClass(options?: { workspace?: boolean }): string {
-  const gapClass = options?.workspace ? "gap-[7px]" : "gap-[6px]";
+  const gapClass = options?.workspace ? "gap-[8px]" : "gap-[6px]";
   return `flex shrink-0 items-center ${gapClass} overflow-visible`;
 }
 
