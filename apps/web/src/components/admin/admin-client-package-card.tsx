@@ -12,6 +12,7 @@ import {
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageFreezeControls } from "@/components/admin/admin-client-package-freeze-controls";
+import { AdminClientPackagePastSessionControls } from "@/components/admin/admin-client-package-past-session-controls";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -26,6 +27,7 @@ const BOARD_CARD_CLASS = [
 ].join(" ");
 
 type AdminClientPackageCardProps = {
+  clientId: string;
   item: ClientSheetPackageItem;
   locale: string;
   paymentMethodLabel: string;
@@ -59,6 +61,7 @@ function resolveValidityLabel(
 }
 
 export function AdminClientPackageCard({
+  clientId,
   item,
   locale,
   paymentMethodLabel,
@@ -164,6 +167,17 @@ export function AdminClientPackageCard({
             onValidityUpdated?.();
           }}
         />
+        {allowEditValidity ? (
+          <AdminClientPackagePastSessionControls
+            clientId={clientId}
+            item={item}
+            locale={locale}
+            onSuccess={(message) => {
+              setSuccessToast(message);
+              onValidityUpdated?.();
+            }}
+          />
+        ) : null}
         {!editing ? (
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">

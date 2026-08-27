@@ -171,6 +171,7 @@ export function ClientPackagesPanel({
           {items.map((item) => (
             <li key={item.id}>
               <AdminClientPackageCard
+                clientId={client.id}
                 item={item}
                 locale={locale}
                 paymentMethodLabel={resolvePaymentMethodLabel(item.paymentMethod)}

@@ -25,9 +25,11 @@ import { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import { AdminCreateClientBookingDto } from './dto/admin-create-client-booking.dto';
 import { AdminClientBookableSessionsQueryDto } from './dto/admin-client-bookable-sessions-query.dto';
 import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
+import { AdminAttachPastSessionDto } from './dto/admin-attach-past-session.dto';
 import { AdminPurchaseClientPackageDto } from './dto/admin-purchase-client-package.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientsBookingsCreateService } from './clients-bookings-create.service';
+import { ClientsBookingsRetroactiveService } from './clients-bookings-retroactive.service';
 import { ClientsPackagesPurchaseService } from './clients-packages-purchase.service';
 import { ClientsService } from './clients.service';
 import { ClientsTabListsService } from './clients-tab-lists.service';
@@ -41,6 +43,7 @@ export class ClientsController {
     private readonly tabLists: ClientsTabListsService,
     private readonly packagesPurchase: ClientsPackagesPurchaseService,
     private readonly bookingsCreate: ClientsBookingsCreateService,
+    private readonly bookingsRetroactive: ClientsBookingsRetroactiveService,
   ) {}
 
   /** Admin lists (clients, finance members) — same RSC burst pattern as coaches admin list. */
@@ -121,6 +124,26 @@ export class ClientsController {
     @Body() dto: AdminPurchaseClientPackageDto,
   ) {
     return this.packagesPurchase.purchase(user, id, dto);
+  }
+
+  @Get(':id/packages/:packageId/past-sessions')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  listAttachablePastSessions(
+    @Param('id') id: string,
+    @Param('packageId') packageId: string,
+  ) {
+    return this.bookingsRetroactive.listAttachableSessions(id, packageId);
+  }
+
+  @Post(':id/packages/:packageId/past-sessions')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  attachPastSession(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Param('packageId') packageId: string,
+    @Body() dto: AdminAttachPastSessionDto,
+  ) {
+    return this.bookingsRetroactive.attachPastSession(user, id, packageId, dto);
   }
 
   @Get(':id/gift-cards')
