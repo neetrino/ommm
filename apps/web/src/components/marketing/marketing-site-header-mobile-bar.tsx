@@ -144,7 +144,7 @@ export function MarketingSiteHeaderMobileBar({
         </>
       )}
 
-      <div className={marketingHeaderMobileActionsClass({ workspace: isWorkspaceMobile })}>
+      <div className={marketingHeaderMobileActionsClass()}>
         {memberWorkspaceHeader ? (
           <>
             {sessionReviewsAudience && sessionReviewsListHref ? (

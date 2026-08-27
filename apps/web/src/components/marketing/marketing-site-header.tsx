@@ -13,7 +13,7 @@ import {
   marketingHeaderMobileRowWrapStyle,
   marketingHeaderShellClass,
   MARKETING_MOBILE_HEADER,
-  MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE,
+  MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE,
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
 import type { MarketingSiteHeaderProps } from "@/components/marketing/marketing-site-header.types";
@@ -70,12 +70,8 @@ export function MarketingSiteHeader({
   const showMobileGlassPill = elevated && !publicMobileMenuOpen;
   const mobileGlassRowStyle = {
     ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
-    ...(isWorkspaceChrome
-      ? {
-          ["--marketing-mobile-glass-pill-action-icon-size" as string]:
-            MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE,
-        }
-      : {}),
+    ["--marketing-mobile-glass-pill-action-icon-size" as string]:
+      MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE,
     ["--marketing-mobile-scrolled-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
   };

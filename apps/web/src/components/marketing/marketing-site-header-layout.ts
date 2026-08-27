@@ -22,7 +22,7 @@ export const MARKETING_MOBILE_HEADER = {
   authIconGapPx: 6,
   actionsEdgeNudgePx: 4,
   menuEdgeNudgePx: 4,
-  globeIconSizePx: 26,
+  globeIconSizePx: 30,
   /** Header profile avatar — slightly smaller than globe/action icons. */
   avatarInsetPx: 3,
   userIconWidthPx: 24,
@@ -42,13 +42,17 @@ export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   menuIconSize: "2.25rem",
   brandFontSize: "1.25rem",
   brandLineHeight: "1.625rem",
-  actionIconSize: "1.625rem",
+  actionIconSize: "1.875rem",
   transitionDuration: "420ms",
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
-/** Admin/member workspace mobile bar — reviews, bell, calls, globe, avatar tap targets. */
-export const MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE = "1.875rem";
+/** Mobile header action icons — globe, avatar, workspace bells (shared size). */
+export const MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE = "1.875rem";
+
+/** @deprecated Use {@link MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE}. */
+export const MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE =
+  MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE;
 
 /**
  * Mobile shell height for USER account pages — header always uses the elevated glass pill
@@ -208,9 +212,8 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
   ].join(" ");
 }
 
-export function marketingHeaderMobileActionsClass(options?: { workspace?: boolean }): string {
-  const gapClass = options?.workspace ? "gap-[8px]" : "gap-[6px]";
-  return `flex shrink-0 items-center ${gapClass} overflow-visible`;
+export function marketingHeaderMobileActionsClass(): string {
+  return "flex shrink-0 items-center gap-[8px] overflow-visible";
 }
 
 export function marketingHeaderMobileLeadingClass(): string {
