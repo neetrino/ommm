@@ -54,34 +54,24 @@ export function AdminPageHero({
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={stickyEnabled}>
-      <div className="ommm-admin-header-bar relative flex !flex-col !flex-nowrap !items-stretch gap-3 max-sm:!justify-center sm:!flex-row sm:!flex-nowrap sm:!items-center sm:!justify-start">
+      <div className="ommm-admin-header-bar relative flex flex-col items-stretch gap-3 overflow-visible max-sm:min-h-0 max-sm:py-4 max-sm:!justify-center sm:flex-row sm:flex-wrap sm:items-center sm:!justify-start">
         {mobileBackHref && mobileBackLabel ? (
           <Link
             href={mobileBackHref}
-            className="absolute left-3 top-1/2 z-[1] inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900 sm:hidden"
+            className="absolute left-3 top-4 z-[1] inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900 sm:top-1/2 sm:-translate-y-1/2"
             aria-label={mobileBackLabel}
           >
             <MobileBackChevronIcon />
           </Link>
         ) : null}
-        <div
-          className={
-            trailing
-              ? "relative flex min-w-0 items-center justify-end gap-3 max-sm:w-full sm:contents"
-              : "flex min-w-0 items-center justify-center gap-3 max-sm:w-full sm:contents"
-          }
-        >
+        <div className="flex w-full min-w-0 items-center justify-center gap-3 sm:w-auto sm:justify-start">
           <div
-            className={
-              trailing
-                ? "min-w-0 max-sm:absolute max-sm:inset-x-0 max-sm:text-center sm:relative sm:shrink-0"
-                : [
-                    "min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left",
-                    mobileBackHref ? "max-sm:px-10" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")
-            }
+            className={[
+              "min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left",
+              mobileBackHref ? "max-sm:px-10" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
           >
             <h1 className="ommm-admin-header-title">{title}</h1>
             {description ? (
@@ -91,7 +81,7 @@ export function AdminPageHero({
             ) : null}
           </div>
           {trailing ? (
-            <div className="relative z-[1] flex shrink-0 flex-wrap items-center gap-2 sm:order-last">
+            <div className="relative z-[1] hidden shrink-0 flex-wrap items-center gap-2 sm:flex sm:order-last">
               {trailing}
             </div>
           ) : null}

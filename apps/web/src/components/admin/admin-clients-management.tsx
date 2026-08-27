@@ -116,6 +116,15 @@ export function AdminClientsManagement({
     />
   );
 
+  const searchRow = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      {searchFilters}
+      <div className="hidden shrink-0 sm:block">
+        <AdminClientsViewSwitcher value={viewMode} onChange={setViewMode} />
+      </div>
+    </div>
+  );
+
   const addClientAction =
     onAddUser && caps.canCreate ? (
       <AdminPageHeroActionButton type="button" onClick={onAddUser}>
@@ -161,13 +170,8 @@ export function AdminClientsManagement({
         <StaffListPageLayout
           title={t("title")}
           banner={staffBanner}
-          search={searchFilters}
+          search={searchRow}
           primaryAction={addClientAction}
-          headerTrailing={
-            <div className="hidden sm:block">
-              <AdminClientsViewSwitcher value={viewMode} onChange={setViewMode} />
-            </div>
-          }
           metrics={<AdminClientsSummary payload={payload} />}
           status={error ? <div className="app-alert-warn">{error}</div> : null}
         >
@@ -177,13 +181,8 @@ export function AdminClientsManagement({
         <>
           <AdminPageHero
             title={t("title")}
-            search={searchFilters}
+            search={searchRow}
             primaryAction={addClientAction}
-            trailing={
-              <div className="hidden sm:block">
-                <AdminClientsViewSwitcher value={viewMode} onChange={setViewMode} />
-              </div>
-            }
           />
           <AdminClientsSummary payload={payload} />
           {error ? <div className="app-alert-warn">{error}</div> : null}
