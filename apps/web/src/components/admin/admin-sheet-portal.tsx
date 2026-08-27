@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { shouldNotifyDesktopSheetAfterClose } from "@/components/admin/admin-sheet-after-close";
 import {
   ADMIN_MOBILE_SHEET_GRABBER_CLASS,
   ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS,
@@ -33,7 +34,7 @@ export type AdminSheetPortalProps = {
   closeOnEscape?: boolean;
   motionState?: "open" | "closed";
   zIndexClass?: string;
-  /** Called after the phone bottom-sheet exit animation completes. */
+  /** Phone: after exit animation. Desktop: on the open → closed transition. */
   onAfterClose?: () => void;
   children: ReactNode;
 };
@@ -67,12 +68,21 @@ export function AdminSheetPortal({
   const titleId = ariaLabelledBy ?? fallbackTitleId;
   const isPhone = useMemberHubSheetPhone();
   const [phoneMounted, setPhoneMounted] = useState(isOpen);
+  const wasDesktopOpenRef = useRef(isOpen);
 
   useEffect(() => {
     if (isOpen) {
       setPhoneMounted(true);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const wasOpen = wasDesktopOpenRef.current;
+    wasDesktopOpenRef.current = isOpen;
+    if (shouldNotifyDesktopSheetAfterClose(isPhone, wasOpen, isOpen)) {
+      onAfterClose?.();
+    }
+  }, [isOpen, isPhone, onAfterClose]);
 
   const handlePhoneExitComplete = useCallback(() => {
     setPhoneMounted(false);
