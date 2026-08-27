@@ -26,6 +26,7 @@ type StaffScheduleListWeekViewsProps = {
   visibleYearMonth?: string;
   onPreviousMonth?: () => void;
   onNextMonth?: () => void;
+  onJumpToTodayMonth?: () => void;
 };
 
 export function StaffScheduleListWeekViews({
@@ -39,6 +40,7 @@ export function StaffScheduleListWeekViews({
   visibleYearMonth,
   onPreviousMonth,
   onNextMonth,
+  onJumpToTodayMonth,
 }: StaffScheduleListWeekViewsProps) {
   const tSchedule = useTranslations("adminPages.schedule");
   const monthDayKeys = useMemo(
@@ -52,6 +54,8 @@ export function StaffScheduleListWeekViews({
         locale={locale}
         rows={rows}
         showCoach={showCoachInWeek}
+        expandColumns={false}
+        alignStartDayKey={scheduleTodayIsoDate()}
         labels={{
           gridAria: tSchedule("weekView.gridAria"),
           todayBadge: tSchedule("weekView.todayBadge"),
@@ -84,6 +88,7 @@ export function StaffScheduleListWeekViews({
           fillRemainingViewport
           alignStartDayKey={scheduleTodayIsoDate()}
           columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
+          onJumpToToday={onJumpToTodayMonth}
           labels={{
             gridAria: tSchedule("monthView.gridAria", { month: visibleYearMonth }),
             todayBadge: tSchedule("weekView.todayBadge"),

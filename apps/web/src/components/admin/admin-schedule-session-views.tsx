@@ -44,6 +44,8 @@ export type AdminScheduleSessionViewsProps = {
   visibleYearMonth?: string;
   onPreviousMonth?: () => void;
   onNextMonth?: () => void;
+  /** Reset month board to the current calendar month (jump-to-today when today is off-board). */
+  onJumpToTodayMonth?: () => void;
   sortOrder: SessionSortOrder;
   onDateTimeSort: () => void;
   busyId: string | null;
@@ -70,6 +72,7 @@ type SessionTableProps = Omit<
   | "visibleYearMonth"
   | "onPreviousMonth"
   | "onNextMonth"
+  | "onJumpToTodayMonth"
 >;
 
 type ScheduleWeekPanelProps = Omit<
@@ -85,6 +88,7 @@ type ScheduleWeekPanelProps = Omit<
   | "visibleYearMonth"
   | "onPreviousMonth"
   | "onNextMonth"
+  | "onJumpToTodayMonth"
   | "selectionEnabled"
   | "selectedIds"
   | "onToggleSelect"
@@ -189,6 +193,8 @@ export function ScheduleWeekPanel(props: ScheduleWeekPanelProps) {
       locale={props.locale}
       rows={props.rows}
       showCoach
+      expandColumns={false}
+      alignStartDayKey={scheduleTodayIsoDate()}
       onSessionClick={props.onDetails}
       labels={{
         gridAria: tPage("weekView.gridAria"),
@@ -206,6 +212,7 @@ type ScheduleMonthPanelProps = Pick<
   | "visibleYearMonth"
   | "onPreviousMonth"
   | "onNextMonth"
+  | "onJumpToTodayMonth"
   | "onDetails"
 >;
 
@@ -215,6 +222,7 @@ function ScheduleMonthPanel({
   visibleYearMonth,
   onPreviousMonth,
   onNextMonth,
+  onJumpToTodayMonth,
   onDetails,
 }: ScheduleMonthPanelProps) {
   const tPage = useTranslations("adminPages.schedule");
@@ -241,6 +249,7 @@ function ScheduleMonthPanel({
         fillRemainingViewport
         alignStartDayKey={scheduleTodayIsoDate()}
         columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
+        onJumpToToday={onJumpToTodayMonth}
         onSessionClick={onDetails}
         labels={{
           gridAria: tPage("monthView.gridAria", { month: monthTitle }),

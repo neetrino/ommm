@@ -35,18 +35,22 @@ type UseScheduleWeekBoardScrollResult = {
 
 export function useScheduleWeekBoardScroll(
   dependencyKey: string | number,
+  onScroll?: () => void,
 ): UseScheduleWeekBoardScrollResult {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const autoScrollDir = useRef<"left" | "right" | null>(null);
   const rafId = useRef<number>(0);
+  const onScrollRef = useRef(onScroll);
+  onScrollRef.current = onScroll;
 
   const updateScrollState = useCallback(() => {
     const element = scrollRef.current;
     if (!element) return;
     setCanScrollLeft(element.scrollLeft > 2);
     setCanScrollRight(element.scrollLeft < element.scrollWidth - element.clientWidth - 2);
+    onScrollRef.current?.();
   }, []);
 
   const scrollDayToStart = useCallback(
@@ -76,11 +80,12 @@ export function useScheduleWeekBoardScroll(
         autoScrollDir.current === "left"
           ? -SCHEDULE_WEEK_SCROLL_SPEED_PX
           : SCHEDULE_WEEK_SCROLL_SPEED_PX;
+      updateScrollState();
       rafId.current = requestAnimationFrame(tick);
     };
     cancelAnimationFrame(rafId.current);
     rafId.current = requestAnimationFrame(tick);
-  }, []);
+  }, [updateScrollState]);
 
   const stopAutoScroll = useCallback(() => {
     autoScrollDir.current = null;

@@ -1,6 +1,9 @@
 /** Full week board: today through the next six days. */
 export const SCHEDULE_WEEK_DAY_COUNT = 7;
 
+/** Past days included on the week board so staff can scroll left like month. */
+export const SCHEDULE_WEEK_PAST_DAYS = 28;
+
 /** Minimum column width before the week board scrolls horizontally. */
 export const SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX = 168;
 

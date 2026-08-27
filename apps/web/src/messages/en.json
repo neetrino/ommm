@@ -2812,6 +2812,8 @@
       "previousDay": "Previous day",
       "nextDay": "Next day",
       "today": "Today",
+      "jumpToToday": "Today",
+      "jumpToTodayAria": "Jump back to today",
       "showAllClasses": "All classes",
       "showAllClassesAria": "Show all classes ({count} total)",
       "selectDayAria": "Show classes for {weekday} {day} {month} ({count})",

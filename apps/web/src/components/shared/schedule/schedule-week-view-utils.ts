@@ -3,6 +3,7 @@ import {
   SCHEDULE_WEEK_COLUMN_GAP_PX,
   SCHEDULE_WEEK_COLUMN_WIDTH_PX,
   SCHEDULE_WEEK_DAY_COUNT,
+  SCHEDULE_WEEK_PAST_DAYS,
 } from "@/components/shared/schedule/schedule-week-view-tokens";
 
 export function isoScheduleDay(date: Date): string {
@@ -24,10 +25,15 @@ export function startOfScheduleDay(date: Date = new Date()): Date {
   return next;
 }
 
-/** Rolling week: today plus the next six days. */
+/**
+ * Scrollable week board: past days through today + next six days.
+ * Aligns to today on first paint so staff can scroll left into history.
+ */
 export function buildScheduleWeekDayKeys(anchorDate: Date = new Date()): string[] {
-  const start = startOfScheduleDay(anchorDate);
-  return Array.from({ length: SCHEDULE_WEEK_DAY_COUNT }, (_, index) =>
+  const today = startOfScheduleDay(anchorDate);
+  const start = addScheduleDays(today, -SCHEDULE_WEEK_PAST_DAYS);
+  const totalDays = SCHEDULE_WEEK_PAST_DAYS + SCHEDULE_WEEK_DAY_COUNT;
+  return Array.from({ length: totalDays }, (_, index) =>
     isoScheduleDay(addScheduleDays(start, index)),
   );
 }

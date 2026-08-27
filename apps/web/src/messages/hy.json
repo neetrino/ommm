@@ -2813,6 +2813,8 @@
       "previousDay": "Նախորդ օրը",
       "nextDay": "Հաջորդ օրը",
       "today": "Այսօր",
+      "jumpToToday": "Այսօր",
+      "jumpToTodayAria": "Վերադառնալ այսօրվա ամսաթվին",
       "showAllClasses": "Բոլոր դասերը",
       "showAllClassesAria": "Ցույց տալ բոլոր դասերը ({count} ընդամենը)",
       "selectDayAria": "Ցույց տալ {weekday} {day} {month}-ի դասերը ({count})",

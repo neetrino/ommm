@@ -12,6 +12,7 @@ import type { AdminIntegratedFilterField } from "@/components/admin/admin-integr
 import type { ScheduleWeekMiniCardSession } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import type { BookingsView } from "@/components/admin/admin-bookings-view";
 import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 type AdminBookingsManagementContentProps = {
   isStaff: boolean;
@@ -125,6 +126,8 @@ export function AdminBookingsManagementContent({
           rows={weekRows}
           showCoach
           cardVariant="staff"
+          expandColumns={false}
+          alignStartDayKey={scheduleTodayIsoDate()}
           onSessionClick={(session) => onWeekSessionClick(session.id)}
           labels={{
             gridAria: tSchedule("weekView.gridAria"),

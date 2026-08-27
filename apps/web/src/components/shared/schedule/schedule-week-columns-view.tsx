@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { ScheduleJumpToTodayButton } from "@/components/shared/schedule/schedule-jump-to-today-button";
 import { useScheduleWeekBoardScroll } from "@/components/shared/schedule/schedule-week-board-scroll";
 import {
   ScheduleWeekSessionMiniCard,
@@ -20,6 +22,7 @@ import {
   isScheduleWeekToday,
   scheduleWeekTrackMinWidthPx,
 } from "@/components/shared/schedule/schedule-week-view-utils";
+import { useScrollAnchorInView } from "@/hooks/use-scroll-anchor-in-view";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 export type ScheduleWeekViewLabels = {
@@ -49,6 +52,11 @@ type ScheduleWeekColumnsViewProps<T extends ScheduleWeekMiniCardSession> = {
    * Pass empty string to enable today-or-first-day alignment; `null` disables.
    */
   alignStartDayKey?: string | null;
+  /**
+   * When today is not among `dayKeys` (e.g. another month), jump control calls this
+   * instead of scrolling.
+   */
+  onJumpToToday?: () => void;
   onSessionClick?: (session: T) => void;
 };
 
@@ -67,16 +75,33 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   expandColumns = true,
   fillRemainingViewport = false,
   alignStartDayKey = null,
+  onJumpToToday,
   onSessionClick,
 }: ScheduleWeekColumnsViewProps<T>) {
+  const t = useTranslations("adminPages.schedule");
+  const todayIso = scheduleTodayIsoDate();
   const fallbackWeekKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
   const dayKeys = dayKeysProp ?? fallbackWeekKeys;
   const dayKeysSignature = dayKeys.join(",");
+  const todayInKeys = dayKeys.includes(todayIso);
   const grouped = useMemo(() => groupScheduleSessionsByDay(rows), [rows]);
   const trackMinWidthPx = scheduleWeekTrackMinWidthPx(dayKeys.length, columnMinWidth);
   const { scrollRef, renderEdgeZones, scrollDayToStart } = useScheduleWeekBoardScroll(
     `${trackMinWidthPx}:${dayKeysSignature}`,
   );
+
+  const resolveTodayColumn = useCallback(() => {
+    const container = scrollRef.current;
+    if (!container || !todayInKeys) return null;
+    const target = container.querySelector(`[data-schedule-day="${todayIso}"]`);
+    return target instanceof HTMLElement ? target : null;
+  }, [scrollRef, todayInKeys, todayIso]);
+
+  const { isAnchorInView, anchorSide } = useScrollAnchorInView({
+    containerRef: scrollRef,
+    resolveTarget: resolveTodayColumn,
+    dependencyKey: dayKeysSignature,
+  });
 
   useEffect(() => {
     if (alignStartDayKey === null) return;
@@ -84,13 +109,34 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
       alignStartDayKey.length > 0 && dayKeys.includes(alignStartDayKey)
         ? alignStartDayKey
         : dayKeys.find((dayKey) => isScheduleWeekToday(dayKey)) ??
-          (dayKeys.includes(scheduleTodayIsoDate()) ? scheduleTodayIsoDate() : dayKeys[0]);
+          (dayKeys.includes(todayIso) ? todayIso : dayKeys[0]);
     if (!preferred) return;
     const frame = window.requestAnimationFrame(() => {
       scrollDayToStart(preferred);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [alignStartDayKey, dayKeys, dayKeysSignature, scrollDayToStart]);
+  }, [alignStartDayKey, dayKeys, dayKeysSignature, scrollDayToStart, todayIso]);
+
+  const handleJumpToToday = useCallback(() => {
+    if (!todayInKeys) {
+      onJumpToToday?.();
+      return;
+    }
+    scrollDayToStart(todayIso);
+  }, [onJumpToToday, scrollDayToStart, todayInKeys, todayIso]);
+
+  const offBoardSide = useMemo((): "left" | "right" | null => {
+    if (todayInKeys || dayKeys.length === 0) return null;
+    const first = dayKeys[0];
+    const last = dayKeys[dayKeys.length - 1];
+    if (todayIso < first) return "left";
+    if (todayIso > last) return "right";
+    return null;
+  }, [dayKeys, todayInKeys, todayIso]);
+
+  const jumpSide = todayInKeys ? anchorSide : offBoardSide;
+  const showJumpToToday =
+    jumpSide !== null && (todayInKeys ? !isAnchorInView : Boolean(onJumpToToday));
 
   const boardHeightClass = fillRemainingViewport ? SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS : "";
   const columnStretchClass = fillRemainingViewport ? "h-full" : "";
@@ -194,6 +240,22 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
           })}
         </div>
       </div>
+      {showJumpToToday && jumpSide !== null ? (
+        <div
+          className={`pointer-events-none absolute top-3 z-30 flex ${
+            jumpSide === "left" ? "left-3" : "right-3"
+          }`}
+        >
+          <div className="pointer-events-auto">
+            <ScheduleJumpToTodayButton
+              label={t("jumpToToday")}
+              ariaLabel={t("jumpToTodayAria")}
+              side={jumpSide}
+              onClick={handleJumpToToday}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
