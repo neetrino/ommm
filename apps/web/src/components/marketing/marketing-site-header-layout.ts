@@ -209,7 +209,17 @@ export function marketingHeaderMobileActionsClass(): string {
   return "flex shrink-0 items-center gap-[6px] overflow-visible";
 }
 
-export function marketingHeaderMobileBrandLinkClass(): string {
+export function marketingHeaderMobileLeadingClass(): string {
+  return "flex shrink-0 items-center gap-2";
+}
+
+export function marketingHeaderMobileBrandLinkClass(options?: {
+  workspace?: boolean;
+}): string {
+  if (options?.workspace) {
+    return "flex shrink-0 items-center";
+  }
+
   return [
     "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
     "flex shrink-0 items-center",

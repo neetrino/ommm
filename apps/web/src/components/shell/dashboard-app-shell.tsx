@@ -11,8 +11,8 @@ import {
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { WorkspacePageAppear } from "@/components/shell/workspace-page-appear";
+import { WorkspaceMobileDrawer } from "@/components/shell/workspace-mobile-drawer";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
@@ -25,12 +25,6 @@ import {
   DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS,
   MEMBER_DESKTOP_SIDEBAR_WIDTH_COLLAPSED,
   MEMBER_DESKTOP_SIDEBAR_WIDTH_EXPANDED,
-  mobileDrawerBrandSublineClass,
-  mobileDrawerBrandTitleClass,
-  mobileDrawerFooterClass,
-  mobileDrawerHeaderBorderClass,
-  mobileDrawerOverlayScrimClass,
-  mobileDrawerPanelClass,
   pageBackgroundClass,
   sidebarAsideBgClass,
   sidebarBrandStripClass,
@@ -109,15 +103,6 @@ export function DashboardAppShell({
   }, []);
 
   useEffect(() => {
-    if (!drawerOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [drawerOpen]);
-
-  useEffect(() => {
     if (variant !== "member") {
       return undefined;
     }
@@ -132,8 +117,6 @@ export function DashboardAppShell({
       document.documentElement.style.removeProperty(OMMM_MEMBER_SIDEBAR_WIDTH_VAR);
     };
   }, [variant, sidebarCollapsed]);
-
-  useCloseOnEscape(drawerOpen, () => setDrawerOpen(false));
 
   function persistCollapsed(next: boolean) {
     try {
@@ -331,60 +314,17 @@ export function DashboardAppShell({
         workspaceBody
       )}
 
-      {drawerOpen ? (
-        <div
-          className={`fixed inset-0 ${workspaceMobileDrawerLayout.overlayMobileOnly} ${withSiteHeader ? "z-[60]" : "z-40"}`}
-          id="dashboard-mobile-drawer"
-          role="dialog"
-          aria-modal="true"
-          aria-label={tShell("navigationDialogAria")}
-        >
-          <button
-            type="button"
-            className={mobileDrawerOverlayScrimClass(variant)}
-            aria-label={tShell("closeMenuOverlay")}
-            onClick={() => setDrawerOpen(false)}
-          />
-          <div className={mobileDrawerPanelClass(variant)}>
-            <div
-              className={`flex shrink-0 items-center gap-3 px-6 py-6 ${mobileDrawerHeaderBorderClass(variant)}`}
-            >
-              {!isOliveShell ? (
-                <span
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
-                >
-                  {brandInitial(brandLabel)}
-                </span>
-              ) : null}
-              <div className="min-w-0">
-                <span className={mobileDrawerBrandTitleClass(variant)}>
-                  {brandLabel}
-                </span>
-                {brandSubline ? (
-                  <span className={mobileDrawerBrandSublineClass(variant)}>
-                    {brandSubline}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <DashboardSidebarNav
-                items={navItems}
-                variant={variant}
-                pathname={pathname}
-                collapsed={false}
-                onNavigate={() => setDrawerOpen(false)}
-                hardNavigate={variant === "member"}
-              />
-            </div>
-            {trailing ? (
-              <div className={mobileDrawerFooterClass(variant)}>
-                {trailing}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
+      <WorkspaceMobileDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        variant={variant}
+        withSiteHeader={withSiteHeader}
+        brandLabel={brandLabel}
+        brandSubline={brandSubline}
+        navItems={navItems}
+        pathname={pathname}
+        trailing={trailing}
+      />
     </div>
   );
 }

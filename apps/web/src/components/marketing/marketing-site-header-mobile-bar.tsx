@@ -15,6 +15,7 @@ import {
   marketingHeaderMobileActionsClass,
   marketingHeaderMobileBrandLinkClass,
   marketingHeaderMobileBrandTextClass,
+  marketingHeaderMobileLeadingClass,
   marketingHeaderMobileIconAccountClass,
   marketingHeaderMobileLanguageTriggerClass,
   marketingHeaderMobileMenuButtonClass,
@@ -76,41 +77,62 @@ export function MarketingSiteHeaderMobileBar({
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
   const tShell = useTranslations("dashboard.shell");
+  const isWorkspaceMobile = workspaceDrawer !== undefined;
+
+  const menuButton = (
+    <button
+      type="button"
+      className={`${marketingHeaderMobileMenuButtonClass(publicMenuOpen)} ${navPillStyles.mobileHeaderMenuButton}`}
+      aria-expanded={publicMenuOpen}
+      aria-controls="marketing-mobile-nav"
+      aria-label={publicMenuOpen ? tUi("closeMenu") : tUi("openMenu")}
+      onClick={onTogglePublicMenu}
+    >
+      <span className="sr-only">{tUi("menuSr")}</span>
+      {publicMenuOpen ? (
+        <svg
+          className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`}
+          viewBox="0 0 35 35"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          aria-hidden
+        >
+          <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
+        </svg>
+      ) : (
+        <MarketingHeaderMenuIcon className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`} />
+      )}
+    </button>
+  );
+
+  const brandLink = (
+    <Link
+      href="/"
+      className={marketingHeaderMobileBrandLinkClass({ workspace: isWorkspaceMobile })}
+      onClick={onBrandClick}
+    >
+      <span
+        className={`${marketingHeaderMobileBrandTextClass()} ${navPillStyles.mobileHeaderBrandText}`}
+      >
+        {tNav("spaceBrand")}
+      </span>
+    </Link>
+  );
 
   return (
     <div className={`${marketingHeaderMobileRowInnerClass()} ${navPillStyles.mobileHeaderRow}`}>
-      <button
-        type="button"
-        className={`${marketingHeaderMobileMenuButtonClass(publicMenuOpen)} ${navPillStyles.mobileHeaderMenuButton}`}
-        aria-expanded={publicMenuOpen}
-        aria-controls="marketing-mobile-nav"
-        aria-label={publicMenuOpen ? tUi("closeMenu") : tUi("openMenu")}
-        onClick={onTogglePublicMenu}
-      >
-        <span className="sr-only">{tUi("menuSr")}</span>
-        {publicMenuOpen ? (
-          <svg
-            className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`}
-            viewBox="0 0 35 35"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            aria-hidden
-          >
-            <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
-          </svg>
-        ) : (
-          <MarketingHeaderMenuIcon className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`} />
-        )}
-      </button>
-
-      <Link href="/" className={marketingHeaderMobileBrandLinkClass()} onClick={onBrandClick}>
-        <span
-          className={`${marketingHeaderMobileBrandTextClass()} ${navPillStyles.mobileHeaderBrandText}`}
-        >
-          {tNav("spaceBrand")}
-        </span>
-      </Link>
+      {isWorkspaceMobile ? (
+        <div className={marketingHeaderMobileLeadingClass()}>
+          {menuButton}
+          {brandLink}
+        </div>
+      ) : (
+        <>
+          {menuButton}
+          {brandLink}
+        </>
+      )}
 
       <div className={marketingHeaderMobileActionsClass()}>
         {workspaceDrawer ? (
