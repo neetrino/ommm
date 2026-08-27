@@ -103,11 +103,11 @@ export const ADMIN_CREATE_FORM_BODY_CLASS =
 export const ADMIN_CREATE_FORM_ACTIONS_CLASS =
   "flex flex-wrap items-center justify-end gap-3 border-t border-white/60 pt-4";
 
-/** Solid white title row on create/add sheets. */
+/** Title row on create/add sheets — matches sheet paper background. */
 export const ADMIN_CREATE_SHEET_HEADER_CLASS =
-  "flex shrink-0 items-start justify-between gap-4 border-b border-sage-200/50 bg-white px-5 py-4 sm:px-7 sm:py-5";
+  "flex shrink-0 items-start justify-between gap-4 border-b border-sage-200/50 bg-paper px-5 py-4 sm:px-7 sm:py-5";
 
-/** Form area below the white header — warm paper tone. */
+/** Form area below the header — warm paper tone. */
 export const ADMIN_CREATE_SHEET_BODY_SHELL_CLASS =
   "flex min-h-0 flex-1 flex-col overflow-hidden bg-paper";
 

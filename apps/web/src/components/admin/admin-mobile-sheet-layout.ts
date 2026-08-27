@@ -13,8 +13,8 @@ export const ADMIN_MOBILE_SHEET_PANEL_CLASS = "ommm-admin-mobile-sheet-panel";
 export const ADMIN_MOBILE_SHEET_GRABBER_CLASS =
   "mx-auto h-1 w-10 shrink-0 rounded-full bg-sage-300/80";
 
-/** White strip behind the drag handle on create/add sheets. */
-export const ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS = "shrink-0 bg-white px-5 pt-2";
+/** Drag handle row — inherits sheet panel background. */
+export const ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS = "shrink-0 px-5 pt-2";
 
 /** Inline height — reliable on mobile Safari. */
 export function adminMobileSheetPanelStyle(): CSSProperties {
