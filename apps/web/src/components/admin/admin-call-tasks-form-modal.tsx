@@ -10,7 +10,8 @@ import type { CallTaskRow } from "@/components/admin/admin-call-tasks-query";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 
 const NAME_FIELD_MAX_LENGTH = 60;
@@ -43,6 +44,7 @@ export function contactNameFromDraft(draft: CallTaskFormDraft): string {
 }
 
 type AdminCallTasksFormModalProps = {
+  isOpen: boolean;
   mode: "create" | "edit";
   draft: CallTaskFormDraft;
   busy: boolean;
@@ -52,6 +54,7 @@ type AdminCallTasksFormModalProps = {
 };
 
 export function AdminCallTasksFormModal({
+  isOpen,
   mode,
   draft,
   busy,
@@ -63,17 +66,19 @@ export function AdminCallTasksFormModal({
   const titleId = "call-task-form-title";
 
   return (
-    <OmmModalPortal
-      isOpen
+    <AdminSheetPortal
+      presentation="modal"
+      isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={t("close")}
       ariaLabelledBy={titleId}
       closeDisabled={busy}
-      overlayClassName="ommm-modal-overlay z-[110] items-center p-4"
-      centered
-      panelClassName={`${adminChrome.panel} max-h-[90vh] w-full max-w-lg overflow-y-auto`}
+      modalOverlayClassName="ommm-modal-overlay z-[110] items-center p-4"
+      modalPanelClassName={`${ADMIN_MODAL_PANEL_SHELL_CLASS} max-w-lg`}
+      zIndexClass="z-[110]"
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] sm:px-0 sm:pb-0">
+        <div className="flex items-start justify-between gap-4 pt-1 sm:pt-0">
         <h2 id={titleId} className={adminChrome.panelHeading}>
           {mode === "create" ? t("createTitle") : t("editTitle")}
         </h2>
@@ -88,7 +93,7 @@ export function AdminCallTasksFormModal({
         </button>
       </div>
       <form
-        className="mt-4 flex flex-col gap-3"
+        className="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-y-contain"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
@@ -104,7 +109,8 @@ export function AdminCallTasksFormModal({
           </OmmButton>
         </div>
       </form>
-    </OmmModalPortal>
+      </div>
+    </AdminSheetPortal>
   );
 }
 

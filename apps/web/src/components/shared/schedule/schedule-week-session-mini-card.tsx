@@ -126,10 +126,13 @@ function ScheduleWeekSessionMiniCardContent({
           {spotsLabel ? (
             variant === "staff" && hasCapacity && spotsLeftLabel ? (
               <div
-                className="min-w-0 max-w-full"
+                className="min-w-0 max-w-full space-y-0.5"
                 onClick={(event) => event.stopPropagation()}
                 onKeyDown={(event) => event.stopPropagation()}
               >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-sage-500">
+                  {tStaff("fields.viewRegisteredRoster")}
+                </p>
                 <ScheduleSessionRegistrationsCapacity
                   sessionId={session.id}
                   sessionTitle={session.title}

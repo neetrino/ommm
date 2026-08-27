@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import {
-  ANALYTICS_SECTION_HREF,
+  analyticsSectionHref,
   type AnalyticsSectionId,
+  type AnalyticsWorkspace,
 } from "@/components/admin/admin-analytics-module";
 import {
   buildClassPopularityBarItems,
@@ -227,11 +228,12 @@ export function redirectIfUnscopedAnalyticsSearchParams(
   locale: string,
   section: AnalyticsSectionId,
   search: Record<string, string | string[] | undefined>,
+  workspace: AnalyticsWorkspace = "admin",
 ): void {
   if (!analyticsSectionSearchNeedsSanitization(section, search)) {
     return;
   }
   const query = buildSanitizedAnalyticsSectionQueryString(section, search);
-  const href = ANALYTICS_SECTION_HREF[section];
+  const href = analyticsSectionHref(section, workspace);
   redirect(query ? `/${locale}${href}?${query}` : `/${locale}${href}`);
 }

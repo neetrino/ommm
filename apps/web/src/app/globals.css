@@ -1228,6 +1228,14 @@ input[type="number"]::-webkit-outer-spin-button {
     top: var(--ommm-admin-header-sticky-offset, var(--ommm-workspace-sticky-top, 0px));
   }
 
+  @media (max-width: 743px) {
+    .ommm-admin-packages-toolbar-wrap {
+      position: static;
+      top: auto;
+      z-index: auto;
+    }
+  }
+
   .ommm-admin-packages-toolbar {
     @apply flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:gap-[7.5rem];
   }
@@ -1463,7 +1471,7 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .ommm-admin-content {
-    @apply mx-auto w-full max-w-[1280px];
+    @apply mx-auto w-full min-w-0 max-w-[1280px] overflow-x-clip;
   }
 
   .ommm-admin-add-button {

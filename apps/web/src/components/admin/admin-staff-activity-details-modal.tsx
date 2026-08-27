@@ -6,7 +6,8 @@ import {
   StaffActivityTypeLabel,
 } from "@/components/admin/admin-staff-activity-type-copy";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatTimeForUi } from "@/lib/format-time-display";
 import type { StaffActivityRow } from "@/lib/staff-activity-types";
@@ -27,18 +28,20 @@ export function AdminStaffActivityDetailsModal({
   const titleId = useId();
   const descId = useId();
   const sessionWhen = formatSessionWhen(locale, row.sessionStartsAt);
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
 
   return (
-    <OmmModalPortal
-      isOpen
-      onClose={onClose}
+    <AdminSheetPortal presentation="modal"
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       dialogRole="dialog"
       ariaLabelledBy={titleId}
       ariaDescribedBy={descId}
       backdropAriaLabel={t("detailsCloseBackdrop")}
-      centered
-      overlayClassName={`${styles.overlay} ommm-modal-overlay z-[115] items-center p-4`}
-      panelClassName={`${styles.panel} max-h-[min(90vh,40rem)] overflow-y-auto`}
+
+      modalOverlayClassName={`${styles.overlay} ommm-modal-overlay z-[115] items-center p-4`}
+      modalPanelClassName={`${styles.panel} max-h-[min(90vh,40rem)] overflow-y-auto`}
     >
       <div className={styles.form}>
         <p className={styles.eyebrow}>{t("detailsEyebrow")}</p>
@@ -58,11 +61,11 @@ export function AdminStaffActivityDetailsModal({
             {formatDateTimeForUi(row.createdAt, locale)}
           </p>
         </div>
-        <OmmButton type="button" variant="secondary" size="md" className="w-full" onClick={onClose}>
+        <OmmButton type="button" variant="secondary" size="md" className="w-full" onClick={requestClose}>
           {t("detailsClose")}
         </OmmButton>
       </div>
-    </OmmModalPortal>
+    </AdminSheetPortal>
   );
 }
 

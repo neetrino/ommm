@@ -23,7 +23,8 @@ import type {
   AdminGiftCardBatchRow,
 } from "@/components/admin/admin-gift-cards-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { GiftCardCapabilities } from "@/lib/backoffice-capabilities";
 import { adminGiftCardCapabilities } from "@/lib/backoffice-capabilities";
@@ -104,6 +105,7 @@ function AdminGiftCardDetailsSheetInner({
   const t = useTranslations("adminPages.giftCards");
   const tActions = useTranslations("adminPages.giftCards.actions");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const [activeTab, setActiveTab] = useState<GiftCardSheetTabId>(GIFT_CARD_SHEET_TAB_OVERVIEW);
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
@@ -120,14 +122,14 @@ function AdminGiftCardDetailsSheetInner({
       return;
     }
     resetSheet();
-    onClose();
-  }, [onClose, resetSheet, statusBusy]);
+    requestClose();
+  }, [resetSheet, requestClose, statusBusy]);
 
   const handleRemoved = useCallback(() => {
     resetSheet();
-    onClose();
+    requestClose();
     onChanged();
-  }, [onChanged, onClose, resetSheet]);
+  }, [onChanged, requestClose, resetSheet]);
 
   const tabs = GIFT_CARD_SHEET_TAB_ORDER.filter(
     (value) => !readOnly || value !== GIFT_CARD_SHEET_TAB_ACTIONS,
@@ -158,14 +160,15 @@ function AdminGiftCardDetailsSheetInner({
     ((isActive && capabilities.canDeactivate) || (!isActive && capabilities.canActivate));
 
   return (
-    <OmmDrawerPortal
-      isOpen
+    <AdminSheetPortal presentation="drawer"
+      isOpen={sheetOpen}
       onClose={handleClose}
+      onAfterClose={onAfterClose}
       closeDisabled={statusBusy}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -214,6 +217,6 @@ function AdminGiftCardDetailsSheetInner({
           onRemoved={handleRemoved}
         />
       </div>
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

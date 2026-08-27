@@ -10,6 +10,7 @@ import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-w
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import type { ScheduleWeekMiniCardSession } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import type { BookingsView } from "@/components/admin/admin-bookings-view";
+import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 
 type AdminBookingsManagementContentProps = {
   isStaff: boolean;
@@ -52,6 +53,9 @@ export function AdminBookingsManagementContent({
   onViewChange,
   onWeekSessionClick,
 }: AdminBookingsManagementContentProps) {
+  const isPhone = useIsMarketingPhoneViewport();
+  const displayView: BookingsView = isPhone ? "list" : view;
+
   const metrics = (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <AdminBookingsMetric title={t("summaryTotal")} value={summary.total} />
@@ -101,7 +105,9 @@ export function AdminBookingsManagementContent({
         search={
           <div className="flex min-w-0 flex-1 items-center gap-2">
             {searchFilters}
-            <AdminBookingsViewSwitcher value={view} onChange={onViewChange} />
+            <div className="max-[743px]:hidden shrink-0">
+              <AdminBookingsViewSwitcher value={view} onChange={onViewChange} />
+            </div>
           </div>
         }
       />
@@ -111,8 +117,8 @@ export function AdminBookingsManagementContent({
           {statusMessage}
         </div>
       ) : null}
-      {view === "list" ? bookingsList : null}
-      {view === "weekly" ? (
+      {displayView === "list" ? bookingsList : null}
+      {displayView === "weekly" ? (
         <ScheduleWeekColumnsView
           locale={locale}
           rows={weekRows}

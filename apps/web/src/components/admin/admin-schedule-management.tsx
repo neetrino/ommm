@@ -13,7 +13,7 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
-import { OmmButton } from "@/components/ui/omm-button";
+import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { useEffectiveScheduleView } from "@/hooks/use-effective-schedule-view";
@@ -107,32 +107,24 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         title={tPage("title")}
         sticky={false}
         search={
-          <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="min-w-0 flex-1">
-              <ListPageSearchFilters
-                search={schedule.searchDraft}
-                onSearchChange={schedule.setSearchDraft}
-                searchPlaceholder={schedule.t("filters.searchPlaceholder")}
-                fields={schedule.filterFields}
-                filterValues={schedule.integratedFilterValues}
-                onFilterChange={schedule.handleIntegratedFilterChange}
-                onClearAll={schedule.resetFilters}
-                resetLabel={schedule.t("filters.reset")}
-              />
-            </div>
-            {caps.canCreate ? (
-              <OmmButton
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={schedule.openAddClassModal}
-                className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full sm:w-auto"
-              >
-                <PlusIcon className="h-5 w-5 shrink-0" />
-                {schedule.t("addClassButton")}
-              </OmmButton>
-            ) : null}
-          </div>
+          <ListPageSearchFilters
+            search={schedule.searchDraft}
+            onSearchChange={schedule.setSearchDraft}
+            searchPlaceholder={schedule.t("filters.searchPlaceholder")}
+            fields={schedule.filterFields}
+            filterValues={schedule.integratedFilterValues}
+            onFilterChange={schedule.handleIntegratedFilterChange}
+            onClearAll={schedule.resetFilters}
+            resetLabel={schedule.t("filters.reset")}
+          />
+        }
+        primaryAction={
+          caps.canCreate ? (
+            <AdminPageHeroActionButton type="button" onClick={schedule.openAddClassModal}>
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              {schedule.t("addClassButton")}
+            </AdminPageHeroActionButton>
+          ) : null
         }
       />
       <div className="space-y-3">

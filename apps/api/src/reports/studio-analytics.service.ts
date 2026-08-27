@@ -12,6 +12,11 @@ import type {
   StudioAnalyticsFilters,
   StudioAnalyticsPayload,
 } from './studio-analytics.types';
+import { stripFinanceFromStudioAnalytics } from './studio-analytics-finance-strip';
+
+export type StudioAnalyticsOptions = {
+  includeFinance?: boolean;
+};
 
 @Injectable()
 export class StudioAnalyticsService {
@@ -23,6 +28,7 @@ export class StudioAnalyticsService {
    */
   async studioAnalytics(
     query: StudioAnalyticsQueryDto,
+    options?: StudioAnalyticsOptions,
   ): Promise<StudioAnalyticsPayload> {
     const resolved = resolveRange(query);
     const from = new Date(resolved.from);
@@ -49,7 +55,7 @@ export class StudioAnalyticsService {
     ]);
     const current = aggregateStudioRange(currentLoaded);
     const prior = aggregateStudioRange(previousLoaded);
-    return {
+    const payload: StudioAnalyticsPayload = {
       range: {
         from: from.toISOString(),
         to: to.toISOString(),
@@ -67,6 +73,10 @@ export class StudioAnalyticsService {
       members: current.members,
       coaches: current.coaches,
     };
+    if (options?.includeFinance === false) {
+      return stripFinanceFromStudioAnalytics(payload);
+    }
+    return payload;
   }
 }
 

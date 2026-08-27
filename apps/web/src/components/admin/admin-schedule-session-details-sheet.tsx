@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
@@ -31,7 +31,8 @@ import {
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
 import {
   adminBookingCapabilities,
@@ -44,6 +45,7 @@ type AdminScheduleSessionDetailsSheetProps = {
   classTypeOptions: readonly SessionClassTypeOption[];
   coaches: readonly AdminScheduleCoach[];
   actionBusy: boolean;
+  initialTab?: SessionSheetTabId;
   onClose: () => void;
   onSaved?: (row: AdminScheduleSession) => void;
   onDuplicate?: (row: AdminScheduleSession) => void;
@@ -62,6 +64,7 @@ export function AdminScheduleSessionDetailsSheet({
   onDuplicate,
   onDelete,
   capabilities,
+  initialTab = SESSION_SHEET_TAB_BOOKINGS,
 }: AdminScheduleSessionDetailsSheetProps) {
   if (row === null) {
     return null;
@@ -83,6 +86,7 @@ export function AdminScheduleSessionDetailsSheet({
       onDelete={caps.canDelete ? onDelete : undefined}
       canUpdate={caps.canUpdate}
       canCancelBooking={canCancelBooking}
+      initialTab={initialTab}
     />
   );
 }
@@ -99,6 +103,7 @@ function AdminScheduleSessionDetailsSheetInner({
   onDelete,
   canUpdate = true,
   canCancelBooking = true,
+  initialTab = SESSION_SHEET_TAB_BOOKINGS,
 }: {
   locale: string;
   row: AdminScheduleSession;
@@ -111,15 +116,21 @@ function AdminScheduleSessionDetailsSheetInner({
   onDelete?: (row: AdminScheduleSession) => void;
   canUpdate?: boolean;
   canCancelBooking?: boolean;
+  initialTab?: SessionSheetTabId;
   onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 }) {
   const t = useTranslations("adminPages.classes");
   const titleId = useId();
-  const [activeTab, setActiveTab] = useState<SessionSheetTabId>(SESSION_SHEET_TAB_DETAILS);
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
+  const [activeTab, setActiveTab] = useState<SessionSheetTabId>(initialTab);
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab, row.id]);
 
   const fallbackClassTypeId = classTypeOptions[0]?.value ?? "";
   const fallbackCoachId = coaches[0]?.id ?? "";
@@ -167,8 +178,8 @@ function AdminScheduleSessionDetailsSheetInner({
     if (editForm.dirty) {
       return;
     }
-    onClose();
-  }, [editForm.dirty, onClose, sheetBusy]);
+    requestClose();
+  }, [editForm.dirty, requestClose, sheetBusy]);
 
   function handleStatusChanged(updated: AdminScheduleSession): void {
     onSaved?.(updated);
@@ -185,14 +196,15 @@ function AdminScheduleSessionDetailsSheetInner({
   }
 
   return (
-    <OmmDrawerPortal
-      isOpen
+    <AdminSheetPortal presentation="drawer"
+      isOpen={sheetOpen}
       onClose={handleClose}
+      onAfterClose={onAfterClose}
       closeDisabled={sheetBusy || editForm.dirty}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -276,7 +288,7 @@ function AdminScheduleSessionDetailsSheetInner({
           }}
         />
       ) : null}
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }
 

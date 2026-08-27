@@ -22,7 +22,8 @@ import {
 } from "@/components/marketing/packages/public-package-type-session-rows";
 import { PublicPackageTypeSessionsBreakdown } from "@/components/marketing/packages/public-package-type-sessions-breakdown";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type AdminClientPackagePlanDetailsModalProps = {
@@ -80,6 +81,7 @@ export function AdminClientPackagePlanDetailsModal({
   const t = useTranslations("adminPages.clients");
   const tPackages = useTranslations("adminPages.packages");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
   const hasDiscount =
     typeof plan.discountedPriceCents === "number" &&
@@ -105,14 +107,15 @@ export function AdminClientPackagePlanDetailsModal({
   const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
 
   return (
-    <OmmModalPortal
-      isOpen
-      onClose={onClose}
+    <AdminSheetPortal presentation="modal"
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       useOverlayPortalRoot
-      overlayClassName="ommm-modal-overlay z-[120]"
-      panelClassName="w-full max-w-5xl rounded-[28px] border border-white/70 bg-white p-0 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)]"
+      modalOverlayClassName="ommm-modal-overlay z-[120]"
+      modalPanelClassName="w-full max-w-5xl rounded-[28px] border border-white/70 bg-white p-0 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)]"
     >
       <div className="flex max-h-[min(88dvh,44rem)] flex-col">
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-white/60 px-5 py-4 sm:px-6">
@@ -126,7 +129,7 @@ export function AdminClientPackagePlanDetailsModal({
             type="button"
             className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
             aria-label={t("modalCloseAria")}
-            onClick={onClose}
+            onClick={requestClose}
           >
             ×
           </button>
@@ -218,11 +221,11 @@ export function AdminClientPackagePlanDetailsModal({
         </div>
 
         <footer className="flex shrink-0 justify-end border-t border-white/60 px-5 py-4 sm:px-6">
-          <OmmButton type="button" variant="secondary" onClick={onClose}>
+          <OmmButton type="button" variant="secondary" onClick={requestClose}>
             {t("cancelButton")}
           </OmmButton>
         </footer>
       </div>
-    </OmmModalPortal>
+    </AdminSheetPortal>
   );
 }

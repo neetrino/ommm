@@ -27,7 +27,7 @@ const BOARD_CARD_STACK_CLASS = "flex min-h-0 flex-1 flex-col gap-4";
 const BOARD_CARD_DIVIDER_SECTION_CLASS = "flex flex-col gap-4 border-t border-sage-100 pt-4";
 const BOARD_ICON_WELL_CLASS =
   "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sand-100 text-sage-700";
-const BOARD_META_TEXT_CLASS = "min-w-0 text-sm font-medium text-sage-800";
+const BOARD_META_TEXT_CLASS = "min-w-0 truncate text-sm font-medium text-sage-800";
 
 type AdminCoachBoardCardProps = {
   coach: AdminCoachDirectoryRow;

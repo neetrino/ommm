@@ -20,7 +20,10 @@ import { EditActionButton } from "@/components/ui/edit-action-button";
 import { formatDateForUi } from "@/lib/date-display";
 import { USER_PACKAGE_VALIDITY_DAY_MS } from "@/lib/user-package-validity";
 
+import { ADMIN_CARD_CONTAIN_CLASS } from "@/components/admin/admin-list-table-layout";
+
 const BOARD_CARD_CLASS = [
+  ADMIN_CARD_CONTAIN_CLASS,
   "flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5",
   "shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)]",
   "sm:p-6",

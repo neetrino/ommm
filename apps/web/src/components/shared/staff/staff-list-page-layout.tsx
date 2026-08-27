@@ -10,6 +10,8 @@ type StaffListPageLayoutProps = {
   banner?: string | null;
   search?: ReactNode;
   searchTrailing?: ReactNode;
+  /** Primary CTA — full-width below search on phone (Add client, Add class, …). */
+  primaryAction?: ReactNode;
   headerTrailing?: ReactNode;
   mobileBackHref?: string;
   mobileBackLabel?: string;
@@ -30,6 +32,7 @@ export function StaffListPageLayout({
   banner,
   search,
   searchTrailing,
+  primaryAction,
   headerTrailing,
   mobileBackHref,
   mobileBackLabel,
@@ -57,6 +60,7 @@ export function StaffListPageLayout({
           description={description}
           sticky={sticky}
           search={searchRow}
+          primaryAction={primaryAction}
           trailing={headerTrailing}
           mobileBackHref={mobileBackHref}
           mobileBackLabel={mobileBackLabel}

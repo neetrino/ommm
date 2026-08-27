@@ -20,7 +20,8 @@ import {
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { formatDateForUi } from "@/lib/date-display";
 import { displayPhoneOrFallback } from "@/lib/phone";
 
@@ -43,17 +44,20 @@ export function AdminCallTasksDetailsSheet({
 }: AdminCallTasksDetailsSheetProps) {
   const t = useTranslations("adminPages.calls");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const pending = row.status === "PENDING";
   const statusLabel = row.isOverdue && pending ? t("overdue") : t(`status.${row.status}`);
 
   return (
-    <OmmDrawerPortal
-      isOpen
-      onClose={onClose}
+    <AdminSheetPortal
+      presentation="drawer"
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("detailsCloseBackdrop")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
       closeDisabled={busy}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
@@ -73,7 +77,7 @@ export function AdminCallTasksDetailsSheet({
             className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
             aria-label={t("close")}
             disabled={busy}
-            onClick={onClose}
+            onClick={requestClose}
           >
             <CloseGlyph />
           </button>
@@ -104,7 +108,7 @@ export function AdminCallTasksDetailsSheet({
           />
         </footer>
       ) : null}
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }
 

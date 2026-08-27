@@ -10,7 +10,7 @@ export const ADMIN_CLIENT_AVATAR_LAYER_CLASS =
   `relative z-0 ${ADMIN_CLIENT_AVATAR_SIZE_CLASS}`;
 
 const TAG_OVERLAY_BASE_CLASS =
-  "pointer-events-none absolute z-20 origin-top-left whitespace-nowrap";
+  "pointer-events-none absolute z-20 origin-top-left max-w-[8rem] truncate";
 
 const DEFAULT_TAG_OVERLAY_TILT_CLASS = "-rotate-[35deg]";
 const INFLUENCER_TAG_OVERLAY_TILT_CLASS = "-rotate-[16deg]";

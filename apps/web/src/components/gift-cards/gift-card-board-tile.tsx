@@ -5,9 +5,13 @@ import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { giftCardStatusBadgeClass } from "@/components/gift-cards/gift-card-display-helpers";
 
 /** Board grid — admin gift cards directory and user gift cards page. */
-export const GIFT_CARD_BOARD_GRID_CLASS = "grid gap-5 sm:grid-cols-2 xl:grid-cols-3";
+export const GIFT_CARD_BOARD_GRID_CLASS =
+  "grid w-full min-w-0 max-w-full gap-5 sm:grid-cols-2 xl:grid-cols-3";
+
+const GIFT_CARD_BOARD_TILE_CONTAIN_CLASS = "min-w-0 max-w-full overflow-x-clip";
 
 const GIFT_CARD_BOARD_TILE_CLASS = [
+  GIFT_CARD_BOARD_TILE_CONTAIN_CLASS,
   "flex flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white/90",
   "shadow-[0_20px_44px_-22px_rgba(45,40,35,0.28)]",
 ].join(" ");
@@ -135,8 +139,8 @@ export function GiftCardBoardTile({
       </div>
 
       <div className="flex flex-1 flex-col gap-3 px-4 pb-4">
-        <div className="flex items-start justify-between gap-3">
-          <p className="font-serif text-2xl font-normal text-sage-900">{amountLabel}</p>
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <p className="min-w-0 truncate font-serif text-2xl font-normal text-sage-900">{amountLabel}</p>
           <span
             className={`${giftCardStatusBadgeClass(status)} shrink-0 font-semibold uppercase tracking-wide`}
           >

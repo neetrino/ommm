@@ -9,9 +9,9 @@ import {
   buildAdminManagersFilterFields,
 } from "@/components/admin/admin-managers-filter-fields";
 import type { AdminManagersFilterValues } from "@/components/admin/admin-managers-types";
+import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
@@ -175,18 +175,12 @@ export function AdminManagersFilters({
           />
         </div>
       }
-      trailing={
+      primaryAction={
         onAddManager ? (
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={onAddManager}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-          >
+          <AdminPageHeroActionButton type="button" onClick={onAddManager}>
             <AddManagerGlyph className="h-5 w-5 shrink-0" />
             {t("addManagerButton")}
-          </OmmButton>
+          </AdminPageHeroActionButton>
         ) : null
       }
     />

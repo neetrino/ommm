@@ -125,6 +125,14 @@
     top: var(--ommm-admin-header-sticky-offset, var(--ommm-workspace-sticky-top, 0px));
   }
 
+  @media (max-width: 743px) {
+    .ommm-admin-packages-toolbar-wrap {
+      position: static;
+      top: auto;
+      z-index: auto;
+    }
+  }
+
   .ommm-admin-packages-toolbar {
     @apply flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:gap-[7.5rem];
   }

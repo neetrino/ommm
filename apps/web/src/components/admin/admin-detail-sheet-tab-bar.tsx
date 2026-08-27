@@ -2,6 +2,7 @@
 
 import {
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_HORIZONTAL_TAB_SCROLL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 
 export type AdminDetailSheetTabItem = {
@@ -39,7 +40,7 @@ export function AdminDetailSheetTabBar({
       role="tablist"
       aria-label={ariaLabel}
     >
-      <div className="flex gap-2 overflow-x-auto pb-0.5">
+      <div className={ADMIN_HORIZONTAL_TAB_SCROLL_CLASS}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.value;
           return (

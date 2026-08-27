@@ -12,15 +12,15 @@ import { useAdminClientsManagement } from "@/components/admin/use-admin-clients-
 import { useAdminClientsView } from "@/components/admin/use-admin-clients-view";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
 import {
   adminClientCapabilities,
   type ClientCapabilities,
 } from "@/lib/backoffice-capabilities";
-import type { AdminClientsViewMode } from "@/lib/admin-clients-view-preference";
 
 type AdminClientsManagementProps = {
   initial: AdminClientsPayload;
@@ -74,7 +74,9 @@ export function AdminClientsManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
+  const isPhone = useIsMarketingPhoneViewport();
   const { viewMode, setViewMode } = useAdminClientsView();
+  const effectiveViewMode = isPhone ? "list" : viewMode;
 
   const {
     payload,
@@ -114,19 +116,27 @@ export function AdminClientsManagement({
     />
   );
 
-  const heroActions = (
-    <ClientsHeroActions
-      viewMode={viewMode}
-      onViewChange={setViewMode}
-      onAddUser={onAddUser && caps.canCreate ? onAddUser : undefined}
-      addLabel={t("addUserButton")}
-    />
+  const searchRow = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      {searchFilters}
+      <div className="hidden shrink-0 sm:block">
+        <AdminClientsViewSwitcher value={viewMode} onChange={setViewMode} />
+      </div>
+    </div>
   );
+
+  const addClientAction =
+    onAddUser && caps.canCreate ? (
+      <AdminPageHeroActionButton type="button" onClick={onAddUser}>
+        <AdminClientsAddUserGlyph className="h-5 w-5 shrink-0" />
+        {t("addUserButton")}
+      </AdminPageHeroActionButton>
+    ) : null;
 
   const clientsList = (
     <>
       <div className={loading ? "opacity-60 transition-opacity duration-150" : "transition-opacity duration-150"}>
-        {viewMode === "sphere" ? (
+        {effectiveViewMode === "sphere" ? (
           <AdminClientsSphereView rows={payload.rows} onSelect={selectClient} />
         ) : (
           <AdminClientsTable
@@ -160,10 +170,8 @@ export function AdminClientsManagement({
         <StaffListPageLayout
           title={t("title")}
           banner={staffBanner}
-          search={searchFilters}
-          headerTrailing={
-            <AdminClientsViewSwitcher value={viewMode} onChange={setViewMode} />
-          }
+          search={searchRow}
+          primaryAction={addClientAction}
           metrics={<AdminClientsSummary payload={payload} />}
           status={error ? <div className="app-alert-warn">{error}</div> : null}
         >
@@ -173,8 +181,8 @@ export function AdminClientsManagement({
         <>
           <AdminPageHero
             title={t("title")}
-            search={searchFilters}
-            trailing={heroActions}
+            search={searchRow}
+            primaryAction={addClientAction}
           />
           <AdminClientsSummary payload={payload} />
           {error ? <div className="app-alert-warn">{error}</div> : null}
@@ -192,37 +200,5 @@ export function AdminClientsManagement({
         allowCancelBooking={caps.canCancelBooking && !isStaff}
       />
     </div>
-  );
-}
-
-type ClientsHeroActionsProps = {
-  viewMode: AdminClientsViewMode;
-  onViewChange: (mode: AdminClientsViewMode) => void;
-  onAddUser?: () => void;
-  addLabel: string;
-};
-
-function ClientsHeroActions({
-  viewMode,
-  onViewChange,
-  onAddUser,
-  addLabel,
-}: ClientsHeroActionsProps) {
-  return (
-    <>
-      <AdminClientsViewSwitcher value={viewMode} onChange={onViewChange} />
-      {onAddUser ? (
-        <OmmButton
-          type="button"
-          variant="secondary"
-          size="md"
-          onClick={onAddUser}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-        >
-          <AdminClientsAddUserGlyph className="h-5 w-5 shrink-0" />
-          {addLabel}
-        </OmmButton>
-      ) : null}
-    </>
   );
 }

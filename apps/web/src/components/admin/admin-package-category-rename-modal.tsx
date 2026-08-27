@@ -6,7 +6,8 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import { MAX_CATEGORY_NAME_LENGTH } from "@/components/admin/admin-package-form-utils";
 import { normalizePackageCategoryLabel } from "@/components/admin/package-category-utils";
 import { packagesInCategory } from "@/components/admin/admin-packages-categories";
@@ -38,10 +39,6 @@ export function AdminPackageCategoryRenameModal({
   const [nextName, setNextName] = useState(categoryName);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  if (!isOpen) {
-    return null;
-  }
 
   const categoryPackages = packagesInCategory(packages, categorySlug);
 
@@ -82,13 +79,15 @@ export function AdminPackageCategoryRenameModal({
   }
 
   return (
-    <OmmModalPortal
+    <AdminSheetPortal presentation="modal"
       isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={t("modalBackdropClose")}
-      overlayClassName="ommm-modal-overlay z-[110]"
-      panelClassName="w-full max-w-md rounded-[28px] border border-white/60 bg-white/90 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md"
+      modalOverlayClassName="ommm-modal-overlay z-[110]"
+      modalPanelClassName={`${ADMIN_MODAL_PANEL_SHELL_CLASS} max-w-md p-6`}
+      zIndexClass="z-[110]"
     >
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain">
       <form onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4">
         <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
           {t("renameCategoryTitle")}
@@ -124,6 +123,7 @@ export function AdminPackageCategoryRenameModal({
           </OmmButton>
         </div>
       </form>
-    </OmmModalPortal>
+      </div>
+    </AdminSheetPortal>
   );
 }

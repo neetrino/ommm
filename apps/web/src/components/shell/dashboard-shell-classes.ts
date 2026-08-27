@@ -124,7 +124,7 @@ export function sidebarBrandStripClass(variant: DashboardShellVariant) {
 /** Mobile drawer panel (matches desktop sidebar tone per variant). */
 export function mobileDrawerPanelClass(variant: DashboardShellVariant) {
   if (variant === "admin" || variant === "member") {
-    return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col rounded-br-[40px] bg-[var(--ommm-admin-olive)] text-[var(--ommm-admin-cream)] shadow-[var(--ommm-admin-shadow-soft)]";
+    return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col rounded-tr-[40px] rounded-br-[40px] bg-[var(--ommm-admin-olive)] text-[var(--ommm-admin-cream)] shadow-[var(--ommm-admin-shadow-soft)]";
   }
   if (variant === "wellness") {
     return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-white/50 bg-white/90 shadow-xl backdrop-blur-md";
@@ -154,6 +154,22 @@ export function mobileDrawerBrandSublineClass(variant: DashboardShellVariant) {
 export function mobileDrawerHeaderBorderClass(variant: DashboardShellVariant) {
   if (variant === "admin" || variant === "member") return "border-b border-white/15";
   return `border-b ${sidebarShellBorderClass(variant)}`;
+}
+
+export function mobileDrawerCloseButtonClass(variant: DashboardShellVariant): string {
+  const base =
+    "inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+
+  if (variant === "admin" || variant === "member") {
+    return `${base} text-[var(--ommm-admin-cream)] hover:bg-white/10 focus-visible:ring-white/50 focus-visible:ring-offset-[var(--ommm-admin-olive)]`;
+  }
+  if (variant === "indigo") {
+    return `${base} text-indigo-950 hover:bg-indigo-50 focus-visible:ring-indigo-600 focus-visible:ring-offset-white`;
+  }
+  if (variant === "wellness") {
+    return `${base} text-sage-800 hover:bg-white/60 focus-visible:ring-sand-500 focus-visible:ring-offset-paper`;
+  }
+  return `${base} text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:ring-zinc-900 focus-visible:ring-offset-white`;
 }
 
 export function mobileDrawerFooterClass(variant: DashboardShellVariant) {

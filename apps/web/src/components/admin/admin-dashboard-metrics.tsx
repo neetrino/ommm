@@ -248,15 +248,15 @@ export async function AdminDashboardMetrics({
                 >
                   <div className="min-w-0">
                     <p className="font-medium text-sage-900">{item.userName}</p>
-                    <p className="mt-0.5 truncate text-xs text-sage-500">
-                      {tm("upcomingCancellations.line", {
-                        type:
-                          item.type === "booking"
-                            ? tm("upcomingCancellations.typeBooking")
-                            : tm("upcomingCancellations.typeMembership"),
-                        name: item.itemName,
-                        dateTime: formatDateTimeForUi(item.dateTime, locale),
-                      })}
+                    <p className="mt-0.5 text-xs tabular-nums text-sage-500">
+                      {formatDateTimeForUi(item.dateTime, locale)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-sage-500">
+                      {item.type === "booking"
+                        ? tm("upcomingCancellations.typeBooking")
+                        : tm("upcomingCancellations.typeMembership")}
+                      {": "}
+                      {item.itemName}
                     </p>
                   </div>
                 </li>

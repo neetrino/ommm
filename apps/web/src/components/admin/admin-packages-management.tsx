@@ -12,6 +12,7 @@ import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages
 import {
   buildPackageCategoryOptions,
 } from "@/components/admin/admin-packages-categories";
+import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminPackagesShell } from "@/components/admin/admin-packages-shell";
 import { AdminPackagesFilters } from "@/components/admin/admin-packages-filters";
@@ -167,33 +168,27 @@ export function AdminPackagesManagement({
             onReset={resetPackageFilters}
           />
         }
+        primaryAction={
+          caps.canCreate ? (
+            <AdminPageHeroActionButton type="button" onClick={openAddModal}>
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              {t("addGroupButton")}
+            </AdminPageHeroActionButton>
+          ) : null
+        }
         trailing={
-          <>
-            {caps.canUpdate ? (
-              <OmmButton
-                type="button"
-                variant="ghost"
-                size="md"
-                onClick={openTypesModal}
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-              >
-                <ManageTypesIcon className="h-5 w-5 shrink-0" />
-                {t("manageTypesButton")}
-              </OmmButton>
-            ) : null}
-            {caps.canCreate ? (
-              <OmmButton
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={openAddModal}
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-              >
-                <PlusIcon className="h-5 w-5 shrink-0" />
-                {t("addGroupButton")}
-              </OmmButton>
-            ) : null}
-          </>
+          caps.canUpdate ? (
+            <OmmButton
+              type="button"
+              variant="ghost"
+              size="md"
+              onClick={openTypesModal}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full max-sm:hidden"
+            >
+              <ManageTypesIcon className="h-5 w-5 shrink-0" />
+              {t("manageTypesButton")}
+            </OmmButton>
+          ) : null
         }
       />
 

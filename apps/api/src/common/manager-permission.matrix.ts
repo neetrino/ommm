@@ -52,6 +52,7 @@ export const MANAGER_PERMISSION_MATRIX = {
   reports: {
     dashboard: BACKOFFICE_READ_ROLES,
     financeSummary: BACKOFFICE_DELETE_ROLES,
+    studioAnalytics: BACKOFFICE_READ_ROLES,
   },
   payments: {
     adminFinance: BACKOFFICE_DELETE_ROLES,

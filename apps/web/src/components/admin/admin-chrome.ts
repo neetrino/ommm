@@ -19,7 +19,7 @@ export const adminChrome = {
   accordion:
     "rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 backdrop-blur-md",
   tableWrap:
-    "overflow-x-auto rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md",
+    "overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md",
   table: "w-full min-w-[32rem] border-collapse text-left text-sm",
   thead: "border-b border-white/50 bg-white/35 text-xs uppercase tracking-wide text-sage-500",
   th: "px-4 py-3 font-medium",

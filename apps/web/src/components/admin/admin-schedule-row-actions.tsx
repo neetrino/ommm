@@ -1,13 +1,14 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminScheduleForm } from "@/components/admin/admin-schedule-form";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { adminFormModalPanelClass } from "@/components/admin/admin-mobile-sheet-layout";
 import type { AdminScheduleItem } from "@/components/admin/admin-schedule-types";
 import {
   ADMIN_ACTION_ICON_CLASS,
@@ -54,7 +55,6 @@ export function AdminScheduleRowActions({
   const searchParams = useSearchParams();
   const titleId = useId();
   const descId = useId();
-  const panelRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -81,37 +81,9 @@ export function AdminScheduleRowActions({
 
   useEffect(() => {
     if (!isOpen) {
-      return undefined;
-    }
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        closeModal();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [closeModal, isOpen]);
-
-  useEffect(() => {
-    if (!isOpen || panelRef.current === null) {
       return;
     }
-    const focusable = panelRef.current.querySelector<HTMLElement>(
-      'input[name="className"]',
-    );
+    const focusable = document.querySelector<HTMLElement>('input[name="className"]');
     focusable?.focus();
   }, [isOpen]);
 
@@ -243,58 +215,48 @@ export function AdminScheduleRowActions({
         </div>
       ) : null}
 
-      {isOpen && typeof document !== "undefined"
-        ? createPortal(
-            <div
-              className="ommm-modal-overlay z-[90]"
-              role="presentation"
-            >
+      <AdminSheetPortal
+        presentation="modal"
+        isOpen={isOpen}
+          onClose={closeModal}
+          backdropAriaLabel={t("modalBackdropClose")}
+          ariaLabelledBy={titleId}
+          ariaDescribedBy={descId}
+          closeDisabled={busy}
+          modalOverlayClassName="ommm-modal-overlay z-[90] items-center p-3 sm:p-4"
+          modalPanelClassName={adminFormModalPanelClass("max-w-2xl p-5 sm:p-6")}
+          zIndexClass="z-[90]"
+        >
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id={titleId} className={adminChrome.panelHeading}>
+                  {t("editTitle")}
+                </h2>
+                <p id={descId} className="ommm-body-muted mt-1 text-sm">
+                  {t("editDescription")}
+                </p>
+              </div>
               <button
                 type="button"
-                className="ommm-modal-backdrop"
-                aria-label={t("modalBackdropClose")}
+                className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                aria-label={t("modalCloseAria")}
                 onClick={closeModal}
-              />
-              <div
-                ref={panelRef}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={titleId}
-                aria-describedby={descId}
-                className="relative z-10 mt-auto w-full max-w-2xl rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+                disabled={busy}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 id={titleId} className={adminChrome.panelHeading}>
-                      {t("editTitle")}
-                    </h2>
-                    <p id={descId} className="ommm-body-muted mt-1 text-sm">
-                      {t("editDescription")}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                    aria-label={t("modalCloseAria")}
-                    onClick={closeModal}
-                    disabled={busy}
-                  >
-                    <CloseGlyph className="h-5 w-5" />
-                  </button>
-                </div>
+                <CloseGlyph className="h-5 w-5" />
+              </button>
+            </div>
 
-                <AdminScheduleForm
-                  mode="edit"
-                  classTypeOptions={classTypeOptions}
-                  item={item}
-                  onSaved={onSaved}
-                  onCancel={closeModal}
-                />
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+            <AdminScheduleForm
+              mode="edit"
+              classTypeOptions={classTypeOptions}
+              item={item}
+              onSaved={onSaved}
+              onCancel={closeModal}
+            />
+          </div>
+        </AdminSheetPortal>
     </>
   );
 }

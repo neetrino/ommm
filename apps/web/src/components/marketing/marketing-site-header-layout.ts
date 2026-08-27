@@ -22,7 +22,7 @@ export const MARKETING_MOBILE_HEADER = {
   authIconGapPx: 6,
   actionsEdgeNudgePx: 4,
   menuEdgeNudgePx: 4,
-  globeIconSizePx: 26,
+  globeIconSizePx: 30,
   /** Header profile avatar — slightly smaller than globe/action icons. */
   avatarInsetPx: 3,
   userIconWidthPx: 24,
@@ -42,10 +42,17 @@ export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   menuIconSize: "2.25rem",
   brandFontSize: "1.25rem",
   brandLineHeight: "1.625rem",
-  actionIconSize: "1.625rem",
+  actionIconSize: "1.875rem",
   transitionDuration: "420ms",
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
+
+/** Mobile header action icons — globe, avatar, workspace bells (shared size). */
+export const MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE = "1.875rem";
+
+/** @deprecated Use {@link MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE}. */
+export const MARKETING_MOBILE_HEADER_WORKSPACE_ACTION_ICON_SIZE =
+  MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE;
 
 /**
  * Mobile shell height for USER account pages — header always uses the elevated glass pill
@@ -206,10 +213,20 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 }
 
 export function marketingHeaderMobileActionsClass(): string {
-  return "flex shrink-0 items-center gap-[6px] overflow-visible";
+  return "flex shrink-0 items-center gap-[8px] overflow-visible";
 }
 
-export function marketingHeaderMobileBrandLinkClass(): string {
+export function marketingHeaderMobileLeadingClass(): string {
+  return "flex shrink-0 items-center gap-2";
+}
+
+export function marketingHeaderMobileBrandLinkClass(options?: {
+  workspace?: boolean;
+}): string {
+  if (options?.workspace) {
+    return "flex min-w-0 shrink items-center";
+  }
+
   return [
     "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
     "flex shrink-0 items-center",

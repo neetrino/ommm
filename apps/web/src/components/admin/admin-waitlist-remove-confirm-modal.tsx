@@ -1,6 +1,9 @@
 "use client";
 
 import type { useTranslations } from "next-intl";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
+import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import type { AdminWaitlistRow } from "@/components/admin/admin-waitlist-query";
 
 type AdminWaitlistRemoveConfirmModalProps = {
@@ -19,25 +22,30 @@ export function AdminWaitlistRemoveConfirmModal({
   onConfirm,
   t,
 }: AdminWaitlistRemoveConfirmModalProps) {
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onCancel);
+
   return (
-    <div className="ommm-modal-overlay z-[95] items-center p-4" role="presentation">
-      <button
-        type="button"
-        className="ommm-modal-backdrop"
-        aria-label={t("removeConfirm.cancel")}
-        onClick={onCancel}
-        disabled={busyAction !== null}
-      />
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/60 bg-white p-5 shadow-[0_20px_50px_-25px_rgba(45,40,35,0.35)]">
+    <AdminSheetPortal
+      presentation="modal"
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
+      backdropAriaLabel={t("removeConfirm.cancel")}
+      closeDisabled={busyAction !== null}
+      modalOverlayClassName="ommm-modal-overlay z-[95] items-center p-4"
+      modalPanelClassName={`${ADMIN_MODAL_PANEL_SHELL_CLASS} max-w-md p-5 sm:p-6`}
+      zIndexClass="z-[95]"
+    >
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-y-contain">
         <h3 className="text-base font-semibold text-sage-900">{t("removeConfirm.title")}</h3>
-        <p className="mt-2 text-sm text-sage-700">
+        <p className="text-sm text-sage-700">
           {t("removeConfirm.description", { user: confirmRemoveLabel })}
         </p>
-        <div className="mt-4 flex justify-end gap-2">
+        <div className="flex justify-end gap-2 pt-1">
           <button
             type="button"
             className="ommm-cta-secondary h-9 px-4"
-            onClick={onCancel}
+            onClick={requestClose}
             disabled={busyAction !== null}
           >
             {t("removeConfirm.cancel")}
@@ -52,6 +60,6 @@ export function AdminWaitlistRemoveConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </AdminSheetPortal>
   );
 }

@@ -37,7 +37,8 @@ import {
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import {
   isCardPaymentMethod,
@@ -108,6 +109,9 @@ export function AdminFinancePaymentDetailsSheet({
 }: AdminFinancePaymentDetailsSheetProps) {
   const t = useTranslations("adminPages.finance");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
+    openKey: payment?.id ?? null,
+  });
   const [toast, setToast] = useState<ToastState>(null);
 
   if (payment === null) {
@@ -126,13 +130,14 @@ export function AdminFinancePaymentDetailsSheet({
 
   return (
     <>
-      <OmmDrawerPortal
-        isOpen
-        onClose={onClose}
+      <AdminSheetPortal presentation="drawer"
+        isOpen={sheetOpen}
+        onClose={requestClose}
+        onAfterClose={onAfterClose}
         backdropAriaLabel={t("paymentDetails.closeBackdrop")}
         ariaLabelledBy={titleId}
-        overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-        panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
+        drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+        drawerPanelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
       >
         <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
           <div className="flex items-start justify-between gap-3">
@@ -147,7 +152,7 @@ export function AdminFinancePaymentDetailsSheet({
               type="button"
               className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
               aria-label={t("paymentDetails.close")}
-              onClick={onClose}
+              onClick={requestClose}
             >
               <CloseGlyph />
             </button>
@@ -257,7 +262,7 @@ export function AdminFinancePaymentDetailsSheet({
             />
           </footer>
         ) : null}
-      </OmmDrawerPortal>
+      </AdminSheetPortal>
 
       <AdminCenterToast
         message={toast?.message ?? null}

@@ -2,13 +2,15 @@
 
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 
 type AdminPageHeroProps = {
   title: string;
   description?: ReactNode;
   search?: ReactNode;
+  /** Primary CTA (Add …) — full-width below search on phone, beside search on tablet+. */
+  primaryAction?: ReactNode;
   trailing?: ReactNode;
   /** Mobile-only back control inside the banner (e.g. member reviews). */
   mobileBackHref?: string;
@@ -41,43 +43,35 @@ export function AdminPageHero({
   title,
   description,
   search,
+  primaryAction,
   trailing,
   mobileBackHref,
   mobileBackLabel,
   sticky = true,
 }: AdminPageHeroProps) {
-  const headerRef = useAdminStickyHeaderOffset(sticky);
+  const stickyEnabled = useAdminPageHeaderSticky(sticky);
+  const headerRef = useAdminStickyHeaderOffset(stickyEnabled);
 
   return (
-    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={sticky}>
-      <div className="ommm-admin-header-bar relative flex !flex-col !flex-nowrap !items-stretch gap-3 max-sm:!justify-center sm:!flex-row sm:!flex-nowrap sm:!items-center sm:!justify-start">
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={stickyEnabled}>
+      <div className="ommm-admin-header-bar relative flex flex-col items-stretch gap-3 overflow-visible max-sm:min-h-0 max-sm:py-4 max-sm:!justify-center sm:flex-row sm:flex-wrap sm:items-center sm:!justify-start">
         {mobileBackHref && mobileBackLabel ? (
           <Link
             href={mobileBackHref}
-            className="absolute left-3 top-1/2 z-[1] inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900 sm:hidden"
+            className="absolute left-3 top-4 z-[1] inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900 sm:top-1/2 sm:-translate-y-1/2"
             aria-label={mobileBackLabel}
           >
             <MobileBackChevronIcon />
           </Link>
         ) : null}
-        <div
-          className={
-            trailing
-              ? "relative flex min-w-0 items-center justify-end gap-3 max-sm:w-full sm:contents"
-              : "flex min-w-0 items-center justify-center gap-3 max-sm:w-full sm:contents"
-          }
-        >
+        <div className="flex w-full min-w-0 items-center justify-center gap-3 sm:w-auto sm:justify-start">
           <div
-            className={
-              trailing
-                ? "min-w-0 max-sm:absolute max-sm:inset-x-0 max-sm:text-center sm:relative sm:shrink-0"
-                : [
-                    "min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left",
-                    mobileBackHref ? "max-sm:px-10" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")
-            }
+            className={[
+              "min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left",
+              mobileBackHref ? "max-sm:px-10" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
           >
             <h1 className="ommm-admin-header-title">{title}</h1>
             {description ? (
@@ -87,13 +81,20 @@ export function AdminPageHero({
             ) : null}
           </div>
           {trailing ? (
-            <div className="relative z-[1] flex shrink-0 flex-wrap items-center gap-2 sm:order-last">
+            <div className="relative z-[1] hidden shrink-0 flex-wrap items-center gap-2 sm:flex sm:order-last">
               {trailing}
             </div>
           ) : null}
         </div>
-        {search ? (
-          <div className="flex w-full min-w-0 flex-1 items-center">{search}</div>
+        {search || primaryAction ? (
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            {search ? (
+              <div className="flex w-full min-w-0 flex-1 items-center">{search}</div>
+            ) : null}
+            {primaryAction ? (
+              <div className="w-full shrink-0 sm:w-auto">{primaryAction}</div>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </WorkspaceStickyPageHeader>

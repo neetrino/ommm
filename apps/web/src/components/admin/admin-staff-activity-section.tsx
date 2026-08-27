@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { AdminStaffActivityCard } from "@/components/admin/admin-staff-activity-card";
 import { AdminStaffActivityDetailsModal } from "@/components/admin/admin-staff-activity-details-modal";
 import { AdminStaffActivityEmptyState } from "@/components/admin/admin-staff-activity-empty-state";
@@ -14,9 +13,8 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { MarkAllAsReadIcon } from "@/components/shell/mark-all-as-read-button";
 import { markStaffActivityRead } from "@/hooks/use-staff-activity-inbox";
-import { useRouter } from "@/i18n/navigation";
+import { useAdminListPageParams } from "@/hooks/use-admin-list-page-params";
 import { ApiError, apiFetch } from "@/lib/api";
-import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 import { buildStaffActivityListEndpoint } from "@/lib/staff-activity-filters";
 import type {
   StaffActivityListPayload,
@@ -26,8 +24,6 @@ import { STAFF_ACTIVITY_PAGE_TAKE } from "@/lib/staff-activity-types";
 
 export function AdminStaffActivitySection() {
   const t = useTranslations("staffActivityPages");
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const filterFields = useAdminStaffActivityFilterFields();
   const {
     searchDraft,
@@ -38,13 +34,9 @@ export function AdminStaffActivitySection() {
     handleFilterChange,
     resetFilters,
   } = useAdminStaffActivityFilters();
-  const listPage = useMemo(
-    () =>
-      parseListPageParams(Object.fromEntries(searchParams.entries()), {
-        defaultPageSize: STAFF_ACTIVITY_PAGE_TAKE,
-      }),
-    [searchParams],
-  );
+  const { listPage, setListPage } = useAdminListPageParams({
+    defaultPageSize: STAFF_ACTIVITY_PAGE_TAKE,
+  });
   const [payload, setPayload] = useState<StaffActivityListPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,10 +147,7 @@ export function AdminStaffActivitySection() {
         pageSize={listPage.pageSize}
         offset={listPage.offset}
         onPageChange={(page) => {
-          const params = new URLSearchParams(searchParams.toString());
-          syncListPageQuery(params, page, listPage.pageSize);
-          const query = params.toString();
-          router.replace(query.length > 0 ? `?${query}` : "?");
+          setListPage(page);
         }}
       />
       {selected ? (

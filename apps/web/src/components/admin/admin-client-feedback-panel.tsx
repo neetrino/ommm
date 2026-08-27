@@ -114,6 +114,7 @@ export function ClientFeedbackPanel({
         offset={offset}
         disabled={loading}
         onPageChange={setPage}
+        scrollOnPageChange={false}
       />
       {selected ? (
         <SessionReviewDetailsModal

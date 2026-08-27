@@ -31,7 +31,8 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { coachCardInitials } from "@/components/coaches/coach-card-display";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
@@ -103,6 +104,7 @@ function AdminCoachDetailsDrawerInner({
 }) {
   const t = useTranslations("adminPages.coaches");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -186,7 +188,7 @@ function AdminCoachDetailsDrawerInner({
       return;
     }
     setPersonalInfoEditing(false);
-    onClose();
+    requestClose();
   }
 
   function handleCancelPersonalInfoEdit(): void {
@@ -226,14 +228,15 @@ function AdminCoachDetailsDrawerInner({
   }
 
   return (
-    <OmmDrawerPortal
-      isOpen
+    <AdminSheetPortal presentation="drawer"
+      isOpen={sheetOpen}
       onClose={handleClose}
+      onAfterClose={onAfterClose}
       closeDisabled={sheetBusy}
       backdropAriaLabel={t("drawer.close")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -321,6 +324,6 @@ function AdminCoachDetailsDrawerInner({
           void handleSaveCoach();
         }}
       />
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

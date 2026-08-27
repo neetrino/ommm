@@ -11,15 +11,16 @@ import {
   parseAnalyticsRangeDays,
   resolveAnalyticsDateRange,
 } from "@/components/admin/admin-analytics-helpers";
-import { resolveAnalyticsSectionFromPathname } from "@/components/admin/admin-analytics-module";
+import { resolveAnalyticsSectionFromPathname, type AnalyticsWorkspace } from "@/components/admin/admin-analytics-module";
 import type { AnalyticsFilterOptions } from "@/components/admin/admin-analytics-server-helpers";
 import { AdminAnalyticsTabNav } from "@/components/admin/admin-analytics-tab-nav";
 import { parseAnalyticsFiltersFromSearch } from "@/components/admin/admin-analytics-url";
-import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 
 type AdminAnalyticsUnifiedHeaderProps = {
   filterOptions: AnalyticsFilterOptions;
+  workspace?: AnalyticsWorkspace;
 };
 
 function searchParamsToRecord(
@@ -28,12 +29,16 @@ function searchParamsToRecord(
   return Object.fromEntries(params.entries());
 }
 
-function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifiedHeaderProps) {
+function AdminAnalyticsUnifiedHeaderInner({
+  filterOptions,
+  workspace = "admin",
+}: AdminAnalyticsUnifiedHeaderProps) {
   const t = useTranslations("adminPages.analytics");
-  const headerRef = useAdminStickyHeaderOffset(true);
+  const stickyEnabled = useAdminPageHeaderSticky(true);
+  const headerRef = useAdminStickyHeaderOffset(stickyEnabled);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const section = resolveAnalyticsSectionFromPathname(pathname);
+  const section = resolveAnalyticsSectionFromPathname(pathname, workspace);
   const search = useMemo(() => searchParamsToRecord(searchParams), [searchParams]);
   const initialValues = useMemo(() => parseAnalyticsFiltersFromSearch(search), [search]);
   const { fromIso, toIso } = useMemo(() => {
@@ -43,20 +48,28 @@ function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifi
   }, [searchParams]);
 
   return (
-    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
-      <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 max-sm:justify-center sm:justify-start">
-        <div className="flex min-w-0 w-full flex-wrap items-center justify-center gap-3 sm:justify-start">
-          <h1 className="ommm-admin-header-title">{t("title")}</h1>
-          <AdminAnalyticsTabNav />
-        </div>
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 overflow-visible max-sm:justify-center sm:justify-start">
+        <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
+        <AdminAnalyticsTabNav workspace={workspace} className="w-full min-w-0 max-w-full" />
         {section ? (
-          <div className="flex min-w-0 w-full items-center gap-2">
+          <div className="flex min-w-0 w-full items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <AdminAnalyticsHeroFilters
               key={section}
               section={section}
               filterOptions={filterOptions}
               initialValues={initialValues}
-              trailing={<AdminAnalyticsExportLinks fromIso={fromIso} toIso={toIso} />}
+              trailing={
+                workspace === "admin" ? (
+                  <AdminAnalyticsExportLinks fromIso={fromIso} toIso={toIso} />
+                ) : (
+                  <AdminAnalyticsExportLinks
+                    fromIso={fromIso}
+                    toIso={toIso}
+                    includeFinance={false}
+                  />
+                )
+              }
             />
           </div>
         ) : null}
@@ -65,26 +78,32 @@ function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifi
   );
 }
 
-function AdminAnalyticsUnifiedHeaderFallback() {
+function AdminAnalyticsUnifiedHeaderFallback({
+  workspace = "admin",
+}: {
+  workspace?: AnalyticsWorkspace;
+}) {
   const t = useTranslations("adminPages.analytics");
-  const headerRef = useAdminStickyHeaderOffset(true);
+  const stickyEnabled = useAdminPageHeaderSticky(true);
+  const headerRef = useAdminStickyHeaderOffset(stickyEnabled);
 
   return (
-    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:justify-start">
-        <div className="flex min-w-0 w-full flex-wrap items-center justify-center gap-3 sm:justify-start">
-          <h1 className="ommm-admin-header-title">{t("title")}</h1>
-          <AdminAnalyticsTabNav />
-        </div>
+        <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
+        <AdminAnalyticsTabNav workspace={workspace} className="w-full min-w-0 max-w-full" />
       </div>
     </WorkspaceStickyPageHeader>
   );
 }
 
-export function AdminAnalyticsUnifiedHeader(props: AdminAnalyticsUnifiedHeaderProps) {
+export function AdminAnalyticsUnifiedHeader({
+  filterOptions,
+  workspace = "admin",
+}: AdminAnalyticsUnifiedHeaderProps) {
   return (
-    <Suspense fallback={<AdminAnalyticsUnifiedHeaderFallback />}>
-      <AdminAnalyticsUnifiedHeaderInner {...props} />
+    <Suspense fallback={<AdminAnalyticsUnifiedHeaderFallback workspace={workspace} />}>
+      <AdminAnalyticsUnifiedHeaderInner filterOptions={filterOptions} workspace={workspace} />
     </Suspense>
   );
 }

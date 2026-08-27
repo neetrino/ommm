@@ -11,14 +11,19 @@ import type { AdminAnalyticsPayload } from "@/components/admin/admin-analytics-t
 type AdminAnalyticsShellProps = {
   data: AdminAnalyticsPayload;
   section: AnalyticsSectionId;
+  includeFinance?: boolean;
 };
 
-export function AdminAnalyticsShell({ data, section }: AdminAnalyticsShellProps) {
+export function AdminAnalyticsShell({
+  data,
+  section,
+  includeFinance = true,
+}: AdminAnalyticsShellProps) {
   switch (section) {
     case "overview":
-      return <AdminAnalyticsOverviewPanel data={data} />;
+      return <AdminAnalyticsOverviewPanel data={data} includeFinance={includeFinance} />;
     case "revenue":
-      return <AdminAnalyticsRevenuePanel data={data} />;
+      return includeFinance ? <AdminAnalyticsRevenuePanel data={data} /> : null;
     case "bookings":
       return <AdminAnalyticsBookingsPanel data={data} />;
     case "members":

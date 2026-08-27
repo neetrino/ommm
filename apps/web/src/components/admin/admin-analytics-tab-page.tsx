@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminAnalyticsShell } from "@/components/admin/admin-analytics-shell";
-import type { AnalyticsSectionId } from "@/components/admin/admin-analytics-module";
+import type { AnalyticsSectionId, AnalyticsWorkspace } from "@/components/admin/admin-analytics-module";
 import {
   loadAdminAnalyticsPayload,
   redirectIfUnscopedAnalyticsSearchParams,
@@ -11,12 +11,14 @@ export async function AdminAnalyticsTabPage({
   locale,
   section,
   search,
+  workspace = "admin",
 }: {
   locale: string;
   section: AnalyticsSectionId;
   search: Record<string, string | string[] | undefined>;
+  workspace?: AnalyticsWorkspace;
 }) {
-  redirectIfUnscopedAnalyticsSearchParams(locale, section, search);
+  redirectIfUnscopedAnalyticsSearchParams(locale, section, search, workspace);
   const t = await getTranslations({ locale, namespace: "adminPages.analytics" });
   const cookie = (await headers()).get("cookie") ?? "";
   const result = await loadAdminAnalyticsPayload(locale, search, cookie);
@@ -31,5 +33,11 @@ export async function AdminAnalyticsTabPage({
     );
   }
 
-  return <AdminAnalyticsShell data={result.data} section={section} />;
+  return (
+    <AdminAnalyticsShell
+      data={result.data}
+      section={section}
+      includeFinance={workspace === "admin"}
+    />
+  );
 }

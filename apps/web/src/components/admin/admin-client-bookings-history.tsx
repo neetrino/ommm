@@ -191,6 +191,7 @@ export function AdminClientBookingsHistory({
         offset={offset}
         disabled={loading}
         onPageChange={setPage}
+        scrollOnPageChange={false}
       />
 
       <OmmConfirmDialog

@@ -22,7 +22,8 @@ import type {
 import { useAdminScheduleSessionFormSheet } from "@/components/admin/use-admin-schedule-session-form-sheet";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
@@ -56,16 +57,18 @@ export function SessionFormSheet({
     coaches,
     onSaved,
   });
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
 
   return (
-    <OmmDrawerPortal
-      isOpen={isOpen}
-      onClose={onClose}
+    <AdminSheetPortal presentation="drawer"
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={sheet.t("modalBackdropClose")}
       ariaLabelledBy={sheet.titleId}
       closeDisabled={sheet.pending}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -88,7 +91,7 @@ export function SessionFormSheet({
           <button
             type="button"
             className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-            onClick={onClose}
+            onClick={requestClose}
             aria-label={sheet.t("modalCloseAria")}
             disabled={sheet.pending}
           >
@@ -204,7 +207,7 @@ export function SessionFormSheet({
         </form>
       </div>
       <footer className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} flex justify-end gap-2`}>
-        <OmmButton type="button" size="sm" variant="ghost" onClick={onClose} disabled={sheet.pending}>
+        <OmmButton type="button" size="sm" variant="ghost" onClick={requestClose} disabled={sheet.pending}>
           {sheet.t("cancelButton")}
         </OmmButton>
         <OmmButton
@@ -221,6 +224,6 @@ export function SessionFormSheet({
               : sheet.t("saveButton")}
         </OmmButton>
       </footer>
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }

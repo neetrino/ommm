@@ -66,7 +66,7 @@ export function AdminClientCompactRow({
     >
       <div className={ADMIN_CLIENTS_LIST_NAME_CELL}>
         <AdminListMobileLabel label={t("colName")} />
-        <div className="flex min-w-0 items-center gap-4 overflow-visible">
+        <div className="flex min-w-0 items-center gap-4 overflow-hidden">
           <ClientAvatarWithTags row={row} />
           <div className="min-w-0 flex-1">
             <p className={ADMIN_CLIENTS_LIST_TITLE_CLASS} title={name}>

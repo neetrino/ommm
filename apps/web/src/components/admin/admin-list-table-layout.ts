@@ -34,7 +34,11 @@ export {
   USER_LIST_TRAILING_HEADER_CELL,
 };
 
+/** Keeps admin list/board card surfaces inside the mobile viewport. */
+export const ADMIN_CARD_CONTAIN_CLASS = "min-w-0 max-w-full overflow-x-clip";
+
 export const ADMIN_LIST_ROW_SURFACE = [
+  ADMIN_CARD_CONTAIN_CLASS,
   "rounded-[24px] border border-white/80 bg-white/95",
   "shadow-[0_10px_28px_-18px_rgba(45,40,35,0.28)]",
   "transition-[border-color,background-color,box-shadow,transform] duration-200",
@@ -78,6 +82,7 @@ export const ADMIN_LIST_TITLE_SERIF_CLASS =
 
 export function buildAdminListTableClass(gridColsClass: string): string {
   return [
+    ADMIN_CARD_CONTAIN_CLASS,
     "max-md:space-y-3",
     "md:grid",
     gridColsClass,

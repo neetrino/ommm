@@ -11,10 +11,10 @@ import {
 import { MarketingHeaderLoginLink } from "@/components/marketing/marketing-header-login-link";
 import { MarketingAccountAvatarMenu } from "@/components/marketing/marketing-account-avatar-menu";
 import {
-  marketingHeaderIconButtonClass,
   marketingHeaderMobileActionsClass,
   marketingHeaderMobileBrandLinkClass,
   marketingHeaderMobileBrandTextClass,
+  marketingHeaderMobileLeadingClass,
   marketingHeaderMobileIconAccountClass,
   marketingHeaderMobileLanguageTriggerClass,
   marketingHeaderMobileMenuButtonClass,
@@ -30,9 +30,7 @@ import { HeaderNotificationsMenu } from "@/components/shell/header-notifications
 import { HeaderSessionReviewsMenu } from "@/components/shell/header-session-reviews-menu";
 import { HeaderStaffActivityMenu } from "@/components/shell/header-staff-activity-menu";
 import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
-import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link } from "@/i18n/navigation";
-import { MarketingSiteHeaderWorkspaceDrawerGlyph } from "@/components/marketing/marketing-site-header-workspace-glyph";
 
 type MarketingSiteHeaderMobileBarProps = {
   publicMenuOpen: boolean;
@@ -76,56 +74,77 @@ export function MarketingSiteHeaderMobileBar({
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
   const tShell = useTranslations("dashboard.shell");
+  const isWorkspaceMobile = workspaceDrawer !== undefined;
+  const drawerMenuOpen = isWorkspaceMobile ? workspaceDrawerOpen : publicMenuOpen;
+  /** Workspace panel drawer — keep header chrome unchanged; only public menu morphs the bar. */
+  const menuButtonChromeOpen = isWorkspaceMobile ? false : drawerMenuOpen;
+
+  const menuButton = (
+    <button
+      type="button"
+      className={`${marketingHeaderMobileMenuButtonClass(menuButtonChromeOpen)} ${navPillStyles.mobileHeaderMenuButton}`}
+      aria-expanded={drawerMenuOpen}
+      aria-controls={isWorkspaceMobile ? "dashboard-mobile-drawer" : "marketing-mobile-nav"}
+      aria-label={
+        isWorkspaceMobile
+          ? workspaceDrawerOpen
+            ? tShell("closeMenu")
+            : tShell("openMenu")
+          : publicMenuOpen
+            ? tUi("closeMenu")
+            : tUi("openMenu")
+      }
+      onClick={isWorkspaceMobile ? onToggleWorkspaceDrawer : onTogglePublicMenu}
+    >
+      <span className="sr-only">
+        {isWorkspaceMobile ? tShell("workspaceAria") : tUi("menuSr")}
+      </span>
+      {menuButtonChromeOpen ? (
+        <svg
+          className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`}
+          viewBox="0 0 35 35"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          aria-hidden
+        >
+          <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
+        </svg>
+      ) : (
+        <MarketingHeaderMenuIcon className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`} />
+      )}
+    </button>
+  );
+
+  const brandLink = (
+    <Link
+      href="/"
+      className={marketingHeaderMobileBrandLinkClass({ workspace: isWorkspaceMobile })}
+      onClick={onBrandClick}
+    >
+      <span
+        className={`${marketingHeaderMobileBrandTextClass()} ${navPillStyles.mobileHeaderBrandText}`}
+      >
+        {tNav("spaceBrand")}
+      </span>
+    </Link>
+  );
 
   return (
     <div className={`${marketingHeaderMobileRowInnerClass()} ${navPillStyles.mobileHeaderRow}`}>
-      <button
-        type="button"
-        className={`${marketingHeaderMobileMenuButtonClass(publicMenuOpen)} ${navPillStyles.mobileHeaderMenuButton}`}
-        aria-expanded={publicMenuOpen}
-        aria-controls="marketing-mobile-nav"
-        aria-label={publicMenuOpen ? tUi("closeMenu") : tUi("openMenu")}
-        onClick={onTogglePublicMenu}
-      >
-        <span className="sr-only">{tUi("menuSr")}</span>
-        {publicMenuOpen ? (
-          <svg
-            className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`}
-            viewBox="0 0 35 35"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            aria-hidden
-          >
-            <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
-          </svg>
-        ) : (
-          <MarketingHeaderMenuIcon className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`} />
-        )}
-      </button>
-
-      <Link href="/" className={marketingHeaderMobileBrandLinkClass()} onClick={onBrandClick}>
-        <span
-          className={`${marketingHeaderMobileBrandTextClass()} ${navPillStyles.mobileHeaderBrandText}`}
-        >
-          {tNav("spaceBrand")}
-        </span>
-      </Link>
+      {isWorkspaceMobile ? (
+        <div className={marketingHeaderMobileLeadingClass()}>
+          {menuButton}
+          {brandLink}
+        </div>
+      ) : (
+        <>
+          {menuButton}
+          {brandLink}
+        </>
+      )}
 
       <div className={marketingHeaderMobileActionsClass()}>
-        {workspaceDrawer ? (
-          <button
-            type="button"
-            className={`${marketingHeaderIconButtonClass()} ${navPillStyles.mobileHeaderAccountButton} ${workspaceMobileDrawerLayout.mobileDrawerTrigger}`}
-            aria-expanded={workspaceDrawerOpen}
-            aria-controls="dashboard-mobile-drawer"
-            aria-label={workspaceDrawerOpen ? tShell("closeMenu") : tShell("openMenu")}
-            onClick={onToggleWorkspaceDrawer}
-          >
-            <MarketingSiteHeaderWorkspaceDrawerGlyph />
-            <span className="sr-only">{tShell("workspaceAria")}</span>
-          </button>
-        ) : null}
         {memberWorkspaceHeader ? (
           <>
             {sessionReviewsAudience && sessionReviewsListHref ? (

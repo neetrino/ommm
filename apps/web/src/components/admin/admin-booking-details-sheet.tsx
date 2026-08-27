@@ -19,7 +19,8 @@ import {
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { apiFetch } from "@/lib/api";
 import { displayPhoneOrFallback } from "@/lib/phone";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -67,7 +68,6 @@ type BookingDetails = {
 export type AdminBookingDetailsSheetProps = {
   row: ListRow | null;
   locale: string;
-  isOpen: boolean;
   busy: boolean;
   onClose: () => void;
   onOpenUser: (userId: string) => void;
@@ -79,7 +79,6 @@ export type AdminBookingDetailsSheetProps = {
 export function AdminBookingDetailsSheet({
   row,
   locale,
-  isOpen,
   busy,
   onClose,
   onOpenUser,
@@ -89,8 +88,9 @@ export function AdminBookingDetailsSheet({
 }: AdminBookingDetailsSheetProps) {
   const t = useTranslations("adminPages.bookings");
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const fetchKey =
-    isOpen && row !== null && row.recordType === "BOOKING" ? row.id : null;
+    sheetOpen && row !== null && row.recordType === "BOOKING" ? row.id : null;
   const [result, setResult] = useState<{
     key: string;
     details: BookingDetails | null;
@@ -138,13 +138,14 @@ export function AdminBookingDetailsSheet({
   );
 
   return (
-    <OmmDrawerPortal
-      isOpen={isOpen}
-      onClose={onClose}
+    <AdminSheetPortal presentation="drawer"
+      isOpen={sheetOpen}
+      onClose={requestClose}
+      onAfterClose={onAfterClose}
       backdropAriaLabel={t("bookingDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
+      drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -233,7 +234,7 @@ export function AdminBookingDetailsSheet({
           />
         </footer>
       ) : null}
-    </OmmDrawerPortal>
+    </AdminSheetPortal>
   );
 }
 

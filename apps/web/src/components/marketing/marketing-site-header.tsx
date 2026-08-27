@@ -13,6 +13,7 @@ import {
   marketingHeaderMobileRowWrapStyle,
   marketingHeaderShellClass,
   MARKETING_MOBILE_HEADER,
+  MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE,
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
 import type { MarketingSiteHeaderProps } from "@/components/marketing/marketing-site-header.types";
@@ -65,10 +66,12 @@ export function MarketingSiteHeader({
   );
   const elevated = isWorkspaceChrome || isPolicyPage ? true : scrollElevated;
   const workspaceDrawerOpen = workspaceDrawer?.open ?? false;
-  const anyOverlayOpen = publicMenuOpen || workspaceDrawerOpen;
-  const showMobileGlassPill = elevated && !anyOverlayOpen;
+  const publicMobileMenuOpen = publicMenuOpen && !isWorkspaceChrome;
+  const showMobileGlassPill = elevated && !publicMobileMenuOpen;
   const mobileGlassRowStyle = {
     ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
+    ["--marketing-mobile-glass-pill-action-icon-size" as string]:
+      MARKETING_MOBILE_HEADER_ACTION_ICON_SIZE,
     ["--marketing-mobile-scrolled-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
   };
@@ -99,6 +102,7 @@ export function MarketingSiteHeader({
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setPublicMenuOpen(false);
+    closeWorkspaceDrawer();
     if (!isMarketingHome) {
       return;
     }
@@ -127,7 +131,7 @@ export function MarketingSiteHeader({
       data-account-shell={isAccountShell ? "true" : "false"}
       data-workspace-shell={isWorkspaceChrome ? "true" : "false"}
       data-elevated={elevated ? "true" : "false"}
-      data-menu-open={anyOverlayOpen ? "true" : "false"}
+      data-menu-open={publicMobileMenuOpen ? "true" : "false"}
     >
       <div className={marketingHeaderContainerClass()}>
         <div
@@ -176,7 +180,7 @@ export function MarketingSiteHeader({
         />
       </div>
 
-      {publicMenuOpen ? (
+      {publicMenuOpen && !isWorkspaceChrome ? (
         <MarketingMobileMenuModal
           isOpen={publicMenuOpen}
           onClose={() => setPublicMenuOpen(false)}

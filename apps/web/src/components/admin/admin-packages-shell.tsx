@@ -14,7 +14,11 @@ import {
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminPackageForm, resolveAdminPackageFormKey } from "@/components/admin/admin-package-form";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import {
+  ADMIN_CREATE_SHEET_BODY_SHELL_CLASS,
+  ADMIN_CREATE_SHEET_HEADER_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import {
@@ -262,12 +266,12 @@ export function AdminPackagesShell({
         {children}
       </div>
 
-      <OmmModalPortal
+      <AdminSheetPortal presentation="modal"
         isOpen={isModalOpen}
         onClose={closeModal}
         backdropAriaLabel={t("modalBackdropClose")}
-        overlayClassName="ommm-modal-overlay z-[100]"
-        panelClassName={packageModalPanelClass}
+        modalOverlayClassName="ommm-modal-overlay z-[100]"
+        modalPanelClassName={packageModalPanelClass}
       >
           <div
             ref={panelRef}
@@ -294,7 +298,7 @@ export function AdminPackagesShell({
             </div>
           ) : (
             <>
-          <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
+          <div className={ADMIN_CREATE_SHEET_HEADER_CLASS}>
             <div>
               <h2 id={titleId} className={adminChrome.panelHeading}>
                 {modalTitle}
@@ -325,7 +329,7 @@ export function AdminPackagesShell({
               </svg>
             </button>
           </div>
-          <div className="flex min-h-0 flex-1 flex-col">
+          <div className={ADMIN_CREATE_SHEET_BODY_SHELL_CLASS}>
             <AdminPackageForm
               key={modalFormKey}
               mode={modalMode}
@@ -365,7 +369,7 @@ export function AdminPackagesShell({
             </>
           )}
         </div>
-      </OmmModalPortal>
+      </AdminSheetPortal>
     </>
   );
 }
