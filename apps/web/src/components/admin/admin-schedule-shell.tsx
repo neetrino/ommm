@@ -123,10 +123,9 @@ export function AdminScheduleShell({
         {children}
       </AdminSectionShell>
 
-      {isModalOpen ? (
-        <AdminSheetPortal
-          presentation="modal"
-          isOpen={isModalOpen}
+      <AdminSheetPortal
+        presentation="modal"
+        isOpen={isModalOpen}
           onClose={closeModal}
           backdropAriaLabel={t("modalBackdropClose")}
           ariaLabelledBy={titleId}
@@ -175,7 +174,6 @@ export function AdminScheduleShell({
             </div>
           </div>
         </AdminSheetPortal>
-      ) : null}
     </>
   );
 }

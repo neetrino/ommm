@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useState, type ReactNode } from "react";
 import {
   ADMIN_MOBILE_SHEET_GRABBER_CLASS,
   ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS,
@@ -63,17 +63,30 @@ export function AdminSheetPortal({
   const fallbackTitleId = useId();
   const titleId = ariaLabelledBy ?? fallbackTitleId;
   const isPhone = useMemberHubSheetPhone();
+  const [phoneMounted, setPhoneMounted] = useState(isOpen);
 
-  if (!isOpen) {
-    return null;
-  }
+  useEffect(() => {
+    if (isOpen) {
+      setPhoneMounted(true);
+    }
+  }, [isOpen]);
+
+  const handlePhoneExitComplete = useCallback(() => {
+    setPhoneMounted(false);
+  }, []);
 
   if (isPhone) {
+    if (!phoneMounted) {
+      return null;
+    }
+
     return (
       <AdminMobileBottomSheet
+        isOpen={isOpen}
         titleId={titleId}
         backdropCloseLabel={backdropAriaLabel}
         onClose={onClose}
+        onExitComplete={handlePhoneExitComplete}
         closeDisabled={closeDisabled}
         panelStyle={adminMobileSheetPanelStyle()}
         zIndexClass={zIndexClass}
@@ -84,6 +97,10 @@ export function AdminSheetPortal({
         {children}
       </AdminMobileBottomSheet>
     );
+  }
+
+  if (!isOpen) {
+    return null;
   }
 
   if (presentation === "drawer") {

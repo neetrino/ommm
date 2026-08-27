@@ -145,7 +145,7 @@ export function AdminClientsShell({
 
       {children({ openAddUserModal: openModal })}
 
-      {isModalOpen && caps.canCreate ? (
+      {caps.canCreate ? (
         <AdminSheetPortal
           presentation="modal"
           isOpen={isModalOpen}

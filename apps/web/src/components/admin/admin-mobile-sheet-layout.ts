@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 export const ADMIN_MOBILE_SHEET_VIEWPORT_HEIGHT = "94dvh";
 
 /** Keep in sync with CSS transitions on the mobile sheet panel. */
-export const ADMIN_MOBILE_SHEET_MOTION_MS = 420;
+export const ADMIN_MOBILE_SHEET_MOTION_MS = 480;
 
 export const ADMIN_MOBILE_SHEET_OVERLAY_CLASS = "ommm-admin-mobile-sheet-overlay";
 

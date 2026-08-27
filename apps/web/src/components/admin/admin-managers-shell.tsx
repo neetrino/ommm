@@ -101,10 +101,9 @@ export function AdminManagersShell({
         onAddManager={openModal}
       />
       {children}
-      {isModalOpen ? (
-        <AdminSheetPortal
-          presentation="modal"
-          isOpen={isModalOpen}
+      <AdminSheetPortal
+        presentation="modal"
+        isOpen={isModalOpen}
           onClose={closeModal}
           backdropAriaLabel={t("modalBackdropClose")}
           ariaLabelledBy={titleId}
@@ -151,7 +150,6 @@ export function AdminManagersShell({
             </div>
           </div>
         </AdminSheetPortal>
-      ) : null}
     </div>
   );
 }

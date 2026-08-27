@@ -284,16 +284,15 @@ export function AdminCallTasksManagement({
           }
         />
       ) : null}
-      {formOpen !== null ? (
-        <AdminCallTasksFormModal
-          mode={formOpen === "create" ? "create" : "edit"}
-          draft={draft}
-          busy={busyAction === "form"}
-          onChange={setDraft}
-          onClose={() => setFormOpen(null)}
-          onSubmit={() => void submitForm()}
-        />
-      ) : null}
+      <AdminCallTasksFormModal
+        isOpen={formOpen !== null}
+        mode={formOpen === "create" ? "create" : "edit"}
+        draft={draft}
+        busy={busyAction === "form"}
+        onChange={setDraft}
+        onClose={() => setFormOpen(null)}
+        onSubmit={() => void submitForm()}
+      />
       <AdminWaitlistToast toast={toast} />
     </>
   );

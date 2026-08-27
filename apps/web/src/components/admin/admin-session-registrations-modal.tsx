@@ -103,10 +103,6 @@ export function AdminSessionRegistrationsModal({
     [booked, capacity, t],
   );
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
     <>
       <AdminSheetPortal presentation="modal"

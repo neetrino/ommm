@@ -44,6 +44,7 @@ export function contactNameFromDraft(draft: CallTaskFormDraft): string {
 }
 
 type AdminCallTasksFormModalProps = {
+  isOpen: boolean;
   mode: "create" | "edit";
   draft: CallTaskFormDraft;
   busy: boolean;
@@ -53,6 +54,7 @@ type AdminCallTasksFormModalProps = {
 };
 
 export function AdminCallTasksFormModal({
+  isOpen,
   mode,
   draft,
   busy,
@@ -66,7 +68,7 @@ export function AdminCallTasksFormModal({
   return (
     <AdminSheetPortal
       presentation="modal"
-      isOpen
+      isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={t("close")}
       ariaLabelledBy={titleId}

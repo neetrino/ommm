@@ -34,9 +34,12 @@ export function useAdminMobileSheetClose(): () => void {
 }
 
 type AdminMobileBottomSheetProps = {
+  isOpen: boolean;
   titleId?: string;
   backdropCloseLabel: string;
   onClose: () => void;
+  /** Fired after the slide-down exit animation completes. */
+  onExitComplete?: () => void;
   closeDisabled?: boolean;
   panelStyle?: CSSProperties;
   overlayClassName?: string;
@@ -44,14 +47,22 @@ type AdminMobileBottomSheetProps = {
   children: ReactNode;
 };
 
+function scheduleSheetMotionFrame(callback: () => void): number {
+  return window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(callback);
+  });
+}
+
 /**
  * Admin mobile bottom sheet — slide-up panel with dimmed backdrop (Ilona-style).
  * Hidden from tablet up; pair with a desktop drawer/modal portal.
  */
 export function AdminMobileBottomSheet({
+  isOpen,
   titleId,
   backdropCloseLabel,
   onClose,
+  onExitComplete,
   closeDisabled = false,
   panelStyle,
   overlayClassName,
@@ -60,54 +71,106 @@ export function AdminMobileBottomSheet({
 }: AdminMobileBottomSheetProps) {
   const clientMounted = useIsClientMounted();
   const closingRef = useRef(false);
+  const exitFrameRef = useRef<number | undefined>(undefined);
+  const [isRendered, setIsRendered] = useState(isOpen);
   const [isClosing, setIsClosing] = useState(false);
   const [backdropVisible, setBackdropVisible] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
 
-  useLockBodyScroll(clientMounted);
+  useLockBodyScroll(isRendered);
 
   useEffect(() => {
-    if (!clientMounted || closingRef.current) {
+    if (isOpen) {
+      setIsRendered(true);
+      closingRef.current = false;
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  const finishExit = useCallback(
+    (notifyParent: boolean) => {
+      releaseBodyScrollLockEarly();
+      closingRef.current = false;
+      setIsClosing(false);
+      setIsRendered(false);
+      onExitComplete?.();
+      if (notifyParent) {
+        onClose();
+      }
+    },
+    [onClose, onExitComplete],
+  );
+
+  const runExitAnimation = useCallback(
+    (notifyParent: boolean) => {
+      if (closingRef.current) {
+        return;
+      }
+
+      closingRef.current = true;
+      setIsClosing(true);
+
+      if (exitFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(exitFrameRef.current);
+      }
+
+      exitFrameRef.current = scheduleSheetMotionFrame(() => {
+        setPanelVisible(false);
+        setBackdropVisible(false);
+        exitFrameRef.current = undefined;
+      });
+
+      window.setTimeout(() => {
+        finishExit(notifyParent);
+      }, ADMIN_MOBILE_SHEET_MOTION_MS);
+    },
+    [finishExit],
+  );
+
+  useEffect(() => {
+    if (!isRendered || !isOpen || closingRef.current || !clientMounted) {
       return undefined;
     }
 
-    let openFrame: number | undefined;
-    const closedFrame = window.requestAnimationFrame(() => {
-      setBackdropVisible(false);
-      setPanelVisible(false);
-      openFrame = window.requestAnimationFrame(() => {
-        setBackdropVisible(true);
-        setPanelVisible(true);
-      });
+    const openFrame = scheduleSheetMotionFrame(() => {
+      setBackdropVisible(true);
+      setPanelVisible(true);
     });
 
     return () => {
-      window.cancelAnimationFrame(closedFrame);
-      if (openFrame !== undefined) {
-        window.cancelAnimationFrame(openFrame);
+      window.cancelAnimationFrame(openFrame);
+    };
+  }, [clientMounted, isOpen, isRendered]);
+
+  useEffect(() => {
+    if (!isOpen && isRendered && !closingRef.current) {
+      dismissMobileKeyboard();
+      runExitAnimation(false);
+    }
+  }, [isOpen, isRendered, runExitAnimation]);
+
+  useEffect(() => {
+    return () => {
+      if (exitFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(exitFrameRef.current);
       }
     };
-  }, [clientMounted]);
+  }, []);
 
   const requestClose = useCallback(() => {
-    if (closingRef.current || closeDisabled) {
+    if (closingRef.current || closeDisabled || isClosing) {
       return;
     }
 
     dismissMobileKeyboard();
-    closingRef.current = true;
-    setIsClosing(true);
-    setPanelVisible(false);
-    setBackdropVisible(false);
-    window.setTimeout(() => {
-      releaseBodyScrollLockEarly();
-      onClose();
-    }, ADMIN_MOBILE_SHEET_MOTION_MS);
-  }, [closeDisabled, onClose]);
+    runExitAnimation(true);
+  }, [closeDisabled, isClosing, runExitAnimation]);
 
-  useCloseOnEscape(clientMounted, requestClose, { disabled: closeDisabled || isClosing });
+  useCloseOnEscape(isRendered && isOpen, requestClose, {
+    disabled: closeDisabled || isClosing,
+  });
 
-  if (!clientMounted) {
+  if (!isRendered || !clientMounted) {
     return null;
   }
 

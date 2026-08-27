@@ -215,10 +215,9 @@ export function AdminScheduleRowActions({
         </div>
       ) : null}
 
-      {isOpen ? (
-        <AdminSheetPortal
-          presentation="modal"
-          isOpen={isOpen}
+      <AdminSheetPortal
+        presentation="modal"
+        isOpen={isOpen}
           onClose={closeModal}
           backdropAriaLabel={t("modalBackdropClose")}
           ariaLabelledBy={titleId}
@@ -258,7 +257,6 @@ export function AdminScheduleRowActions({
             />
           </div>
         </AdminSheetPortal>
-      ) : null}
     </>
   );
 }

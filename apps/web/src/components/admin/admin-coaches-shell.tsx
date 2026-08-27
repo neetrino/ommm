@@ -181,7 +181,7 @@ function AdminCoachesShellInner({
 
       {children}
 
-      {isModalOpen && caps.canCreate ? (
+      {caps.canCreate ? (
         <AdminSheetPortal
           presentation="modal"
           isOpen={isModalOpen}

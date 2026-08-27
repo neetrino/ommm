@@ -40,10 +40,6 @@ export function AdminPackageCategoryRenameModal({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) {
-    return null;
-  }
-
   const categoryPackages = packagesInCategory(packages, categorySlug);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

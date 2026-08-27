@@ -28,10 +28,6 @@ export function AdminTypesModal({
   const tPackages = useTranslations("adminPages.packages");
   const titleId = useId();
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
     <AdminSheetPortal presentation="modal"
       isOpen={isOpen}

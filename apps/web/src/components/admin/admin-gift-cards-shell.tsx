@@ -198,7 +198,7 @@ function AdminGiftCardsShellInner({
 
       {children}
 
-      {isModalOpen && !readOnly ? (
+      {!readOnly ? (
         <AdminSheetPortal
           presentation="modal"
           isOpen={isModalOpen}
