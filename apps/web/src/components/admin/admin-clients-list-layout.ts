@@ -13,10 +13,10 @@ import {
 import { USER_LIST_ROW_INTERACTIVE } from "@/components/account/user-list-table-layout";
 import clientsListLayoutStyles from "@/components/admin/admin-clients-list-layout.module.css";
 
-const ADMIN_CLIENTS_LIST_ROW_PAD = "px-6 py-5";
+const ADMIN_CLIENTS_LIST_ROW_PAD = "max-md:px-4 max-md:pb-4 max-md:pt-5 md:px-6 md:py-5";
 const ADMIN_CLIENTS_LIST_HEADER_PAD = "px-6 py-4";
 const ADMIN_CLIENTS_LIST_TABLE_ROW_GAP = "md:gap-y-4";
-const ADMIN_CLIENTS_LIST_MOBILE_STACK_GAP = "max-md:space-y-4";
+const ADMIN_CLIENTS_LIST_MOBILE_STACK_GAP = "max-md:space-y-3";
 
 function buildClientsListTableClass(gridClass: string): string {
   return [
@@ -53,25 +53,38 @@ const ADMIN_CLIENTS_LIST_ROW_HEIGHT_CLASS = "md:min-h-[5.5rem] md:overflow-visib
 export const ADMIN_CLIENTS_LIST_ROW_CLASS = [
   ADMIN_LIST_ROW_SURFACE,
   USER_LIST_ROW_INTERACTIVE,
-  "group",
-  "grid w-full grid-cols-1 gap-4 text-left",
+  "group relative overflow-x-visible overflow-y-visible",
+  "grid w-full max-md:gap-3 text-left",
   ADMIN_CLIENTS_LIST_ROW_PAD,
+  "max-md:bg-gradient-to-br max-md:from-white max-md:via-white max-md:to-sand-100/40",
   "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
   ADMIN_CLIENTS_LIST_ROW_HEIGHT_CLASS,
+  clientsListLayoutStyles.row,
 ].join(" ");
+
+export const ADMIN_CLIENTS_LIST_ROW_WITH_ACTIONS_CLASS =
+  clientsListLayoutStyles.rowWithActions;
+
+export const ADMIN_CLIENTS_LIST_NAME_AREA_CLASS = clientsListLayoutStyles.name;
+export const ADMIN_CLIENTS_LIST_BIRTHDAY_AREA_CLASS = `${clientsListLayoutStyles.birthday} max-md:hidden`;
+export const ADMIN_CLIENTS_LIST_JOINED_AREA_CLASS = `${clientsListLayoutStyles.joined} max-md:hidden`;
+export const ADMIN_CLIENTS_LIST_MEMBERSHIP_AREA_CLASS =
+  clientsListLayoutStyles.membership;
+export const ADMIN_CLIENTS_LIST_BOOKING_AREA_CLASS = clientsListLayoutStyles.booking;
+export const ADMIN_CLIENTS_LIST_ACTIONS_AREA_CLASS = clientsListLayoutStyles.actions;
 
 export const ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL = ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL;
 
 export const ADMIN_CLIENTS_LIST_CELL = USER_LIST_CELL_CLASS;
 
-/** Name column — avatar tag ribbon stays inside the card on mobile. */
+/** Name column — keep overflow visible so the avatar tag sits above the photo. */
 export const ADMIN_CLIENTS_LIST_NAME_CELL =
-  "min-w-0 w-full max-w-full overflow-hidden justify-self-stretch text-left";
+  "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left";
 
 export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
 
 export const ADMIN_CLIENTS_LIST_TITLE_CLASS =
-  "block w-full min-w-0 truncate text-base font-medium text-sage-900";
+  "block w-full min-w-0 text-lg font-semibold leading-snug text-sage-900";
 
 export const ADMIN_CLIENTS_LIST_SUBTITLE_CLASS =
   "mt-1 truncate text-sm text-sage-500";

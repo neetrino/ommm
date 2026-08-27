@@ -56,7 +56,7 @@ export function SessionClassTitle({
           {eyebrow}
         </p>
       ) : null}
-      <p className="block w-full min-w-0 truncate font-serif text-xl leading-snug tracking-tight text-sage-950 sm:text-[1.35rem]" title={name}>
+      <p className="block w-full min-w-0 font-serif text-xl leading-snug tracking-tight text-sage-950 sm:text-[1.35rem]">
         {name}
       </p>
     </div>

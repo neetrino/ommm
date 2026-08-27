@@ -41,5 +41,5 @@ export function clientListPackageBadgeClassName(tone: ClientListPackageTone): st
   if (tone === "expired") {
     return `${base} border-rose-200 bg-rose-50 text-rose-800`;
   }
-  return `${base} border-sage-200/80 bg-sage-50/80 text-sage-500`;
+  return `${base} border-sand-300/80 bg-sand-100/70 text-sand-700`;
 }

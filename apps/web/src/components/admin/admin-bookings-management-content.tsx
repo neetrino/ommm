@@ -1,6 +1,7 @@
 "use client";
 
 import type { useTranslations } from "next-intl";
+import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminBookingsMetric } from "@/components/admin/admin-bookings-metric";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
@@ -57,7 +58,7 @@ export function AdminBookingsManagementContent({
   const displayView: BookingsView = isPhone ? "list" : view;
 
   const metrics = (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className={adminChrome.summaryGridFour}>
       <AdminBookingsMetric title={t("summaryTotal")} value={summary.total} />
       <AdminBookingsMetric title={t("summaryBooked")} value={summary.booked} />
       <AdminBookingsMetric title={t("summaryWaitlisted")} value={summary.waitlisted} />

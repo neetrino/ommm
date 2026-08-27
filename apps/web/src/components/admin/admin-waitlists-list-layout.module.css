@@ -1,0 +1,55 @@
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "user user"
+      "class class"
+      "datetime count";
+    align-items: start;
+  }
+
+  .rowWithActions {
+    padding-right: 8.75rem;
+  }
+
+  .user {
+    grid-area: user;
+  }
+
+  .classType {
+    grid-area: class;
+  }
+
+  .count {
+    grid-area: count;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .datetime {
+    grid-area: datetime;
+    align-self: center;
+  }
+
+  .actions {
+    position: absolute;
+    top: 1rem;
+    right: 0.875rem;
+  }
+
+  .spacer {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .table {
+    grid-template-columns:
+      minmax(11rem, 1.4fr)
+      minmax(8rem, 1.1fr)
+      minmax(5.5rem, 0.6fr)
+      minmax(10rem, 1.2fr)
+      1fr
+      auto;
+  }
+}

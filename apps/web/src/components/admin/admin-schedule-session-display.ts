@@ -50,6 +50,23 @@ export function formatSessionTimes(
   };
 }
 
+/** Class-type line under the session title — omit when it repeats the title. */
+export function sessionClassSubtitle(
+  title: string,
+  classTypeName: string,
+  classFormat?: string | null,
+): string | null {
+  const parts: string[] = [];
+  if (classTypeName.trim() !== title.trim()) {
+    parts.push(classTypeName);
+  }
+  const format = classFormat?.trim();
+  if (format) {
+    parts.push(format);
+  }
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 export function splitSessionLevels(level: string | null | undefined): string[] {
   if (!level) {
     return [];

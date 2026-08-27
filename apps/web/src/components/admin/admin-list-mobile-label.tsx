@@ -2,10 +2,10 @@ type AdminListMobileLabelProps = {
   label: string;
 };
 
-export function AdminListMobileLabel({ label }: AdminListMobileLabelProps) {
-  return (
-    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-600 md:hidden">
-      {label}
-    </p>
-  );
+/**
+ * Mobile list cards show values only. Desktop column headers stay in the table.
+ * Kept as a no-op so leftover call sites do not reintroduce shouty field labels.
+ */
+export function AdminListMobileLabel(_props: AdminListMobileLabelProps) {
+  return null;
 }

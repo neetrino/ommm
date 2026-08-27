@@ -43,14 +43,9 @@ type StaffScheduleMobileLabelProps = {
   label: string;
 };
 
-/** Mobile stack label with the same icon set as desktop headers. */
-export function StaffScheduleMobileLabel({ column, label }: StaffScheduleMobileLabelProps) {
-  return (
-    <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-600 md:hidden">
-      <DashboardNavIcon name={ICON_BY_COLUMN[column]} className="h-3 w-3 shrink-0 text-mint-600" />
-      <span>{label}</span>
-    </p>
-  );
+/** Mobile stack label — values only; desktop headers stay in the table. */
+export function StaffScheduleMobileLabel(_props: StaffScheduleMobileLabelProps) {
+  return null;
 }
 
 type StaffScheduleValueWithIconProps = {

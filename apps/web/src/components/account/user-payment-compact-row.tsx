@@ -110,10 +110,6 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
   );
 }
 
-function MobileLabel({ label }: { label: string }) {
-  return (
-    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sage-500 md:hidden">
-      {label}
-    </p>
-  );
+function MobileLabel(_props: { label: string }) {
+  return null;
 }

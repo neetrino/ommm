@@ -32,3 +32,16 @@ export const ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL = adminLayout.spacerCellCl
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER =
   adminLayout.emphasizedHeaderClass;
+
+export const ADMIN_SCHEDULE_SESSIONS_LIST_CLASS_AREA_CLASS = adminLayout.classAreaClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_DATETIME_AREA_CLASS =
+  adminLayout.datetimeAreaClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_AREA_CLASS =
+  adminLayout.capacityAreaClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_COACH_AREA_CLASS = adminLayout.coachAreaClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_AREA_CLASS =
+  adminLayout.actionsAreaClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_STATUS_AREA_CLASS = adminLayout.statusAreaClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_AREA_CLASS = adminLayout.tagsAreaClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_TITLE_CLASS = adminLayout.titleClass;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_SUBTITLE_CLASS = adminLayout.subtitleClass;

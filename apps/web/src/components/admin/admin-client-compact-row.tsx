@@ -13,17 +13,23 @@ import { AdminClientPackageBadge } from "@/components/admin/admin-client-package
 import { AdminClientNextBookingCell } from "@/components/admin/admin-client-next-booking-cell";
 import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
 import {
+  ADMIN_CLIENTS_LIST_ACTIONS_AREA_CLASS,
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
+  ADMIN_CLIENTS_LIST_BIRTHDAY_AREA_CLASS,
+  ADMIN_CLIENTS_LIST_BOOKING_AREA_CLASS,
   ADMIN_CLIENTS_LIST_CELL,
   ADMIN_CLIENTS_LIST_DATE_CELL,
+  ADMIN_CLIENTS_LIST_JOINED_AREA_CLASS,
+  ADMIN_CLIENTS_LIST_MEMBERSHIP_AREA_CLASS,
+  ADMIN_CLIENTS_LIST_NAME_AREA_CLASS,
   ADMIN_CLIENTS_LIST_NAME_CELL,
   ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_CLIENTS_LIST_ROW_CLASS,
+  ADMIN_CLIENTS_LIST_ROW_WITH_ACTIONS_CLASS,
   ADMIN_CLIENTS_LIST_SUBTITLE_CLASS,
   ADMIN_CLIENTS_LIST_TITLE_CLASS,
   ADMIN_CLIENTS_LIST_VALUE_CLASS,
 } from "@/components/admin/admin-clients-list-layout";
-import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import type { ClientCapabilities } from "@/lib/backoffice-capabilities";
 import { displayPhoneOrFallback } from "@/lib/phone";
@@ -46,7 +52,6 @@ export function AdminClientCompactRow({
   readOnly = false,
   capabilities,
 }: AdminClientCompactRowProps) {
-  const t = useTranslations("adminPages.clients");
   const name = fullName(row);
   const hideActions = capabilities ? !capabilities.canUpdate : readOnly;
 
@@ -62,50 +67,74 @@ export function AdminClientCompactRow({
           onSelect(row);
         }
       }}
-      className={ADMIN_CLIENTS_LIST_ROW_CLASS}
+      className={
+        hideActions
+          ? ADMIN_CLIENTS_LIST_ROW_CLASS
+          : `${ADMIN_CLIENTS_LIST_ROW_CLASS} ${ADMIN_CLIENTS_LIST_ROW_WITH_ACTIONS_CLASS}`
+      }
     >
-      <div className={ADMIN_CLIENTS_LIST_NAME_CELL}>
-        <AdminListMobileLabel label={t("colName")} />
-        <div className="flex min-w-0 items-center gap-4 overflow-hidden">
+      <ClientCardFields
+        row={row}
+        name={name}
+        hideActions={hideActions}
+        onSelect={onSelect}
+        onChanged={onChanged}
+      />
+    </article>
+  );
+}
+
+function ClientCardFields({
+  row,
+  name,
+  hideActions,
+  onSelect,
+  onChanged,
+}: {
+  row: ClientRow;
+  name: string;
+  hideActions: boolean;
+  onSelect: (row: ClientRow) => void;
+  onChanged: () => void;
+}) {
+  return (
+    <>
+      <div className={`${ADMIN_CLIENTS_LIST_NAME_CELL} ${ADMIN_CLIENTS_LIST_NAME_AREA_CLASS}`}>
+        <div className="flex min-w-0 items-start gap-3 overflow-visible md:items-center md:gap-4">
           <ClientAvatarWithTags row={row} />
           <div className="min-w-0 flex-1">
-            <p className={ADMIN_CLIENTS_LIST_TITLE_CLASS} title={name}>
-              {name}
-            </p>
+            <p className={ADMIN_CLIENTS_LIST_TITLE_CLASS}>{name}</p>
             <p className={ADMIN_CLIENTS_LIST_SUBTITLE_CLASS}>{displayPhoneOrFallback(row.phone)}</p>
           </div>
         </div>
       </div>
 
-      <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
-        <AdminListMobileLabel label={t("fieldBirthday")} />
+      <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_BIRTHDAY_AREA_CLASS}`}>
         <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>
           {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
         </p>
       </div>
 
-      <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
-        <AdminListMobileLabel label={t("colJoined")} />
+      <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_JOINED_AREA_CLASS}`}>
         <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
       </div>
 
-      <div className={`${ADMIN_CLIENTS_LIST_CELL} min-w-0`}>
-        <AdminListMobileLabel label={t("colMembership")} />
+      <div
+        className={`${ADMIN_CLIENTS_LIST_CELL} ${ADMIN_CLIENTS_LIST_MEMBERSHIP_AREA_CLASS} min-w-0`}
+      >
         <AdminClientPackageBadge row={row} />
       </div>
 
-      <div className={`${ADMIN_CLIENTS_LIST_CELL} min-w-0`}>
-        <AdminListMobileLabel label={t("colBooking")} />
+      <div className={`${ADMIN_CLIENTS_LIST_CELL} ${ADMIN_CLIENTS_LIST_BOOKING_AREA_CLASS} min-w-0`}>
         <AdminClientNextBookingCell row={row} />
       </div>
 
       {hideActions ? null : (
         <div
-          className={`${ADMIN_CLIENTS_LIST_ACTIONS_CELL} ${ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+          className={`${ADMIN_CLIENTS_LIST_ACTIONS_CELL} ${ADMIN_CLIENTS_LIST_ACTIONS_AREA_CLASS} ${ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
-          <AdminListMobileLabel label={t("colActions")} />
           <AdminClientRowActions
             client={row}
             onChanged={onChanged}
@@ -113,7 +142,7 @@ export function AdminClientCompactRow({
           />
         </div>
       )}
-    </article>
+    </>
   );
 }
 
@@ -146,7 +175,7 @@ function ClientAvatar({ row }: { row: ClientRow }) {
         alt=""
         width={48}
         height={48}
-        className={`${ADMIN_CLIENT_AVATAR_SIZE_CLASS} rounded-full object-cover`}
+        className={`${ADMIN_CLIENT_AVATAR_SIZE_CLASS} rounded-full object-cover ring-2 ring-white`}
         unoptimized
       />
     );
@@ -157,7 +186,7 @@ function ClientAvatar({ row }: { row: ClientRow }) {
     .map((part) => part[0]?.toUpperCase())
     .join("");
   return (
-    <div className="flex h-full w-full items-center justify-center rounded-full bg-sand-100 text-base font-semibold text-sage-800">
+    <div className="flex h-full w-full items-center justify-center rounded-full bg-sand-700 text-base font-semibold text-cream-50 ring-2 ring-white">
       {initials || "?"}
     </div>
   );

@@ -1,6 +1,6 @@
 import {
+  ADMIN_CARD_CONTAIN_CLASS,
   ADMIN_LIST_EMPHASIZED_HEADER,
-  ADMIN_LIST_ROW_CLASS,
   ADMIN_LIST_ROW_SURFACE,
   USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
@@ -10,9 +10,11 @@ import {
   USER_LIST_TRAILING_HEADER_CELL,
   buildAdminListHeaderClass,
   USER_LIST_TABLE_GRID_GAP,
-  USER_LIST_TABLE_ROW_PAD,
 } from "@/components/admin/admin-list-table-layout";
+import { USER_LIST_ROW_INTERACTIVE } from "@/components/account/user-list-table-layout";
 import scheduleListLayoutStyles from "@/components/shared/schedule/schedule-sessions-list-layout.module.css";
+
+const SCHEDULE_LIST_ROW_PAD = "max-md:px-4 max-md:pb-4 max-md:pt-5 md:px-6 md:py-5";
 
 export type ScheduleSessionsListPreset = "admin" | "staffReadOnly" | "staffWithCoach";
 
@@ -22,20 +24,31 @@ const PRESET_TABLE_GRID_CLASS: Record<ScheduleSessionsListPreset, string> = {
   staffWithCoach: scheduleListLayoutStyles.tableStaffWithCoach,
 };
 
-const READ_ONLY_ROW_CLASS = [
-  ADMIN_LIST_ROW_SURFACE,
-  "grid w-full grid-cols-1 gap-3 text-left",
-  USER_LIST_TABLE_ROW_PAD,
-  "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
-].join(" ");
+function buildScheduleSessionsListRowClass(preset: ScheduleSessionsListPreset): string {
+  return [
+    ADMIN_LIST_ROW_SURFACE,
+    preset === "admin" ? USER_LIST_ROW_INTERACTIVE : "",
+    "group relative overflow-x-visible overflow-y-visible",
+    "grid w-full max-md:gap-3 text-left",
+    SCHEDULE_LIST_ROW_PAD,
+    "max-md:bg-gradient-to-br max-md:from-white max-md:via-white max-md:to-sand-100/40",
+    "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
+    scheduleListLayoutStyles.row,
+    preset === "admin" ? scheduleListLayoutStyles.rowWithActions : "",
+    preset === "staffWithCoach" ? scheduleListLayoutStyles.rowWithStatus : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
 
 function buildScheduleSessionsListTableClass(preset: ScheduleSessionsListPreset): string {
   return [
+    ADMIN_CARD_CONTAIN_CLASS,
     "max-md:space-y-3",
     "md:grid",
     PRESET_TABLE_GRID_CLASS[preset],
     USER_LIST_TABLE_GRID_GAP,
-    "md:gap-y-3",
+    "md:gap-y-4",
   ].join(" ");
 }
 
@@ -59,6 +72,15 @@ export type ScheduleSessionsListLayout = {
   actionsHeaderCellClass: string;
   spacerCellClass: string;
   emphasizedHeaderClass: string;
+  classAreaClass: string;
+  datetimeAreaClass: string;
+  capacityAreaClass: string;
+  coachAreaClass: string;
+  actionsAreaClass: string;
+  statusAreaClass: string;
+  tagsAreaClass: string;
+  titleClass: string;
+  subtitleClass: string;
 };
 
 export function getScheduleSessionsListLayout(
@@ -71,16 +93,16 @@ export function getScheduleSessionsListLayout(
   return {
     tableClass: buildScheduleSessionsListTableClass(preset),
     headerClass: buildAdminListHeaderClass(),
-    rowClass: preset === "admin" ? ADMIN_LIST_ROW_CLASS : READ_ONLY_ROW_CLASS,
+    rowClass: buildScheduleSessionsListRowClass(preset),
     cellClass: USER_LIST_CELL_CLASS,
     selectCellClass,
-    dateTimeCellClass: isStaffReadOnly ? USER_LIST_DATE_CELL : `${USER_LIST_DATE_CELL} md:pl-6`,
+    dateTimeCellClass: isStaffReadOnly
+      ? `${USER_LIST_DATE_CELL} overflow-visible`
+      : `${USER_LIST_DATE_CELL} overflow-visible md:pl-6`,
     dateTimeHeaderCellClass: isStaffReadOnly
       ? ADMIN_LIST_EMPHASIZED_HEADER
       : `${ADMIN_LIST_EMPHASIZED_HEADER} md:pl-6`,
-    capacityCellClass: isStaffReadOnly
-      ? `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-stretch`
-      : `${USER_LIST_CELL_CLASS} tabular-nums md:min-w-[14rem] md:justify-self-stretch`,
+    capacityCellClass: `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-stretch`,
     levelCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
     levelHeaderCellClass: ADMIN_LIST_EMPHASIZED_HEADER,
     tagsCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
@@ -90,7 +112,16 @@ export function getScheduleSessionsListLayout(
     coachCellClass: USER_LIST_CELL_CLASS,
     actionsCellClass: USER_LIST_ACTIONS_CELL,
     actionsHeaderCellClass: USER_LIST_TRAILING_HEADER_CELL,
-    spacerCellClass: USER_LIST_SPACER_CELL,
+    spacerCellClass: `${USER_LIST_SPACER_CELL} ${scheduleListLayoutStyles.spacer}`,
     emphasizedHeaderClass: ADMIN_LIST_EMPHASIZED_HEADER,
+    classAreaClass: scheduleListLayoutStyles.classArea,
+    datetimeAreaClass: scheduleListLayoutStyles.datetime,
+    capacityAreaClass: scheduleListLayoutStyles.capacity,
+    coachAreaClass: `${scheduleListLayoutStyles.coach} max-md:hidden`,
+    actionsAreaClass: scheduleListLayoutStyles.actions,
+    statusAreaClass: scheduleListLayoutStyles.status,
+    tagsAreaClass: scheduleListLayoutStyles.tags,
+    titleClass: "text-lg font-semibold leading-snug break-words text-sage-900",
+    subtitleClass: "mt-1 text-sm leading-snug text-sage-600",
   };
 }

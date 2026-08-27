@@ -61,7 +61,7 @@ export function AdminCoachCompactRow({
         <div className="flex min-w-0 items-center gap-3">
           <CoachDirectoryAvatar coach={coach} />
           <div className="min-w-0 flex-1">
-            <p className={ADMIN_LIST_TITLE_TEXT_CLASS} title={displayName}>
+            <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>
               {displayName}
             </p>
             <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(coach.user.phone)}</p>

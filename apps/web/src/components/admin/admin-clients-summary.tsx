@@ -19,7 +19,7 @@ export function AdminClientsSummary({ payload }: AdminClientsSummaryProps) {
   ] as const;
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <section className={adminChrome.summaryGridFive}>
       {cards.map(([label, value]) => (
         <article key={label} className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{label}</p>

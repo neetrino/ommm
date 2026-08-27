@@ -9,10 +9,15 @@ export const adminChrome = {
   lede: "ommm-body-muted mt-3 max-w-2xl",
   ledeTight: "ommm-body-muted mt-2 max-w-2xl",
   metricCard:
-    "rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md",
+    "rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md max-sm:rounded-2xl max-sm:p-3",
   metricLabel:
     "text-xs font-medium uppercase tracking-wide text-sage-500",
-  metricValue: "mt-2 text-2xl font-semibold tabular-nums text-sage-900",
+  metricValue: "mt-2 text-2xl font-semibold tabular-nums text-sage-900 max-sm:mt-1 max-sm:text-xl",
+  /** KPI strip on list pages — 2×2 on phone, wider on desktop. */
+  summaryGridFour: "grid grid-cols-2 gap-2 sm:gap-4 xl:grid-cols-4",
+  summaryGridThree: "grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-3",
+  summaryGridFive: "grid grid-cols-3 gap-2 sm:grid-cols-2 sm:gap-4 xl:grid-cols-5",
+  summaryGridSix: "grid grid-cols-3 gap-2 sm:gap-3 xl:grid-cols-6",
   panel:
     "rounded-[24px] border border-white/60 bg-white/55 p-4 text-sm text-sage-700 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5",
   panelHeading: "font-medium text-sage-900",

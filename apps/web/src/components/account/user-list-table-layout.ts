@@ -27,7 +27,7 @@ export const USER_LIST_TITLE_CELL_CLASS = USER_LIST_CELL_CLASS;
 
 /** Primary serif title in user account lists. */
 export const USER_LIST_TITLE_SERIF_CLASS =
-  "block w-full min-w-0 truncate font-serif text-xl leading-snug tracking-tight text-sage-950";
+  "block w-full min-w-0 font-serif text-xl leading-snug tracking-tight text-sage-950";
 
 export const USER_LIST_DATE_CELL = USER_LIST_CELL_CLASS;
 

@@ -48,7 +48,7 @@ export default async function CoachSalaryPage({
     <AdminContentFrame>
       <StaffListPageLayout title={t("title")}>
       <AdminSectionShell>
-        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <dl className={adminChrome.summaryGridFour}>
           <div className={adminChrome.metricCard}>
             <dt className={adminChrome.metricLabel}>{t("total")}</dt>
             <dd className={adminChrome.metricValue}>

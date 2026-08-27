@@ -11,7 +11,7 @@ export const CONTENT_POST_TITLE_FONT_CLASS = "font-serif font-normal text-sage-9
 
 export const CONTENT_POST_LIST_TITLE_CLASS = [
   CONTENT_POST_TITLE_FONT_CLASS,
-  "block w-full min-w-0 truncate text-left text-xl leading-snug tracking-tight underline-offset-2 hover:underline",
+  "block w-full min-w-0 text-left text-xl leading-snug tracking-tight underline-offset-2 hover:underline",
 ].join(" ");
 
 const CONTENT_POST_TYPE_BADGE_TONES: Record<ContentPostType, string> = {

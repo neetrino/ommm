@@ -13,7 +13,10 @@ export function ScheduleSessionLevelLabels({
   emptyLabel = "—",
 }: ScheduleSessionLevelLabelsProps) {
   if (levels.length === 0) {
-    return <span className="text-sm text-sage-400">{emptyLabel}</span>;
+    if (!emptyLabel) {
+      return null;
+    }
+    return <span className="text-sm text-sage-400 max-md:hidden">{emptyLabel}</span>;
   }
 
   return (

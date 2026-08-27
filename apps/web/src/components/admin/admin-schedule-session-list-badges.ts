@@ -23,7 +23,7 @@ export function sessionLevelBadgeTone(level: string, index: number): string {
 }
 
 export const ADMIN_SCHEDULE_STATUS_BADGE_CLASS =
-  "inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide";
+  "inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ring-2 ring-white";
 
 export function sessionStatusBadgeTone(status: SessionStatus): string {
   if (status === "ACTIVE") {
@@ -36,7 +36,7 @@ export function sessionStatusBadgeTone(status: SessionStatus): string {
     return "bg-rose-100 text-rose-800";
   }
   if (status === "FINISHED") {
-    return "bg-sky-100 text-sky-900";
+    return "bg-sage-800 text-cream-50";
   }
-  return "bg-zinc-100 text-zinc-700";
+  return "bg-sand-100 text-sage-600";
 }
