@@ -4,7 +4,7 @@ export const ADMIN_BOOKING_VALUE_BADGE_CLASS =
 
 const ADMIN_BOOKING_STATUS_BADGE_BASE = [
   "inline-flex w-max max-w-full shrink-0 items-center rounded-full py-1",
-  "px-2 text-[11px] font-medium uppercase tracking-wide",
+  "px-2.5 text-[11px] font-semibold uppercase tracking-wide ring-2 ring-white",
 ].join(" ");
 
 const ADMIN_BOOKING_STATUS_BOOKED_DEFAULT_TONE = "bg-mint-100 text-sage-800";
@@ -94,8 +94,8 @@ export function bookingStatusTone(
     }
     return ADMIN_BOOKING_STATUS_BOOKED_DEFAULT_TONE;
   }
-  if (status === "COMPLETED") return "bg-blue-100 text-sage-800";
+  if (status === "COMPLETED") return "bg-sage-800 text-cream-50";
   if (status === "CANCELLED") return "bg-sand-100 text-sage-600";
-  if (status === "WAITLISTED") return "bg-white/70 text-sage-500";
+  if (status === "WAITLISTED") return "bg-sand-100 text-sage-600";
   return "bg-peach-100 text-sand-700";
 }

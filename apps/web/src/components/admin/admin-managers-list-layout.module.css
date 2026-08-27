@@ -1,3 +1,41 @@
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name name"
+      "email access";
+    align-items: start;
+  }
+
+  .rowWithActions {
+    padding-right: 4.5rem;
+  }
+
+  .name {
+    grid-area: name;
+  }
+
+  .email {
+    grid-area: email;
+  }
+
+  .access {
+    grid-area: access;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .joined {
+    display: none;
+  }
+
+  .actions {
+    position: absolute;
+    top: 1rem;
+    right: 0.875rem;
+  }
+}
+
 @media (min-width: 768px) {
   .tableEditable {
     grid-template-columns:

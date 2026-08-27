@@ -1,26 +1,16 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedule/schedule-session-registrations-capacity";
 import {
   coachName,
-  durationMinutes,
+  sessionClassSubtitle,
   spotsLeft,
-  splitSessionLevels,
 } from "@/components/admin/admin-schedule-session-display";
-import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
-import {
-  ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
-  sessionStatusBadgeTone,
-} from "@/components/admin/admin-schedule-session-list-badges";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
-import {
-  StaffScheduleHeaderCell,
-  StaffScheduleMobileLabel,
-  StaffScheduleValueWithIcon,
-} from "@/components/shared/schedule/staff-schedule-column-chrome";
+import { StaffScheduleHeaderCell } from "@/components/shared/schedule/staff-schedule-column-chrome";
+import { StaffScheduleSessionCardFields } from "@/components/shared/schedule/staff-schedule-session-card-fields";
 import { getScheduleSessionsListLayout } from "@/components/shared/schedule/schedule-sessions-list-layout";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
 
@@ -112,133 +102,42 @@ function StaffScheduleSessionRowClient({
 }) {
   const t = useTranslations("adminPages.classes");
   const layout = getScheduleSessionsListLayout(preset);
-  const isStaffReadOnly = preset === "staffReadOnly";
-  const classFormat = row.classFormat?.trim();
-  const levels = splitSessionLevels(row.level);
-  const duration = durationMinutes(row);
   const showCoach = preset === "staffWithCoach";
   const booked = row._count.bookings;
-  const capacityLabel = t("fields.spotsBooked", { booked, capacity: row.capacity });
-  const spotsLeftLabel = t("fields.spotsLeft", { count: spotsLeft(row) });
-
-  if (isStaffReadOnly) {
-    return (
-      <article className={layout.rowClass}>
-        <div className={layout.cellClass}>
-          <StaffScheduleMobileLabel column="class" label={t("colClass")} />
-          <StaffScheduleValueWithIcon column="class">
-            <p className="truncate text-sm font-medium text-sage-900" title={row.title}>
-              {row.title}
-            </p>
-            <p className="mt-0.5 truncate text-xs text-sage-500">
-              {row.classType.name}
-              {classFormat ? ` · ${classFormat}` : ""}
-              {` · ${duration}m`}
-            </p>
-          </StaffScheduleValueWithIcon>
-        </div>
-
-        <div className={layout.dateTimeCellClass}>
-          <StaffScheduleMobileLabel column="dateTime" label={t("colDateTime")} />
-          <StaffScheduleValueWithIcon column="dateTime">
-            <ScheduleSessionDateTimeCellClient
-              locale={locale}
-              startsAt={row.startsAt}
-              endsAt={row.endsAt}
-            />
-          </StaffScheduleValueWithIcon>
-        </div>
-
-        <div className={layout.capacityCellClass}>
-          <StaffScheduleMobileLabel column="capacity" label={t("colCapacity")} />
-          <StaffScheduleValueWithIcon column="capacity">
-            <ScheduleSessionRegistrationsCapacity
-              sessionId={row.id}
-              sessionTitle={row.title}
-              startsAt={row.startsAt}
-              locale={locale}
-              booked={booked}
-              capacity={row.capacity}
-              spotsLabel={capacityLabel}
-              secondaryLabel={spotsLeftLabel}
-              bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
-            />
-          </StaffScheduleValueWithIcon>
-        </div>
-
-        <div className={layout.levelCellClass}>
-          <StaffScheduleMobileLabel column="level" label={t("colLevel")} />
-          <StaffScheduleValueWithIcon column="level">
-            <ScheduleSessionLevelLabels
-              levels={levels}
-              emptyLabel={t("fallback.notSpecified")}
-            />
-          </StaffScheduleValueWithIcon>
-        </div>
-      </article>
-    );
-  }
+  const coachLabel = row.coach ? coachName(row.coach) : t("fallback.notSpecified");
 
   return (
     <article className={layout.rowClass}>
-      <div className={layout.cellClass}>
-        <AdminListMobileLabel label={t("colClass")} />
-        <p className="truncate text-sm font-medium text-sage-900" title={row.title}>
-          {row.title}
-        </p>
-        <p className="mt-0.5 truncate text-xs text-sage-500">
-          {row.classType.name}
-          {classFormat ? ` · ${classFormat}` : ""}
-          {` · ${duration}m`}
-        </p>
-      </div>
-
-      <div className={layout.dateTimeCellClass}>
-        <AdminListMobileLabel label={t("colDateTime")} />
-        <ScheduleSessionDateTimeCellClient
-          locale={locale}
-          startsAt={row.startsAt}
-          endsAt={row.endsAt}
-        />
-      </div>
-
-      {showCoach ? (
-        <div className={layout.coachCellClass}>
-          <AdminListMobileLabel label={t("colCoach")} />
-          <p
-            className="truncate text-sm text-sage-800"
-            title={row.coach ? coachName(row.coach) : undefined}
-          >
-            {row.coach ? coachName(row.coach) : t("fallback.notSpecified")}
-          </p>
-        </div>
-      ) : null}
-
-      <div className={layout.spacerCellClass} aria-hidden="true" />
-
-      <div className={layout.capacityCellClass}>
-        <AdminListMobileLabel label={t("colCapacity")} />
-        <ScheduleSessionRegistrationsCapacity
-          sessionId={row.id}
-          sessionTitle={row.title}
-          startsAt={row.startsAt}
-          locale={locale}
-          booked={booked}
-          capacity={row.capacity}
-          spotsLabel={capacityLabel}
-          secondaryLabel={spotsLeftLabel}
-          bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
-        />
-      </div>
-
-      <div className={layout.statusCellClass}>
-        <AdminListMobileLabel label={t("colStatus")} />
-        <span
-          className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(row.status)}`}
-        >
-          {t(`status.${row.status}`)}
-        </span>
-      </div>
+      <StaffScheduleSessionCardFields
+        row={row}
+        layout={layout}
+        subtitle={sessionClassSubtitle(row.title, row.classType.name, row.classFormat)}
+        coachLine={showCoach && row.coach ? t("withCoach", { name: coachLabel }) : null}
+        coachLabel={coachLabel}
+        statusLabel={t(`status.${row.status}`)}
+        datetime={
+          <ScheduleSessionDateTimeCellClient
+            locale={locale}
+            startsAt={row.startsAt}
+            endsAt={row.endsAt}
+          />
+        }
+        capacity={
+          <ScheduleSessionRegistrationsCapacity
+            sessionId={row.id}
+            sessionTitle={row.title}
+            startsAt={row.startsAt}
+            locale={locale}
+            booked={booked}
+            capacity={row.capacity}
+            spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
+            secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
+            bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
+          />
+        }
+        showCoach={showCoach}
+        showStatus={showCoach}
+      />
     </article>
   );
 }

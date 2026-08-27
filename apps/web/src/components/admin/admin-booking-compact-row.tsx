@@ -1,56 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { SessionClassTitle } from "@/components/account/session-class-title";
-import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
-import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
-import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
-import {
-  ADMIN_BOOKINGS_LIST_ACTIONS_CELL,
-  ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL,
-  ADMIN_BOOKINGS_LIST_CELL,
-  ADMIN_BOOKINGS_LIST_COACH_CELL,
-  ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
-  ADMIN_BOOKINGS_LIST_ROW_CLASS,
-  ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL,
-} from "@/components/admin/admin-bookings-list-layout";
-import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import {
-  ADMIN_LIST_TITLE_LINK_CLASS,
-  ADMIN_LIST_TITLE_TEXT_CLASS,
-} from "@/components/admin/admin-list-table-layout";
-import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
-import { displayPhoneOrFallback } from "@/lib/phone";
-import { normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
-
-type BookingRow = {
-  id: string;
-  recordType: "BOOKING" | "WAITLIST";
-  status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
-  attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
-  bookingPaymentMethod: string | null;
-  channel: "WEBSITE" | "APP";
-  user: { id: string; name: string | null; email: string; phone: string | null };
-  session: {
-    id: string;
-    startsAt: string;
-    endsAt: string;
-    classType: { id: string; name: string };
-    coach: { id: string; name: string | null };
-  };
-  package: {
-    planName: string;
-    sessionsRemaining: number | null;
-    sessionsPerMonth: number | null;
-    isUnlimited: boolean;
-  } | null;
-  guestName?: string | null;
-};
+import { BookingCardFields } from "@/components/admin/admin-booking-compact-row-fields";
+import { ADMIN_BOOKINGS_LIST_ROW_CLASS } from "@/components/admin/admin-bookings-list-layout";
+import type { AdminBookingRow } from "@/components/admin/admin-bookings-query";
 
 type AdminBookingCompactRowProps = {
   locale: string;
-  row: BookingRow;
+  row: AdminBookingRow;
   busy: boolean;
   onOpenDetails: () => void;
   onOpenUser: (userId: string) => void;
@@ -58,7 +15,7 @@ type AdminBookingCompactRowProps = {
   onMove: () => void;
   onDeactivate: () => void;
   onActivate: () => void;
-  onChangeStatus: (status: BookingRow["status"]) => void;
+  onChangeStatus: (status: AdminBookingRow["status"]) => void;
 };
 
 export function AdminBookingCompactRow({
@@ -92,99 +49,20 @@ export function AdminBookingCompactRow({
       }}
       className={ADMIN_BOOKINGS_LIST_ROW_CLASS}
     >
-      <div className={ADMIN_BOOKINGS_LIST_CELL}>
-        <AdminListMobileLabel label={t("colUserPhone")} />
-        <button
-          type="button"
-          className={ADMIN_LIST_TITLE_LINK_CLASS}
-          title={userLabel}
-          onClick={(event) => {
-            event.stopPropagation();
-            onOpenUser(row.user.id);
-          }}
-        >
-          {userLabel}
-        </button>
-        {row.guestName ? (
-          <p className="mt-0.5 truncate text-xs text-sand-800">
-            {t("guestPass")}: {row.guestName}
-          </p>
-        ) : null}
-        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(row.user.phone)}</p>
-      </div>
-
-      <div className={ADMIN_BOOKINGS_LIST_COACH_CELL}>
-        <AdminListMobileLabel label={t("colCoach")} />
-        <p
-          className={`${ADMIN_LIST_TITLE_TEXT_CLASS} ${coachName ? "text-sage-900" : "text-sage-500"}`}
-          title={coachLabel}
-        >
-          {coachLabel}
-        </p>
-      </div>
-
-      <div className={ADMIN_BOOKINGS_LIST_CELL}>
-        <AdminListMobileLabel label={t("colClassType")} />
-        <SessionClassTitle variant="list" name={row.session.classType.name} />
-        {row.package !== null ? (
-          <p className="mt-1 truncate text-[11px] text-sage-500">
-            {formatPackagePlanName(row.package.planName, row.package.sessionsPerMonth)}
-          </p>
-        ) : null}
-      </div>
-
-      <div className={ADMIN_BOOKINGS_LIST_DATE_TIME_CELL}>
-        <AdminListMobileLabel label={t("colDateTime")} />
-        <div className="flex min-w-0 items-center gap-3">
-          <SessionDateTimeHighlight
-            locale={locale}
-            startsAt={row.session.startsAt}
-            endsAt={row.session.endsAt}
-            variant="listDate"
-          />
-          <SessionDateTimeHighlight
-            locale={locale}
-            startsAt={row.session.startsAt}
-            endsAt={row.session.endsAt}
-            variant="listTime"
-          />
-        </div>
-      </div>
-
-      <div
-        className={ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <AdminListMobileLabel label={t("colStatus")} />
-        <AdminBookingStatusPicker
-          recordType={row.recordType}
-          status={row.status}
-          bookingPaymentMethod={normalizeBookingStatusBadgePaymentMethod(
-            row.bookingPaymentMethod,
-          )}
-          busy={busy}
-          onChangeStatus={onChangeStatus}
-        />
-      </div>
-
-      <div
-        className={`${ADMIN_BOOKINGS_LIST_ACTIONS_CELL} ${ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <AdminListMobileLabel label={t("colActions")} />
-        <AdminBookingRowActions
-          variant="list"
-          recordType={row.recordType}
-          status={row.status}
-          busy={busy}
-          onEdit={onEdit}
-          onMove={onMove}
-          onDeactivate={onDeactivate}
-          onActivate={onActivate}
-        />
-      </div>
+      <BookingCardFields
+        locale={locale}
+        row={row}
+        busy={busy}
+        userLabel={userLabel}
+        coachName={coachName}
+        coachLabel={coachLabel}
+        onOpenUser={onOpenUser}
+        onEdit={onEdit}
+        onMove={onMove}
+        onDeactivate={onDeactivate}
+        onActivate={onActivate}
+        onChangeStatus={onChangeStatus}
+      />
     </article>
   );
 }

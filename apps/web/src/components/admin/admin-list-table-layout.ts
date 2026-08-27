@@ -70,15 +70,15 @@ export const ADMIN_LIST_EMPHASIZED_HEADER =
 
 /** Clickable primary row title in admin lists. */
 export const ADMIN_LIST_TITLE_LINK_CLASS =
-  "block w-full min-w-0 truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline";
+  "block w-full min-w-0 text-left text-lg font-semibold leading-snug text-sage-900 underline-offset-2 hover:underline";
 
 /** Primary plain-text row title in admin lists. */
 export const ADMIN_LIST_TITLE_TEXT_CLASS =
-  "block w-full min-w-0 truncate text-sm font-medium text-sage-900";
+  "block w-full min-w-0 text-lg font-semibold leading-snug text-sage-900";
 
 /** Primary serif row title in admin lists. */
 export const ADMIN_LIST_TITLE_SERIF_CLASS =
-  "block w-full min-w-0 truncate font-serif text-xl leading-snug tracking-tight text-sage-950";
+  "block w-full min-w-0 font-serif text-xl leading-snug tracking-tight text-sage-950";
 
 export function buildAdminListTableClass(gridColsClass: string): string {
   return [

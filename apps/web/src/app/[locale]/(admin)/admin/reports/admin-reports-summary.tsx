@@ -19,7 +19,7 @@ export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryP
   const tm = await getTranslations({ locale, namespace: "adminHome.metrics" });
 
   return (
-    <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className={`mt-2 ${adminChrome.summaryGridThree}`}>
       <li className={adminChrome.metricCard}>
         <p className={adminChrome.metricLabel}>{tm("sessionsToday")}</p>
         <p className={adminChrome.metricValue}>{data.sessionsToday}</p>

@@ -37,7 +37,7 @@ export async function StaffRosterRow({ locale, row, actions }: StaffRosterRowPro
     <article className={STAFF_ROSTER_LIST_ROW_CLASS}>
       <div className={STAFF_ROSTER_LIST_PARTICIPANT_CELL}>
         <AdminListMobileLabel label={t("colUserPhone")} />
-        <p className="truncate text-sm font-medium text-sage-900" title={userLabel}>
+        <p className="text-lg font-semibold leading-snug text-sage-900">
           {userLabel}
         </p>
         <p className="mt-0.5 truncate text-xs text-sage-500">

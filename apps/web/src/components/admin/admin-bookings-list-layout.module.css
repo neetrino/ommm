@@ -1,0 +1,55 @@
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "user user"
+      "class class"
+      "datetime status";
+    align-items: start;
+  }
+
+  .rowWithActions {
+    padding-right: 5.75rem;
+  }
+
+  .user {
+    grid-area: user;
+  }
+
+  .coach {
+    grid-area: coach;
+  }
+
+  .classType {
+    grid-area: class;
+  }
+
+  .datetime {
+    grid-area: datetime;
+    align-self: center;
+  }
+
+  .status {
+    grid-area: status;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .actions {
+    position: absolute;
+    top: 1rem;
+    right: 0.875rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .table {
+    grid-template-columns:
+      minmax(11rem, 1.4fr)
+      minmax(7rem, 0.9fr)
+      minmax(8rem, 1.1fr)
+      minmax(10rem, 1.2fr)
+      minmax(7rem, 0.8fr)
+      auto;
+  }
+}

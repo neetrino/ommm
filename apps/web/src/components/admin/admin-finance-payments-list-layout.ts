@@ -54,7 +54,7 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_USER_CELL =
   "min-w-0 w-full max-w-full justify-self-stretch text-left";
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_USER_TITLE_CLASS =
-  "block w-full min-w-0 break-words text-sm font-medium text-sage-900";
+  "block w-full min-w-0 break-words text-lg font-semibold leading-snug text-sage-900";
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_USER_META_CLASS =
   "mt-0.5 break-words text-xs text-sage-500";

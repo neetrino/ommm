@@ -1,27 +1,76 @@
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "class class"
+      "datetime capacity"
+      "tags tags";
+    align-items: start;
+  }
+
+  .rowWithActions,
+  .rowWithStatus {
+    padding-right: 6.5rem;
+  }
+
+  .classArea {
+    grid-area: class;
+  }
+
+  .datetime {
+    grid-area: datetime;
+    align-self: center;
+  }
+
+  .capacity {
+    grid-area: capacity;
+    align-self: center;
+  }
+
+  .tags {
+    grid-area: tags;
+  }
+
+  .coach {
+    display: none;
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  .actions,
+  .status {
+    position: absolute;
+    top: 1rem;
+    right: 0.875rem;
+  }
+}
+
 @media (min-width: 768px) {
   .tableAdmin {
     grid-template-columns:
       2.25rem
-      minmax(0, 17rem)
-      minmax(11rem, auto)
-      minmax(8rem, auto)
-      1fr
-      minmax(14rem, 1fr)
-      minmax(10rem, 1fr)
+      minmax(8rem, 14rem)
+      minmax(10rem, auto)
+      minmax(7rem, auto)
+      minmax(0, 1fr)
+      minmax(9rem, 12rem)
+      minmax(6.5rem, 1fr)
       auto;
   }
 
   .tableStaffReadOnly {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(8rem, 1.2fr) repeat(3, minmax(0, 1fr));
   }
 
   .tableStaffWithCoach {
     grid-template-columns:
-      minmax(0, 17rem)
-      minmax(11rem, auto)
-      minmax(8rem, auto)
-      1fr
-      minmax(14rem, 1fr)
+      minmax(8rem, 14rem)
+      minmax(10rem, auto)
+      minmax(7rem, auto)
+      minmax(0, 1fr)
+      minmax(10rem, 1fr)
       minmax(6.5rem, 1fr);
   }
 }

@@ -34,7 +34,7 @@ export function CoachDirectoryAvatar({
     coach.user.avatarUrl !== null
       ? resolveApiAssetUrl(coach.user.avatarUrl) ?? coach.user.avatarUrl
       : null;
-  const frameClassName = `flex shrink-0 items-center justify-center rounded-full bg-sand-100 font-semibold text-sage-800 ${sizeClassName}`;
+  const frameClassName = `flex shrink-0 items-center justify-center rounded-full bg-sand-700 font-semibold text-cream-50 ring-2 ring-white ${sizeClassName}`;
 
   if (src !== null) {
     return (

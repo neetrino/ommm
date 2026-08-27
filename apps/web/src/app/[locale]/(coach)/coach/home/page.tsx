@@ -63,7 +63,7 @@ export default async function CoachHomePage({
       <StaffListPageLayout title={pageTitle}>
       <section>
         <h2 className={adminChrome.sectionTitle}>{t("todayAtGlance")}</h2>
-        <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <dl className={`mt-4 ${adminChrome.summaryGridThree}`}>
           <div className={adminChrome.metricCard}>
             <dt className={adminChrome.metricLabel}>{t("classesToday")}</dt>
             <dd className={adminChrome.metricValue}>{todaysSessions.length}</dd>
