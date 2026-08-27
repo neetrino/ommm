@@ -140,8 +140,8 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   const boardHeightClass = fillRemainingViewport ? SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS : "";
   const columnStretchClass = fillRemainingViewport ? "h-full" : "";
   const sessionsAreaClass = fillRemainingViewport
-    ? "flex min-h-0 flex-1 flex-col gap-3 pb-6"
-    : "flex flex-col gap-3 pb-6";
+    ? "flex min-h-0 flex-1 flex-col gap-2 pb-6"
+    : "flex flex-col gap-2 pb-6";
   const emptyDayClass = fillRemainingViewport
     ? "flex flex-1 items-center justify-center rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500"
     : "rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500";

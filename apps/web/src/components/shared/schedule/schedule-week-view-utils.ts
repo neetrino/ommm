@@ -42,6 +42,14 @@ export function isScheduleWeekToday(dayKey: string, anchorDate: Date = new Date(
   return dayKey === isoScheduleDay(startOfScheduleDay(anchorDate));
 }
 
+export function isScheduleDayPast(dayKey: string, todayIso: string): boolean {
+  return dayKey < todayIso;
+}
+
+export function isScheduleSessionOnPastDay(startsAt: string, todayIso: string): boolean {
+  return isScheduleDayPast(scheduleSessionLocalIsoDay(startsAt), todayIso);
+}
+
 export function groupScheduleSessionsByDay<T extends { startsAt: string }>(
   rows: readonly T[],
 ): Map<string, T[]> {

@@ -3,6 +3,9 @@
 import { ScheduleSessionCardFields } from "@/components/admin/admin-schedule-session-compact-row-fields";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
 import { ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS } from "@/components/admin/admin-schedule-sessions-list-layout";
+import { SCHEDULE_PAST_LIST_ROW_CLASS } from "@/components/shared/schedule/schedule-week-view-tokens";
+import { isScheduleSessionOnPastDay } from "@/components/shared/schedule/schedule-week-view-utils";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 type AdminScheduleSessionCompactRowProps = {
   row: AdminScheduleSession;
@@ -43,7 +46,11 @@ export function AdminScheduleSessionCompactRow({
           onDetails(row);
         }
       }}
-      className={ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS}
+      className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} ${
+        isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
+          ? SCHEDULE_PAST_LIST_ROW_CLASS
+          : ""
+      }`.trim()}
     >
       <ScheduleSessionCardFields
         row={row}

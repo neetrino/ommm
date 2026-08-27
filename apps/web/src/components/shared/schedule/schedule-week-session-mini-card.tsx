@@ -8,7 +8,7 @@ import {
 } from "@/components/account/session-coach-line";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { USER_LIST_ROW_CARD } from "@/components/account/user-list-table-layout";
-import { coachName, spotsLeft } from "@/components/admin/admin-schedule-session-display";
+import { coachName } from "@/components/admin/admin-schedule-session-display";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
 import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedule/schedule-session-registrations-capacity";
 
@@ -31,17 +31,10 @@ type ScheduleWeekSessionMiniCardProps = {
   ariaLabel?: string;
 };
 
-const WEEK_CARD_HEIGHT_CLASS = "h-[18.75rem]";
-/** Reserved two-line coach block so long names never collide with spots. */
-const WEEK_CARD_COACH_SLOT_CLASS = "h-[3rem] overflow-hidden";
-/** Fixed spots row so booked labels align across every card. */
-const WEEK_CARD_SPOTS_SLOT_CLASS = "flex h-8 shrink-0 items-center";
-
 const WEEK_CARD_SHELL = [
-  "flex w-full shrink-0 flex-col overflow-hidden text-left",
-  WEEK_CARD_HEIGHT_CLASS,
+  "flex w-full shrink-0 flex-col gap-2 overflow-hidden text-left",
   USER_LIST_ROW_CARD,
-  "rounded-[28px] p-4 sm:p-5",
+  "rounded-[22px] px-3.5 py-3",
 ].join(" ");
 
 const WEEK_CARD_INTERACTIVE = [
@@ -49,9 +42,6 @@ const WEEK_CARD_INTERACTIVE = [
   "cursor-pointer active:scale-[0.99]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
-
-const WEEK_TIME_SHELL =
-  "mt-3 shrink-0 rounded-2xl border border-sand-200/70 bg-gradient-to-br from-sand-50/95 via-white/90 to-white/75 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]";
 
 function resolveCoachLabel(
   session: ScheduleWeekMiniCardSession,
@@ -67,6 +57,51 @@ function resolveCoachLabel(
   return label;
 }
 
+function ScheduleWeekCardSpots({
+  locale,
+  session,
+  variant,
+  booked,
+  capacity,
+  spotsLabel,
+}: {
+  locale: string;
+  session: ScheduleWeekMiniCardSession;
+  variant: ScheduleWeekCardVariant;
+  booked: number;
+  capacity: number;
+  spotsLabel: string;
+}) {
+  const tStaff = useTranslations("adminPages.classes");
+
+  if (variant !== "staff") {
+    return <p className="truncate text-left text-xs font-medium text-sage-700">{spotsLabel}</p>;
+  }
+
+  return (
+    <div
+      className="min-w-0 max-w-full"
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+    >
+      <ScheduleSessionRegistrationsCapacity
+        sessionId={session.id}
+        sessionTitle={session.title}
+        startsAt={session.startsAt}
+        locale={locale}
+        booked={booked}
+        capacity={capacity}
+        spotsLabel={spotsLabel}
+        secondaryLabel=""
+        bookedCountAriaLabel={tStaff("registrationsModal.viewBookedAria", {
+          count: booked,
+        })}
+        layout="compactText"
+      />
+    </div>
+  );
+}
+
 function ScheduleWeekSessionMiniCardContent({
   locale,
   session,
@@ -78,8 +113,7 @@ function ScheduleWeekSessionMiniCardContent({
   showCoach: boolean;
   variant: ScheduleWeekCardVariant;
 }) {
-  const tStaff = useTranslations("adminPages.classes");
-  const tUser = useTranslations("userPages.classes");
+  const tCommon = useTranslations("common");
   const classTypeName = session.classType?.name?.trim();
   const eyebrow =
     classTypeName && classTypeName !== session.title ? classTypeName : undefined;
@@ -88,74 +122,31 @@ function ScheduleWeekSessionMiniCardContent({
   const capacity = session.capacity;
   const hasCapacity = booked !== undefined && capacity !== undefined;
   const spotsLabel = hasCapacity
-    ? variant === "member"
-      ? tUser("spotsBooked", { booked, capacity })
-      : tStaff("fields.spotsBooked", { booked, capacity })
+    ? tCommon("registeredCount", { booked, capacity })
     : null;
-  const spotsLeftLabel =
-    hasCapacity && variant === "staff"
-      ? tStaff("fields.spotsLeft", {
-          count: spotsLeft({ capacity, _count: { bookings: booked } }),
-        })
-      : null;
 
   return (
     <>
-      <div className="shrink-0">
-        <SessionClassTitle variant="week" name={session.title} eyebrow={eyebrow} />
-      </div>
-
-      <div className={WEEK_TIME_SHELL}>
-        <SessionDateTimeHighlight
+      <SessionClassTitle variant="week" name={session.title} eyebrow={eyebrow} />
+      <SessionDateTimeHighlight
+        locale={locale}
+        startsAt={session.startsAt}
+        endsAt={session.endsAt}
+        variant="weekTime"
+      />
+      {coachLabel ? (
+        <SessionCoachLine coachName={coachLabel} variant="list" hideRoleLabel />
+      ) : null}
+      {spotsLabel && hasCapacity ? (
+        <ScheduleWeekCardSpots
           locale={locale}
-          startsAt={session.startsAt}
-          endsAt={session.endsAt}
-          variant="listTime"
+          session={session}
+          variant={variant}
+          booked={booked}
+          capacity={capacity}
+          spotsLabel={spotsLabel}
         />
-      </div>
-
-      <div className="mt-auto flex shrink-0 flex-col justify-end gap-2 pt-3">
-        <div className={WEEK_CARD_COACH_SLOT_CLASS}>
-          {coachLabel ? (
-            <SessionCoachLine coachName={coachLabel} variant="board" />
-          ) : (
-            <span className="block h-5" aria-hidden />
-          )}
-        </div>
-        <div className={WEEK_CARD_SPOTS_SLOT_CLASS}>
-          {spotsLabel ? (
-            variant === "staff" && hasCapacity && spotsLeftLabel ? (
-              <div
-                className="min-w-0 max-w-full space-y-0.5"
-                onClick={(event) => event.stopPropagation()}
-                onKeyDown={(event) => event.stopPropagation()}
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-sage-500">
-                  {tStaff("fields.viewRegisteredRoster")}
-                </p>
-                <ScheduleSessionRegistrationsCapacity
-                  sessionId={session.id}
-                  sessionTitle={session.title}
-                  startsAt={session.startsAt}
-                  locale={locale}
-                  booked={booked}
-                  capacity={capacity}
-                  spotsLabel={spotsLabel}
-                  secondaryLabel={spotsLeftLabel}
-                  bookedCountAriaLabel={tStaff("registrationsModal.viewBookedAria", {
-                    count: booked,
-                  })}
-                  layout="compactText"
-                />
-              </div>
-            ) : (
-              <p className="truncate text-left text-xs font-medium text-sage-700">{spotsLabel}</p>
-            )
-          ) : (
-            <span className="h-4 w-full" aria-hidden />
-          )}
-        </div>
-      </div>
+      ) : null}
     </>
   );
 }

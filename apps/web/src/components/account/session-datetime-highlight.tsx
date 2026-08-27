@@ -12,7 +12,14 @@ type SessionDateTimeHighlightProps = {
   locale: string;
   startsAt: string;
   endsAt: string;
-  variant: "board" | "boardDateYear" | "listDate" | "listDateYear" | "listTime" | "listTimeCard";
+  variant:
+    | "board"
+    | "boardDateYear"
+    | "listDate"
+    | "listDateYear"
+    | "listTime"
+    | "listTimeCard"
+    | "weekTime";
   className?: string;
 };
 
@@ -168,6 +175,7 @@ export function SessionDateTimeHighlight({
       display={display}
       untilLabel={t("sessionUntil")}
       durationMinutesLabel={durationMinutesLabel}
+      size={variant === "weekTime" ? "emphasis" : "default"}
       className={className}
     />
   );

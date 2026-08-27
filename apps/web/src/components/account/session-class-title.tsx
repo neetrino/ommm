@@ -17,12 +17,14 @@ export function SessionClassTitle({
 }: SessionClassTitleProps) {
   if (variant === "week") {
     return (
-      <div className={`flex h-16 min-w-0 shrink-0 flex-col justify-start ${className}`.trim()}>
-        <p className="h-4 truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-sand-600">
-          {eyebrow ?? "\u00A0"}
-        </p>
+      <div className={`min-w-0 ${className}`.trim()}>
+        {eyebrow ? (
+          <p className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-sand-600">
+            {eyebrow}
+          </p>
+        ) : null}
         <h3
-          className="mt-0.5 line-clamp-2 font-serif text-base font-normal leading-snug tracking-tight text-sage-950"
+          className="line-clamp-2 font-serif text-base font-normal leading-snug tracking-tight text-sage-950"
           title={name}
         >
           {name}

@@ -11,7 +11,8 @@
     "sessionTomorrow": "Завтра",
     "sessionUntil": "до",
     "sessionDurationMinutes": "{minutes} мин",
-    "sessionCoach": "Тренер"
+    "sessionCoach": "Тренер",
+    "registeredCount": "Записано {booked}/{capacity}"
   },
   "paymentStatusReasons": {
     "awaiting_bank": "Ожидание оплаты",

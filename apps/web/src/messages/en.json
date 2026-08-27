@@ -11,7 +11,8 @@
     "sessionTomorrow": "Tomorrow",
     "sessionUntil": "until",
     "sessionDurationMinutes": "{minutes} min",
-    "sessionCoach": "Coach"
+    "sessionCoach": "Coach",
+    "registeredCount": "Registered {booked}/{capacity}"
   },
   "paymentStatusReasons": {
     "awaiting_bank": "Waiting for payment",
