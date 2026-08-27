@@ -88,6 +88,8 @@ export function AdminBookingsListView({
           offset={pagination.offset}
           onPageChange={onPageChange}
           disabled={loading}
+          mobileSticky={false}
+          mobileCentered
         />
       ) : null}
     </>

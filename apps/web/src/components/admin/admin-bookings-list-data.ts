@@ -16,6 +16,7 @@ import {
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { apiFetch } from "@/lib/api";
+import { resetWorkspaceScrollPosition } from "@/lib/reset-workspace-scroll";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import {
   parseListPageParams,
@@ -70,6 +71,7 @@ export function useAdminBookingsListData({
       replaceSearchParams((params) => {
         syncListPageQuery(params, page, pageSize);
       });
+      resetWorkspaceScrollPosition();
     },
     [replaceSearchParams],
   );

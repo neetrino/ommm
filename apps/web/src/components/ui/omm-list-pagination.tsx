@@ -7,10 +7,17 @@ import {
   totalListPages,
 } from "@/lib/list-pagination";
 
-export const OMMM_LIST_PAGINATION_FOOTER_CLASS = [
-  "flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between",
+export const OMMM_LIST_PAGINATION_FOOTER_BASE_CLASS =
+  "flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between";
+
+export const OMMM_LIST_PAGINATION_FOOTER_STICKY_CLASS = [
   "max-md:sticky max-md:bottom-0 max-md:z-10 max-md:-mx-1 max-md:border-t max-md:border-sand-200/80",
   "max-md:bg-paper/95 max-md:px-1 max-md:py-3 max-md:backdrop-blur-sm",
+].join(" ");
+
+export const OMMM_LIST_PAGINATION_FOOTER_CLASS = [
+  OMMM_LIST_PAGINATION_FOOTER_BASE_CLASS,
+  OMMM_LIST_PAGINATION_FOOTER_STICKY_CLASS,
 ].join(" ");
 
 const PAGINATION_RANGE_WRAP_CLASS = "min-w-0 space-y-1";
@@ -52,6 +59,10 @@ type OmmListPaginationProps = {
   offset: number;
   onPageChange: (page: number) => void;
   disabled?: boolean;
+  /** When false, pagination scrolls with the list (no mobile sticky footer). */
+  mobileSticky?: boolean;
+  /** Center range label and page controls on phone viewports. */
+  mobileCentered?: boolean;
   namespace?: "adminPages.pagination" | "userPages.pagination";
 };
 
@@ -62,12 +73,23 @@ export function OmmListPagination({
   offset,
   onPageChange,
   disabled = false,
+  mobileSticky = true,
+  mobileCentered = false,
   namespace = "adminPages.pagination",
 }: OmmListPaginationProps) {
   const t = useTranslations(namespace);
   const pageCount = totalListPages(total, pageSize);
   const safePage = clampListPage(page, total, pageSize);
   const range = listPageRange(offset, pageSize, total);
+  const footerClass = [
+    mobileSticky ? OMMM_LIST_PAGINATION_FOOTER_CLASS : OMMM_LIST_PAGINATION_FOOTER_BASE_CLASS,
+    mobileCentered ? "max-md:items-center" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const trackWrapClass = mobileCentered
+    ? "flex justify-center sm:justify-end"
+    : "flex justify-start sm:justify-end";
 
   if (total <= 0) {
     return null;
@@ -76,20 +98,21 @@ export function OmmListPagination({
   const pageOptions = buildVisiblePages(safePage, pageCount);
 
   return (
-    <nav className={OMMM_LIST_PAGINATION_FOOTER_CLASS} aria-label={t("ariaLabel")}>
+    <nav className={footerClass} aria-label={t("ariaLabel")}>
       <PaginationRange
         emptyLabel={t("empty")}
         from={range.from}
         prefixLabel={t("rangePrefix")}
         to={range.to}
         total={range.total}
+        centeredOnMobile={mobileCentered}
         valueLabel={t("rangeValue", {
           from: range.from,
           to: range.to,
           total: range.total,
         })}
       />
-      <div className="flex justify-start sm:justify-end">
+      <div className={trackWrapClass}>
         <div className={PAGINATION_TRACK_CLASS} role="group" aria-label={t("pagesAria")}>
           <button
             type="button"
@@ -147,6 +170,7 @@ function PaginationRange({
   valueLabel,
   emptyLabel,
   from,
+  centeredOnMobile = false,
 }: {
   prefixLabel: string;
   valueLabel: string;
@@ -154,17 +178,25 @@ function PaginationRange({
   from: number;
   to: number;
   total: number;
+  centeredOnMobile?: boolean;
 }) {
+  const wrapClass = [
+    PAGINATION_RANGE_WRAP_CLASS,
+    centeredOnMobile ? "max-md:text-center" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   if (from === 0) {
     return (
-      <p className={`${PAGINATION_RANGE_WRAP_CLASS} text-sm text-sage-600`} role="status">
+      <p className={`${wrapClass} text-sm text-sage-600`} role="status">
         {emptyLabel}
       </p>
     );
   }
 
   return (
-    <div className={PAGINATION_RANGE_WRAP_CLASS} role="status">
+    <div className={wrapClass} role="status">
       <p className={PAGINATION_RANGE_EYEBROW_CLASS}>{prefixLabel}</p>
       <p className={PAGINATION_RANGE_VALUE_CLASS}>{valueLabel}</p>
     </div>

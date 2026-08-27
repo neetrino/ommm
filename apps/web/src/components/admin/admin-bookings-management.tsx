@@ -20,6 +20,7 @@ import { parseAdminBookingPaymentFilter } from "@/components/admin/admin-booking
 import type { AdminBookingsManagementProps } from "@/components/admin/admin-bookings-management.types";
 import { resolveBookingsView } from "@/components/admin/admin-bookings-view";
 import { useUrlViewState } from "@/hooks/use-url-view-state";
+import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 import { apiFetch } from "@/lib/api";
 import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
@@ -54,6 +55,8 @@ export function AdminBookingsManagement({
   const [view, setViewAndPersist] = useUrlViewState(LIST_BOARD_VIEW_QUERY_KEY, (value) =>
     resolveBookingsView(value ?? undefined),
   );
+  const isPhone = useIsMarketingPhoneViewport();
+  const effectiveView = isStaff || isPhone ? "list" : view;
   const {
     payload,
     calendarRows,
@@ -68,7 +71,7 @@ export function AdminBookingsManagement({
   } = useAdminBookingsListData({
     initial,
     initialFilters,
-    view: isStaff ? "list" : view,
+    view: effectiveView,
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
@@ -198,7 +201,7 @@ export function AdminBookingsManagement({
       pagination={payload.pagination}
       listPage={listPage}
       loading={loading}
-      showPagination={isStaff || view === "list"}
+      showPagination={isStaff || effectiveView === "list"}
       colUserPhone={t("colUserPhone")}
       colCoach={t("colCoach")}
       colClassType={t("colClassType")}
