@@ -20,7 +20,7 @@ import { useMemberUserHomeScrollTop } from "@/hooks/use-member-user-home-scroll-
 import { RealtimeProvider } from "@/components/realtime/realtime-provider";
 import { markClientSessionHint } from "@/lib/client-session-hint";
 import { writeCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
-import { Link, usePathname } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 
 export type WorkspaceShellProps = Omit<
   DashboardAppShellProps,
@@ -41,7 +41,6 @@ export function WorkspaceShell({
 }: WorkspaceShellProps) {
   const pathname = usePathname();
   const tNav = useTranslations("dashboard.nav");
-  const tLinks = useTranslations("dashboard.links");
   const [drawerOpen, setDrawerOpen] = useState(false);
   useMarketingHeaderOffsetSync(true);
 
@@ -69,17 +68,6 @@ export function WorkspaceShell({
   const shellStyle = {
     "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,
   } as CSSProperties;
-
-  const drawerTrailing =
-    shellProps.variant === "member" ? undefined : (
-      <Link
-        href="/"
-        className="block rounded-2xl border border-white/60 bg-white/55 px-4 py-3 text-sm font-medium text-sage-800 transition-colors hover:bg-white/80 hover:text-sage-950"
-        onClick={() => setDrawerOpen(false)}
-      >
-        {tLinks("marketingSite")}
-      </Link>
-    );
 
   return (
     <RealtimeProvider authenticated enablePublic={false}>
@@ -146,7 +134,6 @@ export function WorkspaceShell({
         withSiteHeader
         drawerOpen={drawerOpen}
         onDrawerOpenChange={setDrawerOpen}
-        trailing={drawerTrailing}
       >
         {children}
       </DashboardAppShell>
