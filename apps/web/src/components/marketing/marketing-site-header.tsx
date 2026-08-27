@@ -66,8 +66,8 @@ export function MarketingSiteHeader({
   );
   const elevated = isWorkspaceChrome || isPolicyPage ? true : scrollElevated;
   const workspaceDrawerOpen = workspaceDrawer?.open ?? false;
-  const anyOverlayOpen = publicMenuOpen || workspaceDrawerOpen;
-  const showMobileGlassPill = elevated && !anyOverlayOpen;
+  const publicMobileMenuOpen = publicMenuOpen && !isWorkspaceChrome;
+  const showMobileGlassPill = elevated && !publicMobileMenuOpen;
   const mobileGlassRowStyle = {
     ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
     ...(isWorkspaceChrome
@@ -135,7 +135,7 @@ export function MarketingSiteHeader({
       data-account-shell={isAccountShell ? "true" : "false"}
       data-workspace-shell={isWorkspaceChrome ? "true" : "false"}
       data-elevated={elevated ? "true" : "false"}
-      data-menu-open={anyOverlayOpen ? "true" : "false"}
+      data-menu-open={publicMobileMenuOpen ? "true" : "false"}
     >
       <div className={marketingHeaderContainerClass()}>
         <div

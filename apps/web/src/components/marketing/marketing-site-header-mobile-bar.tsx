@@ -76,11 +76,13 @@ export function MarketingSiteHeaderMobileBar({
   const tShell = useTranslations("dashboard.shell");
   const isWorkspaceMobile = workspaceDrawer !== undefined;
   const drawerMenuOpen = isWorkspaceMobile ? workspaceDrawerOpen : publicMenuOpen;
+  /** Workspace panel drawer — keep header chrome unchanged; only public menu morphs the bar. */
+  const menuButtonChromeOpen = isWorkspaceMobile ? false : drawerMenuOpen;
 
   const menuButton = (
     <button
       type="button"
-      className={`${marketingHeaderMobileMenuButtonClass(drawerMenuOpen)} ${navPillStyles.mobileHeaderMenuButton}`}
+      className={`${marketingHeaderMobileMenuButtonClass(menuButtonChromeOpen)} ${navPillStyles.mobileHeaderMenuButton}`}
       aria-expanded={drawerMenuOpen}
       aria-controls={isWorkspaceMobile ? "dashboard-mobile-drawer" : "marketing-mobile-nav"}
       aria-label={
@@ -97,7 +99,7 @@ export function MarketingSiteHeaderMobileBar({
       <span className="sr-only">
         {isWorkspaceMobile ? tShell("workspaceAria") : tUi("menuSr")}
       </span>
-      {drawerMenuOpen ? (
+      {menuButtonChromeOpen ? (
         <svg
           className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`}
           viewBox="0 0 35 35"
