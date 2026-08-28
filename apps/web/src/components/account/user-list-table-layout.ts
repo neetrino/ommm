@@ -75,5 +75,6 @@ export const USER_LIST_TABLE_SUBGRID_ROW = "col-span-full grid grid-cols-subgrid
 export const USER_LIST_DETAILS_CELL =
   "shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-sand-600 md:justify-self-end";
 
+/** No transform/active:scale — those jitter list cards during touch scroll on mobile. */
 export const USER_LIST_ROW_INTERACTIVE =
-  "cursor-pointer transition-[background-color,box-shadow,border-color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-[0.998]";
+  "cursor-pointer transition-[background-color,box-shadow,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";

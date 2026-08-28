@@ -37,15 +37,21 @@ export {
 /** Keeps admin list/board card surfaces inside the mobile viewport. */
 export const ADMIN_CARD_CONTAIN_CLASS = "min-w-0 max-w-full overflow-x-clip";
 
+/**
+ * Shared list/board card chrome.
+ * Phone: solid white + light static shadow (no translucent fill / gradient — those jitter on scroll).
+ * Tablet+: soft glass + hover lift (lift gated in globals to fine pointers only).
+ */
 export const ADMIN_LIST_ROW_SURFACE = [
   ADMIN_CARD_CONTAIN_CLASS,
-  "rounded-[24px] border border-white/80 bg-white/95",
-  "shadow-[0_10px_28px_-18px_rgba(45,40,35,0.28)]",
-  "transition-[border-color,background-color,box-shadow,transform] duration-200",
-  "hover:-translate-y-px hover:border-sand-500/35 hover:bg-white",
-  "hover:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
-  "focus-within:-translate-y-px focus-within:border-sand-500/45 focus-within:bg-sand-50/50",
-  "focus-within:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
+  "ommm-admin-list-row-surface",
+  "rounded-[24px] border border-white/80 bg-white md:bg-white/95",
+  "shadow-[0_4px_14px_-8px_rgba(45,40,35,0.18)] md:shadow-[0_10px_28px_-18px_rgba(45,40,35,0.28)]",
+  "max-md:transition-none md:transition-[border-color,background-color,box-shadow] md:duration-200",
+  "hover:border-sand-500/35 hover:bg-white",
+  "md:hover:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
+  "focus-within:border-sand-500/45 focus-within:bg-sand-50/50",
+  "md:focus-within:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
 ].join(" ");
 
 export const ADMIN_LIST_ROW_CLASS = [

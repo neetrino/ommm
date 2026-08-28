@@ -36,7 +36,7 @@ function MobileBackChevronIcon() {
 
 /**
  * Admin / manager page header — title, full-width search on mobile, trailing actions.
- * Sticky by default so content does not show through under the site navbar.
+ * Sticky only on tablet+; on phone the banner scrolls with the page (site navbar stays fixed).
  * On mobile, the title is centered in the banner for all workspace roles.
  */
 export function AdminPageHero({

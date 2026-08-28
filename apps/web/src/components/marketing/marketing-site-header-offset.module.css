@@ -53,7 +53,34 @@
 }
 
 /**
- * Mobile workspace — fixed glass-pill nav overlays the scroll pane (no cream band behind the header).
+ * Mobile staff (admin / coach / manager) — glass pill overlays content (no cream header band).
+ * Use *window* scroll like the member hub: nested `100dvh` + `overflow: auto` clips the list
+ * footer (pagination) under Safari/browser chrome so it can never be reached.
+ * Page banners are NOT sticky — see globals `.ommm-admin-sticky-header`.
+ */
+@media (max-width: 743px) {
+  .dashboardWithMarketingHeader:not(.dashboardWithMarketingHeaderMemberMobile) {
+    height: auto;
+    max-height: none;
+    min-height: 100dvh;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .dashboardWithMarketingHeaderScrollStaffMobile {
+    flex: none;
+    overflow: visible;
+    min-height: 0;
+  }
+
+  .dashboardWithMarketingHeaderOverlay:not(.dashboardWithMarketingHeaderMemberMobile)
+    .workspaceScrollMain {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/**
+ * Mobile member hub — fixed glass-pill nav overlays the scroll pane (no cream band behind the header).
  * Content scrolls under the transparent header shell; stickies align below the site header offset.
  */
 @media (max-width: 743px) {
@@ -68,8 +95,9 @@
     scroll-padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
   }
 
-  .workspaceScrollMain {
+  .dashboardWithMarketingHeaderOverlay .workspaceScrollMain {
     padding-top: calc(var(--ommm-marketing-site-header-offset, 4.25rem) + 1rem);
+    padding-bottom: 1.5rem;
   }
 }
 
@@ -81,6 +109,7 @@
 @media not ((min-width: 1024px) and (hover: hover) and (pointer: fine)) {
   .dashboardWithMarketingHeaderMemberMobile {
     height: auto;
+    max-height: none;
     min-height: 100svh;
     min-height: -webkit-fill-available;
     overflow: visible;

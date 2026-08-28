@@ -20,6 +20,62 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+/**
+ * Mobile-only anti-jitter for workspace cards (unlayered — beats Tailwind utilities).
+ * Phone: no sticky page banners; no blur/transform on scrolling list cards.
+ * Site navbar glass pill stays like marketing home (blur + olive fill).
+ */
+@media (max-width: 743px) {
+  .ommm-admin-sticky-header {
+    position: static !important;
+    top: auto !important;
+    padding-bottom: 0;
+  }
+
+  [data-workspace-scroll-pane],
+  [data-workspace-scroll-pane] *,
+  [data-workspace-scroll-pane] *::before,
+  [data-workspace-scroll-pane] *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  [data-workspace-shell] .ommm-admin-header-bar {
+    background-color: rgba(255, 255, 255, 0.94);
+  }
+
+  .ommm-admin-list-row-surface,
+  .ommm-admin-list-row-surface:hover,
+  .ommm-admin-list-row-surface:focus-within,
+  .ommm-admin-list-row-surface:active,
+  .ommm-admin-list-row-surface * {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  /* iOS sticky :hover flickers shadow/border transitions while scrolling. */
+  .ommm-admin-list-row-surface {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    box-shadow: 0 4px 14px -8px rgba(45, 40, 35, 0.18) !important;
+    transition: none !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
+
+/** Desktop-only row lift — transform on touch rows causes scroll jitter on phones. */
+@media (hover: hover) and (pointer: fine) {
+  .ommm-admin-list-row-surface {
+    transition-property: border-color, background-color, box-shadow, transform;
+  }
+
+  .ommm-admin-list-row-surface:hover,
+  .ommm-admin-list-row-surface:focus-within {
+    transform: translateY(-1px);
+  }
+}
+
 :root {
   --background: #faf9f7;
   --foreground: #1a1c1b;

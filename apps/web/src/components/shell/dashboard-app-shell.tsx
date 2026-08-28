@@ -136,14 +136,17 @@ export function DashboardAppShell({
       ? "lg:w-[4.5rem]"
       : "lg:w-64";
   const borderB = isOliveShell ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
+  /**
+   * Mobile: glass pill overlays the scroll pane (no cream header band).
+   * Staff keeps nested scroll + non-sticky page banners; member uses window-scroll classes.
+   */
+  const useMobileHeaderOverlay = withSiteHeader;
   const rootClassName = withSiteHeader
     ? [
         pageBackgroundClass(variant),
         offsetStyles.dashboardWithMarketingHeader,
-        offsetStyles.dashboardWithMarketingHeaderOverlay,
-        variant === "member"
-          ? offsetStyles.dashboardWithMarketingHeaderMemberMobile
-          : "",
+        useMobileHeaderOverlay ? offsetStyles.dashboardWithMarketingHeaderOverlay : "",
+        variant === "member" ? offsetStyles.dashboardWithMarketingHeaderMemberMobile : "",
       ]
         .filter(Boolean)
         .join(" ")
@@ -303,7 +306,7 @@ export function DashboardAppShell({
             offsetStyles.dashboardWithMarketingHeaderScrollOverlay,
             variant === "member"
               ? offsetStyles.dashboardWithMarketingHeaderScrollMemberMobile
-              : "",
+              : offsetStyles.dashboardWithMarketingHeaderScrollStaffMobile,
           ]
             .filter(Boolean)
             .join(" ")}

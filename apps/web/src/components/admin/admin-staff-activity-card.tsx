@@ -22,7 +22,7 @@ export function AdminStaffActivityCard({
     <button
       type="button"
       onClick={onOpen}
-      className={`${ADMIN_CARD_CONTAIN_CLASS} w-full rounded-2xl border border-sand-200/80 bg-white/90 p-5 text-left shadow-[0_12px_28px_-22px_rgba(45,40,35,0.2)] transition-[border-color,box-shadow,transform] hover:border-sand-300 hover:shadow-[0_16px_32px_-20px_rgba(45,40,35,0.28)] active:scale-[0.995]`}
+      className={`${ADMIN_CARD_CONTAIN_CLASS} w-full rounded-2xl border border-sand-200/80 bg-white/90 p-5 text-left shadow-[0_12px_28px_-22px_rgba(45,40,35,0.2)] transition-[border-color,box-shadow] hover:border-sand-300 hover:shadow-[0_16px_32px_-20px_rgba(45,40,35,0.28)]`}
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
         {sessionWhen}

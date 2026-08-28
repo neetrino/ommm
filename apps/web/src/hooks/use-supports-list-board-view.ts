@@ -1,19 +1,24 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { LIST_BOARD_VIEW_MEDIA_QUERY } from "@/lib/viewport-breakpoints";
 
-/** `false` on server and during hydration — avoids layout flash before `matchMedia` resolves. */
+/**
+ * Whether the viewport supports list (vs card-only) layout.
+ * Always `false` until after mount so server/hydration markup stays identical.
+ */
 export function useSupportsListBoardView(): boolean {
-  return useSyncExternalStore(
-    (onStoreChange) => {
-      const mediaQuery = window.matchMedia(LIST_BOARD_VIEW_MEDIA_QUERY);
-      mediaQuery.addEventListener("change", onStoreChange);
-      return () => {
-        mediaQuery.removeEventListener("change", onStoreChange);
-      };
-    },
-    () => window.matchMedia(LIST_BOARD_VIEW_MEDIA_QUERY).matches,
-    () => false,
-  );
+  const [supportsListView, setSupportsListView] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(LIST_BOARD_VIEW_MEDIA_QUERY);
+    const sync = () => {
+      setSupportsListView(mediaQuery.matches);
+    };
+    sync();
+    mediaQuery.addEventListener("change", sync);
+    return () => mediaQuery.removeEventListener("change", sync);
+  }, []);
+
+  return supportsListView;
 }
