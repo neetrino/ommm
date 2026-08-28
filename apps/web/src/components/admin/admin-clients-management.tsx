@@ -15,7 +15,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
+import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
 import {
   adminClientCapabilities,
@@ -74,9 +74,10 @@ export function AdminClientsManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
-  const isPhone = useIsMarketingPhoneViewport();
+  /** Mobile-first: `false` until mount — avoids board/list swap flash on phones. */
+  const supportsDesktopViews = useSupportsListBoardView();
   const { viewMode, setViewMode } = useAdminClientsView();
-  const effectiveViewMode = isPhone ? "list" : viewMode;
+  const effectiveViewMode = !supportsDesktopViews ? "list" : viewMode;
 
   const {
     payload,
@@ -135,7 +136,7 @@ export function AdminClientsManagement({
 
   const clientsList = (
     <>
-      <div className={loading ? "opacity-60 transition-opacity duration-150" : "transition-opacity duration-150"}>
+      <div className={loading ? "opacity-60" : undefined}>
         {effectiveViewMode === "sphere" ? (
           <AdminClientsSphereView rows={payload.rows} onSelect={selectClient} />
         ) : (

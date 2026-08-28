@@ -11,7 +11,7 @@ import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-w
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import type { ScheduleWeekMiniCardSession } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import type { BookingsView } from "@/components/admin/admin-bookings-view";
-import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
+import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 type AdminBookingsManagementContentProps = {
@@ -55,8 +55,9 @@ export function AdminBookingsManagementContent({
   onViewChange,
   onWeekSessionClick,
 }: AdminBookingsManagementContentProps) {
-  const isPhone = useIsMarketingPhoneViewport();
-  const displayView: BookingsView = isPhone ? "list" : view;
+  /** Mobile-first — same gate as list data fetch (no week paint then swap to list). */
+  const supportsDesktopViews = useSupportsListBoardView();
+  const displayView: BookingsView = !supportsDesktopViews ? "list" : view;
 
   const metrics = (
     <div className={adminChrome.summaryGridFour}>

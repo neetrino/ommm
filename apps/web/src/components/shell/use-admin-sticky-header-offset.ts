@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 
 export const OMMM_ADMIN_HEADER_STICKY_OFFSET_VAR = "--ommm-admin-header-sticky-offset";
 
-/** Admin module headers stick below the site navbar on tablet+ only. */
+/**
+ * Whether the page banner should use sticky shell classes.
+ * Phone non-stickiness is enforced in CSS (`max-width: 743px`) so server/client
+ * markup stays identical — do not gate on `matchMedia` (hydration mismatch on phone).
+ * Behavior matches the previous phone gate: banners do not stick under the glass navbar.
+ */
 export function useAdminPageHeaderSticky(preferred: boolean): boolean {
-  const isPhone = useIsMarketingPhoneViewport();
-  return preferred && !isPhone;
+  return preferred;
 }
 
 /**

@@ -83,7 +83,7 @@ export function ClientFeedbackPanel({
             key={row.id}
             type="button"
             onClick={() => setSelected(row)}
-            className="w-full rounded-2xl border border-sand-200/90 bg-white/90 px-4 py-3.5 text-left text-sm shadow-[0_10px_24px_-20px_rgba(45,40,35,0.28)] transition-[border-color,box-shadow,transform] hover:border-sand-300 hover:shadow-[0_14px_28px_-18px_rgba(45,40,35,0.32)] active:scale-[0.995]"
+            className="w-full rounded-2xl border border-sand-200/90 bg-white/90 px-4 py-3.5 text-left text-sm shadow-[0_10px_24px_-20px_rgba(45,40,35,0.28)] transition-[border-color,box-shadow] hover:border-sand-300 hover:shadow-[0_14px_28px_-18px_rgba(45,40,35,0.32)]"
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
               {formatSessionReviewWhen(locale, row.startsAt, row.endsAt)}

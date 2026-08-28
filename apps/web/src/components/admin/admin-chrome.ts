@@ -9,7 +9,7 @@ export const adminChrome = {
   lede: "ommm-body-muted mt-3 max-w-2xl",
   ledeTight: "ommm-body-muted mt-2 max-w-2xl",
   metricCard:
-    "rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md max-sm:rounded-2xl max-sm:p-3",
+    "rounded-[24px] border border-white/60 bg-white/90 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] min-[744px]:bg-white/55 min-[744px]:backdrop-blur-md max-sm:rounded-2xl max-sm:p-3",
   metricLabel:
     "text-xs font-medium uppercase tracking-wide text-sage-500",
   metricValue: "mt-2 text-2xl font-semibold tabular-nums text-sage-900 max-sm:mt-1 max-sm:text-xl",
@@ -19,12 +19,12 @@ export const adminChrome = {
   summaryGridFive: "grid grid-cols-3 gap-2 sm:grid-cols-2 sm:gap-4 xl:grid-cols-5",
   summaryGridSix: "grid grid-cols-3 gap-2 sm:gap-3 xl:grid-cols-6",
   panel:
-    "rounded-[24px] border border-white/60 bg-white/55 p-4 text-sm text-sage-700 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5",
+    "rounded-[24px] border border-white/60 bg-white/90 p-4 text-sm text-sage-700 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] min-[744px]:bg-white/55 min-[744px]:backdrop-blur-md sm:p-5",
   panelHeading: "font-medium text-sage-900",
   accordion:
-    "rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 backdrop-blur-md",
+    "rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/90 min-[744px]:bg-white/78 min-[744px]:backdrop-blur-md",
   tableWrap:
-    "overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md",
+    "overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-[24px] border border-white/60 bg-white/90 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] min-[744px]:bg-white/55 min-[744px]:backdrop-blur-md",
   table: "w-full min-w-[32rem] border-collapse text-left text-sm",
   thead: "border-b border-white/50 bg-white/35 text-xs uppercase tracking-wide text-sage-500",
   th: "px-4 py-3 font-medium",

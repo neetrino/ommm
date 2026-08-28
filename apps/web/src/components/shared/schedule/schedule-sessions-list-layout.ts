@@ -31,7 +31,6 @@ function buildScheduleSessionsListRowClass(preset: ScheduleSessionsListPreset): 
     "group relative overflow-x-visible overflow-y-visible",
     "grid w-full max-md:gap-3 text-left",
     SCHEDULE_LIST_ROW_PAD,
-    "max-md:bg-gradient-to-br max-md:from-white max-md:via-white max-md:to-sand-100/40",
     "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
     scheduleListLayoutStyles.row,
     preset === "admin" ? scheduleListLayoutStyles.rowWithActions : "",

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
+import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   ADMIN_MOBILE_LIST_PAGE_SIZE,
@@ -28,7 +28,11 @@ export function useAdminListPageParams(
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isMobile = useIsMarketingPhoneViewport();
+  /**
+   * Mobile-first (`false` until mount). Using phone viewport that starts `false` caused
+   * desktop page-size → mobile page-size URL replace and a full list reload on phones.
+   */
+  const supportsDesktopList = useSupportsListBoardView();
   const pageKey = options?.pageKey ?? LIST_PAGE_QUERY_KEY;
   const pageSizeKey = options?.pageSizeKey ?? LIST_PAGE_SIZE_QUERY_KEY;
   const queryKeys = useMemo(
@@ -36,9 +40,9 @@ export function useAdminListPageParams(
     [pageKey, pageSizeKey],
   );
   const desktopDefaultPageSize = options?.defaultPageSize ?? DEFAULT_LIST_PAGE_SIZE;
-  const resolvedDefaultPageSize = isMobile
-    ? ADMIN_MOBILE_LIST_PAGE_SIZE
-    : desktopDefaultPageSize;
+  const resolvedDefaultPageSize = supportsDesktopList
+    ? desktopDefaultPageSize
+    : ADMIN_MOBILE_LIST_PAGE_SIZE;
 
   const listPage = useMemo(
     () =>
@@ -50,7 +54,7 @@ export function useAdminListPageParams(
   );
 
   useEffect(() => {
-    if (!isMobile || searchParams.has(pageSizeKey)) {
+    if (supportsDesktopList || searchParams.has(pageSizeKey)) {
       return;
     }
     if (desktopDefaultPageSize === ADMIN_MOBILE_LIST_PAGE_SIZE) {
@@ -62,7 +66,7 @@ export function useAdminListPageParams(
     router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [
     desktopDefaultPageSize,
-    isMobile,
+    supportsDesktopList,
     pageSizeKey,
     pathname,
     queryKeys,
