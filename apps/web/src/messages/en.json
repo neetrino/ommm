@@ -3085,6 +3085,18 @@
         "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
         "cancelConfirmLabel": "Cancel booking",
         "cancelSuccess": "Booking cancelled",
+        "addButton": "Add",
+        "addCancel": "Cancel",
+        "addSearchLabel": "Find client",
+        "addSearchPlaceholder": "Name or phone",
+        "addSearchHint": "Type at least 2 characters to search.",
+        "addSearchLoading": "Searching clients…",
+        "addSearchEmpty": "No clients found.",
+        "addSearchError": "Could not search clients.",
+        "addAlreadyRegistered": "Already registered",
+        "addClientBlocked": "This client is blocked.",
+        "addSelectAria": "Add {name} to this class",
+        "addSessionFull": "This class is full.",
         "status": {
           "COMPLETED": "Attended",
           "MISSED": "Missed"

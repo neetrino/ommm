@@ -3083,6 +3083,18 @@
         "cancelConfirmDescription": "Отменить эту запись? Место снова станет доступным.",
         "cancelConfirmLabel": "Отменить запись",
         "cancelSuccess": "Запись отменена",
+        "addButton": "Добавить",
+        "addCancel": "Отмена",
+        "addSearchLabel": "Найти клиента",
+        "addSearchPlaceholder": "Имя или телефон",
+        "addSearchHint": "Введите минимум 2 символа для поиска.",
+        "addSearchLoading": "Поиск клиентов…",
+        "addSearchEmpty": "Клиенты не найдены.",
+        "addSearchError": "Не удалось найти клиентов.",
+        "addAlreadyRegistered": "Уже записан",
+        "addClientBlocked": "Клиент заблокирован.",
+        "addSelectAria": "Добавить {name} на это занятие",
+        "addSessionFull": "На занятии нет свободных мест.",
         "status": {
           "COMPLETED": "Присутствовал",
           "MISSED": "Пропущено"

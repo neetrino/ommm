@@ -58,6 +58,7 @@ type ScheduleWeekColumnsViewProps<T extends ScheduleWeekMiniCardSession> = {
    */
   onJumpToToday?: () => void;
   onSessionClick?: (session: T) => void;
+  canAddVisitor?: boolean;
 };
 
 /**
@@ -77,6 +78,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   alignStartDayKey = null,
   onJumpToToday,
   onSessionClick,
+  canAddVisitor = false,
 }: ScheduleWeekColumnsViewProps<T>) {
   const t = useTranslations("adminPages.schedule");
   const todayIso = scheduleTodayIsoDate();
@@ -230,6 +232,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                         session={session}
                         showCoach={showCoach}
                         variant={cardVariant}
+                        canAddVisitor={canAddVisitor}
                         onClick={
                           onSessionClick
                             ? () => {

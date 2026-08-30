@@ -16,6 +16,8 @@ type ScheduleSessionRegistrationsCapacityProps = {
   bookedCountAriaLabel?: string;
   /** Compact text for week/month cards; default indicator for list rows. */
   layout?: "indicator" | "compactText";
+  /** Admin/manager can add an existing client from the roster sheet. */
+  canAdd?: boolean;
 };
 
 /** Compact week/month count — clickable without extra chrome. */
@@ -36,39 +38,33 @@ export function ScheduleSessionRegistrationsCapacity({
   secondaryLabel,
   bookedCountAriaLabel,
   layout = "indicator",
+  canAdd = false,
 }: ScheduleSessionRegistrationsCapacityProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   function openModal(event: MouseEvent<HTMLButtonElement>): void {
     event.stopPropagation();
-    if (booked <= 0) {
-      return;
-    }
     setModalOpen(true);
   }
 
   return (
     <>
       {layout === "compactText" ? (
-        booked > 0 ? (
-          <button
-            type="button"
-            className={COMPACT_SPOTS_BUTTON_CLASS}
-            aria-label={bookedCountAriaLabel ?? spotsLabel}
-            onClick={openModal}
-          >
-            {spotsLabel}
-          </button>
-        ) : (
-          <p className="truncate text-left text-xs font-medium text-sage-700">{spotsLabel}</p>
-        )
+        <button
+          type="button"
+          className={COMPACT_SPOTS_BUTTON_CLASS}
+          aria-label={bookedCountAriaLabel ?? spotsLabel}
+          onClick={openModal}
+        >
+          {spotsLabel}
+        </button>
       ) : (
         <ScheduleSessionCapacityIndicator
           booked={booked}
           capacity={capacity}
           spotsLabel={spotsLabel}
           secondaryLabel={secondaryLabel}
-          onBookedCountClick={booked > 0 ? openModal : undefined}
+          onBookedCountClick={openModal}
           bookedCountAriaLabel={bookedCountAriaLabel}
         />
       )}
@@ -80,6 +76,7 @@ export function ScheduleSessionRegistrationsCapacity({
         locale={locale}
         booked={booked}
         capacity={capacity}
+        canAdd={canAdd}
         onClose={() => setModalOpen(false)}
       />
     </>

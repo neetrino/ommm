@@ -142,6 +142,7 @@ function StaffScheduleSessionRowClient({
             spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
             secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
             bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
+            canAdd={preset !== "staffReadOnly"}
           />
         }
         showCoach={showCoach}

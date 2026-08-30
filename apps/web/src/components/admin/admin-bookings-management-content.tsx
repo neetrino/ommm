@@ -129,6 +129,7 @@ export function AdminBookingsManagementContent({
           cardVariant="staff"
           expandColumns={false}
           alignStartDayKey={scheduleTodayIsoDate()}
+          canAddVisitor
           onSessionClick={(session) => onWeekSessionClick(session.id)}
           labels={{
             gridAria: tSchedule("weekView.gridAria"),

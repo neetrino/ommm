@@ -142,7 +142,7 @@ export function ScheduleSessionCapacityIndicator({
   onBookedCountClick,
   bookedCountAriaLabel,
 }: ScheduleSessionCapacityIndicatorProps) {
-  const bookedIsInteractive = booked > 0 && onBookedCountClick !== undefined;
+  const bookedIsInteractive = onBookedCountClick !== undefined;
 
   return (
     <CapacityHitArea

@@ -3086,6 +3086,18 @@
         "cancelConfirmDescription": "Չեղարկե՞լ այս գրանցումը։ Տեղը կրկին հասանելի կլինի։",
         "cancelConfirmLabel": "Չեղարկել գրանցումը",
         "cancelSuccess": "Գրանցումը չեղարկվեց",
+        "addButton": "Ավելացնել",
+        "addCancel": "Չեղարկել",
+        "addSearchLabel": "Գտնել հաճախորդին",
+        "addSearchPlaceholder": "Անուն կամ հեռախոս",
+        "addSearchHint": "Որոնելու համար գրեք առնվազն 2 նիշ։",
+        "addSearchLoading": "Հաճախորդների որոնում…",
+        "addSearchEmpty": "Հաճախորդներ չեն գտնվել։",
+        "addSearchError": "Չհաջողվեց որոնել հաճախորդներին։",
+        "addAlreadyRegistered": "Արդեն գրանցված է",
+        "addClientBlocked": "Հաճախորդը արգելափակված է։",
+        "addSelectAria": "Ավելացնել {name}-ին այս դասին",
+        "addSessionFull": "Դասը լրացված է։",
         "status": {
           "COMPLETED": "Մասնակցել է",
           "MISSED": "Բաց է թողել"
