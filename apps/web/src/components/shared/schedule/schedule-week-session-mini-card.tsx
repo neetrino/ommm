@@ -27,6 +27,7 @@ type ScheduleWeekSessionMiniCardProps = {
   session: ScheduleWeekMiniCardSession;
   showCoach?: boolean;
   variant?: ScheduleWeekCardVariant;
+  canAddVisitor?: boolean;
   onClick?: () => void;
   ariaLabel?: string;
 };
@@ -64,6 +65,7 @@ function ScheduleWeekCardSpots({
   booked,
   capacity,
   spotsLabel,
+  canAddVisitor,
 }: {
   locale: string;
   session: ScheduleWeekMiniCardSession;
@@ -71,6 +73,7 @@ function ScheduleWeekCardSpots({
   booked: number;
   capacity: number;
   spotsLabel: string;
+  canAddVisitor: boolean;
 }) {
   const tStaff = useTranslations("adminPages.classes");
 
@@ -97,6 +100,7 @@ function ScheduleWeekCardSpots({
           count: booked,
         })}
         layout="compactText"
+        canAdd={canAddVisitor}
       />
     </div>
   );
@@ -107,11 +111,13 @@ function ScheduleWeekSessionMiniCardContent({
   session,
   showCoach,
   variant,
+  canAddVisitor,
 }: {
   locale: string;
   session: ScheduleWeekMiniCardSession;
   showCoach: boolean;
   variant: ScheduleWeekCardVariant;
+  canAddVisitor: boolean;
 }) {
   const tCommon = useTranslations("common");
   const classTypeName = session.classType?.name?.trim();
@@ -145,6 +151,7 @@ function ScheduleWeekSessionMiniCardContent({
           booked={booked}
           capacity={capacity}
           spotsLabel={spotsLabel}
+          canAddVisitor={canAddVisitor}
         />
       ) : null}
     </>
@@ -156,6 +163,7 @@ export function ScheduleWeekSessionMiniCard({
   session,
   showCoach = false,
   variant = "staff",
+  canAddVisitor = false,
   onClick,
   ariaLabel,
 }: ScheduleWeekSessionMiniCardProps) {
@@ -165,6 +173,7 @@ export function ScheduleWeekSessionMiniCard({
       session={session}
       showCoach={showCoach}
       variant={variant}
+      canAddVisitor={canAddVisitor}
     />
   );
 

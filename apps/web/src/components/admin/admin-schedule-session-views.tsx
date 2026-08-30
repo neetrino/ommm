@@ -195,6 +195,7 @@ export function ScheduleWeekPanel(props: ScheduleWeekPanelProps) {
       showCoach
       expandColumns={false}
       alignStartDayKey={scheduleTodayIsoDate()}
+      canAddVisitor
       onSessionClick={props.onDetails}
       labels={{
         gridAria: tPage("weekView.gridAria"),
@@ -250,6 +251,7 @@ function ScheduleMonthPanel({
         alignStartDayKey={scheduleTodayIsoDate()}
         columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
         onJumpToToday={onJumpToTodayMonth}
+        canAddVisitor
         onSessionClick={onDetails}
         labels={{
           gridAria: tPage("monthView.gridAria", { month: monthTitle }),
