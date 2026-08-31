@@ -1,7 +1,6 @@
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
+import { HeaderSpinningSphere } from "../../../components/layout/HeaderSpinningSphere";
 import { useIsCompactChrome } from "../../../components/layout/useScreenChrome";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import {
@@ -29,7 +28,8 @@ const GIFT_CARD_COMPACT_SCALE = 0.72;
 export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
   const compact = useIsCompactChrome();
   const scale = compact ? GIFT_CARD_COMPACT_SCALE : 1;
-  const badgeSize = giftCard.badgeSize * scale;
+  const badgeSlotSize = giftCard.badgeSize * scale;
+  const sphereSize = giftCard.sphereSize * scale;
   const cardMinHeight = giftCard.minHeight * scale;
   const titleTopOffset = giftCard.titleTopOffset * scale;
 
@@ -91,21 +91,31 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
 
       <View
         style={[
-          styles.badge,
+          styles.badgeSlot,
           {
             top: giftCard.badgeTop * scale,
-            marginLeft: -badgeSize / 2,
-            width: badgeSize,
-            height: badgeSize,
-            borderRadius: badgeSize / 2,
+            height: badgeSlotSize,
           },
         ]}
+        pointerEvents="none"
       >
-        <Image
-          source={figmaRemoteAssets.giftCardBadge}
-          style={styles.badgeImage}
-          contentFit="cover"
-        />
+        {/*
+          Neutral disc under the sphere — without it, anti-alias + simultaneous
+          contrast against the olive gift gradient make the ball read greener
+          than the same HeaderSpinningSphere in the header.
+        */}
+        <View
+          style={[
+            styles.sphereUnderlay,
+            {
+              width: sphereSize,
+              height: sphereSize,
+              borderRadius: sphereSize / 2,
+            },
+          ]}
+        >
+          <HeaderSpinningSphere size={sphereSize} />
+        </View>
       </View>
     </View>
   );
@@ -142,15 +152,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     paddingBottom: space.md,
   },
-  badge: {
+  /**
+   * Full-width absolute slot — centers the sphere both axes to match how
+   * the static logo-mark artboard sat inside the old 128 badge (cover crop).
+   */
+  badgeSlot: {
     position: "absolute",
-    left: "50%",
-    overflow: "hidden",
-    pointerEvents: "none",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  badgeImage: {
-    width: "100%",
-    height: "100%",
+  sphereUnderlay: {
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    backgroundColor: colors.canvas,
   },
   title: {
     textAlign: "center",

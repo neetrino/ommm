@@ -20,7 +20,7 @@ import { scheduleColors } from "../../schedule/scheduleTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, space, typography } from "../../../theme/tokens";
 import { PaymentHistoryCard } from "../components/PaymentHistoryCard";
-import { PaymentOutcomeLocalPreview } from "../components/PaymentOutcomeLocalPreview";
+import { PaymentStatusFilterDropdown } from "../components/PaymentStatusFilterDropdown";
 import { useMemberPaymentsScreenState } from "../hooks/useMemberPaymentsScreenState";
 
 export function MemberPaymentsScreen() {
@@ -59,14 +59,17 @@ export function MemberPaymentsScreen() {
       >
         <View style={styles.backRow}>
           <CircularBackButton
-            onPress={() => router.back()}
+            onPress={() => router.push("/user/profile")}
             accessibilityLabel={t("title")}
           />
         </View>
 
         <Text style={styles.title}>{t("title")}</Text>
 
-        <PaymentOutcomeLocalPreview />
+        <PaymentStatusFilterDropdown
+          value={state.statusFilter}
+          onChange={state.setStatusFilter}
+        />
 
         {state.loading ? (
           <ActivityIndicator size="large" color={colors.taupe} />
@@ -86,8 +89,16 @@ export function MemberPaymentsScreen() {
 
         {!state.loading && state.error === null && state.items.length === 0 ? (
           <View style={styles.emptyBlock}>
-            <Text style={styles.emptyTitle}>{t("emptyTitle")}</Text>
-            <Text style={styles.emptyBody}>{t("emptyDescription")}</Text>
+            <Text style={styles.emptyTitle}>
+              {state.statusFilter.length > 0
+                ? t("filteredEmptyTitle")
+                : t("emptyTitle")}
+            </Text>
+            <Text style={styles.emptyBody}>
+              {state.statusFilter.length > 0
+                ? t("filteredEmptyDescription")
+                : t("emptyDescription")}
+            </Text>
           </View>
         ) : null}
 

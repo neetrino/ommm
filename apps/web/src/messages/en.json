@@ -198,7 +198,8 @@
   },
   "language": {
     "switcherAria": "Interface language",
-    "expandPicker": "Open language menu"
+    "expandPicker": "Open language menu",
+    "closePicker": "Close language menu"
   },
   "home": {
     "bookNow": "Book now",
@@ -1467,7 +1468,7 @@
       "security": "Security",
       "homeImage": "Home image",
       "dangerZone": "Danger zone",
-      "dangerZoneLead": "Permanently delete your account and sign out. This cannot be undone.",
+      "dangerZoneLead": "This is where you permanently delete your account. You will be signed out, and this cannot be undone.",
       "deleteAccount": "Delete account",
       "deleteAccountConfirmTitle": "Delete your account?",
       "deleteAccountConfirmDescription": "This permanently removes your account and signs you out. This cannot be undone.",

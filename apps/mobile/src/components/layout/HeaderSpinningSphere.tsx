@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AccessibilityInfo, StyleSheet, View } from "react-native";
+import { AccessibilityInfo, AppState, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import { useVideoPlayer, VideoView } from "expo-video";
 
@@ -76,8 +76,17 @@ function HeaderSpinningSphereVideo({ size }: HeaderSpinningSphereProps) {
 
   useEffect(() => {
     playerPlaySafe(player);
+    // OS pauses muted looping video while backgrounded; resume on foreground.
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") {
+        playerPlaySafe(player);
+      }
+    });
     // Do not pause in cleanup: on unmount the native player is often already
     // released, and pause() throws NativeSharedObjectNotFoundException.
+    return () => {
+      subscription.remove();
+    };
   }, [player]);
 
   const mediaSize = size * VIDEO_EDGE_CROP_SCALE;

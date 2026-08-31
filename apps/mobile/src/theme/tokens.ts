@@ -105,7 +105,14 @@ export const layout = {
  */
 export const giftCard = {
   minHeight: 307.62,
+  /** Layout slot for the badge (matches previous static Image container). */
   badgeSize: 128,
+  /**
+   * Visible spinning sphere diameter — matches how the old static
+   * `home-hero-logo-mark` artboard (ball 245 / source 524) rendered inside
+   * `badgeSize` with `contentFit: cover` → `128 * 245 / 524`.
+   */
+  sphereSize: 60,
   /** Relative to wrap top (= card top). Small overhang keeps top area tight. */
   badgeTop: -10,
   /** Badge bottom (−10 + 128) + 10 px gap — Figma rhythm, shifted up */
