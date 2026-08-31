@@ -99,7 +99,23 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
         ]}
         pointerEvents="none"
       >
-        <HeaderSpinningSphere size={sphereSize} />
+        {/*
+          Neutral disc under the sphere — without it, anti-alias + simultaneous
+          contrast against the olive gift gradient make the ball read greener
+          than the same HeaderSpinningSphere in the header.
+        */}
+        <View
+          style={[
+            styles.sphereUnderlay,
+            {
+              width: sphereSize,
+              height: sphereSize,
+              borderRadius: sphereSize / 2,
+            },
+          ]}
+        >
+          <HeaderSpinningSphere size={sphereSize} />
+        </View>
       </View>
     </View>
   );
@@ -146,6 +162,12 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: "center",
     justifyContent: "center",
+  },
+  sphereUnderlay: {
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    backgroundColor: colors.canvas,
   },
   title: {
     textAlign: "center",
