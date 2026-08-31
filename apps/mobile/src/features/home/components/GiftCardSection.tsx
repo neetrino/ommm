@@ -94,7 +94,6 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
           styles.badge,
           {
             top: giftCard.badgeTop * scale,
-            marginLeft: -badgeSize / 2,
             width: badgeSize,
             height: badgeSize,
             borderRadius: badgeSize / 2,
@@ -144,7 +143,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: "absolute",
-    left: "50%",
+    /** `left: "50%"` + negative margin works on web; native needs alignSelf. */
+    alignSelf: "center",
     overflow: "hidden",
     pointerEvents: "none",
   },
