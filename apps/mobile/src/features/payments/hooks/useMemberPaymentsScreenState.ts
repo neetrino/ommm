@@ -10,6 +10,17 @@ import type { PaymentStatusFilter } from "../components/PaymentStatusFilterDropd
 
 const PAYMENTS_PAGE_TAKE = 50;
 
+function applyStatusFilters(
+  items: UserPaymentRow[],
+  statuses: readonly PaymentStatusFilter[],
+): UserPaymentRow[] {
+  if (statuses.length === 0) {
+    return items;
+  }
+  const allowed = new Set<string>(statuses);
+  return items.filter((item) => allowed.has(item.status));
+}
+
 export function useMemberPaymentsScreenState() {
   const t = useTranslations("userPages.payments");
   const [items, setItems] = useState<UserPaymentRow[]>([]);
@@ -17,16 +28,14 @@ export function useMemberPaymentsScreenState() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<PaymentStatusFilter | null>(
-    null,
-  );
+  const [statusFilter, setStatusFilter] = useState<PaymentStatusFilter[]>([]);
   const statusFilterRef = useRef(statusFilter);
   statusFilterRef.current = statusFilter;
 
   const load = useCallback(
     async (
       mode: "initial" | "refresh" = "initial",
-      status: PaymentStatusFilter | null = statusFilterRef.current,
+      statuses: readonly PaymentStatusFilter[] = statusFilterRef.current,
     ) => {
       if (mode === "initial") {
         setLoading(true);
@@ -47,10 +56,13 @@ export function useMemberPaymentsScreenState() {
           take: PAYMENTS_PAGE_TAKE,
           offset: 0,
           order: "newest",
-          ...(status !== null ? { status } : {}),
+          ...(statuses.length === 1 ? { status: statuses[0] } : {}),
         });
-        setItems(payload.items);
-        setTotal(payload.total);
+        const filtered = applyStatusFilters(payload.items, statuses);
+        setItems(filtered);
+        setTotal(
+          statuses.length <= 1 ? payload.total : filtered.length,
+        );
       } catch (e) {
         setItems([]);
         setTotal(0);
@@ -74,7 +86,7 @@ export function useMemberPaymentsScreenState() {
   );
 
   const setStatusFilterAndReload = useCallback(
-    (next: PaymentStatusFilter | null) => {
+    (next: PaymentStatusFilter[]) => {
       statusFilterRef.current = next;
       setStatusFilter(next);
       void load("initial", next);

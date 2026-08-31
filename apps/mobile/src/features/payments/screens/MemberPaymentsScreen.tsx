@@ -59,7 +59,7 @@ export function MemberPaymentsScreen() {
       >
         <View style={styles.backRow}>
           <CircularBackButton
-            onPress={() => router.back()}
+            onPress={() => router.push("/user/profile")}
             accessibilityLabel={t("title")}
           />
         </View>
@@ -90,12 +90,12 @@ export function MemberPaymentsScreen() {
         {!state.loading && state.error === null && state.items.length === 0 ? (
           <View style={styles.emptyBlock}>
             <Text style={styles.emptyTitle}>
-              {state.statusFilter !== null
+              {state.statusFilter.length > 0
                 ? t("filteredEmptyTitle")
                 : t("emptyTitle")}
             </Text>
             <Text style={styles.emptyBody}>
-              {state.statusFilter !== null
+              {state.statusFilter.length > 0
                 ? t("filteredEmptyDescription")
                 : t("emptyDescription")}
             </Text>

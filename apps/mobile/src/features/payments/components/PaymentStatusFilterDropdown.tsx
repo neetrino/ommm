@@ -1,73 +1,101 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslations } from "../../../i18n/I18nProvider";
-import { fontFamilies } from "../../../theme/fontFamilies";
-import { platformShadow } from "../../../theme/platformShadow";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import { space } from "../../../theme/tokens";
 import { scheduleColors } from "../../schedule/scheduleTokens";
+import { paymentStatusFilterDropdownStyles as styles } from "./paymentStatusFilterDropdown.styles";
 
 export type PaymentStatusFilter = "SUCCEEDED" | "FAILED" | "PENDING";
 
+type StatusTone = "success" | "failed" | "pending" | "neutral";
+
 type StatusOption = {
-  value: PaymentStatusFilter | null;
-  labelKey: "all" | PaymentStatusFilter;
-  tone: "neutral" | "success" | "failed" | "pending";
+  value: PaymentStatusFilter;
+  tone: Exclude<StatusTone, "neutral">;
 };
 
 const STATUS_OPTIONS: readonly StatusOption[] = [
-  { value: null, labelKey: "all", tone: "neutral" },
-  { value: "SUCCEEDED", labelKey: "SUCCEEDED", tone: "success" },
-  { value: "FAILED", labelKey: "FAILED", tone: "failed" },
-  { value: "PENDING", labelKey: "PENDING", tone: "pending" },
+  { value: "SUCCEEDED", tone: "success" },
+  { value: "FAILED", tone: "failed" },
+  { value: "PENDING", tone: "pending" },
 ] as const;
 
-const TONE_DOT: Record<StatusOption["tone"], string> = {
+const TONE_DOT: Record<StatusTone, string> = {
   neutral: "rgba(151, 144, 124, 0.55)",
   success: "#16a34a",
   failed: "#dc2626",
   pending: "#d97706",
 };
 
+const CHECKBOX_SIZE = 22;
+
 type PaymentStatusFilterDropdownProps = {
-  value: PaymentStatusFilter | null;
-  onChange: (next: PaymentStatusFilter | null) => void;
+  /** Empty array = all statuses (default). */
+  value: readonly PaymentStatusFilter[];
+  onChange: (next: PaymentStatusFilter[]) => void;
 };
 
-/** Single-select status filter for the member payments list. */
+function sanitizeStatuses(
+  values: readonly PaymentStatusFilter[],
+): PaymentStatusFilter[] {
+  const allowed = new Set<PaymentStatusFilter>(
+    STATUS_OPTIONS.map((option) => option.value),
+  );
+  return values.filter((value) => allowed.has(value));
+}
+
+function toneForStatus(status: PaymentStatusFilter): StatusTone {
+  return (
+    STATUS_OPTIONS.find((option) => option.value === status)?.tone ?? "neutral"
+  );
+}
+
+/** Multi-select status filter; empty selection means all statuses. */
 export function PaymentStatusFilterDropdown({
   value,
   onChange,
 }: PaymentStatusFilterDropdownProps) {
   const t = useTranslations("userPages.payments");
+  const tSchedule = useTranslations("marketingPages.schedule");
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<PaymentStatusFilter[]>([]);
 
-  const selected = useMemo(
-    () =>
-      STATUS_OPTIONS.find((option) => option.value === value) ??
-      STATUS_OPTIONS[0],
-    [value],
-  );
+  const committed = useMemo(() => sanitizeStatuses(value), [value]);
+  const draftSelected = useMemo(() => sanitizeStatuses(draft), [draft]);
+  const isAllSelected = draftSelected.length === 0;
 
-  const triggerLabel =
-    selected.labelKey === "all"
-      ? t("filters.allStatuses")
-      : t(`status.${selected.labelKey}`);
+  const triggerLabel = useMemo(() => {
+    if (committed.length === 0) return t("filters.allStatuses");
+    if (committed.length === 1) return t(`status.${committed[0]}`);
+    return tSchedule("filterSelectedCount", { count: committed.length });
+  }, [committed, t, tSchedule]);
 
-  function close() {
-    setOpen(false);
+  const triggerTone: StatusTone =
+    committed.length === 1 ? toneForStatus(committed[0]) : "neutral";
+
+  function openSheet() {
+    setDraft(sanitizeStatuses(value));
+    setOpen(true);
   }
 
-  function select(next: PaymentStatusFilter | null) {
-    onChange(next);
+  function selectAll() {
+    setDraft([]);
+  }
+
+  function toggleStatus(status: PaymentStatusFilter) {
+    setDraft((prev) => {
+      const next = new Set(sanitizeStatuses(prev));
+      if (next.has(status)) next.delete(status);
+      else next.add(status);
+      return [...next];
+    });
+  }
+
+  function applyAndClose() {
+    onChange(sanitizeStatuses(draft));
     setOpen(false);
   }
 
@@ -76,7 +104,7 @@ export function PaymentStatusFilterDropdown({
       <Text style={styles.fieldLabel}>{t("filters.status")}</Text>
 
       <Pressable
-        onPress={() => setOpen(true)}
+        onPress={openSheet}
         style={({ pressed }) => [
           styles.trigger,
           open && styles.triggerOpen,
@@ -87,12 +115,26 @@ export function PaymentStatusFilterDropdown({
         accessibilityState={{ expanded: open }}
       >
         <View style={styles.triggerLeft}>
-          <View
-            style={[
-              styles.toneDot,
-              { backgroundColor: TONE_DOT[selected.tone] },
-            ]}
-          />
+          {committed.length > 1 ? (
+            <View style={styles.multiDots}>
+              {committed.map((status) => (
+                <View
+                  key={status}
+                  style={[
+                    styles.toneDot,
+                    { backgroundColor: TONE_DOT[toneForStatus(status)] },
+                  ]}
+                />
+              ))}
+            </View>
+          ) : (
+            <View
+              style={[
+                styles.toneDot,
+                { backgroundColor: TONE_DOT[triggerTone] },
+              ]}
+            />
+          )}
           <Text style={styles.triggerLabel} numberOfLines={1}>
             {triggerLabel}
           </Text>
@@ -108,21 +150,19 @@ export function PaymentStatusFilterDropdown({
         visible={open}
         transparent
         animationType="fade"
-        onRequestClose={close}
+        onRequestClose={() => setOpen(false)}
       >
         <View style={styles.backdrop}>
           <Pressable
             style={StyleSheet.absoluteFill}
-            onPress={close}
+            onPress={() => setOpen(false)}
             accessibilityRole="button"
-            accessibilityLabel={t("filters.status")}
           />
           <View
             style={[
               styles.sheet,
               {
-                paddingBottom:
-                  Math.max(insets.bottom, space.sm) + space.lg,
+                paddingBottom: Math.max(insets.bottom, space.sm) + space.lg,
               },
             ]}
           >
@@ -130,52 +170,34 @@ export function PaymentStatusFilterDropdown({
             <Text style={styles.sheetTitle}>{t("filters.status")}</Text>
 
             <View style={styles.options}>
-              {STATUS_OPTIONS.map((option) => {
-                const active = option.value === value;
-                const label =
-                  option.labelKey === "all"
-                    ? t("filters.allStatuses")
-                    : t(`status.${option.labelKey}`);
-                return (
-                  <Pressable
-                    key={option.labelKey}
-                    onPress={() => select(option.value)}
-                    style={({ pressed }) => [
-                      styles.option,
-                      active && styles.optionActive,
-                      pressed && styles.optionPressed,
-                    ]}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected: active }}
-                    accessibilityLabel={label}
-                  >
-                    <View
-                      style={[
-                        styles.toneDotLarge,
-                        { backgroundColor: TONE_DOT[option.tone] },
-                      ]}
-                    />
-                    <Text
-                      style={[
-                        styles.optionLabel,
-                        active && styles.optionLabelActive,
-                      ]}
-                    >
-                      {label}
-                    </Text>
-                    {active ? (
-                      <MaterialCommunityIcons
-                        name="check"
-                        size={20}
-                        color={scheduleColors.oliveActive}
-                      />
-                    ) : (
-                      <View style={styles.checkSpacer} />
-                    )}
-                  </Pressable>
-                );
-              })}
+              <OptionRow
+                label={t("filters.allStatuses")}
+                tone="neutral"
+                active={isAllSelected}
+                onPress={selectAll}
+              />
+              {STATUS_OPTIONS.map((option) => (
+                <OptionRow
+                  key={option.value}
+                  label={t(`status.${option.value}`)}
+                  tone={option.tone}
+                  active={draftSelected.includes(option.value)}
+                  onPress={() => toggleStatus(option.value)}
+                />
+              ))}
             </View>
+
+            <Pressable
+              onPress={applyAndClose}
+              style={({ pressed }) => [
+                styles.applyButton,
+                pressed && styles.applyButtonPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={tSchedule("filterApply")}
+            >
+              <Text style={styles.applyLabel}>{tSchedule("filterApply")}</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -183,144 +205,42 @@ export function PaymentStatusFilterDropdown({
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: {
-    gap: space.xs,
-  },
-  fieldLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    letterSpacing: 0.2,
-    color: colors.ink,
-  },
-  trigger: {
-    minHeight: 48,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: space.sm,
-    borderRadius: radii.labelCard,
-    borderWidth: 1,
-    borderColor: scheduleColors.filterBorder,
-    backgroundColor: scheduleColors.filterBg,
-    paddingHorizontal: space.md,
-    paddingVertical: space.sm,
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: 8,
-      opacity: 0.1,
-      radius: 16,
-      elevation: 2,
-    }),
-  },
-  triggerOpen: {
-    borderColor: "rgba(105, 95, 0, 0.45)",
-    backgroundColor: "rgba(255, 255, 255, 0.94)",
-  },
-  triggerPressed: {
-    opacity: 0.92,
-  },
-  triggerLeft: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: space.sm,
-  },
-  triggerLabel: {
-    flex: 1,
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    letterSpacing: 0.28,
-    color: scheduleColors.body,
-  },
-  toneDot: {
-    width: 8,
-    height: 8,
-    borderRadius: radii.pill,
-  },
-  toneDotLarge: {
-    width: 10,
-    height: 10,
-    borderRadius: radii.pill,
-  },
-  backdrop: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: colors.scrimDark,
-  },
-  sheet: {
-    zIndex: 1,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    backgroundColor: colors.canvas,
-    paddingHorizontal: space.lg,
-    paddingTop: space.sm,
-    gap: space.md,
-    borderWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: scheduleColors.shellBorder,
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: -8,
-      opacity: 0.14,
-      radius: 24,
-      elevation: 10,
-    }),
-  },
-  handle: {
-    alignSelf: "center",
-    width: 40,
-    height: 4,
-    borderRadius: radii.pill,
-    backgroundColor: "rgba(151, 144, 124, 0.35)",
-  },
-  sheetTitle: {
-    fontFamily: fontFamilies.gtSuperDs.medium,
-    fontSize: typography.sectionTitle,
-    color: scheduleColors.heading,
-  },
-  options: {
-    gap: space.xs,
-  },
-  option: {
-    minHeight: 52,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: space.sm,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "rgba(151, 144, 124, 0.22)",
-    backgroundColor: "rgba(255,255,255,0.72)",
-    paddingHorizontal: space.md,
-    paddingVertical: space.sm,
-  },
-  optionActive: {
-    borderColor: "rgba(105, 95, 0, 0.35)",
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: 6,
-      opacity: 0.08,
-      radius: 12,
-      elevation: 2,
-    }),
-  },
-  optionPressed: {
-    opacity: 0.9,
-  },
-  optionLabel: {
-    flex: 1,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: 15,
-    color: scheduleColors.body,
-  },
-  optionLabelActive: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    color: scheduleColors.oliveActive,
-  },
-  checkSpacer: {
-    width: 20,
-    height: 20,
-  },
-});
+function OptionRow({
+  label,
+  tone,
+  active,
+  onPress,
+}: {
+  label: string;
+  tone: StatusTone;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.option,
+        active && styles.optionActive,
+        pressed && styles.optionPressed,
+      ]}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: active }}
+      accessibilityLabel={label}
+    >
+      <View
+        style={[styles.toneDotLarge, { backgroundColor: TONE_DOT[tone] }]}
+      />
+      <Text style={[styles.optionLabel, active && styles.optionLabelActive]}>
+        {label}
+      </Text>
+      <MaterialCommunityIcons
+        name={active ? "checkbox-marked" : "checkbox-blank-outline"}
+        size={CHECKBOX_SIZE}
+        color={
+          active ? scheduleColors.oliveActive : scheduleColors.filterBorder
+        }
+      />
+    </Pressable>
+  );
+}
