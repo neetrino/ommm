@@ -4,6 +4,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { PackagesModule } from '../packages/packages.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { WaitlistModule } from '../waitlist/waitlist.module';
+import { WhatsappModule } from '../whatsapp/whatsapp.module';
 import { CronBatchService } from './cron-batch.service';
 
 @Module({
@@ -13,6 +14,7 @@ import { CronBatchService } from './cron-batch.service';
     NotificationsModule,
     PaymentsModule,
     PackagesModule,
+    WhatsappModule,
   ],
   providers: [CronBatchService],
 })

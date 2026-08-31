@@ -17,7 +17,11 @@ describe('ClassCancelledEmailService', () => {
       }),
     };
     return {
-      service: new ClassCancelledEmailService(prisma as never, mail as never),
+      service: new ClassCancelledEmailService(
+        prisma as never,
+        mail as never,
+        { trySendToUser: jest.fn().mockResolvedValue('skipped') } as never,
+      ),
       prisma,
       mail,
     };

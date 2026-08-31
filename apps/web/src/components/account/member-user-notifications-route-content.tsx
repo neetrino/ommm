@@ -9,6 +9,7 @@ const DEFAULT_NOTIFICATION_PREFS = {
   waitlistAlerts: true,
   promotions: false,
   communityUpdates: false,
+  whatsappEnabled: true,
 } as const;
 
 type MemberUserNotificationsRouteContentProps = {

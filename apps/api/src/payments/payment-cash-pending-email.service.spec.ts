@@ -28,6 +28,7 @@ describe('PaymentCashPendingEmailService', () => {
       service: new PaymentCashPendingEmailService(
         prisma as never,
         mail as never,
+        { trySendToUser: jest.fn().mockResolvedValue('skipped') } as never,
       ),
       prisma,
       mail,
@@ -38,6 +39,7 @@ describe('PaymentCashPendingEmailService', () => {
     const { service, prisma, mail } = createService();
     prisma.payment.findUnique.mockResolvedValue({
       id: 'p1',
+      userId: 'user-1',
       amountCents: 20_000,
       currency: 'amd',
       status: PaymentStatus.PENDING,

@@ -29,6 +29,7 @@ import {
   resolveBookingSessionCredits,
   shouldValidatePackageForBooking,
 } from './resolve-booking-session-credits';
+import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import type { ListMyBookingsQueryDto } from './dto/list-my-bookings-query.dto';
 
@@ -45,6 +46,7 @@ export class BookingsClientService {
     private readonly slots: BookingsSlotService,
     private readonly clientList: BookingsClientListService,
     private readonly staffActivity: StaffActivityService,
+    private readonly bookingConfirmed: WhatsappBookingConfirmedService,
   ) {}
 
   async listEligiblePackagesForSession(userId: string, sessionId: string) {
@@ -208,6 +210,7 @@ export class BookingsClientService {
       sessionId,
     });
     await this.staffActivity.recordBookingCreated(booking.id);
+    await this.bookingConfirmed.tryNotify(booking.id);
     return booking;
   }
 

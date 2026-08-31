@@ -4,7 +4,8 @@ export type AdminSettingsTabId =
   | "languages"
   | "identity"
   | "location"
-  | "contact";
+  | "contact"
+  | "whatsapp";
 
 export const ADMIN_SETTINGS_TAB_IDS: readonly AdminSettingsTabId[] = [
   "studio",
@@ -13,6 +14,7 @@ export const ADMIN_SETTINGS_TAB_IDS: readonly AdminSettingsTabId[] = [
   "identity",
   "location",
   "contact",
+  "whatsapp",
 ] as const;
 
 export const ADMIN_SETTINGS_TAB_HREF: Record<AdminSettingsTabId, string> = {
@@ -22,6 +24,7 @@ export const ADMIN_SETTINGS_TAB_HREF: Record<AdminSettingsTabId, string> = {
   identity: "/admin/settings/identity",
   location: "/admin/settings/location",
   contact: "/admin/settings/contact",
+  whatsapp: "/admin/settings/whatsapp",
 };
 
 const STUDIO_SUBTAB_SUFFIXES = ["/identity", "/location", "/contact"] as const;
@@ -45,6 +48,10 @@ export function resolveAdminSettingsTabFromPathname(
 
   if (pathname.endsWith("/languages")) {
     return "languages";
+  }
+
+  if (pathname.endsWith("/whatsapp")) {
+    return "whatsapp";
   }
 
   if (pathname === "/admin/settings" || pathname.endsWith("/admin/settings")) {

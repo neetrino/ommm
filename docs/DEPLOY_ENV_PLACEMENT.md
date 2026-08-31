@@ -31,6 +31,8 @@
 | `RESEND_API_KEY` | Production Resend key։ |
 | `RESEND_FROM_EMAIL` | Որքան հաստատված sender-դ։ |
 | `RESEND_FROM` | Display from string։ |
+| `WHATSAPP_GATEWAY_URL` | Fallback Gateway URL if Admin → Settings → WhatsApp is empty։ |
+| `WHATSAPP_GATEWAY_TOKEN` | Fallback project token if the admin DB row is empty։ |
 | `R2_ACCOUNT_ID` | R2 dashboard։ |
 | `R2_S3_ENDPOINT` | R2 S3 API URL։ |
 | `R2_API_TOKEN` | Քո `.env`-ում կա; Nest upload path-ը **չի** կարդում այս key-ը — կարող ես Render-ում չդնել, եթե ուրիշ ծառայություն չի պահանջում։ |

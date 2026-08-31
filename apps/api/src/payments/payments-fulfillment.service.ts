@@ -15,6 +15,8 @@ import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
 import { PrismaService } from '../prisma/prisma.service';
+import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
@@ -45,6 +47,8 @@ export class PaymentsFulfillmentService {
     private readonly realtime: RealtimePublisherService,
     private readonly prisma: PrismaService,
     private readonly staffActivity: StaffActivityService,
+    private readonly whatsapp: WhatsappNotifyService,
+    private readonly bookingConfirmed: WhatsappBookingConfirmedService,
   ) {}
 
   async fulfillDropInPayment(
@@ -306,6 +310,7 @@ export class PaymentsFulfillmentService {
         webAppUrl: this.config.get<string>('WEB_APP_URL'),
       }),
     });
+    await this.whatsapp.trySendGiftCard(to, code);
   }
 
   async emitDropInBookingRealtimeIfNeeded(
@@ -329,6 +334,7 @@ export class PaymentsFulfillmentService {
     });
     if (booking?.status === BookingStatus.BOOKED) {
       await this.staffActivity.recordBookingCreated(booking.id);
+      await this.bookingConfirmed.tryNotify(booking.id);
     }
   }
 }

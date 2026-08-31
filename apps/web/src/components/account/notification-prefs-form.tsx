@@ -11,6 +11,7 @@ type Prefs = {
   waitlistAlerts: boolean;
   promotions: boolean;
   communityUpdates: boolean;
+  whatsappEnabled: boolean;
 };
 
 type Props = {
@@ -20,7 +21,10 @@ type Props = {
 export function NotificationPrefsForm({ initial }: Props) {
   const router = useRouter();
   const t = useTranslations("forms.notificationPrefs");
-  const [prefs, setPrefs] = useState<Prefs>(initial);
+  const [prefs, setPrefs] = useState<Prefs>({
+    ...initial,
+    whatsappEnabled: initial.whatsappEnabled ?? true,
+  });
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -49,6 +53,7 @@ export function NotificationPrefsForm({ initial }: Props) {
     <div className="flex flex-col gap-4">
       {(
         [
+          ["whatsappEnabled", "whatsappEnabled"],
           ["bookingReminders", "bookingReminders"],
           ["waitlistAlerts", "waitlistAlerts"],
           ["promotions", "promotions"],

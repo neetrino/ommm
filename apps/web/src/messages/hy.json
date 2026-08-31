@@ -2003,6 +2003,7 @@
     "settings": {
       "title": "Կարգավորումներ",
       "studioDescription": "Կառավարեք ստուդիայի տվյալները, կոնտակտները և գործառնական կարգավորումները։",
+      "whatsappDescription": "Պահեք Gateway բանալիները բազայում և կապեք ստուդիայի համարը QR կոդով։",
       "tabs": {
         "aria": "Կարգավորումների բաժիններ",
         "studio": "Ստուդիա",
@@ -2010,7 +2011,8 @@
         "languages": "Լեզուներ",
         "identity": "Ինքնություն",
         "location": "Տեղադրություն",
-        "contact": "Կապ"
+        "contact": "Կապ",
+        "whatsapp": "WhatsApp"
       },
       "studioSections": {
         "identity": "Հանրային ստուդիայի անուն",
@@ -2105,6 +2107,41 @@
             "description": "Ռուսերեն — language switcher-ում ցուցադրվում է որպես Русский։"
           }
         }
+      },
+      "whatsapp": {
+        "loadFailed": "Չհաջողվեց բեռնել WhatsApp կարգավորումները ({status})։",
+        "credentialsTitle": "Gateway միացում",
+        "credentialsHint": "Մկնիկը տարեք դաշտի վրա, սեղմեք մատիտը՝ խմբագրելու համար, ապա հաստատեք պահպանումը։",
+        "gatewayUrl": "Gateway URL",
+        "gatewayUrlHint": "HTTPS հասցե՝ առանց վերջի slash-ի։",
+        "gatewayToken": "Project token",
+        "urlEmpty": "Նշված չէ",
+        "tokenSet": "Token-ը սահմանված է",
+        "tokenNotSet": "Token-ը սահմանված չէ",
+        "tokenPlaceholder": "Տեղադրեք նոր project token",
+        "editUrl": "Խմբագրել Gateway URL-ը",
+        "editToken": "Խմբագրել project token-ը",
+        "cancelEdit": "Չեղարկել խմբագրումը",
+        "save": "Պահպանել միացումը",
+        "saving": "Պահպանում...",
+        "saved": "WhatsApp Gateway միացումը պահպանվեց։",
+        "failed": "Չհաջողվեց պահպանել WhatsApp Gateway միացումը։",
+        "confirmTitle": "Պահպանե՞լ WhatsApp միացումը",
+        "confirmDescription": "Կթարմացվեն Gateway URL-ը և token-ը, որոնցով ուղարկվում են WhatsApp հաղորդագրությունները։",
+        "confirmSave": "Պահպանել",
+        "cancelButton": "Չեղարկել",
+        "modalBackdropClose": "Փակել պատուհանը",
+        "connectTitle": "WhatsApp կապում",
+        "connectHint": "Բացեք WhatsApp-ը ստուդիայի հեռախոսում, սկանավորեք QR կոդը և սպասեք մինչև սեսիան միանա։",
+        "statusLabel": "Սեսիա",
+        "statusUnknown": "Չի բեռնվել",
+        "statusConnected": "Միացված է",
+        "qrAlt": "WhatsApp-ի կապման QR կոդ",
+        "showQr": "Ցույց տալ QR կոդը",
+        "waitingScan": "Սկանավորման սպասում...",
+        "restart": "Վերագործարկել սեսիան",
+        "logout": "Անջատել",
+        "connectFailed": "Չհաջողվեց կապվել WhatsApp Gateway-ի հետ։"
       }
     },
     "bookings": {
@@ -4668,6 +4705,7 @@
   },
   "forms": {
     "notificationPrefs": {
+      "whatsappEnabled": "WhatsApp ծանուցումներ",
       "bookingReminders": "Դասերի հիշեցումներ",
       "waitlistAlerts": "Սպասման ցուցակի զգուշացումներ",
       "promotions": "Ակցիաներ",

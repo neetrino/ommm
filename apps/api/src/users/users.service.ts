@@ -73,6 +73,7 @@ export class UsersService {
         waitlistAlerts: true,
         promotions: false,
         communityUpdates: true,
+        whatsappEnabled: true,
       },
     };
   }
@@ -146,6 +147,7 @@ export class UsersService {
         waitlistAlerts: dto.waitlistAlerts ?? true,
         promotions: dto.promotions ?? false,
         communityUpdates: dto.communityUpdates ?? true,
+        whatsappEnabled: dto.whatsappEnabled ?? true,
       },
       update: {
         ...(dto.bookingReminders !== undefined && {
@@ -157,6 +159,9 @@ export class UsersService {
         ...(dto.promotions !== undefined && { promotions: dto.promotions }),
         ...(dto.communityUpdates !== undefined && {
           communityUpdates: dto.communityUpdates,
+        }),
+        ...(dto.whatsappEnabled !== undefined && {
+          whatsappEnabled: dto.whatsappEnabled,
         }),
       },
     });

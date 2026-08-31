@@ -177,6 +177,7 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
           .mockResolvedValueOnce({
             id: 'session-1',
             status: 'ACTIVE',
+            endsAt: new Date('2099-01-01T00:00:00.000Z'),
             capacity: 6,
             _count: { bookings: 0 },
           }),

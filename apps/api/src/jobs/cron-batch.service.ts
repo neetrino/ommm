@@ -6,6 +6,7 @@ import { PackagesActivationService } from '../packages/packages-activation.servi
 import { PackagesFreezeService } from '../packages/packages-freeze.service';
 import { ArcaReconciliationService } from '../payments/arca/arca-reconciliation.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
+import { WhatsappMembershipExpiryService } from '../whatsapp/whatsapp-membership-expiry.service';
 import { resolveCronBatchSchedule } from './cron-batch.constants';
 
 /**
@@ -23,6 +24,7 @@ export class CronBatchService {
     private readonly arcaReconciliation: ArcaReconciliationService,
     private readonly packagesFreeze: PackagesFreezeService,
     private readonly packagesActivation: PackagesActivationService,
+    private readonly membershipExpiry: WhatsappMembershipExpiryService,
   ) {}
 
   @Cron(resolveCronBatchSchedule())
@@ -33,6 +35,7 @@ export class CronBatchService {
       await this.bookingsStatus.completePastBookedSessionsCron();
       await this.notificationsCron.dispatchScheduledBroadcasts();
       await this.notificationsCron.sendClassReminders();
+      await this.membershipExpiry.sendDueReminders();
       await this.arcaReconciliation.reconcilePendingPaymentsCron();
       await this.packagesFreeze.resumeDueFreezes();
       await this.packagesActivation.reconcileAwaitingPackages();

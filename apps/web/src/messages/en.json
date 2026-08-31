@@ -2002,6 +2002,7 @@
     "settings": {
       "title": "Settings",
       "studioDescription": "Manage studio identity, contact details, and operational defaults.",
+      "whatsappDescription": "Store Gateway credentials and pair the studio WhatsApp number with a QR code.",
       "tabs": {
         "aria": "Settings sections",
         "studio": "Studio",
@@ -2009,7 +2010,8 @@
         "languages": "Languages",
         "identity": "Identity",
         "location": "Location",
-        "contact": "Contact"
+        "contact": "Contact",
+        "whatsapp": "WhatsApp"
       },
       "studioSections": {
         "identity": "Public studio name",
@@ -2104,6 +2106,41 @@
             "description": "Russian — shown in the language switcher as Русский."
           }
         }
+      },
+      "whatsapp": {
+        "loadFailed": "Could not load WhatsApp settings ({status}).",
+        "credentialsTitle": "Gateway connection",
+        "credentialsHint": "Hover a field, click the pencil to edit, then confirm to save.",
+        "gatewayUrl": "Gateway URL",
+        "gatewayUrlHint": "HTTPS base URL without a trailing slash.",
+        "gatewayToken": "Project token",
+        "urlEmpty": "Not set",
+        "tokenSet": "Token is set",
+        "tokenNotSet": "Token is not set",
+        "tokenPlaceholder": "Paste the new project token",
+        "editUrl": "Edit Gateway URL",
+        "editToken": "Edit project token",
+        "cancelEdit": "Cancel editing",
+        "save": "Save connection",
+        "saving": "Saving...",
+        "saved": "WhatsApp Gateway connection saved.",
+        "failed": "Could not save WhatsApp Gateway connection.",
+        "confirmTitle": "Save WhatsApp connection?",
+        "confirmDescription": "This updates the Gateway URL and token used to send WhatsApp messages.",
+        "confirmSave": "Save",
+        "cancelButton": "Cancel",
+        "modalBackdropClose": "Close dialog",
+        "connectTitle": "Pair WhatsApp",
+        "connectHint": "Open WhatsApp on the studio phone, scan the QR code, and wait until the session is connected.",
+        "statusLabel": "Session",
+        "statusUnknown": "Not loaded",
+        "statusConnected": "Connected",
+        "qrAlt": "WhatsApp pairing QR code",
+        "showQr": "Show QR code",
+        "waitingScan": "Waiting for scan...",
+        "restart": "Restart session",
+        "logout": "Disconnect",
+        "connectFailed": "Could not reach WhatsApp Gateway."
       }
     },
     "bookings": {
@@ -4667,6 +4704,7 @@
   },
   "forms": {
     "notificationPrefs": {
+      "whatsappEnabled": "WhatsApp notifications",
       "bookingReminders": "Booking reminders",
       "waitlistAlerts": "Waitlist alerts",
       "promotions": "Promotions",

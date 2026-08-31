@@ -32,6 +32,7 @@ describe('PaymentsAdminService refund cancels package', () => {
       prisma as never,
       {} as never,
       { trySendSuccessEmails: jest.fn() } as never,
+      { tryPrintReceipt: jest.fn() } as never,
     );
 
     await service.adminUpdatePaymentStatus(
@@ -81,6 +82,7 @@ describe('PaymentsAdminService refund cancels package', () => {
       prisma as never,
       {} as never,
       { trySendSuccessEmails: jest.fn() } as never,
+      { tryPrintReceipt: jest.fn() } as never,
     );
 
     await service.adminUpdatePaymentStatus(

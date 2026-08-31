@@ -16,4 +16,8 @@ export class NotificationPrefsDto {
   @IsOptional()
   @IsBoolean()
   communityUpdates?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  whatsappEnabled?: boolean;
 }

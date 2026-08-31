@@ -18,6 +18,13 @@ import {
 } from '../mail/templates/payment-customer-confirmation.template';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  formatWhatsappAmount,
+  formatWhatsappPaymentSource,
+  resolveWhatsappLocale,
+} from '../whatsapp/whatsapp-locale';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
+import { renderPaymentSuccessWhatsapp } from '../whatsapp/whatsapp-commerce-templates';
+import {
   formatCustomerDisplayName,
   formatPaymentAmount,
   formatPaymentDateTime,
@@ -33,6 +40,7 @@ export class PaymentSuccessEmailService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
+    private readonly whatsapp: WhatsappNotifyService,
   ) {}
 
   /** Sends branded success emails when a payment newly reaches SUCCEEDED. */
@@ -79,6 +87,22 @@ export class PaymentSuccessEmailService {
 
     const context = this.buildEmailContext(payment);
     const customerSent = await this.sendCustomerEmail(context);
+    const whatsappLocale = resolveWhatsappLocale(payment.user.locale);
+    await this.whatsapp.trySendToUser({
+      userId: payment.userId,
+      topic: 'operational',
+      text: renderPaymentSuccessWhatsapp(whatsappLocale, {
+        amountLabel: formatWhatsappAmount(
+          whatsappLocale,
+          payment.amountCents,
+          payment.currency,
+        ),
+        paymentTypeLabel: formatWhatsappPaymentSource(
+          whatsappLocale,
+          payment.source,
+        ),
+      }),
+    });
     const adminSent = await this.sendAdminEmail(context);
 
     if (!customerSent) {
@@ -193,6 +217,7 @@ type PaymentEmailContext = {
 
 type PaymentWithRelations = {
   id: string;
+  userId: string;
   amountCents: number;
   currency: string;
   status: PaymentStatus;

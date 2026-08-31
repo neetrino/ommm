@@ -13,6 +13,7 @@ type MeResponse = {
     waitlistAlerts: boolean;
     promotions: boolean;
     communityUpdates: boolean;
+    whatsappEnabled: boolean;
   };
 };
 

@@ -13,6 +13,9 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { StudioService } from '../studio/studio.service';
+import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
+import { renderWaitlistOfferWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 import { WaitlistCapacityService } from './waitlist-capacity.service';
 
 @Injectable()
@@ -26,6 +29,7 @@ export class WaitlistOffersService {
     private readonly studio: StudioService,
     private readonly capacity: WaitlistCapacityService,
     private readonly realtime: RealtimePublisherService,
+    private readonly whatsapp: WhatsappNotifyService,
   ) {
     this.waitlistCronEnabled = this.isEnabledEnv(
       process.env.ENABLE_WAITLIST_BACKGROUND_JOBS,
@@ -88,6 +92,17 @@ export class WaitlistOffersService {
       locale: next.user.locale,
       className: session.classType.name,
       offerMinutes: minutes,
+    });
+    await this.whatsapp.trySendToUser({
+      userId: next.userId,
+      topic: 'waitlistAlerts',
+      text: renderWaitlistOfferWhatsapp(
+        resolveWhatsappLocale(next.user.locale),
+        {
+          className: session.classType.name,
+          offerMinutes: minutes,
+        },
+      ),
     });
     this.realtime.emitWaitlistOffer(next.userId, sessionId);
   }

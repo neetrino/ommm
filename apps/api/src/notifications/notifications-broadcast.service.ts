@@ -8,6 +8,10 @@ import { randomUUID } from 'node:crypto';
 import { AuditService } from '../audit/audit.service';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { MailService } from '../mail/mail.service';
+import { htmlToWhatsappText } from '../whatsapp/whatsapp-html-text';
+import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
+import { renderBroadcastWhatsapp } from '../whatsapp/whatsapp-commerce-templates';
 import { renderBroadcastEmail } from '../mail/templates/broadcast.template';
 import { PrismaService } from '../prisma/prisma.service';
 import { BroadcastAudience } from './dto/broadcast.dto';
@@ -41,6 +45,7 @@ export class NotificationsBroadcastService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly audit: AuditService,
+    private readonly whatsapp: WhatsappNotifyService,
   ) {}
 
   async broadcastToAll(
@@ -70,23 +75,18 @@ export class NotificationsBroadcastService {
           ? { notificationPrefs: { is: { promotions: true } } }
           : {}),
       },
-      select: { email: true },
+      select: { id: true, email: true, locale: true },
       take: 500,
     });
-    for (const u of users) {
-      await this.mail.sendEmail({ to: u.email, subject, html: brandedHtml });
-      await this.audit.log({
-        actorRole: 'ADMIN',
-        action: ACTION_NOTIFICATION_DELIVERY,
-        entityType: 'Notification',
-        entityId: options.scheduleEntityId ?? 'immediate',
-        payload: {
-          recipientEmail: u.email,
-          channel: 'email',
-          audience: options.audience,
-          scheduled: options.scheduleEntityId !== undefined,
-          subject,
-        },
+    const whatsappBody = htmlToWhatsappText(html);
+    for (const user of users) {
+      await this.deliverBroadcastRecipient({
+        user,
+        subject,
+        brandedHtml,
+        whatsappBody,
+        audience: options.audience,
+        scheduleEntityId: options.scheduleEntityId,
       });
     }
     await this.audit.log({
@@ -102,6 +102,42 @@ export class NotificationsBroadcastService {
       },
     });
     return { ok: true, count: users.length };
+  }
+
+  private async deliverBroadcastRecipient(params: {
+    user: { id: string; email: string; locale: string };
+    subject: string;
+    brandedHtml: string;
+    whatsappBody: string;
+    audience: BroadcastAudience;
+    scheduleEntityId?: string;
+  }): Promise<void> {
+    await this.mail.sendEmail({
+      to: params.user.email,
+      subject: params.subject,
+      html: params.brandedHtml,
+    });
+    await this.audit.log({
+      actorRole: 'ADMIN',
+      action: ACTION_NOTIFICATION_DELIVERY,
+      entityType: 'Notification',
+      entityId: params.scheduleEntityId ?? 'immediate',
+      payload: {
+        recipientEmail: params.user.email,
+        channel: 'email',
+        audience: params.audience,
+        scheduled: params.scheduleEntityId !== undefined,
+        subject: params.subject,
+      },
+    });
+    await this.whatsapp.trySendToUser({
+      userId: params.user.id,
+      topic: 'promotions',
+      text: renderBroadcastWhatsapp(resolveWhatsappLocale(params.user.locale), {
+        subject: params.subject,
+        body: params.whatsappBody,
+      }),
+    });
   }
 
   async scheduleBroadcast(
