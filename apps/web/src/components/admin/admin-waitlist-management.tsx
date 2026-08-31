@@ -56,7 +56,6 @@ export function AdminWaitlistManagement({
     filterValues: waitlistFilterValues,
     handleFilterChange: handleWaitlistFilterChange,
     resetFilters: resetWaitlistFilters,
-    replaceSearchParams,
   } = useAdminWaitlistFilters();
   const waitlistFilterFields = useAdminWaitlistFilterFields({ items: payload.items });
 
@@ -114,7 +113,9 @@ export function AdminWaitlistManagement({
     if (payload.take === listPage.take && payload.offset === listPage.offset) {
       return;
     }
-    void loadRows();
+    queueMicrotask(() => {
+      void loadRows();
+    });
   }, [loadRows, listPage.offset, listPage.take, payload.offset, payload.take]);
 
   useRealtimeRefetch(REALTIME_REFETCH_KEYS.WAITLIST_ADMIN, () => {

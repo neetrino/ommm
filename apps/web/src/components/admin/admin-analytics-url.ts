@@ -1,6 +1,5 @@
 import {
   analyticsSectionHref,
-  analyticsSectionIdsFor,
   type AnalyticsSectionId,
   type AnalyticsWorkspace,
 } from "@/components/admin/admin-analytics-module";

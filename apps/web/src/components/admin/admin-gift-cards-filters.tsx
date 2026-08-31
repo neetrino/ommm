@@ -17,7 +17,6 @@ import type {
   GiftCardSortOrder,
   GiftCardStatusFilter,
 } from "@/components/admin/admin-gift-cards-types";
-import { OmmButton } from "@/components/ui/omm-button";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";

@@ -50,7 +50,12 @@ export class BookingsGuestPassService {
       channel: dto.channel ?? BookingChannel.WEBSITE,
       session,
     });
-    await this.afterGuestBooked(userId, sessionId, session.capacity, booking.id);
+    await this.afterGuestBooked(
+      userId,
+      sessionId,
+      session.capacity,
+      booking.id,
+    );
     return booking;
   }
 

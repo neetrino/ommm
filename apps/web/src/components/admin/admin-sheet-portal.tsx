@@ -70,11 +70,9 @@ export function AdminSheetPortal({
   const [phoneMounted, setPhoneMounted] = useState(isOpen);
   const wasDesktopOpenRef = useRef(isOpen);
 
-  useEffect(() => {
-    if (isOpen) {
-      setPhoneMounted(true);
-    }
-  }, [isOpen]);
+  if (isOpen && !phoneMounted) {
+    setPhoneMounted(true);
+  }
 
   useEffect(() => {
     const wasOpen = wasDesktopOpenRef.current;

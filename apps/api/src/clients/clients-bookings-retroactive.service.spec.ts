@@ -27,7 +27,12 @@ function createMembership() {
     awaitingFirstVisit: true,
     currentPeriodStart: NOW,
     currentPeriodEnd: new Date('2026-09-26T15:00:00.000Z'),
-    plan: { id: 'plan-1', name: 'Reformer 8', categoryName: 'Reformer', isUnlimited: false },
+    plan: {
+      id: 'plan-1',
+      name: 'Reformer 8',
+      categoryName: 'Reformer',
+      isUnlimited: false,
+    },
     balances: [
       {
         id: 'bal-1',
@@ -54,7 +59,10 @@ function createSession() {
 }
 
 function createService(overrides?: {
-  existingBooking?: { id: string; consumptions: Array<{ restoredAt: Date | null }> } | null;
+  existingBooking?: {
+    id: string;
+    consumptions: Array<{ restoredAt: Date | null }>;
+  } | null;
 }) {
   const existingBooking = overrides?.existingBooking ?? null;
   const bookingCreate = jest.fn().mockResolvedValue({ id: 'booking-new' });
@@ -77,13 +85,17 @@ function createService(overrides?: {
     ),
   };
   const packageUsage = {
-    getValidatedUserPackageForBooking: jest.fn().mockResolvedValue(createMembership()),
+    getValidatedUserPackageForBooking: jest
+      .fn()
+      .mockResolvedValue(createMembership()),
     consumeSession: jest.fn().mockResolvedValue(undefined),
   };
   const packagesActivation = {
     activateFromCompletedBooking: jest.fn().mockResolvedValue(undefined),
   };
-  const schedule = { invalidatePublicCache: jest.fn().mockResolvedValue(undefined) };
+  const schedule = {
+    invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+  };
   const realtime = { emitBookingSessionChange: jest.fn() };
   const service = new ClientsBookingsRetroactiveService(
     prisma as never,
@@ -127,13 +139,26 @@ describe('ClientsBookingsRetroactiveService', () => {
       bookingId: 'booking-new',
       attachedExistingVisit: false,
     });
-    expect(ctx.bookingCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        userId: 'client-1',
-        sessionId: 'session-1',
-        status: BookingStatus.COMPLETED,
-        attendedAt: NOW,
-      }),
+    expect(ctx.bookingCreate).toHaveBeenCalled();
+    const createCalls = ctx.bookingCreate.mock.calls as Array<
+      [
+        {
+          data: {
+            userId: string;
+            sessionId: string;
+            status: BookingStatus;
+            attendedAt: Date;
+          };
+        },
+      ]
+    >;
+    const createArg = createCalls[0]?.[0];
+    expect(createArg).toBeDefined();
+    expect(createArg?.data).toMatchObject({
+      userId: 'client-1',
+      sessionId: 'session-1',
+      status: BookingStatus.COMPLETED,
+      attendedAt: NOW,
     });
     expect(ctx.packageUsage.consumeSession).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -142,9 +167,9 @@ describe('ClientsBookingsRetroactiveService', () => {
       }),
     );
     expect(ctx.bookingNoteCreate).toHaveBeenCalled();
-    expect(ctx.packagesActivation.activateFromCompletedBooking).toHaveBeenCalledWith(
-      'booking-new',
-    );
+    expect(
+      ctx.packagesActivation.activateFromCompletedBooking,
+    ).toHaveBeenCalledWith('booking-new');
   });
 
   it('attaches an existing walk-in visit and consumes a credit', async () => {

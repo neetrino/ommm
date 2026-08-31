@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import {
   BookingChannel,
   BookingStatus,
@@ -166,16 +162,17 @@ export class ClientsBookingsRetroactiveService {
     if (existing !== null && hasUnrestoredConsumption(existing.consumptions)) {
       throw new BadRequestException(RETROACTIVE_ATTACH_ERROR.ALREADY_DEDUCTED);
     }
-    const membership = await this.packageUsage.getValidatedUserPackageForBooking({
-      tx,
-      userId: params.clientId,
-      session: {
-        id: params.session.id,
-        startsAt: params.session.startsAt,
-        classType: params.session.classType,
-      },
-      userPackageId: params.packageId,
-    });
+    const membership =
+      await this.packageUsage.getValidatedUserPackageForBooking({
+        tx,
+        userId: params.clientId,
+        session: {
+          id: params.session.id,
+          startsAt: params.session.startsAt,
+          classType: params.session.classType,
+        },
+        userPackageId: params.packageId,
+      });
     const saved = await this.upsertCompletedBooking(tx, existing?.id, params);
     await this.packageUsage.consumeSession({
       tx,

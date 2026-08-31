@@ -57,9 +57,9 @@ describe('clients-bookings-retroactive.helpers', () => {
     expect(isRetroactiveSessionStatusAllowed(ClassSessionStatus.ACTIVE)).toBe(
       true,
     );
-    expect(isRetroactiveSessionStatusAllowed(ClassSessionStatus.CANCELLED)).toBe(
-      false,
-    );
+    expect(
+      isRetroactiveSessionStatusAllowed(ClassSessionStatus.CANCELLED),
+    ).toBe(false);
     expect(isRetroactiveSessionStatusAllowed(ClassSessionStatus.DRAFT)).toBe(
       false,
     );
@@ -68,7 +68,9 @@ describe('clients-bookings-retroactive.helpers', () => {
   it('detects unrestored consumptions', () => {
     expect(hasUnrestoredConsumption([])).toBe(false);
     expect(
-      hasUnrestoredConsumption([{ restoredAt: new Date('2026-08-01T00:00:00.000Z') }]),
+      hasUnrestoredConsumption([
+        { restoredAt: new Date('2026-08-01T00:00:00.000Z') },
+      ]),
     ).toBe(false);
     expect(hasUnrestoredConsumption([{ restoredAt: null }])).toBe(true);
   });

@@ -45,34 +45,47 @@ export function AdminClientPackagePastSessionControls({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const fetchKey = `${clientId}:${item.id}:${reloadKey}`;
+  const [activeFetchKey, setActiveFetchKey] = useState(fetchKey);
+  if (fetchKey !== activeFetchKey) {
+    setActiveFetchKey(fetchKey);
     setLoading(true);
     setLoadError(null);
-    void apiFetch<AdminClientAttachablePastSessionsResponse>(
-      `/clients/${clientId}/packages/${item.id}/past-sessions`,
-    )
-      .then((payload) => {
-        if (cancelled) {
-          return;
-        }
-        setSessions(payload.items);
-        setLookbackDays(payload.lookbackDays);
-        setSessionId(EMPTY_SESSION_VALUE);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setSessions([]);
-          setLoadError(
-            err instanceof ApiError ? err.message : t("attachPastLoadError"),
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
+    setSessions([]);
+    setSessionId(EMPTY_SESSION_VALUE);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+      void apiFetch<AdminClientAttachablePastSessionsResponse>(
+        `/clients/${clientId}/packages/${item.id}/past-sessions`,
+      )
+        .then((payload) => {
+          if (cancelled) {
+            return;
+          }
+          setSessions(payload.items);
+          setLookbackDays(payload.lookbackDays);
+          setSessionId(EMPTY_SESSION_VALUE);
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            setSessions([]);
+            setLoadError(
+              err instanceof ApiError ? err.message : t("attachPastLoadError"),
+            );
+          }
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        });
+    });
     return () => {
       cancelled = true;
     };

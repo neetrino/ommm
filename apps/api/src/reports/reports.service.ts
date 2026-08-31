@@ -48,7 +48,10 @@ export class ReportsService {
     return this.analyticsService.userAnalytics(userId, days);
   }
 
-  studioAnalytics(query: StudioAnalyticsQueryDto, options?: { includeFinance?: boolean }) {
+  studioAnalytics(
+    query: StudioAnalyticsQueryDto,
+    options?: { includeFinance?: boolean },
+  ) {
     return this.studioAnalyticsService.studioAnalytics(query, options);
   }
 }

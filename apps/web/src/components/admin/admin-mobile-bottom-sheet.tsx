@@ -79,11 +79,16 @@ export function AdminMobileBottomSheet({
 
   useLockBodyScroll(isRendered);
 
+  if (isOpen && !isRendered) {
+    setIsRendered(true);
+  }
+  if (isOpen && isClosing) {
+    setIsClosing(false);
+  }
+
   useEffect(() => {
     if (isOpen) {
-      setIsRendered(true);
       closingRef.current = false;
-      setIsClosing(false);
     }
   }, [isOpen]);
 
