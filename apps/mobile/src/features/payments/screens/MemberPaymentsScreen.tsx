@@ -20,7 +20,7 @@ import { scheduleColors } from "../../schedule/scheduleTokens";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, space, typography } from "../../../theme/tokens";
 import { PaymentHistoryCard } from "../components/PaymentHistoryCard";
-import { PaymentStatusFilterChips } from "../components/PaymentStatusFilterChips";
+import { PaymentStatusFilterDropdown } from "../components/PaymentStatusFilterDropdown";
 import { useMemberPaymentsScreenState } from "../hooks/useMemberPaymentsScreenState";
 
 export function MemberPaymentsScreen() {
@@ -66,7 +66,7 @@ export function MemberPaymentsScreen() {
 
         <Text style={styles.title}>{t("title")}</Text>
 
-        <PaymentStatusFilterChips
+        <PaymentStatusFilterDropdown
           value={state.statusFilter}
           onChange={state.setStatusFilter}
         />

@@ -6,7 +6,7 @@ import {
   type UserPaymentRow,
 } from "../../../lib/api/paymentsClient";
 import { useTranslations } from "../../../i18n/I18nProvider";
-import type { PaymentStatusFilter } from "../components/PaymentStatusFilterChips";
+import type { PaymentStatusFilter } from "../components/PaymentStatusFilterDropdown";
 
 const PAYMENTS_PAGE_TAKE = 50;
 
