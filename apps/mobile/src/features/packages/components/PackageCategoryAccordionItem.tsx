@@ -192,6 +192,8 @@ const styles = StyleSheet.create({
     width: "100%",
     minWidth: 0,
     borderRadius: PACKAGES_PAGE_MOBILE.collapsedCardRadiusPx,
+    /** Clip absolute measurement host so it cannot inflate ScrollView height (esp. RN Web). */
+    overflow: "hidden",
   },
   header: {
     flexDirection: "row",
@@ -249,6 +251,7 @@ const styles = StyleSheet.create({
   },
   measurementHost: {
     position: "absolute",
+    top: 0,
     left: 0,
     right: 0,
     width: "100%",
