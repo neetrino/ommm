@@ -2141,7 +2141,20 @@
         "waitingScan": "Սկանավորման սպասում...",
         "restart": "Վերագործարկել սեսիան",
         "logout": "Անջատել",
-        "connectFailed": "Չհաջողվեց կապվել WhatsApp Gateway-ի հետ։"
+        "connectFailed": "Չհաջողվեց կապվել WhatsApp Gateway-ի հետ։",
+        "gatewayStatusLabel": "Gateway",
+        "gatewayStatusChecking": "Ստուգում…",
+        "gatewayStatusOk": "Միացված է",
+        "gatewayStatusFail": "Միացված չէ",
+        "testMessageTitle": "Տեստային հաղորդագրություն",
+        "testMessageHint": "Կապված WhatsApp հաշվից կարճ տեստ ուղարկել ցանկացած համարի։",
+        "testPhoneLabel": "Հեռախոսահամար",
+        "testPhonePlaceholder": "+374XXXXXXXX",
+        "testPhoneExample": "Միջազգային ֆորմատ, օրինակ՝ +374XXXXXXXX",
+        "sendTestMessage": "Ուղարկել տեստային հաղորդագրություն",
+        "sendingTestMessage": "Ուղարկվում է…",
+        "testMessageSent": "Տեստային հաղորդագրությունն ուղարկվեց։",
+        "testMessageFailed": "Չհաջողվեց ուղարկել տեստային հաղորդագրությունը։"
       }
     },
     "bookings": {

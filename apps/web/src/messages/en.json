@@ -2140,7 +2140,20 @@
         "waitingScan": "Waiting for scan...",
         "restart": "Restart session",
         "logout": "Disconnect",
-        "connectFailed": "Could not reach WhatsApp Gateway."
+        "connectFailed": "Could not reach WhatsApp Gateway.",
+        "gatewayStatusLabel": "Gateway",
+        "gatewayStatusChecking": "Checking…",
+        "gatewayStatusOk": "Connected",
+        "gatewayStatusFail": "Not connected",
+        "testMessageTitle": "Test message",
+        "testMessageHint": "Send a short test from the paired WhatsApp account to any number.",
+        "testPhoneLabel": "Phone number",
+        "testPhonePlaceholder": "+374XXXXXXXX",
+        "testPhoneExample": "International format, example: +374XXXXXXXX",
+        "sendTestMessage": "Send test message",
+        "sendingTestMessage": "Sending…",
+        "testMessageSent": "Test message sent.",
+        "testMessageFailed": "Could not send the test message."
       }
     },
     "bookings": {

@@ -42,6 +42,12 @@ export class WhatsappGatewayClient {
     return parseGatewayAccounts(result.data);
   }
 
+  /** True when URL + token are accepted by Gateway (`GET /api/v1/accounts`). */
+  async probe(): Promise<boolean> {
+    const result = await this.request('/api/v1/accounts', { method: 'GET' });
+    return result.ok;
+  }
+
   async getSession(accountId: string): Promise<{
     status: string | null;
     qrDataUrl: string | null;
