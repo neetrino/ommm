@@ -89,7 +89,7 @@ export function LanguageSwitcher() {
             style={StyleSheet.absoluteFill}
             onPress={() => setOpen(false)}
             accessibilityRole="button"
-            accessibilityLabel={t("switcherAria")}
+            accessibilityLabel={t("closePicker")}
           />
           <View
             style={[
@@ -104,7 +104,25 @@ export function LanguageSwitcher() {
             ]}
             accessibilityRole="menu"
           >
-            <Text style={styles.menuTitle}>{t("switcherAria")}</Text>
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuTitle}>{t("switcherAria")}</Text>
+              <Pressable
+                onPress={() => setOpen(false)}
+                style={({ pressed }) => [
+                  styles.closeButton,
+                  pressed && styles.closeButtonPressed,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={t("closePicker")}
+                hitSlop={8}
+              >
+                <MaterialCommunityIcons
+                  name="close"
+                  size={20}
+                  color={LANGUAGE_MENU.olive}
+                />
+              </Pressable>
+            </View>
             <View style={styles.list}>
               {LANGUAGE_SWITCHER_ORDER.map((code) => {
                 const selected = code === effectiveLocale;
@@ -192,14 +210,32 @@ const styles = StyleSheet.create({
     padding: LANGUAGE_MENU.panelPadding,
     gap: LANGUAGE_MENU.panelGap,
   },
+  menuHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: space.sm,
+    paddingLeft: space.xs,
+    paddingTop: space.xxs,
+  },
   menuTitle: {
+    flex: 1,
     fontFamily: fontFamilies.manrope.semiBold,
     fontSize: typography.caption,
     letterSpacing: 1.2,
     textTransform: "uppercase",
     color: LANGUAGE_MENU.olive,
-    paddingHorizontal: space.xs,
-    paddingTop: space.xxs,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(151, 144, 124, 0.16)",
+  },
+  closeButtonPressed: {
+    opacity: 0.85,
   },
   list: {
     borderRadius: LANGUAGE_MENU.listRadius,
