@@ -1,15 +1,13 @@
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
 import { BookingStatus } from '@prisma/client';
 import {
   attachNextBookingsToRows,
   pickNextBookingFromBookings,
 } from './clients-row-next-booking';
 
-void describe('clients-row-next-booking', () => {
+describe('clients-row-next-booking', () => {
   const nowMs = Date.parse('2026-07-29T12:00:00.000Z');
 
-  void it('picks earliest upcoming BOOKED booking', () => {
+  it('picks earliest upcoming BOOKED booking', () => {
     const picked = pickNextBookingFromBookings(
       [
         {
@@ -48,15 +46,15 @@ void describe('clients-row-next-booking', () => {
       nowMs,
     );
 
-    assert.deepEqual(picked, {
+    expect(picked).toEqual({
       id: 'b-soon',
       startsAt: '2026-07-30T10:00:00.000Z',
       classTypeName: 'Reformer',
     });
   });
 
-  void it('returns null when no upcoming booked sessions', () => {
-    assert.equal(
+  it('returns null when no upcoming booked sessions', () => {
+    expect(
       pickNextBookingFromBookings(
         [
           {
@@ -70,11 +68,10 @@ void describe('clients-row-next-booking', () => {
         ],
         nowMs,
       ),
-      null,
-    );
+    ).toBeNull();
   });
 
-  void it('attachNextBookingsToRows overwrites with batch map', () => {
+  it('attachNextBookingsToRows overwrites with batch map', () => {
     const rows = attachNextBookingsToRows(
       [
         {
@@ -99,7 +96,7 @@ void describe('clients-row-next-booking', () => {
       ]),
     );
 
-    assert.equal(rows[0]?.nextBooking?.id, 'new');
-    assert.equal(rows[1]?.nextBooking, null);
+    expect(rows[0]?.nextBooking?.id).toBe('new');
+    expect(rows[1]?.nextBooking).toBeNull();
   });
 });

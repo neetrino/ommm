@@ -43,6 +43,7 @@ import {
 } from './packages-subscribe-card.util';
 import { toUserPackageActivationApi } from './packages-activation.helpers';
 import { toUserPackageGuestPassApi } from './packages-guest-pass.helpers';
+import { WhatsappPackagePurchasedService } from '../whatsapp/whatsapp-package-purchased.service';
 import { toUserPackageFreezeApi } from './packages-freeze.mapper';
 import { resumeDueFreezes } from './packages-freeze.resume';
 import { resolveUserPackagePlan } from './user-package-plan-snapshot.util';
@@ -62,6 +63,7 @@ export class PackagesPublicService {
     private readonly cache: RedisCacheService,
     @Inject(forwardRef(() => ArcaService))
     private readonly arca: ArcaService,
+    private readonly packagePurchased: WhatsappPackagePurchasedService,
   ) {}
 
   async listPlans() {
@@ -298,6 +300,7 @@ export class PackagesPublicService {
     if (created.stockTracked) {
       await this.invalidatePublicPlansCache();
     }
+    await this.packagePurchased.tryNotify(created.userPackageId);
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
@@ -322,6 +325,7 @@ export class PackagesPublicService {
     if (created.stockTracked) {
       await this.invalidatePublicPlansCache();
     }
+    await this.packagePurchased.tryNotify(created.userPackageId);
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,

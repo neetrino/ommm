@@ -8,6 +8,10 @@ import {
   resolveAdminSettingsTabFromPathname,
   type AdminSettingsTabId,
 } from "@/components/admin/admin-settings-module";
+import {
+  WhatsappBrandIcon,
+  WHATSAPP_BRAND_ICON_SM_CLASS,
+} from "@/components/ui/whatsapp-brand-icon";
 
 const TAB_LABEL_KEY: Record<AdminSettingsTabId, string> = {
   studio: "studio",
@@ -16,6 +20,7 @@ const TAB_LABEL_KEY: Record<AdminSettingsTabId, string> = {
   identity: "identity",
   location: "location",
   contact: "contact",
+  whatsapp: "whatsapp",
 };
 
 export function AdminSettingsTabNav({ className = "" }: { className?: string }) {
@@ -46,7 +51,12 @@ export function AdminSettingsTabNav({ className = "" }: { className?: string }) 
                 : "ommm-admin-pill-tab shrink-0 px-4 normal-case tracking-normal"
             }
           >
-            {t(TAB_LABEL_KEY[tab])}
+            <span className="inline-flex items-center gap-1.5">
+              {tab === "whatsapp" ? (
+                <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+              ) : null}
+              {t(TAB_LABEL_KEY[tab])}
+            </span>
           </Link>
         );
       })}

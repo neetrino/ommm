@@ -14,12 +14,10 @@ describe('NotificationsService', () => {
         create: jest.fn().mockResolvedValue({ id: 'log-1' }),
       },
       user: {
-        findMany: jest
-          .fn()
-          .mockResolvedValue([
-            { email: 'u1@test.com' },
-            { email: 'u2@test.com' },
-          ]),
+        findMany: jest.fn().mockResolvedValue([
+          { id: 'u1', email: 'u1@test.com', locale: 'en' },
+          { id: 'u2', email: 'u2@test.com', locale: 'en' },
+        ]),
       },
       classReminderSendLog: {
         findUnique: jest.fn(),
@@ -40,10 +38,14 @@ describe('NotificationsService', () => {
     };
     const expoPush = { send: jest.fn().mockResolvedValue(undefined) };
     const audit = { log: jest.fn().mockResolvedValue(undefined) };
+    const whatsapp = {
+      trySendToUser: jest.fn().mockResolvedValue('skipped'),
+    };
     const broadcast = new NotificationsBroadcastService(
       prisma as never,
       mail as never,
       audit as never,
+      whatsapp as never,
     );
     const analytics = new NotificationsAnalyticsService(prisma as never);
     const cron = new NotificationsCronService(
@@ -52,6 +54,7 @@ describe('NotificationsService', () => {
       expoPush as never,
       audit as never,
       broadcast,
+      whatsapp as never,
     );
     const service = new NotificationsService(broadcast, analytics);
     return {

@@ -46,6 +46,7 @@ describe('PaymentSuccessEmailService', () => {
         prisma as never,
         mail as never,
         config as never,
+        { trySendToUser: jest.fn().mockResolvedValue('skipped') } as never,
       ),
       prisma,
       mail,
@@ -65,6 +66,7 @@ describe('PaymentSuccessEmailService', () => {
     const { service, prisma, mail } = createService();
     prisma.payment.findUnique.mockResolvedValue({
       id: 'p1',
+      userId: 'user-1',
       amountCents: 25_000,
       currency: 'amd',
       status: PaymentStatus.SUCCEEDED,
@@ -125,6 +127,7 @@ describe('PaymentSuccessEmailService', () => {
     const { service, prisma, mail } = createService();
     prisma.payment.findUnique.mockResolvedValue({
       id: 'p1',
+      userId: 'user-1',
       amountCents: 10_000,
       currency: 'amd',
       status: PaymentStatus.SUCCEEDED,

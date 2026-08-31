@@ -78,6 +78,7 @@ describe('PackagesAdminClientPurchaseService', () => {
     const service = new PackagesAdminClientPurchaseService(
       prisma as never,
       publicPackages as never,
+      { tryNotify: jest.fn().mockResolvedValue(undefined) } as never,
     );
 
     const result = await service.purchase({
@@ -120,6 +121,7 @@ describe('PackagesAdminClientPurchaseService', () => {
     const service = new PackagesAdminClientPurchaseService(
       prisma as never,
       { invalidatePublicPlansCache: jest.fn() } as never,
+      { tryNotify: jest.fn() } as never,
     );
 
     await expect(

@@ -12,6 +12,12 @@ import {
 } from '../mail/templates/class-cancelled.template';
 import { formatPaymentDateTime } from '../payments/payment-email-format.util';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  formatWhatsappDateTime,
+  resolveWhatsappLocale,
+} from '../whatsapp/whatsapp-locale';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
+import { renderClassCancelledWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 
 type CancelledClassRecipient = {
   userId: string;
@@ -31,6 +37,7 @@ export class ClassCancelledEmailService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly whatsapp: WhatsappNotifyService,
   ) {}
 
   /**
@@ -67,6 +74,7 @@ export class ClassCancelledEmailService {
       await this.sendOne(recipient, {
         className,
         startsAtLabel,
+        startsAt: session.startsAt,
         subject,
         webAppUrl,
       });
@@ -117,6 +125,7 @@ export class ClassCancelledEmailService {
     context: {
       className: string;
       startsAtLabel: string;
+      startsAt: Date;
       subject: string;
       webAppUrl: string;
     },
@@ -132,6 +141,15 @@ export class ClassCancelledEmailService {
             context.webAppUrl,
             resolveEmailLocale(recipient.locale),
           ),
+        }),
+      });
+      const locale = resolveWhatsappLocale(recipient.locale);
+      await this.whatsapp.trySendToUser({
+        userId: recipient.userId,
+        topic: 'bookingReminders',
+        text: renderClassCancelledWhatsapp(locale, {
+          className: context.className,
+          startsAtLabel: formatWhatsappDateTime(context.startsAt, locale),
         }),
       });
     } catch (error) {

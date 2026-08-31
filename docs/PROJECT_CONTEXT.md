@@ -494,6 +494,8 @@ Legend:
 | `RESEND_API_KEY` | Resend auth key | Optional (required when sending via Resend) | `apps/api/src/mail/mail.service.ts` |
 | `RESEND_FROM` | email from header | Optional | `apps/api/src/mail/mail.service.ts` |
 | `RESEND_FROM_EMAIL` | documented sender email key | Needs verification | `.env.example`, deploy doc (direct API usage not found) |
+| `WHATSAPP_GATEWAY_URL` | WhatsApp Gateway public base URL | Optional fallback if DB credentials are empty | `apps/api/src/whatsapp/whatsapp-credentials.service.ts` |
+| `WHATSAPP_GATEWAY_TOKEN` | WhatsApp Gateway project token | Optional fallback if DB credentials are empty | `apps/api/src/whatsapp/whatsapp-credentials.service.ts` |
 | `ENABLE_BACKGROUND_REMINDERS` | toggle reminder cron | Optional | `apps/api/src/notifications/notifications.service.ts` |
 | `ENABLE_WAITLIST_BACKGROUND_JOBS` | toggle waitlist cron | Optional | `apps/api/src/waitlist/waitlist.service.ts` |
 | `UPLOAD_DIR` | local upload root path | Optional | `apps/api/src/users/users.service.ts` |

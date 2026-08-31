@@ -9,6 +9,7 @@ import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
 import { PrismaService } from '../prisma/prisma.service';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { GiftCardsImageService } from './gift-cards-image.service';
 import {
   type GiftCardBatchSnapshot,
@@ -23,6 +24,7 @@ export class GiftCardsAdminBatchLifecycleService {
     private readonly mail: MailService,
     private readonly audit: AuditService,
     private readonly images: GiftCardsImageService,
+    private readonly whatsapp: WhatsappNotifyService,
   ) {}
 
   async assignBatchRecipient(batchId: string, userId: string) {
@@ -261,5 +263,6 @@ export class GiftCardsAdminBatchLifecycleService {
         webAppUrl: process.env.WEB_APP_URL,
       }),
     });
+    await this.whatsapp.trySendGiftCard(email, code);
   }
 }

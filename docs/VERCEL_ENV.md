@@ -45,6 +45,7 @@ Keep these on the **API** host only, unless a future change reads them from Next
 - `JWT_SECRET`, `JWT_EXPIRES_SEC`
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 - `MAIL_TRANSPORT`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM`
+- `WHATSAPP_GATEWAY_URL`, `WHATSAPP_GATEWAY_TOKEN` (fallback if Admin WhatsApp settings are empty)
 - `R2_*` (and optional `R2_HOME_IMAGE_REQUIRED`)
 - `CORS_ORIGINS` (Nest)
 - `EXPO_PUBLIC_*` (Expo / mobile, not the Vercel Next app)
@@ -82,6 +83,7 @@ Keep these on the **API** host only, unless a future change reads them from Next
 | `JWT_SECRET`, `JWT_EXPIRES_SEC` | Auth։ |
 | `UPSTASH_REDIS_*` | Եթե cache-ը օգտագործում ես։ |
 | `MAIL_TRANSPORT`, `RESEND_*` | Եթե production-ում նամակ ես ուղարկում։ |
+| `WHATSAPP_GATEWAY_URL`, `WHATSAPP_GATEWAY_TOKEN` | WhatsApp Gateway fallback (Cloud Run API). Prefer Admin → Settings → WhatsApp in the database. Leave both empty to disable if DB is empty. |
 | `R2_*` | Ֆայլերի / home image upload-ի համար (տես `.env.example`)։ |
 
 `APP_URL` այս monorepo-ի Nest կոդում **չի** օգտագործվում (կարևոր է `WEB_APP_URL`)։ Եթե հետագայում payment callback doc-երը խնդրեն `APP_URL`, համաձայնեցրու frontend base URL-ը env անվան հետ։

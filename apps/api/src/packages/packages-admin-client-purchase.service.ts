@@ -14,6 +14,7 @@ import {
   packageHasPublicStock,
 } from './packages-stock.helpers';
 import { USER_PACKAGE_STATUS } from './packages-plan.types';
+import { WhatsappPackagePurchasedService } from '../whatsapp/whatsapp-package-purchased.service';
 import { PackagesPublicService } from './packages-public.service';
 import { createBalancesForUserPackage } from './packages-user-package-balances.util';
 import { buildUserPackageCreateData } from './packages-subscribe-card.util';
@@ -28,6 +29,7 @@ export class PackagesAdminClientPurchaseService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly publicPackages: PackagesPublicService,
+    private readonly packagePurchased: WhatsappPackagePurchasedService,
   ) {}
 
   async purchase(params: {
@@ -101,6 +103,7 @@ export class PackagesAdminClientPurchaseService {
     if (created.stockTracked) {
       await this.publicPackages.invalidatePublicPlansCache();
     }
+    await this.packagePurchased.tryNotify(created.userPackageId);
 
     return {
       userPackageId: created.userPackageId,

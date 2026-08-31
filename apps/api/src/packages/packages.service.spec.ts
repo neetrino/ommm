@@ -61,6 +61,7 @@ function createPackagesService() {
     config as never,
     cache as never,
     arca as never,
+    { tryNotify: jest.fn().mockResolvedValue(undefined) } as never,
   );
   const adminService = new PackagesAdminService(
     prisma as never,

@@ -5,6 +5,10 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { AdminSettingsTabNav } from "@/components/admin/admin-settings-tab-nav";
 import { resolveAdminSettingsTabFromPathname } from "@/components/admin/admin-settings-module";
+import {
+  WhatsappBrandIcon,
+  WHATSAPP_BRAND_ICON_SM_CLASS,
+} from "@/components/ui/whatsapp-brand-icon";
 import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 
@@ -19,6 +23,8 @@ function resolveSettingsDescriptionKey(
     case "location":
     case "contact":
       return `studioSections.${tab}`;
+    case "whatsapp":
+      return "whatsappDescription";
     case "studio":
     default:
       return "studioDescription";
@@ -40,7 +46,10 @@ function AdminSettingsUnifiedHeaderInner() {
         <AdminSettingsTabNav className="w-full min-w-0 max-w-full" />
       </div>
       {descriptionKey ? (
-        <p className="ommm-body-muted mt-1 max-w-3xl text-sm max-sm:mx-auto max-sm:text-center sm:mx-0 sm:text-left">
+        <p className="ommm-body-muted mt-1 flex max-w-3xl items-center gap-2 text-sm max-sm:mx-auto max-sm:justify-center max-sm:text-center sm:mx-0 sm:text-left">
+          {tab === "whatsapp" ? (
+            <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+          ) : null}
           {t(descriptionKey)}
         </p>
       ) : null}

@@ -27,6 +27,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
+import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
+import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
+import { renderWaitlistManualWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 import { WaitlistCapacityService } from './waitlist-capacity.service';
 
 @Injectable()
@@ -39,6 +43,8 @@ export class WaitlistAdminService {
     private readonly schedule: ScheduleService,
     private readonly capacity: WaitlistCapacityService,
     private readonly staffActivity: StaffActivityService,
+    private readonly whatsapp: WhatsappNotifyService,
+    private readonly bookingConfirmed: WhatsappBookingConfirmedService,
   ) {}
 
   listAdminRecent(take: number) {
@@ -146,6 +152,7 @@ export class WaitlistAdminService {
     });
     this.realtime.emitWaitlistChanged(entry.userId, session.id);
     await this.staffActivity.recordBookingCreated(result.id);
+    await this.bookingConfirmed.tryNotify(result.id);
     return result;
   }
 
@@ -169,18 +176,32 @@ export class WaitlistAdminService {
       throw new NotFoundException('Waitlist entry not found');
     }
     const className = entry.session.classType.name;
+    const customSubject = payload.subject?.trim() ?? '';
     const subject = resolveWaitlistUpdateSubject(payload.subject, className);
+    const message = payload.message?.trim() ?? '';
     await this.mail.sendEmail({
       to: entry.user.email,
       subject,
       html: renderWaitlistUpdateEmail({
         className,
-        message: payload.message?.trim() ?? '',
+        message,
         waitlistsUrl: buildMemberWaitlistsUrl(
           resolveWebAppUrl(process.env.WEB_APP_URL),
           resolveEmailLocale(entry.user.locale ?? undefined),
         ),
       }),
+    });
+    await this.whatsapp.trySendToUser({
+      userId: entry.userId,
+      topic: 'waitlistAlerts',
+      text: renderWaitlistManualWhatsapp(
+        resolveWhatsappLocale(entry.user.locale),
+        {
+          className,
+          subject: customSubject,
+          message,
+        },
+      ),
     });
     await this.audit.log({
       actorId: payload.actorId ?? null,

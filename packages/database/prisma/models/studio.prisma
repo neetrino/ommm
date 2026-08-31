@@ -75,6 +75,7 @@ model NotificationPreference {
   waitlistAlerts      Boolean @default(true)
   promotions          Boolean @default(false)
   communityUpdates    Boolean @default(true)
+  whatsappEnabled     Boolean @default(true)
 }
 
 model ClassReminderSendLog {
@@ -83,6 +84,30 @@ model ClassReminderSendLog {
   sentAt    DateTime @default(now())
 
   booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model BookingConfirmedSendLog {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  sentAt    DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model PackagePurchasedSendLog {
+  id            String   @id @default(cuid())
+  userPackageId String   @unique
+  sentAt        DateTime @default(now())
+
+  userPackage UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+}
+
+model MembershipExpiryReminderSendLog {
+  id            String   @id @default(cuid())
+  userPackageId String   @unique
+  sentAt        DateTime @default(now())
+
+  userPackage UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {

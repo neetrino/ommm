@@ -22,6 +22,12 @@ import {
   REMINDER_HOURS_BEFORE,
   SCHEDULED_TIMELINE_ACTIONS,
 } from './notifications-audit.constants';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
+import {
+  formatWhatsappDateTime,
+  resolveWhatsappLocale,
+} from '../whatsapp/whatsapp-locale';
+import { renderClassReminderWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 import { NotificationsBroadcastService } from './notifications-broadcast.service';
 import {
   groupTimelineByEntityId,
@@ -41,6 +47,7 @@ export class NotificationsCronService {
     private readonly expoPush: ExpoPushService,
     private readonly audit: AuditService,
     private readonly broadcast: NotificationsBroadcastService,
+    private readonly whatsapp: WhatsappNotifyService,
   ) {
     this.remindersCronEnabled = isEnabledEnv(
       process.env[ENABLE_BACKGROUND_REMINDERS_ENV],
@@ -125,8 +132,28 @@ export class NotificationsCronService {
         })),
       );
     }
+    await this.sendClassReminderWhatsapp(booking, className);
     await this.prisma.classReminderSendLog.create({
       data: { bookingId: booking.id },
+    });
+  }
+
+  private async sendClassReminderWhatsapp(
+    booking: {
+      user: { id: string; locale: string };
+      session: { startsAt: Date };
+    },
+    className: string,
+  ): Promise<void> {
+    const locale = resolveWhatsappLocale(booking.user.locale);
+    await this.whatsapp.trySendToUser({
+      userId: booking.user.id,
+      topic: 'bookingReminders',
+      text: renderClassReminderWhatsapp(locale, {
+        className,
+        hoursBefore: REMINDER_HOURS_BEFORE,
+        startsAtLabel: formatWhatsappDateTime(booking.session.startsAt, locale),
+      }),
     });
   }
 

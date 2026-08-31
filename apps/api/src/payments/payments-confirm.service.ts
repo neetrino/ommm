@@ -5,9 +5,14 @@ import {
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
-import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
+import {
+  ManualPaymentMethod,
+  PaymentSource,
+  PaymentStatus,
+} from '@prisma/client';
 import { PackagesPublicService } from '../packages/packages-public.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { WhatsappPackagePurchasedService } from '../whatsapp/whatsapp-package-purchased.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
@@ -23,6 +28,7 @@ export class PaymentsConfirmService {
     private readonly ehdmReceipt: EhdmReceiptService,
     @Inject(forwardRef(() => PackagesPublicService))
     private readonly packagesPublic: PackagesPublicService,
+    private readonly packagePurchased: WhatsappPackagePurchasedService,
   ) {}
 
   async confirmPayment(
@@ -74,6 +80,9 @@ export class PaymentsConfirmService {
       payment.id,
       PaymentStatus.PENDING,
     );
+    if (payment.source === PaymentSource.PACKAGE && payment.sourceId) {
+      await this.packagePurchased.tryNotify(payment.sourceId);
+    }
     this.ehdmReceipt.tryPrintReceipt(payment.id, PaymentStatus.PENDING);
     return payment;
   }

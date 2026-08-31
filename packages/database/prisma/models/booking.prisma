@@ -16,6 +16,7 @@ model Booking {
 
   notes BookingNote[]
   reminderLog ClassReminderSendLog?
+  bookingConfirmedLog BookingConfirmedSendLog?
   consumptions BookingConsumption[]
   sessionReview SessionReview?
   staffActivityNotifications StaffActivityNotification[]

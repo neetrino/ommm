@@ -2000,6 +2000,7 @@
     "settings": {
       "title": "Настройки",
       "studioDescription": "Управляйте данными студии, контактами и операционными параметрами.",
+      "whatsappDescription": "Сохраните ключи Gateway в базе и подключите номер студии через QR-код.",
       "tabs": {
         "aria": "Разделы настроек",
         "studio": "Студия",
@@ -2007,7 +2008,8 @@
         "languages": "Языки",
         "identity": "Идентичность",
         "location": "Локация",
-        "contact": "Контакты"
+        "contact": "Контакты",
+        "whatsapp": "WhatsApp"
       },
       "studioSections": {
         "identity": "Публичное название студии",
@@ -2102,6 +2104,41 @@
             "description": "Русский — в переключателе отображается как Русский."
           }
         }
+      },
+      "whatsapp": {
+        "loadFailed": "Не удалось загрузить настройки WhatsApp ({status}).",
+        "credentialsTitle": "Подключение Gateway",
+        "credentialsHint": "Наведите на поле, нажмите карандаш, чтобы изменить, затем подтвердите сохранение.",
+        "gatewayUrl": "URL Gateway",
+        "gatewayUrlHint": "HTTPS-адрес без слэша в конце.",
+        "gatewayToken": "Токен проекта",
+        "urlEmpty": "Не задан",
+        "tokenSet": "Токен установлен",
+        "tokenNotSet": "Токен не установлен",
+        "tokenPlaceholder": "Вставьте новый токен проекта",
+        "editUrl": "Изменить URL Gateway",
+        "editToken": "Изменить токен проекта",
+        "cancelEdit": "Отменить редактирование",
+        "save": "Сохранить подключение",
+        "saving": "Сохранение...",
+        "saved": "Подключение WhatsApp Gateway сохранено.",
+        "failed": "Не удалось сохранить подключение WhatsApp Gateway.",
+        "confirmTitle": "Сохранить подключение WhatsApp?",
+        "confirmDescription": "Будут обновлены URL и токен Gateway, которыми отправляются сообщения в WhatsApp.",
+        "confirmSave": "Сохранить",
+        "cancelButton": "Отмена",
+        "modalBackdropClose": "Закрыть окно",
+        "connectTitle": "Привязка WhatsApp",
+        "connectHint": "Откройте WhatsApp на телефоне студии, отсканируйте QR-код и дождитесь подключения сессии.",
+        "statusLabel": "Сессия",
+        "statusUnknown": "Не загружена",
+        "statusConnected": "Подключено",
+        "qrAlt": "QR-код для привязки WhatsApp",
+        "showQr": "Показать QR-код",
+        "waitingScan": "Ожидание сканирования...",
+        "restart": "Перезапустить сессию",
+        "logout": "Отключить",
+        "connectFailed": "Не удалось связаться с WhatsApp Gateway."
       }
     },
     "bookings": {
@@ -4665,6 +4702,7 @@
   },
   "forms": {
     "notificationPrefs": {
+      "whatsappEnabled": "Уведомления в WhatsApp",
       "bookingReminders": "Напоминания о занятиях",
       "waitlistAlerts": "Уведомления листа ожидания",
       "promotions": "Акции",

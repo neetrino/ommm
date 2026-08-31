@@ -8,6 +8,7 @@ import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
 import { PrismaService } from '../prisma/prisma.service';
+import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { readGiftCardAmount, readGiftCardBalance } from './gift-cards.mapper';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class GiftCardsAdminCardsService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly audit: AuditService,
+    private readonly whatsapp: WhatsappNotifyService,
   ) {}
 
   listAssignableUsers() {
@@ -190,5 +192,6 @@ export class GiftCardsAdminCardsService {
         webAppUrl: process.env.WEB_APP_URL,
       }),
     });
+    await this.whatsapp.trySendGiftCard(email, code);
   }
 }

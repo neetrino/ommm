@@ -13,6 +13,7 @@ export type CachedUsersMeNotificationPrefs = {
   waitlistAlerts: boolean;
   promotions: boolean;
   communityUpdates: boolean;
+  whatsappEnabled: boolean;
 };
 
 export type CachedUsersMePayload = {

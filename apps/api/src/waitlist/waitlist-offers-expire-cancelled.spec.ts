@@ -16,6 +16,7 @@ describe('WaitlistOffersService.expireForCancelledSession', () => {
       {} as never,
       {} as never,
       realtime as never,
+      { trySendToUser: jest.fn() } as never,
     );
     return { service, prisma, realtime };
   }
