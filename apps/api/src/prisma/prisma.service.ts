@@ -10,6 +10,25 @@ const DEFAULT_IDLE_DISCONNECT_MS = 4 * 60 * 1000;
 const DB_IDLE_MONITOR_INTERVAL_MS = 60 * 1000;
 const PRISMA_IDLE_DISCONNECT_ENV = 'PRISMA_IDLE_DISCONNECT';
 const PRISMA_IDLE_DISCONNECT_MS_ENV = 'PRISMA_IDLE_DISCONNECT_MS';
+/** Bright red — idle disconnect is intentional but should stand out. */
+const ANSI_BRIGHT_RED = '\x1b[91m';
+const ANSI_BOLD = '\x1b[1m';
+const ANSI_DIM = '\x1b[2m';
+const ANSI_RESET = '\x1b[0m';
+
+/** Pretty terminal banner for Prisma idle disconnect (exported for local preview). */
+export function formatPrismaIdleDisconnectBanner(idleSeconds: number): string {
+  const title = 'Prisma idle disconnect';
+  const detail = `Disconnected after ${idleSeconds}s  ·  Neon scale-to-zero`;
+  const width = Math.max(title.length, detail.length) + 4;
+  const rule = '─'.repeat(width);
+  return [
+    `${ANSI_BRIGHT_RED}${ANSI_BOLD}┌${rule}${ANSI_RESET}`,
+    `${ANSI_BRIGHT_RED}${ANSI_BOLD}│  ${title}${ANSI_RESET}`,
+    `${ANSI_BRIGHT_RED}│  ${ANSI_DIM}${detail}${ANSI_RESET}`,
+    `${ANSI_BRIGHT_RED}${ANSI_BOLD}└${rule}${ANSI_RESET}`,
+  ].join('\n');
+}
 
 @Injectable()
 export class PrismaService
@@ -83,7 +102,7 @@ export class PrismaService
       if (!this.idleDisconnectLogged) {
         this.idleDisconnectLogged = true;
         this.logger.log(
-          `Prisma disconnected after ${Math.round(idleForMs / 1000)}s idle (Neon scale-to-zero).`,
+          `\n${formatPrismaIdleDisconnectBanner(Math.round(idleForMs / 1000))}`,
         );
       }
     } catch (error) {
