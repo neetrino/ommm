@@ -104,7 +104,9 @@ export class PackageUsageLedgerService {
     membership: UserPackageWithPlanAndBalances;
   }): Promise<void> {
     if (params.membership.guestSlotsRemaining <= 0) {
-      throw new BadRequestException('No guest passes remaining on this package');
+      throw new BadRequestException(
+        'No guest passes remaining on this package',
+      );
     }
     await params.tx.userPackage.update({
       where: { id: params.membership.id },

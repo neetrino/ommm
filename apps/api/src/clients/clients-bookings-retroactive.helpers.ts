@@ -40,7 +40,9 @@ export function hasUnrestoredConsumption(
   return consumptions.some((row) => row.restoredAt === null);
 }
 
-export function readOptionalAttachNote(value: string | undefined): string | null {
+export function readOptionalAttachNote(
+  value: string | undefined,
+): string | null {
   const trimmed = value?.trim() ?? '';
   return trimmed.length > 0 ? trimmed : null;
 }

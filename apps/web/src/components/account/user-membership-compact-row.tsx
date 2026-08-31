@@ -121,6 +121,7 @@ export function UserMembershipCompactRow({
   );
 }
 
-function MobileLabel(_props: { label: string }) {
+function MobileLabel({ label }: { label: string }) {
+  void label;
   return null;
 }

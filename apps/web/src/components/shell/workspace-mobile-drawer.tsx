@@ -70,11 +70,16 @@ export function WorkspaceMobileDrawer({
     }, WORKSPACE_MOBILE_DRAWER_MOTION_MS);
   }, [onOpenChange, open]);
 
+  if (open && !isRendered) {
+    setIsRendered(true);
+  }
+  if (open && isClosing) {
+    setIsClosing(false);
+  }
+
   useEffect(() => {
     if (open) {
       closingRef.current = false;
-      setIsClosing(false);
-      setIsRendered(true);
     }
   }, [open]);
 

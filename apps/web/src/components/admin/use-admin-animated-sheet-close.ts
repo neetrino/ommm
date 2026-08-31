@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 type UseAdminAnimatedSheetCloseOptions = {
   /** When this key becomes truthy, the sheet returns to the open state (for always-mounted shells). */
@@ -17,12 +17,14 @@ export function useAdminAnimatedSheetClose(
 ) {
   const [isOpen, setIsOpen] = useState(true);
   const openKey = options?.openKey;
+  const [prevOpenKey, setPrevOpenKey] = useState(openKey);
 
-  useEffect(() => {
+  if (openKey !== prevOpenKey) {
+    setPrevOpenKey(openKey);
     if (openKey) {
       setIsOpen(true);
     }
-  }, [openKey]);
+  }
 
   const requestClose = useCallback(() => {
     setIsOpen(false);

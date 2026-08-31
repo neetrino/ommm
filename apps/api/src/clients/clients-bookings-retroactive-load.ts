@@ -72,7 +72,7 @@ export async function loadActivePackageForRetroactive(
   if (membership.status !== UserPackageStatus.ACTIVE) {
     throw new BadRequestException(RETROACTIVE_ATTACH_ERROR.PACKAGE_NOT_ACTIVE);
   }
-  return membership as unknown as UserPackageWithPlanAndBalances;
+  return membership;
 }
 
 export async function loadSessionForRetroactiveAttach(
@@ -88,13 +88,17 @@ export async function loadSessionForRetroactiveAttach(
     throw new NotFoundException(RETROACTIVE_ATTACH_ERROR.SESSION_NOT_FOUND);
   }
   if (!isRetroactiveSessionStatusAllowed(session.status)) {
-    throw new BadRequestException(RETROACTIVE_ATTACH_ERROR.SESSION_NOT_ATTACHABLE);
+    throw new BadRequestException(
+      RETROACTIVE_ATTACH_ERROR.SESSION_NOT_ATTACHABLE,
+    );
   }
   if (!isRetroactiveSessionStarted(session.startsAt, now)) {
     throw new BadRequestException(RETROACTIVE_ATTACH_ERROR.SESSION_NOT_STARTED);
   }
   if (!isRetroactiveSessionInLookback(session.startsAt, now)) {
-    throw new BadRequestException(RETROACTIVE_ATTACH_ERROR.SESSION_OUTSIDE_WINDOW);
+    throw new BadRequestException(
+      RETROACTIVE_ATTACH_ERROR.SESSION_OUTSIDE_WINDOW,
+    );
   }
   return session;
 }

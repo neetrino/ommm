@@ -47,7 +47,9 @@ export function useScheduleWeekBoardScroll(
   const autoScrollDir = useRef<"left" | "right" | null>(null);
   const rafId = useRef<number>(0);
   const onScrollRef = useRef(onScroll);
-  onScrollRef.current = onScroll;
+  useEffect(() => {
+    onScrollRef.current = onScroll;
+  }, [onScroll]);
 
   const updateScrollState = useCallback(() => {
     const element = scrollRef.current;

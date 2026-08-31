@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
@@ -16,7 +16,6 @@ import { canDeleteAdminScheduleSession } from "@/components/admin/admin-schedule
 import { SessionSheetTabPanels } from "@/components/admin/admin-schedule-session-sheet-tab-panels";
 import {
   SESSION_SHEET_TAB_BOOKINGS,
-  SESSION_SHEET_TAB_DETAILS,
   SESSION_SHEET_TAB_ORDER,
   type SessionSheetTabId,
 } from "@/components/admin/admin-schedule-session-sheet-tabs";
@@ -124,15 +123,17 @@ function AdminScheduleSessionDetailsSheetInner({
   const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
     openKey: row.id,
   });
+  const tabSyncKey = `${row.id}:${initialTab}`;
   const [activeTab, setActiveTab] = useState<SessionSheetTabId>(initialTab);
+  const [prevTabSyncKey, setPrevTabSyncKey] = useState(tabSyncKey);
+  if (tabSyncKey !== prevTabSyncKey) {
+    setPrevTabSyncKey(tabSyncKey);
+    setActiveTab(initialTab);
+  }
   const [statusBusy, setStatusBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
-
-  useEffect(() => {
-    setActiveTab(initialTab);
-  }, [initialTab, row.id]);
 
   const fallbackClassTypeId = classTypeOptions[0]?.value ?? "";
   const fallbackCoachId = coaches[0]?.id ?? "";

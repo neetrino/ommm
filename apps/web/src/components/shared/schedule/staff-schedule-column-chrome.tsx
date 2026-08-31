@@ -44,7 +44,12 @@ type StaffScheduleMobileLabelProps = {
 };
 
 /** Mobile stack label — values only; desktop headers stay in the table. */
-export function StaffScheduleMobileLabel(_props: StaffScheduleMobileLabelProps) {
+export function StaffScheduleMobileLabel({
+  column,
+  label,
+}: StaffScheduleMobileLabelProps) {
+  void column;
+  void label;
   return null;
 }
 

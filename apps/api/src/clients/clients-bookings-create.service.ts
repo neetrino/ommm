@@ -3,11 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  ClassSessionStatus,
-  Role,
-  UserPackageStatus,
-} from '@prisma/client';
+import { ClassSessionStatus, Role, UserPackageStatus } from '@prisma/client';
 import { BookingsService } from '../bookings/bookings.service';
 import { ADMIN_SESSION_INCLUDE } from '../classes/classes-session.helpers';
 import {

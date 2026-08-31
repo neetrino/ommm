@@ -1,4 +1,7 @@
-import { PACKAGE_PERIOD_DAY_MS, startOfUtcDay } from './user-package-period.util';
+import {
+  PACKAGE_PERIOD_DAY_MS,
+  startOfUtcDay,
+} from './user-package-period.util';
 import {
   isActivationGraceElapsed,
   resolveActivationGraceDeadline,

@@ -4,7 +4,10 @@ import {
   shouldAwaitFirstVisit,
 } from './packages-activation.helpers';
 import { resolveActivationGraceDeadline } from './packages-activation.time';
-import { PACKAGE_PERIOD_DAY_MS, startOfUtcDay } from './user-package-period.util';
+import {
+  PACKAGE_PERIOD_DAY_MS,
+  startOfUtcDay,
+} from './user-package-period.util';
 
 describe('packages-activation.helpers', () => {
   const purchasedAt = new Date('2026-08-26T14:30:00.000Z');

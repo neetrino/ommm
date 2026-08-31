@@ -40,7 +40,6 @@ export type SessionFormSheetProps = {
 };
 
 export function SessionFormSheet({
-  isOpen,
   mode,
   row,
   anchorDay,
