@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as fs from 'node:fs';
 import * as https from 'node:https';
 import { EHDM_API_PATH } from './ehdm.constants';
 import { EhdmConfig } from './ehdm.config';
@@ -67,11 +66,9 @@ export class EhdmApiClient {
   }
 
   private createAgent(): https.Agent {
-    const certPath = this.config.getCertPath();
-    const keyPath = this.config.getKeyPath();
     return new https.Agent({
-      cert: fs.readFileSync(certPath),
-      key: fs.readFileSync(keyPath),
+      cert: this.config.getCertPem(),
+      key: this.config.getKeyPem(),
       passphrase: this.config.getKeyPassphrase(),
       rejectUnauthorized: true,
     });

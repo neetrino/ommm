@@ -53,12 +53,12 @@ export class EhdmConfig {
     return this.readRequired('EHDM_TIN');
   }
 
-  getCertPath(): string {
-    return this.readRequired('EHDM_CERT_PATH');
+  getCertPem(): Buffer {
+    return this.decodePem('EHDM_CERT_BASE64');
   }
 
-  getKeyPath(): string {
-    return this.readRequired('EHDM_KEY_PATH');
+  getKeyPem(): Buffer {
+    return this.decodePem('EHDM_KEY_BASE64');
   }
 
   getKeyPassphrase(): string {
@@ -90,8 +90,8 @@ export class EhdmConfig {
       return true;
     }
     try {
-      this.getCertPath();
-      this.getKeyPath();
+      this.getCertPem();
+      this.getKeyPem();
       this.getKeyPassphrase();
       this.getCrn();
       this.getTin();
@@ -103,10 +103,19 @@ export class EhdmConfig {
 
   private hasCertConfig(): boolean {
     return (
-      Boolean(this.readOptional('EHDM_CERT_PATH')) &&
-      Boolean(this.readOptional('EHDM_KEY_PATH')) &&
+      Boolean(this.readOptional('EHDM_CERT_BASE64')) &&
+      Boolean(this.readOptional('EHDM_KEY_BASE64')) &&
       Boolean(this.readOptional('EHDM_KEY_PASSPHRASE'))
     );
+  }
+
+  private decodePem(envName: string): Buffer {
+    const raw = this.readRequired(envName).replace(/\s+/g, '');
+    const decoded = Buffer.from(raw, 'base64');
+    if (!decoded.toString('utf8').includes('-----BEGIN ')) {
+      throw new Error(`${envName} is not a PEM value`);
+    }
+    return decoded;
   }
 
   private readOptional(key: string): string | undefined {
