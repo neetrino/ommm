@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { WhatsappCredentialsService } from './whatsapp-credentials.service';
 import { WhatsappGatewayClient } from './whatsapp-gateway.client';
-import { WHATSAPP_INTEGRATION_SINGLETON_KEY } from './whatsapp.constants';
+import { toWhatsappChatId } from './whatsapp-chat-id';
+import {
+  WHATSAPP_ADMIN_TEST_MESSAGE,
+  WHATSAPP_INTEGRATION_SINGLETON_KEY,
+} from './whatsapp.constants';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -26,6 +30,33 @@ export class WhatsappAdminService {
       gatewayToken: dto.gatewayToken,
     });
     return this.credentials.describe();
+  }
+
+  async getGatewayStatus(): Promise<{ reachable: boolean }> {
+    if (!(await this.gateway.isConfigured())) {
+      return { reachable: false };
+    }
+    return { reachable: await this.gateway.probe() };
+  }
+
+  async sendTestMessage(phone: string): Promise<{ ok: true }> {
+    await this.assertConfigured();
+    const chatId = toWhatsappChatId(phone);
+    if (chatId === null) {
+      throw new BadRequestException(
+        'Enter a phone in international format, e.g. +374XXXXXXXX',
+      );
+    }
+    const sent = await this.gateway.sendText(
+      chatId,
+      WHATSAPP_ADMIN_TEST_MESSAGE,
+    );
+    if (!sent) {
+      throw new ServiceUnavailableException(
+        'Test message was not sent. Pair WhatsApp and try again.',
+      );
+    }
+    return { ok: true };
   }
 
   async getConnectState() {

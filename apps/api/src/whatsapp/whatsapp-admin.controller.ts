@@ -3,6 +3,7 @@ import { Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { SendWhatsappTestMessageDto } from './dto/send-whatsapp-test-message.dto';
 import { UpdateWhatsappIntegrationDto } from './dto/update-whatsapp-integration.dto';
 import { WhatsappAdminService } from './whatsapp-admin.service';
 
@@ -20,6 +21,16 @@ export class WhatsappAdminController {
   @Patch('settings')
   updateSettings(@Body() dto: UpdateWhatsappIntegrationDto) {
     return this.admin.updateSettings(dto);
+  }
+
+  @Get('gateway-status')
+  getGatewayStatus() {
+    return this.admin.getGatewayStatus();
+  }
+
+  @Post('test-message')
+  sendTestMessage(@Body() dto: SendWhatsappTestMessageDto) {
+    return this.admin.sendTestMessage(dto.phone);
   }
 
   @Get('connect')

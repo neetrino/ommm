@@ -2138,7 +2138,20 @@
         "waitingScan": "Ожидание сканирования...",
         "restart": "Перезапустить сессию",
         "logout": "Отключить",
-        "connectFailed": "Не удалось связаться с WhatsApp Gateway."
+        "connectFailed": "Не удалось связаться с WhatsApp Gateway.",
+        "gatewayStatusLabel": "Gateway",
+        "gatewayStatusChecking": "Проверка…",
+        "gatewayStatusOk": "Подключено",
+        "gatewayStatusFail": "Нет подключения",
+        "testMessageTitle": "Тестовое сообщение",
+        "testMessageHint": "Отправить короткое тестовое сообщение с привязанного WhatsApp на любой номер.",
+        "testPhoneLabel": "Номер телефона",
+        "testPhonePlaceholder": "+374XXXXXXXX",
+        "testPhoneExample": "Международный формат, пример: +374XXXXXXXX",
+        "sendTestMessage": "Отправить тестовое сообщение",
+        "sendingTestMessage": "Отправка…",
+        "testMessageSent": "Тестовое сообщение отправлено.",
+        "testMessageFailed": "Не удалось отправить тестовое сообщение."
       }
     },
     "bookings": {

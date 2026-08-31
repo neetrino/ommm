@@ -16,3 +16,5 @@ export const WHATSAPP_CRON_BATCH_TAKE = 200;
 export const WHATSAPP_TOKEN_PREVIEW_LENGTH = 4;
 export const WHATSAPP_QR_POLL_MS = 2000;
 export const WHATSAPP_CONNECTED_STATUS = 'CONNECTED';
+export const WHATSAPP_ADMIN_TEST_MESSAGE =
+  'Ommm: test message. WhatsApp Gateway is working.';
