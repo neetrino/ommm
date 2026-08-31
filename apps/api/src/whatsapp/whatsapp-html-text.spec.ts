@@ -8,4 +8,10 @@ describe('htmlToWhatsappText', () => {
   it('decodes common entities', () => {
     expect(htmlToWhatsappText('A &amp; B&nbsp;C')).toBe('A & B C');
   });
+
+  it('does not revive encoded tags after decode', () => {
+    expect(
+      htmlToWhatsappText('&lt;script&gt;alert(1)&lt;/script&gt;Safe'),
+    ).toBe('alert(1)Safe');
+  });
 });

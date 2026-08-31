@@ -94,7 +94,15 @@ function normalizeGatewayUrl(value: string | null | undefined): string | null {
   if (trimmed.length === 0) {
     return null;
   }
-  return trimmed.replace(/\/+$/, '');
+  return stripTrailingSlashes(trimmed);
+}
+
+function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+  return value.slice(0, end);
 }
 
 function normalizeSecret(value: string | null | undefined): string | null {

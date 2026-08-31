@@ -12,15 +12,19 @@ const HTML_ENTITIES: ReadonlyArray<readonly [RegExp, string]> = [
 
 /** Turns branded broadcast HTML into a short WhatsApp body. */
 export function htmlToWhatsappText(html: string): string {
-  let text = html
-    .replace(LINE_BREAK_TAGS, '\n')
-    .replace(BLOCK_BREAK_TAGS, '\n');
+  let text = decodeHtmlEntities(html);
+  text = text.replace(LINE_BREAK_TAGS, '\n').replace(BLOCK_BREAK_TAGS, '\n');
   text = text.replace(TAGS, '');
-  for (const [pattern, replacement] of HTML_ENTITIES) {
-    text = text.replace(pattern, replacement);
-  }
   return text
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+function decodeHtmlEntities(value: string): string {
+  let text = value;
+  for (const [pattern, replacement] of HTML_ENTITIES) {
+    text = text.replace(pattern, replacement);
+  }
+  return text;
 }
