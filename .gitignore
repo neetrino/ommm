@@ -49,4 +49,14 @@ k6-summary.json
 # *.swo
 #docs/reference/payment integration/Example only
 
+# PKI / fiscal certificates and keys — never commit
+*.jks
+*.p12
+*.pfx
+*.crt
+*.cer
+*.csr
+*.key
+*.pem
+Private/
 02944878/
