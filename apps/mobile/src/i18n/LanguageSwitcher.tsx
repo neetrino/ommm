@@ -10,7 +10,26 @@ import {
 } from "./language-switcher-locales";
 import { DEFAULT_UI_LOCALE } from "./locales";
 import { fontFamilies } from "../theme/fontFamilies";
+import { platformShadow } from "../theme/platformShadow";
 import { colors, radii, space, typography } from "../theme/tokens";
+
+/** Mirrors web `ommm-language-switcher-menu` + account-hub olive. */
+const LANGUAGE_MENU = {
+  panelRadius: 28,
+  panelPadding: 16,
+  panelGap: 10,
+  listRadius: 20,
+  listPadding: 8,
+  listBg: "rgba(151, 144, 124, 0.18)",
+  optionRadius: 16,
+  optionMinHeight: 48,
+  olive: "#97907c",
+  oliveMuted: "rgba(151, 144, 124, 0.9)",
+  selectedBg: "rgba(255, 255, 255, 0.72)",
+  selectedBorder: "rgba(151, 144, 124, 0.85)",
+  panelBorder: "rgba(255, 255, 255, 0.7)",
+  backdrop: "rgba(45, 40, 35, 0.42)",
+} as const;
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useI18n();
@@ -43,9 +62,20 @@ export function LanguageSwitcher() {
         accessibilityRole="button"
         accessibilityLabel={triggerLabel}
       >
-        <MaterialCommunityIcons name="web" size={18} color={colors.primaryGreen} />
-        <Text style={styles.triggerLabel}>{languageSwitcherEndonym(effectiveLocale)}</Text>
-        <MaterialCommunityIcons name="chevron-down" size={18} color={colors.secondarySage} />
+        <MaterialCommunityIcons name="web" size={18} color={LANGUAGE_MENU.olive} />
+        <Text
+          style={[
+            styles.triggerLabel,
+            effectiveLocale === "hy" && styles.triggerLabelArmenian,
+          ]}
+        >
+          {languageSwitcherEndonym(effectiveLocale)}
+        </Text>
+        <MaterialCommunityIcons
+          name="chevron-down"
+          size={18}
+          color={LANGUAGE_MENU.oliveMuted}
+        />
       </Pressable>
 
       <Modal
@@ -54,46 +84,65 @@ export function LanguageSwitcher() {
         animationType="fade"
         onRequestClose={() => setOpen(false)}
       >
-        <View style={styles.backdrop}>
+        <View style={styles.backdrop} accessibilityViewIsModal>
           <Pressable
             style={StyleSheet.absoluteFill}
             onPress={() => setOpen(false)}
             accessibilityRole="button"
+            accessibilityLabel={t("switcherAria")}
           />
-          <View style={styles.menu} accessibilityRole="menu">
+          <View
+            style={[
+              styles.menu,
+              platformShadow({
+                color: "#2d2823",
+                offsetHeight: 20,
+                opacity: 0.22,
+                radius: 28,
+                elevation: 8,
+              }),
+            ]}
+            accessibilityRole="menu"
+          >
             <Text style={styles.menuTitle}>{t("switcherAria")}</Text>
-            {LANGUAGE_SWITCHER_ORDER.map((code) => {
-              const selected = code === effectiveLocale;
-              return (
-                <Pressable
-                  key={code}
-                  onPress={() => onSelect(code)}
-                  style={({ pressed }) => [
-                    styles.option,
-                    selected && styles.optionSelected,
-                    pressed && styles.optionPressed,
-                  ]}
-                  accessibilityRole="menuitem"
-                  accessibilityState={{ selected }}
-                >
-                  <Text
-                    style={[
-                      styles.optionLabel,
-                      selected && styles.optionLabelSelected,
+            <View style={styles.list}>
+              {LANGUAGE_SWITCHER_ORDER.map((code) => {
+                const selected = code === effectiveLocale;
+                return (
+                  <Pressable
+                    key={code}
+                    onPress={() => onSelect(code)}
+                    style={({ pressed }) => [
+                      styles.option,
+                      selected && styles.optionSelected,
+                      pressed && styles.optionPressed,
                     ]}
+                    accessibilityRole="menuitem"
+                    accessibilityState={{ selected }}
                   >
-                    {languageSwitcherEndonym(code)}
-                  </Text>
-                  {selected ? (
-                    <MaterialCommunityIcons
-                      name="check"
-                      size={18}
-                      color={colors.primaryGreen}
-                    />
-                  ) : null}
-                </Pressable>
-              );
-            })}
+                    <Text
+                      style={[
+                        styles.optionLabel,
+                        code === "hy" && styles.optionLabelArmenian,
+                        selected && styles.optionLabelSelected,
+                        selected && code !== "hy" && styles.optionLabelSelectedLatin,
+                      ]}
+                    >
+                      {languageSwitcherEndonym(code)}
+                    </Text>
+                    {selected ? (
+                      <MaterialCommunityIcons
+                        name="check"
+                        size={20}
+                        color={colors.primaryGreen}
+                      />
+                    ) : (
+                      <View style={styles.checkSpacer} />
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
         </View>
       </Modal>
@@ -122,49 +171,82 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall,
     color: colors.primaryGreen,
   },
+  triggerLabelArmenian: {
+    fontFamily: undefined,
+  },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    backgroundColor: LANGUAGE_MENU.backdrop,
     justifyContent: "center",
-    paddingHorizontal: space.xl,
+    paddingHorizontal: space.lg,
   },
   menu: {
     zIndex: 1,
-    borderRadius: radii.labelCard,
-    backgroundColor: colors.white,
-    padding: space.md,
-    gap: space.xs,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 340,
+    borderRadius: LANGUAGE_MENU.panelRadius,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: LANGUAGE_MENU.panelBorder,
+    backgroundColor: colors.canvas,
+    padding: LANGUAGE_MENU.panelPadding,
+    gap: LANGUAGE_MENU.panelGap,
   },
   menuTitle: {
     fontFamily: fontFamilies.manrope.semiBold,
     fontSize: typography.caption,
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
-    color: colors.bodyMuted,
-    marginBottom: space.xs,
-    paddingHorizontal: space.sm,
+    color: LANGUAGE_MENU.olive,
+    paddingHorizontal: space.xs,
+    paddingTop: space.xxs,
+  },
+  list: {
+    borderRadius: LANGUAGE_MENU.listRadius,
+    backgroundColor: LANGUAGE_MENU.listBg,
+    padding: LANGUAGE_MENU.listPadding,
+    gap: space.xxs,
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: radii.labelCard,
+    minHeight: LANGUAGE_MENU.optionMinHeight,
+    borderRadius: LANGUAGE_MENU.optionRadius,
+    borderWidth: 1.5,
+    borderColor: "transparent",
     paddingHorizontal: space.md,
-    paddingVertical: space.md,
+    paddingVertical: space.sm,
   },
   optionSelected: {
-    backgroundColor: colors.overlayWhite38,
+    backgroundColor: LANGUAGE_MENU.selectedBg,
+    borderColor: LANGUAGE_MENU.selectedBorder,
   },
   optionPressed: {
-    opacity: 0.9,
+    opacity: 0.92,
   },
   optionLabel: {
+    flex: 1,
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.body,
+    lineHeight: 22,
     color: colors.ink,
   },
+  /**
+   * Manrope has no Armenian glyphs — forcing it falls back to a serif system
+   * face. Omit custom family so the platform sans (Noto / SF Armenian) is used.
+   */
+  optionLabelArmenian: {
+    fontFamily: undefined,
+  },
   optionLabelSelected: {
-    fontFamily: fontFamilies.manrope.semiBold,
     color: colors.primaryGreen,
+  },
+  optionLabelSelectedLatin: {
+    fontFamily: fontFamilies.manrope.semiBold,
+  },
+  checkSpacer: {
+    width: 20,
+    height: 20,
   },
 });
