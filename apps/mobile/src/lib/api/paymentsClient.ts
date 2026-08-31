@@ -79,10 +79,21 @@ function normalizePaymentRow(value: unknown): UserPaymentRow | null {
   };
 }
 
+export type MyPaymentsStatusFilter =
+  | "SUCCEEDED"
+  | "FAILED"
+  | "PENDING"
+  | "REFUNDED";
+
 /** Member payment history — same as web `GET /payments/me`. */
 export async function fetchMyPayments(
   accessToken: string,
-  params?: { take?: number; offset?: number; order?: "newest" | "oldest" },
+  params?: {
+    take?: number;
+    offset?: number;
+    order?: "newest" | "oldest";
+    status?: MyPaymentsStatusFilter;
+  },
 ): Promise<UserPaymentsPayload> {
   const take = params?.take ?? DEFAULT_TAKE;
   const offset = params?.offset ?? 0;
@@ -92,6 +103,9 @@ export async function fetchMyPayments(
     offset: String(offset),
     order,
   });
+  if (params?.status !== undefined) {
+    query.set("status", params.status);
+  }
   const base = getApiBaseUrl();
   const res = await fetchWithReachabilityHint(
     joinApiPath(base, `/v1/payments/me?${query.toString()}`),

@@ -1,11 +1,12 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import {
   fetchMyPayments,
   type UserPaymentRow,
 } from "../../../lib/api/paymentsClient";
 import { useTranslations } from "../../../i18n/I18nProvider";
+import type { PaymentStatusFilter } from "../components/PaymentStatusFilterChips";
 
 const PAYMENTS_PAGE_TAKE = 50;
 
@@ -16,9 +17,17 @@ export function useMemberPaymentsScreenState() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<PaymentStatusFilter | null>(
+    null,
+  );
+  const statusFilterRef = useRef(statusFilter);
+  statusFilterRef.current = statusFilter;
 
   const load = useCallback(
-    async (mode: "initial" | "refresh" = "initial") => {
+    async (
+      mode: "initial" | "refresh" = "initial",
+      status: PaymentStatusFilter | null = statusFilterRef.current,
+    ) => {
       if (mode === "initial") {
         setLoading(true);
       } else {
@@ -38,6 +47,7 @@ export function useMemberPaymentsScreenState() {
           take: PAYMENTS_PAGE_TAKE,
           offset: 0,
           order: "newest",
+          ...(status !== null ? { status } : {}),
         });
         setItems(payload.items);
         setTotal(payload.total);
@@ -63,12 +73,23 @@ export function useMemberPaymentsScreenState() {
     }, [load]),
   );
 
+  const setStatusFilterAndReload = useCallback(
+    (next: PaymentStatusFilter | null) => {
+      statusFilterRef.current = next;
+      setStatusFilter(next);
+      void load("initial", next);
+    },
+    [load],
+  );
+
   return {
     items,
     total,
     loading,
     refreshing,
     error,
+    statusFilter,
+    setStatusFilter: setStatusFilterAndReload,
     refresh: () => {
       void load("refresh");
     },
