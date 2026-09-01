@@ -1,0 +1,204 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  overscroll-behavior: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  cursor: pointer;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: rgb(45 40 35 / 0.45);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.backdropOpen {
+  opacity: 1;
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.backdropClosing {
+  opacity: 0;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sheetPanel {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+  max-width: min(28rem, 100%);
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: auto;
+  border-radius: 1.25rem 1.25rem 0 0;
+  border: 1px solid rgb(255 255 255 / 0.72);
+  background: rgb(255 255 255 / 0.96);
+  padding: 1.25rem 1.25rem 1.75rem;
+  box-shadow: 0 30px 70px -30px rgb(45 40 35 / 0.45);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transform: translate3d(0, 100%, 0);
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+.sheetPanelOpen {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.sheetPanelClosing {
+  transform: translate3d(0, 100%, 0);
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .backdropOpen,
+  .backdropClosing,
+  .sheetPanel,
+  .sheetPanelOpen,
+  .sheetPanelClosing {
+    transition: none;
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #3d3a32;
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.navBtn {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(151 144 124 / 0.45);
+  background: rgb(255 255 255 / 0.82);
+  color: #695f00;
+  cursor: pointer;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.95);
+}
+
+.navBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  color: rgb(151 144 124 / 0.55);
+}
+
+.monthLabel {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #4a4738;
+  text-transform: capitalize;
+}
+
+.weekdayRow,
+.weekRow {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekdayLabel {
+  text-align: center;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #97907c;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.daySlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+}
+
+.dayBtn {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1.5px solid transparent;
+  background: transparent;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4a4738;
+  cursor: pointer;
+}
+
+.dayBtn:hover:not(:disabled):not([aria-pressed="true"]) {
+  background: rgb(151 144 124 / 0.12);
+}
+
+.dayBtn:disabled {
+  cursor: not-allowed;
+  color: rgb(151 144 124 / 0.55);
+}
+
+.dayBtnToday:not([aria-pressed="true"]) {
+  border-color: #97907c;
+  color: #695f00;
+}
+
+.dayBtnSelected {
+  border-color: #97907c;
+  background: #97907c;
+  color: #fbf5d5;
+}
+
+.dayBtnSelected:hover {
+  background: #97907c;
+}

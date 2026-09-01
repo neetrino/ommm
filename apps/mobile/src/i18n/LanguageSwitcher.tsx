@@ -1,7 +1,15 @@
-import { useCallback, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useTranslations, useI18n } from "./I18nProvider";
+import { useCallback, useEffect, useRef } from "react";
+import {
+  Animated,
+  Easing,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type LayoutChangeEvent,
+  type View as RNView,
+} from "react-native";
+import { useI18n, useTranslations } from "./I18nProvider";
 import {
   LANGUAGE_SWITCHER_ORDER,
   languageSwitcherEndonym,
@@ -13,38 +21,112 @@ import { fontFamilies } from "../theme/fontFamilies";
 import { platformShadow } from "../theme/platformShadow";
 import { colors, radii, space, typography } from "../theme/tokens";
 
-/** Mirrors web `ommm-language-switcher-menu` + account-hub olive. */
-const LANGUAGE_MENU = {
-  panelRadius: 28,
-  panelPadding: 16,
-  panelGap: 10,
-  listRadius: 20,
-  listPadding: 8,
-  listBg: "rgba(151, 144, 124, 0.18)",
-  optionRadius: 16,
-  optionMinHeight: 48,
-  olive: "#97907c",
-  oliveMuted: "rgba(151, 144, 124, 0.9)",
-  selectedBg: "rgba(255, 255, 255, 0.72)",
-  selectedBorder: "rgba(151, 144, 124, 0.85)",
-  panelBorder: "rgba(255, 255, 255, 0.7)",
-  backdrop: "rgba(45, 40, 35, 0.42)",
-} as const;
+const SHELL_PAD = 4;
+const INDICATOR_DURATION_MS = 260;
+const INDICATOR_EASING = Easing.bezier(0.4, 0, 0.2, 1);
+/** Match profile logout CTA (`memberAccountHubActionTokens.logoutBtn`). */
+const SELECTED_PILL_BG = "rgba(151, 144, 124, 0.92)";
+const SELECTED_PILL_LABEL = "#fbf5d5";
 
+/** Short codes for the segmented control (fits three locales cleanly). */
+const LOCALE_SHORT_LABEL: Record<LanguageSwitcherLocaleCode, string> = {
+  hy: "HY",
+  en: "EN",
+  ru: "RU",
+};
+
+/**
+ * Segmented language switcher with a sliding selected pill
+ * (same interaction pattern as bookings / gift-card tab navs).
+ */
 export function LanguageSwitcher() {
   const { locale, setLocale } = useI18n();
   const t = useTranslations("language");
-  const [open, setOpen] = useState(false);
 
-  const effectiveLocale: LanguageSwitcherLocaleCode = isLanguageSwitcherLocale(locale)
+  const effectiveLocale: LanguageSwitcherLocaleCode = isLanguageSwitcherLocale(
+    locale,
+  )
     ? locale
     : isLanguageSwitcherLocale(DEFAULT_UI_LOCALE)
       ? DEFAULT_UI_LOCALE
       : "en";
 
+  const trackRef = useRef<RNView>(null);
+  const segmentRefs = useRef<
+    Partial<Record<LanguageSwitcherLocaleCode, RNView | null>>
+  >({});
+  const segmentLayouts = useRef<
+    Partial<Record<LanguageSwitcherLocaleCode, { x: number; width: number }>>
+  >({});
+  const indicatorX = useRef(new Animated.Value(0)).current;
+  const indicatorWidth = useRef(new Animated.Value(0)).current;
+  const hasPlaced = useRef(false);
+
+  const moveIndicator = useCallback(
+    (code: LanguageSwitcherLocaleCode, instant: boolean) => {
+      const layout = segmentLayouts.current[code];
+      if (!layout) {
+        return;
+      }
+      if (instant || !hasPlaced.current) {
+        indicatorX.setValue(layout.x);
+        indicatorWidth.setValue(layout.width);
+        hasPlaced.current = true;
+        return;
+      }
+      Animated.parallel([
+        Animated.timing(indicatorX, {
+          toValue: layout.x,
+          duration: INDICATOR_DURATION_MS,
+          easing: INDICATOR_EASING,
+          useNativeDriver: false,
+        }),
+        Animated.timing(indicatorWidth, {
+          toValue: layout.width,
+          duration: INDICATOR_DURATION_MS,
+          easing: INDICATOR_EASING,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    },
+    [indicatorX, indicatorWidth],
+  );
+
+  const measureSegment = useCallback(
+    (code: LanguageSwitcherLocaleCode) => {
+      const node = segmentRefs.current[code];
+      const track = trackRef.current;
+      if (!node || !track) {
+        return;
+      }
+      node.measureLayout(
+        track,
+        (x, _y, width) => {
+          segmentLayouts.current[code] = { x, width };
+          if (code === effectiveLocale) {
+            moveIndicator(code, !hasPlaced.current);
+          }
+        },
+        () => {
+          // Next layout pass retries.
+        },
+      );
+    },
+    [effectiveLocale, moveIndicator],
+  );
+
+  useEffect(() => {
+    moveIndicator(effectiveLocale, false);
+  }, [effectiveLocale, moveIndicator]);
+
+  const onTrackLayout = (_event: LayoutChangeEvent) => {
+    for (const code of LANGUAGE_SWITCHER_ORDER) {
+      measureSegment(code);
+    }
+  };
+
   const onSelect = useCallback(
     (next: LanguageSwitcherLocaleCode) => {
-      setOpen(false);
       if (next !== locale) {
         setLocale(next);
       }
@@ -52,237 +134,105 @@ export function LanguageSwitcher() {
     [locale, setLocale],
   );
 
-  const triggerLabel = `${t("switcherAria")}: ${languageSwitcherEndonym(effectiveLocale)}`;
-
   return (
-    <>
-      <Pressable
-        onPress={() => setOpen(true)}
-        style={({ pressed }) => [styles.trigger, pressed && styles.triggerPressed]}
-        accessibilityRole="button"
-        accessibilityLabel={triggerLabel}
-      >
-        <MaterialCommunityIcons name="web" size={18} color={LANGUAGE_MENU.olive} />
-        <Text
-          style={[
-            styles.triggerLabel,
-            effectiveLocale === "hy" && styles.triggerLabelArmenian,
-          ]}
-        >
-          {languageSwitcherEndonym(effectiveLocale)}
-        </Text>
-        <MaterialCommunityIcons
-          name="chevron-down"
-          size={18}
-          color={LANGUAGE_MENU.oliveMuted}
-        />
-      </Pressable>
-
-      <Modal
-        visible={open}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setOpen(false)}
-      >
-        <View style={styles.backdrop} accessibilityViewIsModal>
+    <View
+      ref={trackRef}
+      collapsable={false}
+      onLayout={onTrackLayout}
+      style={styles.shell}
+      accessibilityRole="tablist"
+      accessibilityLabel={t("switcherAria")}
+    >
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.indicator,
+          {
+            left: indicatorX,
+            width: indicatorWidth,
+          },
+        ]}
+      />
+      {LANGUAGE_SWITCHER_ORDER.map((code) => {
+        const selected = code === effectiveLocale;
+        return (
           <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={() => setOpen(false)}
-            accessibilityRole="button"
-            accessibilityLabel={t("closePicker")}
-          />
-          <View
-            style={[
-              styles.menu,
-              platformShadow({
-                color: "#2d2823",
-                offsetHeight: 20,
-                opacity: 0.22,
-                radius: 28,
-                elevation: 8,
-              }),
+            key={code}
+            ref={(node) => {
+              segmentRefs.current[code] = node;
+            }}
+            collapsable={false}
+            onLayout={() => {
+              measureSegment(code);
+            }}
+            onPress={() => {
+              onSelect(code);
+            }}
+            style={({ pressed }) => [
+              styles.segment,
+              pressed && styles.segmentPressed,
             ]}
-            accessibilityRole="menu"
+            accessibilityRole="tab"
+            accessibilityState={{ selected }}
+            accessibilityLabel={`${t("switcherAria")}: ${languageSwitcherEndonym(code)}`}
           >
-            <View style={styles.menuHeader}>
-              <Text style={styles.menuTitle}>{t("switcherAria")}</Text>
-              <Pressable
-                onPress={() => setOpen(false)}
-                style={({ pressed }) => [
-                  styles.closeButton,
-                  pressed && styles.closeButtonPressed,
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={t("closePicker")}
-                hitSlop={8}
-              >
-                <MaterialCommunityIcons
-                  name="close"
-                  size={20}
-                  color={LANGUAGE_MENU.olive}
-                />
-              </Pressable>
-            </View>
-            <View style={styles.list}>
-              {LANGUAGE_SWITCHER_ORDER.map((code) => {
-                const selected = code === effectiveLocale;
-                return (
-                  <Pressable
-                    key={code}
-                    onPress={() => onSelect(code)}
-                    style={({ pressed }) => [
-                      styles.option,
-                      selected && styles.optionSelected,
-                      pressed && styles.optionPressed,
-                    ]}
-                    accessibilityRole="menuitem"
-                    accessibilityState={{ selected }}
-                  >
-                    <Text
-                      style={[
-                        styles.optionLabel,
-                        code === "hy" && styles.optionLabelArmenian,
-                        selected && styles.optionLabelSelected,
-                        selected && code !== "hy" && styles.optionLabelSelectedLatin,
-                      ]}
-                    >
-                      {languageSwitcherEndonym(code)}
-                    </Text>
-                    {selected ? (
-                      <MaterialCommunityIcons
-                        name="check"
-                        size={20}
-                        color={colors.primaryGreen}
-                      />
-                    ) : (
-                      <View style={styles.checkSpacer} />
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </>
+            <Text
+              style={[styles.segmentLabel, selected && styles.segmentLabelSelected]}
+            >
+              {LOCALE_SHORT_LABEL[code]}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  trigger: {
+  shell: {
+    position: "relative",
     flexDirection: "row",
-    alignItems: "center",
-    gap: space.xs,
-    alignSelf: "flex-start",
+    alignSelf: "stretch",
     borderRadius: radii.pill,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.overlayWhite38,
-    paddingHorizontal: space.md,
-    paddingVertical: space.sm,
+    backgroundColor: "rgba(151, 144, 124, 0.18)",
+    padding: SHELL_PAD,
+    gap: 2,
   },
-  triggerPressed: {
-    opacity: 0.88,
+  indicator: {
+    position: "absolute",
+    top: SHELL_PAD,
+    bottom: SHELL_PAD,
+    borderRadius: radii.pill,
+    backgroundColor: SELECTED_PILL_BG,
+    zIndex: 0,
+    ...platformShadow({
+      color: "#2d2823",
+      offsetHeight: 4,
+      opacity: 0.18,
+      radius: 8,
+      elevation: 3,
+    }),
   },
-  triggerLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
-  },
-  triggerLabelArmenian: {
-    fontFamily: undefined,
-  },
-  backdrop: {
+  segment: {
     flex: 1,
-    backgroundColor: LANGUAGE_MENU.backdrop,
+    minHeight: 40,
+    borderRadius: radii.pill,
+    alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: space.lg,
-  },
-  menu: {
+    paddingHorizontal: space.sm,
     zIndex: 1,
-    alignSelf: "center",
-    width: "100%",
-    maxWidth: 340,
-    borderRadius: LANGUAGE_MENU.panelRadius,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: LANGUAGE_MENU.panelBorder,
-    backgroundColor: colors.canvas,
-    padding: LANGUAGE_MENU.panelPadding,
-    gap: LANGUAGE_MENU.panelGap,
+    backgroundColor: "transparent",
   },
-  menuHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: space.sm,
-    paddingLeft: space.xs,
-    paddingTop: space.xxs,
-  },
-  menuTitle: {
-    flex: 1,
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.caption,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    color: LANGUAGE_MENU.olive,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: radii.pill,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(151, 144, 124, 0.16)",
-  },
-  closeButtonPressed: {
-    opacity: 0.85,
-  },
-  list: {
-    borderRadius: LANGUAGE_MENU.listRadius,
-    backgroundColor: LANGUAGE_MENU.listBg,
-    padding: LANGUAGE_MENU.listPadding,
-    gap: space.xxs,
-  },
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    minHeight: LANGUAGE_MENU.optionMinHeight,
-    borderRadius: LANGUAGE_MENU.optionRadius,
-    borderWidth: 1.5,
-    borderColor: "transparent",
-    paddingHorizontal: space.md,
-    paddingVertical: space.sm,
-  },
-  optionSelected: {
-    backgroundColor: LANGUAGE_MENU.selectedBg,
-    borderColor: LANGUAGE_MENU.selectedBorder,
-  },
-  optionPressed: {
+  segmentPressed: {
     opacity: 0.92,
   },
-  optionLabel: {
-    flex: 1,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.body,
-    lineHeight: 22,
+  segmentLabel: {
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: typography.caption,
+    letterSpacing: 0.8,
     color: colors.ink,
   },
-  /**
-   * Manrope has no Armenian glyphs — forcing it falls back to a serif system
-   * face. Omit custom family so the platform sans (Noto / SF Armenian) is used.
-   */
-  optionLabelArmenian: {
-    fontFamily: undefined,
-  },
-  optionLabelSelected: {
-    color: colors.primaryGreen,
-  },
-  optionLabelSelectedLatin: {
-    fontFamily: fontFamilies.manrope.semiBold,
-  },
-  checkSpacer: {
-    width: 20,
-    height: 20,
+  segmentLabelSelected: {
+    color: SELECTED_PILL_LABEL,
   },
 });

@@ -28,6 +28,7 @@ export const SCHEDULE_MONTH_FILTERS_ROW = styles.monthFiltersRow;
 export const SCHEDULE_MONTH_FILTERS_CONTROLS = styles.monthFiltersControls;
 export const SCHEDULE_MONTH_LABEL = styles.monthLabel;
 export const SCHEDULE_DATE_STRIP_PANEL = styles.dateStripPanel;
+export const SCHEDULE_DATE_STRIP_PANEL_EXPANDED = styles.dateStripPanelExpanded;
 export const SCHEDULE_DATE_STRIP_LAYOUT = styles.dateStripLayout;
 export const SCHEDULE_DATE_STRIP_DAYS = styles.dateStripDays;
 export const SCHEDULE_DATE_STRIP_ARROWS = styles.dateStripArrows;
@@ -43,6 +44,9 @@ export const SCHEDULE_DATE_CHIP_SELECTED = styles.dateChipSelected;
 export const SCHEDULE_ARROW_BTN = styles.arrowBtn;
 export const SCHEDULE_SELECTED_DAY_DIVIDER = styles.selectedDayDivider;
 export const SCHEDULE_SELECTED_DAY_LABEL = styles.selectedDayLabel;
+export const SCHEDULE_FULL_CALENDAR_BTN = styles.fullCalendarBtn;
+export const SCHEDULE_FULL_CALENDAR_BTN_ACTIVE = styles.fullCalendarBtnActive;
+export const SCHEDULE_FULL_CALENDAR_BTN_LABEL = styles.fullCalendarBtnLabel;
 
 export const SCHEDULE_TIME_LABEL = styles.timeLabel;
 export const SCHEDULE_DURATION_LABEL = styles.durationLabel;

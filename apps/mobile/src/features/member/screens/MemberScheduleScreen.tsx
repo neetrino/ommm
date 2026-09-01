@@ -18,7 +18,6 @@ import {
 } from "../../../lib/schedule/scheduleDateUtils";
 import {
   buildScheduleInitialNav,
-  shiftScheduleDateWindow,
   type ScheduleNavState,
 } from "../../../lib/schedule/scheduleNav";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
@@ -31,6 +30,7 @@ import { ScheduleFiltersHeader } from "../../schedule/components/ScheduleFilters
 import type { ScheduleFilterOption } from "../../schedule/components/ScheduleFilterField";
 import { useScheduleDayTransition } from "../../schedule/hooks/useScheduleDayTransition";
 import { ScheduleViewShell } from "../../schedule/components/ScheduleViewShell";
+import { formatScheduleMonthLabel } from "../../schedule/scheduleFormat";
 import { useScheduleCopy } from "../../schedule/useScheduleCopy";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
@@ -213,6 +213,10 @@ export function MemberScheduleScreen() {
 
         <ScheduleViewShell>
           <ScheduleFiltersHeader
+            monthLabel={formatScheduleMonthLabel(
+              nav.selectedDate,
+              scheduleCopy.intlLocale,
+            )}
             classTypes={classTypes}
             instructors={instructors}
             classTypeOptions={classTypeOptions}
@@ -224,15 +228,9 @@ export function MemberScheduleScreen() {
           <ScheduleDateControls
             locale={scheduleCopy.intlLocale}
             selectedDate={nav.selectedDate}
-            windowStart={nav.windowStart}
             maxDate={maxDate}
             onSelectDay={(date) =>
               setNav((current) => ({ ...current, selectedDate: date }))
-            }
-            onShiftWindow={(deltaDays) =>
-              setNav((current) =>
-                shiftScheduleDateWindow(current, deltaDays, startOfLocalDay(new Date())),
-              )
             }
           />
 

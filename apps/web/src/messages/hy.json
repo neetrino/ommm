@@ -1723,6 +1723,11 @@
       "filterSelectedCount": "{count} ընտրված",
       "filterApply": "Կիրառել",
       "fullCalendar": "Լրիվ օրացույց",
+      "fullCalendarAria": "Բացել ամսվա օրացույցը",
+      "weekCalendar": "Շաբաթ",
+      "weekCalendarAria": "Ցույց տալ շաբաթվա ժապավենը",
+      "calendarPrevMonthAria": "Նախորդ ամիս",
+      "calendarNextMonthAria": "Հաջորդ ամիս",
       "studioBrand": "Ommm",
       "bookCta": "Ամրագրել",
       "bookSplash": {

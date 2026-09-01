@@ -12,7 +12,7 @@ import { AppHeader } from "../../../components/layout/AppHeader";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
 import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
-import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
+import { ScreenHeaderGapBackButton } from "../../../components/navigation/ScreenHeaderGapBackButton";
 import { useRouter } from "expo-router";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
@@ -41,6 +41,7 @@ export function CoachScreenShell({
   const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
     useScreenChromeInsets({
       header: showHeader ? "app" : "safe",
+      headerContentGap: showBack && showHeader ? 0 : undefined,
     });
 
   return (
@@ -55,18 +56,20 @@ export function CoachScreenShell({
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        {showBack ? (
-          <View style={styles.backRow}>
-            <CircularBackButton
-              onPress={() => router.back()}
-              accessibilityLabel={tCommon("account")}
-            />
+        {showBack || title ? (
+          <View style={styles.pageHeader}>
+            {showBack ? (
+              <ScreenHeaderGapBackButton
+                onPress={() => router.back()}
+                accessibilityLabel={tCommon("account")}
+              />
+            ) : null}
+            {title ? (
+              <Text style={styles.title} accessibilityRole="header">
+                {title}
+              </Text>
+            ) : null}
           </View>
-        ) : null}
-        {title ? (
-          <Text style={styles.title} accessibilityRole="header">
-            {title}
-          </Text>
         ) : null}
         {loading ? (
           <View style={styles.loading}>
@@ -89,9 +92,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     gap: space.md,
   },
-  backRow: {
-    marginBottom: space.xs,
-    alignSelf: "flex-start",
+  pageHeader: {
+    gap: 0,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,

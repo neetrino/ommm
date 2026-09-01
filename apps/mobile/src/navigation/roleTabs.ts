@@ -27,12 +27,12 @@ export type RoleTabItem = {
 const ICON = {
   home: { iconName: "home" as const, iconSize: 22 },
   classes: { iconName: "view-dashboard" as const, iconSize: 22 },
-  bookings: { iconName: "clipboard-check-outline" as const, iconSize: 22 },
+  bookings: { iconName: "view-dashboard" as const, iconSize: 22 },
   schedule: { iconName: "calendar-month" as const, iconSize: 24 },
   plans: { iconName: "tag" as const, iconSize: 22 },
-  userPlans: { iconName: "layers-outline" as const, iconSize: 22 },
+  userPlans: { iconName: "tag" as const, iconSize: 22 },
   profile: { iconName: "meditation" as const, iconSize: 26 },
-  account: { iconName: "account-circle-outline" as const, iconSize: 24 },
+  account: { iconName: "meditation" as const, iconSize: 26 },
   users: { iconName: "account-multiple" as const, iconSize: 22 },
   analytics: { iconName: "chart-box-outline" as const, iconSize: 22 },
 } as const;

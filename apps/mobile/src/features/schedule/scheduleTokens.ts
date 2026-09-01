@@ -31,8 +31,10 @@ export const scheduleLayout = {
   shellRadius: 28,
   stripRadius: 20,
   emptyRadius: 20,
-  rowRadius: 20,
+  /** Web mobile session row radius (`HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT`). */
+  rowRadius: 16,
   arrowSize: 44,
   chipMaxSize: 52,
-  bookBtnHeight: 40,
+  /** Web mobile book CTA height (`bookBtnHomeLayout` ≤743px). */
+  bookBtnHeight: 32,
 } as const;

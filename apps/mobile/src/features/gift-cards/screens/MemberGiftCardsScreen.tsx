@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
+import { ScreenHeaderGapBackButton } from "../../../components/navigation/ScreenHeaderGapBackButton";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { AppHeader } from "../../../components/layout/AppHeader";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
@@ -44,7 +44,10 @@ export function MemberGiftCardsScreen() {
     initialTab: parseInitialTab(params.tab),
   });
   const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
-    useScreenChromeInsets({ includeScreenGutter: false });
+    useScreenChromeInsets({
+      includeScreenGutter: false,
+      headerContentGap: 0,
+    });
   const onHeaderBookPress = useAppHeaderBookPress();
 
   const statusLabels = useMemo(
@@ -73,14 +76,13 @@ export function MemberGiftCardsScreen() {
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.backRow}>
-          <CircularBackButton
+        <View style={styles.pageHeader}>
+          <ScreenHeaderGapBackButton
             onPress={() => router.back()}
             accessibilityLabel={t("title")}
           />
+          <Text style={styles.title}>{t("title")}</Text>
         </View>
-
-        <Text style={styles.title}>{t("title")}</Text>
 
         {state.balanceCents !== null ? (
           <Text style={styles.balance}>
@@ -180,9 +182,8 @@ const styles = StyleSheet.create({
     gap: space.lg,
     width: "100%",
   },
-  backRow: {
-    alignSelf: "flex-start",
-    marginBottom: -space.sm,
+  pageHeader: {
+    gap: 0,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.boldItalic,

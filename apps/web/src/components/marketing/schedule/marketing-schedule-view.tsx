@@ -18,11 +18,13 @@ import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-
 import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-session-row";
 import {
   formatScheduleMonthTitle,
+  addDays,
   isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
   startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
+import { PUBLIC_SCHEDULE_RANGE_DAYS } from "@/lib/public-schedule-constants";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import {
   buildMarketingScheduleInitialNavFromItems,
@@ -168,10 +170,14 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
         locale={locale}
         selectedDate={nav.selectedDate}
         windowStart={nav.windowStart}
+        maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
         onSelectDay={(d) => {
           if (isBeforeCalendarDay(d, baseline)) return;
           userPickedDateRef.current = true;
-          setNav((s) => ({ ...s, selectedDate: d }));
+          setNav({
+            windowStart: startOfWeekSunday(d),
+            selectedDate: d,
+          });
         }}
         onShiftWindow={(delta) => {
           userPickedDateRef.current = true;

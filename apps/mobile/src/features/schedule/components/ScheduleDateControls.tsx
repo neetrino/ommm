@@ -1,8 +1,16 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Fragment } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
-import { platformShadow } from "../../../theme/platformShadow";
 import {
   addDays,
   compareCalendarDays,
@@ -10,35 +18,37 @@ import {
   isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
+  startOfWeekSunday,
 } from "../../../lib/schedule/scheduleDateUtils";
-import {
-  SCHEDULE_DATE_STRIP_VISIBLE_DAYS,
-  SCHEDULE_DATE_STRIP_WINDOW_SHIFT,
-} from "../../../lib/schedule/scheduleNav";
+import { SCHEDULE_DATE_STRIP_VISIBLE_DAYS } from "../../../lib/schedule/scheduleNav";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import {
-  formatScheduleMonthLabel,
-  formatScheduleSelectedDayLabel,
-  formatScheduleWeekdayShort,
-} from "../scheduleFormat";
-import { useScheduleCopy } from "../useScheduleCopy";
+import { formatScheduleSelectedDayLabel } from "../scheduleFormat";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
+import { useScheduleCopy } from "../useScheduleCopy";
+import {
+  ScheduleDateDayChip,
+  type ScheduleDateChipState,
+} from "./ScheduleDateDayChip";
+import { ScheduleMonthCalendarSheet } from "./ScheduleMonthCalendarSheet";
 
-/** Lift today’s date chip above the rest of the strip. */
-const TODAY_CHIP_LIFT_PX = 8;
+const STRIP_SIDE_INSET = 8;
+const STRIP_VERTICAL_PAD = 14;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const CALENDAR_ICON_SIZE = 20;
 
 type ScheduleDateControlsProps = {
   locale: string;
   selectedDate: Date;
-  windowStart: Date;
   maxDate: Date;
   onSelectDay: (date: Date) => void;
-  onShiftWindow: (deltaDays: number) => void;
 };
 
-type DateChipState = "past" | "today" | "selected" | "idle";
-
-function resolveChipState(day: Date, selectedDate: Date, today: Date, maxDate: Date): DateChipState {
+function resolveChipState(
+  day: Date,
+  selectedDate: Date,
+  today: Date,
+  maxDate: Date,
+): ScheduleDateChipState {
   if (isBeforeCalendarDay(day, today) || isAfterCalendarDay(day, maxDate)) {
     return "past";
   }
@@ -51,263 +61,230 @@ function resolveChipState(day: Date, selectedDate: Date, today: Date, maxDate: D
   return "idle";
 }
 
+/** Full Sunday–Saturday weeks from the week of `today` through the week of `maxDate`. */
+function buildStripWeeks(today: Date, maxDate: Date): Date[][] {
+  const start = startOfWeekSunday(today);
+  const lastWeekStart = startOfWeekSunday(maxDate);
+  const end = addDays(lastWeekStart, SCHEDULE_DATE_STRIP_VISIBLE_DAYS - 1);
+  const totalDays =
+    Math.floor(compareCalendarDays(end, start) / MS_PER_DAY) + 1;
+  const days = Array.from({ length: Math.max(totalDays, 1) }, (_, idx) =>
+    addDays(start, idx),
+  );
+  const weeks: Date[][] = [];
+  for (let i = 0; i < days.length; i += SCHEDULE_DATE_STRIP_VISIBLE_DAYS) {
+    weeks.push(days.slice(i, i + SCHEDULE_DATE_STRIP_VISIBLE_DAYS));
+  }
+  return weeks;
+}
+
+function weekIndexForDate(weeks: Date[][], date: Date): number {
+  return Math.max(
+    0,
+    weeks.findIndex((week) =>
+      week.some((day) => isSameCalendarDay(day, date)),
+    ),
+  );
+}
+
 export function ScheduleDateControls({
   locale,
   selectedDate,
-  windowStart,
   maxDate,
   onSelectDay,
-  onShiftWindow,
 }: ScheduleDateControlsProps) {
   const scheduleCopy = useScheduleCopy();
-  const stripDays = Array.from({ length: SCHEDULE_DATE_STRIP_VISIBLE_DAYS }, (_, idx) =>
-    addDays(windowStart, idx),
+  const scrollRef = useRef<ScrollView>(null);
+  const [pageWidth, setPageWidth] = useState(0);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const today = useMemo(() => startOfLocalDay(new Date()), []);
+  const weeks = useMemo(
+    () => buildStripWeeks(today, maxDate),
+    [today, maxDate],
   );
-  const today = startOfLocalDay(new Date());
-  const canShiftPrev = compareCalendarDays(addDays(windowStart, -1), today) >= 0;
-  const canShiftNext = !isAfterCalendarDay(
-    addDays(windowStart, SCHEDULE_DATE_STRIP_WINDOW_SHIFT),
-    maxDate,
-  );
+
+  useEffect(() => {
+    if (pageWidth <= 0) {
+      return;
+    }
+    const index = weekIndexForDate(weeks, selectedDate);
+    scrollRef.current?.scrollTo({
+      x: index * pageWidth,
+      animated: true,
+    });
+  }, [selectedDate, weeks, pageWidth]);
+
+  const onStripLayout = (event: LayoutChangeEvent) => {
+    const width = event.nativeEvent.layout.width;
+    if (width > 0 && width !== pageWidth) {
+      setPageWidth(width);
+    }
+  };
+
+  const onMomentumScrollEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
+    if (pageWidth <= 0) {
+      return;
+    }
+    const index = Math.round(event.nativeEvent.contentOffset.x / pageWidth);
+    const week = weeks[index];
+    if (!week) {
+      return;
+    }
+    const alreadyInWeek = week.some((day) =>
+      isSameCalendarDay(day, selectedDate),
+    );
+    if (alreadyInWeek) {
+      return;
+    }
+    const firstBookable =
+      week.find(
+        (day) =>
+          !isBeforeCalendarDay(day, today) && !isAfterCalendarDay(day, maxDate),
+      ) ?? week[0];
+    if (firstBookable) {
+      onSelectDay(startOfLocalDay(firstBookable));
+    }
+  };
 
   return (
-    <Fragment>
-      <View style={styles.monthWrap}>
-        <Text style={styles.monthLabel}>{formatScheduleMonthLabel(selectedDate, locale)}</Text>
-      </View>
-
-      <View style={styles.stripWrap}>
-        <View style={styles.stripPanel}>
-          <View style={styles.stripRow}>
-            <Pressable
-              onPress={() => onShiftWindow(-SCHEDULE_DATE_STRIP_WINDOW_SHIFT)}
-              disabled={!canShiftPrev}
-              style={[styles.arrowBtn, !canShiftPrev && styles.arrowBtnDisabled]}
-              accessibilityRole="button"
-              accessibilityLabel={scheduleCopy.prevDatesAria}
+    <View>
+      <View style={styles.stripPanel}>
+        <View onLayout={onStripLayout} style={styles.stripViewport}>
+          {pageWidth > 0 ? (
+            <ScrollView
+              ref={scrollRef}
+              horizontal
+              pagingEnabled
+              decelerationRate="fast"
+              showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled
+              onMomentumScrollEnd={onMomentumScrollEnd}
             >
-              <MaterialCommunityIcons name="chevron-left" size={22} color={scheduleColors.oliveActive} />
-            </Pressable>
-
-            <View style={styles.daysRow}>
-              {stripDays.map((day) => {
-                const chipState = resolveChipState(day, selectedDate, today, maxDate);
-                const weekday = formatScheduleWeekdayShort(day, locale);
-                const dayNum = String(day.getDate());
-                const weekdayStyle = [
-                  styles.weekday,
-                  chipState === "selected" || chipState === "today"
-                    ? styles.weekdayActive
-                    : undefined,
-                ];
-                const chipStyle = [
-                  styles.chip,
-                  chipState === "past" && styles.chipPast,
-                  chipState === "idle" && styles.chipIdle,
-                  chipState === "today" && styles.chipToday,
-                  chipState === "selected" && styles.chipSelected,
-                  chipState === "today" && styles.chipTodayLift,
-                ];
-
-                if (chipState === "past") {
-                  return (
-                    <View key={day.getTime()} style={styles.dayCell}>
-                      <Text style={weekdayStyle}>{weekday}</Text>
-                      <View style={chipStyle}>
-                        <Text style={styles.chipTextPast}>{dayNum}</Text>
-                      </View>
-                    </View>
-                  );
-                }
-
-                return (
-                  <Pressable
-                    key={day.getTime()}
-                    onPress={() => onSelectDay(startOfLocalDay(day))}
-                    style={styles.dayCell}
-                    accessibilityRole="button"
-                  >
-                    <Text style={weekdayStyle}>{weekday}</Text>
-                    <View style={chipStyle}>
-                      <Text
-                        style={[
-                          styles.chipText,
-                          (chipState === "today" || chipState === "selected") &&
-                            styles.chipTextOnOlive,
-                          chipState === "selected" && styles.chipTextSelected,
-                        ]}
-                      >
-                        {dayNum}
-                      </Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Pressable
-              onPress={() => onShiftWindow(SCHEDULE_DATE_STRIP_WINDOW_SHIFT)}
-              disabled={!canShiftNext}
-              style={[styles.arrowBtn, !canShiftNext && styles.arrowBtnDisabled]}
-              accessibilityRole="button"
-              accessibilityLabel={scheduleCopy.nextDatesAria}
-            >
-              <MaterialCommunityIcons name="chevron-right" size={22} color={scheduleColors.oliveActive} />
-            </Pressable>
-          </View>
+              {weeks.map((week) => (
+                <View
+                  key={week[0]?.getTime() ?? "week"}
+                  style={[styles.weekPage, { width: pageWidth }]}
+                >
+                  {week.map((day) => (
+                    <ScheduleDateDayChip
+                      key={day.getTime()}
+                      day={day}
+                      locale={locale}
+                      chipState={resolveChipState(
+                        day,
+                        selectedDate,
+                        today,
+                        maxDate,
+                      )}
+                      onPress={() => onSelectDay(startOfLocalDay(day))}
+                    />
+                  ))}
+                </View>
+              ))}
+            </ScrollView>
+          ) : null}
         </View>
       </View>
 
       <View style={styles.divider}>
-        <Text style={styles.selectedDay}>
+        <Text style={styles.selectedDay} numberOfLines={1}>
           {formatScheduleSelectedDayLabel(selectedDate, locale)}
         </Text>
+        <Pressable
+          onPress={() => setCalendarOpen(true)}
+          style={({ pressed }) => [
+            styles.calendarBtn,
+            pressed && styles.calendarBtnPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={scheduleCopy.fullCalendarAria}
+        >
+          <MaterialCommunityIcons
+            name="calendar-month"
+            size={CALENDAR_ICON_SIZE}
+            color={scheduleColors.oliveActive}
+          />
+          <Text style={styles.calendarBtnLabel} numberOfLines={1}>
+            {scheduleCopy.fullCalendar}
+          </Text>
+        </Pressable>
       </View>
-    </Fragment>
+
+      <ScheduleMonthCalendarSheet
+        open={calendarOpen}
+        locale={locale}
+        selectedDate={selectedDate}
+        minDate={today}
+        maxDate={maxDate}
+        title={scheduleCopy.fullCalendar}
+        prevMonthAria={scheduleCopy.calendarPrevMonthAria}
+        nextMonthAria={scheduleCopy.calendarNextMonthAria}
+        onClose={() => setCalendarOpen(false)}
+        onSelectDay={onSelectDay}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  monthWrap: {
-    marginTop: SCHEDULE_PAGE_MOBILE.monthMarginTopPx,
-  },
-  monthLabel: {
-    fontFamily: fontFamilies.gtSuperDs.boldItalic,
-    fontSize: 22,
-    lineHeight: 24,
-    letterSpacing: -0.44,
-    color: scheduleColors.pageTitle,
-    textTransform: "capitalize",
-  },
-  stripWrap: {
-    marginTop: SCHEDULE_PAGE_MOBILE.stripMarginTopPx,
-  },
   stripPanel: {
     borderRadius: scheduleLayout.stripRadius,
     borderWidth: 1,
     borderColor: scheduleColors.stripBorder,
     backgroundColor: scheduleColors.stripBg,
-    paddingHorizontal: 8,
-    paddingTop: 14 + TODAY_CHIP_LIFT_PX,
-    paddingBottom: 14,
-    overflow: "visible",
+    paddingHorizontal: STRIP_SIDE_INSET,
+    paddingTop: STRIP_VERTICAL_PAD,
+    paddingBottom: STRIP_VERTICAL_PAD,
+    overflow: "hidden",
   },
-  stripRow: {
+  stripViewport: {
+    width: "100%",
+  },
+  weekPage: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    overflow: "visible",
-  },
-  arrowBtn: {
-    width: scheduleLayout.arrowSize,
-    height: scheduleLayout.arrowSize,
-    borderRadius: scheduleLayout.arrowSize / 2,
-    borderWidth: 1,
-    borderColor: scheduleColors.filterBorder,
-    backgroundColor: "rgba(255, 255, 255, 0.88)",
-    alignItems: "center",
-    justifyContent: "center",
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: 8,
-      opacity: 0.14,
-      radius: 14,
-      elevation: 2,
-    }),
-  },
-  arrowBtnDisabled: {
-    opacity: 0.38,
-  },
-  daysRow: {
-    flex: 1,
-    flexDirection: "row",
-    minWidth: 0,
-    gap: 2,
-    overflow: "visible",
-  },
-  dayCell: {
-    flex: 1,
-    minWidth: 0,
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 4,
-    overflow: "visible",
-  },
-  weekday: {
-    width: "100%",
-    textAlign: "center",
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 9,
-    letterSpacing: 1.26,
-    color: scheduleColors.olive,
-  },
-  weekdayActive: {
-    color: scheduleColors.oliveActive,
-  },
-  chip: {
-    width: "100%",
-    maxWidth: scheduleLayout.chipMaxSize,
-    aspectRatio: 1,
-    borderRadius: 9999,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-  },
-  chipIdle: {
-    borderColor: scheduleColors.chipIdleBorder,
-    backgroundColor: scheduleColors.chipIdleBg,
-  },
-  chipToday: {
-    borderColor: scheduleColors.olive,
-    backgroundColor: scheduleColors.olive,
-  },
-  chipTodayLift: {
-    transform: [{ translateY: -TODAY_CHIP_LIFT_PX }],
-  },
-  chipSelected: {
-    borderColor: scheduleColors.olive,
-    backgroundColor: "rgba(255, 255, 255, 0.82)",
-    ...platformShadow({
-      color: scheduleColors.olive,
-      offsetHeight: 0,
-      opacity: 0.22,
-      radius: 0,
-      elevation: 0,
-    }),
-  },
-  chipPast: {
-    borderColor: scheduleColors.chipPastBorder,
-    backgroundColor: scheduleColors.chipPastBg,
-    opacity: 0.45,
-  },
-  chipText: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 14,
-    color: scheduleColors.olive,
-  },
-  chipTextOnOlive: {
-    color: scheduleColors.canvasText,
-  },
-  chipTextSelected: {
-    color: scheduleColors.oliveActive,
-  },
-  chipTextPast: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 14,
-    color: scheduleColors.chipPastText,
   },
   divider: {
     marginTop: SCHEDULE_PAGE_MOBILE.dividerMarginTopPx,
     paddingBottom: SCHEDULE_PAGE_MOBILE.dividerPaddingBottomPx,
     borderBottomWidth: 1,
     borderBottomColor: scheduleColors.divider,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   selectedDay: {
+    flex: 1,
+    minWidth: 0,
     fontFamily: fontFamilies.gtSuperDs.boldItalic,
     fontSize: 18,
     lineHeight: 21,
     letterSpacing: -0.27,
     color: scheduleColors.pageTitle,
     textTransform: "capitalize",
+  },
+  calendarBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    maxWidth: "48%",
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: scheduleColors.filterBorder,
+    backgroundColor: scheduleColors.filterBg,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  calendarBtnPressed: {
+    opacity: 0.9,
+  },
+  calendarBtnLabel: {
+    flexShrink: 1,
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 11,
+    letterSpacing: 0.3,
+    color: scheduleColors.oliveActive,
   },
 });

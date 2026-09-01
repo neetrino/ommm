@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
 import { View } from "react-native";
 import { useSession } from "../../auth/SessionProvider";
-import { LanguageSwitcher } from "../../i18n/LanguageSwitcher";
 import { accountHubLayout } from "./accountHubLayout";
 import {
   type AccountHubRole,
@@ -30,10 +29,6 @@ export function ProfileScreen({ hubRole = "USER" }: ProfileScreenProps) {
         avatarImageUri={homeImageUri}
         initials={profileInitials}
       />
-
-      <View style={accountHubLayout.languageRow}>
-        <LanguageSwitcher />
-      </View>
 
       <View>
         <ProfileGlassCard style={accountHubLayout.menuCard}>

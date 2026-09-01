@@ -17,6 +17,11 @@ export type ScreenChromeHeaderMode = "app" | "safe" | "none";
 type UseScreenChromeInsetsOptions = {
   /** `app` = clearance for absolute AppHeader; `safe` = safe-area only; `none` = minimal. */
   header?: ScreenChromeHeaderMode;
+  /**
+   * Extra gap under AppHeader before page content (default `APP_HEADER_CONTENT_GAP`).
+   * Pass `0` when a header-gap back control owns that band.
+   */
+  headerContentGap?: number;
   /** Extra gap above the floating tab bar (default `space.xl`). */
   contentGap?: number;
   /** When false, omit tab-bar occupancy from bottom padding. */
@@ -62,6 +67,7 @@ export function useScreenChromeInsets(
   const compact = width > height || height <= COMPACT_CHROME_MAX_HEIGHT;
   const isLandscape = width > height;
   const header = options.header ?? "app";
+  const headerContentGap = options.headerContentGap;
   const contentGap = options.contentGap ?? space.xl;
   const includeTabBar = options.tabBar ?? true;
   const includeScreenGutter = options.includeScreenGutter ?? true;
@@ -69,7 +75,9 @@ export function useScreenChromeInsets(
 
   const paddingTop =
     header === "app"
-      ? appHeaderScrollPaddingTop(insets.top)
+      ? appHeaderScrollPaddingTop(insets.top, {
+          contentGap: headerContentGap,
+        })
       : header === "safe"
         ? insets.top + space.sm
         : space.sm;
