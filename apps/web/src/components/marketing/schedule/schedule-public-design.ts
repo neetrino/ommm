@@ -43,6 +43,8 @@ export const SCHEDULE_DATE_CHIP_SELECTED = styles.dateChipSelected;
 export const SCHEDULE_ARROW_BTN = styles.arrowBtn;
 export const SCHEDULE_SELECTED_DAY_DIVIDER = styles.selectedDayDivider;
 export const SCHEDULE_SELECTED_DAY_LABEL = styles.selectedDayLabel;
+export const SCHEDULE_FULL_CALENDAR_BTN = styles.fullCalendarBtn;
+export const SCHEDULE_FULL_CALENDAR_BTN_LABEL = styles.fullCalendarBtnLabel;
 
 export const SCHEDULE_TIME_LABEL = styles.timeLabel;
 export const SCHEDULE_DURATION_LABEL = styles.durationLabel;

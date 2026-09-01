@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   SCHEDULE_ARROW_BTN,
@@ -13,6 +14,8 @@ import {
   SCHEDULE_DATE_STRIP_DAYS,
   SCHEDULE_DATE_STRIP_LAYOUT,
   SCHEDULE_DATE_STRIP_PANEL,
+  SCHEDULE_FULL_CALENDAR_BTN,
+  SCHEDULE_FULL_CALENDAR_BTN_LABEL,
   SCHEDULE_INTERACTIVE_LIFT,
   SCHEDULE_SELECTED_DAY_DIVIDER,
   SCHEDULE_SELECTED_DAY_LABEL,
@@ -31,7 +34,9 @@ import { formatDateForUi } from "@/lib/date-display";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  CalendarIcon,
 } from "@/components/marketing/schedule/schedule-view-icons";
+import { ScheduleMonthCalendarSheet } from "@/components/marketing/schedule/schedule-month-calendar-sheet";
 
 export const SCHEDULE_DATE_STRIP_VISIBLE_DAYS = 7;
 export const SCHEDULE_DATE_STRIP_WINDOW_SHIFT = 7;
@@ -65,6 +70,7 @@ export function ScheduleDateControls({
   onShiftWindow,
 }: ScheduleDateControlsProps) {
   const t = useTranslations("marketingPages.schedule");
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const stripDays = Array.from({ length: VISIBLE_DAYS }, (_, idx) => addDays(windowStart, idx));
   const today = startOfLocalDay(new Date());
   const canShiftPrev = compareCalendarDays(addDays(windowStart, -1), today) >= 0;
@@ -72,6 +78,7 @@ export function ScheduleDateControls({
     maxDate === undefined ||
     !isAfterCalendarDay(addDays(windowStart, WINDOW_SHIFT), maxDate);
   const selectedLong = formatSelectedLong(locale, selectedDate);
+  const calendarMaxDate = maxDate ?? addDays(today, 30);
 
   return (
     <>
@@ -148,7 +155,26 @@ export function ScheduleDateControls({
 
       <div className={SCHEDULE_SELECTED_DAY_DIVIDER}>
         <p className={SCHEDULE_SELECTED_DAY_LABEL}>{selectedLong}</p>
+        <button
+          type="button"
+          className={SCHEDULE_FULL_CALENDAR_BTN}
+          aria-label={t("fullCalendarAria")}
+          onClick={() => setCalendarOpen(true)}
+        >
+          <CalendarIcon />
+          <span className={SCHEDULE_FULL_CALENDAR_BTN_LABEL}>{t("fullCalendar")}</span>
+        </button>
       </div>
+
+      <ScheduleMonthCalendarSheet
+        open={calendarOpen}
+        locale={locale}
+        selectedDate={selectedDate}
+        minDate={today}
+        maxDate={calendarMaxDate}
+        onClose={() => setCalendarOpen(false)}
+        onSelectDay={onSelectDay}
+      />
     </>
   );
 }
