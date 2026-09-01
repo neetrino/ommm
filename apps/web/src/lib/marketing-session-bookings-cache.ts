@@ -1,6 +1,6 @@
 import type { UserSessionBookingMap } from "@/lib/user-session-bookings-map";
 
-const CACHE_KEY = "ommm_marketing_session_bookings_v1";
+const CACHE_KEY = "ommm_marketing_session_bookings_v2";
 export const MARKETING_SESSION_BOOKINGS_UPDATED = "ommm-marketing-session-bookings-updated";
 
 /** Stable empty snapshot for SSR and cache misses (useSyncExternalStore requires referential stability). */
@@ -9,11 +9,24 @@ export const EMPTY_MARKETING_SESSION_BOOKINGS: UserSessionBookingMap = {};
 let clientSnapshot: UserSessionBookingMap = EMPTY_MARKETING_SESSION_BOOKINGS;
 let storageHydrated = false;
 
+function isSessionBookingRef(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  if (!("bookingId" in value) || typeof value.bookingId !== "string") {
+    return false;
+  }
+  if (!("createdAt" in value)) {
+    return false;
+  }
+  return value.createdAt === null || typeof value.createdAt === "string";
+}
+
 function isSessionBookingMap(value: unknown): value is UserSessionBookingMap {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  return Object.values(value).every((entry) => typeof entry === "string");
+  return Object.values(value).every((entry) => isSessionBookingRef(entry));
 }
 
 function hydrateClientSnapshotFromStorage(): void {

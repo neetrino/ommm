@@ -12,6 +12,7 @@ import {
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageFreezeControls } from "@/components/admin/admin-client-package-freeze-controls";
+import { AdminClientPackageSessionsAdjuster } from "@/components/admin/admin-client-package-sessions-adjuster";
 import { AdminClientPackagePastSessionControls } from "@/components/admin/admin-client-package-past-session-controls";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
@@ -170,6 +171,15 @@ export function AdminClientPackageCard({
             onValidityUpdated?.();
           }}
         />
+        {allowEditValidity ? (
+          <AdminClientPackageSessionsAdjuster
+            item={item}
+            onSuccess={(message) => {
+              setSuccessToast(message);
+              onValidityUpdated?.();
+            }}
+          />
+        ) : null}
         {allowEditValidity ? (
           <AdminClientPackagePastSessionControls
             clientId={clientId}

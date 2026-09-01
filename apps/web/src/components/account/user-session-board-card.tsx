@@ -19,12 +19,14 @@ type UserSessionBoardCardProps = {
   locale: string;
   session: UserSessionRow;
   userBookingId?: string;
+  userBookingCreatedAt?: string;
 };
 
 export function UserSessionBoardCard({
   locale,
   session,
   userBookingId,
+  userBookingCreatedAt,
 }: UserSessionBoardCardProps) {
   const t = useTranslations("userPages.classes");
   const [activeBookingId, setActiveBookingId] = useState<string | undefined>(userBookingId);
@@ -75,6 +77,7 @@ export function UserSessionBoardCard({
           priceCents={session.priceCents}
           full={full}
           userBookingId={activeBookingId}
+          userBookingCreatedAt={userBookingCreatedAt}
           onBookingChange={setActiveBookingId}
           size="md"
         />

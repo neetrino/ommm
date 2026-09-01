@@ -34,6 +34,7 @@ type HomeWeeklyScheduleSessionRowProps = {
   /** When false, hide the calendar date chip (schedule page already shows the day strip). */
   showDate?: boolean;
   userBookingId?: string;
+  userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
   isOnWaitlist?: boolean;
   loginReturnPath?: string;
@@ -56,6 +57,7 @@ export function HomeWeeklyScheduleSessionRow({
   bookingEnabled,
   showDate = true,
   userBookingId,
+  userBookingCreatedAt,
   bookingStateReady = true,
   isOnWaitlist = false,
   loginReturnPath = HOME_BOOKING_LOGIN_RETURN_PATH,
@@ -165,6 +167,7 @@ export function HomeWeeklyScheduleSessionRow({
             audience={audience}
             className={SCHEDULE_BOOK_BTN_HOME}
             userBookingId={userBookingId}
+            userBookingCreatedAt={userBookingCreatedAt}
             bookingStateReady={bookingStateReady}
             initialOnWaitlist={isOnWaitlist}
             loginReturnPath={loginReturnPath}

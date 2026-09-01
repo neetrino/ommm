@@ -21,6 +21,7 @@ type SessionBookingActionsProps = {
   priceCents: number;
   full: boolean;
   userBookingId?: string;
+  userBookingCreatedAt?: string;
   size?: "sm" | "md";
   layout?: "board" | "list";
   onBookingChange?: (bookingId: string | undefined) => void;
@@ -32,6 +33,7 @@ export function SessionBookingActions({
   priceCents,
   full,
   userBookingId,
+  userBookingCreatedAt,
   size = "md",
   layout = "board",
   onBookingChange,
@@ -70,7 +72,7 @@ export function SessionBookingActions({
         bookingId={bookingId}
         sessionDate={sessionStartsAt}
         sessionStartTime={scheduleStartTimeFromIso(sessionStartsAt)}
-        bookedAt={bookedAtIso}
+        bookedAt={bookedAtIso ?? userBookingCreatedAt}
         appearance="button"
         size={size}
         onError={setCancelMsg}

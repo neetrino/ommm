@@ -33,4 +33,17 @@ describe("shouldApplyCancellationPenalty", () => {
       true,
     );
   });
+
+  it("resolves a bookings-API ISO startsAt without treating it as a calendar day", () => {
+    const now = new Date("2026-08-31T06:40:00.000Z");
+    assert.equal(
+      shouldApplyCancellationPenalty({
+        sessionDate: "2026-08-31T07:00:00.000Z",
+        startTime: "99:99",
+        bookedAtIso: "2026-08-31T06:17:50.000Z",
+        now,
+      }),
+      true,
+    );
+  });
 });

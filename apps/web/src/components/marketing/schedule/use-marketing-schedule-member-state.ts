@@ -16,6 +16,10 @@ import {
   mergePublicScheduleItems,
 } from "@/lib/schedule-session-spots";
 import type { UserBookingRow } from "@/lib/user-booking-types";
+import type {
+  UserSessionBookingMap,
+  UserSessionBookingRef,
+} from "@/lib/user-session-bookings-map";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
@@ -32,7 +36,7 @@ export function useMarketingScheduleMemberState({
 }: UseMarketingScheduleMemberStateOptions) {
   const [items, setItems] = useState<MarketingScheduleItem[]>(() => [...initialItems]);
   const [sessionsReady, setSessionsReady] = useState(initialItems.length > 0);
-  const [bookedBySessionId, setBookedBySessionId] = useState<Record<string, string>>({});
+  const [bookedBySessionId, setBookedBySessionId] = useState<UserSessionBookingMap>({});
   const [memberBookingsLoaded, setMemberBookingsLoaded] = useState(!isMember);
   const [scheduleNow, setScheduleNow] = useState(() => new Date());
   const bookedBySessionIdRef = useRef(bookedBySessionId);
@@ -63,10 +67,13 @@ export function useMarketingScheduleMemberState({
         if (!isActive()) {
           return;
         }
-        const next: Record<string, string> = {};
+        const next: Record<string, UserSessionBookingRef> = {};
         for (const row of rows) {
           if (row.status === "BOOKED") {
-            next[row.session.id] = row.id;
+            next[row.session.id] = {
+              bookingId: row.id,
+              createdAt: row.createdAt ?? null,
+            };
           }
         }
         setBookedBySessionId(next);
@@ -198,7 +205,13 @@ export function useMarketingScheduleMemberState({
 
   const handleBooked = useCallback(
     (sessionId: string, bookingId: string) => {
-      setBookedBySessionId((current) => ({ ...current, [sessionId]: bookingId }));
+      setBookedBySessionId((current) => ({
+        ...current,
+        [sessionId]: {
+          bookingId,
+          createdAt: new Date().toISOString(),
+        },
+      }));
       setItems((current) =>
         current.map((item) =>
           item.id === sessionId ? applyScheduleSpotDelta(item, -1) : item,

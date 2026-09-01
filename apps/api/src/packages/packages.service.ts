@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { Role } from '@prisma/client';
 import type { AdminClientPackagePaymentMethod } from '../clients/dto/admin-purchase-client-package.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
@@ -7,9 +8,11 @@ import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
+import { PackagesAdminSessionsService } from './packages-admin-sessions.service';
 import { PackagesAdminValidityService } from './packages-admin-validity.service';
 import { PackagesFreezeService } from './packages-freeze.service';
 import { PackagesPublicService } from './packages-public.service';
+import type { AdminAdjustUserPackageSessionsDto } from './dto/admin-adjust-user-package-sessions.dto';
 import type { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
 import type { FreezeUserPackageDto } from './dto/freeze-user-package.dto';
 
@@ -20,6 +23,7 @@ export class PackagesService {
     private readonly adminService: PackagesAdminService,
     private readonly adminClientPurchase: PackagesAdminClientPurchaseService,
     private readonly adminValidity: PackagesAdminValidityService,
+    private readonly adminSessions: PackagesAdminSessionsService,
     private readonly freezeService: PackagesFreezeService,
   ) {}
 
@@ -97,6 +101,14 @@ export class PackagesService {
     dto: AdminUpdateUserPackageValidityDto,
   ) {
     return this.adminValidity.updateValidity(userPackageId, dto);
+  }
+
+  adjustUserPackageSessions(
+    actor: { id: string; role: Role },
+    userPackageId: string,
+    dto: AdminAdjustUserPackageSessionsDto,
+  ) {
+    return this.adminSessions.adjustSessions(actor, userPackageId, dto);
   }
 
   freezeMine(userId: string, userPackageId: string, dto: FreezeUserPackageDto) {

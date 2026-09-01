@@ -39,6 +39,7 @@ type AuthAwareScheduleBookingActionProps = {
   audience: PublicPackageCategoryCardsAudience;
   className?: string;
   userBookingId?: string;
+  userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
   initialOnWaitlist?: boolean;
   /** Post-login destination for guest booking intents (locale-free path). */
@@ -59,6 +60,7 @@ export function AuthAwareScheduleBookingAction({
   audience,
   className = SCHEDULE_BOOK_BTN,
   userBookingId,
+  userBookingCreatedAt,
   bookingStateReady = true,
   initialOnWaitlist = false,
   loginReturnPath = DEFAULT_LOGIN_RETURN_PATH,
@@ -188,7 +190,7 @@ export function AuthAwareScheduleBookingAction({
             bookingId={resolvedBookingId}
             sessionDate={sessionDate}
             sessionStartTime={sessionStartTime}
-            bookedAt={bookedAtIso}
+            bookedAt={bookedAtIso ?? userBookingCreatedAt}
             appearance="button"
             size="sm"
             buttonClassName={SCHEDULE_CANCEL_BTN}

@@ -1,5 +1,8 @@
 import { resolvePublicScheduleSessionStart } from "@/lib/filter-public-schedule-items";
-import { utcToStudioWallClockTime } from "@/lib/studio-timezone";
+import {
+  utcToStudioCalendarDate,
+  utcToStudioWallClockTime,
+} from "@/lib/studio-timezone";
 
 /** Matches backend default in `cancellation-policy.ts`. */
 export const DEFAULT_CANCELLATION_PENALTY_HOURS = 24;
@@ -36,9 +39,13 @@ export function isPenalizedCancellationFromIso(
   penaltyHours: number = DEFAULT_CANCELLATION_PENALTY_HOURS,
   now: Date = new Date(),
 ): boolean {
+  const instant = new Date(sessionStartsAtIso);
+  if (Number.isNaN(instant.getTime())) {
+    return false;
+  }
   return isPenalizedCancellation(
-    sessionStartsAtIso,
-    scheduleStartTimeFromIso(sessionStartsAtIso),
+    utcToStudioCalendarDate(instant),
+    utcToStudioWallClockTime(instant),
     penaltyHours,
     now,
   );
@@ -56,6 +63,10 @@ export function isWithinCancellationGracePeriod(
   return now.getTime() - bookedAtMs <= graceMinutes * MS_PER_MINUTE;
 }
 
+function looksLikeIsoInstant(value: string): boolean {
+  return value.includes("T");
+}
+
 export function shouldApplyCancellationPenalty(params: {
   sessionDate: string;
   startTime: string;
@@ -70,6 +81,13 @@ export function shouldApplyCancellationPenalty(params: {
     isWithinCancellationGracePeriod(params.bookedAtIso, DEFAULT_CANCELLATION_GRACE_MINUTES, now)
   ) {
     return false;
+  }
+  if (looksLikeIsoInstant(params.sessionDate)) {
+    return isPenalizedCancellationFromIso(
+      params.sessionDate,
+      params.penaltyHours,
+      now,
+    );
   }
   return isPenalizedCancellation(
     params.sessionDate,
