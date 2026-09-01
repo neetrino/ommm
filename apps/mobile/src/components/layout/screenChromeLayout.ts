@@ -28,14 +28,20 @@ export const APP_HEADER_ROW_MIN_HEIGHT = APP_HEADER_SPHERE_SIZE + space.xs;
 export const APP_HEADER_LOGO_SIZE = APP_HEADER_SPHERE_SIZE;
 
 /**
+ * Extra space between the AppHeader bottom edge and page content.
+ * Used by every screen that opts into `header: "app"` chrome.
+ */
+export const APP_HEADER_CONTENT_GAP = space.xl;
+
+/**
  * Space below safe-area top for scroll content to clear AppHeader
- * (top pad + row + bottom pad + small gap).
+ * (top pad + row + bottom pad + content gap).
  */
 export const APP_HEADER_CONTENT_CLEARANCE =
   APP_HEADER_TOP_PAD +
   APP_HEADER_ROW_MIN_HEIGHT +
   APP_HEADER_BOTTOM_PAD +
-  space.sm;
+  APP_HEADER_CONTENT_GAP;
 
 export const FLOATING_TAB_BAR_HEIGHT = 88;
 /** Landscape / short: icon chip + single-line label fully inside the pill. */
