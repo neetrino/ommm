@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
 import {
+  Animated,
   Modal,
   Pressable,
   ScrollView,
@@ -8,9 +9,9 @@ import {
   Text,
   View,
 } from "react-native";
-import { fontFamilies } from "../../../theme/fontFamilies";
-import { platformShadow } from "../../../theme/platformShadow";
+import { useScheduleFilterSheetAnimation } from "../hooks/useScheduleFilterSheetAnimation";
 import { scheduleColors } from "../scheduleTokens";
+import { scheduleFilterFieldStyles as styles } from "./scheduleFilterField.styles";
 
 export type ScheduleFilterOption = {
   value: string;
@@ -46,8 +47,10 @@ export function ScheduleFilterField({
   onChange,
   accessibilityLabel,
 }: ScheduleFilterFieldProps) {
-  const [open, setOpen] = useState(false);
+  const [presented, setPresented] = useState(false);
   const [draft, setDraft] = useState<string[]>([]);
+  const { backdropOpacity, sheetTranslateY, animateClose } =
+    useScheduleFilterSheetAnimation(presented);
 
   const committed = useMemo(
     () => buildValidSelection(options, values),
@@ -72,16 +75,21 @@ export function ScheduleFilterField({
 
   function openSheet() {
     setDraft(buildValidSelection(options, values));
-    setOpen(true);
+    setPresented(true);
   }
 
   function closeSheet() {
-    setOpen(false);
+    animateClose(() => {
+      setPresented(false);
+    });
   }
 
   function applyAndClose() {
-    onChange(buildValidSelection(options, draft));
-    setOpen(false);
+    const next = buildValidSelection(options, draft);
+    animateClose(() => {
+      setPresented(false);
+      onChange(next);
+    });
   }
 
   function selectAll() {
@@ -104,10 +112,13 @@ export function ScheduleFilterField({
     <>
       <Pressable
         onPress={openSheet}
-        style={({ pressed }) => [styles.trigger, pressed && styles.triggerPressed]}
+        style={({ pressed }) => [
+          styles.trigger,
+          pressed && styles.triggerPressed,
+        ]}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
-        accessibilityState={{ expanded: open }}
+        accessibilityState={{ expanded: presented }}
       >
         <Text style={styles.label} numberOfLines={1}>
           {triggerLabel}
@@ -120,18 +131,29 @@ export function ScheduleFilterField({
       </Pressable>
 
       <Modal
-        visible={open}
+        visible={presented}
         transparent
-        animationType="fade"
+        animationType="none"
         onRequestClose={closeSheet}
       >
-        <View style={styles.backdrop}>
+        <View style={styles.backdropRoot}>
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.backdropFill, { opacity: backdropOpacity }]}
+          />
           <Pressable
             style={StyleSheet.absoluteFill}
             onPress={closeSheet}
             accessibilityRole="button"
           />
-          <View style={styles.sheet}>
+          <Animated.View
+            style={[
+              styles.sheet,
+              {
+                transform: [{ translateY: sheetTranslateY }],
+              },
+            ]}
+          >
             <ScrollView
               style={styles.optionsScroll}
               keyboardShouldPersistTaps="handled"
@@ -190,7 +212,7 @@ export function ScheduleFilterField({
                 <Text style={styles.applyLabel}>{applyLabel}</Text>
               </Pressable>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </>
@@ -210,104 +232,3 @@ function FilterCheckbox({ checked }: { checked: boolean }) {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  trigger: {
-    minHeight: 46,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: scheduleColors.filterBorder,
-    backgroundColor: scheduleColors.filterBg,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: 8,
-      opacity: 0.1,
-      radius: 16,
-      elevation: 2,
-    }),
-  },
-  triggerPressed: {
-    opacity: 0.92,
-  },
-  label: {
-    flex: 1,
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 14,
-    letterSpacing: 0.28,
-    color: scheduleColors.body,
-  },
-  backdrop: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.25)",
-  },
-  sheet: {
-    zIndex: 1,
-    maxHeight: "70%",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: "#ffffff",
-    paddingTop: 8,
-    overflow: "hidden",
-  },
-  optionsScroll: {
-    flexGrow: 0,
-  },
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
-  optionActive: {
-    backgroundColor: "rgba(151, 144, 124, 0.12)",
-  },
-  optionLabel: {
-    flex: 1,
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: 15,
-    color: scheduleColors.body,
-  },
-  optionLabelActive: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    color: scheduleColors.oliveActive,
-  },
-  footer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(151, 144, 124, 0.28)",
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 20,
-  },
-  applyButton: {
-    minHeight: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 9999,
-    backgroundColor: scheduleColors.olive,
-    ...platformShadow({
-      color: "#2d2823",
-      offsetHeight: 8,
-      opacity: 0.16,
-      radius: 14,
-      elevation: 3,
-    }),
-  },
-  applyButtonPressed: {
-    opacity: 0.9,
-  },
-  applyLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: 14,
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-    color: scheduleColors.canvasText,
-  },
-});
