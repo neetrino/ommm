@@ -59,8 +59,18 @@ export const FLOATING_TAB_BAR_OUTER_BOTTOM_EXTRA = space.xs;
  */
 export const COMPACT_CHROME_MAX_HEIGHT = 500;
 
-export function appHeaderScrollPaddingTop(insetsTop: number): number {
-  return insetsTop + APP_HEADER_CONTENT_CLEARANCE;
+export function appHeaderScrollPaddingTop(
+  insetsTop: number,
+  options?: { contentGap?: number },
+): number {
+  const contentGap = options?.contentGap ?? APP_HEADER_CONTENT_GAP;
+  return (
+    insetsTop +
+    APP_HEADER_TOP_PAD +
+    APP_HEADER_ROW_MIN_HEIGHT +
+    APP_HEADER_BOTTOM_PAD +
+    contentGap
+  );
 }
 
 export function tabBarScrollPaddingBottom(

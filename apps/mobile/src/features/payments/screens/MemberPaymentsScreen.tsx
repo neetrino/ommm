@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
+import { ScreenHeaderGapBackButton } from "../../../components/navigation/ScreenHeaderGapBackButton";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { AppHeader } from "../../../components/layout/AppHeader";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
@@ -31,7 +31,10 @@ export function MemberPaymentsScreen() {
   const tRetry = useTranslations("adminPages.classes.classTypes");
   const state = useMemberPaymentsScreenState();
   const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
-    useScreenChromeInsets({ includeScreenGutter: false });
+    useScreenChromeInsets({
+      includeScreenGutter: false,
+      headerContentGap: 0,
+    });
   const onHeaderBookPress = useAppHeaderBookPress();
 
   return (
@@ -57,14 +60,13 @@ export function MemberPaymentsScreen() {
           />
         }
       >
-        <View style={styles.backRow}>
-          <CircularBackButton
+        <View style={styles.pageHeader}>
+          <ScreenHeaderGapBackButton
             onPress={() => router.push("/user/profile")}
             accessibilityLabel={t("title")}
           />
+          <Text style={styles.title}>{t("title")}</Text>
         </View>
-
-        <Text style={styles.title}>{t("title")}</Text>
 
         <PaymentStatusFilterDropdown
           value={state.statusFilter}
@@ -133,8 +135,8 @@ const styles = StyleSheet.create({
     gap: space.md,
     paddingBottom: space.xxl,
   },
-  backRow: {
-    alignSelf: "flex-start",
+  pageHeader: {
+    gap: 0,
   },
   title: {
     fontFamily: fontFamilies.gtSuperDs.boldItalic,
