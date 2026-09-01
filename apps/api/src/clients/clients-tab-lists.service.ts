@@ -21,6 +21,10 @@ import {
   loadSucceededPackageSourceIds,
 } from '../packages/user-package-list.util';
 import {
+  loadLatestSessionAdjustments,
+  type LastSessionAdjustmentDto,
+} from '../packages/packages-admin-sessions.history';
+import {
   mapClientPackageTypeBalances,
   type ClientPackageTypeBalanceItem,
 } from './clients-package-type-balances.util';
@@ -106,6 +110,7 @@ type ClientPackagesPage = {
     guestSlotsRemaining: number;
     paymentMethod: string | null;
     typeBalances: ClientPackageTypeBalanceItem[];
+    lastSessionAdjustment: LastSessionAdjustmentDto | null;
     freeze: {
       allowedCount: number;
       maxDaysPerUse: number;
@@ -223,10 +228,10 @@ export class ClientsTabListsService {
     const rows = allRows.slice(offset, offset + take);
 
     const packageIds = rows.map((row) => row.id);
-    const payments =
+    const [payments, lastAdjustments] = await Promise.all([
       packageIds.length === 0
-        ? []
-        : await this.prisma.payment.findMany({
+        ? Promise.resolve([])
+        : this.prisma.payment.findMany({
             where: {
               source: PaymentSource.PACKAGE,
               sourceId: { in: packageIds },
@@ -237,7 +242,9 @@ export class ClientsTabListsService {
               createdAt: true,
             },
             orderBy: { createdAt: 'desc' },
-          });
+          }),
+      loadLatestSessionAdjustments(this.prisma, packageIds),
+    ]);
 
     const paymentMethodByPackageId = new Map<string, string | null>();
     for (const payment of payments) {
@@ -274,6 +281,7 @@ export class ClientsTabListsService {
           isUnlimited: resolvedPlan.isUnlimited,
           paymentMethod: paymentMethodByPackageId.get(row.id) ?? null,
           typeBalances: mapClientPackageTypeBalances(row.balances),
+          lastSessionAdjustment: lastAdjustments.get(row.id) ?? null,
           freeze: toUserPackageFreezeApi(row, row.plan, {
             allowAdminOverride: true,
           }),

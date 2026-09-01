@@ -11,7 +11,7 @@ import {
   clearBookingCancelIntent,
   registerBookingCancelIntent,
 } from "@/lib/booking-cancel-intent";
-import { isPenalizedCancellation } from "@/lib/cancellation-policy";
+import { shouldApplyCancellationPenalty } from "@/lib/cancellation-policy";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import {
   BOOKING_CANCEL_CONFIRM_DELAY_MS,
@@ -22,6 +22,7 @@ type Props = {
   bookingId: string;
   sessionDate?: string | null;
   sessionStartTime?: string | null;
+  bookedAt?: string | null;
   appearance?: "link" | "button";
   size?: "sm" | "md";
   buttonClassName?: string;
@@ -40,6 +41,7 @@ export function CancelBookingButton({
   bookingId,
   sessionDate,
   sessionStartTime,
+  bookedAt,
   appearance = "link",
   size = "md",
   buttonClassName,
@@ -67,8 +69,15 @@ export function CancelBookingButton({
     sessionStartTime.length > 0;
 
   const penalized =
-    hasSessionTiming &&
-    isPenalizedCancellation(sessionDate, sessionStartTime, undefined, new Date(nowMs));
+    sessionDate != null &&
+    sessionStartTime != null &&
+    sessionStartTime.length > 0 &&
+    shouldApplyCancellationPenalty({
+      sessionDate,
+      startTime: sessionStartTime,
+      bookedAtIso: bookedAt,
+      now: new Date(nowMs),
+    });
 
   function reportError(message: string | null) {
     if (onError) {

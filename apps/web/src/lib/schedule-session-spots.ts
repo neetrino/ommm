@@ -36,7 +36,7 @@ export function pinScheduleRowFull(item: MarketingScheduleItem): MarketingSchedu
 export function mergePublicScheduleItems(
   previous: readonly MarketingScheduleItem[],
   incoming: readonly MarketingScheduleItem[],
-  bookedBySessionId: Readonly<Record<string, string>>,
+  bookedBySessionId: Readonly<Record<string, unknown>>,
 ): MarketingScheduleItem[] {
   const previousById = new Map(previous.map((item) => [item.id, item]));
 

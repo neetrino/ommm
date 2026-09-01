@@ -16,6 +16,7 @@ export type ScheduleSessionRowProps = {
   spotsLeftLabel: string;
   audience: PublicPackageCategoryCardsAudience;
   userBookingId?: string;
+  userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
   spotsStateReady?: boolean;
   spotsLoadingLabel?: string;
@@ -39,6 +40,7 @@ export function ScheduleSessionRow({
   spotsLeftLabel,
   audience,
   userBookingId,
+  userBookingCreatedAt,
   bookingStateReady = true,
   spotsStateReady = true,
   spotsLoadingLabel = "…",
@@ -69,6 +71,7 @@ export function ScheduleSessionRow({
         bookingEnabled
         showDate={false}
         userBookingId={userBookingId}
+        userBookingCreatedAt={userBookingCreatedAt}
         bookingStateReady={bookingStateReady}
         isOnWaitlist={isOnWaitlist}
         loginReturnPath={SCHEDULE_PAGE_LOGIN_RETURN_PATH}

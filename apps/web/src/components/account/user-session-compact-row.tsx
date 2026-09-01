@@ -30,12 +30,14 @@ type UserSessionCompactRowProps = {
   locale: string;
   session: UserSessionRow;
   userBookingId?: string;
+  userBookingCreatedAt?: string;
 };
 
 export function UserSessionCompactRow({
   locale,
   session,
   userBookingId,
+  userBookingCreatedAt,
 }: UserSessionCompactRowProps) {
   const t = useTranslations("userPages.classes");
   const [activeBookingId, setActiveBookingId] = useState<string | undefined>(userBookingId);
@@ -75,6 +77,7 @@ export function UserSessionCompactRow({
         full={full}
         isUserBooked={isUserBooked}
         activeBookingId={activeBookingId}
+        userBookingCreatedAt={userBookingCreatedAt}
         onBookingChange={setActiveBookingId}
       />
 
@@ -125,6 +128,7 @@ export function UserSessionCompactRow({
             priceCents={session.priceCents}
             full={full}
             userBookingId={activeBookingId}
+            userBookingCreatedAt={userBookingCreatedAt}
             onBookingChange={setActiveBookingId}
             layout="list"
             size="md"

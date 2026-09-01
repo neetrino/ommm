@@ -8,6 +8,10 @@ import {
   resolveMemberScheduleRowDisplay,
 } from "@/lib/schedule-session-spots";
 import {
+  sessionBookingCreatedAt,
+  sessionBookingId,
+} from "@/lib/user-session-bookings-map";
+import {
   SCHEDULE_SESSION_LIST,
   SCHEDULE_VIEW_SHELL,
 } from "@/components/marketing/schedule/schedule-public-design";
@@ -218,7 +222,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
                   capacityReady: memberWaitlistLoaded,
                 });
                 const showOnWaitlist = resolveMemberOnWaitlistBadge({
-                  userBookingId: bookedBySessionId[row.id],
+                  userBookingId: sessionBookingId(bookedBySessionId, row.id),
                   onWaitlist: userOnWaitlist,
                   availableSpots: displayRow.availableSpots,
                   sessionStatus: displayRow.status,
@@ -243,7 +247,11 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
                           ? `${formatScheduleTimeHHmm(locale, row.startTime)} - ${formatScheduleTimeHHmm(locale, row.endTime)}`
                           : "-"
                     }
-                    userBookingId={bookedBySessionId[row.id]}
+                    userBookingId={sessionBookingId(bookedBySessionId, row.id)}
+                    userBookingCreatedAt={sessionBookingCreatedAt(
+                      bookedBySessionId,
+                      row.id,
+                    )}
                     bookingStateReady={memberActionStateReady}
                     isOnWaitlist={showOnWaitlist}
                     onBooked={handleBooked}

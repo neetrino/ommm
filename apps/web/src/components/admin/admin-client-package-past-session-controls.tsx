@@ -22,6 +22,7 @@ type AdminClientPackagePastSessionControlsProps = {
   clientId: string;
   item: ClientSheetPackageItem;
   locale: string;
+  active?: boolean;
   onSuccess: (message: string) => void;
 };
 
@@ -29,6 +30,7 @@ export function AdminClientPackagePastSessionControls({
   clientId,
   item,
   locale,
+  active = true,
   onSuccess,
 }: AdminClientPackagePastSessionControlsProps) {
   const t = useTranslations("adminPages.clients.packages");
@@ -40,7 +42,7 @@ export function AdminClientPackagePastSessionControls({
   const [reloadKey, setReloadKey] = useState(0);
   const [sessionId, setSessionId] = useState(EMPTY_SESSION_VALUE);
   const [note, setNote] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -49,14 +51,20 @@ export function AdminClientPackagePastSessionControls({
   const [activeFetchKey, setActiveFetchKey] = useState(fetchKey);
   if (fetchKey !== activeFetchKey) {
     setActiveFetchKey(fetchKey);
-    setLoading(true);
     setLoadError(null);
     setSessions([]);
     setSessionId(EMPTY_SESSION_VALUE);
+    if (active) {
+      setLoading(true);
+    }
   }
 
   useEffect(() => {
+    if (!active) {
+      return;
+    }
     let cancelled = false;
+    setLoading(true);
     queueMicrotask(() => {
       if (cancelled) {
         return;
@@ -89,7 +97,7 @@ export function AdminClientPackagePastSessionControls({
     return () => {
       cancelled = true;
     };
-  }, [clientId, item.id, reloadKey, t]);
+  }, [active, clientId, item.id, reloadKey, t]);
 
   if (status !== "ACTIVE") {
     return null;
@@ -133,9 +141,6 @@ export function AdminClientPackagePastSessionControls({
 
   return (
     <div className="space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-        {t("attachPastHeading")}
-      </p>
       <p className="text-sm text-sage-700">{t("attachPastLead")}</p>
       {loading ? <p className="text-sm text-sage-600">{t("attachPastLoading")}</p> : null}
       {loadError !== null ? (

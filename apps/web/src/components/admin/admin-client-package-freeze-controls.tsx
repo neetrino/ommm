@@ -45,20 +45,18 @@ export function AdminClientPackageFreezeControls({
     }
   }
 
+  const remainingLabel =
+    freeze.allowedCount > 0
+      ? t("freezeRemaining", {
+          remaining: freeze.remainingCount,
+          allowed: freeze.allowedCount,
+          days: freeze.maxDaysPerUse,
+        })
+      : t("freezeAdminOverrideHint");
+
   return (
     <div className="space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-        {t("freezeHeading")}
-      </p>
-      <p className="text-sm text-sage-700">
-        {freeze.allowedCount > 0
-          ? t("freezeRemaining", {
-              remaining: freeze.remainingCount,
-              allowed: freeze.allowedCount,
-              days: freeze.maxDaysPerUse,
-            })
-          : t("freezeAdminOverrideHint")}
-      </p>
+      <p className="text-sm text-sage-700">{remainingLabel}</p>
       {freeze.canFreeze ? (
         <div className="flex flex-wrap items-end gap-2">
           <label className="flex min-w-[7rem] flex-1 flex-col gap-1.5">

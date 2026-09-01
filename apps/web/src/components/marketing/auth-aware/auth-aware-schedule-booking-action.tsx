@@ -39,6 +39,7 @@ type AuthAwareScheduleBookingActionProps = {
   audience: PublicPackageCategoryCardsAudience;
   className?: string;
   userBookingId?: string;
+  userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
   initialOnWaitlist?: boolean;
   /** Post-login destination for guest booking intents (locale-free path). */
@@ -59,6 +60,7 @@ export function AuthAwareScheduleBookingAction({
   audience,
   className = SCHEDULE_BOOK_BTN,
   userBookingId,
+  userBookingCreatedAt,
   bookingStateReady = true,
   initialOnWaitlist = false,
   loginReturnPath = DEFAULT_LOGIN_RETURN_PATH,
@@ -95,6 +97,7 @@ export function AuthAwareScheduleBookingAction({
     locale,
     onBooked: (bookingId) => {
       setBookingId(bookingId);
+      setBookedAtIso(new Date().toISOString());
       onBooked?.(bookingId);
       dispatchNotificationsRefresh();
       dispatchPackagesRefresh();
@@ -108,6 +111,7 @@ export function AuthAwareScheduleBookingAction({
   });
   const busy = busyBooking || busyWaitlist;
   const [bookingId, setBookingId] = useState<string | undefined>(userBookingId);
+  const [bookedAtIso, setBookedAtIso] = useState<string | undefined>(undefined);
   const [onWaitlist, setOnWaitlist] = useState(initialOnWaitlist);
   const [prevUserBookingId, setPrevUserBookingId] = useState(userBookingId);
   const [prevInitialOnWaitlist, setPrevInitialOnWaitlist] = useState(initialOnWaitlist);
@@ -115,6 +119,9 @@ export function AuthAwareScheduleBookingAction({
   if (userBookingId !== prevUserBookingId) {
     setPrevUserBookingId(userBookingId);
     setBookingId(userBookingId);
+    if (userBookingId === undefined) {
+      setBookedAtIso(undefined);
+    }
   }
   if (initialOnWaitlist !== prevInitialOnWaitlist) {
     setPrevInitialOnWaitlist(initialOnWaitlist);
@@ -183,12 +190,14 @@ export function AuthAwareScheduleBookingAction({
             bookingId={resolvedBookingId}
             sessionDate={sessionDate}
             sessionStartTime={sessionStartTime}
+            bookedAt={bookedAtIso ?? userBookingCreatedAt}
             appearance="button"
             size="sm"
             buttonClassName={SCHEDULE_CANCEL_BTN}
             onError={setCancelMsg}
             onCancelled={() => {
               setBookingId(undefined);
+              setBookedAtIso(undefined);
               setCancelMsg(null);
               onCancelled?.();
             }}

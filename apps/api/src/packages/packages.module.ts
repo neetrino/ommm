@@ -7,6 +7,7 @@ import { PackageUsageMaintenanceService } from './package-usage-maintenance.serv
 import { PackageUsageService } from './package-usage.service';
 import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
+import { PackagesAdminSessionsService } from './packages-admin-sessions.service';
 import { PackagesAdminValidityService } from './packages-admin-validity.service';
 import { PackagesActivationService } from './packages-activation.service';
 import { PackagesFreezeService } from './packages-freeze.service';
@@ -22,6 +23,7 @@ import { PackagesService } from './packages.service';
     PackagesAdminService,
     PackagesAdminClientPurchaseService,
     PackagesAdminValidityService,
+    PackagesAdminSessionsService,
     PackagesFreezeService,
     PackagesActivationService,
     PackagesService,

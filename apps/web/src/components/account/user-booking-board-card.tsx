@@ -63,6 +63,7 @@ export function UserBookingBoardCard({
             bookingId={booking.id}
             sessionDate={booking.session.startsAt}
             sessionStartTime={scheduleStartTimeFromIso(booking.session.startsAt)}
+            bookedAt={booking.createdAt}
           />
         ) : null}
         {showRebook ? <RebookButton sessionId={booking.session.id} /> : null}

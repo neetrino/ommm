@@ -22,6 +22,7 @@ import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
+import { AdminAdjustUserPackageSessionsDto } from './dto/admin-adjust-user-package-sessions.dto';
 import { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
 import { FreezeUserPackageDto } from './dto/freeze-user-package.dto';
 import { PackagesService } from './packages.service';
@@ -99,6 +100,17 @@ export class PackagesController {
     @Body() dto: AdminUpdateUserPackageValidityDto,
   ) {
     return this.packages.updateUserPackageValidity(id, dto);
+  }
+
+  @Patch('admin/user-packages/:id/sessions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  adjustUserPackageSessions(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: AdminAdjustUserPackageSessionsDto,
+  ) {
+    return this.packages.adjustUserPackageSessions(user, id, dto);
   }
 
   @Patch('admin/user-packages/:id/freeze')

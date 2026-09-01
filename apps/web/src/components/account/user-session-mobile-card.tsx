@@ -26,6 +26,7 @@ type UserSessionMobileCardProps = {
   full: boolean;
   isUserBooked: boolean;
   activeBookingId?: string;
+  userBookingCreatedAt?: string;
   onBookingChange: (bookingId: string | undefined) => void;
   className?: string;
 };
@@ -65,6 +66,7 @@ export function UserSessionMobileCard({
   full,
   isUserBooked,
   activeBookingId,
+  userBookingCreatedAt,
   onBookingChange,
   className = "",
 }: UserSessionMobileCardProps) {
@@ -120,6 +122,7 @@ export function UserSessionMobileCard({
           priceCents={session.priceCents}
           full={full}
           userBookingId={activeBookingId}
+          userBookingCreatedAt={userBookingCreatedAt}
           onBookingChange={onBookingChange}
           layout="list"
           size="md"

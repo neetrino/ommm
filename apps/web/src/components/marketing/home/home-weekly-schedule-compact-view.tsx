@@ -23,6 +23,11 @@ import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
 } from "@/lib/schedule-session-spots";
+import {
+  sessionBookingCreatedAt,
+  sessionBookingId,
+  type UserSessionBookingMap,
+} from "@/lib/user-session-bookings-map";
 
 const HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS =
   HOME_WEEKLY_SCHEDULE_FIGMA.maxVisibleSessionsPerDay;
@@ -50,7 +55,7 @@ type HomeWeeklyScheduleDayViewProps = {
   audience: PublicPackageCategoryCardsAudience;
   bookLabel: string;
   bookingEnabled: boolean;
-  bookedBySessionId: Readonly<Record<string, string>>;
+  bookedBySessionId: UserSessionBookingMap;
   memberActionStateReady: boolean;
   memberWaitlistLoaded: boolean;
   waitlistedSessionIds: ReadonlySet<string>;
@@ -253,7 +258,7 @@ export function HomeWeeklyScheduleDayView({
                         capacityReady: memberWaitlistLoaded,
                       });
                       const showOnWaitlist = resolveMemberOnWaitlistBadge({
-                        userBookingId: bookedBySessionId[session.item.id],
+                        userBookingId: sessionBookingId(bookedBySessionId, session.item.id),
                         onWaitlist: userOnWaitlist,
                         availableSpots: displayRow.availableSpots,
                         sessionStatus: displayRow.status,
@@ -280,7 +285,11 @@ export function HomeWeeklyScheduleDayView({
                             spotsLeftLabel={spotsLeftLabel}
                             audience={audience}
                             bookingEnabled={bookingEnabled}
-                            userBookingId={bookedBySessionId[session.item.id]}
+                            userBookingId={sessionBookingId(bookedBySessionId, session.item.id)}
+                            userBookingCreatedAt={sessionBookingCreatedAt(
+                              bookedBySessionId,
+                              session.item.id,
+                            )}
                             bookingStateReady={memberActionStateReady}
                             isOnWaitlist={showOnWaitlist}
                             onBooked={onBooked}

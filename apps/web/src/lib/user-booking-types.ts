@@ -1,6 +1,7 @@
 export type UserBookingRow = {
   id: string;
   status: string;
+  createdAt?: string;
   session: {
     id: string;
     startsAt: string;
