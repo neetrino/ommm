@@ -1,119 +1,38 @@
 import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Text, View } from "react-native";
+import { useMemo } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import type { WaitlistItem } from "../../../lib/mocks/homeMock";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { platformShadow } from "../../../theme/platformShadow";
 import { colors, radii, space, typography } from "../../../theme/tokens";
+import {
+  WAITLIST_CARD_BLUR_INTENSITY,
+  WAITLIST_DARK_GLASS_BASE,
+  WAITLIST_DARK_RIM,
+  WAITLIST_LIGHT_GLASS_BASE,
+  WaitlistDarkGlassOverlays,
+  WaitlistLightGlassOverlays,
+} from "./waitlistGlassOverlays";
 
 type WaitlistSectionProps = {
   items: WaitlistItem[];
 };
 
-const WAITLIST_CARD_BLUR_INTENSITY = 24;
+const WAITLIST_CARDS_PER_PAGE = 2;
 
-const WAITLIST_LIGHT_GLASS_BASE = "rgba(255,255,255,0.06)" as const;
-const WAITLIST_LIGHT_SHEEN_PEAK = "rgba(255,255,255,0.9)" as const;
-const WAITLIST_LIGHT_SHEEN_MID = "rgba(255,255,255,0.3)" as const;
-const WAITLIST_LIGHT_SHEEN_FLOOR = "rgba(255,255,255,0.1)" as const;
-const WAITLIST_LIGHT_TOP_GLOW = "rgba(255,255,255,0.52)" as const;
-const WAITLIST_LIGHT_TOP_MID = "rgba(255,255,255,0.14)" as const;
-const WAITLIST_LIGHT_DIAG = "rgba(255,255,255,0.34)" as const;
-const WAITLIST_LIGHT_TOP_EDGE = "rgba(255,255,255,0.96)" as const;
-
-const WAITLIST_DARK_GLASS_BASE = "rgba(14,18,24,0.44)" as const;
-const WAITLIST_DARK_SHEEN_PEAK = "rgba(255,255,255,0.58)" as const;
-const WAITLIST_DARK_SHEEN_MID = "rgba(255,255,255,0.22)" as const;
-const WAITLIST_DARK_SHEEN_FLOOR = "rgba(255,255,255,0.1)" as const;
-const WAITLIST_DARK_TOP_GLOW = "rgba(255,255,255,0.4)" as const;
-const WAITLIST_DARK_TOP_MID = "rgba(255,255,255,0.12)" as const;
-const WAITLIST_DARK_DIAG = "rgba(255,255,255,0.36)" as const;
-const WAITLIST_DARK_TOP_EDGE = "rgba(255,255,255,0.78)" as const;
-const WAITLIST_DARK_RIM = "rgba(255,255,255,0.68)" as const;
-
-function WaitlistLightGlassOverlays() {
-  return (
-    <>
-      <LinearGradient
-        colors={[
-          WAITLIST_LIGHT_SHEEN_PEAK,
-          WAITLIST_LIGHT_SHEEN_MID,
-          WAITLIST_LIGHT_SHEEN_FLOOR,
-          "transparent",
-        ]}
-        locations={[0, 0.05, 0.16, 0.4]}
-        start={{ x: 0.02, y: 0.02 }}
-        end={{ x: 0.5, y: 0.4 }}
-        style={styles.glassOverlayFill}
-      />
-      <LinearGradient
-        colors={[WAITLIST_LIGHT_DIAG, "transparent", "transparent"]}
-        locations={[0, 0.16, 1]}
-        start={{ x: 0.12, y: 0.12 }}
-        end={{ x: 0.88, y: 0.72 }}
-        style={styles.glassOverlayFill}
-      />
-      <LinearGradient
-        colors={[
-          WAITLIST_LIGHT_TOP_GLOW,
-          WAITLIST_LIGHT_TOP_MID,
-          "transparent",
-        ]}
-        locations={[0, 0.1, 1]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.cardGlassTopBand}
-      />
-      <LinearGradient
-        colors={[WAITLIST_LIGHT_TOP_EDGE, "transparent"]}
-        locations={[0, 1]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.cardGlassTopEdge}
-      />
-    </>
-  );
-}
-
-function WaitlistDarkGlassOverlays() {
-  return (
-    <>
-      <LinearGradient
-        colors={[
-          WAITLIST_DARK_SHEEN_PEAK,
-          WAITLIST_DARK_SHEEN_MID,
-          WAITLIST_DARK_SHEEN_FLOOR,
-          "transparent",
-        ]}
-        locations={[0, 0.06, 0.18, 0.44]}
-        start={{ x: 0.02, y: 0.02 }}
-        end={{ x: 0.52, y: 0.42 }}
-        style={styles.glassOverlayFill}
-      />
-      <LinearGradient
-        colors={[WAITLIST_DARK_TOP_GLOW, WAITLIST_DARK_TOP_MID, "transparent"]}
-        locations={[0, 0.11, 1]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.cardGlassTopBand}
-      />
-      <LinearGradient
-        colors={[WAITLIST_DARK_DIAG, "transparent", "transparent"]}
-        locations={[0, 0.14, 1]}
-        start={{ x: 0.1, y: 0.15 }}
-        end={{ x: 0.9, y: 0.75 }}
-        style={styles.glassOverlayFill}
-      />
-      <LinearGradient
-        colors={[WAITLIST_DARK_TOP_EDGE, "transparent"]}
-        locations={[0, 1]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.cardGlassTopEdge}
-      />
-    </>
-  );
+function chunkWaitlistPages(items: readonly WaitlistItem[]): WaitlistItem[][] {
+  const pages: WaitlistItem[][] = [];
+  for (let i = 0; i < items.length; i += WAITLIST_CARDS_PER_PAGE) {
+    pages.push(items.slice(i, i + WAITLIST_CARDS_PER_PAGE));
+  }
+  return pages;
 }
 
 function WaitlistGlassCard({ item }: { item: WaitlistItem }) {
@@ -170,6 +89,8 @@ function WaitlistGlassCard({ item }: { item: WaitlistItem }) {
 
 export function WaitlistSection({ items }: WaitlistSectionProps) {
   const tDashboard = useTranslations("account.dashboard.waitlist");
+  const { width: windowWidth } = useWindowDimensions();
+  const pages = useMemo(() => chunkWaitlistPages(items), [items]);
 
   if (items.length === 0) {
     return null;
@@ -178,30 +99,61 @@ export function WaitlistSection({ items }: WaitlistSectionProps) {
   return (
     <View style={styles.section}>
       <Text style={styles.title}>{tDashboard("title")}</Text>
-      <View style={styles.grid}>
-        {items.map((item) => (
-          <WaitlistGlassCard key={item.id} item={item} />
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        decelerationRate="fast"
+        snapToInterval={windowWidth}
+        snapToAlignment="start"
+        disableIntervalMomentum
+        contentContainerStyle={styles.scrollContent}
+      >
+        {pages.map((pageItems) => (
+          <View
+            key={pageItems.map((item) => item.id).join("-")}
+            style={[styles.page, { width: windowWidth }]}
+          >
+            <View style={styles.pageRow}>
+              {pageItems.map((item) => (
+                <WaitlistGlassCard key={item.id} item={item} />
+              ))}
+              {pageItems.length === 1 ? (
+                <View style={styles.cardSlotSpacer} />
+              ) : null}
+            </View>
+          </View>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: space.screenHorizontal,
     marginBottom: space.section,
     gap: space.section,
   },
   title: {
+    paddingHorizontal: space.screenHorizontal,
     fontFamily: fontFamilies.gtSuperDs.mediumItalic,
     fontSize: typography.sectionTitle,
     lineHeight: 24,
     color: colors.primaryGreen,
   },
-  grid: {
+  scrollContent: {
+    paddingVertical: space.xs,
+  },
+  page: {
+    paddingHorizontal: space.screenHorizontal,
+  },
+  pageRow: {
     flexDirection: "row",
     gap: space.md,
+  },
+  cardSlotSpacer: {
+    flex: 1,
+    minWidth: 0,
   },
   cardFrame: {
     flex: 1,
@@ -238,26 +190,6 @@ const styles = StyleSheet.create({
     backgroundColor: WAITLIST_DARK_GLASS_BASE,
     borderWidth: 1.5,
     borderColor: WAITLIST_DARK_RIM,
-  },
-  cardGlassTopBand: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    height: "42%",
-    pointerEvents: "none",
-  },
-  cardGlassTopEdge: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    height: 4,
-    pointerEvents: "none",
-  },
-  glassOverlayFill: {
-    ...StyleSheet.absoluteFillObject,
-    pointerEvents: "none",
   },
   cardInner: {
     position: "relative",
