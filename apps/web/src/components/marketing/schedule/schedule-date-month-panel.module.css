@@ -1,0 +1,65 @@
+.layout {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: auto 1fr auto;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.monthTitle {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #4a4738;
+  text-transform: capitalize;
+}
+
+.weekdayRow,
+.weekRow {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.daySlot {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayBtn {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dayBtn:focus-visible {
+  outline: none;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 2px rgb(151 144 124 / 0.3);
+}

@@ -1723,6 +1723,8 @@
       "filterApply": "Apply",
       "fullCalendar": "Full Calendar",
       "fullCalendarAria": "Open full month calendar",
+      "weekCalendar": "Week view",
+      "weekCalendarAria": "Show week date strip",
       "calendarPrevMonthAria": "Previous month",
       "calendarNextMonthAria": "Next month",
       "studioBrand": "Ommm",

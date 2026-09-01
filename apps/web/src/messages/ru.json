@@ -1721,6 +1721,8 @@
       "filterApply": "Применить",
       "fullCalendar": "Полный календарь",
       "fullCalendarAria": "Открыть календарь на месяц",
+      "weekCalendar": "Неделя",
+      "weekCalendarAria": "Показать ленту недели",
       "calendarPrevMonthAria": "Предыдущий месяц",
       "calendarNextMonthAria": "Следующий месяц",
       "studioBrand": "Ommm",

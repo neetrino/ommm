@@ -167,15 +167,20 @@
   border-radius: clamp(1.25rem, 2.5vw, 1.5rem);
   border: 1px solid rgb(255 255 255 / 0.7);
   background: rgb(255 255 255 / 0.42);
-  /* Extra top padding so today’s lifted chip is not clipped. */
-  padding: calc(clamp(0.875rem, 2vw, 1.25rem) + 0.5rem) clamp(0.5rem, 1.5vw, 1rem)
-    clamp(0.875rem, 2vw, 1.25rem);
+  padding: clamp(0.875rem, 2vw, 1.25rem) clamp(0.5rem, 1.5vw, 1rem);
   overflow: visible;
   box-shadow:
     0 16px 36px -28px rgb(45 40 35 / 0.22),
     inset 0 1px 0 rgb(255 255 255 / 0.85);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
+  transition:
+    padding 320ms cubic-bezier(0.32, 0.72, 0, 1),
+    max-width 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.dateStripPanelExpanded {
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1rem, 2.5vw, 1.5rem);
 }
 
 .dateStripLayout {
@@ -309,7 +314,6 @@
   border-color: #97907c;
   background: #97907c;
   color: #fbf5d5;
-  transform: translateY(-0.5rem);
   box-shadow:
     0 10px 22px -14px rgb(45 40 35 / 0.35),
     inset 0 1px 0 rgb(255 255 255 / 0.18);
@@ -394,7 +398,7 @@
 }
 
 .fullCalendarBtn {
-  display: none;
+  display: inline-flex;
   max-width: 48%;
   flex-shrink: 1;
   align-items: center;
@@ -419,14 +423,21 @@
   border-color: rgb(151 144 124 / 0.72);
 }
 
+.fullCalendarBtnActive {
+  border-color: rgb(151 144 124 / 0.85);
+  background: rgb(255 255 255 / 0.95);
+}
+
 .fullCalendarBtnLabel {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-@media (width < 640px) {
+@media (width >= 640px) {
   .fullCalendarBtn {
-    display: inline-flex;
+    max-width: none;
+    font-size: 0.75rem;
+    padding: 0.4375rem 0.75rem;
   }
 }
 
