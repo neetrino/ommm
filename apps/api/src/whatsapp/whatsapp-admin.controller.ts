@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { SendWhatsappTestMessageDto } from './dto/send-whatsapp-test-message.dto';
 import { UpdateWhatsappIntegrationDto } from './dto/update-whatsapp-integration.dto';
+import { WhatsappConnectQueryDto } from './dto/whatsapp-connect-query.dto';
 import { WhatsappAdminService } from './whatsapp-admin.service';
 
 @Controller('whatsapp/admin')
@@ -34,8 +43,8 @@ export class WhatsappAdminController {
   }
 
   @Get('connect')
-  getConnectState() {
-    return this.admin.getConnectState();
+  getConnectState(@Query() query: WhatsappConnectQueryDto) {
+    return this.admin.getConnectState({ includeQr: query.qr !== undefined });
   }
 
   @Post('session/logout')

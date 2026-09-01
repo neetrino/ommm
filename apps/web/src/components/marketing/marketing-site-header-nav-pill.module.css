@@ -23,6 +23,7 @@
   --ommm-marketing-nav-ink-hover: rgba(255, 255, 255, 0.9);
   --marketing-nav-active-bar-color: var(--ommm-admin-cream, #fbf5d5);
 
+  isolation: isolate;
   animation: marketing-header-enter 280ms ease-out both;
   transition:
     background-color 220ms ease,
@@ -353,7 +354,7 @@
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 

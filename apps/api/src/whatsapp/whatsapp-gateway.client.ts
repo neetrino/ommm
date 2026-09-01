@@ -1,13 +1,19 @@
+import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { WhatsappCredentialsService } from './whatsapp-credentials.service';
 import {
+  isGatewayMessageSent,
   parseGatewayAccounts,
   parseGatewaySession,
   readGatewayError,
   type GatewayEnvelope,
   type WhatsappAccountSummary,
 } from './whatsapp-gateway.envelope';
-import { WHATSAPP_GATEWAY_TIMEOUT_MS } from './whatsapp.constants';
+import {
+  isWhatsappSessionConnected,
+  WHATSAPP_GATEWAY_TIMEOUT_MS,
+  WHATSAPP_TEXT_MESSAGE_TYPE,
+} from './whatsapp.constants';
 
 @Injectable()
 export class WhatsappGatewayClient {
@@ -27,11 +33,19 @@ export class WhatsappGatewayClient {
   }
 
   async sendText(chatId: string, text: string): Promise<boolean> {
-    const result = await this.request('/api/messages/send', {
-      method: 'POST',
-      body: { chatId, text },
-    });
-    return result.ok;
+    const accountId = await this.resolveSendAccountId();
+    if (accountId === null) {
+      return false;
+    }
+    const result = await this.request(
+      `/api/v1/accounts/${encodeURIComponent(accountId)}/messages`,
+      {
+        method: 'POST',
+        body: { type: WHATSAPP_TEXT_MESSAGE_TYPE, chatId, text },
+        extraHeaders: { 'Idempotency-Key': `omm-wa-${randomUUID()}` },
+      },
+    );
+    return result.ok && (result.data === null || isGatewayMessageSent(result.data));
   }
 
   async listAccounts(): Promise<WhatsappAccountSummary[]> {
@@ -48,25 +62,48 @@ export class WhatsappGatewayClient {
     return result.ok;
   }
 
-  async getSession(accountId: string): Promise<{
+  /**
+   * Reads the shared Gateway session. QR is fetched only when pairing is
+   * requested and the account is not already connected.
+   */
+  async getSession(
+    accountId: string,
+    options?: { includeQr?: boolean },
+  ): Promise<{
     status: string | null;
     qrDataUrl: string | null;
+    phoneNumber: string | null;
   }> {
-    const qr = await this.request(
-      `/api/v1/accounts/${encodeURIComponent(accountId)}/qr`,
-      { method: 'GET' },
-    );
-    const fromQr = parseGatewaySession(qr.data);
-    if (fromQr.status !== null || fromQr.qrDataUrl !== null) {
-      return fromQr;
+    const fromStatus = await this.readSessionView(accountId, 'status');
+    if (isWhatsappSessionConnected(fromStatus.status)) {
+      return {
+        status: fromStatus.status,
+        qrDataUrl: null,
+        phoneNumber: fromStatus.phoneNumber,
+      };
     }
-    const status = await this.request(
-      `/api/v1/accounts/${encodeURIComponent(accountId)}/status`,
-      { method: 'GET' },
+    if (options?.includeQr === true) {
+      const fromQr = await this.readSessionView(accountId, 'qr');
+      return {
+        status: fromQr.status ?? fromStatus.status,
+        qrDataUrl: fromQr.qrDataUrl,
+        phoneNumber: fromStatus.phoneNumber ?? fromQr.phoneNumber,
+      };
+    }
+    if (fromStatus.status !== null) {
+      return {
+        status: fromStatus.status,
+        qrDataUrl: null,
+        phoneNumber: fromStatus.phoneNumber,
+      };
+    }
+    const listed = (await this.listAccounts()).find(
+      (row) => row.id === accountId,
     );
     return {
-      ...parseGatewaySession(status.data),
-      qrDataUrl: fromQr.qrDataUrl,
+      status: listed?.status ?? null,
+      qrDataUrl: null,
+      phoneNumber: listed?.phoneNumber ?? null,
     };
   }
 
@@ -86,9 +123,41 @@ export class WhatsappGatewayClient {
     return result.ok;
   }
 
+  private async resolveSendAccountId(): Promise<string | null> {
+    const stored = await this.credentials.getStoredAccountId();
+    if (stored !== null) {
+      return stored;
+    }
+    const accounts = await this.listAccounts();
+    const connected = accounts.find((row) =>
+      isWhatsappSessionConnected(row.status),
+    );
+    return connected?.id ?? accounts[0]?.id ?? null;
+  }
+
+  private async readSessionView(
+    accountId: string,
+    view: 'status' | 'qr',
+  ): Promise<{
+    status: string | null;
+    qrDataUrl: string | null;
+    phoneNumber: string | null;
+  }> {
+    const suffix = view === 'qr' ? 'qr' : 'status';
+    const result = await this.request(
+      `/api/v1/accounts/${encodeURIComponent(accountId)}/${suffix}`,
+      { method: 'GET' },
+    );
+    return parseGatewaySession(result.data);
+  }
+
   private async request(
     path: string,
-    options: { method: 'GET' | 'POST'; body?: Record<string, string> },
+    options: {
+      method: 'GET' | 'POST';
+      body?: Record<string, string>;
+      extraHeaders?: Record<string, string>;
+    },
   ): Promise<{ ok: boolean; data: unknown }> {
     const creds = await this.credentials.resolve();
     if (creds === null) {
@@ -100,6 +169,7 @@ export class WhatsappGatewayClient {
         headers: {
           Authorization: `Bearer ${creds.token}`,
           ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+          ...options.extraHeaders,
         },
         body: options.body ? JSON.stringify(options.body) : undefined,
         signal: AbortSignal.timeout(WHATSAPP_GATEWAY_TIMEOUT_MS),

@@ -20,10 +20,11 @@ export function AdminWhatsappConnectPanel({
   const t = useTranslations("adminPages.settings.whatsapp");
   const connect = useAdminWhatsappConnect(t("connectFailed"));
   const connected = isWhatsappConnected(connect.session?.status ?? null);
+  const checking = connect.busy && connect.session === null;
   const qrDataUrl = connect.session?.qrDataUrl ?? null;
 
   return (
-    <section className={`${adminChrome.panel} flex h-full flex-col gap-5`}>
+    <section className={`${adminChrome.panel} relative isolate z-0 flex h-full flex-col gap-5`}>
       <div>
         <div className="flex items-center gap-2">
           <WhatsappBrandIcon />
@@ -33,7 +34,11 @@ export function AdminWhatsappConnectPanel({
       </div>
       <WhatsappSessionBadge
         label={t("statusLabel")}
-        status={statusLabel(connect.session?.status ?? null, t)}
+        status={
+          checking
+            ? t("statusChecking")
+            : statusLabel(connect.session?.status ?? null, t)
+        }
         connected={connected}
       />
       {qrDataUrl && !connected ? (
@@ -47,7 +52,7 @@ export function AdminWhatsappConnectPanel({
       <div className="mt-auto flex flex-wrap gap-2">
         <OmmButton
           type="button"
-          disabled={!canConnect || connect.busy}
+          disabled={!canConnect || connect.busy || connected}
           onClick={connect.startQr}
         >
           {connect.polling ? t("waitingScan") : t("showQr")}

@@ -3,6 +3,7 @@ import {
   WHATSAPP_CHAT_ID_MAX_DIGITS,
   WHATSAPP_CHAT_ID_MIN_DIGITS,
   WHATSAPP_CHAT_ID_SUFFIX,
+  WHATSAPP_SELF_PHONE_VISIBLE_MIN,
 } from './whatsapp.constants';
 
 /**
@@ -24,4 +25,22 @@ export function toWhatsappChatId(
     return null;
   }
   return `${digits}${WHATSAPP_CHAT_ID_SUFFIX}`;
+}
+
+/** True when the recipient looks like the paired studio WhatsApp (masked last digits). */
+export function isWhatsappSelfChat(
+  chatId: string,
+  maskedPhone: string | null,
+): boolean {
+  if (maskedPhone === null) {
+    return false;
+  }
+  const visible = extractPhoneDigits(maskedPhone);
+  if (visible.length < WHATSAPP_SELF_PHONE_VISIBLE_MIN) {
+    return false;
+  }
+  const recipient = extractPhoneDigits(
+    chatId.replace(WHATSAPP_CHAT_ID_SUFFIX, ''),
+  );
+  return recipient.endsWith(visible);
 }

@@ -70,9 +70,9 @@ export function AdminWhatsappSettingsForm({ initial }: AdminWhatsappSettingsForm
 
   return (
     <AdminSectionShell banner={tone === 'ok' ? msg : null}>
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="relative isolate grid gap-6 lg:grid-cols-2 lg:items-start">
         <form
-          className={`${adminChrome.panel} flex flex-col gap-5`}
+          className={`${adminChrome.panel} relative isolate z-0 flex flex-col gap-5`}
           onSubmit={(event) => {
             event.preventDefault();
             if (isEditing && !busy) {
