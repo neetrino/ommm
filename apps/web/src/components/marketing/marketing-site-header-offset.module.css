@@ -44,12 +44,23 @@
   padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
 }
 
+/* Desktop: keep chrome below the site header. Mobile drawer stays at z-60. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .dashboardWithMarketingHeader {
+    position: relative;
+    z-index: 0;
+  }
+}
+
 .dashboardWithMarketingHeaderScroll {
   --ommm-workspace-sticky-top: 0px;
   flex: 1 1 auto;
   min-height: 0;
+  isolation: isolate;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  position: relative;
+  z-index: 0;
 }
 
 /**
@@ -151,7 +162,7 @@
     top: var(--ommm-marketing-site-header-offset);
     bottom: 0;
     left: 0;
-    z-index: 30;
+    z-index: 10;
     height: auto;
     max-height: none;
     overscroll-behavior: contain;

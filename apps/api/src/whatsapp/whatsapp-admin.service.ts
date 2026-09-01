@@ -5,8 +5,9 @@ import {
 } from '@nestjs/common';
 import { WhatsappCredentialsService } from './whatsapp-credentials.service';
 import { WhatsappGatewayClient } from './whatsapp-gateway.client';
-import { toWhatsappChatId } from './whatsapp-chat-id';
+import { isWhatsappSelfChat, toWhatsappChatId } from './whatsapp-chat-id';
 import {
+  isWhatsappSessionConnected,
   WHATSAPP_ADMIN_TEST_MESSAGE,
   WHATSAPP_INTEGRATION_SINGLETON_KEY,
 } from './whatsapp.constants';
@@ -47,6 +48,17 @@ export class WhatsappAdminService {
         'Enter a phone in international format, e.g. +374XXXXXXXX',
       );
     }
+    const session = await this.gateway.getSession(await this.resolveAccountId());
+    if (!isWhatsappSessionConnected(session.status)) {
+      throw new BadRequestException(
+        'Pair WhatsApp before sending a test message.',
+      );
+    }
+    if (isWhatsappSelfChat(chatId, session.phoneNumber)) {
+      throw new BadRequestException(
+        'Send the test to another phone with WhatsApp, not the studio number that scanned the QR.',
+      );
+    }
     const sent = await this.gateway.sendText(
       chatId,
       WHATSAPP_ADMIN_TEST_MESSAGE,
@@ -59,10 +71,10 @@ export class WhatsappAdminService {
     return { ok: true };
   }
 
-  async getConnectState() {
+  async getConnectState(options?: { includeQr?: boolean }) {
     await this.assertConfigured();
     const accountId = await this.resolveAccountId();
-    const session = await this.gateway.getSession(accountId);
+    const session = await this.gateway.getSession(accountId, options);
     return {
       accountId,
       status: session.status,
@@ -91,7 +103,7 @@ export class WhatsappAdminService {
         'Failed to restart WhatsApp session',
       );
     }
-    return this.getConnectState();
+    return this.getConnectState({ includeQr: true });
   }
 
   private async assertConfigured(): Promise<void> {

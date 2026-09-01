@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
   isWhatsappConnected,
+  WHATSAPP_CONNECT_PATH,
+  WHATSAPP_CONNECT_QR_PATH,
   WHATSAPP_QR_POLL_MS,
   type WhatsappConnectState,
 } from "@/lib/whatsapp-admin";
@@ -19,14 +21,14 @@ export function useAdminWhatsappConnect(fallbackError: string) {
   const [error, setError] = useState<string | null>(null);
 
   const refreshSession = useCallback(
-    async (showBusy: boolean) => {
+    async (showBusy: boolean, includeQr: boolean) => {
       if (showBusy) {
         setBusy(true);
       }
       setError(null);
       try {
         const next = await apiFetch<WhatsappConnectState>(
-          "/whatsapp/admin/connect",
+          includeQr ? WHATSAPP_CONNECT_QR_PATH : WHATSAPP_CONNECT_PATH,
         );
         setSession(next);
         if (isWhatsappConnected(next.status)) {
@@ -45,11 +47,15 @@ export function useAdminWhatsappConnect(fallbackError: string) {
   );
 
   useEffect(() => {
+    void refreshSession(true, false);
+  }, [refreshSession]);
+
+  useEffect(() => {
     if (!polling) {
       return;
     }
     const timer = window.setInterval(() => {
-      void refreshSession(false);
+      void refreshSession(false, true);
     }, WHATSAPP_QR_POLL_MS);
     return () => window.clearInterval(timer);
   }, [polling, refreshSession]);
@@ -63,7 +69,10 @@ export function useAdminWhatsappConnect(fallbackError: string) {
           method: "POST",
         });
         setSession(next);
-        setPolling(!isWhatsappConnected(next.status));
+        setPolling(
+          path === "/whatsapp/admin/session/restart" &&
+            !isWhatsappConnected(next.status),
+        );
       } catch (caught) {
         setError(caught instanceof ApiError ? caught.message : fallbackError);
       } finally {
@@ -80,7 +89,7 @@ export function useAdminWhatsappConnect(fallbackError: string) {
     error,
     startQr: () => {
       setPolling(true);
-      void refreshSession(true);
+      void refreshSession(true, true);
     },
     restart: () => void runSessionAction("/whatsapp/admin/session/restart"),
     logout: () => void runSessionAction("/whatsapp/admin/session/logout"),

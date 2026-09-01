@@ -36,7 +36,7 @@ export function AdminWhatsappTestMessagePanel({ enabled }: AdminWhatsappTestMess
   }
 
   return (
-    <section className={`${adminChrome.panel} flex flex-col gap-4`}>
+    <section className={`${adminChrome.panel} relative isolate z-0 flex flex-col gap-4`}>
       <div>
         <h2 className={adminChrome.panelHeading}>{t('testMessageTitle')}</h2>
         <p className="ommm-body-muted mt-1 text-sm">{t('testMessageHint')}</p>

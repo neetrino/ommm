@@ -1,3 +1,8 @@
+import {
+  WHATSAPP_CONNECTED_STATUS,
+  WHATSAPP_SENT_STATUS,
+} from './whatsapp.constants';
+
 export type GatewayEnvelope = {
   success?: boolean;
   data?: unknown;
@@ -7,6 +12,7 @@ export type GatewayEnvelope = {
 export type WhatsappAccountSummary = {
   id: string;
   status: string | null;
+  phoneNumber: string | null;
 };
 
 export function readGatewayError(result: GatewayEnvelope): string {
@@ -32,14 +38,27 @@ export function parseGatewayAccounts(data: unknown): WhatsappAccountSummary[] {
 export function parseGatewaySession(data: unknown): {
   status: string | null;
   qrDataUrl: string | null;
+  phoneNumber: string | null;
 } {
   if (!isRecord(data)) {
-    return { status: null, qrDataUrl: null };
+    return { status: null, qrDataUrl: null, phoneNumber: null };
   }
   return {
-    status: readOptionalString(data.status),
-    qrDataUrl: readOptionalString(data.qrDataUrl),
+    status:
+      readOptionalString(data.status) ??
+      (data.connected === true ? WHATSAPP_CONNECTED_STATUS : null),
+    qrDataUrl:
+      readOptionalString(data.qrDataUrl) ?? readOptionalString(data.qr),
+    phoneNumber: readOptionalString(data.phoneNumber),
   };
+}
+
+export function isGatewayMessageSent(data: unknown): boolean {
+  if (!isRecord(data)) {
+    return false;
+  }
+  const status = readOptionalString(data.status);
+  return status === null || status === WHATSAPP_SENT_STATUS;
 }
 
 function toAccountSummary(value: unknown): WhatsappAccountSummary[] {
@@ -50,7 +69,13 @@ function toAccountSummary(value: unknown): WhatsappAccountSummary[] {
   if (id === null) {
     return [];
   }
-  return [{ id, status: readOptionalString(value.status) }];
+  return [
+    {
+      id,
+      status: readOptionalString(value.status),
+      phoneNumber: readOptionalString(value.phoneNumber),
+    },
+  ];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

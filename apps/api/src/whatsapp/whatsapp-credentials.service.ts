@@ -52,6 +52,12 @@ export class WhatsappCredentialsService {
     };
   }
 
+  async getStoredAccountId(): Promise<string | null> {
+    const row = await this.loadRow();
+    const accountId = row?.accountId?.trim() ?? '';
+    return accountId.length > 0 ? accountId : null;
+  }
+
   async save(params: {
     gatewayUrl?: string;
     gatewayToken?: string;

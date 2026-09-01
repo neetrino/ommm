@@ -1,4 +1,5 @@
 import {
+  isGatewayMessageSent,
   parseGatewayAccounts,
   parseGatewaySession,
   readGatewayError,
@@ -10,12 +11,12 @@ describe('whatsapp-gateway.envelope', () => {
       parseGatewayAccounts({
         items: [{ id: 'acc_1', status: 'CONNECTED' }],
       }),
-    ).toEqual([{ id: 'acc_1', status: 'CONNECTED' }]);
+    ).toEqual([{ id: 'acc_1', status: 'CONNECTED', phoneNumber: null }]);
   });
 
   it('reads a single account object', () => {
     expect(parseGatewayAccounts({ id: 'acc_2', status: 'QR' })).toEqual([
-      { id: 'acc_2', status: 'QR' },
+      { id: 'acc_2', status: 'QR', phoneNumber: null },
     ]);
   });
 
@@ -28,7 +29,24 @@ describe('whatsapp-gateway.envelope', () => {
     ).toEqual({
       status: 'QR',
       qrDataUrl: 'data:image/png;base64,abc',
+      phoneNumber: null,
     });
+  });
+
+  it('treats connected=true as CONNECTED', () => {
+    expect(parseGatewaySession({ connected: true, qr: 'data:image/png;a' })).toEqual({
+      status: 'CONNECTED',
+      qrDataUrl: 'data:image/png;a',
+      phoneNumber: null,
+    });
+  });
+
+  it('accepts a sent message payload', () => {
+    expect(isGatewayMessageSent({ status: 'sent', messageId: 'm1' })).toBe(
+      true,
+    );
+    expect(isGatewayMessageSent({ status: 'failed' })).toBe(false);
+    expect(isGatewayMessageSent(null)).toBe(false);
   });
 
   it('reads a gateway error message', () => {
