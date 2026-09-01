@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,6 +9,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SCHEDULE_PAGE_MOBILE } from "../../../lib/schedule/schedulePageTokens";
 import {
   addDays,
@@ -22,14 +24,17 @@ import { SCHEDULE_DATE_STRIP_VISIBLE_DAYS } from "../../../lib/schedule/schedule
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { formatScheduleSelectedDayLabel } from "../scheduleFormat";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
+import { useScheduleCopy } from "../useScheduleCopy";
 import {
   ScheduleDateDayChip,
   type ScheduleDateChipState,
 } from "./ScheduleDateDayChip";
+import { ScheduleMonthCalendarSheet } from "./ScheduleMonthCalendarSheet";
 
 const STRIP_SIDE_INSET = 8;
 const STRIP_VERTICAL_PAD = 14;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const CALENDAR_ICON_SIZE = 20;
 
 type ScheduleDateControlsProps = {
   locale: string;
@@ -88,8 +93,10 @@ export function ScheduleDateControls({
   maxDate,
   onSelectDay,
 }: ScheduleDateControlsProps) {
+  const scheduleCopy = useScheduleCopy();
   const scrollRef = useRef<ScrollView>(null);
   const [pageWidth, setPageWidth] = useState(0);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const today = useMemo(() => startOfLocalDay(new Date()), []);
   const weeks = useMemo(
     () => buildStripWeeks(today, maxDate),
@@ -182,10 +189,41 @@ export function ScheduleDateControls({
       </View>
 
       <View style={styles.divider}>
-        <Text style={styles.selectedDay}>
+        <Text style={styles.selectedDay} numberOfLines={1}>
           {formatScheduleSelectedDayLabel(selectedDate, locale)}
         </Text>
+        <Pressable
+          onPress={() => setCalendarOpen(true)}
+          style={({ pressed }) => [
+            styles.calendarBtn,
+            pressed && styles.calendarBtnPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={scheduleCopy.fullCalendarAria}
+        >
+          <MaterialCommunityIcons
+            name="calendar-month"
+            size={CALENDAR_ICON_SIZE}
+            color={scheduleColors.oliveActive}
+          />
+          <Text style={styles.calendarBtnLabel} numberOfLines={1}>
+            {scheduleCopy.fullCalendar}
+          </Text>
+        </Pressable>
       </View>
+
+      <ScheduleMonthCalendarSheet
+        open={calendarOpen}
+        locale={locale}
+        selectedDate={selectedDate}
+        minDate={today}
+        maxDate={maxDate}
+        title={scheduleCopy.fullCalendar}
+        prevMonthAria={scheduleCopy.calendarPrevMonthAria}
+        nextMonthAria={scheduleCopy.calendarNextMonthAria}
+        onClose={() => setCalendarOpen(false)}
+        onSelectDay={onSelectDay}
+      />
     </View>
   );
 }
@@ -213,13 +251,40 @@ const styles = StyleSheet.create({
     paddingBottom: SCHEDULE_PAGE_MOBILE.dividerPaddingBottomPx,
     borderBottomWidth: 1,
     borderBottomColor: scheduleColors.divider,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   selectedDay: {
+    flex: 1,
+    minWidth: 0,
     fontFamily: fontFamilies.gtSuperDs.boldItalic,
     fontSize: 18,
     lineHeight: 21,
     letterSpacing: -0.27,
     color: scheduleColors.pageTitle,
     textTransform: "capitalize",
+  },
+  calendarBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    maxWidth: "48%",
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: scheduleColors.filterBorder,
+    backgroundColor: scheduleColors.filterBg,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  calendarBtnPressed: {
+    opacity: 0.9,
+  },
+  calendarBtnLabel: {
+    flexShrink: 1,
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: 11,
+    letterSpacing: 0.3,
+    color: scheduleColors.oliveActive,
   },
 });

@@ -1722,6 +1722,9 @@
       "filterSelectedCount": "{count} selected",
       "filterApply": "Apply",
       "fullCalendar": "Full Calendar",
+      "fullCalendarAria": "Open full month calendar",
+      "calendarPrevMonthAria": "Previous month",
+      "calendarNextMonthAria": "Next month",
       "studioBrand": "Ommm",
       "bookCta": "Book",
       "bookSplash": {
