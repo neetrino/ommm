@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { AppHeader } from "../../../components/layout/AppHeader";
 import { useAppHeaderBookPress } from "../../../components/layout/useAppHeaderBookPress";
 import { useScreenChromeInsets } from "../../../components/layout/useScreenChrome";
+import { ScreenHeaderGapBackButton } from "../../../components/navigation/ScreenHeaderGapBackButton";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { space } from "../../../theme/tokens";
 import { profileSectionLayout } from "../profileSectionLayout";
@@ -48,15 +48,19 @@ export function ProfileScreenShell({
           <View style={profileSectionLayout.hubShell}>{children}</View>
         ) : (
           <>
-            {showBack ? (
-              <View style={profileSectionLayout.backRow}>
-                <CircularBackButton
-                  onPress={() => router.back()}
-                  accessibilityLabel={tProfile("title")}
-                />
+            {showBack || title ? (
+              <View style={profileSectionLayout.pageHeader}>
+                {showBack ? (
+                  <ScreenHeaderGapBackButton
+                    onPress={() => router.back()}
+                    accessibilityLabel={tProfile("title")}
+                  />
+                ) : null}
+                {title ? (
+                  <Text style={profileSectionLayout.pageTitle}>{title}</Text>
+                ) : null}
               </View>
             ) : null}
-            {title ? <Text style={profileSectionLayout.pageTitle}>{title}</Text> : null}
             {children}
           </>
         )}

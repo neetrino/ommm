@@ -276,7 +276,7 @@ export function AuthAwareScheduleBookingAction({
       return (
         <button
           type="button"
-          className={SCHEDULE_CANCEL_BTN}
+          className={className}
           disabled={busy}
           onClick={() => setPendingLeaveWaitlist(true)}
         >
@@ -377,6 +377,7 @@ export function AuthAwareScheduleBookingAction({
         backdropAriaLabel={tLeaveWaitlist("confirmBackdrop")}
         tone="warm"
         pending={busyWaitlist}
+        forceCenteredModal
         onConfirm={() => {
           void leaveWaitlist();
         }}

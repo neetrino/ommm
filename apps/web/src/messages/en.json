@@ -421,6 +421,7 @@
         "title": "Member area",
         "body": "Log in to see your upcoming classes, waitlists, and studio tools."
       },
+      "backToAccountAria": "Back to account",
       "greeting": "Welcome back,",
       "welcomeSubtitleBefore": "Our dear ",
       "welcomeSubtitleAfter": " Ommm welcomes you.",
@@ -1722,6 +1723,11 @@
       "filterSelectedCount": "{count} selected",
       "filterApply": "Apply",
       "fullCalendar": "Full Calendar",
+      "fullCalendarAria": "Open full month calendar",
+      "weekCalendar": "Week view",
+      "weekCalendarAria": "Show week date strip",
+      "calendarPrevMonthAria": "Previous month",
+      "calendarNextMonthAria": "Next month",
       "studioBrand": "Ommm",
       "bookCta": "Book",
       "bookSplash": {

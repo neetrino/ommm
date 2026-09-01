@@ -36,6 +36,11 @@ export type AdminSheetPortalProps = {
   zIndexClass?: string;
   /** Phone: after exit animation. Desktop: on the open → closed transition. */
   onAfterClose?: () => void;
+  /**
+   * When true with `presentation="modal"`, always use a centered modal
+   * (skip the phone bottom sheet).
+   */
+  forceCenteredModal?: boolean;
   children: ReactNode;
 };
 
@@ -62,11 +67,13 @@ export function AdminSheetPortal({
   motionState,
   zIndexClass = "z-[105]",
   onAfterClose,
+  forceCenteredModal = false,
   children,
 }: AdminSheetPortalProps) {
   const fallbackTitleId = useId();
   const titleId = ariaLabelledBy ?? fallbackTitleId;
   const isPhone = useMemberHubSheetPhone();
+  const usePhoneSheet = isPhone && !forceCenteredModal;
   const [phoneMounted, setPhoneMounted] = useState(isOpen);
   const wasDesktopOpenRef = useRef(isOpen);
 
@@ -77,17 +84,17 @@ export function AdminSheetPortal({
   useEffect(() => {
     const wasOpen = wasDesktopOpenRef.current;
     wasDesktopOpenRef.current = isOpen;
-    if (shouldNotifyDesktopSheetAfterClose(isPhone, wasOpen, isOpen)) {
+    if (shouldNotifyDesktopSheetAfterClose(usePhoneSheet, wasOpen, isOpen)) {
       onAfterClose?.();
     }
-  }, [isOpen, isPhone, onAfterClose]);
+  }, [isOpen, usePhoneSheet, onAfterClose]);
 
   const handlePhoneExitComplete = useCallback(() => {
     setPhoneMounted(false);
     onAfterClose?.();
   }, [onAfterClose]);
 
-  if (isPhone) {
+  if (usePhoneSheet) {
     if (!phoneMounted) {
       return null;
     }

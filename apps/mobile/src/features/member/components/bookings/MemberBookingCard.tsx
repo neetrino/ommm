@@ -1,8 +1,8 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import type { BookingMineRow } from "../../../../lib/api/memberClient";
-import {
-  formatDurationMinutes,
-} from "../../../../lib/member/formatSessionLabels";
+import { formatDurationMinutes } from "../../../../lib/member/formatSessionLabels";
 import { STUDIO_TIMEZONE } from "../../../../lib/studioTimezone";
 import { fontFamilies } from "../../../../theme/fontFamilies";
 import { platformShadow } from "../../../../theme/platformShadow";
@@ -10,6 +10,12 @@ import { colors, radii, space, typography } from "../../../../theme/tokens";
 import type { MemberBookingsCopy } from "../../hooks/useMemberBookingsCopy";
 import { isUpcomingMemberBooking } from "../../lib/partitionMemberBookings";
 import { BookingStatusBadge } from "./BookingStatusBadge";
+
+type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
+
+const META_ICON_SIZE = 32;
+/** Soft stroke weight — outline glyphs at muted opacity, not heavy fill. */
+const META_ICON_COLOR = "rgba(67, 72, 67, 0.42)";
 
 function formatBookingDate(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -34,6 +40,32 @@ function formatBookingTime(iso: string, locale: string): string {
     minute: "2-digit",
     timeZone: STUDIO_TIMEZONE,
   });
+}
+
+type MetaFieldProps = {
+  icon: IconName;
+  label: string;
+  value: string;
+};
+
+function MetaField({ icon, label, value }: MetaFieldProps) {
+  return (
+    <View style={styles.metaBlock}>
+      <MaterialCommunityIcons
+        name={icon}
+        size={META_ICON_SIZE}
+        color={META_ICON_COLOR}
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+      />
+      <View style={styles.metaTextCol}>
+        <Text style={styles.detailLabel}>{label}</Text>
+        <Text style={styles.detailValue} numberOfLines={1}>
+          {value}
+        </Text>
+      </View>
+    </View>
+  );
 }
 
 type MemberBookingCardProps = {
@@ -71,23 +103,29 @@ export function MemberBookingCard({ booking, copy }: MemberBookingCardProps) {
       </View>
 
       <View style={styles.detailsPanel}>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{copy.listHeaderDate}</Text>
-          <Text style={styles.detailValue}>{dateLabel}</Text>
+        <View style={styles.metaRow}>
+          <MetaField
+            icon="calendar-month-outline"
+            label={copy.listHeaderDate}
+            value={dateLabel}
+          />
+          <MetaField
+            icon="clock-outline"
+            label={copy.listHeaderTime}
+            value={timeLabel}
+          />
         </View>
         <View style={styles.metaRow}>
-          <View style={styles.metaBlock}>
-            <Text style={styles.detailLabel}>{copy.listHeaderTime}</Text>
-            <Text style={styles.metaValue}>{timeLabel}</Text>
-          </View>
-          <View style={styles.metaBlock}>
-            <Text style={styles.detailLabel}>{copy.durationHeader}</Text>
-            <Text style={styles.metaValue}>{durationLabel}</Text>
-          </View>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{copy.coachHeader}</Text>
-          <Text style={styles.detailValue}>{coachName}</Text>
+          <MetaField
+            icon="timer-outline"
+            label={copy.durationHeader}
+            value={durationLabel}
+          />
+          <MetaField
+            icon="account-outline"
+            label={copy.coachHeader}
+            value={coachName}
+          />
         </View>
       </View>
     </View>
@@ -139,15 +177,12 @@ const styles = StyleSheet.create({
     color: colors.primaryGreen,
   },
   detailsPanel: {
-    gap: space.sm,
+    gap: space.md,
     borderRadius: radii.labelCard,
     borderWidth: 1,
     borderColor: colors.overlayWhite20,
     backgroundColor: colors.overlayWhite10,
     padding: space.md,
-  },
-  detailRow: {
-    gap: 4,
   },
   detailLabel: {
     fontFamily: fontFamilies.manrope.semiBold,
@@ -168,11 +203,14 @@ const styles = StyleSheet.create({
   },
   metaBlock: {
     flex: 1,
-    gap: 4,
+    minWidth: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  metaValue: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.ink,
+  metaTextCol: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
   },
 });

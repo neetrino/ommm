@@ -8,7 +8,16 @@ import { space } from "../../theme/tokens";
 /**
  * Small spinning sphere beside Book a Class (matches header CTA height band).
  */
-export const APP_HEADER_SPHERE_SIZE = 44;
+export const APP_HEADER_SPHERE_SIZE = 48;
+
+/**
+ * Small pad under the status bar before the sphere / Book CTA row.
+ * Keeps the shell flush to the top while giving a taller cream band.
+ */
+export const APP_HEADER_TOP_PAD = space.sm;
+
+/** Space under the sphere / Book CTA before the rounded header edge. */
+export const APP_HEADER_BOTTOM_PAD = space.lg;
 
 /** Header row height — sphere + vertical breathing room. */
 export const APP_HEADER_ROW_MIN_HEIGHT = APP_HEADER_SPHERE_SIZE + space.xs;
@@ -19,11 +28,20 @@ export const APP_HEADER_ROW_MIN_HEIGHT = APP_HEADER_SPHERE_SIZE + space.xs;
 export const APP_HEADER_LOGO_SIZE = APP_HEADER_SPHERE_SIZE;
 
 /**
+ * Extra space between the AppHeader bottom edge and page content.
+ * Used by every screen that opts into `header: "app"` chrome.
+ */
+export const APP_HEADER_CONTENT_GAP = space.xl;
+
+/**
  * Space below safe-area top for scroll content to clear AppHeader
- * (row + blur bottom pad + small gap).
+ * (top pad + row + bottom pad + content gap).
  */
 export const APP_HEADER_CONTENT_CLEARANCE =
-  APP_HEADER_ROW_MIN_HEIGHT + space.md + space.sm;
+  APP_HEADER_TOP_PAD +
+  APP_HEADER_ROW_MIN_HEIGHT +
+  APP_HEADER_BOTTOM_PAD +
+  APP_HEADER_CONTENT_GAP;
 
 export const FLOATING_TAB_BAR_HEIGHT = 88;
 /** Landscape / short: icon chip + single-line label fully inside the pill. */
@@ -41,8 +59,18 @@ export const FLOATING_TAB_BAR_OUTER_BOTTOM_EXTRA = space.xs;
  */
 export const COMPACT_CHROME_MAX_HEIGHT = 500;
 
-export function appHeaderScrollPaddingTop(insetsTop: number): number {
-  return insetsTop + APP_HEADER_CONTENT_CLEARANCE;
+export function appHeaderScrollPaddingTop(
+  insetsTop: number,
+  options?: { contentGap?: number },
+): number {
+  const contentGap = options?.contentGap ?? APP_HEADER_CONTENT_GAP;
+  return (
+    insetsTop +
+    APP_HEADER_TOP_PAD +
+    APP_HEADER_ROW_MIN_HEIGHT +
+    APP_HEADER_BOTTOM_PAD +
+    contentGap
+  );
 }
 
 export function tabBarScrollPaddingBottom(

@@ -11,5 +11,3 @@ export const MEMBER_ACCOUNT_HUB_NAV: readonly DashboardNavDefinition[] = [
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
   { href: "/user/profile", icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ] as const;
-
-export const MEMBER_ACCOUNT_HUB_CHANGE_PASSWORD_HREF = "/user/profile";

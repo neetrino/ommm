@@ -5,8 +5,10 @@ import { useTranslations } from "../../i18n/I18nProvider";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../theme/tokens";
 import {
+  APP_HEADER_BOTTOM_PAD,
   APP_HEADER_ROW_MIN_HEIGHT,
   APP_HEADER_SPHERE_SIZE,
+  APP_HEADER_TOP_PAD,
 } from "./screenChromeLayout";
 import { HeaderSpinningSphere } from "./HeaderSpinningSphere";
 
@@ -15,8 +17,8 @@ type AppHeaderProps = {
 };
 
 /**
- * Header chrome: spinning brand sphere on the left, Book a Class on the right.
- * Horizontal padding includes safe-area left/right for notched landscape.
+ * Header chrome pinned to the top of the screen: one continuous cream layer
+ * (blur fills the whole shell), sphere + Book CTA under the status bar.
  */
 export function AppHeader({ onBookPress }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
@@ -28,30 +30,34 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
       style={[
         styles.wrapper,
         {
-          paddingTop: insets.top,
+          paddingTop: insets.top + APP_HEADER_TOP_PAD,
+          paddingBottom: APP_HEADER_BOTTOM_PAD,
           paddingLeft: insets.left + space.screenHorizontal,
           paddingRight: insets.right + space.screenHorizontal,
         },
       ]}
     >
-      <BlurView intensity={40} tint="light" style={styles.blur}>
-        <View style={[styles.row, { minHeight: APP_HEADER_ROW_MIN_HEIGHT }]}>
-          <HeaderSpinningSphere size={APP_HEADER_SPHERE_SIZE} />
-          <Pressable
-            onPress={onBookPress}
-            style={({ pressed }) => [
-              styles.bookButton,
-              pressed && styles.bookButtonPressed,
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={tHome("bookNow")}
-          >
-            <Text style={styles.bookLabel}>
-              {tMarketing("bookAClass").toUpperCase()}
-            </Text>
-          </Pressable>
-        </View>
-      </BlurView>
+      <BlurView
+        intensity={40}
+        tint="light"
+        style={StyleSheet.absoluteFillObject}
+      />
+      <View style={[styles.row, { minHeight: APP_HEADER_ROW_MIN_HEIGHT }]}>
+        <HeaderSpinningSphere size={APP_HEADER_SPHERE_SIZE} />
+        <Pressable
+          onPress={onBookPress}
+          style={({ pressed }) => [
+            styles.bookButton,
+            pressed && styles.bookButtonPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={tHome("bookNow")}
+        >
+          <Text style={styles.bookLabel}>
+            {tMarketing("bookAClass").toUpperCase()}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -67,10 +73,6 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: radii.header,
     overflow: "hidden",
     backgroundColor: colors.overlayWhite35,
-    pointerEvents: "box-none",
-  },
-  blur: {
-    paddingBottom: space.md,
   },
   row: {
     flexDirection: "row",
@@ -80,7 +82,7 @@ const styles = StyleSheet.create({
   bookButton: {
     backgroundColor: colors.taupe,
     paddingHorizontal: space.lg,
-    paddingVertical: space.sm,
+    paddingVertical: space.md,
     borderRadius: radii.pill,
     alignSelf: "center",
   },

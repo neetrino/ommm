@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../../auth/SessionProvider";
-import { CircularBackButton } from "../../../components/navigation/CircularBackButton";
+import { ScreenHeaderGapBackButton } from "../../../components/navigation/ScreenHeaderGapBackButton";
 import { usePackagesCopy } from "../../../lib/packages/usePackagesCopy";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
 import { AppHeader } from "../../../components/layout/AppHeader";
@@ -41,8 +41,14 @@ export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenPro
   const { isSignedIn } = useSession();
   const mode: PackagesScreenMode =
     modeProp ?? (isSignedIn ? "mine" : "catalog");
+  const showMyPackages = isSignedIn && mode === "mine";
+  const showCatalog = !isSignedIn || mode === "catalog";
+  const showBack = isSignedIn && showCatalog;
   const { paddingTop, paddingBottom, safePaddingLeft, safePaddingRight } =
-    useScreenChromeInsets({ includeScreenGutter: false });
+    useScreenChromeInsets({
+      includeScreenGutter: false,
+      headerContentGap: showBack ? 0 : undefined,
+    });
   const onHeaderBookPress = useAppHeaderBookPress();
   const {
     memberships,
@@ -102,8 +108,6 @@ export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenPro
     ],
   );
 
-  const showMyPackages = isSignedIn && mode === "mine";
-  const showCatalog = !isSignedIn || mode === "catalog";
   const heading = showMyPackages
     ? packagesCopy.myPackagesTitle
     : packagesCopy.catalogTitle;
@@ -127,16 +131,15 @@ export function MemberPackagesScreen({ mode: modeProp }: MemberPackagesScreenPro
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        {isSignedIn && showCatalog ? (
-          <View style={styles.backRow}>
-            <CircularBackButton
+        <View style={styles.pageHeader}>
+          {showBack ? (
+            <ScreenHeaderGapBackButton
               onPress={openMine}
               accessibilityLabel={packagesCopy.backToMyPackagesCta}
             />
-          </View>
-        ) : null}
-
-        <Text style={styles.heading}>{heading}</Text>
+          ) : null}
+          <Text style={styles.heading}>{heading}</Text>
+        </View>
         <Text style={styles.lead}>{lead}</Text>
 
         {loading ? (
@@ -209,9 +212,8 @@ const styles = StyleSheet.create({
     width: "100%",
     minWidth: 0,
   },
-  backRow: {
-    alignSelf: "flex-start",
-    marginBottom: -space.sm,
+  pageHeader: {
+    gap: 0,
   },
   heading: {
     fontFamily: fontFamilies.gtSuperDs.boldItalic,

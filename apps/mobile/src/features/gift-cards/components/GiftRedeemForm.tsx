@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     color: colors.danger,
   },
   button: {
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
     minHeight: 44,
     paddingHorizontal: space.lg,
     borderRadius: radii.pill,

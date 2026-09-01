@@ -50,25 +50,26 @@ export function NextClassHeroCard({
           <Text style={styles.comingBadgeText}>{content.badge}</Text>
         </View>
 
+        <Pressable
+          onPress={onOpenClassPress}
+          style={({ pressed }) => [
+            styles.iconButton,
+            pressed && styles.iconButtonPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={bookingCopy.nextClassOpenLabel}
+        >
+          <Image
+            source={figmaRemoteAssets.iconArrowOut}
+            style={styles.arrowIcon}
+            contentFit="contain"
+          />
+        </Pressable>
+
         <View style={styles.cardTopRow}>
           <Text style={styles.classTitle} numberOfLines={2}>
             {content.title}
           </Text>
-          <Pressable
-            onPress={onOpenClassPress}
-            style={({ pressed }) => [
-              styles.iconButton,
-              pressed && styles.iconButtonPressed,
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={bookingCopy.nextClassOpenLabel}
-          >
-            <Image
-              source={figmaRemoteAssets.iconArrowOut}
-              style={styles.arrowIcon}
-              contentFit="contain"
-            />
-          </Pressable>
         </View>
       </View>
     </View>

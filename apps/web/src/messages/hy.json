@@ -422,6 +422,7 @@
         "title": "Անդամի տարածք",
         "body": "Մուտք գործեք՝ տեսնելու առաջիկա դասերը, սպասման ցուցակը և ստուդիայի գործիքները։"
       },
+      "backToAccountAria": "Վերադառնալ հաշիվ",
       "greeting": "Բարի վերադարձ,",
       "welcomeSubtitleBefore": "Մեր սիրելի ",
       "welcomeSubtitleAfter": " Ommm-ը ողջունում է քեզ․",
@@ -1723,6 +1724,11 @@
       "filterSelectedCount": "{count} ընտրված",
       "filterApply": "Կիրառել",
       "fullCalendar": "Լրիվ օրացույց",
+      "fullCalendarAria": "Բացել ամսվա օրացույցը",
+      "weekCalendar": "Շաբաթ",
+      "weekCalendarAria": "Ցույց տալ շաբաթվա ժապավենը",
+      "calendarPrevMonthAria": "Նախորդ ամիս",
+      "calendarNextMonthAria": "Հաջորդ ամիս",
       "studioBrand": "Ommm",
       "bookCta": "Ամրագրել",
       "bookSplash": {
