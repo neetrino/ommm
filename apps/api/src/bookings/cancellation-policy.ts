@@ -1,4 +1,8 @@
 const DEFAULT_CANCELLATION_PENALTY_HOURS = 24;
+const MS_PER_MINUTE = 60 * 1000;
+
+/** Free cancel after an accidental book, even inside the late-cancel window. */
+export const DEFAULT_CANCELLATION_GRACE_MINUTES = 15;
 
 /**
  * Optional code override for the free-cancellation window (hours before class start).
@@ -51,4 +55,31 @@ export function isPenalizedCancellation(
   const nowMs = viewerWallClockNowMs(now);
   const freeCancelDeadlineMs = startMs - penaltyHours * 60 * 60 * 1000;
   return nowMs > freeCancelDeadlineMs;
+}
+
+export function isWithinCancellationGracePeriod(
+  bookingCreatedAt: Date,
+  graceMinutes: number = DEFAULT_CANCELLATION_GRACE_MINUTES,
+  now: Date = new Date(),
+): boolean {
+  return now.getTime() - bookingCreatedAt.getTime() <= graceMinutes * MS_PER_MINUTE;
+}
+
+/**
+ * Member late-cancel penalty, except when the booking was just created
+ * (accidental book + immediate cancel must return the package session).
+ */
+export function shouldApplyCancellationPenalty(params: {
+  startsAt: Date;
+  bookingCreatedAt: Date;
+  penaltyHours: number;
+  now?: Date;
+  graceMinutes?: number;
+}): boolean {
+  const now = params.now ?? new Date();
+  const graceMinutes = params.graceMinutes ?? DEFAULT_CANCELLATION_GRACE_MINUTES;
+  if (isWithinCancellationGracePeriod(params.bookingCreatedAt, graceMinutes, now)) {
+    return false;
+  }
+  return isPenalizedCancellation(params.startsAt, params.penaltyHours, now);
 }

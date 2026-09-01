@@ -40,10 +40,14 @@ export function SessionBookingActions({
   const router = useRouter();
   const [cancelMsg, setCancelMsg] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | undefined>(userBookingId);
+  const [bookedAtIso, setBookedAtIso] = useState<string | undefined>(undefined);
   const [prevUserBookingId, setPrevUserBookingId] = useState(userBookingId);
   if (userBookingId !== prevUserBookingId) {
     setPrevUserBookingId(userBookingId);
     setBookingId(userBookingId);
+    if (userBookingId === undefined) {
+      setBookedAtIso(undefined);
+    }
   }
 
   if (bookingId) {
@@ -66,11 +70,13 @@ export function SessionBookingActions({
         bookingId={bookingId}
         sessionDate={sessionStartsAt}
         sessionStartTime={scheduleStartTimeFromIso(sessionStartsAt)}
+        bookedAt={bookedAtIso}
         appearance="button"
         size={size}
         onError={setCancelMsg}
         onCancelled={() => {
           setBookingId(undefined);
+          setBookedAtIso(undefined);
           setCancelMsg(null);
           onBookingChange?.(undefined);
         }}
@@ -126,6 +132,7 @@ export function SessionBookingActions({
       layout={layout}
       onBooked={(id) => {
         setBookingId(id);
+        setBookedAtIso(new Date().toISOString());
         onBookingChange?.(id);
         router.refresh();
       }}

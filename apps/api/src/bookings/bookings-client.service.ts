@@ -21,8 +21,8 @@ import { BOOKING_INTERACTIVE_TX_TIMEOUT_MS } from './bookings.constants';
 import { ownerBookingUniqueWhere } from './bookings-guest-pass.constants';
 import { BookingsSlotService } from './bookings-slot.service';
 import {
-  isPenalizedCancellation,
   resolveCancellationPenaltyHours,
+  shouldApplyCancellationPenalty,
 } from './cancellation-policy';
 import { BookingsClientListService } from './bookings-client-list.service';
 import {
@@ -267,10 +267,11 @@ export class BookingsClientService {
     const penaltyHours = resolveCancellationPenaltyHours(
       studio?.cancellationHoursNotice,
     );
-    const applyPenalty = isPenalizedCancellation(
-      booking.session.startsAt,
+    const applyPenalty = shouldApplyCancellationPenalty({
+      startsAt: booking.session.startsAt,
+      bookingCreatedAt: booking.createdAt,
       penaltyHours,
-    );
+    });
     await this.slots.releaseSlot(booking, { applyPenalty });
     this.cancelIntent.clear(booking.sessionId);
     await this.schedule.invalidatePublicCache();

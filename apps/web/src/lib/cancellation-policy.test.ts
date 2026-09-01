@@ -1,0 +1,36 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import {
+  isWithinCancellationGracePeriod,
+  shouldApplyCancellationPenalty,
+} from "./cancellation-policy";
+
+describe("shouldApplyCancellationPenalty", () => {
+  it("skips the late-cancel warning inside the booking grace window", () => {
+    const bookedAtIso = "2026-08-31T06:17:50.000Z";
+    const now = new Date("2026-08-31T06:19:50.000Z");
+    assert.equal(isWithinCancellationGracePeriod(bookedAtIso, 15, now), true);
+    assert.equal(
+      shouldApplyCancellationPenalty({
+        sessionDate: "2026-08-31",
+        startTime: "11:00",
+        bookedAtIso,
+        now,
+      }),
+      false,
+    );
+  });
+
+  it("keeps the late-cancel warning after the grace window", () => {
+    const now = new Date("2026-08-31T06:40:00.000Z");
+    assert.equal(
+      shouldApplyCancellationPenalty({
+        sessionDate: "2026-08-31",
+        startTime: "11:00",
+        bookedAtIso: "2026-08-31T06:17:50.000Z",
+        now,
+      }),
+      true,
+    );
+  });
+});
