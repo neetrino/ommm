@@ -30,6 +30,7 @@ import { ScheduleFiltersHeader } from "../../schedule/components/ScheduleFilters
 import type { ScheduleFilterOption } from "../../schedule/components/ScheduleFilterField";
 import { useScheduleDayTransition } from "../../schedule/hooks/useScheduleDayTransition";
 import { ScheduleViewShell } from "../../schedule/components/ScheduleViewShell";
+import { formatScheduleMonthLabel } from "../../schedule/scheduleFormat";
 import { useScheduleCopy } from "../../schedule/useScheduleCopy";
 import { scheduleColors } from "../../schedule/scheduleTokens";
 import { useMemberBookingCopy } from "../hooks/useMemberBookingCopy";
@@ -212,6 +213,10 @@ export function MemberScheduleScreen() {
 
         <ScheduleViewShell>
           <ScheduleFiltersHeader
+            monthLabel={formatScheduleMonthLabel(
+              nav.selectedDate,
+              scheduleCopy.intlLocale,
+            )}
             classTypes={classTypes}
             instructors={instructors}
             classTypeOptions={classTypeOptions}

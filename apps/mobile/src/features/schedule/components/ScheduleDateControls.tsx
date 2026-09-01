@@ -20,10 +20,7 @@ import {
 } from "../../../lib/schedule/scheduleDateUtils";
 import { SCHEDULE_DATE_STRIP_VISIBLE_DAYS } from "../../../lib/schedule/scheduleNav";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import {
-  formatScheduleMonthLabel,
-  formatScheduleSelectedDayLabel,
-} from "../scheduleFormat";
+import { formatScheduleSelectedDayLabel } from "../scheduleFormat";
 import { scheduleColors, scheduleLayout } from "../scheduleTokens";
 import {
   ScheduleDateDayChip,
@@ -146,49 +143,41 @@ export function ScheduleDateControls({
 
   return (
     <View>
-      <View style={styles.monthWrap}>
-        <Text style={styles.monthLabel}>
-          {formatScheduleMonthLabel(selectedDate, locale)}
-        </Text>
-      </View>
-
-      <View style={styles.stripWrap}>
-        <View style={styles.stripPanel}>
-          <View onLayout={onStripLayout} style={styles.stripViewport}>
-            {pageWidth > 0 ? (
-              <ScrollView
-                ref={scrollRef}
-                horizontal
-                pagingEnabled
-                decelerationRate="fast"
-                showsHorizontalScrollIndicator={false}
-                nestedScrollEnabled
-                onMomentumScrollEnd={onMomentumScrollEnd}
-              >
-                {weeks.map((week) => (
-                  <View
-                    key={week[0]?.getTime() ?? "week"}
-                    style={[styles.weekPage, { width: pageWidth }]}
-                  >
-                    {week.map((day) => (
-                      <ScheduleDateDayChip
-                        key={day.getTime()}
-                        day={day}
-                        locale={locale}
-                        chipState={resolveChipState(
-                          day,
-                          selectedDate,
-                          today,
-                          maxDate,
-                        )}
-                        onPress={() => onSelectDay(startOfLocalDay(day))}
-                      />
-                    ))}
-                  </View>
-                ))}
-              </ScrollView>
-            ) : null}
-          </View>
+      <View style={styles.stripPanel}>
+        <View onLayout={onStripLayout} style={styles.stripViewport}>
+          {pageWidth > 0 ? (
+            <ScrollView
+              ref={scrollRef}
+              horizontal
+              pagingEnabled
+              decelerationRate="fast"
+              showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled
+              onMomentumScrollEnd={onMomentumScrollEnd}
+            >
+              {weeks.map((week) => (
+                <View
+                  key={week[0]?.getTime() ?? "week"}
+                  style={[styles.weekPage, { width: pageWidth }]}
+                >
+                  {week.map((day) => (
+                    <ScheduleDateDayChip
+                      key={day.getTime()}
+                      day={day}
+                      locale={locale}
+                      chipState={resolveChipState(
+                        day,
+                        selectedDate,
+                        today,
+                        maxDate,
+                      )}
+                      onPress={() => onSelectDay(startOfLocalDay(day))}
+                    />
+                  ))}
+                </View>
+              ))}
+            </ScrollView>
+          ) : null}
         </View>
       </View>
 
@@ -202,20 +191,6 @@ export function ScheduleDateControls({
 }
 
 const styles = StyleSheet.create({
-  monthWrap: {
-    marginTop: SCHEDULE_PAGE_MOBILE.monthMarginTopPx,
-  },
-  monthLabel: {
-    fontFamily: fontFamilies.gtSuperDs.boldItalic,
-    fontSize: 22,
-    lineHeight: 24,
-    letterSpacing: -0.44,
-    color: scheduleColors.pageTitle,
-    textTransform: "capitalize",
-  },
-  stripWrap: {
-    marginTop: SCHEDULE_PAGE_MOBILE.stripMarginTopPx,
-  },
   stripPanel: {
     borderRadius: scheduleLayout.stripRadius,
     borderWidth: 1,

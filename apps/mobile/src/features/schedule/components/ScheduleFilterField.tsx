@@ -125,12 +125,10 @@ export function ScheduleFilterField({
         accessibilityLabel={accessibilityLabel}
         accessibilityState={{ expanded }}
       >
-        <Text style={styles.label} numberOfLines={1}>
-          {triggerLabel}
-        </Text>
+        <Text style={styles.label}>{triggerLabel}</Text>
         <AnimatedFilterChevron
           open={expanded}
-          size={20}
+          size={16}
           color={scheduleColors.oliveActive}
         />
       </Pressable>

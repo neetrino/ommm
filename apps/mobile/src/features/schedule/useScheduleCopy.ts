@@ -27,6 +27,7 @@ export function useScheduleCopy() {
       bookedBadge: t("bookedBadge"),
       onWaitlistBadge: t("onWaitlistBadge"),
       coachLabel: t("coach"),
+      withInstructor: (name: string) => t("withInstructor", { name }),
       intlLocale,
       minutesShort: (count: number) => t("minutesShort", { count }),
       spotsLeft: (count: number) => t("spotsLeft", { count }),
