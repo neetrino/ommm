@@ -9,7 +9,6 @@ import {
   canAdjustClientPackageSessions,
   limitedPackageTypeBalances,
 } from "@/components/admin/admin-client-package-sessions-adjuster.helpers";
-import { AdminPackageActionDisclosure } from "@/components/admin/admin-package-action-disclosure";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -44,7 +43,6 @@ export function AdminClientPackageSessionsAdjuster({
   const t = useTranslations("adminPages.clients.packages");
   const typeBalances = limitedPackageTypeBalances(item);
   const last = item.lastSessionAdjustment ?? null;
-  const [open, setOpen] = useState(false);
   const [sessions, setSessions] = useState("1");
   const [reason, setReason] = useState("");
   const [balanceId, setBalanceId] = useState(typeBalances[0]?.id ?? "");
@@ -84,7 +82,6 @@ export function AdminClientPackageSessionsAdjuster({
       );
       setReason("");
       setSessions("1");
-      setOpen(false);
       onSuccess(t("addSessionsSuccess", { count: result.sessionsAdded }));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("addSessionsError"));
@@ -103,12 +100,7 @@ export function AdminClientPackageSessionsAdjuster({
         });
 
   return (
-    <AdminPackageActionDisclosure
-      title={t("addSessionsHeading")}
-      open={open}
-      onOpenChange={setOpen}
-      summary={lastSummary}
-    >
+    <div className="space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
       <p className="text-sm text-sage-700">{t("addSessionsLead")}</p>
       {last !== null ? (
         <p className="text-sm text-sage-600" title={last.reason}>
@@ -170,6 +162,6 @@ export function AdminClientPackageSessionsAdjuster({
           {error}
         </p>
       ) : null}
-    </AdminPackageActionDisclosure>
+    </div>
   );
 }

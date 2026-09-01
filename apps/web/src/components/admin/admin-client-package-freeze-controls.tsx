@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
-import { AdminPackageActionDisclosure } from "@/components/admin/admin-package-action-disclosure";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { normalizeUserPackageFreeze } from "@/lib/user-package-freeze";
@@ -19,7 +18,6 @@ export function AdminClientPackageFreezeControls({
 }: AdminClientPackageFreezeControlsProps) {
   const t = useTranslations("adminPages.clients.packages");
   const freeze = normalizeUserPackageFreeze(item.freeze);
-  const [open, setOpen] = useState(false);
   const [days, setDays] = useState(
     freeze.maxDaysPerUse > 0 ? String(freeze.maxDaysPerUse) : "1",
   );
@@ -39,7 +37,6 @@ export function AdminClientPackageFreezeControls({
         method: "PATCH",
         ...(path === "freeze" ? { body: JSON.stringify({ days: parsedDays }) } : {}),
       });
-      setOpen(false);
       onSuccess(path === "freeze" ? t("freezeSuccess") : t("unfreezeSuccess"));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("freezeError"));
@@ -58,11 +55,7 @@ export function AdminClientPackageFreezeControls({
       : t("freezeAdminOverrideHint");
 
   return (
-    <AdminPackageActionDisclosure
-      title={t("freezeHeading")}
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <div className="space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
       <p className="text-sm text-sage-700">{remainingLabel}</p>
       {freeze.canFreeze ? (
         <div className="flex flex-wrap items-end gap-2">
@@ -107,6 +100,6 @@ export function AdminClientPackageFreezeControls({
           {error}
         </p>
       ) : null}
-    </AdminPackageActionDisclosure>
+    </div>
   );
 }
