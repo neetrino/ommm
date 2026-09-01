@@ -1,0 +1,113 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overscroll-behavior: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  cursor: pointer;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: rgb(45 40 35 / 0.45);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.backdropOpen {
+  opacity: 1;
+}
+
+.backdropClosing {
+  opacity: 0;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  border: 1px solid rgb(255 255 255 / 0.7);
+  background: rgb(255 255 255 / 0.95);
+  padding: 1.5rem;
+  box-shadow: 0 30px 70px -30px rgb(45 40 35 / 0.45);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: translate3d(0, 12px, 0) scale(0.96);
+  transition:
+    opacity 320ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: opacity, transform;
+}
+
+.panelOpen {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.panelClosing {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0) scale(0.97);
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panelWarm {
+  border-color: rgb(196 168 130 / 0.35);
+  background: linear-gradient(
+    145deg,
+    rgb(250 243 232 / 0.95) 0%,
+    rgb(255 255 255 / 0.92) 45%,
+    rgb(255 255 255 / 0.8) 100%
+  );
+  box-shadow: 0 30px 70px -30px rgb(107 92 76 / 0.38);
+}
+
+.panelDanger {
+  border-color: rgb(252 165 165 / 0.7);
+  background: linear-gradient(
+    145deg,
+    rgb(254 226 226 / 0.9) 0%,
+    rgb(255 255 255 / 0.92) 45%,
+    rgb(255 255 255 / 0.8) 100%
+  );
+}
+
+.panelSuccess {
+  border-color: rgb(110 231 183 / 0.7);
+  background: linear-gradient(
+    145deg,
+    rgb(209 250 229 / 0.9) 0%,
+    rgb(255 255 255 / 0.92) 45%,
+    rgb(255 255 255 / 0.8) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .backdropOpen,
+  .backdropClosing,
+  .panel,
+  .panelOpen,
+  .panelClosing {
+    transition: none;
+  }
+}

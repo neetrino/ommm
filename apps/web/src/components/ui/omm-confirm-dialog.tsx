@@ -1,11 +1,10 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import {
-  ADMIN_CONFIRM_MODAL_PANEL_CLASS,
-} from "@/components/admin/admin-mobile-sheet-layout";
+import { ADMIN_CONFIRM_MODAL_PANEL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmCenteredModal } from "@/components/ui/omm-confirm-centered-modal";
 
 export type OmmConfirmDialogTone = "default" | "warm" | "danger" | "success";
 
@@ -24,12 +23,14 @@ type OmmConfirmDialogProps = {
   overlayClassName?: string;
   lockBodyScroll?: boolean;
   closeOnEscape?: boolean;
+  /**
+   * Always show a centered modal with enter/exit motion (skip phone bottom sheet).
+   */
+  forceCenteredModal?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
 };
-
-const CONFIRM_DIALOG_PANEL_CLASS = ADMIN_CONFIRM_MODAL_PANEL_CLASS;
 
 const CONFIRM_DIALOG_TONE_PANEL_CLASS: Record<OmmConfirmDialogTone, string> = {
   default: "",
@@ -52,6 +53,7 @@ export function OmmConfirmDialog({
   overlayClassName = "ommm-modal-overlay z-[110] p-4",
   lockBodyScroll = true,
   closeOnEscape = true,
+  forceCenteredModal = false,
   onConfirm,
   onCancel,
   children,
@@ -59,8 +61,30 @@ export function OmmConfirmDialog({
   const titleId = useId();
   const descId = useId();
   const resolvedConfirmPending = confirmPending ?? pending;
+
+  if (forceCenteredModal) {
+    return (
+      <OmmConfirmCenteredModal
+        isOpen={isOpen}
+        title={title}
+        description={description}
+        confirmLabel={confirmLabel}
+        cancelLabel={cancelLabel}
+        backdropAriaLabel={backdropAriaLabel}
+        pending={pending}
+        confirmPending={confirmPending}
+        tone={tone}
+        confirmClassName={confirmClassName}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      >
+        {children}
+      </OmmConfirmCenteredModal>
+    );
+  }
+
   const panelClassName = [
-    CONFIRM_DIALOG_PANEL_CLASS,
+    ADMIN_CONFIRM_MODAL_PANEL_CLASS,
     CONFIRM_DIALOG_TONE_PANEL_CLASS[tone],
   ]
     .filter(Boolean)

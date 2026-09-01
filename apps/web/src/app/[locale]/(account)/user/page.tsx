@@ -1,6 +1,6 @@
 import { MemberUserHomePageContent } from "@/components/account/member-user-home-page-content";
 
-/** Member `/user` — dashboard on all viewports (same as desktop web). */
+/** Member `/user` — desktop dashboard; mobile glass account hub. */
 export default async function UserAccountPage({
   params,
 }: {

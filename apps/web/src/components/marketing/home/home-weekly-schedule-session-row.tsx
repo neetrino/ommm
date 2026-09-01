@@ -121,14 +121,16 @@ export function HomeWeeklyScheduleSessionRow({
 
       <div className={styles.classBlock}>
         <p
-          className="truncate text-lg font-extrabold leading-[1.875rem] tracking-[0.0375rem] sm:text-xl"
+          className={`${styles.classTitle} text-lg font-extrabold leading-[1.875rem] tracking-[0.0375rem] sm:text-xl`}
           style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
+          title={item.className}
         >
           {item.className}
         </p>
         <p
-          className="truncate text-sm font-normal leading-[1.3125rem]"
+          className={`${styles.instructor} text-sm font-normal leading-[1.3125rem]`}
           style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
+          title={withInstructorLabel}
         >
           {withInstructorLabel}
         </p>

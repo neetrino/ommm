@@ -74,6 +74,7 @@ export function WorkspaceShell({
       <div
         className={offsetStyles.shellWithMarketingHeader}
         data-workspace-shell
+        data-workspace-chrome={isMemberShell ? "member" : "staff"}
         data-marketing-account-shell
         style={shellStyle}
       >
@@ -83,10 +84,14 @@ export function WorkspaceShell({
         workspaceHeaderChrome
         memberWorkspaceHeader={isMemberShell}
         showMemberNotifications={isMemberShell}
-        workspaceDrawer={{
-          open: drawerOpen,
-          onToggle: () => setDrawerOpen((open) => !open),
-        }}
+        workspaceDrawer={
+          isMemberShell
+            ? undefined
+            : {
+                open: drawerOpen,
+                onToggle: () => setDrawerOpen((open) => !open),
+              }
+        }
         notificationHref={notificationRoute?.href ?? null}
         notificationsLabel={notificationsLabel}
         notificationsActive={notificationsActive}
@@ -132,8 +137,8 @@ export function WorkspaceShell({
         navRole={navRole}
         notificationRoute={notificationRoute}
         withSiteHeader
-        drawerOpen={drawerOpen}
-        onDrawerOpenChange={setDrawerOpen}
+        drawerOpen={isMemberShell ? false : drawerOpen}
+        onDrawerOpenChange={isMemberShell ? undefined : setDrawerOpen}
       >
         {children}
       </DashboardAppShell>

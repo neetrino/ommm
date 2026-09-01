@@ -48,9 +48,28 @@
   display: flex;
   grid-area: class;
   min-width: 0;
+  max-width: 100%;
   flex-direction: column;
   gap: 0.25rem;
   font-family: var(--font-display);
+}
+
+.classTitle {
+  margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.instructor {
+  margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .duration {
@@ -203,9 +222,6 @@
   }
 
   .classTitle {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     font-size: var(--home-schedule-row-class-size, 1.125rem);
     font-weight: 800;
     line-height: 1.75rem;
@@ -213,9 +229,6 @@
   }
 
   .instructor {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     font-family: var(--font-sans);
     font-size: var(--home-schedule-row-instructor-size, 0.75rem);
     font-weight: 400;

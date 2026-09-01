@@ -73,7 +73,7 @@ export type DashboardRoleNotificationRoute = {
   labelKey: string;
 };
 
-/** Member (USER): dashboard, bookings, packages — account hub on mobile `/user`. */
+/** Member (USER): sidebar routes — mobile `/user` is the glass account hub. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: USER_ACCOUNT_PATH, icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
