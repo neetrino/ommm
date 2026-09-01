@@ -2464,6 +2464,7 @@
         "addSessionsError": "Could not add sessions.",
         "addSessionsCountInvalid": "Enter a number from 1 to 20.",
         "addSessionsReasonRequired": "Add a short reason for the audit trail.",
+        "addSessionsLast": "{name} · +{count} · {date}",
         "attachPastHeading": "Attach past class",
         "attachPastLead": "If the client already attended, attach that class to this package. One session will be deducted.",
         "attachPastSessionLabel": "Past class",

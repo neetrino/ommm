@@ -37,7 +37,24 @@ export function nextLimitedSessionCounts(params: {
   };
 }
 
+export function formatSessionAdjustmentActorName(params: {
+  name?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+}): string {
+  const full = [params.name?.trim(), params.lastName?.trim()]
+    .filter((part) => part !== undefined && part.length > 0)
+    .join(' ')
+    .trim();
+  if (full.length > 0) {
+    return full;
+  }
+  const email = params.email?.trim() ?? '';
+  return email.length > 0 ? email : 'Staff';
+}
+
 export function buildSessionAdjustmentNote(params: {
+  actorName: string;
   sessions: number;
   packageName: string;
   classTypeName: string;
@@ -45,5 +62,5 @@ export function buildSessionAdjustmentNote(params: {
 }): string {
   const typeLabel =
     params.classTypeName.trim() === '' ? 'package' : params.classTypeName.trim();
-  return `Added ${params.sessions} ${typeLabel} session(s) to "${params.packageName}". Reason: ${params.reason}`;
+  return `${params.actorName} added ${params.sessions} ${typeLabel} session(s) to "${params.packageName}". Reason: ${params.reason}`;
 }

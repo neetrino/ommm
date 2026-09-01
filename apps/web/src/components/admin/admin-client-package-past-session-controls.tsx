@@ -11,6 +11,7 @@ import {
   type AdminClientAttachablePastSession,
   type AdminClientAttachablePastSessionsResponse,
 } from "@/components/admin/admin-client-package-past-session.helpers";
+import { AdminPackageActionDisclosure } from "@/components/admin/admin-package-action-disclosure";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -38,9 +39,10 @@ export function AdminClientPackagePastSessionControls({
     ADMIN_CLIENT_PAST_SESSION_LOOKBACK_DAYS,
   );
   const [reloadKey, setReloadKey] = useState(0);
+  const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState(EMPTY_SESSION_VALUE);
   const [note, setNote] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -49,14 +51,20 @@ export function AdminClientPackagePastSessionControls({
   const [activeFetchKey, setActiveFetchKey] = useState(fetchKey);
   if (fetchKey !== activeFetchKey) {
     setActiveFetchKey(fetchKey);
-    setLoading(true);
     setLoadError(null);
     setSessions([]);
     setSessionId(EMPTY_SESSION_VALUE);
+    if (open) {
+      setLoading(true);
+    }
   }
 
   useEffect(() => {
+    if (!open) {
+      return;
+    }
     let cancelled = false;
+    setLoading(true);
     queueMicrotask(() => {
       if (cancelled) {
         return;
@@ -89,7 +97,7 @@ export function AdminClientPackagePastSessionControls({
     return () => {
       cancelled = true;
     };
-  }, [clientId, item.id, reloadKey, t]);
+  }, [open, clientId, item.id, reloadKey, t]);
 
   if (status !== "ACTIVE") {
     return null;
@@ -123,6 +131,7 @@ export function AdminClientPackagePastSessionControls({
       setNote("");
       setSessionId(EMPTY_SESSION_VALUE);
       setReloadKey((current) => current + 1);
+      setOpen(false);
       onSuccess(t("attachPastSuccess"));
     } catch (err) {
       setSubmitError(err instanceof ApiError ? err.message : t("attachPastError"));
@@ -132,10 +141,11 @@ export function AdminClientPackagePastSessionControls({
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-        {t("attachPastHeading")}
-      </p>
+    <AdminPackageActionDisclosure
+      title={t("attachPastHeading")}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <p className="text-sm text-sage-700">{t("attachPastLead")}</p>
       {loading ? <p className="text-sm text-sage-600">{t("attachPastLoading")}</p> : null}
       {loadError !== null ? (
@@ -191,6 +201,6 @@ export function AdminClientPackagePastSessionControls({
           {submitError}
         </p>
       ) : null}
-    </div>
+    </AdminPackageActionDisclosure>
   );
 }

@@ -3,7 +3,13 @@ import { Role, UserPackageStatus } from '@prisma/client';
 import { ADMIN_SESSION_ADJUST_ERROR } from './packages-admin-sessions.constants';
 import { PackagesAdminSessionsService } from './packages-admin-sessions.service';
 
-const ACTOR = { id: 'admin-1', role: Role.ADMIN };
+const ACTOR = {
+  id: 'admin-1',
+  role: Role.ADMIN,
+  name: 'Gurgen',
+  lastName: 'Ginosyan',
+  email: 'admin@ommm.local',
+};
 
 function createPackage(overrides: Record<string, unknown> = {}) {
   return {
@@ -63,15 +69,22 @@ describe('PackagesAdminSessionsService', () => {
       where: { id: 'pkg-1' },
       data: { sessionsRemaining: 1, sessionsTotal: 9 },
     });
-    expect(tx.clientNote.create).toHaveBeenCalled();
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'CLIENT_PACKAGE_SESSIONS_ADDED' }),
+    );
+    expect(tx.clientNote.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          body: expect.stringContaining('Gurgen Ginosyan'),
+        }),
+      }),
     );
     expect(result).toEqual({
       id: 'pkg-1',
       sessionsAdded: 1,
       sessionsRemaining: 1,
       sessionsTotal: 9,
+      addedBy: 'Gurgen Ginosyan',
     });
   });
 

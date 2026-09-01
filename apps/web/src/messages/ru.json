@@ -2462,6 +2462,7 @@
         "addSessionsError": "Не удалось добавить занятия.",
         "addSessionsCountInvalid": "Укажите число от 1 до 20.",
         "addSessionsReasonRequired": "Кратко укажите причину — это попадёт в заметки клиента.",
+        "addSessionsLast": "{name} · +{count} · {date}",
         "attachPastHeading": "Списать прошедшее занятие",
         "attachPastLead": "Если клиент уже был на занятии, прикрепите его к этому пакету. Спишется одно посещение.",
         "attachPastSessionLabel": "Прошедшее занятие",

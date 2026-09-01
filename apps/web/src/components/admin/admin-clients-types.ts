@@ -143,6 +143,12 @@ export type ClientSheetPackageItem = {
   isUnlimited: boolean;
   paymentMethod: string | null;
   typeBalances?: ClientSheetPackageTypeBalance[];
+  lastSessionAdjustment?: {
+    sessionsAdded: number;
+    reason: string;
+    actorName: string;
+    at: string;
+  } | null;
   freeze?: {
     allowedCount: number;
     maxDaysPerUse: number;

@@ -2465,6 +2465,7 @@
         "addSessionsError": "Չհաջողվեց ավելացնել պարապմունքները։",
         "addSessionsCountInvalid": "Մուտքագրեք թիվ 1-ից 20։",
         "addSessionsReasonRequired": "Կարճ նշեք պատճառը. այն կգրվի հաճախորդի նշումներում։",
+        "addSessionsLast": "{name} · +{count} · {date}",
         "attachPastHeading": "Կցել անցած պարապմունք",
         "attachPastLead": "Եթե հաճախորդն արդեն մասնակցել է, կցեք այդ պարապմունքը այս փաթեթին։ Կհանվի մեկ այց։",
         "attachPastSessionLabel": "Անցած պարապմունք",

@@ -7,9 +7,13 @@ import { Role, UserPackageStatus, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminAdjustUserPackageSessionsDto } from './dto/admin-adjust-user-package-sessions.dto';
-import { ADMIN_SESSION_ADJUST_ERROR } from './packages-admin-sessions.constants';
+import {
+  ADMIN_SESSION_ADJUST_ERROR,
+  CLIENT_PACKAGE_SESSIONS_ADDED_ACTION,
+} from './packages-admin-sessions.constants';
 import {
   buildSessionAdjustmentNote,
+  formatSessionAdjustmentActorName,
   nextLimitedSessionCounts,
   resolveAdjustableBalance,
   type AdjustablePackageBalance,
@@ -35,7 +39,7 @@ export class PackagesAdminSessionsService {
   ) {}
 
   async adjustSessions(
-    actor: Pick<User, 'id' | 'role'>,
+    actor: Pick<User, 'id' | 'role' | 'name' | 'lastName' | 'email'>,
     userPackageId: string,
     dto: AdminAdjustUserPackageSessionsDto,
   ) {
@@ -51,18 +55,21 @@ export class PackagesAdminSessionsService {
           : ADMIN_SESSION_ADJUST_ERROR.BALANCE_INVALID,
       );
     }
+    const actorName = formatSessionAdjustmentActorName(actor);
     const applied = await this.applySessionCredit(
       actor,
       existing,
       balance,
       dto,
+      actorName,
     );
-    await this.recordSessionCredit(actor, existing, balance, dto, applied);
+    await this.recordSessionCredit(actor, existing, balance, dto, applied, actorName);
     return {
       id: existing.id,
       sessionsAdded: dto.sessions,
       sessionsRemaining: applied.packageCounts.sessionsRemaining,
       sessionsTotal: applied.packageCounts.sessionsTotal,
+      addedBy: actorName,
     };
   }
 
@@ -108,6 +115,7 @@ export class PackagesAdminSessionsService {
     existing: LoadedUserPackage,
     balance: AdjustablePackageBalance,
     dto: AdminAdjustUserPackageSessionsDto,
+    actorName: string,
   ) {
     const packageCounts = nextLimitedSessionCounts({
       sessionsTotal: existing.sessionsTotal,
@@ -133,6 +141,7 @@ export class PackagesAdminSessionsService {
           userId: existing.userId,
           authorId: actor.id,
           body: buildSessionAdjustmentNote({
+            actorName,
             sessions: dto.sessions,
             packageName: existing.planNameSnapshot,
             classTypeName: balance.sourceCategoryNameSnapshot,
@@ -152,11 +161,12 @@ export class PackagesAdminSessionsService {
     applied: {
       packageCounts: { sessionsTotal: number; sessionsRemaining: number };
     },
+    actorName: string,
   ): Promise<void> {
     await this.audit.log({
       actorId: actor.id,
       actorRole: actor.role,
-      action: 'CLIENT_PACKAGE_SESSIONS_ADDED',
+      action: CLIENT_PACKAGE_SESSIONS_ADDED_ACTION,
       entityType: 'UserPackage',
       entityId: existing.id,
       payload: {
@@ -164,6 +174,7 @@ export class PackagesAdminSessionsService {
         sessionsAdded: dto.sessions,
         userPackageBalanceId: balance.id,
         reason: dto.reason,
+        actorName,
         remainingAfter: applied.packageCounts.sessionsRemaining,
         totalAfter: applied.packageCounts.sessionsTotal,
       },

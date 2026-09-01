@@ -38,14 +38,15 @@ describe('packages-admin-sessions.helpers', () => {
     ).toEqual({ sessionsTotal: 10, sessionsRemaining: 2 });
   });
 
-  it('builds an audit note with the reason', () => {
+  it('builds an audit note with the staff name and reason', () => {
     expect(
       buildSessionAdjustmentNote({
+        actorName: 'Gurgen Ginosyan',
         sessions: 1,
         packageName: '8 Classes',
         classTypeName: 'Reformer Group',
         reason: 'Force majeure',
       }),
-    ).toContain('Force majeure');
+    ).toContain('Gurgen Ginosyan');
   });
 });
