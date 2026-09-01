@@ -39,6 +39,13 @@ export const ADMIN_CONFIRM_MODAL_PANEL_CLASS = [
   "p-6",
 ].join(" ");
 
+/** Centered confirm card on all breakpoints (no phone bottom-sheet chrome). */
+export const ADMIN_CONFIRM_CENTERED_MODAL_PANEL_CLASS = [
+  "relative z-10 flex w-full max-w-md flex-col overflow-hidden",
+  "max-h-[90vh] rounded-[28px] border border-white/70",
+  "bg-white/95 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md",
+].join(" ");
+
 /** Wide admin create/edit forms — bottom sheet on phone, centered modal on tablet+. */
 export function adminFormModalPanelClass(maxWidthClass: string): string {
   return [ADMIN_MODAL_PANEL_SHELL_CLASS, maxWidthClass].join(" ");
