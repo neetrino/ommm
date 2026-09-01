@@ -46,4 +46,19 @@ describe("shouldApplyCancellationPenalty", () => {
       true,
     );
   });
+
+  it("uses the 24h default when penaltyHours is omitted or undefined", () => {
+    const now = new Date("2026-08-31T06:40:00.000Z");
+    const lateSameDay = {
+      sessionDate: "2026-08-31",
+      startTime: "11:00",
+      bookedAtIso: "2026-08-30T06:00:00.000Z",
+      now,
+    };
+    assert.equal(shouldApplyCancellationPenalty(lateSameDay), true);
+    assert.equal(
+      shouldApplyCancellationPenalty({ ...lateSameDay, penaltyHours: undefined }),
+      true,
+    );
+  });
 });

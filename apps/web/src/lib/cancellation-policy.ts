@@ -75,6 +75,7 @@ export function shouldApplyCancellationPenalty(params: {
   now?: Date;
 }): boolean {
   const now = params.now ?? new Date();
+  const penaltyHours = params.penaltyHours ?? DEFAULT_CANCELLATION_PENALTY_HOURS;
   if (
     params.bookedAtIso !== undefined &&
     params.bookedAtIso !== null &&
@@ -83,16 +84,12 @@ export function shouldApplyCancellationPenalty(params: {
     return false;
   }
   if (looksLikeIsoInstant(params.sessionDate)) {
-    return isPenalizedCancellationFromIso(
-      params.sessionDate,
-      params.penaltyHours,
-      now,
-    );
+    return isPenalizedCancellationFromIso(params.sessionDate, penaltyHours, now);
   }
   return isPenalizedCancellation(
     params.sessionDate,
     params.startTime,
-    params.penaltyHours,
+    penaltyHours,
     now,
   );
 }
