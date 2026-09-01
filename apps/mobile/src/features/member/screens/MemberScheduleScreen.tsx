@@ -18,7 +18,6 @@ import {
 } from "../../../lib/schedule/scheduleDateUtils";
 import {
   buildScheduleInitialNav,
-  shiftScheduleDateWindow,
   type ScheduleNavState,
 } from "../../../lib/schedule/scheduleNav";
 import { GradientBackdrop } from "../../../components/layout/GradientBackdrop";
@@ -224,15 +223,9 @@ export function MemberScheduleScreen() {
           <ScheduleDateControls
             locale={scheduleCopy.intlLocale}
             selectedDate={nav.selectedDate}
-            windowStart={nav.windowStart}
             maxDate={maxDate}
             onSelectDay={(date) =>
               setNav((current) => ({ ...current, selectedDate: date }))
-            }
-            onShiftWindow={(deltaDays) =>
-              setNav((current) =>
-                shiftScheduleDateWindow(current, deltaDays, startOfLocalDay(new Date())),
-              )
             }
           />
 
