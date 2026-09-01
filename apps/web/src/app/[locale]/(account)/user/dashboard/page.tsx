@@ -39,6 +39,7 @@ export default async function UserDashboardPage({
       waitlistRows={waitlistRows}
       achievements={achievements}
       coachProfileId={coachProfileId}
+      showBackToAccount
     />
   );
 }

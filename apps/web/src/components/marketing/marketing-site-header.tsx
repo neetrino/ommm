@@ -56,6 +56,8 @@ export function MarketingSiteHeader({
   const isMarketingHome = isMarketingHomePath(marketingPath);
   const isPolicyPage = isMarketingPolicyPath(marketingPath);
   const isWorkspaceChrome = workspaceHeaderChrome || workspaceDrawer !== undefined;
+  /** Staff uses olive panel drawer; members share the marketing home burger menu. */
+  const usesPublicBurgerMenu = workspaceDrawer === undefined;
   const isAuthShell = isAuthPath(marketingPath);
   const isAccountShell =
     isWorkspaceChrome || isUserAccountPath(marketingPath) || isAuthShell;
@@ -66,7 +68,7 @@ export function MarketingSiteHeader({
   );
   const elevated = isWorkspaceChrome || isPolicyPage ? true : scrollElevated;
   const workspaceDrawerOpen = workspaceDrawer?.open ?? false;
-  const publicMobileMenuOpen = publicMenuOpen && !isWorkspaceChrome;
+  const publicMobileMenuOpen = publicMenuOpen && usesPublicBurgerMenu;
   const showMobileGlassPill = elevated && !publicMobileMenuOpen;
   const mobileGlassRowStyle = {
     ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
@@ -180,7 +182,7 @@ export function MarketingSiteHeader({
         />
       </div>
 
-      {publicMenuOpen && !isWorkspaceChrome ? (
+      {publicMenuOpen && usesPublicBurgerMenu ? (
         <MarketingMobileMenuModal
           isOpen={publicMenuOpen}
           onClose={() => setPublicMenuOpen(false)}

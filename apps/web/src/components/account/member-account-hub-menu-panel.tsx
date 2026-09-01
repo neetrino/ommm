@@ -9,15 +9,9 @@ import {
 import { useMemberAccountHubDesktopViewport } from "@/hooks/use-member-account-hub-desktop-viewport";
 import { memberAccountHubLayout } from "@/components/account/member-account-hub-layout";
 import { MemberAccountHubLinkRow } from "@/components/account/member-account-hub-link-row";
-import {
-  HubLockIcon,
-  MemberAccountHubNavIcon,
-} from "@/components/account/member-account-hub-nav-icons";
+import { MemberAccountHubNavIcon } from "@/components/account/member-account-hub-nav-icons";
 import type { MemberAccountHubProfile } from "@/components/account/member-account-hub-profile";
-import {
-  MEMBER_ACCOUNT_HUB_CHANGE_PASSWORD_HREF,
-  MEMBER_ACCOUNT_HUB_NAV,
-} from "@/lib/member-account-hub-nav";
+import { MEMBER_ACCOUNT_HUB_NAV } from "@/lib/member-account-hub-nav";
 
 export type MemberAccountHubMenuPanelProps = MemberAccountHubProfile & {
   /** `sheet` — inside the mobile bottom sheet popup. */
@@ -82,13 +76,6 @@ export function MemberAccountHubMenuPanel({
             onNavigate={onNavigate}
           />
         ))}
-
-        <MemberAccountHubLinkRow
-          href={MEMBER_ACCOUNT_HUB_CHANGE_PASSWORD_HREF}
-          label={tHub("changePassword")}
-          icon={<HubLockIcon />}
-          onNavigate={onNavigate}
-        />
 
         {isDesktopHub ? <MemberAccountHubMenuActionRows /> : null}
       </nav>

@@ -3,9 +3,12 @@ import { Link } from "@/i18n/navigation";
 import { memberChrome } from "@/components/account/member-chrome";
 import { MemberNextClassCard } from "@/components/account/member-next-class-card";
 import { MemberWaitlistSection } from "@/components/account/member-waitlist-section";
+import homeViewportStyles from "@/components/account/member-user-home-viewports.module.css";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
+import { CircularBackLink } from "@/components/ui/circular-back-link";
 import { formatDateForUi } from "@/lib/date-display";
 import { MARKETING_SCHEDULE_PATH } from "@/lib/auth-redirect";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import { userDisplayName } from "@/lib/user-display-name";
 
 type NextBooking = {
@@ -39,6 +42,8 @@ export type MemberDashboardProps = {
   waitlistRows: WaitlistRow[];
   achievements: AchievementRow[];
   coachProfileId: string | null;
+  /** Mobile hub entry — frosted circle back to `/user`. */
+  showBackToAccount?: boolean;
 };
 
 function resolveCoachName(name: string | null | undefined): string | null {
@@ -56,6 +61,7 @@ export async function MemberDashboard({
   waitlistRows,
   achievements,
   coachProfileId,
+  showBackToAccount = false,
 }: MemberDashboardProps) {
   const t = await getTranslations({ locale, namespace: "account.dashboard" });
   const greetingName = userDisplayName(name, lastName, email);
@@ -84,6 +90,14 @@ export async function MemberDashboard({
 
   return (
     <MemberContentFrame>
+      {showBackToAccount ? (
+        <div className={`${homeViewportStyles.mobileViewport} mb-4`}>
+          <CircularBackLink
+            href={USER_ACCOUNT_PATH}
+            ariaLabel={t("backToAccountAria")}
+          />
+        </div>
+      ) : null}
       <div className="space-y-10 pb-4 sm:space-y-12">
         <div className="grid w-full grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
