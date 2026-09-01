@@ -8,10 +8,18 @@ const SHEET_EXIT_EASING = Easing.bezier(0.4, 0, 0.2, 1);
 /** Travel far enough that the sheet fully leaves the viewport. */
 const SHEET_SLIDE_DISTANCE = Math.round(Dimensions.get("window").height);
 
+type UseBottomSheetSlideMotionResult = {
+  backdropOpacity: Animated.Value;
+  sheetTranslateY: Animated.AnimatedInterpolation<number>;
+  animateClose: (onFinished: () => void) => void;
+};
+
 /**
  * Bottom-sheet motion: slides up on open, slides down on close; backdrop fades with it.
  */
-export function useScheduleFilterSheetAnimation(presented: boolean) {
+export function useBottomSheetSlideMotion(
+  presented: boolean,
+): UseBottomSheetSlideMotionResult {
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const sheetProgress = useRef(new Animated.Value(0)).current;
   const closingRef = useRef(false);

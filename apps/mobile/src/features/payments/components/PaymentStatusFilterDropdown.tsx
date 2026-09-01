@@ -1,7 +1,15 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Animated,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useBottomSheetSlideMotion } from "../../../hooks/useBottomSheetSlideMotion";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { space } from "../../../theme/tokens";
 import { scheduleColors } from "../../schedule/scheduleTokens";
@@ -60,8 +68,16 @@ export function PaymentStatusFilterDropdown({
   const t = useTranslations("userPages.payments");
   const tSchedule = useTranslations("marketingPages.schedule");
   const insets = useSafeAreaInsets();
-  const [open, setOpen] = useState(false);
+  const [presented, setPresented] = useState(false);
   const [draft, setDraft] = useState<PaymentStatusFilter[]>([]);
+  const { backdropOpacity, sheetTranslateY, animateClose } =
+    useBottomSheetSlideMotion(presented);
+
+  function closeSheet() {
+    animateClose(() => {
+      setPresented(false);
+    });
+  }
 
   const committed = useMemo(() => sanitizeStatuses(value), [value]);
   const draftSelected = useMemo(() => sanitizeStatuses(draft), [draft]);
@@ -78,7 +94,7 @@ export function PaymentStatusFilterDropdown({
 
   function openSheet() {
     setDraft(sanitizeStatuses(value));
-    setOpen(true);
+    setPresented(true);
   }
 
   function selectAll() {
@@ -95,8 +111,11 @@ export function PaymentStatusFilterDropdown({
   }
 
   function applyAndClose() {
-    onChange(sanitizeStatuses(draft));
-    setOpen(false);
+    const next = sanitizeStatuses(draft);
+    animateClose(() => {
+      setPresented(false);
+      onChange(next);
+    });
   }
 
   return (
@@ -107,12 +126,12 @@ export function PaymentStatusFilterDropdown({
         onPress={openSheet}
         style={({ pressed }) => [
           styles.trigger,
-          open && styles.triggerOpen,
+          presented && styles.triggerOpen,
           pressed && styles.triggerPressed,
         ]}
         accessibilityRole="button"
         accessibilityLabel={t("filters.status")}
-        accessibilityState={{ expanded: open }}
+        accessibilityState={{ expanded: presented }}
       >
         <View style={styles.triggerLeft}>
           {committed.length > 1 ? (
@@ -140,33 +159,37 @@ export function PaymentStatusFilterDropdown({
           </Text>
         </View>
         <MaterialCommunityIcons
-          name={open ? "chevron-up" : "chevron-down"}
+          name={presented ? "chevron-up" : "chevron-down"}
           size={22}
           color={scheduleColors.oliveActive}
         />
       </Pressable>
 
       <Modal
-        visible={open}
+        visible={presented}
         transparent
-        animationType="fade"
-        onRequestClose={() => setOpen(false)}
+        animationType="none"
+        onRequestClose={closeSheet}
       >
-        <View style={styles.backdrop}>
+        <View style={styles.backdropRoot}>
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.backdropFill, { opacity: backdropOpacity }]}
+          />
           <Pressable
             style={StyleSheet.absoluteFill}
-            onPress={() => setOpen(false)}
+            onPress={closeSheet}
             accessibilityRole="button"
           />
-          <View
+          <Animated.View
             style={[
               styles.sheet,
               {
                 paddingBottom: Math.max(insets.bottom, space.sm) + space.lg,
+                transform: [{ translateY: sheetTranslateY }],
               },
             ]}
           >
-            <View style={styles.handle} />
             <Text style={styles.sheetTitle}>{t("filters.status")}</Text>
 
             <View style={styles.options}>
@@ -198,7 +221,7 @@ export function PaymentStatusFilterDropdown({
             >
               <Text style={styles.applyLabel}>{tSchedule("filterApply")}</Text>
             </Pressable>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>

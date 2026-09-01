@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useScheduleFilterSheetAnimation } from "../hooks/useScheduleFilterSheetAnimation";
+import { useBottomSheetSlideMotion } from "../../../hooks/useBottomSheetSlideMotion";
 import { scheduleColors } from "../scheduleTokens";
 import { scheduleFilterFieldStyles as styles } from "./scheduleFilterField.styles";
 
@@ -50,7 +50,7 @@ export function ScheduleFilterField({
   const [presented, setPresented] = useState(false);
   const [draft, setDraft] = useState<string[]>([]);
   const { backdropOpacity, sheetTranslateY, animateClose } =
-    useScheduleFilterSheetAnimation(presented);
+    useBottomSheetSlideMotion(presented);
 
   const committed = useMemo(
     () => buildValidSelection(options, values),
@@ -124,7 +124,7 @@ export function ScheduleFilterField({
           {triggerLabel}
         </Text>
         <MaterialCommunityIcons
-          name="chevron-down"
+          name={presented ? "chevron-up" : "chevron-down"}
           size={20}
           color={scheduleColors.oliveActive}
         />
@@ -160,7 +160,11 @@ export function ScheduleFilterField({
             >
               <Pressable
                 onPress={selectAll}
-                style={[styles.option, isAllSelected && styles.optionActive]}
+                style={[
+                  styles.option,
+                  styles.optionFirst,
+                  isAllSelected && styles.optionActive,
+                ]}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: isAllSelected }}
               >

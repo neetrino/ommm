@@ -49,7 +49,6 @@ export const scheduleFilterFieldStyles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     backgroundColor: "#ffffff",
-    paddingTop: 8,
     overflow: "hidden",
   },
   optionsScroll: {
@@ -61,6 +60,9 @@ export const scheduleFilterFieldStyles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 20,
     paddingVertical: 14,
+  },
+  optionFirst: {
+    paddingTop: 18,
   },
   optionActive: {
     backgroundColor: "rgba(151, 144, 124, 0.12)",

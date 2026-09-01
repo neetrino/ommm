@@ -70,9 +70,12 @@ export const paymentStatusFilterDropdownStyles = StyleSheet.create({
     height: 10,
     borderRadius: radii.pill,
   },
-  backdrop: {
+  backdropRoot: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  backdropFill: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.scrimDark,
   },
   sheet: {
@@ -81,7 +84,7 @@ export const paymentStatusFilterDropdownStyles = StyleSheet.create({
     borderTopRightRadius: 28,
     backgroundColor: colors.canvas,
     paddingHorizontal: space.lg,
-    paddingTop: space.sm,
+    paddingTop: space.lg,
     gap: space.md,
     borderWidth: 1,
     borderBottomWidth: 0,
@@ -93,13 +96,6 @@ export const paymentStatusFilterDropdownStyles = StyleSheet.create({
       radius: 24,
       elevation: 10,
     }),
-  },
-  handle: {
-    alignSelf: "center",
-    width: 40,
-    height: 4,
-    borderRadius: radii.pill,
-    backgroundColor: "rgba(151, 144, 124, 0.35)",
   },
   sheetTitle: {
     fontFamily: fontFamilies.gtSuperDs.medium,
