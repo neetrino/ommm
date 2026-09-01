@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AnimatedFilterChevron } from "../../../components/navigation/AnimatedFilterChevron";
 import { useBottomSheetSlideMotion } from "../../../hooks/useBottomSheetSlideMotion";
 import { useTranslations } from "../../../i18n/I18nProvider";
 import { space } from "../../../theme/tokens";
@@ -69,11 +70,13 @@ export function PaymentStatusFilterDropdown({
   const tSchedule = useTranslations("marketingPages.schedule");
   const insets = useSafeAreaInsets();
   const [presented, setPresented] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [draft, setDraft] = useState<PaymentStatusFilter[]>([]);
   const { backdropOpacity, sheetTranslateY, animateClose } =
     useBottomSheetSlideMotion(presented);
 
   function closeSheet() {
+    setExpanded(false);
     animateClose(() => {
       setPresented(false);
     });
@@ -94,6 +97,7 @@ export function PaymentStatusFilterDropdown({
 
   function openSheet() {
     setDraft(sanitizeStatuses(value));
+    setExpanded(true);
     setPresented(true);
   }
 
@@ -112,6 +116,7 @@ export function PaymentStatusFilterDropdown({
 
   function applyAndClose() {
     const next = sanitizeStatuses(draft);
+    setExpanded(false);
     animateClose(() => {
       setPresented(false);
       onChange(next);
@@ -126,12 +131,12 @@ export function PaymentStatusFilterDropdown({
         onPress={openSheet}
         style={({ pressed }) => [
           styles.trigger,
-          presented && styles.triggerOpen,
+          expanded && styles.triggerOpen,
           pressed && styles.triggerPressed,
         ]}
         accessibilityRole="button"
         accessibilityLabel={t("filters.status")}
-        accessibilityState={{ expanded: presented }}
+        accessibilityState={{ expanded }}
       >
         <View style={styles.triggerLeft}>
           {committed.length > 1 ? (
@@ -158,8 +163,8 @@ export function PaymentStatusFilterDropdown({
             {triggerLabel}
           </Text>
         </View>
-        <MaterialCommunityIcons
-          name={presented ? "chevron-up" : "chevron-down"}
+        <AnimatedFilterChevron
+          open={expanded}
           size={22}
           color={scheduleColors.oliveActive}
         />

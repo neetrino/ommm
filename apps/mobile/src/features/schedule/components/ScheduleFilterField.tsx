@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { AnimatedFilterChevron } from "../../../components/navigation/AnimatedFilterChevron";
 import { useBottomSheetSlideMotion } from "../../../hooks/useBottomSheetSlideMotion";
 import { scheduleColors } from "../scheduleTokens";
 import { scheduleFilterFieldStyles as styles } from "./scheduleFilterField.styles";
@@ -48,6 +49,7 @@ export function ScheduleFilterField({
   accessibilityLabel,
 }: ScheduleFilterFieldProps) {
   const [presented, setPresented] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [draft, setDraft] = useState<string[]>([]);
   const { backdropOpacity, sheetTranslateY, animateClose } =
     useBottomSheetSlideMotion(presented);
@@ -75,10 +77,12 @@ export function ScheduleFilterField({
 
   function openSheet() {
     setDraft(buildValidSelection(options, values));
+    setExpanded(true);
     setPresented(true);
   }
 
   function closeSheet() {
+    setExpanded(false);
     animateClose(() => {
       setPresented(false);
     });
@@ -86,6 +90,7 @@ export function ScheduleFilterField({
 
   function applyAndClose() {
     const next = buildValidSelection(options, draft);
+    setExpanded(false);
     animateClose(() => {
       setPresented(false);
       onChange(next);
@@ -118,13 +123,13 @@ export function ScheduleFilterField({
         ]}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
-        accessibilityState={{ expanded: presented }}
+        accessibilityState={{ expanded }}
       >
         <Text style={styles.label} numberOfLines={1}>
           {triggerLabel}
         </Text>
-        <MaterialCommunityIcons
-          name={presented ? "chevron-up" : "chevron-down"}
+        <AnimatedFilterChevron
+          open={expanded}
           size={20}
           color={scheduleColors.oliveActive}
         />
