@@ -18,6 +18,7 @@ import {
   ArrowRightIcon,
 } from "@/components/marketing/schedule/schedule-view-icons";
 import styles from "@/components/marketing/schedule/schedule-date-month-panel.module.css";
+import { useVisibleMonthFollow } from "@/components/marketing/schedule/use-visible-month-follow";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 const WEEKDAY_SAMPLE_SUNDAY = new Date(2024, 0, 7);
@@ -62,13 +63,7 @@ export function ScheduleDateMonthPanel({
   const today = startOfLocalDay(new Date());
   const [visible, setVisible] = useState(false);
   const exitCompletedRef = useRef(false);
-  const [visibleMonth, setVisibleMonth] = useState(() =>
-    startOfLocalMonth(selectedDate),
-  );
-
-  useEffect(() => {
-    setVisibleMonth(startOfLocalMonth(selectedDate));
-  }, [selectedDate]);
+  const [visibleMonth, setVisibleMonth] = useVisibleMonthFollow(selectedDate);
 
   useEffect(() => {
     if (open) {

@@ -97,6 +97,8 @@ export const HOME_FOOTER_LAYOUT = {
   copyrightPaymentRowOffsetPx: 17,
   /** Contact rows in footer (phone, email, address, Instagram). */
   contactRowCount: 4,
+  /** Desktop contact column — fits “Soho Business Centre, 4th floor” without wrapping. */
+  contactColumnMaxWidthPx: 360,
   /** Policy links stacked under Policies title. */
   policiesLinkCount: 3,
 } as const;

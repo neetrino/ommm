@@ -47,9 +47,13 @@ describe('shouldApplyCancellationPenalty', () => {
   it('does not penalize a cancel inside the booking grace window', () => {
     const bookedAt = new Date(Date.UTC(2026, 7, 31, 6, 17, 50, 0));
     const now = new Date(Date.UTC(2026, 7, 31, 6, 19, 50, 0));
-    expect(isWithinCancellationGracePeriod(bookedAt, DEFAULT_CANCELLATION_GRACE_MINUTES, now)).toBe(
-      true,
-    );
+    expect(
+      isWithinCancellationGracePeriod(
+        bookedAt,
+        DEFAULT_CANCELLATION_GRACE_MINUTES,
+        now,
+      ),
+    ).toBe(true);
     expect(
       shouldApplyCancellationPenalty({
         startsAt: classStart,

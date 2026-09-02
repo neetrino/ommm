@@ -1,14 +1,19 @@
-import { useEffect, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 /**
  * Closes a floating control when clicking outside its root or pressing Escape.
- * Pass a ref whose `.current` is updated each render to the latest dismiss callback.
  */
 export function useDismissWhenOutside(
   open: boolean,
   rootRef: RefObject<HTMLElement | null>,
-  dismissRef: RefObject<() => void>,
+  dismiss: () => void,
 ): void {
+  const dismissRef = useRef(dismiss);
+
+  useEffect(() => {
+    dismissRef.current = dismiss;
+  }, [dismiss]);
+
   useEffect(() => {
     if (!open) return;
     function onDocMouseDown(e: MouseEvent) {
@@ -25,5 +30,5 @@ export function useDismissWhenOutside(
       document.removeEventListener("mousedown", onDocMouseDown);
       document.removeEventListener("keydown", onKey);
     };
-  }, [open, rootRef, dismissRef]);
+  }, [open, rootRef]);
 }

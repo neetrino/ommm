@@ -104,7 +104,13 @@ export class PackagesService {
   }
 
   adjustUserPackageSessions(
-    actor: { id: string; role: Role; name: string | null; lastName: string | null; email: string },
+    actor: {
+      id: string;
+      role: Role;
+      name: string | null;
+      lastName: string | null;
+      email: string;
+    },
     userPackageId: string,
     dto: AdminAdjustUserPackageSessionsDto,
   ) {

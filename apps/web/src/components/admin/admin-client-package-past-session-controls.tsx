@@ -42,7 +42,7 @@ export function AdminClientPackagePastSessionControls({
   const [reloadKey, setReloadKey] = useState(0);
   const [sessionId, setSessionId] = useState(EMPTY_SESSION_VALUE);
   const [note, setNote] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(active);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -64,11 +64,11 @@ export function AdminClientPackagePastSessionControls({
       return;
     }
     let cancelled = false;
-    setLoading(true);
     queueMicrotask(() => {
       if (cancelled) {
         return;
       }
+      setLoading(true);
       void apiFetch<AdminClientAttachablePastSessionsResponse>(
         `/clients/${clientId}/packages/${item.id}/past-sessions`,
       )

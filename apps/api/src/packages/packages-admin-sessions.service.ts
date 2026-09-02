@@ -63,7 +63,14 @@ export class PackagesAdminSessionsService {
       dto,
       actorName,
     );
-    await this.recordSessionCredit(actor, existing, balance, dto, applied, actorName);
+    await this.recordSessionCredit(
+      actor,
+      existing,
+      balance,
+      dto,
+      applied,
+      actorName,
+    );
     return {
       id: existing.id,
       sessionsAdded: dto.sessions,
@@ -105,7 +112,10 @@ export class PackagesAdminSessionsService {
     if (existing.status === UserPackageStatus.PENDING) {
       throw new BadRequestException(ADMIN_SESSION_ADJUST_ERROR.PENDING);
     }
-    if (existing.planIsUnlimitedSnapshot || existing.sessionsRemaining === null) {
+    if (
+      existing.planIsUnlimitedSnapshot ||
+      existing.sessionsRemaining === null
+    ) {
       throw new BadRequestException(ADMIN_SESSION_ADJUST_ERROR.UNLIMITED);
     }
   }

@@ -46,9 +46,9 @@ describe('WhatsappAdminService', () => {
       {} as never,
       gateway as never,
     );
-    await expect(service.sendTestMessage('+37441881822')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.sendTestMessage('+37441881822'),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(gateway.sendText).not.toHaveBeenCalled();
   });
 
@@ -72,9 +72,9 @@ describe('WhatsappAdminService', () => {
       {} as never,
       gateway as never,
     );
-    await expect(service.sendTestMessage('+37444343000')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.sendTestMessage('+37444343000'),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(gateway.sendText).not.toHaveBeenCalled();
   });
 

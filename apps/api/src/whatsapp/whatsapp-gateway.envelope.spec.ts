@@ -34,7 +34,9 @@ describe('whatsapp-gateway.envelope', () => {
   });
 
   it('treats connected=true as CONNECTED', () => {
-    expect(parseGatewaySession({ connected: true, qr: 'data:image/png;a' })).toEqual({
+    expect(
+      parseGatewaySession({ connected: true, qr: 'data:image/png;a' }),
+    ).toEqual({
       status: 'CONNECTED',
       qrDataUrl: 'data:image/png;a',
       phoneNumber: null,

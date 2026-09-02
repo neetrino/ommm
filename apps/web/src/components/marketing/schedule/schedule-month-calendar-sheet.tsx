@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   addMonths,
@@ -20,6 +20,7 @@ import {
 } from "@/components/marketing/schedule/schedule-view-icons";
 import styles from "@/components/marketing/schedule/schedule-month-calendar-sheet.module.css";
 import { useScheduleCalendarSheetMotion } from "@/components/marketing/schedule/use-schedule-calendar-sheet-motion";
+import { useVisibleMonthFollow } from "@/components/marketing/schedule/use-visible-month-follow";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
@@ -61,19 +62,13 @@ export function ScheduleMonthCalendarSheet({
     open,
     onClose,
   );
-  const [visibleMonth, setVisibleMonth] = useState(() =>
-    startOfLocalMonth(selectedDate),
+  const [visibleMonth, setVisibleMonth] = useVisibleMonthFollow(
+    selectedDate,
+    open,
   );
 
   useLockBodyScroll(presented);
   useCloseOnEscape(presented, requestClose);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    setVisibleMonth(startOfLocalMonth(selectedDate));
-  }, [open, selectedDate]);
 
   const minMonth = useMemo(() => startOfLocalMonth(minDate), [minDate]);
   const maxMonth = useMemo(() => startOfLocalMonth(maxDate), [maxDate]);

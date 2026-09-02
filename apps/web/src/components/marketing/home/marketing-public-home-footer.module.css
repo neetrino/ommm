@@ -228,6 +228,11 @@
   overflow-wrap: normal;
 }
 
+.contactText.contactAddressText,
+.mobileContactText.contactAddressText {
+  white-space: pre;
+}
+
 .atSign {
   font-family: var(--font-sans);
   font-size: inherit;
@@ -769,7 +774,8 @@
     position: absolute;
     left: 0;
     top: calc(var(--home-footer-contact-top) - var(--home-footer-contact-social-lift, 0px));
-    width: 14.8125rem;
+    width: max-content;
+    max-width: var(--home-footer-contact-column-max-width);
   }
 
   .socialSlot {
