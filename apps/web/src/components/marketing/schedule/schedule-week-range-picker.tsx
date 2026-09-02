@@ -43,17 +43,11 @@ export function ScheduleWeekRangePicker({
   const t = useTranslations("marketingPages.schedule");
   const calendarMotion = useSchedulePopoverMotion();
   const pickerRef = useRef<HTMLDivElement>(null);
-  const dismissCalendarRef = useRef(() => {
-    calendarMotion.hide();
-  });
-  dismissCalendarRef.current = () => {
-    calendarMotion.hide();
-  };
 
   useDismissWhenOutside(
     calendarMotion.open,
     pickerRef,
-    dismissCalendarRef,
+    calendarMotion.hide,
   );
 
   return (

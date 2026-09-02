@@ -45,7 +45,9 @@ export class WhatsappGatewayClient {
         extraHeaders: { 'Idempotency-Key': `omm-wa-${randomUUID()}` },
       },
     );
-    return result.ok && (result.data === null || isGatewayMessageSent(result.data));
+    return (
+      result.ok && (result.data === null || isGatewayMessageSent(result.data))
+    );
   }
 
   async listAccounts(): Promise<WhatsappAccountSummary[]> {

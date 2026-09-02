@@ -32,6 +32,11 @@ export function useOverlayEnterExitMotion(
   const [presented, setPresented] = useState(false);
   const [motionOpen, setMotionOpen] = useState(false);
 
+  if (open && !presented) {
+    setPresented(true);
+    setMotionOpen(false);
+  }
+
   const finishClose = useCallback(() => {
     closingRef.current = false;
     setPresented(false);
@@ -63,8 +68,6 @@ export function useOverlayEnterExitMotion(
       window.clearTimeout(exitTimerRef.current);
       exitTimerRef.current = undefined;
     }
-    setPresented(true);
-    setMotionOpen(false);
     openFrameRef.current = scheduleMotionFrame(() => {
       setMotionOpen(true);
       openFrameRef.current = undefined;
@@ -80,7 +83,9 @@ export function useOverlayEnterExitMotion(
     if (open || !presented || closingRef.current) {
       return;
     }
-    requestClose();
+    queueMicrotask(() => {
+      requestClose();
+    });
   }, [open, presented, requestClose]);
 
   useEffect(() => {

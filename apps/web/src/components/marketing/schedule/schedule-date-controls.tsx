@@ -82,12 +82,6 @@ export function ScheduleDateControls({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const monthPopover = useSchedulePopoverMotion();
   const calendarAnchorRef = useRef<HTMLDivElement>(null);
-  const dismissMonthPopoverRef = useRef(() => {
-    monthPopover.hide();
-  });
-  dismissMonthPopoverRef.current = () => {
-    monthPopover.hide();
-  };
   const stripDays = Array.from({ length: VISIBLE_DAYS }, (_, idx) =>
     addDays(windowStart, idx),
   );
@@ -102,7 +96,7 @@ export function ScheduleDateControls({
   useDismissWhenOutside(
     isDesktop && monthPopover.open,
     calendarAnchorRef,
-    dismissMonthPopoverRef,
+    monthPopover.hide,
   );
 
   function onFullCalendarClick() {

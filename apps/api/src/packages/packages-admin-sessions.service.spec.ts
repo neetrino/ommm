@@ -42,12 +42,15 @@ function createService() {
   };
   const prisma = {
     userPackage: { findUnique: jest.fn() },
-    $transaction: jest.fn(async (callback: (value: typeof tx) => Promise<void>) =>
-      callback(tx),
+    $transaction: jest.fn(
+      async (callback: (value: typeof tx) => Promise<void>) => callback(tx),
     ),
   };
   const audit = { log: jest.fn().mockResolvedValue(undefined) };
-  const service = new PackagesAdminSessionsService(prisma as never, audit as never);
+  const service = new PackagesAdminSessionsService(
+    prisma as never,
+    audit as never,
+  );
   return { service, prisma, tx, audit };
 }
 
@@ -145,6 +148,8 @@ describe('PackagesAdminSessionsService', () => {
         sessions: 1,
         reason: 'Force majeure',
       }),
-    ).rejects.toMatchObject({ message: ADMIN_SESSION_ADJUST_ERROR.BALANCE_REQUIRED });
+    ).rejects.toMatchObject({
+      message: ADMIN_SESSION_ADJUST_ERROR.BALANCE_REQUIRED,
+    });
   });
 });

@@ -62,7 +62,9 @@ export function isWithinCancellationGracePeriod(
   graceMinutes: number = DEFAULT_CANCELLATION_GRACE_MINUTES,
   now: Date = new Date(),
 ): boolean {
-  return now.getTime() - bookingCreatedAt.getTime() <= graceMinutes * MS_PER_MINUTE;
+  return (
+    now.getTime() - bookingCreatedAt.getTime() <= graceMinutes * MS_PER_MINUTE
+  );
 }
 
 /**
@@ -77,8 +79,11 @@ export function shouldApplyCancellationPenalty(params: {
   graceMinutes?: number;
 }): boolean {
   const now = params.now ?? new Date();
-  const graceMinutes = params.graceMinutes ?? DEFAULT_CANCELLATION_GRACE_MINUTES;
-  if (isWithinCancellationGracePeriod(params.bookingCreatedAt, graceMinutes, now)) {
+  const graceMinutes =
+    params.graceMinutes ?? DEFAULT_CANCELLATION_GRACE_MINUTES;
+  if (
+    isWithinCancellationGracePeriod(params.bookingCreatedAt, graceMinutes, now)
+  ) {
     return false;
   }
   return isPenalizedCancellation(params.startsAt, params.penaltyHours, now);

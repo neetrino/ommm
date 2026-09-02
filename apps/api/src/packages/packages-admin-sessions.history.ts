@@ -30,7 +30,10 @@ export function parseSessionAdjustmentPayload(payload: string | null): {
       return null;
     }
     const row = parsed as Record<string, unknown>;
-    if (typeof row.sessionsAdded !== 'number' || typeof row.reason !== 'string') {
+    if (
+      typeof row.sessionsAdded !== 'number' ||
+      typeof row.reason !== 'string'
+    ) {
       return null;
     }
     return {
@@ -77,12 +80,18 @@ async function resolveLatestAdjustments(
       latest.set(row.entityId, row);
     }
   }
-  const actorIds = [...new Set(
-    [...latest.values()]
-      .filter((row) => (parseSessionAdjustmentPayload(row.payload)?.actorName ?? '') === '')
-      .map((row) => row.actorId)
-      .filter((id): id is string => id !== null),
-  )];
+  const actorIds = [
+    ...new Set(
+      [...latest.values()]
+        .filter(
+          (row) =>
+            (parseSessionAdjustmentPayload(row.payload)?.actorName ?? '') ===
+            '',
+        )
+        .map((row) => row.actorId)
+        .filter((id): id is string => id !== null),
+    ),
+  ];
   const actors =
     actorIds.length === 0
       ? []
@@ -102,8 +111,9 @@ async function resolveLatestAdjustments(
     const actorName =
       parsed.actorName.trim() !== ''
         ? parsed.actorName.trim()
-        : (row.actorId !== null ? actorNameById.get(row.actorId) : undefined) ??
-          'Staff';
+        : ((row.actorId !== null
+            ? actorNameById.get(row.actorId)
+            : undefined) ?? 'Staff');
     result.set(packageId, {
       sessionsAdded: parsed.sessionsAdded,
       reason: parsed.reason,

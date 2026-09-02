@@ -48,7 +48,9 @@ export class WhatsappAdminService {
         'Enter a phone in international format, e.g. +374XXXXXXXX',
       );
     }
-    const session = await this.gateway.getSession(await this.resolveAccountId());
+    const session = await this.gateway.getSession(
+      await this.resolveAccountId(),
+    );
     if (!isWhatsappSessionConnected(session.status)) {
       throw new BadRequestException(
         'Pair WhatsApp before sending a test message.',

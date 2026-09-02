@@ -47,7 +47,9 @@ export function useAdminWhatsappConnect(fallbackError: string) {
   );
 
   useEffect(() => {
-    void refreshSession(true, false);
+    queueMicrotask(() => {
+      void refreshSession(true, false);
+    });
   }, [refreshSession]);
 
   useEffect(() => {

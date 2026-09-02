@@ -11,30 +11,38 @@ export function useAdminWhatsappGatewayStatus(enabled: boolean, refreshKey: numb
   const [reachable, setReachable] = useState(false);
   const [checking, setChecking] = useState(false);
 
+  if (!enabled && (reachable || checking)) {
+    setReachable(false);
+    setChecking(false);
+  }
+
   useEffect(() => {
     if (!enabled) {
-      setReachable(false);
-      setChecking(false);
       return;
     }
     let cancelled = false;
-    setChecking(true);
-    void apiFetch<WhatsappGatewayReachability>('/whatsapp/admin/gateway-status')
-      .then((result) => {
-        if (!cancelled) {
-          setReachable(result.reachable);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setReachable(false);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setChecking(false);
-        }
-      });
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+      setChecking(true);
+      void apiFetch<WhatsappGatewayReachability>('/whatsapp/admin/gateway-status')
+        .then((result) => {
+          if (!cancelled) {
+            setReachable(result.reachable);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setReachable(false);
+          }
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setChecking(false);
+          }
+        });
+    });
     return () => {
       cancelled = true;
     };

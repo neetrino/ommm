@@ -61,6 +61,8 @@ export function buildSessionAdjustmentNote(params: {
   reason: string;
 }): string {
   const typeLabel =
-    params.classTypeName.trim() === '' ? 'package' : params.classTypeName.trim();
+    params.classTypeName.trim() === ''
+      ? 'package'
+      : params.classTypeName.trim();
   return `${params.actorName} added ${params.sessions} ${typeLabel} session(s) to "${params.packageName}". Reason: ${params.reason}`;
 }
