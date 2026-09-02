@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Role, UserPackageStatus } from '@prisma/client';
 import { ADMIN_SESSION_ADJUST_ERROR } from './packages-admin-sessions.constants';
+import { buildSessionAdjustmentNote } from './packages-admin-sessions.helpers';
 import { PackagesAdminSessionsService } from './packages-admin-sessions.service';
 
 const ACTOR = {
@@ -75,13 +76,19 @@ describe('PackagesAdminSessionsService', () => {
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'CLIENT_PACKAGE_SESSIONS_ADDED' }),
     );
-    expect(tx.clientNote.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          body: expect.stringContaining('Gurgen Ginosyan'),
+    expect(tx.clientNote.create).toHaveBeenCalledWith({
+      data: {
+        userId: 'user-1',
+        authorId: ACTOR.id,
+        body: buildSessionAdjustmentNote({
+          actorName: 'Gurgen Ginosyan',
+          sessions: 1,
+          packageName: '8 Classes',
+          classTypeName: 'Reformer Group',
+          reason: 'Force majeure — studio error',
         }),
-      }),
-    );
+      },
+    });
     expect(result).toEqual({
       id: 'pkg-1',
       sessionsAdded: 1,
