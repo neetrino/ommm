@@ -24,8 +24,8 @@ export default async function ScheduleMarketingPage() {
 
   return (
     <ScheduleEnglishLocaleProvider>
-      <MarketingSchedulePageSection title={t("pageTitle")}>
-        <MarketingSchedulePageLayout />
+      <MarketingSchedulePageSection>
+        <MarketingSchedulePageLayout title={t("pageTitle")} />
       </MarketingSchedulePageSection>
     </ScheduleEnglishLocaleProvider>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   SCHEDULE_ARROW_BTN,
@@ -14,7 +14,6 @@ import {
   SCHEDULE_DATE_STRIP_DAYS,
   SCHEDULE_DATE_STRIP_LAYOUT,
   SCHEDULE_DATE_STRIP_PANEL,
-  SCHEDULE_DATE_STRIP_PANEL_EXPANDED,
   SCHEDULE_FULL_CALENDAR_BTN,
   SCHEDULE_FULL_CALENDAR_BTN_ACTIVE,
   SCHEDULE_FULL_CALENDAR_BTN_LABEL,
@@ -40,31 +39,15 @@ import {
 } from "@/components/marketing/schedule/schedule-view-icons";
 import { ScheduleDateMonthPanel } from "@/components/marketing/schedule/schedule-date-month-panel";
 import { ScheduleMonthCalendarSheet } from "@/components/marketing/schedule/schedule-month-calendar-sheet";
+import { useScheduleDesktopLayout } from "@/components/marketing/schedule/use-schedule-desktop-layout";
+import { useSchedulePopoverMotion } from "@/components/marketing/schedule/use-schedule-popover-motion";
+import { useDismissWhenOutside } from "@/hooks/use-dismiss-when-outside";
 
 export const SCHEDULE_DATE_STRIP_VISIBLE_DAYS = 7;
 export const SCHEDULE_DATE_STRIP_WINDOW_SHIFT = 7;
 
 const VISIBLE_DAYS = SCHEDULE_DATE_STRIP_VISIBLE_DAYS;
 const WINDOW_SHIFT = SCHEDULE_DATE_STRIP_WINDOW_SHIFT;
-const SCHEDULE_DESKTOP_MEDIA_QUERY = "(min-width: 640px)";
-
-function subscribeDesktopLayout(onStoreChange: () => void): () => void {
-  const mediaQuery = window.matchMedia(SCHEDULE_DESKTOP_MEDIA_QUERY);
-  mediaQuery.addEventListener("change", onStoreChange);
-  return () => mediaQuery.removeEventListener("change", onStoreChange);
-}
-
-function getDesktopLayoutSnapshot(): boolean {
-  return window.matchMedia(SCHEDULE_DESKTOP_MEDIA_QUERY).matches;
-}
-
-function useScheduleDesktopLayout(): boolean {
-  return useSyncExternalStore(
-    subscribeDesktopLayout,
-    getDesktopLayoutSnapshot,
-    () => true,
-  );
-}
 
 function formatWeekdayShort(locale: string, date: Date): string {
   return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
@@ -79,6 +62,8 @@ type ScheduleDateControlsProps = {
   selectedDate: Date;
   windowStart: Date;
   maxDate?: Date;
+  /** When false, only the selected-day row + full calendar control render. */
+  showDateStrip?: boolean;
   onSelectDay: (d: Date) => void;
   onShiftWindow: (delta: number) => void;
 };
@@ -88,13 +73,21 @@ export function ScheduleDateControls({
   selectedDate,
   windowStart,
   maxDate,
+  showDateStrip = true,
   onSelectDay,
   onShiftWindow,
 }: ScheduleDateControlsProps) {
   const t = useTranslations("marketingPages.schedule");
   const isDesktop = useScheduleDesktopLayout();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [monthExpanded, setMonthExpanded] = useState(false);
+  const monthPopover = useSchedulePopoverMotion();
+  const calendarAnchorRef = useRef<HTMLDivElement>(null);
+  const dismissMonthPopoverRef = useRef(() => {
+    monthPopover.hide();
+  });
+  dismissMonthPopoverRef.current = () => {
+    monthPopover.hide();
+  };
   const stripDays = Array.from({ length: VISIBLE_DAYS }, (_, idx) =>
     addDays(windowStart, idx),
   );
@@ -105,35 +98,30 @@ export function ScheduleDateControls({
     !isAfterCalendarDay(addDays(windowStart, WINDOW_SHIFT), maxDate);
   const selectedLong = formatSelectedLong(locale, selectedDate);
   const calendarMaxDate = maxDate ?? addDays(today, 30);
-  const showMonthPanel = isDesktop && monthExpanded;
+
+  useDismissWhenOutside(
+    isDesktop && monthPopover.open,
+    calendarAnchorRef,
+    dismissMonthPopoverRef,
+  );
 
   function onFullCalendarClick() {
     if (isDesktop) {
-      setMonthExpanded((current) => !current);
+      monthPopover.toggle();
       return;
     }
     setCalendarOpen(true);
   }
 
+  function onDesktopSelectDay(day: Date) {
+    onSelectDay(day);
+    monthPopover.hide();
+  }
+
   return (
     <>
-      <div
-        className={[
-          SCHEDULE_DATE_STRIP_PANEL,
-          showMonthPanel ? SCHEDULE_DATE_STRIP_PANEL_EXPANDED : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        {showMonthPanel ? (
-          <ScheduleDateMonthPanel
-            locale={locale}
-            selectedDate={selectedDate}
-            minDate={today}
-            maxDate={calendarMaxDate}
-            onSelectDay={onSelectDay}
-          />
-        ) : (
+      {showDateStrip ? (
+        <div className={SCHEDULE_DATE_STRIP_PANEL}>
           <div className={SCHEDULE_DATE_STRIP_LAYOUT}>
             <div className={SCHEDULE_DATE_STRIP_DAYS}>
               {stripDays.map((day) => {
@@ -202,30 +190,68 @@ export function ScheduleDateControls({
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      ) : null}
 
       <div className={SCHEDULE_SELECTED_DAY_DIVIDER}>
         <p className={SCHEDULE_SELECTED_DAY_LABEL}>{selectedLong}</p>
-        <button
-          type="button"
-          className={[
-            SCHEDULE_FULL_CALENDAR_BTN,
-            showMonthPanel ? SCHEDULE_FULL_CALENDAR_BTN_ACTIVE : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          aria-label={
-            showMonthPanel ? t("weekCalendarAria") : t("fullCalendarAria")
-          }
-          aria-pressed={showMonthPanel}
-          onClick={onFullCalendarClick}
-        >
-          <CalendarIcon />
-          <span className={SCHEDULE_FULL_CALENDAR_BTN_LABEL}>
-            {showMonthPanel ? t("weekCalendar") : t("fullCalendar")}
-          </span>
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {!showDateStrip ? (
+            <>
+              <button
+                type="button"
+                className={SCHEDULE_ARROW_BTN}
+                aria-label={t("prevDatesAria")}
+                disabled={!canShiftPrev}
+                aria-disabled={!canShiftPrev}
+                onClick={() => onShiftWindow(-WINDOW_SHIFT)}
+              >
+                <ArrowLeftIcon />
+              </button>
+              <button
+                type="button"
+                className={SCHEDULE_ARROW_BTN}
+                aria-label={t("nextDatesAria")}
+                disabled={!canShiftNext}
+                aria-disabled={!canShiftNext}
+                onClick={() => onShiftWindow(WINDOW_SHIFT)}
+              >
+                <ArrowRightIcon />
+              </button>
+            </>
+          ) : null}
+          <div ref={calendarAnchorRef} className="relative shrink-0">
+            <button
+              type="button"
+              className={[
+                SCHEDULE_FULL_CALENDAR_BTN,
+                monthPopover.open ? SCHEDULE_FULL_CALENDAR_BTN_ACTIVE : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-label={t("fullCalendarAria")}
+              aria-expanded={isDesktop ? monthPopover.open : undefined}
+              aria-haspopup={isDesktop ? "dialog" : undefined}
+              onClick={onFullCalendarClick}
+            >
+              <CalendarIcon />
+              <span className={SCHEDULE_FULL_CALENDAR_BTN_LABEL}>
+                {t("fullCalendar")}
+              </span>
+            </button>
+            {isDesktop && monthPopover.mounted ? (
+              <ScheduleDateMonthPanel
+                locale={locale}
+                selectedDate={selectedDate}
+                minDate={today}
+                maxDate={calendarMaxDate}
+                open={monthPopover.open}
+                onSelectDay={onDesktopSelectDay}
+                onExitComplete={monthPopover.onExitComplete}
+              />
+            ) : null}
+          </div>
+        </div>
       </div>
 
       <ScheduleMonthCalendarSheet

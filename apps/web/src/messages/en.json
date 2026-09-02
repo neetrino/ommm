@@ -1724,8 +1724,6 @@
       "filterApply": "Apply",
       "fullCalendar": "Full Calendar",
       "fullCalendarAria": "Open full month calendar",
-      "weekCalendar": "Week view",
-      "weekCalendarAria": "Show week date strip",
       "calendarPrevMonthAria": "Previous month",
       "calendarNextMonthAria": "Next month",
       "studioBrand": "Ommm",
@@ -1786,7 +1784,15 @@
           "title": "Guided Meditation",
           "subtitle": "Alex Morgan • Quiet room"
         }
-      }
+      },
+      "sessionClosed": "Closed",
+      "emptyDay": "No classes",
+      "weekBoardAria": "Weekly class schedule",
+      "todayBadge": "Today",
+      "weekRangeAria": "Select week",
+      "periodMorning": "Morning",
+      "periodAfternoon": "Afternoon",
+      "periodEvening": "Evening"
     },
     "scheduleLive": {
       "title": "Live schedule",

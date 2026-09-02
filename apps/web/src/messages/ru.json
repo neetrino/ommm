@@ -1722,8 +1722,6 @@
       "filterApply": "Применить",
       "fullCalendar": "Полный календарь",
       "fullCalendarAria": "Открыть календарь на месяц",
-      "weekCalendar": "Неделя",
-      "weekCalendarAria": "Показать ленту недели",
       "calendarPrevMonthAria": "Предыдущий месяц",
       "calendarNextMonthAria": "Следующий месяц",
       "studioBrand": "Ommm",
@@ -1784,7 +1782,15 @@
           "title": "Медитация с гидом",
           "subtitle": "Алекс Морган • тихая комната"
         }
-      }
+      },
+      "sessionClosed": "Закрыто",
+      "emptyDay": "Нет занятий",
+      "weekBoardAria": "Расписание на неделю",
+      "todayBadge": "Сегодня",
+      "weekRangeAria": "Выбрать неделю",
+      "periodMorning": "Утро",
+      "periodAfternoon": "День",
+      "periodEvening": "Вечер"
     },
     "scheduleLive": {
       "title": "Актуальное расписание",
