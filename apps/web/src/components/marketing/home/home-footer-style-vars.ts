@@ -100,6 +100,7 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-contact-gap" as string]: `${layout.contactSectionGapPx}px`,
     ["--home-footer-contact-title-gap" as string]: `${layout.contactTitleGapPx}px`,
     ["--home-footer-contact-row-gap" as string]: `${layout.contactRowGapPx}px`,
+    ["--home-footer-contact-column-max-width" as string]: `${layout.contactColumnMaxWidthPx}px`,
     ["--home-footer-social-title-gap" as string]: `${layout.socialTitleGapPx}px`,
     ["--home-footer-social-icon-gap" as string]: `${layout.socialIconGapPx}px`,
     ["--home-footer-legal-gap" as string]: `${layout.legalLinkGapPx}px`,
