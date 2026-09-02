@@ -2527,6 +2527,8 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Cancel booking?",
         "cancelConfirmDescription": "Cancel this booking? The package session is restored even if the class already happened.",
+        "cancelConfirmDescriptionNamed": "Cancel {className} on {when}? The package session is restored even if the class already happened.",
+        "cancelConfirmKeep": "Keep booking",
         "cancelConfirmLabel": "Cancel booking",
         "cancelSuccess": "Booking cancelled.",
         "cancelError": "Could not cancel the booking."

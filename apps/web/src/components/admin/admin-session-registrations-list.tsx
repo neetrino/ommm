@@ -181,6 +181,7 @@ export function AdminSessionRegistrationsList({
         backdropAriaLabel={tClasses("confirmDialogBackdrop")}
         tone="danger"
         confirmClassName="ommm-btn-lifecycle-action--danger"
+        forceCenteredModal
         pending={pendingCancel !== null && busyId === pendingCancel.id}
         onConfirm={() => {
           void confirmCancel();

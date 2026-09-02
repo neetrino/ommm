@@ -2525,6 +2525,8 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Отменить бронирование?",
         "cancelConfirmDescription": "Отменить это бронирование? Занятие вернётся в пакет, даже если класс уже прошёл.",
+        "cancelConfirmDescriptionNamed": "Отменить {className} {when}? Занятие вернётся в пакет, даже если класс уже прошёл.",
+        "cancelConfirmKeep": "Оставить бронирование",
         "cancelConfirmLabel": "Отменить бронирование",
         "cancelSuccess": "Бронирование отменено.",
         "cancelError": "Не удалось отменить бронирование."

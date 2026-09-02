@@ -2528,6 +2528,8 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Չեղարկե՞լ ամրագրումը",
         "cancelConfirmDescription": "Չեղարկե՞լ այս ամրագրումը։ Փաթեթի սեսիան կվերադառնա նույնիսկ եթե դասն արդեն անցել է։",
+        "cancelConfirmDescriptionNamed": "Չեղարկե՞լ {className} դասը {when}։ Փաթեթի սեսիան կվերադառնա նույնիսկ եթե դասն արդեն անցել է։",
+        "cancelConfirmKeep": "Պահել ամրագրումը",
         "cancelConfirmLabel": "Չեղարկել ամրագրումը",
         "cancelSuccess": "Ամրագրումը չեղարկվեց։",
         "cancelError": "Չհաջողվեց չեղարկել ամրագրումը։"

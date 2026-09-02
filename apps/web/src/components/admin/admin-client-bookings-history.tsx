@@ -189,7 +189,10 @@ export function AdminClientBookingsHistory({
                         type="button"
                         className={CANCEL_BUTTON_CLASS}
                         disabled={busyId !== null}
-                        onClick={() => setPendingCancel(booking)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingCancel(booking);
+                        }}
                       >
                         <span>{t("bookings.cancelButton")}</span>
                         <BanGlyph className={CANCEL_ICON_CLASS} />
@@ -217,12 +220,21 @@ export function AdminClientBookingsHistory({
       <OmmConfirmDialog
         isOpen={pendingCancel !== null}
         title={t("bookings.cancelConfirmTitle")}
-        description={t("bookings.cancelConfirmDescription")}
+        description={
+          pendingCancel === null
+            ? t("bookings.cancelConfirmDescription")
+            : t("bookings.cancelConfirmDescriptionNamed", {
+                className: pendingCancel.session.classType.name,
+                when: formatDateTimeForUi(pendingCancel.session.startsAt, locale),
+              })
+        }
         confirmLabel={t("bookings.cancelConfirmLabel")}
-        cancelLabel={t("cancelButton")}
+        cancelLabel={t("bookings.cancelConfirmKeep")}
         backdropAriaLabel={t("modalBackdropClose")}
         pending={busyId !== null}
         tone="danger"
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        forceCenteredModal
         onConfirm={() => {
           void confirmCancel();
         }}
