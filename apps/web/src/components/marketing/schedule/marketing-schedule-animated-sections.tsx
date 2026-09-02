@@ -11,7 +11,7 @@ export function MarketingScheduleAnimatedSections({
   scheduleView,
 }: MarketingScheduleAnimatedSectionsProps) {
   return (
-    <MarketingScrollReveal index={0} gridColumns={1}>
+    <MarketingScrollReveal index={0} gridColumns={1} entrance="aboveFold">
       {scheduleView}
     </MarketingScrollReveal>
   );

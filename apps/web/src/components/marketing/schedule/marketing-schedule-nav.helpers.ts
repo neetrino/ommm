@@ -103,6 +103,20 @@ export function buildPublicScheduleHrefForDate(dateIso: string): string {
   return `/schedule?${PUBLIC_SCHEDULE_DATE_QUERY_KEY}=${encodeURIComponent(dateIso)}`;
 }
 
+export function matchesMarketingScheduleFilters(
+  item: MarketingScheduleItem,
+  classType: string,
+  instructor: string,
+): boolean {
+  if (classType !== "all" && item.classType !== classType) {
+    return false;
+  }
+  if (instructor !== "all" && item.instructorName !== instructor) {
+    return false;
+  }
+  return true;
+}
+
 export function shiftMarketingScheduleWeek(
   prev: MarketingScheduleNavState,
   deltaDays: number,

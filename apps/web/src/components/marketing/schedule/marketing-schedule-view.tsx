@@ -4,25 +4,19 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  resolveMemberOnWaitlistBadge,
-  resolveMemberScheduleRowDisplay,
-} from "@/lib/schedule-session-spots";
-import {
-  sessionBookingCreatedAt,
-  sessionBookingId,
-} from "@/lib/user-session-bookings-map";
-import {
-  SCHEDULE_SESSION_LIST,
   SCHEDULE_VIEW_SHELL,
+  SCHEDULE_VIEW_SHELL_FLUSH,
 } from "@/components/marketing/schedule/schedule-public-design";
-import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
 import { ScheduleDateControls } from "@/components/marketing/schedule/schedule-date-controls";
+import { ScheduleDaySessionsList } from "@/components/marketing/schedule/schedule-day-sessions-list";
 import { type ScheduleFilterOption } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-filters-header";
-import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-session-row";
+import { ScheduleWeekBoard } from "@/components/marketing/schedule/schedule-week-board";
+import pageStyles from "@/components/marketing/schedule/marketing-schedule-page-section.module.css";
 import {
   formatScheduleMonthTitle,
   addDays,
+  isAfterCalendarDay,
   isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
@@ -33,6 +27,7 @@ import type { MarketingScheduleItem } from "@/components/marketing/schedule/mark
 import {
   buildMarketingScheduleInitialNavFromItems,
   buildMarketingScheduleNavForDate,
+  matchesMarketingScheduleFilters,
   PUBLIC_SCHEDULE_DATE_QUERY_KEY,
   resolveNearestUpcomingScheduleDate,
   shiftMarketingScheduleWeek,
@@ -43,16 +38,16 @@ import {
   marketingScheduleItemDate,
 } from "@/components/marketing/schedule/marketing-schedule-item.helpers";
 import { useScheduleDayTransition } from "@/components/marketing/schedule/use-schedule-day-transition";
+import { useScheduleDesktopLayout } from "@/components/marketing/schedule/use-schedule-desktop-layout";
 import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
-import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
-import { MarketingScheduleSessionsSkeleton } from "@/components/marketing/schedule/marketing-schedule-sessions-skeleton";
-import { ScheduleEmptyState } from "@/components/marketing/schedule/schedule-empty-state";
 import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
+import { toLocalIsoDate } from "@/lib/local-iso-date";
 
 type MarketingScheduleViewProps = {
   initialItems: MarketingScheduleItem[];
+  pageTitle: string;
 };
 
 function resolveInitialNav(
@@ -69,11 +64,15 @@ function resolveInitialNav(
   return buildMarketingScheduleInitialNavFromItems(baseline, items);
 }
 
-export function MarketingScheduleView({ initialItems }: MarketingScheduleViewProps) {
+export function MarketingScheduleView({
+  initialItems,
+  pageTitle,
+}: MarketingScheduleViewProps) {
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
   const searchParams = useSearchParams();
   const audience = useMarketingAudience();
+  const isDesktop = useScheduleDesktopLayout();
   const isMember = audience === "member";
   const [baseline] = useState(() => startOfLocalDay(new Date()));
   const dateParam = searchParams.get(PUBLIC_SCHEDULE_DATE_QUERY_KEY);
@@ -136,6 +135,25 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
 
   const dayToOffset = useMemo(() => marketingScheduleDayToOffset(), []);
 
+  const weekDayKeys = useMemo(() => {
+    return new Set(
+      Array.from({ length: 7 }, (_, idx) =>
+        toLocalIsoDate(addDays(nav.windowStart, idx)),
+      ),
+    );
+  }, [nav.windowStart]);
+
+  const weekSessions = useMemo(() => {
+    const baselineWeekStart = startOfWeekSunday(baseline);
+    return items
+      .filter((item) => item.isActive)
+      .filter((item) => matchesMarketingScheduleFilters(item, classType, instructor))
+      .filter((item) => {
+        const rowDay = marketingScheduleItemDate(item, baselineWeekStart, dayToOffset);
+        return weekDayKeys.has(toLocalIsoDate(rowDay));
+      });
+  }, [baseline, classType, dayToOffset, instructor, items, weekDayKeys]);
+
   const visibleSessions = useMemo(() => {
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
@@ -144,129 +162,140 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
       .filter((item) => {
         const rowDay = marketingScheduleItemDate(item, baselineWeekStart, dayToOffset);
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
-        if (classType !== "all" && item.classType !== classType) return false;
-        if (instructor !== "all" && item.instructorName !== instructor) return false;
-        return true;
+        return matchesMarketingScheduleFilters(item, classType, instructor);
       })
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [baseline, classType, dayToOffset, instructor, items, nav.selectedDate, scheduleNow]);
+  }, [
+    baseline,
+    classType,
+    dayToOffset,
+    instructor,
+    items,
+    nav.selectedDate,
+    scheduleNow,
+  ]);
 
   const monthLabel = formatScheduleMonthTitle(locale, nav.selectedDate);
   const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
-  const { contentRef, renderedDayKey, renderedSessions, animationPhase, containerStyle, getItemStyle } =
-    useScheduleDayTransition({
-      selectedDayKey,
-      visibleSessions,
+  const {
+    contentRef,
+    renderedDayKey,
+    renderedSessions,
+    animationPhase,
+    containerStyle,
+    getItemStyle,
+  } = useScheduleDayTransition({
+    selectedDayKey,
+    visibleSessions,
+  });
+
+  function selectDay(day: Date) {
+    if (isBeforeCalendarDay(day, baseline)) return;
+    userPickedDateRef.current = true;
+    setNav({
+      windowStart: startOfWeekSunday(day),
+      selectedDate: day,
     });
+  }
 
   return (
-    <div className={SCHEDULE_VIEW_SHELL}>
-      <ScheduleFiltersHeader
-        monthLabel={monthLabel}
-        filterClassType={classType}
-        filterInstructor={instructor}
-        classTypeOptions={classTypeOptions}
-        instructorOptions={instructorOptions}
-        onClassTypeChange={setClassType}
-        onInstructorChange={setInstructor}
-      />
-      <ScheduleDateControls
-        locale={locale}
-        selectedDate={nav.selectedDate}
-        windowStart={nav.windowStart}
-        maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
-        onSelectDay={(d) => {
-          if (isBeforeCalendarDay(d, baseline)) return;
-          userPickedDateRef.current = true;
-          setNav({
-            windowStart: startOfWeekSunday(d),
-            selectedDate: d,
-          });
-        }}
-        onShiftWindow={(delta) => {
-          userPickedDateRef.current = true;
-          setNav((s) => shiftMarketingScheduleWeek(s, delta, baseline));
-        }}
-      />
-      <div
-        className="mt-0 overflow-hidden transition-[height] duration-300 ease-out motion-reduce:transition-none"
-        style={containerStyle}
-      >
-        <div
-          ref={contentRef}
-          className={
-            animationPhase === "exit"
-              ? styles.scheduleListExit
-              : animationPhase === "enter"
-                ? styles.scheduleListEnter
-                : ""
-          }
-        >
-          <ul key={renderedDayKey} className={SCHEDULE_SESSION_LIST}>
-            {!sessionsReady ? (
-              <MarketingScheduleSessionsSkeleton />
-            ) : renderedSessions.length === 0 ? (
-              <li
-                className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
-                style={getItemStyle(0)}
-              >
-                <ScheduleEmptyState />
-              </li>
-            ) : (
-              renderedSessions.map((row, index) => {
-                const userOnWaitlist =
-                  bookedBySessionId[row.id] === undefined && waitlistedSessionIds.has(row.id);
-                const displayRow = resolveMemberScheduleRowDisplay({
-                  row,
-                  onWaitlist: userOnWaitlist,
-                  capacityReady: memberWaitlistLoaded,
-                });
-                const showOnWaitlist = resolveMemberOnWaitlistBadge({
-                  userBookingId: sessionBookingId(bookedBySessionId, row.id),
-                  onWaitlist: userOnWaitlist,
-                  availableSpots: displayRow.availableSpots,
-                  sessionStatus: displayRow.status,
-                  capacityReady: memberWaitlistLoaded,
-                });
+    <div className={isDesktop ? SCHEDULE_VIEW_SHELL_FLUSH : SCHEDULE_VIEW_SHELL}>
+      {isDesktop ? null : (
+        <>
+          <header className={`${pageStyles.hero} ${pageStyles.heroSpaced}`}>
+            <h1 className={pageStyles.title}>{pageTitle}</h1>
+          </header>
+          <ScheduleFiltersHeader
+            monthLabel={monthLabel}
+            filterClassType={classType}
+            filterInstructor={instructor}
+            classTypeOptions={classTypeOptions}
+            instructorOptions={instructorOptions}
+            onClassTypeChange={setClassType}
+            onInstructorChange={setInstructor}
+          />
+          <ScheduleDateControls
+            locale={locale}
+            selectedDate={nav.selectedDate}
+            windowStart={nav.windowStart}
+            maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
+            onSelectDay={selectDay}
+            onShiftWindow={(delta) => {
+              userPickedDateRef.current = true;
+              setNav((s) => shiftMarketingScheduleWeek(s, delta, baseline));
+            }}
+          />
+        </>
+      )}
 
-                return (
-                  <ScheduleSessionRow
-                    key={row.id}
-                    row={displayRow}
-                    locale={locale}
-                    bookLabel={t("bookCta")}
-                    audience={audience}
-                    withInstructorLabel={t("withInstructor", { name: row.instructorName })}
-                    spotsFullLabel={t("spotsFull")}
-                    spotsLeftLabel={t("spotsLeft", { count: displayRow.availableSpots })}
-                    spotsLoadingLabel={t("actionLoading")}
-                    durationLabel={
-                      row.durationMinutes !== null
-                        ? t("minutesShort", { count: row.durationMinutes })
-                        : row.endTime !== null
-                          ? `${formatScheduleTimeHHmm(locale, row.startTime)} - ${formatScheduleTimeHHmm(locale, row.endTime)}`
-                          : "-"
-                    }
-                    userBookingId={sessionBookingId(bookedBySessionId, row.id)}
-                    userBookingCreatedAt={sessionBookingCreatedAt(
-                      bookedBySessionId,
-                      row.id,
-                    )}
-                    bookingStateReady={memberActionStateReady}
-                    isOnWaitlist={showOnWaitlist}
-                    onBooked={handleBooked}
-                    onCancelled={handleCancelled}
-                    onWaitlisted={handleWaitlisted}
-                    onWaitlistLeft={handleWaitlistLeft}
-                    className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
-                    style={getItemStyle(index)}
-                  />
-                );
-              })
-            )}
-          </ul>
-        </div>
-      </div>
+      {isDesktop ? (
+        <ScheduleWeekBoard
+          locale={locale}
+          pageTitle={pageTitle}
+          windowStart={nav.windowStart}
+          selectedDate={nav.selectedDate}
+          sessions={weekSessions}
+          sessionsReady={sessionsReady}
+          scheduleNow={scheduleNow}
+          audience={audience}
+          bookedBySessionId={bookedBySessionId}
+          waitlistedSessionIds={waitlistedSessionIds}
+          memberWaitlistLoaded={memberWaitlistLoaded}
+          memberActionStateReady={memberActionStateReady}
+          minDate={baseline}
+          maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
+          canShiftPrev={
+            !isBeforeCalendarDay(addDays(nav.windowStart, -1), baseline)
+          }
+          canShiftNext={
+            !isAfterCalendarDay(
+              addDays(nav.windowStart, 7),
+              addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS),
+            )
+          }
+          filtersSlot={
+            <ScheduleFiltersHeader
+              monthLabel={monthLabel}
+              hideMonthLabel
+              filterClassType={classType}
+              filterInstructor={instructor}
+              classTypeOptions={classTypeOptions}
+              instructorOptions={instructorOptions}
+              onClassTypeChange={setClassType}
+              onInstructorChange={setInstructor}
+            />
+          }
+          onSelectDay={selectDay}
+          onShiftWindow={(delta) => {
+            userPickedDateRef.current = true;
+            setNav((s) => shiftMarketingScheduleWeek(s, delta, baseline));
+          }}
+          onBooked={handleBooked}
+          onCancelled={handleCancelled}
+          onWaitlisted={handleWaitlisted}
+          onWaitlistLeft={handleWaitlistLeft}
+        />
+      ) : (
+        <ScheduleDaySessionsList
+          locale={locale}
+          audience={audience}
+          sessionsReady={sessionsReady}
+          renderedDayKey={renderedDayKey}
+          renderedSessions={renderedSessions}
+          animationPhase={animationPhase}
+          containerStyle={containerStyle}
+          contentRef={contentRef}
+          getItemStyle={getItemStyle}
+          bookedBySessionId={bookedBySessionId}
+          waitlistedSessionIds={waitlistedSessionIds}
+          memberWaitlistLoaded={memberWaitlistLoaded}
+          memberActionStateReady={memberActionStateReady}
+          onBooked={handleBooked}
+          onCancelled={handleCancelled}
+          onWaitlisted={handleWaitlisted}
+          onWaitlistLeft={handleWaitlistLeft}
+        />
+      )}
     </div>
   );
 }

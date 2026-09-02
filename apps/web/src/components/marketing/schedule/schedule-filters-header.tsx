@@ -35,6 +35,8 @@ function useScheduleFiltersDesktopLayout(): boolean {
 
 type ScheduleFiltersHeaderProps = {
   monthLabel: string;
+  /** Desktop week board already shows the date range — hide month title. */
+  hideMonthLabel?: boolean;
   filterClassType: string;
   filterInstructor: string;
   classTypeOptions: readonly ScheduleFilterOption<string>[];
@@ -45,6 +47,7 @@ type ScheduleFiltersHeaderProps = {
 
 export function ScheduleFiltersHeader({
   monthLabel,
+  hideMonthLabel = false,
   filterClassType,
   filterInstructor,
   classTypeOptions,
@@ -56,8 +59,15 @@ export function ScheduleFiltersHeader({
   const isDesktopFiltersLayout = useScheduleFiltersDesktopLayout();
 
   return (
-    <div className={SCHEDULE_MONTH_FILTERS_ROW}>
-      <p className={SCHEDULE_MONTH_LABEL}>{monthLabel}</p>
+    <div
+      className={[
+        SCHEDULE_MONTH_FILTERS_ROW,
+        hideMonthLabel ? "justify-center" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {hideMonthLabel ? null : <p className={SCHEDULE_MONTH_LABEL}>{monthLabel}</p>}
       <div className={SCHEDULE_MONTH_FILTERS_CONTROLS}>
         <ScheduleFilterDropdown
           label={t("filterClassType")}

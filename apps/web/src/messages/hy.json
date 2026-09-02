@@ -1725,8 +1725,6 @@
       "filterApply": "Կիրառել",
       "fullCalendar": "Լրիվ օրացույց",
       "fullCalendarAria": "Բացել ամսվա օրացույցը",
-      "weekCalendar": "Շաբաթ",
-      "weekCalendarAria": "Ցույց տալ շաբաթվա ժապավենը",
       "calendarPrevMonthAria": "Նախորդ ամիս",
       "calendarNextMonthAria": "Հաջորդ ամիս",
       "studioBrand": "Ommm",
@@ -1787,7 +1785,15 @@
           "title": "Ուղեկցված մեդիտացիա",
           "subtitle": "Ալեքս Մորգան • Հանգիստ սրահ"
         }
-      }
+      },
+      "sessionClosed": "Փակված",
+      "emptyDay": "Դասեր չկան",
+      "weekBoardAria": "Շաբաթական դասացուցակ",
+      "todayBadge": "Այսօր",
+      "weekRangeAria": "Ընտրել շաբաթը",
+      "periodMorning": "Առավոտ",
+      "periodAfternoon": "Ցերեկ",
+      "periodEvening": "Երեկո"
     },
     "scheduleLive": {
       "title": "Կենդանի ժամանակացույց",

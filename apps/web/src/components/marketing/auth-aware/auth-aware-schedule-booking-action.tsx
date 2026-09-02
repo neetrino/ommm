@@ -38,6 +38,10 @@ type AuthAwareScheduleBookingActionProps = {
   bookLabel: string;
   audience: PublicPackageCategoryCardsAudience;
   className?: string;
+  /** Overrides booked badge styles (e.g. compact week cards). */
+  bookedClassName?: string;
+  /** Overrides cancel button styles (e.g. compact week cards). */
+  cancelClassName?: string;
   userBookingId?: string;
   userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
@@ -59,6 +63,8 @@ export function AuthAwareScheduleBookingAction({
   bookLabel,
   audience,
   className = SCHEDULE_BOOK_BTN,
+  bookedClassName = SCHEDULE_BOOKED_BTN,
+  cancelClassName = SCHEDULE_CANCEL_BTN,
   userBookingId,
   userBookingCreatedAt,
   bookingStateReady = true,
@@ -193,7 +199,7 @@ export function AuthAwareScheduleBookingAction({
             bookedAt={bookedAtIso ?? userBookingCreatedAt}
             appearance="button"
             size="sm"
-            buttonClassName={SCHEDULE_CANCEL_BTN}
+            buttonClassName={cancelClassName}
             onError={setCancelMsg}
             onCancelled={() => {
               setBookingId(undefined);
@@ -206,7 +212,7 @@ export function AuthAwareScheduleBookingAction({
             type="button"
             disabled
             aria-disabled="true"
-            className={SCHEDULE_BOOKED_BTN}
+            className={bookedClassName}
           >
             {tClasses("bookedBadge")}
           </button>

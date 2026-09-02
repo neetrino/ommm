@@ -1,0 +1,310 @@
+.board {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chrome {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chrome > :first-child {
+  margin-bottom: clamp(0.5rem, 2vw, 1.25rem);
+}
+
+.weekPickerRow {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.weekPickerRowElevated {
+  z-index: 90;
+}
+
+.filtersSlot {
+  margin-bottom: 0.75rem;
+}
+
+.weekPicker {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 0;
+  border-radius: 9999px;
+  border: 1px solid rgb(151 144 124 / 0.45);
+  background: rgb(255 255 255 / 0.82);
+  padding: 0.25rem 0.375rem;
+  box-shadow: 0 8px 20px -16px rgb(45 40 35 / 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    border-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.weekPicker:hover {
+  border-color: rgb(151 144 124 / 0.72);
+  background: rgb(255 255 255 / 0.95);
+}
+
+.weekPickerBtn {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: #4a4738;
+  cursor: pointer;
+}
+
+.weekPickerBtn:hover:enabled {
+  background: rgb(151 144 124 / 0.16);
+}
+
+.weekPickerBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(151 144 124 / 0.35);
+}
+
+.weekPickerBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.weekPickerLabel {
+  display: inline-flex;
+  min-width: 10.5rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.375rem 0.5rem;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #4a4738;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.weekPickerLabel:hover {
+  color: #3d3a32;
+}
+
+.weekPickerLabel:focus-visible {
+  outline: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0 2px rgb(151 144 124 / 0.35);
+}
+
+.dayHeaders {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.dayHeader {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.25rem 0 0.75rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dayHeader:focus-visible {
+  outline: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 0 2px rgb(151 144 124 / 0.35);
+}
+
+.weekday {
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #687586;
+  text-transform: capitalize;
+}
+
+.weekdayActive {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.dayNumber {
+  display: inline-flex;
+  width: 3rem;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.5625rem;
+  font-weight: 500;
+  line-height: 1;
+  color: #2d3748;
+}
+
+.dayNumberSelected {
+  background: #363d46;
+  color: #fff;
+}
+
+.dayNumberPast {
+  color: rgb(104 117 134 / 0.55);
+}
+
+.periodBlock {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.periodTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.25rem 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #353c45;
+  cursor: pointer;
+}
+
+.periodTitle:hover {
+  color: #1d1c15;
+}
+
+.periodTitle:focus-visible {
+  outline: none;
+  border-radius: 0.375rem;
+  box-shadow: 0 0 0 2px rgb(151 144 124 / 0.35);
+}
+
+.periodChevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: #687586;
+  transition: transform 200ms ease;
+}
+
+.periodChevronCollapsed {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .periodChevron {
+    transition: none;
+  }
+}
+
+.periodTrack {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 1rem;
+  row-gap: 0.625rem;
+  align-items: stretch;
+}
+
+.column {
+  display: grid;
+  min-width: 0;
+  grid-row: span var(--period-session-rows, 1);
+  grid-template-rows: subgrid;
+}
+
+.sessions {
+  display: contents;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sessions > li {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.sessions > li > * {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+}
+
+.emptyDay {
+  margin: 0;
+  min-height: 0.25rem;
+}
+
+.skeletonCard {
+  height: 100%;
+  min-height: 9rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.72);
+  background: linear-gradient(
+    135deg,
+    rgb(232 236 228 / 0.92) 0%,
+    rgb(214 224 216 / 0.88) 52%,
+    rgb(232 236 228 / 0.9) 100%
+  );
+  box-shadow:
+    0 18px 40px -28px rgb(45 40 35 / 0.2),
+    inset 0 1px 0 rgb(255 255 255 / 0.75);
+  animation: schedule-week-shimmer 1.2s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes schedule-week-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonCard {
+    animation: none;
+  }
+}
