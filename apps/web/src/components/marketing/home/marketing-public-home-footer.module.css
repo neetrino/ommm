@@ -228,6 +228,11 @@
   overflow-wrap: normal;
 }
 
+.contactText.contactAddressText,
+.mobileContactText.contactAddressText {
+  white-space: pre-line;
+}
+
 .atSign {
   font-family: var(--font-sans);
   font-size: inherit;

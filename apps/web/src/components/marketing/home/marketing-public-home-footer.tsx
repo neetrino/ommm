@@ -129,7 +129,12 @@ export async function MarketingPublicHomeFooter({
         </li>
         <li className={styles.contactRow}>
           <Image src={HOME_FOOTER_ASSETS.location} alt="" width={24} height={24} unoptimized className={styles.contactIcon} aria-hidden />
-          <a href={HOME_FOOTER_ADDRESS_HREF} className={styles.contactText} target="_blank" rel="noopener noreferrer">
+          <a
+            href={HOME_FOOTER_ADDRESS_HREF}
+            className={`${styles.contactText} ${styles.contactAddressText}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {t("footerAddress")}
           </a>
         </li>

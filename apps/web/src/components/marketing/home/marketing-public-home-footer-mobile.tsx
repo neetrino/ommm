@@ -109,7 +109,12 @@ export function MarketingPublicHomeFooterMobile({
                 className={styles.mobileContactIcon}
                 aria-hidden
               />
-              <a href={addressHref} className={styles.mobileContactText} target="_blank" rel="noopener noreferrer">
+              <a
+                href={addressHref}
+                className={`${styles.mobileContactText} ${styles.contactAddressText}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {address}
               </a>
             </div>
