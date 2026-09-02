@@ -10,6 +10,7 @@ import {
   sortRowsBySessionStartsAt,
 } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
+import { BOOKING_CANCELLED_BY_SELECT } from '../bookings/bookings-staff-cancel.helpers';
 import { toUserPackageActivationApi } from '../packages/packages-activation.helpers';
 import { toUserPackageGuestPassApi } from '../packages/packages-guest-pass.helpers';
 import { toUserPackageFreezeApi } from '../packages/packages-freeze.mapper';
@@ -40,6 +41,9 @@ const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
       },
     },
   },
+  cancelledBy: {
+    select: BOOKING_CANCELLED_BY_SELECT,
+  },
 });
 
 type BookingRecord = Prisma.BookingGetPayload<{
@@ -53,6 +57,7 @@ type ClientBookingsPage = {
     channel: string;
     attendedAt: Date | null;
     cancelledAt: Date | null;
+    cancelledBy: BookingRecord['cancelledBy'];
     createdAt: Date;
     guestName: string | null;
     guestPassSlot: number;

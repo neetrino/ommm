@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by-id";
 import {
-  isActiveSessionRegistration,
-  isOccupiedSessionRegistration,
+  compareSessionRegistrationRows,
+  isRosterSessionRegistration,
+  isStaffCancellableSessionRegistration,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
 import { AdminSessionRegistrationRow } from "@/components/admin/admin-session-registration-row";
@@ -45,6 +46,7 @@ export function AdminSessionRegistrationsList({
   const [pendingCancel, setPendingCancel] = useState<SessionRegistrationRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
   const [wasActive, setWasActive] = useState(active);
   if (wasActive !== active) {
     setWasActive(active);
@@ -53,7 +55,7 @@ export function AdminSessionRegistrationsList({
     }
   }
 
-  const fetchKey = active ? sessionId : null;
+  const fetchKey = active ? `${sessionId}:${String(reloadNonce)}` : null;
   const loading = fetchKey !== null && (fetchResult === null || fetchResult.key !== fetchKey);
   const rows = fetchResult?.key === fetchKey ? fetchResult.rows : [];
   const error = fetchResult?.key === fetchKey ? fetchResult.error : null;
@@ -72,7 +74,10 @@ export function AdminSessionRegistrationsList({
         }
         setFetchResult({
           key: fetchKey,
-          rows: payload.filter(isOccupiedSessionRegistration),
+          rows: payload
+            .filter(isRosterSessionRegistration)
+            .slice()
+            .sort(compareSessionRegistrationRows),
           error: null,
         });
       })
@@ -102,11 +107,7 @@ export function AdminSessionRegistrationsList({
         method: "PATCH",
         body: JSON.stringify({ status: "CANCELLED" }),
       });
-      setFetchResult((prev) =>
-        prev === null || prev.key !== fetchKey
-          ? prev
-          : { ...prev, rows: prev.rows.filter((item) => item.id !== row.id) },
-      );
+      setReloadNonce((value) => value + 1);
       setPendingCancel(null);
       onBookingCancelled?.();
       onNotice?.(t("cancelSuccess"), "ok");
@@ -160,7 +161,7 @@ export function AdminSessionRegistrationsList({
               key={row.id}
               row={row}
               locale={locale}
-              canCancel={canCancel && isActiveSessionRegistration(row)}
+              canCancel={canCancel && isStaffCancellableSessionRegistration(row)}
               busy={busyId !== null}
               onCancel={() => setPendingCancel(row)}
               onMemberClick={setSelectedClientId}

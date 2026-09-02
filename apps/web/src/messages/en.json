@@ -2526,7 +2526,7 @@
         "createError": "Could not add the booking.",
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Cancel booking?",
-        "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
+        "cancelConfirmDescription": "Cancel this booking? The package session is restored even if the class already happened.",
         "cancelConfirmLabel": "Cancel booking",
         "cancelSuccess": "Booking cancelled.",
         "cancelError": "Could not cancel the booking."
@@ -2563,6 +2563,7 @@
         "giftCreated": "Gift card created",
         "noNotes": "No notes yet.",
         "cancelled": "Cancelled",
+        "cancelledBy": "Cancelled by {name} ({role})",
         "attended": "Attended",
         "signedUp": "Signed up",
         "guestPass": "Guest pass"
@@ -3163,9 +3164,10 @@
         "backdropClose": "Close dialog",
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Cancel booking?",
-        "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
+        "cancelConfirmDescription": "Cancel this booking? The package session is restored even if the class already happened.",
         "cancelConfirmLabel": "Cancel booking",
         "cancelSuccess": "Booking cancelled",
+        "cancelledBy": "Cancelled by {name} ({role})",
         "addButton": "Add",
         "addCancel": "Cancel",
         "addSearchLabel": "Find client",
@@ -3180,7 +3182,8 @@
         "addSessionFull": "This class is full.",
         "status": {
           "COMPLETED": "Attended",
-          "MISSED": "Missed"
+          "MISSED": "Missed",
+          "CANCELLED": "Cancelled"
         }
       },
       "actions": {

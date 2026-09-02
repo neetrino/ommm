@@ -6,13 +6,23 @@ import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
+import {
+  isDashboardShellRole,
+  SESSION_REGISTRATION_STAFF_CANCELLABLE_STATUSES,
+  sessionCancelledByDisplayName,
+} from "@/components/admin/admin-session-registrations-types";
 import { BanGlyph } from "@/components/ui/admin-action-glyphs";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
-const CANCELLABLE_BOOKING_STATUS = "BOOKED";
+function isCancellableBooking(booking: ClientSheetBookingItem): boolean {
+  return SESSION_REGISTRATION_STAFF_CANCELLABLE_STATUSES.some(
+    (status) => status === booking.status,
+  );
+}
+
 const CLIENT_BOOKINGS_HISTORY_PAGE_SIZE = 5;
 const CANCEL_BUTTON_CLASS = [
   "inline-flex shrink-0 items-center gap-1.5 rounded-full",
@@ -39,10 +49,6 @@ type AdminClientBookingsHistoryProps = {
   onCancelError: (message: string) => void;
 };
 
-function isCancellableBooking(booking: ClientSheetBookingItem): boolean {
-  return booking.status === CANCELLABLE_BOOKING_STATUS;
-}
-
 export function AdminClientBookingsHistory({
   clientId,
   locale,
@@ -53,6 +59,7 @@ export function AdminClientBookingsHistory({
   onCancelError,
 }: AdminClientBookingsHistoryProps) {
   const t = useTranslations("adminPages.clients");
+  const tRoles = useTranslations("dashboard.shell.roles");
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(clientId);
   const [result, setResult] = useState<FetchResult | null>(null);
@@ -140,6 +147,16 @@ export function AdminClientBookingsHistory({
                   : booking.attendedAt
                     ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
                     : null;
+                const cancelledBy = booking.cancelledBy ?? null;
+                const cancelledByLabel =
+                  cancelledBy === null
+                    ? null
+                    : t("drawer.cancelledBy", {
+                        name: sessionCancelledByDisplayName(cancelledBy),
+                        role: isDashboardShellRole(cancelledBy.role)
+                          ? tRoles(cancelledBy.role)
+                          : cancelledBy.role,
+                      });
                 const signedUp = `${t("drawer.signedUp")} ${formatDateTimeForUi(booking.createdAt, locale)}`;
 
                 return (
@@ -162,6 +179,9 @@ export function AdminClientBookingsHistory({
                       <p className="mt-1 text-xs text-sage-500">{signedUp}</p>
                       {extra !== null ? (
                         <p className="text-xs text-sage-500">{extra}</p>
+                      ) : null}
+                      {cancelledByLabel !== null ? (
+                        <p className="text-xs font-medium text-rose-700">{cancelledByLabel}</p>
                       ) : null}
                     </div>
                     {showCancel ? (

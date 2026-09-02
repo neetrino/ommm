@@ -106,6 +106,33 @@ describe('BookingsSlotService package credit release', () => {
 
     expect(packageUsage.restoreSession).not.toHaveBeenCalled();
   });
+
+  it('restores credits for a completed visit without reopening the waitlist', async () => {
+    const { service, tx, packageUsage, waitlist } = createSlotServiceAndDeps();
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.COMPLETED,
+    });
+    tx.payment.findFirst.mockResolvedValue(null);
+
+    await service.releaseSlot(booking, {
+      applyPenalty: false,
+      cancelledByUserId: 'manager-1',
+    });
+
+    expect(tx.booking.update).toHaveBeenCalledWith({
+      where: { id: booking.id },
+      data: {
+        status: BookingStatus.CANCELLED,
+        cancelledAt: expect.any(Date),
+        cancelledByUserId: 'manager-1',
+      },
+    });
+    expect(packageUsage.restoreSession).toHaveBeenCalledWith({
+      tx,
+      bookingId: booking.id,
+    });
+    expect(waitlist.offerNextIfSlot).not.toHaveBeenCalled();
+  });
 });
 
 describe('BookingsSlotService.releaseRegistrationsForAdminCancelledSession', () => {

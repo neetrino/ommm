@@ -3,7 +3,10 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
+  isDashboardShellRole,
+  sessionCancelledByDisplayName,
   sessionRegistrationOutcome,
+  SESSION_REGISTRATION_CANCELLED_STATUS,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
 import { BanGlyph } from "@/components/ui/admin-action-glyphs";
@@ -56,6 +59,24 @@ function memberContactLine(user: SessionRegistrationRow["user"]): string {
   return user.email.trim();
 }
 
+function cancelledByCaption(
+  row: SessionRegistrationRow,
+  t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>,
+  tRoles: ReturnType<typeof useTranslations<"dashboard.shell.roles">>,
+): string | null {
+  if (row.status !== SESSION_REGISTRATION_CANCELLED_STATUS) {
+    return null;
+  }
+  const actor = row.cancelledBy ?? null;
+  if (actor === null) {
+    return t("status.CANCELLED");
+  }
+  return t("cancelledBy", {
+    name: sessionCancelledByDisplayName(actor),
+    role: isDashboardShellRole(actor.role) ? tRoles(actor.role) : actor.role,
+  });
+}
+
 function MemberAvatar({
   user,
   displayName,
@@ -106,6 +127,7 @@ export function AdminSessionRegistrationRow({
   onMemberClick,
 }: AdminSessionRegistrationRowProps) {
   const t = useTranslations("adminPages.classes.registrationsModal");
+  const tRoles = useTranslations("dashboard.shell.roles");
   const displayName = userDisplayName(
     row.user.name,
     row.user.lastName,
@@ -116,9 +138,10 @@ export function AdminSessionRegistrationRow({
   });
   const outcome = sessionRegistrationOutcome(row.status);
   const metaSpacing = variant === "card" ? "mt-0.5" : "";
+  const cancelledCaption = cancelledByCaption(row, t, tRoles);
 
   return (
-    <li className={ROW_VARIANT_CLASS[variant]}>
+    <li className={`${ROW_VARIANT_CLASS[variant]} ${cancelledCaption !== null ? "opacity-70" : ""}`}>
       <MemberAvatar user={row.user} displayName={displayName} variant={variant} />
       <div className="min-w-0 flex-1">
         {onMemberClick ? (
@@ -138,6 +161,11 @@ export function AdminSessionRegistrationRow({
         {outcome !== null ? (
           <p className={`truncate text-[11px] font-medium text-sage-600 ${metaSpacing}`}>
             {t(`status.${outcome}`)}
+          </p>
+        ) : null}
+        {cancelledCaption !== null ? (
+          <p className={`truncate text-[11px] font-medium text-rose-700 ${metaSpacing}`}>
+            {cancelledCaption}
           </p>
         ) : null}
       </div>

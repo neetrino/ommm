@@ -6,7 +6,9 @@ import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by
 import { AdminSessionAddRegistration } from "@/components/admin/admin-session-add-registration";
 import { AdminSessionRegistrationRow } from "@/components/admin/admin-session-registration-row";
 import {
+  compareSessionRegistrationRows,
   isOccupiedSessionRegistration,
+  isRosterSessionRegistration,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
 import {
@@ -96,7 +98,9 @@ function AdminSessionRegistrationsSheet({
     [fetchKey, fetchResult],
   );
   const error = fetchResult?.key === fetchKey ? fetchResult.error : null;
-  const rosterCount = fetchResult?.key === fetchKey ? fetchResult.rows.length : booked;
+  const rosterCount = fetchResult?.key === fetchKey
+    ? fetchResult.rows.filter(isOccupiedSessionRegistration).length
+    : booked;
   const clientDrawerOpen = selectedClientId !== null;
   const registeredUserIds = useMemo(
     () => new Set(rows.map((row) => row.user.id)),
@@ -112,7 +116,10 @@ function AdminSessionRegistrationsSheet({
         if (!cancelled) {
           setFetchResult({
             key: fetchKey,
-            rows: payload.filter(isOccupiedSessionRegistration),
+            rows: payload
+              .filter(isRosterSessionRegistration)
+              .slice()
+              .sort(compareSessionRegistrationRows),
             error: null,
           });
         }

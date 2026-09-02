@@ -2524,7 +2524,7 @@
         "createError": "Не удалось добавить бронирование.",
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Отменить бронирование?",
-        "cancelConfirmDescription": "Отменить это бронирование? Место снова станет доступным.",
+        "cancelConfirmDescription": "Отменить это бронирование? Занятие вернётся в пакет, даже если класс уже прошёл.",
         "cancelConfirmLabel": "Отменить бронирование",
         "cancelSuccess": "Бронирование отменено.",
         "cancelError": "Не удалось отменить бронирование."
@@ -2561,6 +2561,7 @@
         "giftCreated": "Подарочная карта создана",
         "noNotes": "Заметок пока нет.",
         "cancelled": "Отменено",
+        "cancelledBy": "Отменил(а) {name} ({role})",
         "attended": "Посещено",
         "signedUp": "Запись",
         "guestPass": "Гостевой пропуск"
@@ -3161,9 +3162,10 @@
         "backdropClose": "Закрыть окно",
         "cancelButton": "Отменить",
         "cancelConfirmTitle": "Отменить запись?",
-        "cancelConfirmDescription": "Отменить эту запись? Место снова станет доступным.",
+        "cancelConfirmDescription": "Отменить эту запись? Занятие вернётся в пакет, даже если класс уже прошёл.",
         "cancelConfirmLabel": "Отменить запись",
         "cancelSuccess": "Запись отменена",
+        "cancelledBy": "Отменил(а) {name} ({role})",
         "addButton": "Добавить",
         "addCancel": "Отмена",
         "addSearchLabel": "Найти клиента",
@@ -3178,7 +3180,8 @@
         "addSessionFull": "На занятии нет свободных мест.",
         "status": {
           "COMPLETED": "Присутствовал",
-          "MISSED": "Пропущено"
+          "MISSED": "Пропущено",
+          "CANCELLED": "Отменено"
         }
       },
       "actions": {

@@ -6,8 +6,10 @@ model Booking {
   session       ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   status        BookingStatus @default(BOOKED)
   channel       BookingChannel @default(WEBSITE)
-  attendedAt    DateTime?
-  cancelledAt   DateTime?
+  attendedAt        DateTime?
+  cancelledAt       DateTime?
+  cancelledByUserId String?
+  cancelledBy       User?     @relation("BookingCancelledBy", fields: [cancelledByUserId], references: [id], onDelete: SetNull)
   /// 0 = owner booking; 1+ = guest-pass companion on the same session.
   guestPassSlot Int           @default(0)
   guestName     String?
@@ -25,6 +27,7 @@ model Booking {
   @@index([sessionId])
   @@index([userId])
   @@index([status, createdAt])
+  @@index([cancelledByUserId])
 }
 
 model BookingNote {

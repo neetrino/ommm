@@ -96,6 +96,13 @@ export type ClientSheetBookingItem = {
   channel: string;
   attendedAt: string | null;
   cancelledAt: string | null;
+  cancelledBy?: {
+    id: string;
+    name: string | null;
+    lastName: string | null;
+    email: string;
+    role: string;
+  } | null;
   createdAt: string;
   guestName?: string | null;
   guestPassSlot?: number;

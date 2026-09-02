@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Role, type User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { BookingsStatusTransitionService } from './bookings-status-transition.service';
+import { BOOKING_CANCELLED_BY_SELECT } from './bookings-staff-cancel.helpers';
 
 @Injectable()
 export class BookingsAdminListService {
@@ -56,6 +57,9 @@ export class BookingsAdminListService {
           },
         },
         notes: { include: { author: { select: { name: true } } } },
+        cancelledBy: {
+          select: BOOKING_CANCELLED_BY_SELECT,
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: 500,

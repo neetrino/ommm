@@ -20,9 +20,10 @@ import {
   resolvePaymentStatus,
 } from './bookings-management.helpers';
 import { BookingsAdminListService } from './bookings-admin-list.service';
-import { BookingsSlotService } from './bookings-slot.service';
 import { PackagesActivationService } from '../packages/packages-activation.service';
 import { BookingsStatusTransitionService } from './bookings-status-transition.service';
+import { BookingsStaffCancelService } from './bookings-staff-cancel.service';
+import { BOOKING_CANCELLED_BY_SELECT } from './bookings-staff-cancel.helpers';
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 
@@ -34,30 +35,17 @@ export class BookingsAdminService {
     private readonly waitlist: WaitlistService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
-    private readonly slots: BookingsSlotService,
     private readonly statusTransition: BookingsStatusTransitionService,
     private readonly packagesActivation: PackagesActivationService,
+    private readonly staffCancel: BookingsStaffCancelService,
   ) {}
 
   listAdmin(filters: Parameters<BookingsAdminListService['listAdmin']>[0]) {
     return this.adminList.listAdmin(filters);
   }
 
-  async adminCancel(bookingId: string) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: { session: true },
-    });
-    if (!booking) {
-      throw new NotFoundException();
-    }
-    await this.slots.releaseSlot(booking);
-    await this.schedule.invalidatePublicCache();
-    this.realtime.emitBookingSessionChange({
-      userId: booking.userId,
-      sessionId: booking.sessionId,
-    });
-    return { ok: true };
+  adminCancel(actor: User, bookingId: string) {
+    return this.staffCancel.adminCancel(actor, bookingId);
   }
 
   async moveBooking(bookingId: string, targetSessionId: string) {
@@ -205,6 +193,9 @@ export class BookingsAdminService {
           orderBy: { createdAt: 'desc' },
           take: 100,
         },
+        cancelledBy: {
+          select: BOOKING_CANCELLED_BY_SELECT,
+        },
       },
     });
     if (!booking) {
@@ -240,12 +231,12 @@ export class BookingsAdminService {
     };
   }
 
-  async adminUpdate(bookingId: string, dto: UpdateAdminBookingDto) {
+  async adminUpdate(actor: User, bookingId: string, dto: UpdateAdminBookingDto) {
     if (dto.targetSessionId && dto.targetSessionId.trim() !== '') {
       await this.moveBooking(bookingId, dto.targetSessionId);
     }
     if (dto.status === BookingStatus.CANCELLED) {
-      await this.adminCancel(bookingId);
+      await this.adminCancel(actor, bookingId);
       return this.prisma.booking.findUnique({
         where: { id: bookingId },
         include: { session: { include: { classType: true } } },

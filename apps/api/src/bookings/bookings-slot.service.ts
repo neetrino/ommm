@@ -4,11 +4,25 @@ import {
   ClassSessionStatus,
   PaymentStatus,
   type ClassSession,
+  type Prisma,
 } from '@prisma/client';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
+import { isStaffCancellableBookingStatus } from './bookings-staff-cancel.helpers';
+
+type ReleaseSlotBooking = {
+  id: string;
+  userId: string;
+  sessionId: string;
+  session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
+};
+
+type ReleaseSlotOptions = {
+  applyPenalty: boolean;
+  cancelledByUserId?: string;
+};
 
 @Injectable()
 export class BookingsSlotService {
@@ -20,49 +34,18 @@ export class BookingsSlotService {
   ) {}
 
   async releaseSlot(
-    booking: {
-      id: string;
-      userId: string;
-      sessionId: string;
-      session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
-    },
-    options: { applyPenalty: boolean } = { applyPenalty: false },
+    booking: ReleaseSlotBooking,
+    options: ReleaseSlotOptions = { applyPenalty: false },
   ) {
-    let didCancel = false;
-    await this.prisma.$transaction(async (tx) => {
-      const current = await tx.booking.findUnique({
-        where: { id: booking.id },
-        select: { status: true },
-      });
-      if (!current || current.status !== BookingStatus.BOOKED) {
-        return;
-      }
-      await tx.booking.update({
-        where: { id: booking.id },
-        data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
-      });
-      didCancel = true;
-      void options.applyPenalty;
-      const hasDropInPayment = await tx.payment.findFirst({
-        where: {
-          userId: booking.userId,
-          description: `Drop-in session ${booking.sessionId}`,
-          status: PaymentStatus.SUCCEEDED,
-        },
-        select: { id: true },
-      });
-      if (hasDropInPayment) {
-        return;
-      }
-      if (!options.applyPenalty) {
-        await this.packageUsage.restoreSession({
-          tx,
-          bookingId: booking.id,
-        });
-      }
-    });
-    if (didCancel) {
-      await this.staffActivity.recordBookingCancelled(booking.id);
+    const previousStatus = await this.prisma.$transaction((tx) =>
+      this.cancelBookingInTx(tx, booking, options),
+    );
+    if (previousStatus === null) {
+      return;
+    }
+    await this.staffActivity.recordBookingCancelled(booking.id);
+    if (previousStatus !== BookingStatus.BOOKED) {
+      return;
     }
     await this.prisma.classSession.updateMany({
       where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
@@ -103,5 +86,44 @@ export class BookingsSlotService {
       affectedUserIds.push(booking.userId);
     }
     return affectedUserIds;
+  }
+
+  private async cancelBookingInTx(
+    tx: Prisma.TransactionClient,
+    booking: ReleaseSlotBooking,
+    options: ReleaseSlotOptions,
+  ): Promise<BookingStatus | null> {
+    const current = await tx.booking.findUnique({
+      where: { id: booking.id },
+      select: { status: true },
+    });
+    if (!current || !isStaffCancellableBookingStatus(current.status)) {
+      return null;
+    }
+    await tx.booking.update({
+      where: { id: booking.id },
+      data: {
+        status: BookingStatus.CANCELLED,
+        cancelledAt: new Date(),
+        ...(options.cancelledByUserId
+          ? { cancelledByUserId: options.cancelledByUserId }
+          : {}),
+      },
+    });
+    const hasDropInPayment = await tx.payment.findFirst({
+      where: {
+        userId: booking.userId,
+        description: `Drop-in session ${booking.sessionId}`,
+        status: PaymentStatus.SUCCEEDED,
+      },
+      select: { id: true },
+    });
+    if (!hasDropInPayment && !options.applyPenalty) {
+      await this.packageUsage.restoreSession({
+        tx,
+        bookingId: booking.id,
+      });
+    }
+    return current.status;
   }
 }
