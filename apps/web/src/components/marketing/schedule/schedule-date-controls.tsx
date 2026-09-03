@@ -61,6 +61,8 @@ type ScheduleDateControlsProps = {
   locale: string;
   selectedDate: Date;
   windowStart: Date;
+  /** Earliest selectable day (defaults to today). */
+  minDate?: Date;
   maxDate?: Date;
   /** When false, only the selected-day row + full calendar control render. */
   showDateStrip?: boolean;
@@ -72,6 +74,7 @@ export function ScheduleDateControls({
   locale,
   selectedDate,
   windowStart,
+  minDate,
   maxDate,
   showDateStrip = true,
   onSelectDay,
@@ -86,7 +89,9 @@ export function ScheduleDateControls({
     addDays(windowStart, idx),
   );
   const today = startOfLocalDay(new Date());
-  const canShiftPrev = compareCalendarDays(addDays(windowStart, -1), today) >= 0;
+  const earliestDate = minDate !== undefined ? startOfLocalDay(minDate) : today;
+  const canShiftPrev =
+    compareCalendarDays(addDays(windowStart, -1), earliestDate) >= 0;
   const canShiftNext =
     maxDate === undefined ||
     !isAfterCalendarDay(addDays(windowStart, WINDOW_SHIFT), maxDate);
@@ -121,9 +126,11 @@ export function ScheduleDateControls({
               {stripDays.map((day) => {
                 const isSelected = isSameCalendarDay(day, selectedDate);
                 const isToday = isSameCalendarDay(day, today);
-                const isPast =
-                  isBeforeCalendarDay(day, today) ||
-                  (maxDate !== undefined && isAfterCalendarDay(day, maxDate));
+                const isBeforeMin = isBeforeCalendarDay(day, earliestDate);
+                const isAfterMax =
+                  maxDate !== undefined && isAfterCalendarDay(day, maxDate);
+                const isUnavailable = isBeforeMin || isAfterMax;
+                const isPast = isBeforeCalendarDay(day, today);
                 const dayNum = String(day.getDate());
                 const wk = formatWeekdayShort(locale, day).toUpperCase();
                 const weekdayClass = `${SCHEDULE_WEEKDAY_LABEL} ${isSelected ? SCHEDULE_WEEKDAY_LABEL_ACTIVE : ""}`;
@@ -135,7 +142,7 @@ export function ScheduleDateControls({
                       ? SCHEDULE_DATE_CHIP_SELECTED
                       : SCHEDULE_DATE_CHIP_IDLE;
 
-                if (isPast) {
+                if (isUnavailable) {
                   return (
                     <div
                       key={day.getTime()}
@@ -153,7 +160,7 @@ export function ScheduleDateControls({
                     key={day.getTime()}
                     type="button"
                     onClick={() => onSelectDay(startOfLocalDay(day))}
-                    className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#97907c]/30 ${SCHEDULE_INTERACTIVE_LIFT}`}
+                    className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#97907c]/30 ${SCHEDULE_INTERACTIVE_LIFT} ${isPast ? "opacity-55" : ""}`}
                   >
                     <span className={weekdayClass}>{wk}</span>
                     <span className={chipClass}>{dayNum}</span>
@@ -237,7 +244,7 @@ export function ScheduleDateControls({
               <ScheduleDateMonthPanel
                 locale={locale}
                 selectedDate={selectedDate}
-                minDate={today}
+                minDate={earliestDate}
                 maxDate={calendarMaxDate}
                 open={monthPopover.open}
                 onSelectDay={onDesktopSelectDay}
@@ -252,7 +259,7 @@ export function ScheduleDateControls({
         open={!isDesktop && calendarOpen}
         locale={locale}
         selectedDate={selectedDate}
-        minDate={today}
+        minDate={earliestDate}
         maxDate={calendarMaxDate}
         onClose={() => setCalendarOpen(false)}
         onSelectDay={onSelectDay}

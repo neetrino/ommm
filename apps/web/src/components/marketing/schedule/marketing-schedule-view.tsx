@@ -39,7 +39,6 @@ import {
 } from "@/components/marketing/schedule/marketing-schedule-item.helpers";
 import { useScheduleDayTransition } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { useScheduleDesktopLayout } from "@/components/marketing/schedule/use-schedule-desktop-layout";
-import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
@@ -75,6 +74,7 @@ export function MarketingScheduleView({
   const isDesktop = useScheduleDesktopLayout();
   const isMember = audience === "member";
   const [baseline] = useState(() => startOfLocalDay(new Date()));
+  const weekFloor = useMemo(() => startOfWeekSunday(baseline), [baseline]);
   const dateParam = searchParams.get(PUBLIC_SCHEDULE_DATE_QUERY_KEY);
   const hasExplicitDateParam = dateParam !== null && dateParam.trim() !== "";
   const [nav, setNav] = useState<MarketingScheduleNavState>(() =>
@@ -158,7 +158,6 @@ export function MarketingScheduleView({
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
       .filter((item) => item.isActive)
-      .filter((item) => isUpcomingPublicScheduleSession(item, scheduleNow))
       .filter((item) => {
         const rowDay = marketingScheduleItemDate(item, baselineWeekStart, dayToOffset);
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
@@ -172,7 +171,6 @@ export function MarketingScheduleView({
     instructor,
     items,
     nav.selectedDate,
-    scheduleNow,
   ]);
 
   const monthLabel = formatScheduleMonthTitle(locale, nav.selectedDate);
@@ -190,7 +188,7 @@ export function MarketingScheduleView({
   });
 
   function selectDay(day: Date) {
-    if (isBeforeCalendarDay(day, baseline)) return;
+    if (isBeforeCalendarDay(day, weekFloor)) return;
     userPickedDateRef.current = true;
     setNav({
       windowStart: startOfWeekSunday(day),
@@ -218,11 +216,12 @@ export function MarketingScheduleView({
             locale={locale}
             selectedDate={nav.selectedDate}
             windowStart={nav.windowStart}
+            minDate={weekFloor}
             maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
             onSelectDay={selectDay}
             onShiftWindow={(delta) => {
               userPickedDateRef.current = true;
-              setNav((s) => shiftMarketingScheduleWeek(s, delta, baseline));
+              setNav((s) => shiftMarketingScheduleWeek(s, delta, weekFloor));
             }}
           />
         </>
@@ -242,10 +241,10 @@ export function MarketingScheduleView({
           waitlistedSessionIds={waitlistedSessionIds}
           memberWaitlistLoaded={memberWaitlistLoaded}
           memberActionStateReady={memberActionStateReady}
-          minDate={baseline}
+          minDate={weekFloor}
           maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
           canShiftPrev={
-            !isBeforeCalendarDay(addDays(nav.windowStart, -1), baseline)
+            !isBeforeCalendarDay(addDays(nav.windowStart, -1), weekFloor)
           }
           canShiftNext={
             !isAfterCalendarDay(
@@ -268,7 +267,7 @@ export function MarketingScheduleView({
           onSelectDay={selectDay}
           onShiftWindow={(delta) => {
             userPickedDateRef.current = true;
-            setNav((s) => shiftMarketingScheduleWeek(s, delta, baseline));
+            setNav((s) => shiftMarketingScheduleWeek(s, delta, weekFloor));
           }}
           onBooked={handleBooked}
           onCancelled={handleCancelled}
@@ -280,6 +279,7 @@ export function MarketingScheduleView({
           locale={locale}
           audience={audience}
           sessionsReady={sessionsReady}
+          scheduleNow={scheduleNow}
           renderedDayKey={renderedDayKey}
           renderedSessions={renderedSessions}
           animationPhase={animationPhase}

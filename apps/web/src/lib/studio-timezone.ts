@@ -35,6 +35,16 @@ const STUDIO_WEEKDAY_TO_ENUM: Record<string, MarketingScheduleDayOfWeek> = {
   Sat: "SATURDAY",
 };
 
+const STUDIO_WEEKDAY_OFFSET: Record<MarketingScheduleDayOfWeek, number> = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
 /** `YYYY-MM-DD` calendar day for an instant in the studio timezone. */
 export function utcToStudioCalendarDate(value: Date): string {
   return STUDIO_CALENDAR_DATE.format(value);
@@ -108,4 +118,19 @@ export function addStudioCalendarDays(
   const start = studioWallClockToUtc(calendarDateIso, "12:00");
   start.setUTCDate(start.getUTCDate() + deltaDays);
   return utcToStudioCalendarDate(start);
+}
+
+/** Sunday start of the studio week that contains `reference`. */
+export function startOfStudioWeekSunday(reference: Date = new Date()): Date {
+  const calendarDate = utcToStudioCalendarDate(reference);
+  const offset = STUDIO_WEEKDAY_OFFSET[utcToStudioDayOfWeek(reference)];
+  const weekStartCalendar = addStudioCalendarDays(calendarDate, -offset);
+  return studioWallClockToUtc(weekStartCalendar, "00:00");
+}
+
+/** `YYYY-MM-DD` for Sunday of the studio week that contains `reference`. */
+export function studioWeekStartCalendarDate(reference: Date = new Date()): string {
+  const calendarDate = utcToStudioCalendarDate(reference);
+  const offset = STUDIO_WEEKDAY_OFFSET[utcToStudioDayOfWeek(reference)];
+  return addStudioCalendarDays(calendarDate, -offset);
 }

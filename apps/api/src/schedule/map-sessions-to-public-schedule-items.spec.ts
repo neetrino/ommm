@@ -5,7 +5,7 @@ import { mapSessionsToPublicScheduleItems } from './map-sessions-to-public-sched
 describe('mapSessionsToPublicScheduleItems', () => {
   const baseDate = new Date('2026-06-02T09:00:00.000Z');
 
-  it('maps active sessions and excludes draft or cancelled', () => {
+  it('maps active and finished sessions and excludes draft or cancelled', () => {
     const items = mapSessionsToPublicScheduleItems([
       {
         id: 'active-1',
@@ -21,6 +21,21 @@ describe('mapSessionsToPublicScheduleItems', () => {
         classType: { name: 'Yoga' },
         coach: { user: { name: 'Alex', lastName: 'Coach' } },
         _count: { bookings: 3 },
+      },
+      {
+        id: 'finished-1',
+        title: 'Earlier Class',
+        description: null,
+        startsAt: new Date('2026-06-01T09:00:00.000Z'),
+        endsAt: new Date('2026-06-01T10:00:00.000Z'),
+        capacity: 10,
+        level: null,
+        status: ClassSessionStatus.FINISHED,
+        createdAt: baseDate,
+        updatedAt: baseDate,
+        classType: { name: 'Pilates' },
+        coach: { user: { name: 'Alex', lastName: 'Coach' } },
+        _count: { bookings: 2 },
       },
       {
         id: 'draft-1',
@@ -39,7 +54,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
       },
     ]);
 
-    expect(items).toHaveLength(1);
+    expect(items).toHaveLength(2);
     expect(items[0]?.className).toBe('Morning Flow');
     expect(items[0]?.instructorName).toBe('Alex Coach');
     expect(items[0]?.availableSpots).toBe(9);
@@ -48,6 +63,8 @@ describe('mapSessionsToPublicScheduleItems', () => {
     expect(items[0]?.level).toBe('Beginner');
     expect(items[0]?.status).toBe(ClassSessionStatus.ACTIVE);
     expect(items[0]?.sessionDate).toBe('2026-06-02');
+    expect(items[1]?.id).toBe('finished-1');
+    expect(items[1]?.status).toBe(ClassSessionStatus.FINISHED);
   });
 
   it('keeps repeated weekly slots as separate bookable sessions', () => {

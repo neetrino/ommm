@@ -33,6 +33,8 @@ type HomeWeeklyScheduleSessionRowProps = {
   bookingEnabled: boolean;
   /** When false, hide the calendar date chip (schedule page already shows the day strip). */
   showDate?: boolean;
+  closedLabel?: string;
+  isClosed?: boolean;
   userBookingId?: string;
   userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
@@ -56,6 +58,8 @@ export function HomeWeeklyScheduleSessionRow({
   audience,
   bookingEnabled,
   showDate = true,
+  closedLabel,
+  isClosed = false,
   userBookingId,
   userBookingCreatedAt,
   bookingStateReady = true,
@@ -85,7 +89,7 @@ export function HomeWeeklyScheduleSessionRow({
 
   return (
     <article
-      className={`${styles.row} group w-full min-w-0 ${className ?? ""}`}
+      className={`${styles.row} group w-full min-w-0 ${isClosed ? styles.rowClosed : ""} ${className ?? ""}`}
       style={{
         ...style,
         background: rowGradientDesktop,
@@ -156,7 +160,9 @@ export function HomeWeeklyScheduleSessionRow({
       </p>
 
       <div className={styles.bookAction}>
-        {bookingEnabled ? (
+        {isClosed ? (
+          <p className={styles.closedLabel}>{closedLabel ?? bookLabel}</p>
+        ) : bookingEnabled ? (
           <AuthAwareScheduleBookingAction
             sessionId={item.id}
             sessionDate={item.sessionDate}

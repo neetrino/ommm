@@ -11,6 +11,7 @@ import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-ses
 import { SCHEDULE_SESSION_LIST } from "@/components/marketing/schedule/schedule-public-design";
 import type { ScheduleAnimationPhase } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
+import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
 import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
@@ -25,6 +26,7 @@ type ScheduleDaySessionsListProps = {
   locale: string;
   audience: PublicPackageCategoryCardsAudience;
   sessionsReady: boolean;
+  scheduleNow: Date;
   renderedDayKey: string;
   renderedSessions: readonly MarketingScheduleItem[];
   animationPhase: ScheduleAnimationPhase;
@@ -46,6 +48,7 @@ export function ScheduleDaySessionsList({
   locale,
   audience,
   sessionsReady,
+  scheduleNow,
   renderedDayKey,
   renderedSessions,
   animationPhase,
@@ -90,6 +93,7 @@ export function ScheduleDaySessionsList({
             </li>
           ) : (
             renderedSessions.map((row, index) => {
+              const isClosed = !isUpcomingPublicScheduleSession(row, scheduleNow);
               const userOnWaitlist =
                 bookedBySessionId[row.id] === undefined &&
                 waitlistedSessionIds.has(row.id);
@@ -112,6 +116,8 @@ export function ScheduleDaySessionsList({
                   row={displayRow}
                   locale={locale}
                   bookLabel={t("bookCta")}
+                  closedLabel={t("sessionClosed")}
+                  isClosed={isClosed}
                   audience={audience}
                   withInstructorLabel={t("withInstructor", {
                     name: row.instructorName,
