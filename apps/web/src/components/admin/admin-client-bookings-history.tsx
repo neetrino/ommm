@@ -212,6 +212,10 @@ export function AdminClientBookingsHistory({
         backdropAriaLabel={t("modalBackdropClose")}
         pending={busyId !== null}
         tone="danger"
+        dismissAsCloseIcon={
+          pendingCancel !== null &&
+          isPastAdminCancelBookingStatus(pendingCancel.status)
+        }
         onConfirm={() => {
           void confirmCancel();
         }}
