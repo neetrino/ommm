@@ -98,6 +98,7 @@ export function AuthAwareScheduleBookingAction({
     packageModal,
     packageModalOpen,
     purchaseModalOpen,
+    policyModalOpen,
   } = useSessionBooking({
     sessionId,
     locale,
@@ -138,7 +139,8 @@ export function AuthAwareScheduleBookingAction({
   const resolvedBookingId = bookingId ?? userBookingId;
   const isBooked = resolvedBookingId !== undefined;
   const showOnWaitlist = !isBooked && (onWaitlist || initialOnWaitlist);
-  const overlayModalOpen = packageModalOpen || purchaseModalOpen;
+  const overlayModalOpen =
+    packageModalOpen || purchaseModalOpen || policyModalOpen;
 
   useEffect(() => {
     return () => {
@@ -164,6 +166,7 @@ export function AuthAwareScheduleBookingAction({
     handoffTimerRef.current = window.setTimeout(() => {
       handoffTimerRef.current = null;
       setBookSplashOpen(false);
+      setOverlayModalsReady(true);
     }, waitMs);
 
     return () => {
@@ -370,7 +373,7 @@ export function AuthAwareScheduleBookingAction({
         tone="success"
         onDismiss={() => setSuccessToast(null)}
       />
-      {overlayModalsReady ? packageModal : null}
+      {overlayModalsReady || overlayModalOpen ? packageModal : null}
       <ScheduleBookSplashModal
         isOpen={bookSplashOpen}
         variant={bookSplashVariant}

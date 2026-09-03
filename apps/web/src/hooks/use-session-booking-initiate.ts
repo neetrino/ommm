@@ -23,6 +23,7 @@ type UseSessionBookingInitiateArgs = {
     plans: readonly PackageSubscribePlanOption[],
   ) => void;
   bookWithOptionalPackage: (userPackageId?: string) => Promise<void>;
+  ensurePolicyAcknowledged: () => Promise<boolean>;
   onError?: (message: string) => void;
 };
 
@@ -34,6 +35,7 @@ export function useSessionBookingInitiate({
   openPackageModal,
   showPurchaseModal,
   bookWithOptionalPackage,
+  ensurePolicyAcknowledged,
   onError,
 }: UseSessionBookingInitiateArgs) {
   const t = useTranslations("forms.bookSession");
@@ -57,6 +59,10 @@ export function useSessionBookingInitiate({
         showPurchaseModal(packages, plans);
         return;
       }
+      const accepted = await ensurePolicyAcknowledged();
+      if (!accepted) {
+        return;
+      }
       await bookWithOptionalPackage(autoPackageId);
     } catch (error) {
       const message = error instanceof ApiError ? error.message : t("bookFailed");
@@ -67,6 +73,7 @@ export function useSessionBookingInitiate({
   }, [
     bookWithOptionalPackage,
     busy,
+    ensurePolicyAcknowledged,
     fetchEligiblePackages,
     fetchPurchasePlans,
     onError,

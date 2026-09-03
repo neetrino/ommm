@@ -64,6 +64,7 @@ export function useSessionBooking({
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(
     initialCachedPurchase !== null,
   );
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
   const [purchasePlans, setPurchasePlans] = useState<
     readonly PackageSubscribePlanOption[]
   >(initialCachedPurchase?.plans ?? []);
@@ -75,6 +76,9 @@ export function useSessionBooking({
   >([]);
   const skipNextUrlRestoreRef = useRef(false);
   const skipNextBuyUrlRestoreRef = useRef(false);
+  const pendingPolicyResolveRef = useRef<((accepted: boolean) => void) | null>(
+    null,
+  );
 
   const callbacksRef = useRef({ onBooked, onError });
   useEffect(() => {
@@ -127,6 +131,27 @@ export function useSessionBooking({
       replaceSearchParams(clearBuyPackageSessionQuery);
     }
   }, [replaceSearchParams, sessionId, urlBuySessionId]);
+
+  const closePolicyModal = useCallback((): void => {
+    const resolve = pendingPolicyResolveRef.current;
+    pendingPolicyResolveRef.current = null;
+    setPolicyModalOpen(false);
+    resolve?.(false);
+  }, []);
+
+  const confirmPolicyModal = useCallback((): void => {
+    const resolve = pendingPolicyResolveRef.current;
+    pendingPolicyResolveRef.current = null;
+    setPolicyModalOpen(false);
+    resolve?.(true);
+  }, []);
+
+  const ensurePolicyAcknowledged = useCallback((): Promise<boolean> => {
+    return new Promise<boolean>((resolve) => {
+      pendingPolicyResolveRef.current = resolve;
+      setPolicyModalOpen(true);
+    });
+  }, []);
 
   const fetchEligiblePackages = useCallback(
     async (): Promise<EligibleBookingPackage[]> =>
@@ -207,6 +232,7 @@ export function useSessionBooking({
     openPackageModal,
     showPurchaseModal,
     bookWithOptionalPackage,
+    ensurePolicyAcknowledged,
     onError: (message) => callbacksRef.current.onError?.(message),
   });
 
@@ -236,11 +262,15 @@ export function useSessionBooking({
       sessionId={sessionId}
       packageModalOpen={packageModalOpen}
       purchaseModalOpen={purchaseModalOpen}
+      policyModalOpen={policyModalOpen}
       eligiblePackages={eligiblePackages}
       purchasePlans={purchasePlans}
       suggestedPlanId={suggestedPlanId}
       onClosePackageModal={closePackageModal}
       onClosePurchaseModal={closePurchaseModal}
+      onClosePolicyModal={closePolicyModal}
+      onConfirmPolicyModal={confirmPolicyModal}
+      ensurePolicyAcknowledged={ensurePolicyAcknowledged}
       onBooked={(bookingId) => {
         setPackageModalOpen(false);
         callbacksRef.current.onBooked?.(bookingId);
@@ -255,6 +285,7 @@ export function useSessionBooking({
     initiateBooking,
     packageModalOpen,
     purchaseModalOpen,
+    policyModalOpen,
     packageModal: bookingModals,
     purchaseModal: bookingModals,
     bookingModals,

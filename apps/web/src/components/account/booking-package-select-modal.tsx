@@ -17,6 +17,8 @@ type BookingPackageSelectModalProps = {
   eligiblePackages: readonly EligibleBookingPackage[];
   locale: string;
   onClose: () => void;
+  /** Opens the cancellation-policy modal; resolves true when the member confirms. */
+  ensurePolicyAcknowledged?: () => Promise<boolean>;
   onBooked: (bookingId: string) => void;
   onError: (message: string) => void;
 };
@@ -47,6 +49,7 @@ export function BookingPackageSelectModal({
   eligiblePackages,
   locale,
   onClose,
+  ensurePolicyAcknowledged,
   onBooked,
   onError,
 }: BookingPackageSelectModalProps) {
@@ -73,7 +76,6 @@ export function BookingPackageSelectModal({
   );
 
   async function submitBooking(guestPassName?: string) {
-    setBusy(true);
     try {
       const body: { userPackageId: string; guestName?: string } = {
         userPackageId: activeSelectedId,
@@ -92,9 +94,27 @@ export function BookingPackageSelectModal({
       onClose();
     } catch (error) {
       onError(error instanceof ApiError ? error.message : t("bookFailed"));
-    } finally {
-      setBusy(false);
     }
+  }
+
+  function requestSubmitBooking(guestPassName?: string): void {
+    if (busy) {
+      return;
+    }
+    void (async () => {
+      setBusy(true);
+      try {
+        if (ensurePolicyAcknowledged) {
+          const accepted = await ensurePolicyAcknowledged();
+          if (!accepted) {
+            return;
+          }
+        }
+        await submitBooking(guestPassName);
+      } finally {
+        setBusy(false);
+      }
+    })();
   }
 
   return (
@@ -217,7 +237,7 @@ export function BookingPackageSelectModal({
           onClose={onClose}
           onConfirmOwner={() => {
             if (selectedPackage?.canBook === true && !busy) {
-              void submitBooking();
+              requestSubmitBooking();
             }
           }}
           onConfirmGuest={() => {
@@ -226,7 +246,7 @@ export function BookingPackageSelectModal({
               guestName.trim().length > 0 &&
               !busy
             ) {
-              void submitBooking(guestName.trim());
+              requestSubmitBooking(guestName.trim());
             }
           }}
         />

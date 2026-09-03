@@ -4796,7 +4796,13 @@
       "guestPassNameLabel": "Имя гостя",
       "guestPassNamePlaceholder": "Как зовут гостя",
       "packageModalBookGuest": "Записать гостя",
-      "packageNoPurchasePlans": "Для этого занятия сейчас нет доступных пакетов."
+      "packageNoPurchasePlans": "Для этого занятия сейчас нет доступных пакетов.",
+      "policyConfirmTitle": "⚠️ Обратите внимание",
+      "policyConfirmDescription": "При отмене занятия менее чем за 24 часа до его начала занятие будет списано с вашего абонемента.",
+      "policyConfirmCheckbox": "Я понимаю и соглашаюсь",
+      "policyConfirmContinue": "Продолжить",
+      "policyConfirmCancel": "Отмена",
+      "policyConfirmBackdrop": "Закрыть окно"
     },
     "joinWaitlist": {
       "action": "В лист ожидания",
