@@ -17,7 +17,7 @@ type UserGiftCardsPageHeroProps = {
   embeddedInSheet?: boolean;
 };
 
-/** Member gift cards page header with My / Buy pill tabs. */
+/** Member gift cards page header with My / Buy segmented switcher. */
 export function UserGiftCardsPageHero({
   title,
   locale,

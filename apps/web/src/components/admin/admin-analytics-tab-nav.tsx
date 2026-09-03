@@ -11,6 +11,12 @@ import {
   type AnalyticsWorkspace,
 } from "@/components/admin/admin-analytics-module";
 import { buildAnalyticsTabHref } from "@/components/admin/admin-analytics-url";
+import {
+  oliveSegmentedSegmentClassName,
+  oliveSegmentedThumbClass,
+  oliveSegmentedTrackClass,
+  type OliveSegmentedColumnCount,
+} from "@/components/ui/olive-segmented-switcher";
 
 const TAB_LABEL_KEY: Record<AnalyticsSectionId, string> = {
   overview: "overview",
@@ -34,14 +40,24 @@ export function AdminAnalyticsTabNav({
     () => Object.fromEntries(searchParams.entries()),
     [searchParams],
   );
+  const sections = analyticsSectionIdsFor(workspace);
+  const columnCount = sections.length as OliveSegmentedColumnCount;
+  const activeIndex = Math.max(
+    0,
+    sections.findIndex((section) => {
+      const basePath = analyticsSectionHref(section, workspace);
+      return pathname === basePath || pathname.endsWith(basePath);
+    }),
+  );
 
   return (
     <nav
       role="tablist"
       aria-label={t("aria")}
-      className={`flex w-full min-w-0 max-w-full touch-pan-x flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      className={oliveSegmentedTrackClass(columnCount, className)}
     >
-      {analyticsSectionIdsFor(workspace).map((section) => {
+      <span aria-hidden className={oliveSegmentedThumbClass(columnCount, activeIndex)} />
+      {sections.map((section) => {
         const basePath = analyticsSectionHref(section, workspace);
         const href = buildAnalyticsTabHref(section, search, workspace);
         const active = pathname === basePath || pathname.endsWith(basePath);
@@ -53,11 +69,7 @@ export function AdminAnalyticsTabNav({
             aria-selected={active}
             aria-current={active ? "page" : undefined}
             scroll={false}
-            className={
-              active
-                ? "ommm-admin-pill-tab ommm-admin-pill-tab-active shrink-0 px-4 normal-case tracking-normal"
-                : "ommm-admin-pill-tab shrink-0 px-4 normal-case tracking-normal"
-            }
+            className={oliveSegmentedSegmentClassName(active, columnCount)}
           >
             {t(TAB_LABEL_KEY[section])}
           </Link>

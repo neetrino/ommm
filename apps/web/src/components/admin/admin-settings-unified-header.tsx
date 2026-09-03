@@ -43,7 +43,7 @@ function AdminSettingsUnifiedHeaderInner() {
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 overflow-visible max-sm:justify-center sm:justify-start">
         <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
-        <AdminSettingsTabNav className="w-full min-w-0 max-w-full" />
+        <AdminSettingsTabNav />
       </div>
       {descriptionKey ? (
         <p className="ommm-body-muted mt-1 flex max-w-3xl items-center gap-2 text-sm max-sm:mx-auto max-sm:justify-center max-sm:text-center sm:mx-0 sm:text-left">
@@ -66,7 +66,7 @@ function AdminSettingsUnifiedHeaderFallback() {
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 overflow-visible max-sm:justify-center sm:justify-start">
         <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
-        <AdminSettingsTabNav className="w-full min-w-0 max-w-full" />
+        <AdminSettingsTabNav />
       </div>
     </WorkspaceStickyPageHeader>
   );
