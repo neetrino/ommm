@@ -16,7 +16,7 @@
     "@ommm/database": "workspace:*",
     "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.38.0",
-    "next": "16.2.6",
+    "next": "16.2.11",
     "next-intl": "^4.11.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
