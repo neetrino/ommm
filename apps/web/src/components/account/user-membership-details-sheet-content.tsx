@@ -74,26 +74,15 @@ export function MembershipDetailsSheetContent({
     <>
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-3">
-            <div className="space-y-1.5">
-              <h2
-                id={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
-                className={ADMIN_DETAILS_SHEET_TITLE_CLASS}
-              >
-                {display.sessionName}
-              </h2>
-              {membership.plan.categoryName ? (
-                <p className="text-sm text-sage-600">{membership.plan.categoryName}</p>
-              ) : null}
-            </div>
-            {showLifecycleActions ? (
-              <UserPackageLifecycleActions
-                userPackageId={membership.id}
-                status={status}
-                freeze={membership.freeze}
-                layout="sheetHeader"
-                lifecycle={lifecycle}
-              />
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <h2
+              id={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
+              className={ADMIN_DETAILS_SHEET_TITLE_CLASS}
+            >
+              {display.sessionName}
+            </h2>
+            {membership.plan.categoryName ? (
+              <p className="text-sm text-sage-600">{membership.plan.categoryName}</p>
             ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -178,9 +167,22 @@ export function MembershipDetailsSheetContent({
             />
           </div>
         )}
+
+        {showLifecycleActions ? (
+          <div className="mt-5 flex justify-end">
+            <UserPackageLifecycleActions
+              userPackageId={membership.id}
+              status={status}
+              freeze={membership.freeze}
+              layout="boardPhone"
+              hiddenActions={["renew"]}
+              lifecycle={lifecycle}
+            />
+          </div>
+        ) : null}
       </div>
 
-      {showLifecycleActions ? (
+      {showLifecycleActions && lifecycle.showRenew ? (
         <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
           <UserPackageLifecycleActions
             userPackageId={membership.id}
@@ -190,8 +192,10 @@ export function MembershipDetailsSheetContent({
             hiddenActions={["freeze", "unfreeze", "cancel"]}
             lifecycle={lifecycle}
           />
-          <PackageLifecycleConfirmDialog lifecycle={lifecycle} />
         </footer>
+      ) : null}
+      {showLifecycleActions ? (
+        <PackageLifecycleConfirmDialog lifecycle={lifecycle} />
       ) : null}
     </>
   );
