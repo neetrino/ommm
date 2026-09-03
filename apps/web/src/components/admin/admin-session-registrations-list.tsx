@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  isAdminCancellableBookingStatus,
+  isPastAdminCancelBookingStatus,
+} from "@/components/admin/admin-booking-cancel.helpers";
 import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by-id";
 import {
-  isActiveSessionRegistration,
   isOccupiedSessionRegistration,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
@@ -160,7 +163,7 @@ export function AdminSessionRegistrationsList({
               key={row.id}
               row={row}
               locale={locale}
-              canCancel={canCancel && isActiveSessionRegistration(row)}
+              canCancel={canCancel && isAdminCancellableBookingStatus(row.status)}
               busy={busyId !== null}
               onCancel={() => setPendingCancel(row)}
               onMemberClick={setSelectedClientId}
@@ -171,8 +174,18 @@ export function AdminSessionRegistrationsList({
 
       <OmmConfirmDialog
         isOpen={pendingCancel !== null}
-        title={t("cancelConfirmTitle")}
-        description={t("cancelConfirmDescription")}
+        title={
+          pendingCancel !== null &&
+          isPastAdminCancelBookingStatus(pendingCancel.status)
+            ? t("cancelPastConfirmTitle")
+            : t("cancelConfirmTitle")
+        }
+        description={
+          pendingCancel !== null &&
+          isPastAdminCancelBookingStatus(pendingCancel.status)
+            ? t("cancelPastConfirmDescription")
+            : t("cancelConfirmDescription")
+        }
         confirmLabel={
           busyId !== null ? tClasses("savingButton") : t("cancelConfirmLabel")
         }

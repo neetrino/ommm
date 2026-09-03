@@ -2527,6 +2527,8 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Cancel booking?",
         "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
+        "cancelPastConfirmTitle": "Cancel this past session?",
+        "cancelPastConfirmDescription": "This session already happened. We will mark it cancelled in the client's history and return the session to their package.",
         "cancelConfirmLabel": "Cancel booking",
         "cancelSuccess": "Booking cancelled.",
         "cancelError": "Could not cancel the booking."
@@ -3164,6 +3166,8 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Cancel booking?",
         "cancelConfirmDescription": "Cancel this booking? The spot will become available again.",
+        "cancelPastConfirmTitle": "Cancel this past session?",
+        "cancelPastConfirmDescription": "This session already happened. We will mark it cancelled in the client's history and return the session to their package.",
         "cancelConfirmLabel": "Cancel booking",
         "cancelSuccess": "Booking cancelled",
         "addButton": "Add",

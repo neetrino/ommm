@@ -2528,6 +2528,8 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Չեղարկե՞լ ամրագրումը",
         "cancelConfirmDescription": "Չեղարկե՞լ այս ամրագրումը։ Տեղը կրկին հասանելի կդառնա։",
+        "cancelPastConfirmTitle": "Չեղարկե՞լ անցած պարապմունքը",
+        "cancelPastConfirmDescription": "Պարապմունքն արդեն անցել է։ Այն կչեղարկվի հաճախորդի պատմությունում, և պարապմունքը կվերադարձվի փաթեթ։",
         "cancelConfirmLabel": "Չեղարկել ամրագրումը",
         "cancelSuccess": "Ամրագրումը չեղարկվեց։",
         "cancelError": "Չհաջողվեց չեղարկել ամրագրումը։"
@@ -3165,6 +3167,8 @@
         "cancelButton": "Չեղարկել",
         "cancelConfirmTitle": "Չեղարկե՞լ գրանցումը",
         "cancelConfirmDescription": "Չեղարկե՞լ այս գրանցումը։ Տեղը կրկին հասանելի կլինի։",
+        "cancelPastConfirmTitle": "Չեղարկե՞լ անցած պարապմունքը",
+        "cancelPastConfirmDescription": "Պարապմունքն արդեն անցել է։ Այն կչեղարկվի հաճախորդի պատմությունում, և պարապմունքը կվերադարձվի փաթեթ։",
         "cancelConfirmLabel": "Չեղարկել գրանցումը",
         "cancelSuccess": "Գրանցումը չեղարկվեց",
         "addButton": "Ավելացնել",
