@@ -1,5 +1,9 @@
+import { WHATSAPP_BILINGUAL_SEPARATOR } from './whatsapp.constants';
 import { renderGiftCardWhatsapp } from './whatsapp-commerce-templates';
-import { WhatsappNotifyService } from './whatsapp-notify.service';
+import {
+  renderBilingualWhatsappMessage,
+  WhatsappNotifyService,
+} from './whatsapp-notify.service';
 
 describe('WhatsappNotifyService', () => {
   function createService() {
@@ -66,7 +70,15 @@ describe('WhatsappNotifyService', () => {
     expect(gateway.sendText).not.toHaveBeenCalled();
   });
 
-  it('sends hy and en when phone and prefs allow', async () => {
+  it('joins hy and en with a blank line separator', () => {
+    expect(
+      renderBilingualWhatsappMessage((locale) =>
+        locale === 'hy' ? 'Բարև' : 'Hello',
+      ),
+    ).toBe(`Բարև${WHATSAPP_BILINGUAL_SEPARATOR}Hello`);
+  });
+
+  it('sends one bilingual message when phone and prefs allow', async () => {
     const { service, prisma, gateway } = createService();
     prisma.user.findUnique.mockResolvedValue({
       phone: '+37441881822',
@@ -85,20 +97,14 @@ describe('WhatsappNotifyService', () => {
         render: (locale) => (locale === 'hy' ? 'Բարև' : 'Hello'),
       }),
     ).resolves.toBe('sent');
-    expect(gateway.sendText).toHaveBeenCalledTimes(2);
-    expect(gateway.sendText).toHaveBeenNthCalledWith(
-      1,
+    expect(gateway.sendText).toHaveBeenCalledTimes(1);
+    expect(gateway.sendText).toHaveBeenCalledWith(
       '37441881822@c.us',
-      'Բարև',
-    );
-    expect(gateway.sendText).toHaveBeenNthCalledWith(
-      2,
-      '37441881822@c.us',
-      'Hello',
+      `Բարև${WHATSAPP_BILINGUAL_SEPARATOR}Hello`,
     );
   });
 
-  it('sends bilingual gift card messages', async () => {
+  it('sends one bilingual gift card message', async () => {
     const { service, prisma, gateway } = createService();
     prisma.user.findUnique
       .mockResolvedValueOnce({ id: 'u1' })
@@ -115,16 +121,13 @@ describe('WhatsappNotifyService', () => {
     await expect(
       service.trySendGiftCard('user@example.com', 'ABC123'),
     ).resolves.toBe('sent');
-    expect(gateway.sendText).toHaveBeenCalledTimes(2);
-    expect(gateway.sendText).toHaveBeenNthCalledWith(
-      1,
+    expect(gateway.sendText).toHaveBeenCalledTimes(1);
+    expect(gateway.sendText).toHaveBeenCalledWith(
       '37441881822@c.us',
-      renderGiftCardWhatsapp('hy', { code: 'ABC123' }),
-    );
-    expect(gateway.sendText).toHaveBeenNthCalledWith(
-      2,
-      '37441881822@c.us',
-      renderGiftCardWhatsapp('en', { code: 'ABC123' }),
+      [
+        renderGiftCardWhatsapp('hy', { code: 'ABC123' }),
+        renderGiftCardWhatsapp('en', { code: 'ABC123' }),
+      ].join(WHATSAPP_BILINGUAL_SEPARATOR),
     );
   });
 });

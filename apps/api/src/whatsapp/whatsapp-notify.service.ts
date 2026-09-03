@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { AppUiLocale } from '../common/app-ui-locales';
 import { toWhatsappChatId } from './whatsapp-chat-id';
 import { renderGiftCardWhatsapp } from './whatsapp-commerce-templates';
-import { WHATSAPP_CUSTOMER_LOCALES } from './whatsapp.constants';
+import {
+  WHATSAPP_BILINGUAL_SEPARATOR,
+  WHATSAPP_CUSTOMER_LOCALES,
+} from './whatsapp.constants';
 import { WhatsappGatewayClient } from './whatsapp-gateway.client';
 import {
   allowsWhatsappTopic,
@@ -13,6 +16,14 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 
 export type WhatsappMessageRenderer = (locale: AppUiLocale) => string;
+
+export function renderBilingualWhatsappMessage(
+  render: WhatsappMessageRenderer,
+): string {
+  return WHATSAPP_CUSTOMER_LOCALES.map((locale) => render(locale)).join(
+    WHATSAPP_BILINGUAL_SEPARATOR,
+  );
+}
 
 @Injectable()
 export class WhatsappNotifyService {
@@ -106,13 +117,8 @@ export class WhatsappNotifyService {
     if (chatId === null) {
       return 'skipped';
     }
-    let anySent = false;
-    for (const locale of WHATSAPP_CUSTOMER_LOCALES) {
-      const sent = await this.gateway.sendText(chatId, params.render(locale));
-      if (sent) {
-        anySent = true;
-      }
-    }
-    return anySent ? 'sent' : 'failed';
+    const text = renderBilingualWhatsappMessage(params.render);
+    const sent = await this.gateway.sendText(chatId, text);
+    return sent ? 'sent' : 'failed';
   }
 }
