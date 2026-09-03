@@ -186,7 +186,7 @@
     "tagline": "Занятия, пакеты и инструменты для участников — одно спокойное место для планирования практики.",
     "discoverTitle": "Сайт",
     "memberTitle": "Участникам",
-    "copyrightSuffix": "студия"
+    "copyrightSuffix": "studio"
   },
   "marketingUi": {
     "bookAClass": "Записаться на класс",
@@ -387,7 +387,7 @@
       "footerContactTitle": "Связаться с нами",
       "footerPhone": "+374 (60) - 500 - 400",
       "footerEmail": "info@ommm.am",
-      "footerAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4th\u00a0floor",
+      "footerAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4-й\u00a0этаж",
       "footerSocialTitle": "Соцсети",
       "footerSocialAria": "Профиль {network}",
       "footerInstagramAria": "Instagram @ommm.space",
@@ -399,7 +399,7 @@
       "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
       "footerCopyrightCompanyPart1": "NEETRINO IT",
       "footerCopyrightCompanyPart2": "COMPANY",
-      "footerCopyrightSuffix": ". ВСЕ ПРАВА ЗАЩИЩЕНЫ.",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
       "footerIllustrationAlt": "Декоративная иллюстрация Om"
     }
   },
@@ -1505,7 +1505,7 @@
       "hours": "Часы работы",
       "fallbackPhone": "+37460500400",
       "fallbackEmail": "info@ommm.am",
-      "fallbackAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4th\u00a0floor",
+      "fallbackAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4-й\u00a0этаж",
       "fallbackHours": "Каждый день / 8:00 – 21:00",
       "mapHeading": "Карта",
       "instagram": "Instagram",

@@ -169,15 +169,18 @@ export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
   dayTabGap: "clamp(0.375rem, 1.2vw, 0.75rem)",
   sessionListGap: "clamp(1rem, 2vw, 1rem)",
   /** Desktop session row — space between duration and spots columns. */
-  sessionRowDurationSpotsGap: "clamp(1.5rem, 3vw, 2.5rem)",
+  sessionRowDurationSpotsGap: "clamp(1.75rem, 3vw, 2.75rem)",
   /** Desktop session row — space between spots and book button. */
-  sessionRowSpotsButtonGap: "clamp(1.5rem, 3vw, 2.5rem)",
+  sessionRowSpotsButtonGap: "clamp(2rem, 3.5vw, 3rem)",
   /** Fixed duration track — aligns duration + spots across rows (Safari-safe). */
-  sessionRowDurationColumnWidth: "4.75rem",
-  /** Fixed spots track — keeps duration/spots columns aligned across rows. */
-  sessionRowSpotsColumnWidth: "6.75rem",
-  /** Fixed time track — aligns session times across desktop rows. */
-  sessionRowTimeColumnWidth: "10.5rem",
+  sessionRowDurationColumnWidth: "5.25rem",
+  /**
+   * Fixed spots track — RU/HY “Осталось N мест” at desktop type size;
+   * wide enough that meta no longer collides with the book CTA.
+   */
+  sessionRowSpotsColumnWidth: "clamp(9.75rem, 12vw, 12.5rem)",
+  /** Fixed time track — clock + HH:mm; kept compact so meta can sit further left. */
+  sessionRowTimeColumnWidth: "8.75rem",
 } as const;
 
 /** Overlaps hero — panel `z-10` sits on photo; Our Core Practices gradient overlaps from below. */

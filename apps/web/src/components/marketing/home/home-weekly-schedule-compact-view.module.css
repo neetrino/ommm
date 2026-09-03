@@ -102,10 +102,11 @@
 
 .seeFullSlot {
   display: flex;
-  width: 9.0625rem;
+  width: auto;
+  max-width: 100%;
   flex-shrink: 0;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   overflow: visible;
 }
 
@@ -149,30 +150,33 @@ a.seeFullLink {
     display: grid;
     box-sizing: border-box;
     grid-template-columns:
-      var(--home-schedule-session-row-time-col-width, 10.5rem)
+      var(--home-schedule-session-row-time-col-width, 8.75rem)
       minmax(0, 1fr)
-      var(--home-schedule-session-row-duration-col-width, 4.75rem)
-      var(--home-schedule-session-row-spots-col-width, 6.75rem)
+      var(--home-schedule-session-row-duration-col-width, 5.25rem)
+      var(--home-schedule-session-row-spots-col-width, clamp(9.75rem, 12vw, 12.5rem))
       auto;
-    column-gap: clamp(1rem, 2vw, 1.5rem);
+    column-gap: clamp(1.25rem, 2.25vw, 1.75rem);
     align-items: center;
-    padding-inline: clamp(1rem, 2vw, 1.5rem);
+    padding-inline: clamp(1.25rem, 2.5vw, 1.75rem);
   }
 
   .seeFullSlot {
     grid-column: 5;
+    width: auto;
     justify-self: end;
-    margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 1.5rem);
+    margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 2rem);
+  }
+
+  a.seeFullLink {
+    /* Grow left for long locales; right edge stays flush with book CTAs. */
+    width: auto;
+    min-width: 9.0625rem;
   }
 }
 
 @media (min-width: 744px) and (max-width: 1366px) {
-  .seeFullSlot {
-    width: 7.25rem;
-  }
-
   a.seeFullLink {
-    min-width: 7.25rem;
+    min-width: 8.5rem;
   }
 }
 

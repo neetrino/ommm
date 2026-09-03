@@ -587,9 +587,9 @@
 
 @media (min-width: 744px) and (max-width: 1366px) {
   .bookBtn {
-    min-width: 7.25rem;
+    min-width: 8rem;
     min-height: 2.5rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.6875rem;
     line-height: 1rem;
     letter-spacing: 0.05rem;
@@ -602,7 +602,7 @@
 
 @media (min-width: 744px) and (max-width: 1366px) {
   .bookBtnHomeLayout {
-    width: 7.25rem;
+    width: 8.5rem;
   }
 }
 
