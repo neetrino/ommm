@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -9,8 +9,10 @@ import {
 } from "@/components/marketing/schedule/schedule-public-design";
 import { ScheduleDateControls } from "@/components/marketing/schedule/schedule-date-controls";
 import { ScheduleDaySessionsList } from "@/components/marketing/schedule/schedule-day-sessions-list";
-import { type ScheduleFilterOption } from "@/components/marketing/schedule/schedule-filter-dropdown";
-import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-filters-header";
+import {
+  ScheduleFiltersHeader,
+  type ScheduleFilterMultiOption,
+} from "@/components/marketing/schedule/schedule-filters-header";
 import { ScheduleWeekBoard } from "@/components/marketing/schedule/schedule-week-board";
 import pageStyles from "@/components/marketing/schedule/marketing-schedule-page-section.module.css";
 import {
@@ -22,6 +24,7 @@ import {
   startOfLocalDay,
   startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
+import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
 import { PUBLIC_SCHEDULE_RANGE_DAYS } from "@/lib/public-schedule-constants";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import {
@@ -67,7 +70,6 @@ export function MarketingScheduleView({
   initialItems,
   pageTitle,
 }: MarketingScheduleViewProps) {
-  const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
   const searchParams = useSearchParams();
   const audience = useMarketingAudience();
@@ -81,8 +83,8 @@ export function MarketingScheduleView({
     resolveInitialNav(baseline, dateParam, initialItems),
   );
   const userPickedDateRef = useRef(hasExplicitDateParam);
-  const [classType, setClassType] = useState("all");
-  const [instructor, setInstructor] = useState("all");
+  const [classTypes, setClassTypes] = useState<string[]>([]);
+  const [instructors, setInstructors] = useState<string[]>([]);
 
   const {
     items,
@@ -115,23 +117,17 @@ export function MarketingScheduleView({
     });
   }, [baseline, items, scheduleNow, sessionsReady]);
 
-  const classTypeOptions = useMemo<readonly ScheduleFilterOption<string>[]>(() => {
-    const distinct = getScheduleClassTypeValues(items);
-    return [
-      { value: "all", label: t("filterClassTypeAll") },
-      ...distinct.map((value) => ({ value, label: value })),
-    ];
-  }, [items, t]);
+  const classTypeOptions = useMemo<readonly ScheduleFilterMultiOption[]>(
+    () => getScheduleClassTypeValues(items).map((value) => ({ value, label: value })),
+    [items],
+  );
 
-  const instructorOptions = useMemo<readonly ScheduleFilterOption<string>[]>(() => {
+  const instructorOptions = useMemo<readonly ScheduleFilterMultiOption[]>(() => {
     const distinct = Array.from(
       new Set(items.map((item) => item.instructorName.trim())),
     ).filter((value) => value.length > 0);
-    return [
-      { value: "all", label: t("filterInstructorAll") },
-      ...distinct.map((value) => ({ value, label: value })),
-    ];
-  }, [items, t]);
+    return distinct.map((value) => ({ value, label: value }));
+  }, [items]);
 
   const dayToOffset = useMemo(() => marketingScheduleDayToOffset(), []);
 
@@ -147,30 +143,32 @@ export function MarketingScheduleView({
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
       .filter((item) => item.isActive)
-      .filter((item) => matchesMarketingScheduleFilters(item, classType, instructor))
+      .filter((item) => matchesMarketingScheduleFilters(item, classTypes, instructors))
       .filter((item) => {
         const rowDay = marketingScheduleItemDate(item, baselineWeekStart, dayToOffset);
         return weekDayKeys.has(toLocalIsoDate(rowDay));
       });
-  }, [baseline, classType, dayToOffset, instructor, items, weekDayKeys]);
+  }, [baseline, classTypes, dayToOffset, instructors, items, weekDayKeys]);
 
   const visibleSessions = useMemo(() => {
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
       .filter((item) => item.isActive)
+      .filter((item) => isUpcomingPublicScheduleSession(item, scheduleNow))
       .filter((item) => {
         const rowDay = marketingScheduleItemDate(item, baselineWeekStart, dayToOffset);
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
-        return matchesMarketingScheduleFilters(item, classType, instructor);
+        return matchesMarketingScheduleFilters(item, classTypes, instructors);
       })
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [
     baseline,
-    classType,
+    classTypes,
     dayToOffset,
-    instructor,
+    instructors,
     items,
     nav.selectedDate,
+    scheduleNow,
   ]);
 
   const monthLabel = formatScheduleMonthTitle(locale, nav.selectedDate);
@@ -188,7 +186,8 @@ export function MarketingScheduleView({
   });
 
   function selectDay(day: Date) {
-    if (isBeforeCalendarDay(day, weekFloor)) return;
+    const floor = isDesktop ? weekFloor : baseline;
+    if (isBeforeCalendarDay(day, floor)) return;
     userPickedDateRef.current = true;
     setNav({
       windowStart: startOfWeekSunday(day),
@@ -205,18 +204,18 @@ export function MarketingScheduleView({
           </header>
           <ScheduleFiltersHeader
             monthLabel={monthLabel}
-            filterClassType={classType}
-            filterInstructor={instructor}
+            classTypes={classTypes}
+            instructors={instructors}
             classTypeOptions={classTypeOptions}
             instructorOptions={instructorOptions}
-            onClassTypeChange={setClassType}
-            onInstructorChange={setInstructor}
+            onClassTypesChange={setClassTypes}
+            onInstructorsChange={setInstructors}
           />
           <ScheduleDateControls
             locale={locale}
             selectedDate={nav.selectedDate}
             windowStart={nav.windowStart}
-            minDate={weekFloor}
+            minDate={baseline}
             maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
             onSelectDay={selectDay}
             onShiftWindow={(delta) => {
@@ -256,12 +255,12 @@ export function MarketingScheduleView({
             <ScheduleFiltersHeader
               monthLabel={monthLabel}
               hideMonthLabel
-              filterClassType={classType}
-              filterInstructor={instructor}
+              classTypes={classTypes}
+              instructors={instructors}
               classTypeOptions={classTypeOptions}
               instructorOptions={instructorOptions}
-              onClassTypeChange={setClassType}
-              onInstructorChange={setInstructor}
+              onClassTypesChange={setClassTypes}
+              onInstructorsChange={setInstructors}
             />
           }
           onSelectDay={selectDay}

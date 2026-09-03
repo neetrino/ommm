@@ -4802,7 +4802,7 @@
       "packageNoPurchasePlans": "No packages are available for this class right now.",
       "policyConfirmTitle": "⚠️ Please note",
       "policyConfirmDescription": "If you cancel a class less than 24 hours before it starts, the session will be deducted from your package.",
-      "policyConfirmCheckbox": "I understand and agree",
+      "policyConfirmCheckbox": "I'm aware",
       "policyConfirmContinue": "Continue",
       "policyConfirmCancel": "Cancel",
       "policyConfirmBackdrop": "Close dialog"
