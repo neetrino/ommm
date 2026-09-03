@@ -72,6 +72,7 @@ export function SchedulePackageEligibilityBadge({
         isIncluded ? styles.included : styles.required,
         placement === "corner" ? styles.placementCorner : styles.placementAboveAction,
       ].join(" ")}
+      title={label}
     >
       {isIncluded ? <IncludedIcon /> : <RequiredIcon />}
       <span className={styles.label}>{label}</span>
