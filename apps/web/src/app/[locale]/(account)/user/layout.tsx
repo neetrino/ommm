@@ -3,7 +3,10 @@ import { headers } from "next/headers";
 import { MemberAccountHub } from "@/components/account/member-account-hub";
 import { MemberUserMobileViewport } from "@/components/account/member-user-mobile-viewport";
 import { UserMemberShellLayout } from "@/components/account/user-member-shell-layout";
-import { isMemberUserNotificationsPath } from "@/lib/member-user-hub-sheet-paths";
+import {
+  isMemberUserHubSheetPath,
+  isMemberUserNotificationsPath,
+} from "@/lib/member-user-hub-sheet-paths";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import { loadMemberAccountHubProfile } from "@/server/member-account-hub-profile-data";
 
@@ -18,18 +21,17 @@ export default async function UserLayout({ children, sheet = null, params }: Use
     params,
     headers().then((value) => value.get(OMMM_PATHNAME_HEADER) ?? ""),
   ]);
-  const hasSheetSlot = sheet != null;
+  const hasMobileSheet = sheet != null;
+  const onSheetRoute = isMemberUserHubSheetPath(requestPath);
   const onNotificationsRoute = isMemberUserNotificationsPath(requestPath);
-  const showNotificationsChrome = hasSheetSlot || onNotificationsRoute;
-  const hubProfile = showNotificationsChrome
-    ? await loadMemberAccountHubProfile()
-    : null;
+  const needsHubBackdrop = hasMobileSheet || onSheetRoute || onNotificationsRoute;
+  const hubProfile = needsHubBackdrop ? await loadMemberAccountHubProfile() : null;
 
   return (
     <UserMemberShellLayout params={params}>
       <MemberUserMobileViewport
-        hasMobileSheet={hasSheetSlot}
-        hasDesktopNotificationsSheet={onNotificationsRoute && hasSheetSlot}
+        hasMobileSheet={hasMobileSheet}
+        hasDesktopNotificationsSheet={onNotificationsRoute}
         hubBackdrop={
           hubProfile ? (
             <MemberAccountHub locale={locale} {...hubProfile} />

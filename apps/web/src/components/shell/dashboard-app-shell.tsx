@@ -280,6 +280,7 @@ export function DashboardAppShell({
               pathname={pathname}
               collapsed={isOliveShell ? false : sidebarCollapsed}
               onNavigate={() => undefined}
+              hardNavigate={variant === "member"}
             />
           </div>
           {isOliveShell && trailing ? (
