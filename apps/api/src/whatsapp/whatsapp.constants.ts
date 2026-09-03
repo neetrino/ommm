@@ -27,5 +27,8 @@ export const WHATSAPP_SELF_PHONE_VISIBLE_MIN = 4;
 export const WHATSAPP_ADMIN_TEST_MESSAGE =
   'Ommm: test message. WhatsApp Gateway is working.';
 
-/** Every customer WhatsApp action sends hy then en. */
+/** Every customer WhatsApp action includes hy then en in one message. */
 export const WHATSAPP_CUSTOMER_LOCALES = ['hy', 'en'] as const;
+
+/** Blank line between hy and en blocks in a single outbound message. */
+export const WHATSAPP_BILINGUAL_SEPARATOR = '\n\n\n';
