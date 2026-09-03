@@ -22,7 +22,9 @@ describe('BookingsStaffCancelService', () => {
       booking: { findUnique: jest.fn().mockResolvedValue(booking) },
     };
     const slots = { releaseSlot: jest.fn().mockResolvedValue(undefined) };
-    const schedule = { invalidatePublicCache: jest.fn().mockResolvedValue(undefined) };
+    const schedule = {
+      invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+    };
     const realtime = { emitBookingSessionChange: jest.fn() };
     const service = new BookingsStaffCancelService(
       prisma as never,

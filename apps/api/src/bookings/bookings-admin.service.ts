@@ -231,7 +231,11 @@ export class BookingsAdminService {
     };
   }
 
-  async adminUpdate(actor: User, bookingId: string, dto: UpdateAdminBookingDto) {
+  async adminUpdate(
+    actor: User,
+    bookingId: string,
+    dto: UpdateAdminBookingDto,
+  ) {
     if (dto.targetSessionId && dto.targetSessionId.trim() !== '') {
       await this.moveBooking(bookingId, dto.targetSessionId);
     }

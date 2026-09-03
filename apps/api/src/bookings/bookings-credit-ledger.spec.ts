@@ -145,14 +145,27 @@ describe('BookingsSlotService package credit release', () => {
       },
     );
 
-    expect(tx.booking.update).toHaveBeenCalledWith({
+    const updateCall = tx.booking.update.mock.calls[0] as
+      | [
+          {
+            where: { id: string };
+            data: {
+              status: BookingStatus;
+              cancelledAt: Date;
+              cancelledByUserId: string;
+            };
+          },
+        ]
+      | undefined;
+    expect(updateCall?.[0]).toEqual({
       where: { id: booking.id },
       data: {
         status: BookingStatus.CANCELLED,
-        cancelledAt: expect.any(Date),
+        cancelledAt: updateCall?.[0].data.cancelledAt,
         cancelledByUserId: 'manager-1',
       },
     });
+    expect(updateCall?.[0].data.cancelledAt).toBeInstanceOf(Date);
     expect(packageUsage.restoreSession).toHaveBeenCalledWith({
       tx,
       bookingId: booking.id,

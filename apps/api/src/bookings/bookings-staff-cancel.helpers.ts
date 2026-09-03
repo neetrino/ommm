@@ -37,9 +37,7 @@ export function isStaffCancellableBookingStatus(
 
 /** Completed / missed visits restore credit only while the package is still valid. */
 export function requiresOpenPackagePeriod(status: BookingStatus): boolean {
-  return (
-    status === BookingStatus.COMPLETED || status === BookingStatus.MISSED
-  );
+  return status === BookingStatus.COMPLETED || status === BookingStatus.MISSED;
 }
 
 /**

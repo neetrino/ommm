@@ -15,7 +15,9 @@ describe('bookings-staff-cancel.helpers', () => {
     expect(isStaffCancellableBookingStatus(BookingStatus.BOOKED)).toBe(true);
     expect(isStaffCancellableBookingStatus(BookingStatus.COMPLETED)).toBe(true);
     expect(isStaffCancellableBookingStatus(BookingStatus.MISSED)).toBe(true);
-    expect(isStaffCancellableBookingStatus(BookingStatus.CANCELLED)).toBe(false);
+    expect(isStaffCancellableBookingStatus(BookingStatus.CANCELLED)).toBe(
+      false,
+    );
     expect(STAFF_CANCELLABLE_BOOKING_STATUSES).toHaveLength(3);
   });
 
@@ -79,9 +81,9 @@ describe('bookings-staff-cancel.helpers', () => {
 
   it('reopens capacity only for upcoming booked seats', () => {
     const endsAt = new Date('2026-09-04T19:00:00.000Z');
-    expect(
-      shouldReopenSessionCapacity(BookingStatus.BOOKED, endsAt, now),
-    ).toBe(true);
+    expect(shouldReopenSessionCapacity(BookingStatus.BOOKED, endsAt, now)).toBe(
+      true,
+    );
     expect(
       shouldReopenSessionCapacity(
         BookingStatus.BOOKED,
@@ -92,9 +94,9 @@ describe('bookings-staff-cancel.helpers', () => {
     expect(
       shouldReopenSessionCapacity(BookingStatus.COMPLETED, endsAt, now),
     ).toBe(false);
-    expect(
-      shouldReopenSessionCapacity(BookingStatus.MISSED, endsAt, now),
-    ).toBe(false);
+    expect(shouldReopenSessionCapacity(BookingStatus.MISSED, endsAt, now)).toBe(
+      false,
+    );
   });
 
   it('allows restore when every consumed package is still open', () => {
