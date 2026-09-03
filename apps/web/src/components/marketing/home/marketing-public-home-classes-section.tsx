@@ -208,7 +208,7 @@ export async function MarketingPublicHomeClassesSection({
         <HomePageReveal index={HOME_CLASS_CARD_VISUALS.length}>
           <div className={styles.cta}>
             <HomeHeroCtaButton
-              href="/packages"
+              href="/package"
               label={t("viewMembership")}
               variant="membership"
             />

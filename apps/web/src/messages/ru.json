@@ -1785,6 +1785,8 @@
         }
       },
       "sessionClosed": "Закрыто",
+      "packageEligibilityIncluded": "Включено в ваш пакет",
+      "packageEligibilityRequired": "Нужен пакет {classType}",
       "emptyDay": "Нет занятий",
       "weekBoardAria": "Расписание на неделю",
       "todayBadge": "Сегодня",
@@ -2526,8 +2528,6 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Отменить бронирование?",
         "cancelConfirmDescription": "Отменить это бронирование? Место снова станет доступным.",
-        "cancelConfirmDescriptionNamed": "Отменить {className} {when}? Занятие вернётся в пакет, даже если класс уже прошёл.",
-        "cancelConfirmKeep": "Оставить бронирование",
         "cancelPastConfirmTitle": "Отменить прошедшее занятие?",
         "cancelPastConfirmDescription": "Занятие уже прошло. Мы отменим его в истории клиента и вернём занятие в пакет.",
         "cancelConfirmLabel": "Отменить бронирование",
@@ -2566,7 +2566,6 @@
         "giftCreated": "Подарочная карта создана",
         "noNotes": "Заметок пока нет.",
         "cancelled": "Отменено",
-        "cancelledBy": "Отменил(а) {name} ({role})",
         "attended": "Посещено",
         "signedUp": "Запись",
         "guestPass": "Гостевой пропуск"
@@ -3172,7 +3171,6 @@
         "cancelPastConfirmDescription": "Занятие уже прошло. Мы отменим его в истории клиента и вернём занятие в пакет.",
         "cancelConfirmLabel": "Отменить запись",
         "cancelSuccess": "Запись отменена",
-        "cancelledBy": "Отменил(а) {name} ({role})",
         "addButton": "Добавить",
         "addCancel": "Отмена",
         "addSearchLabel": "Найти клиента",
@@ -3187,8 +3185,7 @@
         "addSessionFull": "На занятии нет свободных мест.",
         "status": {
           "COMPLETED": "Присутствовал",
-          "MISSED": "Пропущено",
-          "CANCELLED": "Отменено"
+          "MISSED": "Пропущено"
         }
       },
       "actions": {

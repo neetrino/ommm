@@ -17,7 +17,9 @@ import {
   CONTENT_POSTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   CONTENT_POSTS_LIST_ROW_CLASS,
   CONTENT_POSTS_LIST_SPACER_CELL,
+  CONTENT_POSTS_LIST_STATUS_CELL,
   CONTENT_POSTS_LIST_TABLE_CLASS,
+  CONTENT_POSTS_LIST_TYPE_CELL,
   CONTENT_POSTS_LIST_ACTIONS_HEADER_CELL,
 } from "@/components/shared/content/content-posts-list-layout";
 import type { ContentPostRow } from "@/components/shared/content/content-post-types";
@@ -76,14 +78,14 @@ export function ContentPostCompactRow({
         </button>
       </div>
 
-      <div className={`${CONTENT_POSTS_LIST_CELL} md:flex md:justify-center`}>
+      <div className={CONTENT_POSTS_LIST_TYPE_CELL}>
         <AdminListMobileLabel label={t("colType")} />
         <span className={contentPostTypeBadgeClass(post.type)}>
           {t(`typeValues.${post.type}`)}
         </span>
       </div>
 
-      <div className={`${CONTENT_POSTS_LIST_CELL} md:flex md:justify-center`}>
+      <div className={CONTENT_POSTS_LIST_STATUS_CELL}>
         <AdminListMobileLabel label={t("colStatus")} />
         <span className={contentPostStatusBadgeClass(post.status)}>
           {t(`statusValues.${post.status}`)}

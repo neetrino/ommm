@@ -20,12 +20,22 @@ import { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import { ListMyBookingsQueryDto } from './dto/list-my-bookings-query.dto';
+import { ListSessionEligibilityQueryDto } from './dto/list-session-eligibility-query.dto';
 import { MoveBookingDto } from './dto/move-booking.dto';
 import { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookings: BookingsService) {}
+
+  @Get('sessions/eligibility')
+  @UseGuards(JwtAuthGuard)
+  listSessionEligibility(
+    @CurrentUser() user: { id: string },
+    @Query() query: ListSessionEligibilityQueryDto,
+  ) {
+    return this.bookings.listSessionEligibility(user.id, query.ids);
+  }
 
   @Get('sessions/:sessionId/eligible-packages')
   @UseGuards(JwtAuthGuard)

@@ -1,6 +1,5 @@
 "use client";
 
-import { useLocale } from "next-intl";
 import type { MouseEvent, ReactNode } from "react";
 import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import {
@@ -9,10 +8,7 @@ import {
   shouldUseMemberHubSheetNavigation,
 } from "@/lib/member-hub-sheet-navigation";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
-import {
-  localizedWorkspaceHref,
-  WORKSPACE_ROUTE_PREFETCH,
-} from "@/lib/workspace-nav-link";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 
 type WorkspaceShellNotificationLinkProps = {
@@ -59,14 +55,11 @@ export function WorkspaceShellNotificationLink({
   iconClassName = "h-5 w-5 shrink-0",
   onNavigate,
 }: WorkspaceShellNotificationLinkProps) {
-  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const isPhone = useMemberHubSheetPhone();
-  const memberSheetHref = isMemberUserHubSheetHref(href);
-  const useHardNav = !isPhone && memberSheetHref;
   const useOverlayNav =
-    memberSheetHref &&
+    isMemberUserHubSheetHref(href) &&
     shouldUseMemberHubSheetNavigation(href, pathname ?? "") &&
     isPhone;
 
@@ -91,21 +84,6 @@ export function WorkspaceShellNotificationLink({
       <span className="sr-only">{label}</span>
     </>
   );
-
-  if (useHardNav) {
-    return (
-      <a
-        href={localizedWorkspaceHref(locale, href)}
-        className={className}
-        aria-label={label}
-        aria-current={active ? "page" : undefined}
-        title={label}
-        onClick={handleClick}
-      >
-        {content}
-      </a>
-    );
-  }
 
   return (
     <Link

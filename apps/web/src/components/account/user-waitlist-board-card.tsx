@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { LeaveWaitlistButton } from "@/components/account/leave-waitlist-button";
 import {
   resolveSessionCoachName,
   SessionCoachLine,
@@ -12,9 +13,14 @@ import type { UserWaitlistRow } from "@/lib/user-booking-types";
 type UserWaitlistBoardCardProps = {
   locale: string;
   waitlist: UserWaitlistRow;
+  onLeft?: () => void;
 };
 
-export function UserWaitlistBoardCard({ locale, waitlist }: UserWaitlistBoardCardProps) {
+export function UserWaitlistBoardCard({
+  locale,
+  waitlist,
+  onLeft,
+}: UserWaitlistBoardCardProps) {
   const t = useTranslations("userPages.waitlists");
   const coachName = resolveSessionCoachName(waitlist.session.coach);
 
@@ -38,6 +44,16 @@ export function UserWaitlistBoardCard({ locale, waitlist }: UserWaitlistBoardCar
       <p className="mt-4 text-xs uppercase tracking-wide text-sage-500">
         {t("waitlistBadge", { pos: waitlist.position, status: waitlist.status })}
       </p>
+
+      <div className="mt-auto flex justify-end border-t border-white/70 pt-4">
+        <LeaveWaitlistButton
+          sessionId={waitlist.session.id}
+          appearance="button"
+          size="sm"
+          wrapperClassName="flex flex-col items-end gap-1"
+          onLeft={onLeft}
+        />
+      </div>
     </article>
   );
 }

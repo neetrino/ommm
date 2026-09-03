@@ -63,7 +63,7 @@ export const ADMIN_WAITLIST_LIST_USER_CELL =
   "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left";
 
 export const ADMIN_WAITLIST_LIST_DATE_TIME_CELL =
-  "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left tabular-nums";
+  "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left tabular-nums md:text-center";
 
 export const ADMIN_WAITLIST_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
 

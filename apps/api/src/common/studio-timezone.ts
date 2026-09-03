@@ -120,9 +120,7 @@ export function startOfStudioWeekSunday(reference: Date = new Date()): Date {
 }
 
 /** `YYYY-MM-DD` for Sunday of the studio week that contains `reference`. */
-export function studioWeekStartCalendarDate(
-  reference: Date = new Date(),
-): string {
+export function studioWeekStartCalendarDate(reference: Date = new Date()): string {
   const calendarDate = utcToStudioCalendarDate(reference);
   const offset = STUDIO_WEEKDAY_OFFSET[utcToStudioDayOfWeek(reference)];
   return addStudioCalendarDays(calendarDate, -offset);

@@ -22,6 +22,7 @@ import {
   userSessionIntegratedFilterValues,
   type UserSessionFilterValues,
 } from "@/components/account/user-session-filters";
+import { LeaveWaitlistButton } from "@/components/account/leave-waitlist-button";
 import { UserWaitlistBoardCard } from "@/components/account/user-waitlist-board-card";
 import {
   USER_BOOKINGS_LIST_ACTIONS_CELL,
@@ -63,7 +64,12 @@ export function UserWaitlistsSection({
     rows: liveRows,
     loaded: liveLoaded,
     error: liveError,
+    refetch: refetchWaitlist,
   } = useMemberWaitlistData(true);
+
+  const handleLeftWaitlist = useCallback(() => {
+    void refetchWaitlist({ silent: true });
+  }, [refetchWaitlist]);
   const effectiveRows = liveLoaded ? liveRows : rows;
   const effectiveLoadError = liveLoaded ? liveError : loadError;
   const tSort = useTranslations("listSort");
@@ -221,7 +227,11 @@ export function UserWaitlistsSection({
             <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {filteredRows.map((item) => (
                 <li key={item.id} className="min-w-0 list-none">
-                  <UserWaitlistBoardCard locale={locale} waitlist={item} />
+                  <UserWaitlistBoardCard
+                    locale={locale}
+                    waitlist={item}
+                    onLeft={handleLeftWaitlist}
+                  />
                 </li>
               ))}
             </ul>
@@ -265,7 +275,12 @@ export function UserWaitlistsSection({
                       {t("waitlistBadge", { pos: item.position, status: item.status })}
                     </p>
                   </div>
-                  <div className={USER_BOOKINGS_LIST_ACTIONS_CELL} aria-hidden="true" />
+                  <div className={USER_BOOKINGS_LIST_ACTIONS_CELL}>
+                    <LeaveWaitlistButton
+                      sessionId={item.session.id}
+                      onLeft={handleLeftWaitlist}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-aware/auth-aware-schedule-booking-action";
 import styles from "@/components/marketing/home/home-weekly-schedule-session-row.module.css";
@@ -7,6 +9,7 @@ import { getHomeWeeklyScheduleRowGradient } from "@/components/marketing/home/ge
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import {
   SCHEDULE_BOOK_BTN_HOME,
+  SCHEDULE_CANCEL_BTN_HOME,
 } from "@/components/marketing/schedule/schedule-public-design";
 import { SessionDateTimeListDateChip } from "@/components/shared/schedule/session-datetime-list-display";
 import {
@@ -16,6 +19,11 @@ import {
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import { SchedulePackageEligibilityBadge } from "@/components/marketing/schedule/schedule-package-eligibility-badge";
+import { ScheduleSessionBookedHeaderBadge } from "@/components/marketing/schedule/schedule-session-booked-header-badge";
+import type { ScheduleSessionEligibility } from "@/lib/schedule-session-eligibility";
+import { resolveSchedulePackageEligibilityBadge } from "@/lib/schedule-session-eligibility";
+import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import Image from "next/image";
@@ -46,6 +54,8 @@ type HomeWeeklyScheduleSessionRowProps = {
   onWaitlistLeft?: (sessionId: string) => void;
   className?: string;
   style?: CSSProperties;
+  packageEligibility?: ScheduleSessionEligibility;
+  eligibilityLoaded?: boolean;
 };
 
 export function HomeWeeklyScheduleSessionRow({
@@ -71,6 +81,8 @@ export function HomeWeeklyScheduleSessionRow({
   onWaitlistLeft,
   className,
   style,
+  packageEligibility,
+  eligibilityLoaded = true,
 }: HomeWeeklyScheduleSessionRowProps) {
   const dateTimeRange = buildMarketingScheduleItemDateTimeRange(item);
   const dateTimeDisplay =
@@ -86,6 +98,17 @@ export function HomeWeeklyScheduleSessionRow({
   const spotsUrgent = item.availableSpots <= HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgentThreshold;
   const rowGradientDesktop = getHomeWeeklyScheduleRowGradient(item.classType, "desktop");
   const rowGradientMobile = getHomeWeeklyScheduleRowGradient(item.classType, "mobile");
+  const isPhone = useIsMarketingPhoneViewport();
+  const isMember = audience === "member";
+  const eligibilityBadge = resolveSchedulePackageEligibilityBadge({
+    isMember,
+    isClosed,
+    userBookingId,
+    eligibility: packageEligibility,
+    eligibilityLoaded,
+  });
+  const showBookedHeaderBadge =
+    isPhone && !isClosed && bookingEnabled && userBookingId !== undefined;
 
   return (
     <article
@@ -101,28 +124,44 @@ export function HomeWeeklyScheduleSessionRow({
         ["--home-schedule-row-padding" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowPadding,
       }}
     >
-      <div className={styles.timeCluster}>
-        {showDate && dateTimeDisplay !== null ? (
-          <SessionDateTimeListDateChip display={dateTimeDisplay} />
-        ) : null}
-        <div className={styles.timeIconGroup}>
-          <Image
-            src={HOME_WEEKLY_SCHEDULE_ASSETS.clockIcon}
-            alt=""
-            width={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
-            height={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
-            unoptimized
-            className={styles.timeIcon}
-            aria-hidden
-            {...belowFoldImageProps()}
-          />
-          <p
-            className={`${styles.time} text-lg font-bold tracking-[0.03125rem] sm:text-xl`}
-            style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
-          >
-            {timeLabel}
-          </p>
+      <div className={styles.headerRow}>
+        <div className={styles.timeCluster}>
+          {showDate && dateTimeDisplay !== null ? (
+            <SessionDateTimeListDateChip display={dateTimeDisplay} />
+          ) : null}
+          <div className={styles.timeIconGroup}>
+            <Image
+              src={HOME_WEEKLY_SCHEDULE_ASSETS.clockIcon}
+              alt=""
+              width={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
+              height={HOME_WEEKLY_SCHEDULE_FIGMA.clockIconSizePx}
+              unoptimized
+              className={styles.timeIcon}
+              aria-hidden
+              {...belowFoldImageProps()}
+            />
+            <p
+              className={`${styles.time} text-lg font-bold tracking-[0.03125rem] sm:text-xl`}
+              style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.titleInk }}
+            >
+              {timeLabel}
+            </p>
+          </div>
         </div>
+
+        {showBookedHeaderBadge ? (
+          <div className={styles.headerStatusBadge}>
+            <ScheduleSessionBookedHeaderBadge />
+          </div>
+        ) : eligibilityBadge !== null ? (
+          <div className={styles.headerStatusBadge}>
+            <SchedulePackageEligibilityBadge
+              status={eligibilityBadge.status}
+              classTypeName={eligibilityBadge.classTypeName}
+              placement="corner"
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className={styles.classBlock}>
@@ -142,24 +181,38 @@ export function HomeWeeklyScheduleSessionRow({
         </p>
       </div>
 
-      <p
-        className={`${styles.duration} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-        style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
-      >
-        {durationLabel}
-      </p>
-      <p
-        className={`${styles.spots} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
-        style={{
-          color: spotsUrgent
-            ? HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgent
-            : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
-        }}
-      >
-        {spotsLeftLabel}
-      </p>
+      <div className={styles.metaRow}>
+        <p
+          className={`${styles.duration} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
+          style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
+        >
+          {durationLabel}
+        </p>
+        <span className={styles.metaDivider} aria-hidden>
+          |
+        </span>
+        <p
+          className={`${styles.spots} text-base font-medium leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}
+          style={{
+            color: spotsUrgent
+              ? HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgent
+              : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
+          }}
+        >
+          {spotsLeftLabel}
+        </p>
+      </div>
 
       <div className={styles.bookAction}>
+        {eligibilityBadge !== null ? (
+          <div className={styles.eligibilityBadgeAboveAction}>
+            <SchedulePackageEligibilityBadge
+              status={eligibilityBadge.status}
+              classTypeName={eligibilityBadge.classTypeName}
+              placement="aboveAction"
+            />
+          </div>
+        ) : null}
         {isClosed ? (
           <p className={styles.closedLabel}>{closedLabel ?? bookLabel}</p>
         ) : bookingEnabled ? (
@@ -172,11 +225,13 @@ export function HomeWeeklyScheduleSessionRow({
             bookLabel={bookLabel}
             audience={audience}
             className={SCHEDULE_BOOK_BTN_HOME}
+            cancelClassName={SCHEDULE_CANCEL_BTN_HOME}
             userBookingId={userBookingId}
             userBookingCreatedAt={userBookingCreatedAt}
             bookingStateReady={bookingStateReady}
             initialOnWaitlist={isOnWaitlist}
             loginReturnPath={loginReturnPath}
+            hideInlineBookedBadge={showBookedHeaderBadge}
             onBooked={(bookingId) => onBooked?.(item.id, bookingId)}
             onCancelled={() => onCancelled?.(item.id)}
             onWaitlisted={() => onWaitlisted?.(item.id)}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+import { LayoutGroup } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
@@ -12,6 +14,11 @@ import {
   WhatsappBrandIcon,
   WHATSAPP_BRAND_ICON_SM_CLASS,
 } from "@/components/ui/whatsapp-brand-icon";
+import { OliveSegmentedActiveThumb } from "@/components/ui/olive-segmented-active-thumb";
+import {
+  oliveSegmentedHugSegmentClassName,
+  oliveSegmentedHugTrackClass,
+} from "@/components/ui/olive-segmented-switcher";
 
 const TAB_LABEL_KEY: Record<AdminSettingsTabId, string> = {
   studio: "studio",
@@ -23,43 +30,47 @@ const TAB_LABEL_KEY: Record<AdminSettingsTabId, string> = {
   whatsapp: "whatsapp",
 };
 
+const SETTINGS_PILL_LAYOUT_ID = "admin-settings-olive-segmented-pill";
+
 export function AdminSettingsTabNav({ className = "" }: { className?: string }) {
   const t = useTranslations("adminPages.settings.tabs");
   const pathname = usePathname();
   const activeTab = resolveAdminSettingsTabFromPathname(pathname);
+  const layoutGroupId = useId();
 
   return (
-    <nav
-      role="tablist"
-      aria-label={t("aria")}
-      className={`flex w-full min-w-0 max-w-full touch-pan-x flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
-    >
-      {ADMIN_SETTINGS_TAB_IDS.map((tab) => {
-        const href = ADMIN_SETTINGS_TAB_HREF[tab];
-        const active = activeTab === tab;
-        return (
-          <Link
-            key={tab}
-            href={href}
-            role="tab"
-            aria-selected={active}
-            aria-current={active ? "page" : undefined}
-            scroll={false}
-            className={
-              active
-                ? "ommm-admin-pill-tab ommm-admin-pill-tab-active shrink-0 px-4 normal-case tracking-normal"
-                : "ommm-admin-pill-tab shrink-0 px-4 normal-case tracking-normal"
-            }
-          >
-            <span className="inline-flex items-center gap-1.5">
-              {tab === "whatsapp" ? (
-                <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+    <LayoutGroup id={layoutGroupId}>
+      <nav
+        role="tablist"
+        aria-label={t("aria")}
+        className={oliveSegmentedHugTrackClass(className)}
+      >
+        {ADMIN_SETTINGS_TAB_IDS.map((tab) => {
+          const href = ADMIN_SETTINGS_TAB_HREF[tab];
+          const active = activeTab === tab;
+          return (
+            <Link
+              key={tab}
+              href={href}
+              role="tab"
+              aria-selected={active}
+              aria-current={active ? "page" : undefined}
+              scroll={false}
+              className={oliveSegmentedHugSegmentClassName(active)}
+            >
+              {active ? (
+                <OliveSegmentedActiveThumb layoutId={SETTINGS_PILL_LAYOUT_ID} />
               ) : null}
-              {t(TAB_LABEL_KEY[tab])}
-            </span>
-          </Link>
-        );
-      })}
-    </nav>
+              <span className="relative z-10 inline-flex items-center gap-1.5">
+                {tab === "whatsapp" ? (
+                  <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+                ) : null}
+                {t(TAB_LABEL_KEY[tab])}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+    </LayoutGroup>
   );
 }

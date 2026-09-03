@@ -1,0 +1,61 @@
+.badge {
+  display: inline-flex;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 0.375rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 0.3125rem 0.625rem;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.125rem;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.icon {
+  display: block;
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.included {
+  border: 1px solid rgb(196 201 176 / 0.85);
+  background: rgb(248 250 241 / 0.96);
+  color: #566044;
+}
+
+.required {
+  border: 1px solid rgb(214 211 203 / 0.9);
+  background: rgb(255 255 255 / 0.94);
+  color: #4f4b43;
+}
+
+.placementAboveAction {
+  align-self: flex-end;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.placementCorner {
+  align-self: center;
+}
+
+@media (min-width: 744px) {
+  .badge {
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    padding: 0.3125rem 0.75rem;
+  }
+}

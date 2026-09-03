@@ -1,4 +1,8 @@
 import styles from "@/components/marketing/schedule/schedule-public-design.module.css";
+import {
+  SESSION_BOOKED_BUTTON_SCHEDULE_CLASS,
+  SESSION_BOOKED_BUTTON_SCHEDULE_SM_CLASS,
+} from "@/components/account/session-booked-badge";
 
 /** Schedule marketing page — luxury wellness tokens aligned with home weekly schedule. */
 export const SCHEDULE_PAGE_BG = "relative overflow-hidden";
@@ -12,8 +16,13 @@ export const SCHEDULE_SESSION_ROW = styles.sessionRow;
 export const SCHEDULE_BOOK_BTN = styles.bookBtn;
 export const SCHEDULE_BOOK_BTN_HOME = `${styles.bookBtn} ${styles.bookBtnHomeLayout}`;
 export const SCHEDULE_CANCEL_BTN = styles.cancelBtn;
-export const SCHEDULE_BOOKED_BTN = styles.bookedBtn;
+export const SCHEDULE_CANCEL_BTN_HOME = `${styles.cancelBtn} ${styles.bookBtnHomeLayout}`;
+export const SCHEDULE_BOOKED_BTN = SESSION_BOOKED_BUTTON_SCHEDULE_CLASS;
+export const SCHEDULE_BOOKED_BTN_COMPACT = SESSION_BOOKED_BUTTON_SCHEDULE_SM_CLASS;
 export const SCHEDULE_BOOK_ACTION_GROUP = styles.bookActionGroup;
+export const SCHEDULE_BOOK_ACTION_GROUP_CENTERED = styles.bookActionGroupCentered;
+export const SCHEDULE_BOOK_ACTION_GROUP_STACKED = styles.bookActionGroupStacked;
+export const SCHEDULE_BOOK_ACTION_INLINE_WRAP = styles.bookActionInlineWrap;
 
 export const SCHEDULE_FILTER_TRIGGER = `${styles.filterTrigger} ommm-dropdown-trigger`;
 export const SCHEDULE_FILTER_LABEL = styles.filterLabel;

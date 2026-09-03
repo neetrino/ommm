@@ -101,8 +101,12 @@ export function AdminManagersDirectory({ initial }: AdminManagersDirectoryProps)
         <div className={ADMIN_MANAGERS_LIST_HEADER_CLASS}>
           <span>{t("colManagers")}</span>
           <span className={ADMIN_MANAGERS_LIST_EMPHASIZED_HEADER}>{t("colEmail")}</span>
-          <span className={ADMIN_MANAGERS_LIST_EMPHASIZED_HEADER}>{t("colAccess")}</span>
-          <span className={ADMIN_MANAGERS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
+          <span className={`${ADMIN_MANAGERS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+            {t("colAccess")}
+          </span>
+          <span className={`${ADMIN_MANAGERS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+            {t("colJoined")}
+          </span>
           <span className={ADMIN_MANAGERS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         </div>
         {rows.map((manager) => (

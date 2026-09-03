@@ -98,16 +98,18 @@
   flex-shrink: 0;
   min-height: 2.75rem;
   min-width: 0;
-  align-items: center;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
   gap: 0.375rem;
   margin-top: auto;
+  overflow: hidden;
   border-top: 1px solid rgb(255 255 255 / 0.45);
   padding: 0.5rem 0.75rem 0.75rem;
 }
 
 .closedLabel {
-  margin: 0;
+  margin: 0 0 0 auto;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
@@ -119,7 +121,9 @@
 /** Compact week-column sizing on top of schedule glass Book / Cancel / Booked. */
 .bookBtnCompact {
   min-width: 0;
-  width: auto;
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-end;
   min-height: 2rem;
   height: 2rem;
   padding: 0.25rem 0.625rem;
@@ -128,15 +132,16 @@
   letter-spacing: 0.03125rem;
 }
 
-.bookedBtnCompact {
+/* Beat `.bookBtn` cascade (imported from another CSS module) so soft-nav doesn't flash large CTAs. */
+.card .footer .bookBtnCompact {
   min-width: 0;
-  width: auto;
+  width: fit-content;
+  max-width: 100%;
   min-height: 2rem;
   height: 2rem;
   padding: 0.25rem 0.625rem;
   font-size: 0.6875rem;
   line-height: 1rem;
-  letter-spacing: 0.03125rem;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

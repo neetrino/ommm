@@ -42,7 +42,7 @@ function SheetCloseIcon() {
   );
 }
 
-/** Member hub section overlay — bottom sheet on phone, optional right panel on desktop. */
+/** Member hub overlay — bottom sheet on phone; notifications use a right panel on desktop. */
 export function MemberAccountHubSectionSheet({
   title,
   closeLabel,

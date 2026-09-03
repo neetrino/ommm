@@ -59,6 +59,7 @@ export function homeFooterStyleVars(surfaceVariant: HomeFooterSurfaceVariant): C
     ["--home-footer-mobile-social-margin-top" as string]: mobileLayout.socialSectionMarginTop,
     ["--home-footer-mobile-payment-margin-top" as string]: mobileLayout.paymentSectionMarginTop,
     ["--home-footer-mobile-legal-gap" as string]: mobileLayout.legalGap,
+    ["--home-footer-mobile-legal-gap-stacked" as string]: mobileLayout.legalGapStacked,
     ["--home-footer-mobile-legal-margin-top" as string]: mobileLayout.legalSectionMarginTop,
     ["--home-footer-mobile-copyright-margin-top" as string]: mobileLayout.copyrightMarginTop,
     ["--home-footer-mobile-copyright-size" as string]: mobileLayout.copyrightFontSize,

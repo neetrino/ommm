@@ -32,6 +32,7 @@ import {
   sessionBookingId,
   type UserSessionBookingMap,
 } from "@/lib/user-session-bookings-map";
+import type { ScheduleSessionEligibilityMap } from "@/lib/schedule-session-eligibility";
 
 const SKELETON_CARDS_PER_DAY = 2;
 
@@ -48,6 +49,8 @@ type ScheduleWeekBoardProps = {
   waitlistedSessionIds: ReadonlySet<string>;
   memberWaitlistLoaded: boolean;
   memberActionStateReady: boolean;
+  eligibilityBySessionId: ScheduleSessionEligibilityMap;
+  eligibilityLoaded: boolean;
   minDate: Date;
   maxDate: Date;
   canShiftPrev: boolean;
@@ -77,6 +80,8 @@ export function ScheduleWeekBoard({
   waitlistedSessionIds,
   memberWaitlistLoaded,
   memberActionStateReady,
+  eligibilityBySessionId,
+  eligibilityLoaded,
   minDate,
   maxDate,
   canShiftPrev,
@@ -148,6 +153,8 @@ export function ScheduleWeekBoard({
         userBookingCreatedAt={sessionBookingCreatedAt(bookedBySessionId, row.id)}
         bookingStateReady={memberActionStateReady}
         isOnWaitlist={showOnWaitlist}
+        packageEligibility={eligibilityBySessionId.get(row.id)}
+        eligibilityLoaded={eligibilityLoaded}
         onBooked={onBooked}
         onCancelled={onCancelled}
         onWaitlisted={onWaitlisted}

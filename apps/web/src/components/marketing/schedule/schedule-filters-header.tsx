@@ -2,6 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import {
+  SCHEDULE_FILTER_LABEL,
+  SCHEDULE_FILTER_MENU,
+  SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX,
+  SCHEDULE_FILTER_MENU_MIN_WIDTH_PX,
   SCHEDULE_FILTER_ROOT,
   SCHEDULE_FILTER_TRIGGER,
   SCHEDULE_MONTH_FILTERS_CONTROLS,
@@ -53,6 +57,11 @@ export function ScheduleFiltersHeader({
         <OmmFilterMultiSelect
           className={SCHEDULE_FILTER_ROOT}
           triggerClassName={SCHEDULE_FILTER_TRIGGER}
+          menuClassName={SCHEDULE_FILTER_MENU}
+          labelClassName={SCHEDULE_FILTER_LABEL}
+          menuMinWidth={SCHEDULE_FILTER_MENU_MIN_WIDTH_PX}
+          menuMaxHeight={SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX}
+          menuAlign="end"
           ariaLabel={t("filterClassTypeAria")}
           allLabel={t("filterClassTypeAll")}
           options={classTypeOptions}
@@ -63,6 +72,11 @@ export function ScheduleFiltersHeader({
         <OmmFilterMultiSelect
           className={SCHEDULE_FILTER_ROOT}
           triggerClassName={SCHEDULE_FILTER_TRIGGER}
+          menuClassName={SCHEDULE_FILTER_MENU}
+          labelClassName={SCHEDULE_FILTER_LABEL}
+          menuMinWidth={SCHEDULE_FILTER_MENU_MIN_WIDTH_PX}
+          menuMaxHeight={SCHEDULE_FILTER_MENU_MAX_HEIGHT_PX}
+          menuAlign="end"
           ariaLabel={t("filterInstructorAria")}
           allLabel={t("filterInstructorAll")}
           options={instructorOptions}

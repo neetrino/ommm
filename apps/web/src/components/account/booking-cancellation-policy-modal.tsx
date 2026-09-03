@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { OmmConfirmCenteredModal } from "@/components/ui/omm-confirm-centered-modal";
 
@@ -24,15 +24,11 @@ export function BookingCancellationPolicyModal({
   const checkboxId = useId();
   const [acknowledged, setAcknowledged] = useState(false);
 
-  const handleCancel = () => {
-    setAcknowledged(false);
-    onCancel();
-  };
-
-  const handleConfirm = () => {
-    onConfirm();
-    setAcknowledged(false);
-  };
+  useEffect(() => {
+    if (!isOpen) {
+      setAcknowledged(false);
+    }
+  }, [isOpen]);
 
   return (
     <OmmConfirmCenteredModal
@@ -45,8 +41,8 @@ export function BookingCancellationPolicyModal({
       tone="warm"
       pending={pending}
       confirmPending={pending || !acknowledged}
-      onConfirm={handleConfirm}
-      onCancel={handleCancel}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
     >
       <label
         htmlFor={checkboxId}

@@ -21,10 +21,21 @@ export {
   type PackageLifecycleController,
 };
 
-type LifecycleLayout = "inline" | "sheetFooter" | "sheetHeader" | "list" | "board";
+type LifecycleLayout =
+  | "inline"
+  | "sheetFooter"
+  | "sheetHeader"
+  | "list"
+  | "board"
+  | "boardPhone";
 
 const PACKAGE_PAUSE_BUTTON_CLASS = "ommm-btn-lifecycle-action--warm";
 const PACKAGE_CANCEL_BUTTON_CLASS = "ommm-btn-lifecycle-action--danger";
+const PACKAGE_CANCEL_PHONE_BUTTON_CLASS = [
+  "ommm-btn-lifecycle-action--danger",
+  "min-h-0 border-red-300 bg-red-100 px-4 py-2",
+  "text-xs font-semibold uppercase tracking-[0.08em] text-red-800",
+].join(" ");
 
 type UserPackageLifecycleActionsProps = {
   userPackageId: string;
@@ -53,7 +64,7 @@ function layoutConfig(layout: LifecycleLayout): {
   if (layout === "sheetHeader") {
     return {
       buttonSize: "sm",
-      containerClass: "flex flex-wrap items-center justify-start gap-2",
+      containerClass: "flex flex-wrap items-center justify-end gap-2",
       buttonClass: "px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em]",
       messageClass: "w-full text-right",
     };
@@ -72,6 +83,14 @@ function layoutConfig(layout: LifecycleLayout): {
       containerClass: "flex w-full flex-col gap-2",
       buttonClass: "",
       messageClass: "w-full text-center",
+    };
+  }
+  if (layout === "boardPhone") {
+    return {
+      buttonSize: "sm",
+      containerClass: "flex w-full flex-col items-end gap-1.5",
+      buttonClass: "",
+      messageClass: "w-full text-right",
     };
   }
   return {
@@ -137,6 +156,7 @@ export function UserPackageLifecycleActions({
             unfreezeLabel={unfreezeLabel}
             renewLabel={renewLabel}
             cancelLabel={cancelLabel}
+            compactCancel
           />
         </div>
         {dialog}
@@ -166,7 +186,9 @@ export function UserPackageLifecycleActions({
             className={
               layout === "board"
                 ? "flex w-full flex-wrap items-center gap-2"
-                : "flex flex-wrap gap-2"
+                : layout === "boardPhone"
+                  ? "flex w-full flex-wrap items-center justify-end gap-2"
+                  : "flex flex-wrap gap-2"
             }
           >
             <LifecycleButtons
@@ -181,6 +203,7 @@ export function UserPackageLifecycleActions({
               unfreezeLabel={unfreezeLabel}
               renewLabel={renewLabel}
               cancelLabel={cancelLabel}
+              compactCancel={layout === "boardPhone"}
             />
           </div>
         ) : null}
@@ -207,6 +230,7 @@ type LifecycleButtonsProps = {
   unfreezeLabel: string;
   renewLabel: string;
   cancelLabel: string;
+  compactCancel?: boolean;
 };
 
 function LifecycleButtons({
@@ -221,6 +245,7 @@ function LifecycleButtons({
   unfreezeLabel,
   renewLabel,
   cancelLabel,
+  compactCancel = false,
 }: LifecycleButtonsProps) {
   return (
     <>
@@ -262,7 +287,12 @@ function LifecycleButtons({
           size={size}
           variant="secondary"
           disabled={lifecycle.busy}
-          className={[className, PACKAGE_CANCEL_BUTTON_CLASS].filter(Boolean).join(" ")}
+          className={[
+            className,
+            compactCancel ? PACKAGE_CANCEL_PHONE_BUTTON_CLASS : PACKAGE_CANCEL_BUTTON_CLASS,
+          ]
+            .filter(Boolean)
+            .join(" ")}
           onClick={() => lifecycle.openConfirm("cancel")}
         >
           {cancelLabel}
@@ -314,6 +344,7 @@ function PackageLifecycleDialogs({
       tone={config.tone}
       confirmClassName={config.confirmClassName}
       pending={lifecycle.busy}
+      forceCenteredModal
       onConfirm={config.onConfirm}
       onCancel={lifecycle.closeConfirm}
     />

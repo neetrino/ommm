@@ -1788,6 +1788,8 @@
         }
       },
       "sessionClosed": "Փակված",
+      "packageEligibilityIncluded": "Ներառված է ձեր փաթեթում",
+      "packageEligibilityRequired": "Պահանջվում է {classType} փաթեթ",
       "emptyDay": "Դասեր չկան",
       "weekBoardAria": "Շաբաթական դասացուցակ",
       "todayBadge": "Այսօր",
@@ -2529,8 +2531,6 @@
         "cancelButton": "Cancel",
         "cancelConfirmTitle": "Չեղարկե՞լ ամրագրումը",
         "cancelConfirmDescription": "Չեղարկե՞լ այս ամրագրումը։ Տեղը կրկին հասանելի կդառնա։",
-        "cancelConfirmDescriptionNamed": "Չեղարկե՞լ {className} դասը {when}։ Փաթեթի սեսիան կվերադառնա նույնիսկ եթե դասն արդեն անցել է։",
-        "cancelConfirmKeep": "Պահել ամրագրումը",
         "cancelPastConfirmTitle": "Չեղարկե՞լ անցած պարապմունքը",
         "cancelPastConfirmDescription": "Պարապմունքն արդեն անցել է։ Այն կչեղարկվի հաճախորդի պատմությունում, և պարապմունքը կվերադարձվի փաթեթ։",
         "cancelConfirmLabel": "Չեղարկել ամրագրումը",
@@ -2569,7 +2569,6 @@
         "giftCreated": "Նվեր քարտը ստեղծվեց",
         "noNotes": "Նշումներ դեռ չկան։",
         "cancelled": "Չեղարկված",
-        "cancelledBy": "Չեղարկել է {name} ({role})",
         "attended": "Մասնակցել է",
         "signedUp": "Գրանցվել է",
         "guestPass": "Հյուրի անցագիր"
@@ -3175,7 +3174,6 @@
         "cancelPastConfirmDescription": "Պարապմունքն արդեն անցել է։ Այն կչեղարկվի հաճախորդի պատմությունում, և պարապմունքը կվերադարձվի փաթեթ։",
         "cancelConfirmLabel": "Չեղարկել գրանցումը",
         "cancelSuccess": "Գրանցումը չեղարկվեց",
-        "cancelledBy": "Չեղարկել է {name} ({role})",
         "addButton": "Ավելացնել",
         "addCancel": "Չեղարկել",
         "addSearchLabel": "Գտնել հաճախորդին",
@@ -3190,8 +3188,7 @@
         "addSessionFull": "Դասը լրացված է։",
         "status": {
           "COMPLETED": "Մասնակցել է",
-          "MISSED": "Բաց է թողել",
-          "CANCELLED": "Չեղարկված"
+          "MISSED": "Բաց է թողել"
         }
       },
       "actions": {

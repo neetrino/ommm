@@ -51,7 +51,7 @@ function AdminAnalyticsUnifiedHeaderInner({
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 overflow-visible max-sm:justify-center sm:justify-start">
         <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
-        <AdminAnalyticsTabNav workspace={workspace} className="w-full min-w-0 max-w-full" />
+        <AdminAnalyticsTabNav workspace={workspace} />
         {section ? (
           <div className="flex min-w-0 w-full items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <AdminAnalyticsHeroFilters
@@ -91,7 +91,7 @@ function AdminAnalyticsUnifiedHeaderFallback({
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:justify-start">
         <h1 className="ommm-admin-header-title shrink-0">{t("title")}</h1>
-        <AdminAnalyticsTabNav workspace={workspace} className="w-full min-w-0 max-w-full" />
+        <AdminAnalyticsTabNav workspace={workspace} />
       </div>
     </WorkspaceStickyPageHeader>
   );

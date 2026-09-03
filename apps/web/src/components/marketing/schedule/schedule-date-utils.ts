@@ -43,7 +43,11 @@ export function compareTimeOfDay(
 }
 
 export function formatScheduleMonthTitle(locale: string, date: Date): string {
-  return new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
+  const month = new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
+  if (month.length === 0) {
+    return month;
+  }
+  return month.charAt(0).toLocaleUpperCase(locale) + month.slice(1);
 }
 
 /** Week view used on the schedule strip: Sunday → Saturday (matches reference UI). */

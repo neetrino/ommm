@@ -45,8 +45,9 @@ export function isReturningToMemberHubFromSheet(
     return false;
   }
 
+  const previous = memberUserPathWithoutLocale(previousPathname);
   return (
     memberUserPathWithoutLocale(currentPathname) === USER_ACCOUNT_PATH &&
-    isMemberUserHubSheetPath(previousPathname)
+    (isMemberUserHubSheetPath(previousPathname) || previous === "/user/notifications")
   );
 }

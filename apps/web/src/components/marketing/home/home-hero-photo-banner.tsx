@@ -142,7 +142,7 @@ export async function HomeHeroPhotoBanner({
 
         <div className={styles.homeHeroCtas}>
           <HomeHeroCtaButton
-            href="/packages"
+            href="/package"
             label={t("secondaryCta")}
             variant="membership"
             sizeContext="hero"

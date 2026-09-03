@@ -10,6 +10,11 @@ import {
   type FinanceSectionId,
 } from "@/components/admin/admin-finance-module";
 import { buildFinanceTabHref } from "@/components/admin/admin-finance-url";
+import {
+  oliveSegmentedSegmentClassName,
+  oliveSegmentedThumbClass,
+  oliveSegmentedTrackClass,
+} from "@/components/ui/olive-segmented-switcher";
 
 const TAB_LABEL_KEY: Record<FinanceSectionId, string> = {
   overview: "overview",
@@ -17,6 +22,9 @@ const TAB_LABEL_KEY: Record<FinanceSectionId, string> = {
   coaches: "coaches",
 };
 
+const FINANCE_SWITCHER_COLUMN_COUNT = 3;
+
+/** Overview / Payments / Coaches — olive segmented switcher. */
 export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
   const t = useTranslations("adminPages.finance.tabs");
   const pathname = usePathname();
@@ -26,12 +34,24 @@ export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
     [searchParams],
   );
 
+  const activeIndex = Math.max(
+    0,
+    FINANCE_SECTION_IDS.findIndex((section) => {
+      const basePath = FINANCE_SECTION_HREF[section];
+      return pathname === basePath || pathname.endsWith(basePath);
+    }),
+  );
+
   return (
     <nav
       role="tablist"
       aria-label={t("aria")}
-      className={`flex min-w-0 shrink-0 items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      className={oliveSegmentedTrackClass(FINANCE_SWITCHER_COLUMN_COUNT, className)}
     >
+      <span
+        aria-hidden
+        className={oliveSegmentedThumbClass(FINANCE_SWITCHER_COLUMN_COUNT, activeIndex)}
+      />
       {FINANCE_SECTION_IDS.map((section) => {
         const basePath = FINANCE_SECTION_HREF[section];
         const href = buildFinanceTabHref(section, search);
@@ -44,11 +64,7 @@ export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
             aria-selected={active}
             aria-current={active ? "page" : undefined}
             scroll={false}
-            className={
-              active
-                ? "ommm-admin-pill-tab ommm-admin-pill-tab-active shrink-0 px-4 normal-case tracking-normal"
-                : "ommm-admin-pill-tab shrink-0 px-4 normal-case tracking-normal"
-            }
+            className={oliveSegmentedSegmentClassName(active, FINANCE_SWITCHER_COLUMN_COUNT)}
           >
             {t(TAB_LABEL_KEY[section])}
           </Link>

@@ -104,7 +104,7 @@ function AdminFinanceUnifiedHeaderFallback() {
   );
 }
 
-/** Finance module header — AdminPageHero layout with section pill tabs. */
+/** Finance module header — AdminPageHero layout with section segmented switcher. */
 export function AdminFinanceUnifiedHeader() {
   return (
     <Suspense fallback={<AdminFinanceUnifiedHeaderFallback />}>

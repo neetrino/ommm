@@ -7,8 +7,8 @@ import revealStyles from "@/components/marketing/marketing-scroll-reveal.module.
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { isLocaleSwitchScrollPending } from "@/lib/locale-switch-scroll";
 
-/** Safari IO fallback — same cards must not stay invisible if observer misses. */
-const PACKAGES_SLOT_REVEAL_FALLBACK_MS = 600;
+/** Below-fold only — first row must paint immediately on soft nav. */
+const PACKAGES_SLOT_REVEAL_FALLBACK_MS = 180;
 
 type PackagesSlotRevealProps = {
   index: number;
@@ -26,6 +26,7 @@ function rowStaggerDelayMs(
 
 /**
  * Chrome-parity scroll reveal on an inner layer — flex accordion slot stays layout-only.
+ * First row is above-fold and visible on first paint (no 600ms blank wait).
  */
 export function PackagesSlotReveal({
   index,
@@ -34,11 +35,12 @@ export function PackagesSlotReveal({
 }: PackagesSlotRevealProps) {
   const reducedMotion = usePrefersReducedMotion();
   const [skipEntrance] = useState(() => isLocaleSwitchScrollPending());
+  const aboveFold = index < gridColumns;
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(() => skipEntrance || aboveFold);
 
   useEffect(() => {
-    if (skipEntrance) {
+    if (skipEntrance || visible) {
       return undefined;
     }
 
@@ -72,22 +74,25 @@ export function PackagesSlotReveal({
       observer.disconnect();
       window.clearTimeout(fallbackTimer);
     };
-  }, [skipEntrance]);
+  }, [skipEntrance, visible]);
 
   const motionStyle: CSSProperties = {
     ["--marketing-reveal-offset" as string]: `${MARKETING_SCROLL_REVEAL_MOTION.offsetPx}px`,
     ["--marketing-reveal-duration" as string]: `${MARKETING_SCROLL_REVEAL_MOTION.durationSec}s`,
     ["--marketing-reveal-duration-reduced" as string]: `${MARKETING_SCROLL_REVEAL_MOTION.reducedMotionDurationSec}s`,
-    ["--marketing-reveal-delay" as string]: `${rowStaggerDelayMs(index, gridColumns, MARKETING_SCROLL_REVEAL_MOTION.staggerSec)}ms`,
+    ["--marketing-reveal-delay" as string]: aboveFold
+      ? "0ms"
+      : `${rowStaggerDelayMs(index, gridColumns, MARKETING_SCROLL_REVEAL_MOTION.staggerSec)}ms`,
   };
 
-  const motionClassName = skipEntrance
-    ? revealStyles.revealSkipEntrance
-    : visible
-      ? reducedMotion
-        ? `${revealStyles.revealEnter} ${revealStyles.revealEnterReduced}`
-        : `${revealStyles.revealEnter} ${revealStyles.revealEnterVisible}`
-      : revealStyles.revealEnter;
+  const motionClassName =
+    skipEntrance || aboveFold
+      ? revealStyles.revealSkipEntrance
+      : visible
+        ? reducedMotion
+          ? `${revealStyles.revealEnter} ${revealStyles.revealEnterReduced}`
+          : `${revealStyles.revealEnter} ${revealStyles.revealEnterVisible}`
+        : revealStyles.revealEnter;
 
   return (
     <div

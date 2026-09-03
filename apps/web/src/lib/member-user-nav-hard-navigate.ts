@@ -14,10 +14,8 @@ function isMemberInterceptSectionPath(path: string): boolean {
 }
 
 /**
- * Member hub sections use Next.js intercept routes in `user/@sheet/(.)*`.
- * Client navigation between sections keeps the previous page in `children` and
- * renders the target only in the sheet slot (hidden on desktop) — e.g. stuck on My bookings.
- * Full document navigation updates `children` on all viewports.
+ * Desktop member nav uses full document navigation so `@sheet/(.)*` intercepts
+ * do not freeze the previous route in `children`. Phone keeps soft-nav sheets.
  */
 export function shouldMemberHardNavigate(pathname: string, targetHref: string): boolean {
   const current = memberUserPathWithoutLocale(pathname);

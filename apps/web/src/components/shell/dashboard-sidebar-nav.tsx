@@ -8,20 +8,26 @@ import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
 import { OliveNavActiveThumb } from "@/components/shell/olive-nav-active-thumb";
+import { useOliveNavHardNavigate } from "@/components/shell/use-olive-nav-hard-navigate";
+import { useOliveNavOptimisticActive } from "@/components/shell/use-olive-nav-optimistic-active";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import {
   dashboardNavPathActive,
   memberOliveIconSlugForNavItem,
   type DashboardNavItem,
 } from "@/lib/dashboard-nav";
+import { shouldMemberHardNavigate } from "@/lib/member-user-nav-hard-navigate";
 import {
   localizedWorkspaceHref,
   WORKSPACE_ROUTE_PREFETCH,
 } from "@/lib/workspace-nav-link";
-import { shouldMemberHardNavigate } from "@/lib/member-user-nav-hard-navigate";
 
 const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users", "/admin/profile"]);
+
+/** Stable across soft navigations so Framer can morph the active pill. */
+const OLIVE_NAV_PILL_LAYOUT_ID = "ommm-olive-nav-active-pill";
 
 function navActive(pathname: string, href: string) {
   return dashboardNavPathActive(pathname, href);
@@ -101,7 +107,10 @@ export type DashboardSidebarNavProps = {
   pathname: string;
   collapsed: boolean;
   onNavigate: () => void;
-  /** Full document navigation — bypasses Next.js intercept routes (member desktop sidebar). */
+  /**
+   * Desktop member only — full document navigation bypasses intercept routes.
+   * Phones keep soft-nav so hub sections open as bottom sheets.
+   */
   hardNavigate?: boolean;
 };
 
@@ -116,9 +125,18 @@ export function DashboardSidebarNav({
   const locale = useLocale();
   const tShell = useTranslations("dashboard.shell");
   const layoutGroupId = useId();
-  const olivePillLayoutId = `${layoutGroupId}-active-pill`;
+  const isPhone = useMemberHubSheetPhone();
   const isOliveShell = isOliveDashboardShell(variant);
+  const olivePillLayoutId = isOliveShell
+    ? OLIVE_NAV_PILL_LAYOUT_ID
+    : `${layoutGroupId}-active-pill`;
   const isAdmin = variant === "admin";
+  const allowHardNavigate = hardNavigate && !isPhone;
+  const { activePathname: hardActivePathname, onHardNavigateClick } =
+    useOliveNavHardNavigate(pathname);
+  const { activePathname: softActivePathname, onNavItemClick } =
+    useOliveNavOptimisticActive(pathname);
+  const activePathname = allowHardNavigate ? hardActivePathname : softActivePathname;
   const firstMutedIndex = isAdmin
     ? items.findIndex((item) => isAdminMutedNavItem(variant, item.href))
     : -1;
@@ -131,72 +149,76 @@ export function DashboardSidebarNav({
         }
         aria-label={tShell("dashboardNavAria")}
       >
-      {items.map((item, index) => {
-        const active = navActive(pathname, item.href);
-        const muted = isAdminMutedNavItem(variant, item.href);
-        const oliveIconSlug = isOliveShell
-          ? oliveNavIconSlug(variant, item)
-          : null;
-        const showMutedDivider = isAdmin && index === firstMutedIndex;
+        {items.map((item, index) => {
+          const active = navActive(activePathname, item.href);
+          const muted = isAdminMutedNavItem(variant, item.href);
+          const oliveIconSlug = isOliveShell
+            ? oliveNavIconSlug(variant, item)
+            : null;
+          const showMutedDivider = isAdmin && index === firstMutedIndex;
+          const useHardNavigate =
+            allowHardNavigate && shouldMemberHardNavigate(pathname, item.href);
 
-        const rowClassName = active
-          ? rowActive(variant, collapsed, muted)
-          : rowBase(variant, collapsed, muted);
-        const rowContent = (
-          <>
-            {active && isOliveShell ? (
-              <OliveNavActiveThumb layoutId={olivePillLayoutId} />
-            ) : null}
-            {oliveIconSlug ? (
-              <span className="ommm-admin-nav-icon">
-                <AdminNavIcon slug={oliveIconSlug} />
+          const rowClassName = active
+            ? rowActive(variant, collapsed, muted)
+            : rowBase(variant, collapsed, muted);
+
+          const rowContent = (
+            <>
+              {active && isOliveShell ? (
+                <OliveNavActiveThumb layoutId={olivePillLayoutId} />
+              ) : null}
+              {oliveIconSlug ? (
+                <span className="ommm-admin-nav-icon">
+                  <AdminNavIcon slug={oliveIconSlug} />
+                </span>
+              ) : (
+                <DashboardNavIcon name={item.icon} />
+              )}
+              <span
+                className={
+                  collapsed
+                    ? "sr-only"
+                    : "min-w-0 flex-1 truncate text-left leading-tight"
+                }
+              >
+                {item.label}
               </span>
-            ) : (
-              <DashboardNavIcon name={item.icon} />
-            )}
-            <span
-              className={
-                collapsed
-                  ? "sr-only"
-                  : "min-w-0 flex-1 truncate text-left leading-tight"
-              }
-            >
-              {item.label}
-            </span>
-          </>
-        );
+            </>
+          );
 
-        const useHardNavigate =
-          hardNavigate && shouldMemberHardNavigate(pathname, item.href);
-
-        return (
-          <div key={item.href}>
-            {showMutedDivider ? <div className="ommm-admin-nav-divider" aria-hidden /> : null}
-            {useHardNavigate ? (
-              <a
-                href={localizedWorkspaceHref(locale, item.href)}
-                title={collapsed ? item.label : undefined}
-                aria-current={active ? "page" : undefined}
-                className={rowClassName}
-                onClick={onNavigate}
-              >
-                {rowContent}
-              </a>
-            ) : (
-              <Link
-                href={item.href}
-                prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
-                title={collapsed ? item.label : undefined}
-                aria-current={active ? "page" : undefined}
-                className={rowClassName}
-                onClick={onNavigate}
-              >
-                {rowContent}
-              </Link>
-            )}
-          </div>
-        );
-      })}
+          return (
+            <div key={item.href}>
+              {showMutedDivider ? (
+                <div className="ommm-admin-nav-divider" aria-hidden />
+              ) : null}
+              {useHardNavigate ? (
+                <a
+                  href={localizedWorkspaceHref(locale, item.href)}
+                  title={collapsed ? item.label : undefined}
+                  aria-current={active ? "page" : undefined}
+                  className={rowClassName}
+                  onClick={(event) =>
+                    onHardNavigateClick(event, item.href, onNavigate)
+                  }
+                >
+                  {rowContent}
+                </a>
+              ) : (
+                <Link
+                  href={item.href}
+                  prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
+                  title={collapsed ? item.label : undefined}
+                  aria-current={active ? "page" : undefined}
+                  className={rowClassName}
+                  onClick={() => onNavItemClick(item.href, onNavigate)}
+                >
+                  {rowContent}
+                </Link>
+              )}
+            </div>
+          );
+        })}
       </nav>
     </LayoutGroup>
   );

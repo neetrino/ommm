@@ -1630,6 +1630,10 @@ input[type="number"]::-webkit-outer-spin-button {
 
   .ommm-session-booked-button--schedule {
     @apply font-semibold uppercase tracking-[0.1em];
+    border: 1px solid rgb(255 255 255 / 0.24);
+    box-shadow:
+      0 8px 20px -14px rgb(61 107 82 / 0.42),
+      inset 0 1px 0 rgb(255 255 255 / 0.28);
   }
 
   .ommm-session-booked-card {

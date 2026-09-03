@@ -1,5 +1,6 @@
 import {
   isMemberUserHubSheetPath,
+  isMemberUserNotificationsPath,
   memberUserPathWithoutLocale,
 } from "@/lib/member-user-hub-sheet-paths";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
@@ -41,11 +42,12 @@ export function subscribeMemberHubSheetNavigation(onStoreChange: () => void): ()
   };
 }
 
+/** Notifications (and legacy section sheets) that use the `@sheet` intercept slot. */
 export function isMemberUserHubSheetHref(href: string): boolean {
-  return isMemberUserHubSheetPath(href);
+  return isMemberUserHubSheetPath(href) || isMemberUserNotificationsPath(href);
 }
 
-/** True when the bell / hub row should open a member bottom sheet on phone. */
+/** True when the bell should open the member notifications sheet/panel. */
 export function shouldUseMemberHubSheetNavigation(
   href: string,
   pathname: string,
