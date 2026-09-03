@@ -36,16 +36,32 @@ export function resolveDayPeriod(startTime: string): DayPeriod {
   return "evening";
 }
 
+/** Prefer en-US so English week chips keep `Sun 8/30` style. */
+function resolveScheduleIntlLocale(locale: string): string {
+  return locale === "en" ? "en-US" : locale;
+}
+
+function capitalizeLocaleLabel(locale: string, value: string): string {
+  if (value.length === 0) {
+    return value;
+  }
+  return value.charAt(0).toLocaleUpperCase(locale) + value.slice(1);
+}
+
 export function formatScheduleWeekRangeLabel(
   locale: string,
   windowStart: Date,
 ): string {
+  const intlLocale = resolveScheduleIntlLocale(locale);
   const weekEnd = addDays(windowStart, WEEK_SHIFT_DAYS - 1);
+  const weekdayFmt = new Intl.DateTimeFormat(intlLocale, { weekday: "short" });
+  const dayMonthFmt = new Intl.DateTimeFormat(intlLocale, {
+    day: "numeric",
+    month: "numeric",
+  });
   const formatChip = (date: Date): string => {
-    const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
-      date,
-    );
-    return `${weekday} ${date.getMonth() + 1}/${date.getDate()}`;
+    const weekday = capitalizeLocaleLabel(intlLocale, weekdayFmt.format(date));
+    return `${weekday} ${dayMonthFmt.format(date)}`;
   };
   return `${formatChip(windowStart)} - ${formatChip(weekEnd)}`;
 }

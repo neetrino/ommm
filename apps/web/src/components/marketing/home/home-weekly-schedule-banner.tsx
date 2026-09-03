@@ -1,9 +1,8 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { HomeWeeklyScheduleLiveGrid } from "@/components/marketing/home/home-weekly-schedule-live-grid";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
-import { ScheduleEnglishLocaleProvider } from "@/components/marketing/schedule/schedule-english-locale-provider";
 import styles from "@/components/marketing/home/home-weekly-schedule-banner.module.css";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
@@ -12,7 +11,6 @@ import {
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { SCHEDULE_UI_LOCALE } from "@/lib/schedule-ui-locale";
 
 type HomeWeeklyScheduleBannerProps = {
   /** When true, Presale continues the same yellow card — square bottom, no outer bottom gap. */
@@ -21,14 +19,15 @@ type HomeWeeklyScheduleBannerProps = {
 
 /**
  * Figma weekly schedule — mobile panel `97:5733`, desktop panel `196:1293`.
- * Copy and day labels stay English even when the site locale is hy/ru.
+ * Copy and day labels follow the active UI locale.
  */
 export async function HomeWeeklyScheduleBanner({
   flushBottomWithPresale = false,
 }: HomeWeeklyScheduleBannerProps) {
-  const [t, heroT, { items }] = await Promise.all([
-    getTranslations({ locale: SCHEDULE_UI_LOCALE, namespace: "marketingPublic.home" }),
-    getTranslations({ locale: SCHEDULE_UI_LOCALE, namespace: "marketingPublic.hero" }),
+  const [locale, t, heroT, { items }] = await Promise.all([
+    getLocale(),
+    getTranslations("marketingPublic.home"),
+    getTranslations("marketingPublic.hero"),
     fetchPublicScheduleItems(),
   ]);
   const scheduleCta = (
@@ -116,16 +115,11 @@ export async function HomeWeeklyScheduleBanner({
               </p>
             </header>
 
-            <ScheduleEnglishLocaleProvider>
-              <div className={styles.gridWrap}>
-                <HomeWeeklyScheduleLiveGrid
-                  locale={SCHEDULE_UI_LOCALE}
-                  initialItems={items}
-                />
-              </div>
+            <div className={styles.gridWrap}>
+              <HomeWeeklyScheduleLiveGrid locale={locale} initialItems={items} />
+            </div>
 
-              <div className={styles.cta}>{scheduleCta}</div>
-            </ScheduleEnglishLocaleProvider>
+            <div className={styles.cta}>{scheduleCta}</div>
           </div>
         </HomePageReveal>
       </div>
