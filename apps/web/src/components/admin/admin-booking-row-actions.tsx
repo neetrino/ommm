@@ -41,9 +41,11 @@ export function AdminBookingRowActions({
 }: AdminBookingRowActionsProps) {
   const t = useTranslations("adminPages.bookings");
   const isBooking = recordType === "BOOKING";
-  const isActive = status === "BOOKED";
   const isInactive = status === "CANCELLED";
-  const canDeactivate = isBooking && isActive && onDeactivate !== undefined;
+  const canDeactivate =
+    isBooking &&
+    (status === "BOOKED" || status === "COMPLETED" || status === "MISSED") &&
+    onDeactivate !== undefined;
   const canActivate = isBooking && isInactive && onActivate !== undefined;
   const canMove = isBooking && onMove !== undefined;
   const showListActions = variant === "list" && onEdit !== undefined;

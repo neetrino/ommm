@@ -41,7 +41,12 @@ export class WaitlistOffersService {
       where: { id: sessionId },
       include: { classType: { select: { name: true } } },
     });
-    if (!session || session.status === ClassSessionStatus.CANCELLED) {
+    if (
+      !session ||
+      session.status === ClassSessionStatus.CANCELLED ||
+      session.status === ClassSessionStatus.FINISHED ||
+      session.endsAt.getTime() <= Date.now()
+    ) {
       return;
     }
     const n = await this.capacity.bookedCount(sessionId);

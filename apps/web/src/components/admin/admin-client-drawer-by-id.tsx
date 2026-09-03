@@ -16,6 +16,8 @@ import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-t
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { apiFetch } from "@/lib/api";
+import { clientCapabilitiesForPath } from "@/lib/backoffice-capabilities";
+import { usePathname } from "@/i18n/navigation";
 
 type AdminClientDrawerByIdProps = {
   clientId: string | null;
@@ -65,6 +67,8 @@ function AdminClientDrawerByIdContent({
   const [client, setClient] = useState<ClientRow | null>(null);
   const [detail, setDetail] = useState<ClientDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+  const capabilities = clientCapabilitiesForPath(pathname);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +114,7 @@ function AdminClientDrawerByIdContent({
       onChanged={onChanged ?? (() => undefined)}
       useOverlayPortalRoot={useOverlayPortalRoot}
       initialDetail={detail}
+      capabilities={capabilities}
     />
   );
 }

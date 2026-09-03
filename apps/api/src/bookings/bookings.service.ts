@@ -51,8 +51,8 @@ export class BookingsService {
     return this.client.listMine(userId, query);
   }
 
-  adminCancel(bookingId: string) {
-    return this.admin.adminCancel(bookingId);
+  adminCancel(actor: User, bookingId: string) {
+    return this.admin.adminCancel(actor, bookingId);
   }
 
   moveBooking(bookingId: string, targetSessionId: string) {
@@ -88,8 +88,8 @@ export class BookingsService {
     return this.admin.adminGetById(actor, bookingId);
   }
 
-  adminUpdate(bookingId: string, dto: UpdateAdminBookingDto) {
-    return this.admin.adminUpdate(bookingId, dto);
+  adminUpdate(actor: User, bookingId: string, dto: UpdateAdminBookingDto) {
+    return this.admin.adminUpdate(actor, bookingId, dto);
   }
 
   adminDeletePermanent(bookingId: string) {

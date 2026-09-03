@@ -122,8 +122,8 @@ export class BookingsController {
   @Delete('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
-  adminCancel(@Param('id') id: string) {
-    return this.bookings.adminCancel(id);
+  adminCancel(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.bookings.adminCancel(user, id);
   }
 
   @Patch('admin/:id/move')
@@ -143,8 +143,12 @@ export class BookingsController {
   @Patch('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
-  adminUpdate(@Param('id') id: string, @Body() dto: UpdateAdminBookingDto) {
-    return this.bookings.adminUpdate(id, dto);
+  adminUpdate(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: UpdateAdminBookingDto,
+  ) {
+    return this.bookings.adminUpdate(user, id, dto);
   }
 
   @Delete('admin/:id/permanent')

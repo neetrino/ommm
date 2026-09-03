@@ -8,6 +8,7 @@ import {
   adminGiftCardCapabilities,
   adminScheduleCapabilities,
   capabilitiesForRole,
+  clientCapabilitiesForPath,
   managerBackofficeCapabilities,
   managerBookingCapabilities,
   managerClientCapabilities,
@@ -78,5 +79,20 @@ describe("backoffice-capabilities", () => {
     assert.equal(caps.canCreate, false);
     assert.equal(caps.canUpdate, false);
     assert.equal(caps.canDelete, false);
+  });
+
+  it("clientCapabilitiesForPath enables cancel on admin and manager workspaces", () => {
+    assert.equal(
+      clientCapabilitiesForPath("/en/admin/schedule").canCancelBooking,
+      true,
+    );
+    assert.equal(
+      clientCapabilitiesForPath("/en/manager/clients").canCancelBooking,
+      true,
+    );
+    assert.equal(
+      clientCapabilitiesForPath("/en/manager/schedule").canDelete,
+      false,
+    );
   });
 });

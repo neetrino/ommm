@@ -1,7 +1,8 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 110;
+  /* Above #ommm-overlay-portal (130): nested client drawers must not cover this confirm. */
+  z-index: 140;
   display: flex;
   align-items: center;
   justify-content: center;

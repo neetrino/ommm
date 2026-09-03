@@ -21,6 +21,7 @@ model User {
 
   coachProfile      CoachProfile?
   bookings          Booking[]
+  bookingsCancelled Booking[] @relation("BookingCancelledBy")
   userPackages      UserPackage[]
   packageFreezesInitiated UserPackageFreeze[] @relation("UserPackageFreezeInitiator")
   waitlistEntries   WaitlistEntry[]

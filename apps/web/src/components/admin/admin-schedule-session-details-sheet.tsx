@@ -189,6 +189,10 @@ function AdminScheduleSessionDetailsSheetInner({
   }
 
   function handleBookingCancelled(): void {
+    const sessionAlreadyEnded = new Date(row.endsAt).getTime() <= Date.now();
+    if (sessionAlreadyEnded) {
+      return;
+    }
     onSaved?.({
       ...row,
       _count: {

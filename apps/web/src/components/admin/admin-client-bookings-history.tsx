@@ -10,6 +10,10 @@ import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
+import {
+  isDashboardShellRole,
+  sessionCancelledByDisplayName,
+} from "@/components/admin/admin-session-registrations-types";
 import { BanGlyph } from "@/components/ui/admin-action-glyphs";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -42,6 +46,13 @@ type AdminClientBookingsHistoryProps = {
   onCancelError: (message: string) => void;
 };
 
+function canCancelHistoryBooking(booking: ClientSheetBookingItem): boolean {
+  if (booking.cancelledAt != null) {
+    return false;
+  }
+  return isAdminCancellableBookingStatus(booking.status);
+}
+
 export function AdminClientBookingsHistory({
   clientId,
   locale,
@@ -52,6 +63,7 @@ export function AdminClientBookingsHistory({
   onCancelError,
 }: AdminClientBookingsHistoryProps) {
   const t = useTranslations("adminPages.clients");
+  const tRoles = useTranslations("dashboard.shell.roles");
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(clientId);
   const [result, setResult] = useState<FetchResult | null>(null);
@@ -71,6 +83,8 @@ export function AdminClientBookingsHistory({
   const items = result?.key === fetchKey ? result.items : [];
   const total = result?.key === fetchKey ? result.total : 0;
   const offset = (page - 1) * pageSize;
+  const isPastPending =
+    pendingCancel !== null && isPastAdminCancelBookingStatus(pendingCancel.status);
 
   useEffect(() => {
     if (!active) {
@@ -132,13 +146,22 @@ export function AdminClientBookingsHistory({
           ) : null}
           {!loading
             ? items.map((booking) => {
-                const showCancel =
-                  allowCancel && isAdminCancellableBookingStatus(booking.status);
+                const showCancel = allowCancel && canCancelHistoryBooking(booking);
                 const extra = booking.cancelledAt
                   ? `${t("drawer.cancelled")} ${formatDateForUi(booking.cancelledAt)}`
                   : booking.attendedAt
                     ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
                     : null;
+                const cancelledBy = booking.cancelledBy ?? null;
+                const cancelledByLabel =
+                  cancelledBy === null
+                    ? null
+                    : t("drawer.cancelledBy", {
+                        name: sessionCancelledByDisplayName(cancelledBy),
+                        role: isDashboardShellRole(cancelledBy.role)
+                          ? tRoles(cancelledBy.role)
+                          : cancelledBy.role,
+                      });
                 const signedUp = `${t("drawer.signedUp")} ${formatDateTimeForUi(booking.createdAt, locale)}`;
 
                 return (
@@ -156,11 +179,14 @@ export function AdminClientBookingsHistory({
                         </p>
                       ) : null}
                       <p className="text-xs text-sage-600">
-                        {`${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.status} · ${booking.session.level ?? "—"}`}
+                        {`${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.cancelledAt != null ? "CANCELLED" : booking.status} · ${booking.session.level ?? "—"}`}
                       </p>
                       <p className="mt-1 text-xs text-sage-500">{signedUp}</p>
                       {extra !== null ? (
                         <p className="text-xs text-sage-500">{extra}</p>
+                      ) : null}
+                      {cancelledByLabel !== null ? (
+                        <p className="text-xs font-medium text-rose-700">{cancelledByLabel}</p>
                       ) : null}
                     </div>
                     {showCancel ? (
@@ -168,7 +194,10 @@ export function AdminClientBookingsHistory({
                         type="button"
                         className={CANCEL_BUTTON_CLASS}
                         disabled={busyId !== null}
-                        onClick={() => setPendingCancel(booking)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingCancel(booking);
+                        }}
                       >
                         <span>{t("bookings.cancelButton")}</span>
                         <BanGlyph className={CANCEL_ICON_CLASS} />
@@ -196,26 +225,28 @@ export function AdminClientBookingsHistory({
       <OmmConfirmDialog
         isOpen={pendingCancel !== null}
         title={
-          pendingCancel !== null &&
-          isPastAdminCancelBookingStatus(pendingCancel.status)
+          isPastPending
             ? t("bookings.cancelPastConfirmTitle")
             : t("bookings.cancelConfirmTitle")
         }
         description={
-          pendingCancel !== null &&
-          isPastAdminCancelBookingStatus(pendingCancel.status)
-            ? t("bookings.cancelPastConfirmDescription")
-            : t("bookings.cancelConfirmDescription")
+          pendingCancel === null
+            ? t("bookings.cancelConfirmDescription")
+            : isPastPending
+              ? t("bookings.cancelPastConfirmDescription")
+              : t("bookings.cancelConfirmDescriptionNamed", {
+                  className: pendingCancel.session.classType.name,
+                  when: formatDateTimeForUi(pendingCancel.session.startsAt, locale),
+                })
         }
         confirmLabel={t("bookings.cancelConfirmLabel")}
-        cancelLabel={t("cancelButton")}
+        cancelLabel={t("bookings.cancelConfirmKeep")}
         backdropAriaLabel={t("modalBackdropClose")}
         pending={busyId !== null}
         tone="danger"
-        dismissAsCloseIcon={
-          pendingCancel !== null &&
-          isPastAdminCancelBookingStatus(pendingCancel.status)
-        }
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        forceCenteredModal
+        dismissAsCloseIcon={isPastPending}
         onConfirm={() => {
           void confirmCancel();
         }}

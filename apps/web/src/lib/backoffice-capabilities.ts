@@ -169,3 +169,11 @@ export function capabilitiesForRole(role: string): BackofficeCapabilities {
   }
   return { ...READ_ONLY_BASE };
 }
+
+/** Client drawer opened from schedule/roster uses the workspace path for write caps. */
+export function clientCapabilitiesForPath(pathname: string): ClientCapabilities {
+  if (pathname.includes("/manager")) {
+    return managerClientCapabilities();
+  }
+  return adminClientCapabilities();
+}

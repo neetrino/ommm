@@ -79,6 +79,7 @@ export function OmmConfirmDialog({
         confirmPending={confirmPending}
         tone={tone}
         confirmClassName={confirmClassName}
+        dismissAsCloseIcon={dismissAsCloseIcon}
         onConfirm={onConfirm}
         onCancel={onCancel}
       >

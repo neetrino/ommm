@@ -59,7 +59,10 @@ describe('BookingsSlotService package credit release', () => {
 
   it('restores package credits when cancellation is not penalized', async () => {
     const { service, tx, packageUsage } = createSlotServiceAndDeps();
-    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.BOOKED,
+      cancelledAt: null,
+    });
     tx.payment.findFirst.mockResolvedValue(null);
 
     await service.releaseSlot(booking, { applyPenalty: false });
@@ -72,7 +75,10 @@ describe('BookingsSlotService package credit release', () => {
 
   it('restores package credits for free package-backed cancellations', async () => {
     const { service, tx, packageUsage } = createSlotServiceAndDeps();
-    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.BOOKED,
+      cancelledAt: null,
+    });
     tx.payment.findFirst.mockResolvedValue(null);
 
     await service.releaseSlot(
@@ -91,7 +97,10 @@ describe('BookingsSlotService package credit release', () => {
 
   it('does not restore package credits when cancellation is penalized', async () => {
     const { service, tx, packageUsage } = createSlotServiceAndDeps();
-    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.BOOKED,
+      cancelledAt: null,
+    });
     tx.payment.findFirst.mockResolvedValue(null);
 
     await service.releaseSlot(booking, { applyPenalty: true });
@@ -101,7 +110,10 @@ describe('BookingsSlotService package credit release', () => {
 
   it('does not restore package credits for paid drop-in cancellations', async () => {
     const { service, tx, packageUsage } = createSlotServiceAndDeps();
-    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.BOOKED,
+      cancelledAt: null,
+    });
     tx.payment.findFirst.mockResolvedValue({ id: 'payment-1' });
 
     await service.releaseSlot(booking, { applyPenalty: false });
@@ -109,23 +121,51 @@ describe('BookingsSlotService package credit release', () => {
     expect(packageUsage.restoreSession).not.toHaveBeenCalled();
   });
 
-  it('restores package credits when cancelling a completed booking', async () => {
+  it('records the staff actor and restores credits without reopening waitlist', async () => {
     const { service, tx, packageUsage, waitlist, prisma } =
       createSlotServiceAndDeps();
     tx.booking.findUnique.mockResolvedValue({
       status: BookingStatus.COMPLETED,
+      cancelledAt: null,
     });
     tx.payment.findFirst.mockResolvedValue(null);
 
-    await service.releaseSlot({
-      ...booking,
-      session: {
-        ...booking.session,
-        status: ClassSessionStatus.FINISHED,
-        endsAt: new Date('2026-09-01T10:00:00.000Z'),
+    await service.releaseSlot(
+      {
+        ...booking,
+        session: {
+          ...booking.session,
+          status: ClassSessionStatus.FINISHED,
+          endsAt: new Date('2026-09-01T10:00:00.000Z'),
+        },
+      },
+      {
+        applyPenalty: false,
+        cancelledByUserId: 'manager-1',
+      },
+    );
+
+    const updateCall = tx.booking.update.mock.calls[0] as
+      | [
+          {
+            where: { id: string };
+            data: {
+              status: BookingStatus;
+              cancelledAt: Date;
+              cancelledByUserId: string;
+            };
+          },
+        ]
+      | undefined;
+    expect(updateCall?.[0]).toEqual({
+      where: { id: booking.id },
+      data: {
+        status: BookingStatus.CANCELLED,
+        cancelledAt: updateCall?.[0].data.cancelledAt,
+        cancelledByUserId: 'manager-1',
       },
     });
-
+    expect(updateCall?.[0].data.cancelledAt).toBeInstanceOf(Date);
     expect(packageUsage.restoreSession).toHaveBeenCalledWith({
       tx,
       bookingId: booking.id,
@@ -137,7 +177,10 @@ describe('BookingsSlotService package credit release', () => {
   it('restores package credits when cancelling a missed booking', async () => {
     const { service, tx, packageUsage, waitlist, prisma } =
       createSlotServiceAndDeps();
-    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.MISSED });
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.MISSED,
+      cancelledAt: null,
+    });
     tx.payment.findFirst.mockResolvedValue(null);
 
     await service.releaseSlot({
@@ -159,7 +202,10 @@ describe('BookingsSlotService package credit release', () => {
 
   it('still opens the slot after cancelling an upcoming booked session', async () => {
     const { service, tx, waitlist, prisma } = createSlotServiceAndDeps();
-    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.BOOKED,
+      cancelledAt: null,
+    });
     tx.payment.findFirst.mockResolvedValue(null);
 
     await service.releaseSlot({
@@ -182,6 +228,7 @@ describe('BookingsSlotService package credit release', () => {
     const { service, tx } = createSlotServiceAndDeps();
     tx.booking.findUnique.mockResolvedValue({
       status: BookingStatus.CANCELLED,
+      cancelledAt: new Date('2026-09-01T10:00:00.000Z'),
     });
 
     await expect(service.releaseSlot(booking)).rejects.toBeInstanceOf(
