@@ -17,7 +17,6 @@ import {
   renderPaymentCustomerConfirmationEmail,
 } from '../mail/templates/payment-customer-confirmation.template';
 import { PrismaService } from '../prisma/prisma.service';
-import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { renderPaymentSuccessWhatsapp } from '../whatsapp/whatsapp-commerce-templates';
 import {
@@ -83,11 +82,10 @@ export class PaymentSuccessEmailService {
 
     const context = this.buildEmailContext(payment);
     const customerSent = await this.sendCustomerEmail(context);
-    const whatsappLocale = resolveWhatsappLocale(payment.user.locale);
     await this.whatsapp.trySendToUser({
       userId: payment.userId,
       topic: 'operational',
-      text: renderPaymentSuccessWhatsapp(whatsappLocale),
+      render: (locale) => renderPaymentSuccessWhatsapp(locale),
     });
     const adminSent = await this.sendAdminEmail(context);
 
