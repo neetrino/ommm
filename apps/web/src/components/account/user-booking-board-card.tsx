@@ -57,13 +57,16 @@ export function UserBookingBoardCard({
       />
       <SessionCoachLine coachName={coachName} variant="board" className="mt-3" />
 
-      <div className="mt-auto border-t border-white/70 pt-4">
+      <div className="mt-auto flex justify-end border-t border-white/70 pt-4">
         {showCancel && booking.status === "BOOKED" ? (
           <CancelBookingButton
             bookingId={booking.id}
             sessionDate={booking.session.startsAt}
             sessionStartTime={scheduleStartTimeFromIso(booking.session.startsAt)}
             bookedAt={booking.createdAt}
+            appearance="button"
+            size="sm"
+            wrapperClassName="flex flex-col items-end gap-1"
           />
         ) : null}
         {showRebook ? <RebookButton sessionId={booking.session.id} /> : null}
