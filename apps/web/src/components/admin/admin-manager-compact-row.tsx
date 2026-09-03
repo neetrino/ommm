@@ -11,11 +11,13 @@ import { AdminManagerRowActions } from "@/components/admin/admin-manager-row-act
 import {
   ADMIN_MANAGERS_ACCESS_BADGE_CLASS,
   ADMIN_MANAGERS_LIST_ACCESS_AREA_CLASS,
+  ADMIN_MANAGERS_LIST_ACCESS_CELL,
   ADMIN_MANAGERS_LIST_ACTIONS_AREA_CLASS,
   ADMIN_MANAGERS_LIST_ACTIONS_CELL,
   ADMIN_MANAGERS_LIST_CELL,
   ADMIN_MANAGERS_LIST_EMAIL_AREA_CLASS,
   ADMIN_MANAGERS_LIST_JOINED_AREA_CLASS,
+  ADMIN_MANAGERS_LIST_JOINED_CELL,
   ADMIN_MANAGERS_LIST_NAME_AREA_CLASS,
   ADMIN_MANAGERS_LIST_NAME_CELL,
   ADMIN_MANAGERS_LIST_ROW_ACTIONS_HOVER_REVEAL,
@@ -106,10 +108,10 @@ function ManagerCardFields({
       <div className={`${ADMIN_MANAGERS_LIST_CELL} ${ADMIN_MANAGERS_LIST_EMAIL_AREA_CLASS}`}>
         <p className="text-sm leading-snug text-sage-800">{manager.email}</p>
       </div>
-      <div className={`${ADMIN_MANAGERS_LIST_CELL} ${ADMIN_MANAGERS_LIST_ACCESS_AREA_CLASS}`}>
+      <div className={`${ADMIN_MANAGERS_LIST_ACCESS_CELL} ${ADMIN_MANAGERS_LIST_ACCESS_AREA_CLASS}`}>
         <span className={`${ADMIN_MANAGERS_ACCESS_BADGE_CLASS} ${accessTone}`}>{accessLabel}</span>
       </div>
-      <div className={`${ADMIN_MANAGERS_LIST_CELL} ${ADMIN_MANAGERS_LIST_JOINED_AREA_CLASS}`}>
+      <div className={`${ADMIN_MANAGERS_LIST_JOINED_CELL} ${ADMIN_MANAGERS_LIST_JOINED_AREA_CLASS}`}>
         <p className="text-sm tabular-nums text-sage-800">
           {formatDateCompactForUi(manager.createdAt)}
         </p>

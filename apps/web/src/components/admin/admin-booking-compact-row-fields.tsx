@@ -157,7 +157,7 @@ function BookingClassCell({ row }: { row: AdminBookingRow }) {
 function BookingDateTimeCell({ locale, row }: { locale: string; row: AdminBookingRow }) {
   return (
     <div className={`${ADMIN_BOOKINGS_LIST_DATE_TIME_CELL} ${ADMIN_BOOKINGS_LIST_DATETIME_AREA_CLASS}`}>
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3 md:justify-center">
         <SessionDateTimeHighlight
           locale={locale}
           startsAt={row.session.startsAt}

@@ -16,7 +16,7 @@ export function ContentPostUpdatedDatetime({
   }
 
   return (
-    <div className="flex min-w-0 items-center gap-3">
+    <div className="flex min-w-0 items-center gap-3 md:justify-center">
       <SessionDateTimeListDateChip display={display} />
       <p className="font-serif text-xl leading-none tracking-tight text-sage-950 tabular-nums">
         {display.startTime}

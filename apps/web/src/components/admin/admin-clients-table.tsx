@@ -38,10 +38,18 @@ export function AdminClientsTable({
     <div className={tableClass}>
       <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
         <span>{t("colName")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colMembership")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colBooking")}</span>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("fieldBirthday")}
+        </span>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colJoined")}
+        </span>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colMembership")}
+        </span>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colBooking")}
+        </span>
         {hideActions ? null : (
           <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         )}

@@ -80,7 +80,7 @@ export const ADMIN_CLIENTS_LIST_CELL = USER_LIST_CELL_CLASS;
 export const ADMIN_CLIENTS_LIST_NAME_CELL =
   "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left";
 
-export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
+export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums md:text-center`;
 
 export const ADMIN_CLIENTS_LIST_TITLE_CLASS =
   "block w-full min-w-0 text-lg font-semibold leading-snug text-sage-900";
@@ -89,6 +89,12 @@ export const ADMIN_CLIENTS_LIST_SUBTITLE_CLASS =
   "mt-1 truncate text-sm text-sage-500";
 
 export const ADMIN_CLIENTS_LIST_VALUE_CLASS = "text-base text-sage-800";
+
+export const ADMIN_CLIENTS_LIST_MEMBERSHIP_CELL =
+  `${USER_LIST_CELL_CLASS} md:flex md:justify-center`;
+
+export const ADMIN_CLIENTS_LIST_BOOKING_CELL =
+  `${USER_LIST_CELL_CLASS} md:text-center`;
 
 export const ADMIN_CLIENTS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
 

@@ -116,7 +116,7 @@ function WaitlistDateTimeCell({
 
   return (
     <div className={`${ADMIN_WAITLIST_LIST_DATE_TIME_CELL} ${ADMIN_WAITLIST_LIST_DATETIME_AREA_CLASS}`}>
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3 md:justify-center">
         <SessionDateTimeListDateChip display={display} />
         <p className="font-serif text-xl leading-none tracking-tight text-sage-950">
           {display.startTime}

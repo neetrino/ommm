@@ -2,7 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 
-const OLIVE_NAV_PILL_DURATION_SEC = 0.38;
+export const OLIVE_NAV_PILL_DURATION_SEC = 0.38;
+export const OLIVE_NAV_PILL_DURATION_MS = Math.round(OLIVE_NAV_PILL_DURATION_SEC * 1000);
 const OLIVE_NAV_PILL_EASE = [0.22, 1, 0.36, 1] as const;
 
 type OliveNavActiveThumbProps = {

@@ -3,7 +3,6 @@ import {
   ADMIN_LIST_EMPHASIZED_HEADER,
   ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_LIST_ROW_SURFACE,
-  USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
   USER_LIST_HEADER_SURFACE,
   USER_LIST_STACK_CLASS,
@@ -63,17 +62,18 @@ export const ADMIN_BOOKINGS_LIST_CELL = USER_LIST_CELL_CLASS;
 export const ADMIN_BOOKINGS_LIST_USER_CELL =
   "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left";
 
-export const ADMIN_BOOKINGS_LIST_COACH_CELL = USER_LIST_CELL_CLASS;
+export const ADMIN_BOOKINGS_LIST_COACH_CELL = `${USER_LIST_CELL_CLASS} md:text-center`;
 
 export const ADMIN_BOOKINGS_LIST_DATE_TIME_CELL =
-  "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left tabular-nums";
+  "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left tabular-nums md:text-center";
 
 export const ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL = [
   USER_LIST_CELL_CLASS,
-  "md:flex md:items-center",
+  "md:flex md:items-center md:justify-center",
 ].join(" ");
 
-export const ADMIN_BOOKINGS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
+export const ADMIN_BOOKINGS_LIST_ACTIONS_CELL =
+  "flex shrink-0 justify-self-stretch md:items-center md:justify-center md:self-center";
 
 export const ADMIN_BOOKINGS_LIST_TITLE_CLASS =
   "block w-full min-w-0 text-left text-lg font-semibold leading-snug text-sage-900 underline-offset-2 hover:underline";

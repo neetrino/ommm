@@ -55,11 +55,11 @@ export function AdminBookingsListView({
       <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
         <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
           <span className={ADMIN_BOOKINGS_LIST_HEADER_CELL}>{colUserPhone}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{colCoach}</span>
+          <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} md:text-center`}>{colCoach}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{colClassType}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{colDateTime}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{colStatus}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{colActions}</span>
+          <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} md:text-center`}>{colDateTime}</span>
+          <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} md:text-center`}>{colStatus}</span>
+          <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} md:text-center`}>{colActions}</span>
         </div>
         {listRows.map((row) => {
           const handlers = rowActionHandlers(row);

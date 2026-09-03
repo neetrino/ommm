@@ -61,6 +61,12 @@ export const ADMIN_MANAGERS_LIST_CELL = USER_LIST_CELL_CLASS;
 export const ADMIN_MANAGERS_LIST_NAME_CELL =
   "min-w-0 w-full max-w-full overflow-visible justify-self-stretch text-left";
 
+export const ADMIN_MANAGERS_LIST_ACCESS_CELL =
+  `${USER_LIST_CELL_CLASS} md:flex md:justify-center`;
+
+export const ADMIN_MANAGERS_LIST_JOINED_CELL =
+  `${USER_LIST_CELL_CLASS} tabular-nums md:text-center`;
+
 export const ADMIN_MANAGERS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
 
 export const ADMIN_MANAGERS_LIST_ACTIONS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;

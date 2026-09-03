@@ -8,6 +8,7 @@ import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
 import { OliveNavActiveThumb } from "@/components/shell/olive-nav-active-thumb";
+import { useOliveNavHardNavigate } from "@/components/shell/use-olive-nav-hard-navigate";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
@@ -119,6 +120,7 @@ export function DashboardSidebarNav({
   const olivePillLayoutId = `${layoutGroupId}-active-pill`;
   const isOliveShell = isOliveDashboardShell(variant);
   const isAdmin = variant === "admin";
+  const { activePathname, onHardNavigateClick } = useOliveNavHardNavigate(pathname);
   const firstMutedIndex = isAdmin
     ? items.findIndex((item) => isAdminMutedNavItem(variant, item.href))
     : -1;
@@ -132,7 +134,7 @@ export function DashboardSidebarNav({
         aria-label={tShell("dashboardNavAria")}
       >
       {items.map((item, index) => {
-        const active = navActive(pathname, item.href);
+        const active = navActive(activePathname, item.href);
         const muted = isAdminMutedNavItem(variant, item.href);
         const oliveIconSlug = isOliveShell
           ? oliveNavIconSlug(variant, item)
@@ -178,7 +180,7 @@ export function DashboardSidebarNav({
                 title={collapsed ? item.label : undefined}
                 aria-current={active ? "page" : undefined}
                 className={rowClassName}
-                onClick={onNavigate}
+                onClick={(event) => onHardNavigateClick(event, item.href, onNavigate)}
               >
                 {rowContent}
               </a>
