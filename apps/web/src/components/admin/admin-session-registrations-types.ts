@@ -61,6 +61,9 @@ export function isOccupiedSessionRegistration(row: SessionRegistrationRow): bool
 export function isStaffCancellableSessionRegistration(
   row: SessionRegistrationRow,
 ): boolean {
+  if (row.cancelledAt != null) {
+    return false;
+  }
   return SESSION_REGISTRATION_STAFF_CANCELLABLE_STATUSES.some(
     (status) => status === row.status,
   );

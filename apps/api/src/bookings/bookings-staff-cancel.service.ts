@@ -16,6 +16,7 @@ import {
   isStaffCancellableBookingStatus,
   packagesAllowStaffCancel,
   requiresOpenPackagePeriod,
+  shouldReopenSessionCapacity,
   STAFF_CANCEL_INVALID_STATUS_MESSAGE,
   STAFF_CANCEL_PACKAGE_EXPIRED_MESSAGE,
 } from './bookings-staff-cancel.helpers';
@@ -38,13 +39,21 @@ export class BookingsStaffCancelService {
 
   async adminCancel(actor: Pick<User, 'id'>, bookingId: string) {
     const booking = await this.loadBooking(bookingId);
-    if (!isStaffCancellableBookingStatus(booking.status)) {
+    if (
+      !isStaffCancellableBookingStatus(booking.status) ||
+      booking.cancelledAt != null
+    ) {
       throw new BadRequestException(STAFF_CANCEL_INVALID_STATUS_MESSAGE);
     }
     this.assertPackagePeriodIfNeeded(booking.status, booking.consumptions);
     await this.slots.releaseSlot(booking, {
       applyPenalty: false,
       cancelledByUserId: actor.id,
+      reopenCapacity: shouldReopenSessionCapacity(
+        booking.status,
+        booking.session.endsAt,
+        new Date(),
+      ),
     });
     await this.schedule.invalidatePublicCache();
     this.realtime.emitBookingSessionChange({

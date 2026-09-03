@@ -39,6 +39,16 @@ describe("session registration roster filters", () => {
     assert.equal(isRosterSessionRegistration(row("CANCELLED")), true);
   });
 
+  it("hides staff cancel after credit has already been restored", () => {
+    assert.equal(
+      isStaffCancellableSessionRegistration({
+        ...row("COMPLETED"),
+        cancelledAt: "2026-09-02T12:00:00.000Z",
+      }),
+      false,
+    );
+  });
+
   it("allows staff cancel for booked, completed, and missed", () => {
     assert.equal(isStaffCancellableSessionRegistration(row("BOOKED")), true);
     assert.equal(isStaffCancellableSessionRegistration(row("COMPLETED")), true);

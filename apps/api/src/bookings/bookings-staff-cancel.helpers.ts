@@ -42,6 +42,20 @@ export function requiresOpenPackagePeriod(status: BookingStatus): boolean {
   );
 }
 
+/**
+ * Upcoming BOOKED seats can be given to the waitlist.
+ * Past visits keep occupying the class; only package credit is restored.
+ */
+export function shouldReopenSessionCapacity(
+  status: BookingStatus,
+  sessionEndsAt: Date,
+  now: Date,
+): boolean {
+  return (
+    status === BookingStatus.BOOKED && now.getTime() < sessionEndsAt.getTime()
+  );
+}
+
 export function isUserPackagePeriodOpen(
   pack: PackagePeriodForStaffCancel,
   now: Date,

@@ -111,6 +111,7 @@ describe('BookingsSlotService package credit release', () => {
     const { service, tx, packageUsage, waitlist } = createSlotServiceAndDeps();
     tx.booking.findUnique.mockResolvedValue({
       status: BookingStatus.COMPLETED,
+      cancelledAt: null,
     });
     tx.payment.findFirst.mockResolvedValue(null);
 
@@ -122,7 +123,7 @@ describe('BookingsSlotService package credit release', () => {
     expect(tx.booking.update).toHaveBeenCalledWith({
       where: { id: booking.id },
       data: {
-        status: BookingStatus.CANCELLED,
+        status: BookingStatus.COMPLETED,
         cancelledAt: expect.any(Date),
         cancelledByUserId: 'manager-1',
       },

@@ -4,6 +4,7 @@ import {
   isUserPackagePeriodOpen,
   packagesAllowStaffCancel,
   requiresOpenPackagePeriod,
+  shouldReopenSessionCapacity,
   STAFF_CANCELLABLE_BOOKING_STATUSES,
 } from './bookings-staff-cancel.helpers';
 
@@ -73,6 +74,26 @@ describe('bookings-staff-cancel.helpers', () => {
         },
         now,
       ),
+    ).toBe(false);
+  });
+
+  it('reopens capacity only for upcoming booked seats', () => {
+    const endsAt = new Date('2026-09-04T19:00:00.000Z');
+    expect(
+      shouldReopenSessionCapacity(BookingStatus.BOOKED, endsAt, now),
+    ).toBe(true);
+    expect(
+      shouldReopenSessionCapacity(
+        BookingStatus.BOOKED,
+        new Date('2026-08-20T19:00:00.000Z'),
+        now,
+      ),
+    ).toBe(false);
+    expect(
+      shouldReopenSessionCapacity(BookingStatus.COMPLETED, endsAt, now),
+    ).toBe(false);
+    expect(
+      shouldReopenSessionCapacity(BookingStatus.MISSED, endsAt, now),
     ).toBe(false);
   });
 

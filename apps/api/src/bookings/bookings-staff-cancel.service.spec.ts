@@ -6,12 +6,13 @@ import { STAFF_CANCEL_PACKAGE_EXPIRED_MESSAGE } from './bookings-staff-cancel.he
 const ACTOR = { id: 'manager-1' };
 const BOOKING_ID = 'booking-1';
 
-function sessionShape() {
+function sessionShape(endsAt = new Date('2026-08-20T19:00:00.000Z')) {
   return {
     id: 'session-1',
     priceCents: 0,
     sessionRequirement: null,
     status: 'FINISHED',
+    endsAt,
   };
 }
 
@@ -56,6 +57,7 @@ describe('BookingsStaffCancelService', () => {
     expect(slots.releaseSlot).toHaveBeenCalledWith(booking, {
       applyPenalty: false,
       cancelledByUserId: ACTOR.id,
+      reopenCapacity: false,
     });
     expect(realtime.emitBookingSessionChange).toHaveBeenCalledWith({
       userId: 'user-1',
@@ -95,7 +97,8 @@ describe('BookingsStaffCancelService', () => {
       userId: 'user-1',
       sessionId: 'session-1',
       status: BookingStatus.BOOKED,
-      session: sessionShape(),
+      cancelledAt: null,
+      session: sessionShape(new Date('2099-01-01T19:00:00.000Z')),
       consumptions: [
         {
           userPackage: {
@@ -113,6 +116,7 @@ describe('BookingsStaffCancelService', () => {
     expect(slots.releaseSlot).toHaveBeenCalledWith(booking, {
       applyPenalty: false,
       cancelledByUserId: ACTOR.id,
+      reopenCapacity: true,
     });
   });
 

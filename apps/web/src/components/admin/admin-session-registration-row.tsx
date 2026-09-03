@@ -64,7 +64,7 @@ function cancelledByCaption(
   t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>,
   tRoles: ReturnType<typeof useTranslations<"dashboard.shell.roles">>,
 ): string | null {
-  if (row.status !== SESSION_REGISTRATION_CANCELLED_STATUS) {
+  if (row.status !== SESSION_REGISTRATION_CANCELLED_STATUS && row.cancelledAt == null) {
     return null;
   }
   const actor = row.cancelledBy ?? null;

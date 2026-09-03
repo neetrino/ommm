@@ -18,6 +18,9 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
 function isCancellableBooking(booking: ClientSheetBookingItem): boolean {
+  if (booking.cancelledAt != null) {
+    return false;
+  }
   return SESSION_REGISTRATION_STAFF_CANCELLABLE_STATUSES.some(
     (status) => status === booking.status,
   );
@@ -174,7 +177,7 @@ export function AdminClientBookingsHistory({
                         </p>
                       ) : null}
                       <p className="text-xs text-sage-600">
-                        {`${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.status} · ${booking.session.level ?? "—"}`}
+                        {`${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.cancelledAt != null ? "CANCELLED" : booking.status} · ${booking.session.level ?? "—"}`}
                       </p>
                       <p className="mt-1 text-xs text-sage-500">{signedUp}</p>
                       {extra !== null ? (

@@ -22,6 +22,8 @@ type ReleaseSlotBooking = {
 type ReleaseSlotOptions = {
   applyPenalty: boolean;
   cancelledByUserId?: string;
+  /** When false, restore credit but keep the class occupancy unchanged. */
+  reopenCapacity?: boolean;
 };
 
 @Injectable()
@@ -44,7 +46,9 @@ export class BookingsSlotService {
       return;
     }
     await this.staffActivity.recordBookingCancelled(booking.id);
-    if (previousStatus !== BookingStatus.BOOKED) {
+    const reopenCapacity =
+      options.reopenCapacity ?? previousStatus === BookingStatus.BOOKED;
+    if (!reopenCapacity) {
       return;
     }
     await this.prisma.classSession.updateMany({
@@ -95,15 +99,21 @@ export class BookingsSlotService {
   ): Promise<BookingStatus | null> {
     const current = await tx.booking.findUnique({
       where: { id: booking.id },
-      select: { status: true },
+      select: { status: true, cancelledAt: true },
     });
-    if (!current || !isStaffCancellableBookingStatus(current.status)) {
+    if (
+      !current ||
+      !isStaffCancellableBookingStatus(current.status) ||
+      current.cancelledAt != null
+    ) {
       return null;
     }
+    const reopenCapacity =
+      options.reopenCapacity ?? current.status === BookingStatus.BOOKED;
     await tx.booking.update({
       where: { id: booking.id },
       data: {
-        status: BookingStatus.CANCELLED,
+        status: reopenCapacity ? BookingStatus.CANCELLED : current.status,
         cancelledAt: new Date(),
         ...(options.cancelledByUserId
           ? { cancelledByUserId: options.cancelledByUserId }
