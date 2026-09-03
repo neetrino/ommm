@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import type { AppUiLocale } from '../common/app-ui-locales';
 import { toWhatsappChatId } from './whatsapp-chat-id';
+import { renderGiftCardWhatsapp } from './whatsapp-commerce-templates';
+import { WHATSAPP_CUSTOMER_LOCALES } from './whatsapp.constants';
 import { WhatsappGatewayClient } from './whatsapp-gateway.client';
 import {
   allowsWhatsappTopic,
@@ -8,8 +11,8 @@ import {
   type WhatsappTopic,
 } from './whatsapp-topic';
 import { PrismaService } from '../prisma/prisma.service';
-import { renderGiftCardWhatsapp } from './whatsapp-commerce-templates';
-import { resolveWhatsappLocale } from './whatsapp-locale';
+
+export type WhatsappMessageRenderer = (locale: AppUiLocale) => string;
 
 @Injectable()
 export class WhatsappNotifyService {
@@ -27,7 +30,7 @@ export class WhatsappNotifyService {
   async trySendToUser(params: {
     userId: string;
     topic: WhatsappTopic;
-    text: string;
+    render: WhatsappMessageRenderer;
   }): Promise<WhatsappSendResult> {
     try {
       if (!(await this.gateway.isConfigured())) {
@@ -54,7 +57,7 @@ export class WhatsappNotifyService {
       }
       const user = await this.prisma.user.findUnique({
         where: { email: normalized },
-        select: { id: true, locale: true },
+        select: { id: true },
       });
       if (!user) {
         return 'skipped';
@@ -62,9 +65,7 @@ export class WhatsappNotifyService {
       return await this.trySendToUser({
         userId: user.id,
         topic: 'operational',
-        text: renderGiftCardWhatsapp(resolveWhatsappLocale(user.locale), {
-          code,
-        }),
+        render: (locale) => renderGiftCardWhatsapp(locale, { code }),
       });
     } catch (error) {
       this.logger.error(
@@ -78,7 +79,7 @@ export class WhatsappNotifyService {
   private async sendToLoadedUser(params: {
     userId: string;
     topic: WhatsappTopic;
-    text: string;
+    render: WhatsappMessageRenderer;
   }): Promise<WhatsappSendResult> {
     const user = await this.prisma.user.findUnique({
       where: { id: params.userId },
@@ -105,7 +106,13 @@ export class WhatsappNotifyService {
     if (chatId === null) {
       return 'skipped';
     }
-    const sent = await this.gateway.sendText(chatId, params.text);
-    return sent ? 'sent' : 'failed';
+    let anySent = false;
+    for (const locale of WHATSAPP_CUSTOMER_LOCALES) {
+      const sent = await this.gateway.sendText(chatId, params.render(locale));
+      if (sent) {
+        anySent = true;
+      }
+    }
+    return anySent ? 'sent' : 'failed';
   }
 }

@@ -23,10 +23,7 @@ import {
   SCHEDULED_TIMELINE_ACTIONS,
 } from './notifications-audit.constants';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
-import {
-  formatWhatsappDateTime,
-  resolveWhatsappLocale,
-} from '../whatsapp/whatsapp-locale';
+import { formatWhatsappDateTime } from '../whatsapp/whatsapp-locale';
 import { renderClassReminderWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 import { NotificationsBroadcastService } from './notifications-broadcast.service';
 import {
@@ -145,15 +142,18 @@ export class NotificationsCronService {
     },
     className: string,
   ): Promise<void> {
-    const locale = resolveWhatsappLocale(booking.user.locale);
     await this.whatsapp.trySendToUser({
       userId: booking.user.id,
       topic: 'bookingReminders',
-      text: renderClassReminderWhatsapp(locale, {
-        className,
-        hoursBefore: REMINDER_HOURS_BEFORE,
-        startsAtLabel: formatWhatsappDateTime(booking.session.startsAt, locale),
-      }),
+      render: (locale) =>
+        renderClassReminderWhatsapp(locale, {
+          className,
+          hoursBefore: REMINDER_HOURS_BEFORE,
+          startsAtLabel: formatWhatsappDateTime(
+            booking.session.startsAt,
+            locale,
+          ),
+        }),
     });
   }
 

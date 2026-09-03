@@ -17,10 +17,7 @@ import {
 } from '../mail/templates/payment-cash-pending-customer.template';
 import { PrismaService } from '../prisma/prisma.service';
 import { renderCashPendingWhatsapp } from '../whatsapp/whatsapp-commerce-templates';
-import {
-  formatWhatsappAmount,
-  resolveWhatsappLocale,
-} from '../whatsapp/whatsapp-locale';
+import { formatWhatsappAmount } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import {
   formatCustomerDisplayName,
@@ -126,17 +123,17 @@ export class PaymentCashPendingEmailService {
       return;
     }
 
-    const whatsappLocale = resolveWhatsappLocale(payment.user.locale);
     await this.whatsapp.trySendToUser({
       userId: payment.userId,
       topic: 'operational',
-      text: renderCashPendingWhatsapp(whatsappLocale, {
-        amountLabel: formatWhatsappAmount(
-          whatsappLocale,
-          payment.amountCents,
-          payment.currency,
-        ),
-      }),
+      render: (locale) =>
+        renderCashPendingWhatsapp(locale, {
+          amountLabel: formatWhatsappAmount(
+            locale,
+            payment.amountCents,
+            payment.currency,
+          ),
+        }),
     });
 
     await this.prisma.payment.updateMany({

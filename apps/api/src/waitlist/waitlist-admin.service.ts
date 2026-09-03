@@ -28,7 +28,6 @@ import { RealtimePublisherService } from '../realtime/realtime-publisher.service
 import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
-import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { renderWaitlistManualWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 import { WaitlistCapacityService } from './waitlist-capacity.service';
@@ -194,14 +193,12 @@ export class WaitlistAdminService {
     await this.whatsapp.trySendToUser({
       userId: entry.userId,
       topic: 'waitlistAlerts',
-      text: renderWaitlistManualWhatsapp(
-        resolveWhatsappLocale(entry.user.locale),
-        {
+      render: (locale) =>
+        renderWaitlistManualWhatsapp(locale, {
           className,
           subject: customSubject,
           message,
-        },
-      ),
+        }),
     });
     await this.audit.log({
       actorId: payload.actorId ?? null,

@@ -3,7 +3,7 @@ import {
   renderPackageCreditsLabel,
   renderPackagePurchasedWhatsapp,
 } from './whatsapp-commerce-templates';
-import { formatWhatsappDate, resolveWhatsappLocale } from './whatsapp-locale';
+import { formatWhatsappDate } from './whatsapp-locale';
 import { WhatsappNotifyService } from './whatsapp-notify.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -50,18 +50,18 @@ export class WhatsappPackagePurchasedService {
     if (!userPackage) {
       return;
     }
-    const locale = resolveWhatsappLocale(userPackage.user.locale);
     const result = await this.notify.trySendToUser({
       userId: userPackage.userId,
       topic: 'operational',
-      text: renderPackagePurchasedWhatsapp(locale, {
-        planName: userPackage.planNameSnapshot,
-        endsAtLabel: formatWhatsappDate(userPackage.currentPeriodEnd, locale),
-        creditsLabel: renderPackageCreditsLabel(locale, {
-          unlimited: userPackage.planIsUnlimitedSnapshot,
-          sessionsRemaining: userPackage.sessionsRemaining,
+      render: (locale) =>
+        renderPackagePurchasedWhatsapp(locale, {
+          planName: userPackage.planNameSnapshot,
+          endsAtLabel: formatWhatsappDate(userPackage.currentPeriodEnd, locale),
+          creditsLabel: renderPackageCreditsLabel(locale, {
+            unlimited: userPackage.planIsUnlimitedSnapshot,
+            sessionsRemaining: userPackage.sessionsRemaining,
+          }),
         }),
-      }),
     });
     if (result === 'failed') {
       return;

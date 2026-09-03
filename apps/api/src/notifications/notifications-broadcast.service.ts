@@ -9,7 +9,6 @@ import { AuditService } from '../audit/audit.service';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { MailService } from '../mail/mail.service';
 import { htmlToWhatsappText } from '../whatsapp/whatsapp-html-text';
-import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { renderBroadcastWhatsapp } from '../whatsapp/whatsapp-commerce-templates';
 import { renderBroadcastEmail } from '../mail/templates/broadcast.template';
@@ -133,10 +132,11 @@ export class NotificationsBroadcastService {
     await this.whatsapp.trySendToUser({
       userId: params.user.id,
       topic: 'promotions',
-      text: renderBroadcastWhatsapp(resolveWhatsappLocale(params.user.locale), {
-        subject: params.subject,
-        body: params.whatsappBody,
-      }),
+      render: (locale) =>
+        renderBroadcastWhatsapp(locale, {
+          subject: params.subject,
+          body: params.whatsappBody,
+        }),
     });
   }
 

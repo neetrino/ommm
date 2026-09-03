@@ -7,7 +7,7 @@ import {
   MEMBERSHIP_EXPIRY_REMINDER_DAYS,
   WHATSAPP_CRON_BATCH_TAKE,
 } from './whatsapp.constants';
-import { formatWhatsappDate, resolveWhatsappLocale } from './whatsapp-locale';
+import { formatWhatsappDate } from './whatsapp-locale';
 import { WhatsappNotifyService } from './whatsapp-notify.service';
 import { renderMembershipExpiryWhatsapp } from './whatsapp-schedule-templates';
 
@@ -63,14 +63,14 @@ export class WhatsappMembershipExpiryService {
     currentPeriodEnd: Date;
     user: { locale: string };
   }): Promise<void> {
-    const locale = resolveWhatsappLocale(userPackage.user.locale);
     const result = await this.notify.trySendToUser({
       userId: userPackage.userId,
       topic: 'bookingReminders',
-      text: renderMembershipExpiryWhatsapp(locale, {
-        planName: userPackage.planNameSnapshot,
-        endsAtLabel: formatWhatsappDate(userPackage.currentPeriodEnd, locale),
-      }),
+      render: (locale) =>
+        renderMembershipExpiryWhatsapp(locale, {
+          planName: userPackage.planNameSnapshot,
+          endsAtLabel: formatWhatsappDate(userPackage.currentPeriodEnd, locale),
+        }),
     });
     if (result === 'failed') {
       return;

@@ -13,7 +13,6 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { StudioService } from '../studio/studio.service';
-import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { renderWaitlistOfferWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 import { WaitlistCapacityService } from './waitlist-capacity.service';
@@ -101,9 +100,7 @@ export class WaitlistOffersService {
     await this.whatsapp.trySendToUser({
       userId: next.userId,
       topic: 'waitlistAlerts',
-      text: renderWaitlistOfferWhatsapp(
-        resolveWhatsappLocale(next.user.locale),
-      ),
+      render: (locale) => renderWaitlistOfferWhatsapp(locale),
     });
     this.realtime.emitWaitlistOffer(next.userId, sessionId);
   }

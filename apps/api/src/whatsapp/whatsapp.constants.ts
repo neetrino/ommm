@@ -26,3 +26,6 @@ export const WHATSAPP_TEXT_MESSAGE_TYPE = 'TEXT';
 export const WHATSAPP_SELF_PHONE_VISIBLE_MIN = 4;
 export const WHATSAPP_ADMIN_TEST_MESSAGE =
   'Ommm: test message. WhatsApp Gateway is working.';
+
+/** Every customer WhatsApp action sends hy then en. */
+export const WHATSAPP_CUSTOMER_LOCALES = ['hy', 'en'] as const;

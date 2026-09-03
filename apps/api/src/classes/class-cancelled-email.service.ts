@@ -12,7 +12,6 @@ import {
 } from '../mail/templates/class-cancelled.template';
 import { formatPaymentDateTime } from '../payments/payment-email-format.util';
 import { PrismaService } from '../prisma/prisma.service';
-import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { renderClassCancelledWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 
@@ -140,11 +139,10 @@ export class ClassCancelledEmailService {
           ),
         }),
       });
-      const locale = resolveWhatsappLocale(recipient.locale);
       await this.whatsapp.trySendToUser({
         userId: recipient.userId,
         topic: 'bookingReminders',
-        text: renderClassCancelledWhatsapp(locale),
+        render: (locale) => renderClassCancelledWhatsapp(locale),
       });
     } catch (error) {
       this.logger.error(

@@ -1,3 +1,4 @@
+import { renderGiftCardWhatsapp } from './whatsapp-commerce-templates';
 import { WhatsappNotifyService } from './whatsapp-notify.service';
 
 describe('WhatsappNotifyService', () => {
@@ -24,7 +25,7 @@ describe('WhatsappNotifyService', () => {
       service.trySendToUser({
         userId: 'u1',
         topic: 'operational',
-        text: 'Hi',
+        render: () => 'Hi',
       }),
     ).resolves.toBe('failed');
   });
@@ -37,7 +38,7 @@ describe('WhatsappNotifyService', () => {
       service.trySendToUser({
         userId: 'u1',
         topic: 'operational',
-        text: 'Hi',
+        render: () => 'Hi',
       }),
     ).resolves.toBe('skipped');
     expect(prisma.user.findUnique).not.toHaveBeenCalled();
@@ -59,13 +60,13 @@ describe('WhatsappNotifyService', () => {
       service.trySendToUser({
         userId: 'u1',
         topic: 'bookingReminders',
-        text: 'Hi',
+        render: () => 'Hi',
       }),
     ).resolves.toBe('skipped');
     expect(gateway.sendText).not.toHaveBeenCalled();
   });
 
-  it('sends when phone and prefs allow', async () => {
+  it('sends hy and en when phone and prefs allow', async () => {
     const { service, prisma, gateway } = createService();
     prisma.user.findUnique.mockResolvedValue({
       phone: '+37441881822',
@@ -81,9 +82,49 @@ describe('WhatsappNotifyService', () => {
       service.trySendToUser({
         userId: 'u1',
         topic: 'bookingReminders',
-        text: 'Hi',
+        render: (locale) => (locale === 'hy' ? 'Բարև' : 'Hello'),
       }),
     ).resolves.toBe('sent');
-    expect(gateway.sendText).toHaveBeenCalledWith('37441881822@c.us', 'Hi');
+    expect(gateway.sendText).toHaveBeenCalledTimes(2);
+    expect(gateway.sendText).toHaveBeenNthCalledWith(
+      1,
+      '37441881822@c.us',
+      'Բարև',
+    );
+    expect(gateway.sendText).toHaveBeenNthCalledWith(
+      2,
+      '37441881822@c.us',
+      'Hello',
+    );
+  });
+
+  it('sends bilingual gift card messages', async () => {
+    const { service, prisma, gateway } = createService();
+    prisma.user.findUnique
+      .mockResolvedValueOnce({ id: 'u1' })
+      .mockResolvedValueOnce({
+        phone: '+37441881822',
+        notificationPrefs: {
+          whatsappEnabled: true,
+          bookingReminders: true,
+          waitlistAlerts: true,
+          promotions: false,
+        },
+      });
+
+    await expect(
+      service.trySendGiftCard('user@example.com', 'ABC123'),
+    ).resolves.toBe('sent');
+    expect(gateway.sendText).toHaveBeenCalledTimes(2);
+    expect(gateway.sendText).toHaveBeenNthCalledWith(
+      1,
+      '37441881822@c.us',
+      renderGiftCardWhatsapp('hy', { code: 'ABC123' }),
+    );
+    expect(gateway.sendText).toHaveBeenNthCalledWith(
+      2,
+      '37441881822@c.us',
+      renderGiftCardWhatsapp('en', { code: 'ABC123' }),
+    );
   });
 });
