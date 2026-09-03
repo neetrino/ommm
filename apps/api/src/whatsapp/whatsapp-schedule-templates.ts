@@ -10,18 +10,6 @@ type NamedClassParams = {
   className: string;
 };
 
-type WaitlistOfferParams = NamedClassParams & {
-  offerMinutes: number;
-};
-
-type ClassCancelledParams = NamedClassParams & {
-  startsAtLabel: string;
-};
-
-type BookingConfirmedParams = NamedClassParams & {
-  startsAtLabel: string;
-};
-
 type WaitlistManualParams = NamedClassParams & {
   subject: string;
   message: string;
@@ -36,52 +24,60 @@ export function renderClassReminderWhatsapp(
   locale: AppUiLocale,
   params: ClassReminderParams,
 ): string {
-  if (locale === 'ru') {
-    return `Ommm: «${params.className}» начнётся примерно через ${params.hoursBefore} ч. (${params.startsAtLabel}).`;
-  }
   if (locale === 'hy') {
-    return `Ommm. «${params.className}»-ը կսկսվի մոտ ${params.hoursBefore} ժամից (${params.startsAtLabel})։`;
+    return `💛 Հիշեցում Ommm.-ից
+
+Քո պարապմունքը կսկսվի ${params.hoursBefore} ժամից։
+Սպասում ենք Քեզ Ommm.-ում՝ Քո օրվա Ommm. պահի համար։
+
+Մինչ հանդիպում ✨`;
   }
-  return `Ommm: ${params.className} starts in about ${params.hoursBefore} hours (${params.startsAtLabel}).`;
+  return `💛 A little Ommm. reminder
+
+Your Ommm. moment starts in ${params.hoursBefore} hours.
+
+See you soon ✨`;
 }
 
-export function renderWaitlistOfferWhatsapp(
-  locale: AppUiLocale,
-  params: WaitlistOfferParams,
-): string {
-  if (locale === 'ru') {
-    return `Ommm: освободилось место в «${params.className}». Забронируйте в течение ${params.offerMinutes} мин.`;
-  }
+export function renderWaitlistOfferWhatsapp(locale: AppUiLocale): string {
   if (locale === 'hy') {
-    return `Ommm. «${params.className}»-ում տեղ է ազատվել։ Ամրագրեք ${params.offerMinutes} րոպեի ընթացքում։`;
+    return `✨ Լավ նորություն Ommm.-ից
+
+Ձեր սպասման ցուցակի պարապմունքում տեղ է ազատվել։
+Այժմ կարող եք ամրագրել Ձեր տեղը։
+
+Տեղերը սահմանափակ են և հասանելի՝ ըստ ամրագրման հերթականության 💛`;
   }
-  return `Ommm: a place opened in ${params.className}. Book within ${params.offerMinutes} minutes.`;
+  return `✨ Good news from Ommm.
+
+A spot is now available for your waitlisted class.
+You can now book your place.
+
+Spots are limited and available on a first-booked basis 💛`;
 }
 
-export function renderClassCancelledWhatsapp(
-  locale: AppUiLocale,
-  params: ClassCancelledParams,
-): string {
-  if (locale === 'ru') {
-    return `Ommm: занятие «${params.className}» (${params.startsAtLabel}) отменено.`;
-  }
+export function renderClassCancelledWhatsapp(locale: AppUiLocale): string {
   if (locale === 'hy') {
-    return `Ommm. «${params.className}» դասը (${params.startsAtLabel}) չեղարկվել է։`;
+    return `Ցավոք, Ձեր ամրագրած պարապմունքը չեղարկվել է։
+
+Ներողություն ենք խնդրում անհարմարության համար։ Կարող եք ընտրել Ձեզ հարմար այլ ժամ մեր դասացուցակից։`;
   }
-  return `Ommm: ${params.className} on ${params.startsAtLabel} was cancelled.`;
+  return `A little update from Ommm. 💛
+
+Unfortunately, your booked class has been cancelled.
+
+We're sorry for the inconvenience. You can choose another convenient time from our schedule.`;
 }
 
-export function renderBookingConfirmedWhatsapp(
-  locale: AppUiLocale,
-  params: BookingConfirmedParams,
-): string {
-  if (locale === 'ru') {
-    return `Ommm: бронь подтверждена — «${params.className}», ${params.startsAtLabel}.`;
-  }
+export function renderBookingConfirmedWhatsapp(locale: AppUiLocale): string {
   if (locale === 'hy') {
-    return `Ommm. ամրագրումը հաստատված է — «${params.className}», ${params.startsAtLabel}։`;
+    return `✨ Ձեր Ommm. պահն ամրագրված է։
+
+Սպասում ենք Ձեզ 💛`;
   }
-  return `Ommm: booking confirmed — ${params.className}, ${params.startsAtLabel}.`;
+  return `✨ Your Ommm. moment is booked.
+
+We'll be waiting for you 💛`;
 }
 
 export function renderWaitlistManualWhatsapp(
@@ -89,11 +85,6 @@ export function renderWaitlistManualWhatsapp(
   params: WaitlistManualParams,
 ): string {
   const body = params.message.trim();
-  if (locale === 'ru') {
-    return body.length > 0
-      ? `Ommm: ${params.subject}\n${body}`
-      : `Ommm: сообщение по листу ожидания «${params.className}».`;
-  }
   if (locale === 'hy') {
     return body.length > 0
       ? `Ommm. ${params.subject}\n${body}`
@@ -108,9 +99,6 @@ export function renderMembershipExpiryWhatsapp(
   locale: AppUiLocale,
   params: MembershipExpiryParams,
 ): string {
-  if (locale === 'ru') {
-    return `Ommm: пакет «${params.planName}» истекает ${params.endsAtLabel}.`;
-  }
   if (locale === 'hy') {
     return `Ommm. «${params.planName}» փաթեթը կավարտվի ${params.endsAtLabel}։`;
   }

@@ -103,10 +103,6 @@ export class WaitlistOffersService {
       topic: 'waitlistAlerts',
       text: renderWaitlistOfferWhatsapp(
         resolveWhatsappLocale(next.user.locale),
-        {
-          className: session.classType.name,
-          offerMinutes: minutes,
-        },
       ),
     });
     this.realtime.emitWaitlistOffer(next.userId, sessionId);

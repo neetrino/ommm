@@ -17,11 +17,7 @@ import {
   renderPaymentCustomerConfirmationEmail,
 } from '../mail/templates/payment-customer-confirmation.template';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  formatWhatsappAmount,
-  formatWhatsappPaymentSource,
-  resolveWhatsappLocale,
-} from '../whatsapp/whatsapp-locale';
+import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { renderPaymentSuccessWhatsapp } from '../whatsapp/whatsapp-commerce-templates';
 import {
@@ -91,17 +87,7 @@ export class PaymentSuccessEmailService {
     await this.whatsapp.trySendToUser({
       userId: payment.userId,
       topic: 'operational',
-      text: renderPaymentSuccessWhatsapp(whatsappLocale, {
-        amountLabel: formatWhatsappAmount(
-          whatsappLocale,
-          payment.amountCents,
-          payment.currency,
-        ),
-        paymentTypeLabel: formatWhatsappPaymentSource(
-          whatsappLocale,
-          payment.source,
-        ),
-      }),
+      text: renderPaymentSuccessWhatsapp(whatsappLocale),
     });
     const adminSent = await this.sendAdminEmail(context);
 
