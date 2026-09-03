@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import { ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { ADMIN_CONFIRM_MODAL_PANEL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -27,6 +28,8 @@ type OmmConfirmDialogProps = {
    * Always show a centered modal with enter/exit motion (skip phone bottom sheet).
    */
   forceCenteredModal?: boolean;
+  /** Hide the cancel button; dismiss via an X in the top-right corner. */
+  dismissAsCloseIcon?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
@@ -54,6 +57,7 @@ export function OmmConfirmDialog({
   lockBodyScroll = true,
   closeOnEscape = true,
   forceCenteredModal = false,
+  dismissAsCloseIcon = false,
   onConfirm,
   onCancel,
   children,
@@ -106,32 +110,135 @@ export function OmmConfirmDialog({
       closeOnEscape={closeOnEscape}
       zIndexClass="z-[110]"
     >
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
+      <ConfirmDialogBody
+        titleId={titleId}
+        descId={descId}
+        title={title}
+        description={description}
+        confirmLabel={confirmLabel}
+        cancelLabel={cancelLabel}
+        pending={pending}
+        confirmPending={resolvedConfirmPending}
+        confirmClassName={confirmClassName}
+        dismissAsCloseIcon={dismissAsCloseIcon}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      >
+        {children}
+      </ConfirmDialogBody>
+    </AdminSheetPortal>
+  );
+}
+
+function ConfirmDialogBody({
+  titleId,
+  descId,
+  title,
+  description,
+  confirmLabel,
+  cancelLabel,
+  pending,
+  confirmPending,
+  confirmClassName,
+  dismissAsCloseIcon,
+  onConfirm,
+  onCancel,
+  children,
+}: {
+  titleId: string;
+  descId: string;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  cancelLabel: string;
+  pending: boolean;
+  confirmPending: boolean;
+  confirmClassName: string;
+  dismissAsCloseIcon: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start justify-between gap-3">
           <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
             {title}
           </h2>
-          <p id={descId} className="text-sm leading-relaxed text-sage-700">
-            {description}
-          </p>
+          {dismissAsCloseIcon ? (
+            <button
+              type="button"
+              className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
+              aria-label={cancelLabel}
+              disabled={pending}
+              onClick={onCancel}
+            >
+              ×
+            </button>
+          ) : null}
         </div>
-        {children}
-        <div className="flex flex-wrap justify-end gap-3 pt-1">
-          <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
-            {cancelLabel}
-          </OmmButton>
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            className={confirmClassName}
-            onClick={onConfirm}
-            disabled={resolvedConfirmPending}
-          >
-            {confirmLabel}
-          </OmmButton>
-        </div>
+        <p id={descId} className="text-sm leading-relaxed text-sage-700">
+          {description}
+        </p>
       </div>
-    </AdminSheetPortal>
+      {children}
+      <ConfirmDialogActions
+        confirmLabel={confirmLabel}
+        cancelLabel={cancelLabel}
+        pending={pending}
+        confirmPending={confirmPending}
+        confirmClassName={confirmClassName}
+        dismissAsCloseIcon={dismissAsCloseIcon}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
+    </div>
+  );
+}
+
+function ConfirmDialogActions({
+  confirmLabel,
+  cancelLabel,
+  pending,
+  confirmPending,
+  confirmClassName,
+  dismissAsCloseIcon,
+  onConfirm,
+  onCancel,
+}: {
+  confirmLabel: string;
+  cancelLabel: string;
+  pending: boolean;
+  confirmPending: boolean;
+  confirmClassName: string;
+  dismissAsCloseIcon: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div
+      className={
+        dismissAsCloseIcon
+          ? "flex justify-center pt-1"
+          : "flex flex-wrap justify-end gap-3 pt-1"
+      }
+    >
+      {dismissAsCloseIcon ? null : (
+        <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
+          {cancelLabel}
+        </OmmButton>
+      )}
+      <OmmButton
+        type="button"
+        variant="secondary"
+        size="md"
+        className={confirmClassName}
+        onClick={onConfirm}
+        disabled={confirmPending}
+      >
+        {confirmLabel}
+      </OmmButton>
+    </div>
   );
 }

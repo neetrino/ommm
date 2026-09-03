@@ -193,6 +193,10 @@ export function AdminSessionRegistrationsList({
         backdropAriaLabel={tClasses("confirmDialogBackdrop")}
         tone="danger"
         confirmClassName="ommm-btn-lifecycle-action--danger"
+        dismissAsCloseIcon={
+          pendingCancel !== null &&
+          isPastAdminCancelBookingStatus(pendingCancel.status)
+        }
         pending={pendingCancel !== null && busyId === pendingCancel.id}
         onConfirm={() => {
           void confirmCancel();
