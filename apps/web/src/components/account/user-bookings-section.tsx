@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { UserBookingBoardCard } from "@/components/account/user-booking-board-card";
 import { UserBookingCompactRow } from "@/components/account/user-booking-compact-row";
 import {
@@ -300,6 +300,11 @@ export function UserBookingsSection({
     <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
       <h2 className="ommm-h3 text-sage-800">{tabEmptyTitle}</h2>
       <p className="ommm-body-muted mt-2 text-sm">{tabEmptyDescription}</p>
+      <div className="mt-4 flex justify-end">
+        <Link href="/schedule" className="ommm-cta-primary inline-flex">
+          {t("emptyScheduleCta")}
+        </Link>
+      </div>
     </section>
   ) : (
     <div className="flex flex-col gap-5">

@@ -116,7 +116,13 @@ export class ScheduleService {
   private async loadPublicActiveFromDb(range: { from: Date; to: Date }) {
     const sessions = await this.prisma.classSession.findMany({
       where: {
-        status: { in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL] },
+        status: {
+          in: [
+            ClassSessionStatus.ACTIVE,
+            ClassSessionStatus.FULL,
+            ClassSessionStatus.FINISHED,
+          ],
+        },
         startsAt: { gte: range.from, lte: range.to },
       },
       include: PUBLIC_SCHEDULE_SESSION_INCLUDE,

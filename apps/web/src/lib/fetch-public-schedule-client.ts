@@ -1,7 +1,7 @@
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { apiFetch } from "@/lib/api";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
-import { filterBookablePublicScheduleItems } from "@/lib/filter-public-schedule-items";
+import { filterVisiblePublicScheduleItems } from "@/lib/filter-public-schedule-items";
 import { buildPublicScheduleRangeQuery } from "@/lib/schedule-session-range";
 
 type PublicScheduleClientResult = {
@@ -18,7 +18,7 @@ async function loadPublicScheduleClient(): Promise<PublicScheduleClientResult> {
   if (!Array.isArray(rows)) {
     throw new Error("Invalid public schedule response");
   }
-  const activeItems = filterBookablePublicScheduleItems(rows);
+  const activeItems = filterVisiblePublicScheduleItems(rows);
   return {
     items: activeItems,
     classTypes: getScheduleClassTypeValues(activeItems),

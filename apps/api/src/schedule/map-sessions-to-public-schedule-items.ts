@@ -9,9 +9,11 @@ import {
   utcToStudioWallClockTime,
 } from '../common/studio-timezone';
 
+/** Bookable + completed sessions for the marketing week view (past days as Closed). */
 const PUBLIC_SESSION_STATUSES: readonly ClassSessionStatus[] = [
   ClassSessionStatus.ACTIVE,
   ClassSessionStatus.FULL,
+  ClassSessionStatus.FINISHED,
 ];
 
 type SessionForPublicSchedule = {
@@ -64,8 +66,8 @@ function formatCoachInstructorName(
 }
 
 /**
- * Maps bookable class sessions into public marketing rows.
- * Each row keeps the real session id so the public Book button targets a bookable class.
+ * Maps class sessions into public marketing rows (active, full, and finished).
+ * Draft/cancelled stay hidden. Finished rows keep real session ids for display only.
  */
 export function mapSessionsToPublicScheduleItems(
   sessions: readonly SessionForPublicSchedule[],

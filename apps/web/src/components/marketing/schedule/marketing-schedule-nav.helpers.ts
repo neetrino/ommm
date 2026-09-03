@@ -103,15 +103,16 @@ export function buildPublicScheduleHrefForDate(dateIso: string): string {
   return `/schedule?${PUBLIC_SCHEDULE_DATE_QUERY_KEY}=${encodeURIComponent(dateIso)}`;
 }
 
+/** Empty arrays mean “all” — same as the mobile schedule filters. */
 export function matchesMarketingScheduleFilters(
   item: MarketingScheduleItem,
-  classType: string,
-  instructor: string,
+  classTypes: readonly string[],
+  instructors: readonly string[],
 ): boolean {
-  if (classType !== "all" && item.classType !== classType) {
+  if (classTypes.length > 0 && !classTypes.includes(item.classType)) {
     return false;
   }
-  if (instructor !== "all" && item.instructorName !== instructor) {
+  if (instructors.length > 0 && !instructors.includes(item.instructorName)) {
     return false;
   }
   return true;

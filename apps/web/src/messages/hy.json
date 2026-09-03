@@ -1028,6 +1028,7 @@
       "emptyPerfectDescription": "Երբ դաս եք ամրագրում, այն կհայտնվի այստեղ։",
       "emptyPastTitle": "Անցյալ ամրագրումներ չկան",
       "emptyPastDescription": "Այստեղ դեռ ոչինչ չկա։",
+      "emptyScheduleCta": "Դասացուցակ",
       "filteredEmptyTitle": "Ձեր ֆիլտրերին համապատասխան ամրագրումներ չկան",
       "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը, մարզիչը կամ կարգավիճակը։",
       "filteredEmptySection": "Այս բաժնում համընկնումներ չկան։",
@@ -4804,7 +4805,13 @@
       "guestPassNameLabel": "Հյուրի անուն",
       "guestPassNamePlaceholder": "Հյուրի անունը",
       "packageModalBookGuest": "Գրանցել հյուրին",
-      "packageNoPurchasePlans": "Այս դասի համար հասանելի փաթեթներ չկան։"
+      "packageNoPurchasePlans": "Այս դասի համար հասանելի փաթեթներ չկան։",
+      "policyConfirmTitle": "⚠️ Ուշադրություն",
+      "policyConfirmDescription": "Եթե չեղարկեք դասը մեկնարկից պակաս քան 24 ժամ առաջ, սեսիան կհանվի ձեր աբոնեմենտից։",
+      "policyConfirmCheckbox": "Հասկանում եմ և համաձայն եմ",
+      "policyConfirmContinue": "Շարունակել",
+      "policyConfirmCancel": "Չեղարկել",
+      "policyConfirmBackdrop": "Փակել պատուհանը"
     },
     "joinWaitlist": {
       "action": "Միանալ սպասման ցուցակին",

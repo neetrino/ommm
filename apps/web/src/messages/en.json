@@ -1027,6 +1027,7 @@
       "emptyPerfectDescription": "When you book a class, it will appear here.",
       "emptyPastTitle": "No past bookings",
       "emptyPastDescription": "Nothing here yet.",
+      "emptyScheduleCta": "View schedule",
       "filteredEmptyTitle": "No bookings match your filters",
       "filteredEmptyDescription": "Try adjusting the date range, class type, coach, or status.",
       "filteredEmptySection": "No matches in this section.",
@@ -4803,7 +4804,13 @@
       "guestPassNameLabel": "Guest name",
       "guestPassNamePlaceholder": "Guest's name",
       "packageModalBookGuest": "Book guest pass",
-      "packageNoPurchasePlans": "No packages are available for this class right now."
+      "packageNoPurchasePlans": "No packages are available for this class right now.",
+      "policyConfirmTitle": "⚠️ Please note",
+      "policyConfirmDescription": "If you cancel a class less than 24 hours before it starts, the session will be deducted from your package.",
+      "policyConfirmCheckbox": "I'm aware",
+      "policyConfirmContinue": "Continue",
+      "policyConfirmCancel": "Cancel",
+      "policyConfirmBackdrop": "Close dialog"
     },
     "joinWaitlist": {
       "action": "Join waitlist",

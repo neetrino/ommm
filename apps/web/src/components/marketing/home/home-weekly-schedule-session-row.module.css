@@ -13,6 +13,10 @@
   padding: clamp(1rem, 2vw, 1.5rem);
 }
 
+.rowClosed {
+  opacity: 0.55;
+}
+
 .timeCluster {
   display: flex;
   grid-area: time;
@@ -95,6 +99,16 @@
   flex-direction: column;
   align-items: stretch;
   align-self: flex-start;
+}
+
+.closedLabel {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(82 76 66 / 0.72);
 }
 
 /* Tablet + desktop — explicit five-column row grid (Safari-safe, no subgrid). */

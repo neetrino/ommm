@@ -200,7 +200,7 @@ export function CancelBookingButton({
         ) : (
           <OmmButton
             type="button"
-            variant="secondary"
+            variant="danger"
             size={buttonSize}
             disabled={busy}
             className={resolvedButtonClass}
@@ -221,6 +221,7 @@ export function CancelBookingButton({
         confirmClassName={CANCEL_BOOKING_BUTTON_CLASS}
         pending={busy}
         confirmPending={busy || !confirmReady}
+        forceCenteredModal
         onConfirm={() => void confirmCancel()}
         onCancel={closeConfirm}
       />

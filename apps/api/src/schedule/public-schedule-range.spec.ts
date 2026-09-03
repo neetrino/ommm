@@ -9,6 +9,7 @@ import { resolvePublicScheduleRange } from './public-schedule-range';
 describe('resolvePublicScheduleRange', () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    // Monday 2026-06-08 in Asia/Yerevan — current week starts Sunday 2026-06-07.
     jest.setSystemTime(new Date('2026-06-08T15:30:00.000Z'));
   });
 
@@ -16,9 +17,9 @@ describe('resolvePublicScheduleRange', () => {
     jest.useRealTimers();
   });
 
-  it('defaults to today start through 30 days end in studio timezone', () => {
+  it('defaults to current week Sunday through 30 days end in studio timezone', () => {
     const range = resolvePublicScheduleRange();
-    expect(range.from).toEqual(studioWallClockToUtc('2026-06-08', '00:00'));
+    expect(range.from).toEqual(studioWallClockToUtc('2026-06-07', '00:00'));
     expect(range.to).toEqual(
       endOfStudioDayInclusive(studioWallClockToUtc('2026-07-08', '12:00')),
     );
@@ -29,7 +30,7 @@ describe('resolvePublicScheduleRange', () => {
       '2026-06-01T00:00:00.000Z',
       '2026-12-31T23:59:59.999Z',
     );
-    expect(range.from).toEqual(studioWallClockToUtc('2026-06-08', '00:00'));
+    expect(range.from).toEqual(studioWallClockToUtc('2026-06-07', '00:00'));
     expect(range.to).toEqual(
       endOfStudioDayInclusive(studioWallClockToUtc('2026-07-08', '12:00')),
     );

@@ -1,7 +1,7 @@
 import {
   addStudioCalendarDays,
   endOfStudioDayInclusive,
-  startOfStudioDay,
+  startOfStudioWeekSunday,
   studioWallClockToUtc,
   utcToStudioCalendarDate,
 } from '../common/studio-timezone';
@@ -24,7 +24,7 @@ function parseOptionalDate(value?: string): Date | null {
 
 /**
  * Resolves the effective public schedule window in the studio timezone.
- * Defaults to today (start of studio day) through today + 30 days (end of day).
+ * Defaults to Sunday of the current studio week through today + 30 days (end of day).
  * Client-supplied bounds are clamped to that maximum window.
  */
 export function resolvePublicScheduleRange(
@@ -32,7 +32,7 @@ export function resolvePublicScheduleRange(
   toParam?: string,
 ): PublicScheduleRange {
   const reference = new Date();
-  const todayStart = startOfStudioDay(reference);
+  const weekStart = startOfStudioWeekSunday(reference);
   const maxCalendarDate = addStudioCalendarDays(
     utcToStudioCalendarDate(reference),
     PUBLIC_SCHEDULE_RANGE_DAYS,
@@ -41,11 +41,11 @@ export function resolvePublicScheduleRange(
     studioWallClockToUtc(maxCalendarDate, '12:00'),
   );
 
-  const requestedFrom = parseOptionalDate(fromParam) ?? todayStart;
+  const requestedFrom = parseOptionalDate(fromParam) ?? weekStart;
   const requestedTo = parseOptionalDate(toParam) ?? maxEnd;
 
   const from =
-    requestedFrom.getTime() < todayStart.getTime() ? todayStart : requestedFrom;
+    requestedFrom.getTime() < weekStart.getTime() ? weekStart : requestedFrom;
   let to = requestedTo.getTime() > maxEnd.getTime() ? maxEnd : requestedTo;
   if (to.getTime() < from.getTime()) {
     to = maxEnd;

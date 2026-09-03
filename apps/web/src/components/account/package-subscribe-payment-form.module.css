@@ -116,6 +116,12 @@
   flex-direction: column;
   flex-shrink: 0;
   gap: 0;
+  /* Extra separation from the plan card above the section title. */
+  padding-top: 0.75rem;
+}
+
+.giftCreditsSection .sectionHeading {
+  margin-bottom: 0.875rem;
 }
 
 .giftCreditsBlock {

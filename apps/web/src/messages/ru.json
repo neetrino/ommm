@@ -1027,6 +1027,7 @@
       "emptyPerfectDescription": "Когда вы запишетесь на занятие, оно появится здесь.",
       "emptyPastTitle": "Нет прошлых бронирований",
       "emptyPastDescription": "Пока пусто.",
+      "emptyScheduleCta": "К расписанию",
       "filteredEmptyTitle": "Нет бронирований по выбранным фильтрам",
       "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия, тренера или статус.",
       "filteredEmptySection": "В этом разделе нет совпадений.",
@@ -4801,7 +4802,13 @@
       "guestPassNameLabel": "Имя гостя",
       "guestPassNamePlaceholder": "Как зовут гостя",
       "packageModalBookGuest": "Записать гостя",
-      "packageNoPurchasePlans": "Для этого занятия сейчас нет доступных пакетов."
+      "packageNoPurchasePlans": "Для этого занятия сейчас нет доступных пакетов.",
+      "policyConfirmTitle": "⚠️ Обратите внимание",
+      "policyConfirmDescription": "При отмене занятия менее чем за 24 часа до его начала занятие будет списано с вашего абонемента.",
+      "policyConfirmCheckbox": "Я ознакомлен(а)",
+      "policyConfirmContinue": "Продолжить",
+      "policyConfirmCancel": "Отмена",
+      "policyConfirmBackdrop": "Закрыть окно"
     },
     "joinWaitlist": {
       "action": "В лист ожидания",

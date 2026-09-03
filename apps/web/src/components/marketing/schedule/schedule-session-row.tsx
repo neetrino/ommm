@@ -15,6 +15,8 @@ export type ScheduleSessionRowProps = {
   spotsFullLabel: string;
   spotsLeftLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  closedLabel?: string;
+  isClosed?: boolean;
   userBookingId?: string;
   userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
@@ -39,6 +41,8 @@ export function ScheduleSessionRow({
   spotsFullLabel,
   spotsLeftLabel,
   audience,
+  closedLabel,
+  isClosed = false,
   userBookingId,
   userBookingCreatedAt,
   bookingStateReady = true,
@@ -64,11 +68,13 @@ export function ScheduleSessionRow({
         item={row}
         locale={locale}
         bookLabel={bookLabel}
+        closedLabel={closedLabel}
+        isClosed={isClosed}
         withInstructorLabel={withInstructorLabel}
         durationLabel={durationLabel}
         spotsLeftLabel={resolvedSpotsLabel}
         audience={audience}
-        bookingEnabled
+        bookingEnabled={!isClosed}
         showDate={false}
         userBookingId={userBookingId}
         userBookingCreatedAt={userBookingCreatedAt}

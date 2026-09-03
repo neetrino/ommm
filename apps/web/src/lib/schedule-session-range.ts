@@ -3,7 +3,9 @@ import {
   addStudioCalendarDays,
   endOfStudioDayInclusive,
   startOfStudioDay,
+  startOfStudioWeekSunday,
   studioWallClockToUtc,
+  studioWeekStartCalendarDate,
   utcToStudioCalendarDate,
 } from "@/lib/studio-timezone";
 
@@ -12,26 +14,27 @@ export type ScheduleSessionRange = {
   to: Date;
 };
 
-/** Rolling public schedule bounds in studio timezone (today through today + N days). */
+/** Rolling public schedule bounds in studio timezone (week start through today + N days). */
 export function resolvePublicScheduleBounds(
   rangeDays: number = PUBLIC_SCHEDULE_RANGE_DAYS,
   referenceDate: Date = new Date(),
-): { today: Date; maxDate: Date } {
+): { today: Date; weekStart: Date; maxDate: Date } {
   const todayCalendar = utcToStudioCalendarDate(referenceDate);
   const today = startOfStudioDay(referenceDate);
+  const weekStart = startOfStudioWeekSunday(referenceDate);
   const maxCalendar = addStudioCalendarDays(todayCalendar, rangeDays);
   const maxDate = studioWallClockToUtc(maxCalendar, "12:00");
-  return { today, maxDate };
+  return { today, weekStart, maxDate };
 }
 
-/** Inclusive studio-day window for the public schedule (today through today + N days). */
+/** Inclusive studio-day window for the public schedule (current week Sunday through today + N days). */
 export function resolvePublicScheduleRange(
   rangeDays: number = PUBLIC_SCHEDULE_RANGE_DAYS,
   referenceDate: Date = new Date(),
 ): ScheduleSessionRange {
-  const { today, maxDate } = resolvePublicScheduleBounds(rangeDays, referenceDate);
+  const { weekStart, maxDate } = resolvePublicScheduleBounds(rangeDays, referenceDate);
   return {
-    from: today,
+    from: weekStart,
     to: endOfStudioDayInclusive(maxDate),
   };
 }
@@ -43,6 +46,7 @@ export function isWithinPublicScheduleWindow(
   referenceDate: Date = new Date(),
 ): boolean {
   const todayCalendar = utcToStudioCalendarDate(referenceDate);
+  const minCalendar = studioWeekStartCalendarDate(referenceDate);
   const maxCalendar = addStudioCalendarDays(todayCalendar, rangeDays);
   const sessionCalendar = sessionDateIso.trim().slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(sessionCalendar)) {
@@ -51,12 +55,12 @@ export function isWithinPublicScheduleWindow(
       return false;
     }
     const normalized = utcToStudioCalendarDate(parsed);
-    return normalized >= todayCalendar && normalized <= maxCalendar;
+    return normalized >= minCalendar && normalized <= maxCalendar;
   }
-  return sessionCalendar >= todayCalendar && sessionCalendar <= maxCalendar;
+  return sessionCalendar >= minCalendar && sessionCalendar <= maxCalendar;
 }
 
-/** Query string for `GET /schedule/public` with an explicit 30-day window. */
+/** Query string for `GET /schedule/public` with an explicit week-start → +30-day window. */
 export function buildPublicScheduleRangeQuery(
   rangeDays: number = PUBLIC_SCHEDULE_RANGE_DAYS,
 ): string {

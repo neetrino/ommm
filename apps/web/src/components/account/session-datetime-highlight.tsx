@@ -78,12 +78,8 @@ export function SessionDateTimeHighlight({
               >
                 {relativeLabel}
               </span>
-            ) : (
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
-                {display.dateLine}
-              </p>
-            )}
-            <p className="mt-1 font-serif text-3xl leading-none tracking-tight text-sage-950 sm:text-[2rem]">
+            ) : null}
+            <p className="font-serif text-3xl leading-none tracking-tight text-sage-950 sm:text-[2rem]">
               {display.startTime}
             </p>
             <p className="mt-1.5 text-sm font-medium text-sage-600">
@@ -120,12 +116,8 @@ export function SessionDateTimeHighlight({
               >
                 {relativeLabel}
               </span>
-            ) : (
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
-                {display.dateLine}
-              </p>
-            )}
-            <p className="mt-1 font-serif text-3xl leading-none tracking-tight text-sage-950 sm:text-[2rem]">
+            ) : null}
+            <p className="font-serif text-3xl leading-none tracking-tight text-sage-950 sm:text-[2rem]">
               {display.startTime}
             </p>
           </div>

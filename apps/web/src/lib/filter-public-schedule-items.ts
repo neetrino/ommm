@@ -1,10 +1,9 @@
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { PUBLIC_SCHEDULE_RANGE_DAYS } from "@/lib/public-schedule-constants";
+import { isWithinPublicScheduleWindow } from "@/lib/schedule-session-range";
 import {
-  addStudioCalendarDays,
   resolveStudioCalendarDateFromSessionDate,
   studioWallClockToUtc,
-  utcToStudioCalendarDate,
 } from "@/lib/studio-timezone";
 
 /**
@@ -43,8 +42,11 @@ export function isUpcomingPublicScheduleSession(
   return start.getTime() > reference.getTime();
 }
 
-/** Public marketing rows that are still bookable (in window and not yet started). */
-export function filterBookablePublicScheduleItems(
+/**
+ * Public schedule rows visible in the rolling window (including already-started
+ * and earlier days of the current week — shown as closed / faded in the UI).
+ */
+export function filterVisiblePublicScheduleItems(
   items: readonly MarketingScheduleItem[],
   reference = new Date(),
   rangeDays: number = PUBLIC_SCHEDULE_RANGE_DAYS,
@@ -53,23 +55,17 @@ export function filterBookablePublicScheduleItems(
     (item) =>
       item.isActive &&
       item.sessionDate !== null &&
-      isWithinPublicScheduleWindow(item.sessionDate, rangeDays, reference) &&
-      isUpcomingPublicScheduleSession(item, reference),
+      isWithinPublicScheduleWindow(item.sessionDate, rangeDays, reference),
   );
 }
 
-/** Keeps only sessions whose studio calendar day falls inside the rolling public window. */
-export function isWithinPublicScheduleWindow(
-  sessionDateIso: string,
+/** Public marketing rows that are still bookable (in window and not yet started). */
+export function filterBookablePublicScheduleItems(
+  items: readonly MarketingScheduleItem[],
+  reference = new Date(),
   rangeDays: number = PUBLIC_SCHEDULE_RANGE_DAYS,
-  referenceDate: Date = new Date(),
-): boolean {
-  const sessionDay = resolveStudioCalendarDateFromSessionDate(sessionDateIso);
-  if (sessionDay === null) {
-    return false;
-  }
-
-  const today = utcToStudioCalendarDate(referenceDate);
-  const maxDay = addStudioCalendarDays(today, rangeDays);
-  return sessionDay >= today && sessionDay <= maxDay;
+): MarketingScheduleItem[] {
+  return filterVisiblePublicScheduleItems(items, reference, rangeDays).filter(
+    (item) => isUpcomingPublicScheduleSession(item, reference),
+  );
 }
