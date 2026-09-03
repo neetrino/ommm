@@ -31,7 +31,6 @@ type ScheduleDaySessionsListProps = {
   renderedDayKey: string;
   renderedSessions: readonly MarketingScheduleItem[];
   animationPhase: ScheduleAnimationPhase;
-  containerStyle?: CSSProperties;
   contentRef: RefObject<HTMLDivElement | null>;
   getItemStyle: (index: number) => CSSProperties;
   bookedBySessionId: UserSessionBookingMap;
@@ -55,7 +54,6 @@ export function ScheduleDaySessionsList({
   renderedDayKey,
   renderedSessions,
   animationPhase,
-  containerStyle,
   contentRef,
   getItemStyle,
   bookedBySessionId,
@@ -72,10 +70,7 @@ export function ScheduleDaySessionsList({
   const t = useTranslations("marketingPages.schedule");
 
   return (
-    <div
-      className="mt-0 overflow-hidden transition-[height] duration-300 ease-out motion-reduce:transition-none"
-      style={containerStyle}
-    >
+    <div className="mt-0 overflow-hidden">
       <div
         ref={contentRef}
         className={

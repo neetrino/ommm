@@ -183,13 +183,12 @@ export function MarketingScheduleView({
   ]);
 
   const monthLabel = formatScheduleMonthTitle(locale, nav.selectedDate);
-  const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
+  const selectedDayKey = toLocalIsoDate(nav.selectedDate);
   const {
     contentRef,
     renderedDayKey,
     renderedSessions,
     animationPhase,
-    containerStyle,
     getItemStyle,
   } = useScheduleDayTransition({
     selectedDayKey,
@@ -295,7 +294,6 @@ export function MarketingScheduleView({
           renderedDayKey={renderedDayKey}
           renderedSessions={renderedSessions}
           animationPhase={animationPhase}
-          containerStyle={containerStyle}
           contentRef={contentRef}
           getItemStyle={getItemStyle}
           bookedBySessionId={bookedBySessionId}
