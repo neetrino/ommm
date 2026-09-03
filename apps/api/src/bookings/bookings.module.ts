@@ -15,6 +15,7 @@ import { BookingsSlotService } from './bookings-slot.service';
 import { BookingsGuestPassService } from './bookings-guest-pass.service';
 import { BookingsStatusTransitionService } from './bookings-status-transition.service';
 import { BookingsStaffCancelService } from './bookings-staff-cancel.service';
+import { BookingsSessionEligibilityService } from './bookings-session-eligibility.service';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BookingsStaffCancelService } from './bookings-staff-cancel.service';
     BookingsSlotService,
     BookingsStatusTransitionService,
     BookingsStaffCancelService,
+    BookingsSessionEligibilityService,
   ],
   exports: [
     BookingsService,

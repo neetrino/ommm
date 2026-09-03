@@ -44,6 +44,7 @@ import { useScheduleDayTransition } from "@/components/marketing/schedule/use-sc
 import { useScheduleDesktopLayout } from "@/components/marketing/schedule/use-schedule-desktop-layout";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
+import { useMarketingScheduleEligibility } from "@/hooks/use-marketing-schedule-eligibility";
 import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
 import { toLocalIsoDate } from "@/lib/local-iso-date";
 
@@ -150,6 +151,26 @@ export function MarketingScheduleView({
       });
   }, [baseline, classTypes, dayToOffset, instructors, items, weekDayKeys]);
 
+  const eligibilitySessionIds = useMemo(
+    () => weekSessions.map((item) => item.id),
+    [weekSessions],
+  );
+
+  const eligibilityRefreshKey = useMemo(
+    () =>
+      Object.keys(bookedBySessionId)
+        .sort((a, b) => a.localeCompare(b))
+        .join(","),
+    [bookedBySessionId],
+  );
+
+  const { eligibilityBySessionId, eligibilityLoaded } = useMarketingScheduleEligibility({
+    isMember,
+    sessionIds: eligibilitySessionIds,
+    enabled: memberActionStateReady,
+    refreshKey: eligibilityRefreshKey,
+  });
+
   const visibleSessions = useMemo(() => {
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
@@ -240,6 +261,8 @@ export function MarketingScheduleView({
           waitlistedSessionIds={waitlistedSessionIds}
           memberWaitlistLoaded={memberWaitlistLoaded}
           memberActionStateReady={memberActionStateReady}
+          eligibilityBySessionId={eligibilityBySessionId}
+          eligibilityLoaded={eligibilityLoaded}
           minDate={weekFloor}
           maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
           canShiftPrev={
@@ -289,6 +312,8 @@ export function MarketingScheduleView({
           waitlistedSessionIds={waitlistedSessionIds}
           memberWaitlistLoaded={memberWaitlistLoaded}
           memberActionStateReady={memberActionStateReady}
+          eligibilityBySessionId={eligibilityBySessionId}
+          eligibilityLoaded={eligibilityLoaded}
           onBooked={handleBooked}
           onCancelled={handleCancelled}
           onWaitlisted={handleWaitlisted}

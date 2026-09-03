@@ -1785,6 +1785,8 @@
         }
       },
       "sessionClosed": "Закрыто",
+      "packageEligibilityIncluded": "Включено в ваш пакет",
+      "packageEligibilityRequired": "Нужен пакет {classType}",
       "emptyDay": "Нет занятий",
       "weekBoardAria": "Расписание на неделю",
       "todayBadge": "Сегодня",

@@ -16,6 +16,7 @@ export const SCHEDULE_SESSION_ROW = styles.sessionRow;
 export const SCHEDULE_BOOK_BTN = styles.bookBtn;
 export const SCHEDULE_BOOK_BTN_HOME = `${styles.bookBtn} ${styles.bookBtnHomeLayout}`;
 export const SCHEDULE_CANCEL_BTN = styles.cancelBtn;
+export const SCHEDULE_CANCEL_BTN_HOME = `${styles.cancelBtn} ${styles.bookBtnHomeLayout}`;
 export const SCHEDULE_BOOKED_BTN = SESSION_BOOKED_BUTTON_SCHEDULE_CLASS;
 export const SCHEDULE_BOOKED_BTN_COMPACT = SESSION_BOOKED_BUTTON_SCHEDULE_SM_CLASS;
 export const SCHEDULE_BOOK_ACTION_GROUP = styles.bookActionGroup;

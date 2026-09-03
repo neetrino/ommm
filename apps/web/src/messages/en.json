@@ -1787,6 +1787,8 @@
         }
       },
       "sessionClosed": "Closed",
+      "packageEligibilityIncluded": "Included in your package",
+      "packageEligibilityRequired": "{classType} package required",
       "emptyDay": "No classes",
       "weekBoardAria": "Weekly class schedule",
       "todayBadge": "Today",

@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { HomeWeeklyScheduleSessionRow } from "@/components/marketing/home/home-weekly-schedule-session-row";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import type { ScheduleSessionEligibility } from "@/lib/schedule-session-eligibility";
 import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 
 const SCHEDULE_PAGE_LOGIN_RETURN_PATH = "/schedule";
@@ -29,6 +30,8 @@ export type ScheduleSessionRowProps = {
   onWaitlistLeft?: (sessionId: string) => void;
   className?: string;
   style?: CSSProperties;
+  packageEligibility?: ScheduleSessionEligibility;
+  eligibilityLoaded?: boolean;
 };
 
 /** Schedule page session card — same layout as home weekly schedule, without the date chip. */
@@ -55,6 +58,8 @@ export function ScheduleSessionRow({
   onWaitlistLeft,
   className,
   style,
+  packageEligibility,
+  eligibilityLoaded = true,
 }: ScheduleSessionRowProps) {
   const resolvedSpotsLabel = !spotsStateReady
     ? spotsLoadingLabel
@@ -85,6 +90,8 @@ export function ScheduleSessionRow({
         onCancelled={onCancelled}
         onWaitlisted={onWaitlisted}
         onWaitlistLeft={onWaitlistLeft}
+        packageEligibility={packageEligibility}
+        eligibilityLoaded={eligibilityLoaded}
         className={className}
         style={style}
       />

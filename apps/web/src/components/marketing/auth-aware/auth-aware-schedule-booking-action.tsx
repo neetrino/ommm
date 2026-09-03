@@ -50,6 +50,8 @@ type AuthAwareScheduleBookingActionProps = {
   onWaitlistLeft?: () => void;
   onBooked?: (bookingId: string) => void;
   onCancelled?: () => void;
+  /** Hides the Booked pill in the action area (e.g. mobile header slot). */
+  hideInlineBookedBadge?: boolean;
 };
 
 export function AuthAwareScheduleBookingAction({
@@ -72,6 +74,7 @@ export function AuthAwareScheduleBookingAction({
   onWaitlistLeft,
   onBooked,
   onCancelled,
+  hideInlineBookedBadge = false,
 }: AuthAwareScheduleBookingActionProps) {
   const router = useRouter();
   const locale = useLocale();
@@ -133,6 +136,33 @@ export function AuthAwareScheduleBookingAction({
   function renderBookedActions(): ReactNode {
     if (resolvedBookingId === undefined) {
       return null;
+    }
+
+    if (hideInlineBookedBadge) {
+      return (
+        <>
+          {cancelMsg ? (
+            <p className={`${CANCEL_BOOKING_ERROR_MESSAGE_CLASS} text-right`}>{cancelMsg}</p>
+          ) : null}
+          <CancelBookingButton
+            bookingId={resolvedBookingId}
+            sessionDate={sessionDate}
+            sessionStartTime={sessionStartTime}
+            bookedAt={bookedAtIso ?? userBookingCreatedAt}
+            appearance="button"
+            size="sm"
+            buttonClassName={cancelClassName}
+            wrapperClassName="flex flex-col items-end gap-1"
+            onError={setCancelMsg}
+            onCancelled={() => {
+              setBookingId(undefined);
+              setBookedAtIso(undefined);
+              setCancelMsg(null);
+              onCancelled?.();
+            }}
+          />
+        </>
+      );
     }
 
     return (
@@ -286,7 +316,9 @@ export function AuthAwareScheduleBookingAction({
 
   const showErrorBelowAction = audience !== "guest" && !isBooked && bookingStateReady;
   const actionShellClass = isBooked
-    ? "flex w-full flex-col items-center gap-1"
+    ? hideInlineBookedBadge
+      ? "flex flex-col items-end gap-1 self-end"
+      : "flex w-full flex-col items-center gap-1"
     : "flex flex-col items-end gap-1 self-end";
 
   return (

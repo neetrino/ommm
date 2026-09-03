@@ -1,0 +1,9 @@
+.badge {
+  white-space: nowrap;
+}
+
+@media (min-width: 744px) {
+  .badge {
+    display: none;
+  }
+}

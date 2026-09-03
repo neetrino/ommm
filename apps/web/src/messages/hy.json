@@ -1788,6 +1788,8 @@
         }
       },
       "sessionClosed": "Փակված",
+      "packageEligibilityIncluded": "Ներառված է ձեր փաթեթում",
+      "packageEligibilityRequired": "Պահանջվում է {classType} փաթեթ",
       "emptyDay": "Դասեր չկան",
       "weekBoardAria": "Շաբաթական դասացուցակ",
       "todayBadge": "Այսօր",

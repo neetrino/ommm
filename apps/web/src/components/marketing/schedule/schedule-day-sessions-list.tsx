@@ -21,6 +21,7 @@ import {
   sessionBookingId,
   type UserSessionBookingMap,
 } from "@/lib/user-session-bookings-map";
+import type { ScheduleSessionEligibilityMap } from "@/lib/schedule-session-eligibility";
 
 type ScheduleDaySessionsListProps = {
   locale: string;
@@ -37,6 +38,8 @@ type ScheduleDaySessionsListProps = {
   waitlistedSessionIds: ReadonlySet<string>;
   memberWaitlistLoaded: boolean;
   memberActionStateReady: boolean;
+  eligibilityBySessionId: ScheduleSessionEligibilityMap;
+  eligibilityLoaded: boolean;
   onBooked: (sessionId: string, bookingId: string) => void;
   onCancelled: (sessionId: string) => void;
   onWaitlisted: (sessionId: string) => void;
@@ -59,6 +62,8 @@ export function ScheduleDaySessionsList({
   waitlistedSessionIds,
   memberWaitlistLoaded,
   memberActionStateReady,
+  eligibilityBySessionId,
+  eligibilityLoaded,
   onBooked,
   onCancelled,
   onWaitlisted,
@@ -141,6 +146,8 @@ export function ScheduleDaySessionsList({
                   )}
                   bookingStateReady={memberActionStateReady}
                   isOnWaitlist={showOnWaitlist}
+                  packageEligibility={eligibilityBySessionId.get(row.id)}
+                  eligibilityLoaded={eligibilityLoaded}
                   onBooked={onBooked}
                   onCancelled={onCancelled}
                   onWaitlisted={onWaitlisted}

@@ -630,6 +630,18 @@
   background: rgb(255 255 255 / 0.72);
 }
 
+@media (max-width: 743px) {
+  .cancelBtn {
+    min-width: 4.5rem;
+    height: 2rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.03125rem;
+  }
+}
+
 .bookActionGroup {
   display: flex;
   flex-wrap: wrap;
