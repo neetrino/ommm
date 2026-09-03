@@ -13,6 +13,7 @@ import {
   SCHEDULE_BOOKED_BTN,
   SCHEDULE_BOOK_ACTION_GROUP,
   SCHEDULE_BOOK_ACTION_GROUP_CENTERED,
+  SCHEDULE_BOOK_ACTION_GROUP_STACKED,
   SCHEDULE_BOOK_ACTION_INLINE_WRAP,
   SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
@@ -170,7 +171,13 @@ export function AuthAwareScheduleBookingAction({
         {cancelMsg ? (
           <p className={`${CANCEL_BOOKING_ERROR_MESSAGE_CLASS} text-center`}>{cancelMsg}</p>
         ) : null}
-        <div className={SCHEDULE_BOOK_ACTION_GROUP_CENTERED}>
+        <div
+          className={
+            locale === "ru" || locale === "hy"
+              ? SCHEDULE_BOOK_ACTION_GROUP_STACKED
+              : SCHEDULE_BOOK_ACTION_GROUP_CENTERED
+          }
+        >
           <CancelBookingButton
             bookingId={resolvedBookingId}
             sessionDate={sessionDate}

@@ -121,7 +121,9 @@
 /** Compact week-column sizing on top of schedule glass Book / Cancel / Booked. */
 .bookBtnCompact {
   min-width: 0;
-  width: auto;
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-end;
   min-height: 2rem;
   height: 2rem;
   padding: 0.25rem 0.625rem;
@@ -130,8 +132,16 @@
   letter-spacing: 0.03125rem;
 }
 
-.footer .bookBtnCompact {
+/* Beat `.bookBtn` cascade (imported from another CSS module) so soft-nav doesn't flash large CTAs. */
+.card .footer .bookBtnCompact {
   min-width: 0;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 2rem;
+  height: 2rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  line-height: 1rem;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

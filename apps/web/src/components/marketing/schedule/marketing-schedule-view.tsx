@@ -156,19 +156,9 @@ export function MarketingScheduleView({
     [weekSessions],
   );
 
-  const eligibilityRefreshKey = useMemo(
-    () =>
-      Object.keys(bookedBySessionId)
-        .sort((a, b) => a.localeCompare(b))
-        .join(","),
-    [bookedBySessionId],
-  );
-
   const { eligibilityBySessionId, eligibilityLoaded } = useMarketingScheduleEligibility({
     isMember,
     sessionIds: eligibilitySessionIds,
-    enabled: memberActionStateReady,
-    refreshKey: eligibilityRefreshKey,
   });
 
   const visibleSessions = useMemo(() => {

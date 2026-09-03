@@ -21,6 +21,7 @@ export const SCHEDULE_BOOKED_BTN = SESSION_BOOKED_BUTTON_SCHEDULE_CLASS;
 export const SCHEDULE_BOOKED_BTN_COMPACT = SESSION_BOOKED_BUTTON_SCHEDULE_SM_CLASS;
 export const SCHEDULE_BOOK_ACTION_GROUP = styles.bookActionGroup;
 export const SCHEDULE_BOOK_ACTION_GROUP_CENTERED = styles.bookActionGroupCentered;
+export const SCHEDULE_BOOK_ACTION_GROUP_STACKED = styles.bookActionGroupStacked;
 export const SCHEDULE_BOOK_ACTION_INLINE_WRAP = styles.bookActionInlineWrap;
 
 export const SCHEDULE_FILTER_TRIGGER = `${styles.filterTrigger} ommm-dropdown-trigger`;

@@ -6,7 +6,7 @@ type MarketingSchedulePageLayoutProps = {
   title: string;
 };
 
-/** Schedule card paints from SSR data; client refresh keeps spot counts live. */
+/** Public schedule only on the server — member badges/actions hydrate on the client. */
 export async function MarketingSchedulePageLayout({
   title,
 }: MarketingSchedulePageLayoutProps) {
@@ -14,9 +14,7 @@ export async function MarketingSchedulePageLayout({
 
   return (
     <MarketingScheduleAnimatedSections
-      scheduleView={
-        <MarketingScheduleView initialItems={items} pageTitle={title} />
-      }
+      scheduleView={<MarketingScheduleView initialItems={items} pageTitle={title} />}
     />
   );
 }

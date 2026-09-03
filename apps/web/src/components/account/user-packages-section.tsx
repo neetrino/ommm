@@ -232,7 +232,7 @@ export function UserPackagesSection({
     <div className="max-w-xl rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
       <p className="font-medium text-sage-900">{t("noPackagesYet")}</p>
       <p className="ommm-body-muted mt-2 text-sm">{t("emptyPackagesHint")}</p>
-      <Link href="/packages" className="ommm-cta-primary mt-5 inline-flex">
+      <Link href="/package" className="ommm-cta-primary mt-5 inline-flex">
         {t("browsePackagesCta")}
       </Link>
     </div>

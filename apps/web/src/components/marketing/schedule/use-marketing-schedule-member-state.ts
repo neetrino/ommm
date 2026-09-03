@@ -20,6 +20,10 @@ import type {
   UserSessionBookingMap,
   UserSessionBookingRef,
 } from "@/lib/user-session-bookings-map";
+import {
+  readCachedMarketingSessionBookings,
+  writeCachedMarketingSessionBookings,
+} from "@/lib/marketing-session-bookings-cache";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
@@ -36,8 +40,10 @@ export function useMarketingScheduleMemberState({
 }: UseMarketingScheduleMemberStateOptions) {
   const [items, setItems] = useState<MarketingScheduleItem[]>(() => [...initialItems]);
   const [sessionsReady, setSessionsReady] = useState(initialItems.length > 0);
-  const [bookedBySessionId, setBookedBySessionId] = useState<UserSessionBookingMap>({});
-  const [memberBookingsLoaded, setMemberBookingsLoaded] = useState(!isMember);
+  const [bookedBySessionId, setBookedBySessionId] = useState<UserSessionBookingMap>(() =>
+    isMember ? readCachedMarketingSessionBookings() : {},
+  );
+  const [memberBookingsLoaded, setMemberBookingsLoaded] = useState(true);
   const [scheduleNow, setScheduleNow] = useState(() => new Date());
   const bookedBySessionIdRef = useRef(bookedBySessionId);
 
@@ -47,8 +53,9 @@ export function useMarketingScheduleMemberState({
 
   const { waitlistedSessionIds, loaded: memberWaitlistLoaded, refetch: refetchWaitlist } =
     useMemberWaitlistData(isMember);
-  const memberActionStateReady =
-    !isMember || (memberBookingsLoaded && memberWaitlistLoaded);
+
+  // Do not block CTAs on waitlist — only bookings matter for Book vs Booked.
+  const memberActionStateReady = !isMember || memberBookingsLoaded;
 
   const refetchMemberBookings = useCallback(
     async (markLoaded: boolean, isActive: () => boolean = () => true) => {
@@ -77,6 +84,7 @@ export function useMarketingScheduleMemberState({
           }
         }
         setBookedBySessionId(next);
+        writeCachedMarketingSessionBookings(next);
       } catch {
         // Keep the previous map on transient load errors.
       } finally {
@@ -89,13 +97,19 @@ export function useMarketingScheduleMemberState({
   );
 
   useEffect(() => {
+    if (!isMember) {
+      setBookedBySessionId({});
+      setMemberBookingsLoaded(true);
+      return;
+    }
+    setBookedBySessionId(readCachedMarketingSessionBookings());
+    setMemberBookingsLoaded(true);
     let cancelled = false;
-    const runRefetch = (): void => {
+    const timeoutId = window.setTimeout(() => {
       if (!cancelled) {
         void refetchMemberBookings(true, () => !cancelled);
       }
-    };
-    const timeoutId = window.setTimeout(runRefetch, 0);
+    }, 0);
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
@@ -179,23 +193,21 @@ export function useMarketingScheduleMemberState({
 
     const armInterval = (): void => {
       clearIntervalIfSet();
-      if (document.visibilityState !== "visible") {
-        return;
+      if (document.visibilityState === "visible") {
+        intervalId = window.setInterval(tick, SCHEDULE_CLOCK_TICK_MS);
       }
-      intervalId = window.setInterval(tick, SCHEDULE_CLOCK_TICK_MS);
     };
-
-    armInterval();
 
     const onVisibility = (): void => {
       if (document.visibilityState === "visible") {
         tick();
         armInterval();
-        return;
+      } else {
+        clearIntervalIfSet();
       }
-      clearIntervalIfSet();
     };
 
+    armInterval();
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       clearIntervalIfSet();
@@ -205,13 +217,17 @@ export function useMarketingScheduleMemberState({
 
   const handleBooked = useCallback(
     (sessionId: string, bookingId: string) => {
-      setBookedBySessionId((current) => ({
-        ...current,
-        [sessionId]: {
-          bookingId,
-          createdAt: new Date().toISOString(),
-        },
-      }));
+      setBookedBySessionId((current) => {
+        const next = {
+          ...current,
+          [sessionId]: {
+            bookingId,
+            createdAt: new Date().toISOString(),
+          },
+        };
+        writeCachedMarketingSessionBookings(next);
+        return next;
+      });
       setItems((current) =>
         current.map((item) =>
           item.id === sessionId ? applyScheduleSpotDelta(item, -1) : item,
@@ -229,6 +245,7 @@ export function useMarketingScheduleMemberState({
       setBookedBySessionId((current) => {
         const next = { ...current };
         delete next[sessionId];
+        writeCachedMarketingSessionBookings(next);
         return next;
       });
       await refreshSchedule();

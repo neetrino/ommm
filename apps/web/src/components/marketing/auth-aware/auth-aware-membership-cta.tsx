@@ -17,7 +17,7 @@ type AuthAwareMembershipCtaProps = {
 export function AuthAwareMembershipCta({
   audience,
   planId,
-  returnPath = "/packages",
+  returnPath = "/package",
   className,
   children,
 }: AuthAwareMembershipCtaProps) {
