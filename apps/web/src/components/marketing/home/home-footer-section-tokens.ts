@@ -212,6 +212,8 @@ export const HOME_FOOTER_SECTION_MOBILE_FIGMA = {
   socialSectionMarginTopPx: 32,
   paymentSectionMarginTopPx: 32,
   legalGapPx: 24,
+  /** Stacked RU policy links — tighter than the default 24px row gap. */
+  legalGapStackedPx: 8,
   legalSectionMarginTopPx: 32,
   copyrightMarginTopPx: 24,
   copyrightFontSizePx: 12,
@@ -256,6 +258,7 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   socialSectionMarginTop: "2rem",
   paymentSectionMarginTop: "2rem",
   legalGap: "1.5rem",
+  legalGapStacked: "0.5rem",
   legalSectionMarginTop: "2rem",
   copyrightMarginTop: "1.5rem",
   copyrightFontSize: "0.75rem",

@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
+import type { FloatingMenuAlign } from "@/components/ui/use-floating-menu-position";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import {
@@ -27,11 +28,16 @@ export type OmmFilterMultiSelectProps = {
   disabled?: boolean;
   className?: string;
   triggerClassName?: string;
+  menuClassName?: string;
+  labelClassName?: string;
   wrapLabel?: boolean;
   /** Visual emphasis for quick-filter controls vs standard filter dropdowns. */
   variant?: OmmFilterMultiSelectVariant;
   /** Formats trigger text when more than one value is selected. Defaults to “{count} selected”. */
   formatSelectedCount?: (count: number) => string;
+  menuMinWidth?: number;
+  menuMaxHeight?: number;
+  menuAlign?: FloatingMenuAlign;
 };
 
 const MENU_MIN_HEIGHT = 140;
@@ -68,9 +74,14 @@ export function OmmFilterMultiSelect({
   disabled = false,
   className,
   triggerClassName,
+  menuClassName,
+  labelClassName,
   wrapLabel = false,
   variant = "default",
   formatSelectedCount = defaultSelectedCountLabel,
+  menuMinWidth = TRIGGER_MIN_WIDTH,
+  menuMaxHeight,
+  menuAlign = "start",
 }: OmmFilterMultiSelectProps) {
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -94,7 +105,8 @@ export function OmmFilterMultiSelect({
     isMenuOpen,
     disabled,
     MENU_MIN_HEIGHT,
-    TRIGGER_MIN_WIDTH,
+    menuMinWidth,
+    menuAlign,
   );
 
   useEffect(() => {
@@ -140,6 +152,16 @@ export function OmmFilterMultiSelect({
     onChange([...next]);
   }
 
+  function triggerLabelClassName(wrap: boolean): string {
+    if (labelClassName !== undefined) {
+      return labelClassName;
+    }
+    return mergeClasses(
+      optionLabelClassName(wrap),
+      "text-sm font-semibold text-[#464646]",
+    );
+  }
+
   function wrapAccentLabel(content: ReactNode): ReactNode {
     if (variant !== "accent") {
       return content;
@@ -151,56 +173,33 @@ export function OmmFilterMultiSelect({
     if (isAllSelected) {
       if (variant === "accent") {
         return wrapAccentLabel(
-          <span
-            className={mergeClasses(
-              optionLabelClassName(false),
-              "text-sm font-semibold",
-            )}
-          >
+          <span className={mergeClasses(optionLabelClassName(false), "text-sm font-semibold")}>
             {allLabel}
           </span>,
         );
       }
-      return (
-        <span
-          className={mergeClasses(
-            optionLabelClassName(wrapLabel),
-            "text-sm font-semibold text-[#464646]",
-          )}
-        >
-          {allLabel}
-        </span>
-      );
+      return <span className={triggerLabelClassName(wrapLabel)}>{allLabel}</span>;
     }
-    if (selectedOptions.length >= 1) {
+    if (selectedOptions.length === 1) {
+      const label = selectedOptions[0]?.label ?? "";
       if (variant === "accent") {
         return wrapAccentLabel(
-          <span
-            className={mergeClasses(
-              optionLabelClassName(wrapLabel),
-              "text-sm font-semibold",
-            )}
-          >
-            {formatSelectedCount(selectedOptions.length)}
+          <span className={mergeClasses(optionLabelClassName(wrapLabel), "text-sm font-semibold")}>
+            {formatSelectedCount(1)}
           </span>,
         );
       }
-      if (selectedOptions.length === 1) {
-        const label = selectedOptions[0]?.label ?? "";
-        return (
-          <span
-            className={mergeClasses(
-              optionLabelClassName(wrapLabel),
-              "text-sm font-semibold text-[#464646]",
-            )}
-          >
-            {label}
-          </span>
-        );
-      }
+      return <span className={triggerLabelClassName(wrapLabel)}>{label}</span>;
+    }
+    if (variant === "accent") {
+      return wrapAccentLabel(
+        <span className={mergeClasses(optionLabelClassName(wrapLabel), "text-sm font-semibold")}>
+          {formatSelectedCount(selectedOptions.length)}
+        </span>,
+      );
     }
     return (
-      <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#464646]">
+      <span className={triggerLabelClassName(false)}>
         {formatSelectedCount(selectedOptions.length)}
       </span>
     );
@@ -254,11 +253,11 @@ export function OmmFilterMultiSelect({
       >
         {renderTriggerContent()}
         <span
+          data-dropdown-chevron=""
           className={mergeClasses(
-            "ml-auto shrink-0",
-            variant === "accent"
-              ? "ommm-dropdown-trigger-chevron"
-              : "text-sage-500",
+            "ml-auto inline-flex shrink-0 origin-center transition-transform duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+            variant === "accent" ? "ommm-dropdown-trigger-chevron" : "text-sage-500",
+            isMenuOpen ? "rotate-180" : "rotate-0",
           )}
         >
           <ChevronDownIcon />
@@ -269,13 +268,13 @@ export function OmmFilterMultiSelect({
         ? createPortal(
             <div
               ref={menuRef}
-              className="ommm-dropdown-menu"
+              className={mergeClasses("ommm-dropdown-menu", menuClassName)}
               style={{
                 zIndex: OMMM_FLOATING_MENU_Z_INDEX,
                 top: menuPosition.top,
                 left: menuPosition.left,
                 width: menuPosition.width,
-                maxHeight: menuPosition.maxHeight,
+                maxHeight: menuMaxHeight ?? menuPosition.maxHeight,
                 transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
               }}
             >
@@ -285,7 +284,12 @@ export function OmmFilterMultiSelect({
                 aria-label={ariaLabel}
                 aria-multiselectable="true"
                 className="ommm-dropdown-menu-list"
-                style={{ maxHeight: Math.max(96, menuPosition.maxHeight - 16) }}
+                style={{
+                  maxHeight: Math.max(
+                    96,
+                    (menuMaxHeight ?? menuPosition.maxHeight) - 16,
+                  ),
+                }}
               >
                 <li role="presentation">
                   <button

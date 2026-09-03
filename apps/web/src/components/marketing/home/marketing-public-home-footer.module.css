@@ -445,7 +445,7 @@
 .mobileContactTitle {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-mobile-body-size);
-  font-weight: 400;
+  font-weight: 700;
   line-height: var(--home-footer-mobile-body-line-height);
   color: var(--home-footer-text);
 }
@@ -500,7 +500,7 @@
 .mobileSocialTitle {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-footer-mobile-body-size);
-  font-weight: 400;
+  font-weight: 700;
   line-height: var(--home-footer-mobile-body-line-height);
   color: var(--home-footer-text);
 }
@@ -573,6 +573,7 @@
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: flex-start;
+  gap: var(--home-footer-mobile-legal-gap-stacked);
 }
 
 .mobileLegalLink {
