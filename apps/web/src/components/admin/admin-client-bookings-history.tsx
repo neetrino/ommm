@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  isAdminCancellableBookingStatus,
+  isPastAdminCancelBookingStatus,
+} from "@/components/admin/admin-booking-cancel.helpers";
 import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
@@ -12,7 +16,6 @@ import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
-const CANCELLABLE_BOOKING_STATUS = "BOOKED";
 const CLIENT_BOOKINGS_HISTORY_PAGE_SIZE = 5;
 const CANCEL_BUTTON_CLASS = [
   "inline-flex shrink-0 items-center gap-1.5 rounded-full",
@@ -38,10 +41,6 @@ type AdminClientBookingsHistoryProps = {
   onCancelSuccess: () => void;
   onCancelError: (message: string) => void;
 };
-
-function isCancellableBooking(booking: ClientSheetBookingItem): boolean {
-  return booking.status === CANCELLABLE_BOOKING_STATUS;
-}
 
 export function AdminClientBookingsHistory({
   clientId,
@@ -134,7 +133,7 @@ export function AdminClientBookingsHistory({
           {!loading
             ? items.map((booking) => {
                 const showCancel =
-                  allowCancel && isCancellableBooking(booking);
+                  allowCancel && isAdminCancellableBookingStatus(booking.status);
                 const extra = booking.cancelledAt
                   ? `${t("drawer.cancelled")} ${formatDateForUi(booking.cancelledAt)}`
                   : booking.attendedAt
@@ -196,8 +195,18 @@ export function AdminClientBookingsHistory({
 
       <OmmConfirmDialog
         isOpen={pendingCancel !== null}
-        title={t("bookings.cancelConfirmTitle")}
-        description={t("bookings.cancelConfirmDescription")}
+        title={
+          pendingCancel !== null &&
+          isPastAdminCancelBookingStatus(pendingCancel.status)
+            ? t("bookings.cancelPastConfirmTitle")
+            : t("bookings.cancelConfirmTitle")
+        }
+        description={
+          pendingCancel !== null &&
+          isPastAdminCancelBookingStatus(pendingCancel.status)
+            ? t("bookings.cancelPastConfirmDescription")
+            : t("bookings.cancelConfirmDescription")
+        }
         confirmLabel={t("bookings.cancelConfirmLabel")}
         cancelLabel={t("cancelButton")}
         backdropAriaLabel={t("modalBackdropClose")}

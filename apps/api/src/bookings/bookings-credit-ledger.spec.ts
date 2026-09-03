@@ -1,5 +1,7 @@
-import { BookingStatus } from '@prisma/client';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BookingStatus, ClassSessionStatus } from '@prisma/client';
 import { BookingsSlotService } from './bookings-slot.service';
+import { RELEASE_SLOT_ERROR } from './bookings-slot.helpers';
 
 type ReleaseSlotBooking = {
   id: string;
@@ -105,6 +107,98 @@ describe('BookingsSlotService package credit release', () => {
     await service.releaseSlot(booking, { applyPenalty: false });
 
     expect(packageUsage.restoreSession).not.toHaveBeenCalled();
+  });
+
+  it('restores package credits when cancelling a completed booking', async () => {
+    const { service, tx, packageUsage, waitlist, prisma } =
+      createSlotServiceAndDeps();
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.COMPLETED,
+    });
+    tx.payment.findFirst.mockResolvedValue(null);
+
+    await service.releaseSlot({
+      ...booking,
+      session: {
+        ...booking.session,
+        status: ClassSessionStatus.FINISHED,
+        endsAt: new Date('2026-09-01T10:00:00.000Z'),
+      },
+    });
+
+    expect(packageUsage.restoreSession).toHaveBeenCalledWith({
+      tx,
+      bookingId: booking.id,
+    });
+    expect(prisma.classSession.updateMany).not.toHaveBeenCalled();
+    expect(waitlist.offerNextIfSlot).not.toHaveBeenCalled();
+  });
+
+  it('restores package credits when cancelling a missed booking', async () => {
+    const { service, tx, packageUsage, waitlist, prisma } =
+      createSlotServiceAndDeps();
+    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.MISSED });
+    tx.payment.findFirst.mockResolvedValue(null);
+
+    await service.releaseSlot({
+      ...booking,
+      session: {
+        ...booking.session,
+        status: ClassSessionStatus.FINISHED,
+        endsAt: new Date('2026-09-01T10:00:00.000Z'),
+      },
+    });
+
+    expect(packageUsage.restoreSession).toHaveBeenCalledWith({
+      tx,
+      bookingId: booking.id,
+    });
+    expect(prisma.classSession.updateMany).not.toHaveBeenCalled();
+    expect(waitlist.offerNextIfSlot).not.toHaveBeenCalled();
+  });
+
+  it('still opens the slot after cancelling an upcoming booked session', async () => {
+    const { service, tx, waitlist, prisma } = createSlotServiceAndDeps();
+    tx.booking.findUnique.mockResolvedValue({ status: BookingStatus.BOOKED });
+    tx.payment.findFirst.mockResolvedValue(null);
+
+    await service.releaseSlot({
+      ...booking,
+      session: {
+        ...booking.session,
+        status: ClassSessionStatus.FULL,
+        endsAt: new Date('2026-09-10T10:00:00.000Z'),
+      },
+    });
+
+    expect(prisma.classSession.updateMany).toHaveBeenCalledWith({
+      where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
+      data: { status: ClassSessionStatus.ACTIVE },
+    });
+    expect(waitlist.offerNextIfSlot).toHaveBeenCalledWith(booking.sessionId);
+  });
+
+  it('rejects already cancelled bookings', async () => {
+    const { service, tx } = createSlotServiceAndDeps();
+    tx.booking.findUnique.mockResolvedValue({
+      status: BookingStatus.CANCELLED,
+    });
+
+    await expect(service.releaseSlot(booking)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    await expect(service.releaseSlot(booking)).rejects.toMatchObject({
+      message: RELEASE_SLOT_ERROR.NOT_CANCELLABLE,
+    });
+  });
+
+  it('rejects a missing booking', async () => {
+    const { service, tx } = createSlotServiceAndDeps();
+    tx.booking.findUnique.mockResolvedValue(null);
+
+    await expect(service.releaseSlot(booking)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 });
 
