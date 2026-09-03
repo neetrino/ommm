@@ -12,10 +12,7 @@ import {
 } from '../mail/templates/class-cancelled.template';
 import { formatPaymentDateTime } from '../payments/payment-email-format.util';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  formatWhatsappDateTime,
-  resolveWhatsappLocale,
-} from '../whatsapp/whatsapp-locale';
+import { resolveWhatsappLocale } from '../whatsapp/whatsapp-locale';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { renderClassCancelledWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
 
@@ -147,10 +144,7 @@ export class ClassCancelledEmailService {
       await this.whatsapp.trySendToUser({
         userId: recipient.userId,
         topic: 'bookingReminders',
-        text: renderClassCancelledWhatsapp(locale, {
-          className: context.className,
-          startsAtLabel: formatWhatsappDateTime(context.startsAt, locale),
-        }),
+        text: renderClassCancelledWhatsapp(locale),
       });
     } catch (error) {
       this.logger.error(
