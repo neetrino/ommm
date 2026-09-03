@@ -116,9 +116,17 @@ function performBodyScrollUnlock(): void {
 /**
  * Release scroll lock before route change — restores hub scroll while the sheet
  * is still mounted so close feels seamless (member hub mobile sheets).
+ *
+ * Nested overlays (e.g. package details on top of My packages) must not unlock
+ * the page: leave the parent lock in place; the closing sheet’s cleanup only
+ * decrements `lockCount`.
  */
 export function releaseBodyScrollLockEarly(): void {
   if (lockCount <= 0 || snapshot === null) {
+    return;
+  }
+
+  if (lockCount > 1) {
     return;
   }
 
