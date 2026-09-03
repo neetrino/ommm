@@ -6,7 +6,7 @@ import { MemberUserScrollRestoration } from "@/components/account/member-user-sc
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 
 type MemberUserMobileViewportProps = {
-  /** Parallel `@sheet` slot is rendering an intercepted hub section. */
+  /** Parallel `@sheet` slot is rendering an intercepted route (notifications). */
   hasMobileSheet: boolean;
   /** Notifications intercept route — desktop right-side panel. */
   hasDesktopNotificationsSheet: boolean;
@@ -16,8 +16,8 @@ type MemberUserMobileViewportProps = {
 };
 
 /**
- * Mobile hub sheets keep the live account hub in `children` (no backdrop swap).
  * Desktop notifications use a hub backdrop behind the right-side panel.
+ * Section routes soft-navigate into `children` like admin (no section intercepts).
  */
 export function MemberUserMobileViewport({
   hasMobileSheet,

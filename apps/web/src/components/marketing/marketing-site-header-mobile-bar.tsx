@@ -202,7 +202,6 @@ export function MarketingSiteHeaderMobileBar({
                 imageSrc={account.imageSrc}
                 displayName={account.displayName}
                 profileHref={memberAvatarProfileHref}
-                hardNavigate
                 triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
                 avatarClassName={navPillStyles.mobileHeaderAvatar}
                 guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}

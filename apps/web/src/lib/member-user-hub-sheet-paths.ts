@@ -1,15 +1,11 @@
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 
-/** Member hub sections opened as mobile bottom sheets (see `user/@sheet/(.)*` routes). */
-export const MEMBER_USER_HUB_SHEET_PATHS = [
-  "/user/bookings",
-  "/user/waitlists",
-  "/user/packages",
-  "/user/payments",
-  "/user/gift-cards",
-  "/user/profile",
-  "/user/reviews",
-] as const;
+/**
+ * Member hub sections previously opened as mobile bottom sheets via `@sheet/(.)*`.
+ * Those intercepts were removed so `/user/*` soft-navigates like admin (children update).
+ * Notifications keep a dedicated intercept + {@link isMemberUserNotificationsPath}.
+ */
+export const MEMBER_USER_HUB_SHEET_PATHS = [] as const;
 
 export function isMemberUserNotificationsPath(pathname: string): boolean {
   return memberUserPathWithoutLocale(pathname) === "/user/notifications";
@@ -36,7 +32,7 @@ export function isMemberUserHubSheetPath(pathname: string): boolean {
   );
 }
 
-/** Closing a hub bottom sheet via `router.back()` — keep hub scroll, do not reset to top. */
+/** Closing notifications / legacy sheet via `router.back()` — keep hub scroll. */
 export function isReturningToMemberHubFromSheet(
   currentPathname: string,
   previousPathname: string | null,
@@ -45,8 +41,10 @@ export function isReturningToMemberHubFromSheet(
     return false;
   }
 
+  const previous = memberUserPathWithoutLocale(previousPathname);
   return (
     memberUserPathWithoutLocale(currentPathname) === USER_ACCOUNT_PATH &&
-    isMemberUserHubSheetPath(previousPathname)
+    (isMemberUserHubSheetPath(previousPathname) ||
+      previous === "/user/notifications")
   );
 }

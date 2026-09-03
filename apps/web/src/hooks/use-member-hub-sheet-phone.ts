@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { MEMBER_HUB_SHEET_PHONE_MEDIA_QUERY } from "@/lib/member-hub-sheet-navigation";
 
 /** Synchronous phone check — use in layout effects before paint. */
@@ -11,19 +11,17 @@ export function readMemberHubSheetPhoneViewport(): boolean {
   return window.matchMedia(MEMBER_HUB_SHEET_PHONE_MEDIA_QUERY).matches;
 }
 
+function subscribeMemberHubSheetPhone(onStoreChange: () => void): () => void {
+  const mediaQuery = window.matchMedia(MEMBER_HUB_SHEET_PHONE_MEDIA_QUERY);
+  mediaQuery.addEventListener("change", onStoreChange);
+  return () => mediaQuery.removeEventListener("change", onStoreChange);
+}
+
 /** Phone viewport where member hub sections use bottom sheets (<744px). */
 export function useMemberHubSheetPhone(): boolean {
-  const [isPhone, setIsPhone] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(MEMBER_HUB_SHEET_PHONE_MEDIA_QUERY);
-    const sync = () => {
-      setIsPhone(mediaQuery.matches);
-    };
-    sync();
-    mediaQuery.addEventListener("change", sync);
-    return () => mediaQuery.removeEventListener("change", sync);
-  }, []);
-
-  return isPhone;
+  return useSyncExternalStore(
+    subscribeMemberHubSheetPhone,
+    readMemberHubSheetPhoneViewport,
+    () => false,
+  );
 }

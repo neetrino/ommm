@@ -15,20 +15,20 @@ function isMemberUserHomePath(pathname: string): boolean {
 }
 
 /**
- * Member `/user` hub — scroll to top on fresh entry only.
- * Hub sheet close restores scroll in {@link releaseBodyScrollLockEarly} before `router.back()`.
+ * Member `/user` — scroll to top on soft client navigations (same idea as admin).
+ * Closing the notifications panel back to the hub keeps scroll via
+ * {@link releaseBodyScrollLockEarly} / {@link isReturningToMemberHubFromSheet}.
  */
 export function useMemberUserHomeScrollTop(enabled: boolean): void {
   const pathname = usePathname();
   const previousPathnameRef = useRef<string | null>(null);
-  const shouldReset = enabled && isMemberUserHomePath(pathname);
   const skipDelayedResetRef = useRef(false);
 
   useLayoutEffect(() => {
     const previousPathname = previousPathnameRef.current;
     previousPathnameRef.current = pathname;
 
-    if (!shouldReset) {
+    if (!enabled) {
       skipDelayedResetRef.current = false;
       return undefined;
     }
@@ -38,16 +38,29 @@ export function useMemberUserHomeScrollTop(enabled: boolean): void {
       return undefined;
     }
 
-    clearMemberHubSheetScrollY();
+    if (previousPathname === null && !isMemberUserHomePath(pathname)) {
+      skipDelayedResetRef.current = false;
+      return scheduleWorkspaceScrollReset();
+    }
+
+    if (previousPathname === pathname) {
+      skipDelayedResetRef.current = true;
+      return undefined;
+    }
+
+    if (isMemberUserHomePath(pathname)) {
+      clearMemberHubSheetScrollY();
+    }
+
     skipDelayedResetRef.current = false;
     return scheduleWorkspaceScrollReset();
-  }, [shouldReset, pathname]);
+  }, [enabled, pathname]);
 
   useEffect(() => {
-    if (!shouldReset || skipDelayedResetRef.current) {
+    if (!enabled || skipDelayedResetRef.current) {
       return undefined;
     }
 
     return scheduleWorkspaceScrollReset({ includeDelayed: true });
-  }, [shouldReset, pathname]);
+  }, [enabled, pathname]);
 }

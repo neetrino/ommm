@@ -8,7 +8,7 @@ import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 
 /**
  * Applies the mobile card-only rule to a URL-backed list/board preference.
- * Viewport support starts as `false` (hydration-safe), then syncs after mount.
+ * Viewport support is read synchronously on the client (see {@link useSupportsListBoardView}).
  */
 export function useEffectiveListBoardViewMode<T extends ListBoardViewMode>(
   preferred: T,

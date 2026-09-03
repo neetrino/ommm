@@ -5,6 +5,9 @@ export type OliveSegmentedColumnCount = 2 | 3 | 4 | 5 | 7;
 const OLIVE_SEGMENTED_TRACK_BASE =
   "relative inline-grid w-max shrink-0 rounded-full bg-[#f0efed] p-1";
 
+const OLIVE_SEGMENTED_HUG_TRACK =
+  "relative inline-flex w-max max-w-full shrink-0 rounded-full bg-[#f0efed] p-1";
+
 const OLIVE_SEGMENTED_THUMB_BASE = [
   "pointer-events-none absolute inset-y-1 left-1 rounded-full",
   "bg-[var(--ommm-admin-olive)] shadow-sm",
@@ -80,4 +83,21 @@ export function oliveSegmentedSegmentClassName(
     ? "text-[var(--ommm-admin-cream)]"
     : "text-sage-800";
   return `${OLIVE_SEGMENTED_SEGMENT_BASE} ${size} ${tone}`;
+}
+
+/** Flex track — each segment hugs its label (settings and other long tab sets). */
+export function oliveSegmentedHugTrackClass(className = ""): string {
+  return `${OLIVE_SEGMENTED_HUG_TRACK} ${className}`.trim();
+}
+
+/** Segment for hug track — padding only, no equal min-width. */
+export function oliveSegmentedHugSegmentClassName(active: boolean): string {
+  const tone = active
+    ? "text-[var(--ommm-admin-cream)]"
+    : "text-sage-800";
+  return [
+    OLIVE_SEGMENTED_SEGMENT_BASE,
+    "min-w-0 whitespace-nowrap px-7 py-2.5",
+    tone,
+  ].join(" ");
 }

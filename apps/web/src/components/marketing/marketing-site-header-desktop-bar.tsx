@@ -171,7 +171,6 @@ export function MarketingSiteHeaderDesktopBar({
               imageSrc={account.imageSrc}
               displayName={account.displayName}
               profileHref={memberWorkspaceHeader ? memberAvatarProfileHref : account.href}
-              hardNavigate={memberWorkspaceHeader}
               triggerClassName={marketingHeaderIconAccountClass()}
               avatarClassName={`${MARKETING_HEADER_DESKTOP_AVATAR_CLASS} rounded-full`}
               guestIconClassName={MARKETING_HEADER_GUEST_USER_ICON_CLASS}

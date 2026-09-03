@@ -214,7 +214,6 @@ export function WorkspaceMobileDrawer({
             pathname={pathname}
             collapsed={false}
             onNavigate={requestClose}
-            hardNavigate={variant === "member"}
           />
         </div>
         {trailing ? (
