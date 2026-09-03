@@ -45,7 +45,8 @@ function capitalizeLocaleLabel(locale: string, value: string): string {
   if (value.length === 0) {
     return value;
   }
-  return value.charAt(0).toLocaleUpperCase(locale) + value.slice(1);
+  const lower = value.toLocaleLowerCase(locale);
+  return lower.charAt(0).toLocaleUpperCase(locale) + lower.slice(1);
 }
 
 export function formatScheduleWeekRangeLabel(

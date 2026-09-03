@@ -37,11 +37,14 @@ export function useScheduleDayTransition<TSession>({
   const startTimerRef = useRef<number | null>(null);
   const switchTimerRef = useRef<number | null>(null);
   const enterResetTimerRef = useRef<number | null>(null);
+  const visibleSessionsRef = useRef(visibleSessions);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<ScheduleAnimationPhase>("idle");
   const [renderedDayKey, setRenderedDayKey] = useState(selectedDayKey);
   const [renderedSessions, setRenderedSessions] = useState(visibleSessions);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
+
+  visibleSessionsRef.current = visibleSessions;
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -51,6 +54,15 @@ export function useScheduleDayTransition<TSession>({
     return () => media.removeEventListener("change", update);
   }, []);
 
+  // Keep same-day session updates live without restarting enter/exit.
+  useEffect(() => {
+    if (renderedDayKey === selectedDayKey) {
+      setRenderedSessions(visibleSessions);
+    }
+  }, [renderedDayKey, selectedDayKey, visibleSessions]);
+
+  // Only selectedDayKey starts the transition — visibleSessions churn (clock,
+  // eligibility, bookings) used to restart exit mid-flight and shake the page.
   useEffect(() => {
     clearTimer(startTimerRef.current);
     clearTimer(switchTimerRef.current);
@@ -59,14 +71,21 @@ export function useScheduleDayTransition<TSession>({
     switchTimerRef.current = null;
     enterResetTimerRef.current = null;
 
-    if (prefersReducedMotion) return;
-    if (renderedDayKey === selectedDayKey) return;
+    if (prefersReducedMotion) {
+      setRenderedDayKey(selectedDayKey);
+      setRenderedSessions(visibleSessionsRef.current);
+      setAnimationPhase("idle");
+      return;
+    }
+    if (renderedDayKey === selectedDayKey) {
+      return;
+    }
 
     startTimerRef.current = window.setTimeout(() => {
       setAnimationPhase("exit");
       switchTimerRef.current = window.setTimeout(() => {
         setRenderedDayKey(selectedDayKey);
-        setRenderedSessions(visibleSessions);
+        setRenderedSessions(visibleSessionsRef.current);
         setAnimationPhase("enter");
         enterResetTimerRef.current = window.setTimeout(
           () => setAnimationPhase("idle"),
@@ -74,7 +93,7 @@ export function useScheduleDayTransition<TSession>({
         );
       }, SCHEDULE_EXIT_TRANSITION_MS);
     }, 0);
-  }, [prefersReducedMotion, renderedDayKey, selectedDayKey, visibleSessions]);
+  }, [prefersReducedMotion, renderedDayKey, selectedDayKey]);
 
   const currentDayKey = prefersReducedMotion ? selectedDayKey : renderedDayKey;
   const currentSessions = prefersReducedMotion
@@ -85,7 +104,9 @@ export function useScheduleDayTransition<TSession>({
   const currentPhase = prefersReducedMotion ? "idle" : animationPhase;
 
   useLayoutEffect(() => {
-    if (contentRef.current === null) return;
+    if (contentRef.current === null) {
+      return;
+    }
     const measured = contentRef.current.scrollHeight;
     setContainerHeight((prev) => (prev === measured ? prev : measured));
     const resetTimer = window.setTimeout(

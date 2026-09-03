@@ -26,6 +26,18 @@ const STUDIO_DATE_PARTS = {
   timeZone: STUDIO_TIMEZONE,
 } as const satisfies Intl.DateTimeFormatOptions;
 
+/**
+ * Node ICU and browsers disagree on Russian weekday/month casing (`пт` vs `Пт`).
+ * Normalize so SSR and client markup always match.
+ */
+function normalizeIntlLabel(locale: string, value: string): string {
+  if (value.length === 0) {
+    return value;
+  }
+  const lower = value.toLocaleLowerCase(locale);
+  return lower.charAt(0).toLocaleUpperCase(locale) + lower.slice(1);
+}
+
 function asValidDate(iso: string): Date | null {
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -58,28 +70,43 @@ export function buildSessionDateTimeDisplay(
     return null;
   }
 
-  const weekdayShort = new Intl.DateTimeFormat(locale, {
-    ...STUDIO_DATE_PARTS,
-    weekday: "short",
-  }).format(start);
-  const weekdayLong = new Intl.DateTimeFormat(locale, {
-    ...STUDIO_DATE_PARTS,
-    weekday: "long",
-  }).format(start);
-  const monthShort = new Intl.DateTimeFormat(locale, {
-    ...STUDIO_DATE_PARTS,
-    month: "short",
-  }).format(start);
-  const monthLong = new Intl.DateTimeFormat(locale, {
-    ...STUDIO_DATE_PARTS,
-    month: "long",
-  }).format(start);
-  const dateLine = new Intl.DateTimeFormat(locale, {
-    ...STUDIO_DATE_PARTS,
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  }).format(start);
+  const weekdayShort = normalizeIntlLabel(
+    locale,
+    new Intl.DateTimeFormat(locale, {
+      ...STUDIO_DATE_PARTS,
+      weekday: "short",
+    }).format(start),
+  );
+  const weekdayLong = normalizeIntlLabel(
+    locale,
+    new Intl.DateTimeFormat(locale, {
+      ...STUDIO_DATE_PARTS,
+      weekday: "long",
+    }).format(start),
+  );
+  const monthShort = normalizeIntlLabel(
+    locale,
+    new Intl.DateTimeFormat(locale, {
+      ...STUDIO_DATE_PARTS,
+      month: "short",
+    }).format(start),
+  );
+  const monthLong = normalizeIntlLabel(
+    locale,
+    new Intl.DateTimeFormat(locale, {
+      ...STUDIO_DATE_PARTS,
+      month: "long",
+    }).format(start),
+  );
+  const dateLine = normalizeIntlLabel(
+    locale,
+    new Intl.DateTimeFormat(locale, {
+      ...STUDIO_DATE_PARTS,
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    }).format(start),
+  );
   const startTime = formatTimeForUi(start, locale);
   const endTime = formatTimeForUi(end, locale);
   const durationMinutes = Math.max(

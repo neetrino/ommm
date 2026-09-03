@@ -122,6 +122,7 @@ export function DeleteAccountButton({
         tone="danger"
         confirmClassName={DELETE_ACCOUNT_CONFIRM_CLASS}
         pending={busy}
+        forceCenteredModal
         onConfirm={() => void confirmDelete()}
         onCancel={closeConfirm}
       />

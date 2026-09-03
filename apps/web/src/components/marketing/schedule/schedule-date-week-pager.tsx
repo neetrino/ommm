@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -13,7 +14,6 @@ import {
   SCHEDULE_DATE_CHIP_PAST,
   SCHEDULE_DATE_CHIP_SELECTED,
   SCHEDULE_DATE_CHIP_TODAY,
-  SCHEDULE_INTERACTIVE_LIFT,
   SCHEDULE_WEEKDAY_LABEL,
   SCHEDULE_WEEKDAY_LABEL_ACTIVE,
 } from "@/components/marketing/schedule/schedule-public-design";
@@ -30,7 +30,8 @@ import styles from "@/components/marketing/schedule/schedule-public-design.modul
 
 const DAYS_PER_WEEK = 7;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const SCROLL_SETTLE_MS = 80;
+/** Wait past iOS momentum + snap before reading the settled page. */
+const SCROLL_SETTLE_MS = 160;
 
 function formatWeekdayShort(locale: string, date: Date): string {
   return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
@@ -92,6 +93,11 @@ type ScheduleDateWeekPagerProps = {
   onSelectDay: (day: Date) => void;
 };
 
+/**
+ * Mobile week strip — CSS scroll-snap owns paging.
+ * Selection follows scroll; we never fight snap with scrollTo after a swipe
+ * (that feedback loop was the main week-swipe jitter).
+ */
 export function ScheduleDateWeekPager({
   locale,
   selectedDate,
@@ -102,6 +108,9 @@ export function ScheduleDateWeekPager({
 }: ScheduleDateWeekPagerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suppressScrollSyncRef = useRef(false);
+  const selectionFromSwipeRef = useRef(false);
+  const selectedDateRef = useRef(selectedDate);
   const [pageWidth, setPageWidth] = useState(0);
   const rangeEnd = maxDate ?? addDays(today, 30);
   const earliestKey = earliestDate.getTime();
@@ -111,7 +120,9 @@ export function ScheduleDateWeekPager({
     [earliestKey, rangeEndKey],
   );
 
-  useEffect(() => {
+  selectedDateRef.current = selectedDate;
+
+  useLayoutEffect(() => {
     const el = scrollRef.current;
     if (el === null) {
       return;
@@ -128,17 +139,27 @@ export function ScheduleDateWeekPager({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
+  /** Align strip only for external selection (calendar / first paint) — never after swipe. */
+  useLayoutEffect(() => {
     const el = scrollRef.current;
     if (el === null || pageWidth <= 0) {
       return;
     }
+    if (selectionFromSwipeRef.current) {
+      selectionFromSwipeRef.current = false;
+      return;
+    }
     const index = weekIndexForDate(weeks, selectedDate);
     const target = index * pageWidth;
-    if (Math.abs(el.scrollLeft - target) > 2) {
-      el.scrollTo({ left: target, behavior: "smooth" });
+    if (Math.abs(el.scrollLeft - target) < 1) {
+      return;
     }
-  }, [selectedDate, weeks, pageWidth]);
+    suppressScrollSyncRef.current = true;
+    el.scrollLeft = target;
+    window.requestAnimationFrame(() => {
+      suppressScrollSyncRef.current = false;
+    });
+  }, [pageWidth, selectedDate, weeks]);
 
   useEffect(() => {
     return () => {
@@ -150,7 +171,7 @@ export function ScheduleDateWeekPager({
 
   const syncSelectionFromScroll = useCallback(() => {
     const el = scrollRef.current;
-    if (el === null || pageWidth <= 0) {
+    if (el === null || pageWidth <= 0 || suppressScrollSyncRef.current) {
       return;
     }
     const index = Math.round(el.scrollLeft / pageWidth);
@@ -158,14 +179,19 @@ export function ScheduleDateWeekPager({
     if (week === undefined) {
       return;
     }
-    const nextDay = pickDayInWeek(week, selectedDate, earliestDate, maxDate);
-    if (!isSameCalendarDay(nextDay, selectedDate)) {
+    const preferred = selectedDateRef.current;
+    const nextDay = pickDayInWeek(week, preferred, earliestDate, maxDate);
+    if (!isSameCalendarDay(nextDay, preferred)) {
+      selectionFromSwipeRef.current = true;
       onSelectDay(nextDay);
     }
-  }, [earliestDate, maxDate, onSelectDay, pageWidth, selectedDate, weeks]);
+  }, [earliestDate, maxDate, onSelectDay, pageWidth, weeks]);
 
   function onStripScroll(event: UIEvent<HTMLDivElement>) {
     void event;
+    if (suppressScrollSyncRef.current) {
+      return;
+    }
     if (settleTimerRef.current !== null) {
       clearTimeout(settleTimerRef.current);
     }
@@ -223,7 +249,7 @@ export function ScheduleDateWeekPager({
                 key={day.getTime()}
                 type="button"
                 onClick={() => onSelectDay(startOfLocalDay(day))}
-                className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#97907c]/30 ${SCHEDULE_INTERACTIVE_LIFT} ${isPast ? "opacity-55" : ""}`}
+                className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#97907c]/30 ${isPast ? "opacity-55" : ""}`}
               >
                 <span className={weekdayClass}>{wk}</span>
                 <span className={chipClass}>{dayNum}</span>

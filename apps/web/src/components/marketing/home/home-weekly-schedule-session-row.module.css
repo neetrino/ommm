@@ -141,23 +141,29 @@
   .row {
     display: grid;
     grid-template-columns:
-      var(--home-schedule-session-row-time-col-width, 10.5rem)
+      var(--home-schedule-session-row-time-col-width, 8.75rem)
       minmax(0, 1fr)
-      var(--home-schedule-session-row-duration-col-width, 4.75rem)
-      var(--home-schedule-session-row-spots-col-width, 6.75rem)
+      var(--home-schedule-session-row-duration-col-width, 5.25rem)
+      var(--home-schedule-session-row-spots-col-width, clamp(9.75rem, 12vw, 12.5rem))
       auto;
     grid-template-areas: none;
-    column-gap: clamp(1rem, 2vw, 1.5rem);
+    column-gap: clamp(1.25rem, 2.25vw, 1.75rem);
     row-gap: 0;
     align-items: center;
     min-height: var(--home-schedule-row-min-h, 6.4375rem);
-    padding: clamp(1rem, 2vw, 1.5rem);
+    padding-block: clamp(1rem, 2vw, 1.5rem);
+    padding-inline: clamp(1.25rem, 2.5vw, 1.75rem);
   }
 
   .timeCluster {
     grid-column: 1;
     grid-row: 1;
     justify-self: start;
+    min-width: 0;
+  }
+
+  .timeIconGroup {
+    gap: 0.625rem;
   }
 
   .classBlock {
@@ -177,7 +183,8 @@
     padding-inline-end: max(
       0px,
       calc(
-        var(--home-schedule-session-row-duration-spots-gap, 1.5rem) - clamp(1rem, 2vw, 1.5rem)
+        var(--home-schedule-session-row-duration-spots-gap, 1.75rem) -
+          clamp(1.25rem, 2.25vw, 1.75rem)
       )
     );
     text-align: start;
@@ -205,7 +212,7 @@
     justify-self: end;
     flex-shrink: 0;
     flex-direction: column;
-    margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 1.5rem);
+    margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 2rem);
   }
 }
 
@@ -304,6 +311,8 @@
     align-self: end;
     gap: 0.375rem;
     min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
     margin-top: var(
       --home-schedule-row-header-to-details-gap,
       clamp(0.75rem, calc(100svw * 17 / 394), 1.0625rem)
@@ -332,6 +341,18 @@
     letter-spacing: 0.03125rem;
     text-align: start;
     white-space: nowrap;
+  }
+
+  .duration {
+    flex: 0 0 auto;
+  }
+
+  /* RU “Осталось N мест” is long — ellipsis when it hits the book CTA. */
+  .spots {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .bookAction {

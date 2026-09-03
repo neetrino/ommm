@@ -186,7 +186,7 @@
     "tagline": "Դասեր, փաթեթներ և անդամների գործիքներ — մեկ հանգիստ տեղ ձեր պրակտիկան պլանավորելու համար։",
     "discoverTitle": "Բացահայտել",
     "memberTitle": "Անդամներ",
-    "copyrightSuffix": "ստուդիա"
+    "copyrightSuffix": "studio"
   },
   "marketingUi": {
     "bookAClass": "Գրանցվել դասի",
@@ -400,7 +400,7 @@
       "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
       "footerCopyrightCompanyPart1": "NEETRINO IT",
       "footerCopyrightCompanyPart2": "COMPANY",
-      "footerCopyrightSuffix": ". ԲՈԼՈՐ ԻՐԱՎՈՒՆՔՆԵՐԸ ՊԱՀՊԱՆՎԱԾ ԵՆ.",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
       "footerIllustrationAlt": "Օմ նշանի դեկորատիվ նկար"
     }
   },
