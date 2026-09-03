@@ -75,6 +75,8 @@ export function MarketingSiteHeaderMobileBar({
   const tUi = useTranslations("marketingUi");
   const tShell = useTranslations("dashboard.shell");
   const isWorkspaceMobile = workspaceDrawer !== undefined;
+  /** Staff drawer + member account — brand sits beside burger (not centered). */
+  const useLeadingBrandCluster = isWorkspaceMobile || memberWorkspaceHeader;
   const drawerMenuOpen = isWorkspaceMobile ? workspaceDrawerOpen : publicMenuOpen;
   /** Workspace panel drawer — keep header chrome unchanged; only public menu morphs the bar. */
   const menuButtonChromeOpen = isWorkspaceMobile ? false : drawerMenuOpen;
@@ -119,7 +121,7 @@ export function MarketingSiteHeaderMobileBar({
   const brandLink = (
     <Link
       href="/"
-      className={marketingHeaderMobileBrandLinkClass({ workspace: isWorkspaceMobile })}
+      className={marketingHeaderMobileBrandLinkClass({ workspace: useLeadingBrandCluster })}
       onClick={onBrandClick}
     >
       <span
@@ -132,7 +134,7 @@ export function MarketingSiteHeaderMobileBar({
 
   return (
     <div className={`${marketingHeaderMobileRowInnerClass()} ${navPillStyles.mobileHeaderRow}`}>
-      {isWorkspaceMobile ? (
+      {useLeadingBrandCluster ? (
         <div className={marketingHeaderMobileLeadingClass()}>
           {menuButton}
           {brandLink}
@@ -182,6 +184,18 @@ export function MarketingSiteHeaderMobileBar({
                 onNavigate={onCloseAllMenus}
               />
             ) : null}
+            <LanguageSwitcher
+              context="marketing"
+              appearance="icon"
+              className="min-w-0 shrink-0"
+              triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+              onAfterSelect={onCloseAllMenus}
+              renderIconTrigger={() => (
+                <MarketingHeaderGlobeIcon
+                  className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                />
+              )}
+            />
             {account ? (
               <MarketingAccountAvatarMenu
                 initials={account.initials}
