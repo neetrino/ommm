@@ -198,6 +198,7 @@ export function HomeWeeklyScheduleSessionRow({
               ? HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgent
               : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
           }}
+          title={spotsLeftLabel}
         >
           {spotsLeftLabel}
         </p>

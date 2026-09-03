@@ -304,6 +304,8 @@
     align-self: end;
     gap: 0.375rem;
     min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
     margin-top: var(
       --home-schedule-row-header-to-details-gap,
       clamp(0.75rem, calc(100svw * 17 / 394), 1.0625rem)
@@ -332,6 +334,18 @@
     letter-spacing: 0.03125rem;
     text-align: start;
     white-space: nowrap;
+  }
+
+  .duration {
+    flex: 0 0 auto;
+  }
+
+  /* RU “Осталось N мест” is long — ellipsis when it hits the book CTA. */
+  .spots {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .bookAction {
