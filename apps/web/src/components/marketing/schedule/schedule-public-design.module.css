@@ -630,46 +630,28 @@
   background: rgb(255 255 255 / 0.72);
 }
 
-.bookedBtn {
-  display: inline-flex;
-  min-height: 3rem;
-  min-width: 5.5rem;
-  width: auto;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border: 1px solid rgb(95 122 104 / 0.55);
-  background: #5f7a68;
-  padding: 0.75rem 1rem;
-  box-shadow:
-    0 6px 18px -12px rgb(45 74 58 / 0.35),
-    inset 0 1px 0 rgb(255 255 255 / 0.12);
-  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.125rem;
-  letter-spacing: 0.0625rem;
-  text-transform: uppercase;
-  color: #fff;
-  white-space: nowrap;
-  cursor: default;
-  -webkit-font-smoothing: antialiased;
-  opacity: 1;
-}
-
-.bookedBtn:disabled {
-  opacity: 1;
-  cursor: default;
-  pointer-events: none;
-}
-
 .bookActionGroup {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+.bookActionGroupCentered {
+  composes: bookActionGroup;
+  width: 100%;
+  justify-content: center;
+}
+
+.bookActionInlineWrap {
+  display: contents;
+}
+
+@media (min-width: 744px) {
+  .bookActionGroup {
+    flex-wrap: nowrap;
+  }
 }
 
 .sessionList {

@@ -103,6 +103,7 @@
 
 .closedLabel {
   margin: 0;
+  text-align: end;
   font-family: var(--font-sans);
   font-size: 0.75rem;
   font-weight: 700;
@@ -179,6 +180,7 @@
     align-items: flex-end;
     justify-self: end;
     flex-shrink: 0;
+    flex-direction: row;
     margin-inline-start: var(--home-schedule-session-row-spots-button-gap, 1.5rem);
   }
 }

@@ -107,7 +107,7 @@
 }
 
 .closedLabel {
-  margin: 0;
+  margin: 0 0 0 auto;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
@@ -128,15 +128,8 @@
   letter-spacing: 0.03125rem;
 }
 
-.bookedBtnCompact {
+.footer .bookBtnCompact {
   min-width: 0;
-  width: auto;
-  min-height: 2rem;
-  height: 2rem;
-  padding: 0.25rem 0.625rem;
-  font-size: 0.6875rem;
-  line-height: 1rem;
-  letter-spacing: 0.03125rem;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

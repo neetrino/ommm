@@ -7,7 +7,7 @@ import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import {
   SCHEDULE_BOOK_BTN,
-  SCHEDULE_BOOKED_BTN,
+  SCHEDULE_BOOKED_BTN_COMPACT,
   SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
 import styles from "@/components/marketing/schedule/schedule-week-session-card.module.css";
@@ -90,7 +90,7 @@ export function ScheduleWeekSessionCard({
             bookLabel={bookLabel}
             audience={audience}
             className={`${SCHEDULE_BOOK_BTN} ${styles.bookBtnCompact}`}
-            bookedClassName={`${SCHEDULE_BOOKED_BTN} ${styles.bookedBtnCompact}`}
+            bookedClassName={SCHEDULE_BOOKED_BTN_COMPACT}
             cancelClassName={`${SCHEDULE_CANCEL_BTN} ${styles.bookBtnCompact}`}
             userBookingId={userBookingId}
             userBookingCreatedAt={userBookingCreatedAt}

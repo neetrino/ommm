@@ -12,6 +12,8 @@ import {
   SCHEDULE_BOOK_BTN,
   SCHEDULE_BOOKED_BTN,
   SCHEDULE_BOOK_ACTION_GROUP,
+  SCHEDULE_BOOK_ACTION_GROUP_CENTERED,
+  SCHEDULE_BOOK_ACTION_INLINE_WRAP,
   SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
 import { useRouter } from "@/i18n/navigation";
@@ -134,11 +136,11 @@ export function AuthAwareScheduleBookingAction({
     }
 
     return (
-      <div className="flex flex-col items-end">
+      <div className="flex w-full flex-col items-center">
         {cancelMsg ? (
-          <p className={`${CANCEL_BOOKING_ERROR_MESSAGE_CLASS} text-right`}>{cancelMsg}</p>
+          <p className={`${CANCEL_BOOKING_ERROR_MESSAGE_CLASS} text-center`}>{cancelMsg}</p>
         ) : null}
-        <div className={SCHEDULE_BOOK_ACTION_GROUP}>
+        <div className={SCHEDULE_BOOK_ACTION_GROUP_CENTERED}>
           <CancelBookingButton
             bookingId={resolvedBookingId}
             sessionDate={sessionDate}
@@ -147,6 +149,7 @@ export function AuthAwareScheduleBookingAction({
             appearance="button"
             size="sm"
             buttonClassName={cancelClassName}
+            wrapperClassName={SCHEDULE_BOOK_ACTION_INLINE_WRAP}
             onError={setCancelMsg}
             onCancelled={() => {
               setBookingId(undefined);
@@ -282,10 +285,13 @@ export function AuthAwareScheduleBookingAction({
   }
 
   const showErrorBelowAction = audience !== "guest" && !isBooked && bookingStateReady;
+  const actionShellClass = isBooked
+    ? "flex w-full flex-col items-center gap-1"
+    : "flex flex-col items-end gap-1 self-end";
 
   return (
     <>
-      <div className="flex flex-col items-end gap-1">
+      <div className={actionShellClass}>
         {renderAction()}
         {showErrorBelowAction ? renderErrorHint() : null}
       </div>
