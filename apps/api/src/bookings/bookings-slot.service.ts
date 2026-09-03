@@ -1,22 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
   PaymentStatus,
-  type ClassSession,
   type Prisma,
 } from '@prisma/client';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
-import { isStaffCancellableBookingStatus } from './bookings-staff-cancel.helpers';
+import {
+  isReleasableBookingStatus,
+  RELEASE_SLOT_ERROR,
+  shouldOpenSlotAfterRelease,
+  type ReleaseSlotSession,
+} from './bookings-slot.helpers';
 
 type ReleaseSlotBooking = {
   id: string;
   userId: string;
   sessionId: string;
-  session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
+  session: ReleaseSlotSession;
 };
 
 type ReleaseSlotOptions = {
@@ -39,23 +47,22 @@ export class BookingsSlotService {
     booking: ReleaseSlotBooking,
     options: ReleaseSlotOptions = { applyPenalty: false },
   ) {
-    const previousStatus = await this.prisma.$transaction((tx) =>
-      this.cancelBookingInTx(tx, booking, options),
+    const previousStatus = await this.cancelBookingAndRestoreCredits(
+      booking,
+      options,
     );
-    if (previousStatus === null) {
-      return;
-    }
     await this.staffActivity.recordBookingCancelled(booking.id);
     const reopenCapacity =
-      options.reopenCapacity ?? previousStatus === BookingStatus.BOOKED;
+      options.reopenCapacity ??
+      shouldOpenSlotAfterRelease({
+        previousStatus,
+        sessionStatus: booking.session.status,
+        endsAt: booking.session.endsAt,
+      });
     if (!reopenCapacity) {
       return;
     }
-    await this.prisma.classSession.updateMany({
-      where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
-      data: { status: ClassSessionStatus.ACTIVE },
-    });
-    await this.waitlist.offerNextIfSlot(booking.sessionId);
+    await this.reopenUpcomingSessionSlot(booking.sessionId);
   }
 
   /**
@@ -92,34 +99,52 @@ export class BookingsSlotService {
     return affectedUserIds;
   }
 
-  private async cancelBookingInTx(
+  private async cancelBookingAndRestoreCredits(
+    booking: ReleaseSlotBooking,
+    options: ReleaseSlotOptions,
+  ): Promise<BookingStatus> {
+    return this.prisma.$transaction(async (tx) => {
+      const current = await this.requireCancellableBooking(tx, booking.id);
+      await tx.booking.update({
+        where: { id: booking.id },
+        data: {
+          status: BookingStatus.CANCELLED,
+          cancelledAt: new Date(),
+          ...(options.cancelledByUserId
+            ? { cancelledByUserId: options.cancelledByUserId }
+            : {}),
+        },
+      });
+      await this.restorePackageIfEligible(tx, booking, options);
+      return current.status;
+    });
+  }
+
+  private async requireCancellableBooking(
+    tx: Prisma.TransactionClient,
+    bookingId: string,
+  ): Promise<{ status: BookingStatus; cancelledAt: Date | null }> {
+    const current = await tx.booking.findUnique({
+      where: { id: bookingId },
+      select: { status: true, cancelledAt: true },
+    });
+    if (current === null) {
+      throw new NotFoundException(RELEASE_SLOT_ERROR.NOT_FOUND);
+    }
+    if (
+      !isReleasableBookingStatus(current.status) ||
+      current.cancelledAt != null
+    ) {
+      throw new BadRequestException(RELEASE_SLOT_ERROR.NOT_CANCELLABLE);
+    }
+    return current;
+  }
+
+  private async restorePackageIfEligible(
     tx: Prisma.TransactionClient,
     booking: ReleaseSlotBooking,
     options: ReleaseSlotOptions,
-  ): Promise<BookingStatus | null> {
-    const current = await tx.booking.findUnique({
-      where: { id: booking.id },
-      select: { status: true, cancelledAt: true },
-    });
-    if (
-      !current ||
-      !isStaffCancellableBookingStatus(current.status) ||
-      current.cancelledAt != null
-    ) {
-      return null;
-    }
-    const reopenCapacity =
-      options.reopenCapacity ?? current.status === BookingStatus.BOOKED;
-    await tx.booking.update({
-      where: { id: booking.id },
-      data: {
-        status: reopenCapacity ? BookingStatus.CANCELLED : current.status,
-        cancelledAt: new Date(),
-        ...(options.cancelledByUserId
-          ? { cancelledByUserId: options.cancelledByUserId }
-          : {}),
-      },
-    });
+  ): Promise<void> {
     const hasDropInPayment = await tx.payment.findFirst({
       where: {
         userId: booking.userId,
@@ -128,12 +153,20 @@ export class BookingsSlotService {
       },
       select: { id: true },
     });
-    if (!hasDropInPayment && !options.applyPenalty) {
-      await this.packageUsage.restoreSession({
-        tx,
-        bookingId: booking.id,
-      });
+    if (hasDropInPayment || options.applyPenalty) {
+      return;
     }
-    return current.status;
+    await this.packageUsage.restoreSession({
+      tx,
+      bookingId: booking.id,
+    });
+  }
+
+  private async reopenUpcomingSessionSlot(sessionId: string): Promise<void> {
+    await this.prisma.classSession.updateMany({
+      where: { id: sessionId, status: ClassSessionStatus.FULL },
+      data: { status: ClassSessionStatus.ACTIVE },
+    });
+    await this.waitlist.offerNextIfSlot(sessionId);
   }
 }

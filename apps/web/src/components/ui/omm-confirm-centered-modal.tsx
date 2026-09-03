@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useId, type ReactNode } from "react";
+import { ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
 import styles from "@/components/ui/omm-confirm-centered-modal.module.css";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -26,6 +27,8 @@ type OmmConfirmCenteredModalProps = {
   confirmPending?: boolean;
   tone?: OmmConfirmCenteredModalTone;
   confirmClassName?: string;
+  /** Hide the cancel button; dismiss via an X in the top-right corner. */
+  dismissAsCloseIcon?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
@@ -52,6 +55,7 @@ export function OmmConfirmCenteredModal({
   confirmPending,
   tone = "default",
   confirmClassName = "",
+  dismissAsCloseIcon = false,
   onConfirm,
   onCancel,
   children,
@@ -103,27 +107,48 @@ export function OmmConfirmCenteredModal({
       >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <h2
-              id={titleId}
-              className="font-serif text-2xl font-normal text-sage-900"
-            >
-              {title}
-            </h2>
+            <div className="flex items-start justify-between gap-3">
+              <h2
+                id={titleId}
+                className="font-serif text-2xl font-normal text-sage-900"
+              >
+                {title}
+              </h2>
+              {dismissAsCloseIcon ? (
+                <button
+                  type="button"
+                  className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
+                  aria-label={cancelLabel}
+                  disabled={pending}
+                  onClick={requestClose}
+                >
+                  ×
+                </button>
+              ) : null}
+            </div>
             <p id={descId} className="text-sm leading-relaxed text-sage-700">
               {description}
             </p>
           </div>
           {children}
-          <div className="flex flex-wrap justify-end gap-3 pt-1">
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={requestClose}
-              disabled={pending}
-            >
-              {cancelLabel}
-            </OmmButton>
+          <div
+            className={
+              dismissAsCloseIcon
+                ? "flex justify-center pt-1"
+                : "flex flex-wrap justify-end gap-3 pt-1"
+            }
+          >
+            {dismissAsCloseIcon ? null : (
+              <OmmButton
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={requestClose}
+                disabled={pending}
+              >
+                {cancelLabel}
+              </OmmButton>
+            )}
             <OmmButton
               type="button"
               variant="secondary"

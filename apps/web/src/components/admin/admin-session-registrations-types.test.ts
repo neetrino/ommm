@@ -54,6 +54,9 @@ describe("session registration roster filters", () => {
     assert.equal(isStaffCancellableSessionRegistration(row("COMPLETED")), true);
     assert.equal(isStaffCancellableSessionRegistration(row("MISSED")), true);
     assert.equal(isStaffCancellableSessionRegistration(row("CANCELLED")), false);
+  });
+
+  it("treats only BOOKED as an upcoming registration", () => {
     assert.equal(isActiveSessionRegistration(row("BOOKED")), true);
     assert.equal(isActiveSessionRegistration(row("COMPLETED")), false);
   });

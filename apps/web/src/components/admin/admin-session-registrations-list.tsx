@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { isPastAdminCancelBookingStatus } from "@/components/admin/admin-booking-cancel.helpers";
 import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by-id";
 import {
   compareSessionRegistrationRows,
@@ -59,6 +60,8 @@ export function AdminSessionRegistrationsList({
   const loading = fetchKey !== null && (fetchResult === null || fetchResult.key !== fetchKey);
   const rows = fetchResult?.key === fetchKey ? fetchResult.rows : [];
   const error = fetchResult?.key === fetchKey ? fetchResult.error : null;
+  const isPastPending =
+    pendingCancel !== null && isPastAdminCancelBookingStatus(pendingCancel.status);
 
   useEffect(() => {
     if (fetchKey === null) {
@@ -172,8 +175,14 @@ export function AdminSessionRegistrationsList({
 
       <OmmConfirmDialog
         isOpen={pendingCancel !== null}
-        title={t("cancelConfirmTitle")}
-        description={t("cancelConfirmDescription")}
+        title={
+          isPastPending ? t("cancelPastConfirmTitle") : t("cancelConfirmTitle")
+        }
+        description={
+          isPastPending
+            ? t("cancelPastConfirmDescription")
+            : t("cancelConfirmDescription")
+        }
         confirmLabel={
           busyId !== null ? tClasses("savingButton") : t("cancelConfirmLabel")
         }
@@ -182,6 +191,7 @@ export function AdminSessionRegistrationsList({
         tone="danger"
         confirmClassName="ommm-btn-lifecycle-action--danger"
         forceCenteredModal
+        dismissAsCloseIcon={isPastPending}
         pending={pendingCancel !== null && busyId === pendingCancel.id}
         onConfirm={() => {
           void confirmCancel();

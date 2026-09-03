@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  isAdminCancellableBookingStatus,
+  isPastAdminCancelBookingStatus,
+} from "@/components/admin/admin-booking-cancel.helpers";
 import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
 import {
   isDashboardShellRole,
-  SESSION_REGISTRATION_STAFF_CANCELLABLE_STATUSES,
   sessionCancelledByDisplayName,
 } from "@/components/admin/admin-session-registrations-types";
 import { BanGlyph } from "@/components/ui/admin-action-glyphs";
@@ -16,15 +19,6 @@ import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
-
-function isCancellableBooking(booking: ClientSheetBookingItem): boolean {
-  if (booking.cancelledAt != null) {
-    return false;
-  }
-  return SESSION_REGISTRATION_STAFF_CANCELLABLE_STATUSES.some(
-    (status) => status === booking.status,
-  );
-}
 
 const CLIENT_BOOKINGS_HISTORY_PAGE_SIZE = 5;
 const CANCEL_BUTTON_CLASS = [
@@ -51,6 +45,13 @@ type AdminClientBookingsHistoryProps = {
   onCancelSuccess: () => void;
   onCancelError: (message: string) => void;
 };
+
+function canCancelHistoryBooking(booking: ClientSheetBookingItem): boolean {
+  if (booking.cancelledAt != null) {
+    return false;
+  }
+  return isAdminCancellableBookingStatus(booking.status);
+}
 
 export function AdminClientBookingsHistory({
   clientId,
@@ -82,6 +83,8 @@ export function AdminClientBookingsHistory({
   const items = result?.key === fetchKey ? result.items : [];
   const total = result?.key === fetchKey ? result.total : 0;
   const offset = (page - 1) * pageSize;
+  const isPastPending =
+    pendingCancel !== null && isPastAdminCancelBookingStatus(pendingCancel.status);
 
   useEffect(() => {
     if (!active) {
@@ -143,8 +146,7 @@ export function AdminClientBookingsHistory({
           ) : null}
           {!loading
             ? items.map((booking) => {
-                const showCancel =
-                  allowCancel && isCancellableBooking(booking);
+                const showCancel = allowCancel && canCancelHistoryBooking(booking);
                 const extra = booking.cancelledAt
                   ? `${t("drawer.cancelled")} ${formatDateForUi(booking.cancelledAt)}`
                   : booking.attendedAt
@@ -222,14 +224,20 @@ export function AdminClientBookingsHistory({
 
       <OmmConfirmDialog
         isOpen={pendingCancel !== null}
-        title={t("bookings.cancelConfirmTitle")}
+        title={
+          isPastPending
+            ? t("bookings.cancelPastConfirmTitle")
+            : t("bookings.cancelConfirmTitle")
+        }
         description={
           pendingCancel === null
             ? t("bookings.cancelConfirmDescription")
-            : t("bookings.cancelConfirmDescriptionNamed", {
-                className: pendingCancel.session.classType.name,
-                when: formatDateTimeForUi(pendingCancel.session.startsAt, locale),
-              })
+            : isPastPending
+              ? t("bookings.cancelPastConfirmDescription")
+              : t("bookings.cancelConfirmDescriptionNamed", {
+                  className: pendingCancel.session.classType.name,
+                  when: formatDateTimeForUi(pendingCancel.session.startsAt, locale),
+                })
         }
         confirmLabel={t("bookings.cancelConfirmLabel")}
         cancelLabel={t("bookings.cancelConfirmKeep")}
@@ -238,6 +246,7 @@ export function AdminClientBookingsHistory({
         tone="danger"
         confirmClassName="ommm-btn-lifecycle-action--danger"
         forceCenteredModal
+        dismissAsCloseIcon={isPastPending}
         onConfirm={() => {
           void confirmCancel();
         }}
