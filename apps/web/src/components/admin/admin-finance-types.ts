@@ -23,11 +23,29 @@ export type FinancePackageClassFilter = "all" | (string & {});
 
 export type FinancePackageSessionsFilter = "all" | "unlimited" | (string & {});
 
+export const FINANCE_PAYMENT_METHOD_FILTER_VALUES = [
+  "CASH",
+  "CARD",
+  "CARD_TERMINAL",
+] as const;
+
+export type FinancePaymentMethodValue =
+  (typeof FINANCE_PAYMENT_METHOD_FILTER_VALUES)[number];
+
+export type FinancePaymentMethodFilter = "all" | FinancePaymentMethodValue;
+
+export function isFinancePaymentMethodValue(
+  value: string,
+): value is FinancePaymentMethodValue {
+  return (FINANCE_PAYMENT_METHOD_FILTER_VALUES as readonly string[]).includes(value);
+}
+
 export type FinanceFilterValues = {
   q: string;
   rangeDays: FinanceDateRangeDays;
   source: FinanceSourceFilter;
   status: FinanceStatusFilter;
+  paymentMethod: FinancePaymentMethodFilter;
   planId: FinancePackagePlanFilter;
   packageClass: FinancePackageClassFilter;
   sessions: FinancePackageSessionsFilter;
@@ -72,6 +90,7 @@ export type FinancePaymentItem = {
 export type FinancePaymentsPayload = {
   items: FinancePaymentItem[];
   total: number;
+  totalAmountCents: number;
   take: number;
   offset: number;
 };

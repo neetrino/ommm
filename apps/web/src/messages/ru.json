@@ -3990,6 +3990,8 @@
         "noPackages": "Нет доступных пакетов",
         "noClasses": "Нет доступных классов",
         "noSessions": "Нет доступных количеств сеансов",
+        "paymentMethodLabel": "Способ оплаты",
+        "paymentMethodAll": "Все способы",
         "resetFilters": "Сбросить фильтры",
         "loading": "Загрузка финансовых данных…",
         "activeCount": "{count} активных фильтров"
@@ -4067,7 +4069,8 @@
       "paymentsTab": {
         "loading": "Загрузка…",
         "loadFailed": "Не удалось загрузить платежи.",
-        "rowCount": "{count} платежей"
+        "rowCount": "{count} платежей",
+        "periodTotal": "Итого за период"
       },
       "actions": {
         "openMenu": "Открыть меню действий",

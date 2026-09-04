@@ -41,7 +41,7 @@ function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps
       const initialValues = parseFinancePaymentsFiltersFromSearch(search);
       return (
         <AdminFinancePaymentsFilters
-          key={`${initialValues.q}|${initialValues.rangeDays}|${initialValues.source}|${initialValues.status}|${initialValues.planId}|${initialValues.packageClass}|${initialValues.sessions}`}
+          key={`${initialValues.q}|${initialValues.rangeDays}|${initialValues.source}|${initialValues.status}|${initialValues.paymentMethod}|${initialValues.planId}|${initialValues.packageClass}|${initialValues.sessions}`}
           initialValues={initialValues}
         />
       );

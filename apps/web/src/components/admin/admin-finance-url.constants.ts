@@ -7,6 +7,7 @@ export const FINANCE_PAYMENTS_QUERY_KEYS = [
   "rangeDays",
   "source",
   "status",
+  "paymentMethod",
   "planId",
   "packageClass",
   "sessions",

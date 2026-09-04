@@ -12,20 +12,14 @@ import {
 } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
-import { buildOpenEndedStudioDateTimeFilter } from '../common/studio-date-range';
-import {
-  buildTokenAndWhere,
-  containsInsensitive,
-  userContainsToken,
-} from '../common/token-text-search';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
+import { buildAdminListPaymentsWhere } from './payments-admin-list.util';
 import {
-  buildSourceFilter,
   detectPaymentSource,
   readPaymentSource,
   withInternalPaymentUpdateFields,
@@ -217,29 +211,10 @@ export class PaymentsAdminService {
     if (query.from && query.to && new Date(query.to) < new Date(query.from)) {
       throw new BadRequestException('Invalid date range');
     }
-    const sourceFilter = buildSourceFilter(query.source);
-    const createdAt = buildOpenEndedStudioDateTimeFilter(query.from, query.to);
-    const searchWhere = buildTokenAndWhere(
-      query.q,
-      (token): Prisma.PaymentWhereInput => ({
-        OR: [
-          { id: containsInsensitive(token) },
-          { description: containsInsensitive(token) },
-          { paymentReference: containsInsensitive(token) },
-          { user: userContainsToken(token) },
-        ],
-      }),
-    );
     const order = resolveDateListPrismaOrder(query.order);
-    const where: Prisma.PaymentWhereInput = {
-      ...(query.userId ? { userId: query.userId } : {}),
-      ...(query.status ? { status: query.status } : {}),
-      ...(sourceFilter ?? {}),
-      ...(createdAt ? { createdAt } : {}),
-      ...(searchWhere ?? {}),
-    };
+    const where = buildAdminListPaymentsWhere(query);
 
-    const [items, total] = await Promise.all([
+    const [items, total, amountAgg] = await Promise.all([
       this.prisma.payment.findMany({
         where,
         include: {
@@ -260,6 +235,10 @@ export class PaymentsAdminService {
         skip: offset,
       }),
       this.prisma.payment.count({ where }),
+      this.prisma.payment.aggregate({
+        where,
+        _sum: { amountCents: true },
+      }),
     ]);
 
     const packageLabelsByUserPackageId =
@@ -290,6 +269,7 @@ export class PaymentsAdminService {
         };
       }),
       total,
+      totalAmountCents: amountAgg._sum.amountCents ?? 0,
       take,
       offset,
     };

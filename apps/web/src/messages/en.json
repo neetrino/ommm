@@ -4325,6 +4325,8 @@
         "noPackages": "No packages available",
         "noClasses": "No classes available",
         "noSessions": "No session counts available",
+        "paymentMethodLabel": "Payment method",
+        "paymentMethodAll": "All methods",
         "resetFilters": "Reset Filters",
         "loading": "Loading finance data…",
         "activeCount": "{count} active filters"
@@ -4424,7 +4426,8 @@
       "paymentsTab": {
         "loading": "Loading…",
         "loadFailed": "Could not load payments.",
-        "rowCount": "{count} payments"
+        "rowCount": "{count} payments",
+        "periodTotal": "Total for period"
       },
       "coachTab": {
         "unsupportedNote": "Salary accrues after a class is finished with at least one registered participant. Mark a month as Paid to zero unpaid salary and keep the payment in history.",
