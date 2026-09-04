@@ -143,6 +143,7 @@ export function ScheduleMonthBoard({
                       <span
                         className={[
                           styles.dayBtn,
+                          styles.dayBtnMuted,
                           isPast ? styles.dayBtnPast : "",
                         ]
                           .filter(Boolean)
