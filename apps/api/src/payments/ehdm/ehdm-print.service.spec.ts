@@ -79,20 +79,26 @@ describe('EhdmPrintService', () => {
   it('persists a successful PEC print without writing isMock', async () => {
     const { service, prisma } = createService({});
     await service.printReceiptForPayment('pay-1');
-    expect(prisma.ehdmReceipt.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          paymentId: 'pay-1',
-          receiptId: '8',
-          seq: 2,
-          fiscal: '52517829',
-        }),
-      }),
-    );
-    const data = prisma.ehdmReceipt.create.mock.calls[0]?.[0].data as {
-      isMock?: boolean;
-    };
-    expect(data.isMock).toBeUndefined();
+    const createCalls = prisma.ehdmReceipt.create.mock.calls as Array<
+      [
+        {
+          data: {
+            paymentId: string;
+            receiptId: string;
+            seq: number;
+            fiscal: string;
+            isMock?: boolean;
+          };
+        },
+      ]
+    >;
+    const createArgs = createCalls[0]?.[0];
+    expect(createArgs).toBeDefined();
+    expect(createArgs?.data.paymentId).toBe('pay-1');
+    expect(createArgs?.data.receiptId).toBe('8');
+    expect(createArgs?.data.seq).toBe(2);
+    expect(createArgs?.data.fiscal).toBe('52517829');
+    expect(createArgs?.data.isMock).toBeUndefined();
   });
 
   it('rolls back seq and retries on explicit PEC reject', async () => {

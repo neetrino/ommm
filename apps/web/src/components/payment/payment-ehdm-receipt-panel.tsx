@@ -64,6 +64,7 @@ export function PaymentEhdmReceiptPanel({
           <div className={styles.receiptRow}>
             <dt className="text-sage-500">{t("qr")}</dt>
             <dd>
+              {/* eslint-disable-next-line @next/next/no-img-element -- EHDM QR is an absolute fiscal URL */}
               <img
                 src={qrUrl}
                 alt={t("qr")}

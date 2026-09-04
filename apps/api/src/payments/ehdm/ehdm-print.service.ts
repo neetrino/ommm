@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EhdmApiClient } from './ehdm-api.client';
 import { EhdmConfig } from './ehdm.config';

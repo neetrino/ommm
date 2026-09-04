@@ -169,7 +169,9 @@ describe('listSoldPackages', () => {
       payment: {
         findMany: jest.fn().mockResolvedValue([]),
         count: jest.fn().mockResolvedValue(2),
-        aggregate: jest.fn().mockResolvedValue({ _sum: { amountCents: 30_000 } }),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amountCents: 30_000 } }),
       },
       packagePlan: {
         findMany: jest.fn().mockResolvedValue([

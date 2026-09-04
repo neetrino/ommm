@@ -139,6 +139,7 @@ export function AdminFinancePaymentEhdmRows({
         <AdminFinancePaymentDetailRow
           label={t("paymentDetails.ehdmQr")}
           value={
+            // eslint-disable-next-line @next/next/no-img-element -- EHDM QR is an absolute fiscal URL
             <img
               src={qrUrl}
               alt={t("paymentDetails.ehdmQr")}

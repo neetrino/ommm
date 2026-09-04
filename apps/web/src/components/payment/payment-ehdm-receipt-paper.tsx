@@ -114,6 +114,7 @@ function ReceiptPaperFiscal(props: PaymentEhdmReceiptPaperProps) {
         {props.referenceLabel}: {props.reference}
       </p>
       {props.qrUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- EHDM QR is an absolute fiscal URL
         <img
           src={props.qrUrl}
           alt={props.qrAlt}
