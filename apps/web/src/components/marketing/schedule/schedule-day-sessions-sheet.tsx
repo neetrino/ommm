@@ -78,9 +78,12 @@ export function ScheduleDaySessionsSheet({
         className={panelClass}
       >
         <div className={styles.header}>
-          <h2 id={titleId} className={styles.title}>
-            {dayLabel}
-          </h2>
+          <div className={styles.titleBlock}>
+            <p className={styles.eyebrow}>{t("daySessionsSheetEyebrow")}</p>
+            <h2 id={titleId} className={styles.title}>
+              {dayLabel}
+            </h2>
+          </div>
           <button
             type="button"
             className={styles.closeBtn}

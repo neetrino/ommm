@@ -70,7 +70,7 @@ export function ScheduleDaySessionsList({
   const t = useTranslations("marketingPages.schedule");
 
   return (
-    <div className="mt-0 overflow-hidden">
+    <div className="mt-0 min-w-0">
       <div
         ref={contentRef}
         className={

@@ -1802,6 +1802,7 @@
       "monthBoardAria": "Monthly class calendar",
       "daySessionsSheetAria": "Classes for selected day",
       "daySessionsSheetCloseAria": "Close day classes",
+      "daySessionsSheetEyebrow": "Selected day",
       "periodMorning": "Morning",
       "periodAfternoon": "Afternoon",
       "periodEvening": "Evening"
