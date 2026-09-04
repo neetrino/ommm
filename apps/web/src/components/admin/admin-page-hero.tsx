@@ -12,21 +12,18 @@ type AdminPageHeroProps = {
   /** Primary CTA (Add …) — full-width below search on phone, beside search on tablet+. */
   primaryAction?: ReactNode;
   trailing?: ReactNode;
-  /** Mobile-only back control inside the banner (e.g. member reviews). */
+  /** Mobile-only back control below the banner (e.g. member reviews). */
   mobileBackHref?: string;
   mobileBackLabel?: string;
-  /** Back control in document flow under the page title. */
+  /** Back control below the banner (e.g. sold packages → packages). */
   titleBackHref?: string;
   titleBackLabel?: string;
   /** Defaults to sticky; set false so the hero scrolls away (e.g. mobile schedule). */
   sticky?: boolean;
 };
 
-const TITLE_BACK_LINK_CLASS =
-  "mt-1 inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900";
-
-const MOBILE_BACK_LINK_CLASS =
-  "absolute left-3 top-4 z-[1] inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900 sm:top-1/2 sm:-translate-y-1/2";
+const BELOW_BANNER_BACK_LINK_CLASS =
+  "mt-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900";
 
 function HeroBackChevronIcon() {
   return (
@@ -62,34 +59,25 @@ export function AdminPageHero({
 }: AdminPageHeroProps) {
   const stickyEnabled = useAdminPageHeaderSticky(sticky);
   const headerRef = useAdminStickyHeaderOffset(stickyEnabled);
-  const barAlignClass = titleBackHref
-    ? "sm:items-start sm:flex-nowrap"
-    : "sm:items-center";
+  const backHref = titleBackHref ?? mobileBackHref;
+  const backLabel = titleBackHref && titleBackLabel ? titleBackLabel : mobileBackLabel;
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero" sticky={stickyEnabled}>
       <div
         className={[
           "ommm-admin-header-bar relative flex flex-col items-stretch gap-3 overflow-visible",
-          "max-sm:min-h-0 max-sm:py-4 max-sm:!justify-center sm:flex-row sm:flex-wrap sm:!justify-start",
-          barAlignClass,
+          "max-sm:min-h-0 max-sm:py-4 max-sm:!justify-center sm:flex-row sm:flex-wrap sm:items-center sm:!justify-start",
         ].join(" ")}
       >
-        {mobileBackHref && mobileBackLabel ? (
-          <Link href={mobileBackHref} className={MOBILE_BACK_LINK_CLASS} aria-label={mobileBackLabel}>
-            <HeroBackChevronIcon />
-          </Link>
-        ) : null}
-        <HeroTitleCluster
-          title={title}
-          description={description}
-          titleBackHref={titleBackHref}
-          titleBackLabel={titleBackLabel}
-          padForMobileBack={Boolean(mobileBackHref)}
-          trailing={trailing}
-        />
+        <HeroTitleCluster title={title} description={description} trailing={trailing} />
         <HeroSearchRow search={search} primaryAction={primaryAction} />
       </div>
+      {backHref && backLabel ? (
+        <Link href={backHref} className={BELOW_BANNER_BACK_LINK_CLASS} aria-label={backLabel}>
+          <HeroBackChevronIcon />
+        </Link>
+      ) : null}
     </WorkspaceStickyPageHeader>
   );
 }
@@ -97,34 +85,16 @@ export function AdminPageHero({
 function HeroTitleCluster({
   title,
   description,
-  titleBackHref,
-  titleBackLabel,
-  padForMobileBack,
   trailing,
 }: {
   title: string;
   description?: ReactNode;
-  titleBackHref?: string;
-  titleBackLabel?: string;
-  padForMobileBack: boolean;
   trailing?: ReactNode;
 }) {
   return (
     <div className="flex w-full min-w-0 items-center justify-center gap-3 sm:w-auto sm:justify-start">
-      <div
-        className={[
-          "min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left",
-          padForMobileBack ? "max-sm:px-10" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
+      <div className="min-w-0 w-full text-center sm:w-auto sm:shrink-0 sm:text-left">
         <h1 className="ommm-admin-header-title">{title}</h1>
-        {titleBackHref && titleBackLabel ? (
-          <Link href={titleBackHref} className={TITLE_BACK_LINK_CLASS} aria-label={titleBackLabel}>
-            <HeroBackChevronIcon />
-          </Link>
-        ) : null}
         {description ? (
           <p className="mt-1 max-w-2xl text-sm text-sage-600 max-sm:mx-auto sm:mx-0">
             {description}
