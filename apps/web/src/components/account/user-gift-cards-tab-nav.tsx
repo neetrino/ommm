@@ -57,7 +57,6 @@ export function UserGiftCardsTabNav({
             type="button"
             role="tab"
             aria-selected={active}
-            aria-pressed={active}
             onClick={() => onTabChange(tab)}
             className={oliveSegmentedSegmentClassName(
               active,

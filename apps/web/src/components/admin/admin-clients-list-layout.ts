@@ -91,7 +91,7 @@ export const ADMIN_CLIENTS_LIST_SUBTITLE_CLASS =
 export const ADMIN_CLIENTS_LIST_VALUE_CLASS = "text-base text-sage-800";
 
 export const ADMIN_CLIENTS_LIST_MEMBERSHIP_CELL =
-  `${USER_LIST_CELL_CLASS} md:flex md:justify-center`;
+  `${USER_LIST_CELL_CLASS} md:flex md:justify-start md:text-left`;
 
 export const ADMIN_CLIENTS_LIST_BOOKING_CELL =
   `${USER_LIST_CELL_CLASS} md:text-center`;

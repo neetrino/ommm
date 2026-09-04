@@ -28,11 +28,13 @@ function isPlainLeftClick(event: MouseEvent<HTMLAnchorElement>): boolean {
 export function useOliveNavHardNavigate(pathname: string) {
   const reduceMotion = useReducedMotion();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [seenPathname, setSeenPathname] = useState(pathname);
   const timerRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  if (pathname !== seenPathname) {
+    setSeenPathname(pathname);
     setPendingHref(null);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     return () => {

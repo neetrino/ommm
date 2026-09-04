@@ -1,5 +1,10 @@
 import { Transform } from 'class-transformer';
-import { ArrayMaxSize, ArrayNotEmpty, IsArray, IsString } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayNotEmpty,
+  IsArray,
+  IsString,
+} from 'class-validator';
 import { MAX_SESSION_ELIGIBILITY_IDS } from '../resolve-session-booking-eligibility';
 
 export class ListSessionEligibilityQueryDto {

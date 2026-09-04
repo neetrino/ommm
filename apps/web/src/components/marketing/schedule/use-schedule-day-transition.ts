@@ -44,7 +44,9 @@ export function useScheduleDayTransition<TSession>({
   const [renderedSessions, setRenderedSessions] = useState(visibleSessions);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
 
-  visibleSessionsRef.current = visibleSessions;
+  useEffect(() => {
+    visibleSessionsRef.current = visibleSessions;
+  }, [visibleSessions]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -54,32 +56,29 @@ export function useScheduleDayTransition<TSession>({
     return () => media.removeEventListener("change", update);
   }, []);
 
-  // Keep same-day session updates live without restarting enter/exit.
-  useEffect(() => {
-    if (renderedDayKey === selectedDayKey) {
+  if (prefersReducedMotion) {
+    if (renderedDayKey !== selectedDayKey) {
+      setRenderedDayKey(selectedDayKey);
       setRenderedSessions(visibleSessions);
     }
-  }, [renderedDayKey, selectedDayKey, visibleSessions]);
+    if (animationPhase !== "idle") {
+      setAnimationPhase("idle");
+    }
+  }
 
   // Only selectedDayKey starts the transition — visibleSessions churn (clock,
   // eligibility, bookings) used to restart exit mid-flight and shake the page.
   useEffect(() => {
+    if (prefersReducedMotion || renderedDayKey === selectedDayKey) {
+      return;
+    }
+
     clearTimer(startTimerRef.current);
     clearTimer(switchTimerRef.current);
     clearTimer(enterResetTimerRef.current);
     startTimerRef.current = null;
     switchTimerRef.current = null;
     enterResetTimerRef.current = null;
-
-    if (prefersReducedMotion) {
-      setRenderedDayKey(selectedDayKey);
-      setRenderedSessions(visibleSessionsRef.current);
-      setAnimationPhase("idle");
-      return;
-    }
-    if (renderedDayKey === selectedDayKey) {
-      return;
-    }
 
     startTimerRef.current = window.setTimeout(() => {
       setAnimationPhase("exit");
@@ -93,6 +92,12 @@ export function useScheduleDayTransition<TSession>({
         );
       }, SCHEDULE_EXIT_TRANSITION_MS);
     }, 0);
+
+    return () => {
+      clearTimer(startTimerRef.current);
+      clearTimer(switchTimerRef.current);
+      clearTimer(enterResetTimerRef.current);
+    };
   }, [prefersReducedMotion, renderedDayKey, selectedDayKey]);
 
   const currentDayKey = prefersReducedMotion ? selectedDayKey : renderedDayKey;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { OmmConfirmCenteredModal } from "@/components/ui/omm-confirm-centered-modal";
 
@@ -23,12 +23,14 @@ export function BookingCancellationPolicyModal({
   const t = useTranslations("forms.bookSession");
   const checkboxId = useId();
   const [acknowledged, setAcknowledged] = useState(false);
+  const [wasOpen, setWasOpen] = useState(isOpen);
 
-  useEffect(() => {
-    if (!isOpen) {
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) {
       setAcknowledged(false);
     }
-  }, [isOpen]);
+  }
 
   return (
     <OmmConfirmCenteredModal

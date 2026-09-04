@@ -27,6 +27,8 @@ function record(payments: ReturnType<typeof payment>[]): ClientRecord {
     createdAt: new Date('2020-01-01T00:00:00.000Z'),
     isBlocked: false,
     role: Role.USER,
+    registrationSource: 'SELF',
+    registeredBy: null,
     bookings: [],
     payments,
     giftCardsPurchased: [],

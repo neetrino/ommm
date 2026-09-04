@@ -120,7 +120,9 @@ export function ScheduleDateWeekPager({
     [earliestKey, rangeEndKey],
   );
 
-  selectedDateRef.current = selectedDate;
+  useEffect(() => {
+    selectedDateRef.current = selectedDate;
+  }, [selectedDate]);
 
   useLayoutEffect(() => {
     const el = scrollRef.current;

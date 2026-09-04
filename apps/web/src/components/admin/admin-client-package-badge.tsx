@@ -26,10 +26,10 @@ export function AdminClientPackageBadge({ row }: AdminClientPackageBadgeProps) {
             : t("packageExpiredBadge");
 
   return (
-    <div className="min-w-0 space-y-1">
+    <div className="flex min-w-0 flex-col items-start gap-1 text-left">
       <span className={clientListPackageBadgeClassName(display.tone)}>{statusLabel}</span>
       {display.planName !== null && display.planName.trim().length > 0 ? (
-        <p className="truncate text-sm text-sage-600" title={display.planName}>
+        <p className="max-w-full truncate text-sm text-sage-600" title={display.planName}>
           {display.planName}
         </p>
       ) : null}

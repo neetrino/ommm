@@ -40,6 +40,7 @@ import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { ClientRegistrationMeta } from "@/components/admin/admin-client-registration-meta";
 
 type ClientFormController = ReturnType<typeof useClientEditForm>;
 
@@ -258,9 +259,19 @@ export function ClientSheetTabPanels({
           </div>
         </section>
 
-        <p className="text-right text-[11px] text-sage-500">
-          {t("drawer.registered")}: {formatDateForUi(detail.createdAt)}
-        </p>
+        <ClientRegistrationMeta
+          createdAt={detail.createdAt}
+          registrationSource={activity.registrationSource ?? "SELF"}
+          registeredBy={activity.registeredBy ?? null}
+          registeredLabel={t("drawer.registered")}
+          sourceLabel={t("drawer.source")}
+          labels={{
+            self: t("drawer.registrationSelf"),
+            byAdmin: t("drawer.registrationByAdmin"),
+            byManager: t("drawer.registrationByManager"),
+            byStaff: t("drawer.registrationByStaff"),
+          }}
+        />
       </div>
     );
   }
