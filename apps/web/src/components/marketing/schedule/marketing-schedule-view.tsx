@@ -160,6 +160,20 @@ export function MarketingScheduleView({
       });
   }, [baseline, classTypes, dayToOffset, instructors, items, weekDayKeys]);
 
+  const sessionCountByDayKey = useMemo(() => {
+    const baselineWeekStart = startOfWeekSunday(baseline);
+    const counts = new Map<string, number>();
+    for (const item of items) {
+      if (!item.isActive) continue;
+      if (!matchesMarketingScheduleFilters(item, classTypes, instructors)) continue;
+      const key = toLocalIsoDate(
+        marketingScheduleItemDate(item, baselineWeekStart, dayToOffset),
+      );
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return counts;
+  }, [baseline, classTypes, dayToOffset, instructors, items]);
+
   const visibleSessions = useMemo(() => {
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
@@ -244,6 +258,7 @@ export function MarketingScheduleView({
         weekFloor={weekFloor}
         maxScheduleDate={maxScheduleDate}
         weekSessions={weekSessions}
+        sessionCountByDayKey={sessionCountByDayKey}
         daySheetOpen={daySheetOpen}
         daySheetLabel={formatSheetDayLabel(locale, nav.selectedDate)}
         canShiftPrevWeek={

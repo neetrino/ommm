@@ -46,6 +46,7 @@ type MarketingScheduleLayoutBodyProps = {
   weekFloor: Date;
   maxScheduleDate: Date;
   weekSessions: readonly MarketingScheduleItem[];
+  sessionCountByDayKey: ReadonlyMap<string, number>;
   daySheetOpen: boolean;
   daySheetLabel: string;
   canShiftPrevWeek: boolean;
@@ -71,6 +72,7 @@ export function MarketingScheduleLayoutBody({
   weekFloor,
   maxScheduleDate,
   weekSessions,
+  sessionCountByDayKey,
   daySheetOpen,
   daySheetLabel,
   canShiftPrevWeek,
@@ -130,6 +132,7 @@ export function MarketingScheduleLayoutBody({
           minDate={baseline}
           maxDate={maxScheduleDate}
           daySheetOpen={daySheetOpen}
+          sessionCountByDayKey={sessionCountByDayKey}
           layoutSwitcherSlot={layoutSwitcher}
           filtersSlot={filtersHeader}
           onSelectDay={onSelectMonthDay}

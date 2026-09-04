@@ -21,6 +21,7 @@ import {
   ArrowRightIcon,
 } from "@/components/marketing/schedule/schedule-view-icons";
 import { useVisibleMonthFollow } from "@/components/marketing/schedule/use-visible-month-follow";
+import { toLocalIsoDate } from "@/lib/local-iso-date";
 
 const WEEKDAY_SAMPLE_MONDAY = new Date(2024, 0, 1);
 
@@ -31,6 +32,7 @@ type ScheduleMonthBoardProps = {
   minDate: Date;
   maxDate: Date;
   daySheetOpen: boolean;
+  sessionCountByDayKey: ReadonlyMap<string, number>;
   layoutSwitcherSlot?: ReactNode;
   filtersSlot?: ReactNode;
   onSelectDay: (day: Date) => void;
@@ -42,7 +44,7 @@ function isDaySelectable(day: Date, minDate: Date, maxDate: Date): boolean {
   );
 }
 
-/** Desktop month layout — empty day grid; selection opens the day sessions sheet. */
+/** Desktop month layout — day cards with class counts; selection opens the sheet. */
 export function ScheduleMonthBoard({
   locale,
   pageTitle,
@@ -50,6 +52,7 @@ export function ScheduleMonthBoard({
   minDate,
   maxDate,
   daySheetOpen,
+  sessionCountByDayKey,
   layoutSwitcherSlot,
   filtersSlot,
   onSelectDay,
@@ -127,30 +130,69 @@ export function ScheduleMonthBoard({
             >
               {week.map((day) => {
                 const inMonth = isSameCalendarMonth(day, visibleMonth);
-                const selectable = inMonth && isDaySelectable(day, minDate, maxDate);
-                const isSelected =
-                  daySheetOpen && isSameCalendarDay(day, selectedDate);
-                const isToday = isSameCalendarDay(day, today);
-                const isPast = isBeforeCalendarDay(day, today);
-
                 if (!inMonth) {
                   return <div key={day.getTime()} className={styles.daySlot} />;
                 }
 
+                const selectable = isDaySelectable(day, minDate, maxDate);
+                const isSelected =
+                  daySheetOpen && isSameCalendarDay(day, selectedDate);
+                const isToday = isSameCalendarDay(day, today);
+                const isPast = isBeforeCalendarDay(day, today);
+                const classCount =
+                  sessionCountByDayKey.get(toLocalIsoDate(day)) ?? 0;
+                const hasClasses = classCount > 0;
+                const dayNumberClass = [
+                  styles.dayNumber,
+                  isPast ? styles.dayNumberPast : "",
+                  isToday ? styles.dayNumberToday : "",
+                  isSelected ? styles.dayNumberSelected : "",
+                  hasClasses && !isSelected && !isToday
+                    ? styles.dayNumberHasClasses
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+                const cellClass = [
+                  styles.dayCell,
+                  selectable ? styles.dayCellInteractive : styles.dayCellMuted,
+                  hasClasses ? styles.dayCellHasClasses : "",
+                  isToday ? styles.dayCellToday : "",
+                  isSelected ? styles.dayCellSelected : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+                const countLabel =
+                  hasClasses
+                    ? t("monthDayClassCount", { count: classCount })
+                    : null;
+                const ariaLabel = hasClasses
+                  ? t("monthDayAriaWithCount", {
+                      day: day.getDate(),
+                      count: classCount,
+                    })
+                  : t("monthDayAria", { day: day.getDate() });
+
+                const dayCellInner = (
+                  <>
+                    <div className={styles.dayCellTop}>
+                      <span className={dayNumberClass}>{day.getDate()}</span>
+                      {isToday ? (
+                        <span className={styles.todayBadge}>{t("todayBadge")}</span>
+                      ) : null}
+                    </div>
+                    {countLabel !== null ? (
+                      <p className={styles.dayCount}>{countLabel}</p>
+                    ) : null}
+                  </>
+                );
+
                 if (!selectable) {
                   return (
                     <div key={day.getTime()} className={styles.daySlot}>
-                      <span
-                        className={[
-                          styles.dayBtn,
-                          styles.dayBtnMuted,
-                          isPast ? styles.dayBtnPast : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                      >
-                        {day.getDate()}
-                      </span>
+                      <div className={cellClass} aria-hidden>
+                        {dayCellInner}
+                      </div>
                     </div>
                   );
                 }
@@ -159,18 +201,12 @@ export function ScheduleMonthBoard({
                   <div key={day.getTime()} className={styles.daySlot}>
                     <button
                       type="button"
-                      className={[
-                        styles.dayBtn,
-                        isPast ? styles.dayBtnPast : "",
-                        isToday ? styles.dayBtnToday : "",
-                        isSelected ? styles.dayBtnSelected : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
+                      className={cellClass}
+                      aria-label={ariaLabel}
                       aria-pressed={isSelected}
                       onClick={() => onSelectDay(startOfLocalDay(day))}
                     >
-                      {day.getDate()}
+                      {dayCellInner}
                     </button>
                   </div>
                 );
