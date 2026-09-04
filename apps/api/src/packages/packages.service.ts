@@ -6,6 +6,7 @@ import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdateCategoryStatusDto } from './dto/update-category-status.dto';
 import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
+import type { AdminListSoldPackagesQueryDto } from './dto/admin-list-sold-packages-query.dto';
 import { PackagesAdminClientPurchaseService } from './packages-admin-client-purchase.service';
 import { PackagesAdminService } from './packages-admin.service';
 import { PackagesAdminSessionsService } from './packages-admin-sessions.service';
@@ -45,6 +46,10 @@ export class PackagesService {
 
   getAdminStats() {
     return this.adminService.getAdminStats();
+  }
+
+  listSoldAdmin(query: AdminListSoldPackagesQueryDto) {
+    return this.adminService.listSoldAdmin(query);
   }
 
   createPlan(dto: UpsertPackagePlanDto) {

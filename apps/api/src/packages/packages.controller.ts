@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import type { User } from '@prisma/client';
@@ -25,6 +26,7 @@ import { UpsertPackagePlanDto } from './dto/upsert-package-plan.dto';
 import { AdminAdjustUserPackageSessionsDto } from './dto/admin-adjust-user-package-sessions.dto';
 import { AdminUpdateUserPackageValidityDto } from './dto/admin-update-user-package-validity.dto';
 import { FreezeUserPackageDto } from './dto/freeze-user-package.dto';
+import { AdminListSoldPackagesQueryDto } from './dto/admin-list-sold-packages-query.dto';
 import { PackagesService } from './packages.service';
 
 @Controller('packages')
@@ -55,6 +57,13 @@ export class PackagesController {
   @Roles(...BACKOFFICE_WRITE_ROLES)
   getAdminStats() {
     return this.packages.getAdminStats();
+  }
+
+  @Get('admin/sold')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  listSoldAdmin(@Query() query: AdminListSoldPackagesQueryDto) {
+    return this.packages.listSoldAdmin(query);
   }
 
   @Patch('admin/categories/status')
