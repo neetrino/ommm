@@ -65,7 +65,6 @@ export function UserBookingsTabNav({ className = "" }: { className?: string }) {
             type="button"
             role="tab"
             aria-selected={active}
-            aria-pressed={active}
             className={oliveSegmentedSegmentClassName(active, BOOKINGS_SWITCHER_COLUMN_COUNT)}
             onClick={() => setTab(tab)}
           >

@@ -46,6 +46,18 @@ export function useMarketingScheduleMemberState({
   const [memberBookingsLoaded, setMemberBookingsLoaded] = useState(true);
   const [scheduleNow, setScheduleNow] = useState(() => new Date());
   const bookedBySessionIdRef = useRef(bookedBySessionId);
+  const [memberGate, setMemberGate] = useState(isMember);
+
+  if (isMember !== memberGate) {
+    setMemberGate(isMember);
+    if (!isMember) {
+      setBookedBySessionId({});
+      setMemberBookingsLoaded(true);
+    } else {
+      setBookedBySessionId(readCachedMarketingSessionBookings());
+      setMemberBookingsLoaded(true);
+    }
+  }
 
   useEffect(() => {
     bookedBySessionIdRef.current = bookedBySessionId;
@@ -98,12 +110,8 @@ export function useMarketingScheduleMemberState({
 
   useEffect(() => {
     if (!isMember) {
-      setBookedBySessionId({});
-      setMemberBookingsLoaded(true);
       return;
     }
-    setBookedBySessionId(readCachedMarketingSessionBookings());
-    setMemberBookingsLoaded(true);
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
       if (!cancelled) {

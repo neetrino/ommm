@@ -5,7 +5,12 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthTokenType, ClientRegistrationSource, Role, type User } from '@prisma/client';
+import {
+  AuthTokenType,
+  ClientRegistrationSource,
+  Role,
+  type User,
+} from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { CLIENT_INVITE_PASSWORD_SETUP_TTL_MS } from '../common/constants';

@@ -135,9 +135,7 @@ function getSource(
   return firstBooking.channel === 'APP' ? 'mobile-app' : 'website';
 }
 
-function toRegisteredBySummary(
-  registeredBy: ClientRecord['registeredBy'],
-): {
+function toRegisteredBySummary(registeredBy: ClientRecord['registeredBy']): {
   id: string;
   name: string | null;
   role: Role;

@@ -38,6 +38,12 @@ export function useMarketingScheduleEligibility({
   );
   const [fetchSettled, setFetchSettled] = useState(!isMember);
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const [memberGate, setMemberGate] = useState(isMember);
+
+  if (isMember !== memberGate) {
+    setMemberGate(isMember);
+    setFetchSettled(!isMember);
+  }
 
   const sessionIdsKey = useMemo(
     () => [...new Set(sessionIds)].sort().join(","),
@@ -60,21 +66,27 @@ export function useMarketingScheduleEligibility({
   useEffect(() => {
     if (!isMember) {
       clearCachedMarketingScheduleEligibility();
-      setFetchSettled(true);
       return;
     }
 
     const uniqueIds = sessionIdsKey.length > 0 ? sessionIdsKey.split(",") : [];
     if (uniqueIds.length === 0) {
       writeCachedMarketingScheduleEligibility([]);
-      setFetchSettled(true);
-      return;
+      const settleTimer = window.setTimeout(() => {
+        setFetchSettled(true);
+      }, 0);
+      return () => {
+        window.clearTimeout(settleTimer);
+      };
     }
 
     // Soft-nav: show cached badges immediately while refreshing.
-    if (getMarketingScheduleEligibilityClientSnapshot().size > 0) {
-      setFetchSettled(true);
-    }
+    const hasCache = getMarketingScheduleEligibilityClientSnapshot().size > 0;
+    const cacheSettleTimer = hasCache
+      ? window.setTimeout(() => {
+          setFetchSettled(true);
+        }, 0)
+      : null;
 
     let cancelled = false;
     const query = encodeURIComponent(uniqueIds.join(","));
@@ -96,6 +108,9 @@ export function useMarketingScheduleEligibility({
 
     return () => {
       cancelled = true;
+      if (cacheSettleTimer !== null) {
+        window.clearTimeout(cacheSettleTimer);
+      }
     };
   }, [isMember, refreshNonce, sessionIdsKey]);
 

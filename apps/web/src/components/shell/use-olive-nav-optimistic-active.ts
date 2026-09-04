@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { dashboardNavPathActive } from "@/lib/dashboard-nav";
 
 /**
@@ -9,10 +9,12 @@ import { dashboardNavPathActive } from "@/lib/dashboard-nav";
  */
 export function useOliveNavOptimisticActive(pathname: string) {
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [seenPathname, setSeenPathname] = useState(pathname);
 
-  useEffect(() => {
+  if (pathname !== seenPathname) {
+    setSeenPathname(pathname);
     setPendingHref(null);
-  }, [pathname]);
+  }
 
   const activePathname = pendingHref ?? pathname;
 
