@@ -196,7 +196,12 @@ export function ScheduleWeekBoard({
               <button
                 key={column.dayKey}
                 type="button"
-                className={styles.dayHeader}
+                className={[
+                  styles.dayHeader,
+                  isSelected ? "" : styles.dayHeaderDimmed,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => onSelectDay(column.day)}
                 aria-pressed={isSelected}
               >
@@ -237,13 +242,24 @@ export function ScheduleWeekBoard({
           }
           aria-hidden
         >
-          {columns.map((column) => (
-            <div key={column.dayKey} className={styles.column}>
-              {Array.from({ length: SKELETON_CARDS_PER_DAY }, (_, idx) => (
-                <div key={idx} className={styles.skeletonCard} />
-              ))}
-            </div>
-          ))}
+          {columns.map((column) => {
+            const isSelected = isSameCalendarDay(column.day, selectedDate);
+            return (
+              <div
+                key={column.dayKey}
+                className={[
+                  styles.column,
+                  isSelected ? "" : styles.columnDimmed,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {Array.from({ length: SKELETON_CARDS_PER_DAY }, (_, idx) => (
+                  <div key={idx} className={styles.skeletonCard} />
+                ))}
+              </div>
+            );
+          })}
         </div>
       ) : visiblePeriods.length === 0 ? (
         <p className={styles.emptyDay}>{t("emptyDay")}</p>
@@ -255,6 +271,7 @@ export function ScheduleWeekBoard({
             collapsed={collapsedPeriods.has(period)}
             columns={columns}
             today={today}
+            selectedDate={selectedDate}
             sessionsByDayAndPeriod={sessionsByDayAndPeriod}
             onToggle={() => togglePeriod(period)}
             renderSessionCard={renderSessionCard}
