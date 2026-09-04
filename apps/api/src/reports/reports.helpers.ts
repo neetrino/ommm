@@ -1,4 +1,4 @@
-import { ClassSessionStatus, Prisma } from '@prisma/client';
+import { ClassSessionStatus, Prisma, Role } from '@prisma/client';
 import { buildOpenEndedStudioDateTimeFilter } from '../common/studio-date-range';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
 
@@ -12,6 +12,17 @@ export function getLocalDayBounds(referenceDate: Date = new Date()): {
   const todayEnd = new Date(todayStart);
   todayEnd.setDate(todayEnd.getDate() + 1);
   return { todayStart, todayEnd };
+}
+
+/** Clients registered on the local calendar day (resets at midnight). */
+export function buildNewUsersTodayWhere(
+  todayStart: Date,
+  todayEnd: Date,
+): Prisma.UserWhereInput {
+  return {
+    role: Role.USER,
+    createdAt: { gte: todayStart, lt: todayEnd },
+  };
 }
 
 export function buildTodaySessionsWhere(

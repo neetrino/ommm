@@ -17,6 +17,7 @@ import {
   resolveRevenueSummary,
 } from './reports-dashboard.helpers';
 import {
+  buildNewUsersTodayWhere,
   buildTodaySessionsWhere,
   getLocalDayBounds,
   getMonthStart,
@@ -231,13 +232,10 @@ export class ReportsDashboardService {
         take: UPCOMING_ITEMS_LIMIT,
       }),
       this.prisma.user.count({
-        where: {
-          role: Role.USER,
-          createdAt: { gte: todayStart, lt: todayEnd },
-        },
+        where: buildNewUsersTodayWhere(todayStart, todayEnd),
       }),
       this.prisma.user.findMany({
-        where: { role: Role.USER },
+        where: buildNewUsersTodayWhere(todayStart, todayEnd),
         select: {
           id: true,
           createdAt: true,
