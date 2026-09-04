@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { BookingStatus, Prisma, Role, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { BACKOFFICE_WRITE_ROLES } from '../common/backoffice-roles';
+import { roleAllows } from '../common/manager-permission.matrix';
 import { normalizeOptionalPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
 import type { UpdateClientDto } from './dto/update-client.dto';
@@ -18,8 +20,13 @@ export class ClientsAdminService {
   ) {}
 
   async updateBasicInfo(actor: User, id: string, dto: UpdateClientDto) {
-    if (dto.isBlocked !== undefined && actor.role !== Role.ADMIN) {
-      throw new ForbiddenException('Only admins can block or unblock clients');
+    if (
+      dto.isBlocked !== undefined &&
+      !roleAllows(BACKOFFICE_WRITE_ROLES, actor.role)
+    ) {
+      throw new ForbiddenException(
+        'Only admins and managers can block or unblock clients',
+      );
     }
     const user = await this.prisma.user.findFirst({
       where: { id, role: Role.USER },

@@ -23,6 +23,7 @@ export const MANAGER_PERMISSION_MATRIX = {
   clients: {
     create: BACKOFFICE_WRITE_ROLES,
     purchasePackage: BACKOFFICE_WRITE_ROLES,
+    blockUnblock: BACKOFFICE_WRITE_ROLES,
     hardDelete: BACKOFFICE_DELETE_ROLES,
   },
   coaches: {
