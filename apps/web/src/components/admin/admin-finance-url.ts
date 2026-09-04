@@ -20,7 +20,7 @@ export {
   parseFinanceCoachesFiltersFromSearch,
   parseFinanceDateRangeDays,
   parseFinanceFiltersFromSearch,
-  parseFinancePaymentsDateRange,
+  parseFinancePaymentsDateFilter,
   parseFinanceOverviewFiltersFromSearch,
   parseFinancePackageClassFilter,
   parseFinancePackagePlanFilter,

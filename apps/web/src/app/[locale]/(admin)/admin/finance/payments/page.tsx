@@ -29,7 +29,7 @@ export default async function AdminFinancePaymentsPage({
   const cookie = (await headers()).get("cookie") ?? "";
   const financeFilters = parseFinancePaymentsFiltersFromSearch(search);
   const payListPage = parseListPageParams(normalizedSearch, FINANCE_PAYMENTS_PAGE_KEYS);
-  const paymentsRange = resolveFinancePaymentsDateRange(financeFilters.rangeDays);
+  const paymentsRange = resolveFinancePaymentsDateRange(financeFilters.from, financeFilters.to);
 
   const paymentsRes = await serverApiJson<FinancePaymentsPayload>(
     buildFinancePaymentsAdminApiQuery(financeFilters, paymentsRange, payListPage),

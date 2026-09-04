@@ -36,7 +36,8 @@ export function buildFinancePaymentsFiltersQuery(
   const params = pickFinanceSectionParams([...FINANCE_PAYMENTS_QUERY_KEYS], currentSearchParams);
   applyFinanceQueryKeys(params, [...FINANCE_PAYMENTS_QUERY_KEYS], {
     q: values.q.trim() !== "" ? values.q.trim() : undefined,
-    rangeDays: values.rangeDays !== "all" ? String(values.rangeDays) : undefined,
+    from: values.from.trim() !== "" ? values.from.trim() : undefined,
+    to: values.to.trim() !== "" ? values.to.trim() : undefined,
     source: values.source !== "all" ? values.source : undefined,
     status: values.status !== "all" ? values.status : undefined,
     paymentMethod: values.paymentMethod !== "all" ? values.paymentMethod : undefined,

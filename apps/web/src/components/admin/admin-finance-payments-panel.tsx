@@ -204,7 +204,7 @@ export function AdminFinancePaymentsPanel({
         </div>
       </div>
 
-      {hasFinancePaymentsPeriodSum(financeFilters.rangeDays) ? (
+      {hasFinancePaymentsPeriodSum(paymentsRange) ? (
         <AdminFinancePaymentsTotal
           locale={locale}
           totalAmountCents={paymentsPayload.totalAmountCents ?? 0}

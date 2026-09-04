@@ -1,9 +1,7 @@
 import {
   DEFAULT_FINANCE_OVERVIEW_RANGE,
-  DEFAULT_FINANCE_PAYMENTS_RANGE,
   type CoachFinanceFilters,
   type FinanceBoundedDateRangeDays,
-  type FinanceDateRangeDays,
   type FinanceFilterValues,
   type FinancePaymentMethodFilter,
   type FinanceSourceFilter,
@@ -11,6 +9,7 @@ import {
   isFinancePaymentMethodValue,
 } from "@/components/admin/admin-finance-types";
 import { firstFinanceUrlParam } from "@/components/admin/admin-finance-url.helpers";
+import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 
 export function parseFinanceDateRangeDays(
   value: string | string[] | undefined,
@@ -22,18 +21,11 @@ export function parseFinanceDateRangeDays(
   return DEFAULT_FINANCE_OVERVIEW_RANGE;
 }
 
-export function parseFinancePaymentsDateRange(
+export function parseFinancePaymentsDateFilter(
   value: string | string[] | undefined,
-): FinanceDateRangeDays {
-  const raw = firstFinanceUrlParam(value);
-  if (raw === "all") {
-    return "all";
-  }
-  const parsed = Number(raw);
-  if (parsed === 7 || parsed === 30 || parsed === 90) {
-    return parsed;
-  }
-  return DEFAULT_FINANCE_PAYMENTS_RANGE;
+): string {
+  const normalized = normalizeFilterDateValue(firstFinanceUrlParam(value) ?? "");
+  return /^\d{4}-\d{2}-\d{2}$/.test(normalized) ? normalized : "";
 }
 
 export function parseFinanceSourceFilter(
@@ -116,7 +108,8 @@ export function parseFinancePaymentsFiltersFromSearch(
   const order = firstFinanceUrlParam(search.order);
   return {
     q: firstFinanceUrlParam(search.q)?.trim() ?? "",
-    rangeDays: parseFinancePaymentsDateRange(search.rangeDays),
+    from: parseFinancePaymentsDateFilter(search.from),
+    to: parseFinancePaymentsDateFilter(search.to),
     source: parseFinanceSourceFilter(search.source),
     status: parseFinanceStatusFilter(search.status),
     paymentMethod: parseFinancePaymentMethodFilter(search.paymentMethod),
