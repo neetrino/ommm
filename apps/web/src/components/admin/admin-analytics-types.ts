@@ -1,4 +1,8 @@
+/** Preset rolling windows in the Range filter. */
 export type AnalyticsRangeDays = 7 | 30 | 90;
+
+/** @deprecated Alias of {@link AnalyticsRangeDays}. */
+export type AnalyticsRangePreset = AnalyticsRangeDays;
 
 export type AnalyticsSortKey =
   | "revenue-desc"
@@ -29,6 +33,10 @@ export type AnalyticsBookingStatusFilter =
 
 export type AnalyticsFilterValues = {
   rangeDays: AnalyticsRangeDays;
+  /** Optional calendar start — studio `YYYY-MM-DD`; when both from/to are set they override presets. */
+  from: string;
+  /** Optional calendar end — studio `YYYY-MM-DD`; when both from/to are set they override presets. */
+  to: string;
   coachId: string;
   classTypeId: string;
   bookingStatus: AnalyticsBookingStatusFilter;
@@ -301,7 +309,8 @@ export type AnalyticsDailyBucket = {
 
 export type AdminAnalyticsPayload = {
   locale: string;
-  rangeDays: AnalyticsRangeDays;
+  /** Inclusive span of the resolved window in calendar days. */
+  rangeDays: number;
   fromIso: string;
   toIso: string;
   sortKey: AnalyticsSortKey;

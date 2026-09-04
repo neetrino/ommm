@@ -3967,6 +3967,8 @@
         "range7": "Last 7 days",
         "range30": "Last 30 days",
         "range90": "Last 90 days",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
         "coachLabel": "Coach",
         "coachAll": "All coaches",
         "classTypeLabel": "Class type",

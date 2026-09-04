@@ -279,6 +279,12 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
             onNextMonth={() => {
               setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
             }}
+            onPrevYear={() => {
+              setVisibleMonth((prev) => new Date(prev.getFullYear() - 1, prev.getMonth(), 1));
+            }}
+            onNextYear={() => {
+              setVisibleMonth((prev) => new Date(prev.getFullYear() + 1, prev.getMonth(), 1));
+            }}
             onSelectDate={(isoDate) => {
               const parsed = parseIsoDate(isoDate);
               if (

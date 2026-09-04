@@ -44,7 +44,12 @@ function AdminAnalyticsUnifiedHeaderInner({
   const { fromIso, toIso } = useMemo(() => {
     const rangeDays = parseAnalyticsRangeDays(searchParams.get("rangeDays") ?? undefined);
     const quickFilters = parseAnalyticsQuickFilters(searchParams.get("quick") ?? undefined);
-    return resolveAnalyticsDateRange({ rangeDays, quickFilters });
+    return resolveAnalyticsDateRange({
+      rangeDays,
+      from: searchParams.get("from") ?? undefined,
+      to: searchParams.get("to") ?? undefined,
+      quickFilters,
+    });
   }, [searchParams]);
 
   return (
