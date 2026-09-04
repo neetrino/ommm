@@ -250,6 +250,18 @@ export function marketingHeaderDesktopBrandLinkClass(): string {
   return "relative z-10 flex h-full min-w-0 shrink-0 items-center justify-center justify-self-start self-center";
 }
 
+/** Brand + workspace menu on tablet — menu hides when the docked sidebar is visible. */
+export function marketingHeaderDesktopLeadingClass(): string {
+  return "relative z-10 flex h-full min-w-0 items-center justify-self-start self-center gap-1.5 lg:gap-2";
+}
+
+export function marketingHeaderDesktopWorkspaceMenuButtonClass(): string {
+  return [
+    marketingHeaderMobileMenuButtonClass(false),
+    "h-8 w-8 lg:h-9 lg:w-9",
+  ].join(" ");
+}
+
 export function marketingHeaderDesktopBrandTextClass(): string {
   return [
     "font-serif font-bold tracking-[-0.05em] whitespace-nowrap leading-none",
