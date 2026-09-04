@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   parseFinancePaymentMethodFilter,
+  parseFinancePaymentsDateFilter,
   parseFinancePaymentsFiltersFromSearch,
 } from "./admin-finance-url.parse";
 
@@ -18,13 +19,23 @@ describe("parseFinancePaymentMethodFilter", () => {
   });
 });
 
+describe("parseFinancePaymentsDateFilter", () => {
+  it("accepts a calendar day and rejects junk", () => {
+    assert.equal(parseFinancePaymentsDateFilter("2026-09-04"), "2026-09-04");
+    assert.equal(parseFinancePaymentsDateFilter("not-a-date"), "");
+    assert.equal(parseFinancePaymentsDateFilter(undefined), "");
+  });
+});
+
 describe("parseFinancePaymentsFiltersFromSearch", () => {
-  it("reads paymentMethod from the query string", () => {
+  it("reads paymentMethod and a custom date period", () => {
     const filters = parseFinancePaymentsFiltersFromSearch({
       paymentMethod: "CASH",
-      rangeDays: "30",
+      from: "2026-08-01",
+      to: "2026-09-04",
     });
     assert.equal(filters.paymentMethod, "CASH");
-    assert.equal(filters.rangeDays, 30);
+    assert.equal(filters.from, "2026-08-01");
+    assert.equal(filters.to, "2026-09-04");
   });
 });

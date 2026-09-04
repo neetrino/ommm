@@ -11,10 +11,7 @@ import {
   buildAdminFinancePaymentsFilterFields,
 } from "@/components/admin/admin-finance-payments-filter-fields";
 import { buildFinancePaymentPackageFilterOptions } from "@/components/admin/admin-finance-payments-package-filter-options";
-import {
-  DEFAULT_FINANCE_PAYMENTS_RANGE,
-  type FinanceFilterValues,
-} from "@/components/admin/admin-finance-types";
+import { type FinanceFilterValues } from "@/components/admin/admin-finance-types";
 import {
   resolveFinancePaymentsDateRange,
 } from "@/components/admin/admin-finance-dates";
@@ -22,7 +19,7 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import {
   buildFinancePaymentsFiltersQuery,
   FINANCE_PAYMENTS_PAGE_KEYS,
-  parseFinancePaymentsDateRange,
+  parseFinancePaymentsDateFilter,
   parseFinancePackageClassFilter,
   parseFinancePackagePlanFilter,
   parseFinancePackageSessionsFilter,
@@ -40,7 +37,8 @@ const FILTER_DEBOUNCE_MS = 300;
 
 const DEFAULT_FINANCE_PAYMENTS_FILTERS: FinanceFilterValues = {
   q: "",
-  rangeDays: DEFAULT_FINANCE_PAYMENTS_RANGE,
+  from: "",
+  to: "",
   source: "all",
   status: "all",
   paymentMethod: "all",
@@ -105,11 +103,8 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     () =>
       buildAdminFinancePaymentsFilterFields({
         labels: {
-          rangeLabel: tFilters("rangeLabel"),
-          rangeAll: tFilters("rangeAll"),
-          range7: tFilters("range7"),
-          range30: tFilters("range30"),
-          range90: tFilters("range90"),
+          dateFrom: tFilters("dateFrom"),
+          dateTo: tFilters("dateTo"),
           sourceLabel: tFilters("sourceLabel"),
           sourceAll: tFilters("sourceAll"),
           sourcePackage: tFilters("sourcePackage"),
@@ -151,8 +146,8 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
   );
 
   const paymentsRange = useMemo(
-    () => resolveFinancePaymentsDateRange(values.rangeDays),
-    [values.rangeDays],
+    () => resolveFinancePaymentsDateRange(values.from, values.to),
+    [values.from, values.to],
   );
 
   const filterQuerySignature = useMemo(
@@ -205,8 +200,11 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
 
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
-      case "rangeDays":
-        updateField("rangeDays", parseFinancePaymentsDateRange(value));
+      case "from":
+        updateField("from", parseFinancePaymentsDateFilter(value));
+        break;
+      case "to":
+        updateField("to", parseFinancePaymentsDateFilter(value));
         break;
       case "source":
         updateField("source", parseFinanceSourceFilter(value));

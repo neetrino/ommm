@@ -4,7 +4,8 @@ export const FINANCE_OVERVIEW_QUERY_KEYS = ["rangeDays"] as const;
 
 export const FINANCE_PAYMENTS_QUERY_KEYS = [
   "q",
-  "rangeDays",
+  "from",
+  "to",
   "source",
   "status",
   "paymentMethod",

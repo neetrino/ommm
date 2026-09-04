@@ -1,16 +1,18 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import {
   DEFAULT_FINANCE_OVERVIEW_RANGE,
-  type FinanceFilterValues,
+  type FinanceBoundedDateRangeDays,
+  type FinanceSourceFilter,
+  type FinanceStatusFilter,
 } from "@/components/admin/admin-finance-types";
 
 type BuildAdminFinanceFilterFieldsArgs = {
   labels: {
-    rangeLabel: string;
+    rangeLabel?: string;
     rangeAll?: string;
-    range7: string;
-    range30: string;
-    range90: string;
+    range7?: string;
+    range30?: string;
+    range90?: string;
     sourceLabel: string;
     sourceAll: string;
     sourcePackage: string;
@@ -24,11 +26,14 @@ type BuildAdminFinanceFilterFieldsArgs = {
     statusPending: string;
     statusRefunded: string;
   };
+  includeRange?: boolean;
 };
 
-export function adminFinanceIntegratedFilterValues(
-  values: Pick<FinanceFilterValues, "rangeDays" | "source" | "status">,
-): Record<string, string> {
+export function adminFinanceIntegratedFilterValues(values: {
+  rangeDays: FinanceBoundedDateRangeDays;
+  source: FinanceSourceFilter;
+  status: FinanceStatusFilter;
+}): Record<string, string> {
   return {
     rangeDays: String(values.rangeDays),
     source: values.source,
@@ -39,40 +44,42 @@ export function adminFinanceIntegratedFilterValues(
 function buildRangeFilterField(labels: BuildAdminFinanceFilterFieldsArgs["labels"]): AdminIntegratedFilterField {
   const includeAll = Boolean(labels.rangeAll);
   const emptyValue = includeAll ? "all" : String(DEFAULT_FINANCE_OVERVIEW_RANGE);
+  const rangeLabel = labels.rangeLabel ?? "";
   const rangeLabels: Record<string, string> = {
     ...(labels.rangeAll ? { all: labels.rangeAll } : {}),
-    "7": labels.range7,
-    "30": labels.range30,
-    "90": labels.range90,
+    ...(labels.range7 ? { "7": labels.range7 } : {}),
+    ...(labels.range30 ? { "30": labels.range30 } : {}),
+    ...(labels.range90 ? { "90": labels.range90 } : {}),
   };
   return {
     key: "rangeDays",
-    label: labels.rangeLabel,
+    label: rangeLabel,
     emptyValue,
     allLabel: labels.rangeAll,
     resolveChipLabel: (value) => {
       if (value === emptyValue) {
         return null;
       }
-      const rangeLabel = rangeLabels[value];
-      return rangeLabel
-        ? `${labels.rangeLabel}: ${rangeLabel}`
-        : `${labels.rangeLabel}: ${value}`;
+      const selectedLabel = rangeLabels[value];
+      return selectedLabel
+        ? `${rangeLabel}: ${selectedLabel}`
+        : `${rangeLabel}: ${value}`;
     },
     options: [
       ...(labels.rangeAll ? [{ value: "all", label: labels.rangeAll }] : []),
-      { value: "7", label: labels.range7 },
-      { value: "30", label: labels.range30 },
-      { value: "90", label: labels.range90 },
+      ...(labels.range7 ? [{ value: "7", label: labels.range7 }] : []),
+      ...(labels.range30 ? [{ value: "30", label: labels.range30 }] : []),
+      ...(labels.range90 ? [{ value: "90", label: labels.range90 }] : []),
     ],
   };
 }
 
 export function buildAdminFinanceFilterFields({
   labels,
+  includeRange = true,
 }: BuildAdminFinanceFilterFieldsArgs): AdminIntegratedFilterField[] {
   return [
-    buildRangeFilterField(labels),
+    ...(includeRange ? [buildRangeFilterField(labels)] : []),
     {
       key: "source",
       label: labels.sourceLabel,

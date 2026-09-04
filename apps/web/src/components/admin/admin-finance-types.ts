@@ -2,10 +2,6 @@ export type FinanceSectionId = "overview" | "payments" | "coaches";
 
 export type FinanceBoundedDateRangeDays = 7 | 30 | 90;
 
-export type FinanceDateRangeDays = "all" | FinanceBoundedDateRangeDays;
-
-export const DEFAULT_FINANCE_PAYMENTS_RANGE: FinanceDateRangeDays = "all";
-
 export const DEFAULT_FINANCE_OVERVIEW_RANGE: FinanceBoundedDateRangeDays = 30;
 
 export type FinanceSourceFilter = "all" | "package" | "dropin" | "gift" | "other";
@@ -42,7 +38,8 @@ export function isFinancePaymentMethodValue(
 
 export type FinanceFilterValues = {
   q: string;
-  rangeDays: FinanceDateRangeDays;
+  from: string;
+  to: string;
   source: FinanceSourceFilter;
   status: FinanceStatusFilter;
   paymentMethod: FinancePaymentMethodFilter;

@@ -5,15 +5,13 @@ import {
   type FinanceFilterValues,
 } from "@/components/admin/admin-finance-types";
 import type { FinancePaymentPackageFilterOptions } from "@/components/admin/admin-finance-payments-package-filter-options";
+import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 import { buildDateSortFilterField } from "@/lib/list-sort";
 
 type BuildAdminFinancePaymentsFilterFieldsArgs = {
   labels: {
-    rangeLabel: string;
-    rangeAll: string;
-    range7: string;
-    range30: string;
-    range90: string;
+    dateFrom: string;
+    dateTo: string;
     sourceLabel: string;
     sourceAll: string;
     sourcePackage: string;
@@ -50,7 +48,8 @@ type BuildAdminFinancePaymentsFilterFieldsArgs = {
 export function adminFinancePaymentsIntegratedFilterValues(
   values: Pick<
     FinanceFilterValues,
-    | "rangeDays"
+    | "from"
+    | "to"
     | "source"
     | "status"
     | "paymentMethod"
@@ -61,7 +60,8 @@ export function adminFinancePaymentsIntegratedFilterValues(
   >,
 ): Record<string, string> {
   return {
-    rangeDays: String(values.rangeDays),
+    from: values.from,
+    to: values.to,
     source: values.source,
     status: values.status,
     paymentMethod: values.paymentMethod,
@@ -110,6 +110,19 @@ function buildPaymentMethodFilterField(
   };
 }
 
+function buildPaymentsDateFilterField(
+  key: "from" | "to",
+  label: string,
+): AdminIntegratedFilterField {
+  return {
+    key,
+    label,
+    fieldType: "date",
+    emptyValue: "",
+    resolveChipLabel: (value) => formatFilterDateChipLabel(label, value),
+  };
+}
+
 function buildPackageFilterField(
   key: "planId" | "packageClass" | "sessions",
   label: string,
@@ -138,12 +151,8 @@ export function buildAdminFinancePaymentsFilterFields({
   packageOptions,
 }: BuildAdminFinancePaymentsFilterFieldsArgs): AdminIntegratedFilterField[] {
   const baseFields = buildAdminFinanceFilterFields({
+    includeRange: false,
     labels: {
-      rangeLabel: labels.rangeLabel,
-      rangeAll: labels.rangeAll,
-      range7: labels.range7,
-      range30: labels.range30,
-      range90: labels.range90,
       sourceLabel: labels.sourceLabel,
       sourceAll: labels.sourceAll,
       sourcePackage: labels.sourcePackage,
@@ -160,6 +169,8 @@ export function buildAdminFinancePaymentsFilterFields({
   });
 
   return [
+    buildPaymentsDateFilterField("from", labels.dateFrom),
+    buildPaymentsDateFilterField("to", labels.dateTo),
     ...baseFields,
     buildPaymentMethodFilterField(labels),
     buildPackageFilterField(

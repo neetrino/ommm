@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { DEFAULT_FINANCE_PAYMENTS_RANGE } from "./admin-finance-types";
 import {
   buildFinancePaymentsAdminApiQuery,
   buildFinancePaymentsFiltersQuery,
@@ -8,7 +7,8 @@ import {
 
 const BASE_FILTERS = {
   q: "",
-  rangeDays: DEFAULT_FINANCE_PAYMENTS_RANGE,
+  from: "",
+  to: "",
   source: "all",
   status: "all",
   paymentMethod: "all",
@@ -30,6 +30,17 @@ describe("buildFinancePaymentsFiltersQuery", () => {
       new URLSearchParams(),
     );
     assert.equal(new URLSearchParams(query).get("paymentMethod"), "CARD_TERMINAL");
+  });
+
+  it("writes a custom from/to period to the URL", () => {
+    const query = buildFinancePaymentsFiltersQuery(
+      { ...BASE_FILTERS, from: "2026-08-01", to: "2026-09-04" },
+      new URLSearchParams(),
+    );
+    const params = new URLSearchParams(query);
+    assert.equal(params.get("from"), "2026-08-01");
+    assert.equal(params.get("to"), "2026-09-04");
+    assert.equal(params.get("rangeDays"), null);
   });
 });
 

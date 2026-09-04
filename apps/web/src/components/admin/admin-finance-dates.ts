@@ -1,7 +1,5 @@
-import type {
-  FinanceBoundedDateRangeDays,
-  FinanceDateRangeDays,
-} from "@/components/admin/admin-finance-types";
+import type { FinanceBoundedDateRangeDays } from "@/components/admin/admin-finance-types";
+import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 import {
   addStudioCalendarDays,
   utcToStudioCalendarDate,
@@ -27,18 +25,28 @@ export function resolveFinanceStudioDateRange(
 }
 
 export function resolveFinancePaymentsDateRange(
-  rangeDays: FinanceDateRangeDays,
-  now: Date = new Date(),
+  from: string,
+  to: string,
 ): FinanceStudioDateRange {
-  if (rangeDays === "all") {
+  const fromDay = normalizeFilterDateValue(from);
+  const toDay = normalizeFilterDateValue(to);
+  const hasFrom = /^\d{4}-\d{2}-\d{2}$/.test(fromDay);
+  const hasTo = /^\d{4}-\d{2}-\d{2}$/.test(toDay);
+  if (!hasFrom && !hasTo) {
     return {};
   }
-  return resolveFinanceStudioDateRange(rangeDays, now);
+  if (hasFrom && hasTo && toDay < fromDay) {
+    return { from: toDay, to: fromDay };
+  }
+  return {
+    ...(hasFrom ? { from: fromDay } : {}),
+    ...(hasTo ? { to: toDay } : {}),
+  };
 }
 
-/** Period total is shown only when a bounded range is selected. */
-export function hasFinancePaymentsPeriodSum(rangeDays: FinanceDateRangeDays): boolean {
-  return rangeDays !== "all";
+/** Period total is shown when a custom from/to date is set. */
+export function hasFinancePaymentsPeriodSum(range: FinanceStudioDateRange): boolean {
+  return Boolean(range.from || range.to);
 }
 
 export function resolveFinanceCurrentMonthRange(
