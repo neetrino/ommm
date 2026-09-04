@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "EhdmReceipt" ADD COLUMN IF NOT EXISTS "returnReceiptId" TEXT;
+ALTER TABLE "EhdmReceipt" ADD COLUMN IF NOT EXISTS "returnSeq" INTEGER;
+ALTER TABLE "EhdmReceipt" ADD COLUMN IF NOT EXISTS "returnResponse" JSONB;
+ALTER TABLE "EhdmReceipt" ADD COLUMN IF NOT EXISTS "returnedAt" TIMESTAMP(3);

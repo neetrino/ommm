@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { loadEhdmCertAndKey } from './ehdm-cert.loader';
 import {
   EHDM_DEFAULT_ADG_CODE,
   EHDM_DEFAULT_API_URL,
@@ -7,8 +8,6 @@ import {
   EHDM_DEFAULT_DEP,
   EHDM_DEFAULT_INITIAL_SEQ,
   EHDM_DEFAULT_UNIT,
-  EHDM_MOCK_CRN,
-  EHDM_MOCK_TIN,
 } from './ehdm.constants';
 
 @Injectable()
@@ -19,46 +18,41 @@ export class EhdmConfig {
     return this.config.get<string>('EHDM_ENABLED') !== 'false';
   }
 
-  /** Mock when explicitly enabled or when live certificate env is missing. */
-  isTestMode(): boolean {
-    const explicit = this.config.get<string>('EHDM_TEST_MODE')?.trim();
-    if (explicit === 'true') {
-      return true;
-    }
-    if (explicit === 'false') {
+  isFullyConfigured(): boolean {
+    if (!this.isEnabled()) {
       return false;
     }
-    return !this.hasCertConfig();
+    try {
+      this.getCertPem();
+      this.getKeyPem();
+      this.getKeyPassphrase();
+      this.getCrn();
+      this.getTin();
+      return this.getApiUrl().length > 0;
+    } catch {
+      return false;
+    }
   }
 
   getApiUrl(): string {
-    const raw = this.config.get<string>('EHDM_API_URL')?.trim();
-    return (raw && raw.length > 0 ? raw : EHDM_DEFAULT_API_URL).replace(
-      /\/+$/,
-      '',
-    );
+    const raw = this.readOptional('EHDM_API_URL');
+    return (raw ?? EHDM_DEFAULT_API_URL).replace(/\/+$/, '');
   }
 
   getCrn(): string {
-    if (this.isTestMode()) {
-      return this.readOptional('EHDM_CRN') ?? EHDM_MOCK_CRN;
-    }
     return this.readRequired('EHDM_CRN');
   }
 
   getTin(): string {
-    if (this.isTestMode()) {
-      return this.readOptional('EHDM_TIN') ?? EHDM_MOCK_TIN;
-    }
     return this.readRequired('EHDM_TIN');
   }
 
   getCertPem(): Buffer {
-    return this.decodePem('EHDM_CERT_BASE64');
+    return this.loadPem().cert;
   }
 
   getKeyPem(): Buffer {
-    return this.decodePem('EHDM_KEY_BASE64');
+    return this.loadPem().key;
   }
 
   getKeyPassphrase(): string {
@@ -85,37 +79,13 @@ export class EhdmConfig {
     return this.readPositiveInt('EHDM_CASHIER_ID', EHDM_DEFAULT_CASHIER_ID);
   }
 
-  isLiveConfigured(): boolean {
-    if (this.isTestMode()) {
-      return true;
-    }
-    try {
-      this.getCertPem();
-      this.getKeyPem();
-      this.getKeyPassphrase();
-      this.getCrn();
-      this.getTin();
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  private hasCertConfig(): boolean {
-    return (
-      Boolean(this.readOptional('EHDM_CERT_BASE64')) &&
-      Boolean(this.readOptional('EHDM_KEY_BASE64')) &&
-      Boolean(this.readOptional('EHDM_KEY_PASSPHRASE'))
-    );
-  }
-
-  private decodePem(envName: string): Buffer {
-    const raw = this.readRequired(envName).replace(/\s+/g, '');
-    const decoded = Buffer.from(raw, 'base64');
-    if (!decoded.toString('utf8').includes('-----BEGIN ')) {
-      throw new Error(`${envName} is not a PEM value`);
-    }
-    return decoded;
+  private loadPem(): { cert: Buffer; key: Buffer } {
+    return loadEhdmCertAndKey({
+      certBase64: this.readOptional('EHDM_CERT_BASE64'),
+      keyBase64: this.readOptional('EHDM_KEY_BASE64'),
+      certPath: this.readOptional('EHDM_CERT_PATH'),
+      keyPath: this.readOptional('EHDM_KEY_PATH'),
+    });
   }
 
   private readOptional(key: string): string | undefined {

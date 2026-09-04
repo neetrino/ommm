@@ -104,7 +104,7 @@ function PaymentOutcomeReceiptLink({
   const t = useTranslations("userPages.payments.result");
   const outcome = usePaymentEhdmOutcome(reference);
   const receipt = outcome.kind === "ready" ? outcome.payload.ehdmReceipt : null;
-  const showButton = receipt !== null && !receipt.isMock;
+  const showButton = receipt !== null;
 
   if (!showButton) {
     return null;

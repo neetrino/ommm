@@ -1400,9 +1400,11 @@
           "missing": "Կտրոնը դեռ հասանելի չէ։",
           "receiptId": "Կտրոնի ID",
           "fiscal": "Ֆիսկալ համար",
-          "qr": "Ստուգում",
-          "openQr": "Բացել կտրոնի հղումը",
-          "mockBadge": "Թեստային կտրոն"
+          "taxpayer": "Հարկ վճարող",
+          "tin": "ՀՎՀՀ",
+          "time": "Ամսաթիվ և ժամ",
+          "total": "Ընդամենը",
+          "qr": "Ստուգման QR"
         },
         "sources": {
           "gift": {
@@ -1921,8 +1923,10 @@
       },
       "newUsers": {
         "title": "Նոր օգտատերեր այսօր՝ {count}",
-        "empty": "Վերջին օգտատերեր դեռ չկան։",
-        "joined": "Գրանցվել է՝ {dateTime}"
+        "heading": "Նոր օգտատերեր այսօր",
+        "empty": "Այսօր նոր օգտատերեր չկան։",
+        "joined": "Գրանցվել է {dateTime}",
+        "openAccount": "Բացել {name}-ի հաշիվը"
       },
       "alerts": {
         "title": "Կարևոր ազդանշաններ",
@@ -3471,6 +3475,28 @@
       "errorAuth": "Պահանջվում է ստուդիայի ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել փաթեթները ({status})։",
       "summaryTotalSold": "Վաճառված փաթեթներ",
+      "sold": {
+        "title": "Վաճառված փաթեթներ",
+        "empty": "Վաճառված փաթեթներ չեն գտնվել։",
+        "searchPlaceholder": "Հաճախորդ, փաթեթ կամ էլ. փոստ…",
+        "columnClient": "Հաճախորդ",
+        "columnPackage": "Փաթեթ",
+        "columnDate": "Ամսաթիվ",
+        "columnAmount": "Գումար",
+        "openClient": "Բացել {name}",
+        "backToPackages": "Վերադառնալ փաթեթներ",
+        "summaryLinkAria": "Բոլոր վաճառված փաթեթները, {count}",
+        "reset": "Մաքրել որոնումը",
+        "filterCategory": "Կատեգորիաներ",
+        "filterCategoryAll": "Բոլոր կատեգորիաները",
+        "filterCategoryEmpty": "Կատեգորիաներ չկան",
+        "filterCategorySelected": "{count} ընտրված",
+        "filterPackage": "Փաթեթ",
+        "filterPackageAll": "Բոլոր փաթեթները",
+        "filterPackageEmpty": "Փաթեթներ չկան",
+        "totalAmount": "Ընդհանուր վաճառք",
+        "totalCount": "{count} փաթեթ"
+      },
       "addGroupNameFieldLabel": "Խմբի անուն",
       "addGroupButton": "Ավելացնել խումբ",
       "addPackageButton": "Ավելացնել խումբ",
@@ -3997,9 +4023,12 @@
         "closeBackdrop": "Փակել վճարման մանրամասները",
         "ehdmReceipt": "Ֆիսկալ կտրոն (ԷՀԴՄ)",
         "ehdmReceiptMissing": "Դեռ չի տպվել",
-        "ehdmReceiptMock": "Թեստային կտրոն",
         "ehdmFiscal": "Ֆիսկալ համար",
         "ehdmReceiptId": "Կտրոնի ID",
+        "ehdmTaxpayer": "Հարկ վճարող",
+        "ehdmTin": "ՀՎՀՀ",
+        "ehdmTime": "Ամսաթիվ և ժամ",
+        "ehdmTotal": "Ընդամենը",
         "ehdmQr": "QR ստուգում",
         "viewFor": "Բացել {name} վճարման մանրամասները",
         "related": {

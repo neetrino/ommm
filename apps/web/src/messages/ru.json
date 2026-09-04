@@ -1399,9 +1399,11 @@
           "missing": "Чек пока недоступен.",
           "receiptId": "ID чека",
           "fiscal": "Фискальный номер",
-          "qr": "Проверка",
-          "openQr": "Открыть ссылку на чек",
-          "mockBadge": "Тестовый чек"
+          "taxpayer": "Налогоплательщик",
+          "tin": "ИНН",
+          "time": "Дата и время",
+          "total": "Итого",
+          "qr": "Проверочный QR"
         },
         "sources": {
           "gift": {
@@ -1918,8 +1920,10 @@
       },
       "newUsers": {
         "title": "Новые пользователи сегодня: {count}",
-        "empty": "Пока нет недавних пользователей.",
-        "joined": "Регистрация: {dateTime}"
+        "heading": "Новые пользователи сегодня",
+        "empty": "Сегодня новых пользователей нет.",
+        "joined": "Регистрация {dateTime}",
+        "openAccount": "Открыть аккаунт: {name}"
       },
       "alerts": {
         "title": "Важные алерты",
@@ -3468,6 +3472,28 @@
       "errorAuth": "Нужен вход администратора студии.",
       "errorLoad": "Не удалось загрузить пакеты ({status}).",
       "summaryTotalSold": "Продано пакетов",
+      "sold": {
+        "title": "Проданные пакеты",
+        "empty": "Проданные пакеты не найдены.",
+        "searchPlaceholder": "Клиент, пакет или email…",
+        "columnClient": "Клиент",
+        "columnPackage": "Пакет",
+        "columnDate": "Дата",
+        "columnAmount": "Сумма",
+        "openClient": "Открыть {name}",
+        "backToPackages": "Назад к пакетам",
+        "summaryLinkAria": "Все проданные пакеты, {count}",
+        "reset": "Очистить поиск",
+        "filterCategory": "Категории",
+        "filterCategoryAll": "Все категории",
+        "filterCategoryEmpty": "Нет категорий",
+        "filterCategorySelected": "{count, plural, one {# выбрана} few {# выбрано} many {# выбрано} other {# выбрано}}",
+        "filterPackage": "Пакет",
+        "filterPackageAll": "Все пакеты",
+        "filterPackageEmpty": "Нет пакетов",
+        "totalAmount": "Всего продано",
+        "totalCount": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}"
+      },
       "addGroupNameFieldLabel": "Название группы",
       "addGroupButton": "Добавить группу",
       "addPackageButton": "Добавить группу",
@@ -3994,9 +4020,12 @@
         "closeBackdrop": "Закрыть детали платежа",
         "ehdmReceipt": "Фискальный чек (EHDM)",
         "ehdmReceiptMissing": "Ещё не выдан",
-        "ehdmReceiptMock": "Тестовый чек",
         "ehdmFiscal": "Фискальный номер",
         "ehdmReceiptId": "ID чека",
+        "ehdmTaxpayer": "Налогоплательщик",
+        "ehdmTin": "ИНН",
+        "ehdmTime": "Дата и время",
+        "ehdmTotal": "Итого",
         "ehdmQr": "QR-проверка",
         "viewFor": "Открыть детали платежа для {name}",
         "related": {

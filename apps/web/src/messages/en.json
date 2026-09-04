@@ -1399,9 +1399,11 @@
           "missing": "Receipt is not available yet.",
           "receiptId": "Receipt ID",
           "fiscal": "Fiscal number",
-          "qr": "Verification",
-          "openQr": "Open receipt link",
-          "mockBadge": "Test receipt"
+          "taxpayer": "Taxpayer",
+          "tin": "TIN",
+          "time": "Date & time",
+          "total": "Total",
+          "qr": "Verification QR"
         },
         "sources": {
           "gift": {
@@ -1920,8 +1922,10 @@
       },
       "newUsers": {
         "title": "New users today: {count}",
-        "empty": "No recent users yet.",
-        "joined": "Joined: {dateTime}"
+        "heading": "New users today",
+        "empty": "No new users today.",
+        "joined": "Joined {dateTime}",
+        "openAccount": "Open {name}'s account"
       },
       "alerts": {
         "title": "Important alerts",
@@ -3470,6 +3474,28 @@
       "errorAuth": "Studio admin sign-in required.",
       "errorLoad": "Could not load packages ({status}).",
       "summaryTotalSold": "Packages sold",
+      "sold": {
+        "title": "Packages sold",
+        "empty": "No sold packages found.",
+        "searchPlaceholder": "Client, package, or email…",
+        "columnClient": "Client",
+        "columnPackage": "Package",
+        "columnDate": "Date",
+        "columnAmount": "Amount",
+        "openClient": "Open {name}",
+        "backToPackages": "Back to packages",
+        "summaryLinkAria": "View all sold packages, {count}",
+        "reset": "Clear search",
+        "filterCategory": "Categories",
+        "filterCategoryAll": "All categories",
+        "filterCategoryEmpty": "No categories",
+        "filterCategorySelected": "{count, plural, one {# selected} other {# selected}}",
+        "filterPackage": "Package",
+        "filterPackageAll": "All packages",
+        "filterPackageEmpty": "No packages",
+        "totalAmount": "Total sold",
+        "totalCount": "{count, plural, one {# package} other {# packages}}"
+      },
       "addGroupNameFieldLabel": "Add Group Name",
       "addGroupButton": "Add Group",
       "addPackageButton": "Add Group",
@@ -4329,9 +4355,12 @@
         "closeBackdrop": "Close payment details",
         "ehdmReceipt": "Fiscal receipt (EHDM)",
         "ehdmReceiptMissing": "Not issued yet",
-        "ehdmReceiptMock": "Test mode receipt",
         "ehdmFiscal": "Fiscal number",
         "ehdmReceiptId": "Receipt ID",
+        "ehdmTaxpayer": "Taxpayer",
+        "ehdmTin": "TIN",
+        "ehdmTime": "Date & time",
+        "ehdmTotal": "Total",
         "ehdmQr": "QR verification",
         "viewFor": "View payment details for {name}",
         "related": {

@@ -4,16 +4,20 @@ model EhdmState {
 }
 
 model EhdmReceipt {
-  id        String   @id @default(cuid())
-  paymentId String   @unique
-  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-  receiptId String
-  seq       Int
-  fiscal    String?
-  qr        String?
-  isMock    Boolean  @default(false)
-  response  Json?
-  createdAt DateTime @default(now())
+  id              String    @id @default(cuid())
+  paymentId       String    @unique
+  payment         Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  receiptId       String
+  seq             Int
+  fiscal          String?
+  qr              String?
+  isMock          Boolean   @default(false)
+  response        Json?
+  returnReceiptId String?
+  returnSeq       Int?
+  returnResponse  Json?
+  returnedAt      DateTime?
+  createdAt       DateTime  @default(now())
 
   @@index([receiptId])
 }

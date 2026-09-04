@@ -21,20 +21,43 @@ export type EhdmPrintRequestBody = {
   items: EhdmPrintItem[];
 };
 
+export type EhdmReturnItem = {
+  receiptProductId: number;
+  quantity: number;
+};
+
+export type EhdmReturnRequestBody = {
+  crn: string;
+  seq: number;
+  receiptId: number;
+  cardAmountForReturn: number;
+  cashAmountForReturn: number;
+  returnItemList: EhdmReturnItem[];
+};
+
+export type EhdmPrintCopyRequestBody = {
+  crn: string;
+  seq: number;
+  receiptId: number;
+};
+
 export type EhdmPrintResult = {
-  receiptId: string;
+  receiptId: string | number;
   fiscal?: string;
   qr?: string;
   crn?: string;
   sn?: string;
   tin?: string;
-  time?: string;
+  taxpayer?: string;
+  address?: string;
+  time?: number;
   total?: number;
 };
 
 export type EhdmApiResponse = {
   code: number;
   message?: string;
+  error?: string;
   errorMessage?: string | null;
   result?: EhdmPrintResult | string | null;
 };
@@ -44,6 +67,9 @@ export type EhdmReceiptSummary = {
   seq: number;
   fiscal: string | null;
   qr: string | null;
-  isMock: boolean;
+  taxpayer: string | null;
+  tin: string | null;
+  time: number | null;
+  total: number | null;
   createdAt: Date;
 };

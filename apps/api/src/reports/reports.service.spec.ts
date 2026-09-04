@@ -2,10 +2,12 @@ import {
   BookingStatus,
   ClassSessionStatus,
   PaymentStatus,
+  Role,
 } from '@prisma/client';
 import { ReportsAnalyticsService } from './reports-analytics.service';
 import { ReportsDashboardService } from './reports-dashboard.service';
 import { ReportsExportService } from './reports-export.service';
+import { getLocalDayBounds } from './reports.helpers';
 import { ReportsService } from './reports.service';
 import { StudioAnalyticsQueriesService } from './studio-analytics-queries.service';
 import { StudioAnalyticsService } from './studio-analytics.service';
@@ -191,6 +193,55 @@ describe('ReportsService', () => {
     expect(result).not.toHaveProperty('revenue');
     expect(result).not.toHaveProperty('revenueCentsTotal');
     expect(prismaMock.payment.aggregate).not.toHaveBeenCalled();
+  });
+
+  it('dashboard overview counts and lists only users created today', async () => {
+    const { todayStart, todayEnd } = getLocalDayBounds();
+    const prismaMock = {
+      classSession: {
+        count: jest
+          .fn()
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      booking: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      waitlistEntry: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+      },
+      payment: {
+        aggregate: jest.fn(),
+      },
+      user: {
+        count: jest.fn().mockResolvedValue(2),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const result = await service.dashboard({
+      includeRevenue: false,
+      includeOverview: true,
+    });
+
+    const todayWhere = {
+      role: Role.USER,
+      createdAt: { gte: todayStart, lt: todayEnd },
+    };
+    expect(prismaMock.user.count).toHaveBeenCalledWith({ where: todayWhere });
+    expect(prismaMock.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: todayWhere }),
+    );
+    expect(
+      (result as { newUsers: { todayCount: number } }).newUsers.todayCount,
+    ).toBe(2);
   });
 
   it('financeSummary returns aggregated totals, status and source breakdown', async () => {

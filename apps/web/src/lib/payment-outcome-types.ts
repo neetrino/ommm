@@ -3,7 +3,10 @@ export type PaymentOutcomeEhdmReceipt = {
   seq: number;
   fiscal: string | null;
   qr: string | null;
-  isMock: boolean;
+  taxpayer: string | null;
+  tin: string | null;
+  time: number | null;
+  total: number | null;
   createdAt: string;
 };
 

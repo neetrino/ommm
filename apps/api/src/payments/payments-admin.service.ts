@@ -121,6 +121,7 @@ export class PaymentsAdminService {
 
     if (status === PaymentStatus.REFUNDED) {
       await this.cancelPackageLinkedToRefundedPayment(payment);
+      this.ehdmReceipt.tryPrintReturnReceipt(updated.id);
     }
 
     if (

@@ -2,7 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as https from 'node:https';
 import { EHDM_API_PATH } from './ehdm.constants';
 import { EhdmConfig } from './ehdm.config';
-import type { EhdmApiResponse, EhdmPrintRequestBody } from './ehdm.types';
+import type {
+  EhdmApiResponse,
+  EhdmPrintCopyRequestBody,
+  EhdmPrintRequestBody,
+  EhdmReturnRequestBody,
+} from './ehdm.types';
 
 @Injectable()
 export class EhdmApiClient {
@@ -14,14 +19,21 @@ export class EhdmApiClient {
     return this.post(EHDM_API_PATH.PRINT, body);
   }
 
+  async printReturnReceipt(
+    body: EhdmReturnRequestBody,
+  ): Promise<EhdmApiResponse> {
+    return this.post(EHDM_API_PATH.PRINT_RETURN, body);
+  }
+
+  async printCopy(body: EhdmPrintCopyRequestBody): Promise<EhdmApiResponse> {
+    return this.post(EHDM_API_PATH.PRINT_COPY, body);
+  }
+
   async checkConnection(crn: string): Promise<EhdmApiResponse> {
     return this.post(EHDM_API_PATH.CHECK_CONNECTION, { crn });
   }
 
-  private async post(
-    path: string,
-    body: Record<string, unknown>,
-  ): Promise<EhdmApiResponse> {
+  private async post(path: string, body: object): Promise<EhdmApiResponse> {
     const url = new URL(`${this.config.getApiUrl()}${path}`);
     const payload = JSON.stringify(body);
     const agent = this.createAgent();
@@ -39,20 +51,7 @@ export class EhdmApiClient {
           },
         },
         (response) => {
-          const chunks: Buffer[] = [];
-          response.on('data', (chunk: Buffer) => chunks.push(chunk));
-          response.on('end', () => {
-            const raw = Buffer.concat(chunks).toString('utf8');
-            try {
-              resolve(JSON.parse(raw) as EhdmApiResponse);
-            } catch {
-              reject(
-                new Error(
-                  `EHDM invalid JSON (${response.statusCode ?? 'unknown'}): ${raw.slice(0, 200)}`,
-                ),
-              );
-            }
-          });
+          this.collectJsonResponse(response, resolve, reject);
         },
       );
 
@@ -62,6 +61,27 @@ export class EhdmApiClient {
       });
       request.write(payload);
       request.end();
+    });
+  }
+
+  private collectJsonResponse(
+    response: import('node:http').IncomingMessage,
+    resolve: (value: EhdmApiResponse) => void,
+    reject: (reason: Error) => void,
+  ): void {
+    const chunks: Buffer[] = [];
+    response.on('data', (chunk: Buffer) => chunks.push(chunk));
+    response.on('end', () => {
+      const raw = Buffer.concat(chunks).toString('utf8');
+      try {
+        resolve(JSON.parse(raw) as EhdmApiResponse);
+      } catch {
+        reject(
+          new Error(
+            `EHDM invalid JSON (${response.statusCode ?? 'unknown'}): ${raw.slice(0, 200)}`,
+          ),
+        );
+      }
     });
   }
 

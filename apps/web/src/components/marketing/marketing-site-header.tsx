@@ -177,6 +177,9 @@ export function MarketingSiteHeader({
           sessionReviewsListHref={headerSessionReviewsListHref}
           desktopGlassStyle={desktopGlassStyle}
           desktopNotificationsTriggerClass={desktopNotificationsTriggerClass}
+          workspaceDrawer={workspaceDrawer}
+          workspaceDrawerOpen={workspaceDrawerOpen}
+          onToggleWorkspaceDrawer={() => workspaceDrawer?.onToggle()}
           onBrandClick={handleBrandClick}
           onCloseAllMenus={closeAllMenus}
         />

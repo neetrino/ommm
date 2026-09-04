@@ -69,13 +69,27 @@ Unfortunately, your booked class has been cancelled.
 We're sorry for the inconvenience. You can choose another convenient time from our schedule.`;
 }
 
-export function renderBookingConfirmedWhatsapp(locale: AppUiLocale): string {
+type BookingConfirmedParams = {
+  className: string;
+  startsAtLabel: string;
+};
+
+export function renderBookingConfirmedWhatsapp(
+  locale: AppUiLocale,
+  params: BookingConfirmedParams,
+): string {
   if (locale === 'hy') {
     return `✨ Ձեր Ommm. պահն ամրագրված է։
+
+«${params.className}»
+${params.startsAtLabel}
 
 Սպասում ենք Ձեզ 💛`;
   }
   return `✨ Your Ommm. moment is booked.
+
+${params.className}
+${params.startsAtLabel}
 
 We'll be waiting for you 💛`;
 }

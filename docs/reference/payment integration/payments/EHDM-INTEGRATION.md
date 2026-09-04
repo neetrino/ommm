@@ -1,165 +1,132 @@
-# EHDM (Էլեկտրոնային ՀԴՄ) — ինտեգրացիայի ձեռնարկ
+# EHDM (E-HDM) — OMMM NestJS integration
 
-> Էլեկտրոնային ՀԴՄ = ԷՀԴՄ = E-HDM = electronic fiscal receipt. Ինտեգրացիա ՀՀ ՊԵԿ վեբ ծառայության հետ (ecrm.taxservice.am)՝ կտրոնների գրանցում/վերադարձ/պատճեն։
+E-HDM talks to the Armenia Tax Service (PEC) at `ecrm.taxservice.am`. OMMM prints one fiscal receipt per `Payment` (PACKAGE / DROPIN / GIFT) from the NestJS API. This is not the borboraqua Next.js Order + cart + shipping flow.
 
-**Աղբյուրներ.**
-- **Պաշտոնական.** `payment integration/| Official doc for the API integrationm/EHDM/uc_hhpek_electronic_HDM_integration_manual_11_2024_6734a3be6964d.html`
-
----
-
-## 1. Ընդհանուր
-
-- **API.** HTTPS POST, JSON body, **client certificate** (`.crt` + `.key`) + passphrase. Base URL: `https://ecrm.taxservice.am/taxsystem-rs-vcr/api/v1.0`.
-- **Հիմնական մեթոդներ.** `/print` (կտրոն), `/printReturnReceipt` (վերադարձ), `/printCopy` (պատճեն), `/checkConnection`, `/activate`, `/configureDepartments`.
-- **seq.** Յուրաքանչյուր հաջող հարցումից հետո ՊԵԿ-ը պահպանում է seq; հաջորդ հարցումում seq պետք է լինի **նախորդ + 1**. Առաջին արժեքը (օր. 65) — ըստ ՊԵԿ-ի/փաստաթղթի; հետագայում seq պահել **ԲԴ-ում** և ավելացնել 1 յուրաքանչյուր հաջող print/return/copy-ից հետո։
+**Official source:** `docs/reference/payment integration/official-api-integration-docs/EHDM/uc_hhpek_electronic_HDM_integration_manual_11_2024_6734a3be6964d.html`
 
 ---
 
-## 2. Գաղտնիքներ և ֆայլեր (.crt / .key)
+## 1. Contract
 
-### Ինչը **գաղտնի** է (միայն ENV, ոչ git)
+- **Base URL:** `EHDM_API_URL` = `https://ecrm.taxservice.am/taxsystem-rs-vcr/api/v1.0`
+- **Auth:** HTTPS POST, `Content-Type: application/json`, mutual TLS via Node `https.Agent` (`cert`, `key`, `passphrase`, `rejectUnauthorized: true`)
+- **Methods used:**
+  - `POST /checkConnection` — startup log only (does not fail boot)
+  - `POST /print` — sale, `mode = 2`, when a payment newly becomes `SUCCEEDED`
+  - `POST /printReturnReceipt` — when a receipted payment is `REFUNDED`
+  - `POST /printCopy` — client method only; no UI
+- **Not called:** `/activate`, `/configureDepartments` (one-time PEC onboarding)
 
-| Փոփոխական | Նկարագրություն | Պահել |
-|------------|-----------------|-------|
-| `EHDM_KEY_PASSPHRASE` | Պարոլ `.key` ֆայլի համար | **Միայն .env** — երբեք կոդ/repo |
-| `.key` ֆայլի **բովանդակությունը** | Private key | Ֆայլը պահել **repo-ից դուրս** (տես ստորև) |
-| `.crt` ֆայլ | Client certificate | Կրիպտոգրաֆիական հավաստագիր — նույնպես **ոչ repo** (լավ պրակտիկա) |
+Success: `code === 0` and `result` with `receiptId`, `fiscal`, `qr`, `crn`, `sn`, `tin`, `taxpayer`, `time` (unix ms), `total`. Persist the full JSON. `qr` is a **text payload**, not a URL.
 
-### Որտեղ պահել .crt և .key
-
-- **Երբեք** չcommit անել `.crt`/`.key` repo-ում։
-- **Լոկալ.** Խորհուրդ — `Private/` թղթապանակ (արդեն **.gitignore**-ում է). ENV-ում `EHDM_CERT_PATH`, `EHDM_KEY_PATH`. **Կարևոր.** Next.js-ը աշխատում է `apps/web`-ից, այդ պատճառով `./Private/...` = `apps/web/Private/...`. Եթե `Private/`-ը **նախագծի արմատում** է — .env-ում օգտագործել **բացարձակ** ճանապարհ, օր. `/path/to/borboraqua.am/Private/00505298.crt`.
-- **Production (Vercel/Render/վերբ).** Սերվերում կամ secrets manager-ում պահել ֆայլերի **բովանդակությունը** (base64 կամ raw) և deploy ժամանակ գրել ֆայլ (tmp/secure dir), ապա `EHDM_CERT_PATH`/`EHDM_KEY_PATH` ցույց տալ այդ path-ին. Կամ օգտագործել platform-ի «secret file»/volume, եթե կա.
-- **Ամփոփում.**  
-  - **Սեկրետ.** passphrase → միայն ENV.  
-  - **.key / .crt.** ֆայլերը → repo-ից դուրս; path → ENV.  
-  - **Private/** — հարմար է **լոկալ** զարգացման համար (gitignore); production-ում path-ը կլինի սերվերի path.
+Amounts are AMD **major units**. OMMM `Payment.amountCents` already stores whole dram — send it as-is (do not divide by 100).
 
 ---
 
-## 3. Environment variables
+## 2. Secrets
 
-Փոխանցել **Private/** և **ehdm-config.txt**-ից; **գաղտնի** արժեքները միայն `.env`-ում (ոչ git).
+Never commit certs, keys, passphrase, CRN, or TIN.
 
-| Փոփոխական | Նկարագրություն | Գաղտնի | Աղբյուր (Private) |
-|------------|-----------------|--------|-------------------|
-| `EHDM_API_URL` | API base URL | Ոչ | `https://ecrm.taxservice.am/taxsystem-rs-vcr/api/v1.0` |
-| `EHDM_CRN` | Գրանցման համար (CRN) | Ոչ* | CRN=52031720 |
-| `EHDM_TIN` | ՀՎՀՀ | Ոչ* | TIN=00505298 |
-| `EHDM_CERT_PATH` | Ճանապարհ դեպի `.crt` ֆայլ | — | path, օր. `./Private/00505298.crt` |
-| `EHDM_KEY_PATH` | Ճանապարհ դեպի `.key` ֆայլ | — | path, օր. `./Private/00505298.key` |
-| `EHDM_KEY_PASSPHRASE` | Պարոլ `.key`-ի համար | **Այո** | միայն .env |
-| `EHDM_INITIAL_SEQ` | Առաջին seq. **200** խորհուրդ՝ հին site-ից անցնելիս (որ չհամընկնի) | Ոչ | 200 |
-| `EHDM_DEFAULT_ADG_CODE` | ԱՏԳ կոդ (դեֆոլտ) | Ոչ | 2201 |
-| `EHDM_DEP` | **Հարկման տեսակ**. 1=ԱԱՀ-ով, 2=առանց ԱԱՀ, 3=շրջանառու, 7=միկրո | Ոչ | 1 |
-| `EHDM_VAT_PERCENT` | ԱԱՀ (%) — (օր. 16,67). Օպցիոնալ, ցուցադրության համար | Ոչ | 16.67 |
-| `EHDM_DEFAULT_UNIT` | Չափման միավոր (օր. Հատ) | Ոչ | Հատ |
-| `EHDM_CASHIER_ID` | Գանձապահի ID | Ոչ | 1 |
-| `EHDM_SHIPPING_ENABLED` | Առաքում առանձին տող (1/0) | Ոչ | 1 |
-| `EHDM_SHIPPING_ADG_CODE` | ԱՏԳ առաքման համար | Ոչ | 49.42 |
-| `EHDM_SHIPPING_GOOD_CODE` | Ապրանքի կոդ առաքման | Ոչ | 007 |
-| `EHDM_SHIPPING_DESCRIPTION` | Նկարագրություն առաքման | Ոչ | Առաքում |
-| `EHDM_SHIPPING_UNIT` | Միավոր առաքման | Ոչ | Հատ |
+| Variable | Secret | Notes |
+|---|---|---|
+| `EHDM_KEY_PASSPHRASE` | Yes | Encrypted `.key` password |
+| `EHDM_CERT_BASE64` / `EHDM_KEY_BASE64` | Yes | Preferred in production; decoded in memory |
+| `EHDM_CERT_PATH` / `EHDM_KEY_PATH` | Path only | Local files; keep files outside git (`Private/`) |
+| `EHDM_CRN` / `EHDM_TIN` | Business IDs | Empty placeholders in `.env.example` |
 
-\* CRN/TIN բիզնես-տվյալներ են; production-ում env-ում պահելը ընդունելի է (ոչ «խիստ» գաղտնիք, բայց չcommit անել արժեքները .env.example-ում)։
+Prefer base64 PEMs in memory. Do not write secrets to disk. Relative file paths resolve from `process.cwd()` (usually `apps/api` when the API is started there) — use an absolute path if `Private/` is at the repo root.
 
 ---
 
-## 4. Seq 200 — հին site-ից անցնելիս
+## 3. Environment
 
-Որպեսզի նոր նախագծի seq-ը **չհամընկնի** հին կայքի հետ (որտեղ seq-ը կարող էր 65–100+ լինել), խորհուրդ է տրվում.
+| Variable | Purpose |
+|---|---|
+| `EHDM_ENABLED` | `false` disables print/return even if credentials exist |
+| `EHDM_API_URL` | PEC base URL |
+| `EHDM_CRN` / `EHDM_TIN` | Cash register / taxpayer |
+| `EHDM_CERT_BASE64` + `EHDM_KEY_BASE64` **or** `EHDM_CERT_PATH` + `EHDM_KEY_PATH` | mTLS |
+| `EHDM_KEY_PASSPHRASE` | Key passphrase |
+| `EHDM_INITIAL_SEQ` | First seq when `EhdmState` is empty |
+| `EHDM_DEP` | Tax regime (do not change without accountant) |
+| `EHDM_DEFAULT_ADG_CODE` / `EHDM_DEFAULT_UNIT` / `EHDM_CASHIER_ID` | Line-item defaults |
 
-- **.env**-ում դնել `EHDM_INITIAL_SEQ=200` (կամ ավելի մեծ, եթե հին կայքում seq-ը արդեն 100+ էր):
-- Եթե ԲԴ-ում արդեն կա `ehdm_state` տող (միգրացիայից) `nextSeq=65`-ով, **մեկ անգամ** թարմացնել.  
-  `UPDATE ehdm_state SET "nextSeq" = 200 WHERE id = 'default';`
-
----
-
-## 5. API — հարցումներ
-
-- **Auth.** HTTPS client certificate: CURLOPT_SSLCERT = `.crt` path, CURLOPT_SSLKEY = `.key` path, CURLOPT_SSLKEYPASSWD = passphrase.
-- **Content-Type.** `application/json`.
-- **Base.** `EHDM_API_URL` = `https://ecrm.taxservice.am/taxsystem-rs-vcr/api/v1.0`.
-
-### 5.1 POST /print (կտրոն)
-
-- **Body.** `mode`, `crn`, `seq`, `cashierId`, `items[]`, `cashAmount` կամ `cardAmount`.
-- **items[].** `dep`, `adgCode`, `goodCode`, `goodName`, `quantity`, `unit`, `price`; optional `discount`, `discountType`.
-- **mode.** 2 = ապրանքներով կտրոն (սովորական վաճառք).
-- **seq.** Միացնել ԲԴ-ի seq (սկզբում `EHDM_INITIAL_SEQ`, ապա +1 յուրաքանչյուր հաջող print-ից հետո).
-
-### 5.2 POST /printReturnReceipt (վերադարձ)
-
-- **Body.** `crn`, `seq`, `receiptId` (նախկին կտրոնից), `returnItemList[]` (`receiptProductId`, `quantity`), `cashAmountForReturn` կամ `cardAmountForReturn`.
-
-### 5.3 POST /printCopy (պատճեն)
-
-- **Body.** `crn`, `seq`, `receiptId`.
-
-### 5.4 Seq-ի կառավարում
-
-- Առաջին անգամ օգտագործել `EHDM_INITIAL_SEQ` (օր. 65).
-- Յուրաքանչյուր հաջող `/print`, `/printReturnReceipt`, `/printCopy`-ից հետո **պահել** seq ԲԴ-ում (օր. `ehdm_seq` աղյուսակ կամ key-value) և հաջորդ հարցումում օգտագործել **նախորդ seq + 1**.
+If EHDM is not fully configured: **skip** print/return and log a warning. No fake / mock receipts.
 
 ---
 
-## 6. Ինտեգրացիայի հոսք (նախագիծ)
+## 4. Seq
 
-1. Պատվեր հաստատվելուց (status → paid/confirmed) → կանչել EHDM `/print` (order items + shipping եթե `EHDM_SHIPPING_ENABLED`).
-2. Պատասխանում պահել `receiptId`, `qr`, `fiscal`, `crn`, `sn`, `tin`, `time`, `total` — order-ի meta կամ `ehdm_receipts` աղյուսակ.
-3. Վերադարձի դեպքում — `/printReturnReceipt` `receiptId`-ով և `returnItemList`.
-4. Պատճեն — `/printCopy` `receiptId`-ով.
+PEC stores seq server-side. After any successful seq-bearing request, the next must be previous + 1. Reused or skipped values fail.
 
----
+1. Reserve in `EhdmState` inside a transaction (`INSERT … ON CONFLICT` + `SELECT … FOR UPDATE`).
+2. Call PEC.
+3. On explicit `code !== 0`, roll back that seq (`nextSeq === seq + 1`) and retry up to 3 times (2s delay).
+4. On network/timeout/invalid JSON: **do not** roll back (PEC may have accepted). Leave seq consumed and log.
 
-## 7. Իրականացում (նախագիծ)
-
-- **Config / client.** `lib/payments/ehdm/` — config, client (HTTPS + client cert), seq (БД `ehdm_state`), buildPrintBody, callPrint.
-- **Print on paid.** `printReceiptForOrder(orderId)` կանչվում է ավտոմատ՝ Ameriabank, Telcell, Idram, FastShift callback-ներից և ադմինում `paymentStatus` → paid դնելիս (fire-and-forget).
-- **БД.** `ehdm_state` (մեկ տող, nextSeq), `ehdm_receipts` (orderId, receiptId, seq, fiscal, qr, response).
-- **Ճանապարհ сертификата.** ENV-ի path-ը resolve է լինում `process.cwd()`-ի նկատմամբ. Եթե dev server-ը գործարկում եք **repo root**-ից — `./Private/00505298.crt` ճիշտ է; եթե `apps/web`-ից — օգտագործել `../../Private/00505298.crt` կամ absolute path.
+`EHDM_INITIAL_SEQ` is used only when the `default` row does not exist. If DB `nextSeq` is behind live PEC, prints fail until `EhdmState.nextSeq` is updated to match PEC — do not invent that number.
 
 ---
 
-## 8. Checklist
+## 5. Payment → print
 
-- [ ] ENV: `EHDM_API_URL`, `EHDM_CRN`, `EHDM_TIN`, `EHDM_CERT_PATH`, `EHDM_KEY_PATH`, `EHDM_KEY_PASSPHRASE`, `EHDM_INITIAL_SEQ`, dep/unit/cashier/shipping.
-- [ ] `.crt`/`.key` — **repo-ից դուրս**; լոկալում `Private/` (gitignore), path-ը ENV-ում.
-- [ ] Seq — ԲԴ-ում պահել և +1 յուրաքանչյուր հաջող print/return/copy-ից հետո.
-- [ ] Client certificate HTTPS (Node: `https.Agent` with cert/key/passphrase) կամ fetch with cert options.
-- [x] Միայն AMD պատվերների համար EHDM (եթե կան այլ արժույթներ).
-- [x] Print ավտոմատ — payment callback-ներ + ադմին paid.
+Fire-and-forget after a payment **newly** becomes `SUCCEEDED`:
 
----
+- `PaymentsConfirmService.confirmPayment` (admin confirm, Arca `confirmPendingCardPayment`, drop-in card)
+- Gift checkout card success (`PaymentsCheckoutService`)
+- Admin status → `SUCCEEDED` (non-pending path)
 
-## 9. Ստուգում թեստից առաջ (по документации)
+Guards: enabled + fully configured, AMD, amount > 0, not influencer, no existing `EhdmReceipt` for `paymentId`.
 
-| Էլեմենտ | Փաստաթուղթ | Մեր կոդ | Статус |
-|---------|----------------|----------|--------|
-| **URL** | `https://ecrm.taxservice.am/taxsystem-rs-vcr/api/v1.0` + `/print` | `config.apiUrl` + `/print` | ✓ |
-| **Auth** | Client cert (.crt) + key (.key) + passphrase | `https.Agent` cert/key/passphrase | ✓ |
-| **Content-Type** | application/json | application/json | ✓ |
-| **Body: mode** | 2 (ապրանքներով կտրոն) | MODE_SALE_WITH_ITEMS = 2 | ✓ |
-| **Body: crn, seq, cashierId** | string, int, int | config.crn, seq, config.cashierId | ✓ |
-| **Body: cardAmount / cashAmount** | Один заполнен, второй 0 в образце | Оба передаём (total и 0) | ✓ |
-| **Body: partialAmount, prePaymentAmount, partnerTin** | 0, 0, null в образце | 0, 0, null добавлены | ✓ |
-| **Body: items[]. dep, adgCode, goodCode, goodName, quantity, unit, price** | Ըստ փաստաթղթի | buildPrintBody — те же поля, goodCode=sku, goodName до 30 символов | ✓ |
-| **Seq** | Уникальный, +1 после каждого запроса | getNextSeqAndIncrement() в транзакции, откат при ошибке | ✓ |
-| **Response** | code === 0, result.receiptId, fiscal, qr | Проверяем code !== 0, сохраняем в ehdm_receipts | ✓ |
-| **Только AMD** | — | printReceiptForOrder проверяет order.currency === "AMD" | ✓ |
-| **Повтор** | Не печатать дважды на заказ | Проверка order.ehdmReceipt | ✓ |
+One line item:
 
-Թեստից առաջ. ENV-ը լրացված, `Private/00505298.crt` և `.key` առկա (path-ը **բացարձակ**, եթե Private-ը repo արմատում է), ԲԴ-ում `ehdm_state` nextSeq ≥ 200 (կամ UPDATE).
+- `goodName` ≤ 30 chars (package / class / gift / `Վճարում`)
+- `goodCode` = `paymentReference` or last 12 of `paymentId`
+- `price` = `amountCents` (AMD)
+- Tender: `CARD` / `CARD_TERMINAL` → `cardAmount`; cash / bank transfer / other / null → `cashAmount`
+
+Never print two sale receipts for the same payment (`paymentId` unique).
 
 ---
 
-## 10. Իրականացման կարգավիճակ (2026-02)
+## 6. Refund → return
 
-- **Backend.** `/print` — config, client (cert/key), seq (DB), buildPrintBody, printReceiptForOrder. Կանչվում է Ameriabank/Idram/Telcell/FastShift callback-ից և ադմինում paymentStatus → paid.
-- **Ցուցադրում.** Ֆիսկալ կտրոն ցույց է տրվում ադմինի պատվերի դետալներում և կլիենտի պատվերի էջում (EhdmReceiptBlock, HTML; PDF — հաջորդ փուլ).
-- **Ցանկ.** Ադմինի պատվերների աղյուսակում «Invoice» սյունակ — իկոն (ստեղծված / չկա).
+When admin sets `REFUNDED` and a real sale receipt exists:
+
+- `POST /printReturnReceipt` with original `receiptId`, matching cash/card split, `returnItemList: [{ receiptProductId: 0, quantity: 1 }]`
+- Persist `returnReceiptId` / `returnSeq` / `returnResponse` / `returnedAt`
+- Skip if no sale receipt, leftover `isMock` row, or return already stored
 
 ---
 
-**Փաստաթղթի տարբերակ.** 1.1  
-**Ամսաթիվ.** 2026-02-19
+## 7. Code map
+
+| Area | Path |
+|---|---|
+| Config / certs / mTLS client | `apps/api/src/payments/ehdm/` |
+| Seq | `ehdm-seq.service.ts` |
+| Print / return | `ehdm-print.service.ts`, `ehdm-return.service.ts` |
+| Facade hooks | `ehdm-receipt.service.ts` (`tryPrintReceipt`, `tryPrintReturnReceipt`) |
+| Schema | `packages/database/prisma/models/ehdm.prisma` |
+| Member UI | `apps/web/src/components/payment/payment-ehdm-*` |
+| Admin UI | `apps/web/src/components/admin/admin-finance-payment-details-rows.tsx` |
+
+---
+
+## 8. UI
+
+Member success screen and `/payment/receipt` poll `/payments/me/outcome` (8 × 1.5s). Hide the view/print CTA until a real receipt exists. Show receipt id, fiscal, taxpayer, TIN, Asia/Yerevan time, total, and a QR **image** encoded from PEC `qr` text.
+
+Leftover mock rows (`isMock = true`) are omitted from API summaries.
+
+---
+
+## 9. Checklist
+
+- [ ] Env filled (no values in git). Certs outside the repo.
+- [ ] `EhdmState.nextSeq` matches PEC if this CRN was used before.
+- [ ] Startup log: `EHDM checkConnection succeeded` (or a skip warning).
+- [ ] One AMD payment → sale receipt; refund → return receipt; second print skipped.
+
+**Document version:** 2.0  
+**Date:** 2026-09-03

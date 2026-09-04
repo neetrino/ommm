@@ -4,19 +4,23 @@ import { useLocale, useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   MarketingHeaderGlobeIcon,
+  MarketingHeaderMenuIcon,
   MarketingHeaderUserIcon,
 } from "@/components/marketing/marketing-header-icons";
 import { MarketingHeaderLoginLink } from "@/components/marketing/marketing-header-login-link";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 import { MarketingAccountAvatarMenu } from "@/components/marketing/marketing-account-avatar-menu";
+import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-active";
 import {
   isCompactMarketingHeaderLocale,
   marketingHeaderAuthClusterClass,
   marketingHeaderDesktopActionsClass,
   marketingHeaderDesktopBrandLinkClass,
   marketingHeaderDesktopBrandTextClass,
+  marketingHeaderDesktopLeadingClass,
   marketingHeaderDesktopNavClass,
   marketingHeaderDesktopRowClass,
+  marketingHeaderDesktopWorkspaceMenuButtonClass,
   marketingHeaderIconAccountClass,
   marketingHeaderLanguageTriggerClass,
   marketingHeaderNavLinksClass,
@@ -27,12 +31,15 @@ import {
   MARKETING_HEADER_GUEST_USER_ICON_CLASS,
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
-import type { MarketingHeaderAccount } from "@/components/marketing/marketing-site-header.types";
-import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-active";
+import type {
+  MarketingHeaderAccount,
+  WorkspaceDrawerControl,
+} from "@/components/marketing/marketing-site-header.types";
 import { HeaderCallTasksMenu } from "@/components/shell/header-call-tasks-menu";
 import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
 import { HeaderSessionReviewsMenu } from "@/components/shell/header-session-reviews-menu";
 import { HeaderStaffActivityMenu } from "@/components/shell/header-staff-activity-menu";
+import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import type { SessionReviewsAudience } from "@/lib/session-reviews-types";
 import { Link } from "@/i18n/navigation";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
@@ -52,6 +59,9 @@ type MarketingSiteHeaderDesktopBarProps = {
   sessionReviewsListHref?: string | null;
   desktopGlassStyle: Record<string, string>;
   desktopNotificationsTriggerClass: string;
+  workspaceDrawer?: WorkspaceDrawerControl;
+  workspaceDrawerOpen: boolean;
+  onToggleWorkspaceDrawer: () => void;
   onBrandClick: (event: MouseEvent<HTMLAnchorElement>) => void;
   onCloseAllMenus: () => void;
 };
@@ -70,6 +80,9 @@ export function MarketingSiteHeaderDesktopBar({
   sessionReviewsListHref = null,
   desktopGlassStyle,
   desktopNotificationsTriggerClass,
+  workspaceDrawer,
+  workspaceDrawerOpen,
+  onToggleWorkspaceDrawer,
   onBrandClick,
   onCloseAllMenus,
 }: MarketingSiteHeaderDesktopBarProps) {
@@ -78,6 +91,19 @@ export function MarketingSiteHeaderDesktopBar({
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
+  const tShell = useTranslations("dashboard.shell");
+
+  const brandLink = (
+    <Link
+      href="/"
+      className={marketingHeaderDesktopBrandLinkClass()}
+      onClick={onBrandClick}
+    >
+      <span className={marketingHeaderDesktopBrandTextClass()}>
+        {tNav("studioBrand")}
+      </span>
+    </Link>
+  );
 
   return (
     <div
@@ -86,15 +112,24 @@ export function MarketingSiteHeaderDesktopBar({
       style={desktopGlassStyle}
     >
       <div aria-hidden className={navPillStyles.marketingGlassPillGloss} />
-      <Link
-        href="/"
-        className={marketingHeaderDesktopBrandLinkClass()}
-        onClick={onBrandClick}
-      >
-        <span className={marketingHeaderDesktopBrandTextClass()}>
-          {tNav("studioBrand")}
-        </span>
-      </Link>
+      {workspaceDrawer ? (
+        <div className={marketingHeaderDesktopLeadingClass()}>
+          <button
+            type="button"
+            className={`${marketingHeaderDesktopWorkspaceMenuButtonClass()} ${workspaceMobileDrawerLayout.mobileDrawerTrigger}`}
+            aria-expanded={workspaceDrawerOpen}
+            aria-controls="dashboard-mobile-drawer"
+            aria-label={workspaceDrawerOpen ? tShell("closeMenu") : tShell("openMenu")}
+            onClick={onToggleWorkspaceDrawer}
+          >
+            <span className="sr-only">{tShell("workspaceAria")}</span>
+            <MarketingHeaderMenuIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
+          </button>
+          {brandLink}
+        </div>
+      ) : (
+        brandLink
+      )}
 
       <nav className={marketingHeaderDesktopNavClass()} aria-label={tUi("primaryNavAria")}>
         <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>

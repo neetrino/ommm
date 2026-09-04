@@ -28,11 +28,15 @@ describe('PaymentsAdminService refund cancels package', () => {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
     };
+    const ehdmReceipt = {
+      tryPrintReceipt: jest.fn(),
+      tryPrintReturnReceipt: jest.fn(),
+    };
     const service = new PaymentsAdminService(
       prisma as never,
       {} as never,
       { trySendSuccessEmails: jest.fn() } as never,
-      { tryPrintReceipt: jest.fn() } as never,
+      ehdmReceipt as never,
     );
 
     await service.adminUpdatePaymentStatus(
@@ -40,6 +44,8 @@ describe('PaymentsAdminService refund cancels package', () => {
       PaymentStatus.REFUNDED,
       'admin-1',
     );
+
+    expect(ehdmReceipt.tryPrintReturnReceipt).toHaveBeenCalledWith('pay-1');
 
     expect(prisma.userPackage.updateMany).toHaveBeenCalledWith({
       where: {
@@ -78,11 +84,15 @@ describe('PaymentsAdminService refund cancels package', () => {
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
     };
+    const ehdmReceipt = {
+      tryPrintReceipt: jest.fn(),
+      tryPrintReturnReceipt: jest.fn(),
+    };
     const service = new PaymentsAdminService(
       prisma as never,
       {} as never,
       { trySendSuccessEmails: jest.fn() } as never,
-      { tryPrintReceipt: jest.fn() } as never,
+      ehdmReceipt as never,
     );
 
     await service.adminUpdatePaymentStatus(
@@ -90,6 +100,8 @@ describe('PaymentsAdminService refund cancels package', () => {
       PaymentStatus.REFUNDED,
       'admin-1',
     );
+
+    expect(ehdmReceipt.tryPrintReturnReceipt).toHaveBeenCalledWith('pay-2');
 
     expect(prisma.userPackage.updateMany).not.toHaveBeenCalled();
   });

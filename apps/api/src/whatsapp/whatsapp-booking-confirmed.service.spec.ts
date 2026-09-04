@@ -42,6 +42,15 @@ describe('WhatsappBookingConfirmedService', () => {
     await service.tryNotify('b1');
 
     expect(notify.trySendToUser).toHaveBeenCalled();
+    const sendCalls = notify.trySendToUser.mock.calls as Array<
+      [{ render: (locale: 'hy' | 'en') => string }]
+    >;
+    const render = sendCalls[0]?.[0]?.render;
+    expect(render).toBeDefined();
+    expect(render?.('hy')).toContain('ամրագրված է');
+    expect(render?.('hy')).toContain('Reformer');
+    expect(render?.('en')).toContain('Your Ommm. moment is booked');
+    expect(render?.('en')).toContain('Reformer');
     expect(prisma.bookingConfirmedSendLog.upsert).toHaveBeenCalled();
   });
 });

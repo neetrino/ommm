@@ -194,20 +194,6 @@
   color: rgb(120 113 108);
 }
 
-.mockBadge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 9999px;
-  background: linear-gradient(180deg, rgb(254 249 231), rgb(253 230 138 / 0.55));
-  border: 1px solid rgb(252 211 77 / 0.65);
-  padding: 0.12rem 0.5rem;
-  font-size: 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgb(146 64 14);
-}
-
 .items {
   margin-top: 0.95rem;
   display: grid;
@@ -260,6 +246,17 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   color: rgb(28 25 23);
+}
+
+.receiptQr {
+  display: block;
+  margin-top: 0.45rem;
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgb(229 223 214);
+  background: white;
+  object-fit: contain;
 }
 
 .fiscalBlock {

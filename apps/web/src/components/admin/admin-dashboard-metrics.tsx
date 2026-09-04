@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminDashboardCharts } from "@/components/admin/admin-dashboard-charts";
 import { AdminDashboardKpiHero } from "@/components/admin/admin-dashboard-kpi-hero";
+import { AdminDashboardNewUsers } from "@/components/admin/admin-dashboard-new-users";
 import { loadDashboardTrendData } from "@/components/admin/admin-dashboard-trend-data";
 import { AdminCallTasksDueBanner } from "@/components/admin/admin-call-tasks-due-banner";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
@@ -296,33 +297,11 @@ export async function AdminDashboardMetrics({
         </article>
       </section>
 
-      <section className="mt-4">
-        <article className={adminChrome.panel}>
-          <p className={adminChrome.panelHeading}>
-            {tm("newUsers.title", { count: data.newUsers?.todayCount ?? 0 })}
-          </p>
-          {recentUsers.length === 0 ? (
-            <p className="mt-3 text-sm text-sage-500">{tm("newUsers.empty")}</p>
-          ) : (
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {recentUsers.map((user) => (
-                <li
-                  key={user.id}
-                  className="rounded-2xl border border-white/60 bg-white/70 px-3 py-2.5 text-sm"
-                >
-                  <p className="truncate font-medium text-sage-900">{user.name}</p>
-                  <p className="truncate text-xs text-sage-500">{user.email}</p>
-                  <p className="mt-1 text-xs text-sage-500">
-                    {tm("newUsers.joined", {
-                      dateTime: formatDateTimeForUi(user.createdAt, locale),
-                    })}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-      </section>
+      <AdminDashboardNewUsers
+        locale={locale}
+        todayCount={data.newUsers?.todayCount ?? 0}
+        users={recentUsers}
+      />
     </AdminContentFrame>
   );
 }

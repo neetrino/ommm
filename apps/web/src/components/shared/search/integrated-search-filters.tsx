@@ -27,6 +27,21 @@ export type IntegratedSearchFiltersProps = {
   onSearchChange: (value: string) => void;
   searchPlaceholder: string;
   fields?: readonly IntegratedFilterField[];
+  /**
+   * Rebuild fields from current filter values (applied or draft).
+   * Use for cascading selects (e.g. category → package options).
+   */
+  resolveFields?: (
+    filterValues: Record<string, string>,
+  ) => readonly IntegratedFilterField[];
+  /**
+   * Normalize draft updates before Apply (e.g. clear dependent plan when category changes).
+   */
+  normalizeDraftChange?: (
+    previous: Record<string, string>,
+    key: string,
+    value: string,
+  ) => Record<string, string>;
   filterValues?: Record<string, string>;
   onFilterChange?: (key: string, value: string) => void;
   onClearAll?: () => void;
@@ -47,6 +62,8 @@ export function IntegratedSearchFilters({
   onSearchChange,
   searchPlaceholder,
   fields,
+  resolveFields,
+  normalizeDraftChange,
   filterValues = EMPTY_FILTER_VALUES,
   onFilterChange,
   onClearAll,
@@ -62,11 +79,12 @@ export function IntegratedSearchFilters({
 }: IntegratedSearchFiltersProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const hasFilters = Boolean(fields?.length);
+  const appliedFields = resolveFields?.(filterValues) ?? fields;
+  const hasFilters = Boolean(appliedFields?.length || resolveFields);
 
   const chips = useMemo(
-    () => buildIntegratedFilterChips(fields, filterValues),
-    [fields, filterValues],
+    () => buildIntegratedFilterChips(appliedFields, filterValues),
+    [appliedFields, filterValues],
   );
   const visibleChips = showActiveFilterChips ? chips : [];
   const hasQuery = search.trim().length > 0 || visibleChips.length > 0;
@@ -91,7 +109,7 @@ export function IntegratedSearchFilters({
   } = useIntegratedSearchFilterControls({
     hideSearch,
     hasFilters,
-    fields,
+    fields: appliedFields,
     filterValues,
     onSearchChange,
     onFilterChange,
@@ -100,6 +118,7 @@ export function IntegratedSearchFilters({
     searchInputRef,
   });
 
+  const panelFields = resolveFields?.(panelFilterValues) ?? appliedFields ?? [];
   const showPanelRing = panelOpen && hasFilters;
   const showQueryRing = hasQuery;
   const showClearButton = hideSearch ? visibleChips.length > 0 : hasQuery;
@@ -137,10 +156,14 @@ export function IntegratedSearchFilters({
         }
       >
         <IntegratedSearchFilterPanel
-          fields={fields ?? []}
+          fields={panelFields}
           filterValues={panelFilterValues}
           onFilterChange={(key, value) =>
-            setDraftFilters((prev) => ({ ...prev, [key]: value }))
+            setDraftFilters((prev) =>
+              normalizeDraftChange
+                ? normalizeDraftChange(prev, key, value)
+                : { ...prev, [key]: value },
+            )
           }
           onApply={handleApply}
           onReset={handleReset}

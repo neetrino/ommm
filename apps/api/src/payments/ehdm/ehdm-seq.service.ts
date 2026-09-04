@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EHDM_STATE_ID } from './ehdm.constants';
 import { EhdmConfig } from './ehdm.config';
@@ -12,23 +11,29 @@ export class EhdmSeqService {
   ) {}
 
   /** Atomically reserves the next seq for an EHDM API call. */
-  async reserveNextSeq(
-    tx: Prisma.TransactionClient = this.prisma,
-  ): Promise<number> {
+  async reserveNextSeq(): Promise<number> {
     const initialSeq = this.config.getInitialSeq();
-    const existing = await tx.ehdmState.findUnique({
-      where: { id: EHDM_STATE_ID },
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`
+        INSERT INTO "EhdmState" ("id", "nextSeq")
+        VALUES (${EHDM_STATE_ID}, ${initialSeq})
+        ON CONFLICT ("id") DO NOTHING
+      `;
+      const rows = await tx.$queryRaw<Array<{ nextSeq: number }>>`
+        SELECT "nextSeq" FROM "EhdmState"
+        WHERE "id" = ${EHDM_STATE_ID}
+        FOR UPDATE
+      `;
+      const seq = rows[0]?.nextSeq ?? initialSeq;
+      await tx.ehdmState.update({
+        where: { id: EHDM_STATE_ID },
+        data: { nextSeq: seq + 1 },
+      });
+      return seq;
     });
-    const seq = existing?.nextSeq ?? initialSeq;
-    await tx.ehdmState.upsert({
-      where: { id: EHDM_STATE_ID },
-      create: { id: EHDM_STATE_ID, nextSeq: seq + 1 },
-      update: { nextSeq: seq + 1 },
-    });
-    return seq;
   }
 
-  /** Rolls back a reserved seq when the API call fails before persisting a receipt. */
+  /** Rolls back a reserved seq only when PEC did not accept it. */
   async rollbackSeq(seq: number): Promise<void> {
     await this.prisma.ehdmState.updateMany({
       where: { id: EHDM_STATE_ID, nextSeq: seq + 1 },

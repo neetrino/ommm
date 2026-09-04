@@ -5,19 +5,21 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { ContentPostDetailsSheet } from "@/components/shared/content/content-post-details-sheet";
 import { ContentPostsList } from "@/components/shared/content/content-post-compact-row";
+import { CONTENT_POSTS_LIST_PAGE_SIZE } from "@/components/shared/content/content-posts-list-layout";
 import {
   CONTENT_POST_STATUSES,
   CONTENT_POST_TYPES,
   type ContentPostRow,
 } from "@/components/shared/content/content-post-types";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import {
   adminContentCapabilities,
   type ContentCapabilities,
 } from "@/lib/backoffice-capabilities";
+import { clampListPage } from "@/lib/list-pagination";
 
 type ContentPostsManagementProps = {
   items: ContentPostRow[];
@@ -51,6 +53,7 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
   const [statusFilter, setStatusFilter] = useState<
     "ALL" | (typeof CONTENT_POST_STATUSES)[number]
   >("ALL");
+  const [page, setPage] = useState(1);
   const [sheetMode, setSheetMode] = useState<"create" | "edit" | null>(null);
   const [selectedPost, setSelectedPost] = useState<ContentPostRow | null>(null);
 
@@ -113,7 +116,24 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
     });
   }, [items, query, statusFilter, typeFilter]);
 
+  const pageSize = CONTENT_POSTS_LIST_PAGE_SIZE;
+  const safePage = clampListPage(page, filteredItems.length, pageSize);
+  if (page !== safePage) {
+    setPage(safePage);
+  }
+  const offset = (safePage - 1) * pageSize;
+  const pageItems = useMemo(
+    () => filteredItems.slice(offset, offset + pageSize),
+    [filteredItems, offset, pageSize],
+  );
+
+  function handleSearchChange(value: string): void {
+    setQuery(value);
+    setPage(1);
+  }
+
   function handleIntegratedFilterChange(key: string, value: string): void {
+    setPage(1);
     if (key === "type") {
       setTypeFilter(value as typeof typeFilter);
       return;
@@ -127,6 +147,7 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
     setQuery("");
     setTypeFilter("ALL");
     setStatusFilter("ALL");
+    setPage(1);
   }
 
   const openCreate = useCallback(() => {
@@ -156,7 +177,7 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
           <ListPageSearchFilters
             className="min-w-0 flex-1"
             search={query}
-            onSearchChange={setQuery}
+            onSearchChange={handleSearchChange}
             searchPlaceholder={t("placeholders.searchPosts")}
             fields={filterFields}
             filterValues={integratedFilterValues}
@@ -187,19 +208,22 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
           {t("empty")}
         </div>
       ) : (
-        <ContentPostsList
-          posts={filteredItems}
-          busy={false}
-          onSelect={openPost}
-          onEdit={openPost}
-        />
+        <>
+          <ContentPostsList
+            posts={pageItems}
+            busy={false}
+            onSelect={openPost}
+            onEdit={openPost}
+          />
+          <OmmListPagination
+            total={filteredItems.length}
+            page={safePage}
+            pageSize={pageSize}
+            offset={offset}
+            onPageChange={setPage}
+          />
+        </>
       )}
-
-      {items.length > 0 ? (
-        <p className={adminChrome.metaText}>
-          {t("resultsCount", { shown: filteredItems.length, total: items.length })}
-        </p>
-      ) : null}
 
       <ContentPostDetailsSheet
         mode={sheetMode}
