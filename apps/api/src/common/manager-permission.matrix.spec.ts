@@ -5,6 +5,18 @@ import {
 } from './manager-permission.matrix';
 
 describe('manager-permission.matrix', () => {
+  it('allows Manager to block or unblock clients but not hard-delete', () => {
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.clients.blockUnblock, Role.MANAGER),
+    ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.clients.hardDelete, Role.MANAGER),
+    ).toBe(false);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.clients.blockUnblock, Role.ADMIN),
+    ).toBe(true);
+  });
+
   it('allows Manager write but not hard-delete on packages', () => {
     expect(
       roleAllows(MANAGER_PERMISSION_MATRIX.packages.createUpdate, Role.MANAGER),

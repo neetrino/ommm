@@ -1800,7 +1800,7 @@ Manager-ը ունի լայն հասանելիություն համակարգի �
 | Classes | ✅ | ✅ | կարող է create/edit անել, բայց չի կարող delete անել |
 | Bookings / Schedule / Calendar | ✅ | ✅ | կարող է manage անել bookings-ը և schedule-ը |
 | Waitlists | ✅ | ✅ | կարող է move/remove/notify անել users-ին |
-| Clients | ✅ | ✅ | Manager-ը կարող է edit անել basic client info |
+| Clients | ✅ | ✅ | Manager-ը կարող է edit անել basic client info և deactivate/activate անել |
 | Coaches | ✅ | ✅ | կարող է edit անել basic coach info, բայց չի կարող deactivate/delete անել |
 | Gift Cards | ✅ | ✅ | կարող է view/resend անել, բայց չի կարող create/delete անել |
 | Memberships & Billing | ✅ | ❌ |  |
