@@ -10,6 +10,8 @@ export const DEFAULT_SCHEDULE_LAYOUT_MODE: ScheduleLayoutMode = "week";
 
 export const SCHEDULE_LAYOUT_STORAGE_KEY = "ommm.schedule.layout";
 
+const layoutModeListeners = new Set<() => void>();
+
 /** Resolves a stored or query layout value to a supported schedule layout. */
 export function resolveScheduleLayoutMode(
   value: string | null | undefined,
@@ -42,4 +44,27 @@ export function writeStoredScheduleLayoutMode(mode: ScheduleLayoutMode): void {
   } catch {
     // Ignore quota / private-mode failures — preference is best-effort.
   }
+  for (const listener of layoutModeListeners) {
+    listener();
+  }
+}
+
+/** Subscribe to same-tab + cross-tab schedule layout preference changes. */
+export function subscribeScheduleLayoutMode(
+  onStoreChange: () => void,
+): () => void {
+  layoutModeListeners.add(onStoreChange);
+  function onStorage(event: StorageEvent): void {
+    if (
+      event.key === SCHEDULE_LAYOUT_STORAGE_KEY ||
+      event.key === null
+    ) {
+      onStoreChange();
+    }
+  }
+  window.addEventListener("storage", onStorage);
+  return () => {
+    layoutModeListeners.delete(onStoreChange);
+    window.removeEventListener("storage", onStorage);
+  };
 }

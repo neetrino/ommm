@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import {
   DEFAULT_SCHEDULE_LAYOUT_MODE,
   readStoredScheduleLayoutMode,
   type ScheduleLayoutMode,
+  subscribeScheduleLayoutMode,
   writeStoredScheduleLayoutMode,
 } from "@/lib/schedule-layout-mode";
 
@@ -13,33 +14,22 @@ type UseScheduleLayoutModeResult = {
   setLayoutMode: (mode: ScheduleLayoutMode) => void;
 };
 
-/** Desktop schedule List / Week preference — persisted in localStorage. */
+/** Desktop schedule List / Week / Month preference — persisted in localStorage. */
 export function useScheduleLayoutMode(
   enabled: boolean,
 ): UseScheduleLayoutModeResult {
-  const [layoutMode, setLayoutModeState] = useState<ScheduleLayoutMode>(
-    DEFAULT_SCHEDULE_LAYOUT_MODE,
+  const storedMode = useSyncExternalStore(
+    subscribeScheduleLayoutMode,
+    readStoredScheduleLayoutMode,
+    () => DEFAULT_SCHEDULE_LAYOUT_MODE,
   );
 
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-    setLayoutModeState(readStoredScheduleLayoutMode());
-  }, [enabled]);
-
-  const setLayoutMode = useCallback(
-    (mode: ScheduleLayoutMode) => {
-      setLayoutModeState(mode);
-      if (enabled) {
-        writeStoredScheduleLayoutMode(mode);
-      }
-    },
-    [enabled],
-  );
+  const setLayoutMode = useCallback((mode: ScheduleLayoutMode) => {
+    writeStoredScheduleLayoutMode(mode);
+  }, []);
 
   return {
-    layoutMode: enabled ? layoutMode : "list",
+    layoutMode: enabled ? storedMode : "list",
     setLayoutMode,
   };
 }

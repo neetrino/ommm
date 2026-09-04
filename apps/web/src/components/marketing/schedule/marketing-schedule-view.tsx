@@ -88,7 +88,8 @@ export function MarketingScheduleView({
   const userPickedDateRef = useRef(hasExplicitDateParam);
   const [classTypes, setClassTypes] = useState<string[]>([]);
   const [instructors, setInstructors] = useState<string[]>([]);
-  const [daySheetOpen, setDaySheetOpen] = useState(false);
+  const [daySheetRequested, setDaySheetRequested] = useState(false);
+  const daySheetOpen = showMonthBoard && daySheetRequested;
 
   const {
     items,
@@ -103,12 +104,6 @@ export function MarketingScheduleView({
     handleWaitlisted,
     handleWaitlistLeft,
   } = useMarketingScheduleMemberState({ isMember, initialItems });
-
-  useEffect(() => {
-    if (!showMonthBoard) {
-      setDaySheetOpen(false);
-    }
-  }, [showMonthBoard]);
 
   useEffect(() => {
     if (userPickedDateRef.current || !sessionsReady) {
@@ -229,7 +224,7 @@ export function MarketingScheduleView({
 
   function selectMonthDay(day: Date) {
     selectDay(day);
-    setDaySheetOpen(true);
+    setDaySheetRequested(true);
   }
 
   function shiftWindow(delta: number) {
@@ -306,7 +301,7 @@ export function MarketingScheduleView({
         onSelectDay={selectDay}
         onSelectMonthDay={selectMonthDay}
         onShiftWindow={shiftWindow}
-        onCloseDaySheet={() => setDaySheetOpen(false)}
+        onCloseDaySheet={() => setDaySheetRequested(false)}
       />
     </div>
   );
