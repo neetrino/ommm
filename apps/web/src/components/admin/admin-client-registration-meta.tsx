@@ -87,7 +87,7 @@ function SourceGlyph({
 }
 
 /**
- * Profile footer: registration date + expressive source badge.
+ * Standalone profile card: registration date + source badge.
  */
 export function ClientRegistrationMeta({
   createdAt,
@@ -106,29 +106,34 @@ export function ClientRegistrationMeta({
   const creatorName = registeredBy?.name?.trim() ?? "";
 
   return (
-    <footer className="mt-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 border-t border-sage-900/[0.07] pt-3.5">
-      <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sage-500">
-          {registeredLabel}
-        </p>
-        <p className="mt-1 flex items-center gap-1.5 text-sm font-medium tabular-nums text-sage-900">
-          <DatePickerCalendarGlyph className="h-3.5 w-3.5 shrink-0 text-sage-500" />
-          {formatDateForUi(createdAt)}
-        </p>
-      </div>
+    <section
+      className="rounded-2xl border border-white/60 bg-white/60 p-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-4"
+      aria-label={`${registeredLabel}, ${sourceLabel}`}
+    >
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sage-500">
+            {registeredLabel}
+          </p>
+          <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium tabular-nums text-sage-900">
+            <DatePickerCalendarGlyph className="h-3.5 w-3.5 shrink-0 text-sage-500" />
+            {formatDateForUi(createdAt)}
+          </p>
+        </div>
 
-      <div className="min-w-0 text-right">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sage-500">
-          {sourceLabel}
-        </p>
-        <span className={badgeClass}>
-          <SourceGlyph registrationSource={registrationSource} />
-          {sourceText}
-        </span>
-        {creatorName.length > 0 && registrationSource === "STAFF" ? (
-          <p className="mt-1 truncate text-[11px] text-sage-500">{creatorName}</p>
-        ) : null}
+        <div className="min-w-0 text-right">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sage-500">
+            {sourceLabel}
+          </p>
+          <span className={badgeClass}>
+            <SourceGlyph registrationSource={registrationSource} />
+            {sourceText}
+          </span>
+          {creatorName.length > 0 && registrationSource === "STAFF" ? (
+            <p className="mt-1.5 truncate text-[11px] text-sage-500">{creatorName}</p>
+          ) : null}
+        </div>
       </div>
-    </footer>
+    </section>
   );
 }

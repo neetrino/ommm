@@ -257,21 +257,21 @@ export function ClientSheetTabPanels({
               )}
             </div>
           </div>
-
-          <ClientRegistrationMeta
-            createdAt={detail.createdAt}
-            registrationSource={activity.registrationSource ?? "SELF"}
-            registeredBy={activity.registeredBy ?? null}
-            registeredLabel={t("drawer.registered")}
-            sourceLabel={t("drawer.source")}
-            labels={{
-              self: t("drawer.registrationSelf"),
-              byAdmin: t("drawer.registrationByAdmin"),
-              byManager: t("drawer.registrationByManager"),
-              byStaff: t("drawer.registrationByStaff"),
-            }}
-          />
         </section>
+
+        <ClientRegistrationMeta
+          createdAt={detail.createdAt}
+          registrationSource={activity.registrationSource ?? "SELF"}
+          registeredBy={activity.registeredBy ?? null}
+          registeredLabel={t("drawer.registered")}
+          sourceLabel={t("drawer.source")}
+          labels={{
+            self: t("drawer.registrationSelf"),
+            byAdmin: t("drawer.registrationByAdmin"),
+            byManager: t("drawer.registrationByManager"),
+            byStaff: t("drawer.registrationByStaff"),
+          }}
+        />
       </div>
     );
   }
