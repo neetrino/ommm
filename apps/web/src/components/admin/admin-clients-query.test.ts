@@ -4,7 +4,6 @@ import {
   ADMIN_CLIENTS_LIST_PAGE_SIZE,
   ADMIN_CLIENTS_SPHERE_PAGE_SIZE,
   buildAdminClientsFilterQuery,
-  buildBackofficeClientProfileHref,
   mergeAdminClientsUrlQuery,
   parseAdminClientsListPageParams,
 } from "./admin-clients-query";
@@ -49,22 +48,6 @@ describe("buildAdminClientsFilterQuery", () => {
     assert.equal(
       buildAdminClientsFilterQuery({ tag: "influencer", order: "newest", search: "" }),
       "tag=influencer",
-    );
-  });
-});
-
-describe("buildBackofficeClientProfileHref", () => {
-  it("opens the client drawer on the admin clients page", () => {
-    assert.equal(
-      buildBackofficeClientProfileHref("/admin/clients", "user-1"),
-      "/admin/clients?viewClient=user-1",
-    );
-  });
-
-  it("opens the client drawer on the manager clients page", () => {
-    assert.equal(
-      buildBackofficeClientProfileHref("/manager/clients", "user-2"),
-      "/manager/clients?viewClient=user-2",
     );
   });
 });

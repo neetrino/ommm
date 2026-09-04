@@ -301,7 +301,6 @@ export async function AdminDashboardMetrics({
         locale={locale}
         todayCount={data.newUsers?.todayCount ?? 0}
         users={recentUsers}
-        clientsPath={includeFinance ? "/admin/clients" : "/manager/clients"}
       />
     </AdminContentFrame>
   );
