@@ -1399,9 +1399,11 @@
           "missing": "Чек пока недоступен.",
           "receiptId": "ID чека",
           "fiscal": "Фискальный номер",
-          "qr": "Проверка",
-          "openQr": "Открыть ссылку на чек",
-          "mockBadge": "Тестовый чек"
+          "taxpayer": "Налогоплательщик",
+          "tin": "ИНН",
+          "time": "Дата и время",
+          "total": "Итого",
+          "qr": "Проверочный QR"
         },
         "sources": {
           "gift": {
@@ -3997,9 +3999,12 @@
         "closeBackdrop": "Закрыть детали платежа",
         "ehdmReceipt": "Фискальный чек (EHDM)",
         "ehdmReceiptMissing": "Ещё не выдан",
-        "ehdmReceiptMock": "Тестовый чек",
         "ehdmFiscal": "Фискальный номер",
         "ehdmReceiptId": "ID чека",
+        "ehdmTaxpayer": "Налогоплательщик",
+        "ehdmTin": "ИНН",
+        "ehdmTime": "Дата и время",
+        "ehdmTotal": "Итого",
         "ehdmQr": "QR-проверка",
         "viewFor": "Открыть детали платежа для {name}",
         "related": {

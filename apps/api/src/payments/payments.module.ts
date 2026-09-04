@@ -10,8 +10,10 @@ import { ArcaReconciliationService } from './arca/arca-reconciliation.service';
 import { ArcaService } from './arca/arca.service';
 import { EhdmApiClient } from './ehdm/ehdm-api.client';
 import { EhdmConfig } from './ehdm/ehdm.config';
-import { EhdmMockClient } from './ehdm/ehdm-mock.client';
+import { EhdmHealthService } from './ehdm/ehdm-health.service';
+import { EhdmPrintService } from './ehdm/ehdm-print.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
+import { EhdmReturnService } from './ehdm/ehdm-return.service';
 import { EhdmSeqService } from './ehdm/ehdm-seq.service';
 import { PaymentsController } from './payments.controller';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
@@ -44,9 +46,11 @@ import { PaymentsService } from './payments.service';
     ArcaReconciliationService,
     EhdmConfig,
     EhdmApiClient,
-    EhdmMockClient,
     EhdmSeqService,
+    EhdmPrintService,
+    EhdmReturnService,
     EhdmReceiptService,
+    EhdmHealthService,
   ],
   exports: [
     PaymentsService,

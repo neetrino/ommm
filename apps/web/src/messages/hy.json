@@ -1400,9 +1400,11 @@
           "missing": "Կտրոնը դեռ հասանելի չէ։",
           "receiptId": "Կտրոնի ID",
           "fiscal": "Ֆիսկալ համար",
-          "qr": "Ստուգում",
-          "openQr": "Բացել կտրոնի հղումը",
-          "mockBadge": "Թեստային կտրոն"
+          "taxpayer": "Հարկ վճարող",
+          "tin": "ՀՎՀՀ",
+          "time": "Ամսաթիվ և ժամ",
+          "total": "Ընդամենը",
+          "qr": "Ստուգման QR"
         },
         "sources": {
           "gift": {
@@ -4000,9 +4002,12 @@
         "closeBackdrop": "Փակել վճարման մանրամասները",
         "ehdmReceipt": "Ֆիսկալ կտրոն (ԷՀԴՄ)",
         "ehdmReceiptMissing": "Դեռ չի տպվել",
-        "ehdmReceiptMock": "Թեստային կտրոն",
         "ehdmFiscal": "Ֆիսկալ համար",
         "ehdmReceiptId": "Կտրոնի ID",
+        "ehdmTaxpayer": "Հարկ վճարող",
+        "ehdmTin": "ՀՎՀՀ",
+        "ehdmTime": "Ամսաթիվ և ժամ",
+        "ehdmTotal": "Ընդամենը",
         "ehdmQr": "QR ստուգում",
         "viewFor": "Բացել {name} վճարման մանրամասները",
         "related": {

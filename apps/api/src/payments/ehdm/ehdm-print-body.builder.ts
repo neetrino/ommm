@@ -1,6 +1,12 @@
 import { ManualPaymentMethod } from '@prisma/client';
-import { EHDM_GOOD_NAME_MAX_LENGTH, EHDM_PRINT_MODE } from './ehdm.constants';
+import {
+  EHDM_DEFAULT_ITEM_NAME,
+  EHDM_GOOD_CODE_MAX_LENGTH,
+  EHDM_GOOD_NAME_MAX_LENGTH,
+  EHDM_PRINT_MODE,
+} from './ehdm.constants';
 import type { EhdmConfig } from './ehdm.config';
+import { resolveEhdmTenderSplit } from './ehdm-tender.util';
 import type { EhdmPrintRequestBody } from './ehdm.types';
 
 type BuildPrintBodyArgs = {
@@ -17,16 +23,16 @@ export function buildEhdmPrintBody(
   config: EhdmConfig,
   args: BuildPrintBodyArgs,
 ): EhdmPrintRequestBody {
-  const totalAmd = centsToAmd(args.amountCents);
-  const isCard = args.paymentMethod === ManualPaymentMethod.CARD;
+  const totalAmd = toAmdMajorUnits(args.amountCents);
+  const tender = resolveEhdmTenderSplit(totalAmd, args.paymentMethod);
 
   return {
     crn: config.getCrn(),
     seq: args.seq,
     mode: EHDM_PRINT_MODE.SALE_WITH_ITEMS,
     cashierId: config.getCashierId(),
-    cardAmount: isCard ? totalAmd : 0,
-    cashAmount: isCard ? 0 : totalAmd,
+    cardAmount: tender.cardAmount,
+    cashAmount: tender.cashAmount,
     partialAmount: 0,
     prePaymentAmount: 0,
     partnerTin: null,
@@ -56,7 +62,7 @@ export function resolveEhdmItemName(
   if (fromDescription) {
     return fromDescription;
   }
-  return 'Վճարում';
+  return EHDM_DEFAULT_ITEM_NAME;
 }
 
 export function resolveEhdmItemCode(
@@ -70,8 +76,9 @@ export function resolveEhdmItemCode(
   return paymentId.slice(-12);
 }
 
-function centsToAmd(amountCents: number): number {
-  return Math.round(amountCents) / 100;
+/** OMMM `amountCents` stores whole AMD (dram), not minor units. */
+export function toAmdMajorUnits(amountCents: number): number {
+  return Math.round(amountCents);
 }
 
 function truncateGoodName(value: string): string {
@@ -87,5 +94,5 @@ function sanitizeGoodCode(value: string): string {
   if (trimmed.length === 0) {
     return 'PAYMENT';
   }
-  return trimmed.slice(0, 32);
+  return trimmed.slice(0, EHDM_GOOD_CODE_MAX_LENGTH);
 }

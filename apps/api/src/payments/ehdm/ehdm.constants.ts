@@ -16,6 +16,10 @@ export const EHDM_PRINT_MODE = {
 
 export const EHDM_GOOD_NAME_MAX_LENGTH = 30;
 
+export const EHDM_GOOD_CODE_MAX_LENGTH = 32;
+
+export const EHDM_DEFAULT_ITEM_NAME = 'Վճարում';
+
 export const EHDM_DEFAULT_API_URL =
   'https://ecrm.taxservice.am/taxsystem-rs-vcr/api/v1.0';
 
@@ -32,7 +36,8 @@ export const EHDM_DEFAULT_UNIT = 'Հատ';
 
 export const EHDM_DEFAULT_CASHIER_ID = 1;
 
-/** Placeholder CRN/TIN for mock receipts until live credentials are configured. */
-export const EHDM_MOCK_CRN = '00000000';
+export const EHDM_RECEIPT_MAX_ATTEMPTS = 3;
 
-export const EHDM_MOCK_TIN = '00000000';
+export const EHDM_RECEIPT_RETRY_DELAY_MS = 2000;
+
+export const EHDM_RETURN_PRODUCT_ID = 0;

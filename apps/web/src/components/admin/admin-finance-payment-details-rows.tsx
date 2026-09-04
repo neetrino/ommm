@@ -5,6 +5,11 @@ import {
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
+import {
+  buildEhdmQrImageUrl,
+  formatEhdmReceiptTime,
+} from "@/lib/ehdm-receipt-display";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type FinanceT = ReturnType<typeof useTranslations<"adminPages.finance">>;
 
@@ -75,7 +80,7 @@ export function AdminFinancePaymentEhdmRows({
   payment: FinancePaymentItem;
   t: FinanceT;
 }) {
-  if (payment.status !== "SUCCEEDED") {
+  if (payment.status !== "SUCCEEDED" && payment.status !== "REFUNDED") {
     return null;
   }
 
@@ -91,20 +96,14 @@ export function AdminFinancePaymentEhdmRows({
     );
   }
 
+  const qrUrl = receipt.qr ? buildEhdmQrImageUrl(receipt.qr) : null;
+  const issuedAt = formatEhdmReceiptTime(receipt.time);
+
   return (
     <>
       <AdminFinancePaymentDetailRow
         label={t("paymentDetails.ehdmReceipt")}
-        value={
-          <span className="inline-flex flex-wrap items-center gap-2">
-            <span className="font-medium text-sage-800">{receipt.receiptId}</span>
-            {receipt.isMock ? (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
-                {t("paymentDetails.ehdmReceiptMock")}
-              </span>
-            ) : null}
-          </span>
-        }
+        value={<span className="font-medium text-sage-800">{receipt.receiptId}</span>}
       />
       {receipt.fiscal ? (
         <AdminFinancePaymentDetailRow
@@ -112,18 +111,41 @@ export function AdminFinancePaymentEhdmRows({
           value={receipt.fiscal}
         />
       ) : null}
-      {receipt.qr ? (
+      {receipt.taxpayer ? (
+        <AdminFinancePaymentDetailRow
+          label={t("paymentDetails.ehdmTaxpayer")}
+          value={receipt.taxpayer}
+        />
+      ) : null}
+      {receipt.tin ? (
+        <AdminFinancePaymentDetailRow
+          label={t("paymentDetails.ehdmTin")}
+          value={receipt.tin}
+        />
+      ) : null}
+      {issuedAt ? (
+        <AdminFinancePaymentDetailRow
+          label={t("paymentDetails.ehdmTime")}
+          value={issuedAt}
+        />
+      ) : null}
+      {receipt.total != null ? (
+        <AdminFinancePaymentDetailRow
+          label={t("paymentDetails.ehdmTotal")}
+          value={formatAmdFromCents(receipt.total)}
+        />
+      ) : null}
+      {qrUrl ? (
         <AdminFinancePaymentDetailRow
           label={t("paymentDetails.ehdmQr")}
           value={
-            <a
-              href={receipt.qr}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="break-all text-sm text-sage-700 underline decoration-sage-300 underline-offset-2 hover:text-sage-900"
-            >
-              {receipt.qr}
-            </a>
+            <img
+              src={qrUrl}
+              alt={t("paymentDetails.ehdmQr")}
+              width={120}
+              height={120}
+              className="h-[7.5rem] w-[7.5rem] rounded border border-sage-200 bg-white object-contain"
+            />
           }
         />
       ) : null}

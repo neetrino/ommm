@@ -1399,9 +1399,11 @@
           "missing": "Receipt is not available yet.",
           "receiptId": "Receipt ID",
           "fiscal": "Fiscal number",
-          "qr": "Verification",
-          "openQr": "Open receipt link",
-          "mockBadge": "Test receipt"
+          "taxpayer": "Taxpayer",
+          "tin": "TIN",
+          "time": "Date & time",
+          "total": "Total",
+          "qr": "Verification QR"
         },
         "sources": {
           "gift": {
@@ -4330,9 +4332,12 @@
         "closeBackdrop": "Close payment details",
         "ehdmReceipt": "Fiscal receipt (EHDM)",
         "ehdmReceiptMissing": "Not issued yet",
-        "ehdmReceiptMock": "Test mode receipt",
         "ehdmFiscal": "Fiscal number",
         "ehdmReceiptId": "Receipt ID",
+        "ehdmTaxpayer": "Taxpayer",
+        "ehdmTin": "TIN",
+        "ehdmTime": "Date & time",
+        "ehdmTotal": "Total",
         "ehdmQr": "QR verification",
         "viewFor": "View payment details for {name}",
         "related": {
