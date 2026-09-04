@@ -24,7 +24,10 @@ const LABEL_CLASS =
   "text-[10px] font-semibold uppercase tracking-[0.14em] text-sage-500";
 
 const ICON_WELL_CLASS =
-  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sand-200/80 bg-gradient-to-b from-white to-sand-50 text-sand-700 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.95),0_6px_16px_-12px_rgba(45,40,35,0.2)]";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-sand-200/80 bg-gradient-to-b from-white to-sand-50 text-sand-700 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.95),0_6px_16px_-12px_rgba(45,40,35,0.2)]";
+
+const TILE_CLASS =
+  "flex min-w-0 items-center gap-3.5 px-4 py-4 sm:px-5";
 
 type SourceTone = "self" | "admin" | "manager" | "staff";
 
@@ -46,15 +49,15 @@ function resolveSourceTone(
 
 function sourceBadgeClass(tone: SourceTone): string {
   const base =
-    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide";
+    "inline-flex w-fit max-w-full items-center rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide";
   if (tone === "self") {
     return `${base} border border-mint-200/80 bg-mint-100/90 text-sage-800`;
   }
   if (tone === "admin") {
-    return `${base} border border-sand-300/80 bg-sand-100 text-sage-900`;
+    return `${base} border border-sand-300/70 bg-sand-100 text-sage-900`;
   }
   if (tone === "manager") {
-    return `${base} border border-sage-300/70 bg-white text-sage-800 shadow-sm`;
+    return `${base} border border-sage-200/80 bg-white/90 text-sage-800`;
   }
   return `${base} border border-sage-200/80 bg-sage-100/90 text-sage-800`;
 }
@@ -149,11 +152,11 @@ function MetaTile({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-w-0 items-start gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
+    <div className={TILE_CLASS}>
       <div className={ICON_WELL_CLASS}>{icon}</div>
-      <div className="min-w-0 pt-0.5">
+      <div className="flex min-w-0 flex-col items-start gap-2">
         <p className={LABEL_CLASS}>{label}</p>
-        <div className="mt-1.5">{children}</div>
+        {children}
       </div>
     </div>
   );
@@ -195,11 +198,13 @@ export function ClientRegistrationMeta({
         <MetaTile label={sourceLabel} icon={<SourceGlyph tone={tone} />}>
           <span className={sourceBadgeClass(tone)}>{sourceText}</span>
           {showCreator ? (
-            <div className="mt-2.5 flex min-w-0 items-center gap-2">
-              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sand-700 text-[10px] font-semibold text-cream-50 ring-2 ring-white">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sand-700 text-[10px] font-semibold leading-none text-cream-50 ring-2 ring-white">
                 {creatorInitials(creatorName)}
               </span>
-              <p className="truncate text-sm font-medium text-sage-800">{creatorName}</p>
+              <p className="truncate text-sm font-medium leading-none text-sage-800">
+                {creatorName}
+              </p>
             </div>
           ) : null}
         </MetaTile>
