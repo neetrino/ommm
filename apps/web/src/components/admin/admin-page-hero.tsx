@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Link } from "@/i18n/navigation";
+import { CircularBackLink } from "@/components/ui/circular-back-link";
 import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 
@@ -22,23 +22,7 @@ type AdminPageHeroProps = {
   sticky?: boolean;
 };
 
-const BELOW_BANNER_BACK_LINK_CLASS =
-  "mt-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-sage-700 transition-colors hover:bg-white/70 hover:text-sage-900";
-
-function HeroBackChevronIcon() {
-  return (
-    <svg
-      className="h-5 w-5 shrink-0"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden
-    >
-      <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+const BELOW_BANNER_BACK_CLASS = "mt-3";
 
 /**
  * Admin / manager page header — title, full-width search on mobile, trailing actions.
@@ -74,9 +58,7 @@ export function AdminPageHero({
         <HeroSearchRow search={search} primaryAction={primaryAction} />
       </div>
       {backHref && backLabel ? (
-        <Link href={backHref} className={BELOW_BANNER_BACK_LINK_CLASS} aria-label={backLabel}>
-          <HeroBackChevronIcon />
-        </Link>
+        <CircularBackLink href={backHref} ariaLabel={backLabel} className={BELOW_BANNER_BACK_CLASS} />
       ) : null}
     </WorkspaceStickyPageHeader>
   );
