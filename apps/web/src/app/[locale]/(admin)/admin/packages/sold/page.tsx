@@ -6,6 +6,7 @@ import { AdminPackagesSoldPanel } from "@/components/admin/admin-packages-sold-p
 import {
   buildSoldPackagesAdminEndpoint,
   normalizePageSearchParams,
+  parseSoldPackagesCategorySlug,
   parseSoldPackagesPageParams,
   parseSoldPackagesPlanId,
   parseSoldPackagesSearchQuery,
@@ -28,9 +29,10 @@ export default async function AdminPackagesSoldPage({
   const listPage = parseSoldPackagesPageParams(search);
   const q = parseSoldPackagesSearchQuery(search);
   const planId = parseSoldPackagesPlanId(search);
+  const categorySlug = parseSoldPackagesCategorySlug(search);
   const [soldRes, plansRes] = await Promise.all([
     serverApiJson<SoldPackageListPayload>(
-      buildSoldPackagesAdminEndpoint(listPage.take, listPage.offset, q, planId),
+      buildSoldPackagesAdminEndpoint(listPage.take, listPage.offset, q, planId, categorySlug),
       cookie,
     ),
     serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
@@ -55,6 +57,7 @@ export default async function AdminPackagesSoldPage({
           initial={soldRes.data}
           initialQuery={q}
           initialPlanId={planId}
+          initialCategorySlug={categorySlug}
           packagePlans={plansRes.ok ? plansRes.data : []}
         />
       </Suspense>

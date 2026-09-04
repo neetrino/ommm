@@ -104,4 +104,55 @@ describe('listSoldPackages', () => {
     expect(result.total).toBe(2);
     expect(result.totalAmountCents).toBe(50_000);
   });
+
+  it('filters by categorySlug via live plan and snapshots', async () => {
+    const prisma = {
+      payment: {
+        findMany: jest.fn().mockResolvedValue([]),
+        count: jest.fn().mockResolvedValue(1),
+        aggregate: jest.fn().mockResolvedValue({ _sum: { amountCents: 15_000 } }),
+      },
+      packagePlan: {
+        findMany: jest.fn().mockResolvedValue([
+          { id: 'plan-yoga-1', categoryName: 'Yoga by Ommm' },
+        ]),
+      },
+      userPackage: {
+        findMany: jest.fn().mockResolvedValue([{ id: 'up-yoga-1' }]),
+      },
+    };
+
+    const result = await listSoldPackages(prisma as never, {
+      take: 10,
+      offset: 0,
+      categorySlug: 'yoga-by-ommm',
+    });
+
+    expect(prisma.packagePlan.findMany).toHaveBeenCalledWith({
+      where: { categorySlug: 'yoga-by-ommm' },
+      select: { id: true, categoryName: true },
+    });
+    expect(prisma.userPackage.findMany).toHaveBeenCalledWith({
+      where: {
+        OR: [
+          { plan: { categorySlug: 'yoga-by-ommm' } },
+          { sourcePlanIdSnapshot: { in: ['plan-yoga-1'] } },
+          { planCategoryNameSnapshot: { in: ['Yoga by Ommm'] } },
+        ],
+      },
+      select: { id: true },
+    });
+    expect(prisma.payment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          AND: [
+            SOLD_PACKAGE_PAYMENTS_WHERE,
+            { sourceId: { in: ['up-yoga-1'] } },
+          ],
+        },
+      }),
+    );
+    expect(result.total).toBe(1);
+    expect(result.totalAmountCents).toBe(15_000);
+  });
 });

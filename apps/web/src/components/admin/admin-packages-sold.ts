@@ -12,6 +12,10 @@ export const PACKAGES_SOLD_PLAN_QUERY_KEY = "planId";
 
 export const PACKAGES_SOLD_PLAN_ALL = "all";
 
+export const PACKAGES_SOLD_CATEGORY_QUERY_KEY = "categorySlug";
+
+export const PACKAGES_SOLD_CATEGORY_ALL = "all";
+
 export const PACKAGES_SOLD_SEARCH_DEBOUNCE_MS = 300;
 
 export type SoldPackageListItem = {
@@ -45,9 +49,28 @@ export function parseSoldPackagesSearchQuery(
 export function parseSoldPackagesPlanId(
   search: Record<string, string | undefined>,
 ): string {
-  const value = search[PACKAGES_SOLD_PLAN_QUERY_KEY]?.trim() ?? "";
-  if (value.length === 0 || value === PACKAGES_SOLD_PLAN_ALL) {
-    return PACKAGES_SOLD_PLAN_ALL;
+  return parseSoldPackagesFilterValue(
+    search[PACKAGES_SOLD_PLAN_QUERY_KEY],
+    PACKAGES_SOLD_PLAN_ALL,
+  );
+}
+
+export function parseSoldPackagesCategorySlug(
+  search: Record<string, string | undefined>,
+): string {
+  return parseSoldPackagesFilterValue(
+    search[PACKAGES_SOLD_CATEGORY_QUERY_KEY],
+    PACKAGES_SOLD_CATEGORY_ALL,
+  );
+}
+
+function parseSoldPackagesFilterValue(
+  raw: string | undefined,
+  emptyValue: string,
+): string {
+  const value = raw?.trim() ?? "";
+  if (value.length === 0 || value === emptyValue) {
+    return emptyValue;
   }
   return value;
 }
@@ -65,6 +88,7 @@ export function buildSoldPackagesAdminEndpoint(
   offset: number,
   q: string,
   planId: string = PACKAGES_SOLD_PLAN_ALL,
+  categorySlug: string = PACKAGES_SOLD_CATEGORY_ALL,
 ): string {
   const params = new URLSearchParams({
     take: String(take),
@@ -74,11 +98,31 @@ export function buildSoldPackagesAdminEndpoint(
   if (trimmedQuery.length > 0) {
     params.set(PACKAGES_SOLD_SEARCH_QUERY_KEY, trimmedQuery);
   }
-  const trimmedPlanId = (planId ?? PACKAGES_SOLD_PLAN_ALL).trim();
-  if (trimmedPlanId.length > 0 && trimmedPlanId !== PACKAGES_SOLD_PLAN_ALL) {
-    params.set(PACKAGES_SOLD_PLAN_QUERY_KEY, trimmedPlanId);
-  }
+  setSoldPackagesFilterParam(
+    params,
+    PACKAGES_SOLD_PLAN_QUERY_KEY,
+    planId,
+    PACKAGES_SOLD_PLAN_ALL,
+  );
+  setSoldPackagesFilterParam(
+    params,
+    PACKAGES_SOLD_CATEGORY_QUERY_KEY,
+    categorySlug,
+    PACKAGES_SOLD_CATEGORY_ALL,
+  );
   return `/packages/admin/sold?${params.toString()}`;
+}
+
+function setSoldPackagesFilterParam(
+  params: URLSearchParams,
+  key: string,
+  value: string | undefined,
+  emptyValue: string,
+): void {
+  const trimmed = (value ?? emptyValue).trim();
+  if (trimmed.length > 0 && trimmed !== emptyValue) {
+    params.set(key, trimmed);
+  }
 }
 
 export function normalizePageSearchParams(

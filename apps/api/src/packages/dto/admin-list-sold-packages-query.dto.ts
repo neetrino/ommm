@@ -9,4 +9,8 @@ export class AdminListSoldPackagesQueryDto extends ListPaginationQueryDto {
   @IsOptional()
   @IsString()
   planId?: string;
+
+  @IsOptional()
+  @IsString()
+  categorySlug?: string;
 }

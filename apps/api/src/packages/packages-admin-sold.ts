@@ -43,13 +43,21 @@ type SoldPaymentRow = {
   user: SoldPackageListItem['user'];
 };
 
+type ListSoldPackagesQuery = {
+  take?: number;
+  offset?: number;
+  q?: string;
+  planId?: string;
+  categorySlug?: string;
+};
+
 export async function listSoldPackages(
   prisma: PrismaClient,
-  query: { take?: number; offset?: number; q?: string; planId?: string },
+  query: ListSoldPackagesQuery,
 ): Promise<SoldPackageListPayload> {
   const take = query.take ?? SOLD_PACKAGES_DEFAULT_PAGE_SIZE;
   const offset = query.offset ?? 0;
-  const where = await buildSoldListWhere(prisma, query.q, query.planId);
+  const where = await buildSoldListWhere(prisma, query);
 
   const [payments, total, amountAgg] = await Promise.all([
     prisma.payment.findMany({
@@ -92,16 +100,20 @@ export async function listSoldPackages(
 
 async function buildSoldListWhere(
   prisma: PrismaClient,
-  rawQuery: string | undefined,
-  planId: string | undefined,
+  query: ListSoldPackagesQuery,
 ): Promise<Prisma.PaymentWhereInput> {
-  const searchWhere = await buildSoldPackageSearchWhere(prisma, rawQuery);
-  const planWhere = await buildSoldPackagePlanWhere(prisma, planId);
+  const searchWhere = await buildSoldPackageSearchWhere(prisma, query.q);
+  const planWhere = await buildSoldPackagePlanWhere(prisma, query.planId);
+  const categoryWhere = await buildSoldPackageCategoryWhere(
+    prisma,
+    query.categorySlug,
+  );
   return {
     AND: [
       SOLD_PACKAGE_PAYMENTS_WHERE,
       ...(searchWhere ? [searchWhere] : []),
       ...(planWhere ? [planWhere] : []),
+      ...(categoryWhere ? [categoryWhere] : []),
     ],
   };
 }
@@ -121,6 +133,55 @@ async function buildSoldPackagePlanWhere(
     select: { id: true },
   });
   return { sourceId: { in: rows.map((row) => row.id) } };
+}
+
+async function buildSoldPackageCategoryWhere(
+  prisma: PrismaClient,
+  categorySlug: string | undefined,
+): Promise<Prisma.PaymentWhereInput | undefined> {
+  const slug = categorySlug?.trim() ?? '';
+  if (slug.length === 0 || slug === 'all') {
+    return undefined;
+  }
+  const matchingIds = await loadUserPackageIdsForCategory(prisma, slug);
+  return { sourceId: { in: matchingIds } };
+}
+
+async function loadUserPackageIdsForCategory(
+  prisma: PrismaClient,
+  categorySlug: string,
+): Promise<string[]> {
+  const plans = await prisma.packagePlan.findMany({
+    where: { categorySlug },
+    select: { id: true, categoryName: true },
+  });
+  const planIds = plans.map((plan) => plan.id);
+  const categoryNames = uniqueNonEmpty(
+    plans.map((plan) => plan.categoryName),
+  );
+  const rows = await prisma.userPackage.findMany({
+    where: {
+      OR: [
+        { plan: { categorySlug } },
+        ...(planIds.length > 0
+          ? [{ sourcePlanIdSnapshot: { in: planIds } }]
+          : []),
+        ...(categoryNames.length > 0
+          ? [{ planCategoryNameSnapshot: { in: categoryNames } }]
+          : []),
+      ],
+    },
+    select: { id: true },
+  });
+  return rows.map((row) => row.id);
+}
+
+function uniqueNonEmpty(values: readonly string[]): string[] {
+  return [
+    ...new Set(
+      values.map((value) => value.trim()).filter((value) => value.length > 0),
+    ),
+  ];
 }
 
 async function buildSoldPackageSearchWhere(

@@ -7,13 +7,17 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminPackagesSoldBoardCard } from "@/components/admin/admin-packages-sold-board-card";
 import {
   buildSoldPackagesFilterFields,
+  soldPackageCategoryFilterOptions,
   soldPackagePlanFilterOptions,
 } from "@/components/admin/admin-packages-sold-filter-fields";
 import { ADMIN_SOLD_PACKAGES_BOARD_GRID_CLASS } from "@/components/admin/admin-packages-sold-list-layout";
 import { AdminPackagesSoldTotal } from "@/components/admin/admin-packages-sold-total";
 import {
   ADMIN_PACKAGES_PATH,
+  PACKAGES_SOLD_CATEGORY_ALL,
+  PACKAGES_SOLD_CATEGORY_QUERY_KEY,
   PACKAGES_SOLD_PLAN_ALL,
+  PACKAGES_SOLD_PLAN_QUERY_KEY,
   type SoldPackageListPayload,
 } from "@/components/admin/admin-packages-sold";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -26,6 +30,7 @@ type AdminPackagesSoldPanelProps = {
   initial: SoldPackageListPayload;
   initialQuery: string;
   initialPlanId: string;
+  initialCategorySlug: string;
   packagePlans: readonly AdminPackageRow[];
 };
 
@@ -34,11 +39,11 @@ export function AdminPackagesSoldPanel({
   initial,
   initialQuery,
   initialPlanId,
+  initialCategorySlug,
   packagePlans,
 }: AdminPackagesSoldPanelProps) {
   const t = useTranslations("adminPages.packages.sold");
-  const { search, setSearch, planId, setPlanId, listPage, setListPage, isPending, router } =
-    useSoldPackagesUrlState(initialQuery, initialPlanId);
+  const urlState = useSoldPackagesUrlState(initialQuery, initialPlanId, initialCategorySlug);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
   return (
@@ -47,15 +52,7 @@ export function AdminPackagesSoldPanel({
         title={t("title")}
         titleBackHref={ADMIN_PACKAGES_PATH}
         titleBackLabel={t("backToPackages")}
-        search={
-          <SoldPackagesSearch
-            search={search}
-            planId={planId}
-            packagePlans={packagePlans}
-            onSearchChange={setSearch}
-            onPlanIdChange={setPlanId}
-          />
-        }
+        search={<SoldPackagesSearch packagePlans={packagePlans} urlState={urlState} />}
       />
       <AdminPackagesSoldTotal
         locale={locale}
@@ -65,68 +62,85 @@ export function AdminPackagesSoldPanel({
       <SoldPackagesResults
         locale={locale}
         initial={initial}
-        listPage={listPage}
-        isPending={isPending}
-        onPageChange={setListPage}
+        listPage={urlState.listPage}
+        isPending={urlState.isPending}
+        onPageChange={urlState.setListPage}
         onOpenClient={setSelectedClientId}
       />
       <AdminClientDrawerById
         clientId={selectedClientId}
         locale={locale}
         onClose={() => setSelectedClientId(null)}
-        onChanged={() => router.refresh()}
+        onChanged={() => urlState.router.refresh()}
       />
     </>
   );
 }
 
+type SoldPackagesUrlState = ReturnType<typeof useSoldPackagesUrlState>;
+
 function SoldPackagesSearch({
-  search,
-  planId,
   packagePlans,
-  onSearchChange,
-  onPlanIdChange,
+  urlState,
 }: {
-  search: string;
-  planId: string;
   packagePlans: readonly AdminPackageRow[];
-  onSearchChange: (value: string) => void;
-  onPlanIdChange: (value: string) => void;
+  urlState: SoldPackagesUrlState;
 }) {
   const t = useTranslations("adminPages.packages.sold");
+  const fields = useSoldPackagesFilterFields(packagePlans);
+
+  return (
+    <ListPageSearchFilters
+      search={urlState.search}
+      onSearchChange={urlState.setSearch}
+      searchPlaceholder={t("searchPlaceholder")}
+      fields={fields}
+      filterValues={{ planId: urlState.planId, categorySlug: urlState.categorySlug }}
+      onFilterChange={(key, value) => applySoldFilterChange(urlState, key, value)}
+      onClearAll={() => clearSoldFilters(urlState)}
+      resetLabel={t("reset")}
+    />
+  );
+}
+
+function useSoldPackagesFilterFields(packagePlans: readonly AdminPackageRow[]) {
+  const t = useTranslations("adminPages.packages.sold");
+  const categoryOptions = useMemo(
+    () => soldPackageCategoryFilterOptions(packagePlans),
+    [packagePlans],
+  );
   const planOptions = useMemo(() => soldPackagePlanFilterOptions(packagePlans), [packagePlans]);
-  const fields = useMemo(
+  return useMemo(
     () =>
       buildSoldPackagesFilterFields({
         labels: {
+          category: t("filterCategory"),
+          categoryAll: t("filterCategoryAll"),
+          categoryEmpty: t("filterCategoryEmpty"),
           package: t("filterPackage"),
           packageAll: t("filterPackageAll"),
           packageEmpty: t("filterPackageEmpty"),
         },
+        categoryOptions,
         planOptions,
       }),
-    [planOptions, t],
+    [categoryOptions, planOptions, t],
   );
+}
 
-  return (
-    <ListPageSearchFilters
-      search={search}
-      onSearchChange={onSearchChange}
-      searchPlaceholder={t("searchPlaceholder")}
-      fields={fields}
-      filterValues={{ planId }}
-      onFilterChange={(key, value) => {
-        if (key === "planId") {
-          onPlanIdChange(value);
-        }
-      }}
-      onClearAll={() => {
-        onSearchChange("");
-        onPlanIdChange(PACKAGES_SOLD_PLAN_ALL);
-      }}
-      resetLabel={t("reset")}
-    />
-  );
+function applySoldFilterChange(urlState: SoldPackagesUrlState, key: string, value: string): void {
+  if (key === PACKAGES_SOLD_PLAN_QUERY_KEY) {
+    urlState.setPlanId(value);
+  }
+  if (key === PACKAGES_SOLD_CATEGORY_QUERY_KEY) {
+    urlState.setCategorySlug(value);
+  }
+}
+
+function clearSoldFilters(urlState: SoldPackagesUrlState): void {
+  urlState.setSearch("");
+  urlState.setPlanId(PACKAGES_SOLD_PLAN_ALL);
+  urlState.setCategorySlug(PACKAGES_SOLD_CATEGORY_ALL);
 }
 
 function SoldPackagesResults({
