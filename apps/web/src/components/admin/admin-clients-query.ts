@@ -68,6 +68,16 @@ export { LIST_PAGE_QUERY_KEY, LIST_PAGE_SIZE_QUERY_KEY };
 
 export const VIEW_CLIENT_QUERY_KEY = "viewClient";
 
+export type BackofficeClientsPath = "/admin/clients" | "/manager/clients";
+
+/** Opens the client profile drawer on the Admin or Manager clients page. */
+export function buildBackofficeClientProfileHref(
+  clientsPath: BackofficeClientsPath,
+  clientId: string,
+): string {
+  return `${clientsPath}?${VIEW_CLIENT_QUERY_KEY}=${encodeURIComponent(clientId)}`;
+}
+
 
 export function buildAdminClientsApiSearchParams(
   search: Record<string, string | undefined>,

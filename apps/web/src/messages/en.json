@@ -1920,8 +1920,10 @@
       },
       "newUsers": {
         "title": "New users today: {count}",
-        "empty": "No recent users yet.",
-        "joined": "Joined: {dateTime}"
+        "heading": "New users today",
+        "empty": "No new users today.",
+        "joined": "Joined {dateTime}",
+        "openAccount": "Open {name}'s account"
       },
       "alerts": {
         "title": "Important alerts",
