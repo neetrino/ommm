@@ -155,6 +155,39 @@
   --home-schedule-session-row-spots-col-width: 7.25rem;
   --home-schedule-session-row-spots-button-gap: 1rem;
   --home-schedule-session-row-duration-spots-gap: 1rem;
+  /* Soft sage scrollbar — matches schedule glass UI (Firefox + Chromium/WebKit). */
+  scrollbar-width: thin;
+  scrollbar-color: rgb(151 144 124 / 0.42) transparent;
+}
+
+.body::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.body::-webkit-scrollbar-track {
+  margin-block: 0.5rem;
+  background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  background-color: rgb(151 144 124 / 0.38);
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(151 144 124 / 0.58);
+}
+
+.body::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.body::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 @media (min-width: 1100px) {
