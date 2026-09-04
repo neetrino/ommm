@@ -14,6 +14,8 @@ import {
 import {
   DatePickerChevronLeft,
   DatePickerChevronRight,
+  DatePickerChevronsLeft,
+  DatePickerChevronsRight,
 } from "@/components/ui/date-picker-icons";
 
 type DatePickerCalendarPopupProps = {
@@ -25,10 +27,15 @@ type DatePickerCalendarPopupProps = {
   minDate?: Date;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  onPrevYear: () => void;
+  onNextYear: () => void;
   onSelectDate: (isoDate: string) => void;
   onClear: () => void;
   onSelectToday: () => void;
 };
+
+const DATE_PICKER_NAV_BTN_CLASS =
+  "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50 disabled:pointer-events-none disabled:opacity-40";
 
 export function DatePickerCalendarPopup({
   popupRef,
@@ -39,12 +46,19 @@ export function DatePickerCalendarPopup({
   minDate,
   onPrevMonth,
   onNextMonth,
+  onPrevYear,
+  onNextYear,
   onSelectDate,
   onClear,
   onSelectToday,
 }: DatePickerCalendarPopupProps) {
   const monthLabel = useMemo(
-    () => new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(visibleMonth),
+    () => new Intl.DateTimeFormat(undefined, { month: "long" }).format(visibleMonth),
+    [visibleMonth],
+  );
+
+  const yearLabel = useMemo(
+    () => String(visibleMonth.getFullYear()),
     [visibleMonth],
   );
 
@@ -80,6 +94,11 @@ export function DatePickerCalendarPopup({
     minDate === undefined ||
     startOfMonth(visibleMonth).getTime() > startOfMonth(minDate).getTime();
 
+  const canGoToPreviousYear =
+    minDate === undefined ||
+    new Date(visibleMonth.getFullYear() - 1, visibleMonth.getMonth(), 1).getTime() >=
+      startOfMonth(minDate).getTime();
+
   return (
     <div
       ref={popupRef}
@@ -94,25 +113,53 @@ export function DatePickerCalendarPopup({
         maxHeight: popupPosition.maxHeight,
       }}
     >
-      <div className="flex items-center justify-between px-1">
-        <button
-          type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50 disabled:pointer-events-none disabled:opacity-40"
-          aria-label="Previous month"
-          disabled={!canGoToPreviousMonth}
-          onClick={onPrevMonth}
-        >
-          <DatePickerChevronLeft className="h-4 w-4" />
-        </button>
-        <p className="text-xl font-semibold text-sage-900">{monthLabel}</p>
-        <button
-          type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
-          aria-label="Next month"
-          onClick={onNextMonth}
-        >
-          <DatePickerChevronRight className="h-4 w-4" />
-        </button>
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 px-0.5">
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            className={DATE_PICKER_NAV_BTN_CLASS}
+            aria-label="Previous year"
+            disabled={!canGoToPreviousYear}
+            onClick={onPrevYear}
+          >
+            <DatePickerChevronsLeft className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            className={DATE_PICKER_NAV_BTN_CLASS}
+            aria-label="Previous month"
+            disabled={!canGoToPreviousMonth}
+            onClick={onPrevMonth}
+          >
+            <DatePickerChevronLeft className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="flex min-w-0 flex-col items-center justify-center leading-tight">
+          <span className="text-base font-semibold tabular-nums tracking-wide text-sage-900">
+            {yearLabel}
+          </span>
+          <span className="max-w-full truncate text-sm font-semibold capitalize text-sage-900">
+            {monthLabel}
+          </span>
+        </div>
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            className={DATE_PICKER_NAV_BTN_CLASS}
+            aria-label="Next month"
+            onClick={onNextMonth}
+          >
+            <DatePickerChevronRight className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            className={DATE_PICKER_NAV_BTN_CLASS}
+            aria-label="Next year"
+            onClick={onNextYear}
+          >
+            <DatePickerChevronsRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="mt-2.5 grid grid-cols-7 gap-y-1 text-center text-[10px] font-medium tracking-wide text-sage-500">

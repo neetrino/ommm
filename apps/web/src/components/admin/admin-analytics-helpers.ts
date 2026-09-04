@@ -6,6 +6,8 @@ import type {
   AnalyticsSortKey,
 } from "@/components/admin/admin-analytics-types";
 import { MAX_LIST_PAGE_SIZE } from "@/lib/list-pagination";
+import { normalizeFilterDateValue } from "@/lib/filter-date-display";
+import { studioWallClockToUtc } from "@/lib/studio-timezone";
 
 /** Must match API `ListPaginationQueryDto` max (`MAX_LIST_PAGE_SIZE`). */
 export const ANALYTICS_BOOKINGS_SAMPLE_LIMIT = MAX_LIST_PAGE_SIZE;
@@ -28,12 +30,36 @@ const ANALYTICS_DATE_QUICK_FILTERS: readonly AnalyticsQuickFilterOption[] = [
   "last30",
 ];
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 export function parseAnalyticsRangeDays(value?: string): AnalyticsRangeDays {
   const parsed = Number(value);
   if (parsed === 7 || parsed === 30 || parsed === 90) {
     return parsed;
   }
   return 30;
+}
+
+function inclusiveStudioDaySpan(fromCalendar: string, toCalendar: string): number {
+  const fromMs = studioWallClockToUtc(fromCalendar, "12:00").getTime();
+  const toMs = studioWallClockToUtc(toCalendar, "12:00").getTime();
+  return Math.max(1, Math.round((toMs - fromMs) / MS_PER_DAY) + 1);
+}
+
+function buildIsoRangeFromStudioCalendar(
+  fromCalendar: string,
+  toCalendar: string,
+): { fromIso: string; toIso: string; rangeDays: number } {
+  const [start, end] =
+    fromCalendar <= toCalendar ? [fromCalendar, toCalendar] : [toCalendar, fromCalendar];
+  const fromIso = studioWallClockToUtc(start, "00:00").toISOString();
+  const toEnd = studioWallClockToUtc(end, "23:59");
+  toEnd.setUTCSeconds(59, 999);
+  return {
+    fromIso,
+    toIso: toEnd.toISOString(),
+    rangeDays: inclusiveStudioDaySpan(start, end),
+  };
 }
 
 export function parseAnalyticsSortKey(value?: string): AnalyticsSortKey {
@@ -136,7 +162,7 @@ function buildDateRangeFromDays(
   rangeDays: AnalyticsRangeDays,
   now: Date,
   to: Date,
-): { fromIso: string; toIso: string; rangeDays: AnalyticsRangeDays } {
+): { fromIso: string; toIso: string; rangeDays: number } {
   const from = new Date(now);
   from.setDate(from.getDate() - rangeDays + 1);
   from.setHours(0, 0, 0, 0);
@@ -149,8 +175,16 @@ function buildDateRangeFromDays(
 
 export function resolveAnalyticsDateRange(input: {
   rangeDays: AnalyticsRangeDays;
+  from?: string;
+  to?: string;
   quickFilters: readonly AnalyticsQuickFilterOption[];
-}): { fromIso: string; toIso: string; rangeDays: AnalyticsRangeDays } {
+}): { fromIso: string; toIso: string; rangeDays: number } {
+  const fromCalendar = normalizeFilterDateValue(input.from ?? "");
+  const toCalendar = normalizeFilterDateValue(input.to ?? "");
+  if (fromCalendar.length > 0 && toCalendar.length > 0) {
+    return buildIsoRangeFromStudioCalendar(fromCalendar, toCalendar);
+  }
+
   const now = new Date();
   const to = new Date(now);
   to.setHours(23, 59, 59, 999);
@@ -200,7 +234,6 @@ export function sortBarItems(
       return copy;
   }
 }
-
 
 export function buildClassPopularity(
   rows: Array<{ session: { classType: { id: string; name: string } } }>,

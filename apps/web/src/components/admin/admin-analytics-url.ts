@@ -11,8 +11,9 @@ import {
   resolveQuickFiltersSort,
 } from "@/components/admin/admin-analytics-helpers";
 import type { AnalyticsFilterValues } from "@/components/admin/admin-analytics-types";
+import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 
-export const ANALYTICS_GLOBAL_QUERY_KEYS = ["rangeDays", "quick", "sort"] as const;
+export const ANALYTICS_GLOBAL_QUERY_KEYS = ["rangeDays", "from", "to", "quick", "sort"] as const;
 
 export const ANALYTICS_BOOKINGS_QUERY_KEYS = [
   ...ANALYTICS_GLOBAL_QUERY_KEYS,
@@ -113,6 +114,8 @@ export function parseAnalyticsFiltersFromSearch(
   const normalized = normalizeAnalyticsSearch(search);
   return {
     rangeDays: parseAnalyticsRangeDays(normalized.rangeDays),
+    from: normalizeFilterDateValue(normalized.from ?? ""),
+    to: normalizeFilterDateValue(normalized.to ?? ""),
     coachId: normalized.coachId ?? "",
     classTypeId: normalized.classTypeId ?? "",
     bookingStatus: parseAnalyticsBookingStatus(normalized.bookingStatus),
@@ -123,12 +126,16 @@ export function parseAnalyticsFiltersFromSearch(
 
 export function buildAnalyticsFiltersQuery(
   values: AnalyticsFilterValues,
-  currentParams: URLSearchParams,
+  _currentParams: URLSearchParams,
   section: AnalyticsSectionId,
 ): string {
   const params = new URLSearchParams();
+  const hasCustomDates = values.from.length > 0 && values.to.length > 0;
 
-  if (values.rangeDays !== 30) {
+  if (hasCustomDates) {
+    params.set("from", values.from);
+    params.set("to", values.to);
+  } else if (values.rangeDays !== 30) {
     params.set("rangeDays", String(values.rangeDays));
   }
 
@@ -165,7 +172,22 @@ export function applyAnalyticsIntegratedFilterChange(
 ): AnalyticsFilterValues {
   switch (key) {
     case "rangeDays":
-      return { ...current, rangeDays: parseAnalyticsRangeDays(value) };
+      return {
+        ...current,
+        rangeDays: parseAnalyticsRangeDays(value),
+        from: "",
+        to: "",
+      };
+    case "from":
+      return {
+        ...current,
+        from: normalizeFilterDateValue(value),
+      };
+    case "to":
+      return {
+        ...current,
+        to: normalizeFilterDateValue(value),
+      };
     case "coachId":
       return { ...current, coachId: value };
     case "classTypeId":
@@ -191,6 +213,8 @@ export function applyAnalyticsIntegratedFilterChange(
 export function defaultAnalyticsFilterValues(): AnalyticsFilterValues {
   return {
     rangeDays: 30,
+    from: "",
+    to: "",
     coachId: "",
     classTypeId: "",
     bookingStatus: "",

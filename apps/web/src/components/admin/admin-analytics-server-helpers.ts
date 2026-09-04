@@ -175,9 +175,16 @@ export async function loadAdminAnalyticsPayload(
   const rangeDays = parseAnalyticsRangeDays(
     Array.isArray(search.rangeDays) ? search.rangeDays[0] : search.rangeDays,
   );
+  const from = Array.isArray(search.from) ? search.from[0] : search.from;
+  const to = Array.isArray(search.to) ? search.to[0] : search.to;
   const quickRaw = Array.isArray(search.quick) ? search.quick[0] : search.quick;
   const quickFilters = parseAnalyticsQuickFilters(quickRaw);
-  const { fromIso, toIso } = resolveAnalyticsDateRange({ rangeDays, quickFilters });
+  const { fromIso, toIso, rangeDays: resolvedRangeDays } = resolveAnalyticsDateRange({
+    rangeDays,
+    from,
+    to,
+    quickFilters,
+  });
   const coachId = (Array.isArray(search.coachId) ? search.coachId[0] : search.coachId) ?? "";
   const classTypeId =
     (Array.isArray(search.classTypeId) ? search.classTypeId[0] : search.classTypeId) ?? "";
@@ -205,7 +212,7 @@ export async function loadAdminAnalyticsPayload(
     ok: true,
     data: {
       locale,
-      rangeDays,
+      rangeDays: resolvedRangeDays,
       fromIso,
       toIso,
       sortKey,

@@ -48,11 +48,15 @@ export function AdminAnalyticsHeroFilters({
       buildAdminAnalyticsFilterFields({
         section,
         filterOptions,
+        customFrom: values.from,
+        customTo: values.to,
         labels: {
           rangeLabel: tFilters("rangeLabel"),
           range7: tFilters("range7"),
           range30: tFilters("range30"),
           range90: tFilters("range90"),
+          dateFrom: tFilters("dateFrom"),
+          dateTo: tFilters("dateTo"),
           coachLabel: tFilters("coachLabel"),
           coachAll: tFilters("coachAll"),
           classTypeLabel: tFilters("classTypeLabel"),
@@ -82,7 +86,7 @@ export function AdminAnalyticsHeroFilters({
           quickPopularClasses: tFilters("quickPopularClasses"),
         },
       }),
-    [filterOptions, section, tFilters],
+    [filterOptions, section, tFilters, values.from, values.to],
   );
 
   const integratedFilterValues = useMemo(

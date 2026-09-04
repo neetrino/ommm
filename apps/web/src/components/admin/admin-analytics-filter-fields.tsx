@@ -10,6 +10,8 @@ import type {
 } from "@/components/admin/admin-analytics-types";
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
+import { formatDateForUi } from "@/lib/date-display";
+import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 
 type AnalyticsFilterOptions = {
   classTypes: Array<{ id: string; name: string }>;
@@ -19,11 +21,15 @@ type AnalyticsFilterOptions = {
 type BuildAdminAnalyticsFilterFieldsArgs = {
   section: AnalyticsSectionId;
   filterOptions: AnalyticsFilterOptions;
+  customFrom: string;
+  customTo: string;
   labels: {
     rangeLabel: string;
     range7: string;
     range30: string;
     range90: string;
+    dateFrom: string;
+    dateTo: string;
     coachLabel: string;
     coachAll: string;
     classTypeLabel: string;
@@ -54,7 +60,10 @@ type BuildAdminAnalyticsFilterFieldsArgs = {
   };
 };
 
-const QUICK_FILTER_LABEL_KEYS: Record<AnalyticsQuickFilterOption, keyof BuildAdminAnalyticsFilterFieldsArgs["labels"]> = {
+const QUICK_FILTER_LABEL_KEYS: Record<
+  AnalyticsQuickFilterOption,
+  keyof BuildAdminAnalyticsFilterFieldsArgs["labels"]
+> = {
   today: "quickToday",
   week: "quickWeek",
   month: "quickMonth",
@@ -89,11 +98,28 @@ function resolveSortChipLabel(
   return `${label}: ${option?.label ?? value}`;
 }
 
+function resolveRangeChipLabel(
+  rangeLabel: string,
+  value: string,
+  from: string,
+  to: string,
+  presets: Record<string, string>,
+): string {
+  const fromNorm = normalizeFilterDateValue(from);
+  const toNorm = normalizeFilterDateValue(to);
+  if (fromNorm.length > 0 && toNorm.length > 0) {
+    return `${rangeLabel}: ${formatDateForUi(fromNorm)} – ${formatDateForUi(toNorm)}`;
+  }
+  return `${rangeLabel}: ${presets[value] ?? value}`;
+}
+
 export function adminAnalyticsIntegratedFilterValues(
   values: AnalyticsFilterValues,
 ): Record<string, string> {
   return {
     rangeDays: String(values.rangeDays),
+    from: values.from,
+    to: values.to,
     coachId: values.coachId,
     classTypeId: values.classTypeId,
     bookingStatus: values.bookingStatus,
@@ -105,6 +131,8 @@ export function adminAnalyticsIntegratedFilterValues(
 export function buildAdminAnalyticsFilterFields({
   section,
   filterOptions,
+  customFrom,
+  customTo,
   labels,
 }: BuildAdminAnalyticsFilterFieldsArgs): AdminIntegratedFilterField[] {
   const quickFilterOptions = ANALYTICS_QUICK_FILTER_VALUES.map((value) => ({
@@ -124,18 +152,31 @@ export function buildAdminAnalyticsFilterFields({
 
   const fields: AdminIntegratedFilterField[] = [
     {
+      key: "from",
+      label: labels.dateFrom,
+      fieldType: "date",
+      emptyValue: "",
+      // Dates appear on the Range chip when both are set.
+      resolveChipLabel: () => null,
+    },
+    {
+      key: "to",
+      label: labels.dateTo,
+      fieldType: "date",
+      emptyValue: "",
+      resolveChipLabel: () => null,
+    },
+    {
       key: "rangeDays",
       label: labels.rangeLabel,
       emptyValue: "30",
       alwaysShowChip: true,
-      resolveChipLabel: (value) => {
-        const rangeLabels: Record<string, string> = {
+      resolveChipLabel: (value) =>
+        resolveRangeChipLabel(labels.rangeLabel, value, customFrom, customTo, {
           "7": labels.range7,
           "30": labels.range30,
           "90": labels.range90,
-        };
-        return `${labels.rangeLabel}: ${rangeLabels[value] ?? value}`;
-      },
+        }),
       options: [
         { value: "7", label: labels.range7 },
         { value: "30", label: labels.range30 },
