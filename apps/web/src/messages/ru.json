@@ -1796,6 +1796,10 @@
       "layoutSwitcherAria": "Вид расписания",
       "layoutList": "Список",
       "layoutWeek": "Неделя",
+      "layoutMonth": "Месяц",
+      "monthBoardAria": "Месячный календарь занятий",
+      "daySessionsSheetAria": "Занятия выбранного дня",
+      "daySessionsSheetCloseAria": "Закрыть занятия дня",
       "periodMorning": "Утро",
       "periodAfternoon": "День",
       "periodEvening": "Вечер"

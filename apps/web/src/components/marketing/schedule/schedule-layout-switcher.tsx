@@ -12,13 +12,16 @@ import {
 } from "@/components/ui/olive-segmented-switcher";
 import styles from "@/components/marketing/schedule/schedule-layout-switcher.module.css";
 
-const LAYOUT_COLUMN_COUNT = 2;
+const LAYOUT_COLUMN_COUNT = 3;
 
-const LAYOUT_LABEL_KEY: Record<ScheduleLayoutMode, "layoutList" | "layoutWeek"> =
-  {
-    list: "layoutList",
-    week: "layoutWeek",
-  };
+const LAYOUT_LABEL_KEY: Record<
+  ScheduleLayoutMode,
+  "layoutList" | "layoutWeek" | "layoutMonth"
+> = {
+  list: "layoutList",
+  week: "layoutWeek",
+  month: "layoutMonth",
+};
 
 type ScheduleLayoutSwitcherProps = {
   value: ScheduleLayoutMode;
@@ -26,7 +29,7 @@ type ScheduleLayoutSwitcherProps = {
   className?: string;
 };
 
-/** List / Week segmented control for the public schedule desktop layout. */
+/** List / Week / Month segmented control for the public schedule desktop layout. */
 export function ScheduleLayoutSwitcher({
   value,
   onChange,

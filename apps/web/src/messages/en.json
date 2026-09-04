@@ -1798,6 +1798,10 @@
       "layoutSwitcherAria": "Schedule layout",
       "layoutList": "List",
       "layoutWeek": "Week",
+      "layoutMonth": "Month",
+      "monthBoardAria": "Monthly class calendar",
+      "daySessionsSheetAria": "Classes for selected day",
+      "daySessionsSheetCloseAria": "Close day classes",
       "periodMorning": "Morning",
       "periodAfternoon": "Afternoon",
       "periodEvening": "Evening"

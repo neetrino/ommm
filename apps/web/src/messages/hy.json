@@ -1799,6 +1799,10 @@
       "layoutSwitcherAria": "Դասացուցակի տեսք",
       "layoutList": "Ցուցակ",
       "layoutWeek": "Շաբաթ",
+      "layoutMonth": "Ամիս",
+      "monthBoardAria": "Ամսական դասացուցակ",
+      "daySessionsSheetAria": "Ընտրված օրվա դասեր",
+      "daySessionsSheetCloseAria": "Փակել օրվա դասերը",
       "periodMorning": "Առավոտ",
       "periodAfternoon": "Ցերեկ",
       "periodEvening": "Երեկո"

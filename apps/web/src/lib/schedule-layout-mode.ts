@@ -1,8 +1,9 @@
-export type ScheduleLayoutMode = "list" | "week";
+export type ScheduleLayoutMode = "list" | "week" | "month";
 
 export const SCHEDULE_LAYOUT_MODES: readonly ScheduleLayoutMode[] = [
   "list",
   "week",
+  "month",
 ];
 
 export const DEFAULT_SCHEDULE_LAYOUT_MODE: ScheduleLayoutMode = "week";
@@ -13,7 +14,10 @@ export const SCHEDULE_LAYOUT_STORAGE_KEY = "ommm.schedule.layout";
 export function resolveScheduleLayoutMode(
   value: string | null | undefined,
 ): ScheduleLayoutMode {
-  return value === "list" ? "list" : DEFAULT_SCHEDULE_LAYOUT_MODE;
+  if (value === "list" || value === "month") {
+    return value;
+  }
+  return DEFAULT_SCHEDULE_LAYOUT_MODE;
 }
 
 export function readStoredScheduleLayoutMode(): ScheduleLayoutMode {
