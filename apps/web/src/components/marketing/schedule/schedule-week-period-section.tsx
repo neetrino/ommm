@@ -10,13 +10,17 @@ import {
   type ScheduleWeekColumn,
 } from "@/components/marketing/schedule/schedule-week-board-helpers";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { isBeforeCalendarDay } from "@/components/marketing/schedule/schedule-date-utils";
+import {
+  isBeforeCalendarDay,
+  isSameCalendarDay,
+} from "@/components/marketing/schedule/schedule-date-utils";
 
 type ScheduleWeekPeriodSectionProps = {
   period: DayPeriod;
   collapsed: boolean;
   columns: readonly ScheduleWeekColumn[];
   today: Date;
+  selectedDate: Date;
   sessionsByDayAndPeriod: ReadonlyMap<string, readonly MarketingScheduleItem[]>;
   onToggle: () => void;
   renderSessionCard: (row: MarketingScheduleItem, isPastDay: boolean) => ReactNode;
@@ -34,6 +38,7 @@ export function ScheduleWeekPeriodSection({
   collapsed,
   columns,
   today,
+  selectedDate,
   sessionsByDayAndPeriod,
   onToggle,
   renderSessionCard,
@@ -73,11 +78,18 @@ export function ScheduleWeekPeriodSection({
         <div className={styles.periodTrack} style={trackStyle}>
           {columns.map((column) => {
             const isPastDay = isBeforeCalendarDay(column.day, today);
+            const isSelected = isSameCalendarDay(column.day, selectedDate);
             const daySessions =
               sessionsByDayAndPeriod.get(`${column.dayKey}:${period}`) ?? [];
 
             return (
-              <div key={column.dayKey} className={styles.column}>
+              <div
+                key={column.dayKey}
+                className={[styles.column, isSelected ? "" : styles.columnDimmed]
+                  .filter(Boolean)
+                  .join(" ")}
+                inert={!isSelected}
+              >
                 <ul className={styles.sessions}>
                   {daySessions.map((row) => (
                     <li key={row.id}>{renderSessionCard(row, isPastDay)}</li>

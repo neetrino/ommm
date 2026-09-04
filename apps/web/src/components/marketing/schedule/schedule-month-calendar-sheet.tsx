@@ -25,7 +25,7 @@ import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 
-const WEEKDAY_SAMPLE_SUNDAY = new Date(2024, 0, 7);
+const WEEKDAY_SAMPLE_MONDAY = new Date(2024, 0, 1);
 
 type ScheduleMonthCalendarSheetProps = {
   open: boolean;
@@ -78,8 +78,8 @@ export function ScheduleMonthCalendarSheet({
   const weekdayLabels = useMemo(
     () =>
       Array.from({ length: 7 }, (_, idx) => {
-        const day = new Date(WEEKDAY_SAMPLE_SUNDAY);
-        day.setDate(WEEKDAY_SAMPLE_SUNDAY.getDate() + idx);
+        const day = new Date(WEEKDAY_SAMPLE_MONDAY);
+        day.setDate(WEEKDAY_SAMPLE_MONDAY.getDate() + idx);
         return new Intl.DateTimeFormat(locale, { weekday: "short" })
           .format(day)
           .toUpperCase()

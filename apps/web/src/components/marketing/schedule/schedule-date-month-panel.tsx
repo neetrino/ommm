@@ -21,7 +21,7 @@ import styles from "@/components/marketing/schedule/schedule-date-month-panel.mo
 import { useVisibleMonthFollow } from "@/components/marketing/schedule/use-visible-month-follow";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
-const WEEKDAY_SAMPLE_SUNDAY = new Date(2024, 0, 7);
+const WEEKDAY_SAMPLE_MONDAY = new Date(2024, 0, 1);
 /** Keep in sync with `.popoverAnimated` transform duration. */
 const POPOVER_EXIT_FALLBACK_MS = 560;
 
@@ -118,8 +118,8 @@ export function ScheduleDateMonthPanel({
   const weekdayLabels = useMemo(
     () =>
       Array.from({ length: 7 }, (_, idx) => {
-        const day = new Date(WEEKDAY_SAMPLE_SUNDAY);
-        day.setDate(WEEKDAY_SAMPLE_SUNDAY.getDate() + idx);
+        const day = new Date(WEEKDAY_SAMPLE_MONDAY);
+        day.setDate(WEEKDAY_SAMPLE_MONDAY.getDate() + idx);
         return new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(
           day,
         );

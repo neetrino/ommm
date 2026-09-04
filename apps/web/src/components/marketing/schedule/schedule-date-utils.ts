@@ -57,6 +57,14 @@ export function startOfWeekSunday(input: Date): Date {
   return addDays(d, -d.getDay());
 }
 
+/** Monday → Sunday week start (month calendars). */
+export function startOfWeekMonday(input: Date): Date {
+  const d = startOfLocalDay(input);
+  const weekday = d.getDay();
+  const daysFromMonday = weekday === 0 ? 6 : weekday - 1;
+  return addDays(d, -daysFromMonday);
+}
+
 export function startOfLocalMonth(input: Date): Date {
   return startOfLocalDay(new Date(input.getFullYear(), input.getMonth(), 1));
 }
@@ -74,14 +82,14 @@ export function isSameCalendarMonth(a: Date, b: Date): boolean {
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const DAYS_PER_WEEK = 7;
 
-/** Sunday-start weeks covering the local month of `monthAnchor`. */
+/** Monday-start weeks covering the local month of `monthAnchor`. */
 export function buildMonthWeeks(monthAnchor: Date): Date[][] {
   const monthStart = startOfLocalMonth(monthAnchor);
   const monthEnd = startOfLocalDay(
     new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0),
   );
-  const gridStart = startOfWeekSunday(monthStart);
-  const gridEnd = addDays(startOfWeekSunday(monthEnd), 6);
+  const gridStart = startOfWeekMonday(monthStart);
+  const gridEnd = addDays(startOfWeekMonday(monthEnd), 6);
   const totalDays =
     Math.floor(compareCalendarDays(gridEnd, gridStart) / MS_PER_DAY) + 1;
   const days = Array.from({ length: Math.max(totalDays, 1) }, (_, idx) =>

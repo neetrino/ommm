@@ -56,6 +56,7 @@ type ScheduleWeekBoardProps = {
   canShiftPrev: boolean;
   canShiftNext: boolean;
   filtersSlot?: ReactNode;
+  layoutSwitcherSlot?: ReactNode;
   onSelectDay: (day: Date) => void;
   onShiftWindow: (delta: number) => void;
   onBooked: (sessionId: string, bookingId: string) => void;
@@ -87,6 +88,7 @@ export function ScheduleWeekBoard({
   canShiftPrev,
   canShiftNext,
   filtersSlot,
+  layoutSwitcherSlot,
   onSelectDay,
   onShiftWindow,
   onBooked,
@@ -170,6 +172,10 @@ export function ScheduleWeekBoard({
           <h1 className={pageStyles.title}>{pageTitle}</h1>
         </header>
 
+        {layoutSwitcherSlot !== undefined ? (
+          <div className={styles.layoutSwitcherRow}>{layoutSwitcherSlot}</div>
+        ) : null}
+
         <ScheduleWeekRangePicker
           locale={locale}
           weekRangeLabel={weekRangeLabel}
@@ -196,7 +202,12 @@ export function ScheduleWeekBoard({
               <button
                 key={column.dayKey}
                 type="button"
-                className={styles.dayHeader}
+                className={[
+                  styles.dayHeader,
+                  isSelected ? "" : styles.dayHeaderDimmed,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => onSelectDay(column.day)}
                 aria-pressed={isSelected}
               >
@@ -237,13 +248,24 @@ export function ScheduleWeekBoard({
           }
           aria-hidden
         >
-          {columns.map((column) => (
-            <div key={column.dayKey} className={styles.column}>
-              {Array.from({ length: SKELETON_CARDS_PER_DAY }, (_, idx) => (
-                <div key={idx} className={styles.skeletonCard} />
-              ))}
-            </div>
-          ))}
+          {columns.map((column) => {
+            const isSelected = isSameCalendarDay(column.day, selectedDate);
+            return (
+              <div
+                key={column.dayKey}
+                className={[
+                  styles.column,
+                  isSelected ? "" : styles.columnDimmed,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {Array.from({ length: SKELETON_CARDS_PER_DAY }, (_, idx) => (
+                  <div key={idx} className={styles.skeletonCard} />
+                ))}
+              </div>
+            );
+          })}
         </div>
       ) : visiblePeriods.length === 0 ? (
         <p className={styles.emptyDay}>{t("emptyDay")}</p>
@@ -255,6 +277,7 @@ export function ScheduleWeekBoard({
             collapsed={collapsedPeriods.has(period)}
             columns={columns}
             today={today}
+            selectedDate={selectedDate}
             sessionsByDayAndPeriod={sessionsByDayAndPeriod}
             onToggle={() => togglePeriod(period)}
             renderSessionCard={renderSessionCard}

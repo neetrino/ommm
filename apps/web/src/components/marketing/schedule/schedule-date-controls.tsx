@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   SCHEDULE_ARROW_BTN,
   SCHEDULE_DATE_STRIP_PANEL,
+  SCHEDULE_DATE_STRIP_PAGER_ROW,
   SCHEDULE_FULL_CALENDAR_BTN,
   SCHEDULE_FULL_CALENDAR_BTN_ACTIVE,
   SCHEDULE_FULL_CALENDAR_BTN_LABEL,
@@ -15,7 +16,9 @@ import {
   addDays,
   compareCalendarDays,
   isAfterCalendarDay,
+  isBeforeCalendarDay,
   startOfLocalDay,
+  startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
 import { formatDateForUi } from "@/lib/date-display";
 import {
@@ -41,6 +44,20 @@ function formatWeekdayShort(locale: string, date: Date): string {
 
 function formatSelectedLong(locale: string, date: Date): string {
   return `${formatWeekdayShort(locale, date)}, ${formatDateForUi(date)}`;
+}
+
+function clampScheduleDay(
+  day: Date,
+  earliestDate: Date,
+  maxDate: Date | undefined,
+): Date {
+  if (isBeforeCalendarDay(day, earliestDate)) {
+    return earliestDate;
+  }
+  if (maxDate !== undefined && isAfterCalendarDay(day, maxDate)) {
+    return startOfLocalDay(maxDate);
+  }
+  return startOfLocalDay(day);
 }
 
 type ScheduleDateControlsProps = {
@@ -74,6 +91,12 @@ export function ScheduleDateControls({
   const today = startOfLocalDay(new Date());
   const earliestDate = minDate !== undefined ? startOfLocalDay(minDate) : today;
   const calendarMaxDate = maxDate ?? addDays(today, 30);
+  const selectedWeekStart = startOfWeekSunday(selectedDate);
+  const canShiftPrevWeek =
+    compareCalendarDays(addDays(selectedWeekStart, -1), earliestDate) >= 0;
+  const canShiftNextWeek =
+    maxDate === undefined ||
+    !isAfterCalendarDay(addDays(selectedWeekStart, WINDOW_SHIFT), maxDate);
   const canShiftPrev =
     compareCalendarDays(addDays(windowStart, -1), earliestDate) >= 0;
   const canShiftNext =
@@ -100,18 +123,45 @@ export function ScheduleDateControls({
     monthPopover.hide();
   }
 
+  function shiftSelectedWeek(direction: -1 | 1) {
+    const candidate = addDays(selectedDate, direction * WINDOW_SHIFT);
+    onSelectDay(clampScheduleDay(candidate, earliestDate, maxDate));
+  }
+
   return (
     <>
       {showDateStrip ? (
         <div className={SCHEDULE_DATE_STRIP_PANEL}>
-          <ScheduleDateWeekPager
-            locale={locale}
-            selectedDate={selectedDate}
-            earliestDate={earliestDate}
-            maxDate={maxDate}
-            today={today}
-            onSelectDay={onSelectDay}
-          />
+          <div className={SCHEDULE_DATE_STRIP_PAGER_ROW}>
+            <button
+              type="button"
+              className={SCHEDULE_ARROW_BTN}
+              aria-label={t("prevDatesAria")}
+              disabled={!canShiftPrevWeek}
+              aria-disabled={!canShiftPrevWeek}
+              onClick={() => shiftSelectedWeek(-1)}
+            >
+              <ArrowLeftIcon />
+            </button>
+            <ScheduleDateWeekPager
+              locale={locale}
+              selectedDate={selectedDate}
+              earliestDate={earliestDate}
+              maxDate={maxDate}
+              today={today}
+              onSelectDay={onSelectDay}
+            />
+            <button
+              type="button"
+              className={SCHEDULE_ARROW_BTN}
+              aria-label={t("nextDatesAria")}
+              disabled={!canShiftNextWeek}
+              aria-disabled={!canShiftNextWeek}
+              onClick={() => shiftSelectedWeek(1)}
+            >
+              <ArrowRightIcon />
+            </button>
+          </div>
         </div>
       ) : null}
 
