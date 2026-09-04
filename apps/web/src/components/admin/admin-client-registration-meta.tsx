@@ -47,32 +47,6 @@ function resolveSourceTone(
   return "staff";
 }
 
-function sourceBadgeClass(tone: SourceTone): string {
-  const base =
-    "inline-flex w-fit max-w-full items-center rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide";
-  if (tone === "self") {
-    return `${base} border border-mint-200/80 bg-mint-100/90 text-sage-800`;
-  }
-  if (tone === "admin") {
-    return `${base} border border-sand-300/70 bg-sand-100 text-sage-900`;
-  }
-  if (tone === "manager") {
-    return `${base} border border-sage-200/80 bg-white/90 text-sage-800`;
-  }
-  return `${base} border border-sage-200/80 bg-sage-100/90 text-sage-800`;
-}
-
-function creatorInitials(name: string): string {
-  const parts = name.split(/\s+/).filter((part) => part.length > 0);
-  if (parts.length === 0) {
-    return "?";
-  }
-  if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
-  }
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
-}
-
 function CalendarGlyph() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -196,17 +170,16 @@ export function ClientRegistrationMeta({
         </MetaTile>
 
         <MetaTile label={sourceLabel} icon={<SourceGlyph tone={tone} />}>
-          <span className={sourceBadgeClass(tone)}>{sourceText}</span>
-          {showCreator ? (
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sand-700 text-[10px] font-semibold leading-none text-cream-50 ring-2 ring-white">
-                {creatorInitials(creatorName)}
+          <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="font-serif text-lg leading-none tracking-tight text-sage-950 sm:text-xl">
+              {sourceText}
+            </span>
+            {showCreator ? (
+              <span className="truncate text-sm font-medium text-sage-600">
+                · {creatorName}
               </span>
-              <p className="truncate text-sm font-medium leading-none text-sage-800">
-                {creatorName}
-              </p>
-            </div>
-          ) : null}
+            ) : null}
+          </p>
         </MetaTile>
       </div>
     </section>
