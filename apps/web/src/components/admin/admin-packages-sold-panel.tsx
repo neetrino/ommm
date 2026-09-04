@@ -7,6 +7,8 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminPackagesSoldBoardCard } from "@/components/admin/admin-packages-sold-board-card";
 import {
   buildSoldPackagesFilterFields,
+  normalizeSoldPackagesDraftChange,
+  planBelongsToSoldPackageCategory,
   soldPackageCategoryFilterOptions,
   soldPackagePlanFilterOptions,
 } from "@/components/admin/admin-packages-sold-filter-fields";
@@ -87,53 +89,69 @@ function SoldPackagesSearch({
   urlState: SoldPackagesUrlState;
 }) {
   const t = useTranslations("adminPages.packages.sold");
-  const fields = useSoldPackagesFilterFields(packagePlans);
+  const labels = useSoldPackagesFilterLabels();
+  const categoryOptions = useMemo(
+    () => soldPackageCategoryFilterOptions(packagePlans),
+    [packagePlans],
+  );
 
   return (
     <ListPageSearchFilters
       search={urlState.search}
       onSearchChange={urlState.setSearch}
       searchPlaceholder={t("searchPlaceholder")}
-      fields={fields}
+      resolveFields={(values) =>
+        buildSoldPackagesFilterFields({
+          labels,
+          categoryOptions,
+          planOptions: soldPackagePlanFilterOptions(
+            packagePlans,
+            values[PACKAGES_SOLD_CATEGORY_QUERY_KEY] ?? PACKAGES_SOLD_CATEGORY_ALL,
+          ),
+        })
+      }
       filterValues={{ planId: urlState.planId, categorySlug: urlState.categorySlug }}
-      onFilterChange={(key, value) => applySoldFilterChange(urlState, key, value)}
+      normalizeDraftChange={(previous, key, value) =>
+        normalizeSoldPackagesDraftChange(packagePlans, previous, key, value)
+      }
+      onFilterChange={(key, value) => applySoldFilterChange(urlState, packagePlans, key, value)}
       onClearAll={() => clearSoldFilters(urlState)}
       resetLabel={t("reset")}
     />
   );
 }
 
-function useSoldPackagesFilterFields(packagePlans: readonly AdminPackageRow[]) {
+function useSoldPackagesFilterLabels() {
   const t = useTranslations("adminPages.packages.sold");
-  const categoryOptions = useMemo(
-    () => soldPackageCategoryFilterOptions(packagePlans),
-    [packagePlans],
-  );
-  const planOptions = useMemo(() => soldPackagePlanFilterOptions(packagePlans), [packagePlans]);
   return useMemo(
-    () =>
-      buildSoldPackagesFilterFields({
-        labels: {
-          category: t("filterCategory"),
-          categoryAll: t("filterCategoryAll"),
-          categoryEmpty: t("filterCategoryEmpty"),
-          package: t("filterPackage"),
-          packageAll: t("filterPackageAll"),
-          packageEmpty: t("filterPackageEmpty"),
-        },
-        categoryOptions,
-        planOptions,
-      }),
-    [categoryOptions, planOptions, t],
+    () => ({
+      category: t("filterCategory"),
+      categoryAll: t("filterCategoryAll"),
+      categoryEmpty: t("filterCategoryEmpty"),
+      package: t("filterPackage"),
+      packageAll: t("filterPackageAll"),
+      packageEmpty: t("filterPackageEmpty"),
+    }),
+    [t],
   );
 }
 
-function applySoldFilterChange(urlState: SoldPackagesUrlState, key: string, value: string): void {
+function applySoldFilterChange(
+  urlState: SoldPackagesUrlState,
+  packagePlans: readonly AdminPackageRow[],
+  key: string,
+  value: string,
+): void {
   if (key === PACKAGES_SOLD_PLAN_QUERY_KEY) {
     urlState.setPlanId(value);
+    return;
   }
-  if (key === PACKAGES_SOLD_CATEGORY_QUERY_KEY) {
-    urlState.setCategorySlug(value);
+  if (key !== PACKAGES_SOLD_CATEGORY_QUERY_KEY) {
+    return;
+  }
+  urlState.setCategorySlug(value);
+  if (!planBelongsToSoldPackageCategory(packagePlans, urlState.planId, value)) {
+    urlState.setPlanId(PACKAGES_SOLD_PLAN_ALL);
   }
 }
 

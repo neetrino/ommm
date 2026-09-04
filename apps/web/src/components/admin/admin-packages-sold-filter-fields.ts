@@ -14,15 +14,17 @@ export type SoldPackageSelectFilterOption = {
   label: string;
 };
 
+type SoldPackagesFilterLabels = {
+  category: string;
+  categoryAll: string;
+  categoryEmpty: string;
+  package: string;
+  packageAll: string;
+  packageEmpty: string;
+};
+
 type BuildSoldPackagesFilterFieldsArgs = {
-  labels: {
-    category: string;
-    categoryAll: string;
-    categoryEmpty: string;
-    package: string;
-    packageAll: string;
-    packageEmpty: string;
-  };
+  labels: SoldPackagesFilterLabels;
   categoryOptions: readonly SoldPackageSelectFilterOption[];
   planOptions: readonly SoldPackageSelectFilterOption[];
 };
@@ -38,23 +40,46 @@ export function soldPackageCategoryFilterOptions(
 
 export function soldPackagePlanFilterOptions(
   plans: readonly AdminPackageRow[],
+  categorySlug: string = PACKAGES_SOLD_CATEGORY_ALL,
 ): SoldPackageSelectFilterOption[] {
-  return [...plans]
-    .sort((left, right) => {
-      const categoryCompare = left.categoryName.localeCompare(right.categoryName);
-      if (categoryCompare !== 0) {
-        return categoryCompare;
-      }
-      const orderCompare = left.displayOrder - right.displayOrder;
-      if (orderCompare !== 0) {
-        return orderCompare;
-      }
-      return left.name.localeCompare(right.name);
-    })
+  const scoped = plansForSoldPackageCategory(plans, categorySlug);
+  return [...scoped]
+    .sort(compareSoldPackagePlans)
     .map((plan) => ({
       value: plan.id,
       label: formatPackagePlanName(plan.name, plan.sessionsPerMonth),
     }));
+}
+
+export function planBelongsToSoldPackageCategory(
+  plans: readonly AdminPackageRow[],
+  planId: string,
+  categorySlug: string,
+): boolean {
+  const trimmedPlanId = planId.trim();
+  if (trimmedPlanId.length === 0 || trimmedPlanId === PACKAGES_SOLD_PLAN_ALL) {
+    return true;
+  }
+  return plansForSoldPackageCategory(plans, categorySlug).some(
+    (plan) => plan.id === trimmedPlanId,
+  );
+}
+
+export function normalizeSoldPackagesDraftChange(
+  plans: readonly AdminPackageRow[],
+  previous: Record<string, string>,
+  key: string,
+  value: string,
+): Record<string, string> {
+  const next = { ...previous, [key]: value };
+  if (key !== PACKAGES_SOLD_CATEGORY_QUERY_KEY) {
+    return next;
+  }
+  const planId = previous[PACKAGES_SOLD_PLAN_QUERY_KEY] ?? PACKAGES_SOLD_PLAN_ALL;
+  if (!planBelongsToSoldPackageCategory(plans, planId, value)) {
+    next[PACKAGES_SOLD_PLAN_QUERY_KEY] = PACKAGES_SOLD_PLAN_ALL;
+  }
+  return next;
 }
 
 export function buildSoldPackagesFilterFields({
@@ -78,4 +103,27 @@ export function buildSoldPackagesFilterFields({
       options: planOptions,
     },
   ];
+}
+
+function plansForSoldPackageCategory(
+  plans: readonly AdminPackageRow[],
+  categorySlug: string,
+): readonly AdminPackageRow[] {
+  const slug = categorySlug.trim();
+  if (slug.length === 0 || slug === PACKAGES_SOLD_CATEGORY_ALL) {
+    return plans;
+  }
+  return plans.filter((plan) => plan.categorySlug === slug);
+}
+
+function compareSoldPackagePlans(left: AdminPackageRow, right: AdminPackageRow): number {
+  const categoryCompare = left.categoryName.localeCompare(right.categoryName);
+  if (categoryCompare !== 0) {
+    return categoryCompare;
+  }
+  const orderCompare = left.displayOrder - right.displayOrder;
+  if (orderCompare !== 0) {
+    return orderCompare;
+  }
+  return left.name.localeCompare(right.name);
 }
