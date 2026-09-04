@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BookingStatus } from '@prisma/client';
 import { WhatsappNotifyService } from './whatsapp-notify.service';
+import { formatWhatsappDateTime } from './whatsapp-locale';
 import { renderBookingConfirmedWhatsapp } from './whatsapp-schedule-templates';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -55,10 +56,16 @@ export class WhatsappBookingConfirmedService {
     if (already !== null && already.sentAt >= booking.updatedAt) {
       return;
     }
+    const className = booking.session.classType.name.trim();
+    const startsAt = booking.session.startsAt;
     const result = await this.notify.trySendToUser({
       userId: booking.user.id,
       topic: 'bookingReminders',
-      render: (locale) => renderBookingConfirmedWhatsapp(locale),
+      render: (locale) =>
+        renderBookingConfirmedWhatsapp(locale, {
+          className,
+          startsAtLabel: formatWhatsappDateTime(startsAt, locale),
+        }),
     });
     if (result === 'failed') {
       return;

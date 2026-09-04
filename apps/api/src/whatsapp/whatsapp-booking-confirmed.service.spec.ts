@@ -42,6 +42,13 @@ describe('WhatsappBookingConfirmedService', () => {
     await service.tryNotify('b1');
 
     expect(notify.trySendToUser).toHaveBeenCalled();
+    const render = notify.trySendToUser.mock.calls[0]?.[0]?.render as (
+      locale: 'hy' | 'en',
+    ) => string;
+    expect(render('hy')).toContain('ամրագրված է');
+    expect(render('hy')).toContain('Reformer');
+    expect(render('en')).toContain('Your Ommm. moment is booked');
+    expect(render('en')).toContain('Reformer');
     expect(prisma.bookingConfirmedSendLog.upsert).toHaveBeenCalled();
   });
 });
