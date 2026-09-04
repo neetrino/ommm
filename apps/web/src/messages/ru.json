@@ -3486,7 +3486,12 @@
         "openClient": "Открыть {name}",
         "backToPackages": "Назад к пакетам",
         "summaryLinkAria": "Все проданные пакеты, {count}",
-        "reset": "Очистить поиск"
+        "reset": "Очистить поиск",
+        "filterPackage": "Пакет",
+        "filterPackageAll": "Все пакеты",
+        "filterPackageEmpty": "Нет пакетов",
+        "totalAmount": "Всего продано",
+        "totalCount": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}"
       },
       "addGroupNameFieldLabel": "Название группы",
       "addGroupButton": "Добавить группу",

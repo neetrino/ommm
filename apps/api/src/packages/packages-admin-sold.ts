@@ -28,6 +28,7 @@ export type SoldPackageListItem = {
 export type SoldPackageListPayload = {
   items: SoldPackageListItem[];
   total: number;
+  totalAmountCents: number;
   take: number;
   offset: number;
 };
@@ -44,13 +45,13 @@ type SoldPaymentRow = {
 
 export async function listSoldPackages(
   prisma: PrismaClient,
-  query: { take?: number; offset?: number; q?: string },
+  query: { take?: number; offset?: number; q?: string; planId?: string },
 ): Promise<SoldPackageListPayload> {
   const take = query.take ?? SOLD_PACKAGES_DEFAULT_PAGE_SIZE;
   const offset = query.offset ?? 0;
-  const where = await buildSoldListWhere(prisma, query.q);
+  const where = await buildSoldListWhere(prisma, query.q, query.planId);
 
-  const [payments, total] = await Promise.all([
+  const [payments, total, amountAgg] = await Promise.all([
     prisma.payment.findMany({
       where,
       select: {
@@ -69,6 +70,10 @@ export async function listSoldPackages(
       skip: offset,
     }),
     prisma.payment.count({ where }),
+    prisma.payment.aggregate({
+      where,
+      _sum: { amountCents: true },
+    }),
   ]);
 
   const packageNames = await loadSoldPackageNames(
@@ -79,6 +84,7 @@ export async function listSoldPackages(
   return {
     items: payments.map((payment) => toSoldListItem(payment, packageNames)),
     total,
+    totalAmountCents: amountAgg._sum.amountCents ?? 0,
     take,
     offset,
   };
@@ -87,11 +93,34 @@ export async function listSoldPackages(
 async function buildSoldListWhere(
   prisma: PrismaClient,
   rawQuery: string | undefined,
+  planId: string | undefined,
 ): Promise<Prisma.PaymentWhereInput> {
   const searchWhere = await buildSoldPackageSearchWhere(prisma, rawQuery);
+  const planWhere = await buildSoldPackagePlanWhere(prisma, planId);
   return {
-    AND: [SOLD_PACKAGE_PAYMENTS_WHERE, ...(searchWhere ? [searchWhere] : [])],
+    AND: [
+      SOLD_PACKAGE_PAYMENTS_WHERE,
+      ...(searchWhere ? [searchWhere] : []),
+      ...(planWhere ? [planWhere] : []),
+    ],
   };
+}
+
+async function buildSoldPackagePlanWhere(
+  prisma: PrismaClient,
+  planId: string | undefined,
+): Promise<Prisma.PaymentWhereInput | undefined> {
+  const id = planId?.trim() ?? '';
+  if (id.length === 0 || id === 'all') {
+    return undefined;
+  }
+  const rows = await prisma.userPackage.findMany({
+    where: {
+      OR: [{ planId: id }, { sourcePlanIdSnapshot: id }],
+    },
+    select: { id: true },
+  });
+  return { sourceId: { in: rows.map((row) => row.id) } };
 }
 
 async function buildSoldPackageSearchWhere(

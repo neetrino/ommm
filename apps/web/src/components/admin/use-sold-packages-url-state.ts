@@ -5,24 +5,48 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   PACKAGES_SOLD_LIST_PAGE_SIZE,
+  PACKAGES_SOLD_PLAN_ALL,
+  PACKAGES_SOLD_PLAN_QUERY_KEY,
   PACKAGES_SOLD_SEARCH_DEBOUNCE_MS,
   PACKAGES_SOLD_SEARCH_QUERY_KEY,
 } from "@/components/admin/admin-packages-sold";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
-export function useSoldPackagesUrlState(initialQuery: string) {
+export function useSoldPackagesUrlState(initialQuery: string, initialPlanId: string) {
+  const [search, setSearch] = usePropSyncedState(initialQuery);
+  const [planId, setPlanId] = usePropSyncedState(initialPlanId);
+  const navigation = useSoldListNavigation(search, planId);
+  useDebouncedSearchSync(search, navigation.syncFiltersToUrl);
+  useImmediatePlanSync(planId, navigation.syncFiltersToUrl);
+
+  return {
+    search,
+    setSearch,
+    planId,
+    setPlanId,
+    listPage: navigation.listPage,
+    setListPage: navigation.setListPage,
+    isPending: navigation.isPending,
+    router: navigation.router,
+  };
+}
+
+function useSoldListNavigation(search: string, planId: string) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [search, setSearch] = usePropSyncedState(initialQuery);
   const [isPending, startTransition] = useTransition();
   const searchParamsRef = useRef(searchParams.toString());
+  const searchRef = useRef(search);
+  const planIdRef = useRef(planId);
   const listPage = useMemo(() => soldListPageFromSearch(searchParams), [searchParams]);
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();
-  }, [searchParams]);
+    searchRef.current = search;
+    planIdRef.current = planId;
+  }, [planId, search, searchParams]);
 
   const replaceQuery = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
@@ -37,7 +61,12 @@ export function useSoldPackagesUrlState(initialQuery: string) {
     [pathname, router],
   );
 
-  useDebouncedSearchSync(search, replaceQuery);
+  const syncFiltersToUrl = useCallback(() => {
+    replaceQuery((params) => {
+      writeSoldFilterParams(params, searchRef.current, planIdRef.current);
+      resetListPageQuery(params);
+    });
+  }, [replaceQuery]);
 
   const setListPage = useCallback(
     (page: number) => {
@@ -48,7 +77,21 @@ export function useSoldPackagesUrlState(initialQuery: string) {
     [replaceQuery],
   );
 
-  return { search, setSearch, listPage, setListPage, isPending, router };
+  return { listPage, setListPage, isPending, router, syncFiltersToUrl };
+}
+
+function writeSoldFilterParams(params: URLSearchParams, search: string, planId: string): void {
+  const trimmed = search.trim();
+  if (trimmed.length === 0) {
+    params.delete(PACKAGES_SOLD_SEARCH_QUERY_KEY);
+  } else {
+    params.set(PACKAGES_SOLD_SEARCH_QUERY_KEY, trimmed);
+  }
+  if (planId.length === 0 || planId === PACKAGES_SOLD_PLAN_ALL) {
+    params.delete(PACKAGES_SOLD_PLAN_QUERY_KEY);
+  } else {
+    params.set(PACKAGES_SOLD_PLAN_QUERY_KEY, planId);
+  }
 }
 
 function soldListPageFromSearch(searchParams: URLSearchParams) {
@@ -67,27 +110,25 @@ function nextSearchQuery(
   return qs === currentQuery ? null : qs;
 }
 
-function useDebouncedSearchSync(
-  search: string,
-  replaceQuery: (mutator: (params: URLSearchParams) => void) => void,
-): void {
+function useDebouncedSearchSync(search: string, syncFiltersToUrl: () => void): void {
   const hasMountedRef = useRef(false);
   useEffect(() => {
     if (!hasMountedRef.current) {
       hasMountedRef.current = true;
       return undefined;
     }
-    const handle = window.setTimeout(() => {
-      replaceQuery((params) => {
-        const trimmed = search.trim();
-        if (trimmed.length === 0) {
-          params.delete(PACKAGES_SOLD_SEARCH_QUERY_KEY);
-        } else {
-          params.set(PACKAGES_SOLD_SEARCH_QUERY_KEY, trimmed);
-        }
-        resetListPageQuery(params);
-      });
-    }, PACKAGES_SOLD_SEARCH_DEBOUNCE_MS);
+    const handle = window.setTimeout(syncFiltersToUrl, PACKAGES_SOLD_SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [replaceQuery, search]);
+  }, [search, syncFiltersToUrl]);
+}
+
+function useImmediatePlanSync(planId: string, syncFiltersToUrl: () => void): void {
+  const hasMountedRef = useRef(false);
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+    syncFiltersToUrl();
+  }, [planId, syncFiltersToUrl]);
 }

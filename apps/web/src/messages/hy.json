@@ -3489,7 +3489,12 @@
         "openClient": "Բացել {name}",
         "backToPackages": "Վերադառնալ փաթեթներ",
         "summaryLinkAria": "Բոլոր վաճառված փաթեթները, {count}",
-        "reset": "Մաքրել որոնումը"
+        "reset": "Մաքրել որոնումը",
+        "filterPackage": "Փաթեթ",
+        "filterPackageAll": "Բոլոր փաթեթները",
+        "filterPackageEmpty": "Փաթեթներ չկան",
+        "totalAmount": "Ընդհանուր վաճառք",
+        "totalCount": "{count} փաթեթ"
       },
       "addGroupNameFieldLabel": "Խմբի անուն",
       "addGroupButton": "Ավելացնել խումբ",

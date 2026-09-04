@@ -8,6 +8,10 @@ export const PACKAGES_SOLD_LIST_PAGE_SIZE = 10;
 
 export const PACKAGES_SOLD_SEARCH_QUERY_KEY = "q";
 
+export const PACKAGES_SOLD_PLAN_QUERY_KEY = "planId";
+
+export const PACKAGES_SOLD_PLAN_ALL = "all";
+
 export const PACKAGES_SOLD_SEARCH_DEBOUNCE_MS = 300;
 
 export type SoldPackageListItem = {
@@ -27,6 +31,7 @@ export type SoldPackageListItem = {
 export type SoldPackageListPayload = {
   items: SoldPackageListItem[];
   total: number;
+  totalAmountCents: number;
   take: number;
   offset: number;
 };
@@ -35,6 +40,16 @@ export function parseSoldPackagesSearchQuery(
   search: Record<string, string | undefined>,
 ): string {
   return search[PACKAGES_SOLD_SEARCH_QUERY_KEY]?.trim() ?? "";
+}
+
+export function parseSoldPackagesPlanId(
+  search: Record<string, string | undefined>,
+): string {
+  const value = search[PACKAGES_SOLD_PLAN_QUERY_KEY]?.trim() ?? "";
+  if (value.length === 0 || value === PACKAGES_SOLD_PLAN_ALL) {
+    return PACKAGES_SOLD_PLAN_ALL;
+  }
+  return value;
 }
 
 export function parseSoldPackagesPageParams(
@@ -49,14 +64,19 @@ export function buildSoldPackagesAdminEndpoint(
   take: number,
   offset: number,
   q: string,
+  planId: string = PACKAGES_SOLD_PLAN_ALL,
 ): string {
   const params = new URLSearchParams({
     take: String(take),
     offset: String(offset),
   });
-  const trimmed = q.trim();
-  if (trimmed.length > 0) {
-    params.set(PACKAGES_SOLD_SEARCH_QUERY_KEY, trimmed);
+  const trimmedQuery = q.trim();
+  if (trimmedQuery.length > 0) {
+    params.set(PACKAGES_SOLD_SEARCH_QUERY_KEY, trimmedQuery);
+  }
+  const trimmedPlanId = (planId ?? PACKAGES_SOLD_PLAN_ALL).trim();
+  if (trimmedPlanId.length > 0 && trimmedPlanId !== PACKAGES_SOLD_PLAN_ALL) {
+    params.set(PACKAGES_SOLD_PLAN_QUERY_KEY, trimmedPlanId);
   }
   return `/packages/admin/sold?${params.toString()}`;
 }

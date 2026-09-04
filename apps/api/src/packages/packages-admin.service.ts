@@ -56,7 +56,7 @@ export class PackagesAdminService {
     return { totalSold };
   }
 
-  listSoldAdmin(query: { take?: number; offset?: number; q?: string }) {
+  listSoldAdmin(query: { take?: number; offset?: number; q?: string; planId?: string }) {
     return listSoldPackages(this.prisma, query);
   }
 

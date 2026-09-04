@@ -7,9 +7,11 @@ import {
   buildSoldPackagesAdminEndpoint,
   normalizePageSearchParams,
   parseSoldPackagesPageParams,
+  parseSoldPackagesPlanId,
   parseSoldPackagesSearchQuery,
   type SoldPackageListPayload,
 } from "@/components/admin/admin-packages-sold";
+import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminPackagesSoldPage({
@@ -25,13 +27,17 @@ export default async function AdminPackagesSoldPage({
   const cookie = (await headers()).get("cookie") ?? "";
   const listPage = parseSoldPackagesPageParams(search);
   const q = parseSoldPackagesSearchQuery(search);
-  const res = await serverApiJson<SoldPackageListPayload>(
-    buildSoldPackagesAdminEndpoint(listPage.take, listPage.offset, q),
-    cookie,
-  );
+  const planId = parseSoldPackagesPlanId(search);
+  const [soldRes, plansRes] = await Promise.all([
+    serverApiJson<SoldPackageListPayload>(
+      buildSoldPackagesAdminEndpoint(listPage.take, listPage.offset, q, planId),
+      cookie,
+    ),
+    serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
+  ]);
 
-  if (!res.ok) {
-    const status = res.status;
+  if (!soldRes.ok) {
+    const status = soldRes.status;
     return (
       <AdminContentFrame>
         <div className="app-alert-warn max-w-xl">
@@ -44,7 +50,13 @@ export default async function AdminPackagesSoldPage({
   return (
     <AdminContentFrame>
       <Suspense fallback={null}>
-        <AdminPackagesSoldPanel locale={locale} initial={res.data} initialQuery={q} />
+        <AdminPackagesSoldPanel
+          locale={locale}
+          initial={soldRes.data}
+          initialQuery={q}
+          initialPlanId={planId}
+          packagePlans={plansRes.ok ? plansRes.data : []}
+        />
       </Suspense>
     </AdminContentFrame>
   );

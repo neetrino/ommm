@@ -3488,7 +3488,12 @@
         "openClient": "Open {name}",
         "backToPackages": "Back to packages",
         "summaryLinkAria": "View all sold packages, {count}",
-        "reset": "Clear search"
+        "reset": "Clear search",
+        "filterPackage": "Package",
+        "filterPackageAll": "All packages",
+        "filterPackageEmpty": "No packages",
+        "totalAmount": "Total sold",
+        "totalCount": "{count, plural, one {# package} other {# packages}}"
       },
       "addGroupNameFieldLabel": "Add Group Name",
       "addGroupButton": "Add Group",
