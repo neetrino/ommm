@@ -16,9 +16,14 @@ model User {
   /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
   locale           String    @default("hy")
   giftCreditsCents Int       @default(0)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  /** SELF = website/app/OAuth signup; STAFF = created by Admin/Manager. */
+  registrationSource ClientRegistrationSource @default(SELF)
+  registeredById     String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
+  registeredBy      User?   @relation("ClientRegisteredBy", fields: [registeredById], references: [id], onDelete: SetNull)
+  clientsRegistered User[]  @relation("ClientRegisteredBy")
   coachProfile      CoachProfile?
   bookings          Booking[]
   bookingsCancelled Booking[] @relation("BookingCancelledBy")
@@ -43,6 +48,9 @@ model User {
   authTokens         AuthToken[]
   oauthAccounts      OAuthAccount[]
   pushDeviceTokens   PushDeviceToken[]
+
+  @@index([registeredById])
+  @@index([registrationSource])
 }
 
 model AuthToken {

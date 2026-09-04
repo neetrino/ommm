@@ -19,6 +19,12 @@ export type ClientRow = {
   status: ClientStatus;
   isBlocked: boolean;
   source: "website" | "mobile-app" | "admin" | null;
+  registrationSource: "SELF" | "STAFF";
+  registeredBy: {
+    id: string;
+    name: string | null;
+    role: "ADMIN" | "MANAGER" | "CONTENT_ADMIN" | "COACH" | "USER";
+  } | null;
   preferredCoach: { id: string; name: string; count: number } | null;
   paymentBehavior: PaymentBehavior;
   attendanceBehavior: AttendanceBehavior;

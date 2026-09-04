@@ -1,4 +1,10 @@
-import { Prisma, BookingStatus, PaymentStatus } from '@prisma/client';
+import {
+  Prisma,
+  BookingStatus,
+  ClientRegistrationSource,
+  PaymentStatus,
+  Role,
+} from '@prisma/client';
 import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
 import {
   INACTIVE_CLIENT_DAYS,
@@ -13,7 +19,15 @@ import { pickNextBookingFromBookings } from './clients-row-next-booking';
 
 const CLIENT_ACTIVE_PACKAGES_TAKE = 10;
 
+const registeredBySelect = {
+  id: true,
+  name: true,
+  lastName: true,
+  role: true,
+} satisfies Prisma.UserSelect;
+
 export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
+  registeredBy: { select: registeredBySelect },
   bookings: {
     include: {
       session: {
@@ -119,6 +133,26 @@ function getSource(
     return null;
   }
   return firstBooking.channel === 'APP' ? 'mobile-app' : 'website';
+}
+
+function toRegisteredBySummary(
+  registeredBy: ClientRecord['registeredBy'],
+): {
+  id: string;
+  name: string | null;
+  role: Role;
+} | null {
+  if (!registeredBy) {
+    return null;
+  }
+  const name = [registeredBy.name, registeredBy.lastName]
+    .filter(Boolean)
+    .join(' ');
+  return {
+    id: registeredBy.id,
+    name: name.length > 0 ? name : null,
+    role: registeredBy.role,
+  };
 }
 
 function getPaymentBehavior(user: ClientRecord): PaymentBehavior {
@@ -236,6 +270,9 @@ export function toClientRow(user: ClientRecord) {
     createdAt: user.createdAt,
     status: getClientStatus(user),
     source: getSource(user),
+    registrationSource:
+      user.registrationSource ?? ClientRegistrationSource.SELF,
+    registeredBy: toRegisteredBySummary(user.registeredBy),
     preferredCoach,
     paymentBehavior,
     attendanceBehavior,
