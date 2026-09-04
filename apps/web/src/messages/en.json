@@ -3492,6 +3492,7 @@
         "filterCategory": "Categories",
         "filterCategoryAll": "All categories",
         "filterCategoryEmpty": "No categories",
+        "filterCategorySelected": "{count, plural, one {# selected} other {# selected}}",
         "filterPackage": "Package",
         "filterPackageAll": "All packages",
         "filterPackageEmpty": "No packages",

@@ -33,10 +33,7 @@ export class EhdmApiClient {
     return this.post(EHDM_API_PATH.CHECK_CONNECTION, { crn });
   }
 
-  private async post(
-    path: string,
-    body: object,
-  ): Promise<EhdmApiResponse> {
+  private async post(path: string, body: object): Promise<EhdmApiResponse> {
     const url = new URL(`${this.config.getApiUrl()}${path}`);
     const payload = JSON.stringify(body);
     const agent = this.createAgent();

@@ -28,7 +28,10 @@ export class EhdmReceiptService {
 
   /** Fire-and-forget fiscal print when a payment newly reaches SUCCEEDED. */
   tryPrintReceipt(paymentId: string, previousStatus: PaymentStatus): void {
-    if (!this.config.isEnabled() || previousStatus === PaymentStatus.SUCCEEDED) {
+    if (
+      !this.config.isEnabled() ||
+      previousStatus === PaymentStatus.SUCCEEDED
+    ) {
       return;
     }
     void this.printService.printReceiptForPayment(paymentId).catch((error) => {

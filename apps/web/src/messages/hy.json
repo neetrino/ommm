@@ -3493,6 +3493,7 @@
         "filterCategory": "Կատեգորիաներ",
         "filterCategoryAll": "Բոլոր կատեգորիաները",
         "filterCategoryEmpty": "Կատեգորիաներ չկան",
+        "filterCategorySelected": "{count} ընտրված",
         "filterPackage": "Փաթեթ",
         "filterPackageAll": "Բոլոր փաթեթները",
         "filterPackageEmpty": "Փաթեթներ չկան",

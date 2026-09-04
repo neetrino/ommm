@@ -5,6 +5,7 @@ import {
   PACKAGES_SOLD_CATEGORY_QUERY_KEY,
   PACKAGES_SOLD_PLAN_ALL,
   PACKAGES_SOLD_PLAN_QUERY_KEY,
+  parseSoldPackagesCategorySlugs,
 } from "@/components/admin/admin-packages-sold";
 import { categoryPackagesToOptions } from "@/components/admin/package-category-utils";
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
@@ -18,6 +19,7 @@ type SoldPackagesFilterLabels = {
   category: string;
   categoryAll: string;
   categoryEmpty: string;
+  categorySelected: (count: number) => string;
   package: string;
   packageAll: string;
   packageEmpty: string;
@@ -27,6 +29,7 @@ type BuildSoldPackagesFilterFieldsArgs = {
   labels: SoldPackagesFilterLabels;
   categoryOptions: readonly SoldPackageSelectFilterOption[];
   planOptions: readonly SoldPackageSelectFilterOption[];
+  renderCategory: IntegratedFilterField["render"];
 };
 
 export function soldPackageCategoryFilterOptions(
@@ -42,7 +45,7 @@ export function soldPackagePlanFilterOptions(
   plans: readonly AdminPackageRow[],
   categorySlug: string = PACKAGES_SOLD_CATEGORY_ALL,
 ): SoldPackageSelectFilterOption[] {
-  const scoped = plansForSoldPackageCategory(plans, categorySlug);
+  const scoped = plansForSoldPackageCategories(plans, categorySlug);
   return [...scoped]
     .sort(compareSoldPackagePlans)
     .map((plan) => ({
@@ -60,7 +63,7 @@ export function planBelongsToSoldPackageCategory(
   if (trimmedPlanId.length === 0 || trimmedPlanId === PACKAGES_SOLD_PLAN_ALL) {
     return true;
   }
-  return plansForSoldPackageCategory(plans, categorySlug).some(
+  return plansForSoldPackageCategories(plans, categorySlug).some(
     (plan) => plan.id === trimmedPlanId,
   );
 }
@@ -86,14 +89,16 @@ export function buildSoldPackagesFilterFields({
   labels,
   categoryOptions,
   planOptions,
+  renderCategory,
 }: BuildSoldPackagesFilterFieldsArgs): IntegratedFilterField[] {
   return [
     {
       key: PACKAGES_SOLD_CATEGORY_QUERY_KEY,
       label: labels.category,
       emptyValue: PACKAGES_SOLD_CATEGORY_ALL,
-      allLabel: categoryOptions.length > 0 ? labels.categoryAll : labels.categoryEmpty,
-      options: categoryOptions,
+      resolveChipLabel: (value) =>
+        resolveSoldCategoryChipLabel(labels, categoryOptions, value),
+      render: renderCategory,
     },
     {
       key: PACKAGES_SOLD_PLAN_QUERY_KEY,
@@ -105,15 +110,34 @@ export function buildSoldPackagesFilterFields({
   ];
 }
 
-function plansForSoldPackageCategory(
+function resolveSoldCategoryChipLabel(
+  labels: SoldPackagesFilterLabels,
+  categoryOptions: readonly SoldPackageSelectFilterOption[],
+  value: string,
+): string | null {
+  const slugs = parseSoldPackagesCategorySlugs(value);
+  if (slugs.length === 0) {
+    return null;
+  }
+  if (slugs.length === 1) {
+    const slug = slugs[0] ?? "";
+    const optionLabel =
+      categoryOptions.find((option) => option.value === slug)?.label ?? slug;
+    return `${labels.category}: ${optionLabel}`;
+  }
+  return `${labels.category}: ${labels.categorySelected(slugs.length)}`;
+}
+
+function plansForSoldPackageCategories(
   plans: readonly AdminPackageRow[],
   categorySlug: string,
 ): readonly AdminPackageRow[] {
-  const slug = categorySlug.trim();
-  if (slug.length === 0 || slug === PACKAGES_SOLD_CATEGORY_ALL) {
+  const slugs = parseSoldPackagesCategorySlugs(categorySlug);
+  if (slugs.length === 0) {
     return plans;
   }
-  return plans.filter((plan) => plan.categorySlug === slug);
+  const selected = new Set(slugs);
+  return plans.filter((plan) => selected.has(plan.categorySlug));
 }
 
 function compareSoldPackagePlans(left: AdminPackageRow, right: AdminPackageRow): number {

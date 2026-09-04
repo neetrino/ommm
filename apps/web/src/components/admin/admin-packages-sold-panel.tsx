@@ -20,11 +20,14 @@ import {
   PACKAGES_SOLD_CATEGORY_QUERY_KEY,
   PACKAGES_SOLD_PLAN_ALL,
   PACKAGES_SOLD_PLAN_QUERY_KEY,
+  parseSoldPackagesCategorySlugs,
+  serializeSoldPackagesCategorySlugs,
   type SoldPackageListPayload,
 } from "@/components/admin/admin-packages-sold";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { useSoldPackagesUrlState } from "@/components/admin/use-sold-packages-url-state";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 
 type AdminPackagesSoldPanelProps = {
@@ -108,6 +111,18 @@ function SoldPackagesSearch({
             packagePlans,
             values[PACKAGES_SOLD_CATEGORY_QUERY_KEY] ?? PACKAGES_SOLD_CATEGORY_ALL,
           ),
+          renderCategory: ({ value, onChange }) => (
+            <OmmFilterMultiSelect
+              ariaLabel={labels.category}
+              allLabel={
+                categoryOptions.length > 0 ? labels.categoryAll : labels.categoryEmpty
+              }
+              options={categoryOptions}
+              selectedValues={parseSoldPackagesCategorySlugs(value)}
+              onChange={(next) => onChange(serializeSoldPackagesCategorySlugs(next))}
+              formatSelectedCount={labels.categorySelected}
+            />
+          ),
         })
       }
       filterValues={{ planId: urlState.planId, categorySlug: urlState.categorySlug }}
@@ -128,6 +143,7 @@ function useSoldPackagesFilterLabels() {
       category: t("filterCategory"),
       categoryAll: t("filterCategoryAll"),
       categoryEmpty: t("filterCategoryEmpty"),
+      categorySelected: (count: number) => t("filterCategorySelected", { count }),
       package: t("filterPackage"),
       packageAll: t("filterPackageAll"),
       packageEmpty: t("filterPackageEmpty"),

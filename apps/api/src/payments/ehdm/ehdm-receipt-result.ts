@@ -1,7 +1,9 @@
 import type { Prisma } from '@prisma/client';
 import type { EhdmApiResponse, EhdmPrintResult } from './ehdm.types';
 
-export function parseEhdmPrintResult(response: EhdmApiResponse): EhdmPrintResult {
+export function parseEhdmPrintResult(
+  response: EhdmApiResponse,
+): EhdmPrintResult {
   const result = response.result;
   if (result === undefined || result === null || typeof result === 'string') {
     throw new Error('EHDM print response did not include receipt data');
@@ -58,5 +60,7 @@ function readOptionalString(value: unknown): string | undefined {
 }
 
 function readOptionalNumber(value: unknown): number | undefined {
-  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+  return typeof value === 'number' && Number.isFinite(value)
+    ? value
+    : undefined;
 }

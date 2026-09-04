@@ -13,12 +13,15 @@ import {
   PACKAGES_SOLD_CATEGORY_QUERY_KEY,
   PACKAGES_SOLD_PLAN_ALL,
   PACKAGES_SOLD_PLAN_QUERY_KEY,
+  parseSoldPackagesCategorySlugs,
+  serializeSoldPackagesCategorySlugs,
 } from "./admin-packages-sold";
 
 const LABELS = {
   category: "Categories",
   categoryAll: "All categories",
   categoryEmpty: "No categories",
+  categorySelected: (count: number) => `${count} selected`,
   package: "Package",
   packageAll: "All packages",
   packageEmpty: "No packages",
@@ -66,17 +69,36 @@ const SAMPLE_PLANS = [
   }),
 ] as const;
 
+const noopRender = () => null;
+
 describe("buildSoldPackagesFilterFields", () => {
   it("puts the category select before the package select", () => {
     const fields = buildSoldPackagesFilterFields({
       labels: LABELS,
       categoryOptions: [{ value: "yoga", label: "Yoga" }],
       planOptions: [{ value: "plan-1", label: "1 Class" }],
+      renderCategory: noopRender,
     });
 
     assert.equal(fields[0]?.key, PACKAGES_SOLD_CATEGORY_QUERY_KEY);
     assert.equal(fields[0]?.emptyValue, PACKAGES_SOLD_CATEGORY_ALL);
     assert.equal(fields[1]?.key, PACKAGES_SOLD_PLAN_QUERY_KEY);
+  });
+
+  it("resolves multi-category chip labels", () => {
+    const fields = buildSoldPackagesFilterFields({
+      labels: LABELS,
+      categoryOptions: [
+        { value: "yoga-by-ommm", label: "Yoga by Ommm" },
+        { value: "reformer", label: "Reformer" },
+      ],
+      planOptions: [],
+      renderCategory: noopRender,
+    });
+    const resolve = fields[0]?.resolveChipLabel;
+    assert.equal(resolve?.("yoga-by-ommm"), "Categories: Yoga by Ommm");
+    assert.equal(resolve?.("yoga-by-ommm,reformer"), "Categories: 2 selected");
+    assert.equal(resolve?.(PACKAGES_SOLD_CATEGORY_ALL), null);
   });
 });
 
@@ -100,6 +122,17 @@ describe("soldPackagePlanFilterOptions", () => {
     );
   });
 
+  it("returns union of plans for multiple categories", () => {
+    const options = soldPackagePlanFilterOptions(
+      SAMPLE_PLANS,
+      "yoga-by-ommm,reformer",
+    );
+    assert.deepEqual(
+      new Set(options.map((option) => option.value)),
+      new Set(["p1", "p2", "p3"]),
+    );
+  });
+
   it("returns all plans when category is all", () => {
     const options = soldPackagePlanFilterOptions(SAMPLE_PLANS, PACKAGES_SOLD_CATEGORY_ALL);
     assert.equal(options.length, 3);
@@ -118,6 +151,19 @@ describe("normalizeSoldPackagesDraftChange", () => {
       "yoga-by-ommm",
     );
     assert.equal(next[PACKAGES_SOLD_PLAN_QUERY_KEY], PACKAGES_SOLD_PLAN_ALL);
+  });
+
+  it("keeps plan when it still belongs to any selected category", () => {
+    const next = normalizeSoldPackagesDraftChange(
+      SAMPLE_PLANS,
+      {
+        [PACKAGES_SOLD_CATEGORY_QUERY_KEY]: "yoga-by-ommm",
+        [PACKAGES_SOLD_PLAN_QUERY_KEY]: "p1",
+      },
+      PACKAGES_SOLD_CATEGORY_QUERY_KEY,
+      "yoga-by-ommm,reformer",
+    );
+    assert.equal(next[PACKAGES_SOLD_PLAN_QUERY_KEY], "p1");
   });
 
   it("keeps plan when it still belongs to the category", () => {
@@ -140,5 +186,19 @@ describe("planBelongsToSoldPackageCategory", () => {
       planBelongsToSoldPackageCategory(SAMPLE_PLANS, PACKAGES_SOLD_PLAN_ALL, "reformer"),
       true,
     );
+  });
+});
+
+describe("sold packages category multi-select serialization", () => {
+  it("parses and serializes comma-separated slugs", () => {
+    assert.deepEqual(parseSoldPackagesCategorySlugs("yoga-by-ommm,reformer"), [
+      "yoga-by-ommm",
+      "reformer",
+    ]);
+    assert.equal(
+      serializeSoldPackagesCategorySlugs(["reformer", "yoga-by-ommm"]),
+      "reformer,yoga-by-ommm",
+    );
+    assert.equal(serializeSoldPackagesCategorySlugs([]), PACKAGES_SOLD_CATEGORY_ALL);
   });
 });

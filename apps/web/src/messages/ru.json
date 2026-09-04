@@ -3490,6 +3490,7 @@
         "filterCategory": "Категории",
         "filterCategoryAll": "Все категории",
         "filterCategoryEmpty": "Нет категорий",
+        "filterCategorySelected": "{count, plural, one {# выбрана} few {# выбрано} many {# выбрано} other {# выбрано}}",
         "filterPackage": "Пакет",
         "filterPackageAll": "Все пакеты",
         "filterPackageEmpty": "Нет пакетов",

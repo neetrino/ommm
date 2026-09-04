@@ -23,7 +23,9 @@ describe('listSoldPackages', () => {
           },
         ]),
         count: jest.fn().mockResolvedValue(1),
-        aggregate: jest.fn().mockResolvedValue({ _sum: { amountCents: 25_000 } }),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amountCents: 25_000 } }),
       },
       userPackage: {
         findMany: jest.fn().mockResolvedValue([
@@ -72,7 +74,9 @@ describe('listSoldPackages', () => {
       payment: {
         findMany: jest.fn().mockResolvedValue([]),
         count: jest.fn().mockResolvedValue(2),
-        aggregate: jest.fn().mockResolvedValue({ _sum: { amountCents: 50_000 } }),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amountCents: 50_000 } }),
       },
       userPackage: {
         findMany: jest.fn().mockResolvedValue([{ id: 'up-1' }, { id: 'up-2' }]),
@@ -110,12 +114,16 @@ describe('listSoldPackages', () => {
       payment: {
         findMany: jest.fn().mockResolvedValue([]),
         count: jest.fn().mockResolvedValue(1),
-        aggregate: jest.fn().mockResolvedValue({ _sum: { amountCents: 15_000 } }),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amountCents: 15_000 } }),
       },
       packagePlan: {
-        findMany: jest.fn().mockResolvedValue([
-          { id: 'plan-yoga-1', categoryName: 'Yoga by Ommm' },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { id: 'plan-yoga-1', categoryName: 'Yoga by Ommm' },
+          ]),
       },
       userPackage: {
         findMany: jest.fn().mockResolvedValue([{ id: 'up-yoga-1' }]),
@@ -129,13 +137,13 @@ describe('listSoldPackages', () => {
     });
 
     expect(prisma.packagePlan.findMany).toHaveBeenCalledWith({
-      where: { categorySlug: 'yoga-by-ommm' },
+      where: { categorySlug: { in: ['yoga-by-ommm'] } },
       select: { id: true, categoryName: true },
     });
     expect(prisma.userPackage.findMany).toHaveBeenCalledWith({
       where: {
         OR: [
-          { plan: { categorySlug: 'yoga-by-ommm' } },
+          { plan: { categorySlug: { in: ['yoga-by-ommm'] } } },
           { sourcePlanIdSnapshot: { in: ['plan-yoga-1'] } },
           { planCategoryNameSnapshot: { in: ['Yoga by Ommm'] } },
         ],
@@ -154,5 +162,49 @@ describe('listSoldPackages', () => {
     );
     expect(result.total).toBe(1);
     expect(result.totalAmountCents).toBe(15_000);
+  });
+
+  it('filters by multiple categorySlug values (comma-separated)', async () => {
+    const prisma = {
+      payment: {
+        findMany: jest.fn().mockResolvedValue([]),
+        count: jest.fn().mockResolvedValue(2),
+        aggregate: jest.fn().mockResolvedValue({ _sum: { amountCents: 30_000 } }),
+      },
+      packagePlan: {
+        findMany: jest.fn().mockResolvedValue([
+          { id: 'plan-yoga-1', categoryName: 'Yoga by Ommm' },
+          { id: 'plan-ref-1', categoryName: 'Reformer' },
+        ]),
+      },
+      userPackage: {
+        findMany: jest.fn().mockResolvedValue([{ id: 'up-1' }, { id: 'up-2' }]),
+      },
+    };
+
+    await listSoldPackages(prisma as never, {
+      take: 10,
+      offset: 0,
+      categorySlug: 'yoga-by-ommm,reformer',
+    });
+
+    expect(prisma.packagePlan.findMany).toHaveBeenCalledWith({
+      where: { categorySlug: { in: ['yoga-by-ommm', 'reformer'] } },
+      select: { id: true, categoryName: true },
+    });
+    expect(prisma.userPackage.findMany).toHaveBeenCalledWith({
+      where: {
+        OR: [
+          { plan: { categorySlug: { in: ['yoga-by-ommm', 'reformer'] } } },
+          { sourcePlanIdSnapshot: { in: ['plan-yoga-1', 'plan-ref-1'] } },
+          {
+            planCategoryNameSnapshot: {
+              in: ['Yoga by Ommm', 'Reformer'],
+            },
+          },
+        ],
+      },
+      select: { id: true },
+    });
   });
 });

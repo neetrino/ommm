@@ -139,30 +139,43 @@ async function buildSoldPackageCategoryWhere(
   prisma: PrismaClient,
   categorySlug: string | undefined,
 ): Promise<Prisma.PaymentWhereInput | undefined> {
-  const slug = categorySlug?.trim() ?? '';
-  if (slug.length === 0 || slug === 'all') {
+  const slugs = parseSoldCategorySlugs(categorySlug);
+  if (slugs.length === 0) {
     return undefined;
   }
-  const matchingIds = await loadUserPackageIdsForCategory(prisma, slug);
+  const matchingIds = await loadUserPackageIdsForCategories(prisma, slugs);
   return { sourceId: { in: matchingIds } };
 }
 
-async function loadUserPackageIdsForCategory(
+function parseSoldCategorySlugs(categorySlug: string | undefined): string[] {
+  const raw = categorySlug?.trim() ?? '';
+  if (raw.length === 0 || raw === 'all') {
+    return [];
+  }
+  return [
+    ...new Set(
+      raw
+        .split(',')
+        .map((slug) => slug.trim())
+        .filter((slug) => slug.length > 0 && slug !== 'all'),
+    ),
+  ];
+}
+
+async function loadUserPackageIdsForCategories(
   prisma: PrismaClient,
-  categorySlug: string,
+  categorySlugs: readonly string[],
 ): Promise<string[]> {
   const plans = await prisma.packagePlan.findMany({
-    where: { categorySlug },
+    where: { categorySlug: { in: [...categorySlugs] } },
     select: { id: true, categoryName: true },
   });
   const planIds = plans.map((plan) => plan.id);
-  const categoryNames = uniqueNonEmpty(
-    plans.map((plan) => plan.categoryName),
-  );
+  const categoryNames = uniqueNonEmpty(plans.map((plan) => plan.categoryName));
   const rows = await prisma.userPackage.findMany({
     where: {
       OR: [
-        { plan: { categorySlug } },
+        { plan: { categorySlug: { in: [...categorySlugs] } } },
         ...(planIds.length > 0
           ? [{ sourcePlanIdSnapshot: { in: planIds } }]
           : []),

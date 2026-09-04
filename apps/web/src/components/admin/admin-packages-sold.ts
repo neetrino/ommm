@@ -55,12 +55,41 @@ export function parseSoldPackagesPlanId(
   );
 }
 
+export function parseSoldPackagesCategorySlugs(value: string): string[] {
+  const trimmed = value.trim();
+  if (trimmed.length === 0 || trimmed === PACKAGES_SOLD_CATEGORY_ALL) {
+    return [];
+  }
+  return [
+    ...new Set(
+      trimmed
+        .split(",")
+        .map((slug) => slug.trim())
+        .filter((slug) => slug.length > 0 && slug !== PACKAGES_SOLD_CATEGORY_ALL),
+    ),
+  ];
+}
+
+export function serializeSoldPackagesCategorySlugs(
+  values: readonly string[],
+): string {
+  const unique = [
+    ...new Set(
+      values
+        .map((slug) => slug.trim())
+        .filter((slug) => slug.length > 0 && slug !== PACKAGES_SOLD_CATEGORY_ALL),
+    ),
+  ];
+  return unique.length === 0 ? PACKAGES_SOLD_CATEGORY_ALL : unique.join(",");
+}
+
 export function parseSoldPackagesCategorySlug(
   search: Record<string, string | undefined>,
 ): string {
-  return parseSoldPackagesFilterValue(
-    search[PACKAGES_SOLD_CATEGORY_QUERY_KEY],
-    PACKAGES_SOLD_CATEGORY_ALL,
+  return serializeSoldPackagesCategorySlugs(
+    parseSoldPackagesCategorySlugs(
+      search[PACKAGES_SOLD_CATEGORY_QUERY_KEY] ?? "",
+    ),
   );
 }
 

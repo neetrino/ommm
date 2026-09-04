@@ -121,7 +121,7 @@ export class EhdmPrintService {
         seq,
         fiscal: result.fiscal ?? null,
         qr: result.qr ?? null,
-        response: response as Prisma.InputJsonValue,
+        response: response,
       },
     });
   }

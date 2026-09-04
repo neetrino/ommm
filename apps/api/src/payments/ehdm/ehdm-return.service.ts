@@ -121,7 +121,7 @@ export class EhdmReturnService {
       data: {
         returnReceiptId: toEhdmReceiptIdString(result.receiptId),
         returnSeq: seq,
-        returnResponse: response as Prisma.InputJsonValue,
+        returnResponse: response,
         returnedAt: new Date(),
       },
     });

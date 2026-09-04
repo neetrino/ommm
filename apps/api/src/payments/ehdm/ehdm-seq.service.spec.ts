@@ -10,8 +10,8 @@ describe('EhdmSeqService', () => {
       },
     };
     const prisma = {
-      $transaction: jest.fn(async (fn: (client: typeof tx) => Promise<number>) =>
-        fn(tx),
+      $transaction: jest.fn(
+        async (fn: (client: typeof tx) => Promise<number>) => fn(tx),
       ),
       ehdmState: { updateMany: jest.fn() },
     };

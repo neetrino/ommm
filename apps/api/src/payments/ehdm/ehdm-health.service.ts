@@ -17,7 +17,9 @@ export class EhdmHealthService implements OnModuleInit {
       return;
     }
     try {
-      const response = await this.apiClient.checkConnection(this.config.getCrn());
+      const response = await this.apiClient.checkConnection(
+        this.config.getCrn(),
+      );
       if (response.code !== 0) {
         this.logger.warn(
           `EHDM checkConnection failed: ${response.errorMessage ?? response.message ?? response.code}`,
