@@ -4,7 +4,7 @@ export const ADMIN_PACKAGES_PATH = "/admin/packages";
 
 export const PACKAGES_SOLD_PATH = `${ADMIN_PACKAGES_PATH}/sold`;
 
-export const PACKAGES_SOLD_LIST_PAGE_SIZE = 10;
+export const PACKAGES_SOLD_LIST_PAGE_SIZE = 12;
 
 export const PACKAGES_SOLD_SEARCH_QUERY_KEY = "q";
 
