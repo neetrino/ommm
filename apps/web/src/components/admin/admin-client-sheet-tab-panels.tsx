@@ -40,7 +40,7 @@ import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { clientRegistrationSourceLabel } from "@/components/admin/admin-client-registration-source";
+import { ClientRegistrationMeta } from "@/components/admin/admin-client-registration-meta";
 
 type ClientFormController = ReturnType<typeof useClientEditForm>;
 
@@ -257,28 +257,21 @@ export function ClientSheetTabPanels({
               )}
             </div>
           </div>
-        </section>
 
-        <p className="text-right text-[11px] leading-relaxed text-sage-500">
-          <span>
-            {t("drawer.registered")}: {formatDateForUi(detail.createdAt)}
-          </span>
-          <span className="mx-1.5 text-sage-300" aria-hidden>
-            ·
-          </span>
-          <span>
-            {clientRegistrationSourceLabel({
-              registrationSource: activity.registrationSource ?? "SELF",
-              registeredBy: activity.registeredBy ?? null,
-              labels: {
-                self: t("drawer.registrationSelf"),
-                byAdmin: t("drawer.registrationByAdmin"),
-                byManager: t("drawer.registrationByManager"),
-                byStaff: t("drawer.registrationByStaff"),
-              },
-            })}
-          </span>
-        </p>
+          <ClientRegistrationMeta
+            createdAt={detail.createdAt}
+            registrationSource={activity.registrationSource ?? "SELF"}
+            registeredBy={activity.registeredBy ?? null}
+            registeredLabel={t("drawer.registered")}
+            sourceLabel={t("drawer.source")}
+            labels={{
+              self: t("drawer.registrationSelf"),
+              byAdmin: t("drawer.registrationByAdmin"),
+              byManager: t("drawer.registrationByManager"),
+              byStaff: t("drawer.registrationByStaff"),
+            }}
+          />
+        </section>
       </div>
     );
   }

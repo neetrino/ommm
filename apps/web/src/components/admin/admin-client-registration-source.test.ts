@@ -4,9 +4,9 @@ import { clientRegistrationSourceLabel } from "./admin-client-registration-sourc
 
 const LABELS = {
   self: "Self-registered",
-  byAdmin: "Registered by admin",
-  byManager: "Registered by manager",
-  byStaff: "Registered by staff",
+  byAdmin: "By admin",
+  byManager: "By manager",
+  byStaff: "By staff",
 } as const;
 
 describe("clientRegistrationSourceLabel", () => {
@@ -28,7 +28,7 @@ describe("clientRegistrationSourceLabel", () => {
         registeredBy: { id: "a1", name: "Ada", role: "ADMIN" },
         labels: LABELS,
       }),
-      "Registered by admin",
+      "By admin",
     );
   });
 
@@ -39,7 +39,7 @@ describe("clientRegistrationSourceLabel", () => {
         registeredBy: { id: "m1", name: "Mia", role: "MANAGER" },
         labels: LABELS,
       }),
-      "Registered by manager",
+      "By manager",
     );
   });
 
@@ -50,7 +50,7 @@ describe("clientRegistrationSourceLabel", () => {
         registeredBy: null,
         labels: LABELS,
       }),
-      "Registered by staff",
+      "By staff",
     );
   });
 });
