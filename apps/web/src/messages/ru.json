@@ -1793,6 +1793,9 @@
       "weekBoardAria": "Расписание на неделю",
       "todayBadge": "Сегодня",
       "weekRangeAria": "Выбрать неделю",
+      "layoutSwitcherAria": "Вид расписания",
+      "layoutList": "Список",
+      "layoutWeek": "Неделя",
       "periodMorning": "Утро",
       "periodAfternoon": "День",
       "periodEvening": "Вечер"

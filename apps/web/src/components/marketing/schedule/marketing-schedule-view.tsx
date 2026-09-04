@@ -7,14 +7,14 @@ import {
   SCHEDULE_VIEW_SHELL,
   SCHEDULE_VIEW_SHELL_FLUSH,
 } from "@/components/marketing/schedule/schedule-public-design";
-import { ScheduleDateControls } from "@/components/marketing/schedule/schedule-date-controls";
 import { ScheduleDaySessionsList } from "@/components/marketing/schedule/schedule-day-sessions-list";
 import {
   ScheduleFiltersHeader,
   type ScheduleFilterMultiOption,
 } from "@/components/marketing/schedule/schedule-filters-header";
+import { ScheduleLayoutSwitcher } from "@/components/marketing/schedule/schedule-layout-switcher";
+import { ScheduleListChrome } from "@/components/marketing/schedule/schedule-list-chrome";
 import { ScheduleWeekBoard } from "@/components/marketing/schedule/schedule-week-board";
-import pageStyles from "@/components/marketing/schedule/marketing-schedule-page-section.module.css";
 import {
   formatScheduleMonthTitle,
   addDays,
@@ -42,6 +42,7 @@ import {
 } from "@/components/marketing/schedule/marketing-schedule-item.helpers";
 import { useScheduleDayTransition } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { useScheduleDesktopLayout } from "@/components/marketing/schedule/use-schedule-desktop-layout";
+import { useScheduleLayoutMode } from "@/components/marketing/schedule/use-schedule-layout-mode";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { useMarketingScheduleEligibility } from "@/hooks/use-marketing-schedule-eligibility";
@@ -75,6 +76,8 @@ export function MarketingScheduleView({
   const searchParams = useSearchParams();
   const audience = useMarketingAudience();
   const isDesktop = useScheduleDesktopLayout();
+  const { layoutMode, setLayoutMode } = useScheduleLayoutMode(isDesktop);
+  const showWeekBoard = isDesktop && layoutMode === "week";
   const isMember = audience === "member";
   const [baseline] = useState(() => startOfLocalDay(new Date()));
   const weekFloor = useMemo(() => startOfWeekSunday(baseline), [baseline]);
@@ -195,9 +198,11 @@ export function MarketingScheduleView({
     visibleSessions,
   });
 
+  const selectDayFloor = showWeekBoard ? weekFloor : baseline;
+  const maxScheduleDate = addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS);
+
   function selectDay(day: Date) {
-    const floor = isDesktop ? weekFloor : baseline;
-    if (isBeforeCalendarDay(day, floor)) return;
+    if (isBeforeCalendarDay(day, selectDayFloor)) return;
     userPickedDateRef.current = true;
     setNav({
       windowStart: startOfWeekSunday(day),
@@ -205,38 +210,57 @@ export function MarketingScheduleView({
     });
   }
 
-  return (
-    <div className={isDesktop ? SCHEDULE_VIEW_SHELL_FLUSH : SCHEDULE_VIEW_SHELL}>
-      {isDesktop ? null : (
-        <>
-          <header className={`${pageStyles.hero} ${pageStyles.heroSpaced}`}>
-            <h1 className={pageStyles.title}>{pageTitle}</h1>
-          </header>
-          <ScheduleFiltersHeader
-            monthLabel={monthLabel}
-            classTypes={classTypes}
-            instructors={instructors}
-            classTypeOptions={classTypeOptions}
-            instructorOptions={instructorOptions}
-            onClassTypesChange={setClassTypes}
-            onInstructorsChange={setInstructors}
-          />
-          <ScheduleDateControls
-            locale={locale}
-            selectedDate={nav.selectedDate}
-            windowStart={nav.windowStart}
-            minDate={baseline}
-            maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
-            onSelectDay={selectDay}
-            onShiftWindow={(delta) => {
-              userPickedDateRef.current = true;
-              setNav((s) => shiftMarketingScheduleWeek(s, delta, weekFloor));
-            }}
-          />
-        </>
-      )}
+  function shiftWindow(delta: number) {
+    userPickedDateRef.current = true;
+    setNav((s) =>
+      shiftMarketingScheduleWeek(s, delta, showWeekBoard ? weekFloor : baseline),
+    );
+  }
 
-      {isDesktop ? (
+  const layoutSwitcher = (
+    <ScheduleLayoutSwitcher value={layoutMode} onChange={setLayoutMode} />
+  );
+
+  const filtersHeader = (
+    <ScheduleFiltersHeader
+      monthLabel={monthLabel}
+      hideMonthLabel={showWeekBoard}
+      classTypes={classTypes}
+      instructors={instructors}
+      classTypeOptions={classTypeOptions}
+      instructorOptions={instructorOptions}
+      onClassTypesChange={setClassTypes}
+      onInstructorsChange={setInstructors}
+    />
+  );
+
+  const daySessionsList = (
+    <ScheduleDaySessionsList
+      locale={locale}
+      audience={audience}
+      sessionsReady={sessionsReady}
+      scheduleNow={scheduleNow}
+      renderedDayKey={renderedDayKey}
+      renderedSessions={renderedSessions}
+      animationPhase={animationPhase}
+      contentRef={contentRef}
+      getItemStyle={getItemStyle}
+      bookedBySessionId={bookedBySessionId}
+      waitlistedSessionIds={waitlistedSessionIds}
+      memberWaitlistLoaded={memberWaitlistLoaded}
+      memberActionStateReady={memberActionStateReady}
+      eligibilityBySessionId={eligibilityBySessionId}
+      eligibilityLoaded={eligibilityLoaded}
+      onBooked={handleBooked}
+      onCancelled={handleCancelled}
+      onWaitlisted={handleWaitlisted}
+      onWaitlistLeft={handleWaitlistLeft}
+    />
+  );
+
+  return (
+    <div className={showWeekBoard ? SCHEDULE_VIEW_SHELL_FLUSH : SCHEDULE_VIEW_SHELL}>
+      {showWeekBoard ? (
         <ScheduleWeekBoard
           locale={locale}
           pageTitle={pageTitle}
@@ -253,59 +277,36 @@ export function MarketingScheduleView({
           eligibilityBySessionId={eligibilityBySessionId}
           eligibilityLoaded={eligibilityLoaded}
           minDate={weekFloor}
-          maxDate={addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS)}
+          maxDate={maxScheduleDate}
           canShiftPrev={
             !isBeforeCalendarDay(addDays(nav.windowStart, -1), weekFloor)
           }
           canShiftNext={
-            !isAfterCalendarDay(
-              addDays(nav.windowStart, 7),
-              addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS),
-            )
+            !isAfterCalendarDay(addDays(nav.windowStart, 7), maxScheduleDate)
           }
-          filtersSlot={
-            <ScheduleFiltersHeader
-              monthLabel={monthLabel}
-              hideMonthLabel
-              classTypes={classTypes}
-              instructors={instructors}
-              classTypeOptions={classTypeOptions}
-              instructorOptions={instructorOptions}
-              onClassTypesChange={setClassTypes}
-              onInstructorsChange={setInstructors}
-            />
-          }
+          filtersSlot={filtersHeader}
+          layoutSwitcherSlot={layoutSwitcher}
           onSelectDay={selectDay}
-          onShiftWindow={(delta) => {
-            userPickedDateRef.current = true;
-            setNav((s) => shiftMarketingScheduleWeek(s, delta, weekFloor));
-          }}
+          onShiftWindow={shiftWindow}
           onBooked={handleBooked}
           onCancelled={handleCancelled}
           onWaitlisted={handleWaitlisted}
           onWaitlistLeft={handleWaitlistLeft}
         />
       ) : (
-        <ScheduleDaySessionsList
+        <ScheduleListChrome
           locale={locale}
-          audience={audience}
-          sessionsReady={sessionsReady}
-          scheduleNow={scheduleNow}
-          renderedDayKey={renderedDayKey}
-          renderedSessions={renderedSessions}
-          animationPhase={animationPhase}
-          contentRef={contentRef}
-          getItemStyle={getItemStyle}
-          bookedBySessionId={bookedBySessionId}
-          waitlistedSessionIds={waitlistedSessionIds}
-          memberWaitlistLoaded={memberWaitlistLoaded}
-          memberActionStateReady={memberActionStateReady}
-          eligibilityBySessionId={eligibilityBySessionId}
-          eligibilityLoaded={eligibilityLoaded}
-          onBooked={handleBooked}
-          onCancelled={handleCancelled}
-          onWaitlisted={handleWaitlisted}
-          onWaitlistLeft={handleWaitlistLeft}
+          pageTitle={pageTitle}
+          selectedDate={nav.selectedDate}
+          windowStart={nav.windowStart}
+          minDate={baseline}
+          maxDate={maxScheduleDate}
+          showLayoutSwitcher={isDesktop}
+          layoutSwitcher={layoutSwitcher}
+          filtersSlot={filtersHeader}
+          sessionsSlot={daySessionsList}
+          onSelectDay={selectDay}
+          onShiftWindow={shiftWindow}
         />
       )}
     </div>

@@ -56,6 +56,7 @@ type ScheduleWeekBoardProps = {
   canShiftPrev: boolean;
   canShiftNext: boolean;
   filtersSlot?: ReactNode;
+  layoutSwitcherSlot?: ReactNode;
   onSelectDay: (day: Date) => void;
   onShiftWindow: (delta: number) => void;
   onBooked: (sessionId: string, bookingId: string) => void;
@@ -87,6 +88,7 @@ export function ScheduleWeekBoard({
   canShiftPrev,
   canShiftNext,
   filtersSlot,
+  layoutSwitcherSlot,
   onSelectDay,
   onShiftWindow,
   onBooked,
@@ -169,6 +171,10 @@ export function ScheduleWeekBoard({
         <header className={pageStyles.hero}>
           <h1 className={pageStyles.title}>{pageTitle}</h1>
         </header>
+
+        {layoutSwitcherSlot !== undefined ? (
+          <div className={styles.layoutSwitcherRow}>{layoutSwitcherSlot}</div>
+        ) : null}
 
         <ScheduleWeekRangePicker
           locale={locale}

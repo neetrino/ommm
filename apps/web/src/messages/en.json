@@ -1795,6 +1795,9 @@
       "weekBoardAria": "Weekly class schedule",
       "todayBadge": "Today",
       "weekRangeAria": "Select week",
+      "layoutSwitcherAria": "Schedule layout",
+      "layoutList": "List",
+      "layoutWeek": "Week",
       "periodMorning": "Morning",
       "periodAfternoon": "Afternoon",
       "periodEvening": "Evening"

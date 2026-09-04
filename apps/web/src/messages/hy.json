@@ -1796,6 +1796,9 @@
       "weekBoardAria": "Շաբաթական դասացուցակ",
       "todayBadge": "Այսօր",
       "weekRangeAria": "Ընտրել շաբաթը",
+      "layoutSwitcherAria": "Դասացուցակի տեսք",
+      "layoutList": "Ցուցակ",
+      "layoutWeek": "Շաբաթ",
       "periodMorning": "Առավոտ",
       "periodAfternoon": "Ցերեկ",
       "periodEvening": "Երեկո"

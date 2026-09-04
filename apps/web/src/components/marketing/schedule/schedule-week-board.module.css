@@ -18,6 +18,11 @@
   margin-bottom: clamp(0.5rem, 2vw, 1.25rem);
 }
 
+.layoutSwitcherRow {
+  display: flex;
+  justify-content: center;
+}
+
 .weekPickerRow {
   display: flex;
   justify-content: center;
