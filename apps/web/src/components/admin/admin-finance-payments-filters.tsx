@@ -26,6 +26,7 @@ import {
   parseFinancePackageClassFilter,
   parseFinancePackagePlanFilter,
   parseFinancePackageSessionsFilter,
+  parseFinancePaymentMethodFilter,
   parseFinancePaymentsFiltersFromSearch,
   parseFinanceSourceFilter,
   parseFinanceStatusFilter,
@@ -42,6 +43,7 @@ const DEFAULT_FINANCE_PAYMENTS_FILTERS: FinanceFilterValues = {
   rangeDays: DEFAULT_FINANCE_PAYMENTS_RANGE,
   source: "all",
   status: "all",
+  paymentMethod: "all",
   planId: "all",
   packageClass: "all",
   sessions: "all",
@@ -120,6 +122,11 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
           statusFailed: tFilters("statusFailed"),
           statusPending: tFilters("statusPending"),
           statusRefunded: tFilters("statusRefunded"),
+          paymentMethodLabel: tFilters("paymentMethodLabel"),
+          paymentMethodAll: tFilters("paymentMethodAll"),
+          paymentMethodCash: t("paymentMethods.CASH"),
+          paymentMethodCard: t("paymentMethods.CARD"),
+          paymentMethodTerminal: t("paymentMethods.CARD_TERMINAL"),
           packageLabel: tFilters("packageLabel"),
           packageAll: tFilters("packageAll"),
           packageClassLabel: tFilters("packageClassLabel"),
@@ -135,7 +142,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
         },
         packageOptions: packageFilterOptions,
       }),
-    [packageFilterOptions, tFilters, tSort],
+    [packageFilterOptions, t, tFilters, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -206,6 +213,9 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
         break;
       case "status":
         updateField("status", parseFinanceStatusFilter(value));
+        break;
+      case "paymentMethod":
+        updateField("paymentMethod", parseFinancePaymentMethodFilter(value));
         break;
       case "planId":
         updateField("planId", parseFinancePackagePlanFilter(value));

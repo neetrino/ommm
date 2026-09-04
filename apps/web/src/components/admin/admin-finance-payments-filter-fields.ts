@@ -1,6 +1,9 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import { buildAdminFinanceFilterFields } from "@/components/admin/admin-finance-filter-fields";
-import type { FinanceFilterValues } from "@/components/admin/admin-finance-types";
+import {
+  FINANCE_PAYMENT_METHOD_FILTER_VALUES,
+  type FinanceFilterValues,
+} from "@/components/admin/admin-finance-types";
 import type { FinancePaymentPackageFilterOptions } from "@/components/admin/admin-finance-payments-package-filter-options";
 import { buildDateSortFilterField } from "@/lib/list-sort";
 
@@ -23,6 +26,11 @@ type BuildAdminFinancePaymentsFilterFieldsArgs = {
     statusFailed: string;
     statusPending: string;
     statusRefunded: string;
+    paymentMethodLabel: string;
+    paymentMethodAll: string;
+    paymentMethodCash: string;
+    paymentMethodCard: string;
+    paymentMethodTerminal: string;
     packageLabel: string;
     packageAll: string;
     packageClassLabel: string;
@@ -42,17 +50,63 @@ type BuildAdminFinancePaymentsFilterFieldsArgs = {
 export function adminFinancePaymentsIntegratedFilterValues(
   values: Pick<
     FinanceFilterValues,
-    "rangeDays" | "source" | "status" | "planId" | "packageClass" | "sessions" | "order"
+    | "rangeDays"
+    | "source"
+    | "status"
+    | "paymentMethod"
+    | "planId"
+    | "packageClass"
+    | "sessions"
+    | "order"
   >,
 ): Record<string, string> {
   return {
     rangeDays: String(values.rangeDays),
     source: values.source,
     status: values.status,
+    paymentMethod: values.paymentMethod,
     planId: values.planId,
     packageClass: values.packageClass,
     sessions: values.sessions,
     order: values.order,
+  };
+}
+
+function paymentMethodOptionLabel(
+  value: (typeof FINANCE_PAYMENT_METHOD_FILTER_VALUES)[number],
+  labels: Pick<
+    BuildAdminFinancePaymentsFilterFieldsArgs["labels"],
+    "paymentMethodCash" | "paymentMethodCard" | "paymentMethodTerminal"
+  >,
+): string {
+  if (value === "CASH") {
+    return labels.paymentMethodCash;
+  }
+  if (value === "CARD") {
+    return labels.paymentMethodCard;
+  }
+  return labels.paymentMethodTerminal;
+}
+
+function buildPaymentMethodFilterField(
+  labels: Pick<
+    BuildAdminFinancePaymentsFilterFieldsArgs["labels"],
+    | "paymentMethodLabel"
+    | "paymentMethodAll"
+    | "paymentMethodCash"
+    | "paymentMethodCard"
+    | "paymentMethodTerminal"
+  >,
+): AdminIntegratedFilterField {
+  return {
+    key: "paymentMethod",
+    label: labels.paymentMethodLabel,
+    emptyValue: "all",
+    allLabel: labels.paymentMethodAll,
+    options: FINANCE_PAYMENT_METHOD_FILTER_VALUES.map((value) => ({
+      value,
+      label: paymentMethodOptionLabel(value, labels),
+    })),
   };
 }
 
@@ -107,6 +161,7 @@ export function buildAdminFinancePaymentsFilterFields({
 
   return [
     ...baseFields,
+    buildPaymentMethodFilterField(labels),
     buildPackageFilterField(
       "planId",
       labels.packageLabel,

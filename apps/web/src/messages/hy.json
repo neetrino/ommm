@@ -3993,6 +3993,8 @@
         "noPackages": "Փաթեթներ չկան",
         "noClasses": "Դասեր չկան",
         "noSessions": "Նիստերի քանակներ չկան",
+        "paymentMethodLabel": "Վճարման եղանակ",
+        "paymentMethodAll": "Բոլոր եղանակները",
         "resetFilters": "Վերակայել ֆիլտրերը",
         "loading": "Ֆինանսական տվյալները բեռնվում են…",
         "activeCount": "{count} ակտիվ ֆիլտր"
@@ -4070,7 +4072,8 @@
       "paymentsTab": {
         "loading": "Բեռնում…",
         "loadFailed": "Չհաջողվեց բեռնել վճարումները։",
-        "rowCount": "{count} վճարում"
+        "rowCount": "{count} վճարում",
+        "periodTotal": "Ժամանակահատվածի գումար"
       },
       "actions": {
         "openMenu": "Բացել գործողությունների մենյուն",

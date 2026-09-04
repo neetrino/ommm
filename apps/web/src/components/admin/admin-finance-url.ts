@@ -25,6 +25,7 @@ export {
   parseFinancePackageClassFilter,
   parseFinancePackagePlanFilter,
   parseFinancePackageSessionsFilter,
+  parseFinancePaymentMethodFilter,
   parseFinancePaymentsFiltersFromSearch,
   parseFinanceSourceFilter,
   parseFinanceStatusFilter,

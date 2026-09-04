@@ -9,8 +9,15 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { PaymentStatus } from '@prisma/client';
+import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { DateListOrder } from '../../common/enums/list-order.enum';
+
+/** Cash, online card, or physical terminal. */
+export const ADMIN_LIST_PAYMENT_METHOD_FILTERS = [
+  ManualPaymentMethod.CASH,
+  ManualPaymentMethod.CARD,
+  ManualPaymentMethod.CARD_TERMINAL,
+] as const;
 
 export enum PaymentSourceFilter {
   PACKAGE = 'package',
@@ -35,6 +42,10 @@ export class AdminListPaymentsQueryDto {
   @IsOptional()
   @IsEnum(PaymentSourceFilter)
   source?: PaymentSourceFilter;
+
+  @IsOptional()
+  @IsIn([...ADMIN_LIST_PAYMENT_METHOD_FILTERS])
+  paymentMethod?: (typeof ADMIN_LIST_PAYMENT_METHOD_FILTERS)[number];
 
   @IsOptional()
   @IsString()

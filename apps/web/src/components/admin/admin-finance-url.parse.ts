@@ -5,8 +5,10 @@ import {
   type FinanceBoundedDateRangeDays,
   type FinanceDateRangeDays,
   type FinanceFilterValues,
+  type FinancePaymentMethodFilter,
   type FinanceSourceFilter,
   type FinanceStatusFilter,
+  isFinancePaymentMethodValue,
 } from "@/components/admin/admin-finance-types";
 import { firstFinanceUrlParam } from "@/components/admin/admin-finance-url.helpers";
 
@@ -54,6 +56,16 @@ export function parseFinanceStatusFilter(
     raw === "PENDING" ||
     raw === "REFUNDED"
   ) {
+    return raw;
+  }
+  return "all";
+}
+
+export function parseFinancePaymentMethodFilter(
+  value: string | string[] | undefined,
+): FinancePaymentMethodFilter {
+  const raw = firstFinanceUrlParam(value);
+  if (raw && isFinancePaymentMethodValue(raw)) {
     return raw;
   }
   return "all";
@@ -107,6 +119,7 @@ export function parseFinancePaymentsFiltersFromSearch(
     rangeDays: parseFinancePaymentsDateRange(search.rangeDays),
     source: parseFinanceSourceFilter(search.source),
     status: parseFinanceStatusFilter(search.status),
+    paymentMethod: parseFinancePaymentMethodFilter(search.paymentMethod),
     planId: parseFinancePackagePlanFilter(search.planId),
     packageClass: parseFinancePackageClassFilter(search.packageClass),
     sessions: parseFinancePackageSessionsFilter(search.sessions),
