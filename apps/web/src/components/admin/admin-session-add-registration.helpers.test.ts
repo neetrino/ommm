@@ -6,6 +6,7 @@ import {
   buildSessionAddClientSearchUrl,
   canAddVisitorToSession,
   canOfferSessionAdd,
+  shouldAttachVisitorAsPastVisit,
   isSearchQueryReady,
   parseClientSearchRows,
   pickOwnerBookablePackageId,
@@ -74,34 +75,20 @@ describe("admin-session-add-registration.helpers", () => {
     );
   });
 
-  it("blocks add when the session is full or already started", () => {
+  it("blocks add only when the session is full", () => {
+    assert.equal(canAddVisitorToSession({ booked: 13, capacity: 13 }), false);
+    assert.equal(canAddVisitorToSession({ booked: 3, capacity: 13 }), true);
+  });
+
+  it("attaches started and finished sessions as a past visit", () => {
     const now = Date.parse("2026-08-30T09:00:00.000Z");
     assert.equal(
-      canAddVisitorToSession({
-        booked: 13,
-        capacity: 13,
-        startsAt: "2026-08-30T10:00:00.000Z",
-        nowMs: now,
-      }),
-      false,
-    );
-    assert.equal(
-      canAddVisitorToSession({
-        booked: 3,
-        capacity: 13,
-        startsAt: "2026-08-30T08:00:00.000Z",
-        nowMs: now,
-      }),
-      false,
-    );
-    assert.equal(
-      canAddVisitorToSession({
-        booked: 3,
-        capacity: 13,
-        startsAt: "2026-08-30T10:00:00.000Z",
-        nowMs: now,
-      }),
+      shouldAttachVisitorAsPastVisit("2026-08-30T08:00:00.000Z", now),
       true,
+    );
+    assert.equal(
+      shouldAttachVisitorAsPastVisit("2026-08-30T10:00:00.000Z", now),
+      false,
     );
   });
 

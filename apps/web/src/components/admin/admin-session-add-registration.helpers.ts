@@ -33,13 +33,15 @@ export function pickOwnerBookablePackageId(
 export function canAddVisitorToSession(params: {
   booked: number;
   capacity: number;
-  startsAt: string;
-  nowMs?: number;
 }): boolean {
-  if (params.booked >= params.capacity) {
-    return false;
-  }
-  return new Date(params.startsAt).getTime() > (params.nowMs ?? Date.now());
+  return params.booked < params.capacity;
+}
+
+export function shouldAttachVisitorAsPastVisit(
+  startsAt: string,
+  nowMs: number = Date.now(),
+): boolean {
+  return new Date(startsAt).getTime() < nowMs;
 }
 
 export function isSearchQueryReady(query: string): boolean {

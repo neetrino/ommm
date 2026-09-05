@@ -1,23 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { bookClientOnSession } from "@/components/admin/admin-session-add-registration-book";
 import { AdminSessionAddRegistrationSearch } from "@/components/admin/admin-session-add-registration-search";
-import {
-  buildSessionAddClientSearchUrl,
-  canAddVisitorToSession,
-  isSearchQueryReady,
-  parseClientSearchRows,
-  SESSION_ADD_SEARCH_DEBOUNCE_MS,
-} from "@/components/admin/admin-session-add-registration.helpers";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
+import { useAdminSessionAddRegistration } from "@/components/admin/use-admin-session-add-registration";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { PlusIcon } from "@/components/ui/plus-icon";
-import { ApiError, apiFetch } from "@/lib/api";
-import { useDebouncedCallback } from "@/lib/debounced-callback";
-import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
+import { userDisplayName } from "@/lib/user-display-name";
 
 type AdminSessionAddRegistrationProps = {
   sessionId: string;
@@ -27,14 +18,6 @@ type AdminSessionAddRegistrationProps = {
   registeredUserIds: ReadonlySet<string>;
   onAdded: () => void;
 };
-
-type SearchState = {
-  key: string;
-  rows: readonly ClientRow[];
-  error: string | null;
-};
-
-type ToastState = { message: string; tone: "ok" | "err" };
 
 export function AdminSessionAddRegistration({
   sessionId,
@@ -46,125 +29,166 @@ export function AdminSessionAddRegistration({
 }: AdminSessionAddRegistrationProps) {
   const t = useTranslations("adminPages.classes.registrationsModal");
   const tClients = useTranslations("adminPages.clients");
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [search, setSearch] = useState<SearchState | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [toast, setToast] = useState<ToastState | null>(null);
-  const canAdd = canAddVisitorToSession({ booked, capacity, startsAt });
-  const searchKey = isSearchQueryReady(query) ? query.trim() : "";
+  const tClasses = useTranslations("adminPages.classes");
+  const add = useAdminSessionAddRegistration({
+    sessionId,
+    startsAt,
+    booked,
+    capacity,
+    onAdded,
+    noPackageMessage: tClients("bookings.packagesEmptyRequired"),
+    fallbackError: tClients("bookings.createError"),
+    searchError: t("addSearchError"),
+    successMessage: tClients("bookings.createSuccess"),
+  });
 
-  const runSearch = useDebouncedCallback(() => {
-    void fetchClientSearch(query, t("addSearchError"), setSearch);
-  }, SESSION_ADD_SEARCH_DEBOUNCE_MS);
-
-  useEffect(() => {
-    runSearch();
-  }, [query, runSearch]);
-
-  function closeSearch(): void {
-    setOpen(false);
-    setQuery("");
-    setSearch(null);
-  }
-
-  async function handleSelect(client: ClientRow): Promise<void> {
-    if (busyId !== null) {
-      return;
-    }
-    setBusyId(client.id);
-    setToast(null);
-    const result = await bookClientOnSession({
-      clientId: client.id,
-      sessionId,
-      noPackageMessage: tClients("bookings.packagesEmptyRequired"),
-      fallbackError: tClients("bookings.createError"),
-    });
-    setBusyId(null);
-    if (!result.ok) {
-      setToast({ message: result.message, tone: "err" });
-      return;
-    }
-    setToast({ message: tClients("bookings.createSuccess"), tone: "ok" });
-    closeSearch();
-    dispatchNotificationsRefresh();
-    onAdded();
-  }
-
-  if (!canAdd) {
-    return booked >= capacity ? (
-      <p className="text-sm text-sage-600">{t("addSessionFull")}</p>
-    ) : null;
+  if (!add.canAdd) {
+    return add.isFull ? <p className="text-sm text-sage-600">{t("addSessionFull")}</p> : null;
   }
 
   return (
+    <SessionAddRegistrationPanel
+      add={add}
+      registeredUserIds={registeredUserIds}
+      t={t}
+      tClasses={tClasses}
+    />
+  );
+}
+
+function SessionAddRegistrationPanel({
+  add,
+  registeredUserIds,
+  t,
+  tClasses,
+}: {
+  add: ReturnType<typeof useAdminSessionAddRegistration>;
+  registeredUserIds: ReadonlySet<string>;
+  t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>;
+  tClasses: ReturnType<typeof useTranslations<"adminPages.classes">>;
+}) {
+  return (
     <>
-      {toast ? (
+      {add.toast ? (
         <AdminCenterToast
-          message={toast.message}
-          tone={toast.tone}
-          onDismiss={() => setToast(null)}
+          message={add.toast.message}
+          tone={add.toast.tone}
+          onDismiss={add.dismissToast}
         />
       ) : null}
-      {open ? (
-        <AdminSessionAddRegistrationSearch
-          query={query}
-          onQueryChange={setQuery}
-          onClose={closeSearch}
-          searchReady={searchKey.length > 0}
-          loading={searchKey.length > 0 && (search === null || search.key !== searchKey)}
-          error={search?.key === searchKey ? search.error : null}
-          rows={search?.key === searchKey ? search.rows : []}
-          registeredUserIds={registeredUserIds}
-          busyId={busyId}
-          onSelect={(client) => {
-            void handleSelect(client);
-          }}
-          labels={{
-            searchLabel: t("addSearchLabel"),
-            searchPlaceholder: t("addSearchPlaceholder"),
-            cancel: t("addCancel"),
-            hint: t("addSearchHint"),
-            loading: t("addSearchLoading"),
-            empty: t("addSearchEmpty"),
-          }}
-        />
-      ) : (
-        <OmmButton
-          type="button"
-          variant="primary"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setOpen(true)}
-        >
-          <PlusIcon className="h-4 w-4 shrink-0" />
-          {t("addButton")}
-        </OmmButton>
-      )}
+      <SessionAddOpenControls add={add} registeredUserIds={registeredUserIds} t={t} />
+      <AddStartedVisitConfirm
+        client={add.pendingClient}
+        pending={add.busyId !== null}
+        onConfirm={add.confirmPendingAdd}
+        onCancel={add.cancelPendingAdd}
+        title={t("addStartedConfirmTitle")}
+        description={startedConfirmDescription(t, add.pendingClient)}
+        confirm={
+          add.busyId !== null ? tClasses("savingButton") : t("addStartedConfirmLabel")
+        }
+        cancel={tClasses("confirmDialogNo")}
+        backdrop={tClasses("confirmDialogBackdrop")}
+      />
     </>
   );
 }
 
-async function fetchClientSearch(
-  query: string,
-  fallbackError: string,
-  setSearch: (next: SearchState | null) => void,
-): Promise<void> {
-  if (!isSearchQueryReady(query)) {
-    setSearch(null);
-    return;
-  }
-  const key = query.trim();
-  try {
-    const payload = await apiFetch<Parameters<typeof parseClientSearchRows>[0]>(
-      buildSessionAddClientSearchUrl(key),
+function SessionAddOpenControls({
+  add,
+  registeredUserIds,
+  t,
+}: {
+  add: ReturnType<typeof useAdminSessionAddRegistration>;
+  registeredUserIds: ReadonlySet<string>;
+  t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>;
+}) {
+  if (!add.open) {
+    return (
+      <OmmButton
+        type="button"
+        variant="primary"
+        size="sm"
+        className="gap-1.5"
+        onClick={() => add.setOpen(true)}
+      >
+        <PlusIcon className="h-4 w-4 shrink-0" />
+        {t("addButton")}
+      </OmmButton>
     );
-    setSearch({ key, rows: parseClientSearchRows(payload), error: null });
-  } catch (err) {
-    setSearch({
-      key,
-      rows: [],
-      error: err instanceof ApiError ? err.message : fallbackError,
-    });
   }
+  return (
+    <AdminSessionAddRegistrationSearch
+      query={add.query}
+      onQueryChange={add.setQuery}
+      onClose={add.closeSearch}
+      searchReady={add.searchKey.length > 0}
+      loading={
+        add.searchKey.length > 0 && (add.search === null || add.search.key !== add.searchKey)
+      }
+      error={add.search?.key === add.searchKey ? add.search.error : null}
+      rows={add.search?.key === add.searchKey ? add.search.rows : []}
+      registeredUserIds={registeredUserIds}
+      busyId={add.busyId}
+      onSelect={add.requestAdd}
+      labels={{
+        searchLabel: t("addSearchLabel"),
+        searchPlaceholder: t("addSearchPlaceholder"),
+        cancel: t("addCancel"),
+        hint: t("addSearchHint"),
+        loading: t("addSearchLoading"),
+        empty: t("addSearchEmpty"),
+      }}
+    />
+  );
+}
+
+function startedConfirmDescription(
+  t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>,
+  client: ClientRow | null,
+): string {
+  if (client === null) {
+    return "";
+  }
+  return t("addStartedConfirmDescription", {
+    name: userDisplayName(client.name, client.lastName, client.email),
+  });
+}
+
+function AddStartedVisitConfirm({
+  client,
+  pending,
+  onConfirm,
+  onCancel,
+  title,
+  description,
+  confirm,
+  cancel,
+  backdrop,
+}: {
+  client: ClientRow | null;
+  pending: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  title: string;
+  description: string;
+  confirm: string;
+  cancel: string;
+  backdrop: string;
+}) {
+  return (
+    <OmmConfirmDialog
+      isOpen={client !== null}
+      title={title}
+      description={description}
+      confirmLabel={confirm}
+      cancelLabel={cancel}
+      backdropAriaLabel={backdrop}
+      tone="warm"
+      forceCenteredModal
+      pending={pending}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />
+  );
 }

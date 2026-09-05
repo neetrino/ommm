@@ -9,6 +9,7 @@ export type BookClientOnSessionResult =
 export async function bookClientOnSession(params: {
   clientId: string;
   sessionId: string;
+  attachAsPastVisit: boolean;
   noPackageMessage: string;
   fallbackError: string;
 }): Promise<BookClientOnSessionResult> {
@@ -19,6 +20,16 @@ export async function bookClientOnSession(params: {
     const userPackageId = pickOwnerBookablePackageId(packages);
     if (userPackageId === null) {
       return { ok: false, message: params.noPackageMessage, noPackage: true };
+    }
+    if (params.attachAsPastVisit) {
+      await apiFetch(
+        `/clients/${params.clientId}/packages/${userPackageId}/past-sessions`,
+        {
+          method: "POST",
+          body: JSON.stringify({ sessionId: params.sessionId }),
+        },
+      );
+      return { ok: true };
     }
     await apiFetch(`/clients/${params.clientId}/bookings`, {
       method: "POST",
