@@ -3202,9 +3202,14 @@
         "addClientBlocked": "Клиент заблокирован.",
         "addSelectAria": "Добавить {name} на это занятие",
         "addSessionFull": "На занятии нет свободных мест.",
+        "addStartedConfirmTitle": "Добавить посетителя на начавшееся занятие?",
+        "addStartedConfirmDescription": "Добавить {name} на это занятие? Клиент будет отмечен как присутствовавший, и занятие спишется с пакета.",
+        "addStartedConfirmLabel": "Добавить посетителя",
+        "cancelledBy": "Отменил {name} ({role})",
         "status": {
           "COMPLETED": "Присутствовал",
-          "MISSED": "Пропущено"
+          "MISSED": "Пропущено",
+          "CANCELLED": "Отменено"
         }
       },
       "actions": {

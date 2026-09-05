@@ -3204,9 +3204,14 @@
         "addClientBlocked": "This client is blocked.",
         "addSelectAria": "Add {name} to this class",
         "addSessionFull": "This class is full.",
+        "addStartedConfirmTitle": "Add visitor to a started class?",
+        "addStartedConfirmDescription": "Add {name} to this class? They will be marked as attended, and a session will be deducted from their package.",
+        "addStartedConfirmLabel": "Add visitor",
+        "cancelledBy": "Cancelled by {name} ({role})",
         "status": {
           "COMPLETED": "Attended",
-          "MISSED": "Missed"
+          "MISSED": "Missed",
+          "CANCELLED": "Cancelled"
         }
       },
       "actions": {

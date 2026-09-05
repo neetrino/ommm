@@ -12,8 +12,10 @@ import {
   membershipCoversSessionType,
   type UserPackageWithPlanAndBalances,
 } from '../packages/package-usage.helpers';
+import { PackageUsageService } from '../packages/package-usage.service';
 import { hasGuestPassSlot } from '../packages/packages-guest-pass.helpers';
 import { PrismaService } from '../prisma/prisma.service';
+import { canAdminAssignVisitorToSessionStatus } from './clients-bookings-create.helpers';
 import type { AdminCreateClientBookingDto } from './dto/admin-create-client-booking.dto';
 
 const USER_PACKAGE_BALANCE_SELECT = {
@@ -40,6 +42,7 @@ export class ClientsBookingsCreateService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly bookings: BookingsService,
+    private readonly packageUsage: PackageUsageService,
   ) {}
 
   async createForClient(clientId: string, dto: AdminCreateClientBookingDto) {
@@ -52,7 +55,24 @@ export class ClientsBookingsCreateService {
 
   async listEligiblePackages(clientId: string, sessionId: string) {
     await this.assertClientExists(clientId);
-    return this.bookings.listEligiblePackagesForSession(clientId, sessionId);
+    const session = await this.prisma.classSession.findUnique({
+      where: { id: sessionId },
+      include: { classType: { select: { id: true, name: true } } },
+    });
+    if (session === null || !canAdminAssignVisitorToSessionStatus(session.status)) {
+      throw new NotFoundException('Session not found');
+    }
+    return this.packageUsage.listEligibleUserPackages({
+      userId: clientId,
+      session: {
+        id: session.id,
+        startsAt: session.startsAt,
+        classType: {
+          id: session.classType.id,
+          name: session.classType.name,
+        },
+      },
+    });
   }
 
   /**

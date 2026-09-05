@@ -3205,9 +3205,14 @@
         "addClientBlocked": "Հաճախորդը արգելափակված է։",
         "addSelectAria": "Ավելացնել {name}-ին այս դասին",
         "addSessionFull": "Դասը լրացված է։",
+        "addStartedConfirmTitle": "Ավելացնե՞լ այցելու արդեն սկսված դասին",
+        "addStartedConfirmDescription": "Ավելացնե՞լ {name}-ին այս դասին։ Նա կնշվի որպես մասնակցած, և սեսիան կհանվի փաթեթից։",
+        "addStartedConfirmLabel": "Ավելացնել այցելու",
+        "cancelledBy": "Չեղարկել է {name} ({role})",
         "status": {
           "COMPLETED": "Մասնակցել է",
-          "MISSED": "Բաց է թողել"
+          "MISSED": "Բաց է թողել",
+          "CANCELLED": "Չեղարկված"
         }
       },
       "actions": {
