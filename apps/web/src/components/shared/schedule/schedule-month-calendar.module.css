@@ -1,0 +1,328 @@
+.calendarPanel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: clamp(1.5rem, 3vw, 2rem);
+  border: 1px solid rgb(255 255 255 / 0.92);
+  background:
+    linear-gradient(
+      165deg,
+      rgb(255 255 255 / 0.94) 0%,
+      rgb(255 252 246 / 0.88) 46%,
+      rgb(248 244 234 / 0.78) 100%
+    );
+  padding: clamp(1.5rem, 3.5vw, 2.25rem) clamp(1rem, 2.5vw, 1.75rem);
+  box-shadow:
+    0 22px 48px -30px rgb(45 40 35 / 0.24),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.calendarPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7rem;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 80% at 50% 0%,
+    rgb(255 255 255 / 0.7) 0%,
+    transparent 70%
+  );
+}
+
+.monthNav {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.monthTitle {
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: clamp(1.625rem, 3.2vw, 2.125rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: #2f2c26;
+  text-transform: capitalize;
+}
+
+.navBtn {
+  display: inline-flex;
+  width: 2.875rem;
+  height: 2.875rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(151 144 124 / 0.38);
+  background: rgb(255 255 255 / 0.96);
+  color: #5a5100;
+  box-shadow:
+    0 10px 22px -16px rgb(45 40 35 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+  cursor: pointer;
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.navBtn:hover:enabled {
+  border-color: rgb(151 144 124 / 0.62);
+  background: #fff;
+  box-shadow:
+    0 14px 26px -16px rgb(45 40 35 / 0.32),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+  transform: translateY(-1px);
+}
+
+.navBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.95),
+    0 0 0 4px rgb(151 144 124 / 0.35);
+}
+
+.navBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.weekdayRow,
+.weekRow {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.weekdayRow {
+  margin-bottom: 0.875rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgb(151 144 124 / 0.2);
+}
+
+.weekdayLabel {
+  text-align: center;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #4a4738;
+  text-transform: uppercase;
+}
+
+.grid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.daySlot {
+  display: flex;
+  min-width: 0;
+  min-height: clamp(4.75rem, 9vw, 6rem);
+}
+
+.dayCell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid transparent;
+  background: transparent;
+  text-align: left;
+  cursor: default;
+}
+
+.dayCellInteractive {
+  cursor: pointer;
+  background: rgb(255 255 255 / 0.78);
+  border-color: rgb(255 255 255 / 0.98);
+  box-shadow:
+    0 8px 18px -16px rgb(45 40 35 / 0.18),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+  transition:
+    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dayCellInteractive:hover {
+  border-color: rgb(151 144 124 / 0.38);
+  background: #fff;
+  box-shadow:
+    0 12px 24px -18px rgb(45 40 35 / 0.26),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+  transform: translateY(-1px);
+}
+
+.dayCellInteractive:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.95),
+    0 0 0 4px rgb(151 144 124 / 0.35);
+}
+
+.dayCellHasClasses {
+  border-color: rgb(151 144 124 / 0.28);
+  background: rgb(255 255 255 / 0.94);
+}
+
+.dayCellToday:not(.dayCellSelected) {
+  border-color: rgb(105 95 0 / 0.42);
+  background:
+    linear-gradient(
+      160deg,
+      rgb(255 255 255 / 0.98) 0%,
+      rgb(255 250 230 / 0.92) 100%
+    );
+  box-shadow:
+    0 0 0 1px rgb(105 95 0 / 0.12),
+    0 14px 28px -18px rgb(105 95 0 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+.dayCellToday:not(.dayCellSelected):hover {
+  border-color: #5a5100;
+  background:
+    linear-gradient(
+      160deg,
+      #fff 0%,
+      rgb(255 250 230 / 0.96) 100%
+    );
+}
+
+.dayCellSelected {
+  border-color: rgb(54 61 70 / 0.45);
+  background: #fff;
+  box-shadow:
+    0 14px 28px -18px rgb(45 40 35 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+.dayCellMuted {
+  opacity: 0.48;
+}
+
+.dayCellTop {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+.todayBadge {
+  margin: 0;
+  flex-shrink: 0;
+  padding: 0.2rem 0.4rem;
+  border-radius: 9999px;
+  background: rgb(105 95 0 / 0.1);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #5a5100;
+}
+
+.dayNumber {
+  display: inline-flex;
+  width: 2.125rem;
+  height: 2.125rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 255 255 / 0.98);
+  background: #fff;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #2a2620;
+  box-shadow: 0 0 0 1px rgb(45 40 35 / 0.06);
+}
+
+.dayNumberPast {
+  color: #5c5648;
+  background: rgb(255 255 255 / 0.92);
+}
+
+.dayNumberToday {
+  border-color: #695f00;
+  background: #fff;
+  color: #5a5100;
+  box-shadow: 0 0 0 3px rgb(105 95 0 / 0.16);
+}
+
+.dayNumberSelected {
+  border-color: #363d46;
+  background: #363d46;
+  color: #fff;
+  box-shadow: none;
+}
+
+.dayNumberHasClasses:not(.dayNumberSelected):not(.dayNumberToday) {
+  background: #fff;
+  border-color: rgb(105 95 0 / 0.28);
+  color: #2a2620;
+  box-shadow: 0 0 0 3px rgb(105 95 0 / 0.08);
+}
+
+.dayCount {
+  margin: 0;
+  max-width: 100%;
+  padding: 0.15rem 0.4rem;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.72);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.6875rem, 1.1vw, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: #3d3a32;
+  overflow-wrap: anywhere;
+}
+
+.dayCellSelected .dayCount,
+.dayCellHasClasses .dayCount,
+.dayCellToday .dayCount {
+  color: #2f2c26;
+}
+
+.dayCellToday .dayCount {
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navBtn,
+  .dayCellInteractive {
+    transition: none;
+  }
+}

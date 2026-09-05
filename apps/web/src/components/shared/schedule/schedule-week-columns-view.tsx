@@ -10,8 +10,6 @@ import {
   type ScheduleWeekMiniCardSession,
 } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import {
-  SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS,
-  SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX,
   SCHEDULE_WEEK_COLUMN_GAP_CLASS,
   SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX,
   SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS,
@@ -37,53 +35,36 @@ type ScheduleWeekColumnsViewProps<T extends ScheduleWeekMiniCardSession> = {
   labels: ScheduleWeekViewLabels;
   showCoach?: boolean;
   cardVariant?: ScheduleWeekCardVariant;
-  /** Override day columns (e.g. full month). Defaults to rolling week. */
-  dayKeys?: readonly string[];
-  columnMinWidth?: number;
   /**
-   * When true, columns flex to fill the track (week).
-   * When false, columns keep a fixed min width for horizontal month scrolling.
+   * When true, columns flex to fill the track.
+   * When false, columns keep a fixed min width and scroll horizontally.
    */
   expandColumns?: boolean;
-  /** Stretch columns to remaining viewport height (month board). */
-  fillRemainingViewport?: boolean;
   /**
-   * On mount / dayKeys change, align this day (or today if present) to the left edge.
+   * On mount, align this day (or today if present) to the left edge.
    * Pass empty string to enable today-or-first-day alignment; `null` disables.
    */
   alignStartDayKey?: string | null;
-  /**
-   * When today is not among `dayKeys` (e.g. another month), jump control calls this
-   * instead of scrolling.
-   */
-  onJumpToToday?: () => void;
   onSessionClick?: (session: T) => void;
   canAddVisitor?: boolean;
 };
 
-/**
- * Kanban-style day columns — week fills width when possible;
- * month passes fixed day keys and scrolls horizontally.
- */
+/** Kanban-style day columns for the week board. */
 export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   locale,
   rows,
   labels,
   showCoach = false,
   cardVariant = "staff",
-  dayKeys: dayKeysProp,
-  columnMinWidth = SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX,
   expandColumns = true,
-  fillRemainingViewport = false,
   alignStartDayKey = null,
-  onJumpToToday,
   onSessionClick,
   canAddVisitor = false,
 }: ScheduleWeekColumnsViewProps<T>) {
   const t = useTranslations("adminPages.schedule");
   const todayIso = scheduleTodayIsoDate();
-  const fallbackWeekKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
-  const dayKeys = dayKeysProp ?? fallbackWeekKeys;
+  const dayKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
+  const columnMinWidth = SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX;
   const dayKeysSignature = dayKeys.join(",");
   const todayInKeys = dayKeys.includes(todayIso);
   const grouped = useMemo(() => groupScheduleSessionsByDay(rows), [rows]);
@@ -119,12 +100,8 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   }, [alignStartDayKey, dayKeys, dayKeysSignature, scrollDayToStart, todayIso]);
 
   const handleJumpToToday = useCallback(() => {
-    if (!todayInKeys) {
-      onJumpToToday?.();
-      return;
-    }
     scrollDayToStart(todayIso);
-  }, [onJumpToToday, scrollDayToStart, todayInKeys, todayIso]);
+  }, [scrollDayToStart, todayIso]);
 
   const offBoardSide = useMemo((): "left" | "right" | null => {
     if (todayInKeys || dayKeys.length === 0) return null;
@@ -136,29 +113,22 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   }, [dayKeys, todayInKeys, todayIso]);
 
   const jumpSide = todayInKeys ? anchorSide : offBoardSide;
-  const showJumpToToday =
-    jumpSide !== null && (todayInKeys ? !isAnchorInView : Boolean(onJumpToToday));
-
-  const boardHeightClass = fillRemainingViewport ? SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS : "";
-  const columnStretchClass = fillRemainingViewport ? "h-full" : "";
-  const sessionsAreaClass = fillRemainingViewport
-    ? "flex min-h-0 flex-1 flex-col gap-2 pb-6"
-    : "flex flex-col gap-2 pb-6";
-  const emptyDayClass = fillRemainingViewport
-    ? "flex flex-1 items-center justify-center rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500"
-    : "rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-500";
+  const showJumpToToday = jumpSide !== null && todayInKeys && !isAnchorInView;
+  const sessionsAreaClass = "flex flex-col gap-2 pb-6";
+  const emptyDayClass =
+    "rounded-[28px] border border-dashed border-white/80 bg-white/80 px-3 py-8 text-center text-xs font-medium leading-snug text-sage-600";
 
   return (
-    <div className={`relative ${boardHeightClass}`.trim()}>
+    <div className="relative">
       {renderEdgeZones()}
       <div
         ref={scrollRef}
-        className={`${SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS} ${fillRemainingViewport ? "h-full" : ""}`.trim()}
+        className={SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS}
         aria-label={labels.gridAria}
         {...dragHandlers}
       >
         <div
-          className={`flex ${fillRemainingViewport ? "h-full items-stretch" : "items-start"} ${SCHEDULE_WEEK_COLUMN_GAP_CLASS} ${expandColumns ? "w-full" : ""}`}
+          className={`flex items-start ${SCHEDULE_WEEK_COLUMN_GAP_CLASS} ${expandColumns ? "w-full" : ""}`}
           style={{ minWidth: `${trackMinWidthPx}px` }}
         >
           {dayKeys.map((dayKey) => {
@@ -171,9 +141,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                 key={dayKey}
                 data-schedule-day={dayKey}
                 className={
-                  expandColumns
-                    ? `flex min-w-0 flex-1 flex-col ${columnStretchClass}`
-                    : `flex shrink-0 flex-col ${columnStretchClass}`
+                  expandColumns ? "flex min-w-0 flex-1 flex-col" : "flex shrink-0 flex-col"
                 }
                 style={{
                   width: expandColumns ? undefined : columnMinWidth,
@@ -185,13 +153,13 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                     className={`flex items-start justify-between gap-2 rounded-[20px] px-3 py-2.5 ${
                       isToday
                         ? "bg-sage-800 text-white shadow-[0_14px_28px_-20px_rgba(45,40,35,0.55)]"
-                        : "bg-white/65 text-sage-900"
+                        : "bg-white/90 text-sage-900"
                     }`}
                   >
                     <div>
                       <span
                         className={`block text-[10px] font-semibold uppercase tracking-[0.12em] ${
-                          isToday ? "text-white/70" : "text-sage-500"
+                          isToday ? "text-white/80" : "text-sage-700"
                         }`}
                       >
                         {new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date)}
@@ -269,5 +237,3 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
     </div>
   );
 }
-
-export { SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX };

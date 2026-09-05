@@ -81,6 +81,19 @@ export function isSameCalendarMonth(a: Date, b: Date): boolean {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const DAYS_PER_WEEK = 7;
+const WEEKDAY_SAMPLE_MONDAY = new Date(2024, 0, 1);
+
+/** Two-letter weekday labels Monday → Sunday for month grids. */
+export function formatWeekdayShortLabels(locale: string): string[] {
+  return Array.from({ length: DAYS_PER_WEEK }, (_, idx) => {
+    const day = new Date(WEEKDAY_SAMPLE_MONDAY);
+    day.setDate(WEEKDAY_SAMPLE_MONDAY.getDate() + idx);
+    return new Intl.DateTimeFormat(locale, { weekday: "short" })
+      .format(day)
+      .toUpperCase()
+      .slice(0, 2);
+  });
+}
 
 /** Monday-start weeks covering the local month of `monthAnchor`. */
 export function buildMonthWeeks(monthAnchor: Date): Date[][] {

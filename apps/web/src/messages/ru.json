@@ -2928,8 +2928,16 @@
       },
       "monthView": {
         "gridAria": "Месячное расписание: {month}",
+        "boardAria": "Месячный календарь занятий",
         "previousMonth": "Предыдущий месяц",
-        "nextMonth": "Следующий месяц"
+        "nextMonth": "Следующий месяц",
+        "dayClassCount": "{count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
+        "dayAria": "День {day}",
+        "dayAriaWithCount": "{day}, {count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
+        "daySheetAria": "Занятия выбранного дня",
+        "daySheetCloseAria": "Закрыть занятия дня",
+        "daySheetEyebrow": "Выбранный день",
+        "emptyDay": "Нет занятий"
       },
       "createTitle": "Добавить элемент расписания",
       "createDescription": "Создайте публичную карточку. Она появится на Home и Schedule.",

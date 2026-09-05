@@ -1,14 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { AdminScheduleMonthNav } from "@/components/admin/admin-schedule-month-nav";
-import { buildScheduleMonthDayKeys } from "@/components/admin/admin-schedule-month-utils";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
-import {
-  ScheduleWeekColumnsView,
-  SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX,
-} from "@/components/shared/schedule/schedule-week-columns-view";
+import { InternalScheduleMonthView } from "@/components/shared/schedule/internal-schedule-month-view";
+import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
+import { ScheduleWeekSessionMiniCard } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
@@ -24,9 +20,7 @@ type StaffScheduleListWeekViewsProps = {
   emptyBody: string;
   showCoachInWeek?: boolean;
   visibleYearMonth?: string;
-  onPreviousMonth?: () => void;
-  onNextMonth?: () => void;
-  onJumpToTodayMonth?: () => void;
+  onShiftVisibleMonth?: (deltaMonths: number) => void;
 };
 
 export function StaffScheduleListWeekViews({
@@ -38,16 +32,10 @@ export function StaffScheduleListWeekViews({
   emptyBody,
   showCoachInWeek = false,
   visibleYearMonth,
-  onPreviousMonth,
-  onNextMonth,
-  onJumpToTodayMonth,
+  onShiftVisibleMonth,
 }: StaffScheduleListWeekViewsProps) {
   const tSchedule = useTranslations("adminPages.schedule");
   const canAddVisitor = preset !== "staffReadOnly";
-  const monthDayKeys = useMemo(
-    () => (visibleYearMonth ? buildScheduleMonthDayKeys(visibleYearMonth) : []),
-    [visibleYearMonth],
-  );
 
   if (view === "weekly") {
     return (
@@ -67,38 +55,26 @@ export function StaffScheduleListWeekViews({
     );
   }
 
-  if (
-    view === "monthly" &&
-    visibleYearMonth !== undefined &&
-    onPreviousMonth !== undefined &&
-    onNextMonth !== undefined
-  ) {
+  if (view === "monthly") {
     return (
-      <div className="space-y-3">
-        <AdminScheduleMonthNav
-          locale={locale}
-          yearMonth={visibleYearMonth}
-          onPreviousMonth={onPreviousMonth}
-          onNextMonth={onNextMonth}
-        />
-        <ScheduleWeekColumnsView
-          locale={locale}
-          rows={rows}
-          dayKeys={monthDayKeys}
-          showCoach={showCoachInWeek}
-          expandColumns={false}
-          fillRemainingViewport
-          alignStartDayKey={scheduleTodayIsoDate()}
-          columnMinWidth={SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX}
-          onJumpToToday={onJumpToTodayMonth}
-          canAddVisitor={canAddVisitor}
-          labels={{
-            gridAria: tSchedule("monthView.gridAria", { month: visibleYearMonth }),
-            todayBadge: tSchedule("weekView.todayBadge"),
-            emptyDay: tSchedule("weekView.emptyDay"),
-          }}
-        />
-      </div>
+      <InternalScheduleMonthView
+        locale={locale}
+        rows={rows}
+        visibleYearMonth={visibleYearMonth}
+        onShiftVisibleMonth={onShiftVisibleMonth}
+        renderDaySessions={(dayRows) =>
+          dayRows.map((session) => (
+            <ScheduleWeekSessionMiniCard
+              key={session.id}
+              locale={locale}
+              session={session}
+              showCoach={showCoachInWeek}
+              variant="staff"
+              canAddVisitor={canAddVisitor}
+            />
+          ))
+        }
+      />
     );
   }
 
