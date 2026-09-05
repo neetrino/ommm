@@ -228,6 +228,25 @@
   opacity: 0.48;
 }
 
+.dayCellPast:not(.dayCellSelected) {
+  background: rgb(255 255 255 / 0.36);
+  border-color: rgb(151 144 124 / 0.08);
+  box-shadow: none;
+  opacity: 0.62;
+}
+
+.dayCellPast:not(.dayCellSelected):hover {
+  background: rgb(255 255 255 / 0.62);
+  border-color: rgb(151 144 124 / 0.18);
+  box-shadow: none;
+  opacity: 0.82;
+}
+
+.dayCellPast:not(.dayCellSelected) .dayCount {
+  color: #8a8478;
+  background: rgb(255 255 255 / 0.32);
+}
+
 .dayCellTop {
   display: flex;
   width: 100%;
@@ -293,6 +312,14 @@
   border-color: rgb(105 95 0 / 0.28);
   color: #2a2620;
   box-shadow: 0 0 0 3px rgb(105 95 0 / 0.08);
+}
+
+.dayCellPast:not(.dayCellSelected) .dayNumber.dayNumberHasClasses,
+.dayCellPast:not(.dayCellSelected) .dayNumber.dayNumberPast {
+  color: #8a8478;
+  background: rgb(255 255 255 / 0.55);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .dayCount {

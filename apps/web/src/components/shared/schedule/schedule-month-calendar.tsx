@@ -41,6 +41,8 @@ export type ScheduleMonthCalendarProps = {
   onVisibleMonthChange: (month: Date) => void;
   onSelectDay: (day: Date) => void;
   labels: ScheduleMonthCalendarLabels;
+  /** Soften past day cells — used on the internal admin/staff month grid. */
+  dimPastDays?: boolean;
 };
 
 function isDaySelectable(day: Date, minDate?: Date, maxDate?: Date): boolean {
@@ -71,6 +73,7 @@ function dayCellClassName(
   hasClasses: boolean,
   isToday: boolean,
   isSelected: boolean,
+  dimPast: boolean,
 ): string {
   return [
     styles.dayCell,
@@ -78,6 +81,7 @@ function dayCellClassName(
     hasClasses ? styles.dayCellHasClasses : "",
     isToday ? styles.dayCellToday : "",
     isSelected ? styles.dayCellSelected : "",
+    dimPast ? styles.dayCellPast : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -89,6 +93,7 @@ type MonthDayCellProps = {
   isSelected: boolean;
   isToday: boolean;
   isPast: boolean;
+  dimPastDays: boolean;
   classCount: number;
   labels: ScheduleMonthCalendarLabels;
   onSelect: (day: Date) => void;
@@ -100,6 +105,7 @@ function MonthDayCell({
   isSelected,
   isToday,
   isPast,
+  dimPastDays,
   classCount,
   labels,
   onSelect,
@@ -107,7 +113,8 @@ function MonthDayCell({
   const hasClasses = classCount > 0;
   const countLabel = hasClasses ? labels.classCount(classCount) : null;
   const numberClass = dayNumberClassName(isPast, isToday, isSelected, hasClasses);
-  const cellClass = dayCellClassName(selectable, hasClasses, isToday, isSelected);
+  const dimPast = dimPastDays && isPast && !isSelected && !isToday;
+  const cellClass = dayCellClassName(selectable, hasClasses, isToday, isSelected, dimPast);
   const inner = (
     <>
       <div className={styles.dayCellTop}>
@@ -159,6 +166,7 @@ export function ScheduleMonthCalendar({
   onVisibleMonthChange,
   onSelectDay,
   labels,
+  dimPastDays = false,
 }: ScheduleMonthCalendarProps) {
   const today = startOfLocalDay(new Date());
   const minMonth = useMemo(
@@ -223,6 +231,7 @@ export function ScheduleMonthCalendar({
                   isSelected={daySheetOpen && isSameCalendarDay(day, selectedDate)}
                   isToday={isSameCalendarDay(day, today)}
                   isPast={isBeforeCalendarDay(day, today)}
+                  dimPastDays={dimPastDays}
                   classCount={sessionCountByDayKey.get(toLocalIsoDate(day)) ?? 0}
                   labels={labels}
                   onSelect={onSelectDay}

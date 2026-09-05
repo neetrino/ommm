@@ -88,6 +88,7 @@ export function InternalScheduleMonthView<T extends { startsAt: string }>({
         sessionCountByDayKey={sessionCountByDayKey}
         visibleMonth={visibleMonth}
         labels={labels}
+        dimPastDays
         onVisibleMonthChange={(month) => {
           if (visibleYearMonth !== undefined && onShiftVisibleMonth !== undefined) {
             const nextYm = yearMonthFromIsoDay(toLocalIsoDate(month));
