@@ -29,21 +29,15 @@ export function monthBoundsIso(yearMonth: string): { from: string; to: string } 
   return { from, to };
 }
 
-/** Inclusive ISO day list for every calendar day in `YYYY-MM`. */
-export function buildScheduleMonthDayKeys(yearMonth: string): string[] {
-  const { from, to } = monthBoundsIso(yearMonth);
-  const days: string[] = [];
-  const cursor = new Date(`${from}T00:00:00`);
-  const end = new Date(`${to}T00:00:00`);
-  while (cursor <= end) {
-    days.push(toLocalIsoDate(cursor));
-    cursor.setDate(cursor.getDate() + 1);
-  }
-  return days;
+/** Local date on the first day of a `YYYY-MM` month. */
+export function dateFromYearMonth(yearMonth: string): Date {
+  const { year, monthIndex } = parseYearMonth(yearMonth);
+  return new Date(year, monthIndex, 1);
 }
 
-/** Display title for a `YYYY-MM` value in the given locale (e.g. "August 2026"). */
-export function formatMonthTitle(locale: string, yearMonth: string): string {
-  const date = new Date(`${yearMonth}-01T00:00:00`);
-  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(date);
+/** Signed month distance from `fromYearMonth` to `toYearMonth`. */
+export function calendarMonthDelta(fromYearMonth: string, toYearMonth: string): number {
+  const from = parseYearMonth(fromYearMonth);
+  const to = parseYearMonth(toYearMonth);
+  return (to.year - from.year) * 12 + (to.monthIndex - from.monthIndex);
 }

@@ -7,6 +7,7 @@ import {
   addMonths,
   buildMonthWeeks,
   formatScheduleMonthTitle,
+  formatWeekdayShortLabels,
   isAfterCalendarDay,
   isBeforeCalendarDay,
   isSameCalendarDay,
@@ -24,8 +25,6 @@ import { useVisibleMonthFollow } from "@/components/marketing/schedule/use-visib
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
-
-const WEEKDAY_SAMPLE_MONDAY = new Date(2024, 0, 1);
 
 type ScheduleMonthCalendarSheetProps = {
   open: boolean;
@@ -75,18 +74,7 @@ export function ScheduleMonthCalendarSheet({
   const canPrev = isBeforeCalendarDay(minMonth, visibleMonth);
   const canNext = isAfterCalendarDay(maxMonth, visibleMonth);
   const weeks = useMemo(() => buildMonthWeeks(visibleMonth), [visibleMonth]);
-  const weekdayLabels = useMemo(
-    () =>
-      Array.from({ length: 7 }, (_, idx) => {
-        const day = new Date(WEEKDAY_SAMPLE_MONDAY);
-        day.setDate(WEEKDAY_SAMPLE_MONDAY.getDate() + idx);
-        return new Intl.DateTimeFormat(locale, { weekday: "short" })
-          .format(day)
-          .toUpperCase()
-          .slice(0, 2);
-      }),
-    [locale],
-  );
+  const weekdayLabels = useMemo(() => formatWeekdayShortLabels(locale), [locale]);
   const monthTitle = `${formatScheduleMonthTitle(locale, visibleMonth)} ${visibleMonth.getFullYear()}`;
 
   if (!presented || !clientMounted) {

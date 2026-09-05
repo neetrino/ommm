@@ -22,19 +22,7 @@ export const SCHEDULE_WEEK_SCROLL_SPEED_PX = 6;
 
 export const SCHEDULE_WEEK_EDGE_ZONE_WIDTH_PX = 48;
 
-/** Minimum column width for month board (fixed; always scrolls horizontally). */
-export const SCHEDULE_MONTH_COLUMN_MIN_WIDTH_PX = 188;
-
-/**
- * Week/month board fills remaining viewport so the date strip can stay pinned
- * while only session cards scroll vertically.
- */
-export const SCHEDULE_BOARD_VIEWPORT_HEIGHT_CLASS = "h-[calc(100dvh-20rem)]";
-
-/** @deprecated Prefer {@link SCHEDULE_BOARD_VIEWPORT_HEIGHT_CLASS}. */
-export const SCHEDULE_MONTH_BOARD_MIN_HEIGHT_CLASS = SCHEDULE_BOARD_VIEWPORT_HEIGHT_CLASS;
-
-/** Past-day week/month cards — muted so history reads apart from upcoming. */
+/** Past-day week cards — muted so history reads apart from upcoming. */
 export const SCHEDULE_PAST_WEEK_CARD_CLASS = [
   "border border-sage-300/45 bg-sage-200/55",
   "shadow-[0_12px_32px_-28px_rgba(45,40,35,0.2)]",

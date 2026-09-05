@@ -2930,8 +2930,16 @@
       },
       "monthView": {
         "gridAria": "Monthly schedule for {month}",
+        "boardAria": "Monthly class calendar",
         "previousMonth": "Previous month",
-        "nextMonth": "Next month"
+        "nextMonth": "Next month",
+        "dayClassCount": "{count, plural, one {# class} other {# classes}}",
+        "dayAria": "Day {day}",
+        "dayAriaWithCount": "{day}, {count, plural, one {# class} other {# classes}}",
+        "daySheetAria": "Classes for selected day",
+        "daySheetCloseAria": "Close day classes",
+        "daySheetEyebrow": "Selected day",
+        "emptyDay": "No classes"
       },
       "createTitle": "Add Schedule Item",
       "createDescription": "Create a public schedule card. It appears on Home and Schedule pages.",

@@ -478,12 +478,6 @@ export function useAdminScheduleManagement({
     [clearSelection, patchFilterState, visibleYearMonth],
   );
 
-  const handleGoToCurrentMonth = useCallback(() => {
-    clearSelection();
-    const { from, to } = monthBoundsIso(yearMonthFromIsoDay(scheduleTodayIsoDate()));
-    patchFilterState({ stripDay: null, filters: { from, to } });
-  }, [clearSelection, patchFilterState]);
-
   return {
     isStaff,
     t,
@@ -491,7 +485,6 @@ export function useAdminScheduleManagement({
     setView: handleSetView,
     visibleYearMonth,
     handleShiftVisibleMonth,
-    handleGoToCurrentMonth,
     searchDraft,
     setSearchDraft,
     filterFields,

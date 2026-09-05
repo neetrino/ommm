@@ -10,11 +10,18 @@ import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 
+export type ScheduleDaySessionsSheetCopy = {
+  aria: string;
+  closeAria: string;
+  eyebrow: string;
+};
+
 type ScheduleDaySessionsSheetProps = {
   open: boolean;
   dayLabel: string;
   children: ReactNode;
   onClose: () => void;
+  copy?: ScheduleDaySessionsSheetCopy;
 };
 
 function CloseIcon() {
@@ -37,10 +44,16 @@ export function ScheduleDaySessionsSheet({
   dayLabel,
   children,
   onClose,
+  copy,
 }: ScheduleDaySessionsSheetProps) {
   const t = useTranslations("marketingPages.schedule");
   const titleId = useId();
   const clientMounted = useIsClientMounted();
+  const sheetCopy = copy ?? {
+    aria: t("daySessionsSheetAria"),
+    closeAria: t("daySessionsSheetCloseAria"),
+    eyebrow: t("daySessionsSheetEyebrow"),
+  };
   const { presented, motionOpen, requestClose } = useScheduleCalendarSheetMotion(
     open,
     onClose,
@@ -67,19 +80,19 @@ export function ScheduleDaySessionsSheet({
       <button
         type="button"
         className={backdropClass}
-        aria-label={t("daySessionsSheetCloseAria")}
+        aria-label={sheetCopy.closeAria}
         onClick={requestClose}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        aria-label={t("daySessionsSheetAria")}
+        aria-label={sheetCopy.aria}
         className={panelClass}
       >
         <div className={styles.header}>
           <div className={styles.titleBlock}>
-            <p className={styles.eyebrow}>{t("daySessionsSheetEyebrow")}</p>
+            <p className={styles.eyebrow}>{sheetCopy.eyebrow}</p>
             <h2 id={titleId} className={styles.title}>
               {dayLabel}
             </h2>
@@ -87,7 +100,7 @@ export function ScheduleDaySessionsSheet({
           <button
             type="button"
             className={styles.closeBtn}
-            aria-label={t("daySessionsSheetCloseAria")}
+            aria-label={sheetCopy.closeAria}
             onClick={requestClose}
           >
             <CloseIcon />

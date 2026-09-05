@@ -2931,8 +2931,16 @@
       },
       "monthView": {
         "gridAria": "Ամսական դասացուցակ՝ {month}",
+        "boardAria": "Ամսական դասացուցակ",
         "previousMonth": "Նախորդ ամիս",
-        "nextMonth": "Հաջորդ ամիս"
+        "nextMonth": "Հաջորդ ամիս",
+        "dayClassCount": "{count, plural, one {# դաս} other {# դաս}}",
+        "dayAria": "{day} օր",
+        "dayAriaWithCount": "{day}, {count, plural, one {# դաս} other {# դաս}}",
+        "daySheetAria": "Ընտրված օրվա դասեր",
+        "daySheetCloseAria": "Փակել օրվա դասերը",
+        "daySheetEyebrow": "Ընտրված օր",
+        "emptyDay": "Դասեր չկան"
       },
       "createTitle": "Ավելացնել ժամանակացույցի տարր",
       "createDescription": "Ստեղծեք հանրային քարտ, որը կերևա Home և Schedule էջերում։",
