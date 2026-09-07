@@ -61,7 +61,7 @@ describe('CoachSalaryPayoutService', () => {
       { id: 'payout-2', amountAmd: 10_000 },
     ]);
     const deleteMany = jest.fn().mockResolvedValue({ count: 1 });
-    const transaction = jest.fn(async (ops: unknown) => ops);
+    const transaction = jest.fn((ops: unknown) => Promise.resolve(ops));
     const forProfile = jest
       .fn()
       .mockResolvedValueOnce({
@@ -92,7 +92,7 @@ describe('CoachSalaryPayoutService', () => {
       where: { id: 'payout-1' },
       data: {
         amountAmd: 95_000,
-        paidAt: expect.any(Date),
+        paidAt: expect.any(Date) as Date,
         paidByAdminId: 'admin-1',
       },
     });
