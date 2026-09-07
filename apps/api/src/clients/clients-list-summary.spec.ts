@@ -24,7 +24,6 @@ describe('computeClientsSummaryFromDb', () => {
       total: 4,
       active: 4,
       withPackage: 4,
-      vip: 0,
       totalVisits: 9,
       lifetimeValueCents: 25_000,
     });
@@ -68,7 +67,7 @@ describe('summaryFromRows', () => {
       {
         classLevels: [],
         preferredCoach: null,
-        tags: ['VIP'],
+        tags: ['New'],
         status: 'Active',
         activePackageStatus: null,
         totalVisits: 3,
@@ -79,7 +78,6 @@ describe('summaryFromRows', () => {
     expect(result.total).toBe(2);
     expect(result.active).toBe(1);
     expect(result.withPackage).toBe(1);
-    expect(result.vip).toBe(1);
     expect(result.totalVisits).toBe(3);
   });
 });
