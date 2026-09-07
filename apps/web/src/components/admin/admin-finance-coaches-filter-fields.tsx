@@ -1,5 +1,7 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import type { CoachFinanceFilters } from "@/components/admin/admin-finance-types";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 
 type BuildAdminFinanceCoachesFilterFieldsArgs = {
   labels: {
@@ -14,6 +16,20 @@ type BuildAdminFinanceCoachesFilterFieldsArgs = {
     sortOldest: string;
   };
 };
+
+const YEAR_MONTH_PATTERN = /^\d{4}-\d{2}$/;
+
+function monthToDatePickerValue(month: string): string {
+  return YEAR_MONTH_PATTERN.test(month) ? `${month}-01` : "";
+}
+
+function datePickerValueToMonth(isoDate: string): string {
+  const trimmed = isoDate.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return "";
+  }
+  return trimmed.slice(0, 7);
+}
 
 export function adminFinanceCoachesIntegratedFilterValues(
   values: Pick<CoachFinanceFilters, "month" | "payoutStatus" | "order">,
@@ -33,14 +49,15 @@ export function buildAdminFinanceCoachesFilterFields({
       key: "month",
       label: labels.monthLabel,
       fieldType: "custom",
-      resolveChipLabel: (value) => `${labels.monthLabel}: ${value}`,
+      resolveChipLabel: (value) =>
+        formatFilterDateChipLabel(labels.monthLabel, monthToDatePickerValue(value)),
       render: ({ value, onChange }) => (
-        <input
-          type="month"
-          className="ommm-input h-10 w-full"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          aria-label={labels.monthLabel}
+        <DatePickerInput
+          name="month"
+          value={monthToDatePickerValue(value)}
+          onChange={(next) => onChange(datePickerValueToMonth(next))}
+          ariaLabel={labels.monthLabel}
+          placeholder={labels.monthLabel}
         />
       ),
     },

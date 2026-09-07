@@ -12,18 +12,32 @@ import {
   FINANCE_COACH_PAYOUT_PAGE_KEYS,
 } from "@/components/admin/admin-finance-url";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
 const FILTER_DEBOUNCE_MS = 300;
+const YEAR_MONTH_PATTERN = /^\d{4}-\d{2}$/;
 
 type AdminFinanceCoachPayoutHistoryFiltersProps = {
   initialValues: CoachSalaryPayoutHistoryFilters;
 };
 
+function monthToDatePickerValue(month: string): string {
+  return YEAR_MONTH_PATTERN.test(month) ? `${month}-01` : "";
+}
+
+function datePickerValueToMonth(isoDate: string): string {
+  const trimmed = isoDate.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return "";
+  }
+  return trimmed.slice(0, 7);
+}
+
 function buildPayoutHistoryFilterFields(labels: {
   monthLabel: string;
-  allMonths: string;
 }): AdminIntegratedFilterField[] {
   return [
     {
@@ -31,26 +45,15 @@ function buildPayoutHistoryFilterFields(labels: {
       label: labels.monthLabel,
       fieldType: "custom",
       resolveChipLabel: (value) =>
-        value ? `${labels.monthLabel}: ${value}` : null,
+        formatFilterDateChipLabel(labels.monthLabel, monthToDatePickerValue(value)),
       render: ({ value, onChange }) => (
-        <div className="space-y-2">
-          <input
-            type="month"
-            className="ommm-input h-10 w-full"
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            aria-label={labels.monthLabel}
-          />
-          {value ? (
-            <button
-              type="button"
-              className="text-xs font-medium text-sage-600 underline-offset-2 hover:text-sage-800 hover:underline"
-              onClick={() => onChange("")}
-            >
-              {labels.allMonths}
-            </button>
-          ) : null}
-        </div>
+        <DatePickerInput
+          name="month"
+          value={monthToDatePickerValue(value)}
+          onChange={(next) => onChange(datePickerValueToMonth(next))}
+          ariaLabel={labels.monthLabel}
+          placeholder={labels.monthLabel}
+        />
       ),
     },
   ];
@@ -76,7 +79,6 @@ export function AdminFinanceCoachPayoutHistoryFilters({
     () =>
       buildPayoutHistoryFilterFields({
         monthLabel: t("monthLabel"),
-        allMonths: t("allMonths"),
       }),
     [t],
   );
