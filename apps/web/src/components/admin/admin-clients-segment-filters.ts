@@ -1,6 +1,5 @@
 export const ADMIN_CLIENT_SEGMENT_FILTER_VALUES = [
   "new",
-  "vip",
   "unpaid",
   "birthday-this-month",
   "inactive-30-days",
