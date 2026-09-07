@@ -6,6 +6,7 @@ import {
   SCHEDULE_WEEK_SCROLL_SPEED_PX,
 } from "@/components/shared/schedule/schedule-week-view-tokens";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
+import { WORKSPACE_SCROLL_PANE_SELECTOR } from "@/lib/reset-workspace-scroll";
 
 function ScheduleWeekScrollChevron({ direction }: { direction: "left" | "right" }) {
   return (
@@ -113,6 +114,37 @@ export function useScheduleWeekBoardScroll(
       observer.disconnect();
     };
   }, [dependencyKey, updateScrollState]);
+
+  /**
+   * Horizontal boards are scrollports (overflow-x:auto ⇒ overflow-y:auto) and
+   * trap vertical wheel. Desktop admin scroll lives on `[data-workspace-scroll-pane]`,
+   * not `window` — always forward vertical delta there (or window on mobile).
+   */
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+
+    const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey || event.metaKey) return;
+      if (Math.abs(event.deltaY) < Math.abs(event.deltaX)) return;
+
+      const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
+      const paneCanScroll =
+        pane !== null &&
+        pane !== element &&
+        pane.scrollHeight > pane.clientHeight + 1;
+
+      if (paneCanScroll && pane !== null) {
+        pane.scrollTop += event.deltaY;
+      } else {
+        window.scrollBy({ top: event.deltaY, left: 0 });
+      }
+      event.preventDefault();
+    };
+
+    element.addEventListener("wheel", onWheel, { passive: false });
+    return () => element.removeEventListener("wheel", onWheel);
+  }, [dependencyKey]);
 
   useEffect(() => () => cancelAnimationFrame(rafId.current), []);
 
