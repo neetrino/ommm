@@ -177,7 +177,6 @@ export type StudioAnalyticsPayload = {
   members: {
     total: number;
     active: number;
-    vip: number;
     newInRange: number;
     returningInRange: number;
     inactive30d: number;
@@ -279,7 +278,6 @@ export type AnalyticsBookingsPayload = {
 export type AnalyticsClientsSummary = {
   total: number;
   active: number;
-  vip: number;
   totalVisits: number;
   lifetimeValueCents: number;
 };

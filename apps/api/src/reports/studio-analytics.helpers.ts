@@ -166,7 +166,6 @@ export function emptyGiftCredits(): {
 export function emptyMemberCounts(): {
   total: number;
   active: number;
-  vip: number;
   newInRange: number;
   returningInRange: number;
   inactive30d: number;
@@ -185,7 +184,6 @@ export function emptyMemberCounts(): {
   return {
     total: 0,
     active: 0,
-    vip: 0,
     newInRange: 0,
     returningInRange: 0,
     inactive30d: 0,

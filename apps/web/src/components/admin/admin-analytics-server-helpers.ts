@@ -142,7 +142,6 @@ function mapClientsFromStudio(studio: StudioAnalyticsPayload): AnalyticsClientsS
   return {
     total: studio.members.total,
     active: studio.members.active,
-    vip: studio.members.vip,
     totalVisits: studio.members.totalVisitsInRange,
     lifetimeValueCents: studio.members.lifetimeValueCents,
   };

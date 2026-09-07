@@ -25,7 +25,6 @@ type AnalyticsChartLabels = {
   };
   users: {
     active: string;
-    vip: string;
     newMembers: string;
     returning: string;
     inactive30d: string;
