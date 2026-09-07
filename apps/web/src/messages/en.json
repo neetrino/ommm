@@ -4472,6 +4472,7 @@
         "markPaidFailed": "Could not mark salary as paid.",
         "markPaidConfirmTitle": "Mark salary as paid?",
         "markPaidConfirmDescription": "Confirm payout of {amount} to {coach} for {month}. Unpaid salary for this month will become zero and the payment will stay in history.",
+        "markPaidConfirmTip": "Tip: use Mark as paid once on your chosen day each month for that month’s salary — not every time earnings appear.",
         "markPaidConfirm": "Confirm payment",
         "cancelButton": "Cancel",
         "modalBackdropClose": "Close dialog",

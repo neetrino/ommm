@@ -198,6 +198,9 @@ export function AdminFinanceCoachCompactRow({
         }}
         onCancel={closeConfirm}
       >
+        <p className="rounded-2xl border border-sand-500/25 bg-sand-100/70 px-3.5 py-3 text-sm leading-relaxed text-sage-700">
+          {t("markPaidConfirmTip")}
+        </p>
         {error ? <p className="text-sm text-red-700">{error}</p> : null}
       </OmmConfirmDialog>
     </article>
