@@ -93,18 +93,10 @@ export function AdminFinanceCoachPayoutHistoryPanel({ locale, initial, filters }
 
   return (
     <div className="space-y-4">
-      <div className="flex min-w-0 items-start gap-3">
-        <CircularBackLink
-          href={FINANCE_SECTION_HREF.coaches}
-          ariaLabel={t("backToCoaches")}
-          className="mt-0.5 shrink-0"
-        />
-        <div className="min-w-0 space-y-1">
-          <h2 className="font-serif text-2xl font-semibold tracking-tight text-sage-900">
-            {t("title")}
-          </h2>
-        </div>
-      </div>
+      <CircularBackLink
+        href={FINANCE_SECTION_HREF.coaches}
+        ariaLabel={t("backToCoaches")}
+      />
 
       <AdminFinanceCoachPayoutMonthNav
         locale={locale}
