@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState, type TransitionEvent } from "react";
 import { useTranslations } from "next-intl";
-import {
-  formatYearMonth,
-} from "@/components/admin/admin-schedule-month-utils";
+import { formatYearMonth } from "@/components/admin/admin-schedule-month-utils";
+import styles from "@/components/admin/admin-finance-coach-payout-month-panel.module.css";
 import { formatScheduleMonthTitle } from "@/components/marketing/schedule/schedule-date-utils";
-import styles from "@/components/marketing/schedule/schedule-date-month-panel.module.css";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -125,7 +123,6 @@ export function AdminFinanceCoachPayoutMonthPanel({
       aria-label={t("monthPickerAria")}
       className={[
         styles.popover,
-        styles.popoverCenter,
         styles.popoverAnimated,
         visible ? styles.popoverAnimatedVisible : "",
       ]
@@ -134,7 +131,7 @@ export function AdminFinanceCoachPayoutMonthPanel({
       onTransitionEnd={handleTransitionEnd}
     >
       <div className={styles.header}>
-        <p className={styles.monthTitle}>{visibleYear}</p>
+        <p className={styles.yearTitle}>{visibleYear}</p>
         <div className={styles.navGroup}>
           <button
             type="button"
@@ -156,7 +153,7 @@ export function AdminFinanceCoachPayoutMonthPanel({
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className={styles.monthGrid}>
         {MONTH_GRID_INDEXES.map((monthIndex) => {
           const value = formatYearMonth(visibleYear, monthIndex);
           const selected = value === selectedMonth;
@@ -168,11 +165,9 @@ export function AdminFinanceCoachPayoutMonthPanel({
               disabled={disabled}
               aria-pressed={selected}
               className={[
-                "rounded-full px-2 py-2.5 text-sm font-medium transition-colors",
-                selected
-                  ? "bg-sand-500 text-white"
-                  : "text-sage-800 hover:bg-sand-100",
-                disabled ? "cursor-not-allowed opacity-35 hover:bg-transparent" : "",
+                styles.monthBtn,
+                selected ? styles.monthBtnSelected : "",
+                disabled ? styles.monthBtnDisabled : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
