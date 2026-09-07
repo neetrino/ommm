@@ -13,7 +13,6 @@ import {
 type ClientListRowSummaryFields = {
   classLevels: string[];
   preferredCoach: { id: string; name: string } | null;
-  tags: Array<'New' | 'Beginner' | 'Influencer'>;
   status: 'Active' | 'Inactive' | 'Blocked';
   activePackageStatus: UserPackageStatus | null;
   totalVisits: number;

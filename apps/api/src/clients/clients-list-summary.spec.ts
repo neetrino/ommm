@@ -58,7 +58,6 @@ describe('summaryFromRows', () => {
       {
         classLevels: [],
         preferredCoach: null,
-        tags: [],
         status: 'Inactive',
         activePackageStatus: UserPackageStatus.ACTIVE,
         totalVisits: 0,
@@ -67,7 +66,6 @@ describe('summaryFromRows', () => {
       {
         classLevels: [],
         preferredCoach: null,
-        tags: ['New'],
         status: 'Active',
         activePackageStatus: null,
         totalVisits: 3,
