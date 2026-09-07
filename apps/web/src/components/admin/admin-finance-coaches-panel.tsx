@@ -29,8 +29,37 @@ type Props = {
   filters: CoachFinanceFilters & { q: string };
 };
 
-const HISTORY_LINK_CLASS =
-  "inline-flex cursor-pointer items-center justify-center rounded-full border border-white/75 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 shadow-sm backdrop-blur-sm transition-[background-color,box-shadow,transform,color,border-color] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+const HISTORY_LINK_CLASS = [
+  "group inline-flex items-center gap-2 rounded-full",
+  "border border-sand-500/30 bg-gradient-to-b from-sand-100 to-sand-100/70",
+  "px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-sand-700",
+  "shadow-[0_8px_20px_-14px_rgba(107,92,76,0.45)] backdrop-blur-sm",
+  "transition-[background-color,border-color,box-shadow,transform,color]",
+  "hover:border-sand-500/50 hover:from-white hover:to-sand-100 hover:text-sand-700",
+  "hover:shadow-[0_12px_24px_-14px_rgba(107,92,76,0.5)]",
+  "active:scale-[0.985]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500",
+  "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+].join(" ");
+
+function PaymentHistoryIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:-rotate-12"
+      aria-hidden
+    >
+      <path d="M3 12a9 9 0 1 0 3-6.7" />
+      <path d="M3 4v5h5" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  );
+}
 
 export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
   const t = useTranslations("adminPages.finance.coachTab");
@@ -65,9 +94,10 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Link href={FINANCE_COACH_PAYOUT_HISTORY_HREF} className={HISTORY_LINK_CLASS}>
-          {t("quickHistory")}
+          <PaymentHistoryIcon />
+          <span>{t("quickHistory")}</span>
         </Link>
       </div>
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
