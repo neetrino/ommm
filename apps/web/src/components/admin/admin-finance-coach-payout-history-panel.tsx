@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { AdminFinanceCoachPayoutHistoryEmptyState } from "@/components/admin/admin-finance-coach-payout-history-empty-state";
 import { AdminFinanceCoachPayoutHistoryRow } from "@/components/admin/admin-finance-coach-payout-history-row";
 import { AdminFinanceCoachPayoutMonthNav } from "@/components/admin/admin-finance-coach-payout-month-nav";
 import {
@@ -104,38 +105,36 @@ export function AdminFinanceCoachPayoutHistoryPanel({ locale, initial, filters }
         onMonthChange={setMonth}
       />
 
-      <div className={ADMIN_FINANCE_COACH_PAYOUT_HISTORY_TABLE_CLASS}>
-        <div className={ADMIN_FINANCE_COACH_PAYOUT_HISTORY_HEADER_CLASS}>
-          <span
-            className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL_START} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}
-          >
-            {t("colCoach")}
-          </span>
-          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
-            {t("colAmount")}
-          </span>
-          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
-            {t("colMonth")}
-          </span>
-          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
-            {t("colPaidAt")}
-          </span>
-        </div>
-        {initial.items.length === 0 ? (
-          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
-            {t("empty")}
-          </p>
-        ) : (
-          initial.items.map((row) => (
+      {initial.items.length === 0 ? (
+        <AdminFinanceCoachPayoutHistoryEmptyState />
+      ) : (
+        <div className={ADMIN_FINANCE_COACH_PAYOUT_HISTORY_TABLE_CLASS}>
+          <div className={ADMIN_FINANCE_COACH_PAYOUT_HISTORY_HEADER_CLASS}>
+            <span
+              className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL_START} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}
+            >
+              {t("colCoach")}
+            </span>
+            <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+              {t("colAmount")}
+            </span>
+            <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+              {t("colMonth")}
+            </span>
+            <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+              {t("colPaidAt")}
+            </span>
+          </div>
+          {initial.items.map((row) => (
             <AdminFinanceCoachPayoutHistoryRow
               key={row.id}
               locale={locale}
               row={row}
               labels={rowLabels}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
       <OmmListPagination
         total={initial.total}
