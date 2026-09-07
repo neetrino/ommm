@@ -29,7 +29,6 @@ describe('CoachSalaryPayoutService', () => {
         coachProfile: {
           findUnique: jest.fn().mockResolvedValue({
             id: 'coach-1',
-            salaryPerClassAmd: 8000,
           }),
         },
         coachSalaryPayout: { create },
@@ -59,7 +58,6 @@ describe('CoachSalaryPayoutService', () => {
         coachProfile: {
           findUnique: jest.fn().mockResolvedValue({
             id: 'coach-1',
-            salaryPerClassAmd: 8000,
           }),
         },
         coachSalaryPayout: { create: jest.fn() },

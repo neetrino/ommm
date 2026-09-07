@@ -29,6 +29,7 @@ type CoachUpdateResponse = {
   specialization: string | null;
   experienceYears: number | null;
   salaryPerClassAmd: number;
+  classTypeRates: { classTypeId: string; amountAmd: number }[];
   availabilitySlots: {
     id: string;
     slotDate: string;
@@ -53,11 +54,24 @@ export type CoachSavedSnapshot = Pick<
   | "experienceYears"
   | "salaryPerClassAmd"
   | "assignedClassTypeIds"
+  | "classTypeRates"
   | "schedule"
   | "updatedAt"
   | "age"
   | "user"
 >;
+
+function ratesRecordFromApi(
+  rates: readonly { classTypeId: string; amountAmd: number }[],
+): Record<string, string> {
+  const next: Record<string, string> = {};
+  for (const rate of rates) {
+    if (rate.amountAmd > 0) {
+      next[rate.classTypeId] = String(rate.amountAmd);
+    }
+  }
+  return next;
+}
 
 function coachSavedSnapshotFromUpdate(updated: CoachUpdateResponse): CoachSavedSnapshot {
   const dateOfBirth = updated.user.dateOfBirth;
@@ -69,6 +83,7 @@ function coachSavedSnapshotFromUpdate(updated: CoachUpdateResponse): CoachSavedS
     experienceYears: updated.experienceYears,
     salaryPerClassAmd: updated.salaryPerClassAmd ?? 0,
     assignedClassTypeIds: updated.assignedClassTypeIds,
+    classTypeRates: updated.classTypeRates ?? [],
     updatedAt: updated.updatedAt,
     schedule: updated.availabilitySlots.map((slot) => ({
       id: slot.id,
@@ -180,16 +195,33 @@ export function useCoachEditForm({
   }
 
   function toggleClassSelection(classTypeId: string): void {
-    setForm((prev) => ({
-      ...prev,
-      assignedClassTypeIds: filterKnownAssignedClassTypeIds(
-        prev.assignedClassTypeIds.includes(classTypeId)
+    setForm((prev) => {
+      const selected = prev.assignedClassTypeIds.includes(classTypeId);
+      const assignedClassTypeIds = filterKnownAssignedClassTypeIds(
+        selected
           ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
           : [...prev.assignedClassTypeIds, classTypeId],
         classOptions,
-      ),
+      );
+      const classTypeRates = { ...prev.classTypeRates };
+      if (selected) {
+        delete classTypeRates[classTypeId];
+      }
+      return { ...prev, assignedClassTypeIds, classTypeRates };
+    });
+    setErrors((prev) => ({
+      ...prev,
+      assignedClassTypeIds: undefined,
+      classTypeRates: undefined,
     }));
-    setErrors((prev) => ({ ...prev, assignedClassTypeIds: undefined }));
+  }
+
+  function updateClassTypeRate(classTypeId: string, amountAmd: string): void {
+    setForm((prev) => ({
+      ...prev,
+      classTypeRates: { ...prev.classTypeRates, [classTypeId]: amountAmd },
+    }));
+    setErrors((prev) => ({ ...prev, classTypeRates: undefined }));
   }
 
   function updateSchedule(
@@ -277,8 +309,7 @@ export function useCoachEditForm({
       const nextForm = {
         ...form,
         assignedClassTypeIds: [...updated.assignedClassTypeIds],
-        salaryPerClassAmd:
-          (updated.salaryPerClassAmd ?? 0) > 0 ? String(updated.salaryPerClassAmd) : "",
+        classTypeRates: ratesRecordFromApi(updated.classTypeRates ?? []),
         photoUrl: nextAvatarUrl ?? "",
       };
       setForm(nextForm);
@@ -336,6 +367,7 @@ export function useCoachEditForm({
     onPhotoSelected,
     onPhotoDeleted,
     toggleClassSelection,
+    updateClassTypeRate,
     updateSchedule,
     addScheduleRow,
     removeScheduleRow,

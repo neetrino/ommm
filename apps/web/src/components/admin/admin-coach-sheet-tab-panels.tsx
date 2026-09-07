@@ -327,17 +327,6 @@ export function CoachSheetTabPanels({
               disabled={busy}
             />
           </AdminSheetEditableField>
-          <AdminSheetEditableField label={t("fieldSalaryPerClass")} error={errors.salaryPerClassAmd}>
-            <input
-              type="text"
-              inputMode="numeric"
-              className="ommm-input"
-              value={form.salaryPerClassAmd}
-              onChange={(event) => controller.updateField("salaryPerClassAmd", event.target.value)}
-              placeholder={t("fieldSalaryPerClassPlaceholder")}
-              disabled={busy}
-            />
-          </AdminSheetEditableField>
           <AdminSheetEditableField label={t("fieldBio")} error={errors.bio} className="lg:col-span-2">
             <textarea
               className="ommm-input min-h-[150px] resize-y"
@@ -362,12 +351,21 @@ export function CoachSheetTabPanels({
         <AdminCoachAssignedClassesPicker
           classOptions={classOptions}
           selectedIds={form.assignedClassTypeIds}
+          classTypeRates={form.classTypeRates}
           onToggle={(classTypeId) => controller.toggleClassSelection(classTypeId)}
+          onRateChange={(classTypeId, amountAmd) =>
+            controller.updateClassTypeRate(classTypeId, amountAmd)
+          }
           disabled={busy}
           emptyLabel={t("fieldAssignedClassesEmpty")}
           noneSelectedLabel={t("assignedClassesNoneSelected")}
           selectedCountLabel={(count) => t("assignedClassesSelectedCount", { count })}
+          rateLabel={t("fieldSalaryPerClassShort")}
+          ratePlaceholder={t("fieldSalaryPerClassPlaceholder")}
+          ratesHeading={t("classTypeRatesHeading")}
+          ratesHint={t("classTypeRatesHint")}
           error={errors.assignedClassTypeIds}
+          rateError={errors.classTypeRates}
         />
       </section>
     );

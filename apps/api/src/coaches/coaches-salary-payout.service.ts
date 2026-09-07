@@ -27,16 +27,12 @@ export class CoachSalaryPayoutService {
   ): Promise<CoachSalarySummary> {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { id: coachProfileId },
-      select: { id: true, salaryPerClassAmd: true },
+      select: { id: true },
     });
     if (!profile) {
       throw new NotFoundException('Coach profile not found');
     }
-    const current = await this.summary.forProfile(
-      profile.id,
-      profile.salaryPerClassAmd,
-      month,
-    );
+    const current = await this.summary.forProfile(profile.id, month);
     if (current.pendingPayoutCents <= 0) {
       throw new BadRequestException('No unpaid salary for this month');
     }
@@ -58,10 +54,6 @@ export class CoachSalaryPayoutService {
       entityId: coachProfileId,
       payload: { month, amountAmd: current.pendingPayoutCents },
     });
-    return this.summary.forProfile(
-      profile.id,
-      profile.salaryPerClassAmd,
-      month,
-    );
+    return this.summary.forProfile(profile.id, month);
   }
 }

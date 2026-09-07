@@ -11,7 +11,7 @@ type AccrualSession = {
   id: string;
   startsAt: Date;
   coachId: string;
-  coach: { salaryPerClassAmd: number };
+  classTypeId: string;
 };
 
 const finishedSessionSelect = {
@@ -19,7 +19,7 @@ const finishedSessionSelect = {
   status: true,
   startsAt: true,
   coachId: true,
-  coach: { select: { salaryPerClassAmd: true } },
+  classTypeId: true,
   salaryAccrual: { select: { id: true } },
   _count: {
     select: {
@@ -74,26 +74,46 @@ export class CoachSalaryAccrualService {
     if (!session || session.salaryAccrual) {
       return false;
     }
+    const amountAmd = await this.resolveSessionRateAmd(
+      session.coachId,
+      session.classTypeId,
+    );
     if (
       !shouldAccrueCoachSalary({
         status: session.status,
         bookedParticipantCount: session._count.bookings,
-        salaryPerClassAmd: session.coach.salaryPerClassAmd,
+        salaryPerClassAmd: amountAmd,
       })
     ) {
       return false;
     }
-    return this.createAccrual(session);
+    return this.createAccrual(session, amountAmd);
   }
 
-  private async createAccrual(session: AccrualSession): Promise<boolean> {
+  private async resolveSessionRateAmd(
+    coachProfileId: string,
+    classTypeId: string,
+  ): Promise<number> {
+    const rate = await this.prisma.coachClassTypeRate.findUnique({
+      where: {
+        coachProfileId_classTypeId: { coachProfileId, classTypeId },
+      },
+      select: { amountAmd: true },
+    });
+    return rate?.amountAmd ?? 0;
+  }
+
+  private async createAccrual(
+    session: AccrualSession,
+    amountAmd: number,
+  ): Promise<boolean> {
     const period = salaryPeriodFromInstant(session.startsAt);
     try {
       await this.prisma.coachSalaryAccrual.create({
         data: {
           coachProfileId: session.coachId,
           classSessionId: session.id,
-          amountAmd: session.coach.salaryPerClassAmd,
+          amountAmd,
           periodYear: period.year,
           periodMonth: period.month,
         },

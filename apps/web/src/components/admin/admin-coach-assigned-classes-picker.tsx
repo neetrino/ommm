@@ -18,25 +18,42 @@ function assignedClassChipClass(selected: boolean, index: number): string {
 type AdminCoachAssignedClassesPickerProps = {
   classOptions: readonly CoachClassOption[];
   selectedIds: readonly string[];
+  classTypeRates: Readonly<Record<string, string>>;
   onToggle: (classTypeId: string) => void;
+  onRateChange: (classTypeId: string, amountAmd: string) => void;
   disabled?: boolean;
   emptyLabel: string;
   noneSelectedLabel: string;
   selectedCountLabel: (count: number) => string;
+  rateLabel: string;
+  ratePlaceholder: string;
+  ratesHeading: string;
+  ratesHint: string;
   error?: string;
+  rateError?: string;
 };
 
 export function AdminCoachAssignedClassesPicker({
   classOptions,
   selectedIds,
+  classTypeRates,
   onToggle,
+  onRateChange,
   disabled = false,
   emptyLabel,
   noneSelectedLabel,
   selectedCountLabel,
+  rateLabel,
+  ratePlaceholder,
+  ratesHeading,
+  ratesHint,
   error,
+  rateError,
 }: AdminCoachAssignedClassesPickerProps) {
   const selectedCount = selectedIds.length;
+  const selectedOptions = classOptions.filter((option) =>
+    selectedIds.includes(option.id),
+  );
 
   if (classOptions.length === 0) {
     return (
@@ -90,9 +107,43 @@ export function AdminCoachAssignedClassesPicker({
         })}
       </div>
 
+      {selectedOptions.length > 0 ? (
+        <div className="space-y-3 rounded-2xl border border-sand-500/15 bg-white/80 p-4">
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+              {ratesHeading}
+            </h4>
+            <p className="mt-1 text-xs text-sage-500">{ratesHint}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {selectedOptions.map((option) => (
+              <label key={option.id} className="flex flex-col gap-1">
+                <span className="ommm-label text-xs uppercase tracking-wide">
+                  {option.name} — {rateLabel}
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  className="ommm-input"
+                  value={classTypeRates[option.id] ?? ""}
+                  onChange={(event) => onRateChange(option.id, event.target.value)}
+                  placeholder={ratePlaceholder}
+                  disabled={disabled}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {error ? (
         <p className="text-xs text-red-800" role="alert">
           {error}
+        </p>
+      ) : null}
+      {rateError ? (
+        <p className="text-xs text-red-800" role="alert">
+          {rateError}
         </p>
       ) : null}
     </div>

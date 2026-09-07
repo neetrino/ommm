@@ -124,6 +124,7 @@ export type CoachSessionRow = {
   endsAt: string;
   classType: { id: string; name: string };
   status: string;
+  salaryAccrual?: { amountAmd: number } | null;
   _count?: { bookings: number };
 };
 

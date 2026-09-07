@@ -9,7 +9,9 @@ export type CoachSalarySummary = {
   coachProfileId: string;
   completedSessions: number;
   totalEarningsCents: number;
+  /** @deprecated Flat rate removed; kept as 0 for API compatibility. */
   salaryPerClassAmd: number;
+  /** @deprecated Flat rate removed; kept as 0 for API compatibility. */
   basePerSessionCents: number;
   perAttendeeShareCents: number;
   pendingPayoutCents: number;
@@ -26,17 +28,16 @@ export class CoachSalarySummaryService {
   ): Promise<CoachSalarySummary | null> {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { userId },
-      select: { id: true, salaryPerClassAmd: true },
+      select: { id: true },
     });
     if (!profile) {
       return null;
     }
-    return this.forProfile(profile.id, profile.salaryPerClassAmd, month);
+    return this.forProfile(profile.id, month);
   }
 
   async forProfile(
     coachProfileId: string,
-    salaryPerClassAmd: number,
     month?: string,
   ): Promise<CoachSalarySummary> {
     const period = parseSalaryMonthParam(month);
@@ -62,8 +63,8 @@ export class CoachSalarySummaryService {
       coachProfileId,
       completedSessions: accrualAgg._count,
       totalEarningsCents,
-      salaryPerClassAmd,
-      basePerSessionCents: salaryPerClassAmd,
+      salaryPerClassAmd: 0,
+      basePerSessionCents: 0,
       perAttendeeShareCents: 0,
       pendingPayoutCents: unpaidSalaryAmd(totalEarningsCents, paidOutCents),
       paidOutCents,

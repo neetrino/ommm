@@ -16,6 +16,11 @@ export type CoachAvailabilitySlotRow = {
   availableSpots: number;
 };
 
+export type CoachClassTypeRateView = {
+  classTypeId: string;
+  amountAmd: number;
+};
+
 export type CoachAdminListRow = {
   id: string;
   userId: string;
@@ -25,6 +30,7 @@ export type CoachAdminListRow = {
   assignedClassTypeIds: string[];
   experienceYears: number | null;
   salaryPerClassAmd: number;
+  classTypeRates: CoachClassTypeRateView[];
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -52,6 +58,7 @@ export type CoachUpdateResult = {
   classType: string | null;
   experienceYears: number | null;
   salaryPerClassAmd: number;
+  classTypeRates: CoachClassTypeRateView[];
   assignedClassTypeIds: string[];
   isActive: boolean;
   createdAt: Date;
@@ -88,6 +95,16 @@ const coachAvailabilitySlotsSelect = {
   },
 } as Record<string, unknown>;
 
+const coachClassTypeRatesSelect = {
+  classTypeRates: {
+    select: {
+      classTypeId: true,
+      amountAmd: true,
+    },
+    orderBy: { classTypeId: 'asc' as const },
+  },
+} as Record<string, unknown>;
+
 export const coachCreateSelect = {
   id: true,
   classType: true,
@@ -102,6 +119,7 @@ export const coachCreateSelect = {
     },
   },
   ...coachAvailabilitySlotsSelect,
+  ...coachClassTypeRatesSelect,
 } as Prisma.CoachProfileSelect;
 
 export const coachUpdateSelect = {
@@ -127,4 +145,5 @@ export const coachUpdateSelect = {
     },
   },
   ...coachAvailabilitySlotsSelect,
+  ...coachClassTypeRatesSelect,
 } as Prisma.CoachProfileSelect;

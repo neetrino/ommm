@@ -15,6 +15,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import type { UpdateCoachDto } from './dto/update-coach.dto';
 import {
+  assertClassTypeIdsExist,
+  mapCoachClassTypeRates,
+  normalizeCoachClassTypeRates,
+  replaceCoachClassTypeRates,
+} from './coaches-class-type-rates.helpers';
+import {
   assertCoachSelfUpdateFields,
   buildCoachUpdateProfileData,
   buildCoachUpdateUserData,
@@ -58,6 +64,10 @@ export class CoachesAdminWriteService {
     }
     await this.assertValidCoachClassType(classType);
     await this.assertValidAssignedClassTypeIds(assignedClassTypeIds);
+    const classTypeRates = normalizeCoachClassTypeRates(dto.classTypeRates);
+    if (classTypeRates !== undefined) {
+      await assertClassTypeIdsExist(this.prisma, classTypeRates.map((r) => r.classTypeId));
+    }
 
     const [emailTaken, phoneTaken] = await Promise.all([
       this.prisma.user.findUnique({ where: { email } }),
@@ -95,9 +105,6 @@ export class CoachesAdminWriteService {
         specialization,
         classType,
         experienceYears: dto.experienceYears,
-        ...(dto.salaryPerClassAmd !== undefined && {
-          salaryPerClassAmd: dto.salaryPerClassAmd,
-        }),
         ...(availabilitySlots.length > 0 && {
           availabilitySlots: {
             createMany: {
@@ -107,8 +114,15 @@ export class CoachesAdminWriteService {
         }),
         ...(assignedClassTypeIds.length > 0 && { assignedClassTypeIds }),
       } as unknown as Prisma.CoachProfileUncheckedCreateInput;
-      return tx.coachProfile.create({
+      const coach = await tx.coachProfile.create({
         data: coachCreateData,
+        select: { id: true },
+      });
+      if (classTypeRates !== undefined) {
+        await replaceCoachClassTypeRates(tx, coach.id, classTypeRates);
+      }
+      return tx.coachProfile.findUniqueOrThrow({
+        where: { id: coach.id },
         select: coachCreateSelect,
       });
     });
@@ -150,6 +164,13 @@ export class CoachesAdminWriteService {
         normalizedAssignedClassTypeIds,
       );
     }
+    const classTypeRates = normalizeCoachClassTypeRates(dto.classTypeRates);
+    if (classTypeRates !== undefined) {
+      await assertClassTypeIdsExist(
+        this.prisma,
+        classTypeRates.map((rate) => rate.classTypeId),
+      );
+    }
     const nextDateOfBirth = resolveDateOfBirthForUpdate(
       dto.age,
       dto.birthday,
@@ -161,7 +182,8 @@ export class CoachesAdminWriteService {
     if (
       Object.keys(userData).length === 0 &&
       Object.keys(profileData).length === 0 &&
-      normalizedSchedule === undefined
+      normalizedSchedule === undefined &&
+      classTypeRates === undefined
     ) {
       throw new BadRequestException('No updatable fields were provided');
     }
@@ -173,6 +195,9 @@ export class CoachesAdminWriteService {
             where: { id: profile.user.id },
             data: userData,
           });
+        }
+        if (classTypeRates !== undefined) {
+          await replaceCoachClassTypeRates(tx, coachProfileId, classTypeRates);
         }
         return tx.coachProfile.update({
           where: { id: coachProfileId },
@@ -204,7 +229,10 @@ export class CoachesAdminWriteService {
       payload: dto,
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
-    return updated;
+    return {
+      ...updated,
+      classTypeRates: mapCoachClassTypeRates(updated.classTypeRates ?? []),
+    };
   }
 
   async remove(actor: User, coachProfileId: string): Promise<void> {

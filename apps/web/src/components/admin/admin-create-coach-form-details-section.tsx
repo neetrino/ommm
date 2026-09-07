@@ -20,7 +20,9 @@ import {
 type AdminCreateCoachFormDetailsSectionProps = {
   classOptions: readonly CoachClassOption[];
   selectedClassIds: string[];
+  classTypeRates: Readonly<Record<string, string>>;
   onToggleClassSelection: (classTypeId: string) => void;
+  onRateChange: (classTypeId: string, amountAmd: string) => void;
   photoPreview: string | null;
   photoPreviewImgSrc: string | null;
   onPhotoSelected: (file: File | null) => void;
@@ -34,7 +36,9 @@ type AdminCreateCoachFormDetailsSectionProps = {
 export function AdminCreateCoachFormDetailsSection({
   classOptions,
   selectedClassIds,
+  classTypeRates,
   onToggleClassSelection,
+  onRateChange,
   photoPreview,
   photoPreviewImgSrc,
   onPhotoSelected,
@@ -45,7 +49,8 @@ export function AdminCreateCoachFormDetailsSection({
   tPage,
 }: AdminCreateCoachFormDetailsSectionProps) {
   const photoInvalid = errorField === "photo";
-  const assignedInvalid = errorField === "assignedClasses";
+  const assignedInvalid =
+    errorField === "assignedClasses" || errorField === "classTypeRates";
 
   return (
     <>
@@ -94,25 +99,6 @@ export function AdminCreateCoachFormDetailsSection({
               errorField={errorField}
               message={errorMessage}
             />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("salaryPerClassLabel")}
-            </span>
-            <input
-              name="salaryPerClassAmd"
-              type="text"
-              inputMode="numeric"
-              className={formFieldInputClassFor("salaryPerClassAmd", errorField)}
-              placeholder={t("salaryPerClassPlaceholder")}
-              aria-invalid={errorField === "salaryPerClassAmd"}
-            />
-            <FormFieldErrorFor
-              field="salaryPerClassAmd"
-              errorField={errorField}
-              message={errorMessage}
-            />
-            <span className="text-xs text-sage-500">{t("salaryPerClassHint")}</span>
           </label>
           <div
             className="flex flex-col gap-2 lg:col-span-2"
@@ -198,19 +184,27 @@ export function AdminCreateCoachFormDetailsSection({
       >
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-            Assigned Classes
+            Assigned Classes & Salary
             <AdminRequiredMark />
           </h3>
-          <p className="text-xs text-sage-500">Select class types coached by this person</p>
+          <p className="text-xs text-sage-500">
+            Select class types and set pay per finished class
+          </p>
         </div>
         <AdminCoachAssignedClassesPicker
           classOptions={classOptions}
           selectedIds={selectedClassIds}
+          classTypeRates={classTypeRates}
           onToggle={onToggleClassSelection}
+          onRateChange={onRateChange}
           disabled={pending}
           emptyLabel={t("assignedClassesEmpty")}
           noneSelectedLabel={tPage("assignedClassesNoneSelected")}
           selectedCountLabel={(count) => tPage("assignedClassesSelectedCount", { count })}
+          rateLabel={tPage("fieldSalaryPerClassShort")}
+          ratePlaceholder={tPage("fieldSalaryPerClassPlaceholder")}
+          ratesHeading={tPage("classTypeRatesHeading")}
+          ratesHint={tPage("classTypeRatesHint")}
           error={assignedInvalid ? (errorMessage ?? undefined) : undefined}
         />
       </section>

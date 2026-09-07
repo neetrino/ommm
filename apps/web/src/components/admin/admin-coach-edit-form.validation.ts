@@ -18,6 +18,7 @@ import { parseBirthdayDisplayToIso } from "@/lib/date-display";
 import { isValidPhone, normalizePhoneForApi } from "@/lib/phone";
 import {
   completeCoachScheduleRows,
+  type CoachClassTypeRateInput,
   type CoachEditFormErrors,
   type CoachEditFormState,
   type CoachUpdatePayload,
@@ -43,6 +44,22 @@ type ValidateCoachFormArgs = {
     scheduleInvalid: string;
   };
 };
+
+function parseClassTypeRates(
+  form: CoachEditFormState,
+  assignedClassTypeIds: readonly string[],
+  invalidLabel: string,
+): { rates: CoachClassTypeRateInput[]; error?: string } {
+  const rates: CoachClassTypeRateInput[] = [];
+  for (const classTypeId of assignedClassTypeIds) {
+    const amountAmd = parseCoachSalaryPerClassAmd(form.classTypeRates[classTypeId] ?? "");
+    if (amountAmd === null) {
+      return { rates: [], error: invalidLabel };
+    }
+    rates.push({ classTypeId, amountAmd });
+  }
+  return { rates };
+}
 
 export function validateCoachEditForm({
   form,
@@ -100,9 +117,13 @@ export function validateCoachEditForm({
   ) {
     errors.experienceYears = labels.experienceInvalid;
   }
-  const salaryPerClassAmd = parseCoachSalaryPerClassAmd(form.salaryPerClassAmd);
-  if (salaryPerClassAmd === null) {
-    errors.salaryPerClassAmd = labels.salaryPerClassInvalid;
+  const parsedRates = parseClassTypeRates(
+    form,
+    assignedClassTypeIds,
+    labels.salaryPerClassInvalid,
+  );
+  if (parsedRates.error) {
+    errors.classTypeRates = parsedRates.error;
   }
   if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
     errors.specialization = labels.specializationTooLong;
@@ -132,8 +153,8 @@ export function validateCoachEditForm({
     bio: bio.length > 0 ? bio : null,
     specialization: specialization.length > 0 ? specialization : null,
     experienceYears,
-    salaryPerClassAmd: salaryPerClassAmd ?? 0,
     assignedClassTypeIds,
+    classTypeRates: parsedRates.rates,
     schedule: normalizeScheduleForApi(scheduleRows),
     ...(photoRemoved ? { photoUrl: "" } : {}),
   };

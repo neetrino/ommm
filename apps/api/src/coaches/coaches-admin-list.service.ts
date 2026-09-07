@@ -80,6 +80,13 @@ export class CoachesAdminListService {
           availabilitySlots: {
             orderBy: [{ slotDate: 'asc' }, { slotTime: 'asc' }],
           },
+          classTypeRates: {
+            select: {
+              classTypeId: true,
+              amountAmd: true,
+            },
+            orderBy: { classTypeId: 'asc' },
+          },
           _count: {
             select: {
               sessions: true,
@@ -101,6 +108,10 @@ export class CoachesAdminListService {
         assignedClassTypeIds: row.assignedClassTypeIds,
         experienceYears: row.experienceYears,
         salaryPerClassAmd: row.salaryPerClassAmd ?? 0,
+        classTypeRates: (row.classTypeRates ?? []).map((rate) => ({
+          classTypeId: rate.classTypeId,
+          amountAmd: rate.amountAmd,
+        })),
         isActive: row.isActive,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,

@@ -80,8 +80,8 @@ function coachInitialValues(coach: AdminCoachDirectoryRow): CoachEditInitialValu
     photoUrl: coach.user.avatarUrl,
     bio: coach.bio ?? "",
     experienceYears: coach.experienceYears,
-    salaryPerClassAmd: coach.salaryPerClassAmd ?? 0,
     assignedClassTypeIds: coach.assignedClassTypeIds,
+    classTypeRates: coach.classTypeRates ?? [],
     schedule: coach.schedule,
     specialization: coach.specialization ?? "",
   };

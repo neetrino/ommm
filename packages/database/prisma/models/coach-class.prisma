@@ -7,7 +7,7 @@ model CoachProfile {
   classType      String?
   assignedClassTypeIds String[] @default([])
   experienceYears Int?
-  /// Whole AMD paid to the coach for one completed class with participants.
+  /// @deprecated Prefer CoachClassTypeRate. Kept for legacy summary payloads.
   salaryPerClassAmd Int @default(0)
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
@@ -19,7 +19,23 @@ model CoachProfile {
   sessionReviews      SessionReview[]
   salaryAccruals      CoachSalaryAccrual[]
   salaryPayouts       CoachSalaryPayout[]
+  classTypeRates      CoachClassTypeRate[]
   staffActivityNotifications StaffActivityNotification[]
+}
+
+/// Per-coach rate for one ClassType (whole AMD per finished session with participants).
+model CoachClassTypeRate {
+  id             String       @id @default(cuid())
+  coachProfileId String
+  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  classTypeId    String
+  classType      ClassType    @relation(fields: [classTypeId], references: [id], onDelete: Restrict)
+  amountAmd      Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([coachProfileId, classTypeId])
+  @@index([classTypeId])
 }
 
 model CoachAvailabilitySlot {
@@ -49,6 +65,7 @@ model ClassType {
   sessions             ClassSession[]
   packagePlans         PackagePlan[]
   userPackageBalances  UserPackageBalance[]
+  coachClassTypeRates  CoachClassTypeRate[]
 }
 
 model ClassSession {
@@ -92,7 +109,7 @@ model CoachSalaryAccrual {
   coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
   classSessionId String       @unique
   classSession   ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
-  /// Snapshot of salaryPerClassAmd at generation time (whole AMD).
+  /// Snapshot of the coach×classType rate at generation time (whole AMD).
   amountAmd      Int
   periodYear     Int
   periodMonth    Int

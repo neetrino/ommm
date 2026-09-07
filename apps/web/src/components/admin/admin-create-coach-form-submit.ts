@@ -43,6 +43,7 @@ export type AdminCreateCoachSubmitParams = {
   form: HTMLFormElement;
   phone: string;
   selectedClassIds: string[];
+  classTypeRates: Readonly<Record<string, string>>;
   classOptions: readonly CoachClassOption[];
   photoFile: File | null;
   pending: boolean;
@@ -56,6 +57,7 @@ export type AdminCreateCoachSubmitParams = {
   setPending: (pending: boolean) => void;
   setBirthdayValue: (value: string) => void;
   setSelectedClassIds: (ids: string[]) => void;
+  setClassTypeRates: (rates: Record<string, string>) => void;
   refresh: () => void;
 };
 
@@ -63,6 +65,7 @@ export async function submitAdminCreateCoachForm({
   form,
   phone,
   selectedClassIds,
+  classTypeRates,
   classOptions,
   photoFile,
   pending,
@@ -76,6 +79,7 @@ export async function submitAdminCreateCoachForm({
   setPending,
   setBirthdayValue,
   setSelectedClassIds,
+  setClassTypeRates,
   refresh,
 }: AdminCreateCoachSubmitParams): Promise<void> {
   if (pending || submitLockRef.current) {
@@ -91,7 +95,6 @@ export async function submitAdminCreateCoachForm({
   const birthdayRaw = String(fd.get("birthday") ?? "").trim();
   const bioRaw = String(fd.get("bio") ?? "").trim();
   const experienceRaw = String(fd.get("experienceYears") ?? "").trim();
-  const salaryRaw = String(fd.get("salaryPerClassAmd") ?? "").trim();
   const specializationRaw = String(fd.get("specialization") ?? "").trim();
   const password = String(fd.get("password") ?? "");
 
@@ -200,16 +203,20 @@ export async function submitAdminCreateCoachForm({
       return;
     }
   }
-  const salaryPerClassAmd = parseCoachSalaryPerClassAmd(salaryRaw);
-  if (salaryPerClassAmd === null) {
-    reportAdminCreateCoachFieldError(
-      form,
-      setError,
-      setErrorField,
-      t("salaryPerClassInvalid"),
-      "salaryPerClassAmd",
-    );
-    return;
+  const classTypeRatePayload: { classTypeId: string; amountAmd: number }[] = [];
+  for (const classTypeId of selectedClassIds) {
+    const amountAmd = parseCoachSalaryPerClassAmd(classTypeRates[classTypeId] ?? "");
+    if (amountAmd === null) {
+      reportAdminCreateCoachFieldError(
+        form,
+        setError,
+        setErrorField,
+        t("salaryPerClassInvalid"),
+        "classTypeRates",
+      );
+      return;
+    }
+    classTypeRatePayload.push({ classTypeId, amountAmd });
   }
   if (selectedClassIds.length === 0) {
     reportAdminCreateCoachFieldError(form, setError, setErrorField, t("assignedClassesRequired"), "assignedClasses");
@@ -253,7 +260,7 @@ export async function submitAdminCreateCoachForm({
         specialization: specializationRaw,
         classType: classTypeRaw,
         ...(experienceYears !== undefined ? { experienceYears } : {}),
-        salaryPerClassAmd,
+        classTypeRates: classTypeRatePayload,
         assignedClassTypeIds: selectedClassIds,
       }),
     });
@@ -268,6 +275,7 @@ export async function submitAdminCreateCoachForm({
     form.reset();
     setBirthdayValue("");
     setSelectedClassIds([]);
+    setClassTypeRates({});
     onPhotoSelected(null);
     setError(null);
     setErrorField(null);

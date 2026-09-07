@@ -40,18 +40,12 @@ function monthBounds(month: string): { from: string; to: string } {
   return { from: from.toISOString(), to: to.toISOString() };
 }
 
-function sessionEarningsCents(
-  session: CoachSessionRow,
-  salary: CoachFinanceRow["salary"],
-): number | null {
-  if (!salary) {
-    return null;
+function sessionEarningsCents(session: CoachSessionRow): number | null {
+  const accrued = session.salaryAccrual?.amountAmd;
+  if (typeof accrued === "number" && accrued > 0) {
+    return accrued;
   }
-  const attendees = session._count?.bookings ?? 0;
-  if (attendees === 0) {
-    return null;
-  }
-  return salary.salaryPerClassAmd ?? salary.basePerSessionCents;
+  return null;
 }
 
 function buildSessionsEndpoint(
@@ -175,7 +169,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
         ) : null}
         <ul className="space-y-2">
           {sessions.map((session) => {
-            const earnings = coach !== null ? sessionEarningsCents(session, coach.salary) : null;
+            const earnings = sessionEarningsCents(session);
             return (
               <li
                 key={session.id}
