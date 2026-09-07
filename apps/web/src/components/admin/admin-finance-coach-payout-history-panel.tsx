@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminFinanceCoachPayoutHistoryFilters } from "@/components/admin/admin-finance-coach-payout-history-filters";
 import { AdminFinanceCoachPayoutHistoryRow } from "@/components/admin/admin-finance-coach-payout-history-row";
+import { AdminFinanceCoachPayoutMonthNav } from "@/components/admin/admin-finance-coach-payout-month-nav";
 import {
   ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER,
   ADMIN_FINANCE_COACH_LIST_HEADER_CELL,
@@ -21,7 +22,11 @@ import type {
 import { FINANCE_COACH_PAYOUT_PAGE_KEYS } from "@/components/admin/admin-finance-url";
 import { CircularBackLink } from "@/components/ui/circular-back-link";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
+import {
+  parseListPageParams,
+  resetListPageQuery,
+  syncListPageQuery,
+} from "@/lib/list-pagination";
 
 type Props = {
   locale: string;
@@ -63,6 +68,22 @@ export function AdminFinanceCoachPayoutHistoryPanel({ locale, initial, filters }
     [replaceSearchParams],
   );
 
+  const setMonth = useCallback(
+    (month: string) => {
+      replaceSearchParams((params) => {
+        resetListPageQuery(params, FINANCE_COACH_PAYOUT_PAGE_KEYS);
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        if (month === currentMonth) {
+          params.delete("month");
+        } else {
+          params.set("month", month);
+        }
+      });
+    },
+    [replaceSearchParams],
+  );
+
   const rowLabels = {
     colCoach: t("colCoach"),
     colAmount: t("colAmount"),
@@ -86,6 +107,12 @@ export function AdminFinanceCoachPayoutHistoryPanel({ locale, initial, filters }
           <p className="max-w-2xl text-sm text-sage-600">{t("description")}</p>
         </div>
       </div>
+
+      <AdminFinanceCoachPayoutMonthNav
+        locale={locale}
+        month={filters.month}
+        onMonthChange={setMonth}
+      />
 
       <AdminFinanceCoachPayoutHistoryFilters
         key={`${filters.q}|${filters.month}`}

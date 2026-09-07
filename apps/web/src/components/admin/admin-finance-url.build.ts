@@ -137,13 +137,15 @@ export function buildFinanceCoachPayoutHistoryFiltersQuery(
   values: CoachSalaryPayoutHistoryFilters,
   currentSearchParams: URLSearchParams,
 ): string {
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const params = pickFinanceSectionParams(
     [...FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS],
     currentSearchParams,
   );
   applyFinanceQueryKeys(params, [...FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS], {
     q: values.q.trim() !== "" ? values.q.trim() : undefined,
-    month: values.month !== "" ? values.month : undefined,
+    month: values.month !== currentMonth ? values.month : undefined,
   });
   return params.toString();
 }

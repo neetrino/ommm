@@ -4489,6 +4489,8 @@
         "monthLabel": "Month",
         "allMonths": "All months",
         "clearFilters": "Reset filters",
+        "prevMonthAria": "Previous month",
+        "nextMonthAria": "Next month",
         "totalPaid": "Total paid",
         "rowCount": "{count} payments",
         "empty": "No paid coach salaries match the current filters.",

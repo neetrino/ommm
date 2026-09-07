@@ -4157,6 +4157,8 @@
         "monthLabel": "Ամիս",
         "allMonths": "Բոլոր ամիսները",
         "clearFilters": "Վերակայել ֆիլտրերը",
+        "prevMonthAria": "Նախորդ ամիս",
+        "nextMonthAria": "Հաջորդ ամիս",
         "totalPaid": "Ընդամենը վճարված",
         "rowCount": "{count} վճարում",
         "empty": "Ընտրված ֆիլտրերով վճարված աշխատավարձեր չկան։",

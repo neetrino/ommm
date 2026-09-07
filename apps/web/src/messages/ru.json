@@ -4154,6 +4154,8 @@
         "monthLabel": "Месяц",
         "allMonths": "Все месяцы",
         "clearFilters": "Сбросить фильтры",
+        "prevMonthAria": "Предыдущий месяц",
+        "nextMonthAria": "Следующий месяц",
         "totalPaid": "Всего выплачено",
         "rowCount": "{count} выплат",
         "empty": "Нет оплаченных зарплат по текущим фильтрам.",
