@@ -203,7 +203,9 @@ export class CoachSalaryPayoutService {
         },
       },
     });
-    const profileById = new Map(profiles.map((profile) => [profile.id, profile]));
+    const profileById = new Map(
+      profiles.map((profile) => [profile.id, profile]),
+    );
 
     const latestRows = await Promise.all(
       groups.map((group) =>

@@ -146,7 +146,9 @@ describe('CoachSalaryPayoutService', () => {
         _max: { paidAt: new Date('2026-09-07T10:00:00.000Z') },
       },
     ]);
-    const aggregate = jest.fn().mockResolvedValue({ _sum: { amountAmd: 90_000 } });
+    const aggregate = jest
+      .fn()
+      .mockResolvedValue({ _sum: { amountAmd: 90_000 } });
     const findManyProfiles = jest.fn().mockResolvedValue([
       {
         id: 'coach-1',
@@ -169,7 +171,11 @@ describe('CoachSalaryPayoutService', () => {
       { forProfile: jest.fn() } as never,
     );
 
-    const result = await service.listAdmin({ month: '2026-09', take: 25, offset: 0 });
+    const result = await service.listAdmin({
+      month: '2026-09',
+      take: 25,
+      offset: 0,
+    });
 
     expect(groupBy).toHaveBeenCalledWith(
       expect.objectContaining({
