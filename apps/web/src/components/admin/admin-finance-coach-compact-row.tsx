@@ -25,8 +25,10 @@ import { displayPhoneOrEmail } from "@/lib/phone";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
 import { useRouter } from "@/i18n/navigation";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminFinanceCoachCompactRowProps = {
   locale: string;
@@ -66,13 +68,30 @@ export function AdminFinanceCoachCompactRow({
 }: AdminFinanceCoachCompactRowProps) {
   const t = useTranslations("adminPages.finance.coachTab");
   const router = useRouter();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const payoutStatus = resolvePayoutStatus(row);
   const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
   const unpaidCents = row.salary?.pendingPayoutCents ?? 0;
+  const coachName = displayName(row);
 
-  async function markPaid(): Promise<void> {
+  function openConfirm(): void {
+    if (busy || unpaidCents <= 0) {
+      return;
+    }
+    setError(null);
+    setConfirmOpen(true);
+  }
+
+  function closeConfirm(): void {
+    if (busy) {
+      return;
+    }
+    setConfirmOpen(false);
+  }
+
+  async function confirmMarkPaid(): Promise<void> {
     if (busy || unpaidCents <= 0) {
       return;
     }
@@ -83,6 +102,7 @@ export function AdminFinanceCoachCompactRow({
         method: "POST",
         body: JSON.stringify({ month }),
       });
+      setConfirmOpen(false);
       router.refresh();
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : t("markPaidFailed"));
@@ -95,7 +115,7 @@ export function AdminFinanceCoachCompactRow({
     <article className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}>
       <div className={ADMIN_FINANCE_COACH_LIST_COACH_CELL}>
         <AdminListMobileLabel label={t("colCoach")} />
-        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName(row)}</p>
+        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{coachName}</p>
         <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.user.phone, row.user.email)}</p>
       </div>
 
@@ -149,21 +169,37 @@ export function AdminFinanceCoachCompactRow({
       <div className={ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL}>
         <AdminListMobileLabel label={t("colActions")} />
         {unpaidCents > 0 ? (
-          <OmmButton
-            type="button"
-            size="sm"
-            disabled={busy}
-            onClick={() => {
-              void markPaid();
-            }}
-          >
-            {busy ? t("markPaidBusy") : t("markPaid")}
+          <OmmButton type="button" size="sm" disabled={busy} onClick={openConfirm}>
+            {t("markPaid")}
           </OmmButton>
         ) : (
           <span className="text-xs text-sage-400">—</span>
         )}
-        {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
+        {error && !confirmOpen ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
       </div>
+
+      <OmmConfirmDialog
+        isOpen={confirmOpen}
+        title={t("markPaidConfirmTitle")}
+        description={t("markPaidConfirmDescription", {
+          coach: coachName,
+          month,
+          amount: formatAmdFromCents(unpaidCents, locale),
+        })}
+        confirmLabel={busy ? t("markPaidBusy") : t("markPaidConfirm")}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone="success"
+        confirmClassName="ommm-btn-lifecycle-action--success"
+        forceCenteredModal
+        pending={busy}
+        onConfirm={() => {
+          void confirmMarkPaid();
+        }}
+        onCancel={closeConfirm}
+      >
+        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      </OmmConfirmDialog>
     </article>
   );
 }
