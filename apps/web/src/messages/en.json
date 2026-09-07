@@ -4448,7 +4448,6 @@
         "periodTotal": "Total for period"
       },
       "coachTab": {
-        "unsupportedNote": "Salary accrues after a class is finished with at least one registered participant. Mark a month as Paid to zero unpaid salary and keep the payment in history.",
         "searchPlaceholder": "Search coach name or phone",
         "monthLabel": "Month",
         "payoutStatusLabel": "Payout status",
