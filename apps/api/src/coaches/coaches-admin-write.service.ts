@@ -66,7 +66,10 @@ export class CoachesAdminWriteService {
     await this.assertValidAssignedClassTypeIds(assignedClassTypeIds);
     const classTypeRates = normalizeCoachClassTypeRates(dto.classTypeRates);
     if (classTypeRates !== undefined) {
-      await assertClassTypeIdsExist(this.prisma, classTypeRates.map((r) => r.classTypeId));
+      await assertClassTypeIdsExist(
+        this.prisma,
+        classTypeRates.map((r) => r.classTypeId),
+      );
     }
 
     const [emailTaken, phoneTaken] = await Promise.all([

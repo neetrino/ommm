@@ -162,7 +162,9 @@ describe('coach salary product scenario', () => {
         }),
       },
       coachClassTypeRate: {
-        findUnique: jest.fn().mockResolvedValue({ amountAmd: rateForClassTypeAmd }),
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ amountAmd: rateForClassTypeAmd }),
       },
       coachSalaryAccrual: { create },
     } as never);

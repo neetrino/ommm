@@ -108,7 +108,9 @@ describe('CoachSalaryPayoutService', () => {
       },
     ]);
     const count = jest.fn().mockResolvedValue(1);
-    const aggregate = jest.fn().mockResolvedValue({ _sum: { amountAmd: 120_000 } });
+    const aggregate = jest
+      .fn()
+      .mockResolvedValue({ _sum: { amountAmd: 120_000 } });
     const service = new CoachSalaryPayoutService(
       {
         coachSalaryPayout: { findMany, count, aggregate },
@@ -117,7 +119,11 @@ describe('CoachSalaryPayoutService', () => {
       { forProfile: jest.fn() } as never,
     );
 
-    const result = await service.listAdmin({ month: '2026-08', take: 25, offset: 0 });
+    const result = await service.listAdmin({
+      month: '2026-08',
+      take: 25,
+      offset: 0,
+    });
 
     expect(findMany).toHaveBeenCalledWith(
       expect.objectContaining({

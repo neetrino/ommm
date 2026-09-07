@@ -40,10 +40,12 @@ export function normalizeCoachClassTypeRates(
     }
     byClassTypeId.set(classTypeId, rate.amountAmd);
   }
-  return Array.from(byClassTypeId.entries()).map(([classTypeId, amountAmd]) => ({
-    classTypeId,
-    amountAmd,
-  }));
+  return Array.from(byClassTypeId.entries()).map(
+    ([classTypeId, amountAmd]) => ({
+      classTypeId,
+      amountAmd,
+    }),
+  );
 }
 
 export function mapCoachClassTypeRates(
@@ -90,6 +92,8 @@ export async function assertClassTypeIdsExist(
     select: { id: true },
   });
   if (found.length !== uniqueIds.length) {
-    throw new BadRequestException('One or more classTypeRates.classTypeId values are invalid');
+    throw new BadRequestException(
+      'One or more classTypeRates.classTypeId values are invalid',
+    );
   }
 }

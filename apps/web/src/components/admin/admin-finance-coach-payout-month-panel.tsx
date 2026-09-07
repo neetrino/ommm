@@ -45,12 +45,15 @@ export function AdminFinanceCoachPayoutMonthPanel({
   const reducedMotion = usePrefersReducedMotion();
   const [visible, setVisible] = useState(false);
   const exitCompletedRef = useRef(false);
-  const [visibleYear, setVisibleYear] = useState(() => yearFromYearMonth(selectedMonth));
+  const selectedYear = yearFromYearMonth(selectedMonth);
+  const [visibleYear, setVisibleYear] = useState(selectedYear);
+  const [followedYear, setFollowedYear] = useState(selectedYear);
   const maxYear = yearFromYearMonth(maxMonth);
 
-  useEffect(() => {
-    setVisibleYear(yearFromYearMonth(selectedMonth));
-  }, [selectedMonth]);
+  if (followedYear !== selectedYear) {
+    setFollowedYear(selectedYear);
+    setVisibleYear(selectedYear);
+  }
 
   useEffect(() => {
     if (open) {

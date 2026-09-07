@@ -3,9 +3,9 @@ import { canAdminAssignVisitorToSessionStatus } from './clients-bookings-create.
 
 describe('canAdminAssignVisitorToSessionStatus', () => {
   it('allows active, full, and finished sessions', () => {
-    expect(canAdminAssignVisitorToSessionStatus(ClassSessionStatus.ACTIVE)).toBe(
-      true,
-    );
+    expect(
+      canAdminAssignVisitorToSessionStatus(ClassSessionStatus.ACTIVE),
+    ).toBe(true);
     expect(canAdminAssignVisitorToSessionStatus(ClassSessionStatus.FULL)).toBe(
       true,
     );

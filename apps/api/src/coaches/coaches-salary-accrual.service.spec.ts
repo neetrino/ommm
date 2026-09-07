@@ -10,9 +10,11 @@ describe('CoachSalaryAccrualService', () => {
     rateAmountAmd: number | null = 8000,
   ) {
     const create = jest.fn().mockResolvedValue({ id: 'accrual-1' });
-    const findRate = jest.fn().mockResolvedValue(
-      rateAmountAmd === null ? null : { amountAmd: rateAmountAmd },
-    );
+    const findRate = jest
+      .fn()
+      .mockResolvedValue(
+        rateAmountAmd === null ? null : { amountAmd: rateAmountAmd },
+      );
     const service = new CoachSalaryAccrualService({
       classSession: { findUnique: jest.fn().mockResolvedValue(session) },
       coachClassTypeRate: { findUnique: findRate },
