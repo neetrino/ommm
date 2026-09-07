@@ -104,7 +104,6 @@ export function AdminFinanceCoachPayoutHistoryPanel({ locale, initial, filters }
           <h2 className="font-serif text-2xl font-semibold tracking-tight text-sage-900">
             {t("title")}
           </h2>
-          <p className="max-w-2xl text-sm text-sage-600">{t("description")}</p>
         </div>
       </div>
 
