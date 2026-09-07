@@ -88,7 +88,9 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
       />
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
-          <span className={ADMIN_FINANCE_COACH_LIST_HEADER_CELL}>{t("colCoach")}</span>
+          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+            {t("colCoach")}
+          </span>
           <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
             {t("colSalary")}
           </span>

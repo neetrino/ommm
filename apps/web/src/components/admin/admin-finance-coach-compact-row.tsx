@@ -115,7 +115,7 @@ export function AdminFinanceCoachCompactRow({
         <AdminListMobileLabel label={t("colSessions")} />
         <button
           type="button"
-          className="font-serif text-xl tabular-nums leading-none tracking-tight text-sage-950 underline underline-offset-2"
+          className="font-serif text-xl tabular-nums leading-none tracking-tight text-sage-950 underline underline-offset-2 md:mx-auto"
           onClick={onOpenSessions}
         >
           {sessionCount}
