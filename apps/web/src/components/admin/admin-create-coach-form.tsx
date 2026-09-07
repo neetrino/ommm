@@ -43,6 +43,7 @@ export function AdminCreateCoachForm({
   const [birthdayValue, setBirthdayValue] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
+  const [classTypeRates, setClassTypeRates] = useState<Record<string, string>>({});
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -62,11 +63,22 @@ export function AdminCreateCoachForm({
   }
 
   function toggleClassSelection(classTypeId: string): void {
-    setSelectedClassIds((prev) =>
-      prev.includes(classTypeId)
-        ? prev.filter((value) => value !== classTypeId)
-        : [...prev, classTypeId],
-    );
+    setSelectedClassIds((prev) => {
+      const selected = prev.includes(classTypeId);
+      if (selected) {
+        setClassTypeRates((rates) => {
+          const next = { ...rates };
+          delete next[classTypeId];
+          return next;
+        });
+        return prev.filter((value) => value !== classTypeId);
+      }
+      return [...prev, classTypeId];
+    });
+  }
+
+  function updateClassTypeRate(classTypeId: string, amountAmd: string): void {
+    setClassTypeRates((prev) => ({ ...prev, [classTypeId]: amountAmd }));
   }
 
   function clearFieldError(): void {
@@ -82,6 +94,7 @@ export function AdminCreateCoachForm({
       form: e.currentTarget,
       phone,
       selectedClassIds,
+      classTypeRates,
       classOptions,
       photoFile,
       pending,
@@ -95,6 +108,7 @@ export function AdminCreateCoachForm({
       setPending,
       setBirthdayValue,
       setSelectedClassIds,
+      setClassTypeRates,
       refresh: () => router.refresh(),
     });
   }
@@ -130,9 +144,14 @@ export function AdminCreateCoachForm({
         <AdminCreateCoachFormDetailsSection
           classOptions={classOptions}
           selectedClassIds={selectedClassIds}
+          classTypeRates={classTypeRates}
           onToggleClassSelection={(classTypeId) => {
             clearFieldError();
             toggleClassSelection(classTypeId);
+          }}
+          onRateChange={(classTypeId, amountAmd) => {
+            clearFieldError();
+            updateClassTypeRate(classTypeId, amountAmd);
           }}
           photoPreview={photoPreview}
           photoPreviewImgSrc={photoPreviewImgSrc}

@@ -101,7 +101,6 @@ export class CoachesPanelService {
       id: string;
       userId: string;
       isActive: boolean;
-      salaryPerClassAmd: number;
       user: {
         id: string;
         name: string | null;
@@ -116,11 +115,7 @@ export class CoachesPanelService {
       isActive: profile.isActive,
       user: profile.user,
       totalClasses: profile._count.sessions,
-      salary: await this.salary.forProfile(
-        profile.id,
-        profile.salaryPerClassAmd,
-        query.month,
-      ),
+      salary: await this.salary.forProfile(profile.id, query.month),
     });
 
     if (!hasPagination) {

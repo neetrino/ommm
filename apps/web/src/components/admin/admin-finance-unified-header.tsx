@@ -11,6 +11,7 @@ import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-ov
 import { AdminFinancePaymentsFilters } from "@/components/admin/admin-finance-payments-filters";
 import { AdminFinanceTabNav } from "@/components/admin/admin-finance-tab-nav";
 import {
+  isFinanceCoachPayoutHistoryPath,
   resolveFinanceSectionFromPathname,
   type FinanceSectionId,
 } from "@/components/admin/admin-finance-module";
@@ -77,7 +78,7 @@ function AdminFinanceUnifiedHeaderInner() {
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminFinanceTabNav />
         </div>
-        {section ? (
+        {section && !isFinanceCoachPayoutHistoryPath(pathname) ? (
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-nowrap">
             <AdminFinanceTabFilters section={section} search={search} />
           </div>

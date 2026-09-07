@@ -21,6 +21,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CoachesService } from './coaches.service';
 import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
+import { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
 import { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { CreateCoachSalaryPayoutDto } from './dto/create-coach-salary-payout.dto';
@@ -65,6 +66,14 @@ export class CoachesController {
   @Roles(...BACKOFFICE_DELETE_ROLES)
   adminSalarySummaries(@Query() query: AdminSalarySummariesQueryDto) {
     return this.coaches.adminSalarySummaries(query);
+  }
+
+  @Get('admin/salary-payouts')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  adminSalaryPayouts(@Query() query: AdminSalaryPayoutsQueryDto) {
+    return this.coaches.adminSalaryPayouts(query);
   }
 
   @Post('admin/:id/salary-payouts')

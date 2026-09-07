@@ -20,6 +20,7 @@ import {
   COACH_SALARY_PER_CLASS_MAX_AMD,
   COACH_SALARY_PER_CLASS_MIN_AMD,
 } from '../coaches-salary.constants';
+import { CoachClassTypeRateDto } from './coach-class-type-rate.dto';
 import { CoachScheduleSlotDto } from './coach-schedule-slot.dto';
 
 export class UpdateCoachDto {
@@ -89,12 +90,19 @@ export class UpdateCoachDto {
   @IsInt()
   experienceYears?: number | null;
 
+  /** @deprecated Use classTypeRates. Ignored when classTypeRates is provided. */
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(COACH_SALARY_PER_CLASS_MIN_AMD)
   @Max(COACH_SALARY_PER_CLASS_MAX_AMD)
   salaryPerClassAmd?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CoachClassTypeRateDto)
+  classTypeRates?: CoachClassTypeRateDto[];
 
   @IsOptional()
   @IsArray()

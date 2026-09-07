@@ -12,7 +12,7 @@ export type AdminCreateCoachFocusField =
   | "bio"
   | "specialization"
   | "experienceYears"
-  | "salaryPerClassAmd"
+  | "classTypeRates"
   | "assignedClasses"
   | "photo";
 
@@ -21,12 +21,19 @@ export function focusAdminCreateCoachField(
   form: HTMLFormElement,
   field: AdminCreateCoachFocusField,
 ): void {
-  const sectionFields: AdminCreateCoachFocusField[] = ["assignedClasses", "photo"];
+  const sectionFields: AdminCreateCoachFocusField[] = [
+    "assignedClasses",
+    "classTypeRates",
+    "photo",
+  ];
   if (sectionFields.includes(field)) {
-    const legacy = form.querySelector(`[data-create-coach-field="${field}"]`);
+    const targetField = field === "classTypeRates" ? "assignedClasses" : field;
+    const legacy = form.querySelector(`[data-create-coach-field="${targetField}"]`);
     if (legacy instanceof HTMLElement && !legacy.hasAttribute("data-form-field")) {
-      legacy.setAttribute("data-form-field", field);
+      legacy.setAttribute("data-form-field", targetField);
     }
+    focusFormField(form, targetField);
+    return;
   }
   focusFormField(form, field);
 }
@@ -60,8 +67,8 @@ export function resolveAdminCreateCoachApiFocusField(
   if (normalized.includes("assigned class") || normalized.includes("class type")) {
     return "assignedClasses";
   }
-  if (normalized.includes("salary")) {
-    return "salaryPerClassAmd";
+  if (normalized.includes("salary") || normalized.includes("classtype rates")) {
+    return "classTypeRates";
   }
   if (normalized.includes("photo")) {
     return "photo";

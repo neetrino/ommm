@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ScheduleJumpToTodayButton } from "@/components/shared/schedule/schedule-jump-to-today-button";
 import { useScheduleWeekBoardScroll } from "@/components/shared/schedule/schedule-week-board-scroll";
@@ -63,7 +63,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
 }: ScheduleWeekColumnsViewProps<T>) {
   const t = useTranslations("adminPages.schedule");
   const todayIso = scheduleTodayIsoDate();
-  const dayKeys = useMemo(() => buildScheduleWeekDayKeys(), []);
+  const [dayKeys] = useState(() => buildScheduleWeekDayKeys());
   const columnMinWidth = SCHEDULE_WEEK_COLUMN_MIN_WIDTH_PX;
   const dayKeysSignature = dayKeys.join(",");
   const todayInKeys = dayKeys.includes(todayIso);

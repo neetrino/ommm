@@ -21,6 +21,7 @@ type OmmConfirmDialogProps = {
   confirmPending?: boolean;
   tone?: OmmConfirmDialogTone;
   confirmClassName?: string;
+  confirmVariant?: "primary" | "secondary" | "ghost" | "subtle" | "danger";
   overlayClassName?: string;
   lockBodyScroll?: boolean;
   closeOnEscape?: boolean;
@@ -53,6 +54,7 @@ export function OmmConfirmDialog({
   confirmPending,
   tone = "default",
   confirmClassName = "",
+  confirmVariant = "secondary",
   overlayClassName = "ommm-modal-overlay z-[110] p-4",
   lockBodyScroll = true,
   closeOnEscape = true,
@@ -79,6 +81,7 @@ export function OmmConfirmDialog({
         confirmPending={confirmPending}
         tone={tone}
         confirmClassName={confirmClassName}
+        confirmVariant={confirmVariant}
         dismissAsCloseIcon={dismissAsCloseIcon}
         onConfirm={onConfirm}
         onCancel={onCancel}
@@ -121,6 +124,7 @@ export function OmmConfirmDialog({
         pending={pending}
         confirmPending={resolvedConfirmPending}
         confirmClassName={confirmClassName}
+        confirmVariant={confirmVariant}
         dismissAsCloseIcon={dismissAsCloseIcon}
         onConfirm={onConfirm}
         onCancel={onCancel}
@@ -141,6 +145,7 @@ function ConfirmDialogBody({
   pending,
   confirmPending,
   confirmClassName,
+  confirmVariant,
   dismissAsCloseIcon,
   onConfirm,
   onCancel,
@@ -155,6 +160,7 @@ function ConfirmDialogBody({
   pending: boolean;
   confirmPending: boolean;
   confirmClassName: string;
+  confirmVariant: "primary" | "secondary" | "ghost" | "subtle" | "danger";
   dismissAsCloseIcon: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -190,6 +196,7 @@ function ConfirmDialogBody({
         pending={pending}
         confirmPending={confirmPending}
         confirmClassName={confirmClassName}
+        confirmVariant={confirmVariant}
         dismissAsCloseIcon={dismissAsCloseIcon}
         onConfirm={onConfirm}
         onCancel={onCancel}
@@ -204,6 +211,7 @@ function ConfirmDialogActions({
   pending,
   confirmPending,
   confirmClassName,
+  confirmVariant,
   dismissAsCloseIcon,
   onConfirm,
   onCancel,
@@ -213,6 +221,7 @@ function ConfirmDialogActions({
   pending: boolean;
   confirmPending: boolean;
   confirmClassName: string;
+  confirmVariant: "primary" | "secondary" | "ghost" | "subtle" | "danger";
   dismissAsCloseIcon: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -232,7 +241,7 @@ function ConfirmDialogActions({
       )}
       <OmmButton
         type="button"
-        variant="secondary"
+        variant={confirmVariant}
         size="md"
         className={confirmClassName}
         onClick={onConfirm}

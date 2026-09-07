@@ -12,6 +12,8 @@ export const FINANCE_SECTION_HREF: Record<FinanceSectionId, string> = {
   coaches: "/admin/finance/coaches",
 };
 
+export const FINANCE_COACH_PAYOUT_HISTORY_HREF = "/admin/finance/coaches/payout-history";
+
 export const FINANCE_SECTION_COOKIE_NAME = "ommm_finance_section";
 
 /** Validates a finance section id from cookies, legacy `?tab=`, etc. */
@@ -40,12 +42,26 @@ export function resolveFinanceLegacyTabRedirect(
   return null;
 }
 
+function pathnameMatchesFinanceHref(pathname: string, href: string): boolean {
+  return (
+    pathname === href ||
+    pathname.endsWith(href) ||
+    pathname.includes(`${href}/`)
+  );
+}
+
 export function resolveFinanceSectionFromPathname(pathname: string): FinanceSectionId | null {
   for (const section of FINANCE_SECTION_IDS) {
-    const href = FINANCE_SECTION_HREF[section];
-    if (pathname === href || pathname.endsWith(href)) {
+    if (pathnameMatchesFinanceHref(pathname, FINANCE_SECTION_HREF[section])) {
       return section;
     }
   }
   return null;
+}
+
+export function isFinanceCoachPayoutHistoryPath(pathname: string): boolean {
+  return (
+    pathname === FINANCE_COACH_PAYOUT_HISTORY_HREF ||
+    pathname.endsWith(FINANCE_COACH_PAYOUT_HISTORY_HREF)
+  );
 }

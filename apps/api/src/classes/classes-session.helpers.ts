@@ -54,6 +54,9 @@ export const ADMIN_SESSION_INCLUDE =
         user: { select: { name: true, lastName: true } },
       },
     },
+    salaryAccrual: {
+      select: { amountAmd: true },
+    },
     _count: {
       select: {
         bookings: {

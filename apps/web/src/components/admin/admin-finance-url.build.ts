@@ -5,6 +5,7 @@ import {
 import {
   DEFAULT_FINANCE_OVERVIEW_RANGE,
   type CoachFinanceFilters,
+  type CoachSalaryPayoutHistoryFilters,
   type FinanceBoundedDateRangeDays,
   type FinanceFilterValues,
 } from "@/components/admin/admin-finance-types";
@@ -129,6 +130,20 @@ export function buildFinanceCoachSalaryQuery(
     params.set("quick", filters.quick);
   }
   return `/coaches/admin/salary-summaries?${params.toString()}`;
+}
+
+export function buildFinanceCoachPayoutHistoryApiQuery(
+  filters: CoachSalaryPayoutHistoryFilters,
+  listPage: { take: number; offset: number },
+): string {
+  const params = new URLSearchParams({
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+  });
+  if (filters.month) {
+    params.set("month", filters.month);
+  }
+  return `/coaches/admin/salary-payouts?${params.toString()}`;
 }
 
 /** @deprecated Use buildFinancePaymentsFiltersQuery. */

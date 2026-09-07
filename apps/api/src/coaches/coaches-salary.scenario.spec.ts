@@ -12,7 +12,7 @@ import {
  * the API uses — without a live database.
  */
 describe('coach salary product scenario', () => {
-  const salaryPerClassAmd = 8000;
+  const rateForClassTypeAmd = 8000;
 
   it('August classes: accrue only finished classes with participants', () => {
     const augustClasses = [
@@ -42,7 +42,7 @@ describe('coach salary product scenario', () => {
       shouldAccrueCoachSalary({
         status: session.status,
         bookedParticipantCount: session.bookedParticipantCount,
-        salaryPerClassAmd,
+        salaryPerClassAmd: rateForClassTypeAmd,
       }),
     );
 
@@ -50,7 +50,7 @@ describe('coach salary product scenario', () => {
       'completed with students',
       'second completed class',
     ]);
-    expect(accruedClasses.length * salaryPerClassAmd).toBe(16_000);
+    expect(accruedClasses.length * rateForClassTypeAmd).toBe(16_000);
   });
 
   it('Admin PAID zeros August unpaid and keeps the 16_000 payment in history', async () => {
@@ -80,29 +80,17 @@ describe('coach salary product scenario', () => {
       },
     } as never);
 
-    const beforePay = await summary.forProfile(
-      'coach-1',
-      salaryPerClassAmd,
-      '2026-08',
-    );
+    const beforePay = await summary.forProfile('coach-1', '2026-08');
     expect(beforePay.pendingPayoutCents).toBe(16_000);
 
     months['2026-08'].paid = 16_000;
-    const afterPay = await summary.forProfile(
-      'coach-1',
-      salaryPerClassAmd,
-      '2026-08',
-    );
+    const afterPay = await summary.forProfile('coach-1', '2026-08');
     expect(afterPay.pendingPayoutCents).toBe(0);
     expect(afterPay.paidOutCents).toBe(16_000);
 
     months['2026-09'].accrued = 8000;
     months['2026-09'].count = 1;
-    const september = await summary.forProfile(
-      'coach-1',
-      salaryPerClassAmd,
-      '2026-09',
-    );
+    const september = await summary.forProfile('coach-1', '2026-09');
     expect(september.pendingPayoutCents).toBe(8000);
     expect(afterPay.paidOutCents).toBe(16_000);
   });
@@ -114,7 +102,6 @@ describe('coach salary product scenario', () => {
         coachProfile: {
           findUnique: jest.fn().mockResolvedValue({
             id: 'coach-1',
-            salaryPerClassAmd,
           }),
         },
         coachSalaryPayout: { create },
@@ -125,12 +112,10 @@ describe('coach salary product scenario', () => {
           .fn()
           .mockResolvedValueOnce({
             pendingPayoutCents: 16_000,
-            salaryPerClassAmd,
           })
           .mockResolvedValueOnce({
             pendingPayoutCents: 0,
             paidOutCents: 16_000,
-            salaryPerClassAmd,
           }),
       } as never,
     );
@@ -171,10 +156,15 @@ describe('coach salary product scenario', () => {
           status: ClassSessionStatus.FINISHED,
           startsAt: new Date('2026-08-10T10:00:00.000Z'),
           coachId: 'coach-1',
-          coach: { salaryPerClassAmd },
+          classTypeId: 'class-type-1',
           salaryAccrual: null,
           _count: { bookings: 0 },
         }),
+      },
+      coachClassTypeRate: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ amountAmd: rateForClassTypeAmd }),
       },
       coachSalaryAccrual: { create },
     } as never);

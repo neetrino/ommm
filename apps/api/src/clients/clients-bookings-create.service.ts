@@ -59,7 +59,10 @@ export class ClientsBookingsCreateService {
       where: { id: sessionId },
       include: { classType: { select: { id: true, name: true } } },
     });
-    if (session === null || !canAdminAssignVisitorToSessionStatus(session.status)) {
+    if (
+      session === null ||
+      !canAdminAssignVisitorToSessionStatus(session.status)
+    ) {
       throw new NotFoundException('Session not found');
     }
     return this.packageUsage.listEligibleUserPackages({

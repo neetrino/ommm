@@ -4,6 +4,7 @@ export type AdminCoachDirectoryRow = {
   specialization: string | null;
   classType: string | null;
   assignedClassTypeIds: string[];
+  classTypeRates: { classTypeId: string; amountAmd: number }[];
   schedule: {
     id: string;
     date: string;

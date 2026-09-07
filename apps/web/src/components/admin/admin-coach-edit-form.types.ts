@@ -7,6 +7,11 @@ import {
 import { formatIsoDateToUi } from "@/lib/date-display";
 import { formatPhoneDisplay } from "@/lib/phone";
 
+export type CoachClassTypeRateInput = {
+  classTypeId: string;
+  amountAmd: number;
+};
+
 export type CoachEditFormState = {
   email: string;
   name: string;
@@ -17,8 +22,8 @@ export type CoachEditFormState = {
   photoUrl: string;
   bio: string;
   experienceYears: string;
-  salaryPerClassAmd: string;
   assignedClassTypeIds: string[];
+  classTypeRates: Record<string, string>;
   schedule: CoachScheduleInput[];
   specialization: string;
 };
@@ -33,8 +38,8 @@ export type CoachEditFormErrors = {
   photo?: string;
   bio?: string;
   experienceYears?: string;
-  salaryPerClassAmd?: string;
   assignedClassTypeIds?: string;
+  classTypeRates?: string;
   schedule?: string;
   specialization?: string;
 };
@@ -49,8 +54,8 @@ export type CoachEditInitialValues = {
   photoUrl: string | null;
   bio: string;
   experienceYears: number | null;
-  salaryPerClassAmd: number;
   assignedClassTypeIds: readonly string[];
+  classTypeRates: readonly CoachClassTypeRateInput[];
   schedule: readonly { id: string; date: string; time: string; spots: number }[];
   specialization: string;
 };
@@ -65,11 +70,23 @@ export type CoachUpdatePayload = {
   bio: string | null;
   specialization: string | null;
   experienceYears: number | null;
-  salaryPerClassAmd: number;
   assignedClassTypeIds: string[];
+  classTypeRates: CoachClassTypeRateInput[];
   schedule: { date: string; time: string; spots: number }[];
   photoUrl?: string;
 };
+
+function ratesRecordFromInitial(
+  rates: readonly CoachClassTypeRateInput[],
+): Record<string, string> {
+  const next: Record<string, string> = {};
+  for (const rate of rates) {
+    if (rate.amountAmd > 0) {
+      next[rate.classTypeId] = String(rate.amountAmd);
+    }
+  }
+  return next;
+}
 
 export function coachFormFromInitial(
   initial: CoachEditInitialValues,
@@ -85,11 +102,11 @@ export function coachFormFromInitial(
     photoUrl: initial.photoUrl ?? "",
     bio: initial.bio,
     experienceYears: initial.experienceYears === null ? "" : String(initial.experienceYears),
-    salaryPerClassAmd: initial.salaryPerClassAmd > 0 ? String(initial.salaryPerClassAmd) : "",
     assignedClassTypeIds: filterKnownAssignedClassTypeIds(
       initial.assignedClassTypeIds,
       classOptions,
     ),
+    classTypeRates: ratesRecordFromInitial(initial.classTypeRates),
     schedule:
       initial.schedule.length > 0
         ? initial.schedule.map((slot) => ({
@@ -128,8 +145,9 @@ export function getCoachFormSectionLabels(locale: string) {
       personalInfoDescription: "Հաշվի և ինքնության հիմնական տվյալներ",
       coachDetailsHeading: "Մարզչի տվյալներ",
       coachDetailsDescription: "Փորձ, մասնագիտացում և պրոֆիլի մեդիա",
-      assignedClassesHeading: "Կցված դասեր",
-      assignedClassesDescription: "Ընտրեք այս մարզչի վարած դասերի տեսակները",
+      assignedClassesHeading: "Կցված դասեր և աշխատավարձ",
+      assignedClassesDescription:
+        "Ընտրեք դասերի տեսակները և նշեք վճարը յուրաքանչյուր տեսակի համար",
       scheduleHeading: "Ժամանակացույց / հասանելիություն",
       birthdayPlaceholder: "ՕՕ/ԱԱ/ՏՏՏՏ",
     };
@@ -140,8 +158,9 @@ export function getCoachFormSectionLabels(locale: string) {
       personalInfoDescription: "Основные данные учётной записи и личности",
       coachDetailsHeading: "Данные тренера",
       coachDetailsDescription: "Опыт, специализация и медиа профиля",
-      assignedClassesHeading: "Назначенные занятия",
-      assignedClassesDescription: "Выберите типы занятий, которые ведёт тренер",
+      assignedClassesHeading: "Назначенные занятия и зарплата",
+      assignedClassesDescription:
+        "Выберите типы занятий и укажите оплату за каждый тип",
       scheduleHeading: "Расписание / доступность",
       birthdayPlaceholder: "ДД/ММ/ГГГГ",
     };
@@ -151,8 +170,9 @@ export function getCoachFormSectionLabels(locale: string) {
     personalInfoDescription: "Core account and identity details",
     coachDetailsHeading: "Coach Details",
     coachDetailsDescription: "Experience, specialization, and profile media",
-    assignedClassesHeading: "Assigned Classes",
-    assignedClassesDescription: "Select class types coached by this person",
+    assignedClassesHeading: "Assigned classes & salary",
+    assignedClassesDescription:
+      "Select class types and set the pay rate for each type",
     scheduleHeading: "Schedule / Availability",
     birthdayPlaceholder: "DD/MM/YYYY",
   };

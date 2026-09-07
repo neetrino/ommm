@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { User } from '@prisma/client';
 import type { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
+import type { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
 import type { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import type { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
@@ -57,6 +58,10 @@ export class CoachesService {
 
   adminSalarySummaries(query: AdminSalarySummariesQueryDto = {}) {
     return this.panel.adminSalarySummaries(query);
+  }
+
+  adminSalaryPayouts(query: AdminSalaryPayoutsQueryDto = {}) {
+    return this.salaryPayout.listAdmin(query);
   }
 
   salarySummary(userId: string, month?: string) {
