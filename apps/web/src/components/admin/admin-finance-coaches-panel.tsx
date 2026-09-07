@@ -30,13 +30,12 @@ type Props = {
 };
 
 const HISTORY_LINK_CLASS = [
-  "group inline-flex items-center gap-2 rounded-full",
-  "border border-sand-500/30 bg-gradient-to-b from-sand-100 to-sand-100/70",
-  "px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-sand-700",
-  "shadow-[0_8px_20px_-14px_rgba(107,92,76,0.45)] backdrop-blur-sm",
-  "transition-[background-color,border-color,box-shadow,transform,color]",
-  "hover:border-sand-500/50 hover:from-white hover:to-sand-100 hover:text-sand-700",
-  "hover:shadow-[0_12px_24px_-14px_rgba(107,92,76,0.5)]",
+  "group relative inline-flex items-center gap-3 overflow-hidden rounded-full",
+  "border border-white/80 bg-white/90 py-1.5 pr-4 pl-1.5",
+  "text-sand-700 shadow-[0_10px_28px_-18px_rgba(45,40,35,0.35)] backdrop-blur-md",
+  "transition-[border-color,box-shadow,transform,background-color]",
+  "hover:border-sand-500/35 hover:bg-white",
+  "hover:shadow-[0_16px_34px_-18px_rgba(107,92,76,0.42)]",
   "active:scale-[0.985]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500",
   "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
@@ -44,19 +43,45 @@ const HISTORY_LINK_CLASS = [
 
 function PaymentHistoryIcon() {
   return (
+    <span
+      className={[
+        "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+        "bg-gradient-to-br from-sand-500 to-sand-700 text-white",
+        "shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_6px_14px_-8px_rgba(107,92,76,0.55)]",
+        "transition-transform duration-300 ease-out group-hover:rotate-[-8deg] group-hover:scale-105",
+      ].join(" ")}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.85}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-4 w-4"
+        aria-hidden
+      >
+        <path d="M3 12a9 9 0 1 0 3-6.7" />
+        <path d="M3 4v5h5" />
+        <path d="M12 7v5l3 2" />
+      </svg>
+    </span>
+  );
+}
+
+function PaymentHistoryChevron() {
+  return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.75}
+      strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:-rotate-12"
+      className="h-3.5 w-3.5 shrink-0 text-sand-500/80 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-sand-700"
       aria-hidden
     >
-      <path d="M3 12a9 9 0 1 0 3-6.7" />
-      <path d="M3 4v5h5" />
-      <path d="M12 7v5l3 2" />
+      <path d="M9 6l6 6-6 6" />
     </svg>
   );
 }
@@ -96,8 +121,15 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <Link href={FINANCE_COACH_PAYOUT_HISTORY_HREF} className={HISTORY_LINK_CLASS}>
+          <span
+            className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-sand-300/80 to-transparent"
+            aria-hidden
+          />
           <PaymentHistoryIcon />
-          <span>{t("quickHistory")}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em]">
+            {t("quickHistory")}
+          </span>
+          <PaymentHistoryChevron />
         </Link>
       </div>
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
