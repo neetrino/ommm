@@ -18,7 +18,7 @@ type AdminFinanceCoachPayoutMonthNavProps = {
 };
 
 const PILL_CLASS = [
-  "relative inline-flex items-center gap-1 overflow-hidden rounded-full",
+  "relative inline-flex items-center gap-1 rounded-full",
   "border border-white/80 bg-white/90 py-1.5 pr-1.5 pl-1.5",
   "shadow-[0_10px_28px_-18px_rgba(45,40,35,0.35)] backdrop-blur-md",
   "transition-[border-color,box-shadow,background-color]",
