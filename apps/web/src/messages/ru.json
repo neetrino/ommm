@@ -2402,7 +2402,7 @@
         "bookings": "Бронирования",
         "payments": "Платежи",
         "gifts": "Подарочные карты",
-        "feedback": "Feedback",
+        "feedback": "Обратная связь",
         "notes": "Заметки"
       },
       "packages": {
@@ -2577,7 +2577,7 @@
         "noPayments": "Платежей нет.",
         "giftCards": "Подарочные карты",
         "noGiftCards": "Подарочных карт нет.",
-        "feedback": "Feedback",
+        "feedback": "Обратная связь",
         "noFeedback": "Именных отзывов пока нет.",
         "noFeedbackComment": "Без комментария",
         "feedbackRating": "{rating}/5",

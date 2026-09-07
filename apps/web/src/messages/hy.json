@@ -2405,7 +2405,7 @@
         "bookings": "Ամրագրումներ",
         "payments": "Վճարումներ",
         "gifts": "Նվեր քարտեր",
-        "feedback": "Feedback",
+        "feedback": "Հետադարձ կապ",
         "notes": "Նշումներ"
       },
       "packages": {
@@ -2580,7 +2580,7 @@
         "noPayments": "Վճարումներ չկան։",
         "giftCards": "Նվեր քարտեր",
         "noGiftCards": "Նվեր քարտեր չկան։",
-        "feedback": "Feedback",
+        "feedback": "Հետադարձ կապ",
         "noFeedback": "Անվանված կարծիքներ դեռ չկան։",
         "noFeedbackComment": "Մեկնաբանություն չկա",
         "feedbackRating": "{rating}/5",
