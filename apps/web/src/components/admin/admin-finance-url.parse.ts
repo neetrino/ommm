@@ -148,7 +148,6 @@ export function parseFinanceCoachPayoutHistoryFiltersFromSearch(
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   return {
-    q: firstFinanceUrlParam(search.q)?.trim() ?? "",
     month: month && /^\d{4}-\d{2}$/.test(month) ? month : currentMonth,
   };
 }

@@ -11,7 +11,6 @@ import {
 } from "@/components/admin/admin-finance-types";
 import {
   FINANCE_COACHES_QUERY_KEYS,
-  FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS,
   FINANCE_OVERVIEW_QUERY_KEYS,
   FINANCE_PAYMENTS_QUERY_KEYS,
 } from "@/components/admin/admin-finance-url.constants";
@@ -133,23 +132,6 @@ export function buildFinanceCoachSalaryQuery(
   return `/coaches/admin/salary-summaries?${params.toString()}`;
 }
 
-export function buildFinanceCoachPayoutHistoryFiltersQuery(
-  values: CoachSalaryPayoutHistoryFilters,
-  currentSearchParams: URLSearchParams,
-): string {
-  const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const params = pickFinanceSectionParams(
-    [...FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS],
-    currentSearchParams,
-  );
-  applyFinanceQueryKeys(params, [...FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS], {
-    q: values.q.trim() !== "" ? values.q.trim() : undefined,
-    month: values.month !== currentMonth ? values.month : undefined,
-  });
-  return params.toString();
-}
-
 export function buildFinanceCoachPayoutHistoryApiQuery(
   filters: CoachSalaryPayoutHistoryFilters,
   listPage: { take: number; offset: number },
@@ -158,9 +140,6 @@ export function buildFinanceCoachPayoutHistoryApiQuery(
     take: String(listPage.take),
     offset: String(listPage.offset),
   });
-  if (filters.q.trim()) {
-    params.set("search", filters.q.trim());
-  }
   if (filters.month) {
     params.set("month", filters.month);
   }

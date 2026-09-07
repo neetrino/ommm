@@ -41,7 +41,6 @@ export const FINANCE_COACH_PAGE_KEYS = {
 } as const;
 
 export const FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS = [
-  "q",
   "month",
   "payoutPage",
   "payoutPageSize",

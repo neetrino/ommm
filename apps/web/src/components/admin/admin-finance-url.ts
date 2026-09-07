@@ -36,7 +36,6 @@ export {
 
 export {
   buildFinanceCoachPayoutHistoryApiQuery,
-  buildFinanceCoachPayoutHistoryFiltersQuery,
   buildFinanceCoachSalaryQuery,
   buildFinanceCoachesFiltersQuery,
   buildFinanceFiltersQuery,

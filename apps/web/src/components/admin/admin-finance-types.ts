@@ -151,7 +151,6 @@ export type CoachFinancePayload = {
 };
 
 export type CoachSalaryPayoutHistoryFilters = {
-  q: string;
   month: string;
 };
 
