@@ -9,6 +9,7 @@ import { AdminFinanceCoachCompactRow } from "@/components/admin/admin-finance-co
 import {
   ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER,
   ADMIN_FINANCE_COACH_LIST_HEADER_CELL,
+  ADMIN_FINANCE_COACH_LIST_HEADER_CELL_START,
   ADMIN_FINANCE_COACH_LIST_HEADER_CLASS,
   ADMIN_FINANCE_COACH_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-notifications-list-layout";
@@ -73,9 +74,6 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
 
   return (
     <div className="space-y-4">
-      <p className="rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-xs text-amber-900">
-        {t("unsupportedNote")}
-      </p>
       <QuickFilters
         active={filters.quick}
         onChange={setQuickFilter}
@@ -88,7 +86,7 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
       />
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
-          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL_START} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
             {t("colCoach")}
           </span>
           <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>

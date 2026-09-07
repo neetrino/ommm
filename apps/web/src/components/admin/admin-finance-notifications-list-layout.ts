@@ -17,6 +17,9 @@ export const ADMIN_FINANCE_COACH_LIST_ROW_CLASS = ADMIN_LIST_ROW_CLASS;
 
 export const ADMIN_FINANCE_COACH_LIST_HEADER_CELL = "min-w-0 md:text-center";
 
+/** First column label — flush left like coach names in the rows. */
+export const ADMIN_FINANCE_COACH_LIST_HEADER_CELL_START = "min-w-0 md:text-left";
+
 export const ADMIN_FINANCE_COACH_LIST_COACH_CELL = USER_LIST_CELL_CLASS;
 
 export const ADMIN_FINANCE_COACH_LIST_MONEY_CELL = `${USER_LIST_CELL_CLASS} tabular-nums md:text-center`;
