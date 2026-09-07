@@ -2549,6 +2549,8 @@
         "cancelPastConfirmTitle": "Չեղարկե՞լ անցած պարապմունքը",
         "cancelPastConfirmDescription": "Պարապմունքն արդեն անցել է։ Այն կչեղարկվի հաճախորդի պատմությունում, և պարապմունքը կվերադարձվի փաթեթ։",
         "cancelConfirmLabel": "Չեղարկել ամրագրումը",
+        "cancelConfirmKeep": "Պահել ամրագրումը",
+        "cancelConfirmDescriptionNamed": "Չեղարկե՞լ {className}-ը ({when})։ Տեղը կրկին հասանելի կդառնա։",
         "cancelSuccess": "Ամրագրումը չեղարկվեց։",
         "cancelError": "Չհաջողվեց չեղարկել ամրագրումը։"
       },

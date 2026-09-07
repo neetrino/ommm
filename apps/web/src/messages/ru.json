@@ -2546,6 +2546,8 @@
         "cancelPastConfirmTitle": "Отменить прошедшее занятие?",
         "cancelPastConfirmDescription": "Занятие уже прошло. Мы отменим его в истории клиента и вернём занятие в пакет.",
         "cancelConfirmLabel": "Отменить бронирование",
+        "cancelConfirmKeep": "Оставить бронирование",
+        "cancelConfirmDescriptionNamed": "Отменить {className} на {when}? Место снова станет доступным.",
         "cancelSuccess": "Бронирование отменено.",
         "cancelError": "Не удалось отменить бронирование."
       },

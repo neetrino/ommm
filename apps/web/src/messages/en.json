@@ -2548,6 +2548,8 @@
         "cancelPastConfirmTitle": "Cancel this past session?",
         "cancelPastConfirmDescription": "This session already happened. We will mark it cancelled in the client's history and return the session to their package.",
         "cancelConfirmLabel": "Cancel booking",
+        "cancelConfirmKeep": "Keep booking",
+        "cancelConfirmDescriptionNamed": "Cancel {className} on {when}? The spot will become available again.",
         "cancelSuccess": "Booking cancelled.",
         "cancelError": "Could not cancel the booking."
       },
