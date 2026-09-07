@@ -149,3 +149,32 @@ export type CoachFinancePayload = {
   take: number;
   offset: number;
 };
+
+export type CoachSalaryPayoutHistoryFilters = {
+  q: string;
+  month: string;
+};
+
+export type CoachSalaryPayoutHistoryItem = {
+  id: string;
+  coachProfileId: string;
+  amountAmd: number;
+  periodYear: number;
+  periodMonth: number;
+  paidAt: string;
+  coach: {
+    userId: string;
+    name: string | null;
+    lastName: string | null;
+    phone: string | null;
+    email: string;
+  };
+};
+
+export type CoachSalaryPayoutHistoryPayload = {
+  items: CoachSalaryPayoutHistoryItem[];
+  total: number;
+  totalPaidCents: number;
+  take: number;
+  offset: number;
+};

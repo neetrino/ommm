@@ -4478,7 +4478,25 @@
         "quickPaid": "Paid coaches",
         "quickPending": "Pending salaries",
         "quickHighSalary": "High salary",
-        "quickRecent": "Recent payments"
+        "quickRecent": "Recent payments",
+        "quickHistory": "Payment history"
+      },
+      "coachPayoutHistory": {
+        "title": "Coach payment history",
+        "description": "All salary payouts marked as paid, across every month.",
+        "backToCoaches": "Back to coaches",
+        "searchPlaceholder": "Search coach name or phone",
+        "monthLabel": "Month",
+        "allMonths": "All months",
+        "clearFilters": "Reset filters",
+        "totalPaid": "Total paid",
+        "rowCount": "{count} payments",
+        "empty": "No paid coach salaries match the current filters.",
+        "colCoach": "Coach",
+        "colAmount": "Amount paid",
+        "colMonth": "Salary month",
+        "colPaidAt": "Paid on",
+        "statusPaid": "Paid"
       },
       "coachDrawer": {
         "close": "Close",

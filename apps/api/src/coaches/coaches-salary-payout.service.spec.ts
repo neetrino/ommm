@@ -86,4 +86,48 @@ describe('CoachSalaryPayoutService', () => {
       service.markMonthPaid(admin, 'missing', '2026-08'),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('lists paid salary history with month filter and totals', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        id: 'payout-1',
+        coachProfileId: 'coach-1',
+        amountAmd: 120_000,
+        periodYear: 2026,
+        periodMonth: 8,
+        paidAt: new Date('2026-09-01T10:00:00.000Z'),
+        coachProfile: {
+          userId: 'user-1',
+          user: {
+            name: 'Taguhi',
+            lastName: 'Sukiasyan',
+            phone: '+37400000000',
+            email: 'taguhi@example.com',
+          },
+        },
+      },
+    ]);
+    const count = jest.fn().mockResolvedValue(1);
+    const aggregate = jest.fn().mockResolvedValue({ _sum: { amountAmd: 120_000 } });
+    const service = new CoachSalaryPayoutService(
+      {
+        coachSalaryPayout: { findMany, count, aggregate },
+      } as never,
+      { log: jest.fn() } as never,
+      { forProfile: jest.fn() } as never,
+    );
+
+    const result = await service.listAdmin({ month: '2026-08', take: 25, offset: 0 });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { periodYear: 2026, periodMonth: 8 },
+        take: 25,
+        skip: 0,
+      }),
+    );
+    expect(result.total).toBe(1);
+    expect(result.totalPaidCents).toBe(120_000);
+    expect(result.items[0]?.coach.name).toBe('Taguhi');
+  });
 });

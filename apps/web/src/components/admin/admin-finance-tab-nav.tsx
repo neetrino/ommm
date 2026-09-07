@@ -24,6 +24,15 @@ const TAB_LABEL_KEY: Record<FinanceSectionId, string> = {
 
 const FINANCE_SWITCHER_COLUMN_COUNT = 3;
 
+function isFinanceSectionActive(pathname: string, section: FinanceSectionId): boolean {
+  const basePath = FINANCE_SECTION_HREF[section];
+  return (
+    pathname === basePath ||
+    pathname.endsWith(basePath) ||
+    pathname.includes(`${basePath}/`)
+  );
+}
+
 /** Overview / Payments / Coaches — olive segmented switcher. */
 export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
   const t = useTranslations("adminPages.finance.tabs");
@@ -36,10 +45,7 @@ export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
 
   const activeIndex = Math.max(
     0,
-    FINANCE_SECTION_IDS.findIndex((section) => {
-      const basePath = FINANCE_SECTION_HREF[section];
-      return pathname === basePath || pathname.endsWith(basePath);
-    }),
+    FINANCE_SECTION_IDS.findIndex((section) => isFinanceSectionActive(pathname, section)),
   );
 
   return (
@@ -53,9 +59,8 @@ export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
         className={oliveSegmentedThumbClass(FINANCE_SWITCHER_COLUMN_COUNT, activeIndex)}
       />
       {FINANCE_SECTION_IDS.map((section) => {
-        const basePath = FINANCE_SECTION_HREF[section];
         const href = buildFinanceTabHref(section, search);
-        const active = pathname === basePath || pathname.endsWith(basePath);
+        const active = isFinanceSectionActive(pathname, section);
         return (
           <Link
             key={section}

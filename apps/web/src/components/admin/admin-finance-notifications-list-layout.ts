@@ -42,3 +42,14 @@ export const ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL = [
 ].join(" ");
 
 export const ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;
+
+/** Coach · Paid amount · Salary month · Paid at — four equal tracks. */
+const FINANCE_COACH_PAYOUT_HISTORY_GRID_CLASS = "md:grid-cols-[repeat(4,minmax(0,1fr))]";
+
+export const ADMIN_FINANCE_COACH_PAYOUT_HISTORY_TABLE_CLASS = buildAdminListTableClass(
+  FINANCE_COACH_PAYOUT_HISTORY_GRID_CLASS,
+);
+
+export const ADMIN_FINANCE_COACH_PAYOUT_HISTORY_HEADER_CLASS = buildAdminListHeaderClass();
+
+export const ADMIN_FINANCE_COACH_PAYOUT_HISTORY_ROW_CLASS = ADMIN_LIST_ROW_CLASS;

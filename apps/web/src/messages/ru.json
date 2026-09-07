@@ -4143,7 +4143,25 @@
         "quickPaid": "Оплаченные тренеры",
         "quickPending": "Ожидающие выплаты",
         "quickHighSalary": "Высокая зарплата",
-        "quickRecent": "Недавние выплаты"
+        "quickRecent": "Недавние выплаты",
+        "quickHistory": "История выплат"
+      },
+      "coachPayoutHistory": {
+        "title": "История выплат тренерам",
+        "description": "Все зарплаты, отмеченные как оплаченные, по месяцам.",
+        "backToCoaches": "Назад к тренерам",
+        "searchPlaceholder": "Поиск по имени или телефону тренера",
+        "monthLabel": "Месяц",
+        "allMonths": "Все месяцы",
+        "clearFilters": "Сбросить фильтры",
+        "totalPaid": "Всего выплачено",
+        "rowCount": "{count} выплат",
+        "empty": "Нет оплаченных зарплат по текущим фильтрам.",
+        "colCoach": "Тренер",
+        "colAmount": "Сумма выплаты",
+        "colMonth": "Месяц зарплаты",
+        "colPaidAt": "Дата выплаты",
+        "statusPaid": "Оплачено"
       },
       "coachDrawer": {
         "close": "Закрыть",

@@ -5,11 +5,13 @@ import {
 import {
   DEFAULT_FINANCE_OVERVIEW_RANGE,
   type CoachFinanceFilters,
+  type CoachSalaryPayoutHistoryFilters,
   type FinanceBoundedDateRangeDays,
   type FinanceFilterValues,
 } from "@/components/admin/admin-finance-types";
 import {
   FINANCE_COACHES_QUERY_KEYS,
+  FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS,
   FINANCE_OVERVIEW_QUERY_KEYS,
   FINANCE_PAYMENTS_QUERY_KEYS,
 } from "@/components/admin/admin-finance-url.constants";
@@ -129,6 +131,38 @@ export function buildFinanceCoachSalaryQuery(
     params.set("quick", filters.quick);
   }
   return `/coaches/admin/salary-summaries?${params.toString()}`;
+}
+
+export function buildFinanceCoachPayoutHistoryFiltersQuery(
+  values: CoachSalaryPayoutHistoryFilters,
+  currentSearchParams: URLSearchParams,
+): string {
+  const params = pickFinanceSectionParams(
+    [...FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS],
+    currentSearchParams,
+  );
+  applyFinanceQueryKeys(params, [...FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS], {
+    q: values.q.trim() !== "" ? values.q.trim() : undefined,
+    month: values.month !== "" ? values.month : undefined,
+  });
+  return params.toString();
+}
+
+export function buildFinanceCoachPayoutHistoryApiQuery(
+  filters: CoachSalaryPayoutHistoryFilters,
+  listPage: { take: number; offset: number },
+): string {
+  const params = new URLSearchParams({
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+  });
+  if (filters.q.trim()) {
+    params.set("search", filters.q.trim());
+  }
+  if (filters.month) {
+    params.set("month", filters.month);
+  }
+  return `/coaches/admin/salary-payouts?${params.toString()}`;
 }
 
 /** @deprecated Use buildFinancePaymentsFiltersQuery. */

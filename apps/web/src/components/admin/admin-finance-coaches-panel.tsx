@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { AdminCoachSessionsDrawer } from "@/components/admin/admin-coach-sessions-drawer";
 import { AdminFinanceCoachCompactRow } from "@/components/admin/admin-finance-coach-compact-row";
 import {
@@ -13,6 +13,7 @@ import {
   ADMIN_FINANCE_COACH_LIST_HEADER_CLASS,
   ADMIN_FINANCE_COACH_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-notifications-list-layout";
+import { FINANCE_COACH_PAYOUT_HISTORY_HREF } from "@/components/admin/admin-finance-module";
 import type {
   CoachFinanceFilters,
   CoachFinancePayload,
@@ -28,6 +29,9 @@ type Props = {
   initial: CoachFinancePayload;
   filters: CoachFinanceFilters & { q: string };
 };
+
+const QUICK_FILTER_GHOST_LINK_CLASS =
+  "inline-flex cursor-pointer items-center justify-center rounded-full border border-white/75 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 shadow-sm backdrop-blur-sm transition-[background-color,box-shadow,transform,color,border-color] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
   const t = useTranslations("adminPages.finance.coachTab");
@@ -77,11 +81,13 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
       <QuickFilters
         active={filters.quick}
         onChange={setQuickFilter}
+        historyHref={FINANCE_COACH_PAYOUT_HISTORY_HREF}
         labels={{
           paid: t("quickPaid"),
           pending: t("quickPending"),
           highSalary: t("quickHighSalary"),
           recent: t("quickRecent"),
+          history: t("quickHistory"),
         }}
       />
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
@@ -141,7 +147,14 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
 function QuickFilters(props: {
   active: string;
   onChange: (value: string) => void;
-  labels: { paid: string; pending: string; highSalary: string; recent: string };
+  historyHref: string;
+  labels: {
+    paid: string;
+    pending: string;
+    highSalary: string;
+    recent: string;
+    history: string;
+  };
 }) {
   const entries = [
     ["paid", props.labels.paid],
@@ -161,6 +174,9 @@ function QuickFilters(props: {
           {label}
         </OmmButton>
       ))}
+      <Link href={props.historyHref} className={QUICK_FILTER_GHOST_LINK_CLASS}>
+        {props.labels.history}
+      </Link>
     </div>
   );
 }

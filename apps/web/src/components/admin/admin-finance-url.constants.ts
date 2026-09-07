@@ -40,6 +40,18 @@ export const FINANCE_COACH_PAGE_KEYS = {
   pageSizeKey: "coachPageSize",
 } as const;
 
+export const FINANCE_COACH_PAYOUT_HISTORY_QUERY_KEYS = [
+  "q",
+  "month",
+  "payoutPage",
+  "payoutPageSize",
+] as const;
+
+export const FINANCE_COACH_PAYOUT_PAGE_KEYS = {
+  pageKey: "payoutPage",
+  pageSizeKey: "payoutPageSize",
+} as const;
+
 export const FINANCE_LEGACY_QUERY_KEYS = ["tab"] as const;
 
 export const FINANCE_ALL_QUERY_KEYS = [

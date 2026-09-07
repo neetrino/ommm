@@ -1,6 +1,7 @@
 import {
   DEFAULT_FINANCE_OVERVIEW_RANGE,
   type CoachFinanceFilters,
+  type CoachSalaryPayoutHistoryFilters,
   type FinanceBoundedDateRangeDays,
   type FinanceFilterValues,
   type FinancePaymentMethodFilter,
@@ -137,6 +138,16 @@ export function parseFinanceCoachesFiltersFromSearch(
     payoutStatus: firstFinanceUrlParam(search.payoutStatus) ?? "",
     order: validOrder,
     quick: firstFinanceUrlParam(search.quick) ?? "",
+  };
+}
+
+export function parseFinanceCoachPayoutHistoryFiltersFromSearch(
+  search: Record<string, string | string[] | undefined>,
+): CoachSalaryPayoutHistoryFilters {
+  const month = firstFinanceUrlParam(search.month);
+  return {
+    q: firstFinanceUrlParam(search.q)?.trim() ?? "",
+    month: month && /^\d{4}-\d{2}$/.test(month) ? month : "",
   };
 }
 

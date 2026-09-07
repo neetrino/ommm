@@ -4146,7 +4146,25 @@
         "quickPaid": "Վճարված մարզիչներ",
         "quickPending": "Սպասող աշխատավարձեր",
         "quickHighSalary": "Բարձր աշխատավարձ",
-        "quickRecent": "Վերջին վճարումներ"
+        "quickRecent": "Վերջին վճարումներ",
+        "quickHistory": "Վճարումների պատմություն"
+      },
+      "coachPayoutHistory": {
+        "title": "Մարզիչների վճարումների պատմություն",
+        "description": "Բոլոր վճարված աշխատավարձերը՝ ըստ ամիսների։",
+        "backToCoaches": "Վերադառնալ մարզիչներին",
+        "searchPlaceholder": "Որոնել մարզչի անուն կամ հեռախոս",
+        "monthLabel": "Ամիս",
+        "allMonths": "Բոլոր ամիսները",
+        "clearFilters": "Վերակայել ֆիլտրերը",
+        "totalPaid": "Ընդամենը վճարված",
+        "rowCount": "{count} վճարում",
+        "empty": "Ընտրված ֆիլտրերով վճարված աշխատավարձեր չկան։",
+        "colCoach": "Մարզիչ",
+        "colAmount": "Վճարված գումար",
+        "colMonth": "Աշխատավարձի ամիս",
+        "colPaidAt": "Վճարման օր",
+        "statusPaid": "Վճարված"
       },
       "coachDrawer": {
         "close": "Փակել",
