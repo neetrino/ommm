@@ -64,12 +64,6 @@ export function requiresClientsPostProcessing(
   ) {
     return true;
   }
-  if (query.tag === AdminClientTagFilter.VIP) {
-    return true;
-  }
-  if (query.quick?.includes(AdminClientQuickFilter.VIP)) {
-    return true;
-  }
   const order = query.order ?? AdminClientOrder.NEWEST;
   return (
     order === AdminClientOrder.MOST_ACTIVE ||

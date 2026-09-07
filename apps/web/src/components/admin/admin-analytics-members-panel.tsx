@@ -32,7 +32,6 @@ export function AdminAnalyticsMembersPanel({ data }: AdminAnalyticsMembersPanelP
       returning: t("sections.users.returning"),
       inactive30d: t("sections.users.inactive30d"),
       active: t("sections.users.active"),
-      vip: t("sections.users.vip"),
     }),
     [t],
   );
@@ -87,7 +86,6 @@ export function AdminAnalyticsMembersPanel({ data }: AdminAnalyticsMembersPanelP
   const kpis = [
     { key: "total", label: t("sections.users.total"), value: String(members.total) },
     { key: "active", label: t("sections.users.active"), value: String(members.active) },
-    { key: "vip", label: t("sections.users.vip"), value: String(members.vip) },
     { key: "new", label: t("sections.users.newInRange"), value: String(members.newInRange) },
     {
       key: "returning",

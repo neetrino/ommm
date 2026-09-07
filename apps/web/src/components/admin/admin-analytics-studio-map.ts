@@ -187,7 +187,6 @@ export function buildMemberSegmentBarItems(
     returning: string;
     inactive30d: string;
     active: string;
-    vip: string;
   },
 ): AnalyticsBarItem[] {
   return [
@@ -195,7 +194,6 @@ export function buildMemberSegmentBarItems(
     { key: "returning", label: labels.returning, value: studio.members.returningInRange },
     { key: "inactive30d", label: labels.inactive30d, value: studio.members.inactive30d },
     { key: "active", label: labels.active, value: studio.members.active },
-    { key: "vip", label: labels.vip, value: studio.members.vip },
   ];
 }
 

@@ -27,7 +27,7 @@ describe("mergeAdminClientsUrlQuery", () => {
   it("keeps the drawer and view keys when filters change", () => {
     const merged = mergeAdminClientsUrlQuery(
       "tag=influencer",
-      "tag=vip&page=2&view=sphere&viewClient=abc",
+      "tag=new&page=2&view=sphere&viewClient=abc",
     );
     const params = new URLSearchParams(merged);
     assert.equal(params.get("tag"), "influencer");

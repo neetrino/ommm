@@ -111,7 +111,6 @@ function createStudioFixture(): StudioAnalyticsPayload {
     members: {
       total: 30,
       active: 20,
-      vip: 0,
       newInRange: 3,
       returningInRange: 7,
       inactive30d: 5,

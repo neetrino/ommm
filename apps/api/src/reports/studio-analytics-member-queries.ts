@@ -65,7 +65,6 @@ async function loadFullMembers(
   return {
     ...emptyMemberCounts(),
     ...counts,
-    vip: 0,
     newInRange,
     lifetimeValueCents: counts.lifetimeValueCents,
   };

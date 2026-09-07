@@ -19,7 +19,6 @@ export const ADMIN_CLIENT_TAG_OVERLAY_BADGE_CLASS =
   `${TAG_OVERLAY_BASE_CLASS} -left-0.5 top-0 ${DEFAULT_TAG_OVERLAY_TILT_CLASS} rounded-sm px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.05em] shadow-[0_2px_8px_rgba(15,23,42,0.2)] ring-2 ring-white`;
 
 export function clientTagBadgeTone(tag: ClientTag): string {
-  if (tag === "VIP") return "bg-amber-100 text-amber-900";
   if (tag === "New") return "bg-sky-100 text-sky-900";
   if (tag === "Influencer") return "bg-sand-700 text-cream-50";
   return "bg-violet-100 text-violet-900";
@@ -30,7 +29,6 @@ export function clientTagOverlayBadgeClass(tag: ClientTag): string {
 }
 
 export function clientTagLabelKey(tag: ClientTag): string {
-  if (tag === "VIP") return "tagVip";
   if (tag === "New") return "tagNew";
   if (tag === "Influencer") return "tagInfluencer";
   return "tagBeginner";

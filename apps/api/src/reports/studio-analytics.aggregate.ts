@@ -131,7 +131,6 @@ function buildMembers(
   return {
     total: members.total,
     active: members.active,
-    vip: members.vip,
     newInRange: members.newInRange,
     returningInRange: members.returningInRange,
     inactive30d: members.inactive30d,

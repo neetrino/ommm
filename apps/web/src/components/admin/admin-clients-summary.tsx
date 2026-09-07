@@ -14,12 +14,11 @@ export function AdminClientsSummary({ payload }: AdminClientsSummaryProps) {
     [t("summaryTotal"), payload.summary.total],
     [t("summaryWithPackage"), payload.summary.withPackage],
     [t("summaryActive"), payload.summary.active],
-    [t("summaryVip"), payload.summary.vip],
     [t("summaryVisits"), payload.summary.totalVisits],
   ] as const;
 
   return (
-    <section className={adminChrome.summaryGridFive}>
+    <section className={adminChrome.summaryGridFour}>
       {cards.map(([label, value]) => (
         <article key={label} className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{label}</p>

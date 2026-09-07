@@ -133,7 +133,6 @@ export type StudioAnalyticsPayload = {
   members: {
     total: number;
     active: number;
-    vip: number;
     newInRange: number;
     returningInRange: number;
     inactive30d: number;
@@ -237,7 +236,6 @@ export type StudioAnalyticsLabelRow = {
 export type StudioAnalyticsMemberCounts = {
   total: number;
   active: number;
-  vip: number;
   newInRange: number;
   returningInRange: number;
   inactive30d: number;

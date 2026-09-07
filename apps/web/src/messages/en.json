@@ -2324,7 +2324,6 @@
       "errorLoad": "Could not load clients ({status}).",
       "colName": "Name",
       "colTags": "Labels",
-      "tagVip": "VIP",
       "tagNew": "New",
       "tagBeginner": "Beginner",
       "tagInfluencer": "Influencer",
@@ -2548,6 +2547,8 @@
         "cancelPastConfirmTitle": "Cancel this past session?",
         "cancelPastConfirmDescription": "This session already happened. We will mark it cancelled in the client's history and return the session to their package.",
         "cancelConfirmLabel": "Cancel booking",
+        "cancelConfirmKeep": "Keep booking",
+        "cancelConfirmDescriptionNamed": "Cancel {className} on {when}? The spot will become available again.",
         "cancelSuccess": "Booking cancelled.",
         "cancelError": "Could not cancel the booking."
       },
@@ -2589,7 +2590,8 @@
         "cancelled": "Cancelled",
         "attended": "Attended",
         "signedUp": "Signed up",
-        "guestPass": "Guest pass"
+        "guestPass": "Guest pass",
+        "cancelledBy": "Cancelled by {name} ({role})"
       },
       "deleteClient": "Delete client",
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",
@@ -2599,7 +2601,6 @@
       "summaryTotal": "Total",
       "summaryWithPackage": "With package",
       "summaryActive": "Active",
-      "summaryVip": "VIP",
       "summaryVisits": "Visits",
       "notePlaceholder": "Write a note for this client",
       "addNote": "Add note",
@@ -4173,7 +4174,6 @@
           "inactive": "Inactive 30+ days",
           "total": "Total members",
           "active": "Active members",
-          "vip": "VIP members",
           "newInRange": "New members",
           "returning": "Returning members",
           "inactive30d": "Inactive 30+ days",

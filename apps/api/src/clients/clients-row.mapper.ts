@@ -64,7 +64,7 @@ export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
 export type ClientRecord = Prisma.UserGetPayload<{
   include: typeof clientInclude;
 }>;
-export type ClientTag = 'VIP' | 'New' | 'Beginner' | 'Influencer';
+export type ClientTag = 'New' | 'Beginner' | 'Influencer';
 export type ClientStatus = 'Active' | 'Inactive' | 'Blocked';
 export type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
 export type AttendanceBehavior =

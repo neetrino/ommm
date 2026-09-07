@@ -49,7 +49,6 @@ describe("admin-session-add-registration.helpers", () => {
           total: 1,
           active: 1,
           withPackage: 1,
-          vip: 0,
           totalVisits: 0,
           lifetimeValueCents: 0,
         },
