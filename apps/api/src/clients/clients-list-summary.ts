@@ -13,7 +13,7 @@ import {
 type ClientListRowSummaryFields = {
   classLevels: string[];
   preferredCoach: { id: string; name: string } | null;
-  tags: Array<'VIP' | 'New' | 'Beginner' | 'Influencer'>;
+  tags: Array<'New' | 'Beginner' | 'Influencer'>;
   status: 'Active' | 'Inactive' | 'Blocked';
   activePackageStatus: UserPackageStatus | null;
   totalVisits: number;
@@ -76,7 +76,6 @@ export async function computeClientsSummaryFromDb(
     total,
     active,
     withPackage,
-    vip: 0,
     totalVisits,
     lifetimeValueCents: paymentAggregate._sum.amountCents ?? 0,
   };
@@ -89,7 +88,6 @@ export function summaryFromRows(rows: ClientListRowSummaryFields[]) {
     withPackage: rows.filter(
       (row) => row.activePackageStatus === UserPackageStatus.ACTIVE,
     ).length,
-    vip: rows.filter((row) => row.tags.includes('VIP')).length,
     totalVisits: rows.reduce((sum, row) => sum + row.totalVisits, 0),
     lifetimeValueCents: rows.reduce(
       (sum, row) => sum + row.lifetimeValueCents,

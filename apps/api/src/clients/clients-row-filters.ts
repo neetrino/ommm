@@ -22,13 +22,10 @@ function matchesTag(tags: ClientTag[], tag: AdminClientTagFilter) {
   if (tag === AdminClientTagFilter.INFLUENCER) {
     return tags.includes('Influencer');
   }
-  const label =
-    tag === AdminClientTagFilter.NEW
-      ? 'New'
-      : tag === AdminClientTagFilter.VIP
-        ? 'VIP'
-        : 'Beginner';
-  return tags.includes(label);
+  if (tag === AdminClientTagFilter.NEW) {
+    return tags.includes('New');
+  }
+  return tags.includes('Beginner');
 }
 
 function matchesStatus(status: ClientStatus, filter: AdminClientStatusFilter) {
@@ -58,7 +55,6 @@ function matchesQuickFilter(row: ClientRow, filter: AdminClientQuickFilter) {
     return row.paymentBehavior === 'unpaid';
   if (filter === AdminClientQuickFilter.NO_SHOW)
     return row.attendanceBehavior === 'no-show';
-  if (filter === AdminClientQuickFilter.VIP) return row.tags.includes('VIP');
   return row.tags.includes('New');
 }
 
