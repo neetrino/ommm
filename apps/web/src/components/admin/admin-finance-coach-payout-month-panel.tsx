@@ -167,7 +167,7 @@ export function AdminFinanceCoachPayoutMonthPanel({
               className={[
                 "rounded-full px-2 py-2.5 text-sm font-medium transition-colors",
                 selected
-                  ? "bg-sage-700 text-white"
+                  ? "bg-sand-500 text-white"
                   : "text-sage-800 hover:bg-sand-100",
                 disabled ? "cursor-not-allowed opacity-35 hover:bg-transparent" : "",
               ]
