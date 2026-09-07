@@ -20,9 +20,8 @@ import type {
   CoachFinanceRow,
 } from "@/components/admin/admin-finance-types";
 import { FINANCE_COACH_PAGE_KEYS } from "@/components/admin/admin-finance-url";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 type Props = {
   locale: string;
@@ -30,7 +29,7 @@ type Props = {
   filters: CoachFinanceFilters & { q: string };
 };
 
-const QUICK_FILTER_GHOST_LINK_CLASS =
+const HISTORY_LINK_CLASS =
   "inline-flex cursor-pointer items-center justify-center rounded-full border border-white/75 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 shadow-sm backdrop-blur-sm transition-[background-color,box-shadow,transform,color,border-color] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
@@ -64,32 +63,13 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
     [replaceSearchParams],
   );
 
-  function setQuickFilter(value: string): void {
-    const nextQuick = filters.quick === value ? "" : value;
-    replaceSearchParams((params) => {
-      resetListPageQuery(params, FINANCE_COACH_PAGE_KEYS);
-      if (nextQuick) {
-        params.set("quick", nextQuick);
-      } else {
-        params.delete("quick");
-      }
-    });
-  }
-
   return (
     <div className="space-y-4">
-      <QuickFilters
-        active={filters.quick}
-        onChange={setQuickFilter}
-        historyHref={FINANCE_COACH_PAYOUT_HISTORY_HREF}
-        labels={{
-          paid: t("quickPaid"),
-          pending: t("quickPending"),
-          highSalary: t("quickHighSalary"),
-          recent: t("quickRecent"),
-          history: t("quickHistory"),
-        }}
-      />
+      <div className="flex flex-wrap gap-2">
+        <Link href={FINANCE_COACH_PAYOUT_HISTORY_HREF} className={HISTORY_LINK_CLASS}>
+          {t("quickHistory")}
+        </Link>
+      </div>
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
           <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL_START} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
@@ -140,43 +120,6 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
         month={filters.month}
         onClose={() => setDrawerCoach(null)}
       />
-    </div>
-  );
-}
-
-function QuickFilters(props: {
-  active: string;
-  onChange: (value: string) => void;
-  historyHref: string;
-  labels: {
-    paid: string;
-    pending: string;
-    highSalary: string;
-    recent: string;
-    history: string;
-  };
-}) {
-  const entries = [
-    ["paid", props.labels.paid],
-    ["pending", props.labels.pending],
-    ["high-salary", props.labels.highSalary],
-    ["recent-payments", props.labels.recent],
-  ] as const;
-  return (
-    <div className="flex flex-wrap gap-2">
-      {entries.map(([value, label]) => (
-        <OmmButton
-          key={value}
-          size="sm"
-          variant={props.active === value ? "primary" : "ghost"}
-          onClick={() => props.onChange(value)}
-        >
-          {label}
-        </OmmButton>
-      ))}
-      <Link href={props.historyHref} className={QUICK_FILTER_GHOST_LINK_CLASS}>
-        {props.labels.history}
-      </Link>
     </div>
   );
 }

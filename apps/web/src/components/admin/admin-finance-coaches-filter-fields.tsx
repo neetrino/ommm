@@ -14,6 +14,11 @@ type BuildAdminFinanceCoachesFilterFieldsArgs = {
     sortLabel: string;
     sortHighestSalary: string;
     sortOldest: string;
+    quickLabel: string;
+    quickPaid: string;
+    quickPending: string;
+    quickHighSalary: string;
+    quickRecent: string;
   };
 };
 
@@ -32,12 +37,13 @@ function datePickerValueToMonth(isoDate: string): string {
 }
 
 export function adminFinanceCoachesIntegratedFilterValues(
-  values: Pick<CoachFinanceFilters, "month" | "payoutStatus" | "order">,
+  values: Pick<CoachFinanceFilters, "month" | "payoutStatus" | "order" | "quick">,
 ): Record<string, string> {
   return {
     month: values.month,
     payoutStatus: values.payoutStatus || "all",
     order: values.order,
+    quick: values.quick || "all",
   };
 }
 
@@ -60,6 +66,18 @@ export function buildAdminFinanceCoachesFilterFields({
           placeholder={labels.monthLabel}
         />
       ),
+    },
+    {
+      key: "quick",
+      label: labels.quickLabel,
+      emptyValue: "all",
+      allLabel: labels.filterAll,
+      options: [
+        { value: "paid", label: labels.quickPaid },
+        { value: "pending", label: labels.quickPending },
+        { value: "high-salary", label: labels.quickHighSalary },
+        { value: "recent-payments", label: labels.quickRecent },
+      ],
     },
     {
       key: "payoutStatus",
@@ -95,6 +113,8 @@ export function parseCoachesIntegratedFilterChange(
   switch (key) {
     case "month":
       return { ...current, month: value };
+    case "quick":
+      return { ...current, quick: value === "all" ? "" : value };
     case "payoutStatus":
       return { ...current, payoutStatus: value === "all" ? "" : value };
     case "order":

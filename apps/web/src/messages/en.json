@@ -4475,6 +4475,7 @@
         "markPaidConfirm": "Confirm payment",
         "cancelButton": "Cancel",
         "modalBackdropClose": "Close dialog",
+        "quickLabel": "Quick filter",
         "quickPaid": "Paid coaches",
         "quickPending": "Pending salaries",
         "quickHighSalary": "High salary",
