@@ -190,7 +190,7 @@ export function AdminFinanceCoachCompactRow({
         cancelLabel={t("cancelButton")}
         backdropAriaLabel={t("modalBackdropClose")}
         tone="success"
-        confirmClassName="ommm-btn-lifecycle-action--success"
+        confirmVariant="primary"
         forceCenteredModal
         pending={busy}
         onConfirm={() => {

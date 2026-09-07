@@ -27,6 +27,7 @@ type OmmConfirmCenteredModalProps = {
   confirmPending?: boolean;
   tone?: OmmConfirmCenteredModalTone;
   confirmClassName?: string;
+  confirmVariant?: "primary" | "secondary" | "ghost" | "subtle" | "danger";
   /** Hide the cancel button; dismiss via an X in the top-right corner. */
   dismissAsCloseIcon?: boolean;
   onConfirm: () => void;
@@ -55,6 +56,7 @@ export function OmmConfirmCenteredModal({
   confirmPending,
   tone = "default",
   confirmClassName = "",
+  confirmVariant = "secondary",
   dismissAsCloseIcon = false,
   onConfirm,
   onCancel,
@@ -84,6 +86,7 @@ export function OmmConfirmCenteredModal({
   const panelClass = [
     styles.panel,
     TONE_PANEL_CLASS[tone],
+    tone !== "default" ? `ommm-confirm-dialog--${tone}` : "",
     motionOpen ? styles.panelOpen : styles.panelClosing,
   ]
     .filter(Boolean)
@@ -151,7 +154,7 @@ export function OmmConfirmCenteredModal({
             )}
             <OmmButton
               type="button"
-              variant="secondary"
+              variant={confirmVariant}
               size="md"
               className={confirmClassName}
               onClick={onConfirm}
