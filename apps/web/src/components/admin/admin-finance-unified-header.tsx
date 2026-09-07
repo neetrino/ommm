@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
+import { AdminFinanceCoachPayoutHistoryFilters } from "@/components/admin/admin-finance-coach-payout-history-filters";
 import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
 import { AdminFinancePaymentsFilters } from "@/components/admin/admin-finance-payments-filters";
@@ -16,6 +17,7 @@ import {
   type FinanceSectionId,
 } from "@/components/admin/admin-finance-module";
 import {
+  parseFinanceCoachPayoutHistoryFiltersFromSearch,
   parseFinanceCoachesFiltersFromSearch,
   parseFinanceOverviewFiltersFromSearch,
   parseFinancePaymentsFiltersFromSearch,
@@ -70,6 +72,10 @@ function AdminFinanceUnifiedHeaderInner() {
     () => searchParamsToRecord(searchParams),
     [searchParams],
   );
+  const isPayoutHistory = isFinanceCoachPayoutHistoryPath(pathname);
+  const payoutHistoryFilters = isPayoutHistory
+    ? parseFinanceCoachPayoutHistoryFiltersFromSearch(search)
+    : null;
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
@@ -78,9 +84,16 @@ function AdminFinanceUnifiedHeaderInner() {
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminFinanceTabNav />
         </div>
-        {section && !isFinanceCoachPayoutHistoryPath(pathname) ? (
+        {section ? (
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-nowrap">
-            <AdminFinanceTabFilters section={section} search={search} />
+            {isPayoutHistory && payoutHistoryFilters ? (
+              <AdminFinanceCoachPayoutHistoryFilters
+                key={`${payoutHistoryFilters.q}|${payoutHistoryFilters.month}`}
+                initialValues={payoutHistoryFilters}
+              />
+            ) : (
+              <AdminFinanceTabFilters section={section} search={search} />
+            )}
           </div>
         ) : null}
       </div>

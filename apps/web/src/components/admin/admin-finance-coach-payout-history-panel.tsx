@@ -4,7 +4,6 @@ import { useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AdminFinanceCoachPayoutHistoryFilters } from "@/components/admin/admin-finance-coach-payout-history-filters";
 import { AdminFinanceCoachPayoutHistoryRow } from "@/components/admin/admin-finance-coach-payout-history-row";
 import { AdminFinanceCoachPayoutMonthNav } from "@/components/admin/admin-finance-coach-payout-month-nav";
 import {
@@ -111,11 +110,6 @@ export function AdminFinanceCoachPayoutHistoryPanel({ locale, initial, filters }
         locale={locale}
         month={filters.month}
         onMonthChange={setMonth}
-      />
-
-      <AdminFinanceCoachPayoutHistoryFilters
-        key={`${filters.q}|${filters.month}`}
-        initialValues={filters}
       />
 
       <div className={ADMIN_FINANCE_COACH_PAYOUT_HISTORY_TABLE_CLASS}>
