@@ -4135,6 +4135,7 @@
         "colSessions": "Սեսիաներ",
         "colMonth": "Ամիս",
         "colPayoutStatus": "Վճարման կարգավիճակ",
+        "colActions": "Գործողություններ",
         "markPaid": "Նշել որպես վճարված",
         "markPaidBusy": "Պահպանում…",
         "markPaidFailed": "Չհաջողվեց նշել աշխատավարձը որպես վճարված։",

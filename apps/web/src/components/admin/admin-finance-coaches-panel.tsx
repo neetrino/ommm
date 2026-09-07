@@ -103,6 +103,9 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
           <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
             {t("colPayoutStatus")}
           </span>
+          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+            {t("colActions")}
+          </span>
         </div>
         {initial.items.length === 0 ? (
           <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">

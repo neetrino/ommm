@@ -4132,6 +4132,7 @@
         "colSessions": "Сессии",
         "colMonth": "Месяц",
         "colPayoutStatus": "Статус выплаты",
+        "colActions": "Действия",
         "markPaid": "Отметить как оплачено",
         "markPaidBusy": "Сохранение…",
         "markPaidFailed": "Не удалось отметить зарплату как оплаченную.",

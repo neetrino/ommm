@@ -10,6 +10,7 @@ import {
   type FinanceCoachPayoutStatus,
 } from "@/components/admin/admin-finance-list-display";
 import {
+  ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL,
   ADMIN_FINANCE_COACH_LIST_COACH_CELL,
   ADMIN_FINANCE_COACH_LIST_MONEY_CELL,
   ADMIN_FINANCE_COACH_LIST_MONTH_CELL,
@@ -143,11 +144,14 @@ export function AdminFinanceCoachCompactRow({
               ? t("statusPaid")
               : t("statusPending")}
         </span>
+      </div>
+
+      <div className={ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL}>
+        <AdminListMobileLabel label={t("colActions")} />
         {unpaidCents > 0 ? (
           <OmmButton
             type="button"
             size="sm"
-            className="mt-2"
             disabled={busy}
             onClick={() => {
               void markPaid();
@@ -155,7 +159,9 @@ export function AdminFinanceCoachCompactRow({
           >
             {busy ? t("markPaidBusy") : t("markPaid")}
           </OmmButton>
-        ) : null}
+        ) : (
+          <span className="text-xs text-sage-400">—</span>
+        )}
         {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
       </div>
     </article>

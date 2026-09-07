@@ -6,8 +6,8 @@ import {
   buildAdminListTableClass,
 } from "@/components/admin/admin-list-table-layout";
 
-/** Coach · Earnings · Sessions · Month · Payout — five equal tracks. */
-const FINANCE_COACH_GRID_CLASS = "md:grid-cols-[repeat(5,minmax(0,1fr))]";
+/** Coach · Unpaid · Sessions · Month · Status · Actions — six equal tracks. */
+const FINANCE_COACH_GRID_CLASS = "md:grid-cols-[repeat(6,minmax(0,1fr))]";
 
 export const ADMIN_FINANCE_COACH_LIST_TABLE_CLASS = buildAdminListTableClass(FINANCE_COACH_GRID_CLASS);
 
@@ -29,6 +29,11 @@ export const ADMIN_FINANCE_COACH_LIST_SESSIONS_CELL = [
 export const ADMIN_FINANCE_COACH_LIST_MONTH_CELL = `${USER_LIST_CELL_CLASS} tabular-nums md:flex md:justify-center`;
 
 export const ADMIN_FINANCE_COACH_LIST_PAYOUT_CELL = [
+  USER_LIST_CELL_CLASS,
+  "md:flex md:items-center md:justify-center md:text-center",
+].join(" ");
+
+export const ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL = [
   USER_LIST_CELL_CLASS,
   "md:flex md:flex-col md:items-center md:justify-center md:text-center",
 ].join(" ");
