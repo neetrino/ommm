@@ -14,9 +14,13 @@ export const SCHEDULE_WEEK_COLUMN_GAP_PX = 12;
 
 export const SCHEDULE_WEEK_COLUMN_GAP_CLASS = "gap-3";
 
-/** Board scroll — native bars hidden; drag or chevron edge zones navigate horizontally. */
+/**
+ * Board scroll — native bars hidden; drag or chevron edge zones navigate horizontally.
+ * Use overscroll-x-contain only: overscroll-contain traps vertical wheel over cards
+ * and blocks page scroll even when the board has no vertical overflow.
+ */
 export const SCHEDULE_WEEK_HORIZONTAL_SCROLL_CLASS =
-  "cursor-grab touch-pan-x overflow-x-auto overflow-y-auto overscroll-contain select-none active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+  "cursor-grab touch-pan-x overflow-x-auto overscroll-x-contain select-none active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
 export const SCHEDULE_WEEK_SCROLL_SPEED_PX = 6;
 

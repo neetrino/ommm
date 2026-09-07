@@ -2,9 +2,11 @@ import {
   clearMemberHubSheetScrollY,
   peekMemberHubSheetScrollY,
 } from "@/lib/member-hub-sheet-navigation";
-import { restoreWorkspaceScrollPosition } from "@/lib/reset-workspace-scroll";
+import {
+  restoreWorkspaceScrollPosition,
+  WORKSPACE_SCROLL_PANE_SELECTOR,
+} from "@/lib/reset-workspace-scroll";
 
-const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
 
 /** Scroll containers that must keep touch scrolling while the backdrop is locked. */
 const ALLOWED_TOUCH_SCROLL_SELECTOR =

@@ -1,4 +1,4 @@
-const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
+export const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
 
 /** Restore window and workspace shell pane scroll (member mobile uses window scroll). */
 export function restoreWorkspaceScrollPosition(scrollY: number): void {
