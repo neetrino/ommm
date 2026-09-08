@@ -164,6 +164,8 @@ export function HomeWeeklyScheduleDayView({
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowSpotsColumnWidth,
         ["--home-schedule-session-row-time-col-width" as string]:
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowTimeColumnWidth,
+        ["--home-schedule-session-row-time-min-width" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowTimeMinWidth,
         ["--home-schedule-session-row-radius" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowRadius,
         ["--home-schedule-session-row-radius-lg" as string]:
