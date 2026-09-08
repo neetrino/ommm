@@ -220,10 +220,14 @@
 
 /* Mobile week pager: swipe full Sun–Sat pages (matches native schedule). */
 .dateStripScroll {
+  /* Vertical room for the selected chip shadow — overflow-x also clips it vertically. */
+  --date-chip-shadow-reach: 0.75rem;
   display: flex;
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
+  padding-bottom: var(--date-chip-shadow-reach);
+  margin-bottom: calc(-1 * var(--date-chip-shadow-reach));
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;

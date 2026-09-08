@@ -189,6 +189,7 @@ export function ScheduleWeekBoard({
               <button
                 key={column.dayKey}
                 type="button"
+                disabled={isPastDay}
                 className={[
                   styles.dayHeader,
                   isSelected ? "" : styles.dayHeaderDimmed,
