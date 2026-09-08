@@ -3,10 +3,7 @@
 import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  SCHEDULE_VIEW_SHELL,
-  SCHEDULE_VIEW_SHELL_FLUSH,
-} from "@/components/marketing/schedule/schedule-public-design";
+import { SchedulePageChrome } from "@/components/marketing/schedule/schedule-page-chrome";
 import {
   ScheduleFiltersHeader,
   type ScheduleFilterMultiOption,
@@ -235,17 +232,18 @@ export function MarketingScheduleView({
   }
 
   return (
-    <div
-      className={
-        showWeekBoard || showMonthBoard
-          ? SCHEDULE_VIEW_SHELL_FLUSH
-          : SCHEDULE_VIEW_SHELL
+    <SchedulePageChrome
+      pageTitle={pageTitle}
+      flushShell={showWeekBoard || showMonthBoard}
+      layoutSwitcher={
+        isDesktop ? (
+          <ScheduleLayoutSwitcher value={layoutMode} onChange={setLayoutMode} />
+        ) : null
       }
     >
       <MarketingScheduleLayoutBody
         layoutMode={layoutMode}
         isDesktop={isDesktop}
-        pageTitle={pageTitle}
         locale={locale}
         selectedDate={nav.selectedDate}
         windowStart={nav.windowStart}
@@ -261,9 +259,6 @@ export function MarketingScheduleView({
         }
         canShiftNextWeek={
           !isAfterCalendarDay(addDays(nav.windowStart, 7), maxScheduleDate)
-        }
-        layoutSwitcher={
-          <ScheduleLayoutSwitcher value={layoutMode} onChange={setLayoutMode} />
         }
         filtersHeader={
           <ScheduleFiltersHeader
@@ -303,6 +298,6 @@ export function MarketingScheduleView({
         onShiftWindow={shiftWindow}
         onCloseDaySheet={() => setDaySheetRequested(false)}
       />
-    </div>
+    </SchedulePageChrome>
   );
 }

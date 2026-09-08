@@ -1,10 +1,10 @@
 .track {
   margin-inline: auto;
+  border: 1px solid rgb(151 144 124 / 0.45);
+  box-shadow: 0 8px 20px -16px rgb(45 40 35 / 0.2);
 }
 
-.desktopListToolbar {
+.switcherRow {
   display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
 }
-

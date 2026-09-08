@@ -42,7 +42,7 @@ export function ScheduleLayoutSwitcher({
     <div
       role="tablist"
       aria-label={t("layoutSwitcherAria")}
-      className={`${oliveSegmentedTrackClass(LAYOUT_COLUMN_COUNT, styles.track)} ${className}`.trim()}
+      className={`${oliveSegmentedTrackClass(LAYOUT_COLUMN_COUNT, styles.track, "white")} ${className}`.trim()}
     >
       <span
         aria-hidden
