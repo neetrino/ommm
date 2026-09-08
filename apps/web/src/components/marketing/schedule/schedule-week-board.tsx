@@ -213,7 +213,8 @@ export function ScheduleWeekBoard({
                   className={[
                     styles.dayNumber,
                     isPastDay ? styles.dayNumberPast : "",
-                    isToday || isSelected ? styles.dayNumberSelected : "",
+                    isToday ? styles.dayNumberToday : "",
+                    !isToday && isSelected ? styles.dayNumberSelected : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
