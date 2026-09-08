@@ -116,13 +116,23 @@
 }
 
 .weekdayLabel {
+  min-width: 0;
   text-align: center;
+  white-space: nowrap;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: #4a4738;
   text-transform: uppercase;
+}
+
+/* Narrow columns — tighten tracking so 3-letter locale labels stay whole. */
+@media (max-width: 480px) {
+  .weekdayLabel {
+    font-size: 0.6875rem;
+    letter-spacing: 0.02em;
+  }
 }
 
 .grid {

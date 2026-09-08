@@ -150,11 +150,15 @@
    * Compact home-row columns so time / spots / BOOK fit the sheet width
    * without clipping the booking CTA.
    */
-  --home-schedule-session-row-time-col-width: 6.75rem;
+  --home-schedule-session-row-time-col-width: 5.5rem;
+  /* "HH:MM" only — the home-page reserve for wider times is not needed here. */
+  --home-schedule-session-row-time-min-width: 3.5rem;
   --home-schedule-session-row-duration-col-width: 4.25rem;
   --home-schedule-session-row-spots-col-width: 7.25rem;
   --home-schedule-session-row-spots-button-gap: 1rem;
   --home-schedule-session-row-duration-spots-gap: 1rem;
+  /* Nudge duration + spots away from the class name without resizing the tracks. */
+  --home-schedule-session-row-meta-shift: 0.5rem;
   /* Soft sage scrollbar — matches schedule glass UI (Firefox + Chromium/WebKit). */
   scrollbar-width: thin;
   scrollbar-color: rgb(151 144 124 / 0.42) transparent;
@@ -197,7 +201,7 @@
 
   .body {
     padding: 1.5rem 1.75rem 2rem;
-    --home-schedule-session-row-time-col-width: 7.5rem;
+    --home-schedule-session-row-time-col-width: 5.75rem;
     --home-schedule-session-row-duration-col-width: 4.75rem;
     --home-schedule-session-row-spots-col-width: 8.5rem;
     --home-schedule-session-row-spots-button-gap: 1.25rem;
