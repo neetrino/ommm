@@ -38,7 +38,6 @@ type SharedSessionListProps = {
 type MarketingScheduleLayoutBodyProps = {
   layoutMode: ScheduleLayoutMode;
   isDesktop: boolean;
-  pageTitle: string;
   locale: string;
   selectedDate: Date;
   windowStart: Date;
@@ -51,7 +50,6 @@ type MarketingScheduleLayoutBodyProps = {
   daySheetLabel: string;
   canShiftPrevWeek: boolean;
   canShiftNextWeek: boolean;
-  layoutSwitcher: ReactNode;
   filtersHeader: ReactNode;
   sessionListProps: SharedSessionListProps;
   onSelectDay: (day: Date) => void;
@@ -64,7 +62,6 @@ type MarketingScheduleLayoutBodyProps = {
 export function MarketingScheduleLayoutBody({
   layoutMode,
   isDesktop,
-  pageTitle,
   locale,
   selectedDate,
   windowStart,
@@ -77,7 +74,6 @@ export function MarketingScheduleLayoutBody({
   daySheetLabel,
   canShiftPrevWeek,
   canShiftNextWeek,
-  layoutSwitcher,
   filtersHeader,
   sessionListProps,
   onSelectDay,
@@ -93,7 +89,6 @@ export function MarketingScheduleLayoutBody({
     return (
       <ScheduleWeekBoard
         locale={locale}
-        pageTitle={pageTitle}
         windowStart={windowStart}
         selectedDate={selectedDate}
         sessions={weekSessions}
@@ -111,7 +106,6 @@ export function MarketingScheduleLayoutBody({
         canShiftPrev={canShiftPrevWeek}
         canShiftNext={canShiftNextWeek}
         filtersSlot={filtersHeader}
-        layoutSwitcherSlot={layoutSwitcher}
         onSelectDay={onSelectDay}
         onShiftWindow={onShiftWindow}
         onBooked={sessionListProps.onBooked}
@@ -127,13 +121,11 @@ export function MarketingScheduleLayoutBody({
       <>
         <ScheduleMonthBoard
           locale={locale}
-          pageTitle={pageTitle}
           selectedDate={selectedDate}
           minDate={baseline}
           maxDate={maxScheduleDate}
           daySheetOpen={daySheetOpen}
           sessionCountByDayKey={sessionCountByDayKey}
-          layoutSwitcherSlot={layoutSwitcher}
           filtersSlot={filtersHeader}
           onSelectDay={onSelectMonthDay}
         />
@@ -151,13 +143,10 @@ export function MarketingScheduleLayoutBody({
   return (
     <ScheduleListChrome
       locale={locale}
-      pageTitle={pageTitle}
       selectedDate={selectedDate}
       windowStart={windowStart}
       minDate={baseline}
       maxDate={maxScheduleDate}
-      showLayoutSwitcher={isDesktop}
-      layoutSwitcher={layoutSwitcher}
       filtersSlot={filtersHeader}
       sessionsSlot={daySessionsList}
       onSelectDay={onSelectDay}

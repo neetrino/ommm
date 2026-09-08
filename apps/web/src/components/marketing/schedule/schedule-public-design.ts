@@ -9,6 +9,7 @@ export const SCHEDULE_PAGE_BG = "relative overflow-hidden";
 /** Legacy muted tokens — admin schedule day view still uses these. */
 export const SCHEDULE_INK = "text-sage-800";
 export const SCHEDULE_MUTED = "text-sage-500";
+export const SCHEDULE_VIEW_ROOT = styles.viewRoot;
 export const SCHEDULE_VIEW_SHELL = styles.viewShell;
 export const SCHEDULE_VIEW_SHELL_FLUSH = styles.viewShellFlush;
 export const SCHEDULE_SESSION_LIST = styles.sessionList;

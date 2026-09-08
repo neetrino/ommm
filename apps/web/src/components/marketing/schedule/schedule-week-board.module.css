@@ -14,15 +14,6 @@
   gap: 1rem;
 }
 
-.chrome > :first-child {
-  margin-bottom: clamp(0.5rem, 2vw, 1.25rem);
-}
-
-.layoutSwitcherRow {
-  display: flex;
-  justify-content: center;
-}
-
 .weekPickerRow {
   display: flex;
   justify-content: center;
@@ -145,6 +136,10 @@
   opacity: 0.42;
 }
 
+.dayHeader:disabled {
+  cursor: default;
+}
+
 .dayHeader:focus-visible {
   outline: none;
   border-radius: 0.75rem;
@@ -166,7 +161,7 @@
 }
 
 .weekdayActive {
-  color: #2d3748;
+  color: #695f00;
   font-weight: 600;
 }
 
@@ -176,7 +171,13 @@
   height: 3rem;
   align-items: center;
   justify-content: center;
+  border: 1.5px solid transparent;
   border-radius: 9999px;
+  transition:
+    background-color 280ms ease,
+    border-color 280ms ease,
+    color 280ms ease,
+    box-shadow 280ms ease;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: 1.5625rem;
   font-weight: 500;
@@ -184,9 +185,21 @@
   color: #2d3748;
 }
 
+/** Mirrors the list layout date chips (schedule-public-design). */
+.dayNumberToday {
+  border-color: #97907c;
+  background: #97907c;
+  color: #fbf5d5;
+  box-shadow:
+    0 10px 22px -14px rgb(45 40 35 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
 .dayNumberSelected {
-  background: #363d46;
-  color: #fff;
+  border-color: #97907c;
+  background: rgb(255 255 255 / 0.82);
+  color: #695f00;
+  box-shadow: 0 0 0 2px rgb(151 144 124 / 0.22);
 }
 
 .dayNumberPast {
@@ -274,6 +287,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dayHeader,
+  .dayNumber,
   .column {
     transition: none;
   }

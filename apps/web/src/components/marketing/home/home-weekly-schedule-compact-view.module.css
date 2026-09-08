@@ -53,6 +53,16 @@
   border-width: var(--home-schedule-day-chip-border-width, 1.438px);
 }
 
+/* Days already past in the focused week — kept visible for context, not selectable. */
+.dayTab:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.dayTab:disabled:hover {
+  transform: none;
+}
+
 .sessionPanel {
   width: 100%;
   min-width: 0;

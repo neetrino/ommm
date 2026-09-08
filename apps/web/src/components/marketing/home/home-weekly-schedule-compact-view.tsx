@@ -17,6 +17,7 @@ import {
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { Link } from "@/i18n/navigation";
+import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 import { buildPublicScheduleHrefForDate } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
 import { SCHEDULE_BOOK_BTN_HOME } from "@/components/marketing/schedule/schedule-public-design";
 import {
@@ -84,6 +85,7 @@ export function HomeWeeklyScheduleDayView({
   const t = useTranslations("marketingPublic.home");
   const [selectedDay, setSelectedDay] = useState<MarketingScheduleDayOfWeek>(initialDay);
   const userPickedDayRef = useRef(false);
+  const todayIso = scheduleTodayIsoDate();
 
   useEffect(() => {
     if (userPickedDayRef.current) {
@@ -162,6 +164,8 @@ export function HomeWeeklyScheduleDayView({
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowSpotsColumnWidth,
         ["--home-schedule-session-row-time-col-width" as string]:
           HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowTimeColumnWidth,
+        ["--home-schedule-session-row-time-min-width" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowTimeMinWidth,
         ["--home-schedule-session-row-radius" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowRadius,
         ["--home-schedule-session-row-radius-lg" as string]:
@@ -181,12 +185,14 @@ export function HomeWeeklyScheduleDayView({
           <div className={styles.dayTabTrack}>
             {days.map((entry) => {
               const isSelected = entry.day === selectedDay;
+              const isPast = entry.calendarDate < todayIso;
               const sessionCount = entry.sessions.length;
               return (
                 <button
                   key={entry.day}
                   type="button"
                   role="tab"
+                  disabled={isPast}
                   aria-selected={isSelected}
                   aria-controls={`home-weekly-schedule-panel-${entry.day}`}
                   id={`home-weekly-schedule-tab-${entry.day}`}

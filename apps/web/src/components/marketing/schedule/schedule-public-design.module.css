@@ -2,6 +2,15 @@
  * Schedule page — luxury wellness surface aligned with home weekly schedule.
  */
 
+/** Page title + layout switcher + body — identical offsets in every layout mode. */
+.viewRoot {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vw, 1.25rem);
+}
+
 .viewShell {
   display: flex;
   width: 100%;
@@ -209,12 +218,23 @@
   gap: clamp(0.125rem, 0.8vw, 0.5rem);
 }
 
+/* Phone — weeks are paged by swiping the strip, so the arrows only crowd it. */
+@media (max-width: 639px) {
+  .dateStripPagerRow > .arrowBtn {
+    display: none;
+  }
+}
+
 /* Mobile week pager: swipe full Sun–Sat pages (matches native schedule). */
 .dateStripScroll {
+  /* Vertical room for the selected chip shadow — overflow-x also clips it vertically. */
+  --date-chip-shadow-reach: 0.75rem;
   display: flex;
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
+  padding-bottom: var(--date-chip-shadow-reach);
+  margin-bottom: calc(-1 * var(--date-chip-shadow-reach));
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;

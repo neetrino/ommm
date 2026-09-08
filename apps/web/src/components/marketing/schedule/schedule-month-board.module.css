@@ -5,16 +5,3 @@
   flex-direction: column;
   gap: 1rem;
 }
-
-.chrome {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.layoutSwitcherRow {
-  display: flex;
-  justify-content: center;
-}

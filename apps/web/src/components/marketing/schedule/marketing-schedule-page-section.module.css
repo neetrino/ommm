@@ -13,10 +13,6 @@
   text-align: left;
 }
 
-.heroSpaced {
-  margin-bottom: var(--coaches-page-content-margin-top, 1.25rem);
-}
-
 .title {
   margin: 0;
   font-family: var(--font-serif);

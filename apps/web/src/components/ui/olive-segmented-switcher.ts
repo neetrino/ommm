@@ -2,11 +2,18 @@
 
 export type OliveSegmentedColumnCount = 2 | 3 | 4 | 5 | 7;
 
-const OLIVE_SEGMENTED_TRACK_BASE =
-  "relative inline-grid w-max shrink-0 rounded-full bg-[#f0efed] p-1";
+/** Track surface behind the inactive segments. */
+export type OliveSegmentedSurface = "muted" | "white";
 
-const OLIVE_SEGMENTED_HUG_TRACK =
-  "relative inline-flex w-max max-w-full shrink-0 rounded-full bg-[#f0efed] p-1";
+const OLIVE_SEGMENTED_TRACK_BASE =
+  "relative inline-grid w-max shrink-0 rounded-full p-1";
+
+const TRACK_SURFACE: Record<OliveSegmentedSurface, string> = {
+  muted: "bg-[#f0efed]",
+  white: "bg-white",
+};
+
+const OLIVE_SEGMENTED_HUG_TRACK = `relative inline-flex w-max max-w-full shrink-0 rounded-full ${TRACK_SURFACE.muted} p-1`;
 
 const OLIVE_SEGMENTED_THUMB_BASE = [
   "pointer-events-none absolute inset-y-1 left-1 rounded-full",
@@ -58,8 +65,9 @@ const COMPACT_COLUMN_THRESHOLD = 4;
 export function oliveSegmentedTrackClass(
   columnCount: OliveSegmentedColumnCount,
   className = "",
+  surface: OliveSegmentedSurface = "muted",
 ): string {
-  return `${TRACK_BY_COLUMNS[columnCount]} ${className}`.trim();
+  return `${TRACK_BY_COLUMNS[columnCount]} ${TRACK_SURFACE[surface]} ${className}`.trim();
 }
 
 export function oliveSegmentedThumbClass(

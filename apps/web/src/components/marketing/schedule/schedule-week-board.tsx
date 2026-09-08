@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import pageStyles from "@/components/marketing/schedule/marketing-schedule-page-section.module.css";
 import {
   isBeforeCalendarDay,
   isSameCalendarDay,
@@ -38,7 +37,6 @@ const SKELETON_CARDS_PER_DAY = 2;
 
 type ScheduleWeekBoardProps = {
   locale: string;
-  pageTitle: string;
   windowStart: Date;
   selectedDate: Date;
   sessions: readonly MarketingScheduleItem[];
@@ -56,7 +54,6 @@ type ScheduleWeekBoardProps = {
   canShiftPrev: boolean;
   canShiftNext: boolean;
   filtersSlot?: ReactNode;
-  layoutSwitcherSlot?: ReactNode;
   onSelectDay: (day: Date) => void;
   onShiftWindow: (delta: number) => void;
   onBooked: (sessionId: string, bookingId: string) => void;
@@ -70,7 +67,6 @@ type ScheduleWeekBoardProps = {
  */
 export function ScheduleWeekBoard({
   locale,
-  pageTitle,
   windowStart,
   selectedDate,
   sessions,
@@ -88,7 +84,6 @@ export function ScheduleWeekBoard({
   canShiftPrev,
   canShiftNext,
   filtersSlot,
-  layoutSwitcherSlot,
   onSelectDay,
   onShiftWindow,
   onBooked,
@@ -168,14 +163,6 @@ export function ScheduleWeekBoard({
   return (
     <div className={styles.board} aria-label={t("weekBoardAria")}>
       <div className={styles.chrome}>
-        <header className={pageStyles.hero}>
-          <h1 className={pageStyles.title}>{pageTitle}</h1>
-        </header>
-
-        {layoutSwitcherSlot !== undefined ? (
-          <div className={styles.layoutSwitcherRow}>{layoutSwitcherSlot}</div>
-        ) : null}
-
         <ScheduleWeekRangePicker
           locale={locale}
           weekRangeLabel={weekRangeLabel}
@@ -202,6 +189,7 @@ export function ScheduleWeekBoard({
               <button
                 key={column.dayKey}
                 type="button"
+                disabled={isPastDay}
                 className={[
                   styles.dayHeader,
                   isSelected ? "" : styles.dayHeaderDimmed,
@@ -225,7 +213,8 @@ export function ScheduleWeekBoard({
                   className={[
                     styles.dayNumber,
                     isPastDay ? styles.dayNumberPast : "",
-                    isToday || isSelected ? styles.dayNumberSelected : "",
+                    isToday ? styles.dayNumberToday : "",
+                    !isToday && isSelected ? styles.dayNumberSelected : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}

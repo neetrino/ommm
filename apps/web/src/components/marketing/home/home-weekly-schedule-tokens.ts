@@ -179,8 +179,10 @@ export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
    * wide enough that meta no longer collides with the book CTA.
    */
   sessionRowSpotsColumnWidth: "clamp(9.75rem, 12vw, 12.5rem)",
-  /** Fixed time track — clock + HH:mm; kept compact so meta can sit further left. */
-  sessionRowTimeColumnWidth: "8.75rem",
+  /** Fixed time track — date chip + clock + HH:mm; fits the cluster so the column gap shows. */
+  sessionRowTimeColumnWidth: "10.25rem",
+  /** Time reserve inside the track — "HH:mm" plus room to align across rows. */
+  sessionRowTimeMinWidth: "3.75rem",
 } as const;
 
 /** Overlaps hero — panel `z-10` sits on photo; Our Core Practices gradient overlaps from below. */
