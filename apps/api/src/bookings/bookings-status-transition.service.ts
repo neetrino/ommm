@@ -41,6 +41,9 @@ export class BookingsStatusTransitionService {
   /**
    * Marks past ACTIVE/FULL class sessions as FINISHED once endsAt has passed.
    * CANCELLED sessions stay CANCELLED. Eligible finished sessions accrue salary.
+   * Attendance is settled first: the salary rule pays only for classes with at
+   * least one COMPLETED booking, and a still-BOOKED booking would read as a
+   * no-show and silently drop the coach's pay for that class.
    */
   async finishPastClassSessions(now: Date = new Date()): Promise<number> {
     const sessions = await this.prisma.classSession.findMany({
@@ -60,6 +63,7 @@ export class BookingsStatusTransitionService {
       where: { id: { in: ids } },
       data: { status: ClassSessionStatus.FINISHED },
     });
+    await this.completePastBookedSessions(now);
     await this.salaryAccrual.accrueFinishedSessions(ids);
     return result.count;
   }

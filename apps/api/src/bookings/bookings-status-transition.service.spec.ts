@@ -22,7 +22,7 @@ describe('BookingsStatusTransitionService', () => {
   }
 
   beforeEach(() => {
-    salaryAccrual.accrueFinishedSessions.mockClear();
+    salaryAccrual.accrueFinishedSessions.mockReset().mockResolvedValue(0);
     packagesActivation.reconcileAwaitingPackages.mockClear();
   });
 
@@ -94,5 +94,30 @@ describe('BookingsStatusTransitionService', () => {
       'session-1',
       'session-2',
     ]);
+  });
+
+  it('settles attendance before accruing so an attended class is not read as a no-show', async () => {
+    const callOrder: string[] = [];
+    const prisma = {
+      booking: {
+        updateMany: jest.fn().mockImplementation(() => {
+          callOrder.push('completeBookings');
+          return { count: 1 };
+        }),
+      },
+      classSession: {
+        findMany: jest.fn().mockResolvedValue([{ id: 'session-1' }]),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+    };
+    salaryAccrual.accrueFinishedSessions.mockImplementation(() => {
+      callOrder.push('accrue');
+      return 1;
+    });
+    const service = buildService(prisma);
+
+    await service.finishPastClassSessions(now);
+
+    expect(callOrder).toEqual(['completeBookings', 'accrue']);
   });
 });

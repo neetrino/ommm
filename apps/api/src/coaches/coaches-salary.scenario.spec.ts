@@ -109,7 +109,10 @@ describe('coach salary product scenario', () => {
             id: 'coach-1',
           }),
         },
-        coachSalaryPayout: { create },
+        coachSalaryPayout: {
+          create,
+          findMany: jest.fn().mockResolvedValue([]),
+        },
       } as never,
       { log: jest.fn() } as never,
       {
