@@ -36,9 +36,11 @@ type AdminFinanceCoachCompactRowProps = {
   onOpenSessions: () => void;
 };
 
-/** Small, muted eyebrow — gives mobile stacked values a label without shouting. */
-const MOBILE_FIELD_LABEL_CLASS =
-  "block text-[10px] font-medium uppercase tracking-[0.08em] text-sage-400 md:hidden";
+/** Small muted caption above a value inside a mobile stat chip. */
+const MOBILE_STAT_LABEL_CLASS = "text-[10px] font-semibold uppercase tracking-[0.08em] text-sage-500";
+
+/** Mobile-only stat chip — pairs a caption with its value, two per row. */
+const MOBILE_STAT_CHIP_CLASS = "min-w-0 rounded-2xl border border-sand-200/70 bg-sand-50/60 px-3.5 py-3";
 
 function displayName(row: CoachFinanceRow): string {
   return coachCardDisplayName({
@@ -78,6 +80,9 @@ export function AdminFinanceCoachCompactRow({
   const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
   const unpaidCents = row.salary?.pendingPayoutCents ?? 0;
   const coachName = displayName(row);
+  const contact = displayPhoneOrEmail(row.user.phone, row.user.email);
+  const payoutStatusLabel =
+    payoutStatus === "none" ? t("statusNone") : payoutStatus === "paid" ? t("statusPaid") : t("statusPending");
 
   function openConfirm(): void {
     if (busy || unpaidCents <= 0) {
@@ -129,13 +134,52 @@ export function AdminFinanceCoachCompactRow({
       }}
       className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}
     >
-      <div className={ADMIN_FINANCE_COACH_LIST_COACH_CELL}>
-        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{coachName}</p>
-        <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.user.phone, row.user.email)}</p>
+      {/* Mobile-only card: horizontal layout that fills the card width. */}
+      <div className="flex flex-col gap-3 md:hidden">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{coachName}</p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">{contact}</p>
+          </div>
+          <span className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financeCoachPayoutTone(payoutStatus)} shrink-0`}>
+            {payoutStatusLabel}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className={MOBILE_STAT_CHIP_CLASS}>
+            <p className={MOBILE_STAT_LABEL_CLASS}>{t("colSalary")}</p>
+            {row.salary ? (
+              <AmdMoneyText cents={unpaidCents} locale={locale} className={`mt-1 block ${ADMIN_FINANCE_MONEY_CLASS}`} />
+            ) : (
+              <p className={`mt-1 ${ADMIN_FINANCE_MONEY_CLASS}`}>—</p>
+            )}
+          </div>
+          <div className={MOBILE_STAT_CHIP_CLASS}>
+            <p className={MOBILE_STAT_LABEL_CLASS}>{t("colSessions")}</p>
+            <p className="mt-1 font-serif text-xl tabular-nums leading-none tracking-tight text-sage-950">
+              {sessionCount}
+            </p>
+          </div>
+        </div>
+
+        {unpaidCents > 0 ? (
+          <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+            <OmmButton type="button" size="sm" disabled={busy} onClick={openConfirm} className="w-full">
+              {t("markPaid")}
+            </OmmButton>
+            {error && !confirmOpen ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
+          </div>
+        ) : null}
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_MONEY_CELL}>
-        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colSalary")}</span>
+      {/* Desktop table row — six aligned columns matching the list header. */}
+      <div className={`${ADMIN_FINANCE_COACH_LIST_COACH_CELL} hidden md:block`}>
+        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{coachName}</p>
+        <p className="mt-0.5 truncate text-xs text-sage-500">{contact}</p>
+      </div>
+
+      <div className={`${ADMIN_FINANCE_COACH_LIST_MONEY_CELL} hidden md:block`}>
         {row.salary ? (
           <AmdMoneyText cents={unpaidCents} locale={locale} className={ADMIN_FINANCE_MONEY_CLASS} />
         ) : (
@@ -143,15 +187,13 @@ export function AdminFinanceCoachCompactRow({
         )}
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_SESSIONS_CELL}>
-        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colSessions")}</span>
-        <p className="font-serif text-base tabular-nums leading-none tracking-tight text-sage-700 md:mx-auto md:text-xl md:text-sage-950">
+      <div className={`${ADMIN_FINANCE_COACH_LIST_SESSIONS_CELL} hidden`}>
+        <p className="font-serif text-xl tabular-nums leading-none tracking-tight text-sage-950">
           {sessionCount}
         </p>
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_MONTH_CELL}>
-        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colMonth")}</span>
+      <div className={`${ADMIN_FINANCE_COACH_LIST_MONTH_CELL} hidden`}>
         <SessionDateTimeHighlight
           locale={locale}
           startsAt={monthToIso(month)}
@@ -160,23 +202,17 @@ export function AdminFinanceCoachCompactRow({
         />
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_PAYOUT_CELL}>
-        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colPayoutStatus")}</span>
+      <div className={`${ADMIN_FINANCE_COACH_LIST_PAYOUT_CELL} hidden`}>
         <span className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financeCoachPayoutTone(payoutStatus)}`}>
-          {payoutStatus === "none"
-            ? t("statusNone")
-            : payoutStatus === "paid"
-              ? t("statusPaid")
-              : t("statusPending")}
+          {payoutStatusLabel}
         </span>
       </div>
 
       <div
-        className={ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL}
+        className={`${ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL} hidden`}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
-        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colActions")}</span>
         {unpaidCents > 0 ? (
           <OmmButton type="button" size="sm" disabled={busy} onClick={openConfirm}>
             {t("markPaid")}
