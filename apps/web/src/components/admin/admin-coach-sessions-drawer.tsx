@@ -11,8 +11,8 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import type {
   CoachFinanceRow,
-  CoachSessionRow,
-  CoachSessionsPayload,
+  CoachSalarySessionRow,
+  CoachSalarySessionsPayload,
 } from "@/components/admin/admin-finance-types";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -31,38 +31,18 @@ type Props = {
   onClose: () => void;
 };
 
-function monthBounds(month: string): { from: string; to: string } {
-  const [yearText, monthText] = month.split("-");
-  const year = Number(yearText);
-  const monthIndex = Number(monthText) - 1;
-  const from = new Date(Date.UTC(year, monthIndex, 1));
-  const to = new Date(Date.UTC(year, monthIndex + 1, 0, 23, 59, 59, 999));
-  return { from: from.toISOString(), to: to.toISOString() };
-}
-
-function sessionEarningsCents(session: CoachSessionRow): number | null {
-  const accrued = session.salaryAccrual?.amountAmd;
-  if (typeof accrued === "number" && accrued > 0) {
-    return accrued;
-  }
-  return null;
-}
-
 function buildSessionsEndpoint(
   coachProfileId: string,
   month: string,
   take: number,
   offset: number,
 ): string {
-  const { from, to } = monthBounds(month);
   const params = new URLSearchParams({
-    coachId: coachProfileId,
-    from,
-    to,
+    month,
     take: String(take),
     offset: String(offset),
   });
-  return `/classes/admin/sessions?${params.toString()}`;
+  return `/coaches/admin/${coachProfileId}/salary-sessions?${params.toString()}`;
 }
 
 export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Props) {
@@ -73,7 +53,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
   });
   const [page, setPage] = useState(1);
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
-  const [sessions, setSessions] = useState<CoachSessionRow[]>([]);
+  const [sessions, setSessions] = useState<CoachSalarySessionRow[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +77,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
       setLoading(true);
       setError(null);
       try {
-        const payload = await apiFetch<CoachSessionsPayload>(
+        const payload = await apiFetch<CoachSalarySessionsPayload>(
           buildSessionsEndpoint(coachProfileId, month, pageSize, offset),
         );
         if (!cancelled) {
@@ -168,27 +148,9 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
           <p className="text-sm text-sage-600">{t("empty")}</p>
         ) : null}
         <ul className="space-y-2">
-          {sessions.map((session) => {
-            const earnings = sessionEarningsCents(session);
-            return (
-              <li
-                key={session.id}
-                className="rounded-2xl border border-sage-100 bg-white p-3 text-sm"
-              >
-                <p className="font-medium text-sage-900">
-                  {formatDateTimeForUi(session.startsAt, locale)}
-                </p>
-                <p className="mt-1 text-sage-600">{session.classType.name}</p>
-                <p className="mt-1 text-xs text-sage-500">
-                  {earnings !== null
-                    ? t("attribution", {
-                        amount: formatAmdFromCents(earnings, locale),
-                      })
-                    : t("noAttribution")}
-                </p>
-              </li>
-            );
-          })}
+          {sessions.map((session) => (
+            <AdminCoachSalarySessionCard key={session.id} session={session} locale={locale} />
+          ))}
         </ul>
         <OmmListPagination
           total={total}
@@ -201,5 +163,37 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
         />
       </div>
     </AdminSheetPortal>
+  );
+}
+
+function AdminCoachSalarySessionCard({
+  session,
+  locale,
+}: {
+  session: CoachSalarySessionRow;
+  locale: string;
+}) {
+  const t = useTranslations("adminPages.finance.coachDrawer");
+  const isPaid = session.reason === "PAID";
+
+  return (
+    <li className="rounded-2xl border border-sage-100 bg-white p-3 text-sm">
+      <p className="font-medium text-sage-900">
+        {formatDateTimeForUi(session.startsAt, locale)}
+      </p>
+      <p className="mt-1 text-sage-600">{session.classType.name}</p>
+      <p className="mt-1 text-xs text-sage-500">
+        {t("attendanceSummary", {
+          registered: session.registeredCount,
+          attended: session.attendedCount,
+          noShow: session.noShowCount,
+        })}
+      </p>
+      <p className={`mt-1 text-xs font-medium ${isPaid ? "text-sage-700" : "text-sand-700"}`}>
+        {t(`reasons.${session.reason}`, {
+          amount: formatAmdFromCents(session.amountAmd, locale),
+        })}
+      </p>
+    </li>
   );
 }

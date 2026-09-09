@@ -1,6 +1,6 @@
 import { BookingStatus, ClassSessionStatus } from '@prisma/client';
 import {
-  isRegisteredBookingStatus,
+  isAttendedBookingStatus,
   parseSalaryMonthParam,
   salaryPeriodFromInstant,
   shouldAccrueCoachSalary,
@@ -8,11 +8,11 @@ import {
 } from './coaches-salary.helpers';
 
 describe('coaches-salary.helpers', () => {
-  it('accrues only FINISHED classes with at least one registered participant and a rate', () => {
+  it('accrues only FINISHED classes with at least one attended participant and a rate', () => {
     expect(
       shouldAccrueCoachSalary({
         status: ClassSessionStatus.FINISHED,
-        bookedParticipantCount: 1,
+        attendedParticipantCount: 1,
         salaryPerClassAmd: 8000,
       }),
     ).toBe(true);
@@ -22,17 +22,19 @@ describe('coaches-salary.helpers', () => {
     expect(
       shouldAccrueCoachSalary({
         status: ClassSessionStatus.CANCELLED,
-        bookedParticipantCount: 3,
+        attendedParticipantCount: 3,
         salaryPerClassAmd: 8000,
       }),
     ).toBe(false);
   });
 
-  it('does not accrue finished classes with zero registered participants', () => {
+  it('does not accrue finished classes with zero attended participants', () => {
+    // Covers both "nobody booked" and "everyone booked but no-showed"
+    // (BookingStatus.MISSED) — either way the coach did no work, no salary.
     expect(
       shouldAccrueCoachSalary({
         status: ClassSessionStatus.FINISHED,
-        bookedParticipantCount: 0,
+        attendedParticipantCount: 0,
         salaryPerClassAmd: 8000,
       }),
     ).toBe(false);
@@ -42,17 +44,17 @@ describe('coaches-salary.helpers', () => {
     expect(
       shouldAccrueCoachSalary({
         status: ClassSessionStatus.FINISHED,
-        bookedParticipantCount: 2,
+        attendedParticipantCount: 2,
         salaryPerClassAmd: 0,
       }),
     ).toBe(false);
   });
 
-  it('treats missed and completed bookings as registered, cancelled as not', () => {
-    expect(isRegisteredBookingStatus(BookingStatus.BOOKED)).toBe(true);
-    expect(isRegisteredBookingStatus(BookingStatus.COMPLETED)).toBe(true);
-    expect(isRegisteredBookingStatus(BookingStatus.MISSED)).toBe(true);
-    expect(isRegisteredBookingStatus(BookingStatus.CANCELLED)).toBe(false);
+  it('only treats COMPLETED bookings as attendance — booked/missed/cancelled do not count', () => {
+    expect(isAttendedBookingStatus(BookingStatus.BOOKED)).toBe(false);
+    expect(isAttendedBookingStatus(BookingStatus.COMPLETED)).toBe(true);
+    expect(isAttendedBookingStatus(BookingStatus.MISSED)).toBe(false);
+    expect(isAttendedBookingStatus(BookingStatus.CANCELLED)).toBe(false);
   });
 
   it('parses an explicit salary month and zeros unpaid after payout', () => {
@@ -65,14 +67,14 @@ describe('coaches-salary.helpers', () => {
     expect(
       shouldAccrueCoachSalary({
         status: ClassSessionStatus.ACTIVE,
-        bookedParticipantCount: 4,
+        attendedParticipantCount: 4,
         salaryPerClassAmd: 8000,
       }),
     ).toBe(false);
     expect(
       shouldAccrueCoachSalary({
         status: ClassSessionStatus.FULL,
-        bookedParticipantCount: 4,
+        attendedParticipantCount: 4,
         salaryPerClassAmd: 8000,
       }),
     ).toBe(false);
@@ -82,7 +84,7 @@ describe('coaches-salary.helpers', () => {
     expect(
       shouldAccrueCoachSalary({
         status: ClassSessionStatus.FINISHED,
-        bookedParticipantCount: 0,
+        attendedParticipantCount: 0,
         salaryPerClassAmd: 12_000,
       }),
     ).toBe(false);

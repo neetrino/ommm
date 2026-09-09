@@ -4463,6 +4463,7 @@
         "empty": "No coaches match the current filters.",
         "colCoach": "Coach",
         "colSalary": "Unpaid salary",
+        "salaryBreakdownHint": "Click to see what this amount is made up of",
         "colSessions": "Sessions",
         "colMonth": "Month",
         "colPayoutStatus": "Payout status",
@@ -4509,12 +4510,21 @@
       "coachDrawer": {
         "close": "Close",
         "monthLabel": "Sessions for {month}",
-        "earningsHint": "Per-session attribution uses the same formula as the coach salary panel.",
+        "earningsHint": "Salary is only accrued for classes where someone actually showed up.",
         "loading": "Loading sessions…",
         "loadFailed": "Could not load coach sessions.",
         "empty": "No sessions found for this month.",
-        "attribution": "Estimated attribution: {amount}",
-        "noAttribution": "No completed bookings — no attribution"
+        "attendanceSummary": "Booked: {registered} · Attended: {attended} · No-shows: {noShow}",
+        "rateLabel": "Rate: {amount}",
+        "reasons": {
+          "PAID": "Accrued: {amount}",
+          "NOT_FINISHED_YET": "Class hasn't finished yet",
+          "SESSION_CANCELLED": "Class was cancelled",
+          "NO_RATE_CONFIGURED": "No rate configured for this class type",
+          "NO_BOOKINGS": "Nobody booked this class",
+          "NO_SHOW_ONLY": "Nobody showed up — not paid",
+          "PENDING_ACCRUAL": "Accrual hasn't been calculated yet"
+        }
       }
     },
     "content": {

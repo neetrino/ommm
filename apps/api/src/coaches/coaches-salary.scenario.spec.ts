@@ -18,22 +18,27 @@ describe('coach salary product scenario', () => {
     const augustClasses = [
       {
         status: ClassSessionStatus.FINISHED,
-        bookedParticipantCount: 3,
+        attendedParticipantCount: 3,
         label: 'completed with students',
       },
       {
         status: ClassSessionStatus.FINISHED,
-        bookedParticipantCount: 0,
+        attendedParticipantCount: 0,
         label: 'completed empty class',
       },
       {
         status: ClassSessionStatus.CANCELLED,
-        bookedParticipantCount: 4,
+        attendedParticipantCount: 4,
         label: 'cancelled with students',
       },
       {
         status: ClassSessionStatus.FINISHED,
-        bookedParticipantCount: 1,
+        attendedParticipantCount: 0,
+        label: 'no-shows only — booked but nobody attended',
+      },
+      {
+        status: ClassSessionStatus.FINISHED,
+        attendedParticipantCount: 1,
         label: 'second completed class',
       },
     ] as const;
@@ -41,7 +46,7 @@ describe('coach salary product scenario', () => {
     const accruedClasses = augustClasses.filter((session) =>
       shouldAccrueCoachSalary({
         status: session.status,
-        bookedParticipantCount: session.bookedParticipantCount,
+        attendedParticipantCount: session.attendedParticipantCount,
         salaryPerClassAmd: rateForClassTypeAmd,
       }),
     );

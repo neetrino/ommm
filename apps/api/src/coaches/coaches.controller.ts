@@ -20,6 +20,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CoachesService } from './coaches.service';
+import { AdminCoachSalarySessionsQueryDto } from './dto/admin-coach-salary-sessions-query.dto';
 import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
 import { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
@@ -86,6 +87,18 @@ export class CoachesController {
     @Body() dto: CreateCoachSalaryPayoutDto,
   ) {
     return this.coaches.markSalaryPaid(user, id, dto.month);
+  }
+
+  /** Per-session breakdown behind one coach's monthly salary total. */
+  @Get('admin/:id/salary-sessions')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  adminCoachSalarySessions(
+    @Param('id') id: string,
+    @Query() query: AdminCoachSalarySessionsQueryDto,
+  ) {
+    return this.coaches.adminSalarySessions(id, query);
   }
 
   @Get(':id')

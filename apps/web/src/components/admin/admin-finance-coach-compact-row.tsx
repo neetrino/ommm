@@ -122,11 +122,14 @@ export function AdminFinanceCoachCompactRow({
       <div className={ADMIN_FINANCE_COACH_LIST_MONEY_CELL}>
         <AdminListMobileLabel label={t("colSalary")} />
         {row.salary ? (
-          <AmdMoneyText
-            cents={unpaidCents}
-            locale={locale}
-            className={ADMIN_FINANCE_MONEY_CLASS}
-          />
+          <button
+            type="button"
+            className={`${ADMIN_FINANCE_MONEY_CLASS} underline decoration-dotted underline-offset-4`}
+            onClick={onOpenSessions}
+            title={t("salaryBreakdownHint")}
+          >
+            <AmdMoneyText cents={unpaidCents} locale={locale} />
+          </button>
         ) : (
           <p className={ADMIN_FINANCE_MONEY_CLASS}>—</p>
         )}

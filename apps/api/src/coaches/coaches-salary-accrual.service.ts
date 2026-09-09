@@ -23,8 +23,9 @@ const finishedSessionSelect = {
   salaryAccrual: { select: { id: true } },
   _count: {
     select: {
+      /** Only COMPLETED bookings count as attendance — see {@link isAttendedBookingStatus}. */
       bookings: {
-        where: { status: { not: BookingStatus.CANCELLED } },
+        where: { status: BookingStatus.COMPLETED },
       },
     },
   },
@@ -81,7 +82,7 @@ export class CoachSalaryAccrualService {
     if (
       !shouldAccrueCoachSalary({
         status: session.status,
-        bookedParticipantCount: session._count.bookings,
+        attendedParticipantCount: session._count.bookings,
         salaryPerClassAmd: amountAmd,
       })
     ) {

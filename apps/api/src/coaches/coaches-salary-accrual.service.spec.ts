@@ -62,7 +62,18 @@ describe('CoachSalaryAccrualService', () => {
     });
   });
 
-  it('skips finished classes with zero registered participants', async () => {
+  it('skips finished classes with zero attended participants', async () => {
+    const { service, create } = buildService(
+      finishedSession({ _count: { bookings: 0 } }),
+    );
+
+    await expect(service.accrueFinishedSession(sessionId)).resolves.toBe(false);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('skips a finished class whose bookings were all no-shows (MISSED)', async () => {
+    // The count is pre-filtered to COMPLETED bookings only by the Prisma
+    // select, so a class with only no-shows resolves to zero here too.
     const { service, create } = buildService(
       finishedSession({ _count: { bookings: 0 } }),
     );
@@ -116,7 +127,7 @@ describe('CoachSalaryAccrualService', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it('counts non-cancelled bookings in the lookup filter', async () => {
+  it('counts only COMPLETED (attended) bookings in the lookup filter', async () => {
     const findUnique = jest.fn().mockResolvedValue(null);
     const service = new CoachSalaryAccrualService({
       classSession: { findUnique },
@@ -132,7 +143,7 @@ describe('CoachSalaryAccrualService', () => {
           select: {
             _count: {
               select: {
-                bookings: { where: { status: { not: BookingStatus } } };
+                bookings: { where: { status: BookingStatus } };
               };
             };
           };
@@ -140,7 +151,7 @@ describe('CoachSalaryAccrualService', () => {
       ],
     ];
     expect(findUniqueCall.select._count.select.bookings.where).toEqual({
-      status: { not: BookingStatus.CANCELLED },
+      status: BookingStatus.COMPLETED,
     });
   });
 });
