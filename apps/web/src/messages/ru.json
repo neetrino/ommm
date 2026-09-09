@@ -4129,6 +4129,7 @@
         "empty": "Нет тренеров по текущим фильтрам.",
         "colCoach": "Тренер",
         "colSalary": "Невыплаченная зарплата",
+        "salaryBreakdownHint": "Нажмите, чтобы увидеть, из чего сложилась эта сумма",
         "colSessions": "Сессии",
         "colMonth": "Месяц",
         "colPayoutStatus": "Статус выплаты",
@@ -4175,12 +4176,10 @@
       "coachDrawer": {
         "close": "Закрыть",
         "monthLabel": "Сессии за {month}",
-        "earningsHint": "Атрибуция по сессиям использует ту же формулу, что и панель зарплаты тренера.",
+        "earningsHint": "Зарплата начисляется только за занятия, на которые кто-то реально пришёл.",
         "loading": "Загрузка сессий…",
         "loadFailed": "Не удалось загрузить сессии тренера.",
-        "empty": "Сессии за этот месяц не найдены.",
-        "attribution": "Оценка атрибуции: {amount}",
-        "noAttribution": "Нет завершённых бронирований — атрибуции нет"
+        "empty": "Сессии за этот месяц не найдены."
       }
     },
     "analytics": {
@@ -4598,6 +4597,18 @@
       "sessionsEmpty": "В выбранном окне сессий нет."
     }
   },
+  "coachSalarySession": {
+    "attendanceSummary": "Записалось: {registered} · Пришло: {attended} · Неявка: {noShow}",
+    "reasons": {
+      "PAID": "Начислено: {amount}",
+      "NOT_FINISHED_YET": "Ещё не завершилось",
+      "SESSION_CANCELLED": "Отменено",
+      "NO_RATE_CONFIGURED": "Не задана ставка",
+      "NO_BOOKINGS": "Никто не записался",
+      "NO_SHOW_ONLY": "Не пришли — не оплачивается",
+      "PENDING_ACCRUAL": "Ещё не рассчитано"
+    }
+  },
   "coachPages": {
     "home": {
       "title": "Привет, {name}",
@@ -4728,7 +4739,12 @@
       "total": "Всего начислено",
       "pending": "Ожидает выплаты",
       "paid": "Уже выплачено",
-      "sessions": "Завершённых сессий"
+      "sessions": "Завершённых сессий",
+      "breakdownTitle": "Из чего сложилась сумма",
+      "breakdownHint": "Зарплата начисляется только за занятия, на которые кто-то реально пришёл.",
+      "breakdownLoading": "Загрузка сессий…",
+      "breakdownLoadFailed": "Не удалось загрузить сессии.",
+      "breakdownEmpty": "Сессии за этот месяц не найдены."
     }
   },
   "contentAdminPages": {

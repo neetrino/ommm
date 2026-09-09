@@ -135,9 +135,21 @@ export class BookingsAdminService {
       },
     });
     if (attended) {
-      await this.packagesActivation.activateFromCompletedBooking(bookingId);
+      await this.onBookingAttended(bookingId, booking.sessionId);
     }
     return updated;
+  }
+
+  /**
+   * Marking attendance can make an already finished class eligible for coach
+   * salary, so the accrual is re-evaluated here; it no-ops when one exists.
+   */
+  private async onBookingAttended(
+    bookingId: string,
+    sessionId: string,
+  ): Promise<void> {
+    await this.packagesActivation.activateFromCompletedBooking(bookingId);
+    await this.statusTransition.onSessionFinished(sessionId);
   }
 
   async addNote(author: User, bookingId: string, dto: CreateBookingNoteDto) {
@@ -255,7 +267,7 @@ export class BookingsAdminService {
         },
       });
       if (dto.attended) {
-        await this.packagesActivation.activateFromCompletedBooking(bookingId);
+        await this.onBookingAttended(bookingId, updated.sessionId);
       }
       return updated;
     }
@@ -271,7 +283,7 @@ export class BookingsAdminService {
       },
     });
     if (dto.status === BookingStatus.COMPLETED) {
-      await this.packagesActivation.activateFromCompletedBooking(bookingId);
+      await this.onBookingAttended(bookingId, updated.sessionId);
     }
     return updated;
   }

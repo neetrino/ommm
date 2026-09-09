@@ -23,8 +23,9 @@ const finishedSessionSelect = {
   salaryAccrual: { select: { id: true } },
   _count: {
     select: {
+      /** Only COMPLETED bookings count as attendance — see {@link isAttendedBookingStatus}. */
       bookings: {
-        where: { status: { not: BookingStatus.CANCELLED } },
+        where: { status: BookingStatus.COMPLETED },
       },
     },
   },
@@ -53,11 +54,19 @@ export class CoachSalaryAccrualService {
     return created;
   }
 
-  async accrueMissingFinishedSessions(): Promise<number> {
+  /**
+   * Repairs finished classes left without a salary line — e.g. the class ended
+   * before the coach rate existed, or attendance was marked after the fact.
+   * Scoped to one coach when `coachProfileId` is given.
+   */
+  async accrueMissingFinishedSessions(
+    coachProfileId?: string,
+  ): Promise<number> {
     const sessions = await this.prisma.classSession.findMany({
       where: {
         status: ClassSessionStatus.FINISHED,
         salaryAccrual: null,
+        ...(coachProfileId !== undefined && { coachId: coachProfileId }),
       },
       select: { id: true },
       orderBy: { endsAt: 'asc' },
@@ -81,7 +90,7 @@ export class CoachSalaryAccrualService {
     if (
       !shouldAccrueCoachSalary({
         status: session.status,
-        bookedParticipantCount: session._count.bookings,
+        attendedParticipantCount: session._count.bookings,
         salaryPerClassAmd: amountAmd,
       })
     ) {

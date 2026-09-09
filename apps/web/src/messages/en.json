@@ -4463,6 +4463,7 @@
         "empty": "No coaches match the current filters.",
         "colCoach": "Coach",
         "colSalary": "Unpaid salary",
+        "salaryBreakdownHint": "Click to see what this amount is made up of",
         "colSessions": "Sessions",
         "colMonth": "Month",
         "colPayoutStatus": "Payout status",
@@ -4509,12 +4510,10 @@
       "coachDrawer": {
         "close": "Close",
         "monthLabel": "Sessions for {month}",
-        "earningsHint": "Per-session attribution uses the same formula as the coach salary panel.",
+        "earningsHint": "Salary is only accrued for classes where someone actually showed up.",
         "loading": "Loading sessions…",
         "loadFailed": "Could not load coach sessions.",
-        "empty": "No sessions found for this month.",
-        "attribution": "Estimated attribution: {amount}",
-        "noAttribution": "No completed bookings — no attribution"
+        "empty": "No sessions found for this month."
       }
     },
     "content": {
@@ -4598,6 +4597,18 @@
       "scheduleWindowHint": "Same schedule window as admin ({days} days).",
       "loadSessionsFailed": "Could not load sessions ({status}).",
       "sessionsEmpty": "No sessions in this window."
+    }
+  },
+  "coachSalarySession": {
+    "attendanceSummary": "Booked: {registered} · Attended: {attended} · No-shows: {noShow}",
+    "reasons": {
+      "PAID": "Accrued: {amount}",
+      "NOT_FINISHED_YET": "Not finished yet",
+      "SESSION_CANCELLED": "Cancelled",
+      "NO_RATE_CONFIGURED": "No rate configured",
+      "NO_BOOKINGS": "Nobody booked",
+      "NO_SHOW_ONLY": "No-shows only — not paid",
+      "PENDING_ACCRUAL": "Not calculated yet"
     }
   },
   "coachPages": {
@@ -4730,7 +4741,12 @@
       "total": "Total earnings",
       "pending": "Pending payout",
       "paid": "Paid out",
-      "sessions": "Completed sessions"
+      "sessions": "Completed sessions",
+      "breakdownTitle": "What this total is made up of",
+      "breakdownHint": "Salary is only accrued for classes where someone actually showed up.",
+      "breakdownLoading": "Loading sessions…",
+      "breakdownLoadFailed": "Could not load sessions.",
+      "breakdownEmpty": "No sessions found for this month."
     }
   },
   "contentAdminPages": {

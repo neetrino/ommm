@@ -7,6 +7,7 @@ import { CoachesPhotoService } from './coaches-photo.service';
 import { CoachesPublicService } from './coaches-public.service';
 import { CoachSalaryAccrualService } from './coaches-salary-accrual.service';
 import { CoachSalaryPayoutService } from './coaches-salary-payout.service';
+import { CoachSalarySessionsService } from './coaches-salary-sessions.service';
 import { CoachSalarySummaryService } from './coaches-salary-summary.service';
 import { CoachesController } from './coaches.controller';
 import { CoachesService } from './coaches.service';
@@ -22,6 +23,7 @@ import { CoachesService } from './coaches.service';
     CoachesPanelService,
     CoachSalaryAccrualService,
     CoachSalaryPayoutService,
+    CoachSalarySessionsService,
     CoachSalarySummaryService,
     R2HomeImageStorage,
   ],

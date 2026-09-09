@@ -3,6 +3,7 @@ import type { User } from '@prisma/client';
 import type { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import type { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
 import type { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
+import type { CoachSalarySessionsQueryDto } from './dto/coach-salary-sessions-query.dto';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import type { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
 import type { UpdateCoachDto } from './dto/update-coach.dto';
@@ -12,6 +13,7 @@ import { CoachesPanelService } from './coaches-panel.service';
 import { CoachesPhotoService } from './coaches-photo.service';
 import { CoachesPublicService } from './coaches-public.service';
 import { CoachSalaryPayoutService } from './coaches-salary-payout.service';
+import { CoachSalarySessionsService } from './coaches-salary-sessions.service';
 
 @Injectable()
 export class CoachesService {
@@ -22,6 +24,7 @@ export class CoachesService {
     private readonly adminList: CoachesAdminListService,
     private readonly panel: CoachesPanelService,
     private readonly salaryPayout: CoachSalaryPayoutService,
+    private readonly salarySessions: CoachSalarySessionsService,
   ) {}
 
   listPublic() {
@@ -70,5 +73,16 @@ export class CoachesService {
 
   markSalaryPaid(actor: User, coachProfileId: string, month: string) {
     return this.salaryPayout.markMonthPaid(actor, coachProfileId, month);
+  }
+
+  adminSalarySessions(
+    coachProfileId: string,
+    query: CoachSalarySessionsQueryDto = {},
+  ) {
+    return this.salarySessions.listForCoach(coachProfileId, query);
+  }
+
+  panelSalarySessions(userId: string, query: CoachSalarySessionsQueryDto = {}) {
+    return this.salarySessions.listForUser(userId, query);
   }
 }

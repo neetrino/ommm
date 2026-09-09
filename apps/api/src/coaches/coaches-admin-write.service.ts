@@ -34,6 +34,7 @@ import {
   resolveDateOfBirthFromInputs,
 } from './coaches-profile.helpers';
 import { CoachesPhotoService } from './coaches-photo.service';
+import { CoachSalaryAccrualService } from './coaches-salary-accrual.service';
 import {
   coachCreateSelect,
   coachUpdateSelect,
@@ -47,6 +48,7 @@ export class CoachesAdminWriteService {
     private readonly audit: AuditService,
     private readonly photo: CoachesPhotoService,
     private readonly cache: RedisCacheService,
+    private readonly salaryAccrual: CoachSalaryAccrualService,
   ) {}
 
   async create(dto: CreateCoachDto) {
@@ -222,6 +224,11 @@ export class CoachesAdminWriteService {
       });
     } catch (error) {
       rethrowCoachUpdateUniqueViolation(error);
+    }
+    if (classTypeRates !== undefined) {
+      // Classes finished before a rate existed carry no salary line; the new
+      // rates make them payable, so they are accrued now that rates are saved.
+      await this.salaryAccrual.accrueMissingFinishedSessions(coachProfileId);
     }
     await this.audit.log({
       actorId: actor.id,

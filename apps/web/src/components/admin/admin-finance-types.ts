@@ -118,22 +118,6 @@ export type CoachFinanceRow = {
   totalClasses: number;
 };
 
-export type CoachSessionRow = {
-  id: string;
-  startsAt: string;
-  endsAt: string;
-  classType: { id: string; name: string };
-  status: string;
-  salaryAccrual?: { amountAmd: number } | null;
-  _count?: { bookings: number };
-};
-
-export type CoachSessionsPayload = {
-  items: CoachSessionRow[];
-  total: number;
-  take: number;
-  offset: number;
-};
 
 export type CoachFinanceFilters = {
   search: string;

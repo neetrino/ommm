@@ -102,7 +102,9 @@ model ClassSession {
   @@index([status, startsAt])
 }
 
-/// One salary line per completed class with at least one real participant.
+/// One salary line per finished class with at least one participant who
+/// actually attended (BookingStatus.COMPLETED) — a no-show-only class does
+/// not accrue.
 model CoachSalaryAccrual {
   id             String       @id @default(cuid())
   coachProfileId String

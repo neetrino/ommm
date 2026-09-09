@@ -8,14 +8,20 @@ export type SalaryPeriod = {
 
 export type CoachSalaryAccrualInput = {
   status: ClassSessionStatus;
-  bookedParticipantCount: number;
+  /** Bookings that actually resulted in attendance (COMPLETED), not just a reservation. */
+  attendedParticipantCount: number;
   salaryPerClassAmd: number;
 };
 
 const SALARY_MONTH_PATTERN = /^\d{4}-\d{2}$/;
 
-export function isRegisteredBookingStatus(status: BookingStatus): boolean {
-  return status !== BookingStatus.CANCELLED;
+/**
+ * A booking only counts as attendance when the client actually showed up.
+ * `MISSED` (no-show) and a still-open `BOOKED` reservation must NOT trigger pay —
+ * the coach is only paid for classes that had at least one real participant.
+ */
+export function isAttendedBookingStatus(status: BookingStatus): boolean {
+  return status === BookingStatus.COMPLETED;
 }
 
 export function shouldAccrueCoachSalary(
@@ -23,7 +29,7 @@ export function shouldAccrueCoachSalary(
 ): boolean {
   return (
     input.status === ClassSessionStatus.FINISHED &&
-    input.bookedParticipantCount > 0 &&
+    input.attendedParticipantCount > 0 &&
     input.salaryPerClassAmd > 0
   );
 }
