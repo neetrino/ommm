@@ -171,6 +171,8 @@
   height: 3rem;
   align-items: center;
   justify-content: center;
+  /* Digits have no descenders, so geometric centering reads low — lift them. */
+  padding-bottom: 0.25rem;
   border: 1.5px solid transparent;
   border-radius: 9999px;
   transition:

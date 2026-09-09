@@ -121,7 +121,14 @@ function MonthDayCell({
         <span className={numberClass}>{day.getDate()}</span>
         {isToday ? <span className={styles.todayBadge}>{labels.todayBadge}</span> : null}
       </div>
-      {countLabel !== null ? <p className={styles.dayCount}>{countLabel}</p> : null}
+      {countLabel !== null ? (
+        <p className={styles.dayCount}>
+          <span className={styles.dayCountFull}>{countLabel}</span>
+          <span className={styles.dayCountCompact} aria-hidden>
+            {classCount}
+          </span>
+        </p>
+      ) : null}
     </>
   );
 

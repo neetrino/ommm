@@ -144,6 +144,8 @@ export function ScheduleWeekBoard({
         locale={locale}
         bookLabel={t("bookCta")}
         closedLabel={t("sessionClosed")}
+        spotsFullLabel={t("spotsFull")}
+        spotsLeftLabel={t("spotsLeft", { count: displayRow.availableSpots })}
         audience={audience}
         isClosed={isClosed}
         userBookingId={sessionBookingId(bookedBySessionId, row.id)}

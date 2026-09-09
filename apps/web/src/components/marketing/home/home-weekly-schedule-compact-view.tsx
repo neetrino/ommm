@@ -198,7 +198,9 @@ export function HomeWeeklyScheduleDayView({
                   id={`home-weekly-schedule-tab-${entry.day}`}
                   onClick={() => selectDay(entry.day)}
                   className={`${HOME_WEEKLY_SCHEDULE_DAY_CHIP_CLASS} ${styles.dayTab} ${
-                    isSelected ? "font-extrabold" : "bg-transparent font-semibold"
+                    isSelected
+                      ? `${styles.dayTabSelected} font-extrabold`
+                      : "bg-transparent font-semibold"
                   }`}
                   style={{
                     borderWidth: isSelected ? 0 : undefined,

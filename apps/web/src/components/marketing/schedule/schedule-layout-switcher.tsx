@@ -46,7 +46,7 @@ export function ScheduleLayoutSwitcher({
     >
       <span
         aria-hidden
-        className={oliveSegmentedThumbClass(LAYOUT_COLUMN_COUNT, activeIndex)}
+        className={`${oliveSegmentedThumbClass(LAYOUT_COLUMN_COUNT, activeIndex)} ${styles.thumb}`}
       />
       {SCHEDULE_LAYOUT_MODES.map((mode) => {
         const active = value === mode;

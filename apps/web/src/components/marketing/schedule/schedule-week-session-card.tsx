@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-aware/auth-aware-schedule-booking-action";
 import { SchedulePackageEligibilityBadge } from "@/components/marketing/schedule/schedule-package-eligibility-badge";
+import { ScheduleSessionSpotsLabel } from "@/components/marketing/schedule/schedule-session-spots-label";
 import { getHomeWeeklyScheduleRowGradient } from "@/components/marketing/home/get-home-weekly-schedule-row-gradient";
 import type { ScheduleSessionEligibility } from "@/lib/schedule-session-eligibility";
 import { resolveSchedulePackageEligibilityBadge } from "@/lib/schedule-session-eligibility";
@@ -23,6 +24,8 @@ type ScheduleWeekSessionCardProps = {
   locale: string;
   bookLabel: string;
   closedLabel: string;
+  spotsFullLabel: string;
+  spotsLeftLabel: string;
   audience: PublicPackageCategoryCardsAudience;
   isClosed: boolean;
   userBookingId?: string;
@@ -59,6 +62,8 @@ export function ScheduleWeekSessionCard({
   locale,
   bookLabel,
   closedLabel,
+  spotsFullLabel,
+  spotsLeftLabel,
   audience,
   isClosed,
   userBookingId,
@@ -111,27 +116,38 @@ export function ScheduleWeekSessionCard({
                 placement="aboveAction"
               />
             ) : null}
-            <AuthAwareScheduleBookingAction
-            sessionId={row.id}
-            sessionDate={row.sessionDate}
-            sessionStartTime={row.startTime}
-            availableSpots={row.availableSpots}
-            sessionStatus={row.status}
-            bookLabel={bookLabel}
-            audience={audience}
-            className={`${SCHEDULE_BOOK_BTN} ${styles.bookBtnCompact}`}
-            bookedClassName={SCHEDULE_BOOKED_BTN_COMPACT}
-            cancelClassName={`${SCHEDULE_CANCEL_BTN} ${styles.bookBtnCompact}`}
-            userBookingId={userBookingId}
-            userBookingCreatedAt={userBookingCreatedAt}
-            bookingStateReady={bookingStateReady}
-            initialOnWaitlist={isOnWaitlist}
-            loginReturnPath={SCHEDULE_PAGE_LOGIN_RETURN_PATH}
-            onBooked={(bookingId) => onBooked?.(row.id, bookingId)}
-            onCancelled={() => onCancelled?.(row.id)}
-            onWaitlisted={() => onWaitlisted?.(row.id)}
-            onWaitlistLeft={() => onWaitlistLeft?.(row.id)}
-          />
+            <div className={styles.actionRow}>
+              {userBookingId === undefined ? (
+                <ScheduleSessionSpotsLabel
+                  availableSpots={row.availableSpots}
+                  status={row.status}
+                  fullLabel={spotsFullLabel}
+                  spotsLeftLabel={spotsLeftLabel}
+                  className={styles.spotsLabelCompact}
+                />
+              ) : null}
+              <AuthAwareScheduleBookingAction
+                sessionId={row.id}
+                sessionDate={row.sessionDate}
+                sessionStartTime={row.startTime}
+                availableSpots={row.availableSpots}
+                sessionStatus={row.status}
+                bookLabel={bookLabel}
+                audience={audience}
+                className={`${SCHEDULE_BOOK_BTN} ${styles.bookBtnCompact}`}
+                bookedClassName={SCHEDULE_BOOKED_BTN_COMPACT}
+                cancelClassName={`${SCHEDULE_CANCEL_BTN} ${styles.bookBtnCompact}`}
+                userBookingId={userBookingId}
+                userBookingCreatedAt={userBookingCreatedAt}
+                bookingStateReady={bookingStateReady}
+                initialOnWaitlist={isOnWaitlist}
+                loginReturnPath={SCHEDULE_PAGE_LOGIN_RETURN_PATH}
+                onBooked={(bookingId) => onBooked?.(row.id, bookingId)}
+                onCancelled={() => onCancelled?.(row.id)}
+                onWaitlisted={() => onWaitlisted?.(row.id)}
+                onWaitlistLeft={() => onWaitlistLeft?.(row.id)}
+              />
+            </div>
           </>
         )}
       </div>

@@ -108,6 +108,31 @@
   padding: 0.5rem 0.75rem 0.75rem;
 }
 
+/* Spots text and the Book control always share one line; long CTAs wrap inside the button. */
+.actionRow {
+  display: flex;
+  min-width: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+}
+
+.card .footer .actionRow > * {
+  align-self: center;
+}
+
+/* Beat `.spotsLabel` cascade (imported from another CSS module) in the tight card footer. */
+.card .footer .actionRow .spotsLabelCompact {
+  margin: 0;
+  flex: 1 1 1.75rem;
+  min-width: 1.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+}
+
 .closedLabel {
   margin: 0 0 0 auto;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
@@ -125,11 +150,14 @@
   max-width: 100%;
   align-self: flex-end;
   min-height: 2rem;
-  height: 2rem;
-  padding: 0.25rem 0.625rem;
-  font-size: 0.6875rem;
+  height: auto;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.625rem;
   line-height: 1rem;
-  letter-spacing: 0.03125rem;
+  letter-spacing: 0.0125rem;
+  /* Long CTAs ("Join waitlist") stay on one line; wrapping is the fallback for wider locales. */
+  white-space: normal;
+  text-align: center;
 }
 
 /* Beat `.bookBtn` cascade (imported from another CSS module) so soft-nav doesn't flash large CTAs. */
@@ -138,10 +166,13 @@
   width: fit-content;
   max-width: 100%;
   min-height: 2rem;
-  height: 2rem;
-  padding: 0.25rem 0.625rem;
-  font-size: 0.6875rem;
+  height: auto;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.625rem;
   line-height: 1rem;
+  letter-spacing: 0.0125rem;
+  white-space: normal;
+  text-align: center;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

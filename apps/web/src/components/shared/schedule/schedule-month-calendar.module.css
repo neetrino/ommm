@@ -127,14 +127,6 @@
   text-transform: uppercase;
 }
 
-/* Narrow columns — tighten tracking so 3-letter locale labels stay whole. */
-@media (max-width: 480px) {
-  .weekdayLabel {
-    font-size: 0.6875rem;
-    letter-spacing: 0.02em;
-  }
-}
-
 .grid {
   position: relative;
   z-index: 1;
@@ -347,6 +339,10 @@
   overflow-wrap: anywhere;
 }
 
+.dayCountCompact {
+  display: none;
+}
+
 .dayCellSelected .dayCount,
 .dayCellHasClasses .dayCount,
 .dayCellToday .dayCount {
@@ -355,6 +351,127 @@
 
 .dayCellToday .dayCount {
   font-weight: 700;
+}
+
+/* Phones — columns are ~40px wide, so drop day cards, badges and the
+   full class-count phrase; keep a plain number plus a numeric count. */
+@media (max-width: 640px) {
+  .calendarPanel {
+    border-radius: 1.25rem;
+    padding: 1rem 0.625rem;
+  }
+
+  .monthNav {
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .monthTitle {
+    font-size: 1.375rem;
+  }
+
+  .navBtn {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .weekdayRow,
+  .weekRow,
+  .grid {
+    gap: 0.25rem;
+  }
+
+  .weekdayRow {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .weekdayLabel {
+    font-size: 0.625rem;
+    letter-spacing: 0.02em;
+  }
+
+  .daySlot {
+    min-height: 3.25rem;
+  }
+
+  .dayCell {
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    padding: 0.25rem 0.125rem;
+    border-radius: 0.75rem;
+  }
+
+  .dayCellTop {
+    justify-content: center;
+  }
+
+  .dayCellInteractive,
+  .dayCellInteractive:hover {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .dayCellHasClasses,
+  .dayCellToday:not(.dayCellSelected),
+  .dayCellToday:not(.dayCellSelected):hover {
+    border-color: rgb(151 144 124 / 0.22);
+    background: rgb(255 255 255 / 0.9);
+    box-shadow: none;
+  }
+
+  .dayCellSelected {
+    border-color: rgb(54 61 70 / 0.45);
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .todayBadge {
+    display: none;
+  }
+
+  .dayNumber {
+    width: auto;
+    min-width: 1.75rem;
+    height: 1.75rem;
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+  }
+
+  .dayNumberHasClasses:not(.dayNumberSelected):not(.dayNumberToday) {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .dayNumberToday {
+    border-color: #695f00;
+    background: #fff;
+  }
+
+  .dayNumberSelected {
+    border-color: #363d46;
+    background: #363d46;
+  }
+
+  .dayCount {
+    padding: 0;
+    background: none;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #5a5100;
+  }
+
+  .dayCountFull {
+    display: none;
+  }
+
+  .dayCountCompact {
+    display: inline;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
