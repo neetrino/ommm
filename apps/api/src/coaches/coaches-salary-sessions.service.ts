@@ -7,7 +7,7 @@ import {
   mapSalarySessionRow,
   type CoachSalarySessionRow,
 } from './coaches-salary-sessions.helpers';
-import type { AdminCoachSalarySessionsQueryDto } from './dto/admin-coach-salary-sessions-query.dto';
+import type { CoachSalarySessionsQueryDto } from './dto/coach-salary-sessions-query.dto';
 
 export type CoachSalarySessionsPage = {
   items: CoachSalarySessionRow[];
@@ -35,9 +35,24 @@ const sessionSelect = {
 export class CoachSalarySessionsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** Resolves the coach's own profile from their user id — for the coach panel endpoint. */
+  async listForUser(
+    userId: string,
+    query: CoachSalarySessionsQueryDto,
+  ): Promise<CoachSalarySessionsPage | null> {
+    const profile = await this.prisma.coachProfile.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!profile) {
+      return null;
+    }
+    return this.listForCoach(profile.id, query);
+  }
+
   async listForCoach(
     coachProfileId: string,
-    query: AdminCoachSalarySessionsQueryDto,
+    query: CoachSalarySessionsQueryDto,
   ): Promise<CoachSalarySessionsPage> {
     const { from, to } = resolveSalaryMonthRange(query.month);
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;

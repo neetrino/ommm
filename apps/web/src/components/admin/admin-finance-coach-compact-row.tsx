@@ -18,7 +18,6 @@ import {
   ADMIN_FINANCE_COACH_LIST_ROW_CLASS,
   ADMIN_FINANCE_COACH_LIST_SESSIONS_CELL,
 } from "@/components/admin/admin-finance-notifications-list-layout";
-import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { CoachFinanceRow } from "@/components/admin/admin-finance-types";
 import { displayPhoneOrEmail } from "@/lib/phone";
@@ -36,6 +35,10 @@ type AdminFinanceCoachCompactRowProps = {
   month: string;
   onOpenSessions: () => void;
 };
+
+/** Small, muted eyebrow — gives mobile stacked values a label without shouting. */
+const MOBILE_FIELD_LABEL_CLASS =
+  "block text-[10px] font-medium uppercase tracking-[0.08em] text-sage-400 md:hidden";
 
 function displayName(row: CoachFinanceRow): string {
   return coachCardDisplayName({
@@ -112,42 +115,43 @@ export function AdminFinanceCoachCompactRow({
   }
 
   return (
-    <article className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}>
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={coachName}
+      title={t("salaryBreakdownHint")}
+      onClick={onOpenSessions}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenSessions();
+        }
+      }}
+      className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}
+    >
       <div className={ADMIN_FINANCE_COACH_LIST_COACH_CELL}>
-        <AdminListMobileLabel label={t("colCoach")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{coachName}</p>
         <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrEmail(row.user.phone, row.user.email)}</p>
       </div>
 
       <div className={ADMIN_FINANCE_COACH_LIST_MONEY_CELL}>
-        <AdminListMobileLabel label={t("colSalary")} />
+        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colSalary")}</span>
         {row.salary ? (
-          <button
-            type="button"
-            className={`${ADMIN_FINANCE_MONEY_CLASS} underline decoration-dotted underline-offset-4`}
-            onClick={onOpenSessions}
-            title={t("salaryBreakdownHint")}
-          >
-            <AmdMoneyText cents={unpaidCents} locale={locale} />
-          </button>
+          <AmdMoneyText cents={unpaidCents} locale={locale} className={ADMIN_FINANCE_MONEY_CLASS} />
         ) : (
           <p className={ADMIN_FINANCE_MONEY_CLASS}>—</p>
         )}
       </div>
 
       <div className={ADMIN_FINANCE_COACH_LIST_SESSIONS_CELL}>
-        <AdminListMobileLabel label={t("colSessions")} />
-        <button
-          type="button"
-          className="font-serif text-xl tabular-nums leading-none tracking-tight text-sage-950 underline underline-offset-2 md:mx-auto"
-          onClick={onOpenSessions}
-        >
+        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colSessions")}</span>
+        <p className="font-serif text-base tabular-nums leading-none tracking-tight text-sage-700 md:mx-auto md:text-xl md:text-sage-950">
           {sessionCount}
-        </button>
+        </p>
       </div>
 
       <div className={ADMIN_FINANCE_COACH_LIST_MONTH_CELL}>
-        <AdminListMobileLabel label={t("colMonth")} />
+        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colMonth")}</span>
         <SessionDateTimeHighlight
           locale={locale}
           startsAt={monthToIso(month)}
@@ -157,10 +161,8 @@ export function AdminFinanceCoachCompactRow({
       </div>
 
       <div className={ADMIN_FINANCE_COACH_LIST_PAYOUT_CELL}>
-        <AdminListMobileLabel label={t("colPayoutStatus")} />
-        <span
-          className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financeCoachPayoutTone(payoutStatus)}`}
-        >
+        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colPayoutStatus")}</span>
+        <span className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financeCoachPayoutTone(payoutStatus)}`}>
           {payoutStatus === "none"
             ? t("statusNone")
             : payoutStatus === "paid"
@@ -169,8 +171,12 @@ export function AdminFinanceCoachCompactRow({
         </span>
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL}>
-        <AdminListMobileLabel label={t("colActions")} />
+      <div
+        className={ADMIN_FINANCE_COACH_LIST_ACTIONS_CELL}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
+        <span className={MOBILE_FIELD_LABEL_CLASS}>{t("colActions")}</span>
         {unpaidCents > 0 ? (
           <OmmButton type="button" size="sm" disabled={busy} onClick={openConfirm}>
             {t("markPaid")}

@@ -4513,18 +4513,7 @@
         "earningsHint": "Salary is only accrued for classes where someone actually showed up.",
         "loading": "Loading sessions…",
         "loadFailed": "Could not load coach sessions.",
-        "empty": "No sessions found for this month.",
-        "attendanceSummary": "Booked: {registered} · Attended: {attended} · No-shows: {noShow}",
-        "rateLabel": "Rate: {amount}",
-        "reasons": {
-          "PAID": "Accrued: {amount}",
-          "NOT_FINISHED_YET": "Class hasn't finished yet",
-          "SESSION_CANCELLED": "Class was cancelled",
-          "NO_RATE_CONFIGURED": "No rate configured for this class type",
-          "NO_BOOKINGS": "Nobody booked this class",
-          "NO_SHOW_ONLY": "Nobody showed up — not paid",
-          "PENDING_ACCRUAL": "Accrual hasn't been calculated yet"
-        }
+        "empty": "No sessions found for this month."
       }
     },
     "content": {
@@ -4608,6 +4597,18 @@
       "scheduleWindowHint": "Same schedule window as admin ({days} days).",
       "loadSessionsFailed": "Could not load sessions ({status}).",
       "sessionsEmpty": "No sessions in this window."
+    }
+  },
+  "coachSalarySession": {
+    "attendanceSummary": "Booked: {registered} · Attended: {attended} · No-shows: {noShow}",
+    "reasons": {
+      "PAID": "Accrued: {amount}",
+      "NOT_FINISHED_YET": "Not finished yet",
+      "SESSION_CANCELLED": "Cancelled",
+      "NO_RATE_CONFIGURED": "No rate configured",
+      "NO_BOOKINGS": "Nobody booked",
+      "NO_SHOW_ONLY": "No-shows only — not paid",
+      "PENDING_ACCRUAL": "Not calculated yet"
     }
   },
   "coachPages": {
@@ -4740,7 +4741,12 @@
       "total": "Total earnings",
       "pending": "Pending payout",
       "paid": "Paid out",
-      "sessions": "Completed sessions"
+      "sessions": "Completed sessions",
+      "breakdownTitle": "What this total is made up of",
+      "breakdownHint": "Salary is only accrued for classes where someone actually showed up.",
+      "breakdownLoading": "Loading sessions…",
+      "breakdownLoadFailed": "Could not load sessions.",
+      "breakdownEmpty": "No sessions found for this month."
     }
   },
   "contentAdminPages": {

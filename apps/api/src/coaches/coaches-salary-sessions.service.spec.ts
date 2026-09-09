@@ -48,6 +48,33 @@ describe('CoachSalarySessionsService', () => {
     });
   });
 
+  it('resolves the coach profile from the user id for the panel endpoint', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const count = jest.fn().mockResolvedValue(0);
+    const findUniqueProfile = jest.fn().mockResolvedValue({ id: 'coach-1' });
+    const service = new CoachSalarySessionsService({
+      coachProfile: { findUnique: findUniqueProfile },
+      classSession: { findMany, count },
+      coachClassTypeRate: { findMany: jest.fn().mockResolvedValue([]) },
+    } as never);
+
+    const page = await service.listForUser('user-1', {});
+
+    expect(findUniqueProfile).toHaveBeenCalledWith({
+      where: { userId: 'user-1' },
+      select: { id: true },
+    });
+    expect(page).toEqual({ items: [], total: 0, take: 25, offset: 0 });
+  });
+
+  it('returns null when the user has no coach profile', async () => {
+    const service = new CoachSalarySessionsService({
+      coachProfile: { findUnique: jest.fn().mockResolvedValue(null) },
+    } as never);
+
+    await expect(service.listForUser('user-2', {})).resolves.toBeNull();
+  });
+
   it('falls back to a zero rate when no coach×classType rate exists', async () => {
     const { service } = buildService(
       [

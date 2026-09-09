@@ -4182,18 +4182,7 @@
         "earningsHint": "Աշխատավարձը հաշվարկվում է միայն այն պարապմունքների համար, որտեղ իրականում ինչ-որ մեկը եկել է։",
         "loading": "Սեսիաները բեռնվում են…",
         "loadFailed": "Չհաջողվեց բեռնել մարզչի սեսիաները։",
-        "empty": "Այս ամսին սեսիաներ չեն գտնվել։",
-        "attendanceSummary": "Գրանցվել է՝ {registered} · Եկել է՝ {attended} · Չեկածներ՝ {noShow}",
-        "rateLabel": "Դրույքաչափ՝ {amount}",
-        "reasons": {
-          "PAID": "Հաշվարկվել է՝ {amount}",
-          "NOT_FINISHED_YET": "Պարապմունքը դեռ չի ավարտվել",
-          "SESSION_CANCELLED": "Պարապմունքը չեղարկվել է",
-          "NO_RATE_CONFIGURED": "Այս տեսակի պարապմունքի համար դրույքաչափ սահմանված չէ",
-          "NO_BOOKINGS": "Ոչ ոք չի գրանցվել",
-          "NO_SHOW_ONLY": "Ոչ ոք չի եկել — չի վճարվում",
-          "PENDING_ACCRUAL": "Հաշվարկը դեռ կատարված չէ"
-        }
+        "empty": "Այս ամսին սեսիաներ չեն գտնվել։"
       }
     },
     "analytics": {
@@ -4611,6 +4600,18 @@
       "sessionsEmpty": "Միջակայքում սեսիաներ չկան։"
     }
   },
+  "coachSalarySession": {
+    "attendanceSummary": "Գրանցվել է՝ {registered} · Եկել է՝ {attended} · Չեկածներ՝ {noShow}",
+    "reasons": {
+      "PAID": "Հաշվարկվել է՝ {amount}",
+      "NOT_FINISHED_YET": "Դեռ չի ավարտվել",
+      "SESSION_CANCELLED": "Չեղարկված է",
+      "NO_RATE_CONFIGURED": "Դրույքաչափ սահմանված չէ",
+      "NO_BOOKINGS": "Ոչ ոք չի գրանցվել",
+      "NO_SHOW_ONLY": "Ոչ ոք չի եկել — չի վճարվում",
+      "PENDING_ACCRUAL": "Դեռ հաշվարկված չէ"
+    }
+  },
   "coachPages": {
     "home": {
       "title": "Բարև {name}",
@@ -4741,7 +4742,12 @@
       "total": "Ընդհանուր եկամուտ",
       "pending": "Սպասվող վճարում",
       "paid": "Վճարված",
-      "sessions": "Ավարտված սեսիաներ"
+      "sessions": "Ավարտված սեսիաներ",
+      "breakdownTitle": "Ինչից է կազմված այս գումարը",
+      "breakdownHint": "Աշխատավարձը հաշվարկվում է միայն այն պարապմունքների համար, որտեղ իրականում ինչ-որ մեկը եկել է։",
+      "breakdownLoading": "Սեսիաները բեռնվում են…",
+      "breakdownLoadFailed": "Չհաջողվեց բեռնել սեսիաները։",
+      "breakdownEmpty": "Այս ամսին սեսիաներ չեն գտնվել։"
     }
   },
   "contentAdminPages": {

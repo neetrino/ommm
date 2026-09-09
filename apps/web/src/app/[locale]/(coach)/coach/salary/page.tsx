@@ -3,9 +3,15 @@ import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import { CoachSalarySessionsList } from "@/components/coaches/coach-salary-sessions-list";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
+
+/** Matches the default-month fallback used by the admin coach finance filters. */
+function currentMonthIso(): string {
+  return new Date().toISOString().slice(0, 7);
+}
 
 type SalarySummary = {
   totalEarningsCents: number;
@@ -72,6 +78,20 @@ export default async function CoachSalaryPage({
             <dd className={adminChrome.metricValue}>{data.completedSessions}</dd>
           </div>
         </dl>
+      </AdminSectionShell>
+      <AdminSectionShell>
+        <h2 className="font-serif text-lg text-sage-950">{t("breakdownTitle")}</h2>
+        <p className="mt-1 text-xs text-sage-500">{t("breakdownHint")}</p>
+        <div className="mt-4">
+          <CoachSalarySessionsList
+            endpoint="/coaches/panel/salary-sessions"
+            month={currentMonthIso()}
+            locale={locale}
+            loadingLabel={t("breakdownLoading")}
+            loadFailedLabel={t("breakdownLoadFailed")}
+            emptyLabel={t("breakdownEmpty")}
+          />
+        </div>
       </AdminSectionShell>
       </StaffListPageLayout>
     </AdminContentFrame>
