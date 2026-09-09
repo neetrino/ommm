@@ -4,6 +4,15 @@
   box-shadow: 0 8px 20px -16px rgb(45 40 35 / 0.2);
 }
 
+/* Mirrors the week board's today circle (schedule-week-board.module.css). */
+.thumb {
+  border: 1.5px solid #97907c;
+  background: #97907c;
+  box-shadow:
+    0 10px 22px -14px rgb(45 40 35 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
 .switcherRow {
   display: flex;
   justify-content: center;
