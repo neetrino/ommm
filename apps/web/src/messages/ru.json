@@ -1737,7 +1737,7 @@
         "guestBody": "Войдите, чтобы забронировать место и выйти на коврик.",
         "closeAria": "Закрыть сообщение о записи"
       },
-      "spotsLeft": "{count, plural, =1 {Осталось 1 место} other {Осталось # мест}}",
+      "spotsLeft": "{count, plural, one {Осталось # место} few {Осталось # места} many {Осталось # мест} other {Осталось # мест}}",
       "spotsFull": "Мест нет",
       "withInstructor": "с {name}",
       "bookedBadge": "Забронировано",
