@@ -314,9 +314,11 @@
   justify-content: center;
   border-radius: 9999px;
   border: 1.5px solid transparent;
+  /* Digits have no descenders, so geometric centering reads low — lift them. */
+  padding-bottom: 0.25rem;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 1.5625rem;
+  font-weight: 500;
   line-height: 1;
   transition:
     background-color 280ms ease,
@@ -329,7 +331,6 @@
 @media (min-width: 640px) {
   .dateChip {
     max-width: 3.5rem;
-    font-size: 0.9375rem;
   }
 }
 
