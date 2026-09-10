@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { resolveSessionCoachName } from "@/components/account/session-coach-line";
 import {
   isAdminCancellableBookingStatus,
   isPastAdminCancelBookingStatus,
@@ -51,6 +52,25 @@ function canCancelHistoryBooking(booking: ClientSheetBookingItem): boolean {
     return false;
   }
   return isAdminCancellableBookingStatus(booking.status);
+}
+
+function bookingHistoryStatusLabel(booking: ClientSheetBookingItem): string {
+  return booking.cancelledAt != null ? "CANCELLED" : booking.status;
+}
+
+function bookingHistoryMetaLine(
+  booking: ClientSheetBookingItem,
+  locale: string,
+): string {
+  const parts = [
+    formatDateTimeForUi(booking.session.startsAt, locale),
+    bookingHistoryStatusLabel(booking),
+  ];
+  const level = booking.session.level?.trim();
+  if (level) {
+    parts.push(level);
+  }
+  return parts.join(" · ");
 }
 
 export function AdminClientBookingsHistory({
@@ -163,6 +183,7 @@ export function AdminClientBookingsHistory({
                           : cancelledBy.role,
                       });
                 const signedUp = `${t("drawer.signedUp")} ${formatDateTimeForUi(booking.createdAt, locale)}`;
+                const coachName = resolveSessionCoachName(booking.session.coach);
 
                 return (
                   <div
@@ -173,13 +194,18 @@ export function AdminClientBookingsHistory({
                       <p className="font-medium text-sage-900">
                         {booking.session.classType.name}
                       </p>
+                      <p className="text-xs text-sage-700">
+                        {coachName
+                          ? t("drawer.withCoach", { name: coachName })
+                          : t("drawer.coachUnknown")}
+                      </p>
                       {booking.guestName ? (
                         <p className="text-xs text-sand-800">
                           {t("drawer.guestPass")}: {booking.guestName}
                         </p>
                       ) : null}
                       <p className="text-xs text-sage-600">
-                        {`${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.cancelledAt != null ? "CANCELLED" : booking.status} · ${booking.session.level ?? "—"}`}
+                        {bookingHistoryMetaLine(booking, locale)}
                       </p>
                       <p className="mt-1 text-xs text-sage-500">{signedUp}</p>
                       {extra !== null ? (

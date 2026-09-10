@@ -2592,6 +2592,8 @@
         "attended": "Մասնակցել է",
         "signedUp": "Գրանցվել է",
         "guestPass": "Հյուրի անցագիր",
+        "withCoach": "Մարզիչ: {name}",
+        "coachUnknown": "Մարզիչ նշանակված չէ",
         "cancelledBy": "Չեղարկել է {name} ({role})"
       },
       "deleteClient": "Ջնջել հաճախորդին",

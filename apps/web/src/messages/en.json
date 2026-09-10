@@ -2591,6 +2591,8 @@
         "attended": "Attended",
         "signedUp": "Signed up",
         "guestPass": "Guest pass",
+        "withCoach": "Coach: {name}",
+        "coachUnknown": "Coach not assigned",
         "cancelledBy": "Cancelled by {name} ({role})"
       },
       "deleteClient": "Delete client",
