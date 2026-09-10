@@ -10,10 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import {
-  BACKOFFICE_DELETE_ROLES,
-  BACKOFFICE_WRITE_ROLES,
-} from '../common/backoffice-roles';
+import { MANAGER_PERMISSION_MATRIX } from '../common/manager-permission.matrix';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -112,14 +109,14 @@ export class PaymentsController {
   @Get('admin')
   @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_DELETE_ROLES)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.adminFinance)
   adminList(@Query() query: AdminListPaymentsQueryDto) {
     return this.payments.adminListPayments(query);
   }
 
   @Patch('admin/:paymentId/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_WRITE_ROLES)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.updateStatus)
   adminUpdateStatus(
     @CurrentUser() user: { id: string },
     @Param('paymentId') paymentId: string,
@@ -134,7 +131,7 @@ export class PaymentsController {
 
   @Patch('admin/:paymentId/method')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_WRITE_ROLES)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.updateMethod)
   adminUpdateMethod(
     @CurrentUser() user: { id: string },
     @Param('paymentId') paymentId: string,
@@ -149,7 +146,7 @@ export class PaymentsController {
 
   @Post('admin/:paymentId/arca/sync')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_DELETE_ROLES)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.adminArcaSync)
   adminSyncArcaPayment(@Param('paymentId') paymentId: string) {
     return this.payments.adminSyncArcaPayment(paymentId);
   }

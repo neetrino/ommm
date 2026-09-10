@@ -23,6 +23,15 @@ const STUDIO_SUCCEEDED_STATUSES: readonly AdminUpdatablePaymentStatus[] = [
   "PENDING",
   "REFUNDED",
 ];
+const CARD_PENDING_STATUSES: readonly AdminUpdatablePaymentStatus[] = [
+  "PENDING",
+  "FAILED",
+];
+const CARD_SUCCEEDED_STATUSES: readonly AdminUpdatablePaymentStatus[] = [
+  "SUCCEEDED",
+  "FAILED",
+  "REFUNDED",
+];
 
 /** Manual payments stay pending until staff confirms receipt. Card checkout auto-confirms. */
 export function requiresManualAdminConfirmation(
@@ -55,10 +64,10 @@ export function adminPaymentStatusOptions(
 ): readonly AdminUpdatablePaymentStatus[] {
   if (isCardPaymentMethod(paymentMethod)) {
     if (status === PENDING_STATUS) {
-      return [];
+      return CARD_PENDING_STATUSES;
     }
     if (status === SUCCEEDED_STATUS) {
-      return ["SUCCEEDED", "FAILED", "REFUNDED"];
+      return CARD_SUCCEEDED_STATUSES;
     }
     return [];
   }

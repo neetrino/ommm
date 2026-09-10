@@ -13,8 +13,11 @@ describe("payment-confirmation", () => {
     assert.equal(canSwapStudioPaymentMethod("CARD"), false);
   });
 
-  it("locks pending card status and allows refund after bank success", () => {
-    assert.deepEqual(adminPaymentStatusOptions("CARD", "PENDING"), []);
+  it("lets staff fail an abandoned card checkout and refund after bank success", () => {
+    assert.deepEqual(adminPaymentStatusOptions("CARD", "PENDING"), [
+      "PENDING",
+      "FAILED",
+    ]);
     assert.deepEqual(adminPaymentStatusOptions("CARD", "SUCCEEDED"), [
       "SUCCEEDED",
       "FAILED",
