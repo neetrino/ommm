@@ -20,7 +20,12 @@ import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
-import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
+import {
+  isStudioPackageFulfilled,
+  readPackagePlanIdFromMetadata,
+  STUDIO_PACKAGE_FULFILLED_KEY,
+} from '../packages/package-payment-metadata.util';
+import { mergeArcaMetadata } from './arca/arca-metadata.util';
 import {
   readGiftCreditsAppliedCents,
   recordGiftCreditSpendPayment,
@@ -116,15 +121,24 @@ export class PaymentsFulfillmentService {
     },
   ): Promise<boolean> {
     if (payment.sourceId !== null) {
-      return this.activateLegacyPendingPackage(tx, payment.sourceId);
+      return this.activateLegacyPendingPackage(tx, payment);
     }
     return this.createPackageFromDeferredPayment(tx, payment);
   }
 
   private async activateLegacyPendingPackage(
     tx: Prisma.TransactionClient,
-    userPackageId: string,
+    payment: {
+      id: string;
+      userId: string;
+      sourceId: string | null;
+      metadata: Prisma.JsonValue | null;
+    },
   ): Promise<boolean> {
+    const userPackageId = payment.sourceId;
+    if (userPackageId === null) {
+      throw new BadRequestException('Package payment is missing package id');
+    }
     const userPackage = await tx.userPackage.findUnique({
       where: { id: userPackageId },
       select: {
@@ -132,7 +146,7 @@ export class PaymentsFulfillmentService {
         status: true,
         planId: true,
         createdAt: true,
-        plan: { select: { startDate: true } },
+        plan: { select: { startDate: true, name: true, currency: true } },
       },
     });
     if (!userPackage) {
@@ -149,6 +163,46 @@ export class PaymentsFulfillmentService {
           userPackage.plan?.startDate,
           userPackage.createdAt,
         ),
+      },
+    });
+    if (isStudioPackageFulfilled(payment.metadata)) {
+      return false;
+    }
+    return this.recordFirstStudioPackageFulfillment(tx, payment, {
+      userPackageId,
+      planId: userPackage.planId,
+      planName: userPackage.plan?.name ?? '',
+      currency: userPackage.plan?.currency ?? 'amd',
+    });
+  }
+
+  private async recordFirstStudioPackageFulfillment(
+    tx: Prisma.TransactionClient,
+    payment: {
+      id: string;
+      userId: string;
+      metadata: Prisma.JsonValue | null;
+    },
+    userPackage: {
+      userPackageId: string;
+      planId: string | null;
+      planName: string;
+      currency: string;
+    },
+  ): Promise<boolean> {
+    await recordGiftCreditSpendPayment(tx, {
+      userId: payment.userId,
+      appliedCents: readGiftCreditsAppliedCents(payment.metadata),
+      planName: userPackage.planName,
+      userPackageId: userPackage.userPackageId,
+      currency: userPackage.currency,
+    });
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        metadata: mergeArcaMetadata(payment.metadata, {
+          [STUDIO_PACKAGE_FULFILLED_KEY]: true,
+        }),
       },
     });
     if (userPackage.planId === null) {

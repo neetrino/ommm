@@ -12,10 +12,9 @@ import {
   arcaOutcomeToStatus,
   type ArcaSyncOutcome,
 } from "@/components/admin/admin-finance-arca-sync-button";
-import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
+import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
 import {
   ADMIN_FINANCE_VALUE_BADGE_CLASS,
-  financePaymentStatusTone,
   financeSourceTone,
 } from "@/components/admin/admin-finance-list-display";
 import {
@@ -39,12 +38,7 @@ import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/adm
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
-import { isManualPaymentMethod } from "@/lib/manual-payment-method";
-import {
-  isCardPaymentMethod,
-  requiresManualAdminConfirmation,
-} from "@/lib/payment-confirmation";
-import { PaymentStatusReasonText } from "@/components/shared/payment-status-reason-text";
+import { isCardPaymentMethod } from "@/lib/payment-confirmation";
 
 type AdminFinancePaymentDetailsSheetProps = {
   payment: FinancePaymentItem | null;
@@ -58,27 +52,6 @@ type ToastState = { message: string; tone: AdminCenterToastTone } | null;
 function displayName(payment: FinancePaymentItem): string {
   const merged = [payment.user.name, payment.user.lastName].filter(Boolean).join(" ").trim();
   return merged.length > 0 ? merged : payment.user.email;
-}
-
-function paymentStatusLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
-  status: string,
-): string {
-  if (status === "SUCCEEDED") return t("filters.statusSucceeded");
-  if (status === "PENDING") return t("filters.statusPending");
-  if (status === "FAILED") return t("filters.statusFailed");
-  if (status === "REFUNDED") return t("filters.statusRefunded");
-  return status;
-}
-
-function resolveMethodLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
-  paymentMethod: string | null,
-): string {
-  if (paymentMethod === null || !isManualPaymentMethod(paymentMethod)) {
-    return t("paymentDetails.methodUnknown");
-  }
-  return t(`paymentMethods.${paymentMethod}`);
 }
 
 function resolvePaymentDateTime(payment: FinancePaymentItem): string {
@@ -121,10 +94,6 @@ export function AdminFinancePaymentDetailsSheet({
   const paymentDateTime = resolvePaymentDateTime(payment);
   const paymentDateTimeIso = toPaymentIso(paymentDateTime);
   const userLabel = displayName(payment);
-  const showAdminActions = requiresManualAdminConfirmation(
-    payment.paymentMethod,
-    payment.status,
-  );
   const showArcaSync =
     isCardPaymentMethod(payment.paymentMethod) && payment.status === "PENDING";
 
@@ -178,24 +147,28 @@ export function AdminFinancePaymentDetailsSheet({
               }
             />
             <AdminFinancePaymentDetailRow
-              label={t("table.colPaymentMethod")}
-              value={resolveMethodLabel(t, payment.paymentMethod)}
-            />
-            <AdminFinancePaymentDetailRow
               label={t("table.colStatus")}
               value={
-                <div className="flex flex-col items-start gap-1">
-                  <span
-                    className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financePaymentStatusTone(payment.status)}`}
-                  >
-                    {paymentStatusLabel(t, payment.status)}
-                  </span>
-                  <PaymentStatusReasonText
-                    status={payment.status}
-                    reason={payment.statusReason}
-                    className="text-xs font-medium leading-snug text-sage-500"
-                  />
-                </div>
+                <AdminStaffPaymentEditors
+                  paymentId={payment.id}
+                  status={payment.status}
+                  paymentMethod={payment.paymentMethod}
+                  statusReason={payment.statusReason}
+                  onUpdated={(next) => {
+                    onPaymentUpdated({
+                      ...payment,
+                      status: next.status,
+                      paymentMethod: next.paymentMethod,
+                      confirmedAt:
+                        next.status === "PENDING"
+                          ? null
+                          : (payment.confirmedAt ?? new Date().toISOString()),
+                    });
+                  }}
+                  onError={(message) => {
+                    setToast({ message, tone: "err" });
+                  }}
+                />
               }
             />
             <AdminFinancePaymentPackageRows payment={payment} t={t} />
@@ -219,30 +192,7 @@ export function AdminFinancePaymentDetailsSheet({
           </dl>
         </div>
 
-        {showAdminActions ? (
-          <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
-            <AdminFinancePaymentActions
-              paymentId={payment.id}
-              status={payment.status}
-              paymentMethod={payment.paymentMethod}
-              onUpdated={(nextStatus) => {
-                onPaymentUpdated({
-                  ...payment,
-                  status: nextStatus,
-                  paymentMethod: payment.paymentMethod ?? "CASH",
-                  confirmedAt: new Date().toISOString(),
-                });
-                setToast({
-                  message:
-                    nextStatus === "SUCCEEDED"
-                      ? t("paymentActions.markedPaid")
-                      : t("paymentActions.markedRejected"),
-                  tone: nextStatus === "SUCCEEDED" ? "ok" : "err",
-                });
-              }}
-            />
-          </footer>
-        ) : showArcaSync ? (
+        {showArcaSync ? (
           <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
             <AdminFinanceArcaSyncButton
               paymentId={payment.id}

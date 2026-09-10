@@ -18,6 +18,7 @@ import { EhdmSeqService } from './ehdm/ehdm-seq.service';
 import { PaymentsController } from './payments.controller';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
+import { PaymentsAdminMutationService } from './payments-admin-mutation.service';
 import { PaymentsAdminService } from './payments-admin.service';
 import { PaymentsCheckoutService } from './payments-checkout.service';
 import { PaymentsConfirmService } from './payments-confirm.service';
@@ -37,6 +38,7 @@ import { PaymentsService } from './payments.service';
     PaymentsConfirmService,
     PaymentsFulfillmentService,
     PaymentsAdminService,
+    PaymentsAdminMutationService,
     PaymentCashPendingEmailService,
     PaymentSuccessEmailService,
     ArcaConfig,
@@ -54,6 +56,7 @@ import { PaymentsService } from './payments.service';
   ],
   exports: [
     PaymentsService,
+    PaymentCashPendingEmailService,
     ArcaService,
     ArcaReconciliationService,
     EhdmReceiptService,

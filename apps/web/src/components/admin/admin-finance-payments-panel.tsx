@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-payment-compact-row";
 import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-finance-payment-details-sheet";
 import type { AdminUpdatablePaymentStatus } from "@/components/admin/admin-finance-payment-status-picker";
+import type { StudioManualPaymentMethod } from "@/lib/payment-confirmation";
 import {
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS,
@@ -164,6 +165,37 @@ export function AdminFinancePaymentsPanel({
     }
   }
 
+  async function handlePaymentMethodChange(
+    payment: FinancePaymentItem,
+    nextMethod: StudioManualPaymentMethod,
+  ): Promise<void> {
+    if (nextMethod === payment.paymentMethod) {
+      return;
+    }
+    setBusyPaymentId(payment.id);
+    try {
+      await apiFetch(`/payments/admin/${payment.id}/method`, {
+        method: "PATCH",
+        body: JSON.stringify({ paymentMethod: nextMethod }),
+      });
+      handlePaymentUpdated({ ...payment, paymentMethod: nextMethod });
+      setToast({
+        message: tFinance("paymentActions.methodUpdated"),
+        tone: "ok",
+      });
+    } catch (updateError) {
+      setToast({
+        message:
+          updateError instanceof ApiError
+            ? updateError.message
+            : tFinance("paymentActions.actionFailed"),
+        tone: "err",
+      });
+    } finally {
+      setBusyPaymentId(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {error ? <div className="app-alert-warn">{error}</div> : null}
@@ -197,6 +229,9 @@ export function AdminFinancePaymentsPanel({
                 onOpenDetails={() => setSelectedPayment(row)}
                 onChangeStatus={(nextStatus) => {
                   void handlePaymentStatusChange(row, nextStatus);
+                }}
+                onChangeMethod={(nextMethod) => {
+                  void handlePaymentMethodChange(row, nextMethod);
                 }}
               />
             ))

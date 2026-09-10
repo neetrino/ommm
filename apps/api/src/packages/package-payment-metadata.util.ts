@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client';
 
 export const PACKAGE_PAYMENT_PLAN_ID_KEY = 'planId';
+export const STUDIO_PACKAGE_FULFILLED_KEY = 'studioPackageFulfilled';
 
 /** Reads `planId` stored on a PACKAGE payment before UserPackage exists. */
 export function readPackagePlanIdFromMetadata(
@@ -40,4 +41,20 @@ export function withPackagePlanIdMetadata(
     ...(extra ?? {}),
     [PACKAGE_PAYMENT_PLAN_ID_KEY]: planId,
   };
+}
+
+export function isStudioPackageFulfilled(
+  metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
+): boolean {
+  if (
+    metadata === null ||
+    metadata === undefined ||
+    typeof metadata !== 'object' ||
+    Array.isArray(metadata)
+  ) {
+    return false;
+  }
+  return (
+    (metadata as Record<string, unknown>)[STUDIO_PACKAGE_FULFILLED_KEY] === true
+  );
 }

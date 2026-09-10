@@ -3,12 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import type { ManualPaymentMethod } from '@prisma/client';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
+import type { AdminUpdatablePaymentMethod } from './dto/admin-update-payment-method.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 import { ArcaPaymentSyncService } from './arca/arca-payment-sync.service';
 import type { ArcaSyncOutcome } from './arca/arca.types';
 import { isArcaCheckoutEnabled } from './payment-arca.util';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
+import { PaymentsAdminMutationService } from './payments-admin-mutation.service';
 import { PaymentsAdminService } from './payments-admin.service';
 import { PaymentsCheckoutService } from './payments-checkout.service';
 
@@ -18,6 +20,7 @@ export class PaymentsService {
     private readonly config: ConfigService,
     private readonly checkout: PaymentsCheckoutService,
     private readonly admin: PaymentsAdminService,
+    private readonly adminMutation: PaymentsAdminMutationService,
     private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
     private readonly arcaSync: ArcaPaymentSyncService,
   ) {}
@@ -74,7 +77,23 @@ export class PaymentsService {
     status: AdminUpdatablePaymentStatus,
     adminId: string,
   ) {
-    return this.admin.adminUpdatePaymentStatus(paymentId, status, adminId);
+    return this.adminMutation.adminUpdatePaymentStatus(
+      paymentId,
+      status,
+      adminId,
+    );
+  }
+
+  adminUpdatePaymentMethod(
+    paymentId: string,
+    paymentMethod: AdminUpdatablePaymentMethod,
+    adminId: string,
+  ) {
+    return this.adminMutation.adminUpdatePaymentMethod(
+      paymentId,
+      paymentMethod,
+      adminId,
+    );
   }
 
   /** Re-checks a card payment against Arca and transitions it (admin on-demand). */

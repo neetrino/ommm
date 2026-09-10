@@ -62,6 +62,7 @@ function createPackagesService() {
     cache as never,
     arca as never,
     { tryNotify: jest.fn().mockResolvedValue(undefined) } as never,
+    { trySendCashPendingEmail: jest.fn().mockResolvedValue(undefined) } as never,
   );
   const adminService = new PackagesAdminService(
     prisma as never,
@@ -76,6 +77,7 @@ function createPackagesService() {
     adminService,
     adminClientPurchase as never,
     { updateValidity: jest.fn() } as never,
+    { adjustSessions: jest.fn() } as never,
     { resumeDueFreezes: jest.fn() } as never,
   );
 

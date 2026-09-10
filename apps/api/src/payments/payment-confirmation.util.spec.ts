@@ -14,12 +14,12 @@ describe('payment-confirmation.util', () => {
     );
   });
 
-  it('grants immediate package booking access for cash only', () => {
+  it('does not grant booking access before studio payment is confirmed', () => {
     expect(grantsImmediatePackageBookingAccess(ManualPaymentMethod.CASH)).toBe(
-      true,
+      false,
     );
     expect(
-      grantsImmediatePackageBookingAccess(ManualPaymentMethod.BANK_TRANSFER),
+      grantsImmediatePackageBookingAccess(ManualPaymentMethod.CARD_TERMINAL),
     ).toBe(false);
     expect(grantsImmediatePackageBookingAccess(ManualPaymentMethod.CARD)).toBe(
       false,

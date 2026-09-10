@@ -26,7 +26,7 @@
     "duplicate_attempt": "Повторная попытка",
     "reversed": "Отменено банком",
     "refunded": "Возврат средств",
-    "awaiting_cash": "Ожидание наличных",
+    "awaiting_cash": "Ожидание оплаты в студии",
     "admin_rejected": "Отклонено студией",
     "unknown": "Причина неизвестна"
   },
@@ -1305,7 +1305,7 @@
       },
       "status": {
         "SUCCEEDED": "Завершен",
-        "PENDING": "В обработке",
+        "PENDING": "Не оплачено",
         "FAILED": "Ошибка",
         "REFUNDED": "Возврат"
       },
@@ -3997,7 +3997,7 @@
         "statusAll": "Все статусы",
         "statusSucceeded": "Успешно",
         "statusFailed": "Ошибка",
-        "statusPending": "Ожидание",
+        "statusPending": "Не оплачено",
         "statusRefunded": "Возврат",
         "searchLabel": "Поиск",
         "searchPlaceholder": "Клиент, email, ID платежа, референс",
@@ -4034,6 +4034,7 @@
         "markedPaid": "Отмечено как оплаченное.",
         "markedRejected": "Заявка отклонена.",
         "statusUpdated": "Статус платежа обновлён.",
+        "methodUpdated": "Способ оплаты обновлён.",
         "cardStatusAuto": "Платежи картой подтверждаются автоматически.",
         "actionFailed": "Не удалось обновить платёж.",
         "bankCheck": "Проверить статус в банке",
@@ -4044,6 +4045,7 @@
         "bankUnavailable": "Не удалось связаться с банком. Повторите."
       },
       "changeStatusAria": "Изменить статус платежа — сейчас: {status}",
+      "changeMethodAria": "Изменить способ оплаты — сейчас: {method}",
       "paymentDetails": {
         "title": "Детали платежа",
         "lead": "Просмотрите информацию о платеже и подтверждайте получение наличных при необходимости.",

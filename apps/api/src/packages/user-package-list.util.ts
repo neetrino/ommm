@@ -1,33 +1,37 @@
 import {
+  ManualPaymentMethod,
   PaymentSource,
   PaymentStatus,
   UserPackageStatus,
   type Prisma,
 } from '@prisma/client';
+import { isStudioManualPaymentMethod } from '../payments/studio-manual-payment.util';
 
 const LIST_STATUS_PRIORITY: Record<UserPackageStatus, number> = {
-  [UserPackageStatus.ACTIVE]: 0,
-  [UserPackageStatus.PAUSED]: 1,
-  [UserPackageStatus.PENDING]: 2,
+  [UserPackageStatus.PENDING]: 0,
+  [UserPackageStatus.ACTIVE]: 1,
+  [UserPackageStatus.PAUSED]: 2,
   [UserPackageStatus.EXPIRED]: 3,
   [UserPackageStatus.CANCELLED]: 4,
 };
 
 /**
  * Packages shown in client/admin history:
- * - only packages with a SUCCEEDED package payment (still valid purchase)
- * - PENDING never (checkout in flight / not paid)
+ * - SUCCEEDED package payment (valid purchase)
+ * - PENDING cash/terminal (awaiting studio payment)
+ * - PENDING CARD checkout stays hidden
  * - refunded payments drop out of SUCCEEDED → package leaves this list
  */
 export function buildVisibleUserPackagesWhere(
   userId: string,
-  succeededPackageIds: readonly string[],
+  visiblePackageIds: readonly string[],
 ): Prisma.UserPackageWhereInput {
   return {
     userId,
-    id: { in: [...succeededPackageIds] },
+    id: { in: [...visiblePackageIds] },
     status: {
       in: [
+        UserPackageStatus.PENDING,
         UserPackageStatus.ACTIVE,
         UserPackageStatus.PAUSED,
         UserPackageStatus.EXPIRED,
@@ -42,8 +46,14 @@ export async function loadSucceededPackageSourceIds(
     payment: {
       findMany: (args: {
         where: Prisma.PaymentWhereInput;
-        select: { sourceId: true };
-      }) => Promise<Array<{ sourceId: string | null }>>;
+        select: { sourceId: true; status: true; paymentMethod: true };
+      }) => Promise<
+        Array<{
+          sourceId: string | null;
+          status: PaymentStatus;
+          paymentMethod: ManualPaymentMethod | null;
+        }>
+      >;
     };
   },
   userId: string,
@@ -52,12 +62,25 @@ export async function loadSucceededPackageSourceIds(
     where: {
       userId,
       source: PaymentSource.PACKAGE,
-      status: PaymentStatus.SUCCEEDED,
       sourceId: { not: null },
+      OR: [
+        { status: PaymentStatus.SUCCEEDED },
+        {
+          status: PaymentStatus.PENDING,
+          paymentMethod: {
+            in: [ManualPaymentMethod.CASH, ManualPaymentMethod.CARD_TERMINAL],
+          },
+        },
+      ],
     },
-    select: { sourceId: true },
+    select: { sourceId: true, status: true, paymentMethod: true },
   });
   return rows
+    .filter(
+      (row) =>
+        row.status === PaymentStatus.SUCCEEDED ||
+        isStudioManualPaymentMethod(row.paymentMethod),
+    )
     .map((row) => row.sourceId)
     .filter((id): id is string => id !== null);
 }

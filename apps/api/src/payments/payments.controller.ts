@@ -10,12 +10,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { BACKOFFICE_DELETE_ROLES } from '../common/backoffice-roles';
+import {
+  BACKOFFICE_DELETE_ROLES,
+  BACKOFFICE_WRITE_ROLES,
+} from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
+import { AdminUpdatePaymentMethodDto } from './dto/admin-update-payment-method.dto';
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { ConfirmDropInPaymentDto } from './dto/confirm-dropin-payment.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
@@ -115,7 +119,7 @@ export class PaymentsController {
 
   @Patch('admin/:paymentId/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_DELETE_ROLES)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
   adminUpdateStatus(
     @CurrentUser() user: { id: string },
     @Param('paymentId') paymentId: string,
@@ -124,6 +128,21 @@ export class PaymentsController {
     return this.payments.adminUpdatePaymentStatus(
       paymentId,
       body.status,
+      user.id,
+    );
+  }
+
+  @Patch('admin/:paymentId/method')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  adminUpdateMethod(
+    @CurrentUser() user: { id: string },
+    @Param('paymentId') paymentId: string,
+    @Body() body: AdminUpdatePaymentMethodDto,
+  ) {
+    return this.payments.adminUpdatePaymentMethod(
+      paymentId,
+      body.paymentMethod,
       user.id,
     );
   }

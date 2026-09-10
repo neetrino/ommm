@@ -12,6 +12,7 @@ import {
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageActions } from "@/components/admin/admin-client-package-actions";
+import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -35,6 +36,7 @@ type AdminClientPackageCardProps = {
   paymentMethodLabel: string;
   allowEditValidity?: boolean;
   onValidityUpdated?: () => void;
+  onPaymentUpdated?: () => void;
 };
 
 function resolveValidityLabel(
@@ -69,6 +71,7 @@ export function AdminClientPackageCard({
   paymentMethodLabel,
   allowEditValidity = false,
   onValidityUpdated,
+  onPaymentUpdated,
 }: AdminClientPackageCardProps) {
   const t = useTranslations("userPages.packages");
   const tMarketing = useTranslations("marketing");
@@ -154,9 +157,25 @@ export function AdminClientPackageCard({
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
             {tAdmin("packages.paymentMethod")}
           </p>
-          <p className="mt-1 text-2xl font-semibold tracking-tight text-sage-950">
-            {paymentMethodLabel}
-          </p>
+          {item.paymentId !== null ? (
+            <div className="mt-2">
+              <AdminStaffPaymentEditors
+                paymentId={item.paymentId}
+                status={item.paymentStatus ?? "PENDING"}
+                paymentMethod={item.paymentMethod}
+                onUpdated={() => {
+                  onPaymentUpdated?.();
+                }}
+                onError={(message) => {
+                  setSuccessToast(message);
+                }}
+              />
+            </div>
+          ) : (
+            <p className="mt-1 text-2xl font-semibold tracking-tight text-sage-950">
+              {paymentMethodLabel}
+            </p>
+          )}
         </div>
         <p className="text-sm text-sage-600">{validityLabel}</p>
       </div>

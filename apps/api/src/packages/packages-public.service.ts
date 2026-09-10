@@ -16,6 +16,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ArcaService } from '../payments/arca/arca.service';
 import { readArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
+import { PaymentCashPendingEmailService } from '../payments/payment-cash-pending-email.service';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { planCoversClassType } from './plan-covers-class-type';
 import {
@@ -64,6 +65,7 @@ export class PackagesPublicService {
     @Inject(forwardRef(() => ArcaService))
     private readonly arca: ArcaService,
     private readonly packagePurchased: WhatsappPackagePurchasedService,
+    private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
   ) {}
 
   async listPlans() {
@@ -297,10 +299,9 @@ export class PackagesPublicService {
         giftCreditsAppliedCents: pricing.appliedCents,
       }),
     );
-    if (created.stockTracked) {
-      await this.invalidatePublicPlansCache();
-    }
-    await this.packagePurchased.tryNotify(created.userPackageId);
+    await this.paymentCashPendingEmail.trySendCashPendingEmail(
+      created.paymentId,
+    );
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,

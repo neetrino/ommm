@@ -11,16 +11,17 @@ import {
   ADMIN_FINANCE_VALUE_BADGE_CLASS,
   financeSourceTone,
 } from "@/components/admin/admin-finance-list-display";
+import { AdminFinancePaymentMethodPicker } from "@/components/admin/admin-finance-payment-method-picker";
 import {
   AdminFinancePaymentStatusPicker,
   type AdminUpdatablePaymentStatus,
 } from "@/components/admin/admin-finance-payment-status-picker";
+import type { StudioManualPaymentMethod } from "@/lib/payment-confirmation";
 import { PaymentStatusReasonText } from "@/components/shared/payment-status-reason-text";
 import {
   ADMIN_FINANCE_PAYMENTS_LIST_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL,
-  ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS,
@@ -35,7 +36,6 @@ import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { displayPhoneOrEmail } from "@/lib/phone";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
-import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 
 type AdminFinancePaymentCompactRowProps = {
   locale: string;
@@ -43,21 +43,12 @@ type AdminFinancePaymentCompactRowProps = {
   busy: boolean;
   onOpenDetails: () => void;
   onChangeStatus: (nextStatus: AdminUpdatablePaymentStatus) => void;
+  onChangeMethod: (nextMethod: StudioManualPaymentMethod) => void;
 };
 
 function displayName(row: FinancePaymentItem): string {
   const merged = [row.user.name, row.user.lastName].filter(Boolean).join(" ").trim();
   return merged.length > 0 ? merged : row.user.email;
-}
-
-function resolveMethodLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
-  paymentMethod: string | null,
-): string {
-  if (paymentMethod === null || !isManualPaymentMethod(paymentMethod)) {
-    return "—";
-  }
-  return t(`paymentMethods.${paymentMethod}`);
 }
 
 export function AdminFinancePaymentCompactRow({
@@ -66,6 +57,7 @@ export function AdminFinancePaymentCompactRow({
   busy,
   onOpenDetails,
   onChangeStatus,
+  onChangeMethod,
 }: AdminFinancePaymentCompactRowProps) {
   const t = useTranslations("adminPages.finance");
   const tTable = useTranslations("adminPages.finance.table");
@@ -162,11 +154,17 @@ export function AdminFinancePaymentCompactRow({
         </div>
       </div>
 
-      <div className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL}>
+      <div
+        className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
         <AdminListMobileLabel label={tTable("colPaymentMethod")} />
-        <p className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS}>
-          {resolveMethodLabel(t, row.paymentMethod)}
-        </p>
+        <AdminFinancePaymentMethodPicker
+          paymentMethod={row.paymentMethod}
+          busy={busy}
+          onChangeMethod={onChangeMethod}
+        />
       </div>
     </article>
   );
