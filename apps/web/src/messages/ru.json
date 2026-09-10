@@ -2591,7 +2591,8 @@
         "guestPass": "Гостевой пропуск",
         "withCoach": "Тренер: {name}",
         "coachUnknown": "Тренер не назначен",
-        "cancelledBy": "Отменил {name} ({role})"
+        "cancelledByClient": "Отменил клиент",
+        "cancelledByStaff": "Отменил {role}: {name}"
       },
       "deleteClient": "Удалить клиента",
       "deleteConfirm": "Удалить этого клиента навсегда? Это действие нельзя отменить.",

@@ -2594,7 +2594,8 @@
         "guestPass": "Հյուրի անցագիր",
         "withCoach": "Մարզիչ: {name}",
         "coachUnknown": "Մարզիչ նշանակված չէ",
-        "cancelledBy": "Չեղարկել է {name} ({role})"
+        "cancelledByClient": "Չեղարկել է հաճախորդը",
+        "cancelledByStaff": "Չեղարկել է {role}: {name}"
       },
       "deleteClient": "Ջնջել հաճախորդին",
       "deleteConfirm": "Ջնջե՞լ այս հաճախորդին մշտապես։ Գործողությունը հետարկելի չէ։",

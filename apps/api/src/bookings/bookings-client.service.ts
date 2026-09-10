@@ -272,7 +272,10 @@ export class BookingsClientService {
       bookingCreatedAt: booking.createdAt,
       penaltyHours,
     });
-    await this.slots.releaseSlot(booking, { applyPenalty });
+    await this.slots.releaseSlot(booking, {
+      applyPenalty,
+      cancelledByUserId: userId,
+    });
     this.cancelIntent.clear(booking.sessionId);
     await this.schedule.invalidatePublicCache();
     this.realtime.emitBookingSessionChange({

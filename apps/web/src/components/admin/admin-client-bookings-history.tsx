@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { resolveSessionCoachName } from "@/components/account/session-coach-line";
+import { isPastAdminCancelBookingStatus } from "@/components/admin/admin-booking-cancel.helpers";
 import {
-  isAdminCancellableBookingStatus,
-  isPastAdminCancelBookingStatus,
-} from "@/components/admin/admin-booking-cancel.helpers";
+  bookingHistoryCancelActorKind,
+  canCancelHistoryBooking,
+} from "@/components/admin/admin-client-bookings-history.helpers";
 import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
@@ -47,13 +48,6 @@ type AdminClientBookingsHistoryProps = {
   onCancelError: (message: string) => void;
 };
 
-function canCancelHistoryBooking(booking: ClientSheetBookingItem): boolean {
-  if (booking.cancelledAt != null) {
-    return false;
-  }
-  return isAdminCancellableBookingStatus(booking.status);
-}
-
 function bookingHistoryStatusLabel(booking: ClientSheetBookingItem): string {
   return booking.cancelledAt != null ? "CANCELLED" : booking.status;
 }
@@ -71,6 +65,27 @@ function bookingHistoryMetaLine(
     parts.push(level);
   }
   return parts.join(" · ");
+}
+
+function bookingHistoryCancelledByLabel(
+  booking: ClientSheetBookingItem,
+  t: ReturnType<typeof useTranslations<"adminPages.clients">>,
+  tRoles: ReturnType<typeof useTranslations<"dashboard.shell.roles">>,
+): string | null {
+  const cancelledBy = booking.cancelledBy ?? null;
+  const kind = bookingHistoryCancelActorKind(booking.cancelledAt, cancelledBy);
+  if (kind === "client") {
+    return t("drawer.cancelledByClient");
+  }
+  if (kind !== "staff" || cancelledBy === null) {
+    return null;
+  }
+  return t("drawer.cancelledByStaff", {
+    name: sessionCancelledByDisplayName(cancelledBy),
+    role: isDashboardShellRole(cancelledBy.role)
+      ? tRoles(cancelledBy.role)
+      : cancelledBy.role,
+  });
 }
 
 export function AdminClientBookingsHistory({
@@ -172,16 +187,11 @@ export function AdminClientBookingsHistory({
                   : booking.attendedAt
                     ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
                     : null;
-                const cancelledBy = booking.cancelledBy ?? null;
-                const cancelledByLabel =
-                  cancelledBy === null
-                    ? null
-                    : t("drawer.cancelledBy", {
-                        name: sessionCancelledByDisplayName(cancelledBy),
-                        role: isDashboardShellRole(cancelledBy.role)
-                          ? tRoles(cancelledBy.role)
-                          : cancelledBy.role,
-                      });
+                const cancelledByLabel = bookingHistoryCancelledByLabel(
+                  booking,
+                  t,
+                  tRoles,
+                );
                 const signedUp = `${t("drawer.signedUp")} ${formatDateTimeForUi(booking.createdAt, locale)}`;
                 const coachName = resolveSessionCoachName(booking.session.coach);
 
