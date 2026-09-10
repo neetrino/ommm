@@ -63,6 +63,8 @@ export class PackagesAdminClientPurchaseService {
       }),
     );
 
+    // Studio methods decrement stock only on confirmPayment, which invalidates
+    // the public plans cache after fulfillPackagePayment.
     if (created.stockTracked) {
       await this.publicPackages.invalidatePublicPlansCache();
     }
