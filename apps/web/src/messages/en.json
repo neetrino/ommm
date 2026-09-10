@@ -2591,7 +2591,10 @@
         "attended": "Attended",
         "signedUp": "Signed up",
         "guestPass": "Guest pass",
-        "cancelledBy": "Cancelled by {name} ({role})"
+        "withCoach": "Coach: {name}",
+        "coachUnknown": "Coach not assigned",
+        "cancelledByClient": "Cancelled by the client",
+        "cancelledByStaff": "Cancelled by {role}: {name}"
       },
       "deleteClient": "Delete client",
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",

@@ -2589,7 +2589,10 @@
         "attended": "Посещено",
         "signedUp": "Запись",
         "guestPass": "Гостевой пропуск",
-        "cancelledBy": "Отменил {name} ({role})"
+        "withCoach": "Тренер: {name}",
+        "coachUnknown": "Тренер не назначен",
+        "cancelledByClient": "Отменил клиент",
+        "cancelledByStaff": "Отменил {role}: {name}"
       },
       "deleteClient": "Удалить клиента",
       "deleteConfirm": "Удалить этого клиента навсегда? Это действие нельзя отменить.",

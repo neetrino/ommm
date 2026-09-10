@@ -2592,7 +2592,10 @@
         "attended": "Մասնակցել է",
         "signedUp": "Գրանցվել է",
         "guestPass": "Հյուրի անցագիր",
-        "cancelledBy": "Չեղարկել է {name} ({role})"
+        "withCoach": "Մարզիչ: {name}",
+        "coachUnknown": "Մարզիչ նշանակված չէ",
+        "cancelledByClient": "Չեղարկել է հաճախորդը",
+        "cancelledByStaff": "Չեղարկել է {role}: {name}"
       },
       "deleteClient": "Ջնջել հաճախորդին",
       "deleteConfirm": "Ջնջե՞լ այս հաճախորդին մշտապես։ Գործողությունը հետարկելի չէ։",
