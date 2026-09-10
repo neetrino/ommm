@@ -10,12 +10,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { BACKOFFICE_DELETE_ROLES } from '../common/backoffice-roles';
+import { MANAGER_PERMISSION_MATRIX } from '../common/manager-permission.matrix';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
+import { AdminUpdatePaymentMethodDto } from './dto/admin-update-payment-method.dto';
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { ConfirmDropInPaymentDto } from './dto/confirm-dropin-payment.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
@@ -108,14 +109,14 @@ export class PaymentsController {
   @Get('admin')
   @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_DELETE_ROLES)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.adminFinance)
   adminList(@Query() query: AdminListPaymentsQueryDto) {
     return this.payments.adminListPayments(query);
   }
 
   @Patch('admin/:paymentId/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_DELETE_ROLES)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.updateStatus)
   adminUpdateStatus(
     @CurrentUser() user: { id: string },
     @Param('paymentId') paymentId: string,
@@ -128,9 +129,24 @@ export class PaymentsController {
     );
   }
 
+  @Patch('admin/:paymentId/method')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.updateMethod)
+  adminUpdateMethod(
+    @CurrentUser() user: { id: string },
+    @Param('paymentId') paymentId: string,
+    @Body() body: AdminUpdatePaymentMethodDto,
+  ) {
+    return this.payments.adminUpdatePaymentMethod(
+      paymentId,
+      body.paymentMethod,
+      user.id,
+    );
+  }
+
   @Post('admin/:paymentId/arca/sync')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...BACKOFFICE_DELETE_ROLES)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.adminArcaSync)
   adminSyncArcaPayment(@Param('paymentId') paymentId: string) {
     return this.payments.adminSyncArcaPayment(paymentId);
   }

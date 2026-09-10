@@ -1,28 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PaymentSource, PaymentStatus, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import type { AdminClientPackagePaymentMethod } from '../clients/dto/admin-purchase-client-package.dto';
-import { toManualPaymentMethod } from '../payments/payment-revenue.util';
-import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
+import { PaymentCashPendingEmailService } from '../payments/payment-cash-pending-email.service';
+import { isStudioManualPaymentMethod } from '../payments/studio-manual-payment.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-  createPaymentReference,
-  resolveFinalPriceCents,
-} from './packages-plan.helpers';
-import {
   assertPackageHasAvailableStock,
-  decrementPackagePlanStock,
   packageHasPublicStock,
 } from './packages-stock.helpers';
-import { USER_PACKAGE_STATUS } from './packages-plan.types';
 import { WhatsappPackagePurchasedService } from '../whatsapp/whatsapp-package-purchased.service';
 import { PackagesPublicService } from './packages-public.service';
-import { createBalancesForUserPackage } from './packages-user-package-balances.util';
-import { buildUserPackageCreateData } from './packages-subscribe-card.util';
+import { createAdminClientPackagePurchaseTx } from './packages-admin-client-purchase.tx';
 
 /**
- * Admin Client Packages purchase — Cash / CARD_TERMINAL / INFLUENCER.
- * Immediate ACTIVE package + SUCCEEDED payment; no Arca.
- * Influencer stores catalog price as cost and never counts as cash revenue.
+ * Admin/Manager Client Packages purchase — Cash / CARD_TERMINAL / INFLUENCER.
+ * Studio methods stay unpaid until staff confirms. Influencer is immediate.
  */
 @Injectable()
 export class PackagesAdminClientPurchaseService {
@@ -30,6 +22,7 @@ export class PackagesAdminClientPurchaseService {
     private readonly prisma: PrismaService,
     private readonly publicPackages: PackagesPublicService,
     private readonly packagePurchased: WhatsappPackagePurchasedService,
+    private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
   ) {}
 
   async purchase(params: {
@@ -59,51 +52,27 @@ export class PackagesAdminClientPurchaseService {
     }
     assertPackageHasAvailableStock(plan);
 
-    const now = new Date();
-    const paymentReference = createPaymentReference('PACKAGE');
-    const amountCents = resolveFinalPriceCents(plan);
-
-    const created = await this.prisma.$transaction(async (tx) => {
-      const userPackage = await tx.userPackage.create({
-        data: buildUserPackageCreateData({
-          userId: params.clientId,
-          plan,
-          status: USER_PACKAGE_STATUS.ACTIVE,
-        }),
-      });
-      await createBalancesForUserPackage(tx, {
+    const isStudioMethod = isStudioManualPaymentMethod(params.paymentMethod);
+    const created = await this.prisma.$transaction((tx) =>
+      createAdminClientPackagePurchaseTx(tx, {
+        adminId: params.adminId,
+        clientId: params.clientId,
         plan,
-        userPackageId: userPackage.id,
-      });
-      const payment = await tx.payment.create({
-        data: {
-          userId: params.clientId,
-          amountCents,
-          currency: plan.currency.toLowerCase(),
-          status: PaymentStatus.SUCCEEDED,
-          paymentReference,
-          source: PaymentSource.PACKAGE,
-          sourceId: userPackage.id,
-          description: buildPackagePaymentDescription(plan.name),
-          confirmedAt: now,
-          confirmedByAdminId: params.adminId,
-          paymentMethod: toManualPaymentMethod(params.paymentMethod),
-        },
-      });
-      await decrementPackagePlanStock(tx, plan.id);
-      return {
-        userPackageId: userPackage.id,
-        paymentId: payment.id,
-        amountCents: payment.amountCents,
-        currency: payment.currency,
-        stockTracked: plan.availableQuantity !== null,
-      };
-    });
+        isStudioMethod,
+        paymentMethod: params.paymentMethod,
+      }),
+    );
 
     if (created.stockTracked) {
       await this.publicPackages.invalidatePublicPlansCache();
     }
-    await this.packagePurchased.tryNotify(created.userPackageId);
+    if (isStudioMethod) {
+      await this.paymentCashPendingEmail.trySendCashPendingEmail(
+        created.paymentId,
+      );
+    } else {
+      await this.packagePurchased.tryNotify(created.userPackageId);
+    }
 
     return {
       userPackageId: created.userPackageId,

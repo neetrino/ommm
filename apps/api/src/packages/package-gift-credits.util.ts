@@ -9,6 +9,7 @@ import { readGiftCardBalance } from '../gift-cards/gift-cards.mapper';
 import { GIFT_CREDIT_SPEND_PREFIX } from '../reports/studio-analytics.helpers';
 
 export const PACKAGE_GIFT_CREDITS_APPLIED_KEY = 'giftCreditsAppliedCents';
+export const PACKAGE_GIFT_CREDITS_REFUNDED_KEY = 'giftCreditsRefunded';
 
 type GiftCreditsDb = Pick<
   Prisma.TransactionClient,
@@ -181,4 +182,21 @@ export function readGiftCreditsAppliedCents(
   return typeof value === 'number' && Number.isFinite(value) && value > 0
     ? Math.floor(value)
     : 0;
+}
+
+export function wereGiftCreditsRefunded(
+  metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
+): boolean {
+  if (
+    metadata === null ||
+    metadata === undefined ||
+    typeof metadata !== 'object' ||
+    Array.isArray(metadata)
+  ) {
+    return false;
+  }
+  return (
+    (metadata as Record<string, unknown>)[PACKAGE_GIFT_CREDITS_REFUNDED_KEY] ===
+    true
+  );
 }

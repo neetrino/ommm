@@ -153,6 +153,8 @@ export type ClientSheetPackageItem = {
   usedSessions: number | null;
   remainingSessions: number | null;
   isUnlimited: boolean;
+  paymentId: string | null;
+  paymentStatus: string | null;
   paymentMethod: string | null;
   typeBalances?: ClientSheetPackageTypeBalance[];
   lastSessionAdjustment?: {

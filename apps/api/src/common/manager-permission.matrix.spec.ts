@@ -49,6 +49,15 @@ describe('manager-permission.matrix', () => {
       roleAllows(MANAGER_PERMISSION_MATRIX.payments.adminFinance, Role.MANAGER),
     ).toBe(false);
     expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.payments.adminArcaSync, Role.MANAGER),
+    ).toBe(false);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.payments.updateStatus, Role.MANAGER),
+    ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.payments.updateMethod, Role.MANAGER),
+    ).toBe(true);
+    expect(
       roleAllows(
         MANAGER_PERMISSION_MATRIX.notifications.analytics,
         Role.MANAGER,

@@ -79,4 +79,28 @@ describe('PaymentCashPendingEmailService', () => {
 
     expect(mail.sendEmail).not.toHaveBeenCalled();
   });
+
+  it('sends a studio pending reminder for terminal payments', async () => {
+    const { service, prisma, mail } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p2',
+      userId: 'user-1',
+      amountCents: 20_000,
+      currency: 'amd',
+      status: PaymentStatus.PENDING,
+      source: PaymentSource.PACKAGE,
+      paymentReference: 'PKG-TERM-1',
+      paymentMethod: ManualPaymentMethod.CARD_TERMINAL,
+      cashPendingEmailSentAt: null,
+      user: {
+        email: 'customer@studio.test',
+        name: 'Anna',
+        lastName: 'Guest',
+      },
+    });
+
+    await service.trySendCashPendingEmail('p2');
+
+    expect(mail.sendEmail).toHaveBeenCalledTimes(1);
+  });
 });

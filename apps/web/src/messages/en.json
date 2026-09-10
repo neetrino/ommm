@@ -26,7 +26,7 @@
     "duplicate_attempt": "Duplicate attempt",
     "reversed": "Cancelled by bank",
     "refunded": "Refunded",
-    "awaiting_cash": "Awaiting cash",
+    "awaiting_cash": "Awaiting studio payment",
     "admin_rejected": "Rejected by studio",
     "unknown": "Status unknown"
   },
@@ -1305,7 +1305,7 @@
       },
       "status": {
         "SUCCEEDED": "Completed",
-        "PENDING": "Pending",
+        "PENDING": "Unpaid",
         "FAILED": "Failed",
         "REFUNDED": "Refunded"
       },
@@ -4331,7 +4331,7 @@
         "statusAll": "All statuses",
         "statusSucceeded": "Succeeded",
         "statusFailed": "Failed",
-        "statusPending": "Pending",
+        "statusPending": "Unpaid",
         "statusRefunded": "Refunded",
         "searchLabel": "Search",
         "searchPlaceholder": "Client, email, payment ID, reference",
@@ -4368,6 +4368,7 @@
         "markedPaid": "Marked as paid.",
         "markedRejected": "Request rejected.",
         "statusUpdated": "Payment status updated.",
+        "methodUpdated": "Payment method updated.",
         "cardStatusAuto": "Card payments are confirmed automatically.",
         "actionFailed": "Could not update payment.",
         "bankCheck": "Check status in bank",
@@ -4378,6 +4379,7 @@
         "bankUnavailable": "Could not reach the bank. Try again."
       },
       "changeStatusAria": "Change payment status — current: {status}",
+      "changeMethodAria": "Change payment method — current: {method}",
       "paymentDetails": {
         "title": "Payment details",
         "lead": "Review payment information and confirm cash receipts when needed.",

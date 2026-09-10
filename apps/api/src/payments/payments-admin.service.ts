@@ -3,134 +3,28 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  ManualPaymentMethod,
-  PaymentSource,
-  PaymentStatus,
-  Prisma,
-  UserPackageStatus,
-} from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
-import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
-import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import { buildAdminListPaymentsWhere } from './payments-admin-list.util';
-import {
-  detectPaymentSource,
-  readPaymentSource,
-  withInternalPaymentUpdateFields,
-} from './payments.helpers';
+import { detectPaymentSource, readPaymentSource } from './payments.helpers';
 import {
   resolveAdminPaymentRelatedItemGroupName,
   resolveAdminPaymentRelatedItemName,
   type AdminPaymentPackageLabels,
 } from './payments-related-item.util';
-import { PaymentsCheckoutService } from './payments-checkout.service';
-import {
-  PAYMENT_STATUS_REASON,
-  readPaymentStatusReason,
-} from './payment-status-reason';
-import { mergeArcaMetadata } from './arca/arca-metadata.util';
+import { readPaymentStatusReason } from './payment-status-reason';
 
 @Injectable()
 export class PaymentsAdminService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly checkout: PaymentsCheckoutService,
-    private readonly paymentSuccessEmail: PaymentSuccessEmailService,
     private readonly ehdmReceipt: EhdmReceiptService,
   ) {}
-
-  async adminUpdatePaymentStatus(
-    paymentId: string,
-    status: AdminUpdatablePaymentStatus,
-    adminId: string,
-  ) {
-    const payment = await this.prisma.payment.findUnique({
-      where: { id: paymentId },
-    });
-    if (!payment) {
-      throw new NotFoundException('Payment not found');
-    }
-    if (payment.paymentMethod === ManualPaymentMethod.CARD) {
-      if (payment.status === PaymentStatus.PENDING) {
-        return this.checkout.confirmPayment(paymentId, adminId, {
-          paymentMethod: ManualPaymentMethod.CARD,
-        });
-      }
-      throw new BadRequestException(
-        'Card payment status is confirmed automatically',
-      );
-    }
-    if (payment.status === status) {
-      return payment;
-    }
-
-    const previousStatus = payment.status;
-
-    if (
-      status === PaymentStatus.SUCCEEDED &&
-      payment.status === PaymentStatus.PENDING
-    ) {
-      return this.checkout.confirmPayment(paymentId, adminId, {
-        paymentMethod: payment.paymentMethod ?? ManualPaymentMethod.CASH,
-      });
-    }
-
-    const updated = await this.prisma.payment.update({
-      where: { id: paymentId },
-      data: withInternalPaymentUpdateFields({
-        status,
-        confirmedAt: this.resolveAdminStatusConfirmedAt(
-          status,
-          payment.confirmedAt,
-        ),
-        confirmedByAdminId: adminId,
-        ...(this.shouldSetDefaultManualPaymentMethod(
-          status,
-          payment.paymentMethod,
-        )
-          ? { paymentMethod: ManualPaymentMethod.CASH }
-          : {}),
-        ...(status === PaymentStatus.FAILED
-          ? {
-              metadata: mergeArcaMetadata(payment.metadata, {
-                statusReason: PAYMENT_STATUS_REASON.ADMIN_REJECTED,
-              }),
-            }
-          : {}),
-        ...(status === PaymentStatus.PENDING
-          ? {
-              metadata: mergeArcaMetadata(payment.metadata, {
-                statusReason: PAYMENT_STATUS_REASON.AWAITING_CASH,
-              }),
-            }
-          : {}),
-      }),
-    });
-
-    if (status === PaymentStatus.REFUNDED) {
-      await this.cancelPackageLinkedToRefundedPayment(payment);
-      this.ehdmReceipt.tryPrintReturnReceipt(updated.id);
-    }
-
-    if (
-      status === PaymentStatus.SUCCEEDED &&
-      previousStatus !== PaymentStatus.SUCCEEDED
-    ) {
-      await this.paymentSuccessEmail.trySendSuccessEmails(
-        updated.id,
-        previousStatus,
-      );
-      this.ehdmReceipt.tryPrintReceipt(updated.id, previousStatus);
-    }
-
-    return updated;
-  }
 
   async listPayments(userId: string, query: ListMyPaymentsQueryDto = {}) {
     const hasPagination =
@@ -319,56 +213,6 @@ export class PaymentsAdminService {
           },
         ];
       }),
-    );
-  }
-
-  private async cancelPackageLinkedToRefundedPayment(payment: {
-    source: PaymentSource;
-    sourceId: string | null;
-  }): Promise<void> {
-    if (payment.source !== PaymentSource.PACKAGE || payment.sourceId === null) {
-      return;
-    }
-
-    await this.prisma.userPackage.updateMany({
-      where: {
-        id: payment.sourceId,
-        status: {
-          in: [
-            UserPackageStatus.ACTIVE,
-            UserPackageStatus.PAUSED,
-            UserPackageStatus.PENDING,
-          ],
-        },
-      },
-      data: { status: UserPackageStatus.CANCELLED },
-    });
-  }
-
-  private resolveAdminStatusConfirmedAt(
-    status: PaymentStatus,
-    existingConfirmedAt: Date | null,
-  ): Date | null {
-    if (status === PaymentStatus.PENDING) {
-      return null;
-    }
-    if (
-      status === PaymentStatus.SUCCEEDED ||
-      status === PaymentStatus.FAILED ||
-      status === PaymentStatus.REFUNDED
-    ) {
-      return existingConfirmedAt ?? new Date();
-    }
-    return existingConfirmedAt;
-  }
-
-  private shouldSetDefaultManualPaymentMethod(
-    status: PaymentStatus,
-    paymentMethod: ManualPaymentMethod | null,
-  ): boolean {
-    return (
-      paymentMethod === null &&
-      (status === PaymentStatus.SUCCEEDED || status === PaymentStatus.FAILED)
     );
   }
 }

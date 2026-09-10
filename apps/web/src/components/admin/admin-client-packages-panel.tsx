@@ -179,6 +179,7 @@ export function ClientPackagesPanel({
                 onValidityUpdated={
                   allowEditValidity ? handleValidityUpdated : undefined
                 }
+                onPaymentUpdated={handleValidityUpdated}
               />
             </li>
           ))}

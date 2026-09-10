@@ -113,6 +113,8 @@ type ClientPackagesPage = {
     isUnlimited: boolean;
     guestSlotsTotal: number;
     guestSlotsRemaining: number;
+    paymentId: string | null;
+    paymentStatus: string | null;
     paymentMethod: string | null;
     typeBalances: ClientPackageTypeBalanceItem[];
     lastSessionAdjustment: LastSessionAdjustmentDto | null;
@@ -242,7 +244,9 @@ export class ClientsTabListsService {
               sourceId: { in: packageIds },
             },
             select: {
+              id: true,
               sourceId: true,
+              status: true,
               paymentMethod: true,
               createdAt: true,
             },
@@ -251,13 +255,20 @@ export class ClientsTabListsService {
       loadLatestSessionAdjustments(this.prisma, packageIds),
     ]);
 
-    const paymentMethodByPackageId = new Map<string, string | null>();
+    const paymentByPackageId = new Map<
+      string,
+      { id: string; status: string; paymentMethod: string | null }
+    >();
     for (const payment of payments) {
       if (payment.sourceId === null) {
         continue;
       }
-      if (!paymentMethodByPackageId.has(payment.sourceId)) {
-        paymentMethodByPackageId.set(payment.sourceId, payment.paymentMethod);
+      if (!paymentByPackageId.has(payment.sourceId)) {
+        paymentByPackageId.set(payment.sourceId, {
+          id: payment.id,
+          status: payment.status,
+          paymentMethod: payment.paymentMethod,
+        });
       }
     }
 
@@ -284,7 +295,9 @@ export class ClientsTabListsService {
           usedSessions,
           remainingSessions: row.sessionsRemaining,
           isUnlimited: resolvedPlan.isUnlimited,
-          paymentMethod: paymentMethodByPackageId.get(row.id) ?? null,
+          paymentId: paymentByPackageId.get(row.id)?.id ?? null,
+          paymentStatus: paymentByPackageId.get(row.id)?.status ?? null,
+          paymentMethod: paymentByPackageId.get(row.id)?.paymentMethod ?? null,
           typeBalances: mapClientPackageTypeBalances(row.balances),
           lastSessionAdjustment: lastAdjustments.get(row.id) ?? null,
           freeze: toUserPackageFreezeApi(row, row.plan, {

@@ -22,9 +22,9 @@ export function isCardAutoConfirmable(
   return paymentMethod === ManualPaymentMethod.CARD;
 }
 
-/** Cash package purchases grant booking access before admin confirms payment. */
+/** Studio cash/terminal packages stay unbookable until staff confirms payment. */
 export function grantsImmediatePackageBookingAccess(
-  paymentMethod: ManualPaymentMethod,
+  _paymentMethod: ManualPaymentMethod,
 ): boolean {
-  return paymentMethod === ManualPaymentMethod.CASH;
+  return false;
 }

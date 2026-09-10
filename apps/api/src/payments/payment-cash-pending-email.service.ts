@@ -1,9 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  ManualPaymentMethod,
-  PaymentSource,
-  PaymentStatus,
-} from '@prisma/client';
+import { PaymentSource, PaymentStatus } from '@prisma/client';
+import { isStudioManualPaymentMethod } from './studio-manual-payment.util';
 import { formatPhoneForDisplay } from '../common/phone';
 import {
   buildMemberAccountUrl,
@@ -65,7 +62,7 @@ export class PaymentCashPendingEmailService {
     if (!payment) {
       return;
     }
-    if (payment.paymentMethod !== ManualPaymentMethod.CASH) {
+    if (!isStudioManualPaymentMethod(payment.paymentMethod)) {
       return;
     }
     if (payment.status !== PaymentStatus.PENDING) {
@@ -145,7 +142,7 @@ export class PaymentCashPendingEmailService {
 
 function resolveCashBookingAccessNote(source: PaymentSource): string {
   if (source === PaymentSource.PACKAGE) {
-    return 'Your package is already active — you can book classes now. Please complete your cash payment at the studio at your earliest convenience.';
+    return 'Your package is reserved. Please complete payment at the studio — you can book classes after the studio confirms payment.';
   }
   if (source === PaymentSource.DROPIN) {
     return 'Your session booking is reserved. Please visit the studio to pay in cash before your class.';

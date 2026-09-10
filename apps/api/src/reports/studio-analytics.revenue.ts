@@ -74,11 +74,13 @@ export function summarizeCashRevenue(
       continue;
     }
     addCashBucket(byStatusMap, payment.status, payment);
-    addCashBucket(
-      byMethodMap,
-      payment.paymentMethod ?? UNKNOWN_PAYMENT_METHOD,
-      payment,
-    );
+    if (payment.status === PaymentStatus.SUCCEEDED) {
+      addCashBucket(
+        byMethodMap,
+        payment.paymentMethod ?? UNKNOWN_PAYMENT_METHOD,
+        payment,
+      );
+    }
   }
   return {
     bySource: aggregatePaymentsBySource(

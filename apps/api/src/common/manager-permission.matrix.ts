@@ -57,6 +57,9 @@ export const MANAGER_PERMISSION_MATRIX = {
   },
   payments: {
     adminFinance: BACKOFFICE_DELETE_ROLES,
+    updateStatus: BACKOFFICE_WRITE_ROLES,
+    updateMethod: BACKOFFICE_WRITE_ROLES,
+    adminArcaSync: BACKOFFICE_DELETE_ROLES,
   },
   schedule: {
     write: BACKOFFICE_WRITE_ROLES,

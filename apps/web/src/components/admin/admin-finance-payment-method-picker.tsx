@@ -6,17 +6,18 @@ import { useTranslations } from "next-intl";
 import {
   ADMIN_FINANCE_STATUS_PICKER_CLASS,
   ADMIN_FINANCE_STATUS_STATIC_CLASS,
-  financePaymentStatusTone,
-  type FinancePaymentStatus,
 } from "@/components/admin/admin-finance-list-display";
+import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import {
-  adminPaymentStatusOptions,
-  type AdminUpdatablePaymentStatus as SharedAdminUpdatablePaymentStatus,
+  canSwapStudioPaymentMethod,
+  type StudioManualPaymentMethod,
 } from "@/lib/payment-confirmation";
 
 const MENU_GAP = 4;
-
-export type AdminUpdatablePaymentStatus = SharedAdminUpdatablePaymentStatus;
+const STUDIO_METHOD_OPTIONS: readonly StudioManualPaymentMethod[] = [
+  "CASH",
+  "CARD_TERMINAL",
+];
 
 type MenuPosition = {
   top: number;
@@ -24,28 +25,25 @@ type MenuPosition = {
   placement: "top" | "bottom";
 };
 
-type AdminFinancePaymentStatusPickerProps = {
-  status: FinancePaymentStatus;
+type AdminFinancePaymentMethodPickerProps = {
   paymentMethod: string | null;
   busy: boolean;
-  onChangeStatus: (nextStatus: AdminUpdatablePaymentStatus) => void;
+  onChangeMethod: (nextMethod: StudioManualPaymentMethod) => void;
 };
 
-export function AdminFinancePaymentStatusPicker({
-  status,
+export function AdminFinancePaymentMethodPicker({
   paymentMethod,
   busy,
-  onChangeStatus,
-}: AdminFinancePaymentStatusPickerProps) {
+  onChangeMethod,
+}: AdminFinancePaymentMethodPickerProps) {
   const t = useTranslations("adminPages.finance");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
-  const statusOptions = adminPaymentStatusOptions(paymentMethod, status);
-  const canEditStatus = statusOptions.length > 0;
-  const label = paymentStatusLabel(t, status);
+  const canSwap = canSwapStudioPaymentMethod(paymentMethod);
+  const label = resolveMethodLabel(t, paymentMethod);
 
   const updateMenuPosition = useCallback(() => {
     const trigger = triggerRef.current;
@@ -53,11 +51,10 @@ export function AdminFinancePaymentStatusPicker({
       return;
     }
     const rect = trigger.getBoundingClientRect();
-    const menuHeight = menuRef.current?.offsetHeight ?? 160;
+    const menuHeight = menuRef.current?.offsetHeight ?? 120;
     const availableBelow = window.innerHeight - rect.bottom - MENU_GAP;
     const availableAbove = rect.top - MENU_GAP;
     const openAbove = availableBelow < menuHeight && availableAbove > availableBelow;
-
     setMenuPosition({
       top: openAbove ? rect.top - MENU_GAP : rect.bottom + MENU_GAP,
       left: Math.max(8, rect.left),
@@ -66,12 +63,11 @@ export function AdminFinancePaymentStatusPicker({
   }, []);
 
   useEffect(() => {
-    if (!open || !canEditStatus) {
+    if (!open || !canSwap) {
       return undefined;
     }
     updateMenuPosition();
     const rafId = window.requestAnimationFrame(updateMenuPosition);
-
     function onPointerDown(event: MouseEvent) {
       const target = event.target;
       if (!(target instanceof Node)) {
@@ -82,13 +78,11 @@ export function AdminFinancePaymentStatusPicker({
       }
       setOpen(false);
     }
-
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setOpen(false);
       }
     }
-
     window.addEventListener("resize", updateMenuPosition);
     window.addEventListener("scroll", updateMenuPosition, true);
     document.addEventListener("mousedown", onPointerDown);
@@ -100,14 +94,11 @@ export function AdminFinancePaymentStatusPicker({
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [canEditStatus, open, updateMenuPosition]);
+  }, [canSwap, open, updateMenuPosition]);
 
-  if (!canEditStatus) {
+  if (!canSwap) {
     return (
-      <span
-        className={`${ADMIN_FINANCE_STATUS_STATIC_CLASS} ${financePaymentStatusTone(status)}`}
-        title={t("paymentActions.cardStatusAuto")}
-      >
+      <span className={ADMIN_FINANCE_STATUS_STATIC_CLASS} title={label}>
         {label}
       </span>
     );
@@ -127,8 +118,8 @@ export function AdminFinancePaymentStatusPicker({
               transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
             }}
           >
-            {statusOptions.map((option) => {
-              const isCurrent = option === status;
+            {STUDIO_METHOD_OPTIONS.map((option) => {
+              const isCurrent = option === paymentMethod;
               return (
                 <button
                   key={option}
@@ -143,10 +134,10 @@ export function AdminFinancePaymentStatusPicker({
                   disabled={busy || isCurrent}
                   onClick={() => {
                     setOpen(false);
-                    onChangeStatus(option);
+                    onChangeMethod(option);
                   }}
                 >
-                  {paymentStatusLabel(t, option)}
+                  {t(`paymentMethods.${option}`)}
                 </button>
               );
             })}
@@ -160,12 +151,12 @@ export function AdminFinancePaymentStatusPicker({
       <button
         ref={triggerRef}
         type="button"
-        className={`${ADMIN_FINANCE_STATUS_PICKER_CLASS} ${financePaymentStatusTone(status)} disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${ADMIN_FINANCE_STATUS_PICKER_CLASS} bg-sand-50 text-sage-800 disabled:cursor-not-allowed disabled:opacity-50`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
-        aria-label={t("changeStatusAria", { status: label })}
-        title={t("changeStatusAria", { status: label })}
+        aria-label={t("changeMethodAria", { method: label })}
+        title={t("changeMethodAria", { method: label })}
         disabled={busy}
         onClick={(event) => {
           event.stopPropagation();
@@ -182,6 +173,16 @@ export function AdminFinancePaymentStatusPicker({
   );
 }
 
+function resolveMethodLabel(
+  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
+  paymentMethod: string | null,
+): string {
+  if (paymentMethod === null || !isManualPaymentMethod(paymentMethod)) {
+    return t("paymentDetails.methodUnknown");
+  }
+  return t(`paymentMethods.${paymentMethod}`);
+}
+
 function ChevronDownGlyph({ className }: { className: string }) {
   return (
     <svg
@@ -194,15 +195,4 @@ function ChevronDownGlyph({ className }: { className: string }) {
       <path d="M6 9l6 6 6-6H6z" />
     </svg>
   );
-}
-
-function paymentStatusLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
-  value: FinancePaymentStatus,
-): string {
-  if (value === "SUCCEEDED") return t("filters.statusSucceeded");
-  if (value === "PENDING") return t("filters.statusPending");
-  if (value === "FAILED") return t("filters.statusFailed");
-  if (value === "REFUNDED") return t("filters.statusRefunded");
-  return value;
 }

@@ -20,6 +20,8 @@ function packageItem(
     usedSessions: 7,
     remainingSessions: 1,
     isUnlimited: false,
+    paymentId: "pay-1",
+    paymentStatus: "SUCCEEDED",
     paymentMethod: "CARD",
     ...overrides,
   };
