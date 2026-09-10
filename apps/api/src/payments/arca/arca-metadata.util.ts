@@ -37,10 +37,10 @@ export function readArcaMetadata(
   };
 }
 
-/** Merges an Arca metadata patch onto the existing `Payment.metadata` value. */
+/** Merges a metadata patch onto `Payment.metadata` without dropping existing keys. */
 export function mergeArcaMetadata(
   existing: Prisma.JsonValue | null,
-  patch: ArcaPaymentMetadata,
+  patch: ArcaPaymentMetadata & Record<string, unknown>,
 ): Prisma.InputJsonValue {
   const base =
     existing !== null &&
