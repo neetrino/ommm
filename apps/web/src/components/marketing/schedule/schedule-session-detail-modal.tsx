@@ -184,9 +184,8 @@ export function ScheduleSessionDetailModal({
       onClose={requestClose}
       backdropAriaLabel={t("closeBackdrop")}
       ariaLabelledBy={titleId}
-      centered
       motionState={motionOpen ? "open" : "closed"}
-      overlayClassName={`${styles.overlay} ommm-modal-overlay z-[120] p-4`}
+      overlayClassName={`${styles.overlay} ommm-modal-overlay z-[120]`}
       panelClassName={panelClassName}
     >
       {session !== null ? (
