@@ -39,9 +39,9 @@ export function AdminDetailSheetTabBar({
 
   return (
     <div
-      className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} shrink-0 border-b border-t-0 py-3 ${className}`.trim()}
+      className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} min-w-0 shrink-0 border-b border-t-0 py-3 ${className}`.trim()}
     >
-      <div className={ADMIN_HORIZONTAL_TAB_SCROLL_CLASS}>
+      <div className={`${ADMIN_HORIZONTAL_TAB_SCROLL_CLASS} min-w-0 w-full`}>
         <LayoutGroup id={layoutGroupId}>
           <div
             role="tablist"

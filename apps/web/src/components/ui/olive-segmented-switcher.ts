@@ -13,7 +13,7 @@ const TRACK_SURFACE: Record<OliveSegmentedSurface, string> = {
   white: "bg-white",
 };
 
-const OLIVE_SEGMENTED_HUG_TRACK = `relative inline-flex w-max max-w-full shrink-0 rounded-full ${TRACK_SURFACE.muted} p-1`;
+const OLIVE_SEGMENTED_HUG_TRACK = `relative inline-flex w-max shrink-0 rounded-full ${TRACK_SURFACE.muted} p-1`;
 
 const OLIVE_SEGMENTED_THUMB_BASE = [
   "pointer-events-none absolute inset-y-1 left-1 rounded-full",
