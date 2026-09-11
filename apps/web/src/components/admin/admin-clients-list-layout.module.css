@@ -33,8 +33,9 @@
 
   .actions {
     position: absolute;
-    top: 1rem;
+    top: 50%;
     right: 0.875rem;
+    transform: translateY(-50%);
   }
 }
 

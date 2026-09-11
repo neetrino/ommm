@@ -2333,6 +2333,7 @@
       "colBooking": "Бронирование",
       "nextBookingEmpty": "Нет ближайших",
       "colActions": "Действия",
+      "rowActionsAria": "Действия с клиентом",
       "packageActiveBadge": "Активен",
       "packagePausedBadge": "Пауза",
       "packagePendingBadge": "Ожидает",

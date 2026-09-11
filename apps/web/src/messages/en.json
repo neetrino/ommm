@@ -2335,6 +2335,7 @@
       "colBooking": "Booking",
       "nextBookingEmpty": "No upcoming",
       "colActions": "Actions",
+      "rowActionsAria": "Client actions",
       "packageActiveBadge": "Active",
       "packagePausedBadge": "Paused",
       "packagePendingBadge": "Pending",

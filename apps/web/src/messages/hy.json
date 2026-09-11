@@ -2336,6 +2336,7 @@
       "colBooking": "Ամրագրում",
       "nextBookingEmpty": "Մոտակա չկա",
       "colActions": "Գործողություններ",
+      "rowActionsAria": "Հաճախորդի գործողություններ",
       "packageActiveBadge": "Ակտիվ",
       "packagePausedBadge": "Դադար",
       "packagePendingBadge": "Սպասում",
