@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   fetchCoachAccountMe,
+  fetchCoachPanelSessions,
   fetchCoachRoster,
   fetchCoachSalary,
   fetchCoachSessions,
@@ -27,6 +28,8 @@ export type CoachPanelLoadState =
 type UseCoachPanelDataOptions = {
   includeRoster?: boolean;
   includeSalary?: boolean;
+  /** Schedule page: own past + upcoming classes. */
+  includeSessionHistory?: boolean;
 };
 
 export function useCoachPanelData(
@@ -37,6 +40,7 @@ export function useCoachPanelData(
 } {
   const includeRoster = options.includeRoster !== false;
   const includeSalary = options.includeSalary === true;
+  const includeSessionHistory = options.includeSessionHistory === true;
   const [state, setState] = useState<CoachPanelLoadState>({ status: "loading" });
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -60,7 +64,9 @@ export function useCoachPanelData(
         }
 
         const [sessions, roster, salary] = await Promise.all([
-          fetchCoachSessions(coachId),
+          includeSessionHistory
+            ? fetchCoachPanelSessions()
+            : fetchCoachSessions(coachId),
           includeRoster ? fetchCoachRoster(coachId) : Promise.resolve([]),
           includeSalary ? fetchCoachSalary() : Promise.resolve(null),
         ]);
@@ -88,7 +94,7 @@ export function useCoachPanelData(
     return () => {
       cancelled = true;
     };
-  }, [includeRoster, includeSalary, reloadKey]);
+  }, [includeRoster, includeSalary, includeSessionHistory, reloadKey]);
 
   return { state, reload };
 }

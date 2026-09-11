@@ -758,7 +758,7 @@
       },
       "coach": {
         "home": "Today's workload, session counts, and quick links.",
-        "schedule": "Your assigned sessions in the current date range.",
+        "schedule": "Your assigned past and upcoming sessions.",
         "groups": "Booked participants and attendance for your classes.",
         "analytics": "Teaching load and session trends.",
         "salary": "Payouts and compensation summaries.",
@@ -4639,7 +4639,7 @@
     },
     "schedule": {
       "title": "My schedule",
-      "description": "Upcoming sessions assigned to you in the current planning window.",
+      "description": "Your assigned sessions — scroll back for past classes, or ahead for upcoming ones.",
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "loadFailed": "Could not load schedule.",

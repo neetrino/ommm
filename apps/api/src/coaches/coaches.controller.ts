@@ -61,6 +61,15 @@ export class CoachesController {
     return this.coaches.salarySummary(user.id);
   }
 
+  /** Own past + upcoming sessions for the coach schedule (list / week / month). */
+  @Get('panel/sessions')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COACH)
+  panelSessions(@CurrentUser() user: { id: string }) {
+    return this.coaches.panelSessionsList(user.id);
+  }
+
   /** Per-session breakdown behind the current coach's own monthly salary total. */
   @Get('panel/salary-sessions')
   @SkipThrottle()

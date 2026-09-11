@@ -1,4 +1,9 @@
-export type CoachSessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+export type CoachSessionStatus =
+  | "ACTIVE"
+  | "CANCELLED"
+  | "FULL"
+  | "DRAFT"
+  | "FINISHED";
 
 export type CoachPanelSessionRow = {
   id: string;

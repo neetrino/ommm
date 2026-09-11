@@ -2,7 +2,7 @@ export type ScheduleView = "list" | "weekly" | "monthly";
 
 export const SCHEDULE_VIEW_MODES: readonly ScheduleView[] = ["list", "weekly", "monthly"];
 
-/** Card/list layout used on phones (week board is tablet+ only). */
+/** Card/list layout used on phones when week board is unavailable. */
 export const SCHEDULE_MOBILE_CARD_VIEW: ScheduleView = "list";
 
 /** Views that use the paginated list API + date-strip day counts. */
@@ -18,14 +18,12 @@ export function resolveScheduleView(value: string | undefined): ScheduleView {
 }
 
 /**
- * Phones always use card/list (or monthly day cards); week board is tablet+ only
- * (same breakpoint as {@link useSupportsListBoardView}).
+ * List / week / month stay available on phones and desktop.
+ * Week board scrolls horizontally on narrow viewports.
  */
 export function resolveEffectiveScheduleView(
   preferred: ScheduleView,
-  supportsDesktopViews: boolean,
+  _supportsDesktopViews: boolean,
 ): ScheduleView {
-  if (supportsDesktopViews) return preferred;
-  if (preferred === "monthly") return "monthly";
-  return SCHEDULE_MOBILE_CARD_VIEW;
+  return preferred;
 }

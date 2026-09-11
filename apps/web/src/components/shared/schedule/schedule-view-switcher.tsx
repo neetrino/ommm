@@ -7,9 +7,6 @@ import {
   SCHEDULE_VIEW_MODES,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
-import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
-
-const SCHEDULE_MOBILE_VIEW_MODES: readonly ScheduleView[] = ["list", "monthly"];
 
 const VIEW_BUTTON_BASE = [
   "inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2",
@@ -36,11 +33,10 @@ type ScheduleViewSwitcherProps = {
   onChange: (view: ScheduleView) => void;
 };
 
-/** Labeled List / Week / Month toggles — phone shows List + Month only. */
+/** Labeled List / Week / Month toggles — same three modes on phone and desktop. */
 export function ScheduleViewSwitcher({ value, onChange }: ScheduleViewSwitcherProps) {
   const t = useTranslations("adminPages.classes");
-  const supportsDesktopViews = useSupportsListBoardView();
-  const modes = supportsDesktopViews ? SCHEDULE_VIEW_MODES : SCHEDULE_MOBILE_VIEW_MODES;
+  const modes = SCHEDULE_VIEW_MODES;
 
   const labels: Record<ScheduleView, string> = {
     list: t("views.list"),
