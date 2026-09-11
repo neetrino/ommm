@@ -43,6 +43,7 @@ export class PrismaService
   private idleMonitor: NodeJS.Timeout | null = null;
   private disconnectInFlight = false;
   private engineConnected = false;
+  private connectInFlight: Promise<void> | null = null;
 
   constructor() {
     super({
@@ -75,6 +76,33 @@ export class PrismaService
     }
     await this.$disconnect();
     this.engineConnected = false;
+  }
+
+  /**
+   * Reconnect after intentional idle `$disconnect` (Neon scale-to-zero).
+   * Without this, the next query fails with "Engine is not yet connected".
+   */
+  async ensureConnected(): Promise<void> {
+    while (this.disconnectInFlight) {
+      await sleep(20);
+    }
+    if (this.engineConnected) {
+      this.lastDbActivityAt = Date.now();
+      return;
+    }
+    if (this.connectInFlight !== null) {
+      await this.connectInFlight;
+      return;
+    }
+    this.connectInFlight = this.$connect()
+      .then(() => {
+        this.engineConnected = true;
+        this.lastDbActivityAt = Date.now();
+      })
+      .finally(() => {
+        this.connectInFlight = null;
+      });
+    await this.connectInFlight;
   }
 
   private startIdleMonitor(): void {
@@ -115,6 +143,12 @@ export class PrismaService
       this.disconnectInFlight = false;
     }
   }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 function isIdleDisconnectEnabled(raw: string | undefined): boolean {
