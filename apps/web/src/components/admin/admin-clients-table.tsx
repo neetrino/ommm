@@ -44,7 +44,7 @@ export function AdminClientsTable({
         <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
           {t("colJoined")}
         </span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-left`}>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
           {t("colMembership")}
         </span>
         <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>

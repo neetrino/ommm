@@ -135,11 +135,7 @@ function ClientCardFields({
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
-          <AdminClientRowActions
-            client={row}
-            onChanged={onChanged}
-            onEdit={() => onSelect(row)}
-          />
+          <AdminClientRowActions client={row} onChanged={onChanged} />
         </div>
       )}
     </>

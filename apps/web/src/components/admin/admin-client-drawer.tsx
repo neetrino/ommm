@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useState, type FormEvent } from
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { formatIsoDateToUi } from "@/lib/date-display";
+import { AdminClientResetPasswordAction } from "@/components/admin/admin-client-reset-password-action";
 import { AdminClientStatusAction } from "@/components/admin/admin-client-status-action";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
@@ -164,6 +165,7 @@ function AdminClientDrawerInner({
   const [loading, setLoading] = useState(matchingInitialDetail === null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [statusBusy, setStatusBusy] = useState(false);
+  const [resetPasswordBusy, setResetPasswordBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
@@ -267,7 +269,8 @@ function AdminClientDrawerInner({
     [t],
   );
 
-  const sheetBusy = editForm.busy || statusBusy || actionBusy !== null;
+  const sheetBusy =
+    editForm.busy || statusBusy || resetPasswordBusy || actionBusy !== null;
 
   const updateClientTabQuery = useCallback(
     (tab: ClientSheetTabId) => {
@@ -389,6 +392,12 @@ function AdminClientDrawerInner({
             {clientHeaderName(client)}
           </h2>
           <div className="flex shrink-0 items-center gap-2">
+            <AdminClientResetPasswordAction
+              email={detail?.email ?? client.email}
+              disabled={editForm.busy || loading}
+              onBusyChange={setResetPasswordBusy}
+              onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+            />
             <AdminClientStatusAction
               clientId={client.id}
               isActive={isActive}

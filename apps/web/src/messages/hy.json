@@ -2413,6 +2413,11 @@
       "deactivateSuccess": "Հաճախորդը ապաակտիվացվեց",
       "confirmActivate": "Ակտիվացնե՞լ այս հաճախորդին։",
       "confirmDeactivate": "Ապաակտիվացնե՞լ այս հաճախորդին։ Ամրագրումը կլինի անհասանելի։",
+      "resetPassword": "Վերականգնել գաղտնաբառը",
+      "resetPasswordSending": "Ուղարկվում է…",
+      "confirmResetPassword": "Ուղարկե՞լ գաղտնաբառի վերականգնման նամակ {email} հասցեին։",
+      "resetPasswordSuccess": "Գաղտնաբառի վերականգնման նամակը ուղարկվեց",
+      "resetPasswordFailed": "Չհաջողվեց ուղարկել գաղտնաբառի վերականգնման նամակը",
       "sheetTabs": {
         "profile": "Պրոֆիլ",
         "packages": "Փաթեթներ",

@@ -2410,6 +2410,11 @@
       "deactivateSuccess": "Клиент деактивирован",
       "confirmActivate": "Активировать этого клиента?",
       "confirmDeactivate": "Деактивировать этого клиента? Бронирование будет недоступно.",
+      "resetPassword": "Сбросить пароль",
+      "resetPasswordSending": "Отправка…",
+      "confirmResetPassword": "Отправить письмо для сброса пароля на {email}?",
+      "resetPasswordSuccess": "Письмо для сброса пароля отправлено",
+      "resetPasswordFailed": "Не удалось отправить письмо для сброса пароля",
       "sheetTabs": {
         "profile": "Профиль",
         "packages": "Пакеты",

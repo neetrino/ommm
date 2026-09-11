@@ -19,15 +19,17 @@ const TRIGGER_CLASS =
 const MENU_ITEM_CLASS =
   "block w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-sand-50/90";
 
-type PendingConfirm = "activate" | "deactivate";
+const RESET_PASSWORD_MENU_ITEM_CLASS =
+  "block w-full px-4 py-2.5 text-left text-sm text-sage-900 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-sage-900";
+
+type PendingConfirm = "activate" | "deactivate" | "resetPassword";
 
 type AdminClientRowActionsProps = {
   client: ClientRow;
   onChanged: () => void;
-  onEdit: () => void;
 };
 
-export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClientRowActionsProps) {
+export function AdminClientRowActions({ client, onChanged }: AdminClientRowActionsProps) {
   const t = useTranslations("adminPages.clients");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -78,12 +80,20 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
     };
   }, [open]);
 
-  function openConfirm(): void {
+  function openStatusConfirm(): void {
     if (busy) {
       return;
     }
     setOpen(false);
     setPendingConfirm(isActive ? "deactivate" : "activate");
+  }
+
+  function openResetPasswordConfirm(): void {
+    if (busy) {
+      return;
+    }
+    setOpen(false);
+    setPendingConfirm("resetPassword");
   }
 
   function closeConfirm(): void {
@@ -94,7 +104,7 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
   }
 
   async function confirmStatusChange(): Promise<void> {
-    if (busy || pendingConfirm === null) {
+    if (busy || pendingConfirm === null || pendingConfirm === "resetPassword") {
       return;
     }
 
@@ -119,22 +129,62 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
     }
   }
 
+  async function confirmResetPassword(): Promise<void> {
+    if (busy || pendingConfirm !== "resetPassword") {
+      return;
+    }
+
+    const email = client.email.trim().toLowerCase();
+    if (email === "") {
+      return;
+    }
+
+    setBusy(true);
+    setMessage(null);
+
+    try {
+      await apiFetch<{ ok: boolean }>("/auth/request-password-reset", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+      setTone("ok");
+      setMessage(t("resetPasswordSuccess"));
+      setPendingConfirm(null);
+    } catch (error) {
+      setTone("err");
+      setMessage(error instanceof ApiError ? error.message : t("resetPasswordFailed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const confirmCopy =
-    pendingConfirm === "deactivate"
+    pendingConfirm === "resetPassword"
       ? {
-          title: t("deactivateClient"),
-          description: t("confirmDeactivate"),
-          confirmLabel: t("deactivateClient"),
-          tone: "danger" as const,
-          confirmClassName: "ommm-btn-lifecycle-action--danger",
+          title: t("resetPassword"),
+          description: t("confirmResetPassword", { email: client.email.trim() }),
+          confirmLabel: t("resetPassword"),
+          tone: "default" as const,
+          confirmClassName: undefined as string | undefined,
+          onConfirm: confirmResetPassword,
         }
-      : {
-          title: t("activateClient"),
-          description: t("confirmActivate"),
-          confirmLabel: t("activateClient"),
-          tone: "success" as const,
-          confirmClassName: "ommm-btn-lifecycle-action--success",
-        };
+      : pendingConfirm === "deactivate"
+        ? {
+            title: t("deactivateClient"),
+            description: t("confirmDeactivate"),
+            confirmLabel: t("deactivateClient"),
+            tone: "danger" as const,
+            confirmClassName: "ommm-btn-lifecycle-action--danger",
+            onConfirm: confirmStatusChange,
+          }
+        : {
+            title: t("activateClient"),
+            description: t("confirmActivate"),
+            confirmLabel: t("activateClient"),
+            tone: "success" as const,
+            confirmClassName: "ommm-btn-lifecycle-action--success",
+            onConfirm: confirmStatusChange,
+          };
 
   const menu =
     open && menuPosition !== null && typeof document !== "undefined"
@@ -156,13 +206,11 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
             <button
               type="button"
               role="menuitem"
-              className={`${MENU_ITEM_CLASS} text-sage-800`}
-              onClick={() => {
-                setOpen(false);
-                onEdit();
-              }}
+              className={RESET_PASSWORD_MENU_ITEM_CLASS}
+              disabled={busy}
+              onClick={openResetPasswordConfirm}
             >
-              {t("edit")}
+              {t("resetPassword")}
             </button>
             <button
               type="button"
@@ -171,7 +219,7 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
                 isActive ? "text-red-800 hover:bg-red-50/80" : "text-sage-800"
               }`}
               disabled={busy}
-              onClick={openConfirm}
+              onClick={openStatusConfirm}
             >
               {statusLabel}
             </button>
@@ -182,7 +230,7 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
 
   return (
     <>
-      <div className="flex items-center justify-end" role="group" aria-label={t("colActions")}>
+      <div className="flex items-center justify-center" role="group" aria-label={t("colActions")}>
         <button
           ref={triggerRef}
           type="button"
@@ -212,14 +260,20 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
         isOpen={pendingConfirm !== null}
         title={confirmCopy.title}
         description={confirmCopy.description}
-        confirmLabel={busy ? t("savingButton") : confirmCopy.confirmLabel}
+        confirmLabel={
+          busy
+            ? pendingConfirm === "resetPassword"
+              ? t("resetPasswordSending")
+              : t("savingButton")
+            : confirmCopy.confirmLabel
+        }
         cancelLabel={t("cancelButton")}
         backdropAriaLabel={t("modalBackdropClose")}
         tone={confirmCopy.tone}
         confirmClassName={confirmCopy.confirmClassName}
         pending={busy}
         onConfirm={() => {
-          void confirmStatusChange();
+          void confirmCopy.onConfirm();
         }}
         onCancel={closeConfirm}
       />

@@ -2412,6 +2412,11 @@
       "deactivateSuccess": "Client deactivated",
       "confirmActivate": "Activate this client?",
       "confirmDeactivate": "Deactivate this client? They will be blocked from booking.",
+      "resetPassword": "Reset password",
+      "resetPasswordSending": "Sending…",
+      "confirmResetPassword": "Send a password reset email to {email}?",
+      "resetPasswordSuccess": "Password reset email sent",
+      "resetPasswordFailed": "Could not send password reset email",
       "sheetTabs": {
         "profile": "Profile",
         "packages": "Packages",

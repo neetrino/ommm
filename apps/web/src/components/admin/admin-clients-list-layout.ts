@@ -1,13 +1,11 @@
 import {
   ADMIN_CARD_CONTAIN_CLASS,
   ADMIN_LIST_ROW_SURFACE,
-  USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
   USER_LIST_HEADER_SURFACE,
   USER_LIST_TABLE_GRID_GAP,
   USER_LIST_TABLE_HEADER_TEXT,
   USER_LIST_TABLE_SUBGRID_ROW,
-  USER_LIST_TRAILING_HEADER_CELL,
 } from "@/components/admin/admin-list-table-layout";
 import { USER_LIST_ROW_INTERACTIVE } from "@/components/account/user-list-table-layout";
 import clientsListLayoutStyles from "@/components/admin/admin-clients-list-layout.module.css";
@@ -88,14 +86,16 @@ export const ADMIN_CLIENTS_LIST_SUBTITLE_CLASS =
 export const ADMIN_CLIENTS_LIST_VALUE_CLASS = "text-base text-sage-800";
 
 export const ADMIN_CLIENTS_LIST_MEMBERSHIP_CELL =
-  `${USER_LIST_CELL_CLASS} md:flex md:justify-start md:text-left`;
+  `${USER_LIST_CELL_CLASS} md:flex md:justify-center md:text-center`;
 
 export const ADMIN_CLIENTS_LIST_BOOKING_CELL =
   `${USER_LIST_CELL_CLASS} md:text-center`;
 
-export const ADMIN_CLIENTS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
+export const ADMIN_CLIENTS_LIST_ACTIONS_CELL =
+  "flex shrink-0 justify-self-center md:items-center md:justify-center md:self-center";
 
-export const ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;
+export const ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL =
+  "justify-self-center text-center";
 
 export const ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER =
   "text-xs font-semibold uppercase tracking-[0.1em] text-sage-600";
