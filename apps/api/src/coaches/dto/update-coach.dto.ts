@@ -71,6 +71,12 @@ export class UpdateCoachDto {
   @MaxLength(2048)
   photoUrl?: string;
 
+  /** Public coaches-page portrait; empty string clears. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  cardImageUrl?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(4000)

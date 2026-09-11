@@ -41,6 +41,7 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
               <div className={gridStyles.cardSlot}>
                 <CoachesPageCoachCard
                   user={coach.user}
+                  cardImageUrl={coach.cardImageUrl}
                   specialization={coach.specialization}
                   bio={coach.bio}
                   experienceYears={coach.experienceYears}

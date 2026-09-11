@@ -46,11 +46,13 @@ export type AdminCreateCoachSubmitParams = {
   classTypeRates: Readonly<Record<string, string>>;
   classOptions: readonly CoachClassOption[];
   photoFile: File | null;
+  cardImageFile: File | null;
   pending: boolean;
   submitLockRef: MutableRefObject<boolean>;
   t: (key: string, values?: Record<string, string | number>) => string;
   onCreated?: () => void;
   onPhotoSelected: (file: File | null) => void;
+  onCardImageSelected: (file: File | null) => void;
   setError: (error: string | null) => void;
   setErrorField: (field: AdminCreateCoachFocusField | null) => void;
   setSuccess: (success: boolean) => void;
@@ -68,11 +70,13 @@ export async function submitAdminCreateCoachForm({
   classTypeRates,
   classOptions,
   photoFile,
+  cardImageFile,
   pending,
   submitLockRef,
   t,
   onCreated,
   onPhotoSelected,
+  onCardImageSelected,
   setError,
   setErrorField,
   setSuccess,
@@ -242,6 +246,10 @@ export async function submitAdminCreateCoachForm({
     reportAdminCreateCoachFieldError(form, setError, setErrorField, t("photoTooLarge"), "photo");
     return;
   }
+  if (cardImageFile !== null && cardImageFile.size > MAX_PHOTO_BYTES) {
+    reportAdminCreateCoachFieldError(form, setError, setErrorField, t("photoTooLarge"), "cardImage");
+    return;
+  }
 
   submitLockRef.current = true;
   setPending(true);
@@ -272,11 +280,20 @@ export async function submitAdminCreateCoachForm({
       });
       onPhotoSelected(null);
     }
+    if (cardImageFile !== null) {
+      const payload = await readFileAsBase64Payload(cardImageFile);
+      await apiFetch<{ cardImageUrl: string }>(`/coaches/${created.id}/card-image-json`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      onCardImageSelected(null);
+    }
     form.reset();
     setBirthdayValue("");
     setSelectedClassIds([]);
     setClassTypeRates({});
     onPhotoSelected(null);
+    onCardImageSelected(null);
     setError(null);
     setErrorField(null);
     await revalidatePublicCoaches();

@@ -221,6 +221,7 @@ export type CoachUpdateNormalizedFields = {
   normalizedSpecialization: string | null | undefined;
   normalizedClassType: string | null | undefined;
   normalizedPhotoUrl: string | null | undefined;
+  normalizedCardImageUrl: string | null | undefined;
   normalizedAssignedClassTypeIds: string[] | undefined;
   normalizedSchedule: NormalizedScheduleSlot[] | undefined;
 };
@@ -243,6 +244,10 @@ export function normalizeCoachUpdateFields(
         : normalizeOptionalText(dto.classType),
     normalizedPhotoUrl:
       dto.photoUrl === undefined ? undefined : normalizePhotoUrl(dto.photoUrl),
+    normalizedCardImageUrl:
+      dto.cardImageUrl === undefined
+        ? undefined
+        : normalizePhotoUrl(dto.cardImageUrl),
     normalizedAssignedClassTypeIds:
       dto.assignedClassTypeIds === undefined
         ? undefined
@@ -295,6 +300,9 @@ export function buildCoachUpdateProfileData(
     }),
     ...(fields.normalizedAssignedClassTypeIds !== undefined && {
       assignedClassTypeIds: fields.normalizedAssignedClassTypeIds,
+    }),
+    ...(fields.normalizedCardImageUrl !== undefined && {
+      cardImageUrl: fields.normalizedCardImageUrl,
     }),
     ...(dto.isActive !== undefined && { isActive: dto.isActive }),
   };

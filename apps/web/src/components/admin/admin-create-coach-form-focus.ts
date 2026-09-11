@@ -14,7 +14,8 @@ export type AdminCreateCoachFocusField =
   | "experienceYears"
   | "classTypeRates"
   | "assignedClasses"
-  | "photo";
+  | "photo"
+  | "cardImage";
 
 /** Scrolls the invalid field into view and focuses it when possible. */
 export function focusAdminCreateCoachField(
@@ -25,6 +26,7 @@ export function focusAdminCreateCoachField(
     "assignedClasses",
     "classTypeRates",
     "photo",
+    "cardImage",
   ];
   if (sectionFields.includes(field)) {
     const targetField = field === "classTypeRates" ? "assignedClasses" : field;
@@ -70,7 +72,7 @@ export function resolveAdminCreateCoachApiFocusField(
   if (normalized.includes("salary") || normalized.includes("classtype rates")) {
     return "classTypeRates";
   }
-  if (normalized.includes("photo")) {
+  if (normalized.includes("photo") || normalized.includes("card image")) {
     return "photo";
   }
   if (normalized.includes("birthday") || normalized.includes("date of birth")) {

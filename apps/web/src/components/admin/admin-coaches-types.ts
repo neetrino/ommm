@@ -13,6 +13,7 @@ export type AdminCoachDirectoryRow = {
   }[];
   experienceYears: number | null;
   salaryPerClassAmd: number;
+  cardImageUrl: string | null;
   age: number | null;
   isActive: boolean;
   createdAt: string;

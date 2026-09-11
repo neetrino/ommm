@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   coachCardDisplayName,
+  resolveCoachPageImageUrl,
   type CoachCardUser,
 } from "@/components/coaches/coach-card-display";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
@@ -16,6 +17,7 @@ import styles from "@/components/marketing/coaches/coaches-page-coach-card.modul
 
 type CoachesPageCoachCardProps = {
   user: CoachCardUser;
+  cardImageUrl?: string | null;
   specialization: string | null;
   bio: string | null;
   experienceYears: number | null;
@@ -126,6 +128,7 @@ function collapseHoverLockMs(): number {
 
 export function CoachesPageCoachCard({
   user,
+  cardImageUrl = null,
   specialization,
   bio,
   experienceYears,
@@ -137,7 +140,8 @@ export function CoachesPageCoachCard({
   const roleLine =
     specialization?.trim() ||
     t("coachesModalSpecializationLabel");
-  const imageSrc = user.avatarUrl ?? HOME_SECTION_ASSETS.coachPortrait;
+  const imageSrc =
+    resolveCoachPageImageUrl({ cardImageUrl, user }) ?? HOME_SECTION_ASSETS.coachPortrait;
   const experienceText =
     experienceYears != null && experienceYears > 0
       ? t("coachesExperience", { years: experienceYears })

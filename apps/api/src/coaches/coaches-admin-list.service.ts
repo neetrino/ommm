@@ -108,6 +108,7 @@ export class CoachesAdminListService {
         assignedClassTypeIds: row.assignedClassTypeIds,
         experienceYears: row.experienceYears,
         salaryPerClassAmd: row.salaryPerClassAmd ?? 0,
+        cardImageUrl: row.cardImageUrl,
         classTypeRates: (row.classTypeRates ?? []).map((rate) => ({
           classTypeId: rate.classTypeId,
           amountAmd: rate.amountAmd,

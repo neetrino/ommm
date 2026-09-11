@@ -43,6 +43,13 @@ export class CoachesService {
     return this.photoService.uploadCoachPhotoJson(coachProfileId, dto);
   }
 
+  uploadCoachCardImageJson(
+    coachProfileId: string,
+    dto: UploadCoachPhotoJsonDto,
+  ) {
+    return this.photoService.uploadCoachCardImageJson(coachProfileId, dto);
+  }
+
   update(actor: User, coachProfileId: string, dto: UpdateCoachDto) {
     return this.adminWrite.update(actor, coachProfileId, dto);
   }
