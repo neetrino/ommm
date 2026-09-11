@@ -19,7 +19,7 @@ export const COACH_LIST_AVATAR_CLASS = "h-10 w-10 text-sm";
 export const COACH_BOARD_AVATAR_CLASS = "h-12 w-12 text-sm";
 
 export const ADMIN_COACH_CLASS_BADGE_BOARD_CLASS =
-  "inline-flex max-w-full shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]";
+  "inline-flex max-w-full shrink-0 rounded-full px-3 py-1.5 text-left text-[11px] font-semibold uppercase leading-snug tracking-[0.06em] whitespace-normal";
 
 type CoachDirectoryAvatarProps = {
   coach: AdminCoachDirectoryRow;

@@ -65,7 +65,6 @@ function AdminCoachesListView({
     <div className={tableClass}>
       <div className={ADMIN_COACHES_LIST_HEADER_CLASS}>
         <span>{t("colCoaches")}</span>
-        <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colSpecialization")}</span>
         <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colWorkload")}</span>
         {readOnly ? null : (

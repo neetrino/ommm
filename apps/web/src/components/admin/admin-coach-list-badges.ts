@@ -1,5 +1,5 @@
 export const ADMIN_COACH_CLASS_BADGE_CLASS =
-  "inline-flex max-w-full shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]";
+  "inline-flex max-w-full shrink-0 rounded-full px-2.5 py-1 text-left text-[11px] font-semibold uppercase leading-snug tracking-[0.06em] whitespace-normal";
 
 const COACH_CLASS_BADGE_TONES = [
   "bg-sky-100 text-sky-900",

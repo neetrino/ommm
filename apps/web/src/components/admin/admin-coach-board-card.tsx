@@ -13,6 +13,7 @@ import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import { ADMIN_LIST_ROW_SURFACE } from "@/components/admin/admin-list-table-layout";
+import coachesListLayoutStyles from "@/components/admin/admin-coaches-list-layout.module.css";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { USER_LIST_ROW_INTERACTIVE } from "@/components/account/user-list-table-layout";
 import { displayPhoneOrFallback } from "@/lib/phone";
@@ -39,7 +40,7 @@ type AdminCoachBoardCardProps = {
 };
 
 type BoardMetaRowProps = {
-  icon: "user" | "calendar";
+  icon: "calendar";
   children: string;
 };
 
@@ -72,6 +73,7 @@ function BoardCardHeader({
   readOnly,
 }: Omit<AdminCoachBoardCardProps, "onSelect">) {
   const displayName = coachDirectoryDisplayName(coach);
+  const specialization = coach.specialization?.trim() || "—";
 
   return (
     <div className="flex items-start justify-between gap-3">
@@ -80,6 +82,9 @@ function BoardCardHeader({
         <div className="min-w-0">
           <p className="truncate text-base font-semibold text-sage-900" title={displayName}>
             {displayName}
+          </p>
+          <p className="mt-0.5 truncate text-xs text-sage-600" title={specialization}>
+            {specialization}
           </p>
           <p className="mt-0.5 truncate text-xs text-sage-500">
             {displayPhoneOrFallback(coach.user.phone)}
@@ -114,7 +119,6 @@ export function AdminCoachBoardCard({
 }: AdminCoachBoardCardProps) {
   const t = useTranslations("adminPages.coaches");
   const displayName = coachDirectoryDisplayName(coach);
-  const specialization = coach.specialization?.trim() || "—";
 
   return (
     <article
@@ -133,9 +137,10 @@ export function AdminCoachBoardCard({
           locale={locale}
           readOnly={readOnly}
         />
-        <BoardMetaRow icon="user">{specialization}</BoardMetaRow>
         <div className={`${BOARD_CARD_DIVIDER_SECTION_CLASS} flex-1`}>
-          <div className="flex flex-wrap content-start items-center gap-2">
+          <div
+            className={`flex flex-wrap content-start items-start gap-2 ${coachesListLayoutStyles.boardTags}`}
+          >
             <CoachClassBadges
               assignedClassTypeIds={coach.assignedClassTypeIds}
               classOptions={classOptions}
