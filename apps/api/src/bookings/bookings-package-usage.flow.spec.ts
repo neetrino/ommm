@@ -216,14 +216,17 @@ describe('bookings package usage flow', () => {
       userPackage: { update: jest.fn() },
       bookingConsumption: {
         create: jest.fn(),
-        findMany: jest.fn().mockResolvedValue([
-          {
-            id: 'consumption-1',
-            userPackageId: 'user-package-1',
-            userPackageBalanceId: 'balance-1',
-            consumedSessions: 1,
-          },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
+            {
+              id: 'consumption-1',
+              userPackageId: 'user-package-1',
+              userPackageBalanceId: 'balance-1',
+              consumedSessions: 1,
+            },
+          ]),
         update: jest.fn(),
       },
     };

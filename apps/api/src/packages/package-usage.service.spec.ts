@@ -148,7 +148,7 @@ describe('PackageUsageService', () => {
       userPackage: { update: jest.fn() },
       bookingConsumption: {
         create: jest.fn(),
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
       },
     };
@@ -164,6 +164,31 @@ describe('PackageUsageService', () => {
     expect(tx.userPackageBalance.update).toHaveBeenCalledTimes(1);
     expect(tx.userPackage.update).toHaveBeenCalledTimes(1);
     expect(tx.bookingConsumption.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not consume again when the booking already holds an unrestored credit', async () => {
+    const { service } = createServiceWithPrismaMock();
+    const tx: MockTx = {
+      userPackageBalance: { update: jest.fn() },
+      userPackage: { update: jest.fn() },
+      bookingConsumption: {
+        create: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([{ restoredAt: null }]),
+        update: jest.fn(),
+      },
+    };
+
+    await service.consumeSession({
+      tx: tx as never,
+      bookingId: 'booking-1',
+      membership: createMembership() as never,
+      sessionClassType: { id: 'type-1', name: 'Reformer' },
+      requiredSessions: 1,
+    });
+
+    expect(tx.userPackageBalance.update).not.toHaveBeenCalled();
+    expect(tx.userPackage.update).not.toHaveBeenCalled();
+    expect(tx.bookingConsumption.create).not.toHaveBeenCalled();
   });
 
   it('restores consumed sessions and marks rows restored', async () => {
