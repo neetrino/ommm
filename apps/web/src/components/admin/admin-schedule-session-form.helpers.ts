@@ -135,7 +135,6 @@ export function formPayload(form: AdminScheduleFormState, classTypeId: string, t
   const endTime = normalizeTimeInputValue(form.endTime);
   return {
     title: title.trim(),
-    description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
     startsAt: studioWallClockToUtc(form.date, startTime).toISOString(),
@@ -156,7 +155,6 @@ export function batchFormPayload(
 ) {
   return {
     title: title.trim(),
-    description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
     capacity: Number(form.capacity),

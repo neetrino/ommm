@@ -170,12 +170,6 @@ export function SessionSheetTabPanels({
           triggerClassName="text-center"
           formatSelectedCount={(count) => t("filters.selectedCount", { count })}
         />
-        <textarea
-          className="ommm-input min-h-24 sm:col-span-2"
-          value={form.description}
-          onChange={(event) => updateForm({ ...form, description: event.target.value })}
-          placeholder={t("form.description")}
-        />
       </section>
     );
   }

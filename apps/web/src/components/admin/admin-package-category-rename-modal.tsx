@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicPackages } from "@/lib/revalidate-public-packages";
@@ -8,7 +8,10 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
-import { MAX_CATEGORY_NAME_LENGTH } from "@/components/admin/admin-package-form-utils";
+import {
+  MAX_CATEGORY_NAME_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+} from "@/components/admin/admin-package-form-utils";
 import { normalizePackageCategoryLabel } from "@/components/admin/package-category-utils";
 import { packagesInCategory } from "@/components/admin/admin-packages-categories";
 
@@ -26,6 +29,16 @@ type AdminPackageCategoryRenameModalProps = {
   ) => void;
 };
 
+function resolveCategoryDescription(packages: readonly AdminPackageRow[]): string {
+  for (const pkg of packages) {
+    const description = pkg.description?.trim();
+    if (description !== undefined && description.length > 0) {
+      return description;
+    }
+  }
+  return "";
+}
+
 export function AdminPackageCategoryRenameModal({
   isOpen,
   categorySlug,
@@ -36,15 +49,23 @@ export function AdminPackageCategoryRenameModal({
 }: AdminPackageCategoryRenameModalProps) {
   const t = useTranslations("adminPages.packages");
   const titleId = useId();
+  const categoryPackages = useMemo(
+    () => packagesInCategory(packages, categorySlug),
+    [packages, categorySlug],
+  );
+  const initialDescription = useMemo(
+    () => resolveCategoryDescription(categoryPackages),
+    [categoryPackages],
+  );
   const [nextName, setNextName] = useState(categoryName);
+  const [nextDescription, setNextDescription] = useState(initialDescription);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const categoryPackages = packagesInCategory(packages, categorySlug);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = normalizePackageCategoryLabel(nextName);
+    const trimmedDescription = nextDescription.trim();
     if (trimmed.length === 0) {
       setError(t("categoryRequired"));
       return;
@@ -53,18 +74,34 @@ export function AdminPackageCategoryRenameModal({
       setError(t("categoryTooLong"));
       return;
     }
-    if (trimmed === normalizePackageCategoryLabel(categoryName)) {
+    if (trimmedDescription.length > MAX_DESCRIPTION_LENGTH) {
+      setError(t("descriptionTooLong"));
+      return;
+    }
+
+    const nameUnchanged = trimmed === normalizePackageCategoryLabel(categoryName);
+    const descriptionUnchanged = trimmedDescription === initialDescription.trim();
+    if (nameUnchanged && descriptionUnchanged) {
       onClose();
       return;
     }
+
     setPending(true);
     setError(null);
     try {
       const updated: AdminPackageRow[] = [];
+      const descriptionPayload = trimmedDescription.length > 0 ? trimmedDescription : null;
       for (const pkg of categoryPackages) {
+        const body: { categoryName?: string; description?: string | null } = {};
+        if (!nameUnchanged) {
+          body.categoryName = trimmed;
+        }
+        if (!descriptionUnchanged) {
+          body.description = descriptionPayload;
+        }
         const saved = await apiFetch<AdminPackageRow>(`/packages/plans/${pkg.id}`, {
           method: "PATCH",
-          body: JSON.stringify({ categoryName: trimmed }),
+          body: JSON.stringify(body),
         });
         updated.push(saved);
       }
@@ -108,6 +145,18 @@ export function AdminPackageCategoryRenameModal({
             disabled={pending}
             aria-labelledby={titleId}
           />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
+          <textarea
+            className="ommm-input min-h-24 resize-y"
+            value={nextDescription}
+            maxLength={MAX_DESCRIPTION_LENGTH}
+            onChange={(event) => setNextDescription(event.target.value)}
+            disabled={pending}
+            placeholder={t("editCategoryDescriptionPlaceholder")}
+          />
+          <span className="text-xs text-sage-500">{t("editCategoryDescriptionHint")}</span>
         </label>
         {error !== null ? (
           <p className="text-sm text-red-800" role="alert">
