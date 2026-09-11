@@ -1,6 +1,9 @@
 import { ClassSessionStatus } from '@prisma/client';
 import { studioWallClockToUtc } from '../common/studio-timezone';
-import { mapSessionsToPublicScheduleItems } from './map-sessions-to-public-schedule-items';
+import {
+  buildCategoryDescriptionByClassType,
+  mapSessionsToPublicScheduleItems,
+} from './map-sessions-to-public-schedule-items';
 
 describe('mapSessionsToPublicScheduleItems', () => {
   const baseDate = new Date('2026-06-02T09:00:00.000Z');
@@ -192,5 +195,44 @@ describe('mapSessionsToPublicScheduleItems', () => {
       'Latina group classes for all levels.',
     );
     expect(items[0]?.description).toBe('session note');
+  });
+
+  it('resolves description via linked class type when category label differs', () => {
+    const descriptions = buildCategoryDescriptionByClassType([
+      {
+        categoryName: 'Group Reformer',
+        classTypeName: 'Reformer Group',
+        description:
+          'Reformer Pilates\n\nLow-impact, full-body movement on the reformer.',
+      },
+    ]);
+
+    const items = mapSessionsToPublicScheduleItems(
+      [
+        {
+          id: 'reformer-1',
+          title: 'Reformer Group',
+          description: null,
+          startsAt: baseDate,
+          endsAt: new Date('2026-06-02T10:00:00.000Z'),
+          capacity: 10,
+          level: 'All levels',
+          status: ClassSessionStatus.ACTIVE,
+          createdAt: baseDate,
+          updatedAt: baseDate,
+          classType: { name: 'Reformer Group' },
+          coach: {
+            bio: null,
+            user: { name: 'Sam', lastName: null, avatarUrl: null },
+          },
+          _count: { bookings: 0 },
+        },
+      ],
+      descriptions,
+    );
+
+    expect(items[0]?.categoryDescription).toBe(
+      'Reformer Pilates\n\nLow-impact, full-body movement on the reformer.',
+    );
   });
 });

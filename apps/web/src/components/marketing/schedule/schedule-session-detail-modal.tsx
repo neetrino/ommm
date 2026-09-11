@@ -15,6 +15,7 @@ import {
   SCHEDULE_SESSION_DETAIL_BANNER_IMAGE,
   formatScheduleSessionDetailDate,
   resolveScheduleSessionDetailDescription,
+  splitScheduleSessionDetailDescriptionLines,
 } from "@/components/marketing/schedule/schedule-session-detail-helpers";
 import {
   ScheduleSessionDetailCalendarIcon,
@@ -85,7 +86,7 @@ function SessionDetailBanner({
         alt=""
         fill
         priority
-        sizes="(max-width: 576px) 100vw, 36rem"
+        sizes="(max-width: 640px) 100vw, 40rem"
         className={styles.bannerImage}
       />
       <div className={styles.bannerScrim} aria-hidden />
@@ -151,6 +152,10 @@ export function ScheduleSessionDetailModal({
   const isOpen = session !== null;
   const description =
     session !== null ? resolveScheduleSessionDetailDescription(session) : null;
+  const descriptionLines =
+    description !== null
+      ? splitScheduleSessionDetailDescriptionLines(description)
+      : [];
   const level = session?.level?.trim() ?? "";
   const avatarSrc =
     session?.instructorAvatarUrl != null
@@ -195,10 +200,14 @@ export function ScheduleSessionDetailModal({
             </section>
 
             <div className={styles.body}>
-              {description !== null ? (
+              {descriptionLines.length > 0 ? (
                 <section className={styles.section}>
                   <h3 className={styles.sectionTitle}>{t("descriptionHeading")}</h3>
-                  <p className={styles.sectionBody}>{description}</p>
+                  <ul className={styles.conditionsList}>
+                    {descriptionLines.map((line, index) => (
+                      <li key={`${index}-${line.slice(0, 24)}`}>{line}</li>
+                    ))}
+                  </ul>
                 </section>
               ) : null}
 

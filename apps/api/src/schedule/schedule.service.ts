@@ -132,11 +132,21 @@ export class ScheduleService {
       }),
       this.prisma.packagePlan.findMany({
         where: { isActive: true },
-        select: { categoryName: true, description: true },
+        select: {
+          categoryName: true,
+          description: true,
+          classType: { select: { name: true } },
+        },
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       }),
     ]);
-    const categoryDescriptions = buildCategoryDescriptionByClassType(packagePlans);
+    const categoryDescriptions = buildCategoryDescriptionByClassType(
+      packagePlans.map((plan) => ({
+        categoryName: plan.categoryName,
+        description: plan.description,
+        classTypeName: plan.classType?.name ?? null,
+      })),
+    );
     const items = mapSessionsToPublicScheduleItems(
       sessions,
       categoryDescriptions,

@@ -25,6 +25,17 @@ export function resolveScheduleSessionDetailDescription(
   return sessionDescription.length > 0 ? sessionDescription : null;
 }
 
+/** Split description into bullet lines (same presentation as Conditions). */
+export function splitScheduleSessionDetailDescriptionLines(
+  description: string,
+): string[] {
+  const lines = description
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  return lines.length > 0 ? lines : [description.trim()].filter(Boolean);
+}
+
 /** Long date for the hero banner (e.g. September 12, 2026). */
 export function formatScheduleSessionDetailDate(
   locale: string,

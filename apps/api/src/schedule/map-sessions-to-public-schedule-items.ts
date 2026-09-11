@@ -141,21 +141,34 @@ export function mapSessionsToPublicScheduleItems(
   return items;
 }
 
-/** Builds class-type → first non-empty package category description map. */
+/** Builds class-type → first non-empty package description map. */
 export function buildCategoryDescriptionByClassType(
-  plans: readonly { categoryName: string; description: string | null }[],
+  plans: readonly {
+    categoryName: string;
+    description: string | null;
+    /** Linked ClassType name — preferred match for schedule sessions. */
+    classTypeName?: string | null;
+  }[],
 ): Map<string, string> {
   const map = new Map<string, string>();
-  for (const plan of plans) {
-    const key = normalizeCategoryKey(plan.categoryName);
+
+  function setIfAbsent(rawKey: string, description: string): void {
+    const key = normalizeCategoryKey(rawKey);
     if (key.length === 0 || map.has(key)) {
-      continue;
+      return;
     }
+    map.set(key, description);
+  }
+
+  for (const plan of plans) {
     const description = plan.description?.trim() ?? '';
     if (description.length === 0) {
       continue;
     }
-    map.set(key, description);
+    // Prefer class-type key first so "Reformer Group" sessions match even when
+    // the package group label is "Group Reformer".
+    setIfAbsent(plan.classTypeName ?? '', description);
+    setIfAbsent(plan.categoryName, description);
   }
   return map;
 }
