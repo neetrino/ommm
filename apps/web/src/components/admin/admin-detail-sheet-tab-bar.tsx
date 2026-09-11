@@ -1,9 +1,16 @@
 "use client";
 
+import { useId } from "react";
+import { LayoutGroup } from "framer-motion";
 import {
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_HORIZONTAL_TAB_SCROLL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import { OliveSegmentedActiveThumb } from "@/components/ui/olive-segmented-active-thumb";
+import {
+  oliveSegmentedHugSegmentClassName,
+  oliveSegmentedHugTrackClass,
+} from "@/components/ui/olive-segmented-switcher";
 
 export type AdminDetailSheetTabItem = {
   value: string;
@@ -18,15 +25,9 @@ type AdminDetailSheetTabBarProps = {
   ariaLabel?: string;
 };
 
-const TAB_BUTTON_BASE_CLASS =
-  "shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+const SHEET_TAB_PILL_LAYOUT_ID = "admin-detail-sheet-olive-segmented-pill";
 
-const TAB_BUTTON_ACTIVE_CLASS =
-  "border-sage-700 bg-sage-800 text-white shadow-sm";
-
-const TAB_BUTTON_INACTIVE_CLASS =
-  "border-white/70 bg-white/50 text-sage-700 hover:border-white hover:bg-white/80 hover:text-sage-900";
-
+/** Detail-sheet section tabs — olive hug switcher (client, coach, gift card, session). */
 export function AdminDetailSheetTabBar({
   tabs,
   activeTab,
@@ -34,30 +35,39 @@ export function AdminDetailSheetTabBar({
   className = "",
   ariaLabel = "Sheet sections",
 }: AdminDetailSheetTabBarProps) {
+  const layoutGroupId = useId();
+
   return (
     <div
       className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} shrink-0 border-b border-t-0 py-3 ${className}`.trim()}
-      role="tablist"
-      aria-label={ariaLabel}
     >
       <div className={ADMIN_HORIZONTAL_TAB_SCROLL_CLASS}>
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.value;
-          return (
-            <button
-              key={tab.value}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              className={`${TAB_BUTTON_BASE_CLASS} ${
-                isActive ? TAB_BUTTON_ACTIVE_CLASS : TAB_BUTTON_INACTIVE_CLASS
-              }`}
-              onClick={() => onTabChange(tab.value)}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+        <LayoutGroup id={layoutGroupId}>
+          <div
+            role="tablist"
+            aria-label={ariaLabel}
+            className={oliveSegmentedHugTrackClass("border border-[rgb(151_144_124_/_0.35)]")}
+          >
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.value;
+              return (
+                <button
+                  key={tab.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className={oliveSegmentedHugSegmentClassName(isActive)}
+                  onClick={() => onTabChange(tab.value)}
+                >
+                  {isActive ? (
+                    <OliveSegmentedActiveThumb layoutId={SHEET_TAB_PILL_LAYOUT_ID} />
+                  ) : null}
+                  <span className="relative z-10">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </LayoutGroup>
       </div>
     </div>
   );

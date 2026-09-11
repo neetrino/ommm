@@ -121,11 +121,11 @@ export const ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS =
   "space-y-3 rounded-2xl border border-white/60 bg-white/50 p-4";
 
 export const ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS =
-  "rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+  "rounded-full p-2 text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 /** Matches compact header actions (e.g. Deactivate) height in admin client drawer. */
 export const ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS =
-  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl leading-none text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45";
+  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl leading-none text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45";
 
 export const ADMIN_DETAILS_SHEET_TITLE_CLASS =
   "font-serif text-2xl font-normal text-sage-900";
