@@ -23,19 +23,28 @@ type AdminTypesManagementProps = {
 
 type FormState = {
   name: string;
+  description: string;
 };
 
+const CLASS_TYPE_DESCRIPTION_MAX_LENGTH = 4000;
+
 function emptyFormState(): FormState {
-  return { name: "" };
+  return { name: "", description: "" };
 }
 
 function normalizeFormPayload(form: FormState): {
   name: string;
   slug: string;
+  description: string | null;
 } {
   const name = form.name.trim();
   const slug = buildClassTypeSlugFromName(name);
-  return { name, slug };
+  const description = form.description.trim();
+  return {
+    name,
+    slug,
+    description: description.length > 0 ? description : null,
+  };
 }
 
 export function AdminTypesManagement({
@@ -84,7 +93,7 @@ export function AdminTypesManagement({
 
   function selectForEdit(row: AdminClassTypeRow): void {
     setSelectedId(row.id);
-    setForm({ name: row.name });
+    setForm({ name: row.name, description: row.description ?? "" });
     setError(null);
     setSuccess(null);
     setDeleteConfirmOpen(false);
@@ -107,6 +116,10 @@ export function AdminTypesManagement({
       setError(t("nameRequired"));
       return;
     }
+    if (form.description.trim().length > CLASS_TYPE_DESCRIPTION_MAX_LENGTH) {
+      setError(t("descriptionTooLong"));
+      return;
+    }
 
     setPending(true);
     setError(null);
@@ -121,7 +134,7 @@ export function AdminTypesManagement({
           [...rows, created].sort((left, right) => left.name.localeCompare(right.name)),
         );
         setSelectedId(created.id);
-        setForm({ name: created.name });
+        setForm({ name: created.name, description: created.description ?? "" });
         setSuccess(t("messages.createSuccess"));
       } else {
         const updated = await apiFetch<AdminClassTypeRow>(`/classes/types/${selectedId}`, {
@@ -133,6 +146,7 @@ export function AdminTypesManagement({
             .map((row) => (row.id === updated.id ? updated : row))
             .sort((left, right) => left.name.localeCompare(right.name)),
         );
+        setForm({ name: updated.name, description: updated.description ?? "" });
         setSuccess(t("messages.updateSuccess"));
       }
     } catch (requestError) {
@@ -252,6 +266,25 @@ export function AdminTypesManagement({
                 }
                 placeholder={t("fieldNamePlaceholder")}
                 disabled={pending}
+              />
+            </label>
+            <label className="block space-y-1.5">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sage-500">
+                {t("fieldDescription")}
+              </span>
+              <textarea
+                className="ommm-input min-h-[8rem] w-full resize-y"
+                value={form.description}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
+                placeholder={t("fieldDescriptionPlaceholder")}
+                disabled={pending}
+                maxLength={CLASS_TYPE_DESCRIPTION_MAX_LENGTH}
+                rows={5}
               />
             </label>
           </div>

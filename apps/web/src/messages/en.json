@@ -3086,6 +3086,7 @@
         "fieldNamePlaceholder": "e.g. Reformer Group",
         "fieldSlug": "Slug",
         "fieldDescription": "Description",
+        "fieldDescriptionPlaceholder": "Shown on the public schedule when someone opens this class.",
         "sessionCount": "{count} classes",
         "sessionCountNone": "no classes",
         "linkedSessionsHint": "{count} scheduled classes use this type. Reassign or remove them before deleting.",
@@ -3612,7 +3613,7 @@
       "formSections": {
         "details": {
           "heading": "Package details",
-          "description": "Name and short description shown on the site"
+          "description": "Name and class type for this package"
         },
         "pricing": {
           "heading": "Pricing & billing",

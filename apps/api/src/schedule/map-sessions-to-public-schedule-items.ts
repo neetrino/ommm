@@ -27,7 +27,7 @@ type SessionForPublicSchedule = {
   status: ClassSessionStatus;
   createdAt: Date;
   updatedAt: Date;
-  classType: { name: string };
+  classType: { name: string; description: string | null };
   coach: {
     bio: string | null;
     user: {
@@ -54,10 +54,10 @@ export type PublicScheduleItem = {
   level: string | null;
   status: ClassSessionStatus;
   sessionDate: string;
-  /** Session-level notes (legacy); prefer `categoryDescription` for marketing copy. */
+  /** Session-level notes (legacy); prefer `classTypeDescription` for marketing copy. */
   description: string | null;
-  /** Package-category description matched by class type name. */
-  categoryDescription: string | null;
+  /** Class type description from Class Types admin. */
+  classTypeDescription: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -77,17 +77,12 @@ function formatCoachInstructorName(
   return fullName.length > 0 ? fullName : '—';
 }
 
-function normalizeCategoryKey(value: string): string {
-  return value.trim().toLowerCase();
-}
-
 /**
  * Maps class sessions into public marketing rows (active, full, and finished).
  * Draft/cancelled stay hidden. Finished rows keep real session ids for display only.
  */
 export function mapSessionsToPublicScheduleItems(
   sessions: readonly SessionForPublicSchedule[],
-  categoryDescriptionByClassType: ReadonlyMap<string, string> = new Map(),
 ): PublicScheduleItem[] {
   const items: PublicScheduleItem[] = [];
 
@@ -105,10 +100,7 @@ export function mapSessionsToPublicScheduleItems(
       session.coach.user.lastName,
     );
     const classTypeName = session.classType.name.trim();
-    const categoryDescription =
-      categoryDescriptionByClassType.get(normalizeCategoryKey(classTypeName)) ??
-      null;
-
+    const classTypeDescription = session.classType.description?.trim() ?? '';
     const bookedCount = session._count.bookings;
     const availableSpots = Math.max(session.capacity - bookedCount, 0);
     const durationMinutes = durationMinutesFromRange(startTime, endTime);
@@ -131,7 +123,8 @@ export function mapSessionsToPublicScheduleItems(
       status: session.status,
       sessionDate: utcToStudioCalendarDate(session.startsAt),
       description: session.description,
-      categoryDescription,
+      classTypeDescription:
+        classTypeDescription.length > 0 ? classTypeDescription : null,
       isActive: true,
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
@@ -141,40 +134,8 @@ export function mapSessionsToPublicScheduleItems(
   return items;
 }
 
-/** Builds class-type → first non-empty package description map. */
-export function buildCategoryDescriptionByClassType(
-  plans: readonly {
-    categoryName: string;
-    description: string | null;
-    /** Linked ClassType name — preferred match for schedule sessions. */
-    classTypeName?: string | null;
-  }[],
-): Map<string, string> {
-  const map = new Map<string, string>();
-
-  function setIfAbsent(rawKey: string, description: string): void {
-    const key = normalizeCategoryKey(rawKey);
-    if (key.length === 0 || map.has(key)) {
-      return;
-    }
-    map.set(key, description);
-  }
-
-  for (const plan of plans) {
-    const description = plan.description?.trim() ?? '';
-    if (description.length === 0) {
-      continue;
-    }
-    // Prefer class-type key first so "Reformer Group" sessions match even when
-    // the package group label is "Group Reformer".
-    setIfAbsent(plan.classTypeName ?? '', description);
-    setIfAbsent(plan.categoryName, description);
-  }
-  return map;
-}
-
 export const PUBLIC_SCHEDULE_SESSION_INCLUDE = {
-  classType: { select: { name: true } },
+  classType: { select: { name: true, description: true } },
   coach: {
     select: {
       bio: true,

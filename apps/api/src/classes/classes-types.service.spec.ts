@@ -12,7 +12,11 @@ describe('ClassesTypesService archive catalog delete', () => {
     },
   };
 
-  const service = new ClassesTypesService(prisma as never);
+  const schedule = {
+    invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const service = new ClassesTypesService(prisma as never, schedule as never);
 
   const activeType = {
     id: 'ct-1',
@@ -36,6 +40,7 @@ describe('ClassesTypesService archive catalog delete', () => {
 
     expect(prisma.classType.delete).not.toHaveBeenCalled();
     expect(prisma.classType.update).toHaveBeenCalledTimes(1);
+    expect(schedule.invalidatePublicCache).toHaveBeenCalledTimes(1);
     const updateArgs = prisma.classType.update.mock.calls[0] as
       | [{ where: { id: string }; data: { archivedAt: Date } }]
       | undefined;

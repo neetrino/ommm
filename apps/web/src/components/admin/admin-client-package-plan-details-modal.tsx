@@ -136,10 +136,6 @@ export function AdminClientPackagePlanDetailsModal({
         </header>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-5 py-5 sm:px-6">
-          {plan.description !== null && plan.description.trim().length > 0 ? (
-            <p className="text-sm leading-relaxed text-sage-600">{plan.description}</p>
-          ) : null}
-
           <div className="w-full min-w-0 max-w-full overflow-x-hidden rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/70 px-3 py-4 sm:px-5">
             <div
               className={`${DETAILS_GRID_CLASS} border-b border-[rgba(212,196,183,0.2)] pb-4 pt-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(80,69,59,0.6)] sm:text-xs sm:tracking-[0.12em]`}

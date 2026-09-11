@@ -17,13 +17,13 @@ export const SCHEDULE_SESSION_DETAIL_MOTION_EXIT_MS = 200;
 
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-/** Prefer package-category copy; fall back to session description. */
+/** Prefer class type copy; fall back to session description. */
 export function resolveScheduleSessionDetailDescription(
-  session: Pick<MarketingScheduleItem, "categoryDescription" | "description">,
+  session: Pick<MarketingScheduleItem, "classTypeDescription" | "description">,
 ): string | null {
-  const category = session.categoryDescription?.trim() ?? "";
-  if (category.length > 0) {
-    return category;
+  const classType = session.classTypeDescription?.trim() ?? "";
+  if (classType.length > 0) {
+    return classType;
   }
   const sessionDescription = session.description?.trim() ?? "";
   return sessionDescription.length > 0 ? sessionDescription : null;

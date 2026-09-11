@@ -90,9 +90,6 @@ export async function PublicPackageCategoryDetailSection({
   const amount = formatAmdFromCents(startingPriceCents, locale);
   const { symbol, value } = formatPublicPackagePriceParts(amount);
   const showFromPrice = categoryHasMultiplePricedTiers(displayPlans);
-  const description = category.plans
-    .map((plan) => plan.description?.trim())
-    .find((item) => item !== undefined && item.length > 0) ?? null;
 
   return (
     <div className={`${styles.root} space-y-6`} data-packages-detail="">
@@ -108,9 +105,6 @@ export async function PublicPackageCategoryDetailSection({
 
       <header className="ommm-card p-6 sm:p-8">
         <h1 className="ommm-h2 text-sage-800">{category.label}</h1>
-        {description ? (
-          <p className="mt-3 text-sm leading-relaxed text-sage-500">{description}</p>
-        ) : null}
         <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
           {showFromPrice
             ? m("packagesPriceFromLine", { amount: value })

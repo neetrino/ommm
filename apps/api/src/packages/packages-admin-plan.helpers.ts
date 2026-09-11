@@ -114,7 +114,7 @@ export function buildCreatePlanData(
     categoryName,
     categorySlug,
     ...resolveClassTypeConnect(dto, resolvedTypeSessions),
-    description: normalizeNullableString(dto.description),
+    description: null,
     priceCents: dto.priceCents ?? 0,
     discountedPriceCents: dto.discountedPriceCents ?? null,
     pricePerSessionCents: dto.pricePerSessionCents ?? 0,
@@ -164,9 +164,6 @@ export function buildUpdatePlanData(
       ? { categorySlug: normalizeSlug(dto.categorySlug) }
       : {}),
     ...resolveClassTypeUpdate(dto, resolvedTypeSessions),
-    ...(dto.description !== undefined
-      ? { description: normalizeNullableString(dto.description) }
-      : {}),
     ...(dto.priceCents !== undefined ? { priceCents: dto.priceCents } : {}),
     ...(dto.discountedPriceCents !== undefined
       ? { discountedPriceCents: dto.discountedPriceCents }

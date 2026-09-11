@@ -1,9 +1,6 @@
 import { ClassSessionStatus } from '@prisma/client';
 import { studioWallClockToUtc } from '../common/studio-timezone';
-import {
-  buildCategoryDescriptionByClassType,
-  mapSessionsToPublicScheduleItems,
-} from './map-sessions-to-public-schedule-items';
+import { mapSessionsToPublicScheduleItems } from './map-sessions-to-public-schedule-items';
 
 describe('mapSessionsToPublicScheduleItems', () => {
   const baseDate = new Date('2026-06-02T09:00:00.000Z');
@@ -21,7 +18,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         status: ClassSessionStatus.ACTIVE,
         createdAt: baseDate,
         updatedAt: baseDate,
-        classType: { name: 'Yoga' },
+        classType: { name: 'Yoga', description: null },
         coach: {
           bio: null,
           user: { name: 'Alex', lastName: 'Coach', avatarUrl: null },
@@ -39,7 +36,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         status: ClassSessionStatus.FINISHED,
         createdAt: baseDate,
         updatedAt: baseDate,
-        classType: { name: 'Pilates' },
+        classType: { name: 'Pilates', description: null },
         coach: {
           bio: null,
           user: { name: 'Alex', lastName: 'Coach', avatarUrl: null },
@@ -57,7 +54,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         status: ClassSessionStatus.DRAFT,
         createdAt: baseDate,
         updatedAt: baseDate,
-        classType: { name: 'Yoga' },
+        classType: { name: 'Yoga', description: null },
         coach: {
           bio: null,
           user: { name: 'Alex', lastName: 'Coach', avatarUrl: null },
@@ -71,7 +68,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
     expect(items[0]?.instructorName).toBe('Alex Coach');
     expect(items[0]?.instructorAvatarUrl).toBeNull();
     expect(items[0]?.instructorBio).toBeNull();
-    expect(items[0]?.categoryDescription).toBeNull();
+    expect(items[0]?.classTypeDescription).toBeNull();
     expect(items[0]?.availableSpots).toBe(9);
     expect(items[0]?.dayOfWeek).toBe('TUESDAY');
     expect(items[0]?.startTime).toBe('13:00');
@@ -96,7 +93,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         status: ClassSessionStatus.ACTIVE,
         createdAt: baseDate,
         updatedAt: baseDate,
-        classType: { name: 'Pilates' },
+        classType: { name: 'Pilates', description: null },
         coach: {
           bio: 'Studio coach',
           user: {
@@ -118,7 +115,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         status: ClassSessionStatus.ACTIVE,
         createdAt: secondWeek,
         updatedAt: secondWeek,
-        classType: { name: 'Pilates' },
+        classType: { name: 'Pilates', description: null },
         coach: {
           bio: 'Studio coach',
           user: {
@@ -151,7 +148,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         status: ClassSessionStatus.ACTIVE,
         createdAt: startsAt,
         updatedAt: startsAt,
-        classType: { name: 'Dance' },
+        classType: { name: 'Dance', description: null },
         coach: {
           bio: null,
           user: { name: 'Coach', lastName: 'Example', avatarUrl: null },
@@ -166,73 +163,59 @@ describe('mapSessionsToPublicScheduleItems', () => {
     expect(items[0]?.dayOfWeek).toBe('MONDAY');
   });
 
-  it('attaches package category description by class type name', () => {
-    const items = mapSessionsToPublicScheduleItems(
-      [
-        {
-          id: 'dances-1',
-          title: 'Dances',
-          description: 'session note',
-          startsAt: baseDate,
-          endsAt: new Date('2026-06-02T10:00:00.000Z'),
-          capacity: 10,
-          level: null,
-          status: ClassSessionStatus.ACTIVE,
-          createdAt: baseDate,
-          updatedAt: baseDate,
-          classType: { name: 'Group Dances' },
-          coach: {
-            bio: null,
-            user: { name: 'Inesa', lastName: 'Hakobyan', avatarUrl: null },
-          },
-          _count: { bookings: 0 },
+  it('attaches class type description from the linked type', () => {
+    const items = mapSessionsToPublicScheduleItems([
+      {
+        id: 'dances-1',
+        title: 'Dances',
+        description: 'session note',
+        startsAt: baseDate,
+        endsAt: new Date('2026-06-02T10:00:00.000Z'),
+        capacity: 10,
+        level: null,
+        status: ClassSessionStatus.ACTIVE,
+        createdAt: baseDate,
+        updatedAt: baseDate,
+        classType: {
+          name: 'Group Dances',
+          description: 'Latina group classes for all levels.',
         },
-      ],
-      new Map([['group dances', 'Latina group classes for all levels.']]),
-    );
+        coach: {
+          bio: null,
+          user: { name: 'Inesa', lastName: 'Hakobyan', avatarUrl: null },
+        },
+        _count: { bookings: 0 },
+      },
+    ]);
 
-    expect(items[0]?.categoryDescription).toBe(
+    expect(items[0]?.classTypeDescription).toBe(
       'Latina group classes for all levels.',
     );
     expect(items[0]?.description).toBe('session note');
   });
 
-  it('resolves description via linked class type when category label differs', () => {
-    const descriptions = buildCategoryDescriptionByClassType([
+  it('trims blank class type description to null', () => {
+    const items = mapSessionsToPublicScheduleItems([
       {
-        categoryName: 'Group Reformer',
-        classTypeName: 'Reformer Group',
-        description:
-          'Reformer Pilates\n\nLow-impact, full-body movement on the reformer.',
+        id: 'reformer-1',
+        title: 'Reformer Group',
+        description: null,
+        startsAt: baseDate,
+        endsAt: new Date('2026-06-02T10:00:00.000Z'),
+        capacity: 10,
+        level: 'All levels',
+        status: ClassSessionStatus.ACTIVE,
+        createdAt: baseDate,
+        updatedAt: baseDate,
+        classType: { name: 'Reformer Group', description: '   ' },
+        coach: {
+          bio: null,
+          user: { name: 'Sam', lastName: null, avatarUrl: null },
+        },
+        _count: { bookings: 0 },
       },
     ]);
 
-    const items = mapSessionsToPublicScheduleItems(
-      [
-        {
-          id: 'reformer-1',
-          title: 'Reformer Group',
-          description: null,
-          startsAt: baseDate,
-          endsAt: new Date('2026-06-02T10:00:00.000Z'),
-          capacity: 10,
-          level: 'All levels',
-          status: ClassSessionStatus.ACTIVE,
-          createdAt: baseDate,
-          updatedAt: baseDate,
-          classType: { name: 'Reformer Group' },
-          coach: {
-            bio: null,
-            user: { name: 'Sam', lastName: null, avatarUrl: null },
-          },
-          _count: { bookings: 0 },
-        },
-      ],
-      descriptions,
-    );
-
-    expect(items[0]?.categoryDescription).toBe(
-      'Reformer Pilates\n\nLow-impact, full-body movement on the reformer.',
-    );
+    expect(items[0]?.classTypeDescription).toBeNull();
   });
 });

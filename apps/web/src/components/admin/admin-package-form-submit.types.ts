@@ -52,7 +52,6 @@ export type AdminPackageFormSubmitPrepared = {
   isAddTierMode: boolean;
   isEditTierMode: boolean;
   isEditMode: boolean;
-  description: string;
   createCategoryName: string;
   tierCategorySlug: string;
   tierCategoryName: string;

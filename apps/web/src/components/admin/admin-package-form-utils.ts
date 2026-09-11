@@ -1,6 +1,5 @@
 export const MAX_NAME_LENGTH = 120;
 export const MAX_CATEGORY_NAME_LENGTH = 80;
-export const MAX_DESCRIPTION_LENGTH = 500;
 export const MAX_BILLING_PERIOD_LENGTH = 32;
 export const PACKAGE_DAYS_PER_MONTH = 30;
 export const MIN_PACKAGE_DURATION_DAYS = 1;
@@ -133,7 +132,6 @@ export type AdminPackageFormValues = {
   name: string;
   classTypeId: string;
   categoryName: string;
-  description: string;
   price: string;
   discountedPrice: string;
   pricePerSession: string;
@@ -177,7 +175,6 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     name: "",
     classTypeId: "",
     categoryName: initialCategoryName,
-    description: "",
     price: "",
     discountedPrice: "",
     pricePerSession: "",
@@ -215,7 +212,6 @@ export function packageRowToFormValues(
   name: string;
   classTypeId?: string | null;
   categoryName: string;
-  description: string | null;
   priceCents: number;
   discountedPriceCents?: number | null;
   pricePerSessionCents?: number;
@@ -247,7 +243,6 @@ export function packageRowToFormValues(
     name: pkg.name,
     classTypeId: pkg.classTypeId ?? "",
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
-    description: pkg.description ?? "",
     price: String(pkg.priceCents),
     discountedPrice:
       storedDiscountedPriceCents !== null ? String(storedDiscountedPriceCents) : "",
