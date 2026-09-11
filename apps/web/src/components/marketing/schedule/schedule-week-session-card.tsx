@@ -123,9 +123,12 @@ export function ScheduleWeekSessionCard({
         onClick={() => onOpenDetails?.(row)}
       />
       <div className={styles.body}>
-        <h3 className={styles.title}>{row.className}</h3>
+        <div className={styles.titleBlock}>
+          <h3 className={styles.title}>{row.className}</h3>
+          {level.length > 0 ? <span className={styles.level}>{level}</span> : null}
+          {showClassType ? <p className={styles.classType}>{classType}</p> : null}
+        </div>
         <p className={styles.time}>{formatTimeRange(locale, row)}</p>
-        {level.length > 0 ? <span className={styles.level}>{level}</span> : null}
         <div className={styles.coachRow}>
           <MemberProfileAvatar
             initials={coachCardInitials({
@@ -139,7 +142,6 @@ export function ScheduleWeekSessionCard({
           />
           <p className={styles.coach}>{row.instructorName}</p>
         </div>
-        {showClassType ? <p className={styles.classType}>{classType}</p> : null}
       </div>
       <div className={styles.footer}>
         {isClosed ? (

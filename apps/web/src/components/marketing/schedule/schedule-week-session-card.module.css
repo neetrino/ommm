@@ -50,6 +50,25 @@
   pointer-events: none;
 }
 
+.body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.875rem 0.875rem 0.75rem;
+  pointer-events: none;
+}
+
+.titleBlock {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
 .title {
   margin: 0;
   font-family: var(--font-serif);
@@ -63,7 +82,11 @@
 }
 
 .time {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
   margin: 0;
+  min-height: 1.35em;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
@@ -77,7 +100,6 @@
   width: fit-content;
   max-width: 100%;
   align-items: center;
-  margin-top: 0.125rem;
   border-radius: 0.375rem;
   border: 1px solid rgb(255 255 255 / 0.55);
   background: rgb(255 255 255 / 0.42);
@@ -93,10 +115,10 @@
 
 .coachRow {
   display: flex;
+  flex-shrink: 0;
   min-width: 0;
   align-items: center;
   gap: 0.4rem;
-  margin: 0.25rem 0 0;
 }
 
 .coach {
@@ -111,7 +133,7 @@
 }
 
 .classType {
-  margin: 0.125rem 0 0;
+  margin: 0;
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 500;
