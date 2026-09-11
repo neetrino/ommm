@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
+import { hasUnrestoredPackageHold } from './package-usage-consume.helpers';
 import {
   pickBalanceForCategory,
   type UserPackageWithPlanAndBalances,
@@ -22,6 +23,16 @@ export class PackageUsageLedgerService {
     this.logger.debug(
       `consumeSession bookingId=${params.bookingId} membershipId=${params.membership.id} requiredSessions=${params.requiredSessions}`,
     );
+    const existingHolds = await params.tx.bookingConsumption.findMany({
+      where: { bookingId: params.bookingId, restoredAt: null },
+      select: { restoredAt: true },
+    });
+    if (hasUnrestoredPackageHold(existingHolds)) {
+      this.logger.log(
+        `consumeSession skip existing hold bookingId=${params.bookingId} membershipId=${params.membership.id}`,
+      );
+      return;
+    }
     const balance = pickBalanceForCategory(
       params.membership,
       params.sessionClassType,

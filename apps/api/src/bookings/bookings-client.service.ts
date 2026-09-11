@@ -26,6 +26,10 @@ import {
 } from './cancellation-policy';
 import { BookingsClientListService } from './bookings-client-list.service';
 import {
+  hasUnrestoredPackageHold,
+  shouldChargePackageOnBook,
+} from '../packages/package-usage-consume.helpers';
+import {
   resolveBookingSessionCredits,
   shouldValidatePackageForBooking,
 } from './resolve-booking-session-credits';
@@ -138,12 +142,24 @@ export class BookingsClientService {
       async (tx) => {
         const existingBooking = await tx.booking.findUnique({
           where: ownerBookingUniqueWhere(userId, sessionId),
+          include: {
+            consumptions: { select: { restoredAt: true } },
+          },
         });
         if (existingBooking?.status === BookingStatus.BOOKED) {
           throw new BadRequestException('Already booked');
         }
 
-        const packageMembership = usePackageCredit
+        const alreadyHoldsCredit = hasUnrestoredPackageHold(
+          existingBooking?.consumptions ?? [],
+        );
+        const shouldCharge = shouldChargePackageOnBook({
+          usePackageCredit,
+          requiredSessions,
+          alreadyHoldsCredit,
+        });
+
+        const packageMembership = shouldCharge
           ? await this.packageUsage.getValidatedUserPackageForBooking({
               tx,
               userId,
@@ -180,7 +196,7 @@ export class BookingsClientService {
               include: { session: { include: { classType: true } } },
             });
 
-        if (packageMembership && requiredSessions > 0) {
+        if (packageMembership !== null) {
           await this.packageUsage.consumeSession({
             tx,
             bookingId: savedBooking.id,
