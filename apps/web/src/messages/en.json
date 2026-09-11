@@ -4547,7 +4547,12 @@
         "earningsHint": "Salary is only accrued for classes where someone actually showed up.",
         "loading": "Loading sessions…",
         "loadFailed": "Could not load coach sessions.",
-        "empty": "No sessions found for this month."
+        "empty": "No sessions found for this month.",
+        "metricLessons": "Lessons",
+        "metricEarnings": "Earnings",
+        "metricPending": "Pending",
+        "metricPaid": "Paid out",
+        "totals": "Totals"
       }
     },
     "content": {
@@ -4635,6 +4640,13 @@
   },
   "coachSalarySession": {
     "attendanceSummary": "Booked: {registered} · Attended: {attended} · No-shows: {noShow}",
+    "colClass": "Class",
+    "colLessonDate": "Lesson date",
+    "colAttendance": "Attendance",
+    "colRate": "Rate",
+    "colSalary": "Salary",
+    "colStatus": "Status",
+    "statusPaid": "Paid",
     "reasons": {
       "PAID": "Accrued: {amount}",
       "NOT_FINISHED_YET": "Not finished yet",

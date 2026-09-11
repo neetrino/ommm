@@ -34,9 +34,13 @@ export const ADMIN_BOOKINGS_DETAILS_SHEET_WIDTH_CLASS =
 export const USER_MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS =
   "w-full sm:w-[36vw] sm:max-w-[36rem] sm:min-w-[22rem]";
 
-/** Medium sheets (user lookup, finance session list). */
+/** Medium sheets (user lookup). */
 export const ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS =
   "w-full sm:max-w-md sm:min-w-[20rem]";
+
+/** Finance coach salary sessions sheet — wide list of session info. */
+export const ADMIN_FINANCE_SESSIONS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-[60vw] sm:max-w-[60vw] sm:min-w-[24rem]";
 
 /** Wide form / profile sheets (clients, coaches, class types). */
 export const ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS =
@@ -60,6 +64,11 @@ export const USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS = [
 export const ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS = [
   ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS,
+].join(" ");
+
+export const ADMIN_FINANCE_SESSIONS_SHEET_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_FINANCE_SESSIONS_SHEET_WIDTH_CLASS,
 ].join(" ");
 
 export const ADMIN_WIDE_DRAWER_PANEL_CLASS = [

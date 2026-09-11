@@ -4216,7 +4216,12 @@
         "earningsHint": "Աշխատավարձը հաշվարկվում է միայն այն պարապմունքների համար, որտեղ իրականում ինչ-որ մեկը եկել է։",
         "loading": "Սեսիաները բեռնվում են…",
         "loadFailed": "Չհաջողվեց բեռնել մարզչի սեսիաները։",
-        "empty": "Այս ամսին սեսիաներ չեն գտնվել։"
+        "empty": "Այս ամսին սեսիաներ չեն գտնվել։",
+        "metricLessons": "Դասեր",
+        "metricEarnings": "Հաշվարկված",
+        "metricPending": "Վճարման ենթակա",
+        "metricPaid": "Վճարված",
+        "totals": "Ընդամենը"
       }
     },
     "analytics": {
@@ -4636,6 +4641,13 @@
   },
   "coachSalarySession": {
     "attendanceSummary": "Գրանցվել է՝ {registered} · Եկել է՝ {attended} · Չեկածներ՝ {noShow}",
+    "colClass": "Դաս",
+    "colLessonDate": "Ամսաթիվ",
+    "colAttendance": "Հաճախում",
+    "colRate": "Դրույք",
+    "colSalary": "Աշխատավարձ",
+    "colStatus": "Կարգավիճակ",
+    "statusPaid": "Հաշվարկված",
     "reasons": {
       "PAID": "Հաշվարկվել է՝ {amount}",
       "NOT_FINISHED_YET": "Դեռ չի ավարտվել",

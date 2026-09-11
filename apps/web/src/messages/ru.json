@@ -4213,7 +4213,12 @@
         "earningsHint": "Зарплата начисляется только за занятия, на которые кто-то реально пришёл.",
         "loading": "Загрузка сессий…",
         "loadFailed": "Не удалось загрузить сессии тренера.",
-        "empty": "Сессии за этот месяц не найдены."
+        "empty": "Сессии за этот месяц не найдены.",
+        "metricLessons": "Занятия",
+        "metricEarnings": "Начислено",
+        "metricPending": "К выплате",
+        "metricPaid": "Выплачено",
+        "totals": "Итого"
       }
     },
     "analytics": {
@@ -4633,6 +4638,13 @@
   },
   "coachSalarySession": {
     "attendanceSummary": "Записалось: {registered} · Пришло: {attended} · Неявка: {noShow}",
+    "colClass": "Класс",
+    "colLessonDate": "Дата занятия",
+    "colAttendance": "Посещаемость",
+    "colRate": "Ставка",
+    "colSalary": "Зарплата",
+    "colStatus": "Статус",
+    "statusPaid": "Начислено",
     "reasons": {
       "PAID": "Начислено: {amount}",
       "NOT_FINISHED_YET": "Ещё не завершилось",
