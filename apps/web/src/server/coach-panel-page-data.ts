@@ -9,6 +9,11 @@ import { getSessionAuth } from "@/server/require-role-layout";
 
 export type CoachPanelDataScope = "full" | "sessions" | "roster";
 
+type LoadCoachPanelOptions = {
+  /** Schedule page: own past + upcoming classes. Home/groups stay upcoming-only. */
+  includeSessionHistory?: boolean;
+};
+
 export type CoachPanelPageData =
   | { ok: false; reason: "not_signed_in" | "no_coach_profile" | "not_coach_role"; role?: string }
   | {
@@ -32,6 +37,14 @@ const loadCoachSessions = cache(async (coachId: string, cookie: string) => {
   return res.ok ? res.data : [];
 });
 
+const loadCoachScheduleHistory = cache(async (cookie: string) => {
+  const res = await serverApiJson<CoachPanelSessionRow[]>(
+    "/coaches/panel/sessions",
+    cookie,
+  );
+  return res.ok && Array.isArray(res.data) ? res.data : [];
+});
+
 const loadCoachRoster = cache(async (coachId: string, cookie: string) => {
   const q = sessionRangeQuery(coachId);
   const res = await serverApiJson<CoachPanelBookingRow[]>(`/bookings/admin?${q}`, cookie);
@@ -44,7 +57,9 @@ const loadCoachRoster = cache(async (coachId: string, cookie: string) => {
 
 type CoachPanelCoreData = Extract<CoachPanelPageData, { ok: true }>;
 
-const loadCoachPanelCoreData = cache(async (): Promise<CoachPanelPageData> => {
+const loadCoachPanelCoreData = cache(async (
+  includeSessionHistory: boolean,
+): Promise<CoachPanelPageData> => {
   const session = await getSessionAuth();
   if (!session.ok) {
     return { ok: false, reason: "not_signed_in" };
@@ -64,7 +79,9 @@ const loadCoachPanelCoreData = cache(async (): Promise<CoachPanelPageData> => {
   }
 
   const [sessions, roster] = await Promise.all([
-    loadCoachSessions(coachId, session.cookie),
+    includeSessionHistory
+      ? loadCoachScheduleHistory(session.cookie)
+      : loadCoachSessions(coachId, session.cookie),
     loadCoachRoster(coachId, session.cookie),
   ]);
 
@@ -95,8 +112,9 @@ function sliceCoachPanelData(
  */
 export async function loadCoachPanelPageData(
   scope: CoachPanelDataScope = "full",
+  options: LoadCoachPanelOptions = {},
 ): Promise<CoachPanelPageData> {
-  const panel = await loadCoachPanelCoreData();
+  const panel = await loadCoachPanelCoreData(options.includeSessionHistory === true);
   if (!panel.ok) {
     return panel;
   }

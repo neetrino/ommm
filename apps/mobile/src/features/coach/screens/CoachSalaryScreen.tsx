@@ -1,63 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { useTranslations } from "../../../i18n/I18nProvider";
-import { fetchCoachSalary } from "../../../lib/api/coachClient";
+import { useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useLocale, useTranslations } from "../../../i18n/I18nProvider";
 import { formatAmdFromCents } from "../../../lib/formatAmd";
-import { space } from "../../../theme/tokens";
+import { fontFamilies } from "../../../theme/fontFamilies";
+import { colors, space, typography } from "../../../theme/tokens";
 import { CoachMetricCard, CoachStateCard } from "../components/CoachMetricCards";
+import { CoachSalaryMonthNav } from "../components/CoachSalaryMonthNav";
 import { CoachScreenShell } from "../components/CoachScreenShell";
+import { useCoachSalarySummary } from "../hooks/useCoachSalarySummary";
+import { currentStudioSalaryMonth } from "../lib/coachSalaryMonth";
 import type { CoachSalarySummary } from "../types/coachPanel";
 
-type LoadState =
-  | { status: "loading" }
-  | { status: "no_profile" }
-  | { status: "error"; message: string }
-  | { status: "ready"; salary: CoachSalarySummary };
-
 export function CoachSalaryScreen() {
+  const locale = useLocale();
   const t = useTranslations("coachPages.salary");
-  const [state, setState] = useState<LoadState>({ status: "loading" });
-  const [reloadKey, setReloadKey] = useState(0);
-
-  const reload = useCallback(() => {
-    setReloadKey((n) => n + 1);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    setState({ status: "loading" });
-    void (async () => {
-      try {
-        const salary = await fetchCoachSalary();
-        if (salary === null) {
-          if (!cancelled) {
-            setState({ status: "no_profile" });
-          }
-          return;
-        }
-        if (!cancelled) {
-          setState({ status: "ready", salary });
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setState({
-            status: "error",
-            message:
-              error instanceof Error
-                ? error.message
-                : t("loadFailed", { status: "error" }),
-          });
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadKey, t]);
-
-  if (state.status === "loading") {
-    return <CoachScreenShell title={t("title")} showBack loading />;
-  }
+  const [month, setMonth] = useState(() => currentStudioSalaryMonth());
+  const { state, reload } = useCoachSalarySummary(month);
 
   if (state.status === "no_profile") {
     return (
@@ -67,45 +25,63 @@ export function CoachSalaryScreen() {
     );
   }
 
-  if (state.status === "error") {
-    return (
-      <CoachScreenShell title={t("title")} showBack>
+  return (
+    <CoachScreenShell title={t("title")} showBack>
+      <Text style={styles.hint}>{t("monthHint")}</Text>
+      <CoachSalaryMonthNav
+        locale={locale}
+        month={month}
+        ariaLabel={t("monthAria")}
+        prevMonthAria={t("prevMonthAria")}
+        nextMonthAria={t("nextMonthAria")}
+        onChange={setMonth}
+      />
+      {state.status === "loading" ? (
+        <ActivityIndicator size="large" color={colors.taupe} />
+      ) : null}
+      {state.status === "error" ? (
         <CoachStateCard
           message={state.message}
           actionLabel={t("retry")}
           onAction={reload}
         />
-      </CoachScreenShell>
-    );
-  }
-
-  const { salary } = state;
-
-  return (
-    <CoachScreenShell title={t("title")} showBack>
-      <View style={styles.metrics}>
-        <CoachMetricCard
-          label={t("total")}
-          value={formatAmdFromCents(salary.totalEarningsCents)}
-        />
-        <CoachMetricCard
-          label={t("pending")}
-          value={formatAmdFromCents(salary.pendingPayoutCents)}
-        />
-        <CoachMetricCard
-          label={t("paid")}
-          value={formatAmdFromCents(salary.paidOutCents)}
-        />
-        <CoachMetricCard
-          label={t("sessions")}
-          value={String(salary.completedSessions)}
-        />
-      </View>
+      ) : null}
+      {state.status === "ready" ? <CoachSalaryMetrics salary={state.salary} /> : null}
     </CoachScreenShell>
   );
 }
 
+function CoachSalaryMetrics({ salary }: { salary: CoachSalarySummary }) {
+  const t = useTranslations("coachPages.salary");
+  return (
+    <View style={styles.metrics}>
+      <CoachMetricCard
+        label={t("total")}
+        value={formatAmdFromCents(salary.totalEarningsCents)}
+      />
+      <CoachMetricCard
+        label={t("pending")}
+        value={formatAmdFromCents(salary.pendingPayoutCents)}
+      />
+      <CoachMetricCard
+        label={t("paid")}
+        value={formatAmdFromCents(salary.paidOutCents)}
+      />
+      <CoachMetricCard
+        label={t("sessions")}
+        value={String(salary.completedSessions)}
+      />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  hint: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.bodySmall,
+    color: colors.bodyMuted,
+    lineHeight: 20,
+  },
   metrics: {
     flexDirection: "row",
     flexWrap: "wrap",

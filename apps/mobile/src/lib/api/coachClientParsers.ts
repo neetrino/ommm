@@ -51,6 +51,7 @@ const SESSION_STATUSES: readonly CoachSessionStatus[] = [
   "CANCELLED",
   "FULL",
   "DRAFT",
+  "FINISHED",
 ];
 
 export function parseSessionRow(value: unknown): CoachPanelSessionRow | null {

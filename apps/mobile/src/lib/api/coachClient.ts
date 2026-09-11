@@ -113,6 +113,17 @@ export async function fetchCoachSessions(
     .filter((row): row is CoachPanelSessionRow => row !== null);
 }
 
+/** Own past + upcoming sessions for the coach schedule views. */
+export async function fetchCoachPanelSessions(): Promise<CoachPanelSessionRow[]> {
+  const body = await authGet("/v1/coaches/panel/sessions");
+  if (!Array.isArray(body)) {
+    throw new Error("Unexpected sessions response");
+  }
+  return body
+    .map(parseSessionRow)
+    .filter((row): row is CoachPanelSessionRow => row !== null);
+}
+
 export async function fetchCoachRoster(
   coachId: string,
 ): Promise<CoachPanelBookingRow[]> {
@@ -136,8 +147,11 @@ export async function patchBookingAttendance(
   });
 }
 
-export async function fetchCoachSalary(): Promise<CoachSalarySummary | null> {
-  const body = await authGet("/v1/coaches/panel/salary");
+export async function fetchCoachSalary(
+  month?: string,
+): Promise<CoachSalarySummary | null> {
+  const query = month ? `?month=${encodeURIComponent(month)}` : "";
+  const body = await authGet(`/v1/coaches/panel/salary${query}`);
   if (body === null) {
     return null;
   }

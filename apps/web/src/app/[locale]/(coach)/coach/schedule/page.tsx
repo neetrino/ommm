@@ -17,7 +17,9 @@ export default async function CoachSchedulePage({
   const search = await searchParams;
   const initialView = resolveScheduleView(search.view);
   const t = await getTranslations({ locale, namespace: "coachPages.schedule" });
-  const panel = await loadCoachPanelPageData("sessions");
+  const panel = await loadCoachPanelPageData("sessions", {
+    includeSessionHistory: true,
+  });
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {
