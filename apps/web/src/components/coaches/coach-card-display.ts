@@ -10,6 +10,8 @@ export type CoachCardData = {
   bio: string | null;
   specialization: string | null;
   experienceYears: number | null;
+  /** Public coaches-page portrait; falls back to `user.avatarUrl` when null. */
+  cardImageUrl?: string | null;
   user: CoachCardUser;
 };
 
@@ -54,4 +56,21 @@ export function coachCardInitials(user: CoachCardUser): string {
     }
   }
   return user.email[0]?.toUpperCase() ?? "?";
+}
+
+/**
+ * Public coaches / featured portrait: card image first, then avatar, then caller fallback.
+ */
+export function resolveCoachPageImageUrl(
+  coach: Pick<CoachCardData, "cardImageUrl" | "user">,
+): string | null {
+  const card = coach.cardImageUrl?.trim();
+  if (card !== undefined && card.length > 0) {
+    return card;
+  }
+  const avatar = coach.user.avatarUrl?.trim();
+  if (avatar !== undefined && avatar.length > 0) {
+    return avatar;
+  }
+  return null;
 }

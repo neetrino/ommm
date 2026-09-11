@@ -28,6 +28,8 @@ type ValidateCoachFormArgs = {
   form: CoachEditFormState;
   photoFile: File | null;
   photoRemoved: boolean;
+  cardImageFile: File | null;
+  cardImageRemoved: boolean;
   classOptions: readonly CoachClassOption[];
   labels: {
     emailRequired: string;
@@ -65,6 +67,8 @@ export function validateCoachEditForm({
   form,
   photoFile,
   photoRemoved,
+  cardImageFile,
+  cardImageRemoved,
   classOptions,
   labels,
 }: ValidateCoachFormArgs): { errors: CoachEditFormErrors; payload: CoachUpdatePayload | null } {
@@ -131,6 +135,9 @@ export function validateCoachEditForm({
   if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
     errors.photo = labels.photoTooLarge;
   }
+  if (cardImageFile !== null && cardImageFile.size > MAX_PHOTO_BYTES) {
+    errors.cardImage = labels.photoTooLarge;
+  }
   const scheduleInvalid = scheduleRows.some((row) => {
     const spots = Number(row.spots);
     return !isValidTime(row.time.trim()) || !Number.isInteger(spots) || spots < MIN_SCHEDULE_SPOTS;
@@ -157,6 +164,7 @@ export function validateCoachEditForm({
     classTypeRates: parsedRates.rates,
     schedule: normalizeScheduleForApi(scheduleRows),
     ...(photoRemoved ? { photoUrl: "" } : {}),
+    ...(cardImageRemoved ? { cardImageUrl: "" } : {}),
   };
 
   return { errors, payload };

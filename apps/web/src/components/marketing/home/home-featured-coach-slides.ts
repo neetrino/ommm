@@ -1,5 +1,6 @@
 import {
   coachCardDisplayName,
+  resolveCoachPageImageUrl,
   type CoachCardData,
 } from "@/components/coaches/coach-card-display";
 import type { CoachSlideCopy } from "@/components/marketing/home/featured-coach-slide-card";
@@ -9,8 +10,8 @@ import { limitCoachesPageGridCards } from "@/components/marketing/coaches/coache
 /** Featured Coaches carousel — max slides on the home page. */
 export const HOME_FEATURED_COACHES_MAX_SLIDES = 6;
 
-function resolveCoachPortraitSrc(avatarUrl: string | null | undefined): string {
-  const trimmed = avatarUrl?.trim();
+function resolveCoachPortraitSrc(imageUrl: string | null | undefined): string {
+  const trimmed = imageUrl?.trim();
   return trimmed !== undefined && trimmed.length > 0
     ? trimmed
     : HOME_SECTION_ASSETS.coachPortrait;
@@ -43,7 +44,7 @@ function mapCoachToSlide(
     bio,
     experience,
     imageAlt: name,
-    imageSrc: resolveCoachPortraitSrc(coach.user.avatarUrl),
+    imageSrc: resolveCoachPortraitSrc(resolveCoachPageImageUrl(coach)),
   };
 }
 

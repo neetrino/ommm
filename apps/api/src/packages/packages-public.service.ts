@@ -87,6 +87,8 @@ export class PackagesPublicService {
 
   async invalidatePublicPlansCache(): Promise<void> {
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+    // Schedule public rows embed package category descriptions.
+    await this.cache.invalidateByPrefix(PUBLIC_CACHE_KEYS.schedule);
   }
 
   async listMine(userId: string) {

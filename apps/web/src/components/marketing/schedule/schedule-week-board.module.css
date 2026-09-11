@@ -279,7 +279,7 @@
 }
 
 /**
- * Soft-focus non-selected days via opacity only.
+ * Soft-focus past days via opacity only.
  * Avoid filter:blur — it recomposites backdrop-filter cards and tanks performance.
  */
 .columnDimmed {

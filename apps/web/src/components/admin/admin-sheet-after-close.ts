@@ -1,6 +1,7 @@
 /**
- * Phone sheets notify via exit animation. Desktop unmounts immediately,
- * so the parent dismiss must run on the open → closed transition.
+ * Phone sheets notify via exit animation.
+ * Desktop sheets now also animate inside AdminSheetPortal; prefer portal `onAfterClose`.
+ * Kept for tests / callers that still branch on viewport.
  */
 export function shouldNotifyDesktopSheetAfterClose(
   isPhone: boolean,

@@ -28,7 +28,14 @@ type SessionForPublicSchedule = {
   createdAt: Date;
   updatedAt: Date;
   classType: { name: string };
-  coach: { user: { name: string | null; lastName: string | null } };
+  coach: {
+    bio: string | null;
+    user: {
+      name: string | null;
+      lastName: string | null;
+      avatarUrl: string | null;
+    };
+  };
   _count: { bookings: number };
 };
 
@@ -36,6 +43,8 @@ export type PublicScheduleItem = {
   id: string;
   className: string;
   instructorName: string;
+  instructorAvatarUrl: string | null;
+  instructorBio: string | null;
   classType: string;
   dayOfWeek: ScheduleDayOfWeek;
   startTime: string;
@@ -45,7 +54,10 @@ export type PublicScheduleItem = {
   level: string | null;
   status: ClassSessionStatus;
   sessionDate: string;
+  /** Session-level notes (legacy); prefer `categoryDescription` for marketing copy. */
   description: string | null;
+  /** Package-category description matched by class type name. */
+  categoryDescription: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -65,12 +77,17 @@ function formatCoachInstructorName(
   return fullName.length > 0 ? fullName : '—';
 }
 
+function normalizeCategoryKey(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 /**
  * Maps class sessions into public marketing rows (active, full, and finished).
  * Draft/cancelled stay hidden. Finished rows keep real session ids for display only.
  */
 export function mapSessionsToPublicScheduleItems(
   sessions: readonly SessionForPublicSchedule[],
+  categoryDescriptionByClassType: ReadonlyMap<string, string> = new Map(),
 ): PublicScheduleItem[] {
   const items: PublicScheduleItem[] = [];
 
@@ -88,15 +105,22 @@ export function mapSessionsToPublicScheduleItems(
       session.coach.user.lastName,
     );
     const classTypeName = session.classType.name.trim();
+    const categoryDescription =
+      categoryDescriptionByClassType.get(normalizeCategoryKey(classTypeName)) ??
+      null;
 
     const bookedCount = session._count.bookings;
     const availableSpots = Math.max(session.capacity - bookedCount, 0);
     const durationMinutes = durationMinutesFromRange(startTime, endTime);
+    const avatarUrl = session.coach.user.avatarUrl?.trim() ?? '';
+    const bio = session.coach.bio?.trim() ?? '';
 
     items.push({
       id: session.id,
       className,
       instructorName,
+      instructorAvatarUrl: avatarUrl.length > 0 ? avatarUrl : null,
+      instructorBio: bio.length > 0 ? bio : null,
       classType: classTypeName,
       dayOfWeek,
       startTime,
@@ -107,6 +131,7 @@ export function mapSessionsToPublicScheduleItems(
       status: session.status,
       sessionDate: utcToStudioCalendarDate(session.startsAt),
       description: session.description,
+      categoryDescription,
       isActive: true,
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
@@ -116,10 +141,45 @@ export function mapSessionsToPublicScheduleItems(
   return items;
 }
 
+/** Builds class-type → first non-empty package description map. */
+export function buildCategoryDescriptionByClassType(
+  plans: readonly {
+    categoryName: string;
+    description: string | null;
+    /** Linked ClassType name — preferred match for schedule sessions. */
+    classTypeName?: string | null;
+  }[],
+): Map<string, string> {
+  const map = new Map<string, string>();
+
+  function setIfAbsent(rawKey: string, description: string): void {
+    const key = normalizeCategoryKey(rawKey);
+    if (key.length === 0 || map.has(key)) {
+      return;
+    }
+    map.set(key, description);
+  }
+
+  for (const plan of plans) {
+    const description = plan.description?.trim() ?? '';
+    if (description.length === 0) {
+      continue;
+    }
+    // Prefer class-type key first so "Reformer Group" sessions match even when
+    // the package group label is "Group Reformer".
+    setIfAbsent(plan.classTypeName ?? '', description);
+    setIfAbsent(plan.categoryName, description);
+  }
+  return map;
+}
+
 export const PUBLIC_SCHEDULE_SESSION_INCLUDE = {
   classType: { select: { name: true } },
   coach: {
-    include: { user: { select: { name: true, lastName: true } } },
+    select: {
+      bio: true,
+      user: { select: { name: true, lastName: true, avatarUrl: true } },
+    },
   },
   _count: {
     select: {

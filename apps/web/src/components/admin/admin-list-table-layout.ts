@@ -63,13 +63,9 @@ export const ADMIN_LIST_ROW_CLASS = [
   "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
 ].join(" ");
 
-/** Row actions — visible on hover/focus; always shown on touch/narrow viewports. */
-export const ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL = [
-  "max-md:opacity-100 max-md:pointer-events-auto",
-  "md:opacity-0 md:pointer-events-none md:transition-opacity md:duration-200",
-  "md:group-hover:opacity-100 md:group-hover:pointer-events-auto",
-  "md:group-focus-within:opacity-100 md:group-focus-within:pointer-events-auto",
-].join(" ");
+/** Row actions — always visible (kept as a named export for existing call sites). */
+export const ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL =
+  "opacity-100 pointer-events-auto";
 
 export const ADMIN_LIST_EMPHASIZED_HEADER =
   "text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-600";

@@ -11,7 +11,6 @@ import type { ScheduleDayOfWeek } from "@/components/admin/admin-schedule-types"
 import {
   ADMIN_SCHEDULE_FORM_MAX_CLASS_NAME_LENGTH,
   ADMIN_SCHEDULE_FORM_MAX_CLASS_TYPE_LENGTH,
-  ADMIN_SCHEDULE_FORM_MAX_DESCRIPTION_LENGTH,
   ADMIN_SCHEDULE_FORM_MAX_INSTRUCTOR_LENGTH,
   ADMIN_SCHEDULE_FORM_MIN_DURATION,
   ADMIN_SCHEDULE_FORM_MIN_SPOTS,
@@ -62,7 +61,6 @@ export function adminSchedulePayloadFromState(
   const className = form.className.trim();
   const instructorName = form.instructorName.trim();
   const classType = form.classType.trim();
-  const description = form.description.trim();
   const startTime = normalizeTimeInputValue(form.startTime.trim());
   const endTime = normalizeTimeInputValue(form.endTime.trim());
   const durationText = form.durationMinutes.trim();
@@ -111,9 +109,6 @@ export function adminSchedulePayloadFromState(
   if (!Number.isInteger(availableSpots) || availableSpots < ADMIN_SCHEDULE_FORM_MIN_SPOTS) {
     throw new Error(t("form.errors.spotsInvalid"));
   }
-  if (description.length > ADMIN_SCHEDULE_FORM_MAX_DESCRIPTION_LENGTH) {
-    throw new Error(t("form.errors.descriptionTooLong"));
-  }
 
   return {
     className,
@@ -124,7 +119,6 @@ export function adminSchedulePayloadFromState(
     ...(endTime.length > 0 ? { endTime } : {}),
     ...(durationMinutes === undefined ? {} : { durationMinutes }),
     availableSpots,
-    ...(description.length > 0 ? { description } : {}),
     isActive: form.isActive,
   };
 }

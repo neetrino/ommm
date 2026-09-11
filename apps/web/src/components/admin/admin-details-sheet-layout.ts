@@ -34,9 +34,13 @@ export const ADMIN_BOOKINGS_DETAILS_SHEET_WIDTH_CLASS =
 export const USER_MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS =
   "w-full sm:w-[36vw] sm:max-w-[36rem] sm:min-w-[22rem]";
 
-/** Medium sheets (user lookup, finance session list). */
+/** Medium sheets (user lookup). */
 export const ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS =
   "w-full sm:max-w-md sm:min-w-[20rem]";
+
+/** Finance coach salary sessions sheet — wide list of session info. */
+export const ADMIN_FINANCE_SESSIONS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-[60vw] sm:max-w-[60vw] sm:min-w-[24rem]";
 
 /** Wide form / profile sheets (clients, coaches, class types). */
 export const ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS =
@@ -60,6 +64,11 @@ export const USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS = [
 export const ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS = [
   ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS,
+].join(" ");
+
+export const ADMIN_FINANCE_SESSIONS_SHEET_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_FINANCE_SESSIONS_SHEET_WIDTH_CLASS,
 ].join(" ");
 
 export const ADMIN_WIDE_DRAWER_PANEL_CLASS = [
@@ -121,11 +130,11 @@ export const ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS =
   "space-y-3 rounded-2xl border border-white/60 bg-white/50 p-4";
 
 export const ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS =
-  "rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+  "rounded-full p-2 text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 /** Matches compact header actions (e.g. Deactivate) height in admin client drawer. */
 export const ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS =
-  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl leading-none text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45";
+  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl leading-none text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45";
 
 export const ADMIN_DETAILS_SHEET_TITLE_CLASS =
   "font-serif text-2xl font-normal text-sage-900";

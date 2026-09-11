@@ -124,7 +124,7 @@ export function GiftCardBoardTile({
               </span>
             ) : null}
             {hasImageOverlay ? (
-              <div className="pointer-events-none absolute inset-0 flex items-start justify-end bg-gradient-to-b from-sage-900/40 via-sage-900/5 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+              <div className="pointer-events-none absolute inset-0 flex items-start justify-end bg-gradient-to-b from-sage-900/40 via-sage-900/5 to-transparent p-3">
                 <div
                   className="pointer-events-auto"
                   onClick={(event: MouseEvent<HTMLDivElement>) => event.stopPropagation()}

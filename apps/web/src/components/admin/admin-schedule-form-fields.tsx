@@ -4,7 +4,6 @@ import type { useTranslations } from "next-intl";
 import {
   ADMIN_SCHEDULE_FORM_MAX_CLASS_NAME_LENGTH,
   ADMIN_SCHEDULE_FORM_MAX_CLASS_TYPE_LENGTH,
-  ADMIN_SCHEDULE_FORM_MAX_DESCRIPTION_LENGTH,
   ADMIN_SCHEDULE_FORM_MAX_INSTRUCTOR_LENGTH,
   ADMIN_SCHEDULE_FORM_MIN_DURATION,
   ADMIN_SCHEDULE_FORM_MIN_SPOTS,
@@ -200,20 +199,6 @@ export function AdminScheduleFormFields({
           <span>{t("form.active")}</span>
         </label>
       </div>
-
-      <label className="space-y-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("form.description")}</span>
-        <textarea
-          name="description"
-          className="ommm-input min-h-24"
-          maxLength={ADMIN_SCHEDULE_FORM_MAX_DESCRIPTION_LENGTH}
-          value={form.description}
-          onChange={(event) =>
-            setForm((prev) => ({ ...prev, description: event.target.value }))
-          }
-          disabled={pending}
-        />
-      </label>
     </>
   );
 }

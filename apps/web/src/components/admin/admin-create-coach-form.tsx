@@ -46,6 +46,8 @@ export function AdminCreateCoachForm({
   const [classTypeRates, setClassTypeRates] = useState<Record<string, string>>({});
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [cardImageFile, setCardImageFile] = useState<File | null>(null);
+  const [cardImagePreviewUrl, setCardImagePreviewUrl] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const photoPreview = useMemo(() => {
     return photoPreviewUrl !== null ? sanitizeCoachPreviewSrc(photoPreviewUrl) : null;
@@ -53,6 +55,12 @@ export function AdminCreateCoachForm({
   const photoPreviewImgSrc = useMemo(() => {
     return photoPreview !== null ? encodeURI(photoPreview) : null;
   }, [photoPreview]);
+  const cardImagePreview = useMemo(() => {
+    return cardImagePreviewUrl !== null ? sanitizeCoachPreviewSrc(cardImagePreviewUrl) : null;
+  }, [cardImagePreviewUrl]);
+  const cardImagePreviewImgSrc = useMemo(() => {
+    return cardImagePreview !== null ? encodeURI(cardImagePreview) : null;
+  }, [cardImagePreview]);
 
   function onPhotoSelected(file: File | null): void {
     if (photoPreviewUrl !== null) {
@@ -60,6 +68,14 @@ export function AdminCreateCoachForm({
     }
     setPhotoFile(file);
     setPhotoPreviewUrl(file !== null ? URL.createObjectURL(file) : null);
+  }
+
+  function onCardImageSelected(file: File | null): void {
+    if (cardImagePreviewUrl !== null) {
+      URL.revokeObjectURL(cardImagePreviewUrl);
+    }
+    setCardImageFile(file);
+    setCardImagePreviewUrl(file !== null ? URL.createObjectURL(file) : null);
   }
 
   function toggleClassSelection(classTypeId: string): void {
@@ -97,11 +113,13 @@ export function AdminCreateCoachForm({
       classTypeRates,
       classOptions,
       photoFile,
+      cardImageFile,
       pending,
       submitLockRef,
       t,
       onCreated,
       onPhotoSelected,
+      onCardImageSelected,
       setError,
       setErrorField,
       setSuccess,
@@ -158,6 +176,12 @@ export function AdminCreateCoachForm({
           onPhotoSelected={(file) => {
             clearFieldError();
             onPhotoSelected(file);
+          }}
+          cardImagePreview={cardImagePreview}
+          cardImagePreviewImgSrc={cardImagePreviewImgSrc}
+          onCardImageSelected={(file) => {
+            clearFieldError();
+            onCardImageSelected(file);
           }}
           pending={pending}
           errorField={errorField}

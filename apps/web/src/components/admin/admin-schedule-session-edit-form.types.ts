@@ -60,7 +60,6 @@ export function isSessionEditFormDirty(
 ): boolean {
   return (
     current.title !== snapshot.title ||
-    current.description !== snapshot.description ||
     current.classTypeId !== snapshot.classTypeId ||
     current.coachId !== snapshot.coachId ||
     current.date !== snapshot.date ||
@@ -76,7 +75,6 @@ export function sessionEditFormPayload(form: SessionEditFormState, classTypeId: 
   const endTime = normalizeTimeInputValue(form.endTime);
   return {
     title: form.title.trim(),
-    description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
     startsAt: studioWallClockToUtc(form.date, startTime).toISOString(),

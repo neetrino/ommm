@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { shouldNotifyDesktopSheetAfterClose } from "@/components/admin/admin-sheet-after-close";
+import { useCallback, useId, useState, type ReactNode } from "react";
 import {
   ADMIN_MOBILE_SHEET_GRABBER_CLASS,
   ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS,
@@ -9,10 +8,15 @@ import {
 } from "@/components/admin/admin-mobile-sheet-layout";
 import { AdminMobileBottomSheet } from "@/components/admin/admin-mobile-bottom-sheet";
 import {
+  OMM_DRAWER_OVERLAY_CLASS,
   OmmDrawerPortal,
   OmmModalPortal,
 } from "@/components/ui/omm-modal";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import {
+  OVERLAY_ENTER_EXIT_EXIT_MS,
+  useOverlayEnterExitMotion,
+} from "@/hooks/use-overlay-enter-exit-motion";
 
 export type AdminSheetPortalProps = {
   isOpen: boolean;
@@ -32,9 +36,10 @@ export type AdminSheetPortalProps = {
   lockBodyScroll?: boolean;
   useOverlayPortalRoot?: boolean;
   closeOnEscape?: boolean;
+  /** Optional override; desktop motion is owned by this portal when omitted. */
   motionState?: "open" | "closed";
   zIndexClass?: string;
-  /** Phone: after exit animation. Desktop: on the open → closed transition. */
+  /** Phone: after exit animation. Desktop: after shared enter/exit motion. */
   onAfterClose?: () => void;
   /**
    * When true with `presentation="modal"`, always use a centered modal
@@ -46,6 +51,7 @@ export type AdminSheetPortalProps = {
 
 /**
  * Responsive admin overlay — Ilona-style bottom sheet on phone, drawer or modal on tablet+.
+ * Desktop open/close uses the same soft enter/exit motion as schedule modals.
  */
 export function AdminSheetPortal({
   isOpen,
@@ -75,19 +81,20 @@ export function AdminSheetPortal({
   const isPhone = useMemberHubSheetPhone();
   const usePhoneSheet = isPhone && !forceCenteredModal;
   const [phoneMounted, setPhoneMounted] = useState(isOpen);
-  const wasDesktopOpenRef = useRef(isOpen);
 
   if (isOpen && !phoneMounted) {
     setPhoneMounted(true);
   }
 
-  useEffect(() => {
-    const wasOpen = wasDesktopOpenRef.current;
-    wasDesktopOpenRef.current = isOpen;
-    if (shouldNotifyDesktopSheetAfterClose(usePhoneSheet, wasOpen, isOpen)) {
-      onAfterClose?.();
-    }
-  }, [isOpen, usePhoneSheet, onAfterClose]);
+  const handleDesktopClosed = useCallback(() => {
+    onAfterClose?.();
+  }, [onAfterClose]);
+
+  const desktopMotion = useOverlayEnterExitMotion(
+    !usePhoneSheet && isOpen,
+    handleDesktopClosed,
+    { closeDisabled, exitMs: OVERLAY_ENTER_EXIT_EXIT_MS },
+  );
 
   const handlePhoneExitComplete = useCallback(() => {
     setPhoneMounted(false);
@@ -118,25 +125,37 @@ export function AdminSheetPortal({
     );
   }
 
-  if (!isOpen) {
+  if (!desktopMotion.presented) {
     return null;
   }
+
+  const resolvedMotionState =
+    motionState ?? (desktopMotion.motionOpen ? "open" : "closed");
+  const drawerOverlayWithMotion = [
+    drawerOverlayClassName ?? OMM_DRAWER_OVERLAY_CLASS,
+    "ommm-overlay-animated",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const modalOverlayWithMotion = [modalOverlayClassName, "ommm-overlay-animated"]
+    .filter(Boolean)
+    .join(" ");
 
   if (presentation === "drawer") {
     return (
       <OmmDrawerPortal
-        isOpen={isOpen}
+        isOpen
         onClose={onClose}
         backdropAriaLabel={backdropAriaLabel}
         ariaLabelledBy={titleId}
         closeDisabled={closeDisabled}
-        overlayClassName={drawerOverlayClassName}
+        overlayClassName={drawerOverlayWithMotion}
         backdropClassName={drawerBackdropClassName}
         panelClassName={drawerPanelClassName}
         lockBodyScroll={lockBodyScroll}
         useOverlayPortalRoot={useOverlayPortalRoot}
         closeOnEscape={closeOnEscape}
-        motionState={motionState}
+        motionState={resolvedMotionState}
       >
         {children}
       </OmmDrawerPortal>
@@ -145,19 +164,19 @@ export function AdminSheetPortal({
 
   return (
     <OmmModalPortal
-      isOpen={isOpen}
+      isOpen
       onClose={onClose}
       dialogRole={dialogRole}
       ariaLabelledBy={titleId}
       ariaDescribedBy={ariaDescribedBy}
       closeDisabled={closeDisabled}
       backdropAriaLabel={backdropAriaLabel}
-      overlayClassName={modalOverlayClassName}
+      overlayClassName={modalOverlayWithMotion}
       panelClassName={modalPanelClassName}
       centered
       lockBodyScroll={lockBodyScroll}
       closeOnEscape={closeOnEscape}
-      motionState={motionState}
+      motionState={resolvedMotionState}
       useOverlayPortalRoot={useOverlayPortalRoot}
     >
       {children}

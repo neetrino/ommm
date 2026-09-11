@@ -82,7 +82,7 @@ export function AdminWhatsappLockedField({
         ) : (
           <button
             type="button"
-            className={`${FIELD_ACTION_CLASS} opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100`}
+            className={`${FIELD_ACTION_CLASS} opacity-100`}
             aria-label={editAriaLabel}
             onClick={onEdit}
           >

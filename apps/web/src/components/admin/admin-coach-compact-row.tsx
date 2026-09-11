@@ -10,9 +10,7 @@ import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions
 import {
   ADMIN_COACHES_LIST_ACTIONS_CELL,
   ADMIN_COACHES_LIST_CELL,
-  ADMIN_COACHES_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_COACHES_LIST_ROW_CLASS,
-  ADMIN_COACHES_LIST_SPECIALIZATION_CELL,
   ADMIN_COACHES_LIST_TAGS_CELL,
   ADMIN_COACHES_LIST_WORKLOAD_CELL,
 } from "@/components/admin/admin-coaches-list-layout";
@@ -41,6 +39,7 @@ export function AdminCoachCompactRow({
 }: AdminCoachCompactRowProps) {
   const t = useTranslations("adminPages.coaches");
   const displayName = coachDirectoryDisplayName(coach);
+  const specialization = coach.specialization?.trim() || "—";
 
   return (
     <article
@@ -64,14 +63,12 @@ export function AdminCoachCompactRow({
             <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>
               {displayName}
             </p>
-            <p className="mt-0.5 truncate text-xs text-sage-500">{displayPhoneOrFallback(coach.user.phone)}</p>
+            <p className="mt-0.5 truncate text-xs text-sage-600">{specialization}</p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">
+              {displayPhoneOrFallback(coach.user.phone)}
+            </p>
           </div>
         </div>
-      </div>
-
-      <div className={ADMIN_COACHES_LIST_SPECIALIZATION_CELL}>
-        <AdminListMobileLabel label={t("colSpecialization")} />
-        <p className="truncate text-sm text-sage-800">{coach.specialization ?? "—"}</p>
       </div>
 
       <div className={ADMIN_COACHES_LIST_TAGS_CELL}>
@@ -94,7 +91,7 @@ export function AdminCoachCompactRow({
 
       {readOnly ? null : (
         <div
-          className={`${ADMIN_COACHES_LIST_ACTIONS_CELL} ${ADMIN_COACHES_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+          className={ADMIN_COACHES_LIST_ACTIONS_CELL}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >

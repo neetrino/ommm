@@ -19,6 +19,7 @@ export type CoachSalarySessionRow = {
   endsAt: string;
   status: string;
   classType: { id: string; name: string };
+  capacity: number;
   registeredCount: number;
   attendedCount: number;
   noShowCount: number;

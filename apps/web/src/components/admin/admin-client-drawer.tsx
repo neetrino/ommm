@@ -4,7 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useState, type FormEvent } from
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { formatIsoDateToUi } from "@/lib/date-display";
-import { AdminClientStatusAction } from "@/components/admin/admin-client-status-action";
+import { AdminClientSheetHeaderActions } from "@/components/admin/admin-client-sheet-header-actions";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
 import { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
@@ -163,7 +163,7 @@ function AdminClientDrawerInner({
   const [detail, setDetail] = useState<ClientDetail | null>(matchingInitialDetail);
   const [loading, setLoading] = useState(matchingInitialDetail === null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
-  const [statusBusy, setStatusBusy] = useState(false);
+  const [headerActionsBusy, setHeaderActionsBusy] = useState(false);
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
@@ -267,7 +267,8 @@ function AdminClientDrawerInner({
     [t],
   );
 
-  const sheetBusy = editForm.busy || statusBusy || actionBusy !== null;
+  const sheetBusy =
+    editForm.busy || headerActionsBusy || actionBusy !== null;
 
   const updateClientTabQuery = useCallback(
     (tab: ClientSheetTabId) => {
@@ -389,15 +390,15 @@ function AdminClientDrawerInner({
             {clientHeaderName(client)}
           </h2>
           <div className="flex shrink-0 items-center gap-2">
-            <AdminClientStatusAction
+            <AdminClientSheetHeaderActions
               clientId={client.id}
+              email={detail?.email ?? client.email}
               isActive={isActive}
-              labels={statusLabels}
-              layout="inline"
+              statusLabels={statusLabels}
               disabled={editForm.busy || loading}
-              onBusyChange={setStatusBusy}
+              onBusyChange={setHeaderActionsBusy}
               onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
-              onChanged={() => {
+              onStatusChanged={() => {
                 void refreshDetail();
                 onChanged();
               }}

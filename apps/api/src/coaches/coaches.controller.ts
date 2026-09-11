@@ -166,4 +166,14 @@ export class CoachesController {
   ) {
     return this.coaches.uploadCoachPhotoJson(id, dto);
   }
+
+  @Post(':id/card-image-json')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  uploadCoachCardImageJson(
+    @Param('id') id: string,
+    @Body() dto: UploadCoachPhotoJsonDto,
+  ) {
+    return this.coaches.uploadCoachCardImageJson(id, dto);
+  }
 }

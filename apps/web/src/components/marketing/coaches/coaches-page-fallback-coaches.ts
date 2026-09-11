@@ -65,6 +65,7 @@ export function buildCoachesPageFallbackCoaches(
         email: `coach-${index + 1}@ommm.space`,
         avatarUrl: null,
       },
+      cardImageUrl: null,
     };
   });
 }

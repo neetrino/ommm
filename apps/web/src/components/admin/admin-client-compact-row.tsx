@@ -24,7 +24,6 @@ import {
   ADMIN_CLIENTS_LIST_MEMBERSHIP_CELL,
   ADMIN_CLIENTS_LIST_NAME_AREA_CLASS,
   ADMIN_CLIENTS_LIST_NAME_CELL,
-  ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_CLIENTS_LIST_ROW_CLASS,
   ADMIN_CLIENTS_LIST_ROW_WITH_ACTIONS_CLASS,
   ADMIN_CLIENTS_LIST_SUBTITLE_CLASS,
@@ -132,15 +131,11 @@ function ClientCardFields({
 
       {hideActions ? null : (
         <div
-          className={`${ADMIN_CLIENTS_LIST_ACTIONS_CELL} ${ADMIN_CLIENTS_LIST_ACTIONS_AREA_CLASS} ${ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+          className={`${ADMIN_CLIENTS_LIST_ACTIONS_CELL} ${ADMIN_CLIENTS_LIST_ACTIONS_AREA_CLASS}`}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
-          <AdminClientRowActions
-            client={row}
-            onChanged={onChanged}
-            onEdit={() => onSelect(row)}
-          />
+          <AdminClientRowActions client={row} onChanged={onChanged} />
         </div>
       )}
     </>

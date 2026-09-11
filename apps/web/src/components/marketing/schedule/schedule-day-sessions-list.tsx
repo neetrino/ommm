@@ -39,6 +39,7 @@ type ScheduleDaySessionsListProps = {
   memberActionStateReady: boolean;
   eligibilityBySessionId: ScheduleSessionEligibilityMap;
   eligibilityLoaded: boolean;
+  onOpenDetails: (row: MarketingScheduleItem) => void;
   onBooked: (sessionId: string, bookingId: string) => void;
   onCancelled: (sessionId: string) => void;
   onWaitlisted: (sessionId: string) => void;
@@ -62,12 +63,14 @@ export function ScheduleDaySessionsList({
   memberActionStateReady,
   eligibilityBySessionId,
   eligibilityLoaded,
+  onOpenDetails,
   onBooked,
   onCancelled,
   onWaitlisted,
   onWaitlistLeft,
 }: ScheduleDaySessionsListProps) {
   const t = useTranslations("marketingPages.schedule");
+  const tDetail = useTranslations("marketingPages.schedule.sessionDetail");
 
   return (
     <div className="mt-0 min-w-0">
@@ -143,6 +146,10 @@ export function ScheduleDaySessionsList({
                   isOnWaitlist={showOnWaitlist}
                   packageEligibility={eligibilityBySessionId.get(row.id)}
                   eligibilityLoaded={eligibilityLoaded}
+                  detailsAriaLabel={tDetail("openDetailsAria", {
+                    name: row.className,
+                  })}
+                  onOpenDetails={onOpenDetails}
                   onBooked={onBooked}
                   onCancelled={onCancelled}
                   onWaitlisted={onWaitlisted}

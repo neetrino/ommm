@@ -20,6 +20,7 @@ export type CoachEditFormState = {
   age: string;
   birthday: string;
   photoUrl: string;
+  cardImageUrl: string;
   bio: string;
   experienceYears: string;
   assignedClassTypeIds: string[];
@@ -36,6 +37,7 @@ export type CoachEditFormErrors = {
   age?: string;
   birthday?: string;
   photo?: string;
+  cardImage?: string;
   bio?: string;
   experienceYears?: string;
   assignedClassTypeIds?: string;
@@ -52,6 +54,7 @@ export type CoachEditInitialValues = {
   age: number | null;
   birthday: string | null;
   photoUrl: string | null;
+  cardImageUrl: string | null;
   bio: string;
   experienceYears: number | null;
   assignedClassTypeIds: readonly string[];
@@ -74,6 +77,7 @@ export type CoachUpdatePayload = {
   classTypeRates: CoachClassTypeRateInput[];
   schedule: { date: string; time: string; spots: number }[];
   photoUrl?: string;
+  cardImageUrl?: string;
 };
 
 function ratesRecordFromInitial(
@@ -100,6 +104,7 @@ export function coachFormFromInitial(
     age: initial.age === null ? "" : String(initial.age),
     birthday: formatIsoDateToUi(initial.birthday),
     photoUrl: initial.photoUrl ?? "",
+    cardImageUrl: initial.cardImageUrl ?? "",
     bio: initial.bio,
     experienceYears: initial.experienceYears === null ? "" : String(initial.experienceYears),
     assignedClassTypeIds: filterKnownAssignedClassTypeIds(

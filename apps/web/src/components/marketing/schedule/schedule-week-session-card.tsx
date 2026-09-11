@@ -15,9 +15,13 @@ import {
   SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
 import styles from "@/components/marketing/schedule/schedule-week-session-card.module.css";
+import { coachCardInitials } from "@/components/coaches/coach-card-display";
+import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 const SCHEDULE_PAGE_LOGIN_RETURN_PATH = "/schedule";
+const WEEK_CARD_INSTRUCTOR_AVATAR_CLASS = "size-8 shrink-0 rounded-full text-[0.625rem]";
 
 type ScheduleWeekSessionCardProps = {
   row: MarketingScheduleItem;
@@ -32,6 +36,8 @@ type ScheduleWeekSessionCardProps = {
   userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
   isOnWaitlist?: boolean;
+  detailsAriaLabel: string;
+  onOpenDetails?: (row: MarketingScheduleItem) => void;
   onBooked?: (sessionId: string, bookingId: string) => void;
   onCancelled?: (sessionId: string) => void;
   onWaitlisted?: (sessionId: string) => void;
@@ -70,6 +76,8 @@ export function ScheduleWeekSessionCard({
   userBookingCreatedAt,
   bookingStateReady = true,
   isOnWaitlist = false,
+  detailsAriaLabel,
+  onOpenDetails,
   onBooked,
   onCancelled,
   onWaitlisted,
@@ -91,18 +99,49 @@ export function ScheduleWeekSessionCard({
     eligibility: packageEligibility,
     eligibilityLoaded,
   });
+  const instructorAvatarSrc =
+    row.instructorAvatarUrl != null
+      ? resolveApiAssetUrl(row.instructorAvatarUrl) ?? row.instructorAvatarUrl
+      : null;
 
   return (
     <article
-      className={[styles.card, isClosed ? styles.cardClosed : ""].filter(Boolean).join(" ")}
+      className={[
+        styles.card,
+        isClosed ? styles.cardClosed : "",
+        onOpenDetails !== undefined ? styles.cardClickable : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={cardStyle}
     >
+      <button
+        type="button"
+        className={styles.detailsHit}
+        aria-label={detailsAriaLabel}
+        disabled={onOpenDetails === undefined}
+        onClick={() => onOpenDetails?.(row)}
+      />
       <div className={styles.body}>
-        <h3 className={styles.title}>{row.className}</h3>
+        <div className={styles.titleBlock}>
+          <h3 className={styles.title}>{row.className}</h3>
+          {level.length > 0 ? <span className={styles.level}>{level}</span> : null}
+          {showClassType ? <p className={styles.classType}>{classType}</p> : null}
+        </div>
         <p className={styles.time}>{formatTimeRange(locale, row)}</p>
-        {level.length > 0 ? <span className={styles.level}>{level}</span> : null}
-        <p className={styles.coach}>{row.instructorName}</p>
-        {showClassType ? <p className={styles.classType}>{classType}</p> : null}
+        <div className={styles.coachRow}>
+          <MemberProfileAvatar
+            initials={coachCardInitials({
+              name: row.instructorName,
+              email: row.instructorName,
+              avatarUrl: row.instructorAvatarUrl ?? null,
+            })}
+            imageSrc={instructorAvatarSrc}
+            className={WEEK_CARD_INSTRUCTOR_AVATAR_CLASS}
+            guestIconClassName={WEEK_CARD_INSTRUCTOR_AVATAR_CLASS}
+          />
+          <p className={styles.coach}>{row.instructorName}</p>
+        </div>
       </div>
       <div className={styles.footer}>
         {isClosed ? (

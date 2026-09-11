@@ -56,6 +56,7 @@ type ScheduleWeekBoardProps = {
   filtersSlot?: ReactNode;
   onSelectDay: (day: Date) => void;
   onShiftWindow: (delta: number) => void;
+  onOpenDetails: (row: MarketingScheduleItem) => void;
   onBooked: (sessionId: string, bookingId: string) => void;
   onCancelled: (sessionId: string) => void;
   onWaitlisted: (sessionId: string) => void;
@@ -86,12 +87,14 @@ export function ScheduleWeekBoard({
   filtersSlot,
   onSelectDay,
   onShiftWindow,
+  onOpenDetails,
   onBooked,
   onCancelled,
   onWaitlisted,
   onWaitlistLeft,
 }: ScheduleWeekBoardProps) {
   const t = useTranslations("marketingPages.schedule");
+  const tDetail = useTranslations("marketingPages.schedule.sessionDetail");
   const today = startOfLocalDay(scheduleNow);
   const [collapsedPeriods, setCollapsedPeriods] = useState<ReadonlySet<DayPeriod>>(
     () => new Set(),
@@ -154,6 +157,8 @@ export function ScheduleWeekBoard({
         isOnWaitlist={showOnWaitlist}
         packageEligibility={eligibilityBySessionId.get(row.id)}
         eligibilityLoaded={eligibilityLoaded}
+        detailsAriaLabel={tDetail("openDetailsAria", { name: row.className })}
+        onOpenDetails={onOpenDetails}
         onBooked={onBooked}
         onCancelled={onCancelled}
         onWaitlisted={onWaitlisted}
@@ -194,7 +199,7 @@ export function ScheduleWeekBoard({
                 disabled={isPastDay}
                 className={[
                   styles.dayHeader,
-                  isSelected ? "" : styles.dayHeaderDimmed,
+                  isPastDay ? styles.dayHeaderDimmed : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -240,13 +245,13 @@ export function ScheduleWeekBoard({
           aria-hidden
         >
           {columns.map((column) => {
-            const isSelected = isSameCalendarDay(column.day, selectedDate);
+            const isPastDay = isBeforeCalendarDay(column.day, today);
             return (
               <div
                 key={column.dayKey}
                 className={[
                   styles.column,
-                  isSelected ? "" : styles.columnDimmed,
+                  isPastDay ? styles.columnDimmed : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -268,7 +273,6 @@ export function ScheduleWeekBoard({
             collapsed={collapsedPeriods.has(period)}
             columns={columns}
             today={today}
-            selectedDate={selectedDate}
             sessionsByDayAndPeriod={sessionsByDayAndPeriod}
             onToggle={() => togglePeriod(period)}
             renderSessionCard={renderSessionCard}

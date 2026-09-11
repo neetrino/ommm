@@ -30,6 +30,7 @@ export type CoachAdminListRow = {
   assignedClassTypeIds: string[];
   experienceYears: number | null;
   salaryPerClassAmd: number;
+  cardImageUrl: string | null;
   classTypeRates: CoachClassTypeRateView[];
   isActive: boolean;
   createdAt: Date;
@@ -58,6 +59,7 @@ export type CoachUpdateResult = {
   classType: string | null;
   experienceYears: number | null;
   salaryPerClassAmd: number;
+  cardImageUrl: string | null;
   classTypeRates: CoachClassTypeRateView[];
   assignedClassTypeIds: string[];
   isActive: boolean;
@@ -129,6 +131,7 @@ export const coachUpdateSelect = {
   classType: true,
   experienceYears: true,
   salaryPerClassAmd: true,
+  cardImageUrl: true,
   isActive: true,
   createdAt: true,
   updatedAt: true,

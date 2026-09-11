@@ -26,6 +26,9 @@ type AdminCreateCoachFormDetailsSectionProps = {
   photoPreview: string | null;
   photoPreviewImgSrc: string | null;
   onPhotoSelected: (file: File | null) => void;
+  cardImagePreview: string | null;
+  cardImagePreviewImgSrc: string | null;
+  onCardImageSelected: (file: File | null) => void;
   pending: boolean;
   errorField: AdminCreateCoachFocusField | null;
   errorMessage: string | null;
@@ -42,6 +45,9 @@ export function AdminCreateCoachFormDetailsSection({
   photoPreview,
   photoPreviewImgSrc,
   onPhotoSelected,
+  cardImagePreview,
+  cardImagePreviewImgSrc,
+  onCardImageSelected,
   pending,
   errorField,
   errorMessage,
@@ -49,6 +55,7 @@ export function AdminCreateCoachFormDetailsSection({
   tPage,
 }: AdminCreateCoachFormDetailsSectionProps) {
   const photoInvalid = errorField === "photo";
+  const cardImageInvalid = errorField === "cardImage";
   const assignedInvalid =
     errorField === "assignedClasses" || errorField === "classTypeRates";
 
@@ -145,7 +152,7 @@ export function AdminCreateCoachFormDetailsSection({
                   <img
                     src={photoPreviewImgSrc}
                     alt={t("photoPreviewAlt")}
-                    className="h-44 w-full object-contain"
+                    className="h-28 w-28 object-cover"
                   />
                 </div>
               ) : (
@@ -154,6 +161,66 @@ export function AdminCreateCoachFormDetailsSection({
             </div>
             <FormFieldErrorFor
               field="photo"
+              errorField={errorField}
+              message={errorMessage}
+            />
+          </div>
+          <div
+            className="flex flex-col gap-2 lg:col-span-2"
+            data-create-coach-field="cardImage"
+            data-form-field="cardImage"
+          >
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("cardImageLabel")}
+            </span>
+            <div
+              className={`rounded-2xl border bg-white/80 p-3 ${
+                cardImageInvalid
+                  ? ADMIN_INVALID_FIELD_CLASS
+                  : "border-sand-500/20"
+              }`}
+            >
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center rounded-xl border border-sand-500/30 px-3 py-2 text-sm text-sage-700 transition-colors hover:bg-sand-50/70">
+                  <input
+                    type="file"
+                    accept={ACCEPT_PHOTO}
+                    className="sr-only"
+                    disabled={pending}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      onCardImageSelected(file);
+                    }}
+                  />
+                  {t("cardImageChoose")}
+                </label>
+                {cardImagePreview !== null ? (
+                  <OmmButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onCardImageSelected(null)}
+                    disabled={pending}
+                  >
+                    {t("scheduleRemoveRow")}
+                  </OmmButton>
+                ) : null}
+              </div>
+              {cardImagePreviewImgSrc !== null ? (
+                <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={cardImagePreviewImgSrc}
+                    alt={t("cardImagePreviewAlt")}
+                    className="h-44 w-full object-contain"
+                  />
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-sage-500">{t("cardImageHint")}</p>
+              )}
+            </div>
+            <FormFieldErrorFor
+              field="cardImage"
               errorField={errorField}
               message={errorMessage}
             />

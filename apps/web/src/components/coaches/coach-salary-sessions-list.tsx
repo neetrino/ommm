@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CoachSalarySessionCard } from "@/components/coaches/coach-salary-session-card";
+import { CoachSalarySessionsTable } from "@/components/coaches/coach-salary-sessions-table";
 import type { CoachSalarySessionRow, CoachSalarySessionsPayload } from "@/components/coaches/coach-salary-session-types";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { apiFetch } from "@/lib/api";
@@ -15,6 +16,9 @@ type CoachSalarySessionsListProps = {
   loadingLabel: string;
   loadFailedLabel: string;
   emptyLabel: string;
+  /** Spreadsheet layout for the wide admin finance drawer; cards stay the default elsewhere. */
+  variant?: "cards" | "table";
+  totalsLabel?: string;
 };
 
 function buildEndpoint(endpoint: string, month: string, take: number, offset: number): string {
@@ -34,6 +38,8 @@ export function CoachSalarySessionsList({
   loadingLabel,
   loadFailedLabel,
   emptyLabel,
+  variant = "cards",
+  totalsLabel = "Totals",
 }: CoachSalarySessionsListProps) {
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
   const [page, setPage] = useState(1);
@@ -83,6 +89,7 @@ export function CoachSalarySessionsList({
   }, [endpoint, month, page, pageSize, loadFailedLabel]);
 
   const listOffset = (page - 1) * pageSize;
+  const showRows = !loading && !error && sessions.length > 0;
 
   return (
     <div className="space-y-3">
@@ -91,11 +98,20 @@ export function CoachSalarySessionsList({
       {!loading && !error && sessions.length === 0 ? (
         <p className="text-sm text-sage-600">{emptyLabel}</p>
       ) : null}
-      <ul className="space-y-2">
-        {sessions.map((session) => (
-          <CoachSalarySessionCard key={session.id} session={session} locale={locale} />
-        ))}
-      </ul>
+      {showRows && variant === "table" ? (
+        <CoachSalarySessionsTable
+          sessions={sessions}
+          locale={locale}
+          totalsLabel={totalsLabel}
+        />
+      ) : null}
+      {showRows && variant === "cards" ? (
+        <ul className="space-y-2">
+          {sessions.map((session) => (
+            <CoachSalarySessionCard key={session.id} session={session} locale={locale} />
+          ))}
+        </ul>
+      ) : null}
       <OmmListPagination
         total={total}
         page={page}

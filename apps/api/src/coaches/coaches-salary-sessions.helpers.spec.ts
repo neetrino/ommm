@@ -13,6 +13,7 @@ function buildSession(
     startsAt: new Date('2026-08-10T10:00:00.000Z'),
     endsAt: new Date('2026-08-10T11:00:00.000Z'),
     status: ClassSessionStatus.FINISHED,
+    capacity: 8,
     classTypeId: 'class-type-1',
     classType: { id: 'class-type-1', name: 'Pilates' },
     salaryAccrual: null,
@@ -123,6 +124,7 @@ describe('mapSalarySessionRow', () => {
     expect(row.registeredCount).toBe(3);
     expect(row.attendedCount).toBe(1);
     expect(row.noShowCount).toBe(2);
+    expect(row.capacity).toBe(8);
     expect(row.amountAmd).toBe(8000);
     expect(row.reason).toBe('PAID');
   });

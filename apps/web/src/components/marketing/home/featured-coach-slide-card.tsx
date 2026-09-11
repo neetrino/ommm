@@ -14,7 +14,7 @@ export type CoachSlideCopy = {
   bio: string;
   experience: string;
   imageAlt: string;
-  /** Coach portrait — API `avatarUrl` when set. */
+  /** Coach portrait — `cardImageUrl` when set, else `avatarUrl`. */
   imageSrc?: string | null;
 };
 

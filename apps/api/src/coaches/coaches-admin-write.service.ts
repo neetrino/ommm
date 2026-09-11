@@ -156,10 +156,12 @@ export class CoachesAdminWriteService {
       assertCoachSelfUpdateFields(dto);
     }
     const fields = normalizeCoachUpdateFields(dto);
+    const previousCardImageUrl = profile.cardImageUrl;
     const {
       normalizedClassType,
       normalizedAssignedClassTypeIds,
       normalizedSchedule,
+      normalizedCardImageUrl,
     } = fields;
     if (normalizedClassType !== undefined && normalizedClassType !== null) {
       await this.assertValidCoachClassType(normalizedClassType);
@@ -230,6 +232,16 @@ export class CoachesAdminWriteService {
       // rates make them payable, so they are accrued now that rates are saved.
       await this.salaryAccrual.accrueMissingFinishedSessions(coachProfileId);
     }
+    if (
+      normalizedCardImageUrl !== undefined &&
+      previousCardImageUrl !== null &&
+      previousCardImageUrl !== (normalizedCardImageUrl ?? '')
+    ) {
+      await this.photo.removeOldCoachPhoto(
+        previousCardImageUrl,
+        normalizedCardImageUrl ?? '',
+      );
+    }
     await this.audit.log({
       actorId: actor.id,
       actorRole: actor.role,
@@ -263,6 +275,7 @@ export class CoachesAdminWriteService {
     }
 
     const avatarUrl = profile.user.avatarUrl;
+    const cardImageUrl = profile.cardImageUrl;
 
     try {
       await this.prisma.$transaction(async (tx) => {
@@ -278,6 +291,7 @@ export class CoachesAdminWriteService {
     }
 
     await this.photo.removeOldCoachPhoto(avatarUrl, '');
+    await this.photo.removeOldCoachPhoto(cardImageUrl, '');
     await this.audit.log({
       actorId: actor.id,
       actorRole: actor.role,

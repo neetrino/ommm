@@ -192,14 +192,6 @@ export function SessionFormSheet({
               onRemoveSlot={sheet.removeCalendarSlot}
             />
           ) : null}
-          <textarea
-            className="ommm-input min-h-24 sm:col-span-2"
-            value={sheet.form.description}
-            onChange={(event) =>
-              sheet.setForm((current) => ({ ...current, description: event.target.value }))
-            }
-            placeholder={sheet.t("form.description")}
-          />
           {sheet.error ? (
             <p className="app-alert-warn text-sm sm:col-span-2">{sheet.error}</p>
           ) : null}

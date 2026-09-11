@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachEditableAvatar } from "@/components/admin/admin-coach-editable-avatar";
+import { AdminCoachEditableCardImage } from "@/components/admin/admin-coach-editable-card-image";
 import {
   AdminSheetEditableField,
   AdminSheetReadOnlyField,
@@ -60,6 +61,7 @@ type CoachSheetTabPanelsProps = {
   errors: CoachEditFormErrors;
   busy: boolean;
   photoPreviewUrl: string | null;
+  cardImagePreviewUrl: string | null;
   controller: CoachFormController;
   overview?: CoachSheetOverviewContext;
   personalInfoEditing: boolean;
@@ -78,6 +80,7 @@ export function CoachSheetTabPanels({
   errors,
   busy,
   photoPreviewUrl,
+  cardImagePreviewUrl,
   controller,
   overview,
   personalInfoEditing,
@@ -102,6 +105,25 @@ export function CoachSheetTabPanels({
   }, [form.photoUrl, photoPreviewUrl]);
   const photoPreviewSrc = photoPreview !== null ? encodeURI(photoPreview) : null;
   const hasPhoto = photoPreviewSrc !== null;
+
+  const cardImagePreview = useMemo(() => {
+    const localPreview =
+      cardImagePreviewUrl !== null ? sanitizeCoachPreviewSrc(cardImagePreviewUrl) : null;
+    if (localPreview !== null) {
+      return localPreview;
+    }
+    const remote =
+      form.cardImageUrl.trim() === ""
+        ? null
+        : sanitizeCoachPreviewSrc(
+            resolveApiAssetUrl(form.cardImageUrl.trim()) ?? form.cardImageUrl.trim(),
+            { allowRemoteHttp: true },
+          );
+    return remote;
+  }, [form.cardImageUrl, cardImagePreviewUrl]);
+  const cardImagePreviewSrc = cardImagePreview !== null ? encodeURI(cardImagePreview) : null;
+  const hasCardImage = cardImagePreviewSrc !== null;
+
   const avatarInitials =
     overview?.initials ??
     coachCardInitials({
@@ -116,23 +138,45 @@ export function CoachSheetTabPanels({
       <div className="space-y-5">
         <section className={SECTION_CLASS}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-            <AdminCoachEditableAvatar
-              previewSrc={photoPreviewSrc}
-              initials={avatarInitials}
+            <div className="shrink-0">
+              <p className="ommm-label mb-2 text-xs uppercase tracking-wide text-sage-700">
+                {t("fieldAvatar")}
+              </p>
+              <AdminCoachEditableAvatar
+                previewSrc={photoPreviewSrc}
+                initials={avatarInitials}
+                busy={busy}
+                chooseLabel={t("fieldAvatarChoose")}
+                uploadingLabel={t("fieldPhotoUploading")}
+                removeLabel={t("fieldAvatarRemove")}
+                showRemove={hasPhoto}
+                onSelect={(file) => {
+                  controller.onPhotoSelected(file);
+                }}
+                onRemove={() => {
+                  controller.onPhotoDeleted();
+                }}
+              />
+              {errors.photo ? <p className="mt-2 text-xs text-red-800">{errors.photo}</p> : null}
+            </div>
+            <AdminCoachEditableCardImage
+              previewSrc={cardImagePreviewSrc}
               busy={busy}
-              chooseLabel={t("fieldPhotoChoose")}
+              label={t("fieldCardImage")}
+              chooseLabel={t("fieldCardImageChoose")}
               uploadingLabel={t("fieldPhotoUploading")}
-              removeLabel={t("fieldPhotoRemove")}
-              showRemove={hasPhoto}
+              removeLabel={t("fieldCardImageRemove")}
+              hint={t("fieldCardImageHint")}
+              showRemove={hasCardImage}
               onSelect={(file) => {
-                controller.onPhotoSelected(file);
+                controller.onCardImageSelected(file);
               }}
               onRemove={() => {
-                controller.onPhotoDeleted();
+                controller.onCardImageDeleted();
               }}
             />
             {overview ? (
-              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-end">
                 <span
                   className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide ${
                     overview.isActive
@@ -148,7 +192,9 @@ export function CoachSheetTabPanels({
               </div>
             ) : null}
           </div>
-          {errors.photo ? <p className="mt-3 text-xs text-red-800">{errors.photo}</p> : null}
+          {errors.cardImage ? (
+            <p className="mt-3 text-xs text-red-800">{errors.cardImage}</p>
+          ) : null}
         </section>
 
         {overview ? (
@@ -261,6 +307,21 @@ export function CoachSheetTabPanels({
                   disabled={busy}
                 />
               </AdminSheetEditableField>
+              <AdminSheetEditableField
+                label={t("fieldBio")}
+                error={errors.bio}
+                className="lg:col-span-2"
+              >
+                <textarea
+                  className="ommm-input min-h-[120px] resize-y"
+                  value={form.bio}
+                  maxLength={MAX_BIO_LENGTH}
+                  onChange={(event) => controller.updateField("bio", event.target.value)}
+                  disabled={busy}
+                  placeholder={t("fieldBioHint")}
+                />
+                <p className="mt-1.5 text-xs text-sage-500">{t("fieldBioHint")}</p>
+              </AdminSheetEditableField>
             </form>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
@@ -288,6 +349,18 @@ export function CoachSheetTabPanels({
               <AdminSheetReadOnlyField
                 label={t("fieldAge")}
                 value={form.age.trim().length > 0 ? form.age : "—"}
+              />
+              <AdminSheetReadOnlyField
+                label={t("fieldBio")}
+                value={
+                  form.bio.trim().length > 0 ? (
+                    <span className="whitespace-pre-wrap">{form.bio}</span>
+                  ) : (
+                    "—"
+                  )
+                }
+                hint={t("fieldBioHint")}
+                className="lg:col-span-2"
               />
             </div>
           )}
@@ -334,7 +407,9 @@ export function CoachSheetTabPanels({
               maxLength={MAX_BIO_LENGTH}
               onChange={(event) => controller.updateField("bio", event.target.value)}
               disabled={busy}
+              placeholder={t("fieldBioHint")}
             />
+            <p className="mt-1.5 text-xs text-sage-500">{t("fieldBioHint")}</p>
           </AdminSheetEditableField>
         </div>
       </section>

@@ -78,6 +78,7 @@ function coachInitialValues(coach: AdminCoachDirectoryRow): CoachEditInitialValu
     age: coach.age,
     birthday: coach.user.dateOfBirth,
     photoUrl: coach.user.avatarUrl,
+    cardImageUrl: coach.cardImageUrl ?? null,
     bio: coach.bio ?? "",
     experienceYears: coach.experienceYears,
     assignedClassTypeIds: coach.assignedClassTypeIds,
@@ -294,6 +295,7 @@ function AdminCoachDetailsDrawerInner({
           errors={editForm.errors}
           busy={editForm.busy}
           photoPreviewUrl={editForm.photoPreviewUrl}
+          cardImagePreviewUrl={editForm.cardImagePreviewUrl}
           controller={editForm}
           overview={{
             isActive: coach.isActive,

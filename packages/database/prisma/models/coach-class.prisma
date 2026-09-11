@@ -7,6 +7,8 @@ model CoachProfile {
   classType      String?
   assignedClassTypeIds String[] @default([])
   experienceYears Int?
+  /// Large portrait for public coaches page / featured cards (separate from User.avatarUrl).
+  cardImageUrl   String?
   /// @deprecated Prefer CoachClassTypeRate. Kept for legacy summary payloads.
   salaryPerClassAmd Int @default(0)
   isActive       Boolean  @default(true)

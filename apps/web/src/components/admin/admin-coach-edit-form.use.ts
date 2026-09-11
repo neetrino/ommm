@@ -29,6 +29,7 @@ type CoachUpdateResponse = {
   specialization: string | null;
   experienceYears: number | null;
   salaryPerClassAmd: number;
+  cardImageUrl: string | null;
   classTypeRates: { classTypeId: string; amountAmd: number }[];
   availabilitySlots: {
     id: string;
@@ -58,6 +59,7 @@ export type CoachSavedSnapshot = Pick<
   | "schedule"
   | "updatedAt"
   | "age"
+  | "cardImageUrl"
   | "user"
 >;
 
@@ -73,7 +75,10 @@ function ratesRecordFromApi(
   return next;
 }
 
-function coachSavedSnapshotFromUpdate(updated: CoachUpdateResponse): CoachSavedSnapshot {
+function coachSavedSnapshotFromUpdate(
+  updated: CoachUpdateResponse,
+  cardImageUrl: string | null,
+): CoachSavedSnapshot {
   const dateOfBirth = updated.user.dateOfBirth;
   const birthdayIso = dateOfBirth === null ? null : dateOfBirth.slice(0, 10);
 
@@ -84,6 +89,7 @@ function coachSavedSnapshotFromUpdate(updated: CoachUpdateResponse): CoachSavedS
     salaryPerClassAmd: updated.salaryPerClassAmd ?? 0,
     assignedClassTypeIds: updated.assignedClassTypeIds,
     classTypeRates: updated.classTypeRates ?? [],
+    cardImageUrl,
     updatedAt: updated.updatedAt,
     schedule: updated.availabilitySlots.map((slot) => ({
       id: slot.id,
@@ -128,6 +134,9 @@ export function useCoachEditForm({
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
+  const [cardImageFile, setCardImageFile] = useState<File | null>(null);
+  const [cardImagePreviewUrl, setCardImagePreviewUrl] = useState<string | null>(null);
+  const [cardImageRemoved, setCardImageRemoved] = useState(false);
   const [errors, setErrors] = useState<CoachEditFormErrors>({});
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -145,18 +154,29 @@ export function useCoachEditForm({
       }
       return null;
     });
+    setCardImagePreviewUrl((prev) => {
+      if (prev !== null) {
+        URL.revokeObjectURL(prev);
+      }
+      return null;
+    });
     setPhotoFile(null);
     setPhotoRemoved(false);
+    setCardImageFile(null);
+    setCardImageRemoved(false);
     setErrors({});
     setMessage(null);
   }
 
-  const dirty = useMemo(() => isCoachFormDirty(form, snapshot) || photoFile !== null || photoRemoved, [
-    form,
-    snapshot,
-    photoFile,
-    photoRemoved,
-  ]);
+  const dirty = useMemo(
+    () =>
+      isCoachFormDirty(form, snapshot) ||
+      photoFile !== null ||
+      photoRemoved ||
+      cardImageFile !== null ||
+      cardImageRemoved,
+    [form, snapshot, photoFile, photoRemoved, cardImageFile, cardImageRemoved],
+  );
 
   async function refreshCoachViews(): Promise<void> {
     await revalidatePublicCoaches();
@@ -192,6 +212,32 @@ export function useCoachEditForm({
     setPhotoFile(null);
     setPhotoRemoved(true);
     updateField("photoUrl", "");
+  }
+
+  function onCardImageSelected(file: File | null): void {
+    if (file !== null && file.size > MAX_PHOTO_BYTES) {
+      setErrors((prev) => ({ ...prev, cardImage: labels.photoTooLarge }));
+      return;
+    }
+    if (cardImagePreviewUrl !== null) {
+      URL.revokeObjectURL(cardImagePreviewUrl);
+    }
+    setCardImageFile(file);
+    setCardImagePreviewUrl(file !== null ? URL.createObjectURL(file) : null);
+    if (file !== null) {
+      setCardImageRemoved(false);
+    }
+    setErrors((prev) => ({ ...prev, cardImage: undefined }));
+  }
+
+  function onCardImageDeleted(): void {
+    if (cardImagePreviewUrl !== null) {
+      URL.revokeObjectURL(cardImagePreviewUrl);
+    }
+    setCardImagePreviewUrl(null);
+    setCardImageFile(null);
+    setCardImageRemoved(true);
+    updateField("cardImageUrl", "");
   }
 
   function toggleClassSelection(classTypeId: string): void {
@@ -258,8 +304,16 @@ export function useCoachEditForm({
       }
       return null;
     });
+    setCardImagePreviewUrl((prev) => {
+      if (prev !== null) {
+        URL.revokeObjectURL(prev);
+      }
+      return null;
+    });
     setPhotoFile(null);
     setPhotoRemoved(false);
+    setCardImageFile(null);
+    setCardImageRemoved(false);
     setErrors({});
     setMessage(null);
   }
@@ -277,6 +331,8 @@ export function useCoachEditForm({
       form,
       photoFile,
       photoRemoved,
+      cardImageFile,
+      cardImageRemoved,
       classOptions,
       labels,
     });
@@ -306,11 +362,25 @@ export function useCoachEditForm({
         nextAvatarUrl = uploaded.avatarUrl;
       }
 
+      let nextCardImageUrl = updated.cardImageUrl ?? null;
+      if (cardImageFile !== null) {
+        const filePayload = await readFileAsBase64Payload(cardImageFile);
+        const uploaded = await apiFetch<{ cardImageUrl: string }>(
+          `/coaches/${coachId}/card-image-json`,
+          {
+            method: "POST",
+            body: JSON.stringify(filePayload),
+          },
+        );
+        nextCardImageUrl = uploaded.cardImageUrl;
+      }
+
       const nextForm = {
         ...form,
         assignedClassTypeIds: [...updated.assignedClassTypeIds],
         classTypeRates: ratesRecordFromApi(updated.classTypeRates ?? []),
         photoUrl: nextAvatarUrl ?? "",
+        cardImageUrl: nextCardImageUrl ?? "",
       };
       setForm(nextForm);
       setSnapshot(nextForm);
@@ -320,17 +390,29 @@ export function useCoachEditForm({
         }
         return null;
       });
+      setCardImagePreviewUrl((prev) => {
+        if (prev !== null) {
+          URL.revokeObjectURL(prev);
+        }
+        return null;
+      });
       setPhotoFile(null);
       setPhotoRemoved(false);
+      setCardImageFile(null);
+      setCardImageRemoved(false);
 
       if (!options?.silentSuccess) {
         setToneOk(okMessage);
       }
       onSaved?.(
-        coachSavedSnapshotFromUpdate({
-          ...updated,
-          user: { ...updated.user, avatarUrl: nextAvatarUrl },
-        }),
+        coachSavedSnapshotFromUpdate(
+          {
+            ...updated,
+            user: { ...updated.user, avatarUrl: nextAvatarUrl },
+            cardImageUrl: nextCardImageUrl,
+          },
+          nextCardImageUrl,
+        ),
       );
       await refreshCoachViews();
       return true;
@@ -363,9 +445,14 @@ export function useCoachEditForm({
     photoFile,
     photoPreviewUrl,
     photoRemoved,
+    cardImageFile,
+    cardImagePreviewUrl,
+    cardImageRemoved,
     updateField,
     onPhotoSelected,
     onPhotoDeleted,
+    onCardImageSelected,
+    onCardImageDeleted,
     toggleClassSelection,
     updateClassTypeRate,
     updateSchedule,

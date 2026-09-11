@@ -24,6 +24,8 @@ export type ScheduleSessionRowProps = {
   spotsStateReady?: boolean;
   spotsLoadingLabel?: string;
   isOnWaitlist?: boolean;
+  detailsAriaLabel?: string;
+  onOpenDetails?: (row: MarketingScheduleItem) => void;
   onBooked?: (sessionId: string, bookingId: string) => void;
   onCancelled?: (sessionId: string) => void;
   onWaitlisted?: (sessionId: string) => void;
@@ -52,6 +54,8 @@ export function ScheduleSessionRow({
   spotsStateReady = true,
   spotsLoadingLabel = "…",
   isOnWaitlist = false,
+  detailsAriaLabel,
+  onOpenDetails,
   onBooked,
   onCancelled,
   onWaitlisted,
@@ -85,6 +89,8 @@ export function ScheduleSessionRow({
         userBookingCreatedAt={userBookingCreatedAt}
         bookingStateReady={bookingStateReady}
         isOnWaitlist={isOnWaitlist}
+        detailsAriaLabel={detailsAriaLabel}
+        onOpenDetails={onOpenDetails}
         loginReturnPath={SCHEDULE_PAGE_LOGIN_RETURN_PATH}
         onBooked={onBooked}
         onCancelled={onCancelled}
