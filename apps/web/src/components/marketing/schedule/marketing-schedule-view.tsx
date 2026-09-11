@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SchedulePageChrome } from "@/components/marketing/schedule/schedule-page-chrome";
@@ -10,6 +10,7 @@ import {
 } from "@/components/marketing/schedule/schedule-filters-header";
 import { ScheduleLayoutSwitcher } from "@/components/marketing/schedule/schedule-layout-switcher";
 import { MarketingScheduleLayoutBody } from "@/components/marketing/schedule/marketing-schedule-layout-body";
+import { ScheduleSessionDetailModal } from "@/components/marketing/schedule/schedule-session-detail-modal";
 import {
   formatScheduleMonthTitle,
   addDays,
@@ -44,10 +45,23 @@ import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { useMarketingScheduleEligibility } from "@/hooks/use-marketing-schedule-eligibility";
 import { useMarketingScheduleMemberState } from "@/components/marketing/schedule/use-marketing-schedule-member-state";
 import { toLocalIsoDate } from "@/lib/local-iso-date";
+import {
+  resolveMemberOnWaitlistBadge,
+  resolveMemberScheduleRowDisplay,
+} from "@/lib/schedule-session-spots";
+import {
+  sessionBookingCreatedAt,
+  sessionBookingId,
+} from "@/lib/user-session-bookings-map";
+
+const SCHEDULE_PAGE_LOGIN_RETURN_PATH = "/schedule";
 
 type MarketingScheduleViewProps = {
   initialItems: MarketingScheduleItem[];
   pageTitle: string;
+  studioAddress: string | null;
+  mapEmbedHtml: string;
+  cancellationHoursNotice: number;
 };
 
 function formatSheetDayLabel(locale: string, date: Date): string {
@@ -60,8 +74,12 @@ function formatSheetDayLabel(locale: string, date: Date): string {
 export function MarketingScheduleView({
   initialItems,
   pageTitle,
+  studioAddress,
+  mapEmbedHtml,
+  cancellationHoursNotice,
 }: MarketingScheduleViewProps) {
   const locale = useLocale();
+  const t = useTranslations("marketingPages.schedule");
   const searchParams = useSearchParams();
   const audience = useMarketingAudience();
   const isDesktop = useScheduleDesktopLayout();
@@ -86,6 +104,9 @@ export function MarketingScheduleView({
   const [classTypes, setClassTypes] = useState<string[]>([]);
   const [instructors, setInstructors] = useState<string[]>([]);
   const [daySheetRequested, setDaySheetRequested] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<MarketingScheduleItem | null>(
+    null,
+  );
   const daySheetOpen = showMonthBoard && daySheetRequested;
 
   const {
@@ -231,6 +252,33 @@ export function MarketingScheduleView({
     );
   }
 
+  const detailSourceSession =
+    selectedSession === null
+      ? null
+      : (items.find((item) => item.id === selectedSession.id) ?? selectedSession);
+  const detailUserOnWaitlist =
+    detailSourceSession !== null &&
+    bookedBySessionId[detailSourceSession.id] === undefined &&
+    waitlistedSessionIds.has(detailSourceSession.id);
+  const detailDisplaySession =
+    detailSourceSession !== null
+      ? resolveMemberScheduleRowDisplay({
+          row: detailSourceSession,
+          onWaitlist: detailUserOnWaitlist,
+          capacityReady: memberWaitlistLoaded,
+        })
+      : null;
+  const detailShowOnWaitlist =
+    detailSourceSession !== null &&
+    detailDisplaySession !== null &&
+    resolveMemberOnWaitlistBadge({
+      userBookingId: sessionBookingId(bookedBySessionId, detailSourceSession.id),
+      onWaitlist: detailUserOnWaitlist,
+      availableSpots: detailDisplaySession.availableSpots,
+      sessionStatus: detailDisplaySession.status,
+      capacityReady: memberWaitlistLoaded,
+    });
+
   return (
     <SchedulePageChrome
       pageTitle={pageTitle}
@@ -288,6 +336,7 @@ export function MarketingScheduleView({
           memberActionStateReady,
           eligibilityBySessionId,
           eligibilityLoaded,
+          onOpenDetails: setSelectedSession,
           onBooked: handleBooked,
           onCancelled: handleCancelled,
           onWaitlisted: handleWaitlisted,
@@ -297,6 +346,33 @@ export function MarketingScheduleView({
         onSelectMonthDay={selectMonthDay}
         onShiftWindow={shiftWindow}
         onCloseDaySheet={() => setDaySheetRequested(false)}
+      />
+      <ScheduleSessionDetailModal
+        session={detailDisplaySession}
+        locale={locale}
+        audience={audience}
+        studioAddress={studioAddress}
+        mapEmbedHtml={mapEmbedHtml}
+        cancellationHoursNotice={cancellationHoursNotice}
+        loginReturnPath={SCHEDULE_PAGE_LOGIN_RETURN_PATH}
+        bookLabel={t("bookCta")}
+        userBookingId={
+          detailSourceSession !== null
+            ? sessionBookingId(bookedBySessionId, detailSourceSession.id)
+            : undefined
+        }
+        userBookingCreatedAt={
+          detailSourceSession !== null
+            ? sessionBookingCreatedAt(bookedBySessionId, detailSourceSession.id)
+            : undefined
+        }
+        bookingStateReady={memberActionStateReady}
+        isOnWaitlist={detailShowOnWaitlist}
+        onClose={() => setSelectedSession(null)}
+        onBooked={handleBooked}
+        onCancelled={handleCancelled}
+        onWaitlisted={handleWaitlisted}
+        onWaitlistLeft={handleWaitlistLeft}
       />
     </SchedulePageChrome>
   );

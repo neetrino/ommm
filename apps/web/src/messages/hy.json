@@ -1790,6 +1790,20 @@
         }
       },
       "sessionClosed": "Փակված",
+      "sessionDetail": {
+        "close": "Փակել",
+        "closeBackdrop": "Փակել դասի մանրամասները",
+        "date": "Ամսաթիվ",
+        "time": "Ժամ",
+        "location": "Հասցե",
+        "mapAria": "Ստուդիայի տեղակայման քարտեզ",
+        "descriptionHeading": "Նկարագրություն",
+        "conditionsHeading": "Պայմաններ",
+        "conditionCancel": "Չեղարկումը հնարավոր է մինչև {hours} ժամ առաջ։",
+        "conditionLastBooking": "Վերջին ամրագրումը՝ մինչև մեկնարկից 1 րոպե առաջ։",
+        "teacherHeading": "Մարզիչ",
+        "openDetailsAria": "Բացել մանրամասները՝ {name}"
+      },
       "packageEligibilityIncluded": "Ներառված է ձեր փաթեթում",
       "packageEligibilityRequired": "Պահանջվում է {classType} փաթեթ",
       "emptyDay": "Դասեր չկան",

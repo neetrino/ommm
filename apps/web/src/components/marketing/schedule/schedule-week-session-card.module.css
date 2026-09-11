@@ -19,13 +19,35 @@
   opacity: 0.55;
 }
 
+.cardClickable {
+  position: relative;
+}
+
+.detailsHit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+}
+
+.detailsHit:disabled {
+  cursor: default;
+}
+
 .body {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
   flex-direction: column;
   gap: 0.375rem;
   padding: 0.875rem 0.875rem 0.75rem;
+  pointer-events: none;
 }
 
 .title {
@@ -94,6 +116,8 @@
 }
 
 .footer {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-shrink: 0;
   min-height: 2.75rem;

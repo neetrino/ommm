@@ -1789,6 +1789,20 @@
         }
       },
       "sessionClosed": "Closed",
+      "sessionDetail": {
+        "close": "Close",
+        "closeBackdrop": "Close class details",
+        "date": "Date",
+        "time": "Time",
+        "location": "Location",
+        "mapAria": "Studio location map",
+        "descriptionHeading": "Description",
+        "conditionsHeading": "Conditions",
+        "conditionCancel": "Cancellations accepted up to {hours} hours prior.",
+        "conditionLastBooking": "Last bookings possible until 1 minute before the start.",
+        "teacherHeading": "Teacher",
+        "openDetailsAria": "Open details for {name}"
+      },
       "packageEligibilityIncluded": "Included in your package",
       "packageEligibilityRequired": "{classType} package required",
       "emptyDay": "No classes",

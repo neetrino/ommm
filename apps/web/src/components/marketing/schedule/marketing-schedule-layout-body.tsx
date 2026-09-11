@@ -29,6 +29,7 @@ type SharedSessionListProps = {
   memberActionStateReady: boolean;
   eligibilityBySessionId: ScheduleSessionEligibilityMap;
   eligibilityLoaded: boolean;
+  onOpenDetails: (row: MarketingScheduleItem) => void;
   onBooked: (sessionId: string, bookingId: string) => void;
   onCancelled: (sessionId: string) => void;
   onWaitlisted: (sessionId: string) => void;
@@ -108,6 +109,7 @@ export function MarketingScheduleLayoutBody({
         filtersSlot={filtersHeader}
         onSelectDay={onSelectDay}
         onShiftWindow={onShiftWindow}
+        onOpenDetails={sessionListProps.onOpenDetails}
         onBooked={sessionListProps.onBooked}
         onCancelled={sessionListProps.onCancelled}
         onWaitlisted={sessionListProps.onWaitlisted}

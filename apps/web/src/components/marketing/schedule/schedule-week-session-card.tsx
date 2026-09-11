@@ -32,6 +32,8 @@ type ScheduleWeekSessionCardProps = {
   userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
   isOnWaitlist?: boolean;
+  detailsAriaLabel: string;
+  onOpenDetails?: (row: MarketingScheduleItem) => void;
   onBooked?: (sessionId: string, bookingId: string) => void;
   onCancelled?: (sessionId: string) => void;
   onWaitlisted?: (sessionId: string) => void;
@@ -70,6 +72,8 @@ export function ScheduleWeekSessionCard({
   userBookingCreatedAt,
   bookingStateReady = true,
   isOnWaitlist = false,
+  detailsAriaLabel,
+  onOpenDetails,
   onBooked,
   onCancelled,
   onWaitlisted,
@@ -94,9 +98,22 @@ export function ScheduleWeekSessionCard({
 
   return (
     <article
-      className={[styles.card, isClosed ? styles.cardClosed : ""].filter(Boolean).join(" ")}
+      className={[
+        styles.card,
+        isClosed ? styles.cardClosed : "",
+        onOpenDetails !== undefined ? styles.cardClickable : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={cardStyle}
     >
+      <button
+        type="button"
+        className={styles.detailsHit}
+        aria-label={detailsAriaLabel}
+        disabled={onOpenDetails === undefined}
+        onClick={() => onOpenDetails?.(row)}
+      />
       <div className={styles.body}>
         <h3 className={styles.title}>{row.className}</h3>
         <p className={styles.time}>{formatTimeRange(locale, row)}</p>

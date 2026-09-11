@@ -1787,6 +1787,20 @@
         }
       },
       "sessionClosed": "Закрыто",
+      "sessionDetail": {
+        "close": "Закрыть",
+        "closeBackdrop": "Закрыть детали занятия",
+        "date": "Дата",
+        "time": "Время",
+        "location": "Адрес",
+        "mapAria": "Карта расположения студии",
+        "descriptionHeading": "Описание",
+        "conditionsHeading": "Условия",
+        "conditionCancel": "Отмена возможна не позднее чем за {hours} ч.",
+        "conditionLastBooking": "Последняя запись — за 1 минуту до начала.",
+        "teacherHeading": "Преподаватель",
+        "openDetailsAria": "Открыть детали: {name}"
+      },
       "packageEligibilityIncluded": "Включено в ваш пакет",
       "packageEligibilityRequired": "Нужен пакет {classType}",
       "emptyDay": "Нет занятий",

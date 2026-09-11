@@ -47,6 +47,8 @@ type HomeWeeklyScheduleSessionRowProps = {
   userBookingCreatedAt?: string;
   bookingStateReady?: boolean;
   isOnWaitlist?: boolean;
+  detailsAriaLabel?: string;
+  onOpenDetails?: (item: MarketingScheduleItem) => void;
   loginReturnPath?: string;
   onBooked?: (sessionId: string, bookingId: string) => void;
   onCancelled?: (sessionId: string) => void;
@@ -74,6 +76,8 @@ export function HomeWeeklyScheduleSessionRow({
   userBookingCreatedAt,
   bookingStateReady = true,
   isOnWaitlist = false,
+  detailsAriaLabel,
+  onOpenDetails,
   loginReturnPath = HOME_BOOKING_LOGIN_RETURN_PATH,
   onBooked,
   onCancelled,
@@ -112,7 +116,7 @@ export function HomeWeeklyScheduleSessionRow({
 
   return (
     <article
-      className={`${styles.row} group w-full min-w-0 ${isClosed ? styles.rowClosed : ""} ${className ?? ""}`}
+      className={`${styles.row} group w-full min-w-0 ${isClosed ? styles.rowClosed : ""} ${onOpenDetails !== undefined ? styles.rowClickable : ""} ${className ?? ""}`}
       style={{
         ...style,
         background: rowGradientDesktop,
@@ -124,6 +128,14 @@ export function HomeWeeklyScheduleSessionRow({
         ["--home-schedule-row-padding" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowPadding,
       }}
     >
+      {onOpenDetails !== undefined && detailsAriaLabel !== undefined ? (
+        <button
+          type="button"
+          className={styles.detailsHit}
+          aria-label={detailsAriaLabel}
+          onClick={() => onOpenDetails(item)}
+        />
+      ) : null}
       <div className={styles.headerRow}>
         <div className={styles.timeCluster}>
           {showDate && dateTimeDisplay !== null ? (
