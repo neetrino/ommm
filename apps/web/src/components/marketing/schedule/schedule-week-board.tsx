@@ -194,7 +194,7 @@ export function ScheduleWeekBoard({
                 disabled={isPastDay}
                 className={[
                   styles.dayHeader,
-                  isSelected ? "" : styles.dayHeaderDimmed,
+                  isPastDay ? styles.dayHeaderDimmed : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -240,13 +240,13 @@ export function ScheduleWeekBoard({
           aria-hidden
         >
           {columns.map((column) => {
-            const isSelected = isSameCalendarDay(column.day, selectedDate);
+            const isPastDay = isBeforeCalendarDay(column.day, today);
             return (
               <div
                 key={column.dayKey}
                 className={[
                   styles.column,
-                  isSelected ? "" : styles.columnDimmed,
+                  isPastDay ? styles.columnDimmed : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -268,7 +268,6 @@ export function ScheduleWeekBoard({
             collapsed={collapsedPeriods.has(period)}
             columns={columns}
             today={today}
-            selectedDate={selectedDate}
             sessionsByDayAndPeriod={sessionsByDayAndPeriod}
             onToggle={() => togglePeriod(period)}
             renderSessionCard={renderSessionCard}
