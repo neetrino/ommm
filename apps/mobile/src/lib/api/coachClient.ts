@@ -147,8 +147,11 @@ export async function patchBookingAttendance(
   });
 }
 
-export async function fetchCoachSalary(): Promise<CoachSalarySummary | null> {
-  const body = await authGet("/v1/coaches/panel/salary");
+export async function fetchCoachSalary(
+  month?: string,
+): Promise<CoachSalarySummary | null> {
+  const query = month ? `?month=${encodeURIComponent(month)}` : "";
+  const body = await authGet(`/v1/coaches/panel/salary${query}`);
   if (body === null) {
     return null;
   }

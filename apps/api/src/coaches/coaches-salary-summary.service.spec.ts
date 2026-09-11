@@ -34,4 +34,32 @@ describe('CoachSalarySummaryService', () => {
     expect(summary.paidOutCents).toBe(150_000);
     expect(summary.totalEarningsCents).toBe(150_000);
   });
+
+  it('scopes aggregates to the requested salary month', async () => {
+    const accrualAgg = jest.fn().mockResolvedValue({
+      _sum: { amountAmd: 8_000 },
+      _count: 1,
+    });
+    const payoutAgg = jest.fn().mockResolvedValue({
+      _sum: { amountAmd: 0 },
+    });
+    const service = new CoachSalarySummaryService({
+      coachSalaryAccrual: { aggregate: accrualAgg },
+      coachSalaryPayout: { aggregate: payoutAgg },
+    } as never);
+
+    await service.forProfile('coach-1', '2026-08');
+
+    const monthWhere = {
+      coachProfileId: 'coach-1',
+      periodYear: 2026,
+      periodMonth: 8,
+    };
+    expect(accrualAgg).toHaveBeenCalledWith(
+      expect.objectContaining({ where: monthWhere }),
+    );
+    expect(payoutAgg).toHaveBeenCalledWith(
+      expect.objectContaining({ where: monthWhere }),
+    );
+  });
 });

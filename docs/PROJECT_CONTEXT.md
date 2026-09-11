@@ -262,7 +262,7 @@ Notes:
 | `/v1/coaches/:id` | GET | Public coach detail | id | coach | none |
 | `/v1/coaches/admin/list` | GET | Admin/manager coach list | `AdminListCoachesQueryDto` | list payload | none |
 | `/v1/coaches/panel/summary` | GET | Coach summary | JWT coach | summary | none |
-| `/v1/coaches/panel/salary` | GET | Coach salary summary | JWT coach | salary payload | none |
+| `/v1/coaches/panel/salary` | GET | Coach salary summary | JWT coach, optional `month=YYYY-MM` | salary payload | none |
 | `/v1/coaches` | POST | Create coach | `CreateCoachDto` | coach | Creates user/coach profile (service-managed) |
 | `/v1/coaches/:id` | PATCH | Update coach | `UpdateCoachDto` | updated coach | DB update |
 | `/v1/coaches/:id/photo-json` | POST | Upload coach photo | `UploadCoachPhotoJsonDto` | updated coach | Upload/update avatar |

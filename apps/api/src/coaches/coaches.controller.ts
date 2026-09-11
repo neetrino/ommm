@@ -23,6 +23,7 @@ import { CoachesService } from './coaches.service';
 import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
 import { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
+import { CoachSalaryMonthQueryDto } from './dto/coach-salary-month-query.dto';
 import { CoachSalarySessionsQueryDto } from './dto/coach-salary-sessions-query.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { CreateCoachSalaryPayoutDto } from './dto/create-coach-salary-payout.dto';
@@ -55,10 +56,14 @@ export class CoachesController {
   }
 
   @Get('panel/salary')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.COACH)
-  panelSalary(@CurrentUser() user: { id: string }) {
-    return this.coaches.salarySummary(user.id);
+  panelSalary(
+    @CurrentUser() user: { id: string },
+    @Query() query: CoachSalaryMonthQueryDto,
+  ) {
+    return this.coaches.salarySummary(user.id, query.month);
   }
 
   /** Own past + upcoming sessions for the coach schedule (list / week / month). */
