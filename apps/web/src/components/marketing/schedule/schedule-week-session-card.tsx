@@ -15,9 +15,13 @@ import {
   SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
 import styles from "@/components/marketing/schedule/schedule-week-session-card.module.css";
+import { coachCardInitials } from "@/components/coaches/coach-card-display";
+import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 const SCHEDULE_PAGE_LOGIN_RETURN_PATH = "/schedule";
+const WEEK_CARD_INSTRUCTOR_AVATAR_CLASS = "size-8 shrink-0 rounded-full text-[0.625rem]";
 
 type ScheduleWeekSessionCardProps = {
   row: MarketingScheduleItem;
@@ -95,6 +99,10 @@ export function ScheduleWeekSessionCard({
     eligibility: packageEligibility,
     eligibilityLoaded,
   });
+  const instructorAvatarSrc =
+    row.instructorAvatarUrl != null
+      ? resolveApiAssetUrl(row.instructorAvatarUrl) ?? row.instructorAvatarUrl
+      : null;
 
   return (
     <article
@@ -118,7 +126,19 @@ export function ScheduleWeekSessionCard({
         <h3 className={styles.title}>{row.className}</h3>
         <p className={styles.time}>{formatTimeRange(locale, row)}</p>
         {level.length > 0 ? <span className={styles.level}>{level}</span> : null}
-        <p className={styles.coach}>{row.instructorName}</p>
+        <div className={styles.coachRow}>
+          <MemberProfileAvatar
+            initials={coachCardInitials({
+              name: row.instructorName,
+              email: row.instructorName,
+              avatarUrl: row.instructorAvatarUrl ?? null,
+            })}
+            imageSrc={instructorAvatarSrc}
+            className={WEEK_CARD_INSTRUCTOR_AVATAR_CLASS}
+            guestIconClassName={WEEK_CARD_INSTRUCTOR_AVATAR_CLASS}
+          />
+          <p className={styles.coach}>{row.instructorName}</p>
+        </div>
         {showClassType ? <p className={styles.classType}>{classType}</p> : null}
       </div>
       <div className={styles.footer}>

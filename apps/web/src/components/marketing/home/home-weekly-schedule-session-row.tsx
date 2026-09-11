@@ -21,14 +21,18 @@ import {
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { SchedulePackageEligibilityBadge } from "@/components/marketing/schedule/schedule-package-eligibility-badge";
 import { ScheduleSessionBookedHeaderBadge } from "@/components/marketing/schedule/schedule-session-booked-header-badge";
+import { coachCardInitials } from "@/components/coaches/coach-card-display";
+import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import type { ScheduleSessionEligibility } from "@/lib/schedule-session-eligibility";
 import { resolveSchedulePackageEligibilityBadge } from "@/lib/schedule-session-eligibility";
 import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import Image from "next/image";
 
 const HOME_BOOKING_LOGIN_RETURN_PATH = "/";
+const INSTRUCTOR_AVATAR_CLASS = "size-8 shrink-0 rounded-full text-[0.625rem]";
 
 type HomeWeeklyScheduleSessionRowProps = {
   item: MarketingScheduleItem;
@@ -113,6 +117,10 @@ export function HomeWeeklyScheduleSessionRow({
   });
   const showBookedHeaderBadge =
     isPhone && !isClosed && bookingEnabled && userBookingId !== undefined;
+  const instructorAvatarSrc =
+    item.instructorAvatarUrl != null
+      ? resolveApiAssetUrl(item.instructorAvatarUrl) ?? item.instructorAvatarUrl
+      : null;
 
   return (
     <article
@@ -184,13 +192,24 @@ export function HomeWeeklyScheduleSessionRow({
         >
           {item.className}
         </p>
-        <p
-          className={`${styles.instructor} text-sm font-normal leading-[1.3125rem]`}
-          style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
-          title={withInstructorLabel}
-        >
-          {withInstructorLabel}
-        </p>
+        <div className={styles.instructorRow} title={withInstructorLabel}>
+          <MemberProfileAvatar
+            initials={coachCardInitials({
+              name: item.instructorName,
+              email: item.instructorName,
+              avatarUrl: item.instructorAvatarUrl ?? null,
+            })}
+            imageSrc={instructorAvatarSrc}
+            className={INSTRUCTOR_AVATAR_CLASS}
+            guestIconClassName={INSTRUCTOR_AVATAR_CLASS}
+          />
+          <p
+            className={`${styles.instructor} text-sm font-normal leading-[1.3125rem]`}
+            style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
+          >
+            {withInstructorLabel}
+          </p>
+        </div>
       </div>
 
       <div className={styles.metaRow}>

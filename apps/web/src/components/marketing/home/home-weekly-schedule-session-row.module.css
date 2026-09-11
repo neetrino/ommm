@@ -112,6 +112,14 @@
   white-space: nowrap;
 }
 
+.instructorRow {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .instructor {
   margin: 0;
   min-width: 0;
@@ -304,12 +312,10 @@
     grid-row: 2;
     align-self: start;
     flex: initial;
-    gap: 0;
     min-width: 0;
-    margin-top: var(
-      --home-schedule-row-header-to-details-gap,
-      clamp(0.75rem, calc(100svw * 17 / 394), 1.0625rem)
-    );
+    /* Equal space above/below title so it sits between time and coach. */
+    margin-top: clamp(0.4rem, calc(100svw * 10 / 394), 0.625rem);
+    gap: clamp(0.4rem, calc(100svw * 10 / 394), 0.625rem);
   }
 
   .classTitle {
