@@ -2693,6 +2693,7 @@
       "classTypeRatesHeading": "Pay by class type",
       "classTypeRatesHint": "Paid for each finished class of that type with at least one participant.",
       "fieldBio": "Bio",
+      "fieldBioHint": "Shown under Teacher on the public schedule session details.",
       "fieldSpecialization": "Specialization",
       "fieldSpecializationPlaceholder": "Enter specialization",
       "fieldAssignedClasses": "Assigned classes",

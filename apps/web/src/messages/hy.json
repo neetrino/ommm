@@ -2694,6 +2694,7 @@
       "classTypeRatesHeading": "Վճար ըստ դասի տեսակի",
       "classTypeRatesHint": "Վճարվում է այդ տեսակի յուրաքանչյուր ավարտված դասի համար, եթե կա առնվազն մեկ մասնակից։",
       "fieldBio": "Կենսագրություն",
+      "fieldBioHint": "Ցուցադրվում է Teacher բաժնում՝ հրապարակային դասացուցակի մանրամասներում։",
       "fieldSpecialization": "Մասնագիտացում",
       "fieldSpecializationPlaceholder": "Մուտքագրեք մասնագիտացումը",
       "fieldAssignedClasses": "Կցված դասեր",

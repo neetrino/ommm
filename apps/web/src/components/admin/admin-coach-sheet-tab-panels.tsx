@@ -307,6 +307,21 @@ export function CoachSheetTabPanels({
                   disabled={busy}
                 />
               </AdminSheetEditableField>
+              <AdminSheetEditableField
+                label={t("fieldBio")}
+                error={errors.bio}
+                className="lg:col-span-2"
+              >
+                <textarea
+                  className="ommm-input min-h-[120px] resize-y"
+                  value={form.bio}
+                  maxLength={MAX_BIO_LENGTH}
+                  onChange={(event) => controller.updateField("bio", event.target.value)}
+                  disabled={busy}
+                  placeholder={t("fieldBioHint")}
+                />
+                <p className="mt-1.5 text-xs text-sage-500">{t("fieldBioHint")}</p>
+              </AdminSheetEditableField>
             </form>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
@@ -334,6 +349,18 @@ export function CoachSheetTabPanels({
               <AdminSheetReadOnlyField
                 label={t("fieldAge")}
                 value={form.age.trim().length > 0 ? form.age : "—"}
+              />
+              <AdminSheetReadOnlyField
+                label={t("fieldBio")}
+                value={
+                  form.bio.trim().length > 0 ? (
+                    <span className="whitespace-pre-wrap">{form.bio}</span>
+                  ) : (
+                    "—"
+                  )
+                }
+                hint={t("fieldBioHint")}
+                className="lg:col-span-2"
               />
             </div>
           )}
@@ -380,7 +407,9 @@ export function CoachSheetTabPanels({
               maxLength={MAX_BIO_LENGTH}
               onChange={(event) => controller.updateField("bio", event.target.value)}
               disabled={busy}
+              placeholder={t("fieldBioHint")}
             />
+            <p className="mt-1.5 text-xs text-sage-500">{t("fieldBioHint")}</p>
           </AdminSheetEditableField>
         </div>
       </section>

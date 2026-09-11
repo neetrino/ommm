@@ -2691,6 +2691,7 @@
       "classTypeRatesHeading": "Оплата по типу занятия",
       "classTypeRatesHint": "Начисляется за каждое завершённое занятие этого типа при наличии хотя бы одного участника.",
       "fieldBio": "Биография",
+      "fieldBioHint": "Показывается под Teacher в деталях занятия на публичном расписании.",
       "fieldSpecialization": "Специализация",
       "fieldSpecializationPlaceholder": "Введите специализацию",
       "fieldAssignedClasses": "Назначенные классы",
