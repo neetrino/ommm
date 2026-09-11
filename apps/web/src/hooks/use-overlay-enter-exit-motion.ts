@@ -23,9 +23,10 @@ type UseOverlayEnterExitMotionResult = {
 export function useOverlayEnterExitMotion(
   open: boolean,
   onClosed: () => void,
-  options?: { closeDisabled?: boolean },
+  options?: { closeDisabled?: boolean; exitMs?: number },
 ): UseOverlayEnterExitMotionResult {
   const closeDisabled = options?.closeDisabled ?? false;
+  const exitMs = options?.exitMs ?? OVERLAY_ENTER_EXIT_EXIT_MS;
   const closingRef = useRef(false);
   const exitTimerRef = useRef<number | undefined>(undefined);
   const openFrameRef = useRef<number | undefined>(undefined);
@@ -56,8 +57,8 @@ export function useOverlayEnterExitMotion(
     exitTimerRef.current = window.setTimeout(() => {
       exitTimerRef.current = undefined;
       finishClose();
-    }, OVERLAY_ENTER_EXIT_EXIT_MS);
-  }, [closeDisabled, finishClose, presented]);
+    }, exitMs);
+  }, [closeDisabled, exitMs, finishClose, presented]);
 
   useEffect(() => {
     if (!open) {

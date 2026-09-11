@@ -13,6 +13,7 @@ import { coachCardInitials } from "@/components/coaches/coach-card-display";
 import {
   SCHEDULE_SESSION_DETAIL_AVATAR_CLASS,
   SCHEDULE_SESSION_DETAIL_BANNER_IMAGE,
+  SCHEDULE_SESSION_DETAIL_MOTION_EXIT_MS,
   formatScheduleSessionDetailDate,
   resolveScheduleSessionDetailDescription,
   splitScheduleSessionDetailDescriptionLines,
@@ -25,6 +26,7 @@ import {
 import styles from "@/components/marketing/schedule/schedule-session-detail-modal.module.css";
 import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { useOverlayEnterExitMotion } from "@/hooks/use-overlay-enter-exit-motion";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -150,6 +152,11 @@ export function ScheduleSessionDetailModal({
   const t = useTranslations("marketingPages.schedule.sessionDetail");
   const titleId = useId();
   const isOpen = session !== null;
+  const { presented, motionOpen, requestClose } = useOverlayEnterExitMotion(
+    isOpen,
+    onClose,
+    { exitMs: SCHEDULE_SESSION_DETAIL_MOTION_EXIT_MS },
+  );
   const description =
     session !== null ? resolveScheduleSessionDetailDescription(session) : null;
   const descriptionLines =
@@ -166,16 +173,21 @@ export function ScheduleSessionDetailModal({
     session !== null
       ? formatScheduleSessionDetailDate(locale, session.sessionDate)
       : null;
+  const panelClassName = [
+    styles.panel,
+    motionOpen ? styles.panelOpen : styles.panelClosing,
+  ].join(" ");
 
   return (
     <OmmModalPortal
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={presented}
+      onClose={requestClose}
       backdropAriaLabel={t("closeBackdrop")}
       ariaLabelledBy={titleId}
       centered
-      overlayClassName="ommm-modal-overlay z-[120] p-4"
-      panelClassName={styles.panel}
+      motionState={motionOpen ? "open" : "closed"}
+      overlayClassName={`${styles.overlay} ommm-modal-overlay z-[120] p-4`}
+      panelClassName={panelClassName}
     >
       {session !== null ? (
         <div className={styles.inner}>
@@ -240,7 +252,11 @@ export function ScheduleSessionDetailModal({
           </div>
 
           <footer className={styles.footer}>
-            <button type="button" className={styles.footerCloseBtn} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.footerCloseBtn}
+              onClick={requestClose}
+            >
               {t("close")}
             </button>
             <AuthAwareScheduleBookingAction

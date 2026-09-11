@@ -11,6 +11,10 @@ export const SCHEDULE_SESSION_DETAIL_AVATAR_CLASS =
 export const SCHEDULE_SESSION_DETAIL_BANNER_IMAGE =
   "/marketing/home/sections/gallery/home-gallery-pilates-studio.webp";
 
+/** Enter/exit timing for schedule session detail modal (snappy but smooth). */
+export const SCHEDULE_SESSION_DETAIL_MOTION_ENTER_MS = 220;
+export const SCHEDULE_SESSION_DETAIL_MOTION_EXIT_MS = 200;
+
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /** Prefer package-category copy; fall back to session description. */
