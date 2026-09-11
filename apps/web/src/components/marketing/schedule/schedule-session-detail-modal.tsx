@@ -7,9 +7,7 @@ import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-awar
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import {
-  SCHEDULE_BOOK_BTN,
   SCHEDULE_BOOKED_BTN_COMPACT,
-  SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
 import { coachCardInitials } from "@/components/coaches/coach-card-display";
 import {
@@ -25,7 +23,6 @@ import {
 } from "@/components/marketing/schedule/schedule-session-detail-icons";
 import styles from "@/components/marketing/schedule/schedule-session-detail-modal.module.css";
 import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
@@ -234,9 +231,9 @@ export function ScheduleSessionDetailModal({
           </div>
 
           <footer className={styles.footer}>
-            <OmmButton type="button" variant="ghost" size="sm" onClick={onClose}>
+            <button type="button" className={styles.footerCloseBtn} onClick={onClose}>
               {t("close")}
-            </OmmButton>
+            </button>
             <AuthAwareScheduleBookingAction
               sessionId={session.id}
               sessionDate={session.sessionDate}
@@ -245,9 +242,9 @@ export function ScheduleSessionDetailModal({
               sessionStatus={session.status}
               bookLabel={bookLabel}
               audience={audience}
-              className={SCHEDULE_BOOK_BTN}
+              className={styles.footerBookBtn}
               bookedClassName={SCHEDULE_BOOKED_BTN_COMPACT}
-              cancelClassName={SCHEDULE_CANCEL_BTN}
+              cancelClassName={styles.footerCancelBtn}
               userBookingId={userBookingId}
               userBookingCreatedAt={userBookingCreatedAt}
               bookingStateReady={bookingStateReady}

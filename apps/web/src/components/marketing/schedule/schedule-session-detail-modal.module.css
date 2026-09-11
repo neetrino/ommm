@@ -197,3 +197,134 @@
   padding: 0.85rem 1.25rem 1.1rem;
   background: #fff;
 }
+
+.footerCloseBtn {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(151 144 124 / 0.45);
+  background: #fff;
+  padding: 0.5rem 1.1rem;
+  box-shadow: 0 8px 20px -16px rgb(45 40 35 / 0.2);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4a4738;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    transform 200ms ease;
+}
+
+.footerCloseBtn:hover {
+  border-color: #97907c;
+  color: #1d1c15;
+  background: #f7f5f0;
+}
+
+.footerCloseBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgb(151 144 124 / 0.4);
+}
+
+.footerBookBtn {
+  display: inline-flex;
+  min-height: 2.5rem;
+  min-width: 6.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1.5px solid #97907c;
+  background: #97907c;
+  padding: 0.5rem 1.25rem;
+  box-shadow:
+    0 10px 22px -14px rgb(45 40 35 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.footerBookBtn:hover:enabled {
+  border-color: #817a68;
+  background: #817a68;
+  transform: translateY(-1px);
+}
+
+.footerBookBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 10px 22px -14px rgb(45 40 35 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 0 0 2px #fff,
+    0 0 0 4px rgb(151 144 124 / 0.4);
+}
+
+.footerBookBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.footerCancelBtn {
+  display: inline-flex;
+  min-height: 2.5rem;
+  min-width: 6.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(151 144 124 / 0.45);
+  background: #fff;
+  padding: 0.5rem 1.25rem;
+  box-shadow: 0 8px 20px -16px rgb(45 40 35 / 0.2);
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4a4738;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    transform 200ms ease;
+}
+
+.footerCancelBtn:hover:enabled {
+  border-color: #97907c;
+  background: #f7f5f0;
+  color: #1d1c15;
+  transform: translateY(-1px);
+}
+
+.footerCancelBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgb(151 144 124 / 0.4);
+}
+
+.footerCancelBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  pointer-events: none;
+}
