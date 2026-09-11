@@ -5,13 +5,12 @@ import type {
   PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
 
-/** Searchable text for a package row (name, category, description, features). */
+/** Searchable text for a package row (name, category, features). */
 export function buildPackageSearchHaystack(pkg: AdminPackageRow): string {
   const features = Array.isArray(pkg.features) ? pkg.features : [];
   return [
     pkg.name,
     pkg.categoryName,
-    pkg.description ?? "",
     ...features,
     pkg.billingPeriod,
   ]

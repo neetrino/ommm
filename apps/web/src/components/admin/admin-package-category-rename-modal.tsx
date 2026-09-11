@@ -8,10 +8,7 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
-import {
-  MAX_CATEGORY_NAME_LENGTH,
-  MAX_DESCRIPTION_LENGTH,
-} from "@/components/admin/admin-package-form-utils";
+import { MAX_CATEGORY_NAME_LENGTH } from "@/components/admin/admin-package-form-utils";
 import { normalizePackageCategoryLabel } from "@/components/admin/package-category-utils";
 import { packagesInCategory } from "@/components/admin/admin-packages-categories";
 
@@ -29,16 +26,6 @@ type AdminPackageCategoryRenameModalProps = {
   ) => void;
 };
 
-function resolveCategoryDescription(packages: readonly AdminPackageRow[]): string {
-  for (const pkg of packages) {
-    const description = pkg.description?.trim();
-    if (description !== undefined && description.length > 0) {
-      return description;
-    }
-  }
-  return "";
-}
-
 export function AdminPackageCategoryRenameModal({
   isOpen,
   categorySlug,
@@ -53,19 +40,13 @@ export function AdminPackageCategoryRenameModal({
     () => packagesInCategory(packages, categorySlug),
     [packages, categorySlug],
   );
-  const initialDescription = useMemo(
-    () => resolveCategoryDescription(categoryPackages),
-    [categoryPackages],
-  );
   const [nextName, setNextName] = useState(categoryName);
-  const [nextDescription, setNextDescription] = useState(initialDescription);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = normalizePackageCategoryLabel(nextName);
-    const trimmedDescription = nextDescription.trim();
     if (trimmed.length === 0) {
       setError(t("categoryRequired"));
       return;
@@ -74,14 +55,8 @@ export function AdminPackageCategoryRenameModal({
       setError(t("categoryTooLong"));
       return;
     }
-    if (trimmedDescription.length > MAX_DESCRIPTION_LENGTH) {
-      setError(t("descriptionTooLong"));
-      return;
-    }
 
-    const nameUnchanged = trimmed === normalizePackageCategoryLabel(categoryName);
-    const descriptionUnchanged = trimmedDescription === initialDescription.trim();
-    if (nameUnchanged && descriptionUnchanged) {
+    if (trimmed === normalizePackageCategoryLabel(categoryName)) {
       onClose();
       return;
     }
@@ -90,18 +65,10 @@ export function AdminPackageCategoryRenameModal({
     setError(null);
     try {
       const updated: AdminPackageRow[] = [];
-      const descriptionPayload = trimmedDescription.length > 0 ? trimmedDescription : null;
       for (const pkg of categoryPackages) {
-        const body: { categoryName?: string; description?: string | null } = {};
-        if (!nameUnchanged) {
-          body.categoryName = trimmed;
-        }
-        if (!descriptionUnchanged) {
-          body.description = descriptionPayload;
-        }
         const saved = await apiFetch<AdminPackageRow>(`/packages/plans/${pkg.id}`, {
           method: "PATCH",
-          body: JSON.stringify(body),
+          body: JSON.stringify({ categoryName: trimmed }),
         });
         updated.push(saved);
       }
@@ -116,7 +83,8 @@ export function AdminPackageCategoryRenameModal({
   }
 
   return (
-    <AdminSheetPortal presentation="modal"
+    <AdminSheetPortal
+      presentation="modal"
       isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={t("modalBackdropClose")}
@@ -125,53 +93,41 @@ export function AdminPackageCategoryRenameModal({
       zIndexClass="z-[110]"
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain">
-      <form onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4">
-        <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
-          {t("renameCategoryTitle")}
-        </h2>
-        <p className="text-sm text-sage-600">
-          {categoryPackages.length > 0
-            ? t("editCategoryDescription", { count: categoryPackages.length })
-            : t("editCategoryDescriptionEmpty")}
-        </p>
-        <label className="flex flex-col gap-1.5">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldCategory")}</span>
-          <input
-            className="ommm-input"
-            value={nextName}
-            maxLength={MAX_CATEGORY_NAME_LENGTH}
-            onChange={(event) => setNextName(event.target.value)}
-            required
-            disabled={pending}
-            aria-labelledby={titleId}
-          />
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
-          <textarea
-            className="ommm-input min-h-24 resize-y"
-            value={nextDescription}
-            maxLength={MAX_DESCRIPTION_LENGTH}
-            onChange={(event) => setNextDescription(event.target.value)}
-            disabled={pending}
-            placeholder={t("editCategoryDescriptionPlaceholder")}
-          />
-          <span className="text-xs text-sage-500">{t("editCategoryDescriptionHint")}</span>
-        </label>
-        {error !== null ? (
-          <p className="text-sm text-red-800" role="alert">
-            {error}
+        <form onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4">
+          <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
+            {t("renameCategoryTitle")}
+          </h2>
+          <p className="text-sm text-sage-600">
+            {categoryPackages.length > 0
+              ? t("editCategoryDescription", { count: categoryPackages.length })
+              : t("editCategoryDescriptionEmpty")}
           </p>
-        ) : null}
-        <div className="flex flex-wrap justify-end gap-3">
-          <OmmButton type="button" variant="secondary" size="md" onClick={onClose} disabled={pending}>
-            {t("cancelButton")}
-          </OmmButton>
-          <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
-            {pending ? t("savingButton") : t("saveButton")}
-          </OmmButton>
-        </div>
-      </form>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldCategory")}</span>
+            <input
+              className="ommm-input"
+              value={nextName}
+              maxLength={MAX_CATEGORY_NAME_LENGTH}
+              onChange={(event) => setNextName(event.target.value)}
+              required
+              disabled={pending}
+              aria-labelledby={titleId}
+            />
+          </label>
+          {error !== null ? (
+            <p className="text-sm text-red-800" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap justify-end gap-3">
+            <OmmButton type="button" variant="secondary" size="md" onClick={onClose} disabled={pending}>
+              {t("cancelButton")}
+            </OmmButton>
+            <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
+              {pending ? t("savingButton") : t("saveButton")}
+            </OmmButton>
+          </div>
+        </form>
       </div>
     </AdminSheetPortal>
   );

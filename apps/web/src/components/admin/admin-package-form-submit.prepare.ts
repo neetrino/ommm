@@ -6,7 +6,6 @@ import type { AdminPackageFormSubmitPrepared } from "@/components/admin/admin-pa
 import type { AdminPackageFormSubmitParams } from "@/components/admin/admin-package-form-submit.types";
 import {
   MAX_CATEGORY_NAME_LENGTH,
-  MAX_DESCRIPTION_LENGTH,
   MAX_NAME_LENGTH,
   MAX_PACKAGE_DURATION_DAYS,
   MAX_PACKAGE_GUEST_COUNT,
@@ -109,7 +108,6 @@ export function prepareAdminPackageFormSubmit(
   }
 
   const detailsName = values.name.trim();
-  const description = values.description.trim();
   const createCategoryName = normalizePackageCategoryLabel(detailsName);
   const tierCategorySlug = resolvePackageCategorySlug(
     initialCategoryName.trim(),
@@ -178,9 +176,6 @@ export function prepareAdminPackageFormSubmit(
       }
       if (categoryName.length > MAX_CATEGORY_NAME_LENGTH) {
         return { ok: false, error: t("categoryTooLong") };
-      }
-      if (description.length > MAX_DESCRIPTION_LENGTH) {
-        return { ok: false, error: t("descriptionTooLong") };
       }
     }
   }
@@ -325,7 +320,6 @@ export function prepareAdminPackageFormSubmit(
       isAddTierMode,
       isEditTierMode,
       isEditMode,
-      description,
       createCategoryName,
       tierCategorySlug,
       tierCategoryName,

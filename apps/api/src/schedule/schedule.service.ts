@@ -19,7 +19,6 @@ import { CreateScheduleItemDto } from './dto/create-schedule-item.dto';
 import { UpdateScheduleItemDto } from './dto/update-schedule-item.dto';
 import {
   mapSessionsToPublicScheduleItems,
-  buildCategoryDescriptionByClassType,
   PUBLIC_SCHEDULE_SESSION_INCLUDE,
   type PublicScheduleItem,
 } from './map-sessions-to-public-schedule-items';
@@ -115,42 +114,21 @@ export class ScheduleService {
   }
 
   private async loadPublicActiveFromDb(range: { from: Date; to: Date }) {
-    const [sessions, packagePlans] = await Promise.all([
-      this.prisma.classSession.findMany({
-        where: {
-          status: {
-            in: [
-              ClassSessionStatus.ACTIVE,
-              ClassSessionStatus.FULL,
-              ClassSessionStatus.FINISHED,
-            ],
-          },
-          startsAt: { gte: range.from, lte: range.to },
+    const sessions = await this.prisma.classSession.findMany({
+      where: {
+        status: {
+          in: [
+            ClassSessionStatus.ACTIVE,
+            ClassSessionStatus.FULL,
+            ClassSessionStatus.FINISHED,
+          ],
         },
-        include: PUBLIC_SCHEDULE_SESSION_INCLUDE,
-        orderBy: [{ startsAt: 'asc' }, { createdAt: 'desc' }],
-      }),
-      this.prisma.packagePlan.findMany({
-        where: { isActive: true },
-        select: {
-          categoryName: true,
-          description: true,
-          classType: { select: { name: true } },
-        },
-        orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
-      }),
-    ]);
-    const categoryDescriptions = buildCategoryDescriptionByClassType(
-      packagePlans.map((plan) => ({
-        categoryName: plan.categoryName,
-        description: plan.description,
-        classTypeName: plan.classType?.name ?? null,
-      })),
-    );
-    const items = mapSessionsToPublicScheduleItems(
-      sessions,
-      categoryDescriptions,
-    );
+        startsAt: { gte: range.from, lte: range.to },
+      },
+      include: PUBLIC_SCHEDULE_SESSION_INCLUDE,
+      orderBy: [{ startsAt: 'asc' }, { createdAt: 'desc' }],
+    });
+    const items = mapSessionsToPublicScheduleItems(sessions);
     return this.sortPublicByDateAndTime(items);
   }
 

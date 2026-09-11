@@ -5,13 +5,17 @@ import {
 } from '@nestjs/common';
 import type { ClassType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { ScheduleService } from '../schedule/schedule.service';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
 import type { UpdateClassTypeDto } from './dto/update-class-type.dto';
 import { normalizeOptional } from './classes-session.helpers';
 
 @Injectable()
 export class ClassesTypesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly schedule: ScheduleService,
+  ) {}
 
   listTypes() {
     return this.prisma.classType.findMany({
@@ -30,13 +34,15 @@ export class ClassesTypesService {
       throw new BadRequestException('Class type name and slug are required.');
     }
     await this.assertClassTypeUnique({ name, slug });
-    return this.prisma.classType.create({
+    const created = await this.prisma.classType.create({
       data: {
         name,
         slug,
         description: normalizeOptional(dto.description),
       },
     });
+    await this.schedule.invalidatePublicCache();
+    return created;
   }
 
   async updateType(id: string, dto: UpdateClassTypeDto): Promise<ClassType> {
@@ -55,7 +61,7 @@ export class ClassesTypesService {
       throw new BadRequestException('Class type name and slug are required.');
     }
     await this.assertClassTypeUnique({ name, slug, excludeId: id });
-    return this.prisma.classType.update({
+    const updated = await this.prisma.classType.update({
       where: { id },
       data: {
         name,
@@ -65,6 +71,8 @@ export class ClassesTypesService {
         }),
       },
     });
+    await this.schedule.invalidatePublicCache();
+    return updated;
   }
 
   async assertClassTypeExists(classTypeId: string): Promise<void> {
@@ -123,6 +131,7 @@ export class ClassesTypesService {
       where: { id },
       data: { archivedAt: new Date() },
     });
+    await this.schedule.invalidatePublicCache();
   }
 
   private async findTypeOrThrow(id: string): Promise<ClassType> {

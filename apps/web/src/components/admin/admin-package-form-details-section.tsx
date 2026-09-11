@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { AdminPackageFormSection } from "@/components/admin/admin-package-form-section";
 import {
-  MAX_DESCRIPTION_LENGTH,
   MAX_NAME_LENGTH,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
@@ -57,17 +56,6 @@ export function AdminPackageFormDetailsSection({
             disabled={pending}
             name="classTypeId"
             required
-          />
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
-          <textarea
-            name="description"
-            className="ommm-input min-h-24 resize-y"
-            maxLength={MAX_DESCRIPTION_LENGTH}
-            value={values.description}
-            onChange={(event) => onValuesChange({ description: event.target.value })}
-            disabled={pending}
           />
         </label>
       </div>

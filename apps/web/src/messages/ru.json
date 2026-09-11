@@ -3084,6 +3084,7 @@
         "fieldNamePlaceholder": "напр. Reformer Group",
         "fieldSlug": "Slug",
         "fieldDescription": "Описание",
+        "fieldDescriptionPlaceholder": "Показывается в публичном расписании при открытии этого класса.",
         "sessionCount": "{count} занятий",
         "sessionCountNone": "нет занятий",
         "linkedSessionsHint": "С этим типом связано {count} занятий. Переназначьте или удалите их перед удалением типа.",
@@ -3610,7 +3611,7 @@
       "formSections": {
         "details": {
           "heading": "Данные пакета",
-          "description": "Название и краткое описание на сайте"
+          "description": "Название и тип занятия для этого пакета"
         },
         "pricing": {
           "heading": "Цена и оплата",
