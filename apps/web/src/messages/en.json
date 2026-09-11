@@ -4646,7 +4646,7 @@
     "colRate": "Rate",
     "colSalary": "Salary",
     "colStatus": "Status",
-    "statusPaid": "Paid",
+    "statusPaid": "COMPLETED",
     "reasons": {
       "PAID": "Accrued: {amount}",
       "NOT_FINISHED_YET": "Not finished yet",

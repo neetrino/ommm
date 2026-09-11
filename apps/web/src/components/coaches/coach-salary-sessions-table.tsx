@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { coachSalaryReasonBadgeClass } from "@/components/coaches/coach-salary-reason-badge";
+import { coachSalaryReasonBadgeClass, coachSalaryReasonStatusLabel } from "@/components/coaches/coach-salary-reason-badge";
 import type { CoachSalarySessionRow } from "@/components/coaches/coach-salary-session-types";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatTimeForUiFromIso } from "@/lib/format-time-display";
@@ -12,8 +12,6 @@ type CoachSalarySessionsTableProps = {
   locale: string;
   totalsLabel: string;
 };
-
-const REASONS_WITHOUT_ATTENDANCE = new Set(["NOT_FINISHED_YET", "SESSION_CANCELLED"]);
 
 /** Stronger spreadsheet chrome so rows read clearly on the pale finance sheet. */
 const TABLE_WRAP_CLASS = [
@@ -42,11 +40,16 @@ function sumPaidAmountAmd(sessions: CoachSalarySessionRow[]): number {
   return sessions.reduce((sum, session) => sum + (session.reason === "PAID" ? session.amountAmd : 0), 0);
 }
 
-function attendanceCell(session: CoachSalarySessionRow): string {
-  if (REASONS_WITHOUT_ATTENDANCE.has(session.reason)) {
-    return "—";
+function AttendanceStack({ session }: { session: CoachSalarySessionRow }) {
+  const capacity = session.capacity;
+  if (!Number.isFinite(capacity) || capacity <= 0) {
+    return <span>—</span>;
   }
-  return `${session.attendedCount}/${session.registeredCount}`;
+  return (
+    <span className="font-semibold tabular-nums text-sage-900">
+      {session.attendedCount}/{capacity}
+    </span>
+  );
 }
 
 /** Spreadsheet-style salary breakdown — one session per row, totals in the footer. */
@@ -84,7 +87,7 @@ export function CoachSalarySessionsTable({
                 </span>
               </td>
               <td className={`${TD_CLASS} text-center tabular-nums`}>
-                {attendanceCell(session)}
+                <AttendanceStack session={session} />
               </td>
               <td className={`${TD_CLASS} text-center tabular-nums`}>
                 {session.rateAmd > 0 ? formatAmdFromCents(session.rateAmd, locale) : "—"}
@@ -96,11 +99,7 @@ export function CoachSalarySessionsTable({
               </td>
               <td className={`${TD_CLASS} text-center`}>
                 <span className={coachSalaryReasonBadgeClass(session.reason)}>
-                  {session.reason === "PAID"
-                    ? t("statusPaid")
-                    : t(`reasons.${session.reason}`, {
-                        amount: formatAmdFromCents(session.amountAmd, locale),
-                      })}
+                  {coachSalaryReasonStatusLabel(session.reason)}
                 </span>
               </td>
             </tr>

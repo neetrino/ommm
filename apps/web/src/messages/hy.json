@@ -4647,7 +4647,7 @@
     "colRate": "Դրույք",
     "colSalary": "Աշխատավարձ",
     "colStatus": "Կարգավիճակ",
-    "statusPaid": "Հաշվարկված",
+    "statusPaid": "COMPLETED",
     "reasons": {
       "PAID": "Հաշվարկվել է՝ {amount}",
       "NOT_FINISHED_YET": "Դեռ չի ավարտվել",

@@ -4644,7 +4644,7 @@
     "colRate": "Ставка",
     "colSalary": "Зарплата",
     "colStatus": "Статус",
-    "statusPaid": "Начислено",
+    "statusPaid": "COMPLETED",
     "reasons": {
       "PAID": "Начислено: {amount}",
       "NOT_FINISHED_YET": "Ещё не завершилось",

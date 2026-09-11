@@ -21,6 +21,7 @@ const sessionSelect = {
   startsAt: true,
   endsAt: true,
   status: true,
+  capacity: true,
   classTypeId: true,
   classType: { select: { id: true, name: true } },
   salaryAccrual: { select: { amountAmd: true } },

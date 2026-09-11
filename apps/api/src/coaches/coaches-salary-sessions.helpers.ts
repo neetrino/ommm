@@ -22,6 +22,7 @@ export type CoachSalarySessionSourceRow = {
   startsAt: Date;
   endsAt: Date;
   status: ClassSessionStatus;
+  capacity: number;
   classTypeId: string;
   classType: { id: string; name: string };
   salaryAccrual: { amountAmd: number } | null;
@@ -34,6 +35,7 @@ export type CoachSalarySessionRow = {
   endsAt: Date;
   status: ClassSessionStatus;
   classType: { id: string; name: string };
+  capacity: number;
   registeredCount: number;
   attendedCount: number;
   noShowCount: number;
@@ -91,6 +93,7 @@ export function mapSalarySessionRow(
     endsAt: session.endsAt,
     status: session.status,
     classType: session.classType,
+    capacity: session.capacity,
     registeredCount,
     attendedCount,
     noShowCount,

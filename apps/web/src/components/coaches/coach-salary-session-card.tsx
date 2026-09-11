@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl";
-import { coachSalaryReasonBadgeClass } from "@/components/coaches/coach-salary-reason-badge";
+import {
+  coachSalaryReasonBadgeClass,
+  coachSalaryReasonStatusLabel,
+} from "@/components/coaches/coach-salary-reason-badge";
 import type { CoachSalarySessionRow } from "@/components/coaches/coach-salary-session-types";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -20,6 +23,9 @@ const REASONS_WITHOUT_ATTENDANCE = new Set(["NOT_FINISHED_YET", "SESSION_CANCELL
 export function CoachSalarySessionCard({ session, locale }: CoachSalarySessionCardProps) {
   const t = useTranslations("coachSalarySession");
   const showAttendance = !REASONS_WITHOUT_ATTENDANCE.has(session.reason);
+  const statusLabel = coachSalaryReasonStatusLabel(session.reason);
+  const amountLabel =
+    session.reason === "PAID" ? ` · ${formatAmdFromCents(session.amountAmd, locale)}` : "";
 
   return (
     <li className="rounded-2xl border border-sage-100 bg-white px-3.5 py-3">
@@ -29,9 +35,8 @@ export function CoachSalarySessionCard({ session, locale }: CoachSalarySessionCa
           <p className="mt-0.5 text-xs text-sage-500">{formatDateTimeForUi(session.startsAt, locale)}</p>
         </div>
         <span className={`shrink-0 text-right tabular-nums ${coachSalaryReasonBadgeClass(session.reason)}`}>
-          {t(`reasons.${session.reason}`, {
-            amount: formatAmdFromCents(session.amountAmd, locale),
-          })}
+          {statusLabel}
+          {amountLabel}
         </span>
       </div>
       {showAttendance ? (
