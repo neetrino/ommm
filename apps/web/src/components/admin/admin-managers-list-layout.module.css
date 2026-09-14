@@ -1,14 +1,14 @@
 @media (max-width: 767px) {
   .row {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "name name"
-      "email access";
+      "name"
+      "email";
     align-items: start;
   }
 
   .rowWithActions {
-    padding-right: 4.5rem;
+    padding-right: 5.5rem;
   }
 
   .name {
@@ -20,9 +20,9 @@
   }
 
   .access {
-    grid-area: access;
-    justify-self: end;
-    align-self: center;
+    position: absolute;
+    top: 1.25rem;
+    right: 1rem;
   }
 
   .joined {
@@ -30,9 +30,7 @@
   }
 
   .actions {
-    position: absolute;
-    top: 1rem;
-    right: 0.875rem;
+    display: none;
   }
 }
 

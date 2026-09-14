@@ -3,13 +3,11 @@ import {
   ADMIN_LIST_EMPHASIZED_HEADER,
   ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_LIST_ROW_SURFACE,
-  USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
   USER_LIST_HEADER_SURFACE,
   USER_LIST_TABLE_GRID_GAP,
   USER_LIST_TABLE_HEADER_TEXT,
   USER_LIST_TABLE_SUBGRID_ROW,
-  USER_LIST_TRAILING_HEADER_CELL,
 } from "@/components/admin/admin-list-table-layout";
 import { USER_LIST_ROW_INTERACTIVE } from "@/components/account/user-list-table-layout";
 import managersListLayoutStyles from "@/components/admin/admin-managers-list-layout.module.css";
@@ -67,9 +65,11 @@ export const ADMIN_MANAGERS_LIST_ACCESS_CELL =
 export const ADMIN_MANAGERS_LIST_JOINED_CELL =
   `${USER_LIST_CELL_CLASS} tabular-nums md:text-center`;
 
-export const ADMIN_MANAGERS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
+export const ADMIN_MANAGERS_LIST_ACTIONS_CELL =
+  "flex shrink-0 justify-self-center md:items-center md:justify-center md:self-center";
 
-export const ADMIN_MANAGERS_LIST_ACTIONS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;
+export const ADMIN_MANAGERS_LIST_ACTIONS_HEADER_CELL =
+  "justify-self-center text-center";
 
 export const ADMIN_MANAGERS_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;
 

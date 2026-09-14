@@ -6,22 +6,24 @@ import { useRouter } from "@/i18n/navigation";
 import type { AdminManagerDirectoryRow } from "@/components/admin/admin-managers-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
-import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
 
-const ROW_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
+const TOGGLE_BUTTON_CLASS =
+  "inline-flex shrink-0 items-center justify-center rounded-full p-0 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50";
 
 type PendingConfirm = "block" | "unblock";
 
 type AdminManagerRowActionsProps = {
   manager: AdminManagerDirectoryRow;
   onChanged: () => void;
+  onPatched?: (patch: Pick<AdminManagerDirectoryRow, "isBlocked">) => void;
 };
 
 export function AdminManagerRowActions({
   manager,
   onChanged,
+  onPatched,
 }: AdminManagerRowActionsProps) {
   const t = useTranslations("adminPages.managers");
   const router = useRouter();
@@ -59,6 +61,7 @@ export function AdminManagerRowActions({
       setTone("ok");
       setMessage(nextBlocked ? t("blockSuccess") : t("unblockSuccess"));
       setPendingConfirm(null);
+      onPatched?.({ isBlocked: nextBlocked });
       onChanged();
       router.refresh();
     } catch (error) {
@@ -88,19 +91,20 @@ export function AdminManagerRowActions({
 
   return (
     <>
-      <div className="flex items-center justify-end gap-2" role="group" aria-label={t("colActions")}>
-        <AdminRowIconButton
-          ariaLabel={toggleLabel}
+      <div className="flex items-center justify-center gap-2" role="group" aria-label={t("colActions")}>
+        <button
+          type="button"
+          className={TOGGLE_BUTTON_CLASS}
+          aria-label={toggleLabel}
           title={toggleLabel}
-          className={ROW_TOGGLE_BUTTON_CLASS}
           disabled={disabled}
           onClick={(event: MouseEvent<HTMLButtonElement>) => {
             event.stopPropagation();
             openConfirm();
           }}
         >
-          <AnimatedToggleSwitch checked={isActive} />
-        </AdminRowIconButton>
+          <AnimatedToggleSwitch checked={isActive} className="ommm-toggle-switch-board" />
+        </button>
       </div>
       {message ? (
         <AdminCenterToast
