@@ -26,6 +26,8 @@ type AdminSheetReadOnlyFieldProps = {
   label: string;
   value: ReactNode;
   hint?: string;
+  /** Optional leading icon beside the label. */
+  icon?: ReactNode;
   /** Tighter label/value spacing for dense detail sheets. */
   compact?: boolean;
   className?: string;
@@ -93,12 +95,18 @@ export function AdminSheetReadOnlyField({
   label,
   value,
   hint,
+  icon,
   compact = false,
   className = "",
 }: AdminSheetReadOnlyFieldProps) {
   return (
     <div className={`flex flex-col ${compact ? "gap-1" : "gap-1.5"} ${className}`}>
-      <span className={compact ? FIELD_LABEL_COMPACT_CLASS : FIELD_LABEL_CLASS}>{label}</span>
+      <span
+        className={`inline-flex items-center gap-1.5 ${compact ? FIELD_LABEL_COMPACT_CLASS : FIELD_LABEL_CLASS}`}
+      >
+        {icon ? <span className="shrink-0 text-mint-600">{icon}</span> : null}
+        {label}
+      </span>
       <p
         className={compact ? READONLY_VALUE_COMPACT_CLASS : READONLY_VALUE_CLASS}
         aria-live="polite"

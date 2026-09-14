@@ -157,12 +157,23 @@ export const ADMIN_DETAILS_SHEET_FOOTER_CLASS =
 export const ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS =
   "space-y-4 rounded-2xl border border-sage-200/80 bg-white p-4 shadow-[0_12px_32px_-18px_rgba(45,40,35,0.28)]";
 
+/**
+ * Phone bottom sheets already dismiss via grabber swipe — hide the X below 744px.
+ * Use {@link ADMIN_CENTERED_MODAL_CLOSE_BUTTON_CLASS} when the overlay is always centered.
+ */
 export const ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS =
-  "rounded-full p-2 text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+  "max-[743px]:hidden rounded-full p-2 text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 /** Matches compact header actions (e.g. Deactivate) height in admin client drawer. */
 export const ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS =
-  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl leading-none text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45";
+  "hidden min-[744px]:inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-2xl leading-none text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45";
+
+/** Close X that stays visible on phone (centered modal — no swipe-to-dismiss). */
+export const ADMIN_CENTERED_MODAL_CLOSE_BUTTON_CLASS =
+  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-2xl leading-none text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45";
+
+/** Append to ad-hoc sheet close buttons that do not use the shared close classes. */
+export const ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS = "max-[743px]:hidden" as const;
 
 export const ADMIN_DETAILS_SHEET_TITLE_CLASS =
   "font-serif text-2xl font-normal text-sage-900";

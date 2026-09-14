@@ -387,7 +387,7 @@
       "footerContactTitle": "Связаться с нами",
       "footerPhone": "+374 (60) - 500 - 400",
       "footerEmail": "info@ommm.am",
-      "footerAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4-й\u00a0этаж",
+      "footerAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4-й этаж",
       "footerSocialTitle": "Соцсети",
       "footerSocialAria": "Профиль {network}",
       "footerInstagramAria": "Instagram @ommm.space",
@@ -1507,7 +1507,7 @@
       "hours": "Часы работы",
       "fallbackPhone": "+37460500400",
       "fallbackEmail": "info@ommm.am",
-      "fallbackAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4-й\u00a0этаж",
+      "fallbackAddress": "ул. Пушкина, 25, Ереван\nSoho Business Centre, 4-й этаж",
       "fallbackHours": "Каждый день / 8:00 – 21:00",
       "mapHeading": "Карта",
       "instagram": "Instagram",
@@ -1905,6 +1905,7 @@
         "total": "На сегодня запланировано {count} занятий",
         "empty": "На сегодня больше нет ближайших занятий.",
         "timeLine": "{dateTime} • Тренер: {coachName}",
+        "coachLine": "Тренер · {coachName}",
         "capacity": "{booked}/{capacity} забронировано"
       },
       "todayBookings": {
@@ -3245,7 +3246,7 @@
       },
       "registrationsModal": {
         "title": "Записанные участники",
-        "subtitle": "Занято {count} из {capacity} мест",
+        "subtitle": "{count}/{capacity}",
         "empty": "На это занятие пока никто не записан.",
         "loading": "Загрузка записей…",
         "error": "Не удалось загрузить записи.",
@@ -3317,6 +3318,7 @@
       "colPriceOrSessions": "Цена / Сессии",
       "colStatus": "Статус",
       "colActions": "Действия",
+      "rowActionsAria": "Действия с занятием",
       "editButton": "Редактировать",
       "cancelAction": "Отменить",
       "activateAction": "Активировать",
@@ -3980,12 +3982,17 @@
       },
       "drawer": {
         "title": "Данные пользователя",
+        "lead": "Контакты и последние бронирования этого участника.",
         "close": "Закрыть",
         "loading": "Загрузка данных пользователя...",
         "error": "Не удалось загрузить данные пользователя.",
         "empty": "Данные пользователя недоступны.",
         "packages": "Абонементы",
-        "bookings": "Последние бронирования"
+        "bookings": "Последние бронирования",
+        "noBookings": "Нет недавних бронирований.",
+        "phone": "Телефон",
+        "email": "Email",
+        "coachLine": "Тренер · {coachName}"
       }
     },
     "reports": {

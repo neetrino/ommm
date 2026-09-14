@@ -7,6 +7,7 @@ import {
   type AdminClassTypeRow,
 } from "@/components/admin/admin-types-management";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS } from "@/components/admin/admin-details-sheet-layout";
 
 type AdminTypesModalProps = {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export function AdminTypesModal({
           </h2>
           <button
             type="button"
-            className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className={`${ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS} shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
             aria-label={tPackages("modalCloseAria")}
             onClick={onClose}
           >

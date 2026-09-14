@@ -1,17 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import {
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
-import {
-  canDeleteAdminScheduleSession,
-  coachName,
-  hasAdminScheduleSessionRowActions,
-  spotsLeft,
-} from "@/components/admin/admin-schedule-session.helpers";
-import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
+import { coachName } from "@/components/admin/admin-schedule-session.helpers";
+import { AdminScheduleSessionSelectCheckbox } from "@/components/admin/admin-schedule-session-select-checkbox";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
 import styles from "@/components/admin/admin-schedule-session-sheet-card.module.css";
 import { ADMIN_LIST_ROW_SURFACE } from "@/components/admin/admin-list-table-layout";
@@ -20,18 +14,22 @@ import { SCHEDULE_PAST_LIST_ROW_CLASS } from "@/components/shared/schedule/sched
 import { isScheduleSessionOnPastDay } from "@/components/shared/schedule/schedule-week-view-utils";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
+import { useTranslations } from "next-intl";
+
+type SheetCardSelectProps = {
+  checked: boolean;
+  disabled: boolean;
+  ariaLabel: string;
+  onChange: (checked: boolean) => void;
+};
 
 type AdminScheduleSessionSheetCardProps = {
   row: AdminScheduleSession;
   locale: string;
-  busy: boolean;
   onDetails: (row: AdminScheduleSession) => void;
-  onDuplicate?: (row: AdminScheduleSession) => void;
-  onCancel?: (row: AdminScheduleSession) => void;
-  onActivate?: (row: AdminScheduleSession) => void;
-  onDelete?: (row: AdminScheduleSession) => void;
   canAddVisitor?: boolean;
   showCoach?: boolean;
+  select?: SheetCardSelectProps | null;
 };
 
 function SheetCardTime({
@@ -49,36 +47,26 @@ function SheetCardTime({
   );
 }
 
-/** Day-sheet session card — class + status on top, time opposite occupancy. */
+/** Day-sheet / mobile-list session card — class + status on top, time opposite occupancy. */
 export function AdminScheduleSessionSheetCard({
   row,
   locale,
-  busy,
   onDetails,
-  onDuplicate,
-  onCancel,
-  onActivate,
-  onDelete,
   canAddVisitor = true,
   showCoach = true,
+  select = null,
 }: AdminScheduleSessionSheetCardProps) {
   const t = useTranslations("adminPages.classes");
   const tCommon = useTranslations("common");
   const display = buildSessionDateTimeDisplay(locale, row.startsAt, row.endsAt);
   const booked = row._count.bookings;
-  const showActions = hasAdminScheduleSessionRowActions({
-    onDuplicate,
-    onCancel,
-    onActivate,
-    onDelete,
-  });
   const durationLabel =
     display !== null && display.durationMinutes > 0
       ? tCommon("sessionDurationMinutes", { minutes: display.durationMinutes })
       : null;
   const cardClass = [
     styles.card,
-    showActions ? styles.cardWithActions : "",
+    select !== null ? styles.cardWithSelect : "",
     ADMIN_LIST_ROW_SURFACE,
     isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
       ? SCHEDULE_PAST_LIST_ROW_CLASS
@@ -101,6 +89,20 @@ export function AdminScheduleSessionSheetCard({
         }
       }}
     >
+      {select !== null ? (
+        <div
+          className={styles.select}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminScheduleSessionSelectCheckbox
+            checked={select.checked}
+            disabled={select.disabled}
+            ariaLabel={select.ariaLabel}
+            onChange={select.onChange}
+          />
+        </div>
+      ) : null}
       <div className={styles.main}>
         <p className={styles.title}>{row.title}</p>
         {showCoach ? <p className={styles.coach}>{coachName(row.coach)}</p> : null}
@@ -127,29 +129,11 @@ export function AdminScheduleSessionSheetCard({
             booked={booked}
             capacity={row.capacity}
             spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-            secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
             bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
             canAdd={canAddVisitor}
           />
         </div>
       </div>
-      {showActions ? (
-        <div
-          className={styles.actions}
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          <AdminScheduleSessionRowActions
-            row={row}
-            busy={busy}
-            includeDelete={onDelete !== undefined && canDeleteAdminScheduleSession(row)}
-            onDuplicate={onDuplicate}
-            onCancel={onCancel}
-            onActivate={onActivate}
-            onDelete={onDelete}
-          />
-        </div>
-      ) : null}
     </article>
   );
 }

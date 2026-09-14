@@ -387,7 +387,7 @@
       "footerContactTitle": "Contact Us",
       "footerPhone": "+374 (60) - 500 - 400",
       "footerEmail": "info@ommm.am",
-      "footerAddress": "25 Pushkin St,Yerevan\nSoho Business Centre, 4th\u00a0floor",
+      "footerAddress": "25 Pushkin St,Yerevan\nSoho Business Centre, 4th floor",
       "footerSocialTitle": "Social Media",
       "footerSocialAria": "{network} profile",
       "footerInstagramAria": "Instagram @ommm.space",
@@ -1507,7 +1507,7 @@
       "hours": "Hours",
       "fallbackPhone": "+37460500400",
       "fallbackEmail": "info@ommm.am",
-      "fallbackAddress": "25 Pushkin St,Yerevan\nSoho Business Centre, 4th\u00a0floor",
+      "fallbackAddress": "25 Pushkin St,Yerevan\nSoho Business Centre, 4th floor",
       "fallbackHours": "Every Day / 8:00 – 21:00",
       "mapHeading": "Map",
       "instagram": "Instagram",
@@ -1907,6 +1907,7 @@
         "total": "{count} classes scheduled today",
         "empty": "No upcoming classes for today.",
         "timeLine": "{dateTime} • Coach: {coachName}",
+        "coachLine": "Coach · {coachName}",
         "capacity": "{booked}/{capacity} booked"
       },
       "todayBookings": {
@@ -3247,7 +3248,7 @@
       },
       "registrationsModal": {
         "title": "Registered members",
-        "subtitle": "{count} of {capacity} spots filled",
+        "subtitle": "{count}/{capacity}",
         "empty": "No one is registered for this class yet.",
         "loading": "Loading registrations…",
         "error": "Could not load registrations.",
@@ -3319,6 +3320,7 @@
       "colPriceOrSessions": "Price / Sessions",
       "colStatus": "Status",
       "colActions": "Actions",
+      "rowActionsAria": "Session actions",
       "editButton": "Edit",
       "cancelAction": "Cancel",
       "activateAction": "Activate",
@@ -3982,12 +3984,17 @@
       },
       "drawer": {
         "title": "User details",
+        "lead": "Contact info and recent bookings for this member.",
         "close": "Close",
         "loading": "Loading user details...",
         "error": "Could not load user details.",
         "empty": "User data is unavailable.",
         "packages": "Memberships",
-        "bookings": "Recent bookings"
+        "bookings": "Recent bookings",
+        "noBookings": "No recent bookings.",
+        "phone": "Phone",
+        "email": "Email",
+        "coachLine": "Coach · {coachName}"
       }
     },
     "reports": {

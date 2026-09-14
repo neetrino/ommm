@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachEditableAvatar } from "@/components/admin/admin-coach-editable-avatar";
@@ -36,7 +36,11 @@ import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
+import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import {
+  AdminCoachAssignedClassesCountBadge,
+  AdminCoachAssignedClassesPicker,
+} from "@/components/admin/admin-coach-assigned-classes-picker";
 import { CoachClassBadges } from "@/components/admin/admin-coach-directory-display";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
 
@@ -70,6 +74,8 @@ type CoachSheetTabPanelsProps = {
 };
 
 const SECTION_CLASS = ADMIN_SHEET_FORM_SECTION_CLASS;
+const FIELD_META_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
+const PERSONAL_INFO_GRID_CLASS = "grid grid-cols-2 gap-x-3 gap-y-5";
 
 export function CoachSheetTabPanels({
   activeTab,
@@ -198,7 +204,7 @@ export function CoachSheetTabPanels({
         </section>
 
         {overview ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Metric label={t("drawer.totalClasses")} value={overview.totalClasses} />
             <Metric label={t("drawer.substitutions")} value={overview.substituteClasses} />
             <Metric label={t("drawer.assignedClasses")} value={overview.assignedClassesCount} />
@@ -216,13 +222,10 @@ export function CoachSheetTabPanels({
         ) : null}
 
         <section className={SECTION_CLASS}>
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                {labels.personalInfoHeading}
-              </h3>
-              <p className="mt-1 text-xs text-sage-500">{labels.personalInfoDescription}</p>
-            </div>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="min-w-0 text-sm font-semibold leading-5 uppercase tracking-[0.12em] text-sage-800">
+              {labels.personalInfoHeading}
+            </h3>
             {!personalInfoEditing ? (
               <EditActionButton
                 ariaLabel={t("edit")}
@@ -232,19 +235,8 @@ export function CoachSheetTabPanels({
             ) : null}
           </div>
           {personalInfoEditing ? (
-            <form className="grid gap-4 lg:grid-cols-2" onSubmit={onPersonalInfoSubmit}>
-              <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
-                <input
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  className="ommm-input"
-                  value={form.email}
-                  onChange={(event) => controller.updateField("email", event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldName")} error={errors.name}>
+            <form className={PERSONAL_INFO_GRID_CLASS} onSubmit={onPersonalInfoSubmit}>
+              <AdminSheetEditableField compact label={t("fieldName")} error={errors.name}>
                 <input
                   type="text"
                   autoComplete="given-name"
@@ -254,7 +246,7 @@ export function CoachSheetTabPanels({
                   disabled={busy}
                 />
               </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldLastName")} error={errors.lastName}>
+              <AdminSheetEditableField compact label={t("fieldLastName")} error={errors.lastName}>
                 <input
                   type="text"
                   autoComplete="family-name"
@@ -264,16 +256,19 @@ export function CoachSheetTabPanels({
                   disabled={busy}
                 />
               </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
-                <PhoneInputField
-                  autoComplete="tel"
+              <AdminSheetEditableField compact label={t("fieldAge")} error={errors.age}>
+                <input
+                  type="number"
+                  min={COACH_MIN_AGE}
+                  max={COACH_MAX_AGE}
+                  inputMode="numeric"
                   className="ommm-input"
-                  value={form.phone}
-                  onValueChange={(value) => controller.updateField("phone", value)}
+                  value={form.age}
+                  onChange={(event) => controller.updateField("age", event.target.value)}
                   disabled={busy}
                 />
               </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldBirthday")} error={errors.birthday}>
+              <AdminSheetEditableField compact label={t("fieldBirthday")} error={errors.birthday}>
                 <input
                   name="birthdayDisplay"
                   type="text"
@@ -295,22 +290,41 @@ export function CoachSheetTabPanels({
                   disabled={busy}
                 />
               </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("fieldAge")} error={errors.age}>
+              <AdminSheetEditableField
+                compact
+                label={t("fieldEmail")}
+                error={errors.email}
+                className="col-span-2 sm:col-span-1"
+              >
                 <input
-                  type="number"
-                  min={COACH_MIN_AGE}
-                  max={COACH_MAX_AGE}
-                  inputMode="numeric"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
                   className="ommm-input"
-                  value={form.age}
-                  onChange={(event) => controller.updateField("age", event.target.value)}
+                  value={form.email}
+                  onChange={(event) => controller.updateField("email", event.target.value)}
                   disabled={busy}
                 />
               </AdminSheetEditableField>
               <AdminSheetEditableField
+                compact
+                label={t("fieldPhone")}
+                error={errors.phone}
+                className="col-span-2 sm:col-span-1"
+              >
+                <PhoneInputField
+                  autoComplete="tel"
+                  className="ommm-input"
+                  value={form.phone}
+                  onValueChange={(value) => controller.updateField("phone", value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField
+                compact
                 label={t("fieldBio")}
                 error={errors.bio}
-                className="lg:col-span-2"
+                className="col-span-2"
               >
                 <textarea
                   className="ommm-input min-h-[120px] resize-y"
@@ -324,33 +338,48 @@ export function CoachSheetTabPanels({
               </AdminSheetEditableField>
             </form>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className={PERSONAL_INFO_GRID_CLASS}>
               <AdminSheetReadOnlyField
-                label={t("fieldEmail")}
-                value={form.email.trim().length > 0 ? form.email : "—"}
-                className="lg:col-span-2"
-              />
-              <AdminSheetReadOnlyField
+                compact
+                icon={<DashboardNavIcon name="user" className={FIELD_META_ICON_CLASS} />}
                 label={t("fieldName")}
                 value={form.name.trim().length > 0 ? form.name : "—"}
               />
               <AdminSheetReadOnlyField
+                compact
+                icon={<DashboardNavIcon name="user" className={FIELD_META_ICON_CLASS} />}
                 label={t("fieldLastName")}
                 value={form.lastName.trim().length > 0 ? form.lastName : "—"}
               />
               <AdminSheetReadOnlyField
-                label={t("fieldPhone")}
-                value={form.phone.trim().length > 0 ? formatPhoneDisplay(form.phone) : "—"}
-              />
-              <AdminSheetReadOnlyField
-                label={t("fieldBirthday")}
-                value={form.birthday.trim().length > 0 ? form.birthday : "—"}
-              />
-              <AdminSheetReadOnlyField
+                compact
+                icon={<DashboardNavIcon name="userCheck" className={FIELD_META_ICON_CLASS} />}
                 label={t("fieldAge")}
                 value={form.age.trim().length > 0 ? form.age : "—"}
               />
               <AdminSheetReadOnlyField
+                compact
+                icon={<DashboardNavIcon name="calendar" className={FIELD_META_ICON_CLASS} />}
+                label={t("fieldBirthday")}
+                value={form.birthday.trim().length > 0 ? form.birthday : "—"}
+              />
+              <AdminSheetReadOnlyField
+                compact
+                icon={<MailFieldIcon />}
+                label={t("fieldEmail")}
+                value={form.email.trim().length > 0 ? form.email : "—"}
+                className="col-span-2 sm:col-span-1"
+              />
+              <AdminSheetReadOnlyField
+                compact
+                icon={<PhoneFieldIcon />}
+                label={t("fieldPhone")}
+                value={form.phone.trim().length > 0 ? formatPhoneDisplay(form.phone) : "—"}
+                className="col-span-2 sm:col-span-1"
+              />
+              <AdminSheetReadOnlyField
+                compact
+                icon={<DashboardNavIcon name="fileText" className={FIELD_META_ICON_CLASS} />}
                 label={t("fieldBio")}
                 value={
                   form.bio.trim().length > 0 ? (
@@ -360,7 +389,7 @@ export function CoachSheetTabPanels({
                   )
                 }
                 hint={t("fieldBioHint")}
-                className="lg:col-span-2"
+                className="col-span-2"
               />
             </div>
           )}
@@ -422,6 +451,13 @@ export function CoachSheetTabPanels({
         <SectionHeading
           title={labels.assignedClassesHeading}
           description={labels.assignedClassesDescription}
+          trailing={
+            <AdminCoachAssignedClassesCountBadge
+              count={form.assignedClassTypeIds.length}
+              label={(count) => t("assignedClassesSelectedCount", { count })}
+              emptyLabel={t("assignedClassesNoneSelected")}
+            />
+          }
         />
         <AdminCoachAssignedClassesPicker
           classOptions={classOptions}
@@ -433,6 +469,7 @@ export function CoachSheetTabPanels({
           }
           disabled={busy}
           emptyLabel={t("fieldAssignedClassesEmpty")}
+          showSelectedSummary={false}
           noneSelectedLabel={t("assignedClassesNoneSelected")}
           selectedCountLabel={(count) => t("assignedClassesSelectedCount", { count })}
           rateLabel={t("fieldSalaryPerClassShort")}
@@ -523,11 +560,67 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function SectionHeading({ title, description }: { title: string; description: string }) {
+function SectionHeading({
+  title,
+  description,
+  trailing,
+}: {
+  title: string;
+  description: string;
+  trailing?: ReactNode;
+}) {
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">{title}</h3>
-      <p className="text-xs text-sage-500">{description}</p>
+    <div className="mb-4 grid grid-cols-1 items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto]">
+      <h3 className="col-start-1 row-start-1 min-w-0 text-sm font-semibold leading-5 uppercase tracking-[0.12em] text-sage-800">
+        {title}
+      </h3>
+      {trailing ? (
+        <div className="col-start-1 row-start-2 flex items-center self-start sm:col-start-2 sm:row-start-1 sm:self-center">
+          {trailing}
+        </div>
+      ) : null}
+      <p
+        className={`col-start-1 text-xs text-sage-500 sm:col-span-2 sm:row-start-2 ${
+          trailing ? "row-start-3" : "row-start-2"
+        }`}
+      >
+        {description}
+      </p>
     </div>
+  );
+}
+
+function PhoneFieldIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={FIELD_META_ICON_CLASS}
+      aria-hidden
+    >
+      <path d="M22 16.9v2.2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h2.2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2.1z" />
+    </svg>
+  );
+}
+
+function MailFieldIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={FIELD_META_ICON_CLASS}
+      aria-hidden
+    >
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 7 9-7" />
+    </svg>
   );
 }

@@ -1,6 +1,5 @@
 import {
   ADMIN_LIST_ROW_SURFACE,
-  USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
   USER_LIST_DATE_CELL,
   USER_LIST_TABLE_ROW_PAD,
@@ -17,17 +16,22 @@ export const STAFF_ROSTER_LIST_HEADER_CLASS = buildAdminListHeaderClass();
 
 export const STAFF_ROSTER_LIST_ROW_CLASS = [
   ADMIN_LIST_ROW_SURFACE,
-  "grid w-full grid-cols-1 gap-3 text-left",
+  "relative grid w-full grid-cols-1 gap-3 text-left",
   USER_LIST_TABLE_ROW_PAD,
   "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
 ].join(" ");
 
-export const STAFF_ROSTER_LIST_PARTICIPANT_CELL = USER_LIST_CELL_CLASS;
+/** Leave room for the top-right attendance control on phone cards. */
+export const STAFF_ROSTER_LIST_PARTICIPANT_CELL = `${USER_LIST_CELL_CLASS} max-md:pr-28`;
 
 export const STAFF_ROSTER_LIST_CLASS_CELL = USER_LIST_CELL_CLASS;
 
 export const STAFF_ROSTER_LIST_DATE_TIME_CELL = USER_LIST_DATE_CELL;
 
-export const STAFF_ROSTER_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
+/** Phone: pin attendance to the card’s top-right; tablet+: trailing grid column. */
+export const STAFF_ROSTER_LIST_ACTIONS_CELL = [
+  "absolute right-5 top-4 z-10",
+  "md:static md:flex md:shrink-0 md:items-center md:justify-end md:justify-self-end md:self-center",
+].join(" ");
 
 export const STAFF_ROSTER_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;

@@ -31,7 +31,7 @@ export function AdminAnalyticsChartPanel({
           {unsupported}
         </p>
       ) : (
-        <div className="mt-4">{children}</div>
+        <div className="mt-4 min-w-0 max-w-full">{children}</div>
       )}
     </section>
   );

@@ -19,15 +19,14 @@ import {
   SESSION_SHEET_TAB_ORDER,
   type SessionSheetTabId,
 } from "@/components/admin/admin-schedule-session-sheet-tabs";
-import { AdminScheduleSessionStatusAction } from "@/components/admin/admin-schedule-session-status-action";
+import { AdminScheduleSessionSheetHeaderActions } from "@/components/admin/admin-schedule-session-sheet-header-actions";
 import type { SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import {
+  ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
-  ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
@@ -134,6 +133,7 @@ function AdminScheduleSessionDetailsSheetInner({
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
+  const canDelete = onDelete !== undefined && canDeleteAdminScheduleSession(row);
 
   const fallbackClassTypeId = classTypeOptions[0]?.value ?? "";
   const fallbackCoachId = coaches[0]?.id ?? "";
@@ -211,7 +211,7 @@ function AdminScheduleSessionDetailsSheetInner({
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerPanelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -222,23 +222,19 @@ function AdminScheduleSessionDetailsSheetInner({
             <p className="mt-1 truncate text-sm text-sage-600">{row.classType.name}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <AdminScheduleSessionStatusAction
-              sessionId={row.id}
-              status={row.status}
-              disabled={sheetBusy || !canUpdate}
-              onChanged={handleStatusChanged}
+            <AdminScheduleSessionSheetHeaderActions
+              row={row}
+              sheetBusy={sheetBusy}
+              canUpdate={canUpdate}
+              canDelete={canDelete}
+              closeDisabled={sheetBusy || editForm.dirty}
+              onClose={handleClose}
+              onDuplicate={onDuplicate}
+              onDelete={onDelete}
+              onStatusChanged={handleStatusChanged}
               onBusyChange={setStatusBusy}
               onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
             />
-            <button
-              type="button"
-              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-              aria-label={t("modalCloseAria")}
-              onClick={handleClose}
-              disabled={sheetBusy || editForm.dirty}
-            >
-              <CloseGlyph />
-            </button>
           </div>
         </div>
       </header>
@@ -267,12 +263,7 @@ function AdminScheduleSessionDetailsSheetInner({
           classTypeOptions={classTypeOptions}
           coaches={coaches}
           controller={editForm}
-          actionBusy={sheetBusy}
           canCancelBooking={canCancelBooking}
-          onDuplicate={onDuplicate}
-          onDelete={
-            onDelete && canDeleteAdminScheduleSession(row) ? onDelete : undefined
-          }
           onBookingCancelled={handleBookingCancelled}
           onNotice={(message, tone) => setStatusNotice({ message, tone })}
         />
@@ -296,22 +287,5 @@ function AdminScheduleSessionDetailsSheetInner({
         />
       ) : null}
     </AdminSheetPortal>
-  );
-}
-
-function CloseGlyph() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      className="h-5 w-5"
-      aria-hidden
-    >
-      <path d="M6 6l12 12M18 6L6 18" />
-    </svg>
   );
 }

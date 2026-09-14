@@ -25,8 +25,8 @@ const CANCEL_BUTTON_CLASS = "h-10 w-10 shrink-0";
 const CANCEL_ICON_CLASS = "h-4 w-4 shrink-0";
 
 const ROW_VARIANT_CLASS = {
-  list: "flex items-start gap-3 border-b border-sand-200/80 py-2.5 last:border-b-0",
-  card: "flex items-start gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/60 px-4 py-3",
+  list: "flex items-center gap-3 border-b border-sand-200/80 py-2.5 last:border-b-0",
+  card: "flex items-center gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/60 px-4 py-3",
 } as const;
 
 const AVATAR_SHELL_CLASS = {
@@ -122,41 +122,27 @@ function MemberAvatar({
 function RegistrationRowHeader({
   displayName,
   userId,
-  outcome,
-  outcomeLabel,
   viewProfileAria,
   onMemberClick,
 }: {
   displayName: string;
   userId: string;
-  outcome: SessionRegistrationOutcomeStatus | null;
-  outcomeLabel: string | null;
   viewProfileAria: string;
   onMemberClick?: (userId: string) => void;
 }) {
-  return (
-    <div className="flex items-start justify-between gap-2">
-      {onMemberClick ? (
-        <button
-          type="button"
-          className={MEMBER_NAME_BUTTON_CLASS}
-          aria-label={viewProfileAria}
-          onClick={() => onMemberClick(userId)}
-        >
-          {displayName}
-        </button>
-      ) : (
-        <p className={MEMBER_NAME_TEXT_CLASS}>{displayName}</p>
-      )}
-      {outcome !== null && outcomeLabel !== null ? (
-        <span
-          className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${registrationOutcomeBadgeTone(outcome)}`}
-        >
-          {outcomeLabel}
-        </span>
-      ) : null}
-    </div>
-  );
+  if (onMemberClick) {
+    return (
+      <button
+        type="button"
+        className={MEMBER_NAME_BUTTON_CLASS}
+        aria-label={viewProfileAria}
+        onClick={() => onMemberClick(userId)}
+      >
+        {displayName}
+      </button>
+    );
+  }
+  return <p className={MEMBER_NAME_TEXT_CLASS}>{displayName}</p>;
 }
 
 export type AdminSessionRegistrationRowProps = {
@@ -199,8 +185,6 @@ export function AdminSessionRegistrationRow({
         <RegistrationRowHeader
           displayName={displayName}
           userId={row.user.id}
-          outcome={outcome}
-          outcomeLabel={outcome === null ? null : t(`status.${outcome}`)}
           viewProfileAria={t("viewMemberProfileAria", { name: displayName })}
           onMemberClick={onMemberClick}
         />
@@ -212,6 +196,13 @@ export function AdminSessionRegistrationRow({
           </p>
         ) : null}
       </div>
+      {outcome !== null ? (
+        <span
+          className={`shrink-0 ${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${registrationOutcomeBadgeTone(outcome)}`}
+        >
+          {t(`status.${outcome}`)}
+        </span>
+      ) : null}
       {canCancel && onCancel ? (
         <AdminRowIconButton
           ariaLabel={t("cancelButton")}

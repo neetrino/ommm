@@ -29,15 +29,17 @@ export function AdminAnalyticsBarList({
     : "h-full rounded-full bg-sand-500";
 
   return (
-    <ul className="space-y-3" aria-label={ariaLabel}>
+    <ul className="w-full min-w-0 space-y-3" aria-label={ariaLabel}>
       {items.map((item) => {
         const widthPct = max > 0 ? Math.round((item.value / max) * 100) : 0;
         const display = item.displayValue ?? `${item.value}${valueSuffix}`;
         return (
           <li key={item.key}>
-            <div className="mb-1 flex items-center justify-between gap-3 text-xs">
-              <span className="font-medium text-sage-800">{item.label}</span>
-              <span className="tabular-nums text-sage-600">{display}</span>
+            <div className="mb-1 flex min-w-0 items-center justify-between gap-3 text-xs">
+              <span className="min-w-0 flex-1 truncate font-medium text-sage-800" title={item.label}>
+                {item.label}
+              </span>
+              <span className="shrink-0 tabular-nums text-sage-600">{display}</span>
             </div>
             <div className={`overflow-hidden rounded-full ${trackClass}`} role="presentation">
               <div className={`${barClass} transition-[width]`} style={{ width: `${widthPct}%` }} />

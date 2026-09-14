@@ -253,7 +253,6 @@ export function AdminBookingsManagement({
           locale={locale}
           busy={busyId === drawerRow.id}
           onClose={closeBookingDetails}
-          onOpenUser={setActiveUserId}
           onMove={detailHandlers.onMove}
           onChangeStatus={detailHandlers.onChangeStatus}
           onDelete={caps.canDelete ? detailHandlers.onDelete : undefined}

@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import {
   coachName,
   sessionClassSubtitle,
-  spotsLeft,
   splitSessionLevels,
 } from "@/components/admin/admin-schedule-session-display";
 import {
@@ -26,6 +25,7 @@ import {
   ADMIN_SCHEDULE_SESSIONS_LIST_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_CLASS_AREA_CLASS,
   ADMIN_SCHEDULE_SESSIONS_LIST_COACH_AREA_CLASS,
+  ADMIN_SCHEDULE_SESSIONS_LIST_COACH_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_DATETIME_AREA_CLASS,
   ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL,
@@ -39,12 +39,6 @@ import { ScheduleSessionClassHeading } from "@/components/shared/schedule/schedu
 import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedule/schedule-session-registrations-capacity";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
-
-const SELECT_CHECKBOX_PASSIVE_VISIBILITY_CLASS = [
-  "opacity-0 invisible",
-  "group-hover:opacity-100 group-hover:visible",
-  "group-focus-within:opacity-100 group-focus-within:visible",
-].join(" ");
 
 export type ScheduleSessionCardFieldsProps = {
   row: AdminScheduleSession;
@@ -157,9 +151,7 @@ function ScheduleSessionSelectCell({
 
   return (
     <div
-      className={`${ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL} ${
-        selected ? "visible opacity-100" : SELECT_CHECKBOX_PASSIVE_VISIBILITY_CLASS
-      }`}
+      className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL}
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
     >
@@ -202,7 +194,7 @@ function ScheduleSessionMetaCells({
       </div>
       {showCoach ? (
         <div
-          className={`${ADMIN_SCHEDULE_SESSIONS_LIST_CELL} ${ADMIN_SCHEDULE_SESSIONS_LIST_COACH_AREA_CLASS}`}
+          className={`${ADMIN_SCHEDULE_SESSIONS_LIST_COACH_CELL} ${ADMIN_SCHEDULE_SESSIONS_LIST_COACH_AREA_CLASS}`}
         >
           <p className="text-sm text-sage-800">{coachLabel}</p>
         </div>
@@ -221,7 +213,6 @@ function ScheduleSessionMetaCells({
           booked={booked}
           capacity={row.capacity}
           spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-          secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
           bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
           canAdd={canAddVisitor}
         />

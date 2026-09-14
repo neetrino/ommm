@@ -11,6 +11,8 @@ export const HOME_PAGE_SURFACE = {
   coachesGradientTo: "#ede9dd",
   eventsGradientFrom: "#598090",
   eventsGradientTo: "#ede9dd",
+  /** Cream-band body copy — gallery lede on `#fbf5d5`. */
+  sectionLead: "rgba(98, 98, 98, 0.84)",
   cardTitle: "#1d1c15",
   cardBody: "#4a4738",
   classCardRadiusPx: 40,

@@ -6,15 +6,12 @@ import { useRouter } from "@/i18n/navigation";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
-  ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import {
   managerAccessKind,
@@ -24,9 +21,10 @@ import {
   AdminManagerEditForm,
   type AdminManagerEditFormHandle,
 } from "@/components/admin/admin-manager-edit-form";
+import { AdminManagerRowActions } from "@/components/admin/admin-manager-row-actions";
 import type { AdminManagerDirectoryRow } from "@/components/admin/admin-managers-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmButton } from "@/components/ui/omm-button";
+import { DeleteActionButton } from "@/components/ui/delete-action-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
@@ -144,7 +142,7 @@ function AdminManagerDetailsDrawerInner({
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerPanelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
       useOverlayPortalRoot
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
@@ -155,29 +153,46 @@ function AdminManagerDetailsDrawerInner({
               {managerDirectoryDisplayName(manager)}
             </h2>
           </div>
-          <button
-            type="button"
-            className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
-            aria-label={tDrawer("close")}
-            onClick={requestClose}
-          >
-            ×
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <span
+              className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide ${
+                accessKind === "blocked"
+                  ? "bg-peach-100 text-sand-700"
+                  : accessKind === "invited"
+                    ? "bg-sand-100 text-sand-700"
+                    : "bg-mint-100 text-sage-800"
+              }`}
+            >
+              {accessLabel}
+            </span>
+            <div className="md:hidden">
+              <AdminManagerRowActions
+                manager={manager}
+                onChanged={() => undefined}
+                onPatched={(patch) => {
+                  onUpdated?.(manager.id, { ...manager, ...patch });
+                }}
+              />
+            </div>
+            {manager.isSelf ? null : (
+              <DeleteActionButton
+                ariaLabel={t("deleteManager")}
+                disabled={actionBusy}
+                onClick={() => setPendingDelete(true)}
+              />
+            )}
+            <button
+              type="button"
+              className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
+              aria-label={tDrawer("close")}
+              onClick={requestClose}
+            >
+              ×
+            </button>
+          </div>
         </div>
       </header>
       <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
-        <dl className={`${ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS} mb-5 grid gap-3 sm:grid-cols-2`}>
-          <div>
-            <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{tDrawer("access")}</dt>
-            <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{accessLabel}</dd>
-          </div>
-          <div>
-            <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{tDrawer("joined")}</dt>
-            <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>
-              {formatDateForUi(manager.createdAt)}
-            </dd>
-          </div>
-        </dl>
         <AdminManagerEditForm
           manager={manager}
           formRef={editFormRef}
@@ -185,32 +200,23 @@ function AdminManagerDetailsDrawerInner({
           onBusyChange={setBusy}
           onDirtyChange={setDirty}
         />
-        <div className="mt-6 flex flex-wrap gap-3">
-          {manager.invitePending ? (
-            <OmmButton
+        <p className="mt-4 text-right text-sm text-sage-600">
+          {tDrawer("joined")}: {formatDateForUi(manager.createdAt)}
+        </p>
+        {manager.invitePending ? (
+          <div className="mt-4 flex justify-end">
+            <button
               type="button"
-              variant="secondary"
-              size="sm"
+              className="inline-flex cursor-pointer items-center justify-center rounded-full border border-amber-300/90 bg-amber-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-amber-950 shadow-sm transition-colors hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45"
               disabled={actionBusy}
               onClick={() => {
                 void resendInvite();
               }}
             >
               {t("resendInvite")}
-            </OmmButton>
-          ) : null}
-          {manager.isSelf ? null : (
-            <OmmButton
-              type="button"
-              variant="danger"
-              size="sm"
-              disabled={actionBusy}
-              onClick={() => setPendingDelete(true)}
-            >
-              {t("deleteManager")}
-            </OmmButton>
-          )}
-        </div>
+            </button>
+          </div>
+        ) : null}
       </div>
       <AdminDetailSheetFormFooter
         saveLabel={t("saveButton")}

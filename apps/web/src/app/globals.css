@@ -1175,6 +1175,26 @@ input[type="number"]::-webkit-outer-spin-button {
     background-color: #7cb868;
   }
 
+  .ommm-toggle-switch-status .ommm-toggle-switch-track {
+    @apply h-6 w-10;
+  }
+
+  .ommm-toggle-switch-status .ommm-toggle-switch-knob {
+    @apply top-0.5 left-0.5 h-5 w-5 shadow-none;
+  }
+
+  .ommm-toggle-switch-status.ommm-toggle-switch-on .ommm-toggle-switch-knob {
+    transform: translateX(1rem);
+  }
+
+  .ommm-toggle-switch-session.ommm-toggle-switch-off .ommm-toggle-switch-track {
+    @apply bg-red-400;
+  }
+
+  .ommm-toggle-switch-session.ommm-toggle-switch-on .ommm-toggle-switch-track {
+    background-color: #7cb868;
+  }
+
   .ommm-admin-row-icon-button-danger {
     @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
   }

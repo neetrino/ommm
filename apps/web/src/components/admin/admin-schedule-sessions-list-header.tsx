@@ -167,14 +167,14 @@ export function AdminScheduleSessionsListHeader({
         <AdminScheduleHeaderLabel
           column="coach"
           label={t("colCoach")}
-          className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}
+          className={`${ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER} justify-center`}
         />
       ) : null}
       <span aria-hidden="true" />
       <AdminScheduleHeaderLabel
         column="capacity"
         label={t("colCapacity")}
-        className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}
+        className={`${ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER} justify-center`}
       />
       <AdminScheduleHeaderLabel
         column="labels"

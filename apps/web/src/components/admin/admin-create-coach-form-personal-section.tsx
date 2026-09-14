@@ -49,11 +49,10 @@ export function AdminCreateCoachFormPersonalSection({
 }: AdminCreateCoachFormPersonalSectionProps) {
   return (
     <section className="relative z-20 rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-4">
         <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
           Personal Information
         </h3>
-        <p className="text-xs text-sage-500">Core account and identity details</p>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <label className="flex flex-col gap-1">

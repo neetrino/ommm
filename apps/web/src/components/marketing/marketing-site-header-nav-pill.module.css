@@ -34,7 +34,7 @@
 }
 
 @media (max-width: 743px) {
-  /* Schedule / Packages / Contact — match page title (`--coaches-page-heading-color` / #97907c). */
+  /* Coaches / Schedule / Packages / Contact — match page title (`--coaches-page-heading-color` / #97907c). */
   :global(.marketing-layout-shell:has([data-marketing-practices-inner]))
     .headerShell:not([data-elevated="true"]) {
     --ommm-marketing-header-ink: #97907c;

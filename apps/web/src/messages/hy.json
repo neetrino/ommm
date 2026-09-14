@@ -388,7 +388,7 @@
       "footerContactTitle": "Կապ",
       "footerPhone": "+374 (60) - 500 - 400",
       "footerEmail": "info@ommm.am",
-      "footerAddress": "Պուշկինի փողոց 25, Երևան\nSoho Business Centre, 4th\u00a0floor",
+      "footerAddress": "Պուշկինի փողոց 25, Երևան\nSoho Business Centre, 4th floor",
       "footerSocialTitle": "Սոցիալական ցանցեր",
       "footerSocialAria": "{network} էջ",
       "footerInstagramAria": "Instagram @ommm.space",
@@ -1508,7 +1508,7 @@
       "hours": "Ժամեր",
       "fallbackPhone": "+37460500400",
       "fallbackEmail": "info@ommm.am",
-      "fallbackAddress": "Պուշկինի փողոց 25, Երևան\nSoho Business Centre, 4th\u00a0floor",
+      "fallbackAddress": "Պուշկինի փողոց 25, Երևան\nSoho Business Centre, 4th floor",
       "fallbackHours": "Ամեն օր / 8:00 – 21:00",
       "mapHeading": "Քարտեզ",
       "instagram": "Instagram",
@@ -1908,6 +1908,7 @@
         "total": "Այսօր նախատեսված է {count} դաս",
         "empty": "Այսօր առաջիկա դասեր չկան։",
         "timeLine": "{dateTime} • Մարզիչ՝ {coachName}",
+        "coachLine": "Մարզիչ · {coachName}",
         "capacity": "{booked}/{capacity} ամրագրված"
       },
       "todayBookings": {
@@ -3248,7 +3249,7 @@
       },
       "registrationsModal": {
         "title": "Գրանցված մասնակիցներ",
-        "subtitle": "{count}/{capacity} տեղ է լրացված",
+        "subtitle": "{count}/{capacity}",
         "empty": "Այս դասի համար դեռ գրանցումներ չկան։",
         "loading": "Գրանցումները բեռնվում են…",
         "error": "Չհաջողվեց բեռնել գրանցումները։",
@@ -3320,6 +3321,7 @@
       "colPriceOrSessions": "Գին / Սեսիաներ",
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",
+      "rowActionsAria": "Դասի գործողություններ",
       "editButton": "Խմբագրել",
       "cancelAction": "Չեղարկել",
       "activateAction": "Ակտիվացնել",
@@ -3983,12 +3985,17 @@
       },
       "drawer": {
         "title": "Օգտատիրոջ տվյալներ",
+        "lead": "Այս անդամի կոնտակտները և վերջին ամրագրումները։",
         "close": "Փակել",
         "loading": "Բեռնվում են օգտատիրոջ տվյալները...",
         "error": "Չհաջողվեց բեռնել օգտատիրոջ տվյալները։",
         "empty": "Օգտատիրոջ տվյալները անհասանելի են։",
         "packages": "Աբոնեմենտներ",
-        "bookings": "Վերջին ամրագրումներ"
+        "bookings": "Վերջին ամրագրումներ",
+        "noBookings": "Վերջին ամրագրումներ չկան։",
+        "phone": "Հեռախոս",
+        "email": "Էլ. փոստ",
+        "coachLine": "Մարզիչ · {coachName}"
       }
     },
     "reports": {

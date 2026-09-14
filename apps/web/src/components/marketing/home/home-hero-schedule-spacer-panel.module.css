@@ -55,7 +55,7 @@
   margin: 0;
   font-size: var(--home-spacer-title-size, var(--home-schedule-title-size));
   line-height: var(--home-spacer-title-line-height, var(--home-schedule-title-line-height));
-  color: var(--home-schedule-heading-color, #695f00);
+  color: var(--home-schedule-heading-color, #97907c);
 }
 
 .presalePanel {

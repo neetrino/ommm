@@ -55,6 +55,7 @@ type ExpandArrowButtonProps = {
   label: string;
   onPress: () => void;
   variant?: "bar" | "header";
+  children?: ReactNode;
 };
 
 function ExpandArrowButton({
@@ -63,6 +64,7 @@ function ExpandArrowButton({
   label,
   onPress,
   variant = "header",
+  children,
 }: ExpandArrowButtonProps) {
   return (
     <button
@@ -72,6 +74,7 @@ function ExpandArrowButton({
       aria-label={label}
       onClick={onPress}
     >
+      {children}
       <ExpandArrow direction={direction} />
     </button>
   );
@@ -105,7 +108,6 @@ function buildCardStyle(): CSSProperties {
     "--coaches-page-card-expand-glass-fill-expanded": card.expandPanelGlassFillExpanded,
     "--coaches-page-card-expand-glass-border": card.expandPanelGlassBorder,
     "--coaches-page-card-expand-bio-color": card.expandBioColor,
-    "--coaches-page-card-name-top": cardInsetPercent(card.nameInsetTopPx, card.designHeightPx),
     "--coaches-page-card-name-left": cardInsetPercent(card.nameInsetLeftPx, card.designWidthPx),
     "--coaches-page-card-photo-top": cardInsetPercent(card.photoInsetTopPx, card.designHeightPx),
     "--coaches-page-card-photo-left": cardInsetPercent(card.photoInsetLeftPx, card.designWidthPx),
@@ -205,18 +207,12 @@ export function CoachesPageCoachCard({
                     alt=""
                     fill
                     sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
-                    className="object-cover"
-                    style={{ objectPosition: "42% 18%" }}
+                    className={styles.photo}
                     {...aboveFoldImageProps()}
                   />
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className={styles.header}>
-            <p className={styles.name}>{displayName}</p>
-            <p className={styles.role}>{roleLine}</p>
           </div>
 
           <div
@@ -230,11 +226,13 @@ export function CoachesPageCoachCard({
               {expanded ? (
                 <>
                   <div className={styles.expandHeader}>
-                    {experienceText ? (
-                      <p className={styles.experience}>{experienceText}</p>
-                    ) : (
-                      <span aria-hidden />
-                    )}
+                    <div className={styles.expandTitleBlock}>
+                      <p className={styles.name}>{displayName}</p>
+                      <p className={styles.role}>{roleLine}</p>
+                      {experienceText ? (
+                        <p className={styles.experience}>{experienceText}</p>
+                      ) : null}
+                    </div>
                     <ExpandArrowButton
                       direction="down"
                       expanded={expanded}
@@ -251,7 +249,12 @@ export function CoachesPageCoachCard({
                   label={toggleLabel}
                   onPress={onToggleExpand}
                   variant="bar"
-                />
+                >
+                  <span className={styles.barIdentity}>
+                    <span className={styles.barName}>{displayName}</span>
+                    <span className={styles.barRole}>{roleLine}</span>
+                  </span>
+                </ExpandArrowButton>
               )}
             </ExpandPanelBody>
           </div>

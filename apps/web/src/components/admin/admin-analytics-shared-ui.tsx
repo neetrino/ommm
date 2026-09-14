@@ -12,8 +12,8 @@ export function AnalyticsMetricTable({
   labels: { metric: string; value: string };
 }) {
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={adminChrome.table}>
+    <div className="w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain">
+      <table className="w-full border-collapse text-left text-sm">
         <thead className={adminChrome.thead}>
           <tr>
             <th className={adminChrome.th} scope="col">
@@ -48,9 +48,12 @@ export function AnalyticsRankTable({
   rows: AnalyticsRankRow[];
   labels: { rank: string; name: string; count: string; secondary?: string };
 }) {
+  const columnCount = labels.secondary ? 4 : 3;
+  const tableMinWidthClass = columnCount >= 4 ? "min-w-[40rem]" : "min-w-[28rem]";
+
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={adminChrome.table}>
+    <div className="w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+      <table className={`w-full ${tableMinWidthClass} border-collapse text-left text-sm`}>
         <thead className={adminChrome.thead}>
           <tr>
             <th className={adminChrome.th} scope="col">
@@ -59,11 +62,11 @@ export function AnalyticsRankTable({
             <th className={adminChrome.th} scope="col">
               {labels.name}
             </th>
-            <th className={adminChrome.th} scope="col">
+            <th className={`${adminChrome.th} whitespace-nowrap`} scope="col">
               {labels.count}
             </th>
             {labels.secondary ? (
-              <th className={adminChrome.th} scope="col">
+              <th className={`${adminChrome.th} whitespace-nowrap`} scope="col">
                 {labels.secondary}
               </th>
             ) : null}
@@ -74,9 +77,13 @@ export function AnalyticsRankTable({
             <tr key={row.key} className={adminChrome.tr}>
               <td className={adminChrome.tdMuted}>{index + 1}</td>
               <td className={adminChrome.tdStrong}>{row.label}</td>
-              <td className={adminChrome.td}>{row.displayValue ?? row.value}</td>
+              <td className={`${adminChrome.td} whitespace-nowrap tabular-nums`}>
+                {row.displayValue ?? row.value}
+              </td>
               {labels.secondary ? (
-                <td className={adminChrome.td}>{row.secondaryValue ?? ""}</td>
+                <td className={`${adminChrome.td} whitespace-nowrap tabular-nums`}>
+                  {row.secondaryValue ?? ""}
+                </td>
               ) : null}
             </tr>
           ))}

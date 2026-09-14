@@ -59,12 +59,18 @@ export function AdminAnalyticsRevenuePanel({ data }: AdminAnalyticsRevenuePanelP
       <AdminAnalyticsRevenueRankings data={data} />
       <AdminAnalyticsPanelSection index={9}>
         <AdminAnalyticsChartPanel title={t("sections.giftCredits.title")} hint={t("sections.giftCredits.hint")}>
-          <AdminAnalyticsKpiStrip items={buildGiftKpis(gift, data.locale, t)} />
+          <AdminAnalyticsKpiStrip
+            items={buildGiftKpis(gift, data.locale, t)}
+            mobileColumns={1}
+          />
         </AdminAnalyticsChartPanel>
       </AdminAnalyticsPanelSection>
       <AdminAnalyticsPanelSection index={10}>
         <AdminAnalyticsChartPanel title={t("sections.influencer.title")} hint={t("sections.influencer.hint")}>
-          <AdminAnalyticsKpiStrip items={buildInfluencerKpis(influencer, data.locale, t)} />
+          <AdminAnalyticsKpiStrip
+            items={buildInfluencerKpis(influencer, data.locale, t)}
+            mobileColumns={1}
+          />
         </AdminAnalyticsChartPanel>
       </AdminAnalyticsPanelSection>
     </div>

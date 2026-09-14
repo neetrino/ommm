@@ -5,26 +5,33 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { CoachAnalyticsPeriod } from "@/components/coach/coach-analytics-types";
+import {
+  oliveSegmentedFillSegmentClassName,
+  oliveSegmentedFillTrackClass,
+  oliveSegmentedSegmentClassName,
+  oliveSegmentedThumbClass,
+  oliveSegmentedTrackClass,
+} from "@/components/ui/olive-segmented-switcher";
 
 type CoachAnalyticsPeriodSelectorProps = {
   value: CoachAnalyticsPeriod;
+  /** Full-width equal columns (mobile analytics). */
+  fullWidth?: boolean;
 };
 
-const SEGMENT_BASE =
-  "inline-flex cursor-pointer items-center rounded-full px-3 py-2 text-sm font-medium transition-[background-color,box-shadow,color,transform] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+const PERIODS = ["month", "year"] as const satisfies readonly CoachAnalyticsPeriod[];
+const PERIOD_COLUMN_COUNT = 2;
 
-function segmentClassName(active: boolean): string {
-  return active
-    ? `${SEGMENT_BASE} bg-white text-sage-900 shadow-sm hover:bg-white hover:shadow-md`
-    : `${SEGMENT_BASE} text-sage-600 hover:bg-white/60 hover:text-sage-900 hover:shadow-sm`;
-}
-
-export function CoachAnalyticsPeriodSelector({ value }: CoachAnalyticsPeriodSelectorProps) {
+export function CoachAnalyticsPeriodSelector({
+  value,
+  fullWidth = false,
+}: CoachAnalyticsPeriodSelectorProps) {
   const t = useTranslations("coachPages.analytics");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
+  const activeIndex = Math.max(0, PERIODS.indexOf(value));
 
   const setPeriod = (period: CoachAnalyticsPeriod) => {
     const next = new URLSearchParams(searchParams.toString());
@@ -39,28 +46,40 @@ export function CoachAnalyticsPeriodSelector({ value }: CoachAnalyticsPeriodSele
     });
   };
 
+  const labels: Record<CoachAnalyticsPeriod, string> = {
+    month: t("periodMonth"),
+    year: t("periodYear"),
+  };
+
+  const trackClass = fullWidth
+    ? oliveSegmentedFillTrackClass(PERIOD_COLUMN_COUNT, "w-full")
+    : oliveSegmentedTrackClass(PERIOD_COLUMN_COUNT);
+
   return (
-    <div
-      role="group"
-      aria-label={t("periodAria")}
-      className="inline-flex rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md"
-    >
-      <button
-        type="button"
-        aria-pressed={value === "month"}
-        className={segmentClassName(value === "month")}
-        onClick={() => setPeriod("month")}
-      >
-        {t("periodMonth")}
-      </button>
-      <button
-        type="button"
-        aria-pressed={value === "year"}
-        className={segmentClassName(value === "year")}
-        onClick={() => setPeriod("year")}
-      >
-        {t("periodYear")}
-      </button>
+    <div role="tablist" aria-label={t("periodAria")} className={trackClass}>
+      <span
+        aria-hidden
+        className={oliveSegmentedThumbClass(PERIOD_COLUMN_COUNT, activeIndex)}
+      />
+      {PERIODS.map((period) => {
+        const active = value === period;
+        return (
+          <button
+            key={period}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            className={
+              fullWidth
+                ? oliveSegmentedFillSegmentClassName(active)
+                : oliveSegmentedSegmentClassName(active, PERIOD_COLUMN_COUNT)
+            }
+            onClick={() => setPeriod(period)}
+          >
+            {labels[period]}
+          </button>
+        );
+      })}
     </div>
   );
 }

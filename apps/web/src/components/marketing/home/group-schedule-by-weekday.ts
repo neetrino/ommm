@@ -58,7 +58,6 @@ export function groupScheduleByWeekday(
       const itemCalendarDate = resolveHomeWeeklyScheduleItemCalendarDate(
         item,
         reference,
-        tab.calendarDate,
       );
       if (itemCalendarDate === tab.calendarDate) {
         buckets[tab.day].push(item);

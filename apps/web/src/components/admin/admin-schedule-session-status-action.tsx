@@ -3,17 +3,14 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
+import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type PendingConfirm = "cancel" | "activate";
 
-const SESSION_ACTIVATE_BUTTON_CLASS =
-  "ommm-btn-lifecycle-action--success border-emerald-300! bg-emerald-100! text-emerald-800!";
-
-const SESSION_CANCEL_BUTTON_CLASS =
-  "ommm-btn-lifecycle-action--danger border-red-300! bg-red-100! text-red-800!";
+const TOGGLE_BUTTON_CLASS =
+  "inline-flex shrink-0 items-center justify-center rounded-full p-0 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50";
 
 type AdminScheduleSessionStatusActionProps = {
   sessionId: string;
@@ -38,6 +35,7 @@ export function AdminScheduleSessionStatusAction({
   const isCancelled = status === "CANCELLED";
   const isFinished = status === "FINISHED";
   const isDisabled = disabled || busy || isFinished;
+  const toggleLabel = isCancelled ? t("activateAction") : t("cancelAction");
 
   useEffect(() => {
     onBusyChange?.(busy);
@@ -101,20 +99,25 @@ export function AdminScheduleSessionStatusAction({
           confirmClassName: "ommm-btn-lifecycle-action--warm",
         };
 
+  if (isFinished) {
+    return null;
+  }
+
   return (
     <>
-      {isFinished ? null : (
-      <OmmButton
+      <button
         type="button"
-        size="sm"
-        variant="secondary"
-        className={isCancelled ? SESSION_ACTIVATE_BUTTON_CLASS : SESSION_CANCEL_BUTTON_CLASS}
+        className={TOGGLE_BUTTON_CLASS}
+        aria-label={toggleLabel}
+        title={toggleLabel}
         disabled={isDisabled}
         onClick={openConfirm}
       >
-        {busy ? t("savingButton") : isCancelled ? t("activateAction") : t("cancelAction")}
-      </OmmButton>
-      )}
+        <AnimatedToggleSwitch
+          checked={!isCancelled}
+          className="ommm-toggle-switch-status ommm-toggle-switch-session"
+        />
+      </button>
 
       <OmmConfirmDialog
         isOpen={pendingConfirm !== null}

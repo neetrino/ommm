@@ -79,13 +79,11 @@ export function resolveHomeWeeklyScheduleFocusDate(
 
 /**
  * Studio calendar date for a weekday tab in the rolling window starting at studio today.
- * `focusDateIso` is accepted for call-site compatibility and ignored — the window is
- * always anchored to `reference` (today), not a distant focus week.
+ * The window is always anchored to `reference` (today), not a distant focus week.
  */
 export function getHomeWeeklyScheduleTabCalendarDate(
   day: MarketingScheduleDayOfWeek,
   reference: Date = new Date(),
-  _focusDateIso?: string,
 ): string {
   const tab = listHomeWeeklyScheduleRollingTabs(reference).find(
     (entry) => entry.day === day,
@@ -100,10 +98,9 @@ export function getHomeWeeklyScheduleTabCalendarDate(
 export function resolveHomeWeeklyScheduleItemCalendarDate(
   item: MarketingScheduleItem,
   reference: Date = new Date(),
-  focusDateIso: string = utcToStudioCalendarDate(reference),
 ): string | null {
   if (item.sessionDate !== null) {
     return resolveStudioCalendarDateFromSessionDate(item.sessionDate);
   }
-  return getHomeWeeklyScheduleTabCalendarDate(item.dayOfWeek, reference, focusDateIso);
+  return getHomeWeeklyScheduleTabCalendarDate(item.dayOfWeek, reference);
 }

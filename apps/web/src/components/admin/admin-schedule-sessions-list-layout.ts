@@ -60,6 +60,8 @@ export const ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL =
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL = adminLayout.spacerCellClass;
 
+export const ADMIN_SCHEDULE_SESSIONS_LIST_COACH_CELL = adminLayout.coachCellClass;
+
 export const ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER =
   adminLayout.emphasizedHeaderClass;
 

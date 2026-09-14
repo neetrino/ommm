@@ -106,7 +106,7 @@ export function AdminManagerEditForm({
   );
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4">
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{tCreate("nameLabel")}</span>
         <input
@@ -129,7 +129,7 @@ export function AdminManagerEditForm({
           }
         />
       </label>
-      <label className="flex flex-col gap-1 lg:col-span-2">
+      <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{tCreate("emailLabel")}</span>
         <input
           className="ommm-input"
@@ -140,7 +140,7 @@ export function AdminManagerEditForm({
           onChange={(event) => setDraft((current) => ({ ...current, email: event.target.value }))}
         />
       </label>
-      <label className="flex flex-col gap-1 lg:col-span-2">
+      <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{tCreate("phoneLabel")}</span>
         <PhoneInputField
           className="ommm-input"
@@ -149,11 +149,7 @@ export function AdminManagerEditForm({
           disabled={busy}
         />
       </label>
-      {error !== null ? (
-        <div className="lg:col-span-2">
-          <FormErrorBanner message={error} />
-        </div>
-      ) : null}
+      {error !== null ? <FormErrorBanner message={error} /> : null}
     </div>
   );
 }

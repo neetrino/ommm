@@ -27,7 +27,7 @@ import {
 } from './reports.helpers';
 
 const UPCOMING_ITEMS_LIMIT = 6;
-const RECENT_USERS_LIMIT = 5;
+const RECENT_USERS_LIMIT = 6;
 const WAITLIST_ALERT_THRESHOLD = 3;
 
 export type DashboardOptions = {

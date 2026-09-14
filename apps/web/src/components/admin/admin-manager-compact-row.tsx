@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import {
   managerAccessKind,
   managerDirectoryDisplayName,
@@ -96,7 +95,16 @@ function ManagerCardFields({
             {managerDirectoryInitials(manager)}
           </span>
           <div className="min-w-0 flex-1">
-            <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName}</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="min-w-0 flex-1 text-lg font-semibold leading-snug text-sage-900">
+                {displayName}
+              </p>
+              <span
+                className={`${ADMIN_MANAGERS_ACCESS_BADGE_CLASS} ${accessTone} mr-2.5 shrink-0 md:hidden`}
+              >
+                {accessLabel}
+              </span>
+            </div>
             {manager.phone?.trim() ? (
               <p className={ADMIN_MANAGERS_LIST_SUBTITLE_CLASS}>
                 {displayPhoneOrFallback(manager.phone)}
@@ -108,7 +116,9 @@ function ManagerCardFields({
       <div className={`${ADMIN_MANAGERS_LIST_CELL} ${ADMIN_MANAGERS_LIST_EMAIL_AREA_CLASS}`}>
         <p className="text-sm leading-snug text-sage-800">{manager.email}</p>
       </div>
-      <div className={`${ADMIN_MANAGERS_LIST_ACCESS_CELL} ${ADMIN_MANAGERS_LIST_ACCESS_AREA_CLASS}`}>
+      <div
+        className={`${ADMIN_MANAGERS_LIST_ACCESS_CELL} ${ADMIN_MANAGERS_LIST_ACCESS_AREA_CLASS} max-md:hidden`}
+      >
         <span className={`${ADMIN_MANAGERS_ACCESS_BADGE_CLASS} ${accessTone}`}>{accessLabel}</span>
       </div>
       <div className={`${ADMIN_MANAGERS_LIST_JOINED_CELL} ${ADMIN_MANAGERS_LIST_JOINED_AREA_CLASS}`}>

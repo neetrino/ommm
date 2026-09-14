@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 import {
   coachName,
   sessionClassSubtitle,
-  spotsLeft,
 } from "@/components/admin/admin-schedule-session-display";
 import { ScheduleSessionCapacityIndicator } from "@/components/shared/schedule/schedule-session-capacity-indicator";
 import { ScheduleSessionDateTimeCell } from "@/components/shared/schedule/schedule-session-datetime-cell";
@@ -67,7 +66,6 @@ export async function StaffScheduleSessionRow({
               booked={booked}
               capacity={row.capacity}
               spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-              secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
             />
           ) : (
             <span className="font-semibold tabular-nums text-sage-900">

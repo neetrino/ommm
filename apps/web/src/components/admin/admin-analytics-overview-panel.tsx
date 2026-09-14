@@ -86,6 +86,7 @@ export function AdminAnalyticsOverviewPanel({
             value: formatAmdFromCents(studio.kpis.revenueCents, locale),
             deltaPercent: studio.comparison.revenueCents.trendPercent,
             hint: t("comparison.previousPeriod"),
+            fullWidthOnMobile: true,
           },
         ]
       : []),
@@ -95,6 +96,7 @@ export function AdminAnalyticsOverviewPanel({
       value: String(studio.kpis.bookingsTotal),
       deltaPercent: studio.comparison.bookings.trendPercent,
       hint: t("comparison.previousPeriod"),
+      fullWidthOnMobile: !includeFinance,
     },
     {
       key: "attendance",

@@ -6,7 +6,6 @@ import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedu
 import {
   coachName,
   sessionClassSubtitle,
-  spotsLeft,
 } from "@/components/admin/admin-schedule-session-display";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
 import { StaffScheduleHeaderCell } from "@/components/shared/schedule/staff-schedule-column-chrome";
@@ -144,9 +143,6 @@ function StaffScheduleSessionRowClient({
               isStaffReadOnly
                 ? `${booked}/${row.capacity}`
                 : t("fields.spotsBooked", { booked, capacity: row.capacity })
-            }
-            secondaryLabel={
-              isStaffReadOnly ? "" : t("fields.spotsLeft", { count: spotsLeft(row) })
             }
             bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
             layout={isStaffReadOnly ? "ratio" : "indicator"}

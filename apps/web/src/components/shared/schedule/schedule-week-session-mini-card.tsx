@@ -95,7 +95,6 @@ function ScheduleWeekCardSpots({
         booked={booked}
         capacity={capacity}
         spotsLabel={spotsLabel}
-        secondaryLabel=""
         bookedCountAriaLabel={tStaff("registrationsModal.viewBookedAria", {
           count: booked,
         })}

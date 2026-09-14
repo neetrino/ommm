@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { AdminSessionAddRegistrationSearch } from "@/components/admin/admin-session-add-registration-search";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
@@ -10,6 +11,13 @@ import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { userDisplayName } from "@/lib/user-display-name";
 
+type SessionHeading = {
+  title: string;
+  titleId?: string;
+  titleClassName: string;
+  dateLabel: string;
+};
+
 type AdminSessionAddRegistrationProps = {
   sessionId: string;
   startsAt: string;
@@ -17,6 +25,8 @@ type AdminSessionAddRegistrationProps = {
   capacity: number;
   registeredUserIds: ReadonlySet<string>;
   onAdded: () => void;
+  /** When set, + ADD sits opposite the session title; date stays under the title. */
+  sessionHeading?: SessionHeading;
 };
 
 export function AdminSessionAddRegistration({
@@ -26,6 +36,7 @@ export function AdminSessionAddRegistration({
   capacity,
   registeredUserIds,
   onAdded,
+  sessionHeading,
 }: AdminSessionAddRegistrationProps) {
   const t = useTranslations("adminPages.classes.registrationsModal");
   const tClients = useTranslations("adminPages.clients");
@@ -43,6 +54,15 @@ export function AdminSessionAddRegistration({
   });
 
   if (!add.canAdd) {
+    if (sessionHeading !== undefined) {
+      return (
+        <SessionHeadingBlock heading={sessionHeading}>
+          {add.isFull ? (
+            <p className="text-sm text-sage-600">{t("addSessionFull")}</p>
+          ) : null}
+        </SessionHeadingBlock>
+      );
+    }
     return add.isFull ? <p className="text-sm text-sage-600">{t("addSessionFull")}</p> : null;
   }
 
@@ -50,23 +70,52 @@ export function AdminSessionAddRegistration({
     <SessionAddRegistrationPanel
       add={add}
       registeredUserIds={registeredUserIds}
+      sessionHeading={sessionHeading}
       t={t}
       tClasses={tClasses}
     />
   );
 }
 
+function SessionHeadingBlock({
+  heading,
+  children,
+}: {
+  heading: SessionHeading;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0 space-y-1">
+        <p id={heading.titleId} className={heading.titleClassName}>
+          {heading.title}
+        </p>
+        <p className="text-xs text-sage-500">{heading.dateLabel}</p>
+      </div>
+      {children !== undefined && children !== null ? (
+        <div className="shrink-0">{children}</div>
+      ) : null}
+    </div>
+  );
+}
+
 function SessionAddRegistrationPanel({
   add,
   registeredUserIds,
+  sessionHeading,
   t,
   tClasses,
 }: {
   add: ReturnType<typeof useAdminSessionAddRegistration>;
   registeredUserIds: ReadonlySet<string>;
+  sessionHeading?: SessionHeading;
   t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>;
   tClasses: ReturnType<typeof useTranslations<"adminPages.classes">>;
 }) {
+  const controls = (
+    <SessionAddOpenControls add={add} registeredUserIds={registeredUserIds} t={t} />
+  );
+
   return (
     <>
       {add.toast ? (
@@ -76,7 +125,18 @@ function SessionAddRegistrationPanel({
           onDismiss={add.dismissToast}
         />
       ) : null}
-      <SessionAddOpenControls add={add} registeredUserIds={registeredUserIds} t={t} />
+      {sessionHeading !== undefined ? (
+        add.open ? (
+          <div className="space-y-3">
+            <SessionHeadingBlock heading={sessionHeading} />
+            {controls}
+          </div>
+        ) : (
+          <SessionHeadingBlock heading={sessionHeading}>{controls}</SessionHeadingBlock>
+        )
+      ) : (
+        controls
+      )}
       <AddStartedVisitConfirm
         client={add.pendingClient}
         pending={add.busyId !== null}

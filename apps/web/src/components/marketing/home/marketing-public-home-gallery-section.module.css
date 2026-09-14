@@ -64,7 +64,7 @@
   gap: var(--home-gallery-title-line-gap, 1.5rem);
   font-size: var(--home-gallery-mobile-title-size);
   line-height: 1;
-  color: var(--home-gallery-mobile-heading-color, #fbf5d5);
+  color: var(--home-gallery-mobile-heading-color, #97907c);
   text-align: center;
 }
 
