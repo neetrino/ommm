@@ -155,7 +155,7 @@ function AdminManagerDetailsDrawerInner({
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide md:hidden ${
+              className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide ${
                 accessKind === "blocked"
                   ? "bg-peach-100 text-sand-700"
                   : accessKind === "invited"

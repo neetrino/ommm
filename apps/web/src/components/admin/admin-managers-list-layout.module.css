@@ -8,7 +8,7 @@
   }
 
   .rowWithActions {
-    padding-right: 5.5rem;
+    padding-right: 0;
   }
 
   .name {
@@ -20,9 +20,7 @@
   }
 
   .access {
-    position: absolute;
-    top: 1.25rem;
-    right: 1rem;
+    display: none;
   }
 
   .joined {

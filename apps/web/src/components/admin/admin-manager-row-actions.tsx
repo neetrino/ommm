@@ -103,7 +103,7 @@ export function AdminManagerRowActions({
             openConfirm();
           }}
         >
-          <AnimatedToggleSwitch checked={isActive} className="ommm-toggle-switch-board" />
+          <AnimatedToggleSwitch checked={isActive} className="ommm-toggle-switch-status" />
         </button>
       </div>
       {message ? (

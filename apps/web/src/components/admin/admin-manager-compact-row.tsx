@@ -96,19 +96,30 @@ function ManagerCardFields({
             {managerDirectoryInitials(manager)}
           </span>
           <div className="min-w-0 flex-1">
-            <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName}</p>
-            {manager.phone?.trim() ? (
-              <p className={ADMIN_MANAGERS_LIST_SUBTITLE_CLASS}>
-                {displayPhoneOrFallback(manager.phone)}
-              </p>
-            ) : null}
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName}</p>
+                {manager.phone?.trim() ? (
+                  <p className={ADMIN_MANAGERS_LIST_SUBTITLE_CLASS}>
+                    {displayPhoneOrFallback(manager.phone)}
+                  </p>
+                ) : null}
+              </div>
+              <span
+                className={`${ADMIN_MANAGERS_ACCESS_BADGE_CLASS} ${accessTone} shrink-0 md:hidden`}
+              >
+                {accessLabel}
+              </span>
+            </div>
           </div>
         </div>
       </div>
       <div className={`${ADMIN_MANAGERS_LIST_CELL} ${ADMIN_MANAGERS_LIST_EMAIL_AREA_CLASS}`}>
         <p className="text-sm leading-snug text-sage-800">{manager.email}</p>
       </div>
-      <div className={`${ADMIN_MANAGERS_LIST_ACCESS_CELL} ${ADMIN_MANAGERS_LIST_ACCESS_AREA_CLASS}`}>
+      <div
+        className={`${ADMIN_MANAGERS_LIST_ACCESS_CELL} ${ADMIN_MANAGERS_LIST_ACCESS_AREA_CLASS} max-md:hidden`}
+      >
         <span className={`${ADMIN_MANAGERS_ACCESS_BADGE_CLASS} ${accessTone}`}>{accessLabel}</span>
       </div>
       <div className={`${ADMIN_MANAGERS_LIST_JOINED_CELL} ${ADMIN_MANAGERS_LIST_JOINED_AREA_CLASS}`}>
