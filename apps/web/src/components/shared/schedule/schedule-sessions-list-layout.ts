@@ -89,7 +89,7 @@ export function getScheduleSessionsListLayout(
   const isStaffReadOnly = preset === "staffReadOnly";
   const isAdmin = preset === "admin";
   const selectCellClass =
-    "flex items-center max-md:absolute max-md:left-3 max-md:top-3 max-md:z-10 md:justify-center";
+    "flex items-center max-md:absolute max-md:left-3 max-md:top-5 max-md:z-10 max-md:h-[1.55rem] md:justify-center";
 
   return {
     tableClass: buildScheduleSessionsListTableClass(preset),

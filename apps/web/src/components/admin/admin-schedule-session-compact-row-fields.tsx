@@ -40,12 +40,6 @@ import { ScheduleSessionRegistrationsCapacity } from "@/components/shared/schedu
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
 
-const SELECT_CHECKBOX_PASSIVE_VISIBILITY_CLASS = [
-  "opacity-0 invisible",
-  "group-hover:opacity-100 group-hover:visible",
-  "group-focus-within:opacity-100 group-focus-within:visible",
-].join(" ");
-
 export type ScheduleSessionCardFieldsProps = {
   row: AdminScheduleSession;
   locale: string;
@@ -157,9 +151,7 @@ function ScheduleSessionSelectCell({
 
   return (
     <div
-      className={`${ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL} ${
-        selected ? "visible opacity-100" : SELECT_CHECKBOX_PASSIVE_VISIBILITY_CLASS
-      }`}
+      className={ADMIN_SCHEDULE_SESSIONS_LIST_SELECT_CELL}
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
     >

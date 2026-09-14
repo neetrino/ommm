@@ -22,11 +22,11 @@ import {
 import { AdminScheduleSessionSheetHeaderActions } from "@/components/admin/admin-schedule-session-sheet-header-actions";
 import type { SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import {
+  ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
-  ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
@@ -211,7 +211,7 @@ function AdminScheduleSessionDetailsSheetInner({
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      drawerPanelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
