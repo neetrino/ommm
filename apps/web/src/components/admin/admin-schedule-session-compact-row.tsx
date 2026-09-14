@@ -2,7 +2,11 @@
 
 import { ScheduleSessionCardFields } from "@/components/admin/admin-schedule-session-compact-row-fields";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
-import { ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS } from "@/components/admin/admin-schedule-sessions-list-layout";
+import { hasAdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session.helpers";
+import {
+  ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS,
+  ADMIN_SCHEDULE_SESSIONS_LIST_ROW_NO_ACTIONS_CLASS,
+} from "@/components/admin/admin-schedule-sessions-list-layout";
 import { SCHEDULE_PAST_LIST_ROW_CLASS } from "@/components/shared/schedule/schedule-week-view-tokens";
 import { isScheduleSessionOnPastDay } from "@/components/shared/schedule/schedule-week-view-utils";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
@@ -19,6 +23,8 @@ type AdminScheduleSessionCompactRowProps = {
   onCancel?: (row: AdminScheduleSession) => void;
   onActivate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
+  canAddVisitor?: boolean;
+  showCoach?: boolean;
 };
 
 export function AdminScheduleSessionCompactRow({
@@ -33,7 +39,19 @@ export function AdminScheduleSessionCompactRow({
   onCancel,
   onActivate,
   onDelete,
+  canAddVisitor = true,
+  showCoach = true,
 }: AdminScheduleSessionCompactRowProps) {
+  const showActions = hasAdminScheduleSessionRowActions({
+    onDuplicate,
+    onCancel,
+    onActivate,
+    onDelete,
+  });
+  const pastDayClass = isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
+    ? SCHEDULE_PAST_LIST_ROW_CLASS
+    : "";
+
   return (
     <article
       role="button"
@@ -47,10 +65,8 @@ export function AdminScheduleSessionCompactRow({
         }
       }}
       className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} ${
-        isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
-          ? SCHEDULE_PAST_LIST_ROW_CLASS
-          : ""
-      }`.trim()}
+        showActions ? "" : ADMIN_SCHEDULE_SESSIONS_LIST_ROW_NO_ACTIONS_CLASS
+      } ${pastDayClass}`.trim()}
     >
       <ScheduleSessionCardFields
         row={row}
@@ -63,6 +79,8 @@ export function AdminScheduleSessionCompactRow({
         onCancel={onCancel}
         onActivate={onActivate}
         onDelete={onDelete}
+        canAddVisitor={canAddVisitor}
+        showCoach={showCoach}
       />
     </article>
   );

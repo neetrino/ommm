@@ -13,6 +13,10 @@
     padding-right: 6.5rem;
   }
 
+  .rowNoActions.rowWithActions {
+    padding-right: 1rem;
+  }
+
   .classArea {
     grid-area: class;
   }
@@ -72,6 +76,38 @@
       minmax(9rem, 12rem)
       minmax(6.5rem, 1fr)
       auto;
+  }
+
+  .tableAdminNoActions {
+    grid-template-columns:
+      2.25rem
+      minmax(8rem, 14rem)
+      minmax(10rem, auto)
+      minmax(7rem, auto)
+      minmax(0, 1fr)
+      minmax(9rem, 12rem)
+      minmax(6.5rem, 1fr);
+  }
+
+  .tableAdminNoCoach {
+    grid-template-columns:
+      2.25rem
+      minmax(8rem, 14rem)
+      minmax(10rem, auto)
+      minmax(0, 1fr)
+      minmax(9rem, 12rem)
+      minmax(6.5rem, 1fr)
+      auto;
+  }
+
+  .tableAdminNoCoachNoActions {
+    grid-template-columns:
+      2.25rem
+      minmax(8rem, 14rem)
+      minmax(10rem, auto)
+      minmax(0, 1fr)
+      minmax(9rem, 12rem)
+      minmax(6.5rem, 1fr);
   }
 
   .tableStaffReadOnly {

@@ -9,18 +9,21 @@ import {
   coachScheduleIntegratedFilterValues,
   DEFAULT_COACH_SCHEDULE_FILTER_VALUES,
   extractCoachScheduleClassTypes,
-  hasActiveCoachScheduleFilters,
   matchesCoachScheduleFilters,
   type CoachScheduleFilterValues,
   type CoachScheduleStatusFilter,
 } from "@/components/coach/coach-schedule-filter-fields";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
+import { CoachScheduleViews } from "@/components/coach/coach-schedule-views";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
 import { useEffectiveScheduleView } from "@/hooks/use-effective-schedule-view";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
-import { parseSessionSortOrder, sortBySessionStartsAt } from "@/lib/list-sort";
+import {
+  parseSessionSortOrder,
+  sortBySessionStartsAt,
+  type SessionSortOrder,
+} from "@/lib/list-sort";
 import {
   readUserListOrderFromSearch,
   syncUserListOrderQuery,
@@ -111,8 +114,6 @@ export function CoachScheduleSection({
     [filters, sessions],
   );
 
-  const filtersActive = hasActiveCoachScheduleFilters(filters);
-
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
       case "from":
@@ -151,10 +152,12 @@ export function CoachScheduleSection({
     });
   }
 
-  const emptyTitle = filtersActive
-    ? t("filteredEmptyTitle")
-    : t("upcomingSessions.empty");
-  const emptyBody = filtersActive ? t("filteredEmptyDescription") : "";
+  function handleSortOrderChange(order: SessionSortOrder): void {
+    setFilters((current) => ({ ...current, order }));
+    replaceSearchParams((params) => {
+      syncUserListOrderQuery(params, order, "upcoming");
+    });
+  }
 
   return (
     <StaffListPageLayout
@@ -173,21 +176,12 @@ export function CoachScheduleSection({
       }
     >
       <ScheduleViewSwitcher value={view} onChange={setView} />
-      {sessions.length > 0 ? (
-        <p className="text-sm text-sage-600">
-          {t("sessionsCount", {
-            count: filtersActive ? filteredSessions.length : sessions.length,
-          })}
-        </p>
-      ) : null}
-
-      <StaffScheduleListWeekViews
+      <CoachScheduleViews
         locale={locale}
         view={effectiveView}
         rows={filteredSessions}
-        preset="staffReadOnly"
-        emptyTitle={emptyTitle}
-        emptyBody={emptyBody}
+        sortOrder={filters.order}
+        onSortOrderChange={handleSortOrderChange}
       />
     </StaffListPageLayout>
   );

@@ -124,6 +124,8 @@ type AdminScheduleSessionsListHeaderProps = {
   someSelected?: boolean;
   onToggleSelectAll?: (checked: boolean) => void;
   selectAllDisabled?: boolean;
+  showActions?: boolean;
+  showCoach?: boolean;
 };
 
 /** Desktop column headers for the admin schedule sessions list. */
@@ -135,6 +137,8 @@ export function AdminScheduleSessionsListHeader({
   someSelected = false,
   onToggleSelectAll,
   selectAllDisabled = false,
+  showActions = true,
+  showCoach = true,
 }: AdminScheduleSessionsListHeaderProps) {
   const t = useTranslations("adminPages.classes");
 
@@ -159,11 +163,13 @@ export function AdminScheduleSessionsListHeader({
         sortOrder={sortOrder}
         onSort={onDateTimeSort}
       />
-      <AdminScheduleHeaderLabel
-        column="coach"
-        label={t("colCoach")}
-        className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}
-      />
+      {showCoach ? (
+        <AdminScheduleHeaderLabel
+          column="coach"
+          label={t("colCoach")}
+          className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}
+        />
+      ) : null}
       <span aria-hidden="true" />
       <AdminScheduleHeaderLabel
         column="capacity"
@@ -175,11 +181,13 @@ export function AdminScheduleSessionsListHeader({
         label={t("colTags")}
         className={ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_HEADER_CELL}
       />
-      <AdminScheduleHeaderLabel
-        column="actions"
-        label={t("colActions")}
-        className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL} justify-end`}
-      />
+      {showActions ? (
+        <AdminScheduleHeaderLabel
+          column="actions"
+          label={t("colActions")}
+          className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL} justify-end`}
+        />
+      ) : null}
     </>
   );
 }

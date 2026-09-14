@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { ADMIN_SCHEDULE_STATUS_BADGE_CLASS } from "@/components/admin/admin-schedule-session-list-badges";
 import {
   isDashboardShellRole,
   sessionCancelledByDisplayName,
   sessionRegistrationOutcome,
   SESSION_REGISTRATION_CANCELLED_STATUS,
+  type SessionRegistrationOutcomeStatus,
   type SessionRegistrationRow,
 } from "@/components/admin/admin-session-registrations-types";
 import { BanGlyph } from "@/components/ui/admin-action-glyphs";
@@ -17,13 +19,14 @@ import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { userDisplayName } from "@/lib/user-display-name";
 
 const MEMBER_NAME_BUTTON_CLASS =
-  "truncate text-left text-sm font-medium text-sage-900 underline decoration-sand-300/80 decoration-dotted underline-offset-[4px] hover:text-sage-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2";
+  "min-w-0 truncate text-left text-sm font-medium text-sage-900 underline decoration-sand-300/80 decoration-dotted underline-offset-[4px] hover:text-sage-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2";
+const MEMBER_NAME_TEXT_CLASS = "min-w-0 truncate text-sm font-medium text-sage-900";
 const CANCEL_BUTTON_CLASS = "h-10 w-10 shrink-0";
 const CANCEL_ICON_CLASS = "h-4 w-4 shrink-0";
 
 const ROW_VARIANT_CLASS = {
-  list: "flex items-center gap-3 border-b border-sand-200/80 py-2.5 last:border-b-0",
-  card: "flex items-center gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/60 px-4 py-3",
+  list: "flex items-start gap-3 border-b border-sand-200/80 py-2.5 last:border-b-0",
+  card: "flex items-start gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/60 px-4 py-3",
 } as const;
 
 const AVATAR_SHELL_CLASS = {
@@ -57,6 +60,15 @@ function memberContactLine(user: SessionRegistrationRow["user"]): string {
     return formatPhoneDisplay(user.phone);
   }
   return user.email.trim();
+}
+
+function registrationOutcomeBadgeTone(
+  outcome: SessionRegistrationOutcomeStatus,
+): string {
+  if (outcome === "COMPLETED") {
+    return "bg-mint-100 text-sage-800";
+  }
+  return "bg-rose-100 text-rose-800";
 }
 
 function cancelledByCaption(
@@ -107,6 +119,46 @@ function MemberAvatar({
   );
 }
 
+function RegistrationRowHeader({
+  displayName,
+  userId,
+  outcome,
+  outcomeLabel,
+  viewProfileAria,
+  onMemberClick,
+}: {
+  displayName: string;
+  userId: string;
+  outcome: SessionRegistrationOutcomeStatus | null;
+  outcomeLabel: string | null;
+  viewProfileAria: string;
+  onMemberClick?: (userId: string) => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-2">
+      {onMemberClick ? (
+        <button
+          type="button"
+          className={MEMBER_NAME_BUTTON_CLASS}
+          aria-label={viewProfileAria}
+          onClick={() => onMemberClick(userId)}
+        >
+          {displayName}
+        </button>
+      ) : (
+        <p className={MEMBER_NAME_TEXT_CLASS}>{displayName}</p>
+      )}
+      {outcome !== null && outcomeLabel !== null ? (
+        <span
+          className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${registrationOutcomeBadgeTone(outcome)}`}
+        >
+          {outcomeLabel}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 export type AdminSessionRegistrationRowProps = {
   row: SessionRegistrationRow;
   locale: string;
@@ -144,25 +196,16 @@ export function AdminSessionRegistrationRow({
     <li className={`${ROW_VARIANT_CLASS[variant]} ${cancelledCaption !== null ? "opacity-70" : ""}`}>
       <MemberAvatar user={row.user} displayName={displayName} variant={variant} />
       <div className="min-w-0 flex-1">
-        {onMemberClick ? (
-          <button
-            type="button"
-            className={MEMBER_NAME_BUTTON_CLASS}
-            aria-label={t("viewMemberProfileAria", { name: displayName })}
-            onClick={() => onMemberClick(row.user.id)}
-          >
-            {displayName}
-          </button>
-        ) : (
-          <p className="truncate text-sm font-medium text-sage-900">{displayName}</p>
-        )}
+        <RegistrationRowHeader
+          displayName={displayName}
+          userId={row.user.id}
+          outcome={outcome}
+          outcomeLabel={outcome === null ? null : t(`status.${outcome}`)}
+          viewProfileAria={t("viewMemberProfileAria", { name: displayName })}
+          onMemberClick={onMemberClick}
+        />
         <p className="truncate text-xs text-sage-500">{memberContactLine(row.user)}</p>
         <p className={`truncate text-[11px] text-sage-400 ${metaSpacing}`}>{registeredLabel}</p>
-        {outcome !== null ? (
-          <p className={`truncate text-[11px] font-medium text-sage-600 ${metaSpacing}`}>
-            {t(`status.${outcome}`)}
-          </p>
-        ) : null}
         {cancelledCaption !== null ? (
           <p className={`truncate text-[11px] font-medium text-rose-700 ${metaSpacing}`}>
             {cancelledCaption}
