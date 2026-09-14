@@ -12,7 +12,6 @@ type ScheduleSessionRegistrationsCapacityProps = {
   booked: number;
   capacity: number;
   spotsLabel: string;
-  secondaryLabel: string;
   bookedCountAriaLabel?: string;
   /** Compact text for week/month cards; ratio (`0/10`) for coach tables; default indicator for list rows. */
   layout?: "indicator" | "compactText" | "ratio";
@@ -42,7 +41,6 @@ export function ScheduleSessionRegistrationsCapacity({
   booked,
   capacity,
   spotsLabel,
-  secondaryLabel,
   bookedCountAriaLabel,
   layout = "indicator",
   canAdd = false,
@@ -61,7 +59,6 @@ export function ScheduleSessionRegistrationsCapacity({
           booked={booked}
           capacity={capacity}
           spotsLabel={spotsLabel}
-          secondaryLabel={secondaryLabel}
           onBookedCountClick={openModal}
           bookedCountAriaLabel={bookedCountAriaLabel}
         />

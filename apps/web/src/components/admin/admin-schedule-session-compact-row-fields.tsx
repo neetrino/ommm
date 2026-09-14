@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import {
   coachName,
   sessionClassSubtitle,
-  spotsLeft,
   splitSessionLevels,
 } from "@/components/admin/admin-schedule-session-display";
 import {
@@ -221,7 +220,6 @@ function ScheduleSessionMetaCells({
           booked={booked}
           capacity={row.capacity}
           spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-          secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
           bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
           canAdd={canAddVisitor}
         />

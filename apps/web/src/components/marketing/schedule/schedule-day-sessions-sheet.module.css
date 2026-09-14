@@ -73,6 +73,30 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.panelDragging {
+  transition: none;
+}
+
+.grabberRow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.5rem;
+  padding: 0.375rem 1.25rem 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.grabberRow:active {
+  cursor: grabbing;
+}
+
+.grabber {
+  pointer-events: none;
+}
+
 .header {
   display: flex;
   flex-shrink: 0;
@@ -234,7 +258,7 @@
   }
 
   .header {
-    padding: 1.25rem 1.25rem 1rem;
+    padding: 0.375rem 1.25rem 0.875rem;
   }
 
   .body {

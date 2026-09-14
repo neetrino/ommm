@@ -9,7 +9,6 @@ import {
   canDeleteAdminScheduleSession,
   coachName,
   hasAdminScheduleSessionRowActions,
-  spotsLeft,
 } from "@/components/admin/admin-schedule-session.helpers";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
@@ -127,7 +126,6 @@ export function AdminScheduleSessionSheetCard({
             booked={booked}
             capacity={row.capacity}
             spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-            secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
             bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
             canAdd={canAddVisitor}
           />

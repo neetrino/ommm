@@ -4,7 +4,6 @@ type ScheduleSessionCapacityIndicatorProps = {
   booked: number;
   capacity: number;
   spotsLabel: string;
-  secondaryLabel: string;
   onBookedCountClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   bookedCountAriaLabel?: string;
 };
@@ -61,7 +60,6 @@ type CapacityBodyProps = {
   booked: number;
   capacity: number;
   spotsLabel: string;
-  secondaryLabel: string;
   bookedInteractive: boolean;
 };
 
@@ -69,19 +67,12 @@ function CapacityBody({
   booked,
   capacity,
   spotsLabel,
-  secondaryLabel,
   bookedInteractive,
 }: CapacityBodyProps) {
   return (
     <>
       <div className="flex items-baseline gap-1" aria-hidden={bookedInteractive}>
-        <span
-          className={
-            bookedInteractive
-              ? "font-serif text-lg leading-none tabular-nums text-sage-950 underline decoration-sand-300/80 decoration-dotted underline-offset-[5px]"
-              : "font-serif text-lg leading-none tabular-nums text-sage-950"
-          }
-        >
+        <span className="font-serif text-lg leading-none tabular-nums text-sage-950">
           {booked}
         </span>
         <span className="text-[10px] font-medium text-sage-500">/ {capacity}</span>
@@ -92,12 +83,6 @@ function CapacityBody({
         spotsLabel={spotsLabel}
         decorative={bookedInteractive}
       />
-      <p
-        className="mt-0.5 truncate text-[10px] font-medium leading-tight text-sage-500"
-        aria-hidden={bookedInteractive}
-      >
-        {secondaryLabel}
-      </p>
     </>
   );
 }
@@ -138,7 +123,6 @@ export function ScheduleSessionCapacityIndicator({
   booked,
   capacity,
   spotsLabel,
-  secondaryLabel,
   onBookedCountClick,
   bookedCountAriaLabel,
 }: ScheduleSessionCapacityIndicatorProps) {
@@ -154,7 +138,6 @@ export function ScheduleSessionCapacityIndicator({
         booked={booked}
         capacity={capacity}
         spotsLabel={spotsLabel}
-        secondaryLabel={secondaryLabel}
         bookedInteractive={bookedIsInteractive}
       />
     </CapacityHitArea>
