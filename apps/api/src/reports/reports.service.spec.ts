@@ -446,4 +446,20 @@ describe('ReportsService', () => {
     expect(csv).toContain('"REDEEMED"');
     expect(csv).toContain('"SPENT"');
   });
+
+  it('studioPaymentDue returns overdue unpaid studio packages without the full dashboard', async () => {
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks({
+        payment: {
+          aggregate: jest.fn(),
+          findMany: jest.fn().mockResolvedValue([]),
+        },
+      }),
+    );
+
+    await expect(service.studioPaymentDue()).resolves.toEqual({
+      count: 0,
+      items: [],
+    });
+  });
 });

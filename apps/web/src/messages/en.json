@@ -1974,7 +1974,6 @@
         "openClient": "Open {name}",
         "count": "{count, plural, one {# package} other {# packages}}",
         "viewAll": "View all",
-        "showLess": "Show less",
         "empty": "No studio package payments are due right now."
       }
     }
@@ -2003,6 +2002,17 @@
     },
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."
+    },
+    "paymentDue": {
+      "title": "Payment due",
+      "hint": "These studio packages were used in a class that ended over an hour ago, but payment is still unpaid.",
+      "empty": "No studio package payments are due right now.",
+      "count": "{count, plural, one {# package} other {# packages}}",
+      "open": "Open",
+      "openClient": "Open {name}",
+      "backToDashboard": "Back to dashboard",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load payment due ({status})."
     },
     "calls": {
       "title": "Calls",

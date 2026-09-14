@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { visiblePaymentDueClients } from "./admin-dashboard-payment-due";
-import { dashboardClientsHref } from "./admin-dashboard-metrics.helpers";
+import {
+  dashboardHomeHref,
+  dashboardClientsHref,
+  studioPaymentDuePageHref,
+} from "./admin-dashboard-metrics.helpers";
+import {
+  groupPaymentDueByClient,
+  previewPaymentDueClients,
+} from "./admin-dashboard-payment-due";
 
 describe("dashboardClientsHref", () => {
   it("uses admin clients for finance dashboards and manager clients otherwise", () => {
@@ -10,7 +17,21 @@ describe("dashboardClientsHref", () => {
   });
 });
 
-describe("visiblePaymentDueClients", () => {
+describe("studioPaymentDuePageHref", () => {
+  it("uses admin payment-due for finance dashboards and manager otherwise", () => {
+    assert.equal(studioPaymentDuePageHref(true), "/admin/payment-due");
+    assert.equal(studioPaymentDuePageHref(false), "/manager/payment-due");
+  });
+});
+
+describe("dashboardHomeHref", () => {
+  it("uses admin dashboard for finance dashboards and manager otherwise", () => {
+    assert.equal(dashboardHomeHref(true), "/admin/dashboard");
+    assert.equal(dashboardHomeHref(false), "/manager/dashboard");
+  });
+});
+
+describe("previewPaymentDueClients", () => {
   const items = [
     {
       clientId: "c1",
@@ -44,17 +65,51 @@ describe("visiblePaymentDueClients", () => {
     },
   ];
 
-  it("shows at most three unique people until view all is opened", () => {
+  it("shows at most three unique people on the dashboard preview", () => {
     assert.deepEqual(
-      visiblePaymentDueClients(items, false).map((item) => item.clientId),
+      previewPaymentDueClients(items).map((item) => item.clientId),
       ["c1", "c2", "c3"],
     );
   });
+});
 
-  it("shows every unique person after view all", () => {
-    assert.deepEqual(
-      visiblePaymentDueClients(items, true).map((item) => item.clientId),
-      ["c1", "c2", "c3", "c4"],
-    );
+describe("groupPaymentDueByClient", () => {
+  it("keeps every unpaid package under the same client", () => {
+    const grouped = groupPaymentDueByClient([
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packageId: "p1",
+        packageName: "Pack A",
+      },
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packageId: "p1b",
+        packageName: "Pack A2",
+      },
+      {
+        clientId: "c2",
+        clientName: "Ben",
+        packageId: "p2",
+        packageName: "Pack B",
+      },
+    ]);
+
+    assert.deepEqual(grouped, [
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packages: [
+          { packageId: "p1", packageName: "Pack A" },
+          { packageId: "p1b", packageName: "Pack A2" },
+        ],
+      },
+      {
+        clientId: "c2",
+        clientName: "Ben",
+        packages: [{ packageId: "p2", packageName: "Pack B" }],
+      },
+    ]);
   });
 });

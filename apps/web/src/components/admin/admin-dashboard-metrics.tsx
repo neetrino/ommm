@@ -11,6 +11,7 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import {
   buildRevenueTrendKpi,
   buildTodayBookingItems,
+  studioPaymentDuePageHref,
   type DashboardBookingStatus,
   type DashboardOverview,
 } from "@/components/admin/admin-dashboard-metrics.helpers";
@@ -112,6 +113,7 @@ export async function AdminDashboardMetrics({
         items={studioPaymentDue.items}
         count={studioPaymentDue.count}
         locale={locale}
+        viewAllHref={studioPaymentDuePageHref(includeFinance)}
       />
       <AdminCallTasksDueBanner
         listHref={includeFinance ? "/admin/calls" : "/manager/calls"}

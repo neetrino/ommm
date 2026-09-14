@@ -46,6 +46,13 @@ export class ReportsController {
     });
   }
 
+  @Get('dashboard/payment-due')
+  @SkipThrottle()
+  @Roles(...BACKOFFICE_READ_ROLES)
+  studioPaymentDue() {
+    return this.reports.studioPaymentDue();
+  }
+
   @Get('bookings.csv')
   @Roles(...BACKOFFICE_DELETE_ROLES)
   async bookingsCsv(

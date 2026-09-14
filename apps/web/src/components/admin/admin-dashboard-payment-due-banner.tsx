@@ -6,17 +6,16 @@ import { PaymentDueWarningIcon } from "@/components/admin/admin-client-package-p
 import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by-id";
 import { CLIENT_SHEET_TAB_PACKAGES } from "@/components/admin/admin-client-sheet-tabs";
 import {
-  DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT,
-  uniquePaymentDueClients,
-  visiblePaymentDueClients,
+  previewPaymentDueClients,
   type DashboardStudioPaymentDueItem,
 } from "@/components/admin/admin-dashboard-payment-due";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
 type AdminDashboardPaymentDueBannerProps = {
   items: DashboardStudioPaymentDueItem[];
   count: number;
   locale: string;
+  viewAllHref: string;
 };
 
 type PaymentDueClientRowProps = {
@@ -46,28 +45,24 @@ function PaymentDueClientRow({ item, openLabel, onOpen }: PaymentDueClientRowPro
   );
 }
 
-type PaymentDueToggleButtonProps = {
-  expanded: boolean;
-  viewAllLabel: string;
-  showLessLabel: string;
-  onToggle: () => void;
-};
+function PaymentDueViewAllLink({
+  href,
+  label,
+  tone,
+}: {
+  href: string;
+  label: string;
+  tone: "alert" | "calm";
+}) {
+  const className =
+    tone === "alert"
+      ? "mt-3 flex w-full items-center justify-center rounded-2xl border border-white/30 bg-white/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-white/25"
+      : "mt-3 flex w-full items-center justify-center rounded-2xl border border-sage-200/80 bg-white/70 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 hover:bg-white";
 
-function PaymentDueToggleButton({
-  expanded,
-  viewAllLabel,
-  showLessLabel,
-  onToggle,
-}: PaymentDueToggleButtonProps) {
   return (
-    <button
-      type="button"
-      className="mt-3 w-full rounded-2xl border border-white/30 bg-white/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-white/25"
-      aria-expanded={expanded}
-      onClick={onToggle}
-    >
-      {expanded ? showLessLabel : viewAllLabel}
-    </button>
+    <Link href={href} className={className}>
+      {label}
+    </Link>
   );
 }
 
@@ -90,30 +85,81 @@ function PaymentDueCalmIcon() {
   );
 }
 
+function PaymentDueFilledBanner({
+  items,
+  count,
+  viewAllHref,
+  onOpenClient,
+}: {
+  items: DashboardStudioPaymentDueItem[];
+  count: number;
+  viewAllHref: string;
+  onOpenClient: (clientId: string) => void;
+}) {
+  const t = useTranslations("adminHome.overview.paymentDue");
+  const visibleItems = previewPaymentDueClients(items);
+
+  return (
+    <div
+      className="mb-4 rounded-[24px] border-2 border-rose-500 bg-rose-600 px-5 py-4 text-white shadow-[0_18px_40px_-18px_rgba(190,18,60,0.55)]"
+      role="status"
+    >
+      <div className="flex items-center gap-4">
+        <PaymentDueWarningIcon />
+        <div className="min-w-0 space-y-1">
+          <p className="text-base font-bold uppercase tracking-[0.12em]">
+            {t("title")}
+          </p>
+          <p className="text-sm font-medium text-rose-50">{t("hint")}</p>
+          <p className="text-xs font-medium text-rose-100">{t("count", { count })}</p>
+        </div>
+      </div>
+      <ul className="mt-4 space-y-2">
+        {visibleItems.map((item) => (
+          <PaymentDueClientRow
+            key={item.clientId}
+            item={item}
+            openLabel={t("openClient", { name: item.clientName })}
+            onOpen={() => onOpenClient(item.clientId)}
+          />
+        ))}
+      </ul>
+      <PaymentDueViewAllLink href={viewAllHref} label={t("viewAll")} tone="alert" />
+    </div>
+  );
+}
+
 function PaymentDueEmptyState({
   title,
   empty,
   countLabel,
+  viewAllHref,
+  viewAllLabel,
 }: {
   title: string;
   empty: string;
   countLabel: string;
+  viewAllHref: string;
+  viewAllLabel: string;
 }) {
   return (
     <div
-      className="mb-4 flex items-center gap-4 rounded-[24px] border border-white/50 bg-white/35 px-5 py-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md"
+      className="mb-4 rounded-[24px] border border-white/50 bg-white/35 px-5 py-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md"
       role="status"
     >
-      <PaymentDueCalmIcon />
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">
-          {title}
-        </p>
-        <p className="mt-1 text-sm font-medium text-sage-800">{empty}</p>
+      <div className="flex items-center gap-4">
+        <PaymentDueCalmIcon />
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">
+            {title}
+          </p>
+          <p className="mt-1 text-sm font-medium text-sage-800">{empty}</p>
+        </div>
+        <span className="hidden shrink-0 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-semibold tabular-nums text-sage-700 sm:inline-flex">
+          {countLabel}
+        </span>
       </div>
-      <span className="hidden shrink-0 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-semibold tabular-nums text-sage-700 sm:inline-flex">
-        {countLabel}
-      </span>
+      <PaymentDueViewAllLink href={viewAllHref} label={viewAllLabel} tone="calm" />
     </div>
   );
 }
@@ -122,10 +168,10 @@ export function AdminDashboardPaymentDueBanner({
   items,
   count,
   locale,
+  viewAllHref,
 }: AdminDashboardPaymentDueBannerProps) {
   const t = useTranslations("adminHome.overview.paymentDue");
   const router = useRouter();
-  const [expanded, setExpanded] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const hasDueItems = count > 0 && items.length > 0;
 
@@ -135,49 +181,20 @@ export function AdminDashboardPaymentDueBanner({
         title={t("title")}
         empty={t("empty")}
         countLabel={t("count", { count: 0 })}
+        viewAllHref={viewAllHref}
+        viewAllLabel={t("viewAll")}
       />
     );
   }
 
-  const uniqueCount = uniquePaymentDueClients(items).length;
-  const canToggle = uniqueCount > DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT;
-  const visibleItems = visiblePaymentDueClients(items, expanded);
-
   return (
     <>
-      <div
-        className="mb-4 rounded-[24px] border-2 border-rose-500 bg-rose-600 px-5 py-4 text-white shadow-[0_18px_40px_-18px_rgba(190,18,60,0.55)]"
-        role="status"
-      >
-        <div className="flex items-center gap-4">
-          <PaymentDueWarningIcon />
-          <div className="min-w-0 space-y-1">
-            <p className="text-base font-bold uppercase tracking-[0.12em]">
-              {t("title")}
-            </p>
-            <p className="text-sm font-medium text-rose-50">{t("hint")}</p>
-            <p className="text-xs font-medium text-rose-100">{t("count", { count })}</p>
-          </div>
-        </div>
-        <ul className="mt-4 space-y-2">
-          {visibleItems.map((item) => (
-            <PaymentDueClientRow
-              key={item.clientId}
-              item={item}
-              openLabel={t("openClient", { name: item.clientName })}
-              onOpen={() => setSelectedClientId(item.clientId)}
-            />
-          ))}
-        </ul>
-        {canToggle ? (
-          <PaymentDueToggleButton
-            expanded={expanded}
-            viewAllLabel={t("viewAll")}
-            showLessLabel={t("showLess")}
-            onToggle={() => setExpanded((current) => !current)}
-          />
-        ) : null}
-      </div>
+      <PaymentDueFilledBanner
+        items={items}
+        count={count}
+        viewAllHref={viewAllHref}
+        onOpenClient={setSelectedClientId}
+      />
       <AdminClientDrawerById
         clientId={selectedClientId}
         locale={locale}

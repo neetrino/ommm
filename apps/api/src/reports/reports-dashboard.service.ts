@@ -39,6 +39,10 @@ export type DashboardOptions = {
 export class ReportsDashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
+  studioPaymentDue() {
+    return loadDashboardStudioPaymentDue(this.prisma);
+  }
+
   async dashboard(options?: DashboardOptions) {
     const includeRevenue = options?.includeRevenue === true;
     const includeOverview = options?.includeOverview === true;

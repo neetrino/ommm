@@ -84,3 +84,11 @@ export function buildRevenueTrendKpi(
 export function dashboardClientsHref(includeFinance: boolean): string {
   return includeFinance ? "/admin/clients" : "/manager/clients";
 }
+
+export function dashboardHomeHref(includeFinance: boolean): string {
+  return includeFinance ? "/admin/dashboard" : "/manager/dashboard";
+}
+
+export function studioPaymentDuePageHref(includeFinance: boolean): string {
+  return includeFinance ? "/admin/payment-due" : "/manager/payment-due";
+}
