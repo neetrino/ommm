@@ -1963,9 +1963,16 @@
           "waitlist_pressure": "Waitlists are growing",
           "classes_cancelled_today": "There are cancelled classes today",
           "payments_pending": "Pending payments require attention",
+          "studio_payments_due": "Studio package payments are overdue",
           "draft_classes_upcoming": "Draft classes need publishing",
           "upcoming_cancellations": "Upcoming cancellations detected"
         }
+      },
+      "paymentDue": {
+        "title": "Payment due",
+        "hint": "These studio packages were used in a class that ended over an hour ago, but payment is still unpaid.",
+        "openClient": "Open {name}",
+        "count": "{count} packages"
       }
     }
   },

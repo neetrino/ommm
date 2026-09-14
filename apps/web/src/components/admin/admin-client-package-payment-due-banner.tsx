@@ -19,7 +19,7 @@ export function AdminClientPackagePaymentDueBanner() {
   );
 }
 
-function PaymentDueWarningIcon() {
+export function PaymentDueWarningIcon() {
   return (
     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-rose-600">
       <svg

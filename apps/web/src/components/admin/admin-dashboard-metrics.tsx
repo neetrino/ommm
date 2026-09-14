@@ -6,84 +6,18 @@ import { AdminDashboardKpiHero } from "@/components/admin/admin-dashboard-kpi-he
 import { AdminDashboardNewUsers } from "@/components/admin/admin-dashboard-new-users";
 import { loadDashboardTrendData } from "@/components/admin/admin-dashboard-trend-data";
 import { AdminCallTasksDueBanner } from "@/components/admin/admin-call-tasks-due-banner";
+import { AdminDashboardPaymentDueBanner } from "@/components/admin/admin-dashboard-payment-due-banner";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import type { AnalyticsBarItem } from "@/components/admin/admin-analytics-types";
+import {
+  buildRevenueTrendKpi,
+  buildTodayBookingItems,
+  dashboardClientsHref,
+  type DashboardBookingStatus,
+  type DashboardOverview,
+} from "@/components/admin/admin-dashboard-metrics.helpers";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
-
-type BookingStatus = "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED";
-
-type DashboardOverview = {
-  sessionsToday: number;
-  bookingsToday: number;
-  activeWaitlists: number;
-  activeMembers: number;
-  revenueCentsTotal?: number;
-  bookingsByStatus?: Record<BookingStatus, number>;
-  upcomingClasses?: Array<{
-    id: string;
-    className: string;
-    startsAt: string;
-    coachName: string;
-    bookedCount: number;
-    capacity: number;
-    status: string;
-  }>;
-  revenue?: {
-    todayRevenueCents: number;
-    monthRevenueCents: number;
-    pendingPaymentsCents: number;
-    pendingPaymentsCount: number;
-    trendPercent: number | null;
-  };
-  upcomingCancellations?: Array<{
-    id: string;
-    type: "booking" | "package";
-    userName: string;
-    itemName: string;
-    dateTime: string;
-    status: string;
-  }>;
-  newUsers?: {
-    todayCount: number;
-    recent: Array<{
-      id: string;
-      name: string;
-      email: string;
-      createdAt: string;
-    }>;
-  };
-  alerts?: Array<{
-    code: string;
-    level: "info" | "warning";
-    count: number;
-  }>;
-};
-
-function buildTodayBookingItems(
-  bookingsByStatus: Record<BookingStatus, number>,
-  labels: Record<BookingStatus, string>,
-): AnalyticsBarItem[] {
-  return (["BOOKED", "COMPLETED", "CANCELLED", "MISSED"] as const).map((key) => ({
-    key,
-    label: labels[key],
-    value: bookingsByStatus[key],
-  }));
-}
-
-function buildRevenueTrendKpi(trendPercent: number | null, unavailableLabel: string) {
-  if (trendPercent === null) {
-    return { value: unavailableLabel, valueTone: "default" as const };
-  }
-  if (trendPercent > 0) {
-    return { value: `+${trendPercent}%`, valueTone: "positive" as const };
-  }
-  if (trendPercent < 0) {
-    return { value: `${trendPercent}%`, valueTone: "negative" as const };
-  }
-  return { value: "0%", valueTone: "default" as const };
-}
 
 export type AdminDashboardMetricsProps = {
   locale: string;
@@ -100,6 +34,7 @@ export async function AdminDashboardMetrics({
   const dashboardQuery = includeFinance
     ? "/reports/dashboard?includeRevenue=true&includeOverview=true"
     : "/reports/dashboard?includeOverview=true";
+  const clientsHref = dashboardClientsHref(includeFinance);
 
   const [overviewRes, dailyTrend] = await Promise.all([
     serverApiJson<DashboardOverview>(dashboardQuery, cookie),
@@ -129,8 +64,9 @@ export async function AdminDashboardMetrics({
   const upcomingCancellations = data.upcomingCancellations ?? [];
   const recentUsers = data.newUsers?.recent ?? [];
   const alerts = data.alerts ?? [];
+  const studioPaymentDue = data.studioPaymentDue ?? { count: 0, items: [] };
 
-  const bookingLabels: Record<BookingStatus, string> = {
+  const bookingLabels: Record<DashboardBookingStatus, string> = {
     BOOKED: tm("todayBookings.statusLabels.booked"),
     COMPLETED: tm("todayBookings.statusLabels.completed"),
     CANCELLED: tm("todayBookings.statusLabels.cancelled"),
@@ -174,6 +110,11 @@ export async function AdminDashboardMetrics({
 
   return (
     <AdminContentFrame>
+      <AdminDashboardPaymentDueBanner
+        items={studioPaymentDue.items}
+        count={studioPaymentDue.count}
+        clientsHref={clientsHref}
+      />
       <AdminCallTasksDueBanner
         listHref={includeFinance ? "/admin/calls" : "/manager/calls"}
       />
