@@ -37,7 +37,7 @@ export const COACHES_PAGE_CARD = {
   /** Subtle lift on photo hover — negative % moves image up. */
   photoHoverLiftPercent: -2.5,
   /** Portrait zoom when info panel is open (1 = none). */
-  photoExpandScale: 1.05,
+  photoExpandScale: 1,
   /** Block photo hover until collapse animation finishes (ms). */
   photoCollapseHoverLockMs: 320,
   radiusPx: 40,
@@ -61,8 +61,9 @@ export const COACHES_PAGE_CARD = {
   nameInsetTopPx: 24,
   nameInsetLeftPx: 30,
   roleInsetTopPx: 81,
-  photoInsetLeftPx: 86,
-  photoInsetTopPx: 50,
+  /** Photo fills the card — no inset (avoids cropping the portrait). */
+  photoInsetLeftPx: 0,
+  photoInsetTopPx: 0,
   photoWidthPx: 342,
   photoHeightPx: 597,
   /** Horizontal gap between cards — Figma `62:2206` gap 33px. */
