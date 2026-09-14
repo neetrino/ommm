@@ -205,12 +205,7 @@ function ScheduleMonthPanel(props: AdminScheduleSessionViewsProps) {
       rows={props.rows}
       visibleYearMonth={yearMonth}
       onShiftVisibleMonth={props.onShiftVisibleMonth ?? (() => undefined)}
-      busyId={props.busyId}
       onDetails={props.onDetails}
-      onCancel={props.onCancel}
-      onActivate={props.onActivate}
-      onDelete={props.onDelete}
-      onDuplicate={props.onDuplicate}
       canAddVisitor={props.canAddVisitor !== false}
       showCoach={props.showCoach !== false}
     />

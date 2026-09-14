@@ -1,6 +1,5 @@
 .card {
   --sheet-card-capacity-col: 7.5rem;
-  --sheet-card-actions-col: 6.25rem;
   display: grid;
   width: 100%;
   min-width: 0;
@@ -56,8 +55,10 @@
   grid-area: status;
   display: flex;
   min-width: 0;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-end;
+  align-self: start;
+  min-height: 1.25em;
 }
 
 .footer {
@@ -105,21 +106,4 @@
   min-width: 0;
   flex-shrink: 0;
   text-align: left;
-}
-
-.actions {
-  grid-area: actions;
-  display: flex;
-  width: 100%;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: flex-end;
-  align-self: center;
-}
-
-.cardWithActions {
-  grid-template-columns: minmax(0, 1fr) auto var(--sheet-card-actions-col);
-  grid-template-areas:
-    "main status actions"
-    "footer footer actions";
 }

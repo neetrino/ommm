@@ -19,20 +19,16 @@ import {
   SESSION_SHEET_TAB_ORDER,
   type SessionSheetTabId,
 } from "@/components/admin/admin-schedule-session-sheet-tabs";
-import { AdminScheduleSessionStatusAction } from "@/components/admin/admin-schedule-session-status-action";
+import { AdminScheduleSessionSheetHeaderActions } from "@/components/admin/admin-schedule-session-sheet-header-actions";
 import type { SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { CopyGlyph } from "@/components/ui/admin-action-glyphs";
-import { DeleteActionButton } from "@/components/ui/delete-action-button";
-import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import type { ScheduleCapabilities } from "@/lib/backoffice-capabilities";
@@ -40,10 +36,6 @@ import {
   adminBookingCapabilities,
   adminScheduleCapabilities,
 } from "@/lib/backoffice-capabilities";
-
-const DUPLICATE_ACTION_BUTTON_CLASS =
-  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/70 text-sage-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-sage-900 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50";
-const DUPLICATE_ICON_CLASS = "h-4 w-4 shrink-0";
 
 type AdminScheduleSessionDetailsSheetProps = {
   locale: string;
@@ -141,7 +133,6 @@ function AdminScheduleSessionDetailsSheetInner({
   const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
   );
-  const [pendingDelete, setPendingDelete] = useState(false);
   const canDelete = onDelete !== undefined && canDeleteAdminScheduleSession(row);
 
   const fallbackClassTypeId = classTypeOptions[0]?.value ?? "";
@@ -231,42 +222,19 @@ function AdminScheduleSessionDetailsSheetInner({
             <p className="mt-1 truncate text-sm text-sage-600">{row.classType.name}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <AdminScheduleSessionStatusAction
-              sessionId={row.id}
-              status={row.status}
-              disabled={sheetBusy || !canUpdate}
-              onChanged={handleStatusChanged}
+            <AdminScheduleSessionSheetHeaderActions
+              row={row}
+              sheetBusy={sheetBusy}
+              canUpdate={canUpdate}
+              canDelete={canDelete}
+              closeDisabled={sheetBusy || editForm.dirty}
+              onClose={handleClose}
+              onDuplicate={onDuplicate}
+              onDelete={onDelete}
+              onStatusChanged={handleStatusChanged}
               onBusyChange={setStatusBusy}
               onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
             />
-            {onDuplicate ? (
-              <button
-                type="button"
-                className={DUPLICATE_ACTION_BUTTON_CLASS}
-                aria-label={t("duplicateButton")}
-                title={t("duplicateButton")}
-                disabled={sheetBusy}
-                onClick={() => onDuplicate(row)}
-              >
-                <CopyGlyph className={DUPLICATE_ICON_CLASS} />
-              </button>
-            ) : null}
-            {canDelete ? (
-              <DeleteActionButton
-                ariaLabel={t("actions.delete")}
-                disabled={sheetBusy}
-                onClick={() => setPendingDelete(true)}
-              />
-            ) : null}
-            <button
-              type="button"
-              className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
-              aria-label={t("modalCloseAria")}
-              onClick={handleClose}
-              disabled={sheetBusy || editForm.dirty}
-            >
-              ×
-            </button>
           </div>
         </div>
       </header>
@@ -315,28 +283,6 @@ function AdminScheduleSessionDetailsSheetInner({
               t("messages.genericError"),
               t("validation.coachNotAssigned"),
             );
-          }}
-        />
-      ) : null}
-      {canDelete && onDelete ? (
-        <OmmConfirmDialog
-          isOpen={pendingDelete}
-          title={t("confirmDeleteTitle")}
-          description={t("deleteConfirm")}
-          confirmLabel={sheetBusy ? t("savingButton") : t("confirmDialogDelete")}
-          cancelLabel={t("confirmDialogNo")}
-          backdropAriaLabel={t("confirmDialogBackdrop")}
-          tone="danger"
-          confirmClassName="ommm-btn-lifecycle-action--danger"
-          pending={sheetBusy}
-          onConfirm={() => {
-            onDelete(row);
-            setPendingDelete(false);
-          }}
-          onCancel={() => {
-            if (!sheetBusy) {
-              setPendingDelete(false);
-            }
           }}
         />
       ) : null}

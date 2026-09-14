@@ -1,16 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import {
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
-import {
-  canDeleteAdminScheduleSession,
-  coachName,
-  hasAdminScheduleSessionRowActions,
-} from "@/components/admin/admin-schedule-session.helpers";
-import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
+import { coachName } from "@/components/admin/admin-schedule-session.helpers";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
 import styles from "@/components/admin/admin-schedule-session-sheet-card.module.css";
 import { ADMIN_LIST_ROW_SURFACE } from "@/components/admin/admin-list-table-layout";
@@ -19,16 +13,12 @@ import { SCHEDULE_PAST_LIST_ROW_CLASS } from "@/components/shared/schedule/sched
 import { isScheduleSessionOnPastDay } from "@/components/shared/schedule/schedule-week-view-utils";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
+import { useTranslations } from "next-intl";
 
 type AdminScheduleSessionSheetCardProps = {
   row: AdminScheduleSession;
   locale: string;
-  busy: boolean;
   onDetails: (row: AdminScheduleSession) => void;
-  onDuplicate?: (row: AdminScheduleSession) => void;
-  onCancel?: (row: AdminScheduleSession) => void;
-  onActivate?: (row: AdminScheduleSession) => void;
-  onDelete?: (row: AdminScheduleSession) => void;
   canAddVisitor?: boolean;
   showCoach?: boolean;
 };
@@ -52,12 +42,7 @@ function SheetCardTime({
 export function AdminScheduleSessionSheetCard({
   row,
   locale,
-  busy,
   onDetails,
-  onDuplicate,
-  onCancel,
-  onActivate,
-  onDelete,
   canAddVisitor = true,
   showCoach = true,
 }: AdminScheduleSessionSheetCardProps) {
@@ -65,19 +50,12 @@ export function AdminScheduleSessionSheetCard({
   const tCommon = useTranslations("common");
   const display = buildSessionDateTimeDisplay(locale, row.startsAt, row.endsAt);
   const booked = row._count.bookings;
-  const showActions = hasAdminScheduleSessionRowActions({
-    onDuplicate,
-    onCancel,
-    onActivate,
-    onDelete,
-  });
   const durationLabel =
     display !== null && display.durationMinutes > 0
       ? tCommon("sessionDurationMinutes", { minutes: display.durationMinutes })
       : null;
   const cardClass = [
     styles.card,
-    showActions ? styles.cardWithActions : "",
     ADMIN_LIST_ROW_SURFACE,
     isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
       ? SCHEDULE_PAST_LIST_ROW_CLASS
@@ -131,23 +109,6 @@ export function AdminScheduleSessionSheetCard({
           />
         </div>
       </div>
-      {showActions ? (
-        <div
-          className={styles.actions}
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          <AdminScheduleSessionRowActions
-            row={row}
-            busy={busy}
-            includeDelete={onDelete !== undefined && canDeleteAdminScheduleSession(row)}
-            onDuplicate={onDuplicate}
-            onCancel={onCancel}
-            onActivate={onActivate}
-            onDelete={onDelete}
-          />
-        </div>
-      ) : null}
     </article>
   );
 }
