@@ -123,7 +123,7 @@ export type OliveSegmentedHugDensity = "default" | "compact";
 const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
   default: "inline-flex w-max",
   /**
-   * Client 7-tab set: hug + scroll on phone; fill the row when the sheet is wide enough.
+   * Client 7-tab set: default hug + scroll on phone; fill the row from tablet up.
    */
   compact:
     "inline-flex w-max max-w-none flex-nowrap items-center gap-0.5 min-[744px]:flex min-[744px]:w-full min-[744px]:max-w-full min-[744px]:justify-between",
@@ -131,9 +131,9 @@ const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
 
 const HUG_SEGMENT_SIZE: Record<OliveSegmentedHugDensity, string> = {
   default: "min-w-0 shrink-0 whitespace-nowrap px-7 py-2.5 text-sm",
-  /** Client sheet — hug each label so long RU text does not overlap. */
+  /** Phone matches default switchers; tablet+ keeps the tighter client sheet sizing. */
   compact:
-    "shrink-0 whitespace-nowrap px-2.5 py-2 text-[13px] leading-5 sm:px-2 sm:py-2.5 sm:text-sm",
+    "min-w-0 shrink-0 whitespace-nowrap px-7 py-2.5 text-sm min-[744px]:px-2 min-[744px]:py-2.5 min-[744px]:text-sm",
 };
 
 /** Flex track — each segment hugs its label (settings and other long tab sets). */
