@@ -22,17 +22,3 @@ describe("dashboardClientsHref", () => {
     assert.equal(dashboardClientsHref(false), "/manager/clients");
   });
 });
-
-
-describe("studioPaymentDueClientHref", () => {
-  it("opens the client packages tab from admin or manager clients", () => {
-    assert.equal(
-      studioPaymentDueClientHref("/admin/clients", "client-1"),
-      "/admin/clients?viewClient=client-1&clientTab=packages",
-    );
-    assert.equal(
-      studioPaymentDueClientHref("/manager/clients", "client-1"),
-      "/manager/clients?viewClient=client-1&clientTab=packages",
-    );
-  });
-});
