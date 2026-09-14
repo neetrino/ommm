@@ -1974,7 +1974,8 @@
         "openClient": "Open {name}",
         "count": "{count, plural, one {# package} other {# packages}}",
         "viewAll": "View all",
-        "showLess": "Show less"
+        "showLess": "Show less",
+        "empty": "No studio package payments are due right now."
       }
     }
   },

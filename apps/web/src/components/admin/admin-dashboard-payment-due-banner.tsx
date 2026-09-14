@@ -71,6 +71,27 @@ function PaymentDueToggleButton({
   );
 }
 
+function PaymentDueEmptyState({
+  title,
+  empty,
+  countLabel,
+}: {
+  title: string;
+  empty: string;
+  countLabel: string;
+}) {
+  return (
+    <div
+      className="mb-4 rounded-[22px] border border-white/60 bg-white/75 px-5 py-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)]"
+      role="status"
+    >
+      <p className="text-base font-bold uppercase tracking-[0.12em] text-sage-900">{title}</p>
+      <p className="mt-1 text-sm text-sage-500">{empty}</p>
+      <p className="mt-1 text-xs font-medium text-sage-500">{countLabel}</p>
+    </div>
+  );
+}
+
 export function AdminDashboardPaymentDueBanner({
   items,
   count,
@@ -80,8 +101,16 @@ export function AdminDashboardPaymentDueBanner({
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  if (count === 0 || items.length === 0) {
-    return null;
+  const hasDueItems = count > 0 && items.length > 0;
+
+  if (!hasDueItems) {
+    return (
+      <PaymentDueEmptyState
+        title={t("title")}
+        empty={t("empty")}
+        countLabel={t("count", { count: 0 })}
+      />
+    );
   }
 
   const uniqueCount = uniquePaymentDueClients(items).length;
