@@ -161,7 +161,7 @@ function BookingPackageSelectModalSession({
     window.setTimeout(onClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
   }
 
-  function renderSheetHeader(onCloseSheet: () => void): ReactNode {
+  function renderSheetHeader(onCloseSheet: () => void, showClose = true): ReactNode {
     return (
       <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
         <h2
@@ -170,15 +170,17 @@ function BookingPackageSelectModalSession({
         >
           {t("packageModalTitle")}
         </h2>
-        <button
-          type="button"
-          className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-          aria-label={t("packageModalClose")}
-          onClick={onCloseSheet}
-          disabled={busy}
-        >
-          <BookingPackageSelectSheetCloseIcon />
-        </button>
+        {showClose ? (
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("packageModalClose")}
+            onClick={onCloseSheet}
+            disabled={busy}
+          >
+            <BookingPackageSelectSheetCloseIcon />
+          </button>
+        ) : null}
       </header>
     );
   }
@@ -248,14 +250,13 @@ function BookingPackageSelectModalSession({
       <MemberHubMobileSheet
         bare
         titleId={titleId}
-        closeLabel={t("packageModalClose")}
         backdropCloseLabel={t("packageModalClose")}
         onClose={onClose}
         closeDisabled={busy}
         panelStyle={memberAccountHubSheetPanelStyle()}
       >
         <BookingPackageSelectMobileSheetLayout
-          renderHeader={renderSheetHeader}
+          renderHeader={(onCloseSheet) => renderSheetHeader(onCloseSheet, false)}
           renderBody={renderSheetBody}
         />
       </MemberHubMobileSheet>

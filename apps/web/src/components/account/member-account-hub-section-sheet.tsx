@@ -123,7 +123,6 @@ export function MemberAccountHubSectionSheet({
     <MemberHubMobileSheet
       titleId="member-hub-section-sheet-title"
       title={title}
-      closeLabel={closeLabel}
       backdropCloseLabel={backdropCloseLabel}
       onClose={() => router.back()}
     >

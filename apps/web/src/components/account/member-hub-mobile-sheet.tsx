@@ -13,14 +13,17 @@ import {
 } from "react";
 import {
   MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
   MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS,
   MEMBER_ACCOUNT_HUB_SHEET_MOTION_MS,
   MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS,
   memberAccountHubSheetPanelStyle,
 } from "@/components/account/member-account-hub-sheet-layout";
 import styles from "@/components/account/member-hub-mobile-sheet.module.css";
-import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
+import {
+  ADMIN_MOBILE_SHEET_GRABBER_CLASS,
+  ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS,
+} from "@/components/admin/admin-mobile-sheet-layout";
+import { useAdminMobileSheetDragClose } from "@/components/admin/use-admin-mobile-sheet-drag-close";
 import { OMM_MODAL_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
@@ -39,30 +42,14 @@ export function useMemberHubMobileSheetClose(): () => void {
 type MemberHubMobileSheetProps = {
   titleId: string;
   title?: string;
-  closeLabel: string;
   backdropCloseLabel: string;
   onClose: () => void;
   closeDisabled?: boolean;
   panelStyle?: CSSProperties;
-  /** Skip default grabber/header — children fill the panel. */
+  /** Skip default header — children fill the panel under the grabber. */
   bare?: boolean;
   children: ReactNode;
 };
-
-function SheetCloseIcon() {
-  return (
-    <svg
-      className="h-5 w-5 shrink-0"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden
-    >
-      <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /**
  * Mobile member hub bottom sheet — single portal instance after mount.
@@ -71,7 +58,6 @@ function SheetCloseIcon() {
 export function MemberHubMobileSheet({
   titleId,
   title,
-  closeLabel,
   backdropCloseLabel,
   onClose,
   closeDisabled = false,
@@ -129,11 +115,42 @@ export function MemberHubMobileSheet({
 
   useCloseOnEscape(clientMounted, requestClose, { disabled: closeDisabled || isClosing });
 
+  const dragCloseEnabled = clientMounted && !closeDisabled && !isClosing;
+  const { dragOffsetPx, isDragging, grabberHandlers } = useAdminMobileSheetDragClose(
+    dragCloseEnabled,
+    requestClose,
+  );
+
   if (!clientMounted) {
     return null;
   }
 
   const resolvedPanelStyle = panelStyle ?? memberAccountHubSheetPanelStyle();
+  const dragging = isDragging || dragOffsetPx > 0;
+  const panelMotionStyle: CSSProperties = dragging
+    ? {
+        ...resolvedPanelStyle,
+        transform: `translate3d(0, ${dragOffsetPx}px, 0)`,
+      }
+    : resolvedPanelStyle;
+
+  const grabber = (
+    <div
+      role="button"
+      tabIndex={closeDisabled || isClosing ? -1 : 0}
+      aria-label={backdropCloseLabel}
+      className={`${ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS} ${styles.grabberRow}`}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          requestClose();
+        }
+      }}
+      {...grabberHandlers}
+    >
+      <div className={ADMIN_MOBILE_SHEET_GRABBER_CLASS} />
+    </div>
+  );
 
   return createPortal(
     <MemberHubMobileSheetCloseContext.Provider value={requestClose}>
@@ -160,29 +177,21 @@ export function MemberHubMobileSheet({
             styles.panel,
             "ommm-member-hub-sheet-panel",
             panelVisible ? styles.panelVisible : "",
+            dragging ? styles.panelDragging : "",
           ]
             .filter(Boolean)
             .join(" ")}
-          style={resolvedPanelStyle}
+          style={panelMotionStyle}
         >
+          {grabber}
           {bare ? (
             children
           ) : (
             <>
-              <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
               <header className={MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS}>
                 <h2 id={titleId} className={MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS}>
                   {title}
                 </h2>
-                <button
-                  type="button"
-                  className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-                  aria-label={closeLabel}
-                  onClick={requestClose}
-                  disabled={closeDisabled || isClosing}
-                >
-                  <SheetCloseIcon />
-                </button>
               </header>
               <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{children}</div>
             </>

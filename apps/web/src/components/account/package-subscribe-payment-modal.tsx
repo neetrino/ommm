@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import { PackageSubscribeGiftCreditsToggle } from "@/components/account/package-subscribe-gift-credits-toggle";
-import {
-  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
-  memberAccountHubSheetPanelStyle,
-} from "@/components/account/member-account-hub-sheet-layout";
+import { memberAccountHubSheetPanelStyle } from "@/components/account/member-account-hub-sheet-layout";
 import {
   MemberHubMobileSheet,
   useMemberHubMobileSheetClose,
@@ -309,7 +306,7 @@ function PackageSubscribePaymentModalSession({
     );
   }
 
-  function renderSheetHeader(onCloseSheet: () => void) {
+  function renderSheetHeader(onCloseSheet: () => void, showClose = true) {
     return (
       <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
         <h2
@@ -318,15 +315,17 @@ function PackageSubscribePaymentModalSession({
         >
           {sheetTitle}
         </h2>
-        <button
-          type="button"
-          className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-          aria-label={t("closeModal")}
-          onClick={onCloseSheet}
-          disabled={busy}
-        >
-          <SheetCloseIcon />
-        </button>
+        {showClose ? (
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("closeModal")}
+            onClick={onCloseSheet}
+            disabled={busy}
+          >
+            <SheetCloseIcon />
+          </button>
+        ) : null}
       </header>
     );
   }
@@ -336,14 +335,13 @@ function PackageSubscribePaymentModalSession({
       <MemberHubMobileSheet
         bare
         titleId={titleId}
-        closeLabel={t("closeModal")}
         backdropCloseLabel={t("closeModal")}
         onClose={finishClose}
         closeDisabled={busy}
         panelStyle={memberAccountHubSheetPanelStyle()}
       >
         <PackageSubscribeMobileSheetLayout
-          renderHeader={renderSheetHeader}
+          renderHeader={(onCloseSheet) => renderSheetHeader(onCloseSheet, false)}
           renderBody={renderSheetBody}
         />
       </MemberHubMobileSheet>
@@ -381,7 +379,6 @@ function PackageSubscribeMobileSheetLayout({
 
   return (
     <>
-      <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
       {renderHeader(requestClose)}
       <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{renderBody(requestClose)}</div>
     </>
