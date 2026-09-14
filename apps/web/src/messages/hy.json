@@ -1908,6 +1908,7 @@
         "total": "Այսօր նախատեսված է {count} դաս",
         "empty": "Այսօր առաջիկա դասեր չկան։",
         "timeLine": "{dateTime} • Մարզիչ՝ {coachName}",
+        "coachLine": "Մարզիչ · {coachName}",
         "capacity": "{booked}/{capacity} ամրագրված"
       },
       "todayBookings": {

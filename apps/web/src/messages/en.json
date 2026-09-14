@@ -1907,6 +1907,7 @@
         "total": "{count} classes scheduled today",
         "empty": "No upcoming classes for today.",
         "timeLine": "{dateTime} • Coach: {coachName}",
+        "coachLine": "Coach · {coachName}",
         "capacity": "{booked}/{capacity} booked"
       },
       "todayBookings": {

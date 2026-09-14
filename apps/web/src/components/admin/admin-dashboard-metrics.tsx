@@ -4,6 +4,7 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminDashboardCharts } from "@/components/admin/admin-dashboard-charts";
 import { AdminDashboardKpiHero } from "@/components/admin/admin-dashboard-kpi-hero";
 import { AdminDashboardNewUsers } from "@/components/admin/admin-dashboard-new-users";
+import { AdminDashboardTodayClasses } from "@/components/admin/admin-dashboard-today-classes";
 import { loadDashboardTrendData } from "@/components/admin/admin-dashboard-trend-data";
 import { AdminCallTasksDueBanner } from "@/components/admin/admin-call-tasks-due-banner";
 import { AdminDashboardPaymentDueBanner } from "@/components/admin/admin-dashboard-payment-due-banner";
@@ -30,6 +31,7 @@ export async function AdminDashboardMetrics({
   includeFinance = true,
 }: AdminDashboardMetricsProps) {
   const tm = await getTranslations({ locale, namespace: "adminHome.overview" });
+  const tStatus = await getTranslations({ locale, namespace: "adminPages.classes.status" });
   const cookie = (await headers()).get("cookie") ?? "";
   const dashboardQuery = includeFinance
     ? "/reports/dashboard?includeRevenue=true&includeOverview=true"
@@ -134,47 +136,23 @@ export async function AdminDashboardMetrics({
         />
       </section>
 
-      <section className="mt-4">
-        <article className={adminChrome.panel}>
-          <div className="flex items-center justify-between gap-2">
-            <p className={adminChrome.panelHeading}>{tm("todayClasses.title")}</p>
-            <span className={adminChrome.metaText}>
-              {tm("todayClasses.total", { count: data.sessionsToday })}
-            </span>
-          </div>
-          {upcomingClasses.length === 0 ? (
-            <p className="mt-3 text-sm text-sage-500">{tm("todayClasses.empty")}</p>
-          ) : (
-            <ul className="mt-3 divide-y divide-white/50">
-              {upcomingClasses.map((session) => (
-                <li key={session.id} className="flex gap-3 py-2.5 first:pt-0 last:pb-0">
-                  <div className="mt-0.5 h-8 w-1 shrink-0 rounded-full bg-sage-300/80" aria-hidden />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="truncate font-medium text-sage-900">{session.className}</p>
-                      <span className="shrink-0 rounded-full border border-sage-200 bg-sage-50 px-2 py-0.5 text-[11px] text-sage-700">
-                        {session.status}
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs text-sage-500">
-                      {tm("todayClasses.timeLine", {
-                        dateTime: formatDateTimeForUi(session.startsAt, locale),
-                        coachName: session.coachName,
-                      })}
-                    </p>
-                    <p className="text-xs text-sage-500">
-                      {tm("todayClasses.capacity", {
-                        booked: session.bookedCount,
-                        capacity: session.capacity,
-                      })}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-      </section>
+      <AdminDashboardTodayClasses
+        title={tm("todayClasses.title")}
+        totalLabel={tm("todayClasses.total", { count: data.sessionsToday })}
+        emptyLabel={tm("todayClasses.empty")}
+        sessions={upcomingClasses}
+        dateTimeLabel={(session) => formatDateTimeForUi(session.startsAt, locale)}
+        coachLabel={(session) =>
+          tm("todayClasses.coachLine", { coachName: session.coachName })
+        }
+        capacityLabel={(session) =>
+          tm("todayClasses.capacity", {
+            booked: session.bookedCount,
+            capacity: session.capacity,
+          })
+        }
+        statusLabel={(status) => tStatus(status)}
+      />
 
       <section className="mt-4 grid gap-4 lg:grid-cols-3">
         <article className={`lg:col-span-2 ${adminChrome.panel}`}>

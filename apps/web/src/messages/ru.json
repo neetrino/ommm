@@ -1905,6 +1905,7 @@
         "total": "На сегодня запланировано {count} занятий",
         "empty": "На сегодня больше нет ближайших занятий.",
         "timeLine": "{dateTime} • Тренер: {coachName}",
+        "coachLine": "Тренер · {coachName}",
         "capacity": "{booked}/{capacity} забронировано"
       },
       "todayBookings": {
