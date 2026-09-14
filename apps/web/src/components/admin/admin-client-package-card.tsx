@@ -10,7 +10,6 @@ import {
   normalizeUserPackageStatus,
 } from "@/components/account/user-membership-display";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
-import { AdminClientPackagePaymentDueBanner } from "@/components/admin/admin-client-package-payment-due-banner";
 import { shouldShowStudioPackagePaymentDue } from "@/components/admin/admin-client-package-payment-due";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageActions } from "@/components/admin/admin-client-package-actions";
@@ -121,12 +120,6 @@ export function AdminClientPackageCard({
           tone="ok"
           onDismiss={() => setSuccessToast(null)}
         />
-      ) : null}
-
-      {paymentDue ? (
-        <div className="mb-5">
-          <AdminClientPackagePaymentDueBanner />
-        </div>
       ) : null}
 
       <div className="flex flex-wrap items-start justify-between gap-3">
