@@ -194,7 +194,7 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
     );
   });
 
-  it('reverts a paid studio package to PENDING when marked unpaid', async () => {
+  it('keeps the linked package usable when a paid studio payment is unmarked', async () => {
     const payment = {
       id: 'pay-revert',
       status: PaymentStatus.SUCCEEDED,
@@ -229,12 +229,7 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
       'admin-1',
     );
 
-    expect(prisma.userPackage.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ id: 'up-paid' }),
-        data: { status: UserPackageStatus.PENDING },
-      }),
-    );
+    expect(prisma.userPackage.updateMany).not.toHaveBeenCalled();
   });
 
   it('rejects painting a failed studio payment as succeeded', async () => {

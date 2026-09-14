@@ -9,6 +9,7 @@ import { mergeArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { toManualPaymentMethod } from '../payments/payment-revenue.util';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
+import { STUDIO_PACKAGE_FULFILLED_KEY } from './package-payment-metadata.util';
 import {
   createPaymentReference,
   resolveFinalPriceCents,
@@ -17,6 +18,7 @@ import { decrementPackagePlanStock } from './packages-stock.helpers';
 import { createBalancesForUserPackage } from './packages-user-package-balances.util';
 import { buildUserPackageCreateData } from './packages-subscribe-card.util';
 
+/** Staff-assigned packages are usable immediately; studio payment can stay PENDING. */
 export async function createAdminClientPackagePurchaseTx(
   tx: Prisma.TransactionClient,
   params: {
@@ -37,9 +39,7 @@ export async function createAdminClientPackagePurchaseTx(
     data: buildUserPackageCreateData({
       userId: params.clientId,
       plan: params.plan,
-      status: params.isStudioMethod
-        ? UserPackageStatus.PENDING
-        : UserPackageStatus.ACTIVE,
+      status: UserPackageStatus.ACTIVE,
     }),
   });
   await createBalancesForUserPackage(tx, {
@@ -66,19 +66,18 @@ export async function createAdminClientPackagePurchaseTx(
         ? {
             metadata: mergeArcaMetadata(null, {
               statusReason: PAYMENT_STATUS_REASON.AWAITING_CASH,
+              [STUDIO_PACKAGE_FULFILLED_KEY]: true,
             }),
           }
         : {}),
     },
   });
-  if (!params.isStudioMethod) {
-    await decrementPackagePlanStock(tx, params.plan.id);
-  }
+  await decrementPackagePlanStock(tx, params.plan.id);
   return {
     userPackageId: userPackage.id,
     paymentId: payment.id,
     amountCents: payment.amountCents,
     currency: payment.currency,
-    stockTracked: !params.isStudioMethod && params.plan.availableQuantity !== null,
+    stockTracked: params.plan.availableQuantity !== null,
   };
 }

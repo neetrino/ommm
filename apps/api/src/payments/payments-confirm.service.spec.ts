@@ -64,4 +64,54 @@ describe('PaymentsConfirmService package stock cache', () => {
 
     expect(packagesPublic.invalidatePublicPlansCache).not.toHaveBeenCalled();
   });
+
+  it('marks unpaid cash SUCCEEDED and notifies even when the package is already ACTIVE', async () => {
+    const existing = {
+      id: 'pay-1',
+      status: PaymentStatus.PENDING,
+      source: PaymentSource.PACKAGE,
+      sourceId: 'up-1',
+      paymentMethod: 'CASH',
+    };
+    const paymentUpdate = jest.fn().mockResolvedValue({
+      ...existing,
+      status: PaymentStatus.SUCCEEDED,
+    });
+    const packagePurchased = {
+      tryNotify: jest.fn().mockResolvedValue(undefined),
+    };
+    const service = new PaymentsConfirmService(
+      {
+        $transaction: jest.fn(
+          async (callback: (tx: unknown) => Promise<unknown>) =>
+            callback({
+              payment: {
+                findUnique: jest.fn().mockResolvedValue(existing),
+                update: paymentUpdate,
+              },
+            }),
+        ),
+      } as never,
+      {
+        fulfillPaymentBySource: jest.fn().mockResolvedValue({
+          giftEmail: null,
+          packageStockTracked: false,
+        }),
+        emitDropInBookingRealtimeIfNeeded: jest
+          .fn()
+          .mockResolvedValue(undefined),
+      } as never,
+      { trySendSuccessEmails: jest.fn().mockResolvedValue(undefined) } as never,
+      { tryPrintReceipt: jest.fn() } as never,
+      { invalidatePublicPlansCache: jest.fn() } as never,
+      packagePurchased as never,
+    );
+
+    const paid = await service.confirmPayment('pay-1', 'manager-1', {
+      paymentMethod: 'CASH',
+    });
+
+    expect(paid.status).toBe(PaymentStatus.SUCCEEDED);
+    expect(packagePurchased.tryNotify).toHaveBeenCalledWith('up-1');
+  });
 });

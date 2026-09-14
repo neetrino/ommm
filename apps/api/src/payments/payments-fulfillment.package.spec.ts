@@ -98,4 +98,48 @@ describe('PaymentsFulfillmentService package confirm', () => {
     expect(packagePlanUpdateMany).not.toHaveBeenCalled();
     expect(paymentCreate).not.toHaveBeenCalled();
   });
+
+  it('does not decrement stock again when the studio package is already ACTIVE', async () => {
+    const userPackageUpdate = jest.fn();
+    const packagePlanUpdateMany = jest.fn();
+    const tx = {
+      userPackage: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'up-1',
+          status: UserPackageStatus.ACTIVE,
+          planId: 'plan-1',
+          createdAt: new Date('2026-09-01T00:00:00.000Z'),
+          plan: { startDate: null, name: 'Reformer', currency: 'amd' },
+        }),
+        update: userPackageUpdate,
+      },
+      payment: {
+        update: jest.fn(),
+      },
+      packagePlan: {
+        updateMany: packagePlanUpdateMany,
+      },
+    };
+    const service = new PaymentsFulfillmentService(
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+    );
+
+    const stockTracked = await service.fulfillPackagePayment(tx as never, {
+      id: 'pay-1',
+      userId: 'user-1',
+      sourceId: 'up-1',
+      metadata: { studioPackageFulfilled: true },
+    });
+
+    expect(stockTracked).toBe(false);
+    expect(userPackageUpdate).not.toHaveBeenCalled();
+    expect(packagePlanUpdateMany).not.toHaveBeenCalled();
+  });
 });

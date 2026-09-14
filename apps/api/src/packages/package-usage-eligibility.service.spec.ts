@@ -5,7 +5,7 @@ jest.mock('./packages-freeze.resume', () => ({
 }));
 
 describe('PackageUsageEligibilityService', () => {
-  it('loads only ACTIVE packages so unpaid PENDING studio packages cannot book', async () => {
+  it('loads only ACTIVE packages so unpaid checkout PENDING packages cannot book', async () => {
     const findMany = jest.fn().mockResolvedValue([]);
     const service = new PackageUsageEligibilityService({
       userPackage: { findMany },

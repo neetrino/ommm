@@ -10,6 +10,8 @@ import {
   normalizeUserPackageStatus,
 } from "@/components/account/user-membership-display";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
+import { AdminClientPackagePaymentDueBanner } from "@/components/admin/admin-client-package-payment-due-banner";
+import { shouldShowStudioPackagePaymentDue } from "@/components/admin/admin-client-package-payment-due";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageActions } from "@/components/admin/admin-client-package-actions";
 import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
@@ -24,10 +26,15 @@ import { ADMIN_CARD_CONTAIN_CLASS } from "@/components/admin/admin-list-table-la
 
 const BOARD_CARD_CLASS = [
   ADMIN_CARD_CONTAIN_CLASS,
-  "flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5",
+  "flex h-full flex-col rounded-[28px] p-5",
   "shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)]",
   "sm:p-6",
 ].join(" ");
+
+const BOARD_CARD_DEFAULT_TONE =
+  "border border-white/80 bg-white/95";
+const BOARD_CARD_PAYMENT_DUE_TONE =
+  "border border-rose-300 bg-rose-50/90";
 
 type AdminClientPackageCardProps = {
   clientId: string;
@@ -101,15 +108,25 @@ export function AdminClientPackageCard({
     item.totalSessions > 0 &&
     item.usedSessions !== null;
   const typeBalances = item.typeBalances ?? [];
+  const paymentDue = shouldShowStudioPackagePaymentDue(item);
+  const cardTone = paymentDue
+    ? BOARD_CARD_PAYMENT_DUE_TONE
+    : BOARD_CARD_DEFAULT_TONE;
 
   return (
-    <article className={BOARD_CARD_CLASS}>
+    <article className={`${BOARD_CARD_CLASS} ${cardTone}`}>
       {successToast !== null ? (
         <AdminCenterToast
           message={successToast}
           tone="ok"
           onDismiss={() => setSuccessToast(null)}
         />
+      ) : null}
+
+      {paymentDue ? (
+        <div className="mb-5">
+          <AdminClientPackagePaymentDueBanner />
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-start justify-between gap-3">

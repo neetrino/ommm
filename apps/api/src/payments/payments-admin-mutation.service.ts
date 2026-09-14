@@ -105,7 +105,6 @@ export class PaymentsAdminMutationService {
     if (status === PaymentStatus.SUCCEEDED) {
       throw new BadRequestException('Succeeded status must go through confirm');
     }
-    const previousStatus = payment.status;
     const shouldRefundGifts = shouldRefundReservedGiftCredits(
       payment.metadata,
       status,
@@ -127,7 +126,6 @@ export class PaymentsAdminMutationService {
       sourceId: payment.sourceId,
       userId: payment.userId,
       metadata: payment.metadata,
-      previousStatus,
       nextStatus: status,
       refundGiftCredits: shouldRefundGifts,
     });
@@ -142,7 +140,6 @@ export class PaymentsAdminMutationService {
     sourceId: string | null;
     userId: string;
     metadata: Prisma.JsonValue;
-    previousStatus: PaymentStatus;
     nextStatus: PaymentStatus;
     refundGiftCredits: boolean;
   }): Promise<void> {
@@ -163,16 +160,6 @@ export class PaymentsAdminMutationService {
           appliedCents: readGiftCreditsAppliedCents(params.metadata),
         });
       }
-      return;
-    }
-    if (
-      params.previousStatus === PaymentStatus.SUCCEEDED &&
-      params.nextStatus === PaymentStatus.PENDING
-    ) {
-      await this.setLinkedPackageStatus(
-        params.sourceId,
-        UserPackageStatus.PENDING,
-      );
     }
   }
 
