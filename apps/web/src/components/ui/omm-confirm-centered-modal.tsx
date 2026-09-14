@@ -2,7 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useId, type ReactNode } from "react";
-import { ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
+import { ADMIN_CENTERED_MODAL_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
 import styles from "@/components/ui/omm-confirm-centered-modal.module.css";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -120,7 +120,7 @@ export function OmmConfirmCenteredModal({
               {dismissAsCloseIcon ? (
                 <button
                   type="button"
-                  className={ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS}
+                  className={ADMIN_CENTERED_MODAL_CLOSE_BUTTON_CLASS}
                   aria-label={cancelLabel}
                   disabled={pending}
                   onClick={requestClose}

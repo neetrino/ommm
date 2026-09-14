@@ -11,6 +11,7 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { ADMIN_MODAL_PANEL_SHELL_CLASS } from "@/components/admin/admin-mobile-sheet-layout";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 
@@ -84,7 +85,7 @@ export function AdminCallTasksFormModal({
         </h2>
         <button
           type="button"
-          className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45"
+          className={`${ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS} shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45`}
           aria-label={t("close")}
           disabled={busy}
           onClick={onClose}

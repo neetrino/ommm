@@ -10,6 +10,7 @@ import type { AdminPackageFormProps } from "@/components/admin/admin-package-for
 import { MAX_NAME_LENGTH } from "@/components/admin/admin-package-form-utils";
 import { AdminPackageTierCompactFields } from "@/components/admin/admin-package-tier-compact-fields";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 
@@ -106,7 +107,7 @@ export function AdminPackageForm({
           {showCloseButton ? (
             <button
               type="button"
-              className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className={`${ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS} shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
               aria-label={t("modalCloseAria")}
               onClick={onCancel}
             >

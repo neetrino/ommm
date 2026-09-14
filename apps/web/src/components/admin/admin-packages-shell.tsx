@@ -18,6 +18,7 @@ import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import {
   ADMIN_CREATE_SHEET_BODY_SHELL_CLASS,
   ADMIN_CREATE_SHEET_HEADER_CLASS,
+  ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -311,7 +312,7 @@ export function AdminPackagesShell({
             </div>
             <button
               type="button"
-              className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className={`${ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS} shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
               aria-label={t("modalCloseAria")}
               onClick={closeModal}
             >

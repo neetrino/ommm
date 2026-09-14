@@ -22,7 +22,6 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
-import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -86,7 +85,6 @@ function AdminSessionRegistrationsSheet({
   const t = useTranslations("adminPages.classes.registrationsModal");
   const titleId = useId();
   const descId = useId();
-  const isPhone = useMemberHubSheetPhone();
   const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const [fetchResult, setFetchResult] = useState<RegistrationsFetchResult | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
@@ -170,16 +168,14 @@ function AdminSessionRegistrationsSheet({
                 {t("subtitle", { count: rosterCount, capacity })}
               </p>
             </div>
-            {isPhone ? null : (
-              <button
-                type="button"
-                className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-                aria-label={t("closeButton")}
-                onClick={requestClose}
-              >
-                <CloseGlyph />
-              </button>
-            )}
+            <button
+              type="button"
+              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+              aria-label={t("closeButton")}
+              onClick={requestClose}
+            >
+              <CloseGlyph />
+            </button>
           </div>
         </header>
         <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 space-y-4`}>

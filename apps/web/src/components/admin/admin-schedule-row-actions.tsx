@@ -9,6 +9,7 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminScheduleForm } from "@/components/admin/admin-schedule-form";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { adminFormModalPanelClass } from "@/components/admin/admin-mobile-sheet-layout";
+import { ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import type { AdminScheduleItem } from "@/components/admin/admin-schedule-types";
 import {
   ADMIN_ACTION_ICON_CLASS,
@@ -239,7 +240,7 @@ export function AdminScheduleRowActions({
               </div>
               <button
                 type="button"
-                className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className={`${ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS} shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
                 aria-label={t("modalCloseAria")}
                 onClick={closeModal}
                 disabled={busy}

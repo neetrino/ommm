@@ -10,6 +10,7 @@ import { adminFormModalPanelClass } from "@/components/admin/admin-mobile-sheet-
 import {
   ADMIN_CREATE_SHEET_BODY_SHELL_CLASS,
   ADMIN_CREATE_SHEET_HEADER_CLASS,
+  ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
@@ -218,7 +219,7 @@ function AdminGiftCardsShellInner({
               </div>
               <button
                 type="button"
-                className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className={`${ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS} shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
                 aria-label={t("modalCloseAria")}
                 onClick={closeModal}
               >
