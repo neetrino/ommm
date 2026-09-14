@@ -44,11 +44,17 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS = [
   "md:grid md:items-center",
 ].join(" ");
 
+const FINANCE_PAYMENTS_HEADER_CELL_BASE =
+  "min-w-0 break-words text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";
+
 export const ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL =
-  "min-w-0 break-words text-left text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";
+  `${FINANCE_PAYMENTS_HEADER_CELL_BASE} text-left`;
+
+export const ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL =
+  `${FINANCE_PAYMENTS_HEADER_CELL_BASE} text-center`;
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL =
-  "min-w-0 break-words text-center text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";
+  ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL;
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS = [
   ADMIN_LIST_ROW_SURFACE,
@@ -56,10 +62,15 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS = [
   "grid w-full grid-cols-1 gap-3 text-left",
   USER_LIST_TABLE_ROW_PAD,
   "md:px-4",
-  "md:col-span-full md:grid md:grid-cols-subgrid md:items-start md:gap-y-0",
+  "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
 ].join(" ");
 
-export const ADMIN_FINANCE_PAYMENTS_LIST_CELL = USER_LIST_CELL_CLASS;
+const ADMIN_FINANCE_PAYMENTS_LIST_CENTER_CELL = [
+  USER_LIST_CELL_CLASS,
+  "md:flex md:flex-col md:items-center md:justify-center md:self-center md:text-center",
+].join(" ");
+
+export const ADMIN_FINANCE_PAYMENTS_LIST_CELL = ADMIN_FINANCE_PAYMENTS_LIST_CENTER_CELL;
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_USER_CELL =
   "min-w-0 w-full max-w-full justify-self-stretch text-left";
@@ -76,19 +87,15 @@ export const ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_CELL =
 export const ADMIN_FINANCE_PAYMENTS_LIST_PACKAGE_TITLE_CLASS =
   "block w-full min-w-0 break-words font-serif text-xl leading-snug tracking-tight text-sage-950";
 
-export const ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL = USER_LIST_DATE_CELL;
+export const ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL = ADMIN_FINANCE_PAYMENTS_LIST_CENTER_CELL;
 
-export const ADMIN_FINANCE_PAYMENTS_LIST_TIME_CELL = USER_LIST_TIME_CELL;
+export const ADMIN_FINANCE_PAYMENTS_LIST_TIME_CELL = ADMIN_FINANCE_PAYMENTS_LIST_CENTER_CELL;
 
-export const ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL = [
-  USER_LIST_CELL_CLASS,
-  "md:flex md:items-start md:self-start",
-].join(" ");
+export const ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL = ADMIN_FINANCE_PAYMENTS_LIST_CENTER_CELL;
 
-export const ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL = USER_LIST_CELL_CLASS;
+export const ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL = ADMIN_FINANCE_PAYMENTS_LIST_CENTER_CELL;
 
-export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL =
-  "min-w-0 w-full max-w-full justify-self-stretch text-center";
+export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL = ADMIN_FINANCE_PAYMENTS_LIST_CENTER_CELL;
 
 export const ADMIN_FINANCE_PAYMENTS_LIST_METHOD_VALUE_CLASS =
   "break-words text-sm font-medium text-sage-800";

@@ -52,7 +52,7 @@ export function AdminAnalyticsTabNav({
   );
 
   return (
-    <div className={`${ADMIN_HORIZONTAL_TAB_SCROLL_CLASS} min-w-0 w-full`}>
+    <div className={`${ADMIN_HORIZONTAL_TAB_SCROLL_CLASS} min-w-0 max-w-full`}>
       <nav
         role="tablist"
         aria-label={t("aria")}
