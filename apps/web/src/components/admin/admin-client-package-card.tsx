@@ -169,14 +169,15 @@ export function AdminClientPackageCard({
         <AdminClientPackageTypeBalances balances={typeBalances} />
       </div>
 
-      <div className="mt-5 flex items-end justify-between gap-4 border-b border-white/70 pb-5">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+      <div className="mt-5 grid grid-cols-2 items-center gap-4 rounded-2xl border border-white/70 bg-white/60 p-4">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-sage-500">
             {tAdmin("packages.paymentMethod")}
           </p>
           {item.paymentId !== null ? (
             <div className="mt-2">
               <AdminStaffPaymentEditors
+                layout="row"
                 paymentId={item.paymentId}
                 status={item.paymentStatus ?? "PENDING"}
                 paymentMethod={item.paymentMethod}
@@ -189,12 +190,19 @@ export function AdminClientPackageCard({
               />
             </div>
           ) : (
-            <p className="mt-1 text-2xl font-semibold tracking-tight text-sage-950">
+            <p className="mt-2 font-serif text-xl font-semibold tracking-tight text-sage-950">
               {paymentMethodLabel}
             </p>
           )}
         </div>
-        <p className="text-sm text-sage-600">{validityLabel}</p>
+        <div className="justify-self-end text-right">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-sage-500">
+            {tAdmin("packages.validity")}
+          </p>
+          <p className="mt-2 inline-flex rounded-full border border-white/80 bg-white/80 px-3 py-1 text-sm font-medium text-sage-800">
+            {validityLabel}
+          </p>
+        </div>
       </div>
 
       <div className="mt-5 space-y-3">

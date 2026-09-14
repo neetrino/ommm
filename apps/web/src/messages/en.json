@@ -2449,6 +2449,7 @@
         "usedSessions": "Used sessions",
         "remainingSessions": "Remaining sessions",
         "paymentMethod": "Payment method",
+        "validity": "Validity",
         "paymentDue": "Payment due",
         "paymentDueHint": "A class on this package ended over an hour ago, but the studio payment is still unpaid.",
         "unlimited": "Unlimited",

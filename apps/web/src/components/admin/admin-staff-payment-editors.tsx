@@ -21,6 +21,8 @@ type AdminStaffPaymentEditorsProps = {
     paymentMethod: string | null;
   }) => void;
   onError?: (message: string) => void;
+  /** `row` places status and method chips on one line (package cards). */
+  layout?: "stack" | "row";
 };
 
 export function AdminStaffPaymentEditors({
@@ -30,6 +32,7 @@ export function AdminStaffPaymentEditors({
   statusReason,
   onUpdated,
   onError,
+  layout = "stack",
 }: AdminStaffPaymentEditorsProps) {
   const t = useTranslations("adminPages.finance.paymentActions");
   const [busy, setBusy] = useState(false);
@@ -65,7 +68,13 @@ export function AdminStaffPaymentEditors({
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div
+      className={
+        layout === "row"
+          ? "flex flex-wrap items-center gap-2"
+          : "flex flex-col items-start gap-2"
+      }
+    >
       <AdminFinancePaymentStatusPicker
         status={status}
         paymentMethod={paymentMethod}
