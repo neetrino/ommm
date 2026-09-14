@@ -10,6 +10,9 @@ type Props = {
   bookingId: string;
 };
 
+const ATTENDED_BUTTON_CLASS =
+  "ommm-btn-lifecycle-action--success border-emerald-300! bg-emerald-100! text-emerald-800!";
+
 export function MarkAttendanceButtons({ bookingId }: Props) {
   const router = useRouter();
   const t = useTranslations("forms.markAttendance");
@@ -33,17 +36,16 @@ export function MarkAttendanceButtons({ bookingId }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap gap-2">
-        <OmmButton
-          size="sm"
-          variant="secondary"
-          disabled={busy}
-          onClick={() => void send(true)}
-        >
-          {t("attended")}
-        </OmmButton>
-      </div>
+    <div className="flex flex-col items-end gap-1">
+      <OmmButton
+        size="sm"
+        variant="secondary"
+        className={ATTENDED_BUTTON_CLASS}
+        disabled={busy}
+        onClick={() => void send(true)}
+      >
+        {t("attended")}
+      </OmmButton>
       {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
     </div>
   );
