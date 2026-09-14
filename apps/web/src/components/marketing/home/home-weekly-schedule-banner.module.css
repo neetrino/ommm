@@ -72,7 +72,7 @@
   width: 100%;
   font-size: var(--home-schedule-title-size, 2.875rem);
   line-height: var(--home-schedule-title-line-height, 0.87);
-  color: var(--home-schedule-heading-color, #695f00);
+  color: var(--home-schedule-heading-color, #97907c);
 }
 
 .subtitle {
@@ -80,7 +80,7 @@
   max-width: var(--home-schedule-subtitle-max-width, 19.625rem);
   font-size: var(--home-schedule-subtitle-size, 0.875rem);
   line-height: var(--home-schedule-subtitle-line-height, 1.43);
-  color: var(--home-schedule-heading-color, #695f00);
+  color: var(--home-schedule-heading-color, #97907c);
 }
 
 .gridWrap {

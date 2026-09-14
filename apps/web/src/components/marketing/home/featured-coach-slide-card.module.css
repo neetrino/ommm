@@ -39,9 +39,9 @@
   pointer-events: none;
   position: absolute;
   left: var(--ommm-coach-portrait-crop-left, calc(-4% + 6px));
-  top: var(--ommm-coach-portrait-crop-top, 3%);
+  top: var(--ommm-coach-portrait-crop-top, 0);
   width: var(--ommm-coach-portrait-crop-width, 114%);
-  height: var(--ommm-coach-portrait-crop-height, 98%);
+  height: var(--ommm-coach-portrait-crop-height, 100%);
   max-width: none;
 }
 

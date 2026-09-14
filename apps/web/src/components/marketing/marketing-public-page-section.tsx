@@ -19,8 +19,10 @@ export type MarketingPublicPageSectionProps = {
   eyebrow?: string;
   /** Optional action aligned with the title row (e.g. schedule “My account”). */
   headerAside?: ReactNode;
-  /** Extra `data-*` markers on the section root (e.g. coaches hero ink override). */
+  /** Extra `data-*` markers on the section root (e.g. cream practices-inner surface). */
   sectionMarkers?: Record<string, string>;
+  /** Overrides default coaches-gradient hero ink (e.g. cream schedule/packages surface). */
+  sectionStyle?: CSSProperties;
   /** Scroll-triggered entrance on hero + content (schedule and similar inner routes). */
   scrollReveal?: boolean;
   children: ReactNode;
@@ -36,7 +38,7 @@ export const MARKETING_PUBLIC_PAGE_SECTION_STYLE = {
   "--coaches-page-content-margin-top": `clamp(1.25rem, ${((COACHES_PAGE_LAYOUT.gridTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx - COACHES_PAGE_LAYOUT.heroLeadTopPx - COACHES_PAGE_LAYOUT.heroOffsetExtraPx - 24) / COACHES_PAGE_LAYOUT.artboardWidthPx) * 100}vw, 2.25rem)`,
 } as CSSProperties;
 
-/** Schedule / Packages / Contact — Our Values hero ink on Our Core Practices gradient. */
+/** Coaches / Schedule / Packages / Contact — Our Values hero ink on cream surface. */
 export const MARKETING_PRACTICES_INNER_PAGE_SECTION_STYLE = {
   ...MARKETING_PUBLIC_PAGE_SECTION_STYLE,
   "--coaches-page-heading-color": MARKETING_PRACTICES_INNER_PAGE_SURFACE.heading,
@@ -52,6 +54,7 @@ export function MarketingPublicPageSection({
   eyebrow,
   headerAside,
   sectionMarkers,
+  sectionStyle,
   scrollReveal = false,
   children,
 }: MarketingPublicPageSectionProps) {
@@ -81,7 +84,7 @@ export function MarketingPublicPageSection({
       {...{ [MARKETING_INNER_PAGE_MARKER]: "" }}
       {...sectionMarkers}
       className={`${marketingMontserrat.variable} ${styles.section}`}
-      style={MARKETING_PUBLIC_PAGE_SECTION_STYLE}
+      style={sectionStyle ?? MARKETING_PUBLIC_PAGE_SECTION_STYLE}
     >
       <div className={MARKETING_INNER_PAGE_CONTAINER_CLASS}>
         {scrollReveal ? (

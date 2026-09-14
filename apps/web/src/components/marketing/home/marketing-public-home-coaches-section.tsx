@@ -144,6 +144,8 @@ export function MarketingPublicHomeCoachesSection({
     ["--home-coaches-dot-active-scale" as string]: String(
       HOME_COACHES_SECTION_MOBILE_LAYOUT.sectionDotActiveScale,
     ),
+    ["--home-coaches-dot-active" as string]: HOME_COACHES_SECTION_FIGMA.dotActive,
+    ["--home-coaches-dot-inactive" as string]: HOME_COACHES_SECTION_FIGMA.dotInactive,
   };
 
   return (
@@ -220,12 +222,13 @@ export function MarketingPublicHomeCoachesSection({
         style={{
           background: HOME_COACHES_SECTION_BACKGROUND,
           paddingTop: FEATURED_COACHES_SECTION_PADDING_TOP,
+          ["--home-coaches-heading-color" as string]: HOME_COACHES_SECTION_FIGMA.headingColor,
         }}
       >
         <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))] px-4 sm:px-6 md:px-10 tablet:px-20">
           <h2
             id="home-coaches-heading"
-            className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[1.05] text-[#fbf5d5]"
+            className={`${styles.desktopTitle} text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[1.05]`}
           >
             {t("coachesTitle")}
           </h2>

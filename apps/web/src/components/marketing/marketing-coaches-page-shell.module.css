@@ -9,7 +9,8 @@
 
 /* Background tracks mounted page content — avoids wellness flash before home RSC arrives. */
 .shell:has([data-marketing-home]) {
-  background-image: var(--gradient-wellness);
+  background-image: none;
+  background-color: var(--home-page-bg, #fbf5d5);
 }
 
 .shell:has([data-marketing-inner]) {
@@ -80,7 +81,7 @@
   background: #fbf5d5;
 }
 
-/* Schedule / Packages / Contact — cream page; mobile footer overlap matches home. */
+/* Coaches / Schedule / Packages / Contact — cream page; mobile footer overlap matches home. */
 .shell:has([data-marketing-practices-inner]) {
   background: #fbf5d5;
 }

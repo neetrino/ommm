@@ -3,12 +3,13 @@
  */
 
 import { HOME_HERO_FIGMA } from "@/components/marketing/home/home-hero-banner-tokens";
+import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 
 export const HOME_WEEKLY_SCHEDULE_FIGMA = {
   /** Solid hero yellow — matches hero band `#faf3cb` (`196:1293`). */
   panelFill: HOME_HERO_FIGMA.sectionBackground,
   panelRadiusPx: HOME_HERO_FIGMA.frostPanelRadiusPx,
-  headingColor: "#695f00",
+  headingColor: HOME_PAGE_SURFACE.classesGradientFrom,
   scheduleInk: "#4a4738",
   titleInk: "#1d1c15",
   spotsUrgent: "#af5008",

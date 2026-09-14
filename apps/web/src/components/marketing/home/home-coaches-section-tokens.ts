@@ -23,18 +23,20 @@ export const HOME_COACHES_DESKTOP_PORTRAIT_FIGMA = {
 export const HOME_COACHES_DESKTOP_PORTRAIT_LAYOUT = {
   imageColumnWidth: "min(21.375rem, 46%)",
   cropLeft: "calc(-4% + 6px)",
-  cropTop: "3%",
+  cropTop: "0",
   cropWidth: "114%",
-  cropHeight: "98%",
+  cropHeight: "100%",
   objectPosition: HOME_COACHES_DESKTOP_PORTRAIT_FIGMA.objectPosition,
 } as const;
 
-/** Coaches band gradient — teal → warm cream (`97:5826` / `155:188`). */
-export const HOME_COACHES_SECTION_BACKGROUND = `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.coachesGradientFrom}, ${HOME_PAGE_SURFACE.coachesGradientTo})`;
+/** Cream page surface — same as gallery / schedule. */
+export const HOME_COACHES_SECTION_BACKGROUND = HOME_PAGE_SURFACE.pageBackground;
 
 export const HOME_COACHES_SECTION_FIGMA = {
-  headingColor: "#fbf5d5",
-  subtitleColor: "rgba(255, 255, 255, 0.84)",
+  headingColor: HOME_PAGE_SURFACE.classesGradientFrom,
+  subtitleColor: HOME_PAGE_SURFACE.sectionLead,
+  dotActive: HOME_PAGE_SURFACE.classesGradientFrom,
+  dotInactive: "rgba(151, 144, 124, 0.35)",
 } as const;
 
 export const HOME_COACHES_SECTION_LAYOUT = {

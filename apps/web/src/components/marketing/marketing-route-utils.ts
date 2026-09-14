@@ -3,11 +3,9 @@ export const MARKETING_HOME_PAGE_MARKER = "data-marketing-home";
 export const MARKETING_INNER_PAGE_MARKER = "data-marketing-inner";
 /** Explore index — full-bleed coming soon surface without inner-page gradient. */
 export const MARKETING_EXPLORE_COMING_SOON_MARKER = "data-marketing-explore-coming-soon";
-/** Coaches hero keeps cream header ink over the teal gradient (`62:2182`). */
-export const MARKETING_COACHES_HERO_MARKER = "data-marketing-coaches-hero";
 /** Story page — cream surface matching values section (`670:801`). */
 export const MARKETING_STORY_PAGE_MARKER = "data-marketing-story";
-/** Schedule, Packages, Contact — cream surface (Our Core Practices end tone). */
+/** Coaches, Schedule, Packages, Contact — cream surface (Our Core Practices end tone). */
 export const MARKETING_PRACTICES_INNER_PAGE_MARKER = "data-marketing-practices-inner";
 /** Layout + home gallery seam footer — sphere bounce stacking target. */
 export const MARKETING_FOOTER_MARKER = "data-marketing-footer";
@@ -84,9 +82,10 @@ export function isMarketingContactPath(pathname: string): boolean {
   return pathname === "/contact" || pathname.startsWith("/contact/");
 }
 
-/** Schedule, Packages, Contact — cream inner routes (shared header + footer chrome). */
+/** Coaches, Schedule, Packages, Contact — cream inner routes (shared header + footer chrome). */
 export function isMarketingPracticesInnerPath(pathname: string): boolean {
   return (
+    isMarketingCoachesPath(pathname) ||
     isMarketingSchedulePath(pathname) ||
     isMarketingMembershipPath(pathname) ||
     isMarketingContactPath(pathname)

@@ -28,6 +28,10 @@
   display: none;
 }
 
+.desktopTitle {
+  color: var(--home-coaches-heading-color, #97907c);
+}
+
 .mobileShell {
   display: flex;
   width: 100%;
@@ -49,7 +53,7 @@
 .mobileTitle {
   font-size: var(--home-coaches-title-size);
   line-height: var(--home-coaches-title-line-height);
-  color: var(--home-coaches-heading-color, #fbf5d5);
+  color: var(--home-coaches-heading-color, #97907c);
 }
 
 .mobileSubtitle {
@@ -57,7 +61,7 @@
   max-width: var(--home-coaches-subtitle-max-width, 100%);
   font-size: var(--home-coaches-subtitle-size);
   line-height: var(--home-coaches-subtitle-line-height);
-  color: var(--home-coaches-subtitle-color, rgba(255, 255, 255, 0.84));
+  color: var(--home-coaches-subtitle-color, rgba(98, 98, 98, 0.84));
 }
 
 .mobileCarouselWrap {
@@ -86,14 +90,14 @@
   flex-shrink: 0;
   border: none;
   border-radius: 9999px;
-  background-color: rgb(255 255 255 / 0.35);
+  background-color: var(--home-coaches-dot-inactive, rgba(151, 144, 124, 0.35));
   padding: 0;
   cursor: pointer;
   transition: background-color 220ms ease, transform 220ms ease;
 }
 
 .mobileDotActive {
-  background-color: #fbf5d5;
+  background-color: var(--home-coaches-dot-active, #97907c);
   transform: scale(var(--home-coaches-dot-active-scale, 1.1));
 }
 
@@ -101,7 +105,7 @@
   outline: none;
   box-shadow:
     0 0 0 2px #fff,
-    0 0 0 4px rgb(87 127 145 / 0.45);
+    0 0 0 4px rgb(151 144 124 / 0.45);
 }
 
 .mobileCta {

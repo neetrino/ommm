@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { COACHES_PAGE_SURFACE } from "@/components/marketing/coaches/coaches-page-tokens";
 import { HOME_FOOTER_MOBILE_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
+import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { POLICY_PAGE_SURFACE } from "@/components/marketing/policy/policy-page-tokens";
 import {
   MARKETING_CONTENT_INLINE_INSET,
@@ -20,6 +21,7 @@ const MARKETING_SHELL_STYLE = {
   "--ommm-content-max-width": `${MARKETING_CONTENT_MAX_WIDTH_PX}px`,
   "--ommm-content-inline-margin": MARKETING_CONTENT_INLINE_MARGIN,
   "--marketing-content-inline-inset": MARKETING_CONTENT_INLINE_INSET,
+  "--home-page-bg": HOME_PAGE_SURFACE.pageBackground,
   "--coaches-page-gradient-from": COACHES_PAGE_SURFACE.gradientFrom,
   "--coaches-page-gradient-to": COACHES_PAGE_SURFACE.gradientTo,
   "--policy-page-background": POLICY_PAGE_SURFACE.background,

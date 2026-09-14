@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import {
+  MARKETING_PRACTICES_INNER_PAGE_SECTION_STYLE,
   MarketingPublicPageSection,
   marketingPublicPageSectionStyles,
 } from "@/components/marketing/marketing-public-page-section";
-import { MARKETING_COACHES_HERO_MARKER } from "@/components/marketing/marketing-route-utils";
+import { MARKETING_PRACTICES_INNER_PAGE_MARKER } from "@/components/marketing/marketing-route-utils";
 
 type MarketingPublicCoachesPageSectionProps = {
   title: string;
@@ -11,7 +12,7 @@ type MarketingPublicCoachesPageSectionProps = {
   children: ReactNode;
 };
 
-/** Coaches route — requires hero lead per Figma `62:2182`. */
+/** Coaches route — cream page surface matching schedule (not the teal Figma gradient). */
 export function MarketingPublicCoachesPageSection({
   title,
   lead,
@@ -21,7 +22,8 @@ export function MarketingPublicCoachesPageSection({
     <MarketingPublicPageSection
       title={title}
       lead={lead}
-      sectionMarkers={{ [MARKETING_COACHES_HERO_MARKER]: "" }}
+      sectionMarkers={{ [MARKETING_PRACTICES_INNER_PAGE_MARKER]: "" }}
+      sectionStyle={MARKETING_PRACTICES_INNER_PAGE_SECTION_STYLE}
     >
       {children}
     </MarketingPublicPageSection>
