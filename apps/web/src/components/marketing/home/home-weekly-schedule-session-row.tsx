@@ -28,6 +28,7 @@ import { resolveSchedulePackageEligibilityBadge } from "@/lib/schedule-session-e
 import { useIsMarketingPhoneViewport } from "@/hooks/use-is-marketing-phone-viewport";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import Image from "next/image";
 
@@ -103,7 +104,9 @@ export function HomeWeeklyScheduleSessionRow({
       : null;
   const timeLabel =
     dateTimeDisplay?.startTime ?? formatScheduleTime(locale, item.startTime);
-  const spotsUrgent = item.availableSpots <= HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgentThreshold;
+  const spotsUrgent =
+    isScheduleSessionFull(item.availableSpots, item.status) ||
+    item.availableSpots <= HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgentThreshold;
   const rowGradientDesktop = getHomeWeeklyScheduleRowGradient(item.classType, "desktop");
   const rowGradientMobile = getHomeWeeklyScheduleRowGradient(item.classType, "mobile");
   const isPhone = useIsMarketingPhoneViewport();

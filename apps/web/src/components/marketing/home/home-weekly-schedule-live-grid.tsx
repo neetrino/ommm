@@ -75,8 +75,9 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
       duration: (count: number) => t("weeklyScheduleDuration", { count }),
       durationFallback: t("weeklyScheduleDurationFallback"),
       spotsLeft: (count: number) => t("weeklyScheduleSpotsLeft", { count }),
+      spotsFull: tSchedule("spotsFull"),
     }),
-    [t],
+    [t, tSchedule],
   );
 
   const days = useMemo(() => buildHomeWeeklyScheduleDays(activeItems, labels), [activeItems, labels]);

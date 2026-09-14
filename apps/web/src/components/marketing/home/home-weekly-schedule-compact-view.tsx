@@ -21,6 +21,7 @@ import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 import { buildPublicScheduleHrefForDate } from "@/components/marketing/schedule/marketing-schedule-nav.helpers";
 import { SCHEDULE_BOOK_BTN_HOME } from "@/components/marketing/schedule/schedule-public-design";
 import {
+  isScheduleSessionFull,
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
 } from "@/lib/schedule-session-spots";
@@ -83,6 +84,7 @@ export function HomeWeeklyScheduleDayView({
   onWaitlistLeft,
 }: HomeWeeklyScheduleDayViewProps) {
   const t = useTranslations("marketingPublic.home");
+  const tSchedule = useTranslations("marketingPages.schedule");
   const [selectedDay, setSelectedDay] = useState<MarketingScheduleDayOfWeek>(initialDay);
   const userPickedDayRef = useRef(false);
   const todayIso = scheduleTodayIsoDate();
@@ -272,9 +274,14 @@ export function HomeWeeklyScheduleDayView({
                         sessionStatus: displayRow.status,
                         capacityReady: memberWaitlistLoaded,
                       });
-                      const spotsLeftLabel = t("weeklyScheduleSpotsLeft", {
-                        count: displayRow.availableSpots,
-                      });
+                      const spotsLeftLabel = isScheduleSessionFull(
+                        displayRow.availableSpots,
+                        displayRow.status,
+                      )
+                        ? tSchedule("spotsFull")
+                        : t("weeklyScheduleSpotsLeft", {
+                            count: displayRow.availableSpots,
+                          });
 
                       return (
                         <div
