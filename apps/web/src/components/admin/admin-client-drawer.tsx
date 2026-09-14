@@ -51,6 +51,8 @@ type AdminClientDrawerProps = {
   useOverlayPortalRoot?: boolean;
   /** Skip the initial profile fetch when the caller already loaded it. */
   initialDetail?: ClientDetail | null;
+  /** Open this tab first when the URL does not already select one. */
+  initialTab?: ClientSheetTabId;
   /** Admin-only package purchase in Packages tab. */
   allowPackagePurchase?: boolean;
   /** Admin/manager create booking in Bookings tab. */
@@ -82,6 +84,7 @@ export function AdminClientDrawer({
   onChanged,
   useOverlayPortalRoot = false,
   initialDetail = null,
+  initialTab,
   allowPackagePurchase = false,
   allowCreateBooking = false,
   allowCancelBooking = false,
@@ -100,6 +103,7 @@ export function AdminClientDrawer({
       onChanged={onChanged}
       useOverlayPortalRoot={useOverlayPortalRoot}
       initialDetail={initialDetail}
+      initialTab={initialTab}
       allowPackagePurchase={
         capabilities?.canAssignPackage ?? allowPackagePurchase
       }
@@ -122,6 +126,7 @@ function AdminClientDrawerInner({
   onChanged,
   useOverlayPortalRoot = false,
   initialDetail = null,
+  initialTab,
   allowPackagePurchase = false,
   allowCreateBooking = false,
   allowCancelBooking = false,
@@ -134,6 +139,7 @@ function AdminClientDrawerInner({
   onChanged: () => void;
   useOverlayPortalRoot?: boolean;
   initialDetail?: ClientDetail | null;
+  initialTab?: ClientSheetTabId;
   allowPackagePurchase?: boolean;
   allowCreateBooking?: boolean;
   allowCancelBooking?: boolean;
@@ -152,7 +158,9 @@ function AdminClientDrawerInner({
   const urlTab = addPackageFromUrl
     ? CLIENT_SHEET_TAB_PACKAGES
     : parseClientSheetTabId(searchParams.get(CLIENT_PROFILE_TAB_QUERY_KEY));
-  const [activeTab, setActiveTab] = useState<ClientSheetTabId>(urlTab);
+  const [activeTab, setActiveTab] = useState<ClientSheetTabId>(
+    initialTab ?? urlTab,
+  );
   const [prevUrlTab, setPrevUrlTab] = useState(urlTab);
   if (urlTab !== prevUrlTab) {
     setPrevUrlTab(urlTab);

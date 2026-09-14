@@ -11,7 +11,6 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import {
   buildRevenueTrendKpi,
   buildTodayBookingItems,
-  dashboardClientsHref,
   type DashboardBookingStatus,
   type DashboardOverview,
 } from "@/components/admin/admin-dashboard-metrics.helpers";
@@ -34,7 +33,6 @@ export async function AdminDashboardMetrics({
   const dashboardQuery = includeFinance
     ? "/reports/dashboard?includeRevenue=true&includeOverview=true"
     : "/reports/dashboard?includeOverview=true";
-  const clientsHref = dashboardClientsHref(includeFinance);
 
   const [overviewRes, dailyTrend] = await Promise.all([
     serverApiJson<DashboardOverview>(dashboardQuery, cookie),
@@ -113,7 +111,7 @@ export async function AdminDashboardMetrics({
       <AdminDashboardPaymentDueBanner
         items={studioPaymentDue.items}
         count={studioPaymentDue.count}
-        clientsHref={clientsHref}
+        locale={locale}
       />
       <AdminCallTasksDueBanner
         listHref={includeFinance ? "/admin/calls" : "/manager/calls"}
