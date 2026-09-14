@@ -5,6 +5,7 @@ import {
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
 import { coachName } from "@/components/admin/admin-schedule-session.helpers";
+import { AdminScheduleSessionSelectCheckbox } from "@/components/admin/admin-schedule-session-select-checkbox";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
 import styles from "@/components/admin/admin-schedule-session-sheet-card.module.css";
 import { ADMIN_LIST_ROW_SURFACE } from "@/components/admin/admin-list-table-layout";
@@ -15,12 +16,20 @@ import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 import { useTranslations } from "next-intl";
 
+type SheetCardSelectProps = {
+  checked: boolean;
+  disabled: boolean;
+  ariaLabel: string;
+  onChange: (checked: boolean) => void;
+};
+
 type AdminScheduleSessionSheetCardProps = {
   row: AdminScheduleSession;
   locale: string;
   onDetails: (row: AdminScheduleSession) => void;
   canAddVisitor?: boolean;
   showCoach?: boolean;
+  select?: SheetCardSelectProps | null;
 };
 
 function SheetCardTime({
@@ -38,13 +47,14 @@ function SheetCardTime({
   );
 }
 
-/** Day-sheet session card — class + status on top, time opposite occupancy. */
+/** Day-sheet / mobile-list session card — class + status on top, time opposite occupancy. */
 export function AdminScheduleSessionSheetCard({
   row,
   locale,
   onDetails,
   canAddVisitor = true,
   showCoach = true,
+  select = null,
 }: AdminScheduleSessionSheetCardProps) {
   const t = useTranslations("adminPages.classes");
   const tCommon = useTranslations("common");
@@ -56,6 +66,7 @@ export function AdminScheduleSessionSheetCard({
       : null;
   const cardClass = [
     styles.card,
+    select !== null ? styles.cardWithSelect : "",
     ADMIN_LIST_ROW_SURFACE,
     isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
       ? SCHEDULE_PAST_LIST_ROW_CLASS
@@ -78,6 +89,20 @@ export function AdminScheduleSessionSheetCard({
         }
       }}
     >
+      {select !== null ? (
+        <div
+          className={styles.select}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminScheduleSessionSelectCheckbox
+            checked={select.checked}
+            disabled={select.disabled}
+            ariaLabel={select.ariaLabel}
+            onChange={select.onChange}
+          />
+        </div>
+      ) : null}
       <div className={styles.main}>
         <p className={styles.title}>{row.title}</p>
         {showCoach ? <p className={styles.coach}>{coachName(row.coach)}</p> : null}

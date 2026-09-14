@@ -1,6 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ScheduleSessionCardFields } from "@/components/admin/admin-schedule-session-compact-row-fields";
+import { AdminScheduleSessionSheetCard } from "@/components/admin/admin-schedule-session-sheet-card";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
 import { hasAdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session.helpers";
 import {
@@ -42,6 +44,7 @@ export function AdminScheduleSessionCompactRow({
   canAddVisitor = true,
   showCoach = true,
 }: AdminScheduleSessionCompactRowProps) {
+  const t = useTranslations("adminPages.classes");
   const showActions = hasAdminScheduleSessionRowActions({
     onDuplicate,
     onCancel,
@@ -51,37 +54,58 @@ export function AdminScheduleSessionCompactRow({
   const pastDayClass = isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
     ? SCHEDULE_PAST_LIST_ROW_CLASS
     : "";
+  const select =
+    selectionEnabled && onToggleSelect !== undefined
+      ? {
+          checked: selected,
+          disabled: busy,
+          ariaLabel: t("bulk.selectRowAria", { title: row.title }),
+          onChange: (next: boolean) => onToggleSelect(row.id, next),
+        }
+      : null;
 
   return (
-    <article
-      role="button"
-      tabIndex={0}
-      aria-label={row.title}
-      onClick={() => onDetails(row)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onDetails(row);
-        }
-      }}
-      className={`${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} ${
-        showActions ? "" : ADMIN_SCHEDULE_SESSIONS_LIST_ROW_NO_ACTIONS_CLASS
-      } ${pastDayClass}`.trim()}
-    >
-      <ScheduleSessionCardFields
-        row={row}
-        locale={locale}
-        busy={busy}
-        selected={selected}
-        selectionEnabled={selectionEnabled}
-        onToggleSelect={onToggleSelect}
-        onDuplicate={onDuplicate}
-        onCancel={onCancel}
-        onActivate={onActivate}
-        onDelete={onDelete}
-        canAddVisitor={canAddVisitor}
-        showCoach={showCoach}
-      />
-    </article>
+    <>
+      <div className="md:hidden">
+        <AdminScheduleSessionSheetCard
+          row={row}
+          locale={locale}
+          onDetails={onDetails}
+          canAddVisitor={canAddVisitor}
+          showCoach={showCoach}
+          select={select}
+        />
+      </div>
+      <article
+        role="button"
+        tabIndex={0}
+        aria-label={row.title}
+        onClick={() => onDetails(row)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onDetails(row);
+          }
+        }}
+        className={`max-md:hidden ${ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS} ${
+          showActions ? "" : ADMIN_SCHEDULE_SESSIONS_LIST_ROW_NO_ACTIONS_CLASS
+        } ${pastDayClass}`.trim()}
+      >
+        <ScheduleSessionCardFields
+          row={row}
+          locale={locale}
+          busy={busy}
+          selected={selected}
+          selectionEnabled={selectionEnabled}
+          onToggleSelect={onToggleSelect}
+          onDuplicate={onDuplicate}
+          onCancel={onCancel}
+          onActivate={onActivate}
+          onDelete={onDelete}
+          canAddVisitor={canAddVisitor}
+          showCoach={showCoach}
+        />
+      </article>
+    </>
   );
 }
