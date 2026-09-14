@@ -2440,7 +2440,7 @@
         "remainingSessions": "Remaining sessions",
         "paymentMethod": "Payment method",
         "paymentDue": "Payment due",
-        "paymentDueHint": "This package has already been used, but the studio payment is still unpaid.",
+        "paymentDueHint": "A class on this package ended over an hour ago, but the studio payment is still unpaid.",
         "unlimited": "Unlimited",
         "selectLead": "Select an available package to continue.",
         "selectTierLead": "Select a package tier for this category.",

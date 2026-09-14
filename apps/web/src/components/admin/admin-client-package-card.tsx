@@ -34,7 +34,7 @@ const BOARD_CARD_CLASS = [
 const BOARD_CARD_DEFAULT_TONE =
   "border border-white/80 bg-white/95";
 const BOARD_CARD_PAYMENT_DUE_TONE =
-  "border border-rose-300 bg-rose-50/90";
+  "border-2 border-rose-500 bg-rose-100/90 ring-4 ring-rose-200";
 
 type AdminClientPackageCardProps = {
   clientId: string;

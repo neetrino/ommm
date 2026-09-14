@@ -26,6 +26,10 @@ import {
   type LastSessionAdjustmentDto,
 } from '../packages/packages-admin-sessions.history';
 import {
+  isStudioUnpaidPayment,
+  loadStudioPackagePaymentDueIds,
+} from '../packages/studio-package-payment-due';
+import {
   mapClientPackageTypeBalances,
   type ClientPackageTypeBalanceItem,
 } from './clients-package-type-balances.util';
@@ -116,6 +120,7 @@ type ClientPackagesPage = {
     paymentId: string | null;
     paymentStatus: string | null;
     paymentMethod: string | null;
+    paymentDue: boolean;
     typeBalances: ClientPackageTypeBalanceItem[];
     lastSessionAdjustment: LastSessionAdjustmentDto | null;
     freeze: {
@@ -235,7 +240,7 @@ export class ClientsTabListsService {
     const rows = allRows.slice(offset, offset + take);
 
     const packageIds = rows.map((row) => row.id);
-    const [payments, lastAdjustments] = await Promise.all([
+    const [payments, lastAdjustments, paymentDueIds] = await Promise.all([
       packageIds.length === 0
         ? Promise.resolve([])
         : this.prisma.payment.findMany({
@@ -253,6 +258,7 @@ export class ClientsTabListsService {
             orderBy: { createdAt: 'desc' },
           }),
       loadLatestSessionAdjustments(this.prisma, packageIds),
+      loadStudioPackagePaymentDueIds(this.prisma, packageIds),
     ]);
 
     const paymentByPackageId = new Map<
@@ -298,6 +304,12 @@ export class ClientsTabListsService {
           paymentId: paymentByPackageId.get(row.id)?.id ?? null,
           paymentStatus: paymentByPackageId.get(row.id)?.status ?? null,
           paymentMethod: paymentByPackageId.get(row.id)?.paymentMethod ?? null,
+          paymentDue:
+            paymentDueIds.has(row.id) &&
+            isStudioUnpaidPayment({
+              paymentStatus: paymentByPackageId.get(row.id)?.status ?? null,
+              paymentMethod: paymentByPackageId.get(row.id)?.paymentMethod ?? null,
+            }),
           typeBalances: mapClientPackageTypeBalances(row.balances),
           lastSessionAdjustment: lastAdjustments.get(row.id) ?? null,
           freeze: toUserPackageFreezeApi(row, row.plan, {

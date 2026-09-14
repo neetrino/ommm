@@ -2,36 +2,31 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { shouldShowStudioPackagePaymentDue } from "./admin-client-package-payment-due";
 
-const UNPAID_CASH = {
-  paymentStatus: "PENDING",
-  paymentMethod: "CASH",
-  usedSessions: 0,
-} as const;
-
 describe("shouldShowStudioPackagePaymentDue", () => {
-  it("hides the warning until the unpaid studio package has been used", () => {
-    assert.equal(shouldShowStudioPackagePaymentDue(UNPAID_CASH), false);
+  it("hides the warning until a consumed class ended at least one hour ago", () => {
     assert.equal(
       shouldShowStudioPackagePaymentDue({
-        ...UNPAID_CASH,
+        paymentStatus: "PENDING",
+        paymentMethod: "CASH",
+        paymentDue: false,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldShowStudioPackagePaymentDue({
+        paymentStatus: "PENDING",
         paymentMethod: "CARD_TERMINAL",
       }),
       false,
     );
   });
 
-  it("shows the warning after a cash or terminal package has been used", () => {
-    assert.equal(
-      shouldShowStudioPackagePaymentDue({ ...UNPAID_CASH, usedSessions: 1 }),
-      true,
-    );
+  it("shows the warning for unpaid cash or terminal after the class-end delay", () => {
     assert.equal(
       shouldShowStudioPackagePaymentDue({
         paymentStatus: "PENDING",
         paymentMethod: "CASH",
-        usedSessions: 0,
-        guestSlotsTotal: 2,
-        guestSlotsRemaining: 1,
+        paymentDue: true,
       }),
       true,
     );
@@ -39,8 +34,7 @@ describe("shouldShowStudioPackagePaymentDue", () => {
       shouldShowStudioPackagePaymentDue({
         paymentStatus: "PENDING",
         paymentMethod: "CARD_TERMINAL",
-        usedSessions: 0,
-        typeBalances: [{ usedSessions: 2 }],
+        paymentDue: true,
       }),
       true,
     );
@@ -51,7 +45,7 @@ describe("shouldShowStudioPackagePaymentDue", () => {
       shouldShowStudioPackagePaymentDue({
         paymentStatus: "SUCCEEDED",
         paymentMethod: "CASH",
-        usedSessions: 3,
+        paymentDue: true,
       }),
       false,
     );
@@ -59,23 +53,7 @@ describe("shouldShowStudioPackagePaymentDue", () => {
       shouldShowStudioPackagePaymentDue({
         paymentStatus: "PENDING",
         paymentMethod: "INFLUENCER",
-        usedSessions: 1,
-      }),
-      false,
-    );
-    assert.equal(
-      shouldShowStudioPackagePaymentDue({
-        paymentStatus: "PENDING",
-        paymentMethod: "CARD",
-        usedSessions: 1,
-      }),
-      false,
-    );
-    assert.equal(
-      shouldShowStudioPackagePaymentDue({
-        paymentStatus: "FAILED",
-        paymentMethod: "CASH",
-        usedSessions: 1,
+        paymentDue: true,
       }),
       false,
     );
