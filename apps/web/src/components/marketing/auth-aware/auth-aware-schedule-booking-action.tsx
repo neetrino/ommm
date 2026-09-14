@@ -217,7 +217,7 @@ export function AuthAwareScheduleBookingAction({
             router.push(buildLoginHrefWithReturnUrl(loginReturnPath));
           }}
         >
-          {bookLabel}
+          {isFull ? tWaitlist("action") : bookLabel}
         </button>
       );
     }

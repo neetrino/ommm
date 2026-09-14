@@ -3,6 +3,7 @@ import { listHomeWeeklyScheduleRollingTabs } from "@/components/marketing/home/h
 import type { HomeWeeklyScheduleCompactDay } from "@/components/marketing/home/home-weekly-schedule-compact-view";
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 
 export type HomeWeeklyScheduleDayLabels = {
   emptyDay: string;
@@ -12,6 +13,7 @@ export type HomeWeeklyScheduleDayLabels = {
   duration: (count: number) => string;
   durationFallback: string;
   spotsLeft: (count: number) => string;
+  spotsFull: string;
 };
 
 function formatDurationLabel(
@@ -44,7 +46,9 @@ export function buildHomeWeeklyScheduleDays(
       bookAriaLabel: labels.bookSessionAria(item.className),
       withInstructorLabel: labels.withInstructor(item.instructorName),
       durationLabel: formatDurationLabel(labels, item),
-      spotsLeftLabel: labels.spotsLeft(item.availableSpots),
+      spotsLeftLabel: isScheduleSessionFull(item.availableSpots, item.status)
+        ? labels.spotsFull
+        : labels.spotsLeft(item.availableSpots),
     })),
   }));
 }
