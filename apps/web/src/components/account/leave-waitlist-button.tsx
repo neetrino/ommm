@@ -10,20 +10,21 @@ import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event"
 
 type LeaveWaitlistButtonProps = {
   sessionId: string;
-  appearance?: "link" | "button";
   size?: "sm" | "md";
   wrapperClassName?: string;
   onLeft?: () => void;
 };
 
-const LEAVE_WAITLIST_BUTTON_CLASS = "ommm-btn-lifecycle-action--danger";
+const LEAVE_WAITLIST_BUTTON_CLASS = [
+  "ommm-btn-lifecycle-action--danger",
+  "border-red-300 bg-red-100 text-red-800",
+].join(" ");
 
 /**
  * Member waitlist leave control — confirm dialog, then DELETE /waitlist/sessions/:id.
  */
 export function LeaveWaitlistButton({
   sessionId,
-  appearance = "link",
   size = "sm",
   wrapperClassName,
   onLeft,
@@ -73,27 +74,16 @@ export function LeaveWaitlistButton({
     <>
       <div className={wrapperClassName ?? "flex flex-col items-start gap-1"}>
         {msg ? <p className="mb-2 whitespace-nowrap text-xs leading-none text-amber-800">{msg}</p> : null}
-        {appearance === "button" ? (
-          <OmmButton
-            type="button"
-            variant="danger"
-            size={size}
-            disabled={busy}
-            className={LEAVE_WAITLIST_BUTTON_CLASS}
-            onClick={openConfirm}
-          >
-            {t("action")}
-          </OmmButton>
-        ) : (
-          <button
-            type="button"
-            disabled={busy}
-            className={LEAVE_WAITLIST_BUTTON_CLASS}
-            onClick={openConfirm}
-          >
-            {t("action")}
-          </button>
-        )}
+        <OmmButton
+          type="button"
+          variant="danger"
+          size={size}
+          disabled={busy}
+          className={LEAVE_WAITLIST_BUTTON_CLASS}
+          onClick={openConfirm}
+        >
+          {t("action")}
+        </OmmButton>
       </div>
       <OmmConfirmDialog
         isOpen={confirmOpen}

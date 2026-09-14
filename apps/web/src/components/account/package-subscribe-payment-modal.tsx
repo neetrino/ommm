@@ -283,16 +283,7 @@ function PackageSubscribePaymentModalSession({
           </div>
         </div>
         <div className={PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS}>
-          <div className="flex shrink-0 flex-wrap justify-end gap-3">
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={onCloseSheet}
-              disabled={busy}
-            >
-              {t("cancel")}
-            </OmmButton>
+          <div className="flex shrink-0 justify-end">
             <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
               {busy
                 ? t("submitting")
