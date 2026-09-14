@@ -4802,7 +4802,8 @@
       "breakdownHint": "Salary is only accrued for classes where someone actually showed up.",
       "breakdownLoading": "Loading sessions…",
       "breakdownLoadFailed": "Could not load sessions.",
-      "breakdownEmpty": "No sessions found for this month."
+      "breakdownEmpty": "No sessions found for this month.",
+      "breakdownTotals": "Totals"
     }
   },
   "contentAdminPages": {

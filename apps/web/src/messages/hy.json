@@ -4803,7 +4803,8 @@
       "breakdownHint": "Աշխատավարձը հաշվարկվում է միայն այն պարապմունքների համար, որտեղ իրականում ինչ-որ մեկը եկել է։",
       "breakdownLoading": "Սեսիաները բեռնվում են…",
       "breakdownLoadFailed": "Չհաջողվեց բեռնել սեսիաները։",
-      "breakdownEmpty": "Այս ամսին սեսիաներ չեն գտնվել։"
+      "breakdownEmpty": "Այս ամսին սեսիաներ չեն գտնվել։",
+      "breakdownTotals": "Ընդամենը"
     }
   },
   "contentAdminPages": {
