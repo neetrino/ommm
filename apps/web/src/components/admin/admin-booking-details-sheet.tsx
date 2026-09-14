@@ -70,7 +70,6 @@ export type AdminBookingDetailsSheetProps = {
   locale: string;
   busy: boolean;
   onClose: () => void;
-  onOpenUser: (userId: string) => void;
   onMove: () => void;
   onChangeStatus: (status: ListRow["status"]) => void;
   onDelete?: () => void;
@@ -81,7 +80,6 @@ export function AdminBookingDetailsSheet({
   locale,
   busy,
   onClose,
-  onOpenUser,
   onMove,
   onChangeStatus,
   onDelete,
@@ -154,13 +152,6 @@ export function AdminBookingDetailsSheet({
               {row.session.classType.name}
             </h2>
             <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>{t("bookingDetailsLead")}</p>
-            <button
-              type="button"
-              className="truncate text-left text-sm font-medium text-sage-800 underline-offset-2 hover:underline"
-              onClick={() => onOpenUser(row.user.id)}
-            >
-              {row.user.name ?? row.user.email}
-            </button>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-2">
             <button
