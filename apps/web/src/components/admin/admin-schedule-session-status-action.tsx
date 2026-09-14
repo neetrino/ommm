@@ -9,6 +9,12 @@ import { ApiError, apiFetch } from "@/lib/api";
 
 type PendingConfirm = "cancel" | "activate";
 
+const SESSION_ACTIVATE_BUTTON_CLASS =
+  "ommm-btn-lifecycle-action--success border-emerald-300! bg-emerald-100! text-emerald-800!";
+
+const SESSION_CANCEL_BUTTON_CLASS =
+  "ommm-btn-lifecycle-action--danger border-red-300! bg-red-100! text-red-800!";
+
 type AdminScheduleSessionStatusActionProps = {
   sessionId: string;
   status: AdminScheduleSession["status"];
@@ -101,7 +107,8 @@ export function AdminScheduleSessionStatusAction({
       <OmmButton
         type="button"
         size="sm"
-        variant={isCancelled ? "secondary" : "ghost"}
+        variant="secondary"
+        className={isCancelled ? SESSION_ACTIVATE_BUTTON_CLASS : SESSION_CANCEL_BUTTON_CLASS}
         disabled={isDisabled}
         onClick={openConfirm}
       >
