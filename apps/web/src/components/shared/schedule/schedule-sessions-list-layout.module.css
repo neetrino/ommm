@@ -31,6 +31,20 @@
     grid-area: tags;
   }
 
+  .rowStaffReadOnly {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "class capacity"
+      "datetime datetime"
+      "tags tags";
+  }
+
+  .rowStaffReadOnly .capacity {
+    justify-self: end;
+    align-self: start;
+    text-align: right;
+  }
+
   .coach {
     display: none;
   }

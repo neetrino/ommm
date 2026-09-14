@@ -62,12 +62,18 @@ export async function StaffScheduleSessionRow({
           />
         }
         capacity={
-          <ScheduleSessionCapacityIndicator
-            booked={booked}
-            capacity={row.capacity}
-            spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-            secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
-          />
+          showCoach ? (
+            <ScheduleSessionCapacityIndicator
+              booked={booked}
+              capacity={row.capacity}
+              spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
+              secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
+            />
+          ) : (
+            <span className="font-semibold tabular-nums text-sage-900">
+              {booked}/{row.capacity}
+            </span>
+          )
         }
         showCoach={showCoach}
         showStatus={showCoach}

@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import { InternalScheduleMonthView } from "@/components/shared/schedule/internal-schedule-month-view";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
-import { ScheduleWeekSessionMiniCard } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
 import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
@@ -62,18 +61,15 @@ export function StaffScheduleListWeekViews({
         rows={rows}
         visibleYearMonth={visibleYearMonth}
         onShiftVisibleMonth={onShiftVisibleMonth}
-        renderDaySessions={(dayRows) =>
-          dayRows.map((session) => (
-            <ScheduleWeekSessionMiniCard
-              key={session.id}
-              locale={locale}
-              session={session}
-              showCoach={showCoachInWeek}
-              variant="staff"
-              canAddVisitor={canAddVisitor}
-            />
-          ))
-        }
+        renderDaySessions={(dayRows) => (
+          <StaffScheduleSessionsTable
+            locale={locale}
+            rows={dayRows}
+            emptyTitle={emptyTitle}
+            emptyBody={emptyBody}
+            preset={preset}
+          />
+        )}
       />
     );
   }
