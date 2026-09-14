@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 
 export const ADMIN_CENTER_TOAST_VISIBLE_MS = 3500;
 export const ADMIN_CENTER_TOAST_EXIT_MS = 320;
+/** Above the overlay portal (`130`) so save toasts stay visible over client drawers. */
+const ADMIN_CENTER_TOAST_LAYER_CLASS = "z-[140]";
 
 export type AdminCenterToastTone = "ok" | "err";
 
@@ -59,7 +61,7 @@ export function AdminCenterToast({
 
   return createPortal(
     <div
-      className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center px-4"
+      className={`pointer-events-none fixed inset-0 ${ADMIN_CENTER_TOAST_LAYER_CLASS} flex items-center justify-center px-4`}
       aria-live="polite"
     >
       <div

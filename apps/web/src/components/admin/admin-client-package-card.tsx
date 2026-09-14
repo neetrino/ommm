@@ -10,6 +10,7 @@ import {
   normalizeUserPackageStatus,
 } from "@/components/account/user-membership-display";
 import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-types";
+import { shouldShowStudioPackagePaymentDue } from "@/components/admin/admin-client-package-payment-due";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageActions } from "@/components/admin/admin-client-package-actions";
 import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
@@ -24,10 +25,15 @@ import { ADMIN_CARD_CONTAIN_CLASS } from "@/components/admin/admin-list-table-la
 
 const BOARD_CARD_CLASS = [
   ADMIN_CARD_CONTAIN_CLASS,
-  "flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5",
+  "flex h-full flex-col rounded-[28px] p-5",
   "shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)]",
   "sm:p-6",
 ].join(" ");
+
+const BOARD_CARD_DEFAULT_TONE =
+  "border border-white/80 bg-white/95";
+const BOARD_CARD_PAYMENT_DUE_TONE =
+  "border-2 border-rose-500 bg-rose-100/90 ring-4 ring-rose-200";
 
 type AdminClientPackageCardProps = {
   clientId: string;
@@ -101,9 +107,13 @@ export function AdminClientPackageCard({
     item.totalSessions > 0 &&
     item.usedSessions !== null;
   const typeBalances = item.typeBalances ?? [];
+  const paymentDue = shouldShowStudioPackagePaymentDue(item);
+  const cardTone = paymentDue
+    ? BOARD_CARD_PAYMENT_DUE_TONE
+    : BOARD_CARD_DEFAULT_TONE;
 
   return (
-    <article className={BOARD_CARD_CLASS}>
+    <article className={`${BOARD_CARD_CLASS} ${cardTone}`}>
       {successToast !== null ? (
         <AdminCenterToast
           message={successToast}
@@ -152,32 +162,34 @@ export function AdminClientPackageCard({
         <AdminClientPackageTypeBalances balances={typeBalances} />
       </div>
 
-      <div className="mt-5 flex items-end justify-between gap-4 border-b border-white/70 pb-5">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-            {tAdmin("packages.paymentMethod")}
+      <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-2 rounded-[22px] border border-white/80 bg-white/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-500">
+          {tAdmin("packages.paymentMethod")}
+        </p>
+        <p className="text-right text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-500">
+          {tAdmin("packages.validity")}
+        </p>
+        {item.paymentId !== null ? (
+          <AdminStaffPaymentEditors
+            layout="row"
+            paymentId={item.paymentId}
+            status={item.paymentStatus ?? "PENDING"}
+            paymentMethod={item.paymentMethod}
+            onUpdated={() => {
+              onPaymentUpdated?.();
+            }}
+            onError={(message) => {
+              setSuccessToast(message);
+            }}
+          />
+        ) : (
+          <p className="font-serif text-xl font-semibold tracking-tight text-sage-950">
+            {paymentMethodLabel}
           </p>
-          {item.paymentId !== null ? (
-            <div className="mt-2">
-              <AdminStaffPaymentEditors
-                paymentId={item.paymentId}
-                status={item.paymentStatus ?? "PENDING"}
-                paymentMethod={item.paymentMethod}
-                onUpdated={() => {
-                  onPaymentUpdated?.();
-                }}
-                onError={(message) => {
-                  setSuccessToast(message);
-                }}
-              />
-            </div>
-          ) : (
-            <p className="mt-1 text-2xl font-semibold tracking-tight text-sage-950">
-              {paymentMethodLabel}
-            </p>
-          )}
-        </div>
-        <p className="text-sm text-sage-600">{validityLabel}</p>
+        )}
+        <p className="inline-flex justify-self-end rounded-full border border-sage-200/80 bg-white/90 px-3.5 py-1.5 text-sm font-semibold text-sage-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+          {validityLabel}
+        </p>
       </div>
 
       <div className="mt-5 space-y-3">

@@ -3,9 +3,8 @@ import type { ManualPaymentMethod } from "@/lib/manual-payment-method";
 const PENDING_STATUS = "PENDING";
 const SUCCEEDED_STATUS = "SUCCEEDED";
 const CARD_METHOD: ManualPaymentMethod = "CARD";
-const STUDIO_METHODS = ["CASH", "CARD_TERMINAL"] as const;
 
-export type StudioManualPaymentMethod = (typeof STUDIO_METHODS)[number];
+export type StudioManualPaymentMethod = "CASH" | "CARD_TERMINAL";
 export type AdminUpdatablePaymentStatus =
   | "PENDING"
   | "SUCCEEDED"

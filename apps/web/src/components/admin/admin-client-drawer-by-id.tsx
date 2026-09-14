@@ -14,6 +14,7 @@ import {
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
+import type { ClientSheetTabId } from "@/components/admin/admin-client-sheet-tabs";
 import { apiFetch } from "@/lib/api";
 import { clientCapabilitiesForPath } from "@/lib/backoffice-capabilities";
 import { usePathname } from "@/i18n/navigation";
@@ -25,6 +26,7 @@ type AdminClientDrawerByIdProps = {
   onChanged?: () => void;
   /** Stack above nested confirm dialogs (e.g. package delete modal). */
   useOverlayPortalRoot?: boolean;
+  initialTab?: ClientSheetTabId;
 };
 
 export function AdminClientDrawerById({
@@ -33,6 +35,7 @@ export function AdminClientDrawerById({
   onClose,
   onChanged,
   useOverlayPortalRoot = false,
+  initialTab,
 }: AdminClientDrawerByIdProps) {
   if (!clientId) {
     return null;
@@ -46,6 +49,7 @@ export function AdminClientDrawerById({
       onClose={onClose}
       onChanged={onChanged}
       useOverlayPortalRoot={useOverlayPortalRoot}
+      initialTab={initialTab}
     />
   );
 }
@@ -56,12 +60,14 @@ function AdminClientDrawerByIdContent({
   onClose,
   onChanged,
   useOverlayPortalRoot = false,
+  initialTab,
 }: {
   clientId: string;
   locale: string;
   onClose: () => void;
   onChanged?: () => void;
   useOverlayPortalRoot?: boolean;
+  initialTab?: ClientSheetTabId;
 }) {
   const [client, setClient] = useState<ClientRow | null>(null);
   const [detail, setDetail] = useState<ClientDetail | null>(null);
@@ -113,6 +119,7 @@ function AdminClientDrawerByIdContent({
       onChanged={onChanged ?? (() => undefined)}
       useOverlayPortalRoot={useOverlayPortalRoot}
       initialDetail={detail}
+      initialTab={initialTab}
       capabilities={capabilities}
     />
   );

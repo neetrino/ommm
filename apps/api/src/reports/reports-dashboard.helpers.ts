@@ -67,6 +67,11 @@ const DASHBOARD_ALERT_RULES: ReadonlyArray<{
   },
   { code: 'payments_pending', level: 'warning', field: 'pendingPaymentsCount' },
   {
+    code: 'studio_payments_due',
+    level: 'warning',
+    field: 'studioPaymentsDueCount',
+  },
+  {
     code: 'draft_classes_upcoming',
     level: 'info',
     field: 'draftClassesUpcoming',
@@ -83,6 +88,7 @@ type DashboardAlertInput = {
   waitlistPressureCount: number;
   cancelledClassesToday: number;
   pendingPaymentsCount: number;
+  studioPaymentsDueCount: number;
   draftClassesUpcoming: number;
   upcomingCancellationsCount: number;
 };

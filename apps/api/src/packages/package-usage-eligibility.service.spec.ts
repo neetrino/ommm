@@ -5,7 +5,7 @@ jest.mock('./packages-freeze.resume', () => ({
 }));
 
 describe('PackageUsageEligibilityService', () => {
-  it('loads only ACTIVE packages so unpaid PENDING studio packages cannot book', async () => {
+  it('loads only ACTIVE packages so unpaid checkout PENDING packages cannot book', async () => {
     const findMany = jest.fn().mockResolvedValue([]);
     const service = new PackageUsageEligibilityService({
       userPackage: { findMany },
@@ -20,13 +20,12 @@ describe('PackageUsageEligibilityService', () => {
       },
     });
 
-    expect(findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          userId: 'user-1',
-          status: 'ACTIVE',
-        }),
-      }),
-    );
+    const findManyArgs = findMany.mock.calls[0] as
+      | [{ where: { userId: string; status: string } }]
+      | undefined;
+    expect(findManyArgs?.[0].where).toMatchObject({
+      userId: 'user-1',
+      status: 'ACTIVE',
+    });
   });
 });

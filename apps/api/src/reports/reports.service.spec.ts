@@ -24,6 +24,25 @@ function createServiceWithPrisma(
   );
 }
 
+function withStudioPaymentDueMocks(
+  prismaMock: Record<string, unknown>,
+): Record<string, unknown> {
+  const payment = (prismaMock.payment ?? {}) as Record<string, unknown>;
+  return {
+    ...prismaMock,
+    bookingConsumption: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
+    userPackage: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
+    payment: {
+      ...payment,
+      findMany: jest.fn().mockResolvedValue([]),
+    },
+  };
+}
+
 type DashboardOverviewResult = {
   sessionsToday: number;
   upcomingClasses: Array<{ id: string }>;
@@ -138,7 +157,9 @@ describe('ReportsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const service = createServiceWithPrisma(prismaMock);
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks(prismaMock),
+    );
 
     const result = await service.dashboard({
       includeRevenue: true,
@@ -182,7 +203,9 @@ describe('ReportsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const service = createServiceWithPrisma(prismaMock);
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks(prismaMock),
+    );
 
     const result = await service.dashboard({
       includeRevenue: false,
@@ -193,6 +216,9 @@ describe('ReportsService', () => {
     expect(result).not.toHaveProperty('revenue');
     expect(result).not.toHaveProperty('revenueCentsTotal');
     expect(prismaMock.payment.aggregate).not.toHaveBeenCalled();
+    expect(
+      (result as { studioPaymentDue: { count: number } }).studioPaymentDue,
+    ).toEqual({ count: 0, items: [] });
   });
 
   it('dashboard overview counts and lists only users created today', async () => {
@@ -224,7 +250,9 @@ describe('ReportsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const service = createServiceWithPrisma(prismaMock);
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks(prismaMock),
+    );
 
     const result = await service.dashboard({
       includeRevenue: false,
@@ -423,5 +451,21 @@ describe('ReportsService', () => {
     expect(csv).toContain('"ISSUED"');
     expect(csv).toContain('"REDEEMED"');
     expect(csv).toContain('"SPENT"');
+  });
+
+  it('studioPaymentDue returns overdue unpaid studio packages without the full dashboard', async () => {
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks({
+        payment: {
+          aggregate: jest.fn(),
+          findMany: jest.fn().mockResolvedValue([]),
+        },
+      }),
+    );
+
+    await expect(service.studioPaymentDue()).resolves.toEqual({
+      count: 0,
+      items: [],
+    });
   });
 });

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   ManualPaymentMethod,
   PaymentSource,
@@ -66,8 +70,9 @@ export class PaymentsAdminMutationService {
   async adminUpdatePaymentMethod(
     paymentId: string,
     paymentMethod: AdminUpdatablePaymentMethod,
-    _actorId: string,
+    actorId: string,
   ) {
+    void actorId;
     const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
     });
@@ -105,7 +110,6 @@ export class PaymentsAdminMutationService {
     if (status === PaymentStatus.SUCCEEDED) {
       throw new BadRequestException('Succeeded status must go through confirm');
     }
-    const previousStatus = payment.status;
     const shouldRefundGifts = shouldRefundReservedGiftCredits(
       payment.metadata,
       status,
@@ -119,7 +123,11 @@ export class PaymentsAdminMutationService {
             ? null
             : (payment.confirmedAt ?? new Date()),
         confirmedByAdminId: actorId,
-        metadata: nextStatusMetadata(payment.metadata, status, shouldRefundGifts),
+        metadata: nextStatusMetadata(
+          payment.metadata,
+          status,
+          shouldRefundGifts,
+        ),
       }),
     });
     await this.applyPackageStatusSideEffects({
@@ -127,7 +135,6 @@ export class PaymentsAdminMutationService {
       sourceId: payment.sourceId,
       userId: payment.userId,
       metadata: payment.metadata,
-      previousStatus,
       nextStatus: status,
       refundGiftCredits: shouldRefundGifts,
     });
@@ -142,7 +149,6 @@ export class PaymentsAdminMutationService {
     sourceId: string | null;
     userId: string;
     metadata: Prisma.JsonValue;
-    previousStatus: PaymentStatus;
     nextStatus: PaymentStatus;
     refundGiftCredits: boolean;
   }): Promise<void> {
@@ -163,16 +169,6 @@ export class PaymentsAdminMutationService {
           appliedCents: readGiftCreditsAppliedCents(params.metadata),
         });
       }
-      return;
-    }
-    if (
-      params.previousStatus === PaymentStatus.SUCCEEDED &&
-      params.nextStatus === PaymentStatus.PENDING
-    ) {
-      await this.setLinkedPackageStatus(
-        params.sourceId,
-        UserPackageStatus.PENDING,
-      );
     }
   }
 
@@ -200,10 +196,7 @@ function shouldRefundReservedGiftCredits(
   metadata: Prisma.JsonValue,
   status: AdminUpdatablePaymentStatus,
 ): boolean {
-  if (
-    status !== PaymentStatus.FAILED &&
-    status !== PaymentStatus.REFUNDED
-  ) {
+  if (status !== PaymentStatus.FAILED && status !== PaymentStatus.REFUNDED) {
     return false;
   }
   if (wereGiftCreditsRefunded(metadata)) {

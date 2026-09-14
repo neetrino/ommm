@@ -15,8 +15,8 @@ describe("resolveScheduleView", () => {
 
 describe("resolveEffectiveScheduleView", () => {
   it("keeps week on phones so staff can scroll into past days", () => {
-    assert.equal(resolveEffectiveScheduleView("weekly", false), "weekly");
-    assert.equal(resolveEffectiveScheduleView("monthly", false), "monthly");
-    assert.equal(resolveEffectiveScheduleView("list", false), "list");
+    assert.equal(resolveEffectiveScheduleView("weekly"), "weekly");
+    assert.equal(resolveEffectiveScheduleView("monthly"), "monthly");
+    assert.equal(resolveEffectiveScheduleView("list"), "list");
   });
 });

@@ -21,7 +21,10 @@ describe('studio-manual-payment.util', () => {
 
   it('allows card fail and refund without faking a bank deposit', () => {
     expect(
-      isAllowedCardStatusTransition(PaymentStatus.PENDING, PaymentStatus.FAILED),
+      isAllowedCardStatusTransition(
+        PaymentStatus.PENDING,
+        PaymentStatus.FAILED,
+      ),
     ).toBe(true);
     expect(
       isAllowedCardStatusTransition(

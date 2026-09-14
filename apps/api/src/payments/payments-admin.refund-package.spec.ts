@@ -186,15 +186,15 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
       'admin-1',
     );
 
-    expect(prisma.userPackage.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ id: 'up-pending' }),
-        data: { status: UserPackageStatus.CANCELLED },
-      }),
-    );
+    expect(prisma.userPackage.updateMany).toHaveBeenCalledTimes(1);
+    const cancelArgs = prisma.userPackage.updateMany.mock.calls[0] as
+      | [{ where: { id: string }; data: { status: UserPackageStatus } }]
+      | undefined;
+    expect(cancelArgs?.[0].where.id).toBe('up-pending');
+    expect(cancelArgs?.[0].data.status).toBe(UserPackageStatus.CANCELLED);
   });
 
-  it('reverts a paid studio package to PENDING when marked unpaid', async () => {
+  it('keeps the linked package usable when a paid studio payment is unmarked', async () => {
     const payment = {
       id: 'pay-revert',
       status: PaymentStatus.SUCCEEDED,
@@ -229,12 +229,7 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
       'admin-1',
     );
 
-    expect(prisma.userPackage.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ id: 'up-paid' }),
-        data: { status: UserPackageStatus.PENDING },
-      }),
-    );
+    expect(prisma.userPackage.updateMany).not.toHaveBeenCalled();
   });
 
   it('rejects painting a failed studio payment as succeeded', async () => {
@@ -303,14 +298,10 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
       where: { id: 'user-1' },
       data: { giftCreditsCents: { increment: 4_000 } },
     });
-    expect(prisma.payment.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          metadata: expect.objectContaining({
-            giftCreditsRefunded: true,
-          }),
-        }),
-      }),
-    );
+    expect(prisma.payment.update).toHaveBeenCalledTimes(1);
+    const paymentUpdate = prisma.payment.update.mock.calls[0] as
+      | [{ data: { metadata: { giftCreditsRefunded?: boolean } } }]
+      | undefined;
+    expect(paymentUpdate?.[0].data.metadata.giftCreditsRefunded).toBe(true);
   });
 });

@@ -21,9 +21,6 @@ export function resolveScheduleView(value: string | undefined): ScheduleView {
  * List / week / month stay available on phones and desktop.
  * Week board scrolls horizontally on narrow viewports.
  */
-export function resolveEffectiveScheduleView(
-  preferred: ScheduleView,
-  _supportsDesktopViews: boolean,
-): ScheduleView {
+export function resolveEffectiveScheduleView(preferred: ScheduleView): ScheduleView {
   return preferred;
 }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { AdminClientPackageCard } from "@/components/admin/admin-client-package-card";
+import { AdminClientPackagePaymentDueBanner } from "@/components/admin/admin-client-package-payment-due-banner";
+import { shouldShowStudioPackagePaymentDue } from "@/components/admin/admin-client-package-payment-due";
 import type {
   ClientDetail,
   ClientSheetPackageItem,
@@ -78,6 +80,7 @@ export function ClientPackagesPanel({
   const fetchKey = `${client.id}:${page}:${pageSize}:${refreshKey}:${retryKey}`;
   const loading = active && (result === null || result.key !== fetchKey);
   const items = result?.key === fetchKey ? result.items : [];
+  const hasPaymentDue = items.some((item) => shouldShowStudioPackagePaymentDue(item));
   const total = result?.key === fetchKey ? result.total : 0;
   const error = result?.key === fetchKey ? result.error : null;
 
@@ -138,6 +141,7 @@ export function ClientPackagesPanel({
 
   return (
     <div className="space-y-5">
+      {hasPaymentDue ? <AdminClientPackagePaymentDueBanner /> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
           {t("packages.heading")}

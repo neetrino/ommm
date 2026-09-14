@@ -24,6 +24,10 @@ export class ReportsService {
     return this.dashboardService.dashboard(options);
   }
 
+  studioPaymentDue() {
+    return this.dashboardService.studioPaymentDue();
+  }
+
   bookingsCsv(from: Date, to: Date) {
     return this.exportService.bookingsCsv(from, to);
   }

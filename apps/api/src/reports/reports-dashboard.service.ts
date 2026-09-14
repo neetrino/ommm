@@ -8,6 +8,7 @@ import {
 } from '@prisma/client';
 import { revenueSucceededWhere } from '../payments/payment-revenue.util';
 import { PrismaService } from '../prisma/prisma.service';
+import { loadDashboardStudioPaymentDue } from './reports-dashboard-payment-due';
 import {
   buildAlerts,
   mapBookingStatusCounts,
@@ -37,6 +38,10 @@ export type DashboardOptions = {
 @Injectable()
 export class ReportsDashboardService {
   constructor(private readonly prisma: PrismaService) {}
+
+  studioPaymentDue() {
+    return loadDashboardStudioPaymentDue(this.prisma);
+  }
 
   async dashboard(options?: DashboardOptions) {
     const includeRevenue = options?.includeRevenue === true;
@@ -152,6 +157,7 @@ export class ReportsDashboardService {
       fullClassesToday,
       cancelledClassesToday,
       draftClassesUpcoming,
+      studioPaymentDue,
     ] = await Promise.all([
       this.prisma.classSession.findMany({
         where: buildTodaySessionsWhere(todayStart, todayEnd),
@@ -264,6 +270,7 @@ export class ReportsDashboardService {
           status: ClassSessionStatus.DRAFT,
         },
       }),
+      loadDashboardStudioPaymentDue(this.prisma, now),
     ]);
 
     const bookingsByStatus = mapBookingStatusCounts(bookingsByStatusRaw);
@@ -286,6 +293,7 @@ export class ReportsDashboardService {
       pendingPaymentsCount: includeRevenue
         ? (pendingPaymentsAgg._count.id ?? 0)
         : 0,
+      studioPaymentsDueCount: studioPaymentDue.count,
       draftClassesUpcoming,
       upcomingCancellationsCount: upcomingCancellations.length,
     });
@@ -303,6 +311,7 @@ export class ReportsDashboardService {
         ),
       }),
       upcomingCancellations,
+      studioPaymentDue,
       newUsers: {
         todayCount: newUsersToday,
         recent: mapRecentUserSummaries(recentUsers),

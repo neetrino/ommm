@@ -77,7 +77,6 @@ export function AdminClientCompactRow({
         row={row}
         name={name}
         hideActions={hideActions}
-        onSelect={onSelect}
         onChanged={onChanged}
       />
     </article>
@@ -88,13 +87,11 @@ function ClientCardFields({
   row,
   name,
   hideActions,
-  onSelect,
   onChanged,
 }: {
   row: ClientRow;
   name: string;
   hideActions: boolean;
-  onSelect: (row: ClientRow) => void;
   onChanged: () => void;
 }) {
   return (

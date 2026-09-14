@@ -138,7 +138,10 @@ export async function createCashPackageSubscriptionWithGiftCredits(
       metadata: mergeArcaMetadata(null, {
         statusReason: PAYMENT_STATUS_REASON.AWAITING_CASH,
         ...(params.giftCreditsAppliedCents > 0
-          ? { [PACKAGE_GIFT_CREDITS_APPLIED_KEY]: params.giftCreditsAppliedCents }
+          ? {
+              [PACKAGE_GIFT_CREDITS_APPLIED_KEY]:
+                params.giftCreditsAppliedCents,
+            }
           : {}),
       }),
     },

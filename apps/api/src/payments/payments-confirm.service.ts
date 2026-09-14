@@ -72,9 +72,6 @@ export class PaymentsConfirmService {
     });
 
     await this.dispatchGiftEmails(giftEmails);
-    // Studio cash/terminal create leaves stock untouched (stockTracked=false).
-    // Fulfillment decrements here — drop the public plans cache so quantity
-    // cannot stay stale for the TTL window.
     if (packageStockTracked) {
       await this.packagesPublic.invalidatePublicPlansCache();
     }

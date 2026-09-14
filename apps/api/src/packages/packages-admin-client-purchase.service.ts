@@ -14,7 +14,7 @@ import { createAdminClientPackagePurchaseTx } from './packages-admin-client-purc
 
 /**
  * Admin/Manager Client Packages purchase — Cash / CARD_TERMINAL / INFLUENCER.
- * Studio methods stay unpaid until staff confirms. Influencer is immediate.
+ * Package is usable immediately. Studio methods stay unpaid until staff confirms.
  */
 @Injectable()
 export class PackagesAdminClientPurchaseService {
@@ -63,8 +63,6 @@ export class PackagesAdminClientPurchaseService {
       }),
     );
 
-    // Studio methods decrement stock only on confirmPayment, which invalidates
-    // the public plans cache after fulfillPackagePayment.
     if (created.stockTracked) {
       await this.publicPackages.invalidatePublicPlansCache();
     }
