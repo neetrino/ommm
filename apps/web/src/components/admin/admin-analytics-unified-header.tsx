@@ -60,7 +60,7 @@ function AdminAnalyticsUnifiedHeaderInner({
           <AdminAnalyticsTabNav workspace={workspace} />
         </div>
         {section ? (
-          <div className="flex min-w-0 w-full items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-w-0 w-full items-center">
             <AdminAnalyticsHeroFilters
               key={section}
               section={section}
