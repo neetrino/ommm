@@ -105,6 +105,7 @@ function AdminClientDrawerByIdContent({
   if (loading || client === null || detail === null) {
     return (
       <AdminClientDrawerLoadingShell
+        locale={locale}
         onClose={onClose}
         useOverlayPortalRoot={useOverlayPortalRoot}
       />
@@ -126,9 +127,11 @@ function AdminClientDrawerByIdContent({
 }
 
 function AdminClientDrawerLoadingShell({
+  locale,
   onClose,
   useOverlayPortalRoot,
 }: {
+  locale: string;
   onClose: () => void;
   useOverlayPortalRoot: boolean;
 }) {
