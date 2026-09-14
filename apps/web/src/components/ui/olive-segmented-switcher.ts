@@ -93,6 +93,31 @@ export function oliveSegmentedSegmentClassName(
   return `${OLIVE_SEGMENTED_SEGMENT_BASE} ${size} ${tone}`;
 }
 
+const FILL_TRACK_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
+  2: "relative grid w-full max-w-full shrink-0 grid-cols-2 rounded-full p-1",
+  3: "relative grid w-full max-w-full shrink-0 grid-cols-3 rounded-full p-1",
+  4: "relative grid w-full max-w-full shrink-0 grid-cols-4 rounded-full p-1",
+  5: "relative grid w-full max-w-full shrink-0 grid-cols-5 rounded-full p-1",
+  7: "relative grid w-full max-w-full shrink-0 grid-cols-7 rounded-full p-1",
+};
+
+/** Full-width equal columns (mobile language switcher). */
+export function oliveSegmentedFillTrackClass(
+  columnCount: OliveSegmentedColumnCount,
+  className = "",
+  surface: OliveSegmentedSurface = "muted",
+): string {
+  return `${FILL_TRACK_BY_COLUMNS[columnCount]} ${TRACK_SURFACE[surface]} ${className}`.trim();
+}
+
+/** Segment that shares remaining width in a fill track. */
+export function oliveSegmentedFillSegmentClassName(active: boolean): string {
+  const tone = active
+    ? "text-[var(--ommm-admin-cream)]"
+    : "text-sage-800";
+  return `${OLIVE_SEGMENTED_SEGMENT_BASE} min-w-0 w-full whitespace-nowrap px-2 py-2.5 text-sm ${tone}`;
+}
+
 export type OliveSegmentedHugDensity = "default" | "compact";
 
 const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
