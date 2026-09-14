@@ -182,11 +182,11 @@ export async function AdminDashboardMetrics({
           {upcomingCancellations.length === 0 ? (
             <p className="mt-3 text-sm text-sage-500">{tm("upcomingCancellations.empty")}</p>
           ) : (
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 grid grid-cols-2 gap-2">
               {upcomingCancellations.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-start justify-between gap-3 rounded-2xl border border-white/60 bg-white/70 px-3 py-2.5 text-sm"
+                  className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-white/60 bg-white/70 px-3 py-2.5 text-sm"
                 >
                   <div className="min-w-0">
                     <p className="font-medium text-sage-900">{item.userName}</p>
