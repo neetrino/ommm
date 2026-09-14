@@ -20,6 +20,7 @@ import {
   CONTENT_POSTS_LIST_STATUS_CELL,
   CONTENT_POSTS_LIST_TABLE_CLASS,
   CONTENT_POSTS_LIST_TYPE_CELL,
+  CONTENT_POSTS_LIST_TYPE_STATUS_CLUSTER_CLASS,
   CONTENT_POSTS_LIST_ACTIONS_HEADER_CELL,
 } from "@/components/shared/content/content-posts-list-layout";
 import type { ContentPostRow } from "@/components/shared/content/content-post-types";
@@ -78,18 +79,20 @@ export function ContentPostCompactRow({
         </button>
       </div>
 
-      <div className={CONTENT_POSTS_LIST_TYPE_CELL}>
-        <AdminListMobileLabel label={t("colType")} />
-        <span className={contentPostTypeBadgeClass(post.type)}>
-          {t(`typeValues.${post.type}`)}
-        </span>
-      </div>
+      <div className={CONTENT_POSTS_LIST_TYPE_STATUS_CLUSTER_CLASS}>
+        <div className={CONTENT_POSTS_LIST_TYPE_CELL}>
+          <AdminListMobileLabel label={t("colType")} />
+          <span className={contentPostTypeBadgeClass(post.type)}>
+            {t(`typeValues.${post.type}`)}
+          </span>
+        </div>
 
-      <div className={CONTENT_POSTS_LIST_STATUS_CELL}>
-        <AdminListMobileLabel label={t("colStatus")} />
-        <span className={contentPostStatusBadgeClass(post.status)}>
-          {t(`statusValues.${post.status}`)}
-        </span>
+        <div className={CONTENT_POSTS_LIST_STATUS_CELL}>
+          <AdminListMobileLabel label={t("colStatus")} />
+          <span className={contentPostStatusBadgeClass(post.status)}>
+            {t(`statusValues.${post.status}`)}
+          </span>
+        </div>
       </div>
 
       <div className={CONTENT_POSTS_LIST_DATE_CELL}>

@@ -35,6 +35,7 @@ function buildScheduleSessionsListRowClass(preset: ScheduleSessionsListPreset): 
     scheduleListLayoutStyles.row,
     preset === "admin" ? scheduleListLayoutStyles.rowWithActions : "",
     preset === "staffWithCoach" ? scheduleListLayoutStyles.rowWithStatus : "",
+    preset === "staffReadOnly" ? scheduleListLayoutStyles.rowStaffReadOnly : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -96,14 +97,20 @@ export function getScheduleSessionsListLayout(
     cellClass: USER_LIST_CELL_CLASS,
     selectCellClass,
     dateTimeCellClass: isStaffReadOnly
-      ? `${USER_LIST_DATE_CELL} overflow-visible`
+      ? `${USER_LIST_DATE_CELL} overflow-visible md:flex md:justify-center md:text-center`
       : `${USER_LIST_DATE_CELL} overflow-visible md:pl-6`,
     dateTimeHeaderCellClass: isStaffReadOnly
-      ? ADMIN_LIST_EMPHASIZED_HEADER
+      ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:justify-center md:text-center`
       : `${ADMIN_LIST_EMPHASIZED_HEADER} md:pl-6`,
-    capacityCellClass: `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-stretch`,
-    levelCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
-    levelHeaderCellClass: ADMIN_LIST_EMPHASIZED_HEADER,
+    capacityCellClass: isStaffReadOnly
+      ? `${USER_LIST_CELL_CLASS} tabular-nums md:flex md:justify-center md:text-center`
+      : `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-stretch`,
+    levelCellClass: isStaffReadOnly
+      ? `${USER_LIST_CELL_CLASS} flex flex-wrap items-center justify-center gap-1.5 md:justify-self-stretch`
+      : `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
+    levelHeaderCellClass: isStaffReadOnly
+      ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:justify-center md:text-center`
+      : ADMIN_LIST_EMPHASIZED_HEADER,
     tagsCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
     tagsHeaderCellClass: ADMIN_LIST_EMPHASIZED_HEADER,
     statusCellClass: `${USER_LIST_TRAILING_CELL} md:justify-self-end`,

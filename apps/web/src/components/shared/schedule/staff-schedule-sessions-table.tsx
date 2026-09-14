@@ -61,7 +61,7 @@ export function StaffScheduleSessionsTable({
             <StaffScheduleHeaderCell
               column="capacity"
               label={t("colCapacity")}
-              className={layout.emphasizedHeaderClass}
+              className={`${layout.emphasizedHeaderClass} md:justify-center md:text-center`}
             />
             <StaffScheduleHeaderCell
               column="level"
@@ -105,6 +105,7 @@ function StaffScheduleSessionRowClient({
 }) {
   const t = useTranslations("adminPages.classes");
   const layout = getScheduleSessionsListLayout(preset);
+  const isStaffReadOnly = preset === "staffReadOnly";
   const showCoach = preset === "staffWithCoach";
   const booked = row._count.bookings;
   const coachLabel = row.coach ? coachName(row.coach) : t("fallback.notSpecified");
@@ -139,10 +140,17 @@ function StaffScheduleSessionRowClient({
             locale={locale}
             booked={booked}
             capacity={row.capacity}
-            spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-            secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
+            spotsLabel={
+              isStaffReadOnly
+                ? `${booked}/${row.capacity}`
+                : t("fields.spotsBooked", { booked, capacity: row.capacity })
+            }
+            secondaryLabel={
+              isStaffReadOnly ? "" : t("fields.spotsLeft", { count: spotsLeft(row) })
+            }
             bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
-            canAdd={preset !== "staffReadOnly"}
+            layout={isStaffReadOnly ? "ratio" : "indicator"}
+            canAdd={!isStaffReadOnly}
           />
         }
         showCoach={showCoach}

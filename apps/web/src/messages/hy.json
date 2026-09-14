@@ -4826,7 +4826,8 @@
       "breakdownHint": "Աշխատավարձը հաշվարկվում է միայն այն պարապմունքների համար, որտեղ իրականում ինչ-որ մեկը եկել է։",
       "breakdownLoading": "Սեսիաները բեռնվում են…",
       "breakdownLoadFailed": "Չհաջողվեց բեռնել սեսիաները։",
-      "breakdownEmpty": "Այս ամսին սեսիաներ չեն գտնվել։"
+      "breakdownEmpty": "Այս ամսին սեսիաներ չեն գտնվել։",
+      "breakdownTotals": "Ընդամենը"
     }
   },
   "contentAdminPages": {
@@ -4853,6 +4854,7 @@
       "saveButton": "Պահպանել",
       "cancelButton": "Չեղարկել",
       "savingButton": "Պահպանում…",
+      "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պանելը",
       "deleteConfirmTitle": "Ջնջե՞լ գրառումը",
       "deleteConfirmBody": "Ջնջե՞լ «{title}»-ը։ Գործողությունը հետversible չէ։",
@@ -4975,7 +4977,7 @@
       "checkoutUnavailable": "Վճարման հայտը հասանելի չէ",
       "paymentPending": "Վճարման հայտը ստեղծվել է։ Ստուդիայի թիմը կհաստատի ձեր գրանցումը վճարումը հաստատելուց հետո։",
       "paymentPendingWithReference": "Վճարման հայտը՝ {reference}, ստեղծվել է։ Ստուդիայի թիմը կհաստատի ձեր գրանցումը վճարումը հաստատելուց հետո։",
-      "packageModalTitle": "Ընտրեք փաթեթ այս գրանցման համար",
+      "packageModalTitle": "Ընտրեք փաթեթ",
       "packageModalDescription": "Խնդրում ենք ընտրել, թե որ փաթեթն եք ցանկանում օգտագործել այս դասի համար։",
       "packageModalConfirm": "Գրանցվել ընտրված փաթեթով",
       "packageModalConfirming": "Գրանցվում է…",

@@ -14,8 +14,8 @@ type ScheduleSessionRegistrationsCapacityProps = {
   spotsLabel: string;
   secondaryLabel: string;
   bookedCountAriaLabel?: string;
-  /** Compact text for week/month cards; default indicator for list rows. */
-  layout?: "indicator" | "compactText";
+  /** Compact text for week/month cards; ratio (`0/10`) for coach tables; default indicator for list rows. */
+  layout?: "indicator" | "compactText" | "ratio";
   /** Admin/manager can add an existing client from the roster sheet. */
   canAdd?: boolean;
 };
@@ -24,6 +24,13 @@ type ScheduleSessionRegistrationsCapacityProps = {
 const COMPACT_SPOTS_BUTTON_CLASS = [
   "inline-flex max-w-full truncate text-left text-xs font-medium text-sage-700",
   "transition-colors hover:text-sage-950",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+].join(" ");
+
+/** Coach table count — `0/10`, clickable without the fill bar. */
+const RATIO_SPOTS_BUTTON_CLASS = [
+  "inline-flex font-semibold tabular-nums text-sage-900",
+  "transition-colors hover:text-sage-700",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
 
@@ -49,16 +56,7 @@ export function ScheduleSessionRegistrationsCapacity({
 
   return (
     <>
-      {layout === "compactText" ? (
-        <button
-          type="button"
-          className={COMPACT_SPOTS_BUTTON_CLASS}
-          aria-label={bookedCountAriaLabel ?? spotsLabel}
-          onClick={openModal}
-        >
-          {spotsLabel}
-        </button>
-      ) : (
+      {layout === "indicator" ? (
         <ScheduleSessionCapacityIndicator
           booked={booked}
           capacity={capacity}
@@ -67,6 +65,15 @@ export function ScheduleSessionRegistrationsCapacity({
           onBookedCountClick={openModal}
           bookedCountAriaLabel={bookedCountAriaLabel}
         />
+      ) : (
+        <button
+          type="button"
+          className={layout === "ratio" ? RATIO_SPOTS_BUTTON_CLASS : COMPACT_SPOTS_BUTTON_CLASS}
+          aria-label={bookedCountAriaLabel ?? spotsLabel}
+          onClick={openModal}
+        >
+          {spotsLabel}
+        </button>
       )}
       <AdminSessionRegistrationsModal
         isOpen={modalOpen}

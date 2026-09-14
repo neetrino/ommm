@@ -1,6 +1,5 @@
 import {
-  getHomeWeeklyScheduleTabCalendarDate,
-  resolveHomeWeeklyScheduleFocusDate,
+  listHomeWeeklyScheduleRollingTabs,
   resolveHomeWeeklyScheduleItemCalendarDate,
 } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
 import type {
@@ -8,8 +7,8 @@ import type {
   MarketingScheduleItem,
 } from "@/components/marketing/schedule/marketing-schedule-types";
 
-/** Figma day tab order — MON through SUN (`196:1300`). */
-export const HOME_WEEKLY_SCHEDULE_DAY_ORDER: readonly MarketingScheduleDayOfWeek[] = [
+/** Mon–Sun enum order used to initialize empty weekday buckets. */
+const WEEKDAY_BUCKET_KEYS: readonly MarketingScheduleDayOfWeek[] = [
   "MONDAY",
   "TUESDAY",
   "WEDNESDAY",
@@ -18,6 +17,11 @@ export const HOME_WEEKLY_SCHEDULE_DAY_ORDER: readonly MarketingScheduleDayOfWeek
   "SATURDAY",
   "SUNDAY",
 ] as const;
+
+/**
+ * @deprecated Prefer `listHomeWeeklyScheduleRollingTabs` — home tabs are rolling from today.
+ */
+export const HOME_WEEKLY_SCHEDULE_DAY_ORDER = WEEKDAY_BUCKET_KEYS;
 
 export type ScheduleItemsByWeekday = Record<
   MarketingScheduleDayOfWeek,
@@ -28,26 +32,24 @@ function compareSessions(a: MarketingScheduleItem, b: MarketingScheduleItem): nu
   return a.startTime.localeCompare(b.startTime);
 }
 
+function emptyWeekdayBuckets(): Record<MarketingScheduleDayOfWeek, MarketingScheduleItem[]> {
+  return Object.fromEntries(
+    WEEKDAY_BUCKET_KEYS.map((day) => [day, [] as MarketingScheduleItem[]]),
+  ) as Record<MarketingScheduleDayOfWeek, MarketingScheduleItem[]>;
+}
+
 /**
- * Groups active schedule rows by weekday tab for the Mon–Sun week that contains
- * the nearest upcoming session (or today when none exist).
+ * Groups active schedule rows into rolling weekday tabs (studio today … today+6).
+ * Sessions outside that window are omitted from the home weekly schedule.
  */
 export function groupScheduleByWeekday(
   items: readonly MarketingScheduleItem[],
   reference: Date = new Date(),
 ): ScheduleItemsByWeekday {
-  const focusDateIso = resolveHomeWeeklyScheduleFocusDate(items, reference);
-  const buckets = Object.fromEntries(
-    HOME_WEEKLY_SCHEDULE_DAY_ORDER.map((day) => [day, [] as MarketingScheduleItem[]]),
-  ) as Record<MarketingScheduleDayOfWeek, MarketingScheduleItem[]>;
+  const tabs = listHomeWeeklyScheduleRollingTabs(reference);
+  const buckets = emptyWeekdayBuckets();
 
-  for (const day of HOME_WEEKLY_SCHEDULE_DAY_ORDER) {
-    const tabCalendarDate = getHomeWeeklyScheduleTabCalendarDate(
-      day,
-      reference,
-      focusDateIso,
-    );
-
+  for (const tab of tabs) {
     for (const item of items) {
       if (!item.isActive) {
         continue;
@@ -56,14 +58,14 @@ export function groupScheduleByWeekday(
       const itemCalendarDate = resolveHomeWeeklyScheduleItemCalendarDate(
         item,
         reference,
-        focusDateIso,
+        tab.calendarDate,
       );
-      if (itemCalendarDate === tabCalendarDate) {
-        buckets[day].push(item);
+      if (itemCalendarDate === tab.calendarDate) {
+        buckets[tab.day].push(item);
       }
     }
 
-    buckets[day].sort(compareSessions);
+    buckets[tab.day].sort(compareSessions);
   }
 
   return buckets;

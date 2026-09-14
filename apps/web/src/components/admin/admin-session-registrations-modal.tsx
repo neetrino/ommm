@@ -15,7 +15,6 @@ import {
   ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
@@ -23,7 +22,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
-import { OmmButton } from "@/components/ui/omm-button";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -87,6 +86,7 @@ function AdminSessionRegistrationsSheet({
   const t = useTranslations("adminPages.classes.registrationsModal");
   const titleId = useId();
   const descId = useId();
+  const isPhone = useMemberHubSheetPhone();
   const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const [fetchResult, setFetchResult] = useState<RegistrationsFetchResult | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
@@ -170,14 +170,16 @@ function AdminSessionRegistrationsSheet({
                 {t("subtitle", { count: rosterCount, capacity })}
               </p>
             </div>
-            <button
-              type="button"
-              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-              aria-label={t("closeButton")}
-              onClick={requestClose}
-            >
-              <CloseGlyph />
-            </button>
+            {isPhone ? null : (
+              <button
+                type="button"
+                className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+                aria-label={t("closeButton")}
+                onClick={requestClose}
+              >
+                <CloseGlyph />
+              </button>
+            )}
           </div>
         </header>
         <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 space-y-4`}>
@@ -198,13 +200,6 @@ function AdminSessionRegistrationsSheet({
             locale={locale}
             onMemberClick={setSelectedClientId}
           />
-        </div>
-        <div className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
-          <div className="flex justify-end">
-            <OmmButton type="button" variant="secondary" size="sm" onClick={requestClose}>
-              {t("closeButton")}
-            </OmmButton>
-          </div>
         </div>
       </AdminSheetPortal>
       <AdminClientDrawerById

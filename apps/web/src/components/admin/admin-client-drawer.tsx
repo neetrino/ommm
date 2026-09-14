@@ -31,8 +31,7 @@ import {
   ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS,
-  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+  adminClientDrawerPanelClass,
 } from "@/components/admin/admin-details-sheet-layout";
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -386,9 +385,7 @@ function AdminClientDrawerInner({
           ? ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS
           : ADMIN_DETAILS_SHEET_OVERLAY_CLASS
       }
-      drawerPanelClassName={
-        isNestedOverlay ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS
-      }
+      drawerPanelClassName={adminClientDrawerPanelClass(locale, isNestedOverlay)}
       lockBodyScroll={!isNestedOverlay}
       useOverlayPortalRoot={useOverlayPortalRoot}
     >
@@ -428,6 +425,7 @@ function AdminClientDrawerInner({
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        density="compact"
       />
 
       <div className={bodyClassName}>

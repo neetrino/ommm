@@ -6,10 +6,6 @@ import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import { PackageSubscribeGiftCreditsToggle } from "@/components/account/package-subscribe-gift-credits-toggle";
 import {
-  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
-  memberAccountHubSheetPanelStyle,
-} from "@/components/account/member-account-hub-sheet-layout";
-import {
   MemberHubMobileSheet,
   useMemberHubMobileSheetClose,
 } from "@/components/account/member-hub-mobile-sheet";
@@ -25,6 +21,7 @@ import {
   PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
+  packageFlowMobileSheetPanelStyle,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
 import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
@@ -286,16 +283,7 @@ function PackageSubscribePaymentModalSession({
           </div>
         </div>
         <div className={PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS}>
-          <div className="flex shrink-0 flex-wrap justify-end gap-3">
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={onCloseSheet}
-              disabled={busy}
-            >
-              {t("cancel")}
-            </OmmButton>
+          <div className="flex shrink-0 justify-end">
             <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
               {busy
                 ? t("submitting")
@@ -309,7 +297,7 @@ function PackageSubscribePaymentModalSession({
     );
   }
 
-  function renderSheetHeader(onCloseSheet: () => void) {
+  function renderSheetHeader(onCloseSheet: () => void, showClose = true) {
     return (
       <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
         <h2
@@ -318,15 +306,17 @@ function PackageSubscribePaymentModalSession({
         >
           {sheetTitle}
         </h2>
-        <button
-          type="button"
-          className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-          aria-label={t("closeModal")}
-          onClick={onCloseSheet}
-          disabled={busy}
-        >
-          <SheetCloseIcon />
-        </button>
+        {showClose ? (
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("closeModal")}
+            onClick={onCloseSheet}
+            disabled={busy}
+          >
+            <SheetCloseIcon />
+          </button>
+        ) : null}
       </header>
     );
   }
@@ -336,14 +326,13 @@ function PackageSubscribePaymentModalSession({
       <MemberHubMobileSheet
         bare
         titleId={titleId}
-        closeLabel={t("closeModal")}
         backdropCloseLabel={t("closeModal")}
         onClose={finishClose}
         closeDisabled={busy}
-        panelStyle={memberAccountHubSheetPanelStyle()}
+        panelStyle={packageFlowMobileSheetPanelStyle()}
       >
         <PackageSubscribeMobileSheetLayout
-          renderHeader={renderSheetHeader}
+          renderHeader={(onCloseSheet) => renderSheetHeader(onCloseSheet, false)}
           renderBody={renderSheetBody}
         />
       </MemberHubMobileSheet>
@@ -381,7 +370,6 @@ function PackageSubscribeMobileSheetLayout({
 
   return (
     <>
-      <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
       {renderHeader(requestClose)}
       <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{renderBody(requestClose)}</div>
     </>

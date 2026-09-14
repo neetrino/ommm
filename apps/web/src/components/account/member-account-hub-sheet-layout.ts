@@ -19,11 +19,8 @@ export function memberAccountHubSheetPanelStyle(): CSSProperties {
   };
 }
 
-export const MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS =
-  "mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-sage-300/80";
-
 export const MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS =
-  "flex shrink-0 items-center justify-between gap-3 px-5 pb-3 pt-1";
+  "flex shrink-0 items-center px-5 pb-3 pt-1";
 
 export const MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS =
   "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]";

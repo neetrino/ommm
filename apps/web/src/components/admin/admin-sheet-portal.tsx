@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useId, useState, type ReactNode } from "react";
-import {
-  ADMIN_MOBILE_SHEET_GRABBER_CLASS,
-  ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS,
-  adminMobileSheetPanelStyle,
-} from "@/components/admin/admin-mobile-sheet-layout";
+import { adminMobileSheetPanelStyle } from "@/components/admin/admin-mobile-sheet-layout";
 import { AdminMobileBottomSheet } from "@/components/admin/admin-mobile-bottom-sheet";
 import {
   OMM_DRAWER_OVERLAY_CLASS,
@@ -117,9 +113,6 @@ export function AdminSheetPortal({
         panelStyle={adminMobileSheetPanelStyle()}
         zIndexClass={zIndexClass}
       >
-        <div className={ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS}>
-          <div className={ADMIN_MOBILE_SHEET_GRABBER_CLASS} aria-hidden />
-        </div>
         {children}
       </AdminMobileBottomSheet>
     );

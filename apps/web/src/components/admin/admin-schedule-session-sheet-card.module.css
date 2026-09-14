@@ -1,18 +1,18 @@
 .card {
-  --sheet-card-capacity-col: 6.75rem;
+  --sheet-card-capacity-col: 7.5rem;
   --sheet-card-actions-col: 6.25rem;
   display: grid;
   width: 100%;
   min-width: 0;
-  grid-template-columns: auto minmax(0, 1fr) var(--sheet-card-capacity-col) var(--sheet-card-actions-col);
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
-    "time main capacity actions"
-    "time meta capacity actions";
-  column-gap: 0.875rem;
-  row-gap: 0.2rem;
-  align-items: center;
+    "main status"
+    "footer footer";
+  column-gap: 0.75rem;
+  row-gap: 0.55rem;
+  align-items: start;
   margin: 0;
-  padding: 0.7rem 0.9rem;
+  padding: 0.75rem 0.9rem;
   border-radius: 1.15rem;
   text-align: left;
   cursor: pointer;
@@ -23,38 +23,6 @@
   box-shadow:
     0 0 0 2px rgb(255 255 255 / 0.95),
     0 0 0 4px rgb(180 150 80 / 0.4);
-}
-
-.time {
-  grid-area: time;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-  min-width: 4.25rem;
-}
-
-.startTime {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 1.375rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: #2a2620;
-}
-
-.duration {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.12rem 0.4rem;
-  border-radius: 9999px;
-  background: rgb(245 236 214 / 0.95);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  color: #4a4738;
 }
 
 .main {
@@ -84,21 +52,58 @@
   white-space: nowrap;
 }
 
-.meta {
-  grid-area: meta;
+.status {
+  grid-area: status;
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.footer {
+  grid-area: footer;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.time {
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem 0.65rem;
+  gap: 0.4rem;
+}
+
+.startTime {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #2a2620;
+}
+
+.duration {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.4rem;
+  border-radius: 9999px;
+  background: rgb(245 236 214 / 0.95);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: #4a4738;
 }
 
 .capacity {
-  grid-area: capacity;
-  width: 100%;
+  width: var(--sheet-card-capacity-col);
   min-width: 0;
-  justify-self: start;
-  align-self: center;
+  flex-shrink: 0;
   text-align: left;
 }
 
@@ -109,24 +114,12 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: flex-end;
+  align-self: center;
 }
 
-@media (max-width: 639px) {
-  .card {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      "time main"
-      "time meta"
-      "capacity actions";
-    padding: 0.7rem 0.8rem;
-  }
-
-  .capacity {
-    min-width: 6.25rem;
-  }
-
-  .actions {
-    justify-content: flex-end;
-    padding-top: 0.15rem;
-  }
+.cardWithActions {
+  grid-template-columns: minmax(0, 1fr) auto var(--sheet-card-actions-col);
+  grid-template-areas:
+    "main status actions"
+    "footer footer actions";
 }

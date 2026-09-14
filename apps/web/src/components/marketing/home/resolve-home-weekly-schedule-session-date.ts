@@ -1,22 +1,9 @@
-import {
-  addDays,
-  startOfLocalDay,
-  startOfWeekSunday,
-} from "@/components/marketing/schedule/schedule-date-utils";
+import { getHomeWeeklyScheduleTabCalendarDate } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
 import type {
   MarketingScheduleDayOfWeek,
   MarketingScheduleItem,
 } from "@/components/marketing/schedule/marketing-schedule-types";
-
-const DAY_TO_OFFSET: Record<MarketingScheduleDayOfWeek, number> = {
-  SUNDAY: 0,
-  MONDAY: 1,
-  TUESDAY: 2,
-  WEDNESDAY: 3,
-  THURSDAY: 4,
-  FRIDAY: 5,
-  SATURDAY: 6,
-};
+import { startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 
 /** Resolves the calendar day shown on home weekly schedule session cards. */
 export function resolveHomeWeeklyScheduleSessionDate(
@@ -32,6 +19,7 @@ export function resolveHomeWeeklyScheduleSessionDate(
     return startOfLocalDay(new Date(item.sessionDate));
   }
 
-  const weekStart = startOfWeekSunday(now);
-  return addDays(weekStart, DAY_TO_OFFSET[item.dayOfWeek]);
+  const calendarDate = getHomeWeeklyScheduleTabCalendarDate(item.dayOfWeek, now);
+  const [year, month, day] = calendarDate.split("-").map(Number);
+  return startOfLocalDay(new Date(year, month - 1, day));
 }

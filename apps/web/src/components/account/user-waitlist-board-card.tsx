@@ -48,7 +48,6 @@ export function UserWaitlistBoardCard({
       <div className="mt-auto flex justify-end border-t border-white/70 pt-4">
         <LeaveWaitlistButton
           sessionId={waitlist.session.id}
-          appearance="button"
           size="sm"
           wrapperClassName="flex flex-col items-end gap-1"
           onLeft={onLeft}

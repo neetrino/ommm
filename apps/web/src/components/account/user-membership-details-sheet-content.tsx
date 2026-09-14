@@ -45,6 +45,7 @@ type MembershipDetailsSheetContentProps = {
   locale: string;
   status: UserPackageStatus;
   onClose: () => void;
+  showClose?: boolean;
 };
 
 export function MembershipDetailsSheetContent({
@@ -52,6 +53,7 @@ export function MembershipDetailsSheetContent({
   locale,
   status,
   onClose,
+  showClose = true,
 }: MembershipDetailsSheetContentProps) {
   const t = useTranslations("userPages.packages");
   const m = useTranslations("marketing");
@@ -89,14 +91,16 @@ export function MembershipDetailsSheetContent({
             <span className={memberStatusClassName(status)}>
               {formatMembershipStatusLabel(status, t)}
             </span>
-            <button
-              type="button"
-              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-              aria-label={t("membershipDetailsCloseBackdrop")}
-              onClick={onClose}
-            >
-              <CloseGlyph />
-            </button>
+            {showClose ? (
+              <button
+                type="button"
+                className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+                aria-label={t("membershipDetailsCloseBackdrop")}
+                onClick={onClose}
+              >
+                <CloseGlyph />
+              </button>
+            ) : null}
           </div>
         </div>
       </header>

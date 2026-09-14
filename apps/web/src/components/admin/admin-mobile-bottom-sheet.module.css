@@ -53,6 +53,14 @@
   transform: translate3d(0, 0, 0);
 }
 
+.panelDragging {
+  transition: none;
+}
+
+.grabberRow {
+  touch-action: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .backdrop,
   .panel {

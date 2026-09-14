@@ -7,8 +7,8 @@ import type { MarketingScheduleItem } from "@/components/marketing/schedule/mark
 import { utcToStudioDayOfWeek } from "@/lib/studio-timezone";
 
 /**
- * Defaults the compact schedule to the weekday of the nearest upcoming session.
- * Falls back to studio today when there are no upcoming dated sessions.
+ * Defaults the compact schedule to the weekday of the nearest upcoming session
+ * inside the rolling today…today+6 window. Falls back to studio today otherwise.
  */
 export function getDefaultWeeklyScheduleDay(
   items: readonly Pick<MarketingScheduleItem, "sessionDate" | "isActive">[] = [],

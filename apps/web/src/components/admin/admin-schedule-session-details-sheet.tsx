@@ -215,13 +215,13 @@ function AdminScheduleSessionDetailsSheetInner({
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col items-start gap-3">
-            <div className="min-w-0">
-              <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
-                {row.title}
-              </h2>
-              <p className="mt-1 truncate text-sm text-sage-600">{row.classType.name}</p>
-            </div>
+          <div className="min-w-0">
+            <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
+              {row.title}
+            </h2>
+            <p className="mt-1 truncate text-sm text-sage-600">{row.classType.name}</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
             <AdminScheduleSessionStatusAction
               sessionId={row.id}
               status={row.status}
@@ -230,16 +230,16 @@ function AdminScheduleSessionDetailsSheetInner({
               onBusyChange={setStatusBusy}
               onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
             />
+            <button
+              type="button"
+              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+              aria-label={t("modalCloseAria")}
+              onClick={handleClose}
+              disabled={sheetBusy || editForm.dirty}
+            >
+              <CloseGlyph />
+            </button>
           </div>
-          <button
-            type="button"
-            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-            aria-label={t("modalCloseAria")}
-            onClick={handleClose}
-            disabled={sheetBusy || editForm.dirty}
-          >
-            <CloseGlyph />
-          </button>
         </div>
       </header>
 

@@ -8,9 +8,9 @@ import {
   BookingPackageSelectMobileSheetLayout,
   BookingPackageSelectSheetCloseIcon,
 } from "@/components/account/booking-package-select-sheet-chrome";
-import { memberAccountHubSheetPanelStyle } from "@/components/account/member-account-hub-sheet-layout";
 import { MemberHubMobileSheet } from "@/components/account/member-hub-mobile-sheet";
 import {
+  BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS,
@@ -19,8 +19,8 @@ import {
   PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
   PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS,
-  PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
+  packageFlowMobileSheetPanelStyle,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
 import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
@@ -161,24 +161,26 @@ function BookingPackageSelectModalSession({
     window.setTimeout(onClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
   }
 
-  function renderSheetHeader(onCloseSheet: () => void): ReactNode {
+  function renderSheetHeader(onCloseSheet: () => void, showClose = true): ReactNode {
     return (
-      <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
+      <header className={BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS}>
         <h2
           id={titleId}
           className={`${sheetStyles.sheetTitle} ${PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS}`}
         >
           {t("packageModalTitle")}
         </h2>
-        <button
-          type="button"
-          className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-          aria-label={t("packageModalClose")}
-          onClick={onCloseSheet}
-          disabled={busy}
-        >
-          <BookingPackageSelectSheetCloseIcon />
-        </button>
+        {showClose ? (
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("packageModalClose")}
+            onClick={onCloseSheet}
+            disabled={busy}
+          >
+            <BookingPackageSelectSheetCloseIcon />
+          </button>
+        ) : null}
       </header>
     );
   }
@@ -222,7 +224,6 @@ function BookingPackageSelectModalSession({
             canConfirmGuest={
               selectedPackage?.canBookGuest === true && guestName.trim().length > 0
             }
-            onClose={onCloseSheet}
             onConfirmOwner={() => {
               if (selectedPackage?.canBook === true && !busy) {
                 requestSubmitBooking();
@@ -248,14 +249,13 @@ function BookingPackageSelectModalSession({
       <MemberHubMobileSheet
         bare
         titleId={titleId}
-        closeLabel={t("packageModalClose")}
         backdropCloseLabel={t("packageModalClose")}
         onClose={onClose}
         closeDisabled={busy}
-        panelStyle={memberAccountHubSheetPanelStyle()}
+        panelStyle={packageFlowMobileSheetPanelStyle()}
       >
         <BookingPackageSelectMobileSheetLayout
-          renderHeader={renderSheetHeader}
+          renderHeader={(onCloseSheet) => renderSheetHeader(onCloseSheet, false)}
           renderBody={renderSheetBody}
         />
       </MemberHubMobileSheet>

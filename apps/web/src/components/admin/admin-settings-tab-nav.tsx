@@ -10,6 +10,7 @@ import {
   resolveAdminSettingsTabFromPathname,
   type AdminSettingsTabId,
 } from "@/components/admin/admin-settings-module";
+import { ADMIN_HORIZONTAL_TAB_SCROLL_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import {
   WhatsappBrandIcon,
   WHATSAPP_BRAND_ICON_SM_CLASS,
@@ -39,38 +40,40 @@ export function AdminSettingsTabNav({ className = "" }: { className?: string }) 
   const layoutGroupId = useId();
 
   return (
-    <LayoutGroup id={layoutGroupId}>
-      <nav
-        role="tablist"
-        aria-label={t("aria")}
-        className={oliveSegmentedHugTrackClass(className)}
-      >
-        {ADMIN_SETTINGS_TAB_IDS.map((tab) => {
-          const href = ADMIN_SETTINGS_TAB_HREF[tab];
-          const active = activeTab === tab;
-          return (
-            <Link
-              key={tab}
-              href={href}
-              role="tab"
-              aria-selected={active}
-              aria-current={active ? "page" : undefined}
-              scroll={false}
-              className={oliveSegmentedHugSegmentClassName(active)}
-            >
-              {active ? (
-                <OliveSegmentedActiveThumb layoutId={SETTINGS_PILL_LAYOUT_ID} />
-              ) : null}
-              <span className="relative z-10 inline-flex items-center gap-1.5">
-                {tab === "whatsapp" ? (
-                  <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+    <div className={`${ADMIN_HORIZONTAL_TAB_SCROLL_CLASS} min-w-0 w-full`}>
+      <LayoutGroup id={layoutGroupId}>
+        <nav
+          role="tablist"
+          aria-label={t("aria")}
+          className={oliveSegmentedHugTrackClass(className)}
+        >
+          {ADMIN_SETTINGS_TAB_IDS.map((tab) => {
+            const href = ADMIN_SETTINGS_TAB_HREF[tab];
+            const active = activeTab === tab;
+            return (
+              <Link
+                key={tab}
+                href={href}
+                role="tab"
+                aria-selected={active}
+                aria-current={active ? "page" : undefined}
+                scroll={false}
+                className={oliveSegmentedHugSegmentClassName(active)}
+              >
+                {active ? (
+                  <OliveSegmentedActiveThumb layoutId={SETTINGS_PILL_LAYOUT_ID} />
                 ) : null}
-                {t(TAB_LABEL_KEY[tab])}
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
-    </LayoutGroup>
+                <span className="relative z-10 inline-flex items-center gap-1.5">
+                  {tab === "whatsapp" ? (
+                    <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+                  ) : null}
+                  {t(TAB_LABEL_KEY[tab])}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+      </LayoutGroup>
+    </div>
   );
 }

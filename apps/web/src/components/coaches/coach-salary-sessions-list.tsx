@@ -16,7 +16,7 @@ type CoachSalarySessionsListProps = {
   loadingLabel: string;
   loadFailedLabel: string;
   emptyLabel: string;
-  /** Spreadsheet layout for the wide admin finance drawer; cards stay the default elsewhere. */
+  /** Spreadsheet layout matching the admin finance drawer; cards remain available for compact UIs. */
   variant?: "cards" | "table";
   totalsLabel?: string;
 };

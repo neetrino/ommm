@@ -2,22 +2,20 @@
 
 import { useTranslations } from "next-intl";
 import type { ContentPostFormValues } from "@/components/shared/content/content-post-types";
-import {
-  CONTENT_POST_STATUSES,
-  CONTENT_POST_TYPES,
-} from "@/components/shared/content/content-post-types";
 import { ContentPostCoverImageField } from "@/components/shared/content/content-post-cover-image-field";
-import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { ContentPostTypeStatusFields } from "@/components/shared/content/content-post-type-status-fields";
 
 type ContentPostSharedFormFieldsProps = {
   values: ContentPostFormValues;
   disabled?: boolean;
+  showTypeStatus?: boolean;
   onChange: (next: ContentPostFormValues) => void;
 };
 
 export function ContentPostSharedFormFields({
   values,
   disabled = false,
+  showTypeStatus = true,
   onChange,
 }: ContentPostSharedFormFieldsProps) {
   const t = useTranslations("contentAdminPages.content");
@@ -33,46 +31,14 @@ export function ContentPostSharedFormFields({
     <div className="grid gap-4">
       <div className="grid gap-4 sm:grid-cols-2 sm:items-stretch">
         <div className="grid min-w-0 gap-2">
-          <label className="flex flex-col gap-1.5">
-            <span
-              className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500"
-              title={t("fieldHints.type")}
-            >
-              {t("labels.type")}
-            </span>
-            <OmmSelectDropdown
-              ariaLabel={t("labels.type")}
-              value={values.type}
+          {showTypeStatus ? (
+            <ContentPostTypeStatusFields
+              values={values}
               disabled={disabled}
-              triggerClassName="ommm-dropdown-trigger--compact"
-              options={CONTENT_POST_TYPES.map((value) => ({
-                value,
-                label: t(`typeValues.${value}`),
-              }))}
-              onChange={(next) => updateSharedField("type", next as ContentPostFormValues["type"])}
+              layout="stacked"
+              onChange={onChange}
             />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span
-              className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500"
-              title={t("fieldHints.status")}
-            >
-              {t("labels.status")}
-            </span>
-            <OmmSelectDropdown
-              ariaLabel={t("labels.status")}
-              value={values.status}
-              disabled={disabled}
-              triggerClassName="ommm-dropdown-trigger--compact"
-              options={CONTENT_POST_STATUSES.map((value) => ({
-                value,
-                label: t(`statusValues.${value}`),
-              }))}
-              onChange={(next) =>
-                updateSharedField("status", next as ContentPostFormValues["status"])
-              }
-            />
-          </label>
+          ) : null}
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
               {t("placeholders.authorName")}

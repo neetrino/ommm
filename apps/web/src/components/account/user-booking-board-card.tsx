@@ -9,6 +9,10 @@ import {
 } from "@/components/account/session-coach-line";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
+import {
+  USER_BOOKING_STATUS_BADGE_CLASS,
+  userBookingStatusClassName,
+} from "@/components/account/user-booking-status";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 
 type UserBookingBoardCardProps = {
@@ -17,14 +21,6 @@ type UserBookingBoardCardProps = {
   showCancel: boolean;
   showRebook: boolean;
 };
-
-function bookingStatusClassName(status: string): string {
-  if (status === "BOOKED") return "bg-mint-100 text-mint-900";
-  if (status === "CANCELLED") return "bg-sage-100 text-sage-700";
-  if (status === "COMPLETED") return "bg-sky-100 text-sky-900";
-  if (status === "NO_SHOW") return "bg-amber-100 text-amber-900";
-  return "bg-sage-100 text-sage-700";
-}
 
 export function UserBookingBoardCard({
   locale,
@@ -41,7 +37,7 @@ export function UserBookingBoardCard({
         name={booking.session.classType.name}
         trailing={
           <span
-            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
+            className={`${USER_BOOKING_STATUS_BADGE_CLASS} ${userBookingStatusClassName(booking.status)}`}
           >
             {booking.status}
           </span>

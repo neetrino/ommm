@@ -1,3 +1,16 @@
+import type { CSSProperties } from "react";
+
+/** Choose-package / confirm-subscribe sheets — taller than the member hub (80dvh). */
+export const PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT = "90dvh";
+
+export function packageFlowMobileSheetPanelStyle(): CSSProperties {
+  return {
+    height: PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT,
+    maxHeight: PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT,
+    minHeight: PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT,
+  };
+}
+
 /** Desktop subscribe drawer — liquid glass panel sliding in from the right (half viewport). */
 export const PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS =
   "ommm-package-subscribe-desktop-overlay";
@@ -12,10 +25,12 @@ export const PACKAGE_SUBSCRIBE_MOBILE_OVERLAY_CLASS = "ommm-package-subscribe-mo
 export const PACKAGE_SUBSCRIBE_MOBILE_PANEL_CLASS = "ommm-package-subscribe-mobile-panel";
 
 export const PACKAGE_SUBSCRIBE_DESKTOP_HEADER_CLASS =
-  "flex shrink-0 items-start justify-between gap-3 px-5 py-4";
+  "flex shrink-0 items-start justify-between gap-3 px-5 pb-3 pt-1";
 
 /** Shared sheet header — same spacing on mobile bottom sheet and desktop drawer. */
 export const PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS = PACKAGE_SUBSCRIBE_DESKTOP_HEADER_CLASS;
+
+export const BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS = PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS;
 
 export const PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS = "ommm-package-subscribe-sheet-title";
 

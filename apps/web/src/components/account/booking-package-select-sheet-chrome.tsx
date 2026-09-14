@@ -1,9 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
-  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
-} from "@/components/account/member-account-hub-sheet-layout";
 import { useMemberHubMobileSheetClose } from "@/components/account/member-hub-mobile-sheet";
 import { PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS } from "@/components/account/package-subscribe-payment-sheet-layout";
 
@@ -33,7 +30,6 @@ export function BookingPackageSelectMobileSheetLayout({
 
   return (
     <>
-      <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
       {renderHeader(requestClose)}
       <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{renderBody(requestClose)}</div>
     </>
