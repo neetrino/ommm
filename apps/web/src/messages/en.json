@@ -1969,7 +1969,7 @@
         }
       },
       "paymentDue": {
-        "title": "Payment due",
+        "title": "Payment Due",
         "hint": "These studio packages were used in a class that ended over an hour ago, but payment is still unpaid.",
         "openClient": "Open {name}",
         "count": "{count, plural, one {# package} other {# packages}}",
@@ -2004,7 +2004,7 @@
       "signInPrompt": "Sign in to open the admin dashboard."
     },
     "paymentDue": {
-      "title": "Payment due",
+      "title": "Payment Due",
       "hint": "These studio packages were used in a class that ended over an hour ago, but payment is still unpaid.",
       "empty": "No studio package payments are due right now.",
       "count": "{count, plural, one {# package} other {# packages}}",
@@ -2460,7 +2460,7 @@
         "remainingSessions": "Remaining sessions",
         "paymentMethod": "Payment method",
         "validity": "Validity",
-        "paymentDue": "Payment due",
+        "paymentDue": "Payment Due",
         "paymentDueHint": "A class on this package ended over an hour ago, but the studio payment is still unpaid.",
         "unlimited": "Unlimited",
         "selectLead": "Select an available package to continue.",
