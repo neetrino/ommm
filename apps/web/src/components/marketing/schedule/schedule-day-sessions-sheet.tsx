@@ -23,12 +23,16 @@ export type ScheduleDaySessionsSheetCopy = {
   eyebrow: string;
 };
 
+type ScheduleDaySessionsSheetSize = "wide" | "compact";
+
 type ScheduleDaySessionsSheetProps = {
   open: boolean;
   dayLabel: string;
   children: ReactNode;
   onClose: () => void;
   copy?: ScheduleDaySessionsSheetCopy;
+  /** Compact matches admin drawers (~1/3, max 32rem). Wide is the public schedule panel. */
+  size?: ScheduleDaySessionsSheetSize;
 };
 
 function CloseIcon() {
@@ -74,6 +78,7 @@ export function ScheduleDaySessionsSheet({
   children,
   onClose,
   copy,
+  size = "wide",
 }: ScheduleDaySessionsSheetProps) {
   const t = useTranslations("marketingPages.schedule");
   const titleId = useId();
@@ -107,6 +112,7 @@ export function ScheduleDaySessionsSheet({
   ].join(" ");
   const panelClass = [
     styles.panel,
+    size === "compact" ? styles.panelCompact : "",
     motionOpen ? styles.panelOpen : styles.panelClosing,
     isDragging ? styles.panelDragging : "",
   ]

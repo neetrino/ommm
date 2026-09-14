@@ -103,6 +103,7 @@ export function InternalScheduleMonthView<T extends { startsAt: string }>({
       <ScheduleDaySessionsSheet
         open={selectedDay !== null}
         dayLabel={formatSheetDayLabel(locale, selectedDate)}
+        size="compact"
         copy={{
           aria: t("monthView.daySheetAria"),
           closeAria: t("monthView.daySheetCloseAria"),
