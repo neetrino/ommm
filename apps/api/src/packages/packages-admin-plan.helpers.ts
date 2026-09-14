@@ -6,7 +6,6 @@ import {
   normalizeCategoryName,
   normalizeCurrency,
   normalizeFeatures,
-  normalizeNullableString,
   normalizeOptionalPlanStartDate,
   normalizeSessionsPerMonth,
   normalizeSlug,

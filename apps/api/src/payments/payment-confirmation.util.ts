@@ -22,9 +22,10 @@ export function isCardAutoConfirmable(
   return paymentMethod === ManualPaymentMethod.CARD;
 }
 
-/** Studio cash/terminal packages stay unbookable until staff confirms payment. */
+/** Booking access is gated on package status, not payment method. */
 export function grantsImmediatePackageBookingAccess(
-  _paymentMethod: ManualPaymentMethod,
+  paymentMethod: ManualPaymentMethod,
 ): boolean {
+  void paymentMethod;
   return false;
 }

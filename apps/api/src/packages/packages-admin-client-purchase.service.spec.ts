@@ -79,7 +79,9 @@ describe('PackagesAdminClientPurchaseService', () => {
       prisma as never,
       publicPackages as never,
       { tryNotify: jest.fn().mockResolvedValue(undefined) } as never,
-      { trySendCashPendingEmail: jest.fn().mockResolvedValue(undefined) } as never,
+      {
+        trySendCashPendingEmail: jest.fn().mockResolvedValue(undefined),
+      } as never,
     );
 
     const result = await service.purchase({
@@ -196,31 +198,46 @@ describe('PackagesAdminClientPurchaseService', () => {
       paymentMethod: 'CASH',
     });
 
-    expect(paymentCreate.mock.calls[0]?.[0].data).toMatchObject({
+    const paymentData = paymentCreate.mock.calls[0]?.[0].data;
+    expect(paymentData).toMatchObject({
       status: PaymentStatus.PENDING,
       paymentMethod: 'CASH',
       confirmedAt: null,
-      metadata: expect.objectContaining({
-        studioPackageFulfilled: true,
-      }),
     });
+    const paymentMetadata = paymentData?.metadata;
+    expect(
+      typeof paymentMetadata === 'object' &&
+        paymentMetadata !== null &&
+        'studioPackageFulfilled' in paymentMetadata &&
+        paymentMetadata.studioPackageFulfilled === true,
+    ).toBe(true);
     expect(userPackageCreate.mock.calls[0]?.[0].data).toMatchObject({
       status: 'ACTIVE',
     });
     expect(tx.packagePlan.updateMany).toHaveBeenCalled();
     expect(publicPackages.invalidatePublicPlansCache).toHaveBeenCalled();
     expect(packagePurchased.tryNotify).not.toHaveBeenCalled();
-    expect(cashPending.trySendCashPendingEmail).toHaveBeenCalledWith('pay-cash');
+    expect(cashPending.trySendCashPendingEmail).toHaveBeenCalledWith(
+      'pay-cash',
+    );
   });
 
   it('creates an unpaid terminal package that is usable immediately', async () => {
     const plan = createPlan();
-    const paymentCreate = jest.fn().mockResolvedValue({
-      id: 'pay-term',
-      amountCents: 120_000,
-      currency: 'amd',
+    const paymentCreate = jest.fn((args: { data: Record<string, unknown> }) => {
+      void args;
+      return Promise.resolve({
+        id: 'pay-term',
+        amountCents: 120_000,
+        currency: 'amd',
+      });
     });
-    const userPackageCreate = jest.fn().mockResolvedValue({ id: 'up-term' });
+    const userPackageCreate = jest.fn(
+      (args: { data: Record<string, unknown> }) => {
+        void args;
+        return Promise.resolve({ id: 'up-term' });
+      },
+    );
     const packagePlanUpdateMany = jest.fn().mockResolvedValue({ count: 1 });
     const publicPackages = {
       invalidatePublicPlansCache: jest.fn().mockResolvedValue(undefined),
@@ -275,7 +292,8 @@ describe('PackagesAdminClientPurchaseService', () => {
     });
     expect(packagePlanUpdateMany).toHaveBeenCalled();
     expect(publicPackages.invalidatePublicPlansCache).toHaveBeenCalled();
-    expect(cashPending.trySendCashPendingEmail).toHaveBeenCalledWith('pay-term');
+    expect(cashPending.trySendCashPendingEmail).toHaveBeenCalledWith(
+      'pay-term',
+    );
   });
 });
-

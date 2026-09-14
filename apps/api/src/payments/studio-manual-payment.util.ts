@@ -1,16 +1,12 @@
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 
-const STUDIO_MANUAL_PAYMENT_METHODS = [
-  ManualPaymentMethod.CASH,
-  ManualPaymentMethod.CARD_TERMINAL,
-] as const;
-
 export type StudioManualPaymentMethod =
-  (typeof STUDIO_MANUAL_PAYMENT_METHODS)[number];
+  | typeof ManualPaymentMethod.CASH
+  | typeof ManualPaymentMethod.CARD_TERMINAL;
 
 /** Cash or physical terminal — paid at the studio, not via the website bank. */
 export function isStudioManualPaymentMethod(
-  paymentMethod: ManualPaymentMethod | string | null,
+  paymentMethod: string | null,
 ): paymentMethod is StudioManualPaymentMethod {
   return (
     paymentMethod === ManualPaymentMethod.CASH ||
@@ -19,7 +15,7 @@ export function isStudioManualPaymentMethod(
 }
 
 export function canSwapStudioPaymentMethod(
-  paymentMethod: ManualPaymentMethod | string | null,
+  paymentMethod: string | null,
 ): boolean {
   return isStudioManualPaymentMethod(paymentMethod);
 }

@@ -8,10 +8,9 @@ import { buildAlerts } from './reports-dashboard.helpers';
 
 describe('loadDashboardStudioPaymentDue', () => {
   it('returns unpaid studio packages whose consumed class ended over an hour ago', async () => {
-    const paymentFindMany = jest.fn().mockResolvedValue([
-      { sourceId: 'up-due' },
-      { sourceId: 'up-fresh' },
-    ]);
+    const paymentFindMany = jest
+      .fn()
+      .mockResolvedValue([{ sourceId: 'up-due' }, { sourceId: 'up-fresh' }]);
     const consumptionFindMany = jest
       .fn()
       .mockResolvedValue([{ userPackageId: 'up-due' }]);
@@ -84,8 +83,6 @@ describe('buildAlerts', () => {
         draftClassesUpcoming: 0,
         upcomingCancellationsCount: 0,
       }),
-    ).toEqual([
-      { code: 'studio_payments_due', level: 'warning', count: 2 },
-    ]);
+    ).toEqual([{ code: 'studio_payments_due', level: 'warning', count: 2 }]);
   });
 });

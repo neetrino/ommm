@@ -308,7 +308,8 @@ export class ClientsTabListsService {
             paymentDueIds.has(row.id) &&
             isStudioUnpaidPayment({
               paymentStatus: paymentByPackageId.get(row.id)?.status ?? null,
-              paymentMethod: paymentByPackageId.get(row.id)?.paymentMethod ?? null,
+              paymentMethod:
+                paymentByPackageId.get(row.id)?.paymentMethod ?? null,
             }),
           typeBalances: mapClientPackageTypeBalances(row.balances),
           lastSessionAdjustment: lastAdjustments.get(row.id) ?? null,

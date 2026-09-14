@@ -67,7 +67,12 @@ function createActiveStudioMembership() {
 describe('staff-assigned unpaid studio package', () => {
   it('lets the client book with an ACTIVE cash package while payment is PENDING', async () => {
     const membership = createActiveStudioMembership();
-    const findMany = jest.fn().mockResolvedValue([membership]);
+    const findMany = jest.fn(
+      (args: { where: { userId: string; status: string } }) => {
+        void args;
+        return Promise.resolve([membership]);
+      },
+    );
     const eligibility = new PackageUsageEligibilityService({
       userPackage: { findMany },
     } as never);
@@ -83,25 +88,14 @@ describe('staff-assigned unpaid studio package', () => {
       userPackageId: 'up-cash',
     });
 
-    expect(findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          userId: 'client-1',
-          status: 'ACTIVE',
-        }),
-      }),
-    );
-    expect(eligible).toEqual([
-      expect.objectContaining({
-        userPackageId: 'up-cash',
-        canBook: true,
-      }),
-    ]);
-    expect(selected.id).toBe('up-cash');
     expect(findMany.mock.calls[0]?.[0].where).toMatchObject({
       userId: 'client-1',
       status: 'ACTIVE',
     });
+    expect(eligible).toHaveLength(1);
+    expect(eligible[0]?.userPackageId).toBe('up-cash');
+    expect(eligible[0]?.canBook).toBe(true);
+    expect(selected.id).toBe('up-cash');
     expect(findMany.mock.calls[0]?.[0].where).not.toHaveProperty(
       'paymentStatus',
     );

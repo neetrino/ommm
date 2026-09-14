@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   ManualPaymentMethod,
   PaymentSource,
@@ -66,8 +70,9 @@ export class PaymentsAdminMutationService {
   async adminUpdatePaymentMethod(
     paymentId: string,
     paymentMethod: AdminUpdatablePaymentMethod,
-    _actorId: string,
+    actorId: string,
   ) {
+    void actorId;
     const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
     });
@@ -118,7 +123,11 @@ export class PaymentsAdminMutationService {
             ? null
             : (payment.confirmedAt ?? new Date()),
         confirmedByAdminId: actorId,
-        metadata: nextStatusMetadata(payment.metadata, status, shouldRefundGifts),
+        metadata: nextStatusMetadata(
+          payment.metadata,
+          status,
+          shouldRefundGifts,
+        ),
       }),
     });
     await this.applyPackageStatusSideEffects({
@@ -187,10 +196,7 @@ function shouldRefundReservedGiftCredits(
   metadata: Prisma.JsonValue,
   status: AdminUpdatablePaymentStatus,
 ): boolean {
-  if (
-    status !== PaymentStatus.FAILED &&
-    status !== PaymentStatus.REFUNDED
-  ) {
+  if (status !== PaymentStatus.FAILED && status !== PaymentStatus.REFUNDED) {
     return false;
   }
   if (wereGiftCreditsRefunded(metadata)) {

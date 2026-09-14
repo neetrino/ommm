@@ -38,11 +38,10 @@ describe('CoachesPanelSessionsService', () => {
       where: { userId: 'user-1' },
       select: { id: true },
     });
-    expect(findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ coachId: 'coach-1' }),
-      }),
-    );
+    const findManyArgs = findMany.mock.calls[0] as
+      | [{ where: { coachId: string } }]
+      | undefined;
+    expect(findManyArgs?.[0].where.coachId).toBe('coach-1');
     expect(rows).toEqual([
       expect.objectContaining({
         id: 'session-1',

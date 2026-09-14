@@ -157,7 +157,9 @@ describe('ReportsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const service = createServiceWithPrisma(withStudioPaymentDueMocks(prismaMock));
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks(prismaMock),
+    );
 
     const result = await service.dashboard({
       includeRevenue: true,
@@ -201,7 +203,9 @@ describe('ReportsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const service = createServiceWithPrisma(withStudioPaymentDueMocks(prismaMock));
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks(prismaMock),
+    );
 
     const result = await service.dashboard({
       includeRevenue: false,
@@ -246,7 +250,9 @@ describe('ReportsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const service = createServiceWithPrisma(withStudioPaymentDueMocks(prismaMock));
+    const service = createServiceWithPrisma(
+      withStudioPaymentDueMocks(prismaMock),
+    );
 
     const result = await service.dashboard({
       includeRevenue: false,

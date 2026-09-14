@@ -3,10 +3,18 @@ import { createCashPackageSubscriptionWithGiftCredits } from './packages-subscri
 
 describe('createCashPackageSubscriptionWithGiftCredits', () => {
   it('creates an unpaid pending cash package without decrementing stock', async () => {
-    const userPackageCreate = jest.fn().mockResolvedValue({ id: 'up-cash' });
-    const paymentCreate = jest.fn().mockResolvedValue({
-      id: 'pay-cash',
-      amountCents: 80_000,
+    const userPackageCreate = jest.fn(
+      (args: { data: Record<string, unknown> }) => {
+        void args;
+        return Promise.resolve({ id: 'up-cash' });
+      },
+    );
+    const paymentCreate = jest.fn((args: { data: Record<string, unknown> }) => {
+      void args;
+      return Promise.resolve({
+        id: 'pay-cash',
+        amountCents: 80_000,
+      });
     });
     const packagePlanUpdateMany = jest.fn();
     const tx = {
