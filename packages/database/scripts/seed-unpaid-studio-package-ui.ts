@@ -1,6 +1,7 @@
 /**
- * Dev-only: unpaid cash package + a finished class that ended 2 hours ago.
- * No real payment. Safe to re-run; previous demo rows are replaced.
+ * Dev-only: unpaid cash packages + a finished class that ended 2 hours ago.
+ * Safe to re-run; previous extra demo rows are replaced. The original
+ * payment-due-demo@ommm.local client is left untouched.
  */
 import {
   BookingStatus,
@@ -13,14 +14,44 @@ import {
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const DEMO_EMAIL = 'payment-due-demo@ommm.local';
-const SESSION_MARKER = '[PAYMENT-DUE-DEMO]';
 const CLASS_DURATION_MS = 60 * 60 * 1000;
 const HOURS_AFTER_CLASS_END = 2;
 
-async function cleanupPreviousDemo(userId: string): Promise<void> {
+const EXTRA_DEMO_CLIENTS = [
+  {
+    email: 'payment-due-demo-2@ommm.local',
+    name: 'Payment Due',
+    lastName: 'Two',
+    marker: '[PAYMENT-DUE-DEMO-2]',
+  },
+  {
+    email: 'payment-due-demo-3@ommm.local',
+    name: 'Payment Due',
+    lastName: 'Three',
+    marker: '[PAYMENT-DUE-DEMO-3]',
+  },
+] as const;
+
+type DemoClient = (typeof EXTRA_DEMO_CLIENTS)[number];
+
+type SeedPlan = {
+  id: string;
+  name: string;
+  categoryName: string;
+  priceCents: number;
+  periodDays: number;
+  isUnlimited: boolean;
+  sessionsPerMonth: number | null;
+  freezeAllowedCount: number;
+  freezeMaxDaysPerUse: number;
+  guestCount: number;
+};
+
+type SeedClassType = { id: string; name: string };
+
+async function cleanupPreviousDemo(userId: string, marker: string): Promise<void> {
   const oldSessions = await prisma.classSession.findMany({
-    where: { title: SESSION_MARKER },
+    where: { title: marker },
     select: { id: true },
   });
   const sessionIds = oldSessions.map((row) => row.id);
@@ -40,66 +71,44 @@ async function cleanupPreviousDemo(userId: string): Promise<void> {
   }
 
   const demoPackages = await prisma.userPackage.findMany({
-    where: {
-      userId,
-      planNameSnapshot: { contains: SESSION_MARKER },
-    },
+    where: { userId, planNameSnapshot: { contains: marker } },
     select: { id: true },
   });
   const packageIds = demoPackages.map((row) => row.id);
-  if (packageIds.length > 0) {
-    await prisma.payment.deleteMany({
-      where: { source: PaymentSource.PACKAGE, sourceId: { in: packageIds } },
-    });
-    await prisma.userPackageBalance.deleteMany({
-      where: { userPackageId: { in: packageIds } },
-    });
-    await prisma.userPackage.deleteMany({ where: { id: { in: packageIds } } });
+  if (packageIds.length === 0) {
+    return;
   }
+  await prisma.payment.deleteMany({
+    where: { source: PaymentSource.PACKAGE, sourceId: { in: packageIds } },
+  });
+  await prisma.userPackageBalance.deleteMany({
+    where: { userPackageId: { in: packageIds } },
+  });
+  await prisma.userPackage.deleteMany({ where: { id: { in: packageIds } } });
 }
 
-async function main(): Promise<void> {
-  const plan = await prisma.packagePlan.findFirst({
-    where: { isActive: true, priceCents: { gt: 0 } },
-  });
-  if (plan === null) {
-    throw new Error('No active package plan found');
-  }
-  const classTypeId = plan.classTypeId;
-  if (classTypeId === null) {
-    throw new Error('Package plan has no class type');
-  }
-  const classType = await prisma.classType.findUnique({
-    where: { id: classTypeId },
-    select: { id: true, name: true },
-  });
-  if (classType === null) {
-    throw new Error('Class type for plan not found');
-  }
-  const coach = await prisma.coachProfile.findFirst({
-    where: { isActive: true },
-    select: { id: true },
-  });
-  if (coach === null) {
-    throw new Error('No active coach found');
-  }
-
+async function seedUnpaidDemoClient(
+  demo: DemoClient,
+  plan: SeedPlan,
+  classType: SeedClassType,
+  coachId: string,
+  now: Date,
+  index: number,
+): Promise<{ clientId: string; email: string; name: string }> {
   const user = await prisma.user.upsert({
-    where: { email: DEMO_EMAIL },
-    update: { name: 'Payment Due', lastName: 'Demo' },
+    where: { email: demo.email },
+    update: { name: demo.name, lastName: demo.lastName },
     create: {
-      email: DEMO_EMAIL,
-      name: 'Payment Due',
-      lastName: 'Demo',
+      email: demo.email,
+      name: demo.name,
+      lastName: demo.lastName,
       role: 'USER',
       registrationSource: 'STAFF',
     },
     select: { id: true, email: true, name: true, lastName: true },
   });
+  await cleanupPreviousDemo(user.id, demo.marker);
 
-  await cleanupPreviousDemo(user.id);
-
-  const now = new Date();
   const endsAt = new Date(now.getTime() - HOURS_AFTER_CLASS_END * CLASS_DURATION_MS);
   const startsAt = new Date(endsAt.getTime() - CLASS_DURATION_MS);
   const periodEnd = new Date(now.getTime() + plan.periodDays * 24 * 60 * 60 * 1000);
@@ -112,7 +121,7 @@ async function main(): Promise<void> {
       userId: user.id,
       planId: plan.id,
       sourcePlanIdSnapshot: plan.id,
-      planNameSnapshot: `${plan.name} ${SESSION_MARKER}`,
+      planNameSnapshot: `${plan.name} ${demo.marker}`,
       planCategoryNameSnapshot: plan.categoryName,
       planPriceCentsSnapshot: plan.priceCents,
       planPeriodDaysSnapshot: plan.periodDays,
@@ -141,20 +150,20 @@ async function main(): Promise<void> {
       sourcePackageNameSnapshot: plan.name,
       sourceCategoryNameSnapshot: classType.name,
       sessionsTotal,
-      sessionsUsed: plan.isUnlimited ? 1 : 1,
+      sessionsUsed: 1,
       sessionsRemaining,
       isUnlimited: plan.isUnlimited,
     },
     select: { id: true },
   });
 
-  const payment = await prisma.payment.create({
+  await prisma.payment.create({
     data: {
       userId: user.id,
       amountCents: plan.priceCents,
       currency: 'amd',
       status: PaymentStatus.PENDING,
-      paymentReference: `PKG-DUE-${Date.now()}`,
+      paymentReference: `PKG-DUE-${Date.now()}-${index}`,
       source: PaymentSource.PACKAGE,
       sourceId: userPackage.id,
       description: `Package · ${plan.name}`,
@@ -164,14 +173,13 @@ async function main(): Promise<void> {
         studioPackageFulfilled: true,
       },
     },
-    select: { id: true, status: true, paymentMethod: true },
   });
 
   const session = await prisma.classSession.create({
     data: {
-      title: SESSION_MARKER,
+      title: demo.marker,
       classTypeId: classType.id,
-      coachId: coach.id,
+      coachId,
       startsAt,
       endsAt,
       capacity: 8,
@@ -179,7 +187,6 @@ async function main(): Promise<void> {
     },
     select: { id: true },
   });
-
   const booking = await prisma.booking.create({
     data: {
       userId: user.id,
@@ -189,7 +196,6 @@ async function main(): Promise<void> {
     },
     select: { id: true },
   });
-
   await prisma.bookingConsumption.create({
     data: {
       bookingId: booking.id,
@@ -199,22 +205,44 @@ async function main(): Promise<void> {
     },
   });
 
-  console.log(
-    JSON.stringify(
-      {
-        clientId: user.id,
-        email: user.email,
-        name: `${user.name} ${user.lastName}`.trim(),
-        userPackageId: userPackage.id,
-        payment,
-        classEndedAt: endsAt.toISOString(),
-        hoursAfterClassEnd: HOURS_AFTER_CLASS_END,
-        adminUrl: `/en/admin/clients?viewClient=${user.id}&clientTab=packages`,
-      },
-      null,
-      2,
-    ),
-  );
+  return {
+    clientId: user.id,
+    email: user.email,
+    name: `${user.name} ${user.lastName}`.trim(),
+  };
+}
+
+async function main(): Promise<void> {
+  const plan = await prisma.packagePlan.findFirst({
+    where: { isActive: true, priceCents: { gt: 0 } },
+  });
+  if (plan === null) {
+    throw new Error('No active package plan found');
+  }
+  if (plan.classTypeId === null) {
+    throw new Error('Package plan has no class type');
+  }
+  const classType = await prisma.classType.findUnique({
+    where: { id: plan.classTypeId },
+    select: { id: true, name: true },
+  });
+  if (classType === null) {
+    throw new Error('Class type for plan not found');
+  }
+  const coach = await prisma.coachProfile.findFirst({
+    where: { isActive: true },
+    select: { id: true },
+  });
+  if (coach === null) {
+    throw new Error('No active coach found');
+  }
+
+  const now = new Date();
+  const seeded = [];
+  for (const [index, demo] of EXTRA_DEMO_CLIENTS.entries()) {
+    seeded.push(await seedUnpaidDemoClient(demo, plan, classType, coach.id, now, index));
+  }
+  console.log(JSON.stringify({ hoursAfterClassEnd: HOURS_AFTER_CLASS_END, seeded }, null, 2));
 }
 
 main()
