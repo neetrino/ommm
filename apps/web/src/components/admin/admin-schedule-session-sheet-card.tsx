@@ -112,24 +112,26 @@ export function AdminScheduleSessionSheetCard({
           {t(`status.${row.status}`)}
         </span>
       </div>
-      <SheetCardTime startTime={display?.startTime ?? ""} durationLabel={durationLabel} />
-      <div
-        className={styles.capacity}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <ScheduleSessionRegistrationsCapacity
-          sessionId={row.id}
-          sessionTitle={row.title}
-          startsAt={row.startsAt}
-          locale={locale}
-          booked={booked}
-          capacity={row.capacity}
-          spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-          secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
-          bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
-          canAdd={canAddVisitor}
-        />
+      <div className={styles.footer}>
+        <SheetCardTime startTime={display?.startTime ?? ""} durationLabel={durationLabel} />
+        <div
+          className={styles.capacity}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <ScheduleSessionRegistrationsCapacity
+            sessionId={row.id}
+            sessionTitle={row.title}
+            startsAt={row.startsAt}
+            locale={locale}
+            booked={booked}
+            capacity={row.capacity}
+            spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
+            secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
+            bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
+            canAdd={canAddVisitor}
+          />
+        </div>
       </div>
       {showActions ? (
         <div

@@ -7,7 +7,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     "main status"
-    "time capacity";
+    "footer footer";
   column-gap: 0.75rem;
   row-gap: 0.55rem;
   align-items: start;
@@ -60,14 +60,21 @@
   justify-content: flex-end;
 }
 
+.footer {
+  grid-area: footer;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 .time {
-  grid-area: time;
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
-  align-self: center;
 }
 
 .startTime {
@@ -94,11 +101,9 @@
 }
 
 .capacity {
-  grid-area: capacity;
   width: var(--sheet-card-capacity-col);
   min-width: 0;
-  justify-self: end;
-  align-self: center;
+  flex-shrink: 0;
   text-align: left;
 }
 
@@ -116,5 +121,5 @@
   grid-template-columns: minmax(0, 1fr) auto var(--sheet-card-actions-col);
   grid-template-areas:
     "main status actions"
-    "time capacity actions";
+    "footer footer actions";
 }

@@ -98,28 +98,30 @@ export function CoachScheduleViews({
   );
 
   return (
-    <ScheduleViews
-      locale={locale}
-      view={view}
-      rows={displayRows}
-      dateStripRows={adminRows}
-      dateStripTotalCount={adminRows.length}
-      selectedStripDay={chrome.selectedStripDay}
-      onSelectStripDay={(day) => chrome.setSelectedStripDay(day)}
-      onSelectAllStripDays={() => chrome.setSelectedStripDay(null)}
-      visibleYearMonth={chrome.visibleYearMonth}
-      onShiftVisibleMonth={chrome.handleShiftVisibleMonth}
-      sortOrder={sortOrder}
-      onDateTimeSort={() => onSortOrderChange(toggleSessionDateSortOrder(sortOrder))}
-      busyId={null}
-      onDetails={setRosterRow}
-      canAddVisitor={false}
-      showCoach={false}
-    />
-    <CoachSessionRosterSheet
-      locale={locale}
-      row={rosterRow}
-      onClose={() => setRosterRow(null)}
-    />
+    <>
+      <ScheduleViews
+        locale={locale}
+        view={view}
+        rows={displayRows}
+        dateStripRows={adminRows}
+        dateStripTotalCount={adminRows.length}
+        selectedStripDay={chrome.selectedStripDay}
+        onSelectStripDay={(day) => chrome.setSelectedStripDay(day)}
+        onSelectAllStripDays={() => chrome.setSelectedStripDay(null)}
+        visibleYearMonth={chrome.visibleYearMonth}
+        onShiftVisibleMonth={chrome.handleShiftVisibleMonth}
+        sortOrder={sortOrder}
+        onDateTimeSort={() => onSortOrderChange(toggleSessionDateSortOrder(sortOrder))}
+        busyId={null}
+        onDetails={setRosterRow}
+        canAddVisitor={false}
+        showCoach={false}
+      />
+      <CoachSessionRosterSheet
+        locale={locale}
+        row={rosterRow}
+        onClose={() => setRosterRow(null)}
+      />
+    </>
   );
 }
