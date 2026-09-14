@@ -10,7 +10,10 @@ import {
   formFieldInputClassFor,
 } from "@/components/ui/form-validation";
 import type { AdminCreateCoachFocusField } from "@/components/admin/admin-create-coach-form-focus";
-import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
+import {
+  AdminCoachAssignedClassesCountBadge,
+  AdminCoachAssignedClassesPicker,
+} from "@/components/admin/admin-coach-assigned-classes-picker";
 import { OmmButton } from "@/components/ui/omm-button";
 import {
   AdminRequiredMark,
@@ -249,12 +252,19 @@ export function AdminCreateCoachFormDetailsSection({
         data-create-coach-field="assignedClasses"
         data-form-field="assignedClasses"
       >
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+        <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
+          <h3 className="col-start-1 row-start-1 min-w-0 text-sm font-semibold leading-5 uppercase tracking-[0.12em] text-sage-800">
             Assigned Classes & Salary
             <AdminRequiredMark />
           </h3>
-          <p className="text-xs text-sage-500">
+          <div className="col-start-2 row-start-1 flex items-center self-center">
+            <AdminCoachAssignedClassesCountBadge
+              count={selectedClassIds.length}
+              label={(count) => tPage("assignedClassesSelectedCount", { count })}
+              emptyLabel={tPage("assignedClassesNoneSelected")}
+            />
+          </div>
+          <p className="col-start-1 row-start-2 col-span-2 text-xs text-sage-500">
             Select class types and set pay per finished class
           </p>
         </div>
@@ -266,6 +276,7 @@ export function AdminCreateCoachFormDetailsSection({
           onRateChange={onRateChange}
           disabled={pending}
           emptyLabel={t("assignedClassesEmpty")}
+          showSelectedSummary={false}
           noneSelectedLabel={tPage("assignedClassesNoneSelected")}
           selectedCountLabel={(count) => tPage("assignedClassesSelectedCount", { count })}
           rateLabel={tPage("fieldSalaryPerClassShort")}

@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachEditableAvatar } from "@/components/admin/admin-coach-editable-avatar";
@@ -36,7 +36,10 @@ import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
+import {
+  AdminCoachAssignedClassesCountBadge,
+  AdminCoachAssignedClassesPicker,
+} from "@/components/admin/admin-coach-assigned-classes-picker";
 import { CoachClassBadges } from "@/components/admin/admin-coach-directory-display";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
 
@@ -422,6 +425,13 @@ export function CoachSheetTabPanels({
         <SectionHeading
           title={labels.assignedClassesHeading}
           description={labels.assignedClassesDescription}
+          trailing={
+            <AdminCoachAssignedClassesCountBadge
+              count={form.assignedClassTypeIds.length}
+              label={(count) => t("assignedClassesSelectedCount", { count })}
+              emptyLabel={t("assignedClassesNoneSelected")}
+            />
+          }
         />
         <AdminCoachAssignedClassesPicker
           classOptions={classOptions}
@@ -433,6 +443,7 @@ export function CoachSheetTabPanels({
           }
           disabled={busy}
           emptyLabel={t("fieldAssignedClassesEmpty")}
+          showSelectedSummary={false}
           noneSelectedLabel={t("assignedClassesNoneSelected")}
           selectedCountLabel={(count) => t("assignedClassesSelectedCount", { count })}
           rateLabel={t("fieldSalaryPerClassShort")}
@@ -523,11 +534,24 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function SectionHeading({ title, description }: { title: string; description: string }) {
+function SectionHeading({
+  title,
+  description,
+  trailing,
+}: {
+  title: string;
+  description: string;
+  trailing?: ReactNode;
+}) {
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">{title}</h3>
-      <p className="text-xs text-sage-500">{description}</p>
+    <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
+      <h3 className="col-start-1 row-start-1 min-w-0 text-sm font-semibold leading-5 uppercase tracking-[0.12em] text-sage-800">
+        {title}
+      </h3>
+      {trailing ? (
+        <div className="col-start-2 row-start-1 flex items-center self-center">{trailing}</div>
+      ) : null}
+      <p className="col-start-1 row-start-2 col-span-2 text-xs text-sage-500">{description}</p>
     </div>
   );
 }
