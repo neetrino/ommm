@@ -155,7 +155,7 @@ export const ADMIN_DETAILS_SHEET_FOOTER_CLASS =
   "shrink-0 border-t border-white/60 px-5 py-4 sm:px-6";
 
 export const ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS =
-  "space-y-3 rounded-2xl border border-white/60 bg-white/50 p-4";
+  "space-y-4 rounded-2xl border border-sage-200/80 bg-white p-4 shadow-[0_12px_32px_-18px_rgba(45,40,35,0.28)]";
 
 export const ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS =
   "rounded-full p-2 text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
