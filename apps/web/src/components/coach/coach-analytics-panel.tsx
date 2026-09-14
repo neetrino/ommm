@@ -78,12 +78,12 @@ export function CoachAnalyticsPanel({ data, locale, period }: CoachAnalyticsPane
       value: `${totals.classFillRate}%`,
     },
     {
-      label: t("mostPopularClassType"),
-      value: totals.mostPopularClassType ?? t("notAvailable"),
-    },
-    {
       label: t("peakTime"),
       value: peakTimeLabel,
+    },
+    {
+      label: t("mostPopularClassType"),
+      value: totals.mostPopularClassType ?? t("notAvailable"),
     },
   ];
 
@@ -92,6 +92,10 @@ export function CoachAnalyticsPanel({ data, locale, period }: CoachAnalyticsPane
       title={t("title")}
       headerTrailing={<CoachAnalyticsPeriodSelector value={period} />}
     >
+      <div className="sm:hidden">
+        <CoachAnalyticsPeriodSelector value={period} fullWidth />
+      </div>
+
       <CoachAnalyticsKpiHero
         activityTitle={t("kpiGroupActivity")}
         performanceTitle={t("kpiGroupPerformance")}
