@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type {
   AdminScheduleCoach,
@@ -17,7 +17,6 @@ import {
 } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { coachName } from "@/components/admin/admin-schedule-session-display";
 import {
-  SESSION_SHEET_TAB_ACTIONS,
   SESSION_SHEET_TAB_BOOKINGS,
   SESSION_SHEET_TAB_DETAILS,
   type SessionSheetTabId,
@@ -27,9 +26,7 @@ import { AdminSessionRegistrationsList } from "@/components/admin/admin-session-
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
-import { OmmButton } from "@/components/ui/omm-button";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
-import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import {
   ADMIN_SHEET_FORM_SECTION_CLASS,
 } from "@/components/admin/admin-sheet-editable-field";
@@ -43,10 +40,7 @@ type SessionSheetTabPanelsProps = {
   classTypeOptions: readonly SessionClassTypeOption[];
   coaches: readonly AdminScheduleCoach[];
   controller: SessionEditFormController;
-  actionBusy: boolean;
   canCancelBooking?: boolean;
-  onDuplicate?: (row: AdminScheduleSession) => void;
-  onDelete?: (row: AdminScheduleSession) => void;
   onBookingCancelled?: () => void;
   onNotice?: (message: string, tone: "ok" | "err") => void;
 };
@@ -58,15 +52,11 @@ export function SessionSheetTabPanels({
   classTypeOptions,
   coaches,
   controller,
-  actionBusy,
   canCancelBooking = true,
-  onDuplicate,
-  onDelete,
   onBookingCancelled,
   onNotice,
 }: SessionSheetTabPanelsProps) {
   const t = useTranslations("adminPages.classes");
-  const [pendingDelete, setPendingDelete] = useState(false);
   const { form, updateForm } = controller;
 
   const levelOptions = useMemo(
@@ -192,63 +182,6 @@ export function SessionSheetTabPanels({
           onNotice={onNotice}
         />
       </section>
-    );
-  }
-
-  if (activeTab === SESSION_SHEET_TAB_ACTIONS) {
-    if (!onDuplicate && !onDelete) {
-      return null;
-    }
-    return (
-      <>
-        <section className={`${SECTION_CLASS} flex flex-wrap gap-2`}>
-          {onDuplicate ? (
-            <OmmButton
-              type="button"
-              size="sm"
-              variant="secondary"
-              disabled={actionBusy}
-              onClick={() => onDuplicate(row)}
-            >
-              {t("duplicateButton")}
-            </OmmButton>
-          ) : null}
-          {onDelete ? (
-            <OmmButton
-              type="button"
-              size="sm"
-              variant="danger"
-              disabled={actionBusy}
-              onClick={() => setPendingDelete(true)}
-            >
-              {t("actions.delete")}
-            </OmmButton>
-          ) : null}
-        </section>
-
-        {onDelete ? (
-          <OmmConfirmDialog
-            isOpen={pendingDelete}
-            title={t("confirmDeleteTitle")}
-            description={t("deleteConfirm")}
-            confirmLabel={actionBusy ? t("savingButton") : t("confirmDialogDelete")}
-            cancelLabel={t("confirmDialogNo")}
-            backdropAriaLabel={t("confirmDialogBackdrop")}
-            tone="danger"
-            confirmClassName="ommm-btn-lifecycle-action--danger"
-            pending={actionBusy}
-            onConfirm={() => {
-              onDelete(row);
-              setPendingDelete(false);
-            }}
-            onCancel={() => {
-              if (!actionBusy) {
-                setPendingDelete(false);
-              }
-            }}
-          />
-        ) : null}
-      </>
     );
   }
 

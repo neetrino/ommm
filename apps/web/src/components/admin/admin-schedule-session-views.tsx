@@ -16,7 +16,6 @@ import {
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
-import { hasAdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session.helpers";
 import { AdminScheduleListEmptyState } from "@/components/admin/admin-schedule-list-empty-state";
 import { ADMIN_SCHEDULE_BULK_BUSY_ID } from "@/components/admin/use-admin-schedule-management-actions";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
@@ -129,12 +128,11 @@ export function SessionTable(props: SessionTableProps) {
   const cancellableCount = selectedVisible.filter((row) => row.status !== "CANCELLED").length;
   const activatableCount = selectedVisible.filter((row) => row.status === "CANCELLED").length;
   const busy = props.busyId !== null;
-  const showActions = hasAdminScheduleSessionRowActions(props);
   const showCoach = props.showCoach !== false;
 
   return (
     <div className="space-y-3">
-      <div className={adminScheduleSessionsListTableClass({ showActions, showCoach })}>
+      <div className={adminScheduleSessionsListTableClass({ showActions: false, showCoach })}>
         <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
           <AdminScheduleSessionsListHeader
             sortOrder={props.sortOrder}
@@ -144,7 +142,7 @@ export function SessionTable(props: SessionTableProps) {
             someSelected={someSelected}
             onToggleSelectAll={props.onToggleSelectAll}
             selectAllDisabled={busy}
-            showActions={showActions}
+            showActions={false}
             showCoach={showCoach}
           />
         </div>
@@ -158,10 +156,6 @@ export function SessionTable(props: SessionTableProps) {
             selectionEnabled={selectionEnabled}
             onToggleSelect={props.onToggleSelect}
             onDetails={props.onDetails}
-            onDuplicate={props.onDuplicate}
-            onCancel={props.onCancel}
-            onActivate={props.onActivate}
-            onDelete={props.onDelete}
             canAddVisitor={props.canAddVisitor !== false}
             showCoach={showCoach}
           />

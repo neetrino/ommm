@@ -87,39 +87,62 @@ export function getScheduleSessionsListLayout(
   preset: ScheduleSessionsListPreset,
 ): ScheduleSessionsListLayout {
   const isStaffReadOnly = preset === "staffReadOnly";
+  const isAdmin = preset === "admin";
   const selectCellClass =
     "flex items-center max-md:absolute max-md:left-3 max-md:top-3 max-md:z-10 md:justify-center";
 
   return {
     tableClass: buildScheduleSessionsListTableClass(preset),
-    headerClass: buildAdminListHeaderClass(),
+    headerClass: isAdmin
+      ? buildAdminListHeaderClass().replace("md:items-end", "md:items-center")
+      : buildAdminListHeaderClass(),
     rowClass: buildScheduleSessionsListRowClass(preset),
     cellClass: USER_LIST_CELL_CLASS,
     selectCellClass,
     dateTimeCellClass: isStaffReadOnly
-      ? `${USER_LIST_DATE_CELL} overflow-visible md:flex md:justify-center md:text-center`
-      : `${USER_LIST_DATE_CELL} overflow-visible md:pl-6`,
+      ? `${USER_LIST_DATE_CELL} overflow-visible md:flex md:items-center md:justify-center md:text-center`
+      : isAdmin
+        ? `${USER_LIST_DATE_CELL} overflow-visible md:flex md:items-center md:justify-center md:text-center`
+        : `${USER_LIST_DATE_CELL} overflow-visible md:pl-6`,
     dateTimeHeaderCellClass: isStaffReadOnly
       ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:justify-center md:text-center`
-      : `${ADMIN_LIST_EMPHASIZED_HEADER} md:pl-6`,
+      : isAdmin
+        ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:flex md:items-center md:justify-center md:text-center`
+        : `${ADMIN_LIST_EMPHASIZED_HEADER} md:pl-6`,
     capacityCellClass: isStaffReadOnly
       ? `${USER_LIST_CELL_CLASS} tabular-nums md:flex md:justify-center md:text-center`
-      : `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-stretch`,
+      : isAdmin
+        ? `${USER_LIST_CELL_CLASS} tabular-nums md:flex md:items-center md:justify-center md:text-center`
+        : `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-stretch`,
     levelCellClass: isStaffReadOnly
       ? `${USER_LIST_CELL_CLASS} flex flex-wrap items-center justify-center gap-1.5 md:justify-self-stretch`
       : `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
     levelHeaderCellClass: isStaffReadOnly
       ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:justify-center md:text-center`
+      : isAdmin
+        ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:flex md:items-center md:justify-center md:text-center`
+        : ADMIN_LIST_EMPHASIZED_HEADER,
+    tagsCellClass: isAdmin
+      ? `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:self-center md:justify-self-stretch`
+      : `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
+    tagsHeaderCellClass: isAdmin
+      ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:flex md:items-center`
       : ADMIN_LIST_EMPHASIZED_HEADER,
-    tagsCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
-    tagsHeaderCellClass: ADMIN_LIST_EMPHASIZED_HEADER,
     statusCellClass: `${USER_LIST_TRAILING_CELL} md:justify-self-end`,
     statusHeaderCellClass: `${ADMIN_LIST_EMPHASIZED_HEADER} ${USER_LIST_TRAILING_HEADER_CELL}`,
-    coachCellClass: USER_LIST_CELL_CLASS,
-    actionsCellClass: USER_LIST_ACTIONS_CELL,
-    actionsHeaderCellClass: USER_LIST_TRAILING_HEADER_CELL,
+    coachCellClass: isAdmin
+      ? `${USER_LIST_CELL_CLASS} md:flex md:items-center md:justify-center md:text-center`
+      : USER_LIST_CELL_CLASS,
+    actionsCellClass: isAdmin
+      ? `${USER_LIST_ACTIONS_CELL} md:self-center`
+      : USER_LIST_ACTIONS_CELL,
+    actionsHeaderCellClass: isAdmin
+      ? `${USER_LIST_TRAILING_HEADER_CELL} md:flex md:items-center md:justify-end`
+      : USER_LIST_TRAILING_HEADER_CELL,
     spacerCellClass: `${USER_LIST_SPACER_CELL} ${scheduleListLayoutStyles.spacer}`,
-    emphasizedHeaderClass: ADMIN_LIST_EMPHASIZED_HEADER,
+    emphasizedHeaderClass: isAdmin
+      ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:flex md:items-center md:justify-center md:text-center`
+      : ADMIN_LIST_EMPHASIZED_HEADER,
     classAreaClass: scheduleListLayoutStyles.classArea,
     datetimeAreaClass: scheduleListLayoutStyles.datetime,
     capacityAreaClass: scheduleListLayoutStyles.capacity,

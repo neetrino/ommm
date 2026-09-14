@@ -154,17 +154,9 @@ function AdminSessionRegistrationsSheet({
       >
         <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 space-y-1">
-              <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
-                {t("title")}
-              </h2>
-              <p id={descId} className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
-                {sessionTitle}
-              </p>
-              <p className="text-xs text-sage-500">
-                {formatDateTimeForUi(startsAt, locale)}
-              </p>
-            </div>
+            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
+              {t("title")}
+            </h2>
             <div className="flex shrink-0 items-start gap-2">
               <p className="pt-1.5 text-sm font-medium tabular-nums text-sage-800">
                 {t("subtitle", { count: rosterCount, capacity })}
@@ -179,18 +171,35 @@ function AdminSessionRegistrationsSheet({
               </button>
             </div>
           </div>
+          {canAdd ? (
+            <div className="mt-1">
+              <AdminSessionAddRegistration
+                sessionId={sessionId}
+                startsAt={startsAt}
+                booked={rosterCount}
+                capacity={capacity}
+                registeredUserIds={registeredUserIds}
+                onAdded={() => setRefreshNonce((value) => value + 1)}
+                sessionHeading={{
+                  title: sessionTitle,
+                  titleId: descId,
+                  titleClassName: ADMIN_DETAILS_SHEET_LEDE_CLASS,
+                  dateLabel: formatDateTimeForUi(startsAt, locale),
+                }}
+              />
+            </div>
+          ) : (
+            <div className="mt-1 min-w-0 space-y-1">
+              <p id={descId} className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
+                {sessionTitle}
+              </p>
+              <p className="text-xs text-sage-500">
+                {formatDateTimeForUi(startsAt, locale)}
+              </p>
+            </div>
+          )}
         </header>
         <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 space-y-4`}>
-          {canAdd ? (
-            <AdminSessionAddRegistration
-              sessionId={sessionId}
-              startsAt={startsAt}
-              booked={rosterCount}
-              capacity={capacity}
-              registeredUserIds={registeredUserIds}
-              onAdded={() => setRefreshNonce((value) => value + 1)}
-            />
-          ) : null}
           <RosterBody
             loading={loading}
             error={error}
