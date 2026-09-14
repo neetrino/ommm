@@ -147,7 +147,6 @@ export function getCoachFormSectionLabels(locale: string) {
   if (locale === "hy") {
     return {
       personalInfoHeading: "Անձնական տվյալներ",
-      personalInfoDescription: "Հաշվի և ինքնության հիմնական տվյալներ",
       coachDetailsHeading: "Մարզչի տվյալներ",
       coachDetailsDescription: "Փորձ, մասնագիտացում և պրոֆիլի մեդիա",
       assignedClassesHeading: "Կցված դասեր և աշխատավարձ",
@@ -160,7 +159,6 @@ export function getCoachFormSectionLabels(locale: string) {
   if (locale === "ru") {
     return {
       personalInfoHeading: "Личные данные",
-      personalInfoDescription: "Основные данные учётной записи и личности",
       coachDetailsHeading: "Данные тренера",
       coachDetailsDescription: "Опыт, специализация и медиа профиля",
       assignedClassesHeading: "Назначенные занятия и зарплата",
@@ -172,7 +170,6 @@ export function getCoachFormSectionLabels(locale: string) {
   }
   return {
     personalInfoHeading: "Personal Information",
-    personalInfoDescription: "Core account and identity details",
     coachDetailsHeading: "Coach Details",
     coachDetailsDescription: "Experience, specialization, and profile media",
     assignedClassesHeading: "Assigned classes & salary",
