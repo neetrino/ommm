@@ -4950,7 +4950,7 @@
       "checkoutUnavailable": "Заявка на оплату недоступна",
       "paymentPending": "Заявка на оплату создана. Команда студии подтвердит запись после подтверждения оплаты.",
       "paymentPendingWithReference": "Заявка на оплату {reference} создана. Команда студии подтвердит запись после подтверждения оплаты.",
-      "packageModalTitle": "Выберите пакет для этой записи",
+      "packageModalTitle": "Выберите пакет",
       "packageModalDescription": "Выберите, какой пакет использовать для этого занятия.",
       "packageModalConfirm": "Записаться с выбранным пакетом",
       "packageModalConfirming": "Запись…",

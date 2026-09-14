@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { OmmButton } from "@/components/ui/omm-button";
-import styles from "@/components/account/booking-package-select-guest-actions.module.css";
 
 type BookingPackageSelectGuestActionsProps = {
   busy: boolean;
@@ -24,13 +23,12 @@ export function BookingPackageSelectGuestActions({
   const t = useTranslations("forms.bookSession");
 
   return (
-    <div className={styles.actions}>
+    <div className="flex flex-wrap items-center justify-end gap-3">
       {showGuestAction ? (
         <OmmButton
           type="button"
           variant="secondary"
           size="md"
-          className={styles.actionButton}
           disabled={busy || !canConfirmGuest}
           onClick={onConfirmGuest}
         >
@@ -41,7 +39,6 @@ export function BookingPackageSelectGuestActions({
         type="button"
         variant="primary"
         size="md"
-        className={styles.actionButton}
         disabled={busy || !canConfirmOwner}
         onClick={onConfirmOwner}
       >

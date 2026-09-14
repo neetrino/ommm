@@ -4952,7 +4952,7 @@
       "checkoutUnavailable": "Payment request unavailable",
       "paymentPending": "Payment request created. The studio team will confirm your booking after payment is approved.",
       "paymentPendingWithReference": "Payment request {reference} created. The studio team will confirm your booking after payment is approved.",
-      "packageModalTitle": "Choose package for this booking",
+      "packageModalTitle": "Choose your package",
       "packageModalDescription": "Please choose which package you want to use for this class.",
       "packageModalConfirm": "Book with selected package",
       "packageModalConfirming": "Booking…",

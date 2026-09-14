@@ -8,9 +8,9 @@ import {
   BookingPackageSelectMobileSheetLayout,
   BookingPackageSelectSheetCloseIcon,
 } from "@/components/account/booking-package-select-sheet-chrome";
-import { memberAccountHubSheetPanelStyle } from "@/components/account/member-account-hub-sheet-layout";
 import { MemberHubMobileSheet } from "@/components/account/member-hub-mobile-sheet";
 import {
+  BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS,
@@ -19,8 +19,8 @@ import {
   PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
   PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS,
-  BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
+  packageFlowMobileSheetPanelStyle,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
 import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
@@ -252,7 +252,7 @@ function BookingPackageSelectModalSession({
         backdropCloseLabel={t("packageModalClose")}
         onClose={onClose}
         closeDisabled={busy}
-        panelStyle={memberAccountHubSheetPanelStyle()}
+        panelStyle={packageFlowMobileSheetPanelStyle()}
       >
         <BookingPackageSelectMobileSheetLayout
           renderHeader={(onCloseSheet) => renderSheetHeader(onCloseSheet, false)}

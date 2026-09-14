@@ -1,3 +1,16 @@
+import type { CSSProperties } from "react";
+
+/** Choose-package / confirm-subscribe sheets — taller than the member hub (80dvh). */
+export const PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT = "90dvh";
+
+export function packageFlowMobileSheetPanelStyle(): CSSProperties {
+  return {
+    height: PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT,
+    maxHeight: PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT,
+    minHeight: PACKAGE_FLOW_MOBILE_SHEET_VIEWPORT_HEIGHT,
+  };
+}
+
 /** Desktop subscribe drawer — liquid glass panel sliding in from the right (half viewport). */
 export const PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS =
   "ommm-package-subscribe-desktop-overlay";

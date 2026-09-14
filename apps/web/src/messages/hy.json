@@ -4953,7 +4953,7 @@
       "checkoutUnavailable": "Վճարման հայտը հասանելի չէ",
       "paymentPending": "Վճարման հայտը ստեղծվել է։ Ստուդիայի թիմը կհաստատի ձեր գրանցումը վճարումը հաստատելուց հետո։",
       "paymentPendingWithReference": "Վճարման հայտը՝ {reference}, ստեղծվել է։ Ստուդիայի թիմը կհաստատի ձեր գրանցումը վճարումը հաստատելուց հետո։",
-      "packageModalTitle": "Ընտրեք փաթեթ այս գրանցման համար",
+      "packageModalTitle": "Ընտրեք փաթեթ",
       "packageModalDescription": "Խնդրում ենք ընտրել, թե որ փաթեթն եք ցանկանում օգտագործել այս դասի համար։",
       "packageModalConfirm": "Գրանցվել ընտրված փաթեթով",
       "packageModalConfirming": "Գրանցվում է…",

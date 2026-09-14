@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import { PackageSubscribeGiftCreditsToggle } from "@/components/account/package-subscribe-gift-credits-toggle";
-import { memberAccountHubSheetPanelStyle } from "@/components/account/member-account-hub-sheet-layout";
 import {
   MemberHubMobileSheet,
   useMemberHubMobileSheetClose,
@@ -22,6 +21,7 @@ import {
   PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
+  packageFlowMobileSheetPanelStyle,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
 import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
@@ -329,7 +329,7 @@ function PackageSubscribePaymentModalSession({
         backdropCloseLabel={t("closeModal")}
         onClose={finishClose}
         closeDisabled={busy}
-        panelStyle={memberAccountHubSheetPanelStyle()}
+        panelStyle={packageFlowMobileSheetPanelStyle()}
       >
         <PackageSubscribeMobileSheetLayout
           renderHeader={(onCloseSheet) => renderSheetHeader(onCloseSheet, false)}
