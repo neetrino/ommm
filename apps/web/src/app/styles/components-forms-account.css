@@ -52,7 +52,7 @@
   }
 
   .ommm-member-account-hub-shell {
-    @apply mx-auto w-full max-w-lg pt-2 sm:max-w-xl sm:pt-4;
+    @apply mx-auto w-full max-w-lg pt-0 sm:max-w-xl sm:pt-2;
   }
 
   .ommm-member-account-hub-shell--sheet {
@@ -84,11 +84,11 @@
   }
 
   .ommm-member-account-hub-email {
-    @apply mt-1 text-sm leading-relaxed text-sage-500/80;
+    @apply mt-0.5 text-sm leading-snug text-sage-500/80;
   }
 
   .ommm-member-account-hub-menu {
-    @apply mt-8 overflow-hidden rounded-[28px] border border-white/80 bg-white/95 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] backdrop-blur-md;
+    @apply mt-4 overflow-hidden rounded-[28px] border border-white/80 bg-white/95 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] backdrop-blur-md;
   }
 
   .ommm-member-account-hub-row {
