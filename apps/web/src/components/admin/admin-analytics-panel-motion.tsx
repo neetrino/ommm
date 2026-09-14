@@ -14,6 +14,7 @@ export function AdminAnalyticsPanelSection({ index, children }: AdminAnalyticsPa
 
   return (
     <motion.div
+      className="min-w-0 max-w-full"
       variants={adminFilterRevealVariants(index, reducedMotion)}
       initial="initial"
       animate="animate"
