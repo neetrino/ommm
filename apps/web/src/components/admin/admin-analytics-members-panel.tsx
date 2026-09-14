@@ -84,6 +84,12 @@ export function AdminAnalyticsMembersPanel({ data }: AdminAnalyticsMembersPanelP
   );
 
   const kpis = [
+    {
+      key: "ltv",
+      label: t("sections.users.ltv"),
+      value: formatAmdFromCents(members.lifetimeValueCents, locale),
+      fullWidthOnMobile: true,
+    },
     { key: "total", label: t("sections.users.total"), value: String(members.total) },
     { key: "active", label: t("sections.users.active"), value: String(members.active) },
     { key: "new", label: t("sections.users.newInRange"), value: String(members.newInRange) },
@@ -103,14 +109,10 @@ export function AdminAnalyticsMembersPanel({ data }: AdminAnalyticsMembersPanelP
       value: formatRatePercent(members.retentionRate, t("notAvailable")),
     },
     {
-      key: "ltv",
-      label: t("sections.users.ltv"),
-      value: formatAmdFromCents(members.lifetimeValueCents, locale),
-    },
-    {
       key: "visits",
       label: t("sections.users.visitsInRange"),
       value: String(members.totalVisitsInRange),
+      fullWidthOnMobile: true,
     },
   ];
 

@@ -42,10 +42,13 @@ export function AdminAnalyticsRevenueKpis({ data }: AdminAnalyticsRevenueKpisPro
       <AdminAnalyticsKpiStrip
         items={buildCashKpiItems(data.studio, data.locale, copy, t)}
         trendNotAvailableLabel={t("trendNotAvailable")}
+        mobileColumns={1}
       />
       <AdminAnalyticsKpiStrip
         items={buildRankKpiItems(data.studio, data.locale, copy)}
         trendNotAvailableLabel={t("trendNotAvailable")}
+        mobileColumns={1}
+        compact
       />
     </div>
   );
