@@ -2,6 +2,7 @@
 
 import { useId, type ReactNode } from "react";
 import { LayoutGroup } from "framer-motion";
+import { ADMIN_HIDE_SCROLLBAR_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OliveSegmentedActiveThumb } from "@/components/ui/olive-segmented-active-thumb";
 import {
   oliveSegmentedHugSegmentClassName,
@@ -31,6 +32,11 @@ const TAB_BAR_PADDING_CLASS = {
   compact: "px-2 py-2.5 sm:px-3",
   default: "px-3 py-2.5 sm:px-4 sm:py-3",
 } as const;
+
+const TAB_SCROLL_CLASS = [
+  "min-w-0 flex-1 overflow-x-auto overscroll-x-contain touch-pan-x",
+  ADMIN_HIDE_SCROLLBAR_CLASS,
+].join(" ");
 
 function AdminDetailSheetTabList({
   tabs,
@@ -92,7 +98,7 @@ export function AdminDetailSheetTabBar({
     <div
       className={`${TAB_BAR_PADDING_CLASS[density]} flex min-w-0 shrink-0 items-center gap-2 border-b border-white/60 ${className}`.trim()}
     >
-      <div className="min-w-0 flex-1 overflow-x-auto">
+      <div className={TAB_SCROLL_CLASS}>
         <LayoutGroup id={layoutGroupId}>
           <AdminDetailSheetTabList
             tabs={tabs}

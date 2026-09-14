@@ -114,7 +114,7 @@ export function ClientSheetTabPanels({
   if (activeTab === CLIENT_SHEET_TAB_PROFILE) {
     return (
       <div className="space-y-5">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
           <Metric label={t("drawer.totalVisits")} value={String(activity.totalVisits)} />
           <Metric label={t("drawer.totalBookings")} value={String(activity.totalBookings)} />
           <Metric label={t("drawer.cancellations")} value={String(activity.totalCancellations)} />
