@@ -3983,12 +3983,17 @@
       },
       "drawer": {
         "title": "User details",
+        "lead": "Contact info and recent bookings for this member.",
         "close": "Close",
         "loading": "Loading user details...",
         "error": "Could not load user details.",
         "empty": "User data is unavailable.",
         "packages": "Memberships",
-        "bookings": "Recent bookings"
+        "bookings": "Recent bookings",
+        "noBookings": "No recent bookings.",
+        "phone": "Phone",
+        "email": "Email",
+        "coachLine": "Coach · {coachName}"
       }
     },
     "reports": {
