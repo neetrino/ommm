@@ -55,8 +55,8 @@ function PaymentDueViewAllLink({
 }) {
   const className =
     tone === "alert"
-      ? "mt-3 flex w-full items-center justify-center rounded-2xl border border-white/30 bg-white/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-white/25"
-      : "mt-3 flex w-full items-center justify-center rounded-2xl border border-sage-200/80 bg-white/70 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 hover:bg-white";
+      ? "inline-flex shrink-0 items-center self-center rounded-full border border-white/35 bg-white/15 px-4 py-2 text-sm font-semibold uppercase tracking-[0.08em] text-white hover:bg-white/25"
+      : "inline-flex shrink-0 items-center self-center rounded-full border border-sage-200/80 bg-white/70 px-4 py-2 text-sm font-semibold uppercase tracking-[0.08em] text-sage-800 hover:bg-white";
 
   return (
     <Link href={href} className={className}>
@@ -105,12 +105,17 @@ function PaymentDueFilledBanner({
     >
       <div className="flex items-center gap-4">
         <PaymentDueWarningIcon />
-        <div className="min-w-0 space-y-1">
-          <p className="text-base font-bold uppercase tracking-[0.12em]">
-            {t("title")}
-          </p>
-          <p className="text-sm font-medium text-rose-50">{t("hint")}</p>
-          <p className="text-xs font-medium text-rose-100">{t("count", { count })}</p>
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 space-y-1">
+              <p className="text-base font-bold uppercase tracking-[0.12em]">
+                {t("title")}
+              </p>
+              <p className="text-sm font-medium text-rose-50">{t("hint")}</p>
+              <p className="text-xs font-medium text-rose-100">{t("count", { count })}</p>
+            </div>
+            <PaymentDueViewAllLink href={viewAllHref} label={t("viewAll")} tone="alert" />
+          </div>
         </div>
       </div>
       <ul className="mt-4 space-y-2">
@@ -123,7 +128,6 @@ function PaymentDueFilledBanner({
           />
         ))}
       </ul>
-      <PaymentDueViewAllLink href={viewAllHref} label={t("viewAll")} tone="alert" />
     </div>
   );
 }
@@ -149,16 +153,20 @@ function PaymentDueEmptyState({
       <div className="flex items-center gap-4">
         <PaymentDueCalmIcon />
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">
-            {title}
-          </p>
-          <p className="mt-1 text-sm font-medium text-sage-800">{empty}</p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">
+                {title}
+              </p>
+              <p className="mt-1 text-sm font-medium text-sage-800">{empty}</p>
+            </div>
+            <PaymentDueViewAllLink href={viewAllHref} label={viewAllLabel} tone="calm" />
+          </div>
         </div>
         <span className="hidden shrink-0 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-semibold tabular-nums text-sage-700 sm:inline-flex">
           {countLabel}
         </span>
       </div>
-      <PaymentDueViewAllLink href={viewAllHref} label={viewAllLabel} tone="calm" />
     </div>
   );
 }
