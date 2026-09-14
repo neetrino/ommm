@@ -252,19 +252,19 @@ export function AdminCreateCoachFormDetailsSection({
         data-create-coach-field="assignedClasses"
         data-form-field="assignedClasses"
       >
-        <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
+        <div className="mb-4 grid grid-cols-1 items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto]">
           <h3 className="col-start-1 row-start-1 min-w-0 text-sm font-semibold leading-5 uppercase tracking-[0.12em] text-sage-800">
             Assigned Classes & Salary
             <AdminRequiredMark />
           </h3>
-          <div className="col-start-2 row-start-1 flex items-center self-center">
+          <div className="col-start-1 row-start-2 flex items-center self-start sm:col-start-2 sm:row-start-1 sm:self-center">
             <AdminCoachAssignedClassesCountBadge
               count={selectedClassIds.length}
               label={(count) => tPage("assignedClassesSelectedCount", { count })}
               emptyLabel={tPage("assignedClassesNoneSelected")}
             />
           </div>
-          <p className="col-start-1 row-start-2 col-span-2 text-xs text-sage-500">
+          <p className="col-start-1 row-start-3 text-xs text-sage-500 sm:col-span-2 sm:row-start-2">
             Select class types and set pay per finished class
           </p>
         </div>
