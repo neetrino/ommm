@@ -1972,7 +1972,9 @@
         "title": "Payment due",
         "hint": "These studio packages were used in a class that ended over an hour ago, but payment is still unpaid.",
         "openClient": "Open {name}",
-        "count": "{count, plural, one {# package} other {# packages}}"
+        "count": "{count, plural, one {# package} other {# packages}}",
+        "viewAll": "View all",
+        "showLess": "Show less"
       }
     }
   },

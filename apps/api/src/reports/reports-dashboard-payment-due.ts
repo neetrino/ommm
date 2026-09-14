@@ -7,8 +7,6 @@ import {
 import { loadStudioPackagePaymentDueIds } from '../packages/studio-package-payment-due';
 import { joinName } from './reports.helpers';
 
-export const DASHBOARD_STUDIO_PAYMENT_DUE_LIMIT = 8;
-
 export type DashboardStudioPaymentDueItem = {
   clientId: string;
   clientName: string;
@@ -81,7 +79,6 @@ function uniquePackageIds(
 export async function loadDashboardStudioPaymentDue(
   db: DashboardPaymentDueDb,
   now: Date = new Date(),
-  limit: number = DASHBOARD_STUDIO_PAYMENT_DUE_LIMIT,
 ): Promise<DashboardStudioPaymentDue> {
   const payments = await db.payment.findMany({
     where: {
@@ -114,7 +111,7 @@ export async function loadDashboardStudioPaymentDue(
 
   return {
     count: packages.length,
-    items: packages.slice(0, limit).map((row) => ({
+    items: packages.map((row) => ({
       clientId: row.user.id,
       clientName: joinName(row.user.name, row.user.lastName, row.user.email),
       packageId: row.id,
