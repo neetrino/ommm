@@ -11,7 +11,10 @@ import {
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
-import { canDeleteAdminScheduleSession } from "@/components/admin/admin-schedule-session.helpers";
+import {
+  canDeleteAdminScheduleSession,
+  hasAdminScheduleSessionRowActions,
+} from "@/components/admin/admin-schedule-session.helpers";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
 import { AdminScheduleSessionSelectCheckbox } from "@/components/admin/admin-schedule-session-select-checkbox";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
@@ -54,6 +57,8 @@ export type ScheduleSessionCardFieldsProps = {
   onCancel?: (row: AdminScheduleSession) => void;
   onActivate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
+  canAddVisitor?: boolean;
+  showCoach?: boolean;
 };
 
 export function ScheduleSessionCardFields({
@@ -67,11 +72,20 @@ export function ScheduleSessionCardFields({
   onCancel,
   onActivate,
   onDelete,
+  canAddVisitor = true,
+  showCoach = true,
 }: ScheduleSessionCardFieldsProps) {
   const t = useTranslations("adminPages.classes");
   const subtitle = sessionClassSubtitle(row.title, row.classType.name, row.classFormat);
   const coachLabel = coachName(row.coach);
   const levels = splitSessionLevels(row.level);
+  const showActions = hasAdminScheduleSessionRowActions({
+    onDuplicate,
+    onCancel,
+    onActivate,
+    onDelete,
+  });
+  const statusLabel = t(`status.${row.status}`);
 
   return (
     <>
@@ -90,26 +104,35 @@ export function ScheduleSessionCardFields({
         <ScheduleSessionClassHeading
           title={row.title}
           subtitle={subtitle}
-          coachLine={t("withCoach", { name: coachLabel })}
+          coachLine={showCoach ? t("withCoach", { name: coachLabel }) : null}
           titleClass={ADMIN_SCHEDULE_SESSIONS_LIST_TITLE_CLASS}
           subtitleClass={ADMIN_SCHEDULE_SESSIONS_LIST_SUBTITLE_CLASS}
         />
       </div>
-      <ScheduleSessionMetaCells row={row} locale={locale} coachLabel={coachLabel} />
+      <ScheduleSessionMetaCells
+        row={row}
+        locale={locale}
+        coachLabel={coachLabel}
+        canAddVisitor={canAddVisitor}
+        showCoach={showCoach}
+      />
       <ScheduleSessionTagsCell
         levels={levels}
         status={row.status}
-        statusLabel={t(`status.${row.status}`)}
+        statusLabel={statusLabel}
+        showMobileStatus={!showActions}
       />
-      <ScheduleSessionActionsCell
-        row={row}
-        busy={busy}
-        statusLabel={t(`status.${row.status}`)}
-        onDuplicate={onDuplicate}
-        onCancel={onCancel}
-        onActivate={onActivate}
-        onDelete={onDelete}
-      />
+      {showActions ? (
+        <ScheduleSessionActionsCell
+          row={row}
+          busy={busy}
+          statusLabel={statusLabel}
+          onDuplicate={onDuplicate}
+          onCancel={onCancel}
+          onActivate={onActivate}
+          onDelete={onDelete}
+        />
+      ) : null}
     </>
   );
 }
@@ -154,10 +177,14 @@ function ScheduleSessionMetaCells({
   row,
   locale,
   coachLabel,
+  canAddVisitor,
+  showCoach,
 }: {
   row: AdminScheduleSession;
   locale: string;
   coachLabel: string;
+  canAddVisitor: boolean;
+  showCoach: boolean;
 }) {
   const t = useTranslations("adminPages.classes");
   const booked = row._count.bookings;
@@ -173,11 +200,13 @@ function ScheduleSessionMetaCells({
           endsAt={row.endsAt}
         />
       </div>
-      <div
-        className={`${ADMIN_SCHEDULE_SESSIONS_LIST_CELL} ${ADMIN_SCHEDULE_SESSIONS_LIST_COACH_AREA_CLASS}`}
-      >
-        <p className="text-sm text-sage-800">{coachLabel}</p>
-      </div>
+      {showCoach ? (
+        <div
+          className={`${ADMIN_SCHEDULE_SESSIONS_LIST_CELL} ${ADMIN_SCHEDULE_SESSIONS_LIST_COACH_AREA_CLASS}`}
+        >
+          <p className="text-sm text-sage-800">{coachLabel}</p>
+        </div>
+      ) : null}
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL} aria-hidden="true" />
       <div
         className={`${ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL} ${ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_AREA_CLASS}`}
@@ -194,7 +223,7 @@ function ScheduleSessionMetaCells({
           spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
           secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
           bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
-          canAdd
+          canAdd={canAddVisitor}
         />
       </div>
     </>
@@ -205,19 +234,22 @@ function ScheduleSessionTagsCell({
   levels,
   status,
   statusLabel,
+  showMobileStatus,
 }: {
   levels: readonly string[];
   status: AdminScheduleSession["status"];
   statusLabel: string;
+  showMobileStatus: boolean;
 }) {
+  const hideOnMobile = levels.length === 0 && !showMobileStatus;
   return (
     <div
       className={`${ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL} ${ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_AREA_CLASS} ${
-        levels.length === 0 ? "max-md:hidden" : ""
+        hideOnMobile ? "max-md:hidden" : ""
       }`}
     >
       <span
-        className={`max-md:hidden ${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(status)}`}
+        className={`${showMobileStatus ? "" : "max-md:hidden"} ${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(status)}`}
       >
         {statusLabel}
       </span>

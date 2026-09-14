@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import styles from "@/components/account/booking-package-select-list.module.css";
+import { BookingPackageSelectCard } from "@/components/account/booking-package-select-card";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
 import type { EligibleBookingPackage } from "@/lib/eligible-booking-package";
 
@@ -14,11 +14,7 @@ type BookingPackageSelectListProps = {
   onSelect: (userPackageId: string) => void;
 };
 
-function formatExpiryLabel(
-  locale: string,
-  isoDate: string,
-  fallback: string,
-): string {
+function formatExpiryLabel(locale: string, isoDate: string, fallback: string): string {
   const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) {
     return fallback;
@@ -45,10 +41,8 @@ export function BookingPackageSelectList({
   );
 
   return (
-    <ul className="flex flex-col gap-2.5">
+    <ul className="flex flex-col gap-3">
       {eligiblePackages.map((pkg) => {
-        const isSelected = pkg.userPackageId === activeSelectedId;
-        const isDisabled = busy || (!pkg.canBook && pkg.canBookGuest !== true);
         const duplicateSuffix = duplicatePlanSuffixes.get(pkg.userPackageId);
         const displayPlanName =
           duplicateSuffix !== undefined
@@ -60,76 +54,24 @@ export function BookingPackageSelectList({
         const visitsLabel = pkg.isUnlimited
           ? t("packageUnlimitedVisits")
           : pkg.canBook
-            ? t("packageRemainingVisits", {
-                count: pkg.remainingSessions ?? 0,
-              })
+            ? t("packageRemainingVisits", { count: pkg.remainingSessions ?? 0 })
             : t("packageNoVisitsLeft");
-        const periodStartLabel = formatExpiryLabel(
-          locale,
-          pkg.currentPeriodStart,
-          t("packageNoStartDate"),
-        );
-        const periodEndLabel = formatExpiryLabel(
-          locale,
-          pkg.currentPeriodEnd,
-          t("packageNoExpiry"),
-        );
-
-        const cardClassName = [
-          styles.packageCard,
-          isSelected ? styles.packageCardSelected : "",
-          isDisabled ? styles.packageCardDisabled : "",
-        ]
-          .filter(Boolean)
-          .join(" ");
+        const periodLabel = t("packageValidPeriod", {
+          start: formatExpiryLabel(locale, pkg.currentPeriodStart, t("packageNoStartDate")),
+          end: formatExpiryLabel(locale, pkg.currentPeriodEnd, t("packageNoExpiry")),
+        });
 
         return (
           <li key={pkg.userPackageId}>
-            <button
-              type="button"
-              className={cardClassName}
-              onClick={() => {
-                if (!pkg.canBook && pkg.canBookGuest !== true) {
-                  return;
-                }
-                onSelect(pkg.userPackageId);
-              }}
-              disabled={isDisabled}
-              aria-disabled={!pkg.canBook && pkg.canBookGuest !== true}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <p className="min-w-0 font-medium text-sage-900">{displayPlanName}</p>
-                {isSelected ? (
-                  <span className={styles.packageCardBadge}>
-                    {t("packageSelectedBadge")}
-                  </span>
-                ) : null}
-              </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-sage-600">
-                <span>{visitsLabel}</span>
-                {(pkg.guestSlotsTotal ?? 0) > 0 ? (
-                  <span>
-                    {t("packageGuestPassesRemaining", {
-                      remaining: pkg.guestSlotsRemaining ?? 0,
-                      total: pkg.guestSlotsTotal ?? 0,
-                    })}
-                  </span>
-                ) : null}
-                <span>
-                  {t("packageValidPeriod", {
-                    start: periodStartLabel,
-                    end: periodEndLabel,
-                  })}
-                </span>
-              </div>
-              {pkg.includedCategories.length > 0 ? (
-                <p className="mt-2 text-xs text-sage-500">
-                  {t("packageIncludedCategories", {
-                    categories: pkg.includedCategories.join(", "),
-                  })}
-                </p>
-              ) : null}
-            </button>
+            <BookingPackageSelectCard
+              pkg={pkg}
+              displayPlanName={displayPlanName}
+              visitsLabel={visitsLabel}
+              periodLabel={periodLabel}
+              isSelected={pkg.userPackageId === activeSelectedId}
+              isDisabled={busy || (!pkg.canBook && pkg.canBookGuest !== true)}
+              onSelect={onSelect}
+            />
           </li>
         );
       })}

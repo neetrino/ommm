@@ -4802,7 +4802,8 @@
       "breakdownHint": "Salary is only accrued for classes where someone actually showed up.",
       "breakdownLoading": "Loading sessions…",
       "breakdownLoadFailed": "Could not load sessions.",
-      "breakdownEmpty": "No sessions found for this month."
+      "breakdownEmpty": "No sessions found for this month.",
+      "breakdownTotals": "Totals"
     }
   },
   "contentAdminPages": {
@@ -4829,6 +4830,7 @@
       "saveButton": "Save changes",
       "cancelButton": "Cancel",
       "savingButton": "Saving…",
+      "modalCloseAria": "Close",
       "modalBackdropClose": "Close panel",
       "deleteConfirmTitle": "Delete post?",
       "deleteConfirmBody": "Delete “{title}”? This cannot be undone.",
@@ -4951,7 +4953,7 @@
       "checkoutUnavailable": "Payment request unavailable",
       "paymentPending": "Payment request created. The studio team will confirm your booking after payment is approved.",
       "paymentPendingWithReference": "Payment request {reference} created. The studio team will confirm your booking after payment is approved.",
-      "packageModalTitle": "Choose package for this booking",
+      "packageModalTitle": "Choose your package",
       "packageModalDescription": "Please choose which package you want to use for this class.",
       "packageModalConfirm": "Book with selected package",
       "packageModalConfirming": "Booking…",

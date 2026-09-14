@@ -81,7 +81,9 @@
   .dashboardWithMarketingHeaderScrollStaffMobile {
     flex: none;
     overflow: visible;
-    min-height: 0;
+    /* Short admin pages (e.g. /admin/settings) — cream bg must fill the viewport, not only content height. */
+    min-height: 100svh;
+    min-height: 100dvh;
   }
 
   .dashboardWithMarketingHeaderOverlay:not(.dashboardWithMarketingHeaderMemberMobile)

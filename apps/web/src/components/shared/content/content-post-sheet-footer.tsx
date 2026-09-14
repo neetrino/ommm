@@ -15,7 +15,7 @@ type ContentPostSheetFooterProps = {
   cancelLabel: string;
   savingLabel: string;
   deleteLabel: string;
-  canDelete?: boolean;
+  showDelete: boolean;
   onSave: () => void;
   onCancel: () => void;
   onDelete: () => void;
@@ -31,7 +31,7 @@ export function ContentPostSheetFooter({
   cancelLabel,
   savingLabel,
   deleteLabel,
-  canDelete = true,
+  showDelete,
   onSave,
   onCancel,
   onDelete,
@@ -43,7 +43,6 @@ export function ContentPostSheetFooter({
     post !== null &&
     !showSaveActions &&
     hasContentPostWorkflowActions(post);
-  const showDelete = mode === "edit" && post !== null && canDelete;
 
   if (!showDelete && !showSaveActions && !showWorkflow) {
     return null;

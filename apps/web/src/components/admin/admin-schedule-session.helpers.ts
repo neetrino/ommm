@@ -27,6 +27,21 @@ export function canDeleteAdminScheduleSession(
   return row._count.bookings === 0;
 }
 
+/** Coach/read-only lists omit mutate callbacks — hide the Actions column. */
+export function hasAdminScheduleSessionRowActions(params: {
+  onCancel?: (row: AdminScheduleSession) => void;
+  onActivate?: (row: AdminScheduleSession) => void;
+  onDelete?: (row: AdminScheduleSession) => void;
+  onDuplicate?: (row: AdminScheduleSession) => void;
+}): boolean {
+  return (
+    params.onCancel !== undefined ||
+    params.onActivate !== undefined ||
+    params.onDelete !== undefined ||
+    params.onDuplicate !== undefined
+  );
+}
+
 export function splitSessionLevels(level: string | null | undefined): string[] {
   if (!level) {
     return [];

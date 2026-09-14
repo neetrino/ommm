@@ -10,20 +10,13 @@ import {
   utcToStudioDayOfWeek,
 } from "@/lib/studio-timezone";
 
-const STUDIO_DAY_TO_WEEK_OFFSET: Record<MarketingScheduleDayOfWeek, number> = {
-  SUNDAY: 0,
-  MONDAY: 1,
-  TUESDAY: 2,
-  WEDNESDAY: 3,
-  THURSDAY: 4,
-  FRIDAY: 5,
-  SATURDAY: 6,
-};
+/** Home weekly schedule shows today through today + 6 (rolling week). */
+export const HOME_WEEKLY_SCHEDULE_ROLLING_DAY_COUNT = 7;
 
-/** Monday=0 … Sunday=6 for Mon–Sun weekly schedule tabs. */
-function daysSinceMonday(day: MarketingScheduleDayOfWeek): number {
-  return day === "SUNDAY" ? 6 : STUDIO_DAY_TO_WEEK_OFFSET[day] - 1;
-}
+export type HomeWeeklyScheduleRollingTab = {
+  day: MarketingScheduleDayOfWeek;
+  calendarDate: string;
+};
 
 /** Studio calendar day-of-week for a `YYYY-MM-DD` date. */
 export function studioCalendarDateToDayOfWeek(
@@ -33,14 +26,35 @@ export function studioCalendarDateToDayOfWeek(
 }
 
 /**
- * Nearest upcoming session calendar day at/after studio today.
- * Falls back to today when there are no upcoming dated sessions.
+ * Rolling day tabs starting at studio today: today, tomorrow, …, today+6.
+ * Past weekdays are omitted; the same weekday from next week appears at the end.
+ */
+export function listHomeWeeklyScheduleRollingTabs(
+  reference: Date = new Date(),
+): readonly HomeWeeklyScheduleRollingTab[] {
+  const todayIso = utcToStudioCalendarDate(reference);
+  return Array.from({ length: HOME_WEEKLY_SCHEDULE_ROLLING_DAY_COUNT }, (_, offset) => {
+    const calendarDate = addStudioCalendarDays(todayIso, offset);
+    return {
+      day: studioCalendarDateToDayOfWeek(calendarDate),
+      calendarDate,
+    };
+  });
+}
+
+/**
+ * Nearest upcoming session calendar day within the rolling home window
+ * (studio today … today+6). Falls back to today when none exist in range.
  */
 export function resolveHomeWeeklyScheduleFocusDate(
   items: readonly Pick<MarketingScheduleItem, "sessionDate" | "isActive">[],
   reference: Date = new Date(),
 ): string {
   const todayIso = utcToStudioCalendarDate(reference);
+  const windowEndIso = addStudioCalendarDays(
+    todayIso,
+    HOME_WEEKLY_SCHEDULE_ROLLING_DAY_COUNT - 1,
+  );
   let nearest: string | null = null;
 
   for (const item of items) {
@@ -48,7 +62,11 @@ export function resolveHomeWeeklyScheduleFocusDate(
       continue;
     }
     const sessionDay = resolveStudioCalendarDateFromSessionDate(item.sessionDate);
-    if (sessionDay === null || sessionDay < todayIso) {
+    if (
+      sessionDay === null ||
+      sessionDay < todayIso ||
+      sessionDay > windowEndIso
+    ) {
       continue;
     }
     if (nearest === null || sessionDay < nearest) {
@@ -59,28 +77,26 @@ export function resolveHomeWeeklyScheduleFocusDate(
   return nearest ?? todayIso;
 }
 
-/** Monday (`YYYY-MM-DD`) of the Mon–Sun week that contains `calendarDateIso`. */
-export function getHomeWeeklyScheduleWeekMonday(
-  calendarDateIso: string,
-): string {
-  const day = studioCalendarDateToDayOfWeek(calendarDateIso);
-  return addStudioCalendarDays(calendarDateIso, -daysSinceMonday(day));
-}
-
 /**
- * Studio calendar date for a weekday tab in the Mon–Sun week containing `focusDateIso`.
- * When omitted, `focusDateIso` defaults to studio today (current week).
+ * Studio calendar date for a weekday tab in the rolling window starting at studio today.
+ * `focusDateIso` is accepted for call-site compatibility and ignored — the window is
+ * always anchored to `reference` (today), not a distant focus week.
  */
 export function getHomeWeeklyScheduleTabCalendarDate(
   day: MarketingScheduleDayOfWeek,
   reference: Date = new Date(),
-  focusDateIso: string = utcToStudioCalendarDate(reference),
+  _focusDateIso?: string,
 ): string {
-  const weekMonday = getHomeWeeklyScheduleWeekMonday(focusDateIso);
-  return addStudioCalendarDays(weekMonday, daysSinceMonday(day));
+  const tab = listHomeWeeklyScheduleRollingTabs(reference).find(
+    (entry) => entry.day === day,
+  );
+  if (tab === undefined) {
+    return utcToStudioCalendarDate(reference);
+  }
+  return tab.calendarDate;
 }
 
-/** Studio calendar date for a schedule row (exact API date or tab weekday fallback). */
+/** Studio calendar date for a schedule row (exact API date or rolling-tab weekday fallback). */
 export function resolveHomeWeeklyScheduleItemCalendarDate(
   item: MarketingScheduleItem,
   reference: Date = new Date(),

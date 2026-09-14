@@ -1,8 +1,38 @@
 import { getScheduleSessionsListLayout } from "@/components/shared/schedule/schedule-sessions-list-layout";
+import scheduleListLayoutStyles from "@/components/shared/schedule/schedule-sessions-list-layout.module.css";
 
 const adminLayout = getScheduleSessionsListLayout("admin");
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS = adminLayout.tableClass;
+
+export function adminScheduleSessionsListTableClass(options: {
+  showActions: boolean;
+  showCoach: boolean;
+}): string {
+  return ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS.replace(
+    scheduleListLayoutStyles.tableAdmin,
+    adminScheduleTableGridClass(options),
+  );
+}
+
+function adminScheduleTableGridClass(options: {
+  showActions: boolean;
+  showCoach: boolean;
+}): string {
+  if (options.showCoach && options.showActions) {
+    return scheduleListLayoutStyles.tableAdmin;
+  }
+  if (options.showCoach) {
+    return scheduleListLayoutStyles.tableAdminNoActions;
+  }
+  if (options.showActions) {
+    return scheduleListLayoutStyles.tableAdminNoCoach;
+  }
+  return scheduleListLayoutStyles.tableAdminNoCoachNoActions;
+}
+
+export const ADMIN_SCHEDULE_SESSIONS_LIST_ROW_NO_ACTIONS_CLASS =
+  scheduleListLayoutStyles.rowNoActions;
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS = adminLayout.headerClass;
 

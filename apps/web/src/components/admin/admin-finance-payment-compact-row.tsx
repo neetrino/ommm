@@ -143,7 +143,7 @@ export function AdminFinancePaymentCompactRow({
         onKeyDown={(event) => event.stopPropagation()}
       >
         <AdminListMobileLabel label={tTable("colStatus")} />
-        <div className="flex flex-col items-start">
+        <div className="flex flex-col items-start md:items-center md:text-center">
           <AdminFinancePaymentStatusPicker
             status={row.status}
             paymentMethod={row.paymentMethod}

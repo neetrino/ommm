@@ -53,6 +53,7 @@
 - Narrow — bookings, schedule row details (`ADMIN_DETAILS_SHEET_PANEL_CLASS`)
 - Medium — user lookup (`ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS`)
 - **Wide — профили / CRUD с tabs** (`ADMIN_WIDE_DRAWER_PANEL_CLASS`)
+- **Client RU — чуть шире wide**, чтобы 7 табов помещались в ряд (`ADMIN_CLIENT_DRAWER_PANEL_CLASS`); EN/hy — обычный wide (`ADMIN_WIDE_DRAWER_PANEL_CLASS`)
 
 **Overlay:** `ADMIN_DETAILS_SHEET_OVERLAY_CLASS` (`z-[105]`, `items-end`).
 

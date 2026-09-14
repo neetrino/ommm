@@ -1,7 +1,16 @@
 "use client";
 
-import type { ContentPostLocale } from "@/components/shared/content/content-post-types";
+import type { ReactNode } from "react";
+import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
 import { CONTENT_POST_TITLE_FONT_CLASS } from "@/components/shared/content/content-post-display-helpers";
+import type { ContentPostLocale } from "@/components/shared/content/content-post-types";
+import {
+  oliveSegmentedFillSegmentClassName,
+  oliveSegmentedFillTrackClass,
+  oliveSegmentedThumbClass,
+  type OliveSegmentedColumnCount,
+} from "@/components/ui/olive-segmented-switcher";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 
 export type ContentPostLocaleTabItem = {
   value: ContentPostLocale;
@@ -13,48 +22,96 @@ type ContentPostLocaleTabBarProps = {
   activeTab: ContentPostLocale;
   onTabChange: (value: ContentPostLocale) => void;
   ariaLabel: string;
+  trailing?: ReactNode;
 };
 
-export const CONTENT_POST_LOCALE_TAB_BAR_CLASS =
-  "grid shrink-0 grid-cols-3 border-b border-white/60";
+const CONTENT_POST_LOCALE_SWITCHER_COLUMN_COUNT = 3 satisfies OliveSegmentedColumnCount;
 
-const CONTENT_POST_LOCALE_TAB_BUTTON_CLASS =
-  "flex h-11 items-center justify-center text-xs font-semibold uppercase tracking-[0.12em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sand-500";
+function isContentPostLocale(value: string): value is ContentPostLocale {
+  return value === "en" || value === "ru" || value === "hy";
+}
 
-const CONTENT_POST_LOCALE_TAB_ACTIVE_CLASS =
-  "bg-[rgba(151,144,124,0.77)] text-[#fbf5d5]";
+function ContentPostLocaleFillSwitcher({
+  tabs,
+  activeTab,
+  onTabChange,
+  ariaLabel,
+}: Omit<ContentPostLocaleTabBarProps, "trailing">) {
+  const activeIndex = Math.max(
+    0,
+    tabs.findIndex((tab) => tab.value === activeTab),
+  );
 
-const CONTENT_POST_LOCALE_TAB_INACTIVE_CLASS =
-  "bg-white/50 text-[#97907c] hover:bg-white/80 hover:text-[#6b6452]";
+  return (
+    <div className="min-w-0 shrink-0 border-b border-white/60 px-3 py-2.5">
+      <div
+        role="tablist"
+        aria-label={ariaLabel}
+        className={oliveSegmentedFillTrackClass(
+          CONTENT_POST_LOCALE_SWITCHER_COLUMN_COUNT,
+          "border border-[rgb(151_144_124_/_0.35)]",
+        )}
+      >
+        <span
+          aria-hidden
+          className={oliveSegmentedThumbClass(
+            CONTENT_POST_LOCALE_SWITCHER_COLUMN_COUNT,
+            activeIndex,
+          )}
+        />
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.value;
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={oliveSegmentedFillSegmentClassName(isActive)}
+              onClick={() => onTabChange(tab.value)}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
+/** English / Russian / Armenian — olive sheet switcher. */
 export function ContentPostLocaleTabBar({
   tabs,
   activeTab,
   onTabChange,
   ariaLabel,
+  trailing,
 }: ContentPostLocaleTabBarProps) {
+  const isPhone = useMemberHubSheetPhone();
+
+  if (isPhone) {
+    return (
+      <ContentPostLocaleFillSwitcher
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        ariaLabel={ariaLabel}
+      />
+    );
+  }
+
   return (
-    <div className={CONTENT_POST_LOCALE_TAB_BAR_CLASS} role="tablist" aria-label={ariaLabel}>
-      {tabs.map((tab) => {
-        const isActive = activeTab === tab.value;
-        return (
-          <button
-            key={tab.value}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            className={`${CONTENT_POST_LOCALE_TAB_BUTTON_CLASS} ${
-              isActive
-                ? CONTENT_POST_LOCALE_TAB_ACTIVE_CLASS
-                : CONTENT_POST_LOCALE_TAB_INACTIVE_CLASS
-            }`}
-            onClick={() => onTabChange(tab.value)}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
-    </div>
+    <AdminDetailSheetTabBar
+      tabs={tabs}
+      activeTab={activeTab}
+      ariaLabel={ariaLabel}
+      trailing={trailing}
+      onTabChange={(value) => {
+        if (isContentPostLocale(value)) {
+          onTabChange(value);
+        }
+      }}
+    />
   );
 }
 

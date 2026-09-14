@@ -8,6 +8,7 @@ import {
 import {
   canDeleteAdminScheduleSession,
   coachName,
+  hasAdminScheduleSessionRowActions,
   spotsLeft,
 } from "@/components/admin/admin-schedule-session.helpers";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
@@ -29,6 +30,8 @@ type AdminScheduleSessionSheetCardProps = {
   onCancel?: (row: AdminScheduleSession) => void;
   onActivate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
+  canAddVisitor?: boolean;
+  showCoach?: boolean;
 };
 
 function SheetCardTime({
@@ -46,7 +49,7 @@ function SheetCardTime({
   );
 }
 
-/** Compact day-sheet session card — time, class, occupancy, actions in one row. */
+/** Day-sheet session card — class + status on top, time opposite occupancy. */
 export function AdminScheduleSessionSheetCard({
   row,
   locale,
@@ -56,17 +59,26 @@ export function AdminScheduleSessionSheetCard({
   onCancel,
   onActivate,
   onDelete,
+  canAddVisitor = true,
+  showCoach = true,
 }: AdminScheduleSessionSheetCardProps) {
   const t = useTranslations("adminPages.classes");
   const tCommon = useTranslations("common");
   const display = buildSessionDateTimeDisplay(locale, row.startsAt, row.endsAt);
   const booked = row._count.bookings;
+  const showActions = hasAdminScheduleSessionRowActions({
+    onDuplicate,
+    onCancel,
+    onActivate,
+    onDelete,
+  });
   const durationLabel =
     display !== null && display.durationMinutes > 0
       ? tCommon("sessionDurationMinutes", { minutes: display.durationMinutes })
       : null;
   const cardClass = [
     styles.card,
+    showActions ? styles.cardWithActions : "",
     ADMIN_LIST_ROW_SURFACE,
     isScheduleSessionOnPastDay(row.startsAt, scheduleTodayIsoDate())
       ? SCHEDULE_PAST_LIST_ROW_CLASS
@@ -89,51 +101,55 @@ export function AdminScheduleSessionSheetCard({
         }
       }}
     >
-      <SheetCardTime startTime={display?.startTime ?? ""} durationLabel={durationLabel} />
       <div className={styles.main}>
         <p className={styles.title}>{row.title}</p>
-        <p className={styles.coach}>{coachName(row.coach)}</p>
+        {showCoach ? <p className={styles.coach}>{coachName(row.coach)}</p> : null}
       </div>
-      <div className={styles.meta}>
+      <div className={styles.status}>
         <span
           className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(row.status)}`}
         >
           {t(`status.${row.status}`)}
         </span>
       </div>
-      <div
-        className={styles.capacity}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <ScheduleSessionRegistrationsCapacity
-          sessionId={row.id}
-          sessionTitle={row.title}
-          startsAt={row.startsAt}
-          locale={locale}
-          booked={booked}
-          capacity={row.capacity}
-          spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
-          secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
-          bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
-          canAdd
-        />
+      <div className={styles.footer}>
+        <SheetCardTime startTime={display?.startTime ?? ""} durationLabel={durationLabel} />
+        <div
+          className={styles.capacity}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <ScheduleSessionRegistrationsCapacity
+            sessionId={row.id}
+            sessionTitle={row.title}
+            startsAt={row.startsAt}
+            locale={locale}
+            booked={booked}
+            capacity={row.capacity}
+            spotsLabel={t("fields.spotsBooked", { booked, capacity: row.capacity })}
+            secondaryLabel={t("fields.spotsLeft", { count: spotsLeft(row) })}
+            bookedCountAriaLabel={t("registrationsModal.viewBookedAria", { count: booked })}
+            canAdd={canAddVisitor}
+          />
+        </div>
       </div>
-      <div
-        className={styles.actions}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <AdminScheduleSessionRowActions
-          row={row}
-          busy={busy}
-          includeDelete={onDelete !== undefined && canDeleteAdminScheduleSession(row)}
-          onDuplicate={onDuplicate}
-          onCancel={onCancel}
-          onActivate={onActivate}
-          onDelete={onDelete}
-        />
-      </div>
+      {showActions ? (
+        <div
+          className={styles.actions}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminScheduleSessionRowActions
+            row={row}
+            busy={busy}
+            includeDelete={onDelete !== undefined && canDeleteAdminScheduleSession(row)}
+            onDuplicate={onDuplicate}
+            onCancel={onCancel}
+            onActivate={onActivate}
+            onDelete={onDelete}
+          />
+        </div>
+      ) : null}
     </article>
   );
 }

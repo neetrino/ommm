@@ -16,6 +16,8 @@ type AdminScheduleMonthPanelProps = {
   onActivate?: (row: AdminScheduleSession) => void;
   onDelete?: (row: AdminScheduleSession) => void;
   onDuplicate?: (row: AdminScheduleSession) => void;
+  canAddVisitor?: boolean;
+  showCoach?: boolean;
 };
 
 /** Admin month calendar — same grid as the public schedule, day sheet for sessions. */
@@ -30,6 +32,8 @@ export function AdminScheduleMonthPanel({
   onActivate,
   onDelete,
   onDuplicate,
+  canAddVisitor = true,
+  showCoach = true,
 }: AdminScheduleMonthPanelProps) {
   return (
     <InternalScheduleMonthView
@@ -49,6 +53,8 @@ export function AdminScheduleMonthPanel({
             onCancel={onCancel}
             onActivate={onActivate}
             onDelete={onDelete}
+            canAddVisitor={canAddVisitor}
+            showCoach={showCoach}
           />
         ))
       }

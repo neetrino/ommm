@@ -2,6 +2,13 @@ export const CONTENT_POST_LOCALES = ["hy", "ru", "en"] as const;
 
 export type ContentPostLocale = (typeof CONTENT_POST_LOCALES)[number];
 
+/** Sheet language switcher: English, Russian, Armenian. Payload order stays `CONTENT_POST_LOCALES`. */
+export const CONTENT_POST_LOCALE_SWITCHER_ORDER = [
+  "en",
+  "ru",
+  "hy",
+] as const satisfies readonly ContentPostLocale[];
+
 export const CONTENT_POST_DEFAULT_LOCALE: ContentPostLocale = "en";
 
 export const CONTENT_POST_TYPES = [
@@ -225,15 +232,4 @@ export function updateContentPostLocaleField(
       },
     },
   };
-}
-
-export function hasContentPostLocaleDraft(values: ContentPostLocaleFormValues): boolean {
-  return (
-    values.title.trim().length > 0 ||
-    values.slug.trim().length > 0 ||
-    values.excerpt.trim().length > 0 ||
-    values.body.trim().length > 0 ||
-    values.seoTitle.trim().length > 0 ||
-    values.seoDescription.trim().length > 0
-  );
 }

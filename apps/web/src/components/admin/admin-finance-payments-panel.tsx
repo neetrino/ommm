@@ -9,9 +9,9 @@ import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-financ
 import type { AdminUpdatablePaymentStatus } from "@/components/admin/admin-finance-payment-status-picker";
 import type { StudioManualPaymentMethod } from "@/lib/payment-confirmation";
 import {
+  ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS,
-  ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
@@ -206,12 +206,12 @@ export function AdminFinancePaymentsPanel({
           <div className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS}>
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colUser")}</span>
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colPlan")}</span>
-            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colAmount")}</span>
-            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colDate")}</span>
-            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colTime")}</span>
-            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colSource")}</span>
-            <span className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CELL}>{tTable("colStatus")}</span>
-            <span className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_HEADER_CELL}>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colAmount")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colDate")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colTime")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colSource")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colStatus")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>
               {tTable("colPaymentMethod")}
             </span>
           </div>

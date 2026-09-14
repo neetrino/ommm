@@ -83,6 +83,8 @@ export default async function CoachSalaryPage({
             endpoint="/coaches/panel/salary-sessions"
             month={month}
             locale={locale}
+            variant="table"
+            totalsLabel={t("breakdownTotals")}
             loadingLabel={t("breakdownLoading")}
             loadFailedLabel={t("breakdownLoadFailed")}
             emptyLabel={t("breakdownEmpty")}

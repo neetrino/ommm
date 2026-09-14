@@ -85,6 +85,13 @@ export function PackageSubscribePlanPicker({
           >
             <span className={styles.packageSubscribePlanOptionHeader}>
               <span className={styles.packageSubscribePlanOptionTitle}>{sessionName}</span>
+            </span>
+            <span className={styles.packageSubscribePlanOptionDetails}>
+              <span className={styles.packageSubscribePlanOptionMeta}>
+                {sessionsLabel}
+                {validityLabel !== null ? ` · ${validityLabel}` : null}
+                {freezeLabel !== null ? ` · ${freezeLabel}` : null}
+              </span>
               <span className={styles.packageSubscribePlanOptionPrice}>
                 {plan.discountedPriceCents !== null &&
                 plan.discountedPriceCents < plan.priceCents ? (
@@ -101,13 +108,10 @@ export function PackageSubscribePlanPicker({
                 )}
               </span>
             </span>
-            <span className={styles.packageSubscribePlanOptionMeta}>
-              {sessionsLabel}
-              {validityLabel !== null ? ` · ${validityLabel}` : null}
-              {freezeLabel !== null ? ` · ${freezeLabel}` : null}
-            </span>
             {isSelected ? (
-              <span className={styles.packageSubscribePlanOptionBadge}>{t("selectedPlanBadge")}</span>
+              <span className={styles.packageSubscribePlanOptionBadge}>
+                {t("selectedPlanBadge")}
+              </span>
             ) : null}
           </button>
         );

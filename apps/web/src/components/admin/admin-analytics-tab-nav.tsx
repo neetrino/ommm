@@ -11,6 +11,7 @@ import {
   type AnalyticsWorkspace,
 } from "@/components/admin/admin-analytics-module";
 import { buildAnalyticsTabHref } from "@/components/admin/admin-analytics-url";
+import { ADMIN_HORIZONTAL_TAB_SCROLL_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import {
   oliveSegmentedSegmentClassName,
   oliveSegmentedThumbClass,
@@ -51,30 +52,32 @@ export function AdminAnalyticsTabNav({
   );
 
   return (
-    <nav
-      role="tablist"
-      aria-label={t("aria")}
-      className={oliveSegmentedTrackClass(columnCount, className)}
-    >
-      <span aria-hidden className={oliveSegmentedThumbClass(columnCount, activeIndex)} />
-      {sections.map((section) => {
-        const basePath = analyticsSectionHref(section, workspace);
-        const href = buildAnalyticsTabHref(section, search, workspace);
-        const active = pathname === basePath || pathname.endsWith(basePath);
-        return (
-          <Link
-            key={section}
-            href={href}
-            role="tab"
-            aria-selected={active}
-            aria-current={active ? "page" : undefined}
-            scroll={false}
-            className={oliveSegmentedSegmentClassName(active, columnCount)}
-          >
-            {t(TAB_LABEL_KEY[section])}
-          </Link>
-        );
-      })}
-    </nav>
+    <div className={`${ADMIN_HORIZONTAL_TAB_SCROLL_CLASS} min-w-0 max-w-full`}>
+      <nav
+        role="tablist"
+        aria-label={t("aria")}
+        className={oliveSegmentedTrackClass(columnCount, className)}
+      >
+        <span aria-hidden className={oliveSegmentedThumbClass(columnCount, activeIndex)} />
+        {sections.map((section) => {
+          const basePath = analyticsSectionHref(section, workspace);
+          const href = buildAnalyticsTabHref(section, search, workspace);
+          const active = pathname === basePath || pathname.endsWith(basePath);
+          return (
+            <Link
+              key={section}
+              href={href}
+              role="tab"
+              aria-selected={active}
+              aria-current={active ? "page" : undefined}
+              scroll={false}
+              className={oliveSegmentedSegmentClassName(active, columnCount)}
+            >
+              {t(TAB_LABEL_KEY[section])}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

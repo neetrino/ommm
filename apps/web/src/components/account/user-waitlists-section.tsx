@@ -25,16 +25,16 @@ import {
 import { LeaveWaitlistButton } from "@/components/account/leave-waitlist-button";
 import { UserWaitlistBoardCard } from "@/components/account/user-waitlist-board-card";
 import {
-  USER_BOOKINGS_LIST_ACTIONS_CELL,
-  USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
-  USER_BOOKINGS_LIST_CLASS_CELL,
-  USER_BOOKINGS_LIST_DATE_CELL,
-  USER_BOOKINGS_LIST_HEADER_CLASS,
-  USER_BOOKINGS_LIST_ROW_CLASS,
-  USER_BOOKINGS_LIST_STATUS_CELL,
-  USER_BOOKINGS_LIST_TABLE_CLASS,
-  USER_BOOKINGS_LIST_TIME_CELL,
-} from "@/components/account/user-bookings-list-layout";
+  USER_WAITLISTS_LIST_ACTIONS_CELL,
+  USER_WAITLISTS_LIST_CENTER_HEADER_CELL,
+  USER_WAITLISTS_LIST_CLASS_CELL,
+  USER_WAITLISTS_LIST_DATE_CELL,
+  USER_WAITLISTS_LIST_HEADER_CLASS,
+  USER_WAITLISTS_LIST_ROW_CLASS,
+  USER_WAITLISTS_LIST_STATUS_CELL,
+  USER_WAITLISTS_LIST_TABLE_CLASS,
+  USER_WAITLISTS_LIST_TIME_CELL,
+} from "@/components/account/user-waitlists-list-layout";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
@@ -236,17 +236,17 @@ export function UserWaitlistsSection({
               ))}
             </ul>
           ) : (
-            <div className={USER_BOOKINGS_LIST_TABLE_CLASS}>
-              <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
+            <div className={USER_WAITLISTS_LIST_TABLE_CLASS}>
+              <div className={USER_WAITLISTS_LIST_HEADER_CLASS}>
                 <span>{t("listHeaderDate")}</span>
                 <span>{t("listHeaderClass")}</span>
-                <span>{t("listHeaderTime")}</span>
-                <span>{t("listHeaderStatus")}</span>
-                <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
+                <span className={USER_WAITLISTS_LIST_CENTER_HEADER_CELL}>{t("listHeaderTime")}</span>
+                <span className={USER_WAITLISTS_LIST_CENTER_HEADER_CELL}>{t("listHeaderStatus")}</span>
+                <span className={USER_WAITLISTS_LIST_CENTER_HEADER_CELL}>{t("listHeaderActions")}</span>
               </div>
               {filteredRows.map((item) => (
-                <div key={item.id} className={USER_BOOKINGS_LIST_ROW_CLASS}>
-                  <div className={USER_BOOKINGS_LIST_DATE_CELL}>
+                <div key={item.id} className={USER_WAITLISTS_LIST_ROW_CLASS}>
+                  <div className={USER_WAITLISTS_LIST_DATE_CELL}>
                     <SessionDateTimeHighlight
                       locale={locale}
                       startsAt={item.session.startsAt}
@@ -254,7 +254,7 @@ export function UserWaitlistsSection({
                       variant="listDate"
                     />
                   </div>
-                  <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
+                  <div className={USER_WAITLISTS_LIST_CLASS_CELL}>
                     <SessionClassTitle variant="list" name={item.session.classType.name} />
                     <SessionCoachLine
                       coachName={resolveSessionCoachName(item.session.coach)}
@@ -262,7 +262,7 @@ export function UserWaitlistsSection({
                       className="mt-1"
                     />
                   </div>
-                  <div className={USER_BOOKINGS_LIST_TIME_CELL}>
+                  <div className={USER_WAITLISTS_LIST_TIME_CELL}>
                     <SessionDateTimeHighlight
                       locale={locale}
                       startsAt={item.session.startsAt}
@@ -270,14 +270,15 @@ export function UserWaitlistsSection({
                       variant="listTime"
                     />
                   </div>
-                  <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
+                  <div className={USER_WAITLISTS_LIST_STATUS_CELL}>
                     <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
                       {t("waitlistBadge", { pos: item.position, status: item.status })}
                     </p>
                   </div>
-                  <div className={USER_BOOKINGS_LIST_ACTIONS_CELL}>
+                  <div className={USER_WAITLISTS_LIST_ACTIONS_CELL}>
                     <LeaveWaitlistButton
                       sessionId={item.session.id}
+                      wrapperClassName="flex flex-col items-center gap-1"
                       onLeft={handleLeftWaitlist}
                     />
                   </div>

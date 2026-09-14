@@ -46,6 +46,10 @@ export const ADMIN_FINANCE_SESSIONS_SHEET_WIDTH_CLASS =
 export const ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS =
   "w-full sm:w-1/2 sm:max-w-3xl sm:min-w-[24rem]";
 
+/** Client profile sheet — extra width so Russian 7-tab labels fit in one row. */
+export const ADMIN_CLIENT_DETAILS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-[58vw] sm:max-w-[60rem] sm:min-w-[28rem]";
+
 export const ADMIN_DETAILS_SHEET_PANEL_CLASS = [
   ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_DETAILS_SHEET_WIDTH_CLASS,
@@ -80,6 +84,30 @@ export const ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS = [
   ADMIN_NESTED_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS,
 ].join(" ");
+
+export const ADMIN_CLIENT_DRAWER_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_CLIENT_DETAILS_SHEET_WIDTH_CLASS,
+].join(" ");
+
+export const ADMIN_NESTED_CLIENT_DRAWER_PANEL_CLASS = [
+  ADMIN_NESTED_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_CLIENT_DETAILS_SHEET_WIDTH_CLASS,
+].join(" ");
+
+function clientSheetNeedsWideRussianTabs(locale: string): boolean {
+  return locale === "ru" || locale.startsWith("ru-");
+}
+
+/** RU: extra-wide client sheet; EN/hy: original wide drawer. */
+export function adminClientDrawerPanelClass(locale: string, nested: boolean): string {
+  if (clientSheetNeedsWideRussianTabs(locale)) {
+    return nested
+      ? ADMIN_NESTED_CLIENT_DRAWER_PANEL_CLASS
+      : ADMIN_CLIENT_DRAWER_PANEL_CLASS;
+  }
+  return nested ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS;
+}
 
 export const ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS =
   "flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-5 py-5 sm:px-6";
@@ -127,7 +155,7 @@ export const ADMIN_DETAILS_SHEET_FOOTER_CLASS =
   "shrink-0 border-t border-white/60 px-5 py-4 sm:px-6";
 
 export const ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS =
-  "space-y-3 rounded-2xl border border-white/60 bg-white/50 p-4";
+  "space-y-4 rounded-2xl border border-sage-200/80 bg-white p-4 shadow-[0_12px_32px_-18px_rgba(45,40,35,0.28)]";
 
 export const ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS =
   "rounded-full p-2 text-sage-500 transition-colors hover:bg-[color-mix(in_srgb,var(--ommm-admin-olive)_14%,white)] hover:text-[var(--ommm-admin-olive)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";

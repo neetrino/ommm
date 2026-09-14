@@ -2,10 +2,7 @@
 
 import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
-import {
-  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
-  memberAccountHubSheetPanelStyle,
-} from "@/components/account/member-account-hub-sheet-layout";
+import { memberAccountHubSheetPanelStyle } from "@/components/account/member-account-hub-sheet-layout";
 import {
   MemberHubMobileSheet,
   useMemberHubMobileSheetClose,
@@ -68,15 +65,13 @@ function MembershipDetailsMobileBody({
   const requestClose = useMemberHubMobileSheetClose();
 
   return (
-    <>
-      <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
-      <MembershipDetailsSheetContent
-        membership={membership}
-        locale={locale}
-        status={status}
-        onClose={requestClose}
-      />
-    </>
+    <MembershipDetailsSheetContent
+      membership={membership}
+      locale={locale}
+      status={status}
+      onClose={requestClose}
+      showClose={false}
+    />
   );
 }
 
@@ -120,7 +115,6 @@ function UserMembershipDetailsSheetPortal({
       <MemberHubMobileSheet
         bare
         titleId={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
-        closeLabel={t("membershipDetailsCloseBackdrop")}
         backdropCloseLabel={t("membershipDetailsCloseBackdrop")}
         onClose={finishClose}
         panelStyle={memberAccountHubSheetPanelStyle()}

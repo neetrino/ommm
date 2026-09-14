@@ -7,36 +7,37 @@ import {
   SCHEDULE_VIEW_MODES,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
+import {
+  oliveSegmentedFillSegmentClassName,
+  oliveSegmentedFillTrackClass,
+  oliveSegmentedThumbClass,
+} from "@/components/ui/olive-segmented-switcher";
 
-const VIEW_BUTTON_BASE = [
-  "inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2",
-  "rounded-full border px-3.5 text-sm font-semibold",
-  "shadow-sm backdrop-blur-sm",
-  "transition-[background-color,color,border-color,box-shadow,transform]",
-  "active:scale-[0.97]",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40",
-  "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
-].join(" ");
+const VIEW_SWITCHER_COLUMN_COUNT = 3;
 
-const VIEW_BUTTON_IDLE = [
-  "border-white/70 bg-white/80 text-sage-700",
-  "hover:bg-white hover:text-sage-900",
-].join(" ");
+const VIEW_SWITCHER_SHELL_CLASS = "flex w-full md:justify-center";
 
-const VIEW_BUTTON_ACTIVE = [
-  "border-sage-800/30 bg-sage-800 text-white shadow-md",
-  "ring-2 ring-sage-900/15",
-].join(" ");
+const VIEW_SWITCHER_TRACK_CLASS = oliveSegmentedFillTrackClass(
+  VIEW_SWITCHER_COLUMN_COUNT,
+  "w-full md:w-max",
+);
+
+function scheduleViewSegmentClassName(active: boolean): string {
+  return [
+    oliveSegmentedFillSegmentClassName(active),
+    "gap-1.5 md:min-w-[6.75rem] md:gap-2 md:px-5",
+  ].join(" ");
+}
 
 type ScheduleViewSwitcherProps = {
   value: ScheduleView;
   onChange: (view: ScheduleView) => void;
 };
 
-/** Labeled List / Week / Month toggles — same three modes on phone and desktop. */
+/** List / Week / Month olive segmented switcher — full width on phone, centered on desktop. */
 export function ScheduleViewSwitcher({ value, onChange }: ScheduleViewSwitcherProps) {
   const t = useTranslations("adminPages.classes");
-  const modes = SCHEDULE_VIEW_MODES;
+  const activeIndex = Math.max(0, SCHEDULE_VIEW_MODES.indexOf(value));
 
   const labels: Record<ScheduleView, string> = {
     list: t("views.list"),
@@ -45,28 +46,33 @@ export function ScheduleViewSwitcher({ value, onChange }: ScheduleViewSwitcherPr
   };
 
   return (
-    <div
-      className="flex flex-wrap items-center justify-center gap-2"
-      role="group"
-      aria-label={t("views.aria")}
-    >
-      {modes.map((nextView) => {
-        const active = value === nextView;
-        return (
-          <button
-            key={nextView}
-            type="button"
-            aria-label={labels[nextView]}
-            aria-pressed={active}
-            title={labels[nextView]}
-            className={`${VIEW_BUTTON_BASE} ${active ? VIEW_BUTTON_ACTIVE : VIEW_BUTTON_IDLE}`}
-            onClick={() => onChange(resolveScheduleView(nextView))}
-          >
-            <AdminScheduleViewModeIcon view={nextView} className="h-4 w-4 shrink-0" />
-            <span>{labels[nextView]}</span>
-          </button>
-        );
-      })}
+    <div className={VIEW_SWITCHER_SHELL_CLASS}>
+      <div
+        role="tablist"
+        aria-label={t("views.aria")}
+        className={VIEW_SWITCHER_TRACK_CLASS}
+      >
+        <span
+          aria-hidden
+          className={oliveSegmentedThumbClass(VIEW_SWITCHER_COLUMN_COUNT, activeIndex)}
+        />
+        {SCHEDULE_VIEW_MODES.map((nextView) => {
+          const active = value === nextView;
+          return (
+            <button
+              key={nextView}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              className={scheduleViewSegmentClassName(active)}
+              onClick={() => onChange(resolveScheduleView(nextView))}
+            >
+              <AdminScheduleViewModeIcon view={nextView} className="h-4 w-4 shrink-0" />
+              <span>{labels[nextView]}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

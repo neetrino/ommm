@@ -12,10 +12,11 @@ import { AdminScheduleSessionsBulkBar } from "@/components/admin/admin-schedule-
 import { AdminScheduleSessionsListHeader } from "@/components/admin/admin-schedule-sessions-list-header";
 import {
   ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS,
-  ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS,
+  adminScheduleSessionsListTableClass,
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-session.types";
+import { hasAdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session.helpers";
 import { AdminScheduleListEmptyState } from "@/components/admin/admin-schedule-list-empty-state";
 import { ADMIN_SCHEDULE_BULK_BUSY_ID } from "@/components/admin/use-admin-schedule-management-actions";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
@@ -49,6 +50,10 @@ export type AdminScheduleSessionViewsProps = {
   onToggleSelectAll?: (checked: boolean) => void;
   onBulkCancel?: () => void;
   onBulkActivate?: () => void;
+  /** Roster add from capacity / week cards. Admin default is on; coach keeps this off. */
+  canAddVisitor?: boolean;
+  /** Coach name column. Admin default is on; coach schedule hides it. */
+  showCoach?: boolean;
 };
 
 type SessionTableProps = Omit<
@@ -124,10 +129,12 @@ export function SessionTable(props: SessionTableProps) {
   const cancellableCount = selectedVisible.filter((row) => row.status !== "CANCELLED").length;
   const activatableCount = selectedVisible.filter((row) => row.status === "CANCELLED").length;
   const busy = props.busyId !== null;
+  const showActions = hasAdminScheduleSessionRowActions(props);
+  const showCoach = props.showCoach !== false;
 
   return (
     <div className="space-y-3">
-      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
+      <div className={adminScheduleSessionsListTableClass({ showActions, showCoach })}>
         <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
           <AdminScheduleSessionsListHeader
             sortOrder={props.sortOrder}
@@ -137,6 +144,8 @@ export function SessionTable(props: SessionTableProps) {
             someSelected={someSelected}
             onToggleSelectAll={props.onToggleSelectAll}
             selectAllDisabled={busy}
+            showActions={showActions}
+            showCoach={showCoach}
           />
         </div>
         {rows.map((row) => (
@@ -153,6 +162,8 @@ export function SessionTable(props: SessionTableProps) {
             onCancel={props.onCancel}
             onActivate={props.onActivate}
             onDelete={props.onDelete}
+            canAddVisitor={props.canAddVisitor !== false}
+            showCoach={showCoach}
           />
         ))}
       </div>
@@ -177,10 +188,10 @@ export function ScheduleWeekPanel(props: ScheduleWeekPanelProps) {
     <ScheduleWeekColumnsView
       locale={props.locale}
       rows={props.rows}
-      showCoach
+      showCoach={props.showCoach !== false}
       expandColumns={false}
       alignStartDayKey={scheduleTodayIsoDate()}
-      canAddVisitor
+      canAddVisitor={props.canAddVisitor !== false}
       onSessionClick={props.onDetails}
       labels={{
         gridAria: tPage("weekView.gridAria"),
@@ -206,6 +217,8 @@ function ScheduleMonthPanel(props: AdminScheduleSessionViewsProps) {
       onActivate={props.onActivate}
       onDelete={props.onDelete}
       onDuplicate={props.onDuplicate}
+      canAddVisitor={props.canAddVisitor !== false}
+      showCoach={props.showCoach !== false}
     />
   );
 }

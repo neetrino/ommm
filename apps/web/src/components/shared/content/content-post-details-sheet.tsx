@@ -17,19 +17,21 @@ import {
 } from "@/components/shared/content/content-post-locale-tab-bar";
 import { ContentPostSharedFormFields } from "@/components/shared/content/content-post-shared-form-fields";
 import { ContentPostSheetFooter } from "@/components/shared/content/content-post-sheet-footer";
+import { ContentPostSheetHeaderActions } from "@/components/shared/content/content-post-sheet-header-actions";
 import {
-  CONTENT_POST_LOCALES,
+  CONTENT_POST_LOCALE_SWITCHER_ORDER,
   contentPostFormPayload,
   contentPostFormValuesFromRow,
   emptyContentPostFormValues,
-  hasContentPostLocaleDraft,
   type ContentPostFormValues,
   type ContentPostLocale,
   type ContentPostRow,
 } from "@/components/shared/content/content-post-types";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ContentCapabilities } from "@/lib/backoffice-capabilities";
 import { adminContentCapabilities } from "@/lib/backoffice-capabilities";
@@ -83,6 +85,13 @@ function ContentPostDetailsSheetInner({
   const t = useTranslations("contentAdminPages.content");
   const router = useRouter();
   const titleId = useId();
+  const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
+    openKey: mode === "create" ? "create" : post?.id ?? "edit",
+  });
+  const isPhone = useMemberHubSheetPhone();
+  const showHeaderActions = !isPhone;
+  const showFooterDelete =
+    isPhone && mode === "edit" && post !== null && capabilities.canDelete;
   const initialValues = useMemo(
     () => (post !== null ? contentPostFormValuesFromRow(post) : emptyContentPostFormValues()),
     [post],
@@ -105,13 +114,11 @@ function ContentPostDetailsSheetInner({
 
   const localeTabs = useMemo(
     () =>
-      CONTENT_POST_LOCALES.map((locale) => ({
+      CONTENT_POST_LOCALE_SWITCHER_ORDER.map((locale) => ({
         value: locale,
-        label: hasContentPostLocaleDraft(values.locales[locale])
-          ? `${t(`localeTabs.${locale}`)} ·`
-          : t(`localeTabs.${locale}`),
+        label: t(`localeTabs.${locale}`),
       })),
-    [t, values.locales],
+    [t],
   );
 
   const activeTitle = values.locales[activeLocale].title;
@@ -141,12 +148,13 @@ function ContentPostDetailsSheetInner({
     if (busy) {
       return;
     }
-    onClose();
-  }, [busy, onClose]);
+    requestClose();
+  }, [busy, requestClose]);
 
   async function handleSave(): Promise<void> {
     setBusy(true);
     setNotice(null);
+    let shouldClose = false;
     try {
       if (mode === "create") {
         await apiFetch("/content/admin/posts", {
@@ -166,7 +174,7 @@ function ContentPostDetailsSheetInner({
       }
       onChanged();
       router.refresh();
-      onClose();
+      shouldClose = true;
     } catch (error) {
       setNotice({
         message: error instanceof ApiError ? error.message : t("feedback.actionFailed"),
@@ -175,6 +183,9 @@ function ContentPostDetailsSheetInner({
     } finally {
       setBusy(false);
     }
+    if (shouldClose) {
+      requestClose();
+    }
   }
 
   async function confirmDelete(): Promise<void> {
@@ -182,11 +193,12 @@ function ContentPostDetailsSheetInner({
       return;
     }
     setBusy(true);
+    let shouldClose = false;
     try {
       await apiFetch(`/content/admin/posts/${post.id}`, { method: "DELETE" });
       onChanged();
       router.refresh();
-      onClose();
+      shouldClose = true;
     } catch (error) {
       setNotice({
         message: error instanceof ApiError ? error.message : t("feedback.actionFailed"),
@@ -196,28 +208,45 @@ function ContentPostDetailsSheetInner({
       setBusy(false);
       setPendingDelete(false);
     }
+    if (shouldClose) {
+      requestClose();
+    }
   }
 
   return (
     <>
-      <OmmDrawerPortal
-        isOpen
+      <AdminSheetPortal
+        presentation="drawer"
+        isOpen={sheetOpen}
         onClose={handleClose}
+        onAfterClose={onAfterClose}
         closeDisabled={busy}
         backdropAriaLabel={t("modalBackdropClose")}
         ariaLabelledBy={titleId}
-        overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-        panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+        drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+        drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
       >
         <ContentPostLocaleTabBar
           tabs={localeTabs}
           activeTab={activeLocale}
           onTabChange={setActiveLocale}
           ariaLabel={t("localeTabs.aria")}
+          trailing={
+            showHeaderActions ? (
+              <ContentPostSheetHeaderActions
+                showDelete={mode === "edit" && post !== null && capabilities.canDelete}
+                busy={busy}
+                deleteLabel={t("labels.delete")}
+                closeLabel={t("modalCloseAria")}
+                onDelete={() => setPendingDelete(true)}
+                onClose={handleClose}
+              />
+            ) : undefined
+          }
         />
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-          <div key={activeLocale} className="shrink-0">
+          <div className="shrink-0">
             <header className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} border-t-0`}>
               {mode === "create" ? (
                 <p className={`mb-2 ${ADMIN_DETAILS_SHEET_LEDE_CLASS}`}>{t("sheetCreateTitle")}</p>
@@ -286,7 +315,7 @@ function ContentPostDetailsSheetInner({
           cancelLabel={t("cancelButton")}
           savingLabel={t("savingButton")}
           deleteLabel={t("labels.delete")}
-          canDelete={capabilities.canDelete}
+          showDelete={showFooterDelete}
           onSave={() => {
             void handleSave();
           }}
@@ -294,7 +323,7 @@ function ContentPostDetailsSheetInner({
           onDelete={() => setPendingDelete(true)}
           onChanged={onChanged}
         />
-      </OmmDrawerPortal>
+      </AdminSheetPortal>
 
       <OmmConfirmDialog
         isOpen={pendingDelete}
@@ -305,6 +334,7 @@ function ContentPostDetailsSheetInner({
         backdropAriaLabel={t("modalBackdropClose")}
         tone="danger"
         confirmClassName="ommm-btn-lifecycle-action--danger"
+        forceCenteredModal
         pending={busy}
         onConfirm={() => {
           void confirmDelete();

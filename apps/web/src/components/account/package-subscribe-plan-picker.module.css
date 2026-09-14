@@ -42,16 +42,24 @@
 
 .packageSubscribePlanOptionHeader {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
 }
 
 .packageSubscribePlanOptionTitle {
+  min-width: 0;
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.35;
   color: #3d4a42;
+}
+
+.packageSubscribePlanOptionDetails {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .packageSubscribePlanOptionPrice {
@@ -63,6 +71,7 @@
 }
 
 .packageSubscribePlanOptionMeta {
+  min-width: 0;
   font-size: 0.8125rem;
   line-height: 1.4;
   color: rgba(61, 74, 66, 0.72);
