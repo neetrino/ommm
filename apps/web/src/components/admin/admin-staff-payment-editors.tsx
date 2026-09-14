@@ -72,7 +72,7 @@ export function AdminStaffPaymentEditors({
     <div
       className={
         layout === "row"
-          ? "flex flex-wrap items-center gap-2.5"
+          ? "flex flex-nowrap items-center gap-2.5"
           : "flex flex-col items-start gap-2"
       }
     >

@@ -11,7 +11,8 @@ import {
   type DashboardStudioPaymentDueItem,
   type PaymentDueClientGroup,
 } from "@/components/admin/admin-dashboard-payment-due";
-import { Link, useRouter } from "@/i18n/navigation";
+import { CircularBackLink } from "@/components/ui/circular-back-link";
+import { useRouter } from "@/i18n/navigation";
 
 type AdminStudioPaymentDueViewProps = {
   items: DashboardStudioPaymentDueItem[];
@@ -20,29 +21,6 @@ type AdminStudioPaymentDueViewProps = {
   dashboardHref: string;
   loadError: string | null;
 };
-
-function PaymentDueBackLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-sage-600 hover:text-sage-900"
-    >
-      <svg
-        className="h-4 w-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden
-      >
-        <path d="M15 18 9 12l6-6" />
-      </svg>
-      {label}
-    </Link>
-  );
-}
 
 function PaymentDueCalmHero({
   title,
@@ -185,7 +163,11 @@ export function AdminStudioPaymentDueView({
 
   return (
     <>
-      <PaymentDueBackLink href={dashboardHref} label={t("backToDashboard")} />
+      <CircularBackLink
+        href={dashboardHref}
+        ariaLabel={t("backToDashboard")}
+        className="mb-5"
+      />
       {loadError ? <p className="app-alert-warn mb-4 max-w-xl">{loadError}</p> : null}
       <PaymentDuePageHero
         title={t("title")}

@@ -169,40 +169,34 @@ export function AdminClientPackageCard({
         <AdminClientPackageTypeBalances balances={typeBalances} />
       </div>
 
-      <div className="mt-5 grid grid-cols-2 items-center gap-4 rounded-[22px] border border-white/80 bg-white/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-500">
-            {tAdmin("packages.paymentMethod")}
+      <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-2 rounded-[22px] border border-white/80 bg-white/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-500">
+          {tAdmin("packages.paymentMethod")}
+        </p>
+        <p className="text-right text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-500">
+          {tAdmin("packages.validity")}
+        </p>
+        {item.paymentId !== null ? (
+          <AdminStaffPaymentEditors
+            layout="row"
+            paymentId={item.paymentId}
+            status={item.paymentStatus ?? "PENDING"}
+            paymentMethod={item.paymentMethod}
+            onUpdated={() => {
+              onPaymentUpdated?.();
+            }}
+            onError={(message) => {
+              setSuccessToast(message);
+            }}
+          />
+        ) : (
+          <p className="font-serif text-xl font-semibold tracking-tight text-sage-950">
+            {paymentMethodLabel}
           </p>
-          {item.paymentId !== null ? (
-            <div className="mt-2.5">
-              <AdminStaffPaymentEditors
-                layout="row"
-                paymentId={item.paymentId}
-                status={item.paymentStatus ?? "PENDING"}
-                paymentMethod={item.paymentMethod}
-                onUpdated={() => {
-                  onPaymentUpdated?.();
-                }}
-                onError={(message) => {
-                  setSuccessToast(message);
-                }}
-              />
-            </div>
-          ) : (
-            <p className="mt-2 font-serif text-xl font-semibold tracking-tight text-sage-950">
-              {paymentMethodLabel}
-            </p>
-          )}
-        </div>
-        <div className="justify-self-end text-right">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-500">
-            {tAdmin("packages.validity")}
-          </p>
-          <p className="mt-2.5 inline-flex rounded-full border border-sage-200/80 bg-white/90 px-3.5 py-1.5 text-sm font-semibold text-sage-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
-            {validityLabel}
-          </p>
-        </div>
+        )}
+        <p className="inline-flex justify-self-end rounded-full border border-sage-200/80 bg-white/90 px-3.5 py-1.5 text-sm font-semibold text-sage-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+          {validityLabel}
+        </p>
       </div>
 
       <div className="mt-5 space-y-3">
