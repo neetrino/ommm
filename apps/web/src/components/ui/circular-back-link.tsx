@@ -28,10 +28,9 @@ function BackChevronIcon() {
 export const CIRCULAR_BACK_LINK_CLASS = [
   "inline-flex h-11 w-11 items-center justify-center rounded-full",
   "border border-white/80 bg-white/90 text-sage-700",
-  "shadow-[0_6px_16px_-6px_rgba(45,40,35,0.28)] backdrop-blur-md",
-  "transition-[color,background-color,border-color,box-shadow] duration-200",
+  "backdrop-blur-md",
+  "transition-[color,background-color,border-color] duration-200",
   "hover:border-white hover:bg-white hover:text-sand-700",
-  "hover:shadow-[0_10px_22px_-8px_rgba(45,40,35,0.34)]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500",
   "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
