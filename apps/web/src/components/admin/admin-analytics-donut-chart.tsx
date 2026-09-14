@@ -55,7 +55,7 @@ export function AdminAnalyticsDonutChart({
   return (
     <div
       className={cn(
-        "flex w-full",
+        "flex w-full min-w-0",
         isStacked
           ? "min-h-[228px] flex-col sm:min-h-[248px]"
           : "flex-col items-center gap-4 sm:flex-row sm:items-center",
@@ -63,13 +63,14 @@ export function AdminAnalyticsDonutChart({
     >
       <div
         className={cn(
-          isStacked ? "flex flex-1 items-center justify-center py-1" : "contents",
+          "flex shrink-0 items-center justify-center",
+          isStacked ? "flex-1 py-1" : "w-full sm:w-auto",
         )}
       >
         <div
           className={cn(
-            "relative shrink-0 self-center rounded-full aspect-square shadow-inner sm:self-auto",
-            isStacked ? "size-52 sm:size-56 lg:size-60" : "size-40",
+            "relative aspect-square shrink-0 self-center rounded-full shadow-inner sm:self-auto",
+            isStacked ? "size-52 sm:size-56 lg:size-60" : "size-40 max-sm:size-44",
           )}
           style={{ background: gradient }}
           role="img"
@@ -79,7 +80,7 @@ export function AdminAnalyticsDonutChart({
             <span
               className={cn(
                 "px-2 font-semibold tabular-nums text-sage-800",
-                isStacked ? "text-2xl sm:text-3xl" : "text-xs",
+                isStacked ? "text-2xl sm:text-3xl" : "text-xs max-sm:text-sm",
               )}
             >
               {total}

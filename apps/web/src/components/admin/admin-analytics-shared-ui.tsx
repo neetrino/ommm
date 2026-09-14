@@ -12,8 +12,8 @@ export function AnalyticsMetricTable({
   labels: { metric: string; value: string };
 }) {
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={adminChrome.table}>
+    <div className="w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain">
+      <table className="w-full border-collapse text-left text-sm">
         <thead className={adminChrome.thead}>
           <tr>
             <th className={adminChrome.th} scope="col">
