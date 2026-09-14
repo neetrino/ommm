@@ -185,7 +185,7 @@ function BookingPackageSelectModalSession({
     );
   }
 
-  function renderSheetBody(onCloseSheet: () => void): ReactNode {
+  function renderSheetBody(): ReactNode {
     return (
       <div className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
         <div className={`${PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS} ${formStyles.formScroll}`}>
@@ -276,7 +276,7 @@ function BookingPackageSelectModalSession({
     >
       {renderSheetHeader(handleDesktopClose)}
       <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>
-        {renderSheetBody(handleDesktopClose)}
+        {renderSheetBody()}
       </div>
     </OmmDrawerPortal>
   );

@@ -1,8 +1,5 @@
 import { getHomeWeeklyScheduleTabCalendarDate } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
-import type {
-  MarketingScheduleDayOfWeek,
-  MarketingScheduleItem,
-} from "@/components/marketing/schedule/marketing-schedule-types";
+import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 
 /** Resolves the calendar day shown on home weekly schedule session cards. */

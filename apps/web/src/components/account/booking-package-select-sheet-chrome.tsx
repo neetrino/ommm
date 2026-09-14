@@ -24,14 +24,14 @@ export function BookingPackageSelectMobileSheetLayout({
   renderBody,
 }: {
   renderHeader: (onClose: () => void) => ReactNode;
-  renderBody: (onClose: () => void) => ReactNode;
+  renderBody: () => ReactNode;
 }) {
   const requestClose = useMemberHubMobileSheetClose();
 
   return (
     <>
       {renderHeader(requestClose)}
-      <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{renderBody(requestClose)}</div>
+      <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{renderBody()}</div>
     </>
   );
 }
