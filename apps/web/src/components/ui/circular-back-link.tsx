@@ -29,8 +29,9 @@ export const CIRCULAR_BACK_LINK_CLASS = [
   "inline-flex h-11 w-11 items-center justify-center rounded-full",
   "border border-white/80 bg-white/90 text-sage-700",
   "backdrop-blur-md",
-  "transition-[color,background-color,border-color] duration-200",
-  "hover:border-white hover:bg-white hover:text-sand-700",
+  "transition-[color,background-color,border-color,transform] duration-200",
+  "hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-sand-700",
+  "motion-reduce:transform-none",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500",
   "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
