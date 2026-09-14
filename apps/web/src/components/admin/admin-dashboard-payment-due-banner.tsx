@@ -29,7 +29,7 @@ function PaymentDueClientRow({ item, openLabel, onOpen }: PaymentDueClientRowPro
     <li>
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-white/25 bg-white/15 px-3 py-2.5 text-left text-sm font-medium text-white hover:bg-white/25"
+        className="flex w-full items-center rounded-2xl border border-white/25 bg-white/15 px-3 py-2.5 text-left text-sm font-medium text-white hover:bg-white/25"
         aria-label={openLabel}
         onClick={onOpen}
       >
@@ -39,7 +39,6 @@ function PaymentDueClientRow({ item, openLabel, onOpen }: PaymentDueClientRowPro
             {item.packageName}
           </span>
         </span>
-        <span className="shrink-0 text-xs uppercase tracking-wide">{openLabel}</span>
       </button>
     </li>
   );
