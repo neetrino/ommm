@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import {
   managerAccessKind,
   managerDirectoryDisplayName,
@@ -96,21 +95,21 @@ function ManagerCardFields({
             {managerDirectoryInitials(manager)}
           </span>
           <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName}</p>
-                {manager.phone?.trim() ? (
-                  <p className={ADMIN_MANAGERS_LIST_SUBTITLE_CLASS}>
-                    {displayPhoneOrFallback(manager.phone)}
-                  </p>
-                ) : null}
-              </div>
+            <div className="flex items-center justify-between gap-2">
+              <p className="min-w-0 flex-1 text-lg font-semibold leading-snug text-sage-900">
+                {displayName}
+              </p>
               <span
-                className={`${ADMIN_MANAGERS_ACCESS_BADGE_CLASS} ${accessTone} shrink-0 md:hidden`}
+                className={`${ADMIN_MANAGERS_ACCESS_BADGE_CLASS} ${accessTone} mr-2.5 shrink-0 md:hidden`}
               >
                 {accessLabel}
               </span>
             </div>
+            {manager.phone?.trim() ? (
+              <p className={ADMIN_MANAGERS_LIST_SUBTITLE_CLASS}>
+                {displayPhoneOrFallback(manager.phone)}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
