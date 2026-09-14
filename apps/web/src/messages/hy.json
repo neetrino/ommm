@@ -4830,6 +4830,7 @@
       "saveButton": "Պահպանել",
       "cancelButton": "Չեղարկել",
       "savingButton": "Պահպանում…",
+      "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պանելը",
       "deleteConfirmTitle": "Ջնջե՞լ գրառումը",
       "deleteConfirmBody": "Ջնջե՞լ «{title}»-ը։ Գործողությունը հետversible չէ։",

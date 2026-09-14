@@ -12,11 +12,14 @@ import {
   type ReactNode,
 } from "react";
 import {
+  ADMIN_MOBILE_SHEET_GRABBER_CLASS,
+  ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS,
   ADMIN_MOBILE_SHEET_MOTION_MS,
   ADMIN_MOBILE_SHEET_OVERLAY_CLASS,
   ADMIN_MOBILE_SHEET_PANEL_CLASS,
   adminMobileSheetPanelStyle,
 } from "@/components/admin/admin-mobile-sheet-layout";
+import { useAdminMobileSheetDragClose } from "@/components/admin/use-admin-mobile-sheet-drag-close";
 import styles from "@/components/admin/admin-mobile-bottom-sheet.module.css";
 import { OMM_MODAL_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -171,6 +174,12 @@ export function AdminMobileBottomSheet({
     runExitAnimation(true);
   }, [closeDisabled, isClosing, runExitAnimation]);
 
+  const dragCloseEnabled = isRendered && isOpen && !closeDisabled && !isClosing;
+  const { dragOffsetPx, isDragging, grabberHandlers } = useAdminMobileSheetDragClose(
+    dragCloseEnabled,
+    requestClose,
+  );
+
   useCloseOnEscape(isRendered && isOpen, requestClose, {
     disabled: closeDisabled || isClosing,
   });
@@ -180,6 +189,13 @@ export function AdminMobileBottomSheet({
   }
 
   const resolvedPanelStyle = panelStyle ?? adminMobileSheetPanelStyle();
+  const dragging = isDragging || dragOffsetPx > 0;
+  const panelMotionStyle: CSSProperties = dragging
+    ? {
+        ...resolvedPanelStyle,
+        transform: `translate3d(0, ${dragOffsetPx}px, 0)`,
+      }
+    : resolvedPanelStyle;
   const overlayClasses = [styles.overlay, ADMIN_MOBILE_SHEET_OVERLAY_CLASS, overlayClassName, zIndexClass]
     .filter(Boolean)
     .join(" ");
@@ -208,11 +224,27 @@ export function AdminMobileBottomSheet({
             styles.panel,
             ADMIN_MOBILE_SHEET_PANEL_CLASS,
             panelVisible ? styles.panelVisible : "",
+            isDragging ? styles.panelDragging : "",
           ]
             .filter(Boolean)
             .join(" ")}
-          style={resolvedPanelStyle}
+          style={panelMotionStyle}
         >
+          <div
+            role="button"
+            tabIndex={closeDisabled || isClosing ? -1 : 0}
+            aria-label={backdropCloseLabel}
+            className={`${ADMIN_MOBILE_SHEET_GRABBER_ROW_CLASS} ${styles.grabberRow}`}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                requestClose();
+              }
+            }}
+            {...grabberHandlers}
+          >
+            <div className={ADMIN_MOBILE_SHEET_GRABBER_CLASS} />
+          </div>
           {children}
         </div>
       </div>

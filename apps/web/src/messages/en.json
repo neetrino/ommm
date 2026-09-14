@@ -4829,6 +4829,7 @@
       "saveButton": "Save changes",
       "cancelButton": "Cancel",
       "savingButton": "Saving…",
+      "modalCloseAria": "Close",
       "modalBackdropClose": "Close panel",
       "deleteConfirmTitle": "Delete post?",
       "deleteConfirmBody": "Delete “{title}”? This cannot be undone.",

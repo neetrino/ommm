@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { LayoutGroup } from "framer-motion";
 import { OliveSegmentedActiveThumb } from "@/components/ui/olive-segmented-active-thumb";
 import {
@@ -22,9 +22,59 @@ type AdminDetailSheetTabBarProps = {
   ariaLabel?: string;
   /** `compact` fills one full-width row (client 7-tab set). */
   density?: OliveSegmentedHugDensity;
+  trailing?: ReactNode;
 };
 
 const SHEET_TAB_PILL_LAYOUT_ID = "admin-detail-sheet-olive-segmented-pill";
+
+const TAB_BAR_PADDING_CLASS = {
+  compact: "px-2 py-2.5 sm:px-3",
+  default: "px-3 py-2.5 sm:px-4 sm:py-3",
+} as const;
+
+function AdminDetailSheetTabList({
+  tabs,
+  activeTab,
+  onTabChange,
+  ariaLabel,
+  density,
+}: {
+  tabs: readonly AdminDetailSheetTabItem[];
+  activeTab: string;
+  onTabChange: (value: string) => void;
+  ariaLabel: string;
+  density: OliveSegmentedHugDensity;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label={ariaLabel}
+      className={oliveSegmentedHugTrackClass(
+        "border border-[rgb(151_144_124_/_0.35)]",
+        density,
+      )}
+    >
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.value;
+        return (
+          <button
+            key={tab.value}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            className={oliveSegmentedHugSegmentClassName(isActive, density)}
+            onClick={() => onTabChange(tab.value)}
+          >
+            {isActive ? (
+              <OliveSegmentedActiveThumb layoutId={SHEET_TAB_PILL_LAYOUT_ID} />
+            ) : null}
+            <span className="relative z-10">{tab.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 /** Detail-sheet section tabs — olive hug switcher (client, coach, gift card, session). */
 export function AdminDetailSheetTabBar({
@@ -34,42 +84,28 @@ export function AdminDetailSheetTabBar({
   className = "",
   ariaLabel = "Sheet sections",
   density = "default",
+  trailing,
 }: AdminDetailSheetTabBarProps) {
   const layoutGroupId = useId();
 
   return (
     <div
-      className={`${density === "compact" ? "px-2 py-2.5 sm:px-3" : "px-3 py-2.5 sm:px-4 sm:py-3"} min-w-0 shrink-0 border-b border-white/60 ${className}`.trim()}
+      className={`${TAB_BAR_PADDING_CLASS[density]} flex min-w-0 shrink-0 items-center gap-2 border-b border-white/60 ${className}`.trim()}
     >
-      <LayoutGroup id={layoutGroupId}>
-        <div
-          role="tablist"
-          aria-label={ariaLabel}
-          className={oliveSegmentedHugTrackClass(
-            "border border-[rgb(151_144_124_/_0.35)]",
-            density,
-          )}
-        >
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.value;
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                className={oliveSegmentedHugSegmentClassName(isActive, density)}
-                onClick={() => onTabChange(tab.value)}
-              >
-                {isActive ? (
-                  <OliveSegmentedActiveThumb layoutId={SHEET_TAB_PILL_LAYOUT_ID} />
-                ) : null}
-                <span className="relative z-10">{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </LayoutGroup>
+      <div className="min-w-0 flex-1 overflow-x-auto">
+        <LayoutGroup id={layoutGroupId}>
+          <AdminDetailSheetTabList
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={onTabChange}
+            ariaLabel={ariaLabel}
+            density={density}
+          />
+        </LayoutGroup>
+      </div>
+      {trailing ? (
+        <div className="ml-auto flex shrink-0 items-center gap-2">{trailing}</div>
+      ) : null}
     </div>
   );
 }
