@@ -4,10 +4,10 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_FINANCE_STATUS_PICKER_CLASS,
-  ADMIN_FINANCE_STATUS_STATIC_CLASS,
   financePaymentStatusTone,
+  financePickerClass,
   type FinancePaymentStatus,
+  type FinancePickerAppearance,
 } from "@/components/admin/admin-finance-list-display";
 import {
   adminPaymentStatusOptions,
@@ -28,6 +28,7 @@ type AdminFinancePaymentStatusPickerProps = {
   status: FinancePaymentStatus;
   paymentMethod: string | null;
   busy: boolean;
+  appearance?: FinancePickerAppearance;
   onChangeStatus: (nextStatus: AdminUpdatablePaymentStatus) => void;
 };
 
@@ -35,6 +36,7 @@ export function AdminFinancePaymentStatusPicker({
   status,
   paymentMethod,
   busy,
+  appearance = "compact",
   onChangeStatus,
 }: AdminFinancePaymentStatusPickerProps) {
   const t = useTranslations("adminPages.finance");
@@ -105,9 +107,10 @@ export function AdminFinancePaymentStatusPicker({
   if (!canEditStatus) {
     return (
       <span
-        className={`${ADMIN_FINANCE_STATUS_STATIC_CLASS} ${financePaymentStatusTone(status)}`}
+        className={`${financePickerClass(appearance, false)} ${financePaymentStatusTone(status)}`}
         title={t("paymentActions.cardStatusAuto")}
       >
+        {appearance === "card" ? <PickerStatusDot /> : null}
         {label}
       </span>
     );
@@ -160,7 +163,7 @@ export function AdminFinancePaymentStatusPicker({
       <button
         ref={triggerRef}
         type="button"
-        className={`${ADMIN_FINANCE_STATUS_PICKER_CLASS} ${financePaymentStatusTone(status)} disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${financePickerClass(appearance, true)} ${financePaymentStatusTone(status)} disabled:cursor-not-allowed disabled:opacity-50`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
@@ -172,13 +175,20 @@ export function AdminFinancePaymentStatusPicker({
           setOpen((value) => !value);
         }}
       >
+        {appearance === "card" ? <PickerStatusDot /> : null}
         <span className="truncate">{label}</span>
         <ChevronDownGlyph
-          className={`h-2.5 w-2.5 shrink-0 opacity-70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`${appearance === "card" ? "h-3 w-3" : "h-2.5 w-2.5"} shrink-0 opacity-70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {menu}
     </>
+  );
+}
+
+function PickerStatusDot() {
+  return (
+    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-80" aria-hidden />
   );
 }
 

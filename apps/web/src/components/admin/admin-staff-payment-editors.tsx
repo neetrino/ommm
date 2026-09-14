@@ -36,6 +36,7 @@ export function AdminStaffPaymentEditors({
 }: AdminStaffPaymentEditorsProps) {
   const t = useTranslations("adminPages.finance.paymentActions");
   const [busy, setBusy] = useState(false);
+  const appearance = layout === "row" ? "card" : "compact";
 
   async function changeStatus(nextStatus: AdminUpdatablePaymentStatus) {
     setBusy(true);
@@ -71,7 +72,7 @@ export function AdminStaffPaymentEditors({
     <div
       className={
         layout === "row"
-          ? "flex flex-wrap items-center gap-2"
+          ? "flex flex-wrap items-center gap-2.5"
           : "flex flex-col items-start gap-2"
       }
     >
@@ -79,6 +80,7 @@ export function AdminStaffPaymentEditors({
         status={status}
         paymentMethod={paymentMethod}
         busy={busy}
+        appearance={appearance}
         onChangeStatus={(nextStatus) => {
           void changeStatus(nextStatus);
         }}
@@ -87,6 +89,7 @@ export function AdminStaffPaymentEditors({
       <AdminFinancePaymentMethodPicker
         paymentMethod={paymentMethod}
         busy={busy}
+        appearance={appearance}
         onChangeMethod={(nextMethod) => {
           void changeMethod(nextMethod);
         }}
