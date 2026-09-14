@@ -19,7 +19,7 @@ import {
   PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
   PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS,
-  PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
+  BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
 import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
@@ -163,7 +163,7 @@ function BookingPackageSelectModalSession({
 
   function renderSheetHeader(onCloseSheet: () => void, showClose = true): ReactNode {
     return (
-      <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
+      <header className={BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS}>
         <h2
           id={titleId}
           className={`${sheetStyles.sheetTitle} ${PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS}`}

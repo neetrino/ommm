@@ -12,10 +12,12 @@ export const PACKAGE_SUBSCRIBE_MOBILE_OVERLAY_CLASS = "ommm-package-subscribe-mo
 export const PACKAGE_SUBSCRIBE_MOBILE_PANEL_CLASS = "ommm-package-subscribe-mobile-panel";
 
 export const PACKAGE_SUBSCRIBE_DESKTOP_HEADER_CLASS =
-  "flex shrink-0 items-start justify-between gap-3 px-5 py-4";
+  "flex shrink-0 items-start justify-between gap-3 px-5 pb-3 pt-1";
 
 /** Shared sheet header — same spacing on mobile bottom sheet and desktop drawer. */
 export const PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS = PACKAGE_SUBSCRIBE_DESKTOP_HEADER_CLASS;
+
+export const BOOKING_PACKAGE_SELECT_SHEET_HEADER_CLASS = PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS;
 
 export const PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS = "ommm-package-subscribe-sheet-title";
 
