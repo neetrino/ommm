@@ -201,7 +201,7 @@ export function CoachSheetTabPanels({
         </section>
 
         {overview ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Metric label={t("drawer.totalClasses")} value={overview.totalClasses} />
             <Metric label={t("drawer.substitutions")} value={overview.substituteClasses} />
             <Metric label={t("drawer.assignedClasses")} value={overview.assignedClassesCount} />

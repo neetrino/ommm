@@ -101,7 +101,7 @@ export function AdminCoachAssignedClassesPicker({
       ) : null}
 
       <div
-        className="grid grid-cols-2 gap-2.5 rounded-2xl border border-sand-500/15 bg-gradient-to-b from-white/95 to-sand-50/40 p-4 sm:p-5"
+        className="grid grid-cols-1 gap-2.5 rounded-2xl border border-sand-500/15 bg-gradient-to-b from-white/95 to-sand-50/40 p-4 min-[744px]:grid-cols-2 sm:p-5"
         role="group"
       >
         {classOptions.map((option, index) => {
