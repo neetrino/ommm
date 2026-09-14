@@ -8,7 +8,6 @@ type BookingPackageSelectGuestActionsProps = {
   showGuestAction: boolean;
   canConfirmOwner: boolean;
   canConfirmGuest: boolean;
-  onClose: () => void;
   onConfirmOwner: () => void;
   onConfirmGuest: () => void;
 };
@@ -18,7 +17,6 @@ export function BookingPackageSelectGuestActions({
   showGuestAction,
   canConfirmOwner,
   canConfirmGuest,
-  onClose,
   onConfirmOwner,
   onConfirmGuest,
 }: BookingPackageSelectGuestActionsProps) {
@@ -26,9 +24,6 @@ export function BookingPackageSelectGuestActions({
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-3">
-      <OmmButton type="button" variant="secondary" size="md" onClick={onClose} disabled={busy}>
-        {t("packageModalCancel")}
-      </OmmButton>
       {showGuestAction ? (
         <OmmButton
           type="button"

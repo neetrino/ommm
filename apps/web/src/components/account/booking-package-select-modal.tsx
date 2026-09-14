@@ -224,7 +224,6 @@ function BookingPackageSelectModalSession({
             canConfirmGuest={
               selectedPackage?.canBookGuest === true && guestName.trim().length > 0
             }
-            onClose={onCloseSheet}
             onConfirmOwner={() => {
               if (selectedPackage?.canBook === true && !busy) {
                 requestSubmitBooking();
