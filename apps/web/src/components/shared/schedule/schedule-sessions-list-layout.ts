@@ -123,10 +123,10 @@ export function getScheduleSessionsListLayout(
         ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:flex md:items-center md:justify-center md:text-center`
         : ADMIN_LIST_EMPHASIZED_HEADER,
     tagsCellClass: isAdmin
-      ? `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:self-center md:justify-self-stretch`
+      ? `${USER_LIST_CELL_CLASS} flex flex-wrap items-center justify-center gap-1.5 md:self-center md:justify-self-stretch`
       : `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
     tagsHeaderCellClass: isAdmin
-      ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:flex md:items-center`
+      ? `${ADMIN_LIST_EMPHASIZED_HEADER} md:flex md:items-center md:justify-center md:text-center`
       : ADMIN_LIST_EMPHASIZED_HEADER,
     statusCellClass: `${USER_LIST_TRAILING_CELL} md:justify-self-end`,
     statusHeaderCellClass: `${ADMIN_LIST_EMPHASIZED_HEADER} ${USER_LIST_TRAILING_HEADER_CELL}`,
