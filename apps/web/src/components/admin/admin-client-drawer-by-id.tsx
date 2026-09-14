@@ -9,8 +9,7 @@ import {
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS,
-  ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS,
-  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+  adminClientDrawerPanelClass,
 } from "@/components/admin/admin-details-sheet-layout";
 import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
@@ -143,9 +142,7 @@ function AdminClientDrawerLoadingShell({
           ? ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS
           : ADMIN_DETAILS_SHEET_OVERLAY_CLASS
       }
-      drawerPanelClassName={
-        isNestedOverlay ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS
-      }
+      drawerPanelClassName={adminClientDrawerPanelClass(locale, isNestedOverlay)}
       lockBodyScroll={!isNestedOverlay}
       useOverlayPortalRoot={useOverlayPortalRoot}
     >

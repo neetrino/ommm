@@ -46,6 +46,10 @@ export const ADMIN_FINANCE_SESSIONS_SHEET_WIDTH_CLASS =
 export const ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS =
   "w-full sm:w-1/2 sm:max-w-3xl sm:min-w-[24rem]";
 
+/** Client profile sheet — extra width so Russian 7-tab labels fit in one row. */
+export const ADMIN_CLIENT_DETAILS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-[58vw] sm:max-w-[60rem] sm:min-w-[28rem]";
+
 export const ADMIN_DETAILS_SHEET_PANEL_CLASS = [
   ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_DETAILS_SHEET_WIDTH_CLASS,
@@ -80,6 +84,30 @@ export const ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS = [
   ADMIN_NESTED_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS,
 ].join(" ");
+
+export const ADMIN_CLIENT_DRAWER_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_CLIENT_DETAILS_SHEET_WIDTH_CLASS,
+].join(" ");
+
+export const ADMIN_NESTED_CLIENT_DRAWER_PANEL_CLASS = [
+  ADMIN_NESTED_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_CLIENT_DETAILS_SHEET_WIDTH_CLASS,
+].join(" ");
+
+function clientSheetNeedsWideRussianTabs(locale: string): boolean {
+  return locale === "ru" || locale.startsWith("ru-");
+}
+
+/** RU: extra-wide client sheet; EN/hy: original wide drawer. */
+export function adminClientDrawerPanelClass(locale: string, nested: boolean): string {
+  if (clientSheetNeedsWideRussianTabs(locale)) {
+    return nested
+      ? ADMIN_NESTED_CLIENT_DRAWER_PANEL_CLASS
+      : ADMIN_CLIENT_DRAWER_PANEL_CLASS;
+  }
+  return nested ? ADMIN_NESTED_WIDE_DRAWER_PANEL_CLASS : ADMIN_WIDE_DRAWER_PANEL_CLASS;
+}
 
 export const ADMIN_NESTED_DETAILS_SHEET_BODY_CLASS =
   "flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-5 py-5 sm:px-6";

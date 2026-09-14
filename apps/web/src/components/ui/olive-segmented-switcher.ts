@@ -13,7 +13,7 @@ const TRACK_SURFACE: Record<OliveSegmentedSurface, string> = {
   white: "bg-white",
 };
 
-const OLIVE_SEGMENTED_HUG_TRACK = `relative inline-flex w-max shrink-0 rounded-full ${TRACK_SURFACE.muted} p-1`;
+const OLIVE_SEGMENTED_HUG_TRACK = `relative shrink-0 rounded-full ${TRACK_SURFACE.muted} p-1`;
 
 const OLIVE_SEGMENTED_THUMB_BASE = [
   "pointer-events-none absolute inset-y-1 left-1 rounded-full",
@@ -23,15 +23,15 @@ const OLIVE_SEGMENTED_THUMB_BASE = [
 
 const OLIVE_SEGMENTED_SEGMENT_BASE = [
   "relative z-10 inline-flex cursor-pointer items-center justify-center",
-  "rounded-full text-sm font-semibold no-underline",
+  "rounded-full font-semibold no-underline",
   "transition-colors duration-300 ease-out motion-reduce:transition-none",
   "active:scale-[0.985]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ommm-admin-olive)]/40",
   "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
 
-const SEGMENT_SIZE_COMFORTABLE = "min-w-[6.75rem] whitespace-nowrap px-5 py-2.5";
-const SEGMENT_SIZE_COMPACT = "min-w-0 whitespace-nowrap px-3 py-2.5";
+const SEGMENT_SIZE_COMFORTABLE = "min-w-[6.75rem] whitespace-nowrap px-5 py-2.5 text-sm";
+const SEGMENT_SIZE_COMPACT = "min-w-0 whitespace-nowrap px-3 py-2.5 text-sm";
 
 const TRACK_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
   2: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-2`,
@@ -93,19 +93,39 @@ export function oliveSegmentedSegmentClassName(
   return `${OLIVE_SEGMENTED_SEGMENT_BASE} ${size} ${tone}`;
 }
 
+export type OliveSegmentedHugDensity = "default" | "compact";
+
+const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
+  default: "inline-flex w-max",
+  compact: "flex w-full max-w-full flex-nowrap items-center justify-between gap-0.5",
+};
+
+const HUG_SEGMENT_SIZE: Record<OliveSegmentedHugDensity, string> = {
+  default: "min-w-0 shrink-0 whitespace-nowrap px-7 py-2.5 text-sm",
+  /** Client sheet — hug each label so long RU text does not overlap. */
+  compact:
+    "shrink-0 whitespace-nowrap px-1.5 py-2 text-[13px] leading-5 sm:px-2 sm:py-2.5 sm:text-sm",
+};
+
 /** Flex track — each segment hugs its label (settings and other long tab sets). */
-export function oliveSegmentedHugTrackClass(className = ""): string {
-  return `${OLIVE_SEGMENTED_HUG_TRACK} ${className}`.trim();
+export function oliveSegmentedHugTrackClass(
+  className = "",
+  density: OliveSegmentedHugDensity = "default",
+): string {
+  return `${OLIVE_SEGMENTED_HUG_TRACK} ${HUG_TRACK_WIDTH[density]} ${className}`.trim();
 }
 
 /** Segment for hug track — padding only, no equal min-width. */
-export function oliveSegmentedHugSegmentClassName(active: boolean): string {
+export function oliveSegmentedHugSegmentClassName(
+  active: boolean,
+  density: OliveSegmentedHugDensity = "default",
+): string {
   const tone = active
     ? "text-[var(--ommm-admin-cream)]"
     : "text-sage-800";
   return [
     OLIVE_SEGMENTED_SEGMENT_BASE,
-    "min-w-0 whitespace-nowrap px-7 py-2.5",
+    HUG_SEGMENT_SIZE[density],
     tone,
   ].join(" ");
 }
