@@ -35,7 +35,7 @@ const HOME_WEEKLY_SCHEDULE_MAX_VISIBLE_SESSIONS =
 
 export type HomeWeeklyScheduleCompactDay = {
   day: MarketingScheduleDayOfWeek;
-  /** Studio calendar date (`YYYY-MM-DD`) for this tab in the focused week. */
+  /** Studio calendar date (`YYYY-MM-DD`) for this tab in the rolling today…today+6 window. */
   calendarDate: string;
   label: string;
   emptyLabel: string;

@@ -1,11 +1,5 @@
-import {
-  HOME_WEEKLY_SCHEDULE_DAY_ORDER,
-  groupScheduleByWeekday,
-} from "@/components/marketing/home/group-schedule-by-weekday";
-import {
-  getHomeWeeklyScheduleTabCalendarDate,
-  resolveHomeWeeklyScheduleFocusDate,
-} from "@/components/marketing/home/home-weekly-schedule-date.helpers";
+import { groupScheduleByWeekday } from "@/components/marketing/home/group-schedule-by-weekday";
+import { listHomeWeeklyScheduleRollingTabs } from "@/components/marketing/home/home-weekly-schedule-date.helpers";
 import type { HomeWeeklyScheduleCompactDay } from "@/components/marketing/home/home-weekly-schedule-compact-view";
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
@@ -30,21 +24,21 @@ function formatDurationLabel(
   return labels.durationFallback;
 }
 
-/** Builds day-tab view model from schedule API rows. */
+/** Builds day-tab view model from schedule API rows (rolling today … today+6). */
 export function buildHomeWeeklyScheduleDays(
   items: readonly MarketingScheduleItem[],
   labels: HomeWeeklyScheduleDayLabels,
   reference: Date = new Date(),
 ): HomeWeeklyScheduleCompactDay[] {
-  const focusDateIso = resolveHomeWeeklyScheduleFocusDate(items, reference);
+  const tabs = listHomeWeeklyScheduleRollingTabs(reference);
   const byDay = groupScheduleByWeekday(items, reference);
 
-  return HOME_WEEKLY_SCHEDULE_DAY_ORDER.map((day) => ({
-    day,
-    calendarDate: getHomeWeeklyScheduleTabCalendarDate(day, reference, focusDateIso),
-    label: labels.day(day),
+  return tabs.map((tab) => ({
+    day: tab.day,
+    calendarDate: tab.calendarDate,
+    label: labels.day(tab.day),
     emptyLabel: labels.emptyDay,
-    sessions: byDay[day].map((item) => ({
+    sessions: byDay[tab.day].map((item) => ({
       id: item.id,
       item,
       bookAriaLabel: labels.bookSessionAria(item.className),

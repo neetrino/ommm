@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { getDefaultWeeklyScheduleDay } from "./get-default-weekly-schedule-day";
 import {
   getHomeWeeklyScheduleTabCalendarDate,
+  listHomeWeeklyScheduleRollingTabs,
   resolveHomeWeeklyScheduleFocusDate,
 } from "./home-weekly-schedule-date.helpers";
 import { groupScheduleByWeekday } from "./group-schedule-by-weekday";
@@ -37,30 +38,72 @@ function session(
   };
 }
 
+describe("listHomeWeeklyScheduleRollingTabs", () => {
+  it("starts at today and rolls through the same weekday next week", () => {
+    const tabs = listHomeWeeklyScheduleRollingTabs(WEDNESDAY_NOON_UTC);
+    assert.deepEqual(
+      tabs.map((tab) => tab.day),
+      [
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY",
+        "MONDAY",
+        "TUESDAY",
+      ],
+    );
+    assert.deepEqual(
+      tabs.map((tab) => tab.calendarDate),
+      [
+        "2026-07-22",
+        "2026-07-23",
+        "2026-07-24",
+        "2026-07-25",
+        "2026-07-26",
+        "2026-07-27",
+        "2026-07-28",
+      ],
+    );
+  });
+});
+
 describe("getHomeWeeklyScheduleTabCalendarDate", () => {
-  it("maps Mon–Sun tabs to the week containing the focus date", () => {
+  it("maps weekdays onto the rolling window from today (not past Mon–Sun)", () => {
     assert.equal(
-      getHomeWeeklyScheduleTabCalendarDate("MONDAY", WEDNESDAY_NOON_UTC, "2026-07-22"),
-      "2026-07-20",
+      getHomeWeeklyScheduleTabCalendarDate("WEDNESDAY", WEDNESDAY_NOON_UTC),
+      "2026-07-22",
     );
     assert.equal(
-      getHomeWeeklyScheduleTabCalendarDate("FRIDAY", WEDNESDAY_NOON_UTC, "2026-07-22"),
+      getHomeWeeklyScheduleTabCalendarDate("FRIDAY", WEDNESDAY_NOON_UTC),
       "2026-07-24",
     );
     assert.equal(
-      getHomeWeeklyScheduleTabCalendarDate("SUNDAY", WEDNESDAY_NOON_UTC, "2026-07-22"),
-      "2026-07-26",
+      getHomeWeeklyScheduleTabCalendarDate("MONDAY", WEDNESDAY_NOON_UTC),
+      "2026-07-27",
+    );
+    assert.equal(
+      getHomeWeeklyScheduleTabCalendarDate("TUESDAY", WEDNESDAY_NOON_UTC),
+      "2026-07-28",
     );
   });
 });
 
 describe("resolveHomeWeeklyScheduleFocusDate", () => {
-  it("picks the nearest upcoming session date beyond the current week", () => {
+  it("picks the nearest upcoming session inside the rolling window", () => {
+    const items = [
+      session("2026-07-25", "SATURDAY"),
+      session("2026-07-27", "MONDAY"),
+    ];
+    assert.equal(resolveHomeWeeklyScheduleFocusDate(items, FRIDAY_NOON_UTC), "2026-07-25");
+  });
+
+  it("ignores sessions beyond the rolling window and falls back to today", () => {
     const items = [
       session("2026-08-10", "MONDAY"),
       session("2026-08-11", "TUESDAY"),
     ];
-    assert.equal(resolveHomeWeeklyScheduleFocusDate(items, FRIDAY_NOON_UTC), "2026-08-10");
+    assert.equal(resolveHomeWeeklyScheduleFocusDate(items, FRIDAY_NOON_UTC), "2026-07-24");
   });
 
   it("falls back to today when there are no upcoming sessions", () => {
@@ -69,12 +112,20 @@ describe("resolveHomeWeeklyScheduleFocusDate", () => {
 });
 
 describe("getDefaultWeeklyScheduleDay", () => {
-  it("returns the weekday of the nearest upcoming session", () => {
+  it("returns the weekday of the nearest upcoming session in the rolling window", () => {
+    const items = [
+      session("2026-07-27", "MONDAY"),
+      session("2026-07-24", "FRIDAY"),
+    ];
+    assert.equal(getDefaultWeeklyScheduleDay(items, FRIDAY_NOON_UTC), "FRIDAY");
+  });
+
+  it("falls back to today when the only sessions are outside the window", () => {
     const items = [
       session("2026-08-10", "MONDAY"),
       session("2026-08-14", "FRIDAY"),
     ];
-    assert.equal(getDefaultWeeklyScheduleDay(items, FRIDAY_NOON_UTC), "MONDAY");
+    assert.equal(getDefaultWeeklyScheduleDay(items, FRIDAY_NOON_UTC), "FRIDAY");
   });
 
   it("falls back to today when items are empty", () => {
@@ -83,14 +134,18 @@ describe("getDefaultWeeklyScheduleDay", () => {
 });
 
 describe("groupScheduleByWeekday", () => {
-  it("places distant upcoming sessions into the focused week tabs", () => {
+  it("places in-window sessions on rolling tabs and skips past / distant days", () => {
     const items = [
-      session("2026-08-10", "MONDAY"),
+      session("2026-07-20", "MONDAY"),
+      session("2026-07-27", "MONDAY"),
+      session("2026-07-24", "FRIDAY"),
       session("2026-08-14", "FRIDAY"),
     ];
-    const grouped = groupScheduleByWeekday(items, FRIDAY_NOON_UTC);
+    const grouped = groupScheduleByWeekday(items, WEDNESDAY_NOON_UTC);
     assert.equal(grouped.MONDAY.length, 1);
+    assert.equal(grouped.MONDAY[0]?.sessionDate, "2026-07-27");
     assert.equal(grouped.FRIDAY.length, 1);
-    assert.equal(grouped.SATURDAY.length, 0);
+    assert.equal(grouped.FRIDAY[0]?.sessionDate, "2026-07-24");
+    assert.equal(grouped.TUESDAY.length, 0);
   });
 });
