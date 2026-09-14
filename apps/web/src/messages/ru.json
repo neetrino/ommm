@@ -3245,7 +3245,7 @@
       },
       "registrationsModal": {
         "title": "Записанные участники",
-        "subtitle": "Занято {count} из {capacity} мест",
+        "subtitle": "{count}/{capacity}",
         "empty": "На это занятие пока никто не записан.",
         "loading": "Загрузка записей…",
         "error": "Не удалось загрузить записи.",

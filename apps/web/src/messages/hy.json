@@ -3248,7 +3248,7 @@
       },
       "registrationsModal": {
         "title": "Գրանցված մասնակիցներ",
-        "subtitle": "{count}/{capacity} տեղ է լրացված",
+        "subtitle": "{count}/{capacity}",
         "empty": "Այս դասի համար դեռ գրանցումներ չկան։",
         "loading": "Գրանցումները բեռնվում են…",
         "error": "Չհաջողվեց բեռնել գրանցումները։",

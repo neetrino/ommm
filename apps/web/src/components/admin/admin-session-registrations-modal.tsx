@@ -164,18 +164,20 @@ function AdminSessionRegistrationsSheet({
               <p className="text-xs text-sage-500">
                 {formatDateTimeForUi(startsAt, locale)}
               </p>
-              <p className="text-sm font-medium text-sage-800">
+            </div>
+            <div className="flex shrink-0 items-start gap-2">
+              <p className="pt-1.5 text-sm font-medium tabular-nums text-sage-800">
                 {t("subtitle", { count: rosterCount, capacity })}
               </p>
+              <button
+                type="button"
+                className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+                aria-label={t("closeButton")}
+                onClick={requestClose}
+              >
+                <CloseGlyph />
+              </button>
             </div>
-            <button
-              type="button"
-              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-              aria-label={t("closeButton")}
-              onClick={requestClose}
-            >
-              <CloseGlyph />
-            </button>
           </div>
         </header>
         <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 space-y-4`}>

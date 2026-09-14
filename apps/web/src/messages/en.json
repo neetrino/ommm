@@ -3247,7 +3247,7 @@
       },
       "registrationsModal": {
         "title": "Registered members",
-        "subtitle": "{count} of {capacity} spots filled",
+        "subtitle": "{count}/{capacity}",
         "empty": "No one is registered for this class yet.",
         "loading": "Loading registrations…",
         "error": "Could not load registrations.",
