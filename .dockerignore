@@ -1,11 +1,57 @@
 .git
-node_modules
+.github
+.cursor
+.vscode
+.idea
+.cloud-run-env.yaml
+
 **/node_modules
-apps/web/.next
-apps/api/dist
-packages/database/dist
+**/.next
+**/dist
+**/coverage
+**/.turbo
+**/.cache
+
+# Not needed for web/API container builds (large Expo tree).
+apps/mobile/node_modules
+apps/mobile/.expo
+apps/mobile/dist
+apps/mobile/android
+apps/mobile/ios
+
+# Local / secrets
 .env
 .env.*
+!.env.example
 *.log
 .DS_Store
-.cloud-run-env.yaml
+Thumbs.db
+
+# Docs, tests, load tooling — not runtime
+docs
+tests
+**/*.md
+!apps/web/public/**/*.md
+apps/web/test-results
+apps/web/playwright-report
+apps/web/playwright.config.ts
+apps/api/uploads
+apps/api/coverage
+**/tmp
+**/temp
+
+# Certificates / PKI
+*.jks
+*.p12
+*.pfx
+*.crt
+*.cer
+*.csr
+*.key
+*.pem
+Private/
+02944878/
+
+# Agent / local bak leftovers
+**/iterare.bak
+**/strtok3.bak
