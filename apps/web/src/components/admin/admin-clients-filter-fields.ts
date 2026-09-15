@@ -124,15 +124,20 @@ export function buildAdminClientsFilterFields({
       key: "classLevel",
       label: "Class level",
       allLabel: "All levels",
-      options: [
-        { value: "beginner", label: "Beginner" },
-        { value: "intermediate", label: "Intermediate" },
-        { value: "advanced", label: "Advanced" },
-        ...payload.filterOptions.classLevels.map((level) => ({
-          value: level,
-          label: level,
-        })),
-      ],
+      options: (() => {
+        const hardcoded = ["beginner", "intermediate", "advanced"] as const;
+        const fromApi = payload.filterOptions.classLevels.filter(
+          (level) =>
+            !hardcoded.includes(level as (typeof hardcoded)[number]),
+        );
+        return [
+          ...hardcoded.map((level) => ({
+            value: level,
+            label: level.charAt(0).toUpperCase() + level.slice(1),
+          })),
+          ...fromApi.map((level) => ({ value: level, label: level })),
+        ];
+      })(),
     },
     {
       key: "preferredCoachId",

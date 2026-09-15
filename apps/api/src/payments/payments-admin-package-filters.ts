@@ -1,4 +1,5 @@
 import { PaymentSource, type Prisma } from '@prisma/client';
+import { PACKAGE_PAYMENT_PLAN_ID_KEY } from '../packages/package-payment-metadata.util';
 import type { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 
 type PackagePlanFilterSlice = Pick<
@@ -48,14 +49,21 @@ function buildSessionsPlanWhere(
   return clauses.length > 0 ? { OR: clauses } : null;
 }
 
+export type AdminPaymentPackageFilterResolution = {
+  /** UserPackage ids linked to matching plans (may be empty). */
+  sourceIds: string[];
+  /** Package plan ids that matched the filter (for metadata.planId fallback). */
+  planIds: string[];
+};
+
 /**
- * Resolves UserPackage ids for package-payment filters.
- * Returns `null` when no package filters are set; empty array means match nothing.
+ * Resolves UserPackage ids + matching plan ids for package-payment filters.
+ * Returns `null` when no package filters are set.
  */
 export async function resolveAdminPaymentPackageSourceIds(
   prisma: PackageFilterPrisma,
   query: PackagePlanFilterSlice,
-): Promise<string[] | null> {
+): Promise<AdminPaymentPackageFilterResolution | null> {
   if (!hasAdminPaymentPackageFilters(query)) {
     return null;
   }
@@ -65,7 +73,7 @@ export async function resolveAdminPaymentPackageSourceIds(
       ? buildSessionsPlanWhere(query.sessions)
       : null;
   if (query.sessions && query.sessions.length > 0 && sessionsWhere === null) {
-    return [];
+    return { sourceIds: [], planIds: [] };
   }
 
   const plans = await prisma.packagePlan.findMany({
@@ -82,7 +90,7 @@ export async function resolveAdminPaymentPackageSourceIds(
   });
   const planIds = plans.map((plan) => plan.id);
   if (planIds.length === 0) {
-    return [];
+    return { sourceIds: [], planIds: [] };
   }
 
   const userPackages = await prisma.userPackage.findMany({
@@ -94,20 +102,41 @@ export async function resolveAdminPaymentPackageSourceIds(
     },
     select: { id: true },
   });
-  return userPackages.map((row) => row.id);
+  return {
+    sourceIds: userPackages.map((row) => row.id),
+    planIds,
+  };
 }
 
+/** Prisma where for package payments by UserPackage id and/or metadata.planId. */
 export function packageSourceIdsToPaymentWhere(
-  sourceIds: string[] | null,
+  resolution: AdminPaymentPackageFilterResolution | null,
 ): Prisma.PaymentWhereInput | null {
-  if (sourceIds === null) {
+  if (resolution === null) {
     return null;
   }
-  if (sourceIds.length === 0) {
+  const { sourceIds, planIds } = resolution;
+  if (sourceIds.length === 0 && planIds.length === 0) {
     return { id: '__no_package_payment_match__' };
+  }
+
+  const clauses: Prisma.PaymentWhereInput[] = [];
+  if (sourceIds.length === 1) {
+    clauses.push({ sourceId: sourceIds[0]! });
+  } else if (sourceIds.length > 1) {
+    clauses.push({ sourceId: { in: sourceIds } });
+  }
+  for (const planId of planIds) {
+    clauses.push({
+      metadata: { path: [PACKAGE_PAYMENT_PLAN_ID_KEY], equals: planId },
+    });
+  }
+
+  if (clauses.length === 1) {
+    return { source: PaymentSource.PACKAGE, ...clauses[0]! };
   }
   return {
     source: PaymentSource.PACKAGE,
-    sourceId: sourceIds.length === 1 ? sourceIds[0]! : { in: sourceIds },
+    OR: clauses,
   };
 }
