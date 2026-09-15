@@ -10,6 +10,7 @@ import {
   buildDailyTrendFromStudio,
 } from "@/components/admin/admin-analytics-studio-map";
 import {
+  filterBookingsByStatusCounts,
   parseAnalyticsBookingStatus,
   parseAnalyticsQuickFilters,
   parseAnalyticsRangeDays,
@@ -204,7 +205,31 @@ export async function loadAdminAnalyticsPayload(
     return { ok: false, status: analyticsRes.status };
   }
 
-  const studio = analyticsRes.data;
+  const studioRaw = analyticsRes.data;
+  const filteredStatus = filterBookingsByStatusCounts(
+    studioRaw.operations.bookingsByStatus,
+    bookingStatus,
+  );
+  const filteredBookingsTotal =
+    filteredStatus.BOOKED +
+    filteredStatus.COMPLETED +
+    filteredStatus.CANCELLED +
+    filteredStatus.MISSED +
+    filteredStatus.waitlisted;
+  const studio: StudioAnalyticsPayload =
+    bookingStatus.length > 0
+      ? {
+          ...studioRaw,
+          kpis: {
+            ...studioRaw.kpis,
+            bookingsTotal: filteredBookingsTotal,
+          },
+          operations: {
+            ...studioRaw.operations,
+            bookingsByStatus: filteredStatus,
+          },
+        }
+      : studioRaw;
   const dailyTrend = buildDailyTrendFromStudio(studio, locale);
 
   return {
