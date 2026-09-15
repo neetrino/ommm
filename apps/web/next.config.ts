@@ -31,16 +31,22 @@ if (process.env.NODE_ENV !== "production") {
  * (e.g. `http://ommm-api:8080`), not the public `https://api.ommm.am` hostname.
  * Public URLs hairpin through Cloudflare and break long-lived SSE proxies.
  */
+function isPublicHostedHostname(hostname: string): boolean {
+  return (
+    hostname === "api.ommm.am" ||
+    hostname === "ommm.am" ||
+    hostname.endsWith(".ommm.am") ||
+    hostname === "onrender.com" ||
+    hostname.endsWith(".onrender.com") ||
+    hostname === "vercel.app" ||
+    hostname.endsWith(".vercel.app")
+  );
+}
+
 function warnIfApiInternalLooksPublic(raw: string): void {
   try {
     const { protocol, hostname } = new URL(raw);
-    const isPublicHttps =
-      protocol === "https:" &&
-      (hostname === "api.ommm.am" ||
-        hostname.endsWith(".ommm.am") ||
-        hostname.includes("onrender.com") ||
-        hostname.includes("vercel.app"));
-    if (isPublicHttps) {
+    if (protocol === "https:" && isPublicHostedHostname(hostname)) {
       console.warn(
         `[web] API_INTERNAL_URL=${raw} looks public. Prefer Docker-internal Nest URL so /api/v1 (and SSE) do not hairpin via Cloudflare.`,
       );
