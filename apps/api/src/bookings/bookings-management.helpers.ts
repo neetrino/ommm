@@ -20,8 +20,8 @@ export function buildScopedSessionFilter(params: {
   actor: User;
   from?: string;
   to?: string;
-  classTypeId?: string;
-  coachId?: string;
+  classTypeId?: string | string[];
+  coachId?: string | string[];
 }): Prisma.ClassSessionWhereInput | undefined {
   const coachScope =
     params.actor.role === Role.COACH
@@ -30,14 +30,33 @@ export function buildScopedSessionFilter(params: {
         } as Prisma.ClassSessionWhereInput)
       : undefined;
   const startsAt = buildSessionStartsAtFilter(params.from, params.to);
+  const classTypeIds = normalizeIdList(params.classTypeId);
+  const coachIds = normalizeIdList(params.coachId);
 
   const filter: Prisma.ClassSessionWhereInput = {
     ...(startsAt ? { startsAt } : {}),
-    ...(params.classTypeId ? { classTypeId: params.classTypeId } : {}),
-    ...(params.coachId ? { coachId: params.coachId } : {}),
+    ...(classTypeIds.length === 1
+      ? { classTypeId: classTypeIds[0]! }
+      : classTypeIds.length > 1
+        ? { classTypeId: { in: classTypeIds } }
+        : {}),
+    ...(coachIds.length === 1
+      ? { coachId: coachIds[0]! }
+      : coachIds.length > 1
+        ? { coachId: { in: coachIds } }
+        : {}),
     ...(coachScope ?? {}),
   };
   return Object.keys(filter).length > 0 ? filter : undefined;
+}
+
+function normalizeIdList(value: string | string[] | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+  return (Array.isArray(value) ? value : [value])
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
 export function resolveAttendanceStatus(status: BookingStatus) {

@@ -28,8 +28,22 @@ export function buildAdminListPaymentsWhere(
 
   return {
     ...(query.userId ? { userId: query.userId } : {}),
-    ...(query.status ? { status: query.status } : {}),
-    ...(query.paymentMethod ? { paymentMethod: query.paymentMethod } : {}),
+    ...(query.status?.length
+      ? {
+          status:
+            query.status.length === 1
+              ? query.status[0]!
+              : { in: query.status },
+        }
+      : {}),
+    ...(query.paymentMethod?.length
+      ? {
+          paymentMethod:
+            query.paymentMethod.length === 1
+              ? query.paymentMethod[0]!
+              : { in: query.paymentMethod },
+        }
+      : {}),
     ...(sourceFilter ?? {}),
     ...(createdAt ? { createdAt } : {}),
     ...(searchWhere ?? {}),

@@ -2,6 +2,7 @@ import { resolveSessionCoachName } from "@/components/account/session-coach-line
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 import { matchesStudioDateFilter } from "@/lib/filter-date-range";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { matchesSearchTokens } from "@/lib/search-tokens";
 import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 import type { UserSessionRow, UserWaitlistRow } from "@/lib/user-booking-types";
@@ -174,14 +175,11 @@ function matchesSessionBaseFilters(
   if (!matchesStudioDateFilter(row.startsAt, filters.from, filters.to)) {
     return false;
   }
-  if (filters.classType !== "all" && row.classType.name !== filters.classType) {
+  if (!matchesFilterMultiValue(filters.classType, row.classType.name)) {
     return false;
   }
-  if (filters.coach !== "all") {
-    const coachName = resolveSessionCoachName(row.coach);
-    if (coachName !== filters.coach) {
-      return false;
-    }
+  if (!matchesFilterMultiValue(filters.coach, resolveSessionCoachName(row.coach))) {
+    return false;
   }
 
   const coachName = resolveSessionCoachName(row.coach);
@@ -208,16 +206,20 @@ export function matchesUserSessionFilters(
     return false;
   }
 
-  if (filters.availability === "all") {
+  const availability = parseFilterMultiValue(filters.availability);
+  if (availability.length === 0) {
     return true;
   }
 
   const booked = row._count.bookings;
   const isFull = row.status === "FULL" || booked >= row.capacity;
-  if (filters.availability === "full") {
-    return isFull;
+  if (availability.includes("full") && isFull) {
+    return true;
   }
-  return !isFull;
+  if (availability.includes("available") && !isFull) {
+    return true;
+  }
+  return false;
 }
 
 export function hasActiveUserSessionFilters(
@@ -228,9 +230,9 @@ export function hasActiveUserSessionFilters(
     filters.search.trim().length > 0 ||
     filters.from.length > 0 ||
     filters.to.length > 0 ||
-    filters.classType !== "all" ||
-    filters.coach !== "all" ||
+    parseFilterMultiValue(filters.classType).length > 0 ||
+    parseFilterMultiValue(filters.coach).length > 0 ||
     filters.order !== "upcoming" ||
-    (includeAvailability && filters.availability !== "all")
+    (includeAvailability && parseFilterMultiValue(filters.availability).length > 0)
   );
 }

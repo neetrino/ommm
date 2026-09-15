@@ -23,7 +23,9 @@ export class CoachesAdminListService {
     const hasPagination =
       query.take !== undefined || query.offset !== undefined;
     const specialization = query.specialization?.trim();
-    const classType = query.classType?.trim();
+    const classTypes = (query.classType ?? [])
+      .map((entry) => entry.trim())
+      .filter(Boolean);
     const searchWhere = buildTokenAndWhere(
       query.q,
       (token): Prisma.CoachProfileWhereInput => ({
@@ -36,31 +38,48 @@ export class CoachesAdminListService {
         ],
       }),
     );
-    const where: Prisma.CoachProfileWhereInput = {
-      ...(searchWhere ?? {}),
-      ...(specialization
-        ? {
-            specialization: {
-              contains: specialization,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          }
-        : {}),
-      ...(classType
-        ? {
-            classType: {
-              contains: classType,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          }
-        : {}),
-      ...(query.isActive === AdminCoachActiveFilter.ACTIVE
-        ? { isActive: true }
-        : {}),
-      ...(query.isActive === AdminCoachActiveFilter.INACTIVE
-        ? { isActive: false }
-        : {}),
-    };
+    const activeFilters = (query.isActive ?? []).filter(
+      (entry) => entry !== AdminCoachActiveFilter.ALL,
+    );
+    const activeClauses: Prisma.CoachProfileWhereInput[] = [];
+    if (activeFilters.includes(AdminCoachActiveFilter.ACTIVE)) {
+      activeClauses.push({ isActive: true });
+    }
+    if (activeFilters.includes(AdminCoachActiveFilter.INACTIVE)) {
+      activeClauses.push({ isActive: false });
+    }
+    const classTypeClauses: Prisma.CoachProfileWhereInput[] = classTypes.map(
+      (classType) => ({
+        classType: {
+          equals: classType,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      }),
+    );
+    const and: Prisma.CoachProfileWhereInput[] = [];
+    if (searchWhere) {
+      and.push(searchWhere);
+    }
+    if (specialization) {
+      and.push({
+        specialization: {
+          contains: specialization,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      });
+    }
+    if (classTypeClauses.length === 1) {
+      and.push(classTypeClauses[0]!);
+    } else if (classTypeClauses.length > 1) {
+      and.push({ OR: classTypeClauses });
+    }
+    if (activeClauses.length === 1) {
+      and.push(activeClauses[0]!);
+    } else if (activeClauses.length > 1) {
+      and.push({ OR: activeClauses });
+    }
+    const where: Prisma.CoachProfileWhereInput =
+      and.length > 0 ? { AND: and } : {};
     const listAdminArgs = {
       where,
       include: {

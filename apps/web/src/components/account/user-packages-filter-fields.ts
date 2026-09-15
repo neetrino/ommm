@@ -4,15 +4,17 @@ import {
   buildUserPackageSortFilterField,
   type UserPackageSortOrder,
 } from "@/lib/list-sort";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
-
-export type UserPackageStatusFilter = "all" | UserPackageStatus;
 
 export type UserPackageFilterValues = {
   search: string;
-  status: UserPackageStatusFilter;
+  status: string;
   order: UserPackageSortOrder;
 };
+
+/** @deprecated Multi filters use CSV strings; kept for call-site imports. */
+export type UserPackageStatusFilter = string;
 
 export const DEFAULT_USER_PACKAGE_FILTER_VALUES: UserPackageFilterValues = {
   search: "",
@@ -20,7 +22,7 @@ export const DEFAULT_USER_PACKAGE_FILTER_VALUES: UserPackageFilterValues = {
   order: "upcoming",
 };
 
-const PACKAGE_STATUS_OPTIONS: readonly Exclude<UserPackageStatusFilter, "all">[] = [
+const PACKAGE_STATUS_OPTIONS: readonly UserPackageStatus[] = [
   "ACTIVE",
   "PAUSED",
   "CANCELLED",
@@ -32,7 +34,7 @@ type BuildUserPackagesFilterFieldsArgs = {
   labels: {
     status: string;
     statusAll: string;
-    statusValues: Record<Exclude<UserPackageStatusFilter, "all">, string>;
+    statusValues: Record<UserPackageStatus, string>;
     searchPlaceholder: string;
     resetFilters: string;
     sort: string;
@@ -75,7 +77,7 @@ export function matchesUserPackageFilters(
   filters: UserPackageFilterValues,
 ): boolean {
   const status = normalizeUserPackageStatus(row.status);
-  if (filters.status !== "all" && status !== filters.status) {
+  if (!matchesFilterMultiValue(filters.status, status)) {
     return false;
   }
 
@@ -91,7 +93,7 @@ export function matchesUserPackageFilters(
 export function hasActiveUserPackageFilters(filters: UserPackageFilterValues): boolean {
   return (
     filters.search.trim().length > 0 ||
-    filters.status !== "all" ||
+    parseFilterMultiValue(filters.status).length > 0 ||
     filters.order !== "upcoming"
   );
 }

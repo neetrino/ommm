@@ -130,8 +130,8 @@ export function requiresCoachSalaryPostProcessing(
   query: AdminSalarySummariesQueryDto,
 ): boolean {
   return Boolean(
-    query.payoutStatus ||
-    query.quick ||
+    (query.payoutStatus && query.payoutStatus.length > 0) ||
+    (query.quick && query.quick.length > 0) ||
     (query.order &&
       query.order !== 'newest' &&
       query.order !== 'highest-salary'),
@@ -155,6 +155,25 @@ export function payoutStatus(row: CoachSalaryRow): 'pending' | 'paid' | 'none' {
   return 'paid';
 }
 
+const HIGH_SALARY_EARNINGS_CENTS = 50_000;
+
+function matchesSalaryQuickFilter(
+  row: CoachSalaryRow,
+  status: ReturnType<typeof payoutStatus>,
+  quick: NonNullable<AdminSalarySummariesQueryDto['quick']>[number],
+): boolean {
+  if (quick === 'paid' || quick === 'recent-payments') {
+    return status === 'paid';
+  }
+  if (quick === 'pending') {
+    return status === 'pending';
+  }
+  if (quick === 'high-salary') {
+    return (row.salary?.totalEarningsCents ?? 0) >= HIGH_SALARY_EARNINGS_CENTS;
+  }
+  return false;
+}
+
 export function filterCoachSalaryRows(
   rows: CoachSalaryRow[],
   query: AdminSalarySummariesQueryDto,
@@ -171,16 +190,21 @@ export function filterCoachSalaryRows(
       }
     }
     const status = payoutStatus(row);
-    if (query.payoutStatus && status !== query.payoutStatus) {
+    if (
+      query.payoutStatus &&
+      query.payoutStatus.length > 0 &&
+      !query.payoutStatus.includes(status)
+    ) {
       return false;
     }
-    if (query.quick === 'paid' && status !== 'paid') return false;
-    if (query.quick === 'pending' && status !== 'pending') return false;
-    if (query.quick === 'high-salary') {
-      const earnings = row.salary?.totalEarningsCents ?? 0;
-      if (earnings < 50000) return false;
+    if (query.quick && query.quick.length > 0) {
+      const matchesQuick = query.quick.some((quick) =>
+        matchesSalaryQuickFilter(row, status, quick),
+      );
+      if (!matchesQuick) {
+        return false;
+      }
     }
-    if (query.quick === 'recent-payments' && status !== 'paid') return false;
     return true;
   });
 }

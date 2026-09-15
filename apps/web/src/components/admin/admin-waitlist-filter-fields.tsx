@@ -8,7 +8,6 @@ import {
 } from "@/components/admin/admin-waitlist-management.constants";
 import type { AdminWaitlistRow } from "@/components/admin/admin-waitlist-query";
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 
 type AdminWaitlistFilterFieldsProps = {
   items: readonly AdminWaitlistRow[];
@@ -33,21 +32,15 @@ export function useAdminWaitlistFilterFields({ items }: AdminWaitlistFilterField
       {
         key: WAITLIST_CLASS_TYPE_KEY,
         label: t("colClassType"),
-        render: ({ value, onChange }) => (
-          <OmmFilterDropdown
-            allValue=""
-            value={value}
-            ariaLabel={t("colClassType")}
-            allLabel={t("filterClassAll")}
-            onChange={onChange}
-            options={classTypeOptions}
-          />
-        ),
+        emptyValue: "",
+        allLabel: t("filterClassAll"),
+        options: classTypeOptions,
       },
       {
         key: WAITLIST_ORDER_KEY,
         label: tSort("sort"),
         emptyValue: "newest",
+        selectionMode: "single",
         options: [
           { value: "newest", label: tSort("newest") },
           { value: "oldest", label: tSort("oldest") },

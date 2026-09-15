@@ -27,6 +27,7 @@ import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-dr
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useAdminListPageParams } from "@/hooks/use-admin-list-page-params";
 import { useRouter } from "@/i18n/navigation";
+import { matchesFilterMultiValue } from "@/lib/filter-multi-value";
 
 export function AdminWaitlistManagement({
   locale,
@@ -64,7 +65,7 @@ export function AdminWaitlistManagement({
   const filteredRows = useMemo(() => {
     const q = searchDraft.trim().toLowerCase();
     return payload.items.filter((row) => {
-      if (classTypeFilter && row.session.classType.id !== classTypeFilter) {
+      if (!matchesFilterMultiValue(classTypeFilter, row.session.classType.id)) {
         return false;
       }
       if (q.length === 0) {

@@ -9,7 +9,7 @@ describe('buildManagersListWhere', () => {
 
   it('filters blocked accounts', () => {
     expect(
-      buildManagersListWhere({ status: AdminManagerStatusFilter.BLOCKED }),
+      buildManagersListWhere({ status: [AdminManagerStatusFilter.BLOCKED] }),
     ).toEqual({
       role: Role.MANAGER,
       isBlocked: true,
@@ -18,10 +18,24 @@ describe('buildManagersListWhere', () => {
 
   it('filters active accounts', () => {
     expect(
-      buildManagersListWhere({ status: AdminManagerStatusFilter.ACTIVE }),
+      buildManagersListWhere({ status: [AdminManagerStatusFilter.ACTIVE] }),
     ).toEqual({
       role: Role.MANAGER,
       isBlocked: false,
+    });
+  });
+
+  it('ORs multiple status filters', () => {
+    expect(
+      buildManagersListWhere({
+        status: [
+          AdminManagerStatusFilter.ACTIVE,
+          AdminManagerStatusFilter.BLOCKED,
+        ],
+      }),
+    ).toEqual({
+      role: Role.MANAGER,
+      OR: [{ isBlocked: false }, { isBlocked: true }],
     });
   });
 

@@ -41,11 +41,25 @@ const unpaidPaymentWhere: Prisma.UserWhereInput = {
   NOT: { payments: { some: { status: PaymentStatus.FAILED } } },
 };
 
+function pushOr(
+  and: Prisma.UserWhereInput[],
+  clauses: Prisma.UserWhereInput[],
+): void {
+  if (clauses.length === 0) {
+    return;
+  }
+  if (clauses.length === 1) {
+    and.push(clauses[0]!);
+    return;
+  }
+  and.push({ OR: clauses });
+}
+
 /** Filters/orders that still need in-memory row computation after DB pre-filter. */
 export function requiresClientsPostProcessing(
   query: AdminListClientsQueryDto,
 ): boolean {
-  if (query.birthdayMonth !== undefined) {
+  if (query.birthdayMonth && query.birthdayMonth.length > 0) {
     return true;
   }
   if (query.giftCardOnly) {
@@ -54,13 +68,14 @@ export function requiresClientsPostProcessing(
   if (query.quick?.includes(AdminClientQuickFilter.BIRTHDAY_THIS_MONTH)) {
     return true;
   }
-  if (query.preferredCoachId) {
+  if (query.preferredCoachId && query.preferredCoachId.length > 0) {
     return true;
   }
+  const attendance = query.attendance ?? [];
   if (
-    query.attendance === AdminClientAttendanceFilter.REGULAR ||
-    query.attendance === AdminClientAttendanceFilter.OFTEN_CANCELS ||
-    query.attendance === AdminClientAttendanceFilter.LOW_ATTENDANCE
+    attendance.includes(AdminClientAttendanceFilter.REGULAR) ||
+    attendance.includes(AdminClientAttendanceFilter.OFTEN_CANCELS) ||
+    attendance.includes(AdminClientAttendanceFilter.LOW_ATTENDANCE)
   ) {
     return true;
   }
@@ -89,45 +104,12 @@ export function buildClientsListWhere(
   appendTagFilter(and, query.tag);
   appendAttendanceFilter(and, query.attendance);
   appendQuickFilters(and, query.quick);
+  appendPreferredCoachFilter(and, query.preferredCoachId);
+  appendSourceFilter(and, query.source);
+  appendClassLevelFilter(and, query.classLevel);
 
-  if (query.preferredCoachId) {
-    and.push({
-      bookings: { some: { session: { coachId: query.preferredCoachId } } },
-    });
-  }
-
-  if (query.source === 'mobile-app') {
-    and.push({ bookings: { some: { channel: 'APP' } } });
-  } else if (query.source === 'website') {
-    and.push({ bookings: { some: { channel: 'WEBSITE' } } });
-  } else if (query.source === 'admin') {
-    and.push({ bookings: { none: {} } });
-  }
-
-  if (query.birthdayMonth !== undefined) {
+  if (query.birthdayMonth && query.birthdayMonth.length > 0) {
     and.push({ dateOfBirth: { not: null } });
-  }
-
-  if (query.classLevel?.trim()) {
-    const level = query.classLevel.trim();
-    and.push({
-      bookings: {
-        some: {
-          session: {
-            OR: [
-              {
-                level: { contains: level, mode: Prisma.QueryMode.insensitive },
-              },
-              {
-                classType: {
-                  name: { contains: level, mode: Prisma.QueryMode.insensitive },
-                },
-              },
-            ],
-          },
-        },
-      },
-    });
   }
 
   return { AND: and };
@@ -148,87 +130,99 @@ export function resolveClientsListOrderBy(
 
 function appendPackageFilter(
   and: Prisma.UserWhereInput[],
-  packageFilter: AdminClientPackageFilter | undefined,
+  packageFilters: AdminClientPackageFilter[] | undefined,
 ): void {
-  if (!packageFilter || packageFilter === AdminClientPackageFilter.ALL) {
+  const selected = (packageFilters ?? []).filter(
+    (value) => value !== AdminClientPackageFilter.ALL,
+  );
+  if (selected.length === 0) {
     return;
   }
-  if (packageFilter === AdminClientPackageFilter.ACTIVE) {
-    and.push({
-      userPackages: { some: { status: UserPackageStatus.ACTIVE } },
+  const clauses: Prisma.UserWhereInput[] = [];
+  for (const packageFilter of selected) {
+    if (packageFilter === AdminClientPackageFilter.ACTIVE) {
+      clauses.push({
+        userPackages: { some: { status: UserPackageStatus.ACTIVE } },
+      });
+      continue;
+    }
+    clauses.push({
+      userPackages: { none: { status: UserPackageStatus.ACTIVE } },
     });
-    return;
   }
-  and.push({
-    userPackages: { none: { status: UserPackageStatus.ACTIVE } },
-  });
+  pushOr(and, clauses);
+}
+
+function statusClause(status: AdminClientStatusFilter): Prisma.UserWhereInput {
+  if (status === AdminClientStatusFilter.BLOCKED) {
+    return { isBlocked: true };
+  }
+  if (status === AdminClientStatusFilter.FROZEN) {
+    return { id: '__frozen-none__' };
+  }
+  if (status === AdminClientStatusFilter.ACTIVE) {
+    return {
+      isBlocked: false,
+      bookings: { some: activeClientBookingWhere },
+    };
+  }
+  return {
+    isBlocked: false,
+    NOT: { bookings: { some: activeClientBookingWhere } },
+  };
 }
 
 function appendStatusFilter(
   and: Prisma.UserWhereInput[],
-  status: AdminClientStatusFilter | undefined,
+  statuses: AdminClientStatusFilter[] | undefined,
 ): void {
-  if (!status) {
+  if (!statuses?.length) {
     return;
   }
-  if (status === AdminClientStatusFilter.BLOCKED) {
-    and.push({ isBlocked: true });
-    return;
+  pushOr(
+    and,
+    statuses.map((status) => statusClause(status)),
+  );
+}
+
+function paymentStatusClause(
+  paymentStatus: AdminClientPaymentStatusFilter,
+): Prisma.UserWhereInput | null {
+  if (paymentStatus === AdminClientPaymentStatusFilter.OVERDUE) {
+    return { payments: { some: { status: PaymentStatus.FAILED } } };
   }
-  if (status === AdminClientStatusFilter.FROZEN) {
-    and.push({ id: '__frozen-none__' });
-    return;
+  if (paymentStatus === AdminClientPaymentStatusFilter.UNPAID) {
+    return unpaidPaymentWhere;
   }
-  if (status === AdminClientStatusFilter.ACTIVE) {
-    and.push({
-      isBlocked: false,
-      bookings: { some: activeClientBookingWhere },
-    });
-    return;
+  if (paymentStatus === AdminClientPaymentStatusFilter.PAID) {
+    return {
+      payments: {
+        some: revenueSucceededWhere,
+      },
+    };
   }
-  and.push({
-    isBlocked: false,
-    NOT: { bookings: { some: activeClientBookingWhere } },
-  });
+  return null;
 }
 
 function appendPaymentStatusFilter(
   and: Prisma.UserWhereInput[],
-  paymentStatus: AdminClientPaymentStatusFilter | undefined,
+  paymentStatuses: AdminClientPaymentStatusFilter[] | undefined,
 ): void {
-  if (!paymentStatus) {
+  if (!paymentStatuses?.length) {
     return;
   }
-  if (paymentStatus === AdminClientPaymentStatusFilter.OVERDUE) {
-    and.push({ payments: { some: { status: PaymentStatus.FAILED } } });
-    return;
-  }
-  if (paymentStatus === AdminClientPaymentStatusFilter.UNPAID) {
-    and.push(unpaidPaymentWhere);
-    return;
-  }
-  if (paymentStatus === AdminClientPaymentStatusFilter.PAID) {
-    and.push({
-      payments: {
-        some: revenueSucceededWhere,
-      },
-    });
-  }
+  const clauses = paymentStatuses
+    .map((status) => paymentStatusClause(status))
+    .filter((clause): clause is Prisma.UserWhereInput => clause !== null);
+  pushOr(and, clauses);
 }
 
-function appendTagFilter(
-  and: Prisma.UserWhereInput[],
-  tag: AdminClientTagFilter | undefined,
-): void {
-  if (!tag) {
-    return;
-  }
+function tagClause(tag: AdminClientTagFilter): Prisma.UserWhereInput | null {
   if (tag === AdminClientTagFilter.NEW) {
-    and.push({ createdAt: { gte: newClientThreshold() } });
-    return;
+    return { createdAt: { gte: newClientThreshold() } };
   }
   if (tag === AdminClientTagFilter.BEGINNER) {
-    and.push({
+    return {
       bookings: {
         some: {
           session: {
@@ -251,25 +245,111 @@ function appendTagFilter(
           },
         },
       },
-    });
-    return;
+    };
   }
   if (tag === AdminClientTagFilter.INFLUENCER) {
-    and.push({
+    return {
       payments: {
         some: influencerSucceededWhere,
       },
-    });
+    };
   }
+  return null;
+}
+
+function appendTagFilter(
+  and: Prisma.UserWhereInput[],
+  tags: AdminClientTagFilter[] | undefined,
+): void {
+  if (!tags?.length) {
+    return;
+  }
+  const clauses = tags
+    .map((tag) => tagClause(tag))
+    .filter((clause): clause is Prisma.UserWhereInput => clause !== null);
+  pushOr(and, clauses);
 }
 
 function appendAttendanceFilter(
   and: Prisma.UserWhereInput[],
-  attendance: AdminClientAttendanceFilter | undefined,
+  attendance: AdminClientAttendanceFilter[] | undefined,
 ): void {
-  if (attendance === AdminClientAttendanceFilter.NO_SHOW) {
-    and.push({ bookings: { some: { status: BookingStatus.MISSED } } });
+  if (!attendance?.includes(AdminClientAttendanceFilter.NO_SHOW)) {
+    return;
   }
+  and.push({ bookings: { some: { status: BookingStatus.MISSED } } });
+}
+
+function appendPreferredCoachFilter(
+  and: Prisma.UserWhereInput[],
+  coachIds: string[] | undefined,
+): void {
+  if (!coachIds?.length) {
+    return;
+  }
+  pushOr(
+    and,
+    coachIds.map((coachId) => ({
+      bookings: { some: { session: { coachId } } },
+    })),
+  );
+}
+
+function appendSourceFilter(
+  and: Prisma.UserWhereInput[],
+  sources: string[] | undefined,
+): void {
+  if (!sources?.length) {
+    return;
+  }
+  const clauses: Prisma.UserWhereInput[] = [];
+  for (const source of sources) {
+    if (source === 'mobile-app') {
+      clauses.push({ bookings: { some: { channel: 'APP' } } });
+      continue;
+    }
+    if (source === 'website') {
+      clauses.push({ bookings: { some: { channel: 'WEBSITE' } } });
+      continue;
+    }
+    if (source === 'admin') {
+      clauses.push({ bookings: { none: {} } });
+    }
+  }
+  pushOr(and, clauses);
+}
+
+function appendClassLevelFilter(
+  and: Prisma.UserWhereInput[],
+  classLevels: string[] | undefined,
+): void {
+  if (!classLevels?.length) {
+    return;
+  }
+  pushOr(
+    and,
+    classLevels.map((level) => ({
+      bookings: {
+        some: {
+          session: {
+            OR: [
+              {
+                level: { contains: level, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                classType: {
+                  name: {
+                    contains: level,
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })),
+  );
 }
 
 function appendQuickFilters(

@@ -5,6 +5,39 @@ import {
 } from '../common/token-text-search';
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 
+function giftCardExpirationClause(
+  expiration: NonNullable<ListAdminGiftCardBatchesQueryDto['expiration']>[number],
+  now: Date,
+): Prisma.GiftCardBatchWhereInput {
+  if (expiration === 'valid') {
+    return {
+      status: { not: GiftCardStatus.EXPIRED },
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    };
+  }
+  return {
+    OR: [{ status: GiftCardStatus.EXPIRED }, { expiresAt: { lt: now } }],
+  };
+}
+
+function giftCardQuickClause(
+  quick: NonNullable<ListAdminGiftCardBatchesQueryDto['quick']>[number],
+  now: Date,
+): Prisma.GiftCardBatchWhereInput {
+  if (quick === 'active') {
+    return { status: GiftCardStatus.ACTIVE };
+  }
+  if (quick === 'expired') {
+    return {
+      OR: [{ status: GiftCardStatus.EXPIRED }, { expiresAt: { lt: now } }],
+    };
+  }
+  return {
+    status: GiftCardStatus.ACTIVE,
+    availableQuantity: { gt: 0 },
+  };
+}
+
 export function buildGiftCardBatchWhere(
   query: ListAdminGiftCardBatchesQueryDto,
 ): Prisma.GiftCardBatchWhereInput {
@@ -43,19 +76,24 @@ export function buildGiftCardBatchWhere(
     and.push(searchWhere);
   }
 
-  if (query.status && query.status !== 'all') {
-    and.push({ status: query.status as GiftCardStatus });
+  if (query.status?.length) {
+    and.push({
+      status:
+        query.status.length === 1
+          ? query.status[0]!
+          : { in: query.status },
+    });
   }
 
-  if (query.expiration === 'valid') {
-    and.push({
-      status: { not: GiftCardStatus.EXPIRED },
-      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-    });
-  } else if (query.expiration === 'expired') {
-    and.push({
-      OR: [{ status: GiftCardStatus.EXPIRED }, { expiresAt: { lt: now } }],
-    });
+  if (query.expiration?.length) {
+    const clauses = query.expiration.map((expiration) =>
+      giftCardExpirationClause(expiration, now),
+    );
+    if (clauses.length === 1) {
+      and.push(clauses[0]!);
+    } else {
+      and.push({ OR: clauses });
+    }
   }
 
   if (query.amountMin !== undefined) {
@@ -65,17 +103,15 @@ export function buildGiftCardBatchWhere(
     and.push({ amountAmd: { lte: query.amountMax } });
   }
 
-  if (query.quick === 'active') {
-    and.push({ status: GiftCardStatus.ACTIVE });
-  } else if (query.quick === 'expired') {
-    and.push({
-      OR: [{ status: GiftCardStatus.EXPIRED }, { expiresAt: { lt: now } }],
-    });
-  } else if (query.quick === 'unredeemed') {
-    and.push({
-      status: GiftCardStatus.ACTIVE,
-      availableQuantity: { gt: 0 },
-    });
+  if (query.quick?.length) {
+    const clauses = query.quick.map((quick) =>
+      giftCardQuickClause(quick, now),
+    );
+    if (clauses.length === 1) {
+      and.push(clauses[0]!);
+    } else {
+      and.push({ OR: clauses });
+    }
   }
 
   return and.length > 0 ? { AND: and } : {};

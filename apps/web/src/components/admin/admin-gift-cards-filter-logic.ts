@@ -4,6 +4,7 @@ import type {
   GiftCardSortOrder,
 } from "@/components/admin/admin-gift-cards-types";
 import { parseAmdMoneyInput } from "@/lib/price-amd";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 
 export function isGiftCardExpired(card: AdminGiftCardBatchRow, now = Date.now()): boolean {
   if (card.status === "EXPIRED") {
@@ -58,28 +59,34 @@ function matchesSearch(card: AdminGiftCardBatchRow, search: string): boolean {
   return haystack.includes(search);
 }
 
-function matchesQuickFilter(card: AdminGiftCardBatchRow, quick: GiftCardFilterValues["quick"]): boolean {
-  switch (quick) {
-    case "active":
-      return card.status === "ACTIVE";
-    case "expired":
-      return isGiftCardExpired(card);
-    case "unredeemed":
-      return card.status === "ACTIVE" && card.availableQuantity > 0;
-    default:
-      return true;
+function matchesQuickFilter(card: AdminGiftCardBatchRow, quickCsv: string): boolean {
+  const quickValues = parseFilterMultiValue(quickCsv);
+  if (quickValues.length === 0) {
+    return true;
   }
+  return quickValues.some((quick) => {
+    switch (quick) {
+      case "active":
+        return card.status === "ACTIVE";
+      case "expired":
+        return isGiftCardExpired(card);
+      case "unredeemed":
+        return card.status === "ACTIVE" && card.availableQuantity > 0;
+      default:
+        return false;
+    }
+  });
 }
 
 export function countActiveGiftCardFilters(values: GiftCardFilterValues): number {
   return [
     values.search.trim(),
-    values.status === "all" ? "" : values.status,
-    values.expiration === "all" ? "" : values.expiration,
+    parseFilterMultiValue(values.status).length > 0 ? values.status : "",
+    parseFilterMultiValue(values.expiration).length > 0 ? values.expiration : "",
     values.amountMin.trim(),
     values.amountMax.trim(),
     values.order === "newest" ? "" : values.order,
-    values.quick,
+    parseFilterMultiValue(values.quick).length > 0 ? values.quick : "",
   ].filter(Boolean).length;
 }
 
@@ -90,16 +97,20 @@ export function filterGiftCards(
   const search = values.search.trim().toLowerCase();
   const minAmount = parseAmountFilter(values.amountMin);
   const maxAmount = parseAmountFilter(values.amountMax);
+  const expiration = parseFilterMultiValue(values.expiration);
 
   return cards.filter((card) => {
-    if (values.status !== "all" && card.status !== values.status) {
+    if (!matchesFilterMultiValue(values.status, card.status)) {
       return false;
     }
-    if (values.expiration === "valid" && isGiftCardExpired(card)) {
-      return false;
-    }
-    if (values.expiration === "expired" && !isGiftCardExpired(card)) {
-      return false;
+    if (expiration.length > 0) {
+      const expired = isGiftCardExpired(card);
+      const ok =
+        (expiration.includes("valid") && !expired) ||
+        (expiration.includes("expired") && expired);
+      if (!ok) {
+        return false;
+      }
     }
     if (minAmount !== null && card.amountAmd < minAmount) {
       return false;

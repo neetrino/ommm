@@ -154,6 +154,7 @@ export function CoachGroupsScreen() {
             order: order as SessionSortOrder,
           }))
         }
+        selectionMode="single"
         options={[
           { value: "upcoming", label: tSort("upcoming") },
           { value: "date-asc", label: tSort("dateAsc") },

@@ -2,11 +2,10 @@ import { resolveSessionCoachName } from "@/components/account/session-coach-line
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 import { matchesStudioDateFilter } from "@/lib/filter-date-range";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { matchesSearchTokens } from "@/lib/search-tokens";
 import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 import type { UserBookingRow } from "@/lib/user-booking-types";
-
-export type UserBookingStatusFilter = "all" | "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED";
 
 export type UserBookingFilterValues = {
   search: string;
@@ -14,9 +13,12 @@ export type UserBookingFilterValues = {
   to: string;
   classType: string;
   coach: string;
-  status: UserBookingStatusFilter;
+  status: string;
   order: SessionSortOrder;
 };
+
+/** @deprecated Multi filters use CSV strings; kept for call-site imports. */
+export type UserBookingStatusFilter = string;
 
 export const DEFAULT_USER_BOOKING_FILTER_VALUES: UserBookingFilterValues = {
   search: "",
@@ -28,12 +30,12 @@ export const DEFAULT_USER_BOOKING_FILTER_VALUES: UserBookingFilterValues = {
   order: "upcoming",
 };
 
-const BOOKING_STATUS_OPTIONS: readonly Exclude<UserBookingStatusFilter, "all">[] = [
+const BOOKING_STATUS_OPTIONS = [
   "BOOKED",
   "COMPLETED",
   "CANCELLED",
   "MISSED",
-];
+] as const;
 
 type BuildUserBookingsFilterFieldsArgs = {
   classTypes: readonly string[];
@@ -148,16 +150,13 @@ export function matchesUserBookingFilters(
   if (!matchesStudioDateFilter(row.session.startsAt, filters.from, filters.to)) {
     return false;
   }
-  if (filters.classType !== "all" && row.session.classType.name !== filters.classType) {
+  if (!matchesFilterMultiValue(filters.classType, row.session.classType.name)) {
     return false;
   }
-  if (filters.coach !== "all") {
-    const coachName = resolveSessionCoachName(row.session.coach);
-    if (coachName !== filters.coach) {
-      return false;
-    }
+  if (!matchesFilterMultiValue(filters.coach, resolveSessionCoachName(row.session.coach))) {
+    return false;
   }
-  if (filters.status !== "all" && row.status !== filters.status) {
+  if (!matchesFilterMultiValue(filters.status, row.status)) {
     return false;
   }
 
@@ -175,9 +174,9 @@ export function hasActiveUserBookingFilters(filters: UserBookingFilterValues): b
     filters.search.trim().length > 0 ||
     filters.from.length > 0 ||
     filters.to.length > 0 ||
-    filters.classType !== "all" ||
-    filters.coach !== "all" ||
-    filters.status !== "all" ||
+    parseFilterMultiValue(filters.classType).length > 0 ||
+    parseFilterMultiValue(filters.coach).length > 0 ||
+    parseFilterMultiValue(filters.status).length > 0 ||
     filters.order !== "upcoming"
   );
 }

@@ -1,5 +1,6 @@
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {
+  IsArray,
   IsIn,
   IsInt,
   IsOptional,
@@ -10,6 +11,7 @@ import {
 } from 'class-validator';
 import { StaffActivityType } from '@prisma/client';
 import { MAX_LIST_PAGE_SIZE } from '../../common/dto/list-pagination-query.dto';
+import { parseCsvEnumQueryParam } from '../../common/parse-csv-query-param';
 import { STAFF_ACTIVITY_PAGE_TAKE } from '../staff-activity.constants';
 
 export const STAFF_ACTIVITY_TYPE_FILTERS = [
@@ -35,8 +37,12 @@ export class ListStaffActivityQueryDto {
   take?: number = STAFF_ACTIVITY_PAGE_TAKE;
 
   @IsOptional()
-  @IsIn(STAFF_ACTIVITY_TYPE_FILTERS)
-  type?: StaffActivityTypeFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, STAFF_ACTIVITY_TYPE_FILTERS),
+  )
+  @IsArray()
+  @IsIn([...STAFF_ACTIVITY_TYPE_FILTERS], { each: true })
+  type?: StaffActivityTypeFilter[];
 
   @IsOptional()
   @IsString()

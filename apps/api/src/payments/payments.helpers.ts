@@ -72,29 +72,35 @@ export function parsePaymentMetadata(
   };
 }
 
-export function buildSourceFilter(
-  source: PaymentSourceFilter | undefined,
-): Prisma.PaymentWhereInput | undefined {
-  if (!source) {
-    return undefined;
-  }
+function mapPaymentSourceFilter(
+  source: PaymentSourceFilter,
+): InternalPaymentSource {
   if (source === PaymentSourceFilter.PACKAGE) {
-    return withInternalPaymentWhereFields({
-      source: INTERNAL_PAYMENT_SOURCE.PACKAGE,
-    });
+    return INTERNAL_PAYMENT_SOURCE.PACKAGE;
   }
   if (source === PaymentSourceFilter.DROPIN) {
-    return withInternalPaymentWhereFields({
-      source: INTERNAL_PAYMENT_SOURCE.DROPIN,
-    });
+    return INTERNAL_PAYMENT_SOURCE.DROPIN;
   }
   if (source === PaymentSourceFilter.GIFT) {
-    return withInternalPaymentWhereFields({
-      source: INTERNAL_PAYMENT_SOURCE.GIFT,
-    });
+    return INTERNAL_PAYMENT_SOURCE.GIFT;
   }
+  return INTERNAL_PAYMENT_SOURCE.OTHER;
+}
+
+export function buildSourceFilter(
+  source: PaymentSourceFilter | PaymentSourceFilter[] | undefined,
+): Prisma.PaymentWhereInput | undefined {
+  const sources = Array.isArray(source)
+    ? source
+    : source
+      ? [source]
+      : [];
+  if (sources.length === 0) {
+    return undefined;
+  }
+  const mapped = sources.map(mapPaymentSourceFilter);
   return withInternalPaymentWhereFields({
-    source: INTERNAL_PAYMENT_SOURCE.OTHER,
+    source: mapped.length === 1 ? mapped[0]! : { in: mapped },
   });
 }
 

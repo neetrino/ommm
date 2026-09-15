@@ -51,8 +51,22 @@ export class BookingsAdminManagementService {
     const userSearch = buildTokenAndWhere(params.query.q, userContainsToken);
 
     const bookingWhere: Prisma.BookingWhereInput = {
-      ...(params.query.status ? { status: params.query.status } : {}),
-      ...(params.query.channel ? { channel: params.query.channel } : {}),
+      ...(params.query.status?.length
+        ? {
+            status:
+              params.query.status.length === 1
+                ? params.query.status[0]!
+                : { in: params.query.status },
+          }
+        : {}),
+      ...(params.query.channel?.length
+        ? {
+            channel:
+              params.query.channel.length === 1
+                ? params.query.channel[0]!
+                : { in: params.query.channel },
+          }
+        : {}),
       ...(params.query.userId ? { userId: params.query.userId } : {}),
       ...(sessionFilter ? { session: sessionFilter } : {}),
       ...(userSearch ? { user: userSearch } : {}),
@@ -210,18 +224,20 @@ export class BookingsAdminManagementService {
     const waitlistRows = waitlists.map((row) => mapManagementWaitlistRow(row));
 
     let rows = [...bookingRows, ...waitlistRows];
-    if (params.query.paymentStatus) {
-      rows = rows.filter(
-        (row) =>
-          row.paymentStatus.toUpperCase() ===
-          params.query.paymentStatus?.toUpperCase(),
+    if (params.query.paymentStatus?.length) {
+      const allowed = new Set(
+        params.query.paymentStatus.map((status) => status.toUpperCase()),
+      );
+      rows = rows.filter((row) =>
+        allowed.has(row.paymentStatus.toUpperCase()),
       );
     }
-    if (params.query.attendanceStatus) {
-      rows = rows.filter(
-        (row) =>
-          (row.attendanceStatus ?? '').toUpperCase() ===
-          params.query.attendanceStatus?.toUpperCase(),
+    if (params.query.attendanceStatus?.length) {
+      const allowed = new Set(
+        params.query.attendanceStatus.map((status) => status.toUpperCase()),
+      );
+      rows = rows.filter((row) =>
+        allowed.has((row.attendanceStatus ?? '').toUpperCase()),
       );
     }
 

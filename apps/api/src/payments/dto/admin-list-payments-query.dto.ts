@@ -1,7 +1,7 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsDateString,
-  IsEnum,
   IsIn,
   IsInt,
   IsOptional,
@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { DateListOrder } from '../../common/enums/list-order.enum';
+import { parseCsvEnumQueryParam } from '../../common/parse-csv-query-param';
 
 /** Cash, online card, or physical terminal. */
 export const ADMIN_LIST_PAYMENT_METHOD_FILTERS = [
@@ -36,16 +37,28 @@ export class AdminListPaymentsQueryDto {
   to?: string;
 
   @IsOptional()
-  @IsEnum(PaymentStatus)
-  status?: PaymentStatus;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(PaymentStatus)),
+  )
+  @IsArray()
+  @IsIn(Object.values(PaymentStatus), { each: true })
+  status?: PaymentStatus[];
 
   @IsOptional()
-  @IsEnum(PaymentSourceFilter)
-  source?: PaymentSourceFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(PaymentSourceFilter)),
+  )
+  @IsArray()
+  @IsIn(Object.values(PaymentSourceFilter), { each: true })
+  source?: PaymentSourceFilter[];
 
   @IsOptional()
-  @IsIn([...ADMIN_LIST_PAYMENT_METHOD_FILTERS])
-  paymentMethod?: (typeof ADMIN_LIST_PAYMENT_METHOD_FILTERS)[number];
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, ADMIN_LIST_PAYMENT_METHOD_FILTERS),
+  )
+  @IsArray()
+  @IsIn([...ADMIN_LIST_PAYMENT_METHOD_FILTERS], { each: true })
+  paymentMethod?: (typeof ADMIN_LIST_PAYMENT_METHOD_FILTERS)[number][];
 
   @IsOptional()
   @IsString()

@@ -62,37 +62,72 @@ export function matchesClientFilters(
   row: ClientRow,
   query: AdminListClientsQueryDto,
 ) {
-  if (query.tag && !matchesTag(row.tags, query.tag)) return false;
-  if (query.status && !matchesStatus(row.status, query.status)) return false;
   if (
-    query.package === AdminClientPackageFilter.ACTIVE &&
-    row.activePackageStatus !== UserPackageStatus.ACTIVE
+    query.tag?.length &&
+    !query.tag.some((tag) => matchesTag(row.tags, tag))
   ) {
     return false;
   }
   if (
-    query.package === AdminClientPackageFilter.INACTIVE &&
-    row.activePackageStatus === UserPackageStatus.ACTIVE
+    query.status?.length &&
+    !query.status.some((status) => matchesStatus(row.status, status))
   ) {
     return false;
   }
-  if (query.classLevel && !matchesClassLevel(row.classLevels, query.classLevel))
-    return false;
+  const packages = (query.package ?? []).filter(
+    (value) => value !== AdminClientPackageFilter.ALL,
+  );
+  if (packages.length > 0) {
+    const isActive = row.activePackageStatus === UserPackageStatus.ACTIVE;
+    const matchesPackage = packages.some((packageFilter) =>
+      packageFilter === AdminClientPackageFilter.ACTIVE ? isActive : !isActive,
+    );
+    if (!matchesPackage) {
+      return false;
+    }
+  }
   if (
-    query.paymentStatus &&
-    row.paymentBehavior !== String(query.paymentStatus)
-  )
+    query.classLevel?.length &&
+    !query.classLevel.some((level) => matchesClassLevel(row.classLevels, level))
+  ) {
     return false;
-  if (query.source && row.source !== query.source) return false;
+  }
   if (
-    query.preferredCoachId &&
-    row.preferredCoach?.id !== query.preferredCoachId
-  )
+    query.paymentStatus?.length &&
+    !query.paymentStatus.some(
+      (paymentStatus) => row.paymentBehavior === String(paymentStatus),
+    )
+  ) {
     return false;
-  if (query.attendance && row.attendanceBehavior !== String(query.attendance))
+  }
+  if (
+    query.source?.length &&
+    !query.source.includes(row.source ?? '')
+  ) {
     return false;
-  if (query.birthdayMonth && row.birthdayMonth !== query.birthdayMonth)
+  }
+  if (
+    query.preferredCoachId?.length &&
+    (!row.preferredCoach?.id ||
+      !query.preferredCoachId.includes(row.preferredCoach.id))
+  ) {
     return false;
+  }
+  if (
+    query.attendance?.length &&
+    !query.attendance.some(
+      (attendance) => row.attendanceBehavior === String(attendance),
+    )
+  ) {
+    return false;
+  }
+  if (
+    query.birthdayMonth?.length &&
+    (row.birthdayMonth === null ||
+      !query.birthdayMonth.includes(row.birthdayMonth))
+  ) {
+    return false;
+  }
   if (query.giftCardOnly && !row.hasGiftCardActivity) return false;
   if (
     query.quick?.length &&

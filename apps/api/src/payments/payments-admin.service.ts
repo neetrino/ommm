@@ -50,7 +50,14 @@ export class PaymentsAdminService {
     const order = query.order === 'oldest' ? 'asc' : 'desc';
     const where: Prisma.PaymentWhereInput = {
       userId,
-      ...(query.status ? { status: query.status } : {}),
+      ...(query.status?.length
+        ? {
+            status:
+              query.status.length === 1
+                ? query.status[0]!
+                : { in: query.status },
+          }
+        : {}),
     };
     const [items, total] = await Promise.all([
       this.prisma.payment.findMany({
