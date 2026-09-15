@@ -1,6 +1,5 @@
 import type {
   AnalyticsBarItem,
-  AnalyticsBookingStatusFilter,
   AnalyticsQuickFilterOption,
   AnalyticsRangeDays,
   AnalyticsSortKey,
@@ -112,18 +111,44 @@ export function serializeAnalyticsQuickFilters(
   return values.join(",");
 }
 
-export function parseAnalyticsBookingStatus(value?: string): AnalyticsBookingStatusFilter {
-  const allowed: AnalyticsBookingStatusFilter[] = [
-    "",
-    "BOOKED",
-    "COMPLETED",
-    "CANCELLED",
-    "MISSED",
-  ];
-  if (value && allowed.includes(value as AnalyticsBookingStatusFilter)) {
-    return value as AnalyticsBookingStatusFilter;
+export function parseAnalyticsBookingStatus(value?: string): string {
+  const allowed = new Set(["BOOKED", "COMPLETED", "CANCELLED", "MISSED"]);
+  const selected = (value ?? "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && allowed.has(part));
+  return selected.join(",");
+}
+
+type BookingsByStatusCounts = {
+  BOOKED: number;
+  COMPLETED: number;
+  CANCELLED: number;
+  MISSED: number;
+  waitlisted: number;
+};
+
+/**
+ * Narrows aggregated booking-status counts to the selected CSV filter.
+ * Empty selection leaves counts unchanged. Waitlisted is dropped when any
+ * status filter is active (not offered in the filter UI).
+ */
+export function filterBookingsByStatusCounts(
+  status: BookingsByStatusCounts,
+  bookingStatusCsv: string,
+): BookingsByStatusCounts {
+  const selected = parseAnalyticsBookingStatus(bookingStatusCsv);
+  if (!selected) {
+    return status;
   }
-  return "";
+  const allowed = new Set(selected.split(","));
+  return {
+    BOOKED: allowed.has("BOOKED") ? status.BOOKED : 0,
+    COMPLETED: allowed.has("COMPLETED") ? status.COMPLETED : 0,
+    CANCELLED: allowed.has("CANCELLED") ? status.CANCELLED : 0,
+    MISSED: allowed.has("MISSED") ? status.MISSED : 0,
+    waitlisted: 0,
+  };
 }
 
 export function resolveQuickFiltersSort(

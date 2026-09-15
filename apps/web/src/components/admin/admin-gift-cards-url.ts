@@ -4,9 +4,9 @@ import type {
   GiftCardQuickFilter,
   GiftCardSortOrder,
   GiftCardStatus,
-  GiftCardStatusFilter,
 } from "@/components/admin/admin-gift-cards-types";
 import { GIFT_CARD_STATUSES } from "@/components/admin/admin-gift-cards-types";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 
 export const GIFT_CARD_FILTER_QUERY_KEYS = [
   "search",
@@ -39,9 +39,13 @@ const SORT_ORDERS: readonly GiftCardSortOrder[] = [
   "expirationSoon",
 ];
 
-const EXPIRATION_FILTERS: readonly GiftCardExpirationFilter[] = ["all", "valid", "expired"];
-
-const QUICK_FILTERS: readonly GiftCardQuickFilter[] = ["", "active", "expired", "unredeemed"];
+const EXPIRATION_VALUES = new Set<GiftCardExpirationFilter>(["valid", "expired"]);
+const QUICK_VALUES = new Set<Exclude<GiftCardQuickFilter, "">>([
+  "active",
+  "expired",
+  "unredeemed",
+]);
+const STATUS_VALUES = new Set<string>(GIFT_CARD_STATUSES);
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
@@ -59,34 +63,44 @@ export function parseGiftCardSortOrder(
     : "newest";
 }
 
+/** Accepts single or comma-separated status values from the URL. */
 export function parseGiftCardStatusFilter(
   value: string | string[] | undefined,
-): GiftCardStatusFilter {
-  const raw = firstParam(value);
-  if (raw === "all" || raw === undefined) {
+): string {
+  const raw = firstParam(value)?.trim() ?? "";
+  if (raw === "" || raw === "all") {
     return "all";
   }
-  return GIFT_CARD_STATUSES.includes(raw as GiftCardStatus)
-    ? (raw as GiftCardStatus)
-    : "all";
+  const selected = parseFilterMultiValue(raw).filter((part) =>
+    STATUS_VALUES.has(part as GiftCardStatus),
+  );
+  return selected.length === 0 ? "all" : selected.join(",");
 }
 
 export function parseGiftCardExpirationFilter(
   value: string | string[] | undefined,
-): GiftCardExpirationFilter {
-  const raw = firstParam(value);
-  return EXPIRATION_FILTERS.includes(raw as GiftCardExpirationFilter)
-    ? (raw as GiftCardExpirationFilter)
-    : "all";
+): string {
+  const raw = firstParam(value)?.trim() ?? "";
+  if (raw === "" || raw === "all") {
+    return "all";
+  }
+  const selected = parseFilterMultiValue(raw).filter((part) =>
+    EXPIRATION_VALUES.has(part as GiftCardExpirationFilter),
+  );
+  return selected.length === 0 ? "all" : selected.join(",");
 }
 
 export function parseGiftCardQuickFilter(
   value: string | string[] | undefined,
-): GiftCardQuickFilter {
-  const raw = firstParam(value);
-  return QUICK_FILTERS.includes(raw as GiftCardQuickFilter)
-    ? (raw as GiftCardQuickFilter)
-    : "";
+): string {
+  const raw = firstParam(value)?.trim() ?? "";
+  if (raw === "") {
+    return "";
+  }
+  const selected = parseFilterMultiValue(raw).filter((part) =>
+    QUICK_VALUES.has(part as Exclude<GiftCardQuickFilter, "">),
+  );
+  return selected.join(",");
 }
 
 export function parseGiftCardFiltersFromSearch(
@@ -108,11 +122,13 @@ export function buildGiftCardFiltersQuery(values: GiftCardFilterValues): string 
   if (values.search.trim().length > 0) {
     params.set("search", values.search.trim());
   }
-  if (values.status !== "all") {
-    params.set("status", values.status);
+  const statusParts = parseFilterMultiValue(values.status);
+  if (statusParts.length > 0) {
+    params.set("status", statusParts.join(","));
   }
-  if (values.expiration !== "all") {
-    params.set("expiration", values.expiration);
+  const expirationParts = parseFilterMultiValue(values.expiration);
+  if (expirationParts.length > 0) {
+    params.set("expiration", expirationParts.join(","));
   }
   if (values.amountMin.trim().length > 0) {
     params.set("amountMin", values.amountMin.trim());
@@ -123,8 +139,9 @@ export function buildGiftCardFiltersQuery(values: GiftCardFilterValues): string 
   if (values.order !== "newest") {
     params.set("order", values.order);
   }
-  if (values.quick !== "") {
-    params.set("quick", values.quick);
+  const quickParts = parseFilterMultiValue(values.quick);
+  if (quickParts.length > 0) {
+    params.set("quick", quickParts.join(","));
   }
   return params.toString();
 }

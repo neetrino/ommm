@@ -74,8 +74,10 @@ export function applyPackageSalesToClassTypes(
   payments: StudioAnalyticsPaymentRow[],
   packagePlans: StudioAnalyticsPackagePlanRow[],
   labels: StudioAnalyticsLabelRow[],
-  classTypeId?: string,
+  classTypeIds?: readonly string[],
 ): void {
+  const allowed =
+    classTypeIds && classTypeIds.length > 0 ? new Set(classTypeIds) : null;
   const plans = new Map(packagePlans.map((plan) => [plan.userPackageId, plan]));
   for (const payment of payments) {
     if (!isSucceededPackage(payment)) {
@@ -83,7 +85,7 @@ export function applyPackageSalesToClassTypes(
     }
     const plan = plans.get(payment.sourceId ?? '');
     for (const share of splitPackageAmount(payment.amountCents, plan, labels)) {
-      if (classTypeId && share.id !== classTypeId) {
+      if (allowed && !allowed.has(share.id)) {
         continue;
       }
       addClassTypeCash(buckets, share.id, share.amountCents, labels);

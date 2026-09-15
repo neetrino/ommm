@@ -32,7 +32,10 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 type AdminFinanceCoachCompactRowProps = {
   locale: string;
   row: CoachFinanceRow;
-  month: string;
+  from: string;
+  to: string;
+  /** Calendar month for mark-as-paid; null when the filter spans multiple months. */
+  payoutMonth: string | null;
   onOpenSessions: () => void;
 };
 
@@ -61,14 +64,16 @@ function resolvePayoutStatus(row: CoachFinanceRow): FinanceCoachPayoutStatus {
   return "paid";
 }
 
-function monthToIso(month: string): string {
-  return `${month}-01T12:00:00.000Z`;
+function dayToIso(day: string): string {
+  return `${day}T12:00:00.000Z`;
 }
 
 export function AdminFinanceCoachCompactRow({
   locale,
   row,
-  month,
+  from,
+  to,
+  payoutMonth,
   onOpenSessions,
 }: AdminFinanceCoachCompactRowProps) {
   const t = useTranslations("adminPages.finance.coachTab");
@@ -79,13 +84,14 @@ export function AdminFinanceCoachCompactRow({
   const payoutStatus = resolvePayoutStatus(row);
   const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
   const unpaidCents = row.salary?.pendingPayoutCents ?? 0;
+  const canMarkPaid = unpaidCents > 0 && payoutMonth !== null;
   const coachName = displayName(row);
   const contact = displayPhoneOrEmail(row.user.phone, row.user.email);
   const payoutStatusLabel =
     payoutStatus === "none" ? t("statusNone") : payoutStatus === "paid" ? t("statusPaid") : t("statusPending");
 
   function openConfirm(): void {
-    if (busy || unpaidCents <= 0) {
+    if (busy || !canMarkPaid || payoutMonth === null) {
       return;
     }
     setError(null);
@@ -100,7 +106,7 @@ export function AdminFinanceCoachCompactRow({
   }
 
   async function confirmMarkPaid(): Promise<void> {
-    if (busy || unpaidCents <= 0) {
+    if (busy || !canMarkPaid || payoutMonth === null) {
       return;
     }
     setBusy(true);
@@ -108,7 +114,7 @@ export function AdminFinanceCoachCompactRow({
     try {
       await apiFetch(`/coaches/admin/${row.coachProfileId}/salary-payouts`, {
         method: "POST",
-        body: JSON.stringify({ month }),
+        body: JSON.stringify({ month: payoutMonth }),
       });
       setConfirmOpen(false);
       router.refresh();
@@ -163,7 +169,7 @@ export function AdminFinanceCoachCompactRow({
           </div>
         </div>
 
-        {unpaidCents > 0 ? (
+        {canMarkPaid ? (
           <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
             <OmmButton type="button" size="sm" disabled={busy} onClick={openConfirm} className="w-full">
               {t("markPaid")}
@@ -196,8 +202,8 @@ export function AdminFinanceCoachCompactRow({
       <div className={`${ADMIN_FINANCE_COACH_LIST_MONTH_CELL} hidden`}>
         <SessionDateTimeHighlight
           locale={locale}
-          startsAt={monthToIso(month)}
-          endsAt={monthToIso(month)}
+          startsAt={dayToIso(from)}
+          endsAt={dayToIso(to)}
           variant="listDateYear"
         />
       </div>
@@ -213,7 +219,7 @@ export function AdminFinanceCoachCompactRow({
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
-        {unpaidCents > 0 ? (
+        {canMarkPaid ? (
           <OmmButton type="button" size="sm" disabled={busy} onClick={openConfirm}>
             {t("markPaid")}
           </OmmButton>
@@ -228,7 +234,7 @@ export function AdminFinanceCoachCompactRow({
         title={t("markPaidConfirmTitle")}
         description={t("markPaidConfirmDescription", {
           coach: coachName,
-          month,
+          month: payoutMonth ?? "",
           amount: formatAmdFromCents(unpaidCents, locale),
         })}
         confirmLabel={busy ? t("markPaidBusy") : t("markPaidConfirm")}

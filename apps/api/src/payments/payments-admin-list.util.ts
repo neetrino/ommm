@@ -8,9 +8,15 @@ import {
 import type { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import { buildSourceFilter } from './payments.helpers';
 
+type BuildAdminListPaymentsWhereOptions = {
+  /** When set, restricts to package payments for these UserPackage ids. */
+  packageSourceWhere?: Prisma.PaymentWhereInput | null;
+};
+
 /** Builds the Prisma where clause for the admin payments ledger. */
 export function buildAdminListPaymentsWhere(
   query: AdminListPaymentsQueryDto,
+  options: BuildAdminListPaymentsWhereOptions = {},
 ): Prisma.PaymentWhereInput {
   const sourceFilter = buildSourceFilter(query.source);
   const createdAt = buildOpenEndedStudioDateTimeFilter(query.from, query.to);
@@ -28,9 +34,22 @@ export function buildAdminListPaymentsWhere(
 
   return {
     ...(query.userId ? { userId: query.userId } : {}),
-    ...(query.status ? { status: query.status } : {}),
-    ...(query.paymentMethod ? { paymentMethod: query.paymentMethod } : {}),
+    ...(query.status?.length
+      ? {
+          status:
+            query.status.length === 1 ? query.status[0] : { in: query.status },
+        }
+      : {}),
+    ...(query.paymentMethod?.length
+      ? {
+          paymentMethod:
+            query.paymentMethod.length === 1
+              ? query.paymentMethod[0]
+              : { in: query.paymentMethod },
+        }
+      : {}),
     ...(sourceFilter ?? {}),
+    ...(options.packageSourceWhere ?? {}),
     ...(createdAt ? { createdAt } : {}),
     ...(searchWhere ?? {}),
   };

@@ -19,6 +19,7 @@ import {
   adminContentCapabilities,
   type ContentCapabilities,
 } from "@/lib/backoffice-capabilities";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { clampListPage } from "@/lib/list-pagination";
 
 type ContentPostsManagementProps = {
@@ -49,10 +50,8 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
   const t = useTranslations("contentAdminPages.content");
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState<"ALL" | (typeof CONTENT_POST_TYPES)[number]>("ALL");
-  const [statusFilter, setStatusFilter] = useState<
-    "ALL" | (typeof CONTENT_POST_STATUSES)[number]
-  >("ALL");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [sheetMode, setSheetMode] = useState<"create" | "edit" | null>(null);
   const [selectedPost, setSelectedPost] = useState<ContentPostRow | null>(null);
@@ -62,7 +61,7 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
       {
         key: "type",
         label: t("labels.type"),
-        emptyValue: "ALL",
+        emptyValue: "",
         allLabel: t("labels.allTypes"),
         options: CONTENT_POST_TYPES.map((value) => ({
           value,
@@ -72,7 +71,7 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
       {
         key: "status",
         label: t("labels.status"),
-        emptyValue: "ALL",
+        emptyValue: "",
         allLabel: t("labels.allStatuses"),
         options: CONTENT_POST_STATUSES.map((value) => ({
           value,
@@ -93,19 +92,21 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
 
   const activeFilterCount = useMemo(
     () =>
-      [query.trim(), typeFilter !== "ALL" ? typeFilter : "", statusFilter !== "ALL" ? statusFilter : ""]
-        .filter(Boolean)
-        .length,
+      [
+        query.trim(),
+        parseFilterMultiValue(typeFilter).length > 0 ? typeFilter : "",
+        parseFilterMultiValue(statusFilter).length > 0 ? statusFilter : "",
+      ].filter(Boolean).length,
     [query, statusFilter, typeFilter],
   );
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return items.filter((item) => {
-      if (typeFilter !== "ALL" && item.type !== typeFilter) {
+      if (!matchesFilterMultiValue(typeFilter, item.type)) {
         return false;
       }
-      if (statusFilter !== "ALL" && item.status !== statusFilter) {
+      if (!matchesFilterMultiValue(statusFilter, item.status)) {
         return false;
       }
       if (normalizedQuery.length === 0) {
@@ -135,18 +136,18 @@ export function ContentPostsManagement({ items, capabilities }: ContentPostsMana
   function handleIntegratedFilterChange(key: string, value: string): void {
     setPage(1);
     if (key === "type") {
-      setTypeFilter(value as typeof typeFilter);
+      setTypeFilter(value);
       return;
     }
     if (key === "status") {
-      setStatusFilter(value as typeof statusFilter);
+      setStatusFilter(value);
     }
   }
 
   function resetFilters(): void {
     setQuery("");
-    setTypeFilter("ALL");
-    setStatusFilter("ALL");
+    setTypeFilter("");
+    setStatusFilter("");
     setPage(1);
   }
 

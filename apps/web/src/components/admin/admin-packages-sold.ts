@@ -49,10 +49,19 @@ export function parseSoldPackagesSearchQuery(
 export function parseSoldPackagesPlanId(
   search: Record<string, string | undefined>,
 ): string {
-  return parseSoldPackagesFilterValue(
-    search[PACKAGES_SOLD_PLAN_QUERY_KEY],
-    PACKAGES_SOLD_PLAN_ALL,
-  );
+  const raw = search[PACKAGES_SOLD_PLAN_QUERY_KEY]?.trim() ?? "";
+  if (raw.length === 0 || raw === PACKAGES_SOLD_PLAN_ALL) {
+    return PACKAGES_SOLD_PLAN_ALL;
+  }
+  const selected = [
+    ...new Set(
+      raw
+        .split(",")
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0 && part !== PACKAGES_SOLD_PLAN_ALL),
+    ),
+  ];
+  return selected.length === 0 ? PACKAGES_SOLD_PLAN_ALL : selected.join(",");
 }
 
 export function parseSoldPackagesCategorySlugs(value: string): string[] {
@@ -91,17 +100,6 @@ export function parseSoldPackagesCategorySlug(
       search[PACKAGES_SOLD_CATEGORY_QUERY_KEY] ?? "",
     ),
   );
-}
-
-function parseSoldPackagesFilterValue(
-  raw: string | undefined,
-  emptyValue: string,
-): string {
-  const value = raw?.trim() ?? "";
-  if (value.length === 0 || value === emptyValue) {
-    return emptyValue;
-  }
-  return value;
 }
 
 export function parseSoldPackagesPageParams(

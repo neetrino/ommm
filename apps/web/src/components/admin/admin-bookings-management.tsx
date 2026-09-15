@@ -18,6 +18,7 @@ import {
 import { useAdminBookingsListData } from "@/components/admin/admin-bookings-list-data";
 import { parseAdminBookingPaymentFilter } from "@/components/admin/admin-bookings-query";
 import type { AdminBookingsManagementProps } from "@/components/admin/admin-bookings-management.types";
+import { matchesFilterMultiValue } from "@/lib/filter-multi-value";
 import { resolveBookingsView } from "@/components/admin/admin-bookings-view";
 import { useUrlViewState } from "@/hooks/use-url-view-state";
 import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
@@ -98,10 +99,10 @@ export function AdminBookingsManagement({
       if (!sessionMatchesAdminBookingDateFilter(session.startsAt, filters.from, filters.to)) {
         return false;
       }
-      if (filters.classTypeId && session.classType.id !== filters.classTypeId) {
+      if (!matchesFilterMultiValue(filters.classTypeId, session.classType.id)) {
         return false;
       }
-      if (filters.coachId && session.coach.id !== filters.coachId) {
+      if (!matchesFilterMultiValue(filters.coachId, session.coach.id)) {
         return false;
       }
       return true;

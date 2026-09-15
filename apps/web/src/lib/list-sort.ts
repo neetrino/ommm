@@ -201,6 +201,7 @@ export function buildDateSortFilterField(
     key: "order",
     label,
     emptyValue: "newest",
+    selectionMode: "single",
     options: DATE_SORT_ORDERS.map((value) => ({
       value,
       label: sortLabels[value],
@@ -217,6 +218,7 @@ export function buildSessionSortFilterField(
     key: "order",
     label,
     emptyValue,
+    selectionMode: "single",
     options: SESSION_SORT_ORDERS.map((value) => ({
       value,
       label: sortLabels[value],
@@ -232,6 +234,7 @@ export function buildBookingManagementSortFilterField(
     key: "order",
     label,
     emptyValue: "upcoming",
+    selectionMode: "single",
     options: BOOKING_MANAGEMENT_SORT_ORDERS.map((value) => ({
       value,
       label: sortLabels[value],
@@ -247,6 +250,7 @@ export function buildUserGiftCardSortFilterField(
     key: "order",
     label,
     emptyValue: "newest",
+    selectionMode: "single",
     options: USER_GIFT_CARD_SORT_ORDERS.map((value) => ({
       value,
       label: sortLabels[value],
@@ -262,6 +266,7 @@ export function buildUserPackageSortFilterField(
     key: "order",
     label,
     emptyValue: "upcoming",
+    selectionMode: "single",
     options: USER_PACKAGE_SORT_ORDERS.map((value) => ({
       value,
       label: sortLabels[value],

@@ -23,6 +23,28 @@ export const DEFAULT_COACH_ROSTER_FILTERS: CoachRosterFilterValues = {
   order: "upcoming",
 };
 
+function parseCoachMultiFilter(value: string): string[] {
+  const trimmed = value.trim();
+  if (trimmed === "" || trimmed === "all") {
+    return [];
+  }
+  return trimmed
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && part !== "all");
+}
+
+function matchesCoachMultiFilter(
+  selectedCsv: string,
+  rowValue: string,
+): boolean {
+  const selected = parseCoachMultiFilter(selectedCsv);
+  if (selected.length === 0) {
+    return true;
+  }
+  return selected.includes(rowValue);
+}
+
 function localIsoDay(iso: string): string {
   const d = new Date(iso);
   const y = d.getFullYear();
@@ -108,10 +130,12 @@ export function matchesCoachScheduleFilters(
   if (toIso !== null && startsAt > new Date(`${toIso}T23:59:59`)) {
     return false;
   }
-  if (filters.classType !== "all" && row.classType.name !== filters.classType) {
+  if (
+    !matchesCoachMultiFilter(filters.classType, row.classType.name)
+  ) {
     return false;
   }
-  if (filters.status !== "all" && row.status !== filters.status) {
+  if (!matchesCoachMultiFilter(filters.status, row.status)) {
     return false;
   }
   const tokens = filters.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -126,8 +150,8 @@ export function hasActiveCoachScheduleFilters(
     filters.search.trim().length > 0 ||
     filters.from.length > 0 ||
     filters.to.length > 0 ||
-    filters.classType !== "all" ||
-    filters.status !== "all" ||
+    parseCoachMultiFilter(filters.classType).length > 0 ||
+    parseCoachMultiFilter(filters.status).length > 0 ||
     filters.order !== "upcoming"
   );
 }
@@ -146,8 +170,7 @@ export function matchesCoachRosterFilters(
     return false;
   }
   if (
-    filters.classType !== "all" &&
-    row.session.classType.name !== filters.classType
+    !matchesCoachMultiFilter(filters.classType, row.session.classType.name)
   ) {
     return false;
   }
@@ -164,7 +187,7 @@ export function hasActiveCoachRosterFilters(
     filters.search.trim().length > 0 ||
     filters.from.length > 0 ||
     filters.to.length > 0 ||
-    filters.classType !== "all" ||
+    parseCoachMultiFilter(filters.classType).length > 0 ||
     filters.order !== "upcoming"
   );
 }

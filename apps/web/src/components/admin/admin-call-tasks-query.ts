@@ -1,3 +1,5 @@
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
+
 export type CallTaskStatus = "PENDING" | "DONE" | "CANCELLED";
 export type CallTaskListFilter = CallTaskStatus | "OVERDUE";
 export const CALL_TASK_LIST_FILTERS: readonly CallTaskListFilter[] = [
@@ -14,6 +16,8 @@ export const CALL_TASK_STATUS_ALL_QUERY_VALUE = "all";
 /** Calls list page size (admin + manager). */
 export const CALL_TASKS_PAGE_TAKE = 15;
 
+const STATUS_VALUES = new Set<string>(CALL_TASK_LIST_FILTERS);
+
 export function firstQueryValue(
   value: string | readonly string[] | undefined,
 ): string | undefined {
@@ -26,25 +30,22 @@ export function firstQueryValue(
   return value[0];
 }
 
-/** Missing param or `all` → no API status filter. */
+/** Missing param or `all` → no API status filter. Returns CSV of allowed values. */
 export function parseCallTaskListStatus(
   value: string | readonly string[] | undefined,
-): CallTaskListFilter | "" {
+): string {
   const raw = firstQueryValue(value)?.trim();
-  if (raw === undefined || raw.length === 0) {
+  if (raw === undefined || raw.length === 0 || raw === CALL_TASK_STATUS_ALL_QUERY_VALUE) {
     return "";
   }
-  if (raw === CALL_TASK_STATUS_ALL_QUERY_VALUE) {
-    return "";
-  }
-  if (CALL_TASK_LIST_FILTERS.includes(raw as CallTaskListFilter)) {
-    return raw as CallTaskListFilter;
-  }
-  return "";
+  return parseFilterMultiValue(raw)
+    .filter((part) => STATUS_VALUES.has(part))
+    .join(",");
 }
 
-export function callTaskStatusToQueryValue(status: CallTaskListFilter | ""): string {
-  return status.length > 0 ? status : CALL_TASK_STATUS_ALL_QUERY_VALUE;
+export function callTaskStatusToQueryValue(statusCsv: string): string {
+  const selected = parseFilterMultiValue(statusCsv);
+  return selected.length > 0 ? selected.join(",") : CALL_TASK_STATUS_ALL_QUERY_VALUE;
 }
 
 export type CallTaskRow = {
@@ -80,7 +81,7 @@ export function buildCallTasksListEndpoint(params: {
   take: number;
   offset: number;
   q?: string;
-  status?: CallTaskListFilter | "";
+  status?: string;
 }): string {
   const search = new URLSearchParams({
     take: String(params.take),
@@ -91,8 +92,9 @@ export function buildCallTasksListEndpoint(params: {
   if (q) {
     search.set("q", q);
   }
-  if (params.status) {
-    search.set("status", params.status);
+  const statuses = parseFilterMultiValue(params.status);
+  if (statuses.length > 0) {
+    search.set("status", statuses.join(","));
   }
   return `/call-tasks?${search.toString()}`;
 }

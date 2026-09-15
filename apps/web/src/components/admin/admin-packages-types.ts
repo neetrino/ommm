@@ -81,7 +81,8 @@ export type PackageStatusFilter = "all" | "active" | "inactive";
 
 export type PackageFilterValues = {
   search: string;
-  status: PackageStatusFilter;
+  /** Comma-separated; empty / "all" = no filter. */
+  status: string;
   order: PackageSortOrder;
 };
 

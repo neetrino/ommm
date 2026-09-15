@@ -1,3 +1,5 @@
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
+
 export const SESSION_REVIEW_SEARCH_QUERY_KEY = "q";
 export const SESSION_REVIEW_RATING_QUERY_KEY = "rating";
 export const SESSION_REVIEW_VISIBILITY_QUERY_KEY = "visibility";
@@ -27,32 +29,30 @@ export type SessionReviewFilterOptionsPayload = {
   packages: SessionReviewFilterOption[];
 };
 
+const RATING_VALUES = new Set<string>(SESSION_REVIEW_RATING_FILTERS);
+const VISIBILITY_VALUES = new Set<string>(SESSION_REVIEW_VISIBILITY_FILTERS);
+
+/** Empty or comma-separated rating values. */
 export function parseSessionReviewRatingFilter(
   value: string | null | undefined,
-): SessionReviewRatingFilter | "" {
-  if (
-    value &&
-    (SESSION_REVIEW_RATING_FILTERS as readonly string[]).includes(value)
-  ) {
-    return value as SessionReviewRatingFilter;
-  }
-  return "";
+): string {
+  return parseFilterMultiValue(value)
+    .filter((part) => RATING_VALUES.has(part))
+    .join(",");
 }
 
+/** Empty or comma-separated visibility values. */
 export function parseSessionReviewVisibilityFilter(
   value: string | null | undefined,
-): SessionReviewVisibilityFilter | "" {
-  if (
-    value &&
-    (SESSION_REVIEW_VISIBILITY_FILTERS as readonly string[]).includes(value)
-  ) {
-    return value as SessionReviewVisibilityFilter;
-  }
-  return "";
+): string {
+  return parseFilterMultiValue(value)
+    .filter((part) => VISIBILITY_VALUES.has(part))
+    .join(",");
 }
 
+/** Empty or comma-separated ids. */
 export function parseSessionReviewIdFilter(
   value: string | null | undefined,
 ): string {
-  return value?.trim() ?? "";
+  return parseFilterMultiValue(value).join(",");
 }

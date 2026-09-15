@@ -1,14 +1,19 @@
 import { Transform } from 'class-transformer';
 import { BookingChannel, BookingStatus } from '@prisma/client';
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
-  IsEnum,
+  IsIn,
   IsOptional,
   IsString,
 } from 'class-validator';
 import { BookingManagementOrder } from '../../common/enums/list-order.enum';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
+import {
+  parseCsvEnumQueryParam,
+  parseCsvQueryParam,
+} from '../../common/parse-csv-query-param';
 
 /** Derived booking payment labels returned by admin management rows. */
 export enum AdminBookingPaymentStatusFilter {
@@ -32,32 +37,62 @@ export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
   q?: string;
 
   @IsOptional()
-  @IsString()
-  classTypeId?: string;
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  classTypeId?: string[];
 
   @IsOptional()
-  @IsString()
-  coachId?: string;
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  coachId?: string[];
 
   @IsOptional()
   @IsString()
   userId?: string;
 
   @IsOptional()
-  @IsEnum(BookingStatus)
-  status?: BookingStatus;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(BookingStatus)),
+  )
+  @IsArray()
+  @IsIn(Object.values(BookingStatus), { each: true })
+  status?: BookingStatus[];
 
   @IsOptional()
-  @IsEnum(BookingChannel)
-  channel?: BookingChannel;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(BookingChannel)),
+  )
+  @IsArray()
+  @IsIn(Object.values(BookingChannel), { each: true })
+  channel?: BookingChannel[];
 
   @IsOptional()
-  @IsEnum(AdminBookingPaymentStatusFilter)
-  paymentStatus?: AdminBookingPaymentStatusFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(
+      value,
+      Object.values(AdminBookingPaymentStatusFilter),
+    ),
+  )
+  @IsArray()
+  @IsIn(Object.values(AdminBookingPaymentStatusFilter), { each: true })
+  paymentStatus?: AdminBookingPaymentStatusFilter[];
 
   @IsOptional()
-  @IsString()
-  attendanceStatus?: string;
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  attendanceStatus?: string[];
 
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === '1')
@@ -65,6 +100,6 @@ export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
   countOnly?: boolean;
 
   @IsOptional()
-  @IsEnum(BookingManagementOrder)
+  @IsIn(Object.values(BookingManagementOrder))
   order?: BookingManagementOrder;
 }

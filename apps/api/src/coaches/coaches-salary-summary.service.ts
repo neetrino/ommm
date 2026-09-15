@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  resolveSalaryPeriodsInQuery,
+  resolveSalaryStartsAtFilter,
+  type SalaryDateRangeQuery,
+} from './coaches-salary-list-filters';
 import {
   parseSalaryMonthParam,
   unpaidSalaryAmd,
@@ -33,27 +39,63 @@ export class CoachSalarySummaryService {
     if (!profile) {
       return null;
     }
-    return this.forProfile(profile.id, month);
+    return this.forProfile(profile.id, { month });
   }
 
   async forProfile(
     coachProfileId: string,
-    month?: string,
+    scope: string | SalaryDateRangeQuery = {},
   ): Promise<CoachSalarySummary> {
-    const period = parseSalaryMonthParam(month);
+    const query: SalaryDateRangeQuery =
+      typeof scope === 'string' ? { month: scope } : scope;
+    const hasDayRange = Boolean(query.from || query.to);
+
+    if (hasDayRange) {
+      return this.forProfileDateRange(coachProfileId, query);
+    }
+
+    const period = parseSalaryMonthParam(query.month);
     const where = {
       coachProfileId,
       periodYear: period.year,
       periodMonth: period.month,
     };
+    return this.aggregateForWhere(coachProfileId, where, where);
+  }
+
+  private async forProfileDateRange(
+    coachProfileId: string,
+    query: SalaryDateRangeQuery,
+  ): Promise<CoachSalarySummary> {
+    const startsAt = resolveSalaryStartsAtFilter(query);
+    const periods = resolveSalaryPeriodsInQuery(query);
+    const payoutWhere: Prisma.CoachSalaryPayoutWhereInput = {
+      coachProfileId,
+      OR: periods.map((period) => ({
+        periodYear: period.year,
+        periodMonth: period.month,
+      })),
+    };
+    const accrualWhere: Prisma.CoachSalaryAccrualWhereInput = {
+      coachProfileId,
+      classSession: { startsAt },
+    };
+    return this.aggregateForWhere(coachProfileId, accrualWhere, payoutWhere);
+  }
+
+  private async aggregateForWhere(
+    coachProfileId: string,
+    accrualWhere: Prisma.CoachSalaryAccrualWhereInput,
+    payoutWhere: Prisma.CoachSalaryPayoutWhereInput,
+  ): Promise<CoachSalarySummary> {
     const [accrualAgg, payoutAgg] = await Promise.all([
       this.prisma.coachSalaryAccrual.aggregate({
-        where,
+        where: accrualWhere,
         _sum: { amountAmd: true },
         _count: true,
       }),
       this.prisma.coachSalaryPayout.aggregate({
-        where,
+        where: payoutWhere,
         _sum: { amountAmd: true },
       }),
     ]);

@@ -19,6 +19,7 @@ import type {
   CoachFinancePayload,
   CoachFinanceRow,
 } from "@/components/admin/admin-finance-types";
+import { resolveFinanceCoachPayoutMonth } from "@/components/admin/admin-finance-dates";
 import { FINANCE_COACH_PAGE_KEYS } from "@/components/admin/admin-finance-url";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
@@ -92,6 +93,7 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [drawerCoach, setDrawerCoach] = useState<CoachFinanceRow | null>(null);
+  const payoutMonth = resolveFinanceCoachPayoutMonth(filters.from, filters.to);
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries()), FINANCE_COACH_PAGE_KEYS),
@@ -144,7 +146,7 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
             {t("colSessions")}
           </span>
           <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
-            {t("colMonth")}
+            {t("colPeriod")}
           </span>
           <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
             {t("colPayoutStatus")}
@@ -163,7 +165,9 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
               key={row.coachProfileId}
               locale={locale}
               row={row}
-              month={filters.month}
+              from={filters.from}
+              to={filters.to}
+              payoutMonth={payoutMonth}
               onOpenSessions={() => setDrawerCoach(row)}
             />
           ))
@@ -179,7 +183,8 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
       <AdminCoachSessionsDrawer
         coach={drawerCoach}
         locale={locale}
-        month={filters.month}
+        from={filters.from}
+        to={filters.to}
         onClose={() => setDrawerCoach(null)}
       />
     </div>

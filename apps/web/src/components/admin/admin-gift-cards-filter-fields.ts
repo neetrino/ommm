@@ -2,7 +2,6 @@ import type { AdminIntegratedFilterField } from "@/components/admin/admin-integr
 import { GIFT_CARD_STATUSES } from "@/components/admin/admin-gift-cards-types";
 import type {
   GiftCardFilterValues,
-  GiftCardQuickFilter,
   GiftCardSortOrder,
 } from "@/components/admin/admin-gift-cards-types";
 import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
@@ -123,19 +122,6 @@ export function buildAdminGiftCardsFilterFields({
         { value: "expired", label: labels.quickExpired },
         { value: "unredeemed", label: labels.quickUnredeemed },
       ],
-      resolveChipLabel: (value) => {
-        if (value === "") {
-          return null;
-        }
-        const quickLabels: Record<Exclude<GiftCardQuickFilter, "">, string> = {
-          active: labels.quickActive,
-          expired: labels.quickExpired,
-          unredeemed: labels.quickUnredeemed,
-        };
-        return value in quickLabels
-          ? `${labels.quick}: ${quickLabels[value as Exclude<GiftCardQuickFilter, "">]}`
-          : null;
-      },
     },
   ];
 }

@@ -107,7 +107,8 @@ export type CoachScheduleFilterValues = {
   from: string;
   to: string;
   classType: string;
-  status: CoachScheduleStatusFilter;
+  /** "all" or comma-separated session statuses. */
+  status: string;
   order: SessionSortOrder;
 };
 

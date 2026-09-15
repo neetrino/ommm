@@ -4,10 +4,16 @@ import type { ReactNode } from "react";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import {
+  resolveIntegratedFilterSelectionMode,
   shouldRenderIntegratedFilterField,
   type IntegratedFilterField,
 } from "@/components/shared/search/integrated-search-filter-types";
+import {
+  parseFilterMultiValue,
+  serializeFilterMultiValue,
+} from "@/lib/filter-multi-value";
 
 const PANEL_GRID_CLASS = "grid grid-cols-1 gap-3 sm:grid-cols-2";
 
@@ -161,9 +167,9 @@ function renderFieldControl(
 
   const emptyValue = field.emptyValue ?? "";
   const options = field.options ?? [];
-  const emptyValueIsListed = options.some((option) => option.value === emptyValue);
+  const selectionMode = resolveIntegratedFilterSelectionMode(field);
 
-  if (emptyValueIsListed) {
+  if (selectionMode === "single") {
     return (
       <OmmSelectDropdown
         ariaLabel={field.label}
@@ -174,6 +180,21 @@ function renderFieldControl(
           label: option.label,
         }))}
         onChange={onChange}
+      />
+    );
+  }
+
+  if (selectionMode === "multi") {
+    return (
+      <OmmFilterMultiSelect
+        ariaLabel={field.label}
+        allLabel={field.allLabel ?? `All ${field.label.toLowerCase()}`}
+        options={options.map((option) => ({
+          value: option.value,
+          label: option.label,
+        }))}
+        selectedValues={parseFilterMultiValue(value)}
+        onChange={(next) => onChange(serializeFilterMultiValue(next))}
       />
     );
   }

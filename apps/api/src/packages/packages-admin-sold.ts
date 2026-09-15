@@ -122,13 +122,20 @@ async function buildSoldPackagePlanWhere(
   prisma: PrismaClient,
   planId: string | undefined,
 ): Promise<Prisma.PaymentWhereInput | undefined> {
-  const id = planId?.trim() ?? '';
-  if (id.length === 0 || id === 'all') {
+  const ids = [
+    ...new Set(
+      (planId ?? '')
+        .split(',')
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0 && part !== 'all'),
+    ),
+  ];
+  if (ids.length === 0) {
     return undefined;
   }
   const rows = await prisma.userPackage.findMany({
     where: {
-      OR: [{ planId: id }, { sourcePlanIdSnapshot: id }],
+      OR: [{ planId: { in: ids } }, { sourcePlanIdSnapshot: { in: ids } }],
     },
     select: { id: true },
   });

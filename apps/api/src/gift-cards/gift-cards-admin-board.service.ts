@@ -128,30 +128,31 @@ export class GiftCardsAdminBoardService {
       });
     }
 
-    if (query.status && query.status !== 'all') {
-      rows = rows.filter((batch) => batch.status === query.status);
+    if (query.status?.length) {
+      rows = rows.filter((batch) => query.status!.includes(batch.status));
     }
 
-    if (query.expiration === 'valid') {
-      rows = rows.filter((batch) => {
-        if (batch.status === GiftCardStatus.EXPIRED) {
-          return false;
-        }
-        if (batch.expiresAt === null) {
-          return true;
-        }
-        return new Date(batch.expiresAt).getTime() >= now;
-      });
-    } else if (query.expiration === 'expired') {
-      rows = rows.filter((batch) => {
-        if (batch.status === GiftCardStatus.EXPIRED) {
-          return true;
-        }
-        if (batch.expiresAt === null) {
-          return false;
-        }
-        return new Date(batch.expiresAt).getTime() < now;
-      });
+    if (query.expiration?.length) {
+      rows = rows.filter((batch) =>
+        query.expiration!.some((expiration) => {
+          if (expiration === 'valid') {
+            if (batch.status === GiftCardStatus.EXPIRED) {
+              return false;
+            }
+            if (batch.expiresAt === null) {
+              return true;
+            }
+            return new Date(batch.expiresAt).getTime() >= now;
+          }
+          if (batch.status === GiftCardStatus.EXPIRED) {
+            return true;
+          }
+          if (batch.expiresAt === null) {
+            return false;
+          }
+          return new Date(batch.expiresAt).getTime() < now;
+        }),
+      );
     }
 
     if (query.amountMin !== undefined) {
@@ -161,22 +162,26 @@ export class GiftCardsAdminBoardService {
       rows = rows.filter((batch) => readBatchAmount(batch) <= query.amountMax!);
     }
 
-    if (query.quick === 'active') {
-      rows = rows.filter((batch) => batch.status === GiftCardStatus.ACTIVE);
-    } else if (query.quick === 'expired') {
-      rows = rows.filter((batch) => {
-        if (batch.status === GiftCardStatus.EXPIRED) {
-          return true;
-        }
-        if (batch.expiresAt === null) {
-          return false;
-        }
-        return new Date(batch.expiresAt).getTime() < now;
-      });
-    } else if (query.quick === 'unredeemed') {
-      rows = rows.filter(
-        (batch) =>
-          batch.status === GiftCardStatus.ACTIVE && batch.availableQuantity > 0,
+    if (query.quick?.length) {
+      rows = rows.filter((batch) =>
+        query.quick!.some((quick) => {
+          if (quick === 'active') {
+            return batch.status === GiftCardStatus.ACTIVE;
+          }
+          if (quick === 'expired') {
+            if (batch.status === GiftCardStatus.EXPIRED) {
+              return true;
+            }
+            if (batch.expiresAt === null) {
+              return false;
+            }
+            return new Date(batch.expiresAt).getTime() < now;
+          }
+          return (
+            batch.status === GiftCardStatus.ACTIVE &&
+            batch.availableQuantity > 0
+          );
+        }),
       );
     }
 

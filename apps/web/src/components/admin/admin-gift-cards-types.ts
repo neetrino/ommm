@@ -81,10 +81,13 @@ export type GiftCardQuickFilter = "" | "active" | "expired" | "unredeemed";
 
 export type GiftCardFilterValues = {
   search: string;
-  status: GiftCardStatusFilter;
-  expiration: GiftCardExpirationFilter;
+  /** Comma-separated status values; empty / "all" = no filter. */
+  status: string;
+  /** Comma-separated expiration values; empty / "all" = no filter. */
+  expiration: string;
   amountMin: string;
   amountMax: string;
   order: GiftCardSortOrder;
-  quick: GiftCardQuickFilter;
+  /** Comma-separated quick filter values. */
+  quick: string;
 };

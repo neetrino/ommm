@@ -64,7 +64,11 @@ export class StaffActivityService {
   private buildListWhere(query: ListStaffActivityQueryDto) {
     const q = query.q?.trim();
     return {
-      ...(query.type ? { type: query.type } : {}),
+      ...(query.type?.length
+        ? {
+            type: query.type.length === 1 ? query.type[0] : { in: query.type },
+          }
+        : {}),
       ...(q
         ? {
             OR: [

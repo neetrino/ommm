@@ -59,13 +59,17 @@ export function planBelongsToSoldPackageCategory(
   planId: string,
   categorySlug: string,
 ): boolean {
-  const trimmedPlanId = planId.trim();
-  if (trimmedPlanId.length === 0 || trimmedPlanId === PACKAGES_SOLD_PLAN_ALL) {
+  const planIds = planId
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && part !== PACKAGES_SOLD_PLAN_ALL);
+  if (planIds.length === 0) {
     return true;
   }
-  return plansForSoldPackageCategories(plans, categorySlug).some(
-    (plan) => plan.id === trimmedPlanId,
+  const allowed = new Set(
+    plansForSoldPackageCategories(plans, categorySlug).map((plan) => plan.id),
   );
+  return planIds.every((id) => allowed.has(id));
 }
 
 export function normalizeSoldPackagesDraftChange(

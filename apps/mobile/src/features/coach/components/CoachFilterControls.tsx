@@ -4,29 +4,103 @@ import { colors, radii, space, typography } from "../../../theme/tokens";
 
 type Option = { value: string; label: string };
 
+function parseMultiCsv(value: string): string[] {
+  const trimmed = value.trim();
+  if (trimmed === "" || trimmed === "all") {
+    return [];
+  }
+  return trimmed
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && part !== "all");
+}
+
+function serializeMultiCsv(values: readonly string[]): string {
+  return values.filter((value) => value !== "all").join(",");
+}
+
 type CoachFilterChipRowProps = {
   label: string;
   options: readonly Option[];
   value: string;
   onChange: (value: string) => void;
+  /** Sort/order stays single-select; list filters are multi. */
+  selectionMode?: "single" | "multi";
 };
 
+/** Chips for coach list filters. Multi by default; pass selectionMode="single" for sort. */
 export function CoachFilterChipRow({
   label,
   options,
   value,
   onChange,
+  selectionMode = "multi",
 }: CoachFilterChipRowProps) {
+  if (selectionMode === "single") {
+    return (
+      <View style={styles.block}>
+        <Text style={styles.label}>{label}</Text>
+        <View style={styles.chips}>
+          {options.map((option) => {
+            const active = value === option.value;
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() => onChange(option.value)}
+                style={[styles.chip, active && styles.chipActive]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+              >
+                <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    );
+  }
+
+  const selected = parseMultiCsv(value);
+  const isAll = selected.length === 0;
+  const allOption = options.find((option) => option.value === "all");
+  const allLabel = allOption?.label ?? "All";
+
+  function toggle(optionValue: string): void {
+    if (optionValue === "all") {
+      onChange("all");
+      return;
+    }
+    const next = selected.includes(optionValue)
+      ? selected.filter((entry) => entry !== optionValue)
+      : [...selected, optionValue];
+    onChange(next.length === 0 ? "all" : serializeMultiCsv(next));
+  }
+
   return (
     <View style={styles.block}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.chips}>
+        <Pressable
+          onPress={() => onChange("all")}
+          style={[styles.chip, isAll && styles.chipActive]}
+          accessibilityRole="button"
+          accessibilityState={{ selected: isAll }}
+        >
+          <Text style={[styles.chipLabel, isAll && styles.chipLabelActive]}>
+            {allLabel}
+          </Text>
+        </Pressable>
         {options.map((option) => {
-          const active = option.value === value;
+          if (option.value === "all") {
+            return null;
+          }
+          const active = selected.includes(option.value);
           return (
             <Pressable
               key={option.value}
-              onPress={() => onChange(option.value)}
+              onPress={() => toggle(option.value)}
               style={[styles.chip, active && styles.chipActive]}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
@@ -106,52 +180,25 @@ function clampYearDigits(yearDigits: string): string {
   if (yearDigits.length === 0) {
     return "";
   }
-  const n = Number(yearDigits);
-  if (yearDigits.length === 1) {
-    return n > 2 ? "2" : yearDigits;
-  }
-  if (yearDigits.length === 2) {
-    return n > 21 ? "21" : yearDigits;
-  }
-  if (yearDigits.length === 3) {
-    return n > 210 ? "210" : yearDigits;
+  if (yearDigits.length < 4) {
+    return yearDigits;
   }
   const clamped = Math.min(DATE_YEAR_MAX, Number(yearDigits.slice(0, 4)));
-  return String(clamped).padStart(4, "0");
+  return String(clamped);
 }
 
-function formatDayMonthYearDigits(raw: string): string {
-  const only = raw.replace(/\D/g, "").slice(0, DATE_INPUT_MAX_DIGITS);
-
-  let dayPart = "";
-  let monthPart = "";
-  let yearPart = "";
-
-  if (only.length === 0) {
-    return "";
+export function formatCoachFilterDateInput(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, DATE_INPUT_MAX_DIGITS);
+  const day = clampDayDigits(digits.slice(0, 2));
+  const month = clampMonthDigits(digits.slice(2, 4));
+  const year = clampYearDigits(digits.slice(4, 8));
+  if (digits.length <= 2) {
+    return day;
   }
-  if (only.length === 1) {
-    dayPart = clampDayDigits(only);
-    return dayPart;
+  if (digits.length <= 4) {
+    return `${day}/${month}`;
   }
-
-  dayPart = clampDayDigits(only.slice(0, 2));
-  const rest = only.slice(2);
-
-  if (rest.length === 0) {
-    return dayPart;
-  }
-  if (rest.length === 1) {
-    monthPart = clampMonthDigits(rest);
-    return `${dayPart}/${monthPart}`;
-  }
-
-  monthPart = clampMonthDigits(rest.slice(0, 2));
-  yearPart = clampYearDigits(rest.slice(2, 6));
-  if (yearPart.length === 0) {
-    return `${dayPart}/${monthPart}`;
-  }
-  return `${dayPart}/${monthPart}/${yearPart}`;
+  return `${day}/${month}/${year}`;
 }
 
 export function CoachDateField({
@@ -161,19 +208,15 @@ export function CoachDateField({
   onChangeText,
 }: CoachDateFieldProps) {
   return (
-    <View style={styles.dateField}>
+    <View style={styles.block}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         value={value}
-        onChangeText={(next) => onChangeText(formatDayMonthYearDigits(next))}
+        onChangeText={(next) => onChangeText(formatCoachFilterDateInput(next))}
         placeholder={placeholder}
         placeholderTextColor={colors.taupe}
-        style={styles.search}
-        autoCapitalize="none"
-        autoCorrect={false}
         keyboardType="number-pad"
-        inputMode="numeric"
-        maxLength={10}
+        style={styles.search}
       />
     </View>
   );
@@ -224,10 +267,5 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,
     color: colors.ink,
-  },
-  dateField: {
-    flex: 1,
-    minWidth: 140,
-    gap: space.xs,
   },
 });

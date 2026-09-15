@@ -9,6 +9,10 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import {
+  parseCsvEnumQueryParam,
+  parseCsvQueryParam,
+} from '../../common/parse-csv-query-param';
 
 export enum AdminClientPackageFilter {
   ALL = 'all',
@@ -68,28 +72,11 @@ export enum AdminClientQuickFilter {
   NO_SHOW = 'no-show',
 }
 
-function parseAdminClientQuickFilters(
-  value: unknown,
-): AdminClientQuickFilter[] | undefined {
-  if (value === undefined || value === '') {
-    return undefined;
-  }
-
-  let rawParts: string[];
-  if (Array.isArray(value)) {
-    rawParts = value.flatMap((entry) =>
-      typeof entry === 'string' ? entry.split(',') : [],
-    );
-  } else if (typeof value === 'string') {
-    rawParts = value.split(',');
-  } else {
-    return undefined;
-  }
-
-  const normalized = rawParts.map((part) => part.trim()).filter(Boolean);
-  return normalized.length > 0
-    ? (normalized as AdminClientQuickFilter[])
-    : undefined;
+function parseBirthdayMonths(value: unknown): number[] | undefined {
+  const months = parseCsvQueryParam(value)
+    .map((part) => Number(part))
+    .filter((month) => Number.isInteger(month) && month >= 1 && month <= 12);
+  return months.length > 0 ? months : undefined;
 }
 
 export class AdminListClientsQueryDto {
@@ -102,56 +89,109 @@ export class AdminListClientsQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsIn(Object.values(AdminClientPackageFilter))
-  package?: AdminClientPackageFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(
+      value,
+      Object.values(AdminClientPackageFilter).filter(
+        (entry) => entry !== AdminClientPackageFilter.ALL,
+      ),
+    ),
+  )
+  @IsArray()
+  @IsIn(
+    Object.values(AdminClientPackageFilter).filter(
+      (entry) => entry !== AdminClientPackageFilter.ALL,
+    ),
+    { each: true },
+  )
+  package?: AdminClientPackageFilter[];
 
   @IsOptional()
   @IsIn(Object.values(AdminClientOrder))
   order?: AdminClientOrder;
 
   @IsOptional()
-  @IsIn(Object.values(AdminClientTagFilter))
-  tag?: AdminClientTagFilter;
-
-  @IsOptional()
-  @IsIn(Object.values(AdminClientStatusFilter))
-  status?: AdminClientStatusFilter;
-
-  @IsOptional()
-  @IsIn(Object.values(AdminClientPackageTypeFilter))
-  packageType?: AdminClientPackageTypeFilter;
-
-  @IsOptional()
-  @IsString()
-  classLevel?: string;
-
-  @IsOptional()
-  @IsIn(Object.values(AdminClientPaymentStatusFilter))
-  paymentStatus?: AdminClientPaymentStatusFilter;
-
-  @IsOptional()
-  @IsString()
-  source?: string;
-
-  @IsOptional()
-  @IsString()
-  preferredCoachId?: string;
-
-  @IsOptional()
-  @IsIn(Object.values(AdminClientAttendanceFilter))
-  attendance?: AdminClientAttendanceFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(AdminClientTagFilter)),
+  )
+  @IsArray()
+  @IsIn(Object.values(AdminClientTagFilter), { each: true })
+  tag?: AdminClientTagFilter[];
 
   @IsOptional()
   @Transform(({ value }) =>
-    value === undefined || value === '' ? undefined : Number(value),
+    parseCsvEnumQueryParam(value, Object.values(AdminClientStatusFilter)),
   )
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  birthdayMonth?: number;
+  @IsArray()
+  @IsIn(Object.values(AdminClientStatusFilter), { each: true })
+  status?: AdminClientStatusFilter[];
 
   @IsOptional()
-  @Transform(({ value }) => parseAdminClientQuickFilters(value))
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(AdminClientPackageTypeFilter)),
+  )
+  @IsArray()
+  @IsIn(Object.values(AdminClientPackageTypeFilter), { each: true })
+  packageType?: AdminClientPackageTypeFilter[];
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  classLevel?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(
+      value,
+      Object.values(AdminClientPaymentStatusFilter),
+    ),
+  )
+  @IsArray()
+  @IsIn(Object.values(AdminClientPaymentStatusFilter), { each: true })
+  paymentStatus?: AdminClientPaymentStatusFilter[];
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  source?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  preferredCoachId?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(AdminClientAttendanceFilter)),
+  )
+  @IsArray()
+  @IsIn(Object.values(AdminClientAttendanceFilter), { each: true })
+  attendance?: AdminClientAttendanceFilter[];
+
+  @IsOptional()
+  @Transform(({ value }) => parseBirthdayMonths(value))
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  @Max(12, { each: true })
+  birthdayMonth?: number[];
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(AdminClientQuickFilter)),
+  )
   @IsArray()
   @IsIn(Object.values(AdminClientQuickFilter), { each: true })
   quick?: AdminClientQuickFilter[];

@@ -1,6 +1,6 @@
 import type { FinanceSectionId } from "@/components/admin/admin-finance-module";
 
-export const FINANCE_OVERVIEW_QUERY_KEYS = ["rangeDays"] as const;
+export const FINANCE_OVERVIEW_QUERY_KEYS = ["from", "to"] as const;
 
 export const FINANCE_PAYMENTS_QUERY_KEYS = [
   "q",
@@ -19,6 +19,8 @@ export const FINANCE_PAYMENTS_QUERY_KEYS = [
 
 export const FINANCE_COACHES_QUERY_KEYS = [
   "q",
+  "from",
+  "to",
   "month",
   "payoutStatus",
   "order",

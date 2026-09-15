@@ -6,6 +6,7 @@ import {
 } from "@/components/admin/admin-finance-types";
 import type { FinancePaymentPackageFilterOptions } from "@/components/admin/admin-finance-payments-package-filter-options";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { formatFilterMultiChipLabel } from "@/lib/filter-multi-value";
 import { buildDateSortFilterField } from "@/lib/list-sort";
 
 type BuildAdminFinancePaymentsFilterFieldsArgs = {
@@ -135,13 +136,8 @@ function buildPackageFilterField(
     label,
     emptyValue: "all",
     allLabel: options.length > 0 ? allLabel : emptyLabel,
-    resolveChipLabel: (value) => {
-      if (value === "all") {
-        return null;
-      }
-      const option = options.find((item) => item.value === value);
-      return option ? `${label}: ${option.label}` : `${label}: ${value}`;
-    },
+    resolveChipLabel: (value) =>
+      formatFilterMultiChipLabel(label, value === "all" ? "" : value, options),
     options,
   };
 }

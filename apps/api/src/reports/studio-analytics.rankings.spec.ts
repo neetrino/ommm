@@ -164,7 +164,7 @@ describe('studio-analytics.rankings', () => {
         { id: 'type-a', label: 'A' },
         { id: 'type-b', label: 'B' },
       ],
-      'type-a',
+      ['type-a'],
     );
 
     expect(buckets.get('type-a')?.amountCents).toBe(5_000);

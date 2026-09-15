@@ -1,8 +1,8 @@
 import type {
   PackageFilterValues,
   PackageSortOrder,
-  PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 
 export const PACKAGE_MODAL_QUERY_KEY = "modal";
 export const PACKAGE_MODAL_CREATE_VALUE = "add-package";
@@ -31,7 +31,7 @@ const SORT_ORDERS: readonly PackageSortOrder[] = [
   "priceLow",
 ];
 
-const STATUS_FILTERS: readonly PackageStatusFilter[] = ["all", "active", "inactive"];
+const STATUS_VALUES = new Set(["active", "inactive"]);
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
@@ -49,13 +49,16 @@ export function parsePackageSortOrder(
     : "displayOrder";
 }
 
+/** Accepts single or comma-separated status values from the URL. */
 export function parsePackageStatusFilter(
   value: string | string[] | undefined,
-): PackageStatusFilter {
-  const raw = firstParam(value);
-  return STATUS_FILTERS.includes(raw as PackageStatusFilter)
-    ? (raw as PackageStatusFilter)
-    : "all";
+): string {
+  const raw = firstParam(value)?.trim() ?? "";
+  if (raw === "" || raw === "all") {
+    return "all";
+  }
+  const selected = parseFilterMultiValue(raw).filter((part) => STATUS_VALUES.has(part));
+  return selected.length === 0 ? "all" : selected.join(",");
 }
 
 export function parsePackageFiltersFromSearch(
@@ -74,8 +77,9 @@ export function buildPackageUrlFiltersQuery(values: PackageFilterValues): string
   if (values.search.trim().length > 0) {
     params.set("search", values.search.trim());
   }
-  if (values.status !== "all") {
-    params.set("status", values.status);
+  const statusParts = parseFilterMultiValue(values.status);
+  if (statusParts.length > 0) {
+    params.set("status", statusParts.join(","));
   }
   if (values.order !== "displayOrder") {
     params.set("order", values.order);

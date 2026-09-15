@@ -9,74 +9,104 @@ import type { ListSessionReviewsInboxQueryDto } from './dto/list-session-reviews
 export function buildStaffInboxWhere(
   query: ListSessionReviewsInboxQueryDto,
 ): Prisma.SessionReviewWhereInput {
-  return {
-    status: SessionReviewStatus.SUBMITTED,
-    ...ratingWhere(query.rating),
-    ...visibilityWhere(query.visibility),
-    ...coachWhere(query.coachId),
-    ...packageWhere(query.packagePlanId),
-    ...searchWhere(query.q),
-  };
+  const and: Prisma.SessionReviewWhereInput[] = [
+    { status: SessionReviewStatus.SUBMITTED },
+  ];
+  pushIfPresent(and, ratingWhere(query.rating));
+  pushIfPresent(and, visibilityWhere(query.visibility));
+  pushIfPresent(and, coachWhere(query.coachId));
+  pushIfPresent(and, packageWhere(query.packagePlanId));
+  pushIfPresent(and, searchWhere(query.q));
+  return { AND: and };
 }
 
 export function buildCoachInboxWhere(
   coachProfileId: string,
   query: ListSessionReviewsInboxQueryDto,
 ): Prisma.SessionReviewWhereInput {
-  return {
-    status: SessionReviewStatus.SUBMITTED,
-    isAnonymous: false,
-    coachProfileId,
-    ...ratingWhere(query.rating),
-    ...packageWhere(query.packagePlanId),
-    ...searchWhere(query.q),
-  };
+  const and: Prisma.SessionReviewWhereInput[] = [
+    { status: SessionReviewStatus.SUBMITTED },
+    { isAnonymous: false },
+    { coachProfileId },
+  ];
+  pushIfPresent(and, ratingWhere(query.rating));
+  pushIfPresent(and, packageWhere(query.packagePlanId));
+  pushIfPresent(and, searchWhere(query.q));
+  return { AND: and };
+}
+
+function pushIfPresent(
+  and: Prisma.SessionReviewWhereInput[],
+  clause: Prisma.SessionReviewWhereInput | undefined,
+): void {
+  if (clause && Object.keys(clause).length > 0) {
+    and.push(clause);
+  }
 }
 
 function ratingWhere(
-  rating: ListSessionReviewsInboxQueryDto['rating'],
-): Prisma.SessionReviewWhereInput {
-  if (!rating) {
-    return {};
+  ratings: ListSessionReviewsInboxQueryDto['rating'],
+): Prisma.SessionReviewWhereInput | undefined {
+  if (!ratings?.length) {
+    return undefined;
   }
-  return { rating: Number.parseInt(rating, 10) };
+  const values = ratings.map((rating) => Number.parseInt(rating, 10));
+  return {
+    rating: values.length === 1 ? values[0] : { in: values },
+  };
 }
 
 function visibilityWhere(
   visibility: ListSessionReviewsInboxQueryDto['visibility'],
-): Prisma.SessionReviewWhereInput {
-  if (visibility === 'named') {
-    return { isAnonymous: false };
+): Prisma.SessionReviewWhereInput | undefined {
+  if (!visibility?.length) {
+    return undefined;
   }
-  if (visibility === 'anonymous') {
-    return { isAnonymous: true };
+  const clauses: Prisma.SessionReviewWhereInput[] = [];
+  if (visibility.includes('named')) {
+    clauses.push({ isAnonymous: false });
   }
-  return {};
+  if (visibility.includes('anonymous')) {
+    clauses.push({ isAnonymous: true });
+  }
+  if (clauses.length === 0) {
+    return undefined;
+  }
+  if (clauses.length === 1) {
+    return clauses[0];
+  }
+  return { OR: clauses };
 }
 
 function coachWhere(
-  coachId: string | undefined,
-): Prisma.SessionReviewWhereInput {
-  const id = coachId?.trim();
-  if (!id) {
-    return {};
+  coachIds: string[] | undefined,
+): Prisma.SessionReviewWhereInput | undefined {
+  const ids = (coachIds ?? []).map((id) => id.trim()).filter(Boolean);
+  if (ids.length === 0) {
+    return undefined;
   }
-  return { coachProfileId: id };
+  return {
+    coachProfileId: ids.length === 1 ? ids[0] : { in: ids },
+  };
 }
 
 function packageWhere(
-  packagePlanId: string | undefined,
-): Prisma.SessionReviewWhereInput {
-  const id = packagePlanId?.trim();
-  if (!id) {
-    return {};
+  packagePlanIds: string[] | undefined,
+): Prisma.SessionReviewWhereInput | undefined {
+  const ids = (packagePlanIds ?? []).map((id) => id.trim()).filter(Boolean);
+  if (ids.length === 0) {
+    return undefined;
   }
+  const planClauses = ids.flatMap((id) => [
+    { planId: id },
+    { sourcePlanIdSnapshot: id },
+  ]);
   return {
     booking: {
       consumptions: {
         some: {
           userPackage: {
-            OR: [{ planId: id }, { sourcePlanIdSnapshot: id }],
+            OR: planClauses,
           },
         },
       },
@@ -84,35 +114,35 @@ function packageWhere(
   };
 }
 
-function searchWhere(raw: string | undefined): Prisma.SessionReviewWhereInput {
-  return (
-    buildTokenAndWhere(
-      raw,
-      (token): Prisma.SessionReviewWhereInput => ({
-        OR: [
-          { comment: containsInsensitive(token) },
-          {
-            session: {
-              classType: { name: containsInsensitive(token) },
-            },
+function searchWhere(
+  raw: string | undefined,
+): Prisma.SessionReviewWhereInput | undefined {
+  return buildTokenAndWhere(
+    raw,
+    (token): Prisma.SessionReviewWhereInput => ({
+      OR: [
+        { comment: containsInsensitive(token) },
+        {
+          session: {
+            classType: { name: containsInsensitive(token) },
           },
-          { coachProfile: { user: personNameContainsToken(token) } },
-          {
-            AND: [
-              { isAnonymous: false },
-              {
-                author: {
-                  OR: [
-                    { name: containsInsensitive(token) },
-                    { lastName: containsInsensitive(token) },
-                    { email: containsInsensitive(token) },
-                  ],
-                },
+        },
+        { coachProfile: { user: personNameContainsToken(token) } },
+        {
+          AND: [
+            { isAnonymous: false },
+            {
+              author: {
+                OR: [
+                  { name: containsInsensitive(token) },
+                  { lastName: containsInsensitive(token) },
+                  { email: containsInsensitive(token) },
+                ],
               },
-            ],
-          },
-        ],
-      }),
-    ) ?? {}
+            },
+          ],
+        },
+      ],
+    }),
   );
 }

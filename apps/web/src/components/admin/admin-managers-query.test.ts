@@ -27,6 +27,15 @@ describe("admin-managers-query", () => {
     );
   });
 
+  it("includes comma-separated status values", () => {
+    const endpoint = buildAdminManagersListEndpoint(
+      { q: "", status: "active,blocked", order: "newest" },
+      25,
+      0,
+    );
+    assert.equal(endpoint, "/managers?take=25&offset=0&status=active%2Cblocked");
+  });
+
   it("parses unknown status back to all", () => {
     const filters = pickAdminManagersFilters({
       q: "  Ani  ",

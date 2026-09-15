@@ -91,7 +91,10 @@ describe('listSoldPackages', () => {
 
     expect(prisma.userPackage.findMany).toHaveBeenCalledWith({
       where: {
-        OR: [{ planId: 'plan-mix-8' }, { sourcePlanIdSnapshot: 'plan-mix-8' }],
+        OR: [
+          { planId: { in: ['plan-mix-8'] } },
+          { sourcePlanIdSnapshot: { in: ['plan-mix-8'] } },
+        ],
       },
       select: { id: true },
     });

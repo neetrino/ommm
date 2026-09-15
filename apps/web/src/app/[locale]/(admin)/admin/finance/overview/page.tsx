@@ -4,8 +4,10 @@ import { AdminFinanceOverviewSections } from "@/components/admin/admin-finance-o
 import {
   buildFinanceDateRangeQuery,
   resolveFinanceCurrentMonthRange,
+  resolveFinancePaymentsDateRange,
   resolveFinanceStudioDateRange,
 } from "@/components/admin/admin-finance-dates";
+import { DEFAULT_FINANCE_OVERVIEW_RANGE } from "@/components/admin/admin-finance-types";
 import {
   redirectIfUnscopedFinanceSearchParams,
   type FinanceSummaryPayload,
@@ -18,6 +20,17 @@ type Dashboard = {
 };
 
 type PageSearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function resolveOverviewQueryRange(from: string, to: string) {
+  const custom = resolveFinancePaymentsDateRange(from, to);
+  if (custom.from || custom.to) {
+    return {
+      from: custom.from ?? custom.to ?? "",
+      to: custom.to ?? custom.from ?? "",
+    };
+  }
+  return resolveFinanceStudioDateRange(DEFAULT_FINANCE_OVERVIEW_RANGE);
+}
 
 export default async function AdminFinanceOverviewPage({
   params,
@@ -32,8 +45,8 @@ export default async function AdminFinanceOverviewPage({
   const t = await getTranslations({ locale, namespace: "adminPages.finance" });
   const cookie = (await headers()).get("cookie") ?? "";
   const overviewFilters = parseFinanceOverviewFiltersFromSearch(search);
-  const rangeDays = overviewFilters.rangeDays;
-  const rangeQuery = buildFinanceDateRangeQuery(resolveFinanceStudioDateRange(rangeDays));
+  const range = resolveOverviewQueryRange(overviewFilters.from, overviewFilters.to);
+  const rangeQuery = buildFinanceDateRangeQuery(range);
   const monthQuery = buildFinanceDateRangeQuery(resolveFinanceCurrentMonthRange());
 
   const [dashboardRes, financeRes, monthFinanceRes] = await Promise.all([
@@ -66,7 +79,8 @@ export default async function AdminFinanceOverviewPage({
   return (
     <AdminFinanceOverviewSections
       locale={locale}
-      rangeDays={rangeDays}
+      periodFrom={range.from}
+      periodTo={range.to}
       totalRevenueCents={dashboardRes.data.revenueCentsTotal ?? 0}
       monthRevenueCents={monthFinanceRes.data.totals.revenueCents}
       financeSummary={financeRes.data}

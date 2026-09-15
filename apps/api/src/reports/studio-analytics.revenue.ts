@@ -170,7 +170,7 @@ export function buildAttributedBreakdown(
     input.payments,
     input.packagePlans,
     input.classTypes,
-    input.filters.classTypeId,
+    input.filters.classTypeIds,
   );
   return {
     byClassType: [...classTypes.values()].sort(

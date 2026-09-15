@@ -15,6 +15,7 @@ import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-ac
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
 export type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
@@ -33,8 +34,8 @@ export function countActiveCoachesFilters(values: AdminCoachesFilterValues): num
   return [
     values.q.trim(),
     values.specialization.trim(),
-    values.classType.trim(),
-    values.isActive === "all" ? "" : values.isActive,
+    parseFilterMultiValue(values.classType).length > 0 ? values.classType : "",
+    parseFilterMultiValue(values.isActive).length > 0 ? values.isActive : "",
     values.order === "newest" ? "" : values.order,
   ].filter(Boolean).length;
 }
@@ -77,11 +78,15 @@ function buildQuery(
   if (values.specialization.trim() !== "") {
     params.set("specialization", values.specialization.trim());
   }
-  if (values.classType.trim() !== "") {
-    params.set("classType", values.classType.trim());
+  const classTypes = parseFilterMultiValue(values.classType);
+  if (classTypes.length > 0) {
+    params.set("classType", classTypes.join(","));
   }
-  if (values.isActive !== "all") {
-    params.set("isActive", values.isActive);
+  const isActiveParts = parseFilterMultiValue(values.isActive).filter(
+    (part) => part === "active" || part === "inactive",
+  );
+  if (isActiveParts.length > 0) {
+    params.set("isActive", isActiveParts.join(","));
   }
   if (values.order !== "newest") {
     params.set("order", values.order);
@@ -209,10 +214,7 @@ export function AdminCoachesFilters({
         updateField("classType", value);
         break;
       case "isActive":
-        updateField(
-          "isActive",
-          value === "active" || value === "inactive" ? value : "all",
-        );
+        updateField("isActive", value.trim() === "" ? "all" : value);
         break;
       case "order":
         updateField("order", value === "oldest" ? "oldest" : "newest");

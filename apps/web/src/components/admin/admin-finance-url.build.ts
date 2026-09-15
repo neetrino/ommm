@@ -1,12 +1,12 @@
 import {
   applyFinanceStudioDateRangeParams,
+  resolveFinanceCoachDefaultDateRange,
+  resolveFinancePaymentsDateRange,
   type FinanceStudioDateRange,
 } from "@/components/admin/admin-finance-dates";
 import {
-  DEFAULT_FINANCE_OVERVIEW_RANGE,
   type CoachFinanceFilters,
   type CoachSalaryPayoutHistoryFilters,
-  type FinanceBoundedDateRangeDays,
   type FinanceFilterValues,
 } from "@/components/admin/admin-finance-types";
 import {
@@ -18,14 +18,21 @@ import {
   applyFinanceQueryKeys,
   pickFinanceSectionParams,
 } from "@/components/admin/admin-finance-url.helpers";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
+
+function financeMultiOrUndefined(value: string): string | undefined {
+  const parts = parseFilterMultiValue(value);
+  return parts.length > 0 ? parts.join(",") : undefined;
+}
 
 export function buildFinanceOverviewFiltersQuery(
-  rangeDays: FinanceBoundedDateRangeDays,
+  values: { from: string; to: string },
   currentSearchParams: URLSearchParams,
 ): string {
   const params = pickFinanceSectionParams([...FINANCE_OVERVIEW_QUERY_KEYS], currentSearchParams);
   applyFinanceQueryKeys(params, [...FINANCE_OVERVIEW_QUERY_KEYS], {
-    rangeDays: rangeDays === DEFAULT_FINANCE_OVERVIEW_RANGE ? undefined : String(rangeDays),
+    from: values.from.trim() !== "" ? values.from.trim() : undefined,
+    to: values.to.trim() !== "" ? values.to.trim() : undefined,
   });
   return params.toString();
 }
@@ -39,12 +46,12 @@ export function buildFinancePaymentsFiltersQuery(
     q: values.q.trim() !== "" ? values.q.trim() : undefined,
     from: values.from.trim() !== "" ? values.from.trim() : undefined,
     to: values.to.trim() !== "" ? values.to.trim() : undefined,
-    source: values.source !== "all" ? values.source : undefined,
-    status: values.status !== "all" ? values.status : undefined,
-    paymentMethod: values.paymentMethod !== "all" ? values.paymentMethod : undefined,
-    planId: values.planId !== "all" ? values.planId : undefined,
-    packageClass: values.packageClass !== "all" ? values.packageClass : undefined,
-    sessions: values.sessions !== "all" ? values.sessions : undefined,
+    source: financeMultiOrUndefined(values.source),
+    status: financeMultiOrUndefined(values.status),
+    paymentMethod: financeMultiOrUndefined(values.paymentMethod),
+    planId: financeMultiOrUndefined(values.planId),
+    packageClass: financeMultiOrUndefined(values.packageClass),
+    sessions: financeMultiOrUndefined(values.sessions),
     order: values.order !== "newest" ? values.order : undefined,
   });
   return params.toString();
@@ -61,26 +68,32 @@ export function buildFinancePaymentsAdminApiQuery(
     offset: String(listPage.offset),
   });
   applyFinanceStudioDateRangeParams(params, range);
-  if (filters.status !== "all") {
-    params.set("status", filters.status);
+  const status = financeMultiOrUndefined(filters.status);
+  if (status) {
+    params.set("status", status);
   }
-  if (filters.source !== "all") {
-    params.set("source", filters.source);
+  const source = financeMultiOrUndefined(filters.source);
+  if (source) {
+    params.set("source", source);
   }
-  if (filters.paymentMethod !== "all") {
-    params.set("paymentMethod", filters.paymentMethod);
+  const paymentMethod = financeMultiOrUndefined(filters.paymentMethod);
+  if (paymentMethod) {
+    params.set("paymentMethod", paymentMethod);
   }
   if (filters.q.trim()) {
     params.set("q", filters.q.trim());
   }
-  if (filters.planId !== "all") {
-    params.set("planId", filters.planId);
+  const planId = financeMultiOrUndefined(filters.planId);
+  if (planId) {
+    params.set("planId", planId);
   }
-  if (filters.packageClass !== "all") {
-    params.set("packageClass", filters.packageClass);
+  const packageClass = financeMultiOrUndefined(filters.packageClass);
+  if (packageClass) {
+    params.set("packageClass", packageClass);
   }
-  if (filters.sessions !== "all") {
-    params.set("sessions", filters.sessions);
+  const sessions = financeMultiOrUndefined(filters.sessions);
+  if (sessions) {
+    params.set("sessions", sessions);
   }
   if (filters.order !== "newest") {
     params.set("order", filters.order);
@@ -93,11 +106,16 @@ export function buildFinanceCoachesFiltersQuery(
   currentSearchParams: URLSearchParams,
 ): string {
   const q = (values.q ?? values.search).trim();
-  const defaultMonth = new Date().toISOString().slice(0, 7);
+  const defaults = resolveFinanceCoachDefaultDateRange();
+  const range = resolveFinancePaymentsDateRange(values.from, values.to);
+  const from = range.from ?? "";
+  const to = range.to ?? "";
   const params = pickFinanceSectionParams([...FINANCE_COACHES_QUERY_KEYS], currentSearchParams);
   applyFinanceQueryKeys(params, [...FINANCE_COACHES_QUERY_KEYS], {
     q: q !== "" ? q : undefined,
-    month: values.month !== defaultMonth ? values.month : undefined,
+    from: from && from !== defaults.from ? from : undefined,
+    to: to && to !== defaults.to ? to : undefined,
+    month: undefined,
     payoutStatus: values.payoutStatus !== "" ? values.payoutStatus : undefined,
     order: values.order !== "newest" ? values.order : undefined,
     quick: values.quick !== "" ? values.quick : undefined,
@@ -117,9 +135,8 @@ export function buildFinanceCoachSalaryQuery(
   if (search) {
     params.set("search", search);
   }
-  if (filters.month) {
-    params.set("month", filters.month);
-  }
+  const range = resolveFinancePaymentsDateRange(filters.from, filters.to);
+  applyFinanceStudioDateRangeParams(params, range);
   if (filters.payoutStatus) {
     params.set("payoutStatus", filters.payoutStatus);
   }

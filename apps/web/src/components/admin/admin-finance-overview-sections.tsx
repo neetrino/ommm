@@ -2,18 +2,27 @@ import { getTranslations } from "next-intl/server";
 import type { FinanceSummaryPayload } from "@/components/admin/admin-finance-server-helpers";
 import { getFinanceStatusStats } from "@/components/admin/admin-finance-server-helpers";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { formatDateForUi } from "@/lib/date-display";
 
 type AdminFinanceOverviewSectionsProps = {
   locale: string;
-  rangeDays: number;
+  periodFrom: string;
+  periodTo: string;
   totalRevenueCents: number;
   monthRevenueCents: number;
   financeSummary: FinanceSummaryPayload;
 };
 
+function formatPeriodCaption(from: string, to: string): string {
+  const fromLabel = formatDateForUi(from);
+  const toLabel = formatDateForUi(to);
+  return from === to ? fromLabel : `${fromLabel} – ${toLabel}`;
+}
+
 export async function AdminFinanceOverviewSections({
   locale,
-  rangeDays,
+  periodFrom,
+  periodTo,
   totalRevenueCents,
   monthRevenueCents,
   financeSummary,
@@ -22,6 +31,11 @@ export async function AdminFinanceOverviewSections({
   const pending = getFinanceStatusStats(financeSummary, "PENDING");
   const succeeded = getFinanceStatusStats(financeSummary, "SUCCEEDED");
   const refunded = getFinanceStatusStats(financeSummary, "REFUNDED");
+  const periodCaption = t("kpiPeriodCustom", {
+    from: formatDateForUi(periodFrom),
+    to: formatDateForUi(periodTo),
+    range: formatPeriodCaption(periodFrom, periodTo),
+  });
 
   return (
     <>
@@ -42,7 +56,7 @@ export async function AdminFinanceOverviewSections({
         </article>
         <article className="ommm-stack-card">
           <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiPendingPayments")}</p>
-          <p className="mt-0.5 text-[11px] text-sage-500">{t("kpiPeriodRangeDays", { days: rangeDays })}</p>
+          <p className="mt-0.5 text-[11px] text-sage-500">{periodCaption}</p>
           <p className="mt-2 text-2xl font-semibold text-sage-900">{pending.count}</p>
           <p className="mt-1 text-xs text-sage-500">
             {formatAmdFromCents(pending.amountCents, locale)}
@@ -50,7 +64,7 @@ export async function AdminFinanceOverviewSections({
         </article>
         <article className="ommm-stack-card">
           <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiCompletedPayments")}</p>
-          <p className="mt-0.5 text-[11px] text-sage-500">{t("kpiPeriodRangeDays", { days: rangeDays })}</p>
+          <p className="mt-0.5 text-[11px] text-sage-500">{periodCaption}</p>
           <p className="mt-2 text-2xl font-semibold text-sage-900">{succeeded.count}</p>
           <p className="mt-1 text-xs text-sage-500">
             {formatAmdFromCents(succeeded.amountCents, locale)}
@@ -58,7 +72,7 @@ export async function AdminFinanceOverviewSections({
         </article>
         <article className="ommm-stack-card">
           <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiRefundedPayments")}</p>
-          <p className="mt-0.5 text-[11px] text-sage-500">{t("kpiPeriodRangeDays", { days: rangeDays })}</p>
+          <p className="mt-0.5 text-[11px] text-sage-500">{periodCaption}</p>
           <p className="mt-2 text-2xl font-semibold text-sage-900">{refunded.count}</p>
           <p className="mt-1 text-xs text-sage-500">
             {formatAmdFromCents(refunded.amountCents, locale)}
@@ -68,7 +82,7 @@ export async function AdminFinanceOverviewSections({
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-sage-900">{t("revenueBySource")}</h2>
-        <p className="mt-1 text-xs text-sage-500">{t("kpiPeriodRangeDays", { days: rangeDays })}</p>
+        <p className="mt-1 text-xs text-sage-500">{periodCaption}</p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {(["package", "dropin", "gift", "other"] as const).map((sourceKey) => (
             <article key={sourceKey} className="ommm-stack-card">
@@ -86,7 +100,7 @@ export async function AdminFinanceOverviewSections({
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-sage-900">{t("giftCreditsHeading")}</h2>
-        <p className="mt-1 text-xs text-sage-500">{t("kpiPeriodRangeDays", { days: rangeDays })}</p>
+        <p className="mt-1 text-xs text-sage-500">{periodCaption}</p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <article className="ommm-stack-card">
             <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiGiftIssued")}</p>
@@ -130,7 +144,7 @@ export async function AdminFinanceOverviewSections({
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-sage-900">{t("influencerHeading")}</h2>
-        <p className="mt-1 text-xs text-sage-500">{t("kpiPeriodRangeDays", { days: rangeDays })}</p>
+        <p className="mt-1 text-xs text-sage-500">{periodCaption}</p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <article className="ommm-stack-card">
             <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiInfluencerCost")}</p>

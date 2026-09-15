@@ -1,6 +1,7 @@
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import type { AdminListDeliveriesQueryDto } from './dto/admin-list-deliveries-query.dto';
 import type { AdminListScheduledQueryDto } from './dto/admin-list-scheduled-query.dto';
+import type { BroadcastAudience } from './dto/broadcast.dto';
 
 export const NOTIFICATIONS_FILTER_SCAN_LIMIT = 2000;
 
@@ -9,7 +10,7 @@ type ScheduledRow = {
   status: string;
   subject: string;
   html: string;
-  audience: string;
+  audience: BroadcastAudience;
   scheduleAt: string;
   createdAt: string;
 };
@@ -19,7 +20,7 @@ type DeliveryRow = {
   createdAt: string;
   recipientEmail: string;
   channel: string;
-  audience: string;
+  audience: BroadcastAudience;
   subject: string;
   scheduled: boolean;
 };
@@ -37,14 +38,54 @@ function isToday(iso: string): boolean {
   );
 }
 
+function hasFilterValues(values: readonly unknown[] | undefined): boolean {
+  return Boolean(values && values.length > 0);
+}
+
+function matchesScheduledQuick(
+  row: ScheduledRow,
+  quick: NonNullable<AdminListScheduledQueryDto['quick']>[number],
+): boolean {
+  if (quick === 'pending') {
+    return row.status === 'PENDING';
+  }
+  if (quick === 'failed') {
+    return row.status === 'FAILED';
+  }
+  return row.status === 'SENT';
+}
+
+function matchesDeliveryTiming(
+  row: DeliveryRow,
+  timing: NonNullable<AdminListDeliveriesQueryDto['timing']>[number],
+): boolean {
+  if (timing === 'scheduled') {
+    return row.scheduled;
+  }
+  return !row.scheduled;
+}
+
+function matchesDeliveryQuick(
+  row: DeliveryRow,
+  quick: NonNullable<AdminListDeliveriesQueryDto['quick']>[number],
+): boolean {
+  if (quick === 'scheduled') {
+    return row.scheduled;
+  }
+  if (quick === 'immediate') {
+    return !row.scheduled;
+  }
+  return isToday(row.createdAt);
+}
+
 export function requiresScheduledPostProcessing(
   query: AdminListScheduledQueryDto,
 ): boolean {
   return Boolean(
     query.search?.trim() ||
-    query.status ||
-    query.audience ||
-    query.quick ||
+    hasFilterValues(query.status) ||
+    hasFilterValues(query.audience) ||
+    hasFilterValues(query.quick) ||
     (query.order && query.order !== 'newest'),
   );
 }
@@ -61,15 +102,26 @@ export function filterScheduledRows(
     ) {
       return false;
     }
-    if (query.status && row.status !== query.status) {
+    if (
+      hasFilterValues(query.status) &&
+      !query.status!.some((status) => status === row.status)
+    ) {
       return false;
     }
-    if (query.audience && row.audience !== query.audience) {
+    if (
+      hasFilterValues(query.audience) &&
+      !query.audience!.some((audience) => audience === row.audience)
+    ) {
       return false;
     }
-    if (query.quick === 'pending' && row.status !== 'PENDING') return false;
-    if (query.quick === 'failed' && row.status !== 'FAILED') return false;
-    if (query.quick === 'sent' && row.status !== 'SENT') return false;
+    if (hasFilterValues(query.quick)) {
+      const matchesQuick = query.quick!.some((quick) =>
+        matchesScheduledQuick(row, quick),
+      );
+      if (!matchesQuick) {
+        return false;
+      }
+    }
     return true;
   });
 
@@ -105,10 +157,10 @@ export function requiresDeliveriesPostProcessing(
 ): boolean {
   return Boolean(
     query.search?.trim() ||
-    query.audience ||
-    query.channel ||
-    query.timing ||
-    query.quick ||
+    hasFilterValues(query.audience) ||
+    hasFilterValues(query.channel) ||
+    hasFilterValues(query.timing) ||
+    hasFilterValues(query.quick) ||
     (query.order && query.order !== 'newest'),
   );
 }
@@ -126,17 +178,34 @@ export function filterDeliveryRows(
         return false;
       }
     }
-    if (query.audience && row.audience !== query.audience) {
+    if (
+      hasFilterValues(query.audience) &&
+      !query.audience!.some((audience) => audience === row.audience)
+    ) {
       return false;
     }
-    if (query.channel && row.channel !== query.channel) {
+    if (
+      hasFilterValues(query.channel) &&
+      !query.channel!.some((channel) => channel === row.channel)
+    ) {
       return false;
     }
-    if (query.timing === 'scheduled' && !row.scheduled) return false;
-    if (query.timing === 'immediate' && row.scheduled) return false;
-    if (query.quick === 'scheduled' && !row.scheduled) return false;
-    if (query.quick === 'immediate' && row.scheduled) return false;
-    if (query.quick === 'sent-today' && !isToday(row.createdAt)) return false;
+    if (hasFilterValues(query.timing)) {
+      const matchesTiming = query.timing!.some((timing) =>
+        matchesDeliveryTiming(row, timing),
+      );
+      if (!matchesTiming) {
+        return false;
+      }
+    }
+    if (hasFilterValues(query.quick)) {
+      const matchesQuick = query.quick!.some((quick) =>
+        matchesDeliveryQuick(row, quick),
+      );
+      if (!matchesQuick) {
+        return false;
+      }
+    }
     return true;
   });
 

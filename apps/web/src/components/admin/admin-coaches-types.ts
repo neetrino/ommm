@@ -36,6 +36,7 @@ export type AdminCoachesFilterValues = {
   q: string;
   specialization: string;
   classType: string;
-  isActive: "all" | "active" | "inactive";
+  /** "all" or comma-separated active/inactive. */
+  isActive: string;
   order: "newest" | "oldest";
 };

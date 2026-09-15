@@ -2,6 +2,7 @@ import type { IntegratedFilterField } from "@/components/shared/search/integrate
 import type { CoachPanelBookingRow } from "@/lib/coach-panel-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 import { matchesStudioDateFilter } from "@/lib/filter-date-range";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { matchesSearchTokens } from "@/lib/search-tokens";
 import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 
@@ -98,7 +99,7 @@ export function matchesCoachRosterFilters(
   if (!matchesStudioDateFilter(row.session.startsAt, filters.from, filters.to)) {
     return false;
   }
-  if (filters.classType !== "all" && row.session.classType.name !== filters.classType) {
+  if (!matchesFilterMultiValue(filters.classType, row.session.classType.name)) {
     return false;
   }
 
@@ -114,7 +115,7 @@ export function hasActiveCoachRosterFilters(filters: CoachRosterFilterValues): b
     filters.search.trim().length > 0 ||
     filters.from.length > 0 ||
     filters.to.length > 0 ||
-    filters.classType !== "all" ||
+    parseFilterMultiValue(filters.classType).length > 0 ||
     filters.order !== "upcoming"
   );
 }

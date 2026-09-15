@@ -6,8 +6,10 @@ export type UserPaymentSourceFilter = "all" | "package" | "membership" | "dropin
 
 export type UserPaymentFilterValues = {
   search: string;
-  status: UserPaymentStatusFilter;
-  source: UserPaymentSourceFilter;
+  /** "all" or comma-separated payment statuses. */
+  status: string;
+  /** "all" or comma-separated payment sources. */
+  source: string;
   order: UserPaymentSortOrder;
 };
 

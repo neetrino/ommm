@@ -13,6 +13,13 @@ describe("parseFinancePaymentMethodFilter", () => {
     assert.equal(parseFinancePaymentMethodFilter("CARD_TERMINAL"), "CARD_TERMINAL");
   });
 
+  it("accepts comma-separated payment methods", () => {
+    assert.equal(
+      parseFinancePaymentMethodFilter("CASH,CARD_TERMINAL"),
+      "CASH,CARD_TERMINAL",
+    );
+  });
+
   it("falls back to all for unknown values", () => {
     assert.equal(parseFinancePaymentMethodFilter("BANK_TRANSFER"), "all");
     assert.equal(parseFinancePaymentMethodFilter(undefined), "all");

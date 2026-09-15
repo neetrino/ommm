@@ -2,8 +2,8 @@ import type {
   AdminPackageRow,
   PackageFilterValues,
   PackageSortOrder,
-  PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 
 /** Searchable text for a package row (name, category, features). */
 export function buildPackageSearchHaystack(pkg: AdminPackageRow): string {
@@ -33,17 +33,20 @@ function buildCategoryShellHaystacks(
   return haystacks;
 }
 
-function matchesPackageStatus(
-  pkg: AdminPackageRow,
-  status: PackageStatusFilter,
-): boolean {
-  if (status === "active" && !pkg.isActive) {
-    return false;
+function matchesPackageStatus(pkg: AdminPackageRow, statusCsv: string): boolean {
+  const selected = parseFilterMultiValue(statusCsv);
+  if (selected.length === 0) {
+    return true;
   }
-  if (status === "inactive" && pkg.isActive) {
+  return selected.some((status) => {
+    if (status === "active") {
+      return pkg.isActive;
+    }
+    if (status === "inactive") {
+      return !pkg.isActive;
+    }
     return false;
-  }
-  return true;
+  });
 }
 
 function packageMatchesSearch(
@@ -63,7 +66,7 @@ function packageMatchesSearch(
 export function countActivePackageFilters(values: PackageFilterValues): number {
   return [
     values.search.trim(),
-    values.status === "all" ? "" : values.status,
+    parseFilterMultiValue(values.status).length > 0 ? values.status : "",
     values.order === "displayOrder" ? "" : values.order,
   ].filter(Boolean).length;
 }

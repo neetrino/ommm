@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { formatFilterMultiChipLabel, parseFilterMultiValue } from "@/lib/filter-multi-value";
 
 export type IntegratedFilterOption = {
   value: string;
@@ -12,7 +13,13 @@ export type IntegratedFilterField = {
   emptyValue?: string;
   options?: readonly IntegratedFilterOption[];
   allLabel?: string;
-  fieldType?: "select" | "date" | "custom";
+  fieldType?: "select" | "multi" | "date" | "custom";
+  /**
+   * Select behavior for option fields without a custom `render`.
+   * Defaults to `"multi"` for All+options filters; sort fields stay `"single"`
+   * because their empty value is listed in `options`.
+   */
+  selectionMode?: "single" | "multi";
   /** When true, chip is shown even when value equals {@link emptyValue}. */
   alwaysShowChip?: boolean;
   resolveChipLabel?: (value: string) => string | null;
@@ -35,6 +42,31 @@ export function resolveIntegratedFilterActiveValue(
   return filterValues[field.key]?.trim() ?? "";
 }
 
+/** Multi for All+options filters; single when empty value is one of the options (sort). */
+export function resolveIntegratedFilterSelectionMode(
+  field: IntegratedFilterField,
+): "single" | "multi" {
+  if (field.selectionMode) {
+    return field.selectionMode;
+  }
+  if (field.fieldType === "multi") {
+    return "multi";
+  }
+  if (field.fieldType === "select") {
+    return "single";
+  }
+  const emptyValue = resolveIntegratedFilterEmptyValue(field);
+  const options = field.options ?? [];
+  const emptyValueIsListed = options.some((option) => option.value === emptyValue);
+  if (emptyValueIsListed) {
+    return "single";
+  }
+  if (options.length > 0 || field.allLabel) {
+    return "multi";
+  }
+  return "single";
+}
+
 export function isIntegratedFilterActive(
   field: IntegratedFilterField,
   filterValues: Record<string, string>,
@@ -46,6 +78,9 @@ export function isIntegratedFilterActive(
   }
   if (empty === "" && value === "all") {
     return false;
+  }
+  if (resolveIntegratedFilterSelectionMode(field) === "multi") {
+    return parseFilterMultiValue(value).length > 0;
   }
   return value.length > 0;
 }
@@ -71,6 +106,10 @@ export function buildIntegratedFilterChips(
     }
     if (customLabel) {
       return [{ key: field.key, label: customLabel }];
+    }
+    if (resolveIntegratedFilterSelectionMode(field) === "multi") {
+      const multiLabel = formatFilterMultiChipLabel(field.label, value, field.options);
+      return multiLabel ? [{ key: field.key, label: multiLabel }] : [];
     }
     const option = field.options?.find((item) => item.value === value);
     const valueLabel = option?.label ?? value;

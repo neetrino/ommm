@@ -201,9 +201,7 @@ function CoachScheduleFilters({
       <CoachFilterChipRow
         label={t("filters.status")}
         value={filters.status}
-        onChange={(status) =>
-          onChange({ ...filters, status: status as CoachScheduleFilterValues["status"] })
-        }
+        onChange={(status) => onChange({ ...filters, status })}
         options={statusFilterOptions(t("filters.statusAll"), (status) => tStatus(status))}
       />
       <CoachFilterChipRow
@@ -212,6 +210,7 @@ function CoachScheduleFilters({
         onChange={(order) =>
           onChange({ ...filters, order: order as SessionSortOrder })
         }
+        selectionMode="single"
         options={[
           { value: "upcoming", label: tSort("upcoming") },
           { value: "date-asc", label: tSort("dateAsc") },

@@ -5,19 +5,21 @@ import type {
 } from "@/components/shared/schedule/schedule-session-list-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 import { matchesStudioDateFilter } from "@/lib/filter-date-range";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { matchesSearchTokens } from "@/lib/search-tokens";
 import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
-
-export type CoachScheduleStatusFilter = "all" | ScheduleSessionListStatus;
 
 export type CoachScheduleFilterValues = {
   search: string;
   from: string;
   to: string;
   classType: string;
-  status: CoachScheduleStatusFilter;
+  status: string;
   order: SessionSortOrder;
 };
+
+/** @deprecated Multi filters use CSV strings; kept for call-site imports. */
+export type CoachScheduleStatusFilter = string;
 
 export const DEFAULT_COACH_SCHEDULE_FILTER_VALUES: CoachScheduleFilterValues = {
   search: "",
@@ -28,7 +30,7 @@ export const DEFAULT_COACH_SCHEDULE_FILTER_VALUES: CoachScheduleFilterValues = {
   order: "upcoming",
 };
 
-const STATUS_OPTIONS: readonly Exclude<CoachScheduleStatusFilter, "all">[] = [
+const STATUS_OPTIONS: readonly ScheduleSessionListStatus[] = [
   "ACTIVE",
   "FULL",
   "FINISHED",
@@ -44,7 +46,7 @@ type BuildCoachScheduleFilterFieldsArgs = {
     classAll: string;
     status: string;
     statusAll: string;
-    statusValues: Record<Exclude<CoachScheduleStatusFilter, "all">, string>;
+    statusValues: Record<ScheduleSessionListStatus, string>;
     searchPlaceholder: string;
     resetFilters: string;
     sort: string;
@@ -127,10 +129,10 @@ export function matchesCoachScheduleFilters(
   if (!matchesStudioDateFilter(row.startsAt, filters.from, filters.to)) {
     return false;
   }
-  if (filters.classType !== "all" && row.classType.name !== filters.classType) {
+  if (!matchesFilterMultiValue(filters.classType, row.classType.name)) {
     return false;
   }
-  if (filters.status !== "all" && row.status !== filters.status) {
+  if (!matchesFilterMultiValue(filters.status, row.status)) {
     return false;
   }
 
@@ -142,8 +144,8 @@ export function hasActiveCoachScheduleFilters(filters: CoachScheduleFilterValues
     filters.search.trim().length > 0 ||
     filters.from.length > 0 ||
     filters.to.length > 0 ||
-    filters.classType !== "all" ||
-    filters.status !== "all" ||
+    parseFilterMultiValue(filters.classType).length > 0 ||
+    parseFilterMultiValue(filters.status).length > 0 ||
     filters.order !== "upcoming"
   );
 }

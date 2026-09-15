@@ -1,11 +1,13 @@
 import { parseListPageParams } from "@/lib/list-pagination";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 import type {
   AdminManagerOrder,
   AdminManagersFilterValues,
-  AdminManagerStatusFilter,
 } from "@/components/admin/admin-managers-types";
 
 export type { AdminManagersListPayload } from "@/components/admin/admin-managers-types";
+
+const STATUS_VALUES = new Set(["active", "blocked"]);
 
 export function buildAdminManagersListEndpoint(
   filters: AdminManagersFilterValues,
@@ -19,8 +21,9 @@ export function buildAdminManagersListEndpoint(
   if (filters.q.length > 0) {
     params.set("q", filters.q);
   }
-  if (filters.status !== "all") {
-    params.set("status", filters.status);
+  const statusParts = parseFilterMultiValue(filters.status);
+  if (statusParts.length > 0) {
+    params.set("status", statusParts.join(","));
   }
   if (filters.order !== "newest") {
     params.set("order", filters.order);
@@ -37,14 +40,13 @@ export function parseAdminManagersPageParams(
 export function pickAdminManagersFilters(
   search: Record<string, string | undefined>,
 ): AdminManagersFilterValues {
-  const status: AdminManagerStatusFilter =
-    search.status === "active" || search.status === "blocked"
-      ? search.status
-      : "all";
+  const statusParts = parseFilterMultiValue(search.status).filter((part) =>
+    STATUS_VALUES.has(part),
+  );
   const order: AdminManagerOrder = search.order === "oldest" ? "oldest" : "newest";
   return {
     q: search.q?.trim() ?? "",
-    status,
+    status: statusParts.length === 0 ? "all" : statusParts.join(","),
     order,
   };
 }

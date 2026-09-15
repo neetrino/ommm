@@ -11,6 +11,10 @@ import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import { buildAdminListPaymentsWhere } from './payments-admin-list.util';
+import {
+  packageSourceIdsToPaymentWhere,
+  resolveAdminPaymentPackageSourceIds,
+} from './payments-admin-package-filters';
 import { detectPaymentSource, readPaymentSource } from './payments.helpers';
 import {
   resolveAdminPaymentRelatedItemGroupName,
@@ -50,7 +54,14 @@ export class PaymentsAdminService {
     const order = query.order === 'oldest' ? 'asc' : 'desc';
     const where: Prisma.PaymentWhereInput = {
       userId,
-      ...(query.status ? { status: query.status } : {}),
+      ...(query.status?.length
+        ? {
+            status:
+              query.status.length === 1
+                ? query.status[0]
+                : { in: query.status },
+          }
+        : {}),
     };
     const [items, total] = await Promise.all([
       this.prisma.payment.findMany({
@@ -106,7 +117,13 @@ export class PaymentsAdminService {
       throw new BadRequestException('Invalid date range');
     }
     const order = resolveDateListPrismaOrder(query.order);
-    const where = buildAdminListPaymentsWhere(query);
+    const packageSourceIds = await resolveAdminPaymentPackageSourceIds(
+      this.prisma,
+      query,
+    );
+    const where = buildAdminListPaymentsWhere(query, {
+      packageSourceWhere: packageSourceIdsToPaymentWhere(packageSourceIds),
+    });
 
     const [items, total, amountAgg] = await Promise.all([
       this.prisma.payment.findMany({

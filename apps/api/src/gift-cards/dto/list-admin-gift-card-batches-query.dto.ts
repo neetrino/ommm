@@ -1,7 +1,16 @@
 import { GiftCardStatus } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
+import { parseCsvEnumQueryParam } from '../../common/parse-csv-query-param';
 
 const GIFT_CARD_SORT_ORDERS = [
   'newest',
@@ -11,8 +20,11 @@ const GIFT_CARD_SORT_ORDERS = [
   'expirationSoon',
 ] as const;
 
-const GIFT_CARD_QUICK_FILTERS = [
-  '',
+export const GIFT_CARD_STATUS_FILTERS = Object.values(GiftCardStatus);
+
+export const GIFT_CARD_EXPIRATION_FILTERS = ['valid', 'expired'] as const;
+
+export const GIFT_CARD_QUICK_FILTERS = [
   'active',
   'expired',
   'unredeemed',
@@ -24,12 +36,20 @@ export class ListAdminGiftCardBatchesQueryDto extends ListPaginationQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsIn([...Object.values(GiftCardStatus), 'all'])
-  status?: string;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, GIFT_CARD_STATUS_FILTERS),
+  )
+  @IsArray()
+  @IsIn([...GIFT_CARD_STATUS_FILTERS], { each: true })
+  status?: GiftCardStatus[];
 
   @IsOptional()
-  @IsIn(['all', 'valid', 'expired'])
-  expiration?: string;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, GIFT_CARD_EXPIRATION_FILTERS),
+  )
+  @IsArray()
+  @IsIn([...GIFT_CARD_EXPIRATION_FILTERS], { each: true })
+  expiration?: (typeof GIFT_CARD_EXPIRATION_FILTERS)[number][];
 
   @IsOptional()
   @Transform(({ value }) =>
@@ -54,6 +74,10 @@ export class ListAdminGiftCardBatchesQueryDto extends ListPaginationQueryDto {
   order?: (typeof GIFT_CARD_SORT_ORDERS)[number];
 
   @IsOptional()
-  @IsIn(GIFT_CARD_QUICK_FILTERS)
-  quick?: (typeof GIFT_CARD_QUICK_FILTERS)[number];
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, GIFT_CARD_QUICK_FILTERS),
+  )
+  @IsArray()
+  @IsIn([...GIFT_CARD_QUICK_FILTERS], { each: true })
+  quick?: (typeof GIFT_CARD_QUICK_FILTERS)[number][];
 }

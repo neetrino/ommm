@@ -1,5 +1,16 @@
-import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsArray,
+  IsIn,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
+import {
+  parseCsvEnumQueryParam,
+  parseCsvQueryParam,
+} from '../../common/parse-csv-query-param';
 
 export const SESSION_REVIEW_RATING_FILTERS = ['1', '2', '3', '4', '5'] as const;
 export type SessionReviewRatingFilter =
@@ -19,20 +30,38 @@ export class ListSessionReviewsInboxQueryDto extends ListPaginationQueryDto {
   q?: string;
 
   @IsOptional()
-  @IsIn(SESSION_REVIEW_RATING_FILTERS)
-  rating?: SessionReviewRatingFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, SESSION_REVIEW_RATING_FILTERS),
+  )
+  @IsArray()
+  @IsIn([...SESSION_REVIEW_RATING_FILTERS], { each: true })
+  rating?: SessionReviewRatingFilter[];
 
   @IsOptional()
-  @IsIn(SESSION_REVIEW_VISIBILITY_FILTERS)
-  visibility?: SessionReviewVisibilityFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, SESSION_REVIEW_VISIBILITY_FILTERS),
+  )
+  @IsArray()
+  @IsIn([...SESSION_REVIEW_VISIBILITY_FILTERS], { each: true })
+  visibility?: SessionReviewVisibilityFilter[];
 
   @IsOptional()
-  @IsString()
-  @MaxLength(64)
-  coachId?: string;
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
+  coachId?: string[];
 
   @IsOptional()
-  @IsString()
-  @MaxLength(64)
-  packagePlanId?: string;
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
+  packagePlanId?: string[];
 }

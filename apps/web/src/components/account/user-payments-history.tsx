@@ -21,8 +21,6 @@ import {
   userPaymentsIntegratedFilterValues,
   type UserPaymentFilterValues,
   type UserPaymentSortOrder,
-  type UserPaymentSourceFilter,
-  type UserPaymentStatusFilter,
 } from "@/components/account/user-payments-filter-fields";
 import {
   USER_PAYMENTS_LIST_CENTER_HEADER_CELL,
@@ -38,6 +36,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { matchesFilterMultiValue, parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -67,7 +66,7 @@ const DEFAULT_FILTER_VALUES: UserPaymentFilterValues = {
 
 function buildPaymentsEndpoint(
   listPage: ReturnType<typeof parseListPageParams>,
-  status: UserPaymentStatusFilter,
+  status: string,
   order: UserPaymentSortOrder,
 ): string {
   const params = new URLSearchParams({
@@ -75,8 +74,9 @@ function buildPaymentsEndpoint(
     offset: String(listPage.offset),
     order,
   });
-  if (status !== "all") {
-    params.set("status", status);
+  const statusParts = parseFilterMultiValue(status);
+  if (statusParts.length > 0) {
+    params.set("status", statusParts.join(","));
   }
   return `/payments/me?${params.toString()}`;
 }
@@ -197,10 +197,13 @@ export function UserPaymentsHistory({
     const search = filters.search.trim().toLowerCase();
     return paymentsPayload.items
       .filter((payment) => {
-        if (filters.source !== "all") {
-          if (normalizePaymentSource(payment.description) !== filters.source) {
-            return false;
-          }
+        if (
+          !matchesFilterMultiValue(
+            filters.source,
+            normalizePaymentSource(payment.description),
+          )
+        ) {
+          return false;
         }
         if (search.length === 0) {
           return true;
@@ -215,13 +218,19 @@ export function UserPaymentsHistory({
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
       case "status":
-        setFilters((current) => ({ ...current, status: value as UserPaymentStatusFilter }));
+        setFilters((current) => ({
+          ...current,
+          status: value.trim() === "" ? "all" : value,
+        }));
         replaceSearchParams((params) => {
           resetListPageQuery(params);
         });
         break;
       case "source":
-        setFilters((current) => ({ ...current, source: value as UserPaymentSourceFilter }));
+        setFilters((current) => ({
+          ...current,
+          source: value.trim() === "" ? "all" : value,
+        }));
         break;
       case "order":
         setFilters((current) => ({ ...current, order: value as UserPaymentSortOrder }));
@@ -244,8 +253,8 @@ export function UserPaymentsHistory({
   }
 
   const hasDefaultFilters =
-    filters.status === "all" &&
-    filters.source === "all" &&
+    parseFilterMultiValue(filters.status).length === 0 &&
+    parseFilterMultiValue(filters.source).length === 0 &&
     filters.search.trim().length === 0;
   const isEmpty = paymentsPayload.total === 0 && hasDefaultFilters;
 

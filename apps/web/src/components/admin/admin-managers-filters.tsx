@@ -14,6 +14,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { resetListPageQuery } from "@/lib/list-pagination";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 
 const FILTER_DEBOUNCE_MS = 300;
 const FILTER_QUERY_KEYS = ["q", "status", "order"] as const;
@@ -55,8 +56,11 @@ function buildQuery(
   if (values.q.trim() !== "") {
     params.set("q", values.q.trim());
   }
-  if (values.status !== "all") {
-    params.set("status", values.status);
+  const statusParts = parseFilterMultiValue(values.status).filter(
+    (part) => part === "active" || part === "blocked",
+  );
+  if (statusParts.length > 0) {
+    params.set("status", statusParts.join(","));
   }
   if (values.order !== "newest") {
     params.set("order", values.order);
@@ -145,10 +149,7 @@ export function AdminManagersFilters({
 
   function handleIntegratedFilterChange(key: string, value: string): void {
     if (key === "status") {
-      updateField(
-        "status",
-        value === "active" || value === "blocked" ? value : "all",
-      );
+      updateField("status", value.trim() === "" ? "all" : value);
       return;
     }
     if (key === "order") {

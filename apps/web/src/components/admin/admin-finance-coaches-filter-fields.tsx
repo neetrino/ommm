@@ -1,11 +1,11 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import type { CoachFinanceFilters } from "@/components/admin/admin-finance-types";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 
 type BuildAdminFinanceCoachesFilterFieldsArgs = {
   labels: {
-    monthLabel: string;
+    dateFrom: string;
+    dateTo: string;
     payoutStatusLabel: string;
     filterAll: string;
     statusPaid: string;
@@ -22,25 +22,25 @@ type BuildAdminFinanceCoachesFilterFieldsArgs = {
   };
 };
 
-const YEAR_MONTH_PATTERN = /^\d{4}-\d{2}$/;
-
-function monthToDatePickerValue(month: string): string {
-  return YEAR_MONTH_PATTERN.test(month) ? `${month}-01` : "";
-}
-
-function datePickerValueToMonth(isoDate: string): string {
-  const trimmed = isoDate.trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-    return "";
-  }
-  return trimmed.slice(0, 7);
+function buildCoachesDateFilterField(
+  key: "from" | "to",
+  label: string,
+): AdminIntegratedFilterField {
+  return {
+    key,
+    label,
+    fieldType: "date",
+    emptyValue: "",
+    resolveChipLabel: (value) => formatFilterDateChipLabel(label, value),
+  };
 }
 
 export function adminFinanceCoachesIntegratedFilterValues(
-  values: Pick<CoachFinanceFilters, "month" | "payoutStatus" | "order" | "quick">,
+  values: Pick<CoachFinanceFilters, "from" | "to" | "payoutStatus" | "order" | "quick">,
 ): Record<string, string> {
   return {
-    month: values.month,
+    from: values.from,
+    to: values.to,
     payoutStatus: values.payoutStatus || "all",
     order: values.order,
     quick: values.quick || "all",
@@ -51,22 +51,8 @@ export function buildAdminFinanceCoachesFilterFields({
   labels,
 }: BuildAdminFinanceCoachesFilterFieldsArgs): AdminIntegratedFilterField[] {
   return [
-    {
-      key: "month",
-      label: labels.monthLabel,
-      fieldType: "custom",
-      resolveChipLabel: (value) =>
-        formatFilterDateChipLabel(labels.monthLabel, monthToDatePickerValue(value)),
-      render: ({ value, onChange }) => (
-        <DatePickerInput
-          name="month"
-          value={monthToDatePickerValue(value)}
-          onChange={(next) => onChange(datePickerValueToMonth(next))}
-          ariaLabel={labels.monthLabel}
-          placeholder={labels.monthLabel}
-        />
-      ),
-    },
+    buildCoachesDateFilterField("from", labels.dateFrom),
+    buildCoachesDateFilterField("to", labels.dateTo),
     {
       key: "quick",
       label: labels.quickLabel,
@@ -111,8 +97,10 @@ export function parseCoachesIntegratedFilterChange(
   current: CoachFinanceFilters,
 ): CoachFinanceFilters {
   switch (key) {
-    case "month":
-      return { ...current, month: value };
+    case "from":
+      return { ...current, from: value };
+    case "to":
+      return { ...current, to: value };
     case "quick":
       return { ...current, quick: value === "all" ? "" : value };
     case "payoutStatus":
