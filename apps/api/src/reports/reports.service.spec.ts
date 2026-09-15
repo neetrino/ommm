@@ -315,6 +315,9 @@ describe('ReportsService', () => {
           .fn()
           .mockResolvedValueOnce([{ amountCents: 4_000 }])
           .mockResolvedValueOnce([{ amountCents: 2_000 }]),
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { balanceAmd: 500 },
+        }),
       },
       user: {
         aggregate: jest.fn().mockResolvedValue({
@@ -335,7 +338,7 @@ describe('ReportsService', () => {
     expect(result.giftCredits.issuedCount).toBe(1);
     expect(result.giftCredits.redeemedCount).toBe(1);
     expect(result.giftCredits.redeemedCents).toBe(2_000);
-    expect(result.giftCredits.outstandingCreditsCents).toBe(1_500);
+    expect(result.giftCredits.outstandingCreditsCents).toBe(2_000);
     expect(result.influencer).toEqual({ count: 0, costCents: 0 });
     expect(result.dailyRevenue).toEqual([
       { date: '2026-06-01', amountCents: 5_000 },

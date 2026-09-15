@@ -9,7 +9,6 @@ import { UserGiftCardsView } from "@/components/account/user-gift-cards-view";
 import { mergeUserGiftCards } from "@/lib/merge-user-gift-cards";
 import { parseUserGiftCardsTab } from "@/lib/user-gift-cards-tab";
 import { serverApiJson } from "@/lib/server-api";
-import { getCachedUsersMe } from "@/server/cached-users-me";
 
 type MemberUserGiftCardsRouteContentProps = {
   locale: string;
@@ -26,13 +25,16 @@ export async function MemberUserGiftCardsRouteContent({
   const t = await getTranslations({ locale, namespace: "userPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
 
-  const [purchasedRes, receivedRes, meRes] = await Promise.all([
+  const [purchasedRes, receivedRes, balanceRes] = await Promise.all([
     serverApiJson<UserGiftCardRow[]>("/gift-cards/me/purchased", cookie),
     serverApiJson<UserGiftCardRow[]>("/gift-cards/me/received", cookie),
-    getCachedUsersMe(),
+    serverApiJson<{ spendableCents: number }>(
+      "/gift-cards/me/spendable-balance",
+      cookie,
+    ),
   ]);
 
-  const credits = meRes.ok ? meRes.data.user.giftCreditsCents ?? null : null;
+  const credits = balanceRes.ok ? balanceRes.data.spendableCents : null;
   const purchased = purchasedRes.ok ? purchasedRes.data : [];
   const received = receivedRes.ok ? receivedRes.data : [];
   const mergedCards = mergeUserGiftCards(purchased, received);

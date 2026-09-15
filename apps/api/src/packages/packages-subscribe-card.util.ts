@@ -18,9 +18,12 @@ import {
   resolveFinalPriceCents,
 } from './packages-plan.helpers';
 import {
-  PACKAGE_GIFT_CREDITS_APPLIED_KEY,
+  PACKAGE_GIFT_CREDITS_REFUNDED_KEY,
+  buildGiftCreditsPaymentMetadata,
+  readGiftCreditsAllocations,
   readGiftCreditsAppliedCents,
   refundReservedGiftCredits,
+  type GiftCreditAllocation,
 } from './package-gift-credits.util';
 import { buildUserPackagePlanSnapshot } from './user-package-plan-snapshot.util';
 import { shouldAwaitFirstVisit } from './packages-activation.helpers';
@@ -43,7 +46,7 @@ export type PendingCardPackagePurchase = {
 
 type PaymentPackageDb = Pick<
   Prisma.TransactionClient,
-  'userPackage' | 'payment' | 'user'
+  'userPackage' | 'payment' | 'user' | 'giftCard'
 >;
 
 function paymentMatchesPlan(
@@ -168,6 +171,7 @@ export async function createPendingCardPackagePurchase(
     plan: PackagePlan;
     chargeCents?: number;
     giftCreditsAppliedCents?: number;
+    giftCreditsAllocations?: GiftCreditAllocation[];
   },
 ): Promise<PendingCardPackagePurchase> {
   const paymentReference = createPaymentReference('PACKAGE');
@@ -190,9 +194,10 @@ export async function createPendingCardPackagePurchase(
       paymentMethod: ManualPaymentMethod.CARD,
       metadata: withPackagePlanIdMetadata(null, params.plan.id, {
         statusReason: PAYMENT_STATUS_REASON.CHECKOUT_NOT_STARTED,
-        ...(giftCreditsAppliedCents > 0
-          ? { [PACKAGE_GIFT_CREDITS_APPLIED_KEY]: giftCreditsAppliedCents }
-          : {}),
+        ...buildGiftCreditsPaymentMetadata(
+          giftCreditsAppliedCents,
+          params.giftCreditsAllocations ?? [],
+        ),
       }),
     },
   });
@@ -227,6 +232,7 @@ export async function failPendingCardPackagePurchase(
   }
 
   const reservedGiftCredits = readGiftCreditsAppliedCents(existing.metadata);
+  const allocations = readGiftCreditsAllocations(existing.metadata);
   await db.payment.update({
     where: { id: params.paymentId },
     data: {
@@ -236,6 +242,9 @@ export async function failPendingCardPackagePurchase(
       metadata: mergeArcaMetadata(existing.metadata, {
         statusReason:
           params.statusReason ?? PAYMENT_STATUS_REASON.REGISTER_FAILED,
+        ...(reservedGiftCredits > 0
+          ? { [PACKAGE_GIFT_CREDITS_REFUNDED_KEY]: true }
+          : {}),
       }),
     },
   });
@@ -243,6 +252,7 @@ export async function failPendingCardPackagePurchase(
     await refundReservedGiftCredits(db, {
       userId: existing.userId,
       appliedCents: reservedGiftCredits,
+      allocations,
     });
   }
   if (params.userPackageId === null) {

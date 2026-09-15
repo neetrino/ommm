@@ -71,7 +71,8 @@ export class ReportsExportService {
       issuedGiftCards,
       redeemedGiftCards,
       giftSpentAgg,
-      giftLiabilityAgg,
+      giftWalletAgg,
+      giftCardsOutstandingAgg,
     ] = await Promise.all([
       this.prisma.payment.aggregate({
         where: { ...where, ...revenueSucceededWhere },
@@ -121,6 +122,13 @@ export class ReportsExportService {
       }),
       this.prisma.user.aggregate({
         _sum: { giftCreditsCents: true },
+      }),
+      this.prisma.giftCard.aggregate({
+        where: {
+          status: GiftCardStatus.ACTIVE,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        _sum: { balanceAmd: true },
       }),
     ]);
 
@@ -179,7 +187,9 @@ export class ReportsExportService {
         redeemedCount,
         spentCents: giftSpentAgg._sum.amountCents ?? 0,
         spendTransactionsCount: giftSpentAgg._count.id ?? 0,
-        outstandingCreditsCents: giftLiabilityAgg._sum.giftCreditsCents ?? 0,
+        outstandingCreditsCents:
+          (giftWalletAgg._sum.giftCreditsCents ?? 0) +
+          (giftCardsOutstandingAgg._sum.balanceAmd ?? 0),
       },
       influencer,
     };
