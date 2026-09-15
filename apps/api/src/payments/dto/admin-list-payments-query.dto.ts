@@ -11,7 +11,10 @@ import {
 } from 'class-validator';
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { DateListOrder } from '../../common/enums/list-order.enum';
-import { parseCsvEnumQueryParam } from '../../common/parse-csv-query-param';
+import {
+  parseCsvEnumQueryParam,
+  parseCsvQueryParam,
+} from '../../common/parse-csv-query-param';
 
 /** Cash, online card, or physical terminal. */
 export const ADMIN_LIST_PAYMENT_METHOD_FILTERS = [
@@ -59,6 +62,36 @@ export class AdminListPaymentsQueryDto {
   @IsArray()
   @IsIn([...ADMIN_LIST_PAYMENT_METHOD_FILTERS], { each: true })
   paymentMethod?: (typeof ADMIN_LIST_PAYMENT_METHOD_FILTERS)[number][];
+
+  /** Comma-separated package plan ids. */
+  @IsOptional()
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  planId?: string[];
+
+  /** Comma-separated package category names. */
+  @IsOptional()
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  packageClass?: string[];
+
+  /** Comma-separated session counts (`8`) and/or `unlimited`. */
+  @IsOptional()
+  @Transform(({ value }) => {
+    const parts = parseCsvQueryParam(value);
+    return parts.length > 0 ? parts : undefined;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  sessions?: string[];
 
   @IsOptional()
   @IsString()

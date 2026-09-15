@@ -33,4 +33,21 @@ describe('buildAdminListPaymentsWhere', () => {
     expect(where.paymentMethod).toBe(ManualPaymentMethod.CASH);
     expect(where).toMatchObject({ source: 'PACKAGE' });
   });
+
+  it('applies package source id restriction when provided', () => {
+    const where = buildAdminListPaymentsWhere(
+      { status: [PaymentStatus.SUCCEEDED] },
+      {
+        packageSourceWhere: {
+          source: 'PACKAGE',
+          sourceId: { in: ['up-1', 'up-2'] },
+        },
+      },
+    );
+    expect(where).toMatchObject({
+      status: PaymentStatus.SUCCEEDED,
+      source: 'PACKAGE',
+      sourceId: { in: ['up-1', 'up-2'] },
+    });
+  });
 });
