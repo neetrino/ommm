@@ -30,6 +30,7 @@ type BuildAdminFinancePaymentsFilterFieldsArgs = {
     paymentMethodCash: string;
     paymentMethodCard: string;
     paymentMethodTerminal: string;
+    paymentMethodInfluencer: string;
     packageLabel: string;
     packageAll: string;
     packageClassLabel: string;
@@ -77,16 +78,22 @@ function paymentMethodOptionLabel(
   value: (typeof FINANCE_PAYMENT_METHOD_FILTER_VALUES)[number],
   labels: Pick<
     BuildAdminFinancePaymentsFilterFieldsArgs["labels"],
-    "paymentMethodCash" | "paymentMethodCard" | "paymentMethodTerminal"
+    | "paymentMethodCash"
+    | "paymentMethodCard"
+    | "paymentMethodTerminal"
+    | "paymentMethodInfluencer"
   >,
 ): string {
-  if (value === "CASH") {
-    return labels.paymentMethodCash;
+  switch (value) {
+    case "CASH":
+      return labels.paymentMethodCash;
+    case "CARD":
+      return labels.paymentMethodCard;
+    case "CARD_TERMINAL":
+      return labels.paymentMethodTerminal;
+    case "INFLUENCER":
+      return labels.paymentMethodInfluencer;
   }
-  if (value === "CARD") {
-    return labels.paymentMethodCard;
-  }
-  return labels.paymentMethodTerminal;
 }
 
 function buildPaymentMethodFilterField(
@@ -97,6 +104,7 @@ function buildPaymentMethodFilterField(
     | "paymentMethodCash"
     | "paymentMethodCard"
     | "paymentMethodTerminal"
+    | "paymentMethodInfluencer"
   >,
 ): AdminIntegratedFilterField {
   return {

@@ -16,11 +16,12 @@ import {
   parseCsvQueryParam,
 } from '../../common/parse-csv-query-param';
 
-/** Cash, online card, or physical terminal. */
+/** Cash, online card, physical terminal, or influencer comp. */
 export const ADMIN_LIST_PAYMENT_METHOD_FILTERS = [
   ManualPaymentMethod.CASH,
   ManualPaymentMethod.CARD,
   ManualPaymentMethod.CARD_TERMINAL,
+  ManualPaymentMethod.INFLUENCER,
 ] as const;
 
 export enum PaymentSourceFilter {
