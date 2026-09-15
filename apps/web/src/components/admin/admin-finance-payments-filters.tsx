@@ -250,6 +250,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
         <AdminFinanceExportLinks
           from={paymentsRange.from}
           to={paymentsRange.to}
+          menuAriaLabel={t("exportMenuAria")}
           paymentsLabel={t("exportPaymentsCsv")}
         />
       }

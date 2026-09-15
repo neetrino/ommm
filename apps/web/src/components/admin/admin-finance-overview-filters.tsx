@@ -131,6 +131,7 @@ export function AdminFinanceOverviewFilters({
         <AdminFinanceExportLinks
           from={exportRange.from}
           to={exportRange.to}
+          menuAriaLabel={t("exportMenuAria")}
           paymentsLabel={t("exportPaymentsCsv")}
           giftCreditsLabel={t("exportGiftCreditsCsv")}
         />

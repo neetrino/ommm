@@ -4039,6 +4039,7 @@
       "shownCount": "Показано {shown} из {total} транзакций",
       "exportPaymentsCsv": "Экспорт CSV платежей",
       "exportGiftCreditsCsv": "Экспорт CSV подарочных кредитов",
+      "exportMenuAria": "Скачать CSV-отчёты",
       "sources": {
         "package": "Абонементы",
         "dropin": "Бронирования",

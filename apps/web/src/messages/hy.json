@@ -4042,6 +4042,7 @@
       "shownCount": "Ցուցադրված է {shown}-ը {total}-ից",
       "exportPaymentsCsv": "Արտահանել payments CSV",
       "exportGiftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV",
+      "exportMenuAria": "Ներբեռնել CSV հաշվետվություններ",
       "sources": {
         "package": "Աբոնեմենտներ",
         "dropin": "Ամրագրումներ",

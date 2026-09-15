@@ -4373,6 +4373,7 @@
       "shownCount": "Showing {shown} of {total} transactions",
       "exportPaymentsCsv": "Export payments CSV",
       "exportGiftCreditsCsv": "Export gift credits CSV",
+      "exportMenuAria": "Download CSV reports",
       "sources": {
         "package": "Memberships",
         "dropin": "Bookings",
