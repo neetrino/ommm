@@ -3,11 +3,11 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { postAuthPathForRole } from "@/lib/role-home";
-import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
 import { markClientSessionHint } from "@/lib/client-session-hint";
+import { hardNavigateAfterAuth } from "@/lib/post-auth-hard-navigate";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -57,7 +57,6 @@ function resolveInviteToken(params: {
 }
 
 function CreatePasswordForm({ initialToken }: { initialToken: string }) {
-  const router = useRouter();
   const urlLocale = useLocale();
   const t = useTranslations("auth.createPassword");
   const routeParams = useParams();
@@ -114,8 +113,7 @@ function CreatePasswordForm({ initialToken }: { initialToken: string }) {
       markClientSessionHint();
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
-      await prefetchMarketingHeaderAccount();
-      router.push(postAuthPathForRole(user.role), { locale: nextLocale });
+      hardNavigateAfterAuth(nextLocale, postAuthPathForRole(user.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("failed"));
       setBusy(false);
