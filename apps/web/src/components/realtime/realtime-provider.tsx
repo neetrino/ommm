@@ -17,7 +17,7 @@ import {
   type RealtimeConnectionStatus,
 } from "@/lib/realtime/realtime-sse-client";
 
-/** Same-origin paths so the session cookie is sent (Next `/api/v1` rewrite → Nest). */
+/** Same-origin paths so the session cookie is sent (App Router SSE proxy → Nest). */
 const REALTIME_SSE_AUTHENTICATED_PATH = "/api/v1/realtime/events";
 const REALTIME_SSE_PUBLIC_PATH = "/api/v1/realtime/public";
 
