@@ -15,7 +15,8 @@ export type UserSessionFilterValues = {
   to: string;
   classType: string;
   coach: string;
-  availability: UserSessionAvailabilityFilter;
+  /** "all" or comma-separated available/full. */
+  availability: string;
   order: SessionSortOrder;
 };
 
