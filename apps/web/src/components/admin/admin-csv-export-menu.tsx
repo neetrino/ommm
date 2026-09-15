@@ -39,7 +39,8 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const selected = items[selectedIndex] ?? items[0];
+  const safeSelectedIndex = selectedIndex < items.length ? selectedIndex : 0;
+  const selected = items[safeSelectedIndex];
   const showSelect = items.length > 1;
   const menuPosition = useFloatingMenuPosition(
     selectRef,
@@ -49,13 +50,6 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
     EXPORT_MENU_MIN_WIDTH,
     "end",
   );
-
-  useEffect(() => {
-    if (selectedIndex < items.length) {
-      return;
-    }
-    setSelectedIndex(0);
-  }, [items.length, selectedIndex]);
 
   useEffect(() => {
     if (!open) {
@@ -109,7 +103,7 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
             }}
           >
             {items.map((item, index) => {
-              const isSelected = index === selectedIndex;
+              const isSelected = index === safeSelectedIndex;
               return (
                 <button
                   key={item.href}
