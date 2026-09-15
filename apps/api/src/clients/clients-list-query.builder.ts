@@ -49,7 +49,7 @@ function pushOr(
     return;
   }
   if (clauses.length === 1) {
-    and.push(clauses[0]!);
+    and.push(clauses[0]);
     return;
   }
   and.push({ OR: clauses });

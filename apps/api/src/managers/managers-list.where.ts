@@ -37,7 +37,7 @@ export function buildManagersListWhere(
     .filter((clause): clause is Prisma.UserWhereInput => clause !== null);
 
   if (statusClauses.length === 1) {
-    and.push(statusClauses[0]!);
+    and.push(statusClauses[0]);
   } else if (statusClauses.length > 1) {
     and.push({ OR: statusClauses });
   }

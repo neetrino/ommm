@@ -100,10 +100,7 @@ export function matchesClientFilters(
   ) {
     return false;
   }
-  if (
-    query.source?.length &&
-    !query.source.includes(row.source ?? '')
-  ) {
+  if (query.source?.length && !query.source.includes(row.source ?? '')) {
     return false;
   }
   if (

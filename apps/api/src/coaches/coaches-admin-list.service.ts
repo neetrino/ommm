@@ -69,12 +69,12 @@ export class CoachesAdminListService {
       });
     }
     if (classTypeClauses.length === 1) {
-      and.push(classTypeClauses[0]!);
+      and.push(classTypeClauses[0]);
     } else if (classTypeClauses.length > 1) {
       and.push({ OR: classTypeClauses });
     }
     if (activeClauses.length === 1) {
-      and.push(activeClauses[0]!);
+      and.push(activeClauses[0]);
     } else if (activeClauses.length > 1) {
       and.push({ OR: activeClauses });
     }

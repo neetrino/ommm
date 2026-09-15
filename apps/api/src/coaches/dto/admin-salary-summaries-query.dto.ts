@@ -48,9 +48,7 @@ export class AdminSalarySummariesQueryDto extends ListPaginationQueryDto {
   order?: (typeof SALARY_ORDERS)[number];
 
   @IsOptional()
-  @Transform(({ value }) =>
-    parseCsvEnumQueryParam(value, SALARY_QUICK_FILTERS),
-  )
+  @Transform(({ value }) => parseCsvEnumQueryParam(value, SALARY_QUICK_FILTERS))
   @IsArray()
   @IsIn([...SALARY_QUICK_FILTERS], { each: true })
   quick?: CoachSalaryQuickFilter[];

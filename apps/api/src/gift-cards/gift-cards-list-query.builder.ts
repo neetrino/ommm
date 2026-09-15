@@ -6,7 +6,9 @@ import {
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 
 function giftCardExpirationClause(
-  expiration: NonNullable<ListAdminGiftCardBatchesQueryDto['expiration']>[number],
+  expiration: NonNullable<
+    ListAdminGiftCardBatchesQueryDto['expiration']
+  >[number],
   now: Date,
 ): Prisma.GiftCardBatchWhereInput {
   if (expiration === 'valid') {
@@ -79,9 +81,7 @@ export function buildGiftCardBatchWhere(
   if (query.status?.length) {
     and.push({
       status:
-        query.status.length === 1
-          ? query.status[0]!
-          : { in: query.status },
+        query.status.length === 1 ? query.status[0] : { in: query.status },
     });
   }
 
@@ -90,7 +90,7 @@ export function buildGiftCardBatchWhere(
       giftCardExpirationClause(expiration, now),
     );
     if (clauses.length === 1) {
-      and.push(clauses[0]!);
+      and.push(clauses[0]);
     } else {
       and.push({ OR: clauses });
     }
@@ -104,11 +104,9 @@ export function buildGiftCardBatchWhere(
   }
 
   if (query.quick?.length) {
-    const clauses = query.quick.map((quick) =>
-      giftCardQuickClause(quick, now),
-    );
+    const clauses = query.quick.map((quick) => giftCardQuickClause(quick, now));
     if (clauses.length === 1) {
-      and.push(clauses[0]!);
+      and.push(clauses[0]);
     } else {
       and.push({ OR: clauses });
     }

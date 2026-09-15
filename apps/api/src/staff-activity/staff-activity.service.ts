@@ -66,10 +66,7 @@ export class StaffActivityService {
     return {
       ...(query.type?.length
         ? {
-            type:
-              query.type.length === 1
-                ? query.type[0]!
-                : { in: query.type },
+            type: query.type.length === 1 ? query.type[0] : { in: query.type },
           }
         : {}),
       ...(q

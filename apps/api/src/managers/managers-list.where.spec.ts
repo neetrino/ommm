@@ -46,7 +46,7 @@ describe('buildManagersListWhere', () => {
     expect(where.AND).toEqual(
       expect.arrayContaining([
         { role: Role.MANAGER },
-        expect.objectContaining({ AND: expect.any(Array) }),
+        expect.objectContaining({ AND: expect.any(Array) as unknown[] }),
       ]),
     );
     const clauses = where.AND;

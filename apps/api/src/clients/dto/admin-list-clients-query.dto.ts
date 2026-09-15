@@ -145,7 +145,10 @@ export class AdminListClientsQueryDto {
 
   @IsOptional()
   @Transform(({ value }) =>
-    parseCsvEnumQueryParam(value, Object.values(AdminClientPaymentStatusFilter)),
+    parseCsvEnumQueryParam(
+      value,
+      Object.values(AdminClientPaymentStatusFilter),
+    ),
   )
   @IsArray()
   @IsIn(Object.values(AdminClientPaymentStatusFilter), { each: true })

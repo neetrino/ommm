@@ -176,7 +176,7 @@ export class CallTasksService {
       this.singleStatusWhere(status, cutoff),
     );
     if (clauses.length === 1) {
-      return clauses[0]!;
+      return clauses[0];
     }
     return { OR: clauses };
   }

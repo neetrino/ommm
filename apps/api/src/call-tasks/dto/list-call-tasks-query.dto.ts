@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 import { parseCsvEnumQueryParam } from '../../common/parse-csv-query-param';
 

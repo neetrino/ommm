@@ -90,17 +90,13 @@ function mapPaymentSourceFilter(
 export function buildSourceFilter(
   source: PaymentSourceFilter | PaymentSourceFilter[] | undefined,
 ): Prisma.PaymentWhereInput | undefined {
-  const sources = Array.isArray(source)
-    ? source
-    : source
-      ? [source]
-      : [];
+  const sources = Array.isArray(source) ? source : source ? [source] : [];
   if (sources.length === 0) {
     return undefined;
   }
   const mapped = sources.map(mapPaymentSourceFilter);
   return withInternalPaymentWhereFields({
-    source: mapped.length === 1 ? mapped[0]! : { in: mapped },
+    source: mapped.length === 1 ? mapped[0] : { in: mapped },
   });
 }
 

@@ -36,12 +36,12 @@ export function buildScopedSessionFilter(params: {
   const filter: Prisma.ClassSessionWhereInput = {
     ...(startsAt ? { startsAt } : {}),
     ...(classTypeIds.length === 1
-      ? { classTypeId: classTypeIds[0]! }
+      ? { classTypeId: classTypeIds[0] }
       : classTypeIds.length > 1
         ? { classTypeId: { in: classTypeIds } }
         : {}),
     ...(coachIds.length === 1
-      ? { coachId: coachIds[0]! }
+      ? { coachId: coachIds[0] }
       : coachIds.length > 1
         ? { coachId: { in: coachIds } }
         : {}),

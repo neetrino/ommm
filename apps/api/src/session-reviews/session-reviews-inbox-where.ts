@@ -52,7 +52,7 @@ function ratingWhere(
   }
   const values = ratings.map((rating) => Number.parseInt(rating, 10));
   return {
-    rating: values.length === 1 ? values[0]! : { in: values },
+    rating: values.length === 1 ? values[0] : { in: values },
   };
 }
 
@@ -86,16 +86,14 @@ function coachWhere(
     return undefined;
   }
   return {
-    coachProfileId: ids.length === 1 ? ids[0]! : { in: ids },
+    coachProfileId: ids.length === 1 ? ids[0] : { in: ids },
   };
 }
 
 function packageWhere(
   packagePlanIds: string[] | undefined,
 ): Prisma.SessionReviewWhereInput | undefined {
-  const ids = (packagePlanIds ?? [])
-    .map((id) => id.trim())
-    .filter(Boolean);
+  const ids = (packagePlanIds ?? []).map((id) => id.trim()).filter(Boolean);
   if (ids.length === 0) {
     return undefined;
   }

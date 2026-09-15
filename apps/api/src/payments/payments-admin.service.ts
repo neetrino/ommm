@@ -58,7 +58,7 @@ export class PaymentsAdminService {
         ? {
             status:
               query.status.length === 1
-                ? query.status[0]!
+                ? query.status[0]
                 : { in: query.status },
           }
         : {}),

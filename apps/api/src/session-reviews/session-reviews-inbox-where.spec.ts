@@ -41,7 +41,7 @@ describe('session-reviews-inbox-where', () => {
                 mode: Prisma.QueryMode.insensitive,
               },
             },
-          ]),
+          ]) as unknown[],
         }),
       ]),
     );

@@ -55,7 +55,7 @@ export class BookingsAdminManagementService {
         ? {
             status:
               params.query.status.length === 1
-                ? params.query.status[0]!
+                ? params.query.status[0]
                 : { in: params.query.status },
           }
         : {}),
@@ -63,7 +63,7 @@ export class BookingsAdminManagementService {
         ? {
             channel:
               params.query.channel.length === 1
-                ? params.query.channel[0]!
+                ? params.query.channel[0]
                 : { in: params.query.channel },
           }
         : {}),
@@ -228,9 +228,7 @@ export class BookingsAdminManagementService {
       const allowed = new Set(
         params.query.paymentStatus.map((status) => status.toUpperCase()),
       );
-      rows = rows.filter((row) =>
-        allowed.has(row.paymentStatus.toUpperCase()),
-      );
+      rows = rows.filter((row) => allowed.has(row.paymentStatus.toUpperCase()));
     }
     if (params.query.attendanceStatus?.length) {
       const allowed = new Set(

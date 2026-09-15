@@ -40,9 +40,7 @@ export class AdminListCoachesQueryDto extends ListPaginationQueryDto {
   classType?: string[];
 
   @IsOptional()
-  @Transform(({ value }) =>
-    parseCsvEnumQueryParam(value, COACH_ACTIVE_FILTERS),
-  )
+  @Transform(({ value }) => parseCsvEnumQueryParam(value, COACH_ACTIVE_FILTERS))
   @IsArray()
   @IsIn(COACH_ACTIVE_FILTERS, { each: true })
   isActive?: AdminCoachActiveFilter[];

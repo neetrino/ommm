@@ -1,6 +1,7 @@
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import type { AdminListDeliveriesQueryDto } from './dto/admin-list-deliveries-query.dto';
 import type { AdminListScheduledQueryDto } from './dto/admin-list-scheduled-query.dto';
+import type { BroadcastAudience } from './dto/broadcast.dto';
 
 export const NOTIFICATIONS_FILTER_SCAN_LIMIT = 2000;
 
@@ -9,7 +10,7 @@ type ScheduledRow = {
   status: string;
   subject: string;
   html: string;
-  audience: string;
+  audience: BroadcastAudience;
   scheduleAt: string;
   createdAt: string;
 };
@@ -19,7 +20,7 @@ type DeliveryRow = {
   createdAt: string;
   recipientEmail: string;
   channel: string;
-  audience: string;
+  audience: BroadcastAudience;
   subject: string;
   scheduled: boolean;
 };
@@ -82,10 +83,10 @@ export function requiresScheduledPostProcessing(
 ): boolean {
   return Boolean(
     query.search?.trim() ||
-      hasFilterValues(query.status) ||
-      hasFilterValues(query.audience) ||
-      hasFilterValues(query.quick) ||
-      (query.order && query.order !== 'newest'),
+    hasFilterValues(query.status) ||
+    hasFilterValues(query.audience) ||
+    hasFilterValues(query.quick) ||
+    (query.order && query.order !== 'newest'),
   );
 }
 
@@ -156,11 +157,11 @@ export function requiresDeliveriesPostProcessing(
 ): boolean {
   return Boolean(
     query.search?.trim() ||
-      hasFilterValues(query.audience) ||
-      hasFilterValues(query.channel) ||
-      hasFilterValues(query.timing) ||
-      hasFilterValues(query.quick) ||
-      (query.order && query.order !== 'newest'),
+    hasFilterValues(query.audience) ||
+    hasFilterValues(query.channel) ||
+    hasFilterValues(query.timing) ||
+    hasFilterValues(query.quick) ||
+    (query.order && query.order !== 'newest'),
   );
 }
 

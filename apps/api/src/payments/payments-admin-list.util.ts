@@ -37,16 +37,14 @@ export function buildAdminListPaymentsWhere(
     ...(query.status?.length
       ? {
           status:
-            query.status.length === 1
-              ? query.status[0]!
-              : { in: query.status },
+            query.status.length === 1 ? query.status[0] : { in: query.status },
         }
       : {}),
     ...(query.paymentMethod?.length
       ? {
           paymentMethod:
             query.paymentMethod.length === 1
-              ? query.paymentMethod[0]!
+              ? query.paymentMethod[0]
               : { in: query.paymentMethod },
         }
       : {}),

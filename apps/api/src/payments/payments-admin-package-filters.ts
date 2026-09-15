@@ -122,7 +122,7 @@ export function packageSourceIdsToPaymentWhere(
 
   const clauses: Prisma.PaymentWhereInput[] = [];
   if (sourceIds.length === 1) {
-    clauses.push({ sourceId: sourceIds[0]! });
+    clauses.push({ sourceId: sourceIds[0] });
   } else if (sourceIds.length > 1) {
     clauses.push({ sourceId: { in: sourceIds } });
   }
@@ -133,7 +133,7 @@ export function packageSourceIdsToPaymentWhere(
   }
 
   if (clauses.length === 1) {
-    return { source: PaymentSource.PACKAGE, ...clauses[0]! };
+    return { source: PaymentSource.PACKAGE, ...clauses[0] };
   }
   return {
     source: PaymentSource.PACKAGE,

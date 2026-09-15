@@ -7,10 +7,7 @@ import type {
   ListCallTasksQueryDto,
 } from './dto/list-call-tasks-query.dto';
 
-function singleStatusSql(
-  status: CallTaskListStatus,
-  cutoff: Date,
-): Prisma.Sql {
+function singleStatusSql(status: CallTaskListStatus, cutoff: Date): Prisma.Sql {
   if (status === 'OVERDUE') {
     return Prisma.sql`(status::text = ${CallTaskStatus.PENDING} AND "dueOn" < ${cutoff})`;
   }
@@ -28,7 +25,7 @@ function listStatusSql(
     return Prisma.sql`TRUE`;
   }
   if (statuses.length === 1) {
-    return singleStatusSql(statuses[0]!, cutoff);
+    return singleStatusSql(statuses[0], cutoff);
   }
   return Prisma.sql`(${Prisma.join(
     statuses.map((status) => singleStatusSql(status, cutoff)),

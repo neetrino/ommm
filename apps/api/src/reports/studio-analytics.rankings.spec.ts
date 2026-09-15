@@ -167,7 +167,6 @@ describe('studio-analytics.rankings', () => {
       ['type-a'],
     );
 
-
     expect(buckets.get('type-a')?.amountCents).toBe(5_000);
     expect(buckets.has('type-b')).toBe(false);
   });
