@@ -14,7 +14,9 @@ COPY apps/api/package.json ./apps/api/
 COPY apps/mobile/package.json ./apps/mobile/
 COPY packages/database/package.json ./packages/database/
 # Skip postinstall (prisma generate) until schema sources are copied in builder.
-RUN pnpm install --frozen-lockfile --filter web... --ignore-scripts
+# Coolify may inject NODE_ENV=production as a build ARG; without --prod=false
+# pnpm skips devDependencies (@tailwindcss/postcss, typescript, prisma).
+RUN pnpm install --frozen-lockfile --filter web... --ignore-scripts --prod=false
 
 FROM base AS builder
 COPY --from=deps /app/ /app/
