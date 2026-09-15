@@ -143,13 +143,16 @@ export class AuthController {
         state,
         storedState,
       });
+      // clearCookie must run before redirect — headers are locked after redirect.
+      res.clearCookie(OAUTH_STATE_COOKIE, oauthStateCookieClearOptions());
       res.cookie(ACCESS_TOKEN_COOKIE, result.accessToken, {
         ...accessTokenCookieBaseOptions(),
         maxAge: COOKIE_MAX_AGE_MS,
       });
       res.redirect(result.redirectUrl);
-    } finally {
+    } catch (error) {
       res.clearCookie(OAUTH_STATE_COOKIE, oauthStateCookieClearOptions());
+      throw error;
     }
   }
 

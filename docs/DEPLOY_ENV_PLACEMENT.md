@@ -1,6 +1,16 @@
-# Որտեղ ինչ env դնել (Vercel + Render)
+# Որտեղ ինչ env դնել (Vercel + Render + Coolify)
 
-Կարճ ցուցակ՝ **քո root `.env`-ի key-երի** հիման վրա։ Արժեքները **չեն** գրված այստեղ — միայն deploy UI-ում (`Vercel` / `Render` → Environment)։
+Կարճ ցուցակ՝ **քո root `.env`-ի key-երի** հիման վրա։ Արժեքները **չեն** գրված այստեղ — միայն deploy UI-ում։
+
+## Coolify (Docker) — `apps/web` + `apps/api`
+
+| Key | Որտեղ | Production արժեք |
+|-----|--------|------------------|
+| `NEXT_PUBLIC_API_URL` | web | Հանրային API base (`https://api.ommm.am`) — browser-facing URLs / assets։ |
+| `API_INTERNAL_URL` | web | **Docker-network** Nest URL (օր. `http://<api-service-name>:8080`), **ոչ** `https://api.ommm.am`։ Հանրային URL-ը Cloudflare hairpin է անում և կոտրում է SSE (`socket hang up` → HTTP 500)։ |
+| `WEB_APP_URL` | api | `https://www.ommm.am` (կամ canonical site origin) — CORS + OAuth redirects։ |
+
+Web և API պետք է լինեն **նույն Docker network**-ում, որպեսզի `API_INTERNAL_URL`-ը resolv լինի։ SSE մնում է same-origin `/api/v1/realtime/*` (host-only cookie)՝ dedicated App Router proxy-ով։
 
 ## Vercel — միայն `apps/web`
 
@@ -8,7 +18,7 @@
 |-----|-----------------------------|
 | `NEXT_PUBLIC_SITE_URL` | Քո frontend-ի `https://…` (Vercel domain կամ custom)։ |
 | `NEXT_PUBLIC_API_URL` | Քո Render API-ի հանրային `https://…` (base, առանց `/v1`)։ |
-| `API_INTERNAL_URL` | Սովորաբար **նույնը**, ինչ `NEXT_PUBLIC_API_URL`։ |
+| `API_INTERNAL_URL` | Սովորաբար **նույնը**, ինչ `NEXT_PUBLIC_API_URL` (Vercel-ից localhost չի հասնում)։ |
 
 **Չդնես Vercel-ում** (քո `.env`-ում չկան կամ backend-only են). `NODE_ENV`-ը Vercel-ը սովորաբար ինքն է լուծում։
 

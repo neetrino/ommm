@@ -2,6 +2,9 @@
 # enough that `exporting layers` does not OOM / fill disk on the host.
 # Coolify: Build Pack = Dockerfile, Dockerfile = Dockerfile (this file).
 # API uses Dockerfile.api separately.
+#
+# Runtime: set API_INTERNAL_URL to the Docker-network Nest URL (same Coolify
+# network as this service), e.g. http://<api-service>:8080 — not https://api.ommm.am.
 
 FROM node:20-bookworm-slim AS base
 WORKDIR /app

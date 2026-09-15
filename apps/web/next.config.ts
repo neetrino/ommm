@@ -26,6 +26,34 @@ if (process.env.NODE_ENV !== "production") {
   console.log(`[web] next.config API_INTERNAL_URL → ${apiInternal}/v1`);
 }
 
+/**
+ * On Coolify/Docker, `API_INTERNAL_URL` must be the Docker-network address of Nest
+ * (e.g. `http://ommm-api:8080`), not the public `https://api.ommm.am` hostname.
+ * Public URLs hairpin through Cloudflare and break long-lived SSE proxies.
+ */
+function warnIfApiInternalLooksPublic(raw: string): void {
+  try {
+    const { protocol, hostname } = new URL(raw);
+    const isPublicHttps =
+      protocol === "https:" &&
+      (hostname === "api.ommm.am" ||
+        hostname.endsWith(".ommm.am") ||
+        hostname.includes("onrender.com") ||
+        hostname.includes("vercel.app"));
+    if (isPublicHttps) {
+      console.warn(
+        `[web] API_INTERNAL_URL=${raw} looks public. Prefer Docker-internal Nest URL so /api/v1 (and SSE) do not hairpin via Cloudflare.`,
+      );
+    }
+  } catch {
+    // Invalid URL — Next rewrite will fail loudly at request time.
+  }
+}
+
+if (process.env.NODE_ENV === "production") {
+  warnIfApiInternalLooksPublic(apiInternal);
+}
+
 function collectLanIpv4Hosts(): string[] {
   const nets = os.networkInterfaces();
   const hosts = new Set<string>();
@@ -169,6 +197,11 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
+    /**
+     * `/api/v1/realtime/events` and `/public` are static App Router handlers
+     * (not a dynamic `[channel]` segment — those lose to afterFiles rewrites).
+     * Do not rewrite realtime to `apiInternal`: Next's HTTP proxy buffers/breaks SSE.
+     */
     return [
       {
         source: "/api/v1/:path*",
