@@ -9,10 +9,13 @@ import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-posit
 const EXPORT_MENU_MIN_WIDTH = 240;
 
 const PILL_GROUP_CLASS =
-  "inline-flex shrink-0 rounded-full border border-white/60 bg-white/55 shadow-sm backdrop-blur-md p-0.5";
+  "inline-flex shrink-0 items-center rounded-full border border-white/60 bg-white/55 p-0.5 shadow-sm backdrop-blur-md";
 
-const TRIGGER_CLASS =
-  "inline-flex cursor-pointer items-center gap-0.5 rounded-full px-2 py-1.5 font-medium text-sage-900 transition-[background-color,box-shadow,color,transform] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper bg-white shadow-sm hover:bg-white hover:shadow-md";
+const ACTION_CLASS =
+  "inline-flex cursor-pointer items-center justify-center rounded-full px-2 py-1.5 font-medium text-sage-900 transition-[background-color,box-shadow,color,transform] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper bg-white shadow-sm hover:bg-white hover:shadow-md";
+
+const SELECT_CLASS =
+  "inline-flex cursor-pointer items-center justify-center rounded-full px-1.5 py-1.5 text-sage-500 transition-[background-color,box-shadow,color,transform] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper hover:bg-white hover:text-sage-800 hover:shadow-sm";
 
 const TRIGGER_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
 
@@ -26,19 +29,33 @@ type AdminCsvExportMenuProps = {
   items: readonly AdminCsvExportMenuItem[];
 };
 
+/**
+ * Split export control: pick a CSV from the chevron select, then download via the button.
+ */
 export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMenuProps) {
   const menuId = useId();
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selectRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const selected = items[selectedIndex] ?? items[0];
+  const showSelect = items.length > 1;
   const menuPosition = useFloatingMenuPosition(
-    triggerRef,
+    selectRef,
     open,
-    items.length === 0,
+    !showSelect || items.length === 0,
     120,
     EXPORT_MENU_MIN_WIDTH,
     "end",
   );
+
+  useEffect(() => {
+    if (selectedIndex < items.length) {
+      return;
+    }
+    setSelectedIndex(0);
+  }, [items.length, selectedIndex]);
 
   useEffect(() => {
     if (!open) {
@@ -50,7 +67,7 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
       if (!(target instanceof Node)) {
         return;
       }
-      if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) {
+      if (rootRef.current?.contains(target) || menuRef.current?.contains(target)) {
         return;
       }
       setOpen(false);
@@ -70,17 +87,17 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
     };
   }, [open]);
 
-  if (items.length === 0) {
+  if (items.length === 0 || !selected) {
     return null;
   }
 
   const menu =
-    open && menuPosition !== null && typeof document !== "undefined"
+    open && showSelect && menuPosition !== null && typeof document !== "undefined"
       ? createPortal(
           <div
             ref={menuRef}
             id={menuId}
-            role="menu"
+            role="listbox"
             aria-label={triggerAriaLabel}
             className="ommm-dropdown-menu fixed z-[120] overflow-hidden rounded-2xl border border-white/70 bg-white/95 py-1 shadow-[0_16px_40px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md"
             data-placement={menuPosition.placement}
@@ -91,43 +108,69 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
               transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
             }}
           >
-            {items.map((item) => (
-              <a
-                key={item.href}
-                role="menuitem"
-                href={item.href}
-                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-sage-800 transition-colors hover:bg-sand-50/90"
-                onClick={() => setOpen(false)}
-              >
-                <DownloadGlyph className="h-4 w-4 shrink-0" />
-                <span className="min-w-0 truncate">{item.label}</span>
-              </a>
-            ))}
+            {items.map((item, index) => {
+              const isSelected = index === selectedIndex;
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  className={[
+                    "flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm transition-colors",
+                    isSelected
+                      ? "bg-sand-50/90 font-medium text-sage-950"
+                      : "text-sage-800 hover:bg-sand-50/90",
+                  ].join(" ")}
+                  onClick={() => {
+                    setSelectedIndex(index);
+                    setOpen(false);
+                  }}
+                >
+                  <DownloadGlyph className="h-4 w-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {isSelected ? (
+                    <span className="text-xs text-sand-700" aria-hidden>
+                      ✓
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>,
           document.body,
         )
       : null;
 
   return (
-    <div className={PILL_GROUP_CLASS}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className={TRIGGER_CLASS}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={menuId}
-        aria-label={triggerAriaLabel}
-        title={triggerAriaLabel}
-        onClick={() => setOpen((value) => !value)}
+    <div ref={rootRef} className={PILL_GROUP_CLASS}>
+      <a
+        className={ACTION_CLASS}
+        href={selected.href}
+        aria-label={selected.label}
+        title={selected.label}
       >
         <DownloadGlyph className={TRIGGER_ICON_CLASS} />
-        <span
-          className={`inline-flex shrink-0 text-sage-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+      </a>
+      {showSelect ? (
+        <button
+          ref={selectRef}
+          type="button"
+          className={SELECT_CLASS}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-controls={menuId}
+          aria-label={triggerAriaLabel}
+          title={triggerAriaLabel}
+          onClick={() => setOpen((value) => !value)}
         >
-          <ChevronDownIcon />
-        </span>
-      </button>
+          <span
+            className={`inline-flex shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          >
+            <ChevronDownIcon />
+          </span>
+        </button>
+      ) : null}
       {menu}
     </div>
   );

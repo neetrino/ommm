@@ -14,7 +14,7 @@ function financeExportHref(path: string, from?: string, to?: string): string {
   return query ? `${path}?${query}` : path;
 }
 
-/** Finance CSV export — one download pill with a select menu (same pattern as Analytics). */
+/** Finance CSV export — select a report, then click download to run it. */
 export function AdminFinanceExportLinks({
   from,
   to,
