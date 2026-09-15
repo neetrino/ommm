@@ -127,8 +127,12 @@ export class AdminListClientsQueryDto {
   status?: AdminClientStatusFilter[];
 
   @IsOptional()
-  @IsIn(Object.values(AdminClientPackageTypeFilter))
-  packageType?: AdminClientPackageTypeFilter;
+  @Transform(({ value }) =>
+    parseCsvEnumQueryParam(value, Object.values(AdminClientPackageTypeFilter)),
+  )
+  @IsArray()
+  @IsIn(Object.values(AdminClientPackageTypeFilter), { each: true })
+  packageType?: AdminClientPackageTypeFilter[];
 
   @IsOptional()
   @Transform(({ value }) => {

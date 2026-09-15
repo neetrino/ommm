@@ -64,6 +64,8 @@ export function CoachFilterChipRow({
 
   const selected = parseMultiCsv(value);
   const isAll = selected.length === 0;
+  const allOption = options.find((option) => option.value === "all");
+  const allLabel = allOption?.label ?? "All";
 
   function toggle(optionValue: string): void {
     if (optionValue === "all") {
@@ -86,7 +88,9 @@ export function CoachFilterChipRow({
           accessibilityRole="button"
           accessibilityState={{ selected: isAll }}
         >
-          <Text style={[styles.chipLabel, isAll && styles.chipLabelActive]}>All</Text>
+          <Text style={[styles.chipLabel, isAll && styles.chipLabelActive]}>
+            {allLabel}
+          </Text>
         </Pressable>
         {options.map((option) => {
           if (option.value === "all") {
@@ -223,9 +227,9 @@ const styles = StyleSheet.create({
     gap: space.xs,
   },
   label: {
-    fontFamily: fontFamilies.bodySemiBold,
-    fontSize: typography.label,
-    color: colors.ink,
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: typography.caption,
+    color: colors.secondarySage,
   },
   chips: {
     flexDirection: "row",
@@ -235,32 +239,33 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paper,
+    borderColor: colors.glassBorder,
+    backgroundColor: colors.white,
     paddingHorizontal: space.sm,
     paddingVertical: space.xs,
   },
   chipActive: {
-    borderColor: colors.sand,
-    backgroundColor: colors.sandMuted,
+    backgroundColor: colors.primaryGreen,
+    borderColor: colors.primaryGreen,
   },
   chipLabel: {
-    fontFamily: fontFamilies.bodyMedium,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.caption,
-    color: colors.taupe,
+    color: colors.secondarySage,
   },
   chipLabelActive: {
-    color: colors.ink,
+    color: colors.creamHighlight,
+    fontFamily: fontFamilies.manrope.semiBold,
   },
   search: {
-    borderRadius: radii.md,
+    borderRadius: radii.labelCard,
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paper,
-    paddingHorizontal: space.sm,
+    borderColor: colors.glassBorder,
+    backgroundColor: colors.white,
+    paddingHorizontal: space.md,
     paddingVertical: space.sm,
-    fontFamily: fontFamilies.body,
-    fontSize: typography.body,
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.bodySmall,
     color: colors.ink,
   },
 });

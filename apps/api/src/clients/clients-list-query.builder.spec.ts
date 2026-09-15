@@ -27,7 +27,7 @@ function andClauses(where: ReturnType<typeof buildClientsListWhere>) {
 describe('buildClientsListWhere', () => {
   it('scopes influencer badge to succeeded influencer payments', () => {
     const where = buildClientsListWhere(
-      query({ tag: AdminClientTagFilter.INFLUENCER }),
+      query({ tag: [AdminClientTagFilter.INFLUENCER] }),
     );
 
     expect(andClauses(where)).toEqual(
@@ -44,7 +44,7 @@ describe('buildClientsListWhere', () => {
 
   it('does not treat influencer-only clients as paid', () => {
     const where = buildClientsListWhere(
-      query({ paymentStatus: AdminClientPaymentStatusFilter.PAID }),
+      query({ paymentStatus: [AdminClientPaymentStatusFilter.PAID] }),
     );
 
     expect(andClauses(where)).toEqual(

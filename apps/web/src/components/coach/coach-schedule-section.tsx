@@ -11,7 +11,6 @@ import {
   extractCoachScheduleClassTypes,
   matchesCoachScheduleFilters,
   type CoachScheduleFilterValues,
-  type CoachScheduleStatusFilter,
 } from "@/components/coach/coach-schedule-filter-fields";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
@@ -128,7 +127,7 @@ export function CoachScheduleSection({
       case "status":
         setFilters((current) => ({
           ...current,
-          status: value as CoachScheduleStatusFilter,
+          status: value.trim() === "" ? "all" : value,
         }));
         break;
       case "order":
