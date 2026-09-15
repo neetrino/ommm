@@ -75,6 +75,8 @@ const allowedDevOrigins = [
 const r2ImageHostname = resolveR2ImageHostname(process.env.R2_PUBLIC_URL);
 
 const nextConfig: NextConfig = {
+  /** Slim Coolify/Docker image — traced server bundle only (see root `Dockerfile`). */
+  output: "standalone",
   turbopack: {
     root: monorepoRoot,
   },
