@@ -8,10 +8,8 @@ import {
   CALL_TASK_SEARCH_QUERY_KEY,
   CALL_TASK_STATUS_ALL_QUERY_VALUE,
   CALL_TASK_STATUS_QUERY_KEY,
-  CALL_TASK_LIST_FILTERS,
   callTaskStatusToQueryValue,
   parseCallTaskListStatus,
-  type CallTaskListFilter,
 } from "@/components/admin/admin-call-tasks-query";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
@@ -72,15 +70,15 @@ export function useAdminCallTasksFilters() {
       if (key !== CALL_TASK_STATUS_FILTER_KEY) {
         return;
       }
-      const nextStatus: CallTaskListFilter | "" =
-        value === "" || value === CALL_TASK_STATUS_ALL_QUERY_VALUE
-          ? ""
-            : CALL_TASK_LIST_FILTERS.includes(value as CallTaskListFilter)
-            ? (value as CallTaskListFilter)
-            : "";
+      const nextStatus = parseCallTaskListStatus(value);
       replaceSearchParams((params) => {
         resetListPageQuery(params);
-        params.set(CALL_TASK_STATUS_QUERY_KEY, callTaskStatusToQueryValue(nextStatus));
+        const queryValue = callTaskStatusToQueryValue(nextStatus);
+        if (queryValue === CALL_TASK_STATUS_ALL_QUERY_VALUE) {
+          params.delete(CALL_TASK_STATUS_QUERY_KEY);
+        } else {
+          params.set(CALL_TASK_STATUS_QUERY_KEY, queryValue);
+        }
       });
     },
     [replaceSearchParams],

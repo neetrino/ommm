@@ -9,7 +9,6 @@ import {
 import type {
   PackageFilterValues,
   PackageSortOrder,
-  PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 
@@ -62,7 +61,7 @@ export function AdminPackagesFilters({ values, onChange, onReset }: AdminPackage
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
       case "status":
-        onChange("status", value as PackageStatusFilter);
+        onChange("status", value.trim() === "" ? "all" : value);
         break;
       case "order":
         onChange("order", value as PackageSortOrder);

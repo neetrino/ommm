@@ -11,11 +11,8 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import type {
-  GiftCardExpirationFilter,
   GiftCardFilterValues,
-  GiftCardQuickFilter,
   GiftCardSortOrder,
-  GiftCardStatusFilter,
 } from "@/components/admin/admin-gift-cards-types";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
@@ -169,10 +166,10 @@ export function AdminGiftCardsFilters({
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
       case "status":
-        onChange("status", value as GiftCardStatusFilter);
+        onChange("status", value.trim() === "" ? "all" : value);
         break;
       case "expiration":
-        onChange("expiration", value as GiftCardExpirationFilter);
+        onChange("expiration", value.trim() === "" ? "all" : value);
         break;
       case "amountMin":
         onChange("amountMin", value);
@@ -184,7 +181,7 @@ export function AdminGiftCardsFilters({
         onChange("order", value as GiftCardSortOrder);
         break;
       case "quick":
-        onChange("quick", value as GiftCardQuickFilter);
+        onChange("quick", value);
         break;
       default:
         break;
