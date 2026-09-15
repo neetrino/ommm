@@ -9,10 +9,8 @@ import {
   STAFF_ACTIVITY_SEARCH_QUERY_KEY,
   STAFF_ACTIVITY_TYPE_ALL_QUERY_VALUE,
   STAFF_ACTIVITY_TYPE_FILTER_KEY,
-  STAFF_ACTIVITY_TYPE_FILTERS,
   STAFF_ACTIVITY_TYPE_QUERY_KEY,
   staffActivityTypeToQueryValue,
-  type StaffActivityTypeFilter,
 } from "@/lib/staff-activity-filters";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -73,12 +71,7 @@ export function useAdminStaffActivityFilters() {
       if (key !== STAFF_ACTIVITY_TYPE_FILTER_KEY) {
         return;
       }
-      const nextType: StaffActivityTypeFilter | "" =
-        value === "" || value === STAFF_ACTIVITY_TYPE_ALL_QUERY_VALUE
-          ? ""
-          : STAFF_ACTIVITY_TYPE_FILTERS.includes(value as StaffActivityTypeFilter)
-            ? (value as StaffActivityTypeFilter)
-            : "";
+      const nextType = parseStaffActivityTypeFilter(value);
       replaceSearchParams((params) => {
         resetListPageQuery(params);
         const queryValue = staffActivityTypeToQueryValue(nextType);

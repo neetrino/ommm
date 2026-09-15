@@ -26,18 +26,21 @@ function statusClause(
 export function buildManagersListWhere(
   query: ManagersListWhereQuery,
 ): Prisma.UserWhereInput {
+  const and: Prisma.UserWhereInput[] = [{ role: Role.MANAGER }];
   const searchWhere = buildTokenAndWhere(query.q, userContainsToken);
+  if (searchWhere) {
+    and.push(searchWhere);
+  }
+
   const statusClauses = (query.status ?? [])
     .map((status) => statusClause(status))
     .filter((clause): clause is Prisma.UserWhereInput => clause !== null);
 
-  return {
-    role: Role.MANAGER,
-    ...(searchWhere ?? {}),
-    ...(statusClauses.length === 1
-      ? statusClauses[0]
-      : statusClauses.length > 1
-        ? { OR: statusClauses }
-        : {}),
-  };
+  if (statusClauses.length === 1) {
+    and.push(statusClauses[0]!);
+  } else if (statusClauses.length > 1) {
+    and.push({ OR: statusClauses });
+  }
+
+  return { AND: and };
 }

@@ -3,7 +3,8 @@ export type AdminManagerOrder = "newest" | "oldest";
 
 export type AdminManagersFilterValues = {
   q: string;
-  status: AdminManagerStatusFilter;
+  /** "all" or comma-separated active/blocked. */
+  status: string;
   order: AdminManagerOrder;
 };
 

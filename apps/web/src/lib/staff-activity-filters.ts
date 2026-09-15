@@ -1,4 +1,5 @@
 import type { StaffActivityType } from "@/lib/staff-activity-types";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 
 export const STAFF_ACTIVITY_SEARCH_QUERY_KEY = "q";
 export const STAFF_ACTIVITY_TYPE_QUERY_KEY = "type";
@@ -13,29 +14,26 @@ export const STAFF_ACTIVITY_TYPE_FILTERS = [
 export type StaffActivityTypeFilter =
   (typeof STAFF_ACTIVITY_TYPE_FILTERS)[number];
 
+const TYPE_VALUES = new Set<string>(STAFF_ACTIVITY_TYPE_FILTERS);
+
+/** Returns CSV of allowed types, or "" when none selected. */
 export function parseStaffActivityTypeFilter(
   value: string | null | undefined,
-): StaffActivityTypeFilter | "" {
-  const raw = value?.trim();
-  if (!raw || raw === STAFF_ACTIVITY_TYPE_ALL_QUERY_VALUE) {
-    return "";
-  }
-  return STAFF_ACTIVITY_TYPE_FILTERS.includes(raw as StaffActivityTypeFilter)
-    ? (raw as StaffActivityTypeFilter)
-    : "";
+): string {
+  const selected = parseFilterMultiValue(value).filter((part) => TYPE_VALUES.has(part));
+  return selected.join(",");
 }
 
-export function staffActivityTypeToQueryValue(
-  type: StaffActivityTypeFilter | "",
-): string {
-  return type.length > 0 ? type : STAFF_ACTIVITY_TYPE_ALL_QUERY_VALUE;
+export function staffActivityTypeToQueryValue(typeCsv: string): string {
+  const selected = parseFilterMultiValue(typeCsv);
+  return selected.length > 0 ? selected.join(",") : STAFF_ACTIVITY_TYPE_ALL_QUERY_VALUE;
 }
 
 export function buildStaffActivityListEndpoint(params: {
   take: number;
   offset: number;
   q?: string;
-  type?: StaffActivityTypeFilter | "";
+  type?: string;
 }): string {
   const query = new URLSearchParams({
     take: String(params.take),
@@ -45,8 +43,9 @@ export function buildStaffActivityListEndpoint(params: {
   if (q.length > 0) {
     query.set(STAFF_ACTIVITY_SEARCH_QUERY_KEY, q);
   }
-  if (params.type) {
-    query.set(STAFF_ACTIVITY_TYPE_QUERY_KEY, params.type);
+  const types = parseFilterMultiValue(params.type);
+  if (types.length > 0) {
+    query.set(STAFF_ACTIVITY_TYPE_QUERY_KEY, types.join(","));
   }
   return `/staff-activity?${query.toString()}`;
 }

@@ -104,8 +104,10 @@ export function clearPackageDeleteQueryKeys(params: URLSearchParams): void {
   params.delete(PACKAGE_DELETE_SHOW_MEMBERS_QUERY_KEY);
 }
 
-export function clearPackageCategoryQueryKeys(params: URLSearchParams): void {
-  params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
-  params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
-  params.delete(PACKAGE_CATEGORIES_PAGE_QUERY_KEY);
+export function buildPackagesPathname(
+  pathname: string,
+  params: URLSearchParams,
+): string {
+  const qs = params.toString();
+  return qs ? `${pathname}?${qs}` : pathname;
 }

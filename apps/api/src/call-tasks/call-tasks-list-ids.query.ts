@@ -7,20 +7,33 @@ import type {
   ListCallTasksQueryDto,
 } from './dto/list-call-tasks-query.dto';
 
-function listStatusSql(
-  status: CallTaskListStatus | undefined,
+function singleStatusSql(
+  status: CallTaskListStatus,
   cutoff: Date,
 ): Prisma.Sql {
   if (status === 'OVERDUE') {
-    return Prisma.sql`status::text = ${CallTaskStatus.PENDING} AND "dueOn" < ${cutoff}`;
+    return Prisma.sql`(status::text = ${CallTaskStatus.PENDING} AND "dueOn" < ${cutoff})`;
   }
   if (status === 'PENDING') {
     return Prisma.sql`status::text = ${CallTaskStatus.PENDING}`;
   }
-  if (status === 'DONE' || status === 'CANCELLED') {
-    return Prisma.sql`status::text = ${status}`;
+  return Prisma.sql`status::text = ${status}`;
+}
+
+function listStatusSql(
+  statuses: CallTaskListStatus[] | undefined,
+  cutoff: Date,
+): Prisma.Sql {
+  if (!statuses?.length) {
+    return Prisma.sql`TRUE`;
   }
-  return Prisma.sql`TRUE`;
+  if (statuses.length === 1) {
+    return singleStatusSql(statuses[0]!, cutoff);
+  }
+  return Prisma.sql`(${Prisma.join(
+    statuses.map((status) => singleStatusSql(status, cutoff)),
+    ' OR ',
+  )})`;
 }
 
 function listSearchSql(q: string | undefined): Prisma.Sql {

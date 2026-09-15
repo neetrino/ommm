@@ -21,8 +21,6 @@ import {
   userPaymentsIntegratedFilterValues,
   type UserPaymentFilterValues,
   type UserPaymentSortOrder,
-  type UserPaymentSourceFilter,
-  type UserPaymentStatusFilter,
 } from "@/components/account/user-payments-filter-fields";
 import {
   USER_PAYMENTS_LIST_CENTER_HEADER_CELL,
@@ -68,7 +66,7 @@ const DEFAULT_FILTER_VALUES: UserPaymentFilterValues = {
 
 function buildPaymentsEndpoint(
   listPage: ReturnType<typeof parseListPageParams>,
-  status: UserPaymentStatusFilter,
+  status: string,
   order: UserPaymentSortOrder,
 ): string {
   const params = new URLSearchParams({
@@ -76,8 +74,9 @@ function buildPaymentsEndpoint(
     offset: String(listPage.offset),
     order,
   });
-  if (status !== "all") {
-    params.set("status", status);
+  const statusParts = parseFilterMultiValue(status);
+  if (statusParts.length > 0) {
+    params.set("status", statusParts.join(","));
   }
   return `/payments/me?${params.toString()}`;
 }
@@ -219,13 +218,19 @@ export function UserPaymentsHistory({
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
       case "status":
-        setFilters((current) => ({ ...current, status: value as UserPaymentStatusFilter }));
+        setFilters((current) => ({
+          ...current,
+          status: value.trim() === "" ? "all" : value,
+        }));
         replaceSearchParams((params) => {
           resetListPageQuery(params);
         });
         break;
       case "source":
-        setFilters((current) => ({ ...current, source: value as UserPaymentSourceFilter }));
+        setFilters((current) => ({
+          ...current,
+          source: value.trim() === "" ? "all" : value,
+        }));
         break;
       case "order":
         setFilters((current) => ({ ...current, order: value as UserPaymentSortOrder }));

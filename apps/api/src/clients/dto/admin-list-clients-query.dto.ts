@@ -9,7 +9,10 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { parseCsvEnumQueryParam, parseCsvQueryParam } from '../common/parse-csv-query-param';
+import {
+  parseCsvEnumQueryParam,
+  parseCsvQueryParam,
+} from '../../common/parse-csv-query-param';
 
 export enum AdminClientPackageFilter {
   ALL = 'all',

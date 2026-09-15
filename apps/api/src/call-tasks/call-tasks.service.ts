@@ -166,9 +166,25 @@ export class CallTasksService {
   }
 
   private statusWhere(
-    status: CallTaskListStatus | undefined,
+    statuses: CallTaskListStatus[] | undefined,
   ): Prisma.CallTaskWhereInput {
+    if (!statuses?.length) {
+      return {};
+    }
     const cutoff = dueOnFilterCutoff();
+    const clauses = statuses.map((status) =>
+      this.singleStatusWhere(status, cutoff),
+    );
+    if (clauses.length === 1) {
+      return clauses[0]!;
+    }
+    return { OR: clauses };
+  }
+
+  private singleStatusWhere(
+    status: CallTaskListStatus,
+    cutoff: Date,
+  ): Prisma.CallTaskWhereInput {
     if (status === 'OVERDUE') {
       return { status: CallTaskStatus.PENDING, dueOn: { lt: cutoff } };
     }
