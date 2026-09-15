@@ -4,7 +4,7 @@ import { PaymentSourceFilter } from './dto/admin-list-payments-query.dto';
 import { buildAdminListPaymentsWhere } from './payments-admin-list.util';
 
 describe('buildAdminListPaymentsWhere', () => {
-  it('filters by cash, terminal, or card payment method', () => {
+  it('filters by cash, terminal, card, or influencer payment method', () => {
     expect(
       buildAdminListPaymentsWhere({
         paymentMethod: [ManualPaymentMethod.CASH],
@@ -20,6 +20,11 @@ describe('buildAdminListPaymentsWhere', () => {
         paymentMethod: [ManualPaymentMethod.CARD],
       }),
     ).toEqual({ paymentMethod: ManualPaymentMethod.CARD });
+    expect(
+      buildAdminListPaymentsWhere({
+        paymentMethod: [ManualPaymentMethod.INFLUENCER],
+      }),
+    ).toEqual({ paymentMethod: ManualPaymentMethod.INFLUENCER });
   });
 
   it('keeps payment method together with status and source', () => {

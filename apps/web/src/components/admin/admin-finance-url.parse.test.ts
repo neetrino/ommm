@@ -7,10 +7,11 @@ import {
 } from "./admin-finance-url.parse";
 
 describe("parseFinancePaymentMethodFilter", () => {
-  it("accepts cash, card, and terminal", () => {
+  it("accepts cash, card, terminal, and influencer", () => {
     assert.equal(parseFinancePaymentMethodFilter("CASH"), "CASH");
     assert.equal(parseFinancePaymentMethodFilter("CARD"), "CARD");
     assert.equal(parseFinancePaymentMethodFilter("CARD_TERMINAL"), "CARD_TERMINAL");
+    assert.equal(parseFinancePaymentMethodFilter("INFLUENCER"), "INFLUENCER");
   });
 
   it("accepts comma-separated payment methods", () => {
