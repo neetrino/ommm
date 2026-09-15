@@ -1,7 +1,6 @@
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import type { AdminListDeliveriesQueryDto } from './dto/admin-list-deliveries-query.dto';
 import type { AdminListScheduledQueryDto } from './dto/admin-list-scheduled-query.dto';
-import type { BroadcastAudience } from './dto/broadcast.dto';
 
 export const NOTIFICATIONS_FILTER_SCAN_LIMIT = 2000;
 
@@ -10,7 +9,7 @@ type ScheduledRow = {
   status: string;
   subject: string;
   html: string;
-  audience: BroadcastAudience;
+  audience: string;
   scheduleAt: string;
   createdAt: string;
 };
@@ -20,7 +19,7 @@ type DeliveryRow = {
   createdAt: string;
   recipientEmail: string;
   channel: string;
-  audience: BroadcastAudience;
+  audience: string;
   subject: string;
   scheduled: boolean;
 };
@@ -110,7 +109,7 @@ export function filterScheduledRows(
     }
     if (
       hasFilterValues(query.audience) &&
-      !query.audience!.some((audience) => audience === row.audience)
+      !query.audience!.some((audience) => String(audience) === row.audience)
     ) {
       return false;
     }
@@ -180,7 +179,7 @@ export function filterDeliveryRows(
     }
     if (
       hasFilterValues(query.audience) &&
-      !query.audience!.some((audience) => audience === row.audience)
+      !query.audience!.some((audience) => String(audience) === row.audience)
     ) {
       return false;
     }
