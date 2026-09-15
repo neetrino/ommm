@@ -3,20 +3,20 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
-import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
+import { markClientSessionHint } from "@/lib/client-session-hint";
+import { hardNavigateAfterAuth } from "@/lib/post-auth-hard-navigate";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 import { PSEUDO_EMAIL, PSEUDO_PASSWORD } from "@/lib/pseudo-form-placeholders";
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const urlLocale = useLocale();
   const t = useTranslations("common");
@@ -49,13 +49,13 @@ export function LoginForm() {
       );
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
-      await prefetchMarketingHeaderAccount();
-      router.push(resolveAuthDestination(user.role, searchParams), {
-        locale: nextLocale,
-      });
+      markClientSessionHint();
+      hardNavigateAfterAuth(
+        nextLocale,
+        resolveAuthDestination(user.role, searchParams),
+      );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : tAuth("loginFailed"));
-    } finally {
       setPending(false);
       submitLockRef.current = false;
     }

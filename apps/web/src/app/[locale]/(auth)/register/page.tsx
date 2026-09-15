@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState } from "react";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { FormErrorBanner, focusFormField } from "@/components/ui/form-validation";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -24,7 +24,8 @@ import {
   type RegisterNameFieldError,
 } from "@/components/auth/register-form-validation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
+import { markClientSessionHint } from "@/lib/client-session-hint";
+import { hardNavigateAfterAuth } from "@/lib/post-auth-hard-navigate";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import { isValidPhone, normalizePhoneForApi } from "@/lib/phone";
@@ -37,7 +38,6 @@ import {
 } from "@/lib/pseudo-form-placeholders";
 
 function RegisterForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const urlLocale = useLocale();
   const t = useTranslations("common");
@@ -116,10 +116,11 @@ function RegisterForm() {
       );
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
-      await prefetchMarketingHeaderAccount();
-      router.push(resolveAuthDestination(user.role, searchParams), {
-        locale: nextLocale,
-      });
+      markClientSessionHint();
+      hardNavigateAfterAuth(
+        nextLocale,
+        resolveAuthDestination(user.role, searchParams),
+      );
     } catch (err) {
       const message =
         err instanceof ApiError ? err.message : tAuth("registerFailed");
@@ -129,7 +130,6 @@ function RegisterForm() {
         setFieldError(null);
         setError(message);
       }
-    } finally {
       setPending(false);
       submitLockRef.current = false;
     }
