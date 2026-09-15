@@ -39,7 +39,8 @@ export type AnalyticsFilterValues = {
   to: string;
   coachId: string;
   classTypeId: string;
-  bookingStatus: AnalyticsBookingStatusFilter;
+  /** Empty or comma-separated booking statuses. */
+  bookingStatus: string;
   sort: AnalyticsSortKey;
   /** Comma-separated quick filter keys; empty means all selected. */
   quick: string;
@@ -314,7 +315,7 @@ export type AdminAnalyticsPayload = {
   sortKey: AnalyticsSortKey;
   coachId: string;
   classTypeId: string;
-  bookingStatus: AnalyticsBookingStatusFilter;
+  bookingStatus: string;
   quickFilters: AnalyticsQuickFilterOption[];
   studio: StudioAnalyticsPayload;
   dashboard: AnalyticsDashboardOverview;

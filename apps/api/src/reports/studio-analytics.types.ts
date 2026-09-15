@@ -165,8 +165,8 @@ export type StudioAnalyticsPayload = {
 };
 
 export type StudioAnalyticsFilters = {
-  coachId?: string;
-  classTypeId?: string;
+  coachIds?: string[];
+  classTypeIds?: string[];
 };
 
 export type StudioAnalyticsLoadMode = 'full' | 'comparison';

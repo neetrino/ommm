@@ -4,14 +4,20 @@ import {
   type CoachSalaryPayoutHistoryFilters,
   type FinanceBoundedDateRangeDays,
   type FinanceFilterValues,
-  type FinancePaymentMethodFilter,
-  type FinanceSourceFilter,
-  type FinanceStatusFilter,
   isFinancePaymentMethodValue,
 } from "@/components/admin/admin-finance-types";
 import { resolveFinanceCoachDefaultDateRange } from "@/components/admin/admin-finance-dates";
 import { firstFinanceUrlParam } from "@/components/admin/admin-finance-url.helpers";
 import { normalizeFilterDateValue } from "@/lib/filter-date-display";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
+
+const FINANCE_SOURCE_VALUES = new Set(["package", "dropin", "gift", "other"]);
+const FINANCE_STATUS_VALUES = new Set([
+  "SUCCEEDED",
+  "FAILED",
+  "PENDING",
+  "REFUNDED",
+]);
 
 export function parseFinanceDateRangeDays(
   value: string | string[] | undefined,
@@ -30,70 +36,58 @@ export function parseFinancePaymentsDateFilter(
   return /^\d{4}-\d{2}-\d{2}$/.test(normalized) ? normalized : "";
 }
 
+function financeCsvFromParam(
+  value: string | string[] | undefined,
+  allow: (part: string) => boolean,
+): string {
+  const raw = firstFinanceUrlParam(value)?.trim() ?? "";
+  if (raw === "" || raw === "all") {
+    return "all";
+  }
+  const selected = parseFilterMultiValue(raw).filter(allow);
+  return selected.length === 0 ? "all" : selected.join(",");
+}
+
 export function parseFinanceSourceFilter(
   value: string | string[] | undefined,
-): FinanceSourceFilter {
-  const raw = firstFinanceUrlParam(value) ?? "all";
-  if (raw === "package" || raw === "dropin" || raw === "gift" || raw === "other") {
-    return raw;
-  }
-  return "all";
+): string {
+  return financeCsvFromParam(value, (part) => FINANCE_SOURCE_VALUES.has(part));
 }
 
 export function parseFinanceStatusFilter(
   value: string | string[] | undefined,
-): FinanceStatusFilter {
-  const raw = firstFinanceUrlParam(value) ?? "all";
-  if (
-    raw === "SUCCEEDED" ||
-    raw === "FAILED" ||
-    raw === "PENDING" ||
-    raw === "REFUNDED"
-  ) {
-    return raw;
-  }
-  return "all";
+): string {
+  return financeCsvFromParam(value, (part) => FINANCE_STATUS_VALUES.has(part));
 }
 
 export function parseFinancePaymentMethodFilter(
   value: string | string[] | undefined,
-): FinancePaymentMethodFilter {
-  const raw = firstFinanceUrlParam(value);
-  if (raw && isFinancePaymentMethodValue(raw)) {
-    return raw;
-  }
-  return "all";
+): string {
+  return financeCsvFromParam(value, isFinancePaymentMethodValue);
 }
 
 export function parseFinancePackagePlanFilter(
   value: string | string[] | undefined,
-): FinanceFilterValues["planId"] {
-  const raw = firstFinanceUrlParam(value)?.trim();
-  return raw && raw !== "all" ? raw : "all";
+): string {
+  return financeCsvFromParam(value, (part) => part.length > 0);
 }
 
 export function parseFinancePackageClassFilter(
   value: string | string[] | undefined,
-): FinanceFilterValues["packageClass"] {
-  const raw = firstFinanceUrlParam(value)?.trim();
-  return raw && raw !== "all" ? raw : "all";
+): string {
+  return financeCsvFromParam(value, (part) => part.length > 0);
 }
 
 export function parseFinancePackageSessionsFilter(
   value: string | string[] | undefined,
-): FinanceFilterValues["sessions"] {
-  const raw = firstFinanceUrlParam(value)?.trim();
-  if (!raw || raw === "all") {
-    return "all";
-  }
-  if (raw === "unlimited") {
-    return "unlimited";
-  }
-  const parsed = Number.parseInt(raw, 10);
-  if (Number.isInteger(parsed) && parsed > 0) {
-    return String(parsed);
-  }
-  return "all";
+): string {
+  return financeCsvFromParam(value, (part) => {
+    if (part === "unlimited") {
+      return true;
+    }
+    const parsed = Number.parseInt(part, 10);
+    return Number.isInteger(parsed) && parsed > 0 && String(parsed) === part;
+  });
 }
 
 export function parseFinanceOverviewFiltersFromSearch(

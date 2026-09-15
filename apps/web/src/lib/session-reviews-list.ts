@@ -5,14 +5,12 @@ import {
   SESSION_REVIEW_RATING_QUERY_KEY,
   SESSION_REVIEW_SEARCH_QUERY_KEY,
   SESSION_REVIEW_VISIBILITY_QUERY_KEY,
-  type SessionReviewRatingFilter,
-  type SessionReviewVisibilityFilter,
 } from "@/lib/session-reviews-inbox-filters";
 
 export type SessionReviewsInboxQueryFilters = {
   q?: string;
-  rating?: SessionReviewRatingFilter | "";
-  visibility?: SessionReviewVisibilityFilter | "";
+  rating?: string;
+  visibility?: string;
   coachId?: string;
   packagePlanId?: string;
 };

@@ -40,12 +40,18 @@ export type FinanceFilterValues = {
   q: string;
   from: string;
   to: string;
-  source: FinanceSourceFilter;
-  status: FinanceStatusFilter;
-  paymentMethod: FinancePaymentMethodFilter;
-  planId: FinancePackagePlanFilter;
-  packageClass: FinancePackageClassFilter;
-  sessions: FinancePackageSessionsFilter;
+  /** "all" or comma-separated sources. */
+  source: string;
+  /** "all" or comma-separated payment statuses. */
+  status: string;
+  /** "all" or comma-separated payment methods. */
+  paymentMethod: string;
+  /** "all" or comma-separated plan ids. */
+  planId: string;
+  /** "all" or comma-separated class type ids. */
+  packageClass: string;
+  /** "all" or comma-separated session counts / unlimited. */
+  sessions: string;
   order: "newest" | "oldest";
 };
 

@@ -1,6 +1,5 @@
 import type {
   AnalyticsBarItem,
-  AnalyticsBookingStatusFilter,
   AnalyticsQuickFilterOption,
   AnalyticsRangeDays,
   AnalyticsSortKey,
@@ -112,18 +111,13 @@ export function serializeAnalyticsQuickFilters(
   return values.join(",");
 }
 
-export function parseAnalyticsBookingStatus(value?: string): AnalyticsBookingStatusFilter {
-  const allowed: AnalyticsBookingStatusFilter[] = [
-    "",
-    "BOOKED",
-    "COMPLETED",
-    "CANCELLED",
-    "MISSED",
-  ];
-  if (value && allowed.includes(value as AnalyticsBookingStatusFilter)) {
-    return value as AnalyticsBookingStatusFilter;
-  }
-  return "";
+export function parseAnalyticsBookingStatus(value?: string): string {
+  const allowed = new Set(["BOOKED", "COMPLETED", "CANCELLED", "MISSED"]);
+  const selected = (value ?? "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && allowed.has(part));
+  return selected.join(",");
 }
 
 export function resolveQuickFiltersSort(

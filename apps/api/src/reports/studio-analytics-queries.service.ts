@@ -30,8 +30,10 @@ export function buildSessionScopeWhere(
   return {
     startsAt: { gte: from, lte: to },
     status: { not: ClassSessionStatus.CANCELLED },
-    ...(filters.coachId ? { coachId: filters.coachId } : {}),
-    ...(filters.classTypeId ? { classTypeId: filters.classTypeId } : {}),
+    ...(filters.coachIds?.length ? { coachId: { in: filters.coachIds } } : {}),
+    ...(filters.classTypeIds?.length
+      ? { classTypeId: { in: filters.classTypeIds } }
+      : {}),
   };
 }
 

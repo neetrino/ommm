@@ -3,7 +3,6 @@ import { resolveRange } from './reports.helpers';
 import { StudioAnalyticsQueriesService } from './studio-analytics-queries.service';
 import { aggregateStudioRange } from './studio-analytics.aggregate';
 import {
-  optionalFilterId,
   resolvePreviousPeriod,
   toMetricComparison,
 } from './studio-analytics.helpers';
@@ -103,7 +102,7 @@ function resolveFilters(
   query: StudioAnalyticsQueryDto,
 ): StudioAnalyticsFilters {
   return {
-    coachId: optionalFilterId(query.coachId),
-    classTypeId: optionalFilterId(query.classTypeId),
+    coachIds: query.coachId?.length ? query.coachId : undefined,
+    classTypeIds: query.classTypeId?.length ? query.classTypeId : undefined,
   };
 }

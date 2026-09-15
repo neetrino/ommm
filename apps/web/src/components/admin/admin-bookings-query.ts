@@ -3,8 +3,8 @@ import { buildScheduleWeekDayKeys } from "@/components/shared/schedule/schedule-
 import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 import {
   ADMIN_BOOKING_PAYMENT_FILTER_VALUES,
-  type AdminBookingPaymentStatus,
 } from "@/components/admin/admin-booking-list-badges";
+import { parseFilterMultiValue } from "@/lib/filter-multi-value";
 import { parseListPageParams } from "@/lib/list-pagination";
 
 export const ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY = "bookingId";
@@ -30,19 +30,18 @@ export type AdminBookingsFilterState = {
   classTypeId: string;
   coachId: string;
   status: string;
-  paymentStatus: AdminBookingPaymentStatus | "";
+  /** Empty or comma-separated payment statuses. */
+  paymentStatus: string;
 };
 
 export function parseAdminBookingPaymentFilter(
   value: string | undefined | null,
-): AdminBookingPaymentStatus | "" {
-  if (!value) {
-    return "";
-  }
-  const normalized = value.toUpperCase();
-  return ADMIN_BOOKING_PAYMENT_FILTER_VALUES.includes(normalized as AdminBookingPaymentStatus)
-    ? (normalized as AdminBookingPaymentStatus)
-    : "";
+): string {
+  const allowed = new Set<string>(ADMIN_BOOKING_PAYMENT_FILTER_VALUES);
+  return parseFilterMultiValue(value)
+    .map((part) => part.toUpperCase())
+    .filter((part) => allowed.has(part))
+    .join(",");
 }
 
 export type AdminBookingSessionSlot = {
