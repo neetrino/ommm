@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BookingStatus } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { resolveSalaryMonthRange } from './coaches-salary-list-filters';
+import { resolveSalaryStartsAtFilter } from './coaches-salary-list-filters';
 import {
   mapSalarySessionRow,
   type CoachSalarySessionRow,
@@ -55,12 +55,12 @@ export class CoachSalarySessionsService {
     coachProfileId: string,
     query: CoachSalarySessionsQueryDto,
   ): Promise<CoachSalarySessionsPage> {
-    const { from, to } = resolveSalaryMonthRange(query.month);
+    const startsAt = resolveSalaryStartsAtFilter(query);
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
     const where = {
       coachId: coachProfileId,
-      startsAt: { gte: from, lt: to },
+      startsAt,
     };
 
     const [sessions, total, rate] = await Promise.all([

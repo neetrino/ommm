@@ -1,12 +1,12 @@
 import {
   applyFinanceStudioDateRangeParams,
+  resolveFinanceCoachDefaultDateRange,
+  resolveFinancePaymentsDateRange,
   type FinanceStudioDateRange,
 } from "@/components/admin/admin-finance-dates";
 import {
-  DEFAULT_FINANCE_OVERVIEW_RANGE,
   type CoachFinanceFilters,
   type CoachSalaryPayoutHistoryFilters,
-  type FinanceBoundedDateRangeDays,
   type FinanceFilterValues,
 } from "@/components/admin/admin-finance-types";
 import {
@@ -20,12 +20,13 @@ import {
 } from "@/components/admin/admin-finance-url.helpers";
 
 export function buildFinanceOverviewFiltersQuery(
-  rangeDays: FinanceBoundedDateRangeDays,
+  values: { from: string; to: string },
   currentSearchParams: URLSearchParams,
 ): string {
   const params = pickFinanceSectionParams([...FINANCE_OVERVIEW_QUERY_KEYS], currentSearchParams);
   applyFinanceQueryKeys(params, [...FINANCE_OVERVIEW_QUERY_KEYS], {
-    rangeDays: rangeDays === DEFAULT_FINANCE_OVERVIEW_RANGE ? undefined : String(rangeDays),
+    from: values.from.trim() !== "" ? values.from.trim() : undefined,
+    to: values.to.trim() !== "" ? values.to.trim() : undefined,
   });
   return params.toString();
 }
@@ -93,11 +94,16 @@ export function buildFinanceCoachesFiltersQuery(
   currentSearchParams: URLSearchParams,
 ): string {
   const q = (values.q ?? values.search).trim();
-  const defaultMonth = new Date().toISOString().slice(0, 7);
+  const defaults = resolveFinanceCoachDefaultDateRange();
+  const range = resolveFinancePaymentsDateRange(values.from, values.to);
+  const from = range.from ?? "";
+  const to = range.to ?? "";
   const params = pickFinanceSectionParams([...FINANCE_COACHES_QUERY_KEYS], currentSearchParams);
   applyFinanceQueryKeys(params, [...FINANCE_COACHES_QUERY_KEYS], {
     q: q !== "" ? q : undefined,
-    month: values.month !== defaultMonth ? values.month : undefined,
+    from: from && from !== defaults.from ? from : undefined,
+    to: to && to !== defaults.to ? to : undefined,
+    month: undefined,
     payoutStatus: values.payoutStatus !== "" ? values.payoutStatus : undefined,
     order: values.order !== "newest" ? values.order : undefined,
     quick: values.quick !== "" ? values.quick : undefined,
@@ -117,9 +123,8 @@ export function buildFinanceCoachSalaryQuery(
   if (search) {
     params.set("search", search);
   }
-  if (filters.month) {
-    params.set("month", filters.month);
-  }
+  const range = resolveFinancePaymentsDateRange(filters.from, filters.to);
+  applyFinanceStudioDateRangeParams(params, range);
   if (filters.payoutStatus) {
     params.set("payoutStatus", filters.payoutStatus);
   }

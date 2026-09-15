@@ -56,6 +56,28 @@ export function resolveFinanceCurrentMonthRange(
   return { from: `${to.slice(0, 7)}-01`, to };
 }
 
+/** Default coaches finance filter: current studio month through today. */
+export function resolveFinanceCoachDefaultDateRange(
+  now: Date = new Date(),
+): FinanceClosedStudioDateRange {
+  return resolveFinanceCurrentMonthRange(now);
+}
+
+/**
+ * Payout month for mark-as-paid when the filter spans a single calendar month.
+ * Returns null when from/to cross month boundaries.
+ */
+export function resolveFinanceCoachPayoutMonth(from: string, to: string): string | null {
+  const fromDay = normalizeFilterDateValue(from);
+  const toDay = normalizeFilterDateValue(to);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fromDay) || !/^\d{4}-\d{2}-\d{2}$/.test(toDay)) {
+    return null;
+  }
+  const fromMonth = fromDay.slice(0, 7);
+  const toMonth = toDay.slice(0, 7);
+  return fromMonth === toMonth ? fromMonth : null;
+}
+
 export function applyFinanceStudioDateRangeParams(
   params: URLSearchParams,
   range: FinanceStudioDateRange,

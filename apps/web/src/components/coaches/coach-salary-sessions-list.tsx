@@ -11,7 +11,11 @@ import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
 type CoachSalarySessionsListProps = {
   /** Endpoint returning {@link CoachSalarySessionsPayload}, e.g. admin or coach-panel salary-sessions route. */
   endpoint: string;
-  month: string;
+  /** Calendar month (`YYYY-MM`) — used by the coach panel salary page. */
+  month?: string;
+  /** Inclusive day range — preferred by admin finance coaches. */
+  from?: string;
+  to?: string;
   locale: string;
   loadingLabel: string;
   loadFailedLabel: string;
@@ -21,12 +25,25 @@ type CoachSalarySessionsListProps = {
   totalsLabel?: string;
 };
 
-function buildEndpoint(endpoint: string, month: string, take: number, offset: number): string {
+function buildEndpoint(
+  endpoint: string,
+  range: { month?: string; from?: string; to?: string },
+  take: number,
+  offset: number,
+): string {
   const params = new URLSearchParams({
-    month,
     take: String(take),
     offset: String(offset),
   });
+  if (range.from) {
+    params.set("from", range.from);
+  }
+  if (range.to) {
+    params.set("to", range.to);
+  }
+  if (range.month && !range.from && !range.to) {
+    params.set("month", range.month);
+  }
   return `${endpoint}?${params.toString()}`;
 }
 
@@ -34,6 +51,8 @@ function buildEndpoint(endpoint: string, month: string, take: number, offset: nu
 export function CoachSalarySessionsList({
   endpoint,
   month,
+  from,
+  to,
   locale,
   loadingLabel,
   loadFailedLabel,
@@ -48,8 +67,9 @@ export function CoachSalarySessionsList({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [prevKey, setPrevKey] = useState(`${endpoint}:${month}`);
-  const key = `${endpoint}:${month}`;
+  const rangeKey = `${month ?? ""}:${from ?? ""}:${to ?? ""}`;
+  const [prevKey, setPrevKey] = useState(`${endpoint}:${rangeKey}`);
+  const key = `${endpoint}:${rangeKey}`;
   if (key !== prevKey) {
     setPrevKey(key);
     setPage(1);
@@ -64,7 +84,7 @@ export function CoachSalarySessionsList({
       setError(null);
       try {
         const payload = await apiFetch<CoachSalarySessionsPayload>(
-          buildEndpoint(endpoint, month, pageSize, offset),
+          buildEndpoint(endpoint, { month, from, to }, pageSize, offset),
         );
         if (!cancelled) {
           setSessions(payload.items);
@@ -86,7 +106,7 @@ export function CoachSalarySessionsList({
     return () => {
       cancelled = true;
     };
-  }, [endpoint, month, page, pageSize, loadFailedLabel]);
+  }, [endpoint, month, from, to, page, pageSize, loadFailedLabel]);
 
   const listOffset = (page - 1) * pageSize;
   const showRows = !loading && !error && sessions.length > 0;

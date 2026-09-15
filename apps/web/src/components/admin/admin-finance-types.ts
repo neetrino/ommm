@@ -121,7 +121,8 @@ export type CoachFinanceRow = {
 
 export type CoachFinanceFilters = {
   search: string;
-  month: string;
+  from: string;
+  to: string;
   payoutStatus: string;
   order: string;
   quick: string;

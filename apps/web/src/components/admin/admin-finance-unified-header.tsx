@@ -35,8 +35,14 @@ type AdminFinanceTabFiltersProps = {
 function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps) {
   switch (section) {
     case "overview": {
-      const { rangeDays } = parseFinanceOverviewFiltersFromSearch(search);
-      return <AdminFinanceOverviewFilters initialRangeDays={rangeDays} />;
+      const { from, to } = parseFinanceOverviewFiltersFromSearch(search);
+      return (
+        <AdminFinanceOverviewFilters
+          key={`${from}|${to}`}
+          initialFrom={from}
+          initialTo={to}
+        />
+      );
     }
     case "payments": {
       const initialValues = parseFinancePaymentsFiltersFromSearch(search);
@@ -51,7 +57,7 @@ function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps
       const initialValues = parseFinanceCoachesFiltersFromSearch(search);
       return (
         <AdminFinanceCoachesFilters
-          key={`${initialValues.q}|${initialValues.month}|${initialValues.payoutStatus}|${initialValues.order}|${initialValues.quick}`}
+          key={`${initialValues.q}|${initialValues.from}|${initialValues.to}|${initialValues.payoutStatus}|${initialValues.order}|${initialValues.quick}`}
           initialValues={initialValues}
         />
       );

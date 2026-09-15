@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   hasFinancePaymentsPeriodSum,
+  resolveFinanceCoachPayoutMonth,
   resolveFinancePaymentsDateRange,
 } from "./admin-finance-dates";
 
@@ -30,5 +31,15 @@ describe("hasFinancePaymentsPeriodSum", () => {
     assert.equal(hasFinancePaymentsPeriodSum({}), false);
     assert.equal(hasFinancePaymentsPeriodSum({ from: "2026-09-01" }), true);
     assert.equal(hasFinancePaymentsPeriodSum({ from: "2026-09-01", to: "2026-09-04" }), true);
+  });
+});
+
+describe("resolveFinanceCoachPayoutMonth", () => {
+  it("returns the month when from/to stay in one calendar month", () => {
+    assert.equal(resolveFinanceCoachPayoutMonth("2026-09-01", "2026-09-15"), "2026-09");
+  });
+
+  it("returns null when the range crosses months", () => {
+    assert.equal(resolveFinanceCoachPayoutMonth("2026-08-20", "2026-09-04"), null);
   });
 });

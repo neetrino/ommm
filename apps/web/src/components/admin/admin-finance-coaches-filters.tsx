@@ -10,6 +10,7 @@ import {
   buildAdminFinanceCoachesFilterFields,
   parseCoachesIntegratedFilterChange,
 } from "@/components/admin/admin-finance-coaches-filter-fields";
+import { resolveFinanceCoachDefaultDateRange } from "@/components/admin/admin-finance-dates";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import type { CoachFinanceFilters } from "@/components/admin/admin-finance-types";
 import {
@@ -29,6 +30,7 @@ type CoachesFilterState = CoachFinanceFilters & { q: string };
 
 export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoachesFiltersProps) {
   const tFilters = useTranslations("adminPages.finance.coachTab");
+  const tFinanceFilters = useTranslations("adminPages.finance.filters");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -45,7 +47,8 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
     () =>
       buildAdminFinanceCoachesFilterFields({
         labels: {
-          monthLabel: tFilters("monthLabel"),
+          dateFrom: tFinanceFilters("dateFrom"),
+          dateTo: tFinanceFilters("dateTo"),
           payoutStatusLabel: tFilters("payoutStatusLabel"),
           filterAll: tFilters("filterAll"),
           statusPaid: tFilters("statusPaid"),
@@ -61,13 +64,14 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
           quickRecent: tFilters("quickRecent"),
         },
       }),
-    [tFilters],
+    [tFilters, tFinanceFilters],
   );
 
   const integratedFilterValues = useMemo(
     () =>
       adminFinanceCoachesIntegratedFilterValues({
-        month: values.month,
+        from: values.from,
+        to: values.to,
         payoutStatus: values.payoutStatus,
         order: values.order,
         quick: values.quick,
@@ -102,10 +106,12 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
   }
 
   function resetFilters(): void {
+    const defaults = resolveFinanceCoachDefaultDateRange();
     setValues({
       q: "",
       search: "",
-      month: new Date().toISOString().slice(0, 7),
+      from: defaults.from,
+      to: defaults.to,
       payoutStatus: "",
       order: "newest",
       quick: "",

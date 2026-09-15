@@ -17,25 +17,15 @@ import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { OmmButton } from "@/components/ui/omm-button";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { formatScheduleMonthTitle } from "@/components/marketing/schedule/schedule-date-utils";
+import { formatDateForUi } from "@/lib/date-display";
 
 type Props = {
   coach: CoachFinanceRow | null;
   locale: string;
-  month: string;
+  from: string;
+  to: string;
   onClose: () => void;
 };
-
-function formatSalaryMonthLabel(locale: string, yearMonth: string): string {
-  const [yearRaw, monthRaw] = yearMonth.split("-");
-  const year = Number(yearRaw);
-  const monthIndex = Number(monthRaw) - 1;
-  if (!Number.isFinite(year) || !Number.isFinite(monthIndex)) {
-    return yearMonth;
-  }
-  const date = new Date(year, monthIndex, 1);
-  return `${formatScheduleMonthTitle(locale, date)} ${year}`;
-}
 
 type SummaryMetric = {
   key: string;
@@ -79,7 +69,13 @@ function buildSummaryMetrics(
   ];
 }
 
-export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Props) {
+function formatPeriodLabel(from: string, to: string): string {
+  const fromLabel = formatDateForUi(from);
+  const toLabel = formatDateForUi(to);
+  return from === to ? fromLabel : `${fromLabel} – ${toLabel}`;
+}
+
+export function AdminCoachSessionsDrawer({ coach, locale, from, to, onClose }: Props) {
   const t = useTranslations("adminPages.finance.coachDrawer");
   const titleId = useId();
   const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
@@ -99,7 +95,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
     [coach],
   );
 
-  const monthLabel = useMemo(() => formatSalaryMonthLabel(locale, month), [locale, month]);
+  const periodLabel = useMemo(() => formatPeriodLabel(from, to), [from, to]);
 
   const summaryMetrics = useMemo(() => {
     if (coach === null) {
@@ -130,7 +126,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
             <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
               {coachName}
             </h2>
-            <p className="mt-1 text-sm text-sage-600">{t("monthLabel", { month: monthLabel })}</p>
+            <p className="mt-1 text-sm text-sage-600">{t("periodLabel", { period: periodLabel })}</p>
           </div>
           <OmmButton type="button" variant="ghost" size="sm" onClick={requestClose}>
             {t("close")}
@@ -147,14 +143,15 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
                   <dt className={adminChrome.metricLabel}>{metric.label}</dt>
                   <dd className={adminChrome.metricValue}>{metric.value}</dd>
                   {metric.key === "lessons" ? (
-                    <p className="mt-1 text-xs text-sage-500">{monthLabel}</p>
+                    <p className="mt-1 text-xs text-sage-500">{periodLabel}</p>
                   ) : null}
                 </div>
               ))}
             </dl>
             <CoachSalarySessionsList
               endpoint={`/coaches/admin/${coach.coachProfileId}/salary-sessions`}
-              month={month}
+              from={from}
+              to={to}
               locale={locale}
               variant="table"
               totalsLabel={t("totals")}

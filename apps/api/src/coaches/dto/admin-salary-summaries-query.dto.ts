@@ -16,9 +16,18 @@ export class AdminSalarySummariesQueryDto extends ListPaginationQueryDto {
   @IsString()
   search?: string;
 
+  /** @deprecated Prefer `from` / `to`. Kept for older clients. */
   @IsOptional()
   @Matches(/^\d{4}-\d{2}$/)
   month?: string;
+
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  from?: string;
+
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  to?: string;
 
   @IsOptional()
   @IsIn(PAYOUT_STATUSES)

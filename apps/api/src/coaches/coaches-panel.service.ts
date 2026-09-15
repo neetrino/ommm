@@ -115,7 +115,11 @@ export class CoachesPanelService {
       isActive: profile.isActive,
       user: profile.user,
       totalClasses: profile._count.sessions,
-      salary: await this.salary.forProfile(profile.id, query.month),
+      salary: await this.salary.forProfile(profile.id, {
+        month: query.month,
+        from: query.from,
+        to: query.to,
+      }),
     });
 
     if (!hasPagination) {

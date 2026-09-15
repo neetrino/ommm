@@ -9,6 +9,7 @@ import {
   type FinanceStatusFilter,
   isFinancePaymentMethodValue,
 } from "@/components/admin/admin-finance-types";
+import { resolveFinanceCoachDefaultDateRange } from "@/components/admin/admin-finance-dates";
 import { firstFinanceUrlParam } from "@/components/admin/admin-finance-url.helpers";
 import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 
@@ -97,9 +98,10 @@ export function parseFinancePackageSessionsFilter(
 
 export function parseFinanceOverviewFiltersFromSearch(
   search: Record<string, string | string[] | undefined>,
-): { rangeDays: FinanceBoundedDateRangeDays } {
+): { from: string; to: string } {
   return {
-    rangeDays: parseFinanceDateRangeDays(search.rangeDays),
+    from: parseFinancePaymentsDateFilter(search.from),
+    to: parseFinancePaymentsDateFilter(search.to),
   };
 }
 
@@ -121,20 +123,46 @@ export function parseFinancePaymentsFiltersFromSearch(
   };
 }
 
+function lastDayOfYearMonth(yearMonth: string): string {
+  const [yearRaw, monthRaw] = yearMonth.split("-");
+  const year = Number.parseInt(yearRaw, 10);
+  const monthIndex = Number.parseInt(monthRaw, 10) - 1;
+  const lastDay = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+  return `${yearMonth}-${String(lastDay).padStart(2, "0")}`;
+}
+
 export function parseFinanceCoachesFiltersFromSearch(
   search: Record<string, string | string[] | undefined>,
 ): CoachFinanceFilters & { q: string } {
-  const month = firstFinanceUrlParam(search.month);
+  const defaults = resolveFinanceCoachDefaultDateRange();
+  const fromParam = parseFinancePaymentsDateFilter(search.from);
+  const toParam = parseFinancePaymentsDateFilter(search.to);
+  const legacyMonth = firstFinanceUrlParam(search.month);
   const order = firstFinanceUrlParam(search.order) ?? "newest";
   const validOrder =
     order === "oldest" || order === "newest" || order === "highest-salary"
       ? order
       : "newest";
 
+  let from = fromParam;
+  let to = toParam;
+  if (!from && !to && legacyMonth && /^\d{4}-\d{2}$/.test(legacyMonth)) {
+    from = `${legacyMonth}-01`;
+    to =
+      legacyMonth === defaults.to.slice(0, 7)
+        ? defaults.to
+        : lastDayOfYearMonth(legacyMonth);
+  }
+  if (!from && !to) {
+    from = defaults.from;
+    to = defaults.to;
+  }
+
   return {
     q: firstFinanceUrlParam(search.q)?.trim() ?? "",
     search: firstFinanceUrlParam(search.q)?.trim() ?? "",
-    month: month && /^\d{4}-\d{2}$/.test(month) ? month : new Date().toISOString().slice(0, 7),
+    from,
+    to,
     payoutStatus: firstFinanceUrlParam(search.payoutStatus) ?? "",
     order: validOrder,
     quick: firstFinanceUrlParam(search.quick) ?? "",
