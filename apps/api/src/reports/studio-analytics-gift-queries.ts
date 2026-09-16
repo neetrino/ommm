@@ -13,27 +13,39 @@ export async function loadStudioAnalyticsGiftCredits(
   to: Date,
 ): Promise<StudioAnalyticsPayload['revenue']['giftCredits']> {
   const dateFilter = { gte: from, lte: to };
-  const [issuedGiftCards, redeemedGiftCards, giftSpentAgg, giftLiabilityAgg] =
-    await Promise.all([
-      prisma.giftCard.findMany({
-        where: { createdAt: dateFilter },
-        take: STUDIO_ANALYTICS_ROW_CAP,
-      }),
-      prisma.giftCard.findMany({
-        where: { status: GiftCardStatus.REDEEMED, updatedAt: dateFilter },
-        take: STUDIO_ANALYTICS_ROW_CAP,
-      }),
-      prisma.payment.aggregate({
-        where: {
-          createdAt: dateFilter,
-          status: PaymentStatus.SUCCEEDED,
-          description: { startsWith: GIFT_CREDIT_SPEND_PREFIX },
-        },
-        _sum: { amountCents: true },
-        _count: { id: true },
-      }),
-      prisma.user.aggregate({ _sum: { giftCreditsCents: true } }),
-    ]);
+  const [
+    issuedGiftCards,
+    redeemedGiftCards,
+    giftSpentAgg,
+    giftWalletAgg,
+    giftCardsOutstandingAgg,
+  ] = await Promise.all([
+    prisma.giftCard.findMany({
+      where: { createdAt: dateFilter },
+      take: STUDIO_ANALYTICS_ROW_CAP,
+    }),
+    prisma.giftCard.findMany({
+      where: { status: GiftCardStatus.REDEEMED, updatedAt: dateFilter },
+      take: STUDIO_ANALYTICS_ROW_CAP,
+    }),
+    prisma.payment.aggregate({
+      where: {
+        createdAt: dateFilter,
+        status: PaymentStatus.SUCCEEDED,
+        description: { startsWith: GIFT_CREDIT_SPEND_PREFIX },
+      },
+      _sum: { amountCents: true },
+      _count: { id: true },
+    }),
+    prisma.user.aggregate({ _sum: { giftCreditsCents: true } }),
+    prisma.giftCard.aggregate({
+      where: {
+        status: GiftCardStatus.ACTIVE,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      _sum: { balanceAmd: true },
+    }),
+  ]);
   return {
     issuedCents: issuedGiftCards.reduce(
       (sum, card) => sum + readGiftAmount(card),
@@ -47,6 +59,8 @@ export async function loadStudioAnalyticsGiftCredits(
     redeemedCount: redeemedGiftCards.length,
     spentCents: giftSpentAgg._sum.amountCents ?? 0,
     spendTransactionsCount: giftSpentAgg._count.id ?? 0,
-    outstandingCreditsCents: giftLiabilityAgg._sum.giftCreditsCents ?? 0,
+    outstandingCreditsCents:
+      (giftWalletAgg._sum.giftCreditsCents ?? 0) +
+      (giftCardsOutstandingAgg._sum.balanceAmd ?? 0),
   };
 }

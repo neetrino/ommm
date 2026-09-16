@@ -150,27 +150,25 @@ export class GiftCardsClientService {
     if (!card || card.status !== GiftCardStatus.ACTIVE) {
       throw new NotFoundException('Invalid code');
     }
+    const now = new Date();
+    if (card.expiresAt !== null && card.expiresAt <= now) {
+      throw new BadRequestException('Gift card has expired');
+    }
     const balance = readGiftCardBalance(card);
     if (balance <= 0) {
       throw new BadRequestException('Gift card has no balance');
     }
-    const amount = balance;
-    const redeemCardUpdateArgs = {
+    if (card.recipientId !== null && card.recipientId !== userId) {
+      throw new BadRequestException('Gift card already assigned');
+    }
+    if (card.recipientId === userId) {
+      return { ok: true, creditedCents: balance, alreadyOwned: true };
+    }
+    await this.prisma.giftCard.update({
       where: { id: card.id },
-      data: {
-        balanceAmd: 0,
-        status: GiftCardStatus.REDEEMED,
-        recipientId: userId,
-      },
-    } as unknown as Parameters<typeof this.prisma.giftCard.update>[0];
-    await this.prisma.$transaction([
-      this.prisma.giftCard.update(redeemCardUpdateArgs),
-      this.prisma.user.update({
-        where: { id: userId },
-        data: { giftCreditsCents: { increment: amount } },
-      }),
-    ]);
-    return { ok: true, creditedCents: amount };
+      data: { recipientId: userId },
+    });
+    return { ok: true, creditedCents: balance, alreadyOwned: false };
   }
 
   listAdminCards() {

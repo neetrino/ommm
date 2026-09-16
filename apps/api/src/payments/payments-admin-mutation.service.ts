@@ -13,6 +13,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import {
   PACKAGE_GIFT_CREDITS_REFUNDED_KEY,
+  readGiftCreditsAllocations,
   readGiftCreditsAppliedCents,
   refundReservedGiftCredits,
   wereGiftCreditsRefunded,
@@ -55,6 +56,14 @@ export class PaymentsAdminMutationService {
     });
     if (payment.status === status) {
       return payment;
+    }
+    if (
+      payment.source === PaymentSource.GIFT &&
+      status === PaymentStatus.REFUNDED
+    ) {
+      throw new BadRequestException(
+        'Gift card purchases are non-refundable',
+      );
     }
     if (
       status === PaymentStatus.SUCCEEDED &&
@@ -167,6 +176,7 @@ export class PaymentsAdminMutationService {
         await refundReservedGiftCredits(this.prisma, {
           userId: params.userId,
           appliedCents: readGiftCreditsAppliedCents(params.metadata),
+          allocations: readGiftCreditsAllocations(params.metadata),
         });
       }
     }

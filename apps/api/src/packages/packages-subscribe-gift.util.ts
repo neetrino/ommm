@@ -11,7 +11,7 @@ import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-  PACKAGE_GIFT_CREDITS_APPLIED_KEY,
+  buildGiftCreditsPaymentMetadata,
   recordGiftCreditSpendPayment,
   reserveGiftCreditsForPackage,
 } from './package-gift-credits.util';
@@ -45,7 +45,7 @@ export async function createFullyGiftCoveredPackageSubscription(
   stockTracked: boolean;
 }> {
   const paymentReference = createPaymentReference('PACKAGE');
-  await reserveGiftCreditsForPackage(tx, {
+  const allocations = await reserveGiftCreditsForPackage(tx, {
     userId: params.userId,
     appliedCents: params.appliedCents,
   });
@@ -72,6 +72,10 @@ export async function createFullyGiftCoveredPackageSubscription(
       description: buildPackagePaymentDescription(params.plan.name),
       confirmedAt: new Date(),
       paymentMethod: ManualPaymentMethod.CARD,
+      metadata: mergeArcaMetadata(
+        null,
+        buildGiftCreditsPaymentMetadata(params.appliedCents, allocations),
+      ),
     },
   });
   await recordGiftCreditSpendPayment(tx, {
@@ -106,12 +110,13 @@ export async function createCashPackageSubscriptionWithGiftCredits(
   const paymentReference = createPaymentReference('PACKAGE');
   const chargeCents =
     resolveFinalPriceCents(params.plan) - params.giftCreditsAppliedCents;
-  if (params.giftCreditsAppliedCents > 0) {
-    await reserveGiftCreditsForPackage(tx, {
-      userId: params.userId,
-      appliedCents: params.giftCreditsAppliedCents,
-    });
-  }
+  const allocations =
+    params.giftCreditsAppliedCents > 0
+      ? await reserveGiftCreditsForPackage(tx, {
+          userId: params.userId,
+          appliedCents: params.giftCreditsAppliedCents,
+        })
+      : [];
   const userPackage = await tx.userPackage.create({
     data: buildUserPackageCreateData({
       userId: params.userId,
@@ -137,12 +142,10 @@ export async function createCashPackageSubscriptionWithGiftCredits(
       paymentMethod: ManualPaymentMethod.CASH,
       metadata: mergeArcaMetadata(null, {
         statusReason: PAYMENT_STATUS_REASON.AWAITING_CASH,
-        ...(params.giftCreditsAppliedCents > 0
-          ? {
-              [PACKAGE_GIFT_CREDITS_APPLIED_KEY]:
-                params.giftCreditsAppliedCents,
-            }
-          : {}),
+        ...buildGiftCreditsPaymentMetadata(
+          params.giftCreditsAppliedCents,
+          allocations,
+        ),
       }),
     },
   });
@@ -164,17 +167,19 @@ export async function createPendingCardPurchaseWithGiftCredits(
     giftCreditsAppliedCents: number;
   },
 ) {
-  if (params.giftCreditsAppliedCents > 0) {
-    await reserveGiftCreditsForPackage(tx, {
-      userId: params.userId,
-      appliedCents: params.giftCreditsAppliedCents,
-    });
-  }
+  const allocations =
+    params.giftCreditsAppliedCents > 0
+      ? await reserveGiftCreditsForPackage(tx, {
+          userId: params.userId,
+          appliedCents: params.giftCreditsAppliedCents,
+        })
+      : [];
   return createPendingCardPackagePurchase(tx, {
     userId: params.userId,
     plan: params.plan,
     chargeCents: params.chargeCents,
     giftCreditsAppliedCents: params.giftCreditsAppliedCents,
+    giftCreditsAllocations: allocations,
   });
 }
 
