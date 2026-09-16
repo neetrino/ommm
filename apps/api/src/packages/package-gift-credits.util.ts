@@ -150,7 +150,11 @@ export async function refundReservedGiftCredits(
   }
 
   const allocations = params.allocations;
-  if (allocations === null || allocations === undefined || allocations.length === 0) {
+  if (
+    allocations === null ||
+    allocations === undefined ||
+    allocations.length === 0
+  ) {
     await db.user.update({
       where: { id: params.userId },
       data: { giftCreditsCents: { increment: params.appliedCents } },
@@ -274,11 +278,7 @@ export function readGiftCreditsAllocations(
   }
   const allocations: GiftCreditAllocation[] = [];
   for (const entry of raw) {
-    if (
-      entry === null ||
-      typeof entry !== 'object' ||
-      Array.isArray(entry)
-    ) {
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
       continue;
     }
     const row = entry as Record<string, unknown>;

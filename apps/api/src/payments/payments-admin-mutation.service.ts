@@ -61,9 +61,7 @@ export class PaymentsAdminMutationService {
       payment.source === PaymentSource.GIFT &&
       status === PaymentStatus.REFUNDED
     ) {
-      throw new BadRequestException(
-        'Gift card purchases are non-refundable',
-      );
+      throw new BadRequestException('Gift card purchases are non-refundable');
     }
     if (
       status === PaymentStatus.SUCCEEDED &&

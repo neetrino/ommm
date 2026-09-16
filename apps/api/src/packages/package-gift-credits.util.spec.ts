@@ -21,9 +21,9 @@ describe('package-gift-credits.util', () => {
       },
     };
 
-    await expect(peekSpendableGiftCreditsCents(db as never, 'u1')).resolves.toBe(
-      3_500,
-    );
+    await expect(
+      peekSpendableGiftCreditsCents(db as never, 'u1'),
+    ).resolves.toBe(3_500);
   });
 
   it('reserveGiftCreditsForPackage debits nearest-expiry cards before wallet', async () => {
@@ -34,10 +34,17 @@ describe('package-gift-credits.util', () => {
           { id: 'soon', balanceAmd: 3_000, expiresAt: new Date('2026-01-01') },
           { id: 'later', balanceAmd: 5_000, expiresAt: new Date('2026-06-01') },
         ]),
-        update: jest.fn().mockImplementation(({ where, data }) => {
-          updates.push({ id: where.id as string, data });
-          return Promise.resolve({});
-        }),
+        update: jest
+          .fn()
+          .mockImplementation(
+            (args: {
+              where: { id: string };
+              data: Record<string, unknown>;
+            }) => {
+              updates.push({ id: args.where.id, data: args.data });
+              return Promise.resolve({});
+            },
+          ),
       },
       user: {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -66,9 +73,11 @@ describe('package-gift-credits.util', () => {
   it('reserveGiftCreditsForPackage uses legacy wallet after cards', async () => {
     const db = {
       giftCard: {
-        findMany: jest.fn().mockResolvedValue([
-          { id: 'c1', balanceAmd: 1_000, expiresAt: null },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { id: 'c1', balanceAmd: 1_000, expiresAt: null },
+          ]),
         update: jest.fn().mockResolvedValue({}),
       },
       user: {
