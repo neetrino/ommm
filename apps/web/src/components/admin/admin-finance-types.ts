@@ -23,6 +23,7 @@ export const FINANCE_PAYMENT_METHOD_FILTER_VALUES = [
   "CASH",
   "CARD",
   "CARD_TERMINAL",
+  "INFLUENCER",
 ] as const;
 
 export type FinancePaymentMethodValue =

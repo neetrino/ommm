@@ -122,6 +122,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
           paymentMethodCash: t("paymentMethods.CASH"),
           paymentMethodCard: t("paymentMethods.CARD"),
           paymentMethodTerminal: t("paymentMethods.CARD_TERMINAL"),
+          paymentMethodInfluencer: t("paymentMethods.INFLUENCER"),
           packageLabel: tFilters("packageLabel"),
           packageAll: tFilters("packageAll"),
           packageClassLabel: tFilters("packageClassLabel"),
