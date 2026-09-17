@@ -13,6 +13,7 @@
 | API | NestJS, Prisma, JWT cookie/Bearer, ScheduleModule (cron) |
 | Mobile | Expo (expo-router), native + web targets |
 | Database | PostgreSQL (Neon-compatible), Prisma migrations |
+| Production deploy | Hetzner + Coolify — **Docker only** (`Dockerfile`, `Dockerfile.api`, `compose.yaml`). Nixpacks unsupported. See `docs/COOLIFY_DOCKER_DEPLOY.md`. |
 
 ## Notes
 

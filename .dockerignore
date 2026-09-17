@@ -5,6 +5,10 @@
 .idea
 .cloud-run-env.yaml
 
+# Nixpacks must never influence Coolify builds for this repo.
+.nixpacks
+nixpacks.toml
+
 **/node_modules
 **/.next
 **/dist
@@ -12,12 +16,9 @@
 **/.turbo
 **/.cache
 
-# Not needed for web/API container builds (large Expo tree).
-apps/mobile/node_modules
-apps/mobile/.expo
-apps/mobile/dist
-apps/mobile/android
-apps/mobile/ios
+# Expo tree is not built in web/API images — keep only package.json for the workspace.
+apps/mobile/**
+!apps/mobile/package.json
 
 # Local / secrets
 .env
