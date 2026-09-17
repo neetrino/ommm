@@ -1,10 +1,9 @@
-# Web (Next.js) — Coolify ommm.am. Multi-stage + standalone keeps the image small
-# enough that `exporting layers` does not OOM / fill disk on the host.
-# Coolify: Build Pack = Dockerfile, Dockerfile = Dockerfile (this file).
-# API uses Dockerfile.api separately.
+# Web (Next.js) — Coolify / Hetzner.
+# Build Pack MUST be "Dockerfile" (never Nixpacks).
+# Dockerfile location: Dockerfile (repo root). Port: 3000.
 #
-# Runtime: set API_INTERNAL_URL to the Docker-network Nest URL (same Coolify
-# network as this service), e.g. http://<api-service>:8080 — not https://api.ommm.am.
+# Runtime: set API_INTERNAL_URL to the Docker-network Nest URL
+# (e.g. http://api:8080), NOT https://api.ommm.am.
 
 FROM node:20-bookworm-slim AS base
 WORKDIR /app
@@ -26,16 +25,31 @@ COPY --from=deps /app/ /app/
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web ./apps/web
 COPY packages/database ./packages/database
+
+# Client bundle embeds NEXT_PUBLIC_* at build time — pass via Coolify build args.
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_ORIGIN
+ARG NEXT_PUBLIC_ARCA_CHECKOUT_ENABLED
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_API_ORIGIN=$NEXT_PUBLIC_API_ORIGIN \
+    NEXT_PUBLIC_ARCA_CHECKOUT_ENABLED=$NEXT_PUBLIC_ARCA_CHECKOUT_ENABLED \
+    NEXT_TELEMETRY_DISABLED=1
+
 RUN pnpm run db:generate && pnpm run build:web
 
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
 
-RUN groupadd --system --gid 1001 nodejs \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates curl \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd --system --gid 1001 nodejs \
   && useradd --system --uid 1001 --gid nodejs nextjs
 
 COPY --from=builder /app/apps/web/public ./apps/web/public
@@ -44,4 +58,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/
 
 USER nextjs
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD curl -fsS "http://127.0.0.1:3000/" >/dev/null || exit 1
 CMD ["node", "apps/web/server.js"]

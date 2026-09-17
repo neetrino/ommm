@@ -1,9 +1,17 @@
-# Nest API — Coolify: Build Pack = Dockerfile, Dockerfile location = Dockerfile.api
+# Nest API — Coolify / Hetzner.
+# Build Pack MUST be "Dockerfile" (never Nixpacks).
+# Dockerfile location: Dockerfile.api. Port: 8080 (set PORT=8080 in Coolify).
+# Healthcheck path: /v1/health
+
 FROM node:20-bookworm-slim AS base
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 
 FROM base AS deps
+# argon2 (native) needs a compiler toolchain during install.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/api/package.json ./apps/api/
@@ -18,14 +26,20 @@ COPY --from=deps /app/ /app/
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api ./apps/api
 COPY packages/database ./packages/database
-RUN pnpm run db:generate && pnpm run build:api
+RUN pnpm run db:generate && pnpm run build:api \
+  && test -x node_modules/.bin/prisma
 
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
-ENV NODE_ENV=production
-ENV PORT=8080
+ENV NODE_ENV=production \
+    PORT=8080 \
+    API_LISTEN_HOST=0.0.0.0 \
+    RUN_DB_MIGRATE=true
 
-RUN groupadd --system --gid 1001 nodejs \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates curl \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd --system --gid 1001 nodejs \
   && useradd --system --uid 1001 --gid nodejs nestjs
 
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc ./
@@ -33,8 +47,14 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/packages/database ./packages/database
+COPY apps/api/docker-entrypoint.sh /app/apps/api/docker-entrypoint.sh
+
+RUN chmod +x /app/apps/api/docker-entrypoint.sh \
+  && chown -R nestjs:nodejs /app
 
 USER nestjs
 WORKDIR /app/apps/api
 EXPOSE 8080
-CMD ["node", "dist/main"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=50s --retries=3 \
+  CMD curl -fsS "http://127.0.0.1:8080/v1/health" >/dev/null || exit 1
+ENTRYPOINT ["./docker-entrypoint.sh"]

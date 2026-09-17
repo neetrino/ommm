@@ -19,6 +19,15 @@ Cursor-ում AI-զարգացման կանոններով repo-ի կաղապար�
 
 **Ձեռքով Prisma client** (եթե `postinstall` անջատված է CI-ում)․ `pnpm run db:generate`։
 
+### Production (Coolify / Hetzner)
+
+**Միայն Docker** — Nixpacks չօգտագործել։ Ուղեցույց՝ [`docs/COOLIFY_DOCKER_DEPLOY.md`](./docs/COOLIFY_DOCKER_DEPLOY.md)․ Env տեղադրում՝ [`docs/DEPLOY_ENV_PLACEMENT.md`](./docs/DEPLOY_ENV_PLACEMENT.md)․
+
+```bash
+pnpm run docker:build   # local smoke
+pnpm run docker:up
+```
+
 ---
 
 ## Ինչպես սկսել

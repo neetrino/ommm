@@ -19,7 +19,13 @@
     "setup": "pnpm install",
     "test": "pnpm --filter api test",
     "test:e2e:web": "pnpm --filter web test:e2e",
-    "load:local:smoke": "k6 run tests/load/local-smoke.js"
+    "load:local:smoke": "k6 run tests/load/local-smoke.js",
+    "docker:build": "docker compose -f compose.yaml build",
+    "docker:build:web": "docker build -f Dockerfile -t ommm-web:local .",
+    "docker:build:api": "docker build -f Dockerfile.api -t ommm-api:local .",
+    "docker:up": "docker compose -f compose.yaml up -d",
+    "docker:down": "docker compose -f compose.yaml down",
+    "docker:logs": "docker compose -f compose.yaml logs -f --tail=200"
   },
   "engines": {
     "node": ">=20"

@@ -1,79 +1,84 @@
-# Որտեղ ինչ env դնել (Vercel + Render + Coolify)
+# Որտեղ ինչ env դնել (Coolify Docker — primary)
 
 Կարճ ցուցակ՝ **քո root `.env`-ի key-երի** հիման վրա։ Արժեքները **չեն** գրված այստեղ — միայն deploy UI-ում։
 
+**Production canonical:** Hetzner + Coolify + **Docker only** (տես [`COOLIFY_DOCKER_DEPLOY.md`](./COOLIFY_DOCKER_DEPLOY.md)).  
+**Nixpacks չօգտագործել** այս monorepo-ի համար։
+
 ## Coolify (Docker) — `apps/web` + `apps/api`
+
+Առաջարկվող՝ մեկ resource `compose.yaml`-ով։ Այլընտրանք՝ երկու Dockerfile service։
 
 | Key | Որտեղ | Production արժեք |
 |-----|--------|------------------|
-| `NEXT_PUBLIC_API_URL` | web | Հանրային API base (`https://api.ommm.am`) — browser-facing URLs / assets։ |
-| `API_INTERNAL_URL` | web | **Docker-network** Nest URL (օր. `http://<api-service-name>:8080`), **ոչ** `https://api.ommm.am`։ Հանրային URL-ը Cloudflare hairpin է անում և կոտրում է SSE (`socket hang up` → HTTP 500)։ |
-| `WEB_APP_URL` | api | `https://www.ommm.am` (կամ canonical site origin) — CORS + OAuth redirects։ |
+| `NEXT_PUBLIC_SITE_URL` | web (**build** + runtime) | `https://www.ommm.am` |
+| `NEXT_PUBLIC_API_URL` | web (**build** + runtime) | Հանրային API base (`https://api.ommm.am`) — browser-facing URLs / assets։ |
+| `NEXT_PUBLIC_API_ORIGIN` | web (**build** + runtime) | Սովորաբար նույնը, ինչ `NEXT_PUBLIC_API_URL`։ |
+| `API_INTERNAL_URL` | web (runtime) | **Docker-network** Nest URL։ Compose-ում արդեն `http://api:8080`։ Split services՝ `http://<api-service-name>:8080`։ **Ոչ** `https://api.ommm.am` (Cloudflare hairpin → SSE `socket hang up` / HTTP 500)։ |
+| `WEB_APP_URL` | api | `https://www.ommm.am` — CORS + OAuth redirects։ |
+| `PORT` | api | `8080` (համընկնում է `Dockerfile.api` / compose-ի հետ)։ |
+| `API_LISTEN_HOST` | api | `0.0.0.0` |
+| `RUN_DB_MIGRATE` | api | `true` (default) — entrypoint-ը անում է `prisma migrate deploy`։ |
+| `DATABASE_URL` / `DIRECT_URL` | api | Neon pooled + direct։ |
+| `JWT_SECRET` / `JWT_EXPIRES_SEC` | api | Production secret։ |
+| `ENABLE_BOOKING_BACKGROUND_JOBS` | api | `true` prod-ում։ |
+| Resend / R2 / Google / Upstash / WhatsApp | api | Ըստ `.env.example`-ի։ |
+| `GOOGLE_CALLBACK_URL` | api | `https://www.ommm.am/api/v1/auth/google/callback` (frontend origin + Next proxy)։ |
+| `CORS_ORIGINS` | api | Լրացուցիչ browser origin-ներ, ստորակետով։ |
 
-Web և API պետք է լինեն **նույն Docker network**-ում, որպեսզի `API_INTERNAL_URL`-ը resolv լինի։ SSE մնում է same-origin `/api/v1/realtime/*` (host-only cookie)՝ dedicated App Router proxy-ով։
+Web և API պետք է լինեն **նույն Docker network**-ում։ SSE մնում է same-origin `/api/v1/realtime/*` (host-only cookie)՝ dedicated App Router proxy-ով։
 
-## Vercel — միայն `apps/web`
+### Coolify UI — պարտադիր
+
+| Setting | Value |
+|---------|--------|
+| Build Pack | **Dockerfile** կամ **Docker Compose** |
+| Web Dockerfile | `Dockerfile` |
+| API Dockerfile | `Dockerfile.api` |
+| Compose file | `compose.yaml` |
+| Nixpacks | **արգելված** |
+
+## Legacy notes (Vercel / Render)
+
+Հին split hosting-ի համար կարող ես դեռ օգտագործել ստորև՝ եթե ժամանակավոր ես մնում այդ stack-ում։ **Նոր prod deploy-ի համար օգտագործիր Coolify Docker։**
+
+### Vercel — միայն `apps/web` (legacy)
 
 | Key | Production արժեք (ինչ դնել) |
 |-----|-----------------------------|
-| `NEXT_PUBLIC_SITE_URL` | Քո frontend-ի `https://…` (Vercel domain կամ custom)։ |
-| `NEXT_PUBLIC_API_URL` | Քո Render API-ի հանրային `https://…` (base, առանց `/v1`)։ |
-| `API_INTERNAL_URL` | Սովորաբար **նույնը**, ինչ `NEXT_PUBLIC_API_URL` (Vercel-ից localhost չի հասնում)։ |
+| `NEXT_PUBLIC_SITE_URL` | Քո frontend-ի `https://…`։ |
+| `NEXT_PUBLIC_API_URL` | API-ի հանրային `https://…` (base, առանց `/v1`)։ |
+| `API_INTERNAL_URL` | Սովորաբար **նույնը**, ինչ `NEXT_PUBLIC_API_URL` (Vercel-ից Docker network չի հասնում)։ |
 
-**Չդնես Vercel-ում** (քո `.env`-ում չկան կամ backend-only են). `NODE_ENV`-ը Vercel-ը սովորաբար ինքն է լուծում։
+**Չդնես Vercel-ում** (backend-only են). `NODE_ENV`-ը Vercel-ը սովորաբար ինքն է լուծում։
 
-## Render — միայն `apps/api` (Nest)
+### Render — միայն `apps/api` (legacy)
 
 | Key | Նշում |
 |-----|--------|
 | `NODE_ENV` | `production` |
-| `PORT` | Թող Render-ի default (Nest-ը կարդում է `PORT`)։ |
-| `API_LISTEN_HOST` | `0.0.0.0` (Render-ի համար նորմալ է)։ |
-| `WEB_APP_URL` | **Նույն origin-ը**, ինչ Vercel-ի `NEXT_PUBLIC_SITE_URL` (CORS + redirect/href-ներ)։ |
-| `DATABASE_URL` | Նույն pooled Neon string-ը, ինչ տեղային `.env`-ում։ |
-| `DIRECT_URL` | Նույն direct Neon string-ը։ |
-| `DATABASE_CONNECTION_LIMIT` | Որքան տեղայինում (`10`)։ |
-| `DATABASE_POOL_TIMEOUT` | Որքան տեղայինում (`20`)։ |
-| `JWT_SECRET` | Production secret (տեղային dev արժեքը չօգտագործես prod-ում)։ |
-| `JWT_EXPIRES_SEC` | Որքան տեղայինում։ |
-| `UPSTASH_REDIS_REST_URL` | Եթե Redis-ը օգտագործում ես։ |
-| `UPSTASH_REDIS_REST_TOKEN` | Եթե Redis-ը օգտագործում ես։ |
-| `RESEND_API_KEY` | Production Resend key։ |
-| `RESEND_FROM_EMAIL` | Որքան հաստատված sender-դ։ |
-| `RESEND_FROM` | Display from string։ |
-| `WHATSAPP_GATEWAY_URL` | Fallback Gateway URL if Admin → Settings → WhatsApp is empty։ |
-| `WHATSAPP_GATEWAY_TOKEN` | Fallback project token if the admin DB row is empty։ |
-| `R2_ACCOUNT_ID` | R2 dashboard։ |
-| `R2_S3_ENDPOINT` | R2 S3 API URL։ |
-| `R2_API_TOKEN` | Քո `.env`-ում կա; Nest upload path-ը **չի** կարդում այս key-ը — կարող ես Render-ում չդնել, եթե ուրիշ ծառայություն չի պահանջում։ |
-| `R2_ACCESS_KEY_ID` | S3 access key։ |
-| `R2_SECRET_ACCESS_KEY` | S3 secret։ |
-| `R2_BUCKET_NAME` | Որքան `.env`-ում։ |
-| `R2_PUBLIC_URL` | Հանրային asset base URL։ |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID (միայն Render — Vercel-ում **չդնես**)։ |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth secret (միայն Render)։ |
-| `GOOGLE_CALLBACK_URL` | `https://ommm.am/api/v1/auth/google/callback` (frontend origin + Next proxy, **ոչ** `onrender.com`)։ |
+| `PORT` | Թող platform default (Nest-ը կարդում է `PORT`)։ |
+| `API_LISTEN_HOST` | `0.0.0.0` |
+| `WEB_APP_URL` | Frontend `https://…` (CORS + redirects)։ |
+| `DATABASE_URL` / `DIRECT_URL` | Neon։ |
+| `DATABASE_CONNECTION_LIMIT` / `DATABASE_POOL_TIMEOUT` | Ինչպես տեղայինում։ |
+| `JWT_*`, Resend, R2, Google, Upstash, WhatsApp | Ինչպես Coolify API աղյուսակում։ |
+| `GOOGLE_CALLBACK_URL` | Frontend origin + `/api/v1/auth/google/callback`։ |
 
-`MAIL_TRANSPORT` քո `.env`-ում չկա — production-ում Nest-ը default-ով **Resend** է վերցնում; եթե ուզես log-only, Render-ում ավելացրու `MAIL_TRANSPORT=log`։
+`MAIL_TRANSPORT` քո `.env`-ում կարող է չլինել — production-ում Nest-ը default-ով **Resend** է վերցնում; եթե ուզես log-only՝ `MAIL_TRANSPORT=log`։
 
-**Preview deploy-ներ** (Vercel PR URL). production CORS-ը թույլ է տալիս միայն `WEB_APP_URL` + `CORS_ORIGINS`։ Wildcard չկա — յուրաքանչյուր preview `https://…vercel.app` ավելացրու **Render**-ի `CORS_ORIGINS`-ում ստորակետով։
+**Preview deploy-ներ.** Wildcard CORS չկա — յուրաքանչյուր preview origin ավելացրու `CORS_ORIGINS`-ում։
 
-## Չի գնում ո՛ Vercel, ո՛ Render (այլ միջավայր)
+## Չի գնում web/API deploy (այլ միջավայր)
 
 | Key | Ուր |
 |-----|-----|
 | `APP_URL` | Nest/web-ի ընթացիկ կոդում չի օգտագործվում — կարող ես **չդնել**։ |
-| `EXPO_PUBLIC_API_URL` | Միայն **Expo / mobile** build (EAS կամ տեղային)։ |
+| `EXPO_PUBLIC_API_URL` | Միայն **Expo / mobile** build։ |
 | `FIGMA_ACCESS_TOKEN` | Միայն **տեղային** dev / MCP։ |
-
-## Չկա քո `.env`-ում, բայց prod-ում կարող պետք գալ
-
-| Key | Ուր |
-|-----|-----|
-| `CORS_ORIGINS` | **Render** — Vercel preview origin-ներ, լրացուցիչ domain-ներ։ |
 
 ## Մեկ տողով
 
-- **Vercel**՝ 3 հանրային URL (`SITE` + `API` + `INTERNAL` = API base)։  
-- **Render**՝ բոլոր backend secret-ները + `WEB_APP_URL` = frontend `https://…`։  
-- **Expo / Figma**՝ deploy web+API-ից դուրս։
+- **Coolify Docker**՝ web + api, Compose կամ երկու Dockerfile, `API_INTERNAL_URL` = internal DNS։  
+- **Nixpacks**՝ ոչ։  
+- **Expo / Figma**՝ web+API deploy-ից դուրս։
