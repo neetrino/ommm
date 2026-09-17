@@ -43,23 +43,31 @@ Mark these as available at **build** time in Coolify (build args), then redeploy
 | `NEXT_PUBLIC_API_URL` | `https://api.ommm.am` |
 | `NEXT_PUBLIC_API_ORIGIN` | `https://api.ommm.am` |
 
-## Alternative: two Coolify applications
+## Alternative: two Coolify applications (current Neetrino setup)
 
-Use only if you already run split services.
+Use when `ommm-web` and `ommm-api` are separate Coolify apps.
 
-### API service
+### API service (`ommm-api`)
+
+Coolify’s Dockerfile picker often only lists `/Dockerfile` (not `Dockerfile.api`).  
+Prefer Compose for API:
+
+| Setting | Value |
+|---------|--------|
+| Build Pack | **Docker Compose** |
+| Compose file | `compose.api.yaml` |
+| Domain | `https://api.ommm.am` |
+| Port | `8080` |
+| Healthcheck path | `/v1/health` |
+
+If Dockerfile pack works and you can set the path:
 
 | Setting | Value |
 |---------|--------|
 | Build Pack | **Dockerfile** |
 | Dockerfile | `Dockerfile.api` |
-| Port | `8080` |
-| Healthcheck path | `/v1/health` |
-| `PORT` | `8080` |
-| `API_LISTEN_HOST` | `0.0.0.0` |
-| `RUN_DB_MIGRATE` | `true` (default in image) |
 
-### Web service
+### Web service (`ommm-web`)
 
 | Setting | Value |
 |---------|--------|
@@ -67,7 +75,7 @@ Use only if you already run split services.
 | Dockerfile | `Dockerfile` |
 | Port | `3000` |
 | Same Docker network as API | required |
-| `API_INTERNAL_URL` | `http://<api-service-name>:8080` |
+| `API_INTERNAL_URL` | `http://<ommm-api-container-or-service>:8080` |
 
 ## Environment checklist (API)
 

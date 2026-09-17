@@ -1,0 +1,51 @@
+# Coolify resource: ommm-api only
+# Build Pack = Docker Compose · Compose file = compose.api.yaml
+# Keep ommm-web on its own Dockerfile (/Dockerfile).
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      API_LISTEN_HOST: "0.0.0.0"
+      RUN_DB_MIGRATE: "true"
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_SEC: ${JWT_EXPIRES_SEC:-604800}
+      WEB_APP_URL: ${WEB_APP_URL:-https://www.ommm.am}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      DATABASE_CONNECTION_LIMIT: ${DATABASE_CONNECTION_LIMIT:-10}
+      DATABASE_POOL_TIMEOUT: ${DATABASE_POOL_TIMEOUT:-20}
+      ENABLE_BOOKING_BACKGROUND_JOBS: ${ENABLE_BOOKING_BACKGROUND_JOBS:-true}
+      UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-}
+      UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      CONTACT_RECEIVER_EMAIL: ${CONTACT_RECEIVER_EMAIL:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_S3_ENDPOINT: ${R2_S3_ENDPOINT:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      WHATSAPP_GATEWAY_URL: ${WHATSAPP_GATEWAY_URL:-}
+      WHATSAPP_GATEWAY_TOKEN: ${WHATSAPP_GATEWAY_TOKEN:-}
+      EXPO_ACCESS_TOKEN: ${EXPO_ACCESS_TOKEN:-}
+      MAIL_TRANSPORT: ${MAIL_TRANSPORT:-}
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 50s
