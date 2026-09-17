@@ -22,6 +22,9 @@ COPY packages/database/package.json ./packages/database/
 RUN pnpm install --frozen-lockfile --filter api... --ignore-scripts --prod=false
 
 FROM base AS builder
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/ /app/
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api ./apps/api
@@ -45,11 +48,14 @@ RUN apt-get update \
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/packages/database ./packages/database
 COPY apps/api/docker-entrypoint.sh /app/apps/api/docker-entrypoint.sh
 
-RUN chmod +x /app/apps/api/docker-entrypoint.sh \
+RUN node -e "require.resolve('@ommm/database', { paths: ['/app/apps/api'] })" \
+  && test -f /app/packages/database/dist/index.js \
+  && chmod +x /app/apps/api/docker-entrypoint.sh \
   && chown -R nestjs:nodejs /app
 
 USER nestjs

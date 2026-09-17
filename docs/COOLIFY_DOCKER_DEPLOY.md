@@ -60,6 +60,14 @@ Prefer Compose for API:
 | Port | `8080` |
 | Healthcheck path | `/v1/health` |
 
+`compose.api.yaml` attaches the API to the external `coolify` network with the
+stable alias `ommm-api`. Keep the web runtime value exactly
+`API_INTERNAL_URL=http://ommm-api:8080`.
+
+Set the domain on the **`api` Compose service** in Coolify. The application-level
+FQDN field is not enough for a Docker Compose resource; an empty service-domain
+mapping leaves Traefik without an API router.
+
 If Dockerfile pack works and you can set the path:
 
 | Setting | Value |
@@ -128,5 +136,6 @@ pnpm run docker:down
 
 - `https://api.ommm.am/v1/health` → `{ "status": "ok" }`
 - `https://www.ommm.am/` loads
+- Web container resolves `ommm-api` and reaches `http://ommm-api:8080/v1/health`
 - Browser network: SSE under same-origin `/api/v1/realtime/*` (not direct to `api.` for cookie auth)
 - Admin login + schedule load without 500s on realtime proxy

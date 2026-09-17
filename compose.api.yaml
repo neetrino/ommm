@@ -10,6 +10,10 @@ services:
     restart: unless-stopped
     expose:
       - "8080"
+    networks:
+      coolify:
+        aliases:
+          - ommm-api
     environment:
       NODE_ENV: production
       PORT: "8080"
@@ -49,3 +53,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 50s
+
+networks:
+  coolify:
+    external: true
+    name: coolify
