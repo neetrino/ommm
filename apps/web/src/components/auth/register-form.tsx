@@ -223,6 +223,9 @@ export function RegisterForm() {
           }}
           whatsappLabel={tAuth("whatsappPhone")}
           sameAsPhoneLabel={tAuth("sameAsPhone")}
+          sameAsPhoneHint={
+            sameAsPhone ? tAuth("sameAsPhoneHintOn") : tAuth("sameAsPhoneHint")
+          }
         />
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">

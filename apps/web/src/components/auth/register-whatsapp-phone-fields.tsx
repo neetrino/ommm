@@ -1,6 +1,10 @@
 "use client";
 
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import {
+  WhatsappBrandIcon,
+  WHATSAPP_BRAND_ICON_SM_CLASS,
+} from "@/components/ui/whatsapp-brand-icon";
 import { PSEUDO_PHONE } from "@/lib/pseudo-form-placeholders";
 
 type RegisterWhatsappPhoneFieldsProps = {
@@ -11,12 +15,19 @@ type RegisterWhatsappPhoneFieldsProps = {
   onSameAsPhoneChange: (same: boolean) => void;
   whatsappLabel: string;
   sameAsPhoneLabel: string;
+  sameAsPhoneHint: string;
 };
 
-const SAME_AS_PHONE_CHECKBOX_CLASS =
-  "h-4 w-4 rounded border-sand-500/40 accent-sand-500 focus:ring-sand-500/30";
+const CHECKBOX_CLASS =
+  "mt-0.5 h-5 w-5 shrink-0 rounded border-sand-500/50 accent-sand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40";
 
-/** WhatsApp number on signup: same as phone via checkbox, or a separate number. */
+const SAME_AS_PHONE_IDLE_CLASS =
+  "flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-sand-500/40 bg-white px-3.5 py-3 shadow-[0_8px_20px_-16px_rgba(45,40,35,0.35)] transition-colors hover:border-sand-500 hover:bg-sand-50";
+
+const SAME_AS_PHONE_ACTIVE_CLASS =
+  "flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-mint-500 bg-mint-100 px-3.5 py-3 shadow-[0_8px_20px_-16px_rgba(45,40,35,0.28)]";
+
+/** WhatsApp number on signup: same as phone via a clear tap target, or a separate number. */
 export function RegisterWhatsappPhoneFields({
   phone,
   whatsappPhone,
@@ -25,9 +36,10 @@ export function RegisterWhatsappPhoneFields({
   onSameAsPhoneChange,
   whatsappLabel,
   sameAsPhoneLabel,
+  sameAsPhoneHint,
 }: RegisterWhatsappPhoneFieldsProps) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <label className="flex flex-col gap-1.5">
         <span className="ommm-label">{whatsappLabel}</span>
         <PhoneInputField
@@ -41,14 +53,22 @@ export function RegisterWhatsappPhoneFields({
           autoComplete="tel"
         />
       </label>
-      <label className="flex items-center gap-2 text-sm text-sage-700">
+      <label className={sameAsPhone ? SAME_AS_PHONE_ACTIVE_CLASS : SAME_AS_PHONE_IDLE_CLASS}>
         <input
           type="checkbox"
           checked={sameAsPhone}
           onChange={(event) => onSameAsPhoneChange(event.target.checked)}
-          className={SAME_AS_PHONE_CHECKBOX_CLASS}
+          className={CHECKBOX_CLASS}
         />
-        {sameAsPhoneLabel}
+        <span className="min-w-0">
+          <span className="flex items-center gap-1.5 text-sm font-semibold text-sage-900">
+            <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+            {sameAsPhoneLabel}
+          </span>
+          <span className="mt-0.5 block text-xs leading-snug text-sage-600">
+            {sameAsPhoneHint}
+          </span>
+        </span>
       </label>
     </div>
   );
