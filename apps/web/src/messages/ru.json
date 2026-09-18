@@ -807,8 +807,6 @@
       "phone": "Телефон",
       "whatsappPhone": "WhatsApp",
       "sameAsPhone": "WhatsApp совпадает с телефоном",
-      "sameAsPhoneHint": "Нажмите сюда, если отдельного номера WhatsApp нет.",
-      "sameAsPhoneHintOn": "Уведомления WhatsApp уйдут на этот номер телефона.",
       "whatsappPhoneRequired": "Введите номер WhatsApp или отметьте, что он совпадает с телефоном.",
       "invalidWhatsappPhone": "Введите корректный номер WhatsApp.",
       "email": "Email",

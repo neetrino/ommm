@@ -808,8 +808,6 @@
       "phone": "Հեռախոսահամար",
       "whatsappPhone": "WhatsApp",
       "sameAsPhone": "WhatsApp-ը նույնն է հեռախոսիս հետ",
-      "sameAsPhoneHint": "Սեղմեք այստեղ, եթե առանձին WhatsApp համար չունեք։",
-      "sameAsPhoneHintOn": "WhatsApp ծանուցումները կգնան այս հեռախոսահամարին։",
       "whatsappPhoneRequired": "Գրեք WhatsApp համարը, կամ նշեք, որ նույնն է հեռախոսի հետ։",
       "invalidWhatsappPhone": "Մուտքագրեք վավեր WhatsApp համար։",
       "email": "Էլ. փոստ",

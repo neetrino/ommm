@@ -223,9 +223,6 @@ export function RegisterForm() {
               }}
               whatsappLabel={tAuth("whatsappPhone")}
               sameAsPhoneLabel={tAuth("sameAsPhone")}
-              sameAsPhoneHint={
-                sameAsPhone ? tAuth("sameAsPhoneHintOn") : tAuth("sameAsPhoneHint")
-              }
             />
           </div>
         </div>
