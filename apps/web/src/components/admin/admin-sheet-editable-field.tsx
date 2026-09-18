@@ -16,6 +16,8 @@ type AdminSheetEditableFieldProps = {
   error?: string;
   hint?: string;
   required?: boolean;
+  /** Optional leading icon beside the label. */
+  icon?: ReactNode;
   /** Tighter label/control spacing for dense detail sheets. */
   compact?: boolean;
   className?: string;
@@ -66,6 +68,7 @@ export function AdminSheetEditableField({
   error,
   hint,
   required = false,
+  icon,
   compact = false,
   className = "",
   children,
@@ -74,7 +77,10 @@ export function AdminSheetEditableField({
 
   return (
     <label className={`flex flex-col ${compact ? "gap-1" : "gap-1.5"} ${className}`}>
-      <span className={compact ? FIELD_LABEL_COMPACT_CLASS : FIELD_LABEL_CLASS}>
+      <span
+        className={`inline-flex items-center gap-1.5 ${compact ? FIELD_LABEL_COMPACT_CLASS : FIELD_LABEL_CLASS}`}
+      >
+        {icon ? <span className="shrink-0 text-mint-600">{icon}</span> : null}
         {label}
         {required ? (
           <span className="text-red-600" aria-hidden>

@@ -18,6 +18,11 @@ import {
   ADMIN_CREATE_FORM_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { PhoneInputWithSameToggle } from "@/components/ui/phone-input-with-same-toggle";
+import {
+  WhatsappBrandIcon,
+  WHATSAPP_BRAND_ICON_SM_CLASS,
+} from "@/components/ui/whatsapp-brand-icon";
 import { ApiError, apiFetch } from "@/lib/api";
 import { isLatinPersonName } from "@/lib/latin-person-name";
 import { normalizePhoneForApi } from "@/lib/phone";
@@ -55,6 +60,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
   const [pending, setPending] = useState(false);
   const [phone, setPhone] = useState("");
   const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(false);
   const [birthdayValue, setBirthdayValue] = useState("");
   const submitLockRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -71,7 +77,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
     const phoneRaw = phone.trim();
-    const whatsappPhoneRaw = whatsappPhone.trim();
+    const whatsappPhoneRaw = whatsappSameAsPhone
+      ? phoneRaw
+      : whatsappPhone.trim();
 
     setError(null);
 
@@ -214,18 +222,27 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="ommm-label text-xs uppercase tracking-wide">
+              <span className="ommm-label inline-flex items-center gap-1.5 text-xs uppercase tracking-wide">
+                <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
                 {t("whatsappPhoneLabel")}
               </span>
-              <PhoneInputField
+              <PhoneInputWithSameToggle
                 name="whatsappPhone"
                 className="ommm-input"
+                phone={phone}
                 value={whatsappPhone}
+                sameAsPhone={whatsappSameAsPhone}
+                sameAsPhoneLabel={t("sameAsPhone")}
                 onValueChange={setWhatsappPhone}
+                onSameAsPhoneChange={(same) => {
+                  setWhatsappSameAsPhone(same);
+                  if (same) {
+                    setWhatsappPhone("");
+                  }
+                }}
                 placeholder={PSEUDO_PHONE}
                 disabled={pending}
               />
-              <span className="text-xs text-sage-500">{t("whatsappPhoneHint")}</span>
             </label>
             <label className="flex flex-col gap-1">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("birthdayLabel")}</span>

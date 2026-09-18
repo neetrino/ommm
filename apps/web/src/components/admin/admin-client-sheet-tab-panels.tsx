@@ -37,6 +37,10 @@ import { formatBirthdayInput, formatDateForUi } from "@/lib/date-display";
 import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
 import {
+  PhoneInputWithSameToggle,
+  arePhonesTheSame,
+} from "@/components/ui/phone-input-with-same-toggle";
+import {
   WhatsappBrandIcon,
   WHATSAPP_BRAND_ICON_SM_CLASS,
 } from "@/components/ui/whatsapp-brand-icon";
@@ -116,6 +120,14 @@ export function ClientSheetTabPanels({
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
   const activity = detail.activity;
+  const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(false);
+
+  useEffect(() => {
+    if (!personalInfoEditing) {
+      return;
+    }
+    setWhatsappSameAsPhone(arePhonesTheSame(form.phone, form.whatsappPhone));
+  }, [personalInfoEditing, detail.id, form.phone, form.whatsappPhone]);
 
   if (activeTab === CLIENT_SHEET_TAB_PROFILE) {
     return (
@@ -208,21 +220,33 @@ export function ClientSheetTabPanels({
                   autoComplete="tel"
                   className={COMPACT_INPUT_CLASS}
                   value={form.phone}
-                  onValueChange={(value) => controller.updateField("phone", value)}
+                  onValueChange={(value) => {
+                    controller.updateField("phone", value);
+                    if (whatsappSameAsPhone) {
+                      controller.updateField("whatsappPhone", value);
+                    }
+                  }}
                   disabled={busy}
                 />
               </AdminSheetEditableField>
               <AdminSheetEditableField
                 compact
+                icon={<WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />}
                 label={t("fieldWhatsappPhone")}
                 error={errors.whatsappPhone}
-                hint={t("fieldWhatsappPhoneHint")}
               >
-                <PhoneInputField
+                <PhoneInputWithSameToggle
                   autoComplete="tel"
                   className={COMPACT_INPUT_CLASS}
+                  phone={form.phone}
                   value={form.whatsappPhone}
+                  sameAsPhone={whatsappSameAsPhone}
+                  sameAsPhoneLabel={t("sameAsPhone")}
                   onValueChange={(value) => controller.updateField("whatsappPhone", value)}
+                  onSameAsPhoneChange={(same) => {
+                    setWhatsappSameAsPhone(same);
+                    controller.updateField("whatsappPhone", same ? form.phone : "");
+                  }}
                   disabled={busy}
                 />
               </AdminSheetEditableField>
