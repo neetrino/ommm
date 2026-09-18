@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useTranslations } from "next-intl";
 import { PaymentEhdmReceiptPaper } from "@/components/payment/payment-ehdm-receipt-paper";
+import { PaymentEhdmReceiptSaveControls } from "@/components/payment/payment-ehdm-receipt-save-controls";
 import { OmmButton } from "@/components/ui/omm-button";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import {
@@ -144,11 +145,11 @@ export function PaymentEhdmReceiptPrinter({
           </OmmButton>
         ) : null}
         {phase === "done" ? (
-          <div className={styles.controlRow}>
-            <OmmButton type="button" variant="secondary" onClick={handleReprint}>
-              {t("reprintButton")}
-            </OmmButton>
-          </div>
+          <PaymentEhdmReceiptSaveControls
+            paperRef={paperRef}
+            reference={payload.paymentReference}
+            onReprint={handleReprint}
+          />
         ) : null}
       </div>
     </div>

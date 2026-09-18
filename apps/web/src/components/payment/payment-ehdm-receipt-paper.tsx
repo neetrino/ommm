@@ -121,6 +121,8 @@ function ReceiptPaperFiscal(props: PaymentEhdmReceiptPaperProps) {
           width={120}
           height={120}
           className={styles.receiptQr}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
         />
       ) : null}
     </div>
