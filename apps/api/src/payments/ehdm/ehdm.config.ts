@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { loadEhdmCertAndKey } from './ehdm-cert.loader';
 import {
-  EHDM_DEFAULT_ADG_CODE,
   EHDM_DEFAULT_API_URL,
   EHDM_DEFAULT_CASHIER_ID,
   EHDM_DEFAULT_DEP,
@@ -65,10 +64,6 @@ export class EhdmConfig {
 
   getDep(): number {
     return this.readPositiveInt('EHDM_DEP', EHDM_DEFAULT_DEP);
-  }
-
-  getDefaultAdgCode(): string {
-    return this.readOptional('EHDM_DEFAULT_ADG_CODE') ?? EHDM_DEFAULT_ADG_CODE;
   }
 
   getDefaultUnit(): string {

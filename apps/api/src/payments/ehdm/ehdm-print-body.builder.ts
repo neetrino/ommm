@@ -1,5 +1,6 @@
 import { ManualPaymentMethod } from '@prisma/client';
 import {
+  EHDM_DEFAULT_ADG_CODE,
   EHDM_DEFAULT_ITEM_NAME,
   EHDM_GOOD_CODE_MAX_LENGTH,
   EHDM_GOOD_NAME_MAX_LENGTH,
@@ -39,7 +40,7 @@ export function buildEhdmPrintBody(
     items: [
       {
         dep: config.getDep(),
-        adgCode: config.getDefaultAdgCode(),
+        adgCode: EHDM_DEFAULT_ADG_CODE,
         goodCode: sanitizeGoodCode(args.itemCode || args.paymentId),
         goodName: truncateGoodName(args.itemName),
         quantity: 1,
