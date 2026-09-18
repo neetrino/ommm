@@ -28,6 +28,7 @@ import {
   ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import { AdminFinancePaymentEhdmPrinter } from "@/components/admin/admin-finance-payment-ehdm-printer";
 import {
   AdminFinancePaymentDetailRow,
   AdminFinancePaymentEhdmRows,
@@ -190,6 +191,7 @@ export function AdminFinancePaymentDetailsSheet({
             />
             <AdminFinancePaymentEhdmRows payment={payment} t={t} />
           </dl>
+          <AdminFinancePaymentEhdmPrinter payment={payment} locale={locale} />
         </div>
 
         {showArcaSync ? (
