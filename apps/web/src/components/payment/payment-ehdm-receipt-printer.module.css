@@ -356,6 +356,12 @@
   flex: 1 1 10rem;
 }
 
+.downloadIcon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
 .saveStatus {
   margin: 0;
   font-size: 0.8125rem;

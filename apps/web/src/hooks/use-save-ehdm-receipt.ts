@@ -1,9 +1,6 @@
 import { useCallback, useState, type RefObject } from "react";
 import { useTranslations } from "next-intl";
-import {
-  isUserShareCancel,
-  saveEhdmReceiptPng,
-} from "@/lib/save-ehdm-receipt";
+import { saveEhdmReceiptPng } from "@/lib/save-ehdm-receipt";
 
 type UseSaveEhdmReceiptResult = {
   busy: boolean;
@@ -27,16 +24,8 @@ export function useSaveEhdmReceipt(
     setBusy(true);
     setError(null);
     try {
-      await saveEhdmReceiptPng({
-        node,
-        reference,
-        shareTitle: t("saveShareTitle"),
-        shareText: t("saveShareText", { reference: reference ?? "—" }),
-      });
-    } catch (caught) {
-      if (isUserShareCancel(caught)) {
-        return;
-      }
+      await saveEhdmReceiptPng({ node, reference });
+    } catch {
       setError(t("saveError"));
     } finally {
       setBusy(false);
