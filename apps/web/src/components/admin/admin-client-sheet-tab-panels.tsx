@@ -120,14 +120,7 @@ export function ClientSheetTabPanels({
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
   const activity = detail.activity;
-  const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(false);
-
-  useEffect(() => {
-    if (!personalInfoEditing) {
-      return;
-    }
-    setWhatsappSameAsPhone(arePhonesTheSame(form.phone, form.whatsappPhone));
-  }, [personalInfoEditing, detail.id, form.phone, form.whatsappPhone]);
+  const whatsappSameAsPhone = arePhonesTheSame(form.phone, form.whatsappPhone);
 
   if (activeTab === CLIENT_SHEET_TAB_PROFILE) {
     return (
@@ -244,7 +237,6 @@ export function ClientSheetTabPanels({
                   sameAsPhoneLabel={t("sameAsPhone")}
                   onValueChange={(value) => controller.updateField("whatsappPhone", value)}
                   onSameAsPhoneChange={(same) => {
-                    setWhatsappSameAsPhone(same);
                     controller.updateField("whatsappPhone", same ? form.phone : "");
                   }}
                   disabled={busy}
