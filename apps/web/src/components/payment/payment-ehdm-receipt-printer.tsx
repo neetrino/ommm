@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -21,17 +22,20 @@ import type { PaymentOutcomePayload } from "@/lib/payment-outcome-types";
 import styles from "./payment-ehdm-receipt-printer.module.css";
 
 const PRINT_DURATION_MS = 2800;
+const AUTO_PRINT_DELAY_MS = 180;
 
 type PrintPhase = "idle" | "printing" | "done";
 
 type PaymentEhdmReceiptPrinterProps = {
   payload: PaymentOutcomePayload;
   locale: string;
+  autoStartPrint?: boolean;
 };
 
 export function PaymentEhdmReceiptPrinter({
   payload,
   locale,
+  autoStartPrint = false,
 }: PaymentEhdmReceiptPrinterProps) {
   const t = useTranslations("userPages.payments.result.ehdm");
   const paperRef = useRef<HTMLDivElement>(null);
@@ -70,6 +74,18 @@ export function PaymentEhdmReceiptPrinter({
       });
     });
   }, [startPrint]);
+
+  useEffect(() => {
+    if (!autoStartPrint) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      startPrint();
+    }, AUTO_PRINT_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [autoStartPrint, startPrint]);
 
   if (!receipt) {
     return null;
@@ -138,7 +154,7 @@ export function PaymentEhdmReceiptPrinter({
         </div>
       </div>
       <div className={styles.controls}>
-        {phase === "idle" ? (
+        {phase === "idle" && !autoStartPrint ? (
           <OmmButton type="button" onClick={startPrint} className="w-full sm:w-auto">
             {t("printButton")}
           </OmmButton>
