@@ -140,22 +140,6 @@
   color: rgb(45 40 35);
 }
 
-.brandSubtitleRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.2rem;
-}
-
-.brandSubtitle {
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgb(120 113 108);
-}
-
 .brandMark {
   position: relative;
   flex-shrink: 0;

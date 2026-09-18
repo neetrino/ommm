@@ -106,7 +106,6 @@ export function PaymentEhdmReceiptPrinter({
             <div className={styles.paper}>
               <PaymentEhdmReceiptPaper
                 brandName={t("brandName")}
-                brandSubtitle={t("brandSubtitle")}
                 amountLabel={formatAmdFromCents(payload.amountCents, locale)}
                 metaLine={`${paidLabel} | ${t("paidBadge")}`}
                 itemLabel={itemLabel}
