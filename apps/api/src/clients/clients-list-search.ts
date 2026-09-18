@@ -6,7 +6,7 @@ import {
 
 /**
  * Matches first + last name together or any token of the query.
- * A lone token still matches email, phone, or id.
+ * A lone token still matches email, phone, WhatsApp phone, or id.
  */
 export function buildClientsTextSearchWhere(
   rawQuery: string | undefined,

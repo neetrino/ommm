@@ -29,6 +29,11 @@ export class UpdateClientDto {
   @IsOptional()
   @IsString()
   @MaxLength(32)
+  whatsappPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
   dateOfBirth?: string;
 
   @IsOptional()

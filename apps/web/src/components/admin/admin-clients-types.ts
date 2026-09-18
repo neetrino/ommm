@@ -13,6 +13,7 @@ export type ClientRow = {
   name: string | null;
   lastName: string | null;
   phone: string | null;
+  whatsappPhone: string | null;
   dateOfBirth: string | null;
   avatarUrl: string | null;
   createdAt: string;
@@ -88,6 +89,7 @@ export type ClientDetail = {
   name: string | null;
   lastName: string | null;
   phone: string | null;
+  whatsappPhone: string | null;
   dateOfBirth: string | null;
   avatarUrl: string | null;
   createdAt: string;

@@ -72,6 +72,7 @@ function clientInitialValues(detail: ClientDetail): ClientEditInitialValues {
     name: detail.name ?? "",
     lastName: detail.lastName ?? "",
     phone: detail.phone ?? "",
+    whatsappPhone: detail.whatsappPhone ?? "",
     dateOfBirth: detail.dateOfBirth ? formatIsoDateToUi(detail.dateOfBirth) : "",
   };
 }
@@ -237,15 +238,23 @@ function AdminClientDrawerInner({
       name: client.name ?? "",
       lastName: client.lastName ?? "",
       phone: client.phone ?? "",
+      whatsappPhone: client.whatsappPhone ?? "",
       dateOfBirth: client.dateOfBirth ? formatIsoDateToUi(client.dateOfBirth) : "",
     }),
-    [client.dateOfBirth, client.email, client.lastName, client.name, client.phone],
+    [
+      client.dateOfBirth,
+      client.email,
+      client.lastName,
+      client.name,
+      client.phone,
+      client.whatsappPhone,
+    ],
   );
 
   const editForm = useClientEditForm({
     clientId: client.id,
     resetKey: detail
-      ? `${client.id}:${detail.email}:${detail.phone}:${detail.dateOfBirth ?? ""}`
+      ? `${client.id}:${detail.email}:${detail.phone}:${detail.whatsappPhone ?? ""}:${detail.dateOfBirth ?? ""}`
       : client.id,
     initial: initial ?? fallbackInitial,
     labels: validationLabels,

@@ -14,6 +14,7 @@ export type ClientUpdatePayload = {
   name: string;
   lastName: string;
   phone: string;
+  whatsappPhone: string;
   dateOfBirth: string;
 };
 
@@ -40,6 +41,11 @@ export function validateClientEditForm({
     errors.phone = labels.phoneInvalid;
   }
 
+  const whatsappPhone = form.whatsappPhone.trim();
+  if (whatsappPhone !== "" && !isValidPhone(whatsappPhone)) {
+    errors.whatsappPhone = labels.phoneInvalid;
+  }
+
   const birthdayDisplay = form.dateOfBirth.trim();
   let dateOfBirth = "";
   if (birthdayDisplay !== "") {
@@ -62,6 +68,7 @@ export function validateClientEditForm({
       name: form.name.trim(),
       lastName: form.lastName.trim(),
       phone: phone === "" ? "" : normalizePhoneForApi(phone),
+      whatsappPhone: whatsappPhone === "" ? "" : normalizePhoneForApi(whatsappPhone),
       dateOfBirth,
     },
   };

@@ -54,6 +54,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [phone, setPhone] = useState("");
+  const [whatsappPhone, setWhatsappPhone] = useState("");
   const [birthdayValue, setBirthdayValue] = useState("");
   const submitLockRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -70,6 +71,7 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
     const phoneRaw = phone.trim();
+    const whatsappPhoneRaw = whatsappPhone.trim();
 
     setError(null);
 
@@ -101,6 +103,10 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
       setError(t("phoneInvalid"));
       return;
     }
+    if (whatsappPhoneRaw.length > 0 && !isValidPhone(whatsappPhoneRaw)) {
+      setError(t("whatsappPhoneInvalid"));
+      return;
+    }
     if (birthdayValue.trim().length > 0 && Number.isNaN(Date.parse(birthdayValue))) {
       setError(t("birthdayInvalid"));
       return;
@@ -116,6 +122,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           name: nameRaw,
           lastName: lastNameRaw,
           phone: normalizePhoneForApi(phoneRaw),
+          ...(whatsappPhoneRaw.length > 0
+            ? { whatsappPhone: normalizePhoneForApi(whatsappPhoneRaw) }
+            : {}),
           ...(birthdayValue.trim().length > 0 ? { dateOfBirth: birthdayValue.trim() } : {}),
         }),
       });
@@ -203,6 +212,20 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
                 required
                 disabled={pending}
               />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("whatsappPhoneLabel")}
+              </span>
+              <PhoneInputField
+                name="whatsappPhone"
+                className="ommm-input"
+                value={whatsappPhone}
+                onValueChange={setWhatsappPhone}
+                placeholder={PSEUDO_PHONE}
+                disabled={pending}
+              />
+              <span className="text-xs text-sage-500">{t("whatsappPhoneHint")}</span>
             </label>
             <label className="flex flex-col gap-1">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("birthdayLabel")}</span>

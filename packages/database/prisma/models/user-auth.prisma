@@ -3,6 +3,8 @@ model User {
   email          String    @unique
   passwordHash   String?
   phone          String?   @unique
+  /** Dedicated WhatsApp recipient. When empty, notifications use `phone`. */
+  whatsappPhone  String?
   name           String?
   lastName       String?
   dateOfBirth    DateTime?

@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { AppUiLocale } from '../common/app-ui-locales';
-import { toWhatsappChatId } from './whatsapp-chat-id';
+import {
+  resolveWhatsappRecipientPhone,
+  toWhatsappChatId,
+} from './whatsapp-chat-id';
 import { renderGiftCardWhatsapp } from './whatsapp-commerce-templates';
 import {
   WHATSAPP_BILINGUAL_SEPARATOR,
@@ -96,6 +99,7 @@ export class WhatsappNotifyService {
       where: { id: params.userId },
       select: {
         phone: true,
+        whatsappPhone: true,
         notificationPrefs: {
           select: {
             whatsappEnabled: true,
@@ -113,7 +117,7 @@ export class WhatsappNotifyService {
     if (!allowsWhatsappTopic(prefs, params.topic)) {
       return 'skipped';
     }
-    const chatId = toWhatsappChatId(user.phone);
+    const chatId = toWhatsappChatId(resolveWhatsappRecipientPhone(user));
     if (chatId === null) {
       return 'skipped';
     }

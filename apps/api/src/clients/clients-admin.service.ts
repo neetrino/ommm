@@ -42,6 +42,9 @@ export class ClientsAdminService {
       ...(dto.phone !== undefined && {
         phone: normalizeOptionalPhone(dto.phone ?? null),
       }),
+      ...(dto.whatsappPhone !== undefined && {
+        whatsappPhone: normalizeOptionalPhone(dto.whatsappPhone ?? null),
+      }),
       ...(dto.dateOfBirth !== undefined && {
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
       }),
@@ -59,6 +62,7 @@ export class ClientsAdminService {
         name: true,
         lastName: true,
         phone: true,
+        whatsappPhone: true,
       },
     });
     await this.audit.log({

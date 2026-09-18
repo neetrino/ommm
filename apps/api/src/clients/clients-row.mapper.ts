@@ -263,6 +263,7 @@ export function toClientRow(user: ClientRecord) {
     name: user.name,
     lastName: user.lastName,
     phone: user.phone,
+    whatsappPhone: user.whatsappPhone,
     dateOfBirth: user.dateOfBirth,
     avatarUrl: user.avatarUrl,
     createdAt: user.createdAt,

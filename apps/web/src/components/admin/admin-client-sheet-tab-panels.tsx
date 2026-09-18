@@ -36,6 +36,10 @@ import { apiFetch } from "@/lib/api";
 import { formatBirthdayInput, formatDateForUi } from "@/lib/date-display";
 import { formatPhoneDisplay } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import {
+  WhatsappBrandIcon,
+  WHATSAPP_BRAND_ICON_SM_CLASS,
+} from "@/components/ui/whatsapp-brand-icon";
 import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -210,9 +214,22 @@ export function ClientSheetTabPanels({
               </AdminSheetEditableField>
               <AdminSheetEditableField
                 compact
+                label={t("fieldWhatsappPhone")}
+                error={errors.whatsappPhone}
+                hint={t("fieldWhatsappPhoneHint")}
+              >
+                <PhoneInputField
+                  autoComplete="tel"
+                  className={COMPACT_INPUT_CLASS}
+                  value={form.whatsappPhone}
+                  onValueChange={(value) => controller.updateField("whatsappPhone", value)}
+                  disabled={busy}
+                />
+              </AdminSheetEditableField>
+              <AdminSheetEditableField
+                compact
                 label={t("fieldEmail")}
                 error={errors.email}
-                className="sm:col-span-2"
               >
                 <input
                   name="email"
@@ -253,10 +270,24 @@ export function ClientSheetTabPanels({
               />
               <AdminSheetReadOnlyField
                 compact
+                icon={<WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />}
+                label={t("fieldWhatsappPhone")}
+                value={
+                  form.whatsappPhone.trim().length > 0
+                    ? formatPhoneDisplay(form.whatsappPhone)
+                    : "—"
+                }
+                hint={
+                  form.whatsappPhone.trim().length === 0
+                    ? t("fieldWhatsappPhoneHint")
+                    : undefined
+                }
+              />
+              <AdminSheetReadOnlyField
+                compact
                 icon={<MailFieldIcon />}
                 label={t("fieldEmail")}
                 value={form.email.trim().length > 0 ? form.email : "—"}
-                className="sm:col-span-2"
               />
             </div>
           )}
