@@ -1,6 +1,10 @@
 "use client";
 
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import {
+  WhatsappBrandIcon,
+  WHATSAPP_BRAND_ICON_SM_CLASS,
+} from "@/components/ui/whatsapp-brand-icon";
 import { PSEUDO_PHONE } from "@/lib/pseudo-form-placeholders";
 
 type RegisterWhatsappPhoneFieldsProps = {
@@ -28,7 +32,10 @@ export function RegisterWhatsappPhoneFields({
 }: RegisterWhatsappPhoneFieldsProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="ommm-label">{sameAsPhoneLabel}</span>
+      <span className="ommm-label inline-flex items-center gap-1.5">
+        <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+        {sameAsPhoneLabel}
+      </span>
       <div className={FIELD_SHELL_CLASS}>
         <PhoneInputField
           name="whatsappPhone"
