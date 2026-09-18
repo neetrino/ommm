@@ -186,7 +186,7 @@ export function RegisterForm() {
           }}
         />
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
+          <label className="order-1 flex flex-col gap-1.5">
             <span className="ommm-label">{tAuth("phone")}</span>
             <PhoneInputField
               name="phone"
@@ -197,7 +197,7 @@ export function RegisterForm() {
               placeholder={PSEUDO_PHONE}
             />
           </label>
-          <label className="flex flex-col gap-1.5">
+          <label className="order-3 flex flex-col gap-1.5 sm:order-2">
             <span className="ommm-label">{tAuth("email")}</span>
             <input
               name="email"
@@ -209,24 +209,26 @@ export function RegisterForm() {
               placeholder={PSEUDO_EMAIL}
             />
           </label>
+          <div className="order-2 sm:order-3 sm:col-span-2">
+            <RegisterWhatsappPhoneFields
+              phone={phone}
+              whatsappPhone={whatsappPhone}
+              sameAsPhone={sameAsPhone}
+              onWhatsappPhoneChange={setWhatsappPhone}
+              onSameAsPhoneChange={(same) => {
+                setSameAsPhone(same);
+                if (same) {
+                  setWhatsappPhone("");
+                }
+              }}
+              whatsappLabel={tAuth("whatsappPhone")}
+              sameAsPhoneLabel={tAuth("sameAsPhone")}
+              sameAsPhoneHint={
+                sameAsPhone ? tAuth("sameAsPhoneHintOn") : tAuth("sameAsPhoneHint")
+              }
+            />
+          </div>
         </div>
-        <RegisterWhatsappPhoneFields
-          phone={phone}
-          whatsappPhone={whatsappPhone}
-          sameAsPhone={sameAsPhone}
-          onWhatsappPhoneChange={setWhatsappPhone}
-          onSameAsPhoneChange={(same) => {
-            setSameAsPhone(same);
-            if (same) {
-              setWhatsappPhone("");
-            }
-          }}
-          whatsappLabel={tAuth("whatsappPhone")}
-          sameAsPhoneLabel={tAuth("sameAsPhone")}
-          sameAsPhoneHint={
-            sameAsPhone ? tAuth("sameAsPhoneHintOn") : tAuth("sameAsPhoneHint")
-          }
-        />
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">
             <span className="ommm-label">{tAuth("password")}</span>
