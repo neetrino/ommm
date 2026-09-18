@@ -1383,7 +1383,6 @@
           "viewReceiptButton": "Посмотреть фискальный чек",
           "backButton": "Назад к оплате",
           "printButton": "Распечатать чек",
-          "reprintButton": "Печать снова",
           "downloadButton": "Скачать чек",
           "downloadBusy": "Скачивание…",
           "saveError": "Не удалось сохранить чек. Попробуйте ещё раз.",

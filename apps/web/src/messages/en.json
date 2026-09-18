@@ -1383,7 +1383,6 @@
           "viewReceiptButton": "View fiscal receipt",
           "backButton": "Back to payment",
           "printButton": "Print receipt",
-          "reprintButton": "Print again",
           "downloadButton": "Download receipt",
           "downloadBusy": "Downloading…",
           "saveError": "Could not save the receipt. Please try again.",

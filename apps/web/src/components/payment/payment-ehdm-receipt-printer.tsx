@@ -66,15 +66,6 @@ export function PaymentEhdmReceiptPrinter({
     }, PRINT_DURATION_MS);
   }, []);
 
-  const handleReprint = useCallback(() => {
-    setPhase("idle");
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        startPrint();
-      });
-    });
-  }, [startPrint]);
-
   useEffect(() => {
     if (!autoStartPrint) {
       return;
@@ -163,7 +154,6 @@ export function PaymentEhdmReceiptPrinter({
           <PaymentEhdmReceiptSaveControls
             paperRef={paperRef}
             reference={payload.paymentReference}
-            onReprint={handleReprint}
           />
         ) : null}
       </div>

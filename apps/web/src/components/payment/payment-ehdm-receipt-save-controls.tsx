@@ -10,13 +10,11 @@ import styles from "./payment-ehdm-receipt-printer.module.css";
 type PaymentEhdmReceiptSaveControlsProps = {
   paperRef: RefObject<HTMLDivElement | null>;
   reference: string | null;
-  onReprint: () => void;
 };
 
 export function PaymentEhdmReceiptSaveControls({
   paperRef,
   reference,
-  onReprint,
 }: PaymentEhdmReceiptSaveControlsProps) {
   const t = useTranslations("userPages.payments.result.ehdm");
   const { busy, error, save } = useSaveEhdmReceipt(paperRef, reference);
@@ -27,9 +25,6 @@ export function PaymentEhdmReceiptSaveControls({
         <OmmButton type="button" onClick={() => void save()} disabled={busy}>
           <DownloadGlyph className={styles.downloadIcon} />
           {busy ? t("downloadBusy") : t("downloadButton")}
-        </OmmButton>
-        <OmmButton type="button" variant="secondary" onClick={onReprint} disabled={busy}>
-          {t("reprintButton")}
         </OmmButton>
       </div>
       {error ? (
