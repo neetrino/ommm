@@ -29,7 +29,7 @@ export function containsInsensitive(token: string): {
   return { contains: token, mode: TEXT_SEARCH_INSENSITIVE };
 }
 
-/** First name, last name, email, phone, or user id. */
+/** First name, last name, email, phone, WhatsApp phone, or user id. */
 export function userContainsToken(token: string): Prisma.UserWhereInput {
   return {
     OR: [
@@ -38,6 +38,7 @@ export function userContainsToken(token: string): Prisma.UserWhereInput {
       { name: containsInsensitive(token) },
       { lastName: containsInsensitive(token) },
       { phone: containsInsensitive(token) },
+      { whatsappPhone: containsInsensitive(token) },
     ],
   };
 }

@@ -13,7 +13,6 @@ function stubConfig(): EhdmConfig {
     getCrn: () => '52000000',
     getCashierId: () => 1,
     getDep: () => 3,
-    getDefaultAdgCode: () => '9205',
     getDefaultUnit: () => 'Հատ',
   } as unknown as EhdmConfig;
 }
@@ -37,6 +36,7 @@ describe('ehdm-print-body.builder', () => {
     expect(body.prePaymentAmount).toBe(0);
     expect(body.partnerTin).toBeNull();
     expect(body.items).toHaveLength(1);
+    expect(body.items[0]?.adgCode).toBe('9205');
     expect(body.items[0]?.price).toBe(25_000);
     expect(body.items[0]?.goodName).toHaveLength(30);
     expect(body.items[0]?.goodCode).toBe('PKG-123');

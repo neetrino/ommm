@@ -6,6 +6,19 @@ import {
   WHATSAPP_SELF_PHONE_VISIBLE_MIN,
 } from './whatsapp.constants';
 
+/** Prefers a dedicated WhatsApp number; otherwise the regular account phone. */
+export function resolveWhatsappRecipientPhone(user: {
+  whatsappPhone?: string | null;
+  phone?: string | null;
+}): string | null {
+  const dedicated = user.whatsappPhone?.trim() ?? '';
+  if (dedicated.length > 0) {
+    return dedicated;
+  }
+  const fallback = user.phone?.trim() ?? '';
+  return fallback.length > 0 ? fallback : null;
+}
+
 /**
  * Builds a Gateway direct-chat id (`{digits}@c.us`).
  * Returns null when the phone cannot be used (Gateway never accepts `phone`).

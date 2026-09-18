@@ -29,7 +29,7 @@ export const EHDM_DEFAULT_INITIAL_SEQ = 1;
 /** Tax regime: 1 = with VAT (ԱԱՀ-ով). Confirm with accountant before changing. */
 export const EHDM_DEFAULT_DEP = 1;
 
-/** Default ADG code for studio/service sales — override via ENV if accountant specifies. */
+/** Official PEC example ADG for services. Required on /print; not chosen per sale. */
 export const EHDM_DEFAULT_ADG_CODE = '9205';
 
 export const EHDM_DEFAULT_UNIT = 'Հատ';

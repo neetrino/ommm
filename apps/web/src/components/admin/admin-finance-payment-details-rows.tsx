@@ -5,11 +5,6 @@ import {
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
-import {
-  buildEhdmQrImageUrl,
-  formatEhdmReceiptTime,
-} from "@/lib/ehdm-receipt-display";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type FinanceT = ReturnType<typeof useTranslations<"adminPages.finance">>;
 
@@ -73,6 +68,7 @@ export function AdminFinancePaymentPackageRows({
   );
 }
 
+/** Shown only when a fiscal receipt was not issued — printed data lives on Print. */
 export function AdminFinancePaymentEhdmRows({
   payment,
   t,
@@ -83,73 +79,16 @@ export function AdminFinancePaymentEhdmRows({
   if (payment.status !== "SUCCEEDED" && payment.status !== "REFUNDED") {
     return null;
   }
-
-  const receipt = payment.ehdmReceipt;
-  if (!receipt) {
-    return (
-      <AdminFinancePaymentDetailRow
-        label={t("paymentDetails.ehdmReceipt")}
-        value={
-          <span className="text-sm text-sage-500">{t("paymentDetails.ehdmReceiptMissing")}</span>
-        }
-      />
-    );
+  if (payment.ehdmReceipt) {
+    return null;
   }
 
-  const qrUrl = receipt.qr ? buildEhdmQrImageUrl(receipt.qr) : null;
-  const issuedAt = formatEhdmReceiptTime(receipt.time);
-
   return (
-    <>
-      <AdminFinancePaymentDetailRow
-        label={t("paymentDetails.ehdmReceipt")}
-        value={<span className="font-medium text-sage-800">{receipt.receiptId}</span>}
-      />
-      {receipt.fiscal ? (
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.ehdmFiscal")}
-          value={receipt.fiscal}
-        />
-      ) : null}
-      {receipt.taxpayer ? (
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.ehdmTaxpayer")}
-          value={receipt.taxpayer}
-        />
-      ) : null}
-      {receipt.tin ? (
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.ehdmTin")}
-          value={receipt.tin}
-        />
-      ) : null}
-      {issuedAt ? (
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.ehdmTime")}
-          value={issuedAt}
-        />
-      ) : null}
-      {receipt.total != null ? (
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.ehdmTotal")}
-          value={formatAmdFromCents(receipt.total)}
-        />
-      ) : null}
-      {qrUrl ? (
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.ehdmQr")}
-          value={
-            // eslint-disable-next-line @next/next/no-img-element -- EHDM QR is an absolute fiscal URL
-            <img
-              src={qrUrl}
-              alt={t("paymentDetails.ehdmQr")}
-              width={120}
-              height={120}
-              className="h-[7.5rem] w-[7.5rem] rounded border border-sage-200 bg-white object-contain"
-            />
-          }
-        />
-      ) : null}
-    </>
+    <AdminFinancePaymentDetailRow
+      label={t("paymentDetails.ehdmReceipt")}
+      value={
+        <span className="text-sm text-sage-500">{t("paymentDetails.ehdmReceiptMissing")}</span>
+      }
+    />
   );
 }

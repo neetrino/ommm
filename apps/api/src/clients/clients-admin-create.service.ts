@@ -15,7 +15,10 @@ import { AuditService } from '../audit/audit.service';
 import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { CLIENT_INVITE_PASSWORD_SETUP_TTL_MS } from '../common/constants';
 import { hashOpaqueToken, newOpaqueToken } from '../common/opaque-token';
-import { normalizeRequiredPhone } from '../common/phone';
+import {
+  normalizeOptionalPhone,
+  normalizeRequiredPhone,
+} from '../common/phone';
 import { MailService } from '../mail/mail.service';
 import {
   CLIENT_INVITE_EMAIL_SUBJECT,
@@ -45,6 +48,7 @@ export class ClientsAdminCreateService {
   async create(actor: User, dto: AdminCreateClientDto) {
     const email = dto.email.toLowerCase().trim();
     const phone = normalizeRequiredPhone(dto.phone);
+    const whatsappPhone = normalizeOptionalPhone(dto.whatsappPhone ?? null);
     const notes = dto.notes?.trim() ?? '';
 
     const [emailTaken, phoneTaken] = await Promise.all([
@@ -82,6 +86,7 @@ export class ClientsAdminCreateService {
           name: dto.name.trim(),
           lastName: dto.lastName.trim(),
           phone,
+          whatsappPhone,
           dateOfBirth,
           role: Role.USER,
           emailVerified: new Date(),
@@ -154,7 +159,7 @@ export class ClientsAdminCreateService {
       action: 'CLIENT_CREATED',
       entityType: 'User',
       entityId: createdUser.id,
-      payload: { email, phone, welcomeEmailSent },
+      payload: { email, phone, whatsappPhone, welcomeEmailSent },
     });
 
     return {

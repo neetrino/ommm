@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -9,6 +10,7 @@ import {
 } from "react";
 import { useTranslations } from "next-intl";
 import { PaymentEhdmReceiptPaper } from "@/components/payment/payment-ehdm-receipt-paper";
+import { PaymentEhdmReceiptSaveControls } from "@/components/payment/payment-ehdm-receipt-save-controls";
 import { OmmButton } from "@/components/ui/omm-button";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import {
@@ -20,17 +22,20 @@ import type { PaymentOutcomePayload } from "@/lib/payment-outcome-types";
 import styles from "./payment-ehdm-receipt-printer.module.css";
 
 const PRINT_DURATION_MS = 2800;
+const AUTO_PRINT_DELAY_MS = 180;
 
 type PrintPhase = "idle" | "printing" | "done";
 
 type PaymentEhdmReceiptPrinterProps = {
   payload: PaymentOutcomePayload;
   locale: string;
+  autoStartPrint?: boolean;
 };
 
 export function PaymentEhdmReceiptPrinter({
   payload,
   locale,
+  autoStartPrint = false,
 }: PaymentEhdmReceiptPrinterProps) {
   const t = useTranslations("userPages.payments.result.ehdm");
   const paperRef = useRef<HTMLDivElement>(null);
@@ -61,14 +66,17 @@ export function PaymentEhdmReceiptPrinter({
     }, PRINT_DURATION_MS);
   }, []);
 
-  const handleReprint = useCallback(() => {
-    setPhase("idle");
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        startPrint();
-      });
-    });
-  }, [startPrint]);
+  useEffect(() => {
+    if (!autoStartPrint) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      startPrint();
+    }, AUTO_PRINT_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [autoStartPrint, startPrint]);
 
   if (!receipt) {
     return null;
@@ -105,7 +113,6 @@ export function PaymentEhdmReceiptPrinter({
             <div className={styles.paper}>
               <PaymentEhdmReceiptPaper
                 brandName={t("brandName")}
-                brandSubtitle={t("brandSubtitle")}
                 amountLabel={formatAmdFromCents(payload.amountCents, locale)}
                 metaLine={`${paidLabel} | ${t("paidBadge")}`}
                 itemLabel={itemLabel}
@@ -138,17 +145,16 @@ export function PaymentEhdmReceiptPrinter({
         </div>
       </div>
       <div className={styles.controls}>
-        {phase === "idle" ? (
+        {phase === "idle" && !autoStartPrint ? (
           <OmmButton type="button" onClick={startPrint} className="w-full sm:w-auto">
             {t("printButton")}
           </OmmButton>
         ) : null}
         {phase === "done" ? (
-          <div className={styles.controlRow}>
-            <OmmButton type="button" variant="secondary" onClick={handleReprint}>
-              {t("reprintButton")}
-            </OmmButton>
-          </div>
+          <PaymentEhdmReceiptSaveControls
+            paperRef={paperRef}
+            reference={payload.paymentReference}
+          />
         ) : null}
       </div>
     </div>

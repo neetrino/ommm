@@ -34,6 +34,11 @@ export class AdminCreateClientDto {
   phone!: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  whatsappPhone?: string;
+
+  @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
 

@@ -52,6 +52,7 @@ describe('WhatsappNotifyService', () => {
     const { service, prisma, gateway } = createService();
     prisma.user.findUnique.mockResolvedValue({
       phone: '+37441881822',
+      whatsappPhone: null,
       notificationPrefs: {
         whatsappEnabled: false,
         bookingReminders: true,
@@ -82,6 +83,7 @@ describe('WhatsappNotifyService', () => {
     const { service, prisma, gateway } = createService();
     prisma.user.findUnique.mockResolvedValue({
       phone: '+37441881822',
+      whatsappPhone: null,
       notificationPrefs: {
         whatsappEnabled: true,
         bookingReminders: true,
@@ -104,12 +106,39 @@ describe('WhatsappNotifyService', () => {
     );
   });
 
+  it('sends to the dedicated WhatsApp number when set', async () => {
+    const { service, prisma, gateway } = createService();
+    prisma.user.findUnique.mockResolvedValue({
+      phone: '+37441881822',
+      whatsappPhone: '+37499111222',
+      notificationPrefs: {
+        whatsappEnabled: true,
+        bookingReminders: true,
+        waitlistAlerts: true,
+        promotions: false,
+      },
+    });
+
+    await expect(
+      service.trySendToUser({
+        userId: 'u1',
+        topic: 'bookingReminders',
+        render: () => 'Hi',
+      }),
+    ).resolves.toBe('sent');
+    expect(gateway.sendText).toHaveBeenCalledWith(
+      '37499111222@c.us',
+      `Hi${WHATSAPP_BILINGUAL_SEPARATOR}Hi`,
+    );
+  });
+
   it('sends one bilingual gift card message', async () => {
     const { service, prisma, gateway } = createService();
     prisma.user.findUnique
       .mockResolvedValueOnce({ id: 'u1' })
       .mockResolvedValueOnce({
         phone: '+37441881822',
+        whatsappPhone: null,
         notificationPrefs: {
           whatsappEnabled: true,
           bookingReminders: true,

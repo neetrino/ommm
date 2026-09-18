@@ -11,6 +11,7 @@ function fieldContains(token: string) {
       { name: { contains: token, mode: insensitive } },
       { lastName: { contains: token, mode: insensitive } },
       { phone: { contains: token, mode: insensitive } },
+      { whatsappPhone: { contains: token, mode: insensitive } },
     ],
   };
 }

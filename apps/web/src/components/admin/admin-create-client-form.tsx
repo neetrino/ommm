@@ -18,6 +18,11 @@ import {
   ADMIN_CREATE_FORM_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { PhoneInputWithSameToggle } from "@/components/ui/phone-input-with-same-toggle";
+import {
+  WhatsappBrandIcon,
+  WHATSAPP_BRAND_ICON_SM_CLASS,
+} from "@/components/ui/whatsapp-brand-icon";
 import { ApiError, apiFetch } from "@/lib/api";
 import { isLatinPersonName } from "@/lib/latin-person-name";
 import { normalizePhoneForApi } from "@/lib/phone";
@@ -54,6 +59,8 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [phone, setPhone] = useState("");
+  const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(false);
   const [birthdayValue, setBirthdayValue] = useState("");
   const submitLockRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -70,6 +77,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
     const phoneRaw = phone.trim();
+    const whatsappPhoneRaw = whatsappSameAsPhone
+      ? phoneRaw
+      : whatsappPhone.trim();
 
     setError(null);
 
@@ -101,6 +111,10 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
       setError(t("phoneInvalid"));
       return;
     }
+    if (whatsappPhoneRaw.length > 0 && !isValidPhone(whatsappPhoneRaw)) {
+      setError(t("whatsappPhoneInvalid"));
+      return;
+    }
     if (birthdayValue.trim().length > 0 && Number.isNaN(Date.parse(birthdayValue))) {
       setError(t("birthdayInvalid"));
       return;
@@ -116,6 +130,9 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
           name: nameRaw,
           lastName: lastNameRaw,
           phone: normalizePhoneForApi(phoneRaw),
+          ...(whatsappPhoneRaw.length > 0
+            ? { whatsappPhone: normalizePhoneForApi(whatsappPhoneRaw) }
+            : {}),
           ...(birthdayValue.trim().length > 0 ? { dateOfBirth: birthdayValue.trim() } : {}),
         }),
       });
@@ -201,6 +218,29 @@ export function AdminCreateClientForm({ onCreated, onCancel }: AdminCreateClient
                 onValueChange={setPhone}
                 placeholder={PSEUDO_PHONE}
                 required
+                disabled={pending}
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="ommm-label inline-flex items-center gap-1.5 text-xs uppercase tracking-wide">
+                <WhatsappBrandIcon className={WHATSAPP_BRAND_ICON_SM_CLASS} />
+                {t("whatsappPhoneLabel")}
+              </span>
+              <PhoneInputWithSameToggle
+                name="whatsappPhone"
+                className="ommm-input"
+                phone={phone}
+                value={whatsappPhone}
+                sameAsPhone={whatsappSameAsPhone}
+                sameAsPhoneLabel={t("sameAsPhone")}
+                onValueChange={setWhatsappPhone}
+                onSameAsPhoneChange={(same) => {
+                  setWhatsappSameAsPhone(same);
+                  if (same) {
+                    setWhatsappPhone("");
+                  }
+                }}
+                placeholder={PSEUDO_PHONE}
                 disabled={pending}
               />
             </label>

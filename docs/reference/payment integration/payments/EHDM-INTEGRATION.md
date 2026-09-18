@@ -49,7 +49,8 @@ Prefer base64 PEMs in memory. Do not write secrets to disk. Relative file paths 
 | `EHDM_KEY_PASSPHRASE` | Key passphrase |
 | `EHDM_INITIAL_SEQ` | First seq when `EhdmState` is empty |
 | `EHDM_DEP` | Tax regime (do not change without accountant) |
-| `EHDM_DEFAULT_ADG_CODE` / `EHDM_DEFAULT_UNIT` / `EHDM_CASHIER_ID` | Line-item defaults |
+| `EHDM_DEFAULT_UNIT` / `EHDM_CASHIER_ID` | Line-item defaults |
+| ADG (`adgCode`) | Always `9205` (PEC `/print` requires a classifier; not an env/accountant setting) |
 
 If EHDM is not fully configured: **skip** print/return and log a warning. No fake / mock receipts.
 

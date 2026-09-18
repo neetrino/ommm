@@ -6,7 +6,6 @@ const RECEIPT_LOGO_SIZE_PX = 34;
 
 export type PaymentEhdmReceiptPaperProps = {
   brandName: string;
-  brandSubtitle: string;
   amountLabel: string;
   metaLine: string;
   itemLabel: string;
@@ -37,9 +36,6 @@ export function PaymentEhdmReceiptPaper(props: PaymentEhdmReceiptPaperProps) {
       <div className={styles.paperHeader}>
         <div className={styles.brandBlock}>
           <p className={styles.brandName}>{props.brandName}</p>
-          <div className={styles.brandSubtitleRow}>
-            <p className={styles.brandSubtitle}>{props.brandSubtitle}</p>
-          </div>
         </div>
         <div className={styles.brandMark} aria-hidden>
           <Image
@@ -121,6 +117,8 @@ function ReceiptPaperFiscal(props: PaymentEhdmReceiptPaperProps) {
           width={120}
           height={120}
           className={styles.receiptQr}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
         />
       ) : null}
     </div>

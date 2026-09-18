@@ -51,7 +51,6 @@ function createService(overrides: {
       getCrn: () => '52000000',
       getCashierId: () => 1,
       getDep: () => 3,
-      getDefaultAdgCode: () => '9205',
       getDefaultUnit: () => 'Հատ',
     } as never,
     seq as never,

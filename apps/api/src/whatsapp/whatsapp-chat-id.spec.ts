@@ -1,4 +1,8 @@
-import { isWhatsappSelfChat, toWhatsappChatId } from './whatsapp-chat-id';
+import {
+  isWhatsappSelfChat,
+  resolveWhatsappRecipientPhone,
+  toWhatsappChatId,
+} from './whatsapp-chat-id';
 
 describe('toWhatsappChatId', () => {
   it('builds a Gateway chat id from an Armenian E.164 phone', () => {
@@ -13,6 +17,32 @@ describe('toWhatsappChatId', () => {
     expect(toWhatsappChatId(null)).toBeNull();
     expect(toWhatsappChatId('')).toBeNull();
     expect(toWhatsappChatId('123')).toBeNull();
+  });
+});
+
+describe('resolveWhatsappRecipientPhone', () => {
+  it('prefers the dedicated WhatsApp number', () => {
+    expect(
+      resolveWhatsappRecipientPhone({
+        whatsappPhone: '+37499111222',
+        phone: '+37441881822',
+      }),
+    ).toBe('+37499111222');
+  });
+
+  it('falls back to the regular phone when WhatsApp is empty', () => {
+    expect(
+      resolveWhatsappRecipientPhone({
+        whatsappPhone: '  ',
+        phone: '+37441881822',
+      }),
+    ).toBe('+37441881822');
+    expect(
+      resolveWhatsappRecipientPhone({
+        whatsappPhone: null,
+        phone: null,
+      }),
+    ).toBeNull();
   });
 });
 

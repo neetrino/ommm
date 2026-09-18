@@ -88,6 +88,7 @@ export function useClientEditForm({
         name: payload.name,
         lastName: payload.lastName,
         phone: payload.phone,
+        whatsappPhone: payload.whatsappPhone,
         dateOfBirth: form.dateOfBirth.trim(),
       });
       setForm(nextForm);
