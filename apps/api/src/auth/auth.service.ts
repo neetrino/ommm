@@ -21,7 +21,11 @@ import {
   buildVerifyEmailMessage,
 } from '../mail/templates/auth-emails.template';
 import { PrismaService } from '../prisma/prisma.service';
-import { isValidPhoneNumber, normalizePhoneForStorage } from '../common/phone';
+import {
+  isValidPhoneNumber,
+  normalizeOptionalPhone,
+  normalizePhoneForStorage,
+} from '../common/phone';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 import { buildCreatePasswordUrl } from './build-create-password-url';
@@ -93,6 +97,8 @@ export class AuthService {
     }
     const passwordHash = await hashPassword(dto.password);
     const displayFirst = dto.name;
+    const whatsappPhone =
+      normalizeOptionalPhone(dto.whatsappPhone ?? null) ?? phone;
     const user = await this.prisma.user.create({
       data: {
         email: dto.email.toLowerCase(),
@@ -100,6 +106,7 @@ export class AuthService {
         name: displayFirst,
         lastName: dto.lastName,
         phone,
+        whatsappPhone,
         locale: resolveEmailLocale(dto.locale),
       },
     });

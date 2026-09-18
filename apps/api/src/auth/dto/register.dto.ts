@@ -49,6 +49,14 @@ export class RegisterDto {
   phone!: string;
 
   @IsOptional()
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @MaxLength(32)
+  whatsappPhone?: string;
+
+  @IsOptional()
   @IsIn(['hy', 'en', 'ru'])
   locale?: string;
 }

@@ -17,6 +17,8 @@ export type RegisterFormValues = {
   firstName: string;
   lastName: string;
   phone: string;
+  whatsappPhone: string;
+  sameAsPhone: boolean;
   email: string;
   password: string;
   confirmPassword: string;
@@ -81,7 +83,26 @@ export function validateRegisterForm(
   if (!isValidPhone(phone)) {
     return { ok: false, kind: "form", message: tAuth("invalidPhone") };
   }
+  if (!values.sameAsPhone) {
+    const whatsappPhone = values.whatsappPhone.trim();
+    if (whatsappPhone.length === 0) {
+      return { ok: false, kind: "form", message: tAuth("whatsappPhoneRequired") };
+    }
+    if (!isValidPhone(whatsappPhone)) {
+      return { ok: false, kind: "form", message: tAuth("invalidWhatsappPhone") };
+    }
+  }
   return { ok: true };
+}
+
+/** Phone to persist as the WhatsApp recipient after client-side checks pass. */
+export function resolveRegisterWhatsappPhoneForApi(
+  values: Pick<RegisterFormValues, "phone" | "whatsappPhone" | "sameAsPhone">,
+): string {
+  if (values.sameAsPhone) {
+    return values.phone.trim();
+  }
+  return values.whatsappPhone.trim();
 }
 
 /** Latin-only check when leaving a name field (no required-empty noise on blur). */
