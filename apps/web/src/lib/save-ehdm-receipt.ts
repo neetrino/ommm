@@ -9,7 +9,11 @@ export function buildEhdmReceiptFileName(reference: string | null): string {
   return `Ommm-receipt-${safe.length > 0 ? safe : "fiscal"}.png`;
 }
 
-function triggerBlobDownload(blob: Blob, fileName: string): void {
+/**
+ * Direct file install — never `navigator.share` (that opens OS Share on
+ * Windows/Android/iOS). Same `<a download>` path on phone and desktop.
+ */
+export function downloadReceiptBlob(blob: Blob, fileName: string): void {
   const href = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = href;
@@ -43,5 +47,5 @@ export async function saveEhdmReceiptPng(params: {
 }): Promise<void> {
   const fileName = buildEhdmReceiptFileName(params.reference);
   const blob = await captureNodePngBlob(params.node);
-  triggerBlobDownload(blob, fileName);
+  downloadReceiptBlob(blob, fileName);
 }
