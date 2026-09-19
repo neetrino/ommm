@@ -13,6 +13,8 @@ export type CoachSlideCopy = {
   role: string;
   bio: string;
   experience: string;
+  /** Numeric years when known — used by the coaches-page card on home mobile. */
+  experienceYears?: number | null;
   imageAlt: string;
   /** Coach portrait — `cardImageUrl` when set, else `avatarUrl`. */
   imageSrc?: string | null;

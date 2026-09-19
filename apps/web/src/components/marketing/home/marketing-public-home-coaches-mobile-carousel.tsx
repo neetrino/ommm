@@ -1,45 +1,57 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type MutableRefObject } from "react";
 import { FeaturedCoachSlideCardMobile } from "@/components/marketing/home/featured-coach-slide-card-mobile";
-import type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
+import type {
+  CoachSlideCopy,
+  CoachSlideLane,
+} from "@/components/marketing/home/featured-coach-slide-card";
 import { HOME_COACHES_SECTION_MOBILE_LAYOUT } from "@/components/marketing/home/home-coaches-section-tokens";
+import { COACHES_PAGE_CARD } from "@/components/marketing/coaches/coaches-page-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-coaches-mobile-carousel.module.css";
 
-const SCROLL_SYNC_DEBOUNCE_MS = 120;
-const PROGRAMMATIC_SCROLL_COOLDOWN_MS = 480;
+function lockHorizontalTouchPan(element: HTMLElement): () => void {
+  let startX = 0;
+  let startY = 0;
+
+  const onTouchStart = (event: TouchEvent) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+    startX = touch.clientX;
+    startY = touch.clientY;
+  };
+
+  const onTouchMove = (event: TouchEvent) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+    const deltaX = Math.abs(touch.clientX - startX);
+    const deltaY = Math.abs(touch.clientY - startY);
+    if (deltaX > deltaY) {
+      event.preventDefault();
+    }
+  };
+
+  element.addEventListener("touchstart", onTouchStart, { passive: true });
+  element.addEventListener("touchmove", onTouchMove, { passive: false });
+  return () => {
+    element.removeEventListener("touchstart", onTouchStart);
+    element.removeEventListener("touchmove", onTouchMove);
+  };
+}
 
 function resolveCoachSlideLane(displayIndex: number, centeredIndex: number): CoachSlideLane {
   const dist = Math.abs(displayIndex - centeredIndex);
-  if (dist === 0) return "center";
-  if (dist === 1) return "side";
+  if (dist === 0) {
+    return "center";
+  }
+  if (dist === 1) {
+    return "side";
+  }
   return "far";
-}
-
-function readNearestSlideIndex(viewport: HTMLDivElement, slideEls: readonly (HTMLDivElement | null)[]): number {
-  const viewportCenter = viewport.scrollLeft + viewport.clientWidth / 2;
-  let nearest = 0;
-  let minDist = Number.POSITIVE_INFINITY;
-
-  slideEls.forEach((el, index) => {
-    if (el === null) {
-      return;
-    }
-    const slideCenter = el.offsetLeft + el.offsetWidth / 2;
-    const dist = Math.abs(slideCenter - viewportCenter);
-    if (dist < minDist) {
-      minDist = dist;
-      nearest = index;
-    }
-  });
-
-  return nearest;
 }
 
 type FeaturedCoachesMobileCarouselStripProps = {
@@ -49,32 +61,66 @@ type FeaturedCoachesMobileCarouselStripProps = {
   goPrev: () => void;
   goNext: () => void;
   getGoToSlideAria: (coachName: string) => string;
+  isActiveSlideExpanded: boolean;
+  onActiveSlideExpandedChange: (expanded: boolean) => void;
 };
 
-/** Figma mobile carousel `108:6737` — native touch scroll + scroll-snap. */
-export function FeaturedCoachesMobileCarouselStrip({
+type CoachMobileSlidesProps = {
+  slides: CoachSlideCopy[];
+  active: number;
+  centerIndex: number;
+  peekLayout: boolean;
+  isActiveSlideExpanded: boolean;
+  slideRefs: MutableRefObject<(HTMLDivElement | null)[]>;
+  onActiveSlideExpandedChange: (expanded: boolean) => void;
+};
+
+function CoachMobileSlides({
   slides,
   active,
-  onSelectSlide,
-  getGoToSlideAria,
-}: FeaturedCoachesMobileCarouselStripProps) {
+  centerIndex,
+  peekLayout,
+  isActiveSlideExpanded,
+  slideRefs,
+  onActiveSlideExpandedChange,
+}: CoachMobileSlidesProps) {
+  return (
+    <div className={styles.track} style={{ gap: HOME_COACHES_SECTION_MOBILE_LAYOUT.carouselGap }}>
+      {slides.map((slide, index) => {
+        const isCentered = centerIndex === index;
+        return (
+          <div
+            key={`coach-mobile-slide-${index}-${slide.name}`}
+            ref={(el) => {
+              slideRefs.current[index] = el;
+            }}
+            className={styles.slide}
+          >
+            <FeaturedCoachSlideCardMobile
+              slide={slide}
+              isActive={isCentered}
+              lane={resolveCoachSlideLane(index, centerIndex)}
+              peekLayout={peekLayout}
+              isScrolling={centerIndex !== active}
+              expanded={isCentered && isActiveSlideExpanded}
+              onToggleExpand={() => {
+                if (isCentered) {
+                  onActiveSlideExpandedChange(!isActiveSlideExpanded);
+                }
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function useMobileCoachCarouselScroll(active: number) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const programmaticScrollRef = useRef(false);
-  const programmaticScrollTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const activeFromScrollRef = useRef(false);
-  const scrollSyncTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const scrollRafRef = useRef<number | undefined>(undefined);
   const [centerIndex, setCenterIndex] = useState(active);
   const [peekLayout, setPeekLayout] = useState(false);
-
-  const updateCenterIndexFromScroll = useCallback(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) {
-      return;
-    }
-    setCenterIndex(readNearestSlideIndex(viewport, slideRefs.current));
-  }, []);
 
   const scrollSlideIntoView = useCallback((index: number, behavior: ScrollBehavior) => {
     const viewport = viewportRef.current;
@@ -84,41 +130,11 @@ export function FeaturedCoachesMobileCarouselStrip({
     }
 
     const targetLeft = slide.offsetLeft - (viewport.clientWidth - slide.offsetWidth) / 2;
-    programmaticScrollRef.current = true;
-    if (programmaticScrollTimerRef.current !== undefined) {
-      clearTimeout(programmaticScrollTimerRef.current);
-    }
-    programmaticScrollTimerRef.current = setTimeout(() => {
-      programmaticScrollRef.current = false;
-      programmaticScrollTimerRef.current = undefined;
-    }, PROGRAMMATIC_SCROLL_COOLDOWN_MS);
     viewport.scrollTo({ left: targetLeft, behavior });
     setCenterIndex(index);
   }, []);
 
-  const syncActiveFromScroll = useCallback(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) {
-      return;
-    }
-
-    if (programmaticScrollRef.current) {
-      return;
-    }
-
-    const nearest = readNearestSlideIndex(viewport, slideRefs.current);
-    setCenterIndex(nearest);
-    if (nearest !== active) {
-      activeFromScrollRef.current = true;
-      onSelectSlide(nearest);
-    }
-  }, [active, onSelectSlide]);
-
   useLayoutEffect(() => {
-    if (activeFromScrollRef.current) {
-      activeFromScrollRef.current = false;
-      return;
-    }
     scrollSlideIntoView(active, "smooth");
   }, [active, scrollSlideIntoView]);
 
@@ -132,100 +148,45 @@ export function FeaturedCoachesMobileCarouselStrip({
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) {
-      return;
+      return undefined;
     }
+    return lockHorizontalTouchPan(viewport);
+  }, []);
 
-    const onScroll = () => {
-      if (scrollRafRef.current !== undefined) {
-        cancelAnimationFrame(scrollRafRef.current);
-      }
-      scrollRafRef.current = requestAnimationFrame(() => {
-        scrollRafRef.current = undefined;
-        if (!programmaticScrollRef.current) {
-          updateCenterIndexFromScroll();
-        }
-      });
+  return { viewportRef, slideRefs, centerIndex, peekLayout };
+}
 
-      if (scrollSyncTimerRef.current !== undefined) {
-        clearTimeout(scrollSyncTimerRef.current);
-      }
-      scrollSyncTimerRef.current = setTimeout(() => {
-        syncActiveFromScroll();
-      }, SCROLL_SYNC_DEBOUNCE_MS);
-    };
-
-    const onScrollEnd = () => {
-      if (scrollSyncTimerRef.current !== undefined) {
-        clearTimeout(scrollSyncTimerRef.current);
-        scrollSyncTimerRef.current = undefined;
-      }
-      if (scrollRafRef.current !== undefined) {
-        cancelAnimationFrame(scrollRafRef.current);
-        scrollRafRef.current = undefined;
-      }
-      syncActiveFromScroll();
-    };
-
-    viewport.addEventListener("scroll", onScroll, { passive: true });
-    viewport.addEventListener("scrollend", onScrollEnd);
-
-    return () => {
-      viewport.removeEventListener("scroll", onScroll);
-      viewport.removeEventListener("scrollend", onScrollEnd);
-      if (scrollSyncTimerRef.current !== undefined) {
-        clearTimeout(scrollSyncTimerRef.current);
-      }
-      if (scrollRafRef.current !== undefined) {
-        cancelAnimationFrame(scrollRafRef.current);
-      }
-      if (programmaticScrollTimerRef.current !== undefined) {
-        clearTimeout(programmaticScrollTimerRef.current);
-      }
-    };
-  }, [syncActiveFromScroll, updateCenterIndexFromScroll]);
+/** Mobile featured coaches — auto-advance + bottom controls, no swipe. */
+export function FeaturedCoachesMobileCarouselStrip({
+  slides,
+  active,
+  isActiveSlideExpanded,
+  onActiveSlideExpandedChange,
+}: FeaturedCoachesMobileCarouselStripProps) {
+  const { viewportRef, slideRefs, centerIndex, peekLayout } = useMobileCoachCarouselScroll(active);
 
   if (slides.length === 0) {
     return null;
   }
 
   return (
-    <div className={styles.stage}>
-      <div
-        ref={viewportRef}
-        className={styles.viewport}
-        aria-label="Featured coaches"
-        tabIndex={0}
-      >
-        <div
-          className={styles.track}
-          style={{ gap: HOME_COACHES_SECTION_MOBILE_LAYOUT.carouselGap }}
-        >
-          {slides.map((slide, index) => {
-            const lane = resolveCoachSlideLane(index, centerIndex);
-            const isCentered = centerIndex === index;
-            return (
-              <div
-                key={`coach-mobile-slide-${index}-${slide.name}`}
-                ref={(el) => {
-                  slideRefs.current[index] = el;
-                }}
-                className={styles.slide}
-              >
-                <FeaturedCoachSlideCardMobile
-                  slide={slide}
-                  isActive={isCentered}
-                  lane={lane}
-                  peekLayout={peekLayout}
-                  isScrolling={centerIndex !== active}
-                  overlayAriaLabel={getGoToSlideAria(slide.name)}
-                  onActivate={() => {
-                    onSelectSlide(index);
-                  }}
-                />
-              </div>
-            );
-          })}
-        </div>
+    <div
+      className={styles.stage}
+      style={{
+        ["--ommm-coach-card-aspect-w" as string]: String(COACHES_PAGE_CARD.designWidthPx),
+        ["--ommm-coach-card-aspect-h" as string]: String(COACHES_PAGE_CARD.designHeightPx),
+      }}
+    >
+      <div ref={viewportRef} className={styles.viewport} aria-label="Featured coaches">
+        <CoachMobileSlides
+          slides={slides}
+          active={active}
+          centerIndex={centerIndex}
+          peekLayout={peekLayout}
+          isActiveSlideExpanded={isActiveSlideExpanded}
+          slideRefs={slideRefs}
+          onActiveSlideExpandedChange={onActiveSlideExpandedChange}
+        />
       </div>
     </div>
   );

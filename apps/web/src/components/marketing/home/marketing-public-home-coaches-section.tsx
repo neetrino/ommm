@@ -36,10 +36,12 @@ export function MarketingPublicHomeCoachesSection({
   const lastIndex = Math.max(0, slideCount - 1);
 
   const [activeRaw, setActiveRaw] = useState(0);
+  const [isActiveSlideExpanded, setIsActiveSlideExpanded] = useState(false);
   const active = Math.min(activeRaw, lastIndex);
 
   const setActive = useCallback(
     (index: number) => {
+      setIsActiveSlideExpanded(false);
       setActiveRaw(Math.min(Math.max(0, index), lastIndex));
     },
     [lastIndex],
@@ -47,6 +49,7 @@ export function MarketingPublicHomeCoachesSection({
 
   const goPrev = useCallback(() => {
     if (slideCount <= 0) return;
+    setIsActiveSlideExpanded(false);
     setActiveRaw((prev) => {
       const clamped = Math.min(prev, lastIndex);
       return (clamped - 1 + slideCount) % slideCount;
@@ -55,6 +58,7 @@ export function MarketingPublicHomeCoachesSection({
 
   const goNext = useCallback(() => {
     if (slideCount <= 0) return;
+    setIsActiveSlideExpanded(false);
     setActiveRaw((prev) => {
       const clamped = Math.min(prev, lastIndex);
       return (clamped + 1) % slideCount;
@@ -62,7 +66,7 @@ export function MarketingPublicHomeCoachesSection({
   }, [lastIndex, slideCount]);
 
   useEffect(() => {
-    if (slideCount <= 1) {
+    if (slideCount <= 1 || isActiveSlideExpanded) {
       return;
     }
     const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -102,7 +106,7 @@ export function MarketingPublicHomeCoachesSection({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       clearIntervalIfSet();
     };
-  }, [active, goNext, slideCount]);
+  }, [active, goNext, isActiveSlideExpanded, slideCount]);
 
   if (slideCount === 0) {
     return null;
@@ -167,7 +171,11 @@ export function MarketingPublicHomeCoachesSection({
 
           <div className={styles.mobileCarouselWrap}>
             <MarketingLazyMotion>
-              <FeaturedCoachesMobileCarouselStrip {...carouselProps} />
+              <FeaturedCoachesMobileCarouselStrip
+                {...carouselProps}
+                isActiveSlideExpanded={isActiveSlideExpanded}
+                onActiveSlideExpandedChange={setIsActiveSlideExpanded}
+              />
             </MarketingLazyMotion>
           </div>
 

@@ -1,11 +1,16 @@
 import {
   coachCardDisplayName,
   resolveCoachPageImageUrl,
+  splitCoachDisplayName,
   type CoachCardData,
+  type CoachCardUser,
 } from "@/components/coaches/coach-card-display";
 import type { CoachSlideCopy } from "@/components/marketing/home/featured-coach-slide-card";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
-import { limitCoachesPageGridCards } from "@/components/marketing/coaches/coaches-page-fallback-coaches";
+import {
+  limitCoachesPageGridCards,
+  parseCoachExperienceYears,
+} from "@/components/marketing/coaches/coaches-page-fallback-coaches";
 
 /** Featured Coaches carousel — max slides on the home page. */
 export const HOME_FEATURED_COACHES_MAX_SLIDES = 6;
@@ -43,8 +48,34 @@ function mapCoachToSlide(
     role,
     bio,
     experience,
+    experienceYears: coach.experienceYears,
     imageAlt: name,
     imageSrc: resolveCoachPortraitSrc(resolveCoachPageImageUrl(coach)),
+  };
+}
+
+export type HomeCoachPageCardProps = {
+  user: CoachCardUser;
+  cardImageUrl: string | null;
+  specialization: string | null;
+  bio: string | null;
+  experienceYears: number | null;
+};
+
+/** Maps a featured slide onto the shared coaches-page card props. */
+export function mapCoachSlideToPageCardProps(slide: CoachSlideCopy): HomeCoachPageCardProps {
+  const { givenName, familyName } = splitCoachDisplayName(slide.name);
+  return {
+    user: {
+      name: givenName,
+      lastName: familyName,
+      email: slide.name,
+      avatarUrl: null,
+    },
+    cardImageUrl: slide.imageSrc ?? null,
+    specialization: slide.role,
+    bio: slide.bio,
+    experienceYears: slide.experienceYears ?? parseCoachExperienceYears(slide.experience),
   };
 }
 
