@@ -32,7 +32,8 @@ function splitCoachName(fullName: string): { name: string | null; lastName: stri
   return { name: parts[0] ?? null, lastName: parts.slice(1).join(" ") };
 }
 
-function parseExperienceYears(experience: string | undefined): number | null {
+/** First integer in a copy string such as `"8 years experience"`. */
+export function parseCoachExperienceYears(experience: string | undefined): number | null {
   if (!experience) {
     return null;
   }
@@ -58,7 +59,7 @@ export function buildCoachesPageFallbackCoaches(
       id: `coaches-page-placeholder-${index}`,
       bio: slide.bio,
       specialization: slide.role,
-      experienceYears: parseExperienceYears(slide.experience),
+      experienceYears: parseCoachExperienceYears(slide.experience),
       user: {
         name,
         lastName,
