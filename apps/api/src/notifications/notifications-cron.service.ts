@@ -18,8 +18,10 @@ import {
   ACTION_BROADCAST_SCHEDULED,
   ACTION_BROADCAST_SCHEDULED_FAILED,
   ACTION_BROADCAST_SCHEDULED_SENT,
+  CLASS_REMINDER_BATCH_TAKE,
+  CLASS_REMINDER_HOURS_WINDOWS,
+  CLASS_REMINDER_WINDOW_MINUTES,
   ENABLE_BACKGROUND_REMINDERS_ENV,
-  REMINDER_HOURS_BEFORE,
   SCHEDULED_TIMELINE_ACTIONS,
 } from './notifications-audit.constants';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
@@ -32,6 +34,20 @@ import {
   isEnabledEnv,
   resolveEffectiveScheduledPayload,
 } from './notifications-payload.helpers';
+
+const HOUR_MS = 60 * 60 * 1000;
+const MINUTE_MS = 60 * 1000;
+
+type ClassReminderBooking = {
+  id: string;
+  user: {
+    id: string;
+    email: string;
+    locale: string;
+    notificationPrefs: { bookingReminders: boolean } | null;
+  };
+  session: { startsAt: Date; classType: { name: string } };
+};
 
 @Injectable()
 export class NotificationsCronService {
@@ -49,6 +65,11 @@ export class NotificationsCronService {
     this.remindersCronEnabled = isEnabledEnv(
       process.env[ENABLE_BACKGROUND_REMINDERS_ENV],
     );
+    if (!this.remindersCronEnabled && process.env.JEST_WORKER_ID === undefined) {
+      this.logger.warn(
+        'Class reminders disabled until ENABLE_BACKGROUND_REMINDERS=true',
+      );
+    }
   }
 
   /** Invoked by CronBatchService (every 30 min). */
@@ -56,46 +77,63 @@ export class NotificationsCronService {
     if (!this.remindersCronEnabled) {
       return;
     }
-    const now = Date.now();
-    const windowStart = new Date(now + REMINDER_HOURS_BEFORE * 60 * 60 * 1000);
-    const windowEnd = new Date(windowStart.getTime() + 35 * 60 * 1000);
-
-    const bookings = await this.prisma.booking.findMany({
-      where: {
-        status: BookingStatus.BOOKED,
-        session: {
-          startsAt: { gte: windowStart, lte: windowEnd },
-        },
-      },
-      include: {
-        user: {
-          include: { notificationPrefs: true },
-        },
-        session: { include: { classType: true } },
-      },
-      take: 200,
-    });
-
-    for (const booking of bookings) {
-      await this.deliverClassReminder(booking);
-    }
-    if (bookings.length > 0) {
-      this.logger.log(`Sent up to ${bookings.length} class reminders`);
+    const nowMs = Date.now();
+    for (const hoursBefore of CLASS_REMINDER_HOURS_WINDOWS) {
+      await this.sendClassRemindersForWindow(nowMs, hoursBefore);
     }
   }
 
-  private async deliverClassReminder(booking: {
-    id: string;
-    user: {
-      id: string;
-      email: string;
-      locale: string;
-      notificationPrefs: { bookingReminders: boolean } | null;
-    };
-    session: { startsAt: Date; classType: { name: string } };
-  }): Promise<void> {
+  private async sendClassRemindersForWindow(
+    nowMs: number,
+    hoursBefore: number,
+  ): Promise<void> {
+    const windowStart = new Date(nowMs + hoursBefore * HOUR_MS);
+    const windowEnd = new Date(
+      windowStart.getTime() + CLASS_REMINDER_WINDOW_MINUTES * MINUTE_MS,
+    );
+    const bookings = await this.prisma.booking.findMany({
+      where: {
+        status: BookingStatus.BOOKED,
+        session: { startsAt: { gte: windowStart, lte: windowEnd } },
+      },
+      include: {
+        user: { include: { notificationPrefs: true } },
+        session: { include: { classType: true } },
+      },
+      take: CLASS_REMINDER_BATCH_TAKE,
+    });
+    for (const booking of bookings) {
+      await this.tryDeliverClassReminder(booking, hoursBefore);
+    }
+    if (bookings.length > 0) {
+      this.logger.log(
+        `Sent up to ${bookings.length} class reminders (${hoursBefore}h)`,
+      );
+    }
+  }
+
+  private async tryDeliverClassReminder(
+    booking: ClassReminderBooking,
+    hoursBefore: number,
+  ): Promise<void> {
+    try {
+      await this.deliverClassReminder(booking, hoursBefore);
+    } catch (error) {
+      this.logger.error(
+        `Class reminder failed for booking ${booking.id} (${hoursBefore}h)`,
+        error instanceof Error ? error.stack : undefined,
+      );
+    }
+  }
+
+  private async deliverClassReminder(
+    booking: ClassReminderBooking,
+    hoursBefore: number,
+  ): Promise<void> {
     const sentAlready = await this.prisma.classReminderSendLog.findUnique({
-      where: { bookingId: booking.id },
+      where: {
+        bookingId_hoursBefore: { bookingId: booking.id, hoursBefore },
+      },
     });
     if (sentAlready) {
       return;
@@ -104,14 +142,24 @@ export class NotificationsCronService {
     if (prefs && !prefs.bookingReminders) {
       return;
     }
-
     const className = booking.session.classType.name;
+    await this.sendClassReminderChannels(booking, className, hoursBefore);
+    await this.prisma.classReminderSendLog.create({
+      data: { bookingId: booking.id, hoursBefore },
+    });
+  }
+
+  private async sendClassReminderChannels(
+    booking: ClassReminderBooking,
+    className: string,
+    hoursBefore: number,
+  ): Promise<void> {
     await this.mail.sendEmail({
       to: booking.user.email,
       subject: buildClassReminderSubject(className),
       html: renderClassReminderEmail({
         className,
-        hoursBefore: REMINDER_HOURS_BEFORE,
+        hoursBefore,
         startsAtLabel: formatPaymentDateTime(booking.session.startsAt),
         bookingsUrl: buildMemberBookingsUrl(
           resolveWebAppUrl(process.env.WEB_APP_URL),
@@ -125,30 +173,17 @@ export class NotificationsCronService {
         tokens.map((to) => ({
           to,
           title: buildClassReminderSubject(className),
-          body: `${className} starts in about ${REMINDER_HOURS_BEFORE} hours.`,
+          body: `${className} starts in about ${hoursBefore} hours.`,
         })),
       );
     }
-    await this.sendClassReminderWhatsapp(booking, className);
-    await this.prisma.classReminderSendLog.create({
-      data: { bookingId: booking.id },
-    });
-  }
-
-  private async sendClassReminderWhatsapp(
-    booking: {
-      user: { id: string; locale: string };
-      session: { startsAt: Date };
-    },
-    className: string,
-  ): Promise<void> {
     await this.whatsapp.trySendToUser({
       userId: booking.user.id,
       topic: 'bookingReminders',
       render: (locale) =>
         renderClassReminderWhatsapp(locale, {
           className,
-          hoursBefore: REMINDER_HOURS_BEFORE,
+          hoursBefore,
           startsAtLabel: formatWhatsappDateTime(
             booking.session.startsAt,
             locale,
@@ -176,53 +211,63 @@ export class NotificationsCronService {
     });
     const timelineByEntityId = groupTimelineByEntityId(timeline);
     for (const item of scheduled) {
-      const payload = resolveEffectiveScheduledPayload(
-        item.payload,
-        timelineByEntityId.get(item.entityId) ?? [],
+      await this.dispatchOneScheduledBroadcast(item, timelineByEntityId);
+    }
+  }
+
+  private async dispatchOneScheduledBroadcast(
+    item: { id: string; entityId: string; payload: string | null },
+    timelineByEntityId: Map<
+      string,
+      { action: string; payload: string | null; createdAt: Date }[]
+    >,
+  ): Promise<void> {
+    const payload = resolveEffectiveScheduledPayload(
+      item.payload,
+      timelineByEntityId.get(item.entityId) ?? [],
+    );
+    if (!payload || new Date(payload.scheduleAt) > new Date()) {
+      return;
+    }
+    const timelineForItem = timelineByEntityId.get(item.entityId) ?? [];
+    if (hasScheduledTerminalStatus(timelineForItem)) {
+      return;
+    }
+    try {
+      const sent = await this.broadcast.broadcastToAll(
+        payload.subject,
+        payload.html,
+        {
+          audience: payload.audience,
+          onlyPromotionsOptIn: payload.onlyPromotionsOptIn,
+          scheduleEntityId: item.entityId,
+        },
       );
-      if (!payload || new Date(payload.scheduleAt) > new Date()) {
-        continue;
-      }
-      const timelineForItem = timelineByEntityId.get(item.entityId) ?? [];
-      if (hasScheduledTerminalStatus(timelineForItem)) {
-        continue;
-      }
-      try {
-        const sent = await this.broadcast.broadcastToAll(
-          payload.subject,
-          payload.html,
-          {
-            audience: payload.audience,
-            onlyPromotionsOptIn: payload.onlyPromotionsOptIn,
-            scheduleEntityId: item.entityId,
-          },
-        );
-        await this.audit.log({
-          actorRole: 'ADMIN',
-          action: ACTION_BROADCAST_SCHEDULED_SENT,
-          entityType: 'Notification',
-          entityId: item.entityId,
-          payload: {
-            scheduledFor: payload.scheduleAt,
-            sentCount: sent.count ?? 0,
-          },
-        });
-      } catch (error) {
-        this.logger.error(
-          `Scheduled broadcast dispatch failed for ${item.id}`,
-          error instanceof Error ? error.stack : undefined,
-        );
-        await this.audit.log({
-          actorRole: 'ADMIN',
-          action: ACTION_BROADCAST_SCHEDULED_FAILED,
-          entityType: 'Notification',
-          entityId: item.entityId,
-          payload: {
-            scheduledFor: payload.scheduleAt,
-            error: error instanceof Error ? error.message : 'unknown',
-          },
-        });
-      }
+      await this.audit.log({
+        actorRole: 'ADMIN',
+        action: ACTION_BROADCAST_SCHEDULED_SENT,
+        entityType: 'Notification',
+        entityId: item.entityId,
+        payload: {
+          scheduledFor: payload.scheduleAt,
+          sentCount: sent.count ?? 0,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Scheduled broadcast dispatch failed for ${item.id}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      await this.audit.log({
+        actorRole: 'ADMIN',
+        action: ACTION_BROADCAST_SCHEDULED_FAILED,
+        entityType: 'Notification',
+        entityId: item.entityId,
+        payload: {
+          scheduledFor: payload.scheduleAt,
+          error: error instanceof Error ? error.message : 'unknown',
+        },
+      });
     }
   }
 }

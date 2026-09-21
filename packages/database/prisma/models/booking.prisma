@@ -17,7 +17,7 @@ model Booking {
   updatedAt     DateTime      @updatedAt
 
   notes BookingNote[]
-  reminderLog ClassReminderSendLog?
+  reminderLogs ClassReminderSendLog[]
   bookingConfirmedLog BookingConfirmedSendLog?
   consumptions BookingConsumption[]
   sessionReview SessionReview?
