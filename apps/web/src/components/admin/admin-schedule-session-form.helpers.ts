@@ -15,6 +15,7 @@ import type {
   AdminScheduleSession,
   CalendarScheduleSlot,
   ScheduleDayOfWeek,
+  SessionStatus,
 } from "@/components/admin/admin-schedule-session.types";
 import { normalizeTimeInputValue } from "@/lib/date-display";
 import { localIsoDateFromValue } from "@/lib/local-iso-date";
@@ -102,10 +103,26 @@ export function initialCalendarSchedule(
   };
 }
 
+export const CREATED_SESSION_STATUS = "ACTIVE" as const;
+
+export type SessionFormMode = "create" | "edit" | "duplicate";
+
+/** Duplicate/create always start ACTIVE; edit keeps the stored lifecycle status. */
+export function resolveFormSessionStatus(
+  mode: SessionFormMode,
+  rowStatus?: SessionStatus,
+): SessionStatus {
+  if (mode === "edit") {
+    return rowStatus ?? CREATED_SESSION_STATUS;
+  }
+  return CREATED_SESSION_STATUS;
+}
+
 export function initialForm(
   classTypeOptions: readonly SessionClassTypeOption[],
   coaches: readonly AdminScheduleCoach[],
-  row?: AdminScheduleSession,
+  row: AdminScheduleSession | undefined,
+  mode: SessionFormMode,
 ): AdminScheduleFormState {
   const start = row ? new Date(row.startsAt) : new Date();
   const end = row ? new Date(row.endsAt) : new Date(start.getTime() + 60 * 60000);
@@ -126,7 +143,7 @@ export function initialForm(
     endTime: timeValue(end),
     capacity: row ? String(row.capacity) : DEFAULT_SESSION_CAPACITY,
     levels: splitSessionLevels(row?.level),
-    status: row?.status ?? "ACTIVE",
+    status: resolveFormSessionStatus(mode, row?.status),
   };
 }
 
@@ -159,7 +176,7 @@ export function batchFormPayload(
     coachId: form.coachId,
     capacity: Number(form.capacity),
     level: joinSessionLevels(form.levels),
-    status: form.status,
+    status: CREATED_SESSION_STATUS,
     startDate,
     endDate,
     timezoneOffsetMinutes: STUDIO_TIMEZONE_OFFSET_MINUTES,

@@ -49,7 +49,7 @@ export function useAdminScheduleSessionFormSheet({
   const titleId = useId();
   const formId = useId();
   const [form, setForm] = useState<AdminScheduleFormState>(() =>
-    initialForm(classTypeOptions, coaches, row),
+    initialForm(classTypeOptions, coaches, row, mode),
   );
   const initialCalendar = initialCalendarSchedule(form, anchorDay);
   const [calendarStartDate, setCalendarStartDate] = useState(initialCalendar.calendarStartDate);

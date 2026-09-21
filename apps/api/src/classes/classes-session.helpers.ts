@@ -6,6 +6,7 @@ import {
   type ClassSession,
   type ScheduleDayOfWeek,
 } from '@prisma/client';
+import { resolveCreatedSessionStatus } from './classes-session-create-status';
 import type { CreateSessionBatchDto } from './dto/create-session-batch.dto';
 import type { CreateSessionDto } from './dto/create-session.dto';
 import type { UpdateSessionDto } from './dto/update-session.dto';
@@ -189,7 +190,7 @@ export function buildBatchSessionData(
         capacity: dto.capacity,
         level: normalizeOptional(dto.level),
         priceCents: 0,
-        status: dto.status ?? ClassSessionStatus.ACTIVE,
+        status: resolveCreatedSessionStatus(dto.status),
         recurrencePattern: SESSION_RECURRENCE_PATTERN.NONE,
         recurrenceWeekdays: [],
         recurrenceEndsAt: null,
