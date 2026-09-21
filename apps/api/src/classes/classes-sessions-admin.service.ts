@@ -15,6 +15,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { ClassesSessionCancelCascadeService } from './classes-session-cancel-cascade.service';
+import { resolveCreatedSessionStatus } from './classes-session-create-status';
 import {
   ADMIN_SESSION_INCLUDE,
   assertTimeRange,
@@ -140,7 +141,7 @@ export class ClassesSessionsAdminService {
         classFormat: normalizeOptional(dto.classFormat),
         priceCents: dto.priceCents ?? 0,
         sessionRequirement: dto.sessionRequirement ?? null,
-        status: dto.status ?? ClassSessionStatus.ACTIVE,
+        status: resolveCreatedSessionStatus(dto.status),
         recurrencePattern: recurrence.recurrencePattern,
         recurrenceWeekdays: recurrence.recurrenceWeekdays,
         recurrenceEndsAt: recurrence.recurrenceEndsAt,
