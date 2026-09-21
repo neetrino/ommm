@@ -98,6 +98,7 @@ Required:
 Usually required in prod:
 
 - `ENABLE_BOOKING_BACKGROUND_JOBS=true`
+- `ENABLE_BACKGROUND_REMINDERS=true` (class reminders 24h + 2h; must be listed in compose so the container receives it)
 - Resend / R2 / Google OAuth / Upstash keys as used by the app
 - `GOOGLE_CALLBACK_URL=https://www.ommm.am/api/v1/auth/google/callback`
 

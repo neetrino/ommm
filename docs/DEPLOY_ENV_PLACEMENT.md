@@ -22,6 +22,7 @@
 | `DATABASE_URL` / `DIRECT_URL` | api | Neon pooled + direct։ |
 | `JWT_SECRET` / `JWT_EXPIRES_SEC` | api | Production secret։ |
 | `ENABLE_BOOKING_BACKGROUND_JOBS` | api | `true` prod-ում։ |
+| `ENABLE_BACKGROUND_REMINDERS` | api | `true` prod-ում։ Class reminders 24h + 2h, membership expiry WhatsApp։ Պիտի լինի `compose.api.yaml` environment-ում, այլապես container չի տեսնի։ |
 | Resend / R2 / Google / Upstash / WhatsApp | api | Ըստ `.env.example`-ի։ |
 | `GOOGLE_CALLBACK_URL` | api | `https://www.ommm.am/api/v1/auth/google/callback` (frontend origin + Next proxy)։ |
 | `CORS_ORIGINS` | api | Լրացուցիչ browser origin-ներ, ստորակետով։ |

@@ -79,11 +79,15 @@ model NotificationPreference {
 }
 
 model ClassReminderSendLog {
-  id        String   @id @default(cuid())
-  bookingId String   @unique
-  sentAt    DateTime @default(now())
+  id          String   @id @default(cuid())
+  bookingId   String
+  hoursBefore Int
+  sentAt      DateTime @default(now())
 
   booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, hoursBefore])
+  @@index([bookingId])
 }
 
 model BookingConfirmedSendLog {

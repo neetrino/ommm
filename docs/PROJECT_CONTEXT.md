@@ -496,7 +496,7 @@ Legend:
 | `RESEND_FROM_EMAIL` | documented sender email key | Needs verification | `.env.example`, deploy doc (direct API usage not found) |
 | `WHATSAPP_GATEWAY_URL` | WhatsApp Gateway public base URL | Optional fallback if DB credentials are empty | `apps/api/src/whatsapp/whatsapp-credentials.service.ts` |
 | `WHATSAPP_GATEWAY_TOKEN` | WhatsApp Gateway project token | Optional fallback if DB credentials are empty | `apps/api/src/whatsapp/whatsapp-credentials.service.ts` |
-| `ENABLE_BACKGROUND_REMINDERS` | toggle reminder cron | Optional | `apps/api/src/notifications/notifications.service.ts` |
+| `ENABLE_BACKGROUND_REMINDERS` | class reminders 24h + 2h + membership expiry WhatsApp | Required `true` in production | `apps/api/src/notifications/notifications-cron.service.ts` |
 | `ENABLE_WAITLIST_BACKGROUND_JOBS` | toggle waitlist cron | Optional | `apps/api/src/waitlist/waitlist.service.ts` |
 | `UPLOAD_DIR` | local upload root path | Optional | `apps/api/src/users/users.service.ts` |
 | `R2_HOME_IMAGE_REQUIRED` | force R2 for home images | Optional | `apps/api/src/users/users.service.ts` |
