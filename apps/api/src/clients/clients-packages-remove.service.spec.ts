@@ -43,15 +43,28 @@ describe('ClientsPackagesRemoveService', () => {
     const result = await service.remove(createActor(), 'client-1', 'pkg-1');
 
     expect(result.id).toBe('pkg-1');
-    expect(tx.userPackage.update).toHaveBeenCalledWith({
+    const updateArgs = tx.userPackage.update.mock.calls[0]?.[0] as
+      | {
+          where: { id: string };
+          data: {
+            status: UserPackageStatus;
+            removedByUserId: string;
+            pausedAt: null;
+            pausedUntil: null;
+            removedAt: Date;
+          };
+        }
+      | undefined;
+    expect(updateArgs).toMatchObject({
       where: { id: 'pkg-1' },
-      data: expect.objectContaining({
+      data: {
         status: UserPackageStatus.CANCELLED,
         removedByUserId: 'manager-1',
         pausedAt: null,
         pausedUntil: null,
-      }),
+      },
     });
+    expect(updateArgs?.data.removedAt).toBeInstanceOf(Date);
     expect(tx.booking.deleteMany).not.toHaveBeenCalled();
     expect(tx.bookingConsumption.deleteMany).not.toHaveBeenCalled();
     expect(audit.log).toHaveBeenCalledWith(
