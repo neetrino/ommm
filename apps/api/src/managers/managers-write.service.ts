@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Prisma, Role, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { newClientInviteCode } from '../client-invites/client-invite-code';
 import {
   normalizeOptionalPhone,
   normalizeRequiredPhone,
@@ -40,6 +41,7 @@ export class ManagersWriteService {
         phone,
         role: Role.MANAGER,
         emailVerified: new Date(),
+        clientInviteCode: newClientInviteCode(),
       },
       select: { ...managerListSelect, locale: true },
     });

@@ -87,10 +87,11 @@ enum AuthTokenType {
   PASSWORD_SETUP
 }
 
-/** How a client account was created (self-serve vs backoffice staff). */
+/** How a client account was created (self-serve, staff form, or staff invite link). */
 enum ClientRegistrationSource {
   SELF
   STAFF
+  INVITE
 }
 
 enum ScheduleDayOfWeek {

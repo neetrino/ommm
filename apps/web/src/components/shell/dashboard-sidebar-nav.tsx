@@ -24,7 +24,7 @@ import {
   WORKSPACE_ROUTE_PREFETCH,
 } from "@/lib/workspace-nav-link";
 
-const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users", "/admin/profile"]);
+const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users"]);
 
 /** Stable across soft navigations so Framer can morph the active pill. */
 const OLIVE_NAV_PILL_LAYOUT_ID = "ommm-olive-nav-active-pill";

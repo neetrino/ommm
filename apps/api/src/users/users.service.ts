@@ -7,7 +7,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import type { Express } from 'express';
 import { Prisma, BookingStatus, Role } from '@prisma/client';
-import { sanitizeUser } from '../auth/auth.service';
+import { sanitizeUser } from '../auth/auth-public-user';
 import { GOOGLE_PROVIDER } from '../auth/google-oauth.types';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { isAppUiLocale } from '../common/app-ui-locales';

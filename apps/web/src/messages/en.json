@@ -740,7 +740,7 @@
         "settings": "Studio policy, contacts, and operational defaults.",
         "feedback": "Member and staff feedback review and follow-up workspace.",
         "guestUsers": "Guest user records and non-member account access.",
-        "profile": "Your backoffice identity, sign-in email, and workspace integration notes."
+        "profile": "Your account and personal client invite link."
       },
       "user": {
         "account": "Your account menu and member shortcuts.",
@@ -777,7 +777,7 @@
         "giftCards": "Issued cards and balances (view and resend where allowed).",
         "content": "Posts, publishing status, and slugs.",
         "settings": "Studio policy, contacts, and operational defaults.",
-        "profile": "Your manager account summary and operational guidance."
+        "profile": "Your account and personal client invite link."
       },
       "contentAdmin": {
         "home": "Editorial tools and content overview.",
@@ -2616,6 +2616,9 @@
         "registrationByAdmin": "By admin",
         "registrationByManager": "By manager",
         "registrationByStaff": "By staff",
+        "registrationViaAdmin": "Admin invite",
+        "registrationViaManager": "Manager invite",
+        "registrationViaStaff": "Staff invite",
         "source": "Source",
         "preferredCoach": "Preferred coach",
         "noTags": "No labels",
@@ -4639,6 +4642,15 @@
         "title": "Manager profile",
         "description": "Studio operations account summary."
       }
+    },
+    "clientInvite": {
+      "heading": "Your client invite link",
+      "body": "Share this link. Anyone who creates an account from it is counted as your client. Existing accounts are not reassigned.",
+      "linkLabel": "Invite link",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "copyFailed": "Could not copy",
+      "referred": "Registered through this link: {count}"
     },
     "workspace": {
       "admin": {

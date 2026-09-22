@@ -94,7 +94,7 @@ const COACH_NAV: readonly DashboardNavDefinition[] = [
   { href: "/coach/profile", icon: "user", labelKey: "profile" },
 ];
 
-/** Manager: same olive icons/order as Admin ops sections; no Finance, Analytics, Guest users, or Profile. */
+/** Manager: same olive icons/order as Admin ops sections; no Finance or Guest users. */
 const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/dashboard", icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
   { href: "/manager/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
@@ -108,6 +108,7 @@ const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/analytics", icon: "pieChart", labelKey: "analytics", oliveIconSlug: "analytics" },
   { href: "/manager/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
   { href: "/manager/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
+  { href: "/manager/profile", icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ];
 
 const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
@@ -116,7 +117,7 @@ const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/content-admin/profile", icon: "user", labelKey: "profile" },
 ];
 
-/** Admin panel section order per CRM (Settings is studio-level; profile remains account). */
+/** Admin panel section order per CRM. Settings is studio-level; Profile is the personal account. */
 const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/dashboard", icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
   { href: "/admin/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
@@ -133,6 +134,7 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
   { href: "/admin/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
   { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers", oliveIconSlug: "guestUsers" },
+  { href: "/admin/profile", icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ];
 
 /** Sidebar item definitions for the authenticated dashboard role (Prisma `Role`). */

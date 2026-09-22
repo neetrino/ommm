@@ -20,7 +20,10 @@ import {
   buildResetPasswordEmailMessage,
   buildVerifyEmailMessage,
 } from '../mail/templates/auth-emails.template';
+import { inviteRegistrationFields } from '../client-invites/client-invite-code';
+import { ClientInviteService } from '../client-invites/client-invite.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { sanitizeUser } from './auth-public-user';
 import {
   isValidPhoneNumber,
   normalizeOptionalPhone,
@@ -33,17 +36,6 @@ import { buildCreatePasswordUrl } from './build-create-password-url';
 /** Invite / first-time password token (added in migration `20260728140000`). */
 const AUTH_TOKEN_PASSWORD_SETUP = 'PASSWORD_SETUP' as AuthTokenType;
 
-export type SafeUser = Omit<User, 'passwordHash'> & { hasPassword: boolean };
-
-export function sanitizeUser(user: User): SafeUser {
-  const { passwordHash, ...rest } = user;
-  void passwordHash;
-  return {
-    ...rest,
-    hasPassword: passwordHash !== null,
-  };
-}
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -51,6 +43,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
+    private readonly clientInvites: ClientInviteService,
   ) {}
 
   private signAccessToken(user: Pick<User, 'id' | 'email' | 'role'>): string {
@@ -96,6 +89,9 @@ export class AuthService {
       throw new ConflictException('Phone number already registered');
     }
     const passwordHash = await hashPassword(dto.password);
+    const referrerId = await this.clientInvites.resolveReferrerId(
+      dto.inviteCode,
+    );
     const displayFirst = dto.name;
     const whatsappPhone =
       normalizeOptionalPhone(dto.whatsappPhone ?? null) ?? phone;
@@ -108,6 +104,7 @@ export class AuthService {
         phone,
         whatsappPhone,
         locale: resolveEmailLocale(dto.locale),
+        ...inviteRegistrationFields(referrerId),
       },
     });
     const { raw } = await this.createOpaqueToken(

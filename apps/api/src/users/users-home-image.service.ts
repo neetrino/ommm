@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Express } from 'express';
-import { sanitizeUser } from '../auth/auth.service';
+import { sanitizeUser } from '../auth/auth-public-user';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import {

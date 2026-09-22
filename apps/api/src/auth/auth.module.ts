@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ClientInviteModule } from '../client-invites/client-invite.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { GoogleOAuthService } from './google-oauth.service';
@@ -9,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
+    ClientInviteModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -18,9 +18,11 @@ model User {
   /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
   locale           String    @default("hy")
   giftCreditsCents Int       @default(0)
-  /** SELF = website/app/OAuth signup; STAFF = created by Admin/Manager. */
+  /** SELF = website/app/OAuth signup; STAFF = created by Admin/Manager; INVITE = self-serve via staff link. */
   registrationSource ClientRegistrationSource @default(SELF)
   registeredById     String?
+  /** Public code for an admin/manager client-invite link. Null for other roles. */
+  clientInviteCode   String?   @unique
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 

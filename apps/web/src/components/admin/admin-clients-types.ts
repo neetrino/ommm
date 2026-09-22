@@ -20,7 +20,7 @@ export type ClientRow = {
   status: ClientStatus;
   isBlocked: boolean;
   source: "website" | "mobile-app" | "admin" | null;
-  registrationSource: "SELF" | "STAFF";
+  registrationSource: "SELF" | "STAFF" | "INVITE";
   registeredBy: {
     id: string;
     name: string | null;
