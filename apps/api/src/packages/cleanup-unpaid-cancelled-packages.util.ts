@@ -15,7 +15,7 @@ export async function cleanupUnpaidCancelledUserPackages(
   prisma: PrismaService,
 ): Promise<number> {
   const candidates = await prisma.userPackage.findMany({
-    where: { status: UserPackageStatus.CANCELLED },
+    where: { status: UserPackageStatus.CANCELLED, removedAt: null },
     select: { id: true },
     take: FAKE_CANCELLED_CLEANUP_BATCH_SIZE,
     orderBy: { createdAt: 'asc' },
@@ -59,6 +59,7 @@ export async function cleanupUnpaidCancelledUserPackages(
     where: {
       id: { in: deletableIds },
       status: UserPackageStatus.CANCELLED,
+      removedAt: null,
     },
   });
   return deleted.count;

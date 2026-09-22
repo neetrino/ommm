@@ -486,6 +486,12 @@ function AdminClientDrawerInner({
               onChanged();
               void refreshDetail();
             }}
+            onPackageRemoved={() => {
+              setActionTone("ok");
+              setActionMessage(t("packages.removePackageSuccess"));
+              onChanged();
+              void refreshDetail();
+            }}
             onBookingCreateSuccess={() => {
               setActionTone("ok");
               setActionMessage(t("bookings.createSuccess"));

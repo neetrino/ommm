@@ -24,7 +24,11 @@ export class PackagesAdminValidityService {
         user: { select: { id: true, role: true } },
       },
     });
-    if (existing === null || existing.user.role !== Role.USER) {
+    if (
+      existing === null ||
+      existing.user.role !== Role.USER ||
+      existing.removedAt != null
+    ) {
       throw new NotFoundException('User package not found');
     }
 

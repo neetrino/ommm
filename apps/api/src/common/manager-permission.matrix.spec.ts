@@ -15,6 +15,12 @@ describe('manager-permission.matrix', () => {
     expect(
       roleAllows(MANAGER_PERMISSION_MATRIX.clients.blockUnblock, Role.ADMIN),
     ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.clients.removePackage, Role.MANAGER),
+    ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.clients.removePackage, Role.ADMIN),
+    ).toBe(true);
   });
 
   it('allows Manager write but not hard-delete on packages', () => {

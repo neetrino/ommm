@@ -46,6 +46,7 @@ export type LoadedUserPackage = UserPackageFreezeFields & {
   currentPeriodEnd: Date;
   plan: PackagePlanFreezeFields | null;
   user: { id: string; role: Role };
+  removedAt?: Date | null;
 };
 
 export type ResumableUserPackage = {

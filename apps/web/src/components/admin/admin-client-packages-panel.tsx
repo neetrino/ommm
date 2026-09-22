@@ -37,6 +37,7 @@ type ClientPackagesPanelProps = {
   onPurchaseSuccess: () => void;
   /** Defaults to `onPurchaseSuccess` (refreshes the packages list). */
   onValidityUpdated?: () => void;
+  onPackageRemoved?: () => void;
 };
 
 type PackagesFetchResult = {
@@ -55,6 +56,7 @@ export function ClientPackagesPanel({
   allowEditValidity: allowEditValidityProp,
   onPurchaseSuccess,
   onValidityUpdated,
+  onPackageRemoved,
 }: ClientPackagesPanelProps) {
   const t = useTranslations("adminPages.clients");
   const tFinance = useTranslations("adminPages.finance");
@@ -180,6 +182,7 @@ export function ClientPackagesPanel({
                 locale={locale}
                 paymentMethodLabel={resolvePaymentMethodLabel(item.paymentMethod)}
                 allowEditValidity={allowEditValidity}
+                onRemoved={allowEditValidity ? onPackageRemoved : undefined}
                 onValidityUpdated={
                   allowEditValidity ? handleValidityUpdated : undefined
                 }

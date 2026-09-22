@@ -29,6 +29,7 @@ export function buildVisibleUserPackagesWhere(
   return {
     userId,
     id: { in: [...visiblePackageIds] },
+    removedAt: null,
     status: {
       in: [
         UserPackageStatus.PENDING,

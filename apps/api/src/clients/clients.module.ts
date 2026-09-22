@@ -9,6 +9,7 @@ import { ClientsBookingsCreateService } from './clients-bookings-create.service'
 import { ClientsBookingsRetroactiveService } from './clients-bookings-retroactive.service';
 import { ClientsController } from './clients.controller';
 import { ClientsPackagesPurchaseService } from './clients-packages-purchase.service';
+import { ClientsPackagesRemoveService } from './clients-packages-remove.service';
 import { ClientsService } from './clients.service';
 import { ClientsTabListsService } from './clients-tab-lists.service';
 
@@ -21,6 +22,7 @@ import { ClientsTabListsService } from './clients-tab-lists.service';
     ClientsAdminService,
     ClientsTabListsService,
     ClientsPackagesPurchaseService,
+    ClientsPackagesRemoveService,
     ClientsBookingsCreateService,
     ClientsBookingsRetroactiveService,
   ],

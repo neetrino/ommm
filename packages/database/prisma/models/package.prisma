@@ -68,6 +68,10 @@ model UserPackage {
   pausedUntil                  DateTime?
   /// New purchases wait for first COMPLETED visit (or purchase + 30 days).
   awaitingFirstVisit           Boolean           @default(false)
+  /// Staff removed this package from the client. Hidden from the client and not bookable.
+  removedAt                    DateTime?
+  removedByUserId              String?
+  removedByUser                User?             @relation("UserPackageRemovedBy", fields: [removedByUserId], references: [id], onDelete: SetNull)
   createdAt                    DateTime          @default(now())
   updatedAt                    DateTime          @updatedAt
 
@@ -83,6 +87,7 @@ model UserPackage {
   @@index([sourcePlanIdSnapshot])
   @@index([status, pausedUntil])
   @@index([awaitingFirstVisit, status])
+  @@index([removedAt])
 }
 
 model UserPackageFreeze {

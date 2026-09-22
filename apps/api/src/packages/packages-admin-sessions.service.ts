@@ -98,7 +98,11 @@ export class PackagesAdminSessionsService {
         },
       },
     });
-    if (existing === null || existing.user.role !== Role.USER) {
+    if (
+      existing === null ||
+      existing.user.role !== Role.USER ||
+      existing.removedAt != null
+    ) {
       throw new NotFoundException(ADMIN_SESSION_ADJUST_ERROR.NOT_FOUND);
     }
     this.assertPackageCanReceiveSessions(existing);

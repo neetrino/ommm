@@ -31,6 +31,7 @@ import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientsBookingsCreateService } from './clients-bookings-create.service';
 import { ClientsBookingsRetroactiveService } from './clients-bookings-retroactive.service';
 import { ClientsPackagesPurchaseService } from './clients-packages-purchase.service';
+import { ClientsPackagesRemoveService } from './clients-packages-remove.service';
 import { ClientsService } from './clients.service';
 import { ClientsTabListsService } from './clients-tab-lists.service';
 
@@ -42,6 +43,7 @@ export class ClientsController {
     private readonly clients: ClientsService,
     private readonly tabLists: ClientsTabListsService,
     private readonly packagesPurchase: ClientsPackagesPurchaseService,
+    private readonly packagesRemove: ClientsPackagesRemoveService,
     private readonly bookingsCreate: ClientsBookingsCreateService,
     private readonly bookingsRetroactive: ClientsBookingsRetroactiveService,
   ) {}
@@ -124,6 +126,16 @@ export class ClientsController {
     @Body() dto: AdminPurchaseClientPackageDto,
   ) {
     return this.packagesPurchase.purchase(user, id, dto);
+  }
+
+  @Delete(':id/packages/:packageId')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  removePackage(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Param('packageId') packageId: string,
+  ) {
+    return this.packagesRemove.remove(user, id, packageId);
   }
 
   @Get(':id/packages/:packageId/past-sessions')
