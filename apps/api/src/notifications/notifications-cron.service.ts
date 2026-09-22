@@ -65,7 +65,10 @@ export class NotificationsCronService {
     this.remindersCronEnabled = isEnabledEnv(
       process.env[ENABLE_BACKGROUND_REMINDERS_ENV],
     );
-    if (!this.remindersCronEnabled && process.env.JEST_WORKER_ID === undefined) {
+    if (
+      !this.remindersCronEnabled &&
+      process.env.JEST_WORKER_ID === undefined
+    ) {
       this.logger.warn(
         'Class reminders disabled until ENABLE_BACKGROUND_REMINDERS=true',
       );
