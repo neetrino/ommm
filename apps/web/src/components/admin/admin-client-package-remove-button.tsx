@@ -6,7 +6,7 @@ import { DeleteActionButton } from "@/components/ui/delete-action-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
 
-const REMOVE_CONFIRM_OVERLAY_CLASS = "ommm-modal-overlay z-[120] p-4";
+const REMOVE_CONFIRM_CLASS = "ommm-btn-lifecycle-action--danger";
 
 type AdminClientPackageRemoveButtonProps = {
   clientId: string;
@@ -63,8 +63,8 @@ export function AdminClientPackageRemoveButton({
         cancelLabel={t("cancelButton")}
         backdropAriaLabel={t("modalBackdropClose")}
         tone="danger"
-        confirmVariant="danger"
-        overlayClassName={REMOVE_CONFIRM_OVERLAY_CLASS}
+        confirmClassName={REMOVE_CONFIRM_CLASS}
+        forceCenteredModal
         pending={pending}
         onConfirm={() => {
           void confirmRemove();
