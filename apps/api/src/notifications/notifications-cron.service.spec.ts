@@ -67,12 +67,16 @@ describe('NotificationsCronService', () => {
   });
 
   it('queries both 24h and 2h windows', async () => {
-    jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
+    jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
     const { cron, prisma } = createCron(true);
     await cron.sendClassReminders();
     expect(prisma.booking.findMany).toHaveBeenCalledTimes(2);
     const windows = prisma.booking.findMany.mock.calls.map(
-      ([args]: [{ where: { session: { startsAt: { gte: Date; lte: Date } } } }]) => ({
+      ([args]: [
+        { where: { session: { startsAt: { gte: Date; lte: Date } } } },
+      ]) => ({
         from: args.where.session.startsAt.gte.toISOString(),
         to: args.where.session.startsAt.lte.toISOString(),
         status: BookingStatus.BOOKED,
@@ -93,7 +97,9 @@ describe('NotificationsCronService', () => {
   });
 
   it('sends email, whatsapp and logs hoursBefore for a due booking', async () => {
-    jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
+    jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
     const { cron, prisma, mail, whatsapp } = createCron(true);
     prisma.booking.findMany
       .mockResolvedValueOnce([bookingFixture()])
@@ -112,12 +118,16 @@ describe('NotificationsCronService', () => {
   });
 
   it('skips a window already logged for that booking', async () => {
-    jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
+    jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
     const { cron, prisma, mail } = createCron(true);
     prisma.booking.findMany
       .mockResolvedValueOnce([bookingFixture()])
       .mockResolvedValueOnce([]);
-    prisma.classReminderSendLog.findUnique.mockResolvedValue({ id: 'existing' });
+    prisma.classReminderSendLog.findUnique.mockResolvedValue({
+      id: 'existing',
+    });
     await cron.sendClassReminders();
     expect(mail.sendEmail).not.toHaveBeenCalled();
     expect(prisma.classReminderSendLog.create).not.toHaveBeenCalled();

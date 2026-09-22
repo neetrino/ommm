@@ -59,7 +59,10 @@ function findReviewableCompletedBookings(
           sessionReview: {
             is: {
               status: {
-                in: [SessionReviewStatus.EXPIRED, SessionReviewStatus.DISMISSED],
+                in: [
+                  SessionReviewStatus.EXPIRED,
+                  SessionReviewStatus.DISMISSED,
+                ],
               },
             },
           },

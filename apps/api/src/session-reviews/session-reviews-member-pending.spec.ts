@@ -33,9 +33,11 @@ function booking(
 
 function createDb(reviewable: ReviewableRow[], latestEndsAt: Date | null) {
   const findMany = jest.fn().mockResolvedValue(reviewable);
-  const findFirst = jest.fn().mockResolvedValue(
-    latestEndsAt === null ? null : { session: { endsAt: latestEndsAt } },
-  );
+  const findFirst = jest
+    .fn()
+    .mockResolvedValue(
+      latestEndsAt === null ? null : { session: { endsAt: latestEndsAt } },
+    );
   const updateMany = jest.fn().mockResolvedValue({ count: 1 });
   const createMany = jest.fn().mockResolvedValue({ count: 1 });
   const db = {
@@ -62,7 +64,10 @@ describe('syncMemberPendingReviews', () => {
             sessionReview: {
               is: {
                 status: {
-                  in: [SessionReviewStatus.EXPIRED, SessionReviewStatus.DISMISSED],
+                  in: [
+                    SessionReviewStatus.EXPIRED,
+                    SessionReviewStatus.DISMISSED,
+                  ],
                 },
               },
             },
@@ -116,7 +121,17 @@ describe('syncMemberPendingReviews', () => {
 
     await syncMemberPendingReviews(db, USER_ID, NOW);
 
-    expect(createMany.mock.calls[0]?.[0].data[0].coachProfileId).toBe('coach-sub');
+    expect(createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          bookingId: 'booking-2',
+          authorUserId: USER_ID,
+          sessionId: 'session-booking-2',
+          coachProfileId: 'coach-sub',
+        },
+      ],
+      skipDuplicates: true,
+    });
   });
 
   it('reopens expired and dismissed reviews and does not create a second row', async () => {
@@ -144,14 +159,17 @@ describe('syncMemberPendingReviews', () => {
       where: { id: { in: ['review-old'] } },
       data: { status: SessionReviewStatus.PENDING },
     });
-    expect(createMany.mock.calls[0]?.[0].data).toEqual([
-      {
-        bookingId: 'booking-new',
-        authorUserId: USER_ID,
-        sessionId: 'session-booking-new',
-        coachProfileId: 'coach-1',
-      },
-    ]);
+    expect(createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          bookingId: 'booking-new',
+          authorUserId: USER_ID,
+          sessionId: 'session-booking-new',
+          coachProfileId: 'coach-1',
+        },
+      ],
+      skipDuplicates: true,
+    });
   });
 
   it('does not write when every completed class already has an open or submitted review', async () => {
@@ -167,6 +185,8 @@ describe('syncMemberPendingReviews', () => {
   it('returns null when the member has no completed class', async () => {
     const { db } = createDb([], null);
 
-    await expect(syncMemberPendingReviews(db, USER_ID, NOW)).resolves.toBeNull();
+    await expect(
+      syncMemberPendingReviews(db, USER_ID, NOW),
+    ).resolves.toBeNull();
   });
 });
