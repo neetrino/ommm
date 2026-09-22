@@ -173,6 +173,7 @@ export class PackageUsageEligibilityService {
       where: {
         userId,
         status: 'ACTIVE',
+        removedAt: null,
         OR: [
           { awaitingFirstVisit: true },
           {

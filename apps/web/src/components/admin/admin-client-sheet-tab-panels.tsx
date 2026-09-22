@@ -81,6 +81,7 @@ type ClientSheetTabPanelsProps = {
   onAvatarPreviewOpenChange?: (open: boolean) => void;
   allowPackagePurchase?: boolean;
   onPackagePurchaseSuccess?: () => void;
+  onPackageRemoved?: () => void;
   allowCreateBooking?: boolean;
   allowCancelBooking?: boolean;
   onBookingCreateSuccess?: () => void;
@@ -110,6 +111,7 @@ export function ClientSheetTabPanels({
   onAvatarPreviewOpenChange,
   allowPackagePurchase = false,
   onPackagePurchaseSuccess,
+  onPackageRemoved,
   allowCreateBooking = false,
   allowCancelBooking = false,
   onBookingCreateSuccess,
@@ -338,6 +340,7 @@ export function ClientSheetTabPanels({
         refreshKey={tabRefreshKey}
         allowPurchase={allowPackagePurchase}
         onPurchaseSuccess={() => onPackagePurchaseSuccess?.()}
+        onPackageRemoved={() => onPackageRemoved?.()}
       />
     );
   }

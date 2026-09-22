@@ -13,6 +13,7 @@ import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-ty
 import { shouldShowStudioPackagePaymentDue } from "@/components/admin/admin-client-package-payment-due";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageActions } from "@/components/admin/admin-client-package-actions";
+import { AdminClientPackageRemoveButton } from "@/components/admin/admin-client-package-remove-button";
 import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
@@ -42,6 +43,7 @@ type AdminClientPackageCardProps = {
   paymentMethodLabel: string;
   allowEditValidity?: boolean;
   onValidityUpdated?: () => void;
+  onRemoved?: () => void;
   onPaymentUpdated?: () => void;
 };
 
@@ -77,6 +79,7 @@ export function AdminClientPackageCard({
   paymentMethodLabel,
   allowEditValidity = false,
   onValidityUpdated,
+  onRemoved,
   onPaymentUpdated,
 }: AdminClientPackageCardProps) {
   const t = useTranslations("userPages.packages");
@@ -216,12 +219,20 @@ export function AdminClientPackageCard({
               )}
             </div>
             {allowEditValidity ? (
-              <EditActionButton
-                className="mt-1 shrink-0"
-                ariaLabel={tAdmin("packages.editValidity")}
-                title={tAdmin("packages.editValidity")}
-                onClick={() => setEditing(true)}
-              />
+              <div className="mt-1 flex shrink-0 items-center gap-2">
+                {onRemoved !== undefined ? (
+                  <AdminClientPackageRemoveButton
+                    clientId={clientId}
+                    packageId={item.id}
+                    onRemoved={onRemoved}
+                  />
+                ) : null}
+                <EditActionButton
+                  ariaLabel={tAdmin("packages.editValidity")}
+                  title={tAdmin("packages.editValidity")}
+                  onClick={() => setEditing(true)}
+                />
+              </div>
             ) : null}
           </div>
         ) : (

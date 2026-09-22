@@ -124,6 +124,7 @@ export class ClientsBookingsCreateService {
         where: {
           userId: clientId,
           status: UserPackageStatus.ACTIVE,
+          removedAt: null,
           OR: [
             { awaitingFirstVisit: true },
             {

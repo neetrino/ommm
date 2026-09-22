@@ -15,6 +15,7 @@ describe('user-package-list.util', () => {
     expect(where).toEqual({
       userId: 'user-1',
       id: { in: ['paid-pkg'] },
+      removedAt: null,
       status: {
         in: [
           UserPackageStatus.PENDING,
@@ -32,6 +33,7 @@ describe('user-package-list.util', () => {
     expect(where).toEqual({
       userId: 'user-1',
       id: { in: [] },
+      removedAt: null,
       status: {
         in: [
           UserPackageStatus.PENDING,

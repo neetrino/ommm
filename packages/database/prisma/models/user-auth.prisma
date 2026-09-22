@@ -32,6 +32,7 @@ model User {
   bookings          Booking[]
   bookingsCancelled Booking[] @relation("BookingCancelledBy")
   userPackages      UserPackage[]
+  packagesRemoved   UserPackage[] @relation("UserPackageRemovedBy")
   packageFreezesInitiated UserPackageFreeze[] @relation("UserPackageFreezeInitiator")
   waitlistEntries   WaitlistEntry[]
   payments          Payment[]

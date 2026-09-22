@@ -21,11 +21,12 @@ describe('PackageUsageEligibilityService', () => {
     });
 
     const findManyArgs = findMany.mock.calls[0] as
-      | [{ where: { userId: string; status: string } }]
+      | [{ where: { userId: string; status: string; removedAt: null } }]
       | undefined;
     expect(findManyArgs?.[0].where).toMatchObject({
       userId: 'user-1',
       status: 'ACTIVE',
+      removedAt: null,
     });
   });
 });

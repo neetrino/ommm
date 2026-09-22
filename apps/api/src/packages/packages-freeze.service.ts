@@ -219,7 +219,7 @@ export class PackagesFreezeService {
       where: { id: userPackageId, userId },
       include: { plan: true, user: { select: { id: true, role: true } } },
     });
-    if (userPackage === null) {
+    if (userPackage === null || userPackage.removedAt != null) {
       throw new NotFoundException(FREEZE_ERROR.NOT_FOUND);
     }
     return userPackage;
@@ -230,7 +230,11 @@ export class PackagesFreezeService {
       where: { id: userPackageId },
       include: { plan: true, user: { select: { id: true, role: true } } },
     });
-    if (userPackage === null || userPackage.user.role !== Role.USER) {
+    if (
+      userPackage === null ||
+      userPackage.user.role !== Role.USER ||
+      userPackage.removedAt != null
+    ) {
       throw new NotFoundException(FREEZE_ERROR.NOT_FOUND);
     }
     return userPackage;
