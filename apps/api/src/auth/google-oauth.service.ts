@@ -8,6 +8,8 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma, Role, type User } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { inviteRegistrationFields } from '../client-invites/client-invite-code';
+import { ClientInviteService } from '../client-invites/client-invite.service';
 import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
@@ -81,6 +83,7 @@ export class GoogleOAuthService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly auth: AuthService,
+    private readonly clientInvites: ClientInviteService,
   ) {}
 
   startGoogleAuth(): { authorizationUrl: string; state: string } {
@@ -103,11 +106,12 @@ export class GoogleOAuthService {
     code?: string;
     state?: string;
     storedState?: string;
+    inviteCode?: string;
   }): Promise<GoogleAuthCompletion> {
     this.assertState(params.state, params.storedState);
     const code = this.requireCode(params.code);
     const profile = await this.fetchVerifiedGoogleProfile(code);
-    return this.resolveGoogleAuthCompletion(profile);
+    return this.resolveGoogleAuthCompletion(profile, params.inviteCode);
   }
 
   private getGoogleConfig(): GoogleOAuthConfig {
@@ -196,6 +200,7 @@ export class GoogleOAuthService {
 
   private async resolveGoogleAuthCompletion(
     profile: GoogleOAuthProfile,
+    inviteCode?: string,
   ): Promise<GoogleAuthCompletion> {
     const linked = await this.prisma.oAuthAccount.findUnique({
       where: {
@@ -218,7 +223,8 @@ export class GoogleOAuthService {
       return this.sessionCompletion(user);
     }
 
-    const user = await this.createUserFromGoogleProfile(profile);
+    const referrerId = await this.clientInvites.resolveReferrerId(inviteCode);
+    const user = await this.createUserFromGoogleProfile(profile, referrerId);
     return this.sessionCompletion(user);
   }
 
@@ -231,6 +237,7 @@ export class GoogleOAuthService {
 
   private async createUserFromGoogleProfile(
     profile: GoogleOAuthProfile,
+    referrerId: string | null,
   ): Promise<User> {
     try {
       return await this.prisma.$transaction(async (tx) => {
@@ -251,6 +258,7 @@ export class GoogleOAuthService {
             name: profile.name,
             lastName: profile.lastName,
             avatarUrl: profile.avatarUrl,
+            ...inviteRegistrationFields(referrerId),
             oauthAccounts: {
               create: {
                 provider: GOOGLE_PROVIDER,

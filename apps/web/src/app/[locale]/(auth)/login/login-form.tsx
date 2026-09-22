@@ -13,6 +13,7 @@ import { markClientSessionHint } from "@/lib/client-session-hint";
 import { hardNavigateAfterAuth } from "@/lib/post-auth-hard-navigate";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
+import { readClientInviteRef } from "@/lib/client-invite-ref";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 import { PSEUDO_EMAIL, PSEUDO_PASSWORD } from "@/lib/pseudo-form-placeholders";
 
@@ -24,7 +25,9 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
-  const googleAuthUrl = buildGoogleAuthStartUrl();
+  const googleAuthUrl = buildGoogleAuthStartUrl(
+    readClientInviteRef(searchParams.get("ref")),
+  );
   const emailFromQuery = searchParams.get("email")?.trim() ?? "";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {

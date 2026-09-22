@@ -28,6 +28,7 @@ describe('AuthService login blocked user', () => {
       { sign: jest.fn() } as unknown as JwtService,
       { sendEmail: jest.fn() } as never,
       { get: jest.fn() } as unknown as ConfigService,
+      { resolveReferrerId: jest.fn() } as never,
     );
 
     await expect(

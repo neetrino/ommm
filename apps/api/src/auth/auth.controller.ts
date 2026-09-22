@@ -10,10 +10,16 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
-import { ACCESS_TOKEN_COOKIE, OAUTH_STATE_COOKIE } from '../common/constants';
+import { isClientInviteCode } from '../client-invites/client-invite-code';
+import {
+  ACCESS_TOKEN_COOKIE,
+  CLIENT_INVITE_COOKIE,
+  OAUTH_STATE_COOKIE,
+} from '../common/constants';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { AuthService, sanitizeUser } from './auth.service';
+import { sanitizeUser } from './auth-public-user';
+import { AuthService } from './auth.service';
 import { GoogleOAuthService } from './google-oauth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -123,9 +129,18 @@ export class AuthController {
   }
 
   @Get('google')
-  googleStart(@Res() res: Response) {
+  googleStart(
+    @Query('ref') inviteCode: string | undefined,
+    @Res() res: Response,
+  ) {
     const { authorizationUrl, state } = this.googleOAuth.startGoogleAuth();
     res.cookie(OAUTH_STATE_COOKIE, state, oauthStateCookieOptions());
+    const code = inviteCode?.trim();
+    if (isClientInviteCode(code)) {
+      res.cookie(CLIENT_INVITE_COOKIE, code, oauthStateCookieOptions());
+    } else {
+      res.clearCookie(CLIENT_INVITE_COOKIE, oauthStateCookieClearOptions());
+    }
     res.redirect(authorizationUrl);
   }
 
@@ -137,14 +152,17 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const storedState = readCookie(req, OAUTH_STATE_COOKIE);
+    const inviteCode = readCookie(req, CLIENT_INVITE_COOKIE);
     try {
       const result = await this.googleOAuth.completeGoogleAuth({
         code,
         state,
         storedState,
+        inviteCode,
       });
       // clearCookie must run before redirect — headers are locked after redirect.
       res.clearCookie(OAUTH_STATE_COOKIE, oauthStateCookieClearOptions());
+      res.clearCookie(CLIENT_INVITE_COOKIE, oauthStateCookieClearOptions());
       res.cookie(ACCESS_TOKEN_COOKIE, result.accessToken, {
         ...accessTokenCookieBaseOptions(),
         maxAge: COOKIE_MAX_AGE_MS,
@@ -152,6 +170,7 @@ export class AuthController {
       res.redirect(result.redirectUrl);
     } catch (error) {
       res.clearCookie(OAUTH_STATE_COOKIE, oauthStateCookieClearOptions());
+      res.clearCookie(CLIENT_INVITE_COOKIE, oauthStateCookieClearOptions());
       throw error;
     }
   }

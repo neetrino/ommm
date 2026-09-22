@@ -7,6 +7,9 @@ const LABELS = {
   byAdmin: "By admin",
   byManager: "By manager",
   byStaff: "By staff",
+  viaAdmin: "Admin invite",
+  viaManager: "Manager invite",
+  viaStaff: "Staff invite",
 } as const;
 
 describe("clientRegistrationSourceLabel", () => {
@@ -40,6 +43,17 @@ describe("clientRegistrationSourceLabel", () => {
         labels: LABELS,
       }),
       "By manager",
+    );
+  });
+
+  it("labels clients who registered through an invite link", () => {
+    assert.equal(
+      clientRegistrationSourceLabel({
+        registrationSource: "INVITE",
+        registeredBy: { id: "m1", name: "Mia", role: "MANAGER" },
+        labels: LABELS,
+      }),
+      "Manager invite",
     );
   });
 

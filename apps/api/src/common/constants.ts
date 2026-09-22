@@ -1,5 +1,7 @@
 export const ACCESS_TOKEN_COOKIE = 'ommm_access';
 export const OAUTH_STATE_COOKIE = 'ommm_oauth_state';
+/** Short-lived code carried from the register page into Google OAuth. */
+export const CLIENT_INVITE_COOKIE = 'ommm_client_invite';
 
 export const EMAIL_VERIFY_TTL_MS = 48 * 60 * 60 * 1000;
 

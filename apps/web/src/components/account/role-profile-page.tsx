@@ -4,6 +4,7 @@ import { AccountProfileInfoForm } from "@/components/account/account-profile-inf
 import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
 import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
 import { DeleteAccountButton } from "@/components/account/delete-account-button";
+import { StaffClientInvitePanel } from "@/components/account/staff-client-invite-panel";
 import { AccountSection } from "@/components/layout/account-section";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
@@ -30,6 +31,25 @@ type MeResponse = {
 
 type WorkspaceNoteVariant = "admin" | "coach" | "manager" | "contentAdmin";
 
+type ClientInviteSummary = {
+  code: string;
+  referredCount: number;
+};
+
+async function loadStaffClientInvite(
+  variant: WorkspaceNoteVariant | undefined,
+  cookie: string,
+): Promise<ClientInviteSummary | null> {
+  if (variant !== "admin" && variant !== "manager") {
+    return null;
+  }
+  const res = await serverApiJson<ClientInviteSummary>(
+    "/users/me/client-invite",
+    cookie,
+  );
+  return res.ok ? res.data : null;
+}
+
 type RoleProfilePageProps = {
   locale: string;
   showRole?: boolean;
@@ -48,7 +68,10 @@ export async function RoleProfilePage({
   const t = await getTranslations({ locale, namespace: "userPages.profile" });
   const tStaff = await getTranslations({ locale, namespace: "staffProfile" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<MeResponse>("/users/me", cookie);
+  const [res, clientInvite] = await Promise.all([
+    serverApiJson<MeResponse>("/users/me", cookie),
+    loadStaffClientInvite(workspaceNoteVariant, cookie),
+  ]);
 
   if (!res.ok) {
     return (
@@ -96,6 +119,16 @@ export async function RoleProfilePage({
           </div>
         </div>
       </AccountSection>
+
+      {clientInvite ? (
+        <AccountSection title={tStaff("clientInvite.heading")}>
+          <StaffClientInvitePanel
+            code={clientInvite.code}
+            referredCount={clientInvite.referredCount}
+            locale={locale}
+          />
+        </AccountSection>
+      ) : null}
 
       <AccountSection title={t("security")}>
         <AccountChangePasswordForm

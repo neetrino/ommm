@@ -320,6 +320,9 @@ export function ClientSheetTabPanels({
             byAdmin: t("drawer.registrationByAdmin"),
             byManager: t("drawer.registrationByManager"),
             byStaff: t("drawer.registrationByStaff"),
+            viaAdmin: t("drawer.registrationViaAdmin"),
+            viaManager: t("drawer.registrationViaManager"),
+            viaStaff: t("drawer.registrationViaStaff"),
           }}
         />
       </div>

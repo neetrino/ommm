@@ -32,6 +32,7 @@ import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import { isValidPhone, normalizePhoneForApi } from "@/lib/phone";
 import { PhoneInputField } from "@/components/ui/phone-input-field";
+import { readClientInviteRef } from "@/lib/client-invite-ref";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 import {
   PSEUDO_EMAIL,
@@ -52,7 +53,8 @@ export function RegisterForm() {
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const googleAuthUrl = buildGoogleAuthStartUrl();
+  const inviteCode = readClientInviteRef(searchParams.get("ref"));
+  const googleAuthUrl = buildGoogleAuthStartUrl(inviteCode);
 
   function showNameFieldError(field: RegisterNameField, message: string) {
     setError(null);
@@ -124,6 +126,7 @@ export function RegisterForm() {
               }),
             ),
             locale: urlLocale,
+            ...(inviteCode ? { inviteCode } : {}),
           }),
         },
       );

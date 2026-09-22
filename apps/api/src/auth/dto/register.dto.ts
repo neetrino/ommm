@@ -59,4 +59,13 @@ export class RegisterDto {
   @IsOptional()
   @IsIn(['hy', 'en', 'ru'])
   locale?: string;
+
+  /** Staff client-invite code. Invalid values are ignored and do not block signup. */
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @MaxLength(64)
+  inviteCode?: string;
 }

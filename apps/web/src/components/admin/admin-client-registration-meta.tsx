@@ -14,6 +14,9 @@ type ClientRegistrationMetaProps = {
     byAdmin: string;
     byManager: string;
     byStaff: string;
+    viaAdmin: string;
+    viaManager: string;
+    viaStaff: string;
   };
 };
 
@@ -154,7 +157,9 @@ export function ClientRegistrationMeta({
     labels,
   });
   const creatorName = registeredBy?.name?.trim() ?? "";
-  const showCreator = creatorName.length > 0 && registrationSource === "STAFF";
+  const showCreator =
+    creatorName.length > 0 &&
+    (registrationSource === "STAFF" || registrationSource === "INVITE");
 
   return (
     <section className={CARD_CLASS} aria-label={`${registeredLabel}, ${sourceLabel}`}>
