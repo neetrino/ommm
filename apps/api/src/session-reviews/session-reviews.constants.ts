@@ -1,4 +1,5 @@
-export const SESSION_REVIEW_PROMPT_TTL_DAYS = 7;
+/** Completed classes a member can still review from the header star. */
+export const SESSION_REVIEW_MEMBER_LIST_TAKE = 100;
 export const SESSION_REVIEW_RATING_MIN = 1;
 export const SESSION_REVIEW_RATING_MAX = 5;
 export const SESSION_REVIEW_COMMENT_MAX = 2000;

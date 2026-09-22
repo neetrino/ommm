@@ -28,6 +28,7 @@ export function selectAutoPromptReview(params: {
   pathname: string;
   items: readonly MemberPendingReview[];
   suppressedIds: ReadonlySet<string>;
+  latestCompletedEndsAt: string | null;
 }): MemberPendingReview | null {
   if (
     params.deferAutoPrompt ||
@@ -37,7 +38,7 @@ export function selectAutoPromptReview(params: {
     return null;
   }
   const latest = pickLatestMemberPendingReview(params.items);
-  if (latest === null) {
+  if (latest === null || latest.endsAt !== params.latestCompletedEndsAt) {
     return null;
   }
   if (

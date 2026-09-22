@@ -16,5 +16,12 @@ describe("isSessionReviewAutoPromptPath", () => {
     assert.equal(isSessionReviewAutoPromptPath("/en/schedule"), false);
     assert.equal(isSessionReviewAutoPromptPath("/user/bookings"), false);
     assert.equal(isSessionReviewAutoPromptPath("/user/profile"), false);
+    assert.equal(isSessionReviewAutoPromptPath("/user/packages"), false);
+    assert.equal(isSessionReviewAutoPromptPath("/ru/user/dashboard"), false);
+  });
+
+  it("allows a nested reviews path in every locale", () => {
+    assert.equal(isSessionReviewAutoPromptPath("/user/reviews/detail"), true);
+    assert.equal(isSessionReviewAutoPromptPath("/ru/user"), true);
   });
 });

@@ -52,7 +52,7 @@ export function SessionReviewPromptGate({
   deferAutoPrompt,
 }: SessionReviewPromptGateProps) {
   const pathname = usePathname() ?? "";
-  const { items, refetch } = useSessionReviewsPending(true);
+  const { items, latestCompletedEndsAt, refetch } = useSessionReviewsPending(true);
   const [openedFromEvent, setOpenedFromEvent] = useOpenedReviewFromEvent(items);
   const [suppressedIds, setSuppressedIds] = useState<ReadonlySet<string>>(() => new Set());
 
@@ -64,8 +64,16 @@ export function SessionReviewPromptGate({
         pathname,
         items,
         suppressedIds,
+        latestCompletedEndsAt,
       }),
-    [deferAutoPrompt, items, openedFromEvent, pathname, suppressedIds],
+    [
+      deferAutoPrompt,
+      items,
+      latestCompletedEndsAt,
+      openedFromEvent,
+      pathname,
+      suppressedIds,
+    ],
   );
 
   const active = openedFromEvent ?? autoPrompt;
