@@ -434,7 +434,7 @@ function AdminClientDrawerInner({
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={handleTabChange}
-        density="compact"
+        density="snug"
       />
 
       <div className={bodyClassName}>

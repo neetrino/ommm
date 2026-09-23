@@ -22,7 +22,6 @@ import {
   CLIENT_SHEET_TAB_BOOKINGS,
   CLIENT_SHEET_TAB_FEEDBACK,
   CLIENT_SHEET_TAB_GIFTS,
-  CLIENT_SHEET_TAB_NOTES,
   CLIENT_SHEET_TAB_PACKAGES,
   CLIENT_SHEET_TAB_PAYMENTS,
   CLIENT_SHEET_TAB_PROFILE,
@@ -327,6 +326,25 @@ export function ClientSheetTabPanels({
             viaStaff: t("drawer.registrationViaStaff"),
           }}
         />
+
+        <ClientNotesPanel
+          notes={detail.notes}
+          note={note}
+          busy={actionBusy !== null}
+          canAddNotes={canAddNotes}
+          onNoteChange={onNoteChange}
+          onAdd={() =>
+            void onRun(
+              "note",
+              () =>
+                apiFetch(`/clients/${detail.id}/notes`, {
+                  method: "POST",
+                  body: JSON.stringify({ body: note.trim() }),
+                }).then(() => undefined),
+              t("noteAddedSuccess"),
+            )
+          }
+        />
       </div>
     );
   }
@@ -426,29 +444,6 @@ export function ClientSheetTabPanels({
         clientId={detail.id}
         active
         refreshKey={tabRefreshKey}
-      />
-    );
-  }
-
-  if (activeTab === CLIENT_SHEET_TAB_NOTES) {
-    return (
-      <ClientNotesPanel
-        notes={detail.notes}
-        note={note}
-        busy={actionBusy !== null}
-        canAddNotes={canAddNotes}
-        onNoteChange={onNoteChange}
-        onAdd={() =>
-          void onRun(
-            "note",
-            () =>
-              apiFetch(`/clients/${detail.id}/notes`, {
-                method: "POST",
-                body: JSON.stringify({ body: note.trim() }),
-              }).then(() => undefined),
-            t("noteAddedSuccess"),
-          )
-        }
       />
     );
   }

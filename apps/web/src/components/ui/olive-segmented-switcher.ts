@@ -121,12 +121,14 @@ export function oliveSegmentedFillSegmentClassName(active: boolean): string {
   return `${OLIVE_SEGMENTED_SEGMENT_BASE} min-w-0 w-full whitespace-nowrap px-2 py-2.5 text-sm ${tone}`;
 }
 
-export type OliveSegmentedHugDensity = "default" | "compact";
+export type OliveSegmentedHugDensity = "default" | "snug" | "compact";
 
 const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
   default: "inline-flex w-max",
+  /** Full-width track; segments share space (client sheet tabs). */
+  snug: "flex w-full max-w-full flex-nowrap items-center gap-0.5",
   /**
-   * Client 7-tab set: default hug + scroll on phone; fill the row from tablet up.
+   * Dense tab sets: hug + scroll on phone; fill the row from tablet up.
    */
   compact:
     "inline-flex w-max max-w-none flex-nowrap items-center gap-0.5 min-[744px]:flex min-[744px]:w-full min-[744px]:max-w-full min-[744px]:justify-between",
@@ -134,6 +136,7 @@ const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
 
 const HUG_SEGMENT_SIZE: Record<OliveSegmentedHugDensity, string> = {
   default: "min-w-0 shrink-0 whitespace-nowrap px-7 py-2.5 text-sm",
+  snug: "min-w-0 flex-1 whitespace-nowrap px-2 py-2 text-sm sm:px-3",
   /** Phone matches default switchers; tablet+ keeps the tighter client sheet sizing. */
   compact:
     "min-w-0 shrink-0 whitespace-nowrap px-7 py-2.5 text-sm min-[744px]:px-2 min-[744px]:py-2.5 min-[744px]:text-sm",
