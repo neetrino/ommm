@@ -1,6 +1,6 @@
 /** Shared olive segmented pill switcher (bookings, finance, analytics, settings, gift cards). */
 
-export type OliveSegmentedColumnCount = 2 | 3 | 4 | 5 | 7;
+export type OliveSegmentedColumnCount = 2 | 3 | 4 | 5 | 6 | 7;
 
 /** Track surface behind the inactive segments. */
 export type OliveSegmentedSurface = "muted" | "white";
@@ -38,6 +38,7 @@ const TRACK_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
   3: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-3`,
   4: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-4`,
   5: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-5`,
+  6: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-6`,
   7: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-7`,
 };
 
@@ -46,6 +47,7 @@ const THUMB_WIDTH_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
   3: "w-[calc((100%-0.5rem)/3)]",
   4: "w-[calc((100%-0.5rem)/4)]",
   5: "w-[calc((100%-0.5rem)/5)]",
+  6: "w-[calc((100%-0.5rem)/6)]",
   7: "w-[calc((100%-0.5rem)/7)]",
 };
 
@@ -98,6 +100,7 @@ const FILL_TRACK_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
   3: "relative grid w-full max-w-full shrink-0 grid-cols-3 rounded-full p-1",
   4: "relative grid w-full max-w-full shrink-0 grid-cols-4 rounded-full p-1",
   5: "relative grid w-full max-w-full shrink-0 grid-cols-5 rounded-full p-1",
+  6: "relative grid w-full max-w-full shrink-0 grid-cols-6 rounded-full p-1",
   7: "relative grid w-full max-w-full shrink-0 grid-cols-7 rounded-full p-1",
 };
 

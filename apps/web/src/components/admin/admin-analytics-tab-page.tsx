@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { AdminAnalyticsManagersPanel } from "@/components/admin/admin-analytics-managers-panel";
+import { loadManagerInvitesAnalyticsPayload } from "@/components/admin/admin-analytics-managers-server";
 import { AdminAnalyticsShell } from "@/components/admin/admin-analytics-shell";
 import type { AnalyticsSectionId, AnalyticsWorkspace } from "@/components/admin/admin-analytics-module";
 import {
@@ -21,6 +23,21 @@ export async function AdminAnalyticsTabPage({
   redirectIfUnscopedAnalyticsSearchParams(locale, section, search, workspace);
   const t = await getTranslations({ locale, namespace: "adminPages.analytics" });
   const cookie = (await headers()).get("cookie") ?? "";
+
+  if (section === "managers") {
+    const result = await loadManagerInvitesAnalyticsPayload(search, cookie);
+    if (!result.ok) {
+      return (
+        <div className="app-alert-warn max-w-xl">
+          {result.status === 401 || result.status === 403
+            ? t("errorAuth")
+            : t("errorLoad", { status: result.status })}
+        </div>
+      );
+    }
+    return <AdminAnalyticsManagersPanel data={result.data} />;
+  }
+
   const result = await loadAdminAnalyticsPayload(locale, search, cookie);
 
   if (!result.ok) {

@@ -30,5 +30,7 @@ export function AdminAnalyticsShell({
       return <AdminAnalyticsMembersPanel data={data} />;
     case "coaches":
       return <AdminAnalyticsCoachesPanel data={data} />;
+    case "managers":
+      return null;
   }
 }

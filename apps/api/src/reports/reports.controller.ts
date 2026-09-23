@@ -93,6 +93,14 @@ export class ReportsController {
     });
   }
 
+  @Get('analytics/manager-invites')
+  @SkipThrottle()
+  @Roles(...BACKOFFICE_READ_ROLES)
+  managerInvitesAnalytics(@Query() query: DateRangeQueryDto) {
+    assertValidReportRange(query.from, query.to);
+    return this.reports.managerInvitesAnalytics(query);
+  }
+
   @Get('payments.csv')
   @Roles(...BACKOFFICE_DELETE_ROLES)
   async paymentsCsv(@Query() query: DateRangeQueryDto, @Res() res: Response) {

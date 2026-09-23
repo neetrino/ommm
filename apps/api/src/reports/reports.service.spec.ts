@@ -4,6 +4,7 @@ import {
   PaymentStatus,
   Role,
 } from '@prisma/client';
+import { ManagerInvitesAnalyticsService } from './manager-invites-analytics.service';
 import { ReportsAnalyticsService } from './reports-analytics.service';
 import { ReportsDashboardService } from './reports-dashboard.service';
 import { ReportsExportService } from './reports-export.service';
@@ -21,6 +22,7 @@ function createServiceWithPrisma(
     new ReportsExportService(prisma),
     new ReportsAnalyticsService(prisma),
     new StudioAnalyticsService(new StudioAnalyticsQueriesService(prisma)),
+    new ManagerInvitesAnalyticsService(prisma),
   );
 }
 
