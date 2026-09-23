@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ClientRegistrationSource,
-  Role,
-} from '@prisma/client';
+import { ClientRegistrationSource, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { joinName, resolveRange } from './reports.helpers';
 import type { DateRangeQueryDto } from './dto/date-range-query.dto';

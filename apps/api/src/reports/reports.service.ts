@@ -22,7 +22,6 @@ export class ReportsService {
     private readonly managerInvitesAnalyticsService: ManagerInvitesAnalyticsService,
   ) {}
 
-
   dashboard(options?: DashboardOptions) {
     return this.dashboardService.dashboard(options);
   }
@@ -66,4 +65,3 @@ export class ReportsService {
     return this.managerInvitesAnalyticsService.managerInvites(query);
   }
 }
-

@@ -22,4 +22,3 @@ import { StudioAnalyticsService } from './studio-analytics.service';
   exports: [ReportsService],
 })
 export class ReportsModule {}
-

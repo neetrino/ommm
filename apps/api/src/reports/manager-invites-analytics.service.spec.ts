@@ -59,10 +59,14 @@ describe('ManagerInvitesAnalyticsService', () => {
     expect(prisma.user.findMany).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        where: expect.objectContaining({
-          registrationSource: ClientRegistrationSource.INVITE,
+        where: {
           registeredById: { in: ['m1', 'm2'] },
-        }),
+          registrationSource: ClientRegistrationSource.INVITE,
+          createdAt: {
+            gte: new Date('2026-09-01T00:00:00.000Z'),
+            lte: new Date('2026-09-30T23:59:59.999Z'),
+          },
+        },
       }),
     );
     expect(result.totals).toEqual({ managers: 2, referredInRange: 2 });
