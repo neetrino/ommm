@@ -49,6 +49,7 @@ export class ClientsAdminService {
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
       }),
       ...(dto.isBlocked !== undefined && { isBlocked: dto.isBlocked }),
+      ...(dto.doNotCall !== undefined && { doNotCall: dto.doNotCall }),
     };
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('No updatable fields were provided');
@@ -63,6 +64,7 @@ export class ClientsAdminService {
         lastName: true,
         phone: true,
         whatsappPhone: true,
+        doNotCall: true,
       },
     });
     await this.audit.log({

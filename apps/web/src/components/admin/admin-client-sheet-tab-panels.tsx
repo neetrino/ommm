@@ -48,6 +48,10 @@ import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { ClientRegistrationMeta } from "@/components/admin/admin-client-registration-meta";
+import {
+  ClientPhoneCallPreferenceField,
+  patchClientDoNotCall,
+} from "@/components/admin/admin-client-phone-call-preference-field";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 
 type ClientFormController = ReturnType<typeof useClientEditForm>;
@@ -56,7 +60,7 @@ const PROFILE_SECTION_CLASS =
   "rounded-2xl border border-white/60 bg-white/60 p-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-4";
 const COMPACT_INPUT_CLASS = "ommm-input !rounded-lg !px-2.5 !py-1.5 text-sm";
 const CLIENT_AVATAR_SIZE_PX = 72;
-const PERSONAL_INFO_GRID_CLASS = "grid gap-2 sm:grid-cols-3";
+const PERSONAL_INFO_GRID_CLASS = "grid gap-x-2 gap-y-5 sm:grid-cols-3";
 const FIELD_META_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
 
 type ClientSheetTabPanelsProps = {
@@ -279,11 +283,20 @@ export function ClientSheetTabPanels({
                 label={t("fieldBirthday")}
                 value={form.dateOfBirth.trim().length > 0 ? form.dateOfBirth : "—"}
               />
-              <AdminSheetReadOnlyField
-                compact
+              <ClientPhoneCallPreferenceField
+                phone={form.phone}
+                doNotCall={activity.doNotCall ?? false}
+                busy={actionBusy !== null}
                 icon={<PhoneFieldIcon />}
-                label={t("fieldPhone")}
-                value={form.phone.trim().length > 0 ? formatPhoneDisplay(form.phone) : "—"}
+                onToggle={(nextDoNotCall) => {
+                  void onRun(
+                    "doNotCall",
+                    () => patchClientDoNotCall(detail.id, nextDoNotCall),
+                    nextDoNotCall
+                      ? t("callPreferenceDoNotCallSuccess")
+                      : t("callPreferenceCanCallSuccess"),
+                  );
+                }}
               />
               <AdminSheetReadOnlyField
                 compact

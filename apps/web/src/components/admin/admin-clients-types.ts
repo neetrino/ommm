@@ -19,6 +19,7 @@ export type ClientRow = {
   createdAt: string;
   status: ClientStatus;
   isBlocked: boolean;
+  doNotCall: boolean;
   source: "website" | "mobile-app" | "admin" | null;
   registrationSource: "SELF" | "STAFF" | "INVITE";
   registeredBy: {
