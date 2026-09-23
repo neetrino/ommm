@@ -2429,6 +2429,11 @@
       "fieldWhatsappPhone": "WhatsApp",
       "sameAsPhone": "Same as phone",
       "fieldWhatsappPhoneHint": "If empty, WhatsApp notifications use the regular phone.",
+      "callPreferenceDoNotCall": "Do not call",
+      "callPreferenceCanCall": "Can call",
+      "callPreferenceToggleAria": "Call preference: {status}. Click to toggle.",
+      "callPreferenceDoNotCallSuccess": "Marked as do not call",
+      "callPreferenceCanCallSuccess": "Marked as can call",
       "fieldBirthday": "Date of birth",
       "birthdayPlaceholder": "DD/MM/YYYY",
       "birthdayInvalid": "Enter a valid date of birth.",
@@ -4038,7 +4043,8 @@
         "revenue": "Revenue",
         "bookings": "Bookings",
         "members": "Members",
-        "coaches": "Coaches"
+        "coaches": "Coaches",
+        "managers": "Managers"
       },
       "description": "Studio performance metrics from live backend data — tables, charts, and CSV exports.",
       "errorAuth": "Admin or manager sign-in required.",
@@ -4327,6 +4333,20 @@
           "activeCoaches": "Active coaches",
           "totalSessions": "Total sessions",
           "chartAria": "Coach session load chart"
+        },
+        "managerInvites": {
+          "title": "Manager invite link registrations",
+          "hint": "Clients who created an account through each manager’s invite link in the selected range.",
+          "managersCount": "Managers",
+          "referredInRange": "Registrations via links",
+          "topManager": "Top manager",
+          "countLabel": "{count, plural, one {# person} other {# people}}",
+          "openSheetAria": "Show {count, plural, one {# person} other {# people}} registered via {name}",
+          "sheetSubtitle": "{count, plural, one {# person registered} other {# people registered}} via invite link",
+          "sheetEmpty": "No registrations in this range.",
+          "sheetClose": "Close",
+          "sheetCloseBackdrop": "Close manager registrations",
+          "openMemberAria": "Open member {name}"
         },
         "paymentStatus": {
           "title": "Payment status breakdown",

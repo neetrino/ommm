@@ -14,6 +14,8 @@ model User {
   role           Role      @default(USER)
   /** When true, the member cannot sign in or book until unblocked by admin. */
   isBlocked      Boolean   @default(false)
+  /** When true, staff should not call this client (shown on admin client profile). */
+  doNotCall      Boolean   @default(false)
   emailVerified  DateTime?
   /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
   locale           String    @default("hy")

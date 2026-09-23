@@ -21,7 +21,7 @@ type AdminDetailSheetTabBarProps = {
   onTabChange: (value: string) => void;
   className?: string;
   ariaLabel?: string;
-  /** `compact`: default look + scroll on phone; filled row from tablet up (client 7-tab set). */
+  /** `snug`: full-width track, slightly tighter segments. `compact`: legacy dense fill. */
   density?: OliveSegmentedHugDensity;
   trailing?: ReactNode;
 };
@@ -30,6 +30,7 @@ const SHEET_TAB_PILL_LAYOUT_ID = "admin-detail-sheet-olive-segmented-pill";
 
 const TAB_BAR_PADDING_CLASS = {
   compact: "px-3 py-2.5 min-[744px]:px-2 min-[744px]:py-2.5",
+  snug: "px-3 py-2 sm:px-4 sm:py-2.5",
   default: "px-3 py-2.5 sm:px-4 sm:py-3",
 } as const;
 

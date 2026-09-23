@@ -288,6 +288,7 @@ export function toClientRow(user: ClientRecord) {
     birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
     hasGiftCardActivity: hasGiftCardActivity(user),
     isBlocked: user.isBlocked,
+    doNotCall: user.doNotCall,
     nextBooking: pickNextBookingFromBookings(user.bookings),
     ...toClientActivePackageFields(user.userPackages),
   };

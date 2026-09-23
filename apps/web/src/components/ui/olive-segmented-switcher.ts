@@ -1,6 +1,6 @@
 /** Shared olive segmented pill switcher (bookings, finance, analytics, settings, gift cards). */
 
-export type OliveSegmentedColumnCount = 2 | 3 | 4 | 5 | 7;
+export type OliveSegmentedColumnCount = 2 | 3 | 4 | 5 | 6 | 7;
 
 /** Track surface behind the inactive segments. */
 export type OliveSegmentedSurface = "muted" | "white";
@@ -38,6 +38,7 @@ const TRACK_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
   3: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-3`,
   4: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-4`,
   5: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-5`,
+  6: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-6`,
   7: `${OLIVE_SEGMENTED_TRACK_BASE} grid-cols-7`,
 };
 
@@ -46,6 +47,7 @@ const THUMB_WIDTH_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
   3: "w-[calc((100%-0.5rem)/3)]",
   4: "w-[calc((100%-0.5rem)/4)]",
   5: "w-[calc((100%-0.5rem)/5)]",
+  6: "w-[calc((100%-0.5rem)/6)]",
   7: "w-[calc((100%-0.5rem)/7)]",
 };
 
@@ -98,6 +100,7 @@ const FILL_TRACK_BY_COLUMNS: Record<OliveSegmentedColumnCount, string> = {
   3: "relative grid w-full max-w-full shrink-0 grid-cols-3 rounded-full p-1",
   4: "relative grid w-full max-w-full shrink-0 grid-cols-4 rounded-full p-1",
   5: "relative grid w-full max-w-full shrink-0 grid-cols-5 rounded-full p-1",
+  6: "relative grid w-full max-w-full shrink-0 grid-cols-6 rounded-full p-1",
   7: "relative grid w-full max-w-full shrink-0 grid-cols-7 rounded-full p-1",
 };
 
@@ -118,12 +121,14 @@ export function oliveSegmentedFillSegmentClassName(active: boolean): string {
   return `${OLIVE_SEGMENTED_SEGMENT_BASE} min-w-0 w-full whitespace-nowrap px-2 py-2.5 text-sm ${tone}`;
 }
 
-export type OliveSegmentedHugDensity = "default" | "compact";
+export type OliveSegmentedHugDensity = "default" | "snug" | "compact";
 
 const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
   default: "inline-flex w-max",
+  /** Full-width track; segments share space (client sheet tabs). */
+  snug: "flex w-full max-w-full flex-nowrap items-center gap-0.5",
   /**
-   * Client 7-tab set: default hug + scroll on phone; fill the row from tablet up.
+   * Dense tab sets: hug + scroll on phone; fill the row from tablet up.
    */
   compact:
     "inline-flex w-max max-w-none flex-nowrap items-center gap-0.5 min-[744px]:flex min-[744px]:w-full min-[744px]:max-w-full min-[744px]:justify-between",
@@ -131,6 +136,7 @@ const HUG_TRACK_WIDTH: Record<OliveSegmentedHugDensity, string> = {
 
 const HUG_SEGMENT_SIZE: Record<OliveSegmentedHugDensity, string> = {
   default: "min-w-0 shrink-0 whitespace-nowrap px-7 py-2.5 text-sm",
+  snug: "min-w-0 flex-1 whitespace-nowrap px-2 py-2 text-sm sm:px-3",
   /** Phone matches default switchers; tablet+ keeps the tighter client sheet sizing. */
   compact:
     "min-w-0 shrink-0 whitespace-nowrap px-7 py-2.5 text-sm min-[744px]:px-2 min-[744px]:py-2.5 min-[744px]:text-sm",

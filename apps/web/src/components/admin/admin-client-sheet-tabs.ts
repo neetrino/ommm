@@ -4,6 +4,8 @@ export const CLIENT_SHEET_TAB_BOOKINGS = "bookings";
 export const CLIENT_SHEET_TAB_PAYMENTS = "payments";
 export const CLIENT_SHEET_TAB_GIFTS = "gifts";
 export const CLIENT_SHEET_TAB_FEEDBACK = "feedback";
+
+/** @deprecated Notes live on the Profile tab; kept for old `?clientTab=notes` links. */
 export const CLIENT_SHEET_TAB_NOTES = "notes";
 
 export const CLIENT_PROFILE_TAB_QUERY_KEY = "clientTab";
@@ -16,8 +18,7 @@ export type ClientSheetTabId =
   | typeof CLIENT_SHEET_TAB_BOOKINGS
   | typeof CLIENT_SHEET_TAB_PAYMENTS
   | typeof CLIENT_SHEET_TAB_GIFTS
-  | typeof CLIENT_SHEET_TAB_FEEDBACK
-  | typeof CLIENT_SHEET_TAB_NOTES;
+  | typeof CLIENT_SHEET_TAB_FEEDBACK;
 
 export const CLIENT_SHEET_TAB_ORDER: readonly ClientSheetTabId[] = [
   CLIENT_SHEET_TAB_PROFILE,
@@ -26,13 +27,15 @@ export const CLIENT_SHEET_TAB_ORDER: readonly ClientSheetTabId[] = [
   CLIENT_SHEET_TAB_PAYMENTS,
   CLIENT_SHEET_TAB_GIFTS,
   CLIENT_SHEET_TAB_FEEDBACK,
-  CLIENT_SHEET_TAB_NOTES,
-];
+] as const;
 
 const CLIENT_SHEET_TAB_IDS = new Set<string>(CLIENT_SHEET_TAB_ORDER);
 
 /** Parses `clientTab` search param into a valid client sheet tab id. */
 export function parseClientSheetTabId(value: string | null): ClientSheetTabId {
+  if (value === CLIENT_SHEET_TAB_NOTES) {
+    return CLIENT_SHEET_TAB_PROFILE;
+  }
   if (value !== null && CLIENT_SHEET_TAB_IDS.has(value)) {
     return value as ClientSheetTabId;
   }

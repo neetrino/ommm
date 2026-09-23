@@ -39,4 +39,8 @@ export class UpdateClientDto {
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  doNotCall?: boolean;
 }
