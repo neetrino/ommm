@@ -2017,6 +2017,7 @@
       "empty": "No studio package payments are due right now.",
       "count": "{count, plural, one {# package} other {# packages}}",
       "open": "Open",
+      "bought": "Bought",
       "openClient": "Open {name}",
       "backToDashboard": "Back to dashboard",
       "errorAuth": "Admin or manager sign-in required.",
