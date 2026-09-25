@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch, ApiError } from "@/lib/api";
-import { FormFieldError, formFieldInputClass } from "@/components/ui/form-validation";
+import { FormErrorBanner, formFieldInputClass } from "@/components/ui/form-validation";
 
 export type GiftRecipientOption = {
   id: string;
@@ -224,7 +224,7 @@ export function GiftRecipientPicker({
                   : null}
               </div>
             ) : null}
-            <FormFieldError message={validationMessage} />
+            <FormErrorBanner message={validationMessage} variant="inline" />
           </div>
         )}
       </div>

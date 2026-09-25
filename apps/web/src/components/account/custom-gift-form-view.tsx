@@ -8,7 +8,7 @@ import {
 } from "@/components/account/gift-recipient-picker";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
-import { FORM_INVALID_FIELD_CLASS, FormFieldError } from "@/components/ui/form-validation";
+import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
 import { CUSTOM_GIFT_MESSAGE_MAX_LENGTH } from "@/lib/custom-gift-card.constants";
 
 export type CustomGiftFormProps = {
@@ -62,11 +62,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
           disabled={props.busy}
           onChange={props.onMessageChange}
         />
-        {props.error !== null ? (
-          <p className="text-sm text-red-800" role="alert">
-            {props.error}
-          </p>
-        ) : null}
+        <FormErrorBanner message={props.error} variant="inline" />
       </div>
       <div className="sticky bottom-0 z-20 flex justify-end rounded-b-[28px] border-t border-sand-500/25 bg-white/95 px-5 py-4 sm:px-8">
         <OmmButton type="submit" variant="primary" disabled={props.busy} className="w-full sm:w-auto">
@@ -179,7 +175,7 @@ function Field({
       <p id={`${htmlFor}-hint`} className="text-xs leading-5 text-sage-500">
         {hint}
       </p>
-      <FormFieldError message={error} />
+      <FormErrorBanner message={error} variant="inline" />
     </div>
   );
 }
