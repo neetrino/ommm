@@ -11,6 +11,10 @@ import {
 } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import { BOOKING_CANCELLED_BY_SELECT } from '../bookings/bookings-staff-cancel.helpers';
+import {
+  isGiftCreditSpendDescription,
+  readGiftCreditsAppliedCents,
+} from '../packages/package-gift-credits.util';
 import { toUserPackageActivationApi } from '../packages/packages-activation.helpers';
 import { toUserPackageGuestPassApi } from '../packages/packages-guest-pass.helpers';
 import { toUserPackageFreezeApi } from '../packages/packages-freeze.mapper';
@@ -81,6 +85,8 @@ type ClientPaymentsPage = {
     description: string | null;
     paymentMethod: string | null;
     createdAt: Date;
+    giftCreditsAppliedCents: number;
+    isGiftCreditSpend: boolean;
   }>;
   total: number;
   take: number;
@@ -197,13 +203,29 @@ export class ClientsTabListsService {
           description: true,
           paymentMethod: true,
           createdAt: true,
+          metadata: true,
         },
         orderBy: { createdAt: 'desc' },
         skip: offset,
         take,
       }),
     ]);
-    return { items: rows, total, take, offset };
+    return {
+      items: rows.map((row) => ({
+        id: row.id,
+        amountCents: row.amountCents,
+        currency: row.currency,
+        status: row.status,
+        description: row.description,
+        paymentMethod: row.paymentMethod,
+        createdAt: row.createdAt,
+        giftCreditsAppliedCents: readGiftCreditsAppliedCents(row.metadata),
+        isGiftCreditSpend: isGiftCreditSpendDescription(row.description),
+      })),
+      total,
+      take,
+      offset,
+    };
   }
 
   async listPackages(

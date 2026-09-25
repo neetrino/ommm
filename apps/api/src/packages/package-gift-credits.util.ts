@@ -9,6 +9,16 @@ import { readGiftCardBalance } from '../gift-cards/gift-cards.mapper';
 import { GIFT_CREDIT_SPEND_PREFIX } from '../reports/studio-analytics.helpers';
 
 export const PACKAGE_GIFT_CREDITS_APPLIED_KEY = 'giftCreditsAppliedCents';
+
+export function isGiftCreditSpendDescription(
+  description: string | null | undefined,
+): boolean {
+  return (
+    typeof description === 'string' &&
+    description.startsWith(GIFT_CREDIT_SPEND_PREFIX)
+  );
+}
+
 export const PACKAGE_GIFT_CREDITS_ALLOCATIONS_KEY = 'giftCreditsAllocations';
 export const PACKAGE_GIFT_CREDITS_REFUNDED_KEY = 'giftCreditsRefunded';
 

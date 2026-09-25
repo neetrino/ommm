@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/whatsapp-brand-icon";
 import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
+import { formatClientPaymentGiftNote } from "@/components/admin/admin-finance-gift-discount";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { ClientRegistrationMeta } from "@/components/admin/admin-client-registration-meta";
@@ -406,6 +407,10 @@ export function ClientSheetTabPanels({
             payment.paymentMethod !== null && isManualPaymentMethod(payment.paymentMethod)
               ? tFinance(`paymentMethods.${payment.paymentMethod}`)
               : null;
+          const giftNote = formatClientPaymentGiftNote(payment, locale, {
+            gift: tFinance("paymentDetails.giftDiscount"),
+            giftSpend: tFinance("paymentDetails.giftCreditSpend"),
+          });
           return {
             id: payment.id,
             main: formatAmdFromCents(payment.amountCents, locale),
@@ -413,10 +418,11 @@ export function ClientSheetTabPanels({
               payment.status,
               methodLabel,
               formatDateForUi(payment.createdAt),
+              giftNote,
             ]
               .filter(Boolean)
               .join(" · "),
-            extra: payment.description,
+            extra: payment.isGiftCreditSpend ? null : payment.description,
           };
         }}
       />

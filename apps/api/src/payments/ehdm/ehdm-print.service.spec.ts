@@ -16,6 +16,7 @@ const payment = {
   status: PaymentStatus.SUCCEEDED,
   currency: 'amd',
   ehdmReceipt: null,
+  metadata: null as unknown,
 };
 
 function createService(overrides: {
@@ -73,6 +74,32 @@ describe('EhdmPrintService', () => {
     await service.printReceiptForPayment('pay-1');
     expect(seq.reserveNextSeq).not.toHaveBeenCalled();
     expect(api.print).not.toHaveBeenCalled();
+  });
+
+  it('prints the package list price and a dram gift-card discount', async () => {
+    const print = jest.fn().mockResolvedValue({
+      code: 0,
+      result: { receiptId: 8, fiscal: '1' },
+    });
+    const { service } = createService({
+      print,
+      payment: {
+        ...payment,
+        amountCents: 90_000,
+        metadata: { giftCreditsAppliedCents: 30_000 },
+      },
+    });
+
+    await service.printReceiptForPayment('pay-1');
+
+    const body = print.mock.calls[0]?.[0] as {
+      cardAmount: number;
+      items: Array<{ price: number; discount?: number; discountType?: number }>;
+    };
+    expect(body.cardAmount).toBe(90_000);
+    expect(body.items[0]?.price).toBe(120_000);
+    expect(body.items[0]?.discount).toBe(30_000);
+    expect(body.items[0]?.discountType).toBe(2);
   });
 
   it('persists a successful PEC print without writing isMock', async () => {

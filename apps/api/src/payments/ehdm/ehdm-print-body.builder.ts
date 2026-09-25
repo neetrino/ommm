@@ -2,6 +2,7 @@ import { ManualPaymentMethod } from '@prisma/client';
 import {
   EHDM_DEFAULT_ADG_CODE,
   EHDM_DEFAULT_ITEM_NAME,
+  EHDM_DISCOUNT_TYPE_UNIT_PRICE,
   EHDM_GOOD_CODE_MAX_LENGTH,
   EHDM_GOOD_NAME_MAX_LENGTH,
   EHDM_PRINT_MODE,
@@ -13,7 +14,10 @@ import type { EhdmPrintRequestBody } from './ehdm.types';
 type BuildPrintBodyArgs = {
   paymentId: string;
   paymentReference: string | null;
+  /** Amount actually charged (after gift-card credit). */
   amountCents: number;
+  /** Gift-card credit taken off the list price. Zero omits discount fields. */
+  discountAmd?: number;
   paymentMethod: ManualPaymentMethod | null;
   itemName: string;
   itemCode: string;
@@ -24,8 +28,9 @@ export function buildEhdmPrintBody(
   config: EhdmConfig,
   args: BuildPrintBodyArgs,
 ): EhdmPrintRequestBody {
-  const totalAmd = toAmdMajorUnits(args.amountCents);
-  const tender = resolveEhdmTenderSplit(totalAmd, args.paymentMethod);
+  const paidAmd = toAmdMajorUnits(args.amountCents);
+  const discountAmd = resolveEhdmDiscountAmd(args.discountAmd);
+  const tender = resolveEhdmTenderSplit(paidAmd, args.paymentMethod);
 
   return {
     crn: config.getCrn(),
@@ -45,10 +50,24 @@ export function buildEhdmPrintBody(
         goodName: truncateGoodName(args.itemName),
         quantity: 1,
         unit: config.getDefaultUnit(),
-        price: totalAmd,
+        price: paidAmd + discountAmd,
+        ...(discountAmd > 0
+          ? {
+              discount: discountAmd,
+              discountType: EHDM_DISCOUNT_TYPE_UNIT_PRICE,
+            }
+          : {}),
       },
     ],
   };
+}
+
+/** Whole AMD gift-card discount. Non-positive values are omitted from the receipt. */
+export function resolveEhdmDiscountAmd(discountAmd: number | undefined): number {
+  if (discountAmd === undefined || !Number.isFinite(discountAmd) || discountAmd <= 0) {
+    return 0;
+  }
+  return Math.round(discountAmd);
 }
 
 export function resolveEhdmItemName(

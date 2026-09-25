@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { readGiftCreditsAppliedCents } from '../../packages/package-gift-credits.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EhdmApiClient } from './ehdm-api.client';
 import { EhdmConfig } from './ehdm.config';
@@ -72,6 +73,7 @@ export class EhdmPrintService {
       paymentId: payment.id,
       paymentReference: payment.paymentReference,
       amountCents: payment.amountCents,
+      discountAmd: readGiftCreditsAppliedCents(payment.metadata),
       paymentMethod: payment.paymentMethod,
       itemName,
       itemCode: resolveEhdmItemCode(payment.paymentReference, payment.id),

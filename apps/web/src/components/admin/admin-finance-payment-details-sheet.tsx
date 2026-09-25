@@ -36,7 +36,7 @@ import {
 } from "@/components/admin/admin-finance-payment-details-rows";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
-import { AmdMoneyText } from "@/components/ui/amd-money-text";
+import { AdminFinanceSheetAmountRows } from "@/components/admin/admin-finance-gift-discount";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { isCardPaymentMethod } from "@/lib/payment-confirmation";
@@ -133,11 +133,16 @@ export function AdminFinancePaymentDetailsSheet({
           <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
             <AdminFinancePaymentDetailRow label={t("paymentDetails.customer")} value={userLabel} />
             <AdminFinancePaymentDetailRow label={t("paymentDetails.email")} value={payment.user.email} />
-            <AdminFinancePaymentDetailRow
-              label={t("table.colAmount")}
-              value={
-                <AmdMoneyText cents={payment.amountCents} locale={locale} className="font-serif text-lg" />
-              }
+            <AdminFinanceSheetAmountRows
+              amountCents={payment.amountCents}
+              giftCreditsAppliedCents={payment.giftCreditsAppliedCents}
+              locale={locale}
+              labels={{
+                amount: t("table.colAmount"),
+                listPrice: t("paymentDetails.listPrice"),
+                gift: t("paymentDetails.giftDiscount"),
+                paid: t("paymentDetails.amountPaid"),
+              }}
             />
             <AdminFinancePaymentDetailRow
               label={t("table.colSource")}

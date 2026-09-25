@@ -14,6 +14,9 @@ export const EHDM_PRINT_MODE = {
   PREPAYMENT: 3,
 } as const;
 
+/** Dram discount per unit: `(price − discount) * quantity`. Omit when unused. */
+export const EHDM_DISCOUNT_TYPE_UNIT_PRICE = 2;
+
 export const EHDM_GOOD_NAME_MAX_LENGTH = 30;
 
 export const EHDM_GOOD_CODE_MAX_LENGTH = 32;

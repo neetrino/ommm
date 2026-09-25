@@ -6,6 +6,10 @@ import {
 import { Prisma } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
+import {
+  isGiftCreditSpendDescription,
+  readGiftCreditsAppliedCents,
+} from '../packages/package-gift-credits.util';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
@@ -174,6 +178,8 @@ export class PaymentsAdminService {
           relatedItemGroupName:
             resolveAdminPaymentRelatedItemGroupName(relatedArgs),
           statusReason: readPaymentStatusReason(payment.metadata),
+          giftCreditsAppliedCents: readGiftCreditsAppliedCents(payment.metadata),
+          isGiftCreditSpend: isGiftCreditSpendDescription(payment.description),
           ehdmReceipt: payment.ehdmReceipt
             ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
             : null,

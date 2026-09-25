@@ -6,6 +6,9 @@ export type EhdmPrintItem = {
   quantity: number;
   unit: string;
   price: number;
+  /** Present only when a dram discount applies. PEC rejects unused discount fields. */
+  discount?: number;
+  discountType?: number;
 };
 
 export type EhdmPrintRequestBody = {

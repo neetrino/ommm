@@ -130,6 +130,8 @@ export type ClientSheetPaymentItem = {
   description: string | null;
   paymentMethod: string | null;
   createdAt: string;
+  giftCreditsAppliedCents?: number;
+  isGiftCreditSpend?: boolean;
 };
 
 export type ClientSheetPackageTypeBalance = {
