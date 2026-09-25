@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { CustomGiftComposer } from "@/components/account/custom-gift-composer";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
@@ -56,9 +57,14 @@ export async function MemberUserGiftCardsRouteContent({
         </div>
       }
       shopPanel={
-        <UserGiftCardsSection title={t("purchase")}>
-          <GiftPurchaseForm locale={locale} />
-        </UserGiftCardsSection>
+        <div className="space-y-0">
+          <UserGiftCardsSection title={t("customGift.sectionTitle")}>
+            <CustomGiftComposer locale={locale} />
+          </UserGiftCardsSection>
+          <UserGiftCardsSection title={t("purchase")}>
+            <GiftPurchaseForm locale={locale} />
+          </UserGiftCardsSection>
+        </div>
       }
     />
   );

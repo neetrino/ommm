@@ -58,6 +58,12 @@ export function renderEmailDetailCard(rows: readonly EmailDetailRow[]): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:8px 0 24px;padding:20px;border-radius:14px;background:${EMAIL_BRAND.accentBackground};">${body}</table>`;
 }
 
+/** Personal note, escaped, with line breaks preserved. */
+export function renderEmailQuote(text: string): string {
+  const body = escapeHtml(text.trim()).replace(/\n/g, '<br />');
+  return `<p style="margin:0 0 24px;padding:16px 18px;border-left:3px solid ${EMAIL_BRAND.accentColor};border-radius:14px;background:${EMAIL_BRAND.accentBackground};font-family:${EMAIL_BRAND.fontFamily};font-size:16px;line-height:1.6;color:${EMAIL_BRAND.headingColor};">${body}</p>`;
+}
+
 /** Large gift-card / booking code. This is a code, not a URL. */
 export function renderEmailCodeBox(label: string, code: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:8px 0 24px;">

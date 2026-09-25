@@ -1243,6 +1243,34 @@
         "paymentPending": "Payment request created. The studio team will confirm it soon.",
         "paymentPendingWithReference": "Payment request {reference} created. The studio team will confirm it soon."
       },
+      "customGift": {
+        "sectionTitle": "Send a custom gift",
+        "eyebrow": "Your amount",
+        "title": "Gift any amount",
+        "lead": "Start from {min}. After you pay, the card is sent to the member you choose.",
+        "amountLabel": "Gift amount",
+        "amountHint": "Minimum {min}",
+        "messageLabel": "A note (optional)",
+        "messagePlaceholder": "A few words to open with the gift",
+        "submit": "Continue to payment",
+        "submitting": "Starting payment…",
+        "amountRequired": "Enter a gift amount.",
+        "amountMin": "Gift cards start at {min}.",
+        "amountMax": "Gift cards can be up to {max}.",
+        "recipientRequired": "Choose who receives this gift.",
+        "checkoutFailed": "Could not start payment."
+      },
+      "celebration": {
+        "eyebrow": "A gift for you",
+        "title": "You received a gift card",
+        "fromNamed": "{name} sent this to you",
+        "fromAnonymous": "Someone sent this to you",
+        "noteLabel": "A note for you",
+        "body": "It is already in your account. Use it when you book or pay.",
+        "openGift": "See my gift",
+        "close": "Close",
+        "backdropAria": "Close gift celebration"
+      },
       "fakePayment": {
         "description": "Complete your gift card purchase securely via Arca.",
         "eyebrow": "Checkout",

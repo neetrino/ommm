@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+import { GiftCelebrationGate } from "@/components/account/gift-celebration-gate";
 import { RequiredPhoneCompletionGate } from "@/components/account/required-phone-completion-gate";
 import { SessionReviewPromptGate } from "@/components/account/session-review-prompt-gate";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
@@ -60,6 +61,7 @@ export async function UserMemberShellLayout({
         initialNeedsPhoneCompletion={needsPhoneCompletion}
       />
       <SessionReviewPromptGate deferAutoPrompt={needsPhoneCompletion} />
+      <GiftCelebrationGate deferAutoPrompt={needsPhoneCompletion} />
       {children}
     </WorkspaceShellFromAuth>
   );

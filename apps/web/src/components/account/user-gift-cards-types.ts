@@ -9,6 +9,7 @@ export type UserGiftCardRow = {
   imageUrl: string | null;
   recipientEmail: string | null;
   recipientName: string | null;
+  purchaserName?: string | null;
   message: string | null;
   expiresAt: string | null;
   createdAt: string;

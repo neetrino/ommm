@@ -122,4 +122,23 @@ describe('branded email templates', () => {
   it('does not attribute a studio sender', () => {
     expect(visibleText(samples[7])).not.toMatch(/\bFrom\b/);
   });
+
+  it('congratulates a gift recipient with amount, sender, and note', () => {
+    const html = renderGiftCardEmail({
+      code: 'OMMM-4821',
+      accountUrl: SAMPLE_URL,
+      recipientName: 'Jasmine',
+      senderName: 'Aren',
+      amountLabel: '30,000 ֏',
+      message: 'Happy birthday',
+    });
+    const text = visibleText(html);
+    expect(html).toContain('A gift for you');
+    expect(text).toContain('Hi Jasmine,');
+    expect(text).toContain('Aren');
+    expect(text).toContain('30,000');
+    expect(text).toContain('Happy birthday');
+    expect(html).toContain('Open my gift cards');
+    expect(text).not.toMatch(/https?:\/\//);
+  });
 });

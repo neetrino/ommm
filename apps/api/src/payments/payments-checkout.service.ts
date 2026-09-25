@@ -10,9 +10,11 @@ import { PaymentCashPendingEmailService } from './payment-cash-pending-email.ser
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import {
+  assertCustomGiftAmount,
   assertDropInSessionForCheckout,
   assertGiftBatchForCheckout,
   findOwnedPendingPaymentByReference,
+  giftCheckoutMetadata,
 } from './payments-checkout.helpers';
 import { PaymentsConfirmService } from './payments-confirm.service';
 import {
@@ -26,7 +28,6 @@ import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import {
   INTERNAL_PAYMENT_SOURCE,
   type GiftEmailPayload,
-  type PaymentMetadata,
 } from './payments.types';
 
 @Injectable()
@@ -60,28 +61,8 @@ export class PaymentsCheckoutService {
       recipientName: params.recipientName,
       recipientEmail: params.recipientEmail,
     });
-    const metadata: PaymentMetadata = {
-      recipientId: resolvedRecipient.recipientId,
-      ...(resolvedRecipient.recipientName
-        ? { recipientName: resolvedRecipient.recipientName }
-        : {}),
-      ...(resolvedRecipient.recipientEmail
-        ? { recipientEmail: resolvedRecipient.recipientEmail }
-        : {}),
-      ...(params.message ? { message: params.message } : {}),
-    };
-    if (params.batchId !== undefined) {
-      const batch = await this.prisma.giftCardBatch.findUnique({
-        where: { id: params.batchId },
-        select: {
-          amountAmd: true,
-          availableQuantity: true,
-          status: true,
-        },
-      });
-      assertGiftBatchForCheckout(batch, params.amountCents);
-    }
-
+    await this.assertGiftCheckoutAmount(params.batchId, params.amountCents);
+    const message = params.message?.trim();
     return this.prisma.payment.create({
       data: withInternalPaymentCreateFields({
         userId: params.purchaserId,
@@ -91,10 +72,32 @@ export class PaymentsCheckoutService {
         paymentReference: createPaymentReference('GIFT'),
         source: INTERNAL_PAYMENT_SOURCE.GIFT,
         sourceId: params.batchId,
-        description: 'Gift card purchase (gift)',
-        metadata: metadata,
+        description:
+          params.batchId === undefined
+            ? 'Custom gift card'
+            : 'Gift card purchase (gift)',
+        metadata: giftCheckoutMetadata(resolvedRecipient, message),
       }),
     });
+  }
+
+  private async assertGiftCheckoutAmount(
+    batchId: string | undefined,
+    amountCents: number,
+  ): Promise<void> {
+    if (batchId === undefined) {
+      assertCustomGiftAmount(amountCents);
+      return;
+    }
+    const batch = await this.prisma.giftCardBatch.findUnique({
+      where: { id: batchId },
+      select: {
+        amountAmd: true,
+        availableQuantity: true,
+        status: true,
+      },
+    });
+    assertGiftBatchForCheckout(batch, amountCents);
   }
 
   private async resolveGiftRecipient(params: {
@@ -302,7 +305,7 @@ export class PaymentsCheckoutService {
       });
     });
     for (const email of giftEmails) {
-      await this.fulfillment.sendGiftCardEmail(email.to, email.code);
+      await this.fulfillment.sendGiftCardEmail(email);
     }
     await this.paymentSuccessEmail.trySendSuccessEmails(
       payment.id,

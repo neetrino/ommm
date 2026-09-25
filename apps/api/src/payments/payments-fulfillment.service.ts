@@ -7,13 +7,16 @@ import { ConfigService } from '@nestjs/config';
 import {
   BookingStatus,
   ClassSessionStatus,
-  GiftCardStatus,
   Prisma,
   UserPackageStatus,
 } from '@prisma/client';
-import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
+import { formatPaymentAmount } from './payment-email-format.util';
+import {
+  issuePurchasedGiftCard,
+  readGiftSenderName,
+} from './payments-gift-issue.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
@@ -38,7 +41,6 @@ import { createBalancesForUserPackage } from '../packages/packages-user-package-
 import { parsePaymentMetadata } from './payments.helpers';
 import {
   INTERNAL_PAYMENT_SOURCE,
-  type GiftCardBatchSnapshot,
   type GiftEmailPayload,
   type InternalPaymentRecord,
 } from './payments.types';
@@ -264,60 +266,23 @@ export class PaymentsFulfillmentService {
       metadata: Prisma.JsonValue | null;
     },
   ): Promise<GiftEmailPayload | null> {
-    const metadata = parsePaymentMetadata(payment.metadata);
-    let selectedBatch: GiftCardBatchSnapshot | null = null;
-    if (payment.sourceId) {
-      const decremented = await tx.giftCardBatch.updateMany({
-        where: {
-          id: payment.sourceId,
-          status: GiftCardStatus.ACTIVE,
-          availableQuantity: { gt: 0 },
-        },
-        data: { availableQuantity: { decrement: 1 } },
-      });
-      if (decremented.count !== 1) {
-        throw new BadRequestException('Gift card is out of stock');
-      }
-      selectedBatch = await tx.giftCardBatch.findUnique({
-        where: { id: payment.sourceId },
-        select: {
-          id: true,
-          amountAmd: true,
-          imageUrl: true,
-          expiresAt: true,
-          message: true,
-          recipientName: true,
-          recipientEmail: true,
-          availableQuantity: true,
-          status: true,
-        },
-      });
-      if (!selectedBatch) {
-        throw new BadRequestException('Gift-card batch not found');
-      }
-    }
-    const code = randomBytes(8).toString('hex').toUpperCase();
-    const recipientEmail =
-      metadata.recipientEmail || selectedBatch?.recipientEmail || undefined;
-    const recipientId = metadata.recipientId || undefined;
-    await tx.giftCard.create({
-      data: {
-        batchId: selectedBatch?.id,
-        code,
-        amountAmd: selectedBatch?.amountAmd ?? payment.amountCents,
-        balanceAmd: selectedBatch?.amountAmd ?? payment.amountCents,
-        imageUrl: selectedBatch?.imageUrl ?? undefined,
-        status: GiftCardStatus.ACTIVE,
-        purchaserId: payment.userId,
-        recipientId,
-        recipientName:
-          metadata.recipientName || selectedBatch?.recipientName || undefined,
-        recipientEmail,
-        message: metadata.message || selectedBatch?.message || undefined,
-        expiresAt: selectedBatch?.expiresAt ?? undefined,
-      },
+    const issued = await issuePurchasedGiftCard(tx, {
+      purchaserId: payment.userId,
+      amountCents: payment.amountCents,
+      sourceId: payment.sourceId,
+      metadata: parsePaymentMetadata(payment.metadata),
     });
-    return recipientEmail ? { to: recipientEmail, code } : null;
+    if (!issued.recipientEmail) {
+      return null;
+    }
+    return {
+      to: issued.recipientEmail,
+      code: issued.code,
+      recipientName: issued.recipientName,
+      senderName: await readGiftSenderName(tx, payment.userId),
+      amountAmd: issued.amountAmd,
+      message: issued.message,
+    };
   }
 
   async fulfillPaymentBySource(
@@ -356,15 +321,23 @@ export class PaymentsFulfillmentService {
     return { giftEmail, packageStockTracked: false };
   }
 
-  async sendGiftCardEmail(to: string, code: string): Promise<void> {
+  async sendGiftCardEmail(payload: GiftEmailPayload): Promise<void> {
+    const amountLabel =
+      payload.amountAmd === undefined
+        ? undefined
+        : formatPaymentAmount(payload.amountAmd, 'amd');
     await this.mail.sendEmail({
-      to,
+      to: payload.to,
       ...buildGiftCardDeliveryEmail({
-        code,
+        code: payload.code,
+        recipientName: payload.recipientName,
+        senderName: payload.senderName,
+        amountLabel,
+        message: payload.message,
         webAppUrl: this.config.get<string>('WEB_APP_URL'),
       }),
     });
-    await this.whatsapp.trySendGiftCard(to, code);
+    await this.whatsapp.trySendGiftCard(payload.to, payload.code);
   }
 
   async emitDropInBookingRealtimeIfNeeded(

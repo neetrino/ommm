@@ -22,6 +22,10 @@ export type PaymentMetadata = {
 export type GiftEmailPayload = {
   to: string;
   code: string;
+  recipientName?: string;
+  senderName?: string;
+  amountAmd?: number;
+  message?: string;
 };
 
 export type GiftCardBatchSnapshot = {

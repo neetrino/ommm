@@ -59,7 +59,10 @@ export class GiftCardsClientService {
     const hasPagination =
       query.take !== undefined || query.offset !== undefined;
     const where = { recipientId: userId };
-    const include = { batch: { select: { imageUrl: true } } };
+    const include = {
+      batch: { select: { imageUrl: true } },
+      purchaser: { select: { name: true, lastName: true } },
+    };
     const orderBy = { createdAt: 'desc' as const };
 
     if (!hasPagination) {

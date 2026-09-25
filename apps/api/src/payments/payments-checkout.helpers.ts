@@ -14,7 +14,47 @@ import { withInternalPaymentWhereFields } from './payments.helpers';
 import {
   type InternalPaymentRecord,
   type InternalPaymentSource,
+  type PaymentMetadata,
 } from './payments.types';
+
+/** Whole AMD. Custom gifts have no studio batch, so the payer chooses the amount. */
+export const CUSTOM_GIFT_CARD_MIN_AMD = 30_000;
+
+/** Safety cap for a member-chosen gift amount. */
+export const CUSTOM_GIFT_CARD_MAX_AMD = 1_000_000;
+
+export function assertCustomGiftAmount(amountAmd: number): void {
+  if (!Number.isInteger(amountAmd) || amountAmd < CUSTOM_GIFT_CARD_MIN_AMD) {
+    throw new BadRequestException(
+      `Custom gift cards start at ${CUSTOM_GIFT_CARD_MIN_AMD.toLocaleString('en-US')} AMD`,
+    );
+  }
+  if (amountAmd > CUSTOM_GIFT_CARD_MAX_AMD) {
+    throw new BadRequestException(
+      `Custom gift cards cannot exceed ${CUSTOM_GIFT_CARD_MAX_AMD.toLocaleString('en-US')} AMD`,
+    );
+  }
+}
+
+export function giftCheckoutMetadata(
+  recipient: {
+    recipientId: string;
+    recipientName?: string;
+    recipientEmail?: string;
+  },
+  message: string | undefined,
+): PaymentMetadata {
+  return {
+    recipientId: recipient.recipientId,
+    ...(recipient.recipientName
+      ? { recipientName: recipient.recipientName }
+      : {}),
+    ...(recipient.recipientEmail
+      ? { recipientEmail: recipient.recipientEmail }
+      : {}),
+    ...(message ? { message } : {}),
+  };
+}
 
 type PaymentLookupClient = {
   payment: {

@@ -112,6 +112,7 @@ export function serializeUserGiftCard(card: {
   expiresAt: Date | null;
   createdAt: Date;
   batch?: { imageUrl: string | null } | null;
+  purchaser?: { name: string | null; lastName: string | null } | null;
 }) {
   return {
     id: card.id,
@@ -122,10 +123,27 @@ export function serializeUserGiftCard(card: {
     imageUrl: readGiftCardImage(card) ?? card.batch?.imageUrl ?? null,
     recipientEmail: card.recipientEmail,
     recipientName: card.recipientName,
+    purchaserName: purchaserDisplayName(card.purchaser),
     message: card.message,
     expiresAt: card.expiresAt,
     createdAt: card.createdAt,
   };
+}
+
+function purchaserDisplayName(
+  purchaser:
+    | { name: string | null; lastName: string | null }
+    | null
+    | undefined,
+): string | null {
+  if (!purchaser) {
+    return null;
+  }
+  const name = [purchaser.name, purchaser.lastName]
+    .map((part) => part?.trim() ?? '')
+    .filter((part) => part.length > 0)
+    .join(' ');
+  return name.length > 0 ? name : null;
 }
 
 export function serializeAdminBoardBatch(batch: AdminBoardBatchRow) {
