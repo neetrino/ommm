@@ -39,25 +39,27 @@ function PaymentDueClientCard({
     <li className="min-w-0">
       <button
         type="button"
-        className="flex h-full w-full flex-col items-start gap-3 rounded-2xl border border-white/70 bg-white px-3.5 py-3.5 text-left shadow-[0_14px_28px_-18px_rgba(76,5,25,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_32px_-16px_rgba(76,5,25,0.6)]"
+        className="flex h-full w-full flex-col rounded-[22px] border border-white/80 bg-gradient-to-b from-white to-rose-50/90 p-3.5 text-left shadow-[0_16px_32px_-20px_rgba(136,19,55,0.55)] ring-1 ring-white/70 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_36px_-18px_rgba(136,19,55,0.62)]"
         aria-label={openLabel}
         onClick={onOpen}
       >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-sm font-semibold text-rose-700">
-          {initial}
-        </span>
-        <span className="min-w-0 w-full">
-          <span className="block break-words text-sm font-semibold leading-snug text-sage-900">
+        <span className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
+            {initial}
+          </span>
+          <span className="min-w-0 break-words font-serif text-base leading-tight text-sage-900">
             {group.clientName}
           </span>
-          <span className="mt-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-rose-700">
+        </span>
+        <span className="mt-3.5 border-t border-rose-100/90 pt-3">
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-rose-500">
             {boughtLabel}
           </span>
-          <span className="mt-1 block space-y-0.5">
+          <span className="mt-1.5 flex flex-col gap-1.5">
             {group.packages.map((item) => (
               <span
                 key={item.packageId}
-                className="block break-words text-sm font-medium leading-snug text-sage-800"
+                className="block break-words rounded-xl bg-white/90 px-2.5 py-1.5 text-xs font-medium leading-snug text-rose-950 ring-1 ring-rose-100"
               >
                 {formatPaymentDuePurchaseLabel(item.categoryName, item.packageName)}
               </span>
