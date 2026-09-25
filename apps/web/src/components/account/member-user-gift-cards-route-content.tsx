@@ -4,7 +4,6 @@ import { CustomGiftComposer } from "@/components/account/custom-gift-composer";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
-import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-layout";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
 import { UserGiftCardsView } from "@/components/account/user-gift-cards-view";
 import { mergeUserGiftCards } from "@/lib/merge-user-gift-cards";
@@ -49,10 +48,8 @@ export async function MemberUserGiftCardsRouteContent({
       embeddedInSheet={embeddedInSheet}
       initialTab={tab}
       myPanel={
-        <div className="space-y-0">
-          <UserGiftCardsSection title={t("redeem")}>
-            <GiftRedeemForm />
-          </UserGiftCardsSection>
+        <div className="space-y-10">
+          <GiftRedeemForm />
           <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
         </div>
       }

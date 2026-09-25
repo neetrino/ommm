@@ -15,18 +15,8 @@ import { GiftCardBoardTile, type GiftCardBoardDetail } from "@/components/gift-c
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { UserGiftCardWithSource } from "@/lib/merge-user-gift-cards";
-import {
-  parseUserGiftCardSortOrder,
-  sortUserGiftCards,
-  USER_GIFT_CARD_SORT_ORDERS,
-} from "@/lib/list-sort";
-import {
-  readUserListOrderFromSearch,
-  syncUserListOrderQuery,
-} from "@/lib/user-list-order-url";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import {
   parseUserGiftCardsMyPageParams,
@@ -85,27 +75,9 @@ function MyGiftCardsSection({
   onSelect,
 }: MyGiftCardsSectionProps) {
   const t = useTranslations("userPages.giftCards");
-  const tSort = useTranslations("listSort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [order, setOrder] = useState(() =>
-    readUserListOrderFromSearch(Object.fromEntries(searchParams.entries()), "giftCard", "newest"),
-  );
-
-  const sortOptions = useMemo(
-    () =>
-      USER_GIFT_CARD_SORT_ORDERS.map((value) => ({
-        value,
-        label:
-          value === "expirationSoon"
-            ? tSort("expirationSoon")
-            : value === "oldest"
-              ? tSort("oldest")
-              : tSort("newest"),
-      })),
-    [tSort],
-  );
 
   const listPage = useMemo(
     () =>
@@ -124,8 +96,8 @@ function MyGiftCardsSection({
   );
 
   const sortedCards = useMemo(
-    () => sortUserGiftCards(cards, order),
-    [cards, order],
+    () => [...cards].sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
+    [cards],
   );
 
   const visibleCards = useMemo(() => {
@@ -133,30 +105,8 @@ function MyGiftCardsSection({
     return sortedCards.slice(start, start + listPage.take);
   }, [listPage.offset, listPage.take, sortedCards]);
 
-  function handleSortChange(value: string): void {
-    const nextOrder = parseUserGiftCardSortOrder(value);
-    setOrder(nextOrder);
-    const params = new URLSearchParams(searchParams.toString());
-    syncListPageQuery(params, 1, undefined, USER_GIFT_CARDS_MY_PAGE_KEYS);
-    syncUserListOrderQuery(params, value, "newest");
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }
-
   return (
     <UserGiftCardsSection title={t("myCardsHeading")}>
-      {cards.length > 0 ? (
-        <div className="mb-4 flex justify-end">
-          <OmmFilterDropdown
-            allValue="newest"
-            value={order}
-            ariaLabel={tSort("sort")}
-            allLabel={tSort("newest")}
-            onChange={handleSortChange}
-            options={sortOptions.filter((option) => option.value !== "newest")}
-          />
-        </div>
-      ) : null}
       {loadError !== null ? (
         <div className="app-alert-warn text-sm">
           {loadError === 401 || loadError === 403

@@ -1143,6 +1143,8 @@
       "giftBalance": "Gift balance (credits): {amount}",
       "redeem": "Redeem",
       "redeemForm": {
+        "eyebrow": "Gift code",
+        "title": "Redeem a gift",
         "lead": "Have a code? Enter it here to add the balance to your gift credits.",
         "codeLabel": "Gift code",
         "codePlaceholder": "Enter your gift code",

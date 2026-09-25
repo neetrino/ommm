@@ -1,11 +1,9 @@
 import {
   parseDateSortOrder,
   parseSessionSortOrder,
-  parseUserGiftCardSortOrder,
   parseUserPackageSortOrder,
   type DateSortOrder,
   type SessionSortOrder,
-  type UserGiftCardSortOrder,
   type UserPackageSortOrder,
 } from "@/lib/list-sort";
 
@@ -23,19 +21,14 @@ export function readUserListOrderFromSearch(
 ): DateSortOrder;
 export function readUserListOrderFromSearch(
   search: URLSearchParams | Record<string, string | undefined>,
-  kind: "giftCard",
-  fallback?: UserGiftCardSortOrder,
-): UserGiftCardSortOrder;
-export function readUserListOrderFromSearch(
-  search: URLSearchParams | Record<string, string | undefined>,
   kind: "package",
   fallback?: UserPackageSortOrder,
 ): UserPackageSortOrder;
 export function readUserListOrderFromSearch(
   search: URLSearchParams | Record<string, string | undefined>,
-  kind: "session" | "date" | "giftCard" | "package",
-  fallback?: SessionSortOrder | DateSortOrder | UserGiftCardSortOrder | UserPackageSortOrder,
-): SessionSortOrder | DateSortOrder | UserGiftCardSortOrder | UserPackageSortOrder {
+  kind: "session" | "date" | "package",
+  fallback?: SessionSortOrder | DateSortOrder | UserPackageSortOrder,
+): SessionSortOrder | DateSortOrder | UserPackageSortOrder {
   const raw =
     search instanceof URLSearchParams
       ? search.get(USER_LIST_ORDER_QUERY_KEY) ?? undefined
@@ -46,11 +39,6 @@ export function readUserListOrderFromSearch(
       return parseSessionSortOrder(raw, (fallback as SessionSortOrder | undefined) ?? "upcoming");
     case "date":
       return parseDateSortOrder(raw, (fallback as DateSortOrder | undefined) ?? "newest");
-    case "giftCard":
-      return parseUserGiftCardSortOrder(
-        raw,
-        (fallback as UserGiftCardSortOrder | undefined) ?? "newest",
-      );
     case "package":
       return parseUserPackageSortOrder(
         raw,
