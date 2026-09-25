@@ -17,7 +17,7 @@ const RECIPIENT_SEARCH_DEBOUNCE_MS = 280;
 
 /** Soft sand card shared with the custom-gift note field. */
 export const GIFT_SOFT_FIELD_CARD_CLASS =
-  "rounded-[22px] border border-sand-100 bg-gradient-to-br from-sand-100/60 via-peach-100/40 to-paper p-4";
+  "rounded-[22px] border border-sand-100/80 bg-white p-4";
 
 type GiftRecipientPickerProps = {
   selected: GiftRecipientOption | null;
