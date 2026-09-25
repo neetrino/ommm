@@ -29,7 +29,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
   const t = useTranslations("userPages.giftCards.customGift");
   return (
     <form
-      className="overflow-hidden rounded-[28px] border border-white/80 bg-white/95 shadow-[0_28px_64px_-36px_rgba(45,40,35,0.38)]"
+      className="rounded-[28px] border border-white/80 bg-white/95 shadow-[0_28px_64px_-36px_rgba(45,40,35,0.38)]"
       onSubmit={props.onSubmit}
     >
       <CustomGiftFace
@@ -63,7 +63,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
           </p>
         ) : null}
       </div>
-      <div className="flex justify-end border-t border-sand-100/90 bg-gradient-to-r from-white to-sand-50/80 px-5 py-4 sm:px-8">
+      <div className="sticky bottom-0 z-20 flex justify-end rounded-b-[28px] border-t border-sand-100/90 bg-white/95 px-5 py-4 shadow-[0_-18px_36px_-28px_rgba(45,40,35,0.45)] backdrop-blur-md sm:px-8">
         <OmmButton type="submit" variant="primary" disabled={props.busy} className="w-full sm:w-auto">
           {props.busy ? t("submitting") : t("submit")}
         </OmmButton>
@@ -92,10 +92,8 @@ function CustomGiftFace({
   onAmountChange: (value: string) => void;
 }) {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-sand-100 via-white to-mint-100/80 px-5 py-7 sm:px-8 sm:py-9">
-      <div className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-white/55" />
-      <div className="pointer-events-none absolute -bottom-16 left-10 h-32 w-32 rounded-full bg-mint-100/60" />
-      <div className="relative max-w-xl">
+    <div className="rounded-t-[28px] bg-sand-50 px-5 py-7 sm:px-8 sm:py-9">
+      <div className="max-w-xl">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">{eyebrow}</p>
         <h2 className="mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
           {title}
