@@ -63,7 +63,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
           </p>
         ) : null}
       </div>
-      <div className="sticky bottom-0 z-20 flex justify-end rounded-b-[28px] border-t border-sand-100/90 bg-white/95 px-5 py-4 shadow-[0_-18px_36px_-28px_rgba(45,40,35,0.45)] backdrop-blur-md sm:px-8">
+      <div className="sticky bottom-0 z-20 flex justify-end rounded-b-[28px] bg-white/95 px-5 py-4 sm:px-8">
         <OmmButton type="submit" variant="primary" disabled={props.busy} className="w-full sm:w-auto">
           {props.busy ? t("submitting") : t("submit")}
         </OmmButton>
