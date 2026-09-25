@@ -11,7 +11,7 @@ export type GiftRecipientOption = {
   lastName: string | null;
 };
 
-const RECIPIENT_SEARCH_MIN_CHARS = 2;
+const RECIPIENT_SEARCH_MIN_CHARS = 1;
 const RECIPIENT_SEARCH_DEBOUNCE_MS = 280;
 
 type GiftRecipientPickerProps = {

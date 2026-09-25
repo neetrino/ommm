@@ -16,7 +16,7 @@ import {
 } from './gift-cards.mapper';
 import { peekSpendableGiftCreditsCents } from '../packages/package-gift-credits.util';
 
-const GIFT_RECIPIENT_SEARCH_MIN_CHARS = 2;
+const GIFT_RECIPIENT_SEARCH_MIN_CHARS = 1;
 const GIFT_RECIPIENT_SEARCH_LIMIT = 20;
 
 @Injectable()
