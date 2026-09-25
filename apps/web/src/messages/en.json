@@ -1981,6 +1981,7 @@
         "bought": "Bought",
         "count": "{count, plural, one {# package} other {# packages}}",
         "viewAll": "View all",
+        "morePeople": "+{count} more",
         "empty": "No studio package payments are due right now."
       }
     }

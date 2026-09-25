@@ -8,6 +8,7 @@ import { CLIENT_SHEET_TAB_PACKAGES } from "@/components/admin/admin-client-sheet
 import {
   formatPaymentDuePurchaseLabel,
   previewPaymentDueGroups,
+  remainingPaymentDuePeopleCount,
   type DashboardStudioPaymentDueItem,
   type PaymentDueClientGroup,
 } from "@/components/admin/admin-dashboard-payment-due";
@@ -111,6 +112,28 @@ function PaymentDueCalmIcon() {
   );
 }
 
+function PaymentDueHeaderActions({
+  href,
+  items,
+}: {
+  href: string;
+  items: DashboardStudioPaymentDueItem[];
+}) {
+  const t = useTranslations("adminHome.overview.paymentDue");
+  const morePeople = remainingPaymentDuePeopleCount(items);
+
+  return (
+    <div className="flex shrink-0 items-center gap-2 self-center">
+      {morePeople > 0 ? (
+        <span className="inline-flex items-center rounded-full bg-white px-3 py-2 text-xs font-semibold tabular-nums text-rose-700">
+          {t("morePeople", { count: morePeople })}
+        </span>
+      ) : null}
+      <PaymentDueViewAllLink href={href} label={t("viewAll")} tone="alert" />
+    </div>
+  );
+}
+
 function PaymentDueFilledBanner({
   items,
   count,
@@ -141,7 +164,7 @@ function PaymentDueFilledBanner({
               <p className="text-sm font-medium text-rose-50">{t("hint")}</p>
               <p className="text-xs font-medium text-rose-100">{t("count", { count })}</p>
             </div>
-            <PaymentDueViewAllLink href={viewAllHref} label={t("viewAll")} tone="alert" />
+            <PaymentDueHeaderActions href={viewAllHref} items={items} />
           </div>
         </div>
       </div>

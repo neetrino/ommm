@@ -61,6 +61,15 @@ export function previewPaymentDueClients(
   );
 }
 
+/** People hidden behind View all, after the dashboard preview cards. */
+export function remainingPaymentDuePeopleCount(
+  items: readonly DashboardStudioPaymentDueItem[],
+): number {
+  const hidden =
+    uniquePaymentDueClients(items).length - DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT;
+  return hidden > 0 ? hidden : 0;
+}
+
 /** First clients for the dashboard, with every unpaid package kept on the card. */
 export function previewPaymentDueGroups(
   items: readonly DashboardStudioPaymentDueItem[],

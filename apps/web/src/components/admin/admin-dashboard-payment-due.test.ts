@@ -10,6 +10,7 @@ import {
   groupPaymentDueByClient,
   previewPaymentDueClients,
   previewPaymentDueGroups,
+  remainingPaymentDuePeopleCount,
 } from "./admin-dashboard-payment-due";
 
 describe("dashboardClientsHref", () => {
@@ -99,6 +100,32 @@ describe("previewPaymentDueClients", () => {
     assert.deepEqual(
       previewPaymentDueClients(items).map((item) => item.clientId),
       ["c1", "c2", "c3", "c4", "c5"],
+    );
+  });
+});
+
+describe("remainingPaymentDuePeopleCount", () => {
+  it("counts people beyond the five dashboard cards", () => {
+    const items = ["c1", "c2", "c3", "c4", "c5", "c6", "c7"].map((clientId) => ({
+      clientId,
+      clientName: clientId,
+      packageId: clientId,
+      packageName: "Pack",
+    }));
+    assert.equal(remainingPaymentDuePeopleCount(items), 2);
+  });
+
+  it("is zero when every person already fits on the dashboard", () => {
+    assert.equal(
+      remainingPaymentDuePeopleCount([
+        {
+          clientId: "c1",
+          clientName: "Ana",
+          packageId: "p1",
+          packageName: "Pack A",
+        },
+      ]),
+      0,
     );
   });
 });
