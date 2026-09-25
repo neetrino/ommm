@@ -1266,7 +1266,6 @@
         "fromNamed": "{name} sent this to you",
         "fromAnonymous": "Someone sent this to you",
         "noteLabel": "A note for you",
-        "body": "It is already in your account. Use it when you book or pay.",
         "openGift": "See my gift",
         "close": "Close",
         "backdropAria": "Close gift celebration"

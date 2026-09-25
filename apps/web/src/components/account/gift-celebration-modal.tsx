@@ -57,7 +57,6 @@ export function GiftCelebrationModal({
         amountLabel={formatAmdFromCents(card.amountCents, locale)}
         noteLabel={t("noteLabel")}
         note={note}
-        body={t("body")}
         closeLabel={t("close")}
         openLabel={t("openGift")}
         onClose={onClose}
@@ -79,7 +78,6 @@ type GiftCelebrationBodyProps = {
   amountLabel: string;
   noteLabel: string;
   note: string;
-  body: string;
   closeLabel: string;
   openLabel: string;
   onClose: () => void;
@@ -102,7 +100,6 @@ function GiftCelebrationBody(props: GiftCelebrationBodyProps) {
       {props.note.length > 0 ? (
         <GiftNote label={props.noteLabel} note={props.note} />
       ) : null}
-      <p className={styles.body}>{props.body}</p>
       <GiftCelebrationActions
         closeLabel={props.closeLabel}
         openLabel={props.openLabel}
