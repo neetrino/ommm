@@ -6,8 +6,10 @@ import { PaymentDueWarningIcon } from "@/components/admin/admin-client-package-p
 import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by-id";
 import { CLIENT_SHEET_TAB_PACKAGES } from "@/components/admin/admin-client-sheet-tabs";
 import {
-  previewPaymentDueClients,
+  formatPaymentDuePurchaseLabel,
+  previewPaymentDueGroups,
   type DashboardStudioPaymentDueItem,
+  type PaymentDueClientGroup,
 } from "@/components/admin/admin-dashboard-payment-due";
 import { Link, useRouter } from "@/i18n/navigation";
 
@@ -18,14 +20,20 @@ type AdminDashboardPaymentDueBannerProps = {
   viewAllHref: string;
 };
 
-type PaymentDueClientRowProps = {
-  item: DashboardStudioPaymentDueItem;
+type PaymentDueClientCardProps = {
+  group: PaymentDueClientGroup;
+  boughtLabel: string;
   openLabel: string;
   onOpen: () => void;
 };
 
-function PaymentDueClientCard({ item, openLabel, onOpen }: PaymentDueClientRowProps) {
-  const initial = item.clientName.trim().slice(0, 1).toUpperCase() || "?";
+function PaymentDueClientCard({
+  group,
+  boughtLabel,
+  openLabel,
+  onOpen,
+}: PaymentDueClientCardProps) {
+  const initial = group.clientName.trim().slice(0, 1).toUpperCase() || "?";
 
   return (
     <li className="min-w-0">
@@ -39,11 +47,21 @@ function PaymentDueClientCard({ item, openLabel, onOpen }: PaymentDueClientRowPr
           {initial}
         </span>
         <span className="min-w-0 w-full">
-          <span className="block truncate text-sm font-semibold text-sage-900">
-            {item.clientName}
+          <span className="block break-words text-sm font-semibold leading-snug text-sage-900">
+            {group.clientName}
           </span>
-          <span className="mt-1 block truncate text-xs font-medium text-sage-600">
-            {item.packageName}
+          <span className="mt-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-rose-700">
+            {boughtLabel}
+          </span>
+          <span className="mt-1 block space-y-0.5">
+            {group.packages.map((item) => (
+              <span
+                key={item.packageId}
+                className="block break-words text-sm font-medium leading-snug text-sage-800"
+              >
+                {formatPaymentDuePurchaseLabel(item.categoryName, item.packageName)}
+              </span>
+            ))}
           </span>
         </span>
       </button>
@@ -103,7 +121,7 @@ function PaymentDueFilledBanner({
   onOpenClient: (clientId: string) => void;
 }) {
   const t = useTranslations("adminHome.overview.paymentDue");
-  const visibleItems = previewPaymentDueClients(items);
+  const visibleGroups = previewPaymentDueGroups(items);
 
   return (
     <div
@@ -126,12 +144,13 @@ function PaymentDueFilledBanner({
         </div>
       </div>
       <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
-        {visibleItems.map((item) => (
+        {visibleGroups.map((group) => (
           <PaymentDueClientCard
-            key={item.clientId}
-            item={item}
-            openLabel={t("openClient", { name: item.clientName })}
-            onOpen={() => onOpenClient(item.clientId)}
+            key={group.clientId}
+            group={group}
+            boughtLabel={t("bought")}
+            openLabel={t("openClient", { name: group.clientName })}
+            onOpen={() => onOpenClient(group.clientId)}
           />
         ))}
       </ul>

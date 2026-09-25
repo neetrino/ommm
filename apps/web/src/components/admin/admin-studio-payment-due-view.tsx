@@ -6,6 +6,7 @@ import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by
 import { CLIENT_SHEET_TAB_PACKAGES } from "@/components/admin/admin-client-sheet-tabs";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import {
+  formatPaymentDuePurchaseLabel,
   groupPaymentDueByClient,
   type DashboardStudioPaymentDueItem,
   type PaymentDueClientGroup,
@@ -54,7 +55,7 @@ function PaymentDueClientCard({
                 key={item.packageId}
                 className="block truncate text-sm text-sage-500"
               >
-                {item.packageName}
+                {formatPaymentDuePurchaseLabel(item.categoryName, item.packageName)}
               </span>
             ))}
           </span>

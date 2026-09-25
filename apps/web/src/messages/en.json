@@ -1978,6 +1978,7 @@
         "title": "Payment Due",
         "hint": "These studio packages were used in a class that ended over an hour ago, but payment is still unpaid.",
         "openClient": "Open {name}",
+        "bought": "Bought",
         "count": "{count, plural, one {# package} other {# packages}}",
         "viewAll": "View all",
         "empty": "No studio package payments are due right now."

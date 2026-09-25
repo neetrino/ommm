@@ -6,8 +6,10 @@ import {
   studioPaymentDuePageHref,
 } from "./admin-dashboard-metrics.helpers";
 import {
+  formatPaymentDuePurchaseLabel,
   groupPaymentDueByClient,
   previewPaymentDueClients,
+  previewPaymentDueGroups,
 } from "./admin-dashboard-payment-due";
 
 describe("dashboardClientsHref", () => {
@@ -28,6 +30,22 @@ describe("dashboardHomeHref", () => {
   it("uses admin dashboard for finance dashboards and manager otherwise", () => {
     assert.equal(dashboardHomeHref(true), "/admin/dashboard");
     assert.equal(dashboardHomeHref(false), "/manager/dashboard");
+  });
+});
+
+describe("formatPaymentDuePurchaseLabel", () => {
+  it("joins category and plan when the plan name does not already include it", () => {
+    assert.equal(
+      formatPaymentDuePurchaseLabel("Yoga Individual", "1 Session"),
+      "Yoga Individual · 1 Session",
+    );
+  });
+
+  it("keeps the plan name when it already contains the category", () => {
+    assert.equal(
+      formatPaymentDuePurchaseLabel("Yoga Individual", "Yoga Individual 1 Session"),
+      "Yoga Individual 1 Session",
+    );
   });
 });
 
@@ -82,6 +100,36 @@ describe("previewPaymentDueClients", () => {
       previewPaymentDueClients(items).map((item) => item.clientId),
       ["c1", "c2", "c3", "c4", "c5"],
     );
+  });
+});
+
+describe("previewPaymentDueGroups", () => {
+  it("keeps every package for the clients shown on the dashboard", () => {
+    const grouped = previewPaymentDueGroups([
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packageId: "p1",
+        packageName: "Pack A",
+      },
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packageId: "p1b",
+        packageName: "Pack A2",
+      },
+    ]);
+
+    assert.deepEqual(grouped, [
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packages: [
+          { packageId: "p1", packageName: "Pack A" },
+          { packageId: "p1b", packageName: "Pack A2" },
+        ],
+      },
+    ]);
   });
 });
 
