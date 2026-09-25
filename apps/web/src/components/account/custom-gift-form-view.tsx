@@ -38,6 +38,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
       <CustomGiftFace
         eyebrow={t("eyebrow")}
         title={t("title")}
+        lead={t("lead")}
         amountId={props.amountId}
         amountRaw={props.amountRaw}
         amountLabel={t("amountLabel")}
@@ -76,6 +77,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
 function CustomGiftFace({
   eyebrow,
   title,
+  lead,
   amountId,
   amountRaw,
   amountLabel,
@@ -86,6 +88,7 @@ function CustomGiftFace({
 }: {
   eyebrow: string;
   title: string;
+  lead: string;
   amountId: string;
   amountRaw: string;
   amountLabel: string;
@@ -101,6 +104,7 @@ function CustomGiftFace({
         <h2 className="mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
           {title}
         </h2>
+        <p className="ommm-body-muted mt-3 max-w-md text-base sm:text-lg">{lead}</p>
         <div className="mt-7 max-w-sm rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md">
           <Field label={amountLabel} hint={amountHint} error={amountError} htmlFor={amountId}>
             <AmdMoneyInput
