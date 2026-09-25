@@ -114,7 +114,7 @@ export function GiftCardBoardTile({
               imageUrl={imageUrl}
               alt={imageAlt}
               fallbackLabel={imageFallbackLabel}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
             {imageBadge ? (
               <span

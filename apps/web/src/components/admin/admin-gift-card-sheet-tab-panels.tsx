@@ -27,7 +27,7 @@ import type {
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { resolveGiftCardDisplaySrc } from "@/components/gift-cards/gift-card-image";
 
 const SECTION_CLASS =
   "rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]";
@@ -91,7 +91,7 @@ function GiftCardOverviewPanel({
   locale: string;
 }) {
   const t = useTranslations("adminPages.giftCards");
-  const resolvedImage = resolveApiAssetUrl(card.imageUrl);
+  const cardImageSrc = resolveGiftCardDisplaySrc(card.imageUrl);
   const recipient = recipientLabel(card);
   const expired = isGiftCardExpired(card);
   const amountLabel = formatAmdFromCents(card.amountAmd, locale);
@@ -100,18 +100,12 @@ function GiftCardOverviewPanel({
     <div className="space-y-4">
       <section className={`${SECTION_CLASS} overflow-hidden`}>
         <div className="flex w-full items-center justify-center bg-sage-100 p-4">
-          {resolvedImage ? (
-            // eslint-disable-next-line @next/next/no-img-element -- supports API and blob/image URLs
+            {/* eslint-disable-next-line @next/next/no-img-element -- supports API uploads and local gift-card art */}
             <img
-              src={resolvedImage}
+              src={cardImageSrc}
               alt={t("cardImageAlt")}
               className="h-auto max-h-[min(40vh,320px)] w-full object-contain"
             />
-          ) : (
-            <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100 sm:h-48">
-              <span className="text-sm font-medium text-sage-600">{t("cardImageFallback")}</span>
-            </div>
-          )}
         </div>
         <div className="flex flex-wrap items-center gap-2 border-t border-white/60 px-4 py-3">
           <span className={giftCardStatusBadgeClass(card.status)}>
