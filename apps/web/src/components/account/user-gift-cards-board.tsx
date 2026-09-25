@@ -9,13 +9,12 @@ import {
   GIFT_CARD_BOARD_GRID_CLASS,
   UserGiftCardsSection,
 } from "@/components/account/user-gift-card-tile-layout";
-import type { UserGiftCardSource } from "@/components/account/user-gift-cards-types";
+import type { UserGiftCardWithSource } from "@/lib/merge-user-gift-cards";
 import { GiftCardBoardTile, type GiftCardBoardDetail } from "@/components/gift-cards/gift-card-board-tile";
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import type { UserGiftCardWithSource } from "@/lib/merge-user-gift-cards";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import {
   parseUserGiftCardsMyPageParams,
@@ -209,20 +208,9 @@ function UserGiftCardTile({
       imageUrl={card.imageUrl}
       imageAlt={t("cardImageAlt")}
       imageFallbackLabel={t("cardImageFallback")}
-      imageBadge={{
-        label: t(`sourceLabels.${card.source}`),
-        className: sourceBadgeClass(card.source),
-      }}
       openAriaLabel={t("openCardAria", { amount: amountLabel })}
       onOpen={() => onSelect(card.id)}
       details={details}
     />
   );
-}
-
-function sourceBadgeClass(source: UserGiftCardSource): string {
-  if (source === "purchased") {
-    return "bg-sand-100/95 text-sage-800";
-  }
-  return "bg-mint-100/95 text-sage-900";
 }
