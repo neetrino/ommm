@@ -35,6 +35,7 @@ export function formatPaymentDuePurchaseLabel(
 }
 
 export const DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT = 5;
+export const PAYMENT_DUE_CARD_VISIBLE_PACKAGES = 2;
 export const STUDIO_PAYMENT_DUE_ENDPOINT = "/reports/dashboard/payment-due";
 
 export function uniquePaymentDueClients(
@@ -59,6 +60,18 @@ export function previewPaymentDueClients(
     0,
     DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT,
   );
+}
+
+/** First packages shown on a card, plus how many stay hidden behind the count. */
+export function visiblePaymentDuePackages<T>(packages: readonly T[]): {
+  visible: T[];
+  hiddenCount: number;
+} {
+  const visible = packages.slice(0, PAYMENT_DUE_CARD_VISIBLE_PACKAGES);
+  return {
+    visible,
+    hiddenCount: Math.max(0, packages.length - visible.length),
+  };
 }
 
 /** People hidden behind View all, after the dashboard preview cards. */

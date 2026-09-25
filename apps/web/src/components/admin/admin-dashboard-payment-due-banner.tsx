@@ -116,12 +116,13 @@ function PaymentDueFilledBanner({
           </div>
         </div>
       </div>
-      <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+      <ul className="mt-4 grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {visibleGroups.map((group) => (
           <PaymentDueClientCard
             key={group.clientId}
             group={group}
             boughtLabel={t("bought")}
+            moreCountLabel={(extra) => t("morePackages", { count: extra })}
             openLabel={t("openClient", { name: group.clientName })}
             onOpen={() => onOpenClient(group.clientId)}
           />

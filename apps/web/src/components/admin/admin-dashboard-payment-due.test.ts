@@ -11,6 +11,7 @@ import {
   previewPaymentDueClients,
   previewPaymentDueGroups,
   remainingPaymentDuePeopleCount,
+  visiblePaymentDuePackages,
 } from "./admin-dashboard-payment-due";
 
 describe("dashboardClientsHref", () => {
@@ -101,6 +102,18 @@ describe("previewPaymentDueClients", () => {
       previewPaymentDueClients(items).map((item) => item.clientId),
       ["c1", "c2", "c3", "c4", "c5"],
     );
+  });
+});
+
+describe("visiblePaymentDuePackages", () => {
+  it("shows two packages and counts the rest", () => {
+    const result = visiblePaymentDuePackages(["a", "b", "c", "d"]);
+    assert.deepEqual(result, { visible: ["a", "b"], hiddenCount: 2 });
+  });
+
+  it("hides the count when there are at most two packages", () => {
+    const result = visiblePaymentDuePackages(["a"]);
+    assert.deepEqual(result, { visible: ["a"], hiddenCount: 0 });
   });
 });
 

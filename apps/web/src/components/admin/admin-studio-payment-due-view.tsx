@@ -42,12 +42,13 @@ export function AdminStudioPaymentDueView({
       />
       {loadError ? <p className="app-alert-warn mb-4 max-w-xl">{loadError}</p> : null}
       {hasDueItems ? (
-        <ul className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 xl:grid-cols-5">
+        <ul className="grid auto-rows-fr grid-cols-2 gap-3.5 sm:grid-cols-3 xl:grid-cols-5">
           {groups.map((group) => (
             <PaymentDueClientCard
               key={group.clientId}
               group={group}
               boughtLabel={t("bought")}
+              moreCountLabel={(extra) => t("morePackages", { count: extra })}
               openLabel={t("openClient", { name: group.clientName })}
               onOpen={() => setSelectedClientId(group.clientId)}
             />
