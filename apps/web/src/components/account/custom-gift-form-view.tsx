@@ -100,27 +100,25 @@ function CustomGiftFace({
 }) {
   return (
     <div className="rounded-t-[28px] bg-gradient-to-br from-sand-100 via-peach-100/70 to-paper px-5 py-7 sm:px-8 sm:py-9">
-      <div className="max-w-xl">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">{eyebrow}</p>
-        <h2 className="mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
-          {title}
-        </h2>
-        <GiftLead text={lead} />
-        <div className="mt-7 max-w-sm rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md">
-          <Field label={amountLabel} hint={amountHint} error={amountError} htmlFor={amountId}>
-            <AmdMoneyInput
-              id={amountId}
-              value={amountRaw}
-              disabled={busy}
-              align="start"
-              data-form-field="amount"
-              aria-invalid={amountError !== null}
-              aria-describedby={`${amountId}-hint`}
-              className={`h-14 rounded-2xl text-lg font-medium tracking-tight text-sage-950 ${amountError !== null ? FORM_INVALID_FIELD_CLASS : ""}`}
-              onValueChange={onAmountChange}
-            />
-          </Field>
-        </div>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">{eyebrow}</p>
+      <h2 className="mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
+        {title}
+      </h2>
+      <GiftLead text={lead} />
+      <div className="mt-7 max-w-sm rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md">
+        <Field label={amountLabel} hint={amountHint} error={amountError} htmlFor={amountId}>
+          <AmdMoneyInput
+            id={amountId}
+            value={amountRaw}
+            disabled={busy}
+            align="start"
+            data-form-field="amount"
+            aria-invalid={amountError !== null}
+            aria-describedby={`${amountId}-hint`}
+            className={`h-14 rounded-2xl text-lg font-medium tracking-tight text-sage-950 ${amountError !== null ? FORM_INVALID_FIELD_CLASS : ""}`}
+            onValueChange={onAmountChange}
+          />
+        </Field>
       </div>
     </div>
   );
@@ -128,8 +126,8 @@ function CustomGiftFace({
 
 function GiftLead({ text }: { text: string }) {
   return (
-    <p className="mt-4 flex max-w-lg items-center gap-3">
-      <span className="font-serif text-lg italic leading-relaxed text-sage-800 sm:text-xl">{text}</span>
+    <p className="mt-4 flex w-fit items-center gap-3">
+      <span className="whitespace-nowrap font-serif text-lg italic leading-relaxed text-sage-800 sm:text-xl">{text}</span>
       <GiftHeartIcon />
     </p>
   );
