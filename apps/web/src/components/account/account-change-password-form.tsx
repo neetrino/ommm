@@ -7,6 +7,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
+import { PSEUDO_PASSWORD } from "@/lib/pseudo-form-placeholders";
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 128;
@@ -113,6 +114,7 @@ export function AccountChangePasswordForm({
             id="current-password"
             autoComplete="current-password"
             className="ommm-input"
+            placeholder={PSEUDO_PASSWORD}
             value={currentPassword}
             onChange={(ev) => setCurrentPassword(ev.target.value)}
             showPasswordLabel={t("showPassword")}
@@ -128,6 +130,7 @@ export function AccountChangePasswordForm({
           id="new-password"
           autoComplete="new-password"
           className="ommm-input"
+          placeholder={PSEUDO_PASSWORD}
           value={newPassword}
           onChange={(ev) => setNewPassword(ev.target.value)}
           showPasswordLabel={t("showPassword")}
@@ -142,6 +145,7 @@ export function AccountChangePasswordForm({
           id="confirm-password"
           autoComplete="new-password"
           className="ommm-input"
+          placeholder={PSEUDO_PASSWORD}
           value={confirmPassword}
           onChange={(ev) => setConfirmPassword(ev.target.value)}
           showPasswordLabel={t("showPassword")}
