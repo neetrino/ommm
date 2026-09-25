@@ -15,6 +15,10 @@ export type GiftRecipientOption = {
 const RECIPIENT_SEARCH_MIN_CHARS = 1;
 const RECIPIENT_SEARCH_DEBOUNCE_MS = 280;
 
+/** Soft sand card shared with the custom-gift note field. */
+export const GIFT_SOFT_FIELD_CARD_CLASS =
+  "rounded-[22px] border border-sand-100 bg-gradient-to-br from-sand-100/60 via-peach-100/40 to-paper p-4";
+
 type GiftRecipientPickerProps = {
   selected: GiftRecipientOption | null;
   onSelect: (value: GiftRecipientOption | null) => void;
@@ -124,12 +128,14 @@ export function GiftRecipientPicker({
     listOpen &&
     (loading || error !== null || searchActive);
 
-  return (
-    <section className={embedded ? "space-y-3" : "rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5"}>
-      <p className="text-sm font-medium text-sage-800">{t("recipientSectionLabel")}</p>
-      <p className="mt-1 text-xs leading-5 text-sage-500">{t("recipientSectionHint")}</p>
+  const chrome = recipientPickerChrome(embedded);
 
-      <div className="mt-4 space-y-3">
+  return (
+    <section className={chrome.section}>
+      <p className={chrome.title}>{t("recipientSectionLabel")}</p>
+      <p className={chrome.hint}>{t("recipientSectionHint")}</p>
+
+      <div className={chrome.fields}>
         {selected !== null ? (
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-sage-700/30 bg-sage-50 px-3 py-3">
@@ -176,7 +182,7 @@ export function GiftRecipientPicker({
                 }}
                 data-form-field="recipient"
                 aria-invalid={validationMessage !== null}
-                className={formFieldInputClass(validationMessage !== null)}
+                className={formFieldInputClass(validationMessage !== null, chrome.input)}
                 placeholder={t("recipientSearchPlaceholder")}
                 autoComplete="off"
                 spellCheck={false}
@@ -230,6 +236,32 @@ export function GiftRecipientPicker({
       </div>
     </section>
   );
+}
+
+function recipientPickerChrome(embedded: boolean): {
+  section: string;
+  title: string;
+  hint: string;
+  fields: string;
+  input: string;
+} {
+  if (!embedded) {
+    return {
+      section:
+        "rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5",
+      title: "text-sm font-medium text-sage-800",
+      hint: "mt-1 text-xs leading-5 text-sage-500",
+      fields: "mt-4 space-y-3",
+      input: "",
+    };
+  }
+  return {
+    section: "space-y-4",
+    title: "font-serif text-2xl font-normal leading-tight tracking-tight text-sage-900",
+    hint: "mt-1.5 max-w-lg text-sm leading-6 text-sage-500",
+    fields: `space-y-3 ${GIFT_SOFT_FIELD_CARD_CLASS}`,
+    input: "h-14 rounded-2xl bg-white px-4 text-base",
+  };
 }
 
 export function formatRecipientLabel(user: GiftRecipientOption): string {

@@ -3,6 +3,7 @@
 import type { FormEvent, ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
+  GIFT_SOFT_FIELD_CARD_CLASS,
   GiftRecipientPicker,
   type GiftRecipientOption,
 } from "@/components/account/gift-recipient-picker";
@@ -47,7 +48,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
         busy={props.busy}
         onAmountChange={props.onAmountChange}
       />
-      <div className="space-y-6 px-5 py-6 sm:px-8">
+      <div className="space-y-8 px-5 py-7 sm:px-8 sm:py-8">
         <GiftRecipientPicker
           embedded
           selected={props.recipient}
@@ -128,8 +129,8 @@ function CustomGiftFace({
 function GiftLead({ text }: { text: string }) {
   return (
     <p className="mt-4 flex max-w-lg items-center gap-3">
-      <GiftHeartIcon />
       <span className="font-serif text-lg italic leading-relaxed text-sage-800 sm:text-xl">{text}</span>
+      <GiftHeartIcon />
     </p>
   );
 }
@@ -160,19 +161,26 @@ function CustomGiftNote({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="ommm-label flex flex-col gap-2" htmlFor={id}>
-      {label}
-      <textarea
-        id={id}
-        rows={4}
-        maxLength={CUSTOM_GIFT_MESSAGE_MAX_LENGTH}
-        disabled={disabled}
-        value={value}
-        placeholder={placeholder}
-        className="ommm-input min-h-28 resize-y rounded-2xl"
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
+    <div className="space-y-4">
+      <label
+        className="block font-serif text-2xl font-normal leading-tight tracking-tight text-sage-900"
+        htmlFor={id}
+      >
+        {label}
+      </label>
+      <div className={GIFT_SOFT_FIELD_CARD_CLASS}>
+        <textarea
+          id={id}
+          rows={4}
+          maxLength={CUSTOM_GIFT_MESSAGE_MAX_LENGTH}
+          disabled={disabled}
+          value={value}
+          placeholder={placeholder}
+          className="ommm-input min-h-32 resize-y rounded-2xl bg-white px-4 py-3 text-base"
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </div>
+    </div>
   );
 }
 
