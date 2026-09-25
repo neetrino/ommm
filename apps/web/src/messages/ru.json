@@ -1263,7 +1263,7 @@
       "celebration": {
         "eyebrow": "Подарок для вас",
         "title": "Вам подарили карту",
-        "fromNamed": "Это подарок от {name}",
+        "fromNamed": "Это подарок от <sender>{name}</sender>",
         "fromAnonymous": "Кто-то отправил это вам",
         "noteLabel": "Записка для вас",
         "openGift": "Посмотреть подарок",

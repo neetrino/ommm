@@ -61,7 +61,7 @@ export class GiftCardsClientService {
     const where = { recipientId: userId };
     const include = {
       batch: { select: { imageUrl: true } },
-      purchaser: { select: { name: true, lastName: true } },
+      purchaser: { select: { name: true, lastName: true, avatarUrl: true } },
     };
     const orderBy = { createdAt: 'desc' as const };
 

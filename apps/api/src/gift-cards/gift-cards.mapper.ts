@@ -112,7 +112,11 @@ export function serializeUserGiftCard(card: {
   expiresAt: Date | null;
   createdAt: Date;
   batch?: { imageUrl: string | null } | null;
-  purchaser?: { name: string | null; lastName: string | null } | null;
+  purchaser?: {
+    name: string | null;
+    lastName: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }) {
   return {
     id: card.id,
@@ -124,10 +128,18 @@ export function serializeUserGiftCard(card: {
     recipientEmail: card.recipientEmail,
     recipientName: card.recipientName,
     purchaserName: purchaserDisplayName(card.purchaser),
+    purchaserAvatarUrl: purchaserAvatarUrl(card.purchaser),
     message: card.message,
     expiresAt: card.expiresAt,
     createdAt: card.createdAt,
   };
+}
+
+function purchaserAvatarUrl(
+  purchaser: { avatarUrl?: string | null } | null | undefined,
+): string | null {
+  const url = purchaser?.avatarUrl?.trim() ?? '';
+  return url.length > 0 ? url : null;
 }
 
 function purchaserDisplayName(

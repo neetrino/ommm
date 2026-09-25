@@ -1263,7 +1263,7 @@
       "celebration": {
         "eyebrow": "A gift for you",
         "title": "You received a gift card",
-        "fromNamed": "{name} sent this to you",
+        "fromNamed": "<sender>{name}</sender> sent this to you",
         "fromAnonymous": "Someone sent this to you",
         "noteLabel": "A note for you",
         "openGift": "See my gift",

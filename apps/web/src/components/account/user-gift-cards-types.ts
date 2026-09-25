@@ -10,6 +10,7 @@ export type UserGiftCardRow = {
   recipientEmail: string | null;
   recipientName: string | null;
   purchaserName?: string | null;
+  purchaserAvatarUrl?: string | null;
   message: string | null;
   expiresAt: string | null;
   createdAt: string;

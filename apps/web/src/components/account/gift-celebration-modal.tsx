@@ -1,19 +1,27 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { useRouter } from "@/i18n/navigation";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { USER_GIFT_CARDS_PATH } from "@/lib/user-gift-cards-tab";
+import { userDisplayInitials } from "@/lib/user-display-initials";
 import styles from "@/components/account/required-phone-completion-gate.module.css";
+
+/** Fixed square so the shared avatar (which fills its parent) stays a circle. */
+const GIFT_SENDER_AVATAR_BOX_CLASS = "inline-flex size-8 shrink-0 overflow-hidden rounded-full";
+const GIFT_SENDER_AVATAR_CLASS = "size-full rounded-full text-xs";
 
 export type GiftCelebrationView = {
   id: string;
   amountCents: number;
   message: string | null;
   purchaserName?: string | null;
+  purchaserAvatarUrl?: string | null;
 };
 
 type GiftCelebrationModalProps = {
@@ -33,8 +41,6 @@ export function GiftCelebrationModal({
   const descId = useId();
   const sender = card.purchaserName?.trim() ?? "";
   const note = card.message?.trim() ?? "";
-  const fromLine =
-    sender.length > 0 ? t("fromNamed", { name: sender }) : t("fromAnonymous");
 
   return (
     <OmmModalPortal
@@ -53,7 +59,12 @@ export function GiftCelebrationModal({
         descId={descId}
         eyebrow={t("eyebrow")}
         title={t("title")}
-        fromLine={fromLine}
+        fromLine={
+          <GiftFromLine
+            sender={sender}
+            avatarUrl={card.purchaserAvatarUrl ?? null}
+          />
+        }
         amountLabel={formatAmdFromCents(card.amountCents, locale)}
         noteLabel={t("noteLabel")}
         note={note}
@@ -74,7 +85,7 @@ type GiftCelebrationBodyProps = {
   descId: string;
   eyebrow: string;
   title: string;
-  fromLine: string;
+  fromLine: ReactNode;
   amountLabel: string;
   noteLabel: string;
   note: string;
@@ -108,6 +119,36 @@ function GiftCelebrationBody(props: GiftCelebrationBodyProps) {
       />
     </div>
   );
+}
+
+function GiftFromLine({
+  sender,
+  avatarUrl,
+}: {
+  sender: string;
+  avatarUrl: string | null;
+}) {
+  const t = useTranslations("userPages.giftCards.celebration");
+  if (sender.length === 0) {
+    return t("fromAnonymous");
+  }
+  const imageSrc = resolveApiAssetUrl(avatarUrl) ?? null;
+  return t.rich("fromNamed", {
+    name: sender,
+    sender: (chunks) => (
+      <span className="inline-flex items-center gap-2 align-middle whitespace-nowrap">
+        <span className={GIFT_SENDER_AVATAR_BOX_CLASS}>
+          <MemberProfileAvatar
+            initials={userDisplayInitials(sender, null)}
+            imageSrc={imageSrc}
+            className={GIFT_SENDER_AVATAR_CLASS}
+            guestIconClassName={GIFT_SENDER_AVATAR_CLASS}
+          />
+        </span>
+        <span>{chunks}</span>
+      </span>
+    ),
+  });
 }
 
 function GiftCelebrationActions({
