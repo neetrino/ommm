@@ -178,7 +178,7 @@ export function GiftRecipientPicker({
               <div
                 id={listboxId}
                 role="listbox"
-                className="max-h-60 overflow-y-auto rounded-2xl border border-sage-200 bg-white shadow-[0_12px_28px_-18px_rgba(45,40,35,0.28)]"
+                className="ommm-dropdown-menu-list max-h-60 overflow-y-auto rounded-2xl border border-sage-200 bg-white shadow-[0_12px_28px_-18px_rgba(45,40,35,0.28)]"
               >
                 {loading ? (
                   <p className="px-3 py-3 text-sm text-sage-500">{t("recipientSearching")}</p>
