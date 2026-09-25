@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { CustomGiftComposer } from "@/components/account/custom-gift-composer";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
-import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
 import { UserGiftCardsView } from "@/components/account/user-gift-cards-view";
@@ -48,10 +47,7 @@ export async function MemberUserGiftCardsRouteContent({
       embeddedInSheet={embeddedInSheet}
       initialTab={tab}
       myPanel={
-        <div className="space-y-10">
-          <GiftRedeemForm />
-          <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
-        </div>
+        <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
       }
       shopPanel={
         <div className="space-y-10">
