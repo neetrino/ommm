@@ -10,6 +10,7 @@ import {
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
+import { GiftBannerSpheres } from "@/components/account/gift-banner-spheres";
 import { CUSTOM_GIFT_MESSAGE_MAX_LENGTH } from "@/lib/custom-gift-card.constants";
 
 export type CustomGiftFormProps = {
@@ -99,13 +100,14 @@ function CustomGiftFace({
   onAmountChange: (value: string) => void;
 }) {
   return (
-    <div className="rounded-t-[28px] bg-gradient-to-br from-sand-100 via-peach-100/70 to-paper px-5 py-7 sm:px-8 sm:py-9">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">{eyebrow}</p>
-      <h2 className="mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
+    <div className="relative overflow-hidden rounded-t-[28px] bg-gradient-to-br from-sand-100 via-peach-100/70 to-paper px-5 py-7 sm:px-8 sm:py-9">
+      <GiftBannerSpheres />
+      <p className="relative z-10 text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">{eyebrow}</p>
+      <h2 className="relative z-10 mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
         {title}
       </h2>
       <GiftLead text={lead} />
-      <div className="mt-7 max-w-sm rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md">
+      <div className="relative z-10 mt-7 max-w-sm rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md">
         <Field label={amountLabel} hint={amountHint} error={amountError} htmlFor={amountId}>
           <AmdMoneyInput
             id={amountId}
@@ -126,7 +128,7 @@ function CustomGiftFace({
 
 function GiftLead({ text }: { text: string }) {
   return (
-    <p className="mt-4 flex w-fit items-center gap-3">
+    <p className="relative z-10 mt-4 flex w-fit items-center gap-3">
       <span className="whitespace-nowrap font-serif text-lg italic leading-relaxed text-sage-800 sm:text-xl">{text}</span>
       <GiftHeartIcon />
     </p>
