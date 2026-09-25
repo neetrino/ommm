@@ -11,7 +11,7 @@ export type PaymentDueClientGroup = {
   packages: Array<{ packageId: string; packageName: string }>;
 };
 
-export const DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT = 3;
+export const DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT = 5;
 export const STUDIO_PAYMENT_DUE_ENDPOINT = "/reports/dashboard/payment-due";
 
 export function uniquePaymentDueClients(

@@ -24,18 +24,25 @@ type PaymentDueClientRowProps = {
   onOpen: () => void;
 };
 
-function PaymentDueClientRow({ item, openLabel, onOpen }: PaymentDueClientRowProps) {
+function PaymentDueClientCard({ item, openLabel, onOpen }: PaymentDueClientRowProps) {
+  const initial = item.clientName.trim().slice(0, 1).toUpperCase() || "?";
+
   return (
-    <li>
+    <li className="min-w-0">
       <button
         type="button"
-        className="flex w-full items-center rounded-2xl border border-white/25 bg-white/15 px-3 py-2.5 text-left text-sm font-medium text-white hover:bg-white/25"
+        className="flex h-full w-full flex-col items-start gap-3 rounded-2xl border border-white/70 bg-white px-3.5 py-3.5 text-left shadow-[0_14px_28px_-18px_rgba(76,5,25,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_32px_-16px_rgba(76,5,25,0.6)]"
         aria-label={openLabel}
         onClick={onOpen}
       >
-        <span className="min-w-0 truncate">
-          {item.clientName}
-          <span className="mt-0.5 block truncate text-xs font-normal text-rose-50">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-sm font-semibold text-rose-700">
+          {initial}
+        </span>
+        <span className="min-w-0 w-full">
+          <span className="block truncate text-sm font-semibold text-sage-900">
+            {item.clientName}
+          </span>
+          <span className="mt-1 block truncate text-xs font-medium text-sage-600">
             {item.packageName}
           </span>
         </span>
@@ -118,9 +125,9 @@ function PaymentDueFilledBanner({
           </div>
         </div>
       </div>
-      <ul className="mt-4 space-y-2">
+      <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {visibleItems.map((item) => (
-          <PaymentDueClientRow
+          <PaymentDueClientCard
             key={item.clientId}
             item={item}
             openLabel={t("openClient", { name: item.clientName })}

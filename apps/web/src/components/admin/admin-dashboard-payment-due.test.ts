@@ -63,12 +63,24 @@ describe("previewPaymentDueClients", () => {
       packageId: "p4",
       packageName: "Pack D",
     },
+    {
+      clientId: "c5",
+      clientName: "Eva",
+      packageId: "p5",
+      packageName: "Pack E",
+    },
+    {
+      clientId: "c6",
+      clientName: "Fay",
+      packageId: "p6",
+      packageName: "Pack F",
+    },
   ];
 
-  it("shows at most three unique people on the dashboard preview", () => {
+  it("shows at most five unique people on the dashboard preview", () => {
     assert.deepEqual(
       previewPaymentDueClients(items).map((item) => item.clientId),
-      ["c1", "c2", "c3"],
+      ["c1", "c2", "c3", "c4", "c5"],
     );
   });
 });
