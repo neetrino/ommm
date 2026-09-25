@@ -255,6 +255,7 @@ export function AdminGiftCardsManagement({
             onSelect={selectGiftCard}
             onEdit={openEditModal}
             onChanged={handleChanged}
+            canDelete={caps.canDelete}
           />
           <OmmListPagination
             total={initial.total}

@@ -3609,6 +3609,7 @@
         "deleting": "Deleting…",
         "deactivateConfirm": "Deactivate this gift card? It can no longer be redeemed.",
         "deleteConfirm": "Delete this gift card permanently?",
+        "deleteIssuedBlocked": "This gift card was already issued. Deactivate it instead of deleting it.",
         "resent": "Gift card email resent.",
         "deactivated": "Gift card deactivated.",
         "deleted": "Gift card deleted.",

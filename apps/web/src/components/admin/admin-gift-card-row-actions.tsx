@@ -4,13 +4,20 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api";
+import {
+  giftCardActionErrorMessage,
+  resolveGiftCardConfirmCopy,
+  type GiftCardPendingConfirm,
+} from "@/components/admin/admin-gift-card-row-action-copy";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import {
   ADMIN_ACTION_ICON_CLASS,
   PencilGlyph,
+  TrashGlyph,
 } from "@/components/ui/admin-action-glyphs";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
+import { DeleteActionButton } from "@/components/ui/delete-action-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import {
   GIFT_CARD_BOARD_TEXT_ACTION_CLASS,
@@ -21,14 +28,15 @@ const LIST_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
 const BOARD_TOGGLE_BUTTON_CLASS =
   "inline-flex shrink-0 cursor-pointer items-center rounded-full p-1 transition-opacity hover:opacity-85 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
 
-type PendingConfirm = "activate" | "deactivate";
-
 type AdminGiftCardRowActionsProps = {
   variant?: "list" | "board";
   card: AdminGiftCardBatchRow;
+  canDelete?: boolean;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
 };
+
+const BOARD_DELETE_BUTTON_CLASS = `${GIFT_CARD_BOARD_TEXT_ACTION_CLASS} text-red-700 hover:bg-red-50`;
 
 function isGiftCardStatusToggleable(status: AdminGiftCardBatchRow["status"]): boolean {
   return status === "ACTIVE" || status === "DEACTIVATED";
@@ -37,6 +45,7 @@ function isGiftCardStatusToggleable(status: AdminGiftCardBatchRow["status"]): bo
 export function AdminGiftCardRowActions({
   variant = "list",
   card,
+  canDelete = false,
   onEdit,
   onChanged,
 }: AdminGiftCardRowActionsProps) {
@@ -45,7 +54,8 @@ export function AdminGiftCardRowActions({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
-  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
+  const [pendingConfirm, setPendingConfirm] = useState<GiftCardPendingConfirm | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const isActive = pendingIsActive ?? card.status === "ACTIVE";
   const canToggleStatus = isGiftCardStatusToggleable(card.status);
   const disabled = busy;
@@ -55,13 +65,24 @@ export function AdminGiftCardRowActions({
     if (disabled || !canToggleStatus) {
       return;
     }
+    setActionError(null);
     setPendingConfirm(isActive ? "deactivate" : "activate");
+  }
+
+  function openDelete(event: React.MouseEvent<HTMLButtonElement>): void {
+    event.stopPropagation();
+    if (disabled || !canDelete) {
+      return;
+    }
+    setActionError(null);
+    setPendingConfirm("delete");
   }
 
   function closeConfirm(): void {
     if (busy) {
       return;
     }
+    setActionError(null);
     setPendingConfirm(null);
   }
 
@@ -71,21 +92,35 @@ export function AdminGiftCardRowActions({
     }
 
     const nextIsActive = pendingConfirm === "activate";
-    setPendingIsActive(nextIsActive);
+    if (pendingConfirm !== "delete") {
+      setPendingIsActive(nextIsActive);
+    }
     setBusy(true);
+    setActionError(null);
 
     try {
-      await apiFetch(
-        nextIsActive
-          ? `/gift-cards/admin/batches/${card.id}/activate`
-          : `/gift-cards/admin/batches/${card.id}/deactivate`,
-        { method: "PATCH" },
-      );
+      if (pendingConfirm === "delete") {
+        await apiFetch(`/gift-cards/admin/batches/${card.id}`, { method: "DELETE" });
+      } else {
+        await apiFetch(
+          nextIsActive
+            ? `/gift-cards/admin/batches/${card.id}/activate`
+            : `/gift-cards/admin/batches/${card.id}/deactivate`,
+          { method: "PATCH" },
+        );
+      }
       setPendingConfirm(null);
       onChanged?.();
       router.refresh();
-    } catch {
+    } catch (error) {
       setPendingIsActive(null);
+      setActionError(
+        giftCardActionErrorMessage(
+          error,
+          tActions("failed"),
+          tActions("deleteIssuedBlocked"),
+        ),
+      );
     } finally {
       setBusy(false);
       setPendingIsActive(null);
@@ -97,22 +132,17 @@ export function AdminGiftCardRowActions({
     openConfirm();
   }
 
-  const confirmCopy =
-    pendingConfirm === "deactivate"
-      ? {
-          title: t("deactivateGiftCard"),
-          description: tActions("deactivateConfirm"),
-          confirmLabel: t("deactivateGiftCard"),
-          tone: "danger" as const,
-          confirmClassName: "ommm-btn-lifecycle-action--danger",
-        }
-      : {
-          title: t("activateGiftCard"),
-          description: t("confirmActivate"),
-          confirmLabel: t("activateGiftCard"),
-          tone: "success" as const,
-          confirmClassName: "ommm-btn-lifecycle-action--success",
-        };
+  const confirmCopy = resolveGiftCardConfirmCopy(pendingConfirm, t, tActions);
+  const confirmLabel = busy
+    ? pendingConfirm === "delete"
+      ? tActions("deleting")
+      : t("savingButton")
+    : confirmCopy.confirmLabel;
+  const confirmError = actionError ? (
+    <p className="text-sm text-red-800" role="alert">
+      {actionError}
+    </p>
+  ) : null;
 
   if (variant === "board") {
     return (
@@ -141,12 +171,23 @@ export function AdminGiftCardRowActions({
           <PencilGlyph className="h-4 w-4 shrink-0" />
           {t("boardEditButton")}
         </button>
+        {canDelete ? (
+          <button
+            type="button"
+            className={BOARD_DELETE_BUTTON_CLASS}
+            disabled={disabled}
+            onClick={openDelete}
+          >
+            <TrashGlyph className="h-4 w-4 shrink-0" />
+            {tActions("delete")}
+          </button>
+        ) : null}
 
         <OmmConfirmDialog
           isOpen={pendingConfirm !== null}
           title={confirmCopy.title}
           description={confirmCopy.description}
-          confirmLabel={busy ? t("savingButton") : confirmCopy.confirmLabel}
+          confirmLabel={confirmLabel}
           cancelLabel={t("cancelButton")}
           backdropAriaLabel={t("modalBackdropClose")}
           tone={confirmCopy.tone}
@@ -156,7 +197,9 @@ export function AdminGiftCardRowActions({
             void confirmStatusChange();
           }}
           onCancel={closeConfirm}
-        />
+        >
+          {confirmError}
+        </OmmConfirmDialog>
       </>
     );
   }
@@ -193,6 +236,13 @@ export function AdminGiftCardRowActions({
         >
           <PencilGlyph className={ADMIN_ACTION_ICON_CLASS} />
         </AdminRowIconButton>
+        {canDelete ? (
+          <DeleteActionButton
+            ariaLabel={tActions("delete")}
+            disabled={disabled}
+            onClick={openDelete}
+          />
+        ) : null}
         {listToggleControl}
       </div>
 
@@ -200,7 +250,7 @@ export function AdminGiftCardRowActions({
         isOpen={pendingConfirm !== null}
         title={confirmCopy.title}
         description={confirmCopy.description}
-        confirmLabel={busy ? t("savingButton") : confirmCopy.confirmLabel}
+        confirmLabel={confirmLabel}
         cancelLabel={t("cancelButton")}
         backdropAriaLabel={t("modalBackdropClose")}
         tone={confirmCopy.tone}
@@ -210,7 +260,9 @@ export function AdminGiftCardRowActions({
           void confirmStatusChange();
         }}
         onCancel={closeConfirm}
-      />
+      >
+        {confirmError}
+      </OmmConfirmDialog>
     </>
   );
 }

@@ -26,6 +26,7 @@ type AdminGiftCardCompactRowProps = {
   onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
+  canDelete?: boolean;
   readOnly?: boolean;
 };
 
@@ -35,6 +36,7 @@ export function AdminGiftCardCompactRow({
   onSelect,
   onEdit,
   onChanged,
+  canDelete = false,
   readOnly = false,
 }: AdminGiftCardCompactRowProps) {
   const t = useTranslations("adminPages.giftCards");
@@ -106,6 +108,7 @@ export function AdminGiftCardCompactRow({
             <AdminListMobileLabel label={t("colActions")} />
             <AdminGiftCardRowActions
               card={card}
+              canDelete={canDelete}
               onEdit={onEdit}
               onChanged={onChanged}
             />

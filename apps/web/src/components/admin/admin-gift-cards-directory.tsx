@@ -21,6 +21,7 @@ type AdminGiftCardsDirectoryProps = {
   onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
+  canDelete?: boolean;
   readOnly?: boolean;
 };
 
@@ -40,6 +41,7 @@ function AdminGiftCardsListView({
   onSelect,
   onEdit,
   onChanged,
+  canDelete = false,
   readOnly = false,
 }: AdminGiftCardsDirectoryProps) {
   const t = useTranslations("adminPages.giftCards");
@@ -82,6 +84,7 @@ function AdminGiftCardsListView({
           onSelect={onSelect}
           onEdit={onEdit}
           onChanged={onChanged}
+          canDelete={canDelete}
         />
       ))}
     </div>

@@ -17,6 +17,7 @@ type AdminGiftCardBoardCardProps = {
   onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
+  canDelete?: boolean;
   readOnly?: boolean;
 };
 
@@ -26,6 +27,7 @@ export function AdminGiftCardBoardCard({
   onSelect,
   onEdit,
   onChanged,
+  canDelete = false,
   readOnly = false,
 }: AdminGiftCardBoardCardProps) {
   const t = useTranslations("adminPages.giftCards");
@@ -54,6 +56,7 @@ export function AdminGiftCardBoardCard({
           <AdminGiftCardRowActions
             variant="board"
             card={card}
+            canDelete={canDelete}
             onEdit={onEdit}
             onChanged={onChanged}
           />
