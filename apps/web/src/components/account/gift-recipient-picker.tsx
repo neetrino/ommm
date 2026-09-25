@@ -174,10 +174,6 @@ export function GiftRecipientPicker({
               />
             </label>
 
-            {query.trim().length > 0 && query.trim().length < RECIPIENT_SEARCH_MIN_CHARS ? (
-              <p className="text-xs text-sage-500">{t("recipientSearchHint")}</p>
-            ) : null}
-
             {showResultsPanel ? (
               <div
                 id={listboxId}
