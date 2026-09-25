@@ -104,7 +104,7 @@ function CustomGiftFace({
         <h2 className="mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
           {title}
         </h2>
-        <p className="ommm-body-muted mt-3 max-w-md text-base sm:text-lg">{lead}</p>
+        <GiftLead text={lead} />
         <div className="mt-7 max-w-sm rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md">
           <Field label={amountLabel} hint={amountHint} error={amountError} htmlFor={amountId}>
             <AmdMoneyInput
@@ -122,6 +122,25 @@ function CustomGiftFace({
         </div>
       </div>
     </div>
+  );
+}
+
+function GiftLead({ text }: { text: string }) {
+  return (
+    <p className="mt-4 flex max-w-lg items-center gap-3">
+      <GiftHeartIcon />
+      <span className="font-serif text-lg italic leading-relaxed text-sage-800 sm:text-xl">{text}</span>
+    </p>
+  );
+}
+
+function GiftHeartIcon() {
+  return (
+    <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/80 text-sand-700 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.45)]">
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+      </svg>
+    </span>
   );
 }
 
