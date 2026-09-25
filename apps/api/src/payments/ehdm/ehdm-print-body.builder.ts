@@ -63,8 +63,14 @@ export function buildEhdmPrintBody(
 }
 
 /** Whole AMD gift-card discount. Non-positive values are omitted from the receipt. */
-export function resolveEhdmDiscountAmd(discountAmd: number | undefined): number {
-  if (discountAmd === undefined || !Number.isFinite(discountAmd) || discountAmd <= 0) {
+export function resolveEhdmDiscountAmd(
+  discountAmd: number | undefined,
+): number {
+  if (
+    discountAmd === undefined ||
+    !Number.isFinite(discountAmd) ||
+    discountAmd <= 0
+  ) {
     return 0;
   }
   return Math.round(discountAmd);

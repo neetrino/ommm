@@ -92,14 +92,23 @@ describe('EhdmPrintService', () => {
 
     await service.printReceiptForPayment('pay-1');
 
-    const body = print.mock.calls[0]?.[0] as {
-      cardAmount: number;
-      items: Array<{ price: number; discount?: number; discountType?: number }>;
-    };
-    expect(body.cardAmount).toBe(90_000);
-    expect(body.items[0]?.price).toBe(120_000);
-    expect(body.items[0]?.discount).toBe(30_000);
-    expect(body.items[0]?.discountType).toBe(2);
+    const printCalls = print.mock.calls as Array<
+      [
+        {
+          cardAmount: number;
+          items: Array<{
+            price: number;
+            discount?: number;
+            discountType?: number;
+          }>;
+        },
+      ]
+    >;
+    const body = printCalls[0]?.[0];
+    expect(body?.cardAmount).toBe(90_000);
+    expect(body?.items[0]?.price).toBe(120_000);
+    expect(body?.items[0]?.discount).toBe(30_000);
+    expect(body?.items[0]?.discountType).toBe(2);
   });
 
   it('persists a successful PEC print without writing isMock', async () => {

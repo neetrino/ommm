@@ -178,7 +178,9 @@ export class PaymentsAdminService {
           relatedItemGroupName:
             resolveAdminPaymentRelatedItemGroupName(relatedArgs),
           statusReason: readPaymentStatusReason(payment.metadata),
-          giftCreditsAppliedCents: readGiftCreditsAppliedCents(payment.metadata),
+          giftCreditsAppliedCents: readGiftCreditsAppliedCents(
+            payment.metadata,
+          ),
           isGiftCreditSpend: isGiftCreditSpendDescription(payment.description),
           ehdmReceipt: payment.ehdmReceipt
             ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
