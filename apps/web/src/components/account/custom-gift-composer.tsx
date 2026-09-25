@@ -162,17 +162,18 @@ async function submitComposer(
 ): Promise<void> {
   event.preventDefault();
   const amountAmd = parseAmdMoneyInput(input.amountRaw);
-  const issues = customGiftFieldIssues(amountAmd, input.recipient !== null);
+  const recipient = input.recipient;
+  const issues = customGiftFieldIssues(amountAmd, recipient !== null);
   const amountMessage = fieldIssueText(issues.amount, input.copy);
   const recipientMessage = issues.recipient === null ? null : input.copy.recipientRequired;
   input.setAmountError(amountMessage);
   input.setRecipientError(recipientMessage);
-  const blocked =
+  if (
     amountMessage !== null ||
     recipientMessage !== null ||
     amountAmd === null ||
-    input.recipient === null;
-  if (blocked) {
+    recipient === null
+  ) {
     focusMissingGiftField(event.currentTarget, amountMessage !== null);
     return;
   }
@@ -181,7 +182,7 @@ async function submitComposer(
   try {
     const reference = await startCustomGiftCheckout({
       amountAmd,
-      recipientId: input.recipient.id,
+      recipientId: recipient.id,
       message: input.message,
     });
     input.goToCheckout(amountAmd, reference);
