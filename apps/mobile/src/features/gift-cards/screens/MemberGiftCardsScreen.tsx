@@ -23,7 +23,6 @@ import { GiftCardsTabNav } from "../components/GiftCardsTabNav";
 import { GiftMarketCardTile } from "../components/GiftMarketCardTile";
 import { GiftMyCardTile } from "../components/GiftMyCardTile";
 import { GiftPurchaseSheet } from "../components/GiftPurchaseSheet";
-import { GiftRedeemForm } from "../components/GiftRedeemForm";
 import {
   useMemberGiftCardsScreenState,
   type GiftCardsTab,
@@ -128,13 +127,6 @@ export function MemberGiftCardsScreen() {
           </View>
         ) : (
           <View style={styles.list}>
-            <GiftRedeemForm
-              code={state.redeemCode}
-              onChangeCode={state.setRedeemCode}
-              busy={state.redeemBusy}
-              message={state.redeemMessage}
-              onSubmit={() => void state.onRedeem()}
-            />
             <Text style={styles.sectionHeading}>{t("myCardsHeading")}</Text>
             {state.myCards.length === 0 ? (
               <Text style={styles.empty}>{t("emptyMyDescription")}</Text>
