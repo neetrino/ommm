@@ -1183,7 +1183,6 @@
       "cardCreated": "Created",
       "cardExpiration": "Expiration",
       "cardNoExpiration": "No expiration",
-      "cardCode": "Code",
       "cardRecipient": "Recipient",
       "cardMessage": "Message",
       "viewDetails": "View details",
@@ -1194,7 +1193,6 @@
       "copyCode": "Copy code",
       "copyCodeSuccess": "Code copied to clipboard.",
       "copyCodeFailed": "Could not copy code.",
-      "redeemHint": "Use the Redeem section above to apply this code to your gift balance.",
       "statusValues": {
         "ACTIVE": "Active",
         "REDEEMED": "Redeemed",

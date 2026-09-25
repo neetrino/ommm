@@ -1184,7 +1184,6 @@
       "cardCreated": "Ստեղծված",
       "cardExpiration": "Ժամկետ",
       "cardNoExpiration": "Անժամկետ",
-      "cardCode": "Կոդ",
       "cardRecipient": "Ստացող",
       "cardMessage": "Հաղորդագրություն",
       "viewDetails": "Դիտել մանրամասները",
@@ -1195,7 +1194,6 @@
       "copyCode": "Պատճենել կոդը",
       "copyCodeSuccess": "Կոդը պատճենվեց։",
       "copyCodeFailed": "Չհաջողվեց պատճենել կոդը։",
-      "redeemHint": "Օգտագործեք վերևի «Փոխարժել» բաժինը՝ կոդը նվերի մնացորդին կիրառելու համար։",
       "statusValues": {
         "ACTIVE": "Ակտիվ",
         "REDEEMED": "Փոխարժված",

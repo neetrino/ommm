@@ -29,7 +29,6 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
   const balanceLabel = formatAmdFromCents(card.balanceCents, locale);
   const expired = isGiftCardDateExpired(card.status, card.expiresAt);
   const recipient = card.recipientName?.trim() || card.recipientEmail?.trim() || "";
-  const canRedeem = card.status === "ACTIVE" && card.balanceCents > 0 && !expired;
 
   return (
     <div className="space-y-4">
@@ -86,13 +85,8 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
           {card.message ? (
             <DetailField label={t("cardMessage")} value={card.message} className="sm:col-span-2" />
           ) : null}
-          <DetailField label={t("cardCode")} value={card.code} className="sm:col-span-2" />
         </dl>
       </section>
-
-      {canRedeem ? (
-        <p className="ommm-body-muted text-sm">{t("redeemHint")}</p>
-      ) : null}
     </div>
   );
 }

@@ -1183,7 +1183,6 @@
       "cardCreated": "Создана",
       "cardExpiration": "Срок",
       "cardNoExpiration": "Без срока",
-      "cardCode": "Код",
       "cardRecipient": "Получатель",
       "cardMessage": "Сообщение",
       "viewDetails": "Подробнее",
@@ -1194,7 +1193,6 @@
       "copyCode": "Скопировать код",
       "copyCodeSuccess": "Код скопирован в буфер обмена.",
       "copyCodeFailed": "Не удалось скопировать код.",
-      "redeemHint": "Используйте раздел «Погасить» выше, чтобы зачислить код на баланс подарков.",
       "statusValues": {
         "ACTIVE": "Активна",
         "REDEEMED": "Погашена",
