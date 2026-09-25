@@ -92,7 +92,7 @@ function CustomGiftFace({
   onAmountChange: (value: string) => void;
 }) {
   return (
-    <div className="rounded-t-[28px] bg-sand-50 px-5 py-7 sm:px-8 sm:py-9">
+    <div className="rounded-t-[28px] bg-gradient-to-br from-sand-100 via-peach-100/70 to-paper px-5 py-7 sm:px-8 sm:py-9">
       <div className="max-w-xl">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">{eyebrow}</p>
         <h2 className="mt-3 font-serif text-4xl font-normal leading-tight tracking-tight text-sage-900">
