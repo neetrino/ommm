@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { memberChrome } from "@/components/account/member-chrome";
-import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
 import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
 import {
   GIFT_CARD_BOARD_GRID_CLASS,
@@ -217,9 +216,6 @@ function UserGiftCardTile({
       openAriaLabel={t("openCardAria", { amount: amountLabel })}
       onOpen={() => onSelect(card.id)}
       details={details}
-      imageOverlayActions={
-        <UserGiftCardCopyCodeButton code={card.code} feedbackOnDark />
-      }
     />
   );
 }

@@ -2,7 +2,6 @@
 
 import { useCallback, useId } from "react";
 import { useTranslations } from "next-intl";
-import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
 import { UserGiftCardSheetContent } from "@/components/account/user-gift-card-sheet-content";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
 import {
@@ -62,10 +61,9 @@ function UserGiftCardDetailsSheetInner({
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
-          <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
+          <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
             {amountLabel}
           </h2>
-          <UserGiftCardCopyCodeButton code={card.code} />
         </div>
       </header>
 
