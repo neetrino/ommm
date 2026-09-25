@@ -8,7 +8,10 @@ import {
   type GiftMarketCardPreview,
   type GiftPurchaseIntent,
 } from "@/components/account/gift-market-card-details-sheet";
-import { GIFT_CARD_BOARD_GRID_CLASS } from "@/components/account/user-gift-card-tile-layout";
+import {
+  GIFT_CARD_BOARD_GRID_CLASS,
+  USER_GIFT_CARDS_SECTION_TITLE_CLASS,
+} from "@/components/account/user-gift-card-tile-layout";
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -27,6 +30,7 @@ type GiftPurchaseFormProps = {
 export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
   const router = useRouter();
   const t = useTranslations("userPages.giftCards.purchaseForm");
+  const tPage = useTranslations("userPages.giftCards");
   const [items, setItems] = useState<GiftMarketCardPreview[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -93,20 +97,17 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
     }
   }
 
-  if (loading) {
-    return <p className="text-sm text-sage-500">{t("loading")}</p>;
+  if (loading || (error === null && items.length === 0)) {
+    return null;
   }
 
   if (error) {
     return <p className="text-sm text-red-700">{error}</p>;
   }
 
-  if (items.length === 0) {
-    return <p className="text-sm text-sage-500">{t("empty")}</p>;
-  }
-
   return (
-    <div className="space-y-4">
+    <section className="space-y-4">
+      <h2 className={USER_GIFT_CARDS_SECTION_TITLE_CLASS}>{tPage("purchase")}</h2>
       <div className={GIFT_CARD_BOARD_GRID_CLASS}>
         {items.map((item) => (
           <PurchaseGiftCardPreview
@@ -128,7 +129,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
           void onBuy(intent);
         }}
       />
-    </div>
+    </section>
   );
 }
 

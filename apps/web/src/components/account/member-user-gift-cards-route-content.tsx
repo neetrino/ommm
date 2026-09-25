@@ -57,13 +57,9 @@ export async function MemberUserGiftCardsRouteContent({
         </div>
       }
       shopPanel={
-        <div className="space-y-0">
-          <UserGiftCardsSection title={t("customGift.sectionTitle")}>
-            <CustomGiftComposer locale={locale} />
-          </UserGiftCardsSection>
-          <UserGiftCardsSection title={t("purchase")}>
-            <GiftPurchaseForm locale={locale} />
-          </UserGiftCardsSection>
+        <div className="space-y-10">
+          <CustomGiftComposer locale={locale} />
+          <GiftPurchaseForm locale={locale} />
         </div>
       }
     />

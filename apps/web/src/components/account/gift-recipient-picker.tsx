@@ -18,6 +18,8 @@ type GiftRecipientPickerProps = {
   selected: GiftRecipientOption | null;
   onSelect: (value: GiftRecipientOption | null) => void;
   disabled?: boolean;
+  /** Drops the extra card chrome when the picker sits inside another surface. */
+  embedded?: boolean;
 };
 
 /** Search and select a studio member as the gift card recipient. */
@@ -25,6 +27,7 @@ export function GiftRecipientPicker({
   selected,
   onSelect,
   disabled = false,
+  embedded = false,
 }: GiftRecipientPickerProps) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const listboxId = useId();
@@ -118,7 +121,7 @@ export function GiftRecipientPicker({
     (loading || error !== null || searchActive);
 
   return (
-    <section className="rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5">
+    <section className={embedded ? "space-y-3" : "rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5"}>
       <p className="text-sm font-medium text-sage-800">{t("recipientSectionLabel")}</p>
       <p className="mt-1 text-xs leading-5 text-sage-500">{t("recipientSectionHint")}</p>
 
