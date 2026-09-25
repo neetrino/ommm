@@ -8,6 +8,7 @@ import {
 } from "@/components/account/gift-recipient-picker";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
+import { FORM_INVALID_FIELD_CLASS, FormFieldError } from "@/components/ui/form-validation";
 import { CUSTOM_GIFT_MESSAGE_MAX_LENGTH } from "@/lib/custom-gift-card.constants";
 
 export type CustomGiftFormProps = {
@@ -17,6 +18,8 @@ export type CustomGiftFormProps = {
   message: string;
   recipient: GiftRecipientOption | null;
   error: string | null;
+  amountError: string | null;
+  recipientError: string | null;
   busy: boolean;
   minLabel: string;
   onAmountChange: (value: string) => void;
@@ -39,6 +42,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
         amountRaw={props.amountRaw}
         amountLabel={t("amountLabel")}
         amountHint={t("amountHint", { min: props.minLabel })}
+        amountError={props.amountError}
         busy={props.busy}
         onAmountChange={props.onAmountChange}
       />
@@ -47,6 +51,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
           embedded
           selected={props.recipient}
           disabled={props.busy}
+          validationMessage={props.recipientError}
           onSelect={props.onRecipientChange}
         />
         <CustomGiftNote
@@ -79,6 +84,7 @@ function CustomGiftFace({
   amountRaw,
   amountLabel,
   amountHint,
+  amountError,
   busy,
   onAmountChange,
 }: {
@@ -88,6 +94,7 @@ function CustomGiftFace({
   amountRaw: string;
   amountLabel: string;
   amountHint: string;
+  amountError: string | null;
   busy: boolean;
   onAmountChange: (value: string) => void;
 }) {
@@ -99,14 +106,16 @@ function CustomGiftFace({
           {title}
         </h2>
         <div className="mt-7 max-w-sm rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md">
-          <Field label={amountLabel} hint={amountHint} htmlFor={amountId}>
+          <Field label={amountLabel} hint={amountHint} error={amountError} htmlFor={amountId}>
             <AmdMoneyInput
               id={amountId}
               value={amountRaw}
               disabled={busy}
               align="start"
+              data-form-field="amount"
+              aria-invalid={amountError !== null}
               aria-describedby={`${amountId}-hint`}
-              className="h-14 rounded-2xl text-lg font-medium tracking-tight text-sage-950"
+              className={`h-14 rounded-2xl text-lg font-medium tracking-tight text-sage-950 ${amountError !== null ? FORM_INVALID_FIELD_CLASS : ""}`}
               onValueChange={onAmountChange}
             />
           </Field>
@@ -151,11 +160,13 @@ function CustomGiftNote({
 function Field({
   label,
   hint,
+  error,
   htmlFor,
   children,
 }: {
   label: string;
   hint: string;
+  error: string | null;
   htmlFor: string;
   children: ReactNode;
 }) {
@@ -168,6 +179,7 @@ function Field({
       <p id={`${htmlFor}-hint`} className="text-xs leading-5 text-sage-500">
         {hint}
       </p>
+      <FormFieldError message={error} />
     </div>
   );
 }

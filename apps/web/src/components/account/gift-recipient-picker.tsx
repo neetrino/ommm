@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch, ApiError } from "@/lib/api";
+import { FormFieldError, formFieldInputClass } from "@/components/ui/form-validation";
 
 export type GiftRecipientOption = {
   id: string;
@@ -18,6 +19,8 @@ type GiftRecipientPickerProps = {
   selected: GiftRecipientOption | null;
   onSelect: (value: GiftRecipientOption | null) => void;
   disabled?: boolean;
+  /** Shown after submit when a recipient has not been chosen. */
+  validationMessage?: string | null;
   /** Drops the extra card chrome when the picker sits inside another surface. */
   embedded?: boolean;
 };
@@ -27,6 +30,7 @@ export function GiftRecipientPicker({
   selected,
   onSelect,
   disabled = false,
+  validationMessage = null,
   embedded = false,
 }: GiftRecipientPickerProps) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
@@ -170,7 +174,9 @@ export function GiftRecipientPicker({
                     setListOpen(true);
                   }
                 }}
-                className="ommm-input"
+                data-form-field="recipient"
+                aria-invalid={validationMessage !== null}
+                className={formFieldInputClass(validationMessage !== null)}
                 placeholder={t("recipientSearchPlaceholder")}
                 autoComplete="off"
                 spellCheck={false}
@@ -218,6 +224,7 @@ export function GiftRecipientPicker({
                   : null}
               </div>
             ) : null}
+            <FormFieldError message={validationMessage} />
           </div>
         )}
       </div>

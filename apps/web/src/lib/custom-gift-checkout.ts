@@ -14,10 +14,33 @@ export type CustomGiftInputError =
   | "amountMax"
   | "recipientRequired";
 
+export type CustomGiftFieldIssues = {
+  amount: Exclude<CustomGiftInputError, "recipientRequired"> | null;
+  recipient: "recipientRequired" | null;
+};
+
+/** Required-field issues only. The gift note is optional and is not checked. */
+export function customGiftFieldIssues(
+  amountAmd: number | null,
+  hasRecipient: boolean,
+): CustomGiftFieldIssues {
+  return {
+    amount: customGiftAmountIssue(amountAmd),
+    recipient: hasRecipient ? null : "recipientRequired",
+  };
+}
+
 export function customGiftInputError(
   amountAmd: number | null,
   hasRecipient: boolean,
 ): CustomGiftInputError | null {
+  const issues = customGiftFieldIssues(amountAmd, hasRecipient);
+  return issues.amount ?? issues.recipient;
+}
+
+function customGiftAmountIssue(
+  amountAmd: number | null,
+): CustomGiftFieldIssues["amount"] {
   if (amountAmd === null) {
     return "amountRequired";
   }
@@ -26,9 +49,6 @@ export function customGiftInputError(
   }
   if (amountAmd > CUSTOM_GIFT_CARD_MAX_AMD) {
     return "amountMax";
-  }
-  if (!hasRecipient) {
-    return "recipientRequired";
   }
   return null;
 }

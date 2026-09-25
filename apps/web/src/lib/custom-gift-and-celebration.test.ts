@@ -5,7 +5,7 @@ import {
   CUSTOM_GIFT_CARD_MAX_AMD,
   CUSTOM_GIFT_CARD_MIN_AMD,
 } from "@/lib/custom-gift-card.constants";
-import { customGiftInputError } from "@/lib/custom-gift-checkout";
+import { customGiftFieldIssues, customGiftInputError } from "@/lib/custom-gift-checkout";
 import {
   GIFT_CELEBRATION_MAX_AGE_DAYS,
   selectUnseenGiftCelebration,
@@ -33,6 +33,17 @@ describe("customGiftInputError", () => {
   it("requires an amount and a recipient", () => {
     assert.equal(customGiftInputError(null, true), "amountRequired");
     assert.equal(customGiftInputError(CUSTOM_GIFT_CARD_MIN_AMD, false), "recipientRequired");
+  });
+
+  it("reports every required field and skips the optional note", () => {
+    assert.deepEqual(customGiftFieldIssues(null, false), {
+      amount: "amountRequired",
+      recipient: "recipientRequired",
+    });
+    assert.deepEqual(customGiftFieldIssues(CUSTOM_GIFT_CARD_MIN_AMD, true), {
+      amount: null,
+      recipient: null,
+    });
   });
 
   it("accepts the minimum and rejects outside the range", () => {

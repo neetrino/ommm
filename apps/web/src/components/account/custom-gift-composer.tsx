@@ -13,10 +13,11 @@ import {
   CUSTOM_GIFT_CARD_MIN_AMD,
 } from "@/lib/custom-gift-card.constants";
 import {
-  customGiftInputError,
+  customGiftFieldIssues,
   startCustomGiftCheckout,
   type CustomGiftInputError,
 } from "@/lib/custom-gift-checkout";
+import { focusFormField } from "@/components/ui/form-validation";
 import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
 import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
 
@@ -40,6 +41,8 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [amountError, setAmountError] = useState<string | null>(null);
+  const [recipientError, setRecipientError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const minLabel = formatAmdFromCents(CUSTOM_GIFT_CARD_MIN_AMD, locale);
   const maxLabel = formatAmdFromCents(CUSTOM_GIFT_CARD_MAX_AMD, locale);
@@ -52,13 +55,18 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       message={message}
       recipient={recipient}
       error={error}
+      amountError={amountError}
+      recipientError={recipientError}
       busy={busy}
       minLabel={minLabel}
-      onAmountChange={setAmountRaw}
+      onAmountChange={(value) => {
+        setAmountRaw(value);
+        setAmountError(null);
+      }}
       onMessageChange={setMessage}
       onRecipientChange={(value) => {
         setRecipient(value);
-        setError(null);
+        setRecipientError(null);
       }}
       onSubmit={(event) => {
         void submitComposer(event, {
@@ -68,6 +76,8 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           checkoutFailed: t("checkoutFailed"),
           copy: composerCopy(t, minLabel, maxLabel),
           setError,
+          setAmountError,
+          setRecipientError,
           setBusy,
           goToCheckout: (amountAmd, reference) => {
             router.push(giftCheckoutHref(amountAmd, reference));
@@ -76,6 +86,23 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       }}
     />
   );
+}
+
+function fieldIssueText(
+  reason: CustomGiftInputError | null,
+  copy: ComposerCopy,
+): string | null {
+  if (reason === null || reason === "recipientRequired") {
+    return null;
+  }
+  return customGiftErrorText(reason, copy);
+}
+
+function focusMissingGiftField(form: EventTarget | null, amountMissing: boolean): void {
+  if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+  focusFormField(form, amountMissing ? "amount" : "recipient");
 }
 
 function customGiftErrorText(reason: CustomGiftInputError, copy: ComposerCopy): string {
@@ -127,16 +154,26 @@ async function submitComposer(
     checkoutFailed: string;
     copy: ComposerCopy;
     setError: (value: string | null) => void;
+    setAmountError: (value: string | null) => void;
+    setRecipientError: (value: string | null) => void;
     setBusy: (value: boolean) => void;
     goToCheckout: (amountAmd: number, reference: string | null) => void;
   },
 ): Promise<void> {
   event.preventDefault();
   const amountAmd = parseAmdMoneyInput(input.amountRaw);
-  const reason = customGiftInputError(amountAmd, input.recipient !== null);
-  if (reason !== null || amountAmd === null || input.recipient === null) {
-    const fallback = input.copy.amountRequired;
-    input.setError(reason === null ? fallback : customGiftErrorText(reason, input.copy));
+  const issues = customGiftFieldIssues(amountAmd, input.recipient !== null);
+  const amountMessage = fieldIssueText(issues.amount, input.copy);
+  const recipientMessage = issues.recipient === null ? null : input.copy.recipientRequired;
+  input.setAmountError(amountMessage);
+  input.setRecipientError(recipientMessage);
+  const blocked =
+    amountMessage !== null ||
+    recipientMessage !== null ||
+    amountAmd === null ||
+    input.recipient === null;
+  if (blocked) {
+    focusMissingGiftField(event.currentTarget, amountMessage !== null);
     return;
   }
   input.setBusy(true);
