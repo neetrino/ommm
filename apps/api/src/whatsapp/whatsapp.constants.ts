@@ -9,7 +9,14 @@ export const WHATSAPP_CHAT_ID_MIN_DIGITS = 8;
 export const WHATSAPP_CHAT_ID_MAX_DIGITS = 15;
 export const WHATSAPP_CHAT_ID_SUFFIX = '@c.us';
 
-export const MEMBERSHIP_EXPIRY_REMINDER_DAYS = 3;
+/** Once a week before period end, then once the day before. */
+export const MEMBERSHIP_EXPIRY_REMINDER_DAY_WINDOWS = [7, 1] as const;
+
+/**
+ * Overlap past the 30 min cron cadence so a period end cannot fall between ticks.
+ * Same overlap as class reminders.
+ */
+export const MEMBERSHIP_EXPIRY_REMINDER_WINDOW_MINUTES = 35;
 
 export const WHATSAPP_CRON_BATCH_TAKE = 200;
 
