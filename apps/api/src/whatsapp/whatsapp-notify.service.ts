@@ -45,6 +45,7 @@ export class WhatsappNotifyService {
     userId: string;
     topic: WhatsappTopic;
     render: WhatsappMessageRenderer;
+    idempotencyKey?: string;
   }): Promise<WhatsappSendResult> {
     try {
       if (!(await this.gateway.isConfigured())) {
@@ -94,6 +95,7 @@ export class WhatsappNotifyService {
     userId: string;
     topic: WhatsappTopic;
     render: WhatsappMessageRenderer;
+    idempotencyKey?: string;
   }): Promise<WhatsappSendResult> {
     const user = await this.prisma.user.findUnique({
       where: { id: params.userId },
@@ -122,7 +124,10 @@ export class WhatsappNotifyService {
       return 'skipped';
     }
     const text = renderBilingualWhatsappMessage(params.render);
-    const sent = await this.gateway.sendText(chatId, text);
+    const sent =
+      params.idempotencyKey === undefined
+        ? await this.gateway.sendText(chatId, text)
+        : await this.gateway.sendText(chatId, text, params.idempotencyKey);
     return sent ? 'sent' : 'failed';
   }
 }

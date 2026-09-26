@@ -32,7 +32,11 @@ export class WhatsappGatewayClient {
     }
   }
 
-  async sendText(chatId: string, text: string): Promise<boolean> {
+  async sendText(
+    chatId: string,
+    text: string,
+    idempotencyKey?: string,
+  ): Promise<boolean> {
     const accountId = await this.resolveSendAccountId();
     if (accountId === null) {
       return false;
@@ -42,7 +46,9 @@ export class WhatsappGatewayClient {
       {
         method: 'POST',
         body: { type: WHATSAPP_TEXT_MESSAGE_TYPE, chatId, text },
-        extraHeaders: { 'Idempotency-Key': `omm-wa-${randomUUID()}` },
+        extraHeaders: {
+          'Idempotency-Key': idempotencyKey ?? `omm-wa-${randomUUID()}`,
+        },
       },
     );
     return (

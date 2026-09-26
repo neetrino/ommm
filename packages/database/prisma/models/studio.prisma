@@ -108,10 +108,15 @@ model PackagePurchasedSendLog {
 
 model MembershipExpiryReminderSendLog {
   id            String   @id @default(cuid())
-  userPackageId String   @unique
+  userPackageId String
+  /// Days before `currentPeriodEnd`: 7 (one week) or 1 (one day).
+  daysBefore    Int
   sentAt        DateTime @default(now())
 
   userPackage UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+
+  @@unique([userPackageId, daysBefore])
+  @@index([userPackageId])
 }
 
 model AuditLog {
