@@ -5,20 +5,21 @@ import {
   COACH_SALARY_XLSX_SALARY_COLUMN,
   COACH_SALARY_XLSX_SHEET_NAME,
 } from './coaches-salary-export.constants';
-import {
-  coachSalaryExportCopy,
-  type CoachSalaryExportCopy,
-} from './coaches-salary-export-labels';
+import { coachSalaryExportCopy } from './coaches-salary-export-labels';
 import {
   coachSalaryExportSessionCells,
   formatCoachSalaryExportDay,
 } from './coaches-salary-export-rows';
 import type { CoachSalarySessionRow } from './coaches-salary-sessions.helpers';
-
-const COLUMN_WIDTHS = [28, 16, 12, 16, 16, 16, 22] as const;
-const AMD_NUMBER_FORMAT = '#,##0';
-const HEADER_FILL = 'FFF4EFE6';
-const TOTALS_FILL = 'FFF7F1E8';
+import {
+  SALARY_XLSX_COLUMN_COUNT,
+  SALARY_XLSX_COLUMN_WIDTHS,
+  styleSalaryDataRow,
+  styleSalaryHeaderRow,
+  styleSalaryPeriodRow,
+  styleSalaryTitleRow,
+  styleSalaryTotalsRow,
+} from './coaches-salary-sessions-xlsx-style';
 
 export type CoachSalaryXlsxInput = {
   coachName: string;
@@ -35,32 +36,15 @@ export async function buildCoachSalarySessionsXlsx(
   const copy = coachSalaryExportCopy(input.locale);
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Ommm';
-  const sheet = workbook.addWorksheet(COACH_SALARY_XLSX_SHEET_NAME);
-  addMetaRows(sheet, input, copy);
-  addHeaderRow(sheet, copy);
-  addSessionRows(sheet, input.items);
-  addTotalsRow(sheet, input.items.length, copy);
-  applySheetLayout(sheet, input.items.length);
-  const raw = await workbook.xlsx.writeBuffer();
-  return Buffer.isBuffer(raw) ? raw : Buffer.from(raw);
-}
-
-function addMetaRows(
-  sheet: ExcelJS.Worksheet,
-  input: CoachSalaryXlsxInput,
-  copy: CoachSalaryExportCopy,
-): void {
-  sheet.addRow([copy.coach, input.coachName]);
-  sheet.addRow([copy.from, formatCoachSalaryExportDay(input.from)]);
-  sheet.addRow([copy.to, formatCoachSalaryExportDay(input.to)]);
-  sheet.addRow([]);
-  sheet.getRow(1).font = { bold: true };
-}
-
-function addHeaderRow(
-  sheet: ExcelJS.Worksheet,
-  copy: CoachSalaryExportCopy,
-): void {
+  workbook.calcProperties.fullCalcOnLoad = true;
+  const sheet = workbook.addWorksheet(COACH_SALARY_XLSX_SHEET_NAME, {
+    properties: { tabColor: { argb: 'FF5C6B57' } },
+    views: [{ showGridLines: false }],
+  });
+  styleSalaryTitleRow(sheet, sheet.addRow([input.coachName]));
+  styleSalaryPeriodRow(sheet, sheet.addRow([formatSalaryPeriod(input.from, input.to)]));
+  const spacer = sheet.addRow([]);
+  spacer.height = 10;
   const header = sheet.addRow([
     copy.className,
     copy.lessonDate,
@@ -70,32 +54,25 @@ function addHeaderRow(
     copy.salary,
     copy.status,
   ]);
-  header.font = { bold: true };
-  header.eachCell((cell) => {
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: HEADER_FILL },
-    };
-  });
-}
-
-function addSessionRows(
-  sheet: ExcelJS.Worksheet,
-  items: CoachSalarySessionRow[],
-): void {
-  items.forEach((item) => {
+  styleSalaryHeaderRow(header);
+  input.items.forEach((item, index) => {
     const row = sheet.addRow(coachSalaryExportSessionCells(item));
-    row.getCell(5).numFmt = AMD_NUMBER_FORMAT;
-    row.getCell(6).numFmt = AMD_NUMBER_FORMAT;
+    styleSalaryDataRow(row, index % 2 === 1, item.reason);
   });
+  const totals = sheet.addRow(totalsCells(input.items.length, copy.totals));
+  styleSalaryTotalsRow(totals);
+  applySheetLayout(sheet, input.items.length);
+  const raw = await workbook.xlsx.writeBuffer();
+  return Buffer.isBuffer(raw) ? raw : Buffer.from(raw);
 }
 
-function addTotalsRow(
-  sheet: ExcelJS.Worksheet,
-  itemCount: number,
-  copy: CoachSalaryExportCopy,
-): void {
+function formatSalaryPeriod(from: string, to: string): string {
+  const start = formatCoachSalaryExportDay(from);
+  const end = formatCoachSalaryExportDay(to);
+  return start === end ? start : `${start} – ${end}`;
+}
+
+function totalsCells(itemCount: number, label: string): ExcelJS.CellValue[] {
   const lastDataRow =
     COACH_SALARY_XLSX_FIRST_DATA_ROW + Math.max(itemCount, 1) - 1;
   const salaryTotal =
@@ -104,37 +81,31 @@ function addTotalsRow(
       : {
           formula: `SUM(${COACH_SALARY_XLSX_SALARY_COLUMN}${COACH_SALARY_XLSX_FIRST_DATA_ROW}:${COACH_SALARY_XLSX_SALARY_COLUMN}${lastDataRow})`,
         };
-  const totals = sheet.addRow([
-    copy.totals,
-    null,
-    null,
-    null,
-    null,
-    salaryTotal,
-    null,
-  ]);
-  totals.font = { bold: true };
-  totals.getCell(6).numFmt = AMD_NUMBER_FORMAT;
-  for (let column = 1; column <= COLUMN_WIDTHS.length; column += 1) {
-    totals.getCell(column).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: TOTALS_FILL },
-    };
-  }
+  return [label, null, null, null, null, salaryTotal, null];
 }
 
 function applySheetLayout(sheet: ExcelJS.Worksheet, itemCount: number): void {
-  COLUMN_WIDTHS.forEach((width, index) => {
+  SALARY_XLSX_COLUMN_WIDTHS.forEach((width, index) => {
     sheet.getColumn(index + 1).width = width;
   });
-  const lastRow = COACH_SALARY_XLSX_HEADER_ROW + itemCount;
+  const lastDataRow = COACH_SALARY_XLSX_HEADER_ROW + Math.max(itemCount, 0);
   sheet.autoFilter = {
     from: { row: COACH_SALARY_XLSX_HEADER_ROW, column: 1 },
-    to: {
-      row: Math.max(lastRow, COACH_SALARY_XLSX_HEADER_ROW),
-      column: COLUMN_WIDTHS.length,
-    },
+    to: { row: lastDataRow, column: SALARY_XLSX_COLUMN_COUNT },
   };
-  sheet.views = [{ state: 'frozen', ySplit: COACH_SALARY_XLSX_HEADER_ROW }];
+  sheet.views = [
+    {
+      state: 'frozen',
+      ySplit: COACH_SALARY_XLSX_HEADER_ROW,
+      showGridLines: false,
+    },
+  ];
+  sheet.pageSetup = {
+    orientation: 'landscape',
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 0,
+    paperSize: 9,
+    printTitlesRow: `1:${COACH_SALARY_XLSX_HEADER_ROW}`,
+  };
 }

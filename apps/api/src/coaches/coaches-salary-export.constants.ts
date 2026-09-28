@@ -14,9 +14,10 @@ export const COACH_SALARY_EXPORT_RANGE_TOO_LONG = 'Date range is too long';
 export const COACH_SALARY_EXPORT_TOO_MANY_ROWS =
   'Too many sessions in this range';
 
-export const COACH_SALARY_XLSX_HEADER_ROW = 5;
+/** Title, period, spacer, then the column header. */
+export const COACH_SALARY_XLSX_HEADER_ROW = 4;
 
-export const COACH_SALARY_XLSX_FIRST_DATA_ROW = 6;
+export const COACH_SALARY_XLSX_FIRST_DATA_ROW = 5;
 
 export const COACH_SALARY_XLSX_SALARY_COLUMN = 'F';
 

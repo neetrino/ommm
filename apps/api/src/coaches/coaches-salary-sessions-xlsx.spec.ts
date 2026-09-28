@@ -2,8 +2,10 @@ import { ClassSessionStatus } from '@prisma/client';
 import ExcelJS from 'exceljs';
 import {
   COACH_SALARY_XLSX_FIRST_DATA_ROW,
+  COACH_SALARY_XLSX_HEADER_ROW,
   COACH_SALARY_XLSX_SHEET_NAME,
 } from './coaches-salary-export.constants';
+import { SALARY_XLSX_AMD_FORMAT } from './coaches-salary-sessions-xlsx-style';
 import {
   coachSalaryExportContentDisposition,
   coachSalaryExportFilename,
@@ -57,10 +59,13 @@ describe('coach salary workbook', () => {
     // exceljs typings still expect the pre-generic Node Buffer.
     await workbook.xlsx.load(buffer as never);
     const sheet = workbook.getWorksheet(COACH_SALARY_XLSX_SHEET_NAME);
-    expect(sheet?.getCell('A1').value).toBe('Coach');
-    expect(sheet?.getCell('B1').value).toBe('Armine Avoyan');
-    expect(sheet?.getCell('B2').value).toBe('01/09/2026');
-    expect(sheet?.getCell('B3').value).toBe('26/09/2026');
+    expect(sheet?.getCell('A1').value).toBe('Armine Avoyan');
+    expect(sheet?.getCell('A1').font).toMatchObject({ bold: true, size: 18 });
+    expect(sheet?.getCell('A2').value).toBe('01/09/2026 – 26/09/2026');
+    expect(sheet?.getCell(`A${COACH_SALARY_XLSX_HEADER_ROW}`).value).toBe('Class');
+    expect(sheet?.getCell(`A${COACH_SALARY_XLSX_HEADER_ROW}`).fill).toMatchObject({
+      fgColor: { argb: 'FF5C6B57' },
+    });
     expect(sheet?.getCell(`A${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).value).toBe(
       'Reformer Group',
     );
@@ -73,12 +78,27 @@ describe('coach salary workbook', () => {
     expect(sheet?.getCell(`F${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).value).toBe(
       20000,
     );
+    expect(sheet?.getCell(`F${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).numFmt).toBe(
+      SALARY_XLSX_AMD_FORMAT,
+    );
+    expect(sheet?.getCell(`G${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).fill).toMatchObject(
+      { fgColor: { argb: 'FFD1FAE5' } },
+    );
     expect(
       sheet?.getCell(`F${COACH_SALARY_XLSX_FIRST_DATA_ROW + 1}`).value,
     ).toBeNull();
-    expect(sheet?.getCell('G7').value).toBe('NOBODY BOOKED');
-    const total = sheet?.getCell('F8').value;
-    expect(total).toMatchObject({ formula: 'SUM(F6:F7)' });
+    expect(sheet?.getCell(`G${COACH_SALARY_XLSX_FIRST_DATA_ROW + 1}`).value).toBe(
+      'NOBODY BOOKED',
+    );
+    const totalsRow = COACH_SALARY_XLSX_FIRST_DATA_ROW + 2;
+    const total = sheet?.getCell(`F${totalsRow}`).value;
+    expect(total).toMatchObject({
+      formula: `SUM(F${COACH_SALARY_XLSX_FIRST_DATA_ROW}:F${COACH_SALARY_XLSX_FIRST_DATA_ROW + 1})`,
+    });
+    expect(sheet?.views[0]).toMatchObject({
+      state: 'frozen',
+      showGridLines: false,
+    });
   });
 
   it('keeps Armenian names in the download filename', () => {
