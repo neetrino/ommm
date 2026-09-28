@@ -71,6 +71,7 @@ export function buildGiftCardBatchWhere(
         { recipientEmail: containsInsensitive(token) },
         { recipientName: containsInsensitive(token) },
         { message: containsInsensitive(token) },
+        { giftCards: { some: { code: containsInsensitive(token) } } },
       ],
     }),
   );

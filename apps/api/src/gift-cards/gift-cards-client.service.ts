@@ -14,14 +14,23 @@ import {
   readGiftCardBalance,
   serializeUserGiftCard,
 } from './gift-cards.mapper';
+import { expireDueGiftCards } from './gift-card-ledger';
+import { resolveGiftCardPolicy } from './gift-card-policy';
+import { redeemGiftCardForUser } from './gift-card-redeem';
+import { GiftCardRedeemGuardService } from './gift-card-redeem-guard.service';
 import { peekSpendableGiftCreditsCents } from '../packages/package-gift-credits.util';
+
+const GIFT_ACTIVITY_PAGE = 40;
 
 const GIFT_RECIPIENT_SEARCH_MIN_CHARS = 1;
 const GIFT_RECIPIENT_SEARCH_LIMIT = 20;
 
 @Injectable()
 export class GiftCardsClientService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redeemGuard: GiftCardRedeemGuardService,
+  ) {}
 
   listMine(userId: string, query: ListMyGiftCardsQueryDto = {}) {
     const hasPagination =
@@ -138,6 +147,7 @@ export class GiftCardsClientService {
   }
 
   async getSpendableBalance(userId: string) {
+    await expireDueGiftCards(this.prisma);
     const spendableCents = await peekSpendableGiftCreditsCents(
       this.prisma,
       userId,
@@ -145,33 +155,52 @@ export class GiftCardsClientService {
     return { spendableCents };
   }
 
+  async getPolicy() {
+    const row = await this.prisma.studioSettings.findFirst({
+      select: {
+        giftCardMinAmountAmd: true,
+        giftCardValidityMonths: true,
+        giftCardDenominationsJson: true,
+      },
+    });
+    return resolveGiftCardPolicy(row);
+  }
+
+  async listMyActivity(userId: string) {
+    const rows = await this.prisma.giftCardTransaction.findMany({
+      where: {
+        OR: [{ userId }, { giftCard: { recipientId: userId } }],
+      },
+      include: { giftCard: { select: { code: true } } },
+      orderBy: { createdAt: 'desc' },
+      take: GIFT_ACTIVITY_PAGE,
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      code: row.giftCard.code,
+      amountAmd: row.amountAmd,
+      classes: row.classes,
+      balanceAmdAfter: row.balanceAmdAfter,
+      balanceClassesAfter: row.balanceClassesAfter,
+      orderId: row.orderId,
+      createdAt: row.createdAt,
+    }));
+  }
+
   async redeem(userId: string, code: string) {
-    const normalized = code.trim().toUpperCase();
-    const card = await this.prisma.giftCard.findUnique({
-      where: { code: normalized },
-    });
-    if (!card || card.status !== GiftCardStatus.ACTIVE) {
-      throw new NotFoundException('Invalid code');
+    this.redeemGuard.assertAllowed(userId);
+    try {
+      await expireDueGiftCards(this.prisma);
+      const result = await redeemGiftCardForUser(this.prisma, userId, code);
+      this.redeemGuard.recordSuccess(userId);
+      return result;
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        this.redeemGuard.recordFailure(userId);
+      }
+      throw error;
     }
-    const now = new Date();
-    if (card.expiresAt !== null && card.expiresAt <= now) {
-      throw new BadRequestException('Gift card has expired');
-    }
-    const balance = readGiftCardBalance(card);
-    if (balance <= 0) {
-      throw new BadRequestException('Gift card has no balance');
-    }
-    if (card.recipientId !== null && card.recipientId !== userId) {
-      throw new BadRequestException('Gift card already assigned');
-    }
-    if (card.recipientId === userId) {
-      return { ok: true, creditedCents: balance, alreadyOwned: true };
-    }
-    await this.prisma.giftCard.update({
-      where: { id: card.id },
-      data: { recipientId: userId },
-    });
-    return { ok: true, creditedCents: balance, alreadyOwned: false };
   }
 
   listAdminCards() {

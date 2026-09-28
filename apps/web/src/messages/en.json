@@ -1186,7 +1186,17 @@
       "cardExpiration": "Expiration",
       "cardNoExpiration": "No expiration",
       "cardRecipient": "Recipient",
+      "cardCode": "Code",
       "cardMessage": "Message",
+      "activityTitle": "Activity",
+      "activityKinds": {
+        "ISSUE": "Issued",
+        "REDEEM": "Added to account",
+        "SPEND": "Spent",
+        "REFUND": "Returned",
+        "ADJUST": "Adjusted",
+        "EXPIRE": "Expired"
+      },
       "viewDetails": "View details",
       "openCardAria": "View gift card details for {amount}",
       "sheetBackdropClose": "Close gift card details",

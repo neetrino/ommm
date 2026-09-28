@@ -66,6 +66,21 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
 
       <section className={`${SECTION_CLASS} p-4 sm:p-5`}>
         <dl className="grid gap-4 text-sm sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{t("cardCode")}</dt>
+            <dd className="mt-1 flex flex-wrap items-center gap-3">
+              <span className={`font-mono ${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}`}>{card.code}</span>
+              <button
+                type="button"
+                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
+                onClick={() => {
+                  void navigator.clipboard.writeText(card.code);
+                }}
+              >
+                {t("copyCode")}
+              </button>
+            </dd>
+          </div>
           <DetailField label={t("cardCreated")} value={displayGiftCardDate(card.createdAt)} />
           <DetailField
             label={t("cardExpiration")}

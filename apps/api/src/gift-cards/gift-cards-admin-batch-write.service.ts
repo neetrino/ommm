@@ -3,13 +3,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { GiftCardStatus } from '@prisma/client';
+import { GiftCardStatus, GiftCardType } from '@prisma/client';
 import type { Express } from 'express';
 import { AuditService } from '../audit/audit.service';
 import { utcToStudioCalendarDate } from '../common/studio-timezone';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
+import {
+  buildMintedGiftCardRows,
+  issueLedgerRows,
+  resolveAdminGiftShape,
+  resolveIssuedExpiresAt,
+} from './gift-card-issue';
 import { GiftCardsImageService } from './gift-cards-image.service';
 import {
   type GiftCardBatchSnapshot,
@@ -31,10 +37,13 @@ export class GiftCardsAdminBatchWriteService {
     dto: AdminCreateGiftCardDto,
     imageFile?: Express.Multer.File,
   ) {
-    const amountAmd = dto.resolvedAmountAmd;
-    if (amountAmd === undefined) {
-      throw new BadRequestException('amountAmd is required');
-    }
+    const shape = resolveAdminGiftShape({
+      type: dto.type,
+      amountAmd: dto.resolvedAmountAmd,
+      classTypeId: dto.classTypeId,
+      classQuantity: dto.classQuantity,
+    });
+    const amountAmd = shape.amountAmd;
     const expiresAt =
       dto.expiresAt !== undefined ? new Date(dto.expiresAt) : undefined;
     if (expiresAt && Number.isNaN(expiresAt.getTime())) {
@@ -70,22 +79,48 @@ export class GiftCardsAdminBatchWriteService {
         : null;
     const imageUrl = uploadedImageUrl ?? dto.imageUrl ?? null;
 
+    const issuedExpiresAt = resolveIssuedExpiresAt(expiresAt);
     try {
-      const batchDelegate = giftCardBatchDelegate(this.prisma);
-      const batch = (await batchDelegate.create({
-        data: {
-          amountAmd,
-          imageUrl,
-          status: GiftCardStatus.ACTIVE,
-          totalQuantity: dto.quantity,
-          availableQuantity: dto.quantity,
-          recipientId: recipient?.id,
-          recipientEmail,
-          recipientName,
-          message: dto.message,
-          expiresAt,
-        },
-      })) as GiftCardBatchSnapshot;
+      const batch = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.giftCardBatch.create({
+          data: {
+            type: shape.type,
+            amountAmd,
+            classTypeId: shape.classTypeId,
+            classQuantity: shape.classQuantity,
+            imageUrl,
+            status: GiftCardStatus.ACTIVE,
+            totalQuantity: dto.quantity,
+            availableQuantity: dto.quantity,
+            recipientEmail,
+            recipientName,
+            message: dto.message,
+            expiresAt: issuedExpiresAt,
+          },
+        });
+        await tx.giftCard.createMany({
+          data: buildMintedGiftCardRows({
+            batchId: created.id,
+            quantity: dto.quantity,
+            amountAmd,
+            balanceClasses: shape.balanceClasses,
+            classQuantity: shape.classQuantity,
+            classTypeId: shape.classTypeId,
+            type: shape.type,
+            imageUrl,
+            message: dto.message ?? null,
+            recipientEmail,
+            recipientName,
+            expiresAt: issuedExpiresAt,
+          }),
+        });
+        const cards = await tx.giftCard.findMany({
+          where: { batchId: created.id },
+          select: { id: true, balanceAmd: true, balanceClasses: true },
+        });
+        await tx.giftCardTransaction.createMany({ data: issueLedgerRows(cards) });
+        return created as GiftCardBatchSnapshot;
+      });
       await this.audit.log({
         actorId: adminId,
         actorRole: 'ADMIN',
@@ -150,7 +185,6 @@ export class GiftCardsAdminBatchWriteService {
         ? dto.recipientName
         : (recipient?.name ?? existing.recipientName);
     const nextAmountAmd = amountAmd;
-    const amountDiff = nextAmountAmd - readBatchAmount(existing);
     const updateData: Record<string, unknown> = {
       amountAmd: nextAmountAmd,
       recipientId:
@@ -178,28 +212,24 @@ export class GiftCardsAdminBatchWriteService {
         data: updateData,
       })) as GiftCardBatchSnapshot;
 
-      const updateIssuedCardsArgs = {
+      await tx.giftCard.updateMany({
         where: {
           batchId,
           status: GiftCardStatus.ACTIVE,
+          type: GiftCardType.FIXED_VALUE,
+          purchaserId: null,
+          recipientId: null,
         },
         data: {
           amountAmd: nextAmountAmd,
-          ...(amountDiff !== 0
-            ? { balanceAmd: { increment: amountDiff } }
-            : {}),
-          recipientId:
-            dto.recipientId !== undefined
-              ? (recipient?.id ?? null)
-              : existing.recipientId,
+          balanceAmd: nextAmountAmd,
           recipientEmail,
           recipientName,
           message: dto.message !== undefined ? dto.message : existing.message,
           expiresAt:
             dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
         },
-      } as unknown as Parameters<typeof tx.giftCard.updateMany>[0];
-      await tx.giftCard.updateMany(updateIssuedCardsArgs);
+      });
 
       return batch;
     });

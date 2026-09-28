@@ -139,6 +139,7 @@ describe('branded email templates', () => {
     expect(text).toContain('30,000');
     expect(text).toContain('Happy birthday');
     expect(html).toContain('Open my gift cards');
+    expect(text).toContain('enter this code');
     expect(text).not.toMatch(/https?:\/\//);
   });
 });

@@ -68,6 +68,8 @@ model ClassType {
   packagePlans         PackagePlan[]
   userPackageBalances  UserPackageBalance[]
   coachClassTypeRates  CoachClassTypeRate[]
+  giftCards            GiftCard[]
+  giftCardBatches      GiftCardBatch[]
 }
 
 model ClassSession {

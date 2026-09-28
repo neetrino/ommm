@@ -138,6 +138,7 @@ export class PaymentsAdminMutationService {
       }),
     });
     await this.applyPackageStatusSideEffects({
+      paymentId: payment.id,
       source: payment.source,
       sourceId: payment.sourceId,
       userId: payment.userId,
@@ -152,6 +153,7 @@ export class PaymentsAdminMutationService {
   }
 
   private async applyPackageStatusSideEffects(params: {
+    paymentId: string;
     source: PaymentSource;
     sourceId: string | null;
     userId: string;
@@ -175,6 +177,7 @@ export class PaymentsAdminMutationService {
           userId: params.userId,
           appliedCents: readGiftCreditsAppliedCents(params.metadata),
           allocations: readGiftCreditsAllocations(params.metadata),
+          orderId: params.paymentId,
         });
       }
     }

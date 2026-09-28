@@ -1186,7 +1186,17 @@
       "cardExpiration": "Срок",
       "cardNoExpiration": "Без срока",
       "cardRecipient": "Получатель",
+      "cardCode": "Код",
       "cardMessage": "Сообщение",
+      "activityTitle": "Операции",
+      "activityKinds": {
+        "ISSUE": "Выпущена",
+        "REDEEM": "Добавлена на счёт",
+        "SPEND": "Списано",
+        "REFUND": "Возвращено",
+        "ADJUST": "Скорректировано",
+        "EXPIRE": "Истекла"
+      },
       "viewDetails": "Подробнее",
       "openCardAria": "Просмотреть детали подарочной карты на {amount}",
       "sheetBackdropClose": "Закрыть детали подарочной карты",

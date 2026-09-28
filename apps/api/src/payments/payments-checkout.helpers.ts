@@ -23,15 +23,20 @@ export const CUSTOM_GIFT_CARD_MIN_AMD = 30_000;
 /** Safety cap for a member-chosen gift amount. */
 export const CUSTOM_GIFT_CARD_MAX_AMD = 1_000_000;
 
-export function assertCustomGiftAmount(amountAmd: number): void {
-  if (!Number.isInteger(amountAmd) || amountAmd < CUSTOM_GIFT_CARD_MIN_AMD) {
+export function assertCustomGiftAmount(
+  amountAmd: number,
+  limits?: { minAmountAmd: number; maxAmountAmd: number },
+): void {
+  const minAmountAmd = limits?.minAmountAmd ?? CUSTOM_GIFT_CARD_MIN_AMD;
+  const maxAmountAmd = limits?.maxAmountAmd ?? CUSTOM_GIFT_CARD_MAX_AMD;
+  if (!Number.isInteger(amountAmd) || amountAmd < minAmountAmd) {
     throw new BadRequestException(
-      `Custom gift cards start at ${CUSTOM_GIFT_CARD_MIN_AMD.toLocaleString('en-US')} AMD`,
+      `Custom gift cards start at ${minAmountAmd.toLocaleString('en-US')} AMD`,
     );
   }
-  if (amountAmd > CUSTOM_GIFT_CARD_MAX_AMD) {
+  if (amountAmd > maxAmountAmd) {
     throw new BadRequestException(
-      `Custom gift cards cannot exceed ${CUSTOM_GIFT_CARD_MAX_AMD.toLocaleString('en-US')} AMD`,
+      `Custom gift cards cannot exceed ${maxAmountAmd.toLocaleString('en-US')} AMD`,
     );
   }
 }

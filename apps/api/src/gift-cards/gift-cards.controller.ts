@@ -7,10 +7,12 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
 import {
@@ -24,6 +26,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { RedeemGiftDto } from './dto/redeem-gift.dto';
 import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
+import { AdminAdjustGiftCardDto, AdminExtendGiftCardDto } from './dto/admin-adjust-gift-card.dto';
 import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
@@ -57,6 +60,18 @@ export class GiftCardsController {
   @UseGuards(JwtAuthGuard)
   spendableBalance(@CurrentUser() user: { id: string }) {
     return this.giftCards.getSpendableBalance(user.id);
+  }
+
+  @Get('me/activity')
+  @UseGuards(JwtAuthGuard)
+  activity(@CurrentUser() user: { id: string }) {
+    return this.giftCards.listMyActivity(user.id);
+  }
+
+  @Get('policy')
+  @UseGuards(JwtAuthGuard)
+  policy() {
+    return this.giftCards.getPolicy();
   }
 
   @Get('recipients')
@@ -192,6 +207,34 @@ export class GiftCardsController {
   @Roles(...BACKOFFICE_WRITE_ROLES)
   redemptionHistory(@Param('id') id: string) {
     return this.giftCards.getRedemptionHistory(id);
+  }
+
+  @Get('admin/batches/:id/export')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  async exportBatch(@Param('id') id: string, @Res() res: Response) {
+    const csv = await this.giftCards.exportBatchCsv(id);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="gift-cards-${id}.csv"`);
+    res.send(csv);
+  }
+
+  @Patch('admin/cards/:id/expires')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  extendCard(@Param('id') id: string, @Body() dto: AdminExtendGiftCardDto) {
+    return this.giftCards.extendCardExpiry(id, dto);
+  }
+
+  @Patch('admin/cards/:id/balance')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  adjustCard(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+    @Body() dto: AdminAdjustGiftCardDto,
+  ) {
+    return this.giftCards.adjustCardBalance(id, dto, user.id);
   }
 
   @Get('admin/batches/:id/history')

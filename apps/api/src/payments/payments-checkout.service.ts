@@ -9,6 +9,7 @@ import { PAYMENT_STATUS_REASON } from './payment-status-reason';
 import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
+import { resolveGiftCardPolicy } from '../gift-cards/gift-card-policy';
 import {
   assertCustomGiftAmount,
   assertDropInSessionForCheckout,
@@ -86,7 +87,14 @@ export class PaymentsCheckoutService {
     amountCents: number,
   ): Promise<void> {
     if (batchId === undefined) {
-      assertCustomGiftAmount(amountCents);
+      const row = await this.prisma.studioSettings.findFirst({
+        select: {
+          giftCardMinAmountAmd: true,
+          giftCardValidityMonths: true,
+          giftCardDenominationsJson: true,
+        },
+      });
+      assertCustomGiftAmount(amountCents, resolveGiftCardPolicy(row));
       return;
     }
     const batch = await this.prisma.giftCardBatch.findUnique({

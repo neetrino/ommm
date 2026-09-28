@@ -1,6 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 import { GiftCardStatus, Prisma } from '@prisma/client';
-import { randomBytes } from 'node:crypto';
+import {
+  claimPreissuedGiftCard,
+  generateGiftCardCode,
+  resolveIssuedExpiresAt,
+} from '../gift-cards/gift-card-issue';
 import { formatCustomerDisplayName } from './payment-email-format.util';
 import type { GiftCardBatchSnapshot, PaymentMetadata } from './payments.types';
 
@@ -62,7 +66,6 @@ export async function issuePurchasedGiftCard(
   },
 ): Promise<IssuedGiftCard> {
   const selectedBatch = await loadSelectedGiftBatch(tx, params.sourceId);
-  const code = randomBytes(8).toString('hex').toUpperCase();
   const recipientEmail = firstText(
     params.metadata.recipientEmail,
     selectedBatch?.recipientEmail,
@@ -73,6 +76,20 @@ export async function issuePurchasedGiftCard(
   );
   const message = firstText(params.metadata.message, selectedBatch?.message);
   const amountAmd = selectedBatch?.amountAmd ?? params.amountCents;
+  const expiresAt = resolveIssuedExpiresAt(selectedBatch?.expiresAt);
+  if (selectedBatch) {
+    const claimed = await claimPreissuedGiftCard(tx, {
+      batchId: selectedBatch.id,
+      purchaserId: params.purchaserId,
+      recipientEmail,
+      recipientName,
+      message,
+    });
+    if (claimed) {
+      return { code: claimed.code, recipientEmail, recipientName, amountAmd, message };
+    }
+  }
+  const code = generateGiftCardCode();
   await tx.giftCard.create({
     data: {
       batchId: selectedBatch?.id,
@@ -82,11 +99,10 @@ export async function issuePurchasedGiftCard(
       imageUrl: selectedBatch?.imageUrl ?? undefined,
       status: GiftCardStatus.ACTIVE,
       purchaserId: params.purchaserId,
-      recipientId: firstText(params.metadata.recipientId),
       recipientName,
       recipientEmail,
       message,
-      expiresAt: selectedBatch?.expiresAt ?? undefined,
+      expiresAt,
     },
   });
   return { code, recipientEmail, recipientName, amountAmd, message };

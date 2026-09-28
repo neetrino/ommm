@@ -10,6 +10,7 @@ import { mergeArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { PrismaService } from '../prisma/prisma.service';
+import { cardIdsFromAllocations, stampGiftSpendOrder } from '../gift-cards/gift-card-ledger';
 import {
   buildGiftCreditsPaymentMetadata,
   recordGiftCreditSpendPayment,
@@ -60,7 +61,7 @@ export async function createFullyGiftCoveredPackageSubscription(
     plan: params.plan,
     userPackageId: userPackage.id,
   });
-  await tx.payment.create({
+  const payment = await tx.payment.create({
     data: {
       userId: params.userId,
       amountCents: 0,
@@ -77,6 +78,11 @@ export async function createFullyGiftCoveredPackageSubscription(
         buildGiftCreditsPaymentMetadata(params.appliedCents, allocations),
       ),
     },
+  });
+  await stampGiftSpendOrder(tx, {
+    userId: params.userId,
+    orderId: payment.id,
+    cardIds: cardIdsFromAllocations(allocations),
   });
   await recordGiftCreditSpendPayment(tx, {
     userId: params.userId,
@@ -148,6 +154,11 @@ export async function createCashPackageSubscriptionWithGiftCredits(
         ),
       }),
     },
+  });
+  await stampGiftSpendOrder(tx, {
+    userId: params.userId,
+    orderId: payment.id,
+    cardIds: cardIdsFromAllocations(allocations),
   });
   return {
     userPackageId: userPackage.id,

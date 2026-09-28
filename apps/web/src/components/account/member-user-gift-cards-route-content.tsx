@@ -1,6 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { GiftCardActivityList, type GiftCardActivityRow } from "@/components/account/gift-card-activity-list";
 import { CustomGiftComposer } from "@/components/account/custom-gift-composer";
+import { UserGiftCardRedeemForm } from "@/components/account/user-gift-card-redeem-form";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
@@ -24,13 +26,14 @@ export async function MemberUserGiftCardsRouteContent({
   const t = await getTranslations({ locale, namespace: "userPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
 
-  const [purchasedRes, receivedRes, balanceRes] = await Promise.all([
+  const [purchasedRes, receivedRes, balanceRes, activityRes] = await Promise.all([
     serverApiJson<UserGiftCardRow[]>("/gift-cards/me/purchased", cookie),
     serverApiJson<UserGiftCardRow[]>("/gift-cards/me/received", cookie),
     serverApiJson<{ spendableCents: number }>(
       "/gift-cards/me/spendable-balance",
       cookie,
     ),
+    serverApiJson<GiftCardActivityRow[]>("/gift-cards/me/activity", cookie),
   ]);
 
   const credits = balanceRes.ok ? balanceRes.data.spendableCents : null;
@@ -47,7 +50,14 @@ export async function MemberUserGiftCardsRouteContent({
       embeddedInSheet={embeddedInSheet}
       initialTab={tab}
       myPanel={
-        <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
+        <div className="space-y-4">
+          <UserGiftCardRedeemForm />
+          <GiftCardActivityList
+            locale={locale}
+            rows={activityRes.ok ? activityRes.data : []}
+          />
+          <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
+        </div>
       }
       shopPanel={
         <div className="space-y-10">

@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -31,6 +32,21 @@ export class AdminCreateGiftCardDto {
   @IsInt()
   @Min(1)
   quantity = 1;
+
+  @IsOptional()
+  @IsIn(['FIXED_VALUE', 'FIXED_CLASS'])
+  type?: 'FIXED_VALUE' | 'FIXED_CLASS';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(191)
+  classTypeId?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  classQuantity?: number;
 
   @IsOptional()
   @IsString()

@@ -17,6 +17,7 @@ import {
   createPaymentReference,
   resolveFinalPriceCents,
 } from './packages-plan.helpers';
+import { cardIdsFromAllocations, stampGiftSpendOrder } from '../gift-cards/gift-card-ledger';
 import {
   PACKAGE_GIFT_CREDITS_REFUNDED_KEY,
   buildGiftCreditsPaymentMetadata,
@@ -46,7 +47,7 @@ export type PendingCardPackagePurchase = {
 
 type PaymentPackageDb = Pick<
   Prisma.TransactionClient,
-  'userPackage' | 'payment' | 'user' | 'giftCard'
+  'userPackage' | 'payment' | 'user' | 'giftCard' | 'giftCardTransaction'
 >;
 
 function paymentMatchesPlan(
@@ -201,6 +202,11 @@ export async function createPendingCardPackagePurchase(
       }),
     },
   });
+  await stampGiftSpendOrder(tx, {
+    userId: params.userId,
+    orderId: payment.id,
+    cardIds: cardIdsFromAllocations(params.giftCreditsAllocations),
+  });
   return {
     userPackageId: null,
     paymentReference: payment.paymentReference ?? paymentReference,
@@ -253,6 +259,7 @@ export async function failPendingCardPackagePurchase(
       userId: existing.userId,
       appliedCents: reservedGiftCredits,
       allocations,
+      orderId: params.paymentId,
     });
   }
   if (params.userPackageId === null) {

@@ -32,7 +32,7 @@ export type GiftCardEmailParams = {
 export function renderGiftCardEmail(params: GiftCardEmailParams): string {
   return renderBrandedEmail({
     title: 'A gift for you',
-    preheader: 'A gift card is waiting in your Ommm account',
+    preheader: 'Enter your Ommm gift card code to add it to your account',
     bodyHtml: buildGiftCardEmailBody(params),
   });
 }
@@ -42,8 +42,8 @@ function buildGiftCardEmailBody(params: GiftCardEmailParams): string {
   const note = params.message?.trim() ?? '';
   const intro =
     sender.length > 0
-      ? `${sender} sent you an Ommm gift card. It is already waiting in your account.`
-      : 'Someone sent you an Ommm gift card. It is already waiting in your account.';
+      ? `${sender} sent you an Ommm gift card. Sign in or create an account, then enter this code to add it.`
+      : 'Someone sent you an Ommm gift card. Sign in or create an account, then enter this code to add it.';
   const parts = [
     renderEmailHeading('A gift for you'),
     renderEmailGreeting(params.recipientName ?? ''),
@@ -53,7 +53,7 @@ function buildGiftCardEmailBody(params: GiftCardEmailParams): string {
     renderEmailCodeBox('Gift card code', params.code),
     renderEmailCtaButton('Open my gift cards', params.accountUrl),
     renderEmailMutedNote(
-      'The balance is already on your account. Keep this code private.',
+      'Open Gift cards in your account and enter the code. Keep this code private.',
     ),
     renderEmailSignoff(),
   ];

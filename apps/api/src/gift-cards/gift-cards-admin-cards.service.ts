@@ -134,43 +134,31 @@ export class GiftCardsAdminCardsService {
     if (!card) {
       throw new NotFoundException('Gift card not found');
     }
-    const events: Array<{
-      type: 'CREATED' | 'ASSIGNED' | 'REDEEMED' | 'DEACTIVATED';
-      at: string;
-      description: string;
-    }> = [
-      {
-        type: 'CREATED',
-        at: card.createdAt.toISOString(),
-        description: 'Gift card created',
-      },
-    ];
-    if (card.recipientId || card.recipientEmail) {
-      const label =
-        card.recipient?.name ??
-        card.recipient?.email ??
-        card.recipientName ??
-        card.recipientEmail ??
-        'recipient';
-      events.push({
-        type: 'ASSIGNED',
-        at: card.updatedAt.toISOString(),
-        description: `Assigned to ${label}`,
-      });
-    }
-    if (card.status === GiftCardStatus.REDEEMED) {
-      events.push({
-        type: 'REDEEMED',
-        at: card.updatedAt.toISOString(),
-        description: 'Gift card redeemed',
-      });
-    }
-    if (card.status === GiftCardStatus.DEACTIVATED) {
-      events.push({
-        type: 'DEACTIVATED',
-        at: card.updatedAt.toISOString(),
-        description: 'Gift card deactivated',
-      });
+    const ledger = await this.prisma.giftCardTransaction.findMany({
+      where: { giftCardId },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (ledger.length > 0) {
+      return {
+        cardId: card.id,
+        status: card.status,
+        amountCents: readGiftCardAmount(card),
+        balanceCents: readGiftCardBalance(card),
+        amountAmd: readGiftCardAmount(card),
+        balanceAmd: readGiftCardBalance(card),
+        balanceClasses: card.balanceClasses,
+        redeemedAt: card.redeemedAt,
+        events: ledger.map((row) => ({
+          type: row.kind,
+          at: row.createdAt.toISOString(),
+          description: ledgerDescription(row),
+          orderId: row.orderId,
+          amountAmd: row.amountAmd,
+          classes: row.classes,
+          balanceAmdAfter: row.balanceAmdAfter,
+          balanceClassesAfter: row.balanceClassesAfter,
+        })),
+      };
     }
     return {
       cardId: card.id,
@@ -179,7 +167,7 @@ export class GiftCardsAdminCardsService {
       balanceCents: readGiftCardBalance(card),
       amountAmd: readGiftCardAmount(card),
       balanceAmd: readGiftCardBalance(card),
-      events,
+      events: legacyGiftCardEvents(card),
       note: 'Detailed redemption ledger is not stored yet; timeline shows available gift-card activity.',
     };
   }
@@ -194,4 +182,57 @@ export class GiftCardsAdminCardsService {
     });
     await this.whatsapp.trySendGiftCard(email, code);
   }
+}
+
+function ledgerDescription(row: {
+  kind: string;
+  amountAmd: number;
+  classes: number;
+  balanceAmdAfter: number;
+  balanceClassesAfter: number;
+}): string {
+  const moved = row.classes > 0 ? `${row.classes} classes` : `${row.amountAmd} AMD`;
+  return `${row.kind}: ${moved}; balance ${row.balanceAmdAfter} AMD / ${row.balanceClassesAfter} classes`;
+}
+
+function legacyGiftCardEvents(card: {
+  createdAt: Date;
+  updatedAt: Date;
+  status: GiftCardStatus;
+  recipientId: string | null;
+  recipientEmail: string | null;
+  recipientName: string | null;
+  recipient: { name: string | null; email: string | null } | null;
+}): Array<{ type: string; at: string; description: string }> {
+  const events = [
+    { type: 'CREATED', at: card.createdAt.toISOString(), description: 'Gift card created' },
+  ];
+  if (card.recipientId || card.recipientEmail) {
+    const label =
+      card.recipient?.name ??
+      card.recipient?.email ??
+      card.recipientName ??
+      card.recipientEmail ??
+      'recipient';
+    events.push({
+      type: 'ASSIGNED',
+      at: card.updatedAt.toISOString(),
+      description: `Assigned to ${label}`,
+    });
+  }
+  if (card.status === GiftCardStatus.REDEEMED) {
+    events.push({
+      type: 'REDEEMED',
+      at: card.updatedAt.toISOString(),
+      description: 'Gift card redeemed',
+    });
+  }
+  if (card.status === GiftCardStatus.DEACTIVATED) {
+    events.push({
+      type: 'DEACTIVATED',
+      at: card.updatedAt.toISOString(),
+      description: 'Gift card deactivated',
+    });
+  }
+  return events;
 }

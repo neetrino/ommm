@@ -1187,7 +1187,17 @@
       "cardExpiration": "Ժամկետ",
       "cardNoExpiration": "Անժամկետ",
       "cardRecipient": "Ստացող",
+      "cardCode": "Կոդ",
       "cardMessage": "Հաղորդագրություն",
+      "activityTitle": "Գործողություններ",
+      "activityKinds": {
+        "ISSUE": "Թողարկված",
+        "REDEEM": "Ավելացված է հաշվին",
+        "SPEND": "Ծախսված",
+        "REFUND": "Վերադարձված",
+        "ADJUST": "Ճշգրտված",
+        "EXPIRE": "Ժամկետանց"
+      },
       "viewDetails": "Դիտել մանրամասները",
       "openCardAria": "Դիտել {amount} նվեր քարտի մանրամասները",
       "sheetBackdropClose": "Փակել նվեր քարտի մանրամասները",
