@@ -251,7 +251,7 @@ function GiftCardHistoryPanel({ batchId, locale }: { batchId: string; locale: st
           <li className="text-sage-500">{t("historyEmpty")}</li>
         ) : (
           history.events.map((event) => (
-            <li key={`${event.type}-${event.at}`}>
+            <li key={`${event.type}-${event.at}-${event.description}`}>
               {formatDateForUi(event.at)} — {event.description}
             </li>
           ))

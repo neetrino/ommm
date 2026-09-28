@@ -231,7 +231,7 @@ export class GiftCardsAdminBatchLifecycleService {
       description:
         card.status === GiftCardStatus.REDEEMED
           ? `Gift card ${card.code} redeemed`
-          : `Gift card ${card.code} issued to ${card.recipientName ?? card.recipientEmail ?? 'recipient'}`,
+          : describeIssuedGiftCard(card),
     }));
     return {
       batchId: batch.id,
@@ -265,4 +265,16 @@ export class GiftCardsAdminBatchLifecycleService {
     });
     await this.whatsapp.trySendGiftCard(email, code);
   }
+}
+
+function describeIssuedGiftCard(card: {
+  code: string;
+  recipientName: string | null;
+  recipientEmail: string | null;
+}): string {
+  const recipient = card.recipientName ?? card.recipientEmail;
+  if (recipient) {
+    return `Gift card ${card.code} issued to ${recipient}`;
+  }
+  return `Gift card ${card.code} issued`;
 }
