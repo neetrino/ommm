@@ -42,7 +42,10 @@ export async function buildCoachSalarySessionsXlsx(
     views: [{ showGridLines: false }],
   });
   styleSalaryTitleRow(sheet, sheet.addRow([input.coachName]));
-  styleSalaryPeriodRow(sheet, sheet.addRow([formatSalaryPeriod(input.from, input.to)]));
+  styleSalaryPeriodRow(
+    sheet,
+    sheet.addRow([formatSalaryPeriod(input.from, input.to)]),
+  );
   const spacer = sheet.addRow([]);
   spacer.height = 10;
   const header = sheet.addRow([

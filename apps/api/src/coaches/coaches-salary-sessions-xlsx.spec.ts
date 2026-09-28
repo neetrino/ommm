@@ -62,8 +62,12 @@ describe('coach salary workbook', () => {
     expect(sheet?.getCell('A1').value).toBe('Armine Avoyan');
     expect(sheet?.getCell('A1').font).toMatchObject({ bold: true, size: 18 });
     expect(sheet?.getCell('A2').value).toBe('01/09/2026 – 26/09/2026');
-    expect(sheet?.getCell(`A${COACH_SALARY_XLSX_HEADER_ROW}`).value).toBe('Class');
-    expect(sheet?.getCell(`A${COACH_SALARY_XLSX_HEADER_ROW}`).fill).toMatchObject({
+    expect(sheet?.getCell(`A${COACH_SALARY_XLSX_HEADER_ROW}`).value).toBe(
+      'Class',
+    );
+    expect(
+      sheet?.getCell(`A${COACH_SALARY_XLSX_HEADER_ROW}`).fill,
+    ).toMatchObject({
       fgColor: { argb: 'FF5C6B57' },
     });
     expect(sheet?.getCell(`A${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).value).toBe(
@@ -81,15 +85,15 @@ describe('coach salary workbook', () => {
     expect(sheet?.getCell(`F${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).numFmt).toBe(
       SALARY_XLSX_AMD_FORMAT,
     );
-    expect(sheet?.getCell(`G${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).fill).toMatchObject(
-      { fgColor: { argb: 'FFD1FAE5' } },
-    );
+    expect(
+      sheet?.getCell(`G${COACH_SALARY_XLSX_FIRST_DATA_ROW}`).fill,
+    ).toMatchObject({ fgColor: { argb: 'FFD1FAE5' } });
     expect(
       sheet?.getCell(`F${COACH_SALARY_XLSX_FIRST_DATA_ROW + 1}`).value,
     ).toBeNull();
-    expect(sheet?.getCell(`G${COACH_SALARY_XLSX_FIRST_DATA_ROW + 1}`).value).toBe(
-      'NOBODY BOOKED',
-    );
+    expect(
+      sheet?.getCell(`G${COACH_SALARY_XLSX_FIRST_DATA_ROW + 1}`).value,
+    ).toBe('NOBODY BOOKED');
     const totalsRow = COACH_SALARY_XLSX_FIRST_DATA_ROW + 2;
     const total = sheet?.getCell(`F${totalsRow}`).value;
     expect(total).toMatchObject({

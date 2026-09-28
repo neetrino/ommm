@@ -54,7 +54,10 @@ function horizontalFor(column: number): ExcelJS.Alignment['horizontal'] {
 }
 
 /** Coach name band across the sheet. */
-export function styleSalaryTitleRow(sheet: ExcelJS.Worksheet, row: ExcelJS.Row): void {
+export function styleSalaryTitleRow(
+  sheet: ExcelJS.Worksheet,
+  row: ExcelJS.Row,
+): void {
   sheet.mergeCells(row.number, 1, row.number, SALARY_XLSX_COLUMN_COUNT);
   row.height = 34;
   const cell = row.getCell(1);
@@ -63,7 +66,10 @@ export function styleSalaryTitleRow(sheet: ExcelJS.Worksheet, row: ExcelJS.Row):
 }
 
 /** Inclusive period under the coach name. */
-export function styleSalaryPeriodRow(sheet: ExcelJS.Worksheet, row: ExcelJS.Row): void {
+export function styleSalaryPeriodRow(
+  sheet: ExcelJS.Worksheet,
+  row: ExcelJS.Row,
+): void {
   sheet.mergeCells(row.number, 1, row.number, SALARY_XLSX_COLUMN_COUNT);
   row.height = 22;
   const cell = row.getCell(1);
@@ -75,7 +81,12 @@ export function styleSalaryHeaderRow(row: ExcelJS.Row): void {
   row.height = 26;
   for (let column = 1; column <= SALARY_XLSX_COLUMN_COUNT; column += 1) {
     const cell = row.getCell(column);
-    cell.font = { name: FONT_NAME, size: 11, bold: true, color: { argb: WHITE } };
+    cell.font = {
+      name: FONT_NAME,
+      size: 11,
+      bold: true,
+      color: { argb: WHITE },
+    };
     cell.fill = solidFill(HEADER_FILL);
     cell.alignment = {
       vertical: 'middle',
@@ -114,11 +125,21 @@ function styleSalaryDataCell(
     cell.numFmt = SALARY_XLSX_AMD_FORMAT;
   }
   if (column === 6 && typeof cell.value === 'number') {
-    cell.font = { name: FONT_NAME, size: 11, bold: true, color: { argb: 'FF14532D' } };
+    cell.font = {
+      name: FONT_NAME,
+      size: 11,
+      bold: true,
+      color: { argb: 'FF14532D' },
+    };
   }
   if (column === 7) {
     cell.fill = solidFill(tone.fill);
-    cell.font = { name: FONT_NAME, size: 10, bold: true, color: { argb: tone.font } };
+    cell.font = {
+      name: FONT_NAME,
+      size: 10,
+      bold: true,
+      color: { argb: tone.font },
+    };
   }
 }
 
