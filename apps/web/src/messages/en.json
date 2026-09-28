@@ -2132,6 +2132,12 @@
       "studioDescription": "Manage studio identity, contact details, and operational defaults.",
       "whatsappDescription": "Store Gateway credentials and pair the studio WhatsApp number with a QR code.",
       "giftCardsDescription": "Minimum amount, ready-made denominations, and the default validity of a new gift card.",
+      "giftPolicyMin": "Minimum amount (AMD)",
+      "giftPolicyValidity": "Validity (months)",
+      "giftPolicyDenominations": "Denominations, comma-separated",
+      "giftPolicySave": "Save gift policy",
+      "giftPolicySaved": "Saved.",
+      "giftPolicyFailed": "Could not save gift policy.",
       "tabs": {
         "aria": "Settings sections",
         "studio": "Studio",

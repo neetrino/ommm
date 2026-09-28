@@ -238,7 +238,7 @@ async function submitComposer(
   input.setError(null);
   try {
     const started = await startCustomGiftCheckout({
-      amountAmd,
+      amountAmd: amountAmd ?? 0,
       message: input.message,
       options: {
         ...(recipient ? { recipientId: recipient.id } : {}),

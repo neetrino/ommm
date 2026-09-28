@@ -19,6 +19,7 @@ import { scheduleColors } from "../../schedule/scheduleTokens";
 import { PackagesPrimaryCta } from "../../packages/components/PackagesScreenActions";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, space, typography } from "../../../theme/tokens";
+import { GiftRedeemForm } from "../components/GiftRedeemForm";
 import { GiftCardsTabNav } from "../components/GiftCardsTabNav";
 import { GiftMarketCardTile } from "../components/GiftMarketCardTile";
 import { GiftMyCardTile } from "../components/GiftMyCardTile";
@@ -127,6 +128,7 @@ export function MemberGiftCardsScreen() {
           </View>
         ) : (
           <View style={styles.list}>
+            <GiftRedeemForm onRedeemed={() => void state.reload()} />
             <Text style={styles.sectionHeading}>{t("myCardsHeading")}</Text>
             {state.myCards.length === 0 ? (
               <Text style={styles.empty}>{t("emptyMyDescription")}</Text>

@@ -2132,6 +2132,13 @@
       "title": "Կարգավորումներ",
       "studioDescription": "Կառավարեք ստուդիայի տվյալները, կոնտակտները և գործառնական կարգավորումները։",
       "whatsappDescription": "Պահեք Gateway բանալիները բազայում և կապեք ստուդիայի համարը QR կոդով։",
+      "giftCardsDescription": "Նվազագույն գումար, պատրաստի նոմինալներ և նոր նվեր քարտի լռելյայն ժամկետ։",
+      "giftPolicyMin": "Նվազագույն գումար (AMD)",
+      "giftPolicyValidity": "Ժամկետ (ամիս)",
+      "giftPolicyDenominations": "Նոմինալներ, ստորակետով",
+      "giftPolicySave": "Պահել",
+      "giftPolicySaved": "Պահվել է։",
+      "giftPolicyFailed": "Չհաջողվեց պահել։",
       "tabs": {
         "aria": "Կարգավորումների բաժիններ",
         "studio": "Ստուդիա",
@@ -2140,7 +2147,8 @@
         "identity": "Ինքնություն",
         "location": "Տեղադրություն",
         "contact": "Կապ",
-        "whatsapp": "WhatsApp"
+        "whatsapp": "WhatsApp",
+        "giftCards": "Նվեր քարտեր"
       },
       "studioSections": {
         "identity": "Հանրային ստուդիայի անուն",

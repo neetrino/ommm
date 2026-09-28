@@ -2129,6 +2129,13 @@
       "title": "Настройки",
       "studioDescription": "Управляйте данными студии, контактами и операционными параметрами.",
       "whatsappDescription": "Сохраните ключи Gateway в базе и подключите номер студии через QR-код.",
+      "giftCardsDescription": "Минимальная сумма, готовые номиналы и срок новой подарочной карты по умолчанию.",
+      "giftPolicyMin": "Минимальная сумма (AMD)",
+      "giftPolicyValidity": "Срок (месяцы)",
+      "giftPolicyDenominations": "Номиналы через запятую",
+      "giftPolicySave": "Сохранить",
+      "giftPolicySaved": "Сохранено.",
+      "giftPolicyFailed": "Не удалось сохранить.",
       "tabs": {
         "aria": "Разделы настроек",
         "studio": "Студия",
@@ -2137,7 +2144,8 @@
         "identity": "Идентичность",
         "location": "Локация",
         "contact": "Контакты",
-        "whatsapp": "WhatsApp"
+        "whatsapp": "WhatsApp",
+        "giftCards": "Подарочные карты"
       },
       "studioSections": {
         "identity": "Публичное название студии",
