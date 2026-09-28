@@ -10,7 +10,9 @@ import {
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_FINANCE_SESSIONS_SHEET_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import { AdminCoachSalaryExportBar } from "@/components/admin/admin-coach-salary-export-bar";
 import type { CoachFinanceRow } from "@/components/admin/admin-finance-types";
+import { useCoachSalaryExportRange } from "@/components/admin/use-coach-salary-export-range";
 import { CoachSalarySessionsList } from "@/components/coaches/coach-salary-sessions-list";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
@@ -25,6 +27,7 @@ type Props = {
   from: string;
   to: string;
   onClose: () => void;
+  onRangeCommit: (from: string, to: string) => void;
 };
 
 type SummaryMetric = {
@@ -75,9 +78,17 @@ function formatPeriodLabel(from: string, to: string): string {
   return from === to ? fromLabel : `${fromLabel} – ${toLabel}`;
 }
 
-export function AdminCoachSessionsDrawer({ coach, locale, from, to, onClose }: Props) {
+export function AdminCoachSessionsDrawer({
+  coach,
+  locale,
+  from,
+  to,
+  onClose,
+  onRangeCommit,
+}: Props) {
   const t = useTranslations("adminPages.finance.coachDrawer");
   const titleId = useId();
+  const range = useCoachSalaryExportRange(from, to, onRangeCommit);
   const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose, {
     openKey: coach?.coachProfileId ?? null,
   });
@@ -95,7 +106,10 @@ export function AdminCoachSessionsDrawer({ coach, locale, from, to, onClose }: P
     [coach],
   );
 
-  const periodLabel = useMemo(() => formatPeriodLabel(from, to), [from, to]);
+  const periodLabel = useMemo(
+    () => formatPeriodLabel(range.listFrom, range.listTo),
+    [range.listFrom, range.listTo],
+  );
 
   const summaryMetrics = useMemo(() => {
     if (coach === null) {
@@ -137,6 +151,15 @@ export function AdminCoachSessionsDrawer({ coach, locale, from, to, onClose }: P
       <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
         {coach !== null ? (
           <div className="space-y-5">
+            <AdminCoachSalaryExportBar
+              coachProfileId={coach.coachProfileId}
+              locale={locale}
+              from={range.from}
+              to={range.to}
+              issue={range.issue}
+              onFromChange={range.setFrom}
+              onToChange={range.setTo}
+            />
             <dl className={adminChrome.summaryGridFour}>
               {summaryMetrics.map((metric) => (
                 <div key={metric.key} className={adminChrome.metricCard}>
@@ -150,8 +173,8 @@ export function AdminCoachSessionsDrawer({ coach, locale, from, to, onClose }: P
             </dl>
             <CoachSalarySessionsList
               endpoint={`/coaches/admin/${coach.coachProfileId}/salary-sessions`}
-              from={from}
-              to={to}
+              from={range.listFrom}
+              to={range.listTo}
               locale={locale}
               variant="table"
               totalsLabel={t("totals")}

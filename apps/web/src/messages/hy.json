@@ -4288,7 +4288,13 @@
         "metricEarnings": "Հաշվարկված",
         "metricPending": "Վճարման ենթակա",
         "metricPaid": "Վճարված",
-        "totals": "Ընդամենը"
+        "totals": "Ընդամենը",
+        "exportExcel": "Արտահանել Excel",
+        "exporting": "Արտահանվում է…",
+        "exportFailed": "Չհաջողվեց արտահանել այս միջակայքի աշխատավարձը։",
+        "exportRangeInvalid": "Սկիզբը պետք է լինի ավարտից առաջ կամ նույն օրը։",
+        "exportRangeTooLong": "Ընտրեք առավելագույնը մեկ տարվա միջակայք։",
+        "exportRangeHint": "Excel-ում կլինեն այս միջակայքի բոլոր սեսիաները, ոչ միայն այս էջը։"
       }
     },
     "analytics": {

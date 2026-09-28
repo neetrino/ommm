@@ -4634,7 +4634,13 @@
         "metricEarnings": "Earnings",
         "metricPending": "Pending",
         "metricPaid": "Paid out",
-        "totals": "Totals"
+        "totals": "Totals",
+        "exportExcel": "Export Excel",
+        "exporting": "Exporting…",
+        "exportFailed": "Could not export this salary range.",
+        "exportRangeInvalid": "The start date must be on or before the end date.",
+        "exportRangeTooLong": "Choose a range of one year or less.",
+        "exportRangeHint": "Excel includes every session in this range, not only this page."
       }
     },
     "content": {

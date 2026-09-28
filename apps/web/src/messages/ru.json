@@ -4285,7 +4285,13 @@
         "metricEarnings": "Начислено",
         "metricPending": "К выплате",
         "metricPaid": "Выплачено",
-        "totals": "Итого"
+        "totals": "Итого",
+        "exportExcel": "Экспорт Excel",
+        "exporting": "Экспорт…",
+        "exportFailed": "Не удалось экспортировать зарплату за этот период.",
+        "exportRangeInvalid": "Дата начала должна быть не позже даты окончания.",
+        "exportRangeTooLong": "Выберите период не длиннее одного года.",
+        "exportRangeHint": "В Excel попадут все сессии этого диапазона, а не только текущая страница."
       }
     },
     "analytics": {
