@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { GiftCardStatus, Prisma } from '@prisma/client';
+import { GiftCardStatus, GiftCardTransactionKind, Prisma } from '@prisma/client';
 import {
   claimPreissuedGiftCard,
   generateGiftCardCode,
@@ -90,7 +90,7 @@ export async function issuePurchasedGiftCard(
     }
   }
   const code = generateGiftCardCode();
-  await tx.giftCard.create({
+  const created = await tx.giftCard.create({
     data: {
       batchId: selectedBatch?.id,
       code,
@@ -103,6 +103,17 @@ export async function issuePurchasedGiftCard(
       recipientEmail,
       message,
       expiresAt,
+    },
+    select: { id: true },
+  });
+  await tx.giftCardTransaction.create({
+    data: {
+      giftCardId: created.id,
+      kind: GiftCardTransactionKind.ISSUE,
+      amountAmd,
+      classes: 0,
+      balanceAmdAfter: amountAmd,
+      balanceClassesAfter: 0,
     },
   });
   return { code, recipientEmail, recipientName, amountAmd, message };

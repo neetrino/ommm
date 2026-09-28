@@ -24,16 +24,8 @@ export async function reserveGiftClassSessions(
   if (params.sessions <= 0) {
     return [];
   }
-  const now = new Date();
   const cards = await db.giftCard.findMany({
-    where: {
-      recipientId: params.userId,
-      status: GiftCardStatus.ACTIVE,
-      type: GiftCardType.FIXED_CLASS,
-      classTypeId: params.classTypeId,
-      balanceClasses: { gt: 0 },
-      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-    },
+    where: activeClassCardsWhere(params.userId, params.classTypeId, new Date()),
   });
   cards.sort(compareGiftCardsForSpend);
   return takeClassSessions(db, cards, params);
@@ -148,3 +140,69 @@ function writeClassSpend(
 }
 
 export type ClassGiftDb = Pick<Prisma.TransactionClient, 'giftCard' | 'giftCardTransaction'>;
+
+export async function peekGiftClassSessions(
+  db: Pick<Prisma.TransactionClient, 'giftCard'>,
+  params: { userId: string; classTypeId: string },
+): Promise<number> {
+  const rows = await db.giftCard.findMany({
+    where: activeClassCardsWhere(params.userId, params.classTypeId, new Date()),
+    select: { balanceClasses: true },
+  });
+  return rows.reduce((sum, row) => sum + row.balanceClasses, 0);
+}
+
+/** Puts class sessions back when the booking that spent them is cancelled. */
+export async function restoreGiftClassSpend(db: ClassGiftDb, orderId: string): Promise<void> {
+  const spends = await db.giftCardTransaction.findMany({
+    where: { orderId, kind: GiftCardTransactionKind.SPEND, classes: { gt: 0 } },
+    select: { giftCardId: true, classes: true, userId: true },
+  });
+  for (const spend of spends) {
+    await restoreOneClassSpend(db, spend, orderId);
+  }
+}
+
+async function restoreOneClassSpend(
+  db: ClassGiftDb,
+  spend: { giftCardId: string; classes: number; userId: string | null },
+  orderId: string,
+): Promise<void> {
+  const refunded = await db.giftCardTransaction.findFirst({
+    where: { orderId, giftCardId: spend.giftCardId, kind: GiftCardTransactionKind.REFUND },
+    select: { id: true },
+  });
+  if (refunded !== null) {
+    return;
+  }
+  const card = await db.giftCard.update({
+    where: { id: spend.giftCardId },
+    data: {
+      balanceClasses: { increment: spend.classes },
+      status: GiftCardStatus.ACTIVE,
+    },
+    select: { balanceClasses: true, balanceAmd: true },
+  });
+  await db.giftCardTransaction.create({
+    data: {
+      giftCardId: spend.giftCardId,
+      kind: GiftCardTransactionKind.REFUND,
+      userId: spend.userId,
+      orderId,
+      classes: spend.classes,
+      balanceAmdAfter: card.balanceAmd,
+      balanceClassesAfter: card.balanceClasses,
+    },
+  });
+}
+
+function activeClassCardsWhere(userId: string, classTypeId: string, now: Date) {
+  return {
+    recipientId: userId,
+    status: GiftCardStatus.ACTIVE,
+    type: GiftCardType.FIXED_CLASS,
+    classTypeId,
+    balanceClasses: { gt: 0 as const },
+    OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+  };
+}

@@ -1203,6 +1203,8 @@
       "drawerExpired": "Expired",
       "drawerValid": "Valid",
       "copyCode": "Copy code",
+      "shareWhatsApp": "WhatsApp",
+      "printCard": "Print",
       "copyCodeSuccess": "Code copied to clipboard.",
       "copyCodeFailed": "Could not copy code.",
       "statusValues": {
@@ -3612,6 +3614,11 @@
         "historyClose": "Close history",
         "historySummary": "Amount: {amount} • Balance: {balance}",
         "historyInventorySummary": "Available: {available}/{total} • Issued: {issued} • Redeemed: {redeemed}",
+        "issuedCards": "Issued cards",
+        "exportCsv": "Export CSV",
+        "extendExpiry": "Extend expiry",
+        "adjustBalance": "Adjust balance",
+        "cardSaved": "Saved.",
         "resend": "Resend email",
         "deactivate": "Deactivate",
         "activated": "Gift card activated.",
@@ -4292,7 +4299,8 @@
           "issued": "Issued",
           "redeemed": "Redeemed",
           "spent": "Spent",
-          "outstanding": "Outstanding"
+          "outstanding": "Outstanding",
+          "breakage": "Expired unused"
         },
         "influencer": {
           "title": "Influencer comps",

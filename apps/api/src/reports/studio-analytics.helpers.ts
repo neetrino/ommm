@@ -151,6 +151,7 @@ export function emptyGiftCredits(): {
   spentCents: number;
   spendTransactionsCount: number;
   outstandingCreditsCents: number;
+  breakageCents: number;
 } {
   return {
     issuedCents: 0,
@@ -160,6 +161,7 @@ export function emptyGiftCredits(): {
     spentCents: 0,
     spendTransactionsCount: 0,
     outstandingCreditsCents: 0,
+    breakageCents: 0,
   };
 }
 

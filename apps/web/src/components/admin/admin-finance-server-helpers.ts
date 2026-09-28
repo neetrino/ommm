@@ -28,6 +28,7 @@ export type FinanceSummaryPayload = {
     spentCents: number;
     spendTransactionsCount: number;
     outstandingCreditsCents: number;
+    breakageCents?: number;
   };
   influencer: {
     costCents: number;

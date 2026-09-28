@@ -1203,6 +1203,8 @@
       "drawerExpired": "Истёк срок",
       "drawerValid": "Действительна",
       "copyCode": "Скопировать код",
+      "shareWhatsApp": "WhatsApp",
+      "printCard": "Печать",
       "copyCodeSuccess": "Код скопирован в буфер обмена.",
       "copyCodeFailed": "Не удалось скопировать код.",
       "statusValues": {
@@ -3600,6 +3602,11 @@
         "historyClose": "Закрыть историю",
         "historySummary": "Сумма: {amount} • Баланс: {balance}",
         "historyInventorySummary": "Доступно: {available}/{total} • Выпущено: {issued} • Погашено: {redeemed}",
+        "issuedCards": "Выпущенные карты",
+        "exportCsv": "Экспорт CSV",
+        "extendExpiry": "Продлить срок",
+        "adjustBalance": "Изменить остаток",
+        "cardSaved": "Сохранено.",
         "resend": "Отправить повторно",
         "deactivate": "Деактивировать",
         "delete": "Удалить",
@@ -4549,7 +4556,8 @@
           "issued": "Начислено",
           "redeemed": "Погашено",
           "spent": "Потрачено",
-          "outstanding": "Остаток"
+          "outstanding": "Остаток",
+          "breakage": "Просроченный остаток"
         },
         "influencer": {
           "title": "Пакеты инфлюенсеров",

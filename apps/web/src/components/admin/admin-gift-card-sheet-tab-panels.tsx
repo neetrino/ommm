@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
+import { AdminGiftIssuedCards } from "@/components/admin/admin-gift-issued-cards";
 import {
   displayGiftCardDate,
   giftCardQuantityLabel,
@@ -167,18 +168,21 @@ function GiftCardActionsPanel({
   onRemoved?: () => void;
 }) {
   return (
-    <AdminGiftCardActions
-      batchId={card.id}
-      allowDeactivate={false}
-      allowDelete={canDelete}
-      hideLifecycleActions
-      showHistoryButton={false}
-      hideAssign={!canAssign}
-      locale={locale}
-      assignableUsers={assignableUsers}
-      onChanged={onChanged}
-      onRemoved={onRemoved}
-    />
+    <>
+      <AdminGiftCardActions
+        batchId={card.id}
+        allowDeactivate={false}
+        allowDelete={canDelete}
+        hideLifecycleActions
+        showHistoryButton={false}
+        hideAssign={!canAssign}
+        locale={locale}
+        assignableUsers={assignableUsers}
+        onChanged={onChanged}
+        onRemoved={onRemoved}
+      />
+      <AdminGiftIssuedCards batchId={card.id} locale={locale} onChanged={onChanged} />
+    </>
   );
 }
 

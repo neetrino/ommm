@@ -17,6 +17,7 @@ import {
   startCustomGiftCheckout,
   type CustomGiftInputError,
 } from "@/lib/custom-gift-checkout";
+import { useGiftAmountPolicy } from "@/components/account/use-gift-amount-policy";
 import { focusFormField } from "@/components/ui/form-validation";
 import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
 import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
@@ -44,8 +45,10 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const [amountError, setAmountError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const minLabel = formatAmdFromCents(CUSTOM_GIFT_CARD_MIN_AMD, locale);
+  const policy = useGiftAmountPolicy(locale);
+  const minLabel = formatAmdFromCents(policy.minAmd, locale);
   const maxLabel = formatAmdFromCents(CUSTOM_GIFT_CARD_MAX_AMD, locale);
+  const selectedAmountAmd = parseAmdMoneyInput(amountRaw);
 
   return (
     <CustomGiftForm
@@ -59,6 +62,8 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       recipientError={recipientError}
       busy={busy}
       minLabel={minLabel}
+      amountChoices={policy.choices}
+      selectedAmountAmd={selectedAmountAmd}
       onAmountChange={(value) => {
         setAmountRaw(value);
         setAmountError(null);

@@ -1204,6 +1204,8 @@
       "drawerExpired": "Ժամկետը լրացել է",
       "drawerValid": "Գործող",
       "copyCode": "Պատճենել կոդը",
+      "shareWhatsApp": "WhatsApp",
+      "printCard": "Տպել",
       "copyCodeSuccess": "Կոդը պատճենվեց։",
       "copyCodeFailed": "Չհաջողվեց պատճենել կոդը։",
       "statusValues": {
@@ -3603,6 +3605,11 @@
         "historyClose": "Փակել պատմությունը",
         "historySummary": "Գումար՝ {amount} • Մնացորդ՝ {balance}",
         "historyInventorySummary": "Հասանելի՝ {available}/{total} • Թողարկված՝ {issued} • Փոխարժված՝ {redeemed}",
+        "issuedCards": "Թողարկված քարտեր",
+        "exportCsv": "Արտահանել CSV",
+        "extendExpiry": "Երկարացնել ժամկետը",
+        "adjustBalance": "Ճշգրտել մնացորդը",
+        "cardSaved": "Պահվել է։",
         "resend": "Կրկին ուղարկել",
         "deactivate": "Ապաակտիվացնել",
         "delete": "Ջնջել",
@@ -4552,7 +4559,8 @@
           "issued": "Թողարկված",
           "redeemed": "Մարած",
           "spent": "Ծախսված",
-          "outstanding": "Մնացորդ"
+          "outstanding": "Մնացորդ",
+          "breakage": "Ժամկետանց չօգտագործված"
         },
         "influencer": {
           "title": "Ինֆլուենսեր փաթեթներ",

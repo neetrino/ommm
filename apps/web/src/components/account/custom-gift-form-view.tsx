@@ -10,6 +10,7 @@ import {
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
+import { GiftAmountChoices } from "@/components/account/gift-amount-choices";
 import { GiftBannerSpheres } from "@/components/account/gift-banner-spheres";
 import { CUSTOM_GIFT_MESSAGE_MAX_LENGTH } from "@/lib/custom-gift-card.constants";
 
@@ -24,6 +25,8 @@ export type CustomGiftFormProps = {
   recipientError: string | null;
   busy: boolean;
   minLabel: string;
+  amountChoices: readonly { amountAmd: number; label: string }[];
+  selectedAmountAmd: number | null;
   onAmountChange: (value: string) => void;
   onMessageChange: (value: string) => void;
   onRecipientChange: (value: GiftRecipientOption | null) => void;
@@ -47,6 +50,9 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
         amountHint={t("amountHint", { min: props.minLabel })}
         amountError={props.amountError}
         busy={props.busy}
+        amountChoices={props.amountChoices}
+        selectedAmountAmd={props.selectedAmountAmd}
+        onAmountPick={props.onAmountChange}
         onAmountChange={props.onAmountChange}
       />
       <div className="space-y-8 px-5 py-7 sm:px-8 sm:py-8">
@@ -86,6 +92,9 @@ function CustomGiftFace({
   amountHint,
   amountError,
   busy,
+  amountChoices,
+  selectedAmountAmd,
+  onAmountPick,
   onAmountChange,
 }: {
   eyebrow: string;
@@ -97,6 +106,9 @@ function CustomGiftFace({
   amountHint: string;
   amountError: string | null;
   busy: boolean;
+  amountChoices: readonly { amountAmd: number; label: string }[];
+  selectedAmountAmd: number | null;
+  onAmountPick: (amountAmd: string) => void;
   onAmountChange: (value: string) => void;
 }) {
   return (
@@ -121,6 +133,12 @@ function CustomGiftFace({
             onValueChange={onAmountChange}
           />
         </Field>
+        <GiftAmountChoices
+          choices={amountChoices}
+          selectedAmd={selectedAmountAmd}
+          disabled={busy}
+          onSelect={(amountAmd) => onAmountPick(String(amountAmd))}
+        />
       </div>
     </div>
   );

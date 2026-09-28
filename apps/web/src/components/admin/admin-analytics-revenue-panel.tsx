@@ -103,6 +103,11 @@ function buildGiftKpis(
       label: t("sections.giftCredits.outstanding"),
       value: formatAmdFromCents(gift.outstandingCreditsCents, locale),
     },
+    {
+      key: "breakage",
+      label: t("sections.giftCredits.breakage"),
+      value: formatAmdFromCents(gift.breakageCents ?? 0, locale),
+    },
   ];
 }
 

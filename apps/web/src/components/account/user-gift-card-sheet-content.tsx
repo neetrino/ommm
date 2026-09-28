@@ -79,6 +79,21 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
               >
                 {t("copyCode")}
               </button>
+              <a
+                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
+                href={whatsAppShareHref(card.code)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("shareWhatsApp")}
+              </a>
+              <button
+                type="button"
+                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
+                onClick={() => window.print()}
+              >
+                {t("printCard")}
+              </button>
             </dd>
           </div>
           <DetailField label={t("cardCreated")} value={displayGiftCardDate(card.createdAt)} />
@@ -124,4 +139,9 @@ function DetailField({
       <dd className={`mt-1 break-words ${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}`}>{value}</dd>
     </div>
   );
+}
+
+function whatsAppShareHref(code: string): string {
+  const text = encodeURIComponent(`Ommm gift card: ${code}`);
+  return `https://wa.me/?text=${text}`;
 }

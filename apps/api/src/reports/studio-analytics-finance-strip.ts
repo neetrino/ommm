@@ -50,6 +50,7 @@ export function stripFinanceFromStudioAnalytics(
         spentCents: 0,
         spendTransactionsCount: 0,
         outstandingCreditsCents: 0,
+        breakageCents: 0,
       },
       influencer: {
         costCents: 0,

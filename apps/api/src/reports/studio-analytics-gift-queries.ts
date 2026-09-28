@@ -19,13 +19,14 @@ export async function loadStudioAnalyticsGiftCredits(
     giftSpentAgg,
     giftWalletAgg,
     giftCardsOutstandingAgg,
+    breakageAgg,
   ] = await Promise.all([
     prisma.giftCard.findMany({
       where: { createdAt: dateFilter },
       take: STUDIO_ANALYTICS_ROW_CAP,
     }),
     prisma.giftCard.findMany({
-      where: { status: GiftCardStatus.REDEEMED, updatedAt: dateFilter },
+      where: { redeemedAt: dateFilter },
       take: STUDIO_ANALYTICS_ROW_CAP,
     }),
     prisma.payment.aggregate({
@@ -42,6 +43,16 @@ export async function loadStudioAnalyticsGiftCredits(
       where: {
         status: GiftCardStatus.ACTIVE,
         OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      _sum: { balanceAmd: true },
+    }),
+    prisma.giftCard.aggregate({
+      where: {
+        balanceAmd: { gt: 0 },
+        OR: [
+          { status: GiftCardStatus.EXPIRED },
+          { expiresAt: { lte: new Date() } },
+        ],
       },
       _sum: { balanceAmd: true },
     }),
@@ -62,5 +73,6 @@ export async function loadStudioAnalyticsGiftCredits(
     outstandingCreditsCents:
       (giftWalletAgg._sum.giftCreditsCents ?? 0) +
       (giftCardsOutstandingAgg._sum.balanceAmd ?? 0),
+    breakageCents: breakageAgg._sum.balanceAmd ?? 0,
   };
 }
