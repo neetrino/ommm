@@ -10,7 +10,7 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 type CoachSalarySessionsTableProps = {
   sessions: CoachSalarySessionRow[];
   locale: string;
-  totalsLabel: string;
+  rangeTotalAmd: number;
 };
 
 /** Stronger spreadsheet chrome so rows read clearly on the pale finance sheet. */
@@ -36,6 +36,8 @@ const ROW_CLASS =
 
 const FOOTER_CLASS = "border-t border-sage-300/70 bg-sand-100";
 
+const RANGE_FOOTER_CLASS = "border-t border-sage-400/80 bg-sand-200";
+
 function sumPaidAmountAmd(sessions: CoachSalarySessionRow[]): number {
   return sessions.reduce((sum, session) => sum + (session.reason === "PAID" ? session.amountAmd : 0), 0);
 }
@@ -56,7 +58,7 @@ function AttendanceStack({ session }: { session: CoachSalarySessionRow }) {
 export function CoachSalarySessionsTable({
   sessions,
   locale,
-  totalsLabel,
+  rangeTotalAmd,
 }: CoachSalarySessionsTableProps) {
   const t = useTranslations("coachSalarySession");
   const pageTotalAmd = sumPaidAmountAmd(sessions);
@@ -105,18 +107,69 @@ export function CoachSalarySessionsTable({
             </tr>
           ))}
         </tbody>
-        <tfoot>
-          <tr className={FOOTER_CLASS}>
-            <td className={`${TD_STRONG_CLASS} uppercase tracking-wide text-sage-600`} colSpan={4}>
-              {totalsLabel}
-            </td>
-            <td className={`${TD_STRONG_CLASS} text-center tabular-nums`}>
-              {formatAmdFromCents(pageTotalAmd, locale)}
-            </td>
-            <td className={TD_CLASS} />
-          </tr>
-        </tfoot>
+        <SalaryTotalsFoot
+          pageLabel={t("pageTotal")}
+          rangeLabel={t("rangeTotal")}
+          pageTotalAmd={pageTotalAmd}
+          rangeTotalAmd={rangeTotalAmd}
+          locale={locale}
+        />
       </table>
     </div>
+  );
+}
+
+function SalaryTotalsFoot({
+  pageLabel,
+  rangeLabel,
+  pageTotalAmd,
+  rangeTotalAmd,
+  locale,
+}: {
+  pageLabel: string;
+  rangeLabel: string;
+  pageTotalAmd: number;
+  rangeTotalAmd: number;
+  locale: string;
+}) {
+  return (
+    <tfoot>
+      <SalaryTotalRow
+        label={pageLabel}
+        amountAmd={pageTotalAmd}
+        locale={locale}
+        rowClass={FOOTER_CLASS}
+      />
+      <SalaryTotalRow
+        label={rangeLabel}
+        amountAmd={rangeTotalAmd}
+        locale={locale}
+        rowClass={RANGE_FOOTER_CLASS}
+      />
+    </tfoot>
+  );
+}
+
+function SalaryTotalRow({
+  label,
+  amountAmd,
+  locale,
+  rowClass,
+}: {
+  label: string;
+  amountAmd: number;
+  locale: string;
+  rowClass: string;
+}) {
+  return (
+    <tr className={rowClass}>
+      <td className={`${TD_STRONG_CLASS} uppercase tracking-wide text-sage-600`} colSpan={4}>
+        {label}
+      </td>
+      <td className={`${TD_STRONG_CLASS} whitespace-nowrap text-center tabular-nums`}>
+        {formatAmdFromCents(amountAmd, locale)}
+      </td>
+      <td className={TD_CLASS} />
+    </tr>
   );
 }

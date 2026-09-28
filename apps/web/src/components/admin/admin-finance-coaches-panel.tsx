@@ -110,6 +110,29 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
     [pathname, router, searchParams],
   );
 
+  const openCoach = useMemo(() => {
+    if (drawerCoach === null) {
+      return null;
+    }
+    return (
+      initial.items.find((row) => row.coachProfileId === drawerCoach.coachProfileId) ??
+      drawerCoach
+    );
+  }, [drawerCoach, initial.items]);
+
+  const commitSalaryRange = useCallback(
+    (nextFrom: string, nextTo: string) => {
+      if (searchParams.get("from") === nextFrom && searchParams.get("to") === nextTo) {
+        return;
+      }
+      replaceSearchParams((params) => {
+        params.set("from", nextFrom);
+        params.set("to", nextTo);
+      });
+    },
+    [replaceSearchParams, searchParams],
+  );
+
   const setListPage = useCallback(
     (page: number, pageSize?: number) => {
       replaceSearchParams((params) => {
@@ -181,11 +204,12 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
         onPageChange={setListPage}
       />
       <AdminCoachSessionsDrawer
-        coach={drawerCoach}
+        coach={openCoach}
         locale={locale}
         from={filters.from}
         to={filters.to}
         onClose={() => setDrawerCoach(null)}
+        onRangeCommit={commitSalaryRange}
       />
     </div>
   );

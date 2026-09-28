@@ -13,6 +13,9 @@ describe('CoachSalarySessionsService', () => {
     const service = new CoachSalarySessionsService({
       classSession: { findMany, count },
       coachClassTypeRate: { findMany: rateFindMany },
+      coachSalaryAccrual: {
+        aggregate: jest.fn().mockResolvedValue({ _sum: { amountAmd: 0 } }),
+      },
     } as never);
     return { service, findMany, count, rateFindMany };
   }
@@ -57,6 +60,9 @@ describe('CoachSalarySessionsService', () => {
       coachProfile: { findUnique: findUniqueProfile },
       classSession: { findMany, count },
       coachClassTypeRate: { findMany: jest.fn().mockResolvedValue([]) },
+      coachSalaryAccrual: {
+        aggregate: jest.fn().mockResolvedValue({ _sum: { amountAmd: 0 } }),
+      },
     } as never);
 
     const page = await service.listForUser('user-1', {});
@@ -65,7 +71,13 @@ describe('CoachSalarySessionsService', () => {
       where: { userId: 'user-1' },
       select: { id: true },
     });
-    expect(page).toEqual({ items: [], total: 0, take: 25, offset: 0 });
+    expect(page).toEqual({
+      items: [],
+      total: 0,
+      take: 25,
+      offset: 0,
+      paidTotalAmd: 0,
+    });
   });
 
   it('returns null when the user has no coach profile', async () => {

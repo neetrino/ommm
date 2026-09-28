@@ -3,14 +3,17 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Role, type User } from '@prisma/client';
+import type { Response } from 'express';
 import {
   BACKOFFICE_DELETE_ROLES,
   BACKOFFICE_WRITE_ROLES,
@@ -24,6 +27,14 @@ import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
 import { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 import { CoachSalaryMonthQueryDto } from './dto/coach-salary-month-query.dto';
+import { COACH_SALARY_XLSX_CONTENT_TYPE } from './coaches-salary-export.constants';
+import {
+  coachSalaryExportContentDisposition,
+  coachSalaryExportFilename,
+} from './coaches-salary-export-rows';
+import { assertCoachSalaryExportRange } from './coaches-salary-export-range';
+import { buildCoachSalarySessionsXlsx } from './coaches-salary-sessions-xlsx';
+import { CoachSalarySessionsExportQueryDto } from './dto/coach-salary-sessions-export-query.dto';
 import { CoachSalarySessionsQueryDto } from './dto/coach-salary-sessions-query.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { CreateCoachSalaryPayoutDto } from './dto/create-coach-salary-payout.dto';
@@ -127,6 +138,28 @@ export class CoachesController {
     return this.coaches.adminSalarySessions(id, query);
   }
 
+  /** Workbook of every salary session in the selected inclusive date range. */
+  @Get('admin/:id/salary-sessions/export')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  async adminCoachSalarySessionsExport(
+    @Param('id') id: string,
+    @Query() query: CoachSalarySessionsExportQueryDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    assertCoachSalaryExportRange(query.from, query.to);
+    const sheet = await this.coaches.adminSalarySessionsExport(id, query);
+    if (sheet === null) {
+      throw new NotFoundException();
+    }
+    const buffer = await buildCoachSalarySessionsXlsx({
+      ...sheet,
+      locale: query.locale,
+    });
+    sendCoachSalaryWorkbook(res, buffer, sheet.coachName, query.from, query.to);
+  }
+
   @Get(':id')
   getPublic(@Param('id') id: string) {
     return this.coaches.getPublic(id);
@@ -176,4 +209,20 @@ export class CoachesController {
   ) {
     return this.coaches.uploadCoachCardImageJson(id, dto);
   }
+}
+
+function sendCoachSalaryWorkbook(
+  res: Response,
+  buffer: Buffer,
+  coachName: string,
+  from: string,
+  to: string,
+): void {
+  const filename = coachSalaryExportFilename(coachName, from, to);
+  res.setHeader('Content-Type', COACH_SALARY_XLSX_CONTENT_TYPE);
+  res.setHeader(
+    'Content-Disposition',
+    coachSalaryExportContentDisposition(filename),
+  );
+  res.send(buffer);
 }

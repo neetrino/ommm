@@ -2841,7 +2841,8 @@
         "profile": "Profile",
         "details": "Coach details",
         "classes": "Classes",
-        "schedule": "Schedule"
+        "schedule": "Schedule",
+        "salary": "Salary"
       },
       "create": {
         "panelTitle": "Add Coach",
@@ -4634,7 +4635,12 @@
         "metricEarnings": "Earnings",
         "metricPending": "Pending",
         "metricPaid": "Paid out",
-        "totals": "Totals"
+        "exportExcel": "Export Excel",
+        "exporting": "Exporting…",
+        "exportFailed": "Could not export this salary range.",
+        "exportRangeInvalid": "The start date must be on or before the end date.",
+        "exportRangeTooLong": "Choose a range of one year or less.",
+        "exportRangeHint": "Excel includes every session in this range, not only this page."
       }
     },
     "content": {
@@ -4737,6 +4743,8 @@
     "colRate": "Rate",
     "colSalary": "Salary",
     "colStatus": "Status",
+    "pageTotal": "Page total",
+    "rangeTotal": "Range total",
     "statusPaid": "COMPLETED",
     "reasons": {
       "PAID": "Accrued: {amount}",
@@ -4887,8 +4895,7 @@
       "breakdownHint": "Salary is only accrued for classes where someone actually showed up.",
       "breakdownLoading": "Loading sessions…",
       "breakdownLoadFailed": "Could not load sessions.",
-      "breakdownEmpty": "No sessions found for this month.",
-      "breakdownTotals": "Totals"
+      "breakdownEmpty": "No sessions found for this month."
     }
   },
   "contentAdminPages": {
