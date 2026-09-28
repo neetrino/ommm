@@ -2841,7 +2841,8 @@
         "profile": "Profile",
         "details": "Coach details",
         "classes": "Classes",
-        "schedule": "Schedule"
+        "schedule": "Schedule",
+        "salary": "Salary"
       },
       "create": {
         "panelTitle": "Add Coach",

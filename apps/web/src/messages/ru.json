@@ -2839,7 +2839,8 @@
         "profile": "Профиль",
         "details": "Данные тренера",
         "classes": "Классы",
-        "schedule": "Расписание"
+        "schedule": "Расписание",
+        "salary": "Зарплата"
       },
       "create": {
         "panelTitle": "Добавить тренера",

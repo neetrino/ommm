@@ -2842,7 +2842,8 @@
         "profile": "Պրոֆիլ",
         "details": "Մարզիչի տվյալներ",
         "classes": "Դասեր",
-        "schedule": "Գրաֆիկ"
+        "schedule": "Գրաֆիկ",
+        "salary": "Աշխատավարձ"
       },
       "create": {
         "panelTitle": "Ավելացնել մարզիչ",

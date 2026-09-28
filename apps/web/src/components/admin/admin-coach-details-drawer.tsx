@@ -13,10 +13,12 @@ import {
 } from "@/components/admin/admin-coach-form-helpers";
 import { useCoachEditForm, type CoachSavedSnapshot } from "@/components/admin/admin-coach-edit-form.use";
 import type { CoachEditInitialValues } from "@/components/admin/admin-coach-edit-form.types";
+import { AdminCoachSalarySheetPanel } from "@/components/admin/admin-coach-salary-sheet-panel";
 import {
   COACH_PROFILE_TAB_QUERY_KEY,
   COACH_SHEET_TAB_ORDER,
   COACH_SHEET_TAB_PROFILE,
+  COACH_SHEET_TAB_SALARY,
   parseCoachSheetTabId,
   type CoachSheetTabId,
 } from "@/components/admin/admin-coach-sheet-tabs";
@@ -286,46 +288,52 @@ function AdminCoachDetailsDrawerInner({
           />
         ) : null}
 
-        <CoachSheetTabPanels
-          activeTab={activeTab}
-          coachId={coach.id}
-          locale={locale}
-          classOptions={classOptions}
-          form={editForm.form}
-          errors={editForm.errors}
+        {activeTab === COACH_SHEET_TAB_SALARY ? (
+          <AdminCoachSalarySheetPanel coachProfileId={coach.id} locale={locale} />
+        ) : (
+          <CoachSheetTabPanels
+            activeTab={activeTab}
+            coachId={coach.id}
+            locale={locale}
+            classOptions={classOptions}
+            form={editForm.form}
+            errors={editForm.errors}
+            busy={editForm.busy}
+            photoPreviewUrl={editForm.photoPreviewUrl}
+            cardImagePreviewUrl={editForm.cardImagePreviewUrl}
+            controller={editForm}
+            overview={{
+              isActive: coach.isActive,
+              createdAt: coach.createdAt,
+              totalClasses: coach.totalClasses,
+              substituteClasses: coach.substituteClasses,
+              assignedClassesCount: coach.assignedClassTypeIds.length,
+              availabilitySlotsCount: coach.schedule.length,
+              initials: coachCardInitials(coach.user),
+            }}
+            personalInfoEditing={personalInfoEditing}
+            onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
+            onPersonalInfoSubmit={(event) => {
+              event.preventDefault();
+              void handleSaveCoach();
+            }}
+          />
+        )}
+      </div>
+
+      {activeTab === COACH_SHEET_TAB_SALARY ? null : (
+        <AdminDetailSheetFormFooter
+          saveLabel={t("saveButton")}
+          cancelLabel={t("cancelButton")}
+          savingLabel={t("savingButton")}
+          dirty={editForm.dirty || personalInfoEditing}
           busy={editForm.busy}
-          photoPreviewUrl={editForm.photoPreviewUrl}
-          cardImagePreviewUrl={editForm.cardImagePreviewUrl}
-          controller={editForm}
-          overview={{
-            isActive: coach.isActive,
-            createdAt: coach.createdAt,
-            totalClasses: coach.totalClasses,
-            substituteClasses: coach.substituteClasses,
-            assignedClassesCount: coach.assignedClassTypeIds.length,
-            availabilitySlotsCount: coach.schedule.length,
-            initials: coachCardInitials(coach.user),
-          }}
-          personalInfoEditing={personalInfoEditing}
-          onStartPersonalInfoEdit={() => setPersonalInfoEditing(true)}
-          onPersonalInfoSubmit={(event) => {
-            event.preventDefault();
+          onCancel={handleCancelPersonalInfoEdit}
+          onSave={() => {
             void handleSaveCoach();
           }}
         />
-      </div>
-
-      <AdminDetailSheetFormFooter
-        saveLabel={t("saveButton")}
-        cancelLabel={t("cancelButton")}
-        savingLabel={t("savingButton")}
-        dirty={editForm.dirty || personalInfoEditing}
-        busy={editForm.busy}
-        onCancel={handleCancelPersonalInfoEdit}
-        onSave={() => {
-          void handleSaveCoach();
-        }}
-      />
+      )}
     </AdminSheetPortal>
   );
 }
