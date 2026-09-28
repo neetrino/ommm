@@ -177,7 +177,6 @@ export function AdminCoachSessionsDrawer({
               to={range.listTo}
               locale={locale}
               variant="table"
-              totalsLabel={t("totals")}
               loadingLabel={t("loading")}
               loadFailedLabel={t("loadFailed")}
               emptyLabel={t("empty")}

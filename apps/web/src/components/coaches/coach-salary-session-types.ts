@@ -33,4 +33,6 @@ export type CoachSalarySessionsPayload = {
   total: number;
   take: number;
   offset: number;
+  /** Accrued salary for the whole selected range, across every page. */
+  paidTotalAmd: number;
 };

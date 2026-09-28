@@ -19,6 +19,8 @@ export type CoachSalarySessionsPage = {
   total: number;
   take: number;
   offset: number;
+  /** Sum of accrued salary for the whole filter, not only this page. */
+  paidTotalAmd: number;
 };
 
 export type CoachSalaryExportData = {
@@ -75,11 +77,12 @@ export class CoachSalarySessionsService {
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
     const where = this.sessionWhere(coachProfileId, query);
-    const [items, total] = await Promise.all([
+    const [items, total, paidTotalAmd] = await Promise.all([
       this.loadMappedSessions(coachProfileId, where, take, offset),
       this.prisma.classSession.count({ where }),
+      this.sumRangePaidAmd(where),
     ]);
-    return { items, total, take, offset };
+    return { items, total, take, offset, paidTotalAmd };
   }
 
   /** Every session in the inclusive range, for the salary workbook. */
@@ -101,6 +104,14 @@ export class CoachSalarySessionsService {
       to: query.to,
       items,
     };
+  }
+
+  private async sumRangePaidAmd(where: SalarySessionWhere): Promise<number> {
+    const aggregate = await this.prisma.coachSalaryAccrual.aggregate({
+      where: { classSession: where },
+      _sum: { amountAmd: true },
+    });
+    return aggregate._sum.amountAmd ?? 0;
   }
 
   private sessionWhere(

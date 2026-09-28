@@ -4289,7 +4289,6 @@
         "metricEarnings": "Հաշվարկված",
         "metricPending": "Վճարման ենթակա",
         "metricPaid": "Վճարված",
-        "totals": "Ընդամենը",
         "exportExcel": "Արտահանել Excel",
         "exporting": "Արտահանվում է…",
         "exportFailed": "Չհաջողվեց արտահանել այս միջակայքի աշխատավարձը։",
@@ -4745,6 +4744,8 @@
     "colRate": "Դրույք",
     "colSalary": "Աշխատավարձ",
     "colStatus": "Կարգավիճակ",
+    "pageTotal": "Էջի գումար",
+    "rangeTotal": "Միջակայքի գումար",
     "statusPaid": "COMPLETED",
     "reasons": {
       "PAID": "Հաշվարկվել է՝ {amount}",
@@ -4895,8 +4896,7 @@
       "breakdownHint": "Աշխատավարձը հաշվարկվում է միայն այն պարապմունքների համար, որտեղ իրականում ինչ-որ մեկը եկել է։",
       "breakdownLoading": "Սեսիաները բեռնվում են…",
       "breakdownLoadFailed": "Չհաջողվեց բեռնել սեսիաները։",
-      "breakdownEmpty": "Այս ամսին սեսիաներ չեն գտնվել։",
-      "breakdownTotals": "Ընդամենը"
+      "breakdownEmpty": "Այս ամսին սեսիաներ չեն գտնվել։"
     }
   },
   "contentAdminPages": {
