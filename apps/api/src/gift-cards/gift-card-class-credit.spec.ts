@@ -1,5 +1,5 @@
-import { GiftCardStatus, GiftCardType } from '@prisma/client';
-import { reserveGiftClassSessions } from './gift-card-class-credit';
+import { GiftCardStatus, GiftCardTransactionKind, GiftCardType } from '@prisma/client';
+import { reserveGiftClassSessions, restoreGiftClassSpend } from './gift-card-class-credit';
 
 describe('reserveGiftClassSessions', () => {
   it('spends only the matching class and keeps the remainder', async () => {
@@ -61,6 +61,44 @@ describe('reserveGiftClassSessions', () => {
     expect(db.giftCard.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ classTypeId: 'mat' }),
+      }),
+    );
+  });
+});
+
+describe('restoreGiftClassSpend', () => {
+  it('returns the spent sessions once and writes a refund', async () => {
+    const db = {
+      giftCard: {
+        update: jest.fn().mockResolvedValue({ balanceClasses: 2, balanceAmd: 0 }),
+      },
+      giftCardTransaction: {
+        findMany: jest.fn().mockResolvedValue([
+          { giftCardId: 'reformer', classes: 1, userId: 'u1' },
+        ]),
+        findFirst: jest.fn().mockResolvedValue(null),
+        create: jest.fn().mockResolvedValue({ id: 'refund-1' }),
+      },
+    };
+
+    await restoreGiftClassSpend(db as never, 'booking-1');
+
+    expect(db.giftCard.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'reformer' },
+        data: {
+          balanceClasses: { increment: 1 },
+          status: GiftCardStatus.ACTIVE,
+        },
+      }),
+    );
+    expect(db.giftCardTransaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          kind: GiftCardTransactionKind.REFUND,
+          classes: 1,
+          orderId: 'booking-1',
+        }),
       }),
     );
   });

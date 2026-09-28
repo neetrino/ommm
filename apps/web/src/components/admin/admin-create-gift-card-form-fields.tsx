@@ -9,6 +9,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 
 type AdminCreateGiftCardFormFieldsProps = {
   mode: AdminGiftCardFormMode;
+  hideAmount: boolean;
   amountAmd: string;
   setAmountAmd: (value: string) => void;
   quantity: string;
@@ -35,6 +36,7 @@ type AdminCreateGiftCardFormFieldsProps = {
 
 export function AdminCreateGiftCardFormFields({
   mode,
+  hideAmount,
   amountAmd,
   setAmountAmd,
   quantity,
@@ -60,18 +62,20 @@ export function AdminCreateGiftCardFormFields({
 }: AdminCreateGiftCardFormFieldsProps) {
   return (
     <>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAmount")}</span>
-        <AmdMoneyInput
-          name="amountAmd"
-          placeholder={t("fieldAmountPlaceholder")}
-          value={amountAmd}
-          onValueChange={setAmountAmd}
-          align="start"
-          disabled={busy}
-          required
-        />
-      </label>
+      {hideAmount ? null : (
+        <label className="flex flex-col gap-1">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAmount")}</span>
+          <AmdMoneyInput
+            name="amountAmd"
+            placeholder={t("fieldAmountPlaceholder")}
+            value={amountAmd}
+            onValueChange={setAmountAmd}
+            align="start"
+            disabled={busy}
+            required
+          />
+        </label>
+      )}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-start gap-3">
           <OmmButton

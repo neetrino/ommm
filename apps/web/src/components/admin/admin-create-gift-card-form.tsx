@@ -4,6 +4,12 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCreateGiftCardFormFields } from "@/components/admin/admin-create-gift-card-form-fields";
 import {
+  AdminGiftCardKindFields,
+  appendGiftCreateAmount,
+  readClassGiftCreate,
+  type AdminGiftCardKind,
+} from "@/components/admin/admin-gift-card-kind-fields";
+import {
   ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES,
   createGiftCardImagePreviewDataUrl,
   isAcceptedGiftCardImageType,
@@ -33,6 +39,9 @@ export function AdminCreateGiftCardForm({
   const submitLockRef = useRef(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const imagePreviewRequestRef = useRef(0);
+  const [cardKind, setCardKind] = useState<AdminGiftCardKind>("FIXED_VALUE");
+  const [classTypeId, setClassTypeId] = useState("");
+  const [classSessions, setClassSessions] = useState("1");
   const [amountAmd, setAmountAmd] = useState(String(initialValues?.amountAmd ?? 10000));
   const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? 1));
   const minQuantity = initialValues?.minQuantity ?? 1;
@@ -120,9 +129,16 @@ export function AdminCreateGiftCardForm({
     if (busy || submitLockRef.current) {
       return;
     }
+    const isClassGift = mode === "create" && cardKind === "FIXED_CLASS";
+    const classGift = readClassGiftCreate({ isClassGift, classTypeId, classSessions });
     const parsedAmountAmd = parseAmdMoneyInput(amountAmd);
     const parsedQuantity = Number.parseInt(quantity, 10);
-    if (parsedAmountAmd === null || parsedAmountAmd < 1) {
+    if (!classGift.ok) {
+      setTone("err");
+      setResult(t("classGiftInvalid"));
+      return;
+    }
+    if (!isClassGift && (parsedAmountAmd === null || parsedAmountAmd < 1)) {
       setTone("err");
       setResult(t("amountInvalid"));
       return;
@@ -170,7 +186,12 @@ export function AdminCreateGiftCardForm({
       }
 
       const formData = new FormData();
-      formData.append("amountAmd", String(parsedAmountAmd));
+      appendGiftCreateAmount(formData, {
+        isClassGift,
+        classTypeId,
+        sessions: classGift.sessions,
+        amountAmd: parsedAmountAmd ?? 0,
+      });
       formData.append("quantity", String(parsedQuantity));
       if (recipientId.trim().length > 0) {
         formData.append("recipientId", recipientId.trim());
@@ -200,8 +221,21 @@ export function AdminCreateGiftCardForm({
 
   return (
     <form onSubmit={submit} className="grid gap-4">
+      {mode === "create" ? (
+        <AdminGiftCardKindFields
+          kind={cardKind}
+          classTypeId={classTypeId}
+          classSessions={classSessions}
+          disabled={busy}
+          onKindChange={setCardKind}
+          onClassTypeChange={setClassTypeId}
+          onClassSessionsChange={setClassSessions}
+          t={t}
+        />
+      ) : null}
       <AdminCreateGiftCardFormFields
         mode={mode}
+        hideAmount={mode === "create" && cardKind === "FIXED_CLASS"}
         amountAmd={amountAmd}
         setAmountAmd={setAmountAmd}
         quantity={quantity}
