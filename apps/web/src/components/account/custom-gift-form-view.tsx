@@ -31,6 +31,7 @@ export type CustomGiftFormProps = {
   onMessageChange: (value: string) => void;
   onRecipientChange: (value: GiftRecipientOption | null) => void;
   onSubmit: (event: FormEvent) => void;
+  extras?: ReactNode;
 };
 
 export function CustomGiftForm(props: CustomGiftFormProps) {
@@ -63,6 +64,7 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
           validationMessage={props.recipientError}
           onSelect={props.onRecipientChange}
         />
+        {props.extras}
         <CustomGiftNote
           id={props.messageId}
           label={t("messageLabel")}

@@ -30,15 +30,15 @@ function card(overrides: Partial<UserGiftCardRow> & Pick<UserGiftCardRow, "id" |
 }
 
 describe("customGiftInputError", () => {
-  it("requires an amount and a recipient", () => {
+  it("requires an amount and leaves the recipient optional", () => {
     assert.equal(customGiftInputError(null, true), "amountRequired");
-    assert.equal(customGiftInputError(CUSTOM_GIFT_CARD_MIN_AMD, false), "recipientRequired");
+    assert.equal(customGiftInputError(CUSTOM_GIFT_CARD_MIN_AMD, false), null);
   });
 
   it("reports every required field and skips the optional note", () => {
     assert.deepEqual(customGiftFieldIssues(null, false), {
       amount: "amountRequired",
-      recipient: "recipientRequired",
+      recipient: null,
     });
     assert.deepEqual(customGiftFieldIssues(CUSTOM_GIFT_CARD_MIN_AMD, true), {
       amount: null,

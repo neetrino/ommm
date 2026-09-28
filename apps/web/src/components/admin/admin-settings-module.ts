@@ -5,7 +5,8 @@ export type AdminSettingsTabId =
   | "identity"
   | "location"
   | "contact"
-  | "whatsapp";
+  | "whatsapp"
+  | "gift-cards";
 
 export const ADMIN_SETTINGS_TAB_IDS: readonly AdminSettingsTabId[] = [
   "studio",
@@ -15,6 +16,7 @@ export const ADMIN_SETTINGS_TAB_IDS: readonly AdminSettingsTabId[] = [
   "location",
   "contact",
   "whatsapp",
+  "gift-cards",
 ] as const;
 
 export const ADMIN_SETTINGS_TAB_HREF: Record<AdminSettingsTabId, string> = {
@@ -25,6 +27,7 @@ export const ADMIN_SETTINGS_TAB_HREF: Record<AdminSettingsTabId, string> = {
   location: "/admin/settings/location",
   contact: "/admin/settings/contact",
   whatsapp: "/admin/settings/whatsapp",
+  "gift-cards": "/admin/settings/gift-cards",
 };
 
 const STUDIO_SUBTAB_SUFFIXES = ["/identity", "/location", "/contact"] as const;
@@ -52,6 +55,10 @@ export function resolveAdminSettingsTabFromPathname(
 
   if (pathname.endsWith("/whatsapp")) {
     return "whatsapp";
+  }
+
+  if (pathname.endsWith("/gift-cards")) {
+    return "gift-cards";
   }
 
   if (pathname === "/admin/settings" || pathname.endsWith("/admin/settings")) {

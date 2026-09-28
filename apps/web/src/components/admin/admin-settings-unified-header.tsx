@@ -25,6 +25,8 @@ function resolveSettingsDescriptionKey(
       return `studioSections.${tab}`;
     case "whatsapp":
       return "whatsappDescription";
+    case "gift-cards":
+      return "giftCardsDescription";
     case "studio":
     default:
       return "studioDescription";

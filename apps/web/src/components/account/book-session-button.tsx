@@ -39,6 +39,7 @@ export function BookSessionButton({
   const payDropInLabel = dropInLabel ?? t("dropIn");
   const [msg, setMsg] = useState<string | null>(null);
   const [dropInBusy, setDropInBusy] = useState(false);
+  const [useGiftCredits, setUseGiftCredits] = useState(false);
   const { busy: bookingBusy, initiateBooking, packageModal } = useSessionBooking({
     sessionId,
     locale,
@@ -57,7 +58,7 @@ export function BookSessionButton({
     setMsg(null);
     try {
       const payment = await apiFetch<PendingPaymentResponse & { amountCents: number }>(
-        `/payments/checkout/dropin/${sessionId}`,
+        `/payments/checkout/dropin/${sessionId}${useGiftCredits ? "?useGiftCredits=true" : ""}`,
         { method: "POST" },
       );
       const params = new URLSearchParams({
@@ -104,7 +105,17 @@ export function BookSessionButton({
     layout === "list" ? "flex flex-wrap items-center justify-end gap-2" : "flex flex-wrap gap-2";
 
   return (
-    <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1">
+        {priceCents > 0 ? (
+          <label className="flex items-center gap-2 text-xs text-sage-700">
+            <input
+              type="checkbox"
+              checked={useGiftCredits}
+              onChange={(event) => setUseGiftCredits(event.target.checked)}
+            />
+            {t("useGiftCredits")}
+          </label>
+        ) : null}
       <div className={buttonRowClass}>
         {layout === "list" ? (
           <>

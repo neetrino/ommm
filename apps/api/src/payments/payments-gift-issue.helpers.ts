@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { GiftCardStatus, GiftCardTransactionKind, Prisma } from '@prisma/client';
+import { GiftCardStatus, GiftCardTransactionKind, GiftCardType, Prisma } from '@prisma/client';
 import {
   claimPreissuedGiftCard,
   generateGiftCardCode,
@@ -90,12 +90,17 @@ export async function issuePurchasedGiftCard(
     }
   }
   const code = generateGiftCardCode();
+  const classGift = readClassGift(params.metadata);
   const created = await tx.giftCard.create({
     data: {
       batchId: selectedBatch?.id,
       code,
-      amountAmd,
-      balanceAmd: amountAmd,
+      type: classGift === null ? GiftCardType.FIXED_VALUE : GiftCardType.FIXED_CLASS,
+      amountAmd: classGift === null ? amountAmd : 0,
+      balanceAmd: classGift === null ? amountAmd : 0,
+      classTypeId: classGift?.classTypeId,
+      classQuantity: classGift?.classQuantity ?? 0,
+      balanceClasses: classGift?.classQuantity ?? 0,
       imageUrl: selectedBatch?.imageUrl ?? undefined,
       status: GiftCardStatus.ACTIVE,
       purchaserId: params.purchaserId,
@@ -110,13 +115,25 @@ export async function issuePurchasedGiftCard(
     data: {
       giftCardId: created.id,
       kind: GiftCardTransactionKind.ISSUE,
-      amountAmd,
-      classes: 0,
-      balanceAmdAfter: amountAmd,
-      balanceClassesAfter: 0,
+      amountAmd: classGift === null ? amountAmd : 0,
+      classes: classGift?.classQuantity ?? 0,
+      balanceAmdAfter: classGift === null ? amountAmd : 0,
+      balanceClassesAfter: classGift?.classQuantity ?? 0,
     },
   });
   return { code, recipientEmail, recipientName, amountAmd, message };
+}
+
+function readClassGift(
+  metadata: PaymentMetadata,
+): { classTypeId: string; classQuantity: number } | null {
+  if (metadata.giftType !== GiftCardType.FIXED_CLASS) {
+    return null;
+  }
+  if (!metadata.classTypeId || !metadata.classQuantity) {
+    throw new BadRequestException('Class gift cards need a class type and quantity');
+  }
+  return { classTypeId: metadata.classTypeId, classQuantity: metadata.classQuantity };
 }
 
 export async function readGiftSenderName(

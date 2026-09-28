@@ -1270,7 +1270,21 @@
         "amountMin": "Gift cards start at {min}.",
         "amountMax": "Gift cards can be up to {max}.",
         "recipientRequired": "Choose who receives this gift.",
-        "checkoutFailed": "Could not start payment."
+        "checkoutFailed": "Could not start payment.",
+        "kindLabel": "Gift type",
+        "kindMoney": "Money",
+        "kindClass": "Class sessions",
+        "classLabel": "Class",
+        "classPlaceholder": "Choose a class",
+        "sessionsLabel": "Sessions",
+        "deliveryLabel": "How to send it",
+        "deliveryEmail": "Email",
+        "deliveryWhatsapp": "WhatsApp link",
+        "deliveryPrint": "Print",
+        "deliverAtLabel": "Send on (optional)",
+        "guestNameLabel": "Recipient name (optional)",
+        "guestEmailLabel": "Recipient email (optional)",
+        "classRequired": "Choose a class and at least one session."
       },
       "celebration": {
         "eyebrow": "A gift for you",
@@ -2117,6 +2131,7 @@
       "title": "Settings",
       "studioDescription": "Manage studio identity, contact details, and operational defaults.",
       "whatsappDescription": "Store Gateway credentials and pair the studio WhatsApp number with a QR code.",
+      "giftCardsDescription": "Minimum amount, ready-made denominations, and the default validity of a new gift card.",
       "tabs": {
         "aria": "Settings sections",
         "studio": "Studio",
@@ -2125,7 +2140,8 @@
         "identity": "Identity",
         "location": "Location",
         "contact": "Contact",
-        "whatsapp": "WhatsApp"
+        "whatsapp": "WhatsApp",
+        "giftCards": "Gift cards"
       },
       "studioSections": {
         "identity": "Public studio name",
@@ -3625,6 +3641,8 @@
         "extendExpiry": "Extend expiry",
         "adjustBalance": "Adjust balance",
         "cardSaved": "Saved.",
+        "convertToMoney": "To money",
+        "convertToClasses": "To classes",
         "resend": "Resend email",
         "deactivate": "Deactivate",
         "activated": "Gift card activated.",
@@ -5094,6 +5112,7 @@
     "bookSession": {
       "book": "Book",
       "dropIn": "Pay & book (drop-in)",
+      "useGiftCredits": "Apply gift credit",
       "bookFailed": "Could not book",
       "checkoutFailed": "Could not create payment request",
       "checkoutUnavailable": "Payment request unavailable",

@@ -16,6 +16,7 @@ import {
 import { normalizeOptionalContactPhone } from '../common/phone';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
+import type { UpdateGiftPolicyDto } from './dto/update-gift-policy.dto';
 import type { UpdateStudioDto } from './dto/update-studio.dto';
 
 @Injectable()
@@ -103,6 +104,25 @@ export class StudioService {
       sections: parseHomePageSectionVisibilityJson(
         updated.homeSectionsVisibilityJson,
       ),
+    };
+  }
+
+  async updateGiftPolicy(dto: UpdateGiftPolicyDto) {
+    const current = await this.loadPublicFromDb();
+    const denominations = [...new Set(dto.denominationsAmd)].sort((left, right) => left - right);
+    const updated = await this.prisma.studioSettings.update({
+      where: { id: current.id },
+      data: {
+        giftCardMinAmountAmd: dto.minAmountAmd,
+        giftCardValidityMonths: dto.validityMonths,
+        giftCardDenominationsJson: JSON.stringify(denominations),
+      },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.studio);
+    return {
+      minAmountAmd: updated.giftCardMinAmountAmd,
+      validityMonths: updated.giftCardValidityMonths,
+      denominationsAmd: denominations,
     };
   }
 

@@ -6,6 +6,18 @@ import {
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
+  amountCents?: number;
+};
+
+export type GiftCheckoutOptions = {
+  recipientId?: string;
+  recipientName?: string;
+  recipientEmail?: string;
+  type?: "FIXED_VALUE" | "FIXED_CLASS";
+  classTypeId?: string;
+  classQuantity?: number;
+  delivery?: "EMAIL" | "WHATSAPP" | "PRINT";
+  deliverAt?: string;
 };
 
 export type CustomGiftInputError =
@@ -22,11 +34,11 @@ export type CustomGiftFieldIssues = {
 /** Required-field issues only. The gift note is optional and is not checked. */
 export function customGiftFieldIssues(
   amountAmd: number | null,
-  hasRecipient: boolean,
+  _hasRecipient: boolean,
 ): CustomGiftFieldIssues {
   return {
     amount: customGiftAmountIssue(amountAmd),
-    recipient: hasRecipient ? null : "recipientRequired",
+    recipient: null,
   };
 }
 
@@ -56,17 +68,20 @@ function customGiftAmountIssue(
 /** Starts a pending custom-amount gift checkout and returns its reference. */
 export async function startCustomGiftCheckout(input: {
   amountAmd: number;
-  recipientId: string;
   message: string;
-}): Promise<string | null> {
+  options: GiftCheckoutOptions;
+}): Promise<{ reference: string | null; amountCents: number }> {
   const note = input.message.trim();
   const payment = await apiFetch<PendingPaymentResponse>("/payments/checkout/gift", {
     method: "POST",
     body: JSON.stringify({
-      amountAmd: input.amountAmd,
-      recipientId: input.recipientId,
+      ...(input.options.type === "FIXED_CLASS" ? {} : { amountAmd: input.amountAmd }),
       ...(note.length > 0 ? { message: note } : {}),
+      ...input.options,
     }),
   });
-  return payment.paymentReference;
+  return {
+    reference: payment.paymentReference,
+    amountCents: payment.amountCents ?? input.amountAmd,
+  };
 }

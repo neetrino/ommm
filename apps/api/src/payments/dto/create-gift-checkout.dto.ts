@@ -1,7 +1,8 @@
 import {
   IsEmail,
+  IsIn,
   IsInt,
-  IsNotEmpty,
+  IsISO8601,
   IsOptional,
   IsString,
   MaxLength,
@@ -31,11 +32,11 @@ export class CreateGiftCheckoutDto {
   @Min(1)
   amountCents?: number;
 
-  /** Studio member who receives the gift card (required for member checkout). */
+  /** Studio member. Omit to gift by name/email, or to keep the code with the buyer. */
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @MaxLength(191)
-  recipientId!: string;
+  recipientId?: string;
 
   @IsOptional()
   @IsString()
@@ -51,6 +52,29 @@ export class CreateGiftCheckoutDto {
   @IsString()
   @MaxLength(2000)
   message?: string;
+
+  @IsOptional()
+  @IsIn(['FIXED_VALUE', 'FIXED_CLASS'])
+  type?: 'FIXED_VALUE' | 'FIXED_CLASS';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(191)
+  classTypeId?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  classQuantity?: number;
+
+  @IsOptional()
+  @IsIn(['EMAIL', 'WHATSAPP', 'PRINT'])
+  delivery?: 'EMAIL' | 'WHATSAPP' | 'PRINT';
+
+  @IsOptional()
+  @IsISO8601()
+  deliverAt?: string;
 
   get resolvedAmountAmd(): number | undefined {
     return this.amountAmd ?? this.amountCents;

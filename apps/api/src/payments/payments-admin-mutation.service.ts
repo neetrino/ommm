@@ -161,6 +161,14 @@ export class PaymentsAdminMutationService {
     nextStatus: PaymentStatus;
     refundGiftCredits: boolean;
   }): Promise<void> {
+    if (params.refundGiftCredits && params.source === PaymentSource.DROPIN) {
+      await refundReservedGiftCredits(this.prisma, {
+        userId: params.userId,
+        appliedCents: readGiftCreditsAppliedCents(params.metadata),
+        allocations: readGiftCreditsAllocations(params.metadata),
+        orderId: params.paymentId,
+      });
+    }
     if (params.source !== PaymentSource.PACKAGE || params.sourceId === null) {
       return;
     }

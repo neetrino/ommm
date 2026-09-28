@@ -27,6 +27,7 @@ import { RedeemGiftDto } from './dto/redeem-gift.dto';
 import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
 import { AdminAdjustGiftCardDto, AdminExtendGiftCardDto } from './dto/admin-adjust-gift-card.dto';
+import { AdminConvertGiftCardDto } from './dto/admin-convert-gift-card.dto';
 import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
@@ -224,6 +225,17 @@ export class GiftCardsController {
   @Roles(...BACKOFFICE_WRITE_ROLES)
   extendCard(@Param('id') id: string, @Body() dto: AdminExtendGiftCardDto) {
     return this.giftCards.extendCardExpiry(id, dto);
+  }
+
+  @Post('admin/cards/:id/convert')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  convertCard(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+    @Body() dto: AdminConvertGiftCardDto,
+  ) {
+    return this.giftCards.convertCard(id, dto.direction, dto.classTypeId, user.id);
   }
 
   @Patch('admin/cards/:id/balance')

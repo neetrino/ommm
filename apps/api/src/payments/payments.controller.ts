@@ -36,17 +36,22 @@ export class PaymentsController {
     @Body() body: CreateGiftCheckoutDto,
   ) {
     const amountAmd = body.resolvedAmountAmd;
-    if (amountAmd === undefined) {
+    if (body.type !== 'FIXED_CLASS' && amountAmd === undefined) {
       throw new BadRequestException('Gift amount is required');
     }
     return this.payments.createGiftCheckout({
       purchaserId: user.id,
       batchId: body.batchId,
-      amountCents: amountAmd,
+      amountCents: amountAmd ?? 0,
       recipientId: body.recipientId,
       recipientName: body.recipientName,
       recipientEmail: body.recipientEmail,
       message: body.message,
+      giftType: body.type,
+      classTypeId: body.classTypeId,
+      classQuantity: body.classQuantity,
+      delivery: body.delivery,
+      deliverAt: body.deliverAt,
     });
   }
 
@@ -69,8 +74,9 @@ export class PaymentsController {
   checkoutDropIn(
     @CurrentUser() user: { id: string },
     @Param('sessionId') sessionId: string,
+    @Query('useGiftCredits') useGiftCredits?: string,
   ) {
-    return this.payments.createDropInCheckout(user.id, sessionId);
+    return this.payments.createDropInCheckout(user.id, sessionId, useGiftCredits === 'true');
   }
 
   @Post('checkout/dropin/:reference/confirm')

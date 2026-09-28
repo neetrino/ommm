@@ -17,6 +17,11 @@ export type PaymentMetadata = {
   recipientName?: string;
   recipientEmail?: string;
   message?: string;
+  giftType?: 'FIXED_VALUE' | 'FIXED_CLASS';
+  classTypeId?: string;
+  classQuantity?: number;
+  delivery?: 'EMAIL' | 'WHATSAPP' | 'PRINT';
+  deliverAt?: string;
 };
 
 export type GiftEmailPayload = {

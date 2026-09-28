@@ -17,6 +17,11 @@ import {
   startCustomGiftCheckout,
   type CustomGiftInputError,
 } from "@/lib/custom-gift-checkout";
+import {
+  CustomGiftOptions,
+  type CustomGiftDelivery,
+  type CustomGiftKind,
+} from "@/components/account/custom-gift-options";
 import { useGiftAmountPolicy } from "@/components/account/use-gift-amount-policy";
 import { focusFormField } from "@/components/ui/form-validation";
 import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
@@ -41,6 +46,13 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const [amountRaw, setAmountRaw] = useState(String(CUSTOM_GIFT_CARD_MIN_AMD));
   const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
   const [message, setMessage] = useState("");
+  const [kind, setKind] = useState<CustomGiftKind>("FIXED_VALUE");
+  const [classTypeId, setClassTypeId] = useState("");
+  const [classSessions, setClassSessions] = useState("1");
+  const [delivery, setDelivery] = useState<CustomGiftDelivery>("EMAIL");
+  const [deliverAt, setDeliverAt] = useState("");
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
@@ -73,11 +85,39 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         setRecipient(value);
         setRecipientError(null);
       }}
+      extras={
+        <CustomGiftOptions
+          kind={kind}
+          classTypeId={classTypeId}
+          classSessions={classSessions}
+          delivery={delivery}
+          deliverAt={deliverAt}
+          guestName={guestName}
+          guestEmail={guestEmail}
+          disabled={busy}
+          onKindChange={setKind}
+          onClassTypeChange={setClassTypeId}
+          onClassSessionsChange={setClassSessions}
+          onDeliveryChange={setDelivery}
+          onDeliverAtChange={setDeliverAt}
+          onGuestNameChange={setGuestName}
+          onGuestEmailChange={setGuestEmail}
+          t={t}
+        />
+      }
       onSubmit={(event) => {
         void submitComposer(event, {
           amountRaw,
           recipient,
           message,
+          kind,
+          classTypeId,
+          classSessions,
+          delivery,
+          deliverAt,
+          guestName,
+          guestEmail,
+          classRequired: t("classRequired"),
           checkoutFailed: t("checkoutFailed"),
           copy: composerCopy(t, minLabel, maxLabel),
           setError,
@@ -156,6 +196,14 @@ async function submitComposer(
     amountRaw: string;
     recipient: GiftRecipientOption | null;
     message: string;
+    kind: CustomGiftKind;
+    classTypeId: string;
+    classSessions: string;
+    delivery: CustomGiftDelivery;
+    deliverAt: string;
+    guestName: string;
+    guestEmail: string;
+    classRequired: string;
     checkoutFailed: string;
     copy: ComposerCopy;
     setError: (value: string | null) => void;
@@ -166,31 +214,43 @@ async function submitComposer(
   },
 ): Promise<void> {
   event.preventDefault();
-  const amountAmd = parseAmdMoneyInput(input.amountRaw);
+  const isClassGift = input.kind === "FIXED_CLASS";
+  const amountAmd = isClassGift ? 0 : parseAmdMoneyInput(input.amountRaw);
+  const sessions = Number.parseInt(input.classSessions, 10);
   const recipient = input.recipient;
-  const issues = customGiftFieldIssues(amountAmd, recipient !== null);
+  const issues = customGiftFieldIssues(
+    isClassGift ? CUSTOM_GIFT_CARD_MIN_AMD : amountAmd,
+    recipient !== null,
+  );
   const amountMessage = fieldIssueText(issues.amount, input.copy);
   const recipientMessage = issues.recipient === null ? null : input.copy.recipientRequired;
   input.setAmountError(amountMessage);
   input.setRecipientError(recipientMessage);
-  if (
-    amountMessage !== null ||
-    recipientMessage !== null ||
-    amountAmd === null ||
-    recipient === null
-  ) {
+  if (isClassGift && (input.classTypeId.length === 0 || !Number.isFinite(sessions) || sessions < 1)) {
+    input.setError(input.classRequired);
+    return;
+  }
+  if (!isClassGift && (amountMessage !== null || recipientMessage !== null || amountAmd === null)) {
     focusMissingGiftField(event.currentTarget, amountMessage !== null);
     return;
   }
   input.setBusy(true);
   input.setError(null);
   try {
-    const reference = await startCustomGiftCheckout({
+    const started = await startCustomGiftCheckout({
       amountAmd,
-      recipientId: recipient.id,
       message: input.message,
+      options: {
+        ...(recipient ? { recipientId: recipient.id } : {}),
+        ...(input.guestName.trim() ? { recipientName: input.guestName.trim() } : {}),
+        ...(input.guestEmail.trim() ? { recipientEmail: input.guestEmail.trim() } : {}),
+        type: input.kind,
+        delivery: input.delivery,
+        ...(isClassGift ? { classTypeId: input.classTypeId, classQuantity: sessions } : {}),
+        ...(input.deliverAt ? { deliverAt: `${input.deliverAt}T12:00:00.000Z` } : {}),
+      },
     });
-    input.goToCheckout(amountAmd, reference);
+    input.goToCheckout(started.amountCents, started.reference);
   } catch (err) {
     input.setError(err instanceof ApiError ? err.message : input.checkoutFailed);
     input.setBusy(false);

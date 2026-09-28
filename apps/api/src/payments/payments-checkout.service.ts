@@ -10,13 +10,16 @@ import { PaymentCashPendingEmailService } from './payment-cash-pending-email.ser
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
 import { resolveGiftCardPolicy } from '../gift-cards/gift-card-policy';
+import { peekSpendableGiftCreditsCents } from '../packages/package-gift-credits.util';
 import {
   assertCustomGiftAmount,
   assertDropInSessionForCheckout,
   assertGiftBatchForCheckout,
   findOwnedPendingPaymentByReference,
-  giftCheckoutMetadata,
 } from './payments-checkout.helpers';
+import { planDropInGiftCharge, reservePendingDropInGift } from './payments-dropin-gift';
+import { prepareGiftCheckout } from './payments-gift-checkout.prepare';
+import { dispatchDueGiftEmails } from './payments-gift-delivery';
 import { PaymentsConfirmService } from './payments-confirm.service';
 import {
   createPaymentReference,
@@ -47,37 +50,22 @@ export class PaymentsCheckoutService {
     return isArcaCheckoutEnabled(this.config);
   }
 
-  async createGiftCheckout(params: {
-    purchaserId: string;
-    batchId?: string;
-    amountCents: number;
-    recipientId: string;
-    recipientName?: string;
-    recipientEmail?: string;
-    message?: string;
-  }) {
-    const resolvedRecipient = await this.resolveGiftRecipient({
-      purchaserId: params.purchaserId,
-      recipientId: params.recipientId,
-      recipientName: params.recipientName,
-      recipientEmail: params.recipientEmail,
-    });
-    await this.assertGiftCheckoutAmount(params.batchId, params.amountCents);
-    const message = params.message?.trim();
+  async createGiftCheckout(params: Parameters<typeof prepareGiftCheckout>[1]) {
+    const prepared = await prepareGiftCheckout(this.prisma, params);
+    if (params.giftType !== 'FIXED_CLASS') {
+      await this.assertGiftCheckoutAmount(params.batchId, prepared.amountCents);
+    }
     return this.prisma.payment.create({
       data: withInternalPaymentCreateFields({
         userId: params.purchaserId,
-        amountCents: params.amountCents,
+        amountCents: prepared.amountCents,
         currency: 'amd',
         status: PaymentStatus.PENDING,
         paymentReference: createPaymentReference('GIFT'),
         source: INTERNAL_PAYMENT_SOURCE.GIFT,
         sourceId: params.batchId,
-        description:
-          params.batchId === undefined
-            ? 'Custom gift card'
-            : 'Gift card purchase (gift)',
-        metadata: giftCheckoutMetadata(resolvedRecipient, message),
+        description: prepared.description,
+        metadata: prepared.metadata,
       }),
     });
   }
@@ -108,46 +96,17 @@ export class PaymentsCheckoutService {
     assertGiftBatchForCheckout(batch, amountCents);
   }
 
-  private async resolveGiftRecipient(params: {
-    purchaserId: string;
-    recipientId: string;
-    recipientName?: string;
-    recipientEmail?: string;
-  }): Promise<{
-    recipientId: string;
-    recipientName?: string;
-    recipientEmail?: string;
-  }> {
-    if (params.recipientId.trim() === '') {
-      throw new BadRequestException('Gift recipient is required');
-    }
-    if (params.recipientId === params.purchaserId) {
-      throw new BadRequestException('Cannot gift a card to yourself');
-    }
-    const recipient = await this.prisma.user.findFirst({
-      where: {
-        id: params.recipientId,
-        role: 'USER',
-        isBlocked: false,
-      },
-      select: { id: true, email: true, name: true, lastName: true },
-    });
-    if (!recipient) {
-      throw new BadRequestException('Gift recipient not found');
-    }
-    const displayName = [recipient.name, recipient.lastName]
-      .filter((part): part is string => Boolean(part && part.trim()))
-      .join(' ')
-      .trim();
-    return {
-      recipientId: recipient.id,
-      recipientEmail: recipient.email,
-      recipientName:
-        displayName.length > 0 ? displayName : params.recipientName,
-    };
+  async dispatchDueGiftEmails(): Promise<number> {
+    return dispatchDueGiftEmails(this.prisma, (payload) =>
+      this.fulfillment.sendGiftCardEmail(payload),
+    );
   }
 
-  async createDropInCheckout(userId: string, sessionId: string) {
+  async createDropInCheckout(
+    userId: string,
+    sessionId: string,
+    useGiftCredits = false,
+  ) {
     const classSession = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
     });
@@ -169,22 +128,68 @@ export class PaymentsCheckoutService {
         status: PaymentStatus.PENDING,
       },
     });
+    const spendableCents = useGiftCredits
+      ? await peekSpendableGiftCreditsCents(this.prisma, userId)
+      : 0;
+    const gift = planDropInGiftCharge({
+      priceCents: classSession!.priceCents,
+      spendableCents,
+      useGiftCredits,
+    });
     if (existingPending) {
       return existingPending;
+    }
+    if (gift.chargeCents === 0) {
+      return this.settleGiftCoveredDropIn(userId, sessionId, gift.appliedCents);
     }
 
     return this.prisma.payment.create({
       data: withInternalPaymentCreateFields({
         userId,
-        amountCents: classSession!.priceCents,
+        amountCents: gift.chargeCents,
         currency: 'amd',
         status: PaymentStatus.PENDING,
         paymentReference: createPaymentReference('DROPIN'),
         source: INTERNAL_PAYMENT_SOURCE.DROPIN,
         sourceId: sessionId,
         description: `Drop-in session ${sessionId}`,
+        metadata: gift.appliedCents > 0 ? { giftCreditsAppliedCents: gift.appliedCents } : undefined,
       }),
     });
+  }
+
+  private async settleGiftCoveredDropIn(
+    userId: string,
+    sessionId: string,
+    appliedCents: number,
+  ) {
+    const payment = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.payment.create({
+        data: withInternalPaymentCreateFields({
+          userId,
+          amountCents: 0,
+          currency: 'amd',
+          status: PaymentStatus.PENDING,
+          paymentReference: createPaymentReference('DROPIN'),
+          source: INTERNAL_PAYMENT_SOURCE.DROPIN,
+          sourceId: sessionId,
+          description: `Drop-in session ${sessionId}`,
+          metadata: { giftCreditsAppliedCents: appliedCents },
+        }),
+      });
+      await reservePendingDropInGift(tx, created);
+      await this.fulfillment.fulfillDropInPayment(tx, userId, sessionId);
+      return tx.payment.update({
+        where: { id: created.id },
+        data: withInternalPaymentUpdateFields({
+          status: PaymentStatus.SUCCEEDED,
+          confirmedAt: new Date(),
+          paymentMethod: ManualPaymentMethod.CARD,
+        }),
+      });
+    });
+    await this.fulfillment.emitDropInBookingRealtimeIfNeeded(payment);
+    return payment;
   }
 
   /** Confirms a pending card payment after the user checkout flow completes. */
@@ -295,6 +300,7 @@ export class PaymentsCheckoutService {
         'Payment is not a gift purchase',
       );
       const email = await this.fulfillment.fulfillGiftPayment(tx, {
+        id: existing.id,
         userId: existing.userId,
         amountCents: existing.amountCents,
         sourceId: existing.sourceId ?? null,

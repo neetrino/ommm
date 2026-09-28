@@ -40,8 +40,12 @@ export class PaymentsService {
     return this.checkout.createGiftCheckout(params);
   }
 
-  createDropInCheckout(userId: string, sessionId: string) {
-    return this.checkout.createDropInCheckout(userId, sessionId);
+  createDropInCheckout(userId: string, sessionId: string, useGiftCredits = false) {
+    return this.checkout.createDropInCheckout(userId, sessionId, useGiftCredits);
+  }
+
+  dispatchDueGiftEmails(): Promise<number> {
+    return this.checkout.dispatchDueGiftEmails();
   }
 
   confirmPendingCardPayment(paymentId: string): Promise<void> {

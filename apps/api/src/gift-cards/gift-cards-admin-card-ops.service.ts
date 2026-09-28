@@ -1,8 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { GiftCardStatus, GiftCardTransactionKind } from '@prisma/client';
+import { GiftCardStatus, GiftCardTransactionKind, GiftCardType } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { convertGiftBalances, type GiftConvertDirection } from './gift-card-convert';
 import { giftCardCsv } from './gift-card-issue';
+import { quoteClassUnitPriceAmd } from '../payments/payments-gift-checkout.prepare';
 import { readGiftCardBalance } from './gift-cards.mapper';
 
 @Injectable()
@@ -75,6 +77,34 @@ export class GiftCardsAdminCardOpsService {
       payload: { balanceAmd, balanceClasses },
     });
     return updated;
+  }
+
+  async convertCard(
+    id: string,
+    direction: GiftConvertDirection,
+    classTypeId: string | undefined,
+    actorId: string,
+  ) {
+    const card = await this.requireCard(id);
+    const typeId = classTypeId ?? card.classTypeId ?? undefined;
+    if (!typeId) {
+      throw new BadRequestException('Choose a class type');
+    }
+    const unitPriceAmd = await quoteClassUnitPriceAmd(this.prisma, typeId);
+    const next = convertGiftBalances({
+      direction,
+      balanceAmd: readGiftCardBalance(card),
+      balanceClasses: card.balanceClasses,
+      unitPriceAmd,
+    });
+    await this.prisma.giftCard.update({
+      where: { id },
+      data: {
+        classTypeId: typeId,
+        type: direction === 'TO_MONEY' ? GiftCardType.FIXED_VALUE : GiftCardType.FIXED_CLASS,
+      },
+    });
+    return this.adjustBalance(id, next, actorId);
   }
 
   async exportBatchCsv(batchId: string): Promise<string> {

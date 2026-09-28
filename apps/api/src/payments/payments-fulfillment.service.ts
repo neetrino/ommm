@@ -17,6 +17,8 @@ import {
   issuePurchasedGiftCard,
   readGiftSenderName,
 } from './payments-gift-issue.helpers';
+import { reservePendingDropInGift } from './payments-dropin-gift';
+import { decideGiftEmail, scheduleGiftEmail } from './payments-gift-delivery';
 import { PrismaService } from '../prisma/prisma.service';
 import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
@@ -260,19 +262,31 @@ export class PaymentsFulfillmentService {
   async fulfillGiftPayment(
     tx: Prisma.TransactionClient,
     payment: {
+      id: string;
       userId: string;
       amountCents: number;
       sourceId: string | null;
       metadata: Prisma.JsonValue | null;
     },
   ): Promise<GiftEmailPayload | null> {
+    const metadata = parsePaymentMetadata(payment.metadata);
     const issued = await issuePurchasedGiftCard(tx, {
       purchaserId: payment.userId,
       amountCents: payment.amountCents,
       sourceId: payment.sourceId,
-      metadata: parsePaymentMetadata(payment.metadata),
+      metadata,
     });
-    if (!issued.recipientEmail) {
+    const decision = decideGiftEmail({
+      delivery: metadata.delivery,
+      deliverAt: metadata.deliverAt,
+      recipientEmail: issued.recipientEmail,
+      now: new Date(),
+    });
+    if (decision === 'schedule' && metadata.deliverAt && issued.recipientEmail) {
+      await scheduleGiftEmail(tx, payment.id, payment.metadata, metadata.deliverAt, issued.code);
+      return null;
+    }
+    if (decision !== 'send' || !issued.recipientEmail) {
       return null;
     }
     return {
@@ -293,6 +307,11 @@ export class PaymentsFulfillmentService {
     packageStockTracked: boolean;
   }> {
     if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
+      await reservePendingDropInGift(tx, {
+        id: existing.id,
+        userId: existing.userId,
+        metadata: existing.metadata ?? null,
+      });
       await this.fulfillDropInPayment(
         tx,
         existing.userId,
@@ -313,6 +332,7 @@ export class PaymentsFulfillmentService {
       return { giftEmail: null, packageStockTracked: false };
     }
     const giftEmail = await this.fulfillGiftPayment(tx, {
+      id: existing.id,
       userId: existing.userId,
       amountCents: existing.amountCents,
       sourceId: existing.sourceId ?? null,

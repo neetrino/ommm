@@ -131,6 +131,15 @@ export class GiftCardsService {
     return this.adminCardOps.adjustBalance(id, dto, actorId);
   }
 
+  convertCard(
+    id: string,
+    direction: 'TO_MONEY' | 'TO_CLASSES',
+    classTypeId: string | undefined,
+    actorId: string,
+  ) {
+    return this.adminCardOps.convertCard(id, direction, classTypeId, actorId);
+  }
+
   exportBatchCsv(batchId: string) {
     return this.adminCardOps.exportBatchCsv(batchId);
   }

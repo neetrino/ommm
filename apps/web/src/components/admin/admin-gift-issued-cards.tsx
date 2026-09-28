@@ -13,6 +13,7 @@ type IssuedGiftCard = {
   status: string;
   balanceAmd: number;
   balanceClasses: number;
+  classTypeId: string | null;
   expiresAt: string | null;
 };
 
@@ -72,6 +73,8 @@ export function AdminGiftIssuedCards({ batchId, locale, onChanged }: AdminGiftIs
             onError={setError}
             savedLabel={t("cardSaved")}
             failedLabel={t("failed")}
+            convertMoneyLabel={t("convertToMoney")}
+            convertClassLabel={t("convertToClasses")}
           />
         ))}
       </ul>
@@ -87,6 +90,8 @@ function IssuedCardRow({
   deactivateLabel,
   savedLabel,
   failedLabel,
+  convertMoneyLabel,
+  convertClassLabel,
   onDone,
   onError,
 }: {
@@ -97,11 +102,14 @@ function IssuedCardRow({
   deactivateLabel: string;
   savedLabel: string;
   failedLabel: string;
+  convertMoneyLabel: string;
+  convertClassLabel: string;
   onDone: (message: string) => void;
   onError: (message: string) => void;
 }) {
   const [expiresAt, setExpiresAt] = useState(toDateInput(card.expiresAt));
   const [balanceAmd, setBalanceAmd] = useState(String(card.balanceAmd));
+  const [balanceClasses, setBalanceClasses] = useState(String(card.balanceClasses));
 
   return (
     <li className="rounded-2xl border border-sand-500/20 p-3 text-sm text-sage-800">
@@ -126,8 +134,17 @@ function IssuedCardRow({
           className="h-9 w-28 rounded-xl border border-sand-500/30 bg-white px-2"
           onChange={(event) => setBalanceAmd(event.target.value)}
         />
-        <OmmButton type="button" variant="ghost" size="sm" onClick={() => void saveBalance(card.id, balanceAmd, savedLabel, failedLabel, onDone, onError)}>
+        <OmmButton type="button" variant="ghost" size="sm" onClick={() => void saveBalance(card.id, balanceAmd, balanceClasses, savedLabel, failedLabel, onDone, onError)}>
           {adjustLabel}
+        </OmmButton>
+        <input
+          inputMode="numeric"
+          value={balanceClasses}
+          className="h-9 w-20 rounded-xl border border-sand-500/30 bg-white px-2"
+          onChange={(event) => setBalanceClasses(event.target.value)}
+        />
+        <OmmButton type="button" variant="ghost" size="sm" onClick={() => void convertCard(card, savedLabel, failedLabel, onDone, onError)}>
+          {card.balanceClasses > 0 ? convertMoneyLabel : convertClassLabel}
         </OmmButton>
         {card.status === "ACTIVE" ? (
           <OmmButton type="button" variant="ghost" size="sm" onClick={() => void deactivateCard(card.id, savedLabel, failedLabel, onDone, onError)}>
@@ -189,20 +206,46 @@ async function saveExpiry(
 async function saveBalance(
   id: string,
   balanceAmd: string,
+  balanceClasses: string,
   savedLabel: string,
   failedLabel: string,
   onDone: (message: string) => void,
   onError: (message: string) => void,
 ): Promise<void> {
-  const parsed = Number.parseInt(balanceAmd, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) {
+  const parsedAmd = Number.parseInt(balanceAmd, 10);
+  const parsedClasses = Number.parseInt(balanceClasses, 10);
+  if (!Number.isFinite(parsedAmd) || parsedAmd < 0 || !Number.isFinite(parsedClasses) || parsedClasses < 0) {
     return;
   }
   await runCardWrite(
     () =>
       apiFetch(`/gift-cards/admin/cards/${id}/balance`, {
         method: "PATCH",
-        body: JSON.stringify({ balanceAmd: parsed }),
+        body: JSON.stringify({ balanceAmd: parsedAmd, balanceClasses: parsedClasses }),
+      }),
+    savedLabel,
+    failedLabel,
+    onDone,
+    onError,
+  );
+}
+
+async function convertCard(
+  card: IssuedGiftCard,
+  savedLabel: string,
+  failedLabel: string,
+  onDone: (message: string) => void,
+  onError: (message: string) => void,
+): Promise<void> {
+  const direction = card.balanceClasses > 0 ? "TO_MONEY" : "TO_CLASSES";
+  await runCardWrite(
+    () =>
+      apiFetch(`/gift-cards/admin/cards/${card.id}/convert`, {
+        method: "POST",
+        body: JSON.stringify({
+          direction,
+          ...(card.classTypeId ? { classTypeId: card.classTypeId } : {}),
+        }),
       }),
     savedLabel,
     failedLabel,
