@@ -13,8 +13,6 @@ import {
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
-const GIFT_CARD_CODE_CLASS = "font-mono text-base tracking-[0.12em] text-sage-900";
-
 const EMPTY_SURFACE_CLASS =
   "rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5";
 
@@ -71,7 +69,6 @@ function ClientGiftCardBanner({
       status={card.status}
       statusLabel={giftStatusLabel(t, card.status)}
       imageAlt={t("cardImageAlt")}
-      code={card.code}
       imageBadge={{ label: relationLabel }}
       details={giftCardDetails(t, card, locale)}
     />
@@ -84,7 +81,6 @@ function giftCardDetails(
   locale: string,
 ): GiftCardBoardDetail[] {
   return [
-    { label: t("colCode"), value: card.code, valueClassName: GIFT_CARD_CODE_CLASS },
     { label: t("colBalance"), value: formatAmdFromCents(card.balanceCents, locale) },
     { label: t("colCreated"), value: displayGiftCardDate(card.createdAt) },
     { label: t("colExpiration"), value: displayGiftCardDate(card.expiresAt) },
