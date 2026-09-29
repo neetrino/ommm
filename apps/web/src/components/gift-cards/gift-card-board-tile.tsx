@@ -144,9 +144,9 @@ export function GiftCardBoardTile({
         </div>
 
         <dl className="grid gap-2.5 text-sm">
-          {details.map((detail) => (
+          {details.map((detail, index) => (
             <GiftCardBoardDetailRow
-              key={detail.label}
+              key={`${detail.label}-${index}`}
               label={detail.label}
               value={detail.value}
               valueClassName={detail.valueClassName}

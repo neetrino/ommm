@@ -44,6 +44,7 @@ export function AdminGiftCardBoardCard({
       })}
       onOpen={() => onSelect(card)}
       details={[
+        ...(card.codes ?? []).map((value) => ({ label: t("colCode"), value })),
         { label: t("colCreated"), value: displayGiftCardDate(card.createdAt) },
         { label: t("colExpiration"), value: displayGiftCardDate(card.expiresAt) },
         { label: t("colRecipient"), value: recipientLabel(card) || "—" },

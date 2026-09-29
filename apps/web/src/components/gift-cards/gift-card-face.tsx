@@ -1,34 +1,33 @@
 import { DEFAULT_GIFT_CARD_IMAGE_SRC } from "@/components/gift-cards/gift-card-image";
 
 const GIFT_CARD_CODE_CLASS = [
-  "font-serif leading-none tracking-[0.08em] text-[#8f8478]",
-  "text-[clamp(0.7rem,3.1cqi,1.2rem)]",
+  "whitespace-nowrap font-serif leading-none tracking-[0.08em] text-[#8f8478]",
+  "text-[clamp(0.65rem,2.6cqi,1.05rem)]",
 ].join(" ");
 
 type GiftCardFaceProps = {
   alt: string;
   /** Printed in the corner where the template left room for the card code. */
   code?: string | null;
-  /** Several codes on one batch face, stacked in that same corner. */
+  /** Batch inventory may hold several codes. The artwork prints only the first. */
   codes?: readonly string[];
   className?: string;
 };
 
-function printedGiftCardCodes(
+function printedGiftCardCode(
   code: string | null | undefined,
   codes: readonly string[] | undefined,
-): string[] {
-  const many = (codes ?? []).map((value) => value.trim()).filter((value) => value.length > 0);
-  if (many.length > 0) {
-    return many;
+): string {
+  const listed = (codes ?? []).map((value) => value.trim()).find((value) => value.length > 0);
+  if (listed !== undefined) {
+    return listed;
   }
-  const single = code?.trim() ?? "";
-  return single.length > 0 ? [single] : [];
+  return code?.trim() ?? "";
 }
 
 /** Shared Ommm gift-card artwork. Codes, when present, are drawn on the face. */
 export function GiftCardFace({ alt, code, codes, className }: GiftCardFaceProps) {
-  const lines = printedGiftCardCodes(code, codes);
+  const printed = printedGiftCardCode(code, codes);
   return (
     <span className={`@container relative block overflow-hidden ${className ?? ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element -- static studio artwork, not a remote CMS image */}
@@ -37,13 +36,9 @@ export function GiftCardFace({ alt, code, codes, className }: GiftCardFaceProps)
         alt={alt}
         className="block h-full w-full object-cover"
       />
-      {lines.length > 0 ? (
-        <span className="pointer-events-none absolute bottom-[7%] right-[4%] flex max-w-[78%] flex-col items-end gap-0.5">
-          {lines.map((line) => (
-            <span key={line} className={GIFT_CARD_CODE_CLASS}>
-              {line}
-            </span>
-          ))}
+      {printed.length > 0 ? (
+        <span className="pointer-events-none absolute bottom-[7%] right-[4%] max-w-[92%]">
+          <span className={GIFT_CARD_CODE_CLASS}>{printed}</span>
         </span>
       ) : null}
     </span>
