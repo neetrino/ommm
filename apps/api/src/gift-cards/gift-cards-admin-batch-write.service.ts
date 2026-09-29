@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { GiftCardStatus, GiftCardType } from '@prisma/client';
-import type { Express } from 'express';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
@@ -15,7 +14,6 @@ import {
   resolveAdminGiftShape,
 } from './gift-card-issue';
 import { defaultGiftCardExpiresAt } from './gift-card-policy';
-import { GiftCardsImageService } from './gift-cards-image.service';
 import {
   type GiftCardBatchSnapshot,
   giftCardBatchDelegate,
@@ -28,14 +26,9 @@ export class GiftCardsAdminBatchWriteService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
-    private readonly images: GiftCardsImageService,
   ) {}
 
-  async createAdminCard(
-    adminId: string,
-    dto: AdminCreateGiftCardDto,
-    imageFile?: Express.Multer.File,
-  ) {
+  async createAdminCard(adminId: string, dto: AdminCreateGiftCardDto) {
     const shape = resolveAdminGiftShape({
       type: dto.type,
       amountAmd: dto.resolvedAmountAmd,
@@ -61,22 +54,15 @@ export class GiftCardsAdminBatchWriteService {
     }
     const recipientEmail = dto.recipientEmail ?? recipient?.email ?? null;
     const recipientName = dto.recipientName ?? recipient?.name ?? null;
-    const uploadedImageUrl =
-      imageFile !== undefined
-        ? await this.images.storeGiftCardImage(adminId, imageFile)
-        : null;
-    const imageUrl = uploadedImageUrl ?? dto.imageUrl ?? null;
-
     const issuedExpiresAt = defaultGiftCardExpiresAt(new Date());
-    try {
-      const batch = await this.prisma.$transaction(async (tx) => {
+    const batch = await this.prisma.$transaction(async (tx) => {
         const created = await tx.giftCardBatch.create({
           data: {
             type: shape.type,
             amountAmd,
             classTypeId: shape.classTypeId,
             classQuantity: shape.classQuantity,
-            imageUrl,
+            imageUrl: null,
             status: GiftCardStatus.ACTIVE,
             totalQuantity: dto.quantity,
             availableQuantity: dto.quantity,
@@ -95,7 +81,7 @@ export class GiftCardsAdminBatchWriteService {
             classQuantity: shape.classQuantity,
             classTypeId: shape.classTypeId,
             type: shape.type,
-            imageUrl,
+            imageUrl: null,
             message: dto.message ?? null,
             recipientEmail,
             recipientName,
@@ -123,13 +109,7 @@ export class GiftCardsAdminBatchWriteService {
           imageUrl: batch.imageUrl ?? null,
         },
       });
-      return batch;
-    } catch (error) {
-      if (uploadedImageUrl !== null) {
-        await this.images.removeStoredGiftCardImage(uploadedImageUrl);
-      }
-      throw error;
-    }
+    return batch;
   }
 
   async updateBatch(batchId: string, dto: AdminUpdateGiftCardBatchDto) {

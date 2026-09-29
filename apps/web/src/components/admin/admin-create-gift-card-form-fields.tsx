@@ -132,14 +132,3 @@ export function AdminCreateGiftCardFormFields({
     </>
   );
 }
-
-export function GiftCardFormHero({ title, caption }: { title: string; caption: string }) {
-  return (
-    <div className="overflow-hidden rounded-[22px] border border-white/80 bg-white shadow-[0_16px_36px_-18px_rgba(45,40,35,0.28)]">
-      <div className="bg-gradient-to-br from-sand-50 via-paper to-mint-50 px-5 py-6">
-        <p className="font-serif text-4xl font-normal tracking-tight text-sage-900">{title}</p>
-        <p className="mt-2 text-xs font-medium uppercase tracking-[0.14em] text-sage-500">{caption}</p>
-      </div>
-    </div>
-  );
-}

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { Express } from 'express';
 import type { AdminAdjustGiftCardDto, AdminExtendGiftCardDto } from './dto/admin-adjust-gift-card.dto';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
@@ -79,12 +78,8 @@ export class GiftCardsService {
     return this.adminCards.resendEmail(id);
   }
 
-  createAdminCard(
-    adminId: string,
-    dto: AdminCreateGiftCardDto,
-    imageFile?: Express.Multer.File,
-  ) {
-    return this.adminBatchWrite.createAdminCard(adminId, dto, imageFile);
+  createAdminCard(adminId: string, dto: AdminCreateGiftCardDto) {
+    return this.adminBatchWrite.createAdminCard(adminId, dto);
   }
 
   updateBatch(batchId: string, dto: AdminUpdateGiftCardBatchDto) {

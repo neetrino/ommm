@@ -10,13 +10,9 @@ import {
   Query,
   Res,
   StreamableFile,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
-import type { Express } from 'express';
 import {
   BACKOFFICE_DELETE_ROLES,
   BACKOFFICE_WRITE_ROLES,
@@ -35,7 +31,6 @@ import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.
 import { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
 import { ListGiftRecipientsQueryDto } from './dto/list-gift-recipients-query.dto';
-import { GIFT_CARD_IMAGE_MAX_BYTES } from './gift-card-image.constants';
 import { GiftCardsService } from './gift-cards.service';
 
 @Controller('gift-cards')
@@ -129,17 +124,11 @@ export class GiftCardsController {
   @Post('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
-  @UseInterceptors(
-    FileInterceptor('image', {
-      limits: { fileSize: GIFT_CARD_IMAGE_MAX_BYTES },
-    }),
-  )
   adminCreate(
     @CurrentUser() user: { id: string },
     @Body() dto: AdminCreateGiftCardDto,
-    @UploadedFile() image: Express.Multer.File | undefined,
   ) {
-    return this.giftCards.createAdminCard(user.id, dto, image);
+    return this.giftCards.createAdminCard(user.id, dto);
   }
 
   @Patch('admin/batches/:id')

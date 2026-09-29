@@ -6,7 +6,6 @@ import { AdminCreateGiftCardFormFields } from "@/components/admin/admin-create-g
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import {
   AdminGiftCardKindFields,
-  appendGiftCreateAmount,
   readClassGiftCreate,
   type AdminGiftCardKind,
 } from "@/components/admin/admin-gift-card-kind-fields";
@@ -15,7 +14,7 @@ import type { AdminCreateGiftCardFormProps } from "@/components/admin/admin-crea
 import { OmmButton } from "@/components/ui/omm-button";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import type { DropdownOption } from "@/components/ui/dropdown-select";
-import { ApiError, apiFetch, apiFetchFormData } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { parseAmdMoneyInput } from "@/lib/price-amd";
 
 export type {
@@ -126,21 +125,18 @@ export function AdminCreateGiftCardForm({
         return;
       }
 
-      const formData = new FormData();
-      appendGiftCreateAmount(formData, {
-        isClassGift,
-        classTypeId,
-        sessions: classGift.sessions,
-        amountAmd: parsedAmountAmd ?? 0,
+      const created = await apiFetch<unknown>("/gift-cards/admin", {
+        method: "POST",
+        body: JSON.stringify({
+          quantity: parsedQuantity,
+          type: isClassGift ? "FIXED_CLASS" : "FIXED_VALUE",
+          amountAmd: isClassGift ? undefined : parsedAmountAmd,
+          classTypeId: isClassGift ? classTypeId : undefined,
+          classQuantity: isClassGift ? classGift.sessions : undefined,
+          recipientId: recipientId.trim().length > 0 ? recipientId.trim() : undefined,
+          message: message.trim().length > 0 ? message.trim() : undefined,
+        }),
       });
-      formData.append("quantity", String(parsedQuantity));
-      if (recipientId.trim().length > 0) {
-        formData.append("recipientId", recipientId.trim());
-      }
-      if (message.trim().length > 0) {
-        formData.append("message", message.trim());
-      }
-      const created = await apiFetchFormData<unknown>("/gift-cards/admin", formData, "POST");
       if (created == null) {
         throw new Error("Gift-card batch creation returned empty response");
       }
