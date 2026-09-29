@@ -3553,6 +3553,7 @@
       "placedTitle": "Купленные и подаренные",
       "placedEmpty": "Купленных и подаренных карт пока нет.",
       "placedLoadFailed": "Не удалось загрузить карты.",
+      "placedFilterLabel": "Тип",
       "placedFilterAll": "Все",
       "placedFilterPurchased": "Купленные",
       "placedFilterGifted": "Подаренные",

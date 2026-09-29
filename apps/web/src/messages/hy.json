@@ -3556,6 +3556,7 @@
       "placedTitle": "Գնված և նվիրված",
       "placedEmpty": "Գնված կամ նվիրված քարտեր դեռ չկան։",
       "placedLoadFailed": "Չհաջողվեց բեռնել քարտերը։",
+      "placedFilterLabel": "Տեսակ",
       "placedFilterAll": "Բոլորը",
       "placedFilterPurchased": "Գնված",
       "placedFilterGifted": "Նվիրված",
