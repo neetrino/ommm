@@ -1284,6 +1284,8 @@
         "amountMax": "Նվեր քարտը կարող է լինել մինչև {max}։",
         "recipientRequired": "Ընտրեք, թե ում է նվերը։",
         "checkoutFailed": "Չհաջողվեց սկսել վճարումը։",
+        "detailsTitle": "Ինչպես կհասնի",
+        "detailsHint": "Ընտրեք նվերը, ապա՝ ինչպես և երբ այն պետք է հասնի։",
         "kindLabel": "Նվերի տեսակ",
         "kindMoney": "Գումար",
         "kindClass": "Դասեր",

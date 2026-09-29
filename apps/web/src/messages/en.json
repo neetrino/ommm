@@ -1283,6 +1283,8 @@
         "amountMax": "Gift cards can be up to {max}.",
         "recipientRequired": "Choose who receives this gift.",
         "checkoutFailed": "Could not start payment.",
+        "detailsTitle": "How it arrives",
+        "detailsHint": "Choose the gift, then how and when it should arrive.",
         "kindLabel": "Gift type",
         "kindMoney": "Money",
         "kindClass": "Class sessions",
