@@ -11,6 +11,8 @@ import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
+const GIFT_CARD_BOARD_CODE_CLASS = "font-serif text-base tracking-[0.16em] text-sage-900";
+
 type AdminGiftCardBoardCardProps = {
   card: AdminGiftCardBatchRow;
   locale: string;
@@ -44,7 +46,11 @@ export function AdminGiftCardBoardCard({
       })}
       onOpen={() => onSelect(card)}
       details={[
-        ...(card.codes ?? []).map((value) => ({ label: t("colCode"), value })),
+        ...(card.codes ?? []).map((value) => ({
+          label: t("colCode"),
+          value,
+          valueClassName: GIFT_CARD_BOARD_CODE_CLASS,
+        })),
         { label: t("colCreated"), value: displayGiftCardDate(card.createdAt) },
         { label: t("colExpiration"), value: displayGiftCardDate(card.expiresAt) },
         { label: t("colRecipient"), value: recipientLabel(card) || "—" },

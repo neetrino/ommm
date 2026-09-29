@@ -1,8 +1,9 @@
 import { DEFAULT_GIFT_CARD_IMAGE_SRC } from "@/components/gift-cards/gift-card-image";
 
 const GIFT_CARD_CODE_CLASS = [
-  "whitespace-nowrap font-serif leading-none tracking-[0.08em] text-[#8f8478]",
-  "text-[clamp(0.65rem,2.6cqi,1.05rem)]",
+  "whitespace-nowrap font-serif font-medium leading-none tracking-[0.16em] text-[#6f655c]",
+  "text-[clamp(0.72rem,4.8cqi,1.3rem)]",
+  "[text-shadow:0_1px_0_rgba(255,248,230,0.85)]",
 ].join(" ");
 
 type GiftCardFaceProps = {
@@ -37,7 +38,7 @@ export function GiftCardFace({ alt, code, codes, className }: GiftCardFaceProps)
         className="block h-full w-full object-cover"
       />
       {printed.length > 0 ? (
-        <span className="pointer-events-none absolute bottom-[7%] right-[4%] max-w-[92%]">
+        <span className="pointer-events-none absolute bottom-[8%] right-[5%] max-w-[70%]">
           <span className={GIFT_CARD_CODE_CLASS}>{printed}</span>
         </span>
       ) : null}
