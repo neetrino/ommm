@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AdminGiftOtherClassesButton } from "@/components/admin/admin-gift-other-classes-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -14,6 +15,7 @@ type IssuedGiftCard = {
   balanceAmd: number;
   balanceClasses: number;
   classTypeId: string | null;
+  allowOtherClasses?: boolean;
   expiresAt: string | null;
 };
 
@@ -146,6 +148,14 @@ function IssuedCardRow({
         <OmmButton type="button" variant="ghost" size="sm" onClick={() => void convertCard(card, savedLabel, failedLabel, onDone, onError)}>
           {card.balanceClasses > 0 ? convertMoneyLabel : convertClassLabel}
         </OmmButton>
+        {card.classTypeId !== null ? (
+          <AdminGiftOtherClassesButton
+            cardId={card.id}
+            allowed={card.allowOtherClasses === true}
+            onDone={onDone}
+            onError={onError}
+          />
+        ) : null}
         {card.status === "ACTIVE" ? (
           <OmmButton type="button" variant="ghost" size="sm" onClick={() => void deactivateCard(card.id, savedLabel, failedLabel, onDone, onError)}>
             {deactivateLabel}

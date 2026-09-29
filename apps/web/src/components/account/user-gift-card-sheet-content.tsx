@@ -94,6 +94,12 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
               >
                 {t("printCard")}
               </button>
+              <a
+                href={`/api/v1/gift-cards/me/${card.id}/pdf`}
+                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
+              >
+                {t("downloadPdf")}
+              </a>
             </dd>
           </div>
           <DetailField label={t("cardCreated")} value={displayGiftCardDate(card.createdAt)} />

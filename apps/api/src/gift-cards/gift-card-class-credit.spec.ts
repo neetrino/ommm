@@ -32,7 +32,9 @@ describe('reserveGiftClassSessions', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           type: GiftCardType.FIXED_CLASS,
-          classTypeId: 'reformer-group',
+          AND: expect.arrayContaining([
+            { OR: [{ classTypeId: 'reformer-group' }, { allowOtherClasses: true }] },
+          ]),
         }),
       }),
     );
