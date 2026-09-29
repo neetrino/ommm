@@ -12,14 +12,15 @@ import {
 import { OmmButton } from "@/components/ui/omm-button";
 import type { OmmSelectOption } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
+import { formatSessionRange } from "@/lib/format-session-time";
 
 type PlanOption = CartPlanOption & { priceCents: number };
 type ClassTypeOption = { id: string; name: string };
 type SessionOption = {
   id: string;
-  title: string | null;
   priceCents: number;
   startsAt: string;
+  endsAt: string;
   classType: { name: string };
 };
 type BarOption = { id: string; name: string; priceAmd: number };
@@ -92,7 +93,6 @@ function useStudioCartState() {
 }
 
 type StudioCartState = ReturnType<typeof useStudioCartState>;
-
 const CART_SESSION_LIMIT = 40;
 
 function StudioCartBody({
@@ -242,7 +242,7 @@ function sessionOptions(skipLabel: string, sessions: readonly SessionOption[]): 
     { value: "", label: skipLabel },
     ...sessions.slice(0, CART_SESSION_LIMIT).map((session) => ({
       value: session.id,
-      label: `${session.classType.name} · ${session.startsAt.slice(0, 16).replace("T", " ")}`,
+      label: `${session.classType.name} · ${formatSessionRange(session.startsAt, session.endsAt)}`,
     })),
   ];
 }
