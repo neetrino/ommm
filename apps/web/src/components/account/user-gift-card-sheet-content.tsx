@@ -12,7 +12,7 @@ import {
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveGiftCardDisplaySrc } from "@/components/gift-cards/gift-card-image";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 
 const SECTION_CLASS =
   "rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]";
@@ -24,7 +24,6 @@ type UserGiftCardSheetContentProps = {
 
 export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetContentProps) {
   const t = useTranslations("userPages.giftCards");
-  const cardImageSrc = resolveGiftCardDisplaySrc(card.imageUrl);
   const amountLabel = formatAmdFromCents(card.amountCents, locale);
   const balanceLabel = formatAmdFromCents(card.balanceCents, locale);
   const expired = isGiftCardDateExpired(card.status, card.expiresAt);
@@ -33,14 +32,11 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
   return (
     <div className="space-y-4">
       <section className={`${SECTION_CLASS} overflow-hidden`}>
-        <div className="flex w-full items-center justify-center bg-sage-100 p-4">
-            {/* eslint-disable-next-line @next/next/no-img-element -- supports API and local gift-card art */}
-            <img
-              src={cardImageSrc}
-              alt={t("cardImageAlt")}
-              className="h-auto max-h-[min(40vh,320px)] w-full object-contain"
-            />
-        </div>
+        <GiftCardFace
+          code={card.code}
+          alt={t("cardImageAlt")}
+          className="aspect-[1.58/1] w-full"
+        />
         <div className="flex flex-wrap items-center gap-2 border-t border-white/60 px-4 py-3">
           <span className={giftCardStatusBadgeClass(card.status)}>
             {t(`statusValues.${card.status}`)}

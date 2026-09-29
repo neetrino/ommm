@@ -205,9 +205,8 @@ function UserGiftCardTile({
       amountLabel={amountLabel}
       status={card.status}
       statusLabel={t(`statusValues.${card.status}`)}
-      imageUrl={card.imageUrl}
       imageAlt={t("cardImageAlt")}
-      imageFallbackLabel={t("cardImageFallback")}
+      code={card.code}
       openAriaLabel={t("openCardAria", { amount: amountLabel })}
       onOpen={() => onSelect(card.id)}
       details={details}

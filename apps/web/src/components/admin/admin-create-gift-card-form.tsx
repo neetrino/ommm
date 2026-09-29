@@ -2,23 +2,15 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  AdminCreateGiftCardFormFields,
-  GiftCardFormHero,
-} from "@/components/admin/admin-create-gift-card-form-fields";
+import { AdminCreateGiftCardFormFields } from "@/components/admin/admin-create-gift-card-form-fields";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import {
   AdminGiftCardKindFields,
   appendGiftCreateAmount,
   readClassGiftCreate,
   type AdminGiftCardKind,
 } from "@/components/admin/admin-gift-card-kind-fields";
-import {
-  ADMIN_GIFT_CARD_FORM_DEFAULT_AMOUNT_AMD,
-  ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES,
-  createGiftCardImagePreviewDataUrl,
-  giftCardFormHeroTitle,
-  isAcceptedGiftCardImageType,
-} from "@/components/admin/admin-create-gift-card-form.helpers";
+import { ADMIN_GIFT_CARD_FORM_DEFAULT_AMOUNT_AMD } from "@/components/admin/admin-create-gift-card-form.helpers";
 import type { AdminCreateGiftCardFormProps } from "@/components/admin/admin-create-gift-card-form.types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { FormErrorBanner } from "@/components/ui/form-validation";
@@ -42,8 +34,6 @@ export function AdminCreateGiftCardForm({
 }: AdminCreateGiftCardFormProps) {
   const t = useTranslations("adminPages.giftCards");
   const submitLockRef = useRef(false);
-  const imageInputRef = useRef<HTMLInputElement | null>(null);
-  const imagePreviewRequestRef = useRef(0);
   const [cardKind, setCardKind] = useState<AdminGiftCardKind>("FIXED_VALUE");
   const [classTypeId, setClassTypeId] = useState("");
   const [classSessions, setClassSessions] = useState("1");
@@ -62,8 +52,6 @@ export function AdminCreateGiftCardForm({
   const [recipientId, setRecipientId] = useState("");
   const [message, setMessage] = useState(initialValues?.message ?? "");
   const [expiresAt, setExpiresAt] = useState(initialValues?.expiresAt ?? "");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
@@ -89,47 +77,6 @@ export function AdminCreateGiftCardForm({
     }
     return parsed;
   }, [quantity, minQuantity, mode, issuedCount, initialValues?.availableQuantity]);
-
-  async function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0] ?? null;
-    const requestId = imagePreviewRequestRef.current + 1;
-    imagePreviewRequestRef.current = requestId;
-    setImageFile(null);
-    setImagePreviewUrl(null);
-
-    if (file === null) {
-      return;
-    }
-    if (!isAcceptedGiftCardImageType(file.type)) {
-      setTone("err");
-      setResult(t("imageTypeInvalid"));
-      event.target.value = "";
-      return;
-    }
-    if (file.size > ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES) {
-      setTone("err");
-      setResult(t("imageTooLarge"));
-      event.target.value = "";
-      return;
-    }
-
-    try {
-      const previewUrl = await createGiftCardImagePreviewDataUrl(file);
-      if (imagePreviewRequestRef.current !== requestId) {
-        return;
-      }
-      setImageFile(file);
-      setImagePreviewUrl(previewUrl);
-      setResult(null);
-    } catch {
-      if (imagePreviewRequestRef.current !== requestId) {
-        return;
-      }
-      setTone("err");
-      setResult(t("imageTypeInvalid"));
-      event.target.value = "";
-    }
-  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -157,19 +104,6 @@ export function AdminCreateGiftCardForm({
       );
       return;
     }
-    if (imageFile !== null) {
-      if (!isAcceptedGiftCardImageType(imageFile.type)) {
-        setTone("err");
-        setResult(t("imageTypeInvalid"));
-        return;
-      }
-      if (imageFile.size > ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES) {
-        setTone("err");
-        setResult(t("imageTooLarge"));
-        return;
-      }
-    }
-
     submitLockRef.current = true;
     setBusy(true);
     setResult(null);
@@ -206,9 +140,6 @@ export function AdminCreateGiftCardForm({
       if (message.trim().length > 0) {
         formData.append("message", message.trim());
       }
-      if (imageFile !== null) {
-        formData.append("image", imageFile);
-      }
       const created = await apiFetchFormData<unknown>("/gift-cards/admin", formData, "POST");
       if (created == null) {
         throw new Error("Gift-card batch creation returned empty response");
@@ -226,10 +157,7 @@ export function AdminCreateGiftCardForm({
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
       {mode === "create" ? (
-        <GiftCardFormHero
-          title={giftCardFormHeroTitle(cardKind, classSessions, amountAmd)}
-          caption={cardKind === "FIXED_CLASS" ? t("fieldClassSessions") : t("createValidityNote")}
-        />
+        <GiftCardFace alt={t("cardImageAlt")} className="aspect-[1.58/1] overflow-hidden rounded-[22px]" />
       ) : null}
       {mode === "create" ? (
         <AdminGiftCardKindFields
@@ -262,10 +190,6 @@ export function AdminCreateGiftCardForm({
         expiresAt={expiresAt}
         setExpiresAt={setExpiresAt}
         recipientOptions={recipientOptions}
-        imageInputRef={imageInputRef}
-        imageFile={imageFile}
-        imagePreviewUrl={imagePreviewUrl}
-        onImageChange={handleImageChange}
         busy={busy}
         t={t}
       />

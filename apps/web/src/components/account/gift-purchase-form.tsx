@@ -153,9 +153,7 @@ function PurchaseGiftCardPreview({
       amountLabel={amountLabel}
       status={item.status}
       statusLabel={giftCardsT(`statusValues.${item.status}`)}
-      imageUrl={item.imageUrl}
       imageAlt={t("selectedImageAlt")}
-      imageFallbackLabel={t("noImage")}
       openAriaLabel={t("openDetailsAria", { amount: amountLabel })}
       onOpen={onOpen}
       details={[

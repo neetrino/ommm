@@ -17,7 +17,7 @@ import {
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { displayGiftCardDate, giftCardStatusBadgeClass } from "@/components/gift-cards/gift-card-display-helpers";
-import { resolveGiftCardDisplaySrc } from "@/components/gift-cards/gift-card-image";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -86,7 +86,6 @@ function GiftMarketCardDetailsSheetInner({
   const tPurchase = useTranslations("userPages.giftCards.purchaseForm");
   const titleId = useId();
   const amountLabel = formatAmdFromCents(card.amountCents, locale);
-  const cardImageSrc = resolveGiftCardDisplaySrc(card.imageUrl);
   const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
 
@@ -122,14 +121,7 @@ function GiftMarketCardDetailsSheetInner({
 
       <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1 space-y-4`}>
         <section className="overflow-hidden rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]">
-          <div className="flex w-full items-center justify-center bg-sage-100 p-4">
-            {/* eslint-disable-next-line @next/next/no-img-element -- market cards may use CDN, API, or local art */}
-            <img
-              src={cardImageSrc}
-              alt={tPurchase("selectedImageAlt")}
-              className="h-auto max-h-[min(40vh,320px)] w-full object-contain"
-            />
-          </div>
+          <GiftCardFace alt={tPurchase("selectedImageAlt")} className="aspect-[1.58/1] w-full" />
           <div className="flex flex-wrap items-center gap-2 border-t border-white/60 px-4 py-3">
             <span className={giftCardStatusBadgeClass(card.status)}>
               {t(`statusValues.${card.status}`)}

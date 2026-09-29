@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminGiftOtherClassesButton } from "@/components/admin/admin-gift-other-classes-button";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -115,7 +116,7 @@ function IssuedCardRow({
 
   return (
     <li className="rounded-2xl border border-sand-500/20 p-3 text-sm text-sage-800">
-      <p className="font-mono text-xs">{card.code}</p>
+      <GiftCardFace code={card.code} alt={card.code} className="mb-2 aspect-[1.58/1] overflow-hidden rounded-xl" />
       <p className="mt-1">
         {card.status} · {formatAmdFromCents(card.balanceAmd, locale)}
         {card.balanceClasses > 0 ? ` · ${card.balanceClasses}` : ""}

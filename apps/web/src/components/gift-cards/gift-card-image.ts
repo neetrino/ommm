@@ -2,7 +2,7 @@ import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
 /** Studio gift-card face served from the web app, not an uploaded API file. */
-export const DEFAULT_GIFT_CARD_IMAGE_SRC = "/gift-cards/ommm-gift-card.jpg";
+export const DEFAULT_GIFT_CARD_IMAGE_SRC = "/gift-cards/ommm-gift-card-face.jpg";
 
 /**
  * Custom upload when present, otherwise the shared gift-card artwork.

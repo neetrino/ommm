@@ -1,10 +1,7 @@
 "use client";
 
 import type { useTranslations } from "next-intl";
-import {
-  GiftCardAssignSection,
-  GiftCardImageField,
-} from "@/components/admin/admin-create-gift-card-form-sections";
+import { GiftCardAssignSection } from "@/components/admin/admin-create-gift-card-form-sections";
 import type { AdminGiftCardFormMode } from "@/components/admin/admin-create-gift-card-form.types";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -29,10 +26,6 @@ type AdminCreateGiftCardFormFieldsProps = {
   expiresAt: string;
   setExpiresAt: (value: string) => void;
   recipientOptions: readonly DropdownOption<string>[];
-  imageInputRef: React.RefObject<HTMLInputElement | null>;
-  imageFile: File | null;
-  imagePreviewUrl: string | null;
-  onImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   busy: boolean;
   t: ReturnType<typeof useTranslations<"adminPages.giftCards">>;
 };
@@ -56,10 +49,6 @@ export function AdminCreateGiftCardFormFields({
   expiresAt,
   setExpiresAt,
   recipientOptions,
-  imageInputRef,
-  imageFile,
-  imagePreviewUrl,
-  onImageChange,
   busy,
   t,
 }: AdminCreateGiftCardFormFieldsProps) {
@@ -127,14 +116,6 @@ export function AdminCreateGiftCardFormFields({
           </div>
         ) : null}
       </div>
-      <GiftCardImageField
-        imageInputRef={imageInputRef}
-        imageFile={imageFile}
-        imagePreviewUrl={imagePreviewUrl}
-        onImageChange={onImageChange}
-        busy={busy}
-        t={t}
-      />
       {mode === "create" ? null : (
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>

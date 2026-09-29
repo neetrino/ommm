@@ -17,7 +17,7 @@ import {
 } from "@/components/admin/admin-gift-cards-list-layout";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminGiftCardCompactRowProps = {
@@ -58,12 +58,7 @@ export function AdminGiftCardCompactRow({
       <div className={ADMIN_GIFT_CARDS_LIST_CELL}>
         <AdminListMobileLabel label={t("colImage")} />
         <div className="h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
-          <GiftCardThumbnail
-            imageUrl={card.imageUrl}
-            alt={t("cardImageAlt")}
-            fallbackLabel={t("cardImageFallback")}
-            className="h-full w-full object-cover"
-          />
+          <GiftCardFace alt={t("cardImageAlt")} className="h-full w-full" />
         </div>
       </div>
 

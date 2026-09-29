@@ -28,7 +28,7 @@ import type {
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveGiftCardDisplaySrc } from "@/components/gift-cards/gift-card-image";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 
 const SECTION_CLASS =
   "rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]";
@@ -92,7 +92,6 @@ function GiftCardOverviewPanel({
   locale: string;
 }) {
   const t = useTranslations("adminPages.giftCards");
-  const cardImageSrc = resolveGiftCardDisplaySrc(card.imageUrl);
   const recipient = recipientLabel(card);
   const expired = isGiftCardExpired(card);
   const amountLabel = formatAmdFromCents(card.amountAmd, locale);
@@ -100,14 +99,7 @@ function GiftCardOverviewPanel({
   return (
     <div className="space-y-4">
       <section className={`${SECTION_CLASS} overflow-hidden`}>
-        <div className="flex w-full items-center justify-center bg-sage-100 p-4">
-            {/* eslint-disable-next-line @next/next/no-img-element -- supports API uploads and local gift-card art */}
-            <img
-              src={cardImageSrc}
-              alt={t("cardImageAlt")}
-              className="h-auto max-h-[min(40vh,320px)] w-full object-contain"
-            />
-        </div>
+        <GiftCardFace alt={t("cardImageAlt")} className="aspect-[1.58/1] w-full" />
         <div className="flex flex-wrap items-center gap-2 border-t border-white/60 px-4 py-3">
           <span className={giftCardStatusBadgeClass(card.status)}>
             {t(`statusValues.${card.status}`)}
