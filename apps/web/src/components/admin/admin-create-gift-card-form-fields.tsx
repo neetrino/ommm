@@ -1,11 +1,14 @@
 "use client";
 
 import type { useTranslations } from "next-intl";
+import {
+  GiftCardAssignSection,
+  GiftCardImageField,
+} from "@/components/admin/admin-create-gift-card-form-sections";
 import type { AdminGiftCardFormMode } from "@/components/admin/admin-create-gift-card-form.types";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
-import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
-import { OmmButton } from "@/components/ui/omm-button";
+import type { DropdownOption } from "@/components/ui/dropdown-select";
 
 type AdminCreateGiftCardFormFieldsProps = {
   mode: AdminGiftCardFormMode;
@@ -76,55 +79,17 @@ export function AdminCreateGiftCardFormFields({
           />
         </label>
       )}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-start gap-3">
-          <OmmButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={busy}
-            onClick={() => {
-              setShowAssignedUser((current) => {
-                const next = !current;
-                if (!next) {
-                  setRecipientId("");
-                }
-                return next;
-              });
-            }}
-          >
-            {t("showAssignedUserButton")}
-          </OmmButton>
-        </div>
-        {showAssignedUser ? (
-          <div className="grid gap-3">
-            <DropdownSelect
-              label={t("fieldAssignedUserPlaceholder")}
-              ariaLabel={t("fieldAssignedUser")}
-              value={recipientId}
-              options={recipientOptions}
-              onChange={setRecipientId}
-              disabled={busy}
-              wrapLabel
-              searchable
-              searchPlaceholder={t("actions.assignSearchPlaceholder")}
-              noResultsLabel={t("actions.assignSearchEmpty")}
-            />
-            <label className="flex flex-col gap-1">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldMessage")}</span>
-              <textarea
-                className="ommm-input min-h-24 resize-y"
-                placeholder={t("fieldMessagePlaceholder")}
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                disabled={busy}
-              />
-            </label>
-          </div>
-        ) : (
-          <p className="text-xs text-sage-500">{t("fieldAssignedUserHiddenHint")}</p>
-        )}
-      </div>
+      <GiftCardAssignSection
+        showAssignedUser={showAssignedUser}
+        setShowAssignedUser={setShowAssignedUser}
+        recipientId={recipientId}
+        setRecipientId={setRecipientId}
+        message={message}
+        setMessage={setMessage}
+        recipientOptions={recipientOptions}
+        busy={busy}
+        t={t}
+      />
       <div className={mode === "edit" ? "grid gap-4 sm:grid-cols-2" : "flex flex-col gap-1"}>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">
@@ -162,41 +127,14 @@ export function AdminCreateGiftCardFormFields({
           </div>
         ) : null}
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldImage")}</span>
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-          className="sr-only"
-          onChange={onImageChange}
-          disabled={busy}
-        />
-        <div className="flex flex-wrap items-center gap-3">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="cursor-pointer shadow-sm transition-transform hover:-translate-y-px"
-            disabled={busy}
-            onClick={() => imageInputRef.current?.click()}
-          >
-            Choose File
-          </OmmButton>
-          <span className="text-sm text-sage-700">{imageFile?.name ?? "No file chosen"}</span>
-        </div>
-        <span className="text-xs text-sage-500">{t("fieldImageHint")}</span>
-      </div>
-      {imagePreviewUrl !== null ? (
-        <div className="relative h-24 w-36 overflow-hidden rounded-xl border border-white/70 bg-white/70">
-          {/* eslint-disable-next-line @next/next/no-img-element -- preview image supports blob/object URLs */}
-          <img
-            src={imagePreviewUrl}
-            alt={t("fieldImagePreviewAlt")}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      ) : null}
+      <GiftCardImageField
+        imageInputRef={imageInputRef}
+        imageFile={imageFile}
+        imagePreviewUrl={imagePreviewUrl}
+        onImageChange={onImageChange}
+        busy={busy}
+        t={t}
+      />
       {mode === "create" ? null : (
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>
@@ -211,5 +149,16 @@ export function AdminCreateGiftCardFormFields({
         </label>
       )}
     </>
+  );
+}
+
+export function GiftCardFormHero({ title, caption }: { title: string; caption: string }) {
+  return (
+    <div className="overflow-hidden rounded-[22px] border border-white/80 bg-white shadow-[0_16px_36px_-18px_rgba(45,40,35,0.28)]">
+      <div className="bg-gradient-to-br from-sand-50 via-paper to-mint-50 px-5 py-6">
+        <p className="font-serif text-4xl font-normal tracking-tight text-sage-900">{title}</p>
+        <p className="mt-2 text-xs font-medium uppercase tracking-[0.14em] text-sage-500">{caption}</p>
+      </div>
+    </div>
   );
 }

@@ -2,7 +2,10 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { AdminCreateGiftCardFormFields } from "@/components/admin/admin-create-gift-card-form-fields";
+import {
+  AdminCreateGiftCardFormFields,
+  GiftCardFormHero,
+} from "@/components/admin/admin-create-gift-card-form-fields";
 import {
   AdminGiftCardKindFields,
   appendGiftCreateAmount,
@@ -13,6 +16,7 @@ import {
   ADMIN_GIFT_CARD_FORM_DEFAULT_AMOUNT_AMD,
   ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES,
   createGiftCardImagePreviewDataUrl,
+  giftCardFormHeroTitle,
   isAcceptedGiftCardImageType,
 } from "@/components/admin/admin-create-gift-card-form.helpers";
 import type { AdminCreateGiftCardFormProps } from "@/components/admin/admin-create-gift-card-form.types";
@@ -220,7 +224,13 @@ export function AdminCreateGiftCardForm({
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-4">
+    <form onSubmit={submit} className="flex flex-col gap-5">
+      {mode === "create" ? (
+        <GiftCardFormHero
+          title={giftCardFormHeroTitle(cardKind, classSessions, amountAmd)}
+          caption={cardKind === "FIXED_CLASS" ? t("fieldClassSessions") : t("createValidityNote")}
+        />
+      ) : null}
       {mode === "create" ? (
         <AdminGiftCardKindFields
           kind={cardKind}
@@ -267,7 +277,7 @@ export function AdminCreateGiftCardForm({
           {result}
         </p>
       ) : null}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-sage-200/70 pt-4">
         <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
           {busy ? t("savingButton") : mode === "edit" ? t("editSaveButton") : t("saveButton")}
         </OmmButton>

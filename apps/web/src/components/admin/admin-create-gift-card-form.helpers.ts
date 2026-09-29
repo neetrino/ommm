@@ -1,3 +1,5 @@
+import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
+
 export const ADMIN_GIFT_CARD_FORM_DEFAULT_AMOUNT_AMD = 40_000;
 export const ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const ADMIN_GIFT_CARD_FORM_ACCEPTED_IMAGE_TYPES = [
@@ -7,6 +9,18 @@ export const ADMIN_GIFT_CARD_FORM_ACCEPTED_IMAGE_TYPES = [
 ] as const;
 export const ADMIN_GIFT_CARD_FORM_IMAGE_PREVIEW_MAX_WIDTH = 288;
 export const ADMIN_GIFT_CARD_FORM_IMAGE_PREVIEW_MAX_HEIGHT = 192;
+
+/** Serif amount on the create-card preview. Class gifts show the session count. */
+export function giftCardFormHeroTitle(
+  kind: "FIXED_VALUE" | "FIXED_CLASS",
+  classSessions: string,
+  amountAmd: string,
+): string {
+  if (kind === "FIXED_CLASS") {
+    return classSessions.trim().length > 0 ? classSessions.trim() : "1";
+  }
+  return formatAmdFromCents(parseAmdMoneyInput(amountAmd) ?? 0);
+}
 
 export function isAcceptedGiftCardImageType(
   type: string,

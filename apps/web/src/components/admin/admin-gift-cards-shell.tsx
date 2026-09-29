@@ -12,7 +12,6 @@ import {
   ADMIN_CREATE_SHEET_HEADER_CLASS,
   ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
 import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import {
@@ -207,15 +206,21 @@ function AdminGiftCardsShellInner({
           backdropAriaLabel={t("modalBackdropClose")}
           ariaLabelledBy={titleId}
           modalOverlayClassName="ommm-modal-overlay z-50 items-center p-3 sm:p-4"
-          modalPanelClassName={adminFormModalPanelClass("max-w-2xl p-5 sm:p-6")}
+          modalPanelClassName={adminFormModalPanelClass("max-w-lg")}
           zIndexClass="z-50"
         >
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div className={ADMIN_CREATE_SHEET_HEADER_CLASS}>
-              <div>
-                <h2 id={titleId} className={adminChrome.panelHeading}>
+              <div className="min-w-0">
+                <h2
+                  id={titleId}
+                  className="font-serif text-[1.75rem] font-normal leading-none tracking-tight text-sage-900"
+                >
                   {isEditMode ? t("editTitle") : t("createTitle")}
                 </h2>
+                {isEditMode ? null : (
+                  <p className="mt-2 text-sm leading-relaxed text-sage-600">{t("createDescription")}</p>
+                )}
               </div>
               <button
                 type="button"
