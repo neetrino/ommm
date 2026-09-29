@@ -10,6 +10,7 @@ import {
   type AdminGiftCardKind,
 } from "@/components/admin/admin-gift-card-kind-fields";
 import {
+  ADMIN_GIFT_CARD_FORM_DEFAULT_AMOUNT_AMD,
   ADMIN_GIFT_CARD_FORM_MAX_IMAGE_BYTES,
   createGiftCardImagePreviewDataUrl,
   isAcceptedGiftCardImageType,
@@ -42,7 +43,9 @@ export function AdminCreateGiftCardForm({
   const [cardKind, setCardKind] = useState<AdminGiftCardKind>("FIXED_VALUE");
   const [classTypeId, setClassTypeId] = useState("");
   const [classSessions, setClassSessions] = useState("1");
-  const [amountAmd, setAmountAmd] = useState(String(initialValues?.amountAmd ?? 10000));
+  const [amountAmd, setAmountAmd] = useState(
+    String(initialValues?.amountAmd ?? ADMIN_GIFT_CARD_FORM_DEFAULT_AMOUNT_AMD),
+  );
   const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? 1));
   const minQuantity = initialValues?.minQuantity ?? 1;
   const issuedCount =
