@@ -11,7 +11,7 @@ import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
-const GIFT_CARD_BOARD_CODE_CLASS = "font-serif text-base tracking-[0.16em] text-sage-900";
+const GIFT_CARD_BOARD_CODE_CLASS = "font-mono text-base tracking-[0.12em] text-sage-900";
 
 type AdminGiftCardBoardCardProps = {
   card: AdminGiftCardBatchRow;

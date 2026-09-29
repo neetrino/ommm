@@ -1,7 +1,7 @@
 import { DEFAULT_GIFT_CARD_IMAGE_SRC } from "@/components/gift-cards/gift-card-image";
 
 const GIFT_CARD_CODE_CLASS = [
-  "whitespace-nowrap font-serif font-medium leading-none tracking-[0.16em] text-[#6f655c]",
+  "whitespace-nowrap font-mono font-medium leading-none tracking-[0.14em] text-[#6f655c]",
   "text-[clamp(0.72rem,4.8cqi,1.3rem)]",
   "[text-shadow:0_1px_0_rgba(255,248,230,0.85)]",
 ].join(" ");
