@@ -4,7 +4,8 @@ import { randomBytes } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 import { defaultGiftCardExpiresAt } from './gift-card-policy';
 
-const GIFT_CODE_BYTES = 8;
+/** 4 bytes → 8 hex characters. Short enough for the card corner, still unique. */
+const GIFT_CODE_BYTES = 4;
 const CLAIM_ATTEMPTS = 3;
 
 export type MintGiftCardInput = {

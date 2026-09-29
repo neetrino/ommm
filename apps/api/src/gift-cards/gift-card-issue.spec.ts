@@ -25,6 +25,7 @@ describe('gift-card-issue', () => {
     const codes = new Set(rows.map((row) => row.code));
     expect(rows).toHaveLength(3);
     expect(codes.size).toBe(3);
+    expect(rows.every((row) => /^[0-9A-F]{8}$/.test(String(row.code)))).toBe(true);
     expect(rows.every((row) => row.recipientId === undefined)).toBe(true);
     expect(rows.every((row) => row.status === GiftCardStatus.ACTIVE)).toBe(true);
   });
