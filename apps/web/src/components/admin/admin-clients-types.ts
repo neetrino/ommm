@@ -192,6 +192,8 @@ export type GiftCardRow = {
 };
 
 export type ClientSheetGiftCardItem = GiftCardRow & {
+  code: string;
+  expiresAt: string | null;
   relation: "purchased" | "received";
 };
 

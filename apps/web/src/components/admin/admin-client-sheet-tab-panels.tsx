@@ -17,6 +17,7 @@ import {
 import { ClientBookingsPanel } from "@/components/admin/admin-client-bookings-panel";
 import { ClientFeedbackPanel } from "@/components/admin/admin-client-feedback-panel";
 import { ClientPackagesPanel } from "@/components/admin/admin-client-packages-panel";
+import { ClientGiftCardsBoard } from "@/components/admin/admin-client-gift-cards-board";
 import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
 import {
   CLIENT_SHEET_TAB_BOOKINGS,
@@ -446,12 +447,13 @@ export function ClientSheetTabPanels({
           endpoint={`/clients/${detail.id}/gift-cards`}
           title={t("drawer.giftCards")}
           empty={t("drawer.noGiftCards")}
-          mapItem={(card) => ({
-            id: card.id,
-            main: `${formatAmdFromCents(card.balanceCents, locale)} / ${formatAmdFromCents(card.amountCents, locale)}`,
-            meta: `${card.status} · ${card.relation} · ${formatDateForUi(card.createdAt)}`,
-            extra: card.recipientName ?? card.recipientEmail,
-          })}
+          renderItems={(cards) => (
+            <ClientGiftCardsBoard
+              locale={locale}
+              cards={cards}
+              empty={t("drawer.noGiftCards")}
+            />
+          )}
         />
       </div>
     );

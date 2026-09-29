@@ -2727,6 +2727,8 @@
         "noPayments": "No payments.",
         "giftCards": "Gift cards",
         "noGiftCards": "No gift cards.",
+        "giftPurchased": "Purchased",
+        "giftReceived": "Received",
         "feedback": "Feedback",
         "noFeedback": "No named feedback yet.",
         "noFeedbackComment": "No written comment",

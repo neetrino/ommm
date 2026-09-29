@@ -2729,6 +2729,8 @@
         "noFeedback": "Именных отзывов пока нет.",
         "noFeedbackComment": "Без комментария",
         "feedbackRating": "{rating}/5",
+        "giftPurchased": "Куплена",
+        "giftReceived": "Получена",
         "giveGift": "Выдать подарочную карту",
         "giveGiftButton": "Выдать",
         "giftAmountAria": "Сумма подарочной карты в драмах (копейки)",

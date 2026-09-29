@@ -96,12 +96,14 @@ type ClientPaymentsPage = {
 type ClientGiftCardsPage = {
   items: Array<{
     id: string;
+    code: string;
     amountCents: number;
     balanceCents: number;
     status: string;
     recipientEmail: string | null;
     recipientName: string | null;
     createdAt: Date;
+    expiresAt: Date | null;
     relation: 'purchased' | 'received';
   }>;
   total: number;
@@ -367,12 +369,14 @@ export class ClientsTabListsService {
     return {
       items: rows.map((card) => ({
         id: card.id,
+        code: card.code,
         amountCents: card.amountAmd,
         balanceCents: card.balanceAmd,
         status: card.status,
         recipientEmail: card.recipientEmail,
         recipientName: card.recipientName,
         createdAt: card.createdAt,
+        expiresAt: card.expiresAt,
         relation: card.purchaserId === userId ? 'purchased' : 'received',
       })),
       total,

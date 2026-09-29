@@ -2732,6 +2732,8 @@
         "noFeedback": "Անվանված կարծիքներ դեռ չկան։",
         "noFeedbackComment": "Մեկնաբանություն չկա",
         "feedbackRating": "{rating}/5",
+        "giftPurchased": "Գնված",
+        "giftReceived": "Ստացված",
         "giveGift": "Տալ նվեր քարտ",
         "giveGiftButton": "Տալ",
         "giftAmountAria": "Նվեր քարտի գումար (ցент)",
