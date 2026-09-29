@@ -70,6 +70,11 @@ export class GiftCardsAdminBoardService {
           include: {
             purchaser: { select: { email: true, name: true } },
             recipient: { select: { email: true, name: true } },
+            giftCards: {
+              select: { code: true },
+              orderBy: { createdAt: 'asc' as const },
+              take: 12,
+            },
           },
           orderBy,
           take,
@@ -247,9 +252,11 @@ export class GiftCardsAdminBoardService {
           createdAt: card.createdAt,
           purchaser: card.purchaser,
           recipient: card.recipient,
+          codes: [card.code],
         });
         continue;
       }
+      existing.codes = [...(existing.codes ?? []), card.code];
       existing.totalQuantity += 1;
       existing.availableQuantity += isAvailable;
       if (card.createdAt > existing.createdAt) {

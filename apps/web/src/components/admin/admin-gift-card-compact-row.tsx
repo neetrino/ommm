@@ -58,7 +58,7 @@ export function AdminGiftCardCompactRow({
       <div className={ADMIN_GIFT_CARDS_LIST_CELL}>
         <AdminListMobileLabel label={t("colImage")} />
         <div className="h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
-          <GiftCardFace alt={t("cardImageAlt")} className="h-full w-full" />
+          <GiftCardFace alt={t("cardImageAlt")} codes={card.codes} className="h-full w-full" />
         </div>
       </div>
 

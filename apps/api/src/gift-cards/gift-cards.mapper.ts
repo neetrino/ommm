@@ -42,6 +42,8 @@ export type AdminBoardBatchRow = {
   createdAt: Date;
   purchaser: { email: string; name: string | null } | null;
   recipient: { email: string; name: string | null } | null;
+  giftCards?: { code: string }[];
+  codes?: string[];
 };
 
 export type GiftCardBatchSnapshot = {
@@ -159,8 +161,11 @@ function purchaserDisplayName(
 }
 
 export function serializeAdminBoardBatch(batch: AdminBoardBatchRow) {
+  const { giftCards, ...rest } = batch;
+  const codes = rest.codes ?? giftCards?.map((card) => card.code) ?? [];
   return {
-    ...batch,
+    ...rest,
+    codes,
     amountAmd: readBatchAmount(batch),
     amountCents: readBatchAmount(batch),
   };

@@ -21,6 +21,7 @@ export type AdminGiftCardBatchRow = {
   createdAt: string;
   purchaser: { email: string; name: string | null } | null;
   recipient: { email: string; name: string | null } | null;
+  codes?: readonly string[];
 };
 
 export type AdminGiftCardRow = {

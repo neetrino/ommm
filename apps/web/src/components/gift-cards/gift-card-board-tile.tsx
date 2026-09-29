@@ -42,6 +42,7 @@ type GiftCardBoardTileProps = {
   statusLabel: string;
   imageAlt: string;
   code?: string | null;
+  codes?: readonly string[];
   details: readonly GiftCardBoardDetail[];
   openAriaLabel?: string;
   onOpen?: () => void;
@@ -60,6 +61,7 @@ export function GiftCardBoardTile({
   statusLabel,
   imageAlt,
   code,
+  codes,
   details = [],
   openAriaLabel,
   onOpen,
@@ -108,7 +110,7 @@ export function GiftCardBoardTile({
       <div className="p-4 pb-3">
         <div className="overflow-hidden rounded-[20px] border border-white/90 bg-white shadow-[0_16px_36px_-18px_rgba(45,40,35,0.32)]">
           <div className="relative aspect-[1.62/1] w-full bg-gradient-to-br from-sand-50 via-paper to-mint-50">
-            <GiftCardFace code={code} alt={imageAlt} className="absolute inset-0" />
+            <GiftCardFace code={code} codes={codes} alt={imageAlt} className="absolute inset-0" />
             {imageBadge ? (
               <span
                 className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] shadow-sm ${imageBadge.className ?? "bg-white/92 text-sage-800"}`}

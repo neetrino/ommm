@@ -38,6 +38,7 @@ export function AdminGiftCardBoardCard({
       status={card.status}
       statusLabel={t(`statusValues.${card.status}`)}
       imageAlt={t("cardImageAlt")}
+      codes={card.codes}
       openAriaLabel={t("openCardAria", {
         amount: formatAmdFromCents(card.amountAmd, locale),
       })}
