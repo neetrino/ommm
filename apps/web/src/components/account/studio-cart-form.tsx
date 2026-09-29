@@ -4,11 +4,17 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GiftOptionSelect } from "@/components/account/custom-gift-option-fields";
 import { GIFT_SOFT_FIELD_CARD_CLASS } from "@/components/account/gift-recipient-picker";
+import {
+  packageMatchesClassType,
+  plansForClassType,
+  type CartPlanOption,
+} from "@/components/account/studio-cart-class-plans";
 import { OmmButton } from "@/components/ui/omm-button";
 import type { OmmSelectOption } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 
-type PlanOption = { id: string; name: string; priceCents: number };
+type PlanOption = CartPlanOption & { priceCents: number };
+type ClassTypeOption = { id: string; name: string };
 type SessionOption = {
   id: string;
   title: string | null;
@@ -33,6 +39,7 @@ export function StudioCartForm() {
         title={t("cartTitle")}
         hint={t("cartHint")}
         skipLabel={t("cartSkip")}
+        classTypeLabel={t("cartClassType")}
         packageLabel={t("cartPackage")}
         sessionLabel={t("cartSession")}
         barLabel={t("cartBar")}
@@ -45,8 +52,10 @@ export function StudioCartForm() {
 
 function useStudioCartState() {
   const [plans, setPlans] = useState<PlanOption[]>([]);
+  const [classTypes, setClassTypes] = useState<ClassTypeOption[]>([]);
   const [sessions, setSessions] = useState<SessionOption[]>([]);
   const [bar, setBar] = useState<BarOption[]>([]);
+  const [classTypeId, setClassTypeId] = useState("");
   const [packagePlanId, setPackagePlanId] = useState("");
   const [sessionId, setSessionId] = useState("");
   const [barProductId, setBarProductId] = useState("");
@@ -54,18 +63,25 @@ function useStudioCartState() {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    void loadCartOptions(setPlans, setSessions, setBar);
+    void loadCartOptions(setPlans, setClassTypes, setSessions, setBar);
   }, []);
+  function chooseClassType(next: string) {
+    setClassTypeId(next);
+    setPackagePlanId((current) => (packageMatchesClassType(plans, current, next) ? current : ""));
+  }
   return {
     plans,
+    classTypes,
     sessions,
     bar,
+    classTypeId,
     packagePlanId,
     sessionId,
     barProductId,
     useGiftCredits,
     notice,
     error,
+    chooseClassType,
     setPackagePlanId,
     setSessionId,
     setBarProductId,
@@ -84,6 +100,7 @@ function StudioCartBody({
   title,
   hint,
   skipLabel,
+  classTypeLabel,
   packageLabel,
   sessionLabel,
   barLabel,
@@ -93,6 +110,7 @@ function StudioCartBody({
   title: string;
   hint: string;
   skipLabel: string;
+  classTypeLabel: string;
   packageLabel: string;
   sessionLabel: string;
   barLabel: string;
@@ -101,26 +119,17 @@ function StudioCartBody({
   return (
     <div className="space-y-4 px-5 py-7 sm:px-8 sm:py-8">
       <header>
-        <h2 className="font-serif text-2xl font-normal leading-tight tracking-tight text-sage-900">
-          {title}
-        </h2>
+        <h2 className="font-serif text-2xl font-normal leading-tight tracking-tight text-sage-900">{title}</h2>
         <p className="mt-1.5 max-w-lg text-sm leading-6 text-sage-500">{hint}</p>
       </header>
       <div className={`${GIFT_SOFT_FIELD_CARD_CLASS} grid gap-4`}>
         <CartChoices
-          plans={cart.plans}
-          sessions={cart.sessions}
-          bar={cart.bar}
-          packagePlanId={cart.packagePlanId}
-          sessionId={cart.sessionId}
-          barProductId={cart.barProductId}
+          cart={cart}
           skipLabel={skipLabel}
+          classTypeLabel={classTypeLabel}
           packageLabel={packageLabel}
           sessionLabel={sessionLabel}
           barLabel={barLabel}
-          onPackage={cart.setPackagePlanId}
-          onSession={cart.setSessionId}
-          onBar={cart.setBarProductId}
         />
         <GiftCreditToggle checked={cart.useGiftCredits} label={giftLabel} onChange={cart.setUseGiftCredits} />
       </div>
@@ -141,25 +150,20 @@ function cartLabels(t: (key: string) => string) {
 }
 
 function CartChoices(props: {
-  plans: PlanOption[];
-  sessions: SessionOption[];
-  bar: BarOption[];
-  packagePlanId: string;
-  sessionId: string;
-  barProductId: string;
+  cart: StudioCartState;
   skipLabel: string;
+  classTypeLabel: string;
   packageLabel: string;
   sessionLabel: string;
   barLabel: string;
-  onPackage: (value: string) => void;
-  onSession: (value: string) => void;
-  onBar: (value: string) => void;
 }) {
+  const packages = plansForClassType(props.cart.plans, props.cart.classTypeId);
   return (
     <>
-      <GiftOptionSelect label={props.packageLabel} value={props.packagePlanId} disabled={false} options={namedOptions(props.skipLabel, props.plans)} onChange={props.onPackage} />
-      <GiftOptionSelect label={props.sessionLabel} value={props.sessionId} disabled={false} options={sessionOptions(props.skipLabel, props.sessions)} onChange={props.onSession} />
-      <GiftOptionSelect label={props.barLabel} value={props.barProductId} disabled={false} options={namedOptions(props.skipLabel, props.bar)} onChange={props.onBar} />
+      <GiftOptionSelect label={props.classTypeLabel} value={props.cart.classTypeId} disabled={false} options={namedOptions(props.skipLabel, props.cart.classTypes)} onChange={props.cart.chooseClassType} />
+      <GiftOptionSelect label={props.packageLabel} value={props.cart.packagePlanId} disabled={props.cart.classTypeId === ""} options={namedOptions(props.skipLabel, packages)} onChange={props.cart.setPackagePlanId} />
+      <GiftOptionSelect label={props.sessionLabel} value={props.cart.sessionId} disabled={false} options={sessionOptions(props.skipLabel, props.cart.sessions)} onChange={props.cart.setSessionId} />
+      <GiftOptionSelect label={props.barLabel} value={props.cart.barProductId} disabled={false} options={namedOptions(props.skipLabel, props.cart.bar)} onChange={props.cart.setBarProductId} />
     </>
   );
 }
@@ -245,15 +249,18 @@ function sessionOptions(skipLabel: string, sessions: readonly SessionOption[]): 
 
 async function loadCartOptions(
   setPlans: (rows: PlanOption[]) => void,
+  setClassTypes: (rows: ClassTypeOption[]) => void,
   setSessions: (rows: SessionOption[]) => void,
   setBar: (rows: BarOption[]) => void,
 ): Promise<void> {
-  const [plans, sessions, bar] = await Promise.all([
+  const [plans, classTypes, sessions, bar] = await Promise.all([
     apiFetch<PlanOption[]>("/packages/plans").catch(() => []),
+    apiFetch<ClassTypeOption[]>("/classes/types").catch(() => []),
     apiFetch<SessionOption[]>("/classes/sessions").catch(() => []),
     apiFetch<BarOption[]>("/bar/products").catch(() => []),
   ]);
   setPlans(plans);
+  setClassTypes(classTypes);
   setSessions(sessions);
   setBar(bar);
 }

@@ -1209,6 +1209,7 @@
       "cartTitle": "Studio checkout",
       "cartHint": "Package, class, and bar in one payment. A class card covers the class. Money credit covers the rest.",
       "cartSkip": "Not included",
+      "cartClassType": "Class type",
       "cartPackage": "Package",
       "cartSession": "Class",
       "cartBar": "Bar",
