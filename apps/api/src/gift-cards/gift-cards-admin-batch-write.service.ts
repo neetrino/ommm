@@ -6,7 +6,6 @@ import {
 import { GiftCardStatus, GiftCardType } from '@prisma/client';
 import type { Express } from 'express';
 import { AuditService } from '../audit/audit.service';
-import { utcToStudioCalendarDate } from '../common/studio-timezone';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
@@ -14,9 +13,8 @@ import {
   buildMintedGiftCardRows,
   issueLedgerRows,
   resolveAdminGiftShape,
-  readGiftValidityMonths,
-  resolveIssuedExpiresAt,
 } from './gift-card-issue';
+import { defaultGiftCardExpiresAt } from './gift-card-policy';
 import { GiftCardsImageService } from './gift-cards-image.service';
 import {
   type GiftCardBatchSnapshot,
@@ -45,17 +43,6 @@ export class GiftCardsAdminBatchWriteService {
       classQuantity: dto.classQuantity,
     });
     const amountAmd = shape.amountAmd;
-    const expiresAt =
-      dto.expiresAt !== undefined ? new Date(dto.expiresAt) : undefined;
-    if (expiresAt && Number.isNaN(expiresAt.getTime())) {
-      throw new BadRequestException('Invalid expiresAt date');
-    }
-    if (
-      expiresAt &&
-      utcToStudioCalendarDate(expiresAt) < utcToStudioCalendarDate(new Date())
-    ) {
-      throw new BadRequestException('expiresAt cannot be in the past');
-    }
     if (!Number.isInteger(dto.quantity) || dto.quantity < 1) {
       throw new BadRequestException('quantity must be a positive integer');
     }
@@ -80,8 +67,7 @@ export class GiftCardsAdminBatchWriteService {
         : null;
     const imageUrl = uploadedImageUrl ?? dto.imageUrl ?? null;
 
-    const validityMonths = await readGiftValidityMonths(this.prisma);
-    const issuedExpiresAt = resolveIssuedExpiresAt(expiresAt, new Date(), validityMonths);
+    const issuedExpiresAt = defaultGiftCardExpiresAt(new Date());
     try {
       const batch = await this.prisma.$transaction(async (tx) => {
         const created = await tx.giftCardBatch.create({

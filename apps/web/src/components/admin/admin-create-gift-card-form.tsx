@@ -15,7 +15,6 @@ import {
   isAcceptedGiftCardImageType,
 } from "@/components/admin/admin-create-gift-card-form.helpers";
 import type { AdminCreateGiftCardFormProps } from "@/components/admin/admin-create-gift-card-form.types";
-import { useDefaultGiftExpiry } from "@/components/admin/use-default-gift-expiry";
 import { OmmButton } from "@/components/ui/omm-button";
 import { FormErrorBanner } from "@/components/ui/form-validation";
 import type { DropdownOption } from "@/components/ui/dropdown-select";
@@ -56,7 +55,6 @@ export function AdminCreateGiftCardForm({
   const [recipientId, setRecipientId] = useState("");
   const [message, setMessage] = useState(initialValues?.message ?? "");
   const [expiresAt, setExpiresAt] = useState(initialValues?.expiresAt ?? "");
-  useDefaultGiftExpiry(mode, initialValues?.expiresAt, setExpiresAt);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -200,9 +198,6 @@ export function AdminCreateGiftCardForm({
       }
       if (message.trim().length > 0) {
         formData.append("message", message.trim());
-      }
-      if (expiresAt.trim().length > 0) {
-        formData.append("expiresAt", expiresAt.trim());
       }
       if (imageFile !== null) {
         formData.append("image", imageFile);
