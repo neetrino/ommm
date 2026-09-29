@@ -3572,6 +3572,8 @@
       "placedFilterPurchased": "Purchased",
       "placedFilterGifted": "Gifted",
       "placedBuyer": "Buyer",
+      "placedTotalAmount": "Total sold",
+      "placedTotalCount": "{count, plural, one {# gift card} other {# gift cards}}",
       "createTitle": "Create gift card",
       "editTitle": "Edit gift card",
       "boardEditButton": "Edit",

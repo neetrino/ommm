@@ -3565,6 +3565,8 @@
       "placedFilterPurchased": "Գնված",
       "placedFilterGifted": "Նվիրված",
       "placedBuyer": "Գնորդ",
+      "placedTotalAmount": "Ընդհանուր վաճառք",
+      "placedTotalCount": "{count} նվեր քարտ",
       "createTitle": "Ստեղծել նվեր քարտ",
       "editTitle": "Խմբագրել նվեր քարտը",
       "boardEditButton": "Խմբագրել",

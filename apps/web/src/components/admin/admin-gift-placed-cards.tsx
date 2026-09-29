@@ -2,6 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import {
+  AdminGiftPlacedCardsTotal,
+  placedCardsSalesTotal,
+} from "@/components/admin/admin-gift-placed-cards-total";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ADMIN_PAGE_HERO_PRIMARY_ACTION_BUTTON_CLASS } from "@/components/admin/admin-page-hero-action-button";
 import {
@@ -71,6 +75,7 @@ export function AdminGiftPlacedCardsPage({ cards }: AdminGiftPlacedCardsPageProp
   const [kinds, setKinds] = useState("");
   const [search, setSearch] = useState("");
   const visible = filterPlacedCards(cards, kinds, search, locale);
+  const sales = placedCardsSalesTotal(visible);
 
   return (
     <>
@@ -86,6 +91,11 @@ export function AdminGiftPlacedCardsPage({ cards }: AdminGiftPlacedCardsPageProp
             onSearchChange={setSearch}
           />
         }
+      />
+      <AdminGiftPlacedCardsTotal
+        locale={locale}
+        totalAmountCents={sales.totalAmountCents}
+        totalCount={sales.totalCount}
       />
       <div className="mt-4">
         <PlacedCardsGrid cards={visible} locale={locale} empty={t("placedEmpty")} />
