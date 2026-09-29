@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { BookingPackageSelectCard } from "@/components/account/booking-package-select-card";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
+import { STUDIO_TIMEZONE } from "@/lib/studio-timezone";
 import type { EligibleBookingPackage } from "@/lib/eligible-booking-package";
 
 type BookingPackageSelectListProps = {
@@ -23,6 +24,7 @@ function formatExpiryLabel(locale: string, isoDate: string, fallback: string): s
     year: "numeric",
     month: "short",
     day: "numeric",
+    timeZone: STUDIO_TIMEZONE,
   }).format(date);
 }
 

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { memberChrome } from "@/components/account/member-chrome";
+import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 export type GiftCardActivityRow = {
@@ -69,9 +70,6 @@ function movementLabel(row: GiftCardActivityRow, locale: string): string {
 }
 
 function formatWhen(iso: string, locale: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return iso;
-  }
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
+  const formatted = formatDateTimeForUi(iso, locale);
+  return formatted.length > 0 ? formatted : iso;
 }
